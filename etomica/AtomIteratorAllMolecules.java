@@ -9,7 +9,8 @@ package etomica;
  * @since 02.02.16
  */
 
-public class AtomIteratorAllMolecules extends AtomIteratorAdapter {
+public class AtomIteratorAllMolecules extends AtomIteratorAdapter 
+            implements AtomIteratorPhaseDependent, AtomsetIteratorPhaseDependent {
 
     public AtomIteratorAllMolecules() {
         super(new AtomIteratorTree(2));

@@ -131,7 +131,7 @@ package etomica;
         
         boolean pauseForInput = true;
         
-        AtomListRestorable list = new AtomListRestorable(new AtomIteratorMolecule(phase));
+        AtomListRestorable list = new AtomListRestorable(new AtomIteratorAllMolecules(phase));
         AtomIteratorListSimple iterator = new AtomIteratorListSimple(list);
         
         System.out.println("Original list");

@@ -25,8 +25,16 @@ import etomica.lattice.SimpleLattice;
  * Returns iterates formed from all molecule pairs of a single species.
  */
 
-public class ApiIntragroupCellAA implements AtomsetIteratorPhaseDependent {
+public class ApiIntraspeciesAACell implements AtomsetIteratorPhaseDependent {
 
+    /**
+     * @param D the dimension of the space of the simulation
+     * @param species the species whose molecules form the pair iterates
+     */
+    public ApiIntraspeciesAACell(int D, Species species) {
+        this(D, new Species[] {species, species});
+    }
+    
 	/**
      * Constructor makes iterator that must have phase specified and then be
      * reset() before iteration.
@@ -38,7 +46,7 @@ public class ApiIntragroupCellAA implements AtomsetIteratorPhaseDependent {
      *            length > 0 array with the (single) species whose molecules
      *            are interacting.  Only the first element of array is relevant.
      */
-	public ApiIntragroupCellAA(int D, Species[] species) {
+	public ApiIntraspeciesAACell(int D, Species[] species) {
         cellIterator = new SimpleLattice.Iterator(D);
         neighborIterator = new CellLattice.NeighborIterator(D);
         neighborIterator.setDirection(IteratorDirective.UP);

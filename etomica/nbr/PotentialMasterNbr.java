@@ -12,14 +12,12 @@ import etomica.AtomIteratorListSimple;
 import etomica.AtomIteratorSinglet;
 import etomica.AtomSequencerFactory;
 import etomica.AtomTreeNodeGroup;
-import etomica.AtomsetIterator;
 import etomica.AtomsetIteratorFiltered;
 import etomica.AtomsetIteratorMolecule;
 import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Potential;
 import etomica.PotentialCalculation;
-import etomica.PotentialGroup;
 import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.Space;
@@ -131,21 +129,6 @@ public class PotentialMasterNbr extends PotentialMaster {
 		}
 	}
 
-	public void addPotentialNotify(Potential potential) {
-		if(potential instanceof PotentialGroup) return;
-		else {
-			//TODO add to list of concrete potentials
-		}
-	}
-
-    public void removePotentialNotify(Potential potential) {
-		if(potential instanceof PotentialGroup) return;
-		else {
-			//TODO remove from list of concrete potentials
-		}
-	}
-	
-
 	//TODO update nbr radius for all criteria as more are added
     /**
      * Identifies given potential to apply to the given set of species,
@@ -157,8 +140,7 @@ public class PotentialMasterNbr extends PotentialMaster {
 		    NeighborCriterion criterion = new NeighborCriterionSimple(space,potential.getRange(),2.0*potential.getRange());
 	    	setSpecies(potential, species, criterion);
     	} else {
-    	   	AtomsetIterator iterator = new AtomsetIteratorMolecule(species,iteratorFactory);
-    	    addPotential(potential, iterator);
+    	   	super.setSpecies(potential, species);
     	}
     }
     
@@ -170,8 +152,8 @@ public class PotentialMasterNbr extends PotentialMaster {
     	if (species.length <= 1 || potential.nBody() != species.length) {
     		throw new IllegalArgumentException("Illegal species length");
     	}
-    	AtomsetIterator iterator = new AtomsetIteratorMolecule(species,iteratorFactory);
-    	iterator = new AtomsetIteratorFiltered(iterator, criterion);
+        AtomsetIteratorMolecule iterator = iteratorFactory.makeMoleculeIterator(species);
+        iterator = new AtomsetIteratorFiltered(iterator, criterion);
 		neighborManager.addCriterion(criterion);
     	for(int i=0; i<species.length; i++) {
     		species[i].moleculeFactory().getType().getNbrManagerAgent().addCriterion(criterion);//addCriterion method will prevent multiple additions of same criterion, if species are same

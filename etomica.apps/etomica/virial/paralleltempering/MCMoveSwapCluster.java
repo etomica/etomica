@@ -12,7 +12,7 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
 	private final IteratorDirective iteratorDirective = new IteratorDirective();
 	private AtomIteratorListSimple iterator1 = new AtomIteratorListSimple();
 	private AtomIteratorListSimple iterator2 = new AtomIteratorListSimple();
-	private AtomIteratorMolecule affectedAtomIterator = new AtomIteratorMolecule();
+	private AtomIteratorAllMolecules affectedAtomIterator = new AtomIteratorAllMolecules();
 	private Space.Vector r;
 	private PhaseCluster phase1, phase2;
 	private double buOld1, buOld2, buNew1, buNew2 = Double.NaN;

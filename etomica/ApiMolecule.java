@@ -2,45 +2,39 @@
  * History
  * Created on Aug 13, 2004 by kofke
  */
-package etomica.nbr.cell;
+package etomica;
 
-import etomica.Atom;
-import etomica.AtomsetIteratorPhaseDependent;
-import etomica.AtomsetIteratorTargetable;
-import etomica.Phase;
+import etomica.IteratorDirective.Direction;
 import etomica.action.AtomsetAction;
 
 /**
  * Adapater class that wraps two atomPair iterators, one suitable for
- * iterating over all molecule pairs in a phase, and the other suitable for iterating
- * over all molecule pairs formed with a target molecule.  Appropriate iterator
- * is selected based on argument given to setTarget method.  If method is
- * not called, the all-pair iterator is used by default.<br>
+ * iterating over all molecule pairs in a phase (AA), and the other suitable for iterating
+ * over all molecule pairs formed with a target molecule (1A).  Appropriate iterator
+ * is selected based on argument given to setTarget method.  If setTarget method is
+ * never called, the all-pair iterator is used by default.<br>
  * This class may be set up to do inter- or intra-species iteration, depending
  * on choice of inner iterators given at construction.
  */
-public class ApiCellAdapter implements AtomsetIteratorTargetable,
-                                                 AtomsetIteratorPhaseDependent {
+public class ApiMolecule implements AtomsetIteratorMolecule {
 
     /**
      * @param api1A iterator for all pairs formed with a target molecule
      * @param apiAA iterator for all pairs in the phase
      */
-    public ApiCellAdapter(AtomsetIteratorPhaseDependent api1A,
+    public ApiMolecule(AtomsetIteratorMolecule api1A,
                           AtomsetIteratorPhaseDependent apiAA) {
 		this.api1A = api1A;
         this.apiAA = apiAA;
         iterator = apiAA;
 	}
     
-    
-
     public void setTarget(Atom[] targetAtoms) {
         if(targetAtoms[0] == null) {
             iterator = apiAA;
         } else {
             iterator = api1A;
-            ((AtomsetIteratorTargetable)api1A).setTarget(targetAtoms);
+            api1A.setTarget(targetAtoms);
         }
         iterator.setPhase(phase);
     }
@@ -49,7 +43,10 @@ public class ApiCellAdapter implements AtomsetIteratorTargetable,
         this.phase = phase;
         iterator.setPhase(phase);
     }
-    
+       
+    public void setDirection(Direction direction) {
+        api1A.setDirection(direction);
+    }
 	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#contains(etomica.Atom)
 	 */
@@ -108,7 +105,8 @@ public class ApiCellAdapter implements AtomsetIteratorTargetable,
 	}
     
     private AtomsetIteratorPhaseDependent iterator;
-    private final AtomsetIteratorPhaseDependent api1A, apiAA;
+    private final AtomsetIteratorMolecule api1A; 
+    private final AtomsetIteratorPhaseDependent apiAA;
     private Phase phase;
 
 }

@@ -4,7 +4,7 @@
  */
 package etomica.action;
 
-import etomica.AtomIteratorMolecule;
+import etomica.AtomIteratorAllMolecules;
 import etomica.Phase;
 import etomica.Space;
 
@@ -94,7 +94,7 @@ public class PhaseInflateAnisotropic extends PhaseActionAdapter implements
 		scale.E(temp);
 	}
 
-	private AtomIteratorMolecule moleculeIterator;
+	private AtomIteratorAllMolecules moleculeIterator;
 
 	protected Space.Vector scale;
 

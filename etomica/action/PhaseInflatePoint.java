@@ -7,7 +7,7 @@ import etomica.Atom;
 import etomica.AtomFactoryMono;
 import etomica.AtomIterator;
 import etomica.AtomIteratorList;
-import etomica.AtomIteratorMolecule;
+import etomica.AtomIteratorAllMolecules;
 import etomica.AtomList;
 import etomica.AtomSequencerFactory;
 import etomica.AtomTreeNodeGroup;
@@ -44,7 +44,7 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
     private double lnJTot;
     private double deformationScale = 1.0;
     private Simulation simulation;
-    private AtomIteratorMolecule moleculeIterator;
+    private AtomIteratorAllMolecules moleculeIterator;
 
     public PhaseInflatePoint() {
         this(Simulation.instance);
@@ -55,7 +55,7 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
 //        lattice = new MyLattice(sim, 10,new VelocityField(2,20), 0.1);
         lattice = new MyLattice(sim,12,new VelocityField(2,20), 0.002);
 //        setDeformationScale(0.01);
-        moleculeIterator = new AtomIteratorMolecule();
+        moleculeIterator = new AtomIteratorAllMolecules();
     }
     public double lastLnJacobian() {return lnJTot;}
     

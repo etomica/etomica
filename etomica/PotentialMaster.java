@@ -1,7 +1,8 @@
 package etomica;
 
+
 /**
- * Master potential that oversees all other potentials in the Hamiltonian.
+ * Manager of all potentials in simulation.
  * Most calls to compute the energy or other potential calculations begin
  * with the calculate method of this class.  It then passes the calculation 
  * on to the contained potentials.
@@ -17,14 +18,14 @@ package etomica;
   * making a pair from them.
   * 08/31/04 (group) complete overhaul with revamping of potentials, etc.
   */
-public class PotentialMaster extends PotentialGroup {
+public class PotentialMaster {
     
     public PotentialMaster(Space space) {
         this(space,IteratorFactorySimple.INSTANCE);
     } 
     
     public PotentialMaster(Space space, IteratorFactory iteratorFactory) {
-        super(-1, space);
+        this.space = space;
         this.iteratorFactory = iteratorFactory;
     }
     
@@ -37,14 +38,6 @@ public class PotentialMaster extends PotentialGroup {
 		return lrcMaster;
 	 }
 
-     /**
-      * Inherited from PotentialGroup, but not used by PotentialMaster class and
-      * throws RuntimeException if called.
-      */
-	 public void calculate(AtomsetIterator iterator, IteratorDirective id, PotentialCalculation pc) {
-	 	throw new RuntimeException("Method inappropriate for PotentialMaster class");
-	 }
-	 
 	//should build on this to do more filtering of potentials based on directive
      /**
       * Performs the given PotentialCalculation on the atoms of the given Phase.
@@ -60,11 +53,11 @@ public class PotentialMaster extends PotentialGroup {
     	mostRecentPhase = phase;
     	for(PotentialLinker link=first; link!=null; link=link.next) {
 			if(phaseChanged) {
-				((AtomsetIteratorPhaseDependent)link.iterator).setPhase(phase);
+				link.iterator.setPhase(phase);
 				link.potential.setPhase(phase);
 			}
-			((AtomsetIteratorTargetable)link.iterator).setTarget(targetAtoms);
-			((AtomsetIteratorDirectable)link.iterator).setDirection(id.direction());
+			link.iterator.setTarget(targetAtoms);
+			link.iterator.setDirection(id.direction());
         	pc.doCalculation(link.iterator, id, link.potential);
         }//end for
     }//end calculate
@@ -86,21 +79,87 @@ public class PotentialMaster extends PotentialGroup {
     	if (species.length == 0 || potential.nBody() != species.length) {
     		throw new IllegalArgumentException("Illegal species length");
     	}
-    	AtomsetIteratorMolecule iterator = new AtomsetIteratorMolecule(species,iteratorFactory);
+    	AtomsetIteratorMolecule iterator = iteratorFactory.makeMoleculeIterator(species);
     	addPotential(potential, iterator);
     }
+    
+    /**
+     * Adds the given potential to this group, but should not be called directly.  Instead,
+     * this method is invoked by the setParentPotential method (or more likely, 
+     * in the constructor) of the given potential.  
+     */
+    protected synchronized void addPotential(Potential potential, AtomsetIteratorMolecule iterator) {
+        //the order of the given potential should be consistent with the order of the iterator
+        if(potential.nBody() != iterator.nBody()) {
+            throw new RuntimeException("Error: adding to PotentialGroup a potential and iterator that are incompatible");
+        }
+        //Set up to evaluate zero-body potentials last, since they may need other potentials
+        //to be configured for calculation first
+        if(((potential instanceof Potential0) || (potential instanceof PotentialGroupLrc)) && last != null) {//put zero-body potential at end of list
+            last.next = new PotentialLinker(potential, iterator, null);
+            last = last.next;
+        } else {//put other potentials at beginning of list
+            first = new PotentialLinker(potential, iterator, first);
+            if(last == null) last = first;
+        }
+    }
+
+    /**
+     * Removes given potential from the group.  No error is generated if
+     * potential is not in group.
+     */
+    public synchronized void removePotential(Potential potential) {
+        PotentialLinker previous = null;
+        for(PotentialLinker link=first; link!=null; link=link.next) {
+            if(link.potential == potential) {//found it
+                if(previous == null) first = link.next;  //it's the first one
+                else previous.next = link.next;          //it's not the first one
+                if(link == last) last = previous; //removing last; this works also if last was also first (then removing only, and set last to null)
+                return;
+            }//end if
+            previous = link;
+        }//end for
+    }//end removePotential
+
  
+    /**
+     * @return Returns enabled flag.
+     */
+    public boolean isEnabled() {
+        return enabled;
+    }
+    /**
+     * Permits enabling/disabling of all potentials.  Default is enabled (true).
+     * @param enabled flags if potentials are enabled.
+     */
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
     /**
      * Performs no action.
      */
-    public void setSimulation(Simulation sim) {
-    }
+    public void setSimulation(Simulation sim) {}
     
     public AtomSequencerFactory sequencerFactory() {return iteratorFactory.moleculeSequencerFactory();}
 
 	protected PotentialGroupLrc lrcMaster;
 	protected Phase mostRecentPhase = null;
 	protected IteratorFactory iteratorFactory;
-	
+
+    protected PotentialLinker first, last;
+    protected boolean enabled = true;
+    protected final Space space;
+
+    protected static class PotentialLinker implements java.io.Serializable {
+        protected final Potential potential;
+        protected final AtomsetIteratorMolecule iterator;
+        protected PotentialLinker next;
+        //Constructors
+        public PotentialLinker(Potential a, AtomsetIteratorMolecule i, PotentialLinker l) {
+            potential = a;
+            iterator = i;
+            next = l;
+        }
+    }//end of PotentialLinker
 }//end of PotentialMaster
     

@@ -22,21 +22,8 @@ public abstract class Potential {
 	private final int nBody;
 	private Potential0Lrc p0Lrc;
 	protected final Space space;
-	PotentialGroup parentGroup;
     private String name;
 
-	/**
-	 * Constructor for use only by PotentialMaster subclass.
-	 * @param sim Simulation instance in which potential is used.
-	 */
-	Potential(Simulation sim) {
-        setName(NameMaker.makeName(this.getClass()));
-		space = sim.space;
-		nBody = 0;
-		potentialTruncation = PotentialTruncation.NULL;
-		if(!(this instanceof PotentialMaster)) throw new RuntimeException("Invalid attempt to instantiate potential");
-	}
-		
 	/**
 	 * Constructor with default potential truncation given
 	 * as PotentialTruncation. NULL.
@@ -60,6 +47,7 @@ public abstract class Potential {
         this.nBody = nBody;
         this.potentialTruncation = potentialTruncation;
         this.space = space;
+        setName(NameMaker.makeName(this.getClass()));
     }
     
     public double getRange() {
@@ -72,14 +60,6 @@ public abstract class Potential {
         
     public final int nBody() {return nBody;}
     
-    
-    
-	protected PotentialGroup getParentGroup() {
-		return parentGroup;
-	}
-	protected void setParentGroup(PotentialGroup parentGroup) {
-		this.parentGroup = parentGroup;
-	}
  	/**
 	 * Accessor method for potential cutoff implementation.
 	 */

@@ -78,7 +78,7 @@ public class MCMoveVolume extends MCMove {
     
     public AtomIterator affectedAtoms(Phase phase) {
         if(this.phases[0] != phase) return AtomIterator.NULL;
-        return new AtomIteratorMolecule(phase);
+        return new AtomIteratorAllMolecules(phase);
     }
 
     public void setPressure(double p) {pressure = p;}

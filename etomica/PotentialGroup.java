@@ -34,7 +34,6 @@ public class PotentialGroup extends Potential {
      */
     public PotentialGroup(int nBody, Space space, PotentialTruncation truncation) {
         super(nBody, space, truncation);
-        if(nBody < 0 && !(this instanceof PotentialMaster)) throw new IllegalArgumentException("Cannot instantiate negative-body potential");
     }
 
 	/**
@@ -58,28 +57,16 @@ public class PotentialGroup extends Potential {
     //this method needs given iterator to implement AtomsetDirectable, but PotentialMaster doesn't.
     //need to reconcile differences
 	protected synchronized void addPotential(Potential potential, AtomsetIterator iterator) {
-		if(potential == null || iterator == null) {
-			throw new NullPointerException(); 
-		}
 		//the order of the given potential should be consistent with the order of the iterator
 		if(potential.nBody() != iterator.nBody()) {
 			throw new RuntimeException("Error: adding to PotentialGroup a potential and iterator that are incompatible");
 		}
 		//the given iterator should expect a basis of atoms equal in number to the order of this potential
-/*		if(this.nBody() != ((AtomsetIteratorBasisDependent)iterator).basisSize()) {
+		if(this.nBody() != ((AtomsetIteratorBasisDependent)iterator).basisSize()) {
 			throw new RuntimeException("Error: adding an iterator that requires a basis size different from the nBody of the containing potential");
-		}*/
-		//Set up to evaluate zero-body potentials last, since they may need other potentials
-		//to be configured for calculation first
-		if(((potential instanceof Potential0) || (potential instanceof PotentialGroupLrc)) && last != null) {//put zero-body potential at end of list
-			last.next = makeLinker(potential, iterator, null);
-			last = last.next;
-		} else {//put other potentials at beginning of list
-			first = makeLinker(potential, iterator, first);
-			if(last == null) last = first;
 		}
-		potential.setParentGroup(this);
-//		addPotentialNotify(potential);
+		//put new potentials at beginning of list
+		first = new PotentialLinker(potential, iterator, first);
 	}
 	
 	//TODO this needs some work
@@ -99,18 +86,6 @@ public class PotentialGroup extends Potential {
 		return sum;
 	}
 	
-	/**
-	 * Returns a linker that is used to form linked list of potentials.  May be
-	 * overridden to permit use of specialized linkers that hold additional
-	 * information about the potential (this is done by SpeciesMaster).
-	 * @param p the potential
-	 * @param next the linker that is to follow the new one
-	 * @return PotentialLinker the new potential linker
-	 */
-	protected PotentialLinker makeLinker(Potential p, AtomsetIterator i, PotentialLinker next) {
-		return new PotentialLinker(p, i, next);
-	}
-
 	public double getRange() {
 		return Double.MAX_VALUE;
 	}
@@ -125,35 +100,12 @@ public class PotentialGroup extends Potential {
 			if(link.potential == potential) {//found it
 				if(previous == null) first = link.next;  //it's the first one
 				else previous.next = link.next;          //it's not the first one
-				if(link == last) last = previous; //removing last; this works also if last was also first (then removing only, and set last to null)
 				return;
 			}//end if
 			previous = link;
 		}//end for
-		potential.setParentGroup(null);
-//		removePotentialNotify(potential);
 	}//end removePotential
     
-//	public void addPotentialNotify(Potential potential) {
-//		if(parentGroup != null) {
-//			parentGroup.addPotentialNotify(potential);
-//		}
-////		else if(parentElement instanceof PotentialMaster) {//in case we make PotentialMaster not extend PotentialGroup
-////				((PotentialMaster)parentElement).addPotentialNotify(potential);
-////		}
-//		//else no notification is appropriate
-//	}
-	
-	
-//	public void removePotentialNotify(Potential potential) {
-//		if(parentElement instanceof PotentialGroup) {
-//			((PotentialGroup)parentElement).removePotentialNotify(potential);
-//		}
-//		else if(parentElement instanceof PotentialMaster) {//in case we make PotentialMaster not extend PotentialGroup
-//				((PotentialMaster)parentElement).removePotentialNotify(potential);
-//		}
-//		//else no notification is appropriate
-//	}
     /**
      * Performs the specified calculation over the iterates given by the iterator,
      * using the directive to set up the iterators for the sub-potentials of this group.
@@ -204,7 +156,7 @@ public class PotentialGroup extends Potential {
 		this.enabled = enabled;
 	}
 	
-	protected PotentialLinker first, last;
+	protected PotentialLinker first;
 	protected boolean enabled = true;
 	protected Phase phase;
 

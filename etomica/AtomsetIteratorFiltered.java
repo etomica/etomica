@@ -13,15 +13,14 @@ import etomica.action.AtomsetCount;
  * Wraps an AtomIterator and filters its iterates so that
  * only those meeting specified criteria are returned.
  */
-public class AtomsetIteratorFiltered implements AtomsetIterator, 
-				AtomsetIteratorPhaseDependent, AtomsetIteratorDirectable, AtomsetIteratorTargetable {
-
+public class AtomsetIteratorFiltered implements AtomsetIteratorMolecule {
 	/**
 	 * Default constructor that causes no atoms to be filtered.
 	 * Iterator will give all iterates of the given iterator
 	 * until another filter is specified.
 	 */
-	public AtomsetIteratorFiltered(AtomsetIterator iterator) {
+    //specific to AtomsetIteratorMolecule because used by PotentialMasterCell
+	public AtomsetIteratorFiltered(AtomsetIteratorMolecule iterator) {
 		this(iterator, AtomsetFilter.ACCEPT_ALL);
 	}
 	
@@ -31,7 +30,7 @@ public class AtomsetIteratorFiltered implements AtomsetIterator,
 	 * @param iterator
 	 * @param filter
 	 */
-	public AtomsetIteratorFiltered(AtomsetIterator iterator, AtomsetFilter filter) {
+	public AtomsetIteratorFiltered(AtomsetIteratorMolecule iterator, AtomsetFilter filter) {
 		this.iterator = iterator;
 		this.filter = filter;
 		nextAtoms = new Atom[iterator.nBody()];
@@ -140,16 +139,16 @@ public class AtomsetIteratorFiltered implements AtomsetIterator,
 	}
 	
 	public void setPhase(Phase phase) {
-		((AtomsetIteratorPhaseDependent)iterator).setPhase(phase);
+		iterator.setPhase(phase);
 	}
 	public void setDirection(Direction direction) {
-		((AtomsetIteratorDirectable)iterator).setDirection(direction);
+		iterator.setDirection(direction);
 	}
 	public void setTarget(Atom[] targetAtoms) {
-		((AtomsetIteratorTargetable)iterator).setTarget(targetAtoms);
+		iterator.setTarget(targetAtoms);
 	}
 
-	private final AtomsetIterator iterator;
+	private final AtomsetIteratorMolecule iterator;
 	private AtomsetFilter filter;
 	private Atom[] next;
 	private final Atom[] nextAtoms;

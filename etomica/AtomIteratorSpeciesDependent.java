@@ -10,7 +10,7 @@ package etomica;
  * iterates are necessarily phase-dependent too.
  */
 public interface AtomIteratorSpeciesDependent extends
-		AtomIteratorPhaseDependent {
+		AtomIteratorPhaseDependent, AtomsetIteratorSpeciesDependent {
 
 	public void setSpecies(Species[] species);
 }

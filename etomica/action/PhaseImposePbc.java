@@ -6,7 +6,7 @@ package etomica.action;
 
 import etomica.AtomIterator;
 import etomica.AtomIteratorLeafAtoms;
-import etomica.AtomIteratorMolecule;
+import etomica.AtomIteratorAllMolecules;
 import etomica.AtomIteratorPhaseDependent;
 import etomica.Integrator;
 import etomica.Phase;
@@ -109,7 +109,7 @@ public final class PhaseImposePbc extends PhaseActionAdapter implements
 	public void setApplyToMolecules(boolean applyToMolecules) {
 		this.applyToMolecules = applyToMolecules;
 		if (applyToMolecules)
-			iterator = new AtomIteratorMolecule(phase);
+			iterator = new AtomIteratorAllMolecules(phase);
 		else
 			iterator = new AtomIteratorLeafAtoms(phase);
 	}

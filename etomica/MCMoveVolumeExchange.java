@@ -25,8 +25,8 @@ public final class MCMoveVolumeExchange extends MCMove {
     private transient double uNew1 = Double.NaN;
     private transient double uNew2 = Double.NaN;
     private final double ROOT;
-    private final AtomIteratorMolecule phase1AtomIterator;
-    private final AtomIteratorMolecule phase2AtomIterator;
+    private final AtomIteratorAllMolecules phase1AtomIterator;
+    private final AtomIteratorAllMolecules phase2AtomIterator;
     
     private transient double hOld, v1Scale, v2Scale;
 
@@ -37,8 +37,8 @@ public final class MCMoveVolumeExchange extends MCMove {
         setStepSizeMax(Double.MAX_VALUE);
         setStepSizeMin(Double.MIN_VALUE);
         setStepSize(0.3);
-        phase1AtomIterator = new AtomIteratorMolecule();
-        phase2AtomIterator = new AtomIteratorMolecule();
+        phase1AtomIterator = new AtomIteratorAllMolecules();
+        phase2AtomIterator = new AtomIteratorAllMolecules();
         energyMeter.setIncludeLrc(false);
     }
     

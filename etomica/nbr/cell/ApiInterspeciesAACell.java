@@ -26,7 +26,7 @@ import etomica.lattice.SimpleLattice;
  * species1 in cellB, and species1 in cellA with species0 in cellB.
  */
 
-public class ApiIntergroupCellAA implements AtomsetIteratorPhaseDependent {
+public class ApiInterspeciesAACell implements AtomsetIteratorPhaseDependent {
 
 	/**
 	 * Constructor makes iterator that must have phase specified and then be 
@@ -35,7 +35,7 @@ public class ApiIntergroupCellAA implements AtomsetIteratorPhaseDependent {
      * @param D the dimension of the space of the simulation (used to construct cell iterators)
      * @param species length = 2 array with the (different) species whose molecules are interacting 
      */
-	public ApiIntergroupCellAA(int D, Species[] species) {
+	public ApiInterspeciesAACell(int D, Species[] species) {
         cellIterator = new SimpleLattice.Iterator(D);
         neighborIterator = new CellLattice.NeighborIterator(D);
         neighborIterator.setDirection(IteratorDirective.UP);

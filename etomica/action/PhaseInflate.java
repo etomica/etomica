@@ -4,7 +4,7 @@
  */
 package etomica.action;
 
-import etomica.AtomIteratorMolecule;
+import etomica.AtomIteratorAllMolecules;
 import etomica.Phase;
 
 /**
@@ -20,7 +20,7 @@ public final class PhaseInflate extends PhaseActionAdapter implements Undoable {
 	 */
 	public PhaseInflate() {
 		super("Inflate");
-		moleculeIterator = new AtomIteratorMolecule();
+		moleculeIterator = new AtomIteratorAllMolecules();
 		setScale(1.0);
 	}
 
@@ -84,7 +84,7 @@ public final class PhaseInflate extends PhaseActionAdapter implements Undoable {
 		setScale(1.0 / scale);
 	}
 
-	private AtomIteratorMolecule moleculeIterator;
+	private AtomIteratorAllMolecules moleculeIterator;
 
 	private double scale = 1.0;
 

@@ -1,7 +1,8 @@
 package etomica.nbr.cell;
 
+import etomica.ApiMolecule;
 import etomica.AtomSequencerFactory;
-import etomica.AtomsetIterator;
+import etomica.AtomsetIteratorMolecule;
 import etomica.AtomsetIteratorPhaseDependent;
 import etomica.IteratorFactory;
 import etomica.Species;
@@ -23,15 +24,16 @@ public class IteratorFactoryCell extends IteratorFactory {
     public AtomSequencerFactory interactionMoleculeSequencerFactory() {
         return AtomSequencerCell.FACTORY;
     }
-    public AtomsetIterator makeInterSpeciesPairIterator(Species[] species) {
-        AtomsetIteratorPhaseDependent api1A = null;//new ApiIntergroupCell1A(D, species);
-        AtomsetIteratorPhaseDependent apiAA = new ApiIntergroupCellAA(D, species);
-        return new ApiCellAdapter(api1A, apiAA);
+    public AtomsetIteratorMolecule makeInterSpeciesPairIterator(Species[] species) {
+        //TODO make the 1A iterators
+        AtomsetIteratorMolecule api1A = null;//new ApiIntergroupCell1A(D, species);
+        AtomsetIteratorPhaseDependent apiAA = new ApiInterspeciesAACell(D, species);
+        return new ApiMolecule(api1A, apiAA);
     }
-    public AtomsetIterator makeIntraSpeciesPairIterator(Species[] species) {
-        AtomsetIteratorPhaseDependent api1A = null;//new ApiIntragroupCell1A(D, species);
-        AtomsetIteratorPhaseDependent apiAA = new ApiIntragroupCellAA(D, species);
-        return new ApiCellAdapter(api1A, apiAA);
+    public AtomsetIteratorMolecule makeIntraSpeciesPairIterator(Species[] species) {
+        AtomsetIteratorMolecule api1A = null;//new ApiIntragroupCell1A(D, species);
+        AtomsetIteratorPhaseDependent apiAA = new ApiIntraspeciesAACell(D, species);
+        return new ApiMolecule(api1A, apiAA);
     }
     public AtomSequencerFactory moleculeSequencerFactory() {
         return AtomSequencerCell.FACTORY;

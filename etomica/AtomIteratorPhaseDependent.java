@@ -8,7 +8,7 @@ package etomica;
  * Interface indicating that an atom iterator can determine appropriate
  * atoms for iteration given an arbitrary phase.  
  */
-public interface AtomIteratorPhaseDependent extends AtomIterator {
+public interface AtomIteratorPhaseDependent extends AtomIterator, AtomsetIteratorPhaseDependent {
 
 	public void setPhase(Phase phase);
 	

@@ -186,9 +186,9 @@ public static class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap
 
 	private Integrator integrator1, integrator2;	
     private final IteratorDirective iteratorDirective = new IteratorDirective();
-	private AtomIteratorMolecule iterator1 = new AtomIteratorMolecule();
-	private AtomIteratorMolecule iterator2 = new AtomIteratorMolecule();
-	private AtomIteratorMolecule affectedAtomIterator = new AtomIteratorMolecule();
+	private AtomIteratorAllMolecules iterator1 = new AtomIteratorAllMolecules();
+	private AtomIteratorAllMolecules iterator2 = new AtomIteratorAllMolecules();
+	private AtomIteratorAllMolecules affectedAtomIterator = new AtomIteratorAllMolecules();
 	private Space.Vector r;
 	private double u1, u2, temp1, temp2, deltaU1;
 	private Phase phase1, phase2;

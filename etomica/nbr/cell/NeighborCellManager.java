@@ -7,7 +7,7 @@ package etomica.nbr.cell;
 import etomica.Atom;
 import etomica.AtomIteratorList;
 import etomica.AtomIteratorListSimple;
-import etomica.AtomIteratorMolecule;
+import etomica.AtomIteratorAllMolecules;
 import etomica.AtomIteratorPhaseDependent;
 import etomica.Default;
 import etomica.Integrator;
@@ -49,7 +49,7 @@ public class NeighborCellManager implements Integrator.IntervalListener {
         dimensions = new int[space.D()];
         for(int i=0; i<space.D(); i++) dimensions[i] = nCells;
         lattice = makeCellLattice(phase);
-        atomIterator = new AtomIteratorMolecule(phase);
+        atomIterator = new AtomIteratorAllMolecules(phase);
         setPriority(150);
         setUpdateInterval(1);
         addList(phase.speciesMaster.node.childAtomCount());//add occupant lists to cells for each species already present in phase
