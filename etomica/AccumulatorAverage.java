@@ -18,7 +18,7 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
 	public AccumulatorAverage() {
 		super();
 		setNData(0);
-		setBlockSize(blockSize);
+		setBlockSize(Default.BLOCK_SIZE);
 	}
 	
 	public void setBlockSize(int blockSize) {
