@@ -12,7 +12,12 @@ public class MeterPotentialEnergy extends simulate.Meter
  /**
   * Computes total potential energy for all atom pairs in phase
   */
-    public final double currentValue() {  
+    public final double currentValue() {
+      SpaceAtomPairIterator allIntra = phase.space.new AllSpeciesIntraPairs();
+      SpaceAtomPairIterator allInter = phase.space.new AllSpeciesInterPairs();
+      
+                        //could make special case for single species, monatomic
+      
       double pe = 0.0;
       for(Species s1=phase.firstSpecies(); s1!=null; s1=s1.getNextSpecies()) {
         Potential1 p1 = phase.potential1[s1.speciesIndex];

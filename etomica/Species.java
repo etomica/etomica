@@ -190,10 +190,6 @@ public abstract class Species extends Container {
   */
   public void setNMolecules(int n) {
     nMolecules = n;
-/*    molecule = new Molecule[nMolecules];    //this array is to be deprecated
-    for(int i=0; i<nMolecules; i++) {molecule[i] = makeMolecule();}
-    orderMolecules();
-*/
     if(nMolecules == 0) {
         firstMolecule = null;
         lastMolecule = null;
@@ -557,17 +553,17 @@ public abstract class Species extends Container {
   public final Molecule terminationMolecule() {
     return (lastMolecule == null) ? null : lastMolecule.getNextMolecule();
   }  
-  public final Atom firstAtom() { //return firstAtom;
+  public final SpaceAtom firstAtom() { //return firstAtom;
     return (firstMolecule == null) ? null : firstMolecule.firstAtom();
   }
-  public final Atom lastAtom() { //return lastAtom;
+  public final SpaceAtom lastAtom() { //return lastAtom;
     return (lastMolecule == null) ? null : lastMolecule.lastAtom();
   }
   
   /**
    * Used to terminate loops over atoms in species
    */
-  public final Atom terminationAtom() {
+  public final SpaceAtom terminationAtom() {
     Atom last = lastAtom();
     return (last == null) ? null : last.getNextAtom();
   }

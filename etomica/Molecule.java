@@ -21,24 +21,6 @@ import java.awt.Graphics;
 
 public class Molecule implements Serializable {
 
-  /**
-   * The total mass of the molecule; the sum of all atom masses (amu)
-   */
-  double mass;
-  
-  /**
-   * Collection of molecules used as a neighbor list.  Use is strongly
-   * discouraged as present neighbor-list structure is likely to change
-   * in future version
-   */
-  Vector neighbors;
-  
-  private final double[] r0 = new double[Space.D];
-  private final double[] r = new double[Space.D];
-  private final double[] dr = new double[Space.D];
-  final double[] p = new double[Space.D];  //maybe delete p and f some day
-  final double[] f = new double[Space.D];
-  
  /**
   * Instance of the species in which this molecule resides
   * Assigned in the Molecule constructor.
@@ -89,24 +71,9 @@ public class Molecule implements Serializable {
   */
   public Molecule(Species parent, int n) {
     parentSpecies = parent;
-    Space.uEa1(r,0.0);
-    Space.uEa1(p,0.0);
-    zeroForce();
-    neighbors = new Vector();
     setNAtoms(n);
   }
   
- /**
-  * Constructs the molecules' atoms.  The number of atoms constructed
-  * is equal to the current value of nAtoms.
-  * Override this method if subclassing Molecule to define a molecule
-  * comprising complex atoms (for example, nonspherical "atoms").
-  */
-/*  protected void makeAtoms() {
-    atom = new Atom[nAtoms];
-    for(int i=0; i<nAtoms; i++) {atom[i] = new Atom(this,i);}
-  }
-*/ 
  /**
   * Constructs atoms of molecule and links them, setting values of firstAtom and lastAtom.  
   * The number of atoms constructed is equal to the current value of nAtoms.

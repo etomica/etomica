@@ -77,14 +77,14 @@ public class Space extends Component {
   * Size of Phase (width, height) in Angstroms
   * Default value is 1.0 for each dimension.
   */
-    protected final double[] dimensions = new double[D];
+    protected final Vector dimensions = new Vector();
     
-    private static final double[] work = new double[D];       //temporary work vector
+    private final Vector work = new Vector();       //temporary work vector
  
  /**
   * @see SpacePeriodicCubic#getOverflowShifts
   */
-    protected final double[][] shift0 = new double[0][D];
+    protected final Vector[][] shift0 = new Vector[0][D];
    
    /**
     * Phase in which this Space resides
@@ -104,8 +104,8 @@ public class Space extends Component {
     * Creates Space with unit dimensions and computes its volume.
     */
     public Space() {
-        dimensions[0] = 1.0;
-        dimensions[1] = 1.0;
+        dimensions.x = 1.0;
+        dimensions.y = 1.0;
         computeVolume();
         periodic = false;
     }
@@ -113,9 +113,8 @@ public class Space extends Component {
     // Iterates over all intramolecular atom pair in species
     public class AllSpeciesIntraPairs implements SpaceAtomPairIterator {
         private boolean mLast;
-        private Molecule m;
-        SpaceAtomPairIterator mPairs = new AllMoleculeIntraPairs(null);
-        
+        private Molecule m, lastM;
+        AllMoleculeIntraPairs mPairs = new AllMoleculeIntraPairs(null);
         public AllSpeciesIntraPairs(Species s) {reset(s);}  //constructor
         public final boolean hasNext() {return (mPairs.hasNext() || !mLast);}
         public final SpaceAtomPair next() {
@@ -123,15 +122,66 @@ public class Space extends Component {
             if(!mPairs.hasNext()) {
                 m = m.getNextMolecule();
                 mPairs.reset(m);
-                mLast = (m == s.lastMolecule);
+                mLast = (m == lastM);
             }
             return mPairs.next();                
         }
         public void reset(Species s) {
-            if(s.nAtomsPerMolecule() == 1) {hasNext = false; return;} //no intramolecular atoms pairs
-            m = s.firstMolecule();
+            if(s.getNAtomsPerMolecule() == 1) {m = s.lastMolecule;} //no intramolecular atoms pairs, so jump to last molecule
+            else {m = s.firstMolecule();}
             mPairs.reset(m);
-            mLast = (m==null || m==s.lastMolecule);
+            lastM = s.lastMolecule;
+            mLast = (m==null || m==lastM);
+        }
+    }
+    
+    // Iterates over all intermolecular atoms pairs between species (which may be the same species)
+    public class AllSpeciesInterPairs implements SpaceAtomPairIterator {
+        private boolean sameSpecies, monatomic, hasNext;
+        Atom inner;
+        Atom outer;
+        Atom firstInner;
+        SpaceAtom terminator;  //atom following last atom of inner loop
+        SpaceAtom lastOuter;   //last atom of outer loop
+        AtomPair pair = new AtomPair();
+        public AllSpeciesInterPairs() {hasNext = false;}  //constructor
+        public AllSpeciesInterPairs(Species s1, Species s2) {reset(s1, s2);}  //constructor
+        public final boolean hasNext() {return hasNext;}
+        public final SpaceAtomPair next() {
+            if(!hasNext) return null;
+            pair.atom1 = outer;
+            pair.atom2 = inner;
+            //Set up for next time around
+            inner = inner.nextAtom;
+            if(inner == terminator) {  //end of inner loop; increment outer and begin inner loop again
+                if(outer == lastOuter) {hasNext = false;}
+                else {
+                    outer = outer.nextAtom;
+                    if(sameSpecies) {inner = (monatomic ? outer.nextAtom : (Atom)outer.nextMoleculeFirstAtom());}  //hasNext check prevents outer from being null
+                    else {inner = firstInner;}
+                }
+            }
+            return pair;
+        }
+        public void reset(Species s1, Species s2) {
+            if(s1==null || s2==null) {hasNext = false; return;}
+            outer = (Atom)s1.firstAtom();
+            if(outer==null) {hasNext = false; return;}
+            if(s1 == s2) {
+                sameSpecies = true;
+                inner = (Atom)outer.nextMoleculeFirstAtom();
+                monatomic = (s1.getNAtomsPerMolecule() == 1);
+            }
+            else {
+                sameSpecies = false;
+                firstInner = (Atom)s2.firstAtom();
+                inner = firstInner;
+            }
+            terminator = s2.terminationAtom();
+            if(inner == terminator || inner == null) {hasNext = false; return;}
+            if(sameSpecies) {lastOuter = s1.lastMolecule.getPreviousMolecule().lastAtom;}
+            else {lastOuter = s1.lastAtom();}
+            hasNext = true;
         }
     }
     
@@ -141,21 +191,22 @@ public class Space extends Component {
         Atom outer;  // "outer loop" atom
         Atom inner;  // "inner loop" atom
         boolean hasNext;
-        SpaceAtom terminator = null;
+        SpaceAtom terminator = null;  
         AtomPair pair = new AtomPair();
         
         public AllPairs() {reset();}  //constructor
         public final boolean hasNext() {return hasNext;}
         public final SpaceAtomPair next() {
             if(!hasNext) return null;
+            pair.atom1 = outer;   //here's where we avoid the cast
+            pair.atom2 = inner;
+            //Set up for next time around
             inner = inner.nextAtom;
             if(inner == terminator) {  //end of inner loop; increment outer and begin inner loop again
                 outer = outer.nextAtom;
-                inner = outer.nextAtom;  //hasNext check prevents outer from being null
+                inner = outer.nextAtom;
+                if(inner == terminator) {hasNext = false;}
             }
-            pair.atom1 = outer;   //here's where we avoid the cast
-            pair.atom2 = inner;
-            hasNext = ( (inner.nextAtom != terminator) || (outer.nextAtom != inner) );  //hasNext true if inner has a next; otherwise (inner is last), hasNext is true if outer is not next-to-last (its nextAtom is not inner)
             return pair;
         }
         public void reset() {reset(parentPhase.firstAtom());}
@@ -174,6 +225,7 @@ public class Space extends Component {
     public class AllMoleculeIntraPairs extends AllPairs {
         private Molecule currentM;
         
+        public AllMoleculeIntraPairs() {reset(currentM);}
         public AllMoleculeIntraPairs(Molecule m) {reset(m);}
 //        public final void reset() {reset(currentM);}  //resets to current molecule
 //        public final void reset(Species s) {reset(s.firstMolecule());}  //sets first pair to first atom in species and its nextAtom
@@ -181,7 +233,7 @@ public class Space extends Component {
             currentM = m;
             inner = null;
             if(m!=null) {
-                outer = m.firstAtom;
+                outer = (Atom)m.firstAtom;
                 inner = outer.nextAtom;
                 terminator = m.lastAtom.nextAtom;
             }
@@ -192,17 +244,12 @@ public class Space extends Component {
 //        }
     }
     
-    public class Vector implements SpaceVector {
-        double x = 0.0;
-        double y = 0.0;
-    }
-    
     public class AtomPair implements SpaceAtomPair {
         Atom atom1;
         Atom atom2;
         
         public double r2() {
-            double dx = atom1.r.x - atom2.r.x;
+            double dx = atom1.r.x - atom2.r.x;   //change for PBC
             double dy = atom1.r.y - atom2.r.y;
             return dx*dx + dy*dy;
         }
@@ -272,13 +319,13 @@ public class Space extends Component {
         *
         * @param dp The change in the momentum vector
         */
-//        public final void accelerate(double[] dp) {Space.uPEv1(p,dp);}
+        public final void accelerate(SpaceVector dp) {Space.uPEv1(p,(Vector)dp);}
     //   public final void accelerate(int i, double dp) {p[i] += dp;}
     //   public final void decelerate(double[] dp) {Space.uMEv1(p,dp);}
     //   public final void setP(double[] dp) {Space.uEv1(p,dp);}
     //   public final void setP(int i, double dp) {p[i] = dp;}
         
-        public final void scaleP(int i, double scale) {p[i] *= scale;}
+//        public final void scaleP(int i, double scale) {p[i] *= scale;}
         
      
         /**
@@ -298,7 +345,7 @@ public class Space extends Component {
         *
         * @param dr  vector specifying change in position
         */
-        public final void translate(double[] dr) {Space.uPEv1(r,dr);}
+        public final void translate(SpaceVector dr) {uPEv1(r,(Vector)dr);}
         
         /**
         * Displaces atom the distance dr in one coordinate direction.
@@ -306,7 +353,7 @@ public class Space extends Component {
         * @param i   index specifying coordinate direction of displacement
         * @param dr  displacement distance
         */
-        public final void translate(int i, double dr) {r[i] += dr;}
+//        public final void translate(int i, double dr) {r[i] += dr;}
         
         /**
         * Displaces atom by a vector dr, saving its original position,
@@ -315,17 +362,17 @@ public class Space extends Component {
         * @param dr   vector specifying change in position
         * @see #replace
         */
- //       public final void displace(double[] dr) {
- //           Space.uEv1(rLast,r);
- //           translate(dr);
- //       }
+        public final void displace(SpaceVector dr) {
+            uEv1(rLast,r);
+            translate(dr);
+        }
          
         /**
         * Puts atom back in position held before last call to displace
         *
         * @see #displace
         */
-        public final void replace() { Space.uEv1(r,rLast); }
+        public final void replace() { uEv1(r,rLast); }
         
         /**
         * Computes and updates COMFraction as the ratio of this atom's mass to the
@@ -363,13 +410,13 @@ public class Space extends Component {
    /**
     * @return the dimensions[] array
     */
-    public double[] getDimensions() {return dimensions;}
+    public SpaceVector getDimensions() {return dimensions;}
    
    /**
     * @return the value of dimensions[i]
     * @param i  index of desired value of dimensions[]
     */
-    public double getDimensions(int i) {return dimensions[i];}
+//    public double getDimensions(int i) {return dimensions[i];}
     
    /**
     * Sets one value in the dimensions array and updates drawSize array
@@ -378,10 +425,10 @@ public class Space extends Component {
     * @param i   index of the value to be set
     * @param dim the new value of dimensions[i]
     */
-    public void setDimensions(int i, double dim) {
-        dimensions[i] = dim;
-        computeVolume();
-    }
+//    public void setDimensions(int i, double dim) {
+//        dimensions[i] = dim;
+//        computeVolume();
+//    }
    
    /**
     * Scales all dimensions by a constant multiplicative factor and recomputes volume
@@ -399,7 +446,7 @@ public class Space extends Component {
     * Likely to override in subclasses.
     */
     protected void computeVolume() {
-        volume = dimensions[0]*dimensions[1];
+        volume = dimensions.x*dimensions.y;
     }
         
    /** Set of vectors describing the displacements needed to translate the central image
@@ -419,15 +466,15 @@ public class Space extends Component {
     * @see #shift0
     * @see Phase#paint
     */
-    public double[][] getOverflowShifts(double[] r, double distance) {return shift0;}  //called only if periodic
+    public Vector[][] getOverflowShifts(double[] r, double distance) {return shift0;}  //called only if periodic
     
    /**
     * Design-time manipulation of dimensions[0].  Used in lieu of an array editor.
     */
-    public void setXDimension(double dim) {setDimensions(0, dim);} //used for property list editor
-    public double getXDimension() {return dimensions[0];}
-    public void setYDimension(double dim) {setDimensions(1,dim);}
-    public double getYDimension() {return dimensions[0];}
+//    public void setXDimension(double dim) {setDimensions(0, dim);} //used for property list editor
+//    public double getXDimension() {return dimensions[0];}
+//    public void setYDimension(double dim) {setDimensions(1,dim);}
+//    public double getYDimension() {return dimensions[0];}
    
    /**
     * Method to handle placement of molecules that go beyond boundaries of Space.
@@ -462,190 +509,194 @@ public class Space extends Component {
     */
     public void drawFrame(Graphics g, int[] origin, double scale) {
         g.setColor(Color.gray.brighter());
-        g.drawRect(origin[0],origin[1],(int)(scale*dimensions[0])-1,(int)(scale*dimensions[1])-1);
+        g.drawRect(origin[0],origin[1],(int)(scale*dimensions.x)-1,(int)(scale*dimensions.y)-1);
     }
     /* The remainder of the methods do vector arithmetic.
     
     */  
     
-   /**
-    * Assigns the constant a1 to all elements of the array u (u = a1).
-    */
-    public static void uEa1(double[] u, double a1) {
-        u[0] = u[1] = a1;
+    public class Vector implements SpaceVector {
+        double x = 0.0;
+        double y = 0.0; 
     }
-    
-    public static void uEa1(int[] u, int a1) {
-        u[0] = u[1] = a1;
-    }
-    
-   /**
-    * Element-by-element copy of array v1 to array u (u = v1)
-    */
-    public static void uEv1(double[] u, double[] v1) {
-        u[0] = v1[0];
-        u[1] = v1[1];
-    }
+    /**
+        * Assigns the constant a1 to all elements of the array u (u = a1).
+        */
+        public static void uEa1(Vector u, double a1) {
+            u.x = u.y = a1;
+        }
+        
+//        public static void uEa1(int[] u, int a1) {
+//            u.x = u.y = a1;
+//        }
+        
+    /**
+        * Element-by-element copy of array v1 to array u (u = v1)
+        */
+        public static void uEv1(Vector u, Vector v1) {
+            u.x = v1.x;
+            u.y = v1.y;
+        }
 
-   /**
-    * Element-by-element copy of array v1 to array u (u = v1)
-    */
-    public static void uEv1(int[] u, int[] v1) {
-        u[0] = v1[0];
-        u[1] = v1[1];
-    }
-    
-   /**
-    * @return the scalar dot product of arrays v1 and v2
-    */
-    public static double v1Dv2(double[] v1, double[] v2) {
-        return (v1[0]*v2[0] + v1[1]*v2[1]);
-    }
-   
-   /**
-    * @return the vector squared, the magnitude of the vector v1: v1^2 = v1 . v1
-    */
-    public static double v1S(double[] v1) {
-        return (v1[0]*v1[0] + v1[1]*v1[1]);
-    }
-   
-   /**
-    * @return the scalar |v1-v2|^2
-    */
-    public static double v1Mv2_S(double[] v1, double[] v2) {
-        double w0 = v1[0] - v2[0];
-        double w1 = v1[1] - v2[1];
-        return w0*w0 + w1*w1;
-    }        
-    
-    public static void uEa1Tv1(double[] u, double a1, double[] v1) {
-        u[0] = a1*v1[0];
-        u[1] = a1*v1[1];
-        return;
-    }
-    
-    public static void uEa1Tv1(int[] u, double a1, double[] v1) {
-        u[0] = (int)(a1*v1[0]);
-        u[1] = (int)(a1*v1[1]);
-        return;
-    }
-    
-    public static void uEv1Mv2(double[] u, double[] v1, double[] v2) {
-        u[0] = v1[0] - v2[0];
-        u[1] = v1[1] - v2[1];
-        return;
-    }
-    
-    public void uEr1Mr2(double[] u, double[] v1, double[] v2) {  //for overriding by subclasses
-        uEv1Mv2(u, v1, v2);
-    }
-    public double r1Mr2_S(double[] v1, double[] v2) {  //for overriding by subclasses
-        return v1Mv2_S(v1, v2);
-    }
-    public double r1iMr2i(int i, double[] v1, double[] v2) {  //for overriding
-        return v1[i] - v2[i];
-    }
-    
-    public static void uPEv1(double[] u, double[] v1) {
-        u[0] += v1[0];
-        u[1] += v1[1];
-        return;
-    }
+    /**
+        * Element-by-element copy of array v1 to array u (u = v1)
+        */
+//        public static void uEv1(int[] u, int[] v1) {
+//            u.x = v1.x;
+//            u.y = v1.y;
+//        }
         
-    public static void uMEv1(double[] u, double[] v1) {
-        u[0] -= v1[0];
-        u[1] -= v1[1];
-        return;
-    }
-    
-    public static void uPEa1(double[] u, double a1) {
-        u[0] += a1;
-        u[1] += a1;
-    }
+    /**
+        * @return the scalar dot product of arrays v1 and v2
+        */
+        public static double v1Dv2(Vector v1, Vector v2) {
+            return (v1.x*v2.x + v1.y*v2.y);
+        }
+       
+    /**
+        * @return the vector squared, the magnitude of the vector v1: v1^2 = v1 . v1
+        */
+        public static double v1S(Vector v1) {
+            return (v1.x*v1.x + v1.y*v1.y);
+        }
+       
+    /**
+        * @return the scalar |v1-v2|^2
+        */
+        public static double v1Mv2_S(Vector v1, Vector v2) {
+            double w0 = v1.x - v2.x;
+            double w1 = v1.y - v2.y;
+            return w0*w0 + w1*w1;
+        }        
         
-    public static void uMEa1(double[] u, double a1) {
-        u[0] -= a1;
-        u[1] -= a1;
-    }
+        public static void uEa1Tv1(Vector u, double a1, Vector v1) {
+            u.x = a1*v1.x;
+            u.y = a1*v1.y;
+            return;
+        }
         
-    public static void uTEa1(double[] u, double a1) {
-        u[0] *= a1;
-        u[1] *= a1;
-        return;
-    }
-    
-    public static void uDEa1(double[] u, double a1) {
-        u[0] /= a1;
-        u[1] /= a1;
-    }
+//        public static void uEa1Tv1(int[] u, double a1, Vector v1) {
+//            u.x = (int)(a1*v1.x);
+//            u.y = (int)(a1*v1.y);
+//            return;
+//        }
         
-    public static void uPEa1Tv1(double[] u, double a1, double[] v1) {
-        u[0] += a1*v1[0];
-        u[1] += a1*v1[1];
-        return;
+        public static void uEv1Mv2(Vector u, Vector v1, Vector v2) {
+            u.x = v1.x - v2.x;
+            u.y = v1.y - v2.y;
+            return;
+        }
+        
+/*        public void uEr1Mr2(Vector u, Vector v1, Vector v2) {  //for overriding by subclasses
+            uEv1Mv2(u, v1, v2);
+        }
+        public double r1Mr2_S(Vector v1, Vector v2) {  //for overriding by subclasses
+            return v1Mv2_S(v1, v2);
+        }
+        public double r1iMr2i(int i, Vector v1, Vector v2) {  //for overriding
+            return v1[i] - v2[i];
+        }*/
+        
+        public static void uPEv1(Vector u, Vector v1) {
+            u.x += v1.x;
+            u.y += v1.y;
+            return;
+        }
+            
+        public static void uMEv1(Vector u, Vector v1) {
+            u.x -= v1.x;
+            u.y -= v1.y;
+            return;
+        }
+        
+        public static void uPEa1(Vector u, double a1) {
+            u.x += a1;
+            u.y += a1;
+        }
+            
+        public static void uMEa1(Vector u, double a1) {
+            u.x -= a1;
+            u.y -= a1;
+        }
+            
+        public static void uTEa1(Vector u, double a1) {
+            u.x *= a1;
+            u.y *= a1;
+            return;
+        }
+        
+        public static void uDEa1(Vector u, double a1) {
+            u.x /= a1;
+            u.y /= a1;
+        }
+            
+        public static void uPEa1Tv1(Vector u, double a1, Vector v1) {
+            u.x += a1*v1.x;
+            u.y += a1*v1.y;
+            return;
+        }
+        
+        public static void uMEa1Tv1(Vector u, double a1, Vector v1) {
+            u.x -= a1*v1.x;
+            u.y -= a1*v1.y;
+            return;
+        }
+     
+        public static void uEa1Tv1Ma2Tv2(Vector u, double a1, Vector v1, double a2, Vector v2) {
+            u.x = a1*v1.x - a2*v2.x;
+            u.y = a1*v1.y - a2*v2.y;
+            return;
+        }
+        
+        public static void uEa1Tv1Pa2Tv2(Vector u, double a1, Vector v1, double a2, Vector v2) {
+            u.x = a1*v1.x + a2*v2.x;
+            u.y = a1*v1.y + a2*v2.y;
+            return;
+        }
+        
+        public static void uEa1T_v1Mv2_(Vector u, double a1, Vector v1, Vector v2) {
+            u.x = a1*(v1.x-v2.x);
+            u.y = a1*(v1.y-v2.y);
+        }
+        
+//        public static void uEa1T_v1Mv2_(int[] u, double a1, int[] v1, int[] v2) {
+//            u.x = (int)(a1*(v1.x-v2.x));
+//            u.y = (int)(a1*(v1.y-v2.y));
+//        }
+        
+        public static void uEv1Pa1Tv2(Vector u, Vector v1, double a1, Vector v2) {
+            u.x = v1.x + a1*v2.x;
+            u.y = v1.y + a1*v2.y;
+        }
+        
+        public static void uEv1Ma1Tv2(Vector u, Vector v1, double a1, Vector v2) {
+            u.x = v1.x - a1*v2.x;
+            u.y = v1.y - a1*v2.y;
+        }
+        
+        public static void unitVector(Vector u, Vector v1, Vector v2) {
+            uEv1Mv2(u, v1, v2);
+            double norm = 1.0/v1S(u);
+            uEa1Tv1(u,norm,u);
+        }
+        
+        
+        //would like to change name to randomPoint
+        
+        //random point in square centered on origin with each edge 2*rmax
+        public static void randomVector(Vector u, double rmax, Random rand) {
+            u.x = (2.0*rand.nextDouble()-1.0)*rmax;
+            u.y = (2.0*rand.nextDouble()-1.0)*rmax;
+        }
+        
+        public void randomVector(Vector u, Random rand) {  //random point in entire space
+            u.x = rand.nextDouble()*dimensions.x;
+            u.y = rand.nextDouble()*dimensions.y;
+        }
+        
+        public Vector randomVector() {  //random point in entire space
+            Vector u = new Vector();
+            randomVector(u, randomGenerator);
+            return u;
+        }
     }
-    
-    public static void uMEa1Tv1(double[] u, double a1, double[] v1) {
-        u[0] -= a1*v1[0];
-        u[1] -= a1*v1[1];
-        return;
-    }
- 
-    public static void uEa1Tv1Ma2Tv2(double[] u, double a1, double[] v1, double a2, double[] v2) {
-        u[0] = a1*v1[0] - a2*v2[0];
-        u[1] = a1*v1[1] - a2*v2[1];
-        return;
-    }
-    
-    public static void uEa1Tv1Pa2Tv2(double[] u, double a1, double[] v1, double a2, double[] v2) {
-        u[0] = a1*v1[0] + a2*v2[0];
-        u[1] = a1*v1[1] + a2*v2[1];
-        return;
-    }
-    
-    public static void uEa1T_v1Mv2_(double[] u, double a1, double[] v1, double[] v2) {
-        u[0] = a1*(v1[0]-v2[0]);
-        u[1] = a1*(v1[1]-v2[1]);
-    }
-    
-    public static void uEa1T_v1Mv2_(int[] u, double a1, int[] v1, int[] v2) {
-        u[0] = (int)(a1*(v1[0]-v2[0]));
-        u[1] = (int)(a1*(v1[1]-v2[1]));
-    }
-    
-    public static void uEv1Pa1Tv2(double[] u, double[] v1, double a1, double[] v2) {
-        u[0] = v1[0] + a1*v2[0];
-        u[1] = v1[1] + a1*v2[1];
-    }
-    
-    public static void uEv1Ma1Tv2(double[] u, double[] v1, double a1, double[] v2) {
-        u[0] = v1[0] - a1*v2[0];
-        u[1] = v1[1] - a1*v2[1];
-    }
-    
-    public static void unitVector(double[] u, double[] v1, double[] v2) {
-        uEv1Mv2(u, v1, v2);
-        double norm = 1.0/v1S(u);
-        uEa1Tv1(u,norm,u);
-    }
-    
-    
-    //would like to change name to randomPoint
-    
-    //random point in square centered on origin with each edge 2*rmax
-    public static void randomVector(double[] u, double rmax, Random rand) {
-        u[0] = (2.0*rand.nextDouble()-1.0)*rmax;
-        u[1] = (2.0*rand.nextDouble()-1.0)*rmax;
-    }
-    
-    public void randomVector(double[] u, Random rand) {  //random point in entire space
-        u[0] = rand.nextDouble()*dimensions[0];
-        u[1] = rand.nextDouble()*dimensions[1];
-    }
-    
-    public double[] randomVector() {  //random point in entire space
-        double[] u = new double[D];
-        randomVector(u, randomGenerator);
-        return u;
-    }
-}
