@@ -46,7 +46,21 @@ private static final class SequentialIterator implements AtomIterator {
     public SequentialIterator(boolean skipFirstAtom) {
         listIterator.setSkipFirstAtom(skipFirstAtom);
     }
+ 
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetAction action) {
+		 if(!(basis instanceof Atom && action instanceof AtomAction)) return;
+		 all((Atom)basis, id, (AtomAction)action);
+	}
     
+	public void all(Atom basis, IteratorDirective id, final AtomAction action) {
+		if(basis == null || action == null) return;
+		if(basis.node.isLeaf()) {
+			singletIterator.all(basis, id, action);
+		} else {
+			listIterator.all(basis, id, action);
+		}
+	}
+   
     /**
      * Defines the atoms that are subject to iteration as the children of the
      * given atom.

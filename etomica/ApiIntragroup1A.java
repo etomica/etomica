@@ -21,9 +21,21 @@ public final class ApiIntragroup1A implements AtomPairIterator {
     public ApiIntragroup1A(Simulation sim) {
         pair = new AtomPair(sim.space);
         atomIterator = sim.iteratorFactory.makeIntragroupNbrIterator();
-        wrapper = new AtomPairAction.Wrapper(pair);
     }
     
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetAction action) {
+		 if(!(basis instanceof Atom && action instanceof AtomPairAction)) return;
+		 all((Atom)basis, id, (AtomPairAction)action);
+	}
+	public void all(Atom basis, IteratorDirective id, AtomPairAction act) {
+		Atom atom = id.atom1();
+		if(atom == null || basis == null || act == null) return;
+		AtomTreeNode referenceNode = atom.node.childWhereDescendedFrom(basis.node);
+		if(referenceNode == null) return;
+		act.wrapper.pair.atom1 = referenceNode.atom;
+		atomIterator.all(basis, id.set(referenceNode.atom), act.wrapper);
+	}
+
     public void setBasis(Atom a1, Atom a2) {
         if(a1 != a2)
             throw new IllegalArgumentException("Improper basis given to ApiIntragroup1A");
@@ -83,8 +95,7 @@ public final class ApiIntragroup1A implements AtomPairIterator {
      */
     public void allPairs(AtomPairAction act) {
         if(referenceAtom == null) return;
-        wrapper.pairAction = act;
-        atomIterator.allAtoms(wrapper);
+        atomIterator.allAtoms(act.wrapper);
     }
     
     private final AtomIterator atomIterator;
@@ -93,9 +104,7 @@ public final class ApiIntragroup1A implements AtomPairIterator {
     private Atom referenceAtom;
     private final IteratorDirective localDirective = new IteratorDirective(IteratorDirective.BOTH);
     private final AtomPair pair;
-    
-    private final AtomPairAction.Wrapper wrapper;
-    
+        
     /**
      * Method to test and demonstrate use of class.
      */

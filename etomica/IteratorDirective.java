@@ -19,6 +19,12 @@ public final class IteratorDirective implements java.io.Serializable {
      */
     public boolean includeLrc = true;
     
+    /**
+     * Interpreted  by some iterators to cause them to skip the first atom that
+     * would otherwise be returned.  Default is <b>false</b>.
+     */
+    public boolean skipFirst = false;
+    
     public IteratorDirective() {
         this(UP);
     }

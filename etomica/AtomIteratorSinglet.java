@@ -41,6 +41,16 @@ public class AtomIteratorSinglet implements AtomIterator {
     public Atom getBasis() {return atom;}
     
     public int size() {return (atom != null) ? 1 : 0;}
+
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetAction action) {
+		 if(!(basis instanceof Atom && action instanceof AtomAction)) return;
+		 all((Atom)basis, id, (AtomAction)action);
+	}
+    
+	public void all(Atom basis, IteratorDirective id, final AtomAction action) {
+		if(basis == null) return;
+		if(id.atomCount()==0 || id.atom1().node.isDescendedFrom(basis)) action.actionPerformed(basis);
+	} 
     
     /**
      * Returns true if the given atom is the atom passed to the last call to setAtom(Atom).

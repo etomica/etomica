@@ -15,11 +15,20 @@ public final class ApiIntragroupAA implements AtomPairIterator {
         pair = new AtomPair(sim.space);
         aiOuter = sim.iteratorFactory.makeGroupIteratorSequential();
         aiInner = sim.iteratorFactory.makeIntragroupNbrIterator();
-        outerWrapper = new AtomPairAction.OuterWrapper(pair, localDirective);
-        outerWrapper.aiInner = aiInner;
     }
     
-    public void setBasis(Atom a1, Atom a2) {
+	public void all(AtomSet basis, IteratorDirective dummy, final AtomSetAction action) {
+		 if(!(basis instanceof Atom && action instanceof AtomPairAction)) return;
+		 all((Atom)basis, dummy, (AtomPairAction)action);
+	}
+	public void all(Atom basis, IteratorDirective dummy, AtomPairAction action) {
+		if(basis == null || action == null) return;
+		action.outerWrapper.aiInner = aiInner;
+		action.outerWrapper.innerBasis = basis;
+		aiOuter.all(basis, dummy, action.outerWrapper);
+	}
+
+   public void setBasis(Atom a1, Atom a2) {
         if(a1 != a2)
             throw new IllegalArgumentException("Improper basis given to ApiIntraSpeciesAA");
         group = a1;
@@ -91,13 +100,12 @@ public final class ApiIntragroupAA implements AtomPairIterator {
      * Performs the given action on all pairs returned by this iterator.
      */
     public void allPairs(AtomPairAction act) { 
-        outerWrapper.innerWrapper.pairAction = act;
+        act.outerWrapper.aiInner = aiInner;
         aiOuter.reset();
-        aiOuter.allAtoms(outerWrapper);
+        aiOuter.allAtoms(act.outerWrapper);
         hasNext = false;
     }
     
-    private final AtomPairAction.OuterWrapper outerWrapper;
     private Atom group; 
     private boolean hasNext;
     private boolean needUpdate1;

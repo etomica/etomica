@@ -24,11 +24,6 @@ public final class ApiGeneral implements AtomPairIterator, java.io.Serializable 
      */
     private final AtomIterator aiInner, aiOuter;
     
-    /**
-     * A pair action wrapper used to enable the allPairs method
-     */
-    protected final AtomPairAction.Wrapper actionWrapper;   // want final too //wrapper inner class defined below
-    protected final AtomPairAction.OuterWrapper outerWrapper;
     protected boolean hasNext;
     /**
      * Flag indicating whether atom1 of pair needs to be updated to point to the same atom that "atom1" in this class points to
@@ -41,24 +36,41 @@ public final class ApiGeneral implements AtomPairIterator, java.io.Serializable 
      */
     public ApiGeneral(Space s, AtomIterator aiOuter, AtomIterator aiInner) {
         pair = new AtomPair(s);
-        actionWrapper = new AtomPairAction.Wrapper(pair);
-        outerWrapper = new AtomPairAction.OuterWrapper(pair, localDirective);
         hasNext = false;
         this.aiOuter = aiOuter;
         this.aiInner = aiInner;
         direction = IteratorDirective.UP;
     }
-    
+ 
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetAction action) {
+		 if(!(basis instanceof AtomPair && action instanceof AtomPairAction)) return;
+		 all((AtomPair)basis, id, (AtomPairAction)action);
+	}
+	public void all(AtomPair basis, IteratorDirective dummy, AtomPairAction action) {
+		if(basis == null || action == null) return;
+		Atom group1 = basis.atom1();//assume group1 preceeds group2
+		Atom group2 = basis.atom2();
+		//ugly workaround for PistonCylinder
+		if(group1.node.isLeaf() && aiInner instanceof AtomIteratorSinglet) {
+			group1 = basis.atom2();
+			group2 = basis.atom1();
+		}
+		action.outerWrapper.aiInner = aiInner;
+		action.outerWrapper.innerBasis = group2;
+		aiOuter.all(group1, dummy, action.outerWrapper);
+	}
+
+   
     public void setBasis(Atom a1, Atom a2) {
-        //ugly workaround for PistonCylinder
-        if(a1.node.isLeaf() && aiInner instanceof AtomIteratorSinglet) {
-            aiOuter.setBasis(a2);
-            aiInner.setBasis(a1);
-        } else {
-            //originally was just this, without if/else block
-            aiOuter.setBasis(a1);
-            aiInner.setBasis(a2);
-        }
+		//ugly workaround for PistonCylinder
+		if(a1.node.isLeaf() && aiInner instanceof AtomIteratorSinglet) {
+			aiOuter.setBasis(a2);
+			aiInner.setBasis(a1);
+		} else {
+			//originally was just this, without if/else block
+			aiOuter.setBasis(a1);
+			aiInner.setBasis(a2);
+		}
     }
     
     public AtomIterator aiOuter() {return aiOuter;}

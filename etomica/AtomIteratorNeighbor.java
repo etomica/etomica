@@ -29,7 +29,17 @@ public class AtomIteratorNeighbor implements AtomIterator {
  //       iterator.setSkipFirstAtom(true);//comment or not depending on whether Tab is used in NeighborManager
     }
     
-    public boolean hasNext() {return iterator.hasNext();}
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetAction action) {
+		 if(!(basis instanceof Atom && action instanceof AtomAction)) return;
+		 all((Atom)basis, id, (AtomAction)action);
+	}
+    
+	public void all(Atom basis, IteratorDirective id, final AtomAction action) {
+		if(basis == null || basis.node.isLeaf() || action == null) return;
+		throw new RuntimeException("Method all not implemented in AtomIteratorNeighbor");
+	}
+
+   public boolean hasNext() {return iterator.hasNext();}
     
     public Atom reset(IteratorDirective id) {
         direction = id.direction();

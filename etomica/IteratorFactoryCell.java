@@ -267,7 +267,17 @@ public static final class SequentialIterator implements AtomIterator {
         factory = f;
     }
     
-    /**
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetAction action) {
+		 if(!(basis instanceof Atom && action instanceof AtomAction)) return;
+		 all((Atom)basis, id, (AtomAction)action);
+	}
+    
+	public void all(Atom basis, IteratorDirective id, final AtomAction action) {
+		if(basis == null || basis.node.isLeaf() || action == null) return;
+		throw new RuntimeException("Method all not implemented in IteratorFactoryCell.SequentialIterator");
+	}
+
+   /**
      * Defines the atoms that are subject to iteration as the children of the
      * given atom.
      */
@@ -393,6 +403,16 @@ public static final class IntragroupNbrIterator implements AtomIterator {
         iteratorFactory = factory;
     }
     
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetAction action) {
+		 if(!(basis instanceof Atom && action instanceof AtomAction)) return;
+		 all((Atom)basis, id, (AtomAction)action);
+	}
+    
+	public void all(Atom basis, IteratorDirective id, final AtomAction action) {
+		if(basis == null || basis.node.isLeaf() || action == null) return;
+		throw new RuntimeException("Method all not implemented in IteratorFactoryCell.IntragroupNbrIterator");
+	}
+
     /**
      * Indicates if another iterate is forthcoming.
      */
@@ -638,7 +658,17 @@ public static final class IntergroupNbrIterator implements AtomIterator {
         iteratorFactory = factory;
     }
     
-    /**
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetAction action) {
+		 if(!(basis instanceof Atom && action instanceof AtomAction)) return;
+		 all((Atom)basis, id, (AtomAction)action);
+	}
+    
+	public void all(Atom basis, IteratorDirective id, final AtomAction action) {
+		if(basis == null || basis.node.isLeaf() || action == null) return;
+		throw new RuntimeException("Method all not implemented in IterfactoryCell.IntergroupNbrIterator");
+	}
+
+   /**
      * Indicates if another iterate is forthcoming.
      */
     public boolean hasNext() {return atomIterator.hasNext();}

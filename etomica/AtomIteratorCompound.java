@@ -22,6 +22,16 @@ public final class AtomIteratorCompound implements AtomIterator {
         iteratorSet = iterators;
         reset();
     }
+
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetAction action) {
+		 if(!(basis instanceof Atom && action instanceof AtomAction)) return;
+		 all((Atom)basis, id, (AtomAction)action);
+	}
+    
+	public void all(Atom basis, IteratorDirective id, final AtomAction action) {
+		if(basis == null || basis.node.isLeaf() || action == null) return;
+		throw new RuntimeException("Method all not implemented in AtomIteratorCompound");
+	}
     
     /**
      * Adds the given iterator to the set of iterators collected by this 

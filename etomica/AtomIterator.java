@@ -14,7 +14,7 @@ package etomica;
 * @author David Kofke
 */
 
-public interface AtomIterator {
+public interface AtomIterator extends AtomSetIterator {
     
     public boolean hasNext();
     
@@ -47,6 +47,8 @@ public interface AtomIterator {
      */
     public void allAtoms(AtomAction act);
     
+    public void all(Atom basis, IteratorDirective id, AtomAction action);
+    
     /**
      * Defines generally the atoms subject to iteration.  Explicit meaning of basis depends
      * on specific iterator.  A call to setBasis does not leave the iterator prepared
@@ -78,10 +80,13 @@ public interface AtomIterator {
         public void setAsNeighbor(boolean b) {}
         public Atom reset() {return null;}
         public Atom next() {return null;}
+        public AtomSet nextSet() {return null;}
         public void allAtoms(AtomAction act) {}
         public void setBasis(Atom a) {}
         public Atom getBasis() {return null;}
         public int size() {return 0;}
+		public void all(AtomSet a, IteratorDirective id, AtomSetAction action) {}
+        public void all(Atom a, IteratorDirective id, AtomAction action) {}
     }//end of Null    
 
 }//end of AtomIterator

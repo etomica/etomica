@@ -29,10 +29,33 @@ public class ApiIntergroup1A implements AtomPairIterator {
     public ApiIntergroup1A(Simulation sim) {
         pair = new AtomPair(sim.space);
         atomIterator = sim.iteratorFactory.makeIntergroupNbrIterator();
-        wrapper = new AtomPairAction.Wrapper(pair);
     }
     
-    /**
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetAction action) {
+		 if(!(basis instanceof AtomPair && action instanceof AtomPairAction)) return;
+		 all((AtomPair)basis, id, (AtomPairAction)action);
+	}
+	public void all(AtomPair basis, IteratorDirective id, AtomPairAction action) {
+		Atom atom = id.atom1();
+		if(atom == null || basis == null || action == null) return;
+		Atom group1 = basis.atom1();//assume group1 preceeds group2
+		Atom group2 = basis.atom2();
+		if(group1 == group2) throw new IllegalArgumentException("Improper basis given to ApiIntergroup1A: Basis atoms must be different");
+
+		AtomTreeNode referenceNode = atom.node.childWhereDescendedFrom(group1.node);
+		if(referenceNode != null && localDirective.direction().doUp()) {
+			action.wrapper.pair.atom1 = referenceNode.atom;
+			atomIterator.all(group2, id.set(referenceNode.atom), action.wrapper);
+		} else {
+			referenceNode = atom.node.childWhereDescendedFrom(group2.node);
+			if(referenceNode != null && localDirective.direction().doDown()) {
+				action.wrapper.pair.atom1 = referenceNode.atom;
+				atomIterator.all(group1, id.set(referenceNode.atom), action.wrapper);
+			}
+		}
+	}//end all
+
+   /**
      * Identifies the groups that are the parents of the atoms
      * to be given by the iterator.  The arguments must be different instances.
      * It is expected, but not verified, that a1.preceeds(a2).
@@ -70,6 +93,7 @@ public class ApiIntergroup1A implements AtomPairIterator {
      * Resets the iterator so that it iterates over all pairs formed with the 
      * given atom.
      */
+    //may need rewrite to use childWhereDescendedFrom
     public void reset(Atom atom) {
         if(atom == null || group1 == null || group2 == null) return;
         referenceAtom = atom;
@@ -106,11 +130,8 @@ public class ApiIntergroup1A implements AtomPairIterator {
      */
     public void allPairs(AtomPairAction act) {
         if(referenceAtom == null) return;
-        wrapper.pairAction = act;
-        atomIterator.allAtoms(wrapper);
+        atomIterator.allAtoms(act.wrapper);
     }
-
-    private final AtomPairAction.Wrapper wrapper;
     
 }  //end of class AtomPairIterator
     

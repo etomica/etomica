@@ -3,7 +3,7 @@ package etomica;
  * An association of two atoms.  Each AtomPair holds one CoordinatePair (obtained from a Space class),
  * which has all the methods needed to compute atom distance and momentum-difference vectors, dot products, etc.
  */
-public final class AtomPair implements java.io.Serializable {
+public final class AtomPair implements AtomSet, java.io.Serializable {
     public static String getVersion() {return "AtomPair:01.06.25";}
     public Atom atom1, atom2;
     public final Space.CoordinatePair cPair;
@@ -40,6 +40,13 @@ public final class AtomPair implements java.io.Serializable {
         return new AtomPair(atom1, atom2, cPair.copy());  //cannot use super.clone() because cPair (being final) cannot then be changed to a clone of cPair
     }
 
+	/**
+	 * Returns true if the given atom is atom1 or atom2.
+	 * @see etomica.AtomSet#contains(Atom)
+	 */
+	public boolean contains(Atom a) {
+		return atom1 == a || atom2 == a;
+	}
    /**
     * Redefines the atom pair to correspond to the given atoms
     */

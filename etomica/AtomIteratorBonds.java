@@ -15,6 +15,16 @@ public class AtomIteratorBonds implements AtomIterator {
     protected IteratorDirective.Direction direction;
     private Atom basis;
     
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetAction action) {
+		 if(!(basis instanceof Atom && action instanceof AtomAction)) return;
+		 all((Atom)basis, id, (AtomAction)action);
+	}
+    
+	public void all(Atom basis, IteratorDirective id, final AtomAction action) {
+		if(basis == null || basis.node.isLeaf() || action == null) return;
+		throw new RuntimeException("Method all not implemented in AtomIteratorBonds");
+	}
+	
     public boolean hasNext() {return hasNext;}
     
     public void unset() {hasNext = false;}

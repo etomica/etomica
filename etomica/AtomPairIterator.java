@@ -5,7 +5,7 @@ package etomica;
  *
  * @author David Kofke
  */
-public interface AtomPairIterator {
+public interface AtomPairIterator extends AtomSetIterator {
     
     public void setBasis(Atom a1, Atom a2);
     
@@ -19,7 +19,8 @@ public interface AtomPairIterator {
     
     public void reset(IteratorDirective id);
     
-    /**
+    
+   /**
      * Resets the iterator, so that it is ready to go through all of its pairs.
      */
     public void reset();
@@ -42,6 +43,7 @@ public interface AtomPairIterator {
         public void reset(Atom atom) {}
         public AtomPair next() {return null;}
         public void allPairs(AtomPairAction act) {}
+        public void all(AtomSet basis, IteratorDirective id, AtomSetAction act) {}
     }//end of Null
     
 }  //end of class AtomPairIterator

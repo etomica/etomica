@@ -37,7 +37,19 @@ public class AtomIteratorMolecule implements AtomIterator {
         setBasis(phase, species);
         reset();
     }
-    
+ 
+	public void all(AtomSet basis, IteratorDirective dummy, final AtomSetAction action) {
+		if(!(basis instanceof Atom && action instanceof AtomAction)) return;
+		all((Atom)basis, dummy, (AtomAction)action);
+	}
+	public void all(Phase phase, IteratorDirective dummy, final AtomAction action) {
+		all(phase.speciesMaster, dummy, action);    
+	}
+	public void all(Atom basis, IteratorDirective dummy, final AtomAction action) {
+		if(basis instanceof SpeciesMaster) treeIterator.all(basis, dummy, action);
+		else if(basis instanceof SpeciesAgent) listIterator.all(basis, dummy, action);
+		else throw new IllegalArgumentException("Error: AtomIteratorMolecule invoked with illegal basis (not SpeciesMaster or SpeciesAgent");
+	}	   
     /**
      * Puts iterator in a state in which hasNext is false.
      */

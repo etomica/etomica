@@ -2,8 +2,8 @@ package etomica;
 
 /**
  * Lightweight version of AtomIteratorList.  Iterates uplist only, from
- * beginning to end of list.  Iterator function correctly in situations
- * where elements are removed from list after they are returned by iterator.
+ * beginning to end of list.  Iterator functions correctly in situations where
+ * elements are removed from list after they are returned by iterator.
  *
  * @author David Kofke
  */
@@ -18,6 +18,19 @@ public final class AtomIteratorListSimple implements AtomIterator {
 	public AtomIteratorListSimple(AtomList list) {
 	    setBasis(list);
 	    reset();
+	}
+   
+	public void all(AtomSet basis, IteratorDirective dummy, final AtomSetAction action) {
+		if(!(basis instanceof Atom && action instanceof AtomAction)) return;
+		all((Atom)basis, dummy, (AtomAction)action);
+	}
+    
+	public void all(Atom basis, IteratorDirective dummy, final AtomAction action) {
+		if(basis==null || basis.node.isLeaf() || action == null) return;
+		final AtomLinker header = ((AtomTreeNodeGroup)basis.node).childList.header;
+		for(AtomLinker e=header.next; e!=header; e=e.next) {
+			if(e.atom != null) action.actionPerformed(e.atom);
+		}
 	}
 	
 	public boolean hasNext() {return next.atom != null;}
@@ -36,8 +49,8 @@ public final class AtomIteratorListSimple implements AtomIterator {
         next = list.header;
     }
     public Atom getBasis(){return null;}//no implementation
-
-    /**
+ 
+     /**
      * Performs action on all atoms.
      */
     public void allAtoms(AtomAction action){
@@ -80,6 +93,9 @@ public final class AtomIteratorListSimple implements AtomIterator {
 	    
     public Atom next() {
         return nextLinker().atom;
+    }
+    public AtomSet nextSet() {
+    	return next();
     }
     
     /**

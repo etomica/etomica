@@ -28,7 +28,11 @@ package etomica;
 public class AtomIteratorTree implements AtomIterator {
     
     public AtomIteratorTree() {}
-    
+
+	public AtomIteratorTree(int d) {
+		this();
+		setIterationDepth(d);
+	}
     /**
      * Returns new iterator ready to loop over all the leaf atoms below
      * the given atom.
@@ -50,6 +54,31 @@ public class AtomIteratorTree implements AtomIterator {
         reset();
     }
     
+	public void all(AtomSet basis, IteratorDirective dummy, final AtomSetAction action) {
+		if(!(basis instanceof Atom && action instanceof AtomAction)) return;
+		all((Atom)basis, dummy, (AtomAction)action);
+	}
+    
+	public void all(Atom basis, IteratorDirective dummy, final AtomAction action) {
+		if(basis==null || action == null) return;
+		if(basis.node.isLeaf() || iterationDepth == 0) {
+			action.actionPerformed(basis);
+			return;
+		}
+		final AtomTreeNodeGroup node = (AtomTreeNodeGroup)basis.node;
+		final AtomLinker header = node.childList.header;
+		if(!node.childrenAreGroups() || iterationDepth == 1) {
+			for(AtomLinker e=header.next; e!=header; e=e.next) {
+				if(e.atom != null) action.actionPerformed(e.atom);
+			}
+		} else {
+			if(treeIterator == null) treeIterator = new AtomIteratorTree(iterationDepth-1);
+			for(AtomLinker e=header.next; e!=header; e=e.next) {
+				if(e.atom != null) treeIterator.all(e.atom, dummy, action);
+			}
+		}
+	}//end of all
+	  
     /**
      * Indicates if the iterate has another atom to give.
      */
@@ -237,14 +266,7 @@ public class AtomIteratorTree implements AtomIterator {
     public AtomList toList() {
         return null;
     }
-    
-    /**
-     * Not implemented.
-     */
-    public void setAsNeighbor(boolean b) {
-        throw new RuntimeException("setAsNeighbor not implemented in AtomIteratorTree");
-    }
-    
+        
     private AtomTreeNodeGroup basis;
     private boolean doTreeIteration, basisIsMaster;
     private AtomIteratorTree treeIterator;
