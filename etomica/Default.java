@@ -1,7 +1,9 @@
 package etomica;
 
-import etomica.units.*;
-import etomica.units.UnitSystem.Sim;
+import etomica.units.Bar;
+import etomica.units.Dimension;
+import etomica.units.Kelvin;
+import etomica.units.UnitSystem;
 
 /**
  * Class holding fields that define many of the default values used in building

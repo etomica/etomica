@@ -22,7 +22,7 @@ public class HsMc2d extends Simulation {
     
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
-    public SpeciesSpheresMono species;
+    public SpeciesSpheresMono species, species2;
     public Phase phase;
     public P2HardSphere potential;
     public Controller controller;
@@ -35,13 +35,17 @@ public class HsMc2d extends Simulation {
         integrator.addMCMove(mcMoveAtom);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
- 	    species = new SpeciesSpheresMono(this);
+        species = new SpeciesSpheresMono(this);
+        species2 = new SpeciesSpheresMono(this);
 	    phase = new Phase(space);
 	    potential = new P2HardSphere();
-	    potentialMaster.setSpecies(potential, new Species[] {species, species});
+        potentialMaster.setSpecies(potential, new Species[] {species, species});
+        potentialMaster.setSpecies(potential, new Species[] {species, species2});
+        potentialMaster.setSpecies(potential, new Species[] {species2, species2});
 	    meterCycles = new DataSourceCountSteps();
 
         phase.speciesMaster.addSpecies(species);
+        phase.speciesMaster.addSpecies(species2);
         integrator.addPhase(phase);
         integrator.addIntervalListener(new PhaseImposePbc(phase));
 

@@ -4,10 +4,13 @@ package etomica;
 /**
  * 
  */
+
+//TODO fix this class
 public class AtomIteratorSequencerBonded extends AtomIteratorSequencerList {
 
     public AtomIteratorSequencerBonded() {
         super();
+        throw new RuntimeException("this class needs to be updated to handle direction correctly");
     }
     public boolean contains(Atom[] atom) {
         reset();
@@ -26,7 +29,7 @@ public class AtomIteratorSequencerBonded extends AtomIteratorSequencerList {
     }
 
     public Atom[] next() {
-        Atom[] next = iterator.next();
+        Atom[] next = listIterator.next();
         listIterator.unset();
         return next;
     }

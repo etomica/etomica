@@ -116,6 +116,7 @@ public final class SpeciesAgent extends Atom {
             super(atom, speciesMasterNode);
             this.parentSpecies = parentSpecies;
             depth = 1;
+            setIndex(parentSpecies.getIndex());
         }
 
         /**
