@@ -237,7 +237,7 @@ public class DataSourceUniform implements DataSource {
      * Main method to demonstrate and check class.
      * Should output the values described in the comments for the LimitType class.
      */
-/*    public static void main(String args[]) {
+    public static void main(String args[]) {
         
         DataSourceUniform source = new DataSourceUniform();
         
@@ -247,16 +247,16 @@ public class DataSourceUniform implements DataSource {
         source.setNValues(n);
         source.setTypeMin(DataSourceUniform.INCLUSIVE);
         source.setTypeMax(DataSourceUniform.INCLUSIVE);
-        for(int i=0; i<n; i++) System.out.print(source.values(null)[i] + "  ");
+        for(int i=0; i<n; i++) System.out.print(source.getData()[i] + "  ");
         System.out.println();
         source.setTypeMax(DataSourceUniform.HALF_STEP);
-        for(int i=0; i<n; i++) System.out.print(source.values(null)[i] + "  ");
+        for(int i=0; i<n; i++) System.out.print(source.getData()[i] + "  ");
         System.out.println();
         source.setTypeMax(DataSourceUniform.EXCLUSIVE);
-        for(int i=0; i<n; i++) System.out.print(source.values(null)[i] + "  ");
+        for(int i=0; i<n; i++) System.out.print(source.getData()[i] + "  ");
         System.out.println("");
         System.out.println("Done");
         
     }//end of main
-    */
+    
  }//end of class
