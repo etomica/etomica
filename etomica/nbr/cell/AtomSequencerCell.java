@@ -10,7 +10,9 @@ import etomica.atom.AtomSequencerFactory;
 
 
 /**
- * Sequencer used for atoms being cell listed.
+ * Sequencer used for atoms being cell listed.  Contains 
+ * another linker that is used in the atom lists maintained
+ * by the cells.
  */
 public class AtomSequencerCell extends AtomLinker {
     
@@ -22,35 +24,20 @@ public class AtomSequencerCell extends AtomLinker {
         nbrLink = new AtomLinker(a);
     }
     
-//    public int listIndex() {return listIndex;}
-
+    /**
+     * Calls superclass method to remove atom from child list of parent,
+     * and then removes atom from cell's occupant list.
+     */
     public void remove() {
         super.remove();
         cell.occupants()[atom.node.parentSpeciesAgent().node.index()].remove(nbrLink);
         nbrLink.remove();
     }
     
-//    /**
-//     * Method called when the parent of the atom is changed.
-//     * By the time this method is called, the atom has been placed
-//     * in the childList of the given parent (if it is not null).
-//     */
-//    public void setParentNotify(AtomTreeNodeGroup newParent) {
-//        if(newParent == null || newParent instanceof AtomReservoir.ReservoirAtomTreeNode) {
-//            cell = null;
-//            neighborCellManager = null;
-//            nbrLink.remove();//08/12/03 (DAK) added this line
-//            return;
-//        }
-//        //get cell lattice for the phase containing the parent
-//        neighborCellManager = newParent.parentPhase().getLattice();
-//        listIndex = newParent.parentSpeciesAgent().node.index();
-//        while (listIndex+1 > neighborCellManager.getListCount()) {
-//            neighborCellManager.addList();
-//        }
-//        assignCell();
-//    }
-
+    /**
+     * Singleton factory suitable to passing to the Atom constructor to specify
+     * that atom sequencers should be this class.
+     */
     public static final AtomSequencerFactory FACTORY = new AtomSequencerFactory() {
         public AtomLinker makeSequencer(Atom atom) {return new AtomSequencerCell(atom);}
     };
