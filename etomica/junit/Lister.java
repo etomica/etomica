@@ -26,10 +26,12 @@ class Lister implements AtomsetActive, AtomActive {
 	 * @see etomica.AtomActive#actionPerformed(etomica.Atom)
 	 */
 	public void actionPerformed(Atom[] atom) {
-		String newString = "[";
+//		for(int i=0; i<atom.length; i++) actionPerformed(atom[i]);
+//		String newString = "[";
+		String newString = "";
 		for(int i=0; i<atom.length-1; i++) newString += atom[i].toString()+",";
 		if(atom.length > 0) newString += atom[atom.length-1].toString();
-		newString += "]";
+//		newString += "]";
 		list.add(newString);
 	}
 

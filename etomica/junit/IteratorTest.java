@@ -1,5 +1,8 @@
 package etomica.junit;
 
+import java.util.Collections;
+import java.util.LinkedList;
+
 import etomica.*;
 import junit.framework.*;
 
@@ -95,10 +98,12 @@ abstract class IteratorTest extends TestCase {
 			//test that allAtoms and hasNext/next give same set of iterates
 			assertEquals(lister[0].list, lister[1].list);
 			
+			//test operation of unset method
 			iterator.reset();
 			iterator.unset();
 			assertFalse(iterator.hasNext());
 			assertNull(iterator.next()[0]);
+			assertFalse(iterator.hasNext());
 			if(atomIterator != null) assertNull(atomIterator.nextAtom());
 			assertFalse(iterator.hasNext());
 			
