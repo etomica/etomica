@@ -8,9 +8,11 @@ import etomica.Atom;
 import etomica.AtomIterator;
 import etomica.Integrator;
 import etomica.Phase;
+import etomica.atom.AtomPositionDefinition;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
+import etomica.data.DataSourceCOM;
 import etomica.space.Boundary;
 import etomica.space.Vector;
 
@@ -43,7 +45,6 @@ public final class PhaseImposePbc extends PhaseActionAdapter implements
 	public PhaseImposePbc(Phase phase) {
 		this();
 		setPhase(phase);
-        translator = new AtomActionTranslateBy(phase.space());
 	}
 
 	public void actionPerformed() {
@@ -52,11 +53,10 @@ public final class PhaseImposePbc extends PhaseActionAdapter implements
         if (applyToMolecules) {
             while (iterator.hasNext()) {
                 Atom molecule = iterator.nextAtom();
-                Atom atom = molecule.node.firstLeafAtom();
-                Vector shift = boundary.centralImage(atom.coord.position());
+                Vector shift = boundary.centralImage(moleculePosition.position(molecule));
                 if (!shift.isZero()) {
                     translator.setTranslationVector(shift);
-                    translator.actionPerformed(molecule);
+                    moleculeTranslator.actionPerformed(molecule);
                 }
             }
         }
@@ -78,6 +78,10 @@ public final class PhaseImposePbc extends PhaseActionAdapter implements
 	public void setPhase(Phase phase) {
 		super.setPhase(phase);
 		iterator.setPhase(phase);
+        translator = new AtomActionTranslateBy(phase.space());
+        moleculeTranslator = new AtomGroupAction(translator);
+        //XXX shouldn't clobber user-set moleculePosition, but DataSourceCOM needs the space
+        moleculePosition = new DataSourceCOM(phase.space());
 	}
 
 	/**
@@ -134,8 +138,17 @@ public final class PhaseImposePbc extends PhaseActionAdapter implements
 			iterator = new AtomIteratorLeafAtoms(phase);
 	}
 
+    public void setMoleculePositionDefintion(AtomPositionDefinition positionDefinition) {
+        moleculePosition = positionDefinition;
+    }
+    public void getMoleculePositionDefintion() {
+        return moleculePosition;
+    }
+    
 	private AtomIteratorPhaseDependent iterator;
     private AtomActionTranslateBy translator;
+    private AtomGroupAction moleculeTranslator;
+    private AtomPositionDefinition moleculePosition;
 
 	private boolean applyToMolecules;
 
