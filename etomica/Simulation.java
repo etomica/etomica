@@ -133,12 +133,11 @@ public class Simulation {
     }
     
     /**
-     * Add the given dataManger to a list kept by the simulation.
-     * No other effect results from registering the dataManager.  
-     * The list of registered accumulationManagers may be retrieved via
-     * the getDataManagerList method.  An dataManager may be
+     * Add the given DataManger to a list kept by the simulation.
+     * No other effect results from registering the DataManager.  
+     * The list of registered DataManagers may be retrieved via
+     * the getDataManagerList method.  A DataManager may be
      * removed from the list via the unregister method.
-     * @param dataManager
      */
     public void register(DataManager dataManager) {
      	dataManagerList.add(dataManager);
