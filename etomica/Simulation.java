@@ -8,7 +8,7 @@ import java.util.*;
 public class Simulation extends Panel {
 
     public static int D;  //dimension (2-D, 3-D, etc;)
-    protected final Space space;
+    public static Space space;
 
     public Controller controller;
     Phase firstPhase;
@@ -23,7 +23,7 @@ public class Simulation extends Panel {
     }
               
     public int getD() {return space.D();}
-    public Space space() {return space;}
+    public static Space space() {return space;}
 
     public void add(Controller c) {
         if(controller != null) {return;}  //already added a controller

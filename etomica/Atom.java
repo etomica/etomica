@@ -206,12 +206,17 @@ public final class Atom implements Space.Occupant {
         } //end of Atom.Iterator.Down
     }
     
+    /**
+     * Class for constructing linked lists of Atoms
+     */
     public static class Linker {
         private Atom atom;
         private Atom.Linker next;
+        //Constructors
         public Linker() {}
         public Linker(Atom a) {atom = a;}
         public Linker(Atom a, Linker l) {atom = a; next = l;}
+        //Access methods
         public final Atom atom() {return atom;}
         public final Atom.Linker next() {return next;}
         public final void setNext(Atom.Linker l) {next = l;}
