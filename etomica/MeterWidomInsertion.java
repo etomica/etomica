@@ -7,11 +7,12 @@ import etomica.units.Dimension;
 
 import etomica.utility.Iterator;
 
-
 /**
- * Meter to measure the chemical potential of a species via the Widom insertion method
+ * Meter to measure the chemical potential of a species via the Widom insertion method.
+ *
+ * @author David Kofke
  */
-public class MeterWidomInsertion extends Meter implements Molecule.Container, EtomicaElement {
+public class MeterWidomInsertion extends Meter implements EtomicaElement {
 
     /**
      * Number of insertions attempted in each call to currentValue
@@ -22,10 +23,13 @@ public class MeterWidomInsertion extends Meter implements Molecule.Container, Et
      * Species for which chemical potential is evaluated
      */
     private Species species;
-    private Species.Agent speciesAgent;
-    private Molecule molecule;  //prototype insertion molecule
+    private SpeciesAgent speciesAgent;
+    private Atom testMolecule;  //prototype insertion molecule
     private boolean residual;   //flag to specify if total or residual chemical potential evaluated. Default true
     private DisplayPhase display; //used to show location of inserted atoms in the display
+    //directive must specify "BOTH" to get energy with all atom pairs
+    private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
+    private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
     
     public MeterWidomInsertion() {
         this(Simulation.instance);
@@ -37,12 +41,14 @@ public class MeterWidomInsertion extends Meter implements Molecule.Container, Et
         setResidual(true);
         
 		//add mediator so that by default first species added to simulation is used for sampling
+		//if nothing else was previously specified
         sim.elementCoordinator.addMediatorPair(new Mediator.MeterSpecies(sim.elementCoordinator) {
             public void add(Species species) {
-                if(MeterWidomInsertion.this.wasAdded()) MeterWidomInsertion.this.setSpecies(species);
+                if(MeterWidomInsertion.this.wasAdded() || MeterWidomInsertion.this.getSpecies()==null) 
+                        MeterWidomInsertion.this.setSpecies(species);
             }
             public void add(MeterAbstract meter) {
-                if(meter != MeterWidomInsertion.this) return;
+                if(meter != MeterWidomInsertion.this || MeterWidomInsertion.this.getSpecies()!=null) return;
                 for(Iterator ip=mediator.parentSimulation().speciesList.iterator(); ip.hasNext(); ) {
                     Species species = (Species)ip.next();
                     if(species.wasAdded())  {//will make first species the one
@@ -59,15 +65,6 @@ public class MeterWidomInsertion extends Meter implements Molecule.Container, Et
         return info;
     }
 
-    /**
-     * Declaration that this meter does not use the boundary object of phase when making its measurements
-     */
-    public final boolean usesPhaseBoundary() {return false;}
-    /**
-     * Declaration that this meter does not use the iteratorFactory of phase when making its measurements
-     */
-    public final boolean usesPhaseIteratorFactory() {return false;}
-        
     /**
      * Constructor used if desired to display inserted positions in the given DisplayConfiguration object
      */
@@ -103,13 +100,16 @@ public class MeterWidomInsertion extends Meter implements Molecule.Container, Et
      */
     public void setSpecies(Species s) {
         species = s;
-        addMolecule(species.getMolecule());
+        testMolecule = s.moleculeFactory().makeAtom();
+        iteratorDirective.set(testMolecule);
+        if(testMolecule instanceof AtomGroup) ((AtomGroup)testMolecule).firstLeafAtom().setColor(Color.red);
+        else testMolecule.setColor(Color.red);
         if(phase != null) speciesAgent = species.getAgent(phase);
     }
     /**
      * Accessor for the species for which chemical potential is evaluated
      */
-    public Species getSpecies(Species s) {return species;}
+    public Species getSpecies() {return species;}
     
     /**
      * Number of Widom insertions attempted with each call to currentValue
@@ -125,39 +125,28 @@ public class MeterWidomInsertion extends Meter implements Molecule.Container, Et
      * Temperature used to get exp(-uTest/kT) is that of the integrator for the phase
      * @return the sum of exp(-uTest/kT)/nInsert, multiplied by n<sub>i</sub>/V if <code>residual</code> is false
      */
-    public double currentValue()
-    {
+    public double currentValue() {
         double sum = 0.0;                         //sum for local insertion average
-        Molecule testMolecule = molecule;         //save a handle to the molecule
-        phase.addMolecule(molecule,speciesAgent); //place molecule in phase (removing it from this meter, thus setting molecule to null)
-        testMolecule.firstAtom().setColor(Color.red);
+        phase.addMolecule(testMolecule,speciesAgent); //place molecule in phase (removing it from this meter, thus setting molecule to null)
         for(int i=nInsert; i>0; i--) {            //perform nInsert insertions
-            testMolecule.translateTo(phase.randomPosition());  //select random position
+            testMolecule.coord.translateTo(phase.randomPosition());  //select random position
             if(display != null && i % 10 ==0) display.repaint();
-            double u = phase.potential.energy(testMolecule); //compute energy          
+            double u = phase.potential.calculate(iteratorDirective, energy.reset()).sum();
             if(u < Double.MAX_VALUE)              //add to test-particle average
                 sum += Math.exp(-u/(phase.integrator().temperature()));
         }
-        this.addMolecule(testMolecule);           //remove molecule from phase by placing it back in this meter
+        phase.removeMolecule(testMolecule, speciesAgent);
         if(!residual) sum *= phase.volume()/speciesAgent.moleculeCount(); //multiply by V/N
         return sum/(double)nInsert;               //return average
     }
     
-    //Molecule.Container methods
-    
-    /**
-     * Method to officially add the test molecule to this meter
-     */
-    public void addMolecule(Molecule m) {
-        m.container.removeMolecule(m);
-        molecule = m;
-        m.setContainer(this);
+    public static void main(String[] args) {
+        
+        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+        MeterWidomInsertion meter = new MeterWidomInsertion();
+        DisplayBox box = new DisplayBox(meter);
+        box.setWhichValue(MeterAbstract.AVERAGE);
+        sim.elementCoordinator.go();
+        Simulation.makeAndDisplayFrame(sim);
     }
-    /**
-     * Method to officially remove the test molecule from this meter
-     */
-    public void removeMolecule(Molecule m) {
-        if(m == molecule) molecule = null;
-    }
-    
-}   
+}//end of MeterWidomInsertion   

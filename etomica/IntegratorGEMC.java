@@ -82,9 +82,7 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
    */
   public MCMoveAtom getMCMoveAtom(int i) {return (i==0) ? atomDisplace1 : atomDisplace2;}
         
- /*   public static void main(String[] args) {
-        javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
-        f.setSize(600,350);
+    public static void main(String[] args) {
         Simulation.setUnitSystem(new etomica.units.UnitSystem.LJ());
 	    IntegratorGEMC integratorGEMC1 = new IntegratorGEMC();
 	    SpeciesDisks speciesDisks1 = new SpeciesDisks();
@@ -116,6 +114,11 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
 	    	    
 		Simulation.instance.elementCoordinator.go(); 
 		 
+        Potential2.Agent potentialAgent = (Potential2.Agent)P2LennardJones1.getAgent(phase1);
+        potentialAgent.setIterator(new AtomPairIterator(phase1));
+        potentialAgent = (Potential2.Agent)P2LennardJones1.getAgent(phase2);
+        potentialAgent.setIterator(new AtomPairIterator(phase2));
+
 	    meter1.setPhase(phase1);
 	    meter2.setPhase(phase2);
 	    phase1.setIntegrator(integratorGEMC1);
@@ -128,13 +131,8 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
 	    
 	    
 		Simulation.instance.setBackground(java.awt.Color.yellow);
-        f.getContentPane().add(Simulation.instance);         //access the static instance of the simulation to
-                                            //display the graphical components
-        f.pack();
-        f.show();
-        f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
-        });
+		
+		Simulation.makeAndDisplayFrame(Simulation.instance);
     }//end of main
-    */
+    
 }

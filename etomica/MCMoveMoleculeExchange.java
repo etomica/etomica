@@ -1,7 +1,5 @@
 package etomica;
 
-import java.util.Random;
-
 /**
  * Performs a trial that results in the exchange of a molecule from one phase to another.
  * Primary use is as an elementary move in a Gibbs ensemble simulation
@@ -10,10 +8,12 @@ import java.util.Random;
  */
 public final class MCMoveMoleculeExchange extends MCMove {
     
-    private final Random rand = new Random();
     private Phase firstPhase;
     private Phase secondPhase;
     private final double ROOT;
+    private PotentialMaster.Agent phasePotential;
+    private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
+    private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
 
     public MCMoveMoleculeExchange(IntegratorMC parent) {
         super();
@@ -35,10 +35,9 @@ public final class MCMoveMoleculeExchange extends MCMove {
         secondPhase = p[1];
     }
         
-    //under revision--- does not work for multiatomics, since intramolecular energy is not considered
     public void thisTrial() {
         Phase iPhase, dPhase;
-        if(java.lang.Math.random() < 0.5) {
+        if(Simulation.random.nextDouble() < 0.5) {
             iPhase = firstPhase;
             dPhase = secondPhase;
         }
@@ -48,34 +47,36 @@ public final class MCMoveMoleculeExchange extends MCMove {
         }
         if(dPhase.moleculeCount() == 0) {return;} //no molecules to delete; trial is over
         
-        Molecule m = dPhase.randomMolecule();  //select random molecule to delete
-        Species species = m.parentSpecies();
+        Atom a = dPhase.randomMolecule();  //select random molecule to delete
+        Species species = a.parentSpecies();
         
-        Species.Agent iSpecies = species.getAgent(iPhase);  //insertion-phase speciesAgent
-        Species.Agent dSpecies = species.getAgent(dPhase);  //deletion-phase species Agent
+        SpeciesAgent iSpecies = species.getAgent(iPhase);  //insertion-phase speciesAgent
+        SpeciesAgent dSpecies = species.getAgent(dPhase);  //deletion-phase species Agent
         
-        double uOld = dPhase.energy.meterPotential().currentValue(m); //get its contribution to energy
+        double uOld = dPhase.potential.calculate(iteratorDirective.set(a), energy.reset()).sum();
 
-        m.displaceTo(iPhase.randomPosition());         //place at random in insertion phase
-        iPhase.addMolecule(m,iSpecies);//this must be done after the displaceTo call, because addMolecule may impose PBC, which would cause to forget the original position
-        m.atomIterator.reset();
-        while(m.atomIterator.hasNext()) {iPhase.iteratorFactory().moveNotify(m.atomIterator.next());}
-        double uNew = iPhase.energy.meterPotential().currentValue(m); //get its new energy
+        a.coord.displaceTo(iPhase.randomPosition());         //place at random in insertion phase
+        dPhase.removeMolecule(a,dSpecies);
+        iPhase.addMolecule(a,iSpecies);//this must be done after the displaceTo call, because addMolecule may impose PBC, which would cause to forget the original position
+        iPhase.iteratorFactory().moveNotify(a);
+        double uNew = iPhase.potential.calculate(iteratorDirective, energy.reset()).sum();
         if(uNew == Double.MAX_VALUE) {  //overlap; reject
-            m.replace();                //put it back 
-            dPhase.addMolecule(m,dSpecies);
+            a.coord.replace();                //put it back 
+            iPhase.removeMolecule(a,iSpecies);
+            dPhase.addMolecule(a,dSpecies);
             return;        
         }
         
-        double bFactor = (dSpecies.nMolecules+1)/dPhase.volume()  //acceptance probability
-                         * iPhase.volume()/(iSpecies.nMolecules)                   //note that dSpecies.nMolecules has been decremented
+        double bFactor = (dSpecies.moleculeCount()+1)/dPhase.volume()  //acceptance probability
+                         * iPhase.volume()/(iSpecies.moleculeCount())                   //note that dSpecies.nMolecules has been decremented
                          * Math.exp(-(uNew-uOld)/parentIntegrator.temperature);    //and iSpecies.nMolecules has been incremented
-        if(bFactor > 1.0 || bFactor > rand.nextDouble()) {  //accept
+        if(bFactor > 1.0 || bFactor > Simulation.random.nextDouble()) {  //accept
             nAccept++;
         }
         else {              //reject
-            m.replace();    //put it back
-            dPhase.addMolecule(m,dSpecies); //place molecule in phase
+            a.coord.replace();    //put it back
+            iPhase.removeMolecule(a,iSpecies);
+            dPhase.addMolecule(a,dSpecies); //place molecule in phase
         }
     }//end of thisTrial
 }//end of MCMoveMoleculeExchange

@@ -153,7 +153,6 @@ public class AtomGroup extends Atom {
         
         a.setNextAtom(null);
         a.clearPreviousAtom();        
-        a.setParentGroup(null);
         
         //update leaf-atom links
         if(a instanceof AtomGroup) {
@@ -166,6 +165,7 @@ public class AtomGroup extends Atom {
         }
         
         removeAtomNotify(a);
+        a.setParentGroup(null);//must follow notify for SpeciesMaster moleculeCount to be updated
     }//end of removeAtom
 
     /**

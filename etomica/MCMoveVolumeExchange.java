@@ -1,10 +1,14 @@
 package etomica;
 
-import java.util.Random;
-
+/**
+ * Elementary Monte Carlo trial that exchanges volume between two phases.  Trial
+ * consists of a volume increase in one phase (selected at random) and an equal
+ * volume decrease in the other.  Used in Gibbs ensemble simulations.
+ *
+ * @author David Kofke
+ */
 public final class MCMoveVolumeExchange extends MCMove {
     
-    private final Random rand = new Random();
     private Phase firstPhase;
     private Phase secondPhase;
     private PhaseAction.Inflate inflate1;
@@ -42,7 +46,7 @@ public final class MCMoveVolumeExchange extends MCMove {
                     + secondPhase.potential().calculate(iteratorDirective, energy.reset()).sum();
         double v1Old = firstPhase.volume();
         double v2Old = secondPhase.volume();
-        double vRatio = v1Old/v2Old * Math.exp(stepSize*(rand.nextDouble() - 0.5));
+        double vRatio = v1Old/v2Old * Math.exp(stepSize*(Simulation.random.nextDouble() - 0.5));
         double v2New = (v1Old + v2Old)/(1 + vRatio);
         double v1New = (v1Old + v2Old - v2New);
         double v1Scale = v1New/v1Old;
@@ -58,7 +62,7 @@ public final class MCMoveVolumeExchange extends MCMove {
              Math.exp(-(hNew-hOld)/parentIntegrator.temperature+
                        (firstPhase.moleculeCount()+1)*Math.log(v1Scale) +
                        (secondPhase.moleculeCount()+1)*Math.log(v2Scale))
-                < rand.nextDouble()) 
+                < Simulation.random.nextDouble()) 
             {  //reject
               inflate1.undo();
               inflate2.undo();

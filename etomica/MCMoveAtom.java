@@ -1,11 +1,9 @@
 package etomica;
 
-import java.util.Random;
 import etomica.units.Dimension;
 
 public class MCMoveAtom extends MCMove {
     
-    private final Random rand = new Random();
     private PotentialMaster.Agent phasePotential;
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
     private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
@@ -26,7 +24,7 @@ public class MCMoveAtom extends MCMove {
     public void thisTrial() {
         double uOld, uNew;
         if(phase.atomCount()==0) {return;}
-        int i = (int)(rand.nextDouble()*phase.atomCount());
+        int i = (int)(Simulation.random.nextDouble()*phase.atomCount());
         Atom a = phase.firstAtom();
         // maybe try while(i-- >= 0) {}
         for(int j=i; --j>=0; ) {a = a.nextAtom();}  //get ith atom in list
@@ -34,7 +32,7 @@ public class MCMoveAtom extends MCMove {
 //        uOld = energy.sum();
         uOld = phase.potential.calculate(iteratorDirective.set(a), energy.reset()).sum();
         a.coord.displaceWithin(stepSize);
-        phase.boundary().centralImage(a.coord.position());  //maybe a better way than this
+//        phase.boundary().centralImage(a.coord.position());  //maybe a better way than this
         phase.iteratorFactory().moveNotify(a);
         uNew = phase.potential().calculate(iteratorDirective.set(a), energy.reset()).sum();
         if(uNew < uOld) {   //accept
@@ -42,7 +40,7 @@ public class MCMoveAtom extends MCMove {
             return;
         }
         if(uNew >= Double.MAX_VALUE ||  //reject
-           Math.exp(-(uNew-uOld)/parentIntegrator.temperature) < rand.nextDouble()) {
+           Math.exp(-(uNew-uOld)/parentIntegrator.temperature) < Simulation.random.nextDouble()) {
              a.coord.replace();
              phase.iteratorFactory().moveNotify(a);
              return;

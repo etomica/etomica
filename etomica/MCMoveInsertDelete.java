@@ -1,12 +1,19 @@
 package etomica;
 
+/**
+ * Elementary Monte Carlo move in which a molecule of a specified species is
+ * inserted into or removed from a phase.
+ *
+ * @author David Kofke
+ */
 public class MCMoveInsertDelete extends MCMove {
     
-    double mu;
-    //directive should specify "BOTH" to get energy with all atom pairs
+    //chemical potential
+    private double mu;
+    
+    //directive must specify "BOTH" to get energy with all atom pairs
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);
     private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();
-    private Atom testMolecule;
     private Species species;
     private SpeciesAgent speciesAgent;
 
@@ -22,7 +29,6 @@ public class MCMoveInsertDelete extends MCMove {
 //perhaps should have a way to ensure that two instances of this class aren't assigned the same species
     public void setSpecies(Species s) {
         species = s;
-        testMolecule = species.moleculeFactory().makeAtom();
         if(phase != null) speciesAgent = (SpeciesAgent)species.getAgent(phase); 
     }
     public Species getSpecies() {return species;}
@@ -42,7 +48,7 @@ public class MCMoveInsertDelete extends MCMove {
     }
                                                                                                                                                                                                                                                                                                                                                                        
     private final void trialInsert() {
-        testMolecule = species.moleculeFactory().makeAtom();
+        Atom testMolecule = species.moleculeFactory().makeAtom();
         speciesAgent.addAtom(testMolecule);
         testMolecule.coord.translateTo(phase.randomPosition());
         double uNew = phase.potential.calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
@@ -61,7 +67,7 @@ public class MCMoveInsertDelete extends MCMove {
     private final void trialDelete() {
         if(speciesAgent.moleculeCount() == 0) {return;}
         int i = (int)(Simulation.random.nextDouble()*speciesAgent.moleculeCount());
-        testMolecule = speciesAgent.firstMolecule();
+        Atom testMolecule = speciesAgent.firstMolecule();
         for(int j=i; --j>=0; ) {testMolecule = testMolecule.nextAtom();}
         double uOld = phase.potential.calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
         double bOld = Math.exp((mu-uOld)/parentIntegrator.temperature);
@@ -72,8 +78,17 @@ public class MCMoveInsertDelete extends MCMove {
         }           
     }
 
+    /**
+     * Mutator method for the chemical potential of the insertion/deletion species.
+     */
     public final void setMu(double mu) {this.mu = mu;}
+    /**
+     * Accessor method for the chemical potential of th insertion/deletion species.
+     */
     public final double getMu() {return mu;}
+    /**
+     * Indicates that chemical potential has dimensions of energy.
+     */
     public final etomica.units.Dimension getMuDimension() {return etomica.units.Dimension.ENERGY;}
     
     public static void main(String[] args) {

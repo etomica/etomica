@@ -141,7 +141,6 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
             sum += s.childCount();
             if(sum > i) break;
         }
-        
         return s.getAtom(i-(sum-s.childCount()));
     }
     
@@ -149,7 +148,7 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
      * Returns a randomly selected molecule from the phase.
      */
     public Atom randomMolecule() {
-        int i = (int)(moleculeCount() * java.lang.Math.random());
+        int i = (int)(moleculeCount() * Simulation.random.nextDouble());
         return molecule(i);
     }
 
