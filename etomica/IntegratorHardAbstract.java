@@ -32,6 +32,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
     private Atom[] atoms;
     protected final MeterTemperature meterTemperature = new MeterTemperature(this);
     Space.Vector c3;
+    Space.CoordinatePair cPairDebug;
                 
     public IntegratorHardAbstract(Simulation sim) {
         super(sim);
@@ -58,10 +59,44 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         double interval = timeStep;
         int count = 10000;
         while(collisionTimeStep < interval) {//advance to collision if occurs before remaining interval
-            advanceAcrossTimeStep(collisionTimeStep);//if needing more flexibility, make this a separate method-- advanceToCollision(collisionTimeStep)
 			atoms[0] = colliderAgent.atom();
 			atoms[1] = colliderAgent.collisionPartner();
-			System.out.println("collision between "+atoms[0]+" and "+atoms[1]);
+        	if (collisionTimeStep < 0.0) {
+        		System.out.println("previous collision occured before current one");
+        		System.out.println("previous time: "+(timeStep-interval)+"current time: "+(timeStep-interval+collisionTimeStep));
+        		System.out.println("collision between "+atoms[0]+" and "+atoms[1]);
+        		cPairDebug = space.makeCoordinatePair();
+        		cPairDebug.setBoundary(firstPhase.getBoundary());
+        		cPairDebug.reset(atoms[0].coord,atoms[1].coord);
+        		System.out.println("distance at last collision time was "+cPairDebug.r2());
+                advanceAcrossTimeStep(collisionTimeStep);//if needing more flexibility, make this a separate method-- advanceToCollision(collisionTimeStep)
+        		cPairDebug.reset();
+        		System.out.println("distance now "+cPairDebug.r2());
+        		throw new RuntimeException("this simulation is not a time machine");
+        	}
+        	if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 1 || Debug.anyAtom(atoms))) {
+        		System.out.println("collision between atoms "+atoms[0]+" and "+atoms[1]+" at "+(timeStep-interval+collisionTimeStep));
+        	}
+            advanceAcrossTimeStep(collisionTimeStep);//if needing more flexibility, make this a separate method-- advanceToCollision(collisionTimeStep)
+        	if (Debug.ON && Debug.DEBUG_NOW && Debug.ATOM1_INDEX > -1 && Debug.ATOM2_INDEX > -1) {
+        		Atom atom1 = firstPhase.molecule(Debug.ATOM1_INDEX);
+        		Atom atom2 = firstPhase.molecule(Debug.ATOM2_INDEX);
+        		cPairDebug = space.makeCoordinatePair();
+        		cPairDebug.setBoundary(firstPhase.getBoundary());
+        		cPairDebug.reset(atom1.coord, atom2.coord);
+        		double r2 = cPairDebug.r2();
+        		//XXX What's the pair hard-core diameter?  Elephino!  Could check energy instead.  fun.
+        		if (Debug.LEVEL > 1 || Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {
+        			System.out.println("squared distance between "+atom1+" and "+atom2+" is "+Math.sqrt(r2));
+            		if (Debug.LEVEL > 2 || Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {
+            			System.out.println(atom1+" coordinates "+atom1.coord.position());
+            			System.out.println(atom2+" coordinates "+atom2.coord.position());
+            		}
+        			if (Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {
+        				throw new RuntimeException("overlap");
+        			}
+        		}
+        	}
 			if (colliderAgent.collisionPotential != null) {
 				((PotentialHard)colliderAgent.collisionPotential).bump(atoms);
 			}
@@ -74,7 +109,6 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
             interval -= collisionTimeStep;
             collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.MAX_VALUE;
             if(count-- == 0) throw new RuntimeException("Unable to advance system through all collisions");
-            throw new RuntimeException("made it through one");
         } 
         advanceAcrossTimeStep(interval);
         if(isothermal) {

@@ -341,6 +341,9 @@ public abstract class Integrator extends SimulationElement implements Runnable, 
         stepCount = 0;
         int iieCount = interval;//changed from "interval + 1"
         while(stepCount < maxSteps) {
+        	if (Debug.ON && stepCount == Debug.START) Debug.DEBUG_NOW = true;
+        	if (Debug.ON && stepCount == Debug.STOP) halt();
+        	if (Debug.ON && Debug.DEBUG_NOW) System.out.println("*** integrator step "+stepCount);
             while(pauseRequested) doWait();//keep this before resetRequest, since need for reset might naturally follow completion of pause
             if(resetRequested) {doReset(); resetRequested = false;}
             if(haltRequested) break;

@@ -54,12 +54,17 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 				Atom[] atoms = iterator.next();
 				if(atoms[0] != atom1) setAtom(atoms[0]); //need this if doing minimum collision time calculation for more than one atom
 				double collisionTime = pHard.collisionTime(atoms);
+				if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atoms)))) {
+					System.out.println("collision time "+collisionTime+" for atom "+atoms[0]+(atoms.length > 1 ? " with "+atoms[1] : ""));
+				}
 				if(collisionTime < minCollisionTime) {
+					if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atoms))) {
+						System.out.println("setting up time "+collisionTime+" for atom "+atoms[0]+(atoms.length > 1 ? " with "+atoms[1] : ""));
+					}
 					minCollisionTime = collisionTime;
 					aia.setCollision(collisionTime, atoms.length == 1 ? null : atoms[1], pHard);
 				}//end if
 			}
-   //info         System.out.println(atom1.toString()+" UP: "+count);
 		}//end of calculate(AtomPair...
         
 	} //end of collisionHandlerUp
@@ -147,21 +152,6 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 				potential.calculate(firstPhase, upList.set(a), collisionHandlerUp.setAtom(a));
 			}
 		}//end while
-			//reset collision partners of atoms that are now up from this atom but still list it as their
-			//collision partner.  Assumes this atom was moved down list, but this won't always be the case
-			//This bit could be made more efficient
-            
-			//if(a movedInList) {  add a means for bump method to declare it moved atom in the list
-	   /*     atomIterator.reset(a);
-			while(atomIterator.hasNext()) {
-				Atom atom = atomIterator.next();
-				if(((Agent)atom.ia).collisionPartner == a) {  //upList atom could have atom as collision partner if atom was just moved down list
-					potential.findCollisions(atom, UP, collisionHandlerUp);
-				}
-			}*/
-			//to keep collision lists perfect, should do an upList on atoms that had this
-			//atom on its neighbor list, but no longer do because it has moved away
-
 
 		colliderAgent.resetCollision();
 		targetAtom[0] = collider;
@@ -216,10 +206,8 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
 		}
 		potential.calculate(firstPhase, upList.set(), collisionHandlerUp); //assumes only one phase
 		atomIterator.reset();
-		System.out.println("foo");
 		while(atomIterator.hasNext()) {
 			Atom a = atomIterator.nextAtom();
-			System.out.println("collision for "+a+" with "+((Agent)(a.ia)).collisionPartner()+" at "+((Agent)(a.ia)).collisionTime());
 		}
 		findNextCollider();
 	}
