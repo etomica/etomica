@@ -84,6 +84,7 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
             neighborIterator.setLattice(phase.getLattice());
             agentNode0 = (AtomTreeNodeGroup)phase.getAgent(species0).node;
             agentNode1 = (AtomTreeNodeGroup)phase.getAgent(species1).node;
+            neighborIterator.setPeriod(phase.boundary().dimensions());
         }
         identifyTargetMolecule();
 	}

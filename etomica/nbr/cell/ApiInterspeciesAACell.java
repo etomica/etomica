@@ -57,6 +57,7 @@ public class ApiInterspeciesAACell implements AtomsetIteratorPhaseDependent, Ato
 	public void setPhase(Phase phase) {
         cellIterator.setLattice(phase.getLattice());
 		neighborIterator.setLattice(phase.getLattice());
+        neighborIterator.setPeriod(phase.boundary().dimensions());
         unset();
 	}
 
