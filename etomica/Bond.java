@@ -62,6 +62,22 @@ public class Bond implements java.io.Serializable {
         link2.delete();
         //add to reservoir
     }
+    
+    /**
+     * Returns true if the given atoms are bonded to each other, false otherwise.
+     * Returns false if atoms are the same, or if either is null.
+     */
+    public static boolean areBonded(Atom atom1, Atom atom2) {
+        if(atom1 == atom2 || atom1 == null || atom2 == null) return false;
+        for(BondLinker link=atom1.firstUpBond; link!=null; link=link.next) {
+            if(link.bond.atom1() == atom2 || link.bond.atom2() == atom2) return true;
+        }
+        for(BondLinker link=atom1.firstDownBond; link!=null; link=link.next) {
+            if(link.bond.atom1() == atom2 || link.bond.atom2() == atom2) return true;
+        }
+        return false;
+    }
+    
 
 //consider for multi-atom bonds
 /*    protected Atom[] atoms;

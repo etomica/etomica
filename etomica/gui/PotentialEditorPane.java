@@ -210,7 +210,7 @@ public abstract class PotentialEditorPane extends EditorPane {
 	                componentList.remove(getCurrentSelection()); // Removes selected potential from the component list
                     propertySheet.setTarget(null);
                     if (componentList.getSize() == 0)
-                        ((JButton)e.getSource()).setEnabled(false);
+              //          ((JButton)e.getSource()).setEnabled(false);
                         
                     // Check if a sufficient number of components are added to allow a working simulation.
                     // If so, enable the start button.
@@ -308,7 +308,9 @@ public abstract class PotentialEditorPane extends EditorPane {
 	        DefinePotentialFrame.setSpecies2(((SpeciesPairButton)currentButtons[buttonCount]).species1);
 //            PotentialFrame.atomPairPotArray = new Class[DefinePotentialFrame.species1.getAtomsPerMolecule()][DefinePotentialFrame.species1.getAtomsPerMolecule()];
 	        try {
-	            DefinePotentialFrame.setSpeciesIndex2(((SpeciesPairButton)currentButtons[buttonCount]).species2.index);
+	            Species species2 = ((SpeciesPairButton)currentButtons[buttonCount]).species2;
+	            //will be null for Potential1
+	            if(species2 != null) DefinePotentialFrame.setSpeciesIndex2(species2.index);
 //                PotentialFrame.atomPairPotArray = new Class[DefinePotentialFrame.species1.getAtomsPerMolecule()][DefinePotentialFrame.species2.getAtomsPerMolecule()];
 	        }
 	        catch (java.lang.ArrayIndexOutOfBoundsException exc) {}

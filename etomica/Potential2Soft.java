@@ -12,6 +12,9 @@ public abstract class Potential2Soft extends Potential2 {
     public Potential2Soft(PotentialGroup parent) {
         super(parent);
     }
+    public Potential2Soft(PotentialGroup parent, PotentialTruncation trunc) {
+        super(parent, trunc);
+    }
     
     public abstract double virial(AtomPair pair);
     

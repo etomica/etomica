@@ -22,6 +22,7 @@ public class MeterPotentialEnergy extends Meter implements EtomicaElement {
         super(sim);
         setLabel("Potential Energy");
         iteratorDirective = new IteratorDirective();
+        iteratorDirective.includeLrc = true;
         potential = sim.hamiltonian.potential;
         energy = sim.energySum(this);
     }

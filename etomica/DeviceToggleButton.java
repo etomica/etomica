@@ -38,7 +38,7 @@ public class DeviceToggleButton extends Device implements EtomicaElement {
         currentValue = modulator.getBoolean();
         setModulator(modulator);
         setTrueLabel(trueText);
-        setFalseLabel(falseText);
+        setFalseLabel(falseText);//sets label to correct state
     }
     
     public static EtomicaInfo getEtomicaInfo() {

@@ -73,6 +73,17 @@ public class AtomPairIterator implements java.io.Serializable {
         ai2.setBasis(a2);
     }
     
+    /**
+     * Returns the number of pairs capable of being given by this iterator
+     * (that is, if no restrictions are specified in an iteratorDirective).
+     */
+    public int size() {
+        int n1 = ai1.size();
+        int n2 = ai2.size();
+        return (ai1.getBasis() == ai2.getBasis()) ?
+            n1*(n2-1)/2 : n1*n2;
+    }        
+    
     public final boolean hasNext() {return hasNext;}
         
     public void reset(IteratorDirective id) {

@@ -2,6 +2,12 @@ package etomica;
 import etomica.units.*;
 import etomica.action.AtomActionTransform;
 
+/**
+ * Monte Carlo trial that rotates the atoms of a molecule about its first atom.
+ *
+ * Has a bug, probably associated with incorrect replacement of the molecule when
+ * rejecting the trial.
+ */
 public class MCMoveRotateMolecule extends MCMove {
     
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);

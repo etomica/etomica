@@ -13,6 +13,12 @@ public final class IteratorDirective implements java.io.Serializable {
     private int atomCount;
     PotentialCriterion potentialCriteriaHead;
     
+    /**
+     * Flag indicating whether long-range correction contributions should
+     * be included in calculation.  Default is <b>false</b>.
+     */
+    public boolean includeLrc = false;
+    
     public IteratorDirective() {
         this(UP);
     }
@@ -23,12 +29,13 @@ public final class IteratorDirective implements java.io.Serializable {
     
     /**
      * Puts directive in default state of no atoms specified, up direction, no
-     * potential criteria applied.
+     * potential criteria applied, no LRC included.
      */
     public IteratorDirective clear() {
         set(UP);
         set();
         potentialCriteriaHead = null;
+        includeLrc = false;
         return this;
     }
     
@@ -37,6 +44,7 @@ public final class IteratorDirective implements java.io.Serializable {
      */
     public void copy(IteratorDirective id) {
         direction = id.direction();
+        includeLrc = id.includeLrc;
         atom1 = id.atom1();
         atom2 = id.atom2();
         if(atom1 == null) atomCount = 0;

@@ -12,9 +12,21 @@ public abstract class Potential2 extends Potential {
     protected AtomPairIterator iterator;
     private Species species1, species2;
     
+    public final PotentialTruncation truncation;
+
     public Potential2(PotentialGroup parent) {
         super(parent);
         iterator = new AtomPairIterator(parentSimulation().space());
+        if(Default.TRUNCATE_POTENTIALS) {//can't use other constructor because of "this" in constructor of PotentialTruncationSimple
+            truncation = new PotentialTruncationSimple(this, Default.POTENTIAL_CUTOFF_FACTOR * Default.ATOM_SIZE);
+        } else {
+            truncation = PotentialTruncation.NULL;
+        }
+    }
+    public Potential2(PotentialGroup parent, PotentialTruncation trunc) {
+        super(parent);
+        iterator = new AtomPairIterator(parentSimulation().space());
+        truncation = trunc;
     }
     
     public abstract double energy(AtomPair pair);
@@ -40,6 +52,11 @@ public abstract class Potential2 extends Potential {
         this.iterator = iterator;
     }
     public AtomPairIterator iterator() {return iterator;}
+    
+    /**
+     * Accessor method for potential cutoff implementation.
+     */
+    public PotentialTruncation getTruncation() {return truncation;}
     
 }//end of Potential2
 

@@ -42,7 +42,7 @@ public class PhaseBeanInfo extends SimpleBeanInfo implements java.io.Serializabl
     }
     
     public BeanDescriptor getBeanDescriptor() {
-        return new BeanDescriptor(Phase.class, PhaseCustomizer.class);
+        return null;//new BeanDescriptor(Phase.class, PhaseCustomizer.class);
     }
     
 }

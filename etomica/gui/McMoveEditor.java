@@ -4,16 +4,21 @@ import java.beans.*;
 import java.awt.*;
 
 /**
- * Editor for an array of MCMoves (Monte Caro moves).  
+ * Editor for an array of MCMoves (Monte Carlo moves).  
  * Provides a custom editor panel that permits selection of any instantiable McMove.
  */
 public class McMoveEditor extends PropertyEditorSupport implements java.io.Serializable {
     
     private MCMove[] moves;
     IntegratorMC integrator;
+    JavaWriter javaWriter;
     
     public McMoveEditor(IntegratorMC integrator) {
+        this(integrator, null);
+    }
+    public McMoveEditor(IntegratorMC integrator, JavaWriter javaWriter) {
         this.integrator = integrator;
+        this.javaWriter = javaWriter;
     }
     
     public String getAsText() {return null;}
@@ -50,18 +55,16 @@ public class McMoveEditor extends PropertyEditorSupport implements java.io.Seria
             }
             for(int i=0; i<newMoves.length; i++) {
                 allMoves[i+moves.length] = newMoves[i];
+                if(javaWriter != null) javaWriter.add(newMoves[i]);
             }
             moves = allMoves;
         }
         firePropertyChange();
     }
     
- /*   public String getJavaInitializationString() {
-        System.out.println("inside ModulatorEditor.getJavaInitializationString");
-        if(getValue() == null) return "";
-        else {
-            String[] value = (String[])getValue();
-            return "new Modulator("+value[0]+",\""+value[1]+"\")";
-        }
-    }*/
+    /**
+     * Returns null to indicate no writing of initialization string.
+     * Special method in JavaWriter for MCMove is used instead.
+     */
+    public String getJavaInitializationString() {return null;}
 }

@@ -11,6 +11,7 @@ public class IntrospectionArrays {
     static final Class[] displayClasses = introspect("Display", true);
     static final Class[] meterClasses = introspect("Meter", true);
     static final Class[] deviceClasses = introspect("Device", true);
+    static final Class[] actionClasses = introspect(etomica.Default.CLASS_DIRECTORY+"/action","",false);
     static Class[] workingClass = null;
     static Class[] validClasses = null;
     static int validCount = 0;

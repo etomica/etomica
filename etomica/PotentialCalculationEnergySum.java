@@ -3,14 +3,21 @@ package etomica;
 /**
  * Evaluates the energy summed over all iterated atoms.
  */
-public class PotentialCalculationEnergySum implements PotentialCalculation.Sum, Potential1Calculation, Potential2Calculation {
-        
+public class PotentialCalculationEnergySum implements PotentialCalculation.Sum, 
+                                                        Potential0Calculation,
+                                                        Potential1Calculation, 
+                                                        Potential2Calculation {
     protected double sum = 0.0;
         
     public PotentialCalculationEnergySum() {}
         
     public PotentialCalculation.Sum reset() {sum = 0.0; return this;}
     public double sum() {return sum;}
+    
+    //zero-body
+    public void calculate(Potential0 potential) {
+        sum += potential.energy();
+    }
         
     //atom
     public void calculate(AtomIterator iterator, Potential1 potential) {
@@ -27,6 +34,11 @@ public class PotentialCalculationEnergySum implements PotentialCalculation.Sum, 
             if(sum >= Double.MAX_VALUE) return;
         }//end while
     }//end of calculate
+    
+    
+    // the following methods/classes provide an alternate way to sum the energy
+    // by providing actions to be passed to iterators, rather than passing
+    // the iterators to this PotentialCalculation
     
     public AtomAction getAtomCalculation(Potential1 potential) {
         atomAction.potential = potential;

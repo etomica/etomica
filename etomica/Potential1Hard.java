@@ -5,7 +5,7 @@ package etomica;
  * A hard potential describes impulsive interactions, in which the energy undergoes a step
  * change at some point in the space.
  */
-public abstract class Potential1Hard extends Potential1 implements PotentialHard {
+public abstract class Potential1Hard extends Potential1Group implements PotentialHard {
 
     public Potential1Hard(PotentialGroup parent) {
         super(parent);

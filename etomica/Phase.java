@@ -47,6 +47,7 @@ public final class Phase extends SimulationElement {
     private transient final LinkedList meterList = new LinkedList();
     private PhaseAction.Inflate inflater;
     public final SpeciesMaster speciesMaster;
+    private boolean lrcEnabled = true;
     
     public Phase() {
         this(Simulation.instance);
@@ -79,6 +80,17 @@ public final class Phase extends SimulationElement {
         else
             setConfiguration(new ConfigurationFcc(parentSimulation().space()));
     }//end of constructor
+   
+    /**
+     * Mutator method for flag that enables or disables application of long-range
+     * correction to truncated potentials.  Enabled by default.
+     */
+    public void setLrcEnabled(boolean b) {lrcEnabled = b;}
+    /**
+     * Accessor method for flag that enables or disables application of long-range
+     * correction to truncated potentials.  Enabled by default.
+     */
+    public boolean isLrcEnabled() {return lrcEnabled;}
     
     public void addSpecies(Species s) {
         speciesMaster.addSpecies(s);

@@ -83,6 +83,7 @@ public class SpaceSelectionFrame extends javax.swing.JInternalFrame implements j
         catch(java.beans.PropertyVetoException ex) {}
         
         listener.spaceSelectionAction(space);
+        if(space instanceof etomica.Space3D) etomica.Default.ATOM_COLOR = java.awt.Color.red;
     }// end of actionPerformed
     
     /**

@@ -57,9 +57,10 @@ public class MCMoveAtom extends MCMove {
     public static void main(String[] args) {
         
 	    IntegratorMC integrator = new IntegratorMC();
-	    MCMoveAtom mcMove = new MCMoveAtom(integrator);
+	    MCMoveAtom mcMove = new MCMoveAtom(integrator);//comment this line to examine LRC by itself
 	    SpeciesSpheres species = new SpeciesSpheres();
-	    Phase phase = new Phase();
+	    species.setNMolecules(72);
+	    final Phase phase = new Phase();
 	    P2LennardJones potential = new P2LennardJones();
 	    Controller controller = new Controller();
 	    DisplayPhase display = new DisplayPhase();
@@ -74,6 +75,12 @@ public class MCMoveAtom extends MCMove {
 		plot.setDataSources(energy.getHistory());
 		
 		integrator.setSleepPeriod(2);
+		
+		DeviceToggleButton lrcToggle = new DeviceToggleButton(Simulation.instance,
+		    new ModulatorBoolean() {
+		        public void setBoolean(boolean b) {phase.setLrcEnabled(b);}
+		        public boolean getBoolean() {return phase.isLrcEnabled();}
+		    },"LRC enabled", "LRC disabled" );
 		
 		Simulation.instance.elementCoordinator.go();
 	    

@@ -12,24 +12,20 @@ import etomica.units.Dimension;
 public final class P2LennardJones extends Potential2SoftSpherical implements EtomicaElement {
 
   public String getVersion() {return "PotentialLJ:01.07.05/"+Potential2SoftSpherical.VERSION;}
-    
-  public final PotentialTruncation truncation;
 
     public P2LennardJones() {
         this(Default.ATOM_SIZE, Default.POTENTIAL_WELL);
     }
     public P2LennardJones(double sigma, double epsilon) {
-        super(Simulation.instance.hamiltonian.potential);
+        super(Simulation.instance.hamiltonian.potential);//can't "this" with other constructor
         setSigma(sigma);
         setEpsilon(epsilon);
-        truncation = new PotentialTruncationSimple(this, Default.POTENTIAL_CUTOFF_FACTOR * sigma);
     }
     public P2LennardJones(PotentialGroup parent, double sigma, double epsilon,
                             PotentialTruncation trunc) {
-        super(parent);
+        super(parent, trunc);
         setSigma(sigma);
         setEpsilon(epsilon);
-        truncation = trunc;
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -37,26 +33,23 @@ public final class P2LennardJones extends Potential2SoftSpherical implements Eto
         return info;
     }
 
+    /**
+     * The energy u.  No truncation is applied here; 
+     * instead it is applied in the energy(AtomPair) method of Potential2SoftSpherical.
+     */
     public double u(double r2) {
-        if(truncation.isZero(r2)) {return 0.0;}
-        else {
-            double s2 = sigmaSquared/r2;
-            double s6 = s2*s2*s2;
-            //may need to restructure to remove overhead of method call
-            return truncation.uTransform(r2, epsilon4*s6*(s6 - 1.0));
-        }
+        double s2 = sigmaSquared/r2;
+        double s6 = s2*s2*s2;
+        return epsilon4*s6*(s6 - 1.0);
     }
 
     /**
      * The derivative r*du/dr.
      */
     public double du(double r2) {
-        if(truncation.isZero(r2)) {return 0.0;}
-        else {
-            double s2 = sigmaSquared/r2;
-            double s6 = s2*s2*s2;
-            return truncation.duTransform(r2, -epsilon48*s6*(s6 - 0.5));
-        }
+        double s2 = sigmaSquared/r2;
+        double s6 = s2*s2*s2;
+        return -epsilon48*s6*(s6 - 0.5);
     }
 
    /**
@@ -64,12 +57,9 @@ public final class P2LennardJones extends Potential2SoftSpherical implements Eto
     * separation:  r^2 d^2u/dr^2.
     */
     public double d2u(double r2) {
-        if(truncation.isZero(r2)) {return 0.0;}
-        else {
-            double s2 = sigmaSquared/r2;
-            double s6 = s2*s2*s2;
-            return truncation.d2uTransform(r2, epsilon624*s6*(s6 - _168div624));
-        }
+        double s2 = sigmaSquared/r2;
+        double s6 = s2*s2*s2;
+        return epsilon624*s6*(s6 - _168div624);
     }
             
     /**
@@ -96,16 +86,12 @@ public final class P2LennardJones extends Potential2SoftSpherical implements Eto
     }
 
     /**
-     * Accessor method for potential cutoff class.
-     */
-    public PotentialTruncation getTruncation() {return truncation;}
-    
-    /**
      * Accessor method for Lennard-Jones size parameter.
      */
     public double getSigma() {return sigma;}
     /**
      * Mutator method for Lennard-Jones size parameter.
+     * Does not adjust potential cutoff for change in sigma.
      */
     public final void setSigma(double s) {
         sigma = s;

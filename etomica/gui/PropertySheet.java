@@ -37,7 +37,8 @@ public class PropertySheet extends JInternalFrame {
 		}
 		catch (java.net.MalformedURLException error) { }
         PropertyEditorManager.registerEditor(etomica.DataSource.class, etomica.DataSourceEditor.class);
-        PropertyEditorManager.registerEditor(etomica.MCMove[].class, etomica.gui.McMoveEditor.class);
+        PropertyEditorManager.registerEditor(etomica.DatumSource.class, etomica.DatumSourceEditor.class);
+//        PropertyEditorManager.registerEditor(etomica.MCMove[].class, etomica.gui.McMoveEditor.class);
         PropertyEditorManager.registerEditor(etomica.units.Unit.class, etomica.UnitEditor.class);
 		PropertyEditorManager.registerEditor(etomica.ModulatorAbstract.class, etomica.ModulatorEditor.class);
     }
@@ -329,7 +330,6 @@ class PropertySheetPanel extends JPanel {
             }
             
             parentNode.add(child);
-            System.out.println(((etomica.MCMove)object).getName());
         }
         
 
@@ -428,7 +428,8 @@ class PropertySheetPanel extends JPanel {
 	                editor = new etomica.UnitEditor((Unit)value);
 	            }
 	            else if(etomica.MCMove[].class.isAssignableFrom(type)) {
-	                editor = new McMoveEditor((etomica.IntegratorMC)parentNode.object());
+    		        JavaWriter javaWriter = (JavaWriter)Etomica.javaWriters.get(target.parentSimulation());
+	                editor = new McMoveEditor((etomica.IntegratorMC)parentNode.object(),javaWriter);
 	            }
 	            else if(etomica.SimulationElement.class.isAssignableFrom(type)) {
 	                editor = new etomica.SimulationElementEditor(type);
@@ -653,8 +654,7 @@ class PropertySheetPanel extends JPanel {
 		        
 		        //write java code that implements change for writing to file, if requested later
 		        JavaWriter javaWriter = (JavaWriter)Etomica.javaWriters.get(target.parentSimulation());
-                javaWriter.propertyChange(target, setter, editor.getJavaInitializationString());
-		        
+                javaWriter.propertyChange(((PropertyNode)node.getParent()).object(), setter, editor.getJavaInitializationString());
 		        //implement the change in the object being edited
 		        try {
 		            Object args[] = { value };

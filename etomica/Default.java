@@ -41,6 +41,8 @@ public final class Default {
     
     public static int HISTORY_PERIOD = 100;
     
+    public static boolean TRUNCATE_POTENTIALS = true;
+    
     /**
      * Default block size used for error estimation in simulation averages.
      */

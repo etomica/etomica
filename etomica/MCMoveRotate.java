@@ -1,6 +1,10 @@
 package etomica;
 import etomica.units.*;
 
+/**
+ * Performs a rotation of an atom (not a molecule) that has an orientation coordinate.
+ */
+
 public class MCMoveRotate extends MCMove {
     
     private final IteratorDirective iteratorDirective = new IteratorDirective(IteratorDirective.BOTH);

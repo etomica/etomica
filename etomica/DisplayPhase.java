@@ -97,10 +97,11 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
 
         switch(parentSimulation().space().D()) {
             case 3:
-                box *=1.6;
-                if(Default.DISPLAY_USE_OPENGL) canvas = new DisplayPhaseCanvas3DOpenGL(this, box, box);
+                box *=1.4;
+                canvas = new DisplayPhaseCanvas3DOpenGL(this, box, box);
+ /*               if(Default.DISPLAY_USE_OPENGL) canvas = new DisplayPhaseCanvas3DOpenGL(this, box, box);
                 else canvas = new DisplayPhaseCanvas3DSoftware(this);
-                break;
+ */               break;
             case 2:
                 canvas = new DisplayPhaseCanvas2D(this);
 /*comment this line for applet*/                Default.DISPLAY_USE_OPENGL = false;

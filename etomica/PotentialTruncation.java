@@ -8,14 +8,18 @@ package etomica;
  
 public abstract class PotentialTruncation {
     
-    protected Potential2Soft parentPotential;
+    protected final Potential2 potential;
     
-    public PotentialTruncation(Potential2Soft potential) {
-        parentPotential = potential;
+    public PotentialTruncation(Potential2 potential) {
+        this.potential = potential;
+        if(potential != null) {//expect null only for inner Null class defined below
+            Potential0GroupLrc lrcMaster = potential.parentSimulation().hamiltonian.potential.lrcMaster();
+            makeLrcPotential(lrcMaster); //adds this to lrcMaster
+        }
     }
     
     /**
-     * Returns true is the truncation makes the potential zero.
+     * Returns true if the truncation makes the potential zero at the given separation.
      */
     public abstract boolean isZero(double r2);
 
@@ -37,6 +41,13 @@ public abstract class PotentialTruncation {
      */
     public abstract double d2uTransform(double r2, double untruncatedValue);
     
+    /**
+     * Returns a class that calculates the long-range contribution to the potential
+     * that becomes neglected by the truncation.  Assumes a uniform distribution
+     * of atoms beyond this truncation's cutoff distance.
+     */
+    public abstract Potential0Lrc makeLrcPotential(PotentialGroup parent);
+    
 
     ///************** end of methods for PotentialTruncation ***************
     
@@ -50,5 +61,6 @@ public abstract class PotentialTruncation {
         public double uTransform(double r2, double untruncatedValue) {return untruncatedValue;}
         public double duTransform(double r2, double untruncatedValue) {return untruncatedValue;}
         public double d2uTransform(double r2, double untruncatedValue) {return untruncatedValue;}
+        public Potential0Lrc makeLrcPotential(PotentialGroup parent) {return null;}
      }//end of Null
 }//end of PotentialTruncation

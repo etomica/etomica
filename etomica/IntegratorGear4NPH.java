@@ -32,7 +32,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     public IntegratorGear4NPH(final Simulation sim) {
         super(sim);
         kp = 1.0/rrp/timeStep();
-        kh = 1.0/rrp/timeStep();
+        kh = 1.0/rrh/timeStep();
         D = sim.space().D();
         setIsothermal(true);
         forceSumNPH = new ForceSumNPH(sim.space());
@@ -46,15 +46,22 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     public void setTimeStep(double t) {
         super.setTimeStep(t);
         kp = 1.0/(rrp*t);
-        kh = 1.0/(rrp*t);
+        kh = 1.0/(rrh*t);
     }
     
-    public void setRelaxationRate(double value) {
+    public void setRelaxationRateP(double value) {
         rrp = value;
         setTimeStep(timeStep);
     }
-    public double getRelaxationRate() {return rrp;}
-    public Dimension getRelaxationRateDimension() {return Dimension.NULL;}
+    public double getRelaxationRateP() {return rrp;}
+    public Dimension getRelaxationRatePDimension() {return Dimension.NULL;}
+    
+    public void setRelaxationRateH(double value) {
+        rrh = value;
+        setTimeStep(timeStep);
+    }
+    public double getRelaxationRateH() {return rrh;}
+    public Dimension getRelaxationRateHDimension() {return Dimension.NULL;}
     
     public synchronized void setTargetH(double value) {targetH = value;}
     public double getTargetH() {return targetH;}

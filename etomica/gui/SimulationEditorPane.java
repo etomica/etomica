@@ -96,6 +96,7 @@ public class SimulationEditorPane extends EditorPane {
         displayClasses = IntrospectionArrays.displayClasses;
         meterClasses = IntrospectionArrays.meterClasses;
         deviceClasses = IntrospectionArrays.deviceClasses;
+        actionClasses = IntrospectionArrays.actionClasses;
         
         elementClasses.put("Species", speciesClasses);
         elementClasses.put("Integrator", integratorClasses);
@@ -104,6 +105,7 @@ public class SimulationEditorPane extends EditorPane {
         elementClasses.put("Display", displayClasses);
         elementClasses.put("Meter", meterClasses);
         elementClasses.put("Device", deviceClasses);
+        elementClasses.put("Action",actionClasses);
         
         setTitle(t);
         setSize(splitPaneWidth, splitPaneHeight);
@@ -240,7 +242,7 @@ public class SimulationEditorPane extends EditorPane {
                 
                 simulationEditor.checkSimFeasibility();
 	        }});
-        addRemoveButton();  // Creates and adds the new JButton 'Remove'
+   //     addRemoveButton();  // Creates and adds the new JButton 'Remove'
         addPropertyButton();// Creates and adds the new JButton 'Property Sheet'
     }
     

@@ -2,7 +2,7 @@ package etomica;
 
 /**
 * Loops over the atoms in the bond list of a given atom, which
-* is identified via the setBasis method.
+* is identified via the setBasis method or as atom1 in an iteratorDirective.
 *
 * @author David Kofke
 */
@@ -18,14 +18,15 @@ public class AtomIteratorBonds implements AtomIterator {
     public boolean hasNext() {return hasNext;}
     
     public boolean contains(Atom atom) {
-        if(basis == null || atom == basis) return false;
+        return Bond.areBonded(basis, atom);
+  /*      if(basis == null || atom == basis) return false;
         for(BondLinker link=basis.firstUpBond; link!=null; link=link.next) {
             if(link.bond.atom1() == atom || link.bond.atom2() == atom) return true;
         }
         for(BondLinker link=basis.firstDownBond; link!=null; link=link.next) {
             if(link.bond.atom1() == atom || link.bond.atom2() == atom) return true;
         }
-        return false;
+        return false;*/
     }
     
     //loops through all iterates and counts them

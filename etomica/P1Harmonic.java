@@ -9,7 +9,7 @@ package etomica;
  * @author David Kofke
  */
  
-public class P1Harmonic extends Potential1Soft {
+public class P1Harmonic extends Potential1Soft implements EtomicaElement {
     
     public String getVersion() {return "P1Harmonic:01.07.07/"+Potential1.VERSION;}
 
@@ -17,15 +17,21 @@ public class P1Harmonic extends Potential1Soft {
     private double w = 100.0;
     private final Space.Vector force;
     
-    P1Harmonic() {
+    public P1Harmonic() {
         this(Simulation.instance.hamiltonian.potential);
     }
-    P1Harmonic(PotentialGroup parent) {
+    
+    public P1Harmonic(PotentialGroup parent) {
         super(parent);
         D = parentSimulation().space().D();
         force = parentSimulation().space().makeVector();
     }
     
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Harmonic potential at the phase boundaries");
+        return info;
+    }
+
     public void setSpringConstant(double springConstant) {w = springConstant;}
     public double getSpringConstant() {return w;}
     /**

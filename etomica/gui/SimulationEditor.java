@@ -76,6 +76,12 @@ public class SimulationEditor extends javax.swing.JTabbedPane {
     public final SimulationEditorPane deviceEditor;
     
     /**
+     * Static splitpane that displays all the action classes on the left (as radiobuttons) and 
+     * all the actions added to the simulation.instance on the right (in a JList).
+     */
+    public final SimulationEditorPane actionEditor;
+    
+    /**
      * Instance of the simulation being edited by this tab pane.
      */
     private Simulation simulation;
@@ -96,6 +102,7 @@ public class SimulationEditor extends javax.swing.JTabbedPane {
         displayEditor = new SimulationEditorPane(this,"Display");
         meterEditor = new SimulationEditorPane(this,"Meter");
         deviceEditor = new SimulationEditorPane(this,"Device");
+        actionEditor = new SimulationEditorPane(this,"Action");
         editorPanes.put(Potential1.class, potential1Editor);
         editorPanes.put(Potential.class, potential2Editor);
         editorPanes.put(Species.class, speciesEditor);
@@ -105,6 +112,7 @@ public class SimulationEditor extends javax.swing.JTabbedPane {
         editorPanes.put(Display.class, displayEditor);
         editorPanes.put(MeterAbstract.class, meterEditor);
         editorPanes.put(Device.class, deviceEditor);
+ //       editorPanes.put(Action.class, actionEditor);
         addTab("Species", speciesEditor);
         addTab("Potential1", potential1Editor);
         addTab("Potential2", potential2Editor);
@@ -114,6 +122,7 @@ public class SimulationEditor extends javax.swing.JTabbedPane {
         addTab("Display", displayEditor);
         addTab("Meter", meterEditor);
         addTab("Device", deviceEditor);
+ //       addTab("Action", actionEditor);
         updateElements();
         checkSimFeasibility();
     }// end of SimEditorTabMenu constructor
@@ -166,6 +175,7 @@ public class SimulationEditor extends javax.swing.JTabbedPane {
 	    displayEditor.start.setEnabled(d);
 	    meterEditor.start.setEnabled(d);
 	    deviceEditor.start.setEnabled(d);
+	    actionEditor.start.setEnabled(d);
     }
 
     public boolean allStartEnabled() {
@@ -191,4 +201,5 @@ public class SimulationEditor extends javax.swing.JTabbedPane {
     public SimulationEditorPane getDisplayEditor(){ return displayEditor; }
     public SimulationEditorPane getMeterEditor(){ return meterEditor; }
     public SimulationEditorPane getDeviceEditor(){ return deviceEditor; }
+    public SimulationEditorPane getActionEditor() {return actionEditor;}
 }// end of SimEditorTabMenu class

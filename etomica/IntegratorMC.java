@@ -88,6 +88,7 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
      * After completing move, fires an MCMove event if there are any listeners.
      */
     public void doStep() {
+        if(firstMove == null) return;
         int i = (int)(Simulation.random.nextDouble()*frequencyTotal);
         MCMove trialMove = firstMove;
         while((i-=trialMove.fullFrequency()) >= 0) {

@@ -10,6 +10,7 @@ public final class PotentialMaster implements PotentialGroup, java.io.Serializab
     public String getVersion() {return "PotentialMaster:01.07.23";}
 
     private SpeciesMaster speciesMaster;
+    private Potential0GroupLrc lrcMaster;
     private final Simulation parentSimulation;
     private PotentialLinker first;
 
@@ -33,15 +34,27 @@ public final class PotentialMaster implements PotentialGroup, java.io.Serializab
     }
         
     //this method is called in the constructor of the given potential
+    /**
+     * Adds the potential to the group 
+     */
+     /*and calls its set(SpeciesMaster)
+     * method if this.set(SpeciesMaster) was previously called with a
+     * non-null argument.
+     */
     public void addPotential(Potential potential) {
         first = new PotentialLinker(potential, first);
+//        if(speciesMaster != null) potential.set(speciesMaster); can't do this because potential is still executing its constructer
     }
 
     /**
      * Sets the basis for iteration of atoms by all potentials.
      * The given parameter must be an instance of SpeciesMaster.
+     * No action is taken if the given species master is the same
+     * as the one given in the previous call.
      */
-    public PotentialMaster set(SpeciesMaster speciesMaster) {
+    public PotentialMaster set(SpeciesMaster sm) {
+        if(sm == speciesMaster) return this;
+        speciesMaster = sm;
         for(PotentialLinker link=first; link!=null; link=link.next) {
             link.potential.set(speciesMaster);
         }//end for
@@ -52,9 +65,17 @@ public final class PotentialMaster implements PotentialGroup, java.io.Serializab
      * Sets the potentials to iterate on atoms in the given phase.
      */
     public PotentialMaster set(Phase p) {
-        set(p.speciesMaster); 
-        return this;
+        return set(p.speciesMaster); 
     }
+    
+    /**
+     * Returns the potential group that oversees the long-range
+     * correction zero-body potentials.
+     */
+     public Potential0GroupLrc lrcMaster() {
+        if(lrcMaster == null) lrcMaster = new Potential0GroupLrc(this);
+        return lrcMaster;
+     }
 
 }//end of PotentialMaster
     

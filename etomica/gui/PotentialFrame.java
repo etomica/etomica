@@ -289,7 +289,7 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
                 simulationEditor.getParent().repaint();
                 for (int i = 0; potentialEditor.currentButtons[i] != null; i++){
                     ((PotentialEditorPane.SpeciesPairButton)potentialEditor.currentButtons[i]).potential = ((Class)currentButton.cls);
-                    potentialEditor.currentButtons[i].setEnabled(false);
+    //                potentialEditor.currentButtons[i].setEnabled(false);
                     potentialEditor.currentButtons[i].setBackground(Color.lightGray);
                 }
                             
@@ -331,7 +331,7 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
                             }
 	                    }
 	                    catch(InstantiationException exc) {System.out.println(e.toString()); System.exit(1);}
-	                    catch(IllegalAccessException exc) {System.out.println(e.toString()); System.exit(1);}
+	                    catch(IllegalAccessException exc) {System.out.println("IllegalAccessException! Is constructor public? "+e.toString()); System.exit(1);}
                         
                         Simulation currentSimulation = simulationEditor.getSimulation();
 	                    if (getTitle() == "P1 Potentials"){

@@ -21,10 +21,11 @@ public class P1HardBoundary extends Potential1Hard implements EtomicaElement {
 
     private double collisionRadius = 0.0;
     
-    P1HardBoundary() {
+    public P1HardBoundary() {
         this(Simulation.instance.hamiltonian.potential);
     }
-    P1HardBoundary(PotentialGroup parent) {
+    
+    public P1HardBoundary(PotentialGroup parent) {
         super(parent);
     }
     

@@ -22,7 +22,7 @@ import etomica.utility.Iterator;
  
 public final class JavaWriter {
     
-    public static String getVersion() {return "JavaWriter:01.03.23";}
+    public static String getVersion() {return "JavaWriter:01.11.04";}
 
     private Simulation simulation;
     private HashMap elements = new HashMap();
@@ -36,26 +36,39 @@ public final class JavaWriter {
     
     public void add(SimulationElement element) {
         if(element == null) return;
-//        if(element instanceof P2SimpleWrapper) elements.put(element, new P2SimpleWrapperWriter(element));
         else elements.put(element, new ElementWriter(element));
     }
     
     public void remove(SimulationElement element) {
         if(element == null) return;
-        elements.remove(element);
+        else elements.remove(element);
     }
     
-    public void propertyChange(SimulationElement element, java.lang.reflect.Method setter, String value) {
-        if(element == null || setter == null) return;
-        ElementWriter elementWriter = (ElementWriter)elements.get(element);
-        if(elementWriter == null) return;
+    //methods to add/remove an instance of MCMove
+    public void add(MCMove move) {
+        if(move == null) return;
+        else elements.put(move, new MCMoveWriter(move));
+    }
+    
+    public void remove(MCMove move) {
+        if(move == null) return;
+        else elements.remove(move);
+    }
+    
+    /**
+     * Constructs string to change value of a property, and adds it to the hashlist of property
+     * changes for the object. Performs no action if any arguments are null.
+     */
+    public void propertyChange(Object element, java.lang.reflect.Method setter, String value) {
+        if(element == null || setter == null || value == null) return;
+        Writer writer = (Writer)elements.get(element);
+        if(writer == null) return;
         String setterString = setter.toString().trim();
-//        System.out.println(setterString);
         int i = setterString.lastIndexOf('(');//get string between . and (
         String initString = setterString.substring(0,i);
         i = initString.lastIndexOf('.');
         initString = initString.substring(i+1)+"("+value+");";
-        elementWriter.propertyChangeInfo.put(setterString, initString);
+        writer.propertyChangeInfo.put(setterString, initString);
     }
         
     
@@ -74,7 +87,7 @@ public final class JavaWriter {
             
             //Loop over elements and write initialization strings
             for(Iterator iter=elements.values().iterator(); iter.hasNext(); ) {
-                ElementWriter ew = (ElementWriter)iter.next();
+                Writer ew = (Writer)iter.next();
                 ew.write(javaFile);
             }
             
@@ -109,30 +122,25 @@ public final class JavaWriter {
         javaFile.println("  } //end of constructor");
         javaFile.println();
         javaFile.println("  public static void main(String[] args) {");
-        javaFile.println("    javax.swing.JFrame f = new javax.swing.JFrame();");
-        javaFile.println("    f.setSize(600,350);");
         javaFile.println();
         javaFile.println("    Simulation sim = new "+className+"();");
 		javaFile.println("    sim.mediator().go(); ");
-        javaFile.println("    f.getContentPane().add(sim.panel());");
+        javaFile.println("    sim.makeAndDisplayFrame();");
         javaFile.println();
-        javaFile.println("    f.pack();");
-        javaFile.println("    f.show();");
-        javaFile.println("    f.addWindowListener(new java.awt.event.WindowAdapter() {");
-        javaFile.println("        public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}");
-        javaFile.println("    });");
         javaFile.println("  }//end of main");
-        javaFile.println("}//end of class");
+        javaFile.println("}//end of class "+className);
     }    
         
-        
+    private static abstract class Writer {    
+        java.util.HashMap propertyChangeInfo = new java.util.HashMap(10);
+        public abstract void write(java.io.PrintWriter javaFile);
+    }
     
     /**
      * Class to hold all the initialization data for a single simulation element.
      */
-    private class ElementWriter {
+    private class ElementWriter extends Writer {
         SimulationElement element;
-        java.util.HashMap propertyChangeInfo = new java.util.HashMap(10);
         ElementWriter(SimulationElement element) {
             this.element = element;
         }
@@ -146,19 +154,26 @@ public final class JavaWriter {
                 javaFile.println("      "+name+"."+propertyString);
             }                
         }
-    }
+    }//end of ElementWriter
     
-    private class P2SimpleWrapperWriter extends ElementWriter {
-        P2SimpleWrapperWriter(SimulationElement element) {
-            super(element);
+    /**
+     * Class to hold all the initialization data for a single MCMove.
+     */
+    private class MCMoveWriter extends Writer {
+        MCMove move;
+        MCMoveWriter(MCMove move) {
+            this.move = move;
         }
+        
         public void write(java.io.PrintWriter javaFile) {
-            String className = element.getClass().getName();
-            String name = etomica.utility.StringUtility.decapitalize(element.getName());
-//            Potential onlyPotential = ((P2SimpleWrapper)element).getOnlyPotential();
-//            String potentialName = etomica.utility.StringUtility.decapitalize(onlyPotential.getName());
-            
-//            javaFile.println("    "+className+" "+name+"  = new "+className+"("+potentialName+");");
+            String className = move.getClass().getName();
+            String name = etomica.utility.StringUtility.decapitalize(move.getName());
+            String integratorName = etomica.utility.StringUtility.decapitalize(move.parentIntegrator().getName());
+            javaFile.println("    "+className+" "+name+"  = new "+className+"("+integratorName+");");
+            for(java.util.Iterator iter=propertyChangeInfo.values().iterator(); iter.hasNext(); ) {
+                String propertyString = (String)iter.next();
+                javaFile.println("      "+name+"."+propertyString);
+            }                
         }
-    }    
-}
+    }//end of MCMoveWriter
+}//end of JavaWriter

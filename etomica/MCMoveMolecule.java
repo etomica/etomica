@@ -19,6 +19,7 @@ public class MCMoveMolecule extends MCMove {
         setStepSizeMin(0.0);
         setStepSize(Default.ATOM_SIZE);
         setPerParticleFrequency(true);
+        iteratorDirective.includeLrc = true;
     }
     
     public final Dimension getStepSizeDimension() {return Dimension.LENGTH;}
