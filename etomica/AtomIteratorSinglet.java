@@ -37,6 +37,13 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent {
     }
     
     /**
+     * @return the atom given by this iterator as its single iterate
+     */
+    public Atom getAtom() {
+        return atom[0];
+    }
+    
+    /**
      * returns 1.
      */
     public int size() {return 1;}
