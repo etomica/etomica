@@ -159,7 +159,7 @@ public class P2SquareWell extends Potential2 implements PotentialHard {
                 }
             }
         }
-        return tij;
+        return tij + falseTime;
     }
 
     /**
