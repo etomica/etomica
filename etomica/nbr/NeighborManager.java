@@ -27,24 +27,12 @@ import etomica.utility.Arrays;
  * updated.  When this is found for any atom, all atom neighbor lists are updated
  * via a call to the calculate method of PotentialMasterNbr, passing a 
  * PotentialCalculationNbrSetup instance as the PotentialCalculation.  
- * <br>
- * Instances of NeighborCriterion are used to specify if a pair of atoms are neighbors,
- * and to determine if a given atom requires updating of its list.  NeighborCriterion
- * instances are given via the setSpecies method of PotentialMasterNbr, and are recorded
- * in three places.<ul>
- * <li> Each criterion is held by this NeighborManager, which keeps a master list only to
- * be able to setPhase for all of them when an update is initiated.  
- * <li> Each criterion is also kept by the AtomType of each atom, and these are used to 
- * idenfity all criteria applying to an atom when checking if neighbor updates are needed.
- * <li> Each criterion is used to wrap a AtomIteratorFiltered instance around the 
- * iterator for the potential, so that any atom pairs yielded by the iterator are, by
- * definition, neighbors.
  */
 public class NeighborManager implements IntervalListener {
 
 	/**
 	 * Configures instance for use by the given PotentialMaster.
-	 */
+	 */    
 	public NeighborManager(PotentialMasterNbr potentialMaster) {
 		super();
 		this.potentialMaster = potentialMaster;

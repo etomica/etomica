@@ -67,7 +67,8 @@ public class AtomSequencerNbr extends AtomSequencerCell {
 	
     /**
      * Returns an array of uplist-neighbor-atom lists.  Each list in the
-     * array corresponds to a specific potential.
+     * array corresponds to a specific potential. A zero-length list indicates
+     * that no concrete potentials apply to the atom.
      */
 	public AtomArrayList[] getUpList() {
 		return upList;
@@ -75,7 +76,8 @@ public class AtomSequencerNbr extends AtomSequencerCell {
 	
     /**
      * Returns an array of downlist-neighbor-atom lists.  Each list in the
-     * array corresponds to a specific potential.
+     * array corresponds to a specific potential. A zero-length list indicates
+     * that no concrete potentials apply to the atom.
      */
 	public AtomArrayList[] getDownList() {
 		return downList;

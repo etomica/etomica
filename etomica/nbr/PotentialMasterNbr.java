@@ -34,21 +34,12 @@ import etomica.utility.Arrays;
  * Criteria specifying whether two atoms are neighbors for a particular potential
  * are specified in the setSpecies method of this class.
  * <br>
- * Neighbor-list facility is implemented as follows.  Neighbor lists are held
- * by the atom's sequencer (AtomSequencerNbr).  Lists are keyed to the potential,
- * so given an atom it is possible to iterate over all current neighbors interacting
- * with it via a particular potential.  Such lists are kept only for "real" potentials,
- * not potential groups.  PotentialMaster constructs a NeighborManager, which listens
- * for interval events, and must therefore be registered with all integrators as
- * an interval listener. The neighborManager is responsible for keeping the neighbor
- * lists up to date.  The calculate method of PotentialMasterNbr is configured to 
- * perform neighbor-list iteration, or to update the neighbor lists if invoked with
- * a PotentialCalculationNbrSetup instance.
  */
 public class PotentialMasterNbr extends PotentialMaster {
 
 	/**
-	 * @param space 
+	 * Invokes superclass constructor, specifying IteratorFactoryCell
+     * for generating molecule iterators.  Sets default nCells of 10. 
 	 */
 	public PotentialMasterNbr(Space space) {
         super(space,IteratorFactoryCell.INSTANCE);
