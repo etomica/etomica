@@ -14,7 +14,7 @@ import etomica.Space.Vector;
   * 06/16/03 (DAK) Revised to permit SimulationElement in constructor.
   * 01/27/03 (DAK) Large set of changes in revision of design of Potential
   * 08/14/02 (DAK) made parentPotential mutable, so that potential can be
-  * added/removed from a potential group added setParentPotential for this
+  * added/removed from a potential group; added setParentPotential for this
   * purpose.
   */
 public abstract class Potential extends SimulationElement {
@@ -39,7 +39,7 @@ public abstract class Potential extends SimulationElement {
 		potentialTruncation = PotentialTruncation.NULL;
 		if(!(this instanceof PotentialMaster)) throw new RuntimeException("Invalid attempt to instantiate potential");
 	}
-	
+		
 	/**
 	 * Constructor with default potential truncation given
 	 * as PotentialTruncation. NULL.
@@ -219,7 +219,7 @@ public abstract class Potential extends SimulationElement {
 		private final Space.Tensor zeroT;
 		
 		public MyNull(Simulation sim) {
-			super(sim);
+			super(0, sim);
 			zero = sim.space.makeVector();
 			zeroT = sim.space.makeTensor();
 		}

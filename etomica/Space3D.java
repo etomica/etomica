@@ -1228,7 +1228,7 @@ public static class CoordinateGroup extends Coordinate {
         }
     }//end of BoundaryNone
         
-    protected static class BoundaryPeriodicSquare extends Boundary implements Space.Boundary.Periodic  {
+    public static class BoundaryPeriodicSquare extends Boundary implements Space.Boundary.Periodic  {
         public BoundaryPeriodicSquare() {this(Default.BOX_SIZE,Default.BOX_SIZE,Default.BOX_SIZE);}
         public BoundaryPeriodicSquare(Phase p) {this(p,Default.BOX_SIZE,Default.BOX_SIZE,Default.BOX_SIZE);}
         public BoundaryPeriodicSquare(Phase p, double lx, double ly, double lz) {super(p);dimensions.x=lx; dimensions.y=ly; dimensions.z=lz; updateDimensions();}
@@ -1237,9 +1237,9 @@ public static class CoordinateGroup extends Coordinate {
         private static Space.Tensor zilch = new Tensor();
         private final Vector temp = new Vector();
         private final Vector modShift = new Vector();//must be used only by centralImage and nearestImage methods
-        private final Vector dimensions = new Vector();
-        private final Vector dimensionsCopy = new Vector();
-        private final Vector dimensionsHalf = new Vector();
+        protected final Vector dimensions = new Vector();
+        protected final Vector dimensionsCopy = new Vector();
+        protected final Vector dimensionsHalf = new Vector();
         public final Space.Vector dimensions() {return dimensionsCopy;}
         public Space.Vector randomPosition() {
             temp.x = dimensions.x*Simulation.random.nextDouble();

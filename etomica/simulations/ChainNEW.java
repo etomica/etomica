@@ -47,7 +47,7 @@ public class ChainNEW extends SimulationGraphic {
 		DisplayTimer timer = new DisplayTimer(integrator);
 		timer.setUpdateInterval(10);
 		ColorSchemeByType.setColor(species, java.awt.Color.red);
-//		ColorSchemeByType.setColor(speciesChain.moleculeFactory().type(),java.awt.Color.blue);
+		ColorSchemeByType.setColor(((AtomFactoryMono)((AtomFactoryHomo)speciesChain.moleculeFactory()).childFactory()).type(),java.awt.Color.blue);
 //		panel().setBackground(java.awt.Color.yellow);
 		DeviceKicker dk = new DeviceKicker(display);
 		elementCoordinator.go();

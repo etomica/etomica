@@ -11,6 +11,25 @@ import etomica.graphics.*;
 public class HSMD3D extends SimulationGraphic {
 
   public HSMD3D() {
+//	super(new Space3D());
+//	Default.makeLJDefaults();
+//	Controller controller = new Controller (this);
+//	Integrator integrator = new IntegratorHard(this);
+//	P2HardSphere potential  = new P2HardSphere();
+//	SpeciesSpheresMono species    = new SpeciesSpheresMono(this);
+//	species.setNMolecules(108);
+//	potential.setSpecies(new Species[] {species});
+//	Phase phase      = new Phase(this);
+//	Display display = new DisplayPhase(this);
+//	Device device = new DeviceTrioControllerButton(this);
+//	MeterTemperature thermometer = new MeterTemperature(this);
+//	etomica.units.Unit kelvin = etomica.units.Kelvin.UNIT;
+//	DisplayBox tempBox = new DisplayBox((DatumSource)thermometer);
+//	ColorSchemeByType.setColor(species, java.awt.Color.blue);
+//      
+//	//Tie elements together
+//	this.elementCoordinator.go();
+//	phase.setDensity(0.5);
  //   super(new etomica.space.continuum.Space(3));
     super(new etomica.Space3D());
     Simulation.instance = this;
