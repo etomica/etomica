@@ -67,7 +67,7 @@ public abstract class IntegratorMD extends Integrator {
     /**
      * Class for measuring elapsed simulation time
      */
-    public class ChronoMeter extends Meter {
+    public class ChronoMeter extends MeterScalar {
         
         double time0;
         

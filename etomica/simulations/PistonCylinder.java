@@ -36,7 +36,7 @@ public class PistonCylinder extends SimulationGraphic {
 	    potentialDiskPC.setSpecies(species, speciesPC);
 	    
 	    potentialHardDiskWall = new P2HardSphereWall(potentialDiskPC, Default.ATOM_SIZE);
-	    potentialHardDiskWall.setIterator(new AtomPairIteratorGeneral(Simulation.instance.space,
+	    potentialHardDiskWall.setIterator(new ApiGeneral(Simulation.instance.space,
 	                new AtomIteratorSinglet(), new AtomIteratorSequential()));
 	    
 	    integrator = new IntegratorHardField(this);
@@ -52,7 +52,7 @@ public class PistonCylinder extends SimulationGraphic {
         phase.setBoundary(speciesPC.new Boundary(phase)); //have piston-cylinder system define boundary of phase
         
         //part unique to this class
-        etomica.Meter thermometer = new MeterTemperature();
+        etomica.MeterScalar thermometer = new MeterTemperature();
         DisplayBox tBox = new DisplayBox();
         tBox.setMeter(thermometer);
         tBox.setUnit(new Unit(Kelvin.UNIT));

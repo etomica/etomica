@@ -131,7 +131,7 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
      */
     public void setDatumSource(DatumSource m) {
         source = m;
-        if(m instanceof Meter && 
+        if(m instanceof MeterScalar && 
             !(whichValue instanceof MeterAbstract.ValueType)) setWhichValue(MeterAbstract.MOST_RECENT);
         setUnit(m.getDimension().defaultIOUnit());
         setLabel();
@@ -220,10 +220,10 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
     }
     public DataSource.ValueType getWhichValue() {return whichValue;}
     
-    public void setMeter(Meter m) {
+    public void setMeter(MeterScalar m) {
         setDatumSource(m);
     }
-    public etomica.Meter getMeter() {return (etomica.Meter)getDatumSource();}
+    public etomica.MeterScalar getMeter() {return (etomica.MeterScalar)getDatumSource();}
     
     /**
      * Demonstrates how this class is implemented.

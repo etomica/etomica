@@ -23,7 +23,7 @@ public class ControllerGDI extends Controller implements EtomicaElement {
     private  double          factor;
     private  Integrator      integrator1,integrator2;
     private  Modulator       modulatorIndependentVariable,modulatorDependentVariable;
-    private  Meter           meter1phase1,meter1phase2,meter2phase1,meter2phase2;
+    private  MeterScalar     meter1phase1,meter1phase2,meter2phase1,meter2phase2;
     private  double          i0 ;
     private  double          d0 ;
     private  double          independentVariableFinal ;//final value of independent variable
@@ -46,7 +46,7 @@ public class ControllerGDI extends Controller implements EtomicaElement {
     public ControllerGDI(Simulation sim, Modulator modulatorIndependentVariable1, Modulator modulatorDependentVariable1,
                             double i1, double d1, double finalvalue,
                             Integrator int1, Integrator int2,
-                            Meter m1, Meter m2, Meter m3, Meter m4) {
+                            MeterScalar m1, MeterScalar m2, MeterScalar m3, MeterScalar m4) {
         this(sim, modulatorIndependentVariable1, modulatorDependentVariable1,
                             i1,d1,finalvalue,
                             int1, int2,
@@ -56,7 +56,7 @@ public class ControllerGDI extends Controller implements EtomicaElement {
     public ControllerGDI(Simulation sim, Modulator modulatorIndependentVariable1, Modulator modulatorDependentVariable1,
                             double i1, double d1, double finalvalue,
                             Integrator int1, Integrator int2,
-                            Meter m1, Meter m2, Meter m3, Meter m4,
+                            MeterScalar m1, MeterScalar m2, MeterScalar m3, MeterScalar m4,
                             Function iFunction, Function dFunction) {
         super(sim);
         this.definition(modulatorIndependentVariable1, modulatorDependentVariable1,
@@ -69,7 +69,7 @@ public class ControllerGDI extends Controller implements EtomicaElement {
     public void definition(Modulator modulatorIndependentVariable1, Modulator modulatorDependentVariable1,
                             double i1,double d1,double finalvalue,
                             Integrator int1,Integrator int2,
-                            Meter m1, Meter m2, Meter m3, Meter m4,
+                            MeterScalar m1, MeterScalar m2, MeterScalar m3, MeterScalar m4,
                             Function iFunction, Function dFunction) {
         iF = iFunction;
         dF = dFunction;

@@ -12,7 +12,7 @@ package etomica;
   * is recorded this way.
   */
   
- public class MeterDatumSourceWrapper extends Meter {
+ public class MeterDatumSourceWrapper extends MeterScalar {
     
     private DatumSource source;
     private DataSource.ValueType whichValue = null;

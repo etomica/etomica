@@ -22,7 +22,7 @@ public abstract class MeterGroup extends MeterAbstract implements DataSource  {
     public static final String VERSION = "MeterGroup:01.05.24/"+MeterAbstract.VERSION;
     
     MeterAbstract.Accumulator[] accumulator;
-    Meter[] meters;
+    MeterScalar[] meters;
     protected double[] currentValues;
     private double[] values;
     private Function function;
@@ -95,9 +95,9 @@ public abstract class MeterGroup extends MeterAbstract implements DataSource  {
 	    return accumulator;
 	 }
 	
-	public Meter[] allMeters() {
+	public MeterScalar[] allMeters() {
 	    if(meters == null) {
-	        meters = new Meter[nMeters];
+	        meters = new MeterScalar[nMeters];
 	        for(int i=0; i<nMeters; i++) {
 	            meters[i] = new PseudoMeter(parentSimulation(), i);
 	        }
@@ -207,7 +207,7 @@ public abstract class MeterGroup extends MeterAbstract implements DataSource  {
 	  * although it is actually serving as a wrapper for the one of the data values
 	  * collected by the meter group.
 	  */
-	 public class PseudoMeter extends Meter {
+	 public class PseudoMeter extends MeterScalar {
        private final int index;
         PseudoMeter(Simulation sim, int i) {
             super(sim);

@@ -5,7 +5,7 @@ import etomica.units.Dimension;
  * Meter for measurement of the temperature based on kinetic-energy equipartition
  */
 
-public final class MeterTemperature extends Meter implements EtomicaElement, Meter.Atomic
+public final class MeterTemperature extends MeterScalar implements EtomicaElement, MeterScalar.Atomic
 {
     public MeterTemperature() {
         this(Simulation.instance);

@@ -3,10 +3,10 @@ import etomica.*;
 
 // Writes current values of all meters to console
 
-public class DisplayToConsole extends Display implements Meter.MultiUser, EtomicaElement
+public class DisplayToConsole extends Display implements MeterScalar.MultiUser, EtomicaElement
 {
     public String getVersion() {return "DisplayToConsole:01.02.10.0/"+Display.VERSION;}
-    Meter[] meter;
+    MeterScalar[] meter;
     int nMeters = 0;
         
     public DisplayToConsole() {
@@ -15,7 +15,7 @@ public class DisplayToConsole extends Display implements Meter.MultiUser, Etomic
     public DisplayToConsole(Simulation sim) 
     {
         super(sim);
-        if(meter == null) meter = new Meter[0];
+        if(meter == null) meter = new MeterScalar[0];
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -30,15 +30,15 @@ public class DisplayToConsole extends Display implements Meter.MultiUser, Etomic
         System.out.println();
     }
     
-    public void setMeters(Meter[] m) {
+    public void setMeters(MeterScalar[] m) {
         meter = m;
     }
-    public Meter[] getMeters() {return meter;}
+    public MeterScalar[] getMeters() {return meter;}
     
-    public void addMeter(Meter m) {
-        if(meter == null) meter = new Meter[0];
+    public void addMeter(MeterScalar m) {
+        if(meter == null) meter = new MeterScalar[0];
         nMeters++;
-        Meter[] temp = new Meter[nMeters];
+        MeterScalar[] temp = new MeterScalar[nMeters];
         for(int i=0; i<meter.length; i++) {temp[i] = meter[i];}
         temp[nMeters-1] = m;
         meter = temp;

@@ -5,7 +5,7 @@ import etomica.units.Dimension;
 /**
  * Meter for recording the total number of molecules in the phase
  */
-public class MeterNMolecules extends Meter implements EtomicaElement, Meter.Atomic {
+public class MeterNMolecules extends MeterScalar implements EtomicaElement, MeterScalar.Atomic {
     
     private Species species;
     private SpeciesAgent speciesAgent;

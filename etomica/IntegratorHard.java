@@ -240,25 +240,25 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
     /**
      * Demonstrates how this class is implemented.
      */
-/*    public static void main(String[] args) {
-        Simulation.instance = new Simulation(new Space2D());
+ /*   public static void main(String[] args) {
+        Simulation.instance = new etomica.graphics.SimulationGraphic(new Space2D());
 	    IntegratorHard integratorHard1 = new IntegratorHard();
 	 //   integratorHard1.setTimeStep(0.02);
-	    SpeciesSpheres speciesSpheres1 = new SpeciesSpheres(10);
-	    SpeciesSpheres speciesSpheres2 = new SpeciesSpheres(1);
-	    speciesSpheres2.setColor(java.awt.Color.red);
+	    SpeciesSpheresMono speciesSpheres1 = new SpeciesSpheresMono(10);
+	    SpeciesSpheresMono speciesSpheres2 = new SpeciesSpheresMono(1);
+	    etomica.graphics.ColorSchemeByType.setColor(speciesSpheres2, java.awt.Color.red);
 	    final Phase phase = new Phase();
 	    P2HardSphere potential12 = new P2HardSphere(4.0);
 	    P2HardSphere potential22 = new P2HardSphere(5.0);
 	    P2HardSphere potential11 = new P2HardSphere(3.0);
 	    speciesSpheres2.setDiameter(5.0);
 	    Controller controller1 = new Controller();
-	    DisplayPhase displayPhase1 = new DisplayPhase();
-	    IntegratorMD.Timer timer = integratorHard1.new Timer(integratorHard1.chronoMeter());
+	    etomica.graphics.DisplayPhase displayPhase1 = new etomica.graphics.DisplayPhase();
+	    etomica.graphics.DisplayTimer timer = new etomica.graphics.DisplayTimer(integratorHard1);
 	    timer.setUpdateInterval(10);
 	    MeterRDF meterRDF = new MeterRDF();
-	    DisplayPlot plot = new DisplayPlot();
-		Simulation.instance.panel().setBackground(java.awt.Color.yellow);
+	    etomica.graphics.DisplayPlot plot = new etomica.graphics.DisplayPlot();
+//		Simulation.instance.panel().setBackground(java.awt.Color.yellow);
 		Simulation.instance.elementCoordinator.go(); 
 		
 		potential12.setSpecies(speciesSpheres1, speciesSpheres2);
@@ -279,7 +279,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
                 * /
 	//    displayPhase1.setColorScheme(integratorHard1.new HighlightColliders());
 	    
-	    displayPhase1.addDrawable(new Drawable() {
+	    displayPhase1.addDrawable(new etomica.graphics.Drawable() {
 	        public void draw(java.awt.Graphics g, int[] origin, double s) {
                 double toPixels = etomica.units.BaseUnit.Length.Sim.TO_PIXELS*s;
                 int i=0;
@@ -293,7 +293,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
                     g.setColor(java.awt.Color.gray);
 	                g.drawString(text, xP, yP-20);
 	                g.setColor(java.awt.Color.red);
-	                g.drawString(Integer.toString(a.index()), xP-20, yP-20);
+	                g.drawString(Integer.toString(a.node.index()), xP-20, yP-20);
 	            }
 	        }
 	    });
@@ -314,7 +314,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
                 System.out.println();
 	        }
 	    });* /
-        Simulation.makeAndDisplayFrame(Simulation.instance);
+        etomica.graphics.SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
     }//end of main
 */
 }//end of IntegratorHard

@@ -8,7 +8,7 @@ package etomica;
  */
 public final class IteratorDirective implements java.io.Serializable {
     
-    private Atom atom1, atom2;
+    private Atom atom1;
     private Direction direction;
     private int atomCount;
     PotentialCriterion potentialCriteriaHead;
@@ -46,10 +46,7 @@ public final class IteratorDirective implements java.io.Serializable {
         direction = id.direction();
         includeLrc = id.includeLrc;
         atom1 = id.atom1();
-        atom2 = id.atom2();
-        if(atom1 == null) atomCount = 0;
-        else if(atom2 == null) atomCount = 1;
-        else atomCount = 2;
+        atomCount = (atom1 == null) ? 0 : 1;
         for(PotentialCriterion crit=id.potentialCriteriaHead; crit!=null; crit=crit.nextCriterion()) {
             addCriterion((PotentialCriterion)crit.clone());
         }
@@ -58,20 +55,13 @@ public final class IteratorDirective implements java.io.Serializable {
     //returns itself as a convenience, so that it may be set while being passed as an
     //argument to a method
     public final IteratorDirective set() {
-        atom1 = atom2 = null;
+        atom1 = null;
         atomCount = 0;
         return this;
     }
     public final IteratorDirective set(Atom a) {
         atom1 = a;
-        atom2 = null;
         atomCount = (atom1 != null) ? 1 : -1;
-        return this;
-    }
-    public final IteratorDirective set(Atom a1, Atom a2) {
-        atom1 = a1;
-        atom2 = a2;
-        atomCount = (atom1 != null && atom2 != null) ? 2 : -1;
         return this;
     }
     public final IteratorDirective set(Direction direction) {
@@ -83,7 +73,6 @@ public final class IteratorDirective implements java.io.Serializable {
     public final Direction direction() {return direction;}
     
     public final Atom atom1() {return atom1;}
-    public final Atom atom2() {return atom2;}
     
     public final boolean excludes(Potential p) {
         for(PotentialCriterion crit=potentialCriteriaHead; crit!=null; crit=crit.nextCriterion()) {

@@ -9,7 +9,7 @@ import etomica.units.*;
  */
 public class MeterProfileHard extends MeterProfile implements IntegratorHard.CollisionListener, EtomicaElement {
     
-    private Meter.Collisional cMeter;
+    private MeterScalar.Collisional cMeter;
     private int nCollisions;
     /**
      * Atom-based contribution to profile property.  Computed using the superclass meter (if it is set to something).
@@ -49,8 +49,8 @@ public class MeterProfileHard extends MeterProfile implements IntegratorHard.Col
      * are desired to contribute to average, should be called once with each.
      */
     public void setMeter(MeterAbstract m) {
-        if (m instanceof Meter.Collisional) {cMeter = (Meter.Collisional)m;}
-        if (m instanceof Meter.Atomic) {meter = (Meter.Atomic)m;}
+        if (m instanceof MeterScalar.Collisional) {cMeter = (MeterScalar.Collisional)m;}
+        if (m instanceof MeterScalar.Atomic) {meter = (MeterScalar.Atomic)m;}
     }
     
     public double[] currentValue() {

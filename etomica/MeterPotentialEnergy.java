@@ -9,7 +9,7 @@ import etomica.units.Dimension;
  * @author David Kofke
  */
  
-public class MeterPotentialEnergy extends Meter implements EtomicaElement {
+public class MeterPotentialEnergy extends MeterScalar implements EtomicaElement {
     
     private IteratorDirective iteratorDirective;
     private final PotentialCalculationEnergySum energy;

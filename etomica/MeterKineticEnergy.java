@@ -8,7 +8,7 @@ import etomica.units.Dimension;
  * Meter for the total kinetic energy in a phase
  * Computes total KE by summing values of KE returned by every atom in the phase
  */
-public class MeterKineticEnergy extends Meter
+public class MeterKineticEnergy extends MeterScalar
 {
     AtomIterator atomIterator;
     

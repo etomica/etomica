@@ -299,12 +299,12 @@ public class MediatorGraphic extends Mediator {
             
             //need to handle MeterGroup
             private void connect(Display display, MeterAbstract meter) {
-                if(meter instanceof Meter) {
+                if(meter instanceof MeterScalar) {
                     if(display instanceof DatumSource.MultiUser) {
-                        ((DatumSource.MultiUser)display).addDatumSources((Meter)meter);
+                        ((DatumSource.MultiUser)display).addDatumSources((MeterScalar)meter);
                     }
                     else if(display instanceof DatumSource.User && ((DatumSource.User)display).getDatumSource() == null) {
-                        ((DatumSource.User)display).setDatumSource((Meter)meter);
+                        ((DatumSource.User)display).setDatumSource((MeterScalar)meter);
                     }
                 }
                 else if(meter instanceof MeterFunction) {

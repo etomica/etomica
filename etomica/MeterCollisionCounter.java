@@ -10,7 +10,7 @@ import etomica.units.*;
  * @author Rob Riggleman
  */
 
-public class MeterCollisionCounter extends Meter implements IntegratorHardAbstract.CollisionListener {
+public class MeterCollisionCounter extends MeterScalar implements IntegratorHardAbstract.CollisionListener {
     private int counter;
     private IntegratorHard integratorHard;
     

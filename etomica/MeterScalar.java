@@ -13,14 +13,14 @@ import etomica.utility.Function;
  * The default condition of a Meter is "active", meaning that it increments sums for averages upon
  * receiving sufficient interval events from the integrator.
  */
-public abstract class Meter extends MeterAbstract implements DataSource.Wrapper, DatumSource  {
+public abstract class MeterScalar extends MeterAbstract implements DataSource.Wrapper, DatumSource  {
     
     public static final String VERSION = "Meter:01.05.14/"+MeterAbstract.VERSION;
     
     MeterAbstract.Accumulator accumulator = new MeterAbstract.Accumulator();
     private Function function;
     
-	public Meter(Simulation sim) {
+	public MeterScalar(Simulation sim) {
 	    super(sim);
 	    setActive(true);  //default is to have meter do averages after some number of integrationIntervalEvents
 	}
@@ -172,17 +172,17 @@ public abstract class Meter extends MeterAbstract implements DataSource.Wrapper,
 	 * Interface to indicate an object that interacts with a Meter.
 	 */
 	 public interface User {
-	    public void setMeter(Meter m);
-	    public Meter getMeter();
+	    public void setMeter(MeterScalar m);
+	    public MeterScalar getMeter();
 	 }
 	 
 	/**
 	 * Interface to indicate an object that interacts with multiple Meters.
 	 */
 	 public interface MultiUser {
-	    public void setMeters(Meter[] m);
-	    public Meter[] getMeters();
-	    public void addMeter(Meter m);
+	    public void setMeters(MeterScalar[] m);
+	    public MeterScalar[] getMeters();
+	    public void addMeter(MeterScalar m);
 	 }
 	
 }//end of Meter class	 

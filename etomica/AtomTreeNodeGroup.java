@@ -32,7 +32,10 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
     public void setParentGroup(AtomGroup parent) {
         parentGroup = parent;
         parentNode = (parent != null) ? parent.node : null;
-        if(parentNode != null) depth = parentNode.depth() + 1;
+        if(parentNode != null) {
+            depth = parentNode.depth() + 1;
+            parentPhase = parentNode.parentPhase();
+        }
     }
 
     public void setDepth(int d) {
@@ -41,6 +44,7 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
             atom.node.setDepth(d+1);
             if(atom == lastChildAtom()) break;
         }
+        if(parentNode != null) parentPhase = parentNode.parentPhase();
     }
     
     public final Atom firstChildAtom() {return firstAtom;}//((Space.CoordinateGroup)atom.coord).firstAtom();}
@@ -85,7 +89,7 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
     /**
      * Phase in which this atom resides
      */
-    public Phase parentPhase() {return parentNode.parentPhase();}
+    public Phase parentPhase() {return parentPhase;}//parentNode.parentPhase();}
 
     public Species parentSpecies() {return parentNode.parentSpecies();}
     
@@ -368,6 +372,7 @@ public class AtomTreeNodeGroup implements AtomTreeNode {
     protected int atomIndex;
     private AtomTreeNode parentNode;
     private AtomGroup parentGroup;
+    private Phase parentPhase;
     private Atom firstAtom, lastAtom;
     private boolean childrenAreGroups;
 //    private Atom firstLeafAtom;

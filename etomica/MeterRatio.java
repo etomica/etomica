@@ -4,15 +4,15 @@ import etomica.units.*;
 /**
  * Class used to construct meters for intensive properties formed as the ratio of two extensive properties (e.g., energy/mole)
  */
-public class MeterRatio extends Meter {
+public class MeterRatio extends MeterScalar {
 	    
-	protected Meter nMeter;
-	protected Meter dMeter;
+	protected MeterScalar nMeter;
+	protected MeterScalar dMeter;
 	    
-	public MeterRatio(Meter numerator, Meter denominator) {
+	public MeterRatio(MeterScalar numerator, MeterScalar denominator) {
 	    this(Simulation.instance, numerator, denominator);
 	}
-	public MeterRatio(Simulation sim, Meter numerator, Meter denominator) {
+	public MeterRatio(Simulation sim, MeterScalar numerator, MeterScalar denominator) {
 	    super(sim);
 	    setNumerator(numerator);
 	    setDenominator(denominator);
@@ -40,8 +40,8 @@ public class MeterRatio extends Meter {
 	    return nMeter.currentValue()/dMeter.currentValue();
 	}
 	    
-	public void setNumerator(Meter numerator) {nMeter = numerator;}
-	public void setDenominator(Meter denominator) {dMeter = denominator;}
+	public void setNumerator(MeterScalar numerator) {nMeter = numerator;}
+	public void setDenominator(MeterScalar denominator) {dMeter = denominator;}
 	    
 	    
 }

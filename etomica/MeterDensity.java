@@ -8,7 +8,7 @@ import etomica.units.*;
  *
  * MIGHT WANT TO CHANGE THIS TO A METER.RATIO
  */
-public class MeterDensity extends Meter implements Meter.Atomic, EtomicaElement
+public class MeterDensity extends MeterScalar implements MeterScalar.Atomic, EtomicaElement
 {
     public MeterDensity() {
         this(Simulation.instance);

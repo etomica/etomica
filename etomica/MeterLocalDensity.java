@@ -11,7 +11,7 @@ import etomica.units.*;
  
  //setBounds is no longer implemented.  Class may need repair
 
-public abstract class MeterLocalDensity extends Meter implements EtomicaElement
+public abstract class MeterLocalDensity extends MeterScalar implements EtomicaElement
 {
     /**
      * Class variable used to specify that all species are included in number-density calculation

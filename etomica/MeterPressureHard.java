@@ -9,9 +9,9 @@ import etomica.units.*;
  *
  * @author David Kofke
  */
-public final class MeterPressureHard extends Meter implements
+public final class MeterPressureHard extends MeterScalar implements
                                                 IntegratorHardAbstract.CollisionListener,
-                                                Meter.Collisional,
+                                                MeterScalar.Collisional,
                                                 EtomicaElement {
         
     private double virialSum = 0.0;
@@ -91,7 +91,7 @@ public final class MeterPressureHard extends Meter implements
      * Method to demonstrate and test the use of this class.  
      * Pressure is measured in a hard-sphere MD simulation.
      */
-    public static void main(String[] args) {
+ /*   public static void main(String[] args) {
         etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
         Simulation.instance = sim;
         
@@ -115,7 +115,7 @@ public final class MeterPressureHard extends Meter implements
         profile.setActive(true);
         profile.setX(0,30,50);
         profile.setMeter(pressureMeter);
-        profile.setMeter(((Meter.Atomic)new MeterTemperature()));
+        profile.setMeter(((MeterScalar.Atomic)new MeterTemperature()));
         etomica.graphics.DisplayPlot plot = new etomica.graphics.DisplayPlot();
            
         //display the meter
@@ -133,5 +133,5 @@ public final class MeterPressureHard extends Meter implements
         
         etomica.graphics.SimulationGraphic.makeAndDisplayFrame(sim);
     }//end of main
-    
+    */
 }

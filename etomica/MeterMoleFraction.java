@@ -6,7 +6,7 @@ package etomica;
  *
  * @author David Kofke
  */
-public class MeterMoleFraction extends Meter implements EtomicaElement
+public class MeterMoleFraction extends MeterScalar implements EtomicaElement
 {
     private Species species;
     private SpeciesAgent speciesAgent;

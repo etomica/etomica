@@ -10,7 +10,7 @@ import etomica.units.*;
  * @author Rob Riggleman
  */
 
-public class MeterSurfaceTensionHard extends Meter implements Meter.Atomic, Meter.Collisional {//, EtomicaElement {
+public class MeterSurfaceTensionHard extends MeterScalar implements MeterScalar.Atomic, MeterScalar.Collisional {//, EtomicaElement {
     private final Space.Tensor pressureTensor;
     private final MeterTensorVelocity velocityTensor = new MeterTensorVelocity();
     private final MeterTensorVirialHard virialTensor = new MeterTensorVirialHard();

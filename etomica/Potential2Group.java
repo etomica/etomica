@@ -10,7 +10,7 @@ package etomica;
  * @author David Kofke
  */
 
-public class Potential2Group extends Potential2 implements PotentialGroup {
+public final class Potential2Group extends Potential2 implements PotentialGroup {
     
     private final IteratorDirective localDirective = new IteratorDirective();
 //    private final PotentialCalculation.EnergySum energy = new PotentialCalculation.EnergySum();

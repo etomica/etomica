@@ -12,12 +12,12 @@ import etomica.units.Count;
  *  @author David Kofke
  */
 
-public class MeterMeanSquareDisplacement extends Meter implements 
+public class MeterMeanSquareDisplacement extends MeterScalar implements 
                                                 Integrator.IntervalListener.BeforePbc, 
                                                 Integrator.IntervalListener.AfterPbc, 
                                                 EtomicaElement {
 
-    public static final String getVersion() {return "MeterMeanSquareDisplacement:01.03.24/"+Meter.VERSION;}
+    public static final String getVersion() {return "MeterMeanSquareDisplacement:01.03.24/"+MeterScalar.VERSION;}
  
     private int nAtoms = 0;
     AtomIterator iterator;

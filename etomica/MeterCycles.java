@@ -10,7 +10,7 @@ import etomica.units.Count;
  * Methods average and error are meaningless for this integrator, and return Not-a-Number
  */
 
-public final class MeterCycles extends Meter implements EtomicaElement
+public final class MeterCycles extends MeterScalar implements EtomicaElement
 {
     private int count = 0;
     

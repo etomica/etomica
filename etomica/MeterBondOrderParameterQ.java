@@ -10,7 +10,7 @@ import etomica.utility.*;
    * @author Jhumpa Adhikari
    */
 
-public class MeterBondOrderParameterQ extends Meter implements EtomicaElement 
+public class MeterBondOrderParameterQ extends MeterScalar implements EtomicaElement 
 {
     private SphericalHarmonics sh;
     private double[] Qreal, Qimag;

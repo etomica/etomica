@@ -19,7 +19,7 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
     /**
      * Meter that defines the property being profiled.
      */
-    Meter.Atomic meter;
+    MeterScalar.Atomic meter;
     
     private double profileNorm = 1.0;
     private AtomIterator ai1;
@@ -63,7 +63,7 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
     /**
      * Returns the ordinate label for the profile, obtained from the associated meter.
      */
-    public String getLabel() {return ((Meter)meter).getLabel();}
+    public String getLabel() {return ((MeterScalar)meter).getLabel();}
     
     /**
      * Indicates that the abscissa coordinate is dimensionless.
@@ -74,7 +74,7 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
     /**
      * Returns the dimensions of the ordinate, obtained from the associated meter.
      */
-    public Dimension getDimension() {return (meter==null) ? null : ((Meter)meter).getDimension();}
+    public Dimension getDimension() {return (meter==null) ? null : ((MeterScalar)meter).getDimension();}
     
     /**
      * This meter needs iterators to do its measurements, so this method overrides the no-op method of AbstractMeter 
@@ -92,8 +92,8 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
     /**
      * Accessor method for the meter that defines the profiled quantity.
      */
-    public void setMeter(Meter.Atomic m) {
-        if (m instanceof Meter.Atomic) meter = (Meter.Atomic)m;
+    public void setMeter(MeterScalar.Atomic m) {
+        if (m instanceof MeterScalar.Atomic) meter = (MeterScalar.Atomic)m;
         else throw new IllegalArgumentException("Error in meter type in MeterProfile.  Must be Meter.Atomic");
     }
     

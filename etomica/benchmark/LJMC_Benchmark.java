@@ -12,7 +12,7 @@ public class LJMC_Benchmark {
         // 0 = standard
         // 1 = performance
         // 2 = molecule layer
-        final int VERSION = 0;
+        final int VERSION = 2;
         final int nCycles = 1000;
         
         Default.BOX_SIZE=30.;
@@ -157,6 +157,7 @@ public class LJMC_Benchmark {
  38   -- (2) AtomIteratorChildren in pair iterator for potential2
  26   -- ApiIntraspecies1a, ApiIntergroup1A
  29
+ 27   -- Storing parentPhase in each node
  
  43.9 -- Home W2K Athlon/64/1000 (2)  (32.6 when run with HotSpot Server)
   2.7 -- Home/64/1000 (1)            (3.0 HotSpot Server, based on 10K cycles) (34.0 HotSpot Classic)

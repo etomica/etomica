@@ -1,5 +1,24 @@
 package etomica;
 
+/**
+ * Interface for a node in the atom tree.  Atoms are arranged in a tree structure 
+ * to define collections of molecules, individual molecules, atom groups and atoms.  
+ * All of these elements are represented by the Atom class, and the structure that
+ * forms the larger elements from the smaller ones is maintained by the node class
+ * associated with each Atom.  The node for each atom holds information about its
+ * parent and its children (if any).  Leaf nodes have no children, but they are defined
+ * to identify themselves as their only child (this design makes certain types of
+ * pair loops easier to perform).<br>
+ *
+ * (The node for) a SpeciesMaster instance is the root of the atom tree.  Directly below
+ * it are instances of SpeciesAgent class, which are constructed each Phase by each Species.
+ * Below the SpeciesAgent are instances of Atoms that are logically the molecules of the
+ * system.  The molecules may be leaf atoms, ending the tree, or they may contain child 
+ * atoms (or other groups of atoms) used to form the molecule.
+ *
+ * @author David Kofke
+ */
+
 public interface AtomTreeNode {
     
     public AtomGroup parentGroup();

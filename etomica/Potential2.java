@@ -50,7 +50,7 @@ public abstract class Potential2 extends Potential {
     //need to find a better way to set basis 
     //problem is that iterator is selected in calculate method, after set is called
     public Potential set(Atom a1, Atom a2) {
-        iterator.setBasis(a1, a2); 
+  //      iterator.setBasis(a1, a2); 
         iterator1.setBasis(a1, a2); 
         iteratorA.setBasis(a1, a2); 
         return this;}

@@ -2,7 +2,7 @@ package etomica.graphics;
 import etomica.*;
 import java.awt.*;
 
-    public class DisplayScrollingGraph extends Display implements etomica.Meter.User {
+    public class DisplayScrollingGraph extends Display implements etomica.MeterScalar.User {
 
         Color bgColor = new Color(255, 255, 240);
         int margin = 10;
@@ -22,7 +22,7 @@ import java.awt.*;
         double vAvg;
         double v2Avg;
         double stdDev;
-        Meter meter;
+        MeterScalar meter;
         etomica.units.Unit unit;
         
         public DisplayScrollingGraph() {
@@ -57,7 +57,7 @@ import java.awt.*;
     /**
      * Accessor method for the meter that generates the displayed value.
      */
-    public Meter getMeter() {
+    public MeterScalar getMeter() {
         System.out.println("DisplayBox.getMeter value = "+meter);
         return meter;
     }
@@ -65,7 +65,7 @@ import java.awt.*;
     /**
      * Specifies the meter that generates the displayed value.
      */
-    public void setMeter(Meter m) {
+    public void setMeter(MeterScalar m) {
         meter = m;
         setUnit(m.defaultIOUnit());
     }

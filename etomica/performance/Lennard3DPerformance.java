@@ -1,7 +1,7 @@
 package etomica.simulations;
 import etomica.*;
 import etomica.units.*;
-import etomica.datamanager.*;
+//import etomica.datamanager.*;
 import etomica.performance.*;
 
 
@@ -74,14 +74,14 @@ public class Lennard3DPerformance{
 
 	    meter4.setName("potentialenergy");
 
-	    MeterValuesToLogFile displayLog = new MeterValuesToLogFile("ljpT.txt");
+/*	    MeterValuesToLogFile displayLog = new MeterValuesToLogFile("ljpT.txt");
 	    displayLog.setReset(true);
 	    displayLog.setUpdateInterval(1000);
 	    displayLog.setResetVal(200000);
 	    displayLog.setCycleCount(1000);
 	   
 	    displayLog.setStartTime(System.currentTimeMillis());
-        integrator.addIntervalListener(displayLog);
+        integrator.addIntervalListener(displayLog);*/
 	    sim.elementCoordinator.go();
 
         potential.setArray(phase);

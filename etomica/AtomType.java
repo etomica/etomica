@@ -298,7 +298,7 @@ public abstract class AtomType implements java.io.Serializable {
         public final void setAdiabatic(boolean a) {adiabatic = a;}
         
         //Meter that evaluates pressure based on accumulated momentum from collisions with wall
-        public class MeterPressure extends etomica.Meter {
+        public class MeterPressure extends etomica.MeterScalar {
             
             private double timeSum;
             public MeterPressure() {

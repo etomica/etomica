@@ -2,7 +2,7 @@ package etomica.utility;
 
 import etomica.DataSource;
 import etomica.units.Dimension;
-import ptolemy.plot.Plot;
+//import ptolemy.plot.Plot;
 
 public class Histogram implements DataSource.X {
 	private double deltaX;
@@ -10,7 +10,7 @@ public class Histogram implements DataSource.X {
 	private int[] counts;
 	private double[] histogram;
     private double xvalues[];
-    private Plot plot;  //Histogram.Plot inner class
+//    private Plot plot;  //Histogram.Plot inner class
     private boolean autoScale;
     private boolean firstValue = true;
     private double xMin,xMinOld;
@@ -152,7 +152,7 @@ public class Histogram implements DataSource.X {
     
     public double[] getX() {return xvalues;}
     
-    public Plot getPlot() {                //returns a Plot capable of displaying the histogram
+/*    public Plot getPlot() {                //returns a Plot capable of displaying the histogram
         if(plot == null) plot = new Plot();
         return plot;
     }
@@ -182,5 +182,5 @@ public class Histogram implements DataSource.X {
             repaint();
         }
     }
-    
+ */   
 }

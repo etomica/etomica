@@ -1,5 +1,12 @@
 package etomica;
 
+/**
+ * Leaf node in the tree of atoms.  Differs from group node in having firstChild, lastChild,
+ * firstLeafAtom, lastLeafAtom, all given as this node's atom.  Having firstChild
+ * and lastChild point to itself is useful in looping through interactions between a leaf
+ * and a group.
+ */
+
 public final class AtomTreeNodeLeaf implements AtomTreeNode {
     
     public AtomTreeNodeLeaf(Atom atom) {
@@ -34,6 +41,7 @@ public final class AtomTreeNodeLeaf implements AtomTreeNode {
 
     public void setDepth(int d) {
         depth = d;
+        if(parentNode != null) parentPhase = parentNode.parentPhase();
     }
     
     /**
@@ -46,7 +54,7 @@ public final class AtomTreeNodeLeaf implements AtomTreeNode {
     public final Atom firstChildAtom() {return atom;}//null;}
     public final Atom lastChildAtom() {return atom;}//null;}
 
-    public Atom randomAtom() {return null;}
+    public Atom randomAtom() {return atom;}
     
     /**
      * Indicates whether the children of this group are themselves atom groups,
@@ -94,23 +102,26 @@ public final class AtomTreeNodeLeaf implements AtomTreeNode {
     public boolean isDescendedFrom(Atom group) {
         return (this.atom == group) || (parentNode != null && parentNode.isDescendedFrom(group));
     }
-     /*   AtomGroup ancestor = parentGroup;
-        while(ancestor != null) {
-            if(ancestor == group) return true;
-            ancestor = ancestor.parentGroup();
-        }
-        return false;
-    }*/
-        
+    
+    /**
+     * Returns this node's atom.
+     */
     public Atom firstLeafAtom() {return atom;}
     
     /**
-     * Returns the last leaf atom descended from this group.
+     * Returns this node's atom.
      */
     public Atom lastLeafAtom() {return atom;}
     
-    public int leafAtomCount() {return leafCount;}
-    public int childAtomCount() {return 0;}
+    /**
+     * Returns 1.
+     */
+    public int leafAtomCount() {return 1;}
+    
+    /**
+     * Returns 1.
+     */
+    public int childAtomCount() {return 1;}
 
     /**
      * Returns the children of this group in an array of atoms.
@@ -120,41 +131,45 @@ public final class AtomTreeNodeLeaf implements AtomTreeNode {
      * situations involving repeated calls (this should be avoided).
      */
     public Atom[] childAtomArray() {
-        return new Atom[0];
+        return new Atom[] {atom};
     }
     
-            
     /**
-     * Returns the first leaf atom descended from this group.
+     * Always throws a RuntimeException because atom cannot be added to leaf.
      */
-    
     public void addAtom(Atom aNew) {
+        throw new RuntimeException("Inappropriate call to addAtom in AtomTreeNodeLeaf");
     }//end of addAtom
 
 
+    /**
+     * Always throws a RuntimeException because atom cannot be removed from leaf.
+     */
     public void removeAtom(Atom a) {
+        throw new RuntimeException("Inappropriate call to addAtom in AtomTreeNodeLeaf");
     }//end of removeAtom
 
     /**
-     * Removes all child atoms of this group.  Maintains their
-     * internal links, and returns the first child, so they may be recovered 
-     * for use elsewhere.
-     * Does not remove this group from its parent group.
+     * Always throws a RuntimeException.
      */
-    public Atom removeAll() {return null;
+    public Atom removeAll() {
+        throw new RuntimeException("Inappropriate call to addAtomNotify in AtomTreeNodeLeaf");
     }//end of removeAll
     
     /**
-     * Notifies this atom group that an atom has been added to it or one of its descendants.
+     * Always throws a RuntimeException.
      */
     public void addAtomNotify(Atom atom) {
+        throw new RuntimeException("Inappropriate call to addAtomNotify in AtomTreeNodeLeaf");
     }
     
     public void removeAtomNotify(Atom atom) {
+        throw new RuntimeException("Inappropriate call to removeAtomNotify in AtomTreeNodeLeaf");
     }
     
     private AtomTreeNode parentNode;
     private AtomGroup parentGroup;
+    private Phase parentPhase;
     private Atom atom;
     private int leafCount;
     private int depth;

@@ -11,7 +11,7 @@ import etomica.utility.Iterator;
  *
  * @author David Kofke
  */
-public class MeterWidomInsertion extends Meter implements EtomicaElement {
+public class MeterWidomInsertion extends MeterScalar implements EtomicaElement {
 
     /**
      * Number of insertions attempted in each call to currentValue
