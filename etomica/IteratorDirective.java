@@ -41,15 +41,17 @@ public final class IteratorDirective implements java.io.Serializable {
     
     /**
      * Puts all settings of this directive to equal those of the given directive.
+     * The list of potential criteria of the given directive is referenced as the list
+     * for this directive, so changes in list for either directive will affect the
+     * list for the other directive.
      */
+     //we don't make copy of list to avoid overhead of construction
     public void copy(IteratorDirective id) {
         direction = id.direction();
         includeLrc = id.includeLrc;
         atom1 = id.atom1();
         atomCount = (atom1 == null) ? 0 : 1;
-        for(PotentialCriterion crit=id.potentialCriteriaHead; crit!=null; crit=crit.nextCriterion()) {
-            addCriterion((PotentialCriterion)crit.clone());
-        }
+        potentialCriteriaHead = id.potentialCriteriaHead;
     }
     
     //returns itself as a convenience, so that it may be set while being passed as an

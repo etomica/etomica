@@ -86,7 +86,8 @@ public class MCMoveInsertDelete extends MCMove {
      * Returns an iterator giving molecule that is being added or deleted 
      * in the current or most recent trial.
      */
-    public final AtomIterator affectedAtoms() {
+    public final AtomIterator affectedAtoms(Phase phase) {
+        if(this.phase != phase) return AtomIterator.NULL;
         affectedAtomIterator.setBasis(testMolecule);
         affectedAtomIterator.reset();
         return affectedAtomIterator;

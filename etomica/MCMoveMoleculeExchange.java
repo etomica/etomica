@@ -83,7 +83,8 @@ public final class MCMoveMoleculeExchange extends MCMove {
         molecule.node.setParent(dSpecies);
     }
 
-    public final AtomIterator affectedAtoms() {
+    public final AtomIterator affectedAtoms(Phase phase) {
+        if(this.firstPhase != phase && this.secondPhase != phase) return AtomIterator.NULL;
         affectedAtomIterator.setBasis(molecule);
         affectedAtomIterator.reset();
         return affectedAtomIterator;

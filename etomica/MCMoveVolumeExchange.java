@@ -17,7 +17,7 @@ public final class MCMoveVolumeExchange extends MCMove {
     private final IteratorDirective iteratorDirective = new IteratorDirective();
     private AtomIterator phase1AtomIterator;
     private AtomIterator phase2AtomIterator;
-    private AtomIteratorCompound affectedAtomIterator;
+//    private AtomIteratorCompound affectedAtomIterator;
     
     private transient double hOld, v1Scale, v2Scale;
 
@@ -46,8 +46,8 @@ public final class MCMoveVolumeExchange extends MCMove {
         inflate2 = new PhaseAction.Inflate(secondPhase);
         phase1AtomIterator = firstPhase.makeMoleculeIterator();
         phase2AtomIterator = secondPhase.makeMoleculeIterator();
-        affectedAtomIterator 
-            = new AtomIteratorCompound(new AtomIterator[] {phase1AtomIterator, phase2AtomIterator});
+//        affectedAtomIterator 
+//            = new AtomIteratorCompound(new AtomIterator[] {phase1AtomIterator, phase2AtomIterator});
     }
     
     public boolean doTrial() {
@@ -85,9 +85,16 @@ public final class MCMoveVolumeExchange extends MCMove {
         inflate2.undo();
     }
 
-    public final AtomIterator affectedAtoms() {
-        affectedAtomIterator.reset();
-        return affectedAtomIterator;
+    public final AtomIterator affectedAtoms(Phase phase) {
+        if(this.firstPhase == phase) {
+            phase1AtomIterator.reset();
+            return phase1AtomIterator;
+        } else if(this.secondPhase == phase) {
+            phase2AtomIterator.reset();
+            return phase2AtomIterator;
+        } else {
+            return AtomIterator.NULL;
+        }
     }
 
 }//end of MCMoveVolumeExchange

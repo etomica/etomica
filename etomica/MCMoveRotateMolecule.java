@@ -68,7 +68,8 @@ public class MCMoveRotateMolecule extends MCMove {
         AtomActionTransform.doAction(leafAtomIterator, r0, rotationTensor);
     }
  
-    public final AtomIterator affectedAtoms() {
+    public final AtomIterator affectedAtoms(Phase phase) {
+        if(this.phase != phase) return AtomIterator.NULL;
         affectedAtomIterator.setBasis(molecule);
         affectedAtomIterator.reset();
         return affectedAtomIterator;

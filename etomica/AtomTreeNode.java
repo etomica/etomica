@@ -61,25 +61,29 @@ public abstract class AtomTreeNode {
         parentPhase = null;
     }
 
-    public void setParent(Atom parent) {setParent((AtomTreeNodeGroup)parent.node);}
+    public void setParent(Atom parent) {
+        setParent(parent==null ? (AtomTreeNodeGroup)null : (AtomTreeNodeGroup)parent.node);
+    }
     
     public void setParent(AtomTreeNodeGroup parent) {
         if(parent != null && !parent.isResizable()) return;  //throw an exception?
-        //remove from current parent
+        
+        //old parent is not null; remove from it
         if(parentNode != null) {
             if(!parentNode.isResizable()) return;//exception
             parentNode.childList.remove(atom.seq);        
             parentNode.removeAtomNotify(atom);
         }
+        
         parentNode = parent;
 
-        if(parentNode == null) {
+        if(parentNode == null) {//new parent is null
             parentGroup = null;
             parentPhase = null;
             return;
         }
 
-        //parent is not null
+        //new parent is not null
         parentGroup = parentNode.atom;
         parentPhase = parentNode.parentPhase();
         depth = parentNode.depth() + 1;

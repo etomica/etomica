@@ -58,6 +58,12 @@ public interface AtomIterator {
     
     public Atom getBasis();
     
+    /**
+     * The number of iterates returned by this iterator, if iterating after
+     * a call to the no-argument reset().  Some iterators give a value that
+     * differs from this definition.  Neighbor iterators, for example, return
+     * the total number of atoms in the basis, not the number of neighbors.
+     */
     public int size(); 
     
     /**

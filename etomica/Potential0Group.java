@@ -52,7 +52,7 @@ public class Potential0Group extends Potential0 implements PotentialGroup {
      */
     public void addPotential(Potential potential) {
         if(potential == null) return;
-        if( !(potential instanceof Potential0) ) throw new IllegalArgumentException();
+        if( !(potential instanceof Potential0) ) throw new IllegalArgumentException("Error:  Attempt to add to Potential0Group a potential that is not an instance of Potential0");
         first = new PotentialLinker(potential, first);
         if(phase != null) ((Potential0)potential).set(phase);
     }
@@ -61,9 +61,7 @@ public class Potential0Group extends Potential0 implements PotentialGroup {
      * Not implemented.
      */
     public double energy() {
-        System.out.println("energy method not implemented in Potential0Group");
-        System.exit(1);
-        return 0.0;
+        throw new RuntimeException("energy method not implemented in Potential0Group");
     }
 
 }//end Potential0Group

@@ -6,14 +6,13 @@ package etomica;
  * @author David Kofke
  */
  
-public final class AtomIteratorCompound implements AtomIterator, PhaseListener {
+public final class AtomIteratorCompound implements AtomIterator {
     
     private AtomIterator[] iteratorSet;
     private boolean hasNext;
     private final IteratorDirective directive = new IteratorDirective();
-    private boolean setAsNeighbor = false;
     private int index;
-    Atom basis = null;
+    private Atom basis = null;
     
     /**
      * Construct iterator to loop over all iterates obtained from each iterator 
@@ -21,7 +20,7 @@ public final class AtomIteratorCompound implements AtomIterator, PhaseListener {
      */
     public AtomIteratorCompound(AtomIterator[] iterators) {
         iteratorSet = iterators;
-//        reset();
+        reset();
     }
     
     /**
@@ -44,16 +43,6 @@ public final class AtomIteratorCompound implements AtomIterator, PhaseListener {
     //try to eliminate this method
     public void setBasis(Atom a) {
         throw new RuntimeException("AtomIteratorCompound.setBasis not defined");
-/*        if(!(a instanceof AtomGroup)) {
-            iteratorSet = null;
-            basis = null;
-            return;
-        }
-        iteratorSet = makeIteratorArray((AtomGroup)a);
-        if(a == basis) return;//don't do this before makeIteratorArray, because this method can be called to update the iterator array for the same basis
-        if(basis != null) basis.node.parentPhase().speciesMaster.removeListener(this);
-        a.node.parentPhase().speciesMaster.addListener(this);
-        basis = a;*/
     }
     public Atom getBasis() {return basis;}
     
@@ -91,12 +80,6 @@ public final class AtomIteratorCompound implements AtomIterator, PhaseListener {
         return next;
     }
     
-    /**
-     * This method performs no action for this iterator.  Iterator
-     * is fixed to always be NOT a neighbor iterator.
-     */
-    public void setAsNeighbor(boolean b) {
-    }
     
     public Atom next() {
         Atom next = iteratorSet[index].next();
@@ -112,24 +95,10 @@ public final class AtomIteratorCompound implements AtomIterator, PhaseListener {
         return next;
     }//end of next
     
-    //not implemented
     public void allAtoms(AtomAction act) {
-        throw new RuntimeException("Method allAtoms not implemented in AtomIteratorCompound");
-    }
-    
-    /**
-     * Updates set of iterators in the event that the basis group has an
-     * addition or removal of one of its children.  This method is called
-     * by the species master of the basis group when it fires an event
-     * in its addNotify method.
-     */
-    public void actionPerformed(PhaseEvent evt) {
-        if(basis == null) return;
-        if(evt.type() == PhaseEvent.ATOM_ADDED || evt.type() == PhaseEvent.ATOM_REMOVED) {
-            if(evt.atom().node.parentGroup() == basis) setBasis(basis);
+        for(int i=0; i<iteratorSet.length; i++) {
+            iteratorSet[i].allAtoms(act);
         }
     }
-    public void actionPerformed(SimulationEvent evt) {
-        actionPerformed((PhaseEvent)evt);
-    }
+    
 }//end of AtomIteratorCompound

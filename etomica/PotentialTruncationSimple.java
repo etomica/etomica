@@ -109,10 +109,10 @@ public final class PotentialTruncationSimple extends PotentialTruncation {
          * r^2 d2u/dr2 using integral of u.
          * @param pairDensity average pairs-per-volume affected by the potential.
          *
-         * Not implemented: always returns zero.
+         * Not implemented: throws RuntimeException.
          */
         public double d2uCorrection(double pairDensity) {
-            return 0.0;
+            throw new RuntimeException("method d2uCorrection not implemented in PotentialTruncationSimple.P0Lrc");
         }
     }//end of P0lrc
         

@@ -75,7 +75,7 @@ public final class AtomIteratorListSimple implements AtomIterator {
 	 * Returns the total number of iterates that can be returned by this iterator, for
 	 * its current list basis.
 	 */
-	public int size() { return list.size();}
+	public int size() {return list.size();}
 
 	    
     public Atom next() {

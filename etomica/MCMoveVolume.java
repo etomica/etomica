@@ -60,7 +60,8 @@ public class MCMoveVolume extends MCMove {
         inflate.undo();
     }
 
-    public AtomIterator affectedAtoms() {
+    public AtomIterator affectedAtoms(Phase phase) {
+        if(this.phase != phase) return AtomIterator.NULL;
         affectedAtomIterator.reset();
         return affectedAtomIterator;
     }

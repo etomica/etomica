@@ -94,6 +94,14 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
     
 //  Vector contains what is needed to describe a point in the space
     public static abstract class Vector implements java.io.Serializable { 
+    /* construct planned to replace the displaceBy methods in coordinte
+        private Vector saveVector;
+        public void save() {
+            if(saveVector == null) saveVector = makeVector(D());
+            saveVector.E(this);
+        }
+        public void restore() {this.E(saveVector);}
+        */
         public abstract int length();                         //number of components to vector; equal to the dimension of the space
         public abstract int D();                              //dimension of the space occupied by vector
         public abstract double[] toArray();                   //converts components to array of double
@@ -111,7 +119,6 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         public abstract double x(int i);              //vector component corresponding to the index i (e.g., i=0, x-component)
         public abstract void setX(int i, double d);   //sets ith component of vector to d
         public abstract void E(Vector u);                     //sets each element of the vector equal to the elements of the vector u
-//        public abstract void E(int i, double a);              //sets component i of this vector equal to a
         public abstract void E(double a);                     //sets all components of the vector equal to the constant a
         public abstract void E(double[] a);                   //sets elements of vector to values given in array
         public abstract void PE(Vector u);                    //adds (PE is +=) the vector u to this vector

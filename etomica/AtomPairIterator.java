@@ -10,8 +10,8 @@ public interface AtomPairIterator {
     public void setBasis(Atom a1, Atom a2);
     
     /**
-     * Returns the number of pairs capable of being given by this iterator
-     * (that is, if no restrictions are specified in an iteratorDirective).
+     * Returns the number of pairs that would be given by this iterator
+     * after a call to the no-argument reset() method.
      */
     public int size();        
     

@@ -43,7 +43,6 @@ import etomica.utility.Iterator;
 public class Phase extends SimulationElement {
         
     private Space.Boundary boundary;
-    private transient final LinkedList meterList = new LinkedList();
     private PhaseAction.Inflate inflater;
     public final SpeciesMaster speciesMaster;
     private boolean lrcEnabled = true;
@@ -115,21 +114,6 @@ public class Phase extends SimulationElement {
         return positions;
     }
 */    
-    /**
-     * Returns an array of the molecules currently in the phase, for those times
-     * when you just need convenient indexed access to each molecule.
-     * Use is discouraged.
-     */
-/*     public Molecule[] moleculeArray() {
-        Molecule[] array = new Molecule[moleculeCount];
-        int i=0;
-        Molecule terminationMolecule = lastMolecule().nextMolecule();
-        for(Molecule m=firstMolecule(); m!=terminationMolecule; m=m.nextMolecule()) {
-            array[i++] = m;
-        }
-        return array;
-     }
- */   
     /**
      * Returns the ith molecule in the linked list of molecules.
      * 0 returns the first molecule, and moleculeCount-1 returns the last.
@@ -247,36 +231,13 @@ public class Phase extends SimulationElement {
     public int moleculeCount() {return speciesMaster.moleculeCount();}
     
     public int atomCount() {return speciesMaster.node.leafAtomCount();}
-    
-    /**
-    * Returns the temperature (in simulation units) of this phase as computed via the equipartition
-    * theorem from the kinetic energy summed over all (atomic) degrees of freedom
-    */  
-//    public double kineticTemperature() {
-//        return MeterTemperature.currentValue(this);
-//    }
-    
+        
     public void setConfiguration(Configuration c) {
         configuration = c;
         configuration.initializeCoordinates(speciesMaster.node.childAtomArray());
     }
     
     public Configuration getConfiguration() {return configuration;}
-
-	/**
-	 * Adds a meter to the list of meters working in this phase.
-	 */
-	public void addMeter(MeterAbstract m) {meterList.add(m);}
-
-	/**
-	 * Removes a meter from the list of meters working in this phase.
-	 */
-	public void removeMeter(MeterAbstract m) {meterList.remove(m);}
-
-	/**
-	 * Returns the list of meters working in this phase.
-	 */
-	public LinkedList getMeterList() {return meterList;}
     
     /**
      * Deploys the agent of a species in this phase

@@ -163,7 +163,8 @@ public class MCMoveSemigrand extends MCMove {
         insertMolecule.sendToReservoir();
     }
 
-    public final AtomIterator affectedAtoms() {
+    public final AtomIterator affectedAtoms(Phase phase) {
+        if(this.phase != phase) return AtomIterator.NULL;
         insertAtomIterator.setBasis(insertMolecule);
         deleteAtomIterator.setBasis(deleteMolecule);
         affectedAtomIterator.reset();

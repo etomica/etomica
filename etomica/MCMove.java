@@ -85,7 +85,7 @@ public abstract class MCMove implements java.io.Serializable {
      * after the move is completed.  Such objects can receive notification of the
      * move's completion  by registering with the IntegratorMC as MCMoveEventListeners.
      */
-    public abstract AtomIterator affectedAtoms();
+    public abstract AtomIterator affectedAtoms(Phase phase);
     
     public void setPhase(Phase[] p) {
         phases = p;

@@ -546,12 +546,13 @@ public static final class IntragroupNbrIterator implements AtomIterator {
     public Atom getBasis() {return basis.atom();}
     
     /**
-     * The number of atoms returned on a full iteration, using the current basis.
+     * The number of atoms in the current basis.  This will differ from
+     * the number of iterates given by the iterator, because the iterator
+     * will return only those atoms neighboring a reference atom, which
+     * in general is not all the atoms in the basis.
      */
-     //throw exception, since present implementation won't give correct number of iterates in most cases
     public int size() {
-        throw new RuntimeException("IteratorFactoryCell.IntragroupNbrIterator.size() not implemented");
-       // return (basis != null) ? basis.childAtomCount() : 0;
+       return (basis != null) ? basis.childAtomCount() : 0;
     }   
 
     private AtomTreeNodeGroup basis;
@@ -776,12 +777,13 @@ public static final class IntergroupNbrIterator implements AtomIterator {
     public Atom getBasis() {return basis.atom();}
     
     /**
-     * The number of atoms returned on a full iteration, using the current basis.
+     * The number of atoms in the current basis.  This will differ from
+     * the number of iterates given by the iterator, because the iterator
+     * will return only those atoms neighboring a reference atom, which
+     * in general is not all the atoms in the basis.
      */
-     //throw exception, since present implementation won't give correct number of iterates in most cases
     public int size() {
-        throw new RuntimeException("IteratorFactoryCell.IntergroupNbrIterator.size() not implemented");
-       // return (basis != null) ? basis.childAtomCount() : 0;
+       return (basis != null) ? basis.childAtomCount() : 0;
     }   
 
     private AtomTreeNodeGroup basis;
@@ -863,6 +865,9 @@ public interface CellSequencer {
    
 /////////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Sequencer used for atoms that are not being neighbor listed.
+ */
 public static final class SimpleSequencer extends AtomSequencer implements CellSequencer {
     
     public SimpleSequencer(Atom a) {super(a);}
@@ -919,6 +924,10 @@ public static final class SimpleSequencer extends AtomSequencer implements CellS
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Sequencer used for atoms being neighbor listed.
+ */
 
 public static final class NeighborSequencer extends AtomSequencer implements CellSequencer {
     

@@ -8,12 +8,15 @@ import etomica.*;
  * at least one associate.  Definition of "association" is given by the 
  * AssociationDefintion class passed to the constructor.
  */
+ //needs to be further developed to handle MCMoveEvents when affected atoms
+ //are not among those managed by this class
 public class AssociationManager implements MCMoveListener, Atom.AgentSource {
     
     private final AssociationDefinition associationDefinition;
     private final int index = Atom.requestAgentIndex(this);
     private AtomListRestorable associationList = new AtomListRestorable();
     private AtomTreeNodeGroup basisNode1, basisNode2;
+    private Phase phase;
     private final AtomIteratorListSimple listIterator = new AtomIteratorListSimple();
     private AtomPairIterator pairIterator1, pairIteratorA;
     private final Simulation simulation;
@@ -28,6 +31,8 @@ public class AssociationManager implements MCMoveListener, Atom.AgentSource {
      * Identifies the parent group(s) of the atoms to be managed by this object.
      */
     public void setBasis(AtomTreeNodeGroup basisNode1, AtomTreeNodeGroup basisNode2) {
+        phase = basisNode1.parentPhase();
+        if(phase != basisNode2.parentPhase()) throw new IllegalArgumentException("AssociationManager.setBasis:  basis nodes must be in the same phase");
         this.basisNode1 = basisNode1;
         this.basisNode2 = basisNode2;
         if(basisNode1 == basisNode2) {//intragroup association
@@ -39,6 +44,8 @@ public class AssociationManager implements MCMoveListener, Atom.AgentSource {
         }
         pairIterator1.setBasis(basisNode1.atom(), basisNode2.atom());
         pairIteratorA.setBasis(basisNode1.atom(), basisNode2.atom());
+        
+        clearLists();
     }
  
     /**
@@ -124,7 +131,7 @@ public class AssociationManager implements MCMoveListener, Atom.AgentSource {
      */
     public void actionPerformed(MCMoveEvent evt) {
        
-        AtomIterator ai = evt.mcMove.affectedAtoms();
+        AtomIterator ai = evt.mcMove.affectedAtoms(phase);
         if(evt.isTrialNotify) {
            //update neighbors
             while(ai.hasNext()) updateList(ai.next());
@@ -160,7 +167,7 @@ public class AssociationManager implements MCMoveListener, Atom.AgentSource {
         while(listIterator.hasNext()) {
             ((AtomListRestorable)listIterator.next().allatomAgents[index]).restore();
         }
-    }//end processAtom
+    }//end restoreLists
     
     /**
      * Returns the total number of atoms with at least one associate.
@@ -188,7 +195,7 @@ public class AssociationManager implements MCMoveListener, Atom.AgentSource {
      * atom from other atoms' association lists, then loops through neighbors and places
      * them on list as appropriate.
      */
-    public  void updateList(Atom atom){
+    public void updateList(Atom atom){
         //clear association list of atom and remove it from associates' list
         AtomList atomList = (AtomList)atom.allatomAgents[index];
         if(atomList.size() > 0) {

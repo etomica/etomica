@@ -105,7 +105,8 @@ public class MeterWidomInsertion extends MeterScalar implements EtomicaElement {
         if(phase != null) speciesAgent = species.getAgent(phase);
         
         //need a local reservoir
-        testMolecule = s.moleculeFactory().makeAtom((AtomTreeNodeGroup)speciesAgent.node);
+        testMolecule = s.moleculeFactory().makeAtom();
+        testMolecule.node.setParent((AtomTreeNodeGroup)null);
         iteratorDirective.set(testMolecule);
     }
     /**
@@ -127,12 +128,9 @@ public class MeterWidomInsertion extends MeterScalar implements EtomicaElement {
      * Temperature used to get exp(-uTest/kT) is that of the integrator for the phase
      * @return the sum of exp(-uTest/kT)/nInsert, multiplied by n<sub>i</sub>/V if <code>residual</code> is false
      */
-    public double currentValue() {
-        throw new RuntimeException("MeterWidomInsertion needs some fine tuning before use");
-        
-/*        double sum = 0.0;                         //sum for local insertion average
+    public double currentValue() {        
+        double sum = 0.0;                         //sum for local insertion average
         testMolecule.node.setParent(speciesAgent);
- //       phase.addMolecule(testMolecule,speciesAgent); //place molecule in phase (removing it from this meter, thus setting molecule to null)
         for(int i=nInsert; i>0; i--) {            //perform nInsert insertions
             testMolecule.coord.translateTo(phase.randomPosition());  //select random position
 //            if(display != null && i % 10 ==0) display.repaint();
@@ -141,23 +139,20 @@ public class MeterWidomInsertion extends MeterScalar implements EtomicaElement {
                 sum += Math.exp(-u/(phase.integrator().temperature()));
         }
         
+        testMolecule.node.setParent((AtomTreeNodeGroup)null);
         
-        testMolecule.sendToReservoir();//should send to a local reservoir instead
-        
-        
- //       phase.removeMolecule(testMolecule, speciesAgent);
         if(!residual) sum *= phase.volume()/speciesAgent.moleculeCount(); //multiply by V/N
         return sum/(double)nInsert;               //return average
- */   }
+    }
     
-/*    public static void main(String[] args) {
-        
+// /*        
+    public static void main(String[] args) {
         etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
         MeterWidomInsertion meter = new MeterWidomInsertion();
-        DisplayBox box = new DisplayBox(meter);
+        etomica.graphics.DisplayBox box = new etomica.graphics.DisplayBox(meter);
         box.setWhichValue(MeterAbstract.AVERAGE);
         sim.elementCoordinator.go();
-        Simulation.makeAndDisplayFrame(sim);
+        etomica.graphics.SimulationGraphic.makeAndDisplayFrame(sim);
     }
-    */
+//    */
 }//end of MeterWidomInsertion   

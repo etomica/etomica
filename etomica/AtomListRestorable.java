@@ -1,7 +1,7 @@
 package etomica;
 
 /**
- * An extension of the AtomList class the permits the list to be restored
+ * An extension of the AtomList class that permits the list to be restored
  * to an earlier condition.  List tracks all additions/removals to it,
  * and can be instructed to undo all such changes that occurred from a 
  * particular time.  Upon restore(), list will contain all and only those atoms
@@ -32,8 +32,10 @@ package etomica;
      * this method, and all changes made with them will be recorded similarly.
      */
 	public AtomLinker addBefore(AtomLinker newAtomLinker, AtomLinker e) {
-	    ((AtomLinkerRestorable)newAtomLinker).wasAdded = true;
-	    memoryList.add(((AtomLinkerRestorable)newAtomLinker).shadowLinker);
+	    AtomLinkerRestorable link = (AtomLinkerRestorable)newAtomLinker;
+	    link.changeCount++;
+	    if(link.changeCount != 0) memoryList.add(link.shadowLinker);//maybe should be if(link.changeCount == +1)
+	    else memoryList.remove(link.shadowLinker);//else if(link.changeCount == 0) no net change; remove from memory
 	    return super.addBefore(newAtomLinker, e);
 	}
 	
@@ -43,9 +45,11 @@ package etomica;
 	 * all changes made with them will be recorded similarly.
 	 */
 	public void remove(AtomLinker e) {
+	    AtomLinkerRestorable link = (AtomLinkerRestorable)e;
+	    link.changeCount--;
+	    if(link.changeCount != 0) memoryList.add(link.shadowLinker);//maybe should be if(link.changeCount == -1)
+	    else memoryList.remove(link.shadowLinker);//else if(link.changeCount == 0) no net change; remove from memory
 	    super.remove(e);
-	    ((AtomLinkerRestorable)e).wasAdded = false;
-	    memoryList.add(((AtomLinkerRestorable)e).shadowLinker);
 	}
 	
 	/**
@@ -55,11 +59,12 @@ package etomica;
 	public void restore() {
 	    while(memoryList.size() > 0) {
 	        AtomLinkerRestorable next = (AtomLinkerRestorable)memoryList.lastEntry();
-	        if(next.shadowLinker.wasAdded) {//entry was added to list; remove it
+	        if(next.shadowLinker.changeCount > 0) {//entry was added to list; remove it
 	            super.remove(next.shadowLinker);
-	        } else {//was removed from list; put it back
+	        } else if(next.shadowLinker.changeCount < 0) {//was removed from list; put it back
 	            super.addBefore(next.shadowLinker, header);//must use this form to add; all others end up calling this subclass's version of addBefore
 	        }
+	        next.shadowLinker.changeCount = 0;
 	        memoryList.remove(next);
 	    }
 	}
@@ -68,7 +73,12 @@ package etomica;
 	 * Clears the memory that records added/removed atoms.
 	 */
 	public void clearMemory() {
-	    memoryList.clear();
+	    while(memoryList.size() > 0) {
+	        AtomLinkerRestorable next = (AtomLinkerRestorable)memoryList.lastEntry();
+	        next.shadowLinker.changeCount = 0;
+	        memoryList.remove(next);
+	    }
+//	    memoryList.clear();
 	}
 	
 	/**
@@ -96,7 +106,7 @@ package etomica;
      * and the other is used for maintenance of the memory of changes.
      */
     private class AtomLinkerRestorable extends AtomLinker {
-        boolean wasAdded = true;
+        int changeCount = 0;
         final AtomLinkerRestorable shadowLinker;
         AtomLinkerRestorable(Atom atom) {
             super(atom);
@@ -108,6 +118,9 @@ package etomica;
         }
     }//end of AtomLinkerRestorable
     
+    /**
+     * main method to demonstrate and test use of this class.
+     */
     public static void main(String[] args) {
         Simulation sim = new Simulation();
         Phase phase = new Phase();
@@ -180,6 +193,27 @@ package etomica;
         
         list.restore();
         System.out.println("Restored (should have two extra atoms)");
+        iterator.reset();
+        while(iterator.hasNext()) System.out.println(iterator.next().toString());
+        if(pauseForInput) IteratorDirective.pauseForInput();
+        
+        Atom last = list.removeLast();
+        Atom first = list.removeFirst();
+        list.addFirst(species.factory.makeAtom());
+        System.out.println("Removed first and last and added a new first");
+        iterator.reset();
+        while(iterator.hasNext()) System.out.println(iterator.next().toString());
+        if(pauseForInput) IteratorDirective.pauseForInput();
+        
+        list.removeFirst();
+        list.add(first);
+        System.out.println("Removed new first and added original first at end");
+        iterator.reset();
+        while(iterator.hasNext()) System.out.println(iterator.next().toString());
+        if(pauseForInput) IteratorDirective.pauseForInput();
+        
+        list.restore();
+        System.out.println("Restored");
         iterator.reset();
         while(iterator.hasNext()) System.out.println(iterator.next().toString());
         if(pauseForInput) IteratorDirective.pauseForInput();

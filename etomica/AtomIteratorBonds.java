@@ -98,8 +98,7 @@ public class AtomIteratorBonds implements AtomIterator {
     
     //not implemented
     public void allAtoms(AtomAction act) {
-        System.out.println("allAtoms not implemented in AtomIteratorBonds");
-        System.exit(1);
+        throw new RuntimeException("allAtoms not implemented in AtomIteratorBonds");
     }
 
     /**

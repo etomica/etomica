@@ -284,8 +284,8 @@ public class Space3D extends Space implements EtomicaElement {
                 default: throw new IllegalArgumentException();
             }
         }
-        public void setAngles(double[] angles) {}
-        public void invert() {}
+        public void setAngles(double[] angles) {throw new RuntimeException("Space3D.CoordinateGroup.setAngles() not yet implemented");}
+        public void invert() {throw new RuntimeException("Space3D.CoordinateGroup.invert() not yet implemented");}
     }
 
     public static final class CoordinatePair extends Space.CoordinatePair {
@@ -487,7 +487,8 @@ public static class CoordinateGroup extends Coordinate {
         childIterator.reset();
         while(childIterator.hasNext()) {
             Atom a = childIterator.next();
-            sum += a.coord.mass()*a.coord.position(i); massSum += a.coord.mass();
+            sum += a.coord.mass()*a.coord.position(i); 
+            massSum += a.coord.mass();
         }
         sum /= massSum;
         return sum;
@@ -505,7 +506,7 @@ public static class CoordinateGroup extends Coordinate {
         double sum = 0.0;
         childIterator.reset();
         while(childIterator.hasNext()) {
-            childIterator.next().coord.kineticEnergy();
+            sum += childIterator.next().coord.kineticEnergy();
         }
         return sum;
     }

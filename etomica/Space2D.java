@@ -70,7 +70,6 @@ public class Space2D extends Space implements EtomicaElement {
         public void E(Vector u) {x = u.x; y = u.y;}
         public void E(double[] u) {x = u[0]; y = u[1];}  //should check length of array for exception
         public void E(double a) {x = a; y = a;}
-//        public void E(int i, double a) {if(i==0) x = a; else y = a;}  //assumes i = 0 or 1
         public void Ea1Tv1(double a1, Space.Vector u) {Vector u1=(Vector)u; x = a1*u1.x; y = a1*u1.y;}
         public void PEa1Tv1(double a1, Space.Vector u) {Vector u1=(Vector)u; x += a1*u1.x; y += a1*u1.y;}
         public void PE(Vector u) {x += u.x; y += u.y;}
@@ -453,7 +452,7 @@ public class Space2D extends Space implements EtomicaElement {
             double sum = 0.0;
             childIterator.reset();
             while(childIterator.hasNext()) {
-                childIterator.next().coord.kineticEnergy();
+                sum += childIterator.next().coord.kineticEnergy();
             }
             return sum;
         }
