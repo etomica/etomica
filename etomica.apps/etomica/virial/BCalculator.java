@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.utility.SpecialFunctions;
+import etomica.math.SpecialFunctions;
 import etomica.virial.cluster.ClusterBz;
 
 /**
