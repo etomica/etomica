@@ -12,7 +12,7 @@ public class StringUtility {
     }
     
     /**
-     * Takes and array of objects and converts them to an array of strings,
+     * Takes an array of objects and converts them to an array of strings,
      * with each string given by the object's toString method.
      */
     public static String[] toStringArray(Object[] obj) {
