@@ -5,7 +5,6 @@
 package etomica.nbr;
 
 import etomica.AtomSet;
-import etomica.NearestImageVectorSource;
 import etomica.Phase;
 import etomica.IteratorDirective.Direction;
 import etomica.action.AtomsetAction;
@@ -15,7 +14,6 @@ import etomica.atom.AtomPairVector;
 import etomica.atom.AtomsetFilter;
 import etomica.atom.iterator.ApiMolecule;
 import etomica.atom.iterator.AtomsetIteratorMolecule;
-import etomica.space.Vector;
 
 /**
  * Wraps an AtomsetIterator and filters its iterates so that
@@ -24,7 +22,7 @@ import etomica.space.Vector;
  */
 //maybe make an AtomsetIteratorMoleculeFiltered that implements AtomsetIteratorMolecule
 //and leave this to implement just AtomsetIterator
-public class ApiFiltered implements AtomsetIteratorMolecule, NearestImageVectorSource {
+public class ApiFiltered implements AtomsetIteratorMolecule {
     /**
      * Default constructor that causes no atoms to be filtered.
      * Iterator will give all iterates of the given iterator
@@ -67,20 +65,14 @@ public class ApiFiltered implements AtomsetIteratorMolecule, NearestImageVectorS
      * Puts iterator in state ready for iteration.
      */
     public void reset() {
-        nearestImageVectorSource = (NearestImageVectorSource)iterator.getCurrentIterator();
         iterator.reset();
         next = null;
         while(iterator.hasNext() && next == null) {
             next = (AtomPairVector)iterator.next();
             if(!filter.accept(next)) next = null;
         }
-        nextNearestImageVector = nearestImageVectorSource.getNearestImageVector();
     }
     
-    public Vector getNearestImageVector() {
-        return nearestImageVector;
-    }
-
     /**
      * Sets iterator so that hasNext returns false.
      */
@@ -162,8 +154,6 @@ public class ApiFiltered implements AtomsetIteratorMolecule, NearestImageVectorS
     private final NeighborCriterion filter;
     private AtomPairVector next;
     private final AtomPairVector nextAtoms;
-    private NearestImageVectorSource nearestImageVectorSource;
-    private Vector nearestImageVector, nextNearestImageVector;
 
     /**
      * Returns a new action that wraps the given action such that action is performed
