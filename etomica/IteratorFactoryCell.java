@@ -455,7 +455,6 @@ public static final class IntragroupNbrIterator implements AtomIterator {
             if(upListNow) {
                 cellIterator.reset(IteratorDirective.UP);//set cell iterator to return first up-neighbor of reference cell
                 listIterator.reset(((NeighborSequencer)referenceAtom.seq).nbrLink, null, IteratorDirective.UP);
-                //listIterator.next();//advance so not to return reference atom
             }
             if(!listIterator.hasNext()) advanceCell();
         } else {//no cell iteration
@@ -479,7 +478,6 @@ public static final class IntragroupNbrIterator implements AtomIterator {
                 listIterator.setSkipFirstAtom(true);
                 cellIterator.reset(IteratorDirective.DOWN);//set cell iterator to return first down neighbor of reference cell
                 listIterator.reset(((NeighborSequencer)referenceAtom.seq).nbrLink, null, IteratorDirective.DOWN);
-                //listIterator.next();//advance so not to return reference atom
                 upListNow = false;
                 doGoDown = false;
             } else {//no more cells at all

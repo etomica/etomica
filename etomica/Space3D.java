@@ -229,6 +229,7 @@ public class Space3D extends Space implements EtomicaElement {
         double xx, xy, xz, yx, yy, yz, zx, zy, zz;
         public static final Tensor ORIGIN = new Tensor();
         public static final Tensor WORK = new Tensor();
+        private Vector[] columns;
         public Tensor () {xx = xy = xz = yx = yy = yz = zx = zy = zz = 0.0;}
         public Tensor (double xx, double xy, double xz, double yx, double yy, double yz, double zx, double zy, double zz) {
             this.xx=xx; this.xy=xy; this.xz=xz; this.yx=yx; this.yy=yy; this.yz=yz; this.zx=zx; this.zy=zy; this.zz=zz;
@@ -245,6 +246,8 @@ public class Space3D extends Space implements EtomicaElement {
         public void E(Tensor t) {xx=t.xx; xy=t.xy; xz=t.xz; yx=t.yx; yy=t.yy; yz=t.yz; zx=t.zx; zy=t.zy; zz=t.zz;}
         public void E(Vector u1, Vector u2) {xx=u1.x*u2.x; xy=u1.x*u2.y; xz=u1.x*u2.z; yx=u1.y*u2.x; yy=u1.y*u2.y; yz=u1.y*u2.z; zx=u1.z*u2.x; zy=u1.z*u2.y; zz=u1.z*u2.z;}
         public void E(double a) {xx=xy=xz=yx=yy=yz=zx=zy=zz=a;}
+        public void diagE(double a) {xx = yy = zz = a;}
+        public void diagE(Vector v) {xx = v.x; yy = v.y; zz = v.z;}
         public void PE(Tensor t) {xx+=t.xx; xy+=t.xy; xz+=t.xz; yx+=t.yx; yy+=t.yy; yz+=t.yz; zx+=t.zx; zy+=t.zy; zz+=t.zz;}
         public void PE(int i, int j, double d) {
             if (i==0) {if (j==0) {xx += d;} else if (j==1) {xy += d;} else xz += d;}
@@ -257,6 +260,17 @@ public class Space3D extends Space implements EtomicaElement {
         public void PE(Space.Tensor t) {PE((Tensor) t);}
         public void PE(Space.Vector u1, Space.Vector u2) {PE((Vector)u1, (Vector)u2);}
         public void TE(double a) {xx*=a; xy*=a; xz*=a; yx*=a; yy*=a; yz*=a; zx*=a; zy*=a; zz*=a;}
+        
+        public Vector[] columns() {
+            if(columns == null) {
+                columns = new Vector[D];
+                for(int i=0; i<D; i++) {columns[i] = new Vector();}
+            }
+            columns[0].x = xx; columns[0].y = yx; columns[0].z = zx;
+            columns[1].x = xy; columns[1].y = yy; columns[1].z = zy;
+            columns[2].x = xz; columns[2].y = yz; columns[2].z = zz;
+            return columns;
+        }
     }
     
     public static class RotationTensor extends Tensor implements Space.RotationTensor {
@@ -1189,4 +1203,289 @@ public static class CoordinateGroup extends Coordinate {
             return origins;
         }
     }//end of BoundarySlidingBrick */
-}
+    
+    protected final static class BoundaryDeformableCell extends Boundary implements Space.Boundary.Periodic, Space.Boundary.Deformable {
+
+        public BoundaryDeformableCell() {this(Default.BOX_SIZE);}
+        public BoundaryDeformableCell(double length) {this(new double[] {length, length, length});}
+        public BoundaryDeformableCell(double[] lengths) {
+            super();
+            dimensions.E(lengths);
+            boundaryTensor.diagE(lengths);
+            updateCopies();
+        }
+        public Space.Boundary.Type type() {return Boundary.DEFORMABLE_CELL;}
+
+        private Tensor boundaryTensor = new Tensor();
+        private Tensor boundaryTensorCopy = new Tensor();
+        
+        private final Vector dimensions = new Vector();
+        private final Vector dimensionsCopy = new Vector();
+        private final Vector dimensionsHalf = new Vector();
+        private final Vector workVector = new Vector();
+        private final Tensor workTensor = new Tensor();
+        
+        
+        public final Space.Vector dimensions() {return dimensionsCopy;}
+        public Space.Tensor boundaryTensor() {return boundaryTensorCopy;}
+
+        public Space.Vector randomPosition() {
+            temp.x = Simulation.random.nextDouble();
+            temp.y = Simulation.random.nextDouble();
+            temp.z = Simulation.random.nextDouble();
+            temp.transform(boundaryTensor);
+            return temp;
+        }
+        
+        private void updateCopies() {
+            dimensionsHalf.Ea1Tv1(0.5,dimensions);
+            dimensionsCopy.E(dimensions);
+            boundaryTensorCopy.E(boundaryTensor);
+        }
+
+        public void nearestImage(Space.Vector dr) {nearestImage((Vector) dr);}
+        public void nearestImage(Vector dr) {
+            check(dr);
+            if(hey){
+            while(dr.x > +dimensionsHalf.x) dr.x -= dimensions.x;
+            while(dr.x < -dimensionsHalf.x) dr.x += dimensions.x;
+            while(dr.y > +dimensionsHalf.y) dr.y -= dimensions.y;
+            while(dr.y < -dimensionsHalf.y) dr.y += dimensions.y;
+            while(dr.z > +dimensionsHalf.z) dr.z -= dimensions.z;
+            while(dr.z < -dimensionsHalf.z) dr.z += dimensions.z;}
+//            System.out.println(" after " + dr);
+        }
+        public void centralImage(Coordinate c) {centralImage(c.r);}
+        public void centralImage(Space.Vector r) {centralImage((Vector) r);}
+        public void centralImage(Vector r) {
+            check(r);
+            if(hey){
+                while(r.x > dimensions.x) r.x -= dimensions.x;
+                while(r.x < 0.0)          r.x += dimensions.x;
+                while(r.y > dimensions.y) r.y -= dimensions.y;
+                while(r.y < 0.0)          r.y += dimensions.y;
+                while(r.z > dimensions.y) r.z -= dimensions.z;
+                while(r.z < 0.0)          r.z += dimensions.z;
+            }
+//            System.out.println(" after " + r);
+//             System.out.println(" rx, ry, rz "+ (xi*DT.component(0,0)+eta*DT.component(1,0)+zeta*DT.component(2,0))+" "
+//                              +(xi*DT.component(0,1)+eta*DT.component(1,1)+zeta*DT.component(2,1))+" "
+//                              +(xi*DT.component(0,2)+eta*DT.component(1,2)+zeta*DT.component(2,2))+" ");
+                             // +"          "+ "xi eta zeta " + xi+" " +eta+" " +zeta);   
+        }
+
+//     public void check(Vector r2){r2.E(r2);hey=false;} //if MCMoveatom is not involed....      
+        
+// MCMoveatom is involved...
+        public void check(Vector r2){ 
+//System.out.println("Before x,y,z"+r2);
+             A1=r2.x; A2=r2.y; A3=r2.z;
+//             System.out.println(" A1 A2 A3 "+ A1+" "+A2+" "+A3);   
+//             System.out.println(DT.component(0,1)+" "+DT.component(0,2)+" "+DT.component(1,0)+" "+DT.component(1,2)+" "+DT.component(2,0)+" "+DT.component(2,1));   
+             hey = true;
+             
+         if( DT.component(0,1)!=0.0 || DT.component(0,2)!=0.0 || DT.component(1,0)!=0.0 
+               || DT.component(1,2)!=0.0 || DT.component(2,0)!=0.0 || DT.component(2,1)!=0.0 )
+          { 
+            
+         xi = (-DT.component(2,0)*A3*DT.component(1,1)+DT.component(2,0)*DT.component(1,2)*A2 
+               -DT.component(2,2)*DT.component(1,0)*A2-DT.component(1,2)*DT.component(2,1)*A1
+               +A3*DT.component(2,1)*DT.component(1,0)+ DT.component(2,2)*A1*DT.component(1,1))
+             /(-DT.component(2,0)*DT.component(0,2)*DT.component(1,1)+DT.component(2,0)*DT.component(0,1)*DT.component(1,2)
+               +DT.component(2,2)*DT.component(0,0)*DT.component(1,1)-DT.component(0,1)*DT.component(2,2)*DT.component(1,0)
+               +DT.component(0,2)*DT.component(2,1)*DT.component(1,0)-DT.component(2,1)*DT.component(0,0)*DT.component(1,2)); 
+
+         eta = -(DT.component(0,1)*DT.component(2,2)*A1-DT.component(2,0)*DT.component(0,1)*A3
+                +DT.component(2,0)*DT.component(0,2)*A2-DT.component(0,2)*DT.component(2,1)*A1
+                -DT.component(2,2)*DT.component(0,0)*A2+DT.component(2,1)*DT.component(0,0)*A3)
+             /(-DT.component(2,0)*DT.component(0,2)*DT.component(1,1)+DT.component(2,0)*DT.component(0,1)*DT.component(1,2)
+               +DT.component(2,2)*DT.component(0,0)*DT.component(1,1)-DT.component(0,1)*DT.component(2,2)*DT.component(1,0)
+               +DT.component(0,2)*DT.component(2,1)*DT.component(1,0)-DT.component(2,1)*DT.component(0,0)*DT.component(1,2)); 
+             
+         zeta = (DT.component(0,0)*A3*DT.component(1,1)-DT.component(0,0)*DT.component(1,2)*A2
+                -DT.component(1,0)*DT.component(0,1)*A3+DT.component(1,0)*DT.component(0,2)*A2
+                -A1*DT.component(0,2)*DT.component(1,1)+A1*DT.component(0,1)*DT.component(1,2))
+             /(-DT.component(2,0)*DT.component(0,2)*DT.component(1,1)+DT.component(2,0)*DT.component(0,1)*DT.component(1,2)
+               +DT.component(2,2)*DT.component(0,0)*DT.component(1,1)-DT.component(0,1)*DT.component(2,2)*DT.component(1,0)
+               +DT.component(0,2)*DT.component(2,1)*DT.component(1,0)-DT.component(2,1)*DT.component(0,0)*DT.component(1,2)); 
+
+//             System.out.println("Previous x,y,z"+A1+" "+A2+" "+A3);             
+//             System.out.println("Previous xi,eta,zeta"+xi+" "+eta+" "+zeta);
+
+                if(Math.abs(xi)< 1e-10){xi=0;}
+                if(Math.abs(eta)< 1e-10){eta=0;}
+                if(Math.abs(zeta)< 1e-10){zeta=0;}
+
+//       System.out.println(" here in space3D Previous: " +r2.y+ "  "+xi+" "+DT.component(0,1)+" "+eta+" "+DT.component(1,1)+
+//        " "+zeta+" "+DT.component(2,1));
+
+                while(xi<0) {xi+=1;}
+                while(xi>1) {xi-=1;}
+                while(eta<0) {eta+=1;}
+                while(eta>1) {eta-=1;}
+                while(zeta<0) {zeta+=1;}
+                while(zeta>1) {zeta-=1;}
+
+//       System.out.println(" here in space3D Previous: " +r2.y+ "  "+xi+" "+DT.component(0,1)+" "+eta+" "+DT.component(1,1)+
+//        " "+zeta+" "+DT.component(2,1));
+         
+          r2.x=xi*DT.component(0,0)+eta*DT.component(1,0)+zeta*DT.component(2,0);
+          r2.y=xi*DT.component(0,1)+eta*DT.component(1,1)+zeta*DT.component(2,1);
+          r2.z=xi*DT.component(0,2)+eta*DT.component(1,2)+zeta*DT.component(2,2);
+               hey = false;
+
+
+          }           
+    }//end check
+    
+    private void updateDimensions() {
+        Vector[] columns = boundaryTensor.columns();
+        for(i=0; i<D; i++) dimensions.setX(i, Math.sqrt(columns[i].squared()));
+    }
+    
+    public void deform(Tensor deformationTensor) {
+        boundaryTensor.TE(deformationTensor);
+        updateDimensions();
+        updateCopies();
+    }
+
+        /**
+         * Multiplies all lengths isotropically by the given value.
+         */
+        public void inflate(double scale) {
+            dimensions.TE(scale);
+            boundaryTensor.TE(scale);
+            updateCopies();
+        }
+        
+        /**
+         * Multiples each dimension (x, y, z) by the corresponding factor in the given vector.
+         * Same as deform with a tensor argument formed with the given vector on its diagonal.
+         */
+        public void inflate(Space.Vector scale) {
+            workTensor.E(0.0);
+            workTensor.diagE(scale);
+            deform(workTensor);
+        }
+
+        /**
+         * Sets the length of each boundary edge to the corresponding value in the
+         * given vector, keeping the shape of the box unchanged (other than the change in size).
+         */
+        public void setDimensions(Space.Vector v) {
+            workVector.E(v);
+            workVector.DE(dimensions);
+            inflate(workVector);
+        }
+        
+        /**
+         * Sets the boundary tensor to equal the given tensor.
+         */
+        public void setDimensions(Space.Tensor t) {
+            boundaryTensor.E(t);
+            updateDimensions();
+            updateCopies();
+        }        
+            
+        public double volume() {
+            Vector[] columns = boundaryTensor.columns();
+            return Math.abs(columns[0].dot(columns[1].cross(columns[2])));
+        } 
+       
+                
+        /**
+         * imageOrigins and getOverFlowShifts are both probably incorrect, if they are
+         * even completed.  They should definitely be checked before being implemented.
+         */
+        
+        int shellFormula, nImages, i, j, k, m;
+        double[][] origins;
+        public double[][] imageOrigins(int nShells) {
+            throw new RuntimeException("imageOrigins not implemented in Space3D.BoundaryDeformableCell");
+         /*   shellFormula = (2 * nShells) + 1;
+            nImages = shellFormula*shellFormula*shellFormula-1;
+            origins = new double[nImages][D];
+            for (k=0,i=-nShells; i<=nShells; i++) {
+                for (j=-nShells; j<=nShells; j++) {
+                    for (m=-nShells; m<=nShells; m++) {
+                        if ((i==0 && j==0) && m==0 ) {continue;}
+                        origins[k][0] = i*dimensions.x;
+                        origins[k][1] = j*dimensions.y;
+                        origins[k][2] = m*dimensions.z;
+                        k++;
+                    }
+                }
+            }
+            return origins;
+            */
+        }//end of imageOrigins
+        
+        
+        //getOverflowShifts ends up being called by the display routines quite often
+        //so, in the interest of speed, i moved these outside of the function;
+        int shiftX, shiftY, shiftZ;
+        Vector r;
+        public float[][] getOverflowShifts(Space.Vector rr, double distance) {
+            throw new RuntimeException("Space3D.BoundaryDeformableCell.getOverflowShifts not implmented");
+         /*   shiftX = 0; shiftY = 0; shiftZ = 0;
+            r = (Vector)rr;
+            
+            if(r.x-distance < 0.0) {shiftX = +1;}
+            else if(r.x+distance > dimensions.x) {shiftX = -1;}
+            
+            if(r.y-distance < 0.0) {shiftY = +1;}
+            else if(r.y+distance > dimensions.y) {shiftY = -1;}
+            
+            if(r.z-distance < 0.0) {shiftZ = +1;}
+            else if(r.z+distance > dimensions.z) {shiftZ = -1;}
+              
+            if((shiftX == 0) && (shiftY == 0) && (shiftZ == 0)) {
+              shift = shift0;
+            } else if((shiftX != 0) && (shiftY == 0) && (shiftZ == 0)) {
+              shift = new float[1][D];
+              shift[0][0] = (float)(shiftX*dimensions.x);
+            } else if((shiftX == 0) && (shiftY != 0) && (shiftZ == 0)) {
+              shift = new float[1][D];
+              shift[0][1] = (float)(shiftY*dimensions.y);
+            } else if((shiftX == 0) && (shiftY == 0) && (shiftZ != 0)) {
+              shift = new float[1][D];
+              shift[0][2] = (float)(shiftZ*dimensions.z);
+            } else if((shiftX != 0) && (shiftY != 0) && (shiftZ == 0)) {
+              shift = new float[3][D];
+              shift[0][0] = (float)(shiftX*dimensions.x);
+              shift[1][1] = (float)(shiftY*dimensions.y);
+              shift[2][0] = shift[0][0];
+              shift[2][1] = shift[1][1];
+            } else if((shiftX != 0) && (shiftY == 0) && (shiftZ != 0)) {
+              shift = new float[3][D];
+              shift[0][0] = (float)(shiftX*dimensions.x);
+              shift[1][2] = (float)(shiftZ*dimensions.z);
+              shift[2][0] = shift[0][0];
+              shift[2][2] = shift[1][2];
+            } else if((shiftX == 0) && (shiftY != 0) && (shiftZ != 0)) {
+              shift = new float[3][D];
+              shift[0][1] = (float)(shiftY*dimensions.y);
+              shift[1][2] = (float)(shiftZ*dimensions.z);
+              shift[2][1] = shift[0][1];
+              shift[2][2] = shift[1][2];
+            } else if((shiftX != 0) && (shiftY != 0) && (shiftZ != 0)) {
+              shift = new float[7][D];
+              shift[0][0] = (float)(shiftX*dimensions.x);
+              shift[1][1] = (float)(shiftY*dimensions.y);
+              shift[2][2] = (float)(shiftZ*dimensions.z);
+              shift[3][0] = shift[0][0];
+              shift[3][1] = shift[1][1];
+              shift[4][1] = shift[1][1];
+              shift[4][2] = shift[2][2];
+              shift[5][0] = shift[0][0];
+              shift[5][2] = shift[2][2];
+              shift[6][0] = shift[0][0];
+              shift[6][1] = shift[1][1];
+              shift[6][2] = shift[2][2];
+            }
+            
+            return(shift);
+            */
+        }//end of getOverflowShifts
+    }//end of BoundaryDeformableCell        
+}//end of Space3D

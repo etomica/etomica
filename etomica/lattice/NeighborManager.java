@@ -37,22 +37,29 @@ public class NeighborManager {
      * Returns the first neighbor that would be encountered when proceeding
      * up the iterator used to construct the neighbor lists.
      */
-    public Atom firstNeighbor() {return neighborList.getFirst();}
-    /**
+/*    public Atom firstNeighbor() {
+        Atom nbr = neighborList.getFirst();
+        return (nbr == site) ? null : nbr;
+    }
+*/    /**
      * Returns the last neighbor that would be encountered when proceeding
      * up the iterator used to construct the neighbor lists.
      */
-    public Atom lastNeighbor() {return neighborList.getLast();}
-    
+ /*   public Atom lastNeighbor() {
+        Atom nbr = neighborList.getLast();
+        return (nbr == site) ? null : nbr;
+    }
+ */   
     public AtomList neighbors() {return neighborList;}
     
     public void clearAll() {
         neighborList.clear();
+        neighborList.add(tab);
     }
 
     public void setupNeighbors(AtomList list, Criterion criterion) {  //set up neighbors according to given criterion
+        clearAll();
         AtomIteratorList iterator = new AtomIteratorList(list);
-        iterator.reset();
         boolean down = true;
         while(iterator.hasNext()) {              //begin outer loop
             Site s = (Site)iterator.next();
