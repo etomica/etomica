@@ -75,7 +75,7 @@ public class PotentialMasterNbr extends PotentialMaster {
     	Atom[] targetAtoms = id.getTargetAtoms();
     	if (targetAtoms.length == 0 || targetAtoms[0] == null) {
     		//no target atoms specified -- do one-target algorithm to SpeciesMaster
-    		calculate(phase.speciesMaster, new IteratorDirective(), pc, phase.speciesMaster.type.getNbrManagerAgent().getPotentials());
+    		calculate(phase.speciesMaster, idUp, pc, phase.speciesMaster.type.getNbrManagerAgent().getPotentials());
     	}
     	else if (targetAtoms.length == 1 || targetAtoms[1] == null) {
     		// one target atom
@@ -158,8 +158,8 @@ public class PotentialMasterNbr extends PotentialMaster {
     		throw new IllegalArgumentException("Illegal species length");
     	}
         ApiMolecule iterator = (ApiMolecule)iteratorFactory.makeMoleculeIterator(species);
-        ((AtomsetIteratorCellular)((ApiMolecule)iterator).getApiAA()).getNbrCellIterator().setRange(maxNeighborRange);
-        ((AtomsetIteratorCellular)((ApiMolecule)iterator).getApi1A()).getNbrCellIterator().setRange(maxNeighborRange);
+        ((AtomsetIteratorCellular)iterator.getApiAA()).getNbrCellIterator().setRange(maxNeighborRange);
+        ((AtomsetIteratorCellular)iterator.getApi1A()).getNbrCellIterator().setRange(maxNeighborRange);
         AtomsetIteratorMolecule iteratorFiltered = new ApiFiltered(iterator, (NeighborCriterionSimple)criterion);
 		neighborManager.addCriterion(criterion);//add criterion to manager so criterion can be informed of the phase
     	for(int i=0; i<species.length; i++) {
@@ -205,4 +205,5 @@ public class PotentialMasterNbr extends PotentialMaster {
     private NeighborCellManager[] neighborCellManager = new NeighborCellManager[0];
     private int nCells;
     private double maxNeighborRange;
+    private final IteratorDirective idUp = new IteratorDirective();
 }
