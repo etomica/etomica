@@ -51,10 +51,10 @@ public class AccumulatorAverage extends DataAccumulator {
         }
     }
     
-    private void doBlockSum() {
+    protected void doBlockSum() {
         count++;
         blockCountDown = blockSize;
-        for(int i=nDataMinus1; i>=0; i--) {             
+        for(int i=nDataMinus1; i>=0; i--) {
             blockSum[i] /= blockSize;//compute block average
             sum[i] += blockSum[i];
             sumSquare[i] += blockSum[i]*blockSum[i];
