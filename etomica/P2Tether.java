@@ -17,13 +17,13 @@ public class P2Tether extends Potential2 implements PotentialHard {
   private final Space.Tensor lastCollisionVirialTensor;
 
   public P2Tether() {
-    this(Simulation.instance.hamiltonian.potential);
+    this(Simulation.getDefault().space);
   }
-  public P2Tether(SimulationElement parent) {
-    super(parent);
+  public P2Tether(Space space) {
+    super(space);
     setTetherLength(0.75*Default.ATOM_SIZE);
-    lastCollisionVirialTensor = simulation().space().makeTensor();
-    dr = simulation().space().makeVector();
+    lastCollisionVirialTensor = space.makeTensor();
+    dr = space.makeVector();
   }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -78,13 +78,11 @@ public class P2Tether extends Potential2 implements PotentialHard {
     double r2 = cPair.r2();
 	cPair.resetV();
     double bij = cPair.vDotr();
- //       if(r2 < sig2) {return (bij > 0) ? Double.MAX_VALUE : 0.0;}  //inside wall; no collision
-    if(r2 > tetherLengthSquared && bij >= 0) {return 0.0;}  //outside tether, moving apart; collide now
- //   //this doesn't keep them together if(r2 > tetherLengthSquared) {return (bij > 0) ? 0.0 : Double.MAX_VALUE;}
+    if(Default.FIX_OVERLAP && r2 > tetherLengthSquared && bij > 0) {return 0.0;}  //outside tether, moving apart; collide now
     double v2 = cPair.v2();
     double discr = bij*bij - v2 * ( r2 - tetherLengthSquared );
     return (-bij + Math.sqrt(discr))/v2;
-    }
+  }
   
   /**
    * Returns infinity if separation is greater than tether distance, zero otherwise

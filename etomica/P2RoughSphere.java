@@ -15,17 +15,17 @@ public class P2RoughSphere extends P2HardSphere {
     private final Space.Vector impulse;
     
     public P2RoughSphere() {
-        this(Simulation.instance.hamiltonian.potential, Default.ATOM_SIZE);
+        this(Simulation.getDefault().space, Default.ATOM_SIZE);
     }
     public P2RoughSphere(double d) {
-        this(Simulation.instance.hamiltonian.potential, d);
+        this(Simulation.getDefault().space, d);
     }
-    public P2RoughSphere(SimulationElement parent, double d) {
-        super(parent,d);
-        v12Surface = simulation().space.makeVector();
-        v12Par = simulation().space.makeVector();
-        v12Perp = simulation().space.makeVector();
-        impulse = simulation().space.makeVector();
+    public P2RoughSphere(Space space, double d) {
+        super(space,d);
+        v12Surface = space.makeVector();
+        v12Par = space.makeVector();
+        v12Perp = space.makeVector();
+        impulse = space.makeVector();
     }
 
     public static EtomicaInfo getEtomicaInfo() {

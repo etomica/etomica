@@ -16,18 +16,18 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
   private final Space.Vector force;
 
   public P2TriangleWell() {
-    this(Simulation.instance.hamiltonian.potential,Default.ATOM_SIZE, Default.POTENTIAL_CUTOFF_FACTOR, Default.POTENTIAL_WELL);
+    this(Simulation.getDefault().space,Default.ATOM_SIZE, Default.POTENTIAL_CUTOFF_FACTOR, Default.POTENTIAL_WELL);
   }
   public P2TriangleWell(double coreDiameter, double lambda, double epsilon) {
-    this(Simulation.instance.hamiltonian.potential, coreDiameter, lambda, epsilon);
+    this(Simulation.getDefault().space, coreDiameter, lambda, epsilon);
   }
   
-  public P2TriangleWell(SimulationElement parent, double coreDiameter, double lambda, double epsilon) {
-    super(parent);
+  public P2TriangleWell(Space space, double coreDiameter, double lambda, double epsilon) {
+    super(space);
     setCoreDiameter(coreDiameter);
     setLambda(lambda);
     setEpsilon(epsilon);
-    force = simulation().space.makeVector();
+    force = space.makeVector();
   }
   
     public static EtomicaInfo getEtomicaInfo() {

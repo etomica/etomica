@@ -18,22 +18,22 @@ public class P2SquareWell extends Potential2 implements PotentialHard {
   protected Space.Vector dr;
    
   public P2SquareWell() {
-    this(Simulation.instance.hamiltonian.potential);
+    this(Simulation.getDefault().space);
   }
-  public P2SquareWell(SimulationElement parent) {
-    this(parent,Default.ATOM_SIZE, Default.POTENTIAL_CUTOFF_FACTOR, Default.POTENTIAL_WELL);
+  public P2SquareWell(Space space) {
+    this(space,Default.ATOM_SIZE, Default.POTENTIAL_CUTOFF_FACTOR, Default.POTENTIAL_WELL);
   }
   public P2SquareWell(double coreDiameter, double lambda, double epsilon) {
-    this(Simulation.instance.hamiltonian.potential, coreDiameter, lambda, epsilon);
+    this(Simulation.getDefault().space, coreDiameter, lambda, epsilon);
   }
   
-  public P2SquareWell(SimulationElement parent, double coreDiameter, double lambda, double epsilon) {
-    super(parent);
+  public P2SquareWell(Space space, double coreDiameter, double lambda, double epsilon) {
+    super(space);
     setCoreDiameter(coreDiameter);
     setLambda(lambda);
     setEpsilon(epsilon);
-    dr = simulation().space().makeVector();
-    lastCollisionVirialTensor = simulation().space().makeTensor();
+    dr = space.makeVector();
+    lastCollisionVirialTensor = space.makeTensor();
   }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -123,11 +123,11 @@ public class P2SquareWell extends Potential2 implements PotentialHard {
 
     if(r2 < wellDiameterSquared) {  // Already inside wells
 
-      if(r2 < coreDiameterSquared) {   // Inside core; collision now if approaching, at well if separating
-        return (bij < 0) ? 0.0 : (-bij + Math.sqrt(bij*bij - v2 * ( r2 - wellDiameterSquared )))/v2;
-      }
-
       if(bij < 0.0) {    // Check for hard-core collision
+        if(Default.FIX_OVERLAP && r2 < coreDiameterSquared) {   // Inside core; collision now
+            return 0.0;
+        }
+
 	    discr = bij*bij - v2 * ( r2 - coreDiameterSquared );
 	    if(discr > 0) {  // Hard cores collide next
 	      tij = (-bij - Math.sqrt(discr))/v2;

@@ -14,12 +14,12 @@ public class P2XOrder extends Potential2 implements PotentialHard {
    protected final Space.Vector dr;
     
     public P2XOrder() {
-        this(Simulation.instance.hamiltonian.potential);
+        this(Simulation.getDefault().space);
     }
 
-    public P2XOrder(SimulationElement parent) {
-        super(parent);
-        dr = simulation().space().makeVector();
+    public P2XOrder(Space space) {
+        super(space);
+        dr = space.makeVector();
     }
 
     public static EtomicaInfo getEtomicaInfo() {
