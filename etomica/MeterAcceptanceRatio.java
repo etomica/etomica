@@ -8,20 +8,23 @@ import etomica.units.Count;
  * Returns acceptance rate as kept by the MCMove.
  */
 
-public final class MeterAcceptanceRatio extends MeterScalar {
+public final class MeterAcceptanceRatio extends DataSourceAdapter {
     
-    private MCMove move;
+    private MCMove[] move = new MCMove[0];
+    private String label;
+    private double[] ratioArray;
     
     public MeterAcceptanceRatio() {
-        this(Simulation.instance);
-    }
-    public MeterAcceptanceRatio(Simulation sim) {
-        super(sim);
+    	super(Dimension.FRACTION);
         setLabel("AcceptanceRatio");
     }
-    public MeterAcceptanceRatio(Simulation sim, MCMove move) {
-        this(sim);
-        this.move = move;
+    public MeterAcceptanceRatio(Simulation sim, MCMove[] move) {
+        this();
+        setMove(move);
+    }
+
+    public void setLabel(String label) {
+    	this.label = label;
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -30,17 +33,17 @@ public final class MeterAcceptanceRatio extends MeterScalar {
     }
     public Unit defaultIOUnit() {return Count.UNIT;}
         
-    /**
-     * Returns dimensions of this meter's output, which in this case is QUANTITY.
-     */
-    public Dimension getDimension() {return Dimension.QUANTITY;}
+    public void setMove(MCMove[] mv) {
+        move = (MCMove[])mv.clone();
+        ratioArray = new double[move.length];
+    }
         
-    public void setMove(MCMove mv) {move = mv;}
-        
-    public MCMove getMove() {return move;}
-        
-    //FIXME this should actually use the phase passed in
-    public double getDataAsScalar(Phase p) {
-        return move.acceptanceRatio();
-    }    
+    public MCMove[] getMove() {return move;}
+
+    public double[] getData() {
+    	for (int i=0; i<move.length; i++) {
+    		ratioArray[i] = move[i].acceptanceRatio();
+    	}
+        return ratioArray;
+    }
 }

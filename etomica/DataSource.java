@@ -27,16 +27,6 @@ public interface DataSource {
     public DataTranslator getTranslator();
     
     /**
-     * Interface for a data source that has associated "x" values.
-     */
-    public interface X extends DataSource {
-        
-        public double[] xValues();
-        public String getXLabel();
-        public etomica.units.Dimension getXDimension();
-    }
-    
-    /**
      * Indicates an object that uses a DataSource.  Useful mainly to the Mediator.
      */
     public interface User {
