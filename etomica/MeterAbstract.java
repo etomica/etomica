@@ -84,6 +84,15 @@ public abstract class MeterAbstract implements DataSource {
 	    data = new double[phaseCount * nDataPerPhase];
 
 	}
+    
+    /**
+     * Convenience method for setting a single phase.  Constructs one-element
+     * array with the phase and passes it to setPhase(Phase[]).
+     * @param phase
+     */
+    public final void setPhase(Phase phase) {
+        setPhase(new Phase[] {phase});
+    }
 	
 	/**
 	 * Accessor method for the phases on which the meter performs
