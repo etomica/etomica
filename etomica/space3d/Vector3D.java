@@ -38,6 +38,11 @@ public final class Vector3D extends Vector {
         public void E(int[] u) {x = u[0]; y = u[1]; z = u[2];}  //should check length of array for exception
         public void Ea1Tv1(double a1, Vector u) {x = a1*((Vector3D)u).x; y = a1*((Vector3D)u).y; z = a1*((Vector3D)u).z;}
         public void PEa1Tv1(double a1, Vector u) {x += a1*((Vector3D)u).x; y += a1*((Vector3D)u).y; z += a1*((Vector3D)u).z;}
+        public void Ev1Pa1Tv2(Vector v1, double a1, Vector v2) {
+            x = ((Vector3D)v1).x + a1*((Vector3D)v2).x; 
+            y = ((Vector3D)v1).y + a1*((Vector3D)v2).y; 
+            z = ((Vector3D)v1).z + a1*((Vector3D)v2).z; 
+        }
         public void PE(Vector3D u) {x += u.x; y += u.y; z += u.z;}
         public void PE(double a) {x += a; y += a; z += a;}
         public void ME(Vector3D u) {x -= u.x; y -= u.y; z -= u.z;}
@@ -146,10 +151,9 @@ public final class Vector3D extends Vector {
         	return dx*dx + dy*dy + dz*dz;
         }
 		public double Mv1Squared(Vector u) {
-			Vector3D u1 = (Vector3D)u;
-			double dx = x-u1.x;
-			double dy = y-u1.y;
-			double dz = z-u1.z;
+			double dx = x-((Vector3D)u).x;
+			double dy = y-((Vector3D)u).y;
+			double dz = z-((Vector3D)u).z;
 			return dx*dx + dy*dy + dz*dz;
 		}
         public double dot(Vector3D u) {return x*u.x + y*u.y + z*u.z;}

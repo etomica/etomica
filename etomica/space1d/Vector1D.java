@@ -35,6 +35,9 @@ public final class Vector1D extends etomica.space.Vector {  //declared final for
         public void E(int[] a) {x = a[0];}
         public void E(int i, double a) {x = a;}  //assumes i = 0
         public void Ea1Tv1(double a1, etomica.space.Vector u) {Vector1D u1=(Vector1D)u; x = a1*u1.x;}
+        public void Ev1Pa1Tv2(Vector v1, double a1, Vector v2) {
+            x = ((Vector1D)v1).x + a1*((Vector1D)v2).x; 
+        }
         public void PEa1Tv1(double a1, etomica.space.Vector u) {Vector1D u1=(Vector1D)u; x += a1*u1.x;}
         public void PE(Vector1D u) {x += u.x;}
         public void PE(double a) {x += a;}

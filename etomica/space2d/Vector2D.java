@@ -38,6 +38,10 @@ public final class Vector2D extends etomica.space.Vector {  //declared final for
         public void E(double a) {x = a; y = a;}
         public void E(double a, double b) {x = a; y = b;}
         public void Ea1Tv1(double a1, etomica.space.Vector u) {Vector2D u1=(Vector2D)u; x = a1*u1.x; y = a1*u1.y;}
+        public void Ev1Pa1Tv2(Vector v1, double a1, Vector v2) {
+            x = ((Vector2D)v1).x + a1*((Vector2D)v2).x; 
+            y = ((Vector2D)v1).y + a1*((Vector2D)v2).y; 
+        }
         public void PEa1Tv1(double a1, etomica.space.Vector u) {Vector2D u1=(Vector2D)u; x += a1*u1.x; y += a1*u1.y;}
         public void PE(Vector2D u) {x += u.x; y += u.y;}
         public void PE(double a) {x += a; y += a;}

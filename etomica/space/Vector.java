@@ -54,6 +54,7 @@ public abstract class Vector implements java.io.Serializable, Cloneable {
         public abstract void TE(int i, double a);             //multiplies "a" times the component i of this vector
         public abstract void DE(double a);                    //divides all components by a
         public abstract void Ea1Tv1(double a, Vector u);      //sets this vector to a*u
+        public abstract void Ev1Pa1Tv2(Vector v1, double a1, Vector v2);//sets this vector to v1 + a1*v2
         public abstract void PEa1Tv1(double a, Vector u);     //adds a*u to this vector
         public abstract void Ev1Pv2(Vector u1, Vector u2);    //sets equal to sum of vectors
         public abstract void Ev1Mv2(Vector u1, Vector u2);    //sets equal to difference between vectors
