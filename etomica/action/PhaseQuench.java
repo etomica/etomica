@@ -1,68 +1,77 @@
 package etomica.action;
 
-import etomica.AtomIteratorListSimple;
+import etomica.AtomIteratorLeafAtoms;
 import etomica.Default;
 import etomica.MeterTemperature;
 import etomica.Phase;
 
 /**
  * @author kofke
- *
+ * 
  * Scales all velocities of a phase so that its kinetic temperature is equal to
  * a given value.
  */
 public class PhaseQuench extends PhaseActionAdapter {
 
 	/**
-	 * Constructor for PhaseQuench.  Uses temperature in Default.
+	 * Constructs class without specifying phase and using Default temperature.
+	 * Requires call to setPhase before action will have any effect.
 	 */
+	public PhaseQuench() {
+		super("Quench");
+		setTemperature(Default.TEMPERATURE);
+	}
 	
+	/**
+	 * Constructs class ready to perform quench on given phase,
+	 * using Default temperature.
+	 */
 	public PhaseQuench(Phase p) {
 		this(p, Default.TEMPERATURE);
 	}
 
 	/**
-	 * Constructor for PhaseQuench.
-	 * @param p
+	 * Constructs class ready to perform quench on given phase to given temperature.
 	 */
 	public PhaseQuench(Phase p, double temperature) {
-		super(p);
+		this();
 		setTemperature(temperature);
 		meterTemperature = new MeterTemperature(p);
-		meterTemperature.setPhase(new Phase[] {p});
+		meterTemperature.setPhase(new Phase[] { p });
 	}
 
 	/**
 	 * @see etomica.action.PhaseActionAdapter#actionPerformed(etomica.Phase)
 	 */
-	public void actionPerformed(Phase p) {
-		double currentTemperature = meterTemperature.currentValue(phase.speciesMaster);
-		double scale = Math.sqrt(temperature/currentTemperature);
-		atomIterator.setList(phase.speciesMaster.atomList);
+	public void actionPerformed() {
+		if(phase == null) return;
+		double currentTemperature = meterTemperature.getDataAsScalar(phase);
+		double scale = Math.sqrt(temperature / currentTemperature);
+		atomIterator.setPhase(phase);
 		atomIterator.reset();
-		while(atomIterator.hasNext()) atomIterator.nextAtom().coord.momentum().TE(scale); //scale momentum
+		while (atomIterator.hasNext())
+			atomIterator.nextAtom().coord.momentum().TE(scale); //scale
+																// momentum
 	}
 
-
-	private double temperature;
-	private MeterTemperature meterTemperature;
-	private final AtomIteratorListSimple atomIterator = new AtomIteratorListSimple();
-
-	
 	/**
-	 * Returns the temperature.
-	 * @return double
+	 * Returns the quench temperature.
 	 */
 	public double getTemperature() {
 		return temperature;
 	}
 
 	/**
-	 * Sets the temperature.
-	 * @param temperature The temperature to set
+	 * Sets the quench temperature.
 	 */
 	public void setTemperature(double temperature) {
 		this.temperature = temperature;
 	}
+
+	private double temperature;
+
+	private MeterTemperature meterTemperature;
+
+	private final AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms();
 
 }

@@ -13,11 +13,9 @@ import etomica.Simulation;
 import etomica.SimulationEventManager;
 import etomica.Space;
 import etomica.Space2D;
-import etomica.Space2D.Vector;
 import etomica.lattice.*;
 import etomica.utility.OdeSolver;
 import java.awt.*;
-import java.awt.event.MouseEvent;
 
 /** 
  * Action that changes the system volume by distorting the space, causing
