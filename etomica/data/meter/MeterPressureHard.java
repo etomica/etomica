@@ -21,7 +21,7 @@ public class MeterPressureHard extends MeterScalar implements
     
     public MeterPressureHard(IntegratorHard integrator) {
         super();
-        setLabel("PV/NkT");
+        setLabel("Pressure");
         timer = new DataSourceCountTime();
         setIntegrator(integrator);
     }
@@ -31,25 +31,24 @@ public class MeterPressureHard extends MeterScalar implements
         return info;
     }
         
-    /**
-     * Indicator that this meter returns dimensionless quantity 
-     * (note: returns PV/NkT, not P)
-     */
-    public Dimension getDimension() {return Dimension.NULL;}
+    public Dimension getDimension() {return Dimension.PRESSURE;}
 
     /**
-     * Returns P*V/N*kB*T = 1 - (virial sum)/(elapsed time)/T/(space dimension)/(number of atoms)
+     * Returns P = (NT - (virial sum)/((elapsed time)*T*(space dimension)))/V
      * Virial sum and elapsed time apply to period since last call to this method.
      */
-    //XXX phase parameter is not used appropriately here (virialSum and temperature are not
-    //    necessarily associated with given phase
     //TODO consider how to ensure timer is advanced before this method is invoked
     public double getDataAsScalar(Phase p) {
+        if (integratorHard.getPhase()[0] != p) {
+            throw new IllegalArgumentException("Integrator must act on meter's phase");
+        }
+        else if (!integratorHard.isIsothermal()) {
+            throw new IllegalStateException("Integrator must be isothermal");
+        }
         double elapsedTime = timer.getData()[0];
         if(elapsedTime == 0.0) return Double.NaN;
-        int D = p.boundary().dimensions().D();
-        double value = 1.0 - virialSum/(integratorHard.temperature()*elapsedTime*(D*p.atomCount()));
- 
+        double value = (integratorHard.temperature()*p.atomCount() - virialSum/(p.space().D()*elapsedTime)) / p.boundary().volume();
+
         virialSum = 0.0;
         timer.reset();
         return value;
