@@ -110,6 +110,7 @@ public final class DataSourceCountTime extends DataSourceAdapter implements
 				return;
 		}
         timer = (MyTimer[])Arrays.addObject(timer, new MyTimer(integrator));
+        value = new double[timer.length];
 	}
 
 	/**
@@ -129,6 +130,7 @@ public final class DataSourceCountTime extends DataSourceAdapter implements
 		if (i == timer.length)
 			return; //didn't find it
         timer = (MyTimer[])Arrays.removeObject(timer, timer[i]);
+        value = new double[timer.length];
 	}
 
 	private double[] value;

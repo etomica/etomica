@@ -79,7 +79,7 @@ public final class DataSourceCountSteps extends DataSourceAdapter implements
 	 */
 	public double[] getData() {
 		for (int i = 0; i < counter.length; i++) {
-			value[i] = (double) counter[i].count;
+			value[i] = counter[i].count;
 		}
 		return value;
 	}
@@ -115,6 +115,7 @@ public final class DataSourceCountSteps extends DataSourceAdapter implements
 				return;
 		}
         counter = (MyCounter[])Arrays.addObject(counter, new MyCounter(integrator));
+        value = new double[counter.length];
 	}
 
 	/**
@@ -134,6 +135,7 @@ public final class DataSourceCountSteps extends DataSourceAdapter implements
 		if (i == counter.length)
 			return; //didn't find it
         counter = (MyCounter[])Arrays.removeObject(counter, counter[i]);
+        value = new double[counter.length];
 	}
 
 	private double[] value;
