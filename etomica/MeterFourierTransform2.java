@@ -39,7 +39,7 @@ public class MeterFourierTransform2 extends MeterGroup {
 	}
 
 	public void updateValues() {
-		current = transform.currentValue();
+		current = transform.getData();
 		for (int i=0;i<nMeters;i++) {
 			currentValues[i] = current[i];
 		}
@@ -50,7 +50,7 @@ public class MeterFourierTransform2 extends MeterGroup {
 			return x/1000;
 		}
 
-	public double[] currentValue() {
+	public double[] getData() {
 		return current;
 	}
 

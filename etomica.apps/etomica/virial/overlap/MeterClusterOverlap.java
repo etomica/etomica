@@ -27,9 +27,9 @@ public class MeterClusterOverlap extends MeterScalar {
 	}
 
 	/**
-	 * @see etomica.MeterScalar#currentValue()
+	 * @see etomica.MeterScalar#getData()
 	 */
-	public double currentValue() {
+	public double getData() {
 		double[] refNegative = referenceMeter.allMeters()[0].average();
 		double[] refPositive = referenceMeter.allMeters()[1].average();
 		double[] targetNegative = targetMeterNegative.average();

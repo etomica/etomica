@@ -2,10 +2,10 @@ package etomica;
 
 /**
  * Collection of potentials that act between the atoms contained in
- * two groups of atoms.  This group iterates over all such atom-group
- * pairs assigned to it.  For each pair it iterates over the potentials it
- * contains, instructing these sub-potentials to perform their calculations
- * over the atoms relevant to them in the two groups.
+ * one or more groups of atoms.  This group iterates over all such atom-groups
+ * assigned to it.  For each group it iterates over the potentials it contains,
+ * instructing these sub-potentials to perform their calculations over the atoms
+ * relevant to them in the groups.
  *
  * @author David Kofke
  */
@@ -47,9 +47,15 @@ public class PotentialGroup extends Potential {
         	case 2: iterator = new Api1A(new ApiIntergroup1A(simulation()),
 											new ApiIntergroupAA(simulation()));
 					break;
+			default: throw new etomica.exception.MethodNotImplementedException("Potential group not developed to handle more than one- or two-body interactions");
         }//end switch
     }
 
+	/**
+	 * Indicates if a given potential is a sub-potential of this group.
+	 * @param potential the potential in question
+	 * @return boolean true if potential has been added to this group
+	 */
     public boolean contains(Potential potential) {
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if(link.potential.equals(potential)) return true;
@@ -136,6 +142,11 @@ public class PotentialGroup extends Potential {
      * Performs the specified calculation over the iterates of this potential
      * that comply with the iterator directive.
      */
+    //wrapper is used to avoid problems that might arise if more than one thread
+    //is accessing the potential.  Wrapper is obtained from the potential calculation,
+    //which assumes that it would be exclusive to a given thread.  Wrapper is
+    //a PotentialCalculation subclass with an actionPerformed method that loops
+    //over the sub-potentials of this PotentialGroup.
     public void calculate(AtomSet basis, IteratorDirective id, PotentialCalculation pc) {
     	if(!enabled) return;
 		PotentialCalculation.PotentialGroupWrapper wrapper = pc.wrapper().set(this);

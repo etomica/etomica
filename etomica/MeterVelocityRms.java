@@ -11,32 +11,32 @@ package etomica;
   * 08/30/02 (DAK) new
   */
   
-public class MeterVelocityRms extends MeterScalar implements MeterScalar.Atomic {
+public class MeterVelocityRms extends MeterAbstract implements MeterAtomic {
     
     public MeterVelocityRms() {
         this(Simulation.instance);
     }
     public MeterVelocityRms(Simulation sim) {
-        super(sim);
+        super(sim, 1);
     }
     
     /**
      * Returns the average of the current value over all atoms.
      */
-    public double currentValue() {
+    public void doMeasurement() {
         iterator.reset();
         double sum = 0.0;
         while(iterator.hasNext()) {
             sum += currentValue(iterator.next());
         }
-        return sum/iterator.size();
+        data[0] = sum/iterator.size();
     }
     
     /**
      * Not implemented.
      */
     public etomica.units.Dimension getDimension() {
-        return etomica.units.Dimension.NULL;
+        return etomica.units.Dimension.UNDEFINED;
     }
     
     /**

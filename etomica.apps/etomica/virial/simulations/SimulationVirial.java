@@ -144,7 +144,7 @@ public class SimulationVirial extends SimulationGraphic {
 		}
 		public double[] xValues() {return x;}
 
-		public double[] values(DataSource.ValueType dummy) {
+		public double[] data(DataSource.ValueType dummy) {
 			return y;
 		}
 		

@@ -119,7 +119,7 @@ public class MeterMeanSquareDisplacementFixed extends MeterFunction implements
         if(iterator != null) setAtoms(iterator);
     }
     
-    public double[] currentValue() {
+    public double[] getData() {
             
         for(int j=0; j<nPoints; j++) {
             y[j] = 0.0;

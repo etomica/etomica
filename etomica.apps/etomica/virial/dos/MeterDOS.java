@@ -33,9 +33,9 @@ public class MeterDOS extends MeterFunction {
 	}
 
 	/**
-	 * @see etomica.MeterScalar#currentValue()
+	 * @see etomica.MeterScalar#getData()
 	 */
-	public double[] currentValue() {
+	public double[] getData() {
 		for(int i=0; i<nPoints; i++) y[i] = 0.0;
 		int k = (int)(cluster.value(((PhaseCluster)phase).getPairSet().resetPairs(),1.0)/dx);
 		if(k>=y.length) k = y.length-1;

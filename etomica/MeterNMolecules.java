@@ -5,7 +5,7 @@ import etomica.units.Dimension;
 /**
  * Meter for recording the total number of molecules in the phase
  */
-public class MeterNMolecules extends MeterScalar implements EtomicaElement, MeterScalar.Atomic {
+public class MeterNMolecules extends MeterAbstract implements EtomicaElement, MeterAtomic {
     
     private Species species;
     private SpeciesAgent speciesAgent;
@@ -13,9 +13,8 @@ public class MeterNMolecules extends MeterScalar implements EtomicaElement, Mete
     public MeterNMolecules() {
         this(Simulation.instance);
     }
-    public MeterNMolecules(Simulation sim)
-    {
-        super(sim);
+    public MeterNMolecules(Simulation sim) {
+        super(sim, 1);
         setLabel("Molecules");
     }
     
@@ -32,9 +31,9 @@ public class MeterNMolecules extends MeterScalar implements EtomicaElement, Mete
 
     public Dimension getDimension() {return Dimension.QUANTITY;}
 
-    public double currentValue() {
-        if(speciesAgent == null) return phase.moleculeCount();
-        else return speciesAgent.moleculeCount();
+    public void doMeasurement() {
+        if(speciesAgent == null) data[0] = phase.moleculeCount();
+        else data[0] = speciesAgent.moleculeCount();
     }
 
     public double currentValue(Atom a) {

@@ -11,6 +11,11 @@ import java.text.*;
  * 4/15/03
  */
 
+/* History
+ * 07/06/04 (DAK) added makeWriteAction method, defined Action class, and set
+ * apart actions in doWrite method
+ */
+
 public abstract class LoggerAbstract extends SimulationElement implements Integrator.IntervalListener,
                                                                             java.io.Serializable {
     
@@ -60,19 +65,28 @@ public abstract class LoggerAbstract extends SimulationElement implements Integr
      */
     public void intervalAction(Integrator.IntervalEvent evt){
         //if(evt.type() == Integrator.IntervalEvent.START) openFile(); //open a file when START.
-        if(evt.type() != Integrator.IntervalEvent.INTERVAL) return; //only act on INTERVAL events.
+        if(evt.type() != Integrator.IntervalEvent.INTERVAL) return; //act only on INTERVAL events.
 	    if(--count == 0) {
 	        count = updateInterval;
-	        openFile();
-	        try {
-		        write();
-	        } catch(java.io.IOException ex) {
-	        	System.out.println("Exception when writing to log ");
-	        	ex.printStackTrace();
-	        }
-	        if(closeFileEachTime) closeFile();
+	        doWrite();
 	    }
         if(evt.type() == Integrator.IntervalEvent.DONE) closeFile(); //close the file when DONE.
+    }
+    
+    /**
+     * Performs the open/write/close file actions in accordance with the
+     * settings of the Logger.  Called by intervalAction and by the
+     * actionPerformed method of any Actions made by the writeAction method.
+     */
+    private void doWrite() {
+		openFile();
+		try {
+			write();
+		} catch(java.io.IOException ex) {
+			System.out.println("Exception when writing to log ");
+			ex.printStackTrace();
+		}
+		if(closeFileEachTime) closeFile();    	
     }
     
     /**
@@ -151,6 +165,15 @@ public abstract class LoggerAbstract extends SimulationElement implements Integr
     public boolean isSameFileEachTime() {return sameFileEachTime;}
     
     /**
+     * Returns an Action class that causes a file open/write/close to be
+     * performed in accordance with settings of Logger
+     * @return Action the write-action object
+     */
+    public Action makeWriteAction() {
+    	return this.new WriteAction();
+    }
+    
+    /**
      * Close the file and open a new one at each time INTERVAL. The new file will be named by defaultFileName().
      */
     public void setCloseFileEachTime(boolean closeFileEachTime) { this.closeFileEachTime = closeFileEachTime;}
@@ -170,4 +193,12 @@ public abstract class LoggerAbstract extends SimulationElement implements Integr
     private boolean closeFileEachTime = false; //whether to close the file and open a new one at each INTERVAL.
     private boolean fileIsOpen = false; //at the beginning, it is false.
     
+	private class WriteAction extends etomica.Action {
+		public WriteAction() {
+			setLabel("Write");
+		}
+		public void actionPerformed() {
+			doWrite();
+		}
+	}
 }

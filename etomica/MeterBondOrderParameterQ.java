@@ -10,7 +10,7 @@ import etomica.utility.*;
    * @author Jhumpa Adhikari
    */
 
-public class MeterBondOrderParameterQ extends MeterScalar implements EtomicaElement 
+public class MeterBondOrderParameterQ extends MeterAbstract implements EtomicaElement 
 {
     private SphericalHarmonics sh;
     private double[] Qreal, Qimag;
@@ -23,7 +23,7 @@ public class MeterBondOrderParameterQ extends MeterScalar implements EtomicaElem
     public MeterBondOrderParameterQ() {this(Simulation.instance);}
     
     public MeterBondOrderParameterQ(Simulation sim) {
-        super(sim);
+        super(sim, 1);
         setL(6);
         setR2Cut(Math.pow(5.0*Default.ATOM_SIZE, 2));
         setLabel("Bond Q Order Parameter");
@@ -34,7 +34,7 @@ public class MeterBondOrderParameterQ extends MeterScalar implements EtomicaElem
         return info;
     }
 
-    public double currentValue() {
+    public void doMeasurement() {
         int nbSum = 0;
         for(int m=-L; m<=L; m++) {
             int idx = m+L;
@@ -68,7 +68,7 @@ public class MeterBondOrderParameterQ extends MeterScalar implements EtomicaElem
             QL += Qreal[idx]*Qreal[idx] - Qimag[idx]*Qimag[idx];
         }
         QL = Math.sqrt(coeff*QL)/(double)nbSum;
-        return QL;
+        data[0] = QL;
         
     }//end of currentValue
     

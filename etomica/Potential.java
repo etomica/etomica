@@ -85,7 +85,17 @@ public abstract class Potential extends SimulationElement {
         if(newParent != null) parentPotential.addPotential(this);
     }
     
-    
+    /**
+     * Primary method to complete the action of the potential.  Takes a basis,
+     * which is a set of atoms that define the basis for iteration, and
+     * iterator directive, which specifies which of the candidate atoms are
+     * generated upon iteration using the basis, and a PotentialCalculation,
+     * which specifies what the potential is to do or calculate.
+     * @param basis the basis atoms for the iteration
+     * @param id directive specifying atoms generated upon iteration over the
+     * basis
+     * @param pc codes what potential is to calculate when method is invoked
+     */
     public abstract void calculate(AtomSet basis, IteratorDirective id, PotentialCalculation pc);
             
 //	public void calculate(AtomSet basis, IteratorDirective id, PotentialCalculation pc) {

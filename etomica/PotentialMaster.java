@@ -92,6 +92,7 @@ public final class PotentialMaster extends PotentialGroup {
 		void setSpecies(Species[] species) {
 			this.species = new Species[species.length];
 			System.arraycopy(species, 0, this.species, 0, species.length);
+			basisArray = new AtomSet[0]; //(DAK) added 07/22/04 needed to ensure basis is updated if species are changed from values set first
 		}
 		
 		public AtomSet basis(SpeciesMaster m) {
@@ -105,6 +106,13 @@ public final class PotentialMaster extends PotentialGroup {
 			}
 		}
 		
+		/**
+		 * Makes a basis out of the SpeciesAgents of the species to which the wrapped potential applies,
+		 * for the phase of the given SpeciesMaster.
+		 * @param m SpeciesMaster in the phase for which the basis is being identified.
+		 * @return an AtomSet that has one or more SpeciesAgents that are the basis for the potential
+		 * in the given phase.
+		 */
 		private AtomSet makeBasis(SpeciesMaster m) {
 			int index = m.index;
 			if(index >= basisArray.length) {

@@ -6,11 +6,9 @@ package etomica;
  *
  * @author David Kofke
  */
-public class MeterMoleFraction extends MeterScalar implements EtomicaElement
-{
+public class MeterMoleFraction extends MeterScalar implements EtomicaElement {
     private Species species;
-    private SpeciesAgent speciesAgent;
-    
+   
     public MeterMoleFraction() {
         this(Simulation.instance);
     }
@@ -21,7 +19,7 @@ public class MeterMoleFraction extends MeterScalar implements EtomicaElement
     
     public void setSpecies(Species s) {
         species = s;
-        speciesAgent = species.getAgent(getPhase());
+//        speciesAgent = species.getAgent(getPhase());
     }
     public Species getSpecies() {return species;}
 
@@ -30,10 +28,13 @@ public class MeterMoleFraction extends MeterScalar implements EtomicaElement
         return info;
     }
 
-    public double currentValue() {
-        if(species == null) return 0.0;
-        return (double)speciesAgent.moleculeCount()/(double)phase.moleculeCount();
-    }
+    public void getData(Phase phase) {
+        if(species == null) phaseData[0] = Double.NaN;
+        else {
+        	SpeciesAgent agent = phase.getAgent(species);
+        	phaseData[0] = (double)agent.moleculeCount()/(double)phase.moleculeCount();
+        }
+     }
     
     public double currentValue(Atom a) {
         return (a.node.parentSpecies()==species) ? 1.0/(double)phase.moleculeCount() : 0.0;

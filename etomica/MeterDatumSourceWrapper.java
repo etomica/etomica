@@ -49,7 +49,7 @@ package etomica;
      * Returns the output of a call to the value method of the internal DatumSource,
      * given the whichValue type as an argument.
      */
-    public double currentValue() {
+    public double getData() {
         return (source != null) ? source.value(whichValue) : Double.NaN;
     }
     

@@ -14,7 +14,7 @@ import etomica.units.Dimension;
   * 09/08/02 (DAK) new
   */
   
-public class DataSourceFunction implements DataSource.X {
+public class DataSourceFunction implements DataSource, DataSourceDependent {
     
     public DataSourceFunction() {
         this(new Function.Constant(0.0));
@@ -29,13 +29,13 @@ public class DataSourceFunction implements DataSource.X {
     
     public DataSource getXSource() {return xSource;}
     
-    public double[] values(DataSource.ValueType type) {
+    public double[] getData() {
         return y;
     }
     public double[] xValues() {return x;}
     
     public void update() {
-        x = xSource.values(null);
+        x = xSource.getData();
         y = new double[x.length];
         for(int i=0; i<x.length; i++) {
             y[i] = function.f(x[i]);

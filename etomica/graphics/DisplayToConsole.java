@@ -25,7 +25,7 @@ public class DisplayToConsole extends Display implements MeterScalar.MultiUser, 
         
     public void doUpdate() {
         for(int i=0; i<meter.length; i++) {
-            System.out.println(meter[i].getLabel() + " " + meter[i].currentValue());
+            System.out.println(meter[i].getLabel() + " " + meter[i].getData());
         }
         System.out.println();
     }

@@ -116,7 +116,7 @@ public final class ApiGeneral extends AtomPairIterator {
     /**
      * Resets the iterator so that it iterates over all pairs formed with the 
      * given atom in the most recently specified iterator directive (default UP is
-     * if none previously specified.
+     * if none previously specified).
      */
     public void reset(Atom atom) {
         aiOuter.reset(localDirective.set(atom).set(IteratorDirective.NEITHER));

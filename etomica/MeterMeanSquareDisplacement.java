@@ -12,7 +12,7 @@ import etomica.units.Count;
  *  @author David Kofke
  */
 
-public class MeterMeanSquareDisplacement extends MeterScalar implements 
+public class MeterMeanSquareDisplacement extends MeterAbstract implements 
                                                 Integrator.IntervalListener.BeforePbc, 
                                                 Integrator.IntervalListener.AfterPbc, 
                                                 EtomicaElement {
@@ -32,7 +32,7 @@ public class MeterMeanSquareDisplacement extends MeterScalar implements
         setAtoms(iter);
     }
     public MeterMeanSquareDisplacement(Simulation sim) {
-        super(sim);
+        super(sim, 1);
         setLabel("Mean square displacement");
         setUpdateInterval(1);
         deltaR = sim.space().makeVector();
@@ -83,12 +83,12 @@ public class MeterMeanSquareDisplacement extends MeterScalar implements
         if(iterator != null) setAtoms(iterator);
     }
     
-    public double currentValue() {
+    public void doMeasurement() {
         double sum = 0.0;
         for(int i=0; i<nAtoms; i++) {
             sum += rAccum[i].squared();
         }
-        return sum/(double)nAtoms;
+        data[0] = sum/(double)nAtoms;
     }
     /**
      *  Override superclass method to perform update of atom displacements.
@@ -118,7 +118,7 @@ public class MeterMeanSquareDisplacement extends MeterScalar implements
         }   
 	    if(--iieCount == 0) {
 	        iieCount = updateInterval;
-	        accumulator.history().addValue(currentValue());
+	        accumulator.history().addValue(getData());
 	    }
     }//end of intervalAction	    
 }//end of class

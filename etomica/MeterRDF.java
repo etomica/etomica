@@ -64,7 +64,7 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	 * Computes RDF for the current configuration
 	 *    For future development: It may be possible to extend to particular atom pairs by changing iterator and using a different normalization
 	 */
-	public double[] currentValue() {
+	public double[] getData() {
 	    iterator.reset(iteratorDirective);          //prepare iterator of atom pairs
 	    for(int i=0; i<nPoints; i++) {y[i] = 0.0;}  //zero histogram
 	    while(iterator.hasNext()) {                 //iterate over all pairs

@@ -46,11 +46,13 @@ public abstract class PotentialCalculation implements AtomSetActive,
 		return this;
 	}
 	
-//	/**
-//	 * Performs the atom-action on the species master of the phase.
-//	 * @see etomica.PhaseActive#actionPerformed(Phase)
-//	 */
+	/**
+	 * Performs the atom-action on the species master of the phase.
+	 * @see etomica.PhaseActive#actionPerformed(Phase)
+	 * @deprecated
+	 */
 	public void actionPerformed(Phase phase) {
+		throw new etomica.exception.MethodNotImplementedException();
 //		actionPerformed(phase.speciesMaster);//problem with lrc in soft md if doing this
 	}
 	

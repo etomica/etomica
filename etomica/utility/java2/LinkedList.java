@@ -8,6 +8,7 @@ package etomica.utility.java2;
 /* History
  *  
  * 12/31/02 (DAK) appended java2 to package name
+ * 07/28/04 (DAK) added reset() to ListItr
  */
  
 public class LinkedList implements java.io.Serializable, Cloneable
@@ -409,6 +410,12 @@ public class LinkedList implements java.io.Serializable, Cloneable
 	        next = next.next;
 	        nextIndex++;
 	        return lastReturned.element;
+	    }
+	    
+	    public void reset() {
+	    	next = header.next;
+//	    	lastReturned = header;
+	    	nextIndex = 0;
 	    }
     }//end of ListItr
 

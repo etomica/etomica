@@ -1,97 +1,51 @@
 package etomica;
 
-import java.util.Observable;
-import java.util.Observer;
 import etomica.units.Dimension;
 import etomica.units.Unit;
-import etomica.utility.Histogram;
-import etomica.utility.History;
+import etomica.utility.IntegerRange;
 
 /**
- * Superclass of all meter types.
- * A meter is responsible for measuring and averaging properties during a simulation.
- * A meter is placed in a phase with the setPhase method, and it does is measurements exclusively on that phase,
- * although there are exceptions.<br>
- * Meters do not carry any ability to display their measurements.  Display of meter data is accomplished
- * by connecting a meter to an appropriate Display object.<br>
- * All meter measurements are performed in simulation units.  Conversion to other units is completed
- * by the Display object that is presenting the meter data.<br>
- * The abstract meter is subclassed into a Meter and a MeterFunction.  An extension of the Meter subclass 
- * measures a scalar property (such as the energy), while an extension of the MeterFunction subclass
- * measures a vector or function property (such as the radial distribution function).<br>
- * A meter updates its averages after receiving some number of interval events from an integrator.
- * All of the manipulations involving the calculation of averages and error bars are handled by
- * the Accumulator inner class of MeterAbstract.  Each meter contains one (or more, for a MeterFunction)
- * instance of an accumulator.<br>
- * A meter may be set to keep a histogram of its measured values, in addition to the average and variance.
- * 
+ * Parent of classes that perform measurements on a phase.  
+ * A Phase-dependent DataSource.
  *
  * @author David Kofke
- * @see Meter
- * @see MeterFunction
- * @see MeterMultiFunction
- * @see MeterAbstract.Accumulator
  */
-public abstract class MeterAbstract extends SimulationElement implements Integrator.IntervalListener,  java.io.Serializable {
+public abstract class MeterAbstract extends SimulationElement implements DataSource, PhaseDependent, java.io.Serializable {
 
     public static final String VERSION = "MeterAbstract:01.07.25";
     
     /**
-     * Number of integration interval events received before another call to updateSums
+     * The phases in which this meter is performing its measurements
      */
-    protected int updateInterval;
-    /**
-     * Number of interval events received between additions to history.
-     */
-   // protected int historyInterval;
-    /**
-     * Counter that keeps track of the number of interval events received since last call to updateSums
-     */
-    protected int iieCount;
-    /**
-     * Counter that keeps track of the interval events since last history accumulation.
-     */
-   // protected int historyCount;
-    /**
-     * The phase in which this meter is performing its measurements
-     */
-    protected Phase phase;
-    /**
-     * The integrator firing the IntervalEvents telling the meter to take its measurements
-     */
-     protected Integrator integrator;
+    protected Phase[] phase;
     /**
      * A string describing the property measured by the meter
      */
     protected String label = "Property";
-    /**
-     * Flag specifying whether the meter responds to integrator events
-     * If false, the meter does not perform regular measurements or keep averages
-     * In this situation the meter is probably measuring a property for use by some other object
-     * Default is <code>true</code> for a Meter, but <code>false</code> for a MeterFunction.
-     */
-    protected boolean active;
-    
-    protected int historyWindow = 100;
-    
-    boolean resetHistoryOnMeterReset = false;
-    boolean resetHistogramOnMeterReset = true;
     
     /**
-     * Size of subaveraging block used to evaluate confidence limits.
-     * Default is 1000 updateIntervals.
+     * Number of data points collected by the meter.
      */
-    int blockSize = Default.BLOCK_SIZE;
+    protected int nDataPerPhase;
     
-    private transient Observer integratorObserver;
-    private transient Observer boundaryObserver;
+    /**
+     * Array used to hold the data returned by the meter. 
+     */
+    private double[] data;
     
-    boolean histogramming = false;
-    boolean historying = false;
+    /**
+     * Array used to hold data returned for each phase.
+     */
+    protected double[] phaseData;
     
-	public MeterAbstract(SimulationElement parent) {
+    private int phaseCount;
+    
+    private static final IntegerRange phaseCountRange = new IntegerRange(1,Integer.MAX_VALUE);
+    
+	public MeterAbstract(SimulationElement parent, int nDataPerPhase) {
 	    super(parent, MeterAbstract.class);
-	    setUpdateInterval(1);
+	    this.nDataPerPhase = nDataPerPhase;
+	    phaseData = new double[nDataPerPhase];
 	}
 	    	
 	/**
@@ -106,127 +60,23 @@ public abstract class MeterAbstract extends SimulationElement implements Integra
 	 */
 	public Unit defaultIOUnit() {return getDimension().defaultIOUnit();}
 	
-	/**
-	 * Method called upon receiving updateInterval interval-events from the integrator
-	 */
-	public abstract void updateSums();
-
-	protected abstract Accumulator[] allAccumulators();
- 
     /**
-     * Sets the phase in which the meter is performing its measurements.
-     * If given phase is null, meter is removed from current phase, if already in one.
-     * Meter is reset if new phase is not null.
+     * Sets the phases on which the meter performs its measurements.
      */
-	public void setPhase(Phase p) {
-	    //remove observers from current phase, if not null
-	    if(phase != null) {
-//	        phase.removeMeter(this);
-    	    if(integratorObserver != null) phase.integratorMonitor.deleteObserver(integratorObserver);
-    	    if(boundaryObserver != null) phase.boundaryMonitor.deleteObserver(boundaryObserver);
-	    }
-	    if(p == null) { //setting meter to have no phase
-	        setPhaseIntegrator(null);
-	        phase = null; //this must be done after setPhaseIntegrator call
-	        return;
-	    }
-	    else { //given phase is not null
-	        //update the phase handle
-	        phase = p;
-	        //list this meter as an interval listener of phase integrator
-	        setPhaseIntegrator(p.integrator()); 
-	        //add an observer to the phase to make sure this meter is notified if the integrator changes
-	        integratorObserver = integratorObserver();
-	        p.integratorMonitor.addObserver(integratorObserver);
-	        //perform similar steps to register and observe phase boundary and iteratorFactory if so indicated
-	        if(usesPhaseBoundary()) {
-    	        boundaryObserver = boundaryObserver();
-    	        setPhaseBoundary(p.boundary());
-	            p.boundaryMonitor.addObserver(boundaryObserver);
-	        }
-	        //zero all averages for this meter
-	        reset();
-	    }
-	}
-	
-	/**
-	 * Sets the integrator for this meter.
-	 * Registers the meter as an interval listener to the integrator, and if
-	 * appropriate, also as a collision listener.
-	 * This method is invoked by the setPhase method and, if the phase changes its
-	 * integrator, by an observer that is registered within the phase as part of the setPhase process.
-	 */
-	protected void setPhaseIntegrator(Integrator newIntegrator) {
-	    //note that phase does not update its integrator until after notifying observers, 
-	    //so this should work to remove this meter from interval-listeners list of old integrator
-	    Integrator oldIntegrator = null;
-	    if(phase != null) oldIntegrator = phase.integrator();
-	    if(oldIntegrator != null) {
-	        oldIntegrator.removeIntervalListener(this);
-	        if(oldIntegrator instanceof IntegratorHard && this instanceof IntegratorHardAbstract.CollisionListener) 
-	            ((IntegratorHard)oldIntegrator).removeCollisionListener((IntegratorHardAbstract.CollisionListener)this);
-	    }
-	    if(newIntegrator != null) {
-	        newIntegrator.addIntervalListener(this);
-	        if(newIntegrator instanceof IntegratorHard && this instanceof IntegratorHardAbstract.CollisionListener) 
-	            ((IntegratorHard)newIntegrator).addCollisionListener((IntegratorHardAbstract.CollisionListener)this);
-	    }
-	    this.integrator = newIntegrator;
-	}
-	    
-    /**
-     * The integrator firing the interval events that tell this meter to do its update.
-     * Integrator is set by the setPhaseIntegrator method, which is called by setPhase.
-     */
-     public Integrator integrator() {return integrator;}
+	public void setPhase(Phase[] p) {
+		phaseCount = p.length;
+		if(!phaseCountRange.contains(phaseCount)) throw new IllegalArgumentException("Error: Attempting to set number of phases outside range acceptable to meter");
+		phase = new Phase[phaseCount];
+		for(int i=0; i<phaseCount; i++) phase[i] = p[i];
+	    data = new double[phaseCount * nDataPerPhase];
 
-	/**
-	 * Returns an observer that can be registered with the phase's integratorMonitor.
-	 * In this way this meter is informed if the integrator object changes to another instance in the phase.
-	 * Registration of this observer is done automatically by the setPhase method.
-	 */
-	protected Observer integratorObserver() {
-	    return new Observer() {
-	        //This is the action that is to happen if phase takes a new integrator
-	        public void update(Observable o, Object arg) {
-	            setPhaseIntegrator((Integrator)arg);  //if looking for a bug, check that this calls overridden method in subclasses
-	        }
-	    };
 	}
-
-	/**
-	 * Returns an observer that can be registered with the phase's boundaryMonitor
-	 * In this way this meter is informed if the boundary object changes to another instance in the phase
-	 * Registration of this observer is done automatically by the setPhase method, but 
-	 * only if the usesBoundary method of this meter returns <code>true</code>.
-	 */
-	protected Observer boundaryObserver() {
-	    return new Observer() {
-	        //This is the action that is to happen if phase takes a new boundary
-	        public void update(Observable o, Object arg) {
-	            setPhaseBoundary((Space.Boundary)arg);
-	        }
-	    };
-	}
-	/**
-	 * Flags whether the meter uses the phase boundary when making its measurements.
-	 * If so, then the meter will be registered (within the setPhase method) as an observer of the phase's boundaryMonitor,
-	 * which notifies if the boundary object in the phase is changed to another boundary.
-	 * This method returns <code>false</code> by default. Subclasses that use the 
-	 * phase boundary should override this method to return <code>true</code> (and take care
-	 * not to make a typographical error in the name and thereby just define a different method).
-	 */
-	protected boolean usesPhaseBoundary() {return false;}
 	
 	/**
-	 * Method performs no action, but can be overridden in subclasses to handle setting or change of boundary in phase
+	 * Accessor method for the phases on which the meter performs
+	 * its measurements.
 	 */
-	protected void setPhaseBoundary(Space.Boundary b) {}
-	
-	/**
-	 * Accessor method for the phase in which this meter resides
-	 */
-	 public Phase getPhase() {return phase;}
+	 public Phase[] getPhase() {return phase;}
 	
 	/**
 	 * Accessor method for the meter's label
@@ -238,310 +88,70 @@ public abstract class MeterAbstract extends SimulationElement implements Integra
 	public void setLabel(String s) {label = s;}
 
     /**
-     * Accessor method for the updateInterval
-     * @see #updateInterval
-     */
-    public final int getUpdateInterval() {return updateInterval;}
-    /**
-     * Accessor method for the updateInterval.
-     * Sets to given value and resets count of interval events
-     * @see #updateInterval
-     */
-    public void setUpdateInterval(int i) {
-        if(i > 0) {
-            updateInterval = i;
-            iieCount = updateInterval;
-        }
-    }
-    
-    /**
-     * BlockSize describes the size of the subaverages used to estimate confidence limits 
-     * on simulation averages.
-     * Default is 1000 updateIntervals.
-     */
-    public void setBlockSize(int b) {blockSize = Math.max(1,b);}
-    /**
-     * BlockSize describes the size of the subaverages used to estimate confidence limits 
-     * on simulation averages.
-     */
-    public int getBlockSize() {return blockSize;}
-    
-    
-    /**
-     * Sets whether the meter responds to integrator events
-     * If false, the meter does not perform regular measurements or keep averages
-     */
-    public void setActive(boolean b) {active = b;}
-    /**
-     * Returns status of active flag
-     * @see setActive
-     */
-    public final boolean isActive() {return active;}
-    
-    /**
-     * Integrator.IntervalListenter interface method.
-     * Counts number of events received and calls updateSums after receiving event updateInterval times
-     */
-    public void intervalAction(Integrator.IntervalEvent evt) {
-        if(!active) return;
-        if(evt.type() != Integrator.IntervalEvent.INTERVAL) return; //don't act on start, done, initialize events
-	    if(--iieCount == 0) {
-	        iieCount = updateInterval;
-	        updateSums();
-	    }
-    }
-    
-	/**
-	 * Method to set reset (discard accumulated values for) all averages and other sums
-	 */
-	public void reset() {
-	    Accumulator[] accumulators = allAccumulators();
-	    for(int i=0; i<accumulators.length; i++) {
-	        accumulators[i].reset();
-	    }
-	}
-	
-	/**
-	 * Indicates is the accumulated histogram data is to be erased when 
-	 * a call is made to reset the meter.  Default is true.
-	 */
-	public void setResetHistogramOnMeterReset(boolean b) {
-	    resetHistogramOnMeterReset = b;
-	}
-	/**
-	 * Indicates is the accumulated histogram data is to be erased when 
-	 * a call is made to reset the meter.  Default is true.
-	 */
-	public boolean isResetHistogramOnMeterReset() {
-	    return resetHistogramOnMeterReset;
-	}
-	/**
-	 * Indicates is the accumulated history data is to be erased when 
-	 * a call is made to reset the meter.  Default is false.
-	 */
-	public void setResetHistoryOnMeterReset(boolean b) {
-	    resetHistoryOnMeterReset = b;
-	}
-	/**
-	 * Indicates is the accumulated history data is to be erased when 
-	 * a call is made to reset the meter.  Default is false.
-	 */
-	public boolean isResetHistoryOnMeterReset() {
-	    return resetHistoryOnMeterReset;
-	}
-	
-
-	/**
-	* Accessor method to indicate if the meter should keep a histogram of all measured values.
-	* Default is false (do not keep histogram).
-	*/
-	public boolean isHistogramming() {return histogramming;}
-    	 
-	/**
-	* Accessor method to indicate if the meter should keep a histogram of all measured values.
-	* Default is false (do not keep histogram).
-	*/
-	public void setHistogramming(boolean b) {
-	    histogramming = b;
-	    Accumulator[] accumulators = allAccumulators();
-	    for(int i=0; i<accumulators.length; i++) {
-	        accumulators[i].setHistogramming();
-	    }
-	}
-
-	/**
-	* Accessor method to indicate if the meter should keep a history of all measured values.
-	* Default is false (do not keep history).
-	*/
-	public boolean isHistorying() {return historying;}
-    	 
-	/**
-	* Accessor method to indicate if the meter should keep a history of all measured values.
-	* Default is false (do not keep history).
-	*/
-	public void setHistorying(boolean b) {
-	    historying = b;
-	    Accumulator[] accumulators = allAccumulators();
-	    for(int i=0; i<accumulators.length; i++) {
-	        accumulators[i].setHistorying();
-	    }
-	}
-	
-    /**
      * Method to set the name of this object
      * 
      * @param name The name string to be associated with this object
      */
     public void setName(String name) {
         this.name = name;
-	    Accumulator[] accumulators = allAccumulators();
-	    if(accumulators == null) return;
-	    for(int i=0; i<accumulators.length; i++) {
-	        if(accumulators[i].histogram() != null) 
-	            accumulators[i].histogram().setName(this.toString() + ":Histogram");
-	        if(accumulators[i].history() != null) 
-	            accumulators[i].history().setName(this.toString() + ":History");
-	    }
     }
-          
-    /**
-     * Class for accumulation of averages and error statistics
-     * One or more instances of this class is present in every meter.
-     * Presently error value is not computed well (assumes independent measurements)
-     * Future development project: include block averaging, add a plot display to show error as a function of block size
-     */
-    public final class Accumulator implements java.io.Serializable {
-        private double sum, sumSquare, blockSum, error;
-        private double mostRecent = Double.NaN;
-        private double mostRecentBlock = Double.NaN;
-        private int count, blockCountDown;
-        private Histogram histogram;
-        private History history;
-        
-        public Accumulator() {
-            reset();
-        }
-        
-        /**
-         * Add the given value to the sum and block sum
-         */
-        public void add(double value) {
-            mostRecent = value;
-            if(Double.isNaN(value)) return;
-            
-	        blockSum += value;
-	        if(--blockCountDown == 0) {//count down to zero to determine completion of block
-	            blockSum /= blockSize;//compute block average
-	            sum += blockSum;
-	            sumSquare += blockSum*blockSum;
-    	        count++;
-    	        if(count > 1) {
-    	            double avg = sum/(double)count;
-    	            error = Math.sqrt((sumSquare/(double)count - avg*avg)/(double)(count-1));
-    	        }
-	            //reset blocks
-	            mostRecentBlock = blockSum;
-	            blockCountDown = blockSize;
-	            blockSum = 0.0;
-	        }
-	        if(histogramming) histogram.addValue(value);
-	        if(historying) history.addValue(value);
-        }
-        
-        /**
-         * Compute and return the average from the present value of the accumulation sum
-         */
-	    public double average() {
-	        int blockCount = blockSize - blockCountDown;
-	        return (count+blockCount > 0) ? 
-	        	sum/(double)count
-//	            (sum + blockSum/blockSize)/(double)(count + (double)blockCount/(double)blockSize) 
-	            : Double.NaN;
-	    }
-    	
-    	/**
-    	 * Return the 67% confidence limits of the average based on variance in block averages.
-    	 */
-	    public double error() {
-	        return error;
-	    }
-	    
-	    /**
-	     * Compute and return the variance of the recorded data.
-	     */
-	     public double variance() {
-	        double avg = sum/(double)count;
-	        return (count>0) ? sumSquare/(double)count - avg*avg : Double.NaN;
-	     }
-	    
-	    /**
-	     * Returns the value last passed to the add method
-	     */
-	    public double mostRecent() {return mostRecent;}
-    	
-    	/**
-    	 * Returns the value of the most recent block average.
-    	 */
-    	public double mostRecentBlock() {
-    	    return (mostRecentBlock!=Double.NaN) ? mostRecentBlock : blockSum/(blockSize - blockCountDown);
-        }
-        
-    	/**
-    	 * Resets all sums to zero
-    	 */
-	    public void reset() {
-	        count = 0;
-	        sum = 0.0;
-	        sumSquare = 0.0;
-	        error = Double.NaN;
-	        blockCountDown = blockSize;
-	        blockSum = 0.0;
-	        if(histogram != null && resetHistogramOnMeterReset) histogram.reset();
-	        if(history != null && resetHistoryOnMeterReset) history.reset();
-	        mostRecent = Double.NaN;
-	        mostRecentBlock = Double.NaN;
-	    }
-	    
-	    /**
-	     * Returns the histogram in its current state.
-	     */
-	    public Histogram histogram() {return histogram;}
-	    
-	    /**
-	     * Returns the history of values recorded by the accumulator.
-	     */
-	    public History history() {return history;}
-    	 
-	    /**
-	    * Accessor method to indicate if the meter should keep a histogram of all measured values.
-	    * Default is false (do not keep histogram).
-	    * Does not take an argument; true/falue value is obtained from outer-class meter
-	    */
-	    //need way to update name if meter name changes
-	    public void setHistogramming() {
-	        if(histogramming && histogram == null) {
-	            histogram = new Histogram();
-	            histogram.setName(MeterAbstract.this.toString() + ":Histogram");
-	            histogram.setLabel(MeterAbstract.this.getLabel() + " histogram");
-	            histogram.setXLabel(MeterAbstract.this.getLabel());
-	            histogram.setXDimension(MeterAbstract.this.getDimension());
-	        }
-	    }
-	    
-	    /**
-	    * Accessor method to indicate if the meter should keep a history of all measured values.
-	    * Default is false (do not keep history).
-	    * Does not take an argument; true/falue value is obtained from outer-class meter
-	    */
-	    public void setHistorying() {
-	        if(historying && history == null) {
-	            history = new History(Default.HISTORY_PERIOD);
-	            history.setName(MeterAbstract.this.toString() + ":History");
-	            history.setLabel(MeterAbstract.this.getLabel() + " history");
-	        }
-	    }
-	    
-	}//end of Accumulator
-	
+      
 	/**
-	 * Typed constant that can be used to indicated the quantity
-	 * to be taken from a meter (e.g., average, error, current value, etc.).
-	 * Used primarily by Display objects.
+	 * Defined by the subclass to specify what property is measured by 
+	 * the meter. Call to method should cause measured value(s) to be
+	 * placed in the phaseData[] array.
 	 */
-	public static class ValueType extends DataSource.ValueType {
-        private ValueType(String label) {super(label);}       
-        public Constants.TypedConstant[] choices() {return (Constants.TypedConstant[])CHOICES;}
-        public static final ValueType[] CHOICES = 
-            new ValueType[] {
-                new ValueType("Average"), new ValueType("67% Confidence Limits"),
-                new ValueType("Current value"), new ValueType("Latest value"),
-                new ValueType("Latest block average"), new ValueType("Variance")};
-    }//end of ValueType
-    public static final ValueType AVERAGE = ValueType.CHOICES[0];
-    public static final ValueType ERROR = ValueType.CHOICES[1];
-    public static final ValueType CURRENT = ValueType.CHOICES[2];
-    public static final ValueType MOST_RECENT = ValueType.CHOICES[3];
-    public static final ValueType MOST_RECENT_BLOCK = ValueType.CHOICES[4];
-    public static final ValueType VARIANCE = ValueType.CHOICES[5];
+    public abstract double[] getData(Phase phase);
 	
+    public double[] getData() {
+    	int k = 0;
+    	for(int i=0; i<phaseCount; i++) {
+     		System.arraycopy(getData(phase[i]), 0, data, k, nDataPerPhase);
+    		k += nDataPerPhase;
+    	}
+    	return data;
+    }
+    
+    public IntegerRange phaseCountRange() {return phaseCountRange;}
+    
+	/**
+	 * Interface to indicate an object that interacts with a Meter.
+	 */
+	 public interface User {
+	    public void setMeter(MeterScalar m);
+	    public MeterScalar getMeter();
+	 }
+	 
+	/**
+	 * Interface to indicate an object that interacts with multiple Meters.
+	 */
+	 public interface MultiUser {
+	    public void setMeters(MeterScalar[] m);
+	    public MeterScalar[] getMeters();
+	    public void addMeter(MeterScalar m);
+	 }
+	     
+    
+	 /**
+	  * Function that can be added to a meter to make it return molar (intensive)
+	  * rather than total (extensive) property.  Example usage:
+	  *     meter.setFunction(new MeterScalar.Molar(phase));
+	  *
+	  */
+	 public static class Molar implements Function {
+	    private Phase phase;
+	    public Molar(Phase phase) {
+	        this.phase = phase;
+	    }
+	    public double f(double x) {
+	        return x/phase.moleculeCount();
+	    }
+	    public double dfdx(double x) {
+	        return 1.0/phase.moleculeCount();
+	    }
+	    public double inverse(double x) {
+	        throw new RuntimeException("dfdx method not implemented in MeterScalar.Molar");
+	    }
+	 }//end of Molar
+
 }//end of MeterAbstract	 

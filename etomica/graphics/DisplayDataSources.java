@@ -171,7 +171,7 @@ public abstract class DisplayDataSources extends Display implements DataSource.M
                 setXUnit(((DataSource.X)ySource[0]).getXDimension().defaultIOUnit());
             }
             else {
-                x = xSource.values(whichValueX); 
+                x = xSource.getData(whichValueX); 
                 setXLabel(xSource.getLabel());
                 setXUnit(xSource.getDimension().defaultIOUnit());
             }
@@ -193,7 +193,7 @@ public abstract class DisplayDataSources extends Display implements DataSource.M
         else {
             int k = 0;
             for(int i=0; i<ySource.length; i++) {
-                double[] ys = ySource[i].values(whichValue);
+                double[] ys = ySource[i].getData(whichValue);
                 int n = (ys != null) ? ys.length : 0;
                 k = (k < n) ? n : k;
             }
@@ -257,7 +257,7 @@ public abstract class DisplayDataSources extends Display implements DataSource.M
         //update all y values at once so not to invoke calculation of all
         //y values when just one of them is accessed
         for(int i=0; i<ySource.length; i++) {
-           y[i] = ySource[i].values(whichValue);
+           y[i] = ySource[i].getData(whichValue);
         }
         setupX();//added 01/03/03 (DAK)
     }

@@ -97,7 +97,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     }//end of doStep
     
     public void drivePT() {
-        kineticT = meterTemperature.currentValue();
+        kineticT = meterTemperature.getData();
         double mvsq = kineticT * D * firstPhase.atomCount();
         double volume = firstPhase.volume();
         double pCurrent = firstPhase.getDensity()*kineticT - forceSumNPH.w/(D*volume);

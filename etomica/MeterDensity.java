@@ -8,13 +8,12 @@ import etomica.units.*;
  *
  * MIGHT WANT TO CHANGE THIS TO A METER.RATIO
  */
-public class MeterDensity extends MeterScalar implements MeterScalar.Atomic, EtomicaElement
+public class MeterDensity extends MeterScalar implements MeterAtomic, EtomicaElement
 {
     public MeterDensity() {
         this(Simulation.instance);
     }
-    public MeterDensity(Simulation sim)
-    {
+    public MeterDensity(Simulation sim) {
         super(sim);
         setLabel("Number density");
     }
@@ -24,19 +23,9 @@ public class MeterDensity extends MeterScalar implements MeterScalar.Atomic, Eto
         return info;
     }
 
-    /**
-     * Declaration that this meter does not use the boundary object of phase when making its measurements
-     */
-    public final boolean usesPhaseBoundary() {return false;}
-    /**
-     * Declaration that this meter does not use the iteratorFactory of phase when making its measurements
-     */
-    public final boolean usesPhaseIteratorFactory() {return false;}
-
-    public double currentValue()
-    {
+    public double getScalarData(Phase phase) {
         return phase.moleculeCount()/phase.volume();
-    }
+   }
     
     public double currentValue(Atom a) {
         return 1/phase.volume();

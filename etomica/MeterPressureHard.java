@@ -9,9 +9,9 @@ import etomica.units.*;
  *
  * @author David Kofke
  */
-public final class MeterPressureHard extends MeterScalar implements
+public final class MeterPressureHard extends MeterAbstract implements
                                                 IntegratorHardAbstract.CollisionListener,
-                                                MeterScalar.Collisional,
+                                                MeterCollisional,
                                                 EtomicaElement {
         
     private double virialSum = 0.0;
@@ -24,7 +24,7 @@ public final class MeterPressureHard extends MeterScalar implements
         this(Simulation.instance);
     }
     public MeterPressureHard(Simulation sim) {
-        super(sim);
+        super(sim, 1);
         D = simulation().space().D();
         setLabel("PV/Nk");
     }
@@ -43,7 +43,7 @@ public final class MeterPressureHard extends MeterScalar implements
      * Returns P*V/N*kB = T - (virial sum)/(elapsed time)/(space dimension)/(number of atoms)
      * Virial sum and elapsed time apply to period since last call to this method.
      */
-    public double currentValue() {
+    public void doMeasurement() {
         double t = integratorHard.elapsedTime();
         if(t > t0) { // could have t==t0 if called twice before advancing integator
             double flux = -virialSum/((t-t0)*(double)(D*phase.atomCount()));   //divide by time interval
@@ -51,7 +51,7 @@ public final class MeterPressureHard extends MeterScalar implements
             t0 = t;
             virialSum = 0.0;
         }
-        return value;
+        data[0] = value;
     }
     /**
      * Implementation of CollisionListener interface
@@ -62,7 +62,7 @@ public final class MeterPressureHard extends MeterScalar implements
     }
     
     /**
-     * Implementation of Meter.Collisional interface.  Returns -(collision virial)/D.
+     * Implementation of Meter.MeterCollisional interface.  Returns -(collision virial)/D.
      * Suitable for tabulation of PV
      */
 	public double collisionValue(IntegratorHardAbstract.Agent agent) {
@@ -115,7 +115,7 @@ public final class MeterPressureHard extends MeterScalar implements
         profile.setActive(true);
         profile.setX(0,30,50);
         profile.setMeter(pressureMeter);
-        profile.setMeter(((MeterScalar.Atomic)new MeterTemperature()));
+        profile.setMeter(((MeterScalar.MeterAtomic)new MeterTemperature()));
         etomica.graphics.DisplayPlot plot = new etomica.graphics.DisplayPlot();
            
         //display the meter

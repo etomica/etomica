@@ -37,7 +37,7 @@ public class MeterPressureHardTensor extends MeterTensor implements IntegratorHa
      
     public Dimension getDimension() {return Dimension.TEMPERATURE;}
     
-    public Space.Tensor currentValue() {
+    public Space.Tensor getData() {
         double t = integratorHard.elapsedTime();
         if (t > t0) {
             velocityTensor.E(0.);
@@ -67,7 +67,7 @@ public class MeterPressureHardTensor extends MeterTensor implements IntegratorHa
     }
     
     public double currentValue(int i, int j) {
-        return currentValue().component(i, j);
+        return getData().component(i, j);
     }
     
     public void collisionAction(IntegratorHardAbstract.Agent agent) {

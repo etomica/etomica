@@ -2,6 +2,7 @@ package etomica.simulations;
 
 import etomica.*;
 import etomica.graphics.*;
+import etomica.utility.History;
 
 /**
  * @author David Kofke
@@ -18,6 +19,8 @@ public class ParallelTempering extends SimulationGraphic {
 	Controller controller;
 	IntegratorMC[] integrator;
 	P2LennardJones potential;
+	IntegratorPT.MeterPhaseTracker phaseTracker;
+
 
 	/**
 	 * Constructor for ParallelTempering.
@@ -73,7 +76,7 @@ public class ParallelTempering extends SimulationGraphic {
 			tLast = t;
 		}
 		 
-		IntegratorPT.MeterPhaseTracker phaseTracker = integratorPT.new MeterPhaseTracker();
+		phaseTracker = integratorPT.new MeterPhaseTracker();
 		phaseTracker.setPhases(phase);
 		phaseTracker.setUpdateInterval(10);
 		DisplayPlot phaseTrackPlot = new DisplayPlot();
@@ -95,6 +98,12 @@ public class ParallelTempering extends SimulationGraphic {
         
 		ColorSchemeByType.setColor(species,java.awt.Color.red);
 		DeviceTrioControllerButton buttons = new DeviceTrioControllerButton();
+		
+//		DeviceButton writeButton = new DeviceButton(this.new WriteHistory());
+		WriteHistory writeHistory = this.new WriteHistory();
+		writeHistory.setFileName("PT_history");
+		writeHistory.setCloseFileEachTime(true);
+		DeviceButton writeButton = new DeviceButton(writeHistory.makeWriteAction());
 		elementCoordinator.go();
 	}
 
@@ -106,6 +115,38 @@ public class ParallelTempering extends SimulationGraphic {
 
 		ParallelTempering ptSim = new ParallelTempering(nM, nPhase, tMin, tMax);
 		ptSim.makeAndDisplayFrame();
+	}
+	
+	class WriteHistory extends etomica.log.LoggerAbstract {
+//		public WriteHistory() {
+//			setLabel("Write");
+//		}
+		//EXAMPLE
+		//	protected void write() throws java.io.IOException {
+		//		fileWriter.write(Double.toString(meter.average()));
+		//	}
+		protected void write() throws java.io.IOException {
+			DataSource[] histories = phaseTracker.dataSource();
+			int nPhase = histories.length;
+			int nPoints = histories[0].data(null).length;
+			for(int j=0; j<nPhase; j++) {fileWriter.write(phase[j].integrator().getTemperature()+"\t");}
+			fileWriter.write("\n");
+			for(int i=0; i<nPoints; i++) {
+				if(Double.isNaN(histories[0].data(null)[i])) break;
+				for(int j=0; j<nPhase; j++) fileWriter.write((int)histories[j].data(null)[i]+"\t");
+				fileWriter.write("\n");
+			}
+			fileWriter.write("\n");
+			
+			for(int j=0; j<nPhase; j++) {System.out.print(phase[j].integrator().getTemperature()+"\t");}
+			System.out.println();
+			for(int i=0; i<nPoints; i++) {
+				if(Double.isNaN(histories[0].data(null)[i])) break;
+				for(int j=0; j<nPhase; j++) System.out.print((int)histories[j].data(null)[i]+"\t");
+				System.out.println();
+			}
+			System.out.println();
+		}
 	}
 }
 

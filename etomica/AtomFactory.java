@@ -30,8 +30,9 @@ public abstract class AtomFactory {
     protected BondInitializer bondInitializer = BondInitializer.NULL;
     private Atom.AgentSource[] agentSource = new Atom.AgentSource[0];
     protected final AtomType.Group groupType = new AtomType.Group(this);
+    protected final AtomType.Sphere spheretype = new AtomType.Sphere(this);
     protected AtomType atomType;
-    
+        
     public AtomFactory(Simulation sim, AtomSequencer.Factory sequencerFactory) {
     	this(sim, sequencerFactory, AtomTreeNodeGroup.FACTORY);
     }

@@ -105,11 +105,11 @@ public abstract class MeterGroup extends MeterAbstract implements DataSource  {
 	    return meters;
 	}
 	
-	public double[] values(DataSource.ValueType type) {return values((MeterAbstract.ValueType)type);}
+	public double[] data(DataSource.ValueType type) {return data((MeterAbstract.ValueType)type);}
 	/**
 	 * Returns the value indicated by the argument.
 	 */
-	public double[] values(MeterAbstract.ValueType type) {
+	public double[] data(MeterAbstract.ValueType type) {
 	    if(type==MeterAbstract.AVERAGE) 
 	        for(int i=0; i<nMeters; i++) values[i] =  average(i);
 	    else if(type==MeterAbstract.MOST_RECENT) 
@@ -230,7 +230,7 @@ public abstract class MeterGroup extends MeterAbstract implements DataSource  {
             index = i;
             this.accumulator = MeterGroup.this.accumulator[i];
         } 
-        public double  currentValue() {return MeterGroup.this.currentValue(index);}
+        public double  getData() {return MeterGroup.this.currentValue(index);}
         public String getLabel() {return labels[index];}
         public void setLabel(String label) {labels[index] = label; this.label = label;}
         public Dimension getDimension() {return Dimension.NULL;}//temporary

@@ -52,9 +52,9 @@ public class MeterOverlapTarget extends MeterFunction implements etomica.DatumSo
 	}
 
 	/**
-	 * @see etomica.MeterFunction#currentValue()
+	 * @see etomica.MeterFunction#getData()
 	 */
-	public double[] currentValue() {
+	public double[] getData() {
 		PairSet pairSet = ((PhaseCluster)phase).getPairSet().resetPairs();
 		double v0 = Math.abs(cluster0.value(pairSet,beta));
 		double v1 = cluster1.value(pairSet,beta);

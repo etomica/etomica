@@ -48,7 +48,7 @@ public class MeterFourierTransform extends MeterFunction {
 	/**
 	 * returns the array of real or imaginary numbers 
 	 */
-	public double[] currentValue() {
+	public double[] getData() {
 		iterator.reset();
 		Atom currentAtom;
 		data = new double[nMolecules];

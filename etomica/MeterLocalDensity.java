@@ -11,7 +11,7 @@ import etomica.units.*;
  
  //setBounds is no longer implemented.  Class may need repair
 
-public abstract class MeterLocalDensity extends MeterScalar implements EtomicaElement
+public abstract class MeterLocalDensity extends MeterAbstract implements EtomicaElement
 {
     /**
      * Class variable used to specify that all species are included in number-density calculation
@@ -32,9 +32,8 @@ public abstract class MeterLocalDensity extends MeterScalar implements EtomicaEl
     public MeterLocalDensity() {
         this(Simulation.instance);
     }
-    public MeterLocalDensity(Simulation sim)
-    {
-        super(sim);
+    public MeterLocalDensity(Simulation sim) {
+        super(sim, 1);
         initialLabel = "Local Density";
         setLabel(initialLabel);
         setSpecies(null);
@@ -98,10 +97,10 @@ public abstract class MeterLocalDensity extends MeterScalar implements EtomicaEl
     /**
      * @return the current value of the local density or local mole fraction
      */
-    public double currentValue()
+    public void doMeasurement()
     {
         if(moleFractionMode) {  //compute local mole fraction
-            if(speciesAgent == null) return 1.0;
+            if(speciesAgent == null) data[0] = 1.0;
             int totalSum = 0, speciesSum = 0;
             iterator.setBasis(phase);
             iterator.reset();
@@ -112,8 +111,8 @@ public abstract class MeterLocalDensity extends MeterScalar implements EtomicaEl
                     if(m.node.parentSpecies() == species) speciesSum++;
                 }
             }
-            if(totalSum == 0) return Double.NaN;
-            else return (double)speciesSum/(double)totalSum;
+            if(totalSum == 0) data[0] = Double.NaN;
+            else data[0] = (double)speciesSum/(double)totalSum;
         }
         else {                 //compute local molar density
             int nSum = 0;
@@ -130,7 +129,7 @@ public abstract class MeterLocalDensity extends MeterScalar implements EtomicaEl
                     if(this.contains(iterator.next())) nSum++;
                }
             }       
-            return nSum/volume;
+            data[0] = nSum/volume;
         }
     }
     

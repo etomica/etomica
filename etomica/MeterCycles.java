@@ -17,9 +17,8 @@ public final class MeterCycles extends MeterScalar implements EtomicaElement
     public MeterCycles() {
         this(Simulation.instance);
     }
-    public MeterCycles(Simulation sim)
-    {
-        super(sim);
+    public MeterCycles(Simulation sim){
+        super(sim, 1);
         setLabel("Cycles");
         setUpdateInterval(1);
     }
@@ -37,32 +36,14 @@ public final class MeterCycles extends MeterScalar implements EtomicaElement
     public Dimension getDimension() {return Dimension.QUANTITY;}
     
     /**
-     * Increments the counter.  Normally called by intervalAction method defined in superclass.
-     */
-    public void updateSums() {count += getUpdateInterval();}
-    /**
      * Resets counter to zero
      */
     public void reset() {count = 0;}
     /**
-     * Returns Not-a-Number
-     */
-    public double average() {return Double.NaN;}
-    /**
-     * Returns Not-a-Number
-     */
-    public double error() {return Double.NaN;}
-    
-    /**
-     * Returns currentValue
-     */
-    public double mostRecent() {return currentValue();}
-    
-    /**
      * Returns the number of interval events received, divided by updateInterval
      */
-    public double currentValue()
-    {
-        return (double)count;  
+    public void doMeasurement() {
+    	count += getUpdateInterval();
+        data[0] = (double)count;  
     }
 }

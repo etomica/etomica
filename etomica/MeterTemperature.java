@@ -9,7 +9,7 @@ import etomica.units.Dimension;
   * 7/03/02 (DAK) Changes to tie in with function of kinetic-energy meter.
   */
 
-public final class MeterTemperature extends MeterScalar implements EtomicaElement, MeterScalar.Atomic {
+public final class MeterTemperature extends MeterAbstract implements EtomicaElement, MeterAtomic {
     
     private final MeterKineticEnergy meterKE;
     
@@ -17,10 +17,9 @@ public final class MeterTemperature extends MeterScalar implements EtomicaElemen
         this(Simulation.instance);
     }
     public MeterTemperature(SimulationElement parent) {
-        super(parent);
+        super(parent, 1);
         setLabel("Temperature");
         meterKE = new MeterKineticEnergy(this);
-        meterKE.setActive(false);
     }
  
     public static EtomicaInfo getEtomicaInfo() {
@@ -33,8 +32,8 @@ public final class MeterTemperature extends MeterScalar implements EtomicaElemen
         meterKE.setPhase(phase);
     }
         
-    public double currentValue() {
-        return (2./(double)(phase.atomCount()*phase.simulation().space().D()))*meterKE.currentValue();
+    public void doMeasurement() {
+        data[0] = (2./(double)(phase.atomCount()*phase.simulation().space().D()))*meterKE.getData()[0];
     }
     
     public double currentValue(Atom a) {

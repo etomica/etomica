@@ -336,7 +336,7 @@ public static class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap
          * Returns array y such that y[i] is the current
          * phase of the configuration that began in phase i.
          */
-        public double[] currentValue() {
+        public double[] getData() {
             for(int i=0; i<track.length; i++) {
                 y[track[i]] = i;
             }

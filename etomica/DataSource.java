@@ -6,14 +6,8 @@ package etomica;
  */
  
 public interface DataSource {
-    
-    public double[] values(ValueType type);
-    
-    /**
-     * The types of values available from this data source.  One of these
-     * is expected as the argument to the values method.
-     */
-//    public ValueType[] dataChoices();
+
+	public double[] getData();
     
     /**
      * Returns a label used to describe the data when presented, 
@@ -27,13 +21,10 @@ public interface DataSource {
     public etomica.units.Dimension getDimension();
     
     /**
-     * Type class used to indicate to the data source which data is requested.
-     * Appropriate if source can provide a selection of data (e.g., current value
-     * or average value from a Meter).
+     * Returns the DataTranslator that converts this source's data
+     * into an appropriate object. 
      */
-    public static abstract class ValueType extends Constants.TypedConstant {
-        protected ValueType(String label) {super(label);}
-    }
+    public DataTranslator getTranslator();
     
     /**
      * Interface for a data source that has associated "x" values.

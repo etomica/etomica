@@ -132,10 +132,14 @@ import etomica.units.Dimension;
       
       /**
        * Returns the uniformly spaced values.
-       * Argument is ignored.
-       */
-      public double[] values(DataSource.ValueType dummy) {return x;}
+        */
+      public double[] getData() {return x;}
       
+      /**
+       * Returns an Identity translator, indicating that the data
+       * is not suitably interpreted as another object.
+       */
+      public DataTranslator getTranslator() {return DataTranslator.IDENTITY;}
       /**
        * Accessor method for the physical dimension associated with the values.
        * Default is Dimension.NULL (dimensionless).

@@ -8,7 +8,7 @@ package etomica;
  */
 public class MeterProfileHard extends MeterProfile implements IntegratorHardAbstract.CollisionListener, EtomicaElement {
     
-    private MeterScalar.Collisional cMeter;
+    private MeterCollisional cMeter;
     private int nCollisions;
     /**
      * Atom-based contribution to profile property.  Computed using the superclass meter (if it is set to something).
@@ -44,19 +44,19 @@ public class MeterProfileHard extends MeterProfile implements IntegratorHardAbst
 
     /**
      * Sets the meter used to tabulate the property.  
-     * May be called with either a Meter.Collisional or a MeterAbstract.  If both types of meter
+     * May be called with either a Meter.MeterCollisional or a MeterAbstract.  If both types of meter
      * are desired to contribute to average, should be called once with each.
      */
     public void setMeter(MeterAbstract m) {
-        if (m instanceof MeterScalar.Collisional) {cMeter = (MeterScalar.Collisional)m;}
-        if (m instanceof MeterScalar.Atomic) {meter = (MeterScalar.Atomic)m;}
+        if (m instanceof MeterCollisional) {cMeter = (MeterCollisional)m;}
+        if (m instanceof Atomic) {meter = (Atomic)m;}
     }
     
-    public double[] currentValue() {
+    public double[] getData() {
    //    double earlySum=0., middleSum=0., lateSum=0.;
         double t = integratorHard.elapsedTime();
         if (t > t0) {
-            if (meter != null) {z = super.currentValue();}  //atomic contribution
+            if (meter != null) {z = super.getData();}  //atomic contribution
             else {for (int i=0; i<nPoints; i++) { z[i] = 0.;}}
             double norm = 1.0/(deltaX*(t-t0));
             for (int i = 0; i < nPoints; i++) {

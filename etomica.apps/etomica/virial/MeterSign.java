@@ -27,9 +27,9 @@ public class MeterSign extends MeterScalar {
 	}
 
 	/**
-	 * @see etomica.MeterScalar#currentValue()
+	 * @see etomica.MeterScalar#getData()
 	 */
-	public double currentValue() {
+	public double getData() {
 		return (cluster.value(((PhaseCluster)phase).getPairSet().resetPairs(), beta)>0) ? +1.0 : -1.0;
 	}
 

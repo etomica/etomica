@@ -19,7 +19,7 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
     /**
      * Meter that defines the property being profiled.
      */
-    MeterScalar.Atomic meter;
+    Atomic meter;
     
     private double profileNorm = 1.0;
     private final AtomIteratorList ai1 = new AtomIteratorList();
@@ -84,9 +84,9 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
     /**
      * Accessor method for the meter that defines the profiled quantity.
      */
-    public void setMeter(MeterScalar.Atomic m) {
-        if (m instanceof MeterScalar.Atomic) meter = (MeterScalar.Atomic)m;
-        else throw new IllegalArgumentException("Error in meter type in MeterProfile.  Must be Meter.Atomic");
+    public void setMeter(Atomic m) {
+        if (m instanceof Atomic) meter = (Atomic)m;
+        else throw new IllegalArgumentException("Error in meter type in MeterProfile.  Must be Meter.MeterAtomic");
     }
     
     
@@ -110,7 +110,7 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
     /**
      * Returns the profile for the current configuration.
      */
-    public double[] currentValue() {
+    public double[] getData() {
         for (int i = 0; i <nPoints; i++) {
             y[i] = 0.0;
         }

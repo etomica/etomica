@@ -78,14 +78,14 @@ public abstract class MeterFunction extends MeterAbstract implements DataSource,
 	 * same time, call updateSums() and then mostRecent().
 	 */
 	//in subclasses usually will update and return the y array
-    public abstract double[] currentValue();
+    public abstract double[] doMeasurement();
     
     /**
      * Method to update running sums for averages and error statistics
      * Called by integrationIntervalAction every updateInterval times an integration event is received
      */
 	public void updateSums() {
-	    double[] values = currentValue();
+	    double[] values = getData();
 	    for(int i=0; i<nPoints; i++) {
 	        accumulator[i].add(values[i]);
 	    }
@@ -101,16 +101,16 @@ public abstract class MeterFunction extends MeterAbstract implements DataSource,
 	 * Returns the value indicated by the argument.  
 	 * Default is to return the average (returned if argument is null or inappropriate).
 	 */
-	public double[] values(MeterAbstract.ValueType type) {
+	public double[] data(MeterAbstract.ValueType type) {
 	    if(type==MeterAbstract.AVERAGE  || type == null) return average();
 	    else if(type==MeterAbstract.MOST_RECENT) return mostRecent();
-	    else if(type==MeterAbstract.CURRENT) return currentValue();
+	    else if(type==MeterAbstract.CURRENT) return getData();
 	    else if(type==MeterAbstract.MOST_RECENT_BLOCK) return mostRecentBlock();
 	    else if(type==MeterAbstract.ERROR) return error();
 	    else if(type==MeterAbstract.VARIANCE) return variance();
 	    else return average();
 	}
-	public final double[] values(DataSource.ValueType type) {return values((MeterAbstract.ValueType)type);}
+	public final double[] data(DataSource.ValueType type) {return data((MeterAbstract.ValueType)type);}
 	
 //	public DataSource.ValueType[] dataChoices() {return (DataSource.ValueType[])MeterAbstract.ValueType.CHOICES;}
 

@@ -7,7 +7,7 @@ import etomica.units.Dimension;
  * This meter is constructed from kinetic-energy and a potential-energy meters
  * An instance of this meter is placed in each phase to allow for energy measurements in the phase
  */
-public final class MeterEnergy extends MeterScalar implements EtomicaElement {
+public final class MeterEnergy extends MeterAbstract implements EtomicaElement {
 
     private MeterKineticEnergy kinetic;
     private MeterPotentialEnergy potential;
@@ -15,9 +15,8 @@ public final class MeterEnergy extends MeterScalar implements EtomicaElement {
     public MeterEnergy() {
         this(Simulation.instance);
     }
-    public MeterEnergy(Simulation sim) 
-    {
-        super(sim);
+    public MeterEnergy(Simulation sim) {
+        super(sim, 1);
         setLabel("Energy");
         kinetic = new MeterKineticEnergy();
         potential = new MeterPotentialEnergy();
@@ -26,13 +25,6 @@ public final class MeterEnergy extends MeterScalar implements EtomicaElement {
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Total energy (K + P) in a phase");
         return info;
-    }
-
-    /**
-     * Declaration whether this meter uses the boundary object of phase when making its measurements
-     */
-    public final boolean usesPhaseBoundary() {
-        return kinetic.usesPhaseBoundary() || potential.usesPhaseBoundary();
     }
     
     public Dimension getDimension() {return Dimension.ENERGY;}
@@ -57,11 +49,11 @@ public final class MeterEnergy extends MeterScalar implements EtomicaElement {
     /**
      * @return the current value of the total kinetic energy of the molecules in the phase
      */
-    public double kinetic() {return kinetic.currentValue();}
+    public double kinetic() {return kinetic.getData();}
     /**
      * @return the current value of the total potential energy of the molecules in the phase
      */
-    public double potential() {return potential.currentValue();}
+    public double potential() {return potential.getData();}
     
     /**
      * Sets the phase where the energy is measured
@@ -76,8 +68,7 @@ public final class MeterEnergy extends MeterScalar implements EtomicaElement {
     /**
      * Current value of the total energy (kinetic + potential)
      */
-    public double currentValue()
-    {
-        return kinetic.currentValue() + potential.currentValue();
+    public void doMeasurement() {
+        data[0] = kinetic.getData() + potential.getData();
     }
 }

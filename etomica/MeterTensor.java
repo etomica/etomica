@@ -36,17 +36,17 @@ public abstract class MeterTensor extends MeterAbstract {
         y = sim.space().makeTensor();
     }    
     
-    public abstract Space.Tensor currentValue();
+    public abstract Space.Tensor getData();
     
     /**
      * Current value of the i,j component of the virial tensor
      */
     public double currentValue(int i, int j) {
-        return currentValue().component(i, j);
+        return getData().component(i, j);
     }
     
     public void updateSums() {
-        values.E(currentValue());
+        values.E(getData());
         for (int i=0; i<accumulator.length; i++) {
             for (int j=0; j<accumulator.length; j++) {
                 accumulator[i][j].add(values.component(i, j));
@@ -72,7 +72,7 @@ public abstract class MeterTensor extends MeterAbstract {
 	public Space.Tensor value(MeterAbstract.ValueType type) {
 	    if(type==MeterAbstract.AVERAGE) return average();
 	    else if(type==MeterAbstract.MOST_RECENT) return mostRecent();
-	    else if(type==MeterAbstract.CURRENT) return currentValue();
+	    else if(type==MeterAbstract.CURRENT) return getData();
 	    else if(type==MeterAbstract.MOST_RECENT_BLOCK) return mostRecentBlock();
 	    else if(type==MeterAbstract.ERROR) return error();
 	    else if(type==MeterAbstract.VARIANCE) return variance();
@@ -136,7 +136,7 @@ public abstract class MeterTensor extends MeterAbstract {
 	    public Space.Tensor currentValue(Atom a);
 	}
 	
-//	public interface Collisional extends IntegratorHardAbstract.CollisionListener {
+//	public interface MeterCollisional extends IntegratorHardAbstract.CollisionListener {
 //	    public Space.Tensor collisionValue(IntegratorHardAbstract.Agent agent);
 //	}
 //    

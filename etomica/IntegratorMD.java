@@ -119,11 +119,11 @@ public abstract class IntegratorMD extends Integrator {
          * Returns the simulation time elapsed since the instantiation of
          * this meter, or since the last call to reset().
          */
-        public double currentValue() {return elapsedTime() - time0;}
+        public double getData() {return elapsedTime() - time0;}
         /**
          * Same as currentValue().
          */
-    	public double mostRecent() {return currentValue();}
+    	public double mostRecent() {return getData();}
     }//end of ChronoMeter
 }//end of IntegratorMD
     

@@ -7,7 +7,7 @@ import etomica.units.Dimension;
  * @author David Kofke
  */
  
-public class MeterPressure extends MeterScalar implements EtomicaElement {
+public class MeterPressure extends MeterAbstract implements EtomicaElement {
     
     private IteratorDirective iteratorDirective;
     private final PotentialCalculationVirialSum virial;
@@ -20,7 +20,7 @@ public class MeterPressure extends MeterScalar implements EtomicaElement {
     }*/
     //requires Integrator for temperature
     public MeterPressure(Integrator integrator) {
-        super(integrator.simulation());
+        super(integrator.simulation(), 1);
         this.integrator = integrator;
         rD = 1.0/(double)simulation().space.D();
         setLabel("Pressure");
@@ -53,10 +53,9 @@ public class MeterPressure extends MeterScalar implements EtomicaElement {
   * ideal-gas contribution.
   * Currently, does not include long-range correction to truncation of energy.
   */
-    public final double currentValue() {
+    public void doMeasurement() {
         double dbv = potential.calculate(phase, iteratorDirective.set(), virial.reset()).sum();
-        double p = phase.getDensity()*integrator.temperature() - dbv*rD/phase.boundary().volume();
-        return p;
+        data[0] = phase.getDensity()*integrator.temperature() - dbv*rD/phase.boundary().volume();
     }
     
 }//end of MeterPressure

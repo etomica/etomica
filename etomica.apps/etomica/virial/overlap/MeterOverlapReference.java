@@ -41,7 +41,7 @@ public class MeterOverlapReference extends MeterFunctionGroup {
 	}
 
 	/**
-	 * @see etomica.MeterFunction#currentValue()
+	 * @see etomica.MeterFunction#getData()
 	 */
 	public void updateValues() {
 		PairSet pairSet = ((PhaseCluster)phase).getPairSet().resetPairs();

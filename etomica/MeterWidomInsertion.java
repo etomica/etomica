@@ -129,7 +129,7 @@ public class MeterWidomInsertion extends MeterScalar implements EtomicaElement {
      * Temperature used to get exp(-uTest/kT) is that of the integrator for the phase
      * @return the sum of exp(-uTest/kT)/nInsert, multiplied by n<sub>i</sub>/V if <code>residual</code> is false
      */
-    public double currentValue() {        
+    public double getData() {        
         double sum = 0.0;                         //sum for local insertion average
         testMolecule.node.setParent(speciesAgent);
         for(int i=nInsert; i>0; i--) {            //perform nInsert insertions

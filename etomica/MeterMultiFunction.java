@@ -39,13 +39,13 @@ public abstract class MeterMultiFunction extends MeterFunction {
 	 * Returns the function value indicated by the arguments.
 	 */
 	public double[] values(int i, MeterAbstract.ValueType type) {
-	    return meters[i].values(type);
+	    return meters[i].data(type);
 	}
 
     /**
      * Current value of the <code>ith</code> function
      */
-    public double[] currentValue(int i) {return meters[i].currentValue();}
+    public double[] currentValue(int i) {return meters[i].getData();}
     /**
      * Current value of the simulation-averaged <code>ith</code> function
      */
@@ -75,7 +75,7 @@ public abstract class MeterMultiFunction extends MeterFunction {
 	/**
 	 * Returns, by default, the current value of the first meterFunction
 	 */
-	public double[] currentValue() {return currentValue(0);}
+	public double[] getData() {return currentValue(0);}
 	/**
 	 * Returns, by default, the simulation-averaged value of the first meterFunction
 	 */

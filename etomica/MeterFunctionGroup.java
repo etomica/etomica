@@ -108,7 +108,7 @@ public abstract class MeterFunctionGroup extends MeterAbstract  {
 			setActive(false);
 		}
 		Accumulator[] accumulator() {return accumulator;}
-		public double[] currentValue() {return this.y;}//should be preceded by Group's call to updateSums
+		public double[] getData() {return this.y;}//should be preceded by Group's call to updateSums
 		public Dimension getDimension() {return Dimension.NULL;}//temporary
 		public Dimension getXDimension() {return Dimension.NULL;}//temporary
 		protected void resizeArrays() {

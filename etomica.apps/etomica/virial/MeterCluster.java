@@ -29,9 +29,9 @@ public class MeterCluster extends MeterScalar {
 	}
 
 	/**
-	 * @see etomica.MeterScalar#currentValue()
+	 * @see etomica.MeterScalar#getData()
 	 */
-	public double currentValue() {
+	public double getData() {
 		return cluster.value(((PhaseCluster)phase).getPairSet().resetPairs(), beta);
 	}
 

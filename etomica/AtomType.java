@@ -361,7 +361,7 @@ public class AtomType implements java.io.Serializable {
 	            }
             }
 
-            public double currentValue() {
+            public double getData() {
                 double flux = pAccumulator/timeSum;   //divide by time interval
                 flux /= length; //divide by area
                 return flux;

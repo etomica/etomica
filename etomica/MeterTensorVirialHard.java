@@ -65,7 +65,7 @@ public class MeterTensorVirialHard extends MeterTensor implements IntegratorHard
      * Current value of the meter, obtained by dividing sum of collision virial contributions by time elapsed since last call.
      * If elapsed-time interval is zero, returns the value reported at the last call to the method.
      */
-    public Space.Tensor currentValue() {
+    public Space.Tensor getData() {
         double t = integratorHard.elapsedTime();
         if (t > t0) {
             for (int i = 0; i < collisionVirial.length(); i++) {

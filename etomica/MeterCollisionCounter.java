@@ -10,7 +10,7 @@ import etomica.units.*;
  * @author Rob Riggleman
  */
 
-public class MeterCollisionCounter extends MeterScalar implements IntegratorHardAbstract.CollisionListener {
+public class MeterCollisionCounter extends MeterAbstract implements IntegratorHardAbstract.CollisionListener {
     private int counter;
     private IntegratorHard integratorHard;
     
@@ -18,7 +18,7 @@ public class MeterCollisionCounter extends MeterScalar implements IntegratorHard
         this(Simulation.instance);
     }
     public MeterCollisionCounter(Simulation sim) {
-        super(sim);
+        super(sim, 1);
         setLabel("Number of Collisions");
     }
 
@@ -27,23 +27,18 @@ public class MeterCollisionCounter extends MeterScalar implements IntegratorHard
      */
     public void reset() {counter = 0;}
     
-    public double average() {return Double.NaN;}
-    
-    public double error() {return Double.NaN;}
-        
     public Unit defaultIOUnit() {return Count.UNIT;}
     
     public Dimension getDimension() {return Dimension.QUANTITY;}
     
-    public double currentValue() {
+    public void doMeasurement() {
         if(counter > 50000) {
             integratorHard.halt();
             System.out.println("Halting execution from MeterCollisionCounter");
         }
-        return (double)counter;
+        data[0] = (double)counter;
     }
-    
-    
+       
    /**
     * Implements CollisionListener.  Adds one to the counter with each collision.
     */
@@ -53,8 +48,7 @@ public class MeterCollisionCounter extends MeterScalar implements IntegratorHard
     
     /**
      * Registers itself with the integrator as CollisionListener.
-     */
-     
+     */    
     public void setPhaseIntegrator(Integrator newIntegrator) {
         super.setPhaseIntegrator(newIntegrator);
         if(newIntegrator instanceof IntegratorHard) {

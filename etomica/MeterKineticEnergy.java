@@ -10,7 +10,7 @@ import etomica.units.Dimension;
  /* History of changes
   * 7/03/02  Added non-registering constructor (space argument)
   */
-public class MeterKineticEnergy extends MeterScalar
+public class MeterKineticEnergy extends MeterAbstract
 {
     AtomIterator atomIterator;
     
@@ -18,7 +18,7 @@ public class MeterKineticEnergy extends MeterScalar
         this(Simulation.instance);
     }
     public MeterKineticEnergy(SimulationElement parent) {
-        super(parent);
+        super(parent, 1);
         setLabel("Kinetic Energy");
     }
 
@@ -44,7 +44,7 @@ public class MeterKineticEnergy extends MeterScalar
 	    atomIterator = p.makeAtomIterator();
 	}
 	
-    public double currentValue() {
+    public void doMeasurement() {
         double ke = 0.0;
         atomIterator.reset();
         while(atomIterator.hasNext()) {    //consider doing this with an allAtoms call
@@ -53,15 +53,6 @@ public class MeterKineticEnergy extends MeterScalar
             ke += atom.coord.kineticEnergy();
 //            ke += atomIterator.next().coord.kineticEnergy();
         }
-        return ke;
-    }//end of currentValue
-    
-/*    public static double currentValue(Phase p) {
-        double ke = 0.0;
-        for(Atom atom=p.firstAtom(); atom!=null; atom=atom.nextAtom()) {
-            if(atom.type instanceof AtomType.Wall) continue;
-            ke += atom.coord.kineticEnergy();
-        }
-        return ke;
-    }//end of value*/
-}
+        data[0] = ke;
+    }//end of doMeasurement
+ }

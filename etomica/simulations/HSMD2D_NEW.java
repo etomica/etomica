@@ -207,9 +207,9 @@ public class HSMD2D_NEW extends SimulationGraphic  {
 		}
 
 		/**
-		 * @see etomica.MeterScalar#currentValue()
+		 * @see etomica.MeterScalar#getData()
 		 */
-		public double currentValue() {
+		public double getData() {
 			double w = -(action.ke1 - action.ke0)/HSMD2D_NEW.this.integrator.temperature();
 			if(!doExp) System.out.println(w);
 			return doExp ? ((w>1000)?1e-10:Math.exp(-w)) : w;
@@ -236,8 +236,8 @@ public class HSMD2D_NEW extends SimulationGraphic  {
 
 		protected void write() throws java.io.IOException {
 			int n = wMeter.getHistogram().getNValues();
-			double[] wVal = wMeter.getHistogram().values(null);
-			double[] eVal = eMeter.getHistogram().values(null);
+			double[] wVal = wMeter.getHistogram().getData(null);
+			double[] eVal = eMeter.getHistogram().getData(null);
 			double[] xw = wMeter.getHistogram().getX();
 			double[] xe = eMeter.getHistogram().getX();
 			for(int i=0; i<n; i++) {

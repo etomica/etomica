@@ -33,9 +33,9 @@ public class MeterDensitySpecies extends MeterDensity implements EtomicaElement
         return info;
     }
 
-    public double currentValue() {
-        if(species == null) return 0.0;
-        return speciesAgent.moleculeCount()/phase.volume();
+    public void getData() {
+        if(species == null) data[0] = 0.0;
+        else data[0] = speciesAgent.moleculeCount()/phase.volume();
     }
     
     public double currentValue(Atom a) {

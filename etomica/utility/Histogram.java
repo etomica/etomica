@@ -177,7 +177,7 @@ public class Histogram implements DataSource.X {
 	    }
 	    return histogram;
     }
-    public double[] values(DataSource.ValueType dummy) {
+    public double[] data(DataSource.ValueType dummy) {
         return getHistogram();
     }
     public double[] xValues() {return xvalues;}

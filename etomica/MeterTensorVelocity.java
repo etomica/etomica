@@ -66,7 +66,7 @@ public class MeterTensorVelocity extends MeterTensor implements MeterTensor.Atom
     /**
      * Returns the velocity dyad (mass*vv) summed over all atoms, and divided by N
      */
-    public Space.Tensor currentValue() {
+    public Space.Tensor getData() {
         ai1.reset();
         velocityTensor.E(0.0);
         while(ai1.hasNext()) {

@@ -103,7 +103,7 @@ public class History implements DataSource, DataSource.X {
 	}
         
 */
-        public double[] values(DataSource.ValueType dummy) {
+        public double[] data(DataSource.ValueType dummy) {
 			// if transform desired, history array is reordered sequentially and transformed
 			if (transform == null) {
 				return values;

@@ -43,7 +43,15 @@ public class Atom implements AtomSet, java.io.Serializable {
         seq.setParentNotify(parent);//added 08/11/03 (DAK)
         type.initialize(this);
     }
-                        
+    
+    /**
+     * Makes a simple atom for the given space.  Node is for a leaf atom;
+     * sequencer is simple; type is a sphere, unique to the new atom.
+     * @param space
+     */
+    public Atom(Space space) {
+    	this(space, new AtomType.Sphere(null), AtomTreeNodeLeaf.FACTORY, AtomSequencerSimple.FACTORY, null);                        
+    }
     /**
      * Assigns the atom's integrator agent to the given instance.
      */
