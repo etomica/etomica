@@ -367,6 +367,14 @@ public class Molecule implements Serializable {
     return r;
   }
   
+  public final void setCOM(double[] newCOM) {
+    double[] oldCOM = new double[Space.D];
+    Space.uEv1(oldCOM,COM());
+    Space.uTEa1(oldCOM,-1.0);
+    translate(oldCOM);  //zero center-of-mass
+    translate(newCOM);  //move to new COM
+  }
+  
  /* public final void accelerate(int i, double dp) {
     Atom nextMoleculeAtom = lastAtom.getNextAtom();
     for(Atom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {a.accelerate(i,dp);}

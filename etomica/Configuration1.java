@@ -2,7 +2,7 @@ package simulate;
 import java.util.*;
 import java.awt.*;
 
-public class Configuration1 extends Configuration{
+public class Configuration1 extends Configuration {
 
     private double temperature = 300;
     

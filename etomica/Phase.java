@@ -195,7 +195,7 @@ public final class Phase extends Container {
   
   private Potential1 p1Null = new P1Null();
   private Potential2 p2IdealGas = new P2IdealGas();
-  public Configuration configuration = new Configuration1();
+  public Configuration configuration = new ConfigurationSequential();
     
   public Phase() {
     setLayout(null);
@@ -416,8 +416,6 @@ public final class Phase extends Container {
         if(lastSpecies != null) {lastSpecies.setNextSpecies(species);}
         else {firstSpecies = species;}
         lastSpecies = species;
-//        setFirstMolecule();
-//        setLastMolecule();
         for(Molecule m=species.firstMolecule(); m!=null; m=m.getNextMolecule()) {nMoleculeTotal++;}
         for(Atom a=species.firstAtom(); a!=null; a=a.getNextAtom()) {nAtomTotal++;}
         if(species.getSpeciesIndex() > speciesCount-1) {setSpeciesCount(species.getSpeciesIndex()+1);}
@@ -522,6 +520,7 @@ public final class Phase extends Container {
     }
     
     public void add(Configuration c){
+        c.parentPhase = this;
         configuration = c;
         for(Species s=firstSpecies; s!=null; s=s.getNextSpecies()) {
             configuration.add(s);

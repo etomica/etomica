@@ -22,8 +22,9 @@ public class ConfigurationMoleculeLinear extends ConfigurationMolecule {
    * center of mass unchanged from the value before method was called
    */
     public void initializeCoordinates(Molecule m) {
-        double[] OldCOM = m.COM();
+        double[] OldCOM = new double[Space.D];
         double[] NewCOM = new double[Space.D];
+        Space.uEv1(OldCOM,m.COM());
         Space.uEa1(NewCOM,0.0);
         double xNext = 0.0;
         for(Atom a=m.firstAtom(); a!=m.terminationAtom(); a=a.getNextAtom()) {

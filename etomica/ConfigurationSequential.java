@@ -15,7 +15,6 @@ public class ConfigurationSequential extends Configuration {
     
     public ConfigurationSequential() {
         super();
-        setFillVertical(true);
     }
     
     public void setFillVertical(boolean b) {fill = b;}
@@ -24,30 +23,25 @@ public class ConfigurationSequential extends Configuration {
     public void initializeCoordinates() {
         if(parentPhase == null) {return;}
         
-        double Lx = parentPhase.getBounds().width/DisplayConfiguration.SIM2PIXELS;
-        double Ly = parentPhase.getBounds().height/DisplayConfiguration.SIM2PIXELS;
+        double Lx = parentPhase.getBounds().width/Phase.TO_PIXELS;
+        double Ly = parentPhase.getBounds().height/Phase.TO_PIXELS;
 
         int sumOfMolecules = 0;
         for(int j=0; j<species.size(); j++) {   
-            Species.Agent s = (Species.Agent)species.elementAt(j);
+            Species s = (Species)species.elementAt(j);
             sumOfMolecules += s.getNMolecules();
         }
         
-        if(sumOfMolecules == 0) {return;}
-        
-        Space2DCell.Vector[]  rLat = squareLattice(sumOfMolecules, Lx, Ly, fill); 
+        double[][] rLat = squareLattice(sumOfMolecules, Lx, Ly, fill); 
         
         int i = 0;
         for(int j=0; j<species.size(); j++) {
-            Species.Agent s = (Species.Agent)species.elementAt(j);
-            for(Molecule m=s.firstMolecule(); m!=s.terminationMolecule(); m=m.nextMolecule()) {
+            Species s = (Species)species.elementAt(j);
+            for(Molecule m=s.firstMolecule(); m!=s.terminationMolecule(); m=m.getNextMolecule()) {
                 m.setCOM(rLat[i]);
                 i++;
             }
         }
-//        parentPhase.parentSimulation.space().clearCells();
-//        for(Atom a=parentPhase.firstAtom(); a!=null; a=a.nextAtom()) {
-//            a.coordinate.assignCell();}
         initializeMomenta();
     }
 }
