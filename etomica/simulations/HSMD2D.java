@@ -73,7 +73,7 @@ public class HSMD2D extends SimulationGraphic {
         gbcBox.gridx = 0;
         panel().devicePanel.add(controlPanel.graphic(), gbcBox);
         panel().displayPanel.add(display.graphic(), gbcBox);
-        phase.setIntegrator(integrator);
+        integrator.addPhase(phase);
         integrator.addIntervalListener(display);
         
 		this.potentialMaster.calculate(phase,new IteratorDirective(),new PotentialCalculationNbrSetup());
