@@ -5,7 +5,6 @@
 package etomica.atom.iterator;
 
 import etomica.Atom;
-import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.IteratorDirective.Direction;
 import etomica.action.AtomsetAction;

@@ -1,7 +1,6 @@
 package etomica.atom.iterator;
 
 import etomica.Atom;
-import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Species;
 import etomica.IteratorDirective.Direction;

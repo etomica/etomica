@@ -2,7 +2,6 @@ package etomica.atom.iterator;
 
 import etomica.Atom;
 import etomica.IteratorDirective;
-import etomica.IteratorDirective.Direction;
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomLinker;
 

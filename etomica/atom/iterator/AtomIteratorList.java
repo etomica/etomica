@@ -6,14 +6,12 @@ import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.SpeciesSpheresMono;
-import etomica.IteratorDirective.Direction;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
-import etomica.atom.AtomLinker.Tab;
 
 /**
  * Atom iterator that traverses the elements of an AtomList.

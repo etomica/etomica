@@ -7,7 +7,6 @@ package etomica.atom.iterator;
 import etomica.Atom;
 import etomica.AtomIterator;
 import etomica.IteratorDirective;
-import etomica.IteratorDirective.Direction;
 import etomica.atom.AtomTreeNodeGroup;
 
 /**

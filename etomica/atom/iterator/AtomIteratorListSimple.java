@@ -4,7 +4,6 @@ import etomica.Atom;
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
-import etomica.atom.AtomLinker.Tab;
 
 /**
  * Lightweight version of AtomIteratorList.  Iterates uplist only, from

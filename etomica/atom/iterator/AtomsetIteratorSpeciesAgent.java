@@ -9,7 +9,6 @@ import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Species;
 import etomica.SpeciesAgent;
-import etomica.IteratorDirective.Direction;
 
 /**
  * Iterates molecules (children of SpeciesAgent atoms), as specified by phase

@@ -9,7 +9,6 @@ import etomica.AtomsetIterator;
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
-import etomica.atom.AtomLinker.Tab;
 
 /**
  * Returns all pairs formed from a single list of atoms.
