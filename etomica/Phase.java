@@ -47,11 +47,9 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
     private Space.Boundary boundary;
     private transient final LinkedList meterList = new LinkedList();
     private PhaseAction.Inflate inflater;
-    private PotentialField firstField;
     private String name;
     private final Simulation parentSimulation;
     private final PotentialGroup.Agent potential;
-    public SimulationEventManager potentialMonitor = new SimulationEventManager();
     private boolean added = false;
     
     public Phase() {
@@ -66,7 +64,7 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
         if(sim.space() instanceof IteratorFactory.Maker) {
             iteratorFactory = ((IteratorFactory.Maker)sim.space()).makeIteratorFactory(this);
             if(iteratorFactory instanceof PotentialField.Maker) {
-                addField(((PotentialField.Maker)iteratorFactory).makePotentialField(this));
+ //               addField(((PotentialField.Maker)iteratorFactory).makePotentialField(this));
             }
         }
         else {
@@ -163,16 +161,7 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
         int i = (int)(moleculeCount * java.lang.Math.random());
         return molecule(i);
     }
-        
-    /**
-     * Sets the potential (agent) governing all interactions in this phase.
-     * Notifies listeners of change.
-     */
-/*     public void setPotential(PotentialAgent newPotential) {
-        potential = newPotential;
-        potentialMonitor.fireEvent(new SimulationEvent(this));
-     }
-*/     
+
      /**
       * Accessor method for the potential governing all interactions in this phase.
       */
@@ -184,17 +173,9 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
      public void setBoundary(Space.Boundary b) {
         boolean hasIntegrator = integrator != null;
         if(hasIntegrator) integrator.pause();
-        if(boundary != null) { //remove any fields attributable to existing boundary
-            for(PotentialField f=firstField; f!=null; f=f.nextField()) {
-                if(f.maker()==boundary) {removeField(f);}
-            }
-        }
         boundaryMonitor.notifyObservers(b);
         boundary = b;
         boundary.setPhase(this);
-        if(b instanceof PotentialField.Maker) {
-            addField(((PotentialField.Maker)b).makePotentialField(this));
-        }
         if(hasIntegrator) {
             integrator.reset();
             integrator.unPause();
@@ -229,7 +210,7 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
         iteratorFactoryMonitor.notifyObservers(it);
         iteratorFactory = it;
         if(it instanceof PotentialField.Maker) {
-            addField(((PotentialField.Maker)it).makePotentialField(this));
+//            addField(((PotentialField.Maker)it).makePotentialField(this));
         }
     }
     
@@ -384,44 +365,6 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
     public void addPotential(PotentialAgent pot) {
         potential.addPotential(pot);
     }
-    
-    
-    /**
-     * Adds the given field to the phase.
-     * If field is null, silently returns with no action taken.
-     */
-    public void addField(PotentialField field) {
-        if(field == null) return;
-        field.setNextField(firstField);
-        firstField = field;
-    }
-    /**
-     * Removes the given field from the phase.
-     * If field is not in phase (or is null), silently returns with no action taken.
-     * Value of nextField in removed field is kept intact, so field can be removed during a loop through
-     * all fields without ruining loop.
-     */
-    public void removeField(PotentialField field) {
-        if(firstField == null || field == null) return;
-        if(field == firstField) {
-            firstField = firstField.nextField();
-        }
-        else {
-            PotentialField lastChecked = firstField;
-            for(PotentialField f=firstField.nextField(); f!=null; f=f.nextField()) {
-                if(f == field) { //remove f
-                    lastChecked.setNextField(f.nextField());
-                    break;
-                }//end of if
-                lastChecked = f;
-            }//end of for
-        }//end of else
-    }//end of removeField
-    
-    /**
-     * First field in a linked list of potential fields in this phase
-     */
-     public PotentialField firstField() {return firstField;}
     
     /**
      * Updates all the molecule and atoms counts for this phase.

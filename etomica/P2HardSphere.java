@@ -6,9 +6,9 @@ package etomica;
  * size of disks.
  * Suitable for use in space of any dimension.
  */
-public class PotentialHardDisk extends Potential2HardAbstract implements EtomicaElement
-{
-    public String getVersion() {return "PotentialHardDisk:01.06.17/"+Potential2HardAbstract.VERSION;}
+public class P2HardSphere extends Potential2 implements Potential2Hard, EtomicaElement {
+    
+    public String getVersion() {return "Potential2:01.07.03/"+Potential2.VERSION;}
 
    /**
     * Separation at which disks first overlap
@@ -24,17 +24,17 @@ public class PotentialHardDisk extends Potential2HardAbstract implements Etomica
    protected final Space.Vector dr;
    protected final Space.Tensor lastCollisionVirialTensor;
     
-    public PotentialHardDisk() {
+    public P2HardSphere() {
         this(Simulation.instance, Default.ATOM_SIZE);
     }
 
-    public PotentialHardDisk(double d) {
+    public P2HardSphere(double d) {
         this(Simulation.instance, d);
     }
-    public PotentialHardDisk(Simulation sim) {
+    public P2HardSphere(Simulation sim) {
         this(sim, Default.ATOM_SIZE);
     }
-    public PotentialHardDisk(Simulation sim, double d) {
+    public P2HardSphere(Simulation sim, double d) {
         super(sim);
         setCollisionDiameter(d);
         lastCollisionVirialTensor = sim.space().makeTensor();

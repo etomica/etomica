@@ -162,6 +162,8 @@ public abstract class AtomIteratorAbstract implements AtomIterator, java.io.Seri
      * @param last  the nominal last atom returned by the iterator
      * @return      the atom that will be returned with the first call to next()
      */
+     
+     //not substantially tested
      protected Atom reset(Atom first, Atom last) {
         if(isNeighborIterator) {
             if(contains(last)) { //won't work right if last is downlist of first

@@ -7,6 +7,14 @@ package etomica;
  *
  * @author David Kofke
  */
+ 
+ //extends PotentialAbstract instead of Potential1HardAbstract because potential depends
+ //on property (boundary.dimensions) of phase, and this is more readily available to
+ //the Agent than to the parent potential.  
+ //perhaps Potential1HardAbstract should be redesigned to permit easier access to features
+ //of the phase by the parent potential, since this is probably a common situation for
+ //one-body potentials
+ 
 public class P1HardBoundary extends PotentialAbstract {
     
     public String getVersion() {return "P1HardBoundary:01.06.29/"+PotentialAbstract.VERSION;}

@@ -18,7 +18,7 @@ import java.awt.event.ActionEvent;
   */
 public class Atom implements Space.Occupant, java.io.Serializable {
 
-    public static String getVersion() {return "01.01.17";}
+    public static String getVersion() {return "01.07.01";}
     
     public static int DEBUG = 0;
     public int debugIndex;

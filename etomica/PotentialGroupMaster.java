@@ -14,7 +14,7 @@ public class PotentialGroupMaster extends PotentialGroup {
     
     //---------------------------------------//
     
-    public class Agent extends PotentialGroup.Agent implements PotentialAgent.Hard {
+    public class Agent extends PotentialGroup.Agent {
 
         private PotentialAgent.Hard.Linker firstHard;
         
@@ -22,7 +22,7 @@ public class PotentialGroupMaster extends PotentialGroup {
             super(potential, phase);
         }
         
-        public void addPotential(PotentialAgent potential) {
+ /*       public void addPotential(PotentialAgent potential) {
             super.addPotential(potential);
             if(potential instanceof PotentialAgent.Hard) {
                 firstHard = new PotentialAgent.Hard.Linker((PotentialAgent.Hard)potential, firstHard);
@@ -40,8 +40,8 @@ public class PotentialGroupMaster extends PotentialGroup {
         public void bump(IntegratorHardAbstract.Agent agent) {
             System.out.println("Unexpected call to PotentialGroupMaster.Agent bump method");
         }
+   */     
         
     }//end of Agent
-        
 }//end of PotentialGroup
     

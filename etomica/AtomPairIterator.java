@@ -168,7 +168,7 @@ public class AtomPairIterator implements java.io.Serializable {
             ai2.allAtoms(actionWrapper);
         }
     }
-
+    
     public static final AtomPairIterator NULL = new Null();
     private static final class Null extends AtomPairIterator {
         private Null() {super();}

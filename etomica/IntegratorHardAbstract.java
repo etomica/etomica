@@ -19,7 +19,7 @@ package etomica;
  
 public abstract class IntegratorHardAbstract extends IntegratorMD {
 
-    public static String VERSION = "IntegratorHardAbstract:01.06.27/"+IntegratorMD.VERSION;
+    public static String VERSION = "IntegratorHardAbstract:01.07.03/"+IntegratorMD.VERSION;
 
     //handle to the integrator agent holding information about the next collision
     protected IntegratorHardAbstract.Agent colliderAgent;
@@ -29,7 +29,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
     protected CollisionListenerLinker collisionListenerHead = null;
     //time elapsed since reaching last timestep increment
     private double timeIncrement = 0.0;
-    protected PotentialAgent.Hard phasePotential;
+    protected PotentialAgent phasePotential;
                 
     public IntegratorHardAbstract(Simulation sim) {
         super(sim);
@@ -48,23 +48,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
           //need to modify to handle multiple-phase issues
     public boolean addPhase(Phase p) {
         if(!super.addPhase(p)) return false;
-        phasePotential = (PotentialAgent.Hard)p.potential();
-        
-        //this establishes a listener that will be notified if the master potential
-        //in the phase changes.  The new potential is cast to a Hard potential
-        //with a locally defined handle.
-        p.potentialMonitor.addListener(new SimulationEventListener() {
-            public void simulationAction(SimulationEvent evt) {
-                PotentialAgent newPotential = ((Phase)evt.getSource()).potential();
-                try {
-                    IntegratorHardAbstract.this.phasePotential = (PotentialAgent.Hard)newPotential;
-                }
-                catch(ClassCastException ex) {//should define an exception to throw for this
-                    System.out.println("Incompatible elements in IntegratorHardAbstract");
-                    System.exit(1);
-                }
-            }
-        });
+        phasePotential = p.potential();
         return true;
     }
 
@@ -200,22 +184,6 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         }
     }//end of CollisionListenerLinker
 
-    /** 
-     * Processes information about collisions between atoms.  A collision handler is
-     * passed to the Potential and is informed about each collision detected by the
-     * potential.  What the handler does with this information depends on how the integrator
-     * is designed to manage the sequence of collisions.
-     */
-    public abstract static class CollisionHandler {
-        public PotentialAgent.Hard potential;
-        // the potential field should set by the potential to identify itself 
-        // before it begins looking for collisions
-        public final void setPotential(PotentialAgent.Hard p) {potential = p;}
-        public abstract void addCollision(AtomPair atoms, double collisionTime);
-        public abstract void addCollision(Atom atom, double collisionTime);
-        public abstract CollisionHandler setAtom(Atom a);
-    }//end of CollisionHandler
-    
  /**
   * Agent defined by this integrator.
   * Holds information about the time to next collision (considering only atoms
@@ -228,7 +196,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
     public static class Agent implements Integrator.Agent {  //need public so to use with instanceof
         public Atom atom, collisionPartner;
         public double collisionTime = Double.MAX_VALUE; //time to next collision
-        public PotentialAgent.Hard collisionPotential;  //potential governing interaction between collisionPartner and atom containing this Agent
+        public PotentialHard collisionPotential;  //potential governing interaction between collisionPartner and atom containing this Agent
         public boolean movedInList = false;
         
         public Agent(Atom a) {atom = a;}
@@ -238,10 +206,12 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         
         public void resetCollision() {
             collisionTime = periodCollisionTime();
-            collisionPotential = PotentialAgent.HARD_NULL;
+            collisionPotential = null;
+//            collisionPotential = PotentialAgent.HARD_NULL;
             collisionPartner = null;
         }
         
+        //time to "collision" to update colliders for periodic boundaries
         protected double periodCollisionTime() {
             Space.Boundary boundary = atom.parentPhase().boundary();
             if(boundary instanceof Space.Boundary.Periodic) {
@@ -263,7 +233,7 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
      * @param partner the atom this one will collide with next
      * @param p       the potential for interactions between this atom and its collision partner
      */
-        public final void setCollision(double time, Atom partner, PotentialAgent.Hard p) {
+        public final void setCollision(double time, Atom partner, PotentialHard p) {
             collisionTime = time;
             collisionPartner = partner;
             collisionPotential = p;

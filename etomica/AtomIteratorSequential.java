@@ -76,6 +76,7 @@ public abstract class AtomIteratorSequential extends AtomIteratorAbstract  {
         java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
         Simulation.instance = new Simulation();
         Phase phase = new Phase();
+        Phase phase2 = new Phase();
         Species species = new SpeciesDisks();
         species.setNMolecules(8);
         Simulation.instance.elementCoordinator.go();
@@ -141,6 +142,18 @@ public abstract class AtomIteratorSequential extends AtomIteratorAbstract  {
         line = in.readLine(); iterator.setAsNeighbor(false);
         System.out.println("(7)BOTH; 7..0/6..0");
         iterator.reset(new IteratorDirective().set(phase.lastAtom()).set(IteratorDirective.BOTH));
+        while(iterator.hasNext()) System.out.println(iterator.next().debugIndex); iterator.setAsNeighbor(true);
+        iterator.reset(); System.out.println(); while(iterator.hasNext()) System.out.println(iterator.next().debugIndex);
+
+        line = in.readLine(); iterator.setAsNeighbor(false);
+        System.out.println("(X)BOTH; null/7..0");
+        iterator.reset(new IteratorDirective().set(phase2.firstAtom()).set(IteratorDirective.BOTH));
+        while(iterator.hasNext()) System.out.println(iterator.next().debugIndex); iterator.setAsNeighbor(true);
+        iterator.reset(); System.out.println(); while(iterator.hasNext()) System.out.println(iterator.next().debugIndex);
+
+        line = in.readLine(); iterator.setAsNeighbor(false);
+        System.out.println("(X)UP; null/null");
+        iterator.reset(new IteratorDirective().set(phase2.firstAtom()).set(IteratorDirective.UP));
         while(iterator.hasNext()) System.out.println(iterator.next().debugIndex); iterator.setAsNeighbor(true);
         iterator.reset(); System.out.println(); while(iterator.hasNext()) System.out.println(iterator.next().debugIndex);
 

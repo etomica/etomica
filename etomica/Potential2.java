@@ -5,9 +5,9 @@ package etomica;
  *
  * @author David Kofke
  */
-public abstract class Potential2 extends PotentialAbstract {
+public abstract class Potential2 extends Potential {
   
-    public static String VERSION = "Potential2:01.06.27/"+PotentialAbstract.VERSION;
+    public static String VERSION = "Potential2:01.07.03/"+Potential.VERSION;
     
     public Potential2(Simulation sim) {
         super(sim);
@@ -18,6 +18,8 @@ public abstract class Potential2 extends PotentialAbstract {
      */
     public abstract double energy(AtomPair pair);
     
+    public PotentialAgent makeAgent(Phase p) {return new Agent(this, p);}
+    
             
     //***************** end of methods for Potential2 class *****************//
     
@@ -25,11 +27,13 @@ public abstract class Potential2 extends PotentialAbstract {
     public class Agent extends PotentialAgent {
         
         protected AtomPairIterator iterator;
+        protected Potential2 parentPotential2;
         /**
          * @param p The phase in which this agent will be placed
          */
-        public Agent(PotentialAbstract potential, Phase phase) {
+        public Agent(Potential potential, Phase phase) {
             super(potential, phase);
+            parentPotential2 = (Potential2)potential;
         }
         
         /**
@@ -44,50 +48,34 @@ public abstract class Potential2 extends PotentialAbstract {
         }
         public AtomPairIterator iterator() {return iterator;}
     
-        public final PotentialAbstract parentPotential() {return Potential2.this;}
+//        public final Potential parentPotential() {return Potential2.this;}
         
-        public double energy(IteratorDirective id) {
+        public void calculate(IteratorDirective id, PotentialCalculation pc) {
+            if( !(pc instanceof Potential2Calculation) ) return;
+            //at this point we have identified a (pair)iterator and a (pair)potential
+            //that are compatible, in that the iterates form correct arguments to the potential
+            //but the PotentialCalculation class must handle arbitrary iterator/potential sets 
+            //it calls the methods of the potential using the iterates as arguments, but it
+            //doesn't know that the iterates are atomPairs.  We want to avoid casting each
+            //iterate to atomPair, so we need to define separate methods for each iterator/potential set
+            //(atom, atomPair, atom3, and so on)
             iterator.reset(id);
-            double sum = 0.0;
-            while(iterator.hasNext()) {
-                sum += Potential2.this.energy(iterator.next());
-            }
-            return sum;
+            //do we give the iterator to the calculation...
+            ((Potential2Calculation)pc).calculate(iterator, parentPotential2); 
+                //inconvenience:  must put loop construct in every PotentialCalculation
+                //problem:  must have different calculate methods for each Potentialx type
+
+            //...or the calculation to the iterator
+            //pc.setPotential(parentPotential);
+            //iterator.allPairs(pc); 
+                //problem:  cannot abort iteration once started (e.g., overlap detected)
+                //          but this could be resolved by adding a boolean abort() method to Calculation to end iteration
+                //problem: setPotential would have to be defined separately for each Potentialx type,
+                //         and different copies of the potential kept in the PotentialCalculation object
         }
+        
     }//end of Agent    
 
-    //Potential2.Hard
-    public interface Hard {
-        /**
-        * Implements the collision dynamics.
-        * The given atoms are assumed to be at the point of collision.  This method is called
-        * to change their momentum according to the action of the collision.  Extensions can be defined to
-        * instead implement other, perhaps unphysical changes.
-        */
-        public abstract void bump(AtomPair pair);
-        /**
-        * Computes the time of collision of the given atoms , assuming no intervening collisions.
-        * Usually assumes free-flight between collisions
-        */ 
-        public abstract double collisionTime(AtomPair pair);
-    }//end of Potential2.Hard
-
-    /**
-    * Methods needed to describe the behavior of a soft potential.  
-    * A soft potential describes non-impulsive interactions, in which the energy at all points
-    * has smooth, analytic behavior with no discontinuities.  
-    *
-    */
-    public interface Soft {
-        /**
-        * Force exerted atoms exert on each other.
-        *
-        * @return the vector force exerted on the atom
-        */
-        public Space.Vector force(AtomPair pair);
-
-    } //end of Potential2.Soft
-    
 }//end of Potential2
 
 

@@ -10,7 +10,7 @@ public class HSMD2D extends Simulation {
     public IntegratorHard integrator;
     public SpeciesDisks species;
     public Phase phase;
-    public PotentialHardDisk potential;
+    public P2HardSphere potential;
     public Controller controller;
     public DisplayPhase display;
 
@@ -21,7 +21,7 @@ public class HSMD2D extends Simulation {
 	    species = new SpeciesDisks(this);
 	    species.setNMolecules(56);
 	    phase = new Phase(this);
-	    potential = new PotentialHardDisk(this);
+	    potential = new P2HardSphere(this);
 	    controller = new Controller(this);
 	    display = new DisplayPhase(this);
 //	    IntegratorMD.Timer timer = integrator.new Timer(integrator.chronoMeter());

@@ -454,32 +454,27 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
-        javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
-        f.setSize(600,500);
         Default.ATOM_SIZE = 1.0;                   
 	    IntegratorHard integratorHard = new IntegratorHard();
 	    SpeciesDisks speciesDisks = new SpeciesDisks();
 	    speciesDisks.setNMolecules(30);
 	    Phase phase = new Phase();
-	    Potential2 potential = new PotentialHardDisk();
-//	    Potential2.Agent potentialAgent = (Potential2.Agent)potential.makeAgent(phase);
-///	    P2SimpleWrapper P2HardDisk1 = new P2SimpleWrapper(new PotentialHardDisk());
+	    Potential2 potential = new P2HardSphere();
 	    Controller controller = new Controller();
 	    DisplayPhase displayPhase = new DisplayPhase();
 ///	    IntegratorMD.Timer timer = integratorHard.new Timer(integratorHard.chronoMeter());
 ///	    timer.setUpdateInterval(10);
-///        phase.setPotential(potentialAgent);
-        integratorHard.setTimeStep(0.01);
+//        integratorHard.setTimeStep(0.01);
         
 		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
 		                                    //calling it a second time has no effect
 		                                    
         Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
-        potentialAgent.setIterator(new AtomPairIterator(phase,
-                                    phase.iteratorFactory().makeAtomIterator(),
-                                    phase.iteratorFactory().makeAtomIterator()));
+        potentialAgent.setIterator(new AtomPairIterator(phase));
 		Simulation.instance.setBackground(java.awt.Color.yellow);
 
+        javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
+        f.setSize(600,500);
         f.getContentPane().add(Simulation.instance.panel());         //access the static instance of the simulation to
                                             //display the graphical components
         f.pack();
