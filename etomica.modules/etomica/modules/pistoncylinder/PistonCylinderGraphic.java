@@ -15,10 +15,12 @@ import etomica.Action;
 import etomica.Constants;
 import etomica.DataManager;
 import etomica.DataSink;
+import etomica.DataSource;
 import etomica.Default;
 import etomica.Phase;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
+import etomica.data.DataSourceAdapter;
 import etomica.data.DataSourceCountSteps;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.ColorSchemeByType;
@@ -73,7 +75,7 @@ public class PistonCylinderGraphic {
     public JPanel pressureSliderPanel;
     public MeterPistonDensity densityMeter;
     public DeviceToggleButton fixPistonButton;
-    public DisplayPlot plot;
+    public DisplayPlot plot, plotT, plotD, plotP;
     public final javax.swing.JTabbedPane displayPanel;
     public DeviceBox sigBox, epsBox, lamBox;
     final JRadioButton buttonAdiabatic, buttonIsothermal;
@@ -251,6 +253,9 @@ public class PistonCylinderGraphic {
         fixPistonButton = new DeviceToggleButton(null);
 
         plot = new DisplayPlot();
+        plotD = new DisplayPlot();
+        plotT = new DisplayPlot();
+        plotP = new DisplayPlot();
 
         //************* Lay out components ****************//
         
@@ -269,12 +274,12 @@ public class PistonCylinderGraphic {
 //        displayPanel.add(plotP.getLabel(), plotP.graphic());
 //        displayPanel.add(plot.getLabel(), plot.graphic());
         
-/*        JPanel plotPanel = new JPanel(new java.awt.GridLayout(0,1));
+        JPanel plotPanel = new JPanel(new java.awt.GridLayout(0,1));
         plotPanel.add(plotD.graphic());
         plotPanel.add(plotT.graphic());
         plotPanel.add(plotP.graphic());
         displayPanel.add("All",new javax.swing.JScrollPane(plotPanel));
- */
+
         JPanel startPanel = (JPanel)controlButtons.graphic();
         java.awt.GridBagConstraints gbc0 = new java.awt.GridBagConstraints();
         startPanel.setBorder(new javax.swing.border.TitledBorder("Control"));
@@ -464,14 +469,43 @@ public class PistonCylinderGraphic {
         lamBox.setController(pc.getController());
         
         plot.removeAllSinks();
+        plotD.removeAllSinks();
+        plotT.removeAllSinks();
+        plotP.removeAllSinks();
         
         thermometer.setPhase(new Phase[] {pc.phase});
         AccumulatorHistory temperatureHistory = new AccumulatorHistory();
         temperatureManager = new DataManager(thermometer,temperatureHistory);
         temperatureManager.setUpdateInterval(10);
-        DataManager temperaturePlotManager = new DataManager(temperatureHistory, plot.makeDataSink());
+        DataManager temperaturePlotManager = new DataManager(temperatureHistory, plotT.makeDataSink());
         tBox.setDataSource(thermometer);
         tBox.setUnit(tUnit);
+        
+        DataSource targetPressureDataSource = new DataSourceAdapter(Dimension.PRESSURE) {
+            double[] value = new double[1];
+            public double[] getData() {
+                value[0] = pressureSlider.getModifier().getValue();
+                return value;
+            }
+        };
+        AccumulatorHistory targetPressureHistory = new AccumulatorHistory();
+        DataManager targetPressureDataManager = new DataManager(targetPressureDataSource, targetPressureHistory);
+        DataSink targetPressureDataSink = plotP.makeDataSink();
+        DataManager targetPressurePlotManager = new DataManager(targetPressureHistory, plotP.makeDataSink());
+        targetPressureDataManager.setUpdateInterval(10);
+        
+        DataSource targetTemperatureDataSource = new DataSourceAdapter(Dimension.TEMPERATURE) {
+            double[] value = new double[1];
+            public double[] getData() {
+                value[0] = temperatureSlider.getModifier().getValue();
+                return value;
+            }
+        };
+        AccumulatorHistory targetTemperatureHistory = new AccumulatorHistory();
+        DataManager targetTemperatureDataManager = new DataManager(targetTemperatureDataSource, targetTemperatureHistory);
+        DataSink targetTemperatureDataSink = plotT.makeDataSink();
+        DataManager targetTemperaturePlotManager = new DataManager(targetTemperatureHistory, plotT.makeDataSink());
+        targetTemperatureDataManager.setUpdateInterval(10);
 
         densityMeter = new MeterPistonDensity(pc.pistonPotential,1,0.5*Default.ATOM_SIZE);
         AccumulatorAverage densityAvg = new AccumulatorAverage();
@@ -479,7 +513,7 @@ public class PistonCylinderGraphic {
 //        densityHistory.setLabel("Density ("+dadUnit.symbol()+")");
 
         densityManager = new DataManager(densityMeter,new DataSink[]{densityAvg, densityHistory});
-        DataManager densityPlotManager = new DataManager(densityHistory, plot.makeDataSink());
+        DataManager densityPlotManager = new DataManager(densityHistory, plotD.makeDataSink());
         densityManager.setUpdateInterval(10);
         
         dBoxAvg.setDataSource(densityAvg.makeDataSourceAverage());
@@ -508,6 +542,10 @@ public class PistonCylinderGraphic {
         pc.integrator.addIntervalListener(densityPlotManager);
         pc.integrator.addIntervalListener(temperatureManager);
         pc.integrator.addIntervalListener(temperaturePlotManager);
+        pc.integrator.addIntervalListener(targetTemperatureDataManager);
+        pc.integrator.addIntervalListener(targetTemperaturePlotManager);
+        pc.integrator.addIntervalListener(targetPressureDataManager);
+        pc.integrator.addIntervalListener(targetPressurePlotManager);
         pc.integrator.addIntervalListener(dBoxAvg);
         pc.integrator.addIntervalListener(dBoxErr);
         pc.integrator.addIntervalListener(dBoxCur);
