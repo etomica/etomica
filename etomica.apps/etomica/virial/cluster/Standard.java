@@ -1,6 +1,11 @@
 package etomica.virial.cluster;
+import etomica.math.SpecialFunctions;
+import etomica.utility.Arrays;
 import etomica.virial.Cluster;
+import etomica.virial.ClusterAbstract;
+import etomica.virial.ClusterSum;
 import etomica.virial.MayerFunction;
+import etomica.virial.Cluster.BondGroup;
 
 /**
  * @author kofke
@@ -93,6 +98,49 @@ public final class Standard {
 		return array;
 	}
 
+    public static ClusterAbstract virialCluster(int nBody, MayerFunction f) {
+        return virialCluster(nBody,f,true);
+    }
+    public static ClusterAbstract virialCluster(int nBody, MayerFunction f, boolean usePermutations) {
+        ClusterDiagram clusterD = new ClusterDiagram(nBody,0);
+        ClusterGenerator generator = new ClusterGenerator(clusterD);
+        generator.setAllPermutations(!usePermutations);
+        generator.setOnlyDoublyConnected(true);
+        generator.setExcludeArticulationPoint(false);
+        generator.setExcludeArticulationPair(false);
+        generator.setExcludeNodalPoint(false);
+        generator.reset();
+        ClusterAbstract[] clusters = new ClusterAbstract[0];
+        double[] weights = new double[0];
+        int fullSymmetry = usePermutations ? SpecialFunctions.factorial(nBody) : 1;
+        double weightPrefactor = -fullSymmetry*nBody/(double)(nBody-1);
+        do {
+            int numBonds = clusterD.getNumConnections();
+            int[][] bondList = new int[numBonds][2];
+            int iBond = 0;
+            for (int i = 0; i < nBody; i++) {
+                int[] iConnections = clusterD.mConnections[i];
+                for (int j = 0; j < nBody - 1 && iConnections[j] != -1; j++) {
+                    if (i < iConnections[j]) {
+                        bondList[iBond][0] = i;
+                        bondList[iBond++][1] = iConnections[j];
+                    }
+                }
+            }
+            // only use permutations if the diagram has permutations
+            boolean thisUsePermutations = usePermutations && clusterD.mNumIdenticalPermutations < fullSymmetry; 
+            clusters = (ClusterAbstract[])Arrays.addObject(clusters,new Cluster(nBody, new BondGroup[] {new BondGroup(f, bondList)}, thisUsePermutations));
+            double [] newWeights = new double[weights.length+1];
+            System.arraycopy(weights,0,newWeights,0,weights.length);
+            newWeights[weights.length] = weightPrefactor/(usePermutations ? clusterD.mNumIdenticalPermutations : 1);
+            weights = newWeights;
+        } while (generator.advance());
+
+        if (clusters.length == 1) return clusters[0];
+        return new ClusterSum(clusters,weights);
+
+    }
+    
 	public static final int[][] B2 = new int[][] {{0,1}};
 	public static final int[][] C3 = ring(3);
 	
