@@ -127,6 +127,7 @@ public class Phase extends Container {
         for(Species.Agent s=firstSpecies; s!=null; s=s.nextSpecies()) {
             configuration.add(s);
         }
+        iterator.reset();
     }
             
 	public void add(Meter m) {
@@ -149,6 +150,7 @@ public class Phase extends Container {
         for(Molecule m=species.firstMolecule(); m!=null; m=m.nextMolecule()) {moleculeCount++;}
         for(Atom a=species.firstAtom(); a!=null; a=a.nextAtom()) {atomCount++;}
         configuration.add(species);
+        iterator.reset();
     }
             
     public void add(Species s) {  //add species to phase if it doesn't appear in another phase

@@ -8,7 +8,7 @@ public class MeterPotentialEnergy extends simulate.Meter
 //  AtomPair.Iterator.A iteratorAFull;
 //  AtomPair.Iterator.FMAM iteratorFMAM;
   AtomPair.Iterator.MP iteratorMP;
-  AtomPair.Iterator.P iteratorP;
+  AtomPair.Iterator iteratorAll;
   
   AtomPair.Iterator.A apiUp, apiDown;
   
@@ -24,7 +24,7 @@ public class MeterPotentialEnergy extends simulate.Meter
 //    iteratorAFull = p.makePairIteratorFull();
 //    iteratorFMAM = new AtomPair.Iterator.FMAM(p);
     iteratorMP = new AtomPair.Iterator.MP(p);
-    iteratorP = new AtomPair.Iterator.P(p);
+    iteratorAll = p.iterator.makeAtomPairIteratorAll();
     
     apiUp = p.iterator.makeAtomPairIteratorUp();
     apiDown = p.iterator.makeAtomPairIteratorDown();
@@ -39,9 +39,9 @@ public class MeterPotentialEnergy extends simulate.Meter
                         //could make special case for single species, monatomic
       
         double pe = 0.0;
-        iteratorP.reset();
-        while(iteratorP.hasNext()) {
-            AtomPair pair = iteratorP.next();
+        iteratorAll.reset();
+        while(iteratorAll.hasNext()) {
+            AtomPair pair = iteratorAll.next();
             pe += pair.potential.energy(pair);
         }
         return pe;

@@ -75,13 +75,20 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
         
         public NeighborIterator(Phase p) {
             super(p);
-            xCells = yCells = 15;
+            xCells = yCells = 4;
             cells = new LatticeSquare(LatticeSquare.Cell.class, new int[] {xCells,yCells});
+        }
+        
+        public void reset() {
+            for(Atom a=phase.firstAtom(); a!=null; a=a.nextAtom()) {
+                ((Coordinate)a.coordinate()).assignCell();
+            }
         }
         
         public void setNeighborRadius(double radius) {
             neighborRadius = radius; 
             cells.setNeighborIndexCutoff(radius*radius);  //probably should do assignCell for each atom
+            reset();
         }
         public double getNeighborRadius() {return neighborRadius;}
 
@@ -209,7 +216,8 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
             public AtomIteratorUp(LatticeSquare.Site o) {hasNext = false;  origin = o;}
             public boolean hasNext() {return hasNext;}
             public void allDone() {hasNext = false;}
-            public void reset() {  //resets to first atom in list  
+            public void reset() {  //resets to first atom in list
+                hasNext = true;
                 cell = origin;  //rewrite this to use cells.firstOccupant
                 coordinate = (Coordinate)cell.first();
                 if(coordinate == null) {advanceCell();}
@@ -370,7 +378,7 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
     }
     public static class CellPotential extends Potential implements PotentialHard {
         
-        public void bump(simulate.AtomPair pair) {
+        public void bump(AtomPair pair) {
             Atom atom = pair.atom1();
             Coordinate atomCoordinate = (Coordinate)atom.coordinate();
             LatticeSquare.Point cell = (LatticeSquare.Point)atomCoordinate.cell;
@@ -386,7 +394,7 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
             }
         }
         
-        public double collisionTime(simulate.AtomPair pair) {
+        public double collisionTime(AtomPair pair) {
             Coordinate atomCoordinate = (Coordinate)pair.atom1().coordinate;
             LatticeSquare.Cell cell = (LatticeSquare.Cell)atomCoordinate.cell;
             double dx = (atomCoordinate.p.x > 0) ? cell.vertices()[0][0] - atomCoordinate.r.x : cell.vertices()[2][0] - atomCoordinate.r.x; 

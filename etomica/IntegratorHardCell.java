@@ -145,7 +145,7 @@ protected void advanceAcrossTimeStep(double tStep) {
             if(a.isStationary()) {continue;}  //skip if atom is stationary
 //            Space.uEa1Tv1(dr,tStep*a.rm,a.p);
 //            a.translate(dr);         //needs modification for nonspherical atom
-            a.translateBy(tStep*a.rm(),a.coordinate.momentum());
+            a.translateBy(tStep*a.rm(),a.momentum());
         }
     }
     else {
@@ -154,7 +154,7 @@ protected void advanceAcrossTimeStep(double tStep) {
             ((Agent)a.ia).decrementCollisionTime(tStep);
             if(a.isStationary()) {continue;}  //skip if atom is stationary
 //            Space.uEa1Tv1Pa2Tv2(dr,tStep*a.rm,a.p,t2,firstPhase.gravity.gVector);
-            a.translateBy(tStep*a.rm(),a.coordinate.momentum());
+            a.translateBy(tStep*a.rm(),a.momentum());
             a.translateBy(t2,firstPhase.gravity.gVector);
 //            Space.uEa1Tv1(dr,tStep*a.mass,firstPhase.gravity.gVector);
             a.accelerateBy(tStep*a.mass(),firstPhase.gravity.gVector);
@@ -245,10 +245,6 @@ protected void upList(Atom atom) {  //specific to 2D
 //--------------------------------------------------------------
 
 protected void downList(Atom atom) {
-            
-    Atom previousMoleculeAtom = atom.parentMolecule().firstAtom().previousAtom();
-            
-    int atomSpeciesIndex = atom.getSpeciesIndex();
             
     //Loop through remaining downlist atoms in this atom's molecule
 /*    if(atom != atom.parentMolecule.firstAtom) {

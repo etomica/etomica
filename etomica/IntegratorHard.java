@@ -25,7 +25,7 @@ public void registerPhase(Phase p) {
     atomUp = p.iterator.makeAtomIteratorUp();
     atomDown = p.iterator.makeAtomIteratorDown();
 //    iterator = p.makePairIteratorFull();
-//    atomPair = p.makeAtomPair();
+    atomPair = new AtomPair(p);
 }
 
           

@@ -35,7 +35,7 @@ public class AtomPair {
         
         public boolean hasNext();
         public AtomPair next();
-//        public void reset();
+        public void reset();
         
         public interface SS extends Iterator {public void reset(Species.Agent s1, Species.Agent s2);}
         public interface S extends Iterator {public void reset(Species.Agent s);}
@@ -54,13 +54,13 @@ public class AtomPair {
          * Default is to do inter and intra pairs; this may be overridden using reset method to do
          * only intermolecular pairs
          */
-         public static class P implements Iterator {
+         public static class All implements Iterator {
             private final Iterator.A apiUp;
             private final Atom.Iterator atomUp;
             private boolean intra;
             private boolean hasNext;
             private AtomPair thisPair, nextPair;
-            public P(Phase p) {
+            public All(Phase p) {
                 apiUp = p.iterator.makeAtomPairIteratorUp();
                 atomUp = p.iterator.makeAtomIteratorUp();
                 reset(true);
@@ -174,6 +174,7 @@ public class AtomPair {
                 apiDown = p.iterator.makeAtomPairIteratorDown();
                 reset(m);
             }
+            public void reset() {}  //needs filling in
             public boolean hasNext() {return hasNext;}
             public AtomPair next() {
                 thisPair = nextPair;
@@ -461,6 +462,7 @@ public class AtomPair {
             private Atom nextAtom;
             public Up(Phase p) {phase = p; pair = new AtomPair(p); hasNext = false;}
             public Up(Phase p, Atom a) {phase = p; pair = new AtomPair(p); reset(a,true);}
+            public void reset() {System.out.println("error in APIup");}
             public void reset(Atom a1, Atom a2, Atom a3, Atom a4) {}
             public void reset(Atom a1, Atom a2, Atom a3) {}
             public void allDone() {hasNext = false;}
@@ -494,6 +496,7 @@ public class AtomPair {
             public Down(Phase p) {phase = p; pair = new AtomPair(p); hasNext = false;}
             public Down(Phase p, Atom a) {phase = p; pair = new AtomPair(p); reset(a,true);}
             public boolean hasNext() {return hasNext;}
+            public void reset() {System.out.println("error in APIdown");}
             public void reset(Atom a1, Atom a2, Atom a3, Atom a4) {}
             public void reset(Atom a1, Atom a2, Atom a3) {}
             public void allDone() {hasNext = false;}
@@ -519,7 +522,7 @@ public class AtomPair {
         //These iterators need some work to permit iLast = null
         
     //"Full" --> Each iteration of inner loop begins with same first atom
-    static final class Full implements simulate.AtomPair.Iterator.A {
+/*    static final class Full implements simulate.AtomPair.Iterator.A {
         final AtomPair pair;
         Atom outer, inner;
         private Atom iFirst, iLast, oFirst, oLast;
