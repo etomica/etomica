@@ -29,14 +29,14 @@ public class DeviceNSelector extends DeviceSlider {
         this.speciesAgent = agent;
         restartAction = new etomica.action.SimulationRestart(simulation);
         
-        setModifier(new ModifierNMolecule(agent));
-        targetAction = new ActionGroup(new Action[]{modifier,restartAction});
 //        setNMajor(6);
 	    setMinimum(0);
 	    setMaximum(60);
 	    getSlider().setSnapToTicks(false);
 	    getSlider().setMajorTickSpacing(10);
 	    graphic(null).setSize(new java.awt.Dimension(40,30));
+        setModifier(new ModifierNMolecule(agent));
+        targetAction = new ActionGroup(new Action[]{modifier,restartAction});
 	    
 	    if(agent.node.parentSpecies().getName() == "") {
 	        setLabel("Number of molecules");

@@ -163,11 +163,12 @@ public class DeviceSlider extends Device implements EtomicaElement {
     
     public final void setModifier(Modifier m) {
         if(m == null) throw new NullPointerException();
+        modifier = null;
+        unit = m.getDimension().defaultIOUnit();
+        slider.setDecimalSliderValue(unit.fromSim(m.getValue()));        
         modifier = new ModifyAction(m);
         targetAction = modifier;
-        unit = modifier.getDimension().defaultIOUnit();
         setLabelDefault();
-        slider.setDecimalSliderValue(unit.fromSim(modifier.getValue()));        
         setMinimum(getMinimum());
         setMaximum(getMaximum());
     }
