@@ -185,84 +185,49 @@ public abstract class Configuration implements java.io.Serializable {
 	public final static etomica.space2d.Vector2D[] hexagonalLattice(int n, double Lx, double Ly, boolean fillVertical) {
 		etomica.space2d.Vector2D[] r = new etomica.space2d.Vector2D[n];
 		if(n == 0) return r;
-		Vector com = new etomica.space2d.Vector2D();
-		com.E(0.0); // later becomes present Center of Mass
-		Vector dcom = new etomica.space2d.Vector2D();
-		dcom.E(0.0); // difference in Present COM and Original COM
-		Vector ocom = new etomica.space2d.Vector2D();
-		ocom.setX(0, Lx);ocom.setX(1, Ly); ocom.TE(0.5); // Original Center Of Mass
                         
 		for(int i=0; i<n; i++) {r[i] = new etomica.space2d.Vector2D();}
 
-		int moleculeColumns, moleculeRows;
-		double moleculeInitialSpacingX, moleculeInitialSpacingY;
+		int[] moleculeL = new int[2];
+        double[] L = new double[2];
+        L[0] = Lx;
+        L[1] = Ly;
  
-		int i = 0;
-		int ix = 0;
-		int iy = 0;
-		double half = 0.0;
-
-		if(fillVertical){
-            double ratio = Ly/Lx*Math.sqrt(3.0)*0.5; // moleculeRows/moleculeColumns
-            // round off lower of the two and round up the other
-            if (ratio>1.0) {
-                moleculeColumns = 2*Math.max(1,(int)Math.round(Math.sqrt(n/ratio)/2.0)); // round off
-                moleculeRows = ((n + 2*moleculeColumns - 1) / (2*moleculeColumns)) * 2;  // round up
-            }
-            else {
-                moleculeRows = 2*Math.max(1,(int)Math.round(Math.sqrt(n*ratio)/2.0)); // round off
-                moleculeColumns = ((n + 2*moleculeRows - 1) / (2*moleculeRows)) * 2;  // round up
-            }
-			moleculeInitialSpacingX = Lx / moleculeColumns;
-			moleculeInitialSpacingY = Ly / moleculeRows;
-            while (i < n) {
-                r[i].setX(0, (0.5 + ix) * moleculeInitialSpacingX);
-                r[i].setX(1, (0.25 + iy + half) * moleculeInitialSpacingY);
-                i++;
-                iy++;
-                if (iy >= moleculeRows) {
-                    iy = 0;
-                    if (half == 0.0) {
-                        half = 0.5;
-                    }
-                    else {
-                        half = 0.0;
-                    }
-                    ix++;
-                }
-            } //end of while
+        int fillDim = fillVertical ? 1 : 0;
+        // ratio of moleculeRows/moleculeColumns (or vica versa)
+        double ratio = L[fillDim]/L[1-fillDim]*Math.sqrt(3.0)*0.5;
+        // round off lower of the two and round up the other, ensuring both are even
+        if (ratio>1.0) {
+            moleculeL[1-fillDim] = 2*Math.max(1,(int)Math.round(Math.sqrt(n/ratio)/2.0));
+            moleculeL[fillDim] = ((n + 2*moleculeL[1-fillDim] - 1) / (2*moleculeL[1-fillDim])) * 2;
         }
         else {
-            double ratio = Lx/Ly*Math.sqrt(3.0)*0.5; // moleculeColumns/moleculeRows
-            // round off lower of the two and round up the other
-            if (ratio<1.0) {
-                moleculeColumns = 2*Math.max(1,(int)Math.round(Math.sqrt(n*ratio)/2.0)); // round off
-                moleculeRows = ((n + 2*moleculeColumns - 1) / (2*moleculeColumns)) * 2;  // round up
-            }
-            else {
-                moleculeRows = 2*Math.max(1,(int)Math.round(Math.sqrt(n/ratio)/2.0)); // round off
-                moleculeColumns = ((n + 2*moleculeRows - 1) / (2*moleculeRows)) * 2;  // round up
-            }
-            moleculeInitialSpacingX = Lx/moleculeColumns;
-            moleculeInitialSpacingY = Ly/moleculeRows;
-            while (i < n) {
-                r[i].setX(0, (0.25 + half + ix) * moleculeInitialSpacingX);
-                r[i].setX(1, (0.5 + iy) * moleculeInitialSpacingY);
-                i++;
-                ix++;
-                if (ix >= moleculeColumns) {
-                    ix = 0;
-                    if (half == 0.0) {
-                        half = 0.5;
-                    }
-                    else {
-                        half = 0.0;
-                    }
-                    iy++;
+            moleculeL[fillDim] = 2*Math.max(1,(int)Math.round(Math.sqrt(n*ratio)/2.0));
+            moleculeL[1-fillDim] = ((n + 2*moleculeL[fillDim]- 1) / (2*moleculeL[fillDim])) * 2;
+        }
+        // pixel spacing between molecules
+        double[] moleculeInitialSpacing = new double[2];
+        moleculeInitialSpacing[0] = L[0] / moleculeL[0];
+        moleculeInitialSpacing[1] = L[1] / moleculeL[1];
+        double half = 0.0;
+        // counters for each direction
+        int[] j = new int[2];
+        for (int i=0; i<n; i++) {
+            r[i].setX(1-fillDim, (0.5 + j[1-fillDim]) * moleculeInitialSpacing[1-fillDim]);
+            r[i].setX(fillDim,   (0.25 + j[fillDim] + half) * moleculeInitialSpacing[fillDim]);
+            j[fillDim]++;
+            if (j[fillDim] == moleculeL[fillDim]) {
+                j[fillDim] = 0;
+                if (half == 0.0) {
+                    half = 0.5;
                 }
+                else {
+                    half = 0.0;
+                }
+                j[1-fillDim]++;
             }
         }
-            
+           
 		return r;
     }   
     
