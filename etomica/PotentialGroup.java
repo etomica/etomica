@@ -155,13 +155,16 @@ public class PotentialGroup extends Potential {
     public void calculate(AtomsetIterator iterator, IteratorDirective id, PotentialCalculation pc) {
     	if(!enabled) return;
     	Atom[] targetAtoms = id.targetAtoms();
+    	IteratorDirective.Direction direction = id.direction();
 		//loop over sub-potentials
     	//TODO set up separate linked list for this, merging both loops
  		for (PotentialLinker link=first; link!= null; link=link.next) {
 			((AtomsetIteratorTargetDependent)link.iterator).setTarget(targetAtoms);
+			((AtomsetIteratorDirectable)link.iterator).setDirection(direction);
 		}
 		for (PotentialLinker link=firstGroup; link!=null; link=link.next) {
 			((AtomsetIteratorTargetDependent)link.iterator).setTarget(targetAtoms);
+			((AtomsetIteratorDirectable)link.iterator).setDirection(direction);
 		}
     	iterator.reset();
 		while (iterator.hasNext()) {

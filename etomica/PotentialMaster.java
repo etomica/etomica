@@ -43,14 +43,22 @@ public final class PotentialMaster extends PotentialGroup {
     	boolean phaseChanged = (phase != mostRecentPhase);
     	mostRecentPhase = phase;
     	for(PotentialLinker link=first; link!=null; link=link.next) {
-			if(phaseChanged) ((AtomsetIteratorPhaseDependent)link.iterator).setPhase(phase);
-			((AtomsetIteratorTargetDependent)link.iterator).setTarget(targetAtoms);
+			if(phaseChanged) {
+				((AtomsetIteratorMolecule)link.iterator).setPhase(phase);
+				link.potential.setPhase(phase);
+			}
+			((AtomsetIteratorMolecule)link.iterator).setTarget(targetAtoms);
+			((AtomsetIteratorMolecule)link.iterator).setDirection(id.direction());
         	pc.doCalculation(link.iterator, link.potential);
         }//end for
         for(PotentialLinker link=firstGroup; link!=null; link=link.next) {
-        	if(phaseChanged) ((AtomsetIteratorPhaseDependent)link.iterator).setPhase(phase);
-			((AtomsetIteratorTargetDependent)link.iterator).setTarget(targetAtoms);
-           ((PotentialGroup)link.potential).calculate(link.iterator, id, pc);
+			if(phaseChanged) {
+				((AtomsetIteratorMolecule)link.iterator).setPhase(phase);
+				link.potential.setPhase(phase);
+			}
+			((AtomsetIteratorMolecule)link.iterator).setTarget(targetAtoms);
+			((AtomsetIteratorMolecule)link.iterator).setDirection(id.direction());
+			((PotentialGroup)link.potential).calculate(link.iterator, id, pc);
         }
     }//end calculate
     
