@@ -20,7 +20,7 @@ import etomica.units.*;
  * run method; changed setInterval do disallow non-positive interval
  * 04/13/04 (DAK) modified reset such that doReset is called if running is false
  */
-public abstract class Integrator extends SimulationElement implements Runnable, java.io.Serializable {
+public abstract class Integrator extends SimulationElement implements java.io.Serializable {
 
   private boolean resetRequested = false;
   protected final PotentialMaster potential;
