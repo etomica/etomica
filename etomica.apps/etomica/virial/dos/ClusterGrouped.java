@@ -9,6 +9,12 @@ import etomica.virial.PairSet;
  * Evaluates to zero if one of the molecules is not within a cutoff distance of
  * one of the other ones.
  */
+
+/* History
+ * 08/21/03 (DAK) removed call to resetPairs for pairSet in value.  This should
+ * be done by the class calling the method.
+ */
+ 
 public class ClusterGrouped extends Cluster {
 
 	private double rCutoff, rCutoff2;
@@ -25,7 +31,6 @@ public class ClusterGrouped extends Cluster {
 
 	public double value(PairSet pairs, double beta) {
 		double p = 1.0;
-		pairs.resetPairs();
 		boolean in01 = pairs.getPair(0,1).r2() < rCutoff2;
 		boolean in02 = pairs.getPair(0,2).r2() < rCutoff2;
 		boolean in12 = pairs.getPair(1,2).r2() < rCutoff2;		

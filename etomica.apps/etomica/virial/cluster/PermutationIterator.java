@@ -67,7 +67,7 @@ public class PermutationIterator {
 	 * Returns a new matrix formed by permuting the rows and columns of the
 	 * given matrix according to the permuation list p.  The list p[i] is such
 	 * that it gives the (row/column) index in matrix a from which the element
-	 * of the new matrix is taken.  So b(i,j) will be equal to a(p[i],p[j]). The
+	 * of the new matrix is taken.  So b(p[i],p[j]) will be equal to a(i,j). The
 	 * original matrix a is unchanged.
 	 * @param p permutation list
 	 * @param a original matrix
@@ -80,7 +80,7 @@ public class PermutationIterator {
 		for(int i=0; i<n; i++) {
 			int ip = p[i];
 			for(int j=0; j<n; j++) {
-				b[i][j] = a[ip][p[j]];
+				b[ip][p[j]] = a[i][j];
 			}
 		}
 		return b;

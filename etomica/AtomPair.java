@@ -6,6 +6,8 @@ package etomica;
 
 /* History
  * 07/17/03 (DAK) modified reset() methods to return this AtomPair
+ * 08/21/03 (DAK) modified reset() method to invoke cPair.reset() rather than
+ * cPair.reset(atom1.coord, atom2.coord); modified reset(Atom, Atom) accordingly
  */
  
 public final class AtomPair implements AtomSet, java.io.Serializable {
@@ -66,14 +68,16 @@ public final class AtomPair implements AtomSet, java.io.Serializable {
     public AtomPair reset(Atom a1, Atom a2) {
         atom1 = a1; 
         atom2 = a2;
-        if(a2 != null) reset();
+        if(a2 != null) cPair.reset(a1.coord, a2.coord);
+//        if(a2 != null) reset();
         return this;
     }
     /**
      * Resets the coordinate pair for the current values of the atoms
      */
     public AtomPair reset() {
-        cPair.reset(atom1.coord, atom2.coord);
+//        cPair.reset(atom1.coord, atom2.coord); //08/21/03 (DAK) changed to reset()
+		cPair.reset();
         return this;
     }
     /**

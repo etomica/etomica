@@ -6,11 +6,10 @@ import etomica.units.Dimension;
 
 /**
  * @author kofke
- *
- * To change this generated comment edit the template variable "typecomment":
- * Window>Preferences>Java>Templates.
- * To enable and disable the creation of type comments go to
- * Window>Preferences>Java>Code Generation.
+ */
+
+/* History
+ * 08/21/03 (DAK) invoke resetPairs for pairSet in currentValue method
  */
 public class MeterDOS extends MeterFunction {
 
@@ -38,7 +37,7 @@ public class MeterDOS extends MeterFunction {
 	 */
 	public double[] currentValue() {
 		for(int i=0; i<nPoints; i++) y[i] = 0.0;
-		int k = (int)(cluster.value(((PhaseCluster)phase).getPairSet(),1.0)/dx);
+		int k = (int)(cluster.value(((PhaseCluster)phase).getPairSet().resetPairs(),1.0)/dx);
 		if(k>=y.length) k = y.length-1;
 		y[k] = 1.0;// /p0.pi(((PhaseCluster)phase));
 		return y;

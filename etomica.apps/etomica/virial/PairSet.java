@@ -10,6 +10,11 @@ import etomica.*;
  * list.  Each AtomPair instance can be accessed via the getPair method, which
  * takes as arguments the node.index values for the two atoms of interest.
  */
+
+/* History
+ * 08/21/03 (DAK) rearranged loops in resetPairs method
+ */
+ 
 public class PairSet {
 
 	/**
@@ -57,8 +62,13 @@ public class PairSet {
 	 * line.
 	 */
 	public PairSet resetPairs() {
-		for(int i=0; i<N-1; i++) {
-			for(int j=0; j<N-1-i; j++) pairs[i][j].reset();
+		//original loop construct
+//		for(int i=0; i<N-1; i++) {
+//			for(int j=0; j<N-1-i; j++) pairs[i][j].reset();
+//		}
+		//rearranged because comparison to zero is faster
+		for(int i=N-2; i>=0; i--) {
+			for(int j=N-2-i; j>=0; j--) pairs[i][j].reset();
 		}
 		return this;
 	}

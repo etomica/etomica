@@ -1,22 +1,20 @@
 package etomica.virial;
 
-import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Potential0;
-import etomica.PotentialCalculation;
-import etomica.PotentialCalculationEnergySum;
 import etomica.SimulationElement;
 
 /**
  * @author David Kofke
  *
  * Pair potential given according to the Mayer bonds in a cluster integral.
- * Does not require that the value of the cluster is non-negative
+ * Does not require that the value of the cluster is non-negative.
  */
 
 /* History
  * 08/20/03 (DAK) small changes to energy method (check for g = 0; abs(g)->g in
  * log argument
+ * 08/21/03 (DAK) invoke resetPairs for pairSet in pi method
  */
 public class P0Cluster extends Potential0 {
 
@@ -39,7 +37,7 @@ public class P0Cluster extends Potential0 {
 	}
 	
 	public double pi(PhaseCluster phase) {
-		double pi = cluster.value(phase.getPairSet(), 1.0/phase.integrator().temperature());
+		double pi = cluster.value(phase.getPairSet().resetPairs(), 1.0/phase.integrator().temperature());
 		return (pi>0) ? pi : -pi;
 	}
 //	public double pi(PairSet pairSet, double beta) {

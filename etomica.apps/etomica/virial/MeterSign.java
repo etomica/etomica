@@ -6,11 +6,10 @@ import etomica.units.Dimension;
 
 /**
  * @author kofke
- *
- * To change this generated comment edit the template variable "typecomment":
- * Window>Preferences>Java>Templates.
- * To enable and disable the creation of type comments go to
- * Window>Preferences>Java>Code Generation.
+ */
+
+/* History
+ * 08/21/03 (DAK) invoke resetPairs for pairSet in currentValue
  */
 public class MeterSign extends MeterScalar {
 
@@ -31,7 +30,7 @@ public class MeterSign extends MeterScalar {
 	 * @see etomica.MeterScalar#currentValue()
 	 */
 	public double currentValue() {
-		return (cluster.value(((PhaseCluster)phase).getPairSet(), beta)>0) ? +1.0 : -1.0;
+		return (cluster.value(((PhaseCluster)phase).getPairSet().resetPairs(), beta)>0) ? +1.0 : -1.0;
 	}
 
 	/**

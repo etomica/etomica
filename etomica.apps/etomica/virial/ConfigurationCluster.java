@@ -42,7 +42,7 @@ public class ConfigurationCluster extends Configuration {
 		AtomIterator iter = iterator[0];
 		iter.reset();
 		while(iter.hasNext()) iter.next().coord.translateTo(center);//put all at center of box
-		double value = cluster.value(phase.getPairSet(), 1.0);
+		double value = cluster.value(phase.getPairSet().resetPairs(), 1.0);
 		while( value == 0 || (signPositive != (value>0.0))) { //if center is not ok, keep trying random positions until ok
 			iter.reset();
 			iter.next().coord.translateTo(center);
@@ -50,7 +50,7 @@ public class ConfigurationCluster extends Configuration {
 				Atom a = iter.next();
 				a.coord.translateToRandom(phase);	
 			}
-			value = cluster.value(phase.getPairSet(),1.0);
+			value = cluster.value(phase.getPairSet().resetPairs(),1.0);
 		}//end while
 	}
 

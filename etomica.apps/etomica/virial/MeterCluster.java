@@ -9,6 +9,10 @@ import etomica.units.Dimension;
  *
  * Returns the value of a cluster.
  */
+
+/* History
+ * 08/21/03 (DAK) invoke resetPairs for pairSet in currentValue
+ */
 public class MeterCluster extends MeterScalar {
 
 	private Cluster cluster;
@@ -28,7 +32,7 @@ public class MeterCluster extends MeterScalar {
 	 * @see etomica.MeterScalar#currentValue()
 	 */
 	public double currentValue() {
-		return cluster.value(((PhaseCluster)phase).getPairSet(), beta);
+		return cluster.value(((PhaseCluster)phase).getPairSet().resetPairs(), beta);
 	}
 
 	/**

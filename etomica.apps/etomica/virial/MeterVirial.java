@@ -9,6 +9,10 @@ import etomica.units.Dimension;
  * Meter to for perturbative calculation of a sum of cluster integrals.
  * 
  */
+
+/* History
+ * 08/21/03 (DAK) invoke resetPairs for pairSet in updateValues method
+ */
 public class MeterVirial extends MeterGroup implements DatumSource {
 
 	private final int N;
@@ -44,8 +48,8 @@ public class MeterVirial extends MeterGroup implements DatumSource {
 	 * @see etomica.MeterGroup#updateValues()
 	 */
 	public void updateValues() {
-		PairSet pairSet = ((PhaseCluster)phase).getPairSet();
 		double pi = simulationPotential.pi((PhaseCluster)phase);
+		PairSet pairSet = ((PhaseCluster)phase).getPairSet().resetPairs();//resetPairs not needed if can be sure it is done in potential.pi method call
 		currentValues[0] = refCluster.value(pairSet, refBeta)/pi;
 		for(int i=1; i<nMeters; i++) currentValues[i] = clusters[i-1].value(pairSet, beta)/pi;
 	}

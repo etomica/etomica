@@ -13,6 +13,11 @@ import etomica.SimulationElement;
  * Pair potential given according to the Mayer bonds in a sum of cluster
  * integrals (using their absolute values).
  */
+
+/*
+ * 08/21/03 (DAK) in pi(), invoke resetPairs after getting pairSet
+ */
+ 
 public class P0ClusterUmbrella extends P0Cluster {
 
 	protected Cluster[] cluster;
@@ -40,7 +45,7 @@ public class P0ClusterUmbrella extends P0Cluster {
 	
 	public double pi(PhaseCluster phase) {
 		double beta = 1.0/phase.integrator().temperature();
-		PairSet pairs = ((PhaseCluster)phase).getPairSet();
+		PairSet pairs = ((PhaseCluster)phase).getPairSet().resetPairs();
 		double pi = 0.0;
 		for(int i=0; i<nCluster; i++) {
 			double value = cluster[i].value(pairs, beta);

@@ -1,9 +1,5 @@
 package etomica.virial.overlap;
 
-import etomica.IteratorDirective;
-import etomica.Phase;
-import etomica.PotentialCalculation;
-import etomica.PotentialCalculationEnergySum;
 import etomica.SimulationElement;
 import etomica.virial.*;
 
@@ -18,6 +14,7 @@ import etomica.virial.*;
 /* History
  * 08/20/03 (DAK) modified to make compatible with earlier revisions to
  * P0Cluster
+ * 08/21/03 (DAK) invoke resetPairs for pairSet in pi method
  */
 public class P0ClusterSigned extends P0Cluster {
 
@@ -44,7 +41,7 @@ public class P0ClusterSigned extends P0Cluster {
 	 * @see etomica.virial.P0Cluster#pi(PhaseCluster)
 	 */
 	public double pi(PhaseCluster phase) {
-		double pi = cluster.value(phase.getPairSet(), 1.0/phase.integrator().temperature());
+		double pi = cluster.value(phase.getPairSet().resetPairs(), 1.0/phase.integrator().temperature());
 		if(signPositive != (pi>0)) return 0.0;
 		else return (pi>0) ? pi : -pi;
 	}

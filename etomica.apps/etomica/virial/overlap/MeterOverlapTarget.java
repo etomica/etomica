@@ -4,6 +4,7 @@ import etomica.MeterFunction;
 import etomica.Simulation;
 import etomica.units.Dimension;
 import etomica.virial.Cluster;
+import etomica.virial.PairSet;
 import etomica.virial.PhaseCluster;
 
 /**
@@ -11,6 +12,11 @@ import etomica.virial.PhaseCluster;
  *
  * Overlap-sampling evaluation of ratio of clusters, simulating the target.
  */
+
+/* History
+ * 08/21/03 (DAK) in currentValue, resetPairs method is called on pairSet
+ */
+ 
 public class MeterOverlapTarget extends MeterFunction implements etomica.DatumSource {
 
 	/**
@@ -49,8 +55,9 @@ public class MeterOverlapTarget extends MeterFunction implements etomica.DatumSo
 	 * @see etomica.MeterFunction#currentValue()
 	 */
 	public double[] currentValue() {
-		double v0 = Math.abs(cluster0.value(((PhaseCluster)phase).getPairSet(),beta));
-		double v1 = cluster1.value(((PhaseCluster)phase).getPairSet(),beta);
+		PairSet pairSet = ((PhaseCluster)phase).getPairSet().resetPairs();
+		double v0 = Math.abs(cluster0.value(pairSet,beta));
+		double v1 = cluster1.value(pairSet,beta);
 		if(signPositive != (v1>0)) v1 = 0.0;
 		else v1 = Math.abs(v1);
 //		System.out.println(v1);
