@@ -202,6 +202,22 @@ public abstract class MeterGroup extends MeterAbstract implements DataSource  {
 	 */
 	 public Histogram histogram(int i) {return accumulator[i].histogram();}
 	 
+	 
+	/**
+	 * Returns the labels of the meters.
+	 * @return String[]
+	 */
+	public String[] getLabels() {
+		return labels;
+	}
+
+	/**
+	 * Sets the labels for the meters.
+	 * @param labels The labels to set
+	 */
+	public void setLabels(String[] labels) {
+		this.labels = labels;
+	}
 	 /**
 	  * Meter facade that gives the impression of providing data independently,
 	  * although it is actually serving as a wrapper for the one of the data values
@@ -216,8 +232,10 @@ public abstract class MeterGroup extends MeterAbstract implements DataSource  {
         } 
         public double  currentValue() {return MeterGroup.this.currentValue(index);}
         public String getLabel() {return labels[index];}
+        public void setLabel(String label) {labels[index] = label; this.label = label;}
         public Dimension getDimension() {return Dimension.NULL;}//temporary
         public void updateSums() {/*do nothing since this is taken care of by the group*/}
 	 }//end of PseudoMeter
-	 
+
+
 }//end of MeterGroup class	 
