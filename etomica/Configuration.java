@@ -90,7 +90,9 @@ public abstract class Configuration implements java.io.Serializable {
         AtomIteratorList iterator = 
                 AtomIteratorList.makeCopylistIterator(((AtomTreeNodeGroup)group.node).childList);
         initializePositions(iterator);
-        initializeMomenta(group);
+        if (space.isKinetic()) {
+            initializeMomenta(group);
+        }
     }
     
     /**
@@ -107,8 +109,9 @@ public abstract class Configuration implements java.io.Serializable {
         AtomIterator[] iterators = new AtomIterator[group.length];
         for(int i=0; i<group.length; i++) {
             iterators[i] = AtomIteratorList.makeCopylistIterator(((AtomTreeNodeGroup)group[i].node).childList);
-            //new AtomIteratorSequential(group[i]);
-            initializeMomenta(group[i]);
+            if (space.isKinetic()) {
+                initializeMomenta(group[i]);
+            }
         }
         initializePositions(iterators);
     }
