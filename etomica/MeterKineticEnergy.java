@@ -8,6 +8,10 @@ import etomica.units.Dimension;
  * Meter for the total kinetic energy in a phase
  * Computes total KE by summing values of KE returned by every atom in the phase
  */
+ 
+ /* History of changes
+  * 7/03/02  Added non-registering constructor (space argument)
+  */
 public class MeterKineticEnergy extends MeterScalar
 {
     AtomIterator atomIterator;
@@ -15,9 +19,15 @@ public class MeterKineticEnergy extends MeterScalar
     public MeterKineticEnergy() {
         this(Simulation.instance);
     }
-    public MeterKineticEnergy(Simulation sim)
-    {
+    public MeterKineticEnergy(Simulation sim) {
         super(sim);
+        setLabel("Kinetic Energy");
+    }
+    /**
+     * Constructor that doesn't register meter with simulation.
+     */
+    public MeterKineticEnergy(Space space) {
+        super(space);
         setLabel("Kinetic Energy");
     }
 
@@ -26,14 +36,6 @@ public class MeterKineticEnergy extends MeterScalar
         return info;
     }
 
-    /**
-     * Declaration that this meter does not use the boundary object of phase when making its measurements
-     */
-    public final boolean usesPhaseBoundary() {return false;}
-    /**
-     * Declaration that this meter does use the iteratorFactory of phase when making its measurements
-     */
-    public final boolean usesPhaseIteratorFactory() {return true;}
 
     public Dimension getDimension() {return Dimension.ENERGY;}
 

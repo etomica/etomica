@@ -33,7 +33,16 @@ public final class ColorSchemeByType extends ColorScheme implements Parameter.So
     public static void setColor(SpeciesSpheresMono s, Color c) {
         ((ParameterColor)((AtomFactoryMono)s.moleculeFactory()).type().parameter[ColorSchemeByType.colorIndex]).setColor(c);
     }
-    
+   
+    public static void setColor(AtomType type, Color c) {
+        ((ParameterColor)type.parameter[ColorSchemeByType.colorIndex]).setColor(c);
+    }    
+        /*
+    public static void setColor(SpeciesWater s, Color c) {
+        ((ParameterColor)((AtomFactoryHetero)s.moleculeFactory()).childFactory.type().parameter[ColorSchemeByType.colorIndex]).setColor(c);
+    }
+    */       
+   
     /**
      * Demonstrates how this class is implemented.
      */

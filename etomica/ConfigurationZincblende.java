@@ -49,22 +49,22 @@ public class ConfigurationZincblende extends Configuration {
     /**
      * Displays configuration without setting up full simulation.
      */
-/*    public static void main(String[] args) {
-        Simulation sim = new Simulation(new etomica.Space3D());
+    public static void main(String[] args) {
+        etomica.graphics.SimulationGraphic sim = new etomica.graphics.SimulationGraphic(new etomica.Space3D());
         Simulation.instance = sim;
         Default.ATOM_SIZE = 5.0;
     //    Default.DISPLAY_USE_OPENGL = false;
         etomica.Phase phase0  = new etomica.Phase();
-        phase0.setConfiguration(new ConfigurationZincblende(sim.space));
+        phase0.setConfiguration(new ConfigurationZincblende(sim));
         etomica.SpeciesSpheresMono speciesSpheres0  = new etomica.SpeciesSpheresMono();
         etomica.SpeciesSpheresMono speciesSpheres1  = new etomica.SpeciesSpheresMono();
         speciesSpheres0.setNMolecules(32);
         speciesSpheres1.setNMolecules(32);
-        speciesSpheres0.setColor(new java.awt.Color(0,255,0));
-        speciesSpheres1.setColor(java.awt.Color.red);
-        etomica.DisplayPhase displayPhase0  = new etomica.DisplayPhase();
+        etomica.graphics.ColorSchemeByType.setColor(speciesSpheres0,new java.awt.Color(0,255,0));
+        etomica.graphics.ColorSchemeByType.setColor(speciesSpheres1, java.awt.Color.red);
+        etomica.graphics.DisplayPhase displayPhase0  = new etomica.graphics.DisplayPhase();
         sim.mediator().go(); 
-        Simulation.makeAndDisplayFrame(sim);
+        etomica.graphics.SimulationGraphic.makeAndDisplayFrame(sim);
     }//end of main
-  */  
+    
 }//end of ConfigurationZincBlende

@@ -6,10 +6,19 @@ import etomica.*;
 
 import etomica.utility.Iterator;
 
+/**
+ * Action that invokes reset method of all registered simulation elements,
+ * effectively initializing the entire simulation.
+ */
+ 
+ /* History of changes
+  * 7/03/02 (DAK/SKK) Modified to loop through all elements, using reset method (new to SimulationElement).
+  */
+
 public final class SimulationRestart extends SimulationAction {
     
     public SimulationRestart() {
-        setLabel("Restart");
+        setLabel("Reset");
     }
     public SimulationRestart(Simulation sim) {
         this();
@@ -23,7 +32,12 @@ public final class SimulationRestart extends SimulationAction {
             integrator.halt();//request integrator to stop
             integrator.join();//wait till it does
         }
-        for(Iterator iter=sim.phaseList().iterator(); iter.hasNext(); ) {
+        
+        for(Iterator iter=sim.allElements().iterator(); iter.hasNext(); ) {
+            ((SimulationElement)iter.next()).reset();
+        }
+        
+ /*       for(Iterator iter=sim.phaseList().iterator(); iter.hasNext(); ) {
             Phase phase = (Phase)iter.next();
             phase.getConfiguration().initializeCoordinates(((AtomTreeNodeGroup)phase.speciesMaster().node).childAtomArray());
         }
@@ -35,7 +49,7 @@ public final class SimulationRestart extends SimulationAction {
             Controller controller = (Controller)iter.next();
             controller.reset();
         }
-        
+ */       
         for(Iterator iter=sim.meterList().iterator(); iter.hasNext(); ) {
             MeterAbstract meter = (MeterAbstract)iter.next();
             //take care that histxxx is reset but restored to prior OnMeterReset condition

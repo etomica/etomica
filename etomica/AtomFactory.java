@@ -12,6 +12,7 @@ public abstract class AtomFactory {
     public final Simulation parentSimulation;
     private Species species;
     protected Configuration configuration;
+    private AtomSequencer.Factory sequencerFactory;
     protected BondInitializer bondInitializer = BondInitializer.NULL;
     private Atom.AgentSource[] agentSource = new Atom.AgentSource[0];
     protected final AtomType.Group groupType = new AtomType.Group(this);
@@ -21,7 +22,11 @@ public abstract class AtomFactory {
      * @param species the parent species using this factory (may be null)
      */
     public AtomFactory(Simulation sim) {
+        this(sim, sim.getIteratorFactory().simpleSequencerFactory());
+    }
+    public AtomFactory(Simulation sim, AtomSequencer.Factory sequencerFactory) {
         parentSimulation = sim;
+        this.sequencerFactory = sequencerFactory;
         reservoir = new AtomReservoir(this);
     }
     
@@ -59,7 +64,7 @@ public abstract class AtomFactory {
      */
     protected Atom build(AtomTreeNodeGroup parent) {
         Atom group = new Atom(parentSimulation.space, groupType, AtomTreeNodeGroup.FACTORY, 
-                parentSimulation.getIteratorFactory().simpleSequencerFactory(), parent);
+                sequencerFactory, parent);
         return build(group);
     }
     

@@ -205,7 +205,6 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
      */
     public void setPhase(Phase p) {
         if(p == null) return;
-        if(phase != null) phase.iteratorFactoryMonitor.deleteObserver(iteratorFactoryObserver);
         super.setPhase(p);
         canvas.setPhase(p);
         atomIterator = p.makeAtomIterator();

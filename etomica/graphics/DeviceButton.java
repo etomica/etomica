@@ -8,6 +8,10 @@ import javax.swing.JButton;
  * 
  * @author David Kofke
  */
+ 
+ /* History of changes
+  * 7/03/02 (DAK/SKK) Added constructor that takes space as an argument, not registering button with a simulation.
+  */
 public class DeviceButton extends Device implements EtomicaElement {
     
     public String getVersion() {return "DeviceButton:01.05.25/"+Device.VERSION;}
@@ -22,6 +26,21 @@ public class DeviceButton extends Device implements EtomicaElement {
         super(sim);
         button = new JButton();
     }
+    /**
+     * Constructor if button is to be used as part of another device.
+     * Does not register with simulation.
+     */
+    public DeviceButton(Space space) {
+        super(space);
+        button = new JButton();
+    }
+    /**
+     * Constructs button connected to the given action, without registering it with a simulation.
+     */
+    public DeviceButton(Space space, ActionGraphic action) {
+        this(space);
+        setAction(action);
+    }
     
     /**
      * Constructs a button connected to the given action.
@@ -30,6 +49,9 @@ public class DeviceButton extends Device implements EtomicaElement {
         this();
         setAction(action);
     }
+    /**
+     * Connects button to given action, and registers it with Simulation.INSTANCE.
+     */
     public DeviceButton(etomica.Action action) {
         this(new ActionGraphic(action));
         setLabel(action.getLabel());

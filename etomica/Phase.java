@@ -40,6 +40,11 @@ import etomica.utility.Iterator;
  * @see Space.Boundary
  * @see MeterAbstract
  */
+ 
+ /* History of changes
+  * 7/3/02  added reset method
+  */
+  
 public class Phase extends SimulationElement {
         
     private Space.Boundary boundary;
@@ -157,14 +162,24 @@ public class Phase extends SimulationElement {
             integrator.unPause();
         }
      }
+     
+     /**
+      * Resets phase by initializing coordinates according to current instance of configuration.
+      */
+     public void reset() {
+        getConfiguration().initializeCoordinates(((AtomTreeNodeGroup)speciesMaster().node).childAtomArray());
+     }
+        
 
     /**
-     * Indicates the Boundary object of the phase
+     * Returns the current boundary instance.
      * 
-     * @return An integer that codes for the boundary via a static variable in Space.Boundary
+     * @return The current instance of the boundary class
      */
-//    public final int getBoundary() {return iBoundary;}
     public final Space.Boundary getBoundary() {return boundary;}
+    /**
+     * Same as getBoundary.
+     */
     public final Space.Boundary boundary() {return boundary;}
     
     /**
@@ -305,7 +320,6 @@ public class Phase extends SimulationElement {
         
     public Phase.Monitor integratorMonitor = new Phase.Monitor();
     public Phase.Monitor boundaryMonitor = new Phase.Monitor();
-    public Phase.Monitor iteratorFactoryMonitor = new Phase.Monitor();
 //    public SimulationEventManager integratorMonitor = new SimulationEventManager();
     
     public static class Monitor extends Observable implements java.io.Serializable {

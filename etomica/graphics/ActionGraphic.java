@@ -8,6 +8,10 @@ import etomica.*;
  * @author David Kofke
  */
  
+ /* History of changes
+  * 7/03/02 (DAK/SKK) modified so that instance gets value of label of wrapped action.
+  */
+ 
  public class ActionGraphic extends etomica.Action implements java.awt.event.ActionListener,
                                                                etomica.SimulationListener { 
     
@@ -15,6 +19,7 @@ import etomica.*;
     
     public ActionGraphic(etomica.Action action) {
         simulationAction = action;
+        setLabel(action.getLabel());
     }
     
     public void actionPerformed(SimulationEvent evt) {

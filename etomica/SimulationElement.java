@@ -8,6 +8,11 @@ package etomica;
  *
  * @author David Kofke
  */
+ 
+ /* History of changes
+  *  7/3/02 (DAK/SKK) Added reset method 
+  */
+  
 public class SimulationElement implements java.io.Serializable {
     
     private final Simulation parentSimulation;
@@ -41,6 +46,16 @@ public class SimulationElement implements java.io.Serializable {
     public final void setAdded(boolean b) {added = b;}
     
     public final Class baseClass() {return baseClass;}
+    
+    /**
+     * Resets the element to some initial condition.  Invoking this on all elements in
+     * a simulation should put the system in an "initialized" state, ready to begin
+     * a new simulation run.  It is not guaranteed that the initial state will be identical
+     * to that when the simulation is loaded.  Changes in the instance of boundary, system size,
+     * the instance of configuration in phase, and so on, are not in general undone to restore
+     * the system to its original condition.
+     */
+    public void reset() {}
 
     /**
      * Accessor method of the name of this species

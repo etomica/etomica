@@ -24,8 +24,12 @@ public class AtomFactoryHetero extends AtomFactory {
      * @param config the configuration applied to each group that is built (default is Linear).
      */
     public AtomFactoryHetero(Simulation sim, AtomFactory[] factory, 
-                            Configuration config) {    
-        super(sim);
+                            Configuration config) {
+        this(sim, factory, config, sim.getIteratorFactory().simpleSequencerFactory());
+    }
+    public AtomFactoryHetero(Simulation sim, AtomFactory[] factory, 
+                            Configuration config, AtomSequencer.Factory sequencerFactory) {
+        super(sim, sequencerFactory);
         childFactory = factory;
         configuration = config;
         //set up fields of Group type

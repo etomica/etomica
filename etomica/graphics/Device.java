@@ -15,12 +15,25 @@ public abstract class Device extends SimulationElement implements GraphicalEleme
     public static final String VERSION = "Device:01.01.17";
     
     protected Unit unit;
+    private static int nonSimCount = 0;//number of times instantiated without a parent simulation
     
     public Device(Simulation sim) {
         super(sim, Device.class);
     }
+    /**
+     * Constructor for situtions when Device is not to be used
+     * stand-alone as part of a simulation, but is part of another device.
+     */
+    public Device(Space space) {
+        super(space, Device.class, nonSimCount++);
+    }
         
     public abstract Component graphic(Object obj);
+    
+    /**
+     * Same as graphic method with a null argument.
+     */
+    public final Component graphic() {return graphic(null);}
     
     public void setUnit(Unit u) {unit = u;}
     public Unit getUnit() {return unit;}

@@ -274,6 +274,37 @@ public class Mediator implements java.io.Serializable {
                 }
             }
         }//end of Default
+        
+        public static class NoCentralImage extends IntegratorPhase {
+            public NoCentralImage(Mediator m) {
+                super(m);
+                setSuperceding(true);
+            }
+            /**
+             * Loops over all integrators and adds phase to first that wants a phase
+             */
+            public void add(Phase phase) {
+                for(Iterator is=mediator.parentSimulation().integratorList().iterator(); is.hasNext(); ) {
+                    Integrator integrator = (Integrator)is.next();
+                    if(integrator.wasAdded() && integrator.wantsPhase() && phase.integrator()==null) {
+                        phase.setIntegrator(integrator);
+                    }
+                    break;
+                }
+            }
+            /**
+             * Sets this as the integrator for all phases that have no integrator.
+             */
+            public void add(Integrator integrator) {
+                for(Iterator ip=mediator.parentSimulation().phaseList().iterator(); ip.hasNext(); ) {
+                    Phase phase = (Phase)ip.next();
+                    if(phase.wasAdded() && integrator.wantsPhase() && phase.integrator() == null) { 
+                        phase.setIntegrator(integrator);
+                    }
+                }
+            }
+        }//end of NoCentralImage
+        
     }//end of IntegratorPhase
 
     public abstract static class MeterPhase extends Subset {

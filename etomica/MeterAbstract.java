@@ -85,7 +85,6 @@ public abstract class MeterAbstract extends SimulationElement implements Integra
     
     private transient Observer integratorObserver;
     private transient Observer boundaryObserver;
-    private transient Observer iteratorFactoryObserver;
     
     boolean histogramming = false;
     boolean historying = false;
@@ -135,7 +134,6 @@ public abstract class MeterAbstract extends SimulationElement implements Integra
 //	        phase.removeMeter(this);
     	    if(integratorObserver != null) phase.integratorMonitor.deleteObserver(integratorObserver);
     	    if(boundaryObserver != null) phase.boundaryMonitor.deleteObserver(boundaryObserver);
-	        if(iteratorFactoryObserver != null) phase.iteratorFactoryMonitor.deleteObserver(iteratorFactoryObserver);
 	    }
 	    if(p == null) { //setting meter to have no phase
 	        setPhaseIntegrator(null);
@@ -145,7 +143,6 @@ public abstract class MeterAbstract extends SimulationElement implements Integra
 	    else { //given phase is not null
 	        //update the phase handle
 	        phase = p;
-//	        p.addMeter(this);
 	        //list this meter as an interval listener of phase integrator
 	        setPhaseIntegrator(p.integrator()); 
 	        //add an observer to the phase to make sure this meter is notified if the integrator changes
