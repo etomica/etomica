@@ -5,6 +5,7 @@
 package etomica.action;
 
 import etomica.Space;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.space.Vector;
 
 /**
@@ -15,6 +16,7 @@ import etomica.space.Vector;
 public final class PhaseTranslate extends PhaseActionAdapter implements Undoable {
 
 	private final Vector translationVector;
+    private final AtomIteratorLeafAtoms iterator;
 
 	/**
 	 * Constructor requires space instance to define a translation vector.
@@ -24,6 +26,8 @@ public final class PhaseTranslate extends PhaseActionAdapter implements Undoable
 	public PhaseTranslate(Space space) {
 		super("PhaseTranslate");
 		translationVector = space.makeVector();
+        iterator = new AtomIteratorLeafAtoms();
+        
 	}
 
 	/**
@@ -49,7 +53,11 @@ public final class PhaseTranslate extends PhaseActionAdapter implements Undoable
 	public void actionPerformed() {
 		if (phase == null)
 			return;
-		phase.speciesMaster().coord.translateBy(translationVector);
+        iterator.setPhase(phase);
+        iterator.reset();
+        while(iterator.hasNext()) {
+            iterator.nextAtom().coord.position().PE(translationVector);
+        }
 	}
 
 	/**
