@@ -1,4 +1,4 @@
-package etomica.virial.overlap;
+package etomica.virial;
 
 import etomica.*;
 
@@ -55,6 +55,7 @@ public class MCMoveAtomMulti extends MCMoveAtom {
 
 	public double lnProbabilityRatio() {
 		uNew = potential.calculate(phase, iteratorDirective.set(), energy.reset()).sum();
+//		if(phase.index == 3) System.out.println(phase.index+"  "+parentIntegrator.temperature()+"  "+(-(uNew-uOld)));
 		return -(uNew - uOld)/parentIntegrator.temperature();
 	}
 	

@@ -72,16 +72,7 @@ public class Cluster {
 	public BondGroup[] bondGroup() {return bondGroup;}
 	
 	public boolean hasOddBondCount() {return (bondCount % 2) != 0;}
-	
-	/**
-	 * Value of cluster using pairset last specified in setPairSet method.
-	 * @param beta
-	 * @return double
-	 */
-	public double value(double beta) {
-		return value(pairSet, beta);
-	}
-	
+		
 	/**
 	 * Returns the value of the cluster for the given set of atom pairs at the
 	 * given value of beta = 1/kT.
@@ -147,7 +138,6 @@ public class Cluster {
 	protected int bondCount;
 	private MayerFunction[][] bondArray;
 	private BondGroup[] bondGroup;
-	private PairSet pairSet;
 	
 	/**
 	 * Data structure for specifying a bond that is present between one or more
@@ -162,21 +152,4 @@ public class Cluster {
 			this.pairs = pairs;
 		}
 	}
-	
-	/**
-	 * Returns the pairSet.
-	 * @return PairSet
-	 */
-	public PairSet getPairSet() {
-		return pairSet;
-	}
-
-	/**
-	 * Sets the pairSet.
-	 * @param pairSet The pairSet to set
-	 */
-	public void setPairSet(PairSet pairSet) {
-		this.pairSet = pairSet;
-	}
-
 }

@@ -49,4 +49,12 @@ public final class Standard {
 	public static final int[][] D4 = ring(4);
 	public static final int[][] D5 = new int[][] {{0,1},{0,2},{0,3},{1,2},{2,3}};
 	public static final int[][] D6 = full(4);
+	
+	public static double B2HS(double sigma) {
+		return 2.0*Math.PI/3.0 * sigma*sigma*sigma;
+	}
+	public static double C3HS(double sigma) {
+		double b0 = B2HS(sigma);
+		return -5./8. * b0 * b0;
+	}
 }

@@ -4,7 +4,6 @@ import etomica.Atom;
 import etomica.AtomIterator;
 import etomica.Configuration;
 import etomica.Default;
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.Space;
 
@@ -45,7 +44,7 @@ public class ConfigurationCluster extends Configuration {
 		AtomIterator iter = iterator[0];
 		iter.reset();
 		while(iter.hasNext()) iter.next().coord.translateTo(center);//put all at center of box
-		double value = cluster.value(1.0);
+		double value = cluster.value(phase.getPairSet(), 1.0);
 		while( value == 0 || (signPositive != (value>0.0))) { //if center is not ok, keep trying random positions until ok
 			iter.reset();
 			iter.next().coord.translateTo(center);
@@ -53,13 +52,13 @@ public class ConfigurationCluster extends Configuration {
 				Atom a = iter.next();
 				a.coord.translateToRandom(phase);	
 			}
-			value = cluster.value(1.0);
+			value = cluster.value(phase.getPairSet(),1.0);
 		}//end while
 	}
 
 	boolean signPositive;
 	Cluster cluster;
-	Phase phase;
+	PhaseCluster phase;
 	/**
 	 * Returns the cluster.
 	 * @return Cluster
@@ -72,7 +71,7 @@ public class ConfigurationCluster extends Configuration {
 	 * Returns the phase.
 	 * @return Phase
 	 */
-	public Phase getPhase() {
+	public PhaseCluster getPhase() {
 		return phase;
 	}
 
@@ -96,7 +95,7 @@ public class ConfigurationCluster extends Configuration {
 	 * Sets the phase.
 	 * @param phase The phase to set
 	 */
-	public void setPhase(Phase phase) {
+	public void setPhase(PhaseCluster phase) {
 		this.phase = phase;
 	}
 

@@ -26,11 +26,14 @@ public class PhaseCluster extends Phase {
 		setBoundary(space.makeBoundary(etomica.Space3D.Boundary.NONE));	
 	}
 	
-	public PairSet pairSet() {
+	public PairSet getPairSet() {
 		if(pairSet == null && speciesMaster.atomList.size() > 0) {
 			pairSet = new PairSet(speciesMaster.atomList);
 		}
 		return pairSet;
+	}
+	public void setPairSet(PairSet pairs) {
+		this.pairSet = pairs;
 	}
 
 	private PairSet pairSet;

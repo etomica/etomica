@@ -3,8 +3,8 @@ package etomica.virial.simulations;
 import etomica.*;
 import etomica.graphics.*;
 import etomica.virial.*;
-import etomica.virial.cluster.*;
 import etomica.virial.overlap.*;
+import etomica.virial.cluster.*;
 
 /**
  * @author kofke
@@ -42,16 +42,13 @@ public class SimulationVirialOS extends SimulationGraphic {
 
 ///////// reference-system simulation				
 		refSimulation = new SimulationGraphic(space);
-		phase = new Phase(refSimulation);
+		phase = new PhaseCluster(refSimulation);
 		phase.setBoundary(space.makeBoundary(Space3D.Boundary.NONE));	
 		species = new SpeciesSpheresMono(refSimulation);
 		species.setNMolecules(nMolecules);
 		species.setDiameter(sigmaHSRef);
 		refSimulation.elementCoordinator.go();
 		pairs = new PairSet(((AtomTreeNodeGroup)phase.getAgent(species).node).childList);
-
-		refCluster.setPairSet(pairs);
-		targetCluster.setPairSet(pairs);		
 		
 		Controller controller = new Controller(refSimulation);		
 		DeviceTrioControllerButton controlPanel = new DeviceTrioControllerButton(refSimulation);
@@ -64,10 +61,9 @@ public class SimulationVirialOS extends SimulationGraphic {
 		}
 		
 		//set up simulation potential for reference cluster
-		P2ClusterSigned p2 = new P2ClusterSigned(refSimulation.hamiltonian.potential, pairs);
-		p2.setCluster(refCluster);
-		p2.setSignPositive(refPositive);
-		p2.setTemperature(simTemperature);			
+		P0ClusterSigned p0 = new P0ClusterSigned(refSimulation.hamiltonian.potential, refCluster);
+		p0.setCluster(refCluster);
+		p0.setSignPositive(refPositive);
 
 	  boolean simulatingTarget = false;
 	  boolean targetPositive = false;
@@ -117,10 +113,10 @@ public class SimulationVirialOS extends SimulationGraphic {
 	private double simTemperature;
 	private double refTemperature;
 	private PairSet pairs;
-	private P2Cluster p2;
+	private P0Cluster p2;
 	private SpeciesSpheresMono species;
 	protected IntegratorMC integrator;
-	private Phase phase;
+	private PhaseCluster phase;
 	public final SimulationGraphic refSimulation; 
 	
 	public Phase phase() {return phase;}
@@ -170,11 +166,11 @@ public class SimulationVirialOS extends SimulationGraphic {
 		return pairs;
 	}
 		
-	public P2Cluster getSimPotential() {
+	public P0Cluster getSimPotential() {
 		return p2;
 	}
 	
-	public void setSimPotential(P2Cluster p2) {
+	public void setSimPotential(P0Cluster p2) {
 		this.p2 = p2;
 	}
 	
@@ -193,16 +189,16 @@ public class SimulationVirialOS extends SimulationGraphic {
 		System.out.println("b0: "+b0);
 		System.out.println("B3HS: "+(-5./8.*b0*b0));
 //		sigmaHSRef = 1.0;
-		int nMolecules = 5;
+		int nMolecules = 3;
 		boolean doSleep = true;
 		
 		P2LennardJones p2LJ = new P2LennardJones(Simulation.instance.hamiltonian.potential);//parent of this potential will not be connected to the simulation
 		MayerGeneral f = new MayerGeneral(p2LJ);
 		
 		//take care to define other clusters (below) appropriately if using ReeHoover
-//		Cluster targetCluster = new Full(nMolecules, 1.0, f);
-		Cluster targetCluster = new Cluster(5,1.0,
-			new Cluster.BondGroup(f, new int[][] {{0,1},{0,2},{0,3},{0,4},{1,2},{1,3},{2,3},{2,4},{3,4}}));
+		Cluster targetCluster = new Full(nMolecules, 1.0, f);
+//		Cluster targetCluster = new Cluster(5,1.0,
+//			new Cluster.BondGroup(f, new int[][] {{0,1},{0,2},{0,3},{0,4},{1,2},{1,3},{2,3},{2,4},{3,4}}));
 //		Cluster targetCluster = new etomica.virial.cluster.ReeHoover(4, 1.0, new Cluster.BondGroup(f, Standard.D4));
 
 		SimulationVirialOS sim = new SimulationVirialOS(temperature, targetCluster, sigmaHSRef);

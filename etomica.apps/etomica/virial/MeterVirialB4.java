@@ -14,8 +14,8 @@ import etomica.virial.cluster.Standard;
  */
 public class MeterVirialB4 extends MeterVirial {
 	
-	public MeterVirialB4(Simulation sim, PairSet pairSet, double refSigma, P2Cluster simulationPotential, Potential2 targetPotential) {
-		super(sim, pairSet, 
+	public MeterVirialB4(Simulation sim, double refSigma, P0Cluster simulationPotential, Potential2 targetPotential) {
+		super(sim, 
 				1.0, new etomica.virial.cluster.D4(new MayerHardSphere(refSigma)), D4HS(refSigma),
 				B4Clusters(targetPotential),
 				simulationPotential);

@@ -16,33 +16,36 @@ public class MeterVirial extends MeterGroup implements DatumSource {
 	private Cluster refCluster;
 	private double refIntegral;
 	private double refTemperature, refBeta;
-	private P2Cluster simulationPotential;
+	private P0Cluster simulationPotential;
 	private double temperature, beta;
-	private PairSet pairSet;
 	
 	/**
 	 * Constructor for MeterVirial.
 	 * @param sim
 	 */
-	public MeterVirial(Simulation sim, PairSet pairSet, 
+	public MeterVirial(Simulation sim, 
 						double refTemperature, Cluster refCluster, double refIntegral, 
-						Cluster[] clusters, P2Cluster simulationPotential) {
+						Cluster[] clusters, P0Cluster simulationPotential) {
 		super(sim, clusters.length+1);
-		this.pairSet = pairSet;
-		N = pairSet.nMolecules();
+		N = refCluster.pointCount();
 		this.clusters = clusters;
 		this.refCluster = refCluster;
 		this.refIntegral = refIntegral;
 		this.simulationPotential = simulationPotential;
 		setTemperature(Default.TEMPERATURE);
 		setReferenceTemperature(refTemperature);
+		allMeters()[0].setLabel("Ref perturb");
+		for(int i=1; i<nMeters; i++) {
+			allMeters()[i].setLabel("Cluster "+i);
+		}
 	}
 
 	/**
 	 * @see etomica.MeterGroup#updateValues()
 	 */
 	public void updateValues() {
-		double pi = simulationPotential.pi();
+		PairSet pairSet = ((PhaseCluster)phase).getPairSet();
+		double pi = simulationPotential.pi((PhaseCluster)phase);
 		currentValues[0] = refCluster.value(pairSet, refBeta)/pi;
 		for(int i=1; i<nMeters; i++) currentValues[i] = clusters[i-1].value(pairSet, beta)/pi;
 	}
@@ -62,13 +65,6 @@ public class MeterVirial extends MeterGroup implements DatumSource {
 	 */
 	public Dimension getDimension() {
 		return Dimension.NULL;
-	}
-	
-	public void setPairs(PairSet pairs) {
-		this.pairSet = pairs;
-	}
-	public PairSet getPairs() {
-		return pairSet;
 	}
 
 	/**

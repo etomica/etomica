@@ -17,16 +17,18 @@ public class MeterVirialB3 extends MeterVirial {
 	 * @param simulationPotential
 	 * @param targetPotential
 	 */
-	public MeterVirialB3(Simulation sim, PairSet pairSet, double refSigma, P2Cluster simulationPotential, Potential2 targetPotential) {
-		super(sim, pairSet, 
-				1.0, new etomica.virial.cluster.C3(new MayerHardSphere(refSigma)), B3HS(refSigma),
-				B3Clusters(targetPotential),
-				simulationPotential);
+	public MeterVirialB3(Simulation sim, double refSigma, P0Cluster simulationPotential, Potential2 targetPotential) {
+		super(sim,
+				1.0, //refTemperature
+				new etomica.virial.cluster.C3(new MayerHardSphere(refSigma)),//refCluster 
+				B3HS(refSigma),//refIntegral
+				B3Clusters(targetPotential),//target clusters
+				simulationPotential);//sampling potential
+		System.out.println("In MeterVirialB3, refIntegral = "+B3HS(refSigma));
 	}
 	
 	public static double B3HS(double sigma) {
-		double b0 = 2.*Math.PI/3 * sigma*sigma*sigma;
-		return -5./8. * b0 * b0;
+		return etomica.virial.cluster.Standard.C3HS(sigma);
 	}
 	
 	public static Cluster[] B3Clusters(Potential2 potential) {

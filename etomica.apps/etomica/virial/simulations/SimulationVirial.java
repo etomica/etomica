@@ -3,6 +3,7 @@ package etomica.virial.simulations;
 import etomica.*;
 import etomica.graphics.*;
 import etomica.virial.*;
+import etomica.virial.cluster.*;
 
 /**
  * @author kofke
@@ -31,7 +32,7 @@ public class SimulationVirial extends SimulationGraphic {
 		Default.makeLJDefaults();
 		Default.TRUNCATE_POTENTIALS = false;
 		
-		final Phase phase = new Phase(this);
+		final PhaseCluster phase = new PhaseCluster(this);
 		phase.setBoundary(this.space.makeBoundary(Space3D.Boundary.NONE));	
 		species = new SpeciesSpheresMono(this);
 		species.setNMolecules(nMolecules);
@@ -45,6 +46,9 @@ public class SimulationVirial extends SimulationGraphic {
 		integrator.setDoSleep(false);
 		integrator.setTemperature(simTemperature);
 		MCMoveAtom mcMoveAtom = new MeterVirial.MyMCMoveAtom(integrator);
+		for(int n=2; n<nMolecules; n++) {
+			new MCMoveAtomMulti(integrator, n);
+		}
 		
 		DisplayPhase display = new DisplayPhase();
 		ColorSchemeByType.setColor(species, java.awt.Color.green);
@@ -79,7 +83,7 @@ public class SimulationVirial extends SimulationGraphic {
 	private double simTemperature;
 	private double refTemperature;
 	private PairSet pairs;
-	private P2Cluster p2;
+	private P0Cluster p2;
 	private SpeciesSpheresMono species;
 	protected IntegratorMC integrator;
 	
@@ -114,7 +118,6 @@ public class SimulationVirial extends SimulationGraphic {
 	 */
 	public void setMeterVirial(MeterVirial meterVirial) {
 		this.meterVirial = meterVirial;
-		meterVirial.setPairs(pairs);
 
 		MeterDatumSourceWrapper bMeter = new MeterDatumSourceWrapper(meterVirial);
 		bMeter.setHistorying(true);
@@ -165,11 +168,11 @@ public class SimulationVirial extends SimulationGraphic {
 		return pairs;
 	}
 		
-	public P2Cluster getSimPotential() {
+	public P0Cluster getSimPotential() {
 		return p2;
 	}
 	
-	public void setSimPotential(P2Cluster p2) {
+	public void setSimPotential(P0Cluster p2) {
 		this.p2 = p2;
 	}
 	
@@ -179,29 +182,68 @@ public class SimulationVirial extends SimulationGraphic {
 		
 	public static void main(String[] args) {
 		double temperature = 1.3;  //temperature of calculated virial coefficient
-		double simTemperature = 1.0*temperature; //temperature governing sampling of configurations
-		double sigmaHSRef = sigmaLJ1B(1.0/simTemperature);  //diameter of reference HS system
+		double simTemperature = 0.8*temperature; //temperature governing sampling of configurations
+		double sigmaHSRef = 1.0;//*sigmaLJ1B(1.0/simTemperature);  //diameter of reference HS system
 		double sigmaHSMod = sigmaLJ1B(1.0/simTemperature); //range in which modified-f for sampling will apply abs() function
 		System.out.println((1./simTemperature)+" "+sigmaHSRef);
 		System.out.println((1./temperature)+" "+sigmaHSMod);
-		int nMolecules = 3;
-//		int nMolecules = 4;
+		int nMolecules = 4;
 		SimulationVirial sim = new SimulationVirial(nMolecules, simTemperature);
 		
 		sim.species().setDiameter(sigmaHSRef);
 		
 		//set up simulation potential
-		P2Cluster p2 = new P2Cluster(sim.hamiltonian.potential, sim.pairs());
-		p2.setTemperature(simTemperature);		
-		P2LennardJones p2LJ = new P2LennardJones(p2);
-		MayerModified f = new MayerModified(p2LJ, sigmaHSMod);
-		Cluster ring = new etomica.virial.cluster.Ring(nMolecules, 1.0, f);
-		p2.setCluster(ring);				
+		P2LennardJones p2LJ = new P2LennardJones(new Simulation());//give dummy simulation
+		Simulation.instance = sim;
+//		MayerModified f = new MayerModified(p2LJ, sigmaHSMod);
+		MayerFunction f = new MayerGeneral(p2LJ);
+		Cluster ring = new Ring(nMolecules, 1.0, f);
+		P0Cluster p2 = new P0Cluster(sim.hamiltonian.potential, ring);
 		sim.setSimPotential(p2);
 		
-		MeterVirial meterVirial = (nMolecules==3) ? (MeterVirial)new MeterVirialB3(sim, sim.pairs(), sigmaHSRef, p2, p2LJ)
-												  : (MeterVirial)new MeterVirialB4(sim, sim.pairs(), sigmaHSRef, p2, p2LJ);
+		MeterVirial meterVirial = (nMolecules==3) ? (MeterVirial)new MeterVirialB3(sim, sigmaHSRef, p2, p2LJ)
+												  : (MeterVirial)new MeterVirialB4(sim, sigmaHSRef, p2, p2LJ);
 		meterVirial.setTemperature(temperature);
+		meterVirial.setBlockSize(10000);
 		sim.setMeterVirial(meterVirial);
+
+		DisplayTable meterClusterTable = new DisplayTable();
+		meterClusterTable.setDatumSources(meterVirial);
+		meterClusterTable.setLabel("Cluster");
+		meterClusterTable.setWhichValues(
+			new DataSource.ValueType[] {MeterAbstract.CURRENT, MeterAbstract.AVERAGE, MeterAbstract.ERROR});
+		meterClusterTable.setUpdateInterval(10000);
+		meterClusterTable.setPrecision(5);
+		//Evaluates virial using HS-excess cluster
+		//Gamma = GammaHS(0) + (GammaHS(1)-GammaHS(0))*[<g-gHS0>_abs(g-gHS0)]/[<gHS1-gHS0>_abs(g-gHS0)]
+		//Calculated here is Gamma - GammaHS(0)
+//		double sigmaHSRef = sigmaLJ1B(1.0/simTemperature);  //diameter of reference HS system
+//		int nMolecules = 3;
+//		SimulationVirial sim = new SimulationVirial(nMolecules, simTemperature);
+//		
+//		sim.species().setDiameter(sigmaHSRef);
+//		
+//		//set up simulation potential
+//		P2LennardJones p2LJ = new P2LennardJones(new Simulation());//give dummy simulation
+//		Simulation.instance = sim;
+//		MayerGeneral f = new MayerGeneral(p2LJ);
+//		Cluster ring = new Ring(nMolecules, 1.0, f);
+//		Cluster hs1 = new Cluster(new MayerHardSphere(sigmaHSRef), ring);
+//		
+//		Cluster simCluster = new ExcessHS(ring);
+//		Cluster targetCluster = new ExcessHS(ring);
+//		Cluster refCluster = new ExcessHS(hs1);
+//		double refIntegral = Standard.C3HS(sigmaHSRef) - Standard.C3HS(1.0);
+//		P0Cluster p0 = new P0Cluster(sim.hamiltonian.potential, simCluster);
+//		sim.setSimPotential(p0);
+//		
+//		MeterVirial meterVirial = new MeterVirial(sim, 1.0, refCluster,
+//					refIntegral, new Cluster[] {targetCluster}, p0);
+//		meterVirial.setTemperature(temperature);
+//		sim.setMeterVirial(meterVirial);
+		sim.elementCoordinator.go();
+		meterClusterTable.setDatumSources(meterVirial.allMeters());
+		meterClusterTable.addDatumSources(meterVirial);
+
 	}//end of main
 }

@@ -4,6 +4,7 @@ import etomica.MeterFunction;
 import etomica.Simulation;
 import etomica.units.Dimension;
 import etomica.virial.Cluster;
+import etomica.virial.PhaseCluster;
 
 /**
  * @author kofke
@@ -23,7 +24,7 @@ public class MeterOverlapTarget extends MeterFunction implements etomica.DatumSo
 	public MeterOverlapTarget(Simulation sim, boolean signPositive, 
 			Cluster targetCluster, Cluster refCluster) {
 		super(sim);
-		setX(-5, 5, 100);
+		setX(-5, 5, 1000);
 		this.cluster0 = targetCluster;
 		this.cluster1 = refCluster;
 		setSignPositive(signPositive);
@@ -48,14 +49,14 @@ public class MeterOverlapTarget extends MeterFunction implements etomica.DatumSo
 	 * @see etomica.MeterFunction#currentValue()
 	 */
 	public double[] currentValue() {
-		double v0 = Math.abs(cluster0.value(beta));
-		double v1 = cluster1.value(beta);
+		double v0 = Math.abs(cluster0.value(((PhaseCluster)phase).getPairSet(),beta));
+		double v1 = cluster1.value(((PhaseCluster)phase).getPairSet(),beta);
 		if(signPositive != (v1>0)) v1 = 0.0;
 		else v1 = Math.abs(v1);
 //		System.out.println(v1);
 		for(int i=0; i<nPoints; i++) {
 //			y[i] = 1.0/v0/(1.0/v0 + Math.exp(x[i])/v1);
-			y[i] = 1.0/(1.0 + Math.exp(-x[i])*v0/v1);
+			y[i] = 1.0/(1.0 + expX[i]*v0/v1);
 		}
 		return y;
 	}
@@ -63,6 +64,8 @@ public class MeterOverlapTarget extends MeterFunction implements etomica.DatumSo
 	public double value(etomica.DataSource.ValueType dummy) {
 		return average()[nPoints/2];
 	}
+	
+	
 
 	/**
 	 * @see etomica.MeterAbstract#getDimension()
@@ -73,6 +76,7 @@ public class MeterOverlapTarget extends MeterFunction implements etomica.DatumSo
 
 	private Cluster cluster0, cluster1;
 	double temperature, beta;
+	double[] expX;
 	/**
 	 * Returns the temperature.
 	 * @return double
@@ -105,6 +109,17 @@ public class MeterOverlapTarget extends MeterFunction implements etomica.DatumSo
 	 */
 	public void setSignPositive(boolean signPositive) {
 		this.signPositive = signPositive;
+	}
+
+	/**
+	 * @see etomica.MeterFunction#setX(double, double, int)
+	 */
+	public void setX(double min, double max, int n) {
+		super.setX(min, max, n);
+		expX = new double[n];
+		for(int i=0; i<n; i++) {
+			expX[i] = Math.exp(-x[i]);
+		}
 	}
 
 }

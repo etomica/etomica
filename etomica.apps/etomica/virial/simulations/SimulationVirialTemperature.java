@@ -45,7 +45,7 @@ public class SimulationVirialTemperature extends SimulationVirial {
 		sim.integrator().setDoSleep(true);
 		
 		//set up simulation potential
-		P2Cluster p2 = new P2Cluster(sim.hamiltonian.potential, sim.pairs());
+		P0Cluster p2 = new P0Cluster(sim.hamiltonian.potential, sim.pairs());
 		p2.setTemperature(simTemperature);		
 		P2LennardJones p2LJ = new P2LennardJones(p2);
 		MayerModified fSim = new MayerModified(p2LJ, sigmaHSMod);

@@ -23,16 +23,12 @@ public class SimulationOSTarget extends SimulationGraphic {
 		double sigmaHSRef = 1.0*((MayerHardSphere)refCluster.bondGroup()[0].f).getSigma();
 		boolean refPositive = !refCluster.hasOddBondCount();
 
-		phase = new Phase(this);
+		phase = new PhaseCluster(this);
 		phase.setBoundary(space.makeBoundary(Space3D.Boundary.NONE));	
 		species = new SpeciesSpheresMono(this);
 		species.setNMolecules(nMolecules);
 		species.setDiameter(sigmaHSRef);
 		this.elementCoordinator.go();
-		pairs = new PairSet(((AtomTreeNodeGroup)phase.getAgent(species).node).childList);
-
-		refCluster.setPairSet(pairs);
-		targetCluster.setPairSet(pairs);		
 		
 		Controller controller = new Controller(this);		
 		DeviceTrioControllerButton controlPanel = new DeviceTrioControllerButton(this);
@@ -45,10 +41,8 @@ public class SimulationOSTarget extends SimulationGraphic {
 		}
 		
 		//set up simulation potential for reference cluster
-		P2ClusterSigned p2 = new P2ClusterSigned(this.hamiltonian.potential, pairs);
-		p2.setCluster(targetCluster);
-		p2.setSignPositive(targetPositive);
-		p2.setTemperature(simTemperature);			
+		P0ClusterSigned p0 = new P0ClusterSigned(this.hamiltonian.potential, targetCluster);
+		p0.setSignPositive(targetPositive);
 	
 	    ConfigurationCluster configuration = new ConfigurationCluster(this);
 	    configuration.setPhase(phase);
@@ -78,11 +72,10 @@ public class SimulationOSTarget extends SimulationGraphic {
 	private MeterOverlapTarget meter;
 	private double simTemperature;
 	private double refTemperature;
-	private PairSet pairs;
-	private P2Cluster p2;
+	private P0Cluster p2;
 	private SpeciesSpheresMono species;
 	protected IntegratorMC integrator;
-	private Phase phase;
+	private PhaseCluster phase;
 
 	public Phase phase() {return phase;}
 	
@@ -127,15 +120,11 @@ public class SimulationOSTarget extends SimulationGraphic {
 		this.simTemperature = simTemperature;
 	}
 	
-	public PairSet pairs() {
-		return pairs;
-	}
-		
-	public P2Cluster getSimPotential() {
+	public P0Cluster getSimPotential() {
 		return p2;
 	}
 	
-	public void setSimPotential(P2Cluster p2) {
+	public void setSimPotential(P0Cluster p2) {
 		this.p2 = p2;
 	}
 	

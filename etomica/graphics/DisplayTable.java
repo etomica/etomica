@@ -4,9 +4,7 @@ import etomica.*;
 import java.awt.Component;
 import javax.swing.JTable;
 import javax.swing.table.*;
-import javax.swing.Box;
 import javax.swing.JScrollPane;
-import etomica.units.Unit;
 import java.awt.event.*;
 
 /**
@@ -75,6 +73,7 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
         table = new JTable(tableSource);
         if(!fitToWindow) table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         table.setDefaultRenderer(Number.class, numberRenderer);
+        table.setDefaultRenderer(Double.class, numberRenderer);
         panel.add(new JScrollPane(table));
         doUpdate();
         
@@ -168,6 +167,7 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
         public void keyPressed(KeyEvent evt) {
             char c = evt.getKeyChar();
             if(Character.isDigit(c)) {
+            	System.out.println("Setting precision "+Character.getNumericValue(c));
                 setPrecision(Character.getNumericValue(c));
                 panel.repaint();
             }

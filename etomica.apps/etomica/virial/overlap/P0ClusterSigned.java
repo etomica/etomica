@@ -1,6 +1,5 @@
 package etomica.virial.overlap;
 
-import etomica.AtomSet;
 import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.PotentialCalculation;
@@ -15,15 +14,19 @@ import etomica.virial.*;
  * if the sign of the value is not positive or negative (depending on
  * specification given via setSign method.
  */
-public class P2ClusterSigned extends P2Cluster {
+public class P0ClusterSigned extends P0Cluster {
 
 	/**
 	 * Constructor for P2ClusterSigned.
 	 * @param parent
 	 * @param pairs
 	 */
-	public P2ClusterSigned(SimulationElement parent, PairSet pairs) {
-		super(parent, pairs);
+	public P0ClusterSigned(SimulationElement parent) {
+		super(parent);
+		setSignPositive(true);
+	}
+	public P0ClusterSigned(SimulationElement parent, Cluster cluster) {
+		super(parent, cluster);
 		setSignPositive(true);
 	}
 
@@ -31,22 +34,24 @@ public class P2ClusterSigned extends P2Cluster {
 	/**
 	 * @see etomica.Potential0#energy(etomica.Phase)
 	 */
-	public void calculate(AtomSet basis, IteratorDirective id, PotentialCalculation pc) {
+	public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
 	   if(!enabled) return;
+	   double beta = 1.0/phase.integrator().temperature();
+	   PairSet pairs = ((PhaseCluster)phase).getPairSet();
 	   g = cluster.value(pairs, beta);
 //	   switch(id.atomCount()) {
 //			case 0: g = cluster.value(pairs, beta); break;
 //			case 1: g = cluster.value(id.atom1(), pairs, beta); break;
 //			default: throw new RuntimeException();
 //	   }
-	   ((PotentialCalculationEnergySum)pc).set(this).actionPerformed((Phase)null);
+	   ((PotentialCalculationEnergySum)pc).set(this).actionPerformed(phase);
 	}//end of calculate
 
 	public double energy(Phase phase) {
 		if(g == 0) return Double.POSITIVE_INFINITY;
 //		double absg = (g>0) ? g : -g;
 		if( signPositive != (g>0)) return Double.POSITIVE_INFINITY;
-		else return -temperature*Math.log( (g>0) ? g : -g); //arg to log is abs(g)
+		else return -phase.integrator().temperature()*Math.log( (g>0) ? g : -g); //arg to log is abs(g)
 	}
 
 	/**

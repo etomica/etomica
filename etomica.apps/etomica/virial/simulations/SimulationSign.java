@@ -80,7 +80,7 @@ public class SimulationSign extends SimulationGraphic {
 	private double simTemperature;
 	private double refTemperature;
 	private PairSet pairs;
-	private P2Cluster p2;
+	private P0Cluster p2;
 	private SpeciesSpheresMono species;
 	protected IntegratorMC integrator;
 	
@@ -153,11 +153,11 @@ public class SimulationSign extends SimulationGraphic {
 		return pairs;
 	}
 		
-	public P2Cluster getSimPotential() {
+	public P0Cluster getSimPotential() {
 		return p2;
 	}
 	
-	public void setSimPotential(P2Cluster p2) {
+	public void setSimPotential(P0Cluster p2) {
 		this.p2 = p2;
 	}
 	
@@ -176,7 +176,7 @@ public class SimulationSign extends SimulationGraphic {
 //		sim.integrator().setDoSleep(true);
 		
 		//set up simulation potential
-		P2Cluster p2 = new P2Cluster(sim.hamiltonian.potential, sim.pairs());
+		P0Cluster p2 = new P0Cluster(sim.hamiltonian.potential, sim.pairs());
 		p2.setTemperature(simTemperature);		
 		P2LennardJones p2LJ = new P2LennardJones(p2);
 		MayerModified f = new MayerModified(p2LJ, sigmaHSMod);
