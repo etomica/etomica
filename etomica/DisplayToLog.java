@@ -1,7 +1,19 @@
 package etomica;
 import java.io.*;
+import etomica.units.*;
+import javax.swing.*;
+import java.lang.reflect.*;
+import java.beans.*;
+
+/**
+ * Implements logging functionality, performing writing of simulation information and results to a log file.
+ *
+ * @author David Kofke
+ */
 
 public class DisplayToLog extends Display {
+    
+    public String getVersion() {return "01.03.02.0";}
     
     private PrintWriter logFile;
     
@@ -40,6 +52,10 @@ public class DisplayToLog extends Display {
     
     private void writeHeading() {
         logFile.println("Heading");
+        for(java.util.Iterator iter=parentSimulation().allElements().iterator(); iter.hasNext(); ) {
+            printProperties(iter.next());
+        }
+        logFile.println("=========================");
     }
     
     private void writeEnding() {
@@ -48,8 +64,86 @@ public class DisplayToLog extends Display {
     }
     
     public void doUpdate() {
-        logFile.println("Update");
+        for(java.util.Iterator iter=parentSimulation().meterList().iterator(); iter.hasNext(); ) {
+            MeterAbstract meter = (MeterAbstract)iter.next();
+            if(!(meter instanceof Meter)) continue;
+            logFile.print(((Meter)meter).average() + " " + ((Meter)meter).error()+ "  ");
+        }
+        logFile.println();
     }
+    
+    public void printProperties(Object object) {
+        
+        PropertyDescriptor[] properties = null;
+
+        //Introspection to get array of all properties
+        BeanInfo bi = null;
+        try {
+	        bi = Introspector.getBeanInfo(object.getClass());
+	        properties = bi.getPropertyDescriptors();
+	    } 
+	    catch (IntrospectionException ex) {
+	        System.out.println("DisplayLog: Couldn't introspect " + ex);
+	        return;
+	    }
+
+	    logFile.println("*******************");
+	    logFile.println(object.toString());
+
+        //Loop through all properties and print values
+	    for (int i = 0; i < properties.length; i++) {
+	        // Don't display hidden or expert properties.
+	        if (properties[i].isHidden() || properties[i].isExpert())
+		        continue;
+
+	        Object value = null;
+	        JLabel label = null;
+	        Dimension dimension = null;
+
+	        String name = properties[i].getDisplayName();  //Localized display name 
+	        Class type = properties[i].getPropertyType();  //Type (class) of this property
+	        Method getter = properties[i].getReadMethod(); //method used to read value of property in this object
+	        // Only display read/write properties.
+	        if (getter == null) continue;
+	        if (type == Class.class) continue;
+	        if (Dimension.class.isAssignableFrom(type)) continue;
+	        if (name.equals("name")) continue;
+
+	        try {
+	            //read the current value of the property
+		        Object args[] = { };
+		        try {value = getter.invoke(object, args);}
+		        catch(NullPointerException ex) {value = null;}
+
+        	        //property is a dimensioned number
+        	        if(type == Double.TYPE) {
+        	            //try to get dimension from get(property)Dimension() method
+        	            dimension = etomica.units.Dimension.introspect(object,name,bi);
+        	            //try to get dimension from getDimension() method
+                        if(dimension == null) dimension = etomica.units.Dimension.introspect(object,"",bi);
+        	        }
+	            
+	        } //end of try
+	        catch (InvocationTargetException ex) {
+		        System.err.println("Skipping property " + name + " ; exception on target: " + ex.getTargetException());
+		        ex.getTargetException().printStackTrace();
+		        continue;
+	        } 
+	        catch (Exception ex) {
+		        System.err.println("Skipping property " + name + " ; exception: " + ex);
+		        ex.printStackTrace();
+		        continue;
+	        }
+	        if(value == null) continue;
+	        Unit unit;
+	        if(type == Double.TYPE && dimension != null) {
+    	        unit = dimension.defaultIOUnit();
+    	        double v = ((Double)value).doubleValue();
+    	        logFile.println(name + " " + unit.fromSim(v) + " " + unit.toString());
+	        }
+	        else logFile.println(name + " " + value.toString());
+	    }//end of loop over properties
+    }//end of printProperties
     
     //tests and demonstrates use of this class
     public static void main(String[] args) {
@@ -57,6 +151,7 @@ public class DisplayToLog extends Display {
         Default.ATOM_SIZE = 1.0;
         Simulation sim = new Simulation(new Space2D());
         Simulation.instance = sim;
+        sim.setUnitSystem(new UnitSystem.LJ());
         
         Species species = new SpeciesDisks(32);
         Potential potential = new PotentialHardDisk();

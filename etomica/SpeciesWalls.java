@@ -7,10 +7,7 @@ import etomica.units.*;
 
 public class SpeciesWalls extends Species implements EtomicaElement {
 
-    public static final int NORTH = 0;
-    public static final int SOUTH = 1;
-    public static final int EAST = 2;
-    public static final int WEST = 3;
+    public static String version() {return "01.03.05.0";}
 
 /** 
  *  Wall type array.  Each atom has its own type, which specifies its length and orientation.
@@ -75,6 +72,10 @@ public class SpeciesWalls extends Species implements EtomicaElement {
         return new Molecule(this, phase, protoType);
     } 
               
+        public final void setAlignment(Constants.Alignment a) {
+            protoType[0].setAlignment(a);
+        }
+        public final Constants.Alignment getAlignment() {return protoType[0].getAlignment();}
     // Exposed Properties --- not implemented now because they must tie to AtomType array
     
 /*  public final int getThickness() {return ((AtomWall)firstAtom()).getThickness();}

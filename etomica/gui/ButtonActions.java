@@ -21,6 +21,9 @@ import com.symantec.itools.javax.swing.JToolBarSeparator;
 import com.symantec.itools.javax.swing.icons.ImageIcon;
 
 public class ButtonActions {
+    
+    public static final String version() {return "01.03.04.0";}
+
     /**
      * Static action listener that pastes a copied component to the FormDesign
      */

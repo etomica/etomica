@@ -9,10 +9,12 @@ import etomica.units.*;
  * before an attemt to use this is made.
  *
  * @author Rob Riggleman
+ * @author David Kofke
  */
 
 public class Space3D extends Space implements EtomicaElement {
 
+    public static final String version() {return "01.03.04.0";}
     public static final int D = 3;
     public final int D() {return D;}
     
@@ -195,11 +197,6 @@ public class Space3D extends Space implements EtomicaElement {
         public void PE(Space.Vector u1, Space.Vector u2) {PE((Vector)u1, (Vector)u2);}
         public void TE(double a) {xx*=a; xy*=a; xz*=a; yx*=a; yy*=a; yz*=a; zx*=a; zy*=a; zz*=a;}
     }
-        
-
-        
-        
-        
     
     public static final class CoordinatePair extends Space.CoordinatePair {
         Coordinate c1;
@@ -349,12 +346,16 @@ public class Space3D extends Space implements EtomicaElement {
     */
     
     public static abstract class Boundary extends Space.Boundary {
+        public static class Type extends Space.Boundary.Type {
+            private Type(String label) {super(label);}
+            public Constants.TypedConstant[] choices() {return TYPES;}
+        }
         public static final String[] TAGS = {"None", "Periodic Square", "Hard", "Sliding Brick"};
-        public static final Space.Boundary.Type NONE = new Space.Boundary.Type("None");
-        public static final Space.Boundary.Type PERIODIC_SQUARE = new Space.Boundary.Type("Periodic Square");
-        public static final Space.Boundary.Type HARD = new Space.Boundary.Type("Hard");
-        public static final Space.Boundary.Type SLIDING_BRICK = new Space.Boundary.Type("Sliding Brick");
-        public static final Space.Boundary.Type[] TYPES = {NONE,PERIODIC_SQUARE,HARD,SLIDING_BRICK};
+        public static final Type NONE = new Type("None");
+        public static final Type PERIODIC_SQUARE = new Type("Periodic Square");
+        public static final Type HARD = new Type("Hard");
+        public static final Type SLIDING_BRICK = new Type("Sliding Brick");
+        public static final Type[] TYPES = {NONE,PERIODIC_SQUARE,HARD,SLIDING_BRICK};
         public Boundary() {super();}
         public Boundary(Phase p) {super(p);}
         public abstract void nearestImage(Vector dr);

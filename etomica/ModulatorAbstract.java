@@ -21,6 +21,9 @@ public abstract class ModulatorAbstract implements java.io.Serializable {
 	 */
     public abstract Dimension getDimension();
     
+    public abstract void setValue(double d);
+    public abstract double getValue();
+    
 	/**
 	 * Accessor method for the modulator's label
 	 */

@@ -6,6 +6,7 @@ import etomica.units.*;
 
 public class Space2D extends Space implements EtomicaElement {
     
+    public static String version() {return "01.03.04.0";}
     public static final int D = 2;
     public final int D() {return D;}
     
@@ -325,11 +326,15 @@ public class Space2D extends Space implements EtomicaElement {
     }
     
     public static abstract class Boundary extends Space.Boundary {
-        public static final Space.Boundary.Type NONE = new Space.Boundary.Type("None");
-        public static final Space.Boundary.Type PERIODIC_SQUARE = new Space.Boundary.Type("Periodic Square");
-        public static final Space.Boundary.Type HARD = new Space.Boundary.Type("Hard");
-        public static final Space.Boundary.Type SLIDING_BRICK = new Space.Boundary.Type("Sliding Brick");
-        public static final Space.Boundary.Type[] TYPES = {NONE,PERIODIC_SQUARE,HARD,SLIDING_BRICK};
+        public static class Type extends Space.Boundary.Type {
+            public Type(String label) {super(label);}
+            public Constants.TypedConstant[] choices() {return TYPES;}
+        }
+        public static final Type NONE = new Type("None");
+        public static final Type PERIODIC_SQUARE = new Type("Periodic Square");
+        public static final Type HARD = new Type("Hard");
+        public static final Type SLIDING_BRICK = new Type("Sliding Brick");
+        public static final Type[] TYPES = {NONE,PERIODIC_SQUARE,HARD,SLIDING_BRICK};
         public Boundary() {super();}
         public Boundary(Phase p) {super(p);}
         public abstract void nearestImage(Vector dr);

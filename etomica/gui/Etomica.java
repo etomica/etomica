@@ -20,18 +20,28 @@ import javax.swing.JFrame;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.ButtonGroup;
 
-public class Etomica {
+public final class Etomica {
+
+    public static String version() {return "01.03.04.0";}
     
-    public static java.util.LinkedList simulationList = new java.util.LinkedList();
+    public static final SimulationEditorFrame simulationEditorFrame;
+    public static java.util.LinkedList simulationList;
+    static final ButtonGroup bg;
+    static {
+//        try {
+//            javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
+//        } catch(Exception e) {}
+        simulationList = new java.util.LinkedList();
+        simulationEditorFrame = new SimulationEditorFrame();
+        bg = new ButtonGroup();
+    }
     public static Class[] spaceClasses;
-    public static final SimulationEditorFrame simulationEditorFrame = new SimulationEditorFrame();
     public static java.util.HashMap simulationFrames = new java.util.HashMap(8);
     public static int instanceCount = 0;
     public static EtomicaMenuBar menuBar = null;
     public static EtomicaToolBar toolBar = null;
     public static EtomicaTabMenuBar tabMenuBar = null;
     public static PropertySheet propertySheet = null;
-    static final ButtonGroup bg = new ButtonGroup();
     
     /**
      * This static main method creates an instance DesktopFrame which is a JFrame that contains all 
@@ -40,6 +50,7 @@ public class Etomica {
      * deletions to the JFrame's main content pane, a JDesktopPane.
      */
     public static void main(String[] args) {
+        
         etomica.Simulation.inEtomica = true;
         DesktopFrame frame = new DesktopFrame();
         frame.show();

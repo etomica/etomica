@@ -308,8 +308,8 @@ public abstract class AtomType implements java.io.Serializable {
             angle = (t <= 2.*pi) ? t : (t % (2.0*pi));
             horizontal = (angle == 0.0) || (Math.abs(angle) == pi);
             vertical = (Math.abs(angle) == pi/2.) || (Math.abs(angle) == 1.5*pi);
-    //        if(horizontal) setAlignment(Constants.HORIZONTAL);
-    //        if(vertical) setAlignment(Constants.VERTICAL);
+            if(horizontal) alignment = Constants.HORIZONTAL;
+            if(vertical) alignment = Constants.VERTICAL;
             cosA = Math.cos(angle);
             sinA = Math.sin(angle);
         }

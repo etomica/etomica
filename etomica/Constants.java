@@ -4,6 +4,7 @@ import java.util.Random;
 
 public class Constants extends Object {
     
+    public static String version() {return "01.03.05.0";}
     private static final Random random = new Random();
     
     private Constants() {}   // can't instantiate class
@@ -33,12 +34,6 @@ public class Constants extends Object {
     public static final Color RandomColor() {return new Color(random.nextFloat(),random.nextFloat(),random.nextFloat());}
     public static final Color randomColor() {return new Color(random.nextFloat(),random.nextFloat(),random.nextFloat());}
   
-  /* Convenience variables for indicating directions */
-  //  public static final int NORTH = 0;
-  //  public static final int EAST  = 1;
-  //  public static final int SOUTH = 2;
-  //  public static final int WEST  = 3;
-    
     /**
      * TypedConstant classes are used to define a fixed set of specific values that can be taken by a field.
      * For example,  north/south/east/west.  Subclasses of this abstract class declare the general category
@@ -53,6 +48,7 @@ public class Constants extends Object {
         private final String label;
         protected TypedConstant(String s) {label = s;}
         public String toString() {return label;}
+        public abstract TypedConstant[] choices();
     }
     
     /**
@@ -61,20 +57,31 @@ public class Constants extends Object {
      */
     public static class Direction extends TypedConstant {
         private Direction(String label) {super(label);}
+        public static final Direction[] choices = new Direction[] {
+            new Direction("North"),
+            new Direction("East"),
+            new Direction("South"),
+            new Direction("West")
+        };
+        public final TypedConstant[] choices() {return choices;}
     }
-    public static final Direction NORTH = new Direction("North");
-    public static final Direction EAST = new Direction("East");
-    public static final Direction SOUTH = new Direction("South");
-    public static final Direction WEST = new Direction("West");
+    public static final Direction NORTH = Direction.choices[0];
+    public static final Direction EAST = Direction.choices[1];
+    public static final Direction SOUTH = Direction.choices[2];
+    public static final Direction WEST = Direction.choices[3];
     
     /**
      * Typed constant for specifying HORIZONTAL/VERTICAL alignment.
      */
     public static class Alignment extends TypedConstant {
         private Alignment(String label) {super(label);}
+        public static final Alignment[] choices = new Alignment[] {
+            new Alignment("Horizontal"),
+            new Alignment("Vertical")};
+        public final TypedConstant[] choices() {return choices;}
     }
-    public static final Alignment HORIZONTAL = new Alignment("Horizontal");
-    public static final Alignment VERTICAL = new Alignment("Vertical");
+    public static final Alignment HORIZONTAL = Alignment.choices[0];
+    public static final Alignment VERTICAL = Alignment.choices[1];
 }
     
     

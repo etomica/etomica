@@ -318,6 +318,8 @@ public abstract class Integrator implements Simulation.Element, Runnable, java.i
         //class used to mark the different types of interval events
         private final static class Type extends Constants.TypedConstant {
            private Type(String label) {super(label);}
+           public static final Constants.TypedConstant[] choices = new Constants.TypedConstant[] {START, INTERVAL, DONE, INITIALIZE};
+           public final Constants.TypedConstant[] choices() {return choices;}
         }
     }
     

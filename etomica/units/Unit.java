@@ -37,6 +37,8 @@ public class Unit implements java.io.Serializable {
     protected Dimension dimension;
     private boolean prefixAllowed;
     
+    public static Unit NULL = new Unit(BaseUnit.Null.UNIT);
+    
     /**
      * Constructs a Unit using the given base and a Null prefix
      */

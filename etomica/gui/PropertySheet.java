@@ -13,6 +13,7 @@ import javax.swing.table.*;
 import etomica.gui.treetable.*;
 import etomica.ConstrainedPropertyEditor;
 import etomica.DimensionedDoubleEditor;
+import etomica.TypedConstantEditor;
 import etomica.Meter;
 import etomica.Simulation;
 
@@ -86,6 +87,19 @@ class PropertySheetPanel extends JPanel {
      */
     UpdateThread updateThread = new UpdateThread(this);
 
+
+    /**
+     * Constructs a property sheet panel for placement into the given frame.
+     */
+    PropertySheetPanel(PropertySheet frame) {  //constructor
+	    this.frame = frame;
+	    setLayout(null);
+	    setSize(250,300);
+
+	    // Create an event adaptor.
+	    adaptor = new EditedAdaptor(frame);
+    }
+    
     private static class CellEditor extends DefaultCellEditor implements javax.swing.table.TableCellEditor{
         private JLabel labelEditor;
         private JPanel canvasEditor;
@@ -134,15 +148,9 @@ class PropertySheetPanel extends JPanel {
         }
     }//end of CellRenderer
 
-    PropertySheetPanel(PropertySheet frame) {  //constructor
-	    this.frame = frame;
-	    setLayout(null);
-	    setSize(250,300);
-
-	    // Create an event adaptor.
-	    adaptor = new EditedAdaptor(frame);
-    }
-    
+    /**
+     * This method sets up the property sheet for the given element.
+     */
     synchronized void setTarget(Simulation.Element e) {
         updateThread.clear();
         updateThread = new UpdateThread(this);
@@ -311,6 +319,11 @@ class PropertySheetPanel extends JPanel {
 	            PropertyEditor editor = null;
 	            if(properties[i].isConstrained())
 	                editor = new ConstrainedPropertyEditor();
+	            //if property is a TypedConstant
+	            else if(etomica.Constants.TypedConstant.class.isAssignableFrom(type) && value != null) {
+	       //         editor = new TypedConstantEditor(((etomica.Constants.TypedConstant)value).choices());
+	                editor = new TypedConstantEditor();
+	            }
 	            else {
         	        //property is a dimensioned number
         	        if(type == Double.TYPE) {

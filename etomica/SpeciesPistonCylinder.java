@@ -14,6 +14,8 @@ import java.awt.Graphics;
  
 public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundary.Maker, EtomicaElement {
 
+    public static final String version() {return "01.03.04.0";}
+ 
     private Constants.Direction direction = Constants.NORTH;
     private Space2D.Vector dimensions = new Space2D.Vector();
    /**
@@ -171,7 +173,10 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
    * Returns true.
    */
   public boolean requiresSpecialBoundary() {return true;}
-  public static final Space.Boundary.Type BOUNDARY = new Space.Boundary.Type("Piston-cylinder");
+  public static final Space.Boundary.Type BOUNDARY = 
+    new Space2D.Boundary.Type("Piston-cylinder") {
+        public Constants.TypedConstant[] choices() {return new Constants.TypedConstant[] {this};}
+    };
   
   /**
    * Field that applies a constant force against the piston.

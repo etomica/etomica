@@ -6,6 +6,7 @@ import etomica.units.*;
 
 public class Space1D extends Space implements EtomicaElement {
     
+    public static final String version() {return "01.03.04.0";}
     
     public static final int D = 1;
     public static int drawingHeight = 10;  //height for drawing to 2D image
@@ -196,11 +197,15 @@ public class Space1D extends Space implements EtomicaElement {
     } 
     
     public static abstract class Boundary extends Space.Boundary {
-        public static final Space.Boundary.Type NONE = new Space.Boundary.Type("None");
-        public static final Space.Boundary.Type PERIODIC_SQUARE = new Space.Boundary.Type("Periodic");
-        public static final Space.Boundary.Type HARMONIC = new Space.Boundary.Type("Harmonic");
-        public static final Space.Boundary.Type HARD = new Space.Boundary.Type("Hard");
-        public static final Space.Boundary.Type[] TYPES = {NONE, PERIODIC_SQUARE ,HARMONIC,HARD};
+        public static class Type extends Space.Boundary.Type {
+            private Type(String label) {super(label);}
+            public Constants.TypedConstant[] choices() {return TYPES;}
+        }
+        public static final Type NONE = new Type("None");
+        public static final Type PERIODIC_SQUARE = new Type("Periodic");
+        public static final Type HARMONIC = new Type("Harmonic");
+        public static final Type HARD = new Type("Hard");
+        public static final Type[] TYPES = {NONE, PERIODIC_SQUARE ,HARMONIC, HARD};
         public Boundary() {super();}
         public Boundary(Phase p) {super(p);}
         public abstract void nearestImage(Vector dr);

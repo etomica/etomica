@@ -16,6 +16,7 @@ import javax.swing.JPanel;
  */
 public abstract class Display extends Panel implements Simulation.GraphicalElement, Integrator.IntervalListener, java.io.Serializable {
 
+    public String getVersion() {return "01.03.01.0";}
     private String name;
     
   /**

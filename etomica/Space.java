@@ -4,6 +4,8 @@ import java.awt.Graphics;
 
 public abstract class Space implements Space.Boundary.Maker, java.io.Serializable {
     
+    public static String version() {return "01.03.04.0";}
+
     public Space() {}
     public abstract int D();
     
@@ -217,7 +219,7 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         */
         public abstract double[][] imageOrigins(int nShells);
         
-        public static class Type extends Constants.TypedConstant {
+        public static abstract class Type extends Constants.TypedConstant {
             protected Type(String label) {super(label);}
         }
       /**
