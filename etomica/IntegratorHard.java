@@ -65,7 +65,7 @@ public class IntegratorHard extends IntegratorMD {
             atoms[1] = colliderAgent.collisionPartner();
             if (collisionTimeStep < -1.e-12) {
                 System.out.println("previous collision occured before current one");
-                System.out.println("previous time: "+(timeStep-timeInterval)+"current time: "+(timeStep-timeInterval+collisionTimeStep));
+                System.out.println("previous time: "+(timeStep-timeInterval)+" current time: "+(timeStep-timeInterval+collisionTimeStep));
                 System.out.println("collision between "+atoms[0]+" and "+atoms[1]+" potential "+colliderAgent.collisionPotential.getClass());
                 cPairDebug = Simulation.getDefault().space.makeCoordinatePair();
                 cPairDebug.setBoundary(firstPhase.boundary());
@@ -76,8 +76,8 @@ public class IntegratorHard extends IntegratorMD {
                 System.out.println("distance now "+cPairDebug.r2());
                 throw new RuntimeException("this simulation is not a time machine");
             }
-            if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 1 || Debug.anyAtom(atoms))) {
-                System.out.println("collision between atoms "+atoms[0]+" and "+atoms[1]+" at "+(timeStep-timeInterval+collisionTimeStep));
+            if (Debug.ON && Debug.DEBUG_NOW && ((Debug.LEVEL > 1 && Debug.thisPhase(firstPhase)) || Debug.anyAtom(atoms))) {
+                System.out.println("collision between atoms "+atoms[0]+" and "+atoms[1]+" at "+collisionTimeStep);
             }
             advanceAcrossTimeStep(collisionTimeStep);//if needing more flexibility, make this a separate method-- advanceToCollision(collisionTimeStep)
             if (Debug.ON && Debug.DEBUG_NOW && Debug.ATOM1 != null 
@@ -105,7 +105,7 @@ public class IntegratorHard extends IntegratorMD {
             timeInterval -= collisionTimeStep;
             collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.MAX_VALUE;
         } 
-        advanceAcrossTimeStep(interval);
+        advanceAcrossTimeStep(timeInterval);
 
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.thisPhase(firstPhase)) {
             MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potential);
@@ -139,7 +139,7 @@ public class IntegratorHard extends IntegratorMD {
 		while(atomIterator.hasNext()) {
 			IntegratorHard.Agent ia = (IntegratorHard.Agent)atomIterator.nextAtom().ia;
 			double ct = ia.collisionTime();
-			if( ct < minCollisionTime) {
+			if(ct < minCollisionTime) {
 				minCollisionTime = ct;
 				colliderAgent = ia;
 			}
@@ -177,7 +177,7 @@ public class IntegratorHard extends IntegratorMD {
 				aAgent.resetCollision();
 				targetAtom[0] = a;
 				upList.setTargetAtoms(targetAtom);
-                setAtom(a);
+                collisionHandlerUp.setAtom(a);
 				potential.calculate(firstPhase, upList, collisionHandlerUp.setAtom(a));
 			}
 		}//end while
@@ -186,7 +186,7 @@ public class IntegratorHard extends IntegratorMD {
 		targetAtom[0] = collider;
 		upList.setTargetAtoms(targetAtom);
 		downList.setTargetAtoms(targetAtom);
-        setAtom(collider);
+        collisionHandler.setAtom(collider);
 		potential.calculate(firstPhase, upList, collisionHandlerUp);
 		potential.calculate(firstPhase, downList, collisionHandlerDown);
 		if(partner != null) {
@@ -194,7 +194,7 @@ public class IntegratorHard extends IntegratorMD {
 			targetAtom[0] = partner;
 			upList.setTargetAtoms(targetAtom);
 			downList.setTargetAtoms(targetAtom);
-            setAtom(partner);
+            collisionHandlerUp.setAtom(partner);
 			potential.calculate(firstPhase, upList, collisionHandlerUp);
 			potential.calculate(firstPhase, downList, collisionHandlerDown);
 		}
@@ -212,7 +212,7 @@ public class IntegratorHard extends IntegratorMD {
 		targetAtom[0] = a;
 		upList.setTargetAtoms(targetAtom);
 		downList.setTargetAtoms(targetAtom);
-        setAtom(a);
+        collisionHandlerUp.setAtom(a);
 		potential.calculate(firstPhase, upList, collisionHandlerUp);
 		potential.calculate(firstPhase, downList, collisionHandlerDown);
 	}
@@ -329,7 +329,6 @@ public class IntegratorHard extends IntegratorMD {
 			atom1 = a;
 			aia = (IntegratorHard.Agent)a.ia;
 			minCollisionTime = aia.collisionTime();
-			return this;
 		}//end of setAtom
         
 		//atom pair
