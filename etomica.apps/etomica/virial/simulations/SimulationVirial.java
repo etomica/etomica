@@ -180,7 +180,7 @@ public class SimulationVirial extends SimulationGraphic {
 	}
 		
 	public static void main(String[] args) {
-		double temperature = 1.0;  //temperature of calculated virial coefficient
+		double temperature = 1.3;  //temperature of calculated virial coefficient
 		double simTemperature = 1.0*temperature; //temperature governing sampling of configurations
 		double sigmaHSRef = 1.0;//*sigmaLJ1B(1.0/simTemperature);  //diameter of reference HS system
 		double sigmaHSMod = sigmaLJ1B(1.0/simTemperature); //range in which modified-f for sampling will apply abs() function
@@ -197,29 +197,32 @@ public class SimulationVirial extends SimulationGraphic {
 //		MayerModified f = new MayerModified(p2LJ, sigmaHSMod);
 		MayerFunction f = new MayerGeneral(p2LJ);
 //		MayerFunction f = new etomica.virial.dos.MayerDOS2();
-		Cluster simCluster = new Ring(nMolecules, 1.0, f);
+//		Cluster simCluster = new Ring(nMolecules, 1.0, f);
 //		Cluster simCluster = new Chain(nMolecules, 1.0, f);
 //		Cluster simCluster = new C3e(f);
+		Cluster simCluster = new etomica.virial.dos.ClusterGrouped(7.0);
 		P0Cluster p0 = new P0Cluster(sim.hamiltonian.potential, simCluster);
 		sim.setSimPotential(p0);
 		
-		MeterVirial meterVirial = (nMolecules==3) ? (MeterVirial)new MeterVirialB3(sim, sigmaHSRef, p0, p2LJ)
-												  : (MeterVirial)new MeterVirialB4(sim, sigmaHSRef, p0, p2LJ);
-//		double refTemperature = 1.0;
-//		Cluster refCluster = new C3e(new MayerHardSphere(1.4));
-//		double refIntegral = 1.0;
-//		MeterVirial meterVirial = new MeterVirial(sim, 
-//			refTemperature, refCluster, refIntegral, 
-//			new Cluster[] {simCluster}, p0);
+//		MeterVirial meterVirial = (nMolecules==3) ? (MeterVirial)new MeterVirialB3(sim, sigmaHSRef, p0, p2LJ)
+//												  : (MeterVirial)new MeterVirialB4(sim, sigmaHSRef, p0, p2LJ);
+		double refTemperature = 1.0;
+//		Cluster refCluster = new C3e(new MayerHardSphere(1.187193));
+		Cluster refCluster = new C3e(new MayerHardSphere(7.0));
+		Cluster targetCluster = new C3e(f);
+		double refIntegral = 1.0;
+		MeterVirial meterVirial = new MeterVirial(sim, 
+			refTemperature, refCluster, refIntegral, 
+			new Cluster[] {targetCluster}, p0);
 
-		Cluster dosCluster = new Ring(nMolecules, 1.0, new MayerE(p2LJ));
-		etomica.virial.dos.MeterDOS meterDOS = new etomica.virial.dos.MeterDOS(sim, dosCluster);
-		meterDOS.setP0(p0);
-		meterDOS.setLabel("DOS");
-		DisplayPlot histogramPlot = new DisplayPlot(sim);
-		histogramPlot.setDataSources(meterDOS);
-		histogramPlot.setLabel("DOS");
-		histogramPlot.setWhichValue(MeterAbstract.AVERAGE);
+//		Cluster dosCluster = new Ring(nMolecules, 1.0, new MayerE(p2LJ));
+//		etomica.virial.dos.MeterDOS meterDOS = new etomica.virial.dos.MeterDOS(sim, dosCluster);
+//		meterDOS.setP0(p0);
+//		meterDOS.setLabel("DOS");
+//		DisplayPlot histogramPlot = new DisplayPlot(sim);
+//		histogramPlot.setDataSources(meterDOS);
+//		histogramPlot.setLabel("DOS");
+//		histogramPlot.setWhichValue(MeterAbstract.AVERAGE);
 		
 		meterVirial.setTemperature(temperature);
 		meterVirial.setBlockSize(10000);
@@ -231,7 +234,7 @@ public class SimulationVirial extends SimulationGraphic {
 		meterClusterTable.setWhichValues(
 			new DataSource.ValueType[] {MeterAbstract.CURRENT, MeterAbstract.AVERAGE, MeterAbstract.ERROR});
 		meterClusterTable.setUpdateInterval(10000);
-		meterClusterTable.setPrecision(5);
+		meterClusterTable.setPrecision(8);
 		//Evaluates virial using HS-excess cluster
 		//Gamma = GammaHS(0) + (GammaHS(1)-GammaHS(0))*[<g-gHS0>_abs(g-gHS0)]/[<gHS1-gHS0>_abs(g-gHS0)]
 		//Calculated here is Gamma - GammaHS(0)

@@ -11,6 +11,8 @@ package etomica;
  
  /* History
   * (this change was not implemented) 10/12/02 (DAK) modified virial method to reflect change in definition of virial in Potential2Soft
+  * 08/11/03 modified gradient method to colsolidate two vector operations
+  * into one method call
   */
 public abstract class Potential2SoftSpherical extends Potential2 implements Potential2.Soft {
    
@@ -102,8 +104,9 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
         if(potentialTruncation.isZero(r2)) work1.E(0.0);
         else {
             double v = potentialTruncation.duTransform(r2, du(r2));
-            work1.E(pair.dr());
-            work1.TE(v/r2);
+            work1.Ea1Tv1(v/r2,pair.dr());
+//            work1.E(pair.dr());
+//            work1.TE(v/r2);
         }
         return work1;
     }

@@ -151,5 +151,6 @@ public class Cluster {
 			this.f = f;
 			this.pairs = pairs;
 		}
+		public static final BondGroup NULL = new BondGroup(new MayerHardSphere(0.0), new int[][] {});
 	}
 }

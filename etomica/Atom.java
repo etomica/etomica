@@ -40,7 +40,7 @@ public class Atom implements AtomSet, java.io.Serializable {
         for(int i=0; i<agentSource.length; i++) {
             allatomAgents[i] = agentSource[i].makeAgent(this);
         }
-        
+        seq.setParentNotify(parent);//added 08/11/03 (DAK)
         type.initialize(this);
     }
                         

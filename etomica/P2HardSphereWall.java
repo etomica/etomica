@@ -93,6 +93,7 @@ public class P2HardSphereWall extends Potential2 implements Potential2.Hard {
                 
         int i = (((AtomType.Wall)wall.type).isHorizontal()) ? 1 : 0;  //indicates if collision affects x or y coordinate
         double dr = pair.dr(i);  //dr = atom2 - atom1
+		pair.cPair.resetV();
         double dv = pair.dv(i);
         if(pair.atom1() == wall) {  //make sure dr = wall - sphere
             dr *= -1;
@@ -155,6 +156,7 @@ public class P2HardSphereWall extends Potential2 implements Potential2.Hard {
         AtomType.Wall wallType = (AtomType.Wall)wall.type;
     
         int i = (((AtomType.Wall)wall.type).isHorizontal()) ? 1 : 0;  //indicates if collision affects x or y coordinate
+		pair.cPair.resetV();
         double pOld = sphere.coord.momentum(i);
         
         if(wall.coord.isStationary()) {

@@ -53,6 +53,7 @@ public class P2HardSphere extends Potential2 implements Potential2.Hard {
      */
     public double collisionTime(AtomPair pair) {
         double r2 = pair.r2();
+        pair.cPair.resetV();
         double bij = pair.vDotr();
         if(r2 < sig2) {return (bij > 0) ? Double.MAX_VALUE : 0.0;}  //inside wall; no collision
         double time = Double.MAX_VALUE;
@@ -73,6 +74,7 @@ public class P2HardSphere extends Potential2 implements Potential2.Hard {
     public void bump(AtomPair pair) {
         double r2 = pair.r2();
         dr.E(pair.dr());  //used by lastCollisionVirialTensor
+		pair.cPair.resetV();
         lastCollisionVirial = 2.0/(pair.atom1().coord.rm() + pair.atom2().coord.rm())*pair.vDotr();
         lastCollisionVirialr2 = lastCollisionVirial/r2;
         pair.cPair.push(lastCollisionVirialr2);

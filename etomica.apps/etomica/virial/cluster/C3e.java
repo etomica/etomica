@@ -24,7 +24,7 @@ public class C3e extends Cluster {
 		double e12 = bondArray[0][1].f(pairs.getPair(0,1).reset(),beta) + 1.0;
 		double e13 = bondArray[0][2].f(pairs.getPair(0,2).reset(),beta) + 1.0;
 		double e23 = bondArray[1][2].f(pairs.getPair(1,2).reset(),beta) + 1.0;
-		return e12*e13*e23 - (e12 + e13 + e23) + 2;
+		return e12*e13*e23 - 1;// - (e12 + e13 + e23) + 2;
 	}
 
 }

@@ -34,25 +34,25 @@ public class DPDSim extends SimulationGraphic{
 	public DPDSim(int dim){
 		super(dim==2 ? (Space)new Space2D() : (Space)new Space3D());	//creates the simulation and its space. 
 		Default.makeLJDefaults();
-//		Default.ATOM_SIZE = 1.5;
+		double density = 3.0;
 		double temperature = Default.TEMPERATURE;
 		setIteratorFactory(new IteratorFactoryCell(this,6));
 		Simulation.instance = this;
 		integrator = new IntegratorDPD(this);
-		integrator.setInterval(5);
-		integrator.setSleepPeriod(3);
+		integrator.setInterval(1);
+		integrator.setSleepPeriod(5);
 		
 		integrator.setTimeStep(0.04);	//From Groot & Warren  The constructor does this anyway.
 		integrator.setLambdaV(0.65);
 		species = new SpeciesSpheresMono(this);
 		species.setNMolecules(512);
 		phase = new Phase(this);
-		potential = new P2DPD();
+		potential = new P2DPD(3.0,75.0/density,1.0);
+//		potential = new P2DPD(3.0,1.0,1.0);
 		potential.setTemperature(temperature);
 		potential.setSpecies(species, species);
 		controller = new Controller(this);
 		DeviceTrioControllerButton controllerButton = new DeviceTrioControllerButton(this);
-		display = new DisplayPhase(this);		//makes the pretty box
 
 		panel().setBackground(java.awt.Color.gray);	//set the background color.
 //		display.setColorScheme(new etomica.graphics.ColorSchemeRandom());
@@ -80,8 +80,12 @@ public class DPDSim extends SimulationGraphic{
 		densitySlider.setMaximum(5.0);
 		densitySlider.setMinimum(0.0);
 		densitySlider.setNMajor(5);
-		densitySlider.setValue(0.3);
-						
+		densitySlider.setValue(density);
+
+		display = new DisplayPhase(this);		//makes the pretty box
+//		display.setUpdateInterval(1);
+		((DisplayPhaseCanvas3DOpenGL)display.canvas).setDrawExpansionFactor(1.2);
+		elementCoordinator.go();						
 	}//End-Constructor 1
 	
 	/**

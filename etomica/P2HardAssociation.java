@@ -78,7 +78,8 @@ public class P2HardAssociation extends Potential2 implements Potential2.Hard {
     */
     public double collisionTime(AtomPair pair) {
         double discr = 0.0;
-        double bij = pair.vDotr();
+		pair.cPair.resetV();
+       double bij = pair.vDotr();
         double r2 = pair.r2();
         double v2 = pair.v2();
         double tij = Double.MAX_VALUE;

@@ -46,7 +46,7 @@ public abstract class AtomFactory {
      */
     public Atom makeAtom(AtomTreeNodeGroup parent) {
         Atom atom = reservoir.getAtom();
-        if(atom == null) atom = build(parent);
+        if(atom == null) atom = build(parent);//reservoir);//using reservoir causes problem for BravaisLattice
         atom.node.setParent(parent);
         
         //add agents from any registered sources

@@ -59,6 +59,7 @@ public final class Api1A extends AtomPairIterator {
 	 * @see etomica.AtomPairIterator#next()
 	 */
 	public AtomPair next() {
+//		AtomPair nextPair = api.next(); System.out.println(nextPair.atom1.toString()+nextPair.atom2.toString()); return nextPair; 
 		return api.next();
 	}
 

@@ -40,7 +40,8 @@ public class P2RoughSphere extends P2HardSphere {
     public void bump(AtomPair pair) {
         Atom a1 = pair.atom1();
         Atom a2 = pair.atom2();
-        double kappa = 4*((AtomType.Rotator)a1.type).momentOfInertia()[0]*a1.coord.rm()/(collisionDiameter*collisionDiameter);
+		pair.cPair.resetV();
+       double kappa = 4*((AtomType.Rotator)a1.type).momentOfInertia()[0]*a1.coord.rm()/(collisionDiameter*collisionDiameter);
         double r2 = pair.r2();
         Space.Vector p1 = a1.coord.momentum();
         Space.Vector p2 = a2.coord.momentum();

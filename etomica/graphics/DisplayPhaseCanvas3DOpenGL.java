@@ -19,6 +19,8 @@ import etomica.utility.java2.Iterator;
      * 09/07/02 (DAK) added atomFilter
      * 09/xx/02 (DAK) added display of plane
      * 09/27/02 (DAK) set zoom based on size of phase boundary (in init method)
+     * 08/08/03 (DAK) added drawExpansionFactor to draw in a box larger than
+     * simulated one
      */
 
 //Class used to define canvas onto which configuration is drawn
@@ -43,6 +45,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   private double sphereListRadius = 0f;
   private double wellListRadius = 0f;
   private boolean glInitialized = false, canvasInitialized = false;
+  private double drawExpansionFactor = 1.0;
 
   //The transparent grey color for the wells
   private final static byte wR=(byte)200, wG=(byte)200, wB=(byte)200, wA=(byte)160;
@@ -80,7 +83,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   private etomica.Atom a;
   private Space.Vector r;
   private int i, j, k;
-  
+  private float drawExpansionShiftX = 0f, drawExpansionShiftY = 0f, drawExpansionShiftZ = 0f;
   //private TextField scaleText = new TextField();
   //private Font font = new Font("sansserif", Font.PLAIN, 10);
   //private int annotationHeight = font.getFontMetrics().getHeight();
@@ -239,6 +242,18 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     
     i = 0;
     
+	drawExpansionShiftX = 0f; 
+	drawExpansionShiftY = 0f;
+	drawExpansionShiftZ = 0f;
+	if(drawExpansionFactor != 1.0) {
+		Space.Vector box = displayPhase.getPhase().boundary().dimensions();
+		float mult = (float)(0.5*(drawExpansionFactor - 1.0));
+		drawExpansionShiftX = (float)(mult*box.x(0));
+		drawExpansionShiftY = (float)(mult*box.x(1));
+		drawExpansionShiftZ = (float)(mult*box.x(2));
+	}
+
+
     //temporary commenting
     //this must be put back in for component to work
     AtomIteratorList iter = new AtomIteratorList(displayPhase.getPhase().speciesMaster.atomList);
@@ -246,9 +261,9 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
       Atom a = iter.next();
 //    for(Atom a = displayPhase.getPhase().firstAtom(); a!=null; a=a.nextAtom(), i+=3) {
       atoms[i/3] = a;
-      vertAll[i] = (float)a.coord.position().x(0);
-      vertAll[i+1] = (float)a.coord.position().x(1);
-      vertAll[i+2] = (float)a.coord.position().x(2);
+      vertAll[i] = (float)a.coord.position().x(0);// + drawExpansionShiftX;
+      vertAll[i+1] = (float)a.coord.position().x(1);// + drawExpansionShiftY;
+      vertAll[i+2] = (float)a.coord.position().x(2);// + drawExpansionShiftZ;
       if(a.type instanceof AtomType.OrientedSphere) countSphereRotators++;
       if(a.type instanceof AtomType.Well) countSphereWells++;
       if(a.type instanceof AtomType.Sphere) countSphereCores++;
@@ -378,7 +393,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         ((ColorSchemeCollective)displayPhase.getColorScheme()).colorAllAtoms(displayPhase.getPhase());
     }
 
-
+	
 
     if(walls.length > 0) {
       lastColor = null;
@@ -390,9 +405,9 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         c = colorScheme.atomColor(a);
         r = a.coord.position();
         //Update the positions of the atom
-        vertWalls[i] = (float)r.x(0) - xCenter;
-        vertWalls[i+1] = (float)r.x(1) - yCenter;
-        vertWalls[i+2] = (float)r.x(2) - zCenter;
+        vertWalls[i] = (float)r.x(0) - xCenter + drawExpansionShiftX;
+        vertWalls[i+1] = (float)r.x(1) - yCenter + drawExpansionShiftY;
+        vertWalls[i+2] = (float)r.x(2) - zCenter + drawExpansionShiftZ;
         //Update the color for the atom
         if(!c.equals(lastColor)) {
           gl.glColor4ub((byte)c.getRed(), (byte)c.getGreen(), (byte)c.getBlue(), (byte)c.getAlpha());
@@ -403,6 +418,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         //!!! Draw wall here
         //Draw overflow images if so indicated
         if(displayPhase.getDrawOverflow()) {
+          setDrawExpansionFactor(1.0);
           if(computeShiftOrigin(a, displayPhase.getPhase().boundary())) {
             j = originShifts.length;
             while((--j) >= 0) {
@@ -429,9 +445,9 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         c = colorScheme.atomColor(a);
         r = a.coord.position();
         //Update the positions of the atom
-        vertSphereCores[i] = (float)r.x(0) - xCenter;
-        vertSphereCores[i+1] = (float)r.x(1) - yCenter;
-        vertSphereCores[i+2] = (float)r.x(2) - zCenter;
+        vertSphereCores[i] = (float)r.x(0) - xCenter + drawExpansionShiftX;
+        vertSphereCores[i+1] = (float)r.x(1) - yCenter + drawExpansionShiftY;
+        vertSphereCores[i+2] = (float)r.x(2) - zCenter + drawExpansionShiftZ;
         //Update the color for the atom
         if(!c.equals(lastColor)) {
           gl.glColor4ub((byte)c.getRed(), (byte)c.getGreen(), (byte)c.getBlue(), (byte)c.getAlpha());
@@ -445,6 +461,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         //gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 2);
         //Draw overflow images if so indicated
         if(displayPhase.getDrawOverflow()) {
+          setDrawExpansionFactor(1.0);
           if(computeShiftOrigin(a, displayPhase.getPhase().boundary())) {
             j = originShifts.length;
             while((--j) >= 0) {
@@ -472,6 +489,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         gl.glCallList(wellList[getQuality()]);
         //Draw overflow images if so indicated
         if(displayPhase.getDrawOverflow()) {
+          setDrawExpansionFactor(1.0);
           if(computeShiftOrigin(a, displayPhase.getPhase().boundary())) {
             j = originShifts.length;
             while((--j) >= 0) {
@@ -496,6 +514,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         ///!!! Draw rotator orientation here
         //Draw overflow images if so indicated
         if(displayPhase.getDrawOverflow()) {
+          setDrawExpansionFactor(1.0);
           if(computeShiftOrigin(a, displayPhase.getPhase().boundary())) {
             j = originShifts.length;
             while((--j) >= 0) {
@@ -593,9 +612,9 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     //Color all atoms according to colorScheme in DisplayPhase
 //    displayPhase.getColorScheme().colorAllAtoms();
 
-    xCenter = (float)(displayPhase.getPhase().boundary().dimensions().x(0)*.5);
-    yCenter = (float)(displayPhase.getPhase().boundary().dimensions().x(1)*.5);
-    zCenter = (float)(displayPhase.getPhase().boundary().dimensions().x(2)*.5);
+    xCenter = (float)(drawExpansionFactor*displayPhase.getPhase().boundary().dimensions().x(0)*.5);
+    yCenter = (float)(drawExpansionFactor*displayPhase.getPhase().boundary().dimensions().x(1)*.5);
+    zCenter = (float)(drawExpansionFactor*displayPhase.getPhase().boundary().dimensions().x(2)*.5);
     center.E(xCenter, yCenter, zCenter);
     rightClipPlane[3] = leftClipPlane[3] = xCenter + ((2*xCenter)*displayPhase.getImageShells());
     topClipPlane[3] = bottomClipPlane[3] = yCenter + ((2*yCenter)*displayPhase.getImageShells());
@@ -618,6 +637,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     //Draw periodic images if indicated
     // The following if() block sets up the display list.
     if(displayPhase.getImageShells() > 0) {
+      setDrawExpansionFactor(1.0);
       if(displayPhase.getImageShells() == 1) j=DRAW_QUALITY_LOW;
       else if(displayPhase.getImageShells() > 1) j=DRAW_QUALITY_VERY_LOW;
       k = getQuality();
@@ -724,4 +744,27 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     }
     //System.gc();
   }*/
+/**
+ * Returns the drawExpansionFactor.
+ * @return double
+ */
+public double getDrawExpansionFactor() {
+	return drawExpansionFactor;
+}
+
+/**
+ * Sets the drawExpansionFactor.
+ * @param drawExpansionFactor The drawExpansionFactor to set
+ */
+public void setDrawExpansionFactor(double drawExpansionFactor) {
+	this.drawExpansionFactor = drawExpansionFactor;
+	if(displayPhase != null && displayPhase.getPhase() != null) {
+		Space.Vector box = displayPhase.getPhase().boundary().dimensions();
+		float mult = (float)(0.5*(drawExpansionFactor - 1.0));
+		drawExpansionShiftX = (float)(mult*box.x(0));
+		drawExpansionShiftY = (float)(mult*box.x(1));
+		drawExpansionShiftZ = (float)(mult*box.x(2));
+	}
+}
+
 }  //end of DisplayPhase.Canvas

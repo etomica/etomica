@@ -96,7 +96,7 @@ public class LatticeRenderer implements Drawable {
         public void setAtom(Atom a) {
             referenceAtom = a;
             directive.set(a);
-            nbrIterator.setBasis(a.node.parentGroup());
+//            nbrIterator.setBasis(a.node.parentGroup());
             AtomList agentList = a.node.parentPhase().speciesMaster.node.childList;
             if(agentList.size() == 1) return;
             

@@ -52,6 +52,7 @@ public class P2Tether extends Potential2 implements Potential2.Hard {
   public final void bump(AtomPair pair) {
         double r2 = pair.r2();
         dr.E(pair.dr());
+		pair.cPair.resetV();
         lastCollisionVirial = 2.0/(pair.atom1().coord.rm() + pair.atom2().coord.rm())*pair.vDotr();
         lastCollisionVirialr2 = lastCollisionVirial/r2;
         pair.cPair.push(lastCollisionVirialr2);
@@ -75,6 +76,7 @@ public class P2Tether extends Potential2 implements Potential2.Hard {
   public final double collisionTime(AtomPair pair) {
     boolean minus;  //flag for +/- root
     double r2 = pair.r2();
+	pair.cPair.resetV();
     double bij = pair.vDotr();
  //       if(r2 < sig2) {return (bij > 0) ? Double.MAX_VALUE : 0.0;}  //inside wall; no collision
     if(r2 > tetherLengthSquared && bij >= 0) {return 0.0;}  //outside tether, moving apart; collide now

@@ -1,5 +1,6 @@
 package etomica;
 
+
 /**
  * Generic intramolecular potential group, having one potential for bonded
  * atoms, and a different potential for unbonded ones.
@@ -35,7 +36,8 @@ public class P1IntraSimple extends PotentialGroup implements Potential1.Intramol
             throw new IllegalArgumentException("Error: Can identify only an existing child of P1IntraSimple as the bonded potential");
         }
         potential.setIterator(new ApiGeneral(simulation().space,
-	            new AtomIteratorList(),
+//				new AtomIteratorList(),
+				new AtomIteratorTree(),
 	            new AtomIteratorBonds()));
     }
     
@@ -60,7 +62,7 @@ public class P1IntraSimple extends PotentialGroup implements Potential1.Intramol
      * Not implemented
      */
     public double energy(Atom a) {
-        throw new RuntimeException("P1IntraSimple.energy method not implemented");
+        throw new etomica.exception.MethodNotImplementedException();
     }
 
     /**

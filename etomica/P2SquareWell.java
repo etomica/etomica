@@ -56,6 +56,7 @@ public class P2SquareWell extends Potential2 implements Potential2.Hard {
   public void bump(AtomPair pair) {
     double eps = 1.0e-6;
     double r2 = pair.r2();
+	pair.cPair.resetV();
     double bij = pair.vDotr();
     // ke is kinetic energy due to components of velocity
     double reduced_m = 1.0/(pair.atom1().coord.rm() + pair.atom2().coord.rm());
@@ -110,6 +111,7 @@ public class P2SquareWell extends Potential2 implements Potential2.Hard {
   public double collisionTime(AtomPair pair) {
     double discr = 0.0;
 
+	pair.cPair.resetV();
     double bij = pair.vDotr();
     double r2 = pair.r2();
     double v2 = pair.v2();

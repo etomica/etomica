@@ -5,9 +5,11 @@
 package etomica.dpd;
 
 import etomica.AtomPair;
+import etomica.Bond;
 import etomica.EtomicaElement;
 import etomica.Potential2SoftSpherical;
 import etomica.Simulation;
+import etomica.SimulationElement;
 import etomica.Space;
 import etomica.Default;
 import etomica.Potential2;
@@ -18,7 +20,7 @@ import etomica.Potential2;
  * The potential used for dissipative particle dynamic simulations.
  * Based on equation 1 of Willemsen et al. (J. Comp. Phys. 162 pp.385-394 (2000))
  */
-public final class P2DPD extends Potential2 implements Potential2.Soft, EtomicaElement {
+public class P2DPD extends Potential2 implements Potential2.Soft, EtomicaElement {
 	double maxRepel; 	//maximum repulsion parameter (aij)
 	double sigma;		//noise amplitude parameter
 	double rC, rC2;			//cutoff radius, square
@@ -33,11 +35,17 @@ public final class P2DPD extends Potential2 implements Potential2.Soft, EtomicaE
 	public P2DPD(){
 		this(3.0, 1.0, 1.0);
 	}
+	
+	public P2DPD(SimulationElement parent) {
+		this(parent, 3.0, 1.0, 1.0);
+	}
 
 	public P2DPD(double sigma, double maxRepel, double cutoffRadius){
-	//public Potential2SoftSpherical(PotentialGroup parent)
-	//public Potential2SoftSpherical(PotentialGroup parent, PotentialTruncation trunc)
-		super(Simulation.instance.hamiltonian.potential);	//Lifted from P2LennardJones
+		this(Simulation.instance.hamiltonian.potential, sigma, maxRepel, cutoffRadius);
+	}
+
+	public P2DPD(SimulationElement parent, double sigma, double maxRepel, double cutoffRadius){
+		super(parent);
 		setSigma(sigma);
 		setMaxRepel(maxRepel);
 		setRC(cutoffRadius);
@@ -94,9 +102,9 @@ public final class P2DPD extends Potential2 implements Potential2.Soft, EtomicaE
 
 			double wR = 1.0 - r/rC;
 			double g = 0.0;
-			g += maxRepel;  //conservative     maxRepel*cR/r dr
-			g += -gamma*wR*pair.vDotr()/r;  //dissipative  -gamma*cR*cR*vdotr/r dr
-			g += constR*rand;// random  constR*cR/r dr,  constR = sigma/sqrt(dt)
+//			g += maxRepel(pair);  //conservative     maxRepel*cR/r dr
+//			g += -gamma*wR*pair.vDotr()/r;  //dissipative  -gamma*cR*cR*vdotr/r dr
+//			g += constR*rand;// random  constR*cR/r dr,  constR = sigma/sqrt(dt)
 			grad.Ea1Tv1(-g*wR/r, pair.dr());  //minus because force is negative of gradient
 //			grad.TE(-1.0);
 //			fConservative.Ea1Tv1(maxRepel*cR/r, pair.dr());
@@ -109,8 +117,16 @@ public final class P2DPD extends Potential2 implements Potential2.Soft, EtomicaE
 //			grad.PE(fRandom);
 		} else {
 			grad.E(0.0);
-		} 		
+		} 	
+		double r0 = 0.5;
+		if(Bond.areBonded(pair.atom1, pair.atom2))	{
+			grad.PEa1Tv1(5.*(1.0 - r0/Math.sqrt(pair.r2())),pair.dr());
+		}
 		return grad;
+	}
+	
+	protected double maxRepel(AtomPair pair) {
+		return maxRepel;
 	}
 
 	/**

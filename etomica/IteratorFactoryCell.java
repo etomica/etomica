@@ -52,15 +52,16 @@ import etomica.utility.java2.Iterator;
 /* History
  * 03/19/03 (DAK) fixed makeCellLattice method to compare r2 to square of
  * neighbor range
+ * 08/10/03 (DAK) made fields protected so can be seen by subclasses
  * 
  */
 public class IteratorFactoryCell implements IteratorFactory {
     
-    private Primitive primitive;
-    private Simulation simulation;
-    private int[] dimensions;
-    private BravaisLattice[] deployedLattices = new BravaisLattice[0];
-    private double neighborRange;
+    protected Primitive primitive;
+    protected Simulation simulation;
+    protected int[] dimensions;
+    protected BravaisLattice[] deployedLattices = new BravaisLattice[0];
+    protected double neighborRange;
     
     /**
      * Constructs a new iterator factory for the given simulation, using
@@ -986,7 +987,8 @@ public interface CellSequencer {
     /**
      * Method called to notify sequencer that the phase has a new cell lattice.
      */
-    public void latticeChangeNotify();
+	public void latticeChangeNotify();
+//	public void setParentNotify(AtomTreeNodeGroup parent);
     
     public AbstractCell cell();
     
@@ -1009,7 +1011,7 @@ public static final class SimpleSequencer extends AtomSequencer implements CellS
         if(atom.node.isLeaf()) return;
         else {
             AtomIteratorListSimple iterator = new AtomIteratorListSimple(((AtomTreeNodeGroup)atom.node).childList);
-            while(iterator.hasNext()) ((CellSequencer)atom.seq).latticeChangeNotify();
+            while(iterator.hasNext()) ((CellSequencer)iterator.next().seq).latticeChangeNotify();
         }
     }
     
@@ -1026,7 +1028,13 @@ public static final class SimpleSequencer extends AtomSequencer implements CellS
     /**
      * Performs no action.
      */
-    public void setParentNotify(AtomTreeNodeGroup newParent) {}
+    public void setParentNotify(AtomTreeNodeGroup newParent) {
+//		if(atom.node.isLeaf()) return;
+//		else {
+//			AtomIteratorListSimple iterator = new AtomIteratorListSimple(((AtomTreeNodeGroup)atom.node).childList);
+//			while(iterator.hasNext()) ((CellSequencer)iterator.next().seq).setParentNotify((AtomTreeNodeGroup)atom.node);
+//		}
+    }
     
     /**
      * Returns true if this atom preceeds the given atom in the atom sequence.

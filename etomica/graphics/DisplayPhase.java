@@ -24,6 +24,8 @@ import etomica.utility.java2.LinkedList;
   * 01/04/03 (DAK) changed behavior of r/t/z key press to make them "sticky",
   * so that user need not keep key pressed to enable action.  Subsequent press
   * releases key
+  * 08/08/03 (DAK) added listener for '<' and '>' keypresses to affect
+  * drawExpansionFactor in DisplayPhaseCanvas3DOpenGL
   */
 public class DisplayPhase extends Display implements Integrator.IntervalListener.AfterPbc, EtomicaElement {
         
@@ -646,6 +648,21 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
                     default:
                         break;
                 }
+            }
+            else if(canvas instanceof DisplayPhaseCanvas3DOpenGL){
+            	DisplayPhaseCanvas3DOpenGL canvasGL = (DisplayPhaseCanvas3DOpenGL)canvas;
+            	switch(c) {
+            		case '<':
+						setImageShells(0);
+            			canvasGL.setDrawExpansionFactor(canvasGL.getDrawExpansionFactor()-0.02);
+            			drawOverflow = false;
+            			break;
+					case '>':
+						setImageShells(0);
+						canvasGL.setDrawExpansionFactor(canvasGL.getDrawExpansionFactor()+0.02);
+						drawOverflow = false;
+						break;
+            	}            			
             }
             keyAction(evt);
         }
