@@ -19,7 +19,7 @@ public class HSMD2D extends Simulation {
         Simulation.instance = this;
 	    integrator = new IntegratorHard(this);
 	    species = new SpeciesDisks(this);
-	    species.setNMolecules(56);
+	    species.setNMolecules(25);
 	    phase = new Phase(this);
 	    potential = new P2HardSphere(this);
 	    controller = new Controller(this);

@@ -8,6 +8,7 @@ package etomica;
 public class AtomGroup extends Atom {
     
     protected int childCount;
+    protected int atomCount;
     protected boolean resizable;
 
     /**
@@ -20,8 +21,7 @@ public class AtomGroup extends Atom {
         resizable = true;
     }
     
-    //to be completed
-//    public int atomCount() {return -1;}
+    public int atomCount() {return atomCount;}
     public int childCount() {return childCount;}
     
     public Atom getAtom(int i) {
@@ -110,6 +110,7 @@ public class AtomGroup extends Atom {
             }
         }
         childCount++;
+        addAtomNotify(aNew);
     }//end of addAtom
 
 
@@ -150,6 +151,7 @@ public class AtomGroup extends Atom {
             else if(next != null) next.clearPreviousAtom();
         }
         
+        removeAtomNotify(a);
     }//end of removeAtom
 
     /**
@@ -176,6 +178,19 @@ public class AtomGroup extends Atom {
         childCount = 0;
         return first;
     }//end of removeAll
+    
+    /**
+     * Notifies this atom group that an atom has been added to it or one of its descencents.
+     */
+    protected void addAtomNotify(Atom atom) {
+        atomCount += atom.atomCount();
+        parentGroup().addAtomNotify(atom);
+    }
+    
+    protected void removeAtomNotify(Atom atom) {
+        atomCount -= atom.atomCount();
+        parentGroup().removeAtomNotify(atom);
+    }
     
     /**
      * Indicates whether the number of child atoms of this group can be changed.

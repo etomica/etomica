@@ -3,14 +3,14 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 
  /**
-  * Each instance of the class Atom holds the coordinates of one physical atom; 
-  * all simulation kinetics and dynamics are performed by operating on these values.
-  * The coordinate is provided the the Space object when the atom is instantiated.
-  * In addition, an Atom has a type that holds information such as how it is drawn,
+  * Object corresponding to one physical atom or (in subclasses) group of atoms.
+  * Each atom holds one instance of a Coordinate that is constructed by the governing
+  * space class. 
+  * all simulation kinetics and dynamics are performed by operating on the atom's coordinate.
+  * In addition, an Atom has a type that holds information needed to draw the atom,
   * and possibly information to be used as parameters in a potential.  Each atom
   * holds an Integrator.Agent object that may be used to store information needed
   * by the integrator.
-  * Atoms are constructed when Species creates a Molecule.
   * 
   * @author David Kofke
   * @author C. Daniel Barnes
@@ -28,15 +28,15 @@ public class Atom implements java.io.Serializable {
     }
                     
     /**
-     * Assigns the atom's integrator agent to the given instance
-     * 
-     * @param ia
+     * Assigns the atom's integrator agent to the given instance.
      */
     public void setIntegratorAgent(Integrator.Agent ia) {this.ia = ia;}
             
     public final AtomGroup parentGroup() {return parentGroup;}
     
     public void setParentGroup(AtomGroup parent) {parentGroup = parent;}
+    
+    public int atomCount() {return (type instanceof AtomType.Wall) ? 0 : 1;}
 
     /**
      * Simulation in which this atom resides
@@ -54,7 +54,10 @@ public class Atom implements java.io.Serializable {
     Bond firstBond;
     
     */
-    public void sendToReservoir() {creator().reservoir().addAtom(this);}
+    public void sendToReservoir() {
+        if(parentGroup != null) parentGroup.removeAtom(this);
+        creator().reservoir().addAtom(this);
+    }
     public AtomFactory creator() {return type.creator();}
     
     /**
@@ -70,6 +73,8 @@ public class Atom implements java.io.Serializable {
      */
     public final int index() {return atomIndex;}
     public final void setIndex(int i) {atomIndex = i;}
+    public String signature() {return atomIndex + " " + parentGroup.signature();}
+    public final String toString() {return "Atom(" + signature() + ")";}
         
     /**
      * Sets atom following this one in linked list, and sets this to be that atom's previous atom in list
@@ -203,4 +208,4 @@ public class Atom implements java.io.Serializable {
         while(iter.hasNext()) {iter.next(); n++;}
         return n;
     }
-}
+}//end of Atom

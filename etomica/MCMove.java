@@ -115,7 +115,7 @@ public abstract class MCMove implements Cloneable, java.io.Serializable {
         if(perParticleFrequency && phases!=null) {
             int mCount = 0;
             for(int i=0; i<phases.length; i++) 
-                if(phases[i]!= null) mCount += phases[i].moleculeCount;
+                if(phases[i]!= null) mCount += phases[i].moleculeCount();
             fullFrequency *= mCount;
         }
     }

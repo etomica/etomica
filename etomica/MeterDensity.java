@@ -35,7 +35,7 @@ public class MeterDensity extends Meter implements Meter.Atomic, EtomicaElement
 
     public double currentValue()
     {
-        return phase.moleculeCount/phase.volume();
+        return phase.moleculeCount()/phase.volume();
     }
     
     public double currentValue(Atom a) {

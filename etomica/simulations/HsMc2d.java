@@ -40,19 +40,10 @@ public class HsMc2d extends Simulation {
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
-        javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
-        f.setSize(600,350);
-        
-        Simulation sim = new HsMc2d();
+        HsMc2d sim = new HsMc2d();
 		sim.elementCoordinator.go(); 
-		
-        f.getContentPane().add(sim.panel());
-        
-        f.pack();
-        f.show();
-        f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
-        });
+		Simulation.makeAndDisplayFrame(sim);
+	//	sim.controller.start();
     }//end of main
     
 }

@@ -75,8 +75,6 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
             iteratorFactory = new IteratorFactory(this);
         }
 
-        atomCount = 0;
-
 //        setBoundary(Space.Boundary.DEFAULT);
         setBoundary(parentSimulation().space().makeBoundary());
 
@@ -153,14 +151,6 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
     public Atom randomMolecule() {
         int i = (int)(moleculeCount() * java.lang.Math.random());
         return molecule(i);
-    }
-    
-    public int moleculeCount() {
-        int sum = 0;
-        for(SpeciesAgent s=speciesMaster.firstSpecies(); s!=null; s=s.nextSpecies()) {
-            sum += s.childCount();
-        }
-        return sum;
     }
 
      /**
@@ -251,11 +241,6 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
     public double getDensity() {return moleculeCount()/boundary.volume();}
 
     /**
-     * @return the number of atoms in the Phase
-     */
-    public final int atomCount() {return atomCount;}
-        
-    /**
      * @return the first atom in the linked list of atoms in this Phase
      */
     public final Atom firstAtom() {
@@ -269,7 +254,6 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
         return speciesMaster.lastLeafAtom();
     }
     
-    
     /**
      * @return the first Agent in the linked list of Species.Agents in this phase
      */
@@ -279,7 +263,11 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
      * @return the last Agent in the linked list of Species.Agents in this phase
      */
     public final SpeciesAgent lastSpecies() {return (SpeciesAgent)speciesMaster.lastChild();}
-          
+    
+    public int moleculeCount() {return speciesMaster.moleculeCount();}
+    
+    public int atomCount() {return speciesMaster.atomCount();}
+    
     /**
     * Returns the temperature (in simulation units) of this phase as computed via the equipartition
     * theorem from the kinetic energy summed over all (atomic) degrees of freedom
@@ -335,23 +323,6 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
         potential.addPotential(pot);
     }
     
-    /**
-     * Updates all the molecule and atoms counts for this phase.
-     * Does not include wall atoms in the count.
-     */
-/*    public void updateCounts() {
-        moleculeCount = 0;
-        atomCount = 0;
-        for(Molecule m=firstMolecule(); m!=null; m=m.nextMolecule()) {
-            if(m.firstAtom.type instanceof AtomType.Wall) continue;
-            moleculeCount++;
-        }
-        for(Atom a=firstAtom(); a!=null; a=a.nextAtom()) {
-            if(a.type instanceof AtomType.Wall) continue;
-            atomCount++;
-        }
-    }
- */   
     /**
      * Adds the given molecule to this phase, placing it in the molecule/atom linked lists
      * and removing it from the container it previously resided.
@@ -423,20 +394,7 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
      * @return The name given to the object
      */
     public String toString() {return getName();}  //override Object method
-                    
-    /**
-    * Total number of atoms in this phase
-    */
-    public int atomCount;
-         
-    /**
-    * Total number of molecules in this phase
-    *
-    * @see Species#addMolecule
-    * @see Species#deleteMolecule
-    */
-    public int moleculeCount;
-             
+                                 
     public Configuration configuration;
           
     private Integrator integrator;
@@ -485,7 +443,7 @@ public final class Phase implements Simulation.Element, java.io.Serializable {
         return new AtomIteratorSequential() {
             public Atom defaultFirstAtom() {return Phase.this.firstAtom();}
             public Atom defaultLastAtom() {return Phase.this.lastAtom();}
-            public boolean contains(Atom a) {return a.parentPhase() == Phase.this;}
+            public boolean contains(Atom a) {return a != null && a.parentPhase() == Phase.this;}
         };
     }
     

@@ -14,22 +14,11 @@
 public abstract class AtomIteratorSequential extends AtomIteratorAbstract  {
 
     /**
-     * Sets phase but does not reset iterator.  
      * Initial state is hasNext = false.
      */
     public AtomIteratorSequential() {
         super();
     }
-
-    /**
-     * Returns first atom in phase.
-     */
-//    public Atom defaultFirstAtom() {return phase.firstAtom();}
-    
-    /**
-     * Returns last atom in phase.
-     */
- //   public Atom defaultLastAtom() {return phase.lastAtom();}
     
     public Atom firstUpNeighbor(Atom a) {
         if(a.preceeds(defaultFirstAtom())) return defaultFirstAtom();
@@ -50,6 +39,11 @@ public abstract class AtomIteratorSequential extends AtomIteratorAbstract  {
 
     public Atom next() {
         Atom nextAtom = atom;
+        //for debugging
+        if(atom == null) {
+            System.out.println("error:  unexpected null in atomiteratorsequential");
+        }
+        //------------
         atom = upListNow ? atom.nextAtom() : atom.previousAtom();
         hasNext = nextAtom != terminator;
         if(!hasNext && upListNow && doGoDown) {//done going up and now prepare to go down

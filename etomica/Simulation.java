@@ -412,8 +412,8 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
             atom.setColor(Constants.randomColor());
         }
         
-		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
-		                                    //calling it a second time has no effect
+        //this method call invokes the mediator to tie together all the assembled components.
+		Simulation.instance.elementCoordinator.go();
 		                                    
         Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
         potentialAgent.setIterator(new AtomPairIterator(phase));

@@ -29,28 +29,23 @@ public abstract class Configuration implements java.io.Serializable {
         
         atom.coord.randomizeMomentum(temperature);
         
-        /**   zero com momentum here or in coordinate?
+        /**   zero com momentum here or in coordinate?*/
         work.E(0.0);
         int sum = 0;
-            AtomIterator iterator = s.childIterator;
+            AtomIterator iterator = ((AtomGroup)atom).childIterator;
             iterator.reset();
             while(iterator.hasNext()) {
                 Atom a = iterator.next();
                 a.coord.randomizeMomentum(temperature);
                 sum++;
-                momentumSum.PE(a.coord.momentum());
+                work.PE(a.coord.momentum());
 	        }
-	    }
     //    Zero center-of-mass momentum
-        momentumSum.DE((double)sum);
-        for(SpeciesAgent s=phase.firstSpecies(); s!=null; s=s.nextSpecies()) {
-            if(s.parentSpecies() instanceof SpeciesWalls) {continue;}
-            AtomIterator iterator = s.childIterator;
+        work.DE((double)sum);
             iterator.reset();
             while(iterator.hasNext()) {
-                iterator.next().coord.momentum().ME(momentumSum);
+                iterator.next().coord.momentum().ME(work);
             }
-        }*/
     }
         
     

@@ -37,9 +37,19 @@ public class AtomPairIterator implements java.io.Serializable {
         pair = null;
         ai1 = ai2 = null;
     }
+    /**
+     * Constructs an iterator of all atom pairs in the given phase.
+     */
     public AtomPairIterator(Phase p) {
         this(p, p.iteratorFactory().makeAtomIterator(), p.iteratorFactory().makeAtomIterator());
     }
+    /**
+     * Constructs an iterator of all pairs formed from the given species in the given phase.
+     */
+     public AtomPairIterator(Phase p, Species species1, Species species2) {
+        this(p, species1.getAgent(p).new LeafAtomIterator(),
+                species2.getAgent(p).new LeafAtomIterator());
+     }
     /**
      * Construct a pair iterator for the given phase, using the given atom iterators
      */
@@ -49,6 +59,7 @@ public class AtomPairIterator implements java.io.Serializable {
         hasNext = false;
         ai1 = iter1;
         ai2 = iter2;
+        direction = IteratorDirective.UP;
     }
     
     public final boolean hasNext() {return hasNext;}
@@ -175,6 +186,59 @@ public class AtomPairIterator implements java.io.Serializable {
         private Null() {super();}
         public void reset(IteratorDirective id) {}
     }
+    
+    public static void main(String[] args) throws java.io.IOException {
+        
+        java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
+        Phase phase = TestAll.setupTestPhase(4);
+     //   Atom  atom = ((AtomGroup)phase.firstSpecies().getAtom(2)).firstChild();
+        Atom  atom = phase.firstSpecies().getAtom(2);
+        AtomPairIterator iterator = new AtomPairIterator(phase);
+        IteratorDirective id = new IteratorDirective();
+        String line;
+        
+        System.out.println("reset()"); iterator.reset();
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+
+        System.out.println("reset(DOWN)"); iterator.reset(id.set(IteratorDirective.DOWN));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+
+        System.out.println("reset(NEITHER)"); iterator.reset(id.set(IteratorDirective.NEITHER));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+ 
+        System.out.println("reset(BOTH)"); iterator.reset(id.set(IteratorDirective.BOTH));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+ 
+        System.out.println("reset(atom,UP)"); iterator.reset(id.set(atom).set(IteratorDirective.UP));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+ 
+        System.out.println("reset(atom,DOWN)"); iterator.reset(id.set(atom).set(IteratorDirective.DOWN));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+ 
+        System.out.println("reset(atom,NEITHER)"); iterator.reset(id.set(atom).set(IteratorDirective.NEITHER));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+ 
+        System.out.println("reset(atom,BOTH)"); iterator.reset(id.set(atom).set(IteratorDirective.BOTH));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+
+        atom = phase.lastAtom();
+        
+        System.out.println("reset(lastatom,UP)"); iterator.reset(id.set(atom).set(IteratorDirective.UP));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+ 
+        System.out.println("reset(lastatom,DOWN)"); iterator.reset(id.set(atom).set(IteratorDirective.DOWN));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+ 
+        System.out.println("reset(lastatom,NEITHER)"); iterator.reset(id.set(atom).set(IteratorDirective.NEITHER));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+ 
+        System.out.println("reset(lastatom,BOTH)"); iterator.reset(id.set(atom).set(IteratorDirective.BOTH));
+        while(iterator.hasNext()) {AtomPair pair = iterator.next();System.out.println(pair.atom1().toString()+ "  " + pair.atom2().toString());}  line = in.readLine();
+
+        System.out.println("Done");
+        line = in.readLine();
+        System.exit(0);
+    }//end of main
     
 }  //end of class AtomPairIterator
     

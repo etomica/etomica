@@ -73,10 +73,8 @@ public class ColorSchemeBySpecies extends ColorScheme {
     /**
      * Method to test and demonstrate use of this class
      */
-/*    public static void main(String[] args) {
-        Frame f = new Frame();   //create a window
-        f.setSize(600,350);
-        
+    public static void main(String[] args) {
+
         Simulation.instance = new Simulation(new Space2D());
         
         //set up a system of three species
@@ -86,19 +84,23 @@ public class ColorSchemeBySpecies extends ColorScheme {
 	    SpeciesDisks speciesDisks0 = new SpeciesDisks(10,3); //nM, nA
 	    SpeciesDisks speciesDisks1 = new SpeciesDisks(5,1);
 	    SpeciesDisks speciesDisks2 = new SpeciesDisks(5,1);
-	    P1TetherHardDisk P1TetherHardDisk0 = new P1TetherHardDisk();
-	    P2HardDisk P2HardDisk00 = new P2HardDisk();  
-	    P2HardDisk P2HardDisk01 = new P2HardDisk();  
-	    P2HardDisk P2HardDisk02 = new P2HardDisk();  
-	    P2HardDisk P2HardDisk11 = new P2HardDisk(); 
-	    P2HardDisk P2HardDisk12 = new P2HardDisk();  
-	    P2HardDisk P2HardDisk22 = new P2HardDisk();
-	    P2HardDisk01.setSpeciesIndex(0,1);
+	    P2Tether = new P2Tether();
+	    P2HardDisk p2HardDisk00 = new P2HardSphere();  
+	    P2HardDisk p2HardDisk01 = new P2HardSphere();  
+	    P2HardDisk p2HardDisk02 = new P2HardSphere();  
+	    P2HardDisk p2HardDisk11 = new P2HardSphere(); 
+	    P2HardDisk p2HardDisk12 = new P2HardSphere();  
+	    P2HardDisk p2HardDisk22 = new P2HardSphere();
+	    Simulation.instance.elementCoordinator().go();
+        Potential2.Agent potentialAgent = (Potential2.Agent)p2HardDisk00.getAgent(phase);
+        potentialAgent.setIterator(new AtomPairIterator(phase1, speciesDisks0, speciesDisks0));
+	    
+	  /*  P2HardDisk01.setSpeciesIndex(0,1);
 	    P2HardDisk02.setSpeciesIndex(0,2);
 	    P2HardDisk11.setSpeciesIndex(1,1);
 	    P2HardDisk12.setSpeciesIndex(1,2);
 	    P2HardDisk22.setSpeciesIndex(2,2);
-	    controller1.setMakeButton(true);
+*/
 	    DisplayPhase displayPhase1 = new DisplayPhase();
 	    IntegratorMD.Timer timer = integratorHard1.new Timer(integratorHard1.new ChronoMeter());
 	    timer.setUpdateInterval(10);
@@ -106,7 +108,8 @@ public class ColorSchemeBySpecies extends ColorScheme {
 		
 		//set up color scheme
 		ColorSchemeBySpecies colorScheme = new ColorSchemeBySpecies();
-		ColorSchemeHeteroAtoms cs0 = new ColorSchemeHeteroAtoms();
+//	for debugging	ColorSchemeHeteroAtoms cs0 = new ColorSchemeHeteroAtoms();
+		ColorSchemeHeteroAtoms cs0 = new ColorSchemeNull();
 		ColorSchemeTemperature cs1 = new ColorSchemeTemperature();
 		ColorSchemeNull cs2 = new ColorSchemeNull();
 		colorScheme.addSpecies(speciesDisks0, cs0);
@@ -117,16 +120,8 @@ public class ColorSchemeBySpecies extends ColorScheme {
         cs0.setAtomColors(new Color[] {Color.yellow, Color.green, Color.cyan});
 		
 		
-		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
-		                                    //calling it a second time has no effect
-		                                    
-        f.add(Simulation.instance);         //access the static instance of the simulation to
-                                            //display the graphical components
-        f.pack();
-        f.show();
-        f.addWindowListener(new WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(WindowEvent e) {System.exit(0);}
-        });
+		Simulation.instance.elementCoordinator.go(); 
+		Simulation.makeAndDisplayFrame(Simulation.instance);                                    
     }
-    */    
+        
 } //end of ColorSchemeBySpecies

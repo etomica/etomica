@@ -32,8 +32,8 @@ public class MCMoveRotate extends MCMove {
          
         double uOld, uNew;
        
-        if(phase.atomCount==0) {return;}
-        int i = (int)(rand.nextDouble()*phase.atomCount);
+        if(phase.atomCount()==0) {return;}
+        int i = (int)(rand.nextDouble()*phase.atomCount());
         Atom a = phase.firstAtom();
         for(int j=i; --j>=0; ) {a = a.nextAtom();}  
             

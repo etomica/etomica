@@ -208,9 +208,6 @@ public class DeviceSlider extends Device implements EtomicaElement {
      * Slider is used to control the temperature of a hard-disk MD simulation
      */
     public static void main(String[] args) {
-        Frame f = new Frame();   //create a window
-        f.setSize(600,350);
-        
         etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
         Simulation.instance = sim;
         
@@ -222,12 +219,6 @@ public class DeviceSlider extends Device implements EtomicaElement {
         //end of unique part
  
         Simulation.instance.elementCoordinator.go();
-        f.add(Simulation.instance);         //access the static instance of the simulation to
-                                            //display the graphical components
-        f.pack();
-        f.show();
-        f.addWindowListener(new WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(WindowEvent e) {System.exit(0);}
-        });
+        Simulation.makeAndDisplayFrame(sim);
     }
 }

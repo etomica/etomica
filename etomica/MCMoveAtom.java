@@ -25,8 +25,8 @@ public class MCMoveAtom extends MCMove {
 
     public void thisTrial() {
         double uOld, uNew;
-        if(phase.atomCount==0) {return;}
-        int i = (int)(rand.nextDouble()*phase.atomCount);
+        if(phase.atomCount()==0) {return;}
+        int i = (int)(rand.nextDouble()*phase.atomCount());
         Atom a = phase.firstAtom();
         // maybe try while(i-- >= 0) {}
         for(int j=i; --j>=0; ) {a = a.nextAtom();}  //get ith atom in list

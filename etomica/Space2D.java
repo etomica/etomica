@@ -303,8 +303,11 @@ public class Space2D extends Space implements EtomicaElement {
 
         public void randomizeMomentum(double temperature) {  //not very sophisticated; random only in direction, not magnitude
             double magnitude = Math.sqrt(mass()*temperature*(double)D);  //need to divide by sqrt(m) to get velocity
-            momentum().setRandomSphere();
-            momentum().TE(magnitude);
+      //      momentum().setRandomSphere();
+      //      momentum().TE(magnitude);
+            //for debugging
+            momentum().E(position());
+            momentum().TE(magnitude/30.);
         }
     }
     
@@ -429,8 +432,16 @@ public class Space2D extends Space implements EtomicaElement {
         }
         public final void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
         public void randomizeMomentum(double temperature) {
+            work.E(0.0); double sum=0.0;
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                 coord.randomizeMomentum(temperature);
+                work.PE(coord.momentum());
+                sum++;
+                if(coord == lastChild) break;
+            }
+            work.DE(sum);
+            for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
+                coord.momentum().ME(work);
                 if(coord == lastChild) break;
             }
         }

@@ -20,8 +20,8 @@ public class SpeciesDisks extends Species implements EtomicaElement {
         f.setType(type);
         AtomFactoryMulti fm = new AtomFactoryMulti(sim,f);
         fm.setAtomsPerGroup(na);
-  //      return fm;
-        return f;
+        return fm;
+//        return f;
     }
         
     public SpeciesDisks() {
@@ -42,6 +42,9 @@ public class SpeciesDisks extends Species implements EtomicaElement {
             protoType = new AtomType.Disk(Default.ATOM_MASS,Default.ATOM_COLOR,Default.ATOM_SIZE);
         }*/
         nMolecules = n;        
+    }
+    public SpeciesDisks(int nM, int nA) {
+        this(Simulation.instance, nM, nA);
     }
     public SpeciesDisks(Simulation sim, int nM, int nA) {
         super(sim, makeFactory(sim, nA));

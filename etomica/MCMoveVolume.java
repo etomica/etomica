@@ -39,7 +39,7 @@ public class MCMoveVolume extends MCMove {
         uNew = phasePotential.calculate(iteratorDirective, energy.reset()).sum();
         hNew = uNew + pressure*vNew;
         if(hNew >= Double.MAX_VALUE ||
-             Math.exp(-(hNew-hOld)/parentIntegrator.temperature+(phase.moleculeCount+1)*vScale)
+             Math.exp(-(hNew-hOld)/parentIntegrator.temperature+(phase.moleculeCount()+1)*vScale)
                 < Math.random()) 
             {  //reject
               inflate.undo();

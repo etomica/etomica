@@ -13,7 +13,7 @@ public class LjMd2D extends Simulation {
     public SpeciesDisks species;
     public Phase phase;
     public P2LennardJones potential;
-    /*static*/ public Controller controller; //make static for debugging autostart
+    static public Controller controller; //make static for debugging autostart
     public DisplayPhase display;
     public DisplayPlot plot;
 
@@ -21,7 +21,7 @@ public class LjMd2D extends Simulation {
         super(new Space2D());
         Simulation.instance = this;
 	    integrator = new IntegratorVelocityVerlet(this);
-	    species = new SpeciesDisks(this);
+	    species = new SpeciesDisks(this,25);
 	    phase = new Phase(this);
 	    potential = new P2LennardJones();
 	    controller = new Controller(this);
@@ -37,7 +37,7 @@ public class LjMd2D extends Simulation {
 		energy.getHistory().setNValues(500);		
 		plot = new DisplayPlot(this);
 		plot.setLabel("Energy");
-		plot.setDataSource(energy.getHistory());
+		plot.setDataSources(energy.getHistory());
 		
 		integrator.setSleepPeriod(2);
 		
@@ -62,7 +62,7 @@ public class LjMd2D extends Simulation {
         f.pack();
         f.show();
         f.addWindowListener(Simulation.WINDOW_CLOSER);
-     //   controller.start();
+        controller.start();
     }//end of main
     
 }

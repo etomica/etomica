@@ -56,8 +56,8 @@ public final class MCMoveVolumeExchange extends MCMove {
                     + secondPhase.potential().calculate(iteratorDirective, energy.reset()).sum();
         if(hNew >= Double.MAX_VALUE ||
              Math.exp(-(hNew-hOld)/parentIntegrator.temperature+
-                       (firstPhase.moleculeCount+1)*Math.log(v1Scale) +
-                       (secondPhase.moleculeCount+1)*Math.log(v2Scale))
+                       (firstPhase.moleculeCount()+1)*Math.log(v1Scale) +
+                       (secondPhase.moleculeCount()+1)*Math.log(v2Scale))
                 < rand.nextDouble()) 
             {  //reject
               inflate1.undo();
