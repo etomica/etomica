@@ -37,7 +37,8 @@ public class IntegratorHard extends IntegratorMD {
 
     protected final CollisionHandlerUp collisionHandlerUp = new CollisionHandlerUp();
     protected final CollisionHandlerDown collisionHandlerDown = new CollisionHandlerDown();
-    protected final AtomArrayList listToUpdate = new AtomArrayList();
+    protected final AtomList listToUpdate = new AtomList();
+    protected final AtomIteratorListSimple reverseIterator = new AtomIteratorListSimple();
 
     protected TreeList eventList;
 
@@ -224,9 +225,10 @@ public class IntegratorHard extends IntegratorMD {
      * changed.
      */
     private void processReverseList() {
-        int size = listToUpdate.size();
-        for (int i=0; i<size; i++) {
-            Atom reverseAtom = listToUpdate.get(i);
+        reverseIterator.setList(listToUpdate); 
+        reverseIterator.reset();
+        while(reverseIterator.hasNext()) {
+            Atom reverseAtom = reverseIterator.nextAtom();
             Agent agent = (Agent)reverseAtom.ia;
             if (agent.collisionTime < Double.MAX_VALUE) {
                 agent.eventLinker.remove();
