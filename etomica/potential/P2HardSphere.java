@@ -1,6 +1,7 @@
 package etomica.potential;
 
-import etomica.Atom;
+import etomica.AtomPair;
+import etomica.AtomSet;
 import etomica.Debug;
 import etomica.Default;
 import etomica.EtomicaInfo;
@@ -64,9 +65,9 @@ public class P2HardSphere extends Potential2HardSpherical {
     /**
      * Time to collision of pair, assuming free-flight kinematics
      */
-    public double collisionTime(Atom[] pair, double falseTime) {
+    public double collisionTime(AtomSet pair, double falseTime) {
 //        dr.E(cPairNbr.reset(pair[0].coord,pair[1].coord));
-        Vector dv = ((CoordinatePairKinetic)cPairNbr).resetV(pair[0].coord,pair[1].coord);
+        Vector dv = ((CoordinatePairKinetic)cPairNbr).resetV(((AtomPair)pair).atom0.coord,((AtomPair)pair).atom1.coord);
         dr.Ev1Pa1Tv2(cPairNbr.reset(),falseTime,dv);
 //        dr.E(cPairNbr.dr());
 //        Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();
@@ -83,7 +84,7 @@ public class P2HardSphere extends Potential2HardSpherical {
             }
         }
         if (Debug.ON && Debug.DEBUG_NOW && (Debug.allAtoms(pair) || time < 0.0)) {
-        	System.out.println("atoms "+pair[0]+" and "+pair[1]+" r2 "+dr.squared()+" bij "+bij+" time "+time);
+        	System.out.println("atoms "+pair+" r2 "+dr.squared()+" bij "+bij+" time "+time);
         	if (time < 0.0) throw new RuntimeException("negative collision time for hard spheres");
         }
         return time + falseTime;
@@ -92,23 +93,24 @@ public class P2HardSphere extends Potential2HardSpherical {
     /**
      * Implements collision dynamics and updates lastCollisionVirial
      */
-    public void bump(Atom[] pair, double falseTime) {
-        cPair.reset(pair[0].coord,pair[1].coord);
+    public void bump(AtomSet atoms, double falseTime) {
+        AtomPair pair = (AtomPair)atoms;
+        cPair.reset(pair.atom0.coord,pair.atom1.coord);
         ((CoordinatePairKinetic)cPair).resetV();
         dr.E(cPair.dr());
         Vector dv = ((CoordinatePairKinetic)cPair).dv();
         dr.PEa1Tv1(falseTime,dv);
         double r2 = dr.squared();
         double bij = dr.dot(dv);
-        double reducedMass = 2.0/(pair[0].type.rm() + pair[1].type.rm());
+        double reducedMass = 2.0/(pair.atom0.type.rm() + pair.atom1.type.rm());
         lastCollisionVirial = reducedMass*bij;
         lastCollisionVirialr2 = lastCollisionVirial/r2;
         //dv is now change in velocity due to collision
         dv.Ea1Tv1(lastCollisionVirialr2/reducedMass,dr);
-        ((ICoordinateKinetic)pair[0].coord).velocity().PE(dv);
-        ((ICoordinateKinetic)pair[1].coord).velocity().ME(dv);
-        pair[0].coord.position().PEa1Tv1(-falseTime,dv);
-        pair[1].coord.position().PEa1Tv1(falseTime,dv);
+        ((ICoordinateKinetic)pair.atom0.coord).velocity().PE(dv);
+        ((ICoordinateKinetic)pair.atom1.coord).velocity().ME(dv);
+        pair.atom0.coord.position().PEa1Tv1(-falseTime,dv);
+        pair.atom1.coord.position().PEa1Tv1(falseTime,dv);
     }
     
     public double lastCollisionVirial() {
