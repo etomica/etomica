@@ -7,6 +7,11 @@ package etomica;
  *
  * @author David Kofke
  */
+
+/* History
+ * 02/21/03 (DAK) added all(AtomList...) method
+ * 
+ */
 public final class AtomIteratorListSimple extends AtomIterator {
     
     private AtomList list;
@@ -21,13 +26,18 @@ public final class AtomIteratorListSimple extends AtomIterator {
 	}
     
 	public void all(Atom basis, IteratorDirective dummy, final AtomActive action) {
-		if(basis==null || basis.node.isLeaf() || action == null) return;
-		final AtomLinker header = ((AtomTreeNodeGroup)basis.node).childList.header;
+		if(basis==null || basis.node.isLeaf()) return;
+		all(((AtomTreeNodeGroup)basis.node).childList, dummy, action);
+	}
+	
+	public void all(AtomList basisList, IteratorDirective dummy, final AtomActive action) {
+		if(basisList == null || action == null) return;
+		final AtomLinker header = basisList.header;
 		for(AtomLinker e=header.next; e!=header; e=e.next) {
 			if(e.atom != null) action.actionPerformed(e.atom);
 		}
 	}
-	
+
 	public boolean hasNext() {return next.atom != null;}
 	
 	/**

@@ -163,7 +163,7 @@ public abstract class Space implements java.io.Serializable {
         public abstract Space.Vector M(Space.Vector u);       //subtracts component-by-component and returns result in another vector
         public abstract Space.Vector T(Space.Vector u);       //multiplies component-by-component and returns result in another vector
         public abstract Space.Vector D(Space.Vector u);       //divides component-by-component and returns result in another vector
-        public abstract Space.Vector abs();                   //takes absolute value of each component and returns result in another vector
+        public abstract void abs();		                      //replaces each component with its absolute value
         public abstract void mod(double a);                   //each component replaced with itself modulo a
         public abstract void mod(Space.Vector u);             //each component replaced with itself modulo component of vector
         public abstract double min();                         //returns minimum of all components

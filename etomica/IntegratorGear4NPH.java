@@ -79,6 +79,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     public boolean addPhase(Phase p) {
         boolean b = super.addPhase(p);
         inflate = new PhaseAction.Inflate(firstPhase);
+        meterTemperature.setPhase(firstPhase);
         return b;
     }
     
@@ -96,7 +97,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     }//end of doStep
     
     public void drivePT() {
-        kineticT = meterTemperature.currentValue(firstPhase.speciesMaster);
+        kineticT = meterTemperature.currentValue();
         double mvsq = kineticT * D * firstPhase.atomCount();
         double volume = firstPhase.volume();
         double pCurrent = firstPhase.getDensity()*kineticT - forceSumNPH.w/(D*volume);
@@ -256,6 +257,23 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
             f.E(p1Soft.gradient(atom));
             ((Integrator.Agent.Forcible)atom.ia).force().ME(f);
         }//end of calculate
+        
+        public void actionPerformed(AtomPair pair) {
+			double r2 = pair.r2();
+			u += p2Soft.energy(pair);
+			w += p2Soft.virial(pair);
+			double hv = p2Soft.hyperVirial(pair);
+			x += hv;
+			rvx += hv * pair.vDotr()/r2;
+			f.E(p2Soft.gradient(pair));
+			vf -= pair.cPair.vDot(f); //maybe should be (-)?
+			((Integrator.Agent.Forcible)pair.atom1().ia).force().PE(f);
+			((Integrator.Agent.Forcible)pair.atom2().ia).force().ME(f);       	
+        }
+        
+        public void actionPerformed(Atom3 triplet) {
+        	throw new etomica.exception.MethodNotImplementedException();
+        }
 
         //pair
         public void calculate(AtomPairIterator iterator, Potential2 potential) {

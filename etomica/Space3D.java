@@ -143,7 +143,7 @@ public class Space3D extends Space implements EtomicaElement {
 		public Space.Vector M(Space.Vector u) {Vector work = new Vector(); work.Ev1Mv2(this,u); return work;}
 		public Space.Vector T(Space.Vector u) {Vector work = new Vector(); work.E(this); work.TE(u); return work;}
 		public Space.Vector D(Space.Vector u) {Vector work = new Vector(); work.E(this); work.DE(u); return work;}
-		public Space.Vector abs() {Vector work = new Vector(); work.E(this); work.abs(); return work;}
+		public void abs() {x=(x<0)?-x:x; y=(y<0)?-y:y; z=(z<0)?-z:z;}
         public double min() {return (x < y) ? (x<z)?x:z : (y<z)?y:z;}
         public double max() {return (x > y) ? (x>z)?x:z : (y>z)?y:z;}
         public double squared() {return x*x + y*y + z*z;}

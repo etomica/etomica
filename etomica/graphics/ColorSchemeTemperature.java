@@ -47,7 +47,7 @@ public class ColorSchemeTemperature extends ColorScheme {
         double ke = a.coord.kineticEnergy();
         if(ke > KEMax) {blue = 0.0f;}
         else if(ke < KEMin) {blue = 1.0f;}
-        else {blue = (float)((ke-KEMin)*range);}
+        else {blue = (float)((KEMax-ke)*range);}
         red = 1.0f - blue;
         return new Color(red, 0.0f, blue);
     }

@@ -125,22 +125,66 @@ public class MCMoveInsertDelete extends MCMove {
 ///*    
     public static void main(String[] args) {
         Default.TRUNCATE_POTENTIALS = false;
-        etomica.simulations.HsMc2d sim = new etomica.simulations.HsMc2d();
-        Simulation.instance = sim;
+//        etomica.simulations.HsMc2d sim = new etomica.simulations.HsMc2d();
+//		MeterNMolecules meterN = new MeterNMolecules();
+//		etomica.graphics.DisplayBox box = new etomica.graphics.DisplayBox((DatumSource)meterN);
+//		box.setUpdateInterval(10);
+//        
+//		MCMoveInsertDelete mcMoveInsDel = new MCMoveInsertDelete(sim.integrator);
+//		mcMoveInsDel.setSpecies(sim.species);
+//		mcMoveInsDel.setMu(-2000.);
+//        
+//		sim.integrator(0).setTemperature(1.0);
+//		                                    
+//		etomica.graphics.DeviceSlider slider = new etomica.graphics.DeviceSlider(mcMoveInsDel,"mu");
+//		slider.setMinimum(-20);
+//		slider.setMaximum(+20);
+//		Simulation.instance.elementCoordinator.go();
+		Simulation sim = new etomica.graphics.SimulationGraphic();
+		Controller controller = new Controller();
 
-        MeterNMolecules meterN = new MeterNMolecules();
-        etomica.graphics.DisplayBox box = new etomica.graphics.DisplayBox((DatumSource)meterN);
-        box.setUpdateInterval(10);
+		SpeciesSpheresMono species = new SpeciesSpheresMono();
+		
+		Phase phase1 = new Phase();
+		Phase phase2 = new Phase();
+		IntegratorMC integrator1 = new IntegratorMC();
+		IntegratorMC integrator2 = new IntegratorMC();
+		phase1.setIntegrator(integrator1);
+		phase2.setIntegrator(integrator2);
+		integrator1.setTemperature(1.0);
+		integrator2.setTemperature(1.0);
+		
+		P2HardSphere potential = new P2HardSphere();
+		potential.setSpecies(species);
+		
+		sim.elementCoordinator.go();
+		
+		MCMoveAtom moveAtom1 = new MCMoveAtom(integrator1);
+		MCMoveAtom moveAtom2 = new MCMoveAtom(integrator2);
+		MCMoveInsertDelete mcMoveInsDel1 = new MCMoveInsertDelete(integrator1);
+		MCMoveInsertDelete mcMoveInsDel2 = new MCMoveInsertDelete(integrator2);
+		mcMoveInsDel1.setSpecies(species);
+		mcMoveInsDel2.setSpecies(species);		
+		mcMoveInsDel1.setMu(-2000.);
+		mcMoveInsDel2.setMu(0.);
+		
+		MeterNMolecules meterN1 = new MeterNMolecules();
+		meterN1.setPhase(phase1);
+		etomica.graphics.DisplayBox box1 = new etomica.graphics.DisplayBox((DatumSource)meterN1);
+		box1.setUpdateInterval(10);
+		MeterNMolecules meterN2 = new MeterNMolecules();
+		meterN2.setPhase(phase2);
+		etomica.graphics.DisplayBox box2 = new etomica.graphics.DisplayBox((DatumSource)meterN2);
+		box1.setUpdateInterval(10);
         
-        MCMoveInsertDelete mcMoveInsDel = new MCMoveInsertDelete(sim.integrator);
-        mcMoveInsDel.setSpecies(sim.species);
-        mcMoveInsDel.setMu(-2000.);
-        
-        sim.integrator(0).setTemperature(1.0);
-		                                    
-        etomica.graphics.DeviceSlider slider = new etomica.graphics.DeviceSlider(mcMoveInsDel,"mu");
-        slider.setMinimum(-20);
-        slider.setMaximum(+20);
+		etomica.graphics.DeviceSlider slider = new etomica.graphics.DeviceSlider(mcMoveInsDel1,"mu");
+		slider.setMinimum(-20);
+		slider.setMaximum(+20);
+		
+		etomica.graphics.DisplayPhase display1 = new etomica.graphics.DisplayPhase();
+		etomica.graphics.DisplayPhase display2 = new etomica.graphics.DisplayPhase();
+		display1.setPhase(phase1);
+		display2.setPhase(phase2);
 		Simulation.instance.elementCoordinator.go();
 
         etomica.graphics.SimulationGraphic.makeAndDisplayFrame(sim);

@@ -24,7 +24,6 @@ public class HsMc2d extends SimulationGraphic {
         super(new Space2D());
  //       super(new etomica.space.continuum.Space(2));
  //       setIteratorFactory(new IteratorFactoryCell(this));
-        Simulation.instance = this;
 	    integrator = new IntegratorMC(this);
 	    mcMoveAtom = new MCMoveAtom(integrator);
 	    species = new SpeciesSpheresMono(this);

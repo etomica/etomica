@@ -6,6 +6,11 @@ package etomica;
  *
  * @author David Kofke
  */
+
+/* History
+ * 02/21/03 (DAK) added constructor taking Direction and Atom
+ * 
+ */
 public final class IteratorDirective implements java.io.Serializable {
     
     private Atom atom1;
@@ -31,6 +36,10 @@ public final class IteratorDirective implements java.io.Serializable {
     public IteratorDirective(Direction direction) {
         set(direction);
         set();
+    }
+    public IteratorDirective(Direction direction, Atom atom) {
+    	set(direction);
+    	set(atom);
     }
     
     /**
