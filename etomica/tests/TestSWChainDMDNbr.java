@@ -2,8 +2,6 @@ package etomica.tests;
 
 import etomica.ConfigurationFile;
 import etomica.ConfigurationLinear;
-import etomica.DataManager;
-import etomica.DataSink;
 import etomica.DataSource;
 import etomica.Default;
 import etomica.IntegratorPotentialEnergy;
@@ -17,9 +15,11 @@ import etomica.atom.AtomFactoryHomo;
 import etomica.atom.iterator.ApiIntergroup;
 import etomica.atom.iterator.AtomsetIteratorFiltered;
 import etomica.data.AccumulatorAverage;
+import etomica.data.DataPump;
 import etomica.data.DataSourceCOM;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
+import etomica.integrator.IntervalActionAdapter;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.NeighborCriterionSimple;
 import etomica.nbr.PotentialMasterNbr;
@@ -96,19 +96,19 @@ public class TestSWChainDMDNbr extends Simulation {
         MeterPressureHard pMeter = new MeterPressureHard(sim.integrator); 
         DataSource energyMeter = new IntegratorPotentialEnergy(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverage();
-        DataManager energyManager = new DataManager(energyMeter,new DataSink[]{energyAccumulator});
+        DataPump energyPump = new DataPump(energyMeter,energyAccumulator);
         energyAccumulator.setBlockSize(50);
-        sim.integrator.addIntervalListener(energyManager);
+        sim.integrator.addIntervalListener(new IntervalActionAdapter(energyPump,sim.integrator));
         
         sim.getController().actionPerformed();
         
         double Z = pMeter.getDataAsScalar(sim.phase)*sim.phase.volume()/(sim.phase.moleculeCount()*sim.integrator.temperature());
-        double PE = energyAccumulator.getData(AccumulatorAverage.AVERAGE)[0]/numMolecules;
+        double PE = energyAccumulator.getData()[1]/numMolecules;
         System.out.println("Z="+Z);
         System.out.println("PE/epsilon="+PE);
         double t2 = sim.integrator.temperature();
         t2 *= t2;
-        double Cv = energyAccumulator.getData(AccumulatorAverage.STANDARD_DEVIATION)[0]/t2/numMolecules;
+        double Cv = energyAccumulator.getData()[3]/t2/numMolecules;
         System.out.println("Cv/k="+Cv);
         
         if (Math.abs(Z-3.15) > 0.5) {
