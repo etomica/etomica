@@ -1,6 +1,9 @@
-package etomica.lattice;
+package etomica.lattice.crystal;
 
 import etomica.Space;
+import etomica.lattice.Primitive;
+import etomica.lattice.Primitive2D;
+import etomica.lattice.Primitive3D;
 import etomica.math.geometry.Cube;
 import etomica.math.geometry.Polytope;
 import etomica.math.geometry.Square;

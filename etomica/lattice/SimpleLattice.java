@@ -30,8 +30,8 @@ public class SimpleLattice implements AbstractLattice {
 
     /**
      * Constructs a lattice of the given dimension (D) with sites
-     * made from the given factory.  Default size gives a lattice
-     * containing a single site.
+     * made from the given factory.  Upon construction, lattice contains
+     * no sites; these are created when setSize is invoked.
      */
     public SimpleLattice(int D, SiteFactory siteFactory) {
         this.D = D;
@@ -39,9 +39,10 @@ public class SimpleLattice implements AbstractLattice {
         jumpCount[D-1] = 1;
         size = new int[D];
         this.siteFactory = siteFactory;
-        int[] defaultSize = new int[D];
-        for(int i=0; i<D; i++) defaultSize[i] = 1;
-        setSize(defaultSize);
+        //do not create lattice with default size because siteFactory  might not yet be ready
+//        int[] defaultSize = new int[D];
+//        for(int i=0; i<D; i++) defaultSize[i] = 1;
+//        setSize(defaultSize);
     }
 
     /* (non-Javadoc)
@@ -97,12 +98,15 @@ public class SimpleLattice implements AbstractLattice {
         return size;
     }
 
-    /* (non-Javadoc)
-     * @see etomica.lattice.AbstractLattice#setDimensions(int[])
+    /**
+     * Sets the number lattice size (specified via the largest index in each dimension), and
+     * rebuilds the all sites using the site factory.
+     * 
+     * @param newSize array giving the number of index values in each dimension
      */
-    public void setSize(int[] dim) {
-        if(dim.length != D) throw new IllegalArgumentException("Incorrect dimension dimension");
-        System.arraycopy(dim, 0, size, 0, D);
+    public void setSize(int[] newSize) {
+        if(newSize.length != D) throw new IllegalArgumentException("Incorrect dimension dimension");
+        System.arraycopy(newSize, 0, size, 0, D);
         for(int i=D-1; i>0; i--) {
             jumpCount[i-1] = jumpCount[i]*size[i];
         }
@@ -113,7 +117,6 @@ public class SimpleLattice implements AbstractLattice {
             increment(idx, D-1);
             sites[i] = siteFactory.makeSite(this, idx);
         }
-//        siteFactory.makeSites(this, sites);
     }
 
     //method used by setDimensions method to cycle the index array through its values
@@ -541,17 +544,17 @@ public class SimpleLattice implements AbstractLattice {
         //construct the lattice and iterator
         int dimension = 3;
         final SimpleLattice lattice = new SimpleLattice(dimension, factory);
-        final SimpleLattice.NeighborIterator iterator = new NeighborIterator(dimension);
         final SimpleLattice.Iterator siteIterator = new Iterator(dimension);
-        iterator.setLattice(lattice);
         siteIterator.setLattice(lattice);
         //configure lattice
         //******change these values to perform different tests *********//
         //remember to change value of dimension in lattice constructor if using different dimensions here 
         lattice.setSize(new int[] {12,11,15});
+
+        final SimpleLattice.NeighborIterator iterator = new NeighborIterator(dimension);
+        iterator.setLattice(lattice);
         iterator.setSite(new int[] {0,5,8});
         iterator.setRange(new int[] {2,3,5});
-
         //define panel for display, so that it draws lattice with appropriately colored sites
         JPanel canvas = new JPanel() {
             public java.awt.Dimension getPreferredSize() {

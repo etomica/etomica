@@ -1,5 +1,6 @@
-package etomica.lattice;
+package etomica.lattice.crystal;
 import etomica.*;
+import etomica.lattice.Crystal;
 
 /**
  * Hexagonal primitive with a 2-site hcp basis.

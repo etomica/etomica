@@ -1,45 +1,45 @@
 package etomica.lattice;
-import etomica.AtomFactory;
 
 /**
  * A class packaging together a Primitive and a Basis.
  */
  
-public class Crystal {
+public class Crystal implements AbstractLattice {
     
-    /**
-     * Constructs instance using a simple single-site basis.
-     * @param primitive
-     */
-    public Crystal(Primitive primitive) {
-        this(primitive, new Basis(primitive.space));
-    }
-    /**
-     * Constructs instance using the given primitive and basis.
-     * @param primitive
-     * @param basis
-     */
-    public Crystal(Primitive primitive, Basis basis) {
-        this.primitive = primitive;
+    public Crystal(BravaisLattice lattice, Basis basis) {
         this.basis = basis;
+        this.lattice = lattice;
     }
     
-    /**
-     * Indicates crystal with one site at each primitive-vector combination,
-     * with Atom at each site made by the given factory.
-     * @param primitive
-     * @param factory
+    public int D() {
+        return lattice.D() + 1;
+    }
+    
+    /* (non-Javadoc)
+     * @see etomica.lattice.AbstractLattice#getSize()
      */
-    public Crystal(Primitive primitive, AtomFactory factory) {
-    	this(primitive, new Basis(primitive.space, 1, factory));
+    public int[] getSize() {
+        // TODO Auto-generated method stub
+        return null;
     }
-    
-    public Primitive getPrimitive() {return primitive;}
-    
+    /* (non-Javadoc)
+     * @see etomica.lattice.AbstractLattice#site(int[])
+     */
+    public Object site(int[] index) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    /* (non-Javadoc)
+     * @see etomica.lattice.AbstractLattice#sites()
+     */
+    public Object[] sites() {
+        // TODO Auto-generated method stub
+        return null;
+    }
     public Basis getBasis() {return basis;}
     
-    public String toString() {return primitive.toString();}
-    
-    protected Primitive primitive;
+    public BravaisLattice getLattice() {return lattice;}
+
     protected Basis basis;
+    protected BravaisLattice lattice;
 }//end of Crystal

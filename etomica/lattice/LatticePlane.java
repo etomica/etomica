@@ -1,5 +1,6 @@
 package etomica.lattice;
 
+import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.math.geometry.Plane;
 import etomica.*;
 

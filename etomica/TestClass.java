@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.utility.Arrays;
+
 public class TestClass {
     
     public static void main(String arg[]) {
@@ -27,6 +29,15 @@ public class TestClass {
         System.out.println(object2.equals(object1));
         System.out.println(object2[0].equals(object1[0]));
         System.out.println(object2[1].equals(object1[1]));
+        
+        System.out.println(Arrays.toString(new int[] {}));
+        System.out.println(Arrays.toString(new int[] {3}));
+        System.out.println(Arrays.toString(new int[] {3,-1,5,20}));
+        System.out.println(Arrays.toString((int[])null));
+        System.out.println(Arrays.toString(new double[] {}));
+        System.out.println(Arrays.toString(new double[] {3.0}));
+        System.out.println(Arrays.toString(new double[] {3.2,4./3.,-5,Double.MAX_VALUE}));
+        
     }
 }
         

@@ -1,40 +1,49 @@
-package etomica.lattice;
+package etomica.lattice.crystal;
 import etomica.Space;
-import etomica.math.geometry.Cuboid;
+import etomica.lattice.Primitive;
+import etomica.lattice.Primitive3D;
 import etomica.math.geometry.Polytope;
 
 /**
- * Primitive group for a tetragonal system.  All primitive
- * vectors orthogonal and two are of equal length.
+ * Primitive group for a hexagonal system.  Primitive-vector angles
+ * are (90,90,120) degrees and two vectors are of equal length.
  */
-public class PrimitiveTetragonal extends Primitive implements Primitive3D {
+public class PrimitiveHexagonal extends Primitive implements Primitive3D {
     
     private double ab = 1.0, c = 1.0;
+    private int ix = 0, iy = 1;
+    private final double gamma = etomica.units.Degree.UNIT.toSim(120.);
+//    private final double gamma = etomica.units.Degree.UNIT.toSim(60.);
+    private final double cosGamma = Math.cos(gamma);
+    private final double sinGamma = Math.sin(gamma);
     
-    public PrimitiveTetragonal(Space space) {
+    public PrimitiveHexagonal(Space space) {
         this(space, 1.0, 1.0);
     }
-    public PrimitiveTetragonal(Space space, double ab, double c) {
-        super(space);//also makes reciprocal
-        setAB(ab); //also sets reciprocal via update
+    public PrimitiveHexagonal(Space space, double ab, double c) {
+        super(space);
+        setAB(ab);
         setC(c);
     }
+    
     /**
      * Constructor used by makeReciprocal method.
      */
-    private PrimitiveTetragonal(Space space, Primitive direct) {
+    private PrimitiveHexagonal(Space space, Primitive direct) {
         super(space, direct);
+        ix = 1;
+        iy = 0;
     }
     
     //called by superclass constructor
     protected Primitive makeReciprocal() {
-        return new PrimitiveTetragonal(space, this);
+        return new PrimitiveHexagonal(space, this);
     }
     
     //called by update method of superclass
     protected void updateReciprocal() {
-        ((PrimitiveTetragonal)reciprocal()).setAB(2.0*Math.PI/ab);
-        ((PrimitiveTetragonal)reciprocal()).setC(2.0*Math.PI/c);
+        ((PrimitiveHexagonal)reciprocal()).setAB(2.0*Math.PI/(ab*sinGamma));
+        ((PrimitiveHexagonal)reciprocal()).setC(2.0*Math.PI/c);
     }
     
     public void setA(double a) {setAB(a);}
@@ -47,8 +56,15 @@ public class PrimitiveTetragonal extends Primitive implements Primitive3D {
         if(immutable || ab <= 0.0) return;
         this.ab = ab;
         size[0] = size[1] = ab;
-        latticeVectors[0].setX(0,ab);
-        latticeVectors[1].setX(1,ab);
+        
+        //direct lattice (ix = 0, iy = 1)
+        // v[0] = (1,0,0); v[1] = (s,c,0); v[2] = (0,0,1)  (times ab, c)
+         
+        //reciprocal lattice (ix = 1, iy = 0)
+        // v[0] = (s,-c,0); v[1] = (0,1,0); v[2] = (0,0,1);  (times ab, c)
+        latticeVectors[ix].setX(ix,ab);
+        latticeVectors[iy].setX(ix,((ix==0)?+1:-1)*ab*cosGamma);
+        latticeVectors[iy].setX(iy,ab*sinGamma);
         update();
     }
     
@@ -68,8 +84,7 @@ public class PrimitiveTetragonal extends Primitive implements Primitive3D {
     public double getBeta() {return rightAngle;}
     
     public void setGamma(double t) {}
-    public double getGamma() {return rightAngle;}
-    
+    public double getGamma() {return gamma;}
     
     public boolean isEditableA() {return true;}
     public boolean isEditableB() {return false;}
@@ -82,7 +97,7 @@ public class PrimitiveTetragonal extends Primitive implements Primitive3D {
      * Returns a new PrimitiveTetragonal with the same size as this one.
      */
     public Primitive copy() {
-        return new PrimitiveTetragonal(space, ab, c);
+        return new PrimitiveHexagonal(space, ab, c);
     }
     
     public void scaleSize(double scale) {
@@ -114,15 +129,12 @@ public class PrimitiveTetragonal extends Primitive implements Primitive3D {
         throw new RuntimeException("method wignerSeitzCell not yet implemented");
     }
     
-    /**
-     * Returns a new Cuboid with edges given by the lengths of the
-     * primitive vectors.
-     */
     public Polytope unitCell() {
-        return new Cuboid(ab, ab, c);
+        throw new RuntimeException("method unitCellFactory not yet implemented");
+    //    return new UnitCellFactory(simulation);
     }
     
-    public String toString() {return "Tetragonal";}
+    public String toString() {return "Hexagonal";}
     
     /**
      * Main method to demonstrate use and to aid debugging

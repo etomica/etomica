@@ -1,142 +1,134 @@
-package etomica.lattice;
+package etomica.lattice.crystal;
 import etomica.Space;
+import etomica.lattice.Primitive;
+import etomica.lattice.Primitive3D;
+import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.Polytope;
 
 /**
- * Primitive group for a face-centered-cubic system.
+ * Primitive group for a tetragonal system.  All primitive
+ * vectors orthogonal and two are of equal length.
  */
-public class PrimitiveFcc extends Primitive implements Primitive3D {
+public class PrimitiveTetragonal extends Primitive implements Primitive3D {
     
-    //primitive vectors are stored internally at unit length.  When requested
-    //from the vectors() method, copies are scaled to size and returned.
-    //default size is 1.0
-    private double size;
-    private Space.Vector[] unitVectors;
-    private static final double FCC_ANGLE = Math.acos(0.5);
+    private double ab = 1.0, c = 1.0;
     
-    public PrimitiveFcc(Space space) {
-        this(space, 1.0);
+    public PrimitiveTetragonal(Space space) {
+        this(space, 1.0, 1.0);
     }
-    public PrimitiveFcc(Space space, double size) {
-        super(space); //also makes reciprocal
-        //set up orthogonal vectors of unit size
-        unitVectors = new Space.Vector[D];
-        for(int i=0; i<D; i++) {
-            unitVectors[i] = space.makeVector();
-            unitVectors[i].E(1.0/Math.sqrt(2.0));
-            unitVectors[i].setX(i,0.0);
-        }
-        setSize(size); //also sets reciprocal via update
+    public PrimitiveTetragonal(Space space, double ab, double c) {
+        super(space);//also makes reciprocal
+        setAB(ab); //also sets reciprocal via update
+        setC(c);
     }
     /**
-     * Constructor used by makeReciprocal method of PrimitiveBcc.
+     * Constructor used by makeReciprocal method.
      */
-    PrimitiveFcc(Space space, Primitive direct) {
+    private PrimitiveTetragonal(Space space, Primitive direct) {
         super(space, direct);
-        unitVectors = new Space.Vector[D];
-        for(int i=0; i<D; i++) {
-            unitVectors[i] = space.makeVector();
-            unitVectors[i].E(1.0/Math.sqrt(2.0));
-            unitVectors[i].setX(i,0.0);
-        }
     }
     
     //called by superclass constructor
     protected Primitive makeReciprocal() {
-        return new PrimitiveBcc(space, this);
+        return new PrimitiveTetragonal(space, this);
     }
     
     //called by update method of superclass
     protected void updateReciprocal() {
-        ((PrimitiveBcc)reciprocal()).setSize(4.0*Math.PI/size);
+        ((PrimitiveTetragonal)reciprocal()).setAB(2.0*Math.PI/ab);
+        ((PrimitiveTetragonal)reciprocal()).setC(2.0*Math.PI/c);
     }
     
-    public void setA(double a) {setSize(a);}
-    public double getA() {return size;}
+    public void setA(double a) {setAB(a);}
+    public double getA() {return ab;}
     
-    public void setB(double b) {setSize(b);}
-    public double getB() {return size;}
-        
-    public void setC(double c) {setSize(c);}
-    public double getC() {return size;}
+    public void setB(double b) {setAB(b);}
+    public double getB() {return ab;}
+    
+    public void setAB(double ab) {
+        if(immutable || ab <= 0.0) return;
+        this.ab = ab;
+        size[0] = size[1] = ab;
+        latticeVectors[0].setX(0,ab);
+        latticeVectors[1].setX(1,ab);
+        update();
+    }
+    
+    public void setC(double c) {
+        if(immutable || c <= 0.0) return;
+        this.c = c;
+        size[2] = c;
+        latticeVectors[2].setX(2, c);
+        update();
+    }
+    public double getC() {return c;}
     
     public void setAlpha(double t) {}//no adjustment of angle permitted
-    public double getAlpha() {return FCC_ANGLE;}
+    public double getAlpha() {return rightAngle;}
     
     public void setBeta(double t) {}
-    public double getBeta() {return FCC_ANGLE;}
+    public double getBeta() {return rightAngle;}
     
     public void setGamma(double t) {}
-    public double getGamma() {return FCC_ANGLE;}
+    public double getGamma() {return rightAngle;}
+    
     
     public boolean isEditableA() {return true;}
     public boolean isEditableB() {return false;}
-    public boolean isEditableC() {return false;}
+    public boolean isEditableC() {return true;}
     public boolean isEditableAlpha() {return false;}
     public boolean isEditableBeta() {return false;}
     public boolean isEditableGamma() {return false;}
 
     /**
-     * Returns a new PrimitiveCubic with the same size as this one.
+     * Returns a new PrimitiveTetragonal with the same size as this one.
      */
     public Primitive copy() {
-        return new PrimitiveFcc(space, size);
+        return new PrimitiveTetragonal(space, ab, c);
     }
     
-    /**
-     * Sets the length of all primitive vectors to the given value.
-     */
-    public void setSize(double size) {
-        this.size = size;
-        for(int i=0; i<D; i++) latticeVectors[i].Ea1Tv1(size,unitVectors[i]);
-        update();
-    }
-    /**
-     * Returns the common length of all primitive vectors.
-     */
-    public double getSize() {return size;}
-    
-    /**
-     * Multiplies the size of the current vectors by the given value.
-     */
     public void scaleSize(double scale) {
-        setSize(scale*size);
+        setAB(ab*scale);
+        setC(c*scale);
     }
 
     public int[] latticeIndex(Space.Vector q) {
-        throw new RuntimeException("PrimitiveFcc.latticeIndex not yet implemented");
-/*        for(int i=0; i<D; i++) {
+        throw new RuntimeException("latticeIndex method not implemented yet in primitive");
+   /*     for(int i=0; i<D; i++) {
             double x = q.x(i)/size;
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
         }
         return idx;
-*/    }
+   */ }
     
     public int[] latticeIndex(Space.Vector q, int[] dimensions) {
-        throw new RuntimeException("PrimitiveFcc.latticeIndex not yet implemented");
- /*       for(int i=0; i<D; i++) {
+        throw new RuntimeException("latticeIndex method not implemented yet in primitive");
+   /*     for(int i=0; i<D; i++) {
             double x = q.x(i)/size;
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
             while(idx[i] >= dimensions[i]) idx[i] -= dimensions[i];
             while(idx[i] < 0)              idx[i] += dimensions[i];
         }
         return idx;
- */   }
+    */}
     
     public Polytope wignerSeitzCell() {
-        throw new RuntimeException("method PrimitiveFcc.wignerSeitzCell not yet implemented");
+        throw new RuntimeException("method wignerSeitzCell not yet implemented");
     }
     
+    /**
+     * Returns a new Cuboid with edges given by the lengths of the
+     * primitive vectors.
+     */
     public Polytope unitCell() {
-        throw new RuntimeException("method unitCellFactory not yet implemented");
+        return new Cuboid(ab, ab, c);
     }
     
-    public String toString() {return "Fcc";}
+    public String toString() {return "Tetragonal";}
     
-
     /**
      * Main method to demonstrate use and to aid debugging
-     * / 
+     * /
     public static void main(String[] args) {
         System.out.println("main method for PrimitiveCubic");
         Space space = new Space2D();
@@ -222,5 +214,5 @@ public class PrimitiveFcc extends Primitive implements Primitive3D {
         * /
     }//end of main
   // */  
-}//end of PrimitiveFcc
+}//end of PrimitiveCubic
     

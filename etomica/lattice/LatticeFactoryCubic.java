@@ -1,5 +1,6 @@
 package etomica.lattice;
 import etomica.*;
+import etomica.lattice.crystal.PrimitiveCubic;
 
 //02.04.02
 /**

@@ -139,10 +139,23 @@ public abstract class Primitive {
 
     protected void update() {
         if(immutable) return;
-//        if(lattice != null) lattice.update();
         immutable = true; 
         updateReciprocal();
         immutable = false;
+    }
+    
+    /**
+     * Calculates and returns a new vector that is the spatial position given
+     * by adding together the primitive vectors, each multiplied by the corresponding
+     * integer index given by the array argument.
+     */
+    public Space.Vector position(int[] index) {
+        if(index.length != space.D()) throw new IllegalArgumentException("index given to position method of Primitive must have length equal to the dimension of hte primitive");
+        Space.Vector vector = space.makeVector();
+        for(int i=0; i<index.length; i++) {
+            vector.PEa1Tv1(index[i], latticeVectors[i]);
+        }
+        return vector;
     }
     
     /**

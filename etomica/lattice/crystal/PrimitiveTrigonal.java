@@ -1,24 +1,28 @@
-package etomica.lattice;
+package etomica.lattice.crystal;
 import etomica.Space;
+import etomica.lattice.Primitive;
+import etomica.lattice.Primitive3D;
 import etomica.math.geometry.Polytope;
 
 /**
- * Primitive group for a hexagonal system.  Primitive-vector angles
+ * Primitive group for a trigonal system.  Primitive-vector angles
  * are (90,90,120) degrees and two vectors are of equal length.
  */
-public class PrimitiveHexagonal extends Primitive implements Primitive3D {
+
+// 12/31/02 should check for correctness.  simulation constructor was changed to space constructor without examining if class is correct */
+
+public class PrimitiveTrigonal extends Primitive implements Primitive3D {
     
     private double ab = 1.0, c = 1.0;
     private int ix = 0, iy = 1;
     private final double gamma = etomica.units.Degree.UNIT.toSim(120.);
-//    private final double gamma = etomica.units.Degree.UNIT.toSim(60.);
     private final double cosGamma = Math.cos(gamma);
     private final double sinGamma = Math.sin(gamma);
     
-    public PrimitiveHexagonal(Space space) {
+    public PrimitiveTrigonal(Space space) {
         this(space, 1.0, 1.0);
     }
-    public PrimitiveHexagonal(Space space, double ab, double c) {
+    public PrimitiveTrigonal(Space space, double ab, double c) {
         super(space);
         setAB(ab);
         setC(c);
@@ -27,7 +31,7 @@ public class PrimitiveHexagonal extends Primitive implements Primitive3D {
     /**
      * Constructor used by makeReciprocal method.
      */
-    private PrimitiveHexagonal(Space space, Primitive direct) {
+    private PrimitiveTrigonal(Space space, Primitive direct) {
         super(space, direct);
         ix = 1;
         iy = 0;
@@ -35,13 +39,13 @@ public class PrimitiveHexagonal extends Primitive implements Primitive3D {
     
     //called by superclass constructor
     protected Primitive makeReciprocal() {
-        return new PrimitiveHexagonal(space, this);
+        return new PrimitiveTrigonal(space, this);
     }
     
     //called by update method of superclass
     protected void updateReciprocal() {
-        ((PrimitiveHexagonal)reciprocal()).setAB(2.0*Math.PI/(ab*sinGamma));
-        ((PrimitiveHexagonal)reciprocal()).setC(2.0*Math.PI/c);
+        ((PrimitiveTrigonal)reciprocal()).setAB(2.0*Math.PI/(ab*sinGamma));
+        ((PrimitiveTrigonal)reciprocal()).setC(2.0*Math.PI/c);
     }
     
     public void setA(double a) {setAB(a);}
@@ -51,23 +55,17 @@ public class PrimitiveHexagonal extends Primitive implements Primitive3D {
     public double getB() {return ab;}
     
     public void setAB(double ab) {
-        if(immutable || ab <= 0.0) return;
+        if(immutable) return;
         this.ab = ab;
         size[0] = size[1] = ab;
-        
-        //direct lattice (ix = 0, iy = 1)
-        // v[0] = (1,0,0); v[1] = (s,c,0); v[2] = (0,0,1)  (times ab, c)
-         
-        //reciprocal lattice (ix = 1, iy = 0)
-        // v[0] = (s,-c,0); v[1] = (0,1,0); v[2] = (0,0,1);  (times ab, c)
         latticeVectors[ix].setX(ix,ab);
-        latticeVectors[iy].setX(ix,((ix==0)?+1:-1)*ab*cosGamma);
+        latticeVectors[iy].setX(ix,ab*cosGamma);
         latticeVectors[iy].setX(iy,ab*sinGamma);
         update();
     }
     
     public void setC(double c) {
-        if(immutable || c <= 0.0) return;
+        if(immutable) return;
         this.c = c;
         size[2] = c;
         latticeVectors[2].setX(2, c);
@@ -95,7 +93,7 @@ public class PrimitiveHexagonal extends Primitive implements Primitive3D {
      * Returns a new PrimitiveTetragonal with the same size as this one.
      */
     public Primitive copy() {
-        return new PrimitiveHexagonal(space, ab, c);
+        return new PrimitiveTrigonal(space, ab, c);
     }
     
     public void scaleSize(double scale) {
@@ -129,11 +127,11 @@ public class PrimitiveHexagonal extends Primitive implements Primitive3D {
     
     public Polytope unitCell() {
         throw new RuntimeException("method unitCellFactory not yet implemented");
-    //    return new UnitCellFactory(simulation);
     }
     
-    public String toString() {return "Hexagonal";}
+    public String toString() {return "Trigonal";}
     
+
     /**
      * Main method to demonstrate use and to aid debugging
      * /

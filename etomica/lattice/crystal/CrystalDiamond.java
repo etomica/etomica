@@ -1,5 +1,6 @@
-package etomica.lattice;
+package etomica.lattice.crystal;
 import etomica.*;
+import etomica.lattice.Crystal;
 
 /**
  * Cubic primitive with a 4-site fcc basis, on which each site 

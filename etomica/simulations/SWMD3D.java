@@ -7,7 +7,7 @@ import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.graphics.*;
 import etomica.lattice.Crystal;
-import etomica.lattice.CrystalFcc;
+import etomica.lattice.crystal.CrystalFcc;
 import etomica.units.Dimension;
 
 //remember to set up Space3D.CoordinatePair.reset if experiencing 

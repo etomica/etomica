@@ -32,9 +32,9 @@ public interface AbstractLattice {
      */
     public int[] getSize();
 
-    /**
-     * Sets the size of the lattice, specified by the number of sites in each dimension.
-     * @param dim
-     */
-    public void setSize(int[] dim);
+//    /**
+//     * Sets the size of the lattice, specified by the number of sites in each dimension.
+//     * @param dim
+//     */
+//    public void setSize(int[] dim);
 }

@@ -17,7 +17,7 @@ import etomica.SpeciesSpheresMono;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.lattice.Crystal;
-import etomica.lattice.CrystalFcc;
+import etomica.lattice.crystal.CrystalFcc;
 
 public class HSMD3D extends Simulation {
 
