@@ -7,7 +7,7 @@ import etomica.units.Dimension;
 /**
  * Modifier for the piston pressure.  Should be followed by a IntegratorPistonUpdate action.
  */
-class ModifierPistonPressure implements Modifier {
+public class ModifierPistonPressure implements Modifier {
     public ModifierPistonPressure(P1HardMovingBoundary potential, Dimension pressureDimension) {
         pistonPotential = potential;
         pressureDim = pressureDimension;

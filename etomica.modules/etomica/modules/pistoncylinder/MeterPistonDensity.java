@@ -21,7 +21,6 @@ public class MeterPistonDensity extends MeterScalar {
     public double getDataAsScalar(Phase p) {
         double volume = 1;
         final Vector dimensions = p.boundary().dimensions();
-        int D = dimensions.D();
         for (int i=0; i<dimensions.D(); i++) {
             double d = dimensions.x(i) - collisionDiameter;
             if (i==wallD) {
