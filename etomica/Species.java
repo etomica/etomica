@@ -79,7 +79,7 @@ public abstract class Species extends Container {
   * The phase in which this species resides.  Assigned in add method of Phase
   *
   */
-  Phase parentPhase;
+  PhaseSpace parentPhaseSpace;
  
  /**
   * The Species following this one in the linked list of Species
@@ -287,8 +287,8 @@ public abstract class Species extends Container {
     m.parentSpecies = null;        //line deleted because of spareMolecule
     m.setNextMolecule(null);
     m.clearPreviousMolecule();
-    parentPhase.nMoleculeTotal--;
-    parentPhase.nAtomTotal -= m.nAtoms;
+    parentPhaseSpace.nMoleculeTotal--;
+    parentPhaseSpace.nAtomTotal -= m.nAtoms;
 //    if(spareMolecule == null) spareMolecule = m;
   }
 
@@ -337,8 +337,8 @@ public abstract class Species extends Container {
     }
     nMolecules++;
     m.parentSpecies = this;
-    parentPhase.nMoleculeTotal++;
-    parentPhase.nAtomTotal += m.nAtoms;
+    parentPhaseSpace.nMoleculeTotal++;
+    parentPhaseSpace.nAtomTotal += m.nAtoms;
     initializeMolecules();
     colorScheme.initializeMoleculeColor(m);
   }
@@ -351,8 +351,8 @@ public abstract class Species extends Container {
   public Molecule addMolecule() {
     Molecule m = makeMolecule();
     configurationMolecule.initializeCoordinates(m);   //initialize internal coordinates
-    m.setCOM(parentPhase.space.randomVector());       //place at random position
-    parentPhase.configuration.initializeMomentum(m);  //initialize momentum
+    m.setCOM(parentPhaseSpace.space.randomVector());       //place at random position
+    parentPhaseSpace.configuration.initializeMomentum(m);  //initialize momentum
     addMolecule(m);
     return m;
   }
@@ -393,7 +393,7 @@ public abstract class Species extends Container {
  /**
   * @return the phase in which this species resides
   */
-  public final Phase getParentPhase() {return parentPhase;}
+  public final Phase getParentPhaseSpace() {return parentPhaseSpace;}
     
   public final String getName() {return name;}
   public final void setName(String name) {this.name = name;}
@@ -436,11 +436,11 @@ public abstract class Species extends Container {
   */
   public void paint(Graphics g) {
     if(Beans.isDesignTime()) {
-        if(parentPhase != null) {
+        if(parentPhaseSpace != null) {
             int[] origin = new int[Space.D];
             double scale = 1.0;
-            origin[0] = (parentPhase.getSize().width - Phase.toPixels(scale*designTimeXDim))/2;
-            origin[1] = (parentPhase.getSize().height - Phase.toPixels(scale*designTimeYDim))/2;
+            origin[0] = (parentPhaseSpace.getSize().width - Phase.toPixels(scale*designTimeXDim))/2;
+            origin[1] = (parentPhaseSpace.getSize().height - Phase.toPixels(scale*designTimeYDim))/2;
             draw(g,origin,scale);
         }
     }
@@ -497,7 +497,7 @@ public abstract class Species extends Container {
     }
     if(DisplayConfiguration.DRAW_OVERFLOW && (atomGenerator instanceof AtomDisk)) {
         for(AtomC a=(AtomC)firstAtom(); a!=nextSpeciesAtom; a=(AtomC)a.getNextAtom()) {
-            double[][] shifts = parentPhase.space.getOverflowShifts(a.r,((AtomDisk)a).getRadius());  //should instead of radius have a size for all AtomC types
+            double[][] shifts = parentPhaseSpace.space.getOverflowShifts(a.r,((AtomDisk)a).getRadius());  //should instead of radius have a size for all AtomC types
             for(int i=0; i<shifts.length; i++) {
                shiftOrigin[0] = origin[0] + (int)(toPixels*shifts[i][0]);
                shiftOrigin[1] = origin[1] + (int)(toPixels*shifts[i][1]);

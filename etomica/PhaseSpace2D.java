@@ -4,30 +4,29 @@ public class PhaseSpace2D extends PhaseSpace {
     
     public PhaseSpace2D() {}
  
-    public PhaseSpaceCoordinate makeCoordinate() {
-        return new Coordinate();
+    public PhaseSpace.Coordinate makeCoordinate(Atom atom) {
+        return new Coordinate(atom);
     }
     
-    public final AtomPairIterator makePairIteratorFull(Atom iF, Atom iL, Atom oF, Atom oL) {return new PairIteratorFull(iF,iL,oF,oL);}
-    public final AtomPairIterator makePairIteratorHalf(Atom iL, Atom oF, Atom oL) {return new PairIteratorHalf(iL,oF,oL);}
-    public final AtomPairIterator makePairIteratorFull() {return new PairIteratorFull();}
-    public final AtomPairIterator makePairIteratorHalf() {return new PairIteratorHalf();}
+    public final AtomPairIterator.A makePairIteratorFull(Atom iF, Atom iL, Atom oF, Atom oL) {return new PairIteratorFull(iF,iL,oF,oL);}
+    public final AtomPairIterator.A makePairIteratorHalf(Atom iL, Atom oF, Atom oL) {return new PairIteratorHalf(iL,oF,oL);}
+    public final AtomPairIterator.A makePairIteratorFull() {return new PairIteratorFull();}
+    public final AtomPairIterator.A makePairIteratorHalf() {return new PairIteratorHalf();}
  
-    private class Coordinate implements PhaseSpaceCoordinate {
-        Coordinate(Atom a) {atom = a;}
+    class Coordinate implements PhaseSpace.Coordinate {
+        Coordinate(Atom a) {atom = a;}  //constructor
         public final Atom atom;
         public final Vector r = new Vector();  //Cartesian coordinates
         public final Vector p = new Vector();  //Momentum vector
+        public final SpaceVector makeVector() {return new Vector();}
         Coordinate nextCoordinate;
         Coordinate previousCoordinate;
-        public final SpaceVector makeVector() {return new Vector();}
-        public void setNext(PhaseSpaceCoordinate c) {
+        public final void setNextCoordinate(PhaseSpaceCoordinate c) {
            nextCoordinate = (Coordinate)c;
            if(c != null) {((Coordinate)c).previousCoordinate = this;}
         }
-        public void clearPrevious() {previousCoordinate = null;}
-    }
-    
+        public final void clearPreviousCoordinate() {previousCoordinate = null;}
+    }    
     
     public class Vector implements SpaceVector {
         double x = 0.0;
@@ -50,13 +49,14 @@ public class PhaseSpace2D extends PhaseSpace {
     //These iterators are identical in every PhaseSpace class; they are repeated in each
     //because they make direct use of the Coordinate type in the class; otherwise casting would be needed
     // Perhaps interitance would work, but haven't tried it
-    //Each iteration of inner loop begins with same first atom
-    private class PairIteratorFull implements AtomPairIterator {
+    
+    //"Full" --> Each iteration of inner loop begins with same first atom
+    private class PairIteratorFull implements AtomPairIterator.A {
         final IAtomPair pair = new IAtomPair();
         Coordinate outer, inner;
         private Coordinate iFirst, iLast, oLast;
         private boolean hasNext;
-        public PairIteratorFull() {hasNext = false;}
+        public PairIteratorFull() {hasNext = false;}  //null constructor
         public PairIteratorFull(Atom iF, Atom iL, Atom oF, Atom oL) {reset(iF,iL,oF,oL);}  //constructor
         public void reset(Atom iL, Atom oF, Atom oL) {reset(oF,iL,oF,oL);}  //take inner and outer first atoms as same
         public void reset(Atom iF, Atom iL, Atom oF, Atom oL) {
@@ -77,11 +77,12 @@ public class PhaseSpace2D extends PhaseSpace {
             }
             return pair;
         }
+        public final void allDone() {hasNext = false;}   //for forcing iterator to indicate it has no more pairs
         public boolean hasNext() {return hasNext;}
     }
     
-    //Each iteration of inner loop begins with atom after outer loop atom
-    private class PairIteratorHalf implements AtomPairIterator {
+    //"Half" --> Each iteration of inner loop begins with atom after outer loop atom
+    private class PairIteratorHalf implements AtomPairIterator.A {
         final IAtomPair pair = new IAtomPair();
         Coordinate outer, inner;
         private Coordinate iFirst, iLast, oLast;
@@ -106,6 +107,7 @@ public class PhaseSpace2D extends PhaseSpace {
             }
             return pair;
         }
+        public final void allDone() {hasNext = false;}   //for forcing iterator to indicate it has no more pairs
         public boolean hasNext() {return hasNext;}
     }
 }

@@ -211,7 +211,7 @@ public class Molecule implements Serializable {
  /**
   * @return the phase in which this molecule resides
   */
-  public final Phase getPhase() {return parentSpecies.parentPhase;}
+  public final PhaseSpace getPhase() {return parentSpecies.parentPhase;}
  
  /**
   * Returns stored value of this molecule's mass; assumes that atom masses and/or number
