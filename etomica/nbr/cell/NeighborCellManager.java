@@ -30,9 +30,6 @@ import etomica.lattice.Site;
  * for cell-based neighbor listing.
  */
 
-//TODO consider how (and from where) assignCell calls will be made
-//TODO figure out how sequencers for nbrList and cellList will be used at same time
-
 public class NeighborCellManager implements Integrator.IntervalListener {
 
     private final BravaisLattice lattice;
@@ -215,8 +212,9 @@ public class NeighborCellManager implements Integrator.IntervalListener {
      * Assigns atom sequencer to given cell in the list of the given index.
      */
     public void assignCell(AtomSequencerCell seq, NeighborCell newCell, int listIndex) {
+        if(seq.cell != null) seq.cell.occupants()[listIndex].remove(seq.nbrLink);
         seq.cell = newCell;
-        seq.nbrLink.remove();
+//        seq.nbrLink.remove();
         if(newCell != null) {
             newCell.occupants()[listIndex].add(seq.nbrLink);
         }
