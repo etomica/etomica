@@ -19,7 +19,7 @@ public class MCMoveRotateMolecule3D extends MCMove {
     private final MeterPotentialEnergy energyMeter;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     
-    private final AtomIterator leafAtomIterator = new AtomIteratorTree();
+    private final AtomIteratorTree leafAtomIterator = new AtomIteratorTree();
     
     private transient double uOld;
     private transient double uNew = Double.NaN;
@@ -63,7 +63,8 @@ public class MCMoveRotateMolecule3D extends MCMove {
         
         double dTheta = (2*Simulation.random.nextDouble() - 1.0)*stepSize;
         rotationTensor.setAxial(dTheta);
-       
+
+        leafAtomIterator.setRoot(molecule);
         leafAtomIterator.reset();
         r0.E(molecule.node.firstLeafAtom().coord.position());
         AtomActionTransform.doAction(leafAtomIterator, r0, rotationTensor);
