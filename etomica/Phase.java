@@ -33,25 +33,25 @@ import etomica.utility.Iterator;
  * 5. It has a Configuration object that determines the default initial configuration of the
  * atoms in the phase.<p>
  *
- * 6. It can contain one or more PotentialField objects that define one-body potentials affecting
- * the configurations of the atoms it contains.
+ * 6. It holds a potential agent that manages all potentials governing the interactions
+ * among the atoms in the phase.<p>
  *
  * 
  * @author David Kofke
  * @see IteratorFactory
  * @see Space.Boundary
  * @see MeterAbstract
- * @see PotentialField
  */
 public final class Phase implements Simulation.Element, Molecule.Container, java.io.Serializable {
         
     private Space.Boundary boundary;
     private transient final LinkedList meterList = new LinkedList();
-    private PotentialField firstField = null;
     private PhaseAction.Inflate inflater;
+    private PotentialField firstField;
     private String name;
     private final Simulation parentSimulation;
-    public PotentialAgent potential;
+    private PotentialAgent potential;
+    public SimulationEventManager potentialMonitor = new SimulationEventManager();
     private boolean added = false;
     
     public Phase() {
@@ -163,7 +163,20 @@ public final class Phase implements Simulation.Element, Molecule.Container, java
         return molecule(i);
     }
         
-
+    /**
+     * Sets the potential (agent) governing all interactions in this phase.
+     * Notifies listeners of change.
+     */
+     public void setPotential(PotentialAgent newPotential) {
+        potential = newPotential;
+        potentialMonitor.fireEvent(new SimulationEvent(this));
+     }
+     
+     /**
+      * Accessor method for the potential governing all interactions in this phase.
+      */
+      public PotentialAgent potential() {return potential;}
+     
     /**
      * Sets the boundary object of the phase.
      */

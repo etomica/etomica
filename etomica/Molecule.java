@@ -405,6 +405,7 @@ public class Molecule implements Space.Occupant, Serializable {
             hasNext = true;
             return atom;
         }
+        public boolean contains(Atom atom) {return atom.parentMolecule == Molecule.this;}
         public Atom reset(Atom a) {return reset();}
         public Atom reset(Atom a1, Atom a2) {return reset();}
         public Atom next() {
@@ -422,6 +423,7 @@ public class Molecule implements Space.Occupant, Serializable {
         private boolean hasNext;
         public MonoAtomIterator() {reset();}
         public boolean hasNext() {return hasNext;}
+        public boolean contains(Atom atom) {return atom == firstAtom;}
         public Atom reset() {hasNext = true; return firstAtom;}
         public Atom reset(Atom a) {return reset();}
         public Atom reset(Atom a1, Atom a2) {return reset();}

@@ -45,9 +45,6 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     */
     public Space space; //would like to make final, but compiler doesn't allow
     
-    private PotentialAbstract potential;
-    public SimulationEventManager potentialMonitor = new SimulationEventManager();
-    
     /**
      * List of all controllers that have been instantiated.
      */
@@ -346,21 +343,6 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     public String toString() {return getName();}
     
     /**
-     * Sets the master potential for this simulation and notifies listeners
-     * that have registered themselves with potentialMonitor.
-     */
-    public void setPotential(PotentialAbstract p) {
-        potential = p;
-        //fire event after setting potential so that listeners can access
-        //new potential as ((Simulation)evt.getSource()).potential()
-        potentialMonitor.fireEvent(new SimulationEvent(this));
-    }
-    /**
-     * Accessor method for the master potential.
-     */
-    public PotentialAbstract potential() {return potential;}
-    
-    /**
     * Symmetric array of all two-body potentials.  Potentials are associated with species, and each species
     * is assigned a unique index to idenfity it.  Potential2[i][j] is the two-body potential
     * for Species indexed i and j, respectively.  The potential for i=j is merely the one describing the 
@@ -474,11 +456,12 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
 	    IntegratorHard integratorHard1 = new IntegratorHard();
 	    SpeciesDisks speciesDisks1 = new SpeciesDisks();
 	    Phase phase1 = new Phase();
+	    PotentialAbstract potential = new PotentialHardDisk();
 ///	    P2SimpleWrapper P2HardDisk1 = new P2SimpleWrapper(new PotentialHardDisk());
 	    Controller controller1 = new Controller();
 	    DisplayPhase displayPhase1 = new DisplayPhase();
-	    IntegratorMD.Timer timer = integratorHard1.new Timer(integratorHard1.chronoMeter());
-	    timer.setUpdateInterval(10);
+///	    IntegratorMD.Timer timer = integratorHard1.new Timer(integratorHard1.chronoMeter());
+///	    timer.setUpdateInterval(10);
 		Simulation.instance.setBackground(java.awt.Color.yellow);
 
 		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place

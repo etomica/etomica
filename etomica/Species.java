@@ -675,6 +675,7 @@ public abstract class Species implements Simulation.Element, java.io.Serializabl
                 hasNext = (atom != null);
                 return atom;
             }
+            public boolean contains(Atom atom) {return atom.parentMolecule.parentSpecies() == Species.this;}
             public Atom reset(Atom a) {return reset();}
             public Atom reset(Atom a1, Atom a2) {return reset();}
             public Atom next() {

@@ -8,53 +8,57 @@ package etomica;
  */
 public class IteratorDirective implements java.io.Serializable {
     
-    private Atom firstAtom, lastAtom;
-    private Phase phase;
+    private Atom atom1, atom2;
     private Direction direction;
-    private Bounds bounds;
+    private int atomCount;
+//    private Bounds bounds;
     
     public IteratorDirective() {
         this(UP);
     }
     public IteratorDirective(Direction direction) {
         set(direction);
-        set(ALL);
+        set();
+//        set(ALL);
     }
     
     //returns itself as a convenience, so that it may be set while being passed as an
     //argument to a method
-    public final IteratorDirective set(Atom first) {
-        firstAtom = first;
-        bounds = FIRST;
+    public final IteratorDirective set() {
+        atom1 = atom2 = null;
+        atomCount = 0;
         return this;
     }
-    public final IteratorDirective set(Atom first, Atom last) {
-        firstAtom = first;
-        lastAtom = last;
-        bounds = FIRST_LAST;
+    public final IteratorDirective set(Atom a) {
+        atom1 = a;
+        atom2 = null;
+        atomCount = 1;
+//        bounds = FIRST;
+        return this;
+    }
+    public final IteratorDirective set(Atom a1, Atom a2) {
+        atom1 = a1;
+        atom2 = a2;
+        atomCount = 2;
+//        bounds = FIRST_LAST;
         return this;
     }
     public final IteratorDirective set(Direction direction) {
         this.direction = direction;
         return this;
     }
-    public final IteratorDirective set(Bounds bounds) {
+/*    public final IteratorDirective set(Bounds bounds) {
         this.bounds = bounds;
         return this;
     }
-    
-    public final Bounds bounds() {return bounds;}
+*/    
+//    public final Bounds bounds() {return bounds;}
+    public final int atomCount() {return atomCount;}
     public final Direction direction() {return direction;}
     
-    public final Atom firstAtom() {return firstAtom;}
-    public final Atom lastAtom() {return lastAtom;}
+    public final Atom atom1() {return atom1;}
+    public final Atom atom2() {return atom2;}
     
-    public final IteratorDirective setPhase(Phase p) {
-        phase = p;
-        return this;
-    }
-    public final Phase getPhase() {return phase;}
-        
     //IteratorDirective.Direction
     public static final class Direction extends Constants.TypedConstant {
             
@@ -73,7 +77,7 @@ public class IteratorDirective implements java.io.Serializable {
     
     
     //IteratorDirective.Bounds
-    public static final class Bounds extends Constants.TypedConstant {
+/*    public static final class Bounds extends Constants.TypedConstant {
             
         private Bounds(String label) {super(label);}
         public static final Bounds[] CHOICES = new Bounds[] {
@@ -87,5 +91,5 @@ public class IteratorDirective implements java.io.Serializable {
     public static final Bounds FIRST = Bounds.CHOICES[0];
     public static final Bounds FIRST_LAST = Bounds.CHOICES[1];
     public static final Bounds ALL = Bounds.CHOICES[2];
-    
+ */   
 }//end of IteratorDirective    

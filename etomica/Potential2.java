@@ -30,7 +30,7 @@ public abstract class Potential2 extends PotentialAbstract {
          */
         public Agent(Phase p) {
             super(p);
-            iterator = new AtomPairIterator(p);
+//            iterator = new AtomPairIterator(p);
         }
             
         public void setIterator(AtomPairIterator iterator) {

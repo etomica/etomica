@@ -74,8 +74,8 @@ public abstract class AtomAction extends etomica.Action {
     public static class FreeFlight extends AtomAction {
         private double tStep = 0.0;
         public void actionPerformed(Atom a) {
-            if(a.coord.isStationary()) {return;}  //skip if atom is stationary
-            a.coord.freeFlight(tStep);  // r += tStep*p/m
+            if(a.isStationary()) {return;}  //skip if atom is stationary
+            a.r.PEa1Tv1(tStep*a.rm(),a.p);  // r += tStep*p/m
         }
         public void actionPerformed(Atom a, double t) {
             tStep = t;
@@ -93,8 +93,8 @@ public abstract class AtomAction extends etomica.Action {
             displacement = space.makeVector();
         }
             
-        public final void actionPerformed(Atom a) {a.coord.position().PE(displacement);}
-        public void actionPerformed(Atom a, Space.Vector d) {a.coord.position().PE(d);}
+        public final void actionPerformed(Atom a) {a.r.PE(displacement);}
+        public void actionPerformed(Atom a, Space.Vector d) {a.r.PE(d);}
         public final void setDisplacement(Space.Vector d) {displacement.E(d);}
     }//end of Translate
     

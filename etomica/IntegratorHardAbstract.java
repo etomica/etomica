@@ -30,21 +30,6 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
     public IntegratorHardAbstract(Simulation sim) {
         super(sim);
         
-        //this establishes a listener that will be notified if the master potential
-        //in the parent simulation changes.  The new potential is cast to a Hard potential
-        //with a locally defined handle.
-  /*      sim.potentialMonitor.addListener(new SimulationEventListener() {
-            public void simulationAction(SimulationEvent evt) {
-                PotentialAbstract newPotential = ((Simulation)evt.getSource()).potential();
-                try {
-                    IntegratorHardAbstract.this.potential = (PotentialAbstract.Hard)newPotential;
-                }
-                catch(ClassCastException ex) {//should define an exception to throw for this
-                    System.out.println("Incompatible elements in IntegratorHardAbstract");
-                    System.exit(1);
-                }
-            }
-        });*/
     }//end of constructor
 
 	/**
@@ -54,10 +39,33 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
 	protected void makeIterators(IteratorFactory factory) {
         upAtomIterator = factory.makeAtomIteratorUp();
     }
-          
+    
+          //need to modify to handle multiple-phase issues
+    public boolean addPhase(Phase p) {
+        if(!super.addPhase(p)) return false;
+        phasePotential = (PotentialAgent.Hard)p.potential();
+        
+        //this establishes a listener that will be notified if the master potential
+        //in the phase changes.  The new potential is cast to a Hard potential
+        //with a locally defined handle.
+        p.potentialMonitor.addListener(new SimulationEventListener() {
+            public void simulationAction(SimulationEvent evt) {
+                PotentialAgent newPotential = ((Phase)evt.getSource()).potential();
+                try {
+                    IntegratorHardAbstract.this.phasePotential = (PotentialAgent.Hard)newPotential;
+                }
+                catch(ClassCastException ex) {//should define an exception to throw for this
+                    System.out.println("Incompatible elements in IntegratorHardAbstract");
+                    System.exit(1);
+                }
+            }
+        });
+        return true;
+    }
+
     /** 
-    * Steps all atoms across time interval timeStep, handling all intervening collisions.
-    */
+     * Steps all atoms across time interval timeStep, handling all intervening collisions.
+     */
     public void doStep() {
         try {doStep(timeStep);}
         catch(StackOverflowError e) {

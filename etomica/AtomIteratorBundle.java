@@ -28,6 +28,8 @@ public final class AtomIteratorBundle extends AtomIterator {
         singlet = new AtomIterator.Singlet();
         current = singlet;
     }//end of makeAtomIterators
+    
+    public boolean hasNext() {return current.hasNext();}
         
     public void reset(IteratorDirective id) {
         IteratorDirective.Direction direction = id.direction();
@@ -38,6 +40,9 @@ public final class AtomIteratorBundle extends AtomIterator {
             
         current.reset(id);
     }
+    
+    public boolean contains(Atom atom) {return current.contains(atom);}
+    
     public Atom next() {return current.next();}
         
     public Atom reset(Atom a) {return current.reset(a);}
@@ -58,5 +63,5 @@ public final class AtomIteratorBundle extends AtomIterator {
     * @see Atom.Action
     */
     public void allAtoms(AtomAction act) {current.allAtoms(act);}
-}//end of Bundle
+}//end of AtomIteratorBundle
             

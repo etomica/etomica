@@ -18,7 +18,6 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
     
     private static final IteratorDirective upList = new IteratorDirective(IteratorDirective.UP);
     private static final IteratorDirective downList = new IteratorDirective(IteratorDirective.DOWN);
-    private static final IteratorDirective.Bounds ALL = IteratorDirective.ALL;
 
     //collision handler is passed to the potential and is notified of each collision
     //the potential detects.  The collision handler contains the necessary logic to
@@ -71,13 +70,6 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
         return info;
     }
     
-    public boolean addPhase(Phase p) {
-        if(!super.addPhase(p)) return false;
-        upList.setPhase(p);   //set phase for iterator directives
-        downList.setPhase(p);
-        return true;
-    }
-
 	/**
 	 * Overrides superclass method to instantiate iterators when iteratorFactory in phase is changed.
 	 * Called by Integrator.addPhase and Integrator.iteratorFactoryObserver.
@@ -173,7 +165,7 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
     */
     protected void doReset() {
         if(isothermal) scaleMomenta(Math.sqrt(this.temperature/(firstPhase.kineticTemperature())));
-        phasePotential.findCollisions(upList.set(ALL), collisionHandlerUp);
+        phasePotential.findCollisions(upList.set(), collisionHandlerUp);
         findNextCollider();
     }
                 

@@ -19,7 +19,7 @@ public class MeterPotentialEnergy extends Meter implements EtomicaElement
         super(sim);
         setLabel("Potential Energy");
         all = new IteratorDirective();
-        all.set(IteratorDirective.ALL);
+        all.set();
     }
       
     public static EtomicaInfo getEtomicaInfo() {
@@ -35,6 +35,6 @@ public class MeterPotentialEnergy extends Meter implements EtomicaElement
   * Currently, does not include long-range correction to truncation of energy
   */
     public final double currentValue() {
-        return phase.potential.energy(all);
+        return phase.potential().energy(all);
     }
 }

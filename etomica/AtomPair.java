@@ -2,24 +2,26 @@ package etomica;
 /**
  * An association of two atoms.  Each AtomPair holds one CoordinatePair (obtained from a Space class),
  * which has all the methods needed to compute atom distance and momentum-difference vectors, dot products, etc.
+ * Each AtomPair instance must be associated with a phase CoordinatePair requires a phase.boundary
+ * for its complete definition
  */
 public final class AtomPair implements java.io.Serializable {
-    public static String getVersion() {return "AtomPair:01.06.25";}
+    public static String getVersion() {return "01.06.25";}
     public Atom atom1, atom2;
     public final Space.CoordinatePair cPair;
-
+//    public Potential potential;
    /**
-    * Constructs an AtomPair for the given phase, but with no designated atoms.
+    * Constructs and AtomPair for the given phase, but with no designated atoms.
     */
-    public AtomPair(Space space) {
-        cPair = space.makeCoordinatePair();
+    public AtomPair(Phase phase) {
+        cPair = phase.parentSimulation().space().makeCoordinatePair(phase);
     }
     /**
      * Constructs an AtomPair using the given atoms.  Assumes that the atoms are in the same phase.
      * The method atom1() will return the first atom in the argument list here, and atom2() the second.
      */
     public AtomPair(Atom a1, Atom a2) {  //Assumes a1 and a2 are in same phase
-        cPair = a1.parentSimulation().space().makeCoordinatePair();
+        cPair = a1.parentPhase().parentSimulation().space().makeCoordinatePair(a1.parentPhase());
         reset(a1, a2);
     }
     /**
@@ -46,13 +48,13 @@ public final class AtomPair implements java.io.Serializable {
     public void reset(Atom a1, Atom a2) {
         atom1 = a1; 
         atom2 = a2;
-        if(a2 != null) reset();
+        reset();
     }
     /**
      * Resets the coordinate pair for the current values of the atoms
      */
     public void reset() {
-        cPair.reset(atom1.coord, atom2.coord);
+        cPair.reset(atom1.coordinate(), atom2.coordinate());
     }
     /**
      * @return the square of the distance between the atoms, |r1 - r2|^2
@@ -95,7 +97,7 @@ public final class AtomPair implements java.io.Serializable {
     public final Atom atom2() {return atom2;}
     
     /**
-     * Sorts by separation distance all the atom pairs produced by an atomPair iterator.
+     * Sorts by separation distance all the atom pairs produced by an atomPair iterator
      * Returns the first element of a linked list of atomPair(Linker)s, sorted by increasing distance
      * Perhaps better to do this using java.util.Collections (in java 1.2 API)
      */

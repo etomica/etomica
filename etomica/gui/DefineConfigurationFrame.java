@@ -83,7 +83,7 @@ public class DefineConfigurationFrame extends JInternalFrame {
                     mainFrameHandle.setClosed(true);
                 }
                 catch (java.beans.PropertyVetoException pve) {}
-                if (typeArray[0] instanceof AtomType.Sphere) {
+                if (typeArray[0] instanceof AtomType.Disk) {
                     SpeciesUserDefinedDisks newSpeciesDisk = new SpeciesUserDefinedDisks(typeArray);
                     newSpeciesDisk.setName(molTitle);
                     simulationEditor.speciesEditor.componentList.addElement(newSpeciesDisk);
@@ -92,8 +92,7 @@ public class DefineConfigurationFrame extends JInternalFrame {
                     AtomType.Wall[] wallArray = new AtomType.Wall[1];
                     for (int i = 0; i < typeArray.length; i++)
                         wallArray[i] = (AtomType.Wall)typeArray[i];
-//                    SpeciesWalls newSpeciesWall = new SpeciesWalls(1,(wallArray));
-                    SpeciesWalls newSpeciesWall = new SpeciesWalls(1,1);
+                    SpeciesWalls newSpeciesWall = new SpeciesWalls(1,(wallArray));
                     newSpeciesWall.setName(molTitle);
                     simulationEditor.speciesEditor.componentList.addElement(newSpeciesWall);
                 }
