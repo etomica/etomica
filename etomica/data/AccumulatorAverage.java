@@ -73,11 +73,12 @@ public class AccumulatorAverage extends DataAccumulator {
             setNaN(data);
         } else {
             for(int i=0; i<nData; i++) {
-                double avg = (sum[i] + blockSum[i])/currentCount;
+                double currentBlockAverage = blockSum[i]/currentBlockCount;
+                double avg = (sum[i] + countFraction*currentBlockAverage)/currentCount;
                 double avgSquared = avg*avg;
                 double err = Math.sqrt(sumSquare[i]/count - (sum[i]*sum[i]/count)/count)/(count-1);
                 double stdev = Math.sqrt((sumSquareBlock[i]+blockSumSq[i])/(currentCount*blockSize) - avgSquared);
-                double mrBlock = (!Double.isNaN(mostRecentBlock[i])) ? mostRecentBlock[i] : blockSum[i]/currentBlockCount;
+                double mrBlock = (!Double.isNaN(mostRecentBlock[i])) ? mostRecentBlock[i] : currentBlockAverage;
                 data[0*nData+i] = mostRecent[i];
                 data[1*nData+i] = average[i] = avg;
                 data[2*nData+i] = error[i] = err;
