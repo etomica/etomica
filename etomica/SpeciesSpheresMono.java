@@ -41,7 +41,13 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
      * Default.MOLECULE_COUNT.
      */
     public SpeciesSpheresMono(Simulation sim, AtomSequencerFactory seqFactory) {
-        super(sim, makeFactory(sim.space, seqFactory, sim.speciesRoot.type.getIndexManager().makeMoleculeIndexManager()));
+        this(sim, seqFactory, Species.makeAgentType(sim));
+    }
+    
+    private SpeciesSpheresMono(Simulation sim, AtomSequencerFactory seqFactory,
+                                AtomType agentType) {
+        super(sim, makeFactory(sim.space, seqFactory, agentType.getIndexManager().makeChildManager()),
+                agentType);
         factory.setSpecies(this);
         atomType = (AtomTypeSphere)((AtomFactoryMono)factory).getType();
         nMolecules = Default.MOLECULE_COUNT;

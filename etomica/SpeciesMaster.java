@@ -12,14 +12,15 @@ import etomica.atom.iterator.AtomIteratorList;
 import etomica.atom.iterator.AtomIteratorTree;
 
 /**
- * Coordinator of all species agents in a phase.  
+ * Coordinator of all species agents in a phase.  Parent is SpeciesRoot, and
+ * children are SpeciesAgent instances. All instances of SpeciesMaster
+ * in a given simulation share the same AtomType.
  *
  * @author David Kofke
  */
  
 public final class SpeciesMaster extends Atom {
     
-    final AtomType childType;
     private int moleculeCount;
     //manager and events for addition/removal of descendant atoms
     private final SimulationEventManager eventManager = new SimulationEventManager();
@@ -37,7 +38,6 @@ public final class SpeciesMaster extends Atom {
     SpeciesMaster(Simulation sim, Phase p) {
         super(sim.space, sim.speciesRoot.childType, new NodeFactory(p), AtomSequencerFactory.SIMPLE);
         node = (AtomTreeNodeGroup)super.node;
-        childType = new AtomType(type.getIndexManager().makeChildManager());
     }
     
     public SpeciesAgent firstSpecies() {return (SpeciesAgent)node.childList.getFirst();}

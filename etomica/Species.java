@@ -1,6 +1,5 @@
 package etomica;
 import etomica.action.AtomAction;
-import etomica.chem.Model;
 import etomica.units.Dimension;
 import etomica.utility.NameMaker;
 
@@ -37,11 +36,16 @@ import etomica.utility.NameMaker;
  
 public class Species {
 
+    protected static AtomType makeAgentType(Simulation sim) {
+        return new AtomType(sim.speciesRoot.childType.getIndexManager().makeChildManager());
+    }
+    
     /**
      * Constructs species with molecules built by the given atom factory.
      */
-    public Species(Simulation sim, AtomFactory factory) {
+    public Species(Simulation sim, AtomFactory factory, AtomType agentType) {
         this.factory = factory;
+        this.agentType = agentType;
         setName(NameMaker.makeName(this.getClass()));
         index = sim.speciesRoot.addSpecies(this);
         factory.setSpecies(this);
@@ -51,9 +55,9 @@ public class Species {
      * Constructs species with an atom factory that makes molecules from
      * the given model for the given space.
      */
-    public Species(Simulation sim, Model model) {
-    	this(sim, model.makeAtomFactory(sim.space));
-    }
+//    public Species(Simulation sim, Model model) {
+//    	this(sim, model.makeAtomFactory(sim.space));
+//    }
 
     public int getIndex() {
         return index;
@@ -124,17 +128,16 @@ public class Species {
     }
     
     /**
-     * Constructs an Agent of this species and sets its parent phase
+     * Constructs an Agent of this species and sets its parent phase.
+     * The agent's type is in common with all other agents of this species.
      * 
      * @param p The given parent phase of the agent
-     * @return The new agent.  Normally this is returned into the setAgent method of the given phase.
-     * @see Species.Agent
+     * @return The new agent.
      */
     public SpeciesAgent makeAgent(SpeciesMaster parent) {
         Phase phase = parent.node.parentPhase();
         SpeciesAgent agent = new SpeciesAgent(factory.space, 
-                new AtomType(parent.type.getIndexManager().makeChildManager()), 
-                this, phase, nMolecules);
+                agentType, this, phase, nMolecules);
         agent.node.setParent(parent.node);
         agents.put(phase, agent);   //associate agent with phase; retrieve agent for a given phase using agents.get(p)
         return agent;
@@ -154,6 +157,7 @@ public class Species {
     }
 
     final AgentList agents = new AgentList();
+    final AtomType agentType;
     protected final AtomFactory factory;
     private String name;
     private final int index;

@@ -47,7 +47,7 @@ public class AtomIndexManager {
      *            atom's index that is managed by this class.
      *  
      */
-    public AtomIndexManager(int[] bitLength, int depth) {
+    private AtomIndexManager(int[] bitLength, int depth, int parentIndex, int ordinal) {
         this.bitLength = (int[]) bitLength.clone();
         cumulativeBitLength = calculateCumulativeBitLength(bitLength);
         bitShift = calculateBitShift(cumulativeBitLength);
@@ -62,6 +62,8 @@ public class AtomIndexManager {
         sameSpeciesMask = speciesIndexMask | rootMask;
         sameMoleculeMask = moleculeIndexMask | rootMask | samePhaseMask
                 | sameSpeciesMask;
+        typeIndex = parentIndex + shiftOrdinal(ordinal);
+//        System.out.println(Integer.toBinaryString(typeIndex));
 //        System.out.println("depth, bitLength,cumulativeBitLength,bitShift: "+depth+Arrays.toString(bitLength)+Arrays.toString(cumulativeBitLength)+Arrays.toString(bitShift));
 //        System.out.println("samePhaseMask: "+Integer.toBinaryString(samePhaseMask));
 //        System.out.println("sameSpeciesMask: "+Integer.toBinaryString(sameSpeciesMask));
@@ -80,27 +82,35 @@ public class AtomIndexManager {
     }
 
     // {speciesRoot, phases, species, molecules, groups, atoms}
+    /*
+     * SpeciesRoot has unique AtomType
+     * All SpeciesMasters in a simulation share the same AtomType (root.childType)
+     * Each Species has its own indexManager, which it gives to all its SpeciesAgents
+     * All molecules of a particular species have the same indexManager
+     */
 
     /**
      * Returns an AtomIndexManager instance that would be used by a child of
      * this manager's atom. Simply constructs and returns an index manager with
-     * the same bitLength array as this, with its depth field incremented by 1.
+     * the same bitLength array as this, with its depth field incremented by 1,
+     * and with an ordinal index that is increment with each call to this method.
      * Method exists to permit construction of appropriate index manger having
      * same bitLength array as this, without exposing the bitLength array.
      */
     public AtomIndexManager makeChildManager() {
-        return new AtomIndexManager(bitLength, depth + 1);
+        return new AtomIndexManager(bitLength, depth + 1, typeIndex, ++childCount);
     }
 
     /**
-     * Returns an AtomIndexManager appropriate for atoms at the molecule level
-     * of the atom tree. Simply constructs and returns and index manager with
-     * the same bitLength array as this, with a depth field equal to 3. Method
-     * exists to permit construction of appropriate index manger having same
-     * bitLength array as this, without exposing the bitLength array.
+     * Constructs an index manager for the SpeciesRoot AtomType.  Called in
+     * SpeciesRoot constructor.
      */
-    public AtomIndexManager makeMoleculeIndexManager() {
-        return new AtomIndexManager(bitLength, 3);
+    static AtomIndexManager makeRootIndexManager(int[] bitLength) {
+        return new AtomIndexManager(bitLength, 0, 0, 1);
+    }
+    
+    public static AtomIndexManager makeSimpleIndexManager(int[] bitLength) {
+        return new AtomIndexManager(bitLength, 3, 0, 1);
     }
 
     /**
@@ -113,7 +123,7 @@ public class AtomIndexManager {
     /**
      * Bit-shifts the given integer by the amount needed to put it in the bit
      * location appropriate to the depth of the atom. The atom's index would
-     * then be given by adding the returned value to the index of the atoms
+     * then be given by adding the returned value to the index of the atom's
      * parent. The ordinal can be recovered from the index via the getOrdinal
      * method.
      */
@@ -201,6 +211,14 @@ public class AtomIndexManager {
     public boolean sameAncestry(int index0, int index1) {
         return ((index0 ^ index1) & indexMask) == 0;
     }
+    
+    public boolean isDescendedFrom(AtomIndexManager anotherManager) {
+        return anotherManager.sameAncestry(typeIndex, anotherManager.typeIndex);
+    }
+
+    public int getTypeIndex() {
+        return typeIndex;
+    }
 
     //convenience method used by constructor
     private static int[] calculateCumulativeBitLength(int[] array) {
@@ -222,7 +240,7 @@ public class AtomIndexManager {
         }
         return newArray;
     }
-
+    
     private final int[] bitLength;
     private final int[] cumulativeBitLength;
     private final int[] bitShift;
@@ -236,4 +254,6 @@ public class AtomIndexManager {
     private final int ordinalMask;
     private final int indexMask;
 
+    private final int typeIndex;
+    private int childCount = 0;
 }

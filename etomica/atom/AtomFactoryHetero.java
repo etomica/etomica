@@ -51,13 +51,6 @@ public class AtomFactoryHetero extends AtomFactory {
         }
     }
     
-//    public void setDepth(int depth) {
-//        atomType.setDepth(depth);
-//        for(int i=0; i<childFactory.length; i++) {
-//            childFactory[i].setDepth(depth+1);
-//        }
-//    }
-
     /**
      * Constructs a new group.
      */

@@ -158,6 +158,8 @@ public class AtomIndexManagerTest extends TestCase {
     
     public void testAncestry() {
         for(int i=0; i<atoms.length; i++) {
+            assertFalse(atoms[i].node.isDescendedFrom(atom));
+            assertFalse(atom.node.isDescendedFrom(atoms[i]));
             for(int j=0; j<atoms.length; j++) {
 //                System.out.println(i+" "+j);
                 if(isDescendedFrom(atoms[i],atoms[j])) {
@@ -168,13 +170,38 @@ public class AtomIndexManagerTest extends TestCase {
             }
         }
     }
-    
     private boolean isDescendedFrom(Atom a1, Atom a2) {
         if(a1.type.getIndexManager().getDepth() < a2.type.getIndexManager().getDepth()) return false;
         else if(a1 == a2) return true;
         else return isDescendedFrom(a1.node.parentGroup(), a2);
     }
 
+    
+    public void testIsDescendedFrom() {
+        for(int i=0; i<atoms.length; i++) {
+            assertFalse(atoms[i].type.getIndexManager().isDescendedFrom(atom.type.getIndexManager()));
+            assertFalse(atom.type.getIndexManager().isDescendedFrom(atoms[i].type.getIndexManager()));
+            for(int j=0; j<atoms.length; j++) {
+//                System.out.println(i+" "+j);
+                boolean is = atoms[i].type.getIndexManager().isDescendedFrom(atoms[j].type.getIndexManager());
+                if(typeIsDescendedFrom(atoms[i],atoms[j])) {
+                    assertTrue(is);
+                } else {
+                    if(is) {
+                        System.out.println("isDescendedFrom "+i+" "+j+" "+atoms[i]+" "+atoms[j]+" "+Integer.toBinaryString(atoms[i].type.getIndexManager().getTypeIndex())+" "+Integer.toBinaryString(atoms[j].type.getIndexManager().getTypeIndex()));
+                        typeIsDescendedFrom(atoms[i],atoms[j]);
+                    }
+                    assertFalse(is);
+                }
+            }
+        }
+    }
+    private boolean typeIsDescendedFrom(Atom a1, Atom a2) {
+        if(a1.type.getIndexManager().getDepth() < a2.type.getIndexManager().getDepth()) return false;
+        else if(a1.type == a2.type) return true;
+        else return typeIsDescendedFrom(a1.node.parentGroup(), a2);
+    }
+    
     public void testSameMolecule() {
         int trueCount = 0;
         int falseCount = 0;

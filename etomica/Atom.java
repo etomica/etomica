@@ -45,7 +45,9 @@ public class Atom implements AtomSet, java.io.Serializable {
      * @param space
      */
     public Atom(Space space) {
-    	this(space, new AtomTypeSphere(new AtomIndexManager(Default.BIT_LENGTH,3)), AtomTreeNodeLeaf.FACTORY, AtomSequencerFactory.SIMPLE);                        
+    	this(space, 
+                new AtomTypeSphere(AtomIndexManager.makeSimpleIndexManager(Default.BIT_LENGTH)), 
+                AtomTreeNodeLeaf.FACTORY, AtomSequencerFactory.SIMPLE);                        
         node.setOrdinal(0,++INSTANCE_COUNT);//default index; changed when added to parent after construction
     }
     
