@@ -3,11 +3,15 @@ import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.Species;
+import etomica.SpeciesPistonCylinder;
 import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.data.DataSourceCountSteps;
 import etomica.data.meter.MeterTemperature;
+import etomica.graphics.DeviceSlider;
+import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPhase;
+import etomica.graphics.DisplayTimer;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorHardPiston;
@@ -17,6 +21,10 @@ import etomica.potential.P2SquareWell;
 import etomica.potential.Potential2;
 import etomica.space.BoundaryNone;
 import etomica.space2d.Space2D;
+import etomica.units.Bar;
+import etomica.units.Kelvin;
+import etomica.units.PrefixedUnit;
+import etomica.units.Unit;
 
 /**
  * Simple hard-sphere MD in piston-cylinder apparatus
@@ -61,6 +69,7 @@ public class PistonCylinder extends Simulation {
 	    
 	    integrator = new IntegratorHardPiston(potentialMaster,pistonPotential);
         integrator.addPhase(phase);
+        integrator.setIsothermal(true);
         ai = new ActivityIntegrate(integrator);
         getController().addAction(ai);
 	    
@@ -69,7 +78,7 @@ public class PistonCylinder extends Simulation {
     public static class Applet extends javax.swing.JApplet {
         public DisplayPhase display;
         public DataSourceCountSteps meterCycles;
-//        public DisplayBox displayCycles;
+        public DisplayBox displayCycles;
         public MeterTemperature thermometer;
 
         public void init() {
@@ -82,29 +91,34 @@ public class PistonCylinder extends Simulation {
             display = new DisplayPhase(pc.phase);
             
             meterCycles = new DataSourceCountSteps(pc.integrator);
-//            displayCycles = new DisplayBox(meterCycles);
+            displayCycles = new DisplayBox(meterCycles);
+            pc.integrator.addIntervalListener(displayCycles);
             
+            sg.panel().add(displayCycles.graphic());
             sg.panel().setBackground(java.awt.Color.yellow);
 
 //            pc.phase.setBoundary(speciesPC.new Boundary(phase)); //have piston-cylinder system define boundary of phase
             
             //part unique to this class
             thermometer = new MeterTemperature();
-//            DisplayBox tBox = new DisplayBox();
-//            tBox.setMeter(thermometer);
-//            tBox.setUnit(new PrefixedUnit(Kelvin.UNIT));
+            thermometer.setPhase(new Phase[]{pc.phase});
+            DisplayBox tBox = new DisplayBox();
+            pc.integrator.addIntervalListener(tBox);
+            tBox.setDataSource(thermometer);
+            tBox.setUnit(new PrefixedUnit(Kelvin.UNIT));
+            sg.panel().add(tBox.graphic());
             display.setAlign(1,DisplayPhase.BOTTOM);
             
-//            DisplayTimer timer = new DisplayTimer(pc.integrator);
-//            timer.setUpdateInterval(10);
-//          Simulation.instance.elementCoordinator.go();
+            DisplayTimer timer = new DisplayTimer(pc.integrator);
+            pc.integrator.addIntervalListener(timer);
+            timer.setUpdateInterval(10);
+            sg.panel().add(timer.graphic());
 
-    /*        DeviceSlider pressureSlider = new DeviceSlider((SpeciesPistonCylinder.PistonPressureField)phase.firstField(),"pressure");
-            Simulation.instance.add(pressureSlider.graphic(null));
-            pressureSlider.setUnit(new Unit(Bar.UNIT));
+/*            DeviceSlider pressureSlider = new DeviceSlider((SpeciesPistonCylinder.PistonPressureField)phase.firstField(),"pressure");
+            sg.panel().add(pressureSlider.graphic());
+            pressureSlider.setUnit(new PrefixedUnit(Bar.UNIT));
             pressureSlider.setMinimum(50);
-            pressureSlider.setMaximum(1000);
-            */
+            pressureSlider.setMaximum(1000);*/
         }
 }
     
