@@ -6,31 +6,39 @@ package etomica.nbratom.cell;
 
 import etomica.Atom;
 import etomica.AtomPair;
-import etomica.AtomPairIterator;
 import etomica.AtomsetIterator;
 import etomica.IteratorDirective;
 import etomica.Potential;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
+import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.potential.PotentialCalculation;
+import etomica.potential.PotentialGroup;
 
 /**
- * PotentialCalculation that performs setup of neighbor lists.  Takes all pair iterates
- * it receives and adds each one of the pair to the other's list of neighbors (which
- * are held in the atoms' sequencers).  This action should be invoked by passing an
+ * PotentialCalculation that adds concrete potentials to the NeighborManagerAgents of
+ * the AtomTypes to which they apply.  This action should be invoked by passing an
  * instance of this class to the PotentialMaster's calculate method (the PotentialMaster
  * should be an instance of PotentialMasterNbr), with an iterator directive that specifies
  * no target atom.
  */
-public class PotentialCalculationCellAssign extends PotentialCalculation {
+public class PotentialCalculationAgents extends PotentialCalculation {
 
-	public PotentialCalculationCellAssign(NeighborCellManager cellManager) {
-		super();
-        this.cellManager = cellManager;
-	}
+    public void doCalculation(AtomsetIterator iterator, IteratorDirective id, Potential potential) {    
+        if(potential instanceof PotentialGroup) {
+            iterator.reset();
+            if (iterator.hasNext()) {
+                AtomsetIteratorSinglet pretendIterator = new AtomsetIteratorSinglet(iterator.next());
+                ((PotentialGroup)potential).calculate(pretendIterator, id, this);
+            }
+        } else {
+            doCalculation(iterator, potential);
+        }
+    }
 
+    
 	/**
-     * Takes all pair iterates given by the iterator and puts each one of the
-     * pair in the other's neighbor list. Performs no action if
+     * Takes the first pair given by the iterator and adds the potentials
+     * to the atoms' NeighborManagerAgents. Performs no action if
      * the order of the iterator is not exactly 2. The given potential should be
      * a concrete potential, not a potential group (this method is called by the
      * 3-argument PotentialCalculation.doCalculation method after screening out
@@ -44,25 +52,13 @@ public class PotentialCalculationCellAssign extends PotentialCalculation {
         }
 		iterator.reset();
         if (iterator.hasNext()) {
-            AtomPair atoms = (AtomPair)iterator.peek();
+            AtomPair atoms = (AtomPair)iterator.next();
             Atom atom0 = atoms.atom0;
             Atom atom1 = atoms.atom1;
             atom0.type.getNbrManagerAgent().addPotential(potential);
             if(atom1.type != atom0.type) atom1.type.getNbrManagerAgent().addPotential(potential);
         }
-		while(iterator.hasNext()) {
-			AtomPair atoms = ((AtomPairIterator)iterator).nextPair();
-            Atom atom0 = atoms.atom0;
-            Atom atom1 = atoms.atom1;
-            if(((AtomSequencerCell)atom0.seq).cell == null) {
-                cellManager.assignCell(atom0);
-            }
-            if(((AtomSequencerCell)atom1.seq).cell == null) {
-                cellManager.assignCell(atom1);
-            }
-		}
 	}
     
-    private final NeighborCellManager cellManager;
     
 }
