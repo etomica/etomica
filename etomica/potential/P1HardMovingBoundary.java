@@ -114,7 +114,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
                 final Vector dimensions = pistonBoundary.dimensions();
                 for (int i=0; i<D; i++) {
                     if (i != wallD) {
-                        area *= dimensions.x(i);
+                        area *= (dimensions.x(i)-collisionRadius*2.0);
                     }
                 }
             }
@@ -214,7 +214,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         
     }
     
-    public double lastCollisionVirial() {return lastVirial;}
+    public double lastCollisionVirial() {return 0;}
     
     /**
      * not yet implemented.
