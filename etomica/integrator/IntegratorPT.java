@@ -2,19 +2,20 @@ package etomica.integrator;
 
 import etomica.Atom;
 import etomica.AtomIterator;
-import etomica.DataSource;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
-import etomica.IteratorDirective;
 import etomica.Phase;
+import etomica.PotentialMaster;
 import etomica.Simulation;
-import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.data.meter.MeterFunction;
+import etomica.SimulationEvent;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.data.DataSourceAdapter;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveListener;
 import etomica.space.Vector;
 import etomica.units.Dimension;
+import etomica.utility.Arrays;
 
 /**
  * Parallel-tempering integrator.  Oversees other integrators that are defined to perform
@@ -41,14 +42,11 @@ import etomica.units.Dimension;
 
 public class IntegratorPT extends IntegratorMC implements EtomicaElement {
     
-    public IntegratorPT() {
-        this(Simulation.instance);
+    public IntegratorPT(PotentialMaster potentialMaster) {
+        this(potentialMaster, new MCMoveSwapFactoryDefault());
     }
-    public IntegratorPT(SimulationElement parent) {
-        this(parent, new MCMoveSwapFactoryDefault());
-    }
-    public IntegratorPT(SimulationElement parent, MCMoveSwapFactory swapFactory) {
-        super(parent);
+    public IntegratorPT(PotentialMaster potentialMaster, MCMoveSwapFactory swapFactory) {
+        super(potentialMaster);
         setSwapInterval(100);
         mcMoveSwapFactory = swapFactory;
     }
@@ -69,10 +67,9 @@ public class IntegratorPT extends IntegratorMC implements EtomicaElement {
 		nIntegrators++;
 		
 		if(nIntegrators > 1) {
-		    MCMove[] newMCMoveSwap = new MCMove[n];
-		    for(int i=0; i<n-1; i++) {newMCMoveSwap[i] = mcMoveSwap[i];}
-		    newMCMoveSwap[n-1] = mcMoveSwapFactory.makeMCMoveSwap(this, integrators[n-1], integrators[n]);
-            mcMoveSwap = newMCMoveSwap;
+            MCMove newMCMove = mcMoveSwapFactory.makeMCMoveSwap(potential, integrators[n-1], integrators[n]);
+            mcMoveSwap = (MCMove[])Arrays.addObject(mcMoveSwap,newMCMove);
+            addMCMove(newMCMove);
 		}
 	}
 	
@@ -101,14 +98,21 @@ public class IntegratorPT extends IntegratorMC implements EtomicaElement {
         }
     }
     
+    public void initialize() {
+        for(int i=0; i<nIntegrators; i++) {
+            integrators[i].initialize();
+        }
+        super.initialize();
+    }        
+    
     /**
      * Resets this integrator and passes on the reset to all managed integrators.
      */
     public void reset() {
-        super.reset();
 	    for(int i=0; i<nIntegrators; i++) {
 	        integrators[i].reset();
 	    }
+        // don't call super.reset(), it tries to calculate the potential energy
 	}
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -131,7 +135,7 @@ public class IntegratorPT extends IntegratorMC implements EtomicaElement {
     public void setSwapInterval(int nSwap) {
         if(nSwap < 1) nSwap = 1;
         this.nSwap = nSwap;
-        swapProbability = 1.0/(double)nSwap;
+        swapProbability = 1.0/nSwap;
     }
     
     /**
@@ -162,7 +166,7 @@ public interface MCMoveSwapFactory {
      * @param integrator1 integrator for one of the phases being swapped
      * @param integrator2 integrator for the other phase
      */
-    public MCMove makeMCMoveSwap(IntegratorMC integratorMC, Integrator integrator1, Integrator integrator2);
+    public MCMove makeMCMoveSwap(PotentialMaster potentialMaster, Integrator integrator1, Integrator integrator2);
 }//end of MCMoveSwapFactory
 
     // --------------- inner interface ------------
@@ -182,9 +186,9 @@ public interface MCMoveSwap {
     // -----------inner class----------------
     
 public static class MCMoveSwapFactoryDefault implements MCMoveSwapFactory {
-    public MCMove makeMCMoveSwap(IntegratorMC integratorMC, 
+    public MCMove makeMCMoveSwap(PotentialMaster potentialMaster, 
                                     Integrator integrator1, Integrator integrator2) {
-        return new MCMoveSwapConfiguration(integratorMC, integrator1, integrator2);
+        return new MCMoveSwapConfiguration(potentialMaster, integrator1, integrator2);
     }
 }//end of MCMoveSwapFactoryDefault 
 
@@ -198,37 +202,35 @@ public static class MCMoveSwapFactoryDefault implements MCMoveSwapFactory {
 	 */
 public static class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 
-	private Integrator integrator1, integrator2;	
-    private final IteratorDirective iteratorDirective = new IteratorDirective();
-	private AtomIteratorAllMolecules iterator1 = new AtomIteratorAllMolecules();
-	private AtomIteratorAllMolecules iterator2 = new AtomIteratorAllMolecules();
-	private AtomIteratorAllMolecules affectedAtomIterator = new AtomIteratorAllMolecules();
-	private Vector r;
+	private final Integrator integrator1, integrator2;	
+	private final AtomIteratorLeafAtoms iterator1 = new AtomIteratorLeafAtoms();
+	private final AtomIteratorLeafAtoms iterator2 = new AtomIteratorLeafAtoms();
+	private final AtomIteratorLeafAtoms affectedAtomIterator = new AtomIteratorLeafAtoms();
+	private final Vector r;
 	private double u1, u2, temp1, temp2, deltaU1;
-	private Phase phase1, phase2;
 	private final Phase[] swappedPhases = new Phase[2];
 
-	public MCMoveSwapConfiguration(IntegratorMC integratorMC, 
+	public MCMoveSwapConfiguration(PotentialMaster potentialMaster, 
 	                                Integrator integrator1, Integrator integrator2) {
-  		super(integratorMC);
-		r = integratorMC.space.makeVector();
+  		super(potentialMaster,2);
+		r = potentialMaster.getSpace().makeVector();
 		setTunable(false);
 		this.integrator1 = integrator1;
 		this.integrator2 = integrator2;
 	}
 
 	public boolean doTrial() {
- 		phase1 = integrator1.getPhase(0);
-		phase2 = integrator2.getPhase(0);
-
 		temp1 = integrator1.getTemperature();
 		temp2 = integrator2.getTemperature();
 
-        u1 = potential.calculate(phase1, iteratorDirective, energy.reset()).sum();
-        u2 = potential.calculate(phase2, iteratorDirective, energy.reset()).sum();
+        u1 = integrator1.getPotentialEnergy()[0];
+        u2 = integrator2.getPotentialEnergy()[0];
         deltaU1 = Double.NaN;
         return true;
     }
+    
+    // NOOP
+    public void setPhase(Phase[] p) {}
     
     public double lnTrialRatio() {return 0.0;}
     
@@ -241,21 +243,23 @@ public static class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap
 	 * Swaps positions of molecules in two phases.
 	 */
 	public void acceptNotify() {
-		iterator1.setBasis(phase1);
-		iterator2.setBasis(phase2);
-			
+		iterator1.setPhase(integrator1.getPhase()[0]);
+		iterator2.setPhase(integrator2.getPhase()[0]);
+
 		iterator1.reset();
 		iterator2.reset();
 
 		while(iterator1.hasNext()) {
-			Atom a1 = iterator1.next();
-			Atom a2 = iterator2.next();
+			Atom a1 = iterator1.nextAtom();
+			Atom a2 = iterator2.nextAtom();
 
 			r.E(a1.coord.position());
 				
-			a1.coord.translateTo(a2.coord.position());
-			a2.coord.translateTo(r);
+			a1.coord.position().E(a2.coord.position());
+			a2.coord.position().E(r);
 		}
+        integrator1.reset();
+        integrator2.reset();
 	}
 	
 	/**
@@ -267,24 +271,24 @@ public static class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap
 	 * Implementation of MCMoveSwap interface
 	 */
 	public Phase[] swappedPhases() {
-	    swappedPhases[0] = phase1;
-	    swappedPhases[1] = phase2;
+	    swappedPhases[0] = integrator1.getPhase()[0];
+	    swappedPhases[1] = integrator2.getPhase()[0];
 	    return swappedPhases;
 	}
 
 	public double energyChange(Phase phase) {
-	    if(phase == phase1)      return +deltaU1;
-	    else if(phase == phase2) return -deltaU1;
-	    else                     return 0.0;
+	    if(phase == integrator1.getPhase()[0]) return +deltaU1;
+	    if(phase == integrator2.getPhase()[0]) return -deltaU1;
+	    return 0.0;
 	}
 	
 	public AtomIterator affectedAtoms(Phase p) {
-	    if(p == phase1 || p == phase2) {
-	        affectedAtomIterator.setBasis(p);
+	    if(p == integrator1.getPhase()[0] || p == integrator2.getPhase()[0]) {
+	        affectedAtomIterator.setPhase(p);
 	        affectedAtomIterator.reset();
 	        return affectedAtomIterator;
 	    }
-	    else return AtomIterator.NULL;
+	    return AtomIterator.NULL;
 	}
 }//end of MCMoveSwapConfiguration
 
@@ -295,18 +299,17 @@ public static class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap
  * simulation.  Designed for input to a DisplayPlot to provide a graphical
  * record of how the phases swap configurations.
  */
-//XXX this does not seem to fit the criteria for a Meter.  It is not associated with a phase
-    public class MeterPhaseTracker extends MeterFunction implements MCMoveListener {
+    public class PhaseTracker extends DataSourceAdapter implements MCMoveListener {
         
-        private DataSource[] histories;
         private int[] track;
+        private double[] dtrack;
         
-        public MeterPhaseTracker() {
-            super(IntegratorPT.this.simulation());
-            setActive(true);
+        public PhaseTracker() {
+            super(Dimension.NULL);
             IntegratorPT.this.addMCMoveListener(this);
         }
         
+        public void actionPerformed(SimulationEvent evt) {actionPerformed((MCMoveEvent)evt);}
         /**
          * Method called when two phases are successfully exchanged.
          */
@@ -328,32 +331,23 @@ public static class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap
          * Specifies phases that are tracked.
          */
          //don't need to pass phases; just number of phases
-        public void setPhases(Phase[] trackedPhases) {
-            setNPoints(trackedPhases.length);
-            track = new int[trackedPhases.length];
-            setHistorying(true);
-            histories = new DataSource[trackedPhases.length];
-            for(int i=0; i<nPoints; i++) {
+        public void setNumPhases(int numPhases) {
+            track = new int[numPhases];
+            dtrack = new double[numPhases];
+            for(int i=0; i<numPhases; i++) {
                 track[i] = i;
-                histories[i] = accumulator[i].history();
             }
         }
-        
-        /**
-         * Returns data source array that is suitable to input to
-         * setDataSource method of DisplayPlot.
-         */
-        public DataSource[] dataSource() {return histories;}
         
         /**
          * Returns array y such that y[i] is the current
          * phase of the configuration that began in phase i.
          */
         public double[] getData() {
-            for(int i=0; i<track.length; i++) {
-                y[track[i]] = i;
+            for (int i=0; i<track.length; i++) {
+                dtrack[i] = track[i];
             }
-            return y;
+            return dtrack;
         }
         
     }//end of MeterPhaseTracker
