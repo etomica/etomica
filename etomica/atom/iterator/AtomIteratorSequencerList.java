@@ -188,7 +188,7 @@ public class AtomIteratorSequencerList implements AtomIteratorAtomDependent,
     /**
      * Used to set iterator for down-half of iteration only.
      */
-    private void resetDown() {
+    protected void resetDown() {
         listIterator.setDirection(IteratorDirective.DOWN);
         listIterator.reset();
         for (int n = numToSkip; n != 0 && listIterator.hasNext(); n--) {
@@ -205,8 +205,8 @@ public class AtomIteratorSequencerList implements AtomIteratorAtomDependent,
 
     protected final AtomIteratorList listIterator;
     private int numToSkip = 0;
-    private boolean doBoth;
-    private boolean upListNow, doGoDown;
+    protected boolean doBoth;
+    protected boolean upListNow, doGoDown;
     private IteratorDirective.Direction direction;
     private Atom firstAtom = null;
     private final Atom[] atom = new Atom[1];

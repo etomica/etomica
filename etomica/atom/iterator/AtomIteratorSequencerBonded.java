@@ -27,7 +27,10 @@ public class AtomIteratorSequencerBonded extends AtomIteratorSequencerList {
 
     public Atom nextAtom() {
         Atom next = listIterator.nextAtom();
-        listIterator.unset();
+        if (doGoDown)
+            resetDown();
+        else
+            listIterator.unset();
         return next;
     }
 
