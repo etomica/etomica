@@ -8,6 +8,7 @@ public class ConfigurationMoleculeLinear extends ConfigurationMolecule {
     
     private double bondLength = 0.02;
     private Space.Vector orientation;
+    private double theta = 45.;
     
     public ConfigurationMoleculeLinear(){
     }
@@ -18,6 +19,11 @@ public class ConfigurationMoleculeLinear extends ConfigurationMolecule {
     }
     public double getBondLength() {return bondLength;}
     
+    public void setAngle(double t) {
+        theta = Math.PI*t/180.;
+        setOrientation(new Space2D.Vector(Math.cos(theta),Math.sin(theta)));
+    }
+    public double getAngle() {return theta;}
     public void setOrientation(Space.Vector e) {orientation.E(e);}
   
   /**
@@ -37,6 +43,7 @@ public class ConfigurationMoleculeLinear extends ConfigurationMolecule {
     }
     
     protected void computeDimensions() {
+        if(parentSpecies()==null) return;
         dim[1] = 0.0;
         Molecule m = parentSpecies().makeMolecule();  //a typical molecule
         initializeCoordinates(m);
@@ -48,8 +55,9 @@ public class ConfigurationMoleculeLinear extends ConfigurationMolecule {
 
   public void setParentSpecies(Species s) {
     parentSpecies = s;
-//    orientation = (Space2D.Vector)s.parentSimulation.space.makeVector();   //temporary
-//    orientation.setComponent(1,1.0);   //fix orientation to x-axis of 2-D space
+    orientation = s.parentSimulation.space.makeVector();   //temporary
+    setAngle(theta);   //fix orientation to x-axis of 2-D space
+    computeDimensions();
   }
 
 

@@ -27,4 +27,11 @@ package simulate;
         public void deleteMolecule(Molecule m) {}
         public void moveNotify(Atom a) {}  //notification by integrator when an atom is moved
         public void reset() {}
+   
+      /**
+       * Interface for a class that can make an iterator
+       */
+        interface Maker {
+            public Iterator makeIterator(Phase p);
+        }
     }

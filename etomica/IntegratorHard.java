@@ -255,7 +255,7 @@ protected void downList(Atom atom) {
 public void initialize() {
     deployAgents();
     Atom.Iterator iterator = firstPhase.iterator.makeAtomIteratorUp();
-    iterator.reset(firstPhase.firstAtom());
+    iterator.reset();
     while(iterator.hasNext()) {upList(iterator.next());}
     findNextCollider();
 }

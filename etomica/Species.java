@@ -79,7 +79,7 @@ public abstract class Species extends Container {
     public Molecule makeMolecule() {return makeMolecule(null);}
     public abstract Molecule makeMolecule(Phase p);
 
-    public void setNAtomsPerMolecule(int na) {
+    public void setAtomsPerMolecule(int na) {
         atomsPerMolecule = na;
         if(parentSimulation == null) {return;}
         Enumeration e = agents.elements();

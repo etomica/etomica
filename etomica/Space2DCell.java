@@ -2,7 +2,7 @@ package simulate;
 import java.awt.Graphics;
 import java.util.Random;
 
-public class Space2DCell extends Space2D implements Space.NeighborIterator {
+public class Space2DCell extends Space2D implements Iterator.Maker {
     
     public Iterator makeIterator(Phase p) {return new NeighborIterator(p);}
 
@@ -11,8 +11,8 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
     public Potential makePotential() {return new CellPotential();}
        
     public class Coordinate extends Space2D.Coordinate implements Lattice.Occupant {
-        Coordinate nextNeighbor, previousNeighbor;
-        public LatticeSquare.Site cell;        //ok to work with Site rather than Cell (Cell was needed only to make up neighbor-cell list)
+        Coordinate nextNeighbor, previousNeighbor;  //next and previous coordinates in neighbor list
+        public LatticeSquare.Site cell;             //cell currently occupied by this coordinate; ok to work with Site rather than Cell (Cell was needed only to make up neighbor-cell list)
         public Coordinate(Space.Occupant o) {super(o);}
         public final void setNextNeighbor(Coordinate c) {
             nextNeighbor = c;
@@ -42,6 +42,9 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
         }
     } 
     
+    /**
+     * Iterator of atoms based on a cell-list organization of neighbors
+     */
     public static final class NeighborIterator extends Iterator {
         public LatticeSquare cells;  //want to declare final, but won't compile
         private int xCells, yCells;
@@ -49,7 +52,7 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
         
         public NeighborIterator(Phase p) {
             super(p);
-            xCells = yCells = 10;
+            xCells = yCells = 15;
             cells = new LatticeSquare(LatticeSquare.Cell.class, new int[] {xCells,yCells});
         }
         
@@ -92,7 +95,6 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
         }
         public double getNeighborRadius() {return neighborRadius;}
 
-//        public final AtomPair.Iterator.A makeAtomPairIteratorFull() {return new AtomPairIteratorFull(phase, cells.origin);}
         public final AtomPair.Iterator.A makeAtomPairIteratorUp() {return new AtomPairIteratorUp(phase, cells);}
         public final AtomPair.Iterator.A makeAtomPairIteratorDown() {return new AtomPairIteratorDown(phase, cells);}
         public final Atom.Iterator makeAtomIteratorUp() {return new AtomIteratorUp(cells);}

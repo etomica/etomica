@@ -16,7 +16,7 @@ public class SpeciesDisks extends Species {
               
     public SpeciesDisks() {
         setSpeciesIndex(0);
-        setNAtomsPerMolecule(1);
+        setAtomsPerMolecule(1);
         protoType = new AtomType.Disk(1.0,Color.black,0.1);  //mass, color, diameter
         colorScheme = new ColorSchemeByType();
         configurationMolecule = new ConfigurationMoleculeLinear();

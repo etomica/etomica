@@ -16,7 +16,7 @@ public class SpeciesDiskWell extends SpeciesDisks {
   
   public SpeciesDiskWell() {
         setSpeciesIndex(0);
-        setNAtomsPerMolecule(1);
+        setAtomsPerMolecule(1);
         protoType = new AtomType.Well(1.0,Color.black,0.1,1.5);  //mass, color, diameter, lambda
         colorScheme = new ColorSchemeByType();
         configurationMolecule = new ConfigurationMoleculeLinear();

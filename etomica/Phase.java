@@ -3,25 +3,28 @@ import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Color;
 
-public class Phase extends Container {
+public class Phase extends Container {   // container of meters
         
     protected Space.Boundary boundary;
     private int iBoundary;
         
-    public Phase() {super();
+    public Phase() {super();}
+    public Phase(Simulation sim) {
+        super();
+        initialize(sim);
     }
     
     public void initialize(Simulation ps) {
         iBoundary = 1;
-        setLayout(null);
-        setSize(300,300);
+//        setLayout(null);
+//        setSize(300,300);
         atomCount = moleculeCount = 0;
         gravity = new Gravity(0.0);
         noGravity = true;
 
         parentSimulation = ps;
-        if(ps.space() instanceof Space.NeighborIterator) {
-            iterator = ((Space.NeighborIterator)ps.space()).makeIterator(this);
+        if(ps.space() instanceof Iterator.Maker) {
+            iterator = ((Iterator.Maker)ps.space()).makeIterator(this);
         }
         else {
             iterator = new Iterator(this);
@@ -54,9 +57,6 @@ public class Phase extends Container {
     
     public final Space space() {return parentSimulation.space();}
     
-//    public simulate.AtomPair makeAtomPair() {return makeAtomPair(null, null);}
-//    public simulate.AtomPair makeAtomPair(Atom a1, Atom a2) {return parentSimulation.space.makeAtomPair(boundary, a1, a2);}
-        
     public void paint(Graphics g, int[] origin, double scale) {} 
                     
     public final Space.Vector dimensions() {return boundary.dimensions();}
@@ -147,14 +147,14 @@ public class Phase extends Container {
 	}
         	
     public void add(Species.Agent species) {
-//        species.configurationMolecule.initializeCoordinates();
+        if(species.parentSpecies().configurationMolecule != null) species.parentSpecies().configurationMolecule.initializeCoordinates(this);
         if(lastSpecies != null) {lastSpecies.setNextSpecies(species);}
         else {firstSpecies = species;}
         lastSpecies = species;
         for(Molecule m=species.firstMolecule(); m!=null; m=m.nextMolecule()) {moleculeCount++;}
         for(Atom a=species.firstAtom(); a!=null; a=a.nextAtom()) {atomCount++;}
         configuration.add(species);
-        iterator.reset();
+        iterator.reset();  
     }
             
     public void add(Species s) {  //add species to phase if it doesn't appear in another phase

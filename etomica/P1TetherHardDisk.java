@@ -12,7 +12,7 @@ public class P1TetherHardDisk extends Potential1 {
   }
     
   public Potential getPotential(Atom a1, Atom a2) {
-    if(a1.getNextAtom() == a2 || a2.getNextAtom() == a1) { 
+    if(a1.nextAtom() == a2 || a2.nextAtom() == a1) { 
         return potentialTether;
     }
     else {
@@ -20,12 +20,6 @@ public class P1TetherHardDisk extends Potential1 {
     }
   }
   
-  public final void setSpace(Space s) {
-    this.space = s;
-//    potentialTether.space = s;
-//    potentialHD.space = s;
-  }
-
   public final double getTetherLength() {return potentialTether.getTetherLength();}
   public final void setTetherLength(double t) {potentialTether.setTetherLength(t);}
 

@@ -92,7 +92,7 @@ public class Space2D extends Space {
             r2 = drx*drx + dry*dry;
             double rm1 = c1.parent().rm();
             double rm2 = c2.parent().rm();
-            dvx = (rm2*c2.p.x - rm1*c1.p.x);  //momenta are not reduced by the volume
+            dvx = (rm2*c2.p.x - rm1*c1.p.x);  
             dvy = (rm2*c2.p.y - rm1*c1.p.y);  
         }
                 

@@ -34,6 +34,7 @@ public abstract class ConfigurationMolecule extends Component {
     for(Molecule m=agent.firstMolecule(); m!=agent.terminationMolecule(); m=m.nextMolecule()) {
         initializeCoordinates(m);
     }
+    p.iterator().reset();
     computeDimensions();
   }
   

@@ -7,7 +7,7 @@ import java.util.*;
 public abstract class Integrator extends Container implements Observer, Serializable, MouseListener, Runnable {
 
     //VARIABLES used to make runnable    
-  Thread runner;
+  public Thread runner;
   int running = 0;
   protected int maxSteps = Integer.MAX_VALUE;
  

@@ -53,7 +53,7 @@ public class Simulation extends Panel {
     }    
               
     public void add(Phase p) {
-        super.add(p);
+//        super.add(p);
         p.initialize(this);
         if(lastPhase != null) {lastPhase.setNextPhase(p);}
         else {firstPhase = p;}
@@ -140,10 +140,14 @@ public class Simulation extends Panel {
     
     //This can be made much more clever
     public Potential getPotential(AtomPair pair) {
-        if(pair.atom1() == pair.atom2()) {
+        Atom a1 = pair.atom1();
+        Atom a2 = pair.atom2();
+        if(a1 == a2) {
             return pair.atom1().parentPhase().potential();}  //should rewrite AtomPair to hold phase
+        else if(a1.parentMolecule() == a2.parentMolecule()) {
+            return potential1[a1.getSpeciesIndex()].getPotential(a1,a2);}
         else {
-            return potential2[pair.atom2().getSpeciesIndex()][pair.atom1().getSpeciesIndex()].getPotential(pair.atom1(),pair.atom2());
+            return potential2[a2.getSpeciesIndex()][a1.getSpeciesIndex()].getPotential(a1,a2);
         }
     }
     

@@ -75,12 +75,12 @@ public abstract class Space {
         public final double r2() {return r2;}       
     }
 
-    interface NeighborIterator {
+//    interface NeighborIterator {
 //        public void setNeighborRadius(double radius);
 //        public double getNeighborRadius();
-        public Iterator makeIterator(Phase p);
+//        public Iterator makeIterator(Phase p);
 //        public void clear();
-    }
+//    }
         
     interface Boundary {
         public static final int NONE = 0;

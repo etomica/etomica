@@ -309,7 +309,7 @@ public class Molecule implements Space.Occupant, Serializable {
    * @see replace
    */
         public void inflate(double s) {
-            if(nAtoms==1) return;
+//            if(nAtoms==1) return;
             updateR();
             temp.Ea1Tv1(s-1.0,r);
             displaceBy(temp);   //displaceBy doesn't use temp
