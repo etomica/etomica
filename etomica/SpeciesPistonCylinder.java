@@ -1,7 +1,8 @@
 //This class includes a main method to demonstrate its use
 package etomica;
 import etomica.action.AtomAction;
-import etomica.units.*;
+import etomica.units.Bar;
+import etomica.units.BaseUnit;
 import etomica.units.Dimension;
 
 /** 
@@ -31,10 +32,10 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
     private double length = 20.0;//length of cylinder
     
     public SpeciesPistonCylinder() {
-        this(Simulation.instance);
+        this(Simulation.getDefault().space);
     }
-    public SpeciesPistonCylinder(Simulation sim) {
-        super(sim,1,4);  //1 molecule, 4 atoms
+    public SpeciesPistonCylinder(Space space) {
+        super(space,1,4);  //1 molecule, 4 atoms
         double longLength = length;
         double shortLength = diameter;
         double angle = 0;
@@ -52,7 +53,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         protoType[3].setLongWall(true);
         setUnitNormal();
         factory.setSpecies(this);
-        factory.setConfiguration(new PistonCylinderConfiguration(sim));
+        factory.setConfiguration(new PistonCylinderConfiguration(space));
         computeDimensions();
     }
     
@@ -162,16 +163,18 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
    * Field that applies a constant force against the piston.
    * Direction of force is such that it pushes the piston into the cylinder.
    */
+    //XXX this class probably doesn't work.  enjoy!
   public final class PistonPressureField extends Potential1 implements PotentialSoft, PotentialHard {
     private double pressure = 0.0;
-    private Space.Vector gradientVector = simulation().space().makeVector();
+    private Space.Vector gradientVector = space.makeVector();
     private double force = 0.0;
-    public PistonPressureField() {this(Simulation.instance.hamiltonian.potential);}
-    public PistonPressureField(PotentialGroup parent) {
-        super(parent); 
+    private PistonIterator iterator;
+//    public PistonPressureField() {this(space);}
+    public PistonPressureField(Space space) {
+        super(space); 
         setPressure(Bar.UNIT.toSim(100.));
         iterator = new PistonIterator();
-        setSpecies(SpeciesPistonCylinder.this);
+//        setSpecies(SpeciesPistonCylinder.this);
     }
     /**
      * Accessor method for the pressure applied to the piston
@@ -180,7 +183,8 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
         pressure = p;
         force = pressure*diameter; //compute force as pressure * length
 //        System.out.println("pressure, diameter, force: "+pressure+" "+diameter+" "+force);
-        simulation().resetIntegrators();
+        //XXX need to reset integrators
+//        simulation().resetIntegrators();
 //        if(phase() != null && phase().integrator() != null && phase().integrator().isInitialized()) 
 //                    phase().integrator().reset();
     }
@@ -196,7 +200,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
      * Potential gradient as computed from current pressure and piston diameter, 
      * and direction of piston-cylinder system.
      */
-    public Space.Vector gradient(Atom a) {
+    public Space.Vector gradient(Atom[] a) {
         gradientVector.Ea1Tv1(-force,unitNormal);
  //       System.out.println(gradientVector.toString());
         return gradientVector;
@@ -205,6 +209,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
      * Always returns zero
      */
     public double energy(Atom a) {return 0.0;}
+    public double energyChange() {return 0.0;}
     
     private final class PistonIterator extends AtomIteratorSinglet {
         //Basis will be set to species agent for PistonCylinder.  Assuming
@@ -215,24 +220,17 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
             setAtom(((AtomTreeNodeGroup)a.node).firstLeafAtom());
         }
         
-		/**
-		 * @see etomica.AtomIterator#all(etomica.Atom, etomica.IteratorDirective, etomica.AtomActive)
-		 */
-		public void all(Atom basis, IteratorDirective id, AtomAction action) {
-			super.all(((AtomTreeNodeGroup)basis.node).firstLeafAtom(), id, action);
-		}
-
     }
     
     //implementation of Potential2.Hard interface, which is done because this field is sometimes
     //used with a hard-potential, constant-field integrator.
-    public void bump(AtomPair pair) {}
+    public void bump(Atom[] pair) {}
     
     public double lastCollisionVirial() {return 0.0;}
     
     public Space.Tensor lastCollisionVirialTensor() {return null;}
-    public double energy(AtomPair pair) {return 0.0;}
-    public double collisionTime(AtomPair pair) {return Double.MAX_VALUE;}
+    public double energy(Atom[] pair) {return 0.0;}
+    public double collisionTime(Atom[] pair) {return Double.MAX_VALUE;}
   }//end of PistonPressureField
   
     
@@ -242,18 +240,19 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
    */
   private final class PistonCylinderConfiguration extends Configuration {
       
-      PistonCylinderConfiguration(Simulation sim) {
-        super(sim);
+      PistonCylinderConfiguration(Space space) {
+        super(space);
       }
       public void initializePositions(AtomIterator[] iter) {/*no implementation*/}
       public void initializeCoordinates(Atom atom) {
-        AtomIterator iterator = new AtomIteratorTree(atom);
+        AtomIteratorTree iterator = new AtomIteratorTree();
+        iterator.setRoot(atom);
         Atom[] atoms = new Atom[4];
         double wallThickness = thickness/BaseUnit.Length.Sim.TO_PIXELS;
         double pistonWallThickness = pistonThickness/BaseUnit.Length.Sim.TO_PIXELS;
         int i=0;
         iterator.reset();
-        while(iterator.hasNext()) {atoms[i++] = iterator.next();}
+        while(iterator.hasNext()) {atoms[i++] = iterator.nextAtom();}
         for(int n=0; n<4; n++) {//0 is piston
             atoms[n].coord.setStationary(true);
             protoType[n].getDrawShift()[0] = 0;
@@ -354,40 +353,49 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
     }//end of Boundary class
     
     public class FixPistonModulator extends ModulatorBoolean {
+        Integrator integrator;
         Phase phase;
-        Atom piston;
-        public FixPistonModulator(Phase phase) {
-            SpeciesAgent agent = SpeciesPistonCylinder.this.getAgent(phase);
-            piston = agent.node.firstLeafAtom();
-            this.phase = phase;
+        Atom modulatorPiston;
+        public FixPistonModulator(Integrator integrator) {
+            SpeciesAgent agent = SpeciesPistonCylinder.this.getAgent(integrator.getPhase()[0]);
+            modulatorPiston = agent.node.firstLeafAtom();
+            this.integrator = integrator;
         }
         public void setBoolean(boolean b) {
-            piston.coord.setStationary(b);
-            if(!b) piston.coord.momentum().E(0.0);
-            phase.integrator().reset();
+            modulatorPiston.coord.setStationary(b);
+            if(!b) modulatorPiston.coord.momentum().E(0.0);
+            integrator.reset();
         }
-        public boolean getBoolean() {return piston.coord.isStationary();}
+        public boolean getBoolean() {return modulatorPiston.coord.isStationary();}
     }
     
     /**
      * An extension of the Action class that toggles the piston between
      * being stationary (fixed) and freely movable.
      */
-    public class ActionFixPiston extends etomica.Action {
-        Atom piston;
-        Phase phase;
-        public ActionFixPiston(Phase phase) {
-            SpeciesAgent agent = SpeciesPistonCylinder.this.getAgent(phase);
-            piston = agent.node.firstLeafAtom();
+    public class ActionFixPiston implements Action {
+        Atom fixedPiston;
+        Integrator integrator;
+        public ActionFixPiston(Integrator integrator) {
+            SpeciesAgent agent = SpeciesPistonCylinder.this.getAgent(integrator.getPhase()[0]);
+            fixedPiston = agent.node.firstLeafAtom();
             setLabel("Hold/Release piston");
-            this.phase = phase;
         }
         
         public void actionPerformed() {
-            piston.coord.setStationary(!piston.coord.isStationary()); //set stationary
-            piston.coord.momentum().E(0.0);                        //set momentum to zero
-            phase.integrator().reset();                   //update integrator
+            fixedPiston.coord.setStationary(!fixedPiston.coord.isStationary()); //set stationary
+            fixedPiston.coord.momentum().E(0.0);                        //set momentum to zero
+            integrator.reset();                   //update integrator
         }
+        
+        public void setLabel(String string) {
+            label = string;
+        }
+        public String getLabel() {
+            return label;
+        }
+        
+        private String label;
     }
     
     /**
@@ -466,7 +474,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
                 double toPixels = etomica.units.BaseUnit.Length.Sim.TO_PIXELS*s;
                 int i=0;
 	            for(Atom a=phase.firstAtom(); a!=null; a=a.nextAtom()) {
-	                IntegratorHardAbstract.Agent agent = (IntegratorHardAbstract.Agent)a.ia;
+	                IntegratorHard.Agent agent = (IntegratorHard.Agent)a.ia;
 	                if(agent == null) return;
 	                String text = Float.toString((float)agent.collisionTime);
                     Space.Vector r = a.coord.position();
