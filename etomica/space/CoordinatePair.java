@@ -31,11 +31,11 @@ public class CoordinatePair {
         nearestImageTransformer.nearestImage(dr);
     }
 
-    public double r2() {
+    public final double r2() {
         return dr.squared();
     }
 
-    public Vector dr() {
+    public final Vector dr() {
         return dr;
     }
 

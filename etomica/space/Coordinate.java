@@ -27,7 +27,7 @@ public class Coordinate implements ICoordinate {
     /* (non-Javadoc)
      * @see etomica.space.ICoordinate#position()
      */
-    public Vector position() {
+    public final Vector position() {
         return r;
     }
 

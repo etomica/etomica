@@ -24,7 +24,7 @@ public class CoordinateKinetic extends Coordinate implements ICoordinateKinetic 
         v = space.makeVector();
     }
     
-    public Vector velocity() {
+    public final Vector velocity() {
         return v;
     }
 

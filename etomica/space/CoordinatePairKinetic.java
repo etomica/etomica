@@ -19,15 +19,15 @@ public class CoordinatePairKinetic extends CoordinatePair {
                 ((ICoordinateKinetic) c1).velocity());
     }
 
-    public Vector dv() {
+    public final Vector dv() {
         return dv;
     }
 
-    public double v2() {
+    public final double v2() {
         return dv.squared();
     }
 
-    public double vDotr() {
+    public final double vDotr() {
         return dr.dot(dv);
     }
 
