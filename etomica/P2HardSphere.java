@@ -53,10 +53,9 @@ public class P2HardSphere extends Potential2 implements PotentialHard {
     /**
      * Time to collision of pair, assuming free-flight kinematics
      */
-    public double collisionTime(Atom[] pair) {
-    	cPair.reset(pair[0].coord,pair[1].coord);
+    public double collisionTime(Atom[] pair, double falseTime) {
+    	cPair.trueReset(pair[0].coord,pair[1].coord,falseTime);
         double r2 = cPair.r2();
-        cPair.resetV();
         double bij = cPair.vDotr();
         double time = Double.MAX_VALUE;
 
@@ -72,20 +71,20 @@ public class P2HardSphere extends Potential2 implements PotentialHard {
         	System.out.println("atoms "+pair[0]+" and "+pair[1]+" r2 "+r2+" bij "+bij+" time "+time);
         	if (time < 0.0) throw new RuntimeException("negative collision time for hard spheres");
         }
-        return time;
+        return time + falseTime;
     }
     
     /**
      * Implements collision dynamics and updates lastCollisionVirial
      */
-    public void bump(Atom[] pair) {
-    	cPair.reset(pair[0].coord,pair[1].coord);
+    public void bump(Atom[] pair, double falseTime) {
+    	cPair.trueReset(pair[0].coord,pair[1].coord,falseTime);
         double r2 = cPair.r2();
         dr.E(cPair.dr());  //used by lastCollisionVirialTensor
-		cPair.resetV();
         lastCollisionVirial = 2.0/(pair[0].coord.rm() + pair[1].coord.rm())*cPair.vDotr();
         lastCollisionVirialr2 = lastCollisionVirial/r2;
-        cPair.push(lastCollisionVirialr2);
+        dr.TE(lastCollisionVirialr2);
+        cPair.truePush(dr,falseTime);
     }
     
     public double lastCollisionVirial() {

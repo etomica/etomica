@@ -37,11 +37,10 @@ public class P2RoughSphere extends P2HardSphere {
      * Implements collision dynamics and updates lastCollisionVirial
      * Assumes atoms have same size and mass
      */
-    public void bump(Atom[] pair) {
+    public void bump(Atom[] pair, double falseTime) {
         Atom a1 = pair[0];
         Atom a2 = pair[1];
-		cPair.reset(a1.coord,a2.coord);
-        cPair.resetV();
+		cPair.trueReset(a1.coord,a2.coord,falseTime);
         double kappa = 4*((AtomType.Rotator)a1.type).momentOfInertia()[0]*a1.coord.rm()/(collisionDiameter*collisionDiameter);
         double r2 = cPair.r2();
         Space.Vector p1 = a1.coord.momentum();
@@ -64,10 +63,9 @@ public class P2RoughSphere extends P2HardSphere {
         
         impulse.E(v12Par);
         impulse.PEa1Tv1(kappa/(1+kappa),v12Perp);
-        impulse.TE(-a1.coord.mass());
+        impulse.TE(a1.coord.mass());
         
-        p2.PE(impulse);
-        p1.ME(impulse);
+        cPair.truePush(impulse,falseTime);
         
         //here omegaSum is used to hold the angular impulse
         omegaSum.E(dr.cross(impulse));

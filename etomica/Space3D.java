@@ -392,7 +392,7 @@ public class Space3D extends Space implements EtomicaElement {
         public void E(Space.Tensor t) {E((Tensor)t);}
         public void E(Space.Vector u1, Space.Vector u2) {E((Vector)u1, (Vector)u2);}
         public void PE(Space.Tensor t) {PE((Tensor) t);}
-        public void PE(Space.Vector u1, Space.Vector u2) {PE((Vector)u1, (Vector)u2);}
+        public void PE(Space.Vector u1, Space.Vector u2) {PE(u1,u2);}
         public void TE(double a) {xx*=a; xy*=a; xz*=a; yx*=a; yy*=a; yz*=a; zx*=a; zy*=a; zz*=a;}
         public void E(double[] d) {
             if(d.length != 9) throw new IllegalArgumentException("Array size incorrector for tensor");
@@ -504,18 +504,31 @@ public class Space3D extends Space implements EtomicaElement {
         private final Vector dr = new Vector();
         private double dvx, dvy, dvz; //drx, dry, drz;
         private Space.Boundary boundary = Space.Boundary.NULL;
-        public CoordinatePair() {super();}
 
 		public void setBoundary(Space.Boundary b) {this.boundary = b;}
 		public Space.Boundary getBoundary() {return boundary;}
-		
+        public void trueReset(Space.Coordinate coord1, Space.Coordinate coord2, double falseTime) {
+            c1 = (Coordinate)coord1;
+            c2 = (Coordinate)coord2;
+            trueReset(falseTime);
+        }
+        public void trueReset(double falseTime) {
+            resetV();
+            dr.Ev1Mv2(c2.r,c1.r);
+
+            dr.x += falseTime * dvx;
+            dr.y += falseTime * dvy;
+            dr.z += falseTime * dvz;
+            boundary.nearestImage(dr);
+        }
+
         public void reset(Space.Coordinate coord1, Space.Coordinate coord2) {
             c1 = (Coordinate)coord1;
             c2 = (Coordinate)coord2;
             reset();
         }
         public void reset() {
-            dr.Ev1Mv2(c2.position(),c1.position());
+            dr.Ev1Mv2(c2.r,c1.r);
          //   c2.position(); c1.position();
          //   dr.x = c2.r.x - c1.r.x;
          //   dr.y = c2.r.y - c1.r.y;
@@ -525,7 +538,6 @@ public class Space3D extends Space implements EtomicaElement {
    //         drx = dr.x;
    //         dry = dr.y;
    //         drz = dr.z;
-            r2 = dr.x*dr.x + dr.y*dr.y + dr.z*dr.z;
         }
         
         public void resetV() {
@@ -538,17 +550,8 @@ public class Space3D extends Space implements EtomicaElement {
           //  /* */  //end of non-dynamics commenting
         }
             
-        public void reset(Space3D.Vector M) {
-            dr.x = c2.r.x - c1.r.x + M.x;
-            dr.y = c2.r.y - c1.r.y + M.y;
-            dr.z = c2.r.z - c1.r.z + M.z;
-        //    drx = dr.x;
-        //    dry = dr.y;
-        //    drz = dr.z;
-            r2 = dr.x*dr.x + dr.y*dr.y + dr.z*dr.z;
-        }
         public double r2() {
-            return r2;
+            return dr.x*dr.x + dr.y*dr.y + dr.z*dr.z;
          /*   dr.x = c2.r.x - c1.r.x;
             dr.y = c2.r.y - c1.r.y;
             dr.z = c2.r.z - c1.r.z;
@@ -573,6 +576,13 @@ public class Space3D extends Space implements EtomicaElement {
             c2.p.x -= impulse*dr.x;
             c2.p.y -= impulse*dr.y;
             c2.p.z -= impulse*dr.z;
+        }
+        public void truePush(Space.Vector u, double falseTime) {
+            c1.p.PE(u);
+            c2.p.ME(u);
+            
+            c1.r.PEa1Tv1(-falseTime,u);
+            c2.r.PEa1Tv1(falseTime,u);
         }
         public void nudge(double rDelta) {
             double ratio = c2.mass()*c1.rm()*rDelta;
@@ -606,8 +616,14 @@ public class Space3D extends Space implements EtomicaElement {
             r.transform((Boundary)atom.node.parentPhase().boundary(),(Vector)r0, (Tensor)A);
         }
         public Space.Vector position() {return r;}
+        public Space.Vector truePosition(double falseTime) {
+            work.E(r);
+            work.PEa1Tv1(falseTime,p);
+            return work;
+        }
         public Space.Vector momentum() {return p;}
         public double position(int i) {return r.x(i);}
+        public double truePosition(int i, double falseTime) {return r.x(i)+falseTime*p.x(i);}
         public double momentum(int i) {return p.x(i);}
         public double kineticEnergy() {return 0.5*p.squared()*rm();}
         public void freeFlight(double t) {
@@ -645,7 +661,7 @@ public class Space3D extends Space implements EtomicaElement {
         * @param u
         */
         public void translateBy(double d, Space.Vector u) {
-            r.PEa1Tv1(d,(Vector)u);
+            r.PEa1Tv1(d,u);
         }
         /**
         * Moves the atom by some vector distance
@@ -658,15 +674,23 @@ public class Space3D extends Space implements EtomicaElement {
         public void replace() {r.E(rLast);}
         
         public void displaceBy(Space.Vector u) {rLast.E(r); translateBy((Vector)u);}
-        public void displaceBy(double d, Space.Vector u) {rLast.E(r); translateBy(d,(Vector)u);}
-        public void displaceTo(Space.Vector u) {rLast.E(r); translateTo((Vector)u);}  
+        public void displaceBy(double d, Space.Vector u) {rLast.E(r); translateBy(d,u);}
+        public void displaceTo(Space.Vector u) {rLast.E(r); translateTo(u);}  
         public void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
-        public void displaceToRandom(etomica.Phase p) {rLast.E(r); translateToRandom(p);}
+        public void displaceToRandom(etomica.Phase phase) {rLast.E(r); translateToRandom(phase);}
     //    public final void inflate(double s) {r.TE(s);}
 
         public void accelerateBy(Space.Vector u) {p.PE(u);}
         public void accelerateBy(double d, Space.Vector u) {p.PEa1Tv1(d,u);}
         public void accelerateTo(Space.Vector u) {p.E(u);}
+        public void trueAccelerateTo(Space.Vector u, double falseTime) {
+            r.x -= falseTime * (((Vector)u).x - p.x);
+            r.y -= falseTime * (((Vector)u).y - p.y);
+            r.z -= falseTime * (((Vector)u).z - p.z);
+            p.x = ((Vector)u).x;
+            p.y = ((Vector)u).x;
+            p.z = ((Vector)u).z;
+        }
 
         public void randomizeMomentum(double temperature) {
             if(isStationary()) {p.E(0.0); return;}
@@ -760,7 +784,6 @@ public static class CoordinateGroup extends Coordinate {
         return sum;
     }
     public void freeFlight(double t) {
-        double sum = 0.0;
         childIterator.reset();
         while(childIterator.hasNext()) {
             childIterator.nextAtom().coord.freeFlight(t);
@@ -825,8 +848,8 @@ public static class CoordinateGroup extends Coordinate {
         work.PE(u);
         displaceBy(work);
     }
-    public void displaceToRandom(etomica.Phase p) {
-        displaceTo(p.boundary().randomPosition());
+    public void displaceToRandom(etomica.Phase phase) {
+        displaceTo(phase.boundary().randomPosition());
     }
     public void replace() {
         childIterator.reset();
@@ -1245,7 +1268,6 @@ public static class CoordinateGroup extends Coordinate {
         public BoundaryPeriodicSquare(Phase p, double lx, double ly, double lz) {super(p);dimensions.x=lx; dimensions.y=ly; dimensions.z=lz; updateDimensions();}
         public BoundaryPeriodicSquare(double lx, double ly, double lz) {super();dimensions.x=lx; dimensions.y=ly; dimensions.z=lz; updateDimensions();}
         public Space.Boundary.Type type() {return Boundary.PERIODIC_SQUARE;}
-        private static Space.Tensor zilch = new Tensor();
         private final Vector temp = new Vector();
         private final Vector modShift = new Vector();//must be used only by centralImage and nearestImage methods
         protected final Vector dimensions = new Vector();
@@ -1299,10 +1321,8 @@ public static class CoordinateGroup extends Coordinate {
 //			modShift.mod(dimensions);
 //			modShift.ME(r);  //shift = (r mod dimensions) - r
         	if(modShift.isZero()) return false;
-        	else {
-        		c.translateBy(modShift);
-        		return true;
-        	}
+        	c.translateBy(modShift);
+        	return true;
 //        	return centralImage(c.r);
         }
  /*		public boolean centralImage(Coordinate c) {
@@ -1310,11 +1330,11 @@ public static class CoordinateGroup extends Coordinate {
  			c.translateBy(displace);
  		}
  */
-        public boolean centralImage(Space.Vector r) {return centralImage((Vector) r);}
-        public boolean centralImage(Vector r) {
-            temp.E(r);
-            r.mod(dimensions);
-            return temp.equals(r);
+        public boolean centralImage(Space.Vector v) {return centralImage((Vector) v);}
+        public boolean centralImage(Vector v) {
+            temp.E(v);
+            v.mod(dimensions);
+            return temp.equals(v);
        /*     while(r.x > dimensions.x) r.x -= dimensions.x;
             while(r.x < 0.0)          r.x += dimensions.x;
             while(r.y > dimensions.y) r.y -= dimensions.y;

@@ -47,14 +47,14 @@ public class P2Tether extends Potential2 implements PotentialHard {
   /**
    * Implements collision dynamics for pair attempting to separate beyond tether distance
    */
-  public final void bump(Atom[] pair) {
-  		cPair.reset(pair[0].coord,pair[1].coord);
+  public final void bump(Atom[] pair, double falseTime) {
+  		cPair.trueReset(pair[0].coord,pair[1].coord,falseTime);
         double r2 = cPair.r2();
         dr.E(cPair.dr());
-		cPair.resetV();
         lastCollisionVirial = 2.0/(pair[0].coord.rm() + pair[1].coord.rm())*cPair.vDotr();
         lastCollisionVirialr2 = lastCollisionVirial/r2;
-        cPair.push(lastCollisionVirialr2);
+        dr.TE(lastCollisionVirialr2);
+        cPair.truePush(dr,falseTime);
   }
 
 
@@ -72,16 +72,14 @@ public class P2Tether extends Potential2 implements PotentialHard {
   /**
    * Time at which two atoms will reach the end of their tether, assuming free-flight kinematics
    */
-  public final double collisionTime(Atom[] pair) {
-  	cPair.reset(pair[0].coord,pair[1].coord);
-    boolean minus;  //flag for +/- root
+  public final double collisionTime(Atom[] pair, double falseTime) {
+  	cPair.trueReset(pair[0].coord,pair[1].coord,falseTime);
     double r2 = cPair.r2();
-	cPair.resetV();
     double bij = cPair.vDotr();
     if(Default.FIX_OVERLAP && r2 > tetherLengthSquared && bij > 0) {return 0.0;}  //outside tether, moving apart; collide now
     double v2 = cPair.v2();
     double discr = bij*bij - v2 * ( r2 - tetherLengthSquared );
-    return (-bij + Math.sqrt(discr))/v2;
+    return (-bij + Math.sqrt(discr))/v2 + falseTime;
   }
   
   /**

@@ -45,8 +45,8 @@ public class P2SquareWell extends Potential2 implements PotentialHard {
     /**
      * Returns true if separation of pair is less than core diameter, false otherwise
      */
-    public boolean overlap(Atom[] pair) {
-        cPair.reset(pair[0].coord,pair[1].coord);
+    public boolean overlap(Atom[] pair, double falseTime) {
+        cPair.trueReset(pair[0].coord,pair[1].coord,falseTime);
         return cPair.r2() < coreDiameterSquared;
     }
 
@@ -55,11 +55,10 @@ public class P2SquareWell extends Potential2 implements PotentialHard {
      * Includes all possibilities involving collision of hard cores, and collision of wells
      * both approaching and diverging
      */
-    public void bump(Atom[] pair) {
-        cPair.reset(pair[0].coord,pair[1].coord);
+    public void bump(Atom[] pair, double falseTime) {
+        cPair.trueReset(pair[0].coord,pair[1].coord,falseTime);
         double eps = 1.0e-10;
         double r2 = cPair.r2();
-        cPair.resetV();
         double bij = cPair.vDotr();
         double reduced_m = 1.0/(pair[0].coord.rm() + pair[1].coord.rm());
         double nudge = 0;
@@ -101,7 +100,8 @@ public class P2SquareWell extends Potential2 implements PotentialHard {
             }
         }
         lastCollisionVirialr2 = lastCollisionVirial/r2;
-        cPair.push(lastCollisionVirialr2);
+        dr.TE(lastCollisionVirialr2);
+        cPair.truePush(dr,falseTime);
         if(nudge != 0) cPair.nudge(nudge);
     }//end of bump method
 
@@ -120,11 +120,10 @@ public class P2SquareWell extends Potential2 implements PotentialHard {
      * Collision may occur when cores collides, or when wells first encounter each other on
      * approach, or when they edge of the wells are reached as atoms diverge.
      */
-    public double collisionTime(Atom[] pair) {
-        cPair.reset(pair[0].coord,pair[1].coord);
+    public double collisionTime(Atom[] pair, double falseTime) {
+        cPair.trueReset(pair[0].coord,pair[1].coord,falseTime);
         double discr = 0.0;
 
-        cPair.resetV();
         double bij = cPair.vDotr();
         double r2 = cPair.r2();
         double v2 = cPair.v2();

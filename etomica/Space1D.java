@@ -21,8 +21,6 @@ import etomica.statmech.MaxwellBoltzmann;
   */
 public class Space1D extends Space implements EtomicaElement {
     
-    public static final String version() {return "01.07.20";}
-    
     public static final int D = 1;
     public static int drawingHeight = 10;  //height for drawing to 2D image
     public final int D() {return D;}
@@ -43,7 +41,7 @@ public class Space1D extends Space implements EtomicaElement {
     public Space.Coordinate makeCoordinate(Atom a) {
         if(a.node instanceof AtomTreeNodeGroup) return new CoordinateGroup(a);
 //        else if(a.type instanceof AtomType.Rotator) return new OrientedCoordinate(a);
-        else return new Coordinate(a);
+        return new Coordinate(a);
     }
     public Space.CoordinatePair makeCoordinatePair() {return new CoordinatePair();}
 
@@ -176,8 +174,6 @@ public class Space1D extends Space implements EtomicaElement {
         public Space3D.Vector cross(Space3D.Vector u) {return null;}
         public void randomRotate(double deltheta){//no implementation in 1D
         }
-        public void randomOrientation(double ro, double theta){//no implementation in 1D
-        }
     }
     
     public static class Tensor implements Space.Tensor {
@@ -226,27 +222,38 @@ public class Space1D extends Space implements EtomicaElement {
         public void invert() {}
     }
 
-    protected static final class CoordinatePair extends Space.CoordinatePair {  
+    protected static final class CoordinatePair extends Space.CoordinatePair {
         Coordinate c1;
         Coordinate c2;
         private final Vector dr = new Vector(); //note that dr is not cloned if this is cloned -- this should be changed if cloned vectors use dr; also this makes cloned coordinatePairs not thread-safe
         private double drx, dvx;
 		private Space.Boundary boundary = Space.Boundary.NULL;
-        public CoordinatePair() {super();}
 
 		public void setBoundary(Space.Boundary b) {this.boundary = b;}
 		public Space.Boundary getBoundary() {return boundary;}		
-        public double r2() {return r2;}
+        public double r2() {return drx*drx;}
         public void reset(Space.Coordinate coord1, Space.Coordinate coord2) {  //don't usually use this; instead set c1 and c2 directly, without a cast
             c1 = (Coordinate)coord1;
             c2 = (Coordinate)coord2;
             reset();
         }
+        public void trueReset(Space.Coordinate coord1, Space.Coordinate coord2, double falseTime) {
+            c1 = (Coordinate)coord1;
+            c2 = (Coordinate)coord2;
+            trueReset(falseTime);
+        }
         public void reset() {
             dr.x = c2.r.x - c1.r.x;
             c1.atom.node.parentPhase().boundary().nearestImage(dr);
-            drx = dr.x; 
-            r2 = drx*drx;
+            drx = dr.x;
+        }
+        public void trueReset(double falseTime) {
+            resetV();
+            dr.Ev1Mv2(c2.r,c1.r);
+
+            dr.x += falseTime * dvx;
+            boundary.nearestImage(dr);
+            drx = dr.x;
         }
         public void resetV() {
             double rm1 = c1.rm();
@@ -276,6 +283,13 @@ public class Space1D extends Space implements EtomicaElement {
         public void push(double impulse) {  //changes momentum in the direction joining the atoms
             c1.p.x += impulse*drx;
             c2.p.x -= impulse*drx;
+        }
+        public void truePush(Space.Vector u, double falseTime) {
+            c1.p.PE(u);
+            c2.p.ME(u);
+            
+            c1.r.PEa1Tv1(-falseTime,u);
+            c2.r.PEa1Tv1(-falseTime,u);
         }
         public void nudge(double rDelta) {
             double ratio = c2.mass()*c1.rm()*rDelta;
@@ -314,8 +328,14 @@ public class Space1D extends Space implements EtomicaElement {
             r.transform((Boundary)atom.node.parentPhase().boundary(), (Vector)r0, (Tensor)A);
         }
         public Space.Vector position() {return r;}
+        public Space.Vector truePosition(double falseTime) {
+            work.E(r);
+            work.PEa1Tv1(falseTime,p);
+            return work;
+        }
         public Space.Vector momentum() {return p;}
         public double position(int i) {return r.x(i);}
+        public double truePosition(int i, double falseTime) {return r.x(i)+falseTime*p.x(i);}
         public double momentum(int i) {return p.x(i);}
         public double kineticEnergy() {return 0.5*p.squared()*rm();}
         public void freeFlight(double t) {r.x += p.x*t*rm();}
@@ -336,7 +356,7 @@ public class Space1D extends Space implements EtomicaElement {
         * @param u
         */
         public void translateBy(double d, Space.Vector u) {
-            r.PEa1Tv1(d,(Vector)u);
+            r.PEa1Tv1(d,u);
         }
         /**
         * Moves the atom by some vector distance
@@ -349,16 +369,20 @@ public class Space1D extends Space implements EtomicaElement {
         public void replace() {
             r.E(rLast);
         }
-        public void displaceBy(Space.Vector u) {rLast.E(r); translateBy((Vector)u);}
-        public void displaceBy(double d, Space.Vector u) {rLast.E(r); translateBy(d,(Vector)u);}
-        public void displaceTo(Space.Vector u) {rLast.E(r); translateTo((Vector)u);}  
+        public void displaceBy(Space.Vector u) {rLast.E(r); translateBy(u);}
+        public void displaceBy(double d, Space.Vector u) {rLast.E(r); translateBy(d,u);}
+        public void displaceTo(Space.Vector u) {rLast.E(r); translateTo(u);}  
         public void displaceWithin(double d) {work.setRandomCube(); displaceBy(d,work);}
-        public void displaceToRandom(etomica.Phase p) {rLast.E(r); translateToRandom(p);}
+        public void displaceToRandom(etomica.Phase phase) {rLast.E(r); translateToRandom(phase);}
     //    public final void inflate(double s) {r.TE(s);}
 
         public void accelerateBy(Space.Vector u) {p.PE(u);}
         public void accelerateBy(double d, Space.Vector u) {p.PEa1Tv1(d,u);}
         public void accelerateTo(Space.Vector u) {p.E(u);}
+        public void trueAccelerateTo(Space.Vector u, double falseTime) {
+            r.x -= falseTime * (((Vector)u).x - p.x);
+            p.x = ((Vector)u).x;
+        }
         
         public void randomizeMomentum(double temperature) {
             if(isStationary()) {p.E(0.0); return;}
@@ -435,7 +459,6 @@ public class Space1D extends Space implements EtomicaElement {
             return sum;
         }
         public void freeFlight(double t) {
-            double sum = 0.0;
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                 coord.freeFlight(t);
                 if(coord == lastChild) break;
@@ -503,8 +526,8 @@ public class Space1D extends Space implements EtomicaElement {
             work.PE((Vector)u);
             displaceBy(work);
         }
-        public void displaceToRandom(etomica.Phase p) {
-            displaceTo((Vector)p.boundary().randomPosition());
+        public void displaceToRandom(etomica.Phase phase) {
+            displaceTo(phase.boundary().randomPosition());
         }
         public void replace() {
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
@@ -682,13 +705,11 @@ public class Space1D extends Space implements EtomicaElement {
             if(r.x-distance < 0.0) {shiftX = +1;}
             else if(r.x+distance > dimensions.x) {shiftX = -1;}
             
-            if(shiftX == 0) {
+            if(shiftX == 0)
                 return shift0;
-            } else {
-                shift = new float[1][2];
-                shift[0][0] = (float)(shiftX*dimensions.x);
-                return shift;
-            }
+            shift = new float[1][2];
+            shift[0][0] = (float)(shiftX*dimensions.x);
+            return shift;
         } //end of getOverflowShifts
     }  //end of BoundaryPeriodic
     

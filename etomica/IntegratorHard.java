@@ -40,6 +40,8 @@ public class IntegratorHard extends IntegratorMD {
     protected final AtomIteratorListSimple reverseIterator = new AtomIteratorListSimple();
     
     protected PotentialHard nullPotential;
+    protected double collisionTimeStep;
+    protected int collisionCount;
 
     protected TreeList eventList;
 
@@ -67,48 +69,71 @@ public class IntegratorHard extends IntegratorMD {
      */
     public void doStep() {
         findNextCollider();
-        double collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.MAX_VALUE;
-        double timeInterval = timeStep;
-        while(collisionTimeStep < timeInterval) {//advance to collision if occurs before remaining interval
+        collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.MAX_VALUE;
+        double oldTime = 0;
+        while(collisionTimeStep < timeStep) {//advance to collision if occurs before remaining interval
             atoms[0] = colliderAgent.atom();
             atoms[1] = colliderAgent.collisionPartner();
-            if (collisionTimeStep < -1.e-10/Math.sqrt(temperature)) {
+            if (collisionTimeStep - oldTime < -1.e-10/Math.sqrt(temperature)) {
                 System.out.println("previous collision occured before current one");
-                System.out.println("previous time: "+(timeStep-timeInterval)+" current time: "+(timeStep-timeInterval+collisionTimeStep));
+                System.out.println("previous time: "+oldTime+" current time: "+collisionTimeStep);
                 System.out.println("collision between "+atoms[0]+" and "+atoms[1]+" potential "+colliderAgent.collisionPotential.getClass());
                 cPairDebug = Simulation.getDefault().space.makeCoordinatePair();
                 cPairDebug.setBoundary(firstPhase.boundary());
-                cPairDebug.reset(atoms[0].coord,atoms[1].coord);
+                cPairDebug.trueReset(atoms[0].coord,atoms[1].coord,oldTime);
                 System.out.println("distance at last collision time was "+cPairDebug.r2());
-                advanceAcrossTimeStep(collisionTimeStep);
-                cPairDebug.reset();
+                cPairDebug.trueReset(collisionTimeStep);
                 System.out.println("distance now "+cPairDebug.r2());
                 throw new RuntimeException("this simulation is not a time machine");
             }
             if (Debug.ON && Debug.DEBUG_NOW && ((Debug.LEVEL > 1 && Debug.thisPhase(firstPhase)) || Debug.anyAtom(atoms))) {
                 System.out.println("collision between atoms "+atoms[0]+" and "+atoms[1]+" at "+collisionTimeStep);
             }
-            advanceAcrossTimeStep(collisionTimeStep);//if needing more flexibility, make this a separate method-- advanceToCollision(collisionTimeStep)
             if (Debug.ON && Debug.DEBUG_NOW && Debug.ATOM1 != null 
                   && Debug.ATOM2 != null && Debug.thisPhase(firstPhase)) {
                 cPairDebug = Simulation.getDefault().space.makeCoordinatePair();
                 cPairDebug.setBoundary(firstPhase.boundary());
-                Debug.checkAtoms(cPairDebug);
+                cPairDebug.trueReset(Debug.ATOM1.coord,Debug.ATOM2.coord,collisionTimeStep);
+                double r2 = cPairDebug.r2();
+                if (Debug.LEVEL > 1 || Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {
+                    System.out.println("distance between "+Debug.ATOM1+" and "+Debug.ATOM2+" is "+Math.sqrt(r2));
+                    if (Debug.LEVEL > 2 || Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {
+                        System.out.println(Debug.ATOM1+" coordinates "+Debug.ATOM1.coord.truePosition(collisionTimeStep));
+                        System.out.println(Debug.ATOM2+" coordinates "+Debug.ATOM2.coord.truePosition(collisionTimeStep));
+                    }
+                }
+                Debug.checkAtoms();
                 if (Debug.LEVEL > 1) {
                     PotentialHard p = ((Agent)Debug.ATOM1.ia).collisionPotential;
                     System.out.println(Debug.ATOM1+" collision time "+((Agent)Debug.ATOM1.ia).collisionTime+" with "+((Agent)Debug.ATOM1.ia).collisionPartner
                             +" with potential "+(p!=null ? p.getClass() : null));
                 }
             }
-            if (colliderAgent.collisionPotential != null) {
-                colliderAgent.collisionPotential.bump(atoms);
-                double dE = colliderAgent.collisionPotential.energyChange();
-                currentPotentialEnergy[0] += dE;
-                currentKineticEnergy[0] -= dE;
+
+            colliderAgent.collisionPotential.bump(atoms,collisionTimeStep);
+            double dE = colliderAgent.collisionPotential.energyChange();
+            currentPotentialEnergy[0] += dE;
+            currentKineticEnergy[0] -= dE;
+            
+            if (Debug.ON && Debug.DEBUG_NOW && Debug.ATOM1 != null 
+                    && Debug.ATOM2 != null && Debug.thisPhase(firstPhase)) {
+                  cPairDebug = Simulation.getDefault().space.makeCoordinatePair();
+                  cPairDebug.setBoundary(firstPhase.boundary());
+                  cPairDebug.trueReset(Debug.ATOM1.coord,Debug.ATOM2.coord,collisionTimeStep);
+                  double r2 = cPairDebug.r2();
+                  if (Debug.LEVEL > 1 || Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {
+                      System.out.println("after collision, distance between "+Debug.ATOM1+" and "+Debug.ATOM2+" is "+Math.sqrt(r2));
+                      if (Debug.LEVEL > 2 || Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {
+                          System.out.println(Debug.ATOM1+" coordinates "+Debug.ATOM1.coord.truePosition(collisionTimeStep));
+                          System.out.println(Debug.ATOM2+" coordinates "+Debug.ATOM2.coord.truePosition(collisionTimeStep));
+                      }
+                  }
             }
+            
             for(CollisionListenerLinker cll=collisionListenerHead; cll!=null; cll=cll.next) {
                 cll.listener.collisionAction(colliderAgent);
             }
+            collisionCount++;
             if (atoms[1] == null) {
                 updateAtom(atoms[0]);
             }
@@ -117,10 +142,11 @@ public class IntegratorHard extends IntegratorMD {
             }
             findNextCollider(); //this sets colliderAgent for the next collision
             
-            timeInterval -= collisionTimeStep;
+            oldTime = collisionTimeStep;
             collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.MAX_VALUE;
         } 
-        advanceAcrossTimeStep(timeInterval);
+        advanceAcrossTimeStep(timeStep);
+        collisionTimeStep = 0.0;
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.thisPhase(firstPhase)) {
             eventList.check();
             meterPE.setPhase(phase);
@@ -141,6 +167,10 @@ public class IntegratorHard extends IntegratorMD {
 
         if(isothermal) doThermostat();
     }//end of doStep
+    
+    public int getCollisionCount() {
+        return collisionCount;
+    }
     
    /**
 	* Loops through all atoms to identify the one with the smallest value of collisionTime
@@ -189,7 +219,7 @@ public class IntegratorHard extends IntegratorMD {
         collisionHandlerUp.setAtom(colliders[1]);
         potential.calculate(firstPhase, downList, collisionHandlerDown);
 
-    }//end of processCollision
+    }
     
 
     /**
@@ -243,7 +273,7 @@ public class IntegratorHard extends IntegratorMD {
             if (agent.collisionPotential != null) {
                 eventList.add(agent.eventLinker);
             }
-        }//end while
+        }
     }
     
 
@@ -260,16 +290,13 @@ public class IntegratorHard extends IntegratorMD {
 		}
 	}
 
-    /**
-     * Do an upList call for each atom and reconstruct the event list.
-     */
     public void reset() {
         super.reset();
         neighborsUpdated();
     }
 
     /**
-     * Do an upList call for each atom and find the next collider
+     * Do an upList call for each atom and reconstruct the event list.
      */
     public void neighborsUpdated() {
         super.neighborsUpdated();
@@ -377,7 +404,7 @@ public class IntegratorHard extends IntegratorMD {
 
     //the up-handler has the logic of the Allen & Tildesley upList subroutine
     //sets collision time of given atom to minimum value for collisions with all atoms uplist of it
-    private static final class CollisionHandlerUp extends PotentialCalculation {
+    private final class CollisionHandlerUp extends PotentialCalculation {
         double minCollisionTime;
         IntegratorHard.Agent aia;
         Atom atom1;
@@ -407,7 +434,7 @@ public class IntegratorHard extends IntegratorMD {
             while (iterator.hasNext()) {
                 Atom[] atoms = iterator.next();
                 if(atoms[0] != atom1) setAtom(atoms[0]); //need this if doing minimum collision time calculation for more than one atom
-                double collisionTime = pHard.collisionTime(atoms);
+                double collisionTime = pHard.collisionTime(atoms,collisionTimeStep);
                 if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atoms)) || Debug.allAtoms(atoms))) {
                     System.out.println("collision up time "+collisionTime+" for atom "+atoms[0]+(atoms.length > 1 ? " with "+atoms[1] : ""));
                 }
@@ -433,7 +460,7 @@ public class IntegratorHard extends IntegratorMD {
             PotentialHard pHard = (PotentialHard)potential;
 			while (iterator.hasNext()) {
 				Atom[] atomPair = iterator.next();
-				double collisionTime = pHard.collisionTime(atomPair);
+				double collisionTime = pHard.collisionTime(atomPair,collisionTimeStep);
 				if(collisionTime < Double.MAX_VALUE) {
 					Agent aia = (Agent)atomPair[1].ia;
 					if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atomPair)))) {
@@ -544,7 +571,7 @@ public class IntegratorHard extends IntegratorMD {
             collisionPotential = nullPotential;
             if (nullPotential != null) {
                 targetAtom[0] = atom;
-                collisionTime = nullPotential.collisionTime(targetAtom);
+                collisionTime = nullPotential.collisionTime(targetAtom,collisionTimeStep);
             }
             else {
                 collisionTime = Double.MAX_VALUE;

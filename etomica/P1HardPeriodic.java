@@ -18,8 +18,7 @@ public class P1HardPeriodic extends Potential1 implements PotentialHard {
         return 0.0;
     }
     
-    public double collisionTime(Atom[] a) {
-        Space.Boundary boundary = a[0].node.parentPhase().boundary();
+    public double collisionTime(Atom[] a, double falseTime) {
         if(boundary instanceof Space.Boundary.Periodic) {
             if(!(a[0].type instanceof AtomTypeSphere)) {return Double.MAX_VALUE;}
             Space.Vector p = a[0].coord.momentum();
@@ -32,14 +31,14 @@ public class P1HardPeriodic extends Potential1 implements PotentialHard {
                 t = (t < 0) ? -t : t;//abs
                 tmin = (t < tmin) ? t : tmin;
             }
-            return 0.25*a[0].coord.mass()*tmin; //0.5*m*min of (dim.x/p.x, dim.y/p.y, etc.)
+            return 0.25*a[0].coord.mass()*tmin + falseTime; //0.5*m*min of (dim.x/p.x, dim.y/p.y, etc.)
       //      return 0.25*atom.mass()*dim.D(p).abs().min(); //0.5*m*min of (dim.x/p.x, dim.y/p.y, etc.)
             //assumes range of potential is .le. diameter, simulation box is square (or x is smaller dimension)
         }
         return Double.MAX_VALUE;
     }
                 
-    public void bump(Atom[] a) { }
+    public void bump(Atom[] a, double falseTime) { }
         
     public double lastCollisionVirial() {return 0;}
     

@@ -33,9 +33,9 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
     * Implements the collision dynamics.  Does not deal with the hard cores, only the wells.  This
     * section is essentially the same as PotentialSquareWell without the hard core section.
     */
-    public void bump(Atom[] pair) {
+    public void bump(Atom[] pair, double falseTime) {
         double eps = 1e-6;
-        cPair.reset(pair[0].coord,pair[1].coord);
+        cPair.trueReset(pair[0].coord,pair[1].coord,falseTime);
         double r2 = cPair.r2();
         double bij = cPair.vDotr();
         //ke is kinetic energy from the components of velocity
@@ -61,7 +61,8 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
             lastEnergyChange = -epsilon;
         }
         lastCollisionVirialr2 = lastCollisionVirial/r2;
-        cPair.push(lastCollisionVirialr2);
+        dr.TE(lastCollisionVirialr2);
+        cPair.truePush(dr,falseTime);
         cPair.nudge(nudge);
     }       //end of bump
     
@@ -80,11 +81,10 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
     * Computes the next time of collision of the given atomPair assuming free flight.  Only computes the next
     * collision of the wells.  Takes into account both separation and convergence.
     */
-    public double collisionTime(Atom[] pair) {
+    public double collisionTime(Atom[] pair, double falseTime) {
         double discr = 0.0;
-        cPair.reset(pair[0].coord,pair[1].coord);
-		cPair.resetV();
-       double bij = cPair.vDotr();
+        cPair.trueReset(pair[0].coord,pair[1].coord,falseTime);
+        double bij = cPair.vDotr();
         double r2 = cPair.r2();
         double v2 = cPair.v2();
         double tij = Double.MAX_VALUE;
@@ -101,7 +101,7 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
                 }
             }
         }
-        return tij;
+        return tij + falseTime;
     }
     
   /**

@@ -55,13 +55,13 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
             e = Double.MAX_VALUE;
         }else{e = 0.0;}
         return e;
-        }
+    }
      
     public double energyChange() {return 0.0;}
     
-    public double collisionTime(Atom[] a) {
+    public double collisionTime(Atom[] a, double falseTime) {
     	atom = a[0];
-        Space.Vector r = atom.coord.position();
+        Space.Vector r = atom.coord.truePosition(falseTime);
         Space.Vector p = atom.coord.momentum();
         Space.Vector dimensions = atom.node.parentPhase().dimensions();
         double tmin = Double.MAX_VALUE;
@@ -73,14 +73,14 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
             double t = (px > 0.0) ? (dx - rx - collisionRadius)/px : (-rx + collisionRadius)/px;
             if(t < tmin) tmin = t;
         }
-        return atom.coord.mass()*tmin;
+        return atom.coord.mass()*tmin + falseTime;
     }
                 
 //    public void bump(IntegratorHard.Agent agent) {
 //        Atom a = agent.atom();
-    public void bump(Atom[] a) {
+    public void bump(Atom[] a, double falseTime) {
     	atom = a[0];
-        Space.Vector r = atom.coord.position();
+        Space.Vector r = atom.coord.truePosition(falseTime);
         Space.Vector p = atom.coord.momentum();
         Space.Vector dimensions = atom.node.parentPhase().dimensions();
         double delmin = Double.MAX_VALUE;
@@ -106,8 +106,13 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
                 lastVirial[1] = 2.0*p.x(0)*(0.0-r.x(0));
             }
         }
-        p.setX(imin,-p.x(imin)); //multiply momentum component by -1
-        if(isothermal) {p.TE(Math.sqrt(D*temperature*atom.coord.mass()/p.squared()));}
+        Space.Vector newP = Space.makeVector(D);
+        newP.E(p);
+        newP.setX(imin,-p.x(imin)); //multiply momentum component by -1
+        if(isothermal) {
+            newP.TE(Math.sqrt(D*temperature*atom.coord.mass()/newP.squared()));
+        }
+        atom.coord.trueAccelerateTo(newP,falseTime);
     }//end of bump
     
     public void setIsothermal(boolean b) {isothermal = b;}

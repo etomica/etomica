@@ -30,14 +30,14 @@ public class P2XOrder extends Potential2 implements PotentialHard {
     /**
      * Time to collision of pair, assuming free-flight kinematics
      */
-    public double collisionTime(Atom[] pair) {
+    public double collisionTime(Atom[] pair, double falseTime) {
         throw new RuntimeException("P2XOrder.collisionTime not implemented");
     }
     
     /**
      * Implements collision dynamics and updates lastCollisionVirial
      */
-    public void bump(Atom[] pair) {
+    public void bump(Atom[] pair, double falseTime) {
         throw new RuntimeException("P2XOrder.bump not implemented");
     }
     

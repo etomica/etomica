@@ -130,7 +130,7 @@ public abstract class Space implements java.io.Serializable {
      */
     public static Vector makeVector(int[] k) {
         double[] a = new double[k.length];
-        for(int i=0; i<k.length; i++) {a[i] = (double)k[i];}
+        for(int i=0; i<k.length; i++) {a[i] = k[i];}
         return makeVector(a);
     }
     
@@ -275,8 +275,10 @@ public abstract class Space implements java.io.Serializable {
         public abstract void transform(Vector r0, Tensor A);
         public abstract Vector position();
         public abstract Vector momentum();
+        public abstract Vector truePosition(double falseTime);
         public abstract double position(int i);
         public abstract double momentum(int i);
+        public abstract double truePosition(int i, double falseTime);
         public Vector positionCOM() {return position();} //override in CoordinateGroup
         public abstract double kineticEnergy();
         public abstract void freeFlight(double t);
@@ -294,6 +296,7 @@ public abstract class Space implements java.io.Serializable {
         public abstract void accelerateBy(Space.Vector u);
         public abstract void accelerateBy(double d, Space.Vector u);
         public abstract void accelerateTo(Space.Vector u);
+        public abstract void trueAccelerateTo(Space.Vector u, double falseTime);
         public abstract void displaceWithin(double d);
         public abstract void randomizeMomentum(double temperature);
  //       public abstract void save();
@@ -372,10 +375,13 @@ public abstract class Space implements java.io.Serializable {
         public abstract void reset();
         public abstract void resetV(); //computes dv
         public abstract void reset(Space.Coordinate c1, Space.Coordinate c2);
+        public abstract void trueReset(Space.Coordinate coord1, Space.Coordinate coord2, double falseTime);
+        public abstract void trueReset(double falseTime);
         public abstract double v2();
         public abstract double vDotr();
         public abstract double vDot(Space.Vector u);
         public abstract void push(double impulse);  //impart equal and opposite impulse to momenta
+        public abstract void truePush(Space.Vector u, double falseTime);
         public abstract void nudge(double rDelta);  //nudge pair apart by rDelta away from each other
         public abstract void setSeparation(double r2New);  //set square-distance between pair to r2New, by moving them along line joining them, keeping center of mass unchanged
         public abstract double r2();

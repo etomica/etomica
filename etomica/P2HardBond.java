@@ -82,11 +82,10 @@ public class P2HardBond extends Potential2 implements PotentialHard {
      * Implements collision dynamics for pair attempting to separate beyond
      * tether distance
      */
-    public final void bump(Atom[] pair) {
-        cPair.reset(pair[0].coord, pair[1].coord);
+    public final void bump(Atom[] pair, double falseTime) {
+        cPair.trueReset(pair[0].coord, pair[1].coord,falseTime);
         double r2 = cPair.r2();
         dr.E(cPair.dr());
-        cPair.resetV();
         if (Debug.ON) {
             if (cPair.vDotr()<0.0 && Math.abs(r2 - minBondLengthSquared)/minBondLengthSquared > 1.e-9) {
                 throw new RuntimeException("atoms "+pair[0]+" "+pair[1]+" not at the right distance "+r2+" "+minBondLengthSquared);
@@ -97,7 +96,8 @@ public class P2HardBond extends Potential2 implements PotentialHard {
         }
         lastCollisionVirial = 2.0 / (pair[0].coord.rm() + pair[1].coord.rm()) * cPair.vDotr();
         lastCollisionVirialr2 = lastCollisionVirial / r2;
-        cPair.push(lastCollisionVirialr2);
+        dr.TE(lastCollisionVirialr2);
+        cPair.truePush(dr,falseTime);
     }
 
     public final double lastCollisionVirial() {
@@ -114,10 +114,9 @@ public class P2HardBond extends Potential2 implements PotentialHard {
      * Time at which two atoms will reach the end of their tether, assuming
      * free-flight kinematics
      */
-    public final double collisionTime(Atom[] pair) {
-        cPair.reset(pair[0].coord, pair[1].coord);
+    public final double collisionTime(Atom[] pair, double falseTime) {
+        cPair.trueReset(pair[0].coord, pair[1].coord,falseTime);
         double r2 = cPair.r2();
-        cPair.resetV();
         double bij = cPair.vDotr();
         if (Default.FIX_OVERLAP && ((r2 > maxBondLengthSquared && bij > 0.0) ||
                 (r2 < minBondLengthSquared && bij < 0.0))) {
@@ -144,7 +143,7 @@ public class P2HardBond extends Potential2 implements PotentialHard {
                 (r2 < minBondLengthSquared && bij < 0.0))) {
             System.out.println("in P2HardBond.collisionTime, "+v2+" "+discr);
         }
-       return (-bij + Math.sqrt(discr)) / v2;
+        return (-bij + Math.sqrt(discr)) / v2 + falseTime;
     }
 
     /**

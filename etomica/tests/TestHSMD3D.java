@@ -3,6 +3,7 @@ package etomica.tests;
 import etomica.ConfigurationFile;
 import etomica.Default;
 import etomica.IntegratorHard;
+import etomica.MeterPressureHard;
 import etomica.P2HardSphere;
 import etomica.Phase;
 import etomica.Potential2;
@@ -42,7 +43,7 @@ public class TestHSMD3D extends Simulation {
         integrator = new IntegratorHard(potentialMaster);
         integrator.addIntervalListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
         integrator.setTimeStep(0.01);
-        integrator.setIsothermal(false);
+        integrator.setIsothermal(true);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         activityIntegrate.setMaxSteps(2000000/numAtoms);
@@ -64,7 +65,7 @@ public class TestHSMD3D extends Simulation {
         phase.speciesMaster.addSpecies(species);
         phase.speciesMaster.addSpecies(species2);
         integrator.addPhase(phase);
-
+        
 //        WriteConfiguration writeConfig = new WriteConfiguration("foo",phase,1);
 //        integrator.addIntervalListener(writeConfig);
     }
@@ -78,6 +79,11 @@ public class TestHSMD3D extends Simulation {
             numAtoms = Integer.valueOf(args[0]).intValue();
         }
         TestHSMD3D sim = new TestHSMD3D(new Space3D(), numAtoms);
+
+        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
+
         sim.getController().actionPerformed();
+        
+        System.out.println("Z="+pMeter.getDataAsScalar(sim.phase));
     }
 }
