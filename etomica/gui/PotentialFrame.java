@@ -257,6 +257,7 @@ public class PotentialFrame extends javax.swing.JInternalFrame {
         addToSim.addActionListener(new MyActionListener(){
             final SimulationEditor simulationEditor = PotentialFrame.this.simulationEditor;
             public void actionPerformed(ActionEvent e){
+                EtomicaMenuBar.selectSpaceItem.setEnabled(false);
                 simulationEditor.getParent().repaint();
                             
                 for (int i = 0; potentialEditor.currentButtons[i] != null; i++){

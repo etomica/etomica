@@ -1,7 +1,7 @@
 /**
- * SimulationEditor
+ * SimEditorTabMenu
  *
- * The SimulationEditor class is responsible for creating handles to the splitpanes contained 
+ * The SimEditorTabMenu class is responsible for creating static handles to the splitpanes contained 
  * in the tabs, as well as adding them to the tabs.  
  *
  * @author Bryan C. Mihalick
@@ -10,7 +10,7 @@
  
 package simulate.gui;
 
-import simulate.*;
+import simulate.Simulation;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
@@ -73,8 +73,6 @@ public class SimulationEditor extends javax.swing.JTabbedPane {
      * Instance of the simulation being edited by this tab pane.
      */
     private Simulation simulation;
-    
-    private java.util.HashMap editorPanes = new java.util.HashMap(16);
 
     /**
      * Constructor that add all the splitpane to the tabmenu of the SimulationEditorFrame
@@ -90,15 +88,6 @@ public class SimulationEditor extends javax.swing.JTabbedPane {
         displayEditor = new DisplayEditorPane(this);
         meterEditor = new MeterEditorPane(this);
         deviceEditor = new DeviceEditorPane(this);
-        editorPanes.put(Potential1.class, potential1Editor);
-        editorPanes.put(Potential2.class, potential2Editor);
-        editorPanes.put(Species.class, speciesEditor);
-        editorPanes.put(Integrator.class, integratorEditor);
-        editorPanes.put(Phase.class, phaseEditor);
-        editorPanes.put(Controller.class, controllerEditor);
-        editorPanes.put(Display.class, displayEditor);
-        editorPanes.put(MeterAbstract.class, meterEditor);
-        editorPanes.put(Device.class, deviceEditor);
         addTab("Species", speciesEditor);
         addTab("Potential1", potential1Editor);
         addTab("Potential2", potential2Editor);
@@ -108,19 +97,9 @@ public class SimulationEditor extends javax.swing.JTabbedPane {
         addTab("Display", displayEditor);
         addTab("Meter", meterEditor);
         addTab("Device", deviceEditor);
-        updateElements();
     }// end of SimEditorTabMenu constructor
     
     public Simulation getSimulation() {return simulation;}
-    
-    public void updateElements() {
-        resetAllComponentLists();
-        for(java.util.Iterator iter=simulation.allElements().iterator(); iter.hasNext(); ) {
-            Simulation.Element element = (Simulation.Element)iter.next();
-            EditorPane editorPane = (EditorPane)editorPanes.get(element.baseClass());
-            editorPane.getComponentList().addElement(element);
-        }
-    }
     
     public void setAllRemove(boolean r) { 
 	    potential1Editor.remove.setEnabled(r);
@@ -163,9 +142,15 @@ public class SimulationEditor extends javax.swing.JTabbedPane {
     }
     
     public void resetAllComponentLists(){
-        for(java.util.Iterator iter=editorPanes.values().iterator(); iter.hasNext(); ) {
-            ((EditorPane)iter.next()).getComponentList().removeAllElements();
-        }
+        potential1Editor.componentList.removeAllElements();
+        potential2Editor.componentList.removeAllElements();
+        speciesEditor.componentList.removeAllElements();
+        integratorEditor.componentList.removeAllElements();
+        phaseEditor.componentList.removeAllElements();
+        controllerEditor.componentList.removeAllElements();
+        displayEditor.componentList.removeAllElements();
+        meterEditor.componentList.removeAllElements();
+        deviceEditor.componentList.removeAllElements();
     }
     
     public SpeciesEditorPane getSpeciesEditor(){ return speciesEditor; }
@@ -177,6 +162,4 @@ public class SimulationEditor extends javax.swing.JTabbedPane {
     public DisplayEditorPane getDisplayEditor(){ return displayEditor; }
     public MeterEditorPane getMeterEditor(){ return meterEditor; }
     public DeviceEditorPane getDeviceEditor(){ return deviceEditor; }
-    
-    public interface EditorPane {public javax.swing.DefaultListModel getComponentList();}
 }// end of SimEditorTabMenu class

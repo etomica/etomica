@@ -28,11 +28,11 @@ import javax.swing.event.InternalFrameEvent;
 import java.io.File;
 import java.io.FilenameFilter;
 
-public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane implements SimulationEditor.EditorPane {
+public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane {
     /**
      * Determines format of the JList on the right pane of the SimulationEditorPane
      */
-    protected final javax.swing.DefaultListModel componentList = new javax.swing.DefaultListModel();    
+    final javax.swing.DefaultListModel componentList = new javax.swing.DefaultListModel();    
     
     /**
      * JList that contains all of the simulation components that were added from the left pane's choices
@@ -169,7 +169,13 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane im
      * Static array of all simulation components that extend potential2.class
      */
     public static Class[] potential2Classes;
-        
+    
+    /**
+     * Handle to a static instance of the PotentialViewer class used for viewing all potentials that
+     * are contained in a Potential1 or Potential2 object.
+     */
+    public final PotentialViewer potentialViewer;
+    
     /**
      * Initial height of splitPane
      */
@@ -208,6 +214,7 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane im
      */
     public SpeciesPotentialLinkPane(SimulationEditor ed){
         simulationEditor = ed;
+        potentialViewer = new PotentialViewer(simulationEditor);
         setSize(580, 580);
 		setLeftComponent(leftPane);
         setRightComponent(rightPane);
@@ -236,13 +243,11 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane im
                 if (added == false)
                     ViewActions.PROPERTYLIST.actionPerformed(new ActionEvent(this, 0, ""));
 	            if (rightPaneList.getSelectedValue() instanceof P1DefinedPotential) {
-	                PotentialViewer potentialViewer = new PotentialViewer(simulationEditor);
 	                potentialViewer.setParam(((P1DefinedPotential)rightPaneList.getSelectedValue()).atomPairPotArray,propertySheet,((P1DefinedPotential)rightPaneList.getSelectedValue()).getName());    
                     potentialViewer.setTitle("PotentialViewer - " + potentialViewer.title);
                     potentialViewer.setVisible(true);
 	            }
 	            else if (rightPaneList.getSelectedValue() instanceof P2DefinedPotential) {
-	                PotentialViewer potentialViewer = new PotentialViewer(simulationEditor);
 	                potentialViewer.setParam(((P2DefinedPotential)rightPaneList.getSelectedValue()).atomPairPotArray,propertySheet,((P2DefinedPotential)rightPaneList.getSelectedValue()).getName());    
                     potentialViewer.setTitle("PotentialViewer - " + potentialViewer.title);
                     potentialViewer.setVisible(true);
@@ -290,9 +295,9 @@ public abstract class SpeciesPotentialLinkPane extends javax.swing.JSplitPane im
 	    start.setEnabled(false);
 	    start.addActionListener(new MyActionListener(){
 	        public void actionPerformed(ActionEvent e){
-	            SimulationFrame frame = (SimulationFrame)Etomica.simulationFrames.get(simulationEditor.getSimulation());
-	            frame.setVisible(true);
-                try { frame.setSelected(true); }
+	            SimulateActions.getApplet().setVisible(true);
+                Simulation.instance.elementCoordinator.go();
+                try { SimulateActions.getApplet().setSelected(true); }
                 catch (java.beans.PropertyVetoException exc){} // attempt was vetoed
             }});
         gbl.setConstraints(start,gbc);

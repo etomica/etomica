@@ -47,6 +47,7 @@ public class SpeciesEditorPane extends SimulationEditorPane {
         // componentList.  
         addToSim.addActionListener(new MyActionListener(){
                 public void actionPerformed(ActionEvent e){
+                    EtomicaMenuBar.selectSpaceItem.setEnabled(false);   // Disable 'Select Space' menuItem
                     remove.setEnabled(true);                            // Enable 'Remove' button  
                     
                     // If currentButton.cls == null, that means the 'Define Molecule' radioButton was

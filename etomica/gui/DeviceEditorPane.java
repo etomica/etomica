@@ -38,6 +38,7 @@ public class DeviceEditorPane extends SimulationEditorPane {
         // componentList.  
         addToSim.addActionListener(new MyActionListener(){
                 public void actionPerformed(ActionEvent e){
+                    EtomicaMenuBar.selectSpaceItem.setEnabled(false);   // Disable 'Select Space' menuItem
                     remove.setEnabled(true);                            // Enable 'Remove' button  
 
 	                try {   // Try to make an instance of the selected class
