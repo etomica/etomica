@@ -16,7 +16,7 @@ public final class MaxwellBoltzmann {
     private MaxwellBoltzmann() {}
         
     /**
-     * Returns a random velocity component for a particle of mass m at temperature T
+     * Returns a random momentum component for a particle of mass m at temperature T
      */
     public static double randomMomentumComponent(double T, double m) {
         return Simulation.random.nextGaussian()*Math.sqrt(m*T);
