@@ -1,8 +1,8 @@
 package etomica.virial.cluster;
 
 import etomica.virial.Cluster;
+import etomica.virial.CoordinatePairSet;
 import etomica.virial.MayerFunction;
-import etomica.virial.PairSet;
 
 /**
  * @author kofke
@@ -24,10 +24,10 @@ public class C3e extends Cluster {
 	/**
 	 * @see etomica.virial.Cluster#value(etomica.virial.PairSet, double)
 	 */
-	public double value(PairSet pairs, double beta) {
-		double e12 = bondArray[0][1].f(pairs.getPair(0,1),beta) + 1.0;
-		double e13 = bondArray[0][2].f(pairs.getPair(0,2),beta) + 1.0;
-		double e23 = bondArray[1][2].f(pairs.getPair(1,2),beta) + 1.0;
+	public double value(CoordinatePairSet cPairs, double beta) {
+		double e12 = bondArray[0][1].f(cPairs.getCPair(0,1),beta) + 1.0;
+		double e13 = bondArray[0][2].f(cPairs.getCPair(0,2),beta) + 1.0;
+		double e23 = bondArray[1][2].f(cPairs.getCPair(1,2),beta) + 1.0;
 		return e12*e13*e23 - 1;// - (e12 + e13 + e23) + 2;
 	}
 

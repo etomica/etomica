@@ -24,6 +24,6 @@ public class Bz4 extends ClusterSum {
 						new Cluster(4, -4.0, new Cluster.BondGroup[] {new Cluster.BondGroup(e, Standard.C3)}, true),
 						new Cluster(4, -3.0, new Cluster.BondGroup[] {new Cluster.BondGroup(e, new int[][] {{0,1},{2,3}})}, true),
 						new Cluster(4, +12.0, new Cluster.BondGroup[] {new Cluster.BondGroup(e, new int[][] {{0,1}})}, true),
-						new Unit(4, -6.0)} );
+						new ClusterUnity(4, -6.0)} );
 	}
 }

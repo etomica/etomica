@@ -1,24 +1,24 @@
 package etomica.virial.cluster;
 
-import etomica.virial.ClusterAbstract;
-import etomica.virial.PairSet;
+import etomica.virial.Cluster;
+import etomica.virial.CoordinatePairSet;
 
 /**
  * @author kofke
  *
  * Cluster with value of unity regardless of configuration.
  */
-public class Unit implements ClusterAbstract {
+public class ClusterUnity extends Cluster {
 
 	/**
 	 * Constructor for PrefixedUnit, using default weight of 1.0
 	 */
-	public Unit(int nPoints) {
+	public ClusterUnity(int nPoints) {
 		this(nPoints, 1.0);
 	}
 	
-	public Unit(int nPoints, double weight) {
-		super();
+	public ClusterUnity(int nPoints, double weight) {
+		super(1,1.0,new BondGroup[0]);
 		this.nPoints = nPoints;
 		this.weight = weight;
 	}
@@ -33,7 +33,7 @@ public class Unit implements ClusterAbstract {
 	/**
 	 * @see etomica.virial.ClusterValuable#value(etomica.virial.PairSet, double)
 	 */
-	public double value(PairSet pairs, double beta) {
+	public double value(CoordinatePairSet pairs, double beta) {
 		return 1.0;
 	}
 

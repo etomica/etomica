@@ -2,8 +2,8 @@ package etomica.virial.cluster;
 
 import etomica.Atom;
 import etomica.virial.Cluster;
+import etomica.virial.CoordinatePairSet;
 import etomica.virial.MayerHardSphere;
-import etomica.virial.PairSet;
 
 /**
  * @author kofke
@@ -28,21 +28,21 @@ public class ExcessHS extends Cluster {
 	/**
 	 * @see etomica.virial.Cluster#value(etomica.Atom, etomica.Atom, etomica.virial.PairSet, double)
 	 */
-	public double value(Atom atom1, Atom atom2, PairSet pairs, double beta) {
+	public double value(Atom atom1, Atom atom2, CoordinatePairSet pairs, double beta) {
 		return super.value(atom1, atom2, pairs, beta)-clusterHS.value(atom1, atom2, pairs, beta);
 	}
 
 	/**
 	 * @see etomica.virial.Cluster#value(etomica.Atom, etomica.virial.PairSet, double)
 	 */
-	public double value(Atom atom, PairSet pairs, double beta) {
+	public double value(Atom atom, CoordinatePairSet pairs, double beta) {
 		return super.value(atom, pairs, beta)-clusterHS.value(atom, pairs, beta);
 	}
 
 	/**
 	 * @see etomica.virial.Cluster#value(etomica.virial.PairSet, double)
 	 */
-	public double value(PairSet pairs, double beta) {
+	public double value(CoordinatePairSet pairs, double beta) {
 		return super.value(pairs, beta)-clusterHS.value(pairs,beta);
 	}
 
