@@ -1,5 +1,5 @@
 package etomica.data.meter;
-import etomica.Atom;
+import etomica.AtomPair;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Phase;
@@ -72,8 +72,8 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 		iterator.setPhase(phase);
 	    iterator.reset();
 	    while(iterator.hasNext()) {                 //iterate over all pairs
-	    	Atom[] pair = iterator.next();
-	    	cPair.reset(pair[0].coord, pair[1].coord);
+	    	AtomPair pair = (AtomPair)iterator.next();
+	    	cPair.reset(pair.atom0.coord, pair.atom1.coord);
 	    	double r2 = cPair.r2();       //compute pair separation
 	        if(r2 < xMaxSquared) {
 	            int index = xDataSourceUniform.getIndex(Math.sqrt(r2));  //determine histogram index

@@ -111,7 +111,6 @@ public class MeterWidomInsertion extends MeterScalar implements EtomicaElement {
 	public void setSpecies(Species s) {
 		species = s;
 		testMolecule = s.moleculeFactory().makeAtom();
-		testMoleculeInArray[0] = testMolecule;
 	}
 
 	/**
@@ -169,7 +168,7 @@ public class MeterWidomInsertion extends MeterScalar implements EtomicaElement {
 	public double getDataAsScalar(Phase phase) {
 		double sum = 0.0; //sum for local insertion average
 		testMolecule.node.setParent(phase.getAgent(species));
-		energyMeter.setTarget(testMoleculeInArray);
+		energyMeter.setTarget(testMolecule);
 		for (int i = nInsert; i > 0; i--) { //perform nInsert insertions
             atomTranslator.setDestination(phase.randomPosition());
             atomTranslator.actionPerformed(testMolecule);
@@ -195,7 +194,6 @@ public class MeterWidomInsertion extends MeterScalar implements EtomicaElement {
 	private int nInsert;
 	private Species species;
 	private Atom testMolecule; //prototype insertion molecule
-	private final Atom[] testMoleculeInArray = new Atom[1];
 	private double temperature;
 	private boolean residual; //flag to specify if total or residual chemical
 								// potential evaluated. Default true

@@ -55,7 +55,7 @@ public class PotentialMaster {
       */
     public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
     	if(!enabled) return;
-    	Atom[] targetAtoms = id.getTargetAtoms();
+    	AtomSet targetAtoms = id.getTargetAtoms();
     	boolean phaseChanged = (phase != mostRecentPhase);
     	mostRecentPhase = phase;
     	for(PotentialLinker link=first; link!=null; link=link.next) {

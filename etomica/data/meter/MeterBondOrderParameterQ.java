@@ -1,6 +1,6 @@
 package etomica.data.meter;
 
-import etomica.Atom;
+import etomica.AtomPair;
 import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
@@ -51,8 +51,8 @@ public class MeterBondOrderParameterQ extends MeterAbstract implements EtomicaEl
         pairIterator.setPhase(phase);
         pairIterator.reset();
         while(pairIterator.hasNext()) {
-            Atom[] pair = pairIterator.next();
-        	cPair.reset(pair[0].coord,pair[1].coord);
+            AtomPair pair = (AtomPair)pairIterator.next();
+        	cPair.reset(pair.atom0.coord,pair.atom1.coord);
         	double r2 = cPair.r2();
             if(r2 < r2Cut) {
                 nbSum += 2;

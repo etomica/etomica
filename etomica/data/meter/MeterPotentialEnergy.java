@@ -1,5 +1,6 @@
 package etomica.data.meter;
 import etomica.Atom;
+import etomica.AtomSet;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.IteratorDirective;
@@ -51,12 +52,7 @@ public class MeterPotentialEnergy extends MeterScalar implements EtomicaElement 
     	return iteratorDirective.includeLrc;
     }
 
-    public void setTarget(Atom atom) {
-    	singleAtom[0] = atom;
-    	iteratorDirective.setTargetAtoms(singleAtom);
-    }
-    
-    public void setTarget(Atom[] atoms) {
+    public void setTarget(AtomSet atoms) {
     	iteratorDirective.setTargetAtoms(atoms);
     }
     
