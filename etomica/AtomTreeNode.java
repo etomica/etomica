@@ -183,12 +183,10 @@ public abstract class AtomTreeNode {
     public boolean preceeds(Atom a) {
         //want to return false if atoms are the same atoms
         if(a == null) return true;
-        if(atom.node.parentGroup() == a.node.parentGroup()) return atom.node.index() < a.node.index();//works also if both parentGroups are null
-        int thisDepth = atom.node.depth();
-        int atomDepth = a.node.depth();
-        if(thisDepth == atomDepth) return atom.node.parentGroup().node.preceeds(a.node.parentGroup());
-        if(thisDepth < atomDepth) return this.preceeds(a.node.parentGroup());
-        /*if(this.depth > atom.depth)*/ return atom.node.parentGroup().node.preceeds(a);
+        if(parentGroup == a.node.parentGroup) return atomIndex < a.node.atomIndex;//works also if both parentGroups are null
+        if(depth == a.node.depth) return parentNode.preceeds(a.node.parentGroup);
+        if(depth < a.node.depth) return this.preceeds(a.node.parentGroup);
+        /*if(this.depth > atom.depth)*/ return parentNode.preceeds(a);
     }
         
     protected final Atom atom;
