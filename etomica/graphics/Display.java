@@ -90,7 +90,8 @@ public abstract class Display implements GraphicalElement, Integrator.IntervalLi
      * doUpdate method and then call repaint().
      */
     public void intervalAction(Integrator.IntervalEvent evt) {
-	    if(evt.type() == Integrator.IntervalEvent.INITIALIZE || --iieCount == 0) {
+	    if(evt.type() == Integrator.IntervalEvent.INITIALIZE || 
+                (evt.type() == Integrator.IntervalEvent.INTERVAL && --iieCount == 0)) {
 	        iieCount = updateInterval;
 	        doUpdate();
             repaint();
