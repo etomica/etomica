@@ -19,13 +19,15 @@ import etomica.units.Dimension;
  * @author Jhumpa Adhikari
  */
 
-public class ModifierGeneral extends Modifier {
+public class ModifierGeneral implements Modifier {
 
     protected Object[] object;
     protected String property;
     protected transient Method[] readMethod;
     protected transient Method[] writeMethod;
     private int nObjects;
+    private Dimension dimension;
+    private String label;
     
     /**
      * Constructor connecting the modifier's getValue and setValue methods to the set/get accessor
@@ -37,7 +39,7 @@ public class ModifierGeneral extends Modifier {
      * @param property the name of the property being modified
      */
     public ModifierGeneral(Object[] obj, String prop) {
-        super(Dimension.NULL);
+        dimension = Dimension.NULL;
         nObjects = obj.length;
         object    = new Object[nObjects];
         property = prop;
@@ -142,6 +144,23 @@ public class ModifierGeneral extends Modifier {
             System.exit(1);
         }
         return value;
+    }
+    
+    /**
+     * @return Returns the label.
+     */
+    public String getLabel() {
+        return label;
+    }
+    /**
+     * @param label The label to set.  Default is the property name.
+     */
+    public void setLabel(String label) {
+        this.label = label;
+    }
+    
+    public Dimension getDimension() {
+        return dimension;
     }
     
     public Object[] getObject() {return object;}
