@@ -65,10 +65,10 @@ public class P2HardSphere extends Potential2HardSpherical {
      * Time to collision of pair, assuming free-flight kinematics
      */
     public double collisionTime(Atom[] pair, double falseTime) {
-        cPairNbr.reset(pair[0].coord,pair[1].coord);
-        ((CoordinatePairKinetic)cPairNbr).resetV();
-        dr.E(cPairNbr.dr());
-        Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();
+        dr.E(cPairNbr.reset(pair[0].coord,pair[1].coord));
+        Vector dv = ((CoordinatePairKinetic)cPairNbr).resetV();
+//        dr.E(cPairNbr.dr());
+//        Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();
         dr.PEa1Tv1(falseTime,dv);
         double bij = dr.dot(dv);
         double time = Double.POSITIVE_INFINITY;

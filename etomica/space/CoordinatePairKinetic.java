@@ -14,9 +14,10 @@ public class CoordinatePairKinetic extends CoordinatePair {
         dv = space.makeVector();
     }
 
-    public void resetV() {
+    public Vector resetV() {
         dv.Ev1Mv2(((ICoordinateKinetic) c2).velocity(),
                 ((ICoordinateKinetic) c1).velocity());
+        return dv;
     }
 
     public final Vector dv() {

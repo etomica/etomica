@@ -20,15 +20,16 @@ public class CoordinatePair {
         return nearestImageTransformer;
     }
 
-    public void reset(ICoordinate coord1, ICoordinate coord2) {
+    public Vector reset(ICoordinate coord1, ICoordinate coord2) {
         c1 = (Coordinate)coord1;
         c2 = (Coordinate)coord2;
-        reset();
+        return reset();
     }
 
-    public void reset() {
+    public Vector reset() {
         dr.Ev1Mv2(c2.r, c1.r);
         nearestImageTransformer.nearestImage(dr);
+        return dr;
     }
 
     public final double r2() {
