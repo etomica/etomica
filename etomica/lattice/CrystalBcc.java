@@ -17,7 +17,7 @@ public class CrystalBcc extends Crystal {
      * @param space
      */
     public CrystalBcc(Space space) {
-        this(space, new AtomFactoryMono(space, AtomSequencerSimple.FACTORY));
+        this(space, new AtomFactoryMono(space, AtomSequencerFactory.SIMPLE));
     }
 
 	/**

@@ -40,7 +40,7 @@ public class BravaisLattice extends Atom implements AbstractLattice {
     */
    private BravaisLattice(Space space, AtomType type, AtomTreeNodeGroup parent) {
         super(space, type, AtomTreeNodeGroup.FACTORY, 
-                AtomSequencerSimple.FACTORY, parent);
+                AtomSequencerFactory.SIMPLE, parent);
         D = space.D();
         idx = new int[D];
         primitiveVectorLength = new double[D];
@@ -330,15 +330,15 @@ public class BravaisLattice extends Atom implements AbstractLattice {
         first.neighborManager().setupNeighbors(siteList,criterion);
         
         //compute differences in index coordinates between each nbr and first site
-        SiteIteratorNeighbor nbrIterator = new SiteIteratorNeighbor();
-        nbrIterator.setBasis(first);
+        AtomIteratorListSimple nbrIterator = new AtomIteratorListSimple();
+        nbrIterator.setList(first.neighborManager().neighbors());
         nbrIterator.reset();
         int nbrCount = nbrIterator.size();
         int[][] delta = new int[nbrCount][D];
         int n = 0;
         int[] iN;
         while(nbrIterator.hasNext()) {            
-            Site nbr = (Site)nbrIterator.next();
+            Site nbr = (Site)nbrIterator.nextAtom();
             if(nbr == first) {nbrCount--; continue;} //in case nbrIterator returns central atom itself
             iN = nbr.latticeCoordinate();
             for(int i=0; i<D; i++) delta[n][i] = iN[i] - i0[i];
@@ -449,7 +449,7 @@ protected static class Factory extends AtomFactoryTree {
      //dimension of embedding space equals the length of each primitive vector
      //(trying to leave open possibility of having, e.g., a 2-D lattice in a 3-D space)
     Factory(Space space, Crystal crystal, int[] dimensions) {
-		super(space, AtomSequencerSimple.FACTORY, crystal.getBasis().atomFactory(), dimensions, configArray(space, crystal.getPrimitive().vectors()));
+		super(space, AtomSequencerFactory.SIMPLE, crystal.getBasis().atomFactory(), dimensions, configArray(space, crystal.getPrimitive().vectors()));
 		if(dimensions.length > space.D()) throw new IllegalArgumentException("Error: dimensions inconsistent with space");
 		this.crystal = crystal;
 		this.dimensions = (int[])dimensions.clone();
@@ -502,142 +502,142 @@ protected static class Factory extends AtomFactoryTree {
     /**
      * Main method to demonstrate use of BravaisLattice and to aid debugging
      */
-    public static void main(String[] args) {
-        System.out.println("main method for BravaisLattice");
-        Simulation sim = Simulation.instance;
-        Space space = new Space2D();
-        int D = space.D();
-        PrimitiveOrthorhombic primitive = new PrimitiveOrthorhombic(space);
-        final int nx = 4;
-        final int ny = 5;
-        BravaisLattice lattice = BravaisLattice.makeLattice(space, 
-                                new Site.Factory(space),
-                                new int[] {nx,ny},
-                                primitive);        
-        System.out.println("Total number of sites: "+lattice.siteList().size());
-        System.out.println();
-        System.out.println("Coordinate printout");
-        AtomIteratorList iterator = new AtomIteratorList(lattice.siteList());
-        iterator.reset();
-        while(iterator.hasNext()) {  //print out coordinates of each site
-            System.out.print(iterator.nextAtom().coord.position().toString()+" ");
-        }
-        System.out.println();
-        
-        System.out.println("Same, using allAtoms method");
-        AtomActionAdapter printSites = new AtomActionAdapter() {
-            public void actionPerformed(Atom s) {
-                System.out.print(s.coord.position().toString()+" ");
-       //         System.out.println(((Site)s).latticeCoordinate()[1]);
-                if(((Site)s).latticeCoordinate()[1]==ny-1) System.out.println();
-            }
-        };
- //       iterator.allAtoms(printSites);
-        System.out.println();
-        
-        System.out.println();
-        System.out.println("Changing primitive vector");
-        primitive.setSize(new double[] {1.0, 0.5});
-        lattice.update();
- //       lattice.setPrimitiveVector(new Space.Vector[] {Space.makeVector(new double[] {0.,1.}),
- //                                                      Space.makeVector(new double[] {0.5,0.})});
- //       iterator.allAtoms(printSites);
-        System.out.println();
-        
-        Atom testSite = lattice.site(new int[] {1,1});
-        int[] idx = null;
-        
-        System.out.println();
-        System.out.println("Translating lattice by (-1.0, 2.0)");
-        lattice.coord.translateBy(Space.makeVector(new double[] {-1.0, 2.0}));
- //       iterator.allAtoms(printSites);
-        System.out.println();
- 
-        System.out.println();
-        System.out.println("Translating to origin");
-        lattice.shiftFirstToOrigin();
- //       iterator.allAtoms(printSites);
-        System.out.println();
-   /*     
-        System.out.print("Accessing site (1,1): ");
-        testSite = lattice.site(new int[] {1,1});
-        idx = ((Site)testSite).latticeCoordinate();
-        System.out.println(testSite.toString()+testSite.coord.position().toString());
-        System.out.print("latticeCoordinate: ");
-        for(int i=0; i<idx.length; i++) System.out.print(idx[i]);
-        System.out.println();
-        System.out.println();
-        
-        System.out.print("Accessing site (2,0): ");
-        testSite = lattice.site(new int[] {2,0});
-        idx = ((Site)testSite).latticeCoordinate();
-        System.out.println(testSite.toString()+testSite.coord.position().toString());
-        System.out.print("latticeCoordinate: ");
-        for(int i=0; i<idx.length; i++) System.out.print(idx[i]);
-        System.out.println();
-        System.out.println();
- */       
-        lattice.setupNeighbors(new AdjacencyCriterion(lattice));
-        SiteIteratorNeighbor nbrIterator = new SiteIteratorNeighbor();
-        nbrIterator.setBasis(testSite);
-
-        System.out.println("Sites up-neighbor to this site:");
-        nbrIterator.reset(IteratorDirective.UP);
-        while(nbrIterator.hasNext()) {  //print out coordinates of each site
-            System.out.print(nbrIterator.next().toString()+" ");
-        }
-        System.out.println();
-        System.out.println();
-        
-        System.out.println("Sites down-neighbor to this site:");
-        nbrIterator.reset(IteratorDirective.DOWN);
-        while(nbrIterator.hasNext()) {  //print out coordinates of each site
-            System.out.print(nbrIterator.next().toString()+" ");
-        }
-        System.out.println();
-        System.out.println();
-        
-        System.out.println("All neighbors of this site:");
-//        nbrIterator.reset(IteratorDirective.BOTH);
-        while(nbrIterator.hasNext()) {  //print out coordinates of each site
-            System.out.print(nbrIterator.next().toString()+" ");
-        }
-        System.out.println();
-        System.out.println();
-
-        System.out.print("A randomly selected site: ");
-        testSite = lattice.siteList().getRandom();
-        idx = ((Site)testSite).latticeCoordinate();       
-        System.out.println(testSite.toString());
-        System.out.print("latticeCoordinate: ");
-        for(int i=0; i<idx.length; i++) System.out.print(idx[i]);
-        System.out.println();
-        
-        nbrIterator.setBasis(testSite);
-
-        System.out.println("Sites up-neighbor to this site:");
-        nbrIterator.reset(IteratorDirective.UP);
-        while(nbrIterator.hasNext()) {  //print out coordinates of each site
-            System.out.print(nbrIterator.next().toString()+" ");
-        }
-        System.out.println();
-        System.out.println();
-        
-        System.out.println("Sites down-neighbor to this site:");
-        nbrIterator.reset(IteratorDirective.DOWN);
-        while(nbrIterator.hasNext()) {  //print out coordinates of each site
-            System.out.print(nbrIterator.next().toString()+" ");
-        }
-        System.out.println();
-        System.out.println();
-        
-        System.out.println("All neighbors of this site:");
- //       nbrIterator.reset(IteratorDirective.BOTH);
-        while(nbrIterator.hasNext()) {  //print out coordinates of each site
-            System.out.print(nbrIterator.next().toString()+" ");
-        }
-        System.out.println();
-        System.out.println();
- /* */      
-    }//end of main
+//    public static void main(String[] args) {
+//        System.out.println("main method for BravaisLattice");
+//        Simulation sim = Simulation.instance;
+//        Space space = new Space2D();
+//        int D = space.D();
+//        PrimitiveOrthorhombic primitive = new PrimitiveOrthorhombic(space);
+//        final int nx = 4;
+//        final int ny = 5;
+//        BravaisLattice lattice = BravaisLattice.makeLattice(space, 
+//                                new Site.Factory(space),
+//                                new int[] {nx,ny},
+//                                primitive);        
+//        System.out.println("Total number of sites: "+lattice.siteList().size());
+//        System.out.println();
+//        System.out.println("Coordinate printout");
+//        AtomIteratorList iterator = new AtomIteratorList(lattice.siteList());
+//        iterator.reset();
+//        while(iterator.hasNext()) {  //print out coordinates of each site
+//            System.out.print(iterator.nextAtom().coord.position().toString()+" ");
+//        }
+//        System.out.println();
+//        
+//        System.out.println("Same, using allAtoms method");
+//        AtomActionAdapter printSites = new AtomActionAdapter() {
+//            public void actionPerformed(Atom s) {
+//                System.out.print(s.coord.position().toString()+" ");
+//       //         System.out.println(((Site)s).latticeCoordinate()[1]);
+//                if(((Site)s).latticeCoordinate()[1]==ny-1) System.out.println();
+//            }
+//        };
+// //       iterator.allAtoms(printSites);
+//        System.out.println();
+//        
+//        System.out.println();
+//        System.out.println("Changing primitive vector");
+//        primitive.setSize(new double[] {1.0, 0.5});
+//        lattice.update();
+// //       lattice.setPrimitiveVector(new Space.Vector[] {Space.makeVector(new double[] {0.,1.}),
+// //                                                      Space.makeVector(new double[] {0.5,0.})});
+// //       iterator.allAtoms(printSites);
+//        System.out.println();
+//        
+//        Atom testSite = lattice.site(new int[] {1,1});
+//        int[] idx = null;
+//        
+//        System.out.println();
+//        System.out.println("Translating lattice by (-1.0, 2.0)");
+//        lattice.coord.translateBy(Space.makeVector(new double[] {-1.0, 2.0}));
+// //       iterator.allAtoms(printSites);
+//        System.out.println();
+// 
+//        System.out.println();
+//        System.out.println("Translating to origin");
+//        lattice.shiftFirstToOrigin();
+// //       iterator.allAtoms(printSites);
+//        System.out.println();
+//   /*     
+//        System.out.print("Accessing site (1,1): ");
+//        testSite = lattice.site(new int[] {1,1});
+//        idx = ((Site)testSite).latticeCoordinate();
+//        System.out.println(testSite.toString()+testSite.coord.position().toString());
+//        System.out.print("latticeCoordinate: ");
+//        for(int i=0; i<idx.length; i++) System.out.print(idx[i]);
+//        System.out.println();
+//        System.out.println();
+//        
+//        System.out.print("Accessing site (2,0): ");
+//        testSite = lattice.site(new int[] {2,0});
+//        idx = ((Site)testSite).latticeCoordinate();
+//        System.out.println(testSite.toString()+testSite.coord.position().toString());
+//        System.out.print("latticeCoordinate: ");
+//        for(int i=0; i<idx.length; i++) System.out.print(idx[i]);
+//        System.out.println();
+//        System.out.println();
+// */       
+//        lattice.setupNeighbors(new AdjacencyCriterion(lattice));
+//        SiteIteratorNeighbor nbrIterator = new SiteIteratorNeighbor();
+//        nbrIterator.setBasis(testSite);
+//
+//        System.out.println("Sites up-neighbor to this site:");
+//        nbrIterator.reset(IteratorDirective.UP);
+//        while(nbrIterator.hasNext()) {  //print out coordinates of each site
+//            System.out.print(nbrIterator.next().toString()+" ");
+//        }
+//        System.out.println();
+//        System.out.println();
+//        
+//        System.out.println("Sites down-neighbor to this site:");
+//        nbrIterator.reset(IteratorDirective.DOWN);
+//        while(nbrIterator.hasNext()) {  //print out coordinates of each site
+//            System.out.print(nbrIterator.next().toString()+" ");
+//        }
+//        System.out.println();
+//        System.out.println();
+//        
+//        System.out.println("All neighbors of this site:");
+////        nbrIterator.reset(IteratorDirective.BOTH);
+//        while(nbrIterator.hasNext()) {  //print out coordinates of each site
+//            System.out.print(nbrIterator.next().toString()+" ");
+//        }
+//        System.out.println();
+//        System.out.println();
+//
+//        System.out.print("A randomly selected site: ");
+//        testSite = lattice.siteList().getRandom();
+//        idx = ((Site)testSite).latticeCoordinate();       
+//        System.out.println(testSite.toString());
+//        System.out.print("latticeCoordinate: ");
+//        for(int i=0; i<idx.length; i++) System.out.print(idx[i]);
+//        System.out.println();
+//        
+//        nbrIterator.setBasis(testSite);
+//
+//        System.out.println("Sites up-neighbor to this site:");
+//        nbrIterator.reset(IteratorDirective.UP);
+//        while(nbrIterator.hasNext()) {  //print out coordinates of each site
+//            System.out.print(nbrIterator.next().toString()+" ");
+//        }
+//        System.out.println();
+//        System.out.println();
+//        
+//        System.out.println("Sites down-neighbor to this site:");
+//        nbrIterator.reset(IteratorDirective.DOWN);
+//        while(nbrIterator.hasNext()) {  //print out coordinates of each site
+//            System.out.print(nbrIterator.next().toString()+" ");
+//        }
+//        System.out.println();
+//        System.out.println();
+//        
+//        System.out.println("All neighbors of this site:");
+// //       nbrIterator.reset(IteratorDirective.BOTH);
+//        while(nbrIterator.hasNext()) {  //print out coordinates of each site
+//            System.out.print(nbrIterator.next().toString()+" ");
+//        }
+//        System.out.println();
+//        System.out.println();
+// /* */      
+//    }//end of main
 }//end of BravaisLattice

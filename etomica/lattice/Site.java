@@ -17,8 +17,7 @@ public class Site extends Atom {
      * Creates a site having the given parent lattice and coordinate.
      */
     public Site(Space space, AtomType type, AtomTreeNode.Factory nodeFactory, AtomTreeNodeGroup parent) {
-        super(space, type, nodeFactory, 
-            IteratorFactorySimple.INSTANCE.simpleSequencerFactory(), parent);
+        super(space, type, nodeFactory, AtomSequencerFactory.SIMPLE, parent);
     }
         
     public NeighborManager neighborManager() {return neighborManager;}
@@ -66,7 +65,7 @@ public static class Factory extends AtomFactory {
     AtomType atomType;
     
     public Factory(Space space) {
-        super(space, AtomSequencerSimple.FACTORY);
+        super(space, AtomSequencerFactory.SIMPLE);
         setType(new AtomType(this));//default
     }
     

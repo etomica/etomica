@@ -20,7 +20,7 @@ public class CrystalFcc extends Crystal {
 	 * @param space
 	 */
 	public CrystalFcc(Space space) {
-		this(space, new AtomFactoryMono(space, AtomSequencerSimple.FACTORY));
+		this(space, new AtomFactoryMono(space, AtomSequencerFactory.SIMPLE));
 	}
 
 	/**

@@ -6,11 +6,10 @@ import etomica.AtomIteratorList;
 import etomica.AtomIteratorTree;
 import etomica.AtomList;
 import etomica.AtomSequencer;
-import etomica.AtomSequencerSimple;
+import etomica.AtomSequencerFactory;
 import etomica.AtomTreeNodeGroup;
 import etomica.AtomType;
 import etomica.Configuration;
-import etomica.IteratorFactorySimple;
 import etomica.Simulation;
 import etomica.SimulationEventManager;
 import etomica.Space;
@@ -47,7 +46,7 @@ public class LatticeCubicFcc extends Atom implements AbstractLattice {
    private LatticeCubicFcc(Space space, AtomType type, int[] dimensions, AtomTreeNodeGroup parent,
                             double a) {
         super(space, type, AtomTreeNodeGroup.FACTORY, 
-                IteratorFactorySimple.INSTANCE.simpleSequencerFactory(), parent);
+                AtomSequencerFactory.SIMPLE, parent);
         if(space.D() != 3) throw new IllegalArgumentException("Error in LatticeCubicFcc constructor:  Given space is not 3D");
         this.dimensions = new int[dimensions.length];
         latticeConstant = a;
@@ -81,7 +80,7 @@ public class LatticeCubicFcc extends Atom implements AbstractLattice {
     
     public static LatticeCubicFcc makeLattice(Space space, AtomFactory siteFactory, 
                                                 int[] dimensions, double latticeConstant) {
-        return (LatticeCubicFcc)new Factory(space, AtomSequencerSimple.FACTORY, siteFactory, dimensions, latticeConstant).makeAtom();
+        return (LatticeCubicFcc)new Factory(space, AtomSequencerFactory.SIMPLE, siteFactory, dimensions, latticeConstant).makeAtom();
     }
     
     /**
@@ -310,7 +309,7 @@ public static class Factory extends AtomFactory {
      * Creates an fcc lattice with 4*dimensions[1]*dimensions[2]*dimensions[3] sites, 
      * using the given lattice constant and site factory.
      */
-    public Factory(Space space, AtomSequencer.Factory seqFactory, AtomFactory siteFactory, int[] dimensions, double latticeConstant) {
+    public Factory(Space space, AtomSequencerFactory seqFactory, AtomFactory siteFactory, int[] dimensions, double latticeConstant) {
         super(space, seqFactory);
         this.siteFactory = siteFactory;
         this.dimensions = new int[dimensions.length];

@@ -32,7 +32,7 @@ public class Basis {
 	 * A simple 1-atom basis.
 	 */
 	public Basis(Space space) {
-		this(space, 1, new AtomFactoryMono(space, AtomSequencerSimple.FACTORY));
+		this(space, 1, new AtomFactoryMono(space, AtomSequencerFactory.SIMPLE));
 	}
 	
 	/**
@@ -43,7 +43,7 @@ public class Basis {
 	 * @param configuration Specifies arrangement of atoms
 	 */
 	public Basis(Space space, int size, Configuration configuration) {
-		this(space, size, configuration, new AtomFactoryMono(space,AtomSequencerSimple.FACTORY));
+		this(space, size, configuration, new AtomFactoryMono(space,AtomSequencerFactory.SIMPLE));
 	}
 
 	/**
@@ -55,8 +55,8 @@ public class Basis {
 	 * @param atomFactory Used to constructe each site in the basis
 	 */
 	public Basis(Space space, int size, Configuration configuration, AtomFactory atomFactory) {
-		this(space, size, new AtomFactoryHomo(space, AtomSequencerSimple.FACTORY, 
-										      atomFactory, size, BondInitializer.NULL, configuration));
+		this(space, size, new AtomFactoryHomo(space, AtomSequencerFactory.SIMPLE, 
+										      atomFactory, size, configuration));
 	}
 	
 	/**

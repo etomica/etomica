@@ -16,7 +16,7 @@ public class CrystalHcp extends Crystal {
 	 * @param space
 	 */
 	public CrystalHcp(Space space) {
-		this(space, new AtomFactoryMono(space, AtomSequencerSimple.FACTORY));
+		this(space, new AtomFactoryMono(space, AtomSequencerFactory.SIMPLE));
 	}
 
 	/**

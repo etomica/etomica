@@ -18,7 +18,7 @@ public class CrystalDiamond extends Crystal {
 	 * @param space
 	 */
 	public CrystalDiamond(Space space) {
-		this(space, new AtomFactoryMono(space, AtomSequencerSimple.FACTORY));
+		this(space, new AtomFactoryMono(space, AtomSequencerFactory.SIMPLE));
 	}
 
 	/**
