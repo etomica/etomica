@@ -24,9 +24,10 @@ public class Space3D extends Space implements EtomicaElement {
     public Space.Vector makeVector() {return new Vector();}
     public Space.Orientation makeOrientation() {return new Orientation();}
     public Space.Tensor makeTensor() {return new Tensor();}
+    public Space.Tensor makeRotationTensor() {return new RotationTensor();}
     public Space.Coordinate makeCoordinate(Atom a) {
         if(a instanceof AtomGroup) return new CoordinateGroup((AtomGroup)a);
-        else if(a instanceof Atom && ((Atom)a).type instanceof AtomType.Rotator) return new OrientedCoordinate(a);
+        else if(a.type instanceof AtomType.Rotator) return new OrientedCoordinate(a);
         else return new Coordinate(a);
     }
     public Space.CoordinatePair makeCoordinatePair() {return new CoordinatePair();}
@@ -95,6 +96,20 @@ public class Space3D extends Space implements EtomicaElement {
         public double max() {return (x > y) ? (x>z)?x:z : (y>z)?y:z;}
         public double squared() {return x*x + y*y + z*z;}
         public double dot(Vector u) {return x*u.x + y*u.y + z*u.z;}
+        public void transform(Space.Tensor A) {transform((Tensor)A);}
+        public void transform(Tensor A) {
+            x = A.xx*x + A.xy*y + A.xz*z; 
+            y = A.yx*x + A.yy*y + A.yz*z;
+            z = A.zx*x + A.zy*y + A.zz*z;
+        }
+        public void transform(Space.Boundary b, Space.Vector r0, Space.Tensor A) {transform((Boundary)b, (Vector)r0, (Tensor)A);}
+        public void transform(Boundary b, Vector r0, Tensor A) {
+            WORK.x = x - r0.x; WORK.y = y - r0.y; WORK.z = z - r0.z;
+            b.nearestImage(WORK);
+            x = r0.x + A.xx*WORK.x + A.xy*WORK.y + A.xz*WORK.z;
+            y = r0.y + A.yx*WORK.x + A.yy*WORK.y + A.yz*WORK.z;
+            z = r0.z + A.zx*WORK.x + A.zy*WORK.y + A.zz*WORK.z;
+        }
         public void randomStep(double d) {x += (2.*Simulation.random.nextDouble()-1)*d; y +=(2.*Simulation.random.nextDouble()-1)*d; z +=(2.*Simulation.random.nextDouble()-1)*d;}
         public void setRandom(double d) {x = Simulation.random.nextDouble()*d; y = Simulation.random.nextDouble()*d; z = Simulation.random.nextDouble()*d;}
         public void setRandom(double dx, double dy, double dz) {x = Simulation.random.nextDouble()*dx; y = Simulation.random.nextDouble()*dy; z = Simulation.random.nextDouble()*dz;}
@@ -175,7 +190,7 @@ public class Space3D extends Space implements EtomicaElement {
         }
     }
     
-    public static final class Tensor extends Space.Tensor {
+    public static class Tensor implements Space.Tensor {
         double xx, xy, xz, yx, yy, yz, zx, zy, zz;
         public static final Tensor ORIGIN = new Tensor();
         public static final Tensor WORK = new Tensor();
@@ -209,6 +224,35 @@ public class Space3D extends Space implements EtomicaElement {
         public void TE(double a) {xx*=a; xy*=a; xz*=a; yx*=a; yy*=a; yz*=a; zx*=a; zy*=a; zz*=a;}
     }
     
+    public static class RotationTensor extends Tensor implements Space.RotationTensor {
+        public RotationTensor() {super(); reset();}
+        public void reset() {
+            xx = 1.0; xy = 0.0;
+            yx = 0.0; yy = 1.0;
+        }
+        public void setAxial(int i, double theta) {
+            double st = Math.sin(theta);
+            double ct = Math.cos(theta);
+            switch(i) {
+                case 0: xx = 1.; xy = 0.; xz = 0.;
+                        yx = 0.; yy = ct; yz = -st;
+                        zx = 0.; zy = st; zz = ct;
+                        return;
+                case 1: xx = ct; xy = 0.; xz = -st;
+                        yx = 0.; yy = 1.; yz = 0.;
+                        zx = st; zy = 0.; zz = ct;
+                        return;
+                case 2: xx = ct; xy = -st; xz = 0.;
+                        yx = st; yy = ct;  yz = 0.;
+                        zx = 0.; zy = 0.;  zz = 1.;
+                        return;
+                default: throw new IllegalArgumentException();
+            }
+        }
+        public void setAngles(double[] angles) {}
+        public void invert() {}
+    }
+
     public static final class CoordinatePair extends Space.CoordinatePair {
         Coordinate c1;
         Coordinate c2;
@@ -292,6 +336,7 @@ public class Space3D extends Space implements EtomicaElement {
         public Atom previousAtom() {return previousCoordinate!=null ? previousCoordinate.atom : null;}
         public void clearPreviousAtom() {previousCoordinate = null;}
                 
+        public void transform(Space.Vector r0, Space.Tensor A) {r.transform((Boundary)atom.parentPhase().boundary(),(Vector)r0, (Tensor)A);}
         public Space.Vector position() {return r;}
         public Space.Vector momentum() {return p;}
         public double position(int i) {return r.component(i);}
@@ -357,6 +402,15 @@ public class Space3D extends Space implements EtomicaElement {
             return massSum;
         } 
         public double rm() {return 1.0/mass();}
+        /**
+         * Applies transformation to COM of group, keeping all internal atoms at same relative positions.
+         */
+        public void transform(Space.Vector r0, Space.Tensor A) {
+            work.E(position()); //work = r
+            work.transform((Boundary)atom.parentPhase().boundary(),(Vector)r0, (Tensor)A);
+            work.ME(r);//now work vector contains translation vector for COM
+            translateBy(work);
+        }
         public Space.Vector position() {
             r.E(0.0); double massSum = 0.0;
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
@@ -406,8 +460,8 @@ public class Space3D extends Space implements EtomicaElement {
                 if(coord == lastChild) break;
             }
         }
-        public void translateBy(Space.Vector u) {
-            Vector u0 = (Vector)u;
+        public void translateBy(Space.Vector u) {translateBy((Vector)u);}
+        public void translateBy(Vector u0) {
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                 coord.translateBy(u0);
                 if(coord == lastChild) break;

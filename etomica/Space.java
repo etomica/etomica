@@ -13,6 +13,7 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
     public abstract Vector makeVector();      //Space.Vector
     public abstract Orientation makeOrientation();
     public abstract Tensor makeTensor();
+    public abstract Tensor makeRotationTensor();
     public abstract Coordinate makeCoordinate(Atom a);
     public abstract CoordinatePair makeCoordinatePair();
     public abstract Boundary makeBoundary();  //makes boundary of default type
@@ -100,6 +101,8 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         public abstract Space3D.Vector cross(Space2D.Vector u);       //cross product of this vector with u
         public abstract Space3D.Vector cross(Space3D.Vector u);       //cross product of this vector with u
         public abstract void XE(Space3D.Vector u);            //replaces this vector with its cross product (project result into plane if appropriate)
+        public abstract void transform(Tensor A);             //applies the given tensor transformation to this vector
+        public abstract void transform(Boundary b, Vector r0, Tensor A);  //applies the transformation to (this - r0)
         public abstract void setRandom(double d);             //
         public abstract void setRandomSphere();               //random point in unit sphere
         public abstract void setRandomCube();                 //random point in a unit cube
@@ -114,7 +117,9 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         }
     }
     
-    public static abstract class Tensor implements java.io.Serializable {
+//    public static abstract class Tensor implements java.io.Serializable {
+//   declare as interface for RotationTensor
+    public interface Tensor {
         public abstract int length();
         public abstract double component(int i, int j);
         public abstract void setComponent(int i, int j, double d);
@@ -126,6 +131,13 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         public abstract void PE(Vector u1, Vector u2);
         public abstract double trace();
         public abstract void TE(double a);
+    }
+    
+    public interface RotationTensor extends Tensor {
+        public void reset();
+        public void invert();
+        public void setAxial(int i, double theta);
+        public void setAngles(double[] angles);
     }
 
 //  Coordinate collects all vectors needed to describe point in phase space -- position and (maybe) momentum
@@ -140,6 +152,7 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         public abstract Atom nextAtom();
         public abstract void clearPreviousAtom();
         public abstract Atom previousAtom();
+        public abstract void transform(Vector r0, Tensor A);
         public abstract Vector position();
         public abstract Vector momentum();
         public abstract double position(int i);
@@ -158,6 +171,8 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         public abstract void accelerateBy(double d, Space.Vector u);
         public abstract void displaceWithin(double d);
         public abstract void randomizeMomentum(double temperature);
+ //       public abstract void save();
+ //       public abstract void restore();
 
         public final void translateToRandom(etomica.Phase p) {translateTo(p.boundary().randomPosition());}
 

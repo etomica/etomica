@@ -221,7 +221,7 @@ public class AtomGroup extends Atom /*implements AtomIteratorBasis */{
     }//end of removeAll
     
     /**
-     * Notifies this atom group that an atom has been added to it or one of its descencents.
+     * Notifies this atom group that an atom has been added to it or one of its descendants.
      */
     protected void addAtomNotify(Atom atom) {
         leafAtomCount += atom.leafAtomCount();

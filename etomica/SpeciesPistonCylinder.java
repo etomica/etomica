@@ -30,7 +30,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
     private Space2D.Vector unitNormal = new Space2D.Vector();
     private int thickness = 4;  //cylinder walls thickness in pixels
     private int pistonThickness = 8;//piston thickness
-    private double diameter = 28.0;//diameter of cylinder
+    private double diameter = 30.0;//diameter of cylinder
     private double length = 20.0;//length of cylinder
     
     public SpeciesPistonCylinder() {
@@ -173,7 +173,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
     public PistonPressureField() {this(Simulation.instance.hamiltonian.potential);}
     public PistonPressureField(PotentialGroup parent) {
         super(parent); 
-        setPressure(Bar.UNIT.toSim(500.));
+        setPressure(Bar.UNIT.toSim(100.));
         iterator = new PistonIterator();
         setSpecies(SpeciesPistonCylinder.this);
     }
@@ -188,7 +188,7 @@ public class SpeciesPistonCylinder extends SpeciesWalls implements Space.Boundar
 //                    phase().integrator().reset();
     }
     /**
-     * Accessor method for the (3D) pressure applied to the piston
+     * Accessor method for the pressure applied to the piston
      */
     public double getPressure() {return pressure;}
     /**

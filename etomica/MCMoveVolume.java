@@ -24,6 +24,7 @@ public class MCMoveVolume extends MCMove {
     }
     
     public void setPhase(Phase p) {
+        if(p == null) return;
         super.setPhase(p);
         inflate = new PhaseAction.Inflate(phase);
         affectedAtomIterator = phase.makeAtomIterator();

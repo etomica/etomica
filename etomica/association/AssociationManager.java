@@ -6,6 +6,14 @@ import etomica.*;
  * that defines the set of atoms that is managed, and an association definition
  * that is used to determine if atoms are associated.  Only pairwise associations
  * are considered.
+ * To incorporate an instance of this class in a simulation, add an instance of 
+ * this EnergySum inner class to the simulation:<br>
+ *       sim.setEnergySum(associationManager.new EnergySum());
+ *
+ * If a MC simulation, this should be done before any MCMove classes are instantiated.
+ * Also, register this as a listener to IntegratorMC:<br>
+ *       integrator.addMCMoveListener(associationManager);
+ *
  */
 public class AssociationManager implements MCMoveEventListener {
     
@@ -42,7 +50,7 @@ public class AssociationManager implements MCMoveEventListener {
         }
     }
     
-//    public Atom randomAssociatedAtom() {return associatedAtoms.randomAtom();}
+    public Atom randomAssociatedAtom() {return associatedAtoms.getRandom();}
     
     public int associatedAtomCount() {return associatedAtoms.size();}
     
@@ -67,11 +75,19 @@ public class AssociationManager implements MCMoveEventListener {
             while(listIterator1.hasNext()) {
                 Atom a = listIterator1.next();
                 copyList(a.atomList[fromIndex], a.atomList[toIndex]);
+                boolean wasAssociated = associatedAtoms.contains(a);
+                boolean isAssociated = a.atomList[index].size() != 0;
+                if(isAssociated && !wasAssociated) associatedAtoms.add(a);
+                else if(wasAssociated && !isAssociated) associatedAtoms.remove(a);
             }
             listIterator1.setBasis(atom.atomList[indexOld]);
             while(listIterator1.hasNext()) {
                 Atom a = listIterator1.next();
                 copyList(a.atomList[fromIndex], a.atomList[toIndex]);
+                boolean wasAssociated = associatedAtoms.contains(a);
+                boolean isAssociated = a.atomList[index].size() != 0;
+                if(isAssociated && !wasAssociated) associatedAtoms.add(a);
+                else if(wasAssociated && !isAssociated) associatedAtoms.remove(a);
             }
             //restore atom's list
             copyList(atom.atomList[fromIndex], atom.atomList[toIndex]);

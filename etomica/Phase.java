@@ -80,7 +80,10 @@ public final class Phase extends SimulationElement {
             setConfiguration(new ConfigurationFcc(parentSimulation().space()));
     }//end of constructor
     
-    public void addSpecies(Species s) {speciesMaster.addSpecies(s);}
+    public void addSpecies(Species s) {
+        speciesMaster.addSpecies(s);
+//        moleculeIterator.setBasis(speciesMaster); this is not needed because molecule iterator is a listener to species master
+    }
     
     public Space.Vector randomPosition() {return boundary.randomPosition();}
         
@@ -284,14 +287,14 @@ public final class Phase extends SimulationElement {
     /**
      * Deploys the agent of a species in this phase
      */
-    void addSpecies(SpeciesAgent species) {
-        speciesMaster.addAtom(species);
+//    void addSpecies(SpeciesAgent species) {
+ //       speciesMaster.addAtom(species);
         //set internal configuration of molecule
    //     if(species.parentSpecies().moleculeConfiguration != null) species.parentSpecies().moleculeConfiguration.initializeCoordinates(this);
         //add species to configuration for this phase and notify iteratorFactory
    //     configuration.initializeCoordinates(speciesMaster.childAtomArray());
    //     iteratorFactory.reset();  
-    }
+ //   }
     
     /**
      * Adds the given molecule to this phase, placing it in the molecule/atom linked lists

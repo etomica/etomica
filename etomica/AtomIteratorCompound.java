@@ -6,7 +6,7 @@ package etomica;
  * @author David Kofke
  */
  
-public final class AtomIteratorCompound implements AtomIterator {
+public final class AtomIteratorCompound implements AtomIterator, PhaseEventListener {
     
     private AtomIterator[] iteratorSet;
     private boolean hasNext;
@@ -16,11 +16,22 @@ public final class AtomIteratorCompound implements AtomIterator {
     Atom basis = null;
     
     /**
-     * @param iterator the iterator of the parent atoms.
+     * Constructs iterator the loops over all the children of the given
+     * atom group's children (i.e., the group's grandchildren).  Registers
+     * as a listener to the group so that iterator is updated if children are
+     * added to the given group.  This constructor is used to form molecule
+     * iterators, which loop over the children (molecules) of all species
+     * agents in a phase (which are the child atoms of the phase's species master).
      */      
     public AtomIteratorCompound(AtomGroup group) {
         this(makeIteratorArray(group));
+        basis = group;
+        group.parentPhase().speciesMaster.addListener(this);//sets iterator to update if group has added or removal of child atoms
     }
+    /**
+     * Construct iterator to loop over all iterates obtained from each iterator 
+     * in the given array.
+     */
     public AtomIteratorCompound(AtomIterator[] iterators) {
         iteratorSet = iterators;
         reset();
@@ -38,6 +49,19 @@ public final class AtomIteratorCompound implements AtomIterator {
         return iterators;
     }
     
+    /**
+     * Adds the given iterator to the set of iterators collected by this 
+     * compound iterator.
+     */
+    public void addIterator(AtomIterator iterator) {
+        if(iterator == null) return;
+        int currentLength = (iteratorSet != null) ? iteratorSet.length : 0;
+        AtomIterator[] newSet = new AtomIterator[currentLength+1];
+        for(int i=0; i<currentLength; i++) newSet[i] = iteratorSet[i];
+        newSet[currentLength] = iterator;
+        iteratorSet = newSet;
+    }
+    
     public boolean hasNext() {return hasNext;}
     
     public void setBasis(Atom a) {
@@ -47,6 +71,8 @@ public final class AtomIteratorCompound implements AtomIterator {
             return;
         }
         iteratorSet = makeIteratorArray((AtomGroup)a);
+        if(basis != null) basis.parentPhase().speciesMaster.removeListener(this);
+        a.parentPhase().speciesMaster.addListener(this);
         basis = a;
     }
     public Atom getBasis() {return basis;}
@@ -108,5 +134,18 @@ public final class AtomIteratorCompound implements AtomIterator {
     
     //not implemented
     public void allAtoms(AtomAction act) {
+    }
+    
+    /**
+     * Updates set of iterators in the event that the basis group has an
+     * addition or removal of one of its children.  This method is called
+     * by the species master of the basis group when it fires an event
+     * in its addNotify method.
+     */
+    public void phaseAction(PhaseEvent evt) {
+        if(basis == null) return;
+        if(evt.type() == PhaseEvent.ATOM_ADDED || evt.type() == PhaseEvent.ATOM_REMOVED) {
+            if(evt.atom().parentGroup() == basis) setBasis(basis);
+        }
     }
 }//end of AtomIteratorCompound

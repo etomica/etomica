@@ -18,9 +18,10 @@ public class Space1D extends Space implements EtomicaElement {
     public Space.Vector makeVector() {return new Vector();}
     public Space.Orientation makeOrientation() {System.out.println("Orientation class not implemented in 1D"); return null;}
     public Space.Tensor makeTensor() {return new Tensor();}
+    public Space.Tensor makeRotationTensor() {return new RotationTensor();}
     public Space.Coordinate makeCoordinate(Atom a) {
         if(a instanceof AtomGroup) return new CoordinateGroup((AtomGroup)a);
-//        else if(a instanceof Atom && ((Atom)a).type instanceof AtomType.Rotator) return new OrientedCoordinate(a);
+//        else if(a.type instanceof AtomType.Rotator) return new OrientedCoordinate(a);
         else return new Coordinate(a);
     }
     public Space.CoordinatePair makeCoordinatePair() {return new CoordinatePair();}
@@ -84,6 +85,12 @@ public class Space1D extends Space implements EtomicaElement {
         public double squared() {return x*x;}
         public void normalize() {x = 1.0;}
         public double dot(Vector u) {return x*u.x;}
+        public void transform(Space.Tensor A) {transform((Tensor)A);}
+        public void transform(Tensor A) {x = A.xx * x;}
+        public void transform(Space.Boundary b, Space.Vector r0, Space.Tensor A) {transform((Boundary)b, (Vector)r0, (Tensor)A);}
+        public void transform(Boundary b, Vector r0, Tensor A) {
+            WORK.x = x-r0.x; b.nearestImage(WORK); x = r0.x + A.xx*WORK.x;
+        }
         public void randomStep(double d) {x += (2.*Simulation.random.nextDouble()-1.0)*d;} //uniformly distributed random step in x and y, within +/- d
         public void setRandom(double d) {x = Simulation.random.nextDouble()*d;}
         public void setRandom(double dx, double dy) {x = Simulation.random.nextDouble()*dx;}
@@ -106,7 +113,7 @@ public class Space1D extends Space implements EtomicaElement {
         public Space3D.Vector cross(Space3D.Vector u) {return null;}
     }
     
-    public final static class Tensor extends Space.Tensor {
+    public static class Tensor implements Space.Tensor {
         double xx;
         public static final Tensor ZERO = new Tensor();
         public static final Tensor IDENTITY = new Tensor(1.0);
@@ -130,6 +137,17 @@ public class Space1D extends Space implements EtomicaElement {
         public void PE(Space.Tensor t) {PE((Tensor)t);}
         public void PE(Space.Vector u1, Space.Vector u2) {PE((Vector)u1, (Vector)u2);}
         public void TE(double a) {xx*=a;}
+    }
+
+    public static class RotationTensor extends Tensor implements Space.RotationTensor {
+        public RotationTensor() {super(); reset();}
+        public void reset() {
+            xx = 1.0;
+        }
+        public void setAxial(int i, double theta) {
+        }
+        public void setAngles(double[] angles) {}
+        public void invert() {}
     }
 
     protected static final class CoordinatePair extends Space.CoordinatePair {  
@@ -205,6 +223,7 @@ public class Space1D extends Space implements EtomicaElement {
         public Atom previousAtom() {return previousCoordinate!=null ? previousCoordinate.atom : null;}
         public void clearPreviousAtom() {previousCoordinate = null;}
 
+        public void transform(Space.Vector r0, Space.Tensor A) {r.transform((Boundary)atom.parentPhase().boundary(), (Vector)r0, (Tensor)A);}
         public Space.Vector position() {return r;}
         public Space.Vector momentum() {return p;}
         public double position(int i) {return r.component(i);}
@@ -261,6 +280,16 @@ public class Space1D extends Space implements EtomicaElement {
         public final Atom lastAtom() {return (lastChild != null) ? lastChild.atom : null;}
         public final void setLastAtom(Atom a) {lastChild = (a != null) ? (Coordinate)a.coord : null;}
         
+        /**
+         * Applies transformation to COM of group, keeping all internal atoms at same relative
+         * positions.
+         */
+        public void transform(Space.Vector r0, Space.Tensor A) {
+            work.E(position()); //work = r
+            work.transform((Boundary)atom.parentPhase().boundary(), (Vector)r0, (Tensor)A);
+            work.ME(r);//now work vector contains translation vector for COM
+            translateBy(work);
+        }
         public Space.Vector position() {
             r.E(0.0); double massSum = 0.0;
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
@@ -310,8 +339,8 @@ public class Space1D extends Space implements EtomicaElement {
                 if(coord == lastChild) break;
             }
         }
-        public void translateBy(Space.Vector u) {
-            Vector u0 = (Vector)u;
+        public void translateBy(Space.Vector u) {translateBy((Vector)u);}
+        public void translateBy(Vector u0) {
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                 coord.translateBy(u0);
                 if(coord == lastChild) break;

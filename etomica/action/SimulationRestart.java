@@ -15,7 +15,7 @@ public final class SimulationRestart extends SimulationAction {
         this();
         setSimulation(sim);
     }
-    
+        
     public static void doAction(Simulation sim) {
         
         for(Iterator iter=sim.phaseList().iterator(); iter.hasNext(); ) {

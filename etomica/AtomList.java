@@ -71,6 +71,14 @@ public class AtomList implements java.io.Serializable
 	    this();
 	    addAll(iterator);
      }
+     
+     /**
+      * Returns a randomly selected atom from the list.
+      */
+     public Atom getRandom() {
+        if(size==0) return null;
+        return entry((int)(Simulation.random.nextDouble()*size)).atom;
+     }
 
     /**
      * Returns the first element in this list.

@@ -151,9 +151,10 @@ public class P2HardSphereWall extends Potential2Hard implements EtomicaElement {
         AtomType.Wall wallType = (AtomType.Wall)wall.type;
     
         int i = (((AtomType.Wall)wall.type).isHorizontal()) ? 1 : 0;  //indicates if collision affects x or y coordinate
-
+        double pOld = sphere.coord.momentum(i);
+        
         if(wall.coord.isStationary()) {
-            if(isothermal) {//specific to 2D
+         /*   if(isothermal) {//specific to 2D
           //      double oldp2 = sphere.momentum().squared();
           //      double newp2 = sphere.mass()*temperature*parentSimulation().space().D();
           //      sphere.momentum().TE(Math.sqrt(newp2/oldp2));
@@ -169,16 +170,30 @@ public class P2HardSphereWall extends Potential2Hard implements EtomicaElement {
             else {
                 sphere.coord.momentum().TE(i,-1.0);
     //            wallType.pAccumulator += 2*sphere.momentum().component(i);
-            }
+            }*/
+                sphere.coord.momentum().TE(i,-1.0);
+ //               wallType.pAccumulator += 2.*sphere.coord.momentum(i);
+            
         }
         else {
           double dv = wall.coord.momentum(i)*wall.coord.rm()-sphere.coord.momentum(i)*sphere.coord.rm();
           double dp = -2.0/(wall.coord.rm() + sphere.coord.rm())*dv;
-          wall.coord.momentum().PE(i,+dp);  
+ //         wall.coord.momentum().PE(i,+dp);  
           sphere.coord.momentum().PE(i,-dp);
-          wallType.pAccumulator -= dp;
+  //        wallType.pAccumulator -= dp;
         }
+        double px = sphere.coord.momentum(0);
+        double py = sphere.coord.momentum(1);
+        double xSign = px/Math.abs(px);
+        double ySign = py/Math.abs(py);
+        double p2Tot = px*px + py*py;
+        px = xSign*Math.sqrt(Simulation.random.nextDouble()*p2Tot);
+        py = ySign*Math.sqrt(p2Tot - px*px);
         
+        double deltaP = sphere.coord.momentum(i) - pOld;
+        if(!wall.coord.isStationary()) wall.coord.momentum().PE(i,-deltaP);
+        
+        wallType.pAccumulator += sphere.coord.momentum(i) - pOld;
         moveToContact(i, pair);
         
     }

@@ -16,9 +16,10 @@ public class Space2D extends Space implements EtomicaElement {
     public Space.Vector makeVector() {return new Vector();}
     public Space.Orientation makeOrientation() {return new Orientation();}
     public Space.Tensor makeTensor() {return new Tensor();}
+    public Space.Tensor makeRotationTensor() {return new RotationTensor();}
     public Space.Coordinate makeCoordinate(Atom a) {
         if(a instanceof AtomGroup) return new CoordinateGroup((AtomGroup)a);
-        else if(a instanceof Atom && ((Atom)a).type instanceof AtomType.Rotator) return new OrientedCoordinate(a);
+        else if(a.type instanceof AtomType.Rotator) return new OrientedCoordinate(a);
         else return new Coordinate(a);
     }
     public Space.CoordinatePair makeCoordinatePair() {return new CoordinatePair();}
@@ -113,6 +114,18 @@ public class Space2D extends Space implements EtomicaElement {
             x *= norm;
             y *= norm;
         }
+        public void transform(Space.Tensor A) {transform((Tensor)A);}
+        public void transform(Tensor A) {
+            x = A.xx*x + A.xy*y; 
+            y = A.yx*x + A.yy*y;
+        }
+        public void transform(Space.Boundary b, Space.Vector r0, Space.Tensor A) {transform((Boundary)b, (Vector)r0, (Tensor)A);}
+        public void transform(Boundary b, Vector r0, Tensor A) {
+            WORK.x = x - r0.x; WORK.y = y - r0.y;
+            b.nearestImage(WORK);
+            x = r0.x + A.xx*WORK.x + A.xy*WORK.y;
+            y = r0.y + A.yx*WORK.x + A.yy*WORK.y;
+        }
         public void randomStep(double d) {x += (2.*Simulation.random.nextDouble()-1.0)*d; y+= (2.*Simulation.random.nextDouble()-1.0)*d;} //uniformly distributed random step in x and y, within +/- d
         public void setRandom(double d) {x = Simulation.random.nextDouble()*d; y = Simulation.random.nextDouble()*d;}
         public void setRandom(double dx, double dy) {x = Simulation.random.nextDouble()*dx; y = Simulation.random.nextDouble()*dy;}
@@ -139,7 +152,7 @@ public class Space2D extends Space implements EtomicaElement {
         public double dot(Space.Vector u) {return dot((Vector)u);}
     }
     
-    public final static class Tensor extends Space.Tensor {
+    public static class Tensor implements Space.Tensor {
         public int length() {return D;}
         double xx, xy, yx, yy;
         public static final Tensor ZERO = new Tensor();
@@ -169,6 +182,26 @@ public class Space2D extends Space implements EtomicaElement {
         public void PE(Space.Tensor t) {PE((Tensor)t);}
         public void PE(Space.Vector u1, Space.Vector u2) {PE((Vector)u1, (Vector)u2);}
         public void TE(double a) {xx*=a; xy*=a; yx*=a; yy*=a;}
+    }
+    
+    public static class RotationTensor extends Tensor implements Space.RotationTensor {
+        public RotationTensor() {super(); reset();}
+        public void reset() {
+            xx = 1.0; xy = 0.0;
+            yx = 0.0; yy = 1.0;
+        }
+        public void setAxial(int i, double theta) {
+            double st = Math.sin(theta);
+            double ct = Math.cos(theta);
+            switch(i) {
+                case 2: xx = ct; xy=-st;
+                        yx = st; yy=ct;
+                        return;
+                default: throw new IllegalArgumentException();
+            }
+        }
+        public void setAngles(double[] angles) {}
+        public void invert() {xy *= -1; yx *= -1;}
     }
 
     public static final class CoordinatePair extends Space.CoordinatePair {  
@@ -263,6 +296,8 @@ public class Space2D extends Space implements EtomicaElement {
             r.x += p.x*tM;
             r.y += p.y*tM;
         }
+        public void transform(Space.Vector r0, Space.Tensor A) {
+            r.transform((Boundary)atom.parentPhase().boundary(), (Vector)r0, (Tensor)A);}
         /**
         * Moves the atom by some vector distance
         * 
@@ -321,6 +356,16 @@ public class Space2D extends Space implements EtomicaElement {
         } 
         public double rm() {return 1.0/mass();}
 
+        /**
+         * Applies transformation to COM of group, keeping all internal atoms at same relative
+         * positions.
+         */
+        public void transform(Space.Vector r0, Space.Tensor A) {
+            work.E(position()); //work = r
+            work.transform((Boundary)atom.parentPhase().boundary(), (Vector)r0, (Tensor)A);
+            work.ME(r);//now work vector contains translation vector for COM
+            translateBy(work);
+        }
         public Space.Vector position() {
             r.E(0.0); double massSum = 0.0;
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
@@ -370,8 +415,8 @@ public class Space2D extends Space implements EtomicaElement {
                 if(coord == lastChild) break;
             }
         }
-        public void translateBy(Space.Vector u) {
-            Vector u0 = (Vector)u;
+        public void translateBy(Space.Vector u) {translateBy((Vector)u);}
+        public void translateBy(Vector u0) {
             for(Coordinate coord=firstChild; coord!=null; coord=coord.nextCoordinate) {
                 coord.translateBy(u0);
                 if(coord == lastChild) break;
