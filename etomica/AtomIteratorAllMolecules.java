@@ -10,7 +10,7 @@ package etomica;
  */
 
 public class AtomIteratorAllMolecules extends AtomIteratorAdapter 
-            implements AtomIteratorPhaseDependent, AtomsetIteratorPhaseDependent {
+            implements AtomIteratorPhaseDependent {
 
     public AtomIteratorAllMolecules() {
         super(new AtomIteratorTree(2));
@@ -27,6 +27,9 @@ public class AtomIteratorAllMolecules extends AtomIteratorAdapter
         setPhase(phase);
     }
 
+    /**
+     * Sets the phase having the molecules to be returned as iterates.
+     */
     public void setPhase(Phase phase) {
         treeIterator.setRoot((phase == null) ? null : phase.speciesMaster);
     }
