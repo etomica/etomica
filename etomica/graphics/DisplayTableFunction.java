@@ -30,6 +30,7 @@ public class DisplayTableFunction extends DisplayDataSources implements EtomicaE
     private boolean showXColumn = true;
     private boolean fitToWindow = false;
     private double multiplier = 1.0;//alterntive way to adjust precision
+    private MyTableData tableSource;
     
         //structures used to adjust precision of displayed values
 //	private final java.text.NumberFormat formatter = java.text.NumberFormat.getInstance();
@@ -75,7 +76,7 @@ public class DisplayTableFunction extends DisplayDataSources implements EtomicaE
         else panel.removeAll();
         panel.setSize(100,150);
         if(ySource == null || ySource.length == 0) return;
-        MyTableData tableSource = new MyTableData();   //inner class, defined below
+        tableSource = new MyTableData();   //inner class, defined below
         table = new JTable(tableSource);
         if(!fitToWindow) table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         table.setDefaultRenderer(Number.class, numberRenderer);
@@ -126,6 +127,7 @@ public class DisplayTableFunction extends DisplayDataSources implements EtomicaE
      */
     public int getPrecision() {return formatter.getMaximumFractionDigits();}
     
+    public Action makeLogTableAction() {return new LogTableAction();}
     
     public void repaint() {table.repaint();}
 
@@ -194,6 +196,14 @@ public class DisplayTableFunction extends DisplayDataSources implements EtomicaE
         }
         public void mouseEntered(MouseEvent evt) {panel.requestFocus();}
         public void mouseExited(MouseEvent evt) {panel.transferFocus();}
+    }
+    
+    private class LogTableAction extends Action {
+        
+        public void actionPerformed() {
+            etomica.log.LogTable log = new etomica.log.LogTable();
+            log.writeTable(tableSource, "output.xls");
+        }
     }
         
     

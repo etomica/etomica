@@ -13,7 +13,7 @@ public class AtomFactoryHetero extends AtomFactory {
     private final AtomType.Group groupType = new AtomType.Group(this);
     
     /**
-     * @param factory the factory that makes each of the identical children.
+     * @param factory array of atom factories, each of which makes a different child.
      */
     public AtomFactoryHetero(Simulation sim, AtomFactory[] factory) {
         this(sim, factory, new ConfigurationLinear(sim));
@@ -27,12 +27,19 @@ public class AtomFactoryHetero extends AtomFactory {
                             Configuration config) {
         this(sim, factory, config, sim.getIteratorFactory().simpleSequencerFactory());
     }
+    /**
+     * @param factory the factory that makes each of the identical children.
+     * @param atoms the number of identical children per group (default is 1).
+     * @param config the configuration applied to each group that is built (default is Linear).
+     * @param sequencerFactory the factory making sequencers used in the groups made by this factory (default is simple sequencer).
+     */
     public AtomFactoryHetero(Simulation sim, AtomFactory[] factory, 
                             Configuration config, AtomSequencer.Factory sequencerFactory) {
         super(sim, sequencerFactory);
         childFactory = factory;
         configuration = config;
         //set up fields of Group type
+        //children are forced (for now) to use simple sequencer
         groupType.childSequencerClass = sim.iteratorFactory.simpleSequencerClass();
         for(int i=0; i<factory.length; i++) {
             groupType.childrenAreGroups = factory[i].isGroupFactory();

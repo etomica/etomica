@@ -30,6 +30,7 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
     javax.swing.JPanel panel;
     private boolean showLabels = true;
     private boolean fitToWindow = true;
+    private MyTableData tableSource;
     
         //structures used to adjust precision of displayed values
 //	private final java.text.NumberFormat formatter = java.text.NumberFormat.getInstance();
@@ -70,7 +71,7 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
         else panel.removeAll();
         panel.setSize(100,150);
         if(ySource == null || ySource.length == 0) return;
-        MyTableData tableSource = new MyTableData();   //inner class, defined below
+        tableSource = new MyTableData();   //inner class, defined below
         table = new JTable(tableSource);
         if(!fitToWindow) table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         table.setDefaultRenderer(Number.class, numberRenderer);
@@ -115,6 +116,9 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
     public void setPrecision(int n) {
 	    formatter.setMaximumFractionDigits(n);
     }
+    
+    public Action makeLogTableAction() {return new LogTableAction();}
+    
     public void repaint() {table.repaint();}
 
     public Component graphic(Object obj) {return panel;}
@@ -176,6 +180,13 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
         public void mouseExited(MouseEvent evt) {panel.transferFocus();}
     }
         
+    private class LogTableAction extends Action {
+        
+        public void actionPerformed() {
+            etomica.log.LogTable log = new etomica.log.LogTable();
+            log.writeTable(tableSource, "output.xls");
+        }
+    }
 
     /**
      * Demonstrates how this class is implemented.

@@ -16,6 +16,11 @@ package etomica;
  * 02.02.16
  */
  
+ /* History of changes
+  * 7/26/02 started history of changes
+  * 7/26/02 (DAK/DW) fixed error in setBasis that left iterator null if given atom is null.
+  */
+ 
  //need to reconsider if iteration will work with an arbitrary basis
  //in particular if it will treat correctly a molecule basis in which
  //the molecule's subgroups are not structured identically.
@@ -142,6 +147,7 @@ public class AtomIteratorTree implements AtomIterator {
             basis = null; 
             listIterator.setBasis(AtomList.NULL); 
             doTreeIteration = false;
+            iterator = AtomIterator.NULL;
             return;
         }
  //       basisIsMaster = !(atom instanceof SpeciesAgent) && !atom.node.isLeaf() && ((AtomTreeNodeGroup)atom.node).childrenAreGroups();//(atom instanceof SpeciesMaster);
@@ -152,6 +158,7 @@ public class AtomIteratorTree implements AtomIterator {
             singletList.add(atom);
             listIterator.setBasis(singletList);
             doTreeIteration = false;
+            iterator = listIterator;
             return;
         }
         basis = (AtomTreeNodeGroup)atom.node;

@@ -11,6 +11,7 @@ package etomica;
 
  /* History of changes
   * 7/13/02 (DAK) Restructured instantiation of LRC potential
+  * 7/15/02 (DAK) Constructor makes P0LRC only if instance of Potential2SoftSpherical
   */
 
 public abstract class Potential2 extends Potential {
@@ -45,7 +46,8 @@ public abstract class Potential2 extends Potential {
         iterator1 = new ApiIntergroup1A(parentSimulation());
         iteratorA = new ApiIntergroupAA(parentSimulation());
         this.potentialTruncation = potentialTruncation;
-        if( (potentialTruncation != PotentialTruncation.NULL) && (potentialTruncation != null) ) {
+        if( (potentialTruncation != PotentialTruncation.NULL) && (potentialTruncation != null
+            && (this instanceof Potential2SoftSpherical)) ) {
             Potential0GroupLrc lrcMaster = parentSimulation().hamiltonian.potential.lrcMaster();
             potentialTruncation.makeLrcPotential(lrcMaster, this); //adds lrcPotential to lrcMaster
         }

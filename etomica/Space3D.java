@@ -8,6 +8,13 @@ import etomica.units.*;
  * @author Rob Riggleman
  * @author David Kofke
  */
+ 
+ /* History of changes
+  * 7/24/02 started recording change history
+  * 7/24/02 (DW) modified RotationTensor
+  *         (DW) change to CoordinatePair to use vector operators, needed to ensure proper working with CoordinateGroup
+  *         (?) unknown changes to Orientation
+  */
 
 public class Space3D extends Space implements EtomicaElement {
 
@@ -229,7 +236,6 @@ public class Space3D extends Space implements EtomicaElement {
         double xx, xy, xz, yx, yy, yz, zx, zy, zz;
         public static final Tensor ORIGIN = new Tensor();
         public static final Tensor WORK = new Tensor();
-        private Vector[] columns;
         public Tensor () {xx = xy = xz = yx = yy = yz = zx = zy = zz = 0.0;}
         public Tensor (double xx, double xy, double xz, double yx, double yy, double yz, double zx, double zy, double zz) {
             this.xx=xx; this.xy=xy; this.xz=xz; this.yx=yx; this.yy=yy; this.yz=yz; this.zx=zx; this.zy=zy; this.zz=zz;
@@ -246,8 +252,6 @@ public class Space3D extends Space implements EtomicaElement {
         public void E(Tensor t) {xx=t.xx; xy=t.xy; xz=t.xz; yx=t.yx; yy=t.yy; yz=t.yz; zx=t.zx; zy=t.zy; zz=t.zz;}
         public void E(Vector u1, Vector u2) {xx=u1.x*u2.x; xy=u1.x*u2.y; xz=u1.x*u2.z; yx=u1.y*u2.x; yy=u1.y*u2.y; yz=u1.y*u2.z; zx=u1.z*u2.x; zy=u1.z*u2.y; zz=u1.z*u2.z;}
         public void E(double a) {xx=xy=xz=yx=yy=yz=zx=zy=zz=a;}
-        public void diagE(double a) {xx = yy = zz = a;}
-        public void diagE(Vector v) {xx = v.x; yy = v.y; zz = v.z;}
         public void PE(Tensor t) {xx+=t.xx; xy+=t.xy; xz+=t.xz; yx+=t.yx; yy+=t.yy; yz+=t.yz; zx+=t.zx; zy+=t.zy; zz+=t.zz;}
         public void PE(int i, int j, double d) {
             if (i==0) {if (j==0) {xx += d;} else if (j==1) {xy += d;} else xz += d;}
@@ -260,25 +264,26 @@ public class Space3D extends Space implements EtomicaElement {
         public void PE(Space.Tensor t) {PE((Tensor) t);}
         public void PE(Space.Vector u1, Space.Vector u2) {PE((Vector)u1, (Vector)u2);}
         public void TE(double a) {xx*=a; xy*=a; xz*=a; yx*=a; yy*=a; yz*=a; zx*=a; zy*=a; zz*=a;}
-        
-        public Vector[] columns() {
-            if(columns == null) {
-                columns = new Vector[D];
-                for(int i=0; i<D; i++) {columns[i] = new Vector();}
-            }
-            columns[0].x = xx; columns[0].y = yx; columns[0].z = zx;
-            columns[1].x = xy; columns[1].y = yy; columns[1].z = zy;
-            columns[2].x = xz; columns[2].y = yz; columns[2].z = zz;
-            return columns;
-        }
     }
     
     public static class RotationTensor extends Tensor implements Space.RotationTensor {
         public RotationTensor() {super(); reset();}
         public void reset() {
-            xx = 1.0; xy = 0.0;
-            yx = 0.0; yy = 1.0;
+            xx = 1.0; xy = 0.0; xz = 0.0;
+            yx = 0.0; yy = 1.0; yz = 0.0;
+            zx = 0.0; zy = 0.0; zz = 1.0;
         }
+        /**
+         * Sets tensor to for rotation by the given angle about a randomly selected axis.
+         */
+        public void setAxial(double theta) {
+            int n = (int)(Simulation.random.nextDouble()*3);
+            setAxial(n, theta);
+        }
+        /**
+         * Sets tensor for rotation about the indicated axis (0=x,1=y,2=z) by 
+         * the given angle.
+         */
         public void setAxial(int i, double theta) {
             double st = Math.sin(theta);
             double ct = Math.cos(theta);
@@ -295,13 +300,61 @@ public class Space3D extends Space implements EtomicaElement {
                         yx = st; yy = ct;  yz = 0.;
                         zx = 0.; zy = 0.;  zz = 1.;
                         return;
-                default: throw new IllegalArgumentException();
+                default: throw new IllegalArgumentException("Improper axis specified for Space3D.RotationTensor.setAxial");
             }
         }
-        public void setAngles(double[] angles) {throw new RuntimeException("Space3D.CoordinateGroup.setAngles() not yet implemented");}
-        public void invert() {throw new RuntimeException("Space3D.CoordinateGroup.invert() not yet implemented");}
-    }
-
+        /**
+         * Not yet implemented.
+         */
+        public void setAngles(double[] angles) {
+            throw new RuntimeException("Space3D.CoordinateGroup.setAngles() not yet implemented");
+        }
+        public void invert() {
+            double det = xx*yy*zz - xx*yz*zy - yx*xy*zz + yx*xz*zy + zx*xy*yz - zx*xz*yy ;
+            double xx1 = (yy*zz - yz*zy)/det;
+            double xy1 = (-xy*zz + xz*zy)/det;
+            double xz1 = (xy*yz - xz*yy)/det;
+            
+            double yx1 = (-yx*zz + yz*zx)/det;
+            double yy1 = (xx*zz - xz*zx)/det;
+            double yz1 = (-xx*yz + xz*yx)/det;
+            
+            double zx1 = (yx*zy - yy*zx)/det;
+            double zy1 = (-xx*zy + xy*zx)/det;
+            double zz1 = (xx*yy - xy*yx)/det;
+            
+            this.xx = xx1; this.xy = xy1; this.xz = xz1;
+            this.yx = yx1; this.yy = yy1; this.yz = yz1;
+            this.zx = zx1; this.zy = zy1; this.zz = zz1;
+            
+        }
+        /**
+         * Method to test rotation tensor.
+         */
+        public static void main (String[] args) {
+            
+            Vector r1 = new Vector(2,2,3);
+            System.out.println("r1_before" + r1.toString());
+            Tensor tensor = new Tensor(1,2,0,1,1,2,0,0,1);
+            RotationTensor tensor2 = new RotationTensor();
+            tensor2.E(tensor);
+            System.out.println("tensor2_before " + tensor2.xx + "  " +tensor2.xy +"  "+tensor2.xz +"  "+tensor2.yx +"  "+tensor2.yy +"  "+tensor2.yz +"  "+tensor2.zx +"  "+tensor2.zy +"  "+tensor2.zz); 
+            System.out.println();
+        
+            r1.transform(tensor2);
+            System.out.println("r1_transform(tensor2)" + r1.toString());
+            tensor2.invert();
+            System.out.println("tensor2_invert " + tensor2.xx + "  " +tensor2.xy +"  "+tensor2.xz +"  "+tensor2.yx +"  "+tensor2.yy +"  "+tensor2.yz +"  "+tensor2.zx +"  "+tensor2.zy +"  "+tensor2.zz); 
+            //tensor2.setAxial(1, 2*Math.PI);
+            //System.out.println("tensor2_rotate_360 " + tensor2.xx + "  " +tensor2.xy +"  "+tensor2.xz +"  "+tensor2.yx +"  "+tensor2.yy +"  "+tensor2.yz +"  "+tensor2.zx +"  "+tensor2.zy +"  "+tensor2.zz); 
+            //System.out.println();
+        
+            //r1.transform(tensor2);
+            //System.out.println("r1_afterInvert_andRotate360 " + r1.toString());
+        }//end of main 
+        
+    }//end of Space3D.RotationTensor
+    
     public static final class CoordinatePair extends Space.CoordinatePair {
         Coordinate c1;
         Coordinate c2;
@@ -315,19 +368,23 @@ public class Space3D extends Space implements EtomicaElement {
             reset();
         }
         public void reset() {
-            dr.x = c2.r.x - c1.r.x;
-            dr.y = c2.r.y - c1.r.y;
-            dr.z = c2.r.z - c1.r.z;
+            dr.Ev1Mv2(c2.position(),c1.position());
+         //   c2.position(); c1.position();
+         //   dr.x = c2.r.x - c1.r.x;
+         //   dr.y = c2.r.y - c1.r.y;
+         //   dr.z = c2.r.z - c1.r.z;
             c1.atom.node.parentPhase().boundary().nearestImage(dr);
    //         drx = dr.x;
    //         dry = dr.y;
    //         drz = dr.z;
             r2 = dr.x*dr.x + dr.y*dr.y + dr.z*dr.z;
+            /*
             double rm1 = c1.rm();
             double rm2 = c2.rm();
             dvx = rm2*c2.p.x - rm1*c1.p.x;
             dvy = rm2*c2.p.y - rm1*c1.p.y;
             dvz = rm2*c2.p.z - rm1*c1.p.z;
+            */
         }
             
         public void reset(Space3D.Vector M) {
@@ -807,21 +864,30 @@ public static class CoordinateGroup extends Coordinate {
     }
      
      public static class Orientation extends Space.Orientation {
+        public Orientation() {
+            throw new RuntimeException("Space3D.Orientation should be checked for correctness before using");
+        }
          //The rotation matrix A operates on the components of a vector in the space-fixed frame to yield the
          //components in the body-fixed frame
-         private final double[][] A = new double[D][D];
+        private final double[][] A = new double[D][D];
         private final Vector[] bodyFrame = new Vector[] {new Vector(1.0,0.0, 0.0), new Vector(0.0,1.0,0.0), new Vector(0.0,0.0,1.0)};
         private final double[] angle = new double[3];
-         private boolean needToUpdateA = true;
-         public void E(Space.Orientation o) {E((Orientation)o);}
+        private final Vector orientVector = new Vector(1.0,0.0,0.0);
+        private boolean needToUpdateA = true;
+        private transient double x1,y1,z1;//temp variable
+        private transient Vector v1 = new Vector();
+        public void E(Space.Orientation o) {E((Orientation)o);}
+        public Space.Vector getOrientation(){return orientVector;}
+        public void setOrientation(Space.Vector vect){orientVector.E(vect);}
         public void E(Orientation o) {
           angle[0] = o.angle[0];
           angle[1] = o.angle[1];
           angle[2] = o.angle[2];
           needToUpdateA = true;
+          orientVector.E(o.getOrientation());
         }
-         public Space.Vector[] bodyFrame() {return bodyFrame;}
-         public double[] angle() {return angle;}
+        public Space.Vector[] bodyFrame() {return bodyFrame;}
+        public double[] angle() {return angle;}
         public final void rotateBy(double dt[]) {
             rotateBy(0, dt[0]);
             rotateBy(1, dt[1]);
@@ -838,80 +904,86 @@ public static class CoordinateGroup extends Coordinate {
             else if(angle[i] < 0.0) angle[i] += Constants.TWO_PI;
             needToUpdateA = true;
         }
-        public void randomRotation(double t) {
-          rotateBy(0, (2.*Simulation.random.nextDouble()-1.0)*t);
-          rotateBy(1, (2.*Simulation.random.nextDouble()-1.0)*t);
-          rotateBy(2, (2.*Simulation.random.nextDouble()-1.0)*t);
+          /**
+        * Choose one of the three spaced fixed axes at random and rotate 
+        * it by t (in radian).
+        */
+        public void randomRotation(double stepsize) {
+            double t = (2.0*Simulation.random.nextDouble()-1.0)*stepsize;
+            int i = (int)(3.0 *(Simulation.random.nextDouble()));
+            double ct,st;
+            
+            ct= Math.cos(t);st =Math.sin(t);
+            
+            //rotateBy(i,t);
+            
+            switch(i){
+             case 0:
+                    x1=orientVector.x(0);
+                    y1=ct*orientVector.x(1)+ st*orientVector.x(2);      
+                    z1=ct*orientVector.x(2)-st*orientVector.x(1);
+                    break;
+             case 1:
+                    x1=ct*orientVector.x(0)-st*orientVector.x(2);
+                    y1=orientVector.x(1);
+                    z1=ct*orientVector.x(2)+st*orientVector.x(0);
+                    break;
+             case 2:
+                    x1=ct*orientVector.x(0)+st*orientVector.x(1);
+                    y1=ct*orientVector.x(1)-st*orientVector.x(0);
+                    z1=orientVector.x(2);
+                    break;
+            }
+                
+            orientVector.E(x1,y1,z1);
+           // orientVector.normalize(); // Not needed
+            
+                
+                
+            
         }
         private final void updateRotationMatrix() {
-          //x-rot
-          double theta = angle[0]*(Math.PI / 180);
-          double ct = Math.cos(theta);
-          double st = Math.sin(theta);
-          double Nyx = (double) (A[1][0] * ct + A[2][0] * st);
-          double Nyy = (double) (A[1][1] * ct + A[2][1] * st);
-          double Nyz = (double) (A[1][2] * ct + A[2][2] * st);
-          double Nzx = (double) (A[2][0] * ct - A[1][0] * st);
-          double Nzy = (double) (A[2][1] * ct - A[1][1] * st);
-          double Nzz = (double) (A[2][2] * ct - A[1][2] * st);
-          A[1][0] = Nyx;
-          A[1][1] = Nyy;
-          A[1][2] = Nyz;
-          A[2][0] = Nzx;
-          A[2][1] = Nzy;
-          A[2][2] = Nzz;
-          //y-rot
-          theta = angle[1]*(Math.PI / 180);
-          ct = Math.cos(theta);
-          st = Math.sin(theta);
-          double Nxx = (double) (A[0][0] * ct + A[2][0] * st);
-          double Nxy = (double) (A[0][1] * ct + A[2][1] * st);
-          double Nxz = (double) (A[0][2] * ct + A[2][2] * st);
-          Nzx = (double) (A[2][0] * ct - A[0][0] * st);
-          Nzy = (double) (A[2][1] * ct - A[0][1] * st);
-          Nzz = (double) (A[2][2] * ct - A[0][2] * st);
-          A[0][0] = Nxx;
-          A[0][1] = Nxy;
-          A[0][2] = Nxz;
-          A[2][0] = Nzx;
-          A[2][1] = Nzy;
-          A[2][2] = Nzz;
-          //z-rot
-          theta = angle[2]*(Math.PI / 180);
-          ct = Math.cos(theta);
-          st = Math.sin(theta);
-          Nyx = (double) (A[1][0] * ct + A[0][0] * st);
-          Nyy = (double) (A[1][1] * ct + A[0][1] * st);
-          Nyz = (double) (A[1][2] * ct + A[0][2] * st);
-          Nxx = (double) (A[0][0] * ct - A[1][0] * st);
-          Nxy = (double) (A[0][1] * ct - A[1][1] * st);
-          Nxz = (double) (A[0][2] * ct - A[1][2] * st);
-          A[1][0] = Nyx;
-          A[1][1] = Nyy;
-          A[1][2] = Nyz;
-          A[0][0] = Nxx;
-          A[0][1] = Nxy;
-          A[0][2] = Nxz;
-          bodyFrame[0].E(A[0]);
-          bodyFrame[1].E(A[1]);
-          bodyFrame[2].E(A[2]);
-          needToUpdateA = false;
+            double ct0,ct1,ct2;
+            double st0,st1,st2;
+                        
+            ct0=Math.cos(angle[0]);ct1=Math.cos(angle[1]);ct2=Math.cos(angle[2]);
+            st0=Math.sin(angle[0]);st1=Math.sin(angle[1]);st2=Math.sin(angle[2]);
+                     
+            //LEFT HAND SYSTEM  
+            A[0][0]= ct1*ct2;
+            A[0][1]= -ct1*st2;
+            A[0][2]= st1;
+            A[1][0]= st0*st1*ct2+ct0*st2;
+            A[1][1]= -st0*st1*st2+ct0*ct2;
+            A[1][2]= -st0*ct1;
+            A[2][0]= -ct0*st1*ct2+st0*st2;
+            A[2][1]= ct0*st1*st2+st0*ct2;
+            A[2][2]= ct0*ct1;
+                      
+            bodyFrame[0].E(A[0]);
+            bodyFrame[1].E(A[1]);
+            bodyFrame[2].E(A[2]);
+            needToUpdateA = false;
          }
       //   public double[][] rotationMatrix() {return A;}
-         public void convertToBodyFrame(Vector v) {
-             if(needToUpdateA) updateRotationMatrix();
-            v.x = A[0][0]*v.x + A[0][1]*v.y + A[0][2]*v.z;
-            v.y = A[1][0]*v.x + A[1][1]*v.y + A[1][2]*v.z;
-            v.z = A[2][0]*v.x + A[2][1]*v.y + A[2][2]*v.z;
+          public void convertToBodyFrame(Vector v) {
+            if(needToUpdateA) updateRotationMatrix();
+            v1.x = A[0][0]*v.x + A[0][1]*v.y + A[0][2]*v.z;
+            v1.y = A[1][0]*v.x + A[1][1]*v.y + A[1][2]*v.z;
+            v1.z = A[2][0]*v.x + A[2][1]*v.y + A[2][2]*v.z;
+            v.E(v1);
          }
+         //V_space = A_transpose*V_body
          public void convertToSpaceFrame(Vector v) {
-             if(needToUpdateA) updateRotationMatrix();
-            v.x = A[0][0]*v.x + A[1][0]*v.y + A[2][0]*v.z;
-            v.y = A[0][1]*v.x + A[1][1]*v.y + A[2][1]*v.z;
-            v.z = A[0][2]*v.x + A[1][2]*v.y + A[2][2]*v.z;
+            if(needToUpdateA) updateRotationMatrix();
+            v1.x = A[0][0]*v.x + A[1][0]*v.y + A[2][0]*v.z;
+            v1.y = A[0][1]*v.x + A[1][1]*v.y + A[2][1]*v.z;
+            v1.z = A[0][2]*v.x + A[1][2]*v.y + A[2][2]*v.z;
+            
+            v.E(v1);
          }
-         public void convertToBodyFrame(Space.Vector v) {convertToBodyFrame((Vector)v);}
-         public void convertToSpaceFrame(Space.Vector v) {convertToSpaceFrame((Vector)v);}
+        public void convertToBodyFrame(Space.Vector v) {convertToBodyFrame((Vector)v);}
+        public void convertToSpaceFrame(Space.Vector v) {convertToSpaceFrame((Vector)v);}
     }
 
     /*public static class Orientation extends Space.Orientation {
@@ -1014,6 +1086,7 @@ public static class CoordinateGroup extends Coordinate {
             dr.PE(dimensionsHalf);
             dr.mod(dimensions);
             dr.ME(dimensionsHalf);
+            //System.out.println("dimesions = "+dimensions);
         //    System.out.print(dr.x+"  ");dr.x %= dimensionsHalf.x; System.out.println(dr.x);
         //    dr.x = ((dr.x + dimensions.x) % dimensions.x) - dimensionsHalf.x;
         //    dr.y = ((dr.y + dimensions.y) % dimensions.y) - dimensionsHalf.y;
@@ -1203,7 +1276,7 @@ public static class CoordinateGroup extends Coordinate {
             return origins;
         }
     }//end of BoundarySlidingBrick */
-    
+
 /*    protected final static class BoundaryDeformableCell extends Boundary implements Space.Boundary.Periodic, Space.Boundary.Deformable {
 
         public BoundaryDeformableCell() {this(Default.BOX_SIZE);}
@@ -1489,4 +1562,28 @@ public static class CoordinateGroup extends Coordinate {
         }//end of getOverflowShifts
     }//end of BoundaryDeformableCell 
     */
+
+    public static void main (String[] args) {
+        Vector r1 = new Vector(2,2,3);
+        System.out.println("r1_before" + r1.toString());
+        Tensor tensor = new Tensor(1,2,0,1,1,2,0,0,1);
+        RotationTensor tensor2 = new RotationTensor();
+        //r1.transform(tensor2);
+        tensor2.E(tensor);
+        System.out.println("tensor2_before " + tensor2.xx + "  " +tensor2.xy +"  "+tensor2.xz +"  "+tensor2.yx +"  "+tensor2.yy +"  "+tensor2.yz +"  "+tensor2.zx +"  "+tensor2.zy +"  "+tensor2.zz); 
+        System.out.println();
+        
+        r1.transform(tensor2);
+        System.out.println("r1_transform(tensor2)" + r1.toString());
+        tensor2.invert();
+        System.out.println("tensor2_invert " + tensor2.xx + "  " +tensor2.xy +"  "+tensor2.xz +"  "+tensor2.yx +"  "+tensor2.yy +"  "+tensor2.yz +"  "+tensor2.zx +"  "+tensor2.zy +"  "+tensor2.zz); 
+        tensor2.setAxial(1, 2*Math.PI);
+        System.out.println("tensor2_rotate_360 " + tensor2.xx + "  " +tensor2.xy +"  "+tensor2.xz +"  "+tensor2.yx +"  "+tensor2.yy +"  "+tensor2.yz +"  "+tensor2.zx +"  "+tensor2.zy +"  "+tensor2.zz); 
+        System.out.println();
+        
+        r1.transform(tensor2);
+        System.out.println("r1_afterInvert_andRotate360 " + r1.toString());
+        //System.out.println("tensor2 " + tensor2.xx + "  " +tensor2.xy +"  "+tensor2.xz +"  "+tensor2.yx +"  "+tensor2.yy +"  "+tensor2.yz +"  "+tensor2.zx +"  "+tensor2.zy +"  "+tensor2.zz); 
+    }
+    
 }//end of Space3D
