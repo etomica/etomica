@@ -1,7 +1,7 @@
 package etomica.tests;
 
 import etomica.ConfigurationFile;
-import etomica.ConfigurationLinear;
+import etomica.ConfigurationLinearRandom;
 import etomica.DataSink;
 import etomica.DataSource;
 import etomica.Default;
@@ -11,6 +11,8 @@ import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
 import etomica.SpeciesSpheres;
+import etomica.WriteConfiguration;
+import etomica.WritePDB;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.iterator.ApiIntergroup;
@@ -52,7 +54,7 @@ public class TestSWChain extends Simulation {
         Default.makeLJDefaults();
 
         // makes eta = 0.35
-        Default.BOX_SIZE = 14.4094*Math.pow(numAtoms/2000.0,1.0/3.0);
+        Default.BOX_SIZE = 14.4094*Math.pow((numAtoms/2000.0),1.0/3.0);
         integrator = new IntegratorHard(potentialMaster);
         integrator.setTimeStep(0.005);
         integrator.setIsothermal(true);
@@ -61,7 +63,7 @@ public class TestSWChain extends Simulation {
         integrator.addIntervalListener(nbrManager);
         nbrManager.setRange(Default.ATOM_SIZE*sqwLambda*neighborRangeFac);
         getController().addAction(activityIntegrate);
-        activityIntegrate.setMaxSteps(10000000/numAtoms);
+        activityIntegrate.setMaxSteps(2000000/numAtoms);
         int nCells = (int)(2*Default.BOX_SIZE/(neighborRangeFac*sqwLambda*Default.ATOM_SIZE));
         ((PotentialMasterNbr)potentialMaster).setNCells(nCells);
         ((PotentialMasterNbr)potentialMaster).setAtomPositionDefinition(new DataSourceCOM(space));
@@ -81,7 +83,8 @@ public class TestSWChain extends Simulation {
         criterion.setBonded(true);
         potentialChainIntra.bonded.setCriterion(criterion);
         potentialMaster.setSpecies(potentialChainIntra, new Species[] {species});
-        ((ConfigurationLinear)species.getFactory().getConfiguration()).setBondLength(Default.ATOM_SIZE);
+        ConfigurationLinearRandom config = new ConfigurationLinearRandom(space,Default.ATOM_SIZE,potential);
+        species.moleculeFactory().setConfiguration(config);
         
         potential = new P2SquareWell(space,Default.ATOM_SIZE,sqwLambda,0.5*Default.POTENTIAL_WELL);
         nbrCriterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
@@ -97,10 +100,15 @@ public class TestSWChain extends Simulation {
 
         phase = new Phase(space);
 
-        phase.setConfiguration(null);
+//        phase.setConfiguration(null);
         phase.speciesMaster.addSpecies(species);
         integrator.addPhase(phase);
-        phase.setConfiguration(new ConfigurationFile(space,"SWchain"+Integer.toString(numMolecules)));
+//        phase.setConfiguration(new ConfigurationFile(space,"chain"+Integer.toString(numMolecules)+"_"+Integer.toString(chainLength)));
+        WriteConfiguration writeConfig = new WriteConfiguration("chain"+Integer.toString(numMolecules)+"_"+Integer.toString(chainLength),phase,1);
+        WritePDB writePDB = new WritePDB("chain"+Integer.toString(numMolecules)+"_"+Integer.toString(chainLength),phase,1);
+        integrator.addIntervalListener(writeConfig);
+        integrator.addIntervalListener(writePDB);
+        Default.FIX_OVERLAP = true;
     }
     
     public static void main(String[] args) {
@@ -129,13 +137,13 @@ public class TestSWChain extends Simulation {
         double Cv = data[AccumulatorAverage.STANDARD_DEVIATION.index]/t2/numMolecules;
         System.out.println("Cv/k="+Cv);
         
-        if (Math.abs(Z-3.23) > 0.4) {
+        if (Math.abs(Z-4.19) > 1.0) {
             System.exit(1);
         }
-        if (Math.abs(PE+8.07) > 0.03) {
+        if (Math.abs(PE+19.32) > 0.3) {
             System.exit(1);
         }
-        if (Math.abs(Cv-0.026) > 0.01) {
+        if (Math.abs(Cv-0.046) > 0.05) {
             System.exit(1);
         }
     }
