@@ -1,8 +1,6 @@
 package etomica.modules.pistoncylinder;
-import java.util.Iterator;
 
 import etomica.Controller;
-import etomica.DataManager;
 import etomica.DataSink;
 import etomica.Default;
 import etomica.Phase;
@@ -12,17 +10,10 @@ import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.data.AccumulatorAverage;
-import etomica.data.DataSourceCountSteps;
+import etomica.data.DataPump;
 import etomica.data.meter.MeterPressureHard;
-import etomica.data.meter.MeterTemperature;
-import etomica.graphics.DeviceThermoSelector;
-import etomica.graphics.Display;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayCanvasInterface;
-import etomica.graphics.DisplayPhase;
-import etomica.graphics.DisplayTimer;
-import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMD;
+import etomica.integrator.IntervalActionAdapter;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.P2SquareWell;
@@ -32,9 +23,6 @@ import etomica.space.Vector;
 import etomica.space2d.Vector2D;
 import etomica.space3d.Vector3D;
 import etomica.units.Bar;
-import etomica.units.BaseUnit;
-import etomica.units.Kelvin;
-import etomica.units.PrefixedUnit;
 
 /**
  * Simple hard-sphere MD in piston-cylinder apparatus
@@ -111,98 +99,6 @@ public class PistonCylinder extends Simulation {
         getController().addAction(ai);
         
     }
-
-    public static class Applet extends javax.swing.JApplet {
-        public DataSourceCountSteps meterCycles;
-        public DisplayBox displayCycles;
-        public MeterTemperature thermometer;
-
-        public void init() {
-            PistonCylinder pc = new PistonCylinder(3);
-            if (pc.space.D() == 2) {
-                Default.BLOCK_SIZE = 10;
-                pc.ai.setDoSleep(true);
-                pc.ai.setSleepPeriod(1);
-                pc.integrator.setTimeStep(0.5);
-            }
-            else {
-                Default.BLOCK_SIZE=10;
-                pc.integrator.setTimeStep(20.0);
-            }
-            BaseUnit.Length.Sim.TO_PIXELS = 800/pc.phase.boundary().dimensions().x(1);
-
-            pc.integrator.setIsothermal(false);
-            pc.integrator.setThermostatInterval(1000);
-
-            pc.wallPotential.setLongWall(0,true,true);  // left wall
-            pc.wallPotential.setLongWall(0,false,true); // right wall
-            // skip top wall
-            pc.wallPotential.setLongWall(1,false,false);// bottom wall
-            pc.wallPotential.setPhase(pc.phase);  // so it has a boundary
-
-            SimulationGraphic sg = new SimulationGraphic(pc);
-            getContentPane().add(sg.panel());
-            Iterator displayIterator = sg.displayList().iterator();
-            while (displayIterator.hasNext()) {
-                Display display = (Display)displayIterator.next();
-                if (display instanceof DisplayPhase) {
-                    ((DisplayPhase)display).canvas.setDrawBoundary(DisplayCanvasInterface.DRAW_BOUNDARY_NONE);
-                    ((DisplayPhase)display).addDrawable(pc.pistonPotential);
-                    ((DisplayPhase)display).addDrawable(pc.wallPotential);
-                    break;
-                }
-            }
-            
-            meterCycles = new DataSourceCountSteps(pc.integrator);
-            displayCycles = new DisplayBox(meterCycles);
-            pc.integrator.addIntervalListener(displayCycles);
-            
-            sg.panel().add(displayCycles.graphic());
-            sg.panel().setBackground(java.awt.Color.yellow);
-
-            thermometer = new MeterTemperature();
-            thermometer.setPhase(new Phase[]{pc.phase});
-            DisplayBox tBox = new DisplayBox();
-            pc.integrator.addIntervalListener(tBox);
-            tBox.setDataSource(thermometer);
-            tBox.setUnit(new PrefixedUnit(Kelvin.UNIT));
-            sg.panel().add(tBox.graphic());
-            
-            DeviceThermoSelector thermoSelector = new DeviceThermoSelector(pc.getController(),pc.integrator);
-            sg.panel().add(thermoSelector.graphic());
-            
-            
-            DisplayTimer timer = new DisplayTimer(pc.integrator);
-            pc.integrator.addIntervalListener(timer);
-            timer.setUpdateInterval(10);
-            sg.panel().add(timer.graphic());
-
-            MeterPressureHard pMeter = new MeterPressureHard(pc.integrator);
-            pMeter.setPhase(new Phase[]{pc.phase});
-            AccumulatorAverage pAcc = new AccumulatorAverage();
-            DataManager pMan = new DataManager(pMeter,new DataSink[]{pAcc});
-            pMan.setUpdateInterval(10);
-            pc.integrator.addIntervalListener(pMan);
-            DisplayBox pBox = new DisplayBox();
-            pBox.setDataSource(pAcc);
-            pBox.setLabel("Average Z");
-            pc.integrator.addIntervalListener(pBox);
-            sg.panel().add(pBox.graphic());
-            
-            MeterPistonDensity dMeter = new MeterPistonDensity(pc.pistonPotential,1,Default.ATOM_SIZE);
-            dMeter.setPhase(new Phase[]{pc.phase});
-            AccumulatorAverage dAcc = new AccumulatorAverage();
-            DataManager dMan = new DataManager(dMeter,new DataSink[]{dAcc});
-            dMan.setUpdateInterval(10);
-            pc.integrator.addIntervalListener(dMan);
-            DisplayBox dBox = new DisplayBox();
-            dBox.setDataSource(dAcc);
-            dBox.setLabel("Average Density");
-            pc.integrator.addIntervalListener(dBox);
-            sg.panel().add(dBox.graphic());
-            
-        }
-    }
     
     /**
      * Demonstrates how this class is implemented.
@@ -216,25 +112,25 @@ public class PistonCylinder extends Simulation {
         MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
         pMeter.setPhase(new Phase[]{sim.phase});
         AccumulatorAverage pAcc = new AccumulatorAverage();
-        DataManager pMan = new DataManager(pMeter,new DataSink[]{pAcc});
-        pMan.setUpdateInterval(10);
-        sim.integrator.addIntervalListener(pMan);
+        DataPump pump = new DataPump(pMeter,new DataSink[]{pAcc});
+        IntervalActionAdapter adapter = new IntervalActionAdapter(pump,sim.integrator);
+        adapter.setActionInterval(10);
         
         MeterPistonDensity dMeter = new MeterPistonDensity(sim.pistonPotential,1,Default.ATOM_SIZE);
         dMeter.setPhase(new Phase[]{sim.phase});
         AccumulatorAverage dAcc = new AccumulatorAverage();
-        DataManager dMan = new DataManager(dMeter,new DataSink[]{dAcc});
-        dMan.setUpdateInterval(10);
-        sim.integrator.addIntervalListener(dMan);
+        pump = new DataPump(dMeter,new DataSink[]{dAcc});
+        adapter = new IntervalActionAdapter(pump,sim.integrator);
+        adapter.setActionInterval(10);
         
         System.out.println("density (mol/L) = "+dMeter.getDataAsScalar(sim.phase)*10000/6.0221367);
       
         sim.getController().actionPerformed();
         
-        System.out.println("density average "+dAcc.getData(AccumulatorAverage.AVERAGE)[0]*10000/6.0221367+" +/- "
-                +dAcc.getData(AccumulatorAverage.ERROR)[0]*10000/6.0221367);
-        System.out.println("Z="+pAcc.getData(AccumulatorAverage.AVERAGE)[0]+" +/- "
-                +pAcc.getData(AccumulatorAverage.ERROR)[0]);
+        System.out.println("density average "+dAcc.getData()[AccumulatorAverage.AVERAGE.index]*10000/6.0221367+" +/- "
+                +dAcc.getData()[AccumulatorAverage.ERROR.index]*10000/6.0221367);
+        System.out.println("Z="+pAcc.getData()[AccumulatorAverage.AVERAGE.index]+" +/- "
+                +pAcc.getData()[AccumulatorAverage.ERROR.index]);
 
    }
        
