@@ -130,7 +130,7 @@ public class VirialPT extends SimulationGraphic {
  
 			DisplayPhase display = new DisplayPhase();
 			display.setPhase(phase[i]);
-			display.setLabel("Config "+Double.toString(integrator[i].temperature()));
+			display.setLabel("Config "+Double.toString(integrator[i].getTemperature()));
             
 			if(i>0) {
 				meterAccept[i-1] = new DataSourceAcceptanceRatio(this, integratorPT.swapMoves()[i-1]);

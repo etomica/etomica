@@ -57,7 +57,7 @@ public class MeterTensorVirialHard extends MeterTensor implements IntegratorHard
               virialSum[i][j] = 0.0;
             }
         }
-        virialTensor.TE(-1./(integratorHard.temperature()*elapsedTime*(double)(D*phase.atomCount())));
+        virialTensor.TE(-1./(integratorHard.getTemperature()*elapsedTime*(double)(D*phase.atomCount())));
         //add 1.0 to diagonal elements
         //not included because meter returns only virial contribution to pressure
 //        for (int i = 0; i < collisionVirial.length(); i++) {

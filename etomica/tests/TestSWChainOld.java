@@ -103,12 +103,12 @@ public class TestSWChainOld extends Simulation {
         
         sim.getController().actionPerformed();
         
-        double Z = pMeter.getDataAsScalar(sim.phase)*sim.phase.volume()/(sim.phase.moleculeCount()*sim.integrator.temperature());
+        double Z = pMeter.getDataAsScalar(sim.phase)*sim.phase.volume()/(sim.phase.moleculeCount()*sim.integrator.getTemperature());
         double[] data = energyAccumulator.getData();
         double PE = data[1]/numMolecules;
         System.out.println("Z="+Z);
         System.out.println("PE/epsilon="+PE);
-        double t2 = sim.integrator.temperature();
+        double t2 = sim.integrator.getTemperature();
         t2 *= t2;
         double Cv = data[3]/t2/numMolecules;
         System.out.println("Cv/k="+Cv);

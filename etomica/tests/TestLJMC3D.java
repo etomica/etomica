@@ -88,12 +88,12 @@ public class TestLJMC3D extends Simulation {
         sim.getController().actionPerformed();
         
         double[][] pData = (double[][])pAccumulator.getTranslator().fromArray(pAccumulator.getData()); 
-        double Z = pData[AccumulatorAverage.AVERAGE.index][0]*sim.phase.volume()/(sim.phase.moleculeCount()*sim.integrator.temperature());
+        double Z = pData[AccumulatorAverage.AVERAGE.index][0]*sim.phase.volume()/(sim.phase.moleculeCount()*sim.integrator.getTemperature());
         double[] data = energyAccumulator.getData();
         double PE = data[AccumulatorAverage.AVERAGE.index]/numAtoms;
         System.out.println("Z="+Z);
         System.out.println("PE/epsilon="+PE);
-        double temp = sim.integrator.temperature();
+        double temp = sim.integrator.getTemperature();
         double Cv = data[AccumulatorAverage.STANDARD_DEVIATION.index]/temp;
         Cv *= Cv/numAtoms;
         System.out.println("Cv/k="+Cv);

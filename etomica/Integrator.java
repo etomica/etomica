@@ -22,15 +22,6 @@ import etomica.utility.NameMaker;
  * @author David Kofke
  */
 
-/*
- * History
- * 
- * 07/10/03 (DAK) made Agent interface public 08/25/03 (DAK) changed default for
- * doSleep to <false> 01/27/04 (DAK) initialized iieCount to inverval (instead
- * of interval+1) in run method; changed setInterval do disallow non-positive
- * interval 04/13/04 (DAK) modified reset such that doReset is called if running
- * is false
- */
 public abstract class Integrator implements java.io.Serializable {
 
     protected final PotentialMaster potential;
@@ -99,8 +90,9 @@ public abstract class Integrator implements java.io.Serializable {
      */
     public void reset() {
         meterPE.setPhase(phase);
-        currentPotentialEnergy = meterPE.getData();
+        double[] cpe = meterPE.getData();
         for (int i=0; i<phase.length; i++) {
+            currentPotentialEnergy[i] = cpe[i];
             if (currentPotentialEnergy[i] == Double.POSITIVE_INFINITY) {
                 if (Default.FIX_OVERLAP) {
                     System.out.println("overlap in "+phase[i]);
@@ -166,16 +158,7 @@ public abstract class Integrator implements java.io.Serializable {
     /**
      * @return the integrator's temperature
      */
-    //XXX redundant with temperature(). one of these needs to go
     public final double getTemperature() {
-        return temperature;
-    }
-
-    /**
-     * @return the integrator's temperature
-     */
-    //XXX redundant with getTemperature(). one of these needs to go
-    public final double temperature() {
         return temperature;
     }
 
@@ -227,8 +210,6 @@ public abstract class Integrator implements java.io.Serializable {
 
 	/**
 	 * Performs activities needed to set up integrator to work on given phase.
-	 * This method should not be called directly; instead it is invoked by the
-	 * phase in its setIntegrator method.
 	 * 
 	 * @return true if the phase was successfully added to the integrator; false
 	 *         otherwise
@@ -247,7 +228,11 @@ public abstract class Integrator implements java.io.Serializable {
         if (Debug.ON && p.getIndex() == Debug.PHASE_INDEX) {
             Debug.setAtoms(p);
         }
-		return true;
+        double[] cpe = new double[phase.length];
+        System.arraycopy(currentPotentialEnergy, 0, cpe, 0, currentPotentialEnergy.length);
+        currentPotentialEnergy = cpe;
+        //leave subsequent reset() call the task of updating the last cpe value
+        return true;
 	}
 
     /**

@@ -47,8 +47,8 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
 			iterator2.setList(phase2.speciesMaster.atomList);
 		}
 
-		beta1 = 1.0/integrator1.temperature();
-		beta2 = 1.0/integrator2.temperature();
+		beta1 = 1.0/integrator1.getTemperature();
+		beta2 = 1.0/integrator2.getTemperature();
 		
 		buOld1 = beta1*potential.calculate(phase1, iteratorDirective, energy.reset()).sum();
 		buOld2 = beta2*potential.calculate(phase2, iteratorDirective, energy.reset()).sum();

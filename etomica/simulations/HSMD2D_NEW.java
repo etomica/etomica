@@ -232,7 +232,7 @@ public class HSMD2D_NEW extends SimulationGraphic  {
 		 * @see etomica.data.meter.MeterScalar#getData()
 		 */
 		public double getDataAsScalar(Phase p) {
-			double w = -(action.ke1 - action.ke0)/HSMD2D_NEW.this.integrator.temperature();
+			double w = -(action.ke1 - action.ke0)/HSMD2D_NEW.this.integrator.getTemperature();
 			if(!doExp) System.out.println(w);
 			return doExp ? ((w>1000)?1e-10:Math.exp(-w)) : w;
 		}

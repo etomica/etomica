@@ -88,7 +88,7 @@ public class TestSWMC3D extends Simulation {
         double[] data = energyAccumulator.getData();
         double PE = data[AccumulatorAverage.AVERAGE.index]/numAtoms;
         System.out.println("PE/epsilon="+PE);
-        double temp = sim.integrator.temperature();
+        double temp = sim.integrator.getTemperature();
         double Cv = data[AccumulatorAverage.STANDARD_DEVIATION.index]/(temp*temp*numAtoms);
         System.out.println("Cv/k="+Cv);
         
