@@ -75,7 +75,7 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
         
         public NeighborIterator(Phase p) {
             super(p);
-            xCells = yCells = 4;
+            xCells = yCells = 5;
             cells = new LatticeSquare(LatticeSquare.Cell.class, new int[] {xCells,yCells});
         }
         
@@ -192,11 +192,11 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
                hasNext = true;
                if(neighborCoordinate == null) {advanceCell();}  //sets hasNext to false if can't find neighbor
             }
-            // Finds first neighbor of next occupied cell
+            // Finds first neighbor of next occupied cell      *** CHANGES NEEDED SOMEWHERE IN HERE ***
             private void advanceCell() {
                 firstCell = false;
                 while(neighborCoordinate == null) {
-                    if(nextLinker == null) {hasNext = false; return;} //no more neighbor cells; no upNeighbors for atom
+                    if(nextLinker == null) {hasNext = false; return;} //no more neighbor cells; no downNeighbors for atom
                     neighborCell = (LatticeSquare.Site)nextLinker.site();  //don't need to cast all the way to cell
                     neighborCoordinate = (Coordinate)neighborCell.first;   //get first atom of another neighbor cell; this is null if cell is empty
                     nextLinker = nextLinker.next();
@@ -265,7 +265,8 @@ public class Space2DCell extends Space2D implements Space.NeighborIterator {
             public AtomIteratorDown(LatticeSquare.Site o) {hasNext = false; origin = o;}
             public boolean hasNext() {return hasNext;}
             public void allDone() {hasNext = false;}
-            public void reset() {reset(firstAtom);}
+            public void reset() {System.out.println("Error:  should not be calling reset() in Space2DCell.NeighborIterator.AtomIteratorDown"); 
+                                    reset(firstAtom);}
             public void reset(Atom a) {
                 firstAtom = a;
                 if(a == null) {allDone(); return;}

@@ -53,6 +53,7 @@ public class AtomPair {
          * Iterator for all atom pairs in a phase
          * Default is to do inter and intra pairs; this may be overridden using reset method to do
          * only intermolecular pairs
+         * Uses atom iterator and atomPair iterator given by the phase.iterator class.
          */
          public static class All implements Iterator {
             private final Iterator.A apiUp;

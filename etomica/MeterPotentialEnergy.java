@@ -42,7 +42,8 @@ public class MeterPotentialEnergy extends simulate.Meter
         iteratorAll.reset();
         while(iteratorAll.hasNext()) {
             AtomPair pair = iteratorAll.next();
-            pe += pair.potential.energy(pair);
+            Potential pot = phase.parentSimulation.getPotential(pair);  //inserted pot for debugging
+            pe += pot.energy(pair);
         }
         return pe;
 
