@@ -12,7 +12,7 @@ public class SpeciesDisks extends Species {
 //  it is declared final
 //  Note that the parameters of the type can be changed; only the instance of it is frozen once the atoms are made
 //    (this is the same behavior as declaring it final)
-    public AtomType.Disk protoType;  //not declared bin
+    public AtomType.Disk protoType;
               
     /**
     * Default constructor.  Creates species containing 20 molecules, each with 1 disk atom.

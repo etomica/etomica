@@ -23,7 +23,7 @@ public abstract class Configuration extends Component{
     }
     
     public void add(Species s){
-        if(s.atomGenerator instanceof AtomWall) {return;}
+        if(s.firstAtom().type instanceof AtomType.Wall) {return;}
         species.addElement(s);
         initializeCoordinates();
     }
@@ -39,39 +39,28 @@ public abstract class Configuration extends Component{
   * the current value of temperature), with the direction at random
   */
     public void initializeMomenta() {
-//        double[] momentumSum = new double[Space.D];
+        PhaseSpace.Vector momentumSum = parentPhaseSpace.makeVector();
         int sum = 0;
         for(int j=0; j<species.size(); j++) {
             Species s = (Species)species.elementAt(j);
-//            double momentum = Math.sqrt(((AtomC)s.firstAtom()).mass*temperature/Constants.KE2T*(double)Space.D);  //need to divide by sqrt(m) to get velocity
-            for(Atom a=s.firstAtom(); a!=s.terminationAtom(); a=a.getNextAtom()) {
-                a.randomizeMomentum(temperature);
-/*	            a.p[1] = Math.cos(2*Math.PI*rand.nextDouble());
-    	        a.p[0] = Math.sqrt(1.0 - a.p[1]*a.p[1]);
+            for(Atom a=s.firstAtom(); a!=s.terminationAtom(); a=a.nextAtom()) {
+                a.coordinate.randomizeMomentum(temperature);
                 sum++;
-	            double momentumNorm = Math.sqrt(Space.v1S(a.p));
-	            Space.uTEa1(a.p, momentum/momentumNorm);
-	            Space.uPEv1(momentumSum,a.p);*/
+                momentumSum.PE(a.coordinate.momentum());
 	        }
 	    }
     //    Zero center-of-mass momentum
-        Space.uDEa1(momentumSum,(double)sum);
+        momentumSum.DE((double)sum);
         for(int j=0; j<species.size(); j++) {
             Species s = (Species)species.elementAt(j);
-            for(AtomC a=(AtomC)s.firstAtom(); a!=s.terminationAtom(); a=(AtomC)a.getNextAtom()) {
-                Space.uMEv1(a.p, momentumSum);
+            for(Atom a=s.firstAtom(); a!=s.terminationAtom(); a=a.nextAtom()) {
+                a.coordinate.momentum().ME(momentumSum);
             }
         }
     }
     
     public void initializeMomentum(Molecule m) {
-        double momentum = Math.sqrt(m.getMass()*temperature/Constants.KE2T*(double)Space.D);
-        for(AtomC a=(AtomC)m.firstAtom(); a!=m.terminationAtom(); a=(AtomC)a.getNextAtom()) {
-	        a.p[1] = Math.cos(2*Math.PI*rand.nextDouble());
-            a.p[0] = Math.sqrt(1.0 - a.p[1]*a.p[1]);
-	        double momentumNorm = Math.sqrt(Space.v1S(a.p));
-	        Space.uTEa1(a.p, momentum/momentumNorm);
-	    }
+        m.coordinate.randomizeMomentum(temperature);
 	}
         
     
@@ -90,7 +79,7 @@ public abstract class Configuration extends Component{
      *   whether successive points fill the lattice across or down.
      */
     public static double[][] squareLattice(int n, double Lx, double Ly, boolean fillVertical) {
-        double[][] r = new double[n][Space.D];
+        double[][] r = new double[n][Simulation.D];
 
         int moleculeColumns, moleculeRows;
         double moleculeInitialSpacingX, moleculeInitialSpacingY;

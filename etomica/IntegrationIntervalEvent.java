@@ -3,18 +3,18 @@ import java.util.*;
 
 public class IntegrationIntervalEvent extends EventObject{
     
-    public Phase phase;
+    public PhaseSpace phaseSpace;
     public double time;
     public Integrator integrator;
     
-    public IntegrationIntervalEvent(Integrator integrator, Phase phase) {
-        this(integrator,phase,0.0);
+    public IntegrationIntervalEvent(Integrator integrator, PhaseSpace phaseSpace) {
+        this(integrator,phaseSpace,0.0);
     }
     
-    public IntegrationIntervalEvent(Integrator integrator, Phase phase, double time) {
+    public IntegrationIntervalEvent(Integrator integrator, PhaseSpace phaseSpace, double time) {
         super(integrator);
         this.integrator = integrator;
-        this.phase = phase;
+        this.phaseSpace = phaseSpace;
         this.time = time;
     }
     

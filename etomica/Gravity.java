@@ -22,7 +22,7 @@ public class Gravity extends java.util.Observable      {
     public Gravity(double g) {
         this.g = g;
         gVector = new double[Simulation.D];
-        Space.uEa1(gVector,0.0);
+        for(int i=0; i<Simulation.D; i++) {gVector[i] = 0.0;}
         gVector[Simulation.D-1] = g;
     }
     

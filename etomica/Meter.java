@@ -72,8 +72,8 @@ public abstract class Meter extends Component implements IntegrationIntervalList
     
     public void initialize() {;}
     
-    public final Meter getNextMeter() {return nextMeter;}
-    public final Meter getPreviousMeter() {return previousMeter;}
+    public final Meter nextMeter() {return nextMeter;}
+    public final Meter previousMeter() {return previousMeter;}
     
     public void integrationIntervalAction(IntegrationIntervalEvent evt) {updateStatistics(phaseSpace);}
 

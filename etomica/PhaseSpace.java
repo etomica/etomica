@@ -19,6 +19,7 @@ public abstract class PhaseSpace extends Container {
     
     public abstract PhaseSpace.AtomCoordinate makeAtomCoordinate(Atom a);      //PhaseSpace prefix is redundant
     public abstract PhaseSpace.MoleculeCoordinate makeMoleculeCoordinate(Molecule m);
+    public abstract PhaseSpace.Vector makeVector();
     public abstract simulate.AtomPair makeAtomPair(Atom a1, Atom a2);
     public abstract AtomPair.Iterator.A makePairIteratorFull(Atom iF, Atom iL, Atom oF, Atom oL);
     public abstract AtomPair.Iterator.A makePairIteratorHalf(Atom iL, Atom oF, Atom oL);
@@ -29,13 +30,16 @@ public abstract class PhaseSpace extends Container {
 
 //  Vector contains what is needed to describe a point in the space
     interface Vector {
-//        public void E(Vector u);
+        public void E(Vector u);
         public void E(double a);
-//        public void PE(Vector u);
+        public void PE(Vector u);
+        public void ME(Vector u);
+        public void TE(Vector u);
+        public void DE(Vector u);
         public void TE(double a);
         public void DE(double a);
-        public double norm();
-//        public double dot(Vector u);
+        public double squared();
+        public double dot(Vector u);
     }
 
 //  Coordinate collects all vectors needed to describe point in phase space -- position and (maybe) momentum
@@ -47,6 +51,10 @@ public abstract class PhaseSpace extends Container {
         public void translateBy(Vector dr);
         public void displaceTo(Vector r);
         public void displaceBy(Vector dr);
+        public void displaceWithin(double d);
+        public void displaceToRandom();
+        public void translateToRandom();
+        public void randomizeMomentum(double temperature);
         public void replace();
         public void inflate(double s);
         public void accelerate(Vector dv);
@@ -69,7 +77,6 @@ public abstract class PhaseSpace extends Container {
         public Molecule molecule();
         public MoleculeCoordinate nextCoordinate();
         public MoleculeCoordinate previousCoordinate();
-        public void update();
     }
         
  /**
@@ -203,7 +210,7 @@ public abstract class PhaseSpace extends Container {
 	public Meter getMeter(int i) {
 	    if(i >= meterCount) {return null;}
 	    Meter m = firstMeter;
-        for(int j=i; --j>=0; ) {m = m.getNextMeter();}  //get ith meter in list
+        for(int j=i; --j>=0; ) {m = m.nextMeter();}  //get ith meter in list
         return m;
     }
 
@@ -233,7 +240,7 @@ public abstract class PhaseSpace extends Container {
     * @see #shift0
     * @see Phase#paint
     */
-//    public Vector[][] getOverflowShifts(double[] r, double distance) {return shift0;}  //called only if periodic
+    public double[][] getOverflowShifts(AtomCoordinate c, double distance) {return shift0;}  //called only if periodic
     
     public abstract void paint(Graphics g, int[] origin, double scale); 
     
@@ -320,4 +327,9 @@ public abstract class PhaseSpace extends Container {
     */
     public double volume;
       
+ /**
+  * @see SpacePeriodicCubic#getOverflowShifts
+  */
+    protected final double[][] shift0 = new double[0][D()];
+   
 }

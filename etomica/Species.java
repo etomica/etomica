@@ -215,7 +215,6 @@ public abstract class Species extends Container {
     m.parentSpecies = this;
     parentPhaseSpace.moleculeCount++;
     parentPhaseSpace.atomCount += m.nAtoms;
-    initializeMolecules();
     colorScheme.initializeMoleculeColor(m);
   }
   
@@ -227,7 +226,7 @@ public abstract class Species extends Container {
   public Molecule addMolecule() {
     Molecule m = makeMolecule();
     configurationMolecule.initializeCoordinates(m);   //initialize internal coordinates
-    m.setCOM(parentPhaseSpace.randomPosition());       //place at random position
+    m.coordinate.translateToRandom();       //place at random position
     parentPhaseSpace.configuration.initializeMomentum(m);  //initialize momentum
     addMolecule(m);
     return m;
@@ -330,13 +329,15 @@ public abstract class Species extends Container {
         g.fillOval(xP,yP,diameterP,diameterP);
         */
     }
-    if(DisplayConfiguration.DRAW_OVERFLOW && (atomGenerator instanceof AtomDisk)) {
+    if(DisplayConfiguration.DRAW_OVERFLOW) {
         for(Atom a=firstAtom(); a!=nextSpeciesAtom; a=a.nextAtom()) {
-            double[][] shifts = parentPhaseSpace.getOverflowShifts(a.r,((AtomDisk)a).getRadius());  //should instead of radius have a size for all AtomC types
-            for(int i=0; i<shifts.length; i++) {
-               shiftOrigin[0] = origin[0] + (int)(toPixels*shifts[i][0]);
-               shiftOrigin[1] = origin[1] + (int)(toPixels*shifts[i][1]);
-               a.draw(g,shiftOrigin,scale);
+            if(a.type instanceof AtomType.Disk) {
+                double[][] shifts = parentPhaseSpace.getOverflowShifts(a.coordinate,((AtomType.Disk)a.type).radius());  //should instead of radius have a size for all AtomC types
+                for(int i=0; i<shifts.length; i++) {
+                shiftOrigin[0] = origin[0] + (int)(toPixels*shifts[i][0]);
+                shiftOrigin[1] = origin[1] + (int)(toPixels*shifts[i][1]);
+                a.draw(g,shiftOrigin,scale);
+                }
             }
         }
     } 

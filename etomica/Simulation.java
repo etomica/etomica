@@ -10,8 +10,8 @@ public class Simulation extends Container {
   public static int D;  //dimension (2-D, 3-D, etc;)
 
   public Controller controller;
-  Phase firstPhase;
-  Phase lastPhase;
+  PhaseSpace firstPhase;
+  PhaseSpace lastPhase;
   Display firstDisplay;
   Display lastDisplay;
   
@@ -46,13 +46,13 @@ public class Simulation extends Container {
         controller.integrator.addIntegrationIntervalListener(d);
     }
     if(d.displayTool != null) {super.add(d.displayTool);}
-    for(Phase p=firstPhase; p!=null; p=p.getNextPhase()) {
+    for(PhaseSpace p=firstPhase; p!=null; p=p.nextPhaseSpace()) {
         d.setPhaseSpace(p);
     }
     d.repaint();
   }
   
-  public void add(Phase p) {
+  public void add(PhaseSpace p) {
     super.add(p);
     p.parentSimulation = this;
     if(lastPhase != null) {lastPhase.setNextPhase(p);}
@@ -68,8 +68,8 @@ public class Simulation extends Container {
     }
   }
   
-  public Phase firstPhase() {return firstPhase;}
-  public Phase lastPhase() {return lastPhase;}
+  public PhaseSpace firstPhase() {return firstPhase;}
+  public PhaseSpace lastPhase() {return lastPhase;}
   
   public boolean haveIntegrator() {
     return (controller != null && controller.integrator != null);

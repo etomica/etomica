@@ -29,7 +29,7 @@ public class Atom {
         useTypeColor();
     }
                 
-    public void setIntegratorAgent(IntegratorAgent ia) {this.ia = ia;}
+    public void setIntegratorAgent(Integrator.Agent ia) {this.ia = ia;}
     
     public final Molecule getMolecule() {return parentMolecule;}
     
@@ -60,9 +60,12 @@ public class Atom {
   public final Atom nextMoleculeFirstAtom() {return parentMolecule.lastAtom.nextAtom();}  //first atom on next molecule
   public final Atom previousMoleculeLastAtom() {return parentMolecule.firstAtom.previousAtom();}  //first atom on next molecule
 
+  public final double mass() {return type.mass();}
+  public final double rm() {return type.rm();}
+
   public void draw(Graphics g, int[] origin, double scale) {type.draw(g, origin, scale, color, coordinate);}
 
-    public IntegratorAgent ia;
+    public Integrator.Agent ia;
     
     /**
      * Color of the atom when drawn on the screen

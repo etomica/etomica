@@ -22,10 +22,10 @@ public class ConfigurationSequential extends Configuration {
     public boolean getFillVertical() {return fill;}
     
     public void initializeCoordinates() {
-        if(parentPhase == null) {return;}
+        if(parentPhaseSpace == null) {return;}
         
-        double Lx = parentPhase.getBounds().width/Phase.TO_PIXELS;
-        double Ly = parentPhase.getBounds().height/Phase.TO_PIXELS;
+        double Lx = parentPhaseSpace.getBounds().width/DisplayConfiguration.SIM2PIXELS;
+        double Ly = parentPhaseSpace.getBounds().height/DisplayConfiguration.SIM2PIXELS;
 
         int sumOfMolecules = 0;
         for(int j=0; j<species.size(); j++) {   
@@ -38,7 +38,7 @@ public class ConfigurationSequential extends Configuration {
         int i = 0;
         for(int j=0; j<species.size(); j++) {
             Species s = (Species)species.elementAt(j);
-            for(Molecule m=s.firstMolecule(); m!=s.terminationMolecule(); m=m.getNextMolecule()) {
+            for(Molecule m=s.firstMolecule(); m!=s.terminationMolecule(); m=m.nextMolecule()) {
                 m.setCOM(rLat[i]);
                 i++;
             }

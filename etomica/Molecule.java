@@ -212,17 +212,11 @@ public class Molecule implements Serializable {
    * @return center-of-mass coordinate vector of this molecule, in Angstroms
    */
    public final PhaseSpace.Vector COM() {
-     coordinate.update();
      return coordinate.position();
    }
-/*    if(nAtoms == 1) {return firstAtom.r;}
-    Space.uEa1(r,0.0);
-    Atom nextMoleculeAtom = lastAtom.getNextAtom();
-    for(Atom a=firstAtom; a!=nextMoleculeAtom; a=a.getNextAtom()) {
-        Space.uPEa1Tv1(r,a.getCOMFraction(),a.r);
-    }
-    return r;
-  }
+   public final void SetCOM(PhaseSpace.Vector u) {
+     coordinate.translateTo(u);
+   }
     
  /* public final void accelerate(int i, double dp) {
     Atom nextMoleculeAtom = lastAtom.getNextAtom();

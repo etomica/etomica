@@ -1,8 +1,10 @@
 package simulate;
 import java.awt.Graphics;
 import java.awt.Color;
+import java.util.Random;
 
 public class PhaseSpace2D extends PhaseSpace {
+    
     
 //    public PhaseSpace2D() {}
     
@@ -11,6 +13,7 @@ public class PhaseSpace2D extends PhaseSpace {
     public PhaseSpace.AtomCoordinate makeAtomCoordinate(Atom a) {return new AtomCoordinate(a);}
     public PhaseSpace.MoleculeCoordinate makeMoleculeCoordinate(Molecule m) {return new MoleculeCoordinate(m);}
     public simulate.AtomPair makeAtomPair(Atom a1, Atom a2) {return new AtomPair(a1, a2);}
+    public PhaseSpace.Vector makeVector() {return new Vector();}
     
     public final simulate.AtomPair.Iterator.A makePairIteratorFull(Atom iF, Atom iL, Atom oF, Atom oL) {return new PairIteratorFull(iF,iL,oF,oL);}
     public final simulate.AtomPair.Iterator.A makePairIteratorHalf(Atom iL, Atom oF, Atom oL) {return new PairIteratorHalf(iL,oF,oL);}
@@ -20,16 +23,30 @@ public class PhaseSpace2D extends PhaseSpace {
     public final double volume() {return Double.MAX_VALUE;}  //infinite volume unless using PBC
  
     public static final class Vector implements PhaseSpace.Vector {  //declared final for efficient method calls
+        public final static Random random = new Random();
         double x, y;
         public Vector () {x = 0.0; y = 0.0;}
         public Vector (double a1, double a2) {x = a1; y = a2;}
+        public void E(PhaseSpace.Vector u) {E((Vector)u);}
+        public void PE(PhaseSpace.Vector u) {PE((Vector)u);}
+        public void ME(PhaseSpace.Vector u) {ME((Vector)u);}
+        public void TE(PhaseSpace.Vector u) {TE((Vector)u);}
+        public void DE(PhaseSpace.Vector u) {DE((Vector)u);}
+        public double dot(PhaseSpace.Vector u) {return dot((Vector)u);}
         public void E(Vector u) {x = u.x; y = u.y;}
         public void E(double a) {x = a; y = a;}
+        public void Ea1Tv1(double a1, Vector u1) {x = a1*u1.x; y = a1*u1.y;}
+        public void PEa1Tv1(double a1, Vector u1) {x += a1*u1.x; y += a1*u1.y;}
         public void PE(Vector u) {x += u.x; y += u.y;}
+        public void ME(Vector u) {x -= u.x; y -= u.y;}
         public void TE(double a) {x *= a; y *= a;}
         public void DE(double a) {x /= a; y /= a;}
-        public double norm() {return x*x + y*y;}
+        public double squared() {return x*x + y*y;}
         public double dot(Vector u) {return x*u.x + y*u.y;}
+        public void randomStep(double d) {x += (2.*random.nextDouble()-1.0)*d; y+= (2.*random.nextDouble()-1.0)*d;} //uniformly distributed random step in x and y, within +/- d
+        public void setRandom(double d) {x = random.nextDouble()*d; y = random.nextDouble()*d;}
+        public void setRandom(double dx, double dy) {x = random.nextDouble()*dx; y = random.nextDouble()*dy;}
+        public void randomDirection() {x = Math.cos(2*Math.PI*random.nextDouble()); y = Math.sqrt(1.0 - x*x);}
     }
     
     public static final class VectorInt {  //declared final for efficient method calls
@@ -41,7 +58,7 @@ public class PhaseSpace2D extends PhaseSpace {
         public void PE(VectorInt u) {x += u.x; y += u.y;}
         public void TE(int a) {x *= a; y *= a;}
         public void DE(int a) {x /= a; y /= a;}
-        public int norm() {return (x*x + y*y);}
+        public int squared() {return (x*x + y*y);}
         public int dot(VectorInt u) {return x*u.x + y*u.y;}
     }
     
@@ -63,15 +80,23 @@ public class PhaseSpace2D extends PhaseSpace {
         public void translateBy(PhaseSpace.Vector u) {r.PE((Vector)u);}
         public void displaceTo(PhaseSpace.Vector u) {rLast.E(r); r.E((Vector)u);}  //want to eliminate these casts
         public void displaceBy(PhaseSpace.Vector u) {rLast.E(r); r.PE((Vector)u);}
+        public void displaceWithin(double d) {rLast.E(r); r.randomStep(d);}
+        public void displaceToRandom() {rLast.E(r); r.setRandom(dimensions.x, dimensions.y);} 
         public void accelerate(PhaseSpace.Vector u) {p.PE((Vector)u);}
         public void translateTo(Vector u) {r.E(u);}      //if using PBC, apply here
         public void translateBy(Vector u) {r.PE(u);}
+        public void translateToRandom() {r.setRandom(dimensions.x, dimensions.y);}
         public void displaceTo(Vector u) {rLast.E(r); r.E(u);}  
         public void displaceBy(Vector u) {rLast.E(r); r.PE(u);}
         public void accelerate(Vector u) {p.PE(u);}
         public void replace() {r.E(rLast);}
         public void inflate(double s) {r.TE(s);}
-        public double kineticEnergy() {return 0.5*p.norm()*atom.type.rm();}
+        public double kineticEnergy() {return 0.5*p.squared()*atom.type.rm();}
+        public void randomizeMomentum(double temperature) {  //not very sophisticated; random only in direction, not magnitude
+            double momentum = Math.sqrt(atom.mass()*temperature*(double)D()/Constants.KE2T);  //need to divide by sqrt(m) to get velocity
+            p.randomDirection();
+            p.TE(momentum);
+        }
         public PhaseSpace.Vector position() {return r;}
         public PhaseSpace.Vector momentum() {return p;}
         public PhaseSpace.Vector velocity() {temp.E(p); temp.TE(atom.type.rm()); return temp;}  //returned vector is not thread-safe
@@ -102,26 +127,85 @@ public class PhaseSpace2D extends PhaseSpace {
 
         protected final Vector rLast = new Vector();
         protected final Vector temp = new Vector();
-        public void translateTo(PhaseSpace.Vector uu) {
+        public void updateR() {  //recomputes COM position from atom positions
+            AtomCoordinate c = (AtomCoordinate)molecule.firstAtom.coordinate;
+            if(molecule.nAtoms==1) {r.E(c.r);}  //one atom in molecule
+            else {  //multiatomic
+                r.Ea1Tv1(c.atom.mass(),c.r);
+                do {c=c.nextCoordinate; r.PEa1Tv1(c.atom.mass(),c.r);} while (c.atom!=molecule.lastAtom);
+                r.DE(molecule.mass());
+            }
+        }
+        public void updateP() {  //recomputes total momentum from atom momenta
+            AtomCoordinate c = (AtomCoordinate)molecule.firstAtom.coordinate;
+            p.E(c.p);
+            if(molecule.nAtoms==1) {return;}  //one atom in molecule
+            do {c=c.nextCoordinate; p.PE(c.p);} while (c.atom!=molecule.lastAtom);
+        }
+        public void translateBy(PhaseSpace.Vector uu) {
             AtomCoordinate c = (AtomCoordinate)molecule.firstAtom.coordinate;
             Vector u = (Vector)uu;
-            c.translateTo(u);
+            c.translateBy(u);
             if(molecule.nAtoms == 1) {return;}
-            do {c=c.nextCoordinate; c.translateTo(u);} while (c.atom!=molecule.lastAtom);
+            do {c=c.nextCoordinate; c.translateBy(u);} while (c.atom!=molecule.lastAtom);
+        }
+        public void translateTo(PhaseSpace.Vector u) {
+            updateR();  //update COM vector
+            temp.E((Vector)u);  //temp = destination vector
+            temp.ME(r);   //temp = destination - original = dr
+            translateBy(temp);
+        }
+        public void displaceBy(PhaseSpace.Vector u) {displaceBy((Vector)u);}
+        public void displaceBy(Vector u) {
+            AtomCoordinate c = (AtomCoordinate)molecule.firstAtom.coordinate;
+            c.displaceBy(u);
+            if(molecule.nAtoms == 1) {return;}
+            do {c=c.nextCoordinate; c.displaceBy(u);} while (c.atom!=molecule.lastAtom);
+        }
+        public void displaceTo(PhaseSpace.Vector u) {displaceTo((Vector)u);}
+        public void displaceTo(Vector u) {
+            updateR();  //update COM vector
+            temp.E(u);  //temp = destination vector
+            temp.ME(r);   //temp = destination - original = dr
+            displaceBy(temp);
+        }
+        public void displaceWithin(double d) {
+            temp.setRandom(d);
+            displaceBy(temp);
+        }
+            
+        public void displaceToRandom() {
+            temp.setRandom(dimensions.x, dimensions.y);
+            displaceTo(temp);
+        }
+        public void translateToRandom() {
+            temp.setRandom(dimensions.x, dimensions.y);
+            translateTo(temp);
+        }
+        public void replace() {
+            AtomCoordinate c = (AtomCoordinate)molecule.firstAtom.coordinate;
+            c.replace();
+            if(molecule.nAtoms == 1) {return;}
+            do {c=c.nextCoordinate; c.replace();} while (c.atom!=molecule.lastAtom);
+        }
+        public void inflate(double s) {
+            updateR();
+            temp.Ea1Tv1(s-1.0,r);
+            displaceBy(temp);   //displaceBy doesn't use temp
+        }
+        public PhaseSpace.Vector position() {updateR(); return r;}
+        public PhaseSpace.Vector momentum() {updateP(); return p;}
+        public double kineticEnergy() {return 0.5*p.squared()*molecule.rm();}
+        public void randomizeMomentum(double temperature) {
+            AtomCoordinate c = (AtomCoordinate)molecule.firstAtom.coordinate;
+            c.randomizeMomentum(temperature);
+            if(molecule.nAtoms == 1) {return;}
+            do {c=c.nextCoordinate; c.randomizeMomentum(temperature);} while (c.atom!=molecule.lastAtom);
         }
         //the rest of these methods are just copied from AtomCoordinate, and need to be translated for MoleculeCoordinate
-        public void translateBy(PhaseSpace.Vector u) {r.PE((Vector)u);}
-        public void displaceTo(PhaseSpace.Vector u) {rLast.E(r); r.E((Vector)u);}  //want to eliminate these casts
-        public void displaceBy(PhaseSpace.Vector u) {rLast.E(r); r.PE((Vector)u);}
-        public void replace() {r.E(rLast);}
-        public void inflate(double s) {r.TE(s);}
         public void accelerate(PhaseSpace.Vector u) {p.PE((Vector)u);}
-        public double kineticEnergy() {return 0.5*p.norm()*molecule.rm();}
-        public PhaseSpace.Vector position() {return r;}
-        public PhaseSpace.Vector momentum() {return p;}
         public PhaseSpace.Vector velocity() {temp.E(p); temp.TE(molecule.rm()); return temp;}  //returned vector is not thread-safe
-        public void update() {}
-        
+        //
         public PhaseSpace.MoleculeCoordinate nextCoordinate() {return nextCoordinate();}
         public PhaseSpace.MoleculeCoordinate previousCoordinate() {return previousCoordinate();}
         public final void setNextCoordinate(PhaseSpace.Coordinate c) {

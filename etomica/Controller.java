@@ -23,8 +23,8 @@ public class Controller extends Container implements Runnable {
 //    super.add(i);
     this.integrator = i;
 
-    for(Phase p=parentSimulation.firstPhase(); p!=null; p=p.getNextPhase()) {
-        i.registerPhase(p);
+    for(PhaseSpace p=parentSimulation.firstPhase(); p!=null; p=p.nextPhaseSpace()) {
+        i.registerPhaseSpace(p);
         p.gravity.addObserver(i);
         p.integrator = i;
     }

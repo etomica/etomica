@@ -81,7 +81,7 @@ public interface AtomPair {
                 mPairs.reset(m);
                 lastM = s.lastMolecule;
                 mLast = (m==null);  //m null if only 1 atom/molecule, or no molecules in species;
-            }
+            } 
         }
         
         /**
@@ -201,8 +201,7 @@ public interface AtomPair {
                 }
                 nextPair = currentIterator.next();
                 hasNext = true;
-            }
-        }
-
-    }
-}
+            } //end of reset(s1,s2)
+        }  //end of class AMAM
+    }  //end of interface Iterator
+}  //end of interface AtomPair
