@@ -44,6 +44,7 @@ public class NeighborManager implements IntervalListener {
 		neighborReset = new NeighborReset();
         setPriority(200);
         pbcEnforcer = new PhaseImposePbc();
+        pbcEnforcer.setApplyToMolecules(true);
 	}
 
 	/* (non-Javadoc)
