@@ -49,6 +49,10 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
                 AtomPair pair = iterator.next();
                 if(pair.atom1() != atom1) setAtom(pair.atom1()); //need this if doing minimum collision time calculation for more than one atom
                 double collisionTime = potentialHard.collisionTime(pair);
+      /*debug          System.out.println("      UP "+pair.atom1.debugIndex+","
+                                        +pair.atom2.debugIndex+","
+                                        +(float)collisionTime+","
+                                        +(float)minCollisionTime);*/
                 if(collisionTime < minCollisionTime) {
                     minCollisionTime = collisionTime;
                     aia.setCollision(collisionTime, pair.atom2(), potentialHard);
@@ -80,6 +84,10 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
             while(iterator.hasNext()) {
                 AtomPair pair = iterator.next();
                 double collisionTime = potentialHard.collisionTime(pair);
+     /*debug           System.out.println("      DN "+pair.atom1.debugIndex+","
+                                        +pair.atom2.debugIndex+","
+                                        +(float)collisionTime+","
+                                        +(float)((IntegratorHardAbstract.Agent)pair.atom2().ia).collisionTime());*/
                 if(collisionTime < Double.MAX_VALUE) {
                     IntegratorHardAbstract.Agent aia = (IntegratorHardAbstract.Agent)pair.atom2().ia;
                     if(collisionTime < aia.collisionTime()) {
@@ -151,8 +159,9 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
             IntegratorHardAbstract.Agent aAgent = (IntegratorHardAbstract.Agent)a.ia;
             Atom aPartner = aAgent.collisionPartner();
             if(aPartner == partner || aPartner == collider) {
-                if(aPartner != null) aAgent.resetCollision();
-                phasePotential.calculate(upList.set(a), collisionHandlerUp.setAtom(a));
+                if(aPartner != null) { aAgent.resetCollision();
+                phasePotential.calculate(upList.set(a), collisionHandlerUp.setAtom(a));}
+                //if partner == null could do just collision update for collider with atom a
             }
         }//end while
             //reset collision partners of atoms that are now up from this atom but still list it as their
@@ -226,8 +235,8 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
      */
     public static void main(String[] args) {
 	    IntegratorHard integratorHard1 = new IntegratorHard();
-//	    integratorHard1.setTimeStep(0.01);
-	    SpeciesDisks speciesDisks1 = new SpeciesDisks(3);
+//	    integratorHard1.setTimeStep(0.02);
+	    SpeciesDisks speciesDisks1 = new SpeciesDisks(30);
 	    final Phase phase = new Phase();
 	    P2HardSphere potential = new P2HardSphere();
 	    Controller controller1 = new Controller();
@@ -262,10 +271,27 @@ public class IntegratorHard extends IntegratorHardAbstract implements EtomicaEle
                     g.setColor(java.awt.Color.gray);
 	                g.drawString(text, xP, yP-20);
 	                g.setColor(java.awt.Color.red);
-	                g.drawString(Integer.toString(i++), xP-20, yP-20);
+	                g.drawString(Integer.toString(a.debugIndex), xP-20, yP-20);
 	            }
 	        }
 	    });
+	    /*
+	    //writes collision data to console
+	    integratorHard1.addCollisionListener(new CollisionListener() {
+	        public void collisionAction(IntegratorHardAbstract.Agent agent) {
+	            int i0 = agent.atom.debugIndex;
+	            int i1 = (agent.collisionPartner!=null)?agent.collisionPartner.debugIndex:-1;
+	  //          System.out.print(i0+" "+i1+" ");
+	            for(Atom a=phase.firstAtom(); a!=null; a=a.nextAtom()) {
+	                IntegratorHardAbstract.Agent aAgent = (IntegratorHardAbstract.Agent)a.ia;
+	                if(aAgent == null) return;
+	                String time = Float.toString((float)aAgent.collisionTime);
+	                int idx = (aAgent.collisionPartner!=null)?aAgent.collisionPartner.debugIndex:-1;
+                    System.out.print("("+a.debugIndex+","+idx+","+time+") ");
+                }
+                System.out.println();
+	        }
+	    });*/
         Simulation.makeAndDisplayFrame(Simulation.instance);
     }//end of main
 

@@ -16,17 +16,17 @@ public class P2Primitive extends Potential2 implements EtomicaElement {
     private double cutoffRadius, cutoffRadiusSquared;
     private double cutoff;
     private double eLRC, pLRC;  //multipliers for long-range correction to energy and pressure, resp.
+    private Space.Vector force;
 
     public P2Primitive() {
-        this(Simulation.instance, Default.ATOM_SIZE, Default.POTENTIAL_CUTOFF_FACTOR);
+        this(Simulation.instance, Default.ATOM_SIZE);
     }
-    public P2Primitive(double sigma, double cutoff) {
-        this(Simulation.instance, sigma, cutoff);
+    public P2Primitive(double sigma) {
+        this(Simulation.instance, sigma);
     }
-    public P2Primitive(Simulation sim, double sigma, double cutoff) {
+    public P2Primitive(Simulation sim, double sigma) {
         super(sim);
         setSigma(sigma);
-        setCutoff(cutoff);
         force = sim.space().makeVector();
     }
  
@@ -35,6 +35,7 @@ public class P2Primitive extends Potential2 implements EtomicaElement {
     * Return infinity if overlap is true, and zero if separation is greater than cutoff.
     */
     public double energy(AtomPair pair) {
+        double r2 = pair.r2();
         if(r2 < sigmaSquared) {return Double.MAX_VALUE;}
         else {
             double z1 = ((Monopole)pair.atom1.type.electroType()).getZ();
@@ -71,24 +72,8 @@ public class P2Primitive extends Potential2 implements EtomicaElement {
     public final void setSigma(double s) {
         sigma = s;
         sigmaSquared = s*s;
-        setCutoff(cutoff);
     }
     public etomica.units.Dimension getSigmaDimension() {return etomica.units.Dimension.LENGTH;}
 
-    /**
-     * Accessor method for cutoff distance; divided by sigma
-     * @return cutoff distance, divided by size parameter (sigma)
-     */
-    public double getCutoff() {return cutoff;}
-    /**
-     * Accessor method for cutoff distance; divided by sigma
-     * @param rc cutoff distance, divided by size parameter (sigma)
-     */
-    public final void setCutoff(double rc) {  //argument is the cutoff radius divided by sigma
-        cutoff = rc;
-        cutoffRadius = sigma*cutoff;
-        cutoffRadiusSquared = cutoffRadius*cutoffRadius;
-        calculateLRC();
-    }    
 }
   

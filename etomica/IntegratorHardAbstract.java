@@ -35,8 +35,6 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
                 
     public IntegratorHardAbstract(Simulation sim) {
         super(sim);
-        c3 = sim.space().makeVector();
-        c3.E(3.0);
         
     }//end of constructor
 
@@ -219,20 +217,23 @@ public abstract class IntegratorHardAbstract extends IntegratorMD {
         }
         
         //time to "collision" to update colliders for periodic boundaries
-        private Space.Vector c3;
         protected double periodCollisionTime() {
             Space.Boundary boundary = atom.parentPhase().boundary();
             if(boundary instanceof Space.Boundary.Periodic) {
                 if(!(atom.type instanceof AtomType.Disk)) {return Double.MAX_VALUE;}
                 Space.Vector p = atom.coordinate().momentum();
                 Space.Vector dim = boundary.dimensions();
-                double diameter = ((AtomType.Disk)atom.type).diameter();
-                return 0.5*atom.mass()*dim.D(p).abs().min(); //0.5*m*min of (dim.x/p.x, dim.y/p.y, etc.)
-          //      System.out.println(xx);
-          //     return xx;
-          //      return 0.5*atom.mass()*dim.D(p).abs().min(); //0.5*m*min of (dim.x/p.x, dim.y/p.y, etc.)
+                double tmin = Double.MAX_VALUE;
+                double d = ((AtomType.Disk)atom.type).diameter();
+                int D = dim.D();
+                for(int i=0; i<D; i++) {
+                    double t = (dim.component(i)-d)/p.component(i);
+                    t = (t < 0) ? -t : t;//abs
+                    tmin = (t < tmin) ? t : tmin;
+                }
+                return 0.25*atom.mass()*tmin; //0.5*m*min of (dim.x/p.x, dim.y/p.y, etc.)
+          //      return 0.25*atom.mass()*dim.D(p).abs().min(); //0.5*m*min of (dim.x/p.x, dim.y/p.y, etc.)
                 //assumes range of potential is .le. diameter, simulation box is square (or x is smaller dimension)
-            //    return 0.5*(dimensions.y-1.0001*diameter)/(a.rm()*Math.sqrt(p.squared()));
             }
             else return Double.MAX_VALUE;
         }
