@@ -20,8 +20,8 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
     private MCMove firstMove, lastMove;
     private int frequencyTotal;
     private int moveCount;
-    private SimulationEventManager eventManager;
-    private final MCMoveEvent event = new MCMoveEvent(this);
+    protected SimulationEventManager eventManager;
+    protected final MCMoveEvent event = new MCMoveEvent(this);
     
     public IntegratorMC() {
         this(Simulation.instance);
@@ -93,6 +93,16 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
         return true;
     }
     
+    protected MCMove selectMove() {
+        if(firstMove == null) return null;
+        int i = (int)(Simulation.random.nextDouble()*frequencyTotal);
+        MCMove move = firstMove;
+        while((i-=move.fullFrequency()) >= 0) {
+            move = move.nextMove();
+        }
+        return move;
+    }
+    
     /**
      * Method to select and perform an elementary Monte Carlo move.  
      * The type of move performed is chosen from all MCMoves that have been added to the
@@ -103,14 +113,11 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
      */
     public void doStep() {
         //select the move
-        if(firstMove == null) return;
-        int i = (int)(Simulation.random.nextDouble()*frequencyTotal);
-        MCMove move = firstMove;
-        while((i-=move.fullFrequency()) >= 0) {
-            move = move.nextMove();
-        }
+        MCMove move = selectMove();
+        if(move == null) return;
         
         //perform the trial
+        //returns false if the trial cannot be attempted; for example an atom-displacement trial in a phase with no molecules
         if(!move.doTrial()) return;
         
         //notify any listeners that move has been attempted

@@ -4,6 +4,10 @@ package etomica;
  * Implementation of AtomTreeNode for non-leaf node.
  */
 
+ /* History of changes
+  * 8/21/02 (DAK) sketched out flatten method, but not implemented yet.
+  */
+  
 public class AtomTreeNodeGroup extends AtomTreeNode {
     
     public AtomTreeNodeGroup(Atom atom, AtomTreeNodeGroup parent) {
@@ -98,6 +102,40 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
             return null;
         }
         else return lastChildAtom();
+    }
+    
+    /**
+     * Rearranges the hierarchy of atoms below this node, resulting
+     * in a situation where all children of this node are leaf atoms.
+     */
+     //need to find way to update childrenAreGroups to give false 
+     //after this method is invokes
+     
+     //commented because this is just a detailed sketch of the method; not tested at all
+    /*
+    public void flatten() {
+        AtomIteratorListSimple iterator = new AtomIteratorListSimple();
+        AtomList tempChildList = new AtomList(childList);//copy because we're modifying the child list
+        childList.clear();
+        childIterator.setBasis(tempChildList);
+        childIterator.reset();
+        while(childIterator.hasNext()) {
+            Atom child = childIterator.next();
+            if(child.node instanceof AtomTreeGroupNode) {
+                AtomTreeNodeGroup childNode = (AtomTreeNodeGroup)child.node;
+                childNode.flatten();
+                iterator.setBasis(childNode.childList);
+                iterator.reset();
+                while(iterator.hasNext()) {
+                    childList.add(iterator.next().seq);
+                }
+            } else {
+                childList.add(child.seq)
+            }
+        }
+    }//end of flatten
+    
+                
     }
     
     public int leafAtomCount() {return leafAtomCount;}

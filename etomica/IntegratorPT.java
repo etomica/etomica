@@ -113,7 +113,7 @@ public class IntegratorPT extends IntegratorMC implements EtomicaElement {
     /**
      * Sets the average interval between phase-swap trials.  With each 
      * call to doStep of this integrator, there will be a probability of
-     * 1/nSwap that a swap trial will be attempted.  An swap is attempted
+     * 1/nSwap that a swap trial will be attempted.  A swap is attempted
      * for only one pair of phases.  Default is 100.
      */
     public void setSwapInterval(int nSwap) {
@@ -153,7 +153,7 @@ public interface MCMoveSwapFactory {
     public MCMove makeMCMoveSwap(IntegratorMC integratorMC, Integrator integrator1, Integrator integrator2);
 }//end of MCMoveSwapFactory
 
-    // --------------- inner interfact ------------
+    // --------------- inner interface ------------
     
     /**
      * Interface for a move that swaps two phases.  Enables access to
@@ -280,7 +280,8 @@ public static class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap
 
 /**
  * Meter that tracks the swapping of the phases in parallel-tempering
- * simulation.
+ * simulation.  Designed for input to a DisplayPlot to provide a graphical
+ * record of how the phases swap configurations.
  */
     public class MeterPhaseTracker extends MeterFunction implements MCMoveListener {
         
