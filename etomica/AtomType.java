@@ -349,19 +349,8 @@ public class AtomType implements java.io.Serializable {
             }
             public etomica.units.Dimension getDimension() {return etomica.units.Dimension.PRESSURE;}
 
-            public void intervalAction(Integrator.IntervalEvent evt) {
-                IntegratorMD integrator = (IntegratorMD)evt.getSource();
-                if(evt.type() != Integrator.IntervalEvent.INTERVAL) return; //don't act on start, done, initialize events
-                timeSum += integrator.timeStep * integrator.interval;
-	            if(--iieCount == 0) {
-	                iieCount = updateInterval;
-	                updateSums();
-	                timeSum = 0.0;
-	                pAccumulator = 0.0;
-	            }
-            }
-
-            public double getData() {
+            // Phase argument is not used
+            public double getDataAsScalar(Phase p) {
                 double flux = pAccumulator/timeSum;   //divide by time interval
                 flux /= length; //divide by area
                 return flux;
