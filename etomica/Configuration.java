@@ -24,7 +24,7 @@ import etomica.space1d.Space1D;
   */
 public abstract class Configuration implements java.io.Serializable {
 
-    protected boolean zeroTotalMomentum = true;
+    protected boolean zeroTotalMomentum = false;
     protected double[] dimensions;
     protected AtomGroupAction atomActionRandomizeVelocity;
     protected AtomActionAccelerateTo atomActionAccelerateTo;

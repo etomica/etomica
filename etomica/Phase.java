@@ -283,7 +283,6 @@ public class Phase {
     public void setConfiguration(Configuration c) {
         configuration = c;
         if (c != null) {
-            c.setZeroTotalMomentum(true);
             c.initializeCoordinates(this);
         }
     }
