@@ -19,6 +19,7 @@ public class Space3D extends Space {
     public double sphereVolume(double r) {return (Math.PI*4.0*r*r*r/3.0);}
     public double sphereArea(double r)  {return (Math.PI*4*r*r);}
     public Space.Vector makeVector() {return new Vector();}
+    public Space.Orientation makeOrientation() {System.out.println("Orientation class not yet developed in 3D"); return null;}
     public Space.Tensor makeTensor() {return new Tensor();}
     public Space.Coordinate makeCoordinate(Space.Occupant o) {return new Coordinate(o);}
     public Space.CoordinatePair makeCoordinatePair(Phase p) {return new CoordinatePair(p);}
@@ -276,7 +277,7 @@ public class Space3D extends Space {
     }
     
     
-    //needs to be developed; this is only a duplicate of Space2D.Orientation
+    //***NOTE**** this class needs to be developed; this is only a duplicate of Space2D.Orientation
     public static class Orientation extends Space.Orientation {
         //The rotation matrix A operates on the components of a vector in the space-fixed frame to yield the
         //components in the body-fixed frame
@@ -284,10 +285,13 @@ public class Space3D extends Space {
         private final Vector[] bodyFrame = new Vector[3];//= new Vector[] {new Vector(1.0,0.0), new Vector(0.0,1.0)};
         private final double[] angle = new double[1];
         private boolean needToUpdateA = true;
+        public void E(Space.Orientation o) {E((Orientation)o);}
+        public void E(Orientation o) {angle[0] = o.angle[0]; needToUpdateA = true;}
         public Space.Vector[] bodyFrame() {return bodyFrame;}
         public double[] angle() {return angle;}
         public void rotateBy(int i, double dt) {angle[0] += dt; needToUpdateA = true;}
         public void rotateBy(double[] dt) {angle[0] += dt[0]; needToUpdateA = true;}
+        public void randomRotation(double t) {System.out.println("Space3D.Orientation.randomRotation not yet implemented");}
         private final void updateRotationMatrix() {
             A[0][0] = A[1][1] = Math.cos(angle[0]);
             A[0][1] = Math.sin(angle[0]);

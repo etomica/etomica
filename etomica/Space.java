@@ -8,6 +8,7 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
     public abstract int D();
     
     public abstract Vector makeVector();      //Space.Vector
+    public abstract Orientation makeOrientation();
     public abstract Tensor makeTensor();
     public abstract Coordinate makeCoordinate(Occupant o);
     public abstract CoordinatePair makeCoordinatePair(Phase p);
@@ -93,6 +94,7 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
         public abstract void setRandom(double d);             //
         public abstract void setRandomSphere();               //random point in unit sphere
         public abstract void setRandomCube();                 //random point in a unit cube
+        public abstract void randomStep(double d);            //random step of selected uniformly in cube of edge 2d (adds up to +/- d to present value)
         public final void PEa1Tv1(double[] a, Vector[] u) {   //adds several terms of form a*u to this vector
             for(int i=a.length-1; i>=0; i--) {PEa1Tv1(a[i],u[i]);}
         }
@@ -141,10 +143,12 @@ public abstract class Space implements Space.Boundary.Maker, java.io.Serializabl
     }
     
     public static abstract class Orientation {
+        public abstract void E(Orientation o); //copies the given orientation to this
         public abstract Vector[] bodyFrame();//body-frame axes in the space-fixed frame
         public abstract double[] angle();//set of angles describing the orientation
         public abstract void rotateBy(double[] t); //rotate all angles by amounts in t array
         public abstract void rotateBy(int i, double dt); //rotate angle i by given amount
+        public abstract void randomRotation(double t); //rotate by random amount in solid angle theta on present position
         public abstract void convertToBodyFrame(Vector v); //changes the components of v from space frame to body frame
         public abstract void convertToSpaceFrame(Vector v);//changes the components of v from body frame to space frame
     }

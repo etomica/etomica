@@ -11,7 +11,7 @@ public final class MCMoveVolumeExchange extends MCMove {
     private PhaseAction.Inflate inflate2;
     private final double ROOT;
 
-    public MCMoveVolumeExchange(Integrator parent) {
+    public MCMoveVolumeExchange(IntegratorMC parent) {
         super();
         parentIntegrator = parent;
         ROOT = 1.0/(double)parentIntegrator.parentSimulation().space().D();
@@ -29,6 +29,7 @@ public final class MCMoveVolumeExchange extends MCMove {
     public void setPhase(Phase[] p) {
         firstPhase = p[0];
         secondPhase = p[1];
+        if(firstPhase == null && secondPhase == null) return;
         inflate1 = new PhaseAction.Inflate(firstPhase);
         inflate2 = new PhaseAction.Inflate(secondPhase);
     }

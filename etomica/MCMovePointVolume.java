@@ -89,13 +89,16 @@ public class MCMovePointVolume extends MCMove {
         
         SquareLattice squareLattice;
         SiteIterator.List iterator = new SiteIterator.List();
+        MySite[][] sites;
+        int size;
         /**
          * Size is the number of sites in each dimension; considered non-periodically
          */
         MyLattice(int size) {
+            this.size = size;
             squareLattice = new SquareLattice(size, new MySiteFactory(), 1.0/(double)(size-1));
+            sites = new MySite[size][size];
             int[] index = new int[2];
-            MySite[][] sites = new MySite[size][size];
             for(index[0]=0; index[0]<size; index[0]++) { //make array of sites for convenience of access
                 for(index[1]=0; index[1]<size; index[1]++) {
                     sites[index[0]][index[1]] = (MySite)squareLattice.site(index);
@@ -116,9 +119,14 @@ public class MCMovePointVolume extends MCMove {
             //find and return cell containing r in deformed lattice
             return null;
         }
-        public MyCell getOriginalCell(Space.Vector r) {
+        public MyCell getOriginalCell(Space2D.Vector r) {
             //find and return cell containing r in undeformed lattice
-            return null;
+            int ix = (int)r.x * size;
+            int iy = (int)r.y * size;
+            MySite site = sites[ix][iy];
+            double dx = r.x - site.originalPosition.x;
+            double dy = r.x - site.originalPosition.y;
+            return (dy > dx) ? site.c1 : site.c2;
         }
         
         private void deform(MySite site) {
@@ -135,10 +143,10 @@ public class MCMovePointVolume extends MCMove {
     
     private class MySite extends Site {
         MyCell c1, c2;
-        Space.Vector originalPosition, deformedPosition;
+        Space2D.Vector originalPosition, deformedPosition;
         MySite(AbstractLattice parent, SiteIterator.Neighbor iterator, AbstractLattice.Coordinate coord) {
             super(parent, iterator, coord);
-            originalPosition = ((BravaisLattice.Coordinate)coordinate()).position();
+            originalPosition = (Space2D.Vector)((BravaisLattice.Coordinate)coordinate()).position();
             deformedPosition = new Space2D.Vector();
             deformedPosition.E(originalPosition);
         }
@@ -151,11 +159,33 @@ public class MCMovePointVolume extends MCMove {
        }
     }
     private class MyCell {
-        public MySite[] vertex = new MySite[3];
+        public MySite origin;
+        public double jacobian;
+        public double a11, a12, a21, a22;
         MyCell(MySite s0, MySite s1, MySite s2) {
-            vertex[0] = s0;
-            vertex[1] = s1;
-            vertex[2] = s2;
+            origin = s0;
+            double xbn = s1.deformedPosition.x - s0.deformedPosition.x;
+            double xan = s2.deformedPosition.x - s0.deformedPosition.x;
+            double ybn = s1.deformedPosition.y - s0.deformedPosition.y;
+            double yan = s2.deformedPosition.y - s0.deformedPosition.y;
+            double xb = s1.originalPosition.x - s0.originalPosition.x;
+            double xa = s2.originalPosition.x - s0.originalPosition.x;
+            double yb = s1.originalPosition.y - s0.originalPosition.y;
+            double ya = s2.originalPosition.y - s0.originalPosition.y;
+            double denominator = ya*xb - yb*xa;
+            a11 = (xbn*ya - xan*yb)/denominator;
+            a12 = (xan*xb - xa*xbn)/denominator;
+            a21 = (ya*ybn - yan*yb)/denominator;
+            a22 = (yan*xb - xa*ybn)/denominator;
+        }
+        
+        public void transform(Space2D.Vector r, double scale) {
+            double dx = r.x - origin.originalPosition.x;
+            double dy = r.y - origin.originalPosition.y;
+            double dxn = a11*dx + a12*dy;
+            double dyn = a21*dx + a22*dy;
+            r.x += scale*(origin.deformedPosition.x + dxn - r.x);
+            r.y += scale*(origin.deformedPosition.y + dyn - r.y);
         }
     }
 }

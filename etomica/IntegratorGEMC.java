@@ -35,13 +35,22 @@ public class IntegratorGEMC extends IntegratorMC {
     }
   
   public boolean addPhase(Phase p) {
-    if(!super.addPhase(p)) {return false;}
-    if(phaseCount > phaseCountMax) {return false;}
-    if(phaseCount == 2) secondPhase = phase[1];
-    volumeExchange.setPhase(phase);
-    moleculeExchange.setPhase(phase);
-    atomDisplace1.setPhase(phase[0]);
-    atomDisplace2.setPhase(phase[1]);
+    for(int i=0; i<phaseCount; i++) {if(phase[i]==p) return false;}  //check that phase is not already registered
+    if(!this.wantsPhase()) {return false;}  //if another phase not wanted, return false
+    phase[phaseCount] = p;
+    phaseCount++;
+    if(phaseCount == 1) {
+        firstPhase = phase[0];
+        atomDisplace1.setPhase(phase[0]);
+    }
+    if(phaseCount == 2) {
+        secondPhase = phase[1];
+        volumeExchange.setPhase(phase);
+        moleculeExchange.setPhase(phase);
+        makeIterators(p.iteratorFactory());
+	    p.iteratorFactoryMonitor.addObserver(iteratorFactoryObserver());
+        atomDisplace2.setPhase(phase[1]);
+    }
     return true;
   }
   

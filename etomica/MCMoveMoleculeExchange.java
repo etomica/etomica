@@ -15,7 +15,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
     private Phase secondPhase;
     private final double ROOT;
 
-    public MCMoveMoleculeExchange(Integrator parent) {
+    public MCMoveMoleculeExchange(IntegratorMC parent) {
         super();
         parentIntegrator = parent;
         ROOT = 1.0/(double)parentIntegrator.parentSimulation().space().D();

@@ -285,31 +285,51 @@ public class Mediator implements java.io.Serializable {
         public abstract void add(Phase i);
         
         public static class Default extends Mediator.DisplayPhase {
-            private boolean firstPhase = true;
+            private Phase lastPhaseAdded = null;
             public Default(Mediator m) {super(m);}
             /**
-             * Sets display's phase to be the first Phase, if it exists
+             * Sets display's phase to be the last phase added, if it exists.
+             * If a display is a DisplayPhase, assigns it to first phase lacking one.
              */
             public void add(Display display) {
-                for(java.util.Iterator ip=mediator.parentSimulation().phaseList.iterator(); ip.hasNext(); ) {
-                    Phase phase = (Phase)ip.next();
-                    if(phase.wasAdded()) {
-                        display.setPhase(phase);
-                        break;
-                    }
-                }
+                if(!vetoConnection(display,lastPhaseAdded)) display.setPhase(lastPhaseAdded);
+                else if(display instanceof etomica.DisplayPhase) {
+                    for(java.util.Iterator ip=mediator.parentSimulation().phaseList.iterator(); ip.hasNext(); ) {
+                        Phase phase = (Phase)ip.next();
+                        if(!vetoConnection(display, phase)) {
+                            display.setPhase(phase);
+                            break;
+                        }//end if
+                    }//end of for
+                }//end of else if
             }
             /**
-             * Sets the given phase, if it is the first added, as the phase of all displays.
+             * Sets the given phase, if it is the first added, as the phase of all displays added so far.
+             * Also positions it to be the phase for any subsequently added displays (until another Phase is added).
              */
             public void add(Phase phase) {
-                if(!firstPhase) return;
-                firstPhase = false;
-                for(java.util.Iterator ip=mediator.parentSimulation().displayList.iterator(); ip.hasNext(); ) {
-                    Display display = (Display)ip.next();
-                    if(display.wasAdded()) display.setPhase(phase);
+                if(lastPhaseAdded == null) { //none of the displays yet have a phase; make this one it for all
+                    for(java.util.Iterator ip=mediator.parentSimulation().displayList.iterator(); ip.hasNext(); ) {
+                        Display display = (Display)ip.next();
+                        if(display.wasAdded() && !vetoConnection(display, phase)) display.setPhase(phase);
+                    }
                 }
+                lastPhaseAdded = phase;
             }
+            //returns true if the given phase is already assigned to an etomica.DisplayPhase, false otherwise
+            private boolean vetoConnection(Display display, Phase phase) {
+                if(display == null || phase == null) return true;
+                //no problem if display is not an etomica.DisplayPhase
+                if(!(display instanceof etomica.DisplayPhase)) return false;
+                //otherwise make sure phase doesn't already have a DisplayPhase
+                for(java.util.Iterator ip=mediator.parentSimulation().displayList.iterator(); ip.hasNext(); ) {
+                    Display d = (Display)ip.next();
+                    if(d instanceof etomica.DisplayPhase && d.getPhase() == phase) return true;
+                }
+                //allow connection
+                return false;
+            }
+                
         }//end of Default
     }//end of DisplayPhase
     public abstract static class MeterPhase extends Subset {
@@ -327,30 +347,25 @@ public class Mediator implements java.io.Serializable {
         public abstract void add(Phase p);
         
         public static class Default extends MeterPhase {
-            private boolean firstPhase = true;
+            private Phase lastPhaseAdded = null;
             public Default(Mediator m) {super(m);}
             /**
-             * Sets meter's phase to be the first Phase, if it exists
+             * Sets meter's phase to be the last phase added, if it exists, and if 
+             * no phase has been previously set for this meter.
              */
             public void add(MeterAbstract meter) {
-                for(java.util.Iterator ip=mediator.parentSimulation().phaseList.iterator(); ip.hasNext(); ) {
-                    Phase phase = (Phase)ip.next();
-                    if(phase.wasAdded()) {
-                        meter.setPhase(phase);
-                        break;
-                    }
-                }
+                if(lastPhaseAdded != null && meter.getPhase() == null) meter.setPhase(lastPhaseAdded);
             }
             /**
-             * Sets the given phase, if it is the first added, as the phase of all meters.
+             * Sets the given phase as the phase of all previously added meters, and positions
+             * it to be the phase of all subsequently added meters, until another phase is added.
              */
             public void add(Phase phase) {
-                if(!firstPhase) return;
-                firstPhase = false;
                 for(java.util.Iterator ip=mediator.parentSimulation().meterList.iterator(); ip.hasNext(); ) {
                     MeterAbstract meter = (MeterAbstract)ip.next();
-                    if(meter.wasAdded()) meter.setPhase(phase);
+                    if(meter.wasAdded() && meter.getPhase() == null) meter.setPhase(phase);
                 }
+                lastPhaseAdded = phase;
             }
         }//end of Default
     }//end of MeterPhase

@@ -12,6 +12,7 @@ public class Space2D extends Space {
     public double sphereVolume(double r) {return Math.PI*r*r;}  //volume of a sphere of radius r
     public double sphereArea(double r) {return 2.0*Math.PI*r;}  //surface area of sphere of radius r (used for differential shell volume)
     public Space.Vector makeVector() {return new Vector();}
+    public Space.Orientation makeOrientation() {return new Orientation();}
     public Space.Tensor makeTensor() {return new Tensor();}
     public Space.Coordinate makeCoordinate(Space.Occupant o) {//may want to revise this for o instanceof Molecule
         if(o instanceof Atom && ((Atom)o).type instanceof AtomType.Rotator) return new OrientedCoordinate(o);
@@ -259,26 +260,32 @@ public class Space2D extends Space {
     public static class Orientation extends Space.Orientation {
         //The rotation matrix A operates on the components of a vector in the space-fixed frame to yield the
         //components in the body-fixed frame
+        public static final Random random = new Random();
         private final double[][] A = new double[D][D];
         private final Vector[] bodyFrame = new Vector[] {new Vector(1.0,0.0), new Vector(0.0,1.0)};
         private final double[] angle = new double[1];
         private boolean needToUpdateA = true;
+        public void E(Space.Orientation o) {E((Orientation)o);}
+        public void E(Orientation o) {angle[0] = o.angle[0]; needToUpdateA = true;}
         public Space.Vector[] bodyFrame() {
             if(needToUpdateA) updateRotationMatrix();
             return bodyFrame;
         }
         public double[] angle() {return angle;}
-        public void rotateBy(int i, double dt) {
+        public final void rotateBy(int i, double dt) {
+            if(i == 0) rotateBy(dt);
+        }
+        public final void rotateBy(double[] dt) {
+            rotateBy(dt[0]);
+        }
+        public final void rotateBy(double dt) {
             angle[0] += dt; 
             if(angle[0] > Constants.TWO_PI) angle[0] -= Constants.TWO_PI;
             else if(angle[0] < 0.0) angle[0] += Constants.TWO_PI;
             needToUpdateA = true;
         }
-        public void rotateBy(double[] dt) {
-            angle[0] += dt[0]; 
-            if(angle[0] > Constants.TWO_PI) angle[0] -= Constants.TWO_PI;
-            else if(angle[0] < 0.0) angle[0] += Constants.TWO_PI;
-            needToUpdateA = true;
+        public final void randomRotation(double t) {
+            rotateBy((2.*random.nextDouble()-1.0)*t);
         }
         private final void updateRotationMatrix() {
             A[0][0] = A[1][1] = Math.cos(angle[0]);

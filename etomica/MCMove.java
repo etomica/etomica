@@ -8,7 +8,7 @@ public abstract class MCMove implements Cloneable, java.io.Serializable {
     double acceptanceRatio, acceptanceTarget, stepSize, stepSizeMax, stepSizeMin;
     int nTrials, nAccept, nTrialsSum, nAcceptSum, adjustInterval;
     boolean perParticleFrequency;
-    Integrator parentIntegrator;
+    IntegratorMC parentIntegrator;
     protected MCMove nextMove;
     protected boolean tunable = true;
     protected Phase phase;
@@ -29,10 +29,13 @@ public abstract class MCMove implements Cloneable, java.io.Serializable {
         if(nTrials > adjustInterval*frequency) {adjustStepSize();}
     }
     
+    public void setParentIntegrator(IntegratorMC parent) {parentIntegrator = parent;}
+    public IntegratorMC parentIntegrator() {return parentIntegrator;}
+    
     public abstract void thisTrial();
     
     public void setPhase(Phase[] p) {
-        phase = p[0];
+        setPhase(p[0]);
     }
     
     public void setPhase(Phase p) {

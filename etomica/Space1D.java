@@ -14,6 +14,7 @@ public class Space1D extends Space {
     public double sphereVolume(double r) {return 2.0*r;}  //volume of a sphere of radius r
     public double sphereArea(double r) {return 2.0;}      //surface area of sphere of radius r (used for differential shell volume)
     public Space.Vector makeVector() {return new Vector();}
+    public Space.Orientation makeOrientation() {System.out.println("Orientation class not implemented in 1D"); return null;}
     public Space.Tensor makeTensor() {return new Tensor();}
     public Space.Coordinate makeCoordinate(Space.Occupant o) {return new Coordinate(o);}
     public Space.CoordinatePair makeCoordinatePair(Phase p) {return new CoordinatePair(p);}

@@ -23,7 +23,7 @@ public class IntegratorMC extends Integrator {
         if(firstMove == null) {firstMove = move;}
         else {lastMove.setNextMove(move);}
         lastMove = move;
-        move.parentIntegrator = this;
+        move.setParentIntegrator(this);
         move.setPhase(phase);
     }
     
