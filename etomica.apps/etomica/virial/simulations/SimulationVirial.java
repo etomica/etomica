@@ -3,7 +3,6 @@ package etomica.virial.simulations;
 import etomica.Accumulator;
 import etomica.DataManager;
 import etomica.Default;
-import etomica.IntegratorCPUTimer;
 import etomica.MeterAbstract;
 import etomica.Phase;
 import etomica.Simulation;
@@ -13,10 +12,10 @@ import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomSequencerFactory;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorRatioAverage;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.potential.P2LennardJones;
 import etomica.space3d.Space3D;
-import etomica.virial.AccumulatorVirialAverage;
 import etomica.virial.Cluster;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterSum;
@@ -84,7 +83,7 @@ public class SimulationVirial extends Simulation {
         System.arraycopy(targetClusters,0,allValueClusters,1,targetClusters.length);
         setMeter(new MeterVirial(allValueClusters,integrator,temperature));
         meter.setLabel("Target/Refernce Ratio");
-        setAccumulator(new AccumulatorVirialAverage());
+        setAccumulator(new AccumulatorRatioAverage());
 	}
 	
 	public MeterAbstract meter;
@@ -166,17 +165,14 @@ public class SimulationVirial extends Simulation {
 		ClusterWeight sampleCluster = ClusterWeightAbs.makeWeightCluster(targetCluster); //refCluster.makeClone(fSample);
 		int steps = 10000000;
         Default.BLOCK_SIZE = steps/100;
-		IntegratorCPUTimer CPUTimer = new IntegratorCPUTimer();
 		
 		while (true) {
 			SimulationVirial sim = new SimulationVirial(new Space3D(),temperature,sampleCluster,refCluster,new ClusterAbstract[] {targetCluster});
-			sim.integrator.addIntervalListener(CPUTimer);
 			sim.ai.setMaxSteps(steps);
 			sim.getController().run();
-            AccumulatorAverage acc = (AccumulatorVirialAverage)sim.accumulator;
-            System.out.println("average: "+acc.getData(AccumulatorVirialAverage.AVERAGE_RATIO)[1]
-                              +" error: "+acc.getData(AccumulatorVirialAverage.RATIO_ERROR)[1]
-                              +" CPU time: "+CPUTimer.getTime());
+            AccumulatorAverage acc = (AccumulatorRatioAverage)sim.accumulator;
+            System.out.println("average: "+acc.getData(AccumulatorRatioAverage.RATIO)[1]
+                              +" error: "+acc.getData(AccumulatorRatioAverage.RATIO_ERROR)[1]);
             System.out.println("hard sphere   average: "+acc.getData(AccumulatorAverage.AVERAGE)[0]
                               +" stdev: "+acc.getData(AccumulatorAverage.STANDARD_DEVIATION)[0]);
             System.out.println("lennard jones average: "+acc.getData(AccumulatorAverage.AVERAGE)[1]
