@@ -26,7 +26,6 @@ public class IntegratorHard extends IntegratorMD {
     protected IntegratorHard.Agent colliderAgent;
     //first of a linked list of objects (typically meters) that are called each time a collision is processed
     protected CollisionListenerLinker collisionListenerHead = null;
-    //time elapsed since reaching last timestep increment
     private Atom[] atoms;
     Space.Vector c3;
     Space.CoordinatePair cPairDebug;
@@ -39,6 +38,8 @@ public class IntegratorHard extends IntegratorMD {
     protected final CollisionHandlerDown collisionHandlerDown = new CollisionHandlerDown();
     protected final AtomList listToUpdate = new AtomList();
     protected final AtomIteratorListSimple reverseIterator = new AtomIteratorListSimple();
+    
+    protected PotentialHard nullPotential;
 
     protected TreeList eventList;
 
@@ -46,7 +47,7 @@ public class IntegratorHard extends IntegratorMD {
     
     public IntegratorHard(PotentialMaster potentialMaster) {
         super(potentialMaster);
-        Agent.nullPotential = null; //(PotentialHard)Potential.NullPotential(sim);
+        nullPotential = null;
         atoms = new Atom[2];
         eventList = new TreeList();
     }
@@ -94,8 +95,9 @@ public class IntegratorHard extends IntegratorMD {
                 cPairDebug.setBoundary(firstPhase.boundary());
                 Debug.checkAtoms(cPairDebug);
                 if (Debug.LEVEL > 1) {
+                    PotentialHard p = ((Agent)Debug.ATOM1.ia).collisionPotential;
                     System.out.println(Debug.ATOM1+" collision time "+((Agent)Debug.ATOM1.ia).collisionTime+" with "+((Agent)Debug.ATOM1.ia).collisionPartner
-                            +" with potential "+((Agent)Debug.ATOM1.ia).collisionPotential.getClass());
+                            +" with potential "+(p!=null ? p.getClass() : null));
                 }
             }
             if (colliderAgent.collisionPotential != null) {
@@ -173,14 +175,14 @@ public class IntegratorHard extends IntegratorMD {
         potential.calculate(firstPhase, downList, collisionHandlerDown);
 
         Agent agent = (Agent)colliders[1].ia;
-        if (agent.collisionTime < Double.MAX_VALUE) {
+        if (agent.collisionPotential != null) {
             agent.eventLinker.remove();
         }
         agent.resetCollision();
         targetAtom[0] = colliders[1];
         upList.setTargetAtoms(targetAtom);
         potential.calculate(firstPhase, upList, collisionHandlerUp);
-        if (agent.collisionTime < Double.MAX_VALUE) {
+        if (agent.collisionPotential != null) {
             eventList.add(agent.eventLinker);
         }
         downList.setTargetAtoms(targetAtom);
@@ -204,7 +206,7 @@ public class IntegratorHard extends IntegratorMD {
         processReverseList();
 
         Agent agent = (Agent)a.ia;
-        if (agent.collisionTime < Double.MAX_VALUE) {
+        if (agent.collisionPotential != null) {
             agent.eventLinker.remove();
         }
         agent.resetCollision();
@@ -213,7 +215,7 @@ public class IntegratorHard extends IntegratorMD {
         downList.setTargetAtoms(targetAtom);
         collisionHandlerUp.setAtom(a);
         potential.calculate(firstPhase, upList, collisionHandlerUp);
-        if (agent.collisionTime < Double.MAX_VALUE) {
+        if (agent.collisionPotential != null) {
             eventList.add(agent.eventLinker);
         }
         potential.calculate(firstPhase, downList, collisionHandlerDown);
@@ -230,7 +232,7 @@ public class IntegratorHard extends IntegratorMD {
         while(reverseIterator.hasNext()) {
             Atom reverseAtom = reverseIterator.nextAtom();
             Agent agent = (Agent)reverseAtom.ia;
-            if (agent.collisionTime < Double.MAX_VALUE) {
+            if (agent.collisionPotential != null) {
                 agent.eventLinker.remove();
             }
             agent.resetCollision();
@@ -238,7 +240,7 @@ public class IntegratorHard extends IntegratorMD {
             upList.setTargetAtoms(targetAtom);
             collisionHandlerUp.setAtom(reverseAtom);
             potential.calculate(firstPhase, upList, collisionHandlerUp);
-            if (agent.collisionTime < Double.MAX_VALUE) {
+            if (agent.collisionPotential != null) {
                 eventList.add(agent.eventLinker);
             }
         }//end while
@@ -283,7 +285,7 @@ public class IntegratorHard extends IntegratorMD {
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Agent agent = (Agent)atomIterator.nextAtom().ia;
-            if (agent.collisionTime < Double.MAX_VALUE) {
+            if (agent.collisionPotential != null) {
                 eventList.add(agent.eventLinker);
             }
         }
@@ -346,6 +348,22 @@ public class IntegratorHard extends IntegratorMD {
             }
         }
     }//end of removeCollisionListener
+
+    /**
+     * @return Returns the nullPotential.
+     */
+    public PotentialHard getNullPotential() {
+        return nullPotential;
+    }
+    /**
+     * sets the "null" potential, a 1-body potential used
+     * by IntegratorHard to prevent Atoms from wrapping around
+     * periodic boundaries when neighbor listing is not used.
+     * @param nullPotential The nullPotential to set.
+     */
+    public void setNullPotential(PotentialHard nullPotential) {
+        this.nullPotential = nullPotential;
+    }
     
     //collision handler is passed to the potential and is notified of each collision
     //the potential detects.  The collision handler contains the necessary logic to
@@ -421,7 +439,7 @@ public class IntegratorHard extends IntegratorMD {
 						if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atomPair))) {
 							System.out.println("setting down time "+collisionTime+" for atom "+atomPair[1]+" with "+atomPair[0]);
 						}
-                        if (aia.collisionTime < Double.MAX_VALUE) {
+                        if (aia.collisionPotential != null) {
                             aia.eventLinker.remove();
                         }
                         aia.setCollision(collisionTime, atomPair[0], pHard);
@@ -495,12 +513,10 @@ public class IntegratorHard extends IntegratorMD {
   * is processed).
   */
   //Do not use encapsulation since the fields are for referencing by the integrator
-    public static class Agent {  //need public so to use with instanceof
-    	static PotentialHard nullPotential;
+    public class Agent {  //need public so to use with instanceof
         public Atom atom, collisionPartner;
         public double collisionTime = Double.MAX_VALUE; //time to next collision
         public PotentialHard collisionPotential;  //potential governing interaction between collisionPartner and atom containing this Agent
-        public boolean movedInList = false;
         public TreeLinker eventLinker;
         
         public Agent(Atom a) {
@@ -519,34 +535,18 @@ public class IntegratorHard extends IntegratorMD {
          * eventLinker from the tree if needed before calling this method.
          */
         public void resetCollision() {
-            // events with finite time must be in the tree
-            // events in the tree must have finite times
-            collisionTime = Double.MAX_VALUE; //periodCollisionTime();
+            // events with a (non-null) potential must be in the tree
+            // events in the tree must have a potential
             collisionPotential = nullPotential;
+            if (nullPotential != null) {
+                targetAtom[0] = atom;
+                collisionTime = nullPotential.collisionTime(targetAtom);
+            }
+            else {
+                collisionTime = Double.MAX_VALUE;
+            }
             collisionPartner = null;
             eventLinker.sortKey = collisionTime;
-        }
-        
-        //time to "collision" to update colliders for periodic boundaries
-        protected double periodCollisionTime() {
-            Space.Boundary boundary = atom.node.parentPhase().boundary();
-            if(boundary instanceof Space.Boundary.Periodic) {
-                if(!(atom.type instanceof AtomTypeSphere)) {return Double.MAX_VALUE;}
-                Space.Vector p = atom.coord.momentum();
-                Space.Vector dim = boundary.dimensions();
-                double tmin = Double.MAX_VALUE;
-                double d2 = 2.0*((AtomTypeSphere)atom.type).diameter(atom);
-                int D = dim.D();
-                for(int i=0; i<D; i++) {
-                    double t = (dim.x(i)-d2)/p.x(i);
-                    t = (t < 0) ? -t : t;//abs
-                    tmin = (t < tmin) ? t : tmin;
-                }
-                return 0.25*atom.coord.mass()*tmin; //0.5*m*min of (dim.x/p.x, dim.y/p.y, etc.)
-          //      return 0.25*atom.mass()*dim.D(p).abs().min(); //0.5*m*min of (dim.x/p.x, dim.y/p.y, etc.)
-                //assumes range of potential is .le. diameter, simulation box is square (or x is smaller dimension)
-            }
-            return Double.MAX_VALUE;
         }
         
     /**
@@ -664,6 +664,5 @@ public class IntegratorHard extends IntegratorMD {
 		etomica.graphics.SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
 	}//end of main
 */
-
 }//end of IntegratorHard
 
