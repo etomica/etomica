@@ -20,6 +20,7 @@ public class IntegratorHardField extends IntegratorHard {
     double t2 = 0.5*tStep*tStep;
     for(Atom a=firstPhase.firstAtom; a!=null; a=a.getNextAtom()) {
         a.decrementCollisionTime(tStep);
+        if(a.isStationary()) {continue;}  //skip if atom is stationary
         if(a.isForceFree()) {
             Space.uEa1Tv1(dr,tStep*a.rm,a.p);
             a.translate(dr);         //needs modification for nonspherical atom

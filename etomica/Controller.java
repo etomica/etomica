@@ -20,8 +20,11 @@ public class Controller extends Container implements Runnable {
     super.add(i);
     this.integrator = i;
     parentSimulation.registerPhases(i);
- //   runner = new Thread(this);
- //   runner.start();
+    
+    Enumeration e = parentSimulation.phases.elements();  //could use this loop to replace phaseIntegratorEvent structure
+    while(e.hasMoreElements()) {
+      ((Phase)e.nextElement()).gravity.addObserver(i);
+    }
   }
   
   public void paint(Graphics g) {

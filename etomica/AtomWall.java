@@ -14,6 +14,7 @@ public class AtomWall extends Atom {
         this.setRm(1.0);
         setThickness(4);
         setHorizontal(true);
+        setStationary(true);
     }
     
     public boolean isVertical() {return vertical;}

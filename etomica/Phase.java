@@ -195,6 +195,7 @@ public final class Phase extends Container {
     updatedNeighbors = updatedFutureNeighbors = false;
     useNeighborList = false;
     nAtomTotal = nMoleculeTotal = 0;
+    setG(0.0);
   }
  
  /**
@@ -263,6 +264,18 @@ public final class Phase extends Container {
 
   public void setDrawBoundingBox(boolean b) {drawBoundingBox = b;}
   public boolean getDrawBoundingBox() {return drawBoundingBox;}
+  
+ /**
+  * Object used to describe presence and magnitude of constant gravitational acceleration
+  */
+  public final Gravity gravity = new Gravity();
+  public boolean noGravity = true;
+    
+  public final double getG() {return gravity.getG();}
+  public void setG(double g) {
+    gravity.setG(g);
+    noGravity = (g == 0.0);
+  }
   
  /**
   * @return the current value of imageShells

@@ -70,10 +70,38 @@ public class IntegratorHard extends Integrator {
 
   protected void advanceAcrossTimeStep(double tStep) {
     
-    for(Atom a=firstPhase.firstAtom; a!=null; a=a.getNextAtom()) {
-        a.decrementCollisionTime(tStep);
-        Space.uEa1Tv1(dr,tStep*a.rm,a.p);
-        a.translate(dr);         //needs modification for nonspherical atom
+    if(firstPhase.noGravity) {
+        for(Atom a=firstPhase.firstAtom; a!=null; a=a.getNextAtom()) {
+            a.decrementCollisionTime(tStep);
+            if(a.isStationary()) {continue;}  //skip if atom is stationary
+            Space.uEa1Tv1(dr,tStep*a.rm,a.p);
+            a.translate(dr);         //needs modification for nonspherical atom
+        }
+    }
+    else {
+        for(Atom a=firstPhase.firstAtom; a!=null; a=a.getNextAtom()) {
+            a.decrementCollisionTime(tStep);
+            if(a.isStationary()) {continue;}  //skip if atom is stationary
+            Space.uEa1Tv1Pa2Tv2(dr,tStep*a.rm,a.p,t2,firstPhase.gravity.gVector);
+            a.translate(dr);         //needs modification for nonspherical atom
+            Space.uEa1Tv1(dr,tStep*a.mass,firstPhase.gravity.gVector);
+            a.accelerate(dr);
+        }
+    }
+  }
+
+ /**
+  * Update of collision list when gravity is changed.
+  */
+  public void update(Observable o, Object arg) {
+    if(o instanceof Gravity) {
+      for(Atom a=firstPhase.firstAtom; a!=null; a=a.getNextAtom()) {
+        if(a.isStationary() || a.getCollisionPartner().isStationary()) {
+            upList(a);
+        }
+        if(a.isStationary()) {downList(a);}
+      }
+      findNextCollider();
     }
   }
   

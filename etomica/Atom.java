@@ -132,6 +132,12 @@ public class Atom {
      */
     private boolean forceFree;
     
+    /**
+     * Flag indicating whether atom is stationary or mobile.
+     * Default is false (atom is mobile)
+     */
+    private boolean stationary;
+    
     private final double[] partnerForce = new double[Space.D];
     public final double[] rLast = new double[Space.D];
     
@@ -174,6 +180,7 @@ public class Atom {
         this.setMass(mass);
         this.setDiameter(diameter);
         setForceFree(true);
+        setStationary(false);
     }
     
     public final Molecule getMolecule() {return parentMolecule;}
@@ -186,6 +193,12 @@ public class Atom {
     
     public final double getRm() {return rm;}
     
+    public final void setStationary(boolean b) {
+        stationary = b;
+        if(stationary) Space.uEa1(p,0.0);   //zero momentum if set to stationary
+    }
+    public final boolean isStationary() {return stationary;}
+
     public final void setForceFree(boolean b) {forceFree = b;}
     public final boolean isForceFree() {return forceFree;}
     /**

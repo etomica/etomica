@@ -4,7 +4,7 @@ import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
 
-public abstract class Integrator extends Container implements PhaseIntegratorListener, Serializable, MouseListener, Runnable {
+public abstract class Integrator extends Container implements Observer, PhaseIntegratorListener, Serializable, MouseListener, Runnable {
 
     //VARIABLES used to make runnable    
   Thread runner;
@@ -84,6 +84,11 @@ public abstract class Integrator extends Container implements PhaseIntegratorLis
         listener.updateAverage(iie);
     }
   }
+  
+  /**
+   Update method for Observer interface
+   */
+  public void update(Observable o, Object arg) {}
  
 //methods to implement runnable    
     public void start() {;}

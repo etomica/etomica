@@ -137,7 +137,7 @@ public class Space extends Component {
         dimensions[0] = 1.0;
         dimensions[1] = 1.0;
         computeVolume();
-        periodic = false;   
+        periodic = false;
     }
     
    /**
