@@ -173,6 +173,8 @@ public class IntegratorHard extends IntegratorMD {
             oldTime = collisionTimeStep;
             collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.MAX_VALUE;
         } 
+        colliderAgent = null;
+
         advanceAcrossTimeStep(timeStep);
         collisionTimeStep = 0.0;
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.thisPhase(firstPhase)) {
