@@ -60,6 +60,17 @@ public final class Debug {
 	 */
 	public static boolean DEBUG_NOW = false;
 
+    /**
+     * determines whether this atom is set to be debugged
+     * (via ATOMx_NUM and setAtoms(phase)).
+     * @param atom Atom to be checked for debugging status
+     * @return true if the atom should be debugged
+     */
+    public static boolean thisAtom(Atom atom) {
+        if (atom == ATOM1 || atom == ATOM2) return true;
+        return false;
+    }
+
 	/**
 	 * determines whether any of the atoms in the given array are set to be debugged
 	 * (via ATOMx_NUM and setAtoms(phase)).

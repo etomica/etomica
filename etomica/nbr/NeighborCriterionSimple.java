@@ -16,12 +16,10 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 
 	public NeighborCriterionSimple(Space space, double interactionRange, double neighborRadius) {
 		super();
-        this.space = space;
 		this.interactionRange = interactionRange;
         neighborRadius2 = neighborRadius * neighborRadius;
         setSafetyFactor(0.4);
         cPair = space.makeCoordinatePair();
-        dr = space.makeVector();
 	}
 	
 	public void setSafetyFactor(double f) {
@@ -50,10 +48,14 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 	
 	public boolean needUpdate(Atom atom) {
 		r2 = atom.coord.position().Mv1Squared((Space.Vector)atom.allatomAgents[agentIndex]);
-		if (Debug.DEBUG_NOW && r2 > displacementLimit2 / (4.0*safetyFactor*safetyFactor)) {
-			System.out.println("atom "+atom+" exceeded safe limit ("+r2+" > "+displacementLimit2 / (4.0*safetyFactor*safetyFactor));
-			System.out.println("old position "+(Space.Vector)atom.allatomAgents[agentIndex]);
+        if (Debug.ON && Debug.DEBUG_NOW && Debug.thisAtom(atom)) {
+            System.out.println("atom "+atom+" displacement "+r2+" "+atom.coord.position());
+        }
+		if (Debug.ON && Debug.DEBUG_NOW && r2 > displacementLimit2 / (4.0*safetyFactor*safetyFactor)) {
+			System.out.println("atom "+atom+" exceeded safe limit ("+r2+" > "+displacementLimit2 / (4.0*safetyFactor*safetyFactor)+")");
+			System.out.println("old position "+atom.allatomAgents[agentIndex]);
 			System.out.println("new position "+atom.coord.position());
+            throw new RuntimeException("stop that");
 		}
 		return r2 > displacementLimit2;
 	}
@@ -76,8 +78,8 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 
 	public boolean accept(Atom[] a) {
 		cPair.reset(a[0].coord,a[1].coord);
-		if (Debug.DEBUG_NOW && ((Debug.LEVEL > 1 && Debug.anyAtom(a)) || (Debug.LEVEL == 1 && Debug.allAtoms(a)))) {
-			if (cPair.r2() < neighborRadius2 || (Debug.LEVEL > 1 && Debug.allAtoms(a))) { 
+		if (Debug.ON && Debug.DEBUG_NOW && ((Debug.LEVEL > 1 && Debug.anyAtom(a)) || (Debug.LEVEL == 1 && Debug.allAtoms(a)))) {
+			if (cPair.r2() < neighborRadius2 || (Debug.LEVEL > 1 && Debug.allAtoms(a))) {
 				System.out.println("Atom "+a[0]+" and "+a[1]+" are "+(cPair.r2() < neighborRadius2 ? "" : "not ")+"neighbors, r2="+cPair.r2());
             }
 		}
@@ -96,10 +98,7 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 		}
 	});
 	protected double safetyFactor;
-    protected double safetyFactor2;
 	protected double r2, r2MaxSafe;
-    private final Space space;
-    private final Space.Vector dr;
     private Phase phase;
 	
 }
