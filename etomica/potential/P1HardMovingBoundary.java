@@ -147,17 +147,14 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
             discr = dv*dv - 2.0*a*drc;
             if (discr >= 0.0) {
                 discr = Math.sqrt(discr);
-                if (dr*dv > 0.0 && dr*a < 0.0) {
-                    t = -dv/a + discr/Math.abs(a);
-                }
-                else if (dr*dv < 0.0 && dr*a > 0.0) {
-                    t = -dv/a - discr/Math.abs(a);
-                }
-                else if (dr*dv < 0.0 && dr*a < 0.0) {
+                if (dr*a < 0.0) {
                     t = -dv/a + discr/Math.abs(a);
                 }
                 else if (a == 0.0) {
                     if (dr*dv < 0.0) t = -drc/dv;
+                }
+                else if (dr*dv < 0.0 && dr*a > 0.0) {
+                    t = -dv/a - discr/Math.abs(a);
                 } else {
                     throw new RuntimeException("oops");
                 }
