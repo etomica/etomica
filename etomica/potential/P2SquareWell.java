@@ -142,7 +142,7 @@ public class P2SquareWell extends Potential2HardSpherical {
         ((CoordinatePairKinetic)cPairNbr).resetV();
         dr.E(cPairNbr.dr());
         Vector dv = ((CoordinatePairKinetic)cPairNbr).dv();
-        dr.Ea1Tv1(falseTime,dv);
+        dr.PEa1Tv1(falseTime,dv);
         double r2 = dr.squared();
         double bij = dr.dot(dv);
         double v2 = dv.squared();
@@ -176,6 +176,9 @@ public class P2SquareWell extends Potential2HardSpherical {
                     time = (-bij - Math.sqrt(discr))/v2;
                 }
             }
+        }
+        if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(pair)) {
+            System.out.println(pair[0]+" and "+pair[1]+" r2 "+r2+" bij "+bij+" time "+(time+falseTime));
         }
         return time + falseTime;
     }
