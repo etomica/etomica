@@ -57,7 +57,9 @@ public class ClusterPanel extends Plot {
                     if (eBonds) {
                         setColor("red");
                         for (int k=lastBond+1; k<iConnections[j]; k++) {
-                            plotLine(x[i],y[i], x[k],y[k]);
+                            if (!cluster.isRootPoint(i) || !cluster.isRootPoint(k)) {
+                                plotLine(x[i],y[i], x[k],y[k]);
+                            }
                         }
                         setColor("black");
                     }
@@ -69,7 +71,9 @@ public class ClusterPanel extends Plot {
                 else if ((lastBond>i || iConnections[j] == -1) && eBonds) {
                     setColor("red");
                     for (int k=lastBond+1; k<nPoints; k++) {
-                        plotLine(x[i],y[i], x[k],y[k]);
+                        if (!cluster.isRootPoint(i) || !cluster.isRootPoint(k)) {
+                            plotLine(x[i],y[i], x[k],y[k]);
+                        }
                     }
                     setColor("black");
                 }
