@@ -2,8 +2,6 @@ package etomica.virial.simulations;
 
 import etomica.Default;
 import etomica.Integrator;
-import etomica.IntegratorCPUTimer;
-import etomica.IntegratorProgressListener;
 import etomica.MeterAbstract;
 import etomica.Phase;
 import etomica.Simulation;
@@ -188,17 +186,13 @@ public class SimulationVirialOverlap extends Simulation {
         ClusterAbstract targetCluster = Standard.virialCluster(nPoints, fTarget,true,eTarget);
 
 		int maxSteps = 100;
-		IntegratorCPUTimer CPUTimer = new IntegratorCPUTimer();
-        IntegratorProgressListener ipl = new IntegratorProgressListener(100);
 		
         Default.BLOCK_SIZE = 1000000;
 		while (true) {
 			SimulationVirialOverlap sim = new SimulationVirialOverlap(new Space3D(), temperature, refCluster, targetCluster);
 			sim.ai.setMaxSteps(maxSteps);
-			sim.getIntegrator().addIntervalListener(CPUTimer);
-            sim.getIntegrator().addIntervalListener(ipl);
 			sim.ai.actionPerformed();
-			System.out.println("average: "+sim.dsvo.getData()[0]+", error="+sim.dsvo.getError()+", time="+CPUTimer.getTime());
+			System.out.println("average: "+sim.dsvo.getData()[0]+", error="+sim.dsvo.getError());
             double[][] allYourBase = (double[][])sim.accumulators[0].getTranslator().fromArray(sim.accumulators[0].getData(sim.dsvo.minDiffLocation()));
             System.out.println("hard sphere ratio average: "+allYourBase[AccumulatorRatioAverage.RATIO.index][1]
                               +" error: "+allYourBase[AccumulatorRatioAverage.RATIO_ERROR.index][1]);
