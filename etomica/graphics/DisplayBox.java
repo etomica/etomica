@@ -61,13 +61,13 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
         value.setEditable(false);
         panel.add(value, java.awt.BorderLayout.CENTER);
         setLabelType(STRING);
-        setLabel("Label");
+        setLabel("");
  //       panel.setMinimumSize(new java.awt.Dimension(80,60));
         unit = new etomica.units.PrefixedUnit(etomica.units.BaseUnit.Null.UNIT);
         setUpdateInterval(5);
         setPrecision(4);
         
-/*        addMouseListener(new MouseAdapter() {
+ /*       addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent evt) {
                 if((evt.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {//right-click
                     Device editor = new DeviceUnitEditor(DisplayBox.this);
@@ -128,10 +128,11 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
     }
     
     /**
-     * Specifies the datasourcethat generates the displayed value.
+     * Specifies the datasource that generates the displayed value.
      */
     public void setDataSource(DataSource m) {
         source = m;
+        if(label.equals("")) setLabel(source.getLabel());
     }
     
     /**
