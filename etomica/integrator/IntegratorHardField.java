@@ -109,7 +109,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
             if(a.type instanceof AtomTypeWall &&
                 !((Agent)a.ia).forceFree) continue;
             ((ICoordinateKinetic)a.coord).velocity().TE(s); //scale momentum
-            ((Agent)a.ia).collisionTime *= rs;
+            ((Agent)a.ia).eventLinker.sortKey *= rs;
         }
         atomIterator.reset();
         while(atomIterator.hasNext()) {

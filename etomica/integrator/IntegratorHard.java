@@ -142,7 +142,7 @@ public class IntegratorHard extends IntegratorMD {
                 Debug.checkAtoms();
                 if (Debug.LEVEL > 1) {
                     PotentialHard p = ((Agent)Debug.ATOM1.ia).collisionPotential;
-                    System.out.println(Debug.ATOM1+" collision time "+((Agent)Debug.ATOM1.ia).collisionTime+" with "+((Agent)Debug.ATOM1.ia).collisionPartner
+                    System.out.println(Debug.ATOM1+" collision time "+((Agent)Debug.ATOM1.ia).collisionTime()+" with "+((Agent)Debug.ATOM1.ia).collisionPartner
                             +" with potential "+(p!=null ? p.getClass() : null));
                 }
             }
@@ -347,9 +347,7 @@ public class IntegratorHard extends IntegratorMD {
         double rs = 1.0/s;
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            final Agent agent = (Agent)atomIterator.nextAtom().ia;
-            agent.collisionTime *= rs;
-            agent.eventLinker.sortKey = agent.collisionTime; 
+            ((Agent)atomIterator.nextAtom().ia).eventLinker.sortKey *= rs;
         }
         // don't need to update eventTree because event order didn't change
         return s;
@@ -568,13 +566,13 @@ public class IntegratorHard extends IntegratorMD {
   //Do not use encapsulation since the fields are for referencing by the integrator
     public class Agent {  //need public so to use with instanceof
         public Atom atom, collisionPartner;
-        public double collisionTime = Double.MAX_VALUE; //time to next collision
         public PotentialHard collisionPotential;  //potential governing interaction between collisionPartner and atom containing this Agent
         public TreeLinker eventLinker;
         
         public Agent(Atom a) {
             atom = a;
             eventLinker = new TreeLinker(this);
+            eventLinker.sortKey = Double.MAX_VALUE;
         }
         
         public String toString() {
@@ -593,13 +591,12 @@ public class IntegratorHard extends IntegratorMD {
             collisionPotential = nullPotential;
             if (nullPotential != null) {
                 targetAtom[0] = atom;
-                collisionTime = nullPotential.collisionTime(targetAtom,collisionTimeStep);
+                eventLinker.sortKey = nullPotential.collisionTime(targetAtom,collisionTimeStep);
             }
             else {
-                collisionTime = Double.MAX_VALUE;
+                eventLinker.sortKey = Double.MAX_VALUE;
             }
             collisionPartner = null;
-            eventLinker.sortKey = collisionTime;
         }
         
     /**
@@ -610,7 +607,6 @@ public class IntegratorHard extends IntegratorMD {
      * @param p       the potential for interactions between this atom and its collision partner
      */
         public final void setCollision(double time, Atom partner, PotentialHard p) {
-            collisionTime = time;
             collisionPartner = partner;
             collisionPotential = p;
             eventLinker.sortKey = time;
@@ -622,14 +618,12 @@ public class IntegratorHard extends IntegratorMD {
      * This action is performed when the atom is advanced without a collision
      */
         public final void decrementCollisionTime(double interval) {
-            collisionTime -= interval;
-            eventLinker.sortKey = collisionTime;
-//            time0 += interval;
+            eventLinker.sortKey -= interval;
         }
     /**
      * Accessor method for the time to next collision of this atom
      */
-        public final double collisionTime() {return collisionTime;}
+        public final double collisionTime() {return eventLinker.sortKey;}
     }//end of Agent
     
     public interface CollisionListener {
