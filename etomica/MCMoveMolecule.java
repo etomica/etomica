@@ -3,7 +3,7 @@ package etomica;
 import etomica.units.Dimension;
 
 /**
- * Standard Monte Carlo atom-displacement trial move.
+ * Standard Monte Carlo molecule-displacement trial move.
  *
  * @author David Kofke
  */
