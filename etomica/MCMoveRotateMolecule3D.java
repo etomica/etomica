@@ -23,7 +23,7 @@ public class MCMoveRotateMolecule3D extends MCMove {
     private double uOldSave;
     
     public MCMoveRotateMolecule3D(PotentialMaster potentialMaster, Space space) {
-        super(potentialMaster);
+        super(potentialMaster, 1);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         rotationTensor = (Space3D.RotationTensor)space.makeRotationTensor();
         r0 = (Space3D.Vector)space.makeVector();
@@ -41,6 +41,7 @@ public class MCMoveRotateMolecule3D extends MCMove {
     }
      
     public boolean doTrial() {
+        Phase phase = phases[0];
         if(phase.moleculeCount()==0) {molecule = null; return false;}
             
         molecule = phase.randomMolecule();
@@ -63,7 +64,7 @@ public class MCMoveRotateMolecule3D extends MCMove {
     
     public double lnProbabilityRatio() {
         energyMeter.setTarget(molecule);
-        uNew = energyMeter.getDataAsScalar(phase);
+        uNew = energyMeter.getDataAsScalar(phases[0]);
         if(uOld > Double.MAX_VALUE) uOld = uOldSave;
         return -(uNew - uOld)/temperature;
     }
@@ -82,13 +83,13 @@ public class MCMoveRotateMolecule3D extends MCMove {
     }//end of rejectNotify
     
     public double energyChange(Phase phase) {
-        if(this.phase != phase) return 0.0;
+        if(this.phases[0] != phase) return 0.0;
         else return uNew - uOld;
     }
 
  
     public final AtomIterator affectedAtoms(Phase phase) {
-        if(this.phase != phase) return AtomIterator.NULL;
+        if(this.phases[0] != phase) return AtomIterator.NULL;
         affectedAtomIterator.setAtom(molecule);
         affectedAtomIterator.reset();
         return affectedAtomIterator;

@@ -186,10 +186,6 @@ public abstract class Integrator implements java.io.Serializable {
 		return phaseCount < phaseCountMax;
 	}
 
-	public Phase getPhase(int i) {
-		return phase[i];
-	}
-
 	/**
 	 * Performs activities needed to set up integrator to work on given phase.
 	 * This method should not be called directly; instead it is invoked by the
@@ -338,7 +334,7 @@ public abstract class Integrator implements java.io.Serializable {
 		intervalListenersAfterPbc.removeAllElements();
 	}
 
-	public Phase[] getPhases() {
+	public Phase[] getPhase() {
 		return phase;
 	}
 

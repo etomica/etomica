@@ -20,7 +20,7 @@ public class MCMoveMolecule extends MCMove {
     protected double uNew = Double.NaN;
 
     public MCMoveMolecule(PotentialMaster potentialMaster) {
-        super(potentialMaster);
+        super(potentialMaster, 1);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         setStepSizeMax(Default.BOX_SIZE);
         setStepSizeMin(0.0);
@@ -43,6 +43,7 @@ public class MCMoveMolecule extends MCMove {
     
 
     public boolean doTrial() {
+        Phase phase = phases[0];
         if(phase.moleculeCount()==0) return false;
         
         molecule = phase.randomMolecule();
@@ -58,7 +59,7 @@ public class MCMoveMolecule extends MCMove {
     
     public double lnProbabilityRatio() {
         energyMeter.setTarget(molecule);
-        uNew = energyMeter.getDataAsScalar(phase);
+        uNew = energyMeter.getDataAsScalar(phases[0]);
         return -(uNew - uOld)/temperature;
     }
     
@@ -69,13 +70,13 @@ public class MCMoveMolecule extends MCMove {
     }
         
     public final AtomIterator affectedAtoms(Phase phase) {
-        if(this.phase != phase) return AtomIterator.NULL;
+        if(this.phases[0] != phase) return AtomIterator.NULL;
         affectedAtomIterator.setAtom(molecule);
         affectedAtomIterator.reset();
         return affectedAtomIterator;
     }
 
-    public double energyChange(Phase phase) {return (this.phase == phase) ? uNew - uOld : 0.0;}
+    public double energyChange(Phase phase) {return (this.phases[0] == phase) ? uNew - uOld : 0.0;}
     
 
 /*    public static void main(String[] args) {

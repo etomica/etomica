@@ -56,7 +56,7 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
 	 * Adds the given MCMove to the set of moves performed by the integrator and
 	 * recalculates move frequencies.
 	 */
-	void addMCMove(MCMove move) {
+	public void addMCMove(MCMove move) {
 		//make sure move wasn't added already
 		for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
 			if (move == link.move)

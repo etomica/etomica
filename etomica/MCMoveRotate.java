@@ -20,7 +20,7 @@ public class MCMoveRotate extends MCMove {
     private transient Space.Orientation orientation;
 
     public MCMoveRotate(PotentialMaster potentialMaster, Space space) {
-        super(potentialMaster);
+        super(potentialMaster, 1);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         oldOrientation = space.makeOrientation();
         setStepSizeMax(Math.PI);
@@ -31,6 +31,7 @@ public class MCMoveRotate extends MCMove {
     }
      
     public boolean doTrial() {
+        Phase phase = phases[0];
         if(phase.moleculeCount()==0) {return false;}
         molecule = phase.randomMolecule();
 
@@ -47,7 +48,7 @@ public class MCMoveRotate extends MCMove {
     
     public double lnProbabilityRatio() {
         energyMeter.setTarget(molecule);
-        uNew = energyMeter.getDataAsScalar(phase);
+        uNew = energyMeter.getDataAsScalar(phases[0]);
         return -(uNew - uOld)/temperature;
     }
     
@@ -57,10 +58,10 @@ public class MCMoveRotate extends MCMove {
         orientation.E(oldOrientation);
     }
 
-    public double energyChange(Phase phase) {return (this.phase == phase) ? uNew - uOld : 0.0;}
+    public double energyChange(Phase phase) {return (this.phases[0] == phase) ? uNew - uOld : 0.0;}
     
     public final AtomIterator affectedAtoms(Phase phase) {
-        if(this.phase != phase) return AtomIterator.NULL;
+        if(this.phases[0] != phase) return AtomIterator.NULL;
         affectedAtomIterator.setAtom(molecule);
         affectedAtomIterator.reset();
         return affectedAtomIterator;

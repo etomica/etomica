@@ -25,7 +25,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
     private transient double uNew = Double.NaN;
 
     public MCMoveMoleculeExchange(PotentialMaster potentialMaster, Space space) {
-        super(potentialMaster);
+        super(potentialMaster, 2);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         ROOT = 1.0/space.D();
         setTunable(false);
@@ -33,17 +33,9 @@ public final class MCMoveMoleculeExchange extends MCMove {
         energyMeter.setIncludeLrc(true);
     }
     
-    /**
-     * Overrides superclass method so that it performs no action.
-     * Must set using method that takes an array of phases.
-     */
-    public void setPhase(Phase p) {}
-
     public void setPhase(Phase[] p) {
-        if(p == null || p.length == 0) return;
         super.setPhase(p);
         firstPhase = p[0];
-        if(p.length < 2) return;
         secondPhase = p[1];
     }
         

@@ -52,7 +52,7 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
     return true;
   }
   
-  public Phase[] getPhases() {return phase;}
+  public Phase[] getPhase() {return phase;}
   public void setPhases(Phase[] phases) {
     phase = phases;
   }

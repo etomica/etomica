@@ -29,7 +29,7 @@ public class MCMoveAtom extends MCMove {
     private Atom atomIdx1, atomIdx2;
 /* */
     public MCMoveAtom(PotentialMaster potentialMaster) {
-        super(potentialMaster);
+        super(potentialMaster, 1);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         setStepSizeMax(Default.BOX_SIZE);
         setStepSizeMin(0.0);
@@ -51,6 +51,7 @@ public class MCMoveAtom extends MCMove {
   //      System.out.println(((IteratorFactoryCell.NeighborSequencer)atom0.seq).nbrLink.previous.toString()+((IteratorFactoryCell.NeighborSequencer)atom0.seq).nbrLink.next.toString()+((AtomLinker.Tab[])((IteratorFactoryCell.NeighborSequencer)atom0.seq).cell.agents[0])[0].toString());
  /*debug* / atomIdx1 = phase.speciesMaster.atomList.get(idx1);
            atomIdx2 = phase.speciesMaster.atomList.get(idx2);  // */
+        Phase phase = phases[0];
         if(phase.atomCount()==0) return false;
  /*debug* /       k++;  // */
         atom = phase.speciesMaster.atomList.getRandom();
@@ -103,11 +104,11 @@ public class MCMoveAtom extends MCMove {
      */
     public double lnProbabilityRatio() {
 //        energyMeter.setTarget(atom);
-        uNew = energyMeter.getDataAsScalar(phase);
+        uNew = energyMeter.getDataAsScalar(phases[0]);
         return -(uNew - uOld)/temperature;
     }
     
-    public double energyChange(Phase phase) {return (this.phase == phase) ? uNew - uOld : 0.0;}
+    public double energyChange(Phase phase) {return (this.phases[0] == phase) ? uNew - uOld : 0.0;}
     
     /**
      * Method called by IntegratorMC in the event that the most recent trial is accepted.
@@ -134,7 +135,7 @@ public class MCMoveAtom extends MCMove {
         
     
     public AtomIterator affectedAtoms(Phase phase) {
-        if(this.phase != phase) return AtomIterator.NULL;
+        if(this.phases[0] != phase) return AtomIterator.NULL;
         affectedAtomIterator.setAtom(atom);
         return affectedAtomIterator;
     }

@@ -34,7 +34,7 @@ public class MCMoveSemigrand extends MCMove {
 
     
     public MCMoveSemigrand(PotentialMaster potentialMaster) {
-        super(potentialMaster);
+        super(potentialMaster, 1);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         deleteAtomIterator = new AtomIteratorSinglet();
         insertAtomIterator = new AtomIteratorSinglet();
@@ -47,11 +47,11 @@ public class MCMoveSemigrand extends MCMove {
     /**
      * Extends the superclass method to initialize the exchange-set species agents for the phase.
      */
-    public void setPhase(Phase p) {
+    public void setPhase(Phase[] p) {
         super.setPhase(p);
         if(speciesSet != null) {
             for(int i=0; i<nSpecies; i++) {
-                agentSet[i] = speciesSet[i].getAgent(phase);
+                agentSet[i] = speciesSet[i].getAgent(phases[0]);
             }
         }
     }//end setPhase
@@ -67,7 +67,7 @@ public class MCMoveSemigrand extends MCMove {
         fugacityFraction = new double[nSpecies];
         for(int i=0; i<nSpecies; i++) {
             speciesSet[i] = species[i];
-            if(phase != null) agentSet[i] = species[i].getAgent(phase);
+            if(phases[0] != null) agentSet[i] = species[i].getAgent(phases[0]);
             fugacityFraction[i] = 1.0/(double)nSpecies;
         }
     }
@@ -147,7 +147,7 @@ public class MCMoveSemigrand extends MCMove {
   
         deleteMolecule = deleteAgent.randomMolecule();
         energyMeter.setTarget(deleteMolecule);
-        uOld = energyMeter.getDataAsScalar(phase);
+        uOld = energyMeter.getDataAsScalar(phases[0]);
         deleteMolecule.sendToReservoir();
         
         insertMolecule = insertAgent.addNewAtom();
@@ -164,7 +164,7 @@ public class MCMoveSemigrand extends MCMove {
     
     public double lnProbabilityRatio() {
         energyMeter.setTarget(insertMolecule);
-        uNew = energyMeter.getDataAsScalar(phase);
+        uNew = energyMeter.getDataAsScalar(phases[0]);
         return -(uNew - uOld)/temperature +
                 Math.log(fugacityFraction[iInsert]/fugacityFraction[iDelete]);
     }
@@ -176,10 +176,10 @@ public class MCMoveSemigrand extends MCMove {
         insertMolecule.sendToReservoir();
     }
 
-    public double energyChange(Phase phase) {return (this.phase == phase) ? uNew - uOld : 0.0;}
+    public double energyChange(Phase phase) {return (this.phases[0] == phase) ? uNew - uOld : 0.0;}
     
     public final AtomIterator affectedAtoms(Phase phase) {
-        if(this.phase != phase) return AtomIterator.NULL;
+        if(this.phases[0] != phase) return AtomIterator.NULL;
         insertAtomIterator.setAtom(insertMolecule);
         deleteAtomIterator.setAtom(deleteMolecule);
         affectedAtomIterator.reset();

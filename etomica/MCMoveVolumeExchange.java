@@ -1,7 +1,6 @@
 package etomica;
 
 import etomica.action.PhaseInflate;
-import etomica.exception.MethodNotImplementedException;
 
 /**
  * Elementary Monte Carlo trial that exchanges volume between two phases.  Trial
@@ -32,7 +31,7 @@ public final class MCMoveVolumeExchange extends MCMove {
     private transient double hOld, v1Scale, v2Scale;
 
     public MCMoveVolumeExchange(PotentialMaster potentialMaster, Space space) {
-        super(potentialMaster);
+        super(potentialMaster, 2);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         ROOT = 1.0/(double)space.D();
         setStepSizeMax(Double.MAX_VALUE);
@@ -43,21 +42,10 @@ public final class MCMoveVolumeExchange extends MCMove {
         energyMeter.setIncludeLrc(false);
     }
     
-    /**
-     * Overrides superclass method so that it performs no action.
-     * Must set using method that takes an array of phases.
-     */
-    public void setPhase(Phase p) {
-    	throw new MethodNotImplementedException("Must call set phase using array argument");
-    }
-
     public void setPhase(Phase[] p) {
-        if(p == null || p.length == 0) return;
         super.setPhase(p);
         firstPhase = p[0];
-        if(p.length < 2) return;
         secondPhase = p[1];
-        if(firstPhase == null && secondPhase == null) return;
         inflate1 = new PhaseInflate(firstPhase);
         inflate2 = new PhaseInflate(secondPhase);
         phase1AtomIterator.setPhase(firstPhase);

@@ -28,7 +28,7 @@ public class MCMoveInsertDelete extends MCMove {
 	protected AtomReservoir reservoir;
 
     public MCMoveInsertDelete(PotentialMaster potentialMaster) {
-        super(potentialMaster);
+        super(potentialMaster, 1);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         setStepSizeMax(1.0);
         setStepSizeMin(0.0);
@@ -41,14 +41,14 @@ public class MCMoveInsertDelete extends MCMove {
 //perhaps should have a way to ensure that two instances of this class aren't assigned the same species
     public void setSpecies(Species s) {
         species = s;
-        if(phase != null) speciesAgent = (SpeciesAgent)species.getAgent(phase); 
+        if(phases[0] != null) speciesAgent = (SpeciesAgent)species.getAgent(phases[0]); 
         reservoir = new AtomReservoir(s.moleculeFactory());
     }
     public Species getSpecies() {return species;}
     
-    public void setPhase(Phase p) {
+    public void setPhase(Phase[] p) {
         super.setPhase(p);
-        if(species != null) speciesAgent = (SpeciesAgent)species.getAgent(phase); 
+        if(species != null) speciesAgent = (SpeciesAgent)species.getAgent(phases[0]); 
     }
     
     /**
@@ -60,7 +60,7 @@ public class MCMoveInsertDelete extends MCMove {
         if(insert) {
             uOld = 0.0;
             testMolecule = species.moleculeFactory().makeAtom((AtomTreeNodeGroup)speciesAgent.node);
-            testMolecule.coord.translateTo(phase.randomPosition());
+            testMolecule.coord.translateTo(phases[0].randomPosition());
         } else {//delete
             if(speciesAgent.moleculeCount() == 0) {
                 testMolecule = null;//added this line 09/19/02
@@ -68,7 +68,7 @@ public class MCMoveInsertDelete extends MCMove {
             }
             testMolecule = speciesAgent.randomMolecule();
             energyMeter.setTarget(testMolecule);
-            uOld = energyMeter.getDataAsScalar(phase);
+            uOld = energyMeter.getDataAsScalar(phases[0]);
            reservoir.addAtom(testMolecule);
         } 
         uNew = Double.NaN;
@@ -76,14 +76,14 @@ public class MCMoveInsertDelete extends MCMove {
     }//end of doTrial
     
     public double lnTrialRatio() {//note that moleculeCount() gives the number of molecules after the trial is attempted
-        return insert ? Math.log(phase.volume()/speciesAgent.moleculeCount()) 
-                      : Math.log((speciesAgent.moleculeCount()+1)/phase.volume());        
+        return insert ? Math.log(phases[0].volume()/speciesAgent.moleculeCount()) 
+                      : Math.log((speciesAgent.moleculeCount()+1)/phases[0].volume());        
     }
     
     public double lnProbabilityRatio() {
         if(insert) {
             energyMeter.setTarget(testMolecule);
-            uNew = energyMeter.getDataAsScalar(phase);
+            uNew = energyMeter.getDataAsScalar(phases[0]);
            return (+mu - uNew)/temperature;
         } else {//delete
             uNew = 0.0;
@@ -100,14 +100,14 @@ public class MCMoveInsertDelete extends MCMove {
         else testMolecule.node.setParent((AtomTreeNodeGroup)speciesAgent.node);
     }
     
-    public double energyChange(Phase phase) {return (this.phase == phase) ? uNew - uOld : 0.0;}
+    public double energyChange(Phase phase) {return (this.phases[0] == phase) ? uNew - uOld : 0.0;}
 
     /**
      * Returns an iterator giving molecule that is being added or deleted 
      * in the current or most recent trial.
      */
     public final AtomIterator affectedAtoms(Phase phase) {
-        if(this.phase != phase) return AtomIterator.NULL;
+        if(this.phases[0] != phase) return AtomIterator.NULL;
         affectedAtomIterator.setAtom(testMolecule);
         return affectedAtomIterator;
     }

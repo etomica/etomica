@@ -13,7 +13,7 @@ package etomica;
 
 public abstract class MCMove implements java.io.Serializable {
 
-	public MCMove(PotentialMaster potentialMaster) {
+	public MCMove(PotentialMaster potentialMaster, int nPhases) {
 		this.potential = potentialMaster;
 		nTrials = 0;
 		nAccept = 0;
@@ -21,6 +21,7 @@ public abstract class MCMove implements java.io.Serializable {
 		nominalFrequency = 100;
 		perParticleFrequency = false;
 		setAdjustInterval(100);
+        phases = new Phase[nPhases];
 	}
 
 	/**
@@ -101,18 +102,11 @@ public abstract class MCMove implements java.io.Serializable {
 	public abstract double energyChange(Phase phase);
 
 	public void setPhase(Phase[] p) {
-		phases = p;
-		setPhase(p[0]);
+        if(p.length != phases.length) throw new IllegalArgumentException("Invalid number of phases for MCMove");
+		System.arraycopy(p, 0, phases, 0, p.length);
 	}
 
-	public void setPhase(Phase p) {
-		//		phase = p;
-		if (phases[0] != p) {
-			phases = new Phase[] { p };
-		}
-	}
-
-	public Phase[] getPhases() {
+	public Phase[] getPhase() {
 		return phases;
 	}
 
@@ -318,9 +312,7 @@ public abstract class MCMove implements java.io.Serializable {
 
 	protected boolean tunable = true;
 
-	protected Phase phase;//should get rid of this
-
-	private Phase[] phases;
+	protected final Phase[] phases;
 
 	private String name;
 

@@ -26,7 +26,7 @@ public class MCMoveVolume extends MCMove {
      * @param D the spatial dimension of the simulation, Space.D()
      */
     public MCMoveVolume(PotentialMaster potentialMaster, int D) {
-        super(potentialMaster);
+        super(potentialMaster, 1);
         this.D = D;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         setStepSizeMax(1.0);
@@ -38,13 +38,14 @@ public class MCMoveVolume extends MCMove {
         
     }
     
-    public void setPhase(Phase p) {
+    public void setPhase(Phase[] p) {
         if(p == null) return;
         super.setPhase(p);
-        inflate.setPhase(phase);
+        inflate.setPhase(phases[0]);
     }
     
     public boolean doTrial() {
+        Phase phase = phases[0];
         double vOld = phase.volume();
         uOld = energyMeter.getDataAsScalar(phase);
         hOld = uOld + pressure*vOld;
@@ -58,11 +59,11 @@ public class MCMoveVolume extends MCMove {
     }//end of doTrial
     
     public double lnTrialRatio() {
-        return (phase.moleculeCount()+1)*vScale;
+        return (phases[0].moleculeCount()+1)*vScale;
     }
     
     public double lnProbabilityRatio() {
-        uNew = energyMeter.getDataAsScalar(phase);
+        uNew = energyMeter.getDataAsScalar(phases[0]);
         double hNew = uNew + pressure*vNew;
         return -(hNew - hOld)/temperature;
     }
@@ -73,10 +74,10 @@ public class MCMoveVolume extends MCMove {
         inflate.undo();
     }
 
-    public double energyChange(Phase phase) {return (this.phase == phase) ? uNew - uOld : 0.0;}
+    public double energyChange(Phase phase) {return (this.phases[0] == phase) ? uNew - uOld : 0.0;}
     
     public AtomIterator affectedAtoms(Phase phase) {
-        if(this.phase != phase) return AtomIterator.NULL;
+        if(this.phases[0] != phase) return AtomIterator.NULL;
         return new AtomIteratorMolecule(phase);
     }
 
