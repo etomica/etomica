@@ -1,15 +1,15 @@
 package etomica.data;
 
 import etomica.Action;
-import etomica.DataPipe;
 import etomica.DataSink;
 import etomica.DataSource;
+import etomica.DataTranslator;
 
 /**
  * A data pipe that can move data from a source to its sinks
  * as the result of an action performed.
  */
-public class DataPump extends DataPipe implements Action {
+public class DataPump extends DataPusher implements Action {
 
 	/**
 	 * Constructs DataPump with the given DataSource and
@@ -36,22 +36,16 @@ public class DataPump extends DataPipe implements Action {
     }
     
     /**
-     * Passes the given data on to all sinks.  Normally invoked
-     * via actionPerformed, which gets the data from the data source
-     * specified at construction.  If this method is called directly,
-     * the data pump behaves as a simple data pipe.
-     */
-    public void putData(double[] data) {
-        pushData(data);
-	}
-    	
-    /**
      * @return Returns the dataSource.
      */
     public DataSource getDataSource() {
         return dataSource;
     }
 
+    public DataTranslator getTranslator() {
+        return DataTranslator.IDENTITY;
+    }
+    
     private final DataSource dataSource;
     
 }

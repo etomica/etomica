@@ -159,9 +159,10 @@ public class AccumulatorAverage extends DataAccumulator {
         	 
 	public DataType[] dataChoices() {return CHOICES;}
     
-    public DataPipe makeDataPipe(Type[] types) {
+    public DataPusher makeDataPipe(Type[] types) {
        AccumulatorPipe newPipe = new AccumulatorPipe(types);
        addDataSink(newPipe);
+       // return pipe as a DataPusher so caller won't try to putData
        return newPipe;
     }
     
@@ -260,11 +261,22 @@ public class AccumulatorAverage extends DataAccumulator {
             for(int i=0; i<indexes.length; i++) {
                 selectedAllData[i] = allData[indexes[i]];
             }
+            if (nData > 1) {
+                translator = new DataTranslatorArray(nData,5);
+            }
+            else {
+                translator = DataTranslator.IDENTITY;
+            }
+        }
+        
+        public DataTranslator getTranslator() {
+            return translator;
         }
         
         private double[] selectedData;
         private final double[][] selectedAllData;
         private final int[] indexes;
+        private DataTranslator translator;
     }//end of AccumulatorPipe
     
 }//end of AccumulatorAverage
