@@ -401,7 +401,6 @@ public class PistonCylinderGraphic {
             pc.ai.setSleepPeriod(1);
         }
 
-        pc.integrator.setThermostatInterval(100);
         pc.integrator.setTimeStep(0.5);
         pc.integrator.clearIntervalListeners();
 
