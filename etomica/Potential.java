@@ -1,13 +1,12 @@
 package simulate; 
-import java.io.*;
 
-public class Potential implements Serializable {
+public class Potential {
 
   Space space;
   Phase parentPhase;
-  protected transient final double[] r12 = new double[Space.D];  //work arrays
-  protected transient final double[] f = new double[Space.D];
-  protected transient final double[] v12 = new double[Space.D];
+//  protected transient final double[] r12 = new double[Space.D];  //work arrays
+//  protected transient final double[] f = new double[Space.D];
+//  protected transient final double[] v12 = new double[Space.D];
 //  protected transient final PairInteraction pair = new PairInteraction();
 
   public Potential() {;}
@@ -27,10 +26,10 @@ public class Potential implements Serializable {
     return 0.99*Double.MAX_VALUE;
   }
   
-  public double[] force(Atom atom1, Atom atom2) {
-    Space.uEa1(f,0.0);
-    return f;
-  }
+//  public double[] force(Atom atom1, Atom atom2) {
+//    Space.uEa1(f,0.0);
+//    return f;
+//  }
   
   public double energy(Atom atom1, Atom atom2) {
     return 0.0;

@@ -1,15 +1,16 @@
 package simulate;
 
-import java.beans.*;
-import java.awt.*;
-
-// Written only for stationary wall
-
-public class PotentialHardDiskWall extends simulate.Potential
-{
+public class PotentialDiskThermalWall extends Species {
+    
     double collisionDiameter, collisionRadius, sig2;
+    int heatTransfer;
 
-    public PotentialHardDiskWall(double d) {
+    PotentialDiskThermalWall() {
+        this(0.1);
+    }
+
+    PotentialDiskThermalWall(double d) {
+        super();
         setCollisionDiameter(d);
     }
 
@@ -35,7 +36,7 @@ public class PotentialHardDiskWall extends simulate.Potential
         
         if(parentPhase.noGravity || i==0 || !(wall.isStationary() || disk.isStationary())) {
             double dr, t, dtdr;
-            dr = space.r1iMr2i(i,wall.r,disk.r);
+            dr = wall.r[i] - disk.r[i];
             dtdr = 1.0/(disk.p[i]*disk.rm);
             t = dr*dtdr;
 
@@ -44,7 +45,7 @@ public class PotentialHardDiskWall extends simulate.Potential
         }
         else {
             double dr, dv;
-            dr = space.r1iMr2i(i,wall.r,disk.r);
+            dr = wall.r[i] - disk.r[i];
             dv = wall.p[i]*wall.rm - disk.p[i]*disk.rm;
             if(Math.abs(dr) < collisionRadius) {   //this may still need some work
                 return (dr*dv > 0) ? Double.MAX_VALUE : 0.0;}  //inside wall; no collision
@@ -68,6 +69,8 @@ public class PotentialHardDiskWall extends simulate.Potential
     {
         Atom disk;
         AtomWall wall;
+        
+        double angle;
         if(atom2 instanceof AtomWall) {
            disk = atom1;
            wall = (AtomWall)atom2;
@@ -77,21 +80,31 @@ public class PotentialHardDiskWall extends simulate.Potential
            wall = (AtomWall)atom1;
         }
         
+        double momentum_prior = Math.sqrt(Math.pow(disk.p[0],2)+Math.pow(disk.p[1],2));
+        double k_prior = (Math.pow(momentum_prior,2))/(2*disk.mass);
+        double momentum = Math.sqrt(disk.mass*wall.temperature/Constants.KE2T*(double)Space.D);  //need to divide by sqrt(m) to get velocity
+        double k_after = (Math.pow(momentum,2))/(2*disk.mass);
+        setHeatTransfer(k_after-k_prior);
+        
         if(wall.isVertical()) {
-            disk.p[0] *= -1;
-            wall.pAccumulator += 2*Math.abs(disk.p[0]);
+            angle = Math.atan(Math.abs(disk.p[0]/disk.p[1]));
+            disk.p[1] = Math.sin(angle)*momentum* (disk.p[1]/(Math.abs(disk.p[1])));
+            disk.p[0] = -1*(Math.cos(angle)*momentum)* (disk.p[0]/(Math.abs(disk.p[0])));
         }
         if(wall.isHorizontal()) {
-            disk.p[1] *= -1;
-            wall.pAccumulator += 2*Math.abs(disk.p[1]);
+            angle = Math.atan(Math.abs(disk.p[1]/disk.p[0]));
+            disk.p[1] = -1*(Math.sin(angle)*momentum)* (disk.p[1]/(Math.abs(disk.p[1])));
+            disk.p[0] = Math.cos(angle)*momentum* (disk.p[0]/(Math.abs(disk.p[0])));
         }
+        
         
     }
     
-    public double getCollisionDiameter() {return collisionDiameter;}
+/*    public double getCollisionDiameter() {return collisionDiameter;}
     public void setCollisionDiameter(double c) {
         collisionDiameter = c;
         collisionRadius = 0.5*c;
         sig2 = c*c;
     }
+*/
 }

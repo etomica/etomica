@@ -9,9 +9,12 @@ public class AtomWall extends Atom {
     int thickness;
     private boolean vertical, horizontal;
     double[] r1 = new double[Space.D];  //other end of line in simulation units (first end is denoted r)
-    private int theta;   //orientation (degrees) with respect to positive x-axis
+    private int theta;   //orientation (degrees) with respect to positive x-axis, taking r at the origin
     private double length;  //length of line in simulation units
     double pAccumulator;  //accumulated momentum perpendicular to wall, for calculation of pressure
+    double qAccumulator;  //accumulated energy absorbed by wall, for calculation of heat transfer
+    double temperature;
+    boolean adiabatic;
 
     public AtomWall(Molecule parent, int index) {
         super(parent, index);
@@ -19,6 +22,8 @@ public class AtomWall extends Atom {
         setThickness(4);
         setAngle(0);   //default is horizontal
         setStationary(true);
+        setTemperature(300.);
+        setAdiabatic(true);
     }
 
     public void setAngle(int t) {
@@ -40,6 +45,13 @@ public class AtomWall extends Atom {
         this.length = length;
         computeR1();
     }
+    
+    public double getTemperature() {return temperature;}
+    public void setTemperature(int t) {setTemperature((double)t);}  //for connection to sliders, etc.
+    public void setTemperature(double t) {temperature = t;}
+    
+    public boolean isAdiabatic() {return adiabatic;}
+    public void setAdiabatic(boolean a) {adiabatic = a;}
  
     private void computeR1() {
         r1[0] = r[0] + length * Math.cos((double)theta);

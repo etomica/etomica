@@ -11,6 +11,7 @@ public class ConfigurationMoleculeWallsParallel extends ConfigurationMolecule {
     private int angle;
     private boolean horizontal, vertical;
     private boolean spanVolume;
+    private double temperature = 300.;
     
     public ConfigurationMoleculeWallsParallel(){
     }
@@ -21,6 +22,12 @@ public class ConfigurationMoleculeWallsParallel extends ConfigurationMolecule {
         angle = (t <= 360) ? t : (t % 360);
         horizontal = (angle == 0) || (Math.abs(angle) == 180);
         vertical = (Math.abs(angle) == 90) || (Math.abs(angle) == 270);
+        initializeCoordinates();
+    }
+    
+    public final double getTemperature() {return temperature;}
+    public final void setTemperature(double t) {
+        temperature = t;
         initializeCoordinates();
     }
     
@@ -60,12 +67,13 @@ public class ConfigurationMoleculeWallsParallel extends ConfigurationMolecule {
             xyNext = x;
             wh = h;
         }
-        for(Atom a=m.firstAtom(); a!=m.terminationAtom(); a=a.getNextAtom()) {
+        for(Atom a=m.firstAtom(); a!=m.terminationAtom(); a=a.getNextAtom()) {  //equally space all "wall atoms"
             Space.uEa1(a.r,0.0);
             a.r[i] = xyNext;
             xyNext += delta;
             a.setDiameter(wh);
             ((AtomWall)a).setAngle(angle);
+            ((AtomWall)a).setTemperature(temperature);
         }
     }
     

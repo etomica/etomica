@@ -42,9 +42,11 @@ public abstract class Meter extends Component implements IntegrationIntervalList
 	    if(--iieCount == 0) {
 	        iieCount = updateInterval;
 	        double value = currentValue();
-	        sum += value;
-	        sumSquare += value*value;
-	        count++;
+	        if(!Double.isNaN(value)) {
+	            sum += value;
+	            sumSquare += value*value;
+	            count++;
+	        }
 	    }
 	}
 		
