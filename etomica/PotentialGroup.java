@@ -55,7 +55,7 @@ public class PotentialGroup extends Potential {
 	 * in the constructor) of the given potential.  
 	 */
     
-    //this method needs AtomsetIterator to implement AtomsetDirectable, but PotentialMaster doesn't.
+    //this method needs given iterator to implement AtomsetDirectable, but PotentialMaster doesn't.
     //need to reconcile differences
 	synchronized void addPotential(Potential potential, AtomsetIterator iterator) {
 		if(potential == null || iterator == null) {
@@ -90,6 +90,31 @@ public class PotentialGroup extends Potential {
 				if(last == null) last = first;
 			}
 		}
+	}
+	
+	//TODO this needs some work
+	public double energy(Atom[] basisAtoms) {
+		if(basisAtoms.length != this.nBody()) {
+			throw new IllegalArgumentException("Error: number of atoms for energy calculation inconsistent with order of potential");
+		}
+		double sum = 0.0;
+		for (PotentialLinker link=first; link!= null; link=link.next) {		
+			//if(firstIterate) ((AtomsetIteratorDirectable)link.iterator).setDirective(id);
+			((AtomsetIteratorDirectable)link.iterator).setBasis(basisAtoms);
+			link.iterator.reset();
+			while(link.iterator.hasNext()) {
+				sum += link.potential.energy(link.iterator.next());
+			}
+		}
+		for (PotentialLinker link=firstGroup; link!=null; link=link.next) {
+			//if(firstIterate) ((AtomsetIteratorDirectable)link.iterator).setDirective(id);
+			((AtomsetIteratorDirectable)link.iterator).setBasis(basisAtoms);  			
+			link.iterator.reset();
+			while(link.iterator.hasNext()) {
+				sum += link.potential.energy(link.iterator.next());
+			}
+		}		
+		return sum;
 	}
 	
 	/**
