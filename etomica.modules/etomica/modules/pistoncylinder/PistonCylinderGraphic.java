@@ -69,7 +69,8 @@ public class PistonCylinderGraphic {
     public MeterPistonDensity densityMeter;
     public DeviceToggleButton fixPistonButton;
     public Unit pUnit = new BaseUnitPseudo3D.Pressure(Bar.UNIT);
-    
+    public final javax.swing.JTabbedPane displayPanel; 
+
     public PistonCylinderGraphic() {
         Default.BLOCK_SIZE = 100;
         displayPhase = new DisplayPhase(null);
@@ -104,7 +105,6 @@ public class PistonCylinderGraphic {
 	        "Ideal gas", "Repulsion only", "Repulsion and attraction"});
 	    potentialChooser.setSelectedIndex(0);
 
-//      displayPhase.setAlign(1,DisplayPhase.BOTTOM);
 //        displayPhase.canvas.setDrawBoundary(DisplayCanvasInterface.DRAW_BOUNDARY_NONE);
 //        displayPhase.getOriginShift()[0] = thickness;
 //        displayPhase.getOriginShift()[1] = -thickness;
@@ -244,11 +244,10 @@ public class PistonCylinderGraphic {
         panel.setLayout(new java.awt.BorderLayout());      
 
         //tabbed pane for the big displays
-    	final javax.swing.JTabbedPane displayPanel = new javax.swing.JTabbedPane();
+    	displayPanel = new javax.swing.JTabbedPane();
     	displayPhasePanel = new javax.swing.JPanel(new java.awt.BorderLayout());
 //    	displayPhasePanel.add(scaleSlider.getSlider(),java.awt.BorderLayout.EAST);
     	displayPhasePanel.add(scaleSliderPanel,java.awt.BorderLayout.EAST);
-    	displayPanel.add(displayPhase.getLabel(), displayPhasePanel);
 //        displayPanel.add(displayPhase.getLabel(),displayPhase.graphic(null));
 //        displayPanel.add("Averages", table.graphic(null));
 //        displayPanel.add(plotD.getLabel(), plotD.graphic());
@@ -308,7 +307,7 @@ public class PistonCylinderGraphic {
         JPanel dimensionPanel = new JPanel(new GridLayout(1,0));
         ButtonGroup dimensionGroup = new ButtonGroup();
         final JRadioButton button2D = new JRadioButton("2D");
-        JRadioButton button3D = new JRadioButton("3D (not yet)");
+        JRadioButton button3D = new JRadioButton("3D");
         button2D.setSelected(true);
         dimensionGroup.add(button2D);
         dimensionGroup.add(button3D);
@@ -319,7 +318,7 @@ public class PistonCylinderGraphic {
                if(button2D.isSelected()) {
                    setSimulation(new PistonCylinder(2));
                } else {
-                   setSimulation(new PistonCylinder(2));//not ready for 3d yet
+                   setSimulation(new PistonCylinder(3));
                }
            }
         });
@@ -351,6 +350,9 @@ public class PistonCylinderGraphic {
     }
     
     public void setSimulation(PistonCylinder sim) {
+        if (pc != null) {
+            pc.getController().halt();
+        }
         pc = sim;
 
         BaseUnit.Length.Sim.TO_PIXELS = 800/pc.phase.boundary().dimensions().x(1);
@@ -367,13 +369,22 @@ public class PistonCylinderGraphic {
         pc.wallPotential.setLongWall(1,false,false);// bottom wall
         pc.wallPotential.setPhase(pc.phase);  // so it has a boundary
         
-        displayPhase.setPhase(pc.phase);
-        displayPhase.canvas.setDrawBoundary(DisplayCanvasInterface.DRAW_BOUNDARY_NONE);
-        displayPhase.getDrawables().clear();
-        displayPhase.addDrawable(pc.pistonPotential);
-        displayPhase.addDrawable(pc.wallPotential);
-        displayPhasePanel.add(displayPhase.graphic(),java.awt.BorderLayout.WEST);
-        pc.integrator.addIntervalListener(displayPhase);
+        if (displayPhase.graphic() != null) {
+            System.out.println("removing displayPhase");
+            displayPhasePanel.remove(displayPhase.graphic());
+            displayPanel.remove(displayPhasePanel);
+        }
+        if (sim.space.D() == 2) {
+            displayPanel.add(displayPhase.getLabel(), displayPhasePanel);
+            displayPhase.setPhase(pc.phase);
+            displayPhase.setAlign(1,DisplayPhase.BOTTOM);
+            displayPhase.canvas.setDrawBoundary(DisplayCanvasInterface.DRAW_BOUNDARY_NONE);
+            displayPhase.getDrawables().clear();
+            displayPhase.addDrawable(pc.pistonPotential);
+            displayPhase.addDrawable(pc.wallPotential);
+            displayPhasePanel.add(displayPhase.graphic(),java.awt.BorderLayout.WEST);
+            pc.integrator.addIntervalListener(displayPhase);
+        }
                 
         meterCycles = new DataSourceCountSteps(pc.integrator);
         displayCycles.setDataSource(meterCycles);
