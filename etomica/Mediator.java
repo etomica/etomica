@@ -293,7 +293,7 @@ public class Mediator implements java.io.Serializable {
                     Phase phase = (Phase)ip.next();
                     if(phase.wasAdded() && integrator.wantsPhase() && phase.integrator() == null) { 
                         phase.setIntegrator(integrator);
-						PhaseImposePbc imposePbc = new PhaseImposePbc();
+						PhaseImposePbc imposePbc = new PhaseImposePbc(phase);
 						phase.setCentralImageEnforcer(imposePbc);
 						integrator.addIntervalListener(imposePbc);
                     }
