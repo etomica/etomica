@@ -35,6 +35,9 @@ public class DataManager implements Integrator.IntervalListener {
 		setUpdateInterval(1);
 		setEventType(Integrator.IntervalEvent.INTERVAL);
         setPriority(200);
+        if (Default.AUTO_REGISTER) {
+            Simulation.getDefault().register(this);
+        }
 	}
 	
 	/**
