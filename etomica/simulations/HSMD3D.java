@@ -8,7 +8,8 @@ import etomica.graphics.*;
 public class HSMD3D extends SimulationGraphic {
 
   public HSMD3D() {
-    super(new etomica.Space3D());
+    super(new etomica.space.continuum.Space(3));
+//    super(new etomica.Space3D());
     Simulation.instance = this;
     Default.ATOM_SIZE = 6.6;
 //    Default.DISPLAY_USE_OPENGL = false;

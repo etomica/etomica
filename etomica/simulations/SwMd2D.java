@@ -16,7 +16,7 @@ public class SwMd2D extends SimulationGraphic {
     public DisplayPhase display;
 
     public SwMd2D() {
-        super(new Space2D());
+        super(new etomica.space.continuum.Space(2));
         Simulation.instance = this;
         Default.ATOM_SIZE = 2.0;
 	    integrator = new IntegratorHard(this);

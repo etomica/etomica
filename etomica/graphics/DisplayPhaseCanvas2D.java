@@ -47,7 +47,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
     }
        
     private void drawAtom(Graphics g, int origin[], Atom a) {
-        Space2D.Vector r = (Space2D.Vector)a.coord.position();
+        Space.Vector r = a.coord.position();
         int sigmaP, xP, yP, baseXP, baseYP;
 
         boolean drawOrientation = (a.type instanceof AtomType.OrientedSphere);
@@ -55,8 +55,8 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
 
         g.setColor(displayPhase.getColorScheme().atomColor(a));
             
-        baseXP = origin[0] + (int)(displayPhase.getToPixels()*r.x);
-        baseYP = origin[1] + (int)(displayPhase.getToPixels()*r.y);
+        baseXP = origin[0] + (int)(displayPhase.getToPixels()*r.component(0));
+        baseYP = origin[1] + (int)(displayPhase.getToPixels()*r.component(1));
         if(a.type instanceof AtomType.Sphere) {
             /* Draw the core of the atom, specific to the dimension */
             sigmaP = (int)(displayPhase.getToPixels()*((AtomType.Sphere)a.type).diameter());
@@ -83,8 +83,8 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
             }
 //            a.type.electroType().draw(g, origin, displayPhase.getToPixels(), r);
         } else if(a.type instanceof AtomType.Wall) {
-            xP = origin[0] + (int)(displayPhase.getToPixels()*r.x);
-            yP = origin[1] + (int)(displayPhase.getToPixels()*r.y);
+            xP = origin[0] + (int)(displayPhase.getToPixels()*r.component(0));
+            yP = origin[1] + (int)(displayPhase.getToPixels()*r.component(1));
             int t = Math.max(1,(int)((double)((AtomType.Wall)a.type).getThickness()*(double)displayPhase.getToPixels()/(double)etomica.units.BaseUnit.Length.Sim.TO_PIXELS));
             if(!(((AtomType.Wall)a.type).isHorizontal() || ((AtomType.Wall)a.type).isVertical())) {  //not horizontal or vertical; draw line
                 int x1 = xP + (int)(displayPhase.getToPixels()*((AtomType.Wall)a.type).getLength()*((AtomType.Wall)a.type).getCosZ());

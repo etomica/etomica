@@ -21,7 +21,8 @@ public class HsMc2d extends SimulationGraphic {
     public DisplayBox displayCycles;
 
     public HsMc2d() {
-        super(new Space2D());
+ //       super(new Space2D());
+        super(new etomica.space.continuum.Space(2));
         Simulation.instance = this;
 	    phase = new Phase(this);
 	    integrator = new IntegratorMC(this);

@@ -372,7 +372,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
       i += i<<1;
       while(i >= 0) {
         a = sphereCores[i/3];
-        Space3D.Vector r3 = (Space3D.Vector)a.coord.position();
+        Space.Vector r3 = a.coord.position();
 //        System.out.println(a.toString()+", "+r3.x+", "+r3.y+", "+r3.z);
         c = colorScheme.atomColor(a);
         r = a.coord.position();

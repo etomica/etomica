@@ -18,7 +18,7 @@ public class LjMd2D extends SimulationGraphic {
     public MeterEnergy energy;
 
     public LjMd2D() {
-        super(new Space2D());
+        super(new etomica.space.continuum.Space(2));
         Simulation.instance = this;
 	    integrator = new IntegratorVelocityVerlet(this);
 	    species = new SpeciesSpheresMono(this);

@@ -302,6 +302,9 @@ public final class Vector extends Space.Vector {
         return WORK;
     }
 
+    /**
+     * Sets vector to a random point in a unit cube, centered on the origin.
+     */
     public void setRandomCube(){
         switch(D) {
             case 3: 
@@ -320,12 +323,9 @@ public final class Vector extends Space.Vector {
     }
 
     /**
-
-        * Replaces this vector with its cross-product with the given 3D vector, with result projected
-
-        * onto the 2D plane.  This vector becomes the result of (this vector) x u.
-
-        */
+     * Replaces this vector with its cross-product with the given 3D vector, with result projected
+     * onto the 2D plane.  This vector becomes the result of (this vector) x u.
+     */
 
     public void XE(Space3D.Vector u) {
         throw new RuntimeException("Method Vector.XE not implemented");
@@ -362,25 +362,45 @@ public final class Vector extends Space.Vector {
 
     public void setRandom(Vector u) {System.out.println("Vector: shouldn't be here 4");;}
 
-    public void setRandomSphere() {///check this method
-            double z1 = 0.0;
-            double z2 = 0.0;
-            double z3 = 0.0;
-            double rsq = Double.MAX_VALUE;
-            while(rsq > 1.0) {
-                
-                z1 = 1.0 - 2.0*Simulation.random.nextDouble();
-                z2 = 1.0 - 2.0*Simulation.random.nextDouble();
-                z3 = 1.0 - 2.0*Simulation.random.nextDouble();
-        
-                rsq = z1*z1+z2*z2+z3*z3;
-            }
-            double r = Math.sqrt(rsq);
-            x[0] = z1/r;
-            x[1] = z2/r;
-            x[2] = z3/r;
-            if(D < 3) System.out.println("Warning: Method Vector.setRandomSphere() not implemented in 2 or 1D");
+    /**
+     * Sets vector to a random point in a sphere of unit diameter, centered on the origin.
+     */
+    public void setRandomSphere() {
+        switch(D) {
+            case 1:
+                x[0] = Simulation.random.nextDouble() - 0.5;
+                break;
+            case 2:
+                double z1 = 0.0;
+                double z2 = 0.0;
+                double rsq = Double.MAX_VALUE;
+                while(rsq > 0.25) {
+                    z1 = Simulation.random.nextDouble() - 0.5;
+                    z2 = Simulation.random.nextDouble() - 0.5;
+                    rsq = z1*z1 + z2*z2;
+                }
+                x[0] = z1;;
+                x[1] = z2;;
+                break;
+            case 3:
+                double y1 = 0.0;
+                double y2 = 0.0;
+                double y3 = 0.0;
+                double r2 = Double.MAX_VALUE;
+                while(r2 > 0.25) {
+                    y1 = Simulation.random.nextDouble() - 0.5;
+                    y2 = Simulation.random.nextDouble() - 0.5;
+                    y3 = Simulation.random.nextDouble() - 0.5;
+                    r2 = y1*y1 + y2*y2 + y3*y3;
+                }
+                x[0] = y1;
+                x[1] = y2;;
+                x[2] = y3;;
         }
+        //compact but less efficient formulation
+            //do this.setRandomCube();
+            //while(this.squared() > 0.25);
+    }//end of setRandomSphere
 
     public void randomRotate(double thetaStep){
         System.out.println("Vector: shouldn't be here 6");

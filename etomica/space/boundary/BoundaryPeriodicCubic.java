@@ -96,91 +96,137 @@ public final class BoundaryPeriodicCubic extends Space.Boundary implements Space
         */
         
         
-        //needs to be fixed for 2D/1D
-    int shellFormula, nImages, i, j, k, m;
-    double[][] origins;
     public double[][] imageOrigins(int nShells) {
-        shellFormula = (2 * nShells) + 1;
-        nImages = shellFormula*shellFormula*shellFormula-1;
-        origins = new double[nImages][D];
-        for (k=0,i=-nShells; i<=nShells; i++) {
-            for (j=-nShells; j<=nShells; j++) {
-                for (m=-nShells; m<=nShells; m++) {
-                    if ((i==0 && j==0) && m==0 ) {continue;}
+        double[][] origins = null;
+        int nImages, k, i;
+        switch(D) {
+            case 1:
+                nImages = 2*nShells;
+                origins = new double[nImages][D];
+                k = 0;
+                for(i=-nShells; i<=nShells; i++) {
+                    if(i==0) {continue;}
                     origins[k][0] = i*dimensions.component(0);
-                    origins[k][1] = j*dimensions.component(1);
-                    origins[k][2] = m*dimensions.component(2);
                     k++;
                 }
-            }
-        }
+                break;
+            case 2:
+                nImages = (2*nShells+1)*(2*nShells+1)-1;
+                origins = new double[nImages][D];
+                k = 0;
+                for(i=-nShells; i<=nShells; i++) {
+                    for(int j=-nShells; j<=nShells; j++) {
+                        if(i==0 && j==0) {continue;}
+                        origins[k][0] = i*dimensions.component(0);
+                        origins[k][1] = j*dimensions.component(1);
+                        k++;
+                    }
+                }
+                break;
+            case 3:
+                int shellFormula = (2 * nShells) + 1;
+                nImages = shellFormula*shellFormula*shellFormula-1;
+                origins = new double[nImages][D];
+                for (k=0,i=-nShells; i<=nShells; i++) {
+                    for (int j=-nShells; j<=nShells; j++) {
+                        for (int m=-nShells; m<=nShells; m++) {
+                            if ((i==0 && j==0) && m==0 ) {continue;}
+                            origins[k][0] = i*dimensions.component(0);
+                            origins[k][1] = j*dimensions.component(1);
+                            origins[k][2] = m*dimensions.component(2);
+                            k++;
+                        }
+                    }
+                }
+        }//end switch
         return origins;
-    }
+    }//end imageOrigins
         
         
     //getOverflowShifts ends up being called by the display routines quite often
     //so, in the interest of speed, i moved these outside of the function;
     int shiftX, shiftY, shiftZ;
     Space.Vector r;
-    public float[][] getOverflowShifts(Space.Vector rr, double distance) {
-        /*
-        shiftX = 0; shiftY = 0; shiftZ = 0;
-        r = (Vector)rr;
+    public float[][] getOverflowShifts(Space.Vector r, double distance) {
+        int shiftX = 0;
+        int shiftY = 0;
+        int shiftZ = 0;
+        switch(D) {
+            case 3:
+                if(r.component(2)-distance < 0.0) {shiftZ = +1;}
+                else if(r.component(2)+distance > dimensions.component(2)) {shiftZ = -1;}
+            case 2://fall through from 3            
+                if(r.component(1)-distance < 0.0) {shiftY = +1;}
+                else if(r.component(1)+distance > dimensions.component(1)) {shiftY = -1;}
+            case 1://fall through from 2
+                if(r.component(0)-distance < 0.0) {shiftX = +1;}
+                else if(r.component(0)+distance > dimensions.component(0)) {shiftX = -1;}
+        }//end switch
             
-        if(r.x-distance < 0.0) {shiftX = +1;}
-        else if(r.x+distance > dimensions.component(0)) {shiftX = -1;}
-            
-        if(r.y-distance < 0.0) {shiftY = +1;}
-        else if(r.y+distance > dimensions.component(1)) {shiftY = -1;}
-            
-        if(r.z-distance < 0.0) {shiftZ = +1;}
-        else if(r.z+distance > dimensions.component(2)) {shiftZ = -1;}
-              
-        if((shiftX == 0) && (shiftY == 0) && (shiftZ == 0)) {
-            shift = shift0;
-        } else if((shiftX != 0) && (shiftY == 0) && (shiftZ == 0)) {
-            shift = new float[1][D];
-            shift[0][0] = (float)(shiftX*dimensions.component(0));
-        } else if((shiftX == 0) && (shiftY != 0) && (shiftZ == 0)) {
-            shift = new float[1][D];
-            shift[0][1] = (float)(shiftY*dimensions.component(1));
-        } else if((shiftX == 0) && (shiftY == 0) && (shiftZ != 0)) {
-            shift = new float[1][D];
-            shift[0][2] = (float)(shiftZ*dimensions.component(2));
-        } else if((shiftX != 0) && (shiftY != 0) && (shiftZ == 0)) {
-            shift = new float[3][D];
-            shift[0][0] = (float)(shiftX*dimensions.component(0));
-            shift[1][1] = (float)(shiftY*dimensions.component(1));
-            shift[2][0] = shift[0][0];
-            shift[2][1] = shift[1][1];
-        } else if((shiftX != 0) && (shiftY == 0) && (shiftZ != 0)) {
-            shift = new float[3][D];
-            shift[0][0] = (float)(shiftX*dimensions.component(0));
-            shift[1][2] = (float)(shiftZ*dimensions.component(2));
-            shift[2][0] = shift[0][0];
-            shift[2][2] = shift[1][2];
-        } else if((shiftX == 0) && (shiftY != 0) && (shiftZ != 0)) {
-            shift = new float[3][D];
-            shift[0][1] = (float)(shiftY*dimensions.component(1));
-            shift[1][2] = (float)(shiftZ*dimensions.component(2));
-            shift[2][1] = shift[0][1];
-            shift[2][2] = shift[1][2];
-        } else if((shiftX != 0) && (shiftY != 0) && (shiftZ != 0)) {
-            shift = new float[7][D];
-            shift[0][0] = (float)(shiftX*dimensions.component(0));
-            shift[1][1] = (float)(shiftY*dimensions.component(1));
-            shift[2][2] = (float)(shiftZ*dimensions.component(2));
-            shift[3][0] = shift[0][0];
-            shift[3][1] = shift[1][1];
-            shift[4][1] = shift[1][1];
-            shift[4][2] = shift[2][2];
-            shift[5][0] = shift[0][0];
-            shift[5][2] = shift[2][2];
-            shift[6][0] = shift[0][0];
-            shift[6][1] = shift[1][1];
-            shift[6][2] = shift[2][2];
-        }
-            */
+        switch(D) {
+            case 2:
+                if((shiftX == 0) && (shiftY == 0)) {
+                shift = shift0;
+                } else if((shiftX != 0) && (shiftY == 0)) {
+                shift = new float[1][D];
+                shift[0][0] = (float)(shiftX*dimensions.component(0));
+                } else if((shiftX == 0) && (shiftY != 0)) {
+                shift = new float[1][D];
+                shift[0][1] = (float)(shiftY*dimensions.component(1));
+                } else if((shiftX != 0) && (shiftY != 0)) {
+                shift = new float[3][D];
+                shift[0][0] = (float)(shiftX*dimensions.component(0));
+                shift[1][1] = (float)(shiftY*dimensions.component(1));
+                shift[2][0] = shift[0][0];
+                shift[2][1] = shift[1][1];
+                }
+            break;
+        case 3:                  
+            if((shiftX == 0) && (shiftY == 0) && (shiftZ == 0)) {
+                shift = shift0;
+            } else if((shiftX != 0) && (shiftY == 0) && (shiftZ == 0)) {
+                shift = new float[1][D];
+                shift[0][0] = (float)(shiftX*dimensions.component(0));
+            } else if((shiftX == 0) && (shiftY != 0) && (shiftZ == 0)) {
+                shift = new float[1][D];
+                shift[0][1] = (float)(shiftY*dimensions.component(1));
+            } else if((shiftX == 0) && (shiftY == 0) && (shiftZ != 0)) {
+                shift = new float[1][D];
+                shift[0][2] = (float)(shiftZ*dimensions.component(2));
+            } else if((shiftX != 0) && (shiftY != 0) && (shiftZ == 0)) {
+                shift = new float[3][D];
+                shift[0][0] = (float)(shiftX*dimensions.component(0));
+                shift[1][1] = (float)(shiftY*dimensions.component(1));
+                shift[2][0] = shift[0][0];
+                shift[2][1] = shift[1][1];
+            } else if((shiftX != 0) && (shiftY == 0) && (shiftZ != 0)) {
+                shift = new float[3][D];
+                shift[0][0] = (float)(shiftX*dimensions.component(0));
+                shift[1][2] = (float)(shiftZ*dimensions.component(2));
+                shift[2][0] = shift[0][0];
+                shift[2][2] = shift[1][2];
+            } else if((shiftX == 0) && (shiftY != 0) && (shiftZ != 0)) {
+                shift = new float[3][D];
+                shift[0][1] = (float)(shiftY*dimensions.component(1));
+                shift[1][2] = (float)(shiftZ*dimensions.component(2));
+                shift[2][1] = shift[0][1];
+                shift[2][2] = shift[1][2];
+            } else if((shiftX != 0) && (shiftY != 0) && (shiftZ != 0)) {
+                shift = new float[7][D];
+                shift[0][0] = (float)(shiftX*dimensions.component(0));
+                shift[1][1] = (float)(shiftY*dimensions.component(1));
+                shift[2][2] = (float)(shiftZ*dimensions.component(2));
+                shift[3][0] = shift[0][0];
+                shift[3][1] = shift[1][1];
+                shift[4][1] = shift[1][1];
+                shift[4][2] = shift[2][2];
+                shift[5][0] = shift[0][0];
+                shift[5][2] = shift[2][2];
+                shift[6][0] = shift[0][0];
+                shift[6][1] = shift[1][1];
+                shift[6][2] = shift[2][2];
+            }
+        }//end switch
         return(shift);
     }//end of getOverflowShifts
 }//end of PeriodicCubic

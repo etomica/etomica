@@ -71,7 +71,7 @@ public class Coordinate extends Space.Coordinate {
     public void randomizeMomentum(double temperature) {  //not very sophisticated; random only in direction, not magnitude
         if(isStationary()) {p.E(0.0); return;}
         double magnitude = Math.sqrt(mass()*temperature*(double)p.D());  //need to divide by sqrt(m) to get velocity
-        momentum().setRandomSphere();
+        momentum().setRandomDirection();
         momentum().TE(magnitude);
         //for debugging
     //      momentum().E(position());

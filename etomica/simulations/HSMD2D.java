@@ -18,7 +18,8 @@ public class HSMD2D extends SimulationGraphic {
     public DisplayPhase display;
 
     public HSMD2D() {
-        super(new Space2D());
+        super(new etomica.space.continuum.Space(2));
+  //      super(new Space2D());
         Simulation.instance = this;
 	    integrator = new IntegratorHard(this);
 	    species = new SpeciesSpheresMono(this);

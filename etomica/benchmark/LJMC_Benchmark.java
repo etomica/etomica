@@ -12,7 +12,7 @@ public class LJMC_Benchmark {
         // 1 = performance
         // 2 = molecule layer
         final int VERSION = 0;
-        final int nCycles = 1000;
+        final int nCycles = 10000;
         
         Default.BOX_SIZE=30.;
         Default.ATOM_SIZE=3.0;
