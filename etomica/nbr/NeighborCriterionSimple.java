@@ -105,7 +105,7 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 	CoordinatePair cPair;
 	protected static int agentIndex = Atom.requestAgentIndex(new Atom.AgentSource() {
 		public Object makeAgent(Atom atom) {
-			return atom.coord.position().clone();
+			return (atom.coord != null) ? atom.coord.position().clone() : null;
 		}
 	});
 	protected double safetyFactor;

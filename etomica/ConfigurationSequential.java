@@ -22,11 +22,9 @@ public class ConfigurationSequential extends Configuration {
 	private boolean fill;
 	private Vector dimensions;
 	private boolean squareConfig;
-    private Space space;
     
 	public ConfigurationSequential(Space space) {
-		super();
-        this.space = space;
+		super(space);
 		setFillVertical(true);
 		setSquareConfig(false); // hexagonalLattice is Default!!
 		dimensions = space.makeVector();
@@ -85,7 +83,8 @@ public class ConfigurationSequential extends Configuration {
 			try {//may get null pointer exception when beginning simulation
 				a.creator().getConfiguration().initializeCoordinates(a);
 			} catch(NullPointerException e) {}
-			a.coord.translateTo(rLat[i]);
+//            a.coord.translateTo(rLat[i]);
+            a.coord.position().E(rLat[i]);
  //           System.out.println("configurationsequential: "+rLat[i].toString());
 			i++;
 		}
