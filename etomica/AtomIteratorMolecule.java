@@ -11,7 +11,7 @@ package etomica;
  * @since 02.02.16
  */
 
-public class AtomIteratorMolecule implements AtomIterator {
+public class AtomIteratorMolecule extends AtomIterator {
     
     public AtomIteratorMolecule() {
         treeIterator.setIterationDepth(2);
@@ -38,14 +38,10 @@ public class AtomIteratorMolecule implements AtomIterator {
         reset();
     }
  
-	public void all(AtomSet basis, IteratorDirective dummy, final AtomSetAction action) {
-		if(!(basis instanceof Atom && action instanceof AtomAction)) return;
-		all((Atom)basis, dummy, (AtomAction)action);
-	}
-	public void all(Phase phase, IteratorDirective dummy, final AtomAction action) {
+	public void all(Phase phase, IteratorDirective dummy, final AtomActive action) {
 		all(phase.speciesMaster, dummy, action);    
 	}
-	public void all(Atom basis, IteratorDirective dummy, final AtomAction action) {
+	public void all(Atom basis, IteratorDirective dummy, final AtomActive action) {
 		if(basis instanceof SpeciesMaster) treeIterator.all(basis, dummy, action);
 		else if(basis instanceof SpeciesAgent) listIterator.all(basis, dummy, action);
 		else throw new IllegalArgumentException("Error: AtomIteratorMolecule invoked with illegal basis (not SpeciesMaster or SpeciesAgent");

@@ -36,7 +36,7 @@ public class IteratorFactorySimple implements IteratorFactory {
     * @author David Kofke
     */
 
-private static final class SequentialIterator implements AtomIterator {
+private static final class SequentialIterator extends AtomIterator {
     
     private AtomIteratorList listIterator = new AtomIteratorList();
     private AtomIteratorSinglet singletIterator = new AtomIteratorSinglet();
@@ -46,13 +46,8 @@ private static final class SequentialIterator implements AtomIterator {
     public SequentialIterator(boolean skipFirstAtom) {
         listIterator.setSkipFirstAtom(skipFirstAtom);
     }
- 
-	public void all(AtomSet basis, IteratorDirective id, final AtomSetAction action) {
-		 if(!(basis instanceof Atom && action instanceof AtomAction)) return;
-		 all((Atom)basis, id, (AtomAction)action);
-	}
-    
-	public void all(Atom basis, IteratorDirective id, final AtomAction action) {
+     
+	public void all(Atom basis, IteratorDirective id, final AtomActive action) {
 		if(basis == null || action == null) return;
 		if(basis.node.isLeaf()) {
 			singletIterator.all(basis, id, action);

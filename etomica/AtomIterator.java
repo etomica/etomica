@@ -14,27 +14,27 @@ package etomica;
 * @author David Kofke
 */
 
-public interface AtomIterator extends AtomSetIterator {
+public abstract class AtomIterator implements AtomSetIterator, java.io.Serializable {
     
-    public boolean hasNext();
+    public abstract boolean hasNext();
     
-    public boolean contains(Atom atom);
+    public abstract boolean contains(Atom atom);
     
-    public Atom reset(IteratorDirective id);
+    public abstract Atom reset(IteratorDirective id);
     
-    public Atom reset();
+    public abstract Atom reset();
     
     /**
      * Puts iterator in a state in which hasNext() returns false.
      */
-    public void unset(); 
+    public abstract void unset(); 
     
     /**
      * Returns the next atom in the iteration sequence.  Assumes that hasNext is
      * true; calling when hasNext is false can lead to unpredictable results, and
      * may or may not cause an error or exception.
      */
-    public Atom next();
+    public abstract Atom next();
     
     /**
      * Performs given actions over all the iterates of this iterator.  Iterates
@@ -45,9 +45,9 @@ public interface AtomIterator extends AtomSetIterator {
      * hasNext/next iteration, allAtoms can be called successively without intervening
      * reset calls to loop over the same set of atoms repeatedly.
      */
-    public void allAtoms(AtomAction act);
+    public abstract void allAtoms(AtomAction act);
     
-    public void all(Atom basis, IteratorDirective id, AtomAction action);
+    public abstract void all(Atom basis, IteratorDirective id, AtomActive action);
     
     /**
      * Defines generally the atoms subject to iteration.  Explicit meaning of basis depends
@@ -56,9 +56,9 @@ public interface AtomIterator extends AtomSetIterator {
      */
      
      //try to eliminate this from interface; use only in iterators that define it appropriately
-    public void setBasis(Atom atom);
+    public abstract void setBasis(Atom atom);
     
-    public Atom getBasis();
+    public abstract Atom getBasis();
     
     /**
      * The number of iterates returned by this iterator, if iterating after
@@ -66,13 +66,24 @@ public interface AtomIterator extends AtomSetIterator {
      * differs from this definition.  Neighbor iterators, for example, return
      * the total number of atoms in the basis, not the number of neighbors.
      */
-    public int size(); 
-    
+    public abstract int size(); 
+
+	/**
+	 * Invokes all(Atom, IteratorDirective, AtomActive) method of this
+	 * class, using given arguments if they are instances of the appropriate
+	 * classes. Otherwise returns without throwing any exception.
+	 * @see etomica.AtomSetIterator#all(AtomSet, IteratorDirective, AtomSetActive)
+	 */
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
+		 if(!(basis instanceof Atom && action instanceof AtomActive)) return;
+		 all((Atom)basis, id, (AtomActive)action);
+	}
+	
     /**
      * A placeholder iterator that contains no atoms and always returns false for hasNext.
      */
     public static final AtomIterator NULL = new Null();
-    static final class Null implements AtomIterator {
+    static final class Null extends AtomIterator {
         public boolean hasNext() {return false;}
         public boolean contains(Atom atom) {return false;}
         public Atom reset(IteratorDirective id) {return null;}
@@ -85,8 +96,8 @@ public interface AtomIterator extends AtomSetIterator {
         public void setBasis(Atom a) {}
         public Atom getBasis() {return null;}
         public int size() {return 0;}
-		public void all(AtomSet a, IteratorDirective id, AtomSetAction action) {}
-        public void all(Atom a, IteratorDirective id, AtomAction action) {}
+		public void all(AtomSet a, IteratorDirective id, AtomSetActive action) {}
+        public void all(Atom a, IteratorDirective id, AtomActive action) {}
     }//end of Null    
 
 }//end of AtomIterator

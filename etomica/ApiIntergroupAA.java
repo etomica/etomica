@@ -5,7 +5,7 @@ package etomica;
  *
  * @author David Kofke
  */
-public final class ApiIntergroupAA implements AtomPairIterator {
+public final class ApiIntergroupAA extends AtomPairIterator {
     
     public ApiIntergroupAA(Simulation sim) {
         pair = new AtomPair(sim.space);
@@ -13,18 +13,18 @@ public final class ApiIntergroupAA implements AtomPairIterator {
         aiInner = sim.iteratorFactory.makeIntergroupNbrIterator();
     }
     
-	public void all(AtomSet basis, IteratorDirective id, final AtomSetAction action) {
-		 if(!(basis instanceof AtomPair && action instanceof AtomPairAction)) return;
-		 all((AtomPair)basis, id, (AtomPairAction)action);
+	public void all(Atom basis, IteratorDirective id, AtomPairActive action) {
+		throw new IllegalArgumentException("Error: AtomPairIterator not defined for a single basis atom");
 	}
-	public void all(AtomPair basis, IteratorDirective dummy, AtomPairAction action) {
+	public void all(AtomPair basis, IteratorDirective dummy, AtomPairActive action) {
 		if(basis == null || action == null) return;
 		Atom group1 = basis.atom1();//assume group1 preceeds group2
 		Atom group2 = basis.atom2();
 		if(group1 == group2) throw new IllegalArgumentException("Improper basis given to ApiIntergroup1A: Basis atoms must be different");
-		action.outerWrapper.aiInner = aiInner;
-		action.outerWrapper.innerBasis = group2;
-		aiOuter.all(group1, dummy, action.outerWrapper);
+		AtomPairActive.OuterWrapper outerWrapper = action.outerWrapper();
+		outerWrapper.aiInner = aiInner;
+		outerWrapper.innerBasis = group2;
+		aiOuter.all(group1, dummy, outerWrapper);
 	}
 
     public void setBasis(Atom a1, Atom a2) {

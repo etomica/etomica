@@ -16,7 +16,7 @@ import etomica.statmech.MaxwellBoltzmann;
   * 8/1/02 (DAK) added constructor taking only parent potential
   */
  
-public class P2HardDiskWall extends Potential2Hard implements EtomicaElement {
+public class P2HardDiskWall extends Potential2 implements Potential2.Hard {
     
     public final String getVersion() {return "PotentialHardDiskWall:01.07.25/"+Potential.VERSION;}
 

@@ -47,6 +47,13 @@ public final class AtomPair implements AtomSet, java.io.Serializable {
 	public boolean contains(Atom a) {
 		return atom1 == a || atom2 == a;
 	}
+	/**
+	 * Returns 2, indicating that this is an atom set containing two atoms.
+	 * Part of the AtomSet interface.
+	 * 
+	 */
+	public final int atomCount() {return 2;}
+	
    /**
     * Redefines the atom pair to correspond to the given atoms
     */

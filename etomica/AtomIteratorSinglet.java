@@ -19,7 +19,7 @@ package etomica;
   *              Change made while attempting to enable operation of PistonCylinder
   * 8/5/02 (DAK) Commented out modification of 8/4/02, restoring to previous version.
   */
-public class AtomIteratorSinglet implements AtomIterator {
+public class AtomIteratorSinglet extends AtomIterator {
     
     private Atom atom;
     private boolean hasNext;
@@ -42,12 +42,12 @@ public class AtomIteratorSinglet implements AtomIterator {
     
     public int size() {return (atom != null) ? 1 : 0;}
 
-	public void all(AtomSet basis, IteratorDirective id, final AtomSetAction action) {
-		 if(!(basis instanceof Atom && action instanceof AtomAction)) return;
-		 all((Atom)basis, id, (AtomAction)action);
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
+		 if(!(basis instanceof Atom && action instanceof AtomActive)) return;
+		 all((Atom)basis, id, (AtomActive)action);
 	}
     
-	public void all(Atom basis, IteratorDirective id, final AtomAction action) {
+	public void all(Atom basis, IteratorDirective id, final AtomActive action) {
 		if(basis == null) return;
 		if(id.atomCount()==0 || id.atom1().node.isDescendedFrom(basis)) action.actionPerformed(basis);
 	} 

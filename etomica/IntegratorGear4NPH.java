@@ -133,7 +133,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         forceSumNPH.rvx = 0.0;
         forceSumNPH.vf = 0.0;
 
-        potential.calculate(allAtoms,forceSumNPH);
+        potential.calculate(firstPhase, allAtoms, forceSumNPH);
     }//end of calculateForces
     
     protected void corrector() {
@@ -224,28 +224,37 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         public Dimension getDimension() {return Dimension.NULL;}
     }
         
-    public final class ForceSumNPH implements Potential1Calculation, Potential2Calculation {
+    public final class ForceSumNPH extends PotentialCalculation {
         
         double u; //energy sum
         double w; //virial sum
         double x; //hypervirial sum
         double rvx; 
         double vf;
+		private Potential2Soft p2Soft;
+		private Potential1Soft p1Soft;
 
         private final Space.Vector f;
         public ForceSumNPH(Space space) {
             f = space.makeVector();
         }
             
-        //atom
-        public void calculate(AtomIterator iterator, Potential1 potential) {
-            Potential1Soft potentialSoft = (Potential1Soft)potential;
-            while(iterator.hasNext()) {
-                Atom atom = iterator.next();
-                u += potentialSoft.energy(atom);
-                f.E(potentialSoft.gradient(atom));
-                ((Integrator.Agent.Forcible)atom.ia).force().ME(f);
-            }//end while
+		public PotentialCalculation set(Potential1 p1) {
+			if(!(p1 instanceof Potential1Soft)) throw new RuntimeException("Error: PotentialCalculationForceSum being used with potential that is not soft 2-body type");
+			p1Soft = (Potential1Soft)p1;
+			return super.set(p1);
+		}
+		public PotentialCalculation set(Potential2 p2) {
+			if(!(p2 instanceof Potential2Soft)) throw new RuntimeException("Error: PotentialCalculationForceSum being used with potential that is not soft 2-body type");
+			p2Soft = (Potential2Soft)p2;
+			return super.set(p2);
+		}
+
+       //atom
+        public void actionPerformed(Atom atom) {
+            u += p1Soft.energy(atom);
+            f.E(p1Soft.gradient(atom));
+            ((Integrator.Agent.Forcible)atom.ia).force().ME(f);
         }//end of calculate
 
         //pair

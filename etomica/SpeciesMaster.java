@@ -45,7 +45,7 @@ public final class SpeciesMaster extends Atom {
     public SpeciesAgent lastSpecies() {return (SpeciesAgent)node.lastChildAtom();}
         
     
-    public int atomCount() {return atomList.size();}//or could use node.leafAtomCount()
+//    public int atomCount() {return atomList.size();}//or could use node.leafAtomCount()
     public int moleculeCount() {return moleculeCount;}
     
     public String signature() {return node.parentPhase().getName();}

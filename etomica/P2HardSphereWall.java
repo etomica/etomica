@@ -1,5 +1,4 @@
 package etomica;
-import etomica.statmech.MaxwellBoltzmann;
 
 /**
  * Interaction between a hard sphere and a hard stationary wall.
@@ -12,7 +11,7 @@ import etomica.statmech.MaxwellBoltzmann;
  * @author David Kofke
  */
  
-public class P2HardSphereWall extends Potential2Hard implements EtomicaElement {
+public class P2HardSphereWall extends Potential2 implements Potential2.Hard {
     
     public final String getVersion() {return "PotentialHardSphereWall:01.07.25/"+Potential.VERSION;}
 

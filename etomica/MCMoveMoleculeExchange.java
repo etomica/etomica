@@ -66,7 +66,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
         iSpecies = species.getAgent(iPhase);  //insertion-phase speciesAgent
         dSpecies = species.getAgent(dPhase);  //deletion-phase species Agent
         
-        uOld = potential.set(dPhase).calculate(iteratorDirective.set(molecule), energy.reset()).sum();
+        uOld = potential.calculate(dPhase, iteratorDirective.set(molecule), energy.reset()).sum();
 
         molecule.coord.displaceTo(iPhase.randomPosition());         //place at random in insertion phase
         molecule.node.setParent(iSpecies);
@@ -82,7 +82,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
     }
     
     public double lnProbabilityRatio() {
-        uNew = potential.set(iPhase).calculate(iteratorDirective, energy.reset()).sum();
+        uNew = potential.calculate(iPhase, iteratorDirective, energy.reset()).sum();
         return -(uNew - uOld)/parentIntegrator.temperature;
     }
     

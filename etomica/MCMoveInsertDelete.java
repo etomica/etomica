@@ -66,7 +66,7 @@ public class MCMoveInsertDelete extends MCMove {
                 return false;
             }
             testMolecule = speciesAgent.randomMolecule();
-            uOld = potential.set(phase).calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
+            uOld = potential.calculate(phase, iteratorDirective.set(testMolecule), energy.reset()).sum();
             reservoir.addAtom(testMolecule);
         } 
         uNew = Double.NaN;
@@ -80,7 +80,7 @@ public class MCMoveInsertDelete extends MCMove {
     
     public double lnProbabilityRatio() {
         if(insert) {
-            uNew = potential.set(phase).calculate(iteratorDirective.set(testMolecule), energy.reset()).sum();
+            uNew = potential.calculate(phase, iteratorDirective.set(testMolecule), energy.reset()).sum();
             return (+mu - uNew)/parentIntegrator.temperature;
         } else {//delete
             uNew = 0.0;

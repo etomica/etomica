@@ -6,7 +6,7 @@ package etomica;
  *
  * @author David Kofke
  */
-public class P2RoughSphere extends P2HardSphere implements EtomicaElement {
+public class P2RoughSphere extends P2HardSphere {
 
     private final Space3D.Vector omegaSum = new Space3D.Vector();
     private final Space.Vector v12Surface;

@@ -5,7 +5,7 @@ import etomica.*;
  * Iterates over the neighbors of a particular site, as specified by 
  * the site's neighborManager.
  */
-public class SiteIteratorNeighbor implements AtomIterator {
+public class SiteIteratorNeighbor extends AtomIterator {
     
     private NeighborManager neighborManager;
     private final AtomIteratorList iterator = new AtomIteratorList();
@@ -15,13 +15,8 @@ public class SiteIteratorNeighbor implements AtomIterator {
     public SiteIteratorNeighbor() {
         iterator.setSkipFirstAtom(true);
     }
-    
-	public void all(AtomSet basis, IteratorDirective id, final AtomSetAction action) {
-		 if(!(basis instanceof Atom && action instanceof AtomAction)) return;
-		 all((Atom)basis, id, (AtomAction)action);
-	}
-    
-	public void all(Atom basis, IteratorDirective id, final AtomAction action) {
+        
+	public void all(Atom basis, IteratorDirective id, final AtomActive action) {
 		if(basis == null || basis.node.isLeaf() || action == null) return;
 		throw new RuntimeException("Method all not implemented in SiteIteratorNeighbor");
 	}

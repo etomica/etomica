@@ -58,7 +58,7 @@ public class MCMoveAtom extends MCMove {
     
             System.out.println("hi!");
         }// */
-        uOld = potential.set(phase).calculate(iteratorDirective.set(atom), energy.reset()).sum();
+        uOld = potential.calculate(phase, iteratorDirective.set(atom), energy.reset()).sum();
         if(uOld > 1e10) {
             System.out.println("Uold: "+uOld);
    /*debug* /         uOld = potential.calculate(iteratorDirective.set(atom), energyDebug.reset()).sum();
@@ -99,7 +99,7 @@ public class MCMoveAtom extends MCMove {
      * doTrial.
      */
     public double lnProbabilityRatio() {
-        uNew = potential.calculate(iteratorDirective.set(atom), energy.reset()).sum();//not thread safe for multiphase systems
+        uNew = potential.calculate(phase, iteratorDirective.set(atom), energy.reset()).sum();//not thread safe for multiphase systems
         return -(uNew - uOld)/parentIntegrator.temperature;
     }
     

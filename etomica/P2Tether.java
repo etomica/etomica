@@ -8,7 +8,7 @@ import etomica.units.Dimension;
  *
  * @author David Kofke
  */
-public class P2Tether extends Potential2Hard implements EtomicaElement {
+public class P2Tether extends Potential2 implements Potential2.Hard {
 
   public String getVersion() {return "P2HardSphere:01.07.03/"+Potential2.VERSION;}
 

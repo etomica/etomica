@@ -13,7 +13,7 @@ package etomica;
   * 8/4/02 (DAK) special-purpose modification to setBasis method to in attempt to work with PistonCylinder
   */
   
-public final class ApiGeneral implements AtomPairIterator, java.io.Serializable {
+public final class ApiGeneral extends AtomPairIterator {
     
     private final AtomPair pair;
     private IteratorDirective.Direction direction;
@@ -42,11 +42,10 @@ public final class ApiGeneral implements AtomPairIterator, java.io.Serializable 
         direction = IteratorDirective.UP;
     }
  
-	public void all(AtomSet basis, IteratorDirective id, final AtomSetAction action) {
-		 if(!(basis instanceof AtomPair && action instanceof AtomPairAction)) return;
-		 all((AtomPair)basis, id, (AtomPairAction)action);
+	public void all(Atom basis, IteratorDirective dummy, AtomPairActive action) {
+		//in progress
 	}
-	public void all(AtomPair basis, IteratorDirective dummy, AtomPairAction action) {
+	public void all(AtomPair basis, IteratorDirective dummy, AtomPairActive action) {
 		if(basis == null || action == null) return;
 		Atom group1 = basis.atom1();//assume group1 preceeds group2
 		Atom group2 = basis.atom2();
@@ -55,9 +54,10 @@ public final class ApiGeneral implements AtomPairIterator, java.io.Serializable 
 			group1 = basis.atom2();
 			group2 = basis.atom1();
 		}
-		action.outerWrapper.aiInner = aiInner;
-		action.outerWrapper.innerBasis = group2;
-		aiOuter.all(group1, dummy, action.outerWrapper);
+		AtomPairActive.OuterWrapper outerWrapper = action.outerWrapper();
+		outerWrapper.aiInner = aiInner;
+		outerWrapper.innerBasis = group2;
+		aiOuter.all(group1, dummy, outerWrapper);
 	}
 
    

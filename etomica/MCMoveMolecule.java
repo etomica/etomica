@@ -44,7 +44,7 @@ public class MCMoveMolecule extends MCMove {
         
         molecule = phase.randomMolecule();
 
-        uOld = potential.set(phase).calculate(iteratorDirective.set(molecule), energy.reset()).sum();
+        uOld = potential.calculate(phase, iteratorDirective.set(molecule), energy.reset()).sum();
         molecule.coord.displaceWithin(stepSize);
         uNew = Double.NaN;
         return true;
@@ -53,7 +53,7 @@ public class MCMoveMolecule extends MCMove {
     public double lnTrialRatio() {return 0.0;}
     
     public double lnProbabilityRatio() {
-        uNew = potential.set(phase).calculate(iteratorDirective.set(molecule), energy.reset()).sum();//not thread safe for multiphase systems
+        uNew = potential.calculate(phase, iteratorDirective.set(molecule), energy.reset()).sum();//not thread safe for multiphase systems
         return -(uNew - uOld)/parentIntegrator.temperature;
     }
     

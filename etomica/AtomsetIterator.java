@@ -7,6 +7,6 @@ package etomica;
  */
 public interface AtomSetIterator {
 
-	public void all(AtomSet basis, IteratorDirective id, AtomSetAction action);
+	public void all(AtomSet basis, IteratorDirective id, AtomSetActive action);
 	
 }

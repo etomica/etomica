@@ -9,7 +9,7 @@ package etomica;
   * 12/06/02 (DAK) deleted line in reset(IteratorDirective) that resets basis using reference atom
   */
 
-public class AtomIteratorNonbonded implements AtomIterator {
+public class AtomIteratorNonbonded extends AtomIterator {
     
     private final AtomIterator iterator;
     
@@ -22,12 +22,12 @@ public class AtomIteratorNonbonded implements AtomIterator {
         iterator = sim.iteratorFactory.makeIntragroupNbrIterator();
     }
     
-	public void all(AtomSet basis, IteratorDirective id, final AtomSetAction action) {
-		 if(!(basis instanceof Atom && action instanceof AtomAction)) return;
-		 all((Atom)basis, id, (AtomAction)action);
+	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
+		 if(!(basis instanceof Atom && action instanceof AtomActive)) return;
+		 all((Atom)basis, id, (AtomActive)action);
 	}
     
-	public void all(Atom basis, IteratorDirective id, final AtomAction action) {
+	public void all(Atom basis, IteratorDirective id, final AtomActive action) {
 		if(basis == null || basis.node.isLeaf() || action == null) return;
 		throw new RuntimeException("Method all not implemented in AtomIteratorNonbonded");
 	}

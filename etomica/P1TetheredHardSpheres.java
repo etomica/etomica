@@ -7,9 +7,9 @@ package etomica;
  * @author David Kofke
  */
  
-public class P1TetheredHardSpheres extends Potential1Group implements EtomicaElement, Potential1.Intramolecular {
+public class P1TetheredHardSpheres extends PotentialGroup implements Potential1.Intramolecular {
     
-    public String getVersion() {return "P1TetheredHardSpheres:01.11.05/"+Potential1Group.VERSION;}
+    public String getVersion() {return "P1TetheredHardSpheres:01.11.05/"+PotentialGroup.VERSION;}
     
     public final P2HardSphere p2HardSphere;
     public final P2Tether p2Tether;

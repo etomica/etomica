@@ -9,4 +9,6 @@ public interface AtomSet {
 
 	public boolean contains(Atom a);
 	
+	public int atomCount();
+	
 }

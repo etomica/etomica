@@ -17,29 +17,28 @@ public abstract class Potential1 extends Potential {
         iterator = parentSimulation().iteratorFactory.makeGroupIteratorSequential();
     }
     
-    public Potential set(Atom a) {iterator.setBasis(a); return this;}
-
-    public Potential set(Atom[] atoms) {
-        if(atoms.length != 1) throw new IllegalArgumentException("Too many atoms in Potential1.set");
-        return set(atoms[0]);
-    }
-    public Potential set(SpeciesMaster s) {
-        if(species != null) iterator.setBasis(species.getAgent(s));
-        else iterator.setBasis(s);
-        return this;
-      //  iterator.setBasis((species != null) ? species.getAgent(s.parentPhase()) : s);
-    }
+	public void calculate(AtomSet basis, IteratorDirective id, PotentialCalculation pc) {
+		if(!enabled) return;
+		switch(id.atomCount()) {
+			case 0: iterator.all(basis, id, (AtomActive)pc.set(this)); break;
+			case 1: singletIterator.all(basis, id, (AtomActive)pc.set(this)); break;
+		}
+	}//end of calculate
+    
+	private final AtomIteratorSinglet singletIterator = new AtomIteratorSinglet();
     
     public void setSpecies(Species s) {
-        species = s;
+        setSpecies(new Species[] {s});
     }
     
     public void setSpecies(Species[] species) {
         switch (species.length) {
-            case 1: setSpecies(species[0]);
+            case 1: this.species = species[0];
                     break;
-            default: throw new IllegalArgumentException("Wrong number of species given in Potential2");
+            default: throw new IllegalArgumentException("Wrong number of species given in Potential1");
         }
+        if(!(parentPotential() instanceof PotentialMaster)) throw new IllegalStateException("Error: Can set species only for potentials that apply at the molecule level.  Potential must have PotentialMaster as parent");
+        ((PotentialMaster)parentPotential()).setSpecies(this, species);
     }
     /**
      * Returns an array of length 2 with the species to which this potential applies.
@@ -68,7 +67,41 @@ public abstract class Potential1 extends Potential {
      * rotations, for which intramolecular contributions can be ignored.
      */
     public interface Intramolecular {}
-        
+    
+	/**
+	 * Methods needed to describe the behavior of a hard one-body potential.  
+	 * A hard potential describes impulsive interactions, in which the energy undergoes a step
+	 * change at some point in the space.
+	 */
+ 
+	 /* History of changes
+	  * 01/26/03 (DAK) changed to interface and put inside Potential1 class
+	  * 08/26/02 (DAK) Modified calculate to handle cases of atomCount 0 or 1 in
+	  * iterator directive
+	  */
+	public interface Hard {
+
+	 /**
+	  * Implements the collision dynamics.
+	  * The given atom is assumed to be at the point of collision.  This method is called
+	  * to change its momentum according to the action of the collision.  Extensions can be defined to
+	  * instead implement other, perhaps unphysical changes.
+	  */
+		public void bump(Atom atom);
+
+	 /**
+	  * Computes the time of collision of the given atom with the hard potential, assuming no intervening collisions.
+	  * Usually assumes free-flight between collisions
+	  */ 
+		public double collisionTime(Atom atom);
+            
+	}  //end of Potential1.Hard
+
+	public interface Soft {
+    
+		public Space.Vector gradient(Atom atom);
+    
+	}
 }//end of Potential1
 
 

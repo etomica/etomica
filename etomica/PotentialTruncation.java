@@ -8,12 +8,28 @@ package etomica;
  */
  
  /* History of changes
-  * 7/13/02 (DAK) Restructured instantiation of LRC potential
+  * 07/13/02 (DAK) Restructured instantiation of LRC potential
+  * 01/24/03 (DAK) Added isZero(AtomSet) method as part of Potential redesign
   */
  
 public abstract class PotentialTruncation {
     
     public PotentialTruncation() {}
+    
+    /**
+     * Truncation used by potential group.
+     * @see PotentialCalculation.PotentialGroupWrapper
+     * @param atomSet  Candidate set of atoms for truncation
+     * @return boolean true if potential is to be set to zero for the given
+     * atoms
+     */
+    public boolean isZero(AtomSet atomSet) {
+    	if(atomSet instanceof AtomPair) {
+    		return isZero(((AtomPair)atomSet).r2());
+    	} else {
+    		return false;
+    	}
+    }
         
     /**
      * Returns true if the truncation makes the potential zero at the given separation.
@@ -43,7 +59,7 @@ public abstract class PotentialTruncation {
      * that becomes neglected by the truncation.  Assumes a uniform distribution
      * of atoms beyond this truncation's cutoff distance.
      */
-    public abstract Potential0Lrc makeLrcPotential(PotentialGroup parent, Potential2 potential);
+    public abstract Potential0Lrc makeLrcPotential(PotentialMaster parent, Potential2 potential);
     
 
     ///************** end of methods for PotentialTruncation ***************
@@ -57,6 +73,6 @@ public abstract class PotentialTruncation {
         public double uTransform(double r2, double untruncatedValue) {return untruncatedValue;}
         public double duTransform(double r2, double untruncatedValue) {return untruncatedValue;}
         public double d2uTransform(double r2, double untruncatedValue) {return untruncatedValue;}
-        public Potential0Lrc makeLrcPotential(PotentialGroup parent, Potential2 potential) {return null;}
+        public Potential0Lrc makeLrcPotential(PotentialMaster parent, Potential2 potential) {return null;}
      }//end of Null
 }//end of PotentialTruncation

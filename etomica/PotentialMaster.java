@@ -12,124 +12,118 @@ package etomica;
  /* History of changes
   * 8/13/02 (DAK) added removePotential method
   */
-public final class PotentialMaster implements PotentialGroup, java.io.Serializable {
+public final class PotentialMaster extends PotentialGroup {
     
     public String getVersion() {return "PotentialMaster:02.08.13";}
 
     private SpeciesMaster speciesMaster;
-    private Potential0GroupLrc lrcMaster;
-    private final Simulation parentSimulation;
-    private PotentialLinker first, last;
+    private PotentialGroupLrc lrcMaster;
 
     public PotentialMaster(Simulation sim) {
-        parentSimulation = sim;
-    }
+        super(sim);
+    } 
     
-    public Simulation parentSimulation() {return parentSimulation;}
-    
-    public PotentialAgent makeAgent() {
-    	return new Agent(this);
-    }
-    
-    public boolean contains(Potential potential) {
-        for(PotentialLinker link=first; link!=null; link=link.next) {
-            if(link.potential.equals(potential)) return true;
-        }//end for
-        return false;
-    }
-    
-        
-	/**
-	 * Adds the potential to the group.  Normally invoked in the constructor of the
-	 * given potential.
-	 */
-	public void addPotential(Potential potential) {
-		//Set up to evaluate zero-body potentials last, since they may need other potentials
-		//to be configured for calculation (i.e., iterators set up) first
-		if(potential instanceof Potential0 && last != null) {//put zero-body potential at end of list
-			last.next = new PotentialLinker(potential, null);
-			last = last.next;
-		} else {//put other potentials at beginning of list
-			first = new PotentialLinker(potential, first);
-			if(last == null) last = first;
-		}
-		//if phase was set previously, subsequent call to set to same phase will be
-		//ignored (and not passed on to new potential).  Seting speciesMaster to null
-		//here will prevent ignoring of new call to set phase 
-		speciesMaster = null;
-	//    if(speciesMaster != null) {
-	//        System.out.println("Warning: adding potential after phase was set for PotentialMaster");
-	//        System.out.println("May lead to error");
-	//        speciesMaster = null;
-	//    }
-//		  if(speciesMaster != null) potential.set(speciesMaster); can't do this because potential is still executing its constructor
-	}
-    
-	/**
-	 * Removes given potential from the group.  No error is generated if
-	 * potential is not in group.
-	 */
-	public void removePotential(Potential potential) {
-		PotentialLinker previous = null;
-		for(PotentialLinker link=first; link!=null; link=link.next) {
-			if(link.potential == potential) {//found it
-				if(previous == null) first = link.next;  //it's the first one
-				else previous.next = link.next;          //it's not the first one
-				if(link == last) last = previous; //removing last; this works also if last was also first (then removing only, and set last to null)
-				return;
-			}//end if
-			previous = link;
-		}//end for
-	}//end removePotential
+      
     
 	/**
 	 * Returns the potential group that oversees the long-range
 	 * correction zero-body potentials.
 	 */
-	 public Potential0GroupLrc lrcMaster() {
-		if(lrcMaster == null) lrcMaster = new Potential0GroupLrc(this);
+	 public PotentialGroupLrc lrcMaster() {
+		if(lrcMaster == null) lrcMaster = new PotentialGroupLrc(this);
 		return lrcMaster;
 	 }
 
-	private class Agent {
-		
-	    //should build on this to do more filtering of potentials based on directive
-	    public void calculate(IteratorDirective id, PotentialCalculation pc) {
-	        for(PotentialLinker link=first; link!=null; link=link.next) {
-	            if(id.excludes(link.potential)) continue; //see if potential is ok with iterator directive
-	            link.potential.calculate(id, pc);
-	        }//end for
-	    }//end calculate
-	        
-	    public final PotentialCalculation.Sum calculate(IteratorDirective id, PotentialCalculation.Sum pa) {
-	        this.calculate(id, (PotentialCalculation)pa);
-	        return pa;
-	    }
-	
-	    /**
-	     * Sets the basis for iteration of atoms by all potentials.
-	     * The given parameter must be an instance of SpeciesMaster.
-	     * No action is taken if the given species master is the same
-	     * as the one given in the previous call (unless another
-	     * potential was added in the interim).
-	     */
-	    public PotentialMaster set(SpeciesMaster sm) {
-	        if(sm == speciesMaster) return this;
-	        speciesMaster = sm;
-	        for(PotentialLinker link=first; link!=null; link=link.next) {
-	            link.potential.set(speciesMaster);
-	        }//end for
-	        return this;
-	    }
-	
-	    /**
-	     * Sets the potentials to iterate on atoms in the given phase.
-	     */
-	    public PotentialMaster set(Phase p) {
-	        return set(p.speciesMaster); 
-	    }
-
+	public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
+		this.calculate(phase.speciesMaster, id, pc);
 	}
+    public void calculate(AtomSet basis, IteratorDirective id, PotentialCalculation pc) {
+    	this.calculate((SpeciesMaster)basis, id, pc);
+    }    
+    
+	//should build on this to do more filtering of potentials based on directive
+    public void calculate(SpeciesMaster speciesMaster, IteratorDirective id, PotentialCalculation pc) {
+    	if(!enabled) return;
+        for(PotentialWrapper link=(PotentialWrapper)first; link!=null; link=(PotentialWrapper)link.next) {
+            if(id.excludes(link.potential)) continue; //see if potential is ok with iterator directive
+            link.potential.calculate(link.basis(speciesMaster), id, pc);
+        }//end for
+    }//end calculate
+    
+    public void setSpecies(Potential potential, Species[] species) {
+    	for(PotentialLinker link=first; link!=null; link=link.next) {
+    		if(link.potential == potential) {
+    			((PotentialWrapper)link).setSpecies(species);
+    			return;
+    		}
+    	}
+    }
+ 
+ 	/**
+ 	 * Overrides to return a potential linker that holds information about the
+ 	 * potential's bases for iteration in each phase.
+ 	 * @see etomica.PotentialGroup#makeLinker(Potential, PotentialLinker)
+ 	 */
+	protected PotentialLinker makeLinker(Potential p, PotentialLinker next) {
+		return new PotentialWrapper(p, next);
+	}
+       
+	/**
+	 * Convenient reformulation of the calculate method, applicable if the
+	 * potential calculation performs a sum.  The method returns the
+	 * summable potential calculation object, so that the sum can be accessed
+	 * in-line with the method call.
+	 */
+   public final PotentialCalculation.Summable calculate(Phase phase, IteratorDirective id, PotentialCalculation.Summable pa) {
+	   this.calculate(phase.speciesMaster, id, (PotentialCalculation)pa);
+	   return pa;
+   }	    
 
+	private static class PotentialWrapper extends PotentialLinker {
+		private Species[] species;
+		private AtomSet[] basisArray = new AtomSet[0];
+		
+		PotentialWrapper(Potential p, PotentialLinker next) {
+			super(p, next);
+		}
+		
+		void setSpecies(Species[] species) {
+			this.species = new Species[species.length];
+			System.arraycopy(species, 0, this.species, 0, species.length);
+		}
+		
+		public AtomSet basis(SpeciesMaster m) {
+			try{
+				AtomSet basis = basisArray[m.index];
+				if(basis == null) return makeBasis(m);
+				else return basis;
+			} catch(ArrayIndexOutOfBoundsException ex) {
+				return makeBasis(m);
+			}
+		}
+		
+		private AtomSet makeBasis(SpeciesMaster m) {
+			int index = m.index;
+			if(index >= basisArray.length) {
+				AtomSet[] newArray = new AtomSet[index+1];
+				System.arraycopy(basisArray, 0, newArray, 0, basisArray.length);
+				basisArray = newArray;
+			}
+			AtomSet newBasis = null;
+			switch(species.length) {
+				case 1: newBasis = species[0].getAgent(m); break; 
+				case 2: 
+					SpeciesAgent speciesA = species[0].getAgent(m);
+					SpeciesAgent speciesB = species[1].getAgent(m);
+					if(speciesA.seq.preceeds(speciesB)) newBasis = new AtomPair(speciesA, speciesB); 
+					else newBasis = new AtomPair(speciesA, speciesB);
+					break;
+				default: throw new RuntimeException("problem in PotentialMaster.makeBasis");
+			}
+			basisArray[m.index] = newBasis;
+			return newBasis;
+		}//end of makeBasis
+	}//end of PotentialWrapper
+	
 }//end of PotentialMaster
     

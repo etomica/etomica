@@ -18,34 +18,27 @@ public abstract class Potential3 extends Potential {
     }
     
     public abstract double energy(Atom3 atom3);
-
-    public Potential set(Atom a) {return set(a,a,a);}
-    public Potential set(Atom a1, Atom a2) {return null;}//throw exception?
-    public Potential set(Atom a1, Atom a2, Atom a3) {iterator.setBasis(a1, a2, a3); return this;}
-             
-    public Potential set(SpeciesMaster s) {
-        if(species1 != null) {//if species were previously set, use them as basis
-            iterator.setBasis(species1.getAgent(s), species2.getAgent(s), species3.getAgent(s));
-        }
-        else iterator.setBasis(s,s,s); //otherwise use speciesMaster as basis
-        return this;
-      //  iterator.setBasis((species != null) ? species.getAgent(s.parentPhase()) : s);
-    }
     
     public void setSpecies(Species s1, Species s2, Species s3) {//throw exception if either are null
-        species1 = s1;
-        species2 = s2;
-        species3 = s3;
+		setSpecies(new Species[] {s1, s2, s3});
     }
 
     public void setSpecies(Species[] species) {
+		species1 = species[0];
+		species2 = species[1];
+		species3 = species[2];
         switch (species.length) {
-            case 1: setSpecies(species[0], species[0], species[0]);
+            case 1: 
                     break;
-            case 3: setSpecies(species[0], species[1], species[2]);
+            case 2:
+            		break;
+            case 3: 
                     break;
-            default: throw new IllegalArgumentException("Wrong number of species given in Potential2");
+            default: throw new IllegalArgumentException("Wrong number of species given in Potential3");
         }
+		if(species1 == null || species2 == null || species3 == null) throw new NullPointerException("Cannot set null Species in Potential3");
+		if(!(parentPotential() instanceof PotentialMaster)) throw new RuntimeException("Error: Can set species only for potentials that apply at the molecule level.  Potential must have PotentialMaster as parent");
+		((PotentialMaster)parentPotential()).setSpecies(this, species);
     }
     /**
      * Returns an array of length 2 with the species to which this potential applies.

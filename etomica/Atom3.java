@@ -5,7 +5,7 @@ package etomica;
  * @author David Kofke
  * @author Jhumpa Adhikari
  */
-public final class Atom3 implements java.io.Serializable {
+public final class Atom3 implements AtomSet, java.io.Serializable {
     
     public static String getVersion() {return "Atom3:01.08.03";}
     
@@ -38,5 +38,21 @@ public final class Atom3 implements java.io.Serializable {
         c13.reset(atom1.coord, atom3.coord);
         c23.reset(atom2.coord, atom3.coord);
     }
+    
+    /**
+     * Returns true if one of the three atoms is the given atom.
+     */
+	public boolean contains(Atom a) {
+		return atom1 == a || atom2 == a || atom3 == a;
+	}
+	
+	/**
+	 * Returns 3, indicating this is an atom set of three atoms. Part of AtomSet
+	 * interface.
+	 */
+	public final int atomCount() {return 3;}
+	
+	
+
     
 }  //end of  Atom3

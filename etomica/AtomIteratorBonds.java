@@ -7,7 +7,7 @@ package etomica;
 * @author David Kofke
 */
 
-public class AtomIteratorBonds implements AtomIterator {
+public class AtomIteratorBonds extends AtomIterator {
     
     private boolean hasNext;
     private boolean upListNow, doGoDown;
@@ -15,12 +15,7 @@ public class AtomIteratorBonds implements AtomIterator {
     protected IteratorDirective.Direction direction;
     private Atom basis;
     
-	public void all(AtomSet basis, IteratorDirective id, final AtomSetAction action) {
-		 if(!(basis instanceof Atom && action instanceof AtomAction)) return;
-		 all((Atom)basis, id, (AtomAction)action);
-	}
-    
-	public void all(Atom basis, IteratorDirective id, final AtomAction action) {
+	public void all(Atom basis, IteratorDirective id, final AtomActive action) {
 		if(basis == null || basis.node.isLeaf() || action == null) return;
 		throw new RuntimeException("Method all not implemented in AtomIteratorBonds");
 	}

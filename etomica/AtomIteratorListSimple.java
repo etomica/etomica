@@ -7,7 +7,7 @@ package etomica;
  *
  * @author David Kofke
  */
-public final class AtomIteratorListSimple implements AtomIterator {
+public final class AtomIteratorListSimple extends AtomIterator {
     
     private AtomList list;
 	private AtomLinker next;
@@ -19,13 +19,8 @@ public final class AtomIteratorListSimple implements AtomIterator {
 	    setBasis(list);
 	    reset();
 	}
-   
-	public void all(AtomSet basis, IteratorDirective dummy, final AtomSetAction action) {
-		if(!(basis instanceof Atom && action instanceof AtomAction)) return;
-		all((Atom)basis, dummy, (AtomAction)action);
-	}
     
-	public void all(Atom basis, IteratorDirective dummy, final AtomAction action) {
+	public void all(Atom basis, IteratorDirective dummy, final AtomActive action) {
 		if(basis==null || basis.node.isLeaf() || action == null) return;
 		final AtomLinker header = ((AtomTreeNodeGroup)basis.node).childList.header;
 		for(AtomLinker e=header.next; e!=header; e=e.next) {

@@ -16,24 +16,24 @@ package etomica;
   * 01/02/03 (DAK) reset checks if basis is null
   */
  
-public final class ApiIntragroup1A implements AtomPairIterator {
+public final class ApiIntragroup1A extends AtomPairIterator {
     
     public ApiIntragroup1A(Simulation sim) {
         pair = new AtomPair(sim.space);
         atomIterator = sim.iteratorFactory.makeIntragroupNbrIterator();
     }
     
-	public void all(AtomSet basis, IteratorDirective id, final AtomSetAction action) {
-		 if(!(basis instanceof Atom && action instanceof AtomPairAction)) return;
-		 all((Atom)basis, id, (AtomPairAction)action);
-	}
-	public void all(Atom basis, IteratorDirective id, AtomPairAction act) {
+	public void all(Atom basis, IteratorDirective id, AtomPairActive action) {
 		Atom atom = id.atom1();
-		if(atom == null || basis == null || act == null) return;
+		if(atom == null || basis == null || action == null) return;
 		AtomTreeNode referenceNode = atom.node.childWhereDescendedFrom(basis.node);
 		if(referenceNode == null) return;
-		act.wrapper.pair.atom1 = referenceNode.atom;
-		atomIterator.all(basis, id.set(referenceNode.atom), act.wrapper);
+		AtomPairActive.InnerWrapper wrapper = action.innerWrapper();
+		wrapper.pair.atom1 = referenceNode.atom;
+		atomIterator.all(basis, id.set(referenceNode.atom), wrapper);
+	}
+	public void all(AtomPair basis, IteratorDirective id, AtomPairActive action) {
+		throw new IllegalArgumentException("Error: AtomPairIterator not defined for a pair basis");
 	}
 
     public void setBasis(Atom a1, Atom a2) {
@@ -94,8 +94,9 @@ public final class ApiIntragroup1A implements AtomPairIterator {
      * Must have called reset(Atom) before invoking.
      */
     public void allPairs(AtomPairAction act) {
-        if(referenceAtom == null) return;
-        atomIterator.allAtoms(act.wrapper);
+    	throw new etomica.exception.MethodNotImplementedException();
+//        if(referenceAtom == null) return;
+//        atomIterator.allAtoms(act.wrapper);
     }
     
     private final AtomIterator atomIterator;

@@ -54,9 +54,15 @@ public abstract class Potential0Lrc extends Potential0 {
     
     public static String VERSION = "Potential0Lrc:01.11.09/"+Potential0.VERSION;
     
-    public Potential0Lrc(PotentialGroup parent) {
-        super(parent);
-    }
+    /**
+     * Constructor requires PotentialMaster argument, and calls superclass
+     * constructor such that this class is added dirctly to PotentialMaster's
+     * lrcMaster instance, which manages the lrc potentials.
+     * @param parent  Potential master for the simulation.
+     */
+    public Potential0Lrc(PotentialMaster parent) {
+        super(parent.lrcMaster());
+    }    
     
     /**
      * Long-range correction to the energy u.
@@ -73,4 +79,5 @@ public abstract class Potential0Lrc extends Potential0 {
     */
     public abstract double d2uCorrection(double pairDensity);
     
+
 }//end of Potential0Lrc

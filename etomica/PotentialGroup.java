@@ -17,6 +17,13 @@ package etomica;
 public class PotentialGroup extends Potential {
     
     /**
+     * Constructor for use only by PotentialMaster subclass.
+	 * @param sim Simulation instance in which potential is used.
+     */
+    PotentialGroup(Simulation sim) {
+    	super(sim);
+    }
+    /**
      * Makes instance with null truncation, regardless of Default.TRUNCATE_POTENTIALS.
      * Parent potential is potential master for current value of Simulation.instance.
      */
@@ -47,17 +54,33 @@ public class PotentialGroup extends Potential {
 	 * Adds the given potential to this group, but should not be called directly.  Instead,
 	 * this method is invoked by the setParentPotential method (or more likely, 
 	 * in the constructor) of the given potential.  
-	 * Part of the PotentialGroup interface.
 	 */
-	public synchronized void addPotential(Potential potential) {
+	synchronized void addPotential(Potential potential) {
 		if(potential == null || potential.parentPotential() != this) 
 			throw new IllegalArgumentException("Improper call to addPotential; should use setParentPotential method in child instead of addPotential method in parent group"); 
-		first = new PotentialLinker(potential, first);
-		agentIterator.reset();
-		while(agentIterator.hasNext()) {
-			((Agent)agentIterator.next()).addPotential(potential.requestAgent());
+		//Set up to evaluate zero-body potentials last, since they may need other potentials
+		//to be configured for calculation (i.e., iterators set up) first
+		if((potential instanceof Potential0) || (potential instanceof PotentialGroupLrc) && last != null) {//put zero-body potential at end of list
+			last.next = makeLinker(potential, null);
+			last = last.next;
+		} else {//put other potentials at beginning of list
+			first = makeLinker(potential, first);
+			if(last == null) last = first;
 		}
 	}
+	
+	/**
+	 * Returns a linker that is used to form linked list of potentials.  May be
+	 * overridden to permit use of specialized linkers that hold additional
+	 * information about the potential (this is done by SpeciesMaster).
+	 * @param p the potential
+	 * @param next the linker that is to follow the new one
+	 * @return PotentialLinker the new potential linker
+	 */
+	protected PotentialLinker makeLinker(Potential p, PotentialLinker next) {
+		return new PotentialLinker(p, next);
+	}
+
 	
 	/**
 	 * Removes given potential from the group.  No error is generated if
@@ -69,102 +92,28 @@ public class PotentialGroup extends Potential {
 			if(link.potential == potential) {//found it
 				if(previous == null) first = link.next;  //it's the first one
 				else previous.next = link.next;          //it's not the first one
+				if(link == last) last = previous; //removing last; this works also if last was also first (then removing only, and set last to null)
 				return;
-			}
+			}//end if
 			previous = link;
-		}
-		agentIterator.reset();
-		while(agentIterator.hasNext()) {
-			((Agent)agentIterator.next()).removePotential(potential);
-		}
-
-	}
-	
-	/**
-	 * Makes a new agent group and fills its list with new agents from all
-	 * potentials presently in this potential group.
-	 * @see etomica.Potential#makeAgent()
-	 */
-	public synchronized PotentialAgent makeAgent() {
-		Agent agent = new Agent();
-		for(PotentialLinker link=first; link!=null; link=link.next) {
-			agent.addPotential(link.potential.makeAgent());
 		}//end for
-		return agent;		
-	}
-   
-	private PotentialLinker first;
-
-	private class Agent extends PotentialAgent implements AtomSetAction {
-    	
-		private final IteratorDirective localDirective = new IteratorDirective();
-		private final PotentialAgent.List groupList = new PotentialAgent.List();
-		private final PotentialAgent.Iterator groupIterator = groupList.iterator();
-		private PotentialCalculation potentialCalculation;
-		
-		private Agent() {
-			super(PotentialGroup.this);
-		}
+	}//end removePotential
+	   
+	PotentialLinker first, last;
     
-	    /**
-	     * Performs the specified calculation over the iterates of this potential
-	     * that comply with the iterator directive.
-	     */
-	    public void calculate(IteratorDirective id, PotentialCalculation pc) {
-	        potentialCalculation = pc;
-			localDirective.copy(id);//copy the iteratordirective to define the directive sent to the subpotentials
-			iterator.all(basis, localDirective, this);
-	    }//end calculate
-	    
-	    public void action(AtomSet atomSet) {
-			if(potentialTruncation != null && potentialTruncation.isZero(atomSet)) return;                
-	            
-			//if the atom of the pair is the one specified for calculation, then
-			//it becomes the basis for the sub-potential iterations, and is no longer
-			//specified to them via the iterator directive
-			if(atomSet.contains(id.atom1())) localDirective.set();
-	            
-			//loop over sub-potentials
-			groupIterator.reset();
-			while(groupIterator.hasNext()) {
-				PotentialAgent potential = groupIterator.next();
-				if(localDirective.excludes(potential)) continue; //see if potential is ok with iterator directive
-				potential.set(atomSet).calculate(localDirective, potentialCalculation);
-			}//end for	    	
-	    }
-	
-	    /**
-	     * Convenient reformulation of the calculate method, applicable if the potential calculation
-	     * performs a sum.  The method returns the potential calculation object, so that the sum
-	     * can be accessed in-line with the method call.
-	     */
-	    public final PotentialCalculation.Sum calculate(IteratorDirective id, PotentialCalculation.Sum pa) {
-	        this.calculate(id, (PotentialCalculation)pa);
-	        return pa;
-	    }
-	    
-	    /**
-	     * Adds the given potential to this group, but should not be called directly.  Instead,
-	     * this method is invoked by the setParentPotential method (or more likely, 
-	     * in the constructor) of the given potential.  
-	     * Part of the PotentialGroup interface.
-	     */
-	    private void addPotential(PotentialAgent agent) {
-	    	groupList.add(agent);	    	
-	    }
-	
-	    /**
-	     * Removes given potential from the group.  No error is generated if
-	     * potential is not in group.
-	     */
-	    private void removePotential(Potential potential) {
-	    	groupIterator.reset();
-	    	while(groupIterator.hasNext()) {
-	    		PotentialAgent agent = groupIterator.next();
-	    		if(agent.potential == potential) groupList.remove(agent);
-	    	}
-	    }
-    }//end of Agent
+    /**
+     * Performs the specified calculation over the iterates of this potential
+     * that comply with the iterator directive.
+     */
+    public void calculate(AtomSet basis, IteratorDirective id, PotentialCalculation pc) {
+    	if(!enabled) return;
+		PotentialCalculation.PotentialGroupWrapper wrapper = pc.wrapper().set(this);
+		wrapper.localDirective.copy(id);
+		iterator.all(basis, wrapper.localDirective, wrapper);
+		wrapper.release();
+    }//end calculate
+    
+    AtomSetIterator iterator;
     
 }//end PotentialGroup
     

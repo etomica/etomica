@@ -11,9 +11,9 @@ package etomica;
   * 09/01/02 (DAK) new
   */
  
-public class P1IntraSimple extends Potential1Group implements EtomicaElement, Potential1.Intramolecular {
+public class P1IntraSimple extends PotentialGroup implements Potential1.Intramolecular {
     
-    public String getVersion() {return "P1IntraSimple:02.09.01/"+Potential1Group.VERSION;}
+    public String getVersion() {return "P1IntraSimple:02.09.01/"+PotentialGroup.VERSION;}
     
     public Potential2 bonded;
     public Potential2 nonbonded;

@@ -11,7 +11,7 @@ package etomica;
  /* History of changes
   * 09/01/02 (DAK) modified nextLinker method to properly handle case of NEITHER direction
   */
-public final class AtomIteratorList implements AtomIterator {
+public final class AtomIteratorList extends AtomIterator {
     
     private AtomList list;
 	private AtomTreeNodeGroup basis;
@@ -126,12 +126,7 @@ public final class AtomIteratorList implements AtomIterator {
         return next.atom;
     }
 
-	public void all(AtomSet basis, IteratorDirective id, final AtomSetAction action) {
-		 if(!(basis instanceof Atom && action instanceof AtomAction)) return;
-		 all((Atom)basis, id, (AtomAction)action);
-	}
-    
-	public void all(Atom basis, IteratorDirective id, final AtomAction action) {
+	public void all(Atom basis, IteratorDirective id, final AtomActive action) {
 		if(basis == null || basis.node.isLeaf() || action == null) return;
 
 		final AtomList list = ((AtomTreeNodeGroup)basis.node).childList;

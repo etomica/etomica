@@ -12,7 +12,7 @@ package etomica;
  /* History
   * (this change was not implemented) 10/12/02 (DAK) modified virial method to reflect change in definition of virial in Potential2Soft
   */
-public abstract class Potential2SoftSpherical extends Potential2Soft {
+public abstract class Potential2SoftSpherical extends Potential2 implements Potential2.Soft {
    
    public static String VERSION = "Potential2SoftSpherical:01.11.10/"+Potential2.VERSION;
    private final Space.Vector work1;

@@ -9,7 +9,7 @@ package etomica;
  //should put AA iterators into a single class, configured at construction
  //with appropriate inner integrators
  //this class and ApiInterspeciesAA are nearly identical
-public final class ApiIntragroupAA implements AtomPairIterator {
+public final class ApiIntragroupAA extends AtomPairIterator {
     
     public ApiIntragroupAA(Simulation sim) {
         pair = new AtomPair(sim.space);
@@ -17,15 +17,15 @@ public final class ApiIntragroupAA implements AtomPairIterator {
         aiInner = sim.iteratorFactory.makeIntragroupNbrIterator();
     }
     
-	public void all(AtomSet basis, IteratorDirective dummy, final AtomSetAction action) {
-		 if(!(basis instanceof Atom && action instanceof AtomPairAction)) return;
-		 all((Atom)basis, dummy, (AtomPairAction)action);
-	}
-	public void all(Atom basis, IteratorDirective dummy, AtomPairAction action) {
+	public void all(Atom basis, IteratorDirective dummy, AtomPairActive action) {
 		if(basis == null || action == null) return;
-		action.outerWrapper.aiInner = aiInner;
-		action.outerWrapper.innerBasis = basis;
-		aiOuter.all(basis, dummy, action.outerWrapper);
+		AtomPairActive.OuterWrapper outerWrapper = action.outerWrapper();
+		outerWrapper.aiInner = aiInner;
+		outerWrapper.innerBasis = basis;
+		aiOuter.all(basis, dummy, outerWrapper);
+	}
+	public void all(AtomPair basis, IteratorDirective id, AtomPairActive action) {
+		throw new IllegalArgumentException("Error: AtomPairIterator not defined for a pair basis");
 	}
 
    public void setBasis(Atom a1, Atom a2) {
@@ -100,10 +100,11 @@ public final class ApiIntragroupAA implements AtomPairIterator {
      * Performs the given action on all pairs returned by this iterator.
      */
     public void allPairs(AtomPairAction act) { 
-        act.outerWrapper.aiInner = aiInner;
-        aiOuter.reset();
-        aiOuter.allAtoms(act.outerWrapper);
-        hasNext = false;
+    	throw new etomica.exception.MethodNotImplementedException();
+//        act.outerWrapper.aiInner = aiInner;
+//        aiOuter.reset();
+//        aiOuter.allAtoms(act.outerWrapper);
+//        hasNext = false;
     }
     
     private Atom group; 

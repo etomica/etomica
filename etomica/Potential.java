@@ -15,28 +15,32 @@ public abstract class Potential extends SimulationElement {
     public static String VERSION = "Potential:01.07.22";
     
     private PotentialGroup parentPotential;
-	private final PotentialAgent.List agentList = new PotentialAgent.List();
-	protected final PotentialAgent.Iterator agentIterator = agentList.iterator();
+	public final PotentialTruncation potentialTruncation;
+	protected boolean enabled = true;
+//	protected AtomSetIterator iterator;
 
+	/**
+	 * Constructor for use only by PotentialMaster subclass.
+	 * @param sim Simulation instance in which potential is used.
+	 */
+	Potential(Simulation sim) {
+		super(sim.space, Potential.class, -1);//index = -1 is arbitrary choice
+		potentialTruncation = PotentialTruncation.NULL;
+		if(!(this instanceof PotentialMaster)) throw new RuntimeException("Invalid attempt to instantiate potential");
+	}
+	
     public Potential(PotentialGroup parent) {
+    	this(parent, PotentialTruncation.NULL);
+    }
+    public Potential(PotentialGroup parent, PotentialTruncation truncation) {
         super(parent.parentSimulation(), Potential.class);
+        potentialTruncation = truncation;
         parentPotential = parent;
         parentPotential.addPotential(this);
     }
-    
-    protected abstract PotentialAgent makeAgent();
-    
-    public void discardAgent(PotentialAgent agent) {
-    	agentList.remove(agent);
-    }   
-    public PotentialAgent requestAgent() {
-    	PotentialAgent agent = makeAgent();
-    	agentList.add(agent);
-    	return agent;
-    }
-    
+
     public final PotentialGroup parentPotential() {return parentPotential;}
-    
+     
     /**
      * Adds this potential to the given potential group.  No action is taken
      * if the new parent is the same as the current parent.  Otherwise, if
@@ -51,14 +55,48 @@ public abstract class Potential extends SimulationElement {
         if(newParent != null) parentPotential.addPotential(this);
     }
     
-    public abstract void setSpecies(Species[] s);
-    public abstract Species[] getSpecies();
-    /**
-     * Marker interface for Null potentials, which are defined to have no action.
-     */
-    public interface Null {}
+    public abstract void calculate(AtomSet basis, IteratorDirective id, PotentialCalculation pc);
+            
+//	public void calculate(AtomSet basis, IteratorDirective id, PotentialCalculation pc) {
+//		if(!enabled) return;
+//		iterator.all(basis, id, pc);
+//	}
+	
+    public void setSpecies(Species[] s) {
+    	if(parentPotential instanceof PotentialMaster) {
+    		((PotentialMaster)parentPotential).setSpecies(this, s);
+    	} else {
+    		throw new RuntimeException("Error: attempt to set species for potential that is not at top level");
+    	}
+    }
     
-	final PotentialAgent.List agents = new PotentialAgent.List();
-    
-    
+	/**
+	 * Returns the enabled flag, which if false will cause potential to not
+	 * contribute to any potential calculations.
+	 * @return boolean The current value of the enabled flag
+	 */
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	/**
+	 * Sets the enabled flag, which if false will cause potential to not
+	 * contribute to any potential calculations.
+	 * @param enabled The enabled value to set
+	 */
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+	
+	/**
+	 * Accessor method for potential cutoff implementation.
+	 */
+	public PotentialTruncation getTruncation() {return potentialTruncation;}
+
+	/**
+	 * Marker interface for Null potentials, which are defined to have no action.
+	 */
+	public interface Null {}
+        
+
 }//end of Potential

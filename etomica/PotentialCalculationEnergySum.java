@@ -5,76 +5,27 @@ package etomica;
  *
  * @author David Kofke
  */
-public class PotentialCalculationEnergySum implements PotentialCalculation.Sum, 
-                                                        Potential0Calculation,
-                                                        Potential1Calculation, 
-                                                        Potential2Calculation,
-                                                        Potential3Calculation {
+public class PotentialCalculationEnergySum extends PotentialCalculation
+											implements PotentialCalculation.Summable {
     protected double sum = 0.0;
         
-    public PotentialCalculationEnergySum() {}
-        
-    public PotentialCalculation.Sum reset() {sum = 0.0; return this;}
+    public PotentialCalculation.Summable reset() {sum = 0.0; return this;}
     public double sum() {return sum;}
     
-    //zero-body
-    public void calculate(Potential0 potential) {
-        sum += potential.energy();
+ 	public void actionPerformed(Phase phase) {
+ 		sum += potential0.energy(phase);
+ 	}
+ 	   
+    public void actionPerformed(Atom atom) {
+        sum += potential1.energy(atom);
     }
-        
-    //atom
-    public void calculate(AtomIterator iterator, Potential1 potential) {
-        while(iterator.hasNext()) {
-            sum += potential.energy(iterator.next());
-            if(sum >= Double.MAX_VALUE) return;
-        }//end while
-    }//end of calculate
-
-    //pair
-    public void calculate(AtomPairIterator iterator, Potential2 potential) {
-        while(iterator.hasNext()) {
-            sum += potential.energy(iterator.next());
-            if(sum >= Double.MAX_VALUE) return;
-        }//end while
-    }//end of calculate
     
-    //triplet
-    public void calculate(Atom3Iterator iterator, Potential3 potential) {
-        while(iterator.hasNext()) {
-            sum += potential.energy(iterator.next());
-            if(sum >= Double.MAX_VALUE) return;
-        }//end while
-    }//end of calculate
-    
-    
-    // the following methods/classes provide an alternate way to sum the energy
-    // by providing actions to be passed to iterators, rather than passing
-    // the iterators to this PotentialCalculation
-    
-    public AtomAction getAtomCalculation(Potential1 potential) {
-        atomAction.potential = potential;
-        return atomAction;
-    }//end of getAtomCalculation
-    
-    public AtomPairAction getAtomPairCalculation(Potential2 potential) {
-        atomPairAction.potential = potential;
-        return atomPairAction;
-    }//end of getAtomPairCalculation
-    
-    private final MyAtomAction atomAction = new MyAtomAction();
-    private final class MyAtomAction extends AtomAction {
-        Potential1 potential;
-        public void actionPerformed(Atom atom) {
-            sum += potential.energy(atom);
-        }
+    public void actionPerformed(AtomPair pair) {
+        sum += potential2.energy(pair);
     }
-        
-    private final MyAtomPairAction atomPairAction = new MyAtomPairAction();
-    private final class MyAtomPairAction extends AtomPairAction {
-        Potential2 potential;
-        public void action(AtomPair pair) {
-            sum += potential.energy(pair);
-        }
+    
+    public void actionPerformed(Atom3 atom3) {
+    	sum += potential3.energy(atom3);
     }
         
 }//end EnergySum

@@ -1,4 +1,5 @@
 package etomica;       
+
 /**
  * Simple truncation of the potential at an adjustable cutoff separation.
  * The energy is unaffected for separations less than the truncation distance,
@@ -60,7 +61,7 @@ public final class PotentialTruncationSimple extends PotentialTruncation {
      * energy and its derivatives from pairs that are separated by a distance
      * exceeding the truncation radius.
      */
-    public Potential0Lrc makeLrcPotential(PotentialGroup parent, Potential2 potential) {
+    public Potential0Lrc makeLrcPotential(PotentialMaster parent, Potential2 potential) {
         return new P0Lrc(parent, potential);
     }
     
@@ -72,22 +73,13 @@ public final class PotentialTruncationSimple extends PotentialTruncation {
         private Phase phase;
         private Potential2SoftSpherical potential;
         
-        public P0Lrc(PotentialGroup parent, Potential2 potential) {
+        public P0Lrc(PotentialMaster parent, Potential2 potential) {
             super(parent);
             this.potential = (Potential2SoftSpherical)potential;
         }
-        public Potential set(Atom a) {return this;}
-        public Potential set(Atom a1, Atom a2) {return this;}
-        public Potential set(SpeciesMaster s) {return this;}
         
-        public double energy() {
+        public double energy(Phase phase) {
             return uCorrection(potential.iterator().size()/phase.volume());
-        }
-        
-        public Potential set(Phase p) {
-            phase = p;
-            potential.set(p.speciesMaster);
-            return this;
         }
         
         /**
@@ -120,7 +112,7 @@ public final class PotentialTruncationSimple extends PotentialTruncation {
          * Not implemented: throws RuntimeException.
          */
         public double d2uCorrection(double pairDensity) {
-            throw new RuntimeException("method d2uCorrection not implemented in PotentialTruncationSimple.P0Lrc");
+            throw new etomica.exception.MethodNotImplementedException();
         }
     }//end of P0lrc
     

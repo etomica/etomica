@@ -256,7 +256,7 @@ public class IteratorFactoryCell implements IteratorFactory {
  * returning them in an order consistent with neighborlist sequence but
  * without limiting them to those neighboring a reference atom.
  */
-public static final class SequentialIterator implements AtomIterator {
+public static final class SequentialIterator extends AtomIterator {
     
     private AtomIteratorList listIterator = new AtomIteratorList();
     private AtomList neighborSequenceList = new AtomList();
@@ -266,12 +266,7 @@ public static final class SequentialIterator implements AtomIterator {
     public SequentialIterator(IteratorFactoryCell f) {
         factory = f;
     }
-    
-	public void all(AtomSet basis, IteratorDirective id, final AtomSetAction action) {
-		 if(!(basis instanceof Atom && action instanceof AtomAction)) return;
-		 all((Atom)basis, id, (AtomAction)action);
-	}
-    
+        
 	public void all(Atom basis, IteratorDirective id, final AtomAction action) {
 		if(basis == null || basis.node.isLeaf() || action == null) return;
 		throw new RuntimeException("Method all not implemented in IteratorFactoryCell.SequentialIterator");

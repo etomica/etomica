@@ -10,7 +10,7 @@ package etomica;
   *          current basis, beginning from given atom.  Previously this method would
   *          reset the basis to the given atom.
   */
-public class AtomIteratorNeighbor implements AtomIterator {
+public class AtomIteratorNeighbor extends AtomIterator {
     
     private NeighborManager neighborManager;
     private IteratorDirective.Direction direction = IteratorDirective.BOTH;
@@ -29,12 +29,7 @@ public class AtomIteratorNeighbor implements AtomIterator {
  //       iterator.setSkipFirstAtom(true);//comment or not depending on whether Tab is used in NeighborManager
     }
     
-	public void all(AtomSet basis, IteratorDirective id, final AtomSetAction action) {
-		 if(!(basis instanceof Atom && action instanceof AtomAction)) return;
-		 all((Atom)basis, id, (AtomAction)action);
-	}
-    
-	public void all(Atom basis, IteratorDirective id, final AtomAction action) {
+	public void all(Atom basis, IteratorDirective id, final AtomActive action) {
 		if(basis == null || basis.node.isLeaf() || action == null) return;
 		throw new RuntimeException("Method all not implemented in AtomIteratorNeighbor");
 	}

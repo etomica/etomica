@@ -81,7 +81,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
             ((IntegratorGear4.Agent)atomIterator.next().ia).force.E(0.0);
         }
         //Compute forces on each atom
-        potential.calculate(allAtoms, forceSum);
+        potential.calculate(firstPhase, allAtoms, forceSum);
         
     }//end of calculateForces
     
@@ -157,7 +157,6 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
 
     protected void doReset() {
         if(potential == null || firstPhase == null) return;
-        potential.set(firstPhase);//assumes only one phase
         calculateForces();
         atomIterator.reset();
         while(atomIterator.hasNext()) {

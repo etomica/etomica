@@ -15,7 +15,7 @@ package etomica;
   * 01/02/03 (DAK) reset checks if basis is null
   */
  
-public class ApiIntergroup1A implements AtomPairIterator {
+public class ApiIntergroup1A extends AtomPairIterator {
     
     protected Atom group1; 
     protected Atom group2;
@@ -31,11 +31,10 @@ public class ApiIntergroup1A implements AtomPairIterator {
         atomIterator = sim.iteratorFactory.makeIntergroupNbrIterator();
     }
     
-	public void all(AtomSet basis, IteratorDirective id, final AtomSetAction action) {
-		 if(!(basis instanceof AtomPair && action instanceof AtomPairAction)) return;
-		 all((AtomPair)basis, id, (AtomPairAction)action);
+	public void all(Atom basis, IteratorDirective id, AtomPairActive action) {
+		throw new IllegalArgumentException("Error: AtomPairIterator not defined for a single basis atom");
 	}
-	public void all(AtomPair basis, IteratorDirective id, AtomPairAction action) {
+	public void all(AtomPair basis, IteratorDirective id, final AtomPairActive action) {
 		Atom atom = id.atom1();
 		if(atom == null || basis == null || action == null) return;
 		Atom group1 = basis.atom1();//assume group1 preceeds group2
@@ -43,14 +42,15 @@ public class ApiIntergroup1A implements AtomPairIterator {
 		if(group1 == group2) throw new IllegalArgumentException("Improper basis given to ApiIntergroup1A: Basis atoms must be different");
 
 		AtomTreeNode referenceNode = atom.node.childWhereDescendedFrom(group1.node);
+		AtomPairActive.InnerWrapper wrapper = action.innerWrapper();
 		if(referenceNode != null && localDirective.direction().doUp()) {
-			action.wrapper.pair.atom1 = referenceNode.atom;
-			atomIterator.all(group2, id.set(referenceNode.atom), action.wrapper);
+			wrapper.pair.atom1 = referenceNode.atom;
+			atomIterator.all(group2, id.set(referenceNode.atom), wrapper);
 		} else {
 			referenceNode = atom.node.childWhereDescendedFrom(group2.node);
 			if(referenceNode != null && localDirective.direction().doDown()) {
-				action.wrapper.pair.atom1 = referenceNode.atom;
-				atomIterator.all(group1, id.set(referenceNode.atom), action.wrapper);
+				wrapper.pair.atom1 = referenceNode.atom;
+				atomIterator.all(group1, id.set(referenceNode.atom), wrapper);
 			}
 		}
 	}//end all
@@ -129,9 +129,10 @@ public class ApiIntergroup1A implements AtomPairIterator {
      * Performs the given action on all pairs returned by this iterator.
      */
     public void allPairs(AtomPairAction act) {
-        if(referenceAtom == null) return;
-        atomIterator.allAtoms(act.wrapper);
+    	throw new etomica.exception.MethodNotImplementedException();
+//        if(referenceAtom == null) return;
+//        atomIterator.allAtoms(act.innerWrapper());
     }
     
-}  //end of class AtomPairIterator
+}  //end of class ApiIntergroup1A
     

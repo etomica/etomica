@@ -9,7 +9,7 @@ package etomica;
  * @author David Kofke
  * @author Jhumpa Adhikari
  */
-public class P2XOrder extends Potential2Hard implements EtomicaElement {
+public class P2XOrder extends Potential2 implements Potential2.Hard {
     
    public String getVersion() {return "P2XOrder:02.04.15/"+Potential2.VERSION;}
    
