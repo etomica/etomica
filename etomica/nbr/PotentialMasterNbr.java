@@ -32,21 +32,17 @@ public class PotentialMasterNbr extends PotentialMaster {
 	   	}
  		else {
  	    	Atom[] targetAtoms = id.getTargetAtoms();
- 	    	switch(targetAtoms.length) {
- 	    		case 0:
- 	    	//no target atoms specified -- do one-target algorithm to SpeciesMaster
- 	    			calculate(phase.speciesMaster, new IteratorDirective(), pc);
- 	    			break;
- 	    		case 1:
- 	    	//one target atom specified -- 
- 	    		//if it has potential/nbrs, loop through them
- 	    		//if it has children, loop through them and do same
- 	    			calculate(targetAtoms[0], id, pc);
- 	    			break;
- 	    		default:
- 	    	//more than one target atom --
- 	    		    super.calculate(phase, id, pc);
- 	    			break;
+ 	    	if (targetAToms.length == 0 || targetAtoms[0] == null) {
+ 	    		//no target atoms specified -- do one-target algorithm to SpeciesMaster
+ 	    		calculate(phase.speciesMaster, new IteratorDirective(), pc);
+ 	    	}
+ 	    	else if (targetAtoms.length == 1 || targetAtoms[1] == null) {
+ 	    		// one target atom
+    			calculate(targetAtoms[0], id, pc);
+ 	    	}
+ 	    	else {
+ 	    		//more than one target atom
+ 	    		super.calculate(phase, id, pc);
  	    	}
 		}
 		
@@ -121,7 +117,6 @@ public class PotentialMasterNbr extends PotentialMaster {
     
     public void setSimulation(Simulation sim) {
         sim.elementCoordinator.addMediatorPair(new etomica.Mediator.IntegratorPhase.NoCentralImage(sim.elementCoordinator));
-        
     }
 
     public NeighborManager getNeighborManager() {return neighborManager;}
