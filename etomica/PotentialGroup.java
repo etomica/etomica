@@ -74,8 +74,10 @@ public class PotentialGroup extends Potential {
         }
         if(potential instanceof PotentialTruncated) {
             Potential0Lrc lrc = ((PotentialTruncated)potential).makeLrcPotential(types);
-            AtomsetIteratorSpeciesAgent iterator = new AtomsetIteratorSpeciesAgent(makeSpeciesArray(types));
-            potentialMaster.lrcMaster().addPotential(lrc, iterator);
+            if(lrc != null) {
+                AtomsetIteratorSpeciesAgent iterator = new AtomsetIteratorSpeciesAgent(makeSpeciesArray(types));
+                potentialMaster.lrcMaster().addPotential(lrc, iterator);
+            }
         }
     }
  

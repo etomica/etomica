@@ -19,7 +19,7 @@ public interface PotentialTruncated {
 
     /**
      * Returns a class that calculates the long-range contribution to the potential
-     * that becomes neglected by the truncation.
+     * that becomes neglected by the truncation.  May return null.
      */
     public Potential0Lrc makeLrcPotential(AtomType[] types);
 }
