@@ -20,13 +20,12 @@ public class IntegratorHardField extends IntegratorHard {
     double t2 = 0.5*tStep*tStep;
     for(Atom a=firstPhase.firstAtom; a!=null; a=a.getNextAtom()) {
         a.decrementCollisionTime(tStep);
-        if(a.isStationary()) {continue;}  //skip if atom is stationary
         if(a.isForceFree()) {
             Space.uEa1Tv1(dr,tStep*a.rm,a.p);
             a.translate(dr);         //needs modification for nonspherical atom
         }
         else {
-            Space.uEa1Tv1Pa2Tv2(dr,tStep*a.rm,a.p,t2*a.rm,a.f);
+            Space.uEa1Tv1Ma2Tv2(dr,tStep*a.rm,a.p,t2*a.rm,a.f);
             a.translate(dr);         //needs modification for nonspherical atom
             Space.uEa1Tv1(dr,tStep,a.f);
             a.accelerate(dr);
@@ -34,23 +33,5 @@ public class IntegratorHardField extends IntegratorHard {
         }
     }
   }
-  
-    public final void scaleMomenta(double s) {
-      double rs = 1.0/s;
-      for(Atom a=firstPhase.firstAtom; a!=null; a=a.getNextAtom()) {
-        Space.uTEa1(a.p,s);
-      }
-      for(Atom a=firstPhase.firstAtom; a!=null; a=a.getNextAtom()) {
-        if(a.isForceFree() && a.getCollisionPartner().isForceFree()) {
-            a.collisionTime *= rs;
-        }
-        else {  //could improve efficiency by checking to see if collision time had decreased
-            upList(a);
-        }
-        if(!a.isForceFree()) {downList(a);}
-      }
-      findNextCollider();
-    }
-  
 }
 

@@ -6,6 +6,7 @@ import java.beans.*;
 public class SpeciesDisk extends Species {
 
   double[] speciesOrigin = {0,0}; //origin less depth of boundaries, shifts origin to accomodate boundaries.
+  private transient final int[] shiftOrigin = new int[Space.D];     //work vector for drawing overflow images
   double mass;
   double diameter;
   double radius;
@@ -13,19 +14,14 @@ public class SpeciesDisk extends Species {
   
   public SpeciesDisk() {
     super();
+  }
+  
+  public void setDefaults() {
     setDiameter(0.1);    
     setMass(1.0);
     setColor(Color.black);
     name = "Disk";
-  }
-  
-  public void setDefaults() {
-    nAtomsPerMolecule = 1;}
-  
-  //makeMolecules is called by constructor via setNMolecules
-  void makeMolecules() {
-    molecule = new Molecule[nMolecules];
-    for(int i=0; i<nMolecules; i++) {molecule[i] = new Molecule(this,nAtomsPerMolecule);}
+    nAtomsPerMolecule = 1;
   }
   
   //initializeMolecules is called by constructor via setNMolecules
@@ -43,40 +39,54 @@ public class SpeciesDisk extends Species {
     public final double getMass() {return mass;}
     public final void setMass(double mass) {
         this.mass = mass;
+        if(firstAtom == null) {return;}  //return if atoms have not yet been ordered
         for(Atom a=firstAtom; a!=lastAtom.getNextAtom(); a=a.getNextAtom()) {a.setMass(mass);}
         for(Molecule m=firstMolecule; m!=lastMolecule.getNextMolecule(); m=m.getNextMolecule()) {m.updateMass();}        
     }
     
     public final double getDiameter() {return diameter;}
-    public final void setDiameter(double d) {
+    public void setDiameter(double d) {
         diameter = d;
         radius = 0.5*d;
+        if(firstAtom == null) {return;}
         for(Atom a=firstAtom; a!=lastAtom.getNextAtom(); a=a.getNextAtom()) {a.setDiameter(d);}
     }
         
     public final Color getColor() {return color;}
     public final void setColor(Color c) {
         color = c;
+        if(firstAtom == null) {return;}
         for(Atom a=firstAtom; a!=lastAtom.getNextAtom(); a=a.getNextAtom()) {a.setColor(c);}
     }
         
   public void draw(Graphics g, int[] origin, double scale) {
+
     double toPixels = scale*Phase.TO_PIXELS;
+ /*   
     int diameterP = (int)(toPixels*diameter);
     g.setColor(color);
+    */
     Atom nextSpeciesAtom = lastAtom.getNextAtom();
     for(Atom a=firstAtom; a!=nextSpeciesAtom; a=a.getNextAtom()) {
+        a.draw(g,origin,scale);
+        /*
         int xP = origin[0] + (int)(toPixels*(a.r[0]-radius));
         int yP = origin[1] + (int)(toPixels*(a.r[1]-radius));
         g.fillOval(xP,yP,diameterP,diameterP);
+        */
     }
     if(parentPhase.drawOverflowImages) {
         for(Atom a=firstAtom; a!=nextSpeciesAtom; a=a.getNextAtom()) {
             double[][] shifts = parentPhase.space.getOverflowShifts(a.r,radius);
             for(int i=0; i<shifts.length; i++) {
+                /*
                int xP = origin[0] + (int)(toPixels*(shifts[i][0]+a.r[0]-radius));
                int yP = origin[1] + (int)(toPixels*(shifts[i][1]+a.r[1]-radius));
                g.fillOval(xP,yP,diameterP,diameterP);
+               */
+               shiftOrigin[0] = origin[0] + (int)(toPixels*shifts[i][0]);
+               shiftOrigin[1] = origin[1] + (int)(toPixels*shifts[i][1]);
+               a.draw(g,shiftOrigin,scale);
             }
         }
     }     

@@ -14,18 +14,15 @@ public class SpeciesDumbbell extends Species {
   
   private boolean showBonds = true;
   double L;    //atom-atom separation
-  final double[] e = new double[Space.D];   //default orientation (vertical)
-  public static final int nAtomsPerMolecule = 2;
+  double[] e;   //orientation
+//  public static final int nAtomsPerMolecule = 2;
  
   public SpeciesDumbbell() {
     super();
-    setColor(Color.black);
-    L = 0.10;               //default bondlength
-    e[0] = 0.0; e[1] = 1.0; // default orientation (vertical)
-    name = "Dumbbell";
   }
   
   public void setDefaults() {
+    nAtomsPerMolecule = 2;
     mass = new double[nAtomsPerMolecule];
     diameter = new double[nAtomsPerMolecule];
     radius = new double[nAtomsPerMolecule];
@@ -33,14 +30,14 @@ public class SpeciesDumbbell extends Species {
         mass[i] = 1.0;
         diameter[i] = 0.1;
     }
+    setColor(Color.black);
+    L = 0.10;               //default bondlength
+    e = new double[Space.D];
+    e[0] = 0.0; 
+    e[1] = 1.0; // default orientation (vertical)
+    name = "Dumbbell";
   }
-  
-  //makeMolecules is called by constructor via setNMolecules
-  void makeMolecules() {
-    molecule = new Molecule[nMolecules];
-    for(int i=0; i<nMolecules; i++) {molecule[i] = new Molecule(this,nAtomsPerMolecule);}
-  }
-  
+    
   //initializeMolecules is called by constructor via setNMolecules
   void initializeMolecules() {
     initializeMolecules(diameter, mass, color);
@@ -73,6 +70,7 @@ public class SpeciesDumbbell extends Species {
   public final Color getColor() {return color;}
   public final void setColor(Color c) {
     color = c;
+    if(firstAtom==null) {return;}
     for(Atom a=firstAtom; a!=lastAtom.getNextAtom(); a=a.getNextAtom()) {a.setColor(c);}
   }
 

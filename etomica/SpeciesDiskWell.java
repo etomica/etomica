@@ -4,21 +4,19 @@ import java.awt.*;
 import java.beans.*;
 
 public class SpeciesDiskWell extends SpeciesDisk {
-  double lambda = 1.5;
-  Color wellColor = Color.gray;
+  double lambda;
+  Color wellColor;
 
   public SpeciesDiskWell() {
     super();
   }
   
   public void setDefaults() {
-    nAtomsPerMolecule = 1;}
-
-  void makeMolecules() {
-    molecule = new Molecule[nMolecules];
-    for(int i=0; i<nMolecules; i++) {molecule[i] = new Molecule(this,nAtomsPerMolecule);}
+    super.setDefaults();
+    setWellColor(Color.gray);
+    setLambda(1.5);
   }
-  
+
   void initializeMolecules() {
     initializeMolecules(diameter, mass, color, lambda, wellColor);
   }

@@ -3,7 +3,7 @@ package simulate;
 public class IntegratorHard extends Integrator {
 
   private Atom nextCollider;
-  private transient final double[] dr = new double[Space.D];
+  protected transient final double[] dr = new double[Space.D];
     
   public IntegratorHard() {
     super();

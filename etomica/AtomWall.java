@@ -11,7 +11,7 @@ public class AtomWall extends Atom {
 
     public AtomWall(Molecule parent, int index) {
         super(parent, index);
-        this.setRm(0.0);
+        this.setRm(1.0);
         setThickness(4);
         setHorizontal(true);
     }

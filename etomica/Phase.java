@@ -5,35 +5,187 @@ import java.util.*; //for type Vector
 import java.beans.*;//for PropertyChangeSupport and other beans convenience classes.
 import java.util.*; //for neighborList
 
+/**
+ * A Phase comprises a Space, one or more Species, and Potentials that characterize
+ * how the species interact.  It may be viewed as a data structure that organizes
+ * this information and which may be acted upon by an Integrator (which is the object
+ * that contains information about how to do dynamics and ensemble sampling).
+ * The Phase is responsible for knowing how to report instantaneous values (as opposed
+ * to averages) of various mechanical and structural quantities (such as its energy
+ * or a histogram of atom distances), and it knows how to draw itself to the screen.
+ *
+ * A Phase is a bean.  It is placed inside a Simulation, and it contains one Space, 
+ * one or more Species, and one or more Potential1 and Potential2 objects.
+ *
+ * @author David Kofke
+ * @author C. Daniel Barnes
+ *
+ * @see Simulation
+ * @see Space
+ * @see Species
+ * @see Potential1
+ * @see Potential2
+ */
 public final class Phase extends Container {
 
+ /**
+  * Conversion factor from simulation unit of length (Angstroms) to screen pixels (default = 300).
+  * It is a class variable, so any instance of Phase that changes its value will
+  * affect how all Phases are drawn to the screen.  The instance variable maySetTO_PIXELS
+  * determines whether a phase has permission to change TO_PIXELS.
+  */
   public static double TO_PIXELS = 300.;
-  
+ 
+ /**
+  * Flag specifying whether phase computes energies, etc., using neighbor lists.  
+  * Neighbor list feature is under revision, so presently their use should be avoided.
+  */
   public  boolean useNeighborList;
-  protected transient Vector listenerspecies=null;
+ 
+ /**
+  * Used to coordinate connection between Phase and Integrator
+  */
   private Vector phaseIntegratorListeners = new Vector(3);
+ 
+ /**
+  * Flag specifying whether a line tracing the boundary of the phase should be 
+  * included when drawing the phase to the screen.
+  * Default value is <code>false</code>
+  */
   private boolean drawBoundingBox = false;
+  
+ /**
+  * Flag indicating whether this phase has permission to change the value of TO_PIXELS
+  * Default value is <code>true</code>.
+  *
+  * @see #TO_PIXELS
+  */
   private boolean maySetTO_PIXELS = true;
+  
+ /**
+  * Number of periodic-image shells to be drawn when drawing this phase to the
+  * screen.  Default value is 0.
+  *
+  * @see #draw
+  */
   private int imageShells = 0;
+ 
+ /**
+  * The nominal scaling factor that determines the size of this phase when drawn to the screen.
+  * 
+  * @see #draw
+  */
   private double nominalScale = 1.0;
+  
+ /**
+  * Total number of species contained in this phase.
+  */
   int speciesCount=0;
   private transient final int[] origin = new int[Space.D];     //origin for drawing space and species
   private transient final int[] phaseSize = new int[Space.D];  //array form of width, height
+  
+ /**
+  * Symmetric array of all two-body potentials.  Potentials are associated with species, and each species
+  * is assigned a unique index to idenfity it.  Potential2[i][j] is the two-body potential
+  * for Species indexed i and j, respectively.  The potential for i=j is merely the one describing the 
+  * molecular interactions for that species.
+  * 
+  * @see Species#speciesIndex
+  * @see Potential2
+  */
   public Potential2[][] potential2;
+  
+ /**
+  * Array of all one-body potentials.  Potentials are associated with species, and each species
+  * is assigned a unique index to idenfity it.  Potential1[i] is the one-body potential
+  * for Species indexed i.
+  * 
+  * @see Species#speciesIndex
+  * @see Potential1
+  */
   public Potential1[] potential1;
+  
+ /**
+  * Vector of all species
+  */
   public transient Vector speciesVector = new Vector(3);
+ 
   public boolean updatedForces, updatedPotentialEnergy, updatedKineticEnergy;
   public boolean updatedNeighbors, updatedFutureNeighbors;
+  
   private double potentialEnergy, kineticEnergy;  // must access with get methods
+ 
+ /**
+  * The Space object associated with this Phase.
+  */
   Space space;
+ 
+ /**
+  * When using periodic boundaries, image molecules near the cell boundaries often have parts that overflow
+  * into the central cell.  When the phase is drawn, these "overflow portions" are not normally
+  * included in the central image.  Setting this flag to <code>true</code> causes extra drawing
+  * to be done so that the overflow portions are properly rendered.  This is particularly helpful
+  * to have on when nShells is non-zero.  Default value is <code>false</code>.
+  */
   boolean drawOverflowImages = false;
-  public Species firstSpecies, lastSpecies;
-  public Molecule firstMolecule, lastMolecule;
-  public Atom firstAtom, lastAtom;
-  public int nAtomTotal, nMoleculeTotal;  //totals in this phase
+ 
+ /**
+  * First species in the linked list of species in this phase.
+  */
+  public Species firstSpecies;
+ 
+ /**
+  * Last species in the linked list of species in this phase.
+  */
+  public Species lastSpecies;
+ 
+ /**
+  * First molecule in the linked list of molecules in this phase
+  */
+  public Molecule firstMolecule;
+  
+ /**
+  * Last molecule in the linked list of molecules in this phase
+  */
+  public Molecule lastMolecule;
+ 
+ /**
+  * First atom in the linked list of atoms in this phase
+  */
+  public Atom firstAtom;
+ 
+ /**
+  * Last atom in the linked list of atoms in this phase
+  */
+  public Atom lastAtom;
+ 
+ /**
+  * Total number of atoms in this phase
+  */
+  public int nAtomTotal;
+ 
+ /**
+  * Total number of molecules in this phase
+  *
+  * @see Species#addMolecule
+  * @see Species#deleteMolecule
+  */
+  public int nMoleculeTotal;
+ 
+ /**
+  * Image object used for double-buffering
+  */
   Image offScreenImage;
-  public double initialTemperature = 300.;
+ 
+ /**
+  * Graphics object used for double-buffering
+  */
   Graphics offScreenGraphics;
+  
+ /**
+  * Initial temperature, in Kelvins
+  */
+  public double initialTemperature = 300.;
   
   public Phase() {
     setLayout(null);
@@ -44,50 +196,94 @@ public final class Phase extends Container {
     useNeighborList = false;
     nAtomTotal = nMoleculeTotal = 0;
   }
-  
+ 
+ /**
+  * Returns the temperature (in Kelvin) of this phase as computed via the equipartition
+  * theorem from the kinetic energy summed over all (atomic) degrees of freedom
+  */  
   public double getKineticTemperature() {
     updateKineticEnergy();
     return (2./(double)(nAtomTotal*Space.D))*kineticEnergy*Constants.KE2T;
   }
+  
   public void setInitialTemperature(double t) {initialTemperature = t;}
   public double getInitialTemperature() {return initialTemperature;}
   
-  /** Resets the class variable Phase.TO_PIXELS so that the Phase's
-      space exactly fills the Phase's drawing region when space is unscaled
-      */
+  /** 
+   * Resets the class variable Phase.TO_PIXELS so that the x-dimension of this Phase's
+   * space exactly fills this Phase's drawing region when space is unscaled
+   * setTO_PIXELS = (width of this Phase, in pixels)/(width of Space, in Angstroms)
+   *
+   * @see #draw
+   */
   public void resetTO_PIXELS() {
     if(maySetTO_PIXELS && space!=null) {
         setTO_PIXELS((double)getSize().width/space.getDimensions(0));
     }
   }
   
+  /**
+   * Sets the value of maySetTO_PIXELS for this phase.  If set to true,
+   * resetTO_PIXELS is then called
+   *
+   * @param b the new value of maySetTO_PIXELS
+   * @see #TO_PIXELS
+   * @see #resetTO_PIXELS
+   */
   public void setMaySetTO_PIXELS(boolean b) {
     maySetTO_PIXELS = b;
     resetTO_PIXELS();
   }
-  public boolean getMaySetTO_PIXELS() {return maySetTO_PIXELS;}
   
-  public void setTO_PIXELS(double t) {TO_PIXELS = t;}
+ /**
+  * @return current value of maySetTO_PIXELS
+  * @see #TO_PIXELS
+  */
+  public boolean getMaySetTO_PIXELS() {return maySetTO_PIXELS;}
+ 
+ /**
+  * Sets TO_PIXELS to the given value if maySetTO_PIXELS is <code>true</code>
+  */
+  public void setTO_PIXELS(double t) {if(maySetTO_PIXELS) {TO_PIXELS = t;}}
+ 
+ /**
+  * @return the current value of TO_PIXELS
+  */
   public double getTO_PIXELS() {return TO_PIXELS;}
-        
+ 
+ /**
+  * Performs a conversion from Angstroms to pixels
+  * @param x a length, in simulation units (Angstroms)
+  * @return x*TO_PIXELS, the input, converted to pixels
+  */
   public static int toPixels(double x) {return (int)(TO_PIXELS*x);}
 
   public boolean getUseNeighborList() {return useNeighborList;}
   public void setUseNeighborList(boolean b) {useNeighborList = b;}
 
-  /** set and get flag that determines whether a box is drawn around 
-      Phase's drawing region
-      */
   public void setDrawBoundingBox(boolean b) {drawBoundingBox = b;}
   public boolean getDrawBoundingBox() {return drawBoundingBox;}
   
+ /**
+  * @return the current value of imageShells
+  */
   public int getImageShells() {return imageShells;}
+ 
+ /**
+  * Changes the value of image shells, and calls the setScale method of the Phase's Space
+  *
+  * @param n the new value of imageShells
+  * @see Space#setScale
+  */
   public void setImageShells(int n) {
       if(n>=0) {
         imageShells = n;
         if(space != null) {space.setScale(nominalScale,imageShells);}
       }
   }
+  
+  // STOPPED commenting here
+  
   
   public double getNominalScale() {return nominalScale;}
   public void setNominalScale(double s) {
@@ -310,6 +506,44 @@ public final class Phase extends Container {
   public final boolean getDrawOverflowImages() {return drawOverflowImages;}
   public final void setDrawOverflowImages(boolean b) {drawOverflowImages = b;}
 
+ /** 
+  * paint is the method that handles the drawing of the phase to the screen.
+  * Several variables and conditions affect how the image is drawn.  First,
+  * the class variable <code>TO_PIXELS</code> performs the conversion between simulation
+  * length units (Angstroms) and pixels.  The default value is 300 pixels/Angstrom
+  * reflecting the default size of the phase (300 pixels by 300 pixels) and the
+  * default length scale (selected so that the simulation volume is of unit 
+  * length).  The size of the phase (in simulation units) is held in <code>space.dimensions[]</code>.
+  * Two quantities can further affect the size of the drawn image of the phase. 
+  * The variable <code>nominalScale</code> is a multiplicative factor that directly
+  * scales up or down the size of the image; scaling of the image is also performed
+  * whenever shells of periodic images are drawn.  Scaling is performed automatically
+  * to permit the central image and all of the specified periodic images to fit in
+  * the drawing of the phase.  The number of image shells, together with the nominalScale,
+  * are taken by <code>space</code> to determine the overall scaling of the drawn image.
+  *
+  * Painting is done with double buffering.  First a solid rectangle of the background
+  * color is drawn to an off-screen graphic.  Then the origin of the drawn image is
+  * determined from the size of the drawn image and the size of the phase:
+  * origin[i] = 0.5*(phaseSize[i] - spaceSize[i]).  A gray line is drawn around
+  * the phase boundary if <code>drawBoundingBox</code> is <code>true</code>.
+  * A loop is then taken over all species, first passing the species to space.repositionMolecules
+  * to enforce (for example) periodic boundaries, then invoking the draw method
+  * of the species.  The draw method of <code>space</code> is then invoked.
+  * If imageShells is non-zero, the getImageOrigins method of space is invoked to
+  * determine the origins for all images, and copies of the just-completed image
+  * of the central cell is copied to all of the periodic images.  The complete
+  * off-screen image is then transferred to the graphics object g.  
+  *
+  * Note that handling
+  * of overflowImages (parts of neighboring periodic images that spill into the
+  * central image, and which must be rendered separately) is performed by the 
+  * species draw method.
+  *
+  * @param g The graphic object to which the image of the phase is drawn
+  * @see Space
+  * @see Species
+  */
   public void paint(Graphics g) {
     if(Beans.isDesignTime()){
         g.setColor(getBackground());
@@ -320,7 +554,7 @@ public final class Phase extends Container {
     else {
         int w = getSize().width;
         int h = getSize().height;
-        offScreenGraphics.setColor(Color.white);
+        offScreenGraphics.setColor(getBackground());
         offScreenGraphics.fillRect(0,0,w,h);
         int[] spaceSize = space.getDrawSize();
         Space.uEa1T_v1Mv2_(origin,0.5,phaseSize,spaceSize);
@@ -354,23 +588,5 @@ public final class Phase extends Container {
         g.drawImage(offScreenImage,0,0,this);
     }
   }    
-  
-  
-/* Don't know where this came from
-	class SymContainer extends java.awt.event.ContainerAdapter
-	{
-		public void componentRemoved(java.awt.event.ContainerEvent event)
-		{
-			Object object = event.getSource();
-			if (object == Phase.this)
-				Phase_ComponentRemoved(event);
-		}
-	}
-
-	void Phase_ComponentRemoved(java.awt.event.ContainerEvent event)
-	{
-		// to do: code goes here.
-	}
-	*/
 }
     

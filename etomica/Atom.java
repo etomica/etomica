@@ -3,7 +3,8 @@ import java.awt.*;
 
 /**
  *  Each instance of the class Atom holds the position and velocity of one
- *  physical atom; all simulation kinetics and dynamics are performed here.
+ *  physical atom; all simulation kinetics and dynamics are performed by 
+ *  operating on these values.
  *  
  *  @author David Kofke
  *  @author C. Daniel Barnes
@@ -122,17 +123,29 @@ public class Atom {
      */
     Potential collisionPotential;
     
+    /**
+     * Flag indicating whether atom is subject to any forces
+     * forceFree = true if no forces act on atom, and it moves in free flight
+     * Default is true
+     *
+     * @see IntegratorHardField
+     */
+    private boolean forceFree;
+    
     private final double[] partnerForce = new double[Space.D];
     public final double[] rLast = new double[Space.D];
     
     /**
      * Constructs an atom with default values for mass, diameter, and color.
      * Default values are mass = 1.0 amu; diameter = 0.1 A; color = black.
+     * Defaults for all coordinates and momenta are zero.
      *
      * @param parent       molecule in which atom resides
      * @param index        sequential index of atom as assigned by parent molecule
      */
     public Atom(Molecule parent, int index) {
+        this(parent, index, 1.0, 0.1);
+        /**   delete if everything works ok
         parentMolecule = parent;
         atomIndex = index;
         Space.uEa1(r,0.0);
@@ -140,6 +153,7 @@ public class Atom {
         this.zeroForce();
         this.setMass(1.0);
         this.setDiameter(0.1);
+        */
     }
     
     /**
@@ -159,6 +173,7 @@ public class Atom {
         this.zeroForce();
         this.setMass(mass);
         this.setDiameter(diameter);
+        setForceFree(true);
     }
     
     public final Molecule getMolecule() {return parentMolecule;}
@@ -170,6 +185,9 @@ public class Atom {
     public final void setColor(Color c) {this.color = c;}
     
     public final double getRm() {return rm;}
+    
+    public final void setForceFree(boolean b) {forceFree = b;}
+    public final boolean isForceFree() {return forceFree;}
     /**
      * Sets reciprocal mass of this atom and updates mass accordingly.  Setting
      * rm to zero causes mass to be set to largest machine value.
@@ -252,15 +270,20 @@ public class Atom {
       * @see #displace
       */
       public final void replace() { Space.uEv1(r,rLast); }
-      
+    
+     /**
+      * Changes the momentum vector
+      *
+      * @param dp The change in the momentum vector
+      */
+    public final void accelerate(double[] dp) {Space.uPEv1(p,dp);}
+ //   public final void accelerate(int i, double dp) {p[i] += dp;}
+ //   public final void decelerate(double[] dp) {Space.uMEv1(p,dp);}
  //   public final void setP(double[] dp) {Space.uEv1(p,dp);}
  //   public final void setP(int i, double dp) {p[i] = dp;}
- /*   public final void accelerate(double[] dp) {Space.uPEv1(p,dp);}
-    public final void accelerate(int i, double dp) {p[i] += dp;}
-    public final void decelerate(double[] dp) {Space.uMEv1(p,dp);}
     
     public final void scaleP(int i, double scale) {p[i] *= scale;}
- */   
+    
  
     /**
      * Computes and returns kinetic energy of atom.

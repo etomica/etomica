@@ -2,9 +2,11 @@ package simulate;
 
 public class MoleculeWall extends Molecule {
   
-  public MoleculeWall(Species s) {
-    super(s, 1);  //Molecule is one AtomWall atom
+  public MoleculeWall(Species s, int n) {
+    super(s, n);
   }
+  
+  public MoleculeWall(Species s) {this(s,1);}
   
   //AtomWall is an unconventional atom
   protected void makeAtoms() {

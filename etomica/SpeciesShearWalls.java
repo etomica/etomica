@@ -13,7 +13,6 @@ public class SpeciesShearWalls extends Species {
   Color color;
   
   double L;    //atom-atom separation
-  public int nAtomsPerMolecule;
  
   public SpeciesShearWalls() {
     super(2);
@@ -32,13 +31,7 @@ public class SpeciesShearWalls extends Species {
         diameter[i] = 0.1;
     }
   }
-  
-  //makeMolecules is called by constructor via setNMolecules
-  void makeMolecules() {
-    molecule = new Molecule[nMolecules];
-    for(int i=0; i<nMolecules; i++) {molecule[i] = new Molecule(this,nAtomsPerMolecule);}
-  }
-  
+    
   //initializeMolecules is called by constructor via setNMolecules
   void initializeMolecules() {
     initializeMolecules(diameter, mass, color);
@@ -66,6 +59,7 @@ public class SpeciesShearWalls extends Species {
   public final void setDiameter(int i, double value) {
     diameter[i] = value;
     radius[i] = 0.5*value;
+    if(firstMolecule == null) {return;}
     for(Molecule m=firstMolecule; m!=lastMolecule.getNextMolecule(); m=m.getNextMolecule()) {
         m.atom[i].setDiameter(value);
     }
@@ -74,6 +68,7 @@ public class SpeciesShearWalls extends Species {
   public final Color getColor() {return color;}
   public final void setColor(Color c) {
     color = c;
+    if(firstAtom == null) {return;} //return if atoms have not yet been ordered
     for(Atom a=firstAtom; a!=lastAtom.getNextAtom(); a=a.getNextAtom()) {a.setColor(c);}
   }
 

@@ -59,5 +59,10 @@ public class PotentialTether extends Potential {
       }
     }*/
   }
+  
+    public double energy(Atom atom1, Atom atom2) {
+        return (space.r1Mr2_S(atom1.r, atom2.r) > tetherLengthSquared) ? Double.MAX_VALUE : 0.0;
+    }
+  
 }
   

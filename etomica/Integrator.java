@@ -123,20 +123,20 @@ public abstract class Integrator extends Container implements PhaseIntegratorLis
                 runner = new Thread(this);
                 runner.start();
                 running = 1;
-                button.setBackground(Color.red);
-                button.setLabel("pause");
+   //             button.setBackground(Color.red);
+                button.setLabel("Pause");
             }
             else if(running==1) {
                 runner.suspend();
                 running = 0;
-                button.setBackground(Color.green);
-                button.setLabel("continue");
+   //             button.setBackground(Color.green);
+                button.setLabel("Continue");
             }
             else {
                 runner.resume();
                 running = 1;
-    	        button.setBackground(Color.red);
-	            button.setLabel("pause");
+    //	        button.setBackground(Color.red);
+	            button.setLabel("Pause");
 	        }
 	    }
 	}
