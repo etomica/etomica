@@ -46,7 +46,7 @@ public class IteratorFactoryCell implements IteratorFactory {
         
         return lattice;
     }
-    
+        
     public BravaisLattice getLattice(Phase phase) {
         if(phase == null) return null;
         else return deployedLattices[phase.index];

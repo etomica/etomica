@@ -83,6 +83,7 @@ public class BravaisLattice extends Atom implements AbstractLattice {
      */
     public void setPrimitive(Primitive primitive) {
         this.primitive = primitive;
+        primitive.setLattice(this);
         update();
     }
     /**
@@ -250,11 +251,19 @@ public static class Factory extends AtomFactoryTree {
     
     public Atom build(AtomTreeNodeGroup parent) {
         BravaisLattice group = new BravaisLattice(parentSimulation().space, groupType, dimensions, parent);
-        build(group);
+        return build(group);
+    }
+    
+    public Atom build(Atom atom) {
+        if(!(atom instanceof BravaisLattice)) throw new IllegalArgumentException("Error in BravaisLattice.Factory.build(Atom): Attempt to rebuild lattice from atom that is not a BravaisLattice instance");
+        super.build(atom);
+        BravaisLattice group = (BravaisLattice)atom;
         AtomIteratorTree leafIterator = new AtomIteratorTree(group);
         leafIterator.reset();
         group.siteList = new AtomList(leafIterator);
-        group.setPrimitive(primitive);
+        //assign primitive if not already set for group (would be set if this is a rebuild call)
+        if(group.getPrimitive() != null) group.setPrimitive(primitive.copy());
+        else group.update();
         return group;
     }
 
@@ -268,8 +277,8 @@ public static class Factory extends AtomFactoryTree {
         return array;
     }
     
-    private Primitive primitive;
-    private final int[] dimensions;
+    protected Primitive primitive;
+    protected final int[] dimensions;
 }//end of Factory
 
     /**

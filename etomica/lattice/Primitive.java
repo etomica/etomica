@@ -13,6 +13,7 @@ public abstract class Primitive {
     public final int D;
     protected Space space;
     protected Simulation simulation;
+    protected BravaisLattice lattice;
     
     public Primitive(Simulation sim) {
         simulation = sim;
@@ -28,6 +29,20 @@ public abstract class Primitive {
     }
     
     /**
+     * Lattice associated with this may be defined to enable
+     * automatic updates of it with changes in the basis.
+     * This method is called by the setPrimitive method of
+     * BravaisLattice when the primitive is assigned to the lattice.
+     */
+    public void setLattice(BravaisLattice lattice) {
+        this.lattice = lattice;
+    }
+    /**
+     * Lattice associated with this primitive.
+     */
+    public BravaisLattice getLattice() {return lattice;}
+    
+    /**
      * Returns the primitive vectors.  Does not return the original
      * vectors used by the class, but instead returns copies.  Thus
      * changing the vectors returned by this method does not modify
@@ -36,14 +51,19 @@ public abstract class Primitive {
      * adhering to a particular structure (e.g., cubic, fcc, etc.).
      */
     public Space.Vector[] vectors() {
-        return copy();
+        return copyVectors();
     }
     
     //copies the interal set of vectors to the copy for outside use
-    private Space.Vector[] copy() {
+    private Space.Vector[] copyVectors() {
         for(int i=0; i<D; i++) rCopy[i].E(r[i]);
         return rCopy;
     }
+    
+    /**
+     * Returns a new, identical instance of this primitive.
+     */
+    public abstract Primitive copy();
     
     /**
      * Returns the index which would give the unit cell containing the given

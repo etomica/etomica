@@ -14,6 +14,7 @@ public abstract class AtomFactory {
     protected Configuration configuration;
     protected BondInitializer bondInitializer = BondInitializer.NULL;
     private Atom.AgentSource[] agentSource = new Atom.AgentSource[0];
+    protected final AtomType.Group groupType = new AtomType.Group(this);
     
     /**
      * @param sim the parent simulation using this factory
@@ -24,10 +25,18 @@ public abstract class AtomFactory {
         reservoir = new AtomReservoir(this);
     }
     
+    /**
+     * Makes an atom with the reservoir as its parent.
+     */
     public Atom makeAtom() {
         return makeAtom((AtomTreeNodeGroup)reservoir.node);
     }
     
+    /**
+     * Makes an atom with the given node as its parent.  If reservoir
+     * is not empty, takes atom from it; otherwise makes it from scratch
+     * using the build method.
+     */
     public Atom makeAtom(AtomTreeNodeGroup parent) {
         Atom atom = reservoir.getAtom();
         if(atom == null) atom = build(parent);
@@ -42,7 +51,22 @@ public abstract class AtomFactory {
         return atom;
     }
     
-    protected abstract Atom build(AtomTreeNodeGroup parent);
+    /**
+     * Constructs a new atomgroup having the given parent and send it
+     * to the build(Atom) method to addition of children.  This method 
+     * is sometime overridden in subclasses to construct with atom that does
+     * not use the group AtomTreeNode, or that is a subclass of Atom.
+     */
+    protected Atom build(AtomTreeNodeGroup parent) {
+        Atom group = new Atom(parentSimulation.space, groupType, parent);
+        return build(group);
+    }
+    
+    /**
+     * Builds an atom from the one given, attaching child atoms as appropriate
+     * for the definition of the concrete subclass.
+     */
+    protected abstract Atom build(Atom atom);
     
 //    protected abstract void renew(Atom a);
     

@@ -14,6 +14,15 @@ public class PrimitiveOrthorhombic extends Primitive {
     }
     
     /**
+     * Returns a new, identical instance of this primitive.
+     */
+    public Primitive copy() {
+        PrimitiveOrthorhombic copy = new PrimitiveOrthorhombic(simulation);
+        copy.setSize(size);
+        return copy;
+    }
+    
+    /**
      * Sets the length of each primitive vector to the corresponding
      * value in the given array.
      */
@@ -23,6 +32,7 @@ public class PrimitiveOrthorhombic extends Primitive {
             r[i].setComponent(i,size[i]);
             this.size[i] = size[i];
         }
+        if(lattice != null) lattice.update();
     }
     
     /**
@@ -33,6 +43,7 @@ public class PrimitiveOrthorhombic extends Primitive {
             r[i].setComponent(i,size);
             this.size[i] = size;
         }
+        if(lattice != null) lattice.update();
     }
     
     public int[] latticeIndex(Space.Vector q) {

@@ -16,11 +16,21 @@ public class PrimitiveCubic extends Primitive {
     }
     
     /**
+     * Returns a new PrimitiveCubic with the same size as this one.
+     */
+    public Primitive copy() {
+        PrimitiveCubic copy = new PrimitiveCubic(simulation);
+        copy.setSize(size);
+        return copy;
+    }
+    
+    /**
      * Sets the length of all primitive vectors to the given value.
      */
     public void setSize(double size) {
         for(int i=0; i<D; i++) r[i].setComponent(i,size);
         this.size = size;
+        if(lattice != null) lattice.update();
     }
     
     public int[] latticeIndex(Space.Vector q) {

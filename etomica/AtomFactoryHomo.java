@@ -9,7 +9,6 @@ public class AtomFactoryHomo extends AtomFactory {
     
     private AtomFactory childFactory;
     private int atomsPerGroup;
-    protected final AtomType.Group groupType = new AtomType.Group(this);
     
     /**
      * @param factory the factory that makes each of the identical children.
@@ -38,13 +37,6 @@ public class AtomFactoryHomo extends AtomFactory {
         configuration = config;
     }
     
-    /**
-     * Constructs a new group.
-     */
-    protected Atom build(AtomTreeNodeGroup parent) {
-        AtomGroup group = new AtomGroup(parentSimulation.space, groupType, parent);
-        return build(group);
-    }
     
     /**
      * Constructs a new group using the given atom.

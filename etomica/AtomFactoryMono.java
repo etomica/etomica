@@ -23,7 +23,7 @@ public class AtomFactoryMono extends AtomFactory {
     public AtomType type() {return atomType;}
     
     /**
-     * Builds a single atom.
+     * Overrides parent class method and builds a single atom.
      */
     protected Atom build(AtomTreeNodeGroup parent) {
         return new Atom(parentSimulation().space, atomType, 
@@ -31,6 +31,11 @@ public class AtomFactoryMono extends AtomFactory {
                         parentSimulation.getIteratorFactory().neighborSequencerFactory(), 
                         parent);
     }
+    
+    /**
+     * Simply returns the given atom.
+     */
+    protected Atom build(Atom atom) {return atom;}
     
     public boolean vetoAddition(Atom a) {return (a.type != atomType);}
     
