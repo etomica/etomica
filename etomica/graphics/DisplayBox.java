@@ -56,11 +56,12 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
     }
     public DisplayBox() {
         super();
-        jLabel = new JLabel("Label");
+        jLabel = new JLabel();
         value = new JTextField("");
         value.setEditable(false);
         panel.add(value, java.awt.BorderLayout.CENTER);
         setLabelType(STRING);
+        setLabel("Label");
  //       panel.setMinimumSize(new java.awt.Dimension(80,60));
         unit = new etomica.units.PrefixedUnit(etomica.units.BaseUnit.Null.UNIT);
         setUpdateInterval(5);
@@ -97,7 +98,6 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
      */
     public void setUnit(etomica.units.Unit u) {
         unit = u;
-        setLabel();
     }
     /**
      * Returns the physical units of the displayed value.
@@ -132,12 +132,6 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
      */
     public void setDataSource(DataSource m) {
         source = m;
-        if (unit==null) {
-            setUnit(m.getDimension().defaultIOUnit());
-        }
-        if (label==null) {
-            setLabel();
-        }
     }
     
     /**
@@ -166,11 +160,6 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Da
             panel.setBorder(new javax.swing.border.TitledBorder(s));
         }
         if(labelType == STRING) setLabelPosition(labelPosition);
-/*        JLabel oldLabel = label;
-        label = new JLabel(s);
-        panel.remove(oldLabel);
-        panel.add(label, 0);
-        support.firePropertyChange("label",oldLabel,label);*/
     }
     /**
      * @return the current value of the descriptive label.
