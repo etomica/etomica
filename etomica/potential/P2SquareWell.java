@@ -53,6 +53,10 @@ public class P2SquareWell extends Potential2HardSpherical {
         return info;
     }
 
+    public double getRange() {
+        return wellDiameter;
+    }
+    
     /**
      * Implements collision dynamics between two square-well atoms.
      * Includes all possibilities involving collision of hard cores, and collision of wells
@@ -71,7 +75,7 @@ public class P2SquareWell extends Potential2HardSpherical {
         double reduced_m = 1.0/(pair.atom0.type.rm() + pair.atom1.type.rm());
         double nudge = 0;
         if(2*r2 < (coreDiameterSquared+wellDiameterSquared)) {   // Hard-core collision
-            if (Debug.ON && Math.abs(r2 - coreDiameterSquared)/coreDiameterSquared > 1.e-9) {
+            if (Debug.ON && !Default.FIX_OVERLAP && Math.abs(r2 - coreDiameterSquared)/coreDiameterSquared > 1.e-9) {
                 throw new RuntimeException("atoms "+pair+" not at the right distance "+r2+" "+coreDiameterSquared);
             }
             lastCollisionVirial = 2.0*reduced_m*bij;
@@ -174,7 +178,7 @@ public class P2SquareWell extends Potential2HardSpherical {
                 }
             }
         }
-        if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(pair)) {
+        if (Debug.ON && Debug.DEBUG_NOW && ((Debug.LEVEL > 1 && Debug.allAtoms(pair)) || time < 0)) {
             System.out.println(pair+" r2 "+r2+" bij "+bij+" time "+(time+falseTime));
         }
         return time + falseTime;
@@ -184,8 +188,9 @@ public class P2SquareWell extends Potential2HardSpherical {
    * Returns infinity if overlapping, -epsilon if otherwise less than well diameter, or zero if neither.
    */
     public double u(double r2) {
-        return ( r2 < wellDiameterSquared) ? 
-            ((r2 < coreDiameterSquared) ? Double.POSITIVE_INFINITY : -epsilon) : 0.0;
+        if (r2 > wellDiameterSquared) return 0.0;
+        if (r2 > coreDiameterSquared) return -epsilon;
+        return Double.POSITIVE_INFINITY;
     }
 
     public double energyChange() {return lastEnergyChange;}
