@@ -1,9 +1,8 @@
 package etomica.virial;
 
-import etomica.SimulationElement;
+import etomica.Phase;
 import etomica.data.meter.MeterScalar;
 import etomica.units.Dimension;
-import etomica.Phase;
 
 /**
  * @author kofke

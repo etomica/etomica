@@ -10,7 +10,7 @@ import etomica.Phase;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.units.Dimension;
-import etomica.utility.*;
+import etomica.utility.FastFourierTransform;
 
 
 /**

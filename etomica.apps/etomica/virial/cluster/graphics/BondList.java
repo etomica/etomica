@@ -1,8 +1,11 @@
 package etomica.virial.cluster;
 
-import etomica.virial.*;
-import etomica.virial.cluster.graphics.*;
-import java.awt.event.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
+import etomica.math.discrete.CombinationIterator;
+import etomica.virial.Cluster;
+import etomica.virial.cluster.Standard;
 
 /**
  * Data structure that holds list of atom pairs that are joined by bonds.

@@ -1,7 +1,11 @@
 package etomica.action;
 
-import etomica.*;
 import java.util.Iterator;
+
+import etomica.DataManager;
+import etomica.Integrator;
+import etomica.Phase;
+import etomica.Simulation;
 
 /**
  * Action that invokes reset method of all registered simulation elements,

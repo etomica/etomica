@@ -1,11 +1,17 @@
 package etomica.graphics;
-import etomica.*;
-
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.RenderingHints;
+import java.awt.TextField;
 import java.awt.image.MemoryImageSource;
-
 import java.util.Hashtable;
-//java2 replacement
+
+import etomica.Atom;
+import etomica.Matrix3D;
+import etomica.Species;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;

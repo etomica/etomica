@@ -1,8 +1,8 @@
 package etomica.graphics;
-import etomica.*;
-import etomica.atom.AtomTypeWall;
-
 import java.awt.Color;
+
+import etomica.Atom;
+import etomica.atom.AtomTypeWall;
 /**
  * Sets color of a wall based on the value of its temperature field.
  * @author David Kofke

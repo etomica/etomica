@@ -6,7 +6,6 @@ import etomica.EtomicaInfo;
 import etomica.Integrator;
 import etomica.Simulation;
 import etomica.Space;
-import etomica.Integrator.Forcible;
 import etomica.atom.AtomTypeWall;
 import etomica.space.Tensor;
 import etomica.space.Vector;

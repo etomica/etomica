@@ -1,6 +1,9 @@
 package etomica.graphics;
-import etomica.*;
-import etomica.units.*;
+import etomica.EtomicaElement;
+import etomica.EtomicaInfo;
+import etomica.MeterAbstract;
+import etomica.Simulation;
+import etomica.units.Unit;
 
 /**
  * Class for creating a plot of simulation data.

@@ -1,5 +1,9 @@
 package etomica.atom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
 
 import etomica.Atom;
 import etomica.AtomIterator;

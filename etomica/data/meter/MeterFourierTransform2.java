@@ -4,7 +4,7 @@
 package etomica.data.meter;
 
 import etomica.units.Dimension;
-import etomica.utility.*;
+import etomica.utility.Transform;
 /**
  *
  * Secondary Meter which monitors changes of the first transform over time.

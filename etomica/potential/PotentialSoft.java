@@ -5,7 +5,6 @@
 package etomica.potential;
 
 import etomica.Atom;
-import etomica.Space;
 import etomica.space.Vector;
 
 

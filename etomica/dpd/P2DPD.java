@@ -4,16 +4,12 @@
  */
 package etomica.dpd;
 
-import etomica.AtomPair;
-import etomica.Bond;
+import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.Simulation;
-import etomica.SimulationElement;
 import etomica.Space;
-import etomica.Default;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
-import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Vector;
 
 /**

@@ -1,12 +1,15 @@
 //class includes a main method to demonstrate and test its use
 package etomica.graphics;
-import etomica.*;
+import java.awt.event.KeyEvent;
 
-//import etomica.units.*;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.JLabel;
-import java.awt.event.KeyEvent;
+
+import etomica.Constants;
+import etomica.EtomicaElement;
+import etomica.EtomicaInfo;
+import etomica.ModulatorAbstract;
 
 /**
  * A simple device the permits editing of a single value via a textbox 

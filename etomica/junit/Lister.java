@@ -1,10 +1,10 @@
 package etomica.junit;
 
-import etomica.*;
+import java.util.LinkedList;
+
+import etomica.Atom;
 import etomica.action.AtomAction;
 import etomica.action.AtomsetAction;
-
-import java.util.LinkedList;
 
 /**
  * @author aawalker

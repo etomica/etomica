@@ -1,6 +1,5 @@
 //This class includes a main method to demonstrate its use
 package etomica;
-import etomica.action.AtomAction;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomIteratorTree;
@@ -8,9 +7,9 @@ import etomica.potential.Potential1;
 import etomica.potential.PotentialHard;
 import etomica.potential.PotentialSoft;
 import etomica.space.Boundary;
+import etomica.space.BoundaryNone;
 import etomica.space.Tensor;
 import etomica.space.Vector;
-import etomica.space2d.BoundaryNone;
 import etomica.units.Bar;
 import etomica.units.BaseUnit;
 import etomica.units.Dimension;

@@ -1,5 +1,7 @@
 package etomica.data.meter;
 
+import etomica.MeterAbstract;
+
 /**
  * Meter for recording and averaging several functions of the same variable.
  * Default is not to have meter do averages in response to integrationIntervalEvents.

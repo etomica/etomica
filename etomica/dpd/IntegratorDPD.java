@@ -11,8 +11,6 @@ import etomica.Integrator;
 import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.SimulationElement;
-import etomica.Space;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorMD;

@@ -1,8 +1,14 @@
 package etomica.graphics;
-import etomica.units.*;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
+
 import javax.swing.JComboBox;
+
+import etomica.units.BaseUnit;
+import etomica.units.Dimension;
+import etomica.units.Prefix;
+import etomica.units.PrefixedUnit;
+import etomica.units.Unit;
 
 /**
  * Editor to set the value of a double-type property having units associated with it.

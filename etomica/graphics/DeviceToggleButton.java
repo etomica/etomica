@@ -1,7 +1,10 @@
 //This class includes a main method to demonstrate its use
 package etomica.graphics;
-import etomica.*;
 import javax.swing.JButton;
+
+import etomica.EtomicaElement;
+import etomica.EtomicaInfo;
+import etomica.ModulatorBoolean;
 
 /**
  * Button that toggles a boolean value.  This device can connect to any object

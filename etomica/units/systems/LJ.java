@@ -1,6 +1,12 @@
 package etomica.units.systems;
-import etomica.units.*;
 import etomica.Default;
+import etomica.units.BaseUnit;
+import etomica.units.Count;
+import etomica.units.Decimal;
+import etomica.units.Prefix;
+import etomica.units.Radian;
+import etomica.units.Unit;
+import etomica.units.UnitSystem;
 
 /**
  * Lennard-Jones system of units, such that all quantities are made

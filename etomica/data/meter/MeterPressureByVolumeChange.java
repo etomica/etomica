@@ -6,11 +6,10 @@ import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Space;
 import etomica.action.PhaseInflateAnisotropic;
-import etomica.action.PhaseActionAdapter;
 import etomica.data.DataSourceUniform;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.space.Vector;
-import etomica.units.*;
+import etomica.units.Dimension;
 
 /**
  * Evaluates the pressure by examining the change in energy accompanying

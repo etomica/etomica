@@ -7,7 +7,7 @@ import etomica.Space;
 import etomica.atom.iterator.AtomIteratorList;
 import etomica.integrator.IntegratorHard;
 import etomica.space.Tensor;
-import etomica.units.*;
+import etomica.units.Dimension;
 
 public class MeterPressureHardTensor extends MeterTensor implements IntegratorHard.CollisionListener {
     

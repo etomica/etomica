@@ -1,7 +1,5 @@
 package etomica.graphics;
-import java.awt.Color;
-import javax.swing.plaf.*;
-import javax.swing.plaf.metal.*;
+import javax.swing.plaf.metal.DefaultMetalTheme;
 
 
 /**

@@ -2,8 +2,14 @@
 // Support for a PropertyEditor that uses text.
 
 package etomica.graphics;
-import java.awt.event.*;
-import java.beans.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyEditor;
+
 import javax.swing.JTextField;
 
 public class PropertyText extends JTextField implements KeyListener, FocusListener, PropertyChangeListener {

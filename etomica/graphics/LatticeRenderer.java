@@ -1,14 +1,17 @@
 package etomica.graphics;
-import etomica.*;
+import java.awt.Color;
+
+import etomica.Atom;
+import etomica.AtomIterator;
+import etomica.IteratorDirective;
+import etomica.Phase;
+import etomica.Simulation;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorListSimple;
-import etomica.lattice.*;
+import etomica.lattice.AbstractLattice;
 import etomica.math.geometry.Polyhedron;
-import etomica.nbr.cell.IteratorFactoryCell;
 import etomica.nbr.cell.AtomSequencerCell;
 import etomica.space.Vector;
-
-import java.awt.*;
 
 /**
  * Methods for drawing a lattice to a display (2D only).

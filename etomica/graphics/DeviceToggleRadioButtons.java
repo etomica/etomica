@@ -1,7 +1,12 @@
 //This class includes a main method to demonstrate its use
 package etomica.graphics;
-import etomica.*;
-import javax.swing.*;
+import javax.swing.ButtonGroup;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+
+import etomica.EtomicaElement;
+import etomica.EtomicaInfo;
+import etomica.ModulatorBoolean;
 
 /**
  * Button that toggles a boolean value using a pair of radio buttons.  

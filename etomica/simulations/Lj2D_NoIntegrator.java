@@ -1,7 +1,12 @@
 package etomica.simulations;
-import etomica.*;
+import etomica.Controller;
+import etomica.Phase;
+import etomica.Simulation;
+import etomica.SpeciesSpheresMono;
 import etomica.data.meter.MeterEnergy;
-import etomica.graphics.*;
+import etomica.graphics.DisplayPhase;
+import etomica.graphics.DisplayPlot;
+import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorGear4;
 import etomica.potential.P2LennardJones;
 import etomica.space2d.Space2D;

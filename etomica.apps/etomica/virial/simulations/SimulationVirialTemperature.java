@@ -1,8 +1,12 @@
 package etomica.virial.simulations;
 
+import etomica.Space;
 import etomica.potential.P2LennardJones;
-import etomica.virial.*;
-import etomica.*;
+import etomica.virial.Cluster;
+import etomica.virial.MayerGeneral;
+import etomica.virial.MayerModified;
+import etomica.virial.MeterVirial;
+import etomica.virial.P0Cluster;
 
 /**
  * @author kofke

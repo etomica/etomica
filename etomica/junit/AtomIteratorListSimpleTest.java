@@ -1,10 +1,11 @@
 package etomica.junit;
 
-import etomica.*;
+import java.util.LinkedList;
+
+import etomica.Atom;
+import etomica.IteratorDirective;
 import etomica.action.AtomActionAdapter;
 import etomica.atom.iterator.AtomIteratorListSimple;
-
-import java.util.LinkedList;
 
 /**
  * @author Andrew Walker

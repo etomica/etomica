@@ -1,9 +1,11 @@
 package etomica.virial.dos;
 
-import etomica.*;
-import etomica.virial.*;
+import etomica.Simulation;
 import etomica.data.meter.MeterFunction;
 import etomica.units.Dimension;
+import etomica.virial.Cluster;
+import etomica.virial.P0Cluster;
+import etomica.virial.PhaseCluster;
 
 /**
  * @author kofke

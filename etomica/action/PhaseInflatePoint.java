@@ -18,10 +18,7 @@ import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorList;
 import etomica.lattice.AbstractLattice;
 import etomica.lattice.BravaisLattice;
-import etomica.lattice.LatticeFactoryCubic;
-import etomica.lattice.Site;
 import etomica.space.Vector;
-import etomica.space2d.Space2D;
 import etomica.utility.OdeSolver;
 
 /** 

@@ -1,12 +1,20 @@
 package etomica.graphics;
-import etomica.*;
-import java.io.*;
-import javax.swing.*;
-import java.lang.reflect.*;
-import java.beans.*;
-//Java2 imports
-//import java.util.Iterator;
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
+import javax.swing.JLabel;
+
+import etomica.Integrator;
+import etomica.MeterAbstract;
+import etomica.Simulation;
 import etomica.data.meter.MeterScalar;
 import etomica.utility.java2.Iterator;
 

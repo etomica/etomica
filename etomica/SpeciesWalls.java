@@ -1,7 +1,5 @@
 //This class includes a main method to demonstrate its use
 package etomica;
-import etomica.action.AtomActionAdapter;
-import etomica.action.AtomsetAction;
 import etomica.atom.AtomFactoryHetero;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomSequencerFactory;

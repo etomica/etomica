@@ -5,7 +5,6 @@ import etomica.AtomsetIterator;
 import etomica.Integrator;
 import etomica.Potential;
 import etomica.Space;
-import etomica.Integrator.Forcible;
 import etomica.space.Vector;
 
 /**

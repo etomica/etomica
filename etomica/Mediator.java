@@ -1,14 +1,7 @@
 package etomica;
 import etomica.action.PhaseImposePbc;
-import etomica.action.PhaseActionAdapter;
 import etomica.log.LoggerAbstract;
 import etomica.utility.HashMap2;
-
-//Java2 imports
-//import java.util.HashMap;
-//import java.util.LinkedList;
-//import java.util.Iterator;
-
 import etomica.utility.java2.HashMap;
 import etomica.utility.java2.Iterator;
     

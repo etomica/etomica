@@ -1,11 +1,11 @@
 package etomica.graphics;
-import etomica.*;
+import java.awt.event.InputEvent;
+import java.awt.event.MouseEvent;
+import java.util.EventListener;
+
+import etomica.Atom;
 import etomica.action.AtomActionAdapter;
 import etomica.action.Undoable;
-
-import java.util.EventListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.InputEvent;
 
 /**
  * Interface for a class that listens for events coming from a DisplayPhase.

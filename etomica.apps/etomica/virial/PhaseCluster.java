@@ -1,6 +1,7 @@
 package etomica.virial;
 
-import etomica.*;
+import etomica.Phase;
+import etomica.Simulation;
 import etomica.atom.AtomList;
 
 /**

@@ -1,7 +1,12 @@
 package etomica.graphics;
-import etomica.*;
+import java.awt.Dimension;
+import java.awt.FontMetrics;
+import java.awt.GridLayout;
 
-import java.awt.*;
+import etomica.EtomicaElement;
+import etomica.EtomicaInfo;
+import etomica.SimulationEventManager;
+import etomica.SimulationListener;
 
 /**
  * Selector for fractions in a ternary system.  Presents a triangle that can

@@ -1,6 +1,5 @@
 package etomica.virial.dos;
 
-import etomica.AtomPair;
 import etomica.virial.MayerFunction;
 
 /**

@@ -1,7 +1,12 @@
 package etomica;
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import etomica.units.Dimension;
-import java.beans.*;
-import java.lang.reflect.*;
 
 /**
  * Implements the Modulator functionality using introspection to obtain the accessor methods for a property.

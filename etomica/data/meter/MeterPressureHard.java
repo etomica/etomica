@@ -5,7 +5,7 @@ import etomica.Phase;
 import etomica.data.DataSourceCountTime;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD;
-import etomica.units.*;
+import etomica.units.Dimension;
 
 /**
  * Meter for the pressure (given as the compressibility factor) of a hard potential.

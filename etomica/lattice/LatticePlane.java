@@ -1,10 +1,11 @@
 package etomica.lattice;
 
+import etomica.Atom;
+import etomica.Space;
 import etomica.atom.AtomFilter;
 import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.math.geometry.Plane;
 import etomica.space3d.Vector3D;
-import etomica.*;
 
 /**
  * Class describing a plane through a lattice.  Holds a Plane

@@ -1,12 +1,21 @@
 package etomica.graphics;
-import etomica.*;
-
 import java.awt.Component;
-import javax.swing.JTable;
-import javax.swing.table.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 import javax.swing.Box;
 import javax.swing.JScrollPane;
-import java.awt.event.*;
+import javax.swing.JTable;
+import javax.swing.table.AbstractTableModel;
+
+import etomica.Action;
+import etomica.DataSource;
+import etomica.EtomicaElement;
+import etomica.EtomicaInfo;
+import etomica.MeterAbstract;
+import etomica.Simulation;
 
 /**
  * Presents function data in a tabular form.  Data is obtained from DataSource objects.

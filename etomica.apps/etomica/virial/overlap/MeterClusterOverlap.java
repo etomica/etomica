@@ -1,6 +1,5 @@
 package etomica.virial.overlap;
 
-import etomica.SimulationElement;
 import etomica.data.meter.MeterScalar;
 import etomica.units.Dimension;
 

@@ -1,5 +1,5 @@
 package etomica.graphics;
-import etomica.*;
+import etomica.Parameter;
 
 public abstract class ParameterGraphic extends Parameter {
     

@@ -1,14 +1,17 @@
 package etomica.junit;
 
-import java.util.Collections;
-import java.util.LinkedList;
-
-import etomica.*;
+import junit.framework.TestCase;
+import etomica.Atom;
+import etomica.AtomIterator;
+import etomica.AtomsetIterator;
+import etomica.Phase;
+import etomica.Simulation;
+import etomica.Species;
+import etomica.SpeciesSpheresMono;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorList;
-import junit.framework.*;
 
 /**
  * @author aawalker

@@ -1,5 +1,6 @@
 package etomica.graphics;
-import etomica.*;
+import etomica.Atom;
+import etomica.Phase;
 import etomica.atom.iterator.AtomIteratorListSimple;
 
 public class ColorSchemeRandom extends ColorSchemeCollective {

@@ -1,9 +1,12 @@
 package etomica.graphics;
-import etomica.*;
-import etomica.atom.AtomFilter;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 
-import java.awt.*;
-import java.awt.event.*;
+import etomica.Phase;
+import etomica.atom.AtomFilter;
 
  /* History of changes
   * 09/07/02 (DAK) added atomFilter

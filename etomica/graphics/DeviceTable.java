@@ -1,10 +1,12 @@
 package etomica.graphics;
-import etomica.*;
-import etomica.units.*;
-import javax.swing.JTable;
-import javax.swing.table.*;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.AbstractTableModel;
+
+import etomica.EtomicaInfo;
+import etomica.ModulatorAbstract;
+import etomica.units.Unit;
 
 /**
  * Presents a table of numeric properties that can be edited by typing in values.

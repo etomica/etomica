@@ -3,7 +3,7 @@ package etomica.data.meter;
 import etomica.Accumulator;
 import etomica.MeterAbstract;
 import etomica.Simulation;
-import etomica.units.*;
+import etomica.units.Dimension;
 
 /**
  * A collection of MeterFunctions, or something that behaves as if it were a

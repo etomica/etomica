@@ -1,14 +1,8 @@
 package etomica.action;
-import etomica.*;
-
-//import java.awt.event.ActionEvent;
-
-//Java2 imports
-//import java.util.LinkedList;
-//import java.util.Iterator;
-
-import etomica.utility.java2.LinkedList;
+import etomica.MeterAbstract;
+import etomica.Simulation;
 import etomica.utility.java2.Iterator;
+import etomica.utility.java2.LinkedList;
 
  /**
   * Superclass of classes that apply some elementary action (transformation) to 

@@ -1,6 +1,9 @@
 
 package etomica.chem.models.water;
-import etomica.*;
+import etomica.Atom;
+import etomica.AtomIterator;
+import etomica.Configuration;
+import etomica.Space;
 
 public class ConfigurationTIP4PWater extends Configuration {
 

@@ -4,10 +4,10 @@ import etomica.Accumulator;
 import etomica.DataSource;
 import etomica.MeterAbstract;
 import etomica.Simulation;
-import etomica.units.*;
+import etomica.units.Dimension;
+import etomica.utility.Function;
 import etomica.utility.HistogramSimple;
 import etomica.utility.HistoryScrolling;
-import etomica.utility.Function;
 
 /**
  * A collection of Meters, or something that behaves as if it were a collection of Meters.

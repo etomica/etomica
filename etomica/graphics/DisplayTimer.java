@@ -1,7 +1,7 @@
 package etomica.graphics;
-import etomica.*;
 import etomica.integrator.IntegratorMD;
-import etomica.units.*;
+import etomica.units.Picosecond;
+import etomica.units.PrefixedUnit;
 
 /** 
  * DisplayBox to present the elapsed time in a

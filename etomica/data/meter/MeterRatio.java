@@ -1,7 +1,8 @@
 package etomica.data.meter;
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.units.*;
+import etomica.units.Dimension;
+import etomica.units.DimensionRatio;
 	
 /**
  * Class used to construct meters for intensive properties formed as the ratio of two extensive properties (e.g., energy/mole)

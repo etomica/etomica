@@ -1,5 +1,6 @@
 package etomica.chem.models.water;
-import etomica.units.*;
+import etomica.units.Degree;
+import etomica.units.Kelvin;
 
 /**
  * @author kofke

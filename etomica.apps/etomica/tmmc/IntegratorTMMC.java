@@ -1,8 +1,9 @@
 package etomica.tmmc;
-import etomica.*;
+import etomica.PotentialMaster;
+import etomica.Simulation;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.MCMove;
-import etomica.log.*;
+import etomica.log.Logger;
 
 /**
  * Integrator that implements Transition-Matrix Monte Carlo method.

@@ -5,12 +5,12 @@
  * Window>Preferences>Java>Code Generation>Code and Comments
  */
 package etomica.chem.models;
+import etomica.Space;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryMono;
 import etomica.chem.Electrostatic;
 import etomica.chem.Element;
 import etomica.chem.Model;
-import etomica.*;
 
 /**
  * @author zhaofang

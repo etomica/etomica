@@ -12,16 +12,15 @@ import etomica.Phase;
 import etomica.Potential;
 import etomica.PotentialMaster;
 import etomica.Space;
-import etomica.Integrator.Forcible;
 import etomica.action.PhaseInflate;
-import etomica.action.PhaseActionAdapter;
 import etomica.data.meter.MeterGroup;
 import etomica.data.meter.MeterTemperature;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialCalculation;
 import etomica.space.CoordinatePair;
 import etomica.space.Vector;
-import etomica.units.*;
+import etomica.units.Dimension;
+import etomica.units.Kelvin;
 
 /**
  * Gear 4th-order predictor-corrector integrator for constant enthalphy, pressure.

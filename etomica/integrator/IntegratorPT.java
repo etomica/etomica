@@ -9,8 +9,6 @@ import etomica.Integrator;
 import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.Space;
-import etomica.Integrator.IntervalEvent;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.meter.MeterFunction;
 import etomica.integrator.mcmove.MCMoveEvent;

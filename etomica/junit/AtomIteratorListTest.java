@@ -1,12 +1,20 @@
 package etomica.junit;
 
-import etomica.*;
+import java.util.Collections;
+import java.util.LinkedList;
+
+import junit.framework.TestCase;
+import etomica.Atom;
+import etomica.IteratorDirective;
+import etomica.Phase;
+import etomica.Simulation;
+import etomica.Space;
+import etomica.Species;
+import etomica.SpeciesSpheresMono;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorList;
 import etomica.space3d.Space3D;
-import junit.framework.*;
-import java.util.*;
 
 /**
  * @author Andrew Walker

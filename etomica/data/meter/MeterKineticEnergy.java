@@ -3,7 +3,6 @@ package etomica.data.meter;
 import etomica.Atom;
 import etomica.EtomicaInfo;
 import etomica.Phase;
-import etomica.atom.AtomTypeWall;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.space.ICoordinateKinetic;

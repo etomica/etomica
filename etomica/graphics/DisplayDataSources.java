@@ -1,5 +1,6 @@
 package etomica.graphics;
-import etomica.*;
+import etomica.DataSource;
+import etomica.Simulation;
 import etomica.units.Unit;
 
 /**

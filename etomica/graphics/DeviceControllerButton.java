@@ -1,5 +1,5 @@
 package etomica.graphics;
-import etomica.*;
+import etomica.Controller;
 
 /**
  * Button that attaches to a controller to toggle its pause/resume state.

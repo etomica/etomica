@@ -1,7 +1,6 @@
 package etomica.log;
 
 import javax.swing.table.AbstractTableModel;
-import org.apache.poi.hssf.usermodel.*;
 
 /**
  * Writes a table to an excel-formatted file.

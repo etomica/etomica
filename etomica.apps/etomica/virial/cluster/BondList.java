@@ -1,8 +1,8 @@
 package etomica.virial.cluster;
 
 import etomica.math.discrete.CombinationIterator;
-import etomica.virial.*;
-import etomica.virial.cluster.graphics.*;
+import etomica.virial.Cluster;
+import etomica.virial.cluster.graphics.ShowCluster;
 
 /**
  * Data structure that holds list of atom pairs that are joined by bonds.

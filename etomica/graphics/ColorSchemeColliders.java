@@ -1,8 +1,8 @@
 package etomica.graphics;
-import etomica.*;
-import etomica.integrator.IntegratorHard;
-
 import java.awt.Color;
+
+import etomica.Atom;
+import etomica.integrator.IntegratorHard;
 
 /**
  * This colorScheme acts to color differently the two atoms that are scheduled to collide next.

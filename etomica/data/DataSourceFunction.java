@@ -2,8 +2,8 @@ package etomica.data;
 
 import etomica.DataSource;
 import etomica.DataTranslator;
-import etomica.utility.Function;
 import etomica.units.Dimension;
+import etomica.utility.Function;
 import etomica.utility.IntegerRange;
 
 /**

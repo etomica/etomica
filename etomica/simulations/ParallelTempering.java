@@ -1,17 +1,29 @@
 package etomica.simulations;
 
-import etomica.*;
+import etomica.Controller;
+import etomica.DataSource;
+import etomica.Default;
+import etomica.MeterAbstract;
+import etomica.Phase;
+import etomica.SpeciesSpheresMono;
 import etomica.action.PhaseImposePbc;
-import etomica.action.PhaseActionAdapter;
 import etomica.data.DataSourceAcceptanceRatio;
 import etomica.data.DataSourceCountSteps;
-import etomica.graphics.*;
+import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.DeviceButton;
+import etomica.graphics.DeviceTrioControllerButton;
+import etomica.graphics.DisplayBox;
+import etomica.graphics.DisplayPhase;
+import etomica.graphics.DisplayPlot;
+import etomica.graphics.DisplayTable;
+import etomica.graphics.MediatorGraphic;
+import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorPT;
+import etomica.integrator.IntegratorPT.MeterPhaseTracker;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.potential.P2LennardJones;
 import etomica.space2d.Space2D;
-import etomica.utility.HistoryScrolling;
 
 /**
  * @author David Kofke

@@ -8,7 +8,7 @@ import etomica.Space;
 import etomica.atom.iterator.AtomIteratorList;
 import etomica.data.DataSourceUniform;
 import etomica.space.Vector;
-import etomica.units.*;
+import etomica.units.Dimension;
 
 /**
  * Meter that takes a (scalar) Meter and records its property as a 1-dimensional function of position in the simulation volume.

@@ -1,6 +1,10 @@
 package etomica.virial;
 
-import etomica.*;
+import etomica.Atom;
+import etomica.Phase;
+import etomica.Simulation;
+import etomica.Species;
+import etomica.SpeciesSpheresMono;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 

@@ -4,13 +4,11 @@ import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
 import etomica.Space;
-import etomica.Integrator.IntervalEvent;
-import etomica.Integrator.IntervalListener;
 import etomica.integrator.IntegratorMD;
 import etomica.space.Vector;
+import etomica.units.Count;
 import etomica.units.Dimension;
 import etomica.units.Unit;
-import etomica.units.Count;
 
 /**
  *  Computes the mean square displacement for a set of atoms for a fixed

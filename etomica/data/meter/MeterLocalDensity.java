@@ -7,9 +7,9 @@ import etomica.Phase;
 import etomica.Species;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorSpeciesDependent;
-import etomica.space2d.Space2D;
 import etomica.space2d.Vector2D;
-import etomica.units.*;
+import etomica.units.Dimension;
+import etomica.units.DimensionRatio;
 
 /**
  * Meter for measurement of density or species mole fraction within a specified subvolume

@@ -9,9 +9,8 @@
 //http://www.sgi.com/software/opengl/advanced97/notes/node196.html#stencilsection
 //http://ask.ii.uib.no/ebt-bin/nph-dweb/dynaweb/SGI_Developer/OpenGL_RM
 package etomica.graphics;
-import etomica.*;
-
-import gl4java.utils.glut.*;
+import etomica.Atom;
+import etomica.Phase;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;
@@ -21,6 +20,7 @@ import etomica.atom.iterator.AtomIteratorList;
 import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.utility.java2.Iterator;
+import gl4java.utils.glut.GLUTEnum;
 
     /* History of changes
      * 07/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.

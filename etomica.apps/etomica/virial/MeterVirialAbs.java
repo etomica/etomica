@@ -1,6 +1,7 @@
 package etomica.virial;
 
-import etomica.*;
+import etomica.DataSource;
+import etomica.Simulation;
 import etomica.data.meter.MeterGroup;
 import etomica.data.meter.MeterScalar;
 import etomica.units.Dimension;

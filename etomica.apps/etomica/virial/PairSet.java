@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.*;
+import etomica.Atom;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorList;
 

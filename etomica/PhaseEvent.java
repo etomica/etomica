@@ -1,5 +1,6 @@
 package etomica;
 
+import etomica.graphics.DisplayPhaseListener;
 import etomica.space.Vector;
 
 /**

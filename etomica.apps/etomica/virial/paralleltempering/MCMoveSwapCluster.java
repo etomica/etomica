@@ -1,13 +1,18 @@
 package etomica.virial.paralleltempering;
 
-import etomica.*;
+import etomica.Atom;
+import etomica.AtomIterator;
+import etomica.Integrator;
+import etomica.IteratorDirective;
+import etomica.Phase;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorPT;
 import etomica.integrator.MCMove;
 import etomica.space.Vector;
-import etomica.virial.*;
+import etomica.virial.PairSet;
+import etomica.virial.PhaseCluster;
 
 /**
  * Swaps configurations and pairSet between phases.

@@ -7,7 +7,6 @@ import etomica.Phase;
 import etomica.Potential;
 import etomica.Simulation;
 import etomica.Space;
-import etomica.IteratorDirective.Direction;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.AtomsetIteratorTargetable;

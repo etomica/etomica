@@ -1,10 +1,9 @@
 package etomica.virial.cluster;
 
 import etomica.virial.Cluster;
-import etomica.virial.ClusterSum;
 import etomica.virial.ClusterAbstract;
+import etomica.virial.ClusterSum;
 import etomica.virial.MayerE;
-import etomica.virial.cluster.Unit;
 
 /**
  * @author kofke

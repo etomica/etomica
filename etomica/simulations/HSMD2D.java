@@ -9,6 +9,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.NeighborCriterionSimple;
 import etomica.nbr.PotentialMasterNbr;
+import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.space2d.Space2D;
@@ -32,7 +33,7 @@ public class HSMD2D extends Simulation {
     
     public HSMD2D(Space2D space) {
         super(space, new PotentialMasterNbr(space));
-//        super(space, new PotentialMaster(space,IteratorFactoryCell.INSTANCE));
+//        super(space, new PotentialMaster(space));//,IteratorFactoryCell.INSTANCE));
         Default.makeLJDefaults();
 //        Default.BOX_SIZE = 30.0;
         Default.ATOM_SIZE = 0.38;
@@ -56,17 +57,22 @@ public class HSMD2D extends Simulation {
 	    species.setNMolecules(512);
 	    species2.setNMolecules(5);
 	    phase = new Phase(space);
- //       ((PotentialMasterNbr)potentialMaster).getNbrCellManager(phase);
 	    potential = new P2HardSphere(space);
 //	    this.potentialMaster.setSpecies(potential,new Species[]{species,species});
 	    //this.potentialMaster.setSpecies(potential,new Species[]{species2,species2});
 	    //this.potentialMaster.setSpecies(potential,new Species[]{species,species2});
         
- //       integrator.addIntervalListener(new NeighborCellManager(phase,15));
+        integrator.addIntervalListener(new NeighborCellManager(phase,15));
         NeighborCriterion criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         ((PotentialMasterNbr)potentialMaster).setSpecies(potential,new Species[]{species,species},criterion);
+        criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         ((PotentialMasterNbr)potentialMaster).setSpecies(potential,new Species[]{species2,species2},criterion);
+        criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         ((PotentialMasterNbr)potentialMaster).setSpecies(potential,new Species[]{species2,species},criterion);
+//        potentialMaster.setSpecies(potential,new Species[]{species,species});
+//        potentialMaster.setSpecies(potential,new Species[]{species2,species2});
+//        potentialMaster.setSpecies(potential,new Species[]{species2,species});
+//        integrator.addIntervalListener(new PhaseImposePbc(phase));
         
 //		elementCoordinator.go();
         //explicit implementation of elementCoordinator activities

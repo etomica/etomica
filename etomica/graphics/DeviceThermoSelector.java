@@ -1,11 +1,9 @@
 package etomica.graphics;
-import etomica.*;
-import etomica.units.*;
-
-//Java2 imports
-//import java.util.Iterator;
-
-import etomica.utility.java2.Iterator;
+import etomica.EtomicaElement;
+import etomica.EtomicaInfo;
+import etomica.Integrator;
+import etomica.units.Kelvin;
+import etomica.units.PrefixedUnit;
 
 /**
  * Permits selection of temperature from a discrete set of values.  Also has option

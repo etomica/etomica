@@ -4,10 +4,11 @@
  */
 package etomica.action;
 
-import etomica.DataManager;
-import etomica.Action;
 import java.util.Iterator;
 import java.util.LinkedList;
+
+import etomica.Action;
+import etomica.DataManager;
 
 /**
  * Action that performs a call to the reset() method of a set

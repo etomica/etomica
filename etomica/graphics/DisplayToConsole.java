@@ -1,5 +1,8 @@
 package etomica.graphics;
-import etomica.*;
+import etomica.EtomicaElement;
+import etomica.EtomicaInfo;
+import etomica.Phase;
+import etomica.Simulation;
 import etomica.data.meter.MeterScalar;
 
 // Writes current values of all meters to console

@@ -4,7 +4,8 @@ import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Phase;
 import etomica.Species;
-import etomica.units.*;
+import etomica.units.Dimension;
+import etomica.units.DimensionRatio;
 
 /**
  * Meter for measurement of the total molecule number density in a phase

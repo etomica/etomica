@@ -1,6 +1,8 @@
 package etomica.event;
 
-import javax.swing.event.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.EventListenerList;
 
 /**
  * Class to manage listeners of change events and fire events to them.

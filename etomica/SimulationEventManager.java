@@ -1,7 +1,8 @@
 package etomica;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveListener;
-import etomica.lattice.*;
+import etomica.lattice.LatticeEvent;
+import etomica.lattice.LatticeListener;
 
 /**
  * Class to take care of listener lists and event firing for simulation elements.

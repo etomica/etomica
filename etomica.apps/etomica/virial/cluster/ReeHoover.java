@@ -1,6 +1,5 @@
 package etomica.virial.cluster;
 
-import etomica.AtomPair;
 import etomica.virial.Cluster;
 import etomica.virial.MayerFunction;
 

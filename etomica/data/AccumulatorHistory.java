@@ -7,7 +7,8 @@ package etomica.data;
 import etomica.Accumulator;
 import etomica.DataTranslator;
 import etomica.units.Dimension;
-import etomica.utility.*;
+import etomica.utility.History;
+import etomica.utility.HistoryScrolling;
 
 /**
  * Accumulator that keeps history of data.

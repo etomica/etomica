@@ -1,7 +1,6 @@
 package etomica.virial;
 
 import etomica.Phase;
-import etomica.SimulationElement;
 import etomica.potential.Potential0;
 
 /**

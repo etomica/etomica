@@ -1,11 +1,9 @@
 package etomica.graphics;
-import etomica.*;
-
-//Java2 imports
-//import java.util.HashMap;
-//import java.util.LinkedList;
-//import java.util.Iterator;
-
+import etomica.DataSource;
+import etomica.Integrator;
+import etomica.Mediator;
+import etomica.MeterAbstract;
+import etomica.Phase;
 import etomica.data.meter.MeterFunction;
 import etomica.data.meter.MeterScalar;
 import etomica.utility.java2.Iterator;

@@ -1,5 +1,9 @@
 package etomica.association;
-import etomica.*;
+import etomica.Atom;
+import etomica.AtomIterator;
+import etomica.IteratorDirective;
+import etomica.Phase;
+import etomica.Simulation;
 import etomica.atom.AtomList;
 import etomica.atom.AtomListRestorable;
 import etomica.atom.AtomTreeNodeGroup;

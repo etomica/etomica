@@ -1,11 +1,17 @@
 package etomica.graphics;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
-import javax.swing.*;
-import javax.swing.border.*;
-import java.awt.event.*;
-import javax.swing.plaf.metal.*;
-import javax.swing.plaf.*;
+import javax.swing.BorderFactory;
+import javax.swing.UIDefaults;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
+import javax.swing.plaf.ColorUIResource;
+import javax.swing.plaf.FontUIResource;
+import javax.swing.plaf.metal.DefaultMetalTheme;
 
 
 /**

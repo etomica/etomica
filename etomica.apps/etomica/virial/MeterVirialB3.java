@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.*;
+import etomica.Simulation;
 import etomica.potential.Potential2;
 import etomica.virial.cluster.Ring;
 

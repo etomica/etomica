@@ -1,13 +1,13 @@
 package etomica.graphics;
-import etomica.*;
+import etomica.Phase;
+import etomica.PhaseEvent;
+import etomica.PhaseListener;
+import etomica.SimulationEvent;
 import etomica.action.PhaseInflate;
-import etomica.action.PhaseActionAdapter;
+import gl4java.awt.GLAnimCanvas;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
-//import gl4java.swing.GLAnimJPanel;
-import gl4java.awt.GLAnimCanvas;
-import gl4java.utils.glut.*;
 
 
 /**

@@ -1,5 +1,7 @@
 package etomica.graphics;
-import etomica.*;
+import etomica.Phase;
+import etomica.Simulation;
+import etomica.SpeciesSpheres;
 
 /**
  * Class that permits selection and execution of the of any etomica class

@@ -1,7 +1,9 @@
 //This class includes a main method to demonstrate its use
 package etomica.graphics;
-import etomica.*;
 import javax.swing.JButton;
+
+import etomica.EtomicaElement;
+import etomica.EtomicaInfo;
 
 /**
  * Button that causes an action to be performed.

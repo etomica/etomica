@@ -1,12 +1,16 @@
 //class includes a main method to demonstrate and test its use
 package etomica.graphics;
-import etomica.*;
-import etomica.data.meter.MeterScalar;
-
-//import etomica.units.*;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.JLabel;
+
+import etomica.Constants;
+import etomica.DataSource;
+import etomica.EtomicaElement;
+import etomica.EtomicaInfo;
+import etomica.MeterAbstract;
+import etomica.Simulation;
+import etomica.data.meter.MeterScalar;
 
 /**
  * A simple display of a single value in a textbox with an associated label.

@@ -1,16 +1,24 @@
 //This class includes a main method to demonstrate its use
 package etomica.graphics;
-import etomica.*;
-import etomica.utility.*;
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import java.awt.event.*;
-import etomica.units.*;
-import etomica.utility.*;
-import etomica.utility.StringUtility;
-import java.awt.event.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+import etomica.EtomicaElement;
+import etomica.EtomicaInfo;
+import etomica.Modulator;
+import etomica.ModulatorAbstract;
 import etomica.event.ChangeEventManager;
+import etomica.units.Unit;
+import etomica.utility.DecimalSlider;
+import etomica.utility.StringUtility;
 
 /**
  * Device the changes a property using a graphical slider, via a Modulator.

@@ -1,9 +1,12 @@
 package etomica.graphics;
-import etomica.*;
-import etomica.action.PhaseInflate;
-import etomica.action.PhaseActionAdapter;
+import java.awt.Graphics;
+import java.awt.Image;
 
-import java.awt.*;
+import etomica.Phase;
+import etomica.PhaseEvent;
+import etomica.PhaseListener;
+import etomica.SimulationEvent;
+import etomica.action.PhaseInflate;
 
 /**
  * Superclass for classes that display information from simulation by painting to a canvas.

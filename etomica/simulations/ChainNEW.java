@@ -1,11 +1,29 @@
 package etomica.simulations;
+import java.awt.Color;
 import java.awt.Component;
 
-import etomica.*;
+import javax.swing.JPanel;
+
+import etomica.Atom;
+import etomica.Controller;
+import etomica.Default;
+import etomica.Phase;
+import etomica.Simulation;
+import etomica.Species;
+import etomica.SpeciesSpheres;
+import etomica.SpeciesSpheresMono;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomTreeNodeGroup;
-import etomica.graphics.*;
+import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.Device;
+import etomica.graphics.DeviceTrioControllerButton;
+import etomica.graphics.DisplayPhase;
+import etomica.graphics.DisplayPhaseEvent;
+import etomica.graphics.DisplayPhaseListener;
+import etomica.graphics.DisplayTimer;
+import etomica.graphics.Drawable;
+import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P1TetheredHardSpheres;
 import etomica.potential.P2HardSphere;
@@ -13,9 +31,6 @@ import etomica.potential.Potential2;
 import etomica.potential.PotentialGroup;
 import etomica.space.Vector;
 import etomica.space2d.Space2D;
-
-import java.awt.*;
-import javax.swing.*;
 
 /**
  * Simple hard-sphere molecular dynamics simulation in 2D.

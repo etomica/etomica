@@ -3,16 +3,32 @@ package etomica.simulations;
 import java.awt.Color;
 import java.awt.GridLayout;
 
-import etomica.*;
+import etomica.Action;
+import etomica.Atom;
+import etomica.Controller;
+import etomica.Default;
+import etomica.Integrator;
+import etomica.ModulatorAbstract;
+import etomica.ModulatorBoolean;
+import etomica.Phase;
+import etomica.Simulation;
+import etomica.SpeciesSpheresMono;
 import etomica.action.PhaseQuench;
 import etomica.data.meter.MeterScalar;
-import etomica.graphics.*;
+import etomica.graphics.ColorScheme;
+import etomica.graphics.DeviceButton;
+import etomica.graphics.DeviceSlider;
+import etomica.graphics.DeviceToggleButton;
+import etomica.graphics.DeviceTrioControllerButton;
+import etomica.graphics.DisplayPhase;
+import etomica.graphics.DisplayPlot;
+import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
-import etomica.space2d.Space2D;
-import etomica.units.Dimension;
 import etomica.log.LoggerAbstract;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
+import etomica.space2d.Space2D;
+import etomica.units.Dimension;
 
 
 /**

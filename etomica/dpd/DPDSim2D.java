@@ -3,10 +3,16 @@
  *
  */
 package etomica.dpd;
-import etomica.*;
+import etomica.Controller;
+import etomica.Default;
+import etomica.Phase;
+import etomica.Simulation;
+import etomica.SpeciesSpheresMono;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterTemperature;
-import etomica.graphics.*;
+import etomica.graphics.DisplayBox;
+import etomica.graphics.DisplayPhase;
+import etomica.graphics.SimulationGraphic;
 import etomica.nbr.cell.IteratorFactoryCell;
 import etomica.space2d.Space2D;
 

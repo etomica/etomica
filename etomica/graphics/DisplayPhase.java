@@ -1,18 +1,27 @@
 package etomica.graphics;
-import etomica.*;
+import java.awt.Component;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 
-import java.awt.*;
-import java.awt.event.*;
-
+import etomica.Atom;
+import etomica.AtomIterator;
+import etomica.Default;
+import etomica.EtomicaElement;
+import etomica.EtomicaInfo;
+import etomica.Integrator;
+import etomica.Phase;
+import etomica.Simulation;
+import etomica.Space;
 import etomica.atom.AtomFilter;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.space.Vector;
 import etomica.space1d.Space1D;
 import etomica.units.BaseUnit;
-
-//Java2 imports
-//import java.util.LinkedList;
-
 import etomica.utility.java2.LinkedList;
 
 /**

@@ -43,14 +43,14 @@ public final class Debug {
 	 * in a phase (set by calling setAtoms(phase)) More debugging information will be
 	 * printed out about this particular atom.  -1 indicates no particular atom.
 	 */
-	public static final int ATOM1_NUM = 93;
+	public static final int ATOM1_NUM = 4;
 	
 	/**
 	 * leaf atom number of second atom of interest.  This is often used in conjunction with 
 	 * ATOM1_INDEX to collect information about a pair of atoms.  -1 indicates no
 	 * particular atom.  
 	 */
-	public static final int ATOM2_NUM = 94;
+	public static final int ATOM2_NUM = 508;
 	
     /**
      * index of phase of interest.  -1 indicates no particular phase.
@@ -60,7 +60,7 @@ public final class Debug {
 	/**
 	 * true if debugging is currently enabled (when the integrator reaches step START) 
 	 */
-	public static boolean DEBUG_NOW = false;
+	public static boolean DEBUG_NOW = true;
 
     /**
      * determines whether this atom is set to be debugged

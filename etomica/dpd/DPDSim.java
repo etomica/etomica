@@ -3,11 +3,22 @@
  *
  */
 package etomica.dpd;
-import etomica.*;
+import etomica.Controller;
+import etomica.Default;
+import etomica.Phase;
+import etomica.Simulation;
+import etomica.Space;
+import etomica.SpeciesSpheresMono;
 import etomica.data.DataSourceCountTime;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
-import etomica.graphics.*;
+import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.DeviceSlider;
+import etomica.graphics.DeviceTrioControllerButton;
+import etomica.graphics.DisplayBox;
+import etomica.graphics.DisplayPhase;
+import etomica.graphics.DisplayPhaseCanvas3DOpenGL;
+import etomica.graphics.SimulationGraphic;
 import etomica.nbr.cell.IteratorFactoryCell;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;

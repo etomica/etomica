@@ -7,7 +7,8 @@ package etomica.data;
 import etomica.Accumulator;
 import etomica.DataTranslator;
 import etomica.units.Dimension;
-import etomica.utility.*;
+import etomica.utility.Histogram;
+import etomica.utility.HistogramSimple;
 
 /**
  * Accumulator that keeps histogram of data.

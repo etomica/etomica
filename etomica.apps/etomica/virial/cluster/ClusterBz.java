@@ -1,9 +1,9 @@
 package etomica.virial.cluster;
 
 import etomica.math.SpecialFunctions;
+import etomica.virial.Cluster;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterSum;
-import etomica.virial.Cluster;
 import etomica.virial.MayerE;
 
 /**

@@ -1,6 +1,7 @@
 package etomica.graphics;
-import etomica.Atom;
 import java.awt.Color;
+
+import etomica.Atom;
 
 /**
  * Class that defines the algorithm used to determine atoms colors when drawn to DisplayPhase.

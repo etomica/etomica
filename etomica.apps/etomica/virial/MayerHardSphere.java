@@ -1,6 +1,5 @@
 package etomica.virial;
 
-import etomica.AtomPair;
 import etomica.Default;
 
 /**

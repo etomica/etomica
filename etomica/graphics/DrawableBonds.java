@@ -1,10 +1,11 @@
 package etomica.graphics;
-import etomica.*;
+import java.awt.Graphics;
+
+import etomica.Atom;
+import etomica.IteratorDirective;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.space.Vector;
-
-import java.awt.Graphics;
 
 /**
  * Causes a line to be drawn between atoms joined by a Bond instance.

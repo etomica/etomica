@@ -8,7 +8,7 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.space3d.Space3D;
-import etomica.units.*;
+import etomica.units.Dimension;
 
 /**
  * Tracks the value of the energy of the configuration.  Updates

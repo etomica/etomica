@@ -1,5 +1,5 @@
 package etomica.graphics;
-import etomica.*;
+import etomica.SimulationEvent;
 
 /**
  * Wrapper of an etomica Action that permits it to be used as a java.awt action listener.
