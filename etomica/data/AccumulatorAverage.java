@@ -116,7 +116,7 @@ public class AccumulatorAverage extends DataAccumulator {
     protected void setNData(int nData) {
     	this.nData = nData;
         if (nData > 1) {
-            translator = new DataTranslatorArray(nData,numStats());
+            translator = new DataTranslatorArray(numStats(),nData);
         }
         else {
             translator = DataTranslator.IDENTITY;
@@ -186,7 +186,7 @@ public class AccumulatorAverage extends DataAccumulator {
             this.index = index;
         }       
         public Constants.TypedConstant[] choices() {return CHOICES;}
-        final int index;
+        public final int index;
     }//end of ValueType
     protected static final Type[] CHOICES = 
         new Type[] {
@@ -272,7 +272,7 @@ public class AccumulatorAverage extends DataAccumulator {
                 selectedAllData[i] = allData[indexes[i]];
             }
             if (nData > 1) {
-                selectedTranslator = new DataTranslatorArray(nData,indexes.length);
+                selectedTranslator = new DataTranslatorArray(indexes.length,nData);
             }
             else {
                 selectedTranslator = DataTranslator.IDENTITY;
