@@ -14,6 +14,8 @@ import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLinker;
+import etomica.atom.AtomList;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomPositionDefinitionSimple;
 import etomica.atom.AtomSequencerFactory;
@@ -21,7 +23,6 @@ import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.ApiMolecule;
 import etomica.atom.iterator.AtomIteratorArrayList;
-import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomsetIteratorMolecule;
 import etomica.nbr.cell.AtomsetIteratorCellular;
@@ -126,14 +127,13 @@ public class PotentialMasterNbr extends PotentialMaster {
 		}
 		//if atom has children, repeat process with them
 		if(!atom.node.isLeaf()) {
-			//TODO if instantiation is expensive, try doing iteration explicitly (cannot use class variable because of recursive call)
-			AtomIteratorListSimple listIterator = new AtomIteratorListSimple();
-			listIterator.setList(((AtomTreeNodeGroup)atom.node).childList);
-			listIterator.reset();
-            if (listIterator.hasNext()) {
-                Potential[] childPotentials = ((Atom)listIterator.peek()).type.getNbrManagerAgent().getPotentials();
-                while(listIterator.hasNext()) {
-                    calculate(listIterator.nextAtom(), id, pc, childPotentials);//recursive call
+            //cannot use AtomIterator field because of recursive call
+            AtomList list = ((AtomTreeNodeGroup) atom.node).childList;
+            AtomLinker link = list.header.next;
+            if (link != list.header) {
+                Potential[] childPotentials = link.atom.type.getNbrManagerAgent().getPotentials();
+                for (link = list.header.next; link != list.header; link = link.next) {
+                    calculate(link.atom, id, pc, childPotentials);//recursive call
                 }
             }
 		}
