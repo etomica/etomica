@@ -21,9 +21,11 @@ public class IntegratorGEMC extends Integrator {
         phaseSpaceCountMax = 2;
 //        super.phaseSpaceCountMax = 2;
         phaseSpace = new PhaseSpace[phaseSpaceCountMax];
+        atomDisplace.setAdjustInterval(10000);
+        atomDisplace.parentIntegrator = this;
     }
     
-  public void registerPhase(PhaseSpace p) {
+  public void registerPhaseSpace(PhaseSpace p) {
     super.registerPhaseSpace(p);
     if(phaseSpaceCount > phaseSpaceCountMax) {return;}
     if(phaseSpaceCount == 2) secondPhaseSpace = phaseSpace[1];
@@ -66,8 +68,8 @@ public class IntegratorGEMC extends Integrator {
     }
     */
     private void trialVolume() {
-        double v1Old = firstPhaseSpace.volume;
-        double v2Old = secondPhaseSpace.volume;
+        double v1Old = firstPhaseSpace.volume();
+        double v2Old = secondPhaseSpace.volume();
         double hOld = firstPhaseSpace.potentialEnergy.currentValue() + secondPhaseSpace.potentialEnergy.currentValue();
         double vStep = (2.*rand.nextDouble()-1.)*maxVStep;
         double v1New = v1Old + vStep;

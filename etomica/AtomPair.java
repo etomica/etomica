@@ -2,6 +2,7 @@ package simulate;
 
 public interface AtomPair {
     
+    public void reset();
     public double r2();
     public double v2();
     public double vDotr();
@@ -120,27 +121,40 @@ public interface AtomPair {
             public final AtomPair next() {
                 thisPair = nextPair;  //save for return value, then prepare for next time around
                 if(iterator.hasNext()) {nextPair = iterator.next();}  //hasNext remains true
-                else if(iL == species.lastAtom()) {hasNext = false;}  //all done
+                else if(iL==species.lastAtom() || molecule==species.lastMolecule()) {hasNext = false;}  //all done
                 else {  //m in s, begins loop over atoms following s
                     iF = molecule.lastAtom.nextAtom();  //first atom on molecule after m
                     iL = species.lastAtom();
                     iterator.reset(iF,iL,oF,oL);
                     hasNext = iterator.hasNext();
-                    if(hasNext) {thisPair = iterator.next();}
+                    if(hasNext) {nextPair = iterator.next();}
                 }
                 return thisPair;
             }
             
             public void reset(Molecule m, Species s) {
                 molecule = m; species = s;
-                if(m==null || s==null) {hasNext = false; return;}
+                if(m==null || s==null || s.nMolecules==0) {hasNext = false; return;}
                 oF = m.firstAtom;   //molecule atoms are outer loop
                 oL = m.lastAtom;
-                iF = s.firstAtom(); //species atoms are inner loop
-                iL = (m.parentSpecies == s) ? oF.previousAtom() : s.lastAtom();
+                if(m.parentSpecies == s) {  //m is a molecule of s
+                    if(s.nMolecules == 0) {hasNext = false; return;}  //m is the only molecule of s
+                    if(m == s.firstMolecule()) {   //m is first molecule of s; start loop after m
+                        iF = oL.nextAtom();
+                        iL = s.lastAtom();
+                    }
+                    else {                         //m is not the first molecule of s; start loop before m
+                        iF = s.firstAtom();
+                        iL = oF.previousAtom();
+                    }
+                }
+                else {                             //m is not in s; loop over all atoms in s
+                    iF = s.firstAtom();
+                    iL = s.lastAtom(); 
+                }
                 iterator.reset(iF,iL,oF,oL);
                 hasNext = iterator.hasNext();
-                if(hasNext) {thisPair = iterator.next();}
+                if(hasNext) {nextPair = iterator.next();}
             }
             public void reset(Molecule m) {reset(m,species);}
             public void reset(Species s) {reset(molecule,s);}

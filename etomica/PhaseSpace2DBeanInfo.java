@@ -2,7 +2,7 @@ package simulate;
 import java.awt.*;
 import java.beans.*;
 
-public class SimulationBeanInfo extends SimpleBeanInfo {
+public class PhaseSpace2DBeanInfo extends SimpleBeanInfo {
     public Image getIcon(int iconType){
         String name = "";
         if(iconType == BeanInfo.ICON_COLOR_16x16){
@@ -22,7 +22,7 @@ public class SimulationBeanInfo extends SimpleBeanInfo {
     }
     
     public BeanDescriptor getBeanDescriptor() {
-        return new BeanDescriptor(Simulation.class, SimulationCustomizer.class);
+        return new BeanDescriptor(PhaseSpace2D.class, PhaseSpace2DCustomizer.class);
    } 
 }
 

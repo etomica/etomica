@@ -342,7 +342,7 @@ public abstract class PhaseSpace extends Container {
     *
     * @see #computeVolume
     */
-    public double volume;
+//    public double volume;
       
  /**
   * @see SpacePeriodicCubic#getOverflowShifts

@@ -22,6 +22,7 @@ public void registerPhaseSpace(PhaseSpace p) {
 
 public void doStep(double tStep) {
 
+//    System.out.println(tStep+" "+nextCollider.getCollisionTime());
     if(tStep < nextCollider.getCollisionTime()) {
         advanceAcrossTimeStep(tStep);
         if(isothermal) {

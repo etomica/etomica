@@ -137,7 +137,7 @@ public abstract class AtomType {
             xP = origin[0] + (int)(toPixels*(c2.r.x-wellRadius));
             yP = origin[1] + (int)(toPixels*(c2.r.y-wellRadius));
             g.setColor(color);
-            g.fillOval(xP,yP,sigmaP,sigmaP);
+            g.drawOval(xP,yP,sigmaP,sigmaP);
         }
     }
 

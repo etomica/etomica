@@ -6,6 +6,7 @@ import java.util.Random;
 public class PhaseSpace2D extends PhaseSpace {
     
     public final int D() {return 2;}
+    public final boolean pbc = true;
  
     public PhaseSpace.AtomCoordinate makeAtomCoordinate(Atom a) {return new AtomCoordinate(a);}
     public PhaseSpace.MoleculeCoordinate makeMoleculeCoordinate(Molecule m) {return new MoleculeCoordinate(m);}
@@ -17,7 +18,7 @@ public class PhaseSpace2D extends PhaseSpace {
     public final simulate.AtomPair.Iterator.A makePairIteratorFull() {return new PairIteratorFull();}
     public final simulate.AtomPair.Iterator.A makePairIteratorHalf() {return new PairIteratorHalf();}
     
-    public final double volume() {return Double.MAX_VALUE;}  //infinite volume unless using PBC
+    public final double volume() {return dimensions.x*dimensions.y;}  //infinite volume unless using PBC
     public final PhaseSpace.Vector dimensions() {return dimensions;}
  
     public static final class Vector implements PhaseSpace.Vector {  //declared final for efficient method calls
@@ -48,6 +49,7 @@ public class PhaseSpace2D extends PhaseSpace {
         public void setRandom(double d) {x = random.nextDouble()*d; y = random.nextDouble()*d;}
         public void setRandom(double dx, double dy) {x = random.nextDouble()*dx; y = random.nextDouble()*dy;}
         public void setRandom(Vector u) {setRandom(u.x,u.y);}
+        public void setToOrigin() {x = ORIGIN.x; y = ORIGIN.y;}
         public void randomDirection() {x = Math.cos(2*Math.PI*random.nextDouble()); y = Math.sqrt(1.0 - x*x);}
     }
     
@@ -78,20 +80,28 @@ public class PhaseSpace2D extends PhaseSpace {
         private final Vector rLast = new Vector();
         private final Vector temp = new Vector();
         
-        public void translateTo(PhaseSpace.Vector u) {r.E((Vector)u);}      //if using PBC, apply here
+        public void translateTo(PhaseSpace.Vector u) {translateTo((Vector)u);}      
         public void translateBy(PhaseSpace.Vector u) {r.PE((Vector)u);}
         public void translateToward(PhaseSpace.Vector u, double d) {translateToward((Vector)u,d);}
         public void translateToward(Vector u, double d) {temp.Ea1Tv1(d,u); translateBy(temp);}
-        public void displaceTo(PhaseSpace.Vector u) {rLast.E(r); r.E((Vector)u);}  //want to eliminate these casts
-        public void displaceBy(PhaseSpace.Vector u) {rLast.E(r); r.PE((Vector)u);}
-        public void displaceWithin(double d) {rLast.E(r); r.randomStep(d);}
+        public void displaceTo(PhaseSpace.Vector u) {displaceTo((Vector)u);}  //want to eliminate these casts
+        public void displaceBy(PhaseSpace.Vector u) {displaceBy((Vector)u);}
+        public void displaceWithin(double d) {temp.setToOrigin(); temp.randomStep(d); displaceBy(temp);}
         public void displaceToRandom() {rLast.E(r); r.setRandom(dimensions.x, dimensions.y);} 
         public void accelerate(PhaseSpace.Vector u) {p.PE((Vector)u);}
-        public void translateTo(Vector u) {r.E(u);}      //if using PBC, apply here
-        public void translateBy(Vector u) {r.PE(u);}
+        public void translateTo(Vector u) {r.E(u);}      
+        public void translateBy(Vector u) {  //if using PBC, apply here
+            r.PE(u);
+            if(pbc) {
+                if(r.x > dimensions.x) r.x -= dimensions.x;  //PBC
+                else if(r.x < 0.0) r.x += dimensions.x;
+                if(r.y > dimensions.y) r.y -= dimensions.y;
+                else if(r.y < 0.0) r.y += dimensions.y;
+            }
+        }     
         public void translateToRandom() {r.setRandom(dimensions.x, dimensions.y);}
-        public void displaceTo(Vector u) {rLast.E(r); r.E(u);}  
-        public void displaceBy(Vector u) {rLast.E(r); r.PE(u);}
+        public void displaceTo(Vector u) {rLast.E(r); translateTo(u);}  
+        public void displaceBy(Vector u) {rLast.E(r); translateBy(u);}
         public void accelerateBy(Vector u) {p.PE(u);}
         public void accelerateToward(PhaseSpace.Vector u, double d) {accelerateToward((Vector)u,d);}
         public void accelerateToward(Vector u, double d) {temp.Ea1Tv1(d,u); accelerateBy(temp);}
@@ -250,20 +260,33 @@ public class PhaseSpace2D extends PhaseSpace {
         return new double[0][D()];
     }
     
-    private static final class AtomPair implements simulate.AtomPair {  //Inner AtomPair class
+    private final class AtomPair implements simulate.AtomPair {  //could be static except for PBC
         AtomCoordinate c1;
         AtomCoordinate c2;
+        private double drx, dry, dvx, dvy;
         public AtomPair() {}
         public AtomPair(Atom a1, Atom a2) {
             if(a1 != null && a2 != null) {
                 c1 = (AtomCoordinate)a1.coordinate;  //cast from PhaseSpace.AtomCoordinate
                 c2 = (AtomCoordinate)a2.coordinate;
+                reset();
             }
         }
+        public void reset() {
+            drx = c2.r.x - c1.r.x;   //change for PBC
+            dry = c2.r.y - c1.r.y;
+            if(pbc) {
+                double d2 = 0.5*dimensions.x;
+                if(drx > 0) {drx -= (drx > +d2) ? dimensions.x : 0.0;}
+                else        {drx += (drx < -d2) ? dimensions.x : 0.0;}
+                d2 = 0.5*dimensions.y;
+                if(dry > 0) {dry -= (dry > +d2) ? dimensions.y : 0.0;}
+                else        {dry += (dry < -d2) ? dimensions.y : 0.0;}
+            }
+        }
+            
              //Room to optimize all this by precomputing and saving components of dr and dv        
         public double r2() {
-            double drx = c2.r.x - c1.r.x;   //change for PBC
-            double dry = c2.r.y - c1.r.y;
             return drx*drx + dry*dry;
         }
         public double v2() {
@@ -274,8 +297,6 @@ public class PhaseSpace2D extends PhaseSpace {
             return dvx*dvx + dvy*dvy;
         }
         public double vDotr() {
-            double drx = c2.r.x - c1.r.x;   //change for PBC
-            double dry = c2.r.y - c1.r.y;
             double rm1 = c1.atom.type.rm();
             double rm2 = c2.atom.type.rm();
             double dvx = rm2*c2.p.x - rm1*c1.p.x;
@@ -283,8 +304,6 @@ public class PhaseSpace2D extends PhaseSpace {
             return drx*dvx + dry*dvy;
         }
         public void push(double impulse) {  //changes momentum in the direction joining the atoms
-            double drx = c2.r.x - c1.r.x;   //change for PBC
-            double dry = c2.r.y - c1.r.y;
             c1.p.x += impulse*drx;
             c1.p.y += impulse*dry;
             c2.p.x -= impulse*drx;
@@ -293,12 +312,11 @@ public class PhaseSpace2D extends PhaseSpace {
         public void setSeparation(double r2New) {
             double ratio = c2.atom.type.mass()*c1.atom.type.rm();  // (mass2/mass1)
             double delta = (Math.sqrt(r2New/r2()) - 1.0)/(1+ratio);
-            double drx = c2.r.x - c1.r.x;   //change for PBC
-            double dry = c2.r.y - c1.r.y;
             c1.r.x -= ratio*delta*drx;
             c1.r.y -= ratio*delta*dry;
             c2.r.x += delta*drx;
             c2.r.y += delta*dry;
+            //need call reset?
         }
         public final Atom atom1() {return c1.atom();}
         public final Atom atom2() {return c2.atom();}
@@ -330,6 +348,7 @@ public class PhaseSpace2D extends PhaseSpace {
             if(!hasNext) {return null;}
             pair.c1 = outer;   //c1 should always be outer
             pair.c2 = inner;
+            pair.reset();
             if(inner == iLast) {                                     //end of inner loop
                 if(outer == oLast) {hasNext = false;}                //all done
                 else {outer = outer.nextCoordinate; inner = iFirst;} //advance outer, reset inner
@@ -361,6 +380,7 @@ public class PhaseSpace2D extends PhaseSpace {
         public simulate.AtomPair next() {
             pair.c1 = outer;   //c1 should always be outer
             pair.c2 = inner;
+            pair.reset();
             if(inner == iLast) {                                     //end of inner loop
                 if(outer == oLast) {hasNext = false;}                //all done
                 else {outer = outer.nextCoordinate; inner = outer.nextCoordinate;} //advance outer, reset inner

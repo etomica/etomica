@@ -32,6 +32,7 @@ import java.util.Random;
  
 public abstract class Species extends Container {
 
+        PhaseSpace2D ps0 = new PhaseSpace2D();
 
 //No base-class constructor
   

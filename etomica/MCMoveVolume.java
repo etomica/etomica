@@ -17,7 +17,7 @@ public class MCMoveVolume extends MCMove {
     
     public void thisTrial(PhaseSpace phaseSpace) {
         double hOld, hNew, vOld, vNew;
-        vOld = phaseSpace.volume;
+        vOld = phaseSpace.volume();
         hOld = phaseSpace.potentialEnergy.currentValue() + pressure*vOld*Constants.PV2T;
         double vScale = (2.*rand.nextDouble()-1.)*stepSize;
         vNew = vOld * Math.exp(vScale); //Step in ln(V)

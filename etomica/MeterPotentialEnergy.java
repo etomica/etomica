@@ -87,19 +87,19 @@ public class MeterPotentialEnergy extends simulate.Meter
   */
     public final double currentValue(Molecule m) {
       AtomPair.Iterator.FMAM iterator = new AtomPair.Iterator.FMAM(phaseSpace,m);
-            
+      int index = m.parentSpecies.speciesIndex;     
       double pe = 0.0;
       for(Species s1=phaseSpace.firstSpecies(); s1!=null; s1=s1.nextSpecies()) {
-        Potential1 p1 = phaseSpace.potential1[s1.speciesIndex];
+        Potential2 p2 = phaseSpace.potential2[s1.speciesIndex][index];
         iterator.reset(s1);
         while(iterator.hasNext()) {
             AtomPair pair = iterator.next();
-            pe += p1.getPotential(pair.atom1(),pair.atom2()).energy(pair);
+            pe += p2.getPotential(pair.atom1(),pair.atom2()).energy(pair);
         }
       }
       return pe;
     }
-    
+         //looks like these methods are exactly the same
  /**
   * Computes and returns the total intermolecular energy of a molecule with all molecules in phaseSpace
   * Does not include intramolecular energy of molecule
@@ -107,14 +107,14 @@ public class MeterPotentialEnergy extends simulate.Meter
     public final double insertionValue(Molecule m) {
 
       AtomPair.Iterator.FMAM iterator = new AtomPair.Iterator.FMAM(phaseSpace,m);
-            
+      int index = m.parentSpecies.speciesIndex;                 
       double pe = 0.0;
       for(Species s1=phaseSpace.firstSpecies(); s1!=null; s1=s1.nextSpecies()) {
-        Potential1 p1 = phaseSpace.potential1[s1.speciesIndex];
+        Potential2 p2 = phaseSpace.potential2[s1.speciesIndex][index];
         iterator.reset(s1);
         while(iterator.hasNext()) {
             AtomPair pair = iterator.next();
-            pe += p1.getPotential(pair.atom1(),pair.atom2()).energy(pair);
+            pe += p2.getPotential(pair.atom1(),pair.atom2()).energy(pair);
         }
       }
       return pe;
