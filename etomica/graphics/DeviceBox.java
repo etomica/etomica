@@ -158,7 +158,6 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
     public void setModifier(Modifier m) {
         modifier = m;
         if(m == null) return;
-        setUnit(m.getDimension().defaultIOUnit());
         setLabel();
         doUpdate();
     }
