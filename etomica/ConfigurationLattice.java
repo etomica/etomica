@@ -60,31 +60,31 @@ public class ConfigurationLattice extends ConfigurationMolecule implements Atom.
         indexIterator.setSize(iteratorDimensions);
     
         //determine lattice constant
-        double latticeConstant = lattice.getLatticeConstant();
+        Vector latticeScaling = space.makeVector();
         if(rescalingToFitVolume) {
-            double xmin = Double.MAX_VALUE;
+            double latticeConstant = lattice.getLatticeConstant();
             for(int i=0; i<latticeDimensions.length; i++) {
-                double x = dimensions[i]/latticeDimensions[i];//best value of lattice constant for this dimension
-                xmin = (x < xmin) ? x : xmin;
+                latticeScaling.setX(i,dimensions[i]/(latticeDimensions[i]*latticeConstant));
             }
-            latticeConstant = xmin;
         }
-        lattice.setLatticeConstant(latticeConstant);
+        else {
+            latticeScaling.E(1.0);
+        }
 
         //determine amount to shift lattice so it is centered in volume
         double[] offset = (double[])dimensions.clone();
-//        for(int i=0; i<shape.length; i++) {
-//            offset[i] = 0.5*(dimensions[i] - (latticeDimensions[i]-1)*latticeConstant);
-//        }
         double[] vectorOfMax = new double[lattice.getSpace().D()]; 
         double[] vectorOfMin = new double[lattice.getSpace().D()]; 
         for(int i=0; i<lattice.getSpace().D(); i++) {
             vectorOfMax[i] = Double.NEGATIVE_INFINITY;
             vectorOfMin[i] = Double.POSITIVE_INFINITY;
         }
+
+        //XXX this looks scary and asking for trouble
         indexIterator.reset();
         while(indexIterator.hasNext()) {
             Vector site = (Vector)lattice.site(indexIterator.next());
+            site.TE(latticeScaling);
             for(int i=0; i<site.D(); i++) {
                 vectorOfMax[i] = Math.max(vectorOfMax[i],site.x(i));
                 vectorOfMin[i] = Math.min(vectorOfMin[i],site.x(i));
@@ -96,38 +96,53 @@ public class ConfigurationLattice extends ConfigurationMolecule implements Atom.
         Vector offsetVector = Space.makeVector(offset);
         
         // Place molecules  
-		atomIterator.reset();
+        atomIterator.reset();
         indexIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
             if (!a.node.isLeaf()) {
                 //initialize coordinates of child atoms
-                Configuration config = a.type.creator().getConfiguration();
-                System.out.println(a+" "+config);
-                if (config != null) {
-                    //may get null pointer exception when beginning simulation
-                    config.initializeCoordinates(a);
-                }
+                Conformation config = (Conformation)a.type.creator().getConfiguration();
+                config.initializePositions(((AtomTreeNodeGroup)a.node).childList);
             }
             Vector site = (Vector)lattice.site(indexIterator.next());
+            site.TE(latticeScaling);
             site.PE(offsetVector);
             atomActionTranslateTo.setDestination(site);
             atomActionTranslateTo.actionPerformed(a);
             if(assigningSitesToAtoms) ((Agent)a.allatomAgents[siteIndex]).site = site;//assign site to atom if so indicated
         }
-	}
+    }
     
     public double getLatticeConstant() {
         return lattice.getLatticeConstant();
     }
     
     private int[] calculateLatticeDimensions(int nCells, double[] shape) {
-        double product = 1.0;
-        for(int i=0; i<shape.length; i++) product *= shape[i];
-        int n = (int)Math.ceil(Math.pow(nCells/product,1.0/shape.length));
+        int dimLeft = shape.length;
+        int nCellsLeft = nCells;
         int[] latticeDimensions = new int[shape.length];
-        for(int i=0; i<shape.length; i++) {
-            latticeDimensions[i] = (int)Math.round((n*shape[i]));//(int)Math.ceil(n*shape[i]);
+        while (dimLeft > 0) {
+            double smin = Double.POSITIVE_INFINITY;
+            int dmin = 0;
+            double product = 1.0;
+            for (int idim=0; idim<shape.length; idim++) {
+                if (latticeDimensions[idim] > 0) continue;
+                if (shape[idim] < smin) {
+                    smin = shape[idim];
+                    dmin = idim;
+                }
+                product *= shape[idim];
+            }
+            // round off except for last dimension (then round up)
+            if (dimLeft > 1) {
+                latticeDimensions[dmin] = (int)Math.round(shape[dmin]*Math.pow((nCellsLeft/product),1.0/dimLeft));
+            }
+            else {
+                latticeDimensions[dmin] = (int)Math.ceil(shape[dmin]*nCellsLeft/product);
+            }
+            nCellsLeft = (nCellsLeft + latticeDimensions[dmin] - 1) / latticeDimensions[dmin];
+            dimLeft--;
         }
         return latticeDimensions;
     }
