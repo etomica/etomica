@@ -4,6 +4,7 @@ import java.awt.Color;
 import etomica.Atom;
 import etomica.AtomType;
 import etomica.Parameter;
+import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.atom.AtomFactoryMono;
 
@@ -35,8 +36,8 @@ public final class ColorSchemeByType extends ColorScheme implements Parameter.So
     public Parameter makeParameter() {return new ParameterColor();}
     
     
-    public static void setColor(SpeciesSpheresMono s, Color c) {
-        ((ParameterColor)((AtomFactoryMono)s.moleculeFactory()).getType().parameter[ColorSchemeByType.colorIndex]).setColor(c);
+    public static void setColor(Species s, Color c) {
+        ((ParameterColor)(s.moleculeFactory()).getType().parameter[ColorSchemeByType.colorIndex]).setColor(c);
     }
    
     public static void setColor(AtomType type, Color c) {
