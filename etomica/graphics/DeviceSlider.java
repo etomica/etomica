@@ -169,7 +169,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
         if(unit == null) {
             setUnit(m.getDimension().defaultIOUnit());
         }
-        slider.setDecimalSliderValue(unit.fromSim(m.getValue()));        
+        slider.setDecimalSliderValue(unit.fromSim(m.getValue()));
         modifyAction = new ModifyAction(m);
         targetAction = modifyAction;//need to keep this distinct from modifyAction, in case subclasses want to do more than modifyAction when slider is moved
         setLabelDefault();
@@ -292,7 +292,8 @@ public class DeviceSlider extends Device implements EtomicaElement {
     
     public double getValue(){return slider.getDecimalSliderValue();}    
     public void setValue(double d){
-        slider.setDecimalSliderValue(d);    
+        slider.setDecimalSliderValue(d);
+        textField.setText(String.valueOf(d));
     }
     
     /**
