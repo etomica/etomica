@@ -15,15 +15,6 @@ import etomica.units.Dimension;
  * AtomType could also be used to define particular elemental atoms (Carbon, Oxygen, etc.).
  * 
  */
- 
- /* History of changes
-  * 07/16/02 (DAK) AtomType.Sphere.diameter method modified to take atom as
-  * argument; Added AtomType.SphereVariable inner class 
-  * 08/18/02 (DAK) added drawShift to AtomType.Wall 
-  * 10/18/02 (DAK) modified Wall to get space from creator not via
-  * parentSimulation 
-  * 08/12/03 (DAK) added simulation() method
-  */
 
 public class AtomType implements java.io.Serializable {
 
@@ -92,10 +83,7 @@ public class AtomType implements java.io.Serializable {
         return index;
     }
     
-    
     public AtomFactory creator() {return creator;}
-    
-    
     
     /**
      * @return Returns the species.
@@ -113,7 +101,7 @@ public class AtomType implements java.io.Serializable {
     /**
      * @return Returns the speciesIndex.
      */
-    public int getSpeciesIndex() {
+    public final int getSpeciesIndex() {
         return speciesIndex;
     }
 
