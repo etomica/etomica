@@ -390,6 +390,7 @@ public class PistonCylinderGraphic {
         
         tSelect.setController(pc.controller);
         tSelect.setIntegrator(pc.integrator);
+        tSelect.updateIntegrator();
 
         //initialize for ideal gas
         potentialSW = new P2SquareWell();
