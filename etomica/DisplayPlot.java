@@ -25,6 +25,7 @@ public class DisplayPlot extends DisplayDataSources implements EtomicaElement {
         plot = new Plot();
         panel.add(plot);
         setName("Data Plot");
+        setWhichValue(MeterAbstract.AVERAGE);
 //        new Thread(this).start();
     }
     
@@ -51,6 +52,9 @@ public class DisplayPlot extends DisplayDataSources implements EtomicaElement {
         panel.remove(plot);
         plot = new Plot();
         panel.add(plot);
+        panel.revalidate();
+        panel.repaint();
+        if(ySource == null) return;
         if(ySource.length > 1) {
             for(int i=0; i<ySource.length; i++) plot.addLegend(i,ySource[i].getLabel());
         }
@@ -66,9 +70,9 @@ public class DisplayPlot extends DisplayDataSources implements EtomicaElement {
         }
         else {
             if(xUnit.dimension() != xSource.getDimension())
-                setXUnit(xSource.getDimension().defaultIOUnit());
-            plot.setXLabel(xSource.getLabel()+" ("+xUnit.symbol()+")");
+            plot.setXLabel(getXLabel() + " ("+xUnit.symbol()+")");
         }
+        doUpdate();
     }
             
     public void doUpdate() {
@@ -78,10 +82,10 @@ public class DisplayPlot extends DisplayDataSources implements EtomicaElement {
         plot.clear(false);
         ///new stuff
         for(int k=0; k<nSource; k++) {
-            for(int i=0; i<y.length; i++) {
+            for(int i=0; i<x.length; i++) {
               plot.addPoint(k, xUnit.fromSim(x[i]), yUnit.fromSim(y[k][i]), true);
-            }
-        }
+            }//for i
+        }//for k
         plot.repaint();
         ///end of new stuff
 /*        if(xSource != null) {
@@ -105,10 +109,19 @@ public class DisplayPlot extends DisplayDataSources implements EtomicaElement {
         plot.repaint(); */
     }//end doUpdate method
     
+    /**
+     * Extend superclass method to update label with change of unit.
+     */
+    public void setXUnit(Unit u) {
+        xUnit = u;
+        if(plot != null && xUnit != null) plot.setXLabel(getXLabel() + " ("+xUnit.symbol()+")");
+    }
+
  /**
   * Define inner class as extension of ptolemy.plot.Plot
   * Does not override anything, but may want to later
   */
     public class Plot extends ptolemy.plot.Plot {
     }
-}
+
+}//end of class

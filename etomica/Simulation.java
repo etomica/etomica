@@ -81,7 +81,7 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
     private static UnitSystem unitSystem = new UnitSystem.Sim();
     
 	public final javax.swing.JTabbedPane displayPanel = new javax.swing.JTabbedPane();
-	public final javax.swing.JPanel displayBoxPanel = new JPanel(new java.awt.GridLayout(0,1));
+	public final javax.swing.JPanel displayBoxPanel = new JPanel(new java.awt.GridBagLayout());
 //    public final javax.swing.JPanel devicePanel = new JPanel(new java.awt.GridLayout(0,1),false);
     public final javax.swing.JPanel devicePanel = new JPanel(new java.awt.GridBagLayout());
 //    public final javax.swing.JPanel devicePanel = new JPanel(new java.awt.FlowLayout());
@@ -116,11 +116,21 @@ public class Simulation extends javax.swing.JPanel implements java.io.Serializab
         p2IdealGas = new P2IdealGas(this);
         elementCoordinator = new Mediator(this);
         setSize(800,550);
-//        setLayout(new java.awt.FlowLayout());
-        setLayout(new java.awt.BorderLayout());
-        add(devicePanel, java.awt.BorderLayout.WEST);
+        setLayout(new java.awt.FlowLayout());
+        add(devicePanel);
+        add(displayBoxPanel);
+        add(displayPanel);
+/*        setLayout(new java.awt.BorderLayout());
+        add(devicePanel, java.awt.BorderLayout.NORTH);
         add(displayPanel, java.awt.BorderLayout.EAST);
-        add(displayBoxPanel, java.awt.BorderLayout.CENTER);
+        add(displayBoxPanel, java.awt.BorderLayout.WEST);*/
+/*        setLayout(new java.awt.GridBagLayout());
+        java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
+        gbc.gridx = 0;
+        add(devicePanel, gbc);
+        add(displayBoxPanel, gbc);
+        gbc.gridx = 1;
+        add(displayPanel, gbc);*/
         //workaround for JTabbedPane bug in JDK 1.2
         displayPanel.addChangeListener(
             new javax.swing.event.ChangeListener() {

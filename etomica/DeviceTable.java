@@ -12,7 +12,11 @@ import javax.swing.JScrollPane;
  * @author David Kofke
  */
  
-public class DeviceTable extends Device implements EtomicaElement {
+ //does not work work Etomica because isn't called with constructor that 
+ //provides modulators.
+ //need to return a non-null graphic (instantiate panel in all constructors)
+ //and set up set/get methods for modulators
+public class DeviceTable extends Device /*implements EtomicaElement*/ {
     
     public String getVersion() {return "DeviceTable:01.04.17/"+Device.VERSION;}
 

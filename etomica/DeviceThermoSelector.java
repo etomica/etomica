@@ -17,6 +17,7 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
     private javax.swing.JLabel label;
     private final String adiabaticString = "Adiabatic";
     private Integrator integrator;
+    private javax.swing.JPanel panel;
     
     private boolean includeAdiabatic = true;
     
@@ -30,6 +31,11 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
         selector.setEditable(false);
         label = new javax.swing.JLabel("");
         setUnit(new Unit(Kelvin.UNIT));
+        
+        panel = new javax.swing.JPanel(new java.awt.BorderLayout(0,1));
+        panel.add(label, java.awt.BorderLayout.NORTH);
+        panel.add(selector, java.awt.BorderLayout.SOUTH);
+        panel.setBorder(new javax.swing.border.EmptyBorder(3,3,3,3));
         
         
 /*        selector.addActionListener(new java.awt.event.ActionListener() {
@@ -122,10 +128,6 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
      * Consists of a combo box used for the selector.
      */
     public java.awt.Component graphic(Object obj) {
-        javax.swing.JPanel panel = new javax.swing.JPanel(new java.awt.BorderLayout(0,1));
-        panel.add(label, java.awt.BorderLayout.NORTH);
-        panel.add(selector, java.awt.BorderLayout.SOUTH);
-        panel.setBorder(new javax.swing.border.EmptyBorder(3,3,3,3));
         return panel;
        // return selector;
     }

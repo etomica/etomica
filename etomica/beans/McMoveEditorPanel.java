@@ -5,8 +5,8 @@ import java.beans.*;
 import javax.swing.*;
 
 /**
- * Panel for use with a Meter[] property editor.  Permits selection of
- * set of meters from those that are presently instantiated.  Presents
+ * Panel for use with a MCMove property editor.  Permits selection of
+ * set of MCMoves from those that are in class path.  Presents
  * an array of checkboxes for the selection.
  */
 public class McMoveEditorPanel extends JPanel {
@@ -21,7 +21,6 @@ public class McMoveEditorPanel extends JPanel {
         //discover instantiable MCMove classes
         int counter = 0;
         Class[] objects = etomica.gui.IntrospectionArrays.introspect("MCMove",false);
-  //      Object[] objects = Simulation.instance.meterList().toArray();
         
         //construct panel of checkboxes
         JPanel objectPanel = new JPanel(new GridLayout(0,2));

@@ -12,7 +12,7 @@ public final class SimulationRestart extends SimulationAction {
         setSimulation(sim);
     }
     
-    public static void go(Simulation sim) {
+    public static void doAction(Simulation sim) {
         for(java.util.Iterator iter=sim.phaseList.iterator(); iter.hasNext(); ) {
             Phase phase = (Phase)iter.next();
             phase.getConfiguration().initializeCoordinates(phase);
@@ -39,7 +39,7 @@ public final class SimulationRestart extends SimulationAction {
     }
     
     public void actionPerformed(Simulation sim) {
-        SimulationRestart.go(sim);
+        SimulationRestart.doAction(sim);
     }
 }
         

@@ -6,7 +6,9 @@ import etomica.units.Dimension;
 /**
  * Meter for tabulation of the atomic radial distribution function (RDF)
  * Should work ok in ensembles with fluctuating volume and particle numbers
- * Not suited for tabulation of RDFs of mixtures or heteroatomic molecules
+ * Not suited for tabulation of RDFs of mixtures or heteroatomic molecules.
+ *
+ * @author David Kofke
  */
 public class MeterRDF extends MeterFunction implements EtomicaElement {
     
@@ -22,7 +24,7 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	    super(sim);
 	    xSource = new DataSourceUniform();
 	    xSource.setLabel("r");
-///	    setXLabel("r");
+	    setXLabel("r");
 	    setLabel("rdf");
 	    setActive(true);
     }
@@ -99,6 +101,32 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	    }
 	    delr = xMax/(double)(nPoints-1);
 	}
+	
+	/**
+	 * main method to demonstrate and test use of class.
+	 */
+	 public static void main(String[] args) {
+	    
+	    javax.swing.JFrame frame = new javax.swing.JFrame();
+        frame.setSize(600,350);
+	    
+	    etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+	    Simulation.instance = sim;
+	    
+	    MeterRDF meter = new MeterRDF(sim);
+	    meter.setActive(true);
+	    DisplayPlot plot = new DisplayPlot(sim);
+	    DisplayTableFunction table = new DisplayTableFunction(sim);
+	    
+	    sim.elementCoordinator.go();
+	    
+	    frame.getContentPane().add(sim.panel());
+	    frame.pack();
+	    frame.show();
+        frame.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
+            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
+        });
+	 }//end of main
 	    
 }
     

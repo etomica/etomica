@@ -15,12 +15,12 @@ import java.awt.event.InputEvent;
  
 public class DisplayBox extends Display implements Dimensioned, DatumSource.User, EtomicaElement {
     
-    public String getVersion() {return "DisplayBox:01.04.17/"+Display.VERSION;}
+    public String getVersion() {return "DisplayBox:01.06.02/"+Display.VERSION;}
     /**
      * Descriptive text label to be displayed with the value
      */
     protected JLabel label;
-    private String labelPosition;
+    private Constants.Direction labelPosition = Constants.NORTH;
     /**
      * Object for displaying the value as a text field
      */
@@ -40,6 +40,7 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
      */
     int precision;
     private DataSource.ValueType whichValue;
+    private LabelType labelType;
     
     /**
      * Physical units associated with the displayed value.
@@ -62,12 +63,12 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
         label = new JLabel("Label");
         value = new JTextField("");
         value.setEditable(false);
-        setPrecision(4);
-        panel.add(label, java.awt.BorderLayout.NORTH);
         panel.add(value, java.awt.BorderLayout.CENTER);
+        setLabelType(STRING);
+ //       panel.setMinimumSize(new java.awt.Dimension(80,60));
         unit = new Unit(BaseUnit.Null.UNIT);
         setUpdateInterval(5);
-        panel.setSize(100,60);
+        setPrecision(4);
         
         addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent evt) {
@@ -80,15 +81,12 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
                 }
             }
         });
-        
-    }
+    }//end of constructor
     
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Simple display of one meter's value with a label");
         return info;
     }
-
-    
     
     /**
      * Accessor method to set the physical units of the displayed value.
@@ -158,6 +156,10 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
      */
     public void setLabel(String s) {
         label.setText(s);
+        if(labelType == BORDER) {
+            panel.setBorder(new javax.swing.border.TitledBorder(s));
+        }
+        if(labelType == STRING) setLabelPosition(labelPosition);
 /*        JLabel oldLabel = label;
         label = new JLabel(s);
         panel.remove(oldLabel);
@@ -169,11 +171,28 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
      */
     public String getLabel() {return label.getText();}
     
+
+    public void setLabelType(LabelType labelType) {
+        this.labelType = labelType;
+        if(labelType != BORDER) panel.setBorder(new javax.swing.border.EmptyBorder(2,2,2,2));
+        if(labelType != STRING) panel.remove(label);
+        setLabel(label.getText());
+    }
+    public LabelType getLabelType() {
+        return labelType;
+    }
+
     public void setLabelPosition(Constants.Direction position) {
+        labelPosition = position;
+        if(labelType != STRING) return;
         panel.remove(label);
         panel.add(label,position.toString());//toString() returns the corresponding BorderLayout constant
 //        support.firePropertyChange("label",oldLabel,label);
+        panel.revalidate();
+        panel.repaint();
     }
+    
+    public Constants.Direction getLabelPosition() {return labelPosition;}
     /**
      * Sets the display text to reflect the desired value from the meter.
      */
@@ -226,6 +245,8 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
         //DisplayBox showing the current value (default is most recent, but this is zero because meter is inactive (not keeping averages), and thus doesn't hold a most-recent value)
         DisplayBox box0 = new DisplayBox.Energy(sim.phase);
         box0.setWhichValue(MeterAbstract.CURRENT);
+        box0.setLabelType(DisplayBox.STRING);
+        box0.setLabelPosition(Constants.SOUTH);
         //here's a DisplayBox tied to a Modulator
 		DisplayBox box1 = new DisplayBox();
 		box1.setDatumSource(mod1);
@@ -366,4 +387,19 @@ public class DisplayBox extends Display implements Dimensioned, DatumSource.User
 
     }
 
+    /**
+     * Typed constant used to indicate the type of label to be used with the display.
+     */
+     
+	public static class LabelType extends Constants.TypedConstant {
+        public LabelType(String label) {super(label);}       
+        public Constants.TypedConstant[] choices() {return (Constants.TypedConstant[])CHOICES;}
+        public static final LabelType[] CHOICES = 
+            new LabelType[] {
+                new LabelType("Border"),
+                new LabelType("String")};
+    }//end of LabelType
+    public static final LabelType BORDER = LabelType.CHOICES[0];
+    public static final LabelType STRING = LabelType.CHOICES[1];
+    
 }

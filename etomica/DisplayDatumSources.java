@@ -87,7 +87,8 @@ public abstract class DisplayDatumSources extends Display implements DatumSource
      * Existing sources are retained.
      */
     public void addDatumSources(DatumSource s) {
-        int nSource = ySource.length;
+        if(s == null) return;
+        int nSource = (ySource == null) ? 0 : ySource.length;
         DatumSource[] newSources = new DatumSource[nSource+1];
         for(int i=0; i<nSource; i++) newSources[i] = ySource[i];
         newSources[nSource] = s;
@@ -99,10 +100,11 @@ public abstract class DisplayDatumSources extends Display implements DatumSource
      * Existing sources are retained.
      */
     public void addDatumSources(DatumSource[] s) {
-        int nSource = ySource.length;
+        if(s == null) return;
+        int nSource = (ySource == null) ? 0 : ySource.length;
         DatumSource[] newSources = new DatumSource[nSource+s.length];
         for(int i=0; i<nSource; i++) newSources[i] = ySource[i];
-        for(int i=nSource; i<newSources.length; i++) newSources[i] = s[i];
+        for(int i=nSource; i<newSources.length; i++) newSources[i] = s[i-nSource];
         setDatumSources(newSources);
     }
     
@@ -147,9 +149,11 @@ public abstract class DisplayDatumSources extends Display implements DatumSource
     public Unit getYUnits() {return yUnit;}
     
     public void doUpdate() {
+        if(ySource == null) return;
         //update all y values at once so not to invoke calculation of all
         //y values when just one of them is accessed
         for(int i=0; i<ySource.length; i++) {
+            if(y[i] == null) continue;
             for(int k=0; k<whichValues.length; k++) {
                y[i][k] = ySource[i].value(whichValues[k]);
             }

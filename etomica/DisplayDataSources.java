@@ -22,6 +22,7 @@ public abstract class DisplayDataSources extends Display implements DataSource.M
     protected DataSource[] ySource;
     protected DataSource xSource;
     protected Unit yUnit, xUnit;
+    String xLabel;
     protected double x[];
     protected double[][] y;
     protected DataSource.ValueType whichValueX, whichValue;
@@ -56,6 +57,7 @@ public abstract class DisplayDataSources extends Display implements DataSource.M
      * are discarded.
      */
     public void setDataSources(DataSource[] s) {
+        if(ySource != null && xSource == ySource[0]) xSource = null;
         if(s == null || s.length == 0 || s[0] == null) {
             ySource = null;
             return;
@@ -86,6 +88,24 @@ public abstract class DisplayDataSources extends Display implements DataSource.M
      */
     public void setDataSources(DataSource s) {
         setDataSources(new DataSource[] {s});
+    }
+    
+    /**
+     * Temporary method to enable function of propertysheet
+     *
+     * @deprecated
+     */
+    public void setDataSource(DataSource s) {
+        setDataSources(new DataSource[] {s});
+    }
+    /**
+     * Temporary method to enable function of propertysheet
+     *
+     * @deprecated
+     */
+    public DataSource getDataSource() {
+        if(ySource == null) return null;
+        return ySource[0];
     }
     
     /**
@@ -126,17 +146,21 @@ public abstract class DisplayDataSources extends Display implements DataSource.M
      */
     private void setupX() {
         if(xSource != null) {
-            if(ySource[0] instanceof DataSource.X) {
+            if(ySource[0] instanceof DataSource.X && xSource == ySource[0]) {
                 x = ((DataSource.X)ySource[0]).xValues();
- //               setXLabel(((DataSource.X)xSource).getXLabel());
+                setXLabel(((DataSource.X)ySource[0]).getXLabel());
                 setXUnit(((DataSource.X)ySource[0]).getXDimension().defaultIOUnit());
             }
-            else
-                x = xSource.values(whichValueX);                
+            else {
+                x = xSource.values(whichValueX); 
+                setXLabel(xSource.getLabel());
+                setXUnit(xSource.getDimension().defaultIOUnit());
+            }
         }
         else { //no xSource specified; take sequentially
             x = new double[maxYPoints()];
             for(int i=0; i<x.length; i++) {x[i] = i;}
+            setXUnit(Unit.NULL);
         }
     }
     
@@ -178,8 +202,11 @@ public abstract class DisplayDataSources extends Display implements DataSource.M
     public Unit getXUnit() {return xUnit;}
     public void setYUnit(Unit u) {yUnit = u;}
     public Unit getYUnit() {return yUnit;}
+    public void setXLabel(String text) {xLabel = text;}
+    public String getXLabel() {return xLabel;}
     
     public void doUpdate() {
+        if(ySource == null) return;
         //update all y values at once so not to invoke calculation of all
         //y values when just one of them is accessed
         for(int i=0; i<ySource.length; i++) {

@@ -18,7 +18,7 @@ public class TestAll {
         "DisplayMeterHistogram", "DisplayTable", "DisplayToLog",
         "IntegratorGEMC", "IntegratorGear4", "MCMovePointVolume",
         "MCMoveRotate", "MCMoveVolume", "MeterBondOrderParameterQ",
-        "MeterPressureByVolumeChange", "MeterPressureHard",
+        "MeterPressureByVolumeChange", "MeterPressureHard", "MeterRDF",
         "Modulator", "ModulatorAbstract", "PotentialAssociationCone",
         "PotentialFieldGravity", "PotentialRoughSphere", "Simulation",
         "SpeciesPistonCylinder", "SpeciesWalls"

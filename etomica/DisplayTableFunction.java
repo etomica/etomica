@@ -28,6 +28,8 @@ public class DisplayTableFunction extends DisplayDataSources implements EtomicaE
         super(sim);
         setupDisplay();
         setLabel("Function");
+        setWhichValue(MeterAbstract.AVERAGE);
+        table = new JTable();
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -47,8 +49,12 @@ public class DisplayTableFunction extends DisplayDataSources implements EtomicaE
         MyTableData tableSource = new MyTableData();   //inner class, defined below
         table = new JTable(tableSource);
         panel.add(new JScrollPane(table));
+        //trying to get table to redisplay correctly when 
+        //changing whichValue.  Still not working correctly.
+        panel.invalidate();
+        panel.validate();
         doUpdate();
-        
+        panel.repaint();        
     }
         
     /**
@@ -62,7 +68,7 @@ public class DisplayTableFunction extends DisplayDataSources implements EtomicaE
      * Accessor method for flag indicating if table should include a column of "x" values.
      */
     public boolean isShowXColumn() {return showXColumn;}
-            
+    
     public void repaint() {table.repaint();}
 
     public Component graphic(Object obj) {return panel;}

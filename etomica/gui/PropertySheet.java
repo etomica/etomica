@@ -38,7 +38,7 @@ public class PropertySheet extends JInternalFrame {
         PropertyEditorManager.registerEditor(etomica.DataSource.class, etomica.DataSourceEditor.class);
         PropertyEditorManager.registerEditor(etomica.MCMove[].class, etomica.McMoveEditor.class);
         PropertyEditorManager.registerEditor(etomica.units.Unit.class, etomica.UnitEditor.class);
-		
+		PropertyEditorManager.registerEditor(etomica.ModulatorAbstract.class, etomica.ModulatorEditor.class);
     }
     private PropertySheetPanel panel;
     private boolean started;

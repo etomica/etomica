@@ -7,7 +7,9 @@ import etomica.utility.Histogram;
  * Meter for recording and averaging an array of values of type double
  * Default is not to have meter do averages in response to integrationIntervalEvents.
  * Anticipated use of function meters is to measure some functional quantity (e.g. g(r)) when asked 
- * by a Display object.  To enable averages, call setActive(true)
+ * by a Display object.  To enable averages, call setActive(true).
+ *
+ * @author David Kofke
  */
 public abstract class MeterFunction extends MeterAbstract implements DataSource, DataSource.X {
     

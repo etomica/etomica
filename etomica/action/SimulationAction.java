@@ -17,7 +17,6 @@ public abstract class SimulationAction extends etomica.Action {
     protected Simulation simulation;
     public SimulationAction() {this(Simulation.instance);}
     public SimulationAction(Simulation sim) {
-        super();
         simulation = sim;
     }
         

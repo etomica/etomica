@@ -54,10 +54,10 @@ public class PotentialSquareWellBonded extends PotentialSquareWell implements Po
     makeBondData();
   }
   
-  //constructs 4 BondChangeData classes, one for each atom in possible bondchange event
+  //constructs 2 BondChangeData classes, one for each atom in possible bondchange event
   private void makeBondData() {
-    bondData = new Potential.Reactive.BondChangeData[4];
-    for(int i=0; i<4; i++) {
+    bondData = new Potential.Reactive.BondChangeData[2];
+    for(int i=0; i<2; i++) {
         bondData[i] = new Potential.Reactive.BondChangeData();
         bondData[i].oldPartners = new Atom[1];
         bondData[i].newPartners = new Atom[1];
@@ -126,7 +126,7 @@ public class PotentialSquareWellBonded extends PotentialSquareWell implements Po
 	            bondData[1].atom = a2;
 	            bondData[1].oldPartners[0] = a1;
 	            bondData[1].newPartners[0] = null;
-	            bondData[2].atom = null;
+	   //         bondData[2].atom = null;
 	            a1.atomLink[0] = null;
 	            a2.atomLink[0] = null;
 	        }//end if(ke < epsilon)
@@ -168,23 +168,24 @@ public class PotentialSquareWellBonded extends PotentialSquareWell implements Po
                 bondData[1].atom = a2;
                 bondData[1].newPartners[0] = a1;
                 bondData[1].oldPartners[0] = a2Partner;
-
-                int idx = 2;
-                bondData[2].atom = null;
-                bondData[3].atom = null;
+            
+              //redundant bonddata commented out
+            //    int idx = 2;
+            //    bondData[2].atom = null;
+            //    bondData[3].atom = null;
                 if(a1Partner != null) {
                     a1Partner.atomLink[0] = null;
-                    bondData[2].atom = a1Partner;
-                    bondData[2].oldPartners[0] = a1;
-                    bondData[2].newPartners[0] = null;
-                    idx++;
+            //        bondData[2].atom = a1Partner;
+            //       bondData[2].oldPartners[0] = a1;
+            //        bondData[2].newPartners[0] = null;
+            //        idx++;
                 }
                 if(a2Partner != null) {
                     a2Partner.atomLink[0] = null;
-                    bondData[idx].atom = a2Partner;
-                    bondData[idx].oldPartners[0] = a2;
-                    bondData[idx].newPartners[0] = null;
-                }
+            //        bondData[idx].atom = a2Partner;
+            //        bondData[idx].oldPartners[0] = a2;
+            //        bondData[idx].newPartners[0] = null;
+                } 
                 a1.atomLink[0] = new Atom.Linker(a2);
                 a2.atomLink[0] = new Atom.Linker(a1);
             }//end if(deltaE < 0.0) else

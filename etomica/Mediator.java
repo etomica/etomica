@@ -73,7 +73,7 @@ public class Mediator implements java.io.Serializable {
     }
     
     /**
-     * Processes the given element, tying it in with other appropraiate elements that were added previously.
+     * Processes the given element, tying it in with other appropriate elements that were added previously.
      * Loops through all submediators that are set to take a class of the given element (as identified by
      * its <code>baseClass</code> method, and allows each to do its processing of it.
      * Upon completion, the <code>setAdded</code> flag is set to <code>true</code>, so if the element
@@ -488,8 +488,10 @@ public class Mediator implements java.io.Serializable {
         public abstract void add(Display d);
         
         public static class Default extends DisplayNull {
+            private final java.awt.GridBagConstraints gbcBox = new java.awt.GridBagConstraints();
             public Default(Mediator m) {
                 super(m);
+                gbcBox.gridx = 0;
             }
             /**
              * Adds displays graphic to the simulation display pane
@@ -498,7 +500,7 @@ public class Mediator implements java.io.Serializable {
                 final java.awt.Component component = display.graphic(null);
                 if(component == null) return; //display is not graphic
                 if(display instanceof DisplayBox) {
-                    mediator.parentSimulation().displayBoxPanel.add(component);
+                    mediator.parentSimulation().displayBoxPanel.add(component, gbcBox);
                 }
                 else {
                     mediator.parentSimulation().displayPanel.add(display.getLabel(),component);
@@ -650,7 +652,22 @@ public class Mediator implements java.io.Serializable {
                     }
                 }
             }//end of connect
-        }//end of Default
+        }//end of Default (DisplayMeter)
+        /**
+         * Adding an instance of this pair mediator will cause the simulation to not
+         * act to connect display and meter objects.  This is useful if it is desired to
+         * connect these elements "by hand", instead of using
+         * the simple default behavior.
+         */
+        public static class NoAction extends DisplayMeter {
+            public NoAction(Mediator m) {
+                super(m);
+                setSuperceding(true);//causes all previously added mediators to be ignored
+            }
+            
+            public void add(Display display) {}
+            public void add(MeterAbstract meter) {}
+        }//end of NoAction (DisplayMeter)
     }//end of DisplayMeter
     
 }//end of Mediator

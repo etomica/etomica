@@ -525,6 +525,7 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
 	            histogram = new Histogram();
 	            histogram.setName(MeterAbstract.this.toString() + ":Histogram");
 	            histogram.setLabel(MeterAbstract.this.getLabel() + " histogram");
+	            histogram.setXLabel(MeterAbstract.this.getLabel());
 	            histogram.setXDimension(MeterAbstract.this.getDimension());
 	        }
 	    }
@@ -536,7 +537,7 @@ public abstract class MeterAbstract implements Integrator.IntervalListener, Simu
 	    */
 	    public void setHistorying() {
 	        if(historying && history == null) {
-	            history = new History();
+	            history = new History(Default.HISTORY_PERIOD);
 	            history.setName(MeterAbstract.this.toString() + ":History");
 	            history.setLabel(MeterAbstract.this.getLabel() + " history");
 	        }

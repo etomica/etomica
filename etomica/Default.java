@@ -36,6 +36,8 @@ public final class Default {
     
     public static double TIME_STEP = 0.05;  //picoseconds 
     
+    public static int HISTORY_PERIOD = 100;
+    
     /**
      * Default block size used for error estimation in simulation averages.
      */

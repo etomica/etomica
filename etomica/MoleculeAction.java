@@ -9,6 +9,7 @@ package etomica;
 public abstract class MoleculeAction extends etomica.Action {
     
     protected Molecule molecule;
+    
     public void setMolecule(Molecule m) {molecule = m;}
     public Molecule getMolecule() {return molecule;}
                 
