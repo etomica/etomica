@@ -137,7 +137,7 @@ public class Atom implements java.io.Serializable {
         else /*if(this.depth > atom.depth)*/ return this.parentGroup.preceeds(atom);
     }
 
-    public final boolean isDescendedFrom(AtomGroup group) {
+    public final boolean isDescendedFrom(Atom group) {
         return (this == group) || (parentGroup != null && parentGroup.isDescendedFrom(group));
     }
      /*   AtomGroup ancestor = parentGroup;

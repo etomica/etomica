@@ -41,8 +41,9 @@ public class P1HardBoundary extends Potential1Hard implements EtomicaElement {
         Space.Vector dimensions = a.parentPhase().dimensions();
         double tmin = Double.MAX_VALUE;
         for(int i=r.length(); i>=0; i--) {
-            double rx = r.component(i);
             double px = p.component(i);
+            if(px == 0.0) continue;
+            double rx = r.component(i);
             double dx = dimensions.component(i);
             double t = (px > 0.0) ? (dx - rx - collisionRadius)/px : (-rx + collisionRadius)/px;
             if(t < tmin) tmin = t;

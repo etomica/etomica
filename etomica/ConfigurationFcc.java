@@ -37,7 +37,12 @@ public class ConfigurationFcc extends Configuration {
         int i = 0;
         iterator.reset();
         while(iterator.hasNext()) {
-            iterator.next().coord.translateTo(rLat[i++]);//use translateTo instead of E because atom might be a group
+            Atom a = iterator.next();
+            //initialize coordinates of child atoms
+            try {//may get null pointer exception when beginning simulation
+                a.creator().getConfiguration().initializeCoordinates(a);
+            } catch(NullPointerException e) {}
+            a.coord.translateTo(rLat[i++]);//use translateTo instead of E because atom might be a group
         }
     }//end of initializePositions
     

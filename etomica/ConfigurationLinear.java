@@ -63,6 +63,9 @@ public class ConfigurationLinear extends Configuration {
         iterator.reset();
         while(iterator.hasNext()) {
             Atom a = iterator.next();
+            try {//may get null pointer exception when beginning simulation
+                a.creator().getConfiguration().initializeCoordinates(a);
+            } catch(NullPointerException e) {}
             a.coord.translateTo(space.origin());
             a.coord.translateBy(xNext,orientation);  //move xNext distance in direction orientation
             xNext += bondLength;

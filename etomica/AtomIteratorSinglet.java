@@ -39,7 +39,7 @@ public class AtomIteratorSinglet implements AtomIterator {
     /**
      * Returns true if the given atom is the atom passed to the last call to setAtom(Atom).
      */
-    public boolean contains(Atom a) {return (a == atom && a != null);}
+    public boolean contains(Atom a) {return (a != null && a.isDescendedFrom(atom));}
     
     public boolean hasNext() {return hasNext;}
     
@@ -76,7 +76,7 @@ public class AtomIteratorSinglet implements AtomIterator {
             else if(direction == IteratorDirective.BOTH) hasNext = true;
             else /*direction == NEITHER*/ hasNext = false;
         }
-        else hasNext = (a == atom);  // isAsNeighbor == false
+        else hasNext = contains(a);  // isAsNeighbor == false
         return hasNext ? atom : null;
     }
         

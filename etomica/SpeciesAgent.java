@@ -134,10 +134,7 @@ public final class SpeciesAgent extends AtomGroup {
         boolean wasPaused = true;
         if(integrator != null) {
             wasPaused = integrator.isPaused();//record pause state of integrator
-            if(!wasPaused) {
-                integrator.pause();
-                while(!integrator.isPaused()) {}
-            }
+            if(!wasPaused) integrator.pause();//and waits until integrator puts pause in effect
         }
         return wasPaused;
     }

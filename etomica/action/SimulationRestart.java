@@ -18,14 +18,17 @@ public final class SimulationRestart extends SimulationAction {
         
     public static void doAction(Simulation sim) {
         
+        for(Iterator iter=sim.integratorList().iterator(); iter.hasNext(); ) {
+            Integrator integrator = (Integrator)iter.next();
+            integrator.halt();//request integrator to stop
+            integrator.join();//wait till it does
+        }
         for(Iterator iter=sim.phaseList().iterator(); iter.hasNext(); ) {
             Phase phase = (Phase)iter.next();
             phase.getConfiguration().initializeCoordinates(phase.speciesMaster().childAtomArray());
         }
         for(Iterator iter=sim.integratorList().iterator(); iter.hasNext(); ) {
             Integrator integrator = (Integrator)iter.next();
-            integrator.halt();//request integrator to stop
-            integrator.join();//wait till it does
             integrator.reset();
         }
         for(Iterator iter=sim.controllerList().iterator(); iter.hasNext(); ) {
