@@ -6,7 +6,6 @@ package etomica.nbr;
 
 import etomica.Atom;
 import etomica.AtomIteratorTree;
-import etomica.AtomsetActive;
 import etomica.Debug;
 import etomica.Integrator;
 import etomica.IteratorDirective;
@@ -14,6 +13,7 @@ import etomica.Phase;
 import etomica.Space;
 import etomica.Integrator.IntervalEvent;
 import etomica.Integrator.IntervalListener;
+import etomica.action.AtomsetActionAdapter;
 
 /**
  * Initiates the process of update the neighbor lists.  Acts as a
@@ -149,7 +149,7 @@ public class NeighborManager implements IntervalListener {
 	private final PotentialCalculationNbrSetup potentialCalculationNbrSetup = new PotentialCalculationNbrSetup();
 	private int priority;
     
-	private static class NeighborCheck implements AtomsetActive {
+	private static class NeighborCheck extends AtomsetActionAdapter {
 		private boolean needUpdate = false, unsafe = false;
 		public void actionPerformed(Atom[] atom) {
 			NeighborCriterion criterion = atom[0].type.getNbrManagerAgent().getCriterion();
@@ -171,7 +171,7 @@ public class NeighborManager implements IntervalListener {
 
 	}
 	
-	private class NeighborReset implements AtomsetActive {
+	private class NeighborReset extends AtomsetActionAdapter {
 		public void actionPerformed(Atom[] atom) {
             if(atom[0].node.depth() < 2) return;//don't want SpeciesMaster or SpeciesAgents
 			NeighborCriterion criterion = atom[0].type.getNbrManagerAgent().getCriterion();
