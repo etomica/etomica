@@ -47,7 +47,7 @@ public class MCMoveRotateMolecule extends MCMove {
     public boolean doTrial() {
         if(phase.moleculeCount()==0) {molecule = null; return false;}
         molecule = phase.randomMolecule();
-        leafAtomIterator.setBasis(molecule);
+        leafAtomIterator.setRoot(molecule);
 
         uOld = potential.calculate(phase, iteratorDirective.set(molecule), energy.reset()).sum();
         //update for 3D

@@ -92,7 +92,7 @@ public class AtomIteratorMolecule implements AtomIterator {
      * Sets for iteration over all molecules in phase of given species master.
      */
     public void setBasis(SpeciesMaster speciesMaster) {
-        treeIterator.setBasis(speciesMaster);
+        treeIterator.setRoot(speciesMaster);
         iterator = treeIterator;
     }
     

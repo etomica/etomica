@@ -3,13 +3,14 @@ package etomica;
 /**
  * Atom iterator that traverses the elements of an AtomList.
  * Configurable to permit iteration up and/or down list, beginning
- * with any specified atom in list.
+ * with any specified atom in list, and ending at any specified Tab.
  *
  * @author David Kofke
  */
  
  /* History of changes
   * 09/01/02 (DAK) modified nextLinker method to properly handle case of NEITHER direction
+  * 08/23/04 (DAK, AS, KB) overhauled with revision of iterators
   */
 public final class AtomIteratorList implements AtomIterator, AIAtomListDependent {
     
@@ -120,7 +121,7 @@ public final class AtomIteratorList implements AtomIterator, AIAtomListDependent
     }//end of allAtoms
     
     /**
-     * Resets to iterate in the given direction.
+     * Sets iteration to be in the given direction and unsets iterator.
      */
     public void setIterationDirection(IteratorDirective.Direction direction) {
         upList = (direction == IteratorDirective.UP);
@@ -151,7 +152,6 @@ public final class AtomIteratorList implements AtomIterator, AIAtomListDependent
      * If first is an index, iterator is advanced to begin with the
      * next atom entry.
      */
-    //TODO have terminator check that it is in list
     public void setTerminator(AtomLinker.Tab terminator) {
     	if(terminator.list != this.list) throw new IllegalArgumentException("Error in setting terminator as an element not in the list set for iteration");
         this.terminator = terminator;
@@ -198,7 +198,9 @@ public final class AtomIteratorList implements AtomIterator, AIAtomListDependent
 	 */
 	public int size() {return list.size();}
 
-	    
+	/**
+	 * Returns the next iterate.
+	 */
     public Atom next() {
         return nextLinker().atom;
     }

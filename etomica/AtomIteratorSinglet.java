@@ -3,13 +3,8 @@ package etomica;
 /**
  * Iterator that expires after returning a single atom, which is
  * specified by a call to the setAtom method, or via the constructor.
- * reset() sets the iterator to return the atom.
- * reset(Atom) sets as follows:
- *   if isAsNeighbor is false, the iterator will return its atom only if
- *   the atom given to reset matches it.
- *   if isAsNeighbor is true, the iterator will return its atom only if
- *   the atom is appropriately up or down list from the given atom, in correspondence
- *   with the current value of the iterator's direction field.
+ * Subsequent calls to reset() and next() will return the specified atom,
+ * until another is specified via setAtom.
  *
  * @author David Kofke
  */
@@ -18,69 +13,65 @@ package etomica;
   * 8/4/02 (DAK) Modified reset(Atom) to set basis to given atom while putting iterator ready for iteration
   *              Change made while attempting to enable operation of PistonCylinder
   * 8/5/02 (DAK) Commented out modification of 8/4/02, restoring to previous version.
+  * 08/26/04 (DAK) revised with overhaul of iterators
   */
-public class AtomIteratorSinglet implements AtomIterator {
+public final class AtomIteratorSinglet implements AtomIterator {
     
-    private Atom atom;
-    private boolean hasNext;
-    private IteratorDirective.Direction direction;
-    
+    private Atom atom = null;
+    private boolean hasNext = false;
+   
+    /**
+     * Constructs iterator without defining atom.  No atoms will
+     * be given by this iterator until a call to setAtom is performed.
+     */
     public AtomIteratorSinglet() {hasNext = false;}
+    
+    /**
+     * Constructs iterator specifying that it return the given atom.  Call
+     * to reset() must be performed before beginning iteration.
+     * @param a The atom that will be returned by this iterator upon reset.
+     */
     public AtomIteratorSinglet(Atom a) {setAtom(a);}
         
     /**
-     * Mutator method for this iterator's atom.
+     * Defines atom returned by iterator and leaves iterator unset.
+     * Call to reset() must be performed before beginning iteration.
      */
-    public void setAtom(Atom a) {atom = a; hasNext = false;}
-    /**
-     * Accessor method for this iterator's atom.
-     */
-    public Atom getAtom() {return atom;}
-    
-    public void setBasis(Atom a) {setAtom(a);}
-    public Atom getBasis() {return atom;}
-    
-    public int size() {return (atom != null) ? 1 : 0;}
-
-	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
-		 if(!(basis instanceof Atom && action instanceof AtomActive)) return;
-		 all((Atom)basis, id, (AtomActive)action);
-	}
-    
-	public void all(Atom basis, IteratorDirective id, final AtomActive action) {
-		if(basis == null) return;
-//		action.actionPerformed(basis);
-		if(id.atomCount() == 0 || id.atom1().node.isDescendedFrom(basis)) action.actionPerformed(basis);
-		else {
-			boolean preceeds = id.atom1().seq.preceeds(basis);
-			if((preceeds && id.direction().doUp())
-				|| (!preceeds && id.direction().doDown())) action.actionPerformed(basis);
-		}
-	} 
-    
-    /**
-     * Returns true if the given atom is the atom passed to the last call to setAtom(Atom).
-     */
-    public boolean contains(Atom a) {return (a != null && a.node.isDescendedFrom(atom));}
-    
-    public boolean hasNext() {return hasNext;}
-    
-    public void unset() {hasNext = false;}
-    
-    public Atom reset(IteratorDirective id) {
-        direction = id.direction();
-        switch(id.atomCount()) {
-            case 0:  return reset(); 
-            case 1:  return reset(id.atom1()); 
-  //          case 2:  return reset(id.atom1(), id.atom2()); 
-            default: hasNext = false; 
-            return null;
-        }
+    public void setAtom(Atom a) {
+    	atom = a; 
+    	unset();
     }
     
     /**
-     * Resets iterator to return the iterator's atom.  Ignores any specifications
-     * of direction or isAsNeighbor.
+     * Returns 0 if atom has not been previously set, or has been set to null;
+     * returns 1 otherwise.
+     */
+    public int size() {return (atom != null) ? 1 : 0;}
+
+	public void allAtoms(AtomActive action) {
+		if(atom != null) action.actionPerformed(atom);
+	}
+        
+    /**
+     * Returns true if the given atom equals the atom passed to the last call to setAtom(Atom).
+     */
+    public boolean contains(Atom a) {
+    	return (a != null && a.equals(atom));
+    }
+    
+    /**
+     * Returns true if the an atom has been set and a call to reset() has been
+     * performed, without any subsequent calls to next().
+     */
+    public boolean hasNext() {return hasNext;}
+    
+    /**
+     * Sets iterator to a state where hasNext() returns false.
+     */
+    public void unset() {hasNext = false;}
+    
+    /**
+     * Resets iterator to a state where hasNext is true.
      */
     public Atom reset() {
         hasNext = (atom != null); 
@@ -88,22 +79,15 @@ public class AtomIteratorSinglet implements AtomIterator {
     }
     
     /**
-     * Resets iterator to return basis atom if it is descended from the given atom.
+     * Returns the iterator's atom and unsets iterator.
      */
-    public Atom reset(Atom a) {
-/*   //     atom = a;
-        hasNext = (atom != null);
-        return atom;
-*/        if(atom == null) hasNext = false;
-        else hasNext = contains(a);
-        return hasNext ? atom : null;
-    }
-        
     public Atom next() {hasNext = false; return atom;}
     
-    public void allAtoms(AtomAction act) {
-        if(atom == null) return;
-        act.actionPerformed(atom);
-    }
+    /**
+     * Returns the atom last specified via setAtom.  Does
+     * not advance iterator.
+     */
+    public Atom peek() {return atom;}
+    
 }//end of AtomIteratorSinglet
         

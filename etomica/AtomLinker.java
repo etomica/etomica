@@ -40,7 +40,7 @@ public class AtomLinker implements java.io.Serializable {
         previous.next = this;
         newNext.previous = this;
 	}
-//TODO make addBefore and moveBefore the same (putBefore)	
+//TODO consider make addBefore and moveBefore the same (putBefore), but check that doesn't break (at least) IteratorFactoryCellLeaf	
 	/**
 	 * Moves the linker from its current position to the one before the given linker.
 	 */

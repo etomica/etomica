@@ -18,36 +18,42 @@ package etomica;
 public interface AtomIterator /*extends AtomSetIterator*/ {
     
 	/**
-	 * Returns whether or not the atom is in the iterator.
-	 * @param atom
-	 * @return whether or not the atom is in the iterator.
+	 * Indicates whether the atom is among those returned by the iterator.
+	 * @param atom the atom in question
+	 * @return true if the atom is among the iterates.
 	 */
     public boolean contains(Atom atom);
     
     /**
-     * Indicates if the iterator has another atom.
+     * Indicates whether the iterator has another atom.
      */
     public boolean hasNext();
     
     /**
      * Resets the iterator to loop through its iterates again.
-     * The specific behavior depends on the type of iterator.
-     * @return tells what the first atom will be when the iterator runs
+     * @return the first atom will be when the iterator runs
      */
     //TODO do we want to change this to return void?
     public Atom reset();
     
-    /**
-     * Puts iterator in a state in which next() returns null.
-     */
+	/**
+	 * Puts iterator in a state in which next() returns null.
+	 */
     public void unset();
     
-    /**
-     * Returns the next atom in the iteration sequence.  It returns
-     * null to indicate the end of iteration.  All subsequent calls
-     * will return null until reset() is called.
-     */
+	/**
+	 * Returns the next atom in the iteration sequence.
+	 * No specific behavior is guaranteed if hasNext() == false 
+	 * at the time method is called.
+	 */
     public Atom next();
+    
+    /**
+     * Returns the next iterate without advancing the iterator.
+     * No specific behavior is guaranteed if hasNext() == false 
+     * at the time method is called.
+     */
+    public Atom peek();
     
     /**
      * Performs given actions over all the iterates of this iterator.  Iterates
@@ -79,6 +85,7 @@ public interface AtomIterator /*extends AtomSetIterator*/ {
     	public Atom next() {return null;}
     	public Atom reset() {return null;}
     	public int size() {return 0;}
+    	public Atom peek() {return null;}
     	public void unset() {}
     };
 }

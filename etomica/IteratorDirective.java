@@ -362,29 +362,18 @@ public final class IteratorDirective implements java.io.Serializable {
     //IteratorDirective.Direction
     public static final class Direction extends Constants.TypedConstant {
         
-        private final boolean up;
-        private final boolean down;
-        private Direction(String label, boolean doUp, boolean doDown) {
+        private Direction(String label) {
             super(label);
-            up = doUp;
-            down = doDown;
         }
-        public boolean doUp() {return up;}
-        public boolean doDown() {return down;}
-        
         public static final Direction[] CHOICES = new Direction[] {
-            new Direction("Up", true, false),
-            new Direction("Down", false, true),
-            new Direction("Neither", false, false),
-            new Direction("Both", true, true)
+            new Direction("Up"),
+            new Direction("Down"),
         };
         
         public final Constants.TypedConstant[] choices() {return CHOICES;}
     }//end of Direction
     public static final Direction UP = Direction.CHOICES[0];
     public static final Direction DOWN = Direction.CHOICES[1];
-    public static final Direction NEITHER = Direction.CHOICES[2];
-    public static final Direction BOTH = Direction.CHOICES[3];
     
     /**
      * Class used to define a criterion that must be satisfied by a potential

@@ -10,6 +10,7 @@ package etomica;
 
 /* History
  * 02/21/03 (DAK) added all(AtomList...) method
+ * 08/23/04 (DAK, AS, KB) updated with overhaul of iterators
  * 
  */
 public final class AtomIteratorListSimple implements AIAtomListDependent {
@@ -20,9 +21,13 @@ public final class AtomIteratorListSimple implements AIAtomListDependent {
 	public AtomIteratorListSimple() {
 	    this(new AtomList());
 	}
+	/**
+	 * Constructs iterator for iteration over the given list.
+	 * Subsequent call to reset() is needed before beginning iteration.
+	 * @param list
+	 */
 	public AtomIteratorListSimple(AtomList list) {
 	    setList(list);
-	    reset();
 	}
     
 	public boolean hasNext() {return next.atom != null;}
@@ -35,15 +40,20 @@ public final class AtomIteratorListSimple implements AIAtomListDependent {
         if(atom.node.isLeaf()) unset();
         else setBasis(((AtomTreeNodeGroup)atom.node).childList);
     }*/
+	
+	/**
+	 * Sets the list containing the atoms that will be returned by this iterator.
+	 * Call to reset() is needed before beginning iteration.
+	 */
     public void setList(AtomList newList) {
         list = (newList != null) ? newList : new AtomList();
-        next = list.header;
+        unset();
     }
  
     /**
      * Performs action on all atoms.
      */
-    public void allAtoms(AtomAction action) {
+    public void allAtoms(AtomActive action) {
     	final AtomLinker.Tab header = list.header;
         for (AtomLinker e = header.next; e != header; e = e.next) 
             if(e.atom != null) action.actionPerformed(e.atom);
@@ -76,18 +86,18 @@ public final class AtomIteratorListSimple implements AIAtomListDependent {
 	 */
 	public int size() {return list.size();}
 
-	/**
-	 * Returns the next atom in the list.
-	 */    
-    public Atom next() {
-        return nextLinker().atom;
-    }
-    
     /**
      * Returns the next atom in the list without advancing the iterator.
      */
     public Atom peek() {
         return next.atom;
+    }
+    
+	/**
+	 * Returns the next atom in the list.
+	 */    
+    public Atom next() {
+        return nextLinker().atom;
     }
     
     private AtomLinker nextLinker() {
@@ -96,18 +106,7 @@ public final class AtomIteratorListSimple implements AIAtomListDependent {
         while(next.atom == null && next != list.header) {next = next.next;}
         return nextLinker;
     }//end of nextLinker
-    
-	/**
-	 * Invokes all(Atom, IteratorDirective, AtomActive) method of this
-	 * class, using given arguments if they are instances of the appropriate
-	 * classes. Otherwise returns without throwing any exception.
-	 * @see etomica.AtomSetIterator#all(AtomSet, IteratorDirective, AtomSetActive)
-	 */
-	public void all(AtomSet basis, IteratorDirective id, final AtomSetActive action) {
-		 if(!(basis instanceof Atom && action instanceof AtomActive)) return;
-		 all((Atom)basis, id, (AtomActive)action);
-	}
-	
+    	
     private AtomList list;
 	private AtomLinker next;
     

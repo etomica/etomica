@@ -72,65 +72,65 @@ public class AtomIteratorTreeTest extends TestCase {
 
 	public void testNMomlecules() {
 
-		iterator.setBasis(basis2);
+		iterator.setRoot(basis2);
 
 		iterator.setIterationDepth(0);
 
-		iterator.setBasis(basis0);
+		iterator.setRoot(basis0);
 
 		assertEquals(1,iterator.size());
 		
-		iterator.setBasis(basis1);
+		iterator.setRoot(basis1);
 		assertEquals(1,iterator.size());
 		
-		iterator.setBasis(basis2);
+		iterator.setRoot(basis2);
 		assertEquals(1,iterator.size());
 		
 		iterator.setIterationDepth(1);
 		
-		iterator.setBasis(basis0);
+		iterator.setRoot(basis0);
 		assertEquals(nMolecules/2,iterator.size());
 //		System.out.println(iterator.size());
 
-		iterator.setBasis(basis1);
+		iterator.setRoot(basis1);
 		assertEquals(nMolecules/2,iterator.size());
 //		System.out.println(iterator.size());
 
-		iterator.setBasis(basis2);
+		iterator.setRoot(basis2);
 		assertEquals(2,iterator.size());
 //		System.out.println(iterator.size());
 		
 		iterator.setIterationDepth(2);
 
-		iterator.setBasis(basis0);
+		iterator.setRoot(basis0);
 		assertEquals((nMolecules/2)*nAtoms0,iterator.size());
 		
-		iterator.setBasis(basis1);
+		iterator.setRoot(basis1);
 		assertEquals((nMolecules/2)*nAtoms1,iterator.size());
 		
-		iterator.setBasis(basis2);
+		iterator.setRoot(basis2);
 		assertEquals(nMolecules,iterator.size());
 		
 		iterator.setIterationDepth(3);
 
-		iterator.setBasis(basis0);
+		iterator.setRoot(basis0);
 		assertEquals((nMolecules/2)*nAtoms0,iterator.size());
 		
-		iterator.setBasis(basis1);
+		iterator.setRoot(basis1);
 		assertEquals((nMolecules/2)*nAtoms1,iterator.size());
 		
-		iterator.setBasis(basis2);
+		iterator.setRoot(basis2);
 		assertEquals((nMolecules/2)*(nAtoms0+nAtoms1),iterator.size());
 
 		iterator.setLeafIterator();
 		
-		iterator.setBasis(basis0);
+		iterator.setRoot(basis0);
 		assertEquals((nMolecules/2)*nAtoms0,iterator.size());
 		
-		iterator.setBasis(basis1);
+		iterator.setRoot(basis1);
 		assertEquals((nMolecules/2)*nAtoms1,iterator.size());
 		
-		iterator.setBasis(basis2);
+		iterator.setRoot(basis2);
 		assertEquals((nMolecules/2)*(nAtoms0+nAtoms1),iterator.size());		
 	}
 	

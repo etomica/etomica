@@ -21,26 +21,18 @@ public interface AtomFilter {
 
     /**
      * Static instance of a filter that accepts all atoms.
+     * Returns true for null atom also.
      */
-    public static final AtomFilter ALL = new All();
-    
-    /**
-     * Static instance of a filter that rejects all atoms.
-     */
-    public static final AtomFilter NONE = new None();
-    
-    /**
-     * Filter that returns true for all atoms.
-     */
-    static class All implements AtomFilter {
+    public static final AtomFilter ALL = new AtomFilter() {
         public boolean accept(Atom a) {return true;}
     };
     
     /**
-     * Filter that returns false for all atoms.
+     * Static instance of a filter that rejects all atoms.
+     * Returns false for null atom also.
      */
-    static class None implements AtomFilter {
+    public static final AtomFilter NONE = new AtomFilter() {
         public boolean accept(Atom a) {return false;}
-    }
+    };
     
 }

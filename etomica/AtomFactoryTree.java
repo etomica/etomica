@@ -129,7 +129,7 @@ public class AtomFactoryTree extends AtomFactoryHomo {
         sim.elementCoordinator.go();
         
         AtomIteratorTree iterator = new AtomIteratorTree();
-        iterator.setBasis(phase.speciesMaster);
+        iterator.setRoot(phase.speciesMaster);
         for(int i=0; i<6; i++) {
             System.out.println("i = "+i);
             iterator.setIterationDepth(i);

@@ -105,7 +105,7 @@ public final class SpeciesMaster extends Atom {
             if(atom.node.parentGroup() instanceof SpeciesAgent) {speciesMaster.moleculeCount++;}
             else if(atom instanceof SpeciesAgent) {speciesMaster.moleculeCount += ((SpeciesAgent)atom).moleculeCount();}
             leafAtomCount += atom.node.leafAtomCount();
-            leafIterator.setBasis(atom);
+            leafIterator.setRoot(atom);
             leafIterator.reset();
             while(leafIterator.hasNext()) {
                 speciesMaster.atomList.add(((AtomTreeNodeLeaf)leafIterator.next().node).leafLinker);
@@ -118,7 +118,7 @@ public final class SpeciesMaster extends Atom {
             if(atom.node.parentGroup() instanceof SpeciesAgent) {speciesMaster.moleculeCount--;}
             else if(atom instanceof SpeciesAgent) {speciesMaster.moleculeCount -= ((SpeciesAgent)atom).moleculeCount();}
             leafAtomCount -= atom.node.leafAtomCount();
-            leafIterator.setBasis(atom);
+            leafIterator.setRoot(atom);
             leafIterator.reset();
             while(leafIterator.hasNext()) {
                 speciesMaster.atomList.remove(((AtomTreeNodeLeaf)leafIterator.next().node).leafLinker);

@@ -6,18 +6,19 @@ package etomica;
 
 /**
  * @author kofke
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Iterator that will loop over all leaf atoms in a phase.
  */
-public class AILeafAtoms extends AtomIteratorListAdapter {
+public class AILeafAtoms extends AtomIteratorAdapter {
 
+	private final AtomIteratorListSimple listIterator;
+	
 	/**
-	 * 
+	 * Creates iterator with no phase specified. Iteration will
+	 * return no atoms until a call to setPhase is performed.
 	 */
 	public AILeafAtoms() {
 		super(new AtomIteratorListSimple());
-		
+		listIterator = (AtomIteratorListSimple)iterator;
 	}
 
 	public AILeafAtoms(Phase phase){

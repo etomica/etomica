@@ -10,6 +10,6 @@ package etomica;
  * 
  * 01/25/03 (DAK) new
  */
-public interface AtomActive extends AtomSetActive {
+public interface AtomActive /*extends AtomSetActive*/ {
 	public void actionPerformed(Atom atom);
 }
