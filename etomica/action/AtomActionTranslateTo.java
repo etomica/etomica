@@ -16,6 +16,7 @@ public class AtomActionTranslateTo extends AtomActionAdapter {
     private Vector destination;
     private AtomPositionDefinition atomPositionDefinition;
     private AtomGroupAction atomTranslator;
+    private final Vector translationVector;
 
     /**
      * Creates new action with atom position defined by its
@@ -26,12 +27,12 @@ public class AtomActionTranslateTo extends AtomActionAdapter {
         dr = space.makeVector();
         atomPositionDefinition = new DataSourceCOM(space);
         atomTranslator = new AtomGroupAction(new AtomActionTranslateBy(space));
+        translationVector = ((AtomActionTranslateBy)atomTranslator.getAction()).getTranslationVector();
     }
     
     public void actionPerformed(Atom atom) {
         Vector currentPosition = atomPositionDefinition.position(atom);
-        dr.Ev1Mv2(destination, currentPosition);
-        ((AtomActionTranslateBy)atomTranslator.getAction()).setTranslationVector(dr);
+        translationVector.Ev1Mv2(destination, currentPosition);
         atomTranslator.actionPerformed(atom);
     }
        
@@ -61,5 +62,14 @@ public class AtomActionTranslateTo extends AtomActionAdapter {
     public void setAtomPositionDefinition(
             AtomPositionDefinition atomPositionDefinition) {
         this.atomPositionDefinition = atomPositionDefinition;
+    }
+    
+    /**
+     * Returns the vector that was used to accomplish the most recent translation action.
+     * This vector can be used to reverse the translation by multiplying it by -1 and 
+     * performing an atomActionTranslateBy with it.
+     */
+    public Vector translationVector() {
+        return translationVector;
     }
 }
