@@ -17,6 +17,7 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntervalActionAdapter;
+import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardSphere;
 import etomica.space2d.Space2D;
 
@@ -55,6 +56,7 @@ public class HSMD2D_noNbr extends Simulation {
 	    potentialMaster.setSpecies(potential,new Species[]{species,species});
         
         integrator.addIntervalListener(new PhaseImposePbc(phase));
+        integrator.setNullPotential(new P1HardPeriodic(space));
         phase.speciesMaster.addSpecies(species);
         integrator.addPhase(phase);
         integrator.setIsothermal(true);
