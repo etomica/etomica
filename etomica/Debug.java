@@ -115,20 +115,7 @@ public final class Debug {
 	 * Computational cost and level of output depend on LEVEL. 
 	 * @param cPair coordinate to use for calculating distance between atoms.
 	 */
-	public static void checkAtoms(Space.CoordinatePair cPair) {
-		cPair.reset(Debug.ATOM1.coord, Debug.ATOM2.coord);
-		double r2 = cPair.r2();
-		//XXX What's the pair hard-core diameter?  Elephino!  Could check energy instead.  fun.
-		if (Debug.LEVEL > 1 || Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {
-			System.out.println("distance between "+Debug.ATOM1+" and "+Debug.ATOM2+" is "+Math.sqrt(r2));
-    		if (Debug.LEVEL > 2 || Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {
-    			System.out.println(Debug.ATOM1+" coordinates "+Debug.ATOM1.coord.position());
-    			System.out.println(Debug.ATOM2+" coordinates "+Debug.ATOM2.coord.position());
-    		}
-/*			if (Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {
-				throw new RuntimeException("overlap");
-			}*/
-		}
+	public static void checkAtoms() {
 		if (Debug.ATOM1.seq instanceof AtomSequencerNbr) {
 			int dnNbrCount = 0, upNbrCount = 0;
 			AtomArrayList[] list = ((AtomSequencerNbr)Debug.ATOM1.seq).getDownList();
@@ -146,6 +133,11 @@ public final class Debug {
        				if (dnNbrCount > 0) throw new RuntimeException(Debug.ATOM2+" is a down and up neighbor of "+Debug.ATOM1);
 					upNbrCount++;
 				}
+                else if (ATOM1.ia instanceof IntegratorHard.Agent) {
+                    if (((IntegratorHard.Agent)ATOM1.ia).collisionPartner == ATOM2) {
+                        throw new IllegalStateException(ATOM2+" is collision partner of "+ATOM1+" but isn't in "+ATOM1+"'s uplist of neighbors");
+                    }
+                }
 			}
 			list = ((AtomSequencerNbr)Debug.ATOM2.seq).getDownList();
 			for (int i=0; i<list.length; i++) {
@@ -157,6 +149,11 @@ public final class Debug {
        				}
 					dnNbrCount++;
 				}
+                else if (ATOM1.ia instanceof IntegratorHard.Agent) {
+                    if (((IntegratorHard.Agent)ATOM1.ia).collisionPartner == ATOM2) {
+                        throw new IllegalStateException(ATOM2+" is collision partner of "+ATOM1+" but "+ATOM1+" isn't in "+ATOM2+"'s downlist of neighbors");
+                    }
+                }
 			}
 			list = ((AtomSequencerNbr)Debug.ATOM2.seq).getUpList();
 			for (int i=0; i<list.length; i++) {
