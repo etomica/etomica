@@ -54,7 +54,7 @@ public final class SiteIteratorList implements SiteIterator {
     }
     
     public Site first() {
-        if(header == null|| header.next == null) return null;
+        if(header == null || header.next == null) return null;
         else return header.next.site;
     }
     
@@ -91,8 +91,7 @@ public final class SiteIteratorList implements SiteIterator {
      * Returns true if the given site is in the list of iterates, false otherwise.
      */
 	public boolean contains(Site site){
-        for (SiteLinker e=header.next; e!=header; e=e.next) if(e.site == site) return true;
-        return false;
+        return list.contains(site);
 	}
 	
 	/**

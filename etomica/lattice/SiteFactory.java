@@ -7,6 +7,6 @@ package etomica.lattice;
  */
 public interface SiteFactory extends java.io.Serializable {
     
-   public Site makeSite(AbstractLattice parent, SiteIterator.Neighbor iterator, AbstractLattice.Coordinate coord);
+   public Site makeSite(AbstractLattice parent, AbstractLattice.Coordinate coord);
 
 }

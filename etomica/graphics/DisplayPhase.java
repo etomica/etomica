@@ -87,9 +87,9 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
    private AtomIterator atomIterator;
    
    static {
-        _3dEnabled = true;
-        try {new DisplayPhaseCanvas3DOpenGL(null, 10, 10);}
-        catch (NoClassDefFoundError err) {_3dEnabled = false;}
+ //       _3dEnabled = true;
+ //       try {new DisplayPhaseCanvas3DOpenGL(null, 10, 10);}
+ //       catch (NoClassDefFoundError err) {_3dEnabled = false;}
    }
   
     public DisplayPhase () {
@@ -132,11 +132,11 @@ public class DisplayPhase extends Display implements Integrator.IntervalListener
         canvas.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent evt) {
                 if((evt.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
-                    if(DeviceConfigurationEditor.exists) return;
-                    Device editor = new DeviceConfigurationEditor(DisplayPhase.this);
-                    ((SimulationGraphic)parentSimulation()).panel().add(editor.graphic(null));
-                    ((SimulationGraphic)parentSimulation()).panel().validate();
-                    ((SimulationGraphic)parentSimulation()).panel().repaint();
+//                    if(DeviceConfigurationEditor.exists) return;
+//                    Device editor = new DeviceConfigurationEditor(DisplayPhase.this);
+//                    ((SimulationGraphic)parentSimulation()).panel().add(editor.graphic(null));
+//                    ((SimulationGraphic)parentSimulation()).panel().validate();
+//                    ((SimulationGraphic)parentSimulation()).panel().repaint();
                 }
             }
         });

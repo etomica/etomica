@@ -164,6 +164,10 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
 
     protected void doReset() {
         super.doReset();
+        vol1 = 0.0;
+        vol2 = 0.0;
+        vol3 = 0.0;
+        vol4 = 0.0;
     }
               
 //--------------------------------------------------------------

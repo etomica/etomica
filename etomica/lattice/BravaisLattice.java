@@ -141,7 +141,7 @@ public class BravaisLattice extends IntegerBravaisLattice { ///implements Abstra
     /**
      * Main method to demonstrate use of BravaisLattice and to aid debugging
      */
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         System.out.println("main method for BravaisLattice");
         int D = 2;
         BravaisLattice lattice = 
@@ -201,5 +201,6 @@ public class BravaisLattice extends IntegerBravaisLattice { ///implements Abstra
 
         System.out.print("A randomly selected site: ");
         System.out.println(lattice.randomSite().toString());
-    }
-}
+    }//end of main
+    */
+}//end of BravaisLattice

@@ -4,7 +4,8 @@ package etomica.lattice;
  * Determines and keeps lists of neighbors uplist and downlist of a 
  * reference site.  "up" and "down" distinguish neighbor by whether they
  * come before (down) or after (up) the reference site when looping over
- * a given iterator.
+ * a given iterator.  Definition of "neighbor" is given by neighbor criterion
+ * passed to setNeighbors method.
  */
 public class NeighborManager {
     
@@ -19,11 +20,25 @@ public class NeighborManager {
     }
     public NeighborManager(Site s, SiteIterator iterator, Criterion criterion) {
         this(s);
-        setNeighbors(iterator, criterion);
+        setupNeighbors(iterator, criterion);
     }
 
     public Site site() {return site;}
     public int neighborCount() {return upList.size() + dnList.size();}
+    public boolean isNeighbor(Site s) {
+        return (upList.contains(s) || dnList.contains(s));
+    }
+    
+    /**
+     * Returns the first neighbor that would be encountered when proceeding
+     * up the iterator used to construct the neighbor lists.
+     */
+    public Site firstNeighbor() {return dnList.getLast();}
+    /**
+     * Returns the last neighbor that would be encountered when proceeding
+     * up the iterator used to construct the neighbor lists.
+     */
+    public Site lastNeighbor() {return upList.getLast();}
     
     public SiteList upNeighbors() {return upList;}
     public SiteList downNeighbors() {return dnList;}
@@ -33,7 +48,7 @@ public class NeighborManager {
         dnList.clear();
     }
 
-    public void setNeighbors(SiteIterator iterator, Criterion criterion) {  //set up neighbors according to given criterion
+    public void setupNeighbors(SiteIterator iterator, Criterion criterion) {  //set up neighbors according to given criterion
         iterator.reset();
         boolean down = true;
         while(iterator.hasNext()) {              //begin outer loop

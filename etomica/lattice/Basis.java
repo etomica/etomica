@@ -128,7 +128,7 @@ public class Basis implements SiteFactory, java.io.Serializable {
     * Returns a new Basis.SiteLattice, 
     * which becomes a site on a BravaisLattice, and also forms a lattice of other sites that make up the basis.
     */
-    public Site makeSite(AbstractLattice parent, SiteIterator.Neighbor iterator, AbstractLattice.Coordinate coord) {
+    public Site makeSite(AbstractLattice parent, AbstractLattice.Coordinate coord) {
         return new SiteLattice((BravaisLattice)parent, (BravaisLattice.Coordinate)coord);
     }
 
@@ -147,7 +147,8 @@ public class Basis implements SiteFactory, java.io.Serializable {
         /**
         * Iterator that gives sites in the basis.
         */
-        SiteIterator.List basisIterator = new SiteIterator.List();
+        SiteList basisList = new SiteList();
+        SiteIteratorList basisIterator = new SiteIteratorList(basisList);
         
         /**
          * Constructor places instance as a site on a parent BravaisLattice and creates
@@ -157,8 +158,8 @@ public class Basis implements SiteFactory, java.io.Serializable {
             super(parent, coord);
             bravaisCoordinate = coord;
             for(int i=0; i<basisPosition.length; i++) {
-                Site newSite = siteFactory.makeSite(this,null,new Coordinate(i));
-                basisIterator.addSite(newSite);
+                Site newSite = siteFactory.makeSite(this,new Coordinate(i));
+                basisList.add(newSite);
             }
        //     updateCoordinates();
         }

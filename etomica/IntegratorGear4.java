@@ -43,6 +43,12 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         return info;
     }
 
+    public boolean addPhase(Phase p) {
+        if(!super.addPhase(p)) return false;
+        atomIterator = p.makeAtomIterator();
+        return true;
+    }
+
     public void setTimeStep(double dt) {
         super.setTimeStep(dt);
         p1 = dt;
