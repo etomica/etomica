@@ -9,7 +9,10 @@ public class AtomPair {
     }
     public void reset(Atom a1, Atom a2) {
         atom1 = a1; 
-        atom2 = a2; 
+        atom2 = a2;
+        reset();
+    }
+    public void reset() {
         cPair.reset(a1.coordinate, a2.coordinate);
     }
     public final Atom atom1() {return atom1;}
@@ -351,8 +354,60 @@ public class AtomPair {
             public void reset() {reset(species1, species2);}
         }  //end of class AMAM
         
-        
-        
+ // Iterates over pairs formed by given atom and all atoms from other molecules above it in list
+ // If given atom is not in phase, it is considered the last atom, and no iterations are performed
+        public static final class Up implements Iterator {
+            private final AtomPair pair;
+            private final Phase phase;
+            private boolean hasNext;
+            private Atom nextAtom;
+            public Up(Phase p) {phase = p; pair = new AtomPair(p); hasNext = false;}
+            public Up(Phase p, Atom a) {phase = p; pair = new AtomPair(p); reset(a);}
+            public boolean hasNext() {return hasNext;}
+            public void reset(Atom a) {
+                if(a == null || a.parentPhase() != phase) {hasNext = false; return;}
+                pair.atom1 = a;
+                nextAtom = a.nextMoleculeFirstAtom();
+                hasNext = (nextAtom != null);
+            }
+            public AtomPair next() {
+                pair.atom2 = nextAtom;
+                pair.reset();
+                nextAtom = nextAtom.nextAtom();
+                hasNext = (nextAtom != null);
+                return pair;
+            }
+        } //end of AtomPair.Iterator.Up
+ 
+    /**
+     * Iterates over pairs formed by given atom and all atoms from other molecules below it in list
+     * If given atom is not in phase, it is considered the last atom, and iterations are performed over
+     * all atoms in phase
+     */
+    
+        public static final class Down implements Iterator {
+            private final AtomPair pair;
+            private final Phase phase;
+            private boolean hasNext;
+            private Atom nextAtom;
+            public Down(Phase p) {pair = new AtomPair(p); hasNext = false;}
+            public Down(Phase p, Atom a) {pair = new AtomPair(p); reset(a);}
+            public boolean hasNext() {return hasNext;}
+            public void reset(Atom a) {
+                if(a == null) {hasNext = false; return;}
+                pair.atom1 = a;
+                if(a.parentPhase() == phase) {nextAtom = a.previousMoleculeLastAtom();}
+                else {nextAtom = phase.lastAtom();}
+                hasNext = (nextAtom != null);
+            }
+            public AtomPair next() {
+                pair.atom2 = nextAtom;
+                pair.reset();
+                nextAtom = nextAtom.previousAtom();
+                hasNext = (nextAtom != null);
+                return pair;
+            }
+        } //end of AtomPair.Iterator.Down
         
         //These iterators need some work to permit iLast = null
         
@@ -437,6 +492,8 @@ public class AtomPair {
         public boolean hasNext() {return hasNext;}
         public void reset() {reset(iLast, oFirst, oLast);}
     }
+    
+    
     static final class HalfDown implements simulate.AtomPair.Iterator.A {
         final AtomPair pair;
         Atom outer, inner;

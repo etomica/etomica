@@ -10,6 +10,8 @@ public class MeterPotentialEnergy extends simulate.Meter
   AtomPair.Iterator.MP iteratorMP;
   AtomPair.Iterator.P iteratorP;
   
+  AtomPair.Iterator apiUp, apiDown;
+  
   public MeterPotentialEnergy() {
     super();
     setLabel("Potential Energy");
@@ -23,6 +25,9 @@ public class MeterPotentialEnergy extends simulate.Meter
     iteratorFMAM = new AtomPair.Iterator.FMAM(p);
     iteratorMP = new AtomPair.Iterator.MP(p);
     iteratorP = new AtomPair.Iterator.P(p);
+    
+    apiUp = p.iterator.makeAtomPairIteratorUp();
+    apiDown = p.iterator.makeAtomPairIteratorDown();
   }
     
 
@@ -63,24 +68,22 @@ public class MeterPotentialEnergy extends simulate.Meter
   /**
    * Computes intermolecular contribution to potential energy for atom.  Returns zero if atom is not in phase.
    * Does not include intramolecular contribution
+   
+   //  May want to change this so it handles atoms not in phase
+   
    */
     public final double currentValue(Atom a) {
         if(phase != a.phase()) {return 0.0;}  //also handles condition that phase contains no atoms
-        Potential2[] p2 = phase.parentSimulation.potential2[a.getSpeciesIndex()];
         double pe = 0.0;
-        if(a.parentMolecule != phase.firstMolecule()) { //loop from first atom to last one in molecule before a
-            iteratorAFull.reset(phase.firstAtom(),a.previousMoleculeLastAtom(),a,a); 
-            while(iteratorAFull.hasNext()) {
-                AtomPair pair = iteratorAFull.next();  //following line counts on iterator to put inner-looping atom as atom2
-                pe += p2[pair.atom2().getSpeciesIndex()].getPotential(pair.atom1(),pair.atom2()).energy(pair);
-            }
+        apiUp.reset(a);
+        while(apiUp.hasNext()) {
+            AtomPair pair = apiUp.next();
+            pe += pair.potential.energy(pair);
         }
-        if(a.parentMolecule != phase.lastMolecule()) {  //loop from first atom in next molecule to last atom in phase
-            iteratorAFull.reset(a.nextMoleculeFirstAtom(),phase.lastAtom(),a,a);  
-            while(iteratorAFull.hasNext()) {
-                AtomPair pair = iteratorAFull.next();  //following line counts on iterator to put inner-looping atom as atom2
-                pe += p2[pair.atom2().getSpeciesIndex()].getPotential(pair.atom1(),pair.atom2()).energy(pair);
-            }
+        apiDown.reset(a);
+        while(apiDown.hasNext()) {
+            AtomPair pair = apiDown.next();
+            pe += pair.potential.energy(pair);
         }
         return pe;
     }

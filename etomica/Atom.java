@@ -157,7 +157,7 @@ public class Atom {
                 if(atom == null) {hasNext = false;}
                 return nextAtom;
             }
-        } //end of UpAtomIterator
+        } //end of Atom.Iterator.Up
         
         public static final class Down implements Iterator {
             private Atom atom, nextAtom;

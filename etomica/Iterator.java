@@ -18,8 +18,11 @@ package simulate;
         public Iterator(Phase p) {phase = p;}
         public Atom.Iterator makeAtomIteratorUp() {return new Atom.Iterator.Up();}
         public Atom.Iterator makeAtomIteratorDown() {return new Atom.Iterator.Down();}
+        public AtomPair.Iterator makeAtomPairIteratorUp() {return new AtomPair.Iterator.Up(phase);}
+        public AtomPair.Iterator makeAtomPairIteratorDown() {return new AtomPair.Iterator.Down(phase);}
         public AtomPair.Iterator makeAtomPairIteratorFull() {return new AtomPair.Iterator.Full(phase);}
-        public AtomPair.Iterator makeAtomPairIteratorHalf() {return new AtomPair.Iterator.Half(phase);}
+        public AtomPair.Iterator makeAtomPairIteratorHalfUp() {return new AtomPair.Iterator.HalfUp(phase);}
+        public AtomPair.Iterator makeAtomPairIteratorHalfDown() {return new AtomPair.Iterator.HalfDown(phase);}
         public void clear() {}
     //    public abstract AtomPair.Iterator makeUpAtomPairIterator();
     //    public abstract AtomPair.Iterator makeDownAtomPairIterator();
