@@ -57,6 +57,8 @@ public class P1HardBoundary extends Potential1 implements PotentialHard {
         return e;
         }
      
+    public double energyChange() {return 0.0;}
+    
     public double collisionTime(Atom[] a) {
     	atom = a[0];
         Space.Vector r = atom.coord.position();

@@ -60,5 +60,8 @@ public class P2XOrder extends Potential2 implements PotentialHard {
         return (deltaX * dI < 0.0) ? Double.MAX_VALUE : 0.0;
     }
     
+    public double energyChange() {
+        throw new RuntimeException("P2XOrder.energyChange not implemented");
+    }
     
 }//end of P2XOrder

@@ -125,5 +125,6 @@ public class P2HardSphere extends Potential2 implements PotentialHard {
         return (cPair.r2() < sig2) ? Double.MAX_VALUE : 0.0;
     }
     
+    public double energyChange() {return 0.0;}
     
 }//end of P2HardSphere

@@ -13,6 +13,7 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
     private double r2;
     private double lastCollisionVirial, lastCollisionVirialr2;
     private final Space.Tensor lastCollisionVirialTensor;
+    private double lastEnergyChange;
     private final Space.Vector dr;
     
     public P2HardAssociation() {
@@ -47,15 +48,18 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
             if (ke < epsilon) {    //Not enough energy to escape the well
                 lastCollisionVirial = 2*bij*reduced_m;
                 r2New = (1 - eps)*wellDiameterSquared;
+                lastEnergyChange = 0.0;
             }
             else {  //Escaping the well
                 lastCollisionVirial = reduced_m*(bij - Math.sqrt(bij*bij - 2.0*r2*epsilon/reduced_m));
                 r2New = (1 + eps)*wellDiameterSquared;
+                lastEnergyChange = epsilon;
             }
         }
         else {          //Approaching
             lastCollisionVirial = reduced_m*(bij + Math.sqrt(bij*bij + 2.0*r2*epsilon/reduced_m));  //might need to double check
             r2New = (1 - eps)*wellDiameterSquared;
+            lastEnergyChange = -epsilon;
         }
         lastCollisionVirialr2 = lastCollisionVirial/r2;
         cPair.push(lastCollisionVirialr2);
@@ -64,6 +68,8 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
     
     
     public double lastCollisionVirial() {return lastCollisionVirial;}
+    
+    public double energyChange() {return lastEnergyChange;}
     
     public Space.Tensor lastCollisionVirialTensor() {
         lastCollisionVirialTensor.E(dr, dr);

@@ -44,6 +44,8 @@ public class P2HardSphereWall extends Potential2 implements PotentialHard {
      * Returns infinity if overlap is true, zero otherwise
      */
     public double energy(Atom[] pair) {return overlap(pair) ? Double.MAX_VALUE : 0.0;}
+    
+    public double energyChange() {return 0.0;}
 
     /**
      * True if perpendicular distance between wall and sphere is less than

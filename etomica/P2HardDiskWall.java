@@ -50,6 +50,8 @@ public class P2HardDiskWall extends Potential2 implements PotentialHard {
   */
   public double energy(Atom[] pair) {return overlap(pair) ? Double.MAX_VALUE : 0.0;}
 
+  public double energyChange() {return 0.0;}
+  
   /**
    * True if perpendicular distance between wall and disk is less than collision radius (diameter/2), false otherwise
    */

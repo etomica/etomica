@@ -93,6 +93,8 @@ public class P2Tether extends Potential2 implements PotentialHard {
         return (cPair.r2() > tetherLengthSquared) ? Double.MAX_VALUE : 0.0;
     }
     
+    public double energyChange() {return 0.0;}
+    
     /**
      * Method to demonstrate use of this potential is given as the
      * main method of the SpeciesSpheres class.

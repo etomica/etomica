@@ -15,6 +15,7 @@ public class P2SquareWell extends Potential2 implements PotentialHard {
   protected double epsilon;
   protected double lastCollisionVirial, lastCollisionVirialr2;
   protected Space.Tensor lastCollisionVirialTensor;
+  private double lastEnergyChange;
   protected Space.Vector dr;
    
   public P2SquareWell() {
@@ -68,6 +69,7 @@ public class P2SquareWell extends Potential2 implements PotentialHard {
         }
       lastCollisionVirial = 2.0*reduced_m*bij;
       r2New = r2;
+      lastEnergyChange = 0.0;
     }
     else {    // Well collision
       // ke is kinetic energy due to components of velocity
@@ -79,6 +81,7 @@ public class P2SquareWell extends Potential2 implements PotentialHard {
             }
 	       lastCollisionVirial = 2.0*reduced_m*bij;
 	       r2New = (1-eps)*wellDiameterSquared;
+           lastEnergyChange = 0.0;
 	    }
 	    else {                 // Escape
             if (Debug.ON && Math.abs(r2 - wellDiameterSquared)/wellDiameterSquared > 1.e-9) {
@@ -86,6 +89,7 @@ public class P2SquareWell extends Potential2 implements PotentialHard {
             }
 	       lastCollisionVirial = reduced_m*(bij - Math.sqrt(bij*bij - 2.0*r2*epsilon/reduced_m));
 	       r2New = (1+eps)*wellDiameterSquared;
+           lastEnergyChange = epsilon;
 	    }
       }
       else {                  // Approaching
@@ -94,6 +98,7 @@ public class P2SquareWell extends Potential2 implements PotentialHard {
           }
 	     lastCollisionVirial = reduced_m*(bij +Math.sqrt(bij*bij+2.0*r2*epsilon/reduced_m));
 	     r2New = (1-eps)*wellDiameterSquared;
+         lastEnergyChange = -epsilon;
       }
     }
     lastCollisionVirialr2 = lastCollisionVirial/r2;
@@ -171,6 +176,8 @@ public class P2SquareWell extends Potential2 implements PotentialHard {
         return ( r2 < wellDiameterSquared) ? 
                     ((r2 < coreDiameterSquared) ? Double.MAX_VALUE : -epsilon) : 0.0;
     }
+    
+    public double energyChange() {return lastEnergyChange;}
     
     /**
      * Accessor method for core diameter.
