@@ -5,7 +5,7 @@
 package etomica.nbr;
 
 import etomica.Atom;
-import etomica.AtomSet;
+import etomica.AtomPair;
 import etomica.Phase;
 
 /**
@@ -51,7 +51,7 @@ public class NeighborCriterionAll extends NeighborCriterion {
     /**
      * Always returns true, indicating that all atoms pairs are neighbors.
      */
-    public boolean accept(AtomSet a) {
+    public boolean accept(AtomPair pair) {
         return true;
     }
     

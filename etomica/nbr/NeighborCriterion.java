@@ -4,6 +4,8 @@
  */
 package etomica.nbr;
 import etomica.Atom;
+import etomica.AtomPair;
+import etomica.AtomSet;
 import etomica.Phase;
 import etomica.atom.AtomsetFilter;
 
@@ -16,6 +18,12 @@ import etomica.atom.AtomsetFilter;
  */
 public abstract class NeighborCriterion implements AtomsetFilter {
 
+    public boolean accept(AtomSet atoms) {
+        return accept((AtomPair)atoms);
+    }
+    
+    public abstract boolean accept(AtomPair pair);
+    
     /**
      * Indicates whether the neighbor list for the given atom should
      * be updated, according to this criterion.  

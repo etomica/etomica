@@ -96,7 +96,7 @@ public class ApiFiltered implements AtomsetIteratorMolecule, AtomPairIterator {
         next.copyTo(nextAtoms);
         next = null;
         while(iterator.hasNext() && next == null) {
-            next = (AtomPairVector)iterator.next();
+            next = iterator.nextPair();
             if(!filter.accept(next)) next = null;
         }
         return nextAtoms;
@@ -158,7 +158,7 @@ public class ApiFiltered implements AtomsetIteratorMolecule, AtomPairIterator {
 
     private final ApiMolecule iterator;
     private final NeighborCriterion filter;
-    private AtomPairVector next;
+    private AtomPair next;
     private final AtomPairVector nextAtoms;
 
     /**
