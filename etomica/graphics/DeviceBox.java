@@ -127,7 +127,7 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
      * Returns the dimensions of the quantity being measured.
      * Obtained from the meter associated with this display.
      */
-    public etomica.units.Dimension dimension() {
+    public etomica.units.Dimension getDimension() {
         if(modifier != null) return modifier.getDimension();
         else return etomica.units.Dimension.NULL;
     }

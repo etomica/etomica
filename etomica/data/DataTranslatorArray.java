@@ -46,9 +46,6 @@ public class DataTranslatorArray implements DataTranslator {
 		for(int i = 0; i < dimension1; i++) {
 			System.arraycopy(x, k, array2D[i], 0, dimension2);
 			k += dimension2;
-//			for(int j = 0; j < dimension2; j++){
-//				array2D[i][j] = x[k++];
-//			}
 		}
 		return array2D;
 	}
@@ -80,14 +77,6 @@ public class DataTranslatorArray implements DataTranslator {
 		return array1D;
 	}
 	
-
-	public static void main(String[] args) {
-//		DataTranslatorArray test = new DataTranslatorArray();
-		double[][] door = new double[3][4];
-//		test.toArray(door);
-		
-	}
-
 	/**
 	 * @param dimension1 The dimension1 to set.
 	 * @param dimension2 The dimension2 to set.

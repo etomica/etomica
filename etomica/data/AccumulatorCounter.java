@@ -4,28 +4,27 @@
  */
 package etomica.data;
 
-import etomica.Accumulator;
 import etomica.DataTranslator;
 import etomica.units.Dimension;
 
 /**
- * Accumulator that simply counts the number of times its 
- * <code>add</code> method is invoked.
+ * Data processor that simply counts the number of times its 
+ * <code>putData</code> method is invoked.
  */
-public class AccumulatorCounter extends Accumulator {
+public class AccumulatorCounter extends DataAccumulator {
 
 	/**
 	 * @param parentElement
 	 * @param dataSource
 	 */
 	public AccumulatorCounter() {
-		super(Dimension.QUANTITY);
+		setDimension(Dimension.QUANTITY);
 	}
 
 	/* (non-Javadoc)
 	 * @see etomica.Accumulator#add(double[])
 	 */
-	public void putData(double[] values) {
+	protected void addData(double[] values) {
 		count++;
 	}
 

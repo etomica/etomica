@@ -27,10 +27,7 @@ import etomica.Simulation;
   * 7/20/02 Added key listener to set precision of displayed values
   */
  
-public class DisplayTable extends DisplayDatumSources implements EtomicaElement
-{
-    public String getVersion() {return "DisplayTable:01.05.29/"+super.getVersion();}
-
+public class DisplayTable extends DisplayDatumSources implements EtomicaElement {
     public JTable table;
     javax.swing.JPanel panel;
     private boolean showLabels = true;
@@ -123,7 +120,7 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
 	    formatter.setMaximumFractionDigits(n);
     }
     
-    public Action makeLogTableAction() {return new LogTableAction();}
+//    public Action makeLogTableAction() {return new LogTableAction();}
     
     public void repaint() {table.repaint();}
 
@@ -189,11 +186,14 @@ public class DisplayTable extends DisplayDatumSources implements EtomicaElement
         public void mouseExited(MouseEvent evt) {panel.transferFocus();}
     }
         
-    private class LogTableAction extends Action {
+    private class LogTableAction implements Action {
         
         public void actionPerformed() {
             etomica.log.LogTable log = new etomica.log.LogTable();
             log.writeTable(tableSource, "output.xls");
+        }
+        public String getLabel() {
+            return "Write table to log file";
         }
     }
 

@@ -5,9 +5,11 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import etomica.Constants;
-import etomica.DataSource;
+import etomica.DataSink;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
+import etomica.units.Dimension;
+import etomica.units.Unit;
 
 /**
  * A simple display of a single value in a textbox with an associated label.
@@ -17,7 +19,7 @@ import etomica.EtomicaInfo;
  * @author David Kofke
  */
  
-public class DisplayBox extends Display implements etomica.units.Dimensioned, EtomicaElement, javax.swing.event.ChangeListener {
+public class DisplayBox extends Display implements DataSink, etomica.units.Dimensioned, EtomicaElement, javax.swing.event.ChangeListener {
     
     /**
      * Descriptive text label to be displayed with the value
@@ -34,10 +36,6 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Et
      */
     protected JPanel panel = new JPanel(new java.awt.BorderLayout());
     /**
-     * Datum source that generates the displayed value
-     */
-    protected DataSource source;
-    /**
      * Integer specifying the number of significant figures to be displayed.
      * Default is 4.
      */
@@ -49,13 +47,12 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Et
      * Default is null (dimensionless).
      */
     protected etomica.units.Unit unit;
+    protected Dimension dimension;
     
-    public DisplayBox(DataSource m) {
-        this();
-        setDataSource(m);
-    }
     public DisplayBox() {
         super();
+        setDimension(Dimension.UNDEFINED);
+        unit = Unit.NULL;
         jLabel = new JLabel();
         value = new JTextField("");
         value.setEditable(false);
@@ -64,7 +61,6 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Et
         setLabel("");
  //       panel.setMinimumSize(new java.awt.Dimension(80,60));
         unit = new etomica.units.PrefixedUnit(etomica.units.BaseUnit.Null.UNIT);
-        setUpdateInterval(5);
         setPrecision(4);
         
  /*       addMouseListener(new MouseAdapter() {
@@ -89,7 +85,7 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Et
      * calls doUpdate method.  Implementation of ChangeListener interface.
      */
     public void stateChanged(javax.swing.event.ChangeEvent evt) {
-        doUpdate();
+        panel.repaint();
     }
     
     /**
@@ -108,9 +104,12 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Et
      * Returns the dimensions of the quantity being measured.
      * Obtained from the datsource associated with this display.
      */
-    public etomica.units.Dimension dimension() {
-        if(source != null) return source.getDimension();
-        return etomica.units.Dimension.NULL;
+    public etomica.units.Dimension getDimension() {
+        return dimension;
+    }
+    
+    public void setDimension(Dimension dimension) {
+        this.dimension = dimension;
     }
     
     public java.awt.Component graphic(Object obj) {return panel;}
@@ -128,37 +127,14 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Et
     }
     
     /**
-     * Specifies the datasource that generates the displayed value.
-     */
-    public void setDataSource(DataSource m) {
-        source = m;
-        if(label.equals("")) setLabel(source.getLabel());
-    }
-    
-    /**
-     * Accessor method for the datsource that generates the displayed value.
-     */
-    public DataSource getDataSource() {
-        return source;
-    }
-    
-    /**
-     * Sets the value of a descriptive label using the datsource's label and the unit's symbol (abbreviation).
-     */
-    private void setLabel() {
-        if(source == null) return;
-        String suffix = (unit.symbol().length() > 0) ? " ("+unit.symbol()+")" : "";
-        setLabel(source.getLabel()+suffix);
-    }
-    
-    /**
      * Sets the value of a descriptive label using the given string.
      */
     public void setLabel(String s) {
-        super.setLabel(s);
-        jLabel.setText(s);
+        String suffix = (unit.symbol().length() > 0) ? " ("+unit.symbol()+")" : "";
+        super.setLabel(s+suffix);
+        jLabel.setText(s+suffix);
         if(labelType == BORDER) {
-            panel.setBorder(new javax.swing.border.TitledBorder(s));
+            panel.setBorder(new javax.swing.border.TitledBorder(s+suffix));
         }
         if(labelType == STRING) setLabelPosition(labelPosition);
     }
@@ -192,9 +168,9 @@ public class DisplayBox extends Display implements etomica.units.Dimensioned, Et
     /**
      * Sets the display text to reflect the desired value from the datasource.
      */
-    public void doUpdate() {
-        if(source == null) return;
-        value.setText(format(unit.fromSim(source.getData()[0]),precision));
+    public void putData(double[] data) {
+        value.setText(format(unit.fromSim(data[0]),precision));
+        panel.repaint();
     }
     
     /**

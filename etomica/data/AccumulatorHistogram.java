@@ -4,21 +4,19 @@
  */
 package etomica.data;
 
-import etomica.Accumulator;
 import etomica.DataTranslator;
-import etomica.units.Dimension;
 import etomica.utility.Histogram;
 import etomica.utility.HistogramSimple;
 
 /**
  * Accumulator that keeps histogram of data.
  */
-public class AccumulatorHistogram extends Accumulator {
+public class AccumulatorHistogram extends DataAccumulator {
 	
 	Histogram[] histogram = new Histogram[0];
 	private double[][] data;
 	int nData, nDataMinus1;
-	private String label, xLabel;
+	private String xLabel;
 	private Histogram.Factory histogramFactory;
 	private int nBins;
 	private DataTranslatorArray dataTranslator;
@@ -34,7 +32,6 @@ public class AccumulatorHistogram extends Accumulator {
 		this(factory, 100);
 	}
 	public AccumulatorHistogram(Histogram.Factory factory, int nBins) {
-		super(Dimension.NULL);
 		this.nBins = nBins;
 		setNData(0);
 		histogramFactory = factory;
@@ -47,7 +44,7 @@ public class AccumulatorHistogram extends Accumulator {
 	 * and new histograms are constructed (this behavior can be modified
 	 * by overriding the setNData method).
 	 */
-	public void putData(double[] values) {
+	protected void addData(double[] values) {
 		if(values.length != nData) setNData(values.length);
 		for(int i=nDataMinus1; i>=0; i--) {       		
 			histogram[i].addValue(values[i]);

@@ -3,7 +3,12 @@ import etomica.DataSink;
 import etomica.DataSource;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageSegment;
+import etomica.data.AccumulatorHistory;
 import etomica.data.DataSourceUniform;
+import etomica.data.meter.MeterPressureHard;
+import etomica.simulations.HSMD2D;
 import etomica.units.Dimension;
 import etomica.units.Unit;
 import etomica.utility.Arrays;
@@ -35,6 +40,17 @@ public class DisplayPlot extends Display implements EtomicaElement {
         xSource = new DataSourceUniform();
         x = new DataGroup(xSource.getData().length);
         setName("Data Plot");
+        Thread runner = new Thread() {
+            public void run() {
+                while(true) {
+                    doUpdate();
+                    try {
+                        Thread.sleep(100);
+                    } catch(InterruptedException ex) {}
+                }
+            }
+        };
+        runner.start();
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -96,11 +112,12 @@ public class DisplayPlot extends Display implements EtomicaElement {
         x.y = xSource.getData();
         for(int k=0; k<nSource; k++) {
             for(int i=0; i<data[k].y.length; i++) {
-              if(!Double.isNaN(data[k].y[i])) { 
-				plot.addPoint(k, x.unit.fromSim(x.y[i]), data[k].unit.fromSim(data[k].y[i]), true);
-              } else if(i==x.y.length-1) {
-				plot.addPoint(k, x.unit.fromSim(x.y[i]), 0.0, false);
-              }
+                plot.addPoint(k, x.unit.fromSim(x.y[i]), data[k].unit.fromSim(data[k].y[i]), true);
+//              if(!Double.isNaN(data[k].y[i])) { 
+//                plot.addPoint(k, x.unit.fromSim(x.y[i]), data[k].unit.fromSim(data[k].y[i]), true);
+//              } else if(i==x.y.length-1) {
+//				plot.addPoint(k, x.unit.fromSim(x.y[i]), 0.0, false);
+//              }
             }//for i
         }//for k
         plot.repaint();
@@ -170,10 +187,10 @@ public class DisplayPlot extends Display implements EtomicaElement {
             y = new double[n];
         }
 
-        public void putData(double[] values) {
+        public synchronized void putData(double[] values) {
             if(y.length != values.length) y = (double[])values.clone();
             else System.arraycopy(values, 0, y, 0, values.length);
-            doUpdate();
+ //           doUpdate();
         }
 
         public void setDimension(Dimension dimension) {
@@ -185,4 +202,24 @@ public class DisplayPlot extends Display implements EtomicaElement {
         }
     }
 
+    public static void main(String[] args) {
+        HSMD2D sim = new HSMD2D();
+        SimulationGraphic graphic = new SimulationGraphic(sim);
+        sim.integrator.setIsothermal(true);
+        AccumulatorHistory history = new AccumulatorHistory();
+        history.setHistoryLength(1000);
+        MeterPressureHard pressureMeter = new MeterPressureHard(sim.integrator);
+        pressureMeter.setPhase(sim.phase);
+        AccumulatorAverageSegment segment = new AccumulatorAverageSegment(
+                pressureMeter, sim.integrator, 
+                new AccumulatorAverage.Type[] {AccumulatorAverage.AVERAGE},
+                new DisplayBox());
+        segment.getDataPump().addDataSink(history);
+        DisplayPlot plot = new DisplayPlot();
+        history.addDataSink(plot.makeDataSink());
+        plot.setXSource(history.getXSource());
+        graphic.add(plot);
+
+        graphic.makeAndDisplayFrame();
+    }
 }//end of class

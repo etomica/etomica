@@ -88,7 +88,7 @@ public abstract class Device implements GraphicalElement, Dimensioned, java.io.S
     
     public void setUnit(Unit u) {unit = u;}
     public Unit getUnit() {return unit;}
-    public Dimension dimension() {return unit.dimension();} //may want to override this in most cases
+    public Dimension getDimension() {return unit.dimension();} //may want to override this in most cases
     /**
      * Accessor method of the name of this device
      * 

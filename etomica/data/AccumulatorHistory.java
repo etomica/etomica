@@ -4,21 +4,21 @@
  */
 package etomica.data;
 
-import etomica.Accumulator;
+import etomica.DataSource;
 import etomica.DataTranslator;
-import etomica.units.Dimension;
 import etomica.utility.History;
 import etomica.utility.HistoryScrolling;
 
 /**
  * Accumulator that keeps history of data.
  */
-public class AccumulatorHistory extends Accumulator {
+public class AccumulatorHistory extends DataAccumulator {
 	
 	History[] history = new History[0];
+    DataSourceUniform xSource;
 	private double[][] data;
 	int nData, nDataMinus1;
-	private String label, xLabel;
+	private String xLabel;
 	private History.Factory historyFactory;
 	private int historyLength;
 	private DataTranslatorArray dataTranslator;
@@ -34,10 +34,11 @@ public class AccumulatorHistory extends Accumulator {
 		this(factory, 100);
 	}
 	public AccumulatorHistory(History.Factory factory, int historyLength) {
-		super(Dimension.NULL);
+	    super();
+        xSource = new DataSourceUniform(1,historyLength,historyLength);
 		this.historyLength = historyLength;
-		setNData(0);
 		historyFactory = factory;
+        setNData(1);
 	}
 
 	/**
@@ -47,7 +48,7 @@ public class AccumulatorHistory extends Accumulator {
 	 * and new historys are constructed (this behavior can be modified
 	 * by overriding the setNData method).
 	 */
-	public void putData(double[] values) {
+	protected void addData(double[] values) {
 		if(values.length != nData) setNData(values.length);
 		for(int i=nDataMinus1; i>=0; i--) {       		
 			history[i].addValue(values[i]);
@@ -67,7 +68,10 @@ public class AccumulatorHistory extends Accumulator {
 	       
 	public void setXLabel(String s) {xLabel = s;}
 	public String getXLabel() {return xLabel;}
-        
+    
+    public DataSource getXSource() {
+        return history[0].getXSource();
+    }
 
 	/**
 	 * Returns a DataTranslatorArray instance with dimensions
@@ -106,6 +110,8 @@ public class AccumulatorHistory extends Accumulator {
 	 */
 	public void setHistoryLength(int historyLength) {
 		this.historyLength = historyLength;
+        xSource.setNValues(historyLength);
+        xSource.setXMax(historyLength);
     	dataTranslator = (DataTranslatorArray)getTranslator();
 		for(int i=0; i<nData; i++) history[i].setHistoryLength(historyLength);
 	}

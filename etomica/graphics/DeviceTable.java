@@ -6,6 +6,8 @@ import javax.swing.table.AbstractTableModel;
 
 import etomica.EtomicaInfo;
 import etomica.Modifier;
+import etomica.Simulation;
+import etomica.units.Kelvin;
 import etomica.units.Unit;
 
 /**
@@ -162,7 +164,6 @@ public class DeviceTable extends Device /*implements EtomicaElement*/ {
         f.setSize(600,350);
 
         etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
-        Simulation.instance = sim;
 
         PotentialSquareWell potential = new PotentialSquareWell(sim);
         sim.p2 = new P2SimpleWrapper(sim,sim.potential);
@@ -186,6 +187,6 @@ public class DeviceTable extends Device /*implements EtomicaElement*/ {
             public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
         });
     }//end of main
- */   
+   */
 }
 

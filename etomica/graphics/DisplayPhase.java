@@ -12,7 +12,6 @@ import etomica.Atom;
 import etomica.AtomIterator;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Integrator;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.Space;
@@ -41,7 +40,7 @@ import etomica.utility.java2.LinkedList;
   * 08/08/03 (DAK) added listener for '<' and '>' keypresses to affect
   * drawExpansionFactor in DisplayPhaseCanvas3DOpenGL
   */
-public class DisplayPhase extends Display implements Integrator.IntervalListener, EtomicaElement {
+public class DisplayPhase extends Display implements EtomicaElement {
         
     public static final int LEFT = -1;   //Class variables to code for alignment of drawn image within display region
     public static final int CENTER = 0;

@@ -4,9 +4,8 @@
  */
 package etomica.data;
 
-import etomica.Accumulator;
 import etomica.Constants;
-import etomica.DataSource;
+import etomica.DataPipe;
 import etomica.DataTranslator;
 import etomica.DataType;
 import etomica.Default;
@@ -15,16 +14,13 @@ import etomica.units.Dimension;
 /**
  * Accumulator that keeps statistics for averaging and error analysis.
  */
-public class AccumulatorAverage extends Accumulator implements DataSourceMultitype {
+public class AccumulatorAverage extends DataAccumulator {
 
-	/**
-	 * @param parentElement
-	 * @param dataSource
-	 */
 	public AccumulatorAverage() {
 		super();
 		setNData(0);
 		setBlockSize(Default.BLOCK_SIZE);
+        setDimension(Dimension.UNDEFINED);
 	}
 	
 	public void setBlockSize(int blockSize) {
@@ -37,12 +33,11 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
     /**
      * Add the given values to the sums and block sums
      */
-    public void putData(double[] value) {
+    public void addData(double[] value) {
     	if(value.length != nData) setNData(value.length);
     	for(int i=nDataMinus1; i>=0; i--) {
             double v = value[i];
     		mostRecent[i] = v;
-//				if(Double.isNaN(value[i])) continue;				
 			blockSum[i] += v;
 			blockSumSq[i] += v*v;
     	}
@@ -53,7 +48,7 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
         }
     }
     
-    public void doBlockSum() {
+    private void doBlockSum() {
         for(int i=nDataMinus1; i>=0; i--) {             
             blockSum[i] /= blockSize;//compute block average
             sum[i] += blockSum[i];
@@ -66,64 +61,38 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
         }
     }
     
-    /**
-     * Compute and return the average from the present value of the accumulation sum
-     */
-    public double[] average() {
+    public double[] getData() {
         int blockCount = blockSize - blockCountDown;
-        if(count+blockCount == 0) setNaN(average);
-        else {
-	       	for(int i=nDataMinus1; i>=0; i--) {
-	        	average[i] = sum[i]/count;
-	        }
+        if(count+blockCount == 0) {
+            setNaN(data);
+        } else if(nDataMinus1 == 0) {
+            int i=0;
+            double avg = sum[0]/count;
+            double averageSquared = avg*avg;
+            double err = Math.sqrt((sumSquare[0]/count - averageSquared)/(count-1));             
+            double stdev = Math.sqrt(sumSquareBlock[0]/(count*blockSize) - averageSquared);
+            double mrBlock = (mostRecentBlock[0]!=Double.NaN) ? mostRecentBlock[0] : blockSum[0]/(blockSize - blockCountDown);
+            data[0] = mostRecent[0];
+            data[1] = avg;
+            data[2] = err;
+            data[3] = stdev;
+            data[4] = mrBlock;
+        } else {
+            for(int i=nDataMinus1; i>=0; i--) {
+                average[i] = sum[i]/count;
+                double averageSquared = average[i]*average[i];
+                error[i] = Math.sqrt((sumSquare[i]/count - averageSquared)/(count-1));             
+                standardDeviation[i] = Math.sqrt(sumSquareBlock[i]/(count*blockSize) - averageSquared);
+                mostRecentBlock[i] = (mostRecentBlock[i]!=Double.NaN) ? mostRecentBlock[i] : blockSum[i]/(blockSize - blockCountDown);
+            }
+            for(int i=0, k=0; i<nStats; i++, k+=nData) {
+                System.arraycopy(allData[i], 0, data, k, nData);
+            }
         }
-        return average;
+        return data;
     }
-	
-	/**
-	 * Return the 67% confidence limits of the average based on variance in block averages.
-	 */
-    public double[] error() {
-    	if(count > 1) {
-           	for(int i=nDataMinus1; i>=0; i--) {
-		        double avg = sum[i]/count;	
-		        error[i] = Math.sqrt((sumSquare[i]/count - avg*avg)/(count-1));	    		
-	    	}
-    	} else {
-    		setNaN(error);
-    	}
-        return error;
-    }
-    
-    /**
-     * Compute and return the standard deviation of the recorded data.
-     */
-     public double[] standardDeviation() {
-     	if(count > 0) {
-           	for(int i=nDataMinus1; i>=0; i--) {
-           		double avg = sum[i]/count;
-           		standardDeviation[i] = Math.sqrt(sumSquareBlock[i]/(count*blockSize) - avg*avg);
-           	}
-     	} else setNaN(standardDeviation);
-     	return standardDeviation;
-     }
-    
-    /**
-     * Returns the value last passed to the add method
-     */
-    public double[] mostRecent() {return mostRecent;}
-	
-	/**
-	 * Returns the value of the most recent block average.
-	 */
-	public double[] mostRecentBlock() {
-       	for(int i=nDataMinus1; i>=0; i--) {       		
-       		mostRecentBlock[i] = (mostRecentBlock[i]!=Double.NaN) ? mostRecentBlock[i] : blockSum[i]/(blockSize - blockCountDown);
-       	}
-       	return mostRecentBlock;
-    }
-	
-	protected void setNaN(double[] x) {
+   
+    protected void setNaN(double[] x) {
 		for(int i=x.length-1; i>=0; i--) x[i] = Double.NaN;
 	}
 	protected void setZero(double[] x) {
@@ -149,6 +118,8 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
     protected void setNData(int nData) {
     	this.nData = nData;
     	nDataMinus1 = nData-1;
+        localTranslator = new DataTranslatorArray(nStats, nData);
+        data = new double[nStats*nData];
     	sum = redimension(nData, sum);
     	sumSquare = redimension(nData, sumSquare);
         sumSquareBlock = redimension(nData, sumSquareBlock);
@@ -160,6 +131,16 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
     	mostRecent = redimension(nData, mostRecent);
     	mostRecentBlock = redimension(nData, mostRecentBlock);
     	if(!saveOnRedimension) reset();
+        allData[0] = mostRecent;
+        allData[1] = average;
+        allData[2] = error;
+        allData[3] = standardDeviation;
+        allData[4] = mostRecentBlock;
+        for(int i=0; i<dataSinkList.length; i++) {
+            if(dataSinkList[i] instanceof AccumulatorPipe) {
+                ((AccumulatorPipe)dataSinkList[i]).setNData(nData);
+            }
+        }
     }
     
     /**
@@ -172,89 +153,41 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
     	double[] newArray = new double[n];
     	if(saveOnRedimension && old != null) {
     		int k = (n > old.length) ? old.length : n;
-    		for(int i=0; i<k; i++) {
-    			newArray[i] = old[i];
-    		}
+            System.arraycopy(old, 0, newArray, 0, k);
     		//need to handle updating of counters, which should be different for new and old sums if saving on redimension
     		throw new etomica.exception.MethodNotImplementedException("Capability to save data on redimension not yet implemented"); 
     	}
     	return newArray;
     }
         	 
-	public double[] getData() {
-	    return getData(AVERAGE);
-	}
-	
-	public double[] getData(DataType type) {
-		return getData((Type)type);
-	}
-	/**
-	 * Returns the value indicated by the argument.
-	 */
-	public double[] getData(Type type) {
-	    if(type==AVERAGE) return average();
-	    if(type==MOST_RECENT) return mostRecent();
-	    if(type==MOST_RECENT_BLOCK) return mostRecentBlock();
-	    if(type==ERROR) return error();
-	    if(type==STANDARD_DEVIATION) return standardDeviation();
-		/*if(type==null)*/ return getData();
-	}
-	
 	public DataType[] dataChoices() {return CHOICES;}
     
-    /**
-     * Makes and returns a data source that gives the average recorded by 
-     * this accumulator.
-     */
-    public DataSource makeDataSourceAverage() {
-        return new DataSource() {
-            public String getLabel() {return AccumulatorAverage.this.getLabel() + "average";}
-            public double[] getData() {return average();}
-            public Dimension getDimension() {return AccumulatorAverage.this.getDimension();}
-            public DataTranslator getTranslator() {return AccumulatorAverage.this.getTranslator();}
-        };
+    public DataPipe makeDataPipe(Type[] types) {
+       AccumulatorPipe newPipe = new AccumulatorPipe(types);
+       addDataSink(newPipe);
+       return newPipe;
     }
-	
-    /**
-     * Makes and returns a data source that gives the stochastic recorded by 
-     * this accumulator.
-     */
-    public DataSource makeDataSourceError() {
-        return new DataSource() {
-            public String getLabel() {return AccumulatorAverage.this.getLabel() + "error";}
-            public double[] getData() {return error();}
-            public Dimension getDimension() {return AccumulatorAverage.this.getDimension();}
-            public DataTranslator getTranslator() {return AccumulatorAverage.this.getTranslator();}
-        };
-    }
-
-    /**
-     * Makes and returns a data source that gives the most recent value recorded by 
-     * this accumulator.
-     */
-    public DataSource makeDataSourceMostRecent() {
-        return new DataSource() {
-            public String getLabel() {return AccumulatorAverage.this.getLabel() + "most recent";}
-            public double[] getData() {return mostRecent();}
-            public Dimension getDimension() {return AccumulatorAverage.this.getDimension();}
-            public DataTranslator getTranslator() {return AccumulatorAverage.this.getTranslator();}
-        };
-    }
-
+    
     /**
 	 * Typed constant that can be used to indicated the quantity
 	 * to be taken from a meter (e.g., average, error, current value, etc.).
 	 * Used primarily by Display objects.
 	 */
 	public static class Type extends etomica.DataType {
-        protected Type(String label) {super(label);}       
+        protected Type(String label, int index) {
+            super(label);
+            this.index = index;
+        }       
         public Constants.TypedConstant[] choices() {return CHOICES;}
+        final int index;
     }//end of ValueType
     protected static final Type[] CHOICES = 
         new Type[] {
-            new Type("Average"), new Type("67% Confidence limits"),
-            new Type("Latest value"),
-            new Type("Latest block average"), new Type("Standard deviation")};
+            new Type("Latest value", 0),
+            new Type("Average", 1), 
+            new Type("67% Confidence limits", 2),
+            new Type("Standard deviation", 3),
+            new Type("Latest block average", 4)};
     public static final Type AVERAGE = CHOICES[0];
     public static final Type ERROR = CHOICES[1];
     public static final Type MOST_RECENT = CHOICES[2];
@@ -286,9 +219,51 @@ public class AccumulatorAverage extends Accumulator implements DataSourceMultity
     protected int count, blockCountDown;
     protected int blockSize;
     protected int nDataMinus1;
+    protected int nData;
     protected boolean saveOnRedimension = false;
+    private final int nStats = 5;
+    protected double[] data;
+    protected final double[][] allData = new double[nStats][];
+    private DataTranslatorArray localTranslator;
 
     public DataTranslator getTranslator() {
     	return DataTranslator.IDENTITY;
+    }
+    
+    private class AccumulatorPipe extends DataPipe {
+        
+        AccumulatorPipe(Type[] types) {
+            indexes = new int[types.length];
+            selectedAllData = new double[types.length][];
+            for(int i=0; i<indexes.length; i++) {
+                indexes[i] = types[i].index;
+            }
+            setNData(AccumulatorAverage.this.nData);
+        }
+
+        //ignore argument, use data directly from outer class 
+        public void putData(double[] values) {
+            if(nData == 1) {
+                for(int i=0; i<indexes.length; i++) {
+                    selectedData[i] = selectedAllData[i][0];
+                }
+            } else {
+                for(int i=0, k=0; i<indexes.length; i++, k+=nData) {
+                    System.arraycopy(selectedAllData[i], 0, selectedData, k, nData);
+                }
+            }
+            pushData(selectedData);
+        }
+        
+        void setNData(int nData) {
+            selectedData = new double[indexes.length*nData];
+            for(int i=0; i<indexes.length; i++) {
+                selectedAllData[i] = allData[indexes[i]];
+            }
+        }
+        
+        private double[] selectedData;
+        private final double[][] selectedAllData;
+        private final int[] indexes;
     }
 }
