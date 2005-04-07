@@ -84,10 +84,10 @@ public class P2RoughSphere extends P2HardSphere {
         impulse.PEa1Tv1(kappa/(1+kappa),v12Perp);
         impulse.TE(a1.type.getMass());
         
-        ((ICoordinateKinetic)a1.coord).velocity().PE(impulse);
-        ((ICoordinateKinetic)a2.coord).velocity().ME(impulse);
-        a1.coord.position().Ea1Tv1(-falseTime,impulse);
-        a2.coord.position().Ea1Tv1(falseTime,impulse);
+        ((ICoordinateKinetic)a1.coord).velocity().PEa1Tv1( a1.type.rm(),impulse);
+        ((ICoordinateKinetic)a2.coord).velocity().PEa1Tv1(-a2.type.rm(),impulse);
+        a1.coord.position().PEa1Tv1(-falseTime*a1.type.rm(),impulse);
+        a2.coord.position().PEa1Tv1( falseTime*a2.type.rm(),impulse);
         
         //here omegaSum is used to hold the angular impulse
         omegaSum.E(dr.cross(impulse));
