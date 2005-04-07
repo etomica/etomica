@@ -100,11 +100,11 @@ public class P2HardSphere extends Potential2HardSpherical {
         lastCollisionVirial = reducedMass*bij;
         lastCollisionVirialr2 = lastCollisionVirial/r2;
         //dv is now change in velocity due to collision
-        dv.Ea1Tv1(lastCollisionVirialr2/reducedMass,dr);
-        ((ICoordinateKinetic)pair.atom0.coord).velocity().PE(dv);
-        ((ICoordinateKinetic)pair.atom1.coord).velocity().ME(dv);
-        pair.atom0.coord.position().PEa1Tv1(-falseTime,dv);
-        pair.atom1.coord.position().PEa1Tv1(falseTime,dv);
+        dv.Ea1Tv1(lastCollisionVirialr2,dr);
+        ((ICoordinateKinetic)pair.atom0.coord).velocity().PEa1Tv1( pair.atom0.type.rm(),dv);
+        ((ICoordinateKinetic)pair.atom1.coord).velocity().PEa1Tv1(-pair.atom1.type.rm(),dv);
+        pair.atom0.coord.position().PEa1Tv1(-falseTime*pair.atom0.type.rm(),dv);
+        pair.atom1.coord.position().PEa1Tv1( falseTime*pair.atom1.type.rm(),dv);
     }
     
     public double lastCollisionVirial() {
