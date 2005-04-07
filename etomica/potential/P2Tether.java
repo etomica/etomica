@@ -20,53 +20,54 @@ import etomica.units.Dimension;
  */
 public class P2Tether extends Potential2HardSpherical {
 
-  public P2Tether() {
-    this(Simulation.getDefault().space);
-  }
-  public P2Tether(Space space) {
-    super(space);
-    setTetherLength(0.75*Default.ATOM_SIZE);
-    lastCollisionVirialTensor = space.makeTensor();
-    dr = space.makeVector();
-  }
+    public P2Tether() {
+        this(Simulation.getDefault().space);
+    }
+    public P2Tether(Space space) {
+        super(space);
+        setTetherLength(0.75*Default.ATOM_SIZE);
+        lastCollisionVirialTensor = space.makeTensor();
+        dr = space.makeVector();
+    }
 
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Hard string between adjacent atoms, hard sphere for non-adjacents");
         return info;
     }
 
-  /**
-   * Accessor method for the tether distance
-   */
-  public double getTetherLength() {return tetherLength;}
-  /**
-   * Accessor method for the tether distance
-   */
-  public void setTetherLength(double t) {
-      tetherLength = t;
-      tetherLengthSquared = t*t;
-  }
-  public Dimension getTetherLengthDimension() {return Dimension.LENGTH;}
+    /**
+     * Accessor method for the tether distance
+     */
+    public double getTetherLength() {return tetherLength;}
+    /**
+     * Accessor method for the tether distance
+     */
+    public void setTetherLength(double t) {
+        tetherLength = t;
+        tetherLengthSquared = t*t;
+    }
+    public Dimension getTetherLengthDimension() {return Dimension.LENGTH;}
 
-  /**
-   * Implements collision dynamics for pair attempting to separate beyond tether distance
-   */
-  public final void bump(AtomSet pair, double falseTime) {
-      cPair.reset((AtomPair)pair);
-      ((CoordinatePairKinetic)cPair).resetV();
-      dr.E(cPair.dr());
-      Vector dv = ((CoordinatePairKinetic)cPair).dv();
-      dr.PEa1Tv1(falseTime,dv);
-      double r2 = dr.squared();
-      double bij = dr.dot(dv);
-        lastCollisionVirial = 2.0/(((AtomPair)pair).atom0.type.rm() + ((AtomPair)pair).atom1.type.rm())*bij;
+    /**
+     * Implements collision dynamics for pair attempting to separate beyond tether distance
+     */
+    public final void bump(AtomSet atoms, double falseTime) {
+        AtomPair pair = (AtomPair)atoms;
+        cPair.reset(pair);
+        ((CoordinatePairKinetic)cPair).resetV();
+        dr.E(cPair.dr());
+        Vector dv = ((CoordinatePairKinetic)cPair).dv();
+        dr.PEa1Tv1(falseTime,dv);
+        double r2 = dr.squared();
+        double bij = dr.dot(dv);
+        lastCollisionVirial = 2.0/(pair.atom0.type.rm() + pair.atom1.type.rm())*bij;
         lastCollisionVirialr2 = lastCollisionVirial/r2;
         dv.Ea1Tv1(lastCollisionVirialr2,dr);
-        ((ICoordinateKinetic)((AtomPair)pair).atom0.coord).velocity().PE(dv);
-        ((ICoordinateKinetic)((AtomPair)pair).atom1.coord).velocity().ME(dv);
-        ((AtomPair)pair).atom0.coord.position().Ea1Tv1(-falseTime,dv);
-        ((AtomPair)pair).atom1.coord.position().Ea1Tv1(falseTime,dv);
-  }
+        ((ICoordinateKinetic)pair.atom0.coord).velocity().PEa1Tv1( pair.atom0.type.rm(),dv);
+        ((ICoordinateKinetic)pair.atom1.coord).velocity().PEa1Tv1(-pair.atom1.type.rm(),dv);
+        pair.atom0.coord.position().PEa1Tv1(-falseTime*pair.atom0.type.rm(),dv);
+        pair.atom1.coord.position().PEa1Tv1( falseTime*pair.atom1.type.rm(),dv);
+    }
 
 
     public final double lastCollisionVirial() {
@@ -87,26 +88,26 @@ public class P2Tether extends Potential2HardSpherical {
         return tetherLength;
     }
   
-  /**
-   * Time at which two atoms will reach the end of their tether, assuming free-flight kinematics
-   */
-  public final double collisionTime(AtomSet pair, double falseTime) {
-      cPair.reset((AtomPair)pair);
-      ((CoordinatePairKinetic)cPair).resetV();
-      dr.E(cPair.dr());
-      Vector dv = ((CoordinatePairKinetic)cPair).dv();
-      dr.Ea1Tv1(falseTime,dv);
-      double r2 = dr.squared();
-      double bij = dr.dot(dv);
-      double v2 = dv.squared();
-      if(Default.FIX_OVERLAP && r2 > tetherLengthSquared && bij > 0) {return 0.0;}  //outside tether, moving apart; collide now
-      double discr = bij*bij - v2 * ( r2 - tetherLengthSquared );
-      return (-bij + Math.sqrt(discr))/v2 + falseTime;
-  }
+    /**
+     * Time at which two atoms will reach the end of their tether, assuming free-flight kinematics
+     */
+    public final double collisionTime(AtomSet pair, double falseTime) {
+        cPair.reset((AtomPair)pair);
+        ((CoordinatePairKinetic)cPair).resetV();
+        dr.E(cPair.dr());
+        Vector dv = ((CoordinatePairKinetic)cPair).dv();
+        dr.Ea1Tv1(falseTime,dv);
+        double r2 = dr.squared();
+        double bij = dr.dot(dv);
+        double v2 = dv.squared();
+        if(Default.FIX_OVERLAP && r2 > tetherLengthSquared && bij > 0) {return 0.0;}  //outside tether, moving apart; collide now
+        double discr = bij*bij - v2 * ( r2 - tetherLengthSquared );
+        return (-bij + Math.sqrt(discr))/v2 + falseTime;
+    }
   
-  /**
-   * Returns infinity if separation is greater than tether distance, zero otherwise
-   */
+    /**
+     * Returns infinity if separation is greater than tether distance, zero otherwise
+     */
     public double u(double r2) {
         return (r2 > tetherLengthSquared) ? Double.POSITIVE_INFINITY : 0.0;
     }
