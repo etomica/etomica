@@ -7,7 +7,6 @@ import etomica.utility.IntegerRange;
 import etomica.utility.NameMaker;
 
 /**
- * Parent of classes that perform measurements on one or more phases.  
  * A Phase-dependent DataSource.  Subclasses must implement the
  * getData(Phase) method, and define the nDataPerPhase field.
  *
@@ -37,7 +36,6 @@ public abstract class MeterAbstract implements DataSource {
     /**
      * String used to identify this particular meter
      */
-    //TODO attach an instance-count number to this
     private String name = "Meter";
     
     /**
