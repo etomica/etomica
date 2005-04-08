@@ -2,6 +2,7 @@ package etomica.space;
 
 import etomica.AtomPair;
 import etomica.NearestImageTransformer;
+import etomica.NearestImageTransformerVector;
 import etomica.Space;
 
 /*
@@ -53,6 +54,6 @@ public class CoordinatePair {
     Coordinate c1;
     Coordinate c2;
     protected final Vector dr;
-    protected NearestImageTransformer nearestImageTransformer = etomica.space.Boundary.NULL;
+    protected NearestImageTransformer nearestImageTransformer = new NearestImageTransformerVector();
 
 }
