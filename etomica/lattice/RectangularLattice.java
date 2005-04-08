@@ -231,6 +231,10 @@ public class RectangularLattice implements FiniteLattice {
             Vector newPeriod = Space.makeVector(D);
             newPeriod.E(1.0);
             setPeriod(newPeriod);
+            isPeriodic = new boolean[D];
+            for (int i=0; i<D; i++) {
+                isPeriodic[i] = true;
+            }
         }
         
         public final int D() {
@@ -397,7 +401,7 @@ public class RectangularLattice implements FiniteLattice {
          * to setLattice, setSite, setRange, or setDirection.
          */
         private void updateNeighborList() {
-            neighborCount = (direction == null) ? 2*halfNeighborCount : halfNeighborCount;
+            neighborCount = 0; //(direction == null) ? 2*halfNeighborCount : halfNeighborCount;
             int centralSiteIndex = lattice.arrayIndex(centralSite);
             cursor = 0;
             nearestImageVectorCursor = (nearestImageVectors.length-1)/2;
@@ -422,9 +426,11 @@ public class RectangularLattice implements FiniteLattice {
             //this block gathers all neighbors in the dimension d,
             //up to but not including the row where the central site is located
             if(iMin < 0) {//need to implement periodic boundaries
-                nearestImageVectorCursor += cursorJump[d];
-                gatherNeighbors(d, -iMin, startIndex+dim*lattice.jumpCount[d]);
-                nearestImageVectorCursor -= cursorJump[d];
+                if (isPeriodic[d]) {
+                    nearestImageVectorCursor += cursorJump[d];
+                    gatherNeighbors(d, -iMin, startIndex+dim*lattice.jumpCount[d]);
+                    nearestImageVectorCursor -= cursorJump[d];
+                }
                 gatherNeighbors(d, centralIndex, startIndex-iMin*lattice.jumpCount[d]);//note that iMin<0
             } else {//no concern for PBC; gather all neighbors in plane
                 gatherNeighbors(d, range[d], startIndex);
@@ -451,9 +457,11 @@ public class RectangularLattice implements FiniteLattice {
             //advance through other rows
             if(iMax >= dim) {
                 gatherNeighbors(d, dim-centralIndex-1, startIndex);
-                nearestImageVectorCursor -= cursorJump[d];
-                gatherNeighbors(d, iMax-dim+1, startIndex-(centralIndex+1)*lattice.jumpCount[d]);
-                nearestImageVectorCursor += cursorJump[d];
+                if (isPeriodic[d]) {
+                    nearestImageVectorCursor -= cursorJump[d];
+                    gatherNeighbors(d, iMax-dim+1, startIndex-(centralIndex+1)*lattice.jumpCount[d]);
+                    nearestImageVectorCursor += cursorJump[d];
+                }
             } else {
                 gatherNeighbors(d, range[d], startIndex);
             }
@@ -468,6 +476,7 @@ public class RectangularLattice implements FiniteLattice {
         private void gatherNeighbors(int d, int nSteps, int startIndex) {
             if(d == D-1) {//end of recursion -- here's where the actual gathering is done
                 for(int i=0; i<nSteps; i++) {
+                    neighborCount++;
                     neighbors[cursor++] = startIndex++;
                     pbc[cursor] = nearestImageVectors[nearestImageVectorCursor];
                 }
@@ -480,18 +489,22 @@ public class RectangularLattice implements FiniteLattice {
                 if(iMin < 0) {//need to consider PBC below
                     for(int i=0; i<nSteps; i++) {
                         int startIndex1 = startIndex+i*lattice.jumpCount[d];
-                        nearestImageVectorCursor += cursorJump[d1];
-                        gatherNeighbors(d1, -iMin, startIndex1+dim*lattice.jumpCount[d1]);
-                        nearestImageVectorCursor -= cursorJump[d1];
+                        if (isPeriodic[d1]) {
+                            nearestImageVectorCursor += cursorJump[d1];
+                            gatherNeighbors(d1, -iMin, startIndex1+dim*lattice.jumpCount[d1]);
+                            nearestImageVectorCursor -= cursorJump[d1];
+                        }
                         gatherNeighbors(d1, iMax+1, startIndex1-iMin*lattice.jumpCount[d1]);//note that iMin<0
                     }
                 } else if(iMax >= dim) {//need to consider PBC above
                     for(int i=0; i<nSteps; i++) {
                         int startIndex1 = startIndex+i*lattice.jumpCount[d];
                         gatherNeighbors(d1, dim-iMin, startIndex1);
-                        nearestImageVectorCursor -= cursorJump[d1];
-                        gatherNeighbors(d1, iMax-dim+1, startIndex1-iMin*lattice.jumpCount[d1]);
-                        nearestImageVectorCursor += cursorJump[d1];
+                        if (isPeriodic[d1]) {
+                            nearestImageVectorCursor -= cursorJump[d1];
+                            gatherNeighbors(d1, iMax-dim+1, startIndex1-iMin*lattice.jumpCount[d1]);
+                            nearestImageVectorCursor += cursorJump[d1];
+                        }
                     }
                 } else {//no need to consider PBC
                     for(int i=0; i<nSteps; i++) {
@@ -539,6 +552,12 @@ public class RectangularLattice implements FiniteLattice {
             }
             nearestImageVectors[(nearestImageVectors.length-1)/2] = null;
 
+        }
+        
+        public void setPeriodicity(boolean[] periodicity) {
+            for (int i=0; i<D; i++) {
+                isPeriodic[i] = periodicity[i];
+            }
         }
 //        private void gatherAllNeighbors(int d, int startIndex) {
 //            int centralIndex = centralSite[d];
@@ -590,6 +609,7 @@ public class RectangularLattice implements FiniteLattice {
         private final Vector[] nearestImageVectors;
         private int nearestImageVectorCursor;
         private final int[] cursorJump;
+        private final boolean[] isPeriodic;
     }//end of NeighborIterator
   
     /**
@@ -633,6 +653,7 @@ public class RectangularLattice implements FiniteLattice {
         lattice.setSize(new int[] {12,11,15});
 
         final RectangularLattice.NeighborIterator iterator = new NeighborIterator(dimension);
+        iterator.setPeriodicity(new boolean[]{true,true,false});
         iterator.setLattice(lattice);
         iterator.setSite(new int[] {1,1,14});
         iterator.setRange(new int[] {2,3,5});

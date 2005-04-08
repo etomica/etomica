@@ -2,7 +2,7 @@ package etomica.virial;
 
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.space.BoundaryNone;
+import etomica.space.BoundaryRectangularNonperiodic;
 
 /**
  * @author kofke
@@ -18,7 +18,7 @@ public class PhaseCluster extends Phase {
 	public PhaseCluster(Simulation sim, ClusterWeight cluster) {
 		super(sim);
         sampleCluster = cluster;
-        setBoundary(new BoundaryNone(sim.space));
+        setBoundary(new BoundaryRectangularNonperiodic(sim.space));
         // this is a bit contorted, but config needs to know the phase before 
         // the coordinates are initialized
         ConfigurationCluster config = new ConfigurationCluster(sim.space);

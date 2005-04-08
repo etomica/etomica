@@ -10,7 +10,7 @@ import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.RectangularLattice;
 import etomica.space.Boundary;
-import etomica.space.BoundaryPeriodicSquare;
+import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Vector;
 import etomica.utility.NameMaker;
 
@@ -69,7 +69,7 @@ public class Phase {
     protected final Space space;
     
     /**
-     * Constructs phase.
+     * Constructs phase with default rectangular periodic boundary.
      */
     public Phase(Simulation sim) {
         space = sim.space;
@@ -78,7 +78,7 @@ public class Phase {
         makeMolecules();
         setName(NameMaker.makeName(this.getClass()));
 
-        setBoundary(new BoundaryPeriodicSquare(space));
+        setBoundary(new BoundaryRectangularPeriodic(space));
 
         if(space.D() < 3) 
             setConfiguration(new ConfigurationSequential(space));  //default configuration

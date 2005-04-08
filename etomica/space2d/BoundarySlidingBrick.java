@@ -2,7 +2,7 @@ package etomica.space2d;
 
 import etomica.Phase;
 import etomica.integrator.IntegratorMD;
-import etomica.space.BoundaryPeriodicSquare;
+import etomica.space.BoundaryRectangular;
 import etomica.space.Coordinate;
 import etomica.space.Vector;
 
@@ -17,7 +17,7 @@ import etomica.space.Vector;
 /*
  * History Created on Jan 27, 2005 by kofke
  */
-public class BoundarySlidingBrick extends BoundaryPeriodicSquare {
+public class BoundarySlidingBrick extends BoundaryRectangular {
 
     private double gamma = 0.0;
     private double delvx;

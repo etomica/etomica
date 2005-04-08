@@ -4,13 +4,18 @@ import etomica.Default;
 import etomica.Space;
 import etomica.lattice.IndexIteratorSequential;
 
+/**
+ * Boundary that is in the shape of a rectangular parallelepiped.  
+ * Periodicity in each direction is specified by subclass.
+ */
 /*
  * History Created on Jan 24, 2005 by kofke
  */
-public class BoundaryPeriodicSquare extends Boundary {
+public abstract class BoundaryRectangular extends Boundary {
 
-    public BoundaryPeriodicSquare(Space space) {
+    public BoundaryRectangular(Space space, boolean[] periodicity) {
         super(space);
+        isPeriodic = (boolean[])periodicity.clone();
         dimensions = space.makeVector();
         dimensions.E(Default.BOX_SIZE);
         temp = space.makeVector();
@@ -19,12 +24,6 @@ public class BoundaryPeriodicSquare extends Boundary {
         dimensionsHalf = space.makeVector();
         indexIterator = new IndexIteratorSequential(space.D());
         needShift = new boolean[space.D()];//used by getOverflowShifts
-        updateDimensions();
-    }
-
-    public BoundaryPeriodicSquare(Space space, double[] dimensions) {
-        this(space);
-        this.dimensions.E(dimensions);
         updateDimensions();
     }
 
@@ -42,16 +41,6 @@ public class BoundaryPeriodicSquare extends Boundary {
         dimensionsCopy.E(dimensions);
     }
 
-    public void nearestImage(Vector dr) {
-        dr.PE(dimensionsHalf);
-        dr.mod(dimensions);
-        dr.ME(dimensionsHalf);
-    }
-
-    public Vector centralImage(Vector r) {
-        modShift.EModShift(r, dimensions);
-        return modShift;
-    }
 
     public void setDimensions(etomica.space.Vector v) {
         dimensions.E(v);
@@ -62,6 +51,9 @@ public class BoundaryPeriodicSquare extends Boundary {
         return dimensions.productOfElements();
     }
 
+    public boolean[] getPeriodicity() {
+        return isPeriodic;
+    }
 
     public double[][] imageOrigins(int nShells) {
         Vector workVector = space.makeVector();
@@ -134,5 +126,8 @@ public class BoundaryPeriodicSquare extends Boundary {
     protected final Vector dimensionsHalf;
     private final IndexIteratorSequential indexIterator;
     private final boolean[] needShift;
+    protected final boolean[] isPeriodic;
+    protected final float[][] shift0 = new float[0][0];
+    protected float[][] shift;
 
 }
