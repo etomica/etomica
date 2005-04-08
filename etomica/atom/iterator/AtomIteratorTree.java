@@ -178,7 +178,8 @@ public class AtomIteratorTree implements AtomIterator {
             }
 	        rootNode = null;
             doTreeIteration = false;
-            iterator = new AtomIteratorSinglet(rootAtom);
+            iterator = singletIterator;
+            singletIterator.setAtom(rootAtom);
         } else {
 	        rootNode = (AtomTreeNodeGroup)rootAtom.node;
 	        listIterator.setList(rootNode.childList);
@@ -263,6 +264,7 @@ public class AtomIteratorTree implements AtomIterator {
     private boolean doTreeIteration;
     private AtomIteratorTree treeIterator;//used for recursive iteration to lower levels in tree
     private final AtomIteratorListSimple listIterator = new AtomIteratorListSimple();
+    private final AtomIteratorSinglet singletIterator = new AtomIteratorSinglet();
     private AtomIterator iterator;
     private int iterationDepth = Integer.MAX_VALUE;
     private Atom next;
