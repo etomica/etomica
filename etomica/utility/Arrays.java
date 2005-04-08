@@ -36,6 +36,41 @@ public final class Arrays {
 		return newArray;
 	}
 	
+    /**
+     * Returns a new array holding the values in the given array, but adjusted
+     * to the given size.  If the new size is greater than the given array, all
+     * elements of the array are copied to the new array, starting from index 0
+     * (with unfilled elements of new array left as zero);
+     * if the new size is smaller than the given array, elements of the old array
+     * (starting from 0) will be copied to fill the new array.
+     * @param oldArray array with elements to be copied to the new array
+     * @param newSize size of the new array
+     * @return the new array
+     */
+    public static double[] resizeArray(double[] oldArray, int newSize) {
+        double[] newArray = new double[newSize];
+        int minSize = Math.min(oldArray.length,newSize);
+        System.arraycopy(oldArray,0,newArray,0,minSize);
+        return newArray;
+    }
+
+    /**
+     * Returns a new array holding the values in the given array, but adjusted
+     * to the given size.  If the new size is greater than the given array, all
+     * elements of the array are copied to the new array, starting from index 0
+     * (with unfilled elements of new array left as zero);
+     * if the new size is smaller than the given array, elements of the old array
+     * (starting from 0) will be copied to fill the new array.
+     * @param oldArray array with elements to be copied to the new array
+     * @param newSize size of the new array
+     * @return the new array
+     */
+    public static int[] resizeArray(int[] oldArray, int newSize) {
+        int[] newArray = new int[newSize];
+        int minSize = Math.min(oldArray.length,newSize);
+        System.arraycopy(oldArray,0,newArray,0,minSize);
+        return newArray;
+    }
 
     /**
      * Returns an array formed from adding the newObject to the elements
