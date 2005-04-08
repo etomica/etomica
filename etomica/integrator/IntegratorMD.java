@@ -46,6 +46,7 @@ public abstract class IntegratorMD extends Integrator {
         super.setup();
         thermostatCount = 1;
         currentKineticEnergy = new double[phase.length];
+        meterKE.setPhase(phase);
         doThermostat();
     }
     
