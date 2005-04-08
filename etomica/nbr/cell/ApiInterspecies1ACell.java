@@ -24,6 +24,7 @@ import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomsetIteratorMolecule;
 import etomica.lattice.CellLattice;
+import etomica.space.BoundaryRectangular;
 
 /**
  * Gives pairs formed from the molecules of two different species in a phase,
@@ -81,6 +82,7 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
             agentNode0 = (AtomTreeNodeGroup)phase.getAgent(species0).node;
             agentNode1 = (AtomTreeNodeGroup)phase.getAgent(species1).node;
             neighborIterator.setPeriod(phase.boundary().dimensions());
+            neighborIterator.setPeriodicity(((BoundaryRectangular)phase.boundary()).getPeriodicity());
         }
         identifyTargetMolecule();
 	}

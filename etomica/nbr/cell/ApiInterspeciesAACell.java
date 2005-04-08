@@ -21,6 +21,7 @@ import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
+import etomica.space.BoundaryRectangular;
 
 /**
  * Returns iterates formed from all molecule pairs of two species. Looping is
@@ -55,6 +56,7 @@ public class ApiInterspeciesAACell implements AtomsetIteratorPhaseDependent, Ato
         cellIterator.setLattice(phase.getLattice());
 		neighborIterator.setLattice(phase.getLattice());
         neighborIterator.setPeriod(phase.boundary().dimensions());
+        neighborIterator.setPeriodicity(((BoundaryRectangular)phase.boundary()).getPeriodicity());
         unset();
 	}
 
