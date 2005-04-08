@@ -18,7 +18,7 @@ import etomica.potential.P1HardBoundary;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.P2SquareWell;
 import etomica.potential.Potential2HardSphericalWrapper;
-import etomica.space.BoundaryNone;
+import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Vector;
 import etomica.space2d.Vector2D;
 import etomica.space3d.Vector3D;
@@ -47,7 +47,7 @@ public class PistonCylinder extends Simulation {
         species = new SpeciesSpheresMono(this);
         species.setNMolecules(112);
         phase = new Phase(this);
-        phase.setBoundary(new BoundaryNone(space));
+        phase.setBoundary(new BoundaryRectangularNonperiodic(space));
         Vector newDim;
         if (space.D() == 2) {
             newDim = new Vector2D(80,150);
