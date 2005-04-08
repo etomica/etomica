@@ -63,17 +63,17 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 
 //Display to see adjusted temperature
 	DisplayBox box1 = new DisplayBox();
-	DataPump tpump = new DataPump(sim.thermometer, box1);		
-//			IntervalActionAdapter interval1 = new IntervalActionAdapter (tpump, sim.integratorDCV);
-	box1.setUnit((Kelvin.UNIT));
+    DataPump tpump = new DataPump(sim.thermometer, box1);
+	IntervalActionAdapter interval1 = new IntervalActionAdapter (tpump, sim.integratorDCV);
+	interval1.setActionInterval(10);
+    box1.setUnit((Kelvin.UNIT));
 			
 	PhaseImposePbc imposePbc = new PhaseImposePbc(sim.phase);
 	sim.integratorDCV.addIntervalListener(imposePbc);
 	
 	DisplayTable table = new DisplayTable();
 	add(table);
-	
-//	table.setDatumSources(meters);
+    sim.fluxAccumulator.addDataSink(table.makeDataSink());
 	
 	sim.accumulator1.addDataSink(profilePlot.makeDataSink());
 	sim.accumulator2.addDataSink(profilePlot.makeDataSink());

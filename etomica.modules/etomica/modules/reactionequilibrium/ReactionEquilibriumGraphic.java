@@ -173,11 +173,12 @@ public class ReactionEquilibriumGraphic {
 
 		//so that display is updated when slider changes atom sizes
 		sizeModifier.setDisplay(displayPhase1);
+        
 		DisplayBox tBox = new DisplayBox();
 		DataPump tPump = new DataPump (sim.thermometer, tBox);
 		IntervalActionAdapter tAdapter = new IntervalActionAdapter (tPump, sim.integratorHard1);
 		tAdapter.setActionInterval(100);
-        tBox.setUnit((Kelvin.UNIT));
+        tBox.setUnit(Kelvin.UNIT);
 		tBox.setLabel("Measured value");
 		tBox.setLabelPosition(Constants.NORTH);
 

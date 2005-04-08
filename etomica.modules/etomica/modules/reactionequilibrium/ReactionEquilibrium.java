@@ -69,10 +69,10 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
 		potentialMaster.setSpecies(BBbonded,
 				new Species[] { speciesB, speciesB });
 
-		meterDimerFraction = new MeterDimerFraction(this,
-						idx);
+		meterDimerFraction = new MeterDimerFraction(this, idx);
 		thermometer = new MeterTemperature();
 		thermometer.setPhase(phase1);
+        
 		ActivityIntegrate activityIntegrate = new ActivityIntegrate(integratorHard1);
 		activityIntegrate.setDoSleep(true);
 		activityIntegrate.setSleepPeriod(1);
