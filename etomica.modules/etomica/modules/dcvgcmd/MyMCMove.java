@@ -77,6 +77,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 		} else {
 			activeAtoms.add(testMolecule);
 			testMolecule.ia = integrator.makeAgent(testMolecule);
+            randomizer.setTemperature(temperature);
 			randomizer.actionPerformed(testMolecule);
 			deltaN++;
 		}

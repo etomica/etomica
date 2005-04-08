@@ -1,10 +1,15 @@
 package etomica.modules.reactionequilibrium;
 import etomica.Atom;
 import etomica.AtomPair;
+import etomica.AtomSet;
+import etomica.Default;
+import etomica.Simulation;
 import etomica.Space;
 import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialReactive;
 import etomica.space.CoordinatePairKinetic;
+import etomica.space.ICoordinateKinetic;
+import etomica.space.Vector;
 import etomica.units.Dimension;
 
 /**
@@ -29,11 +34,9 @@ public class P2SquareWellBonded extends P2SquareWell implements PotentialReactiv
   
   private PotentialReactive.BondChangeData[] bondData;
   private double barrier;
-  private final CoordinatePairKinetic cPair;
   
-  public P2SquareWellBonded(Space parent,int idx, double coreDiameter, double lambda, double epsilon) {
-	super(parent, coreDiameter, lambda, epsilon);
-	cPair = (CoordinatePairKinetic) parent.makeCoordinatePair();
+  public P2SquareWellBonded(Space space, double coreDiameter, double lambda, double epsilon) {
+	super(space, coreDiameter, lambda, epsilon);
   //constructs 2 BondChangeData classes, one for each atom in possible bondchange event
 	this.idx = Atom.requestAgentIndex(this);
 	bondData = new PotentialReactive.BondChangeData[2];
@@ -43,11 +46,11 @@ public class P2SquareWellBonded extends P2SquareWell implements PotentialReactiv
 		bondData[i].newPartners = new Atom[1];
 	}
   }
- /* public P2SquareWellBonded(int idx, double coreDiameter, double lambda, double epsilon) {
-  	this(Simulation.instance.hamiltonian.potential, idx, coreDiameter, lambda, epsilon);
+  public P2SquareWellBonded(int idx, double coreDiameter, double lambda, double epsilon) {
+  	this(Simulation.instance.space, idx, coreDiameter, lambda, epsilon);
   }
-  public P2SquareWellBonded(PotentialGroup parent, int idx, double coreDiameter, double lambda, double epsilon) {
-    super(parent, coreDiameter, lambda, epsilon);
+  public P2SquareWellBonded(Space space, int idx, double coreDiameter, double lambda, double epsilon) {
+    super(space, coreDiameter, lambda, epsilon);
   //constructs 2 BondChangeData classes, one for each atom in possible bondchange event
     this.idx = idx;
     bondData = new PotentialReactive.BondChangeData[2];
@@ -57,7 +60,7 @@ public class P2SquareWellBonded extends P2SquareWell implements PotentialReactiv
         bondData[i].newPartners = new Atom[1];
     }
   }
-  */
+  
   /**
    * Implementation of Atom.AgentSource interface, returning null.  Agent
    * in atom is used to hold bonding partner.
@@ -78,100 +81,110 @@ public class P2SquareWellBonded extends P2SquareWell implements PotentialReactiv
 /**
  * Computes next time of collision of the two atoms, assuming free-flight kinematics.
  */
-  public double collisionTime(AtomPair pair, double falsetime) {
+  public double collisionTime(AtomSet atoms, double falseTime) {
+      if (Default.FIX_OVERLAP) {
+          AtomPair pair = (AtomPair)atoms;
+          Atom a1Partner = (Atom)pair.atom0.allatomAgents[idx];
+          cPair.reset((AtomPair)pair);
+          ((CoordinatePairKinetic)cPair).resetV();
+          dr.E(cPair.dr());
+          Vector dv = ((CoordinatePairKinetic)cPair).dv();
+          dr.PEa1Tv1(falseTime,dv);
+          double r2 = dr.squared();
+          double bij = dr.dot(dv);
 
-    Atom a1Partner = (Atom)pair.atom0.allatomAgents[idx];
-    cPair.reset(pair);
-    //inside well but not mutually bonded;  collide now if approaching
-    if(a1Partner != pair.atom1 && cPair.r2() < wellDiameterSquared) 
-        return (cPair.vDotr() < 0.0) ? 0.0 : Double.MAX_VALUE;
-    //mutually bonded, or outside well; collide as SW
-    else return super.collisionTime(pair, falsetime);
+          //inside well but not mutually bonded;  collide now if approaching
+          if((a1Partner != pair.atom1 && r2 < wellDiameterSquared) ||
+                  (a1Partner == pair.atom1 && r2 < coreDiameterSquared))
+              return (bij < 0.0) ? falseTime : Double.MAX_VALUE;
+      }
+      //mutually bonded, or outside well; collide as SW
+      return super.collisionTime(atoms, falseTime);
   }
 
 /**
  * Implements collision dynamics between the atom pair.
  */
-  public void bump(AtomPair pair) {
+  public void bump(AtomSet atoms, double falseTime) {
+    AtomPair pair = (AtomPair)atoms;
     cPair.reset(pair);
+    dr.E(cPair.dr());
+    ((CoordinatePairKinetic)cPair).resetV();
+    Vector dv = ((CoordinatePairKinetic)cPair).dv();
+    dr.PEa1Tv1(falseTime,dv);
+    double r2 = dr.squared();
+    double bij = dr.dot(dv);
   	double nudge = 0;
     double eps = 1.0e-6;
-    double r2 = cPair.r2();
-    double bij = cPair.vDotr();
     // ke is kinetic energy due to components of velocity
-    double reduced_m = 1.0/(pair.atom0.type.rm() + pair.atom1.type.rm());
-    dr.E(cPair.dr());
-    double ke = bij*bij*reduced_m/(2.0*r2);
-    double s, r2New;
+    Atom a0 = pair.atom0;
+    Atom a1 = pair.atom1;
+    double reduced_m = 2.0/(a0.type.rm() + a1.type.rm());
+    double ke = bij*bij*reduced_m/(4.0*r2);
+    double s;
     
-    Atom a1 = pair.atom0;
-    Atom a2 = pair.atom1;
+    Atom a0Partner = (Atom)a0.allatomAgents[idx];
     Atom a1Partner = (Atom)a1.allatomAgents[idx];
-    Atom a2Partner = (Atom)a2.allatomAgents[idx];
     
-    if(a1Partner == a2) //atoms are bonded to each other
+    if(a0Partner == a1) //atoms are bonded to each other
         if(2*r2 < (coreDiameterSquared+wellDiameterSquared)) {   // Hard-core collision
-            lastCollisionVirial = 2.0*reduced_m*bij;
-            r2New = r2;
-            nudge = eps;
+            lastCollisionVirial = reduced_m*bij;
             bondData[0].atom = null;
         }
         else {    // Well collision; assume separating because mutually bonded
 	        if(ke < epsilon) {     // Not enough kinetic energy to escape
-	            lastCollisionVirial = 2.0*reduced_m*bij;
-	            r2New = (1-eps)*wellDiameterSquared; 
+	            lastCollisionVirial = reduced_m*bij;
 	            bondData[0].atom = null;
 	            nudge = -eps;
 	        }
 	        else {                 // Escape
-	            lastCollisionVirial = reduced_m*bij - Math.sqrt(2.*reduced_m*r2*(ke-epsilon));
-	            r2New = (1+eps)*wellDiameterSquared;
-	            bondData[0].atom = a1;
-	            bondData[0].oldPartners[0] = a2;
+	            lastCollisionVirial = 0.5*reduced_m*bij - Math.sqrt(reduced_m*r2*(ke-epsilon));
+	            bondData[0].atom = a0;
+	            bondData[0].oldPartners[0] = a1;
 	            bondData[0].newPartners[0] = null;
-	            bondData[1].atom = a2;
-	            bondData[1].oldPartners[0] = a1;
+	            bondData[1].atom = a1;
+	            bondData[1].oldPartners[0] = a0;
 	            bondData[1].newPartners[0] = null;
 	   //         bondData[2].atom = null;
+	            a0.allatomAgents[idx] = null;
 	            a1.allatomAgents[idx] = null;
-	            a2.allatomAgents[idx] = null;
 	            nudge = eps;
 	        }//end if(ke < epsilon)
         }//end if(2*r2...
     else {                  //not bonded to each other
-        if(r2 < (1-eps)*wellDiameterSquared) {   //already inside well; push away
-            lastCollisionVirial = 2.0*reduced_m*bij;
-            r2New = r2;
+        //well collision; decide whether to bond or have hard repulsion
+        if(a0Partner != null || a1Partner != null) { //at least one is already bound; repel
+            lastCollisionVirial = reduced_m*bij;
             bondData[0].atom = null;
             nudge = eps;
-        }
-        else { //well collision; decide whether to bond or have hard repulsion
-        	if(a1Partner != null || a2Partner != null) { //at least one is already bound; repel
-				lastCollisionVirial = 2.0*reduced_m*bij;
-				r2New = (1-eps)*wellDiameterSquared;
-				bondData[0].atom = null;
-				nudge = eps;
-        	} else { //neither is taken; bond to each other
-				lastCollisionVirial = reduced_m*(bij +Math.sqrt(bij*bij+2.0*r2*epsilon/reduced_m));
-				r2New = (1-eps)*wellDiameterSquared;
-				a1.allatomAgents[idx] = a2;
-				a2.allatomAgents[idx] = a1; 
-				bondData[0].atom = a1;
-			    bondData[0].newPartners[0] = a2;
-			    bondData[0].oldPartners[0] = null;
-			
-			    bondData[1].atom = a2;
-			    bondData[1].newPartners[0] = a1;
-			    bondData[1].oldPartners[0] = null;
-			    nudge = -eps;
-			}
+        } else { //neither is taken; bond to each other
+            lastCollisionVirial = 0.5*reduced_m*(bij +Math.sqrt(bij*bij+4.0*r2*epsilon/reduced_m));
+            a0.allatomAgents[idx] = a1;
+            a1.allatomAgents[idx] = a0; 
+            bondData[0].atom = a0;
+            bondData[0].newPartners[0] = a1;
+            bondData[0].oldPartners[0] = null;
         
-
-        }//end if(r2 < wellDiameterSquared) else
+            bondData[1].atom = a1;
+            bondData[1].newPartners[0] = a0;
+            bondData[1].oldPartners[0] = null;
+            nudge = -eps;
+        }
+        
     } //end if(a1Partner == a2) else
+
     lastCollisionVirialr2 = lastCollisionVirial/r2;
-    cPair.push(lastCollisionVirialr2);
-    cPair.nudge(nudge);
+    dv.Ea1Tv1(lastCollisionVirialr2,dr);
+    ((ICoordinateKinetic)pair.atom0.coord).velocity().PEa1Tv1( a0.type.rm(),dv);
+    ((ICoordinateKinetic)pair.atom1.coord).velocity().PEa1Tv1(-a1.type.rm(),dv);
+    a0.coord.position().PEa1Tv1(-falseTime*a0.type.rm(),dv);
+    a1.coord.position().PEa1Tv1( falseTime*a1.type.rm(),dv);
+    if(nudge != 0) {
+        a0.coord.position().PEa1Tv1(-nudge,dr);
+        a1.coord.position().PEa1Tv1(nudge,dr);
+    }
+
+
   }//end of bump
 }//end of class
     

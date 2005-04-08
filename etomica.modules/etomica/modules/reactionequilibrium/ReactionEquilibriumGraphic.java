@@ -4,6 +4,7 @@ import java.awt.Component;
 
 import javax.swing.JPanel;
 
+import etomica.Action;
 import etomica.Constants;
 import etomica.Modifier;
 import etomica.SpeciesAgent;
@@ -40,8 +41,15 @@ public class ReactionEquilibriumGraphic {
 		initializing = true;
 		DeviceTrioControllerButton control = new DeviceTrioControllerButton(sim);
 		DeviceThermoSelector tSelect = new DeviceThermoSelector();
-		DisplayPhase displayPhase1 = new DisplayPhase(sim.phase1);
-
+		final DisplayPhase displayPhase1 = new DisplayPhase(sim.phase1);
+        sim.integratorHard1.addIntervalListener(new IntervalActionAdapter(
+                new Action() {
+                    public void actionPerformed() {
+                        displayPhase1.repaint();
+                    }
+                    public String getLabel() {return "";}
+                }));
+        
 		tSelect.setTemperatures(new double[] { 50., 100., 300., 600., 1000.,
 				1200., 1600., 2000., 2500. });
 		tSelect.setUnit(Kelvin.UNIT);
@@ -168,7 +176,8 @@ public class ReactionEquilibriumGraphic {
 		DisplayBox tBox = new DisplayBox();
 		DataPump tPump = new DataPump (sim.thermometer, tBox);
 		IntervalActionAdapter tAdapter = new IntervalActionAdapter (tPump, sim.integratorHard1);
-		tBox.setUnit((Kelvin.UNIT));
+		tAdapter.setActionInterval(100);
+        tBox.setUnit((Kelvin.UNIT));
 		tBox.setLabel("Measured value");
 		tBox.setLabelPosition(Constants.NORTH);
 

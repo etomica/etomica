@@ -26,6 +26,10 @@ public class P2LJWCA extends Potential2SoftSpherical implements EtomicaElement {
         EtomicaInfo info = new EtomicaInfo("WCA Lennard-Jones potential");
         return info;
     }
+    
+    public double getRange() {
+        return range;
+    }
 
     /**
      * The energy u.  No truncation is applied here; 
@@ -33,7 +37,7 @@ public class P2LJWCA extends Potential2SoftSpherical implements EtomicaElement {
      * added epsilon creates a shifted LJ potential
      */
     public double u(double r2) {
-        if(r2 < sigma16) {
+        if(r2 < sigma16Sqr) {
             double s2 = sigmaSquared/r2;
             s6 = s2*s2*s2;
             return epsilon4*s6*(s6 - 1.0)+epsilon;
@@ -46,7 +50,7 @@ public class P2LJWCA extends Potential2SoftSpherical implements EtomicaElement {
      * The derivative r*du/dr.
      */
     public double du(double r2) {
-        if(r2 < sigma16) {
+        if(r2 < sigma16Sqr) {
             double s2 = sigmaSquared/r2;
             s6 = s2*s2*s2;
             return -epsilon48*s6*(s6 - 0.5);
@@ -59,7 +63,7 @@ public class P2LJWCA extends Potential2SoftSpherical implements EtomicaElement {
     * separation:  r^2 d^2u/dr^2.
     */
     public double d2u(double r2) {
-        if(r2 < sigma16) {
+        if(r2 < sigma16Sqr) {
             double s2 = sigmaSquared/r2;
             s6 = s2*s2*s2;
             return epsilon624*s6*(s6 - _168div624);
@@ -102,8 +106,8 @@ public class P2LJWCA extends Potential2SoftSpherical implements EtomicaElement {
         sigma = s;
         sigmaSquared = s*s;
         rCLast = 0.0;
-		sigma16 = sigma*Math.pow(2,1./6.);
-		sigma16 = sigma16*sigma16;
+		range = sigma*Math.pow(2,1./6.);
+		sigma16Sqr = range*range;
 
     }
     public Dimension getSigmaDimension() {return Dimension.LENGTH;}
@@ -124,7 +128,7 @@ public class P2LJWCA extends Potential2SoftSpherical implements EtomicaElement {
     }
     public Dimension getEpsilonDimension() {return Dimension.ENERGY;}
    
-    private double sigma, sigmaSquared, sigma16;
+    private double sigma, sigmaSquared, range, sigma16Sqr;
     private double epsilon;
     private double epsilon4, epsilon48, epsilon624;
     private static final double _168div624 = 168./624.;

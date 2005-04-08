@@ -1,7 +1,7 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.Space;
-import etomica.space.BoundaryPeriodicSquare;
+import etomica.space.BoundaryRectangular;
 import etomica.space.Coordinate;
 import etomica.space3d.Vector3D;
 
@@ -13,7 +13,7 @@ import etomica.space3d.Vector3D;
  * To enable and disable the creation of type comments go to
  * Window>Preferences>Java>Code Generation.
  */
-public class BoundarySemiPeriodic extends BoundaryPeriodicSquare {
+public class BoundarySemiPeriodic extends BoundaryRectangular {
 	
 	public BoundarySemiPeriodic(Space space){
 		super(space);

@@ -45,7 +45,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	add(profilePlot);
 	
 //Slider to adjust temperature
-DeviceSlider temperatureSlider = new DeviceSlider(sim.getController(), sim.integratorDCV, "temperature");
+	DeviceSlider temperatureSlider = new DeviceSlider(sim.getController(), sim.integratorDCV, "temperature");
 	temperatureSlider.setUnit((Kelvin.UNIT));
 	temperatureSlider.setMinimum(50);
 	temperatureSlider.setMaximum(500);

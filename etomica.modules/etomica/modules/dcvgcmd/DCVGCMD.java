@@ -8,16 +8,15 @@ import etomica.SpeciesSpheresMono;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.data.AccumulatorAverage;
-import etomica.data.DataPump;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterProfile;
 import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
+import etomica.units.Kelvin;
 
 public class DCVGCMD extends Simulation {
 
@@ -66,8 +65,10 @@ public class DCVGCMD extends Simulation {
 		species1.setNMolecules(8);
 		phase = new Phase(this);
 		integratorDCV = new IntegratorDCVGCMD(potentialMaster, species, species1);
+        Default.AUTO_REGISTER = false;
 		final IntegratorVelocityVerlet integrator = new IntegratorVelocityVerlet(potentialMaster, space);
-	    final IntegratorMC integratorMC = new IntegratorMC(potentialMaster);
+        final IntegratorMC integratorMC = new IntegratorMC(potentialMaster);
+        Default.AUTO_REGISTER = true;
 	    integratorDCV.addPhase(phase);
 	    
 	    ActivityIntegrate activityIntegrate = new ActivityIntegrate(integratorDCV);
@@ -75,11 +76,12 @@ public class DCVGCMD extends Simulation {
 	    
 	    //make MC integrator next
 	    integratorDCV.setIntegrators(integratorMC, integrator);
+        integratorDCV.setTemperature(Kelvin.UNIT.toSim(500.));
 	    integrator.setIsothermal(true);
             //integrator.setSleepPeriod(1);
-            integrator.setTimeStep(0.05);
+        integrator.setTimeStep(0.05);
             //integrator.setInterval(10);
-        activityIntegrate.setDoSleep(false);	
+        activityIntegrate.setDoSleep(true);	
         MyMCMove[] moves = integratorDCV.mcMoves();
 		MeterFlux meterFlux0 = new MeterFlux(moves[0], integratorDCV);
 		MeterFlux meterFlux1 = new MeterFlux(moves[1], integratorDCV);

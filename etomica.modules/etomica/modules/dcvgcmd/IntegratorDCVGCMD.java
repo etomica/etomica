@@ -22,7 +22,7 @@ import etomica.units.Dimension;
  * To change the template for this generated type comment go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-public class IntegratorDCVGCMD extends Integrator{
+public class IntegratorDCVGCMD extends Integrator {
 	
 	private int i = 0;
 	IntegratorMC integratormc;
@@ -39,6 +39,12 @@ public class IntegratorDCVGCMD extends Integrator{
 		this.speciesA = species1;
 		this.speciesB = species2;
 	}
+    
+    public void setup() {
+        integratormd.initialize();
+        integratormd.initialize();
+        super.setup();
+    }
 	
 	public void doStep() {
 		if(!doMD){
