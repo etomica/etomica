@@ -31,7 +31,7 @@ public abstract class MeterAbstract implements DataSource {
     /**
      * Array used to hold the data returned by the meter. 
      */
-    private double[] data;
+    private double[] data = new double[0];
     
     /**
      * String used to identify this particular meter
@@ -147,7 +147,8 @@ public abstract class MeterAbstract implements DataSource {
      * beginning at getData()[j*nDataPerPhase]
      */
     public double[] getData() {
-    	int k = 0;
+        if(phaseCount == 0) System.err.println("Warning: meter used without first setting phase");
+        int k = 0;
     	for(int i=0; i<phaseCount; i++) {
      		System.arraycopy(getData(phase[i]), 0, data, k, nDataPerPhase);
     		k += nDataPerPhase;
