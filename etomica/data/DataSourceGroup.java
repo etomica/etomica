@@ -27,6 +27,8 @@ public class DataSourceGroup implements DataSource {
      * populate group with addDataSource method. 
      */
     public DataSourceGroup() {
+        super();
+        dataSources = new DataSource[0];
         data = new double[0];
         dataLength = new int[0];
     }
@@ -36,9 +38,11 @@ public class DataSourceGroup implements DataSource {
      * array is copied to another array internally.
      */
     public DataSourceGroup(DataSource[] sources) {
-        super();
-        for(int i=0; i<sources.length; i++) {
-            addDataSource(dataSources[i]);
+        this();
+        if(sources != null) {
+            for(int i=0; i<sources.length; i++) {
+                addDataSource(sources[i]);
+            }
         }
     }
 
