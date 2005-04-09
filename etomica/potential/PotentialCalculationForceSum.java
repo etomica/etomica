@@ -40,7 +40,7 @@ public class PotentialCalculationForceSum extends PotentialCalculation {
 					break;
 				case 2: 
 			        ((Integrator.Forcible)((AtomPair)atoms).atom0.ia).force().PE(f);
-			        ((Integrator.Forcible)((AtomPair)atoms).atom0.ia).force().ME(f);
+			        ((Integrator.Forcible)((AtomPair)atoms).atom1.ia).force().ME(f);
 			 		break;
 			 	default:
 			 		throw new RuntimeException("Force calculation not implemented to treat (n>2)-body interactions");	
