@@ -41,9 +41,15 @@ public class IntegratorDCVGCMD extends Integrator {
 	}
     
     public void setup() {
-        integratormd.initialize();
+        integratormc.initialize();
         integratormd.initialize();
         super.setup();
+    }
+    
+    public void setTemperature(double t) {
+        super.setTemperature(t);
+        integratormc.setTemperature(t);
+        integratormd.setTemperature(t);
     }
 	
 	public void doStep() {
