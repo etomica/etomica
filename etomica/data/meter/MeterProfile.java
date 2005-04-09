@@ -38,6 +38,7 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
      */
     public MeterProfile(Space space) {
         super(new DataSourceUniform());
+        setNDataPerPhase(((DataSourceUniform)xDataSource).getNValues());
         profileVector = space.makeVector();
         profileVector.setX(0, 1.0);
     }
