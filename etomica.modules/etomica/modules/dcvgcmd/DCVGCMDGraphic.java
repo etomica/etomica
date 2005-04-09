@@ -7,9 +7,9 @@ import javax.swing.JPanel;
 
 import etomica.Modifier;
 import etomica.action.PhaseImposePbc;
+import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.Device;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceTrioControllerButton;
 import etomica.graphics.DisplayBox;
@@ -75,8 +75,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	add(table);
     sim.fluxAccumulator.addDataSink(table.makeDataSink());
 	
-	sim.accumulator1.addDataSink(profilePlot.makeDataSink());
-	sim.accumulator2.addDataSink(profilePlot.makeDataSink());
+	sim.accumulator1.makeDataPusher(new AccumulatorAverage.Type[]{AccumulatorAverage.AVERAGE}).addDataSink(profilePlot.makeDataSink());
+	sim.accumulator2.makeDataPusher(new AccumulatorAverage.Type[]{AccumulatorAverage.AVERAGE}).addDataSink(profilePlot.makeDataSink());
 	//phase.setDensity(0.5);
 //set color of molecules	
 	ColorSchemeByType.setColor(sim.species,java.awt.Color.blue);
