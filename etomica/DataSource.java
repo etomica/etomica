@@ -7,7 +7,18 @@ package etomica;
  
 public interface DataSource {
 
+    /**
+     * @return the data given by this source
+     */
 	public double[] getData();
+    
+    /**
+     * Reports the length of the data array given by this source.  In some
+     * DataSource objects this length is subject to change over its lifetime. 
+     * 
+     * @return the length of the array returned by getData
+     */
+    public int getDataLength();
     
     /**
      * Returns a label used to describe the data when presented, 
@@ -16,7 +27,7 @@ public interface DataSource {
     public String getLabel();
     
     /**
-     * Returns the physical dimensions (e.g., length) of the data.
+     * Returns the physical dimensions (e.g., length, time) of the data.
      */
     public etomica.units.Dimension getDimension();
     

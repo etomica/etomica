@@ -82,6 +82,10 @@ public final class DataSourceCountTime extends DataSourceAdapter implements
 		}
 		return value;
 	}
+    
+    public int getDataLength() {
+        return timer.length;
+    }
 
 	/**
 	 * Identifies the integrators whose steps will be counted. Information

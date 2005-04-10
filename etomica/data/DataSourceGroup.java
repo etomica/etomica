@@ -70,6 +70,17 @@ public class DataSourceGroup implements DataSource {
         return data;
     }
     
+    /**
+     * Returns the sum of the data lengths of the sources in the group.
+     */
+    public int getDataLength() {
+        int sum = 0;
+        for(int i=0; i<dataSources.length; i++) {
+            sum += dataSources[i].getDataLength();
+        }
+        return sum;
+    }
+    
     //used by getData
     private void adjustDataLength(int growth) {
         double[] newData = new double[data.length + growth];

@@ -17,6 +17,13 @@ public class IntegratorPotentialEnergy implements DataSource, Integrator.Interva
     public double[] getData() {
         return integrator.getPotentialEnergy();
     }
+    
+    /**
+     * Length of data is the number of phases tracked by integrator; returns it.
+     */
+    public int getDataLength() {
+        return integrator.getPhase().length;
+    }
 
     public int getPriority() {return 200;}
     

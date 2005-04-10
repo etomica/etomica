@@ -4,7 +4,6 @@
  */
 package etomica.data;
 
-import etomica.DataPipe;
 import etomica.DataSink;
 import etomica.DataSource;
 import etomica.Default;
@@ -54,6 +53,8 @@ public abstract class DataAccumulator extends DataPipe implements DataSource {
 	}
 
     protected abstract void addData(double[] data);
+    
+    public abstract int getDataLength();
     
     public abstract double[] getData();
     

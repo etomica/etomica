@@ -1,6 +1,6 @@
-package etomica;
+package etomica.data;
 
-import etomica.data.DataPusher;
+import etomica.DataSink;
 
 
 /**

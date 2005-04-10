@@ -67,6 +67,10 @@ public class DataSourceCountCollisions extends DataSourceAdapter {
 		}
 		return value;
 	}
+    
+    public int getDataLength() {
+        return counter.length;
+    }
 
 	/**
 	 * Identifies the integrators whose steps will be counted. Information

@@ -172,6 +172,10 @@ public class DataSourceUniform implements DataSource {
         */
       public double[] getData() {return x;}
       
+      public int getDataLength() {
+          return x.length;
+      }
+      
       /**
        * Returns an Identity translator, indicating that the data
        * is not suitably interpreted as another object.

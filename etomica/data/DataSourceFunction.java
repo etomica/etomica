@@ -45,6 +45,11 @@ public class DataSourceFunction implements DataSource, DataSourceDependent {
     public double[] getData() {
         return y;
     }
+    
+    public int getDataLength() {
+        return y.length;
+    }
+    
     public double[] xValues() {return x;}
     
     public void update() {

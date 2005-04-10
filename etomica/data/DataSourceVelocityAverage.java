@@ -54,6 +54,13 @@ public class DataSourceVelocityAverage extends AtomActionAdapter implements Data
     public double[] getData() {
         return dataTranslator.toArray(getVelocityAverage());
     }
+    
+    /**
+     * Data length equals the spatial dimension; returns it.
+     */
+    public int getDataLength() {
+        return space.D();
+    }
 
     /**
      * Returns the center of mass (calculated so far) as a vector.

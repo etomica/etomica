@@ -13,7 +13,7 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
             setNaN(data);
         } else {
             super.getData();
-            int numBaseStats = super.numStats();
+            int numBaseStats = super.getDataLength();
             data[(numBaseStats+0)*nData+0] = 1; // average
             data[(numBaseStats+1)*nData+0] = 0; // error
             data[(numBaseStats+2)*nData+0] = 0; // std dev
@@ -38,8 +38,8 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
         return data;
     }
     
-    public int numStats() {
-        return 3+super.numStats();
+    public int getDataLength() {
+        return 3+super.getDataLength();
     }
      
     public static class Type extends AccumulatorAverage.Type {

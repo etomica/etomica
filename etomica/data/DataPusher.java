@@ -11,12 +11,20 @@ import etomica.utility.Arrays;
  */
 public abstract class DataPusher {
 
+    /**
+     * Sets the label associated with the data passing through this stream.
+     */
     public void setLabel(String label) {
         this.label = label;
     }
 
+    /**
+     * Returns the label most recently given to setLabel.  If
+     * not previously specified, returns an empty string.  Will
+     * not return null.
+     */
     public String getLabel() {
-        return label;
+        return (label == null) ? "" : label;
     }
 
     /**
@@ -26,7 +34,7 @@ public abstract class DataPusher {
      * is placed in a data stream.
      */
     public void setDefaultLabel(String defaultLabel) {
-        if(label == "") setLabel(defaultLabel);
+        if(label == null) setLabel(defaultLabel);
     }
 
     public abstract DataTranslator getTranslator();
@@ -57,12 +65,8 @@ public abstract class DataPusher {
         }
         dataSinkList = (DataSink[])dataSinks.clone();
         for(int i=0; i<dataSinks.length; i++) {
-//            if(dataSinkList[i].getDimension() == Dimension.NULL) {
-                dataSinkList[i].setDimension(dimension);
-//            }
-//            if(dataSinkList[i].getLabel().equals("")) {
-                dataSinkList[i].setDefaultLabel(label);
-//            }
+            dataSinkList[i].setDimension(dimension);
+            dataSinkList[i].setDefaultLabel(label);
         }
     }
 
@@ -96,7 +100,7 @@ public abstract class DataPusher {
     /**
      * A string describing the property measured by the meter
      */
-    protected String label = "";
+    protected String label = null;
     private Dimension dimension = Dimension.UNDEFINED;
     protected DataSink[] dataSinkList = new DataSink[0];
 

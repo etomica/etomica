@@ -1,4 +1,5 @@
 package etomica.graphics;
+
 import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -11,255 +12,396 @@ import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
 import etomica.Action;
-import etomica.DataSink;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageSegment;
+import etomica.data.DataBin;
+import etomica.data.DataTable;
+import etomica.data.DataTableListener;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPressureHard;
-import etomica.units.Dimension;
 import etomica.units.Unit;
 import etomica.utility.Arrays;
 
 /**
  * Presents data in a tabular form.
- *
+ * 
  * @author David Kofke
  * @see DisplayTableFunction
  */
- 
- /* History of changes
-  * 7/20/02 Added key listener to set precision of displayed values
-  */
- 
-public class DisplayTable extends Display implements EtomicaElement {
-    
-    private JTable table;
-    private JPanel panel;
-    private boolean showLabels = true;
-    private boolean fitToWindow = true;
-    private MyTableData tableSource;
-    private DataGroup[] data = new DataGroup[0];
-    private boolean fillHorizontal;
-    
-        //structures used to adjust precision of displayed values
-//	private final java.text.NumberFormat formatter = java.text.NumberFormat.getInstance();
-	private final java.text.NumberFormat formatter = new etomica.utility.ScientificFormat();
-    private final javax.swing.table.DefaultTableCellRenderer numberRenderer =
-        new javax.swing.table.DefaultTableCellRenderer() { 
-            public void setValue(Object value) { 
-        		setText((value == null) ? "" : formatter.format(value)); 
-	        }
-        };
-        
+
+/*
+ * History of changes 7/20/02 Added key listener to set precision of displayed
+ * values
+ */
+
+public class DisplayTable extends Display implements DataTableListener, EtomicaElement {
+
     public DisplayTable() {
-        setupDisplay();
+        this(new DataTable());
+    }
+
+    public DisplayTable(DataTable dataTable) {
+        this.dataTable = dataTable;
+
+        units = new Unit[dataTable.getColumnCount()];
+        for(int i=0; i<units.length; i++) {
+            units[i] = dataTable.getColumn(i).getDimension().defaultIOUnit();
+        }
+        
+        dataTable.addTableListener(this);
+        tableSource = new MyTable(); //inner class, defined below
+        table = new JTable(tableSource);
+        panel = new javax.swing.JPanel(new java.awt.FlowLayout());
+        
         setLabel("Data");
         numberRenderer.setHorizontalAlignment(javax.swing.JLabel.RIGHT);
         setPrecision(4);
-        InputEventHandler listener = new InputEventHandler();
-        panel.addKeyListener(listener);
-        panel.addMouseListener(listener);
-        setFillHorizontal(true);
-        setupDisplay();
-    }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Tabular display of data from several sources");
-        return info;
-    }
-    
-    /**
-     * Implementation of parent's abstract method to set up table whenever 
-     * data sources are added or changed.
-     */
-    protected void setupDisplay() {
-        if(panel == null) panel = new javax.swing.JPanel(new java.awt.FlowLayout());
-        else panel.removeAll();
-        panel.setSize(100,150);
-        tableSource = new MyTableData();   //inner class, defined below
-        table = new JTable(tableSource);
-        if(!fitToWindow) table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        setTransposed(false);
+        setShowingRowLabels(true);
+        setShowingColumnHeaders(true);
         table.setDefaultRenderer(Number.class, numberRenderer);
         table.setDefaultRenderer(Double.class, numberRenderer);
         panel.add(new JScrollPane(table));
+        InputEventHandler listener = new InputEventHandler();
+        panel.addKeyListener(listener);
+        panel.addMouseListener(listener);
+        panel.setSize(100, 150);
+        if (!fitToWindow) table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
     }
-        
+
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo(
+                "Tabular display of data from several sources");
+        return info;
+    }
+
+    public DataTable getDataTable() {
+        return dataTable;
+    }
+
     /**
-     * If true, each data set fills a row; if false, data are arranged to fill columns.
+     * Causes the display of the plot to be updated.
      */
-    public boolean isFillHorizontal() {
-        return fillHorizontal;
+    public void tableDataChanged() {
+        tableSource.fireTableDataChanged();
+        repaint();
     }
+    
     /**
-     * If fillHorizontal is true, each data set fills a row; if false, data are arranged to fill columns.
+     * Updates the units array for the new column, using the default units.
      */
-    public void setFillHorizontal(boolean fillHorizontal) {
-        this.fillHorizontal = fillHorizontal;
+    public void tableColumnAdded(DataBin newColumn) {
+        units = (Unit[])Arrays.addObject(units, newColumn.getDimension().defaultIOUnit());
+        tableSource.fireTableStructureChanged();
     }
+
     /**
-     * If true, columns will be squeezed so table fits to window; if false, table
-     * will exceed window size, and to view full width must be placed in a scroll pane.
-     * Default is true.
+     * Causes the corresponding units element to be removed.
+     */
+    public void tableColumnRemoved(int index, DataBin oldColumn) {
+        units = (Unit[])Arrays.removeObject(units, units[index]);
+        tableSource.fireTableStructureChanged();
+    }
+    
+    /**
+     * Has no effect. Part of the DataTableListener interface.
+     */
+    public void tableRowCountChanged(int oldCount, int newCount) {
+        tableSource.fireTableStructureChanged();
+    }
+    
+    /**
+     * If true, each data set fills a row; if false, data are arranged to fill
+     * columns.
+     */
+    public boolean isTransposed() {
+        return transposed;
+    }
+
+    /**
+     * If fillHorizontal is true, each data set fills a row; if false, data are
+     * arranged to fill columns.
+     */
+    public void setTransposed(boolean transposed) {
+        if(this.transposed != transposed) {
+            this.transposed = transposed;
+            tableSource.fireTableStructureChanged();
+        }
+    }
+
+    /**
+     * If true, columns will be squeezed so table fits to window; if false,
+     * table will exceed window size, and to view full width must be placed in a
+     * scroll pane. Default is true.
      */
     public void setFitToWindow(boolean b) {
         fitToWindow = b;
-        setupDisplay();
+        if (fitToWindow) table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        else table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
     }
+
     /**
-     * Accessor method for flag determining if table is squeezed to fit in window.
+     * Accessor method for flag determining if table is squeezed to fit in
+     * window.
      */
-    public boolean isFitToWindow() {return fitToWindow;}
-    
+    public boolean isFitToWindow() {
+        return fitToWindow;
+    }
+
     /**
      * Mutator method for whether table should include a column of "x" values.
      */
-    public void setShowLabels(boolean b) {
-        showLabels = b;
-        setupDisplay();
+    public void setShowingRowLabels(boolean b) {
+        showingRowLabels = b;
+        c0 = showingRowLabels ? 1 : 0;
+        tableSource.fireTableStructureChanged();
     }
+
     /**
-     * Accessor method for flag indicating if table should include a column of "x" values.
+     * Accessor method for flag indicating if table should include a column of
+     * "x" values.
      */
-    public boolean isShowLabels() {return showLabels;}
-            
+    public boolean isShowingRowLabels() {
+        return showingRowLabels;
+    }
+
     /**
-     * Accessor method of the precision, which specifies the number of significant figures to be displayed.
+     * Accessor method of the precision, which specifies the number of
+     * significant figures to be displayed.
      */
-    public int getPrecision() {return formatter.getMaximumFractionDigits();}
+    public int getPrecision() {
+        return formatter.getMaximumFractionDigits();
+    }
+
     /**
-     * Accessor method of the precision, which specifies the number of significant figures to be displayed.
+     * Accessor method of the precision, which specifies the number of
+     * significant figures to be displayed.
      */
     public void setPrecision(int n) {
-	    formatter.setMaximumFractionDigits(n);
+        formatter.setMaximumFractionDigits(n);
+    }
+
+    //    public Action makeLogTableAction() {return new LogTableAction();}
+
+    public void repaint() {
+        table.repaint();
+    }
+
+    public Component graphic(Object obj) {
+        return panel;
+    }
+
+    public AbstractTableModel tableModel() {
+        return tableSource;
+    }
+
+    /**
+     * Descriptive text for each row.
+     */
+    public String[] getRowLabels() {
+        return rowLabels;
     }
     
-//    public Action makeLogTableAction() {return new LogTableAction();}
+    /**
+     * Sets values for descriptive text for each row (as defined before transpose).
+     * Display of labels is determined by value of showingRowLabels (if not
+     * transposing) or showingColumnHeaders (if transposing).  
+     * @param rowLabels
+     */
+    public void setRowLabels(String[] rowLabels) {
+        this.rowLabels = rowLabels;
+    }
     
-    public void repaint() {table.repaint();}
-
-    public Component graphic(Object obj) {return panel;}
-    
-    public AbstractTableModel tableModel() {return tableSource;}
-
-    private class MyTableData extends AbstractTableModel {
-        
-        String[] columnNames;
-        Class[] columnClasses;
-        int nColumns;
-        int y0;  //index of first y column (1 if showing x, 0 otherwise)
-        
-        MyTableData() {
-            y0 = showLabels ? 1 : 0;
-            nColumns += y0;
-            columnNames = new String[nColumns];
-            columnClasses = new Class[nColumns];
-            if(showLabels) {
-                columnNames[0] = "Property";
-                columnClasses[0] = String.class;
-            }
-            for(int i=y0; i<nColumns; i++) {
-                columnNames[i] = "";
-                columnClasses[i] = Double.class;
-            }
+    /**
+     * Sets the units of all columns to the given unit.
+     */
+    public void setAllUnits(Unit newUnit) {
+        for(int i=0; i<units.length; i++) {
+            units[i] = newUnit;
         }
-        
+    }
+    
+    /**
+     * Sets the unit of the i-th column (as defined before any transpose).
+     * @param i column index, numbered from zero, not including the row-label column
+     * @param newUnit the unit to be assigned to the indicated column
+     */
+    public void setUnit(int i, Unit newUnit) {
+        units[i] = newUnit;
+    }
+    
+    /**
+     * Returns the unit assign to the i-th column (as defined before any transpose).
+     * @param i column index, numbered from zero, not including the row-label column
+     * @return the unit of the indicated column
+     */
+    public Unit getUnit(int i) {
+        return units[i];
+    }
+
+    /**
+     * @return Returns the showingColumnHeaders flag.
+     */
+    public boolean isShowingColumnHeaders() {
+        return showingColumnHeaders;
+    }
+    /**
+     * @param showingColumnHeaders The showingColumnHeaders flag to set.
+     */
+    public void setShowingColumnHeaders(boolean showingColumnHeaders) {
+        this.showingColumnHeaders = showingColumnHeaders;
+    }
+    /**
+     * @return Returns the showingUnits flag, which indicates whether a units
+     * suffix is applied to the column headers (or row labels, if transposing).
+     */
+    public boolean isShowingUnits() {
+        return showingUnits;
+    }
+    /**
+     * Flag indicating whether a units suffix applied to the column
+     * headers (or row labels, if transposing).  Default is true.
+     * @param showingUnits The showingUnits flag to set.
+     */
+    public void setShowingUnits(boolean showingUnits) {
+        this.showingUnits = showingUnits;
+    }
+    
+    
+    /**
+     * Returns the header of the row-label column.  Not used
+     * if showingRowLabels is false.  Default is empty string. 
+     */
+    public String getRowLabelColumnHeader() {
+        return rowLabelColumnHeader;
+    }
+    /**
+     * Sets the header of the row-label column.  Not used
+     * if showingRowLabels is false.
+     */
+    public void setRowLabelColumnHeader(String rowLabelColumnHeader) {
+        this.rowLabelColumnHeader = rowLabelColumnHeader;
+    }
+    
+    private final JTable table;
+    private final DataTable dataTable;
+    private final MyTable tableSource;
+    private final JPanel panel;
+    
+    private boolean showingRowLabels;
+    private boolean showingColumnHeaders;
+    private boolean showingUnits = true;
+    private boolean fitToWindow = true;
+    private boolean transposed;
+    private int c0 = 0;
+    private String[] rowLabels = new String[0];
+    private String rowLabelColumnHeader = "";
+    private Unit[] units = new Unit[0];
+
+    //structures used to adjust precision of displayed values
+    //  private final java.text.NumberFormat formatter =
+    // java.text.NumberFormat.getInstance();
+    private final java.text.NumberFormat formatter = new etomica.utility.ScientificFormat();
+    private final javax.swing.table.DefaultTableCellRenderer numberRenderer = new javax.swing.table.DefaultTableCellRenderer() {
+
+        public void setValue(Object value) {
+            setText((value == null) ? "" : formatter.format(value));
+        }
+    };
+
+    private class MyTable extends AbstractTableModel {
+
         public Object getValueAt(int row, int column) {
-            int r = fillHorizontal ? row : column;
-            int c = fillHorizontal ? column : row;
-//            if(showLabels && column == 0) return labels[row];
-            return new Double(data[r].unit.fromSim(data[r].y[c]));
+            if(showingRowLabels && column == 0) {
+                if(transposed) {
+                    return columnLabel(row); 
+                } else {
+                    return (row < rowLabels.length) ? rowLabels[row] : "";
+                }
+            }
+            //r and c are the row/column indices for the internal representation 
+            //of the table
+            int r = transposed ? column-c0 : row;
+            int c = transposed ? row : column-c0;
+            DataBin col = dataTable.getColumn(c);
+            double value = Double.NaN;
+            if(r < col.getDataLength()) {
+                value = units[c].fromSim(col.getData()[r]);
+            }
+            return new Double(value);
+        }
+
+        public int getRowCount() {
+            int n = transposed ? dataTable.getColumnCount() : dataTable.getRowCount();
+            return n;
+        }
+
+        public int getColumnCount() {
+            int n = c0 + (transposed ? dataTable.getRowCount() : dataTable.getColumnCount());
+            return n;
         }
         
-        public int getRowCount() {return fillHorizontal ? data.length : nColumns;}
-        public int getColumnCount() {return fillHorizontal ? nColumns : data.length;}
-                
-        public String getColumnName(int column) {return columnNames[column];}
-        public Class getColumnClass(int column) {return columnClasses[column];}
-    }
-    
-    public DataSink makeDataSink(Unit u) {
-        DataGroup newGroup = (DataGroup)makeDataSink();
-        newGroup.unit = u;
-        data = (DataGroup[])Arrays.addObject(data, newGroup);
-        return newGroup;
-    }
-    
-    public DataSink makeDataSink() {
-        DataGroup newGroup = new DataGroup();
-        data = (DataGroup[])Arrays.addObject(data, newGroup);
-        return newGroup;
-    }
-    
-    public void removeDataSink(DataSink sink) {
-        data = (DataGroup[])Arrays.removeObject(data, sink);
-    }
-    
-    public void removeAllSinks() {
-        data = new DataGroup[0];
-    }
-
-    private class DataGroup implements DataSink {
-        double[] y;
-        Dimension dimension = Dimension.UNDEFINED;
-        Unit unit = Unit.UNDEFINED;
-        String label = "";
+        public String getColumnName(int i) {
+            if(i == 0 && showingRowLabels) return rowLabelColumnHeader;
+            int c = i - c0;
+            if(transposed) {
+                return (rowLabels.length > c) ? rowLabels[c] : "";
+            } else {
+                return columnLabel(c);
+            }
+        }
         
-        DataGroup() {
-            y = new double[0];
+        private String columnLabel(int i) {
+            String suffix = "";
+            if(showingUnits) {
+                suffix = units[i].symbol();
+                if(!suffix.equals("")) suffix = "("+suffix+")";
+            }
+            return dataTable.getColumn(i).getLabel() + (showingUnits ? suffix : "");
         }
 
-        public void putData(double[] values) {
-            if(y.length != values.length) y = (double[])values.clone();
-            else System.arraycopy(values, 0, y, 0, values.length);
-            repaint();
-        }
-
-        public void setDimension(Dimension dimension) {
-            this.dimension = dimension;
-        }
-
-        /**
-         * Sets label to the given value if it was not previously set.
-         * If setLabel was previously called, this method has no effect.
-         */
-        public void setDefaultLabel(String defaultLabel) {
-            if(label == "") setLabel(defaultLabel);
-        }
-
-       public void setLabel(String label) {
-            this.label = label;
-        }
     }
 
-    
     private class InputEventHandler extends MouseAdapter implements KeyListener {
-        
+
         public void keyPressed(KeyEvent evt) {
             char c = evt.getKeyChar();
-            if(Character.isDigit(c)) {
-            	System.out.println("Setting precision "+Character.getNumericValue(c));
+            if (Character.isDigit(c)) {
+                System.out.println("Setting precision "
+                        + Character.getNumericValue(c));
                 setPrecision(Character.getNumericValue(c));
                 panel.repaint();
             }
         }
-        public void keyReleased(KeyEvent evt) {}
-        public void keyTyped(KeyEvent evt) {}
-        
+
+        public void keyReleased(KeyEvent evt) {
+        }
+
+        public void keyTyped(KeyEvent evt) {
+        }
+
         public void mouseClicked(MouseEvent evt) {
             panel.requestFocus();
         }
-        public void mouseEntered(MouseEvent evt) {panel.requestFocus();}
-        public void mouseExited(MouseEvent evt) {panel.transferFocus();}
+
+        public void mouseEntered(MouseEvent evt) {
+            panel.requestFocus();
+        }
+
+        public void mouseExited(MouseEvent evt) {
+            panel.transferFocus();
+        }
     }
-        
+
     private class LogTableAction implements Action {
-        
+
         public void actionPerformed() {
             etomica.log.LogTable log = new etomica.log.LogTable();
             log.writeTable(tableSource, "output.xls");
         }
+
         public String getLabel() {
             return "Write table to log file";
         }
@@ -272,23 +414,53 @@ public class DisplayTable extends Display implements EtomicaElement {
         etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
         SimulationGraphic graphic = new SimulationGraphic(sim);
         sim.integrator.setIsothermal(true);
-        
+
         //part that is unique to this demonstration
         DisplayTable table = new DisplayTable();
         MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
         pMeter.setPhase(sim.phase);
-        AccumulatorAverageSegment pSegment = new AccumulatorAverageSegment(pMeter, sim.integrator, 
-                new AccumulatorAverage.Type[] {AccumulatorAverage.AVERAGE, AccumulatorAverage.ERROR},
-                table.makeDataSink());
+        AccumulatorAverageSegment pSegment = new AccumulatorAverageSegment(
+                pMeter, sim.integrator, new AccumulatorAverage.Type[] {
+                        AccumulatorAverage.MOST_RECENT,
+                        AccumulatorAverage.AVERAGE, 
+                        AccumulatorAverage.ERROR },
+                table.getDataTable().makeColumn(pMeter.getDimension()));
         MeterNMolecules nMeter = new MeterNMolecules();
         nMeter.setPhase(sim.phase);
-        AccumulatorAverageSegment nSegment = new AccumulatorAverageSegment(nMeter, sim.integrator, 
-                new AccumulatorAverage.Type[] {AccumulatorAverage.AVERAGE, AccumulatorAverage.ERROR},
-                table.makeDataSink());
+        AccumulatorAverageSegment nSegment = new AccumulatorAverageSegment(
+                nMeter, sim.integrator, new AccumulatorAverage.Type[] {
+                        AccumulatorAverage.MOST_RECENT,
+                        AccumulatorAverage.AVERAGE, 
+                        AccumulatorAverage.ERROR },
+                table.getDataTable().makeColumn(nMeter.getDimension()));
         //end of unique part
-                                            
+
+        //part that is unique to this demonstration
+//        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
+//        pMeter.setPhase(sim.phase);
+//        DataTable dataTable = new DataTable();
+//        AccumulatorAverageSegment pSegment = new AccumulatorAverageSegment(
+//                pMeter, sim.integrator, new AccumulatorAverage.Type[] {
+//                        AccumulatorAverage.MOST_RECENT,
+//                        AccumulatorAverage.AVERAGE, 
+//                        AccumulatorAverage.ERROR },
+//                dataTable.makeColumn());
+//        MeterNMolecules nMeter = new MeterNMolecules();
+//        nMeter.setPhase(sim.phase);
+//        AccumulatorAverageSegment nSegment = new AccumulatorAverageSegment(
+//                nMeter, sim.integrator, new AccumulatorAverage.Type[] {
+//                        AccumulatorAverage.MOST_RECENT,
+//                        AccumulatorAverage.AVERAGE, 
+//                        AccumulatorAverage.ERROR },
+//                dataTable.makeColumn());
+//        DisplayTable table = new DisplayTable(dataTable);
+
+        //end of unique part
+        table.setRowLabels(new String[] {"Current", "Average", "Error"});
+        table.setTransposed(false);
+        table.setShowingRowLabels(true);
         table.setPrecision(7);
-        
+
         graphic.add(table);
         graphic.makeAndDisplayFrame();
     }//end of main

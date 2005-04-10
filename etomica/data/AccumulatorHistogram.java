@@ -58,6 +58,13 @@ public class AccumulatorHistogram extends DataAccumulator {
 		for(int i=0; i<nData; i++) data[i] = histogram[i].getHistogram();
 		return dataTranslator.toArray(data);
 	}
+    
+    /**
+     * Returns the number of histograms times the length of each.
+     */
+    public int getDataLength() {
+        return nData*nBins;
+    }
 
 	public void setLabel(String s) {label = s;}
 	public String getLabel() {return label;}

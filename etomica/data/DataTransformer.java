@@ -4,7 +4,6 @@
  */
 package etomica.data;
 
-import etomica.DataPipe;
 import etomica.DataSink;
 
 /**

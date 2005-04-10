@@ -56,6 +56,14 @@ public class DataSourceCOM extends AtomActionAdapter implements DataSource, Atom
     }
 
     /**
+     * Returns the lenght of the data returned, which equals the 
+     * dimension of the space.
+     */
+    public int getDataLength() {
+        return space.D();
+    }
+    
+    /**
      * Returns the center of mass (calculated so far) as a vector.
      * Does not reset COM sums.
      */

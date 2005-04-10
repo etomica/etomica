@@ -7,7 +7,6 @@ package etomica.data;
 import etomica.Constants;
 import etomica.DataSink;
 import etomica.DataTranslator;
-import etomica.DataType;
 import etomica.Default;
 import etomica.units.Dimension;
 
@@ -18,7 +17,7 @@ public class AccumulatorAverage extends DataAccumulator {
 
 	public AccumulatorAverage() {
 		super();
-        allData = new double[numStats()][]; 
+        allData = new double[getDataLength()][]; 
 		setNData(0);
 		setBlockSize(Default.BLOCK_SIZE);
         setDimension(Dimension.UNDEFINED);
@@ -121,9 +120,9 @@ public class AccumulatorAverage extends DataAccumulator {
     
     protected void setNData(int nData) {
     	this.nData = nData;
-        translator = new DataTranslatorArray(numStats(),nData);
+        translator = new DataTranslatorArray(getDataLength(),nData);
         nDataMinus1 = nData-1;
-        data = new double[numStats()*nData];
+        data = new double[getDataLength()*nData];
     	sum = redimension(nData, sum);
     	sumSquare = redimension(nData, sumSquare);
         sumSquareBlock = redimension(nData, sumSquareBlock);
@@ -181,7 +180,7 @@ public class AccumulatorAverage extends DataAccumulator {
 	 * to be taken from a meter (e.g., average, error, current value, etc.).
 	 * Used primarily by Display objects.
 	 */
-	public static class Type extends etomica.DataType {
+	public static class Type extends etomica.data.DataType {
         protected Type(String label, int index) {
             super(label);
             this.index = index;
@@ -220,7 +219,7 @@ public class AccumulatorAverage extends DataAccumulator {
 		if(saveOnRedimension) throw new IllegalArgumentException("Save on redimension not yet implemented correctly");
 	}
     
-    public int numStats() {
+    public int getDataLength() {
         return 5;
     }
 	

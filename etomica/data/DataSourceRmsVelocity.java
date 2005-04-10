@@ -34,6 +34,10 @@ public class DataSourceRmsVelocity extends DataSourceAdapter {
 		value[0] /= (double) count;
 		return value;
 	}
+    
+    public int getDataLength() {
+        return 1;
+    }
 
 	/**
 	 * Sets the iterator defining the atoms for which the RMS velocity is

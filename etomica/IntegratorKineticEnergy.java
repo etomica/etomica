@@ -19,6 +19,13 @@ public class IntegratorKineticEnergy implements DataSource, Integrator.IntervalL
     public double[] getData() {
         return integrator.getKineticEnergy();
     }
+ 
+    /**
+     * Length of data is the number of phases tracked by integrator; returns it.
+     */
+    public int getDataLength() {
+        return integrator.getPhase().length;
+    }
 
     public int getPriority() {return 200;}
     

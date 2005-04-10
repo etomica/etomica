@@ -1,8 +1,9 @@
 /*
  * Created on Jul 25, 2004 by kofke
  */
-package etomica;
+package etomica.data;
 
+import etomica.Constants;
 import etomica.Constants.TypedConstant;
 
 /**

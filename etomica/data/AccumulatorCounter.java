@@ -39,7 +39,14 @@ public class AccumulatorCounter extends DataAccumulator {
 	public void reset() {
 		count = 0;
 	}
-
+	
+    /**
+     * Returns 1.
+     */
+    public int getDataLength() {
+        return 1;
+    }
+    
 	int count;
 	final double[] data = new double[1];
 	

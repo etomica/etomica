@@ -62,6 +62,13 @@ public class AccumulatorHistory extends DataAccumulator {
 		for(int i=0; i<nData; i++) data[i] = history[i].getHistory();
 		return dataTranslator.toArray(data);
 	}
+    
+    /**
+     * Returns the number of histories times the length of each.
+     */
+    public int getDataLength() {
+        return nData*historyLength;
+    }
 
 	public void setLabel(String s) {label = s;}
 	public String getLabel() {return label;}

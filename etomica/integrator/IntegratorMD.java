@@ -86,7 +86,7 @@ public abstract class IntegratorMD extends Integrator {
         }
     }
     
-    public static class ThermostatType extends etomica.DataType {
+    public static class ThermostatType extends etomica.data.DataType {
         protected ThermostatType(String label) {super(label);}       
         public Constants.TypedConstant[] choices() {return CHOICES;}
     }

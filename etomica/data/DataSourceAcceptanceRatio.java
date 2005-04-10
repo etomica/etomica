@@ -60,4 +60,8 @@ public final class DataSourceAcceptanceRatio extends DataSourceAdapter {
     	}
         return ratioArray;
     }
+    
+    public int getDataLength() {
+        return move.length;
+    }
 }

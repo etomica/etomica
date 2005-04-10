@@ -156,6 +156,10 @@ public abstract class MeterAbstract implements DataSource {
     	return data;
     }
     
+    public int getDataLength() {
+        return data.length;
+    }
+    
     /**
      * Returns an IntegerRange that specifies the acceptable number of
      * phases that can be set for this meter.  Part of PhaseDependent

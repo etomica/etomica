@@ -18,6 +18,8 @@ public class DataPump extends DataPusher implements Action {
 	public DataPump(DataSource dataSource, DataSink[] dataSinks) {
 		if(dataSource == null) throw new NullPointerException("Error: cannot construct data pump without a data source");
 		this.dataSource = dataSource;
+        setDefaultLabel(dataSource.getLabel());
+        setDimension(dataSource.getDimension());
 		setDataSinks(dataSinks);
 	}
     

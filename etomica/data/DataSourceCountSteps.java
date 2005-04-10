@@ -83,6 +83,10 @@ public final class DataSourceCountSteps extends DataSourceAdapter implements
 		}
 		return value;
 	}
+    
+    public int getDataLength() {
+        return counter.length;
+    }
 
 	/**
 	 * Identifies the integrators whose steps will be counted. Information

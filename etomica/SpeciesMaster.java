@@ -123,6 +123,7 @@ public final class SpeciesMaster extends Atom {
             leafAtomCount -= atom.node.leafAtomCount();
             leafIterator.setRoot(atom);
             leafIterator.reset();
+            //XXX make sure it is ok to remove atoms from list while iterating over it
             while(leafIterator.hasNext()) {
                 speciesMaster.atomList.remove(((AtomTreeNodeLeaf)leafIterator.nextAtom().node).leafLinker);
             }

@@ -1,56 +1,52 @@
 package etomica.graphics;
-import etomica.DataSink;
 import etomica.DataSource;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageSegment;
 import etomica.data.AccumulatorHistory;
+import etomica.data.DataBin;
 import etomica.data.DataSourceUniform;
+import etomica.data.DataTable;
+import etomica.data.DataTableListener;
 import etomica.data.meter.MeterPressureHard;
 import etomica.simulations.HSMD2D;
-import etomica.units.Dimension;
 import etomica.units.Unit;
 import etomica.utility.Arrays;
 
 /**
- * Class for creating a plot of simulation data.
+ * Class for creating a plot of simulation data.  Data for plot is taken
+ * from a DataTable instance, which can be obtained via the getDataTable
+ * method.  Data sets are added to the plot by piping the data to a new DataSink
+ * obtained from the makeColumn method of the data table.  
  *
  * @author David Kofke
  */
 
-/* History
- * 01/01/03 (DAK) Modified doUpdate to plot only if isShowing
- * 05/18/04 (DAK) Added setSize method
- */
- 
-public class DisplayPlot extends Display implements EtomicaElement {
+public class DisplayPlot extends Display implements DataTableListener, EtomicaElement {
     
-    private Plot plot;
-    private javax.swing.JPanel panel = new javax.swing.JPanel();
-    private boolean doLegend = true;
-    protected DataGroup[] data = new DataGroup[0];
-    protected DataGroup x;
-    private DataSource xSource;
-   
+    /**
+     * Creates a plot with a new, empty, DataTable.
+     */
     public DisplayPlot() {
+        this(new DataTable());
+    }
+    
+    /**
+     * Creates a plot using data from the given table.
+     */
+    public DisplayPlot(DataTable table) {
         super();
+        this.dataTable = table;
+        table.addTableListener(this);
         plot = new Plot();
         panel.add(plot);
-        xSource = new DataSourceUniform();
-        x = new DataGroup(xSource.getData().length);
+        x = new DataSourceUniform();
         setName("Data Plot");
-        Thread runner = new Thread() {
-            public void run() {
-                while(true) {
-                    doUpdate();
-                    try {
-                        Thread.sleep(100);
-                    } catch(InterruptedException ex) {}
-                }
-            }
-        };
-        runner.start();
+        units = new Unit[table.getColumnCount()];
+        for(int i=0; i<units.length; i++) {
+            units[i] = table.getColumn(i).getDimension().defaultIOUnit();
+        }
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -58,6 +54,92 @@ public class DisplayPlot extends Display implements EtomicaElement {
         return info;
     }
     
+    /**
+     * Returns the DataTable instance that specifies the plot data.
+     * Data sets are added to the plot by piping them to a new data sink
+     * given by the makeColumn method of the table.
+     * @return
+     */
+    public DataTable getDataTable() {
+        return dataTable;
+    }
+    
+    /**
+     * Causes the display of the plot to be updated.
+     */
+    public void tableDataChanged() {
+        doUpdate();
+    }
+    
+    /**
+     * Updates the units array for the new column, using the default units.
+     */
+    public void tableColumnAdded(DataBin newColumn) {
+        units = (Unit[])Arrays.addObject(units, newColumn.getDimension().defaultIOUnit());
+    }
+
+    /**
+     * Causes the corresponding units element to be removed.
+     */
+    public void tableColumnRemoved(int index, DataBin oldColumn) {
+        units = (Unit[])Arrays.removeObject(units, units[index]);
+    }
+    
+    /**
+     * Has no effect. Part of the DataTableListener interface.
+     */
+    public void tableRowCountChanged(int oldCount, int newCount) {
+        //do nothing
+    }
+    
+    /**
+     * Performs actions appropriate to addition or change of data source.
+     * Implementation of abstract method from parent class.
+     */
+    public void setupDisplay() {
+        panel.remove(plot);
+        plot = new Plot();
+        panel.add(plot);
+        panel.revalidate();
+        panel.repaint();
+        
+        for(int i=0; i<dataTable.getColumnCount(); i++) {
+            plot.addLegend(i,doLegend ? dataTable.getColumn(i).getLabel(): "");
+        }
+        
+        setLabel(x.getLabel());
+        if(dataTable.getColumnCount() > 0) {
+            plot.setYLabel(dataTable.getColumn(0).getLabel());
+        }
+
+        plot.setXLabel(x.getLabel()+ " ("+xUnit.symbol()+")");
+        
+        doUpdate();
+    }
+    
+    /**
+     * Redraws the plot.
+     */
+    public void doUpdate() {
+        if(!plot.isShowing()) return;
+        int nSource = dataTable.getColumnCount();
+        plot.clear(false);
+        double[] xValues = x.getData();
+        for(int k=0; k<nSource; k++) {
+            DataBin column = dataTable.getColumn(k);
+            for(int i=0; i<column.getDataLength(); i++) {
+                plot.addPoint(k, xUnit.fromSim(xValues[i]), units[k].fromSim(column.getData()[i]), true);
+//              if(!Double.isNaN(data[k].y[i])) { 
+//                plot.addPoint(k, x.unit.fromSim(x.y[i]), data[k].unit.fromSim(data[k].y[i]), true);
+//              } else if(i==x.y.length-1) {
+//				plot.addPoint(k, x.unit.fromSim(x.y[i]), 0.0, false);
+//              }
+            }//for i
+        }//for k
+        plot.repaint();
+
+    }//end doUpdate method
+
     /**
      * Mutator for flag determining if a legend is to be shown.
      * Default is true.
@@ -82,86 +164,51 @@ public class DisplayPlot extends Display implements EtomicaElement {
      */
     public java.awt.Component graphic(Object obj) {return panel;}
 
-    /**
-     * Performs actions appropriate to addition or change of data source.
-     * Implementation of abstract method from parent class.
-     */
-    public void setupDisplay() {
-        panel.remove(plot);
-        plot = new Plot();
-        panel.add(plot);
-        panel.revalidate();
-        panel.repaint();
-        
-        for(int i=0; i<data.length; i++) {
-            plot.addLegend(i,doLegend ? data[i].label : "");
-        }
-        
-        setLabel(data[0].label);
-        plot.setYLabel(data[0].label);
 
-        plot.setXLabel(x.label + " ("+x.unit.symbol()+")");
-        
-        doUpdate();
-    }
-            
-    public void doUpdate() {
-        if(!plot.isShowing()) return;
-        int nSource = data.length;
-        plot.clear(false);
-        x.y = xSource.getData();
-        for(int k=0; k<nSource; k++) {
-            for(int i=0; i<data[k].y.length; i++) {
-                plot.addPoint(k, x.unit.fromSim(x.y[i]), data[k].unit.fromSim(data[k].y[i]), true);
-//              if(!Double.isNaN(data[k].y[i])) { 
-//                plot.addPoint(k, x.unit.fromSim(x.y[i]), data[k].unit.fromSim(data[k].y[i]), true);
-//              } else if(i==x.y.length-1) {
-//				plot.addPoint(k, x.unit.fromSim(x.y[i]), 0.0, false);
-//              }
-            }//for i
-        }//for k
-        plot.repaint();
-
-    }//end doUpdate method
-    
     /**
      * Extend superclass method to update label with change of unit.
      */
     public void setXUnit(Unit u) {
-        x.unit = u;
-        if(plot != null && x.unit != null) plot.setXLabel(x.label + " ("+x.unit.symbol()+")");
+        xUnit = u;
+        if(plot != null && xUnit != null) plot.setXLabel(x.getLabel() + " ("+xUnit.symbol()+")");
     }
     
+    /**
+     * Sets the source for the x-axis value.  Default is a DataSourceUniform instance.
+     */
     public void setXSource(DataSource xSource) {
-        this.xSource = xSource;
-        x.y = xSource.getData();
+        x = xSource;
     }
     
-    public DataSink makeDataSink(Unit u) {
-        DataGroup newGroup = (DataGroup)makeDataSink();
-        newGroup.unit = u;
-        data = (DataGroup[])Arrays.addObject(data, newGroup);
-        return newGroup;
-    }
-    
-    public DataSink makeDataSink() {
-        DataGroup newGroup = new DataGroup(x.y.length);
-        data = (DataGroup[])Arrays.addObject(data, newGroup);
-        return newGroup;
-    }
-    
-    public void removeDataSink(DataSink sink) {
-        data = (DataGroup[])Arrays.removeObject(data, sink);
-    }
-    
-    public void removeAllSinks() {
-        data = new DataGroup[0];
+    /**
+     * Sets the display units of the given column to the given unit.
+     */
+    public void setUnit(DataBin column, Unit newUnit) {
+        for(int i=0; i<dataTable.getColumnCount(); i++) {
+            if(dataTable.getColumn(i) == column) {
+                units[i] = newUnit;
+                break;
+            }
+        }
     }
 
+    /**
+     * Sets the drawn size of the plot
+     * @param width new width, in pixels
+     * @param height new height, in pixels
+     */
     public void setSize(int width, int height) {
         plot.setSize(width, height);
         panel.setSize(width, height);
     }
+    
+    private final DataTable dataTable;
+    private Plot plot;
+    private javax.swing.JPanel panel = new javax.swing.JPanel();
+    private boolean doLegend = true;
+    protected DataSource x;
+    private Unit xUnit = Unit.NULL;
+    private Unit[] units = new Unit[0];
 
  /**
   * Define inner class as extension of ptolemy.plot.Plot
@@ -178,41 +225,6 @@ public class DisplayPlot extends Display implements EtomicaElement {
         }
     }
     
-    private class DataGroup implements DataSink {
-        double[] y;
-        Dimension dimension = Dimension.UNDEFINED;
-        Unit unit = Unit.UNDEFINED;
-        String label = "";
-        
-        DataGroup(int n) {
-            y = new double[n];
-        }
-
-        public void putData(double[] values) {
-            if(y.length != values.length) y = (double[])values.clone();
-            else System.arraycopy(values, 0, y, 0, values.length);
- //           doUpdate();
-        }
-
-        public void setDimension(Dimension dimension) {
-            this.dimension = dimension;
-        }
-        
-        /**
-         * Sets label to the given value if it was not previously set.
-         * If setLabel was previously called, this method has no effect.
-         * This method is usually invoked automatically when this data
-         * sink is attached to a data pipe.
-         */
-        public void setDefaultLabel(String defaultLabel) {
-            if(label == "") setLabel(defaultLabel);
-        }
-
-        public void setLabel(String label) {
-            this.label = label;
-        }
-    }
-
     public static void main(String[] args) {
         HSMD2D sim = new HSMD2D();
         SimulationGraphic graphic = new SimulationGraphic(sim);
@@ -227,7 +239,7 @@ public class DisplayPlot extends Display implements EtomicaElement {
                 new DisplayBox());
         segment.getDataPump().addDataSink(history);
         DisplayPlot plot = new DisplayPlot();
-        history.addDataSink(plot.makeDataSink());
+        history.addDataSink(plot.getDataTable().makeColumn(pressureMeter.getDimension()));
         plot.setXSource(history.getXSource());
         graphic.add(plot);
 
