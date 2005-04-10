@@ -24,7 +24,7 @@ public class DataPump extends DataPusher implements Action {
 	}
     
     /**
-     * Constructs DataAccumulator with the given DataSource and a single DataSink.
+     * Constructs DataPump with the given DataSource and a single DataSink.
      */
     public DataPump(DataSource dataSource, DataSink dataSink) {
         this(dataSource, (dataSink == null) ? null : new DataSink[] {dataSink});
