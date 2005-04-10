@@ -15,7 +15,6 @@ import etomica.Action;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageSegment;
 import etomica.data.DataBin;
 import etomica.data.DataTable;
 import etomica.data.DataTableAverages;
@@ -37,7 +36,8 @@ import etomica.utility.Arrays;
  * values
  */
 
-public class DisplayTable extends Display implements DataTableListener, EtomicaElement {
+public class DisplayTable extends Display implements DataTableListener,
+        EtomicaElement {
 
     public DisplayTable() {
         this(new DataTable());
@@ -47,15 +47,15 @@ public class DisplayTable extends Display implements DataTableListener, EtomicaE
         this.dataTable = dataTable;
 
         units = new Unit[dataTable.getColumnCount()];
-        for(int i=0; i<units.length; i++) {
+        for (int i = 0; i < units.length; i++) {
             units[i] = dataTable.getColumn(i).getDimension().defaultIOUnit();
         }
-        
+
         dataTable.addTableListener(this);
         tableSource = new MyTable(); //inner class, defined below
         table = new JTable(tableSource);
         panel = new javax.swing.JPanel(new java.awt.FlowLayout());
-        
+
         setLabel("Data");
         numberRenderer.setHorizontalAlignment(javax.swing.JLabel.RIGHT);
         setPrecision(4);
@@ -69,7 +69,8 @@ public class DisplayTable extends Display implements DataTableListener, EtomicaE
         panel.addKeyListener(listener);
         panel.addMouseListener(listener);
         panel.setSize(100, 150);
-        if (!fitToWindow) table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        if (!fitToWindow)
+            table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -89,12 +90,13 @@ public class DisplayTable extends Display implements DataTableListener, EtomicaE
         tableSource.fireTableDataChanged();
         repaint();
     }
-    
+
     /**
      * Updates the units array for the new column, using the default units.
      */
     public void tableColumnAdded(DataBin newColumn) {
-        units = (Unit[])Arrays.addObject(units, newColumn.getDimension().defaultIOUnit());
+        units = (Unit[]) Arrays.addObject(units, newColumn.getDimension()
+                .defaultIOUnit());
         tableSource.fireTableStructureChanged();
     }
 
@@ -102,17 +104,17 @@ public class DisplayTable extends Display implements DataTableListener, EtomicaE
      * Causes the corresponding units element to be removed.
      */
     public void tableColumnRemoved(int index, DataBin oldColumn) {
-        units = (Unit[])Arrays.removeObject(units, units[index]);
+        units = (Unit[]) Arrays.removeObject(units, units[index]);
         tableSource.fireTableStructureChanged();
     }
-    
+
     /**
      * Has no effect. Part of the DataTableListener interface.
      */
     public void tableRowCountChanged(int oldCount, int newCount) {
         tableSource.fireTableStructureChanged();
     }
-    
+
     /**
      * If true, each data set fills a row; if false, data are arranged to fill
      * columns.
@@ -126,7 +128,7 @@ public class DisplayTable extends Display implements DataTableListener, EtomicaE
      * arranged to fill columns.
      */
     public void setTransposed(boolean transposed) {
-        if(this.transposed != transposed) {
+        if (this.transposed != transposed) {
             this.transposed = transposed;
             tableSource.fireTableStructureChanged();
         }
@@ -139,8 +141,10 @@ public class DisplayTable extends Display implements DataTableListener, EtomicaE
      */
     public void setFitToWindow(boolean b) {
         fitToWindow = b;
-        if (fitToWindow) table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-        else table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        if (fitToWindow)
+            table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        else
+            table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
     }
 
     /**
@@ -204,38 +208,47 @@ public class DisplayTable extends Display implements DataTableListener, EtomicaE
     public String[] getRowLabels() {
         return rowLabels;
     }
-    
+
     /**
-     * Sets values for descriptive text for each row (as defined before transpose).
-     * Display of labels is determined by value of showingRowLabels (if not
-     * transposing) or showingColumnHeaders (if transposing).  
+     * Sets values for descriptive text for each row (as defined before
+     * transpose). Display of labels is determined by value of showingRowLabels
+     * (if not transposing) or showingColumnHeaders (if transposing).
+     * 
      * @param rowLabels
      */
     public void setRowLabels(String[] rowLabels) {
         this.rowLabels = rowLabels;
     }
-    
+
     /**
      * Sets the units of all columns to the given unit.
      */
     public void setAllUnits(Unit newUnit) {
-        for(int i=0; i<units.length; i++) {
+        for (int i = 0; i < units.length; i++) {
             units[i] = newUnit;
         }
     }
-    
+
     /**
      * Sets the unit of the i-th column (as defined before any transpose).
-     * @param i column index, numbered from zero, not including the row-label column
-     * @param newUnit the unit to be assigned to the indicated column
+     * 
+     * @param i
+     *            column index, numbered from zero, not including the row-label
+     *            column
+     * @param newUnit
+     *            the unit to be assigned to the indicated column
      */
     public void setUnit(int i, Unit newUnit) {
         units[i] = newUnit;
     }
-    
+
     /**
-     * Returns the unit assign to the i-th column (as defined before any transpose).
-     * @param i column index, numbered from zero, not including the row-label column
+     * Returns the unit assign to the i-th column (as defined before any
+     * transpose).
+     * 
+     * @param i
+     *            column index, numbered from zero, not including the row-label
+     *            column
      * @return the unit of the indicated column
      */
     public Unit getUnit(int i) {
@@ -248,49 +261,56 @@ public class DisplayTable extends Display implements DataTableListener, EtomicaE
     public boolean isShowingColumnHeaders() {
         return showingColumnHeaders;
     }
+
     /**
-     * @param showingColumnHeaders The showingColumnHeaders flag to set.
+     * @param showingColumnHeaders
+     *            The showingColumnHeaders flag to set.
      */
     public void setShowingColumnHeaders(boolean showingColumnHeaders) {
         this.showingColumnHeaders = showingColumnHeaders;
     }
+
     /**
      * @return Returns the showingUnits flag, which indicates whether a units
-     * suffix is applied to the column headers (or row labels, if transposing).
+     *         suffix is applied to the column headers (or row labels, if
+     *         transposing).
      */
     public boolean isShowingUnits() {
         return showingUnits;
     }
+
     /**
-     * Flag indicating whether a units suffix applied to the column
-     * headers (or row labels, if transposing).  Default is true.
-     * @param showingUnits The showingUnits flag to set.
+     * Flag indicating whether a units suffix applied to the column headers (or
+     * row labels, if transposing). Default is true.
+     * 
+     * @param showingUnits
+     *            The showingUnits flag to set.
      */
     public void setShowingUnits(boolean showingUnits) {
         this.showingUnits = showingUnits;
     }
-    
-    
+
     /**
-     * Returns the header of the row-label column.  Not used
-     * if showingRowLabels is false.  Default is empty string. 
+     * Returns the header of the row-label column. Not used if showingRowLabels
+     * is false. Default is empty string.
      */
     public String getRowLabelColumnHeader() {
         return rowLabelColumnHeader;
     }
+
     /**
-     * Sets the header of the row-label column.  Not used
-     * if showingRowLabels is false.
+     * Sets the header of the row-label column. Not used if showingRowLabels is
+     * false.
      */
     public void setRowLabelColumnHeader(String rowLabelColumnHeader) {
         this.rowLabelColumnHeader = rowLabelColumnHeader;
     }
-    
+
     private final JTable table;
     private final DataTable dataTable;
     private final MyTable tableSource;
     private final JPanel panel;
-    
+
     private boolean showingRowLabels;
     private boolean showingColumnHeaders;
     private boolean showingUnits = true;
@@ -315,52 +335,59 @@ public class DisplayTable extends Display implements DataTableListener, EtomicaE
     private class MyTable extends AbstractTableModel {
 
         public Object getValueAt(int row, int column) {
-            if(showingRowLabels && column == 0) {
-                if(transposed) {
-                    return columnLabel(row); 
+            if (showingRowLabels && column == 0) {
+                if (transposed) {
+                    return columnLabel(row);
                 } else {
                     return (row < rowLabels.length) ? rowLabels[row] : "";
                 }
             }
-            //r and c are the row/column indices for the internal representation 
+            //r and c are the row/column indices for the internal
+            // representation
             //of the table
-            int r = transposed ? column-c0 : row;
-            int c = transposed ? row : column-c0;
+            int r = transposed ? column - c0 : row;
+            int c = transposed ? row : column - c0;
             DataBin col = dataTable.getColumn(c);
             double value = Double.NaN;
-            if(r < col.getDataLength()) {
+            if (r < col.getDataLength()) {
                 value = units[c].fromSim(col.getData()[r]);
             }
             return new Double(value);
         }
 
         public int getRowCount() {
-            int n = transposed ? dataTable.getColumnCount() : dataTable.getRowCount();
+            int n = transposed ? dataTable.getColumnCount() : dataTable
+                    .getRowCount();
             return n;
         }
 
         public int getColumnCount() {
-            int n = c0 + (transposed ? dataTable.getRowCount() : dataTable.getColumnCount());
+            int n = c0
+                    + (transposed ? dataTable.getRowCount() : dataTable
+                            .getColumnCount());
             return n;
         }
-        
+
         public String getColumnName(int i) {
-            if(i == 0 && showingRowLabels) return rowLabelColumnHeader;
+            if (i == 0 && showingRowLabels)
+                return rowLabelColumnHeader;
             int c = i - c0;
-            if(transposed) {
+            if (transposed) {
                 return (rowLabels.length > c) ? rowLabels[c] : "";
             } else {
                 return columnLabel(c);
             }
         }
-        
+
         private String columnLabel(int i) {
             String suffix = "";
-            if(showingUnits) {
+            if (showingUnits) {
                 suffix = units[i].symbol();
-                if(!suffix.equals("")) suffix = "("+suffix+")";
+                if (!suffix.equals(""))
+                    suffix = "(" + suffix + ")";
             }
-            return dataTable.getColumn(i).getLabel() + (showingUnits ? suffix : "");
+            return dataTable.getColumn(i).getLabel()
+                    + (showingUnits ? suffix : "");
         }
 
     }
@@ -417,23 +444,23 @@ public class DisplayTable extends Display implements DataTableListener, EtomicaE
         sim.integrator.setIsothermal(true);
 
         //part that is unique to this demonstration
-//        DisplayTable table = new DisplayTable();
-//        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
-//        pMeter.setPhase(sim.phase);        
-//        AccumulatorAverageSegment pSegment = new AccumulatorAverageSegment(
-//                pMeter, sim.integrator, new AccumulatorAverage.Type[] {
-//                        AccumulatorAverage.MOST_RECENT,
-//                        AccumulatorAverage.AVERAGE, 
-//                        AccumulatorAverage.ERROR },
-//                table.getDataTable().makeColumn(pMeter.getDimension()));
-//        MeterNMolecules nMeter = new MeterNMolecules();
-//        nMeter.setPhase(sim.phase);
-//        AccumulatorAverageSegment nSegment = new AccumulatorAverageSegment(
-//                nMeter, sim.integrator, new AccumulatorAverage.Type[] {
-//                        AccumulatorAverage.MOST_RECENT,
-//                        AccumulatorAverage.AVERAGE, 
-//                        AccumulatorAverage.ERROR },
-//                table.getDataTable().makeColumn(nMeter.getDimension()));
+        //        DisplayTable table = new DisplayTable();
+        //        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
+        //        pMeter.setPhase(sim.phase);
+        //        AccumulatorAverageSegment pSegment = new AccumulatorAverageSegment(
+        //                pMeter, sim.integrator, new AccumulatorAverage.Type[] {
+        //                        AccumulatorAverage.MOST_RECENT,
+        //                        AccumulatorAverage.AVERAGE,
+        //                        AccumulatorAverage.ERROR },
+        //                table.getDataTable().makeColumn(pMeter.getDimension()));
+        //        MeterNMolecules nMeter = new MeterNMolecules();
+        //        nMeter.setPhase(sim.phase);
+        //        AccumulatorAverageSegment nSegment = new AccumulatorAverageSegment(
+        //                nMeter, sim.integrator, new AccumulatorAverage.Type[] {
+        //                        AccumulatorAverage.MOST_RECENT,
+        //                        AccumulatorAverage.AVERAGE,
+        //                        AccumulatorAverage.ERROR },
+        //                table.getDataTable().makeColumn(nMeter.getDimension()));
         //end of unique part
 
         //part that is unique to this demonstration
@@ -442,16 +469,14 @@ public class DisplayTable extends Display implements DataTableListener, EtomicaE
         MeterNMolecules nMeter = new MeterNMolecules();
         nMeter.setPhase(sim.phase);
         DataTableAverages dataTable = new DataTableAverages(sim.integrator,
-                    new AccumulatorAverage.Type[] {
-                        AccumulatorAverage.MOST_RECENT,
-                        AccumulatorAverage.AVERAGE, 
-                        AccumulatorAverage.ERROR });
+                new AccumulatorAverage.Type[] { AccumulatorAverage.MOST_RECENT,
+                        AccumulatorAverage.AVERAGE, AccumulatorAverage.ERROR });
         dataTable.addDataSource(pMeter);
         dataTable.addDataSource(nMeter);
         DisplayTable table = new DisplayTable(dataTable);
 
         //end of unique part
-        table.setRowLabels(new String[] {"Current", "Average", "Error"});
+        table.setRowLabels(new String[] { "Current", "Average", "Error" });
         table.setTransposed(false);
         table.setShowingRowLabels(true);
         table.setPrecision(7);
