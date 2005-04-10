@@ -20,6 +20,7 @@ import etomica.potential.P1HardBoundary;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardSphere;
 import etomica.space2d.Space2D;
+import etomica.units.Dimension;
 
 /**
  * Simple hard-sphere molecular dynamics simulation in 2D.
@@ -107,7 +108,7 @@ public class HSMD2D_noNbr extends Simulation {
         DisplayBoxesCAE temperatureDisplay = new DisplayBoxesCAE();
         temperatureDisplay.setAccumulator(sim.temperatureAverage);
         DisplayPlot temperaturePlot = new DisplayPlot();
-        sim.temperatureHistory.addDataSink(temperaturePlot.makeDataSink());
+        sim.temperatureHistory.addDataSink(temperaturePlot.getDataTable().makeColumn(Dimension.TEMPERATURE));
         DeviceNSelector nSelector = new DeviceNSelector(sim, sim.phase.getAgent(sim.species));
         DeviceThermoSelector thermo = new DeviceThermoSelector(sim.getController(), sim.integrator);
         graphic.add(nSelector);

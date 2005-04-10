@@ -30,6 +30,10 @@ public class DataSourceVirialOverlap extends DataSourceAdapter {
 		return new double[] {getData(minDiffLocation())};
 	}
 	
+    public int getDataLength() {
+        return 1;
+    }
+    
     /**
      * Returns the ratio of the reference to target overlap-to-virial ratios
      * (which reduces to target/reference) for the given value of the Bennet

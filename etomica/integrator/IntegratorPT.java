@@ -350,6 +350,10 @@ public static class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap
             return dtrack;
         }
         
+        public int getDataLength() {
+            return track.length;
+        }
+        
     }//end of MeterPhaseTracker
     
 }//end of IntegratorPT
