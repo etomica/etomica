@@ -127,12 +127,12 @@ public class DCVGCMD extends Simulation {
     	profile2.setProfileVector(new Vector3D(0.0,0.0,1.0));
     	
     	accumulator1 = new AccumulatorAverage();
-//       DataPump profile1pump = new DataPump(profile1, accumulator1);
-//        IntervalActionAdapter interval1 = new IntervalActionAdapter (profile1pump, integratorDCV);
+        DataPump profile1pump = new DataPump(profile1, accumulator1);
+        new IntervalActionAdapter (profile1pump, integratorDCV);
     	
     	accumulator2 = new AccumulatorAverage();
-//		DataPump profile2pump = new DataPump(profile2, accumulator2);
-//    	IntervalActionAdapter interval2 = new IntervalActionAdapter (profile2pump, integratorDCV);
+		DataPump profile2pump = new DataPump(profile2, accumulator2);
+    	IntervalActionAdapter interval2 = new IntervalActionAdapter (profile2pump, integratorDCV);
     	
         integrator.addIntervalListener(new PhaseImposePbc(phase));
    } //End of constructor
