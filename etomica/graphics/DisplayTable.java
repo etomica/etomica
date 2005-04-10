@@ -18,6 +18,7 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageSegment;
 import etomica.data.DataBin;
 import etomica.data.DataTable;
+import etomica.data.DataTableAverages;
 import etomica.data.DataTableListener;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPressureHard;
@@ -416,35 +417,15 @@ public class DisplayTable extends Display implements DataTableListener, EtomicaE
         sim.integrator.setIsothermal(true);
 
         //part that is unique to this demonstration
-        DisplayTable table = new DisplayTable();
-        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
-        pMeter.setPhase(sim.phase);
-        AccumulatorAverageSegment pSegment = new AccumulatorAverageSegment(
-                pMeter, sim.integrator, new AccumulatorAverage.Type[] {
-                        AccumulatorAverage.MOST_RECENT,
-                        AccumulatorAverage.AVERAGE, 
-                        AccumulatorAverage.ERROR },
-                table.getDataTable().makeColumn(pMeter.getDimension()));
-        MeterNMolecules nMeter = new MeterNMolecules();
-        nMeter.setPhase(sim.phase);
-        AccumulatorAverageSegment nSegment = new AccumulatorAverageSegment(
-                nMeter, sim.integrator, new AccumulatorAverage.Type[] {
-                        AccumulatorAverage.MOST_RECENT,
-                        AccumulatorAverage.AVERAGE, 
-                        AccumulatorAverage.ERROR },
-                table.getDataTable().makeColumn(nMeter.getDimension()));
-        //end of unique part
-
-        //part that is unique to this demonstration
+//        DisplayTable table = new DisplayTable();
 //        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
-//        pMeter.setPhase(sim.phase);
-//        DataTable dataTable = new DataTable();
+//        pMeter.setPhase(sim.phase);        
 //        AccumulatorAverageSegment pSegment = new AccumulatorAverageSegment(
 //                pMeter, sim.integrator, new AccumulatorAverage.Type[] {
 //                        AccumulatorAverage.MOST_RECENT,
 //                        AccumulatorAverage.AVERAGE, 
 //                        AccumulatorAverage.ERROR },
-//                dataTable.makeColumn());
+//                table.getDataTable().makeColumn(pMeter.getDimension()));
 //        MeterNMolecules nMeter = new MeterNMolecules();
 //        nMeter.setPhase(sim.phase);
 //        AccumulatorAverageSegment nSegment = new AccumulatorAverageSegment(
@@ -452,8 +433,22 @@ public class DisplayTable extends Display implements DataTableListener, EtomicaE
 //                        AccumulatorAverage.MOST_RECENT,
 //                        AccumulatorAverage.AVERAGE, 
 //                        AccumulatorAverage.ERROR },
-//                dataTable.makeColumn());
-//        DisplayTable table = new DisplayTable(dataTable);
+//                table.getDataTable().makeColumn(nMeter.getDimension()));
+        //end of unique part
+
+        //part that is unique to this demonstration
+        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
+        pMeter.setPhase(sim.phase);
+        MeterNMolecules nMeter = new MeterNMolecules();
+        nMeter.setPhase(sim.phase);
+        DataTableAverages dataTable = new DataTableAverages(sim.integrator,
+                    new AccumulatorAverage.Type[] {
+                        AccumulatorAverage.MOST_RECENT,
+                        AccumulatorAverage.AVERAGE, 
+                        AccumulatorAverage.ERROR });
+        dataTable.addDataSource(pMeter);
+        dataTable.addDataSource(nMeter);
+        DisplayTable table = new DisplayTable(dataTable);
 
         //end of unique part
         table.setRowLabels(new String[] {"Current", "Average", "Error"});
