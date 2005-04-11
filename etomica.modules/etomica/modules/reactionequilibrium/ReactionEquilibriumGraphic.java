@@ -186,13 +186,13 @@ public class ReactionEquilibriumGraphic {
 		AccumulatorAverage dimerfractionaccum = new AccumulatorAverage ();
 		DataPump tAverageDimer = new DataPump (sim.meterDimerFraction, dimerfractionaccum);
 		DisplayTable table = new DisplayTable();
-		dimerfractionaccum.addDataSink(table.makeDataSink());
+		dimerfractionaccum.addDataSink(table.getDataTable().makeColumn(Dimension.FRACTION));
 
 		//display for history of mole fractions
 		AccumulatorHistory dimerfractionhistory = new AccumulatorHistory();
 		tAverageDimer.addDataSink(dimerfractionhistory);
 		DisplayPlot plot = new DisplayPlot();
-		dimerfractionhistory.addDataSink (plot.makeDataSink());
+		dimerfractionhistory.addDataSink (plot.getDataTable().makeColumn(Dimension.FRACTION));
 		plot.setLabel("Composition");
 
 		//************* Lay out components ****************//

@@ -67,5 +67,5 @@ public final class MeterDimerFraction extends MeterAbstract {
     }
     
     public Dimension getXDimension() {return Dimension.NULL;}
-    public Dimension getDimension() {return Dimension.NULL;}
+    public Dimension getDimension() {return Dimension.FRACTION;}
 }
