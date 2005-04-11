@@ -52,6 +52,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	temperatureSlider.setMinimum(50);
 	temperatureSlider.setMaximum(500);
     temperatureSlider.setLabel("Temperature");
+    temperatureSlider.setValue(Kelvin.UNIT.fromSim(sim.integratorDCV.getTemperature()));
 			
 //Mu Slider Stuff
 	Modifier mu1Mod = sim.integratorDCV.new Mu1Modulator(); 
