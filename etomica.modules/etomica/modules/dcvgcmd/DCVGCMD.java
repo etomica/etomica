@@ -85,7 +85,7 @@ public class DCVGCMD extends Simulation {
         integratorDCV.setTemperature(Kelvin.UNIT.toSim(500.));
 	    integrator.setIsothermal(true);
             //integrator.setSleepPeriod(1);
-        integrator.setTimeStep(0.05);
+        integrator.setTimeStep(0.01);
             //integrator.setInterval(10);
         activityIntegrate.setDoSleep(true);	
         phase.setBoundary(new BoundaryRectangularSlit(space, 2)); 
