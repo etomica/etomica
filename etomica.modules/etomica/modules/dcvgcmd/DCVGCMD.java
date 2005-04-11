@@ -32,6 +32,7 @@ public class DCVGCMD extends Simulation {
 	public P1LJWCAWall potentialwall1;
 	public SpeciesSpheresMono species;
 	public SpeciesSpheresMono species1;
+	public SpeciesTube speciesTube;
 	public Phase phase;
 	public DataSourceGroup fluxMeters;
 	public MeterTemperature thermometer;
@@ -62,13 +63,15 @@ public class DCVGCMD extends Simulation {
 		potentialwall1 = new P1LJWCAWall(space);
 		species = new SpeciesSpheresMono(this);
 		species1 = new SpeciesSpheresMono(this);
+		speciesTube = new SpeciesTube(this, 8, 10);
 		potentialMaster.setSpecies(potential, new Species[] {species, species});
 		potentialMaster.setSpecies(potential1, new Species[] {species1, species});
 		potentialMaster.setSpecies(potential11, new Species[] {species1, species1});
 		potentialMaster.setSpecies(potentialwall, new Species[] {species});
 		potentialMaster.setSpecies(potentialwall1, new Species[] {species1});
+		
 		species.setNMolecules(8);
-		species1.setNMolecules(8);
+		species1.setNMolecules(8);		
 		phase = new Phase(this);
 		integratorDCV = new IntegratorDCVGCMD(potentialMaster, species, species1);
         Default.AUTO_REGISTER = false;

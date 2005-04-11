@@ -5,6 +5,7 @@ package etomica.modules.dcvgcmd;
 
 import javax.swing.JPanel;
 
+import etomica.Default;
 import etomica.Modifier;
 import etomica.action.PhaseImposePbc;
 import etomica.data.AccumulatorAverage;
@@ -22,7 +23,6 @@ import etomica.integrator.IntervalActionAdapter;
 import etomica.modules.dcvgcmd.IntegratorDCVGCMD.Mu1Modulator;
 import etomica.modules.dcvgcmd.IntegratorDCVGCMD.Mu2Modulator;
 import etomica.units.Dimension;
-import etomica.units.DimensionRatio;
 import etomica.units.Kelvin;
 
 /**
@@ -64,6 +64,12 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	mu2Slider.setMinimum(-2500);
 	mu2Slider.setMaximum(2500);
 
+//	TubePanel Slider stuff
+	//Modifier tubePanelMod = sim.integratorDCV.new tubePanelModifier(); 
+	//DeviceSlider tubePanelSlider = new DeviceSlider(sim.getController(), tubePanelMod);
+	//tubePanelSlider.setMinimum(8);
+	//tubePanelSlider.setMaximum(24);
+	
 //Display to see adjusted temperature
 	DisplayBox box1 = new DisplayBox();
     DataPump tpump = new DataPump(sim.thermometer, box1);
@@ -121,8 +127,17 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	 panel().remove(panel().devicePanel);
 	 
 	panel().add(controlPanel);
+	System.out.println(sim.phase.atomCount()+"  "+sim.phase.moleculeCount());
 	 
-//panel for membrane choice
+//	panel for atomsPerRing choice
+//	JPanel tubePanel = new JPanel(new java.awt.GridBagLayout());
+//	tubePanel.setBorder(new javax.swing.border.TitledBorder("Carbons per Ring"));
+//	java.awt.GridBagConstraints gbc4 = new java.awt.GridBagConstraints();
+//		gbc4.gridx = 0; gbc4.gridy = 0;
+//		gbc4.gridwidth = 1;
+//		tubePanel.add(tubeSlider.graphic(null),gbc4);
+//		gbc4.gridx = 0;  gbc4.gridy = 1;
+//		tubePanel.add(tubeSlider.graphic(null),gbc4);
 	
 	
  } //End of constructor
@@ -130,6 +145,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	
 	public static void main(String[] arg ){
 		
+		Default.BIT_LENGTH = new int[] {1,4,4,12,8,3};
 		DCVGCMD sim = new DCVGCMD();
 		DCVGCMDGraphic graphic = new DCVGCMDGraphic(sim);
 		graphic.makeAndDisplayFrame();
