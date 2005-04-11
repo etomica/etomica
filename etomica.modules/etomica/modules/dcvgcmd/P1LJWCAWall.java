@@ -34,8 +34,8 @@ public class P1LJWCAWall extends Potential1 implements PotentialSoft{
 	private final int D;
 		private final Vector gradient;
 		private double radius, radius2;
-		private double cutoff = Default.ATOM_SIZE*Math.pow(2,1./6.);
-		private double cutoff2 = cutoff*cutoff;
+		private double cutoff;
+		private double cutoff2;
 	
 		public P1LJWCAWall(Space parent) {
 			super(parent);
@@ -62,20 +62,20 @@ public class P1LJWCAWall extends Potential1 implements PotentialSoft{
 			double rr = radius/r;
 			double r2 = rr*rr;
 			double r6 = r2*r2*r2;
-			if(r < cutoff2) {
-						return 4*Default.POTENTIAL_WELL*r6*(r6 - 1.0)+Default.POTENTIAL_WELL;
-					}
-					else return 0;
+			if(r*r < cutoff2) {
+                return 4*Default.POTENTIAL_WELL*r6*(r6 - 1.0)+Default.POTENTIAL_WELL;
+			}
+            return 0;
 		}
 	
 		private double gradient(double r) {
 			double rr = radius/r;
 			double r2 = rr*rr;
 			double r6 = r2*r2*r2;
-			if(r < cutoff2) {
-						return -48*Default.POTENTIAL_WELL*r6*(r6 - 0.5);
-					}
-					else return 0;
+			if(r*r < cutoff2) {
+			    return -48*Default.POTENTIAL_WELL*r6*(r6 - 0.5);
+			}
+			return 0;
 		}
 	
 		public Vector gradient(AtomSet atom) {
@@ -104,6 +104,8 @@ public class P1LJWCAWall extends Potential1 implements PotentialSoft{
 		public void setRadius(double radius) {
 			this.radius = radius;
 			radius2 = radius*radius;
+            cutoff = radius*Math.pow(2,1./6.);
+            cutoff2 = cutoff*cutoff;
 		}
 
 }	
