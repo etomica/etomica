@@ -63,7 +63,7 @@ public class DCVGCMD extends Simulation {
 		potentialwall1 = new P1LJWCAWall(space);
 		species = new SpeciesSpheresMono(this);
 		species1 = new SpeciesSpheresMono(this);
-		speciesTube = new SpeciesTube(this, 8, 10);
+		speciesTube = new SpeciesTube(this, 16, 10);
 		potentialMaster.setSpecies(potential, new Species[] {species, species});
 		potentialMaster.setSpecies(potential1, new Species[] {species1, species});
 		potentialMaster.setSpecies(potential11, new Species[] {species1, species1});

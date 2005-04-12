@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 import etomica.Default;
 import etomica.Modifier;
 import etomica.action.PhaseImposePbc;
+import etomica.atom.AtomFactoryHomo;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.graphics.ColorSchemeByType;
@@ -89,7 +90,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	//phase.setDensity(0.5);
 //set color of molecules	
 	ColorSchemeByType.setColor(sim.species,java.awt.Color.blue);
-	ColorSchemeByType.setColor(sim.species1,java.awt.Color.white);
+    ColorSchemeByType.setColor(sim.species1,java.awt.Color.white);
+    ColorSchemeByType.setColor(((AtomFactoryHomo)sim.speciesTube.getFactory()).childFactory().getType(),java.awt.Color.red);
 	
 //panel for the start buttons
 	  JPanel startPanel = (JPanel)device.graphic();

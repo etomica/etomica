@@ -19,7 +19,7 @@ public class SpeciesTube extends SpeciesSpheres {
 		
 		factory.setConformation(conformationTube);
 		
-		setMass(Double.POSITIVE_INFINITY);
+		//setMass(Double.POSITIVE_INFINITY);
 	
 		setNMolecules(1);
 	
