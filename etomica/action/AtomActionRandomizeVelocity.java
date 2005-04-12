@@ -21,9 +21,20 @@ import etomica.statmech.MaxwellBoltzmann;
  */
 public class AtomActionRandomizeVelocity extends AtomActionAdapter {
 
+    /**
+     * Constructs class with Default.TEMPERATURE.
+     */
     public AtomActionRandomizeVelocity() {
+        this(Default.TEMPERATURE);
+    }
+
+    /**
+     * Constructs class to assign velocities according to the given temperature.
+     * May be subsequently changed with setTemperature method.
+     */
+    public AtomActionRandomizeVelocity(double temperature) {
         setLabel("Randomize velocity");
-        setTemperature(Default.TEMPERATURE);
+        setTemperature(temperature);
     }
 
     /**
