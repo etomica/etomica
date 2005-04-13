@@ -113,7 +113,6 @@ public abstract class AtomTreeNode {
     
     /**
      * Integer assigned to this atom by its parent molecule.
-     * Assigned during construction of atom.
      */
     public final int index() {return atomIndex;}
 
