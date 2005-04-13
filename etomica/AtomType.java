@@ -143,7 +143,7 @@ public class AtomType implements java.io.Serializable {
         mass = m;
         rm = (m==Double.MAX_VALUE) ? 0.0 : 1.0/mass;
     }
-    public final double getMass() {return massParameter.getMass();}
+    public final double getMass() {return mass;}
     public final Dimension getMassDimension() {return Dimension.MASS;}
     public final double rm() {return rm;}
 
