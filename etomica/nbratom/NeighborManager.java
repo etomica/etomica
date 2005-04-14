@@ -185,12 +185,7 @@ public class NeighborManager implements IntervalListener {
 
     //XXX should this use assignCellAll?
     public void neighborSetup(Phase phase) {
-        NeighborCellManager nbrManager = potentialMaster.getNbrCellManager(phase);
-        atomIterator.setPhase(phase);
-        atomIterator.reset();
-        while(atomIterator.hasNext()) {
-            nbrManager.assignCell(atomIterator.nextAtom());
-        }
+        potentialMaster.getNbrCellManager(phase).assignCellAll();
         
         cellNbrIterator.setPhase(phase);
         cellNbrIterator.reset();
