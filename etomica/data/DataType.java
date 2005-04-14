@@ -3,7 +3,6 @@
  */
 package etomica.data;
 
-import etomica.Constants;
 import etomica.Constants.TypedConstant;
 
 /**
