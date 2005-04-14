@@ -12,6 +12,7 @@ import etomica.SpeciesSpheres;
 
 public class SpeciesTube extends SpeciesSpheres {
 	
+	
 	public SpeciesTube(Simulation sim, int atomsPerRing, int numberOfRings){
 		super(sim);
 	
@@ -19,7 +20,7 @@ public class SpeciesTube extends SpeciesSpheres {
 		
 		factory.setConformation(conformationTube);
 		
-		//setMass(Double.POSITIVE_INFINITY);
+		setMass(Double.POSITIVE_INFINITY);
 	
 		setNMolecules(1);
 	

@@ -90,8 +90,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	//phase.setDensity(0.5);
 //set color of molecules	
 	ColorSchemeByType.setColor(sim.species,java.awt.Color.blue);
-    ColorSchemeByType.setColor(sim.species1,java.awt.Color.white);
-    ColorSchemeByType.setColor(((AtomFactoryHomo)sim.speciesTube.getFactory()).childFactory().getType(),java.awt.Color.red);
+	ColorSchemeByType.setColor(sim.species1,java.awt.Color.white);
+	ColorSchemeByType.setColor(((AtomFactoryHomo)sim.speciesTube.getFactory()).childFactory().getType(),java.awt.Color.cyan);
 	
 //panel for the start buttons
 	  JPanel startPanel = (JPanel)device.graphic();
@@ -147,7 +147,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	
 	public static void main(String[] arg ){
 		
-		Default.BIT_LENGTH = new int[] {1,4,4,12,8,3};
+		Default.BIT_LENGTH = new int[] {1,4,4,12,11,0};
 		DCVGCMD sim = new DCVGCMD();
 		DCVGCMDGraphic graphic = new DCVGCMDGraphic(sim);
 		graphic.makeAndDisplayFrame();

@@ -1,18 +1,20 @@
 package etomica.modules.dcvgcmd;
-import etomica.ConfigurationLattice;
+
+import etomica.AtomType;
 import etomica.Default;
 import etomica.Phase;
+import etomica.PotentialGroup;
 import etomica.Simulation;
 import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomFactoryHomo;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.DataSourceGroup;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterProfile;
-import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntervalActionAdapter;
@@ -30,6 +32,8 @@ public class DCVGCMD extends Simulation {
 	public P2WCA potential1;
 	public P1LJWCAWall potentialwall;
 	public P1LJWCAWall potentialwall1;
+	public PotentialGroup potentialtube;
+	public PotentialGroup potentialtube1;
 	public SpeciesSpheresMono species;
 	public SpeciesSpheresMono species1;
 	public SpeciesTube speciesTube;
@@ -61,14 +65,23 @@ public class DCVGCMD extends Simulation {
 		potential1 = new P2WCA(space);
 		potentialwall = new P1LJWCAWall(space);
 		potentialwall1 = new P1LJWCAWall(space);
+		potentialtube = new PotentialGroup(2, space);
+		potentialtube1 = new PotentialGroup(2, space);
 		species = new SpeciesSpheresMono(this);
 		species1 = new SpeciesSpheresMono(this);
-		speciesTube = new SpeciesTube(this, 16, 10);
+		speciesTube = new SpeciesTube(this, 8, 20);
+		AtomType tubetype = ((AtomFactoryHomo)speciesTube.moleculeFactory()).childFactory().getType();
+		AtomType speciestype = species.moleculeFactory().getType();
+		AtomType speciestype1 = species1.moleculeFactory().getType(); 
+		potentialtube.addPotential(new P2WCA(space),new AtomType[]{tubetype, speciestype},potentialMaster);
+		potentialtube1.addPotential(new P2WCA(space),new AtomType[]{tubetype, speciestype1},potentialMaster);
 		potentialMaster.setSpecies(potential, new Species[] {species, species});
 		potentialMaster.setSpecies(potential1, new Species[] {species1, species});
 		potentialMaster.setSpecies(potential11, new Species[] {species1, species1});
 		potentialMaster.setSpecies(potentialwall, new Species[] {species});
 		potentialMaster.setSpecies(potentialwall1, new Species[] {species1});
+		potentialMaster.setSpecies(potentialtube, new Species[] {species, speciesTube});
+		potentialMaster.setSpecies(potentialtube1, new Species[] {species1, speciesTube});		
 		
 		species.setNMolecules(8);
 		species1.setNMolecules(8);		
@@ -94,7 +107,7 @@ public class DCVGCMD extends Simulation {
         phase.setBoundary(new BoundaryRectangularSlit(space, 2)); 
         phase.boundary().setDimensions(new Vector3D(40,40,80));
         // Crystal crystal = new Crystal(new PrimitiveTetragonal(space, 20, 40),new BasisMonatomic(3));
-        ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc()); 
+        ConfigurationLatticeTube config = new ConfigurationLatticeTube(new LatticeCubicFcc(), .25, speciesTube); 
         phase.setConfiguration(config);
 
         MyMCMove[] moves = integratorDCV.mcMoves();
@@ -111,7 +124,7 @@ public class DCVGCMD extends Simulation {
         DataPump fluxPump = new DataPump(fluxMeters, fluxAccumulator);
         IntervalActionAdapter fluxInterval = new IntervalActionAdapter (fluxPump, integratorDCV);
         
-        thermometer = new MeterTemperature();
+        thermometer = new MeterTemperature(speciesTube);
         thermometer.setPhase(phase);
         
         density1 = new MeterNMolecules();
