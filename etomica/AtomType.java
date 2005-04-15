@@ -151,6 +151,10 @@ public class AtomType implements java.io.Serializable {
     	return neighborManagerAgent;
     }
     
+    public boolean isInteracting() {
+        return neighborManagerAgent.getPotentials().length > 0;
+    }
+    
     //prototype of a real atom type
 /*    public final static class Carbon extends Sphere {
         public Carbon() {
