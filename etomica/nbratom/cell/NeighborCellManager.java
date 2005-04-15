@@ -7,6 +7,7 @@ package etomica.nbratom.cell;
 import etomica.Atom;
 import etomica.AtomIterator;
 import etomica.Phase;
+import etomica.PhaseCellManager;
 import etomica.PhaseEvent;
 import etomica.PhaseListener;
 import etomica.SimulationEvent;
@@ -33,7 +34,7 @@ import etomica.space.Vector;
 //no need for index when assigning cell
 //different iterator needed
 
-public class NeighborCellManager {
+public class NeighborCellManager implements PhaseCellManager {
 
     private final CellLattice lattice;
     private final Space space;
@@ -59,7 +60,6 @@ public class NeighborCellManager {
         atomIterator.setRoot(phase.speciesMaster);
 
         lattice = new CellLattice(phase.boundary().dimensions(), NeighborCell.FACTORY);
-        phase.setLattice(lattice);
         int[] size = new int[space.D()];
         for(int i=0; i<space.D(); i++) size[i] = nCells;
         lattice.setSize(size);
@@ -70,7 +70,7 @@ public class NeighborCellManager {
             public void actionPerformed(SimulationEvent evt) {
                 actionPerformed((PhaseEvent)evt);
             }
-           public void actionPerformed(PhaseEvent evt) {
+            public void actionPerformed(PhaseEvent evt) {
                 if(evt.type() == PhaseEvent.ATOM_ADDED) {
                     Atom atom = evt.atom();
                     //new species agent requires another list in each cell
@@ -82,6 +82,10 @@ public class NeighborCellManager {
         });
     }
 
+    public CellLattice getLattice() {
+        return lattice;
+    }
+    
     /**
      * Assigns cells to all molecules in the phase.
      */
@@ -89,7 +93,7 @@ public class NeighborCellManager {
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom atom = atomIterator.nextAtom();
-            if (atom.type.getNbrManagerAgent().getPotentials().length > 0) {
+            if (atom.type.isInteracting()) {
                 assignCell(atom);
             }
         }

@@ -67,6 +67,7 @@ public class Phase {
     public final SimulationEventManager boundaryEventManager = new SimulationEventManager();
     private String name;
     protected final Space space;
+    private PhaseCellManager cellManager;
     
     /**
      * Constructs phase with default rectangular periodic boundary.
@@ -87,6 +88,14 @@ public class Phase {
 
     }//end of constructor
 
+    public void setCellManager(PhaseCellManager manager) {
+        cellManager = manager;
+    }
+    
+    public PhaseCellManager getCellManager() {
+        return cellManager;
+    }
+    
     public void makeMolecules() {
         AtomLinker agentHead = speciesMaster.node.childList.header;
         for (AtomLinker link=agentHead.next; link!=agentHead; link=link.next) {
@@ -294,11 +303,10 @@ public class Phase {
      
     
     /**
-     * Temporary method for cell neighbor listing
      * @return Returns the lattice.
      */
     public RectangularLattice getLattice() {
-        return lattice;
+        return cellManager.getLattice();
     }
     /**
      * Temporary method for cell neighbor listing

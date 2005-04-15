@@ -11,7 +11,6 @@ import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Potential;
 import etomica.PotentialMaster;
-import etomica.Simulation;
 import etomica.Space;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
@@ -22,7 +21,6 @@ import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialCalculation;
-import etomica.utility.Arrays;
 
 /**
  * PotentialMaster used to implement neighbor listing.  Instance of this
@@ -128,13 +126,12 @@ public class PotentialMasterCell extends PotentialMaster {
 	}
     
     public NeighborCellManager getNbrCellManager(Phase phase) {
-        if(phase.getIndex() > neighborCellManager.length-1) {
-            neighborCellManager = (NeighborCellManager[])Arrays.resizeArray(neighborCellManager, phase.getIndex()+1);
+        NeighborCellManager manager = (NeighborCellManager)phase.getCellManager();
+        if (manager == null) {
+            manager = new NeighborCellManager(phase,nCells,positionDefinition);
+            phase.setCellManager(manager);
         }
-        if(neighborCellManager[phase.getIndex()] == null) {
-            neighborCellManager[phase.getIndex()] = new NeighborCellManager(phase,nCells,positionDefinition);
-        }
-        return neighborCellManager[phase.getIndex()];
+        return manager;
     }
 
     public int getNCells() {

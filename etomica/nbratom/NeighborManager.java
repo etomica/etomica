@@ -20,7 +20,6 @@ import etomica.atom.iterator.AtomIteratorTree;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbratom.cell.ApiAACell;
 import etomica.nbratom.cell.AtomIteratorCell;
-import etomica.nbratom.cell.NeighborCellManager;
 import etomica.nbratom.cell.PotentialCalculationAgents;
 import etomica.potential.Potential2;
 import etomica.utility.Arrays;
@@ -69,7 +68,7 @@ public class NeighborManager implements IntervalListener {
                 pbcEnforcer.setPhase(phases[i]);
                 pbcEnforcer.actionPerformed();
                 PotentialCalculationAgents pc = new PotentialCalculationAgents();
-                potentialMaster.calculate(phases[i],idUp,pc);
+                potentialMaster.calculate(phases[i],pc);
                 potentialMaster.getNbrCellManager(phases[i]).assignCellAll();
             }
 			reset(((Integrator)evt.getSource()).getPhase());
@@ -183,7 +182,6 @@ public class NeighborManager implements IntervalListener {
         this.pbcEnforcer = pbcEnforcer;
     }
 
-    //XXX should this use assignCellAll?
     public void neighborSetup(Phase phase) {
         potentialMaster.getNbrCellManager(phase).assignCellAll();
         
