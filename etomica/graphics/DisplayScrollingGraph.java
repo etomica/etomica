@@ -2,10 +2,9 @@ package etomica.graphics;
 import java.awt.Color;
 import java.awt.Graphics;
 
-import etomica.Simulation;
 import etomica.data.meter.MeterScalar;
 
-    public class DisplayScrollingGraph extends Display implements etomica.MeterScalar.User {
+    public class DisplayScrollingGraph extends Display {
 
         Color bgColor = new Color(255, 255, 240);
         int margin = 10;
@@ -29,10 +28,6 @@ import etomica.data.meter.MeterScalar;
         etomica.units.Unit unit;
         
         public DisplayScrollingGraph() {
-            this(Simulation.instance);
-        }
-        public DisplayScrollingGraph(Simulation sim) {
-            super(sim);
             useMeterStatistics = false;
             clear();
         }
