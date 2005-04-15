@@ -93,9 +93,8 @@ public class PotentialGroup extends Potential {
     }
     
 	/**
-	 * Adds the given potential to this group, but should not be called directly.  Instead,
-	 * this method is invoked by the setParentPotential method (or more likely, 
-	 * in the constructor) of the given potential.  
+	 * Adds the given potential to this group, defining it to apply to the atoms
+     * provided by the given basis-dependent iterator.  
 	 */
 	public synchronized void addPotential(Potential potential, AtomsetIteratorBasisDependent iterator) {
 		//the order of the given potential should be consistent with the order of the iterator
