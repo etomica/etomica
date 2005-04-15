@@ -186,12 +186,7 @@ public class PotentialMaster {
         }
         return false;
     }
-    
-    /**
-     * Performs no action.
-     */
-    public void setSimulation(Simulation sim) {}
-    
+        
     public AtomSequencerFactory sequencerFactory() {
         return iteratorFactory.moleculeSequencerFactory();
     }

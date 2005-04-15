@@ -75,7 +75,6 @@ public class Simulation {
         setName(NameMaker.makeName(this.getClass()));
 //        elementCoordinator = new Mediator(this);
         this.potentialMaster = potentialMaster;
-        potentialMaster.setSimulation(this);
         setController(new Controller());
         speciesRoot = new SpeciesRoot(space,(int[])bitLength.clone());
         instantiationEventManager.fireEvent(new SimulationEvent(this));
@@ -241,8 +240,8 @@ public class Simulation {
     
     private static int instanceCount = 0;
     
-    public static final java.util.Random random = new java.util.Random();
-//    public static final java.util.Random random = new java.util.Random(1);
+//    public static final java.util.Random random = new java.util.Random();
+    public static final java.util.Random random = new java.util.Random(1);
         
      /**
       * Returns the mediator that coordinates the elements of the simulation.

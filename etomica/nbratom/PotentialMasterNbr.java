@@ -10,7 +10,6 @@ import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Potential;
 import etomica.PotentialMaster;
-import etomica.Simulation;
 import etomica.Space;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLinker;
@@ -56,8 +55,8 @@ public class PotentialMasterNbr extends PotentialMaster {
      * to their cells, and invokes superclass method causing setup to be
      * performed iterating using species/potential hierarchy.
      */
-    public void calculate(Phase phase, IteratorDirective id, PotentialCalculationAgents pc) {
-        super.calculate(phase, id, pc);
+    public void calculate(Phase phase, PotentialCalculationAgents pc) {
+        super.calculate(phase, new IteratorDirective(), pc);
     }
 
 
@@ -138,10 +137,6 @@ public class PotentialMasterNbr extends PotentialMaster {
             }
 		}
 	}
-
-    public void setSimulation(Simulation sim) {
-//        sim.elementCoordinator.addMediatorPair(new etomica.Mediator.IntegratorPhase.NoCentralImage(sim.elementCoordinator));
-    }
 
     public NeighborManager getNeighborManager() {return neighborManager;}
 

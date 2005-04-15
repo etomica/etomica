@@ -126,11 +126,6 @@ public class PotentialMasterCell extends PotentialMaster {
             }
 		}
 	}
-
-    public void setSimulation(Simulation sim) {
-//        sim.elementCoordinator.addMediatorPair(new etomica.Mediator.IntegratorPhase.NoCentralImage(sim.elementCoordinator));
-    }
-
     
     public NeighborCellManager getNbrCellManager(Phase phase) {
         if(phase.getIndex() > neighborCellManager.length-1) {

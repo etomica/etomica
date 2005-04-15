@@ -11,7 +11,6 @@ import etomica.Phase;
 import etomica.Potential;
 import etomica.PotentialGroup;
 import etomica.PotentialMaster;
-import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
 import etomica.atom.AtomArrayList;
@@ -195,10 +194,6 @@ public class PotentialMasterNbr extends PotentialMaster {
         addPotential(potential, iterator);
     }
     
-    public void setSimulation(Simulation sim) {
-//        sim.elementCoordinator.addMediatorPair(new etomica.Mediator.IntegratorPhase.NoCentralImage(sim.elementCoordinator));
-    }
-
     public NeighborManager getNeighborManager() {return neighborManager;}
 
     
