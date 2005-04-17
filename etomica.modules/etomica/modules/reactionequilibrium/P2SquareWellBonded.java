@@ -85,7 +85,7 @@ public class P2SquareWellBonded extends P2SquareWell implements PotentialReactiv
       if (Default.FIX_OVERLAP) {
           AtomPair pair = (AtomPair)atoms;
           Atom a1Partner = (Atom)pair.atom0.allatomAgents[idx];
-          cPair.reset((AtomPair)pair);
+          cPair.reset(pair);
           ((CoordinatePairKinetic)cPair).resetV();
           dr.E(cPair.dr());
           Vector dv = ((CoordinatePairKinetic)cPair).dv();
@@ -121,11 +121,11 @@ public class P2SquareWellBonded extends P2SquareWell implements PotentialReactiv
     Atom a1 = pair.atom1;
     double reduced_m = 2.0/(a0.type.rm() + a1.type.rm());
     double ke = bij*bij*reduced_m/(4.0*r2);
-    double s;
     
     Atom a0Partner = (Atom)a0.allatomAgents[idx];
     Atom a1Partner = (Atom)a1.allatomAgents[idx];
     
+    lastEnergyChange = 0.0;
     if(a0Partner == a1) //atoms are bonded to each other
         if(2*r2 < (coreDiameterSquared+wellDiameterSquared)) {   // Hard-core collision
             lastCollisionVirial = reduced_m*bij;
@@ -149,6 +149,7 @@ public class P2SquareWellBonded extends P2SquareWell implements PotentialReactiv
 	            a0.allatomAgents[idx] = null;
 	            a1.allatomAgents[idx] = null;
 	            nudge = eps;
+                lastEnergyChange = epsilon;
 	        }//end if(ke < epsilon)
         }//end if(2*r2...
     else {                  //not bonded to each other
@@ -169,6 +170,7 @@ public class P2SquareWellBonded extends P2SquareWell implements PotentialReactiv
             bondData[1].newPartners[0] = a0;
             bondData[1].oldPartners[0] = null;
             nudge = -eps;
+            lastEnergyChange = -epsilon;
         }
         
     } //end if(a1Partner == a2) else
