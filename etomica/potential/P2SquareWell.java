@@ -27,7 +27,7 @@ public class P2SquareWell extends Potential2HardSpherical {
     protected double epsilon;
     protected double lastCollisionVirial, lastCollisionVirialr2;
     protected Tensor lastCollisionVirialTensor;
-    private double lastEnergyChange;
+    protected double lastEnergyChange;
     protected Vector dr;
 
     public P2SquareWell() {
