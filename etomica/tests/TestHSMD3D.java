@@ -57,8 +57,7 @@ public class TestHSMD3D extends Simulation {
 
         potential = new P2HardSphere(space);
         NeighborCriterion nbrCriterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
-        CriterionSpecies criterion = new CriterionSpecies(nbrCriterion);
-        criterion.setIntraSpecies(true);
+        CriterionSpecies criterion = new CriterionSpecies(nbrCriterion, species, species);
         potential.setCriterion(criterion);
         potentialMaster.setSpecies(potential,new Species[]{species,species});
         nbrManager.addCriterion(nbrCriterion);
@@ -66,8 +65,7 @@ public class TestHSMD3D extends Simulation {
 
         potential = new P2HardSphere(space);
         nbrCriterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
-        criterion = new CriterionSpecies(nbrCriterion);
-        criterion.setIntraSpecies(false);
+        criterion = new CriterionSpecies(nbrCriterion, species, species2);
         potential.setCriterion(criterion);
         potentialMaster.setSpecies(potential,new Species[]{species,species2});
         nbrManager.addCriterion(nbrCriterion);
@@ -76,8 +74,7 @@ public class TestHSMD3D extends Simulation {
 
         potential = new P2HardSphere(space);
         nbrCriterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
-        criterion = new CriterionSpecies(nbrCriterion);
-        criterion.setIntraSpecies(true);
+        criterion = new CriterionSpecies(nbrCriterion, species2, species2);
         potential.setCriterion(criterion);
         potentialMaster.setSpecies(potential,new Species[]{species2,species2});
         nbrManager.addCriterion(nbrCriterion);
