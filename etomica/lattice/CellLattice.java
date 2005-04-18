@@ -61,6 +61,10 @@ public class CellLattice extends RectangularLattice {
     public Vector getDimensions() {
         return dimensions;
     }
+    
+    public void setDimensions(Vector d) {
+        dimensions.E(d);
+    }
 
     /**
      * Returns the spatial dimensions of all cells in the lattice, such that a cell in the
