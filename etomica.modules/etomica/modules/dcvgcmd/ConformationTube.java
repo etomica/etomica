@@ -33,15 +33,15 @@ public class ConformationTube extends Conformation {
 		dtheta = Math.PI * 2.0 / atomsPerRing;
 		
 		
-		A= 1.9;
+		A= 1.42;
 
-		B= 1.5;
+		B= 0.705;
 		
 		//Distance between ORTHO carbons in hexagonal ring, x-z plane
-		Q = 2 * Math.sqrt(Math.pow(A, 2) - Math.pow(B, 2));
+		Q = 2.45;
 
 		//Trig operation on right triangle formed, x-y plane
-		tubeRadius = Q / Math.cos(dtheta / 2);
+		tubeRadius = Q / 2.0/Math.sin(dtheta / 2);
 		
 	}	
 
@@ -59,7 +59,7 @@ public class ConformationTube extends Conformation {
 		double theta, theta0, x, y, z, dz;
 		int ctr;
 		
-		tubeRadius = atomsPerRing*.5;
+//		tubeRadius = atomsPerRing*.5;
 		x = tubeRadius;
 		y = 0;
 		z = 0;

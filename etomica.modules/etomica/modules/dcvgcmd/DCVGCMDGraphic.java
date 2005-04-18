@@ -78,8 +78,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	interval1.setActionInterval(10);
     box1.setUnit((Kelvin.UNIT));
 			
-	PhaseImposePbc imposePbc = new PhaseImposePbc(sim.phase);
-	sim.integratorDCV.addIntervalListener(imposePbc);
+//	PhaseImposePbc imposePbc = new PhaseImposePbc(sim.phase);
+//	sim.integratorDCV.addIntervalListener(imposePbc);
 	
 	DisplayTable table = new DisplayTable();
 	add(table);

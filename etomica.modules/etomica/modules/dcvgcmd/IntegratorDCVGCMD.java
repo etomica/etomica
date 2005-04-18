@@ -13,6 +13,7 @@ import etomica.Species;
 import etomica.graphics.DisplayPhaseCanvas3DOpenGL;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
+import etomica.nbratom.PotentialMasterHybrid;
 import etomica.units.Dimension;
 
 
@@ -29,21 +30,31 @@ public class IntegratorDCVGCMD extends Integrator {
 	IntegratorMD integratormd;
 	double zFraction = 0.1;
 	private MyMCMove mcMove1, mcMove2, mcMove3, mcMove4;
-	private boolean doMD = true;
 	private Species speciesA, speciesB;
 	public DisplayPhaseCanvas3DOpenGL display;
 	private double elapsedTime = 0.0;
-	
+    private final PotentialMasterHybrid potentialMasterHybrid;
+	private int MDStepCount, MDStepRepetitions;
+    
 	public IntegratorDCVGCMD(PotentialMaster parent, Species species1, Species species2) {
 		super(parent);
 		this.speciesA = species1;
 		this.speciesB = species2;
-	}
+		potentialMasterHybrid = (parent instanceof PotentialMasterHybrid)
+                        ? (PotentialMasterHybrid)parent : null;
+        setMDStepRepetitions(50);
+    }
+    
+    public void setMDStepRepetitions(int interval) {
+        MDStepRepetitions = interval;
+        if (MDStepCount > interval) MDStepCount = interval;
+    }
     
     public void setup() {
         integratormc.initialize();
         integratormd.initialize();
         super.setup();
+        System.out.println("Exiting IntegratorDCVGCMD.setup");
     }
     
     public void setTemperature(double t) {
@@ -53,21 +64,26 @@ public class IntegratorDCVGCMD extends Integrator {
     }
 	
 	public void doStep() {
-		if(!doMD){
-//		if(false) {
+        if (potentialMasterHybrid != null) {
+            potentialMasterHybrid.setUseNbrLists(MDStepCount > 0);
+        }
+		if(MDStepCount == 0){
+		    MDStepCount = MDStepRepetitions;
 			mcMove1.setupActiveAtoms();
 			mcMove2.setupActiveAtoms();
 			mcMove3.setupActiveAtoms();
 			mcMove4.setupActiveAtoms();
 //			display.setSuspended(true);
 			for(int i=0; i<50; i++) integratormc.doStep();
+            potentialMasterHybrid.setUseNbrLists(true);
+            potentialMasterHybrid.getNeighborManager().updateNbrsIfNeeded(integratormd);
 			integratormd.reset();
 //			display.setSuspended(false);
-	 	} else {	
+	 	} else {
+            MDStepCount--;
 	 		integratormd.doStep();
 	 		elapsedTime += integratormd.getTimeStep();	
 		} 
-		doMD = !doMD;
 	}
 
 //modulator for Mu's	
@@ -128,7 +144,10 @@ public class IntegratorDCVGCMD extends Integrator {
 	 * @see etomica.Integrator#doReset()
 	 */
 	public void reset() {
+        if(!initialized) return;
+        potentialMasterHybrid.setUseNbrLists(false);
 		integratormc.reset();
+        potentialMasterHybrid.setUseNbrLists(true);
 		integratormd.reset();
 		elapsedTime = 0.0;
 	}
