@@ -52,7 +52,7 @@ public class NeighborCellManager implements Integrator.IntervalListener {
         setUpdateInterval(1);
 
         lattice = new CellLattice(phase.boundary().dimensions(), NeighborCell.FACTORY);
-        phase.setLattice(lattice);
+
         int[] size = new int[space.D()];
         for(int i=0; i<space.D(); i++) size[i] = nCells;
         lattice.setSize(size);
