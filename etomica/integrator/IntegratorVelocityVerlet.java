@@ -67,6 +67,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         atomIterator.reset();
         while(atomIterator.hasNext()) {     //loop over atoms again
             Atom a = atomIterator.nextAtom();   //  finishing the momentum step
+//            System.out.println("force: "+((MyAgent)a.ia).force.toString());
             ((ICoordinateKinetic)a.coord).velocity().PEa1Tv1(0.5*timeStep*a.type.rm(),((MyAgent)a.ia).force);  //p += f(new)*dt/2
         }
         if(isothermal) {
@@ -79,6 +80,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
 //--------------------------------------------------------------
 
     public void reset() {
+        if(!initialized) return;
         atomIterator.setPhase(phase[0]);
         atomIterator.reset();
         while(atomIterator.hasNext()) {
