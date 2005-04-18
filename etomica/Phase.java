@@ -229,6 +229,13 @@ public class Phase {
      */
     public final Boundary boundary() {return boundary;}
     
+    public final void setDimensions(Vector d) {
+        boundary.setDimensions(d);
+        if (cellManager != null) {
+            cellManager.getLattice().setDimensions(d);
+        }
+    }
+    
     /**
      * Returns the agent of the given species in this phase.
      */
@@ -308,15 +315,6 @@ public class Phase {
     public RectangularLattice getLattice() {
         return cellManager.getLattice();
     }
-    /**
-     * Temporary method for cell neighbor listing
-     * @param lattice The lattice to set.
-     */
-    public void setLattice(RectangularLattice lattice) {
-        this.lattice = lattice;
-    }
-    //temporary construct for cell neighbor listing
-    private RectangularLattice lattice;
     
     public Configuration configuration;
           
