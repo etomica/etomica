@@ -6,8 +6,10 @@ package etomica.nbratom;
 
 import etomica.IteratorDirective;
 import etomica.Phase;
+import etomica.Potential;
 import etomica.PotentialMaster;
 import etomica.Space;
+import etomica.Species;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomSequencerFactory;
 import etomica.nbratom.cell.IteratorFactoryCell;
@@ -89,6 +91,15 @@ public class PotentialMasterHybrid extends PotentialMaster {
 
     public void setUseNbrLists(boolean flag) {
         useNbrLists = flag;
+    }
+    
+    /* (non-Javadoc)
+     * @see etomica.PotentialMaster#setSpecies(etomica.Potential, etomica.Species[])
+     */
+    public void setSpecies(Potential potential, Species[] species) {
+        potentialMasterNbr.setSpecies(potential, species);
+        potentialMasterCell.setSpecies(potential, species);
+        super.setSpecies(potential, species);
     }
     
     public NeighborManager getNeighborManager() {
