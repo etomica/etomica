@@ -49,7 +49,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	
 //Slider to adjust temperature
 	DeviceSlider temperatureSlider = new DeviceSlider(sim.getController(), sim.integratorDCV, "temperature");
-	temperatureSlider.setUnit((Kelvin.UNIT));
+	temperatureSlider.setUnit(Kelvin.UNIT);
 	temperatureSlider.setMinimum(50);
 	temperatureSlider.setMaximum(500);
     temperatureSlider.setLabel("Temperature");
@@ -77,10 +77,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	IntervalActionAdapter interval1 = new IntervalActionAdapter (tpump, sim.integratorDCV);
 	interval1.setActionInterval(10);
     box1.setUnit((Kelvin.UNIT));
-			
-//	PhaseImposePbc imposePbc = new PhaseImposePbc(sim.phase);
-//	sim.integratorDCV.addIntervalListener(imposePbc);
-	
+				
 	DisplayTable table = new DisplayTable();
 	add(table);
     sim.fluxAccumulator.addDataSink(table.getDataTable().makeColumn(Dimension.UNDEFINED));
