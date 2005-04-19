@@ -18,7 +18,9 @@ import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomPositionDefinitionSimple;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
+import etomica.nbr.NeighborCriterion;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialCalculation;
 
@@ -38,7 +40,8 @@ public class PotentialMasterCell extends PotentialMaster {
 	public PotentialMasterCell(Space space) {
         super(space,new IteratorFactoryCell());
         setNCells(10);
-		singletIterator = new AtomsetIteratorSinglet(2);
+        singletAtomIterator = new AtomIteratorSinglet();
+		singletPairIterator = new AtomsetIteratorSinglet(2);
         positionDefinition = new AtomPositionDefinitionSimple();
         neighborIterator = new Api1ACell(space.D());
 	}
@@ -95,30 +98,52 @@ public class PotentialMasterCell extends PotentialMaster {
      * child atoms is performed and process is repeated (recursively) with each on down
      * the hierarchy until leaf atoms are reached.
      */
-    //TODO make a "TerminalGroup" node that permits child atoms but indicates that no potentials apply directly to them
+    //TODO make a "TerminalGroup" indicator in type that permits child atoms but indicates that no potentials apply directly to them
 	private void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc, Potential[] potentials) {
         int length = potentials.length;
-		if (length > 0) {
-            neighborIterator.setTarget(atom);
-            neighborIterator.reset();
-            while (neighborIterator.hasNext()) {
-                AtomPair pair = neighborIterator.nextPair();
-                singletIterator.setAtom(pair);
-                for (int i=0; i<potentials.length; i++) {
-                    if (((Potential2)potentials[i]).getCriterion().accept(pair)) {
-                        pc.doCalculation(singletIterator,id,potentials[i]);
+        for(int i=0; i<potentials.length; i++) {
+            switch (potentials[i].nBody()) {
+            case 1:
+                singletAtomIterator.setAtom(atom);
+                pc.doCalculation(singletAtomIterator, id, potentials[i]);
+                break;
+            case 2:
+                Potential2 p2 = (Potential2) potentials[i];
+                NeighborCriterion nbrCriterion = p2.getCriterion();
+                neighborIterator.setTarget(atom);
+                neighborIterator.reset();
+                while (neighborIterator.hasNext()) {
+                    AtomPair pair = neighborIterator.nextPair();
+                    if (nbrCriterion.accept(pair)) {
+                        singletPairIterator.setAtom(pair);
+                        pc.doCalculation(singletPairIterator, id, p2);
                     }
                 }
+                break;
             }
-		}
+        }
+            
+//        if (length > 0) {
+//            neighborIterator.setTarget(atom);
+//            neighborIterator.reset();
+//            while (neighborIterator.hasNext()) {
+//                AtomPair pair = neighborIterator.nextPair();
+//                singletPairIterator.setAtom(pair);
+//                for (int i=0; i<potentials.length; i++) {
+//                    if (((Potential2)potentials[i]).getCriterion().accept(pair)) {
+//                        pc.doCalculation(singletPairIterator,id,potentials[i]);
+//                    }
+//                }
+//            }
+//		}
 		//if atom has children, repeat process with them
 		if(!atom.node.isLeaf()) {
             //cannot use AtomIterator field because of recursive call
             AtomList list = ((AtomTreeNodeGroup) atom.node).childList;
             AtomLinker link = list.header.next;
             if (link != list.header) {
-                Potential[] childPotentials = link.atom.type.getNbrManagerAgent().getPotentials();
                 for (link = list.header.next; link != list.header; link = link.next) {
+                    Potential[] childPotentials = link.atom.type.getNbrManagerAgent().getPotentials();
                     calculate(link.atom, id, pc, childPotentials);//recursive call
                 }
             }
@@ -154,7 +179,8 @@ public class PotentialMasterCell extends PotentialMaster {
         neighborIterator.getNbrCellIterator().setRange(d);
     }
     
-	private final AtomsetIteratorSinglet singletIterator;
+    private final AtomIteratorSinglet singletAtomIterator;
+	private final AtomsetIteratorSinglet singletPairIterator;
     private NeighborCellManager[] neighborCellManager = new NeighborCellManager[0];
     private int nCells;
     private final IteratorDirective idUp = new IteratorDirective();
