@@ -100,37 +100,68 @@ public class PotentialMasterNbr extends PotentialMaster {
     //TODO make a "TerminalGroup" node that permits child atoms but indicates that no potentials apply directly to them
 	private void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc, Potential[] potentials) {
 		int length = potentials.length;
-		if (length > 0) {
-            AtomSequencerNbr seq = (AtomSequencerNbr)atom.seq;
-			singletIterator.setAtom(atom);
-			IteratorDirective.Direction direction = id.direction();
-			AtomArrayList[] list;
-			if (direction == IteratorDirective.UP || direction == null) {
-				list = seq.getUpList();
-//              list.length may be less than potentials.length, if atom hasn't yet interacted with another using one of the potentials
-				for (int i=0; i<list.length; i++) {
-					atomIterator.setList(list[i]);
-					//System.out.println("Up :"+atomIterator.size());
-					pc.doCalculation(pairIterator, id, potentials[i]);
-				}
-			}
-			if (direction == IteratorDirective.DOWN || direction == null) {
-				list = seq.getDownList();
-				for (int i=0; i<list.length; i++) {
-					atomIterator.setList(list[i]);
-					//System.out.println("Dn :"+atomIterator.size());
-					pc.doCalculation(pairIterator, id, potentials[i]);
-				}
-			}
-		}
+        AtomSequencerNbr seq = (AtomSequencerNbr)atom.seq;
+        singletIterator.setAtom(atom);
+        IteratorDirective.Direction direction = id.direction();
+        for(int i=0; i<potentials.length; i++) {
+            switch (potentials[i].nBody()) {
+            case 1:
+                pc.doCalculation(singletIterator, id, potentials[i]);
+                break;
+            case 2:
+                AtomArrayList[] list;
+                if (direction == IteratorDirective.UP || direction == null) {
+                    list = seq.getUpList();
+//                  list.length may be less than potentials.length, if atom hasn't yet interacted with another using one of the potentials
+                    if(i < list.length) {
+                        atomIterator.setList(list[i]);
+                        //System.out.println("Up :"+atomIterator.size());
+                        pc.doCalculation(pairIterator, id, potentials[i]);
+                    }
+                }
+                if (direction == IteratorDirective.DOWN || direction == null) {
+                    list = seq.getDownList();
+                    if(i < list.length) {
+                        atomIterator.setList(list[i]);
+                        //System.out.println("Dn :"+atomIterator.size());
+                        pc.doCalculation(pairIterator, id, potentials[i]);
+                    }
+                }
+                break;//switch
+            }//end of switch
+        }//end of for
+        
+//        if (length > 0) {
+//            AtomSequencerNbr seq = (AtomSequencerNbr)atom.seq;
+//			singletIterator.setAtom(atom);
+//			IteratorDirective.Direction direction = id.direction();
+//			AtomArrayList[] list;
+//			if (direction == IteratorDirective.UP || direction == null) {
+//				list = seq.getUpList();
+////              list.length may be less than potentials.length, if atom hasn't yet interacted with another using one of the potentials
+//				for (int i=0; i<list.length; i++) {
+//					atomIterator.setList(list[i]);
+//					//System.out.println("Up :"+atomIterator.size());
+//					pc.doCalculation(pairIterator, id, potentials[i]);
+//				}
+//			}
+//			if (direction == IteratorDirective.DOWN || direction == null) {
+//				list = seq.getDownList();
+//				for (int i=0; i<list.length; i++) {
+//					atomIterator.setList(list[i]);
+//					//System.out.println("Dn :"+atomIterator.size());
+//					pc.doCalculation(pairIterator, id, potentials[i]);
+//				}
+//			}
+//		}
 		//if atom has children, repeat process with them
 		if(!atom.node.isLeaf()) {
             //cannot use AtomIterator field because of recursive call
             AtomList list = ((AtomTreeNodeGroup) atom.node).childList;
             AtomLinker link = list.header.next;
             if (link != list.header) {
-                Potential[] childPotentials = link.atom.type.getNbrManagerAgent().getPotentials();
                 for (link = list.header.next; link != list.header; link = link.next) {
+                    Potential[] childPotentials = link.atom.type.getNbrManagerAgent().getPotentials();
                     calculate(link.atom, id, pc, childPotentials);//recursive call
                 }
             }
