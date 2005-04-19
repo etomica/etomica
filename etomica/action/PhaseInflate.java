@@ -71,7 +71,7 @@ public final class PhaseInflate extends PhaseActionAdapter implements Undoable {
 		if(phase == null) return;
         Vector dimensions = phase.boundary().dimensions();
         dimensions.TE(scale);
-        phase.boundary().setDimensions(dimensions);
+        phase.setDimensions(dimensions);
         phase.boundaryEventManager.fireEvent(inflateEvent.setScale(scale));
 		moleculeIterator.reset();
 		while (moleculeIterator.hasNext()) {

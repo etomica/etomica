@@ -77,7 +77,7 @@ public class PhaseInflateAnisotropic extends PhaseActionAdapter implements
 	public void actionPerformed() {
         Vector dimensions = phase.boundary().dimensions();
         dimensions.TE(scale);
-        phase.boundary().setDimensions(dimensions);
+        phase.setDimensions(dimensions);
         phase.boundaryEventManager.fireEvent(inflateEvent.setScale(scale));
 		moleculeIterator.reset();
 		while (moleculeIterator.hasNext()) {
