@@ -55,7 +55,7 @@ public class PistonCylinder extends Simulation {
         else {
             newDim = new Vector3D(80,80,80);
         }
-        phase.boundary().setDimensions(newDim);
+        phase.setDimensions(newDim);
         phase.makeMolecules();
         
         P2SquareWell potentialSW = new P2SquareWell(space,Default.ATOM_SIZE,lambda,31.875);
