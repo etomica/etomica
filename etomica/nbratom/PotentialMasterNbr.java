@@ -99,8 +99,6 @@ public class PotentialMasterNbr extends PotentialMaster {
      */
     //TODO make a "TerminalGroup" node that permits child atoms but indicates that no potentials apply directly to them
 	private void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc, Potential[] potentials) {
-		int length = potentials.length;
-        AtomSequencerNbr seq = (AtomSequencerNbr)atom.seq;
         singletIterator.setAtom(atom);
         IteratorDirective.Direction direction = id.direction();
         for(int i=0; i<potentials.length; i++) {
@@ -109,6 +107,7 @@ public class PotentialMasterNbr extends PotentialMaster {
                 pc.doCalculation(singletIterator, id, potentials[i]);
                 break;
             case 2:
+                AtomSequencerNbr seq = (AtomSequencerNbr)atom.seq;
                 AtomArrayList[] list;
                 if (direction == IteratorDirective.UP || direction == null) {
                     list = seq.getUpList();
