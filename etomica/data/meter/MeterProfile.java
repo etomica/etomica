@@ -7,6 +7,7 @@ import etomica.Phase;
 import etomica.Space;
 import etomica.atom.iterator.AtomIteratorList;
 import etomica.data.DataSourceUniform;
+import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.units.Dimension;
 
@@ -25,6 +26,7 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
      * For example, (1,0) is along the x-axis.
      */
     final Vector profileVector;
+    final Vector position;
     /**
      * Meter that defines the property being profiled.
      */
@@ -41,18 +43,13 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
         setNDataPerPhase(((DataSourceUniform)xDataSource).getNValues());
         profileVector = space.makeVector();
         profileVector.setX(0, 1.0);
+        position = space.makeVector();
     }
     
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Breaks a meter's measurements into a profile taken along some direction in phase");
         return info;
     }
-    
-    /**
-     * Declares that this meter uses the boundary of the phase, as it sizes the profile length 
-     * according to the dimensions of the simulation cell.
-     */
-    public boolean usesPhaseBoundary() {return true;}
     
     /**
      * Returns the ordinate label for the profile, obtained from the associated meter.
@@ -102,7 +99,8 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
      * Returns the profile for the current configuration.
      */
     public double[] getDataAsArray(Phase p) {
-        profileNorm = 1.0/p.boundary().dimensions().dot(profileVector);
+        Boundary boundary = p.boundary();
+        profileNorm = 1.0/boundary.dimensions().dot(profileVector);
         for (int i = 0; i <nDataPerPhase; i++) {
             phaseData[i] = 0.0;
         }
@@ -111,7 +109,9 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
         while(ai1.hasNext()) {
             Atom a = ai1.nextAtom();
             double value = meter.getDataAsScalar(a);
-            int i = ((DataSourceUniform)xDataSource).getIndex(a.coord.position().dot(profileVector)*profileNorm);
+            position.E(a.coord.position());
+            position.PE(boundary.centralImage(position));
+            int i = ((DataSourceUniform)xDataSource).getIndex(position.dot(profileVector)*profileNorm);
             phaseData[i] += value;
         }
         double dx = (((DataSourceUniform)xDataSource).getXMax() - ((DataSourceUniform)xDataSource).getXMin())/nDataPerPhase;
