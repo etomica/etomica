@@ -84,7 +84,7 @@ public class DCVGCMD extends Simulation {
         AtomType speciestype1 = species1.moleculeFactory().getType();
         
         PotentialMasterHybrid potentialMasterHybrid = (PotentialMasterHybrid) potentialMaster;
-        double neighborRangeFac = 1.2;
+        double neighborRangeFac = 1.4;
         final NeighborManager nbrManager = potentialMasterHybrid.getNeighborManager();
         nbrManager.getPbcEnforcer().setApplyToMolecules(false);
         int nCells = (int) (40 / (neighborRangeFac * Default.ATOM_SIZE));
@@ -121,7 +121,7 @@ public class DCVGCMD extends Simulation {
 
         potentialtube = new PotentialGroup(2, space);
         P2WCA potentialTubeAtom = new P2WCA(space);
-        nbrCriterion = new NeighborCriterionSimple(space,potentialTubeAtom.getRange(),neighborRangeFac*potential.getRange());
+        nbrCriterion = new NeighborCriterionSimple(space,potentialTubeAtom.getRange(),neighborRangeFac*potentialTubeAtom.getRange());
         criterion = new CriterionSpecies(nbrCriterion, speciesTube, species);
         potentialTubeAtom.setCriterion(criterion);
         nbrManager.addCriterion(nbrCriterion);
@@ -134,8 +134,8 @@ public class DCVGCMD extends Simulation {
         
         potentialtube1 = new PotentialGroup(2, space);
         P2WCA potentialTubeAtom1 = new P2WCA(space);
-        nbrCriterion = new NeighborCriterionSimple(space,potentialTubeAtom1.getRange(),neighborRangeFac*potential.getRange());
-        criterion = new CriterionSpecies(nbrCriterion, speciesTube, species);
+        nbrCriterion = new NeighborCriterionSimple(space,potentialTubeAtom1.getRange(),neighborRangeFac*potentialTubeAtom.getRange());
+        criterion = new CriterionSpecies(nbrCriterion, speciesTube, species1);
         potentialTubeAtom1.setCriterion(criterion);
         nbrManager.addCriterion(nbrCriterion);
         potentialtube1.addPotential(potentialTubeAtom1, new AtomType[] {
@@ -163,8 +163,8 @@ public class DCVGCMD extends Simulation {
         potentialMaster.setSpecies(potentialwallPorousB1, new Species[] { species1 });
 
 
-        species.setNMolecules(2);
-        species1.setNMolecules(2);
+        species.setNMolecules(20);
+        species1.setNMolecules(20);
         phase = new Phase(this);
         integratorDCV = new IntegratorDCVGCMD(potentialMaster, species,
                 species1);
