@@ -11,6 +11,7 @@ import etomica.SpeciesSpheresMono;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
+import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorListCompound;
 import etomica.atom.iterator.AtomIteratorListSimple;
@@ -157,7 +158,7 @@ public class ConfigurationLatticeTube extends Configuration implements Atom.Agen
         //loop for multiple tubes.
         AtomIteratorListSimple tubeiterator = new AtomIteratorListSimple(list);
         tubeiterator.reset();
-        atomActionTranslateTo.setAtomPositionDefinition(new DataSourceGC(space));
+        atomActionTranslateTo.setAtomPositionDefinition(new AtomPositionGeometricCenter(space));
         while (tubeiterator.hasNext()){
         	Atom a = tubeiterator.nextAtom();
         	Conformation config = a.type.creator().getConformation();

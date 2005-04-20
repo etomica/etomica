@@ -12,7 +12,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
-import etomica.data.DataSourceCOM;
 import etomica.data.DataSourceGroup;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterProfile;
@@ -78,7 +77,7 @@ public class DCVGCMD extends Simulation {
 
         species = new SpeciesSpheresMono(this);
         species1 = new SpeciesSpheresMono(this);
-        speciesTube = new SpeciesTube(this, 20, 30);
+        speciesTube = new SpeciesTube(this, 20, 40);
         AtomType tubetype = ((AtomFactoryHomo) speciesTube.moleculeFactory())
                 .childFactory().getType();
         AtomType speciestype = species.moleculeFactory().getType();
@@ -88,9 +87,8 @@ public class DCVGCMD extends Simulation {
         double neighborRangeFac = 1.2;
         final NeighborManager nbrManager = potentialMasterHybrid.getNeighborManager();
         nbrManager.getPbcEnforcer().setApplyToMolecules(false);
-        int nCells = (int) (2 * Default.BOX_SIZE / (neighborRangeFac * Default.ATOM_SIZE));
+        int nCells = (int) (40 / (neighborRangeFac * Default.ATOM_SIZE));
         potentialMasterHybrid.setNCells(nCells);
-        potentialMasterHybrid.setAtomPositionDefinition(new DataSourceCOM(space));
 
         //0-0 intraspecies interaction
         potential = new P2WCA(space);
@@ -108,8 +106,7 @@ public class DCVGCMD extends Simulation {
         criterion = new CriterionSpecies(nbrCriterion, species1, species1);
         potential11.setCriterion(criterion);
         nbrManager.addCriterion(nbrCriterion);
-        potentialMaster.setSpecies(potential11, new Species[] { species1,
-                species1 });
+        potentialMaster.setSpecies(potential11, new Species[] { species1, species1 });
         species1.getFactory().getType().getNbrManagerAgent().addCriterion(nbrCriterion);
 
         //0-1 interspecies interaction
@@ -118,8 +115,7 @@ public class DCVGCMD extends Simulation {
         criterion = new CriterionSpecies(nbrCriterion, species1, species);
         potential1.setCriterion(criterion);
         nbrManager.addCriterion(nbrCriterion);
-        potentialMaster.setSpecies(potential1, new Species[] { species1,
-                species });
+        potentialMaster.setSpecies(potential1, new Species[] { species1, species });
         species.getFactory().getType().getNbrManagerAgent().addCriterion(nbrCriterion);
         species1.getFactory().getType().getNbrManagerAgent().addCriterion(nbrCriterion);
 
@@ -133,7 +129,7 @@ public class DCVGCMD extends Simulation {
                 speciestype }, potentialMaster);
         potentialMaster.setSpecies(potentialtube, new Species[] {speciesTube, species});
         species.getFactory().getType().getNbrManagerAgent().addCriterion(nbrCriterion);
-        ((AtomFactoryHomo)speciesTube.getFactory()).childFactory().getType().getNbrManagerAgent().addCriterion(nbrCriterion);
+//        ((AtomFactoryHomo)speciesTube.getFactory()).childFactory().getType().getNbrManagerAgent().addCriterion(nbrCriterion);
         
         
         potentialtube1 = new PotentialGroup(2, space);
@@ -142,11 +138,11 @@ public class DCVGCMD extends Simulation {
         criterion = new CriterionSpecies(nbrCriterion, speciesTube, species);
         potentialTubeAtom1.setCriterion(criterion);
         nbrManager.addCriterion(nbrCriterion);
-        potentialtube1.addPotential(new P2WCA(space), new AtomType[] {
+        potentialtube1.addPotential(potentialTubeAtom1, new AtomType[] {
                 tubetype, speciestype1 }, potentialMaster);
         potentialMaster.setSpecies(potentialtube1, new Species[]{speciesTube, species1});
         species1.getFactory().getType().getNbrManagerAgent().addCriterion(nbrCriterion);
-        ((AtomFactoryHomo)speciesTube.getFactory()).childFactory().getType().getNbrManagerAgent().addCriterion(nbrCriterion);
+//        ((AtomFactoryHomo)speciesTube.getFactory()).childFactory().getType().getNbrManagerAgent().addCriterion(nbrCriterion);
 
         potentialwall = new P1WCAWall(space);
         potentialMaster.setSpecies(potentialwall, new Species[] { species });
@@ -167,8 +163,8 @@ public class DCVGCMD extends Simulation {
         potentialMaster.setSpecies(potentialwallPorousB1, new Species[] { species1 });
 
 
-        species.setNMolecules(200);
-        species1.setNMolecules(200);
+        species.setNMolecules(2);
+        species1.setNMolecules(2);
         phase = new Phase(this);
         integratorDCV = new IntegratorDCVGCMD(potentialMaster, species,
                 species1);
@@ -181,7 +177,7 @@ public class DCVGCMD extends Simulation {
 
         /***/
         integratorDCV.addIntervalListener(nbrManager);
-        nbrManager.setRange(Default.ATOM_SIZE * neighborRangeFac);
+        nbrManager.setRange(potential.getRange() * neighborRangeFac);
         integratorMC.addMCMoveListener(potentialMasterHybrid.getNbrCellManager(phase).makeMCMoveListener());
 
 
@@ -225,8 +221,8 @@ public class DCVGCMD extends Simulation {
         potentialwallPorousB1.setPoreRadius(poreRadius);
 
         //place porous-wall potentials; put just past the edges of the tube
-        double zA = 1.05 * length * phase.boundary().dimensions().x(2);
-        double zB = 0.95 * (1.0 - length) * phase.boundary().dimensions().x(2);
+        double zA = (length + 0.05) * phase.boundary().dimensions().x(2);
+        double zB = (1.0 - length - 0.05) * phase.boundary().dimensions().x(2);
         potentialwallPorousA.setZ(zA);
         potentialwallPorousA1.setZ(zA);
         potentialwallPorousB.setZ(zB);
