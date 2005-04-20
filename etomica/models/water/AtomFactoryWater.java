@@ -7,6 +7,7 @@ import etomica.AtomType;
 import etomica.Space;
 import etomica.Species;
 import etomica.atom.AtomFactoryMono;
+import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTypeSphere;
 
@@ -28,7 +29,7 @@ public class AtomFactoryWater extends AtomFactory {
     }
     
     public AtomFactoryWater(Space space, AtomSequencerFactory sequencerFactory, AtomIndexManager indexManager) {
-		super(space, new AtomType(indexManager), sequencerFactory, AtomTreeNodeWater.FACTORY);
+		super(space, new AtomType(indexManager,new AtomPositionGeometricCenter(space)), sequencerFactory, AtomTreeNodeWater.FACTORY);
 
         AtomIndexManager childIndexManager = indexManager.makeChildManager();
         

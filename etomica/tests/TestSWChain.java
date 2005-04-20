@@ -14,6 +14,7 @@ import etomica.Species;
 import etomica.SpeciesSpheres;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
+import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.iterator.ApiIntergroup;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
@@ -68,7 +69,6 @@ public class TestSWChain extends Simulation {
         activityIntegrate.setMaxSteps(nSteps);
         int nCells = (int)(2*Default.BOX_SIZE/(neighborRangeFac*sqwLambda*Default.ATOM_SIZE));
         ((PotentialMasterNbr)potentialMaster).setNCells(nCells);
-        ((PotentialMasterNbr)potentialMaster).setAtomPositionDefinition(new DataSourceCOM(space));
 
         P2SquareWell potential = new P2SquareWell(space,Default.ATOM_SIZE,sqwLambda,0.5*Default.POTENTIAL_WELL);
         NeighborCriterion nbrCriterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
