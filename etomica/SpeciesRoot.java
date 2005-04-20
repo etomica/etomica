@@ -21,8 +21,8 @@ public final class SpeciesRoot extends Atom {
     private Species[] speciesList = new Species[0];
     
     SpeciesRoot(Space space, int[] bitLength) {
-        super(space, new AtomType(AtomIndexManager.makeRootIndexManager(bitLength)), new NodeFactory(), AtomSequencerFactory.SIMPLE);
-        childType = new AtomType(type.getIndexManager().makeChildManager());
+        super(space, new AtomType(AtomIndexManager.makeRootIndexManager(bitLength), null), new NodeFactory(), AtomSequencerFactory.SIMPLE);
+        childType = new AtomType(type.getIndexManager().makeChildManager(), null);
         node.setOrdinal(1);
     }
     

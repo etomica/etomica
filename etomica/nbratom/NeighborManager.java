@@ -193,6 +193,7 @@ public class NeighborManager implements IntervalListener {
             Atom atom0 = pair.atom0;
             Potential[] potentials = atom0.type.getNbrManagerAgent().getPotentials();
             for (int i=0; i<potentials.length; i++) {
+                if(potentials[i].nBody() != 2) continue;
                 if (((Potential2)potentials[i]).getCriterion().accept(pair)) {
                     ((AtomSequencerNbr)pair.atom0.seq).addUpNbr(pair.atom1, potentials[i]);
                     ((AtomSequencerNbr)pair.atom1.seq).addDownNbr(pair.atom0, potentials[i]);
@@ -217,6 +218,10 @@ public class NeighborManager implements IntervalListener {
 	private int priority;
     private PhaseImposePbc pbcEnforcer;
     
+    /**
+     * Atom action class that checks if any criteria indicate that the given atom
+     * needs to update its neighbor list.
+     */
 	private static class NeighborCheck extends AtomsetActionAdapter {
 		private boolean needUpdate = false, unsafe = false;
 		public void actionPerformed(AtomSet atom) {
@@ -234,13 +239,23 @@ public class NeighborManager implements IntervalListener {
             }
 		}
 		
+        /**
+         * Sets class to condition that indicates that no atoms need to have
+         * their neighbor list updated.
+         */
 		public void reset() {
 			needUpdate = false;
 			unsafe = false;
 		}
 
 	}
-	
+
+    /**
+     * Atom action class that clears neighbor list of given atom and
+     * loops through all neighbor criteria applying to atom (as given 
+     * by its type), and resets the criteria as it applies to the atom 
+     * (e.g., sets its previous-position vector to its current position).
+     */
 	private class NeighborReset extends AtomsetActionAdapter {
 		public void actionPerformed(AtomSet atom) {
             if(((Atom)atom).type.getDepth() < 3) return;//don't want SpeciesMaster or SpeciesAgents

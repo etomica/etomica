@@ -13,10 +13,10 @@ import etomica.SimulationEvent;
 import etomica.Space;
 import etomica.SpeciesAgent;
 import etomica.atom.AtomPositionDefinition;
-import etomica.atom.AtomPositionDefinitionSimple;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.lattice.CellLattice;
+import etomica.space.Vector;
 
 /**
  * Class that defines and manages construction and use of lattice of cells 
@@ -37,12 +37,20 @@ public class NeighborCellManager implements Integrator.IntervalListener {
     
     /**
      * Constructs manager for neighbor cells in the given phase.  The number of
-     * cells in each dimension is given by nCells. 
+     * cells in each dimension is given by nCells. Position definition for each
+     * atom is that given by its type (it is set to null in this class).
      */
     public NeighborCellManager(Phase phase, int nCells) {
-        this(phase,nCells,new AtomPositionDefinitionSimple());
+        this(phase, nCells, null);
     }
     
+    /**
+     * Construct manager for neighbor cells in the given phase.  The number
+     * of cells in each dimension is given by nCells.  Position definition is
+     * used to determine the cell a given atom is in; if null, the position
+     * definition given by the atom's type is used.  Position definition is
+     * declared final.
+     */
     public NeighborCellManager(Phase phase, int nCells, AtomPositionDefinition positionDefinition) {
         this.phase = phase;
         this.positionDefinition = positionDefinition;
@@ -110,7 +118,10 @@ public class NeighborCellManager implements Integrator.IntervalListener {
      */
     public void assignCell(Atom atom) {
         AtomSequencerCell seq = (AtomSequencerCell)atom.seq;
-        NeighborCell newCell = (NeighborCell)lattice.site(positionDefinition.position(atom));
+        Vector position = (positionDefinition != null) ?
+                positionDefinition.position(atom) :
+                    atom.type.getPositionDefinition().position(atom);
+        NeighborCell newCell = (NeighborCell)lattice.site(position);
         if(newCell != seq.cell) {assignCell(seq, newCell, atom.type.getSpeciesIndex()-1);}
     }
     
@@ -143,6 +154,10 @@ public class NeighborCellManager implements Integrator.IntervalListener {
         }
     }
 
+    /**
+     * Implementation of IntervalListener interface to cause all
+     * atoms in phase to be assigned to their cells. 
+     */
     public void intervalAction(Integrator.IntervalEvent event) {
         if (event.type() == Integrator.IntervalEvent.INITIALIZE) {
             assignCellAll();

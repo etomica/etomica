@@ -30,7 +30,7 @@ public final class AtomTypeWall extends AtomType {
         public double pAccumulator, qAccumulator; //net sum of momentum and heat transferred to wall
         
         public AtomTypeWall(Space space, AtomIndexManager indexManager, double m, double l, double x, double y, double z) {
-            super(indexManager, m);
+            super(indexManager, new AtomPositionDefinitionSimple(), m);
             setLength(l);
             setXAngle(x);
             setYAngle(y);

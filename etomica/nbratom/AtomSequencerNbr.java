@@ -41,6 +41,9 @@ public class AtomSequencerNbr extends AtomSequencerCell {
         int index = atom.type.getNbrManagerAgent().getPotentialIndex(potential);
         ensureCapacity(index);
         upList[index].add(a);
+//        if (atom.node.getOrdinal() == 1) {
+//            System.out.println("in aUN, "+index+" "+upList[index].size());
+//        }
     }
 
     /**
@@ -53,6 +56,9 @@ public class AtomSequencerNbr extends AtomSequencerCell {
         int index = atom.type.getNbrManagerAgent().getPotentialIndex(potential);
         ensureCapacity(index);
         downList[index].add(a);
+//        if (atom.node.getOrdinal() == 1) {
+//            System.out.println("in aDN, "+index+" "+downList[index].size());
+//        }
     }
 
     /**

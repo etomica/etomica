@@ -63,7 +63,10 @@ public class NeighborManager implements IntervalListener {
 	}
 
 	/**
-	 * @param 
+	 * Method to initialize the neighbor list for the given phases.
+     * For each given phase, applies pbc, clears neighbor lists of 
+     * all atoms, and performs setup of neighbor lists for current
+     * configuration. 
 	 */
 	public void reset(Phase[] phase) {
 		for (int i=0; i<phase.length; i++) {
@@ -74,7 +77,7 @@ public class NeighborManager implements IntervalListener {
             pbcEnforcer.actionPerformed();
 			iterator.setRoot(phase[i].speciesMaster());
 			iterator.allAtoms(neighborReset);
-			potentialMaster.calculate(phase[i],id,potentialCalculationNbrSetup);
+			potentialMaster.calculate(phase[i], id, potentialCalculationNbrSetup);
 		}
 	}
 
@@ -107,10 +110,18 @@ public class NeighborManager implements IntervalListener {
         if(resetIntegrator) integrator.neighborsUpdated();
 	}
 	
+    /**
+     * Returns the number of interval events received before the interval action
+     * (i.e., check for need to update neighbor lists) is performed.  Default is 1.
+     */
 	public int getUpdateInterval() {
 		return updateInterval;
 	}
 	
+    /**
+     * Sets the number of interval events received before the interval action
+     * (i.e., check for need to update neighbor lists) is performed.
+     */
 	public void setUpdateInterval(int updateInterval) {
 		this.updateInterval = updateInterval;
 	}
@@ -175,6 +186,10 @@ public class NeighborManager implements IntervalListener {
 	private int priority;
     private PhaseImposePbc pbcEnforcer;
     
+    /**
+     * Atom action class that checks if any criteria indicate that the given atom
+     * needs to update its neighbor list.
+     */
 	private static class NeighborCheck extends AtomsetActionAdapter {
 		private boolean needUpdate = false, unsafe = false;
 		public void actionPerformed(AtomSet atom) {
@@ -192,6 +207,10 @@ public class NeighborManager implements IntervalListener {
             }
 		}
 		
+        /**
+         * Sets class to condition that indicates that no atoms need to have
+         * their neighbor list updated.
+         */
 		public void reset() {
 			needUpdate = false;
 			unsafe = false;
@@ -199,6 +218,12 @@ public class NeighborManager implements IntervalListener {
 
 	}
 	
+    /**
+     * Atom action class that clears neighbor list of given atom and
+     * loops through all neighbor criteria applying to atom (as given 
+     * by its type), and resets the criteria as it applies to the atom 
+     * (e.g., sets its previous-position vector to its current position).
+     */
 	private class NeighborReset extends AtomsetActionAdapter {
 		public void actionPerformed(AtomSet atom) {
             if(((Atom)atom).type.getDepth() < 3) return;//don't want SpeciesMaster or SpeciesAgents

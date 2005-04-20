@@ -1,4 +1,5 @@
 package etomica;
+import etomica.atom.AtomPositionDefinition;
 import etomica.nbr.NeighborManagerAgent;
 import etomica.units.Dimension;
 //import etomica.electrostatics.*;
@@ -38,15 +39,19 @@ public class AtomType implements java.io.Serializable {
     
     public double mass, rm;
     private final AtomIndexManager indexManager;
+    private AtomPositionDefinition positionDefinition;
     
 //    private Parameter.Electrostatic electroParameter;
     
-    public AtomType(AtomIndexManager indexManager) {
-        this(indexManager, Default.ATOM_MASS);
+    public AtomType(AtomIndexManager indexManager, AtomPositionDefinition positionDefinition) {
+        this(indexManager, positionDefinition, Default.ATOM_MASS);
     }
-    public AtomType(AtomIndexManager indexManager, double mass) {
+    public AtomType(AtomIndexManager indexManager, 
+            AtomPositionDefinition positionDefinition, double mass) {
         
         this.indexManager = indexManager;
+        
+        this.positionDefinition = positionDefinition;
         
         //update linked list of instances
         this.previousInstance = lastInstance;
@@ -65,6 +70,18 @@ public class AtomType implements java.io.Serializable {
     
     public AtomIndexManager getIndexManager() {
         return indexManager;
+    }
+    
+    
+    /**
+     * The position definition held by the type provides an appropriate
+     * default to define the position of an atom of this type.  This field
+     * is set in the definition of the parent species of the atom. It
+     * is null for SpeciesRoot, SpeciesMaster, and SpeciesAgent atoms.  
+     * @return Returns the positionDefinition for an atom of this type.
+     */
+    public AtomPositionDefinition getPositionDefinition() {
+        return positionDefinition;
     }
     
     /**

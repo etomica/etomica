@@ -15,7 +15,6 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.AtomPositionDefinition;
-import etomica.atom.AtomPositionDefinitionSimple;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.ApiInnerFixed;
@@ -40,13 +39,21 @@ public class PotentialMasterNbr extends PotentialMaster {
      * for generating molecule iterators.  Sets default nCells of 10. 
 	 */
 	public PotentialMasterNbr(Space space) {
+        this(space, null);
+    }
+    
+    /**
+     * Constructs class using given position definition for all atom cell assignments.
+     * @param positionDefinition if null, specifies use of atom type's position definition
+     */
+    public PotentialMasterNbr(Space space, AtomPositionDefinition positionDefinition) {
         super(space,new IteratorFactoryCell());
         setNCells(10);
 		neighborManager = new NeighborManager(this);
 		atomIterator = new AtomIteratorArrayList();
 		singletIterator = new AtomIteratorSinglet();
 		pairIterator = new ApiInnerFixed(singletIterator, atomIterator);
-        positionDefinition = new AtomPositionDefinitionSimple();
+        this.positionDefinition = positionDefinition;
 	}
     
     /**
@@ -173,7 +180,7 @@ public class PotentialMasterNbr extends PotentialMaster {
     public NeighborCellManager getNbrCellManager(Phase phase) {
         NeighborCellManager manager = (NeighborCellManager)phase.getCellManager();
         if (manager == null) {
-            manager = new NeighborCellManager(phase,nCells,positionDefinition);
+            manager = new NeighborCellManager(phase, nCells, positionDefinition);
             phase.setCellManager(manager);
         }
         return manager;
@@ -188,9 +195,6 @@ public class PotentialMasterNbr extends PotentialMaster {
     
     public AtomSequencerFactory sequencerFactory() {return AtomSequencerNbr.FACTORY;}
     
-    public void setAtomPositionDefinition(AtomPositionDefinition positionDefinition) {
-        this.positionDefinition = positionDefinition;
-    }
     public AtomPositionDefinition getAtomPositionDefinition() {
         return positionDefinition;
     }
@@ -202,6 +206,6 @@ public class PotentialMasterNbr extends PotentialMaster {
     private NeighborCellManager[] neighborCellManager = new NeighborCellManager[0];
     private int nCells;
     private final IteratorDirective idUp = new IteratorDirective();
-    private AtomPositionDefinition positionDefinition;
+    private final AtomPositionDefinition positionDefinition;
     
 }

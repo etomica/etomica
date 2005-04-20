@@ -11,6 +11,7 @@ import etomica.Species;
 
 /**
  * Builds an atom group that comprises a set of identically formed atoms or atom groups.
+ * Default position definition is the geometric center (which is also the center of mass).
  *
  * @author David Kofke
  */
@@ -60,7 +61,7 @@ import etomica.Species;
     public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomIndexManager indexManager,
                             AtomTreeNodeFactory nodeFactory, 
     						AtomFactory factory, int atoms, Conformation config) {
-        super(space, new AtomType(indexManager), sequencerFactory, nodeFactory);
+        super(space, new AtomType(indexManager, new AtomPositionGeometricCenter(space)), sequencerFactory, nodeFactory);
         childFactory = factory;
         atomsPerGroup = atoms;
         conformation = config;

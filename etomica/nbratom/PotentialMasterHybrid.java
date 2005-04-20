@@ -29,12 +29,22 @@ public class PotentialMasterHybrid extends PotentialMaster {
 
 	/**
 	 * Invokes superclass constructor, specifying IteratorFactoryCell
-     * for generating molecule iterators.  Sets default nCells of 10. 
+     * for generating molecule iterators.  Sets default nCells of 10,
+     * and position definition to null, causing cell assignment to be
+     * based on atom type's position definition. 
 	 */
 	public PotentialMasterHybrid(Space space) {
+        this(space, null);
+    }
+    
+    /**
+     * Constructs class using given position definition for all atom cell assignments.
+     * @param positionDefinition if null, specifies use of atom type's position definition
+     */
+   public PotentialMasterHybrid(Space space, AtomPositionDefinition positionDefinition) {
         super(space,new IteratorFactoryCell());
-        potentialMasterNbr = new PotentialMasterNbr(space);
-        potentialMasterCell = new PotentialMasterCell(space);
+        potentialMasterNbr = new PotentialMasterNbr(space, positionDefinition);
+        potentialMasterCell = new PotentialMasterCell(space, positionDefinition);
 	}
     
     /**
@@ -81,10 +91,6 @@ public class PotentialMasterHybrid extends PotentialMaster {
 
     public AtomSequencerFactory sequencerFactory() {return AtomSequencerNbr.FACTORY;}
     
-    public void setAtomPositionDefinition(AtomPositionDefinition positionDefinition) {
-        potentialMasterNbr.setAtomPositionDefinition(positionDefinition);
-        potentialMasterCell.setAtomPositionDefinition(positionDefinition);
-    }
     public AtomPositionDefinition getAtomPositionDefinition() {
         return potentialMasterNbr.getAtomPositionDefinition();
     }

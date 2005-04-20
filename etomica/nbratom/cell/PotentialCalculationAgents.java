@@ -18,8 +18,7 @@ import etomica.potential.PotentialCalculation;
  * PotentialCalculation that adds concrete potentials to the NeighborManagerAgents of
  * the AtomTypes to which they apply.  This action should be invoked by passing an
  * instance of this class to the PotentialMaster's calculate method (the PotentialMaster
- * should be an instance of PotentialMasterNbr or PotentialMasterCell), with an 
- * iterator directive that specifies no target atom.
+ * should be an instance of PotentialMasterNbr or PotentialMasterCell).
  */
 public class PotentialCalculationAgents extends PotentialCalculation {
 
@@ -46,18 +45,40 @@ public class PotentialCalculationAgents extends PotentialCalculation {
      * automatically).
      */
 	protected void doCalculation(AtomsetIterator iterator, Potential potential) {
-		if(iterator.nBody() != 2) return;
-        if (iterator instanceof AtomsetIteratorDirectable) {
-            ((AtomsetIteratorDirectable)iterator).setDirection(IteratorDirective.UP);
+        switch(iterator.nBody()) {
+        case 1:
+            iterator.reset();
+            if(iterator.hasNext()) {
+                Atom atom = (Atom)iterator.next();
+                atom.type.getNbrManagerAgent().addPotential(potential);
+            }
+            break;
+        case 2:
+            if (iterator instanceof AtomsetIteratorDirectable) {
+                ((AtomsetIteratorDirectable)iterator).setDirection(IteratorDirective.UP);
+            }
+            iterator.reset();
+            if (iterator.hasNext()) {
+                AtomPair atoms = (AtomPair)iterator.next();
+                Atom atom0 = atoms.atom0;
+                Atom atom1 = atoms.atom1;
+                atom0.type.getNbrManagerAgent().addPotential(potential);
+                if(atom1.type != atom0.type) atom1.type.getNbrManagerAgent().addPotential(potential);
+            }
+            break;
         }
-		iterator.reset();
-        if (iterator.hasNext()) {
-            AtomPair atoms = (AtomPair)iterator.next();
-            Atom atom0 = atoms.atom0;
-            Atom atom1 = atoms.atom1;
-            atom0.type.getNbrManagerAgent().addPotential(potential);
-            if(atom1.type != atom0.type) atom1.type.getNbrManagerAgent().addPotential(potential);
-        }
+//		if(iterator.nBody() != 2) return;
+//        if (iterator instanceof AtomsetIteratorDirectable) {
+//            ((AtomsetIteratorDirectable)iterator).setDirection(IteratorDirective.UP);
+//        }
+//		iterator.reset();
+//        if (iterator.hasNext()) {
+//            AtomPair atoms = (AtomPair)iterator.next();
+//            Atom atom0 = atoms.atom0;
+//            Atom atom1 = atoms.atom1;
+//            atom0.type.getNbrManagerAgent().addPotential(potential);
+//            if(atom1.type != atom0.type) atom1.type.getNbrManagerAgent().addPotential(potential);
+//        }
 	}
     
     

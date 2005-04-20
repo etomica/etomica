@@ -8,11 +8,13 @@ import etomica.Conformation;
 import etomica.ConformationLinear;
 import etomica.Space;
 import etomica.Species;
+import etomica.data.DataSourceCOM;
 
 /**
  * Builds an atom group that comprises a set of differently-formed atoms or atomgroups.
  * Each child atom is constructed by a different atom factory, which are set as an
- * array of atom factories given in the constructor.
+ * array of atom factories given in the constructor.  Position definition is the
+ * center-of-mass.
  *
  * @author David Kofke
  */
@@ -39,7 +41,7 @@ public class AtomFactoryHetero extends AtomFactory {
     
 	public AtomFactoryHetero(Space space, AtomSequencerFactory sequencerFactory, AtomIndexManager indexManager,
                             AtomTreeNodeFactory nodeFactory, AtomFactory[] factory, Conformation config) {
-		super(space, new AtomType(indexManager), sequencerFactory, nodeFactory);
+		super(space, new AtomType(indexManager, new DataSourceCOM(space)), sequencerFactory, nodeFactory);
         childFactory = (AtomFactory[])factory.clone();
         conformation = config;
     }

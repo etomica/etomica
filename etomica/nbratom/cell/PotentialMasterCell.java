@@ -15,7 +15,6 @@ import etomica.Space;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.AtomPositionDefinition;
-import etomica.atom.AtomPositionDefinitionSimple;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorSinglet;
@@ -28,21 +27,33 @@ import etomica.potential.PotentialCalculation;
  * PotentialMaster used to implement neighbor listing.  Instance of this
  * class is given as an argument to the Simulation constructor.
  * Criteria specifying whether two atoms are neighbors for a particular potential
- * are specified in the setSpecies method of this class.
+ * are specified in the setSpecies method of this class.  By default, cell assignment
+ * uses position definition given by atom's type; this can be changed using
+ * the setPositionDefinition method.
  * <br>
  */
 public class PotentialMasterCell extends PotentialMaster {
 
 	/**
 	 * Invokes superclass constructor, specifying IteratorFactoryCell
-     * for generating molecule iterators.  Sets default nCells of 10. 
+     * for generating molecule iterators.  Sets default nCells of 10 and
+     * position definition to null, so that atom type's definition is used
+     * to assign cells. 
 	 */
 	public PotentialMasterCell(Space space) {
+        this(space, null);
+    }
+    
+    /**
+     * Constructs class using given position definition for all atom cell assignments.
+     * @param positionDefinition if null, specifies use of atom type's position definition
+     */
+    public PotentialMasterCell(Space space, AtomPositionDefinition positionDefinition) {
         super(space,new IteratorFactoryCell());
         setNCells(10);
         singletAtomIterator = new AtomIteratorSinglet();
 		singletPairIterator = new AtomsetIteratorSinglet(2);
-        positionDefinition = new AtomPositionDefinitionSimple();
+        this.positionDefinition = positionDefinition;//use atom type's position definition as default
         neighborIterator = new Api1ACell(space.D());
 	}
     
@@ -168,13 +179,6 @@ public class PotentialMasterCell extends PotentialMaster {
     
     public AtomSequencerFactory sequencerFactory() {return AtomSequencerCell.FACTORY;}
     
-    public void setAtomPositionDefinition(AtomPositionDefinition positionDefinition) {
-        this.positionDefinition = positionDefinition;
-    }
-    public AtomPositionDefinition getAtomPositionDefinition() {
-        return positionDefinition;
-    }
-
     public void setRange(double d) {
         neighborIterator.getNbrCellIterator().setRange(d);
     }
@@ -184,7 +188,7 @@ public class PotentialMasterCell extends PotentialMaster {
     private NeighborCellManager[] neighborCellManager = new NeighborCellManager[0];
     private int nCells;
     private final IteratorDirective idUp = new IteratorDirective();
-    private AtomPositionDefinition positionDefinition;
+    private final AtomPositionDefinition positionDefinition;
     private final Api1ACell neighborIterator;
     
 }

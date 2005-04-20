@@ -159,9 +159,10 @@ public class Species {
      * Method is used by subclasses to generate the AtomType for the agent.
      * This is needed for it to make index managers for the AtomTypes needed
      * to make the factory (which is also passed to the Species constructor).
+     * PositionDefinition for the agent type is set to null.
      */
     protected static AtomType makeAgentType(Simulation sim) {
-        return new AtomType(sim.speciesRoot.childType.getIndexManager().makeChildManager());
+        return new AtomType(sim.speciesRoot.childType.getIndexManager().makeChildManager(), null);
     }
     
     final AgentList agents = new AgentList();
