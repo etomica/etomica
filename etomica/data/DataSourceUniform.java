@@ -98,7 +98,7 @@ public class DataSourceUniform implements DataSource {
      */
     public int getIndex(double y) {
     	// Test whether or not the desired value is in the defined range.
-    	if(y < xMin || y > xMax) throw new IllegalArgumentException("Value outside of defined range in DataSourceUniform.getIndex");
+    	if(y < xMin || y > xMax) throw new IllegalArgumentException("Value outside of defined range in DataSourceUniform.getIndex. Value: "+y+" (Min, Max): ("+xMin+", "+xMax+")");
     	int i =(int)((y - x[0]) / dx + 0.5);
     	// Comparing to indices; integers are faster.
     	if(i < 0) return 0;
