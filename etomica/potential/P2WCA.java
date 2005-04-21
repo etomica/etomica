@@ -59,12 +59,14 @@ public class P2WCA extends Potential2SoftSpherical implements EtomicaElement {
      * The derivative r*du/dr.
      */
     public double du(double r2) {
+        double du = 0.0;
         if(r2 < rangeSquared) {
             double s2 = sigmaSquared/r2;
             s6 = s2*s2*s2;
-            return -epsilon48*s6*(s6 - 0.5);
+            du = -epsilon48*s6*(s6 - 0.5);
         }
-        else return 0.0;
+//        System.out.println("r2, du: "+r2 + "  "+du);
+        return du;
     }
 
    /**
