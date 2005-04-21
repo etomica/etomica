@@ -43,7 +43,7 @@ public class IntervalActionAdapter implements IntervalListener {
      * the case if the active flag is false.
      */
     public void intervalAction(Integrator.IntervalEvent evt) {
-        if (active && ((evt.type().mask & eventMask) == 0)) {
+        if (active && ((evt.type().mask & eventMask) != 0)) {
             if (--iieCount == 0) {
                 iieCount = actionInterval;
                 action.actionPerformed();
