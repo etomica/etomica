@@ -34,7 +34,9 @@ public class AccumulatorAverage extends DataAccumulator {
 	}
 
     /**
-     * Add the given values to the sums and block sums.
+     * Add the given values to the sums and block sums.  If any 
+     * of the given data values is NaN, method returns with no 
+     * effect on accumulation sums.
      */
     public void addData(double[] value) {
     	if(value.length != nData) setNData(value.length);
