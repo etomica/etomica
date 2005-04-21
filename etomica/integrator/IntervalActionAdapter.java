@@ -6,7 +6,8 @@ import etomica.Integrator.IntervalListener;
 
 /**
  * Adapter that causes an action to be performed as the result of an integrator
- * intervalEvent.
+ * intervalEvent. Types of events that trigger action can be set using the
+ * setEventTypes method; default is to respond only to INTERVAL events.
  */
 
 /*
@@ -22,20 +23,27 @@ public class IntervalActionAdapter implements IntervalListener {
         this(action);
         integrator.addIntervalListener(this);
     }
+
+    /**
+     * Creates adapter with integrator to be set later.
+     */
     public IntervalActionAdapter(Action action) {
         this.action = action;
+        setActive(true);
         setActionInterval(1);
         setPriority(400);
+        setEventTypes(new Integrator.IntervalEvent.Type[] { Integrator.IntervalEvent.INTERVAL });
     }
 
     /**
-     * Method of Integrator.IntervalListener interface. After receiving an event
-     * updateInterval times, the method will invoke the doUpdate method and then
-     * call repaint().
+     * Method of Integrator.IntervalListener interface. After receiving an
+     * appropriate event updateInterval times, the action will be performed. If
+     * event is not of the type indicated by setEventTypes, no action is
+     * performed and the updateInterval counter is not incremented; this is also
+     * the case if the active flag is false.
      */
     public void intervalAction(Integrator.IntervalEvent evt) {
-        //TODO consider event type in doing action
-        if (active) {//&& (evt.type() & eventMask)) {
+        if (active && ((evt.type().mask & eventMask) == 0)) {
             if (--iieCount == 0) {
                 iieCount = actionInterval;
                 action.actionPerformed();
@@ -99,16 +107,26 @@ public class IntervalActionAdapter implements IntervalListener {
         return action;
     }
 
-    private final Action action;
-
     /**
-     * Counter used to track number of interval events since last update of
-     * display.
+     * Sets the types of integrator event that triggers action.
+     * 
+     * @param types
+     *            array of types that will trigger the action
      */
+    public void setEventTypes(Integrator.IntervalEvent.Type[] types) {
+        eventTypes = (Integrator.IntervalEvent.Type[]) types.clone();
+        eventMask = 0;
+        for (int i = 0; i < types.length; i++) {
+            eventMask |= types[i].mask;
+        }
+    }
+
+    private final Action action;
     private int iieCount;
     private int priority;
     private int eventMask;
-    private boolean active = true;
+    private Integrator.IntervalEvent.Type[] eventTypes;
+    private boolean active;//set true in constructor
     private int actionInterval;
 
 }

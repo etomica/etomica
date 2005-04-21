@@ -355,10 +355,10 @@ public abstract class Integrator implements java.io.Serializable {
 
 		// Typed constants used to indicate the type of event integrator is
 		// announcing
-		public static final Type START = new Type("Start"); //simulation is starting
-		public static final Type INTERVAL = new Type("Interval"); //routine interval event
-		public static final Type DONE = new Type("Done"); //simulation is finished
-		public static final Type INITIALIZE = new Type("Initialize"); //integrator is initializing
+		public static final Type START =      new Type("Start",      1); //simulation is starting
+        public static final Type INITIALIZE = new Type("Initialize", 2); //integrator is initializing
+		public static final Type INTERVAL =   new Type("Interval",   4); //routine interval event
+		public static final Type DONE =       new Type("Done",       8); //simulation is finished
 
 		private final Type type;
 		private int interval;
@@ -383,8 +383,10 @@ public abstract class Integrator implements java.io.Serializable {
 
 		//class used to mark the different types of interval events
 		public final static class Type extends Constants.TypedConstant {
-			private Type(String label) {
+            public final int mask;
+			private Type(String label, int mask) {
 				super(label);
+                this.mask = mask;
 			}
 
 			public static final Constants.TypedConstant[] choices = new Constants.TypedConstant[] {
