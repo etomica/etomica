@@ -71,7 +71,7 @@ public class NeighborCriterionSimple extends NeighborCriterion  {
 	}
     
 	public boolean unsafe() {
-		if (Debug.DEBUG_NOW && r2 > displacementLimit2 / (4.0*safetyFactor*safetyFactor)) {
+		if (Debug.ON && Debug.DEBUG_NOW && r2 > displacementLimit2 / (4.0*safetyFactor*safetyFactor)) {
 			System.out.println("some atom exceeded safe limit ("+r2+" > "+displacementLimit2 / (4.0*safetyFactor*safetyFactor));
 		}
 		return r2 > r2MaxSafe;
