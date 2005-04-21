@@ -100,8 +100,8 @@ public class NeighborCellManager implements PhaseCellManager {
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom atom = atomIterator.nextAtom();
-            if (atom.type.isInteracting()) {// && (atom.type.getMass()!=Double.POSITIVE_INFINITY ||
-                    //((AtomSequencerCell)atom.seq).cell == null)) {
+            if (atom.type.isInteracting()  && (atom.type.getMass()!=Double.POSITIVE_INFINITY ||
+                    ((AtomSequencerCell)atom.seq).cell == null)) {
                 assignCell(atom);
             }
         }
