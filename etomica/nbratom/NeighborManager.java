@@ -112,7 +112,7 @@ public class NeighborManager implements IntervalListener {
 				if (Debug.ON && Debug.DEBUG_NOW) {
 					System.out.println("Updating neighbors");
 				}
-				if (neighborCheck.unsafe) {
+				if (neighborCheck.unsafe && !quiet) {
 					System.err.println("Atoms exceeded the safe neighbor limit");
 				}
                 pbcEnforcer.setPhase(phase[i]);
@@ -206,6 +206,25 @@ public class NeighborManager implements IntervalListener {
         cellNbrIterator.getNbrCellIterator().setRange(d);
     }
     
+    
+    
+    /**
+     * @return quiet flag, indicating if unsafe-neighbor conditions should
+     * generate an error message (would not want this if atoms were inserted
+     * in a MC move, for example).
+     */
+    public boolean isQuiet() {
+        return quiet;
+    }
+    /**
+     * Sets the quiet, indicating if unsafe-neighbor conditions should
+     * generate an error message (would not want this if atoms were inserted
+     * in a MC move, for example).
+     * @param quiet if true, no error will be generated; default is false
+     */
+    public void setQuiet(boolean quiet) {
+        this.quiet = quiet;
+    }
 	private NeighborCriterion[] criteria = new NeighborCriterion[0];
 	private int updateInterval;
 	private int iieCount;
@@ -217,6 +236,7 @@ public class NeighborManager implements IntervalListener {
     private final PotentialMasterNbr potentialMaster;
 	private int priority;
     private PhaseImposePbc pbcEnforcer;
+    private boolean quiet;
     
     /**
      * Atom action class that checks if any criteria indicate that the given atom
@@ -230,7 +250,7 @@ public class NeighborManager implements IntervalListener {
                 if (criterion[i].needUpdate((Atom)atom)) {
                     needUpdate = true;
                     if (criterion[i].unsafe()) {
-                        if (Debug.DEBUG_NOW) {
+                        if (Debug.ON && Debug.DEBUG_NOW) {
                             System.out.println("atom "+atom+" exceeded safe limit");
                         }
                         unsafe = true;
