@@ -463,7 +463,6 @@ public class DisplayTable extends Display implements DataTableListener,
         //                table.getDataTable().makeColumn(nMeter.getDimension()));
         //end of unique part
 
-        //part that is unique to this demonstration
         MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
         pMeter.setPhase(sim.phase);
         MeterNMolecules nMeter = new MeterNMolecules();
@@ -475,7 +474,6 @@ public class DisplayTable extends Display implements DataTableListener,
         dataTable.addDataSource(nMeter);
         DisplayTable table = new DisplayTable(dataTable);
 
-        //end of unique part
         table.setRowLabels(new String[] { "Current", "Average", "Error" });
         table.setTransposed(false);
         table.setShowingRowLabels(true);
