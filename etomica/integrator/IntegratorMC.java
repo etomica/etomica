@@ -237,7 +237,6 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
 	 */
 	public void setTemperature(double temperature) {
 		super.setTemperature(temperature);
-		frequencyTotal = 0;
 		for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
 			link.move.setTemperature(temperature);
 		}
