@@ -47,7 +47,7 @@ public class HSMD2D_NEW extends SimulationGraphic  {
 	 * To enable and disable the creation of type comments go to
 	 * Window>Preferences>Java>Code Generation.
 	 */
-	public class MyBoolModifier extends ModifierBoolean {
+	public class MyBoolModifier implements ModifierBoolean {
 
 		/**
 		 * @see etomica.modifier.ModifierBoolean#setBoolean(boolean)

@@ -252,7 +252,7 @@ public class SimulationVirialWater extends SimulationGraphic {
 
 	}//end of main
 	
-	private class ModifierStepSize extends ModifierBoolean {
+	private class ModifierStepSize implements ModifierBoolean {
 		
 		boolean value = false;
 		public void setBoolean(boolean value) {

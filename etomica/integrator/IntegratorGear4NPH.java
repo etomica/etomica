@@ -201,7 +201,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     }
     
     //inner class used to toggle between NPT and NPH ensembles
-    public class EnsembleToggler extends ModifierBoolean {
+    public class EnsembleToggler implements ModifierBoolean {
         public void setBoolean(boolean isothermal) {
             setIsothermal(isothermal);
             if(!isothermal) {
