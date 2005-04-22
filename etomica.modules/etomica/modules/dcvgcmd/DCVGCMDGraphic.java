@@ -3,16 +3,22 @@
  */
 package etomica.modules.dcvgcmd;
 
+import java.awt.Color;
+
 import javax.swing.JPanel;
 
+import etomica.Atom;
 import etomica.Default;
 import etomica.Modifier;
 import etomica.atom.AtomFactoryHomo;
+import etomica.atom.AtomFilter;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.DataTableAverages;
+import etomica.data.meter.MeterNMolecules;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceSlider;
+import etomica.graphics.DeviceToggleButton;
 import etomica.graphics.DeviceTrioControllerButton;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPhase;
@@ -21,6 +27,7 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntervalActionAdapter;
+import etomica.modifier.ModifierBoolean;
 import etomica.modules.dcvgcmd.IntegratorDCVGCMD.Mu1Modulator;
 import etomica.modules.dcvgcmd.IntegratorDCVGCMD.Mu2Modulator;
 import etomica.units.Dimension;
@@ -36,16 +43,52 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 			
 	super(sim);	
 	
-	DisplayPhase display = new DisplayPhase(sim.phase);
-    display.setPhase(sim.phase);
+    Color colorA = Color.blue;
+    Color colorB = Color.white;
+    
+	DisplayPhase display = getDisplayPhase(sim.phase);
     DeviceTrioControllerButton device = new DeviceTrioControllerButton(sim);
     sim.integratorDCV.display = (DisplayPhaseCanvas3DOpenGL)display.graphic();
+
+    //Button for cutaway view
+    CutAway cutawayFilter = new CutAway();
+    display.setAtomFilter(cutawayFilter);
+    DeviceToggleButton cutawayButton = new DeviceToggleButton(sim.getController());
+    cutawayButton.setModifier(cutawayFilter, "Restore", "Cut tube");
     
     
     //integratorDCV.setMu(500., 500.);
 
 	DisplayPlot profilePlot = new DisplayPlot();
+    profilePlot.setLabel("Density profile");
+    profilePlot.getPlot().setTitle("Density profile");
 	add(profilePlot);
+    
+    //Number of each type of atom
+    MeterNMolecules meterA = new MeterNMolecules();
+    MeterNMolecules meterB = new MeterNMolecules();
+    meterA.setPhase(sim.phase);
+    meterA.setSpecies(sim.species);
+    meterB.setPhase(sim.phase);
+    meterB.setSpecies(sim.species1);
+    DisplayBox boxA = new DisplayBox();
+    DisplayBox boxB = new DisplayBox();
+    boxA.setPrecision(3);
+    boxB.setPrecision(3);
+    boxA.setIntegerDisplay(true);
+    boxB.setIntegerDisplay(true);
+    boxA.setLabel("  Blue  ");
+    boxB.setLabel(" White  ");
+    DataPump meterAPump = new DataPump(meterA,boxA);
+    DataPump meterBPump = new DataPump(meterB,boxB);
+    IntervalActionAdapter plugA = new IntervalActionAdapter(meterAPump, sim.integratorDCV);
+    IntervalActionAdapter plugB = new IntervalActionAdapter(meterBPump, sim.integratorDCV);
+    JPanel nMoleculePanel = new JPanel();
+    nMoleculePanel.add(boxA.graphic());
+    nMoleculePanel.add(boxB.graphic());
+    nMoleculePanel.setBorder(new javax.swing.border.TitledBorder("Number of atoms"));
+    
+    
 	
 //Slider to adjust temperature
 	DeviceSlider temperatureSlider = new DeviceSlider(sim.getController(), sim.integratorDCV, "temperature");
@@ -55,6 +98,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
     temperatureSlider.setLabel("Temperature");
     temperatureSlider.setValue(Kelvin.UNIT.fromSim(sim.integratorDCV.getTemperature()));
 			
+    
 //Mu Slider Stuff
 	Modifier mu1Mod = sim.integratorDCV.new Mu1Modulator(); 
 	Modifier mu2Mod = sim.integratorDCV.new Mu2Modulator();
@@ -96,8 +140,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
     sim.accumulator2.makeDataPusher(new AccumulatorAverage.Type[]{AccumulatorAverage.AVERAGE}).addDataSink(profilePlot.getDataTable().makeColumn(Dimension.QUANTITY));
 
 //set color of molecules	
-	ColorSchemeByType.setColor(sim.species,java.awt.Color.blue);
-	ColorSchemeByType.setColor(sim.species1,java.awt.Color.white);
+	ColorSchemeByType.setColor(sim.species,colorA);
+	ColorSchemeByType.setColor(sim.species1,colorB);
 	ColorSchemeByType.setColor(((AtomFactoryHomo)sim.speciesTube.getFactory()).childFactory().getType(),java.awt.Color.cyan);
 	
 //panel for the start buttons
@@ -115,7 +159,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	  
 //panel for Mu's
 	JPanel muPanel = new JPanel(new java.awt.GridBagLayout());
-		muPanel.setBorder(new javax.swing.border.TitledBorder("Mu1 and Mu2"));
+    muPanel.setBorder(new javax.swing.border.TitledBorder("Mu1 and Mu2"));
 		java.awt.GridBagConstraints gbc2 = new java.awt.GridBagConstraints();
 			gbc2.gridx = 0;  gbc2.gridy = 0;
 			gbc2.gridwidth = 1;
@@ -129,8 +173,12 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	 gbc3.gridx = 0;
 	 controlPanel.add(startPanel,gbc3);
 	 gbc3.gridy = 1;
+     controlPanel.add(cutawayButton.graphic(), gbc3);
+     gbc3.gridy = 2;
+     controlPanel.add(nMoleculePanel, gbc3);
+     gbc3.gridy = 3;
 	 controlPanel.add(temperaturePanel,gbc3);
-	 gbc3.gridy = 2;
+     gbc3.gridy = 4;
 	 controlPanel.add(muPanel,gbc3);
 	
 	 panel().remove(panel().devicePanel);
@@ -156,8 +204,25 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 		
 		Default.BIT_LENGTH = new int[] {1,4,4,12,11,0};
 		DCVGCMD sim = new DCVGCMD();
+        sim.activityIntegrate.setDoSleep(false);
 		DCVGCMDGraphic graphic = new DCVGCMDGraphic(sim);
 		graphic.makeAndDisplayFrame();
 	}//end of main
 	
+    private class CutAway implements AtomFilter, ModifierBoolean {
+        
+        private boolean active = false;
+        
+        public void setBoolean(boolean b) {active = b;}
+        public boolean getBoolean() {return active;}
+        
+        public boolean accept(Atom atom) {
+            if(!active) return true;
+            DCVGCMD simulation = (DCVGCMD)getSimulation();
+            if(atom.type.getSpecies() != simulation.speciesTube) return true;
+            double x0 = simulation.poreCenter.x(0);
+            return atom.coord.position().x(0) < x0;
+
+        }
+    }
 }

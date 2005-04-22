@@ -61,7 +61,9 @@ public class DCVGCMD extends Simulation {
     public AccumulatorAverage accumulator1;
     public AccumulatorAverage accumulator2;
     public AccumulatorAverage fluxAccumulator;
-
+    public Vector poreCenter;
+    public ActivityIntegrate activityIntegrate;
+    
     //Constructor
     public DCVGCMD() {
         this(new Space3D());
@@ -182,14 +184,14 @@ public class DCVGCMD extends Simulation {
         integratorMC.addMCMoveListener(potentialMasterHybrid.getNbrCellManager(phase).makeMCMoveListener());
 
 
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(
+        activityIntegrate = new ActivityIntegrate(
                 integratorDCV);
         getController().addAction(activityIntegrate);
 
         //make MC integrator next
         integratorDCV.setIntegrators(integratorMC, integrator);
         integratorDCV.setTemperature(Kelvin.UNIT.toSim(500.));
-        integrator.setIsothermal(true);
+        integrator.setIsothermal(false);
         //integrator.setSleepPeriod(1);
         integrator.setTimeStep(0.01);
         //integrator.setInterval(10);
@@ -205,7 +207,7 @@ public class DCVGCMD extends Simulation {
         phase.setConfiguration(config);
 
         //position of hole in porous-wall potential
-        Vector poreCenter = space.makeVector();
+        poreCenter = space.makeVector();
         poreCenter.Ea1Tv1(0.5, phase.boundary().dimensions());
         Vector[] poreCentersVector = new Vector[] { poreCenter };
         potentialwallPorousA.setPoreCenters(poreCentersVector);

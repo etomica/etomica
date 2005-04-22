@@ -73,14 +73,12 @@ public class IntegratorDCVGCMD extends Integrator {
 			mcMove2.setupActiveAtoms();
 			mcMove3.setupActiveAtoms();
 			mcMove4.setupActiveAtoms();
-//			display.setSuspended(true);
 			for(int i=0; i<50; i++) integratormc.doStep();
             potentialMasterHybrid.setUseNbrLists(true);
             potentialMasterHybrid.getNeighborManager().setQuiet(true);
             potentialMasterHybrid.getNeighborManager().updateNbrsIfNeeded(integratormd);
             potentialMasterHybrid.getNeighborManager().setQuiet(false);
 			integratormd.reset();
-//			display.setSuspended(false);
 	 	} else {
             MDStepCount--;
 	 		integratormd.doStep();
@@ -138,9 +136,11 @@ public class IntegratorDCVGCMD extends Integrator {
 	public void setMu(double mu1, double mu2) {
 		mcMove1.setMu(mu1);
 		mcMove2.setMu(mu2);
-		mcMove3.setMu(mu2);
-		mcMove4.setMu(mu1);
-	}
+//        mcMove3.setMu(mu2);
+//        mcMove4.setMu(mu1);
+        mcMove3.setMu(Double.NEGATIVE_INFINITY);
+        mcMove4.setMu(Double.NEGATIVE_INFINITY);
+    }
 		
 	/**
 	 * @see etomica.Integrator#doReset()
