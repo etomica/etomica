@@ -82,4 +82,3 @@ public class TestClass {
         public int getPropB() {return 0;}
     }
 }
-
