@@ -52,6 +52,7 @@ public class DCVGCMD extends Simulation {
     public SpeciesTube speciesTube;
     public Phase phase;
     public DataSourceGroup fluxMeters;
+    public MeterFlux meterFlux0, meterFlux1, meterFlux2, meterFlux3;
     public MeterTemperature thermometer;
     public MeterNMolecules density1;
     public MeterNMolecules density2;
@@ -229,20 +230,20 @@ public class DCVGCMD extends Simulation {
         potentialwallPorousB1.setZ(zB);
 
         MyMCMove[] moves = integratorDCV.mcMoves();
-        MeterFlux meterFlux0 = new MeterFlux(moves[0], integratorDCV);
-        MeterFlux meterFlux1 = new MeterFlux(moves[1], integratorDCV);
-        MeterFlux meterFlux2 = new MeterFlux(moves[2], integratorDCV);
-        MeterFlux meterFlux3 = new MeterFlux(moves[3], integratorDCV);
+        meterFlux0 = new MeterFlux(moves[0], integratorDCV);
+        meterFlux1 = new MeterFlux(moves[1], integratorDCV);
+        meterFlux2 = new MeterFlux(moves[2], integratorDCV);
+        meterFlux3 = new MeterFlux(moves[3], integratorDCV);
         meterFlux0.setPhase(phase);
         meterFlux1.setPhase(phase);
         meterFlux2.setPhase(phase);
         meterFlux3.setPhase(phase);
         fluxMeters = new DataSourceGroup(new MeterFlux[] { meterFlux0,
                 meterFlux1, meterFlux2, meterFlux3 });
-        fluxAccumulator = new AccumulatorAverage();
-        DataPump fluxPump = new DataPump(fluxMeters, fluxAccumulator);
-        IntervalActionAdapter fluxInterval = new IntervalActionAdapter(
-                fluxPump, integratorDCV);
+//        fluxAccumulator = new AccumulatorAverage();
+//        DataPump fluxPump = new DataPump(fluxMeters, fluxAccumulator);
+//        IntervalActionAdapter fluxInterval = new IntervalActionAdapter(
+//                fluxPump, integratorDCV);
 
         thermometer = new MeterTemperature(speciesTube);
         thermometer.setPhase(phase);

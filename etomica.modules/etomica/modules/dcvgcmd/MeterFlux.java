@@ -24,6 +24,7 @@ public class MeterFlux extends MeterScalar implements EtomicaElement{
  
 	public double getDataAsScalar(Phase phase) {
 		double t1 = integratorMD.elapsedTime();
+        if(t1 == t0) return Double.NaN;
 		int n1 = mcMove.getDeltaN();
 		double rate = (n1 - n0)/(t1 - t0)/(phase.boundary().dimensions().x(0)*phase.boundary().dimensions().x(1));
 		n0 = n1;
@@ -32,6 +33,7 @@ public class MeterFlux extends MeterScalar implements EtomicaElement{
 	}
     
 	public Dimension getDimension() {
-		return Dimension.UNDEFINED;}
+		return Dimension.UNDEFINED;
+    }
 
 }

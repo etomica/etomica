@@ -7,10 +7,10 @@ import javax.swing.JPanel;
 
 import etomica.Default;
 import etomica.Modifier;
-import etomica.action.PhaseImposePbc;
 import etomica.atom.AtomFactoryHomo;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
+import etomica.data.DataTableAverages;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceTrioControllerButton;
@@ -78,13 +78,23 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	interval1.setActionInterval(10);
     box1.setUnit((Kelvin.UNIT));
 				
-	DisplayTable table = new DisplayTable();
+    DataTableAverages dataTable = new DataTableAverages(sim.integratorDCV,
+            new AccumulatorAverage.Type[] { AccumulatorAverage.MOST_RECENT,
+            AccumulatorAverage.AVERAGE, AccumulatorAverage.ERROR });
+    dataTable.addDataSource(sim.meterFlux0);
+    dataTable.addDataSource(sim.meterFlux1);
+    dataTable.addDataSource(sim.meterFlux2);
+    dataTable.addDataSource(sim.meterFlux3);
+    DisplayTable table = new DisplayTable(dataTable);
 	add(table);
-    sim.fluxAccumulator.addDataSink(table.getDataTable().makeColumn(Dimension.UNDEFINED));
+    table.setRowLabels(new String[] { "Current", "Average", "Error" });
+    table.setTransposed(true);
+    table.setShowingRowLabels(true);
+    table.setPrecision(7);
 	
 	sim.accumulator1.makeDataPusher(new AccumulatorAverage.Type[]{AccumulatorAverage.AVERAGE}).addDataSink(profilePlot.getDataTable().makeColumn(Dimension.QUANTITY));
     sim.accumulator2.makeDataPusher(new AccumulatorAverage.Type[]{AccumulatorAverage.AVERAGE}).addDataSink(profilePlot.getDataTable().makeColumn(Dimension.QUANTITY));
-	//phase.setDensity(0.5);
+
 //set color of molecules	
 	ColorSchemeByType.setColor(sim.species,java.awt.Color.blue);
 	ColorSchemeByType.setColor(sim.species1,java.awt.Color.white);

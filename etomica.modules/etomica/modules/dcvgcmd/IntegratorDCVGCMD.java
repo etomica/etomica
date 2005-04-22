@@ -47,7 +47,7 @@ public class IntegratorDCVGCMD extends Integrator {
     
     public void setMDStepRepetitions(int interval) {
         MDStepRepetitions = interval;
-        if (MDStepCount > interval) MDStepCount = interval;
+        if (MDStepCount > interval || MDStepCount == 0) MDStepCount = interval;
     }
     
     public void setup() {
@@ -76,7 +76,9 @@ public class IntegratorDCVGCMD extends Integrator {
 //			display.setSuspended(true);
 			for(int i=0; i<50; i++) integratormc.doStep();
             potentialMasterHybrid.setUseNbrLists(true);
+            potentialMasterHybrid.getNeighborManager().setQuiet(true);
             potentialMasterHybrid.getNeighborManager().updateNbrsIfNeeded(integratormd);
+            potentialMasterHybrid.getNeighborManager().setQuiet(false);
 			integratormd.reset();
 //			display.setSuspended(false);
 	 	} else {
