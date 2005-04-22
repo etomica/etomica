@@ -41,6 +41,7 @@ public class DisplayBox extends Display implements DataSink, etomica.units.Dimen
      */
     int precision;
     private LabelType labelType;
+    private boolean integerDisplay;
     
     /**
      * Physical units associated with the displayed value.
@@ -62,6 +63,7 @@ public class DisplayBox extends Display implements DataSink, etomica.units.Dimen
  //       panel.setMinimumSize(new java.awt.Dimension(80,60));
         unit = new etomica.units.PrefixedUnit(etomica.units.BaseUnit.Null.UNIT);
         setPrecision(4);
+        setIntegerDisplay(false);
         
  /*       addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent evt) {
@@ -114,6 +116,19 @@ public class DisplayBox extends Display implements DataSink, etomica.units.Dimen
     
     public java.awt.Component graphic(Object obj) {return panel;}
     
+    
+    /**
+     * @return Returns the integerDisplay.
+     */
+    public boolean isIntegerDisplay() {
+        return integerDisplay;
+    }
+    /**
+     * @param integerDisplay The integerDisplay to set.
+     */
+    public void setIntegerDisplay(boolean integerDisplay) {
+        this.integerDisplay = integerDisplay;
+    }
     /**
      * Accessor method of the precision, which specifies the number of significant figures to be displayed.
      */
@@ -179,7 +194,12 @@ public class DisplayBox extends Display implements DataSink, etomica.units.Dimen
      * Sets the display text to reflect the desired value from the datasource.
      */
     public void putData(double[] data) {
-        value.setText(format(unit.fromSim(data[0]),precision));
+        double xValue = unit.fromSim(data[0]);
+        if(integerDisplay) {
+            value.setText(Integer.toString((int)xValue));
+        } else {
+            value.setText(format(xValue,precision));
+        }
         panel.repaint();
     }
     
