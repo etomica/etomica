@@ -57,7 +57,8 @@ public class MeterKineticEnergy extends MeterScalar
 	
 	/**
 	 * Returns the total kinetic energy summed over all atoms produced by
-	 * the iterator when applied to the given phase.
+	 * the iterator when applied to the given phase.  Does not include contributions
+     * from atoms having infinite mass (it assumes they are stationary).
 	 */
     public double getDataAsScalar(Phase phase) {
         double ke = 0.0;
@@ -65,7 +66,9 @@ public class MeterKineticEnergy extends MeterScalar
         iterator.reset();
         while(iterator.hasNext()) {    //consider doing this with an allAtoms call
             Atom atom = iterator.nextAtom();
-            ke += 0.5*((ICoordinateKinetic)atom.coord).velocity().squared()*atom.type.getMass();
+            double mass = atom.type.getMass();
+            if(mass == Double.POSITIVE_INFINITY) continue;
+            ke += 0.5*mass*((ICoordinateKinetic)atom.coord).velocity().squared();
         }
         return ke;
     }//end of getDataAsScalar
