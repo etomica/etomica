@@ -137,7 +137,16 @@ public class SimulationGraphic implements SimulationContainer {
             public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
         };
         
-        
+    public DisplayPhase getDisplayPhase(Phase phase) {
+        Iterator iterator = displayList.iterator();
+        while(iterator.hasNext()) {
+            Object display = iterator.next();
+            if(display instanceof DisplayPhase) {
+                if(((DisplayPhase)display).getPhase() == phase) return (DisplayPhase)display;
+            }
+        }
+        return null;
+    }
     private final Simulation simulation;
     private final LinkedList displayList = new LinkedList();
     private final LinkedList deviceList = new LinkedList();
