@@ -30,6 +30,7 @@ public abstract class IntegratorMD extends Integrator {
         setThermostatInterval(100);
         meterKE = new MeterKineticEnergy();
         atomActionRandomizeVelocity = new AtomActionRandomizeVelocity();
+        atomActionRandomizeVelocity.setTemperature(temperature);
     }
 
     /**
@@ -78,8 +79,8 @@ public abstract class IntegratorMD extends Integrator {
     public void setTemperature(double t) {
         if (t == temperature) return;
         super.setTemperature(t);
-        atomActionRandomizeVelocity.setTemperature(temperature);
         if (initialized) {
+            atomActionRandomizeVelocity.setTemperature(temperature);
             // trigger immediate thermostat
             thermostatCount = 1;
             doThermostat();

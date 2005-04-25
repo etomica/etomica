@@ -86,7 +86,7 @@ public class IntegratorHard extends IntegratorMD {
      */
     public void setTemperature(double temperature) {
         super.setTemperature(temperature);
-        minDelta = -5.e-10/Math.sqrt(temperature);
+        minDelta = -5.e-8/Math.sqrt(temperature);
     }
     
     public IntegratorHard.Agent colliderAgent() {
@@ -111,6 +111,7 @@ public class IntegratorHard extends IntegratorMD {
                 atoms = colliderAgent.atom();
             }
             if (collisionTimeStep - oldTime < minDelta) {
+                System.out.println("diff "+(collisionTimeStep - oldTime)+" minDelta "+minDelta);
                 System.out.println("previous collision occured before current one");
                 System.out.println("previous time: "+oldTime+" current time: "+collisionTimeStep);
                 System.out.println("collision for "+atoms+" potential "+colliderAgent.collisionPotential.getClass());
