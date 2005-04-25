@@ -5,6 +5,7 @@ import java.awt.Component;
 import javax.swing.JPanel;
 
 import etomica.Action;
+import etomica.Atom;
 import etomica.Constants;
 import etomica.Modifier;
 import etomica.SpeciesAgent;
@@ -65,8 +66,8 @@ public class ReactionEquilibriumGraphic {
 				(SpeciesAgent) sim.speciesA.getAgent(sim.phase1), "Red");
 		MySpeciesEditor BEditor = new MySpeciesEditor(sim, 
 				(SpeciesAgent) sim.speciesB.getAgent(sim.phase1), "Black");
-		AEditor.nSlider.getSlider().setValue(21);
-		BEditor.nSlider.getSlider().setValue(21);
+//		AEditor.nSlider.getSlider().setValue(21);
+//		BEditor.nSlider.getSlider().setValue(21);
 		int ms = 10;
 		AEditor.nSlider.getSlider().setMajorTickSpacing(ms);
 		BEditor.nSlider.getSlider().setMajorTickSpacing(ms);
@@ -424,7 +425,9 @@ public class ReactionEquilibriumGraphic {
 					iter.reset();
 					while (iter.hasNext()) {
 						//            			System.out.println(iter.peek().toString());
-						iter.nextAtom().allatomAgents[sim.idx] = null;
+                        Atom[] a = (Atom[])iter.nextAtom().allatomAgents[sim.idx];
+                        a[0] = null;
+                        a[1] = null;
 					}
 					sim.integratorHard1.reset();
 				}

@@ -4,6 +4,7 @@ import javax.swing.JPanel;
 
 import etomica.Atom;
 import etomica.Controller;
+import etomica.Debug;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
@@ -14,6 +15,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.DisplayPhase;
 import etomica.integrator.IntegratorHard;
+import etomica.potential.P2SquareWell;
 import etomica.space2d.Space2D;
 
 public class ReactionEquilibrium extends Simulation implements Atom.AgentSource {
@@ -36,6 +38,7 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
 	public MeterDimerFraction meterDimerFraction;
 	public ReactionEquilibrium() {
 		super(new Space2D());
+        idx = Atom.requestAgentIndex(this);
 
 		double diameter = 1.0;
 		Default.ATOM_SIZE = diameter;
@@ -50,9 +53,9 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
 		speciesA = new SpeciesSpheresMono(this);
 		speciesB = new SpeciesSpheresMono(this);
 		speciesA.setDiameter(diameter);
+        phase1.makeMolecules();
 
 		//potentials
-		idx = Atom.requestAgentIndex(this);
 		AAbonded = new P2SquareWellBonded(space, idx, 0.5 * Default.ATOM_SIZE, //core
 				2.0, //well multiplier
 				Default.POTENTIAL_WELL);
@@ -62,6 +65,15 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
 		BBbonded = new P2SquareWellBonded(space, idx, 0.5 * Default.ATOM_SIZE, //core
 				2.0, //well multiplier
 				Default.POTENTIAL_WELL);
+/*		P2SquareWell AAbonded = new P2SquareWell(space, 0.5 * Default.ATOM_SIZE, //core
+				2.0, //well multiplier
+				Default.POTENTIAL_WELL);
+		P2SquareWell ABbonded = new P2SquareWell(space, 0.5 * Default.ATOM_SIZE, //core
+				2.0, //well multiplier
+				Default.POTENTIAL_WELL);
+		P2SquareWell BBbonded = new P2SquareWell(space, 0.5 * Default.ATOM_SIZE, //core
+				2.0, //well multiplier
+				Default.POTENTIAL_WELL);*/
 		potentialMaster.setSpecies(AAbonded,
 				new Species[] { speciesA, speciesA });
 		potentialMaster.setSpecies(ABbonded,
@@ -89,7 +101,7 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
 	 * @return Object always null
 	 */
 	public Object makeAgent(Atom a) {
-		return null;
+		return new Atom[2];
 	}
 
 	public static void main(String[] args) {
