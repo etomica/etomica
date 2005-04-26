@@ -4,7 +4,6 @@ import javax.swing.JPanel;
 
 import etomica.Atom;
 import etomica.Controller;
-import etomica.Debug;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
@@ -15,7 +14,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.DisplayPhase;
 import etomica.integrator.IntegratorHard;
-import etomica.potential.P2SquareWell;
 import etomica.space2d.Space2D;
 
 public class ReactionEquilibrium extends Simulation implements Atom.AgentSource {
@@ -38,6 +36,7 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
 	public MeterDimerFraction meterDimerFraction;
 	public ReactionEquilibrium() {
 		super(new Space2D());
+        controller1 = getController();
         idx = Atom.requestAgentIndex(this);
 
 		double diameter = 1.0;
@@ -46,6 +45,7 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
 		//controller and integrator
 		integratorHard1 = new IntegratorHard(potentialMaster);
 		integratorHard1.setIsothermal(true);
+//        integratorHard1.setThermostat(IntegratorMD.ANDERSEN_SINGLE);
 
 		//construct phase
 		phase1 = new Phase(this);
@@ -53,6 +53,8 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
 		speciesA = new SpeciesSpheresMono(this);
 		speciesB = new SpeciesSpheresMono(this);
 		speciesA.setDiameter(diameter);
+        speciesA.setNMolecules(100);
+        speciesB.setNMolecules(100);
         phase1.makeMolecules();
 
 		//potentials

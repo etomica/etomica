@@ -140,7 +140,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 		// ke is kinetic energy due to components of velocity
 		Atom a0 = pair.atom0;
 		Atom a1 = pair.atom1;
-		System.out.println("Bumping "+pair.toString());
+//		System.out.println("Bumping "+pair.toString());
 		double reduced_m = 2.0 / (a0.type.rm() + a1.type.rm());
 		double ke = bij * bij * reduced_m / (4.0 * r2);
 		
@@ -159,7 +159,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 
 			if (2 * r2 < (coreDiameterSquared + wellDiameterSquared)) { // Hard-core collision															
 				lastCollisionVirial = reduced_m * bij;
-				System.out.println("core");
+				//System.out.println("core");
 	
 			} else { 				// Well collision assume separating because mutually bonded
 
@@ -167,7 +167,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 				{ 
 					lastCollisionVirial = reduced_m * bij;
 					nudge = -eps;
-					System.out.println("no escape");
+					//System.out.println("no escape");
 				} 
 				else 				// Enough energy to Escape, atoms escape
 				{ 				
@@ -194,7 +194,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 
 					nudge = eps;
 
-					System.out.println("escape");
+					//System.out.println("escape");
 
 /*					
 					if(a0Partner1 == a1)
@@ -220,7 +220,7 @@ if (( (Atom[]) a0.allatomAgents[idx])[0] == a1)
 											  // repel
 				lastCollisionVirial = reduced_m * bij;
 				nudge = eps;
-				System.out.println("repel");
+				//System.out.println("repel");
 			} else { //neither is taken; bond to each other
 				lastCollisionVirial = 0.5
 						* reduced_m
@@ -236,7 +236,7 @@ if (( (Atom[]) a0.allatomAgents[idx])[0] == a1)
 					((Atom[]) a1.allatomAgents[idx])[1] = a0;
 
 				nudge = -eps;
-				System.out.println("bonded");
+				//System.out.println("bonded");
 			}
 
 		} //end if(a1Partner == a2) else
