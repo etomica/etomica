@@ -63,7 +63,7 @@ public class TestLJMC3D extends Simulation {
         potentialMaster.setSpecies(potentialTruncated, new Species[] {species, species});
         
         ConfigurationFile config = new ConfigurationFile(space,"LJMC3D"+Integer.toString(numAtoms));
-//        phase.setConfiguration(config);
+        phase.setConfiguration(config);
         integrator.addPhase(phase);
         integrator.addIntervalListener(new PhaseImposePbc(phase));
 //        WriteConfiguration writeConfig = new WriteConfiguration("LJMC3D"+Integer.toString(numAtoms),phase,1);
