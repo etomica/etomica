@@ -1,6 +1,5 @@
 package etomica.potential;
 
-import etomica.AtomPairIterator;
 import etomica.AtomsetIterator;
 import etomica.Potential;
 
@@ -9,12 +8,6 @@ import etomica.Potential;
  *
  * @author David Kofke
  */
- 
- /* History
-  * 10/12/02 (DAK) new
-  * 08/29/03 (DAK) added actionPerformed(AtomSet) method because method made
-  * abstract in PotentialCalculation
-  */
 public class PotentialCalculationVirialSum extends PotentialCalculation {
 		
 	/**
