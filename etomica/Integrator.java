@@ -34,7 +34,7 @@ public abstract class Integrator implements java.io.Serializable {
     private final LinkedList intervalListeners = new LinkedList();
     private ListenerWrapper[] listenerWrapperArray = new ListenerWrapper[0];
     int integrationCount = 0;
-    protected double temperature = Default.TEMPERATURE;
+    protected double temperature;
     protected boolean isothermal = false;
     private String name;
     protected MeterPotentialEnergy meterPE;
@@ -48,6 +48,7 @@ public abstract class Integrator implements java.io.Serializable {
         if (Default.AUTO_REGISTER) {
             Simulation.getDefault().register(this);
         }
+        setTemperature(Default.TEMPERATURE);
     }
 
 
