@@ -1,8 +1,9 @@
 package etomica;
 
 import etomica.atom.AtomSequencerFactory;
+import etomica.atom.AtomsetArray;
 import etomica.atom.iterator.AtomsetIteratorMolecule;
-import etomica.atom.iterator.AtomsetIteratorSpeciesAgent;
+import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.potential.Potential0;
 import etomica.potential.Potential0Lrc;
 import etomica.potential.PotentialCalculation;
@@ -76,7 +77,7 @@ public class PotentialMaster {
      */
     public void setSpecies(Potential potential, Species[] species) {
     	if (potential.nBody() == 0) {
-    		addPotential(potential, new AtomsetIteratorSpeciesAgent(species));
+    		addPotential(potential, new AtomIterator0());
     	}
     	else if (species.length == 0 || potential.nBody() != species.length) {
     		throw new IllegalArgumentException("Illegal species length");
@@ -89,12 +90,16 @@ public class PotentialMaster {
                 if(lrcPotential != null) {
                     lrcMaster().addPotential(
                         lrcPotential,
-                        new AtomsetIteratorSpeciesAgent(species));
+                        new AtomIterator0());
                 }
             }
         }
     }
     
+    /**
+     * Returns an array containing the atom types for the molecules
+     * corresponding to the given array of species.
+     */
     private AtomType[] moleculeTypes(Species[] species) {
         AtomType[] types = new AtomType[species.length];
         for(int i=0; i<species.length; i++) {
@@ -206,6 +211,15 @@ public class PotentialMaster {
     protected PotentialLinker first, last;
     protected boolean enabled = true;
     protected final Space space;
+    
+    private static class AtomIterator0 extends AtomsetIteratorSinglet implements AtomsetIteratorMolecule {
+        AtomIterator0() {
+            super(new AtomsetArray(0));
+        }
+        public void setPhase(Phase phase) {}
+        public void setTarget(AtomSet target) {}
+        public void setDirection(IteratorDirective.Direction direction) {}
+    }
 
     public static class PotentialLinker implements java.io.Serializable {
         public final Potential potential;
