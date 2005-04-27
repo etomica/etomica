@@ -25,7 +25,6 @@ import etomica.units.Dimension;
  */
 public class IntegratorDCVGCMD extends Integrator {
 	
-	private int i = 0;
 	IntegratorMC integratormc;
 	IntegratorMD integratormd;
 	double zFraction = 0.1;
@@ -59,8 +58,12 @@ public class IntegratorDCVGCMD extends Integrator {
     
     public void setTemperature(double t) {
         super.setTemperature(t);
-        integratormc.setTemperature(t);
-        integratormd.setTemperature(t);
+        if (integratormc != null) {
+            integratormc.setTemperature(t);
+        }
+        if (integratormd != null) {
+            integratormd.setTemperature(t);
+        }
     }
 	
 	public void doStep() {
@@ -112,6 +115,8 @@ public class IntegratorDCVGCMD extends Integrator {
 	public void setIntegrators(IntegratorMC intmc, IntegratorMD intmd) {
 		integratormc = intmc;
 		integratormd = intmd;
+        integratormc.setTemperature(temperature);
+        integratormd.setTemperature(temperature);
 		integratormd.addPhase(phase[0]);
 		integratormc.addPhase(phase[0]);
 		mcMove1 = new MyMCMove(potential, -zFraction);
