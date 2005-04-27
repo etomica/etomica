@@ -352,7 +352,7 @@ public abstract class Integrator implements java.io.Serializable {
 		public Vector force();
 	}
 
-	public static class IntervalEvent extends EventObject {
+	public static class IntervalEvent {
 
 		// Typed constants used to indicate the type of event integrator is
 		// announcing
@@ -363,9 +363,10 @@ public abstract class Integrator implements java.io.Serializable {
 
 		private final Type type;
 		private int interval;
+        private Integrator source;
 
 		public IntervalEvent(Integrator source, Type t) {
-			super(source);
+			this.source = source;
 			type = t;
 		}
 
@@ -381,6 +382,10 @@ public abstract class Integrator implements java.io.Serializable {
 		public Type type() {
 			return type;
 		}
+        
+        public Integrator getSource() {
+            return source;
+        }
 
 		//class used to mark the different types of interval events
 		public final static class Type extends Constants.TypedConstant {
@@ -399,7 +404,7 @@ public abstract class Integrator implements java.io.Serializable {
 		}
 	}
 
-	public interface IntervalListener extends java.util.EventListener {
+	public interface IntervalListener {
         /**
          * Action performed by the listener when integrator fires its interval event.
          */
