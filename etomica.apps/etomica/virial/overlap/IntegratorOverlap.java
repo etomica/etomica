@@ -21,10 +21,10 @@ public class IntegratorOverlap extends Integrator {
         stepFreq = new double[numIntegrators];
         accumulators = virialAccumulators;
         errors = new double[numIntegrators];
-        intervalEvent = new IntervalEvent[numIntegrators];
+        intervalEvent = new IntegratorIntervalEvent[numIntegrators];
         totNumSubSteps = new int[numIntegrators];
         for (int i=0; i<numIntegrators; i++) {
-            intervalEvent[i] = new IntervalEvent(integrators[i],1);
+            intervalEvent[i] = new IntegratorIntervalEvent(integrators[i],1);
         }
         setAdjustStepFreq(true);
         
@@ -175,7 +175,7 @@ public class IntegratorOverlap extends Integrator {
     private int minDiffLoc=-1;
     private AccumulatorVirialOverlapSingleAverage[] accumulators;
     private double[] errors;
-    private IntervalEvent[] intervalEvent;
+    private IntegratorIntervalEvent[] intervalEvent;
     private DataSourceVirialOverlap dsvo;
     private boolean doAdjustStepFreq;
 }

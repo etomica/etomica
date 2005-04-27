@@ -3,7 +3,10 @@ package etomica.data;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
-import etomica.Integrator.IntervalEvent;
+import etomica.IntegratorEvent;
+import etomica.IntegratorIntervalEvent;
+import etomica.IntegratorIntervalListener;
+import etomica.IntegratorListener;
 import etomica.units.Count;
 import etomica.units.Dimension;
 import etomica.units.Unit;
@@ -147,11 +150,12 @@ public final class DataSourceCountSteps extends DataSourceAdapter implements
 	private MyCounter[] counter = new MyCounter[0];
 
 	//inner class used to handle the counting for each integrator.
-	private static class MyCounter implements Integrator.IntervalListener {
+	private static class MyCounter implements IntegratorIntervalListener, IntegratorListener {
 
 		MyCounter(Integrator integrator) {
 			this.integrator = integrator;
 			integrator.addIntervalListener(this);
+            integrator.addListener(this);
 		}
         
         /**
@@ -166,10 +170,12 @@ public final class DataSourceCountSteps extends DataSourceAdapter implements
 		 * not an event indicating start, stop, etc. of the integrator). If
 		 * event is type START, counter is set to zero.
 		 */
-		public void intervalAction(IntervalEvent evt) {
-			if (evt.type() == IntervalEvent.INTERVAL) {
-				count += evt.getInterval();
-			} else if (evt.type() == IntervalEvent.START) {
+		public void intervalAction(IntegratorIntervalEvent evt) {
+			count += evt.getInterval();
+        }
+        
+        public void integratorAction(IntegratorEvent evt) {
+			if (evt.type() == IntegratorIntervalEvent.START) {
 				count = 0;
 			}
 		}

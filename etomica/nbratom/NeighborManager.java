@@ -9,11 +9,13 @@ import etomica.AtomPair;
 import etomica.AtomSet;
 import etomica.Debug;
 import etomica.Integrator;
+import etomica.IntegratorEvent;
+import etomica.IntegratorIntervalEvent;
+import etomica.IntegratorIntervalListener;
+import etomica.IntegratorListener;
 import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Potential;
-import etomica.Integrator.IntervalEvent;
-import etomica.Integrator.IntervalListener;
 import etomica.action.AtomsetActionAdapter;
 import etomica.action.PhaseImposePbc;
 import etomica.atom.iterator.AtomIteratorTree;
@@ -36,7 +38,7 @@ import etomica.utility.Arrays;
  * via a call to the calculate method of PotentialMasterNbr, passing a 
  * PotentialCalculationCellAssign instance as the PotentialCalculation.  
  */
-public class NeighborManager implements IntervalListener {
+public class NeighborManager implements IntegratorListener, IntegratorIntervalListener {
 
 	/**
 	 * Configures instance for use by the given PotentialMaster.
@@ -60,8 +62,8 @@ public class NeighborManager implements IntervalListener {
 	/* (non-Javadoc)
 	 * @see etomica.Integrator.IntervalListener#intervalAction(etomica.Integrator.IntervalEvent)
 	 */
-	public void intervalAction(IntervalEvent evt) {
-		if(evt.type() == IntervalEvent.START || evt.type() == IntervalEvent.INITIALIZE) {
+    public void integratorAction(IntegratorEvent evt) {
+		if((evt.type().mask & (IntegratorEvent.START.mask | IntegratorEvent.INITIALIZE.mask)) != 0) {
             Phase[] phases = ((Integrator)evt.getSource()).getPhase();
             IteratorDirective idUp = new IteratorDirective();
             for (int i=0; i<phases.length; i++) {
@@ -73,11 +75,13 @@ public class NeighborManager implements IntervalListener {
             }
 			reset(((Integrator)evt.getSource()).getPhase());
             ((Integrator)evt.getSource()).reset();
-		} else if(evt.type() == IntervalEvent.INTERVAL) {
-			if (--iieCount == 0) {
-				updateNbrsIfNeeded((Integrator)evt.getSource());
-				iieCount = updateInterval;
-			}
+        }
+    }
+    
+    public void intervalAction(IntegratorIntervalEvent evt) {
+		if (--iieCount == 0) {
+			updateNbrsIfNeeded((Integrator)evt.getSource());
+			iieCount = updateInterval;
         }
 	}
 

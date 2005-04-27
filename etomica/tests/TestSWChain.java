@@ -64,6 +64,7 @@ public class TestSWChain extends Simulation {
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         NeighborManager nbrManager = ((PotentialMasterNbr)potentialMaster).getNeighborManager();
         integrator.addIntervalListener(nbrManager);
+        integrator.addListener(nbrManager);
         nbrManager.setRange(Default.ATOM_SIZE*sqwLambda*neighborRangeFac);
         getController().addAction(activityIntegrate);
         activityIntegrate.setMaxSteps(nSteps);

@@ -5,6 +5,7 @@ import etomica.AtomIterator;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
+import etomica.IntegratorIntervalEvent;
 import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Simulation;
@@ -77,7 +78,7 @@ public class IntegratorPT extends IntegratorMC implements EtomicaElement {
 	 * Fires interval event for this integrator, then instructs
 	 * each sub-integrator to fire event.
 	 */
-	public void fireIntervalEvent(Integrator.IntervalEvent ie) {
+	public void fireIntervalEvent(IntegratorIntervalEvent ie) {
 	    super.fireIntervalEvent(ie);
 	    for(int i=0; i<nIntegrators; i++) {
 	        integrators[i].fireIntervalEvent(ie);

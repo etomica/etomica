@@ -8,6 +8,10 @@ import java.util.Locale;
 import etomica.Action;
 import etomica.Default;
 import etomica.Integrator;
+import etomica.IntegratorEvent;
+import etomica.IntegratorIntervalEvent;
+import etomica.IntegratorIntervalListener;
+import etomica.IntegratorListener;
 import etomica.Simulation;
 import etomica.integrator.IntegratorHard;
 import etomica.utility.NameMaker;
@@ -24,7 +28,8 @@ import etomica.utility.NameMaker;
  * apart actions in doWrite method
  */
 
-public abstract class LoggerAbstract implements Integrator.IntervalListener,
+public abstract class LoggerAbstract implements IntegratorIntervalListener,
+                                                IntegratorListener,
                                                java.io.Serializable {
     
     public LoggerAbstract(){
@@ -56,6 +61,7 @@ public abstract class LoggerAbstract implements Integrator.IntervalListener,
         if(integrator == null) return;
         
         integrator.addIntervalListener(this);
+        integrator.addListener(this);
         if(integrator instanceof IntegratorHard && this instanceof IntegratorHard.CollisionListener) 
 	            ((IntegratorHard)integrator).addCollisionListener((IntegratorHard.CollisionListener)this);
     }
@@ -66,14 +72,19 @@ public abstract class LoggerAbstract implements Integrator.IntervalListener,
     /**
      * Call write() at the specified INTERVAL.
      */
-    public void intervalAction(Integrator.IntervalEvent evt){
-        //if(evt.type() == Integrator.IntervalEvent.START) openFile(); //open a file when START.
-        if(evt.type() != Integrator.IntervalEvent.INTERVAL) return; //act only on INTERVAL events.
+    public void intervalAction(IntegratorIntervalEvent evt){
 	    if(--count == 0) {
 	        count = updateInterval;
 	        doWrite();
 	    }
-        if(evt.type() == Integrator.IntervalEvent.DONE) closeFile(); //close the file when DONE.
+
+    }
+    
+    /**
+     * Close file when integrator is done.
+     */
+    public void integratorAction(IntegratorEvent evt){
+        if(evt.type() == IntegratorIntervalEvent.DONE) closeFile(); //close the file when DONE.
     }
     
     /**

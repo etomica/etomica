@@ -3,7 +3,10 @@ package etomica.data;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
-import etomica.Integrator.IntervalEvent;
+import etomica.IntegratorEvent;
+import etomica.IntegratorIntervalEvent;
+import etomica.IntegratorIntervalListener;
+import etomica.IntegratorListener;
 import etomica.integrator.IntegratorMD;
 import etomica.units.Dimension;
 import etomica.units.Picosecond;
@@ -142,10 +145,11 @@ public final class DataSourceCountTime extends DataSourceAdapter implements
 	private MyTimer[] timer = new MyTimer[0];
 
 	//inner class used to handle the counting for each integrator.
-	private static class MyTimer implements Integrator.IntervalListener {
+	private static class MyTimer implements IntegratorListener, IntegratorIntervalListener {
 
 		MyTimer(IntegratorMD integrator) {
 			this.integrator = integrator;
+            integrator.addListener(this);
 			integrator.addIntervalListener(this);
 		}
 
@@ -155,10 +159,12 @@ public final class DataSourceCountTime extends DataSourceAdapter implements
 		 * an event indicating start, stop, etc. of the integrator). If event is
 		 * type START, timer is set to zero.
 		 */
-		public void intervalAction(IntervalEvent evt) {
-			if (evt.type() == IntervalEvent.INTERVAL) {
-				elapsedTime += evt.getInterval() * integrator.getTimeStep();
-			} else if (evt.type() == IntervalEvent.START) {
+		public void intervalAction(IntegratorIntervalEvent evt) {
+			elapsedTime += evt.getInterval() * integrator.getTimeStep();
+        }
+        
+        public void integratorAction(IntegratorEvent evt) {
+			if(evt.type() == IntegratorIntervalEvent.START) {
 				elapsedTime = 0.0;
 			}
 		}

@@ -13,6 +13,7 @@ import java.lang.reflect.Method;
 import javax.swing.JLabel;
 
 import etomica.Integrator;
+import etomica.IntegratorIntervalEvent;
 import etomica.MeterAbstract;
 import etomica.Simulation;
 import etomica.data.meter.MeterScalar;
@@ -55,13 +56,13 @@ public class DisplayToLog extends Display {
     
     public java.awt.Component graphic(Object obj) {return null;}
     
-    public void intervalAction(Integrator.IntervalEvent evt) {
-        if(evt.type() == Integrator.IntervalEvent.START) writeHeading();
-        else if(evt.type() == Integrator.IntervalEvent.INTERVAL && --iieCount == 0) {
+    public void intervalAction(IntegratorIntervalEvent evt) {
+        if(evt.type() == IntegratorIntervalEvent.START) writeHeading();
+        else if(evt.type() == IntegratorIntervalEvent.INTERVAL && --iieCount == 0) {
 	        iieCount = updateInterval;
 	        doUpdate();
 	    }
-	    else if(evt.type() == Integrator.IntervalEvent.DONE) writeEnding();
+	    else if(evt.type() == IntegratorIntervalEvent.DONE) writeEnding();
     }
     
     private void writeHeading() {

@@ -2,18 +2,18 @@ package etomica.integrator;
 
 import etomica.Action;
 import etomica.Integrator;
-import etomica.Integrator.IntervalListener;
+import etomica.IntegratorIntervalEvent;
+import etomica.IntegratorIntervalListener;
 
 /**
  * Adapter that causes an action to be performed as the result of an integrator
- * intervalEvent. Types of events that trigger action can be set using the
- * setEventTypes method; default is to respond only to INTERVAL events.
+ * intervalEvent.
  */
 
 /*
  * History Created on Feb 19, 2005 by kofke
  */
-public class IntervalActionAdapter implements IntervalListener {
+public class IntervalActionAdapter implements IntegratorIntervalListener {
 
     /**
      * Creates adapter such that given action is performed in response to
@@ -32,7 +32,6 @@ public class IntervalActionAdapter implements IntervalListener {
         setActive(true);
         setActionInterval(1);
         setPriority(400);
-        setEventTypes(new Integrator.IntervalEvent.Type[] { Integrator.IntervalEvent.INTERVAL });
     }
 
     /**
@@ -42,8 +41,8 @@ public class IntervalActionAdapter implements IntervalListener {
      * performed and the updateInterval counter is not incremented; this is also
      * the case if the active flag is false.
      */
-    public void intervalAction(Integrator.IntervalEvent evt) {
-        if (active && ((evt.type().mask & eventMask) != 0)) {
+    public void intervalAction(IntegratorIntervalEvent evt) {
+        if (active) {
             if (--iieCount == 0) {
                 iieCount = actionInterval;
                 action.actionPerformed();
@@ -55,7 +54,7 @@ public class IntervalActionAdapter implements IntervalListener {
      * Returns the priority, which determines the order in which listeners are
      * informed when integrator fires an interval event. Default is 400.
      * 
-     * @see etomica.Integrator.IntervalListener#getPriority()
+     * @see etomica.IntegratorIntervalListener#getPriority()
      */
     public int getPriority() {
         return priority;
@@ -107,25 +106,9 @@ public class IntervalActionAdapter implements IntervalListener {
         return action;
     }
 
-    /**
-     * Sets the types of integrator event that triggers action.
-     * 
-     * @param types
-     *            array of types that will trigger the action
-     */
-    public void setEventTypes(Integrator.IntervalEvent.Type[] types) {
-        eventTypes = (Integrator.IntervalEvent.Type[]) types.clone();
-        eventMask = 0;
-        for (int i = 0; i < types.length; i++) {
-            eventMask |= types[i].mask;
-        }
-    }
-
     private final Action action;
     private int iieCount;
     private int priority;
-    private int eventMask;
-    private Integrator.IntervalEvent.Type[] eventTypes;
     private boolean active;//set true in constructor
     private int actionInterval;
 

@@ -3,6 +3,8 @@ import etomica.AtomIterator;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
+import etomica.IntegratorIntervalEvent;
+import etomica.IntegratorIntervalListener;
 import etomica.MeterAbstract;
 import etomica.Space;
 import etomica.space.Vector;
@@ -82,11 +84,10 @@ public class MeterMeanSquareDisplacement extends MeterAbstract implements
         data[0] = sum/(double)nAtoms;
     }
     
-    private class BeforePbc implements Integrator.IntervalListener {
+    private class BeforePbc implements IntegratorIntervalListener {
         public int getPriority() {return 50;}//PBC is 100-199
-        public void intervalAction(Integrator.IntervalEvent evt) {
-            if(evt.type() != Integrator.IntervalEvent.INTERVAL) return; //don't act on start, done, initialize events
-            iterator.reset();
+        public void intervalAction(IntegratorIntervalEvent evt) {
+             iterator.reset();
             int i = 0;
             //accumulate difference from last coordinate before pbc applied
             while(iterator.hasNext()) {
@@ -99,10 +100,9 @@ public class MeterMeanSquareDisplacement extends MeterAbstract implements
         }//end of intervalAction    
     }//end of BeforePbc
     
-    private class AfterPbc implements Integrator.IntervalListener {
+    private class AfterPbc implements IntegratorIntervalListener {
         public int getPriority() {return 200;}//PBC is 100-199
-        public void intervalAction(Integrator.IntervalEvent evt) {
-            if(evt.type() != Integrator.IntervalEvent.INTERVAL) return; //don't act on start, done, initialize events
+        public void intervalAction(IntegratorIntervalEvent evt) {
             iterator.reset();
             int i = 0;
             //accumulate difference from last coordinate before pbc applied

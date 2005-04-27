@@ -1,17 +1,16 @@
 package etomica;
 
-import etomica.Integrator.IntervalEvent;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.units.Dimension;
 
 /**
  * Acts as a DataSource to retrieve the energy from the integrator 
  */
-public class IntegratorPotentialEnergy implements DataSource, Integrator.IntervalListener {
+public class IntegratorPotentialEnergy implements DataSource, IntegratorListener {
 
     public IntegratorPotentialEnergy(Integrator aIntegrator) {
         integrator = aIntegrator;
-        integrator.addIntervalListener(this);
+        integrator.addListener(this);
     }
     
     public double[] getData() {
@@ -25,10 +24,8 @@ public class IntegratorPotentialEnergy implements DataSource, Integrator.Interva
         return integrator.getPhase().length;
     }
 
-    public int getPriority() {return 200;}
-    
-    public void intervalAction(IntervalEvent evt) {
-        if (evt.type() == Integrator.IntervalEvent.DONE) {
+    public void integratorAction(IntegratorEvent evt) {
+        if (evt.type() == IntegratorIntervalEvent.DONE) {
             double[] currentPE = integrator.getPotentialEnergy();
             Phase[] phase = integrator.getPhase();
             MeterPotentialEnergy meterPE = new MeterPotentialEnergy(integrator.potential);

@@ -41,6 +41,7 @@ public class HSMD3D extends Simulation {
         integrator = new IntegratorHard(potentialMaster);
         integrator.setIsothermal(false);
         integrator.addIntervalListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
+        integrator.addListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
         integrator.setTimeStep(0.01);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setDoSleep(true);

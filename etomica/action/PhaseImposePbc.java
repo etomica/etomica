@@ -7,6 +7,8 @@ package etomica.action;
 import etomica.Atom;
 import etomica.AtomIterator;
 import etomica.Integrator;
+import etomica.IntegratorIntervalEvent;
+import etomica.IntegratorIntervalListener;
 import etomica.Phase;
 import etomica.Space;
 import etomica.atom.AtomPositionDefinition;
@@ -24,7 +26,7 @@ import etomica.space.Vector;
  */
 
 public final class PhaseImposePbc extends PhaseActionAdapter implements
-		Integrator.IntervalListener {
+		IntegratorIntervalListener {
 
 	/**
 	 * Creates the action without specifying a phase. Requires call to setPhase
@@ -72,7 +74,7 @@ public final class PhaseImposePbc extends PhaseActionAdapter implements
         }
 	}
 
-	public void intervalAction(Integrator.IntervalEvent evt) {
+	public void intervalAction(IntegratorIntervalEvent evt) {
 		actionPerformed();
 	}
 

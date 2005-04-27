@@ -46,6 +46,7 @@ public class TestHSMD3D extends Simulation {
         nbrManager.setRange(Default.ATOM_SIZE*1.6);
         nbrManager.getPbcEnforcer().setApplyToMolecules(false);
         integrator.addIntervalListener(nbrManager);
+        integrator.addListener(nbrManager);
         integrator.setTimeStep(0.01);
         integrator.setIsothermal(true);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);

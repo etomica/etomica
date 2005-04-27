@@ -1,7 +1,6 @@
 package etomica;
 
 import java.util.Collections;
-import java.util.EventObject;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -32,6 +31,7 @@ public abstract class Integrator implements java.io.Serializable {
     public int phaseCountMax = 1;
     protected int sleepPeriod = 10;
     private final LinkedList intervalListeners = new LinkedList();
+    private final LinkedList listeners = new LinkedList();
     private ListenerWrapper[] listenerWrapperArray = new ListenerWrapper[0];
     int integrationCount = 0;
     protected double temperature;
@@ -259,11 +259,11 @@ public abstract class Integrator implements java.io.Serializable {
 
     
     /**
-     * Arranges listeners registered with this iterator in order such that
+     * Arranges interval listeners registered with this iterator in order such that
      * those with the smallest (closer to zero) priority value are performed
      * before those with a larger priority value.  This is invoked automatically
      * whenever a listener is added or removed.  It should be invoked explicitly if
-     * the priority setting of a registered listener is changed.
+     * the priority setting of a registered interval listener is changed.
      */
     public synchronized void sortListeners() {
         //sort using linked list, but put into array afterwards
@@ -273,11 +273,11 @@ public abstract class Integrator implements java.io.Serializable {
     }
 
     /**
-     * Adds the given listener to those that receive interval events fired by
+     * Adds the given interval listener to those that receive interval events fired by
      * this integrator.  If listener has already been added to integrator, it is
      * not added again.  If listener is null, NullPointerException is thrown.
      */
-	public synchronized void addIntervalListener(IntervalListener iil) {
+	public synchronized void addIntervalListener(IntegratorIntervalListener iil) {
         if(iil == null) throw new NullPointerException("Cannot add null as a listener to Integrator");
         ListenerWrapper wrapper = findWrapper(iil);
         if(wrapper == null) { //listener not already in list, so OK to add it now
@@ -285,19 +285,12 @@ public abstract class Integrator implements java.io.Serializable {
             sortListeners();
         }
 	}
-    
-    /**
-     * Removes all interval listeners.
-     */
-    public synchronized void clearIntervalListeners() {
-        intervalListeners.clear();
-    }
-    
+        
     /**
      * Finds and returns the ListenerWrapper used to put the given listener in the list.
      * Returns null if listener is not in list.
      */
-    private ListenerWrapper findWrapper(IntervalListener iil) {
+    private ListenerWrapper findWrapper(IntegratorIntervalListener iil) {
         Iterator iterator = intervalListeners.iterator();
         while(iterator.hasNext()) {
             ListenerWrapper wrapper = (ListenerWrapper)iterator.next();
@@ -307,11 +300,11 @@ public abstract class Integrator implements java.io.Serializable {
     }
 
     /**
-     * Removes given listener from those notified of interval events fired
+     * Removes given interval listener from those notified of interval events fired
      * by this integrator.  No action results if given listener is null or is not registered
      * with this integrator.
      */
-	public synchronized void removeIntervalListener(IntervalListener iil) {
+	public synchronized void removeIntervalListener(IntegratorIntervalListener iil) {
         ListenerWrapper wrapper = findWrapper(iil);
 	    intervalListeners.remove(wrapper);
         sortListeners();
@@ -322,11 +315,51 @@ public abstract class Integrator implements java.io.Serializable {
 	 * synchronized, so unpredictable behavior if listeners are added while
 	 * notification is in process (this should be rare).
 	 */
-	public void fireIntervalEvent(IntervalEvent iie) {
+	public void fireIntervalEvent(IntegratorIntervalEvent iie) {
         for(int i=0; i<listenerWrapperArray.length; i++) {
 			listenerWrapperArray[i].listener.intervalAction(iie);
 		}
 	}
+
+    /**
+     * Adds the given listener to those that receive non-interval events fired by
+     * this integrator.  If listener has already been added to integrator, it is
+     * not added again.  If listener is null, NullPointerException is thrown.
+     */
+    public synchronized void addListener(IntegratorListener iil) {
+        if(iil == null) throw new NullPointerException("Cannot add null as a listener to Integrator");
+        if(!listeners.contains(iil)) {
+            listeners.add(iil);
+        }
+    }
+    
+    /**
+     * Removes all listeners, including interval listeners.
+     */
+    public synchronized void clearAllListeners() {
+        intervalListeners.clear();
+        listeners.clear();
+        sortListeners();
+    }
+    
+    /**
+     * Removes given listener from those notified of non-interval events fired
+     * by this integrator.  No action results if given listener is null or is not registered
+     * with this integrator.
+     */
+    public synchronized void removeListener(IntegratorListener iil) {
+        listeners.remove(iil);
+    }
+
+    /**
+     * Notifies registered listeners of a non-interval event. 
+     */
+    public synchronized void fireEvent(IntegratorEvent ie) {
+        Iterator iter = listeners.iterator();
+        while(iter.hasNext()) {
+            ((IntegratorListener)iter.next()).integratorAction(ie);
+        }
+    }
 
 	/**
 	 * Registers with the given integrator all listeners currently registered
@@ -336,12 +369,15 @@ public abstract class Integrator implements java.io.Serializable {
 		if (anotherIntegrator == this) return;
         synchronized(anotherIntegrator) {
             for(int i=0; i<listenerWrapperArray.length; i++) {
-                anotherIntegrator.intervalListeners.add(listenerWrapperArray[i]);
+                anotherIntegrator.addIntervalListener(listenerWrapperArray[i].listener);
             }
+            Iterator iter = listeners.iterator();
+            while(iter.hasNext()) {//don't use addAll, to avoid duplicating listeners already in anotherIntegrator
+                anotherIntegrator.addListener((IntegratorListener)iter.next());
+            }
+            anotherIntegrator.sortListeners();
         }
-        anotherIntegrator.sortListeners();
-		intervalListeners.clear();
-        sortListeners();
+        clearAllListeners();
 	}
 
 	/**
@@ -352,81 +388,14 @@ public abstract class Integrator implements java.io.Serializable {
 		public Vector force();
 	}
 
-	public static class IntervalEvent {
-
-		// Typed constants used to indicate the type of event integrator is
-		// announcing
-		public static final Type START =      new Type("Start",      1); //simulation is starting
-        public static final Type INITIALIZE = new Type("Initialize", 2); //integrator is initializing
-		public static final Type INTERVAL =   new Type("Interval",   4); //routine interval event
-		public static final Type DONE =       new Type("Done",       8); //simulation is finished
-
-		private final Type type;
-		private int interval;
-        private Integrator source;
-
-		public IntervalEvent(Integrator source, Type t) {
-			this.source = source;
-			type = t;
-		}
-
-		public IntervalEvent(Integrator source, int interval) {
-			this(source, INTERVAL);
-			this.interval = interval;
-		}
-
-		public int getInterval() {
-			return interval;
-		}
-
-		public Type type() {
-			return type;
-		}
-        
-        public Integrator getSource() {
-            return source;
-        }
-
-		//class used to mark the different types of interval events
-		public final static class Type extends Constants.TypedConstant {
-            public final int mask;
-			private Type(String label, int mask) {
-				super(label);
-                this.mask = mask;
-			}
-
-			public static final Constants.TypedConstant[] choices = new Constants.TypedConstant[] {
-					START, INTERVAL, DONE, INITIALIZE };
-
-			public final Constants.TypedConstant[] choices() {
-				return choices;
-			}
-		}
-	}
-
-	public interface IntervalListener {
-        /**
-         * Action performed by the listener when integrator fires its interval event.
-         */
-		public void intervalAction(IntervalEvent evt);
-        /**
-         * Priority assigned to the listener.  A small value will cause the 
-         * listener's action to be performed earlier, before another listener having
-         * a larger priority value (e.g., priority 100 action is performed before
-         * one having a priority of 200).  Listeners that cause periodic boundaries
-         * to be applied are given priorities in the range 100-199.  Ordering 
-         * is performed only when a listener is added to the integrator, or when
-         * the sortListeners method of integrator is called.
-         */
-        public int getPriority();
-    }
-    
-    /**
+	/**
+     * Wraps interval listener an implements a Comparable interface based
+     * on the listeners priority value.
      * This class has a natural ordering that is inconsistent with equals.
      */
     private static class ListenerWrapper implements Comparable {
-        private final IntervalListener listener;
-        private ListenerWrapper(IntervalListener listener) {
+        private final IntegratorIntervalListener listener;
+        private ListenerWrapper(IntegratorIntervalListener listener) {
             this.listener = listener;
         }
         public int compareTo(Object obj) {

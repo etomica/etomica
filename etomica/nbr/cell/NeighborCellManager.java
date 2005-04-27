@@ -5,7 +5,10 @@
 package etomica.nbr.cell;
 
 import etomica.Atom;
-import etomica.Integrator;
+import etomica.IntegratorEvent;
+import etomica.IntegratorIntervalEvent;
+import etomica.IntegratorIntervalListener;
+import etomica.IntegratorListener;
 import etomica.Phase;
 import etomica.PhaseEvent;
 import etomica.PhaseListener;
@@ -23,7 +26,7 @@ import etomica.space.Vector;
  * for cell-based neighbor listing.
  */
 
-public class NeighborCellManager implements Integrator.IntervalListener {
+public class NeighborCellManager implements IntegratorIntervalListener, IntegratorListener {
 
     private final CellLattice lattice;
     private final Space space;
@@ -158,15 +161,16 @@ public class NeighborCellManager implements Integrator.IntervalListener {
      * Implementation of IntervalListener interface to cause all
      * atoms in phase to be assigned to their cells. 
      */
-    public void intervalAction(Integrator.IntervalEvent event) {
-        if (event.type() == Integrator.IntervalEvent.INITIALIZE) {
+    public void integratorAction(IntegratorEvent event) {
+        if (event.type() == IntegratorEvent.INITIALIZE) {
             assignCellAll();
         }
-        else if (event.type() == Integrator.IntervalEvent.INTERVAL) {
-            if (--iieCount == 0) {
-                assignCellAll();
-                iieCount = updateInterval;
-            }
+    }
+    
+    public void intervalAction(IntegratorIntervalEvent event) {
+        if (--iieCount == 0) {
+            assignCellAll();
+            iieCount = updateInterval;
         }
     }
     

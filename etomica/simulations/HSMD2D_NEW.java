@@ -8,6 +8,8 @@ import etomica.Atom;
 import etomica.Controller;
 import etomica.Default;
 import etomica.Integrator;
+import etomica.IntegratorIntervalEvent;
+import etomica.IntegratorIntervalListener;
 import etomica.Modifier;
 import etomica.Phase;
 import etomica.Simulation;
@@ -62,7 +64,7 @@ public class HSMD2D_NEW extends SimulationGraphic  {
 		}
 
 	}
-	public class MyAction extends Action implements Integrator.IntervalListener {
+	public class MyAction extends Action implements IntegratorIntervalListener {
 		boolean moving = false;
 		boolean movingDown = true;
 		double ke0, ke1;
@@ -95,7 +97,7 @@ public class HSMD2D_NEW extends SimulationGraphic  {
 			movingDown = !movingDown;
 			if(auto) waitCount = 10;			
 		}
-		public void intervalAction(Integrator.IntervalEvent evt) {
+		public void intervalAction(IntegratorIntervalEvent evt) {
 			if(auto) {
 				if(waitCount > 0) waitCount--;
 				else if(!moving) {actionPerformed(); return;} 

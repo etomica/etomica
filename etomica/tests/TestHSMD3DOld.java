@@ -41,6 +41,7 @@ public class TestHSMD3DOld extends Simulation {
         ((PotentialMasterNbr)potentialMaster).setNCells((int)(Default.BOX_SIZE/neighborRangeFac));
         integrator = new IntegratorHard(potentialMaster);
         integrator.addIntervalListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
+        integrator.addListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
         integrator.setTimeStep(0.01);
         integrator.setIsothermal(true);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);

@@ -8,7 +8,8 @@ import etomica.Activity;
 import etomica.Debug;
 import etomica.Default;
 import etomica.Integrator;
-import etomica.Integrator.IntervalEvent;
+import etomica.IntegratorEvent;
+import etomica.IntegratorIntervalEvent;
 
 /**
  * Activity that repeatedly invokes an Integrator's doStep method.
@@ -36,7 +37,7 @@ public class ActivityIntegrate extends Activity {
      * not be called directly, but instead is called by the instance's actionPerformed method.
      */
 	public void run() {
-        integrator.fireIntervalEvent(new IntervalEvent(integrator, IntervalEvent.START));
+        integrator.fireEvent(new IntegratorEvent(integrator, IntegratorEvent.START));
 	    integrator.initialize();
         int stepCount = 0;
         int iieCount = interval;//changed from "interval + 1"
@@ -57,7 +58,7 @@ public class ActivityIntegrate extends Activity {
             }
             stepCount++;
         }//end of while loop
-        integrator.fireIntervalEvent(new IntervalEvent(integrator, IntervalEvent.DONE));
+        integrator.fireEvent(new IntegratorEvent(integrator, IntegratorIntervalEvent.DONE));
 	}
 
 	/**
@@ -94,7 +95,7 @@ public class ActivityIntegrate extends Activity {
 	 */
 	public void setInterval(int interval) {
 		this.interval = interval;
-		intervalEvent = new IntervalEvent(integrator, interval);
+		intervalEvent = new IntegratorIntervalEvent(integrator, interval);
 	}
 	
 	/**
@@ -165,6 +166,6 @@ public class ActivityIntegrate extends Activity {
 	private boolean doSleep;
 	private int sleepPeriod;
 	protected int maxSteps = Integer.MAX_VALUE;
-	IntervalEvent intervalEvent;
+	IntegratorIntervalEvent intervalEvent;
 
 }
