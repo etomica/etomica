@@ -180,6 +180,7 @@ public class DCVGCMD extends Simulation {
 
         /***/
         integratorDCV.addIntervalListener(nbrManager);
+        integratorDCV.addListener(nbrManager);
         nbrManager.setRange(potential.getRange() * neighborRangeFac);
         integratorMC.addMCMoveListener(potentialMasterHybrid.getNbrCellManager(phase).makeMCMoveListener());
 

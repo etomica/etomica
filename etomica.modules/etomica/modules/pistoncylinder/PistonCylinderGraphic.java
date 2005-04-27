@@ -442,7 +442,7 @@ public class PistonCylinderGraphic {
         BaseUnit.Length.Sim.TO_PIXELS = 600/pc.phase.boundary().dimensions().x(1);
         pc.ai.setDoSleep(true);
         pc.integrator.setTimeStep(0.5);
-        pc.integrator.clearIntervalListeners();
+        pc.integrator.clearAllListeners();
 
         pc.wallPotential.setLongWall(0,true,true);  // left wall
         pc.wallPotential.setLongWall(0,false,true); // right wall

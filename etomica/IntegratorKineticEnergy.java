@@ -28,7 +28,7 @@ public class IntegratorKineticEnergy implements DataSource, IntegratorListener {
 
     public int getPriority() {return 200;}
     
-    public void intervalAction(IntegratorIntervalEvent evt) {
+    public void integratorAction(IntegratorEvent evt) {
         if (evt.type() == IntegratorEvent.DONE) {
             double[] currentKE = integrator.getKineticEnergy();
             Phase[] phase = integrator.getPhase();
