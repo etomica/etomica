@@ -49,7 +49,10 @@ public final class SpeciesMaster extends Atom {
     	return moleculeCount;
     }
     
-    public String signature() {return node.parentPhase().getName();}
+    public String signature() {
+        Phase phase = node.parentPhase();
+        return (phase != null) ? phase.getName() : "SpeciesMaster without phase";  
+    }
     
     
     //event management
