@@ -20,12 +20,12 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphericalTruncated;
 import etomica.space3d.Space3D;
 
 /**
- * Simple hard-sphere Monte Carlo simulation in 3D.
- * Initial configurations at http://gordon.eng.buffalo.edu/etomica/tests/
- * @author David Kofke
+ * Simple Lennard-Jones Monte Carlo simulation in 3D.
+ * Initial configurations at http://rheneas.eng.buffalo.edu/etomica/tests/
  */
  
 public class TestLJMC3D extends Simulation {
@@ -54,10 +54,16 @@ public class TestLJMC3D extends Simulation {
 	    phase = new Phase(this);
         phase.setDensity(0.7);
         potential = new P2LennardJones(space);
-        potentialMaster.setSpecies(potential, new Species[] {species, species});
+        P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(potential);
+        double truncationRadius = 3.0*potential.getSigma();
+        if(truncationRadius > 0.5*phase.boundary().dimensions().x(0)) {
+            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*phase.boundary().dimensions().x(0));
+        }
+        potentialTruncated.setTruncationRadius(truncationRadius);
+        potentialMaster.setSpecies(potentialTruncated, new Species[] {species, species});
         
         ConfigurationFile config = new ConfigurationFile(space,"LJMC3D"+Integer.toString(numAtoms));
-        phase.setConfiguration(config);
+//        phase.setConfiguration(config);
         integrator.addPhase(phase);
         integrator.addIntervalListener(new PhaseImposePbc(phase));
 //        WriteConfiguration writeConfig = new WriteConfiguration("LJMC3D"+Integer.toString(numAtoms),phase,1);
