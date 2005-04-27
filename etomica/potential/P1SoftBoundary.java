@@ -74,7 +74,10 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft, Etomica
 		return gradient;
 	}
 	
-	
+	public double virial(AtomSet atoms) {
+	    return 0.0;
+    }
+    
 	/**
 	 * Returns the radius.
 	 * @return double

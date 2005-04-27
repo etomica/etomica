@@ -22,10 +22,11 @@ public class PotentialCalculationVirialSum extends PotentialCalculation {
 	 * atoms produced by the given iterator.  Iterator is reset by method before beginning calculation.
 	 */
 	protected void doCalculation(AtomsetIterator iterator, Potential potential) {
-        AtomPairIterator pairIterator = (AtomPairIterator)iterator;
+//        AtomPairIterator pairIterator = (AtomPairIterator)iterator;
 		iterator.reset();
 		while(iterator.hasNext()) {
-			sum += ((Potential2Soft)potential).virial(pairIterator.nextPair());
+//            sum += ((Potential2Soft)potential).virial(pairIterator.nextPair());
+            sum += ((PotentialSoft)potential).virial(iterator.next());
 		}
 	}
 	

@@ -57,7 +57,7 @@ import etomica.SpeciesAgent;
  *
  * @author David Kofke
  */
-public abstract class Potential0Lrc extends Potential0 {
+public abstract class Potential0Lrc extends Potential0 implements PotentialSoft {
     
     protected final AtomType[] types;
     protected final boolean interType;

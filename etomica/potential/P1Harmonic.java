@@ -59,6 +59,11 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
         }
         return 0.5*w*aSum;
     }
+    
+    //XXX consider whether 1-body potentials should contribute to virial
+    public double virial(AtomSet a) {
+        return 0.0;
+    }
 
     public Vector gradient(AtomSet a){
         Vector r = ((Atom)a).coord.position();

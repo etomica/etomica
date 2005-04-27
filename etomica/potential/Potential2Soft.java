@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.AtomPair;
+import etomica.AtomSet;
 
 /**
  * Methods for properties obtained for a soft, differentiable pair potential.
@@ -15,9 +15,9 @@ import etomica.AtomPair;
 
 public interface Potential2Soft extends PotentialSoft {
     
-	public double hyperVirial(AtomPair pair);
+	public double hyperVirial(AtomSet pair);
 
-	public double virial(AtomPair pair);
+	public double virial(AtomSet pair);
     
 	/**
 	 * Integral used to evaluate correction to truncation of potential.

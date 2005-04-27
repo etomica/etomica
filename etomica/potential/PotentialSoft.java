@@ -16,6 +16,8 @@ import etomica.space.Vector;
 public interface PotentialSoft {
 	   
 	public double energy(AtomSet atoms);
+    
+    public double virial(AtomSet atoms);
 
 	/**
 	 * Returns the gradient of the potential, indicating how

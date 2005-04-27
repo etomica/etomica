@@ -59,16 +59,16 @@ import etomica.space.Vector;
     /**
      * Virial of the pair as given by the du(double) method
      */
-    public double virial(AtomPair pair) {
-    	cPair.reset(pair);
+    public double virial(AtomSet pair) {
+    	cPair.reset((AtomPair)pair);
         return du(cPair.r2());
     }
     
     /**
      * Hypervirial of the pair as given by the du(double) and d2u(double) methods
      */
-    public double hyperVirial(AtomPair pair) {
-    	cPair.reset(pair);
+    public double hyperVirial(AtomSet pair) {
+    	cPair.reset((AtomPair)pair);
         double r2 = cPair.r2();
         return d2u(r2) + du(r2);
     }
