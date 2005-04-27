@@ -80,6 +80,7 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
                 if(isothermal) {
                     integrator.setTemperature(temperature);
                 }
+                integrator.reset();
             }
             public String getLabel() {
                 return DeviceThermoSelector.this.getLabel().toString();
