@@ -86,6 +86,10 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
         gradient.setX(2, gradz);
         return gradient;
     }
+    
+    public double virial(AtomSet atoms) {
+        return 0.0;
+    }
 
     /**
      * Returns the radius.

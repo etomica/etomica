@@ -95,13 +95,13 @@ public class P2WaterSPC extends Potential2 implements Potential2Soft {
 	public etomica.space.Vector gradient(AtomSet pair){
 		throw new etomica.exception.MethodNotImplementedException();
 	}
-	public double hyperVirial(AtomPair pair){
+	public double hyperVirial(AtomSet pair){
 		throw new etomica.exception.MethodNotImplementedException();
 	}
 	public double integral(double rC){
 		throw new etomica.exception.MethodNotImplementedException();
 	}
-	public double virial(AtomPair pair){
+	public double virial(AtomSet pair){
 		throw new etomica.exception.MethodNotImplementedException();
 	}
     

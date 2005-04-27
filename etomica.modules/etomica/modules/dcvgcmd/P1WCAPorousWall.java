@@ -68,6 +68,10 @@ public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
         return 4 * epsilon * r6 * (r6 - 1.0) + epsilon;
     }
     
+    public double virial(AtomSet atoms) {
+        return 0.0;
+    }
+    
     private boolean inPore(Vector r) {
         for(int i=0; i<poreCenters.length; i++) {
             double dx = r.x(0) - poreCenters[i].x(0);
