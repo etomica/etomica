@@ -116,7 +116,7 @@ public class SimulationVirial extends Simulation {
 		else {
 			accumulatorPump.setDataSinks(new DataAccumulator[] {accumulator});
 		}
-		integrator.addIntervalListener(new IntervalActionAdapter(accumulatorPump));
+		integrator.addListener(new IntervalActionAdapter(accumulatorPump));
 	}
 	
 	public static void main(String[] args) {

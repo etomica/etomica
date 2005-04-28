@@ -7,7 +7,7 @@ import etomica.units.Dimension;
 /**
  * Acts as a DataSource to retrieve the energy from the integrator 
  */
-public class IntegratorKineticEnergy implements DataSource, IntegratorListener {
+public class IntegratorKineticEnergy implements DataSource, IntegratorNonintervalListener {
 
     public IntegratorKineticEnergy(IntegratorMD aIntegrator) {
         integrator = aIntegrator;
@@ -28,8 +28,8 @@ public class IntegratorKineticEnergy implements DataSource, IntegratorListener {
 
     public int getPriority() {return 200;}
     
-    public void integratorAction(IntegratorEvent evt) {
-        if (evt.type() == IntegratorEvent.DONE) {
+    public void nonintervalAction(IntegratorNonintervalEvent evt) {
+        if (evt.type() == IntegratorNonintervalEvent.DONE) {
             double[] currentKE = integrator.getKineticEnergy();
             Phase[] phase = integrator.getPhase();
             meterKE.setPhase(phase);

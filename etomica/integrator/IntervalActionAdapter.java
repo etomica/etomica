@@ -21,7 +21,7 @@ public class IntervalActionAdapter implements IntegratorIntervalListener {
      */
     public IntervalActionAdapter(Action action, Integrator integrator) {
         this(action);
-        integrator.addIntervalListener(this);
+        integrator.addListener(this);
     }
 
     /**

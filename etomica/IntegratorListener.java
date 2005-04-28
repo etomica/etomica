@@ -2,20 +2,17 @@ package etomica;
 
 
 /**
- * Interface for a class that listens for integrator events, typically
- * those other than interval event.
+ * TODO To change the template for this generated type comment go to
+ * Window - Preferences - Java - Code Style - Code Templates
+ *
+ * @author David Kofke
  *
  */
 
 /*
  * History
- * Created on Apr 26, 2005 by kofke
+ * Created on Apr 27, 2005 by kofke
  */
-public interface IntegratorListener {
-
-    /**
-     * Action performed by the listener when integrator fires its event.
-     */
-    public void integratorAction(IntegratorEvent evt);
+interface IntegratorListener {
 
 }

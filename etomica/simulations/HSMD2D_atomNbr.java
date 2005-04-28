@@ -47,7 +47,6 @@ public class HSMD2D_atomNbr extends Simulation {
 
         integrator = new IntegratorHard(potentialMaster);
         integrator.setIsothermal(false);
-        integrator.addIntervalListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
         integrator.addListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
         integrator.setTimeStep(0.01);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
@@ -66,7 +65,7 @@ public class HSMD2D_atomNbr extends Simulation {
         criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         nbrManager.addCriterion(criterion);
         nbrManager.setRange(Default.ATOM_SIZE*1.6);
-        integrator.addIntervalListener(nbrManager);
+        integrator.addListener(nbrManager);
         potential.setCriterion(criterion);
         potentialMaster.setSpecies(potential,new Species[]{species,species});
         species.getFactory().getType().getNbrManagerAgent().addCriterion(criterion);
@@ -78,7 +77,7 @@ public class HSMD2D_atomNbr extends Simulation {
         //explicit implementation of elementCoordinator activities
 //        phase.speciesMaster.addSpecies(species2);
         phase = new Phase(this);
-        integrator.addIntervalListener(new NeighborCellManager(phase,15));
+        integrator.addListener(new NeighborCellManager(phase,15));
         integrator.addPhase(phase);
         
     }

@@ -61,8 +61,8 @@ public class GEMCWithRotation extends Simulation {
 
         this.potentialMaster.setSpecies(potential,new Species[] {species, species});
 
-        integrator.addIntervalListener(new PhaseImposePbc(phase1));
-        integrator.addIntervalListener(new PhaseImposePbc(phase2));
+        integrator.addListener(new PhaseImposePbc(phase1));
+        integrator.addListener(new PhaseImposePbc(phase2));
 
 	    phase2.setDensity(0.1);
     }//end of constructor        

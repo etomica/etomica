@@ -62,7 +62,7 @@ public class HSMD2D_noNbr extends Simulation {
 //        potentialBoundary.setActive(0,false,true);
 //        potentialBoundary.setActive(1,false,true);
         
-        integrator.addIntervalListener(new PhaseImposePbc(phase));
+        integrator.addListener(new PhaseImposePbc(phase));
         integrator.setNullPotential(new P1HardPeriodic(space));
         integrator.addPhase(phase);
 //        integrator.setIsothermal(true);

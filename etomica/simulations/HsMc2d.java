@@ -45,7 +45,7 @@ public class HsMc2d extends Simulation {
 	    meterCycles = new DataSourceCountSteps();
 
         integrator.addPhase(phase);
-        integrator.addIntervalListener(new PhaseImposePbc(phase));
+        integrator.addListener(new PhaseImposePbc(phase));
 
 //	    LatticeRenderer.ColorSchemeCell colorSchemeCell = new LatticeRenderer.ColorSchemeCell();
 //	    display.setColorScheme(colorSchemeCell);

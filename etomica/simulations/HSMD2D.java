@@ -45,7 +45,6 @@ public class HSMD2D extends Simulation {
 
         integrator = new IntegratorHard(potentialMaster);
         integrator.setIsothermal(false);
-        integrator.addIntervalListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
         integrator.addListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
         integrator.setTimeStep(0.01);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
@@ -75,7 +74,7 @@ public class HSMD2D extends Simulation {
 //		elementCoordinator.go();
         //explicit implementation of elementCoordinator activities
         phase = new Phase(this);
-        integrator.addIntervalListener(new NeighborCellManager(phase,15));
+        integrator.addListener(new NeighborCellManager(phase,15));
         integrator.addPhase(phase);
     }
     

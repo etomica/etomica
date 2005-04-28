@@ -5,7 +5,7 @@ package etomica;
  * from an integrator.
  */
 
-public interface IntegratorIntervalListener {
+public interface IntegratorIntervalListener extends IntegratorListener {
     /**
      * Action performed by the listener when integrator fires its interval event.
      */

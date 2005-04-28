@@ -10,7 +10,7 @@ package etomica;
 
 /*
  * History
- * Created on Apr 26, 2005 by kofke
+ * Created on Apr 27, 2005 by kofke
  */
 public class IntegratorEvent {
 
@@ -24,9 +24,12 @@ public class IntegratorEvent {
     private final Type type;
     private Integrator source;
 
-    public IntegratorEvent(Integrator source, Type t) {
+    /**
+     * 
+     */
+    IntegratorEvent(Integrator source, Type type) {
         this.source = source;
-        type = t;
+        this.type = type;
     }
 
     public Type type() {
@@ -52,4 +55,5 @@ public class IntegratorEvent {
             return choices;
         }
     }
+
 }

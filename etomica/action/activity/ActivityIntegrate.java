@@ -8,7 +8,7 @@ import etomica.Activity;
 import etomica.Debug;
 import etomica.Default;
 import etomica.Integrator;
-import etomica.IntegratorEvent;
+import etomica.IntegratorNonintervalEvent;
 import etomica.IntegratorIntervalEvent;
 
 /**
@@ -37,7 +37,7 @@ public class ActivityIntegrate extends Activity {
      * not be called directly, but instead is called by the instance's actionPerformed method.
      */
 	public void run() {
-        integrator.fireEvent(new IntegratorEvent(integrator, IntegratorEvent.START));
+        integrator.fireNonintervalEvent(new IntegratorNonintervalEvent(integrator, IntegratorNonintervalEvent.START));
 	    integrator.initialize();
         int stepCount = 0;
         int iieCount = interval;//changed from "interval + 1"
@@ -58,7 +58,7 @@ public class ActivityIntegrate extends Activity {
             }
             stepCount++;
         }//end of while loop
-        integrator.fireEvent(new IntegratorEvent(integrator, IntegratorIntervalEvent.DONE));
+        integrator.fireNonintervalEvent(new IntegratorNonintervalEvent(integrator, IntegratorIntervalEvent.DONE));
 	}
 
 	/**

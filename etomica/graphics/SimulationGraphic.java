@@ -74,7 +74,7 @@ public class SimulationGraphic implements SimulationContainer {
              Phase phase = (Phase)iterator.next();
              DisplayPhase display = new DisplayPhase(phase);
              add(display);
-             if(integrator != null) integrator.addIntervalListener(new IntervalActionAdapter(display));
+             if(integrator != null) integrator.addListener(new IntervalActionAdapter(display));
          }
          
      }

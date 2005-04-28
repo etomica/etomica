@@ -239,9 +239,9 @@ public class SimulationVirialOS extends SimulationGraphic {
 		plots.setDataSources(sim.getMeter().allMeters());
 		plots.addDataSources(new DataSource[] {positive.getMeter(), 
 												negative.getMeter()});
-		sim.integrator().addIntervalListener(plots);
-		sim.integrator().addIntervalListener(meterCluster);
-		sim.integrator().addIntervalListener(bHistory);
+		sim.integrator().addListener(plots);
+		sim.integrator().addListener(meterCluster);
+		sim.integrator().addListener(bHistory);
 		plotSimulation.elementCoordinator.go();
 		plotSimulation.makeAndDisplayFrame();
 //		javax.swing.JFrame frame = new javax.swing.JFrame();

@@ -40,7 +40,6 @@ public class TestHSMD3DOld extends Simulation {
         Default.BOX_SIZE = 14.4573*Math.pow((numAtoms/2000.0),1.0/3.0);
         ((PotentialMasterNbr)potentialMaster).setNCells((int)(Default.BOX_SIZE/neighborRangeFac));
         integrator = new IntegratorHard(potentialMaster);
-        integrator.addIntervalListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
         integrator.addListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
         integrator.setTimeStep(0.01);
         integrator.setIsothermal(true);

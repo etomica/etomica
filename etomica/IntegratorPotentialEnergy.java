@@ -6,7 +6,7 @@ import etomica.units.Dimension;
 /**
  * Acts as a DataSource to retrieve the energy from the integrator 
  */
-public class IntegratorPotentialEnergy implements DataSource, IntegratorListener {
+public class IntegratorPotentialEnergy implements DataSource, IntegratorNonintervalListener {
 
     public IntegratorPotentialEnergy(Integrator aIntegrator) {
         integrator = aIntegrator;
@@ -24,7 +24,7 @@ public class IntegratorPotentialEnergy implements DataSource, IntegratorListener
         return integrator.getPhase().length;
     }
 
-    public void integratorAction(IntegratorEvent evt) {
+    public void nonintervalAction(IntegratorNonintervalEvent evt) {
         if (evt.type() == IntegratorIntervalEvent.DONE) {
             double[] currentPE = integrator.getPotentialEnergy();
             Phase[] phase = integrator.getPhase();

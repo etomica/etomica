@@ -9,10 +9,10 @@ import etomica.AtomPair;
 import etomica.AtomSet;
 import etomica.Debug;
 import etomica.Integrator;
-import etomica.IntegratorEvent;
+import etomica.IntegratorNonintervalEvent;
 import etomica.IntegratorIntervalEvent;
 import etomica.IntegratorIntervalListener;
-import etomica.IntegratorListener;
+import etomica.IntegratorNonintervalListener;
 import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Potential;
@@ -38,7 +38,7 @@ import etomica.utility.Arrays;
  * via a call to the calculate method of PotentialMasterNbr, passing a 
  * PotentialCalculationCellAssign instance as the PotentialCalculation.  
  */
-public class NeighborManager implements IntegratorListener, IntegratorIntervalListener {
+public class NeighborManager implements IntegratorNonintervalListener, IntegratorIntervalListener {
 
 	/**
 	 * Configures instance for use by the given PotentialMaster.
@@ -62,8 +62,8 @@ public class NeighborManager implements IntegratorListener, IntegratorIntervalLi
 	/* (non-Javadoc)
 	 * @see etomica.Integrator.IntervalListener#intervalAction(etomica.Integrator.IntervalEvent)
 	 */
-    public void integratorAction(IntegratorEvent evt) {
-		if((evt.type().mask & (IntegratorEvent.START.mask | IntegratorEvent.INITIALIZE.mask)) != 0) {
+    public void nonintervalAction(IntegratorNonintervalEvent evt) {
+		if((evt.type().mask & (IntegratorNonintervalEvent.START.mask | IntegratorNonintervalEvent.INITIALIZE.mask)) != 0) {
             Phase[] phases = ((Integrator)evt.getSource()).getPhase();
             IteratorDirective idUp = new IteratorDirective();
             for (int i=0; i<phases.length; i++) {

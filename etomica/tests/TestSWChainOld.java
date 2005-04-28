@@ -54,7 +54,6 @@ public class TestSWChainOld extends Simulation {
         integrator.setTimeStep(0.006);
         integrator.setIsothermal(true);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        integrator.addIntervalListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
         integrator.addListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
         getController().addAction(activityIntegrate);
         activityIntegrate.setMaxSteps(500000/numMolecules);

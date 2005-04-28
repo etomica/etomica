@@ -146,7 +146,7 @@ public class HSMD2D_NEW extends SimulationGraphic  {
 		display.setColorScheme(new MyColorScheme());
 		MyAction action = new MyAction();
 		DeviceButton button = new DeviceButton(action);
-		integrator.addIntervalListener(action);
+		integrator.addListener(action);
 		DeviceSlider speedSlider = new DeviceSlider(new MyModifier());
 		speedSlider.setMinimum(0.0);
 		speedSlider.setMaximum(200.0);

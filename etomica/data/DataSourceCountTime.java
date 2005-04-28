@@ -3,10 +3,10 @@ package etomica.data;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
-import etomica.IntegratorEvent;
+import etomica.IntegratorNonintervalEvent;
 import etomica.IntegratorIntervalEvent;
 import etomica.IntegratorIntervalListener;
-import etomica.IntegratorListener;
+import etomica.IntegratorNonintervalListener;
 import etomica.integrator.IntegratorMD;
 import etomica.units.Dimension;
 import etomica.units.Picosecond;
@@ -97,7 +97,7 @@ public final class DataSourceCountTime extends DataSourceAdapter implements
 	public synchronized void setIntegrator(IntegratorMD[] integrator) {
 		//remove existing counters (if any) as listeners to their integrators
 		for (int i = 0; i < timer.length; i++) {
-			timer[i].integrator.removeIntervalListener(timer[i]);
+			timer[i].integrator.removeListener(timer[i]);
 		}
 		//make new counters for the integrators
 		timer = new MyTimer[integrator.length];
@@ -145,12 +145,11 @@ public final class DataSourceCountTime extends DataSourceAdapter implements
 	private MyTimer[] timer = new MyTimer[0];
 
 	//inner class used to handle the counting for each integrator.
-	private static class MyTimer implements IntegratorListener, IntegratorIntervalListener {
+	private static class MyTimer implements IntegratorNonintervalListener, IntegratorIntervalListener {
 
 		MyTimer(IntegratorMD integrator) {
 			this.integrator = integrator;
-            integrator.addListener(this);
-			integrator.addIntervalListener(this);
+			integrator.addListener(this);
 		}
 
 		/**
@@ -163,7 +162,7 @@ public final class DataSourceCountTime extends DataSourceAdapter implements
 			elapsedTime += evt.getInterval() * integrator.getTimeStep();
         }
         
-        public void integratorAction(IntegratorEvent evt) {
+        public void nonintervalAction(IntegratorNonintervalEvent evt) {
 			if(evt.type() == IntegratorIntervalEvent.START) {
 				elapsedTime = 0.0;
 			}

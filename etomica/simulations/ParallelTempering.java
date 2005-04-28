@@ -80,7 +80,7 @@ public class ParallelTempering extends SimulationGraphic {
 			integrator[i] = new IntegratorMC(integratorPT);
 			phase[i].setIntegrator(integrator[i]);
 			integrator[i].setTemperature(t);
-			integrator[i].addIntervalListener(new PhaseImposePbc());
+			integrator[i].addListener(new PhaseImposePbc());
             
 			MCMoveAtom moveAtom = new MCMoveAtom(integrator[i]);
             

@@ -8,10 +8,10 @@ import java.util.Locale;
 import etomica.Action;
 import etomica.Default;
 import etomica.Integrator;
-import etomica.IntegratorEvent;
+import etomica.IntegratorNonintervalEvent;
 import etomica.IntegratorIntervalEvent;
 import etomica.IntegratorIntervalListener;
-import etomica.IntegratorListener;
+import etomica.IntegratorNonintervalListener;
 import etomica.Simulation;
 import etomica.integrator.IntegratorHard;
 import etomica.utility.NameMaker;
@@ -29,7 +29,7 @@ import etomica.utility.NameMaker;
  */
 
 public abstract class LoggerAbstract implements IntegratorIntervalListener,
-                                                IntegratorListener,
+                                                IntegratorNonintervalListener,
                                                java.io.Serializable {
     
     public LoggerAbstract(){
@@ -52,7 +52,7 @@ public abstract class LoggerAbstract implements IntegratorIntervalListener,
      */
     public void setIntegrator(Integrator integratorNew) {
         if(integrator != null){
-            integrator.removeIntervalListener(this);
+            integrator.removeListener(this);
             if(integrator instanceof IntegratorHard && this instanceof IntegratorHard.CollisionListener) 
 	            ((IntegratorHard)integrator).removeCollisionListener((IntegratorHard.CollisionListener)this);
 	    }
@@ -60,7 +60,6 @@ public abstract class LoggerAbstract implements IntegratorIntervalListener,
         this.integrator = integratorNew;
         if(integrator == null) return;
         
-        integrator.addIntervalListener(this);
         integrator.addListener(this);
         if(integrator instanceof IntegratorHard && this instanceof IntegratorHard.CollisionListener) 
 	            ((IntegratorHard)integrator).addCollisionListener((IntegratorHard.CollisionListener)this);
@@ -83,7 +82,7 @@ public abstract class LoggerAbstract implements IntegratorIntervalListener,
     /**
      * Close file when integrator is done.
      */
-    public void integratorAction(IntegratorEvent evt){
+    public void nonintervalAction(IntegratorNonintervalEvent evt){
         if(evt.type() == IntegratorIntervalEvent.DONE) closeFile(); //close the file when DONE.
     }
     

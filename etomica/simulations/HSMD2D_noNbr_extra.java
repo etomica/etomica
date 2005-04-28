@@ -43,7 +43,7 @@ public class HSMD2D_noNbr_extra extends Simulation {
 	    P2HardSphere potential = new P2HardSphere(space);
 	    potentialMaster.setSpecies(potential,new Species[]{species,species});
         
-        integrator.addIntervalListener(new PhaseImposePbc(phase));
+        integrator.addListener(new PhaseImposePbc(phase));
         integrator.addPhase(phase);
         
         MeterPressureHard pressureMeter = new MeterPressureHard(integrator);

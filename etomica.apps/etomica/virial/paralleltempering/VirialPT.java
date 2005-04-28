@@ -124,7 +124,7 @@ public class VirialPT extends SimulationGraphic {
 			meterClusterTable.setWhichValues(new DataSource.ValueType[] {MeterAbstract.CURRENT, MeterAbstract.AVERAGE, MeterAbstract.ERROR});
 			meterClusterTable.setUpdateInterval(1000);
 			meterClusterTable.setPrecision(5);
-			integratorPT.addIntervalListener(meterClusterTable);
+			integratorPT.addListener(meterClusterTable);
           
 			integratorPT.addIntegrator(integrator[i]);
  

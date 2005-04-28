@@ -68,7 +68,7 @@ public class MediatorGraphic extends Mediator {
                 for(Iterator ip=mediator.parentSimulation().getIntegratorList().iterator(); ip.hasNext(); ) {
                     Integrator integrator = (Integrator)ip.next();
                     if(integrator.wasAdded())  {
-                        integrator.addIntervalListener(display);
+                        integrator.addListener(display);
                         break;
                     }
                 }
@@ -81,7 +81,7 @@ public class MediatorGraphic extends Mediator {
                 firstIntegrator = false;
                 for(Iterator ip=((SimulationGraphic)mediator.parentSimulation()).displayList().iterator(); ip.hasNext(); ) {
                     Display display = (Display)ip.next();
-                    if(display.wasAdded()) integrator.addIntervalListener(display);
+                    if(display.wasAdded()) integrator.addListener(display);
                 }
             }
         }//end of Default

@@ -2,9 +2,9 @@ package etomica.integrator;
 
 import etomica.Action;
 import etomica.Integrator;
-import etomica.IntegratorEvent;
+import etomica.IntegratorNonintervalEvent;
 import etomica.IntegratorIntervalEvent;
-import etomica.IntegratorListener;
+import etomica.IntegratorNonintervalListener;
 
 /**
  * Adapter that causes an action to be performed as the result of an integrator
@@ -15,13 +15,13 @@ import etomica.IntegratorListener;
 /*
  * History Created on Feb 19, 2005 by kofke
  */
-public class IntegratorActionAdapter implements IntegratorListener {
+public class NonintervalActionAdapter implements IntegratorNonintervalListener {
 
     /**
      * Creates adapter such that given action is performed in response to
      * interval events from the given integrator.
      */
-    public IntegratorActionAdapter(Action action, Integrator integrator) {
+    public NonintervalActionAdapter(Action action, Integrator integrator) {
         this(action);
         integrator.addListener(this);
     }
@@ -29,10 +29,10 @@ public class IntegratorActionAdapter implements IntegratorListener {
     /**
      * Creates adapter with integrator to be set later.
      */
-    public IntegratorActionAdapter(Action action) {
+    public NonintervalActionAdapter(Action action) {
         this.action = action;
         setActive(true);
-        setEventTypes(IntegratorEvent.Type.choices);
+        setEventTypes(IntegratorNonintervalEvent.Type.choices);
     }
 
     /**
@@ -42,7 +42,7 @@ public class IntegratorActionAdapter implements IntegratorListener {
      * performed and the updateInterval counter is not incremented; this is also
      * the case if the active flag is false.
      */
-    public void integratorAction(IntegratorEvent evt) {
+    public void nonintervalAction(IntegratorNonintervalEvent evt) {
         if (active && ((evt.type().mask & eventMask) != 0)) {
             action.actionPerformed();
         }

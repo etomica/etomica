@@ -65,7 +65,7 @@ public class TestLJMC3D extends Simulation {
         ConfigurationFile config = new ConfigurationFile(space,"LJMC3D"+Integer.toString(numAtoms));
         phase.setConfiguration(config);
         integrator.addPhase(phase);
-        integrator.addIntervalListener(new PhaseImposePbc(phase));
+        integrator.addListener(new PhaseImposePbc(phase));
 //        WriteConfiguration writeConfig = new WriteConfiguration("LJMC3D"+Integer.toString(numAtoms),phase,1);
 //        integrator.addIntervalListener(writeConfig);
     }

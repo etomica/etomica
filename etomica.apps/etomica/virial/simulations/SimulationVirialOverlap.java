@@ -137,7 +137,7 @@ public class SimulationVirialOverlap extends Simulation {
         else {
             accumulatorPumps[iPhase].setDataSinks(new AccumulatorRatioAverage[] {newAccumulator});
         }
-        integrators[iPhase].addIntervalListener(accumulatorAAs[iPhase]);
+        integrators[iPhase].addListener(accumulatorAAs[iPhase]);
         accumulatorAAs[iPhase].setActionInterval(1);
     }
 	

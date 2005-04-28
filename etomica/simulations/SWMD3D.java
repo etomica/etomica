@@ -102,7 +102,7 @@ public class SWMD3D extends Simulation {
     this.potentialMaster.setSpecies(potential,new Species[]{species,species});
 
     integrator.addPhase(phase);
-    integrator.addIntervalListener(new PhaseImposePbc(phase));
+    integrator.addListener(new PhaseImposePbc(phase));
 
     first = species.getAgent(phase).firstMolecule();
 
