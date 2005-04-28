@@ -91,7 +91,7 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
 		activityIntegrate.setDoSleep(true);
 		activityIntegrate.setSleepPeriod(1);
 		getController().addAction(activityIntegrate);
-		integratorHard1.addIntervalListener(new PhaseImposePbc(phase1));
+		integratorHard1.addListener(new PhaseImposePbc(phase1));
 	}
 
 	/**
