@@ -193,6 +193,7 @@ public class DCVGCMD extends Simulation {
         integratorDCV.setIntegrators(integratorMC, integrator);
         integratorDCV.setTemperature(Kelvin.UNIT.toSim(500.));
         integrator.setIsothermal(false);
+        integrator.setMeterTemperature(new MeterTemperature(speciesTube));
         //integrator.setSleepPeriod(1);
         integrator.setTimeStep(0.01);
         //integrator.setInterval(10);
