@@ -11,6 +11,8 @@ import etomica.action.AtomActionRandomizeVelocity;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterKineticEnergy;
+import etomica.data.meter.MeterScalar;
+import etomica.data.meter.MeterTemperature;
 import etomica.exception.MethodNotImplementedException;
 import etomica.space.ICoordinateKinetic;
 import etomica.units.Dimension;
@@ -31,6 +33,7 @@ public abstract class IntegratorMD extends Integrator {
         meterKE = new MeterKineticEnergy();
         atomActionRandomizeVelocity = new AtomActionRandomizeVelocity();
         atomActionRandomizeVelocity.setTemperature(temperature);
+        meterTemperature = new MeterTemperature();
     }
 
     /**
@@ -130,8 +133,8 @@ public abstract class IntegratorMD extends Integrator {
             if (thermostat == VELOCITY_SCALING || !isothermal) {
                 for (int i=0; i<phase.length; i++) {
                     scaleMomenta(phase[i]);
-                    currentKineticEnergy[i] = temperature * (phase[i].atomCount() * phase[i].boundary().dimensions().D()) / 2.0;
                 }
+                currentKineticEnergy = meterKE.getData();
             }
             else if (thermostat == ANDERSEN) {
                 for (int i=0; i<phase.length; i++) {
@@ -143,7 +146,11 @@ public abstract class IntegratorMD extends Integrator {
                 for (int i=0; i<phase.length; i++) {
                     AtomList atomList = phase[i].speciesMaster.atomList;
                     int index = Simulation.random.nextInt(atomList.size());
+                    Atom a = atomList.get(index);
+                    double m = a.type.getMass();
+                    currentKineticEnergy[i] -= 0.5*m*((ICoordinateKinetic)a.coord).velocity().squared();
                     randomizeMomentum(atomList.get(index));
+                    currentKineticEnergy[i] += 0.5*m*((ICoordinateKinetic)a.coord).velocity().squared();
                 }
             }
             else if (thermostat == NOSE_HOOVER) {
@@ -181,30 +188,47 @@ public abstract class IntegratorMD extends Integrator {
     }
     
     /**
-    * Crude method to enforce constant-temperature constraint
-    * Scales momenta of all atoms by a constant factor so that 
-    * phase adheres to setpoint temperature.  The state of the 
-    * integrator needs to be updated after calling this method.
-    * @return the factor velocities were scaled by 
-    */
+     * Crude method to enforce constant-temperature constraint
+     * Scales momenta of all atoms by a constant factor so that 
+     * phase adheres to setpoint temperature.  The state of the 
+     * integrator needs to be updated after calling this method.
+     * @return the factor velocities were scaled by 
+     */
     protected double scaleMomenta(Phase aPhase) {
         atomIterator.setPhase(aPhase);
         atomIterator.reset();
         // calculate current kinetic temperature
-        double t = 2.0*meterKE.getDataAsScalar(aPhase) / (aPhase.atomCount() * aPhase.space().D());
+        double t = meterTemperature.getDataAsScalar(aPhase);
         if (t == temperature) return 1.0;
+        double s = Math.sqrt(temperature / t);
+        double scale = s;
         if (t == 0) {
             randomizeMomenta(aPhase);
-            t = 2.0*meterKE.getDataAsScalar(aPhase) / (aPhase.atomCount() * aPhase.space().D());
+            t = meterTemperature.getDataAsScalar(aPhase);
+            s = Math.sqrt(temperature / t);
         }
-        double s = Math.sqrt(temperature / t);
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
             ((ICoordinateKinetic)a.coord).velocity().TE(s); //scale momentum
         }
-        return s;
+        return scale;
     }
 
+    /**
+     * returns the temperature meter used for velocity rescaling.
+     */
+    public MeterScalar getMeterTemperature() {
+        return meterTemperature;
+    }
+    /**
+     * Sets the temperature meter used to calculate temperature for
+     * velocity rescaling.  You only need to call this method if 
+     * the standard MeterTemperature won't work.
+     */
+    public void setMeterTemperature(MeterScalar meter) {
+        meterTemperature = meter;
+    }
+    
     /**
      * Elementary time step for the MD simulation
      */
@@ -215,6 +239,7 @@ public abstract class IntegratorMD extends Integrator {
     private int thermostatCount, thermostatInterval;
     protected MeterKineticEnergy meterKE;
     private AtomActionRandomizeVelocity atomActionRandomizeVelocity;
+    private MeterScalar meterTemperature;
     
 }//end of IntegratorMD
     
