@@ -1,137 +1,125 @@
 package etomica.junit;
 
-import junit.framework.TestCase;
-import etomica.Atom;
-import etomica.AtomIterator;
-import etomica.AtomsetIterator;
-import etomica.Phase;
-import etomica.Simulation;
-import etomica.Species;
-import etomica.SpeciesSpheresMono;
-import etomica.atom.AtomLinker;
+import java.util.Collections;
+import java.util.LinkedList;
+
+import etomica.*;
 import etomica.atom.AtomList;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorList;
+import junit.framework.*;
 
 /**
- * @author aawalker
+ * @author KMB
  *
  */
-abstract class IteratorTest extends TestCase {
-	
-	protected Simulation sim;
-	protected Lister[] lister;
-	protected Species species1,species2,species3;
-	protected int nMolecules=15;
-	protected int nAtoms=3;
-	protected int nLists=8; //minimum 8
-	protected Phase phase;
-	protected Atom basis1,basis2;
-	protected AtomPair pairBasis;
-	protected AtomList atomList,atomList1,atomList2;
-	protected AtomLinker.Tab header;
-	protected AtomLinker firstLinker1,lastLinker1,midLinker1,firstLinker2,lastLinker2,midLinker2;
-	protected Atom first1,middle1,last1,first2,middle2,last2,outsideAtom;
-	protected int mid1,mid2;
-	
-	/**
-	 * This method is called before any test is run and sets up the basics of the
-	 * etomica simulation and testing elements.
-	 */
-	protected void setUp() {
-		sim = new Simulation();
-		phase = new Phase();
-		species1 = new SpeciesSpheresMono(nMolecules);
-		species2 = new SpeciesSpheresMono(nMolecules);
-		species3 = new SpeciesSpheresMono(1);
-		sim.elementCoordinator.go();
-		lister = Lister.listerArray(nLists);
-		basis1 = species1.getAgent(phase);
-		basis2 = species2.getAgent(phase);
-		pairBasis = new AtomPair(basis1,basis2);
-		atomList = phase.speciesMaster.atomList;
-		atomList1 = ((AtomTreeNodeGroup)basis1.node).childList;
-		atomList2 = ((AtomTreeNodeGroup)basis2.node).childList;
-		first1 = atomList1.getFirst();
-		last1 = atomList1.getLast();
-		mid1=atomList1.size()/2;
-		middle1 = atomList1.get(mid1);
-		first2 = atomList2.getFirst();
-		last2 = atomList2.getLast();
-		mid2 = atomList2.size()/2;
-		middle2 = atomList2.get(mid2);
-		header = atomList.header;
-		firstLinker1 = atomList1.firstEntry();
-		lastLinker1 = atomList1.lastEntry();
-		midLinker1 = atomList1.entry(mid1);
-		firstLinker2 = atomList2.firstEntry();
-		lastLinker2 = atomList2.lastEntry();
-		midLinker2 = atomList2.entry(mid2);
-		outsideAtom = species3.getAgent(phase).firstMolecule();
-	}
-	
+public abstract class IteratorTest extends TestCase {
+
 	/**
 	 * Clears all of the lists.
-	 */
-		protected void clearLists() {
-			for (int i=0;i<nLists;i++) {
+	*/ 
+		public void clearLists(Lister[] lister) {
+			for (int i=0;i<lister.length;i++) {
 				lister[i].list.clear();
 			}
 		}
-	
+		
 	/**
 	 * Prints all of the lists.
 	 */
-		protected void printLists() {
-			for (int i=0;i<nLists;i++) {
+		public void printLists(Lister[] lister) {
+			for (int i=0;i<lister.length;i++) {
 				System.out.println(lister[i].list);
 			}
 			System.out.println();
 		}
+
+/**
+ * this method tests the different methods associated with a list iterator,
+ * such as hasNext, next, contains, size, etc.
+ * @param iterator
+ * @return
+ */	
+	public java.util.LinkedList generalIteratorMethodTests(AtomIterator iterator) {
+		// initialize lists here with code or separate setUp method
+		Lister[] lister = Lister.listerArray(4);
+		iterator.allAtoms(lister[0]);
+		iterator.allAtoms(lister[2]);
 		
-		public static java.util.LinkedList generalIteratorTest(AtomsetIterator iterator) {
-			Lister[] lister = Lister.listerArray(4);
-			iterator.allAtoms(lister[0]);
-			
-			AtomIterator atomIterator = (iterator instanceof AtomIterator) ? (AtomIterator)iterator : null;
-			
-			iterator.reset();
-			while(iterator.hasNext()) {
-				Atom[] peekAtom = iterator.peek();
-				assertTrue(java.util.Arrays.equals(peekAtom, iterator.next()));
-				lister[1].actionPerformed(peekAtom);
-			}
-			
-			//test that allAtoms and hasNext/next give same set of iterates
-			assertEquals(lister[0].list, lister[1].list);
-			
-			//test operation of unset method
-			iterator.reset();
-			iterator.unset();
-			assertFalse(iterator.hasNext());
-			assertNull(iterator.next()[0]);
-			assertFalse(iterator.hasNext());
-			if(atomIterator != null) assertNull(atomIterator.nextAtom());
-			assertFalse(iterator.hasNext());
-			
-			//test size method
-			assertEquals(iterator.size(), lister[0].list.size());
-			
-			//test contains method
-			if(atomIterator != null) {
-				AtomList atomList = new AtomList(atomIterator);
-				AtomIteratorList listIterator = new AtomIteratorList(atomList);
-				listIterator.reset();
-				while(listIterator.hasNext()) {
-					assertTrue(iterator.contains(listIterator.next()));
-				}
-				assertFalse(iterator.contains(null));
-			}
-			
-			//test nBody
-			iterator.reset();
-			assertEquals(iterator.next().length, iterator.nBody());
-						
-			return lister[0].list;
+		printLists(lister);
+		System.out.println("Just printed the lists at the beginning of generalIteratorMethodTests");
+// 		test whether iterator does same thing twice		
+		assertEquals(lister[0].list, lister[2].list);
+//		clearLists(lister);
+
+		iterator.reset();
+		while(iterator.hasNext()) {
+			AtomSet peekAtom = iterator.peek();
+			assertEquals(peekAtom, iterator.next());
+			lister[1].actionPerformed(peekAtom);
 		}
+		
+		iterator.reset();
+		while(iterator.hasNext()) {
+			lister[3].actionPerformed(iterator.nextAtom());
+		}
+		assertEquals(lister[0].list, lister[3].list);
+		
+		//test that allAtoms and hasNext/next give same set of iterates
+		assertEquals(lister[0].list, lister[1].list);
+		System.out.println("Just tested for allAtoms and hasNext/next");
+		printLists(lister);
+//		clearLists(lister);
+		
+		//test operation of unset method
+		iterator.reset();
+		iterator.unset();
+		assertFalse(iterator.hasNext());
+//		assertNull(iterator.next()[0]);
+		assertNull(iterator.next());
+		assertFalse(iterator.hasNext());
+		for(int i=0; i<5; i++) {
+			if(iterator != null) assertNull(iterator.nextAtom());
+			assertFalse(iterator.hasNext());
+		}
+		System.out.println("Just tested unset method");
+		
+		//test size method
+		assertEquals(iterator.size(), lister[0].list.size());
+		System.out.println("Just tested size method");
+		
+		//test contains method
+		if(iterator != null) {
+			AtomList atomList = new AtomList(iterator);
+			AtomIteratorList listIterator = new AtomIteratorList(atomList);
+			listIterator.reset();
+			while(listIterator.hasNext()) {
+				AtomSet nextAtom=listIterator.next();
+				System.out.println("nextAtom = "+ nextAtom);
+				assertTrue(iterator.contains(nextAtom));
+				System.out.println("Contains works with hasNext method, contains equals "+ iterator.contains(nextAtom));
+			}
+			assertFalse(iterator.contains(null));
+//			System.out.println("Contains equals "+ iterator.contains(nextAtom));
+
+		}
+		System.out.println("Just tested contains method");
+		
+		//test nBody
+		iterator.reset();
+
+//		assertEquals(iterator.next().length, iterator.nBody());
+
+// 		Error occurred here, kmb 4/19/05		
+// 		Added if iterator.hasNext conditional to handle null pointer problems when
+// 		the iterator was empty.  kmb 4/27/05
+		if (iterator.hasNext()) {
+			assertEquals(iterator.next().count(), iterator.nBody());
+		}
+		
+		System.out.println("Just tested nBody method");
+		
+		return lister[0].list;
+	}
+
+	
 }
