@@ -1,125 +1,149 @@
 package etomica.junit;
 
-import java.util.Collections;
-import java.util.LinkedList;
-
-import etomica.*;
-import etomica.atom.AtomList;
-import etomica.atom.iterator.AtomIteratorList;
-import junit.framework.*;
+import junit.framework.TestCase;
+import etomica.Atom;
+import etomica.AtomIterator;
+import etomica.AtomSet;
+import etomica.AtomsetIterator;
 
 /**
+ * Provides library methods to test the basic functioning of an iterator.
+ * 
  * @author KMB
- *
+ *  
  */
-public abstract class IteratorTest extends TestCase {
+public class IteratorTest extends TestCase {
 
-	/**
-	 * Clears all of the lists.
-	*/ 
-		public void clearLists(Lister[] lister) {
-			for (int i=0;i<lister.length;i++) {
-				lister[i].list.clear();
-			}
-		}
-		
-	/**
-	 * Prints all of the lists.
-	 */
-		public void printLists(Lister[] lister) {
-			for (int i=0;i<lister.length;i++) {
-				System.out.println(lister[i].list);
-			}
-			System.out.println();
-		}
+    /**
+     * Declare constructor private to prevent instantiation.
+     */
+    private IteratorTest() {
+    }
 
-/**
- * this method tests the different methods associated with a list iterator,
- * such as hasNext, next, contains, size, etc.
- * @param iterator
- * @return
- */	
-	public java.util.LinkedList generalIteratorMethodTests(AtomIterator iterator) {
-		// initialize lists here with code or separate setUp method
-		Lister[] lister = Lister.listerArray(4);
-		iterator.allAtoms(lister[0]);
-		iterator.allAtoms(lister[2]);
-		
-		printLists(lister);
-		System.out.println("Just printed the lists at the beginning of generalIteratorMethodTests");
-// 		test whether iterator does same thing twice		
-		assertEquals(lister[0].list, lister[2].list);
-//		clearLists(lister);
+    /**
+     * Clears the list of each lister in the array.
+     */
+    public static void clearLists(Lister[] lister) {
+        for (int i = 0; i < lister.length; i++) {
+            lister[i].list.clear();
+        }
+    }
 
-		iterator.reset();
-		while(iterator.hasNext()) {
-			AtomSet peekAtom = iterator.peek();
-			assertEquals(peekAtom, iterator.next());
-			lister[1].actionPerformed(peekAtom);
-		}
-		
-		iterator.reset();
-		while(iterator.hasNext()) {
-			lister[3].actionPerformed(iterator.nextAtom());
-		}
-		assertEquals(lister[0].list, lister[3].list);
-		
-		//test that allAtoms and hasNext/next give same set of iterates
-		assertEquals(lister[0].list, lister[1].list);
-		System.out.println("Just tested for allAtoms and hasNext/next");
-		printLists(lister);
-//		clearLists(lister);
-		
-		//test operation of unset method
-		iterator.reset();
-		iterator.unset();
-		assertFalse(iterator.hasNext());
-//		assertNull(iterator.next()[0]);
-		assertNull(iterator.next());
-		assertFalse(iterator.hasNext());
-		for(int i=0; i<5; i++) {
-			if(iterator != null) assertNull(iterator.nextAtom());
-			assertFalse(iterator.hasNext());
-		}
-		System.out.println("Just tested unset method");
-		
-		//test size method
-		assertEquals(iterator.size(), lister[0].list.size());
-		System.out.println("Just tested size method");
-		
-		//test contains method
-		if(iterator != null) {
-			AtomList atomList = new AtomList(iterator);
-			AtomIteratorList listIterator = new AtomIteratorList(atomList);
-			listIterator.reset();
-			while(listIterator.hasNext()) {
-				AtomSet nextAtom=listIterator.next();
-				System.out.println("nextAtom = "+ nextAtom);
-				assertTrue(iterator.contains(nextAtom));
-				System.out.println("Contains works with hasNext method, contains equals "+ iterator.contains(nextAtom));
-			}
-			assertFalse(iterator.contains(null));
-//			System.out.println("Contains equals "+ iterator.contains(nextAtom));
+    /**
+     * Prints all of the lists.
+     */
+    public static void printLists(Lister[] lister) {
+        if (UnitTest.VERBOSE) {
+            for (int i = 0; i < lister.length; i++) {
+                System.out.println(lister[i].list);
+            }
+            System.out.println();
+        }
+    }
+    
+    private static void print(String string) {
+        if(UnitTest.VERBOSE) System.out.println(string);
+    }
 
-		}
-		System.out.println("Just tested contains method");
-		
-		//test nBody
-		iterator.reset();
+    /**
+     * Tests all the elementary methods of an atomset iterator. Methods tested are
+     * allAtoms, hasNext/next, peek, size, contains, nBody, unset, reset.  Suitable
+     * for use by any AtomsetIterator.  Tests nextAtom if iterator is instance
+     * of AtomIterator
+     * 
+     * @param iterator
+     *            an iterator in a condition to be tested; reset and iteration
+     *            will be performed repeatedly on the iterator
+     * @return a list of Lister instances for the atoms given by the iterator
+     */
+    public static java.util.LinkedList generalIteratorMethodTests(
+            AtomsetIterator iterator) {
+        Lister[] lister = Lister.listerArray(5);
 
-//		assertEquals(iterator.next().length, iterator.nBody());
+        //******* test of allAtoms
+        iterator.allAtoms(lister[0]);
+        iterator.allAtoms(lister[2]);
 
-// 		Error occurred here, kmb 4/19/05		
-// 		Added if iterator.hasNext conditional to handle null pointer problems when
-// 		the iterator was empty.  kmb 4/27/05
-		if (iterator.hasNext()) {
-			assertEquals(iterator.next().count(), iterator.nBody());
-		}
-		
-		System.out.println("Just tested nBody method");
-		
-		return lister[0].list;
-	}
+        printLists(lister);
+        print("Just printed the lists at the beginning of generalIteratorMethodTests");
+        assertEquals(lister[0].list, lister[2].list);
 
-	
+        //******* test of size
+        assertEquals(iterator.size(), lister[0].list.size());
+        print("Just tested size method");
+
+        AtomSet[] atoms = new AtomSet[lister[0].list.size()];
+        
+        //******* test of peek
+        iterator.reset();
+        int j=0;
+        while (iterator.hasNext()) {
+            AtomSet peekAtom = iterator.peek();
+            atoms[j++] = peekAtom;
+            assertEquals(peekAtom, iterator.next());
+            lister[1].actionPerformed(peekAtom);
+        }
+
+        //******* test of hasNext/next
+        iterator.reset();
+        while (iterator.hasNext()) {
+            lister[3].actionPerformed(iterator.next());
+        }
+        assertEquals(lister[0].list, lister[3].list);
+
+        //******* test of nextAtom
+        if(iterator instanceof AtomIterator) {
+            iterator.reset();
+            int i = 0;
+            while(iterator.hasNext()) {
+                Atom next = ((AtomIterator)iterator).nextAtom();
+                assertEquals(next, atoms[i++]);
+            }
+        }
+        
+        //******* test that allAtoms and hasNext/next give same set of iterates
+        assertEquals(lister[0].list, lister[1].list);
+        print("Just tested for allAtoms and hasNext/next");
+        printLists(lister);
+
+        //******* test of unset
+        iterator.reset();
+        iterator.unset();
+        assertFalse(iterator.hasNext());
+        assertNull(iterator.next());
+        assertFalse(iterator.hasNext());
+        //******* test that next calls cannot cause hasNext to become true
+        //******* test that iterate is null for hasNext false
+        for (int i = 0; i < 5; i++) {
+            if (iterator != null)
+                assertNull(iterator.next());
+            assertFalse(iterator.hasNext());
+        }
+        print("Just tested unset method");
+
+
+        //******* test of contains
+        if (iterator != null) {
+            for(int i=0; i<atoms.length; i++) {
+                AtomSet nextAtom = atoms[i];
+                print("nextAtom = " + nextAtom);
+                assertTrue(iterator.contains(nextAtom));
+                print("Contains works with hasNext method, contains equals "
+                                    + iterator.contains(nextAtom));
+            }
+            assertFalse(iterator.contains(null));
+        }
+        print("Just tested contains method");
+
+        //******* test of nBody
+        iterator.reset();
+        if (iterator.hasNext()) {
+            assertEquals(iterator.next().count(), iterator.nBody());
+        }
+
+        print("Just tested nBody method");
+
+        return lister[0].list;
+    }
+
 }

@@ -68,7 +68,7 @@ class Lister extends AtomsetActionAdapter implements AtomAction {
 	 */
 	public void actionPerformed(AtomSet a) {
 		String newString = "";
-		System.out.println("atom.length is: " + a.count());
+		if(UnitTest.VERBOSE) System.out.println("atom.length is: " + a.count());
 		for(int i=0; i<a.count()-1; i++) newString += a.getAtom(i).toString()+",";
 		if(a.count() > 0) newString += a.getAtom(a.count()-1).toString();
 

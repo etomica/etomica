@@ -1,18 +1,10 @@
 /*
  * Created on Oct 7, 2004
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 package etomica.junit;
-//import java.util.Collections;
-//import java.util.LinkedList;
 
-import etomica.*;
 import etomica.atom.iterator.AtomIteratorListDependent;
 import etomica.atom.iterator.AtomIteratorListSimple;
-import junit.framework.*;
-import java.util.*;
 
 
 
@@ -43,7 +35,7 @@ public class ListIteratorTestSimple extends ListIteratorTest {
  * AtomIteratorListSimple.
  */	
 	public void iteratorStateTests(AtomIteratorListDependent iterator) {
-		generalIteratorMethodTests(iterator);
+		IteratorTest.generalIteratorMethodTests(iterator);
 	}
 		
 

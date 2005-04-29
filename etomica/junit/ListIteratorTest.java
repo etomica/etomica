@@ -5,13 +5,12 @@
  * Window - Preferences - Java - Code Style - Code Templates
  */
 package etomica.junit;
-import java.util.LinkedList;
-
+import junit.framework.TestCase;
 import etomica.Atom;
-import etomica.atom.iterator.AtomIteratorListDependent;
+import etomica.Space;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
-import etomica.Space;
+import etomica.atom.iterator.AtomIteratorListDependent;
 import etomica.space3d.Space3D;
 
 /**
@@ -21,7 +20,7 @@ import etomica.space3d.Space3D;
  * Window - Preferences - Java - Code Style - Code Templates
  */
 
-public abstract class ListIteratorTest extends IteratorTest {
+public abstract class ListIteratorTest extends TestCase {
 	
 	protected int tabType1, tabType2;
 	private final AtomIteratorListDependent iterator;
@@ -48,8 +47,8 @@ public abstract class ListIteratorTest extends IteratorTest {
 //		listElements();
 		int nMolecules=0;
 		iterator.setList(atomList);
-		System.out.println("The size of the empty list is "+iterator.size());
-		System.out.println("The element in the empty list is "+atomList.getFirst());
+		if(UnitTest.VERBOSE) System.out.println("The size of the empty list is "+iterator.size());
+		if(UnitTest.VERBOSE) System.out.println("The element in the empty list is "+atomList.getFirst());
 		iteratorStateTests(iterator); 
 
 //		set zeroth element of array to null
@@ -61,22 +60,22 @@ public abstract class ListIteratorTest extends IteratorTest {
 */// 		added first atom; 1 element in list
 		atomList.add(new Atom(space));
 		nMolecules=++nMolecules;
-		System.out.println("The value of nMolecules is: "+nMolecules);
+		if(UnitTest.VERBOSE) System.out.println("The value of nMolecules is: "+nMolecules);
 		iterator.setList(atomList); // added during kmb3 list iterator testing 1/7/05
 		iteratorStateTests(iterator);  
 //		 added second atom; 2 elements in list
 		atomList.add(new Atom(space));
 		nMolecules=++nMolecules;
-		System.out.println("The value of nMolecules is: "+nMolecules);
+		if(UnitTest.VERBOSE) System.out.println("The value of nMolecules is: "+nMolecules);
 		iteratorStateTests(iterator);
 //		 adding eight atoms; 10 elements in list
 		for(int i=0; i<8; i++) {
 			atomList.add(new Atom(space));
 			nMolecules=++nMolecules;
-			System.out.println("The value of nMolecules is: "+nMolecules);
+			if(UnitTest.VERBOSE) System.out.println("The value of nMolecules is: "+nMolecules);
 		}
 		iteratorStateTests(iterator);
-		System.out.println("The size of the list: "+ iterator.size());
+		if(UnitTest.VERBOSE) System.out.println("The size of the list: "+ iterator.size());
 //		put a tab at the beginning of the list
 //		newTab = AtomLinker.newTab(atomList, tabType);
 		atomList.addFirst(AtomLinker.newTab(atomList, tabType1));
@@ -101,7 +100,7 @@ public abstract class ListIteratorTest extends IteratorTest {
 		newTab = AtomLinker.newTab(atomList, tabType2);
 		atomList.addBefore(newTab, atomList.entry(5));
 		iteratorStateTests(iterator);
-		System.out.println("The size of the list: "+ iterator.size());
+		if(UnitTest.VERBOSE) System.out.println("The size of the list: "+ iterator.size());
 
 		atomList.clear();
 		atomList.add(AtomLinker.newTab(atomList, tabType1));
