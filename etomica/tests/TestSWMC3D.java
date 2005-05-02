@@ -89,13 +89,15 @@ public class TestSWMC3D extends Simulation {
         double PE = data[AccumulatorAverage.AVERAGE.index]/numAtoms;
         System.out.println("PE/epsilon="+PE);
         double temp = sim.integrator.getTemperature();
-        double Cv = data[AccumulatorAverage.STANDARD_DEVIATION.index]/(temp*temp*numAtoms);
+        double Cv = data[AccumulatorAverage.STANDARD_DEVIATION.index]/temp;
+        Cv *= Cv/numAtoms;
         System.out.println("Cv/k="+Cv);
         
         if (Math.abs(PE+5.48) > 0.04) {
             System.exit(1);
         }
-        if (Math.abs(Cv-0.031) > 0.012) {
+        // actual value ~0.56
+        if (Math.abs(Cv-0.7) > 0.6) {
             System.exit(1);
         }
     }
