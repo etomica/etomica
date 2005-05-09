@@ -10,15 +10,15 @@ import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
 import etomica.SpeciesSpheresMono;
-import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.data.AccumulatorAverage;
-import etomica.data.DataAccumulator;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPressure;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.nbratom.cell.PotentialCalculationAgents;
+import etomica.nbratom.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.space3d.Space3D;
@@ -38,7 +38,7 @@ public class TestLJMC3D extends Simulation {
     public Controller controller;
 
     public TestLJMC3D(Space space, int numAtoms) {
-        super(space);
+        super(space,new PotentialMasterCell(space));
         space.setKinetic(false);
         Default.makeLJDefaults();
 	    integrator = new IntegratorMC(potentialMaster);
@@ -47,12 +47,12 @@ public class TestLJMC3D extends Simulation {
         integrator.addMCMove(mcMoveAtom);
         integrator.setEquilibrating(false);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setMaxSteps(100000000/numAtoms);
+        activityIntegrate.setMaxSteps(200000);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         species.setNMolecules(numAtoms);
 	    phase = new Phase(this);
-        phase.setDensity(0.7);
+        phase.setDensity(0.65);
         potential = new P2LennardJones(space);
         P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(potential);
         double truncationRadius = 3.0*potential.getSigma();
@@ -60,14 +60,19 @@ public class TestLJMC3D extends Simulation {
             throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*phase.boundary().dimensions().x(0));
         }
         potentialTruncated.setTruncationRadius(truncationRadius);
+        ((PotentialMasterCell)potentialMaster).setNCells((int)(3.0*phase.boundary().dimensions().x(0)/potentialTruncated.getRange()));
+        ((PotentialMasterCell)potentialMaster).setRange(potentialTruncated.getRange());
+        potentialTruncated.setCriterion(etomica.nbr.NeighborCriterion.ALL);
         potentialMaster.setSpecies(potentialTruncated, new Species[] {species, species});
+        integrator.addMCMoveListener(((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).makeMCMoveListener());
         
         ConfigurationFile config = new ConfigurationFile(space,"LJMC3D"+Integer.toString(numAtoms));
         phase.setConfiguration(config);
         integrator.addPhase(phase);
-        integrator.addListener(new PhaseImposePbc(phase));
+        ((PotentialMasterCell)potentialMaster).calculate(phase, new PotentialCalculationAgents());
+        ((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).assignCellAll();
 //        WriteConfiguration writeConfig = new WriteConfiguration("LJMC3D"+Integer.toString(numAtoms),phase,1);
-//        integrator.addIntervalListener(writeConfig);
+//        integrator.addListener(writeConfig);
     }
  
     public static void main(String[] args) {
@@ -81,7 +86,7 @@ public class TestLJMC3D extends Simulation {
         MeterPressure pMeter = new MeterPressure(sim.potentialMaster,sim.space);
         pMeter.setTemperature(sim.integrator.getTemperature());
         pMeter.setPhase(sim.phase);
-        DataAccumulator pAccumulator = new AccumulatorAverage();
+        AccumulatorAverage pAccumulator = new AccumulatorAverage();
         DataPump pPump = new DataPump(pMeter,pAccumulator);
         IntervalActionAdapter iaa = new IntervalActionAdapter(pPump,sim.integrator);
         iaa.setActionInterval(50);
