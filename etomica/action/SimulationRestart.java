@@ -24,7 +24,7 @@ public final class SimulationRestart extends SimulationActionAdapter {
     }
         
     /**
-     * this method is broken
+     * Resets phases, integrators, and accumulators.
      */
     public void actionPerformed() {
 
@@ -35,7 +35,7 @@ public final class SimulationRestart extends SimulationActionAdapter {
         
         for(Iterator iter=simulation.getIntegratorList().iterator(); iter.hasNext(); ) {
             Integrator integrator = (Integrator)iter.next();
-            integrator.initialize();
+            if(integrator.isInitialized()) integrator.initialize();
         }
         
         for(Iterator iter=simulation.getDataAccumulatorList().iterator(); iter.hasNext(); ) {

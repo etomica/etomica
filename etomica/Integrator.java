@@ -128,6 +128,10 @@ public abstract class Integrator implements java.io.Serializable {
         initialized = true;
         reset();
     }
+    
+    public boolean isInitialized() {
+        return initialized;
+    }
 
     protected void setup() {
         deployAgents();
