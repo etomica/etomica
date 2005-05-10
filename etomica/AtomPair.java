@@ -38,9 +38,9 @@ public class AtomPair implements AtomSet {
     }
     
     public boolean equals(AtomSet pair) {
-        return pair instanceof AtomPair
-                && ((AtomPair)pair).atom0 == atom0
-                && ((AtomPair)pair).atom1 == atom1;
+        return pair.count() == 2
+                && pair.getAtom(0) == atom0
+                && pair.getAtom(1) == atom1;
     }
     
     public String toString() {
