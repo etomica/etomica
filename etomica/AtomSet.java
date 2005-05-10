@@ -2,11 +2,8 @@ package etomica;
 
 
 /**
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- *
- * @author David Kofke
- *
+ * Interface for classes that represent a (typically small) collection
+ * of atoms.  Implemented in particular by Atom and AtomPair.
  */
 
 /*
@@ -21,8 +18,31 @@ public interface AtomSet {
      */
     public Atom getAtom(int i);
     
+    /**
+     * @return the number of atoms in the set
+     */
     public int count();
     
+    /**
+     * Element-by-element comparison of equality of this atom set with
+     * another.  Order of atoms is relevant.  Returns false if given atom set
+     * is null.
+     */
     public boolean equals(AtomSet atoms);
+    
+    /**
+     * A convenient instance of a zero-length atom set.
+     */
+    public static final AtomSet NULL = new AtomSet() {
+        public Atom getAtom(int i) {
+            throw new IllegalArgumentException("Cannot get an atom from a NULL AtomSet");
+        }
+        public int count() {
+            return 0;
+        }
+        public boolean equals(AtomSet atoms) {
+            return atoms == this;
+        }
+    };
     
 }
