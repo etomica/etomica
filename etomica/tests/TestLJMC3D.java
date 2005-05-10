@@ -109,14 +109,14 @@ public class TestLJMC3D extends Simulation {
         Cv *= Cv/numAtoms;
         System.out.println("Cv/k="+Cv);
         
-        if (Math.abs(Z-0.44) > 0.15) {
+        if (Math.abs(Z-0.11) > 0.07) {
             System.exit(1);
         }
-        if (Math.abs(PE+4.67) > 0.02) {
+        if (Math.abs(PE+4.355) > 0.02) {
             System.exit(1);
         }
         // actual average closer ~ 0.61
-        if (Math.abs(Cv-0.7) > 0.3) {
+        if (Math.abs(Cv-0.6) > 0.3) {
             System.exit(1);
         }
     }
