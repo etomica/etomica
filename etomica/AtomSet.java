@@ -41,7 +41,7 @@ public interface AtomSet {
             return 0;
         }
         public boolean equals(AtomSet atoms) {
-            return atoms == this;
+            return atoms.count() == 0;
         }
     };
     
