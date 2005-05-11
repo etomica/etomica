@@ -5,7 +5,9 @@ import etomica.AtomIterator;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
+import etomica.IntegratorEvent;
 import etomica.IntegratorIntervalEvent;
+import etomica.IntegratorNonintervalEvent;
 import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Simulation;
@@ -85,7 +87,17 @@ public class IntegratorPT extends IntegratorMC implements EtomicaElement {
 	    }
 	}
 	
-	
+    /**
+     * Fires non-interval event for this integrator, then instructs
+     * each sub-integrator to fire event.
+     */
+    public void fireNonintervalEvent(IntegratorNonintervalEvent ie) {
+        super.fireNonintervalEvent(ie);
+        for(int i=0; i<nIntegrators; i++) {
+            integrators[i].fireNonintervalEvent(ie);
+        }
+    }
+    
 	/**
      * Performs a Monte Carlo trial that attempts to swap the configurations
      * between two "adjacent" phases, or instructs all integrators to perform
