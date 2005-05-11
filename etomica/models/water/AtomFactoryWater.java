@@ -39,7 +39,7 @@ public class AtomFactoryWater extends AtomFactory {
         hFactory = new AtomFactoryMono(space, hType, AtomSequencerFactory.SIMPLE);
 		oFactory = new AtomFactoryMono(space, oType, AtomSequencerFactory.SIMPLE);
 
-		conformation = new ConfigurationWater(space); 
+		conformation = new ConformationWater(space); 
 	}
 
 	/**
