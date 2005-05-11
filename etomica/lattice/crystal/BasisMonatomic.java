@@ -14,8 +14,8 @@ public class BasisMonatomic implements Basis {
      * Creates a single-atom basis with the coordinate at the origin.
      * @param D the spatial dimension of the crystal
      */
-    public BasisMonatomic(int D) {
-        coordinates = new Vector[] {Space.makeVector(D)};
+    public BasisMonatomic(Space space) {
+        coordinates = new Vector[] {space.makeVector()};
     }
     	
 	/**

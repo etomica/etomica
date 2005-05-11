@@ -16,7 +16,7 @@ public class PrimitiveCubic extends Primitive implements Primitive2D, Primitive3
     //primitive vectors are stored internally at unit length.  When requested
     //from the vectors() method, copies are scaled to size and returned.
     //default size is 1.0
-    private double size;
+    private double cubicSize;
     
     public PrimitiveCubic(Space space) {
         this(space, 1.0);
@@ -25,7 +25,7 @@ public class PrimitiveCubic extends Primitive implements Primitive2D, Primitive3
         super(space); //also makes reciprocal
         //set up orthogonal vectors of unit size
         for(int i=0; i<D; i++) latticeVectors[i].setX(i, 1.0);
-        setSize(latticeConstant); //also sets reciprocal via update
+        setCubicSize(latticeConstant); //also sets reciprocal via update
     }
     /**
      * Constructor used by makeReciprocal method.
@@ -42,17 +42,17 @@ public class PrimitiveCubic extends Primitive implements Primitive2D, Primitive3
     
     //called by update method of superclass
     protected void updateReciprocal() {
-        ((PrimitiveCubic)reciprocal()).setSize(2.0*Math.PI/size);
+        ((PrimitiveCubic)reciprocal()).setCubicSize(2.0*Math.PI/cubicSize);
     }
     
-    public void setA(double a) {setSize(a);}
-    public double getA() {return size;}
+    public void setA(double a) {setCubicSize(a);}
+    public double getA() {return cubicSize;}
     
-    public void setB(double b) {setSize(b);}
-    public double getB() {return size;}
+    public void setB(double b) {setCubicSize(b);}
+    public double getB() {return cubicSize;}
         
-    public void setC(double c) {setSize(c);}
-    public double getC() {return size;}
+    public void setC(double c) {setCubicSize(c);}
+    public double getC() {return cubicSize;}
     
     public void setAlpha(double t) {}//no adjustment of angle permitted
     public double getAlpha() {return rightAngle;}
@@ -74,37 +74,40 @@ public class PrimitiveCubic extends Primitive implements Primitive2D, Primitive3
      * Returns a new PrimitiveCubic with the same size as this one.
      */
     public Primitive copy() {
-        return new PrimitiveCubic(space, size);
+        return new PrimitiveCubic(space, cubicSize);
     }
     
     //override superclass method to scale copy-vectors to current size
     protected Vector[] copyVectors() {
         for(int i=0; i<D; i++) {
             latticeVectorsCopy[i].E(latticeVectors[i]);
-            latticeVectorsCopy[i].TE(size);
+            latticeVectorsCopy[i].TE(cubicSize);
         }
         return latticeVectorsCopy;
     }
     /**
      * Sets the length of all primitive vectors to the given value.
      */
-    public void setSize(double size) {
-        if(immutable || size <= 0.0) return;
-        this.size = size;
+    public void setCubicSize(double cubicSize) {
+        if(immutable || cubicSize <= 0.0) return;
+        this.cubicSize = cubicSize;
+        for(int i=0; i<D; i++) {
+            size[i] = cubicSize;
+        }
         update();
     }
     /**
      * Returns the common length of all primitive vectors.
      */
-    public double getSize() {return size;}
+    public double getCubicSize() {return cubicSize;}
     
     public void scaleSize(double scale) {
-        setSize(scale*size);
+        setCubicSize(scale*cubicSize);
     }
 
     public int[] latticeIndex(Vector q) {
         for(int i=0; i<D; i++) {
-            double x = q.x(i)/size;
+            double x = q.x(i)/cubicSize;
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
         }
         return idx;
@@ -112,7 +115,7 @@ public class PrimitiveCubic extends Primitive implements Primitive2D, Primitive3
     
     public int[] latticeIndex(Vector q, int[] dimensions) {
         for(int i=0; i<D; i++) {
-            double x = q.x(i)/size;
+            double x = q.x(i)/cubicSize;
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
             while(idx[i] >= dimensions[i]) idx[i] -= dimensions[i];
             while(idx[i] < 0)              idx[i] += dimensions[i];
@@ -125,7 +128,7 @@ public class PrimitiveCubic extends Primitive implements Primitive2D, Primitive3
      * given by the size of the primitive vectors.
      */
     public Polytope wignerSeitzCell() {
-        return (D == 2) ? (Polytope)new Square(size) :  (Polytope)new Cube(size);
+        return (D == 2) ? (Polytope)new Square(cubicSize) :  (Polytope)new Cube(cubicSize);
     }
     
     /**
@@ -133,7 +136,7 @@ public class PrimitiveCubic extends Primitive implements Primitive2D, Primitive3
      * given by the size of the primitive vectors.
      */
     public Polytope unitCell() {
-        return (D == 2) ? (Polytope)new Square(size) :  (Polytope)new Cube(size);
+        return (D == 2) ? (Polytope)new Square(cubicSize) :  (Polytope)new Cube(cubicSize);
     }
     
     public String toString() {return "Cubic";}

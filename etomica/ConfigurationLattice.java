@@ -4,10 +4,13 @@ import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorListCompound;
-import etomica.lattice.CubicLattice;
+import etomica.lattice.Crystal;
 import etomica.lattice.IndexIteratorSequential;
 import etomica.lattice.IndexIteratorSizable;
+import etomica.lattice.LatticeCrystal;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.lattice.Primitive;
+import etomica.lattice.crystal.BasisMonatomic;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 
@@ -18,14 +21,16 @@ import etomica.space3d.Space3D;
  */
 public class ConfigurationLattice extends Configuration implements Atom.AgentSource {
 
-    public ConfigurationLattice(CubicLattice lattice) {
+    public ConfigurationLattice(Primitive primitive) {
+        this(new LatticeCrystal(new Crystal(primitive, new BasisMonatomic(primitive.space))));
+    }
+    public ConfigurationLattice(LatticeCrystal lattice) {
         this(lattice, new IndexIteratorSequential(lattice.D()));//need a default iterator
     }
 	/**
 	 * Constructor for ConfigurationLattice.
-	 * @param space
 	 */
-	public ConfigurationLattice(CubicLattice lattice, IndexIteratorSizable indexIterator) {
+	public ConfigurationLattice(LatticeCrystal lattice, IndexIteratorSizable indexIterator) {
 	    super(lattice.getSpace());
         this.lattice = lattice;
         this.indexIterator = indexIterator;
@@ -46,27 +51,29 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
             atomActionTranslateTo.actionPerformed(atomIterator.nextAtom());
             return;
         }
-        int nCells = (int)Math.ceil((double)sumOfMolecules/(double)lattice.getBasisSize());
+        int basisSize = lattice.getCrystal().getBasis().size();
+        int nCells = (int)Math.ceil((double)sumOfMolecules/(double)basisSize);
         
         //determine scaled shape of simulation volume
         double[] shape = (double[])dimensions.clone();
+        double[] latticeConstant = lattice.getCrystal().getLattice().getPrimitive().getSize();
         for(int i=0; i<shape.length; i++) {
-            shape[i] /= dimensions[0];
+            shape[i] /= dimensions[0]*latticeConstant[i];
         }
         
         //determine number of cells in each direction
         int[] latticeDimensions = calculateLatticeDimensions(nCells, shape);
         int[] iteratorDimensions = new int[latticeDimensions.length + 1];
         System.arraycopy(latticeDimensions, 0, iteratorDimensions, 0, latticeDimensions.length);
-        iteratorDimensions[latticeDimensions.length] = lattice.getBasisSize();
+        iteratorDimensions[latticeDimensions.length] = basisSize;
         indexIterator.setSize(iteratorDimensions);
     
         //determine lattice constant
         Vector latticeScaling = space.makeVector();
         if(rescalingToFitVolume) {
-            double latticeConstant = lattice.getLatticeConstant();
             for(int i=0; i<latticeDimensions.length; i++) {
-                latticeScaling.setX(i,dimensions[i]/(latticeDimensions[i]*latticeConstant));
+                //in favorable situations, this should be approximately equal to 1.0
+                latticeScaling.setX(i,dimensions[i]/(latticeDimensions[i]*latticeConstant[i]));
             }
         }
         else {
@@ -116,10 +123,6 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
         }
     }
     
-    public double getLatticeConstant() {
-        return lattice.getLatticeConstant();
-    }
-    
     private int[] calculateLatticeDimensions(int nCells, double[] shape) {
         int dimLeft = shape.length;
         int nCellsLeft = nCells;
@@ -149,7 +152,7 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
         return latticeDimensions;
     }
 	
-	private final CubicLattice lattice;
+	private final LatticeCrystal lattice;
     private final IndexIteratorSizable indexIterator;
     private final Vector work;
 	private boolean rescalingToFitVolume = true;
@@ -221,7 +224,7 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
 		species.setNMolecules(4*k*k*k);
 		etomica.graphics.ColorSchemeByType.setColor(species, java.awt.Color.red);
 //        CubicLattice lattice = new LatticeCubicBcc();
-        CubicLattice lattice = new LatticeCubicFcc();
+        LatticeCrystal lattice = new LatticeCubicFcc();
 //        CubicLattice lattice = new LatticeCubicSimple();
 		ConfigurationLattice configuration = new ConfigurationLattice(lattice);
 //        phase.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));
@@ -258,7 +261,7 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
 	}
 
 	/**
-	 * Sets flage that causes sites to be assigned to atoms.  When this is set
+	 * Sets flag that causes sites to be assigned to atoms.  When this is set
 	 * to true, an atom agent is made in every new Atom instance, which will
 	 * hold a field that points to the site used to set the atom's position
 	 * during any call to initializeCoordinates.

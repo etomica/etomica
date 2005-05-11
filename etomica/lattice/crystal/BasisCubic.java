@@ -41,7 +41,7 @@ public class BasisCubic implements Basis {
      * size (lattice constant) of the cubic primitive.
      */
     public Vector[] positions() {
-        double latticeConstant = primitive.getSize();
+        double latticeConstant = primitive.getCubicSize();
         if(latticeConstant != oldLatticeConstant) {
             for(int i=0; i<size; i++) {
                 coordinates[i].Ea1Tv1(latticeConstant, scaledCoordinates[i]);

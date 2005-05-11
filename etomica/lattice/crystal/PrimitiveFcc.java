@@ -96,7 +96,7 @@ public class PrimitiveFcc extends Primitive implements Primitive3D {
     /**
      * Returns the common length of all primitive vectors.
      */
-    public double getSize() {return size;}
+    public double getCubicSize() {return size;}
     
     /**
      * Multiplies the size of the current vectors by the given value.

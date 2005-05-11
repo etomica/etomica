@@ -72,6 +72,13 @@ public abstract class Primitive {
     protected abstract void updateReciprocal();
 
     /**
+     * Returns a new vector of primitive-vector lengths.
+     */
+    public double[] getSize() {
+        return (double[])size.clone();
+    }
+    
+    /**
      * Sets the length of each primitive vector to the corresponding
      * value in the given array.  Calls set[ABC] methods (defined in subclass)
      * for any lengths that are not equal to current values.

@@ -20,7 +20,7 @@ public class LatticeHcp extends LatticeCrystal {
     
     public LatticeHcp(double latticeConstant) {
         this(new PrimitiveHexagonal(Space3D.INSTANCE));
-        primitive = (PrimitiveHexagonal)((BravaisLattice)crystal.getLattice()).getPrimitive();
+        primitive = (PrimitiveHexagonal)crystal.getLattice().getPrimitive();
         primitive.setA(latticeConstant);
         primitive.setC(Math.sqrt(8.0/3.0)*latticeConstant);
     }
@@ -30,7 +30,7 @@ public class LatticeHcp extends LatticeCrystal {
      * new BasisCubicBcc (which needs the new primitive) to super.
      */ 
     private LatticeHcp(PrimitiveHexagonal primitive) {
-        super(new Crystal(new BravaisLattice(primitive), new BasisHcp(primitive)));
+        super(new Crystal(primitive, new BasisHcp(primitive)));
     }
     
     /**

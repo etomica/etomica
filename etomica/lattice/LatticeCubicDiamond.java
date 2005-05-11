@@ -25,8 +25,8 @@ public class LatticeCubicDiamond extends LatticeCrystal implements CubicLattice 
     
     public LatticeCubicDiamond(double latticeConstant) {
         this(new PrimitiveCubic(Space3D.INSTANCE));
-        primitive = (PrimitiveCubic)((BravaisLattice)crystal.getLattice()).getPrimitive();
-        primitive.setSize(latticeConstant);
+        primitive = (PrimitiveCubic)crystal.getLattice().getPrimitive();
+        primitive.setCubicSize(latticeConstant);
     }
 
     /**
@@ -34,7 +34,7 @@ public class LatticeCubicDiamond extends LatticeCrystal implements CubicLattice 
      * new BasisCubicBcc (which needs the new primitive) to super.
      */ 
     private LatticeCubicDiamond(PrimitiveCubic primitive) {
-        super(new Crystal(new BravaisLattice(primitive), new BasisCubicDiamond(primitive)));
+        super(new Crystal(primitive, new BasisCubicDiamond(primitive)));
     }
     
     /**
@@ -50,11 +50,11 @@ public class LatticeCubicDiamond extends LatticeCrystal implements CubicLattice 
      * of the lattice underlying this crystal.
      */
     public void setLatticeConstant(double latticeConstant) {
-        primitive.setSize(latticeConstant);
+        primitive.setCubicSize(latticeConstant);
     }
     
     public double getLatticeConstant() {
-        return primitive.getSize();
+        return primitive.getCubicSize();
     }
     
 

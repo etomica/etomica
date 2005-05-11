@@ -14,18 +14,13 @@ public class Crystal implements AbstractLattice {
     
     /**
      * Constructs a crystal using the given basis and a Bravais lattice 
-     * based on the given primitive, and 
+     * based on the given primitive. 
      */
     public Crystal(Primitive primitive, Basis basis) {
         this(new BravaisLattice(primitive), basis);
     }
     
-    /**
-     * Constructs crystal such that the basis is (virtually) copied to each point
-     * of the given lattice.  No sites are actually constructed until requested via the
-     * site method.
-     */
-    public Crystal(SpaceLattice lattice, Basis basis) {
+    public Crystal(BravaisLattice lattice, Basis basis) {
         this.basis = basis;
         this.lattice = lattice;
         this.space = lattice.getSpace();
@@ -58,10 +53,10 @@ public class Crystal implements AbstractLattice {
     
     public Basis getBasis() {return basis;}
     
-    public SpaceLattice getLattice() {return lattice;}
+    public BravaisLattice getLattice() {return lattice;}
 
     protected final Basis basis;
-    protected final SpaceLattice lattice;
+    protected final BravaisLattice lattice;
     private final int[] latticeIndex;
     private final Space space;
 }//end of Crystal

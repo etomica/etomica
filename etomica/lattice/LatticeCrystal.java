@@ -17,7 +17,7 @@ import etomica.space.Vector;
  * History
  * Created on Jan 5, 2005 by kofke
  */
-public class LatticeCrystal implements AbstractLattice, SpaceLattice {
+public class LatticeCrystal implements SpaceLattice {
 
     /**
      * Constructs a lattice having sites given by the "atom" sites
@@ -59,8 +59,8 @@ public class LatticeCrystal implements AbstractLattice, SpaceLattice {
         return positions;
     }
     
-    public int getBasisSize() {
-        return crystal.getBasis().size();
+    public Crystal getCrystal() {
+        return crystal;
     }
     
     protected final Crystal crystal;

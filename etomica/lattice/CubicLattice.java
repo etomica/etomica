@@ -10,7 +10,7 @@ package etomica.lattice;
  * History
  * Created on Jan 5, 2005 by kofke
  */
-public interface CubicLattice extends AbstractLattice, SpaceLattice {
+public interface CubicLattice extends SpaceLattice {
     
     /**
      * Sets the size of the unit cell, the length of each edge.
@@ -23,9 +23,4 @@ public interface CubicLattice extends AbstractLattice, SpaceLattice {
      */
     public double getLatticeConstant();
     
-    /**
-     * @return the number of sites in each cubic cell
-     */
-    public int getBasisSize();
-
 }
