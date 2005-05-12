@@ -15,9 +15,9 @@ import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorListCompound;
 import etomica.atom.iterator.AtomIteratorListSimple;
-import etomica.lattice.CubicLattice;
 import etomica.lattice.IndexIteratorSequential;
 import etomica.lattice.IndexIteratorSizable;
+import etomica.lattice.LatticeCrystal;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -29,14 +29,14 @@ import etomica.space3d.Space3D;
  */
 public class ConfigurationLatticeTube extends Configuration implements Atom.AgentSource {
 
-    public ConfigurationLatticeTube(CubicLattice lattice, double length, SpeciesTube tubeSpecies) {
+    public ConfigurationLatticeTube(LatticeCrystal lattice, double length, SpeciesTube tubeSpecies) {
         this(lattice, length, tubeSpecies, new IndexIteratorSequential(lattice.D()));//need a default iterator
     }
 	/**
 	 * Constructor for ConfigurationLatticeTube.
 	 * @param space
 	 */
-	public ConfigurationLatticeTube(CubicLattice lattice, double length, SpeciesTube tubeSpecies, IndexIteratorSizable indexIterator) {
+	public ConfigurationLatticeTube(LatticeCrystal lattice, double length, SpeciesTube tubeSpecies, IndexIteratorSizable indexIterator) {
 	    super(lattice.getSpace());
         this.lattice = lattice;
         this.indexIterator = indexIterator;
@@ -67,32 +67,31 @@ public class ConfigurationLatticeTube extends Configuration implements Atom.Agen
             	sumOfMolecules--;
             }
         }
-        
-        int nCells = (int)Math.ceil((double)sumOfMolecules/(double)lattice.getBasisSize());
+        int basisSize = lattice.getCrystal().getBasis().size();
+        int nCells = (int)Math.ceil((double)sumOfMolecules/(double)basisSize);
         
         //determine scaled shape of simulation volume
+        double[] latticeConstant = lattice.getCrystal().getLattice().getPrimitive().getSize();
         double[] shape = (double[])dimensions.clone();
         shape[2] = dimensions[2]*length;
+        for(int i=0; i<shape.length; i++) {
+            shape[i] /= latticeConstant[i];
+        }
+
                 
         //determine number of cells in each direction
         int[] latticeDimensions = calculateLatticeDimensions((nCells+1)/2, shape);
         int[] iteratorDimensions = new int[latticeDimensions.length + 1];
         System.arraycopy(latticeDimensions, 0, iteratorDimensions, 0, latticeDimensions.length);
-        iteratorDimensions[latticeDimensions.length] = lattice.getBasisSize();
+        iteratorDimensions[latticeDimensions.length] = basisSize;
         indexIterator.setSize(iteratorDimensions);
     
         //determine lattice constant
         Vector latticeScaling = space.makeVector();
-        if(rescalingToFitVolume) {
-            double latticeConstant = lattice.getLatticeConstant();
-            for(int i=0; i<latticeDimensions.length-1; i++) {
-                latticeScaling.setX(i,dimensions[i]/(latticeDimensions[i]*latticeConstant));
-            }
-            latticeScaling.setX(2,dimensions[2]*length/(latticeDimensions[2]*latticeConstant));
+        for(int i=0; i<latticeDimensions.length-1; i++) {
+            latticeScaling.setX(i,dimensions[i]/(latticeDimensions[i]*latticeConstant[i]));
         }
-        else {
-            latticeScaling.E(1.0);
-        }
+        latticeScaling.setX(2,dimensions[2]*length/(latticeDimensions[2]*latticeConstant[2]));
 
         //determine amount to shift lattice so it is centered in volume
         double[] offset = (double[])dimensions.clone();
@@ -169,10 +168,6 @@ public class ConfigurationLatticeTube extends Configuration implements Atom.Agen
             atomActionTranslateTo.actionPerformed(a);
         }
         
-        }
-    
-    public double getLatticeConstant() {
-        return lattice.getLatticeConstant();
     }
     
     private int[] calculateLatticeDimensions(int nCells, double[] shape) {
@@ -204,10 +199,9 @@ public class ConfigurationLatticeTube extends Configuration implements Atom.Agen
         return latticeDimensions;
     }
 	
-	private final CubicLattice lattice;
+	private final LatticeCrystal lattice;
     private final IndexIteratorSizable indexIterator;
     private final Vector work;
-	private boolean rescalingToFitVolume = true;
 	private boolean assigningSitesToAtoms = false;
 	private int siteIndex = -1;
     private final AtomActionTranslateTo atomActionTranslateTo;
@@ -271,14 +265,13 @@ public class ConfigurationLatticeTube extends Configuration implements Atom.Agen
 	public static void main(String[] args) {
         Simulation sim = new Simulation(Space3D.INSTANCE);
 		Default.ATOM_SIZE = 5.0;
-		Space space = sim.space;
 		Phase phase = new Phase(sim);
 		SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
 		int k = 4;
 		species.setNMolecules(4*k*k*k);
 		etomica.graphics.ColorSchemeByType.setColor(species, java.awt.Color.red);
 //        CubicLattice lattice = new LatticeCubicBcc();
-        CubicLattice lattice = new LatticeCubicFcc();
+        LatticeCrystal lattice = new LatticeCubicFcc();
 //        CubicLattice lattice = new LatticeCubicSimple();
 		ConfigurationLatticeTube configuration = new ConfigurationLatticeTube(lattice, .25, new SpeciesTube(sim, 10,10));
 //        phase.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));
@@ -287,23 +280,6 @@ public class ConfigurationLatticeTube extends Configuration implements Atom.Agen
 		
         etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(sim);
 		simGraphic.makeAndDisplayFrame();
-	}
-	/**
-	 * Returns the resizeLatticeToFitVolume flag.
-	 * @return boolean
-	 */
-	public boolean isRescalingToFitVolume() {
-		return rescalingToFitVolume;
-	}
-
-	/**
-	 * Sets the resizeLatticeToFitVolume flag, which if true indicates that the
-	 * primitive vectors should be resized to fit the dimensions of the phase.
-	 * Default is true.
-	 * @param resizeLatticeToFitVolume The resizeLatticeToFitVolume to set
-	 */
-	public void setRescalingToFitVolume(boolean resizeLatticeToFitVolume) {
-		this.rescalingToFitVolume = resizeLatticeToFitVolume;
 	}
 
 	/**
