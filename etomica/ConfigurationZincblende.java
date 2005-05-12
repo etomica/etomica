@@ -18,10 +18,12 @@ public class ConfigurationZincblende extends Configuration {
     private final ConfigurationLattice fcc;
     private final AtomGroupAction translator;
     private final AtomIteratorListSimple iterator0, iterator1;
+    private final LatticeCubicFcc lattice;
     
     public ConfigurationZincblende(Space space) {
         super(space);
-        fcc = new ConfigurationLattice(new LatticeCubicFcc());
+        lattice = new LatticeCubicFcc();
+        fcc = new ConfigurationLattice(lattice);
         translator = new AtomGroupAction(new AtomActionTranslateBy(space));
         iterator0 = new AtomIteratorListSimple();
         iterator1 = new AtomIteratorListSimple();
@@ -46,7 +48,7 @@ public class ConfigurationZincblende extends Configuration {
         
         //shift lattice in all three directions by one-quarter the lattice constant
         Vector3D shift = new Vector3D();
-        shift.E(0.125*fcc.getLatticeConstant());
+        shift.E(0.125*lattice.getLatticeConstant());
         
         ((AtomActionTranslateBy)translator.getAction()).setTranslationVector(shift);
 
