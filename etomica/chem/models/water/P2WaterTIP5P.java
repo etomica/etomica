@@ -1,10 +1,10 @@
 package etomica.chem.models.water;
 
 import etomica.Atom;
+import etomica.AtomSet;
 import etomica.Space;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
-import etomica.potential.PotentialTruncation;
 import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
@@ -13,24 +13,24 @@ import etomica.units.Kelvin;
 
 public class P2WaterTIP5P extends Potential2 implements Potential2Soft {
 
-	public P2WaterTIP5P(Space space, PotentialTruncation potentialTruncation, Boundary boundary) {
-		this(space, potentialTruncation);
+	public P2WaterTIP5P(Space space, Boundary boundary) {
+		this(space);
 		this.boundary = boundary;
 	}
-	public P2WaterTIP5P(Space space, PotentialTruncation potentialTruncation) {
-		super(space, potentialTruncation);
+	public P2WaterTIP5P(Space space) {
+		super(space);
 		setSigma(3.12);
 		setEpsilon(Kelvin.UNIT.toSim(80.51));
 		work = (Vector3D)space.makeVector();
 		shift = (Vector3D)space.makeVector();
 		setCharges();
 	}   
-	public double energy(Atom[] pair){
+	public double energy(AtomSet atoms){
 		double sum = 0.0;
 		double r2 = 0.0;
 			
-		AtomTreeNodeTIP5PWater node1 = (AtomTreeNodeTIP5PWater)pair[0].node;
-		AtomTreeNodeTIP5PWater node2 = (AtomTreeNodeTIP5PWater)pair[1].node;
+		AtomTreeNodeTIP5PWater node1 = (AtomTreeNodeTIP5PWater)atoms.getAtom(0).node;
+		AtomTreeNodeTIP5PWater node2 = (AtomTreeNodeTIP5PWater)atoms.getAtom(1).node;
 		
 		//compute O-O distance to consider truncation	
 		Vector3D O1r = (Vector3D)node1.O.coord.position();
@@ -40,8 +40,6 @@ public class P2WaterTIP5P extends Potential2 implements Potential2Soft {
         work.E(shift);
         boundary.nearestImage(shift);
         r2 = shift.squared();
-
-		if(potentialTruncation.isZero(r2)) return 0.0;
 
 		if(r2<1.6) return Double.POSITIVE_INFINITY;
 	

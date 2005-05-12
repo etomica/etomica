@@ -1,10 +1,10 @@
 package etomica.chem.models.water;
 
 import etomica.Atom;
+import etomica.AtomSet;
 import etomica.Space;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
-import etomica.potential.PotentialTruncation;
 import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
@@ -13,25 +13,24 @@ import etomica.units.Kelvin;
 
 public class P2WaterTIP4P extends Potential2 implements Potential2Soft {
 
-	public P2WaterTIP4P(Space space, PotentialTruncation potentialTruncation, Boundary boundary) {
-		this(space, potentialTruncation);
+	public P2WaterTIP4P(Space space, Boundary boundary) {
+		this(space);
 		this.boundary = boundary;
 	}
-	public P2WaterTIP4P(Space space, PotentialTruncation potentialTruncation) {
-		super(space, potentialTruncation);
+	public P2WaterTIP4P(Space space) {
+		super(space);
 		setSigma(3.15365);
 		setEpsilon(Kelvin.UNIT.toSim(77.94));
-		this.potentialTruncation = potentialTruncation;
 		work = (Vector3D)space.makeVector();
 		shift = (Vector3D)space.makeVector();
 		setCharges();
 	}   
-	public double energy(Atom[] pair){
+	public double energy(AtomSet atoms){
 		double sum = 0.0;
 		double r2 = 0.0;
-			
-		AtomTreeNodeTIP4PWater node1 = (AtomTreeNodeTIP4PWater)pair[0].node;
-		AtomTreeNodeTIP4PWater node2 = (AtomTreeNodeTIP4PWater)pair[1].node;
+		
+        AtomTreeNodeTIP4PWater node1 = (AtomTreeNodeTIP4PWater)atoms.getAtom(0).node;
+		AtomTreeNodeTIP4PWater node2 = (AtomTreeNodeTIP4PWater)atoms.getAtom(1).node;
 		
 		//compute O-O distance to consider truncation	
 		Vector3D O1r = (Vector3D)node1.O.coord.position();
@@ -42,7 +41,6 @@ public class P2WaterTIP4P extends Potential2 implements Potential2Soft {
 		boundary.nearestImage(shift);
         r2 = shift.squared();
 
-		if(potentialTruncation.isZero(r2)) return 0.0;
 		if(r2<1.6) return Double.POSITIVE_INFINITY;
 
         shift.ME(work);
@@ -147,7 +145,6 @@ public class P2WaterTIP4P extends Potential2 implements Potential2Soft {
     
 	public double sigma , sigma2;
 	public double epsilon, epsilon4;
-	private PotentialTruncation potentialTruncation;
 	private Atom O1, H11, H12, O2, H21, H22, Charge1, Charge2;
 	private Boundary boundary;
 	private double chargeH = Electron.UNIT.toSim(0.52);
