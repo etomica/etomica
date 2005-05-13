@@ -1,28 +1,48 @@
 package etomica;
 
-public class ControllerEvent extends SimulationEvent {
+import etomica.Constants.TypedConstant;
+
+public class ControllerEvent {
     
-    protected Controller controller;
-    protected Type type;
+    protected final Controller controller;
+    protected final Type type;
+    protected final Action action;
     
-    public ControllerEvent(Object source) {
-        this(source, null);
+    public ControllerEvent(Controller source, Type type) {
+        this(source, type, null);
     }
-    public ControllerEvent(Object source, Type t) {
-        super(source);
-        type = t;
+    public ControllerEvent(Controller source, Type type, Action action) {
+        this.controller = source;
+        this.type = type;
+        this.action = action;
     }
     
-    public void setType(Type t) {type = t;}
-    public Type type() {return type;}
+    public Action getAction() {return action;} 
+    public Type getType() {return type;}
+    public Controller getController() {return controller;}
     
-    public final ControllerEvent setController(Controller c) {controller = c; return this;}
-    public final Controller controller() {return controller;}
-    
-    //no Type classes yet defined
-    public static class Type extends Constants.TypedConstant {
-        private Type(String label) {super(label);}
-        public static final Type[] CHOICES = new Type[] {};
-        public final Constants.TypedConstant[] choices() {return CHOICES;}
-    }//end of Type   
+    public static class Type extends TypedConstant {
+        protected Type(String label, int index) {
+            super(label);
+            this.index = index;
+        }       
+        public Constants.TypedConstant[] choices() {return CHOICES;}
+        public final int index;
+    }//end of ValueType
+    protected static final Type[] CHOICES = 
+        new Type[] {
+            new Type("Start", 0),
+            new Type("Start action", 1), 
+            new Type("End action", 2),
+            new Type("Start urgent action", 3),
+            new Type("End urgent action", 4),
+            new Type("No more actions", 5),
+            new Type("Halted", 6)};
+    public static final Type START = CHOICES[0];
+    public static final Type START_ACTION = CHOICES[1];
+    public static final Type END_ACTION = CHOICES[2];
+    public static final Type START_URGENT_ACTION = CHOICES[3];
+    public static final Type END_URGENT_ACTION = CHOICES[4];
+    public static final Type NO_MORE_ACTIONS = CHOICES[5];
+    public static final Type HALTED = CHOICES[6];
 }//end of ControllerEvent
