@@ -1,5 +1,7 @@
 package etomica.space2d;
 
+import etomica.space.Tensor;
+
 
 
 /*
@@ -32,12 +34,30 @@ public class Tensor2D implements etomica.space.Tensor {
     }
     public void PE(Vector2D u1, Vector2D u2) {xx+=u1.x*u2.x; xy+=u1.x*u2.y; yx+=u1.y*u2.x; yy+=u1.y*u2.y;}
     public double trace() {return xx + yy;}
+    public void transpose(){
+    	double temp = 0.0;
+    	temp = xy; xy = yx; yx = temp;
+    }
+    public void inverse() {
+    	double det = xx*yy -xy*yx;
+    	double temp =0.0;
+    	temp = xx; xx = yy/det; yy = temp/det;
+    	temp = xy; xy = -yx/det; yx = -temp/det;
+    }
     
     public void E(etomica.space.Tensor t) {E((Tensor2D)t);}
     public void E(etomica.space.Vector u1, etomica.space.Vector u2) {E((Vector2D)u1, (Vector2D)u2);}
     public void PE(etomica.space.Tensor t) {PE((Tensor2D)t);}
     public void PE(etomica.space.Vector u1, etomica.space.Vector u2) {PE((Vector2D)u1, (Vector2D)u2);}
     public void TE(double a) {xx*=a; xy*=a; yx*=a; yy*=a;}
+    public void TE(Tensor t){ Tensor2D u = (Tensor2D)t;
+	    double txx=xx;double txy=xy;
+	    double tyx=yx;double tyy=yy;
+	    xx= txx*u.xx+txy*u.yx;   
+	    xy= txx*u.xy+txy*u.yy; 
+	    yx= tyx*u.xx+tyy*u.yx;   
+	    yy= tyx*u.xy+tyy*u.yy; 
+    }
     public void E(double[] d) {
         if(d.length != 4) throw new IllegalArgumentException("Array size incorrector for tensor");
         xx = d[0]; xy = d[1]; 

@@ -18,7 +18,10 @@ public interface Tensor {
     public abstract void PE(int i, int j, double a);
     public abstract void PE(Vector u1, Vector u2);
     public abstract double trace();
+    public abstract void transpose();
+    public abstract void inverse();
     public abstract void TE(double a);
+    public abstract void TE(Tensor t);
     /**
      * Sets the tensor elements using the elements of the array.
      * Array values 0, 1, 2,... are assigned to xx, xy, xz, yx, etc. respectively.

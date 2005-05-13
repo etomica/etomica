@@ -1,5 +1,8 @@
 package etomica.space3d;
 
+import etomica.space.Tensor;
+
+
 
 
 /*
@@ -32,11 +35,48 @@ public class Tensor3D implements etomica.space.Tensor {
         else {if (j==0) {zx += d;} else if (j==1) {zy += d;} else zz += d;}
     }
     public double trace() {return xx+yy+zz;}
+    public void transpose() { 
+    	double temp = 0.0;
+    	temp = xy; xy = yx; yx = temp;
+    	temp = xz; xz = zx; zx = temp;
+    	temp = zy; zy = yz; yz = temp;    	
+    }
+    public void inverse() {
+        double txx=xx;double txy=xy;double txz=xz;
+        double tyx=yx;double tyy=yy;double tyz=yz;
+        double tzx=zx;double tzy=zy;double tzz=zz;
+	    double det = xx*yy*zz-xx*yz*zy-yx*xy*zz+yx*xz*zy+zx*xy*yz-zx*xz*yy;
+        xx= (tyy*tzz-tyz*tzy)/det; 
+        xy= -(txy*tzz-txz*tzy)/det;
+        xz= (txy*tyz-txz*tyy)/det;
+        yx= -(tyx*tzz-tyz*tzx)/det; 
+        yy= (txx*tzz-txz*tzx)/det;
+        yz= -(txx*tyz-txz*tyx)/det;
+        zx= (tyx*tzy-tyy*tzx)/det;
+        zy= -(txx*tzy-txy*tzx)/det;
+        zz= (txx*tyy-txy*tyx)/det;                              
+}
+    
     public void E(etomica.space.Tensor t) {E((Tensor3D)t);}
     public void E(etomica.space.Vector u1, etomica.space.Vector u2) {E((Vector3D)u1, (Vector3D)u2);}
     public void PE(etomica.space.Tensor t) {PE((Tensor3D) t);}
     public void PE(etomica.space.Vector u1, etomica.space.Vector u2) {PE(u1,u2);}
     public void TE(double a) {xx*=a; xy*=a; xz*=a; yx*=a; yy*=a; yz*=a; zx*=a; zy*=a; zz*=a;}
+    public void TE(Tensor t) { Tensor3D u = (Tensor3D)t;
+        double txx=xx;double txy=xy;double txz=xz;
+        double tyx=yx;double tyy=yy;double tyz=yz;
+        double tzx=zx;double tzy=zy;double tzz=zz;
+        xx= txx*u.xx+txy*u.yx+txz*u.zx;   
+        xy= txx*u.xy+txy*u.yy+txz*u.zy; 
+        xz= txx*u.xz+txy*u.yz+txz*u.zz;
+        yx= tyx*u.xx+tyy*u.yx+tyz*u.zx;   
+        yy= tyx*u.xy+tyy*u.yy+tyz*u.zy; 
+        yz= tyx*u.xz+tyy*u.yz+tyz*u.zz;
+        zx= tzx*u.xx+tzy*u.yx+tzz*u.zx;   
+        zy= tzx*u.xy+tzy*u.yy+tzz*u.zy; 
+        zz= tzx*u.xz+tzy*u.yz+tzz*u.zz;                                         
+    
+    }
     public void E(double[] d) {
         if(d.length != 9) throw new IllegalArgumentException("Array size incorrector for tensor");
         xx = d[0]; xy = d[1]; xz = d[2];

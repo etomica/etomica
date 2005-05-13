@@ -1,5 +1,7 @@
 package etomica.space1d;
 
+import etomica.space.Tensor;
+
 
 
 
@@ -25,12 +27,15 @@ public class Tensor1D implements etomica.space.Tensor {
     public void PE(int i, int j, double a) {xx += a;}
     public void PE(Vector1D u1, Vector1D u2) {xx+=u1.x*u2.x;}
     public double trace() {return xx;}
+    public void transpose() {}
+    public void inverse() {xx = 1.0/xx;}
     
     public void E(etomica.space.Tensor t) {E((Tensor1D)t);}
     public void E(etomica.space.Vector u1, etomica.space.Vector u2) {E((Vector1D)u1, (Vector1D)u2);}
     public void PE(etomica.space.Tensor t) {PE((Tensor1D)t);}
     public void PE(etomica.space.Vector u1, etomica.space.Vector u2) {PE((Vector1D)u1, (Vector1D)u2);}
     public void TE(double a) {xx*=a;}
+    public void TE(Tensor t) {xx*=((Tensor1D)t).xx;}
     public void E(double[] d) {
         if(d.length != 1) throw new IllegalArgumentException("Array size incorrector for tensor");
         xx = d[0];
