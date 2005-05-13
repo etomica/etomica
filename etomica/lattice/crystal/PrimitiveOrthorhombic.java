@@ -153,7 +153,7 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
      * values of the primitive vectors.
      */
     public Polytope unitCell() {
-        return new Cuboid(size[0], size[1], size[2]);
+        return new Cuboid(space, size[0], size[1], size[2]);
     }
     
     public String toString() {return "Orthorhombic";}

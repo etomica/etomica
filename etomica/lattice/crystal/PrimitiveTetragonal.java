@@ -121,7 +121,7 @@ public class PrimitiveTetragonal extends Primitive implements Primitive3D {
      * primitive vectors.
      */
     public Polytope unitCell() {
-        return new Cuboid(ab, ab, c);
+        return new Cuboid(space, ab, ab, c);
     }
     
     public String toString() {return "Tetragonal";}
