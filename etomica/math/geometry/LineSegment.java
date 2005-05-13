@@ -1,0 +1,88 @@
+package etomica.math.geometry;
+
+import etomica.Space;
+import etomica.space.Vector;
+import etomica.space3d.Space3D;
+
+/**
+ * A geometrical line segment, a 1-dimensional polytope.
+ * 
+ * @author David Kofke
+ *  
+ */
+
+/*
+ * History Created on May 10, 2005 by kofke
+ */
+public class LineSegment extends Polytope {
+
+    public LineSegment(Space embeddedSpace) {
+        this(embeddedSpace, embeddedSpace.makeVector(), embeddedSpace.makeVector());
+    }
+    
+    /**
+     * Forms the segment using the given vectors as the instances used to
+     * represent the end points.
+     */
+    LineSegment(Space embeddedSpace, Vector v0, Vector v1) {
+        super(new Point[] {new Point(embeddedSpace, v0), new Point(embeddedSpace, v1)});
+    }
+
+    public void updateVertices() {
+        //does nothing, becuse in this case the vertices are the representation of the polytope
+    }
+
+    /**
+     * Returns true if the given vector lies between the ends of the segment, on
+     * the line joining them. Point must lie exactly on the line to return true,
+     * so rounding error will in most cases lead to return of false unless
+     * embedded in a 1D space.
+     */
+    public boolean contains(Vector v) {
+        double length = getLength();
+        //(v-v0) dot (v1-v0)
+        double dot = v.dot(vertices[1]) - vertices[1].dot(vertices[0])
+                - v.dot(vertices[0]) + vertices[0].squared();
+        if (dot < 0.0 || dot > length * length)
+            return false;
+        //true if (v-v0)^2 * (v1-v0)^2 equals dot^2
+        return (v.Mv1Squared(vertices[0]) * (length * length) == dot * dot);
+    }
+    
+    public double getVolume() {
+        return getLength();
+    }
+    
+    public double getLength() {
+        return Math.sqrt(vertices[1].Mv1Squared(vertices[0]));
+    }
+    
+    public void setLength(double newLength) {
+        if(vertices[0].equals(vertices[1])) {
+            //currently zero length; just expand along x axis from present point
+            vertices[0].setX(0,vertices[0].x(0)-0.5*newLength);
+            vertices[1].setX(0,vertices[1].x(1)+0.5*newLength);
+        } else {//not currently zero length
+            double length = getLength();
+            double dv = 0.5*(newLength/length - 1.0);
+            //v1 <- v1 + dv*(v1-v0)
+            vertices[1].TE(1.0+dv);
+            vertices[1].PEa1Tv1(-dv,vertices[0]);
+            //v0 <- v0 - dv*(v1-v0), but must use new v1
+            vertices[0].TE(1.0+dv-dv*dv/(1.0+dv));
+            vertices[0].PEa1Tv1(-dv/(1.0+dv),vertices[1]);
+        }
+    }
+
+    public static void main(String[] args) {
+        LineSegment segment = new LineSegment(new Space3D());
+        segment.vertices()[0].setX(0, 1.0);
+        segment.vertices()[0].setX(1, 4.0);
+        segment.vertices()[1].setX(0, 2.0);
+        segment.vertices()[1].setX(1, 8.0);
+        etomica.space3d.Vector3D p1 = new etomica.space3d.Vector3D();
+        p1.setX(0, 1.5);
+        p1.setX(1, 6.0);
+        System.out.println(segment.contains(p1));
+    }
+}

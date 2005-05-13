@@ -1,0 +1,56 @@
+/*
+ * History
+ * Created on Nov 24, 2004 by kofke
+ */
+package etomica.math.geometry;
+
+import etomica.Space;
+import etomica.space.Vector;
+
+/**
+ * A polyhedron with six faces, all of which are four-sided polygons.
+ * Other six-face polyhedra (e.g., tegragonal bipyrimid) are cannot
+ * be derived from this class.
+ *  
+ * @author kofke
+ *  
+ */
+public abstract class Hexahedron extends Polyhedron {
+
+    /**
+     * Constructs a cube with edge length having the given value.
+     * @param size edge length of the cube
+     */
+    public Hexahedron(Space embeddedSpace) {
+        super(makeFaces(embeddedSpace));
+    }
+    
+    private static Polygon[] makeFaces(Space embeddedSpace) {
+        Vector[] vertices = (Vector[])embeddedSpace.makeVectorArray(8);
+        LineSegment[] edges = new LineSegment[12];
+        Polygon[] faces = new Polygon[6];
+        //note that it is important that the vertices get used in order, 0, 1, 2, etc.
+        for(int i=0; i<vertices.length; i++) {vertices[i].setX(0,i);}
+        edges[0] = new LineSegment(embeddedSpace, vertices[0],vertices[1]);
+        edges[1] = new LineSegment(embeddedSpace, vertices[2],vertices[3]);
+        edges[2] = new LineSegment(embeddedSpace, vertices[1],vertices[3]);
+        edges[3] = new LineSegment(embeddedSpace, vertices[0],vertices[2]);
+        edges[4] = new LineSegment(embeddedSpace, vertices[0],vertices[4]);
+        edges[5] = new LineSegment(embeddedSpace, vertices[4],vertices[5]);
+        edges[6] = new LineSegment(embeddedSpace, vertices[1],vertices[5]);
+        edges[7] = new LineSegment(embeddedSpace, vertices[4],vertices[6]);
+        edges[8] = new LineSegment(embeddedSpace, vertices[6],vertices[7]);
+        edges[9] = new LineSegment(embeddedSpace, vertices[5],vertices[7]);
+        edges[10] = new LineSegment(embeddedSpace, vertices[2],vertices[6]);
+        edges[11] = new LineSegment(embeddedSpace, vertices[3],vertices[7]);
+        //note that it is important that the edges get used in order, 0, 1, 2, etc.
+        faces[0] = new PolygonGeneral(new LineSegment[] {edges[0],edges[1],edges[2],edges[3]});
+        faces[1] = new PolygonGeneral(new LineSegment[] {edges[0],edges[4],edges[5],edges[6]});
+        faces[2] = new PolygonGeneral(new LineSegment[] {edges[5],edges[7],edges[8],edges[9]});
+        faces[3] = new PolygonGeneral(new LineSegment[] {edges[1],edges[8],edges[10],edges[11]});
+        faces[4] = new PolygonGeneral(new LineSegment[] {edges[3],edges[4],edges[7],edges[10]});
+        faces[5] = new PolygonGeneral(new LineSegment[] {edges[2],edges[6],edges[9],edges[11]});
+        return faces;
+    }
+
+}

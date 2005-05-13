@@ -4,84 +4,95 @@
  */
 package etomica.math.geometry;
 
+import etomica.Space;
+import etomica.space3d.Vector3D;
+
 /**
  * A geometric cube.
  * 
  * @author kofke
  *  
  */
-public class Cube extends Polyhedron {
+public class Cube extends Hexahedron {
 
     /**
      * Constructs a cube of unit size.
      */
-    public Cube() {
-        this(1.0);
+    public Cube(Space embeddedSpace) {
+        this(embeddedSpace, 1.0);
     }
     
     /**
      * Constructs a cube with edge length having the given value.
      * @param size edge length of the cube
      */
-    public Cube(double size) {
-        super();
-        vertices = new etomica.space3d.Vector3D[8];
-        for(int i=0; i<vertices.length; i++) vertices[i] = new etomica.space3d.Vector3D();
-        setSize(size);
+    //TODO generalize for any embedded space
+    public Cube(Space embeddedSpace, double size) {
+        super(embeddedSpace);
+        setEdgeLength(size);
     }
-
+    
     /**
-     * Returns size^3.
+     * Returns edgeLength^3.
      */
-    public double volume() {
-        return size*size*size;
+    public double getVolume() {
+        return edgeLength*edgeLength*edgeLength;
     }
-
+    
     /**
-     * Returns the absolute positions of the vertices .
-     * Note that vertices might be computed on-the-fly, with each call of the method, rather than
-     * computed once and stored; thus it may be worthwhile to store the values if using them often, 
-     * but if doing so be careful to update them if any transformations are done to the lattice.
+     * Returns 6*edgeLength^2
      */
-    public etomica.space.Vector[] vertex() {
-        vertices[0].E(n,n,n);
-        vertices[1].E(n,n,p);
-        vertices[2].E(n,p,n);
-        vertices[3].E(n,p,p);
-        vertices[4].E(p,n,n);
-        vertices[5].E(p,n,p);
-        vertices[6].E(p,p,n);
-        vertices[7].E(p,p,p);
-        return vertices;
-    }//end of vertex
+    public double getSurfaceArea() {
+        return 6*edgeLength*edgeLength;
+    }
+    
+    /**
+     * Returns 12*edgeLength
+     */
+    public double getPerimeter() {
+        return 12*edgeLength;
+    }
 
     /**
      * Returns <code>true</code> if the given vector lies inside (or on the surface of)
      * this cell, <code>false</code> otherwise.
      */
-    public boolean inCell(etomica.space.Vector v) {
-        double x = v.x(0);
-        double y = v.x(1);
-        double z = v.x(2);
+    public boolean contains(etomica.space.Vector v) {
+        double x = v.x(0)-position.x(0);
+        double y = v.x(1)-position.x(1);
+        double z = v.x(2)-position.x(2);
         return (x>=n) && (x<=p) && (y>=n) && (y<=p) && (z>=n) && (z<=p);
     }
     
     /**
      * @return Returns the size, which is the length the edge of the cube.
      */
-    public double getSize() {
-        return size;
+    public double getEdgeLength() {
+        return edgeLength;
     }
     /**
      * @param size The size to set.
      */
-    public void setSize(double size) {
-        this.size = size;
-        n = -0.5*size;
-        p = +0.5*size;
+    public void setEdgeLength(double edgeLength) {
+        this.edgeLength = edgeLength;
+        n = -0.5*edgeLength;
+        p = +0.5*edgeLength;
+        updateVertices();
     }
-    private double size;
+    
+    public void updateVertices() {
+        ((Vector3D)vertices[0]).E(n,n,n);
+        ((Vector3D)vertices[1]).E(n,n,p);
+        ((Vector3D)vertices[2]).E(n,p,n);
+        ((Vector3D)vertices[3]).E(n,p,p);
+        ((Vector3D)vertices[4]).E(p,n,n);
+        ((Vector3D)vertices[5]).E(p,n,p);
+        ((Vector3D)vertices[6]).E(p,p,n);
+        ((Vector3D)vertices[7]).E(p,p,p);
+        applyTranslationRotation();
+    }
+    
+    private double edgeLength;
     private double n, p;//n = -size/2, p = +size/2
-    private final etomica.space3d.Vector3D[] vertices;
 
 }

@@ -4,78 +4,78 @@
  */
 package etomica.math.geometry;
 
+import etomica.Space;
+import etomica.space2d.Vector2D;
+
 /**
- * A geometric square.
+ * A 2-dimensional geometric square.
  * @author kofke
  *
  */
-public class Square extends Polyhedron {
+public class Square extends Polygon {
 
     /**
      * Constructs a square of unit size.
      */
-    public Square() {
-        this(1.0);
+    public Square(Space embeddedSpace) {
+        this(embeddedSpace, 1.0);
     }
     
     /**
      * Constructs a square with edge length having the given value.
      * @param size edge length of the cube
      */
-    public Square(double size) {
-        super();
-        vertices = new etomica.space2d.Vector2D[4];
-        for(int i=0; i<vertices.length; i++) vertices[i] = new etomica.space2d.Vector2D();
-        setSize(size);
+    //TODO enable 3D embedded space
+    public Square(Space embeddedSpace, double size) {
+        super(embeddedSpace, 4);
+        setEdgeLength(size);
     }
 
     /**
-     * Returns size^3.
+     * Returns size^2.
      */
-    public double volume() {
-        return size*size;
+    public double getArea() {
+        return edgeLength*edgeLength;
     }
 
-    /**
-     * Returns the absolute positions of the vertices .
-     * Note that vertices might be computed on-the-fly, with each call of the method, rather than
-     * computed once and stored; thus it may be worthwhile to store the values if using them often, 
-     * but if doing so be careful to update them if any transformations are done to the lattice.
-     */
-    public etomica.space.Vector[] vertex() {
-        vertices[0].E(n,n);
-        vertices[1].E(n,p);
-        vertices[2].E(p,n);
-        vertices[3].E(p,p);
-        return vertices;
-    }//end of vertex
-
+    
     /**
      * Returns <code>true</code> if the given vector lies inside (or on the surface of)
      * this cell, <code>false</code> otherwise.
      */
-    public boolean inCell(etomica.space.Vector v) {
-        double x = v.x(0);
-        double y = v.x(1);
-         return (x>=n) && (x<=p) && (y>=n) && (y<=p);
+    public boolean contains(etomica.space.Vector v) {
+        double x = v.x(0)-position.x(0);
+        double y = v.x(1)-position.x(1);
+        return (x>=n) && (x<=p) && (y>=n) && (y<=p);
+    }
+       
+    /**
+     * @return the length the edge of the square.
+     */
+    public double getEdgeLength() {
+        return edgeLength;
     }
     
     /**
-     * @return Returns the size, which is the length the edge of the cube.
+     * @param edgeLength the new length of the sides of the square
      */
-    public double getSize() {
-        return size;
+    public void setEdgeLength(double edgeLength) {
+        this.edgeLength = edgeLength;
+        double n = -0.5*edgeLength;
+        double p = +0.5*edgeLength;
+        updateVertices();
     }
-    /**
-     * @param size The size to set.
-     */
-    public void setSize(double size) {
-        this.size = size;
-        n = -0.5*size;
-        p = +0.5*size;
+    
+    public void updateVertices() {
+        ((Vector2D)vertices[0]).E(n,n);
+        ((Vector2D)vertices[1]).E(n,p);
+        ((Vector2D)vertices[2]).E(p,p);
+        ((Vector2D)vertices[3]).E(p,n);
+        applyTranslationRotation();
     }
-    private double size;
+    
+    private double edgeLength;
     private double n, p;//n = -size/2, p = +size/2
-    private final etomica.space2d.Vector2D[] vertices;
+
 
 }
