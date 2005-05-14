@@ -1,0 +1,106 @@
+/*
+ * History
+ * Created on Nov 24, 2004 by kofke
+ */
+package etomica.math.geometry;
+
+import etomica.Space;
+import etomica.exception.MethodNotImplementedException;
+import etomica.space3d.Vector3D;
+
+/**
+ * A polyhedron composed of three pairs of rectangular faces placed opposite
+ * each other and joined at arbitrary angles.
+ * @author kofke
+ * 
+ */
+public class Parallelepiped extends Hexahedron {
+
+    /**
+     * Default constructor makes a cube of unit size
+     */
+    public Parallelepiped(Space embeddedSpace) {
+        this(embeddedSpace, new Vector3D(1,0,0), new Vector3D(0,1,0), new Vector3D(0,0,1));
+    }
+
+    /**
+     * Constructs a cuboid with edges of lengths having the given values.
+     */
+    public Parallelepiped(Space embeddedSpace, Vector3D a, Vector3D b, Vector3D c) {
+        super(embeddedSpace);
+        this.a = (Vector3D)embeddedSpace.makeVector();
+        this.b = (Vector3D)embeddedSpace.makeVector();
+        this.c = (Vector3D)embeddedSpace.makeVector();
+        work = (Vector3D)embeddedSpace.makeVector();
+        setEdgeVectors(a, b, c);
+    }
+
+    public double getVolume() {
+        work.E(a);
+        work.XE(b);
+        return 8.0*work.dot(c);//8.0 is because a,b,c are half edge length
+    }
+
+    public double getSurfaceArea() {
+        double a2 = a.squared();
+        double b2 = b.squared();
+        double c2 = c.squared();
+        double ab = a.dot(b);
+        double ac = a.dot(c);
+        double bc = b.dot(c);
+        return 2*4*( Math.sqrt(a2*b2-ab*ab) +  //4.0 is becase a,b,c are half edge lengths
+                   Math.sqrt(a2*c2-ac*ac) + 
+                   Math.sqrt(b2*c2-bc*bc));
+    }
+    
+    public double getPerimeter() {
+        double aL = Math.sqrt(a.squared());
+        double bL = Math.sqrt(b.squared());
+        double cL = Math.sqrt(c.squared());
+        return 4 * (aL + bL + cL);
+    }
+
+    public void updateVertices() {
+        vertices[7].Ev1Pv2(a, b);
+        vertices[6].E(vertices[7]);
+        vertices[5].Ev1Mv2(a, b);
+        vertices[4].E(vertices[5]);
+        vertices[7].PE(c);// +a, +b, +c
+        vertices[6].ME(c);// +a, +b, -c
+        vertices[5].PE(c);// +a, -b, +c
+        vertices[4].ME(c);// +a, -b, -c
+        vertices[3].Ea1Tv1(-1,vertices[4]);//-a, +b, +c
+        vertices[2].Ea1Tv1(-1,vertices[5]);//-a, +b, -c
+        vertices[1].Ea1Tv1(-1,vertices[6]);//-a, -b, +c
+        vertices[0].Ea1Tv1(-1,vertices[7]);//-a, -b, -c
+        applyTranslationRotation();
+    }
+
+    /**
+     * Returns <code>true</code> if the given vector lies inside (or on the
+     * surface of) this cell, <code>false</code> otherwise.
+     */
+    //TODO contains method in Parallelepiped
+    public boolean contains(etomica.space.Vector v) {
+        throw new MethodNotImplementedException();
+//        double x = v.x(0)-position.x(0);
+//        double y = v.x(1)-position.x(1);
+//        double z = v.x(2)-position.x(2);
+//        return (x >= na) && (x <= pa) && (y >= nb) && (y <= pb) && (z >= nc)
+//                && (z <= pc);
+    }
+    
+    /**
+     * Sets the lengths of all edges of the cuboid.
+     */
+    public void setEdgeVectors(Vector3D aNew, Vector3D bNew, Vector3D cNew) {
+        a.Ea1Tv1(0.5, aNew);
+        b.Ea1Tv1(0.5, bNew);
+        c.Ea1Tv1(0.5, cNew);
+        updateVertices();
+    }
+
+    private final Vector3D a, b, c;
+    private final Vector3D work;
+
+}
