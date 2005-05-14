@@ -28,7 +28,7 @@ public class Cuboid extends Hexahedron {
      */
     public Cuboid(Space embeddedSpace, double a, double b, double c) {
         super(embeddedSpace);
-        setSize(a, b, c);
+        setEdgeLengths(a, b, c);
     }
 
     public double getVolume() {
@@ -70,7 +70,7 @@ public class Cuboid extends Hexahedron {
     /**
      * Sets the lengths of all edges of the cuboid.
      */
-    public void setSize(double a, double b, double c) {
+    public void setEdgeLengths(double a, double b, double c) {
         this.a = a;
         this.b = b;
         this.c = c;
@@ -80,6 +80,7 @@ public class Cuboid extends Hexahedron {
         pb = +0.5 * b;
         nc = -0.5 * c;
         pc = +0.5 * c;
+        updateVertices();
     }
 
     private double a, b, c;
