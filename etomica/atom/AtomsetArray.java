@@ -22,6 +22,25 @@ public class AtomsetArray implements AtomSet {
     }
     
     /**
+     * Makes a new instance holding the atoms in the given atom set.
+     */
+    public AtomsetArray(AtomSet atomSet) {
+        this(atomSet.count());
+        for(int i=0; i<atoms.length; i++) {
+            atoms[i] = atomSet.getAtom(i);
+        }
+    }
+    
+    /**
+     * Copy constructor, wrapping a new array unique to this instance
+     * but holding the same atoms as the given atom set.
+     */
+    public AtomsetArray(AtomsetArray atomSet) {
+        this((Atom[])atomSet.atoms.clone());
+
+    }
+    
+    /**
      * Wraps the given atom array.  Subsequent call to getArray
      * will return the array instance given here.
      */
@@ -45,12 +64,26 @@ public class AtomsetArray implements AtomSet {
     
     /**
      * Copies the atoms in the given array to the wrapped, final array of atoms.
+     * Throws IllegalArgumentException if length of array is not equal to count
+     * field of this instance.
      */
     public void setAtoms(Atom[] newAtoms) {
         if(newAtoms.length != atoms.length) throw new IllegalArgumentException("Wrong size array");
         System.arraycopy(newAtoms, 0, this.atoms, 0, atoms.length);
     }
 
+    /**
+     * Copies the atoms in the given atom set to the wrapped array of atoms.
+     * Throws IllegalArgumentException if length of array is not equal to count
+     * field of this instance.
+     */
+    public void setAtoms(AtomSet atomSet) {
+        if(atomSet.count() != atoms.length) throw new IllegalArgumentException("Wrong size for atomSet");
+        for(int i=0; i<atoms.length; i++) {
+            atoms[i] = atomSet.getAtom(i);
+        }
+    }
+    
     /**
      * Returns the length of the wrapped array.
      */
