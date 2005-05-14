@@ -9,8 +9,8 @@ import etomica.space.Vector;
 
 /**
  * A polyhedron with six faces, all of which are four-sided polygons.
- * Other six-face polyhedra (e.g., tegragonal bipyrimid) are cannot
- * be derived from this class.
+ * Other six-face polyhedra (e.g., trigonal bipyrimid) cannot
+ * be derived from this class.  This polytope has 12 edges and 8 vertices.
  *  
  * @author kofke
  *  
@@ -18,8 +18,11 @@ import etomica.space.Vector;
 public abstract class Hexahedron extends Polyhedron {
 
     /**
-     * Constructs a cube with edge length having the given value.
-     * @param size edge length of the cube
+     * Constructs a hexahedron to reside in the given space, which
+     * determines the type of vertices it will have (e.g. based on Vector3D).
+     * Faces are formed from the following sets of vertices (referring to
+     * the index of the vertices array): (0,1,2,3), (1,3,7,5), (4,5,7,6),
+     * (0,4,6,2), (2,3,7,6), and (0,1,5,4) 
      */
     public Hexahedron(Space embeddedSpace) {
         super(makeFaces(embeddedSpace));
