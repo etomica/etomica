@@ -40,29 +40,6 @@ public class MeterWidomInsertion extends MeterScalar implements EtomicaElement {
 		setTemperature(Default.TEMPERATURE);
         atomTranslator = new AtomActionTranslateTo(space); 
 
-		//add mediator so that by default first species added to simulation is
-		// used for sampling
-		//if nothing else was previously specified
-		//        sim.elementCoordinator.addMediatorPair(new
-		// Mediator.MeterSpecies(sim.elementCoordinator) {
-		//            public void add(Species species) {
-		//                if(MeterWidomInsertion.this.wasAdded() ||
-		// MeterWidomInsertion.this.getSpecies()==null)
-		//                        MeterWidomInsertion.this.setSpecies(species);
-		//            }
-		//            public void add(MeterAbstract meter) {
-		//                if(meter != MeterWidomInsertion.this ||
-		// MeterWidomInsertion.this.getSpecies()!=null) return;
-		//                for(Iterator ip=mediator.parentSimulation().speciesList().iterator();
-		// ip.hasNext(); ) {
-		//                    Species species = (Species)ip.next();
-		//                    if(species.wasAdded()) {//will make first species the one
-		//                        MeterWidomInsertion.this.setSpecies(species);
-		//                        return;
-		//                    }
-		//                }
-		//            }
-		//        });
 	}
 
 	public static EtomicaInfo getEtomicaInfo() {
