@@ -89,7 +89,7 @@ public class TestLJMC3D extends Simulation {
         AccumulatorAverage pAccumulator = new AccumulatorAverage();
         DataPump pPump = new DataPump(pMeter,pAccumulator);
         IntervalActionAdapter iaa = new IntervalActionAdapter(pPump,sim.integrator);
-        iaa.setActionInterval(50);
+        iaa.setActionInterval(2*numAtoms);
         DataSource energyMeter = new IntegratorPotentialEnergy(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverage();
         DataPump energyManager = new DataPump(energyMeter,new DataSink[]{energyAccumulator});
