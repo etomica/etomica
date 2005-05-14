@@ -23,7 +23,7 @@ public abstract class Polygon extends Polytope {
     }
     
     private static LineSegment[] makeEdges(Space embeddedSpace, int nSides) {
-        Vector[] vertices = (Vector[]) embeddedSpace.makeVectorArray(nSides);
+        Vector[] vertices = embeddedSpace.makeVectorArray(nSides);
         LineSegment[] edges = new LineSegment[nSides];
         for (int i = 1; i < nSides; i++) {
             edges[i] = new LineSegment(embeddedSpace,
