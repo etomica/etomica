@@ -146,7 +146,9 @@ public class ClusterDiagram {
                 mConnections[node1][i] = mConnections[node1][i + 1];
             }
         }
-        if (success && node1>node2) mNumConnections--;
+        if (success && node1<node2) {
+            mNumConnections--;
+        }
         return success;
     }
 
@@ -163,7 +165,9 @@ public class ClusterDiagram {
             }
             if (connections1[i] == -1) {
                 connections1[i] = node2;
-                if (node1>node2) mNumConnections++;
+                if (node1<node2) {
+                    mNumConnections++;
+                }
                 return;
             }
         }
@@ -254,6 +258,27 @@ public class ClusterDiagram {
             for (int j=0; j<i; j++) {
                 deleteConnection(i,j);
                 deleteConnection(j,i);
+            }
+        }
+    }
+    
+    /**
+     * Sorts list of connections for each node in the diagram such that
+     * mConnections[i][j] < mConnections[i][k] for k > j.
+     */
+    public void sort() {
+        for (int i=0; i<mNumBody; i++) {
+            int[] iConnections = mConnections[i]; 
+            for (int j=0; j<mNumBody-1; j++) {
+                if (iConnections[j] == -1) break;
+                for (int k=j+1; k<mNumBody; k++) {
+                    if (iConnections[k] == -1) break;
+                    if (iConnections[j] > iConnections[k]) {
+                        int t = iConnections[j];
+                        iConnections[j] = iConnections[k];
+                        iConnections[k] = t;
+                    }
+                }
             }
         }
     }
