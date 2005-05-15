@@ -24,9 +24,6 @@ import etomica.units.Dimension;
  * @author David Kofke
  */
 
-/*
- * History Created on Jan 26, 2005 by kofke
- */
 public class AtomPositionGeometricCenter extends AtomActionAdapter implements DataSource,
         AtomPositionDefinition {
 
