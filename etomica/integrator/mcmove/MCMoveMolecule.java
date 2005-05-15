@@ -1,17 +1,9 @@
 package etomica.integrator.mcmove;
 
-import etomica.Atom;
-import etomica.AtomIterator;
-import etomica.Default;
 import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
-import etomica.atom.iterator.AtomIteratorSinglet;
-import etomica.data.meter.MeterPotentialEnergy;
-import etomica.integrator.MCMove;
-import etomica.space.Vector;
-import etomica.units.Dimension;
 
 /**
  * Standard Monte Carlo molecule-displacement trial move.
@@ -22,26 +14,13 @@ import etomica.units.Dimension;
  /* History of changes
   * 7/9/02 Added energyChange() method
   */
-public class MCMoveMolecule extends MCMove {
+public class MCMoveMolecule extends MCMoveAtom {
     
-    private final MeterPotentialEnergy energyMeter;
-    private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
-    private final AtomGroupAction moveMoleculeAction;
-    private final Vector translationVector;
-    private Atom molecule;
-    protected double uOld;
-    protected double uNew = Double.NaN;
+    protected final AtomGroupAction moveMoleculeAction;
 
     public MCMoveMolecule(PotentialMaster potentialMaster) {
-        super(potentialMaster, 1);
-        energyMeter = new MeterPotentialEnergy(potentialMaster);
+        super(potentialMaster);
         moveMoleculeAction = new AtomGroupAction(new AtomActionTranslateBy(potentialMaster.getSpace()));
-        translationVector = ((AtomActionTranslateBy)moveMoleculeAction.getAction()).getTranslationVector();
-        setStepSizeMax(Default.BOX_SIZE);
-        setStepSizeMin(0.0);
-        setStepSize(0.1*Default.ATOM_SIZE);
-        perParticleFrequency = true;
-        energyMeter.setIncludeLrc(false);
         //set directive to exclude intramolecular contributions to the energy
 
         //TODO enable meter to do this
@@ -52,51 +31,27 @@ public class MCMoveMolecule extends MCMove {
         
     }
     
-    public final Dimension getStepSizeDimension() {return Dimension.LENGTH;}
-    public final Dimension getStepSizeMaxDimension() {return Dimension.LENGTH;}
-    public final Dimension getStepSizeMinDimension() {return Dimension.LENGTH;}
-    
 
     public boolean doTrial() {
         Phase phase = phases[0];
         if(phase.moleculeCount()==0) return false;
         
-        molecule = phase.randomMolecule();
+        atom = phase.randomMolecule();
 
-        energyMeter.setTarget(molecule);
+        energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar(phase);
         translationVector.setRandomCube();
         translationVector.TE(stepSize);
-        moveMoleculeAction.actionPerformed(molecule);
+        moveMoleculeAction.actionPerformed(atom);
         uNew = Double.NaN;
         return true;
     }//end of doTrial
     
-    public double lnTrialRatio() {return 0.0;}
-    
-    public double lnProbabilityRatio() {
-        energyMeter.setTarget(molecule);
-        uNew = energyMeter.getDataAsScalar(phases[0]);
-        return -(uNew - uOld)/temperature;
-    }
-    
-    public void acceptNotify() {  /* do nothing */}
-    
     public void rejectNotify() {
         translationVector.TE(-1);
-        moveMoleculeAction.actionPerformed(molecule);
+        moveMoleculeAction.actionPerformed(atom);
     }
         
-    public final AtomIterator affectedAtoms(Phase phase) {
-        if(this.phases[0] != phase) return AtomIterator.NULL;
-        affectedAtomIterator.setAtom(molecule);
-        affectedAtomIterator.reset();
-        return affectedAtomIterator;
-    }
-
-    public double energyChange(Phase phase) {return (this.phases[0] == phase) ? uNew - uOld : 0.0;}
-    
-    
 /*    public static void main(String[] args) {
         
 	    IntegratorMC integrator = new IntegratorMC();
