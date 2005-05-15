@@ -534,6 +534,7 @@ public class ClusterGenerator {
                             continue;
                         }
                     }
+                    mCluster.sort();
                     mCurrentConnection++;
                     return true;
                 }
