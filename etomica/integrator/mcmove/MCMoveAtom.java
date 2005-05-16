@@ -25,13 +25,12 @@ import etomica.units.Dimension;
 public class MCMoveAtom extends MCMove {
     
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
-    private final MeterPotentialEnergy energyMeter;
+    protected final MeterPotentialEnergy energyMeter;
     protected final Vector translationVector;
     protected Atom atom;
     protected double uOld;
     protected double uNew = Double.NaN;
-/*debug* /    private PotentialCalculationEnergySumNearestPair energyDebug = 
-             new PotentialCalculationEnergySumNearestPair();
+/*debug* /
     private int idx1 = 8;
     private int idx2 = 9;
     private int kmax = 3240;
@@ -76,15 +75,8 @@ public class MCMoveAtom extends MCMove {
         uOld = energyMeter.getDataAsScalar(phase);
         if(uOld > 1e10) {
             System.out.println("Uold: "+uOld);
-   /*debug* /         uOld = potential.calculate(iteratorDirective.set(atom), energyDebug.reset()).sum();
-            System.out.println(k + "  rMin = "+Math.sqrt(energyDebug.r2Min));
-            System.out.println(energyDebug.atom1.node.index()+energyDebug.atom1.coord.position().toString());
-            System.out.println(energyDebug.atom2.node.index()+energyDebug.atom2.coord.position().toString());
-            System.out.println("Boundary: "+phase.boundary().dimensions().toString());
-            //uOld = potential.set(phase).calculate(iteratorDirective, energy.reset()).sum();
+   /*debug* /
             //System.out.println("Uold: "+uOld);
-            //uOld = potential.calculate(iteratorDirective.set(), energyDebug.reset()).sum();
-      //      AtomIteratorListSimple iterator = new AtomIteratorListSimple(phase.speciesMaster.atomList);
       //      while(iterator.hasNext()) {
       //          System.out.println(iterator.next().coord.position().toString());
       //      }
