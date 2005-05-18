@@ -61,6 +61,8 @@ public class Square extends Polygon {
      */
     public void setEdgeLength(double edgeLength) {
         this.edgeLength = edgeLength;
+        n = -0.5*edgeLength;
+        p = +0.5*edgeLength;
         updateVertices();
     }
     
