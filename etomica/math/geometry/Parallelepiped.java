@@ -24,7 +24,7 @@ public class Parallelepiped extends Hexahedron {
     }
 
     /**
-     * Constructs a cuboid with edges of lengths having the given values.
+     * Constructs a parallelepiped with the given edge vectors.
      */
     public Parallelepiped(Space embeddedSpace, Vector3D a, Vector3D b, Vector3D c) {
         super(embeddedSpace);
@@ -35,6 +35,9 @@ public class Parallelepiped extends Hexahedron {
         setEdgeVectors(a, b, c);
     }
 
+    /**
+     * Calculated parallelepiped volume using (a X b) . c
+     */
     public double getVolume() {
         work.E(a);
         work.XE(b);
@@ -60,6 +63,9 @@ public class Parallelepiped extends Hexahedron {
         return 4 * (aL + bL + cL);
     }
 
+    /**
+     * Calculated vertices based on current values of edge vectors.
+     */
     public void updateVertices() {
         vertices[7].Ev1Pv2(a, b);
         vertices[6].E(vertices[7]);
@@ -80,7 +86,7 @@ public class Parallelepiped extends Hexahedron {
      * Returns <code>true</code> if the given vector lies inside (or on the
      * surface of) this cell, <code>false</code> otherwise.
      */
-    //TODO contains method in Parallelepiped
+    //TODO implement contains method in Parallelepiped
     public boolean contains(etomica.space.Vector v) {
         throw new MethodNotImplementedException();
 //        double x = v.x(0)-position.x(0);
@@ -91,7 +97,8 @@ public class Parallelepiped extends Hexahedron {
     }
     
     /**
-     * Sets the lengths of all edges of the cuboid.
+     * Sets the lengths and directions of all edges of the parellelepiped.
+     * Given instances are copied to an internal representation.
      */
     public void setEdgeVectors(Vector3D aNew, Vector3D bNew, Vector3D cNew) {
         a.Ea1Tv1(0.5, aNew);
