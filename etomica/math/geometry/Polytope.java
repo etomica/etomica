@@ -10,56 +10,78 @@ import etomica.Space;
 import etomica.space.Vector;
 
 /**
- * Representation of a mathematical polytope, which is a finite region
- * of space enclosed by a finite number of hyperplanes.  Subclasses
- * include LineSegment (a 1-D polytope), Polygon (a 2-D polytope), and
- * Polyhedron (a 3-D polytope).
+ * Representation of a mathematical polytope, which is a finite region of space
+ * enclosed by a finite number of hyperplanes. Subclasses include LineSegment (a
+ * 1-D polytope), Polygon (a 2-D polytope), and Polyhedron (a 3-D polytope).
+ * Note that the polytope may be embedded in a space of higher dimension than
+ * its geometric dimension (e.g., a square -- a 2-D polytope -- by be used in a
+ * three-dimensional space. A primary feature of these classes is the set of
+ * points representing the vertices of the polytope. These points have the
+ * dimension of the embedded space. Subclasses usually have their own internal
+ * representation of the polytope that is used to calculate the vertices. It
+ * restricts access to this representation to restrict the shape of the polytope
+ * (e.g., a square polytope can be modified only by setting the common length of
+ * its sides). A polytope can be positioned to any point in space and (to be
+ * developed) given a rigid-body rotation.
  * 
  * @author kofke
- *
+ *  
  */
 public abstract class Polytope {
 
     /**
-     * Constructs a polytope of dimension D from the D-1 "planes"
-     * that constitute it.
+     * Constructs a polytope of dimension D from the D-1 finite "planes" that
+     * constitute it. Constructor does not find the vertices by calculating
+     * plane intersections; instead the given planes should be configured with
+     * vertices that form the polytope.
      */
     protected Polytope(Polytope[] hyperPlanes) {
         D = 1 + hyperPlanes[0].D;
         embeddedSpace = hyperPlanes[0].embeddedSpace;
-        if(D > embeddedSpace.D()) throw new IllegalArgumentException("Cannot create a polytope of dimension "+D+" and embed it in a lower-dimensional space (of dimension "+embeddedSpace.D()+")");
+        if (D > embeddedSpace.D())
+            throw new IllegalArgumentException(
+                    "Cannot create a polytope of dimension "
+                            + D
+                            + " and embed it in a lower-dimensional space (of dimension "
+                            + embeddedSpace.D() + ")");
         this.vertices = allVertices(hyperPlanes);
         position = embeddedSpace.makeVector();
         this.hyperPlanes = hyperPlanes;
     }
-    
+
     /**
      * Constructor used for the Point subclass
      */
     Polytope(Space embeddedSpace, Vector vertex) {
         D = 0;
         this.embeddedSpace = embeddedSpace;
-        this.vertices = new Vector[] {vertex};
+        this.vertices = new Vector[] { vertex };
         position = vertex;
         this.hyperPlanes = new Polytope[0];
     }
-    
+
     /**
-     * This method should be defined by the subclass to calculate
-     * the vertices in accordance with the internal representation
-     * of the polytope.  If the internal representation is kept by
-     * the vertices themselves, then this method need do nothing;
-     * if this method applies another internal representation to the
-     * vertices (for example, it might represent a square by keeping
-     * the edge length), it should then invoke 
-     * applyTranslationRotation() before returning.
+     * This method should be defined by the subclass to calculate the vertices
+     * in accordance with the internal representation of the polytope. If the
+     * internal representation is kept by the vertices themselves, then this
+     * method need do nothing; if this method applies another internal
+     * representation to the vertices (for example, it might represent a square
+     * by keeping the edge length), it should then invoke
+     * applyTranslationRotation() before returning. Subclass methods allowing
+     * mutation of the internal representation should invoke updateVertices to
+     * ensure the vertices are reflect the internal state. Vertices may be
+     * changed directly, but these changes will overridden by updateVertices if
+     * it is called afterwards.
      */
     public abstract void updateVertices();
-    
+
     /**
-     * Calculated transformed vertices from current values of vertices,
-     * position, and orientation. Modification of the untransformed vertices
-     * is performed by methods defined by the subclass.
+     * Calculate transformed vertices from current values of vertices, position,
+     * and orientation. Does not invoke updateVertices before transforming, and
+     * so should be called only by subclass and only at the end of the updateVertices
+     * method. Otherwise translation and rotation will be performed from current
+     * value of vertices, compounding previous application of
+     * translation/rotation. NOTE: Rotation is not yet implemented.
      */
     protected void applyTranslationRotation() {
         for (int i = 0; i < vertices.length; i++) {
@@ -68,14 +90,19 @@ public abstract class Polytope {
     }
 
     /**
-     * Returns an array of all vertices of the polytrope.
+     * Returns an array of all vertices of the polytrope. For most subclasses
+     * this array will not provide the direct representation of the polytope.
+     * Instead polytope will be defined in another internal representation, which is
+     * used to calculate the vertices via the updateVertices method. In a few
+     * subclasses the vertices <i>are</i> the representation, so alteration of the
+     * returned array will change the polytope.
      */
     public Vector[] vertices() {
         updateVertices();
         return vertices;
     }
 
-     /**
+    /**
      * Sets the position of the geometric center of the polytope.
      */
     public void setPosition(Vector r) {
@@ -86,64 +113,78 @@ public abstract class Polytope {
     /**
      * Returns the geometric center of the polytope. The returned vector is used
      * to define the position internally, so changes to it will affect the
-     * position of the polytope.
+     * logical position of the polytope, without immediately changing the vertices.
+     * Use setPosition to change the polytope position.
      */
     public Vector getPosition() {
         return position;
     }
-    
-    public abstract double getVolume();
-    
+
     /**
-     * Returns <code>true</code> if the given vector lies inside the 
-     * polytope, <code>false</code> otherwise.
+     * Returns the (hyper)volume enclosed by the polytope.  So
+     * for a LineSegment instance, this is its length; for a
+     * polygon, it is the area; for a polyhedron, it is the volume.  
+     */
+    public abstract double getVolume();
+
+    /**
+     * Returns <code>true</code> if the given vector lies inside the polytope,
+     * <code>false</code> otherwise.
      */
     public abstract boolean contains(Vector v);
 
     /**
-     * Number of vertices in the polytrope.
-     * A vertex is a point where D edges meet.
+     * Number of vertices in the polytrope. A vertex is a point where D edges
+     * meet.
      */
-    public final int vertexCount() {return vertices.length;}
-    
+    public final int vertexCount() {
+        return vertices.length;
+    }
+
+    /**
+     * The space defining the vectors used to represent the vertices.
+     */
     public Space embeddedSpace() {
         return embeddedSpace;
     }
-    
+
+    /**
+     * The dimension of this polytope, which is not necessarily the dimension
+     * of the space it is embedded in.  For example, for a cube D = 3, and for
+     * a square D = 2.
+     */
     public int D() {
         return D;
     }
 
+    /**
+     * Returns a list of all vertices appearing in the given array of
+     * polytopes.  Each vertex appears in the list only once.  Used
+     * by constructor.
+     */
     private static Vector[] allVertices(Polytope[] hyperPlanes) {
         LinkedList list = new LinkedList();
-        for(int i=0; i<hyperPlanes.length; i++) {
+        for (int i = 0; i < hyperPlanes.length; i++) {
             Vector[] vertices = hyperPlanes[i].vertices;
-            for(int j=0; j<vertices.length; j++) {
-                if(!list.contains(vertices[j])) {
+            for (int j = 0; j < vertices.length; j++) {
+                if (!list.contains(vertices[j])) {
                     list.add(vertices[j]);
                 }
             }
         }
-        return (Vector[])list.toArray(new Vector[0]);
+        return (Vector[]) list.toArray(new Vector[0]);
     }
-    
+
     protected final Space embeddedSpace;
     protected final int D;
-    
-    /**
-     * These vertices are used internally to represent the state (size, shape)
-     * of the polygon. They are defined with respect to the center of the
-     * polygon as it lies in the x-y plane. The subclass is responsible for
-     * defining and updating these vertices.
-     */
- //   protected final Vector[] vertices;
+
     /**
      * These vertices are used in all external representations of the polygon.
-     * Changes to them do not change the state of the polygon.
+     * Changes to them do not necessarily change the state of the polygon.
      */
     protected final Vector[] vertices;
     protected final Vector position;
     protected final Polytope[] hyperPlanes;
-//    protected final Orientation orientation;
+    //    protected final Orientation orientation;
 
 }
