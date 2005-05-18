@@ -97,7 +97,7 @@ public abstract class Polytope {
      * subclasses the vertices <i>are</i> the representation, so alteration of the
      * returned array will change the polytope.
      */
-    public Vector[] vertices() {
+    public Vector[] getVertices() {
         updateVertices();
         return vertices;
     }
@@ -137,14 +137,14 @@ public abstract class Polytope {
      * Number of vertices in the polytrope. A vertex is a point where D edges
      * meet.
      */
-    public final int vertexCount() {
+    public final int getVertexCount() {
         return vertices.length;
     }
 
     /**
      * The space defining the vectors used to represent the vertices.
      */
-    public Space embeddedSpace() {
+    public Space getEmbeddedSpace() {
         return embeddedSpace;
     }
 

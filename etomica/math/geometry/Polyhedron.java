@@ -15,7 +15,7 @@ public abstract class Polyhedron extends Polytope {
     /**
      * Returns all faces defined by the polyhedron.
      */
-    public Polygon[] faces() {
+    public Polygon[] getFaces() {
         updateVertices();
         return faces;
     }
@@ -23,7 +23,7 @@ public abstract class Polyhedron extends Polytope {
     /**
      * Returns all edges defined by the polyhedron.
      */
-    public LineSegment[] edges() {
+    public LineSegment[] getEdges() {
         updateVertices();
         return edges;
     }
@@ -31,7 +31,7 @@ public abstract class Polyhedron extends Polytope {
     /**
      * Returns the sum of the length of the edges of the polyhedron
      */
-    public double perimeter() {
+    public double getPerimeter() {
         updateVertices();
         double sum = 0.0;
         for(int i=0; i<edges.length; i++) {

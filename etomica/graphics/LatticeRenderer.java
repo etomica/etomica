@@ -39,7 +39,7 @@ public class LatticeRenderer implements Drawable {
         iterator.reset();
         while(iterator.hasNext()) {
             Polyhedron cell = (Polyhedron)iterator.next();
-            Vector[] vertex = (Vector[])cell.vertex();
+            Vector[] vertex = (Vector[])cell.getVertices();
             for(int i=1; i<vertex.length; i++) {
                 Vector v1 = null;
                 Vector v2 = null;

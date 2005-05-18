@@ -76,10 +76,10 @@ public class LineSegment extends Polytope {
 
     public static void main(String[] args) {
         LineSegment segment = new LineSegment(new Space3D());
-        segment.vertices()[0].setX(0, 1.0);
-        segment.vertices()[0].setX(1, 4.0);
-        segment.vertices()[1].setX(0, 2.0);
-        segment.vertices()[1].setX(1, 8.0);
+        segment.getVertices()[0].setX(0, 1.0);
+        segment.getVertices()[0].setX(1, 4.0);
+        segment.getVertices()[1].setX(0, 2.0);
+        segment.getVertices()[1].setX(1, 8.0);
         etomica.space3d.Vector3D p1 = new etomica.space3d.Vector3D();
         p1.setX(0, 1.5);
         p1.setX(1, 6.0);
