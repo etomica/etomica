@@ -1,7 +1,6 @@
 package etomica;
 
 import etomica.atom.AtomSequencerFactory;
-import etomica.atom.AtomsetArray;
 import etomica.atom.iterator.AtomsetIteratorMolecule;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.potential.Potential0;
@@ -214,7 +213,7 @@ public class PotentialMaster {
     
     private static class AtomIterator0 extends AtomsetIteratorSinglet implements AtomsetIteratorMolecule {
         AtomIterator0() {
-            super(new AtomsetArray(0));
+            super(AtomSet.NULL);
         }
         public void setPhase(Phase phase) {}
         public void setTarget(AtomSet target) {}
