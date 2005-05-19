@@ -76,7 +76,7 @@ public final class AtomsetIteratorSpeciesAgent extends AtomsetIteratorAdapter
      * applied to no more than one target atom.
      */
     public void setTarget(AtomSet targetAtoms) {
-        if (targetAtoms == null) {
+        if (targetAtoms.count() == 0) {
             canReset = true;
         }
     	else if (targetAtoms.count() > basisSize) {

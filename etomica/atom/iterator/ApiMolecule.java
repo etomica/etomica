@@ -23,22 +23,31 @@ import etomica.action.AtomsetAction;
 public class ApiMolecule implements AtomsetIteratorMolecule, AtomPairIterator {
 
     /**
+     * @param api11 iterator for single molecule pair form from target specification
      * @param api1A iterator for all pairs formed with a target molecule
      * @param apiAA iterator for all pairs in the phase
      */
-    public ApiMolecule(AtomsetIteratorMolecule api1A,
+    public ApiMolecule(AtomsetIteratorMolecule api11,
+                        AtomsetIteratorMolecule api1A,
                           AtomsetIteratorPhaseDependent apiAA) {
+        this.api11 = api11;
 		this.api1A = api1A;
         this.apiAA = apiAA;
         iterator = (AtomPairIterator)apiAA;
 	}
     
     public void setTarget(AtomSet targetAtoms) {
-        if(targetAtoms == null) {
-            iterator = (AtomPairIterator)apiAA;
-        } else {
-            iterator = (AtomPairIterator)api1A;
+        switch (targetAtoms.count()) {
+        case 0:
+            iterator = (AtomPairIterator) apiAA;
+            break;
+        case 1:
+            iterator = (AtomPairIterator) api1A;
             api1A.setTarget(targetAtoms);
+            break;
+        default:
+            iterator = (AtomPairIterator) api11;
+            api11.setTarget(targetAtoms);
         }
         getCurrentIterator().setPhase(phase);
     }
@@ -122,6 +131,7 @@ public class ApiMolecule implements AtomsetIteratorMolecule, AtomPairIterator {
     }
     
     private AtomPairIterator iterator;
+    private final AtomsetIteratorMolecule api11;
     private final AtomsetIteratorMolecule api1A; 
     private final AtomsetIteratorPhaseDependent apiAA;
     private Phase phase;

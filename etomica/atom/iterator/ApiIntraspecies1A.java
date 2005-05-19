@@ -52,8 +52,12 @@ public class ApiIntraspecies1A extends AtomPairIteratorAdapter implements
         this.phase = phase;
         if(phase != null) {
             agentNode = (AtomTreeNodeGroup)phase.getAgent(species).node;
+            identifyTargetMolecule();
+        } else {
+            targetMolecule = null;
+            aiOuter.setAtom(null);
+            aiInner.setAtom(null);
         }
-        identifyTargetMolecule();
     }
 
     /**
@@ -72,7 +76,8 @@ public class ApiIntraspecies1A extends AtomPairIteratorAdapter implements
      * in one of the species given at construction, no iterates will be returned.
      */
     public void setTarget(AtomSet targetAtoms) {
-        targetAtom = (Atom)targetAtoms;
+        if(targetAtoms.count() != 1) throw new IllegalArgumentException("1A iterator must have exactly one target atom");
+        targetAtom = targetAtoms.getAtom(0);
         identifyTargetMolecule();
     }
 
@@ -82,7 +87,7 @@ public class ApiIntraspecies1A extends AtomPairIteratorAdapter implements
      * atom is not part of either species.
      */
     private void identifyTargetMolecule() {
-        if(targetAtom == null || phase == null) {
+        if(phase == null) {
             targetMolecule = null;
         } else {
             AtomTreeNode targetNode = targetAtom.node.childWhereDescendedFrom(agentNode);

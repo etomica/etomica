@@ -345,7 +345,7 @@ public class IntegratorHard extends IntegratorMD {
             Agent agent = (Agent)atom.ia;
             agent.resetCollision();
         }
-        upList.setTargetAtoms(null);
+        upList.setTargetAtoms(AtomSet.NULL);
         collisionHandlerUp.reset();
         potential.calculate(firstPhase, upList, collisionHandlerUp); //assumes only one phase
         eventList.reset();

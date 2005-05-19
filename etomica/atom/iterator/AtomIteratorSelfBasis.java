@@ -55,6 +55,16 @@ public class AtomIteratorSelfBasis extends AtomIteratorAdapter implements
 	public int basisSize() {
 		return 1;
 	}
+    
+    public boolean haveTarget(AtomSet target) {
+        if(basisAtom == null) {
+            return false;
+        }
+        if(target.count() == 1) {
+            return target.getAtom(0) == basisAtom;
+        }
+        return target.count() == 0;
+    }
 
 	/**
 	 * Specifies a target atom, such that if the target does not equal the
@@ -63,7 +73,16 @@ public class AtomIteratorSelfBasis extends AtomIteratorAdapter implements
 	 * basis atom.
 	 */
 	public void setTarget(AtomSet targetAtoms) {
-		targetAtom = (Atom)targetAtoms;
+        switch(targetAtoms.count()) {
+        case 0: 
+            targetAtom = null;
+            break;
+        case 1:
+            targetAtom = targetAtoms.getAtom(0);
+            break;
+        default:
+            throw new IllegalArgumentException("Can specify at most one target atom to AtomIteratorBasis");
+        }
 	}
 
 	private Atom basisAtom;

@@ -52,7 +52,16 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
      * phase will be given on iteration.
      */
     public void setTarget(AtomSet targetAtoms) {
-        targetAtom = (Atom)targetAtoms;
+        switch(targetAtoms.count()) {
+        case 0: 
+            targetAtom = null;
+            break;
+        case 1:
+            targetAtom = targetAtoms.getAtom(0);
+            break;
+        default:
+            throw new IllegalArgumentException("Can specify at most one target atom to iterator");
+        }
         setList();
     }
 

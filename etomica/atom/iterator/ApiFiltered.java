@@ -145,6 +145,10 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
             ((AtomPairVector)next).nearestImageVector = ((AtomPairVector)atoms).nearestImageVector;
         }
     }
+    
+    public boolean haveTarget(AtomSet target) {
+        return ((AtomsetIteratorBasisDependent)iterator).haveTarget(target);
+    }
         	
 	/**
 	 * @return the iterator wrapped by this filter.

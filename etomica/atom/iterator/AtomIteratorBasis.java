@@ -33,14 +33,23 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
 	 * target is not in the hierarchy below the basis at the time of reset.
 	 * On the other hand, specification is ignored if the target is at or 
 	 * above the hierarchy depth of the basis at time of reset.
-	 * Specifying a null or zero-length array causes releases any target
+	 * Specifying a zero-length atom set releases any target
 	 * restrictions, and specifies that the iterator should give all of the
 	 * child atoms of the basis.  Only first atom in given array is relevant.
 	 * Call to this method leaves iterator unset; call to reset is required
 	 * before beginning iteration.
 	 */
 	public void setTarget(AtomSet targetAtoms) {
-		targetAtom = (Atom)targetAtoms;
+        switch(targetAtoms.count()) {
+            case 0: 
+                targetAtom = null;
+                break;
+            case 1:
+                targetAtom = targetAtoms.getAtom(0);
+                break;
+            default:
+                throw new IllegalArgumentException("Can specify at most one target atom to AtomIteratorBasis");
+        }
 		if(targetAtom != null) targetDepth = targetAtom.type.getDepth();
 		needSetupIterator = (basis != null);//flag to setup iterator only if presently has a non-null basis
 		listIterator.unset();
@@ -66,6 +75,19 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
 			listIterator.unset();
 		}
 	}
+    
+    /**
+     * Returns false if any of the atoms in the target set are
+     * not descended from the current basis.
+     */
+    public boolean haveTarget(AtomSet target) {
+        for(int i=target.count()-1; i>=0; i--) {
+            if(!target.getAtom(i).node.isDescendedFrom(basis)) {//isDescendedFrom returns false if basis is null
+                return false;
+            }
+        }
+        return true;
+    }
 	
 	/**
 	 * Puts iterator in a state ready to begin iteration.

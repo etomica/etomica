@@ -195,7 +195,16 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
      * in one of the species given at construction, no iterates will be returned.
      */
     public void setTarget(AtomSet targetAtoms) {
-        pair.atom0 = (Atom)targetAtoms;
+        switch(targetAtoms.count()) {
+        case 0: 
+            pair.atom0 = null;
+            break;
+        case 1:
+            pair.atom0 = targetAtoms.getAtom(0);
+            break;
+        default:
+            throw new IllegalArgumentException("Can specify at most one target atom to iterator");
+        }
     }
 
     

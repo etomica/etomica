@@ -27,5 +27,11 @@ public interface AtomsetIteratorBasisDependent extends AtomsetIteratorTargetable
      * @return the size of the basis for this iterator.
      */
     public int basisSize();
+    
+    /**
+     * Returns true if the iterator with its current basis 
+     * would return an iterate for the given target.
+     */
+    public boolean haveTarget(AtomSet target);
 
 }

@@ -4,6 +4,7 @@ import etomica.IteratorFactory;
 import etomica.Species;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.iterator.ApiMolecule;
+import etomica.atom.iterator.ApiSpecies11;
 import etomica.atom.iterator.AtomsetIteratorMolecule;
 import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
 
@@ -27,12 +28,14 @@ public class IteratorFactoryCell extends IteratorFactory {
     public AtomsetIteratorMolecule makeInterspeciesPairIterator(Species[] species) {
         AtomsetIteratorMolecule api1A = new ApiInterspecies1ACell(D, species);
         AtomsetIteratorPhaseDependent apiAA = new ApiInterspeciesAACell(D, species);
-        return new ApiMolecule(api1A, apiAA);
+        ApiSpecies11 api11 = new ApiSpecies11(species);
+        return new ApiMolecule(api11, api1A, apiAA);
     }
     public AtomsetIteratorMolecule makeIntraspeciesPairIterator(Species[] species) {
         AtomsetIteratorMolecule api1A = new ApiIntraspecies1ACell(D, species);
         AtomsetIteratorPhaseDependent apiAA = new ApiIntraspeciesAACell(D, species);
-        return new ApiMolecule(api1A, apiAA);
+        ApiSpecies11 api11 = new ApiSpecies11(species);
+        return new ApiMolecule(api11, api1A, apiAA);
     }
     public AtomSequencerFactory moleculeSequencerFactory() {
         return AtomSequencerCell.FACTORY;

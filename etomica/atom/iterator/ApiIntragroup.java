@@ -37,9 +37,17 @@ public final class ApiIntragroup extends AtomPairIteratorAdapter implements
 	}
 
 	public void setTarget(AtomSet targetAtoms) {
+        if(targetAtoms == null) throw new IllegalArgumentException("Cannot set target to null; use AtomSet.NULL");
 		aiOuter.setTarget(targetAtoms);
-        oneTarget = targetAtoms != null && targetAtoms.getAtom(0) != null && (targetAtoms instanceof Atom || targetAtoms.getAtom(1) == null);
+        oneTarget = targetAtoms.count() != 0 && targetAtoms.getAtom(0) != null && (targetAtoms.count() == 1 || targetAtoms.getAtom(1) == null);
 	}
+    
+    public boolean haveTarget(AtomSet targetAtoms) {
+        for(int i=targetAtoms.count()-1; i>=0; i--) {
+            if(!aiOuter.haveTarget(targetAtoms.getAtom(i))) return false;
+        }
+        return true;
+    }
 	
 	/**
 	 * Puts iterator in a state to begin iteration.
