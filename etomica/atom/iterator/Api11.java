@@ -79,8 +79,8 @@ public class Api11 extends AtomPairIteratorAdapter implements
 
     /**
      * Sets target atoms for iteration. Atom set must contain at least two
-     * atoms, and there must be at least one atom descended from each basis
-     * atom.  Must identify exactly two child atoms (one for each basis) through
+     * atoms; otherwise and IllegalArgumentException is thrown.  
+     * Target must identify exactly two child atoms (one for each basis) through
      * which all target atoms are descended.  If these conditions are not met,
      * then no iterate will be given on reset.
      */

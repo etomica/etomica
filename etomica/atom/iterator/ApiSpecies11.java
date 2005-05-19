@@ -22,6 +22,10 @@ import etomica.IteratorDirective.Direction;
 public class ApiSpecies11 extends AtomPairIteratorAdapter implements
         AtomsetIteratorMolecule {
 
+    /**
+     * @param species length-2 array of species, which may refer to the same species 
+     * instance or to two different species instances
+     */
     public ApiSpecies11(Species[] species) {
         super(new Api11());
         if(species.length != 2) throw new IllegalArgumentException("ApiSpecies11 requires array of two species");
