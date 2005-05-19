@@ -2,6 +2,7 @@ package etomica.space;
 
 import etomica.NearestImageTransformer;
 import etomica.Space;
+import etomica.math.geometry.Polytope;
 
 /**
  * Parent class of boundary objects that describe the size and periodic nature
@@ -14,9 +15,23 @@ import etomica.Space;
 public abstract class Boundary implements NearestImageTransformer,
         java.io.Serializable {
 
-    public Boundary(Space space) {
+    public Boundary(Space space, Polytope shape) {
         this.space = space;
+        this.shape = shape;
     }
+    
+    public Polytope getShape() {
+        return shape;
+    }
+    
+    /**
+     * @return the volume enclosed by the boundary
+     */
+    public double volume() {
+        return shape.getVolume();
+    }
+
+
 
     /**
      * Determines the translation vector needed to apply a periodic-image
@@ -41,11 +56,6 @@ public abstract class Boundary implements NearestImageTransformer,
      *            return this vector is replaced with the minimum-image vector
      */
     public abstract void nearestImage(Vector dr);
-
-    /**
-     * @return the volume enclosed by the boundary
-     */
-    public abstract double volume();
 
     /**
      * Returns a copy of the dimensions, as a Vector. Manipulation of this copy
@@ -98,5 +108,6 @@ public abstract class Boundary implements NearestImageTransformer,
     public abstract double[][] imageOrigins(int nShells);
 
     protected final Space space;
+    protected final Polytope shape;
 
 }

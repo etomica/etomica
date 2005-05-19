@@ -17,8 +17,11 @@ import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWall;
 import etomica.atom.AtomTypeWell;
 import etomica.atom.iterator.AtomIteratorList;
+import etomica.math.geometry.LineSegment;
+import etomica.math.geometry.Polyhedron;
 import etomica.space.Boundary;
 import etomica.space.Vector;
+import etomica.space3d.Vector3D;
 import etomica.utility.java2.Iterator;
 import gl4java.utils.glut.GLUTEnum;
 
@@ -57,6 +60,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   private double wellListRadius = 0f;
   private boolean glInitialized = false, canvasInitialized = false;
   private double drawExpansionFactor = 1.0;
+  private final Vector3D vertex = new Vector3D();
 
   //The transparent grey color for the wells
   private final static byte wR=(byte)200, wG=(byte)200, wB=(byte)200, wA=(byte)160;
@@ -718,44 +722,19 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     yCent = yCenter+((2*yCenter)*num);
     zCent = zCenter+((2*zCenter)*num);
     gl.glBegin(GL_LINES);
-    gl.glVertex3f(-xCent, yCent, zCent);
-    gl.glVertex3f(xCent, yCent, zCent);
-    gl.glVertex3f(xCent, yCent, zCent);
-    gl.glVertex3f(xCent, -yCent, zCent);
-    gl.glVertex3f(xCent, -yCent, zCent);
-    gl.glVertex3f(-xCent, -yCent, zCent);
-    gl.glVertex3f(-xCent, -yCent, zCent);
-    gl.glVertex3f(-xCent, -yCent, -zCent);
-    gl.glVertex3f(-xCent, -yCent, -zCent);
-    gl.glVertex3f(xCent, -yCent, -zCent);
-    gl.glVertex3f(xCent, -yCent, -zCent);
-    gl.glVertex3f(xCent, yCent, -zCent);
-    gl.glVertex3f(xCent, yCent, -zCent);
-    gl.glVertex3f(-xCent, yCent, -zCent);
-    gl.glVertex3f(-xCent, yCent, -zCent);
-    gl.glVertex3f(-xCent, yCent, zCent);
-    gl.glVertex3f(xCent, yCent, zCent);
-    gl.glVertex3f(xCent, yCent, -zCent);
-    gl.glVertex3f(-xCent, -yCent, -zCent);
-    gl.glVertex3f(-xCent, yCent, -zCent);
-    gl.glVertex3f(xCent, -yCent, zCent);
-    gl.glVertex3f(xCent, -yCent, -zCent);
-    gl.glVertex3f(-xCent, yCent, zCent);
-    gl.glVertex3f(-xCent, -yCent, zCent);
+    Polyhedron shape = (Polyhedron)displayPhase.getPhase().boundary().getShape();
+    LineSegment[] edges = shape.getEdges();
+    for(int i=0; i<edges.length; i++) {
+        vertex.E((Vector3D)edges[i].getVertices()[0]);
+        vertex.TE((1+2*num));
+        gl.glVertex3f((float)vertex.x(0), (float)vertex.x(1), (float)vertex.x(2));
+        vertex.E((Vector3D)edges[i].getVertices()[1]);
+        vertex.TE((1+2*num));
+        gl.glVertex3f((float)vertex.x(0), (float)vertex.x(1), (float)vertex.x(2));
+    }
     gl.glEnd();
   }
     
-  /*public void doPaint(Graphics g) {
-    //Draw bar showing scale if indicated
-    if(writeScale) {
-      g.setColor(Color.lightGray);
-      g.fillRect(0,getSize().height-annotationHeight,getSize().width,annotationHeight);
-      g.setColor(Color.black);
-      g.setFont(font);
-      g.drawString("Scale: "+Integer.toString((int)(100*displayPhase.getScale()))+"%", 0, getSize().height-3);
-    }
-    //System.gc();
-  }*/
 /**
  * Returns the drawExpansionFactor.
  * @return double

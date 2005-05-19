@@ -3,6 +3,7 @@ package etomica.space;
 import etomica.Default;
 import etomica.Space;
 import etomica.lattice.IndexIteratorSequential;
+import etomica.math.geometry.Cuboid;
 
 /**
  * Boundary that is in the shape of a rectangular parallelepiped.  
@@ -14,7 +15,7 @@ import etomica.lattice.IndexIteratorSequential;
 public abstract class BoundaryRectangular extends Boundary {
 
     public BoundaryRectangular(Space space, boolean[] periodicity) {
-        super(space);
+        super(space, new Cuboid(space));
         isPeriodic = (boolean[])periodicity.clone();
         dimensions = space.makeVector();
         dimensions.E(Default.BOX_SIZE);
@@ -39,6 +40,8 @@ public abstract class BoundaryRectangular extends Boundary {
     private final void updateDimensions() {
         dimensionsHalf.Ea1Tv1(0.5, dimensions);
         dimensionsCopy.E(dimensions);
+        //XXX need a arbitrary-dimension version of this
+        ((Cuboid)shape).setEdgeLengths(dimensions.x(0),dimensions.x(1),dimensions.x(2));
     }
 
 

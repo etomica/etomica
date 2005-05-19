@@ -2,6 +2,7 @@ package etomica.space;
 
 import etomica.Default;
 import etomica.Space;
+import etomica.math.geometry.Parallelepiped;
 
 /**
  * @author skkwak
@@ -34,7 +35,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
 	}
 
 	public BoundaryDeformablePeriodic(Space space, boolean[] periodicity) {
-		super(space);
+		super(space, new Parallelepiped(space));
 		isPeriodic = (boolean[]) periodicity.clone();
 		boundaryTensor = space.makeTensor();
 		boundaryTensorCopy = space.makeTensor();
