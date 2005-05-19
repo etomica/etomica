@@ -78,7 +78,7 @@ public class PotentialMasterNbr extends PotentialMaster {
     public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
 		if(!enabled) return;
     	AtomSet targetAtoms = id.getTargetAtoms();
-    	if (targetAtoms == null) {
+    	if (targetAtoms == AtomSet.NULL) {
     		//no target atoms specified -- do one-target algorithm to SpeciesMaster
     		calculate(phase.speciesMaster, idUp, pc, phase.speciesMaster.type.getNbrManagerAgent().getPotentials());
             if(lrcMaster != null) {
@@ -203,7 +203,6 @@ public class PotentialMasterNbr extends PotentialMaster {
 	private final AtomIteratorSinglet singletIterator;
 	private final ApiInnerFixed pairIterator;
 	private final NeighborManager neighborManager;
-    private NeighborCellManager[] neighborCellManager = new NeighborCellManager[0];
     private int nCells;
     private final IteratorDirective idUp = new IteratorDirective();
     private final AtomPositionDefinition positionDefinition;
