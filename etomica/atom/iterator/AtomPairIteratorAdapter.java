@@ -6,6 +6,7 @@ package etomica.atom.iterator;
 
 import etomica.AtomPair;
 import etomica.AtomPairIterator;
+import etomica.AtomSet;
 
 /**
  * Adapater class that wraps another AtomPairIterator to implement the
@@ -30,6 +31,10 @@ public abstract class AtomPairIteratorAdapter extends AtomsetIteratorAdapter imp
 		atomPairIterator = iterator;
 	}
 	
+    public final AtomSet next() {
+        return nextPair();
+    }
+    
 	public AtomPair nextPair() {
 		return atomPairIterator.nextPair();
 	}

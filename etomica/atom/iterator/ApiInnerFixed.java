@@ -132,7 +132,7 @@ public final class ApiInnerFixed implements AtomPairIterator, ApiComposite {
     	return pair;
     }
     
-    public AtomSet next() {
+    public final AtomSet next() {
         return nextPair();
     }
     
