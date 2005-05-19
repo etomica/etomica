@@ -6,17 +6,23 @@ import etomica.space.Vector;
 /**
  * Representation of a mathematical polygon, a 2-dimensional polytope. Contains
  * all information needed to represent a polygon, methods to set its position
- * and orientation, and methods that given an external representation of it. 
+ * and orientation, and methods that return an external representation of it. 
  * Provides no external means to change the polygon size and shape, as the form
  * and capabilities of mutator methods are particular to the type of polygon
  * defined by the subclass.
  */
 public abstract class Polygon extends Polytope {
 
-    public Polygon(Space embeddedSpace, int nSides) {
+    /**
+     * Constructs a polygon with the given number of sides arranged in a closed loop.
+     */
+    protected Polygon(Space embeddedSpace, int nSides) {
         this(makeEdges(embeddedSpace, nSides));
     }
-    
+
+    /**
+     * Constructs a polygon using the given edges for its sides.
+     */
     protected Polygon(LineSegment[] edges) {
         super(edges);
         this.edges = edges;
@@ -29,7 +35,7 @@ public abstract class Polygon extends Polytope {
             edges[i] = new LineSegment(embeddedSpace,
                     vertices[i-1], vertices[i]);
         }
-        edges[0] = new LineSegment(embeddedSpace, vertices[nSides],
+        edges[0] = new LineSegment(embeddedSpace, vertices[nSides-1],
                 vertices[0]);
         return edges;
     }

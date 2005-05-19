@@ -4,6 +4,10 @@ import etomica.Default;
 import etomica.Space;
 import etomica.lattice.IndexIteratorSequential;
 import etomica.math.geometry.Cuboid;
+import etomica.math.geometry.LineSegment;
+import etomica.math.geometry.Polytope;
+import etomica.math.geometry.Rectangle;
+import etomica.math.geometry.Rectangular;
 
 /**
  * Boundary that is in the shape of a rectangular parallelepiped.  
@@ -15,7 +19,7 @@ import etomica.math.geometry.Cuboid;
 public abstract class BoundaryRectangular extends Boundary {
 
     public BoundaryRectangular(Space space, boolean[] periodicity) {
-        super(space, new Cuboid(space));
+        super(space, makeShape(space));
         isPeriodic = (boolean[])periodicity.clone();
         dimensions = space.makeVector();
         dimensions.E(Default.BOX_SIZE);
@@ -26,6 +30,15 @@ public abstract class BoundaryRectangular extends Boundary {
         indexIterator = new IndexIteratorSequential(space.D());
         needShift = new boolean[space.D()];//used by getOverflowShifts
         updateDimensions();
+    }
+    
+    private static Polytope makeShape(Space space) {
+        switch(space.D()) {
+            case 1: return new LineSegment(space);
+            case 2: return new Rectangle(space);
+            case 3: return new Cuboid(space);
+            default: throw new IllegalArgumentException("BoundaryRectangular not appropriate to given space");
+        }
     }
 
     public final etomica.space.Vector dimensions() {
@@ -40,8 +53,7 @@ public abstract class BoundaryRectangular extends Boundary {
     private final void updateDimensions() {
         dimensionsHalf.Ea1Tv1(0.5, dimensions);
         dimensionsCopy.E(dimensions);
-        //XXX need a arbitrary-dimension version of this
-        ((Cuboid)shape).setEdgeLengths(dimensions.x(0),dimensions.x(1),dimensions.x(2));
+        ((Rectangular)shape).setEdgeLengths(dimensions);
     }
 
 
@@ -51,7 +63,7 @@ public abstract class BoundaryRectangular extends Boundary {
     }
 
     public double volume() {
-        return dimensions.productOfElements();
+        return shape.getVolume();
     }
 
     public boolean[] getPeriodicity() {

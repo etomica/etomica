@@ -11,6 +11,7 @@ import etomica.SpeciesSpheres;
 import etomica.SpeciesSpheresMono;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTreeNodeGroup;
+import etomica.space2d.Space2D;
 
 
 /**
@@ -30,7 +31,7 @@ public class AtomIndexManagerTest extends TestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        Simulation sim = new Simulation();
+        Simulation sim = new Simulation(new Space2D());
         SpeciesSpheresMono species0 = new SpeciesSpheresMono(sim);
         species0.setNMolecules(20);
         SpeciesSpheres species1 = new SpeciesSpheres(sim, AtomSequencerFactory.SIMPLE,5);

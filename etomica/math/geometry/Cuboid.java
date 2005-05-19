@@ -5,6 +5,7 @@
 package etomica.math.geometry;
 
 import etomica.Space;
+import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 
 /**
@@ -14,7 +15,7 @@ import etomica.space3d.Vector3D;
  * @author kofke
  * 
  */
-public class Cuboid extends Hexahedron {
+public class Cuboid extends Hexahedron implements Rectangular {
 
     /**
      * Constructs a cuboid with equal faces of unit size (a cube).
@@ -32,15 +33,15 @@ public class Cuboid extends Hexahedron {
     }
 
     public double getVolume() {
-        return a * b * c;
+        return 8 * pa * pb * pc;
     }
 
     public double getSurfaceArea() {
-        return 2*(a*b + a*c + b*c);
+        return 2*4*(pa*pb + pa*pc + pb*pc);
     }
     
     public double getPerimeter() {
-        return 4*(a + b + c);
+        return 4*2*(pa + pb + pc);
     }
 
     public void updateVertices() {
@@ -68,12 +69,29 @@ public class Cuboid extends Hexahedron {
     }
     
     /**
+     * Sets the three edge lengths of the cuboid, taking
+     * each element of the given vector for the length of
+     * the corresponding cuboid edge.
+     */
+    public void setEdgeLengths(Vector e) {
+        setEdgeLengths(e.x(0), e.x(1), e.x(2));
+    }
+    
+    /**
+     * Returns a vector with elements equal to the
+     * edge lengths of the cuboid.  The returned vector is not
+     * used to represent the cuboid internally, so changing its
+     * values will not affect the state of the cuboid.
+     */
+    public Vector getEdgeLengths() {
+        return edgeLengths;
+    }
+    
+    /**
      * Sets the lengths of all edges of the cuboid.
      */
     public void setEdgeLengths(double a, double b, double c) {
-        this.a = a;
-        this.b = b;
-        this.c = c;
+        edgeLengths.E(a, b, c);
         na = -0.5 * a;
         pa = +0.5 * a;
         nb = -0.5 * b;
@@ -83,7 +101,7 @@ public class Cuboid extends Hexahedron {
         updateVertices();
     }
 
-    private double a, b, c;
+    private final Vector3D edgeLengths = new Vector3D();//used only to return edge lengths as a vector
     private double na, pa;//na = -a/2, p = +a/2
     private double nb, pb;//nb = -b/2, p = +a/2
     private double nc, pc;//nc = -c/2, p = +a/2

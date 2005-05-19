@@ -2,6 +2,7 @@ package etomica.math.geometry;
 
 import etomica.Space;
 import etomica.space.Vector;
+import etomica.space1d.Vector1D;
 import etomica.space3d.Space3D;
 
 /**
@@ -14,7 +15,7 @@ import etomica.space3d.Space3D;
 /*
  * History Created on May 10, 2005 by kofke
  */
-public class LineSegment extends Polytope {
+public class LineSegment extends Polytope implements Rectangular {
 
     public LineSegment(Space embeddedSpace) {
         this(embeddedSpace, embeddedSpace.makeVector(), embeddedSpace.makeVector());
@@ -31,7 +32,7 @@ public class LineSegment extends Polytope {
     public void updateVertices() {
         //does nothing, becuse in this case the vertices are the representation of the polytope
     }
-
+    
     /**
      * Returns true if the given vector lies between the ends of the segment, on
      * the line joining them. Point must lie exactly on the line to return true,
@@ -57,6 +58,10 @@ public class LineSegment extends Polytope {
         return Math.sqrt(vertices[1].Mv1Squared(vertices[0]));
     }
     
+    /**
+     * Sets the length of the segment to the given value, keeping
+     * its orientation and the position of its midpoint fixed.
+     */
     public void setLength(double newLength) {
         if(vertices[0].equals(vertices[1])) {
             //currently zero length; just expand along x axis from present point
@@ -73,6 +78,23 @@ public class LineSegment extends Polytope {
             vertices[0].PEa1Tv1(-dv/(1.0+dv),vertices[1]);
         }
     }
+
+    /**
+     * Sets the length equal to the element of the (presumably 1D) vector.
+     * Implementation of Rectangular interface.
+     */
+    public void setEdgeLengths(Vector v) {
+        setLength(v.x(0));
+    }
+    
+    /**
+     * Returns the length of the line segment as the element of a 1D vector.
+     * Implmentation of the Rectangular interface.
+     */
+    public Vector getEdgeLengths() {
+        return new Vector1D(getLength());
+    }
+
 
     public static void main(String[] args) {
         LineSegment segment = new LineSegment(new Space3D());
