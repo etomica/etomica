@@ -1,7 +1,5 @@
 /*
  * Created on Mar 24, 2005
- *
- * TODO 
  */
 package etomica;
 
@@ -9,8 +7,6 @@ import etomica.space.Vector;
 
 /**
  * @author nancycribbin
- *
- * TODO 
  */
 public class ConformationChain3D extends ConformationChain {
 	

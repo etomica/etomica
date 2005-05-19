@@ -13,7 +13,7 @@ import etomica.Space;
  * 
  * @author nancycribbin
  */
-public class ConformationHexane extends etomica.ConformationChainZigZag {
+public class ConformationHexane extends ConformationChainZigZag {
 
 	public ConformationHexane(Space space){
 		super(space);

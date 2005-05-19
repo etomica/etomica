@@ -98,14 +98,14 @@ public class ConformationChainLinear extends ConformationChain {
 	 * @see etomica.ConformationChain#reset()
 	 */
 	protected void reset() {
-		// TODO 
+		// TODO what happens here?
 		
 	}
 	/* (non-Javadoc)
 	 * @see etomica.ConformationChain#nextVector()
 	 */
 	protected Vector nextVector() {
-		// TODO 
+		// TODO what happens here? 
 		return null;
 	}
 }//end of ConformationLinear
