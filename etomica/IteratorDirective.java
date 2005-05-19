@@ -14,15 +14,7 @@ package etomica;
  */
 public final class IteratorDirective implements java.io.Serializable {
     
-    private Direction direction;
-    PotentialCriterion potentialCriteriaHead;
-    
-    /**
-     * Flag indicating whether long-range correction contributions should
-     * be included in calculation.  Default is <b>true</b>.
-     */
-    public boolean includeLrc = true;
-        
+  
     public IteratorDirective() {
         this(UP);
     }
@@ -70,11 +62,19 @@ public final class IteratorDirective implements java.io.Serializable {
     }
     
     public void setTargetAtoms(AtomSet atoms) {
+        if(atoms == null) throw new NullPointerException("Cannot have null AtomSet for target; use AtomSet.NULL");
         targetAtoms = atoms;
     }
     public AtomSet getTargetAtoms() {return targetAtoms;}
     
-    public AtomSet targetAtoms;
+    /**
+     * Flag indicating whether long-range correction contributions should
+     * be included in calculation.  Default is <b>true</b>.
+     */
+    public boolean includeLrc = true;
+    private Direction direction;
+    PotentialCriterion potentialCriteriaHead;
+    public AtomSet targetAtoms = AtomSet.NULL;
     
     //IteratorDirective.Direction
     public static final class Direction extends Constants.TypedConstant {
