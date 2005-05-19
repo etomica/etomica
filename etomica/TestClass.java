@@ -64,6 +64,10 @@ public class TestClass {
         for(int i=0; i<properties.length; i++) {
             System.out.println(properties[i].getName());
         }
+        
+        Object obj1 = null;
+        Object obj2 = null;
+        System.out.println(obj1 == obj2);
     }
     
     private static class InnerA {
