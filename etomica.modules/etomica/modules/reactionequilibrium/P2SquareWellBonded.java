@@ -2,11 +2,11 @@ package etomica.modules.reactionequilibrium;
 import etomica.Atom;
 import etomica.AtomPair;
 import etomica.AtomSet;
+import etomica.AtomTypeLeaf;
 import etomica.Default;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.potential.P2SquareWell;
-import etomica.potential.PotentialReactive;
 import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;
@@ -102,7 +102,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 			AtomPair pair = (AtomPair) atoms;
 			Atom a1Partner = (Atom) pair.atom0.allatomAgents[idx];
 			
-			cPair.reset((AtomPair) pair);
+			cPair.reset(pair);
 			((CoordinatePairKinetic) cPair).resetV();
 			dr.E(cPair.dr());
 			Vector dv = ((CoordinatePairKinetic) cPair).dv();
@@ -140,8 +140,10 @@ public class P2SquareWellBonded extends P2SquareWell {
 		// ke is kinetic energy due to components of velocity
 		Atom a0 = pair.atom0;
 		Atom a1 = pair.atom1;
+        double rm0 = ((AtomTypeLeaf)a0.type).rm();
+        double rm1 = ((AtomTypeLeaf)a1.type).rm();
 //		System.out.println("Bumping "+pair.toString());
-		double reduced_m = 2.0 / (a0.type.rm() + a1.type.rm());
+		double reduced_m = 2.0 / (rm0 + rm1);
 		double ke = bij * bij * reduced_m / (4.0 * r2);
 		
 		Atom a0Partner1 = ((Atom[]) a0.allatomAgents[idx])[0];
@@ -243,10 +245,10 @@ if (( (Atom[]) a0.allatomAgents[idx])[0] == a1)
 
 		lastCollisionVirialr2 = lastCollisionVirial / r2;
 		dv.Ea1Tv1(lastCollisionVirialr2, dr);
-		((ICoordinateKinetic) pair.atom0.coord).velocity().PEa1Tv1(a0.type.rm(), dv);
-		((ICoordinateKinetic) pair.atom1.coord).velocity().PEa1Tv1(-a1.type.rm(), dv);
-		a0.coord.position().PEa1Tv1(-falseTime * a0.type.rm(), dv);
-		a1.coord.position().PEa1Tv1(falseTime * a1.type.rm(), dv);
+		((ICoordinateKinetic) pair.atom0.coord).velocity().PEa1Tv1( rm0, dv);
+		((ICoordinateKinetic) pair.atom1.coord).velocity().PEa1Tv1(-rm1, dv);
+		a0.coord.position().PEa1Tv1(-falseTime * rm0, dv);
+		a1.coord.position().PEa1Tv1(falseTime * rm1, dv);
 		
 		if (nudge != 0) 
 		{

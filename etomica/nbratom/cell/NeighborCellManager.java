@@ -6,6 +6,7 @@ package etomica.nbratom.cell;
 
 import etomica.Atom;
 import etomica.AtomIterator;
+import etomica.AtomTypeLeaf;
 import etomica.Phase;
 import etomica.PhaseCellManager;
 import etomica.PhaseEvent;
@@ -100,7 +101,7 @@ public class NeighborCellManager implements PhaseCellManager {
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom atom = atomIterator.nextAtom();
-            if (atom.type.isInteracting()  && (atom.type.getMass()!=Double.POSITIVE_INFINITY ||
+            if (atom.type.isInteracting()  && (atom.type instanceof AtomTypeLeaf && ((AtomTypeLeaf)atom.type).getMass()!=Double.POSITIVE_INFINITY ||
                     ((AtomSequencerCell)atom.seq).cell == null)) {
                 assignCell(atom);
             }

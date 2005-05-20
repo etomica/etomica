@@ -1,11 +1,10 @@
 package etomica.modules.reactionequilibrium;
 
-import java.awt.Component;
-
 import javax.swing.JPanel;
 
 import etomica.Action;
 import etomica.Atom;
+import etomica.AtomTypeLeaf;
 import etomica.Constants;
 import etomica.Modifier;
 import etomica.SpeciesAgent;
@@ -58,14 +57,11 @@ public class ReactionEquilibriumGraphic {
 		tSelect.getLabel().setText("Set value");
 		ColorSchemeByType.setColor(sim.speciesA, java.awt.Color.red);
 
-		//display of phase
-		Component display = displayPhase1.graphic();
-
 		//	adjustment of species properties
 		MySpeciesEditor AEditor = new MySpeciesEditor(sim, 
-				(SpeciesAgent) sim.speciesA.getAgent(sim.phase1), "Red");
+				sim.speciesA.getAgent(sim.phase1), "Red");
 		MySpeciesEditor BEditor = new MySpeciesEditor(sim, 
-				(SpeciesAgent) sim.speciesB.getAgent(sim.phase1), "Black");
+				sim.speciesB.getAgent(sim.phase1), "Black");
 //		AEditor.nSlider.getSlider().setValue(21);
 //		BEditor.nSlider.getSlider().setValue(21);
 		int ms = 10;
@@ -458,7 +454,7 @@ public class ReactionEquilibriumGraphic {
 						value = 1000000;
 					final double newMass = value;
 					mass.setText(Integer.toString(value));
-					species.type.getSpecies().getFactory().getType().setMass(newMass);
+					((AtomTypeLeaf)species.type.getSpecies().getFactory().getType()).setMass(newMass);
 					sim.integratorHard1.reset();
 				}
 			};

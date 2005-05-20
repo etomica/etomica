@@ -1,5 +1,6 @@
 package etomica.data.meter;
 import etomica.Atom;
+import etomica.AtomTypeLeaf;
 import etomica.EtomicaInfo;
 import etomica.Phase;
 import etomica.Space;
@@ -58,19 +59,19 @@ public class MeterTensorVelocity extends MeterTensor /*implements MeterTensor.At
     /**
      * Returns the velocity dyad (mass*vv) summed over all atoms, and divided by N
      */
-    public Tensor getDataAsTensor(Phase phase) {
-        ai1.setPhase(phase);
+    public Tensor getDataAsTensor(Phase p) {
+        ai1.setPhase(p);
         ai1.reset();
         velocityTensor.E(0.0);
         int count = 0;
         while(ai1.hasNext()) {
             Atom a = ai1.nextAtom();
             velocity.E(((ICoordinateKinetic)a.coord).velocity(), ((ICoordinateKinetic)a.coord).velocity());
-            velocity.TE(a.type.rm());
+            velocity.TE(((AtomTypeLeaf)a.type).rm());
             velocityTensor.PE(velocity);
             count++;
         }
-        velocityTensor.TE(1.0/(double)count);
+        velocityTensor.TE(1.0/count);
         return velocityTensor;
     }
     
