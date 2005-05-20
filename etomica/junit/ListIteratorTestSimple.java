@@ -3,7 +3,7 @@
  */
 package etomica.junit;
 
-import etomica.atom.iterator.AtomIteratorListDependent;
+import etomica.atom.iterator.AtomsetIteratorListDependent;
 import etomica.atom.iterator.AtomIteratorListSimple;
 
 
@@ -20,6 +20,7 @@ public class ListIteratorTestSimple extends ListIteratorTest {
 
 	public ListIteratorTestSimple() {
 		super(new AtomIteratorListSimple());
+        UnitTest.VERBOSE = true;
 	}
 /**
  * setUp is a required method for any JUNIT test.  Here, a new iterator of type
@@ -34,7 +35,7 @@ public class ListIteratorTestSimple extends ListIteratorTest {
  * performs tests on all the general methods contained in the class
  * AtomIteratorListSimple.
  */	
-	public void iteratorStateTests(AtomIteratorListDependent iterator) {
+	public void iteratorStateTests(AtomsetIteratorListDependent iterator) {
 		IteratorTest.generalIteratorMethodTests(iterator);
 	}
 		

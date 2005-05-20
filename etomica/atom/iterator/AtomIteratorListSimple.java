@@ -1,6 +1,7 @@
 package etomica.atom.iterator;
 
 import etomica.Atom;
+import etomica.AtomIterator;
 import etomica.AtomSet;
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomLinker;
@@ -19,7 +20,7 @@ import etomica.atom.AtomList;
  * 08/23/04 (DAK, AS, KB) updated with overhaul of iterators
  * 
  */
-public final class AtomIteratorListSimple implements AtomIteratorListDependent {
+public final class AtomIteratorListSimple implements AtomIterator, AtomsetIteratorListDependent {
     
 	/**
 	 * Constructs iterator with an empty list for iteration.

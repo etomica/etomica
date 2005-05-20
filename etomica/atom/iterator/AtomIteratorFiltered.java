@@ -63,7 +63,7 @@ public class AtomIteratorFiltered implements AtomIterator {
         if(iterator instanceof AtomIteratorPhaseDependent)    key += (1<<1);//2
         if(iterator instanceof AtomsetIteratorDirectable)     key += (1<<2);//4
         if(iterator instanceof AtomsetIteratorTargetable)     key += (1<<3);//8
-        if(iterator instanceof AtomIteratorListDependent)     key += (1<<4);//16
+        if(iterator instanceof AtomsetIteratorListDependent)     key += (1<<4);//16
         boolean basis = iterator instanceof AtomsetIteratorBasisDependent;
         
         switch(key) {
@@ -186,10 +186,10 @@ public class AtomIteratorFiltered implements AtomIterator {
 		};
 	}
     
-    private static class AIFList extends AtomIteratorFiltered implements AtomIteratorListDependent {
+    private static class AIFList extends AtomIteratorFiltered implements AtomsetIteratorListDependent {
         AIFList(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
-        public void setList(AtomList list) {((AtomIteratorListDependent)iterator).setList(list);}
-        public AtomList getList() {return ((AtomIteratorListDependent)iterator).getList();}
+        public void setList(AtomList list) {((AtomsetIteratorListDependent)iterator).setList(list);}
+        public AtomList getList() {return ((AtomsetIteratorListDependent)iterator).getList();}
     }
     private static class AIFAtom extends AtomIteratorFiltered implements AtomIteratorAtomDependent {
         AIFAtom(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}

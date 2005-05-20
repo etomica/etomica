@@ -14,7 +14,7 @@ import etomica.atom.AtomList;
 /**
  * Returns all pairs formed from a single list of atoms.
  */
-public class ApiListSimple implements AtomPairIterator {
+public class ApiListSimple implements AtomPairIterator, AtomsetIteratorListDependent {
 
 	/**
 	 * Construct iterator with an empty list.  No iterates will
@@ -136,6 +136,13 @@ public class ApiListSimple implements AtomPairIterator {
         this.list = (newList != null) ? newList : new AtomList();
 		unset();
 	}
+    
+    /**
+     * Returns the list used to generate the pairs.
+     */
+    public AtomList getList() {
+        return list;
+    }
 	
 	
 	private void resetInner() {

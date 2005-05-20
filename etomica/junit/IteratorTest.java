@@ -35,7 +35,7 @@ public class IteratorTest extends TestCase {
     public static void printLists(Lister[] lister) {
         if (UnitTest.VERBOSE) {
             for (int i = 0; i < lister.length; i++) {
-                System.out.println(lister[i].list);
+                System.out.println(lister[i]);
             }
             System.out.println();
         }

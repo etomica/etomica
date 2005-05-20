@@ -44,7 +44,7 @@ public class AtomPair implements AtomSet {
     }
     
     public String toString() {
-        return atom0+" and "+atom1;
+        return "["+atom0.toString()+","+atom1.toString()+"]";
     }
     
     public Atom atom0, atom1;

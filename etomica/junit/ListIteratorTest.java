@@ -10,7 +10,7 @@ import etomica.Atom;
 import etomica.Space;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
-import etomica.atom.iterator.AtomIteratorListDependent;
+import etomica.atom.iterator.AtomsetIteratorListDependent;
 import etomica.space3d.Space3D;
 
 /**
@@ -23,10 +23,10 @@ import etomica.space3d.Space3D;
 public abstract class ListIteratorTest extends TestCase {
 	
 	protected int tabType1, tabType2;
-	private final AtomIteratorListDependent iterator;
+	private final AtomsetIteratorListDependent iterator;
 
 
-	public ListIteratorTest(AtomIteratorListDependent iterator) {
+	public ListIteratorTest(AtomsetIteratorListDependent iterator) {
 		this.iterator = iterator;
 		tabType1 = AtomLinker.Tab.requestTabType();
 		tabType2 = AtomLinker.Tab.requestTabType();
@@ -36,7 +36,7 @@ public abstract class ListIteratorTest extends TestCase {
  * to be tested and calls the iteratorStateTests method for each case.
  */
 
-	public abstract void iteratorStateTests(AtomIteratorListDependent iterator);
+	public abstract void iteratorStateTests(AtomsetIteratorListDependent iterator);
 
 	public void testListVariations() {
 		

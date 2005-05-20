@@ -28,7 +28,7 @@ import etomica.atom.AtomTreeNodeGroup;
   * 09/01/02 (DAK) modified nextLinker method to properly handle case of NEITHER direction
   * 08/23/04 (DAK, AS, KB) overhauled with revision of iterators
   */
-public final class AtomIteratorList implements AtomIteratorListDependent, AtomsetIteratorDirectable {
+public final class AtomIteratorList implements AtomIterator, AtomsetIteratorListDependent, AtomsetIteratorDirectable {
     
     private AtomList list;
     

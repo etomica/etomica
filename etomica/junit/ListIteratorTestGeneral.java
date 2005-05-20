@@ -10,7 +10,7 @@ import etomica.IteratorDirective;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorList;
-import etomica.atom.iterator.AtomIteratorListDependent;
+import etomica.atom.iterator.AtomsetIteratorListDependent;
 
 /**
  * Tests a general list iterator, ensuring that effect of direction, first,
@@ -39,7 +39,7 @@ public class ListIteratorTestGeneral extends ListIteratorTest {
 	}
 	
 		
-	public void iteratorStateTests(AtomIteratorListDependent listIterator) {
+	public void iteratorStateTests(AtomsetIteratorListDependent listIterator) {
 		AtomIteratorList iterator = (AtomIteratorList)listIterator;
 		iterator.setTerminatorType(AtomLinker.Tab.HEADER_TAB);
 		listElements(listIterator.getList());

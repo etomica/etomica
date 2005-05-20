@@ -4,14 +4,14 @@
  */
 package etomica.atom.iterator;
 
-import etomica.AtomIterator;
+import etomica.AtomsetIterator;
 import etomica.atom.AtomList;
 
 /**
  * Interface for an iterator that requires specification of an 
  * AtomList for its operation.
  */
-public interface AtomIteratorListDependent extends AtomIterator {
+public interface AtomsetIteratorListDependent extends AtomsetIterator {
 
 	/**
 	 * Sets the list for iteration.

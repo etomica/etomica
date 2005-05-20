@@ -1,8 +1,12 @@
 package etomica.junit;
 
-import etomica.*;
-import etomica.action.*;
+import java.util.Iterator;
 import java.util.LinkedList;
+
+import etomica.Atom;
+import etomica.AtomSet;
+import etomica.action.AtomAction;
+import etomica.action.AtomsetActionAdapter;
 
 /**
  * @author aawalker
@@ -67,14 +71,23 @@ class Lister extends AtomsetActionAdapter implements AtomAction {
 	 * kmb 4/27/05
 	 */
 	public void actionPerformed(AtomSet a) {
-		String newString = "";
-		if(UnitTest.VERBOSE) System.out.println("atom.length is: " + a.count());
-		for(int i=0; i<a.count()-1; i++) newString += a.getAtom(i).toString()+",";
-		if(a.count() > 0) newString += a.getAtom(a.count()-1).toString();
-
-		list.add(newString);
+//		String newString = "";
+//		if(UnitTest.VERBOSE) System.out.println("atom.length is: " + a.count());
+//		for(int i=0; i<a.count()-1; i++) newString += a.getAtom(i).toString()+",";
+//		if(a.count() > 0) newString += a.getAtom(a.count()-1).toString();
+//		list.add(newString);
+        list.add(a.toString());
 	}
 
-
+	public String toString() {
+	    Iterator iter = list.iterator();
+        String string = "{";
+        while(iter.hasNext()) {
+            string += iter.next().toString();
+            if(iter.hasNext()) string += ",";
+        }
+        string += "}";
+        return string;
+    }
 
 }
