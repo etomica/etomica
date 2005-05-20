@@ -1,5 +1,5 @@
 package etomica.models.water;
-import etomica.AtomType;
+import etomica.AtomTypeGroup;
 import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.Simulation;
@@ -13,8 +13,8 @@ public class SpeciesWater extends Species implements EtomicaElement {
     public SpeciesWater(Simulation sim, int nM) {
         this(sim, nM, Species.makeAgentType(sim));
     }
-    private SpeciesWater(Simulation sim, int nM, AtomType agentType) {
-       super(sim, new AtomFactoryWater(sim.space, agentType.getIndexManager().makeChildManager()),
+    private SpeciesWater(Simulation sim, int nM, AtomTypeGroup agentType) {
+       super(sim, new AtomFactoryWater(sim.space, agentType),
                agentType);
        factory.setSpecies(this);
        nMolecules = nM;

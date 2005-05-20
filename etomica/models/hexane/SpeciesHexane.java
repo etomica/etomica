@@ -4,19 +4,15 @@
 package etomica.models.hexane;
 
 import etomica.Atom;
-import etomica.AtomIndexManager;
-import etomica.AtomType;
-//import etomica.Conformation;
+import etomica.AtomTypeGroup;
 import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Simulation;
-import etomica.Space;
 import etomica.Species;
 import etomica.SpeciesAgent;
 import etomica.action.AtomActionAdapter;
 import etomica.atom.AtomFactoryHomo;
-import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTypeSphere;
 import etomica.units.Dimension;
@@ -34,35 +30,18 @@ public class SpeciesHexane extends Species implements EtomicaElement {
 
     private final AtomTypeSphere atomType;
 
-    //static method used to make factory on-the-fly in the constructor
-    private static AtomFactoryHomo makeFactory(Space space,
-            AtomSequencerFactory seqFactory, AtomIndexManager indexManager,
-            int na, ConformationHexane conform) {
-        AtomType type = new AtomTypeSphere(indexManager.makeChildManager(),
-                Default.ATOM_MASS, Default.ATOM_SIZE);
-        AtomFactoryMono f = new AtomFactoryMono(space, type, seqFactory);
-        return new AtomFactoryHomo(space, seqFactory, indexManager, f, na,
-                conform);
-    }
-
     public SpeciesHexane(Simulation sim) {
-        this(sim, sim.potentialMaster.sequencerFactory(), 1);
+        this(sim, sim.potentialMaster.sequencerFactory());
     }
 
-    public SpeciesHexane(Simulation sim, AtomSequencerFactory seqFactory, int nA) {
-        this(sim, seqFactory, nA, new ConformationHexane(sim.space));
-    }
-
-    public SpeciesHexane(Simulation sim, AtomSequencerFactory seqFactory,
-            int nA, ConformationHexane conformation) {
-        this(sim, seqFactory, nA, conformation, Species.makeAgentType(sim));
+    public SpeciesHexane(Simulation sim, AtomSequencerFactory seqFactory) {
+        this(sim, seqFactory, Species.makeAgentType(sim));
     }
 
     private SpeciesHexane(Simulation sim, AtomSequencerFactory seqFactory,
-            int nA, ConformationHexane conformation, AtomType agentType) {
-        super(sim, makeFactory(sim.space, seqFactory, agentType
-                .getIndexManager().makeChildManager(), nA, conformation),
-                agentType);
+            AtomTypeGroup agentType) {
+        super(sim, new AtomFactoryHomo(sim.space, seqFactory, agentType,
+                6, new ConformationHexane(sim.space)), agentType);
         factory.setSpecies(this);
         atomType = (AtomTypeSphere) ((AtomFactoryHomo) factory).childFactory()
                 .getType();

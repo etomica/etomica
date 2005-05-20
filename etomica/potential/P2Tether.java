@@ -1,6 +1,7 @@
 package etomica.potential;
 import etomica.AtomPair;
 import etomica.AtomSet;
+import etomica.AtomTypeLeaf;
 import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.Simulation;
@@ -60,13 +61,15 @@ public class P2Tether extends Potential2HardSpherical {
         dr.PEa1Tv1(falseTime,dv);
         double r2 = dr.squared();
         double bij = dr.dot(dv);
-        lastCollisionVirial = 2.0/(pair.atom0.type.rm() + pair.atom1.type.rm())*bij;
+        double rm0 = ((AtomTypeLeaf)pair.atom0.type).rm();
+        double rm1 = ((AtomTypeLeaf)pair.atom1.type).rm();
+        lastCollisionVirial = 2.0/(rm0 + rm1)*bij;
         lastCollisionVirialr2 = lastCollisionVirial/r2;
         dv.Ea1Tv1(lastCollisionVirialr2,dr);
-        ((ICoordinateKinetic)pair.atom0.coord).velocity().PEa1Tv1( pair.atom0.type.rm(),dv);
-        ((ICoordinateKinetic)pair.atom1.coord).velocity().PEa1Tv1(-pair.atom1.type.rm(),dv);
-        pair.atom0.coord.position().PEa1Tv1(-falseTime*pair.atom0.type.rm(),dv);
-        pair.atom1.coord.position().PEa1Tv1( falseTime*pair.atom1.type.rm(),dv);
+        ((ICoordinateKinetic)pair.atom0.coord).velocity().PEa1Tv1( rm0,dv);
+        ((ICoordinateKinetic)pair.atom1.coord).velocity().PEa1Tv1(-rm1,dv);
+        pair.atom0.coord.position().PEa1Tv1(-falseTime*rm0,dv);
+        pair.atom1.coord.position().PEa1Tv1( falseTime*rm1,dv);
     }
 
 

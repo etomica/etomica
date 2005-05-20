@@ -2,6 +2,7 @@ package etomica.potential;
 
 import etomica.AtomPair;
 import etomica.AtomSet;
+import etomica.AtomTypeLeaf;
 import etomica.Default;
 import etomica.Simulation;
 import etomica.Space;
@@ -47,7 +48,7 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
         double r2 = dr.squared();
         double bij = dr.dot(dv);
 
-        double reduced_m = 1/(((AtomPair)pair).atom0.type.rm() + ((AtomPair)pair).atom1.type.rm());
+        double reduced_m = 1/(((AtomTypeLeaf)((AtomPair)pair).atom0.type).rm() + ((AtomTypeLeaf)((AtomPair)pair).atom1.type).rm());
         double nudge = 0;
         if (bij > 0.0) {    //Separating
             double ke = bij*bij*reduced_m/(2*r2);

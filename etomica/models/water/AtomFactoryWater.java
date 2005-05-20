@@ -2,8 +2,7 @@ package etomica.models.water;
 
 import etomica.Atom;
 import etomica.AtomFactory;
-import etomica.AtomIndexManager;
-import etomica.AtomType;
+import etomica.AtomTypeGroup;
 import etomica.Space;
 import etomica.Species;
 import etomica.atom.AtomFactoryMono;
@@ -24,17 +23,15 @@ public class AtomFactoryWater extends AtomFactory {
 	 * @param sim
 	 * @param sequencerFactory
 	 */
-	public AtomFactoryWater(Space space, AtomIndexManager indexManager) {
-        this(space, AtomSequencerFactory.SIMPLE, indexManager);
+	public AtomFactoryWater(Space space, AtomTypeGroup agentType) {
+        this(space, AtomSequencerFactory.SIMPLE, agentType);
     }
     
-    public AtomFactoryWater(Space space, AtomSequencerFactory sequencerFactory, AtomIndexManager indexManager) {
-		super(space, new AtomType(indexManager,new AtomPositionGeometricCenter(space)), sequencerFactory, AtomTreeNodeWater.FACTORY);
+    public AtomFactoryWater(Space space, AtomSequencerFactory sequencerFactory, AtomTypeGroup agentType) {
+		super(space, new AtomTypeGroup(agentType,new AtomPositionGeometricCenter(space)), sequencerFactory, AtomTreeNodeWater.FACTORY);
 
-        AtomIndexManager childIndexManager = indexManager.makeChildManager();
-        
-        AtomType hType = new AtomTypeSphere(childIndexManager, 1.0, /*Electron.UNIT.toSim(0.4238),*/ 2.0);
-        AtomType oType = new AtomTypeSphere(childIndexManager, 16.0, /*Electron.UNIT.toSim(-0.8476),*/ 3.167);
+        AtomTypeSphere hType = new AtomTypeSphere(atomType, 1.0, /*Electron.UNIT.toSim(0.4238),*/ 2.0);
+        AtomTypeSphere oType = new AtomTypeSphere(atomType, 16.0, /*Electron.UNIT.toSim(-0.8476),*/ 3.167);
 
         hFactory = new AtomFactoryMono(space, hType, AtomSequencerFactory.SIMPLE);
 		oFactory = new AtomFactoryMono(space, oType, AtomSequencerFactory.SIMPLE);

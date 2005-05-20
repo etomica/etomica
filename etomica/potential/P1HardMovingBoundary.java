@@ -4,6 +4,7 @@ import java.awt.Color;
 
 import etomica.Atom;
 import etomica.AtomSet;
+import etomica.AtomTypeLeaf;
 import etomica.Debug;
 import etomica.Default;
 import etomica.EtomicaInfo;
@@ -194,10 +195,10 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
                 throw new RuntimeException("bork!");
             }
         }
-        double dp = 2.0/(1/wallMass + ((Atom)a).type.rm())*(trueWallVelocity-v.x(wallD));
+        double dp = 2.0/(1/wallMass + ((AtomTypeLeaf)((Atom)a).type).rm())*(trueWallVelocity-v.x(wallD));
         virialSum += dp;
-        v.setX(wallD,v.x(wallD)+dp*((Atom)a).type.rm());
-        ((Atom)a).coord.position().setX(wallD,r-dp*((Atom)a).type.rm()*falseTime);
+        v.setX(wallD,v.x(wallD)+dp*((AtomTypeLeaf)((Atom)a).type).rm());
+        ((Atom)a).coord.position().setX(wallD,r-dp*((AtomTypeLeaf)((Atom)a).type).rm()*falseTime);
         wallVelocity -= dp/wallMass;
         wallPosition += dp/wallMass*falseTime;
         
