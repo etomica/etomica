@@ -1,6 +1,7 @@
 package etomica.integrator;
 
 import etomica.Atom;
+import etomica.AtomTypeLeaf;
 import etomica.Constants;
 import etomica.Default;
 import etomica.Integrator;
@@ -131,6 +132,7 @@ public abstract class IntegratorMD extends Integrator {
         if (--thermostatCount == 0) {
             thermostatCount = thermostatInterval;
             if (thermostat == VELOCITY_SCALING || !isothermal) {
+                // calculate current kinetic temperature
                 for (int i=0; i<phase.length; i++) {
                     scaleMomenta(phase[i]);
                 }
@@ -147,7 +149,7 @@ public abstract class IntegratorMD extends Integrator {
                     AtomList atomList = phase[i].speciesMaster.atomList;
                     int index = Simulation.random.nextInt(atomList.size());
                     Atom a = atomList.get(index);
-                    double m = a.type.getMass();
+                    double m = ((AtomTypeLeaf)a.type).getMass();
                     currentKineticEnergy[i] -= 0.5*m*((ICoordinateKinetic)a.coord).velocity().squared();
                     randomizeMomentum(atomList.get(index));
                     currentKineticEnergy[i] += 0.5*m*((ICoordinateKinetic)a.coord).velocity().squared();

@@ -2,6 +2,7 @@ package etomica.integrator;
 
 import etomica.Atom;
 import etomica.AtomSet;
+import etomica.AtomTypeLeaf;
 import etomica.AtomsetIterator;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
@@ -74,8 +75,8 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
             a.coord.position().PEa1Tv1(tStep,((ICoordinateKinetic)a.coord).velocity());
             if(!agent.forceFree) {
 //                System.out.println("IntegratorHardField "+agent.force.toString()+" "+a.toString());
-                a.coord.position().PEa1Tv1(t2*a.type.rm(),agent.force);
-                ((ICoordinateKinetic)a.coord).velocity().PEa1Tv1(tStep*a.type.rm(),agent.force);
+                a.coord.position().PEa1Tv1(t2*((AtomTypeLeaf)a.type).rm(),agent.force);
+                ((ICoordinateKinetic)a.coord).velocity().PEa1Tv1(tStep*((AtomTypeLeaf)a.type).rm(),agent.force);
             }
         }
     }

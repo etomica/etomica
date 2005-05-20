@@ -5,7 +5,7 @@
 package etomica.atom;
 
 import etomica.Atom;
-import etomica.AtomIndexManager;
+import etomica.AtomType;
 import etomica.Default;
 import etomica.Parameter;
 
@@ -14,11 +14,12 @@ public class AtomTypeSphereVariable extends AtomTypeSphere {
     
     int index;
     
-    public AtomTypeSphereVariable(AtomIndexManager indexManager, int index) {
-        this(indexManager, index, Default.ATOM_MASS);
+    public AtomTypeSphereVariable(AtomType parentType, int index) {
+        this(parentType, index, Default.ATOM_MASS);
     }
-    public AtomTypeSphereVariable(AtomIndexManager indexManager, int index, double m) {
-        super(indexManager, m, Double.NaN);
+    public AtomTypeSphereVariable(AtomType parentType, int index, double m) {
+        super(parentType, m, Double.NaN);
+        this.index = index;
     }
                 
     public double diameter(Atom a) {return ((Parameter.Size)(a.allatomAgents[index])).getSigma();}

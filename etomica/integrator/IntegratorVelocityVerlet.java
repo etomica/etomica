@@ -1,6 +1,7 @@
 package etomica.integrator;
 
 import etomica.Atom;
+import etomica.AtomTypeLeaf;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
@@ -35,10 +36,8 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         return info;
     }
     
-    private double t2;
     public final void setTimeStep(double t) {
         super.setTimeStep(t);
-        t2 = timeStep*timeStep;
     }
   
 
@@ -55,7 +54,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
             MyAgent agent = (MyAgent)a.ia;     //  and momenta half step
             Vector r = a.coord.position();
             Vector v = ((ICoordinateKinetic)a.coord).velocity();
-            v.PEa1Tv1(0.5*timeStep*a.type.rm(),agent.force);  // p += f(old)*dt/2
+            v.PEa1Tv1(0.5*timeStep*((AtomTypeLeaf)a.type).rm(),agent.force);  // p += f(old)*dt/2
             r.PEa1Tv1(timeStep,v);         // r += p*dt/m
             agent.force.E(0.0);
         }
@@ -68,7 +67,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         while(atomIterator.hasNext()) {     //loop over atoms again
             Atom a = atomIterator.nextAtom();   //  finishing the momentum step
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
-            ((ICoordinateKinetic)a.coord).velocity().PEa1Tv1(0.5*timeStep*a.type.rm(),((MyAgent)a.ia).force);  //p += f(new)*dt/2
+            ((ICoordinateKinetic)a.coord).velocity().PEa1Tv1(0.5*timeStep*((AtomTypeLeaf)a.type).rm(),((MyAgent)a.ia).force);  //p += f(new)*dt/2
         }
         if(isothermal) {
             doThermostat();

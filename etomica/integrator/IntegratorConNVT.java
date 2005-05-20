@@ -1,6 +1,7 @@
 package etomica.integrator;
 
 import etomica.Atom;
+import etomica.AtomTypeLeaf;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
@@ -8,7 +9,6 @@ import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Space;
-import etomica.atom.iterator.AtomIteratorList;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;
@@ -27,8 +27,6 @@ import etomica.space.Vector;
  */
 public final class IntegratorConNVT extends IntegratorMD implements EtomicaElement {
 
-    private final AtomIteratorList atomIterator = new AtomIteratorList();
-    
     public final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms = new IteratorDirective();
     private final Space space;
@@ -62,7 +60,6 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 	
 	public boolean addPhase(Phase p) {
 	    if(!super.addPhase(p)) return false;
-        atomIterator.setList(p.speciesMaster.atomList);
         phase = p;
         return true;
     }
@@ -108,7 +105,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
             
 			work1.E(v); //work1 = v
 			work2.E(agent.force);	//work2=F
-			work1.PEa1Tv1(halfTime*a.type.rm(),work2); //work1= p/m + F*Dt2/m = v + F*Dt2/m
+			work1.PEa1Tv1(halfTime*((AtomTypeLeaf)a.type).rm(),work2); //work1= p/m + F*Dt2/m = v + F*Dt2/m
             
         	k+=work1.squared();
  
@@ -126,7 +123,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 		
 			double scale = (2.0*chi-1.0); 
 			work3.Ea1Tv1(scale,v); 
-			work4.Ea1Tv1(chi*a.type.rm(),agent.force);
+			work4.Ea1Tv1(chi*((AtomTypeLeaf)a.type).rm(),agent.force);
 			work4.TE(timeStep);
 			work3.PE(work4);
 			v.E(work3);
@@ -136,7 +133,6 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 		atomIterator.reset();
 		while(atomIterator.hasNext()) {
 			Atom a = atomIterator.nextAtom();
-			Agent agent = (Agent)a.ia;
 			Vector r = a.coord.position();
 			Vector v = ((ICoordinateKinetic)a.coord).velocity();
             

@@ -4,15 +4,15 @@
  */
 package etomica.atom;
 
-import etomica.AtomIndexManager;
 import etomica.AtomType;
+import etomica.AtomTypeLeaf;
 import etomica.Constants;
 import etomica.Phase;
 import etomica.Space;
 import etomica.units.Kelvin;
 
 
-public final class AtomTypeWall extends AtomType {
+public final class AtomTypeWall extends AtomTypeLeaf {
         
         int thickness = 4;  //thickness when drawn to screen (if horizontal or vertical)
         int[] drawShift; //specifies simple shift (in pixels) of wall when drawn to screen
@@ -29,8 +29,8 @@ public final class AtomTypeWall extends AtomType {
         private Constants.Alignment alignment;
         public double pAccumulator, qAccumulator; //net sum of momentum and heat transferred to wall
         
-        public AtomTypeWall(Space space, AtomIndexManager indexManager, double m, double l, double x, double y, double z) {
-            super(indexManager, new AtomPositionDefinitionSimple(), m);
+        public AtomTypeWall(Space space, AtomType parentType, double m, double l, double x, double y, double z) {
+            super(parentType, m);
             setLength(l);
             setXAngle(x);
             setYAngle(y);

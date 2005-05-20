@@ -5,8 +5,8 @@
 package etomica.atom;
 
 import etomica.Atom;
-import etomica.AtomIndexManager;
 import etomica.AtomType;
+import etomica.AtomTypeLeaf;
 import etomica.Default;
 
 /**
@@ -15,15 +15,15 @@ import etomica.Default;
  * (AtomPositionDefinitionSimple).
  */
 
-public class AtomTypeSphere extends AtomType {
+public class AtomTypeSphere extends AtomTypeLeaf {
     
     double diameter, radius;
     
-    public AtomTypeSphere(AtomIndexManager indexManager) {
-        this(indexManager, Default.ATOM_MASS, Default.ATOM_SIZE);
+    public AtomTypeSphere(AtomType parentType) {
+        this(parentType, Default.ATOM_MASS, Default.ATOM_SIZE);
     }
-    public AtomTypeSphere(AtomIndexManager indexManager, double m, double d) {
-        super(indexManager, new AtomPositionDefinitionSimple(), m);
+    public AtomTypeSphere(AtomType parentType, double m, double d) {
+        super(parentType, m);
         setDiameter(d);
     }
                 

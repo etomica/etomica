@@ -1,14 +1,13 @@
 package etomica.integrator;
 
 import etomica.Atom;
+import etomica.AtomTypeLeaf;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
 import etomica.IteratorDirective;
-import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Space;
-import etomica.atom.iterator.AtomIteratorList;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;
@@ -20,8 +19,6 @@ import etomica.space.Vector;
  */
 public final class IntegratorVerlet extends IntegratorMD implements EtomicaElement {
 
-    private final AtomIteratorList atomIterator = new AtomIteratorList();
-    
     public final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms = new IteratorDirective();
     private final Space space;
@@ -40,17 +37,6 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         EtomicaInfo info = new EtomicaInfo("Molecular dynamics using basic Verlet algorithm");
         return info;
     }
-
-	/**
-	 * Overrides superclass method to instantiate iterators when iteratorFactory in phase is changed.
-	 * Called by Integrator.addPhase and Integrator.iteratorFactorObserver.
-	 */
-	public boolean addPhase(Phase p) {
-	    if(!super.addPhase(p)) return false;
-        atomIterator.setList(p.speciesMaster.atomList);
-        return true;
-    }
-    
         
 	private double t2;
 
@@ -79,7 +65,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
             Vector r = a.coord.position();
             work.E(r);
             r.PE(agent.rMrLast);
-            agent.force.TE(a.type.rm()*t2);
+            agent.force.TE(((AtomTypeLeaf)a.type).rm()*t2);
             r.PE(agent.force);
             agent.rMrLast.E(r);
             agent.rMrLast.ME(work);
