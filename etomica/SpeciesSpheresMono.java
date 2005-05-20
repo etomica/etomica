@@ -19,14 +19,6 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
 
     private final AtomTypeSphere atomType;
     
-    //static method used to make factory on-the-fly in the constructor
-    private static AtomFactoryMono makeFactory(Space space, 
-                                                AtomSequencerFactory seqFactory,
-                                                AtomIndexManager indexManager) {
-        AtomType type = new AtomTypeSphere(indexManager, Default.ATOM_MASS, Default.ATOM_SIZE);
-        return new AtomFactoryMono(space, type, seqFactory);
-    }
- 
     /**
      * Constructs instance with space and AtomSequencer.Factory taken from
      * given simulation, and using default number of molecules given by
@@ -46,7 +38,7 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
     
     private SpeciesSpheresMono(Simulation sim, AtomSequencerFactory seqFactory,
                                 AtomType agentType) {
-        super(sim, makeFactory(sim.space, seqFactory, agentType.getIndexManager().makeChildManager()),
+        super(sim, new AtomFactoryMono(sim.space, new AtomTypeSphere(agentType), seqFactory),
                 agentType);
         factory.setSpecies(this);
         atomType = (AtomTypeSphere)((AtomFactoryMono)factory).getType();

@@ -161,8 +161,8 @@ public class Species {
      * to make the factory (which is also passed to the Species constructor).
      * PositionDefinition for the agent type is set to null.
      */
-    protected static AtomType makeAgentType(Simulation sim) {
-        return new AtomType(sim.speciesRoot.childType.getIndexManager().makeChildManager(), null);
+    protected static AtomTypeGroup makeAgentType(Simulation sim) {
+        return new AtomTypeGroup(sim.speciesRoot.childType, null);
     }
     
     final AgentList agents = new AgentList();
@@ -170,7 +170,6 @@ public class Species {
     protected final AtomFactory factory;
     private String name;
     private final int index;
-    private static int instanceCount;
 
     /**
      * Class that keeps a list of all agents in a way that

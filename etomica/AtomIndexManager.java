@@ -1,7 +1,6 @@
 package etomica;
 
 import etomica.atom.AtomTreeNode;
-import etomica.utility.Arrays;
 
 /**
  * Performs manipulations and interrogations related to the index assigned to

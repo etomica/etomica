@@ -21,14 +21,6 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
     private double mass;
     private final AtomTypeSphere atomType;
     
-    //static method used to make factory on-the-fly in the constructor
-    private static AtomFactoryHomo makeFactory(Space space, AtomSequencerFactory seqFactory, 
-                                                AtomIndexManager indexManager, int na, Conformation config) {
-        AtomType type = new AtomTypeSphere(indexManager.makeChildManager(), Default.ATOM_MASS, Default.ATOM_SIZE);
-        AtomFactoryMono f = new AtomFactoryMono(space, type, seqFactory);
-        return new AtomFactoryHomo(space, seqFactory, indexManager, f, na, config);
-    }
-    
     public SpeciesSpheres(Simulation sim) {
         this(sim, sim.potentialMaster.sequencerFactory(), 1);
     }
@@ -40,11 +32,14 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
         this(sim, seqFactory, nA, conformation, Species.makeAgentType(sim));
     }
     private SpeciesSpheres(Simulation sim, AtomSequencerFactory seqFactory, 
-            int nA, Conformation conformation, AtomType agentType) {
-        super(sim, makeFactory(sim.space, seqFactory, agentType.getIndexManager().makeChildManager(),
+            int nA, Conformation conformation, AtomTypeGroup agentType) {
+        super(sim, new AtomFactoryHomo(sim.space, seqFactory, agentType,
                                 nA, conformation), agentType);
+        atomType = new AtomTypeSphere(factory.getType(), Default.ATOM_MASS, Default.ATOM_SIZE);
+        ((AtomFactoryHomo)factory).setChildFactory(new AtomFactoryMono(sim.space, atomType, seqFactory));
         factory.setSpecies(this);
-        atomType = (AtomTypeSphere)((AtomFactoryHomo)factory).childFactory().getType();
+//        ((AtomFactoryHomo)factory).getType().setChildTypes(new AtomType[]{atomType});
+        
         nMolecules = Default.MOLECULE_COUNT;
         mass = atomType.getMass();
     }

@@ -17,12 +17,12 @@ import etomica.utility.Arrays;
  
 public final class SpeciesRoot extends Atom {
     
-    final AtomType childType;//accessed by SpeciesMaster
+    final AtomTypeGroup childType;//accessed by SpeciesMaster
     private Species[] speciesList = new Species[0];
     
     SpeciesRoot(Space space, int[] bitLength) {
-        super(space, new AtomType(AtomIndexManager.makeRootIndexManager(bitLength), null), new NodeFactory(), AtomSequencerFactory.SIMPLE);
-        childType = new AtomType(type.getIndexManager().makeChildManager(), null);
+        super(space, new AtomTypeGroup(AtomIndexManager.makeRootIndexManager(bitLength)), new NodeFactory(), AtomSequencerFactory.SIMPLE);
+        childType = new AtomTypeGroup((AtomTypeGroup)type,null);
         node.setOrdinal(1);
     }
     

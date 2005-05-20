@@ -1,7 +1,6 @@
 package etomica;
 import etomica.atom.AtomPositionDefinition;
 import etomica.nbr.NeighborManagerAgent;
-import etomica.units.Dimension;
 //import etomica.electrostatics.*;
 
 /**
@@ -25,9 +24,6 @@ public class AtomType implements java.io.Serializable {
     public static Parameter.Source[] parameterSource = new Parameter.Source[0];
     AtomFactory creator;//set in constructor of AtomFactory
     public Parameter[] parameter;
-    private Parameter.Size sizeParameter = Default.SIZE_PARAMETER;
-    private Parameter.Energy energyParameter = Default.ENERGY_PARAMETER;
-    private Parameter.Mass massParameter = Default.MASS_PARAMETER;
     protected int speciesIndex = -1;
     private Species species;
     
@@ -37,20 +33,32 @@ public class AtomType implements java.io.Serializable {
     
     private final NeighborManagerAgent neighborManagerAgent;
     
-    public double mass, rm;
     private final AtomIndexManager indexManager;
     private AtomPositionDefinition positionDefinition;
     
+    private AtomType parentType;
+    
 //    private Parameter.Electrostatic electroParameter;
     
-    public AtomType(AtomIndexManager indexManager, AtomPositionDefinition positionDefinition) {
-        this(indexManager, positionDefinition, Default.ATOM_MASS);
-    }
-    public AtomType(AtomIndexManager indexManager, 
-            AtomPositionDefinition positionDefinition, double mass) {
-        
+    /**
+     * used only to create root type
+     */
+    AtomType(AtomIndexManager indexManager) {
+        parentType = null;
         this.indexManager = indexManager;
-        
+        positionDefinition = null;
+        previousInstance = null;
+        neighborManagerAgent = null;
+    }
+    
+    public AtomType(AtomType parentType, AtomPositionDefinition positionDefinition) {
+        this.parentType = parentType;
+        if (parentType == null) {
+            indexManager = AtomIndexManager.makeSimpleIndexManager(Default.BIT_LENGTH);
+        }
+        else {
+            indexManager = parentType.getIndexManager().makeChildManager();
+        }
         this.positionDefinition = positionDefinition;
         
         //update linked list of instances
@@ -62,10 +70,13 @@ public class AtomType implements java.io.Serializable {
         for(int i=0; i<parameter.length; i++) {
             parameter[i] = parameterSource[i].makeParameter();
         }
-        setMass(mass);
 
 //        System.out.println("AtomType constructor:"+mass);
         neighborManagerAgent = new NeighborManagerAgent();
+    }
+    
+    public AtomType getParentType() {
+        return parentType;
     }
     
     public AtomIndexManager getIndexManager() {
@@ -148,21 +159,6 @@ public class AtomType implements java.io.Serializable {
         return speciesIndex;
     }
 
-    /**
-    * Sets  mass of this atom and updates reciprocal mass accordingly.  Setting
-    * mass to largest machine double (Double.MAX_VALUE) causes reciprocal mass 
-    * to be set to zero.
-    * 
-    * @param mass   new value for mass
-    */
-    public void setMass(double m) {
-        massParameter.setMass(m);
-        mass = m;
-        rm = (m==Double.MAX_VALUE) ? 0.0 : 1.0/mass;
-    }
-    public final double getMass() {return mass;}
-    public final Dimension getMassDimension() {return Dimension.MASS;}
-    public final double rm() {return rm;}
 
     public NeighborManagerAgent getNbrManagerAgent() {
     	return neighborManagerAgent;

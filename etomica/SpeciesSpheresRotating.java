@@ -18,12 +18,6 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     public double mass;
     
     public AtomTypeOrientedSphere protoType;
-    //static method used to make factory on-the-fly in the constructor
-    private static AtomFactoryMono makeFactory(Space space, AtomSequencerFactory seqFactory,
-                                AtomIndexManager indexManager) {
-        AtomType type = new AtomTypeOrientedSphere(indexManager, Default.ATOM_MASS, Default.ATOM_SIZE);
-        return new AtomFactoryMono(space, type, seqFactory);
-    }
     /**
      * Constructs instance with space and AtomSequencer.Factory taken from
      * given simulation, and using default number of molecules given by
@@ -41,9 +35,9 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
         this(sim, seqFactory, Species.makeAgentType(sim));
     }
     private SpeciesSpheresRotating(Simulation sim, AtomSequencerFactory seqFactory,
-                                   AtomType agentType) {
-        super(sim, makeFactory(sim.space, seqFactory, 
-                agentType.getIndexManager().makeChildManager()), agentType);
+                                   AtomTypeGroup agentType) {
+        super(sim, new AtomFactoryMono(sim.space, 
+                new AtomTypeOrientedSphere(agentType,Default.ATOM_MASS,Default.ATOM_SIZE), seqFactory), agentType);
         factory.setSpecies(this);
         protoType = (AtomTypeOrientedSphere)((AtomFactoryMono)factory).getType();
         mass = protoType.getMass();
