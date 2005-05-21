@@ -177,7 +177,7 @@ public class PotentialMasterNbr extends PotentialMaster {
     	for(int i=0; i<species.length; i++) {
             species[i].moleculeFactory().getType().getNbrManagerAgent().addCriterion(criterion);//addCriterion method will prevent multiple additions of same criterion, if species are same
         }
-    	addPotential(potential, iteratorFiltered);
+    	addPotential(potential, iteratorFiltered, moleculeTypes(species));
     }
     
     /**
@@ -191,7 +191,7 @@ public class PotentialMasterNbr extends PotentialMaster {
         ApiMolecule iterator = (ApiMolecule)iteratorFactory.makeMoleculeIterator(species);
         ((AtomsetIteratorCellular)iterator.getApiAA()).getNbrCellIterator().setRange(potentialRange);
         ((AtomsetIteratorCellular)iterator.getApi1A()).getNbrCellIterator().setRange(potentialRange);
-        addPotential(potential, iterator);
+        addPotential(potential, iterator, moleculeTypes(species));
     }
     
     public NeighborManager getNeighborManager() {return neighborManager;}
