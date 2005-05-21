@@ -3,7 +3,6 @@ package etomica.modules.dcvgcmd;
 import etomica.AtomType;
 import etomica.Default;
 import etomica.Phase;
-import etomica.PotentialGroup;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
@@ -45,8 +44,6 @@ public class DCVGCMD extends Simulation {
     public P1WCAWall potentialwall1;
     public P1WCAPorousWall potentialwallPorousA, potentialwallPorousA1;
     public P1WCAPorousWall potentialwallPorousB, potentialwallPorousB1;
-    public PotentialGroup potentialtube;
-    public PotentialGroup potentialtube1;
     public SpeciesSpheresMono species;
     public SpeciesSpheresMono species1;
     public SpeciesTube speciesTube;
@@ -122,30 +119,21 @@ public class DCVGCMD extends Simulation {
         species.getFactory().getType().getNbrManagerAgent().addCriterion(nbrCriterion);
         species1.getFactory().getType().getNbrManagerAgent().addCriterion(nbrCriterion);
 
-        potentialtube = new PotentialGroup(2, space);
         P2WCA potentialTubeAtom = new P2WCA(space);
+        potentialMaster.addPotential(potentialTubeAtom,new AtomType[] { tubetype, speciestype});
         nbrCriterion = new NeighborCriterionSimple(space,potentialTubeAtom.getRange(),neighborRangeFac*potentialTubeAtom.getRange());
         criterion = new CriterionSpecies(nbrCriterion, speciesTube, species);
         potentialTubeAtom.setCriterion(criterion);
         nbrManager.addCriterion(nbrCriterion);
-        potentialtube.addPotential(potentialTubeAtom, new AtomType[] { tubetype,
-                speciestype }, potentialMaster);
-        potentialMaster.setSpecies(potentialtube, new Species[] {speciesTube, species});
         species.getFactory().getType().getNbrManagerAgent().addCriterion(nbrCriterion);
-//        ((AtomFactoryHomo)speciesTube.getFactory()).childFactory().getType().getNbrManagerAgent().addCriterion(nbrCriterion);
         
-        
-        potentialtube1 = new PotentialGroup(2, space);
         P2WCA potentialTubeAtom1 = new P2WCA(space);
+        potentialMaster.addPotential(potentialTubeAtom1,new AtomType[] { tubetype, speciestype1});
         nbrCriterion = new NeighborCriterionSimple(space,potentialTubeAtom1.getRange(),neighborRangeFac*potentialTubeAtom.getRange());
         criterion = new CriterionSpecies(nbrCriterion, speciesTube, species1);
         potentialTubeAtom1.setCriterion(criterion);
         nbrManager.addCriterion(nbrCriterion);
-        potentialtube1.addPotential(potentialTubeAtom1, new AtomType[] {
-                tubetype, speciestype1 }, potentialMaster);
-        potentialMaster.setSpecies(potentialtube1, new Species[]{speciesTube, species1});
         species1.getFactory().getType().getNbrManagerAgent().addCriterion(nbrCriterion);
-//        ((AtomFactoryHomo)speciesTube.getFactory()).childFactory().getType().getNbrManagerAgent().addCriterion(nbrCriterion);
 
         potentialwall = new P1WCAWall(space);
         potentialMaster.setSpecies(potentialwall, new Species[] { species });

@@ -1,5 +1,6 @@
 package etomica.tests;
 
+import etomica.AtomType;
 import etomica.ConfigurationFile;
 import etomica.ConformationLinear;
 import etomica.DataSink;
@@ -7,18 +8,15 @@ import etomica.DataSource;
 import etomica.Default;
 import etomica.IntegratorPotentialEnergy;
 import etomica.Phase;
-import etomica.PotentialGroup;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
 import etomica.SpeciesSpheres;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
-import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.iterator.ApiIntergroup;
+import etomica.atom.AtomTypeSphere;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
-import etomica.data.DataSourceCOM;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntervalActionAdapter;
@@ -95,11 +93,10 @@ public class TestSWChain extends Simulation {
         criterionMolecular.setIntraMolecular(false);
         potential.setCriterion(criterionMolecular);
         
-        PotentialGroup p2Inter = new PotentialGroup(2,space);
-        p2Inter.addPotential(potential,new ApiIntergroup());
-        ((PotentialMasterNbr)potentialMaster).setSpecies(p2Inter,new Species[]{species,species});
+        AtomTypeSphere sphereType = (AtomTypeSphere)((AtomFactoryHomo)species.moleculeFactory()).childFactory().getType();
+        potentialMaster.addPotential(potential,new AtomType[]{sphereType,sphereType});
         ((PotentialMasterNbr)potentialMaster).getNeighborManager().addCriterion(criterion);
-        ((AtomFactoryHomo)species.moleculeFactory()).childFactory().getType().getNbrManagerAgent().addCriterion(criterionMolecular);
+        sphereType.getNbrManagerAgent().addCriterion(criterionMolecular);
 
         phase = new Phase(this);
 
