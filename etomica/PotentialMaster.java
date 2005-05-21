@@ -1,5 +1,7 @@
 package etomica;
 
+import java.util.Arrays;
+
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.iterator.AtomsetIteratorMolecule;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
@@ -76,30 +78,90 @@ public class PotentialMaster {
      */
     public void setSpecies(Potential potential, Species[] species) {
     	if (potential.nBody() == 0) {
-    		addPotential(potential, new AtomIterator0());
+    		addPotential(potential, new AtomIterator0(),null);
     	}
-    	else if (species.length == 0 || potential.nBody() != species.length) {
+    	else if (potential.nBody() != species.length) {
     		throw new IllegalArgumentException("Illegal species length");
     	}
         else {
             AtomsetIteratorMolecule iterator = iteratorFactory.makeMoleculeIterator(species);
-            addPotential(potential, iterator);
+            addPotential(potential, iterator, moleculeTypes(species));
             if(potential instanceof PotentialTruncated) {
                 Potential0Lrc lrcPotential = ((PotentialTruncated)potential).makeLrcPotential(moleculeTypes(species)); 
                 if(lrcPotential != null) {
                     lrcMaster().addPotential(
                         lrcPotential,
-                        new AtomIterator0());
+                        new AtomIterator0(),null);
                 }
             }
         }
     }
     
     /**
+     * Indicates to the PotentialMaster that the given potential should apply to 
+     * the specified atom types.  The potential is assumed to be intermolecular.
+     * The given types should not include any type which is the descendent of 
+     * another.  Potential group heirarchy will be constructed as needed above
+     * the level of the given atom types.
+     */
+    public void addPotential(Potential potential, AtomType[] atomTypes) {
+        if (potential.nBody() != atomTypes.length) {
+            throw new IllegalArgumentException("nBody of potential must match number of atom types");
+        }
+        Arrays.sort(atomTypes);
+        // depth of molecules
+        int maxDepth = 3;
+        int[] depth = new int[atomTypes.length];
+        for (int i=0; i<atomTypes.length; i++) {
+            depth[i] = atomTypes[i].getIndexManager().getDepth();
+            if (depth[i] > maxDepth) maxDepth = depth[i];
+        }
+        if (maxDepth == 3) {
+            setSpecies(potential,moleculeSpecies(atomTypes));
+            return;
+        }
+        AtomType[] parentAtomTypes = new AtomType[atomTypes.length];
+        for (int i=0; i<atomTypes.length; i++) {
+            if (depth[i] == maxDepth) {
+                parentAtomTypes[i] = atomTypes[i].getParentType();
+            }
+            else {
+                parentAtomTypes[i] = atomTypes[i];
+            }
+        }
+        // look for a PotentialGroup that applies to parentAtomTypes
+        PotentialGroup pGroup = getPotential(parentAtomTypes);
+        if (pGroup == null) { // didn't find an appropriate potentialgroup
+            pGroup = new PotentialGroup(atomTypes.length,space);
+            addPotential(pGroup,parentAtomTypes);
+        }
+        pGroup.addPotential(potential,atomTypes,this);
+    }
+    
+    /**
+     * Returns the potential that applies to the specified types,
+     * or null of no existing potential applies.
+     */
+    public PotentialGroup getPotential(AtomType[] types) {
+        for(PotentialLinker link=first; link!=null; link=link.next) {
+            if (link.potential instanceof PotentialGroup) {
+                if(Arrays.equals(types,link.types)) {
+                    return (PotentialGroup)link.potential;
+                }
+                PotentialGroup candidate = ((PotentialGroup)link.potential).getPotential(types);
+                if (candidate != null) {
+                    return candidate;
+                }
+            }
+        }
+        return null;
+    }
+    
+    /**
      * Returns an array containing the atom types for the molecules
      * corresponding to the given array of species.
      */
-    private AtomType[] moleculeTypes(Species[] species) {
+    protected AtomType[] moleculeTypes(Species[] species) {
         AtomType[] types = new AtomType[species.length];
         for(int i=0; i<species.length; i++) {
             types[i] = species[i].getFactory().getType();
@@ -107,12 +169,15 @@ public class PotentialMaster {
         return types;
     }
     
-    /**
-     * Adds the given potential to this group, but should not be called directly.  Instead,
-     * this method is invoked by the setParentPotential method (or more likely, 
-     * in the constructor) of the given potential.  
-     */
-    protected synchronized void addPotential(Potential potential, AtomsetIteratorMolecule iterator) {
+    private Species[] moleculeSpecies(AtomType[] types) {
+        Species[] species = new Species[types.length];
+        for (int i=0; i<types.length; i++) {
+            species[i] = types[i].getSpecies();
+        }
+        return species;
+    }
+    
+    protected void addPotential(Potential potential, AtomsetIteratorMolecule iterator, AtomType[] types) {
         //the order of the given potential should be consistent with the order of the iterator
         if(potential.nBody() != iterator.nBody()) {
             throw new RuntimeException("Error: adding to PotentialGroup a potential and iterator that are incompatible");
@@ -121,14 +186,14 @@ public class PotentialMaster {
         //to be configured for calculation first
         if(potential instanceof Potential0) {//put zero-body potential at end of list
             if(last == null) {
-                last = new PotentialLinker(potential, iterator, null);
+                last = new PotentialLinker(potential, iterator, types, null);
                 first = last;
             } else {
-                last.next = new PotentialLinker(potential, iterator, null);
+                last.next = new PotentialLinker(potential, iterator, types, null);
                 last = last.next;
             }
         } else {//put other potentials at beginning of list
-            first = new PotentialLinker(potential, iterator, first);
+            first = new PotentialLinker(potential, iterator, types, first);
             if(last == null) last = first;
         }
     }
@@ -223,13 +288,20 @@ public class PotentialMaster {
     public static class PotentialLinker implements java.io.Serializable {
         public final Potential potential;
         public final AtomsetIteratorMolecule iterator;
+        public final AtomType[] types;
         public PotentialLinker next;
         public boolean enabled = true;
         //Constructors
-        public PotentialLinker(Potential a, AtomsetIteratorMolecule i, PotentialLinker l) {
+        public PotentialLinker(Potential a, AtomsetIteratorMolecule i, AtomType[] t, PotentialLinker l) {
             potential = a;
             iterator = i;
             next = l;
+            if (t != null) {
+                types = (AtomType[])t.clone();
+            }
+            else {
+                types = null;
+            }
         }
     }//end of PotentialLinker
 }//end of PotentialMaster

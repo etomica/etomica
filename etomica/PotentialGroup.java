@@ -1,5 +1,7 @@
 package etomica;
 
+import java.util.Arrays;
+
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterTypeInstance;
 import etomica.atom.iterator.ApiBuilder;
@@ -55,20 +57,21 @@ public class PotentialGroup extends Potential {
      */
     public void addPotential(Potential potential, AtomType[] types, PotentialMaster potentialMaster) {
         if(this.nBody() > types.length) throw new IllegalArgumentException("Order of potential cannot exceed length of types array.");
+        Arrays.sort(types);
         switch(types.length) {
             case 1:
                 AtomFilter filter = new AtomFilterTypeInstance(types[0]);
                 addPotential(potential, 
-                        (AtomsetIteratorBasisDependent)AtomIteratorFiltered.makeIterator(new AtomIteratorBasis(),filter));
+                        (AtomsetIteratorBasisDependent)AtomIteratorFiltered.makeIterator(new AtomIteratorBasis(),filter),types);
                 break;
             case 2:
                 if(this.nBody() == 1) {
                     addPotential(potential,
-                            ApiBuilder.makeIntragroupTypeIterator(types));
+                            ApiBuilder.makeIntragroupTypeIterator(types),types);
                 }
                 else {//nBody == 2
                     addPotential(potential,
-                            ApiBuilder.makeIntergroupTypeIterator(types));
+                            ApiBuilder.makeIntergroupTypeIterator(types),types);
                 }
                 break;
         }
@@ -76,7 +79,7 @@ public class PotentialGroup extends Potential {
             Potential0Lrc lrc = ((PotentialTruncated)potential).makeLrcPotential(types);
             if(lrc != null) {
                 AtomsetIteratorSpeciesAgent iterator = new AtomsetIteratorSpeciesAgent(makeSpeciesArray(types));
-                potentialMaster.lrcMaster().addPotential(lrc, iterator);
+                potentialMaster.lrcMaster().addPotential(lrc, iterator, null);
             }
         }
     }
@@ -97,17 +100,40 @@ public class PotentialGroup extends Potential {
      * provided by the given basis-dependent iterator.  
 	 */
 	public synchronized void addPotential(Potential potential, AtomsetIteratorBasisDependent iterator) {
-		//the order of the given potential should be consistent with the order of the iterator
-		if(potential.nBody() != iterator.nBody()) {
-			throw new RuntimeException("Error: adding to PotentialGroup a potential and iterator that are incompatible");
-		}
-		//the given iterator should expect a basis of atoms equal in number to the order of this potential
-		if(this.nBody() != iterator.basisSize()) {
-			throw new RuntimeException("Error: adding an iterator that requires a basis size different from the nBody of the containing potential");
-		}
-		//put new potentials at beginning of list
-		first = new PotentialLinker(potential, iterator, first);
-	}
+	    addPotential(potential,iterator,null);
+    }
+    
+    private void addPotential(Potential potential, AtomsetIteratorBasisDependent iterator, AtomType[] types) {
+        //the order of the given potential should be consistent with the order of the iterator
+        if(potential.nBody() != iterator.nBody()) {
+            throw new RuntimeException("Error: adding to PotentialGroup a potential and iterator that are incompatible");
+        }
+        //the given iterator should expect a basis of atoms equal in number to the order of this potential
+        if(this.nBody() != iterator.basisSize()) {
+            throw new RuntimeException("Error: adding an iterator that requires a basis size different from the nBody of the containing potential");
+        }
+        //put new potentials at beginning of list
+        first = new PotentialLinker(potential, iterator, types, first);
+    }
+    
+    /**
+     * Returns the potential that applies to the specified types,
+     * or null of no existing potential applies.
+     */
+    public PotentialGroup getPotential(AtomType[] types) {
+        for(PotentialLinker link=first; link!=null; link=link.next) {
+            if (link.potential instanceof PotentialGroup) {
+                if(Arrays.equals(types,link.types)) {
+                    return (PotentialGroup)link.potential;
+                }
+                PotentialGroup candidate = ((PotentialGroup)link.potential).getPotential(types);
+                if (candidate != null) {
+                    return candidate;
+                }
+            }
+        }
+        return null;
+    }
 	
 	//TODO this needs some work
 	public double energy(AtomSet basisAtoms) {
@@ -223,13 +249,20 @@ public class PotentialGroup extends Potential {
 	protected static class PotentialLinker implements java.io.Serializable {
 	    protected final Potential potential;
 	    protected final AtomsetIteratorBasisDependent iterator;
+        protected final AtomType[] types;
 	    protected PotentialLinker next;
         protected boolean enabled = true;
 	    //Constructors
-	    public PotentialLinker(Potential a, AtomsetIteratorBasisDependent i, PotentialLinker l) {
+	    public PotentialLinker(Potential a, AtomsetIteratorBasisDependent i, AtomType[] t, PotentialLinker l) {
 	    	potential = a;
 	    	iterator = i;
 	    	next = l;
+            if (t != null) {
+                types = (AtomType[])t.clone();
+            }
+            else {
+                types = null;
+            }
 	    }
 	}
 
