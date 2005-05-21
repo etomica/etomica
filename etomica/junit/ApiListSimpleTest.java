@@ -23,7 +23,6 @@ public class ApiListSimpleTest extends ListIteratorTest {
      */
     public ApiListSimpleTest() {
         super(new ApiListSimple());
-        UnitTest.VERBOSE = true;
     }
     
 
