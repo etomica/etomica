@@ -19,7 +19,7 @@ import etomica.nbr.NeighborManagerAgent;
  * instance.
  */
 
-public class AtomType implements java.io.Serializable {
+public class AtomType implements java.io.Serializable, Comparable {
 
     public static Parameter.Source[] parameterSource = new Parameter.Source[0];
     AtomFactory creator;//set in constructor of AtomFactory
@@ -83,6 +83,11 @@ public class AtomType implements java.io.Serializable {
         return indexManager;
     }
     
+    public int compareTo(Object atomType) {
+        int otherIndex = ((AtomType)atomType).indexManager.getTypeIndex();
+        int myIndex = indexManager.getTypeIndex();
+        return otherIndex > myIndex ? 1 : (otherIndex == myIndex ? 0 : -1);
+    }
     
     /**
      * The position definition held by the type provides an appropriate
