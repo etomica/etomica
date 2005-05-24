@@ -121,7 +121,4 @@ public final class Vector1D extends etomica.space.Vector {  //declared final for
         public etomica.space3d.Vector3D cross(etomica.space3d.Vector3D u) {return null;}
         public void randomRotate(double deltheta){//no implementation in 1D
         }
-        public double productOfElements() {
-            return x;
-        }
     }

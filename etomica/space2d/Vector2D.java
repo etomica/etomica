@@ -200,7 +200,4 @@ public final class Vector2D extends etomica.space.Vector {  //declared final for
             y = r*Math.sin(theta);
         }
         
-        public double productOfElements() {
-            return x*y;
-        }
     }

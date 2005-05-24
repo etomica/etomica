@@ -280,7 +280,4 @@ public final class Vector3D extends Vector {
             y *= norm;
             z *= norm;
         }
-        public double productOfElements() {
-            return x*y*z;
-        }
     }

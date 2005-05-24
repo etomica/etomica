@@ -350,10 +350,4 @@ public abstract class Vector implements java.io.Serializable, Cloneable {
      */
     public abstract void randomRotate(double thetaStep);
 
-    /**
-     * Returns the products of all the elements of this vector.
-     * Useful to calculate the volume of a cube having edges of length
-     * given by the vector components.
-     */
-    public abstract double productOfElements();
 }
