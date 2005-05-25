@@ -58,6 +58,7 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
         });
         nbrCellListIterator = new ApiInnerFixed(aiOuter, aiInnerList);//used only by allAtoms
         centralCellListIterator = new ApiInnerFixed(aiOuter, aiInnerSeq);//used only by allAtoms
+        latticeIndex = new int[D];
 
         aiInnerSeq.setDirection(null);
         aiInnerSeq.setNumToSkip(1);
@@ -83,7 +84,7 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
         aiOuter.setAtom(pair.atom0);
         neighborIterator.checkDimensions();
         NeighborCell cell = ((AtomSequencerCell)pair.atom0.seq).cell;
-        int[] index = lattice.latticeIndex(cell.latticeArrayIndex);
+        lattice.latticeIndex(cell.latticeArrayIndex,latticeIndex);
         
         //get pairs in targetMolecule's cell
         AtomList list = cell.occupants();
@@ -91,7 +92,7 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
         nbrCellListIterator.allAtoms(action);
 
         //loop over neighbor cells
-        neighborIterator.setSite(index);
+        neighborIterator.setSite(latticeIndex);
         neighborIterator.reset();
         while(neighborIterator.hasNext()) {
             NeighborCell neighborCell = (NeighborCell)neighborIterator.next(); 
@@ -164,7 +165,8 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
         }
         neighborIterator.checkDimensions();
         NeighborCell cell = ((AtomSequencerCell)pair.atom0.seq).cell;
-        neighborIterator.setSite(lattice.latticeIndex(cell.latticeArrayIndex));
+        lattice.latticeIndex(cell.latticeArrayIndex,latticeIndex);
+        neighborIterator.setSite(latticeIndex);
         neighborIterator.reset();
         
         //start with targetMolecule's cell
@@ -237,6 +239,7 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
     private final AtomIteratorSequencerList aiInnerSeq;
     private final AtomIteratorSinglet aiOuter;
     private final AtomPairVector pair = new AtomPairVector();
+    private final int[] latticeIndex;
     
     private Phase phase;
     private IteratorDirective.Direction allowedDirection, direction;

@@ -92,11 +92,15 @@ public class RectangularLattice implements FiniteLattice {
      */
     public int[] latticeIndex(int index) {
         int[] latticeIndex = new int[D];
+        latticeIndex(index,latticeIndex);
+        return latticeIndex;
+    }
+    
+    public void latticeIndex(int index, int[] latticeIndex) {
         for(int i=0; i<D; i++) {
             latticeIndex[i] = index/jumpCount[i];
             index -= latticeIndex[i]*jumpCount[i];
         }
-        return latticeIndex;
     }
 
     /* (non-Javadoc)
@@ -235,6 +239,7 @@ public class RectangularLattice implements FiniteLattice {
             for (int i=0; i<D; i++) {
                 isPeriodic[i] = true;
             }
+            latticeIndex = new int[D];
         }
         
         public final int D() {
@@ -324,7 +329,8 @@ public class RectangularLattice implements FiniteLattice {
          * iterator.
          */
         public int[] nextIndex() {
-            return lattice.latticeIndex(neighbors[cursor++]);
+            lattice.latticeIndex(neighbors[cursor++],latticeIndex);
+            return latticeIndex;
         }
         
         /**
@@ -610,6 +616,7 @@ public class RectangularLattice implements FiniteLattice {
         private int nearestImageVectorCursor;
         private final int[] cursorJump;
         private final boolean[] isPeriodic;
+        private final int[] latticeIndex;
     }//end of NeighborIterator
   
     /**

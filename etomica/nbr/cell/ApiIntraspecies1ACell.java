@@ -72,6 +72,7 @@ public class ApiIntraspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
         });
         nbrCellListIterator = new ApiInnerFixed(aiOuter, aiInnerList);//used only by allAtoms
         centralCellListIterator = new ApiInnerFixed(aiOuter, aiInnerSeq);//used only by allAtoms
+        latticeIndex = new int[D];
 
         aiInnerSeq.setDirection(null);
         aiInnerSeq.setNumToSkip(1);
@@ -99,7 +100,7 @@ public class ApiIntraspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
         aiOuter.setAtom(pair.atom0);
         neighborIterator.checkDimensions();
         NeighborCell cell = ((AtomSequencerCell)targetMolecule.seq).cell;
-        int[] index = lattice.latticeIndex(cell.latticeArrayIndex);
+        lattice.latticeIndex(cell.latticeArrayIndex,latticeIndex);
         
         //get pairs in targetMolecule's cell
         AtomList list = cell.occupants()[innerIndex];
@@ -107,7 +108,7 @@ public class ApiIntraspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
         nbrCellListIterator.allAtoms(action);
 
         //loop over neighbor cells
-        neighborIterator.setSite(index);
+        neighborIterator.setSite(latticeIndex);
         neighborIterator.reset();
         while(neighborIterator.hasNext()) {
             NeighborCell neighborCell = (NeighborCell)neighborIterator.next(); 
@@ -180,7 +181,8 @@ public class ApiIntraspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
         }
         neighborIterator.checkDimensions();
         NeighborCell cell = ((AtomSequencerCell)targetMolecule.seq).cell;
-        neighborIterator.setSite(lattice.latticeIndex(cell.latticeArrayIndex));
+        lattice.latticeIndex(cell.latticeArrayIndex,latticeIndex);
+        neighborIterator.setSite(latticeIndex);
         neighborIterator.reset();
         
         //start with targetMolecule's cell
@@ -271,6 +273,7 @@ public class ApiIntraspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
     private final AtomIteratorSinglet aiOuter;
     private int innerIndex;
     private final AtomPairVector pair = new AtomPairVector();
+    private final int[] latticeIndex;
     
     private final Species species;
     private AtomTreeNodeGroup agentNode;

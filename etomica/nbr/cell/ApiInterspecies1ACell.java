@@ -73,6 +73,7 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
         // in contrast, for intraspecies iteration direction is related to the cell ordering
         neighborIterator.setDirection(null);
         setPhase(null);
+        latticeIndex = new int[D];
 	}
 
 	public void setPhase(Phase phase) {
@@ -95,7 +96,7 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
         aiOuter.setAtom(pair.atom0);
         neighborIterator.checkDimensions();
         NeighborCell cell = ((AtomSequencerCell)targetMolecule.seq).cell;
-        int[] index = lattice.latticeIndex(cell.latticeArrayIndex);
+        lattice.latticeIndex(cell.latticeArrayIndex,latticeIndex);
         
         //get pairs in targetMolecule's cell
         AtomList list = cell.occupants()[innerIndex];
@@ -103,7 +104,7 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
         listIterator.allAtoms(action);
 
         //loop over neighbor cells
-        neighborIterator.setSite(index);
+        neighborIterator.setSite(latticeIndex);
         neighborIterator.reset();
         while(neighborIterator.hasNext()) {
             NeighborCell neighborCell = (NeighborCell)neighborIterator.next(); 
@@ -176,8 +177,8 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
         }
         neighborIterator.checkDimensions();
         NeighborCell cell = ((AtomSequencerCell)targetMolecule.seq).cell;
-        int[] index = lattice.latticeIndex(cell.latticeArrayIndex);
-        neighborIterator.setSite(index);
+        lattice.latticeIndex(cell.latticeArrayIndex,latticeIndex);
+        neighborIterator.setSite(latticeIndex);
         neighborIterator.reset();
         
         //start with targetMolecule's cell
@@ -300,6 +301,7 @@ public class ApiInterspecies1ACell implements AtomsetIteratorMolecule, AtomsetIt
     private final int index0, index1;
     private final AtomIteratorListSimple aiInner;
     private final AtomIteratorSinglet aiOuter;
+    private final int[] latticeIndex;
     
     private final AtomPairVector pair = new AtomPairVector();
     private int innerIndex;
