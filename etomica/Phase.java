@@ -32,7 +32,7 @@ import etomica.utility.NameMaker;
  * <li>It holds a SpeciesMaster instance, which provides the root of a
  * hierarchy of atoms that represent the physical object that interact.
  * <li>It holds a Boundary object, obtained from the governing Space, that
- * defines the volume of the phase and the behavio of atoms as they move into or
+ * defines the volume of the phase and the behavior of atoms as they move into or
  * across the boundary of the phase.
  * <li>It has a Configuration object that determines the default initial
  * configuration of the atoms in the phase.
