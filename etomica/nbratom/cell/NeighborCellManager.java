@@ -113,24 +113,11 @@ public class NeighborCellManager implements PhaseCellManager {
      * @param atom
      */
     public void assignCell(Atom atom) {
-        AtomSequencerCell seq = (AtomSequencerCell)atom.seq;
         Vector position = (positionDefinition != null) ?
                 positionDefinition.position(atom) :
                     atom.type.getPositionDefinition().position(atom);
-        NeighborCell newCell = (NeighborCell)lattice.site(position);
-        if(newCell != seq.cell) {assignCell(seq, newCell);}
+        ((NeighborCell)lattice.site(position)).addAtom(atom);
     }
-    
-    /**
-     * Assigns atom sequencer to given cell in the list of the given index.
-     */
-    public void assignCell(AtomSequencerCell seq, NeighborCell newCell) {
-        if(seq.cell != null) seq.cell.occupants().remove(seq.nbrLink);
-        seq.cell = newCell;
-        if(newCell != null) {
-            newCell.occupants().add(seq.nbrLink);
-        }
-    }//end of assignCell
     
     public MCMoveListener makeMCMoveListener() {
         return new MyMCMoveListener();

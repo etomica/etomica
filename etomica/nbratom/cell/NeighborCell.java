@@ -4,6 +4,7 @@
  */
 package etomica.nbratom.cell;
 
+import etomica.Atom;
 import etomica.atom.AtomList;
 import etomica.lattice.AbstractLattice;
 import etomica.lattice.RectangularLattice;
@@ -22,6 +23,18 @@ public class NeighborCell {
     }
     
     public AtomList occupants() {return occupants;}
+    
+    public void addAtom(Atom atom) {
+        AtomSequencerCell seq = (AtomSequencerCell)atom.seq;
+        if(this == seq.cell) return;
+        if(seq.cell != null) seq.cell.occupants().remove(seq.nbrLink);
+        seq.cell = this;
+        occupants.add(((AtomSequencerCell)atom.seq).nbrLink);
+    }
+    
+    public int getLatticeArrayIndex() {
+        return latticeArrayIndex;
+    }
     
     private final AtomList occupants = new AtomList();
     final int latticeArrayIndex;//identifies site in lattice
