@@ -38,6 +38,12 @@ public class AtomSequencerCell extends AtomLinker {
     }
     
     /**
+     * @return Returns the cell.
+     */
+    public NeighborCell getCell() {
+        return cell;
+    }
+    /**
      * Singleton factory suitable to passing to the Atom constructor to specify
      * that atom sequencers should be this class.
      */
