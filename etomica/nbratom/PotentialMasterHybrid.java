@@ -19,10 +19,10 @@ import etomica.nbratom.cell.PotentialMasterCell;
 import etomica.potential.PotentialCalculation;
 
 /**
- * PotentialMaster used to implement neighbor listing.  Instance of this
- * class is given as an argument to the Simulation constructor.
- * Criteria specifying whether two atoms are neighbors for a particular potential
- * are specified in the setSpecies method of this class.
+ * PotentialMaster that uses both neighbor-cell iteration and cell-list 
+ * iteration.  This is needed by simulations that employ both Monte Carlo
+ * and molecular dynamics integration steps, alternately as the simulation
+ * proceeds.  See DCVGCMD simulation module for an example.
  * <br>
  */
 public class PotentialMasterHybrid extends PotentialMaster {
