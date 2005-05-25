@@ -4,6 +4,12 @@ import etomica.AtomSet;
 import etomica.Space;
 import etomica.space.Tensor;
 
+/**
+ * Potential that wraps a Potential2HardSpherical potential  and fronts 
+ * its interface.  Used in cases where it is desired to swap potentials
+ * at runtime.  Wrapped potential can be changed while client still uses
+ * this instance as its potential. 
+ */
 public class Potential2HardSphericalWrapper extends Potential2HardSpherical {
 
     public Potential2HardSphericalWrapper(Space space, Potential2HardSpherical potential) {
