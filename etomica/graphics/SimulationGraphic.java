@@ -102,6 +102,17 @@ public class SimulationGraphic implements SimulationContainer {
          displayList.add(display);
      }
 
+     public void remove(Display display) {
+         final java.awt.Component component = display.graphic(null);
+         if(component == null) return; //display is not graphic
+         if(display instanceof DisplayBox || display instanceof DisplayBoxesCAE) {
+             panel().displayBoxPanel.remove(component);
+         }
+         else {
+             panel().displayPanel.remove(component);
+         }
+         displayList.remove(display);
+     }
      /**
       * Adds displays graphic to the simulation display pane
       */
