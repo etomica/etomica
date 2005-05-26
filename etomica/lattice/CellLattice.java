@@ -87,7 +87,7 @@ public class CellLattice extends RectangularLattice {
      * Extends the SimpleLattice neighbor iterator to provide methods that
      * specify the neighbor range in terms of a distance, rather than an index range. 
      */
-    public static class NeighborIterator extends RectangularLattice.NeighborIterator {
+    public static class NeighborIterator extends RectangularLatticeNbrIteratorSquare {
         public NeighborIterator(int D) {
             super(D);
             idx = new int[D];
