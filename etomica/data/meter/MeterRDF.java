@@ -67,6 +67,9 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	 */
 	public double[] getDataAsArray(Phase phase) {
         cPair.setNearestImageTransformer(phase.boundary());
+        if (nDataPerPhase != xDataSourceUniform.getNValues()) {
+            setNDataPerPhase(xDataSourceUniform.getNValues());
+        }
 	    for(int i=0; i<nDataPerPhase; i++) {phaseData[i] = 0.0;}  //zero histogram
 	    double xMax = xDataSourceUniform.getXMax();
 	    double xMaxSquared = xMax*xMax;
@@ -94,12 +97,6 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	    }
 	    return phaseData;
 	}
-    
-    public void setNDataPerPhase(int nData) {
-        xDataSourceUniform.setNValues(nData);
-        super.setNDataPerPhase(nData);
-    }
-        
 	
     private final Space space;
     private AtomsetIteratorPhaseDependent iterator;
