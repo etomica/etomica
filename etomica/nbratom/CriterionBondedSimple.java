@@ -1,8 +1,5 @@
 /*
  * Created on Mar 2, 2005
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 package etomica.nbratom;
 
@@ -11,9 +8,8 @@ import etomica.nbr.NeighborCriterion;
 
 /**
  * @author andrew
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Used for bonding potentials. The accept method returns true if the atoms are
+ * adjacent in the list of atoms and they have the same parent. 
  */
 public class CriterionBondedSimple extends CriterionAdapter {
 
