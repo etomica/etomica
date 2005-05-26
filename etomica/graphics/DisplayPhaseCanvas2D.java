@@ -70,7 +70,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         createOffScreen(width,height);
     }
        
-    private void drawAtom(Graphics g, int origin[], Atom a) {
+    protected void drawAtom(Graphics g, int origin[], Atom a) {
         if(!atomFilter.accept(a)) return;
         Vector r = a.coord.position();
         int sigmaP, xP, yP, baseXP, baseYP;

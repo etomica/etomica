@@ -256,6 +256,50 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
         canvas.setPhase(p);
         atomIterator = new AtomIteratorLeafAtoms(p);
     }
+
+    public void setPhaseCanvas(DisplayCanvas phaseCanvas) {
+        canvas = phaseCanvas;
+        if (phaseCanvas == null) return;
+        if(phase == null) throw new IllegalStateException("Cannot set canvas before setting phase");
+        
+        int boxX = (int)(phase.boundary().dimensions().x(0) * BaseUnit.Length.Sim.TO_PIXELS);
+        int boxY = 1;
+
+        switch(phase.space().D()) {
+            case 3:
+                boxY = (int)(phase.boundary().dimensions().x(1) * BaseUnit.Length.Sim.TO_PIXELS);
+                boxX *=1.4;
+                boxY *=1.4;
+                break;
+            case 2:
+                boxY = (int)(phase.boundary().dimensions().x(1) * BaseUnit.Length.Sim.TO_PIXELS);
+                break;
+            case 1:
+            default:
+                break;
+        }
+        
+        setSize(boxX, boxY);
+
+        InputEventHandler listener = new InputEventHandler();
+        canvas.addMouseListener(listener);
+        canvas.addMouseMotionListener(listener);
+        canvas.addKeyListener(listener);
+        
+        canvas.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
+                if((evt.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
+//                    if(DeviceConfigurationEditor.exists) return;
+//                    Device editor = new DeviceConfigurationEditor(DisplayPhase.this);
+//                    ((SimulationGraphic)parentSimulation()).panel().add(editor.graphic(null));
+//                    ((SimulationGraphic)parentSimulation()).panel().validate();
+//                    ((SimulationGraphic)parentSimulation()).panel().repaint();
+                }
+            }
+        });
+
+        canvas.setPhase(phase);
+    }
     
     /**
      * Accessor method for the color scheme used for this display
