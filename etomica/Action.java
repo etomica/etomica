@@ -9,6 +9,9 @@ package etomica;
  */
 public interface Action {
 
+    /**
+     * Completes the action defined by the class implementing this interface.
+     */
 	public void actionPerformed();
 
 	/**
