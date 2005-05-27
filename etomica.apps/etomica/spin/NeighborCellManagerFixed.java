@@ -10,7 +10,7 @@ import etomica.Space;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
-import etomica.nbratom.cell.NeighborCell;
+import etomica.nbratom.cell.AtomSite;
 
 
 /**
@@ -30,7 +30,6 @@ public class NeighborCellManagerFixed implements PhaseCellManager {
     private final CellLattice lattice;
     private final Space space;
     private final AtomIteratorListSimple atomIterator;
-    private final Phase phase;
     private final RectangularLattice.Iterator siteIterator;
     
     /**
@@ -39,11 +38,10 @@ public class NeighborCellManagerFixed implements PhaseCellManager {
      * atom is that given by its type (it is set to null in this class).
      */
     public NeighborCellManagerFixed(Phase phase, int nCells) {
-        this.phase = phase;
         space = phase.space();
         atomIterator = new AtomIteratorListSimple(phase.speciesMaster().atomList);
 
-        lattice = new CellLattice(phase.boundary().dimensions(), NeighborCell.FACTORY);
+        lattice = new CellLattice(phase.boundary().dimensions(), AtomSite.FACTORY);
         int[] size = new int[space.D()];
         for(int i=0; i<space.D(); i++) size[i] = nCells;
         lattice.setSize(size);
@@ -77,7 +75,7 @@ public class NeighborCellManagerFixed implements PhaseCellManager {
         atomIterator.reset();
         siteIterator.reset();
         while(atomIterator.hasNext()) {
-            ((NeighborCell)siteIterator.next()).addAtom(atomIterator.nextAtom());
+            ((AtomSite)siteIterator.next()).setAtom(atomIterator.nextAtom());
         }
     }
 
