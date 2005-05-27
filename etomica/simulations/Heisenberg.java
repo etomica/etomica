@@ -20,7 +20,6 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.nbratom.cell.PotentialCalculationAgents;
-import etomica.nbratom.cell.PotentialMasterCell;
 import etomica.nbratom.cell.PotentialMasterSite;
 import etomica.space2d.Space2D;
 import etomica.spin.ConfigurationAligned;
