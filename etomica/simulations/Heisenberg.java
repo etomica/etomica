@@ -21,6 +21,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.nbratom.cell.PotentialCalculationAgents;
 import etomica.nbratom.cell.PotentialMasterCell;
+import etomica.nbratom.cell.PotentialMasterSite;
 import etomica.space2d.Space2D;
 import etomica.spin.ConfigurationAligned;
 import etomica.spin.MCMoveSpinFlip;
@@ -53,7 +54,7 @@ public class Heisenberg extends Simulation {
      * 
      */
     public Heisenberg(Space space) {
-        super(space, new PotentialMasterCell(space));
+        super(space, new PotentialMasterSite(space));
         space.setKinetic(false);
         Default.makeLJDefaults();
         phase = new Phase(this);
@@ -81,10 +82,8 @@ public class Heisenberg extends Simulation {
         potentialMaster.addPotential(potential, new AtomType[] {type, type});
         
         integrator.addPhase(phase);
-        ((PotentialMasterCell)potentialMaster).setRange(0.1);
-        ((PotentialMasterCell)potentialMaster).calculate(phase, new PotentialCalculationAgents());
+        ((PotentialMasterSite)potentialMaster).calculate(phase, new PotentialCalculationAgents());
         phase.getCellManager().assignCellAll();
-        //need to set range **********//
         
         meter = new MeterSpin(space);
         meter.setPhase(phase);

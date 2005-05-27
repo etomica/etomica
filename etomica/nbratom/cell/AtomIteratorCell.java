@@ -45,7 +45,7 @@ public class AtomIteratorCell implements AtomIterator {
     public void allAtoms(AtomsetAction action) {
         cellIterator.reset();
         while(cellIterator.hasNext()) {//outer loop over all cells
-            NeighborCell cell = (NeighborCell)cellIterator.next();
+            Cell cell = (Cell)cellIterator.next();
             AtomList list = cell.occupants();
             
             //consider pairs formed from molecules in cell
@@ -122,7 +122,7 @@ public class AtomIteratorCell implements AtomIterator {
     private void advanceLists() {
         do {
             if(cellIterator.hasNext()) {
-                AtomList list = ((NeighborCell)cellIterator.next()).occupants();
+                AtomList list = ((Cell)cellIterator.next()).occupants();
                 atomIterator.setList(list);
                 atomIterator.reset();
             } else {//no more cells at all

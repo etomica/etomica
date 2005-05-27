@@ -16,9 +16,9 @@ import etomica.lattice.SiteFactory;
  */
 
 
-public class NeighborCell {
+public class Cell {
 
-    public NeighborCell(int latticeArrayIndex) {
+    public Cell(int latticeArrayIndex) {
         this.latticeArrayIndex = latticeArrayIndex;
     }
     
@@ -41,7 +41,7 @@ public class NeighborCell {
 
     public static final SiteFactory FACTORY = new SiteFactory() {
         public Object makeSite(AbstractLattice lattice, int[] coord) {
-            return new NeighborCell(((RectangularLattice)lattice).arrayIndex(coord));
+            return new Cell(((RectangularLattice)lattice).arrayIndex(coord));
         }
     };
 }

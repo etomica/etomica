@@ -67,7 +67,7 @@ public class NeighborCellManager implements PhaseCellManager {
         atomIterator.setDoAllNodes(true);
         atomIterator.setRoot(phase.speciesMaster);
 
-        lattice = new CellLattice(phase.boundary().dimensions(), NeighborCell.FACTORY);
+        lattice = new CellLattice(phase.boundary().dimensions(), Cell.FACTORY);
         int[] size = new int[space.D()];
         for(int i=0; i<space.D(); i++) size[i] = nCells;
         lattice.setSize(size);
@@ -116,7 +116,7 @@ public class NeighborCellManager implements PhaseCellManager {
         Vector position = (positionDefinition != null) ?
                 positionDefinition.position(atom) :
                     atom.type.getPositionDefinition().position(atom);
-        ((NeighborCell)lattice.site(position)).addAtom(atom);
+        ((Cell)lattice.site(position)).addAtom(atom);
     }
     
     public MCMoveListener makeMCMoveListener() {

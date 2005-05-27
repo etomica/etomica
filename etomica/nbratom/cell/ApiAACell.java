@@ -70,7 +70,7 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular {
         while(cellIterator.hasNext()) {//outer loop over all cells
             //get cell without advancing -- advance is done via nextIndex,
             // below
-            NeighborCell cell = (NeighborCell)cellIterator.peek();
+            Cell cell = (Cell)cellIterator.peek();
             AtomList list = cell.occupants();
             
             //no molecules of species in cell
@@ -88,7 +88,7 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular {
             neighborIterator.setSite(cellIterator.nextIndex());
             neighborIterator.reset();
             while(neighborIterator.hasNext()) {
-                NeighborCell neighborCell = (NeighborCell)neighborIterator.next(); 
+                Cell neighborCell = (Cell)neighborIterator.next(); 
                 aiInner.setList(neighborCell.occupants());
                 if(aiInner.size() > 0) interListIterator.allAtoms(action);
             }
@@ -166,14 +166,14 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular {
         do {
               //advance neighbor cell
             if(neighborIterator.hasNext()) {
-                aiInner.setList(((NeighborCell)neighborIterator.next()).occupants());
+                aiInner.setList(((Cell)neighborIterator.next()).occupants());
                 listIterator = interListIterator;
                 interListIterator.reset();
 
                 //advance central cell and set up neighbor cell iterator if
                 // central cell has some molecules
             } else if(cellIterator.hasNext()) {
-                AtomList list = ((NeighborCell)cellIterator.peek()).occupants();
+                AtomList list = ((Cell)cellIterator.peek()).occupants();
                 neighborIterator.setSite(cellIterator.nextIndex());
 
                 if(!list.isEmpty()) {//central cell has molecules

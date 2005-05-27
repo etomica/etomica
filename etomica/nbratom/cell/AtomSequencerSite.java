@@ -10,19 +10,15 @@ import etomica.atom.AtomSequencerFactory;
 
 
 /**
- * Sequencer used for atoms being cell listed.  Contains 
- * another linker that is used in the atom lists maintained
- * by the cells.
+ * Sequencer used for atoms existing on a lattice.
  */
 
-public class AtomSequencerCell extends AtomLinker {
+public class AtomSequencerSite extends AtomLinker {
     
-    Cell cell;       //cell currently occupied by this atom
-    final AtomLinker nbrLink;  //linker used to arrange atom in sequence within the cells
+    AtomSite site;       //site currently occupied by this atom
     
-    public AtomSequencerCell(Atom a) {
+    public AtomSequencerSite(Atom a) {
         super(a);
-        nbrLink = new AtomLinker(a);
     }
     
     /**
@@ -31,23 +27,23 @@ public class AtomSequencerCell extends AtomLinker {
      */
     public void remove() {
         super.remove();
-        if (cell != null) {
-            cell.occupants().remove(nbrLink);
-            cell = null;
+        if (site != null) {
+            site.setAtom(null);
+            site= null;
         }
     }
     
     /**
      * @return Returns the cell.
      */
-    public Cell getCell() {
-        return cell;
+    public AtomSite getSite() {
+        return site;
     }
     /**
      * Singleton factory suitable to passing to the Atom constructor to specify
      * that atom sequencers should be this class.
      */
     public static final AtomSequencerFactory FACTORY = new AtomSequencerFactory() {
-        public AtomLinker makeSequencer(Atom atom) {return new AtomSequencerCell(atom);}
+        public AtomLinker makeSequencer(Atom atom) {return new AtomSequencerSite(atom);}
     };
 }
