@@ -19,7 +19,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.NeighborCriterionSimple;
 import etomica.nbr.NeighborCriterionWrapper;
-import etomica.nbr.PotentialMasterNbr;
+import etomica.nbratom.PotentialMasterNbr;
 import etomica.potential.P1BondedHardSpheres;
 import etomica.potential.P2HardSphere;
 
@@ -46,7 +46,7 @@ public class ChainHSMD3D extends Simulation {
         int nCells = (int)(Default.BOX_SIZE/neighborRangeFac);
         System.out.println("nCells: "+nCells);
         ((PotentialMasterNbr)potentialMaster).setNCells(nCells);
-        ((PotentialMasterNbr)potentialMaster).setAtomPositionDefinition(new DataSourceCOM(space));
+//FIXME        ((PotentialMasterNbr)potentialMaster).setAtomPositionDefinition(new DataSourceCOM(space));
 
         integrator = new IntegratorHard(potentialMaster);
         integrator.setIsothermal(false);
@@ -73,7 +73,7 @@ public class ChainHSMD3D extends Simulation {
         p2Inter.addPotential(potential,interIterator);
         NeighborCriterionWrapper moleculeCriterion = new NeighborCriterionWrapper(new NeighborCriterion[]{criterion});
         moleculeCriterion.setNeighborRange(3.45 + criterion.getNeighborRange());
-        ((PotentialMasterNbr)potentialMaster).setSpecies(p2Inter,new Species[]{species,species},moleculeCriterion);
+//FIXME        ((PotentialMasterNbr)potentialMaster).setSpecies(p2Inter,new Species[]{species,species},moleculeCriterion);
         ((AtomFactoryHomo)species.moleculeFactory()).childFactory().getType().getNbrManagerAgent().addCriterion(criterion);
         
         //        Crystal crystal = new LatticeCubicFcc(space);
