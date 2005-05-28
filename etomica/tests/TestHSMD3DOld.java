@@ -12,7 +12,7 @@ import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.NeighborCriterionSimple;
-import etomica.nbr.PotentialMasterNbr;
+import etomica.nbratom.PotentialMasterNbr;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.space3d.Space3D;
@@ -53,11 +53,11 @@ public class TestHSMD3DOld extends Simulation {
         potential = new P2HardSphere(space);
 
         NeighborCriterion criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
-        ((PotentialMasterNbr)potentialMaster).setSpecies(potential,new Species[]{species,species},criterion);
+//        ((PotentialMasterNbr)potentialMaster).setSpecies(potential,new Species[]{species,species},criterion);
         criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
-        ((PotentialMasterNbr)potentialMaster).setSpecies(potential,new Species[]{species2,species2},criterion);
+//        ((PotentialMasterNbr)potentialMaster).setSpecies(potential,new Species[]{species2,species2},criterion);
         criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
-        ((PotentialMasterNbr)potentialMaster).setSpecies(potential,new Species[]{species,species2},criterion);
+//        ((PotentialMasterNbr)potentialMaster).setSpecies(potential,new Species[]{species,species2},criterion);
         
         phase = new Phase(this);
         phase.setConfiguration(null);

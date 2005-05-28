@@ -24,7 +24,7 @@ import etomica.integrator.IntervalActionAdapter;
 import etomica.atom.iterator.ApiFiltered;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.NeighborCriterionSimple;
-import etomica.nbr.PotentialMasterNbr;
+import etomica.nbratom.PotentialMasterNbr;
 import etomica.potential.P1BondedHardSpheres;
 import etomica.potential.P2HardBond;
 import etomica.potential.P2SquareWell;
@@ -59,7 +59,7 @@ public class TestSWChainOld extends Simulation {
         activityIntegrate.setMaxSteps(500000/numMolecules);
         int nCells = (int)(2*Default.BOX_SIZE/moleculeRange);
         ((PotentialMasterNbr)potentialMaster).setNCells(nCells);
-        ((PotentialMasterNbr)potentialMaster).setAtomPositionDefinition(new DataSourceCOM(space));
+//        ((PotentialMasterNbr)potentialMaster).setAtomPositionDefinition(new DataSourceCOM(space));
 
         P2SquareWell potential = new P2SquareWell(space,Default.ATOM_SIZE,sqwLambda,0.5*Default.POTENTIAL_WELL);
 
@@ -76,7 +76,7 @@ public class TestSWChainOld extends Simulation {
         NeighborCriterion criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         ApiFiltered interIterator = new ApiFiltered(new ApiIntergroup(),criterion);
         p2Inter.addPotential(potential,interIterator);
-        ((PotentialMasterNbr)potentialMaster).setSpecies(p2Inter,new Species[]{species,species},moleculeRange);
+        ((PotentialMasterNbr)potentialMaster).setSpecies(p2Inter,new Species[]{species,species});
         ((PotentialMasterNbr)potentialMaster).getNeighborManager().addCriterion(criterion);
         ((AtomFactoryHomo)species.moleculeFactory()).childFactory().getType().getNbrManagerAgent().addCriterion(criterion);
 
