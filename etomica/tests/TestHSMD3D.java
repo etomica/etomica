@@ -10,11 +10,11 @@ import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
+import etomica.nbr.CriterionSpecies;
 import etomica.nbr.NeighborCriterion;
-import etomica.nbr.NeighborCriterionSimple;
-import etomica.nbratom.CriterionSpecies;
-import etomica.nbratom.NeighborManager;
-import etomica.nbratom.PotentialMasterNbr;
+import etomica.nbr.CriterionSimple;
+import etomica.nbr.list.NeighborManager;
+import etomica.nbr.list.PotentialMasterNbr;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.space3d.Space3D;
@@ -57,7 +57,7 @@ public class TestHSMD3D extends Simulation {
         species2.setNMolecules(numAtoms/100);
 
         potential = new P2HardSphere(space);
-        NeighborCriterion nbrCriterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
+        NeighborCriterion nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         CriterionSpecies criterion = new CriterionSpecies(nbrCriterion, species, species);
         potential.setCriterion(criterion);
         potentialMaster.setSpecies(potential,new Species[]{species,species});
@@ -65,7 +65,7 @@ public class TestHSMD3D extends Simulation {
         species.getFactory().getType().getNbrManagerAgent().addCriterion(nbrCriterion);
 
         potential = new P2HardSphere(space);
-        nbrCriterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
+        nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         criterion = new CriterionSpecies(nbrCriterion, species, species2);
         potential.setCriterion(criterion);
         potentialMaster.setSpecies(potential,new Species[]{species,species2});
@@ -74,7 +74,7 @@ public class TestHSMD3D extends Simulation {
         species2.getFactory().getType().getNbrManagerAgent().addCriterion(nbrCriterion);
 
         potential = new P2HardSphere(space);
-        nbrCriterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
+        nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         criterion = new CriterionSpecies(nbrCriterion, species2, species2);
         potential.setCriterion(criterion);
         potentialMaster.setSpecies(potential,new Species[]{species2,species2});

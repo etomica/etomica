@@ -17,9 +17,9 @@ import etomica.atom.iterator.ApiIntergroup;
 import etomica.data.DataSourceCOM;
 import etomica.integrator.IntegratorHard;
 import etomica.nbr.NeighborCriterion;
-import etomica.nbr.NeighborCriterionSimple;
+import etomica.nbr.CriterionSimple;
 import etomica.nbr.NeighborCriterionWrapper;
-import etomica.nbratom.PotentialMasterNbr;
+import etomica.nbr.list.PotentialMasterNbr;
 import etomica.potential.P1BondedHardSpheres;
 import etomica.potential.P2HardSphere;
 
@@ -68,11 +68,11 @@ public class ChainHSMD3D extends Simulation {
         
         PotentialGroup p2Inter = new PotentialGroup(2, space);
         potential = new P2HardSphere(space);
-        NeighborCriterion criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
+        NeighborCriterion criterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         ApiFiltered interIterator = new ApiFiltered(new ApiIntergroup(),criterion);
         p2Inter.addPotential(potential,interIterator);
-        NeighborCriterionWrapper moleculeCriterion = new NeighborCriterionWrapper(new NeighborCriterion[]{criterion});
-        moleculeCriterion.setNeighborRange(3.45 + criterion.getNeighborRange());
+//FIXME        NeighborCriterionWrapper moleculeCriterion = new NeighborCriterionWrapper(new NeighborCriterion[]{criterion});
+//FIXME        moleculeCriterion.setNeighborRange(3.45 + criterion.getNeighborRange());
 //FIXME        ((PotentialMasterNbr)potentialMaster).setSpecies(p2Inter,new Species[]{species,species},moleculeCriterion);
         ((AtomFactoryHomo)species.moleculeFactory()).childFactory().getType().getNbrManagerAgent().addCriterion(criterion);
         

@@ -11,9 +11,9 @@ import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.integrator.IntegratorHard;
 import etomica.nbr.NeighborCriterion;
-import etomica.nbr.NeighborCriterionSimple;
-import etomica.nbratom.NeighborManager;
-import etomica.nbratom.PotentialMasterNbr;
+import etomica.nbr.CriterionSimple;
+import etomica.nbr.list.NeighborManager;
+import etomica.nbr.list.PotentialMasterNbr;
 import etomica.potential.P2HardSphere;
 
 public class HSMD3D extends Simulation {
@@ -60,7 +60,7 @@ public class HSMD3D extends Simulation {
         potential = new P2HardSphere(space);
 //        this.potentialMaster.setSpecies(potential,new Species[]{species,species});
 
-        NeighborCriterion criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
+        NeighborCriterion criterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         potential.setCriterion(criterion);
         potentialMaster.setSpecies(potential,new Species[]{species,species});
 

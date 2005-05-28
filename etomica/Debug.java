@@ -2,7 +2,7 @@ package etomica;
 
 import etomica.atom.AtomArrayList;
 import etomica.integrator.IntegratorHard;
-import etomica.nbratom.AtomSequencerNbr;
+import etomica.nbr.list.AtomSequencerNbr;
 
 /**
  * Class holding static fields that determine whether debugging is on, how

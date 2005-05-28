@@ -10,7 +10,7 @@ import etomica.Space;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
-import etomica.nbratom.cell.AtomSite;
+import etomica.nbr.site.AtomSite;
 
 
 /**

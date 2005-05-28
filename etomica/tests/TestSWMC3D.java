@@ -16,8 +16,8 @@ import etomica.data.DataPump;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.nbratom.cell.PotentialCalculationAgents;
-import etomica.nbratom.cell.PotentialMasterCell;
+import etomica.nbr.PotentialCalculationAgents;
+import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2SquareWell;
 import etomica.space3d.Space3D;
 

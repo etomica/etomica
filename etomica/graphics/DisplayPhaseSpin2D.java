@@ -5,8 +5,8 @@ import java.awt.Graphics;
 
 import etomica.Atom;
 import etomica.lattice.RectangularLattice;
-import etomica.nbratom.cell.AtomSequencerSite;
-import etomica.nbratom.cell.AtomSite;
+import etomica.nbr.site.AtomSequencerSite;
+import etomica.nbr.site.AtomSite;
 
 
 /**

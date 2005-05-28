@@ -2,12 +2,11 @@
  * Created on Mar 2, 2005
  *
  */
-package etomica.nbratom;
+package etomica.nbr;
 
 import etomica.Atom;
 import etomica.AtomPair;
 import etomica.Phase;
-import etomica.nbr.NeighborCriterion;
 
 /**
  * Wraps another criterion while adding additional criteria to the acceptance

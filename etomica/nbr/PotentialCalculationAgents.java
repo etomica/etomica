@@ -2,7 +2,7 @@
  * History
  * Created on Sep 10, 2004 by kofke
  */
-package etomica.nbratom.cell;
+package etomica.nbr;
 
 import etomica.Atom;
 import etomica.AtomPair;

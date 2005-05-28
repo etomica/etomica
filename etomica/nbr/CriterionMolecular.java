@@ -4,10 +4,9 @@
  * TODO To change the template for this generated file go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-package etomica.nbratom;
+package etomica.nbr;
 
 import etomica.AtomPair;
-import etomica.nbr.NeighborCriterion;
 
 /**
  * @author andrew

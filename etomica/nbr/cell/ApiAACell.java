@@ -2,7 +2,7 @@
  * History
  * Created on Aug 30, 2004 by kofke
  */
-package etomica.nbratom.cell;
+package etomica.nbr.cell;
 
 import etomica.AtomPair;
 import etomica.AtomPairIterator;
@@ -20,7 +20,6 @@ import etomica.atom.iterator.ApiListSimple;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
-import etomica.nbr.cell.AtomsetIteratorCellular;
 import etomica.space.BoundaryRectangular;
 
 /**

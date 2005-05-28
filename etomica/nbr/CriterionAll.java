@@ -12,7 +12,7 @@ import etomica.Phase;
  * Specifies that all atoms pairs are to be considered neighbors.  Should
  * not be used for species in which atoms are being added/removed by integrator.
  */
-public class NeighborCriterionAll extends NeighborCriterion {
+public class CriterionAll extends NeighborCriterion {
 
     /**
      * Always returns false, indicating that neighbor list never needs updating.
@@ -23,6 +23,10 @@ public class NeighborCriterionAll extends NeighborCriterion {
         return false;
     }
 
+    /**
+     * Returns infinity, indicating that atoms at any distance are considered
+     * neighbors.
+     */
     public double getNeighborRange() {
         return Double.POSITIVE_INFINITY;
     }

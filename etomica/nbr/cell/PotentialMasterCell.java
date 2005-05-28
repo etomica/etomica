@@ -4,11 +4,12 @@
  * TODO To change the template for this generated file go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-package etomica.nbratom.cell;
+package etomica.nbr.cell;
 
 import etomica.Space;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomSequencerFactory;
+import etomica.nbr.site.PotentialMasterSite;
 
 /**
  * @author andrew

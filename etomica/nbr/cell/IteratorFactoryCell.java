@@ -1,4 +1,4 @@
-package etomica.nbratom.cell;
+package etomica.nbr.cell;
 
 import etomica.IteratorFactorySimple;
 import etomica.atom.AtomSequencerFactory;

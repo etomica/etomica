@@ -20,13 +20,13 @@ import etomica.data.DataPump;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntervalActionAdapter;
+import etomica.nbr.CriterionBondedSimple;
+import etomica.nbr.CriterionMolecular;
 import etomica.nbr.NeighborCriterion;
-import etomica.nbr.NeighborCriterionAll;
-import etomica.nbr.NeighborCriterionSimple;
-import etomica.nbratom.CriterionBondedSimple;
-import etomica.nbratom.CriterionMolecular;
-import etomica.nbratom.NeighborManager;
-import etomica.nbratom.PotentialMasterNbr;
+import etomica.nbr.CriterionAll;
+import etomica.nbr.CriterionSimple;
+import etomica.nbr.list.NeighborManager;
+import etomica.nbr.list.PotentialMasterNbr;
 import etomica.potential.P1BondedHardSpheres;
 import etomica.potential.P2HardBond;
 import etomica.potential.P2SquareWell;
@@ -69,7 +69,7 @@ public class TestSWChain extends Simulation {
         ((PotentialMasterNbr)potentialMaster).setNCells(nCells);
 
         P2SquareWell potential = new P2SquareWell(space,Default.ATOM_SIZE,sqwLambda,0.5*Default.POTENTIAL_WELL);
-        NeighborCriterion nbrCriterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
+        NeighborCriterion nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
 
         SpeciesSpheres species = new SpeciesSpheres(this,potentialMaster.sequencerFactory(),chainLength);
         species.setNMolecules(numMolecules);
@@ -80,7 +80,7 @@ public class TestSWChain extends Simulation {
         criterion.setBonded(false);
         potential.setCriterion(criterion);
         potentialChainIntra.setNonbonded(potential);
-        criterion = new CriterionBondedSimple(new NeighborCriterionAll());
+        criterion = new CriterionBondedSimple(NeighborCriterion.ALL);
         criterion.setBonded(true);
         potentialChainIntra.bonded.setCriterion(criterion);
         potentialMaster.setSpecies(potentialChainIntra, new Species[] {species});
@@ -88,7 +88,7 @@ public class TestSWChain extends Simulation {
 
         
         potential = new P2SquareWell(space,Default.ATOM_SIZE,sqwLambda,0.5*Default.POTENTIAL_WELL);
-        nbrCriterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
+        nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         CriterionMolecular criterionMolecular = new CriterionMolecular(nbrCriterion);
         criterionMolecular.setIntraMolecular(false);
         potential.setCriterion(criterionMolecular);

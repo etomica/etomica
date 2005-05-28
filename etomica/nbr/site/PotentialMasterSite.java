@@ -2,7 +2,7 @@
  * History
  * Created on Sep 20, 2004 by kofke
  */
-package etomica.nbratom.cell;
+package etomica.nbr.site;
 
 import etomica.Atom;
 import etomica.AtomPair;
@@ -21,6 +21,9 @@ import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomsetIteratorMolecule;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.nbr.NeighborCriterion;
+import etomica.nbr.PotentialCalculationAgents;
+import etomica.nbr.cell.IteratorFactoryCell;
+import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialCalculation;
 

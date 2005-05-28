@@ -16,9 +16,9 @@ import etomica.space.Vector;
  * @author andrew
  *
  */
-public class NeighborCriterionSimple extends NeighborCriterion  {
+public class CriterionSimple extends NeighborCriterion  {
 
-	public NeighborCriterionSimple(Space space, double interactionRange, double neighborRadius) {
+	public CriterionSimple(Space space, double interactionRange, double neighborRadius) {
 		super();
 		this.interactionRange = interactionRange;
         neighborRadius2 = neighborRadius * neighborRadius;

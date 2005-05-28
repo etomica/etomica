@@ -1,10 +1,9 @@
 /*
  * Created on Mar 2, 2005
  */
-package etomica.nbratom;
+package etomica.nbr;
 
 import etomica.AtomPair;
-import etomica.nbr.NeighborCriterion;
 
 /**
  * @author andrew

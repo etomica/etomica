@@ -4,7 +4,7 @@ import etomica.Phase;
 import etomica.Potential;
 import etomica.Space;
 import etomica.nbr.NeighborCriterion;
-import etomica.nbr.NeighborCriterionAll;
+import etomica.nbr.CriterionAll;
 import etomica.space.CoordinatePair;
 
 /**
@@ -43,7 +43,7 @@ public abstract class Potential2 extends Potential {
     }
     
     protected final CoordinatePair cPair;
-    protected NeighborCriterion criterion = new NeighborCriterionAll();
+    protected NeighborCriterion criterion = NeighborCriterion.ALL;
 }//end of Potential2
 
 

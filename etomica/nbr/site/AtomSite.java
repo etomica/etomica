@@ -2,10 +2,9 @@
  * History
  * Created on Nov 23, 2004 by kofke
  */
-package etomica.nbratom.cell;
+package etomica.nbr.site;
 
 import etomica.Atom;
-import etomica.atom.AtomList;
 import etomica.lattice.AbstractLattice;
 import etomica.lattice.RectangularLattice;
 import etomica.lattice.SiteFactory;
@@ -16,32 +15,33 @@ import etomica.lattice.SiteFactory;
  */
 
 
-public class Cell {
+public class AtomSite {
 
-    public Cell(int latticeArrayIndex) {
+    public AtomSite(int latticeArrayIndex) {
         this.latticeArrayIndex = latticeArrayIndex;
     }
     
-    public AtomList occupants() {return occupants;}
+    public Atom getAtom() {return atom;}
     
-    public void addAtom(Atom atom) {
-        AtomSequencerCell seq = (AtomSequencerCell)atom.seq;
-        if(this == seq.cell) return;
-        if(seq.cell != null) seq.cell.occupants().remove(seq.nbrLink);
-        seq.cell = this;
-        occupants.add(((AtomSequencerCell)atom.seq).nbrLink);
+    public void setAtom(Atom atom) {
+        this.atom = atom;
+        if (atom == null) return;
+        AtomSequencerSite seq = (AtomSequencerSite)atom.seq;
+        if(this == seq.site) return;
+        if(seq.site != null) seq.site.setAtom(null);
+        seq.site= this;
     }
     
     public int getLatticeArrayIndex() {
         return latticeArrayIndex;
     }
     
-    private final AtomList occupants = new AtomList();
+    private Atom atom;
     final int latticeArrayIndex;//identifies site in lattice
 
     public static final SiteFactory FACTORY = new SiteFactory() {
         public Object makeSite(AbstractLattice lattice, int[] coord) {
-            return new Cell(((RectangularLattice)lattice).arrayIndex(coord));
+            return new AtomSite(((RectangularLattice)lattice).arrayIndex(coord));
         }
     };
 }

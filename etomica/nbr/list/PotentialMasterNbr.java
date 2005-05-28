@@ -2,7 +2,7 @@
  * History
  * Created on Sep 20, 2004 by kofke
  */
-package etomica.nbratom;
+package etomica.nbr.list;
 
 import etomica.Atom;
 import etomica.AtomSet;
@@ -20,9 +20,9 @@ import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.AtomIteratorArrayList;
 import etomica.atom.iterator.AtomIteratorSinglet;
-import etomica.nbratom.cell.IteratorFactoryCell;
-import etomica.nbratom.cell.NeighborCellManager;
-import etomica.nbratom.cell.PotentialCalculationAgents;
+import etomica.nbr.PotentialCalculationAgents;
+import etomica.nbr.cell.IteratorFactoryCell;
+import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.PotentialCalculation;
 
 /**

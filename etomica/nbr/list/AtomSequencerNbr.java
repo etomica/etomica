@@ -2,14 +2,14 @@
  * History
  * Created on Sep 20, 2004 by kofke
  */
-package etomica.nbratom;
+package etomica.nbr.list;
 
 import etomica.Atom;
 import etomica.Potential;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomSequencerFactory;
-import etomica.nbratom.cell.AtomSequencerCell;
+import etomica.nbr.cell.AtomSequencerCell;
 import etomica.utility.Arrays;
 
 /**

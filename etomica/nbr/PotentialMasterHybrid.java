@@ -2,7 +2,7 @@
  * History
  * Created on Sep 20, 2004 by kofke
  */
-package etomica.nbratom;
+package etomica.nbr;
 
 import etomica.IteratorDirective;
 import etomica.Phase;
@@ -12,10 +12,12 @@ import etomica.Space;
 import etomica.Species;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomSequencerFactory;
-import etomica.nbratom.cell.IteratorFactoryCell;
-import etomica.nbratom.cell.NeighborCellManager;
-import etomica.nbratom.cell.PotentialCalculationAgents;
-import etomica.nbratom.cell.PotentialMasterCell;
+import etomica.nbr.cell.IteratorFactoryCell;
+import etomica.nbr.cell.NeighborCellManager;
+import etomica.nbr.cell.PotentialMasterCell;
+import etomica.nbr.list.AtomSequencerNbr;
+import etomica.nbr.list.NeighborManager;
+import etomica.nbr.list.PotentialMasterNbr;
 import etomica.potential.PotentialCalculation;
 
 /**
