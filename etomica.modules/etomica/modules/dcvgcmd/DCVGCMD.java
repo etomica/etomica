@@ -18,11 +18,11 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.nbr.CriterionSimple;
+import etomica.nbr.CriterionSpecies;
 import etomica.nbr.NeighborCriterion;
-import etomica.nbr.NeighborCriterionSimple;
-import etomica.nbratom.CriterionSpecies;
-import etomica.nbratom.NeighborManager;
-import etomica.nbratom.PotentialMasterHybrid;
+import etomica.nbr.PotentialMasterHybrid;
+import etomica.nbr.list.NeighborManager;
 import etomica.potential.P2WCA;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Vector;
@@ -92,7 +92,7 @@ public class DCVGCMD extends Simulation {
 
         //0-0 intraspecies interaction
         potential = new P2WCA(space);
-        NeighborCriterion nbrCriterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
+        NeighborCriterion nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         CriterionSpecies criterion = new CriterionSpecies(nbrCriterion, species, species);
         potential.setCriterion(criterion);
         nbrManager.addCriterion(nbrCriterion);
@@ -102,7 +102,7 @@ public class DCVGCMD extends Simulation {
         
         //1-1 intraspecies interaction
         P2WCA potential11 = new P2WCA(space);
-        nbrCriterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
+        nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         criterion = new CriterionSpecies(nbrCriterion, species1, species1);
         potential11.setCriterion(criterion);
         nbrManager.addCriterion(nbrCriterion);
@@ -111,7 +111,7 @@ public class DCVGCMD extends Simulation {
 
         //0-1 interspecies interaction
         potential1 = new P2WCA(space);
-        nbrCriterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
+        nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         criterion = new CriterionSpecies(nbrCriterion, species1, species);
         potential1.setCriterion(criterion);
         nbrManager.addCriterion(nbrCriterion);
@@ -121,7 +121,7 @@ public class DCVGCMD extends Simulation {
 
         P2WCA potentialTubeAtom = new P2WCA(space);
         potentialMaster.addPotential(potentialTubeAtom,new AtomType[] { tubetype, speciestype});
-        nbrCriterion = new NeighborCriterionSimple(space,potentialTubeAtom.getRange(),neighborRangeFac*potentialTubeAtom.getRange());
+        nbrCriterion = new CriterionSimple(space,potentialTubeAtom.getRange(),neighborRangeFac*potentialTubeAtom.getRange());
         criterion = new CriterionSpecies(nbrCriterion, speciesTube, species);
         potentialTubeAtom.setCriterion(criterion);
         nbrManager.addCriterion(nbrCriterion);
@@ -129,7 +129,7 @@ public class DCVGCMD extends Simulation {
         
         P2WCA potentialTubeAtom1 = new P2WCA(space);
         potentialMaster.addPotential(potentialTubeAtom1,new AtomType[] { tubetype, speciestype1});
-        nbrCriterion = new NeighborCriterionSimple(space,potentialTubeAtom1.getRange(),neighborRangeFac*potentialTubeAtom.getRange());
+        nbrCriterion = new CriterionSimple(space,potentialTubeAtom1.getRange(),neighborRangeFac*potentialTubeAtom.getRange());
         criterion = new CriterionSpecies(nbrCriterion, speciesTube, species1);
         potentialTubeAtom1.setCriterion(criterion);
         nbrManager.addCriterion(nbrCriterion);

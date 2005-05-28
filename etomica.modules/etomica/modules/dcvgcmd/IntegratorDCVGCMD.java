@@ -13,7 +13,7 @@ import etomica.Species;
 import etomica.graphics.DisplayPhaseCanvas3DOpenGL;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
-import etomica.nbratom.PotentialMasterHybrid;
+import etomica.nbr.PotentialMasterHybrid;
 import etomica.units.Dimension;
 
 
