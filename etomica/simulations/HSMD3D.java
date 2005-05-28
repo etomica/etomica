@@ -12,7 +12,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.integrator.IntegratorHard;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.NeighborCriterionSimple;
-import etomica.nbr.PotentialMasterNbr;
+import etomica.nbratom.PotentialMasterNbr;
 import etomica.potential.P2HardSphere;
 
 public class HSMD3D extends Simulation {
