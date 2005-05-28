@@ -12,6 +12,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.integrator.IntegratorHard;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.NeighborCriterionSimple;
+import etomica.nbratom.NeighborManager;
 import etomica.nbratom.PotentialMasterNbr;
 import etomica.potential.P2HardSphere;
 
@@ -40,8 +41,13 @@ public class HSMD3D extends Simulation {
 
         integrator = new IntegratorHard(potentialMaster);
         integrator.setIsothermal(false);
-        integrator.addListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
         integrator.setTimeStep(0.01);
+
+        NeighborManager nbrManager = ((PotentialMasterNbr)potentialMaster).getNeighborManager();
+        nbrManager.setRange(Default.ATOM_SIZE*1.6);
+        nbrManager.getPbcEnforcer().setApplyToMolecules(false);
+        integrator.addListener(nbrManager);
+
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
@@ -55,7 +61,11 @@ public class HSMD3D extends Simulation {
 //        this.potentialMaster.setSpecies(potential,new Species[]{species,species});
 
         NeighborCriterion criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
-        ((PotentialMasterNbr)potentialMaster).setSpecies(potential,new Species[]{species,species},criterion);
+        potential.setCriterion(criterion);
+        potentialMaster.setSpecies(potential,new Species[]{species,species});
+
+        nbrManager.addCriterion(criterion);
+        species.getFactory().getType().getNbrManagerAgent().addCriterion(criterion);
 
         phase = new Phase(this);
         integrator.addPhase(phase);

@@ -8,8 +8,8 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.integrator.IntegratorHard;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.NeighborCriterionSimple;
+import etomica.nbratom.NeighborManager;
 import etomica.nbratom.PotentialMasterNbr;
-import etomica.nbratom.cell.NeighborCellManager;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.space2d.Space2D;
@@ -26,6 +26,8 @@ public class HSMD2D extends Simulation {
     public SpeciesSpheresMono species, species2;
     public Phase phase;
     public Potential2 potential;
+    public Potential2 potential2;
+    public Potential2 potential22;
 
     public HSMD2D() {
     	this(Space2D.INSTANCE);
@@ -45,8 +47,13 @@ public class HSMD2D extends Simulation {
 
         integrator = new IntegratorHard(potentialMaster);
         integrator.setIsothermal(false);
-        integrator.addListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
         integrator.setTimeStep(0.01);
+
+        NeighborManager nbrManager = ((PotentialMasterNbr)potentialMaster).getNeighborManager();
+        nbrManager.setRange(Default.ATOM_SIZE*1.6);
+        nbrManager.getPbcEnforcer().setApplyToMolecules(false);
+        integrator.addListener(nbrManager);
+
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
@@ -55,26 +62,39 @@ public class HSMD2D extends Simulation {
 	    species2 = new SpeciesSpheresMono(this);
         species.setNMolecules(512);
         species2.setNMolecules(5);
-	    potential = new P2HardSphere(space);
+        potential = new P2HardSphere(space);
+        potential2 = new P2HardSphere(space);
+        potential22 = new P2HardSphere(space);
 //	    this.potentialMaster.setSpecies(potential,new Species[]{species,species});
 	    //this.potentialMaster.setSpecies(potential,new Species[]{species2,species2});
 	    //this.potentialMaster.setSpecies(potential,new Species[]{species,species2});
         
         NeighborCriterion criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
-        ((PotentialMasterNbr)potentialMaster).setSpecies(potential,new Species[]{species,species},criterion);
+        potential.setCriterion(criterion);
+        potentialMaster.setSpecies(potential,new Species[]{species,species});
+        nbrManager.addCriterion(criterion);
+        species.getFactory().getType().getNbrManagerAgent().addCriterion(criterion);
+
         criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
-        ((PotentialMasterNbr)potentialMaster).setSpecies(potential,new Species[]{species2,species2},criterion);
+        potential2.setCriterion(criterion);
+        potentialMaster.setSpecies(potential2,new Species[]{species2,species2});
+        nbrManager.addCriterion(criterion);
+        species2.getFactory().getType().getNbrManagerAgent().addCriterion(criterion);
+
         criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
-        ((PotentialMasterNbr)potentialMaster).setSpecies(potential,new Species[]{species2,species},criterion);
+        potential22.setCriterion(criterion);
+        potentialMaster.setSpecies(potential22,new Species[]{species2,species});
+        species.getFactory().getType().getNbrManagerAgent().addCriterion(criterion);
+        species2.getFactory().getType().getNbrManagerAgent().addCriterion(criterion);
 //        potentialMaster.setSpecies(potential,new Species[]{species,species});
 //        potentialMaster.setSpecies(potential,new Species[]{species2,species2});
 //        potentialMaster.setSpecies(potential,new Species[]{species2,species});
 //        integrator.addIntervalListener(new PhaseImposePbc(phase));
+
         
 //		elementCoordinator.go();
         //explicit implementation of elementCoordinator activities
         phase = new Phase(this);
-        integrator.addListener(new NeighborCellManager(phase,15));
         integrator.addPhase(phase);
     }
     
