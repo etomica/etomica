@@ -26,6 +26,7 @@ public abstract class MCMove implements java.io.Serializable {
 		this.potential = potentialMaster;
 		nTrials = 0;
 		nAccept = 0;
+        chiSum = 0.0;
 		setAcceptanceTarget(0.5);
 		nominalFrequency = 100;
 		perParticleFrequency = false;
@@ -47,10 +48,11 @@ public abstract class MCMove implements java.io.Serializable {
 	 *            performed only if doAdjustStepSize is true and current number
 	 *            of trials since last adjustment exceeds adjustInterval.
 	 */
-	public void updateCounts(boolean moveWasAccepted, boolean doAdjustStepSize) {
+	public void updateCounts(boolean moveWasAccepted, double chi, boolean doAdjustStepSize) {
 		nTrials++;
 		if (moveWasAccepted)
 			nAccept++;
+        chiSum += chi;
 		if (doAdjustStepSize && nTrials > adjustInterval) {
 			adjustStepSize();
 		}
@@ -136,8 +138,10 @@ public abstract class MCMove implements java.io.Serializable {
 		}
 		nTrialsSum += nTrials;
 		nAcceptSum += nAccept;
-		if (nTrialsSum != 0)
+		if (nTrialsSum != 0) {
 			acceptanceRatio = (double) nAcceptSum / (double) nTrialsSum;
+            acceptanceProbability = chiSum / nTrialsSum;
+        }
 		if (!tunable) {
 			nTrials = nAccept = 0;
 			return;
@@ -195,6 +199,15 @@ public abstract class MCMove implements java.io.Serializable {
 						: Double.NaN;
 	}
 
+
+    /**
+     * Fraction of time trials of this type were accepted since acceptanceTarget
+     * was set.
+     */
+    public double acceptanceProbability() {
+        return (acceptanceProbability >= 0.0) ? acceptanceProbability :
+                ((nTrials > 0) ? chiSum / nTrials : Double.NaN);
+    }
 	/**
 	 * Sets the desired rate of acceptance (as a fraction between 0 and 1
 	 * inclusive) of trials of this move. IllegalArgumentException is thrown if
@@ -207,10 +220,12 @@ public abstract class MCMove implements java.io.Serializable {
 		}
 		nTrialsSum = 0;
 		nAcceptSum = 0;
+        chiSum = 0.0;
 		acceptanceTarget = target;
 		nTrials = 0;
 		nAccept = 0;
 		acceptanceRatio = Double.NaN;
+        acceptanceProbability = Double.NaN;
 	}
 
 	/**
@@ -323,9 +338,10 @@ public abstract class MCMove implements java.io.Serializable {
 	 * be given a different value by subclasses.
 	 */
 	protected boolean perParticleFrequency;
-	private double acceptanceRatio, acceptanceTarget;
+	private double acceptanceRatio, acceptanceTarget, acceptanceProbability;
 	protected double stepSize, stepSizeMax, stepSizeMin;
 	private int nTrials, nAccept, nTrialsSum, nAcceptSum, adjustInterval;
+    private double chiSum;
 	protected boolean tunable = true;
 	protected final Phase[] phases;
 	private String name;

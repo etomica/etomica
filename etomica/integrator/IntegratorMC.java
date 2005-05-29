@@ -147,9 +147,9 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
 
 		//decide acceptance
 		double lnChi = move.lnTrialRatio() + move.lnProbabilityRatio();
-		if (lnChi <= -Double.MAX_VALUE
-				|| (lnChi < 0.0 && Math.exp(lnChi) < Simulation.random
-						.nextDouble())) {//reject
+        double chi = lnChi == -Double.POSITIVE_INFINITY ? 0.0 : 
+                                (lnChi > 0.0 ? 1.0 : Math.exp(lnChi));
+		if (chi == 0.0 || (chi < 1.0 && chi < Simulation.random.nextDouble())) {//reject
 			move.rejectNotify();
 			event.wasAccepted = false;
 		} else {
@@ -166,7 +166,7 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
 			eventManager.fireEvent(event);
 		}
 
-		move.updateCounts(event.wasAccepted, equilibrating);
+		move.updateCounts(event.wasAccepted, chi, equilibrating);
 	}
 
 	/**

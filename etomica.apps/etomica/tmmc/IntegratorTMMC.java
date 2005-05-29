@@ -94,7 +94,7 @@ public class IntegratorTMMC extends IntegratorMC {
             eventManager.fireEvent(event);
         }
         
-        move.updateCounts(event.wasAccepted,isEquilibrating());
+        move.updateCounts(event.wasAccepted,r,isEquilibrating());
         
         if(--doStepCount == 0) updateWeights();
     }//end of doStep

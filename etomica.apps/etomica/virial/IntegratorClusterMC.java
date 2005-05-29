@@ -46,14 +46,14 @@ public class IntegratorClusterMC extends IntegratorMC {
         }
         
         //decide acceptance
-        double Chi = ((MCMoveCluster)move).trialRatio() * ((MCMoveCluster)move).probabilityRatio();
-        if(Chi == 0.0 || (Chi < 1.0 && Chi < Simulation.random.nextDouble())) {//reject
+        double chi = ((MCMoveCluster)move).trialRatio() * ((MCMoveCluster)move).probabilityRatio();
+        if(chi == 0.0 || (chi < 1.0 && chi < Simulation.random.nextDouble())) {//reject
             move.rejectNotify();
             event.wasAccepted = false;
         } else {
             move.acceptNotify();
             event.wasAccepted = true;
-            weight *= Chi;
+            weight *= chi;
         }
 
         //notify listeners of outcome
@@ -62,7 +62,7 @@ public class IntegratorClusterMC extends IntegratorMC {
             eventManager.fireEvent(event);
         }
         
-        move.updateCounts(event.wasAccepted,isEquilibrating());
+        move.updateCounts(event.wasAccepted,chi,isEquilibrating());
     }
     
     public double getWeight() {
