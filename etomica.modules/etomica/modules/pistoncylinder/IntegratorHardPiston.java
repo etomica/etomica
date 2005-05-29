@@ -71,7 +71,7 @@ public class IntegratorHardPiston extends IntegratorHard {
             if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atom1)))) {
                 System.out.println("collision down time "+collisionTime+" for atom "+atom1+" with null "+pistonPotential.getClass());
             }
-            if(collisionTime < Double.MAX_VALUE) {
+            if(collisionTime < Double.POSITIVE_INFINITY) {
                 Agent aia = (Agent)atom1.ia;
                 if(collisionTime < aia.collisionTime()) {
                     if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atom1))) {

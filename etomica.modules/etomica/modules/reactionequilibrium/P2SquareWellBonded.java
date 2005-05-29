@@ -113,7 +113,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 			//inside well but not mutually bonded; collide now if approaching
 			if ((a1Partner != pair.atom1 && r2 < wellDiameterSquared)
 					|| (a1Partner == pair.atom1 && r2 < coreDiameterSquared))
-				return (bij < 0.0) ? falseTime : Double.MAX_VALUE;
+				return (bij < 0.0) ? falseTime : Double.POSITIVE_INFINITY;
 		}
 		//mutually bonded, or outside well; collide as SW
 		double time = super.collisionTime(atoms, falseTime);
