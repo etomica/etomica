@@ -7,12 +7,12 @@ import etomica.integrator.MCMove;
  * Returns acceptance probability as kept by the MCMove.
  */
 
-public class DataSourceAcceptanceProbabilty extends DataSourceAcceptanceRatio {
+public class DataSourceAcceptanceProbability extends DataSourceAcceptanceRatio {
 
-    public DataSourceAcceptanceProbabilty() {
+    public DataSourceAcceptanceProbability() {
         this(new MCMove[0]);
     }
-    public DataSourceAcceptanceProbabilty(MCMove[] move) {
+    public DataSourceAcceptanceProbability(MCMove[] move) {
         super(move);
         setLabel("AcceptanceProbability");
     }
