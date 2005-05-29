@@ -26,12 +26,10 @@ public class MCMoveRotateMolecule3D extends MCMove {
     private transient Atom molecule;
     private transient Vector3D r0;
     private transient RotationTensor rotationTensor;
-    private int number = 0;
     public int count;
     public int count1;
     public boolean flag = false;
     public boolean flag1 = false;
-    private int j;
     private double uOldSave;
     
     public MCMoveRotateMolecule3D(PotentialMaster potentialMaster, Space space) {
