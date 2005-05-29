@@ -10,17 +10,17 @@ import etomica.units.Unit;
  * Returns acceptance rate as kept by the MCMove.
  */
 
-public final class DataSourceAcceptanceRatio extends DataSourceAdapter {
+public class DataSourceAcceptanceRatio extends DataSourceAdapter {
     
-    private MCMove[] move = new MCMove[0];
-    private double[] ratioArray;
+    protected MCMove[] move;
+    protected double[] ratioArray;
     
     public DataSourceAcceptanceRatio() {
-    	super(Dimension.FRACTION);
-        setLabel("AcceptanceRatio");
+    	this(new MCMove[0]);
     }
     public DataSourceAcceptanceRatio(MCMove[] move) {
-        this();
+        super(Dimension.FRACTION);
+        setLabel("AcceptanceRatio");
         setMove(move);
     }
    
