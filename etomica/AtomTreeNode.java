@@ -33,7 +33,7 @@ package etomica;
  * @see AtomIndexManager
  */
  
-public abstract class AtomTreeNode {
+public abstract class AtomTreeNode implements Comparable {
     
     public AtomTreeNode(Atom atom) {
         this.atom = atom;
@@ -168,26 +168,16 @@ public abstract class AtomTreeNode {
         return (parentNode == node) ? this : parentNode.childWhereDescendedFrom(node);
     }
     
-    
     /**
-     * Returns true if this atom preceeds the given atom in the atom sequence.
-     * Returns false if the given atom is this atom, or (of course) if the
-     * given atom instead preceeds this one.
+     * Implementation of Comparable interface.  Returns -1, 0, 1 if given atomTreeNode
+     * is less, equal, or greater, respectively, than this node.  Order is determined
+     * by comparison of atomIndex values.
      */
-    public boolean preceeds(AtomTreeNode node) {
-        //want to return false if atoms are the same atoms
-        if(parentNode == null) return false;
-        if(node == null) return true;
-        if(this.parentNode == node.parentNode) return atomIndex < node.atomIndex;//works also if both parentGroups are null
-        if(atom.type.getDepth() == node.atom.type.getDepth()) return parentNode.preceeds(node.parentNode);
-        if(atom.type.getDepth() < node.atom.type.getDepth()) return this.preceeds(node.parentNode);
-        /*if(this.depth > atom.depth)*/ return parentNode.preceeds(node);
+    public int compareTo(Object atomTreeNode) {
+        int otherIndex = ((AtomTreeNode)atomTreeNode).atomIndex;
+        return otherIndex > atomIndex ? 1 : (otherIndex == atomIndex ? 0 : -1);
     }
-    
-    public boolean preceeds(Atom a) {
-        return (a != null) ? preceeds(a.node) : true;
-    }
-            
+                
     protected final Atom atom;
     protected int atomIndex;
     private AtomTreeNodeGroup parentNode;

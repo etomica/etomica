@@ -19,7 +19,7 @@ import etomica.utility.Arrays;
   * @author David Kofke
   * @author C. Daniel Barnes
   */
-public class Atom implements AtomSet, java.io.Serializable {
+public class Atom implements AtomSet, Comparable, java.io.Serializable {
 
     public Atom(Space space, AtomType type, 
                     AtomTreeNodeFactory nodeFactory,
@@ -99,6 +99,14 @@ public class Atom implements AtomSet, java.io.Serializable {
      */
     public void setIntegratorAgent(Object ia) {this.ia = ia;}
 
+    /**
+     * Implementation of Comparable interface.  Returns -1, 0, 1 if given atom
+     * is less, equal, or greater, respectively, than this atom.  
+     * Order is determined by compareTo method of atoms' nodes.
+     */
+    public int compareTo(Object atom) {
+        return node.compareTo(((Atom)atom).node);
+    }
     /**
      * Coordinates of this atom.
      * When the atom is constructed the coordinate class is provided by the 

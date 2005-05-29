@@ -2,18 +2,14 @@ package etomica;
 
 
 /**
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- *
- * @author David Kofke
- *
+ * Data structure that contains two mutable atom instances.
  */
 
 /*
  * History
  * Created on Feb 18, 2005 by kofke
  */
-public class AtomPair implements AtomSet {
+public class AtomPair implements AtomSet, Comparable {
 
 
     /* (non-Javadoc)
@@ -45,6 +41,16 @@ public class AtomPair implements AtomSet {
     
     public String toString() {
         return "["+atom0.toString()+","+atom1.toString()+"]";
+    }
+
+    /**
+     * Returns result of compareTo applied between first atoms 
+     * of the two pairs, and if that is zero, returns comparison
+     * of second atoms of pair.  Implementation of Comparable interface.
+     */
+    public int compareTo(Object pair) {
+        int i0 = atom0.compareTo(((AtomPair)pair).atom0);
+        return (i0 != 0) ? i0 : atom1.compareTo(((AtomPair)pair).atom1);
     }
     
     public Atom atom0, atom1;
