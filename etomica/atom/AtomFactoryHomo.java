@@ -10,17 +10,22 @@ import etomica.Species;
 
 /**
  * Builds an atom group that comprises a set of identically formed atoms or atom groups.
+ * Construction of an instance must be followed by a call to setChildFactory, which identifies
+ * the factory that makes the identically formed sub-atoms.
  * Default position definition is the geometric center (which is also the center of mass).
  *
  * @author David Kofke
  */
- 
+
+//child factory cannot be given in constructor because the AtomType the child factory will use cannot be
+//constructed before this factory has made the AtomType used for its atom groups
+
  public class AtomFactoryHomo extends AtomFactory {
     
     /**
      * @param space the coordinate factory
      * @param sequencerFactory makes sequencers for each of the atoms built by this factory
-     * @param factory the factory that makes each of the identical children.
+     * @param parentType the type instance of the atoms that are parents of those made by this factory
      */
     public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomTypeGroup parentType) {
         this(space, sequencerFactory, parentType, 1);
@@ -28,7 +33,7 @@ import etomica.Species;
     /**
      * @param space the coordinate factory
      * @param sequencerFactory makes sequencers for each of the atoms built by this factory
-     * @param factory the factory that makes each of the identical children.
+     * @param parentType the type instance of the atoms that are parents of those made by this factory
      * @param atoms the number of identical children per group (default is 1).
      */
     public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomTypeGroup parentType, int atoms) {
@@ -37,7 +42,7 @@ import etomica.Species;
     /**
      * @param space the coordinate factory
      * @param sequencerFactory makes sequencers for each of the atoms built by this factory
-     * @param factory the factory that makes each of the identical children.
+     * @param parentType the type instance of the atoms that are parents of those made by this factory
      * @param atoms the number of identical children per group (default is 1).
      * @param config the conformation applied to each group that is built (default is Linear).
      */
@@ -50,8 +55,8 @@ import etomica.Species;
     /**
      * @param space the coordinate factory
      * @param sequencerFactory makes sequencers for each of the atoms built by this factory
+     * @param parentType the type instance of the atoms that are parents of those made by this factory
      * @param nodeFactory makes nodes for each of the atoms built by this factory
-     * @param factory the factory that makes each of the identical children.
      * @param atoms the number of identical children per group (default is 1).
      * @param config the conformation applied to each group that is built (default is Linear).
      */
@@ -88,6 +93,11 @@ import etomica.Species;
      */
     public AtomFactory childFactory() {return childFactory;}
 
+    /**
+     * Sets the factory that makes the identical child atoms of an atom-group formed
+     * by this factory.  This method should be called immediately after instantiation.
+     * Subsequent attempts to invoke this method will throw an IllegalStateException.
+     */
     public void setChildFactory(AtomFactory childFactory) {
         if (this.childFactory != null) throw new IllegalStateException("You can set the child factory only once!");
         this.childFactory = childFactory;
