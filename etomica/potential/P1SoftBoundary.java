@@ -16,10 +16,8 @@ import etomica.space.Vector;
  */
 public class P1SoftBoundary extends Potential1 implements PotentialSoft, EtomicaElement {
 
-	private final int D;
 	private final Vector gradient;
-	private double radius, radius2;
-	private double cutoff = Double.MAX_VALUE;
+	private double radius;
 	private Atom atom;
 	
 	public P1SoftBoundary() {
@@ -28,7 +26,6 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft, Etomica
     
 	public P1SoftBoundary(Space space) {
 		super(space);
-		D = space.D();
 		gradient = space.makeVector();
 		setRadius(0.5*Default.ATOM_SIZE);
 	}
@@ -92,7 +89,6 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft, Etomica
 	 */
 	public void setRadius(double radius) {
 		this.radius = radius;
-		radius2 = radius*radius;
 	}
     
 }
