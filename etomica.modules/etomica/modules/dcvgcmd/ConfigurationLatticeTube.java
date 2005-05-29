@@ -1,6 +1,7 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.Atom;
+import etomica.AtomTreeNodeGroup;
 import etomica.Configuration;
 import etomica.Conformation;
 import etomica.Default;
@@ -12,7 +13,6 @@ import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorListCompound;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.lattice.IndexIteratorSequential;

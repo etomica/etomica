@@ -1,12 +1,12 @@
 package etomica.modules.dcvgcmd;
 
+import etomica.AtomTreeNodeGroup;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Phase;
 import etomica.Species;
 import etomica.SpeciesAgent;
 import etomica.atom.AtomList;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterScalar;
 import etomica.units.Dimension;
