@@ -6,8 +6,8 @@ package etomica.atom.iterator;
 
 import etomica.Atom;
 import etomica.AtomSet;
+import etomica.AtomTreeNodeGroup;
 import etomica.atom.AtomList;
-import etomica.atom.AtomTreeNodeGroup;
 
 /**
  * Basic atom iterator that yields the child atoms of a basis that satisfy

@@ -2,7 +2,6 @@ package etomica.virial.simulations;
 
 import etomica.*;
 import etomica.atom.AtomList;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorList;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorMC;

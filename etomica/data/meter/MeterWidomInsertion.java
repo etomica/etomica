@@ -1,6 +1,7 @@
 package etomica.data.meter;
 
 import etomica.Atom;
+import etomica.AtomTreeNodeGroup;
 import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
@@ -9,7 +10,6 @@ import etomica.PotentialMaster;
 import etomica.Space;
 import etomica.Species;
 import etomica.action.AtomActionTranslateTo;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.units.Dimension;
 
 /**

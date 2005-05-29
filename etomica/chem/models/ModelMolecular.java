@@ -3,14 +3,14 @@
  */
 package etomica.chem.models;
 import etomica.AtomFactory;
+import etomica.AtomTreeNode;
+import etomica.AtomTreeNodeFactory;
 import etomica.Configuration;
 import etomica.Space;
 import etomica.atom.AtomFactoryHetero;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomSequencerFactory;
-import etomica.atom.AtomTreeNode;
 import etomica.atom.AtomTreeNodeGroupArray;
-import etomica.atom.AtomTreeNodeFactory;
 import etomica.chem.Model;
 /**
  * Model for a molecule, which is formed from one or more sub-models, which

@@ -1,8 +1,5 @@
-package etomica.atom;
+package etomica;
 
-import etomica.Atom;
-import etomica.Phase;
-import etomica.SpeciesAgent;
 
 /**
  * Abstract node in the atom tree. Atoms are arranged in a tree structure to

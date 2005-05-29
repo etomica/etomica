@@ -1,8 +1,6 @@
 package etomica;
 
 import etomica.atom.AtomSequencerFactory;
-import etomica.atom.AtomTreeNodeFactory;
-import etomica.atom.AtomTreeNodeGroup;
 
 /**
  * Class responsible for building new instances of the atoms (or atom groups)

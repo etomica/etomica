@@ -4,6 +4,7 @@ import java.util.LinkedList;
 
 import junit.framework.TestCase;
 import etomica.Atom;
+import etomica.AtomTreeNodeGroup;
 import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Simulation;
@@ -11,7 +12,6 @@ import etomica.Species;
 import etomica.SpeciesSpheres;
 import etomica.action.AtomAction;
 import etomica.atom.AtomList;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorList;
 import etomica.atom.iterator.AtomIteratorTree;
 

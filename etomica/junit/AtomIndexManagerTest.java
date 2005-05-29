@@ -2,6 +2,7 @@ package etomica.junit;
 
 import junit.framework.TestCase;
 import etomica.Atom;
+import etomica.AtomTreeNodeGroup;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.Species;
@@ -10,7 +11,6 @@ import etomica.SpeciesMaster;
 import etomica.SpeciesSpheres;
 import etomica.SpeciesSpheresMono;
 import etomica.atom.AtomSequencerFactory;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.space2d.Space2D;
 
 

@@ -1,6 +1,8 @@
 package etomica.atom;
 
 import etomica.Atom;
+import etomica.AtomTreeNodeFactory;
+import etomica.AtomTreeNodeGroup;
 
 /**
  * A group node which holds also an array for convenient referencing of the
@@ -26,7 +28,7 @@ public class AtomTreeNodeGroupArray extends AtomTreeNodeGroup {
 	public Atom[] childAtomArray = new Atom[0];
 	
 	public static final AtomTreeNodeFactory FACTORY = new AtomTreeNodeFactory() {
-		public etomica.atom.AtomTreeNode makeNode(Atom atom) {
+		public etomica.AtomTreeNode makeNode(Atom atom) {
 			return new AtomTreeNodeGroupArray(atom);
 		}
 	};
@@ -53,7 +55,7 @@ public class AtomTreeNodeGroupArray extends AtomTreeNodeGroup {
 	
 
 	/**
-	 * @see etomica.atom.AtomTreeNodeGroup#removeAtomNotify(etomica.Atom)
+	 * @see etomica.AtomTreeNodeGroup#removeAtomNotify(etomica.Atom)
 	 */
 	public void removeAtomNotify(Atom atom) {
 		super.removeAtomNotify(atom);
@@ -69,7 +71,7 @@ public class AtomTreeNodeGroupArray extends AtomTreeNodeGroup {
 	}
 
 	/**
-	 * @see etomica.atom.AtomTreeNodeGroup#childAtomArray()
+	 * @see etomica.AtomTreeNodeGroup#childAtomArray()
 	 */
 	public Atom[] childAtomArray() {
 		return childAtomArray;

@@ -2,9 +2,6 @@ package etomica;
 
 import etomica.atom.AtomList;
 import etomica.atom.AtomSequencerFactory;
-import etomica.atom.AtomTreeNode;
-import etomica.atom.AtomTreeNodeFactory;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.utility.Arrays;
 

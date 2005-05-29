@@ -7,8 +7,8 @@ package etomica.atom.iterator;
 import etomica.Atom;
 import etomica.AtomIterator;
 import etomica.AtomSet;
+import etomica.AtomTreeNodeGroup;
 import etomica.IteratorDirective;
-import etomica.atom.AtomTreeNodeGroup;
 
 /**
  * Returns iterates from from the childList of a single basis atom.  Behavior is set

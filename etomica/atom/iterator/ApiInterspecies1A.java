@@ -3,12 +3,12 @@ package etomica.atom.iterator;
 import etomica.Atom;
 import etomica.AtomPair;
 import etomica.AtomSet;
+import etomica.AtomTreeNode;
+import etomica.AtomTreeNodeGroup;
 import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Species;
 import etomica.IteratorDirective.Direction;
-import etomica.atom.AtomTreeNode;
-import etomica.atom.AtomTreeNodeGroup;
 
 /**
  * Gives pairs formed from the molecules of two different species in a phase,

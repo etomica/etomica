@@ -1,12 +1,12 @@
 package etomica.association;
 import etomica.Atom;
 import etomica.AtomIterator;
+import etomica.AtomTreeNodeGroup;
 import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.atom.AtomList;
 import etomica.atom.AtomListRestorable;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveListener;

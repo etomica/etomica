@@ -3,13 +3,13 @@ package etomica.atom.iterator;
 import etomica.Atom;
 import etomica.AtomIterator;
 import etomica.AtomSet;
+import etomica.AtomTreeNodeGroup;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.Species;
 import etomica.SpeciesSpheres;
 import etomica.SpeciesSpheresMono;
 import etomica.action.AtomsetAction;
-import etomica.atom.AtomTreeNodeGroup;
 
 /**
  * Atom iterator that traverses all atoms at a specified depth below a

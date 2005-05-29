@@ -2,7 +2,6 @@ package etomica;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomList;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorListCompound;
 import etomica.space.Vector;
 

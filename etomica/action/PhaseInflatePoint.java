@@ -5,6 +5,7 @@ import java.awt.Polygon;
 
 import etomica.Atom;
 import etomica.AtomIterator;
+import etomica.AtomTreeNodeGroup;
 import etomica.AtomType;
 import etomica.Phase;
 import etomica.Simulation;
@@ -13,7 +14,6 @@ import etomica.Space;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomList;
 import etomica.atom.AtomSequencerFactory;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorList;
 import etomica.lattice.AbstractLattice;

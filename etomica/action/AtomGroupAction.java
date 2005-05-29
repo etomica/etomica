@@ -1,9 +1,9 @@
 package etomica.action;
 
 import etomica.Atom;
+import etomica.AtomTreeNodeGroup;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
-import etomica.atom.AtomTreeNodeGroup;
 
 /**
  * Wraps an AtomAction, and performs the wrapped action on the atom

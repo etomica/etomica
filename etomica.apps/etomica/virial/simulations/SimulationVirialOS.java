@@ -1,7 +1,6 @@
 package etomica.virial.simulations;
 
 import etomica.*;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;

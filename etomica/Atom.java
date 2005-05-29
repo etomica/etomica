@@ -2,9 +2,6 @@ package etomica;
 
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomSequencerFactory;
-import etomica.atom.AtomTreeNode;
-import etomica.atom.AtomTreeNodeFactory;
-import etomica.atom.AtomTreeNodeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.space.ICoordinate;
 import etomica.utility.Arrays;

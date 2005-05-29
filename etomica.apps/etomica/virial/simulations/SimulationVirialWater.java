@@ -6,7 +6,6 @@ import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.units.*;
 import etomica.atom.AtomList;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorList;
 import etomica.data.DataSourceCountSteps;
 import etomica.graphics.*;

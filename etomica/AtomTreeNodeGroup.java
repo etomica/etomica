@@ -1,6 +1,7 @@
-package etomica.atom;
+package etomica;
 
-import etomica.Atom;
+import etomica.atom.AtomLinker;
+import etomica.atom.AtomList;
 
 /**
  * Implementation of AtomTreeNode for non-leaf node.

@@ -1,6 +1,5 @@
 package etomica;
 
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.space.Boundary;
 import etomica.space.Coordinate;

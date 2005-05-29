@@ -1,6 +1,5 @@
-package etomica.atom;
+package etomica;
 
-import etomica.Atom;
 
 /**
  * Interface for class that makes an AtomTreeNode.  Classes implementing this
@@ -16,5 +15,5 @@ import etomica.Atom;
  * Created on Feb 12, 2005 by kofke
  */
 public interface AtomTreeNodeFactory {
-    public AtomTreeNode makeNode(Atom atom);
+    AtomTreeNode makeNode(Atom atom);
 }

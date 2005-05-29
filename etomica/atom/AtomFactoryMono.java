@@ -2,6 +2,7 @@ package etomica.atom;
 
 import etomica.Atom;
 import etomica.AtomFactory;
+import etomica.AtomTreeNodeLeaf;
 import etomica.AtomTypeLeaf;
 import etomica.Space;
 import etomica.Species;

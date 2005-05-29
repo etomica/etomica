@@ -5,6 +5,7 @@ import java.awt.Component;
 import javax.swing.JPanel;
 
 import etomica.Atom;
+import etomica.AtomTreeNodeGroup;
 import etomica.Controller;
 import etomica.Default;
 import etomica.Phase;
@@ -15,7 +16,6 @@ import etomica.SpeciesSpheres;
 import etomica.SpeciesSpheresMono;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomFactoryMono;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.Device;
 import etomica.graphics.DeviceTrioControllerButton;

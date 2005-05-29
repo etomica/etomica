@@ -5,7 +5,6 @@ import java.util.Observer;
 
 import etomica.action.PhaseInflate;
 import etomica.atom.AtomLinker;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.RectangularLattice;

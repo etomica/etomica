@@ -6,6 +6,7 @@ package etomica.nbr.list;
 
 import etomica.Atom;
 import etomica.AtomSet;
+import etomica.AtomTreeNodeGroup;
 import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Potential;
@@ -16,7 +17,6 @@ import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomSequencerFactory;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.AtomIteratorArrayList;
 import etomica.atom.iterator.AtomIteratorSinglet;

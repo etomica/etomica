@@ -1,6 +1,5 @@
 package etomica;
 
-import etomica.atom.AtomTreeNode;
 
 /**
  * Performs manipulations and interrogations related to the index assigned to
@@ -9,12 +8,12 @@ import etomica.atom.AtomTreeNode;
  * information about where the atom is located in the atom tree. The methods of
  * this class provide a convenient means for obtaining information from this
  * code. Instances of this class are held in the AtomType instance referenced by
- * the type field of each atom. The depth field is the only thing that differs
- * between different instances of AtomIndexManager in a single Simulation.  In
- * addition, the AtomIndexManager holds an index that established a parallel
+ * the type field of each atom. 
+ * In addition, the AtomIndexManager holds an index that establishes a parallel
  * hierarchy to the atom hierarchy.  The index is coded in the same way as that
  * for the atoms (although the ordinal values will be smaller, as there are
- * may atom instances with the same AtomIndexManager).
+ * many atom instances with the same AtomIndexManager).  This index is accessed
+ * via the getTypeIndex method.
  * 
  * 
  * @see AtomTreeNode

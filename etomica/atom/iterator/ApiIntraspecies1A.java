@@ -2,11 +2,11 @@ package etomica.atom.iterator;
 
 import etomica.Atom;
 import etomica.AtomSet;
+import etomica.AtomTreeNode;
+import etomica.AtomTreeNodeGroup;
 import etomica.Phase;
 import etomica.Species;
 import etomica.IteratorDirective.Direction;
-import etomica.atom.AtomTreeNode;
-import etomica.atom.AtomTreeNodeGroup;
 
 /**
  * Gives pairs formed from the molecules of a species in a phase,
