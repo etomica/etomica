@@ -20,7 +20,7 @@ public class ListIteratorTestSimple extends ListIteratorTest {
 
 	public ListIteratorTestSimple() {
 		super(new AtomIteratorListSimple());
-        UnitTest.VERBOSE = true;
+        UnitTest.VERBOSE = false;
 	}
 /**
  * setUp is a required method for any JUNIT test.  Here, a new iterator of type
