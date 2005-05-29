@@ -179,14 +179,14 @@ public final class Vector2D extends etomica.space.Vector {  //declared final for
 		public void setRandomInSphere() {//check before using
 			double z1 = 0.0;
 			double z2 = 0.0;
-			double rsq = Double.MAX_VALUE;
-			while(rsq > 1.0) {
+			double rsq;
+			do {
                 
 				z1 = 1.0 - 2.0*Simulation.random.nextDouble();
 				z2 = 1.0 - 2.0*Simulation.random.nextDouble();
         
 				rsq = z1*z1 + z2*z2;
-			}
+			} while(rsq > 1.0);
 			x = z1;
 			y = z2;
 		}

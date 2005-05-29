@@ -151,7 +151,7 @@ public class MeterWidomInsertion extends MeterScalar implements EtomicaElement {
             atomTranslator.actionPerformed(testMolecule);
 			//            if(display != null && i % 10 ==0) display.repaint();
 			double u = energyMeter.getDataAsScalar(phase);
-			if (u < Double.MAX_VALUE) //add to test-particle average
+			if (u < Double.POSITIVE_INFINITY) //add to test-particle average
 				sum += Math.exp(-u / temperature);
 		}
 

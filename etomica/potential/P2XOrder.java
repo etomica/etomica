@@ -65,7 +65,7 @@ public class P2XOrder extends Potential2 implements PotentialHard {
  //       double deltaX = pair.dr(0);
         double deltaX = ((AtomPair)pair).atom1.coord.position().x(0) - ((AtomPair)pair).atom0.coord.position().x(0);
         int dI = ((AtomPair)pair).atom1.node.index() - ((AtomPair)pair).atom0.node.index();
-        return (deltaX * dI < 0.0) ? Double.MAX_VALUE : 0.0;
+        return (deltaX * dI < 0.0) ? Double.POSITIVE_INFINITY : 0.0;
     }
     
     public double energyChange() {

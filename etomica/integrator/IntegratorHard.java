@@ -98,7 +98,7 @@ public class IntegratorHard extends IntegratorMD {
      */
     public void doStep() {
         findNextCollider();
-        collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.MAX_VALUE;
+        collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.POSITIVE_INFINITY;
         double oldTime = 0;
         while(collisionTimeStep < timeStep) {//advance to collision if occurs before remaining interval
             AtomSet atoms;
@@ -183,7 +183,7 @@ public class IntegratorHard extends IntegratorMD {
             findNextCollider(); //this sets colliderAgent for the next collision
             
             oldTime = collisionTimeStep;
-            collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.MAX_VALUE;
+            collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.POSITIVE_INFINITY;
         } 
         colliderAgent = null;
 
@@ -514,7 +514,7 @@ public class IntegratorHard extends IntegratorMD {
                 if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atomPair)))) {
                     System.out.println("collision down time "+collisionTime+" for atom "+atomPair+" "+pHard.getClass());
                 }
-				if(collisionTime < Double.MAX_VALUE) {
+				if(collisionTime < Double.POSITIVE_INFINITY) {
 					Agent aia = (Agent)atomPair.atom1.ia;
 					if(collisionTime < aia.collisionTime()) {
 						if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atomPair))) {
@@ -601,7 +601,7 @@ public class IntegratorHard extends IntegratorMD {
         public Agent(Atom a) {
             atom = a;
             eventLinker = new TreeLinker(this);
-            eventLinker.sortKey = Double.MAX_VALUE;
+            eventLinker.sortKey = Double.POSITIVE_INFINITY;
         }
         
         public String toString() {
