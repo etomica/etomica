@@ -97,7 +97,7 @@ public class AtomIndexManager {
      * Method exists to permit construction of appropriate index manger having
      * same bitLength array as this, without exposing the bitLength array.
      */
-    public AtomIndexManager makeChildManager() {
+    AtomIndexManager makeChildManager() {
         return new AtomIndexManager(bitLength, depth + 1, typeIndex, ++childCount);
     }
 
