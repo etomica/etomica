@@ -3,11 +3,7 @@ package etomica.atom.iterator;
 import etomica.Atom;
 import etomica.AtomIterator;
 import etomica.AtomSet;
-import etomica.AtomTreeNodeGroup;
 import etomica.IteratorDirective;
-import etomica.Phase;
-import etomica.Simulation;
-import etomica.SpeciesSpheresMono;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
@@ -271,27 +267,27 @@ public final class AtomIteratorList implements AtomIterator, AtomsetIteratorList
     /**
      * Method to test and demonstrate use of class.
      */
-    public static void main(String[] args) {
-        
-        Simulation sim = new Simulation();
-        SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
-        species.setNMolecules(10);//tested also for 0 and 1 molecule
-        Phase phase = new Phase(sim);
+//    public static void main(String[] args) {
+//        
+//        Simulation sim = new Simulation();
+//        SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
+//        species.setNMolecules(10);//tested also for 0 and 1 molecule
+//        Phase phase = new Phase(sim);
 //        sim.elementCoordinator.go();
 //        AtomList atomList = phase.speciesMaster.atomList;
-        AtomList atomList = ((AtomTreeNodeGroup)phase.getAgent(species).node).childList;
+//        AtomList atomList = ((AtomTreeNodeGroup)phase.getAgent(species).node).childList;
         
-        AtomIteratorList iterator = new AtomIteratorList(atomList);
-        Atom first = atomList.getFirst();
-        Atom last = atomList.getLast();
-        Atom middle = null;
-        try {
-            middle = atomList.get(atomList.size()/2);//exception thrown if list is empty
-        } catch(IndexOutOfBoundsException ex) {}
+//        AtomIteratorList iterator = new AtomIteratorList(atomList);
+//        Atom first = atomList.getFirst();
+//        Atom last = atomList.getLast();
+//        Atom middle = null;
+//        try {
+//            middle = atomList.get(atomList.size()/2);//exception thrown if list is empty
+//        } catch(IndexOutOfBoundsException ex) {}
         
 //        iterator.setSkipFirstAtom(true);
 //        IteratorDirective.testSuite(iterator, first, middle, last);
-    }
+//    }
 
 }//end of AtomIteratorList
 

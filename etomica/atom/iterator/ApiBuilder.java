@@ -101,8 +101,6 @@ public final class ApiBuilder {
             ((AtomIteratorSequencerList)inner.getWrappedIterator()).setNumToSkip(1);
             return new ApiIntragroup(new ApiInnerVariable(outer, (AtomIteratorAtomDependent)inner));
         } 
-        else {
-            return makeIntergroupTypeIterator(types);
-        }
+        return makeIntergroupTypeIterator(types);
     }
 }

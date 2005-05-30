@@ -83,7 +83,7 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
         next.copyTo(nextAtoms);
         hasNext = false;
 		while(iterator.hasNext()) {
-            iterator.nextPair().copyTo((AtomPair)next);
+            iterator.nextPair().copyTo(next);
             if(filter.accept(next)) {
                 hasNext = true;
                 break;

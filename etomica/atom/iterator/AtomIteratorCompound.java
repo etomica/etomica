@@ -73,7 +73,6 @@ public final class AtomIteratorCompound implements AtomIterator {
             return;
         }
         index = 0;
-        Atom next = null;
         
         iteratorSet[index].reset();
         while(!iteratorSet[index].hasNext() && index+1 < iteratorSet.length) {

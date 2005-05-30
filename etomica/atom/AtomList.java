@@ -241,12 +241,10 @@ public class AtomList implements java.io.Serializable
      */
     public boolean remove(Atom o) {
         if (o==null) return false;
-        else {
-            for (AtomLinker e = header.next; e != header; e = e.next) {
-                if (o == e.atom) {
-                    remove(e);
-                    return true;
-                }
+        for (AtomLinker e = header.next; e != header; e = e.next) {
+            if (o == e.atom) {
+                remove(e);
+                return true;
             }
         }
         return false;

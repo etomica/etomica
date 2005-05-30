@@ -41,7 +41,6 @@ public class AtomIteratorAllMolecules extends AtomIteratorAdapter
     }
 
     private final AtomIteratorTree treeIterator;
-    private Phase phase;
 
     /**
      * main method to test and demonstrate use of this class.

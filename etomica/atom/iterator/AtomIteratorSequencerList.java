@@ -209,7 +209,6 @@ public class AtomIteratorSequencerList implements AtomIteratorAtomDependent,
     protected boolean upListNow, doGoDown;
     private IteratorDirective.Direction direction;
     private Atom firstAtom = null;
-    private final Atom[] atom = new Atom[1];
     private final AtomToLinker atomToLinker;
     
     /**

@@ -40,7 +40,7 @@ public class ApiListSimple implements AtomPairIterator, AtomsetIteratorListDepen
 	public boolean contains(AtomSet pair) {
 		if(!(pair instanceof AtomPair) || 
 				((AtomPair)pair).atom0 == ((AtomPair)pair).atom1) return false;
-		else return list.contains(((AtomPair)pair).atom0) 
+		return list.contains(((AtomPair)pair).atom0) 
                                 && list.contains(((AtomPair)pair).atom1);
 	}
 
