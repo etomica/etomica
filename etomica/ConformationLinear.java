@@ -70,7 +70,7 @@ public class ConformationLinear extends Conformation {
 
         atomIterator.setList(atomList);
             
-        double xNext = -bondLength*0.5*(double)(size-1);
+        double xNext = -bondLength*0.5*(size-1);
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();

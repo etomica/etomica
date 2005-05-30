@@ -57,9 +57,8 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
         if(path.length - 1 > n) {//go further down hierarchy
             if(child.node.isLeaf()) {//no more there
                 throw new IllegalArgumentException("Depth of requested descendant exceeds depth of atom hierarchy");
-            } else {//get indicated descendant recursively
-                child = ((AtomTreeNodeGroup)child.node).getDescendant(n+1, path);
-            }
+            }//get indicated descendant recursively
+            child = ((AtomTreeNodeGroup)child.node).getDescendant(n+1, path);
         }
         return child;
     }
@@ -71,7 +70,7 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
         while(link != childList.header) {
             Atom a1 = link.atom.node.firstLeafAtom();
             if(a1 != null) return a1;
-            else link = link.next;
+            link = link.next;
         }
         return null;
     }
@@ -84,7 +83,7 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
         while(link != childList.header) {
             Atom a1 = link.atom.node.lastLeafAtom();
             if(a1 != null) return a1;
-            else link = link.previous;
+            link = link.previous;
         }
         return null;
     }

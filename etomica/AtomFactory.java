@@ -15,7 +15,6 @@ public abstract class AtomFactory {
     protected Conformation conformation;
     protected AtomSequencerFactory sequencerFactory;
     protected AtomTreeNodeFactory nodeFactory;
-    private Atom.AgentSource[] agentSource = new Atom.AgentSource[0];
     protected final AtomType atomType;
     
     /**

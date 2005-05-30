@@ -37,11 +37,10 @@ public class ConformationChain2D extends ConformationChain {
 		if(tracker<vectors.length){
 			tracker += 1;
 			return vectors[tracker-1];
-		} else {
-		    reset();
-		    tracker += 1;
-		    return vectors[tracker-1];
 		}
+	    reset();
+	    tracker += 1;
+	    return vectors[tracker-1];
 	}
 
 	Vector[] vectors;

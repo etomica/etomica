@@ -134,8 +134,7 @@ public class Species {
      */
     public SpeciesAgent makeAgent(SpeciesMaster parent) {
         Phase phase = parent.node.parentPhase();
-        SpeciesAgent agent = new SpeciesAgent(factory.space, 
-                agentType, this, phase, nMolecules);
+        SpeciesAgent agent = new SpeciesAgent(factory.space, agentType, this);
         agent.node.setParent(parent.node);
         agents.put(phase, agent);   //associate agent with phase; retrieve agent for a given phase using agents.get(p)
         return agent;

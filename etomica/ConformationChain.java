@@ -16,7 +16,7 @@ public abstract class ConformationChain extends Conformation {
 		super(space);		
 		atomIterator = new AtomIteratorListSimple();
 		//orientationVector = space.makeVector();
-		wrongNumberOfVectors = "Wrong number of vectors in the argument to ConformationChain subclass.";
+		//wrongNumberOfVectors = "Wrong number of vectors in the argument to ConformationChain subclass.";
 	}
 	
 	/**
@@ -79,7 +79,6 @@ public abstract class ConformationChain extends Conformation {
 	//TODO Should we have a method here that moves the atom somehow- rotate, translate, etc.?
 	
 	private final AtomIteratorListSimple atomIterator;
-	private String wrongNumberOfVectors;
 
 	//private Vector orientationVector;	
 }

@@ -83,18 +83,16 @@ public abstract class Space implements java.io.Serializable {
         if(kinetic) {
             if(angular) return new CoordinateAngularKinetic(this);
             return new CoordinateKinetic(this);
-        } else {
-            if(angular) return new CoordinateAngular(this);
-            return new Coordinate(this);
         }
+        if(angular) return new CoordinateAngular(this);
+        return new Coordinate(this);
     }
     
     public CoordinatePair makeCoordinatePair() {
         if(kinetic) {
             return new CoordinatePairKinetic(this);
-        } else {
-            return new CoordinatePair(this);
         }
+        return new CoordinatePair(this);
     }
 
     

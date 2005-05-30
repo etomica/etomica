@@ -101,7 +101,7 @@ public class Simulation {
 	private Object getElement(Class clazz, int n) {
 		LinkedList list = (LinkedList)elementLists.get(clazz);
 		if(n < 0 || n >= list.size()) return null;
-		else return list.get(n);
+		return list.get(n);
 	}
 	
 	public final LinkedList getLoggerList() {return loggerList;}

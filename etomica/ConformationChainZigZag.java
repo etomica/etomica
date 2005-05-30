@@ -43,10 +43,9 @@ public class ConformationChainZigZag extends ConformationChain {
 		if(isVectorOne){
 			isVectorOne = false;
 			return v1;
-		} else {
-			isVectorOne = true;
-			return v2;
 		}
+		isVectorOne = true;
+		return v2;
 	}
 
 	protected Vector v1;

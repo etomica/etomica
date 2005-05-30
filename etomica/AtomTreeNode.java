@@ -155,7 +155,7 @@ public abstract class AtomTreeNode implements Comparable {
      */ 
     public boolean isDescendedFrom(Atom group) {
     	if(group == null) return false;
-        else return group.type.getIndexManager().sameAncestry(group.node.atomIndex,this.atomIndex);
+        return group.type.getIndexManager().sameAncestry(group.node.atomIndex,this.atomIndex);
     }
     
     /**

@@ -75,9 +75,8 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
     public String signature() {
         if(node.parentGroup() != null) {
             return node.parentGroup().signature() + " " + node.getOrdinal();
-        } else {
-            return Integer.toString(node.getOrdinal());
         }
+        return Integer.toString(node.getOrdinal());
     }
     /**
      * Returns a string formed by concatenating the signature of this atom

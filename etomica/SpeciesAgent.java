@@ -13,9 +13,8 @@ import etomica.units.Dimension;
  
 public final class SpeciesAgent extends Atom {
 
-    SpeciesAgent(Space space, AtomType type, Species species, Phase phase, int nMolecules) {
+    SpeciesAgent(Space space, AtomType type, Species species) {
         super(space, type, NODE_FACTORY,  AtomSequencerFactory.SIMPLE);
-        this.phase = phase;
         type.setSpecies(species);
     }
         
@@ -41,9 +40,6 @@ public final class SpeciesAgent extends Atom {
     * Takes no action at all if the new number of molecules equals the existing number
     *
     * @param n  the new number of molecules for this species
-    * @see #makeMolecule
-    * @see #deleteMolecule
-    * @see #addMolecule
     */
     public void setNMolecules(int n) {
         lastNMolecules = n;
@@ -99,7 +95,6 @@ public final class SpeciesAgent extends Atom {
         }
     };
     public AtomLinker.Tab firstLeafAtomTab;
-    private final Phase phase;
     private int lastNMolecules = -1;
     
 } //end of SpeciesAgent

@@ -29,7 +29,6 @@ public interface AtomIterator extends AtomsetIterator {
     public static final AtomIterator NULL = new AtomIterator() {
     	public void allAtoms(AtomsetAction action) {}
     	public boolean contains(AtomSet atom) {return false;}
-     	public boolean contains(Atom atom) {return false;}
     	public boolean hasNext() {return false;}
        	public AtomSet next() {return null;}
        	public Atom nextAtom() {return null;}
