@@ -65,11 +65,6 @@ public abstract class AtomFactory {
      */
     protected Atom newParentAtom() {
         Atom atom = new Atom(space, atomType, nodeFactory, sequencerFactory);
-        //add agents from any registered sources
-        if(agentSource.length > 0) atom.agents = new Object[agentSource.length];
-        for(int i=0; i<agentSource.length; i++) {
-            atom.agents[i] = agentSource[i].makeAgent(atom);
-        }
         return atom;
     }
 
@@ -101,17 +96,4 @@ public abstract class AtomFactory {
      */
     public Conformation getConformation() {return conformation;}
     
-    /**
-     * Adds given agent source to agent-source array and returns index
-     * indicating where in atom agent-array the source's agent will
-     * be placed.
-     */
-    public int requestAgentIndex(Atom.AgentSource aSource) {
-        Atom.AgentSource[] newSource = new Atom.AgentSource[agentSource.length+1];
-        for(int i=0; i<agentSource.length; i++) newSource[i] = agentSource[i];
-        int index = agentSource.length;
-        newSource[index] = aSource;
-        agentSource = newSource;
-        return index;
-    }
 }//end of AtomFactory

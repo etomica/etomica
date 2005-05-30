@@ -124,18 +124,6 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
     
     /**
      * An array of agents, or objects made by an agent source and added to this
-     * atom (and all others produced by this atom's creator factory) 
-     * to perform some function or store data for the source.  
-     * Placement of agents in this array is managed by the factory
-     * producing this atom.  An agent source registers itself with the factory
-     * via the requestAgentIndex method, and the integer returned with that call
-     * indicates the place in this array where the source can find its agent
-     * in this atom.
-     */
-    public Object[] agents;
-    
-    /**
-     * An array of agents, or objects made by an agent source and added to this
      * atom (and all other atoms) to perform some function or store data for the source.
      * Placement of agents in this array is managed by the Atom class.  An agent
      * source registers itself with Atom via the Atom.requestAgentIndex method, and
