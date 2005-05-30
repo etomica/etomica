@@ -34,7 +34,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     double vol1, vol2, vol3, vol4;
     protected /*final*/ ForceSumNPH forceSumNPH;//MeterTPH won't permit this to be final (?)
     private final IteratorDirective allAtoms = new IteratorDirective();
-    protected PhaseInflate inflate;
+    protected final PhaseInflate inflate;
     double targetH;
     double targetP;
     double targetT = Kelvin.UNIT.toSim(300.);
@@ -51,6 +51,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         D = space.D();
         setIsothermal(true);
         forceSumNPH = new ForceSumNPH(space);
+        inflate = new PhaseInflate(space);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -92,7 +93,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
 
     public boolean addPhase(Phase p) {
         boolean b = super.addPhase(p);
-        inflate = new PhaseInflate(firstPhase);
+        inflate.setPhase(firstPhase);
         meterTemperature.setPhase(phase);
         return b;
     }

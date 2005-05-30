@@ -27,8 +27,8 @@ public final class MCMoveVolumeExchange extends MCMove {
     private final MeterPotentialEnergy energyMeter;
     private Phase firstPhase;
     private Phase secondPhase;
-    private PhaseInflate inflate1;
-    private PhaseInflate inflate2;
+    private final PhaseInflate inflate1;
+    private final PhaseInflate inflate2;
     private transient double uOld1, uOld2;
     private transient double uNew1 = Double.NaN;
     private transient double uNew2 = Double.NaN;
@@ -48,14 +48,16 @@ public final class MCMoveVolumeExchange extends MCMove {
         phase1AtomIterator = new AtomIteratorAllMolecules();
         phase2AtomIterator = new AtomIteratorAllMolecules();
         energyMeter.setIncludeLrc(false);
+        inflate1 = new PhaseInflate(space);
+        inflate2 = new PhaseInflate(space);
     }
     
     public void setPhase(Phase[] p) {
         super.setPhase(p);
         firstPhase = p[0];
         secondPhase = p[1];
-        inflate1 = new PhaseInflate(firstPhase);
-        inflate2 = new PhaseInflate(secondPhase);
+        inflate1.setPhase(firstPhase);
+        inflate2.setPhase(secondPhase);
         phase1AtomIterator.setPhase(firstPhase);
         phase2AtomIterator.setPhase(secondPhase);
     }

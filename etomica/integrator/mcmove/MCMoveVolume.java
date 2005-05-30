@@ -21,8 +21,7 @@ public class MCMoveVolume extends MCMove {
     
     protected double pressure;
     private MeterPotentialEnergy energyMeter;
-    protected final PhaseInflate inflate = new PhaseInflate();
-    private AtomIterator affectedAtomIterator;
+    protected final PhaseInflate inflate;
     private final int D;
 
     private transient double uOld, hOld, vNew, vScale;
@@ -36,6 +35,7 @@ public class MCMoveVolume extends MCMove {
     public MCMoveVolume(PotentialMaster potentialMaster, int D) {
         super(potentialMaster, 1);
         this.D = D;
+        inflate = new PhaseInflate(potentialMaster.getSpace());
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         setStepSizeMax(1.0);
         setStepSizeMin(0.0);
