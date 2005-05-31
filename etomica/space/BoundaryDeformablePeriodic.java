@@ -10,7 +10,7 @@ import etomica.math.geometry.Parallelepiped;
  * TODO To change the template for this generated type comment go to Window -
  * Preferences - Java - Code Style - Code Templates
  */
-public class BoundaryDeformablePeriodic extends Boundary {
+public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeriodic {
 
 	protected final boolean[] isPeriodic;
 	private Tensor boundaryTensor;

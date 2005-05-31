@@ -18,7 +18,7 @@ import etomica.lattice.RectangularLatticeNbrIterator;
 import etomica.lattice.RectangularLatticeNbrIteratorAdjacent;
 import etomica.nbr.cell.AtomSequencerCell;
 import etomica.nbr.cell.Cell;
-import etomica.space.BoundaryRectangular;
+import etomica.space.BoundaryPeriodic;
 
 /**
  * Gives pairs formed from the molecules of a species in a phase, taking one
@@ -51,7 +51,7 @@ public class Api1ASite implements AtomsetIteratorMolecule, AtomPairIterator {
         if(phase != null) {
             lattice = (CellLattice)phase.getLattice();
             neighborIterator.setLattice(lattice);
-            neighborIterator.setPeriodicity(((BoundaryRectangular)phase.boundary()).getPeriodicity());
+            neighborIterator.setPeriodicity(((BoundaryPeriodic)phase.boundary()).getPeriodicity());
         }
 	}
 

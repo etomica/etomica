@@ -20,7 +20,7 @@ import etomica.atom.iterator.ApiListSimple;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
-import etomica.space.BoundaryRectangular;
+import etomica.space.BoundaryPeriodic;
 
 /**
  * Returns iterates formed from all molecule pairs of a single species.
@@ -56,7 +56,7 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular {
         cellIterator.setLattice(phase.getLattice());
 		neighborIterator.setLattice(phase.getLattice());
         neighborIterator.setPeriod(phase.boundary().dimensions());
-        neighborIterator.setPeriodicity(((BoundaryRectangular)phase.boundary()).getPeriodicity());
+        neighborIterator.setPeriodicity(((BoundaryPeriodic)phase.boundary()).getPeriodicity());
         unset();
 	}
     

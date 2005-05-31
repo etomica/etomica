@@ -16,7 +16,7 @@ import etomica.math.geometry.Rectangular;
 /*
  * History Created on Jan 24, 2005 by kofke
  */
-public abstract class BoundaryRectangular extends Boundary {
+public abstract class BoundaryRectangular extends Boundary implements BoundaryPeriodic {
 
     public BoundaryRectangular(Space space, boolean[] periodicity) {
         super(space, makeShape(space));

@@ -22,7 +22,7 @@ import etomica.atom.iterator.AtomIteratorSequencerList;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomsetIteratorMolecule;
 import etomica.lattice.CellLattice;
-import etomica.space.BoundaryRectangular;
+import etomica.space.BoundaryPeriodic;
 
 /**
  * Gives pairs formed from the molecules of a species in a phase, taking one
@@ -67,7 +67,7 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
             lattice = (CellLattice)phase.getLattice();
             neighborIterator.setLattice(lattice);
             neighborIterator.setPeriod(phase.boundary().dimensions());
-            neighborIterator.setPeriodicity(((BoundaryRectangular)phase.boundary()).getPeriodicity());
+            neighborIterator.setPeriodicity(((BoundaryPeriodic)phase.boundary()).getPeriodicity());
         }
 	}
 
