@@ -17,6 +17,10 @@ public class ConformationChainZigZag extends ConformationChain {
 	
 	public ConformationChainZigZag(Space space){
 		super(space);
+		
+		v1 = space.makeVector();
+		v2 = space.makeVector();
+		isVectorOne = true;
 	}
 	public ConformationChainZigZag(Space space, Vector vect1, Vector vect2){
 		super(space);
