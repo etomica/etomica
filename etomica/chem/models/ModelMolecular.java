@@ -3,12 +3,14 @@
  */
 package etomica.chem.models;
 import etomica.AtomFactory;
-import etomica.AtomTreeNode;
 import etomica.AtomTreeNodeFactory;
-import etomica.Configuration;
-import etomica.Space;
+import etomica.AtomTypeGroup;
+import etomica.Conformation;
+import etomica.Simulation;
+import etomica.Species;
 import etomica.atom.AtomFactoryHetero;
 import etomica.atom.AtomFactoryHomo;
+import etomica.atom.AtomPositionDefinitionSimple;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTreeNodeGroupArray;
 import etomica.chem.Model;
@@ -18,18 +20,18 @@ import etomica.chem.Model;
  */
 public abstract class ModelMolecular extends Model {
 	
-	public final Configuration configuration;
+	public final Conformation conformation;
 	public final Model[] models;
 	public final int[] count;
 	
-	public ModelMolecular(Configuration c, Model[] models) {
+	public ModelMolecular(Conformation c, Model[] models) {
 		this(c, models, defaultCount(models.length));//default is one of each model in the array
 	}
 	
-	public ModelMolecular(Configuration c, Model[] models, int[] count) {
+	public ModelMolecular(Conformation c, Model[] models, int[] count) {
 		super();
 		if(models.length != count.length) throw new IllegalArgumentException("Inconsistent sizes of model and count array in ModelMolecular constructor");
-		configuration = c;
+		conformation = c;
 		this.models = models;
 		this.count = count;
 		setDoNeighborIteration(true);		
@@ -56,11 +58,9 @@ public abstract class ModelMolecular extends Model {
 		}
 	}
 	
-	public AtomFactory makeAtomFactory(Space space) {
-		AtomSequencerFactory seqFactory = doNeighborIteration() ? sim.iteratorFactory.neighborSequencerFactory()
-																 : sim.iteratorFactory.simpleSequencerFactory();
-		int childCount = 0;
-		for(int i=0; i<count.length; i++) childCount += count[i];//total number of child atoms in group
+	public AtomFactory makeAtomFactory(Simulation sim) {
+		AtomSequencerFactory seqFactory = doNeighborIteration() ? sim.potentialMaster.sequencerFactory()
+																 : AtomSequencerFactory.SIMPLE;
 		AtomTreeNodeFactory nodeFactory = AtomTreeNodeGroupArray.FACTORY;
 //		switch(childCount) {
 //			case 3: nodeFactory = AtomTreeNode3Site.FACTORY; break;
@@ -68,18 +68,24 @@ public abstract class ModelMolecular extends Model {
 //		}
 
 		if(models.length == 1) {
-			AtomFactory childFactory = models[0].makeAtomFactory(space);
-			return new AtomFactoryHomo(space, seqFactory, nodeFactory, 
-										childFactory, count[0], configuration);
+			AtomFactoryHomo factory = new AtomFactoryHomo(sim.space, seqFactory, 
+                    new AtomTypeGroup(Species.makeAgentType(sim),new AtomPositionDefinitionSimple()), 
+                    nodeFactory, count[0], conformation);
+            factory.setChildFactory(models[0].makeAtomFactory(sim));
+            return factory;
 		}
 		//makes array of child factories from models and counts
-		AtomFactory[] childFactories = new AtomFactory[childCount];
-		int k = 0;
-		for(int i=0; i<models.length; i++) {
-			AtomFactory childFactory = models[i].makeAtomFactory(space);
-			for(int j=0; j<count[i]; j++) childFactories[k++] = childFactory;
-		}
-		return new AtomFactoryHetero(space, seqFactory, nodeFactory, childFactories, configuration);
+        int childCount = 0;
+        for(int i=0; i<count.length; i++) childCount += count[i];//total number of child atoms in group
+		AtomFactoryHetero factory = new AtomFactoryHetero(sim.space, seqFactory, 
+                new AtomTypeGroup(Species.makeAgentType(sim),new AtomPositionDefinitionSimple()), 
+                nodeFactory, conformation);
+        AtomFactory[] childFactories = new AtomFactory[childCount];
+        for(int i=0,k=0; i<models.length; i++) {
+            AtomFactory childFactory = models[i].makeAtomFactory(sim);
+            for(int j=0; j<count[i]; j++) childFactories[k++] = childFactory;
+        }
+        return factory;
 	}
 
 }

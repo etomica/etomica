@@ -39,7 +39,7 @@ public class LennardJones extends ModelAtomic {
 	}
 	
 	public Potential makePotential(Space space) {
-		return new P2LennardJones(space, sigma, epsilon, truncation);
+		return new P2LennardJones(space, sigma, epsilon);
 	}
 
 	/**

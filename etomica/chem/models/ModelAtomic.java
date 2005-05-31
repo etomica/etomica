@@ -6,8 +6,11 @@
  */
 package etomica.chem.models;
 import etomica.AtomFactory;
-import etomica.Space;
+import etomica.Simulation;
+import etomica.Species;
 import etomica.atom.AtomFactoryMono;
+import etomica.atom.AtomSequencerFactory;
+import etomica.atom.AtomTypeSphere;
 import etomica.chem.Electrostatic;
 import etomica.chem.Element;
 import etomica.chem.Model;
@@ -38,10 +41,10 @@ public abstract class ModelAtomic extends Model {
 		setDoNeighborIteration(true);	
 	}
 	
-	public AtomFactory makeAtomFactory(Space space) {
-		AtomTreeNodeFactory seqFactory = doNeighborIteration() ? sim.iteratorFactory.neighborSequencerFactory()
-																 : sim.iteratorFactory.simpleSequencerFactory();
-		return new AtomFactoryMono(space,seqFactory);
+	public AtomFactory makeAtomFactory(Simulation sim) {
+        AtomSequencerFactory seqFactory = doNeighborIteration() ? sim.potentialMaster.sequencerFactory()
+                 : AtomSequencerFactory.SIMPLE;
+		return new AtomFactoryMono(sim.space,new AtomTypeSphere(Species.makeAgentType(sim)),seqFactory);
 	}
 	/**
 	 * Returns the electrostatic.
