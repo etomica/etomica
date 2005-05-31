@@ -73,7 +73,7 @@ public final class ApiSinglet implements AtomPairIterator {
     /**
      * returns 1, the number of iterates that would be returned on reset.
      */
-    public int size() {return 1;}
+    public int size() {return (pair == null) ? 0 : 1;}
 
 	public void allAtoms(AtomsetAction action) {
 		if(pair!= null) action.actionPerformed(pair);

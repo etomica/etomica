@@ -46,9 +46,9 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent {
     }
     
     /**
-     * returns 1.
+     * returns 1 if atom is not null, 0 if atom is null.
      */
-    public int size() {return 1;}
+    public int size() {return (atom == null) ? 0 : 1;}
 
 	public void allAtoms(AtomsetAction action) {
 		if(atom != null) action.actionPerformed(atom);
