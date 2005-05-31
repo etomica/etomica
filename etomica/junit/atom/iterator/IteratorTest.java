@@ -48,7 +48,7 @@ public class IteratorTest extends TestCase {
      * Returns a list from the given atoms, which can be checked against
      * the list returned by generalIteratorMethodTests.
      */
-    public LinkedList makeTestList(Atom[] atoms) {
+    public LinkedList makeTestList(AtomSet[] atoms) {
         Lister lister = new Lister();
         for(int i=0; i<atoms.length; i++) {
             lister.actionPerformed(atoms[i]);
