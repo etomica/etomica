@@ -2,7 +2,7 @@ package etomica;
 
 /**
  * Interface for an object that can provide data 
- * (in the form of an array of double) for plotting or other analysis.
+ * (in the form of an array of doubles) for plotting or other analysis.
  */
  
 public interface DataSource {
