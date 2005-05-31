@@ -18,51 +18,23 @@ import etomica.action.AtomsetAction;
 public final class ApiSinglet implements AtomPairIterator {
     
     /**
-     * Constructs iterator without defining atom.  No atoms will
-     * be given by this iterator until a call to setAtom is performed.
+     * Constructs iterator without defining atoms in pair.
      */
     public ApiSinglet() {
         pair = new AtomPair();
-        hasNext = false;
+        expired = true;
     }
     
-    /**
-     * Constructs iterator specifying that it return the given atoms in a pair.  Call
-     * to reset() must be performed before beginning iteration.
-     */
-    public ApiSinglet(Atom a0, Atom a1) {
-        this();
-        setPair(a0, a1);
-    }
-
-    /**
-     * Constructs iterator specifying that it return the given pair.  Call
-     * to reset() must be performed before beginning iteration.
-     */
-    public ApiSinglet(AtomPair pair) {
-        setPair(pair);
-    }
-            
     /**
      * Defines atoms returned by iterator and leaves iterator unset.
      * Call to reset() must be performed before beginning iteration.
      */
     public void setPair(Atom a0, Atom a1) {
-        if(pair == null) pair = new AtomPair();
     	pair.atom0 = a0;
         pair.atom1 = a1;
     	unset();
     }
 
-    /**
-     * Defines pair returned by iterator and leaves iterator unset.
-     * The given instance (not a copy) is returned by the iterator.
-     * If given null, hasNext will always return false, even after reset.
-     */
-    public void setPair(AtomPair pair) {
-        this.pair = pair;
-    }
-    
     /**
      * @return the pair given by this iterator as its single iterate
      */
@@ -73,10 +45,10 @@ public final class ApiSinglet implements AtomPairIterator {
     /**
      * returns 1, the number of iterates that would be returned on reset.
      */
-    public int size() {return (pair == null) ? 0 : 1;}
+    public int size() {return (pair.atom0 == null) || (pair.atom1 == null)  ? 0 : 1;}
 
 	public void allAtoms(AtomsetAction action) {
-		if(pair!= null) action.actionPerformed(pair);
+		if(pair.atom0 != null && pair.atom1 != null) action.actionPerformed(pair);
 	}
         
     /**
@@ -90,26 +62,30 @@ public final class ApiSinglet implements AtomPairIterator {
      * Returns true if the an atom has been set and a call to reset() has been
      * performed, without any subsequent calls to next().
      */
-    public boolean hasNext() {return hasNext;}
+    public boolean hasNext() {
+        return !expired && (pair.atom0 != null) && (pair.atom1 != null); 
+    }
     
     /**
      * Sets iterator to a state where hasNext() returns false.
      */
-    public void unset() {hasNext = false;}
+    public void unset() {
+        expired = true;
+    }
     
     /**
      * Resets iterator to a state where hasNext is true.
      */
     public void reset() {
-        hasNext = (pair != null); 
+        expired = false; 
     }
     
     /**
      * Returns the iterator's pair and unsets iterator.
      */
     public AtomPair nextPair() {
-    	if (!hasNext) return null;
-    	hasNext = false;
+    	if (!hasNext()) return null;
+    	expired = true;
     	return pair;
     }
     
@@ -122,7 +98,7 @@ public final class ApiSinglet implements AtomPairIterator {
      * not advance iterator.
      */
     public AtomSet peek() {
-    	return hasNext ? pair : null;
+    	return hasNext() ? pair : null;
     }
     
     /**
@@ -130,7 +106,7 @@ public final class ApiSinglet implements AtomPairIterator {
      */
     public final int nBody() {return 2;}
     
-    private boolean hasNext = false;
-    private AtomPair pair;
+    private boolean expired;
+    private final AtomPair pair;
 
 }//end of ApiSinglet
