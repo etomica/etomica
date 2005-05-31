@@ -1,10 +1,13 @@
-package etomica.junit;
+package etomica.junit.atom.iterator;
+
+import java.util.LinkedList;
 
 import junit.framework.TestCase;
 import etomica.Atom;
 import etomica.AtomIterator;
 import etomica.AtomSet;
 import etomica.AtomsetIterator;
+import etomica.junit.UnitTest;
 
 /**
  * Provides library methods to test the basic functioning of an iterator.
@@ -17,13 +20,13 @@ public class IteratorTest extends TestCase {
     /**
      * Declare constructor private to prevent instantiation.
      */
-    private IteratorTest() {
+    public IteratorTest() {
     }
 
     /**
      * Clears the list of each lister in the array.
      */
-    public static void clearLists(Lister[] lister) {
+    public void clearLists(Lister[] lister) {
         for (int i = 0; i < lister.length; i++) {
             lister[i].list.clear();
         }
@@ -32,7 +35,7 @@ public class IteratorTest extends TestCase {
     /**
      * Prints all of the lists.
      */
-    public static void printLists(Lister[] lister) {
+    public void printLists(Lister[] lister) {
         if (UnitTest.VERBOSE) {
             for (int i = 0; i < lister.length; i++) {
                 System.out.println(lister[i]);
@@ -41,7 +44,19 @@ public class IteratorTest extends TestCase {
         }
     }
     
-    private static void print(String string) {
+    /**
+     * Returns a list from the given atoms, which can be checked against
+     * the list returned by generalIteratorMethodTests.
+     */
+    public LinkedList makeTestList(Atom[] atoms) {
+        Lister lister = new Lister();
+        for(int i=0; i<atoms.length; i++) {
+            lister.actionPerformed(atoms[i]);
+        }
+        return lister.list;
+    }
+    
+    protected void print(String string) {
         if(UnitTest.VERBOSE) System.out.println(string);
     }
 
@@ -56,7 +71,7 @@ public class IteratorTest extends TestCase {
      *            will be performed repeatedly on the iterator
      * @return a list of Lister instances for the atoms given by the iterator
      */
-    public static java.util.LinkedList generalIteratorMethodTests(
+    public java.util.LinkedList generalIteratorMethodTests(
             AtomsetIterator iterator) {
         Lister[] lister = Lister.listerArray(5);
 
@@ -137,7 +152,7 @@ public class IteratorTest extends TestCase {
 
         //******* test of nBody
         iterator.reset();
-        if (iterator.hasNext()) {
+        while (iterator.hasNext()) {
             assertEquals(iterator.next().count(), iterator.nBody());
         }
 

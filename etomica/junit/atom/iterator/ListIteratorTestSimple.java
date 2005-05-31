@@ -1,20 +1,18 @@
 /*
  * Created on Oct 7, 2004
  */
-package etomica.junit;
+package etomica.junit.atom.iterator;
 
 import etomica.atom.iterator.AtomsetIteratorListDependent;
 import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.junit.UnitTest;
 
 
 
 /**
- * @author Ken Benjamin
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- * 
  * Class for testing simple lists using JUNIT.
+ * 
+ * @author Ken Benjamin
  */
 public class ListIteratorTestSimple extends ListIteratorTest {
 
@@ -23,8 +21,7 @@ public class ListIteratorTestSimple extends ListIteratorTest {
         UnitTest.VERBOSE = false;
 	}
 /**
- * setUp is a required method for any JUNIT test.  Here, a new iterator of type
- * AtomIteratorListSimple is constructed for subsequent use in unit testing.		 
+ * does nothing 
  */
 	public void setUp() {
 		//does nothing
@@ -36,7 +33,7 @@ public class ListIteratorTestSimple extends ListIteratorTest {
  * AtomIteratorListSimple.
  */	
 	public void iteratorStateTests(AtomsetIteratorListDependent iterator) {
-		IteratorTest.generalIteratorMethodTests(iterator);
+		generalIteratorMethodTests(iterator);
 	}
 		
 

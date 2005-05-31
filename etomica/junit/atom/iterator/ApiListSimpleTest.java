@@ -1,12 +1,11 @@
-package etomica.junit;
+package etomica.junit.atom.iterator;
 
 import etomica.atom.iterator.ApiListSimple;
 import etomica.atom.iterator.AtomsetIteratorListDependent;
 
 
 /**
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Performs unit tests of the ApiListSimple iterator
  *
  * @author David Kofke
  *
@@ -25,8 +24,13 @@ public class ApiListSimpleTest extends ListIteratorTest {
         super(new ApiListSimple());
     }
     
-
+    /**
+     * Tests iterator as given (from testListVariations method) using just
+     * generalIteratorMethodTests.  
+     * Test of correctness of iterates is concluded from agreement between hasNext/next
+     * and allAtoms iterations, which is among the tests done here.
+     */
     public void iteratorStateTests(AtomsetIteratorListDependent iterator) {
-        IteratorTest.generalIteratorMethodTests(iterator);
+        generalIteratorMethodTests(iterator);
     }
 }

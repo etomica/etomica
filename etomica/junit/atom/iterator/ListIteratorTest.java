@@ -4,13 +4,13 @@
  * TODO To change the template for this generated file go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-package etomica.junit;
-import junit.framework.TestCase;
+package etomica.junit.atom.iterator;
 import etomica.Atom;
 import etomica.Space;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomsetIteratorListDependent;
+import etomica.junit.UnitTest;
 import etomica.space3d.Space3D;
 
 /**
@@ -20,7 +20,7 @@ import etomica.space3d.Space3D;
  * Window - Preferences - Java - Code Style - Code Templates
  */
 
-public abstract class ListIteratorTest extends TestCase {
+public abstract class ListIteratorTest extends IteratorTest {
 	
 	protected int tabType1, tabType2;
 	private final AtomsetIteratorListDependent iterator;
@@ -31,13 +31,18 @@ public abstract class ListIteratorTest extends TestCase {
 		tabType1 = AtomLinker.Tab.requestTabType();
 		tabType2 = AtomLinker.Tab.requestTabType();
 	}
-/**
- * This method is called before any test is run.  It creates the various lists
- * to be tested and calls the iteratorStateTests method for each case.
- */
 
+    /**
+     * Tests iterator in the various states it may be in, such as its direction,
+     * starting/ending element, and other such features as they are available
+     * in the iterator being tested.
+     */
 	public abstract void iteratorStateTests(AtomsetIteratorListDependent iterator);
 
+    /**
+     * Sets up different lists, changing the number of atoms and tabs,
+     * and for each invokes iteratorStateTests for checking.
+     */
 	public void testListVariations() {
 		
 		Space space = new Space3D();

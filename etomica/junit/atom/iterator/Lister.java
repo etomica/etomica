@@ -1,4 +1,4 @@
-package etomica.junit;
+package etomica.junit.atom.iterator;
 
 import java.util.Iterator;
 import java.util.LinkedList;

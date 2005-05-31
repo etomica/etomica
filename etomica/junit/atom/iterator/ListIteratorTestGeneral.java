@@ -1,7 +1,7 @@
 /*
  * Created on Oct 1, 2004
  */
-package etomica.junit;
+package etomica.junit.atom.iterator;
 import java.util.Collections;
 import java.util.LinkedList;
 
@@ -11,6 +11,7 @@ import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorList;
 import etomica.atom.iterator.AtomsetIteratorListDependent;
+import etomica.junit.UnitTest;
 
 /**
  * Tests a general list iterator, ensuring that effect of direction, first,
@@ -53,12 +54,12 @@ public class ListIteratorTestGeneral extends ListIteratorTest {
 		// set the first element in the iterator to be the first atom in the list
 		iterator.setFirst(firstAtom);
 		if(UnitTest.VERBOSE) System.out.println("iterator.setFirst equals first");
-		lists[0] = IteratorTest.generalIteratorMethodTests(iterator);
+		lists[0] = generalIteratorMethodTests(iterator);
 		atomListUpFirst = lists[0];
 		checkFirstLast(lists[0], firstAtom, lastAtom);
 		
 		AtomIteratorList copyIterator = new AtomIteratorList(iterator);
-		LinkedList copyList = IteratorTest.generalIteratorMethodTests(copyIterator);
+		LinkedList copyList = generalIteratorMethodTests(copyIterator);
 		assertEquals(lists[0], copyList);
 //		iteratorUpFirst=iterator;
 //		iterator.allAtoms(lister[5]);
@@ -66,13 +67,13 @@ public class ListIteratorTestGeneral extends ListIteratorTest {
 		// set the first element in the iterator to be the middle atom in the list
 		iterator.setFirst(middleAtom);
 		if(UnitTest.VERBOSE) System.out.println("iterator.setFirst equals middle");
-		lists[1] = IteratorTest.generalIteratorMethodTests(iterator);
+		lists[1] = generalIteratorMethodTests(iterator);
 		checkFirstLast(lists[1], middleAtom, lastAtom);
 //		printLists(lister);
 		// set the first element in the iterator to be the last atom in the list
 		iterator.setFirst(lastAtom);
 		if(UnitTest.VERBOSE) System.out.println("iterator.setFirst equals last");
-		lists[2] = IteratorTest.generalIteratorMethodTests(iterator);
+		lists[2] = generalIteratorMethodTests(iterator);
 		checkFirstLast(lists[2], lastAtom, lastAtom);
 		///		printLists(lister);
 		// set the first element in the iterator with no argument to verify it's
@@ -86,12 +87,12 @@ public class ListIteratorTestGeneral extends ListIteratorTest {
 		
 		//Setting new list should keep direction same, but make header the first and last
 		iterator.setList(iterator.getList());
-		lists[3] = IteratorTest.generalIteratorMethodTests(iterator);
+		lists[3] = generalIteratorMethodTests(iterator);
 		assertEquals(lists[0], lists[3]);
 		
 		iterator.setFirst(lastAtom);
 		iterator.setFirst((AtomLinker)null);
-		lists[3] = IteratorTest.generalIteratorMethodTests(iterator);
+		lists[3] = generalIteratorMethodTests(iterator);
 		assertEquals(lists[0], lists[3]);
 		
 		/**  Sets the iteration direction to DOWN and test the methods in turn with
@@ -103,7 +104,7 @@ public class ListIteratorTestGeneral extends ListIteratorTest {
 		// set the first element in the iterator to be the first atom in the list
 		iterator.setFirst(firstAtom);
 		if(UnitTest.VERBOSE) System.out.println("iterator.setFirst equals first");
-		lists[3] = IteratorTest.generalIteratorMethodTests(iterator);
+		lists[3] = generalIteratorMethodTests(iterator);
 		checkFirstLast(lists[3], firstAtom, firstAtom);
 //		iteratorDownFirst=iterator;
 //		iterator.allAtoms(lister[6]);
@@ -111,14 +112,14 @@ public class ListIteratorTestGeneral extends ListIteratorTest {
 		// set the first element in the iterator to be the middle atom in the list
 		iterator.setFirst(middleAtom);
 		if(UnitTest.VERBOSE) System.out.println("iterator.setFirst equals middle");
-		lists[4] = IteratorTest.generalIteratorMethodTests(iterator);
+		lists[4] = generalIteratorMethodTests(iterator);
 		checkFirstLast(lists[4], middleAtom, firstAtom);
 
 //		printLists(lister);
 		// set the first element in the iterator to be the last atom in the list
 		iterator.setFirst(lastAtom);
 		if(UnitTest.VERBOSE) System.out.println("iterator.setFirst equals last");
-		lists[5] = IteratorTest.generalIteratorMethodTests(iterator);
+		lists[5] = generalIteratorMethodTests(iterator);
 		checkFirstLast(lists[5],lastAtom, firstAtom);
 
 //		iteratorDownLast=iterator;
@@ -134,9 +135,9 @@ public class ListIteratorTestGeneral extends ListIteratorTest {
 //		Commented out all calls to printLists and clearLists due to error with lister, 12/06/04	
 		iterator.setDirection(IteratorDirective.UP);
 		iterator.setTerminatorType(tabType1);
-		lists[6] = IteratorTest.generalIteratorMethodTests(iterator);
+		lists[6] = generalIteratorMethodTests(iterator);
 		iterator.setTerminatorType(tabType2);
-		lists[7] = IteratorTest.generalIteratorMethodTests(iterator);
+		lists[7] = generalIteratorMethodTests(iterator);
 		
 	}
 	
