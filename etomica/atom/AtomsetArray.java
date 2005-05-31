@@ -91,6 +91,10 @@ public class AtomsetArray implements AtomSet {
         return atoms.length;
     }
 
+    public boolean equals(Object object) {
+        if(!(object instanceof AtomSet)) return false;
+        return equals((AtomSet)object);
+    }
     /**
      * Returns true if elements of the wrapped array are equal
      * to those in the given atom set, with the comparison

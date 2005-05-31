@@ -53,6 +53,11 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
         throw new IllegalArgumentException();
     }
     
+    public boolean equals(Object object) {
+        if(!(object instanceof AtomSet)) return false;
+        return equals((AtomSet)object);
+    }
+    
     public final boolean equals(AtomSet atoms) {
         return this == atoms;
     }

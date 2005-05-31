@@ -26,7 +26,8 @@ public interface AtomSet {
     /**
      * Element-by-element comparison of equality of this atom set with
      * another.  Order of atoms is relevant.  Returns false if given atom set
-     * is null.
+     * is null.  Subclasses should override method taking Object as argument, 
+     * check for instanceof AtomSet and pass on to this method.
      */
     public boolean equals(AtomSet atoms);
     
@@ -39,6 +40,10 @@ public interface AtomSet {
         }
         public int count() {
             return 0;
+        }
+        public boolean equals(Object object) {
+            if(!(object instanceof AtomSet)) return false;
+            return equals((AtomSet)object);
         }
         public boolean equals(AtomSet atoms) {
             return atoms.count() == 0;

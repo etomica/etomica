@@ -11,7 +11,14 @@ package etomica;
  */
 public class AtomPair implements AtomSet, Comparable {
 
-
+    public AtomPair() {
+    }
+    
+    public AtomPair(Atom atom0, Atom atom1) {
+        this.atom0 = atom0;
+        this.atom1 = atom1;
+    }
+    
     /* (non-Javadoc)
      * @see etomica.AtomSet#getAtom(int)
      */
@@ -31,6 +38,11 @@ public class AtomPair implements AtomSet, Comparable {
     public void copyTo(AtomPair pair) {
         pair.atom0 = atom0;
         pair.atom1 = atom1;
+    }
+    
+    public boolean equals(Object object) {
+        if(!(object instanceof AtomSet)) return false;
+        return equals((AtomSet)object);
     }
     
     public boolean equals(AtomSet pair) {
