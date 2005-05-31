@@ -102,8 +102,9 @@ import etomica.Species;
      */
     public void setChildFactory(AtomFactory childFactory) {
         if (this.childFactory != null) throw new IllegalStateException("You can set the child factory only once!");
+        if(childFactory == null) return;
         this.childFactory = childFactory;
-        childFactory.setSpecies(atomType.getSpecies());
+        if(atomType.getSpecies() != null) childFactory.setSpecies(atomType.getSpecies());
     }
     
     /**
