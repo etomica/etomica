@@ -1,9 +1,9 @@
 package etomica.atom;
 
 import etomica.AtomFactory;
+import etomica.AtomType;
 import etomica.AtomTypeGroup;
 import etomica.Conformation;
-import etomica.Simulation;
 import etomica.Space;
 
 /**
@@ -21,23 +21,15 @@ public class AtomFactoryTree extends AtomFactoryHomo {
     /**
      * Constructs atom tree.
      *
-     * @param sim Governing simulation
+     * @param space Governing space
      * @param parentType the AtomType of the parent of the atoms made by this factory
-     * @param leafFactory the factory that makes the leaf atoms
      * @param nAtoms Array specifiying the number of atoms at each level in the tree.
      *               nAtoms[0] gives the number of child atoms for the root, nAtoms[1] the number of
      *               child atoms under each of the root's child atoms, etc.
      */
-    public AtomFactoryTree(Simulation sim, AtomTypeGroup parentType, AtomFactory leafFactory, int[] nAtoms) {
-        this(sim.space, sim.potentialMaster.sequencerFactory(), parentType, leafFactory, nAtoms);
-    }
     public AtomFactoryTree(Space space, AtomSequencerFactory seqFactory, AtomTypeGroup parentType,
-                            AtomFactory leafFactory, int[] nAtoms) {
-        super(space, seqFactory, parentType, nAtoms[0]);
-        setChildFactory(subFactory(space, seqFactory, leafFactory, nAtoms, null)); 
-        if(childFactory().getType().getIndexManager().getDepth()-atomType.getIndexManager().getDepth() != nAtoms.length) throw new IllegalArgumentException("Incompatible leaf factory and nAtoms specification");
-        if(childFactory() != leafFactory) ((AtomFactoryTree)childFactory()).parentFactory = this;
-        depth = nAtoms.length;
+                            int[] nAtoms) {
+        this(space, seqFactory, parentType, nAtoms, null);
     }
     
     /**
@@ -49,26 +41,26 @@ public class AtomFactoryTree extends AtomFactoryHomo {
      * all atoms below its level.
      */
     public AtomFactoryTree(Space space, AtomSequencerFactory seqFactory, AtomTypeGroup parentType,
-                                AtomFactory leafFactory, int[] nAtoms, Conformation[] config) {
-        super(space, seqFactory, parentType, nAtoms[0], config[0]);
-        setChildFactory(subFactory(space, seqFactory, leafFactory, nAtoms, config));
-        if(childFactory() != leafFactory) ((AtomFactoryTree)childFactory()).parentFactory = this;
+                                int[] nAtoms, Conformation[] config) {
+        super(space, seqFactory, parentType, nAtoms[0], (config != null) ? config[0] : Conformation.NULL);
+        setChildFactory(subFactory(space, seqFactory, nAtoms, config));
+        if(childFactory() != null) ((AtomFactoryTree)childFactory()).parentFactory = this;
         depth = nAtoms.length;
     }
     
     //method used by constructor to determine the child factory
     private AtomFactory subFactory(Space space, AtomSequencerFactory seqFactory,
-                            AtomFactory leafFactory, int[] nAtoms, Conformation[] config) {
+                            int[] nAtoms, Conformation[] config) {
         if(config != null && nAtoms.length != config.length) throw new IllegalArgumentException("Error: incompatible specification of nAtoms and config in AtomFactoryTree constructor");
-        if(nAtoms.length == 1) return leafFactory; 
+        if(nAtoms.length == 1) return null; 
         int[] newDim = new int[nAtoms.length-1];//arraycopy
         for(int i=1; i<nAtoms.length; i++) newDim[i-1] = nAtoms[i];
         if(config == null) {
-            return new AtomFactoryTree(space, seqFactory, (AtomTypeGroup)atomType, leafFactory, newDim);
+            return new AtomFactoryTree(space, seqFactory, (AtomTypeGroup)atomType, newDim);
         }
         Conformation[] newConfig = new Conformation[config.length-1];//arraycopy
         for(int i=1; i<config.length; i++) newConfig[i-1] = config[i];
-        return new AtomFactoryTree(space, seqFactory, (AtomTypeGroup)atomType, leafFactory, newDim, newConfig);
+        return new AtomFactoryTree(space, seqFactory, (AtomTypeGroup)atomType, newDim, newConfig);
     }//end of subFactory
     
     public void setNAtoms(int[] n) {
@@ -106,11 +98,29 @@ public class AtomFactoryTree extends AtomFactoryHomo {
       * Sets the factory that makes the leaf atoms of the tree.
       */
      public void setLeafFactory(AtomFactory factory) {
+        if (getLeafFactory() != null) throw new IllegalStateException("You can set the leaf factory only once!");
         if(childFactory instanceof AtomFactoryTree) {
             ((AtomFactoryTree)childFactory).setLeafFactory(factory);
         } else {
             childFactory = factory;
+            childFactory.setSpecies(atomType.getSpecies());
         }     
+     }
+     
+     /**
+      * Returns the AtomType of the lowest-level non-null factory in the tree.
+      * If a leaf factory has been assigned, this will be the type of that factory;
+      * otherwise it will be the type of the AtomFactoryTree at the bottom of the
+      * hierarchy.  This is needed to get the parent atom type when constructing the leaf factory.
+      */
+     public AtomType getLeafType() {
+         if(childFactory == null) {
+             return atomType;
+         }
+         if(childFactory instanceof AtomFactoryTree) {
+             return ((AtomFactoryTree)childFactory).getLeafType();
+         }
+         return childFactory.getType();
      }
     
     //number of layers of atoms below the root atom
