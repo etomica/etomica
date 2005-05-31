@@ -3,24 +3,32 @@ package etomica;
 import etomica.atom.AtomList;
 
 /**
- * General class for assignment of coordinates to a group of atoms.
+ * General class for assignment of coordinates to a group of atoms.  Puts
+ * a list of atoms in a standard conformation, which then can be manipulated
+ * further by a Configuration class to place the molecules in a phase, or by
+ * a super-conformation class that arranges these atoms with other ones in a 
+ * molecule.<br>  
+ * This class is used by an AtomFactory to arrange into a standard configuration
+ * each atom group that it builds.  
  */
  
- /* History of changes
-  * 09/01/02 (DAK) added field to flag whether total momentum should be set to
-  * zero when initalizing (made in conjunction with change to Space.
-  * CoordinateGroup classes, which no longer do randomizeMomentum to zero total
-  * momentum). 
-  * 09/04/02 (DAK) added Null inner class and NULL field
-  * 01/21/04 (DAK) added initializeCoordinate(Phase) method
-  */
 public abstract class Conformation {
 
     public Conformation(Space space) {
         this.space = space;
     }
 
+    /**
+     * Defined by subclass to assign coordinates to the atoms in the given list.
+     */
     public abstract void initializePositions(AtomList atomList);
 
     protected final Space space;
+    
+    /**
+     * Conformation that does nothing to the atom positions.
+     */
+    public final static Conformation NULL = new Conformation(null) {
+        public void initializePositions(AtomList list) {}
+    };
 }//end of Configuration
