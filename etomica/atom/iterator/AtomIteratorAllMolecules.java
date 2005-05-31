@@ -50,10 +50,8 @@ public class AtomIteratorAllMolecules extends AtomIteratorAdapter
         Simulation sim = new Simulation();
         Simulation.instance = sim;
         Species species2 = new SpeciesSpheresMono(sim);
-        Species species1 = new SpeciesSpheres(sim, sim.potentialMaster
-                .sequencerFactory(), 3);
-        Species species0 = new SpeciesSpheres(sim, sim.potentialMaster
-                .sequencerFactory(), 2);
+        Species species1 = new SpeciesSpheres(sim, 3);
+        Species species0 = new SpeciesSpheres(sim, 2);
         species0.setNMolecules(3);
         species1.setNMolecules(2);
         species2.setNMolecules(3);

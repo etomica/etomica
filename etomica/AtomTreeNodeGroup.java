@@ -39,9 +39,9 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     }
 
     /**
-     * Returns a specified atoms descended from this one in the atom tree.  
-     * Each index of the given array species the i-th child at the
-     * depth of the array index.  So if pathArray is {2, 0, 3},
+     * Returns a specified atom descended from this one in the atom tree.  
+     * Each index of the given array specifies the i-th child at the
+     * depth of the array index.  So if path is {2, 0, 3},
      * returns the 3rd child of the 0th child of the 2nd child of
      * this node.  That is: (this node) -> (2nd child) -> (0th child) -> (3rd child)
      * The path indexes do not correspond to the ordinals assigned to the

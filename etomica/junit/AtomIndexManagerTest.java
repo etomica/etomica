@@ -34,7 +34,7 @@ public class AtomIndexManagerTest extends TestCase {
         Simulation sim = new Simulation(new Space2D());
         SpeciesSpheresMono species0 = new SpeciesSpheresMono(sim);
         species0.setNMolecules(20);
-        SpeciesSpheres species1 = new SpeciesSpheres(sim, AtomSequencerFactory.SIMPLE,5);
+        SpeciesSpheres species1 = new SpeciesSpheres(sim, 5);
         species1.setNMolecules(10);
         Phase phase0 = new Phase(sim);
         Phase phase1 = new Phase(sim);

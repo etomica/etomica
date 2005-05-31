@@ -22,9 +22,8 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.nbr.CriterionBondedSimple;
 import etomica.nbr.CriterionMolecular;
-import etomica.nbr.NeighborCriterion;
-import etomica.nbr.CriterionAll;
 import etomica.nbr.CriterionSimple;
+import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.NeighborManager;
 import etomica.nbr.list.PotentialMasterNbr;
 import etomica.potential.P1BondedHardSpheres;
@@ -71,7 +70,7 @@ public class TestSWChain extends Simulation {
         P2SquareWell potential = new P2SquareWell(space,Default.ATOM_SIZE,sqwLambda,0.5*Default.POTENTIAL_WELL);
         NeighborCriterion nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
 
-        SpeciesSpheres species = new SpeciesSpheres(this,potentialMaster.sequencerFactory(),chainLength);
+        SpeciesSpheres species = new SpeciesSpheres(this,chainLength);
         species.setNMolecules(numMolecules);
         P1BondedHardSpheres potentialChainIntra = new P1BondedHardSpheres(space);
         ((P2HardBond)potentialChainIntra.bonded).setBondLength(Default.ATOM_SIZE);

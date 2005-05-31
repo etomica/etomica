@@ -54,7 +54,7 @@ public class ChainHSMD3D extends Simulation {
         activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
-        species = new SpeciesSpheres(this,((PotentialMasterNbr)potentialMaster).sequencerFactory(),chainLength);
+        species = new SpeciesSpheres(this,chainLength);
         species.setNMolecules(numAtoms);
         ((ConformationLinear)((AtomFactoryHomo)species.getFactory()).getConformation()).setBondLength(Default.ATOM_SIZE);
         ((ConformationLinear)((AtomFactoryHomo)species.getFactory()).getConformation()).setAngle(1,0.5);

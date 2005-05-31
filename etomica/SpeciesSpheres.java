@@ -22,10 +22,10 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
     private final AtomTypeSphere atomType;
     
     public SpeciesSpheres(Simulation sim) {
-        this(sim, sim.potentialMaster.sequencerFactory(), 1);
+        this(sim, 1);
     }
-    public SpeciesSpheres(Simulation sim, AtomSequencerFactory seqFactory, int nA) {
-        this(sim, seqFactory, nA, new ConformationLinear(sim.space));
+    public SpeciesSpheres(Simulation sim, int nA) {
+        this(sim, sim.potentialMaster.sequencerFactory(), nA, new ConformationLinear(sim.space));
     }
     public SpeciesSpheres(Simulation sim, AtomSequencerFactory seqFactory, 
             int nA, Conformation conformation) {
