@@ -24,13 +24,9 @@ public abstract class MCMove implements java.io.Serializable {
      */
 	public MCMove(PotentialMaster potentialMaster, int nPhases) {
 		this.potential = potentialMaster;
-		nTrials = 0;
-		nAccept = 0;
-        chiSum = 0.0;
 		setAcceptanceTarget(0.5);
 		nominalFrequency = 100;
 		perParticleFrequency = false;
-		setAdjustInterval(100);
         phases = new Phase[nPhases];
 	}
 
@@ -132,31 +128,79 @@ public abstract class MCMove implements java.io.Serializable {
 		return phases;
 	}
 
-	protected void adjustStepSize() {
-		if (nTrials == 0) {
-			return;
-		}
-		nTrialsSum += nTrials;
-		nAcceptSum += nAccept;
-		if (nTrialsSum != 0) {
-			acceptanceRatio = (double) nAcceptSum / (double) nTrialsSum;
+    protected void adjustStepSize() {
+        if (nTrials == 0) {
+            return;
+        }
+        nTrialsSum += nTrials;
+        nAcceptSum += nAccept;
+        if (nTrialsSum != 0) {
+            acceptanceRatio = (double) nAcceptSum / (double) nTrialsSum;
             acceptanceProbability = chiSum / nTrialsSum;
         }
-		if (!tunable) {
-			nTrials = nAccept = 0;
-			return;
-		}
-		if (nAccept > (int) (acceptanceTarget * nTrials)) {
-			stepSize *= 1.05;
-		} else {
-			stepSize *= 0.95;
-		}
-		stepSize = Math.min(stepSize, stepSizeMax);
-		stepSize = Math.max(stepSize, stepSizeMin);
-		nTrials = 0;
-		nAccept = 0;
-	}
+        if (!tunable) {
+            nTrials = nAccept = 0;
+            return;
+        }
+        if (nAccept > (int) (acceptanceTarget * nTrials)) {
+            if (stepSize < stepSizeMax) {
+                if (lastAdjust == -1) {
+                    // back-and-forth
+                    adjustInterval *= 2;
+                    adjustStep *= 0.5;
+                }
+                stepSize *= 1.0+adjustStep;
+                if (noisyAdjustment) {
+                    System.out.println(phases[0]+" "+this.getClass()+" increasing step size to "+stepSize+" (acceptance="+(double)nAccept/nTrials+")");
+                }
+                lastAdjust = 1;
+            }
+        } else {
+            if (stepSize > stepSizeMin) {
+                if (lastAdjust == 1) {
+                    // back-and-forth
+                    adjustInterval *= 2;
+                    adjustStep *= 0.5;
+                }
+                stepSize *= 1.0-adjustStep;
+                if (noisyAdjustment) {
+                    System.out.println(phases[0]+" "+this.getClass()+" decreasing step size to "+stepSize+" (acceptance="+(double)nAccept/nTrials+")");
+                }
+                lastAdjust = -1;
+            }
+        }
+        stepSize = Math.min(stepSize, stepSizeMax);
+        stepSize = Math.max(stepSize, stepSizeMin);
+        nTrials = 0;
+        nAccept = 0;
+    }
 
+    /**
+     * Sets whether to print out information about step size whenever it
+     * is adjusted.
+     */
+    public void setNoisyAdjustment(boolean noisy) {
+        noisyAdjustment = noisy;
+    }
+    
+    /**
+     * Resets damped step adjustment.  The adjustment interval is
+     * reset to defaultAdjustInterval and the adjustmentment step is
+     * reset to defaultAdjustStep.
+     */
+    public void resetAdjustStep() {
+        adjustInterval = defaultAdjustInterval;
+        adjustStep = defaultAdjustStep;
+        lastAdjust = 0;
+        nTrialsSum = 0;
+        nAcceptSum = 0;
+        chiSum = 0.0;
+        nTrials = 0;
+        nAccept = 0;
+        acceptanceRatio = Double.NaN;
+        acceptanceProbability = Double.NaN;
+    }
+    
 	/**
 	 * Returns a nominal, unnormalized frequency for performing this move,
 	 * relative to the other moves that have been added to the integrator. Each
@@ -168,7 +212,7 @@ public abstract class MCMove implements java.io.Serializable {
 	 * (if the nominal value is not desired) can be accomplished via the
 	 * setFrequency method of IntegratorMC.
 	 */
-	public final int nominalFrequency() {
+	public final int getNominalFrequency() {
 		return nominalFrequency;
 	}
 
@@ -180,13 +224,6 @@ public abstract class MCMove implements java.io.Serializable {
 	 */
 	public final boolean isNominallyPerParticleFrequency() {
 		return perParticleFrequency;
-	}
-
-	/**
-	 * Zeros all accumulators for acceptance-rate statistics.
-	 */
-	public void reset() {
-		setAcceptanceTarget(acceptanceTarget);
 	}
 
 	/**
@@ -208,24 +245,21 @@ public abstract class MCMove implements java.io.Serializable {
         return (acceptanceProbability >= 0.0) ? acceptanceProbability :
                 ((nTrials > 0) ? chiSum / nTrials : Double.NaN);
     }
+    
 	/**
 	 * Sets the desired rate of acceptance (as a fraction between 0 and 1
 	 * inclusive) of trials of this move. IllegalArgumentException is thrown if
-	 * given value is outside of acceptable range.
+	 * given value is outside of acceptable range.  The average acceptance 
+     * ratio and probability and the step size adjustment parameters and 
+     * convergence process are all reset.
 	 */
 	public final void setAcceptanceTarget(double target) {
 		if (target < 0.0 || target > 1.0) {
 			throw new IllegalArgumentException(
 					"Acceptance target should be a number between zero and unity");
 		}
-		nTrialsSum = 0;
-		nAcceptSum = 0;
-        chiSum = 0.0;
 		acceptanceTarget = target;
-		nTrials = 0;
-		nAccept = 0;
-		acceptanceRatio = Double.NaN;
-        acceptanceProbability = Double.NaN;
+        resetAdjustStep();
 	}
 
 	/**
@@ -235,10 +269,18 @@ public abstract class MCMove implements java.io.Serializable {
 		return acceptanceTarget;
 	}
 
+    /**
+     * Sets the step size of the move.  The average acceptance ratio and
+     * probability are reset along with the step size adjustment parameters.  
+     */
 	public void setStepSize(double step) {
 		stepSize = step;
+        resetAdjustStep();
 	}
 
+    /**
+     * returns the current step size.
+     */
 	public double getStepSize() {
 		return stepSize;
 	}
@@ -274,14 +316,35 @@ public abstract class MCMove implements java.io.Serializable {
 		this.temperature = temperature;
 	}
 
-	public final void setAdjustInterval(int i) {
-		adjustInterval = i;
+    /**
+     * Sets the interval between steps size adjustments.  This
+     * also resets the acceptance averages and other step adjustment 
+     * parameters to their default values.
+     */
+	public void setAdjustInterval(int i) {
+		defaultAdjustInterval = i;
+        resetAdjustStep();
 	}
 
 	public final int getAdjustInterval() {
 		return adjustInterval;
 	}
 
+    /**
+     * Sets the step adjustment size.  The step size is multiplied by 
+     * (1+s) when the acceptance ratio is too high and (1-s) when the step 
+     * size is too low.  This also resets the acceptance averages and other 
+     * step adjustment parameters to their default values.
+     */
+    public void setAdjustStepSize(double s) {
+        defaultAdjustStep = s;
+        resetAdjustStep();
+    }
+    
+    public double getAdjustStepSize() {
+        return adjustStep;
+    }
+    
 	/**
 	 * Sets a flag to indicate whether tuning of the move is to be performed
 	 * Tuning adjust the step size or other property of the move with the aim of
@@ -347,5 +410,10 @@ public abstract class MCMove implements java.io.Serializable {
 	private String name;
 	protected double temperature;
 	protected final PotentialMaster potential;
+    private int lastAdjust;
+    private double adjustStep;
+    private double defaultAdjustStep = 0.05;
+    private int defaultAdjustInterval = 100;
+    private boolean noisyAdjustment = false;
 
 }

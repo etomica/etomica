@@ -300,7 +300,7 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
 
 		MCMoveLinker(MCMove move) {
 			this.move = move;
-			frequency = move.nominalFrequency();
+			frequency = move.getNominalFrequency();
 			perParticleFrequency = move.isNominallyPerParticleFrequency();
 		}
 
