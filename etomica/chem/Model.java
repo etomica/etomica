@@ -4,6 +4,7 @@
 package etomica.chem;
 import etomica.AtomFactory;
 import etomica.Potential;
+import etomica.Simulation;
 import etomica.Space;
 
 /**
@@ -15,7 +16,7 @@ public abstract class Model {
 	public Model() {
 	}
 	
-	public abstract AtomFactory makeAtomFactory(Space space);
+	public abstract AtomFactory makeAtomFactory(Simulation sim);
 	
 	public abstract Potential makePotential(Space space);
 	
