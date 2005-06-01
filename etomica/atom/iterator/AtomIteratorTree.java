@@ -98,12 +98,12 @@ public class AtomIteratorTree implements AtomIterator {
         if(doAllNodes && rootNode!=null && rootNode.atom()==atoms) return true;
     	if(!doTreeIteration) {
     		return iterator.contains(atoms);
-    	} else {
-    		listIterator.reset();
-    		while(listIterator.hasNext()) {
-    			treeIterator.setRoot(listIterator.nextAtom());
-				if(treeIterator.contains(atoms)) return true;
-    		}
+    	}
+		listIterator.reset();
+		while(listIterator.hasNext()) {
+			treeIterator.setRoot(listIterator.nextAtom());
+			if(treeIterator.contains(atoms)) return true;
+		}
 //			AtomLinker.Tab header = rootNode.childList.header;
 //			for(AtomLinker e=header.next; e!=header; e=e.next) {
 //				if(e.atom != null) {
@@ -111,7 +111,6 @@ public class AtomIteratorTree implements AtomIterator {
 //					if(treeIterator.contains(atom)) return true;
 //				}
 //			}//end for
-		}//end else
     	return false;
     }
     
