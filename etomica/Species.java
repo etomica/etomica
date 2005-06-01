@@ -160,7 +160,7 @@ public class Species {
      * to make the factory (which is also passed to the Species constructor).
      * PositionDefinition for the agent type is set to null.
      */
-    protected static AtomTypeGroup makeAgentType(Simulation sim) {
+    public static AtomTypeGroup makeAgentType(Simulation sim) {
         return new AtomTypeGroup(sim.speciesRoot.childType, null);
     }
     
