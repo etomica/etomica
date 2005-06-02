@@ -25,7 +25,7 @@ public class AtomsetDetect extends AtomsetActionAdapter {
 	 * @param testAtom atoms against which those passed to actionPerformed are compared.
 	 */
 	public AtomsetDetect(AtomSet testAtom) {
-		this.testAtom = testAtom;
+		atoms = testAtom;
 	}
 	
 	/**
@@ -36,7 +36,7 @@ public class AtomsetDetect extends AtomsetActionAdapter {
 	 */
 	public void actionPerformed(AtomSet atom) {
 		if(detected) return;
-		detected = atom.equals(testAtom);
+		detected = atom.equals(atoms);
 	}
 	
 	/**
@@ -52,5 +52,4 @@ public class AtomsetDetect extends AtomsetActionAdapter {
 	public boolean detectedAtom() {return detected;}
 
 	private boolean detected = false;
-	private final AtomSet testAtom;
 }
