@@ -26,6 +26,14 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     }
     
     /**
+     * Set this atom's index and update indexes of its descendants.
+     */
+    public void setOrdinal(int parentIndex, int ordinal) {
+        super.setOrdinal(parentIndex, ordinal);
+        assignChildOrdinals();
+    }
+
+    /**
      * Assigns ordinals to all child atoms, numbering them sequentially
      * according to their position in the childList.
      */
