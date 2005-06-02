@@ -54,12 +54,13 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
     }
     
     public boolean equals(Object object) {
-        if(!(object instanceof AtomSet)) return false;
-        return equals((AtomSet)object);
+        if(!(object instanceof AtomSet) || ((AtomSet)object).count() != 1) return false;
+        return this == ((AtomSet)object).getAtom(0);
     }
     
     public final boolean equals(AtomSet atoms) {
-        return this == atoms;
+        if (atoms.count() != 1) return false;
+        return this == atoms.getAtom(0);
     }
     
     public boolean inSameSpecies(Atom atom) {
