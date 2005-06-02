@@ -84,6 +84,8 @@ public class IteratorTest extends TestCase {
         assertEquals(lister[0].list, lister[2].list);
 
         //******* test of size
+        print(iterator.size()+" "+lister[0].list.size());
+        print(iterator.size()+" "+lister[0].list.size());
         assertEquals(iterator.size(), lister[0].list.size());
         print("Just tested size method");
 
