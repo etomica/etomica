@@ -3,6 +3,7 @@ package etomica.atom.iterator;
 import etomica.Atom;
 import etomica.AtomIterator;
 import etomica.AtomSet;
+import etomica.AtomTreeNode;
 import etomica.AtomTreeNodeGroup;
 import etomica.Phase;
 import etomica.Simulation;
@@ -10,6 +11,9 @@ import etomica.Species;
 import etomica.SpeciesSpheres;
 import etomica.SpeciesSpheresMono;
 import etomica.action.AtomsetAction;
+import etomica.action.AtomsetCount;
+import etomica.action.AtomsetDetect;
+import etomica.atom.AtomList;
 
 /**
  * Atom iterator that traverses all atoms at a specified depth below a
@@ -47,33 +51,35 @@ public class AtomIteratorTree implements AtomIterator {
      */
 	public AtomIteratorTree(int d) {
 		setIterationDepth(d);
+        setRoot(null);
+        detector = new AtomsetDetect(null);
+        counter = new AtomsetCount();
 	}
 
     /**
      * Performs action on all iterates.  Clobbers iteration state.
      */
     public void allAtoms(AtomsetAction act) {
-//        if(rootNode == null) return;
-//        if(iterationDepth == 0 || rootNode.isLeaf()) act.actionPerformed(rootNode.atom);
-//        else if(!rootNode.childrenAreGroups() || iterationDepth == 1) {
-//			AtomIteratorListSimple.allAtoms(act, rootNode.childList);
-		if(doAllNodes && rootNode != null) {act.actionPerformed(rootNode.atom());}
-    	if(!doTreeIteration) {
-    		iterator.allAtoms(act);
-		} else {
-			listIterator.reset();
-			while(listIterator.hasNext()) {
-				treeIterator.setRoot(listIterator.nextAtom());
+        if(rootNode == null) return;
+		if(doAllNodes || iterationDepth == 0) {
+            act.actionPerformed(rootNode.atom());
+            if (iterationDepth == 0) return;
+        }
+		listIterator.reset();
+		while(listIterator.hasNext()) {
+            Atom atom = listIterator.nextAtom();
+            if (atom.node.isLeaf() || iterationDepth == 1) {
+                act.actionPerformed(atom);
+            }
+            else {
+                if (treeIterator == null) {
+                    treeIterator = new AtomIteratorTree(iterationDepth-1);
+                    treeIterator.setDoAllNodes(doAllNodes);
+                }
+				treeIterator.setRoot(atom);
 				treeIterator.allAtoms(act);
 			}
-//			AtomLinker.Tab header = rootNode.childList.header;
-//			for(AtomLinker e=header.next; e!=header; e=e.next) {
-//				if(e.atom != null) {
-//					treeIterator.setRoot(e.atom);
-//					treeIterator.allAtoms(act);
-//				}
-//			}//end for
-		}//end else
+		}
     	unset();
     }
 
@@ -94,24 +100,12 @@ public class AtomIteratorTree implements AtomIterator {
      */
     public boolean contains(AtomSet atoms) {
     	unset();
-    	if(atoms == null) return false;
-        if(doAllNodes && rootNode!=null && rootNode.atom()==atoms) return true;
-    	if(!doTreeIteration) {
-    		return iterator.contains(atoms);
-    	}
-		listIterator.reset();
-		while(listIterator.hasNext()) {
-			treeIterator.setRoot(listIterator.nextAtom());
-			if(treeIterator.contains(atoms)) return true;
-		}
-//			AtomLinker.Tab header = rootNode.childList.header;
-//			for(AtomLinker e=header.next; e!=header; e=e.next) {
-//				if(e.atom != null) {
-//					treeIterator.setRoot(e.atom);
-//					if(treeIterator.contains(atom)) return true;
-//				}
-//			}//end for
-    	return false;
+    	if(atoms == null || atoms.count() != 1) return false;
+        if(doAllNodes && rootNode!=null && rootNode.atom()==atoms.getAtom(0)) return true;
+        detector.setAtoms(atoms);
+        detector.reset();
+        allAtoms(detector);
+        return detector.detectedAtom();
     }
     
     
@@ -120,20 +114,16 @@ public class AtomIteratorTree implements AtomIterator {
      * and iteration depth.
      */
     public void reset() {
-        if(!doTreeIteration) {
-        	iterator.reset();
-        } else {
-            listIterator.reset();
-            treeIterator.unset();
-            while(listIterator.hasNext() && !treeIterator.hasNext()) {
-                treeIterator.setRoot(listIterator.nextAtom()); 
-                treeIterator.reset();
-            }
+        if(rootNode == null) {
+            unset();
+            return;
         }
-        if(doAllNodes && rootNode != null) next = rootNode.atom();
-        else next = iterator.hasNext() ? iterator.nextAtom() : null;
+        listIterator.reset();
+        if (treeIterator != null) treeIterator.unset();
+        next = rootNode.atom();
+        if(!doAllNodes && iterationDepth>0 && !rootNode.isLeaf()) nextAtom();
     }
-        
+
     /**
      * Returns the next atom in the iteration sequence.
      */
@@ -141,13 +131,26 @@ public class AtomIteratorTree implements AtomIterator {
     	if(next == null) return null;
         Atom nextAtom = next;
         next = null;
-        if(iterator.hasNext()) next = iterator.nextAtom();
-        else if(doTreeIteration) {
-            while(listIterator.hasNext() && !treeIterator.hasNext()) {
-                treeIterator.setRoot(listIterator.nextAtom()); 
-                treeIterator.reset();
+        if (treeIterator != null && treeIterator.hasNext()) {
+            next = treeIterator.nextAtom();
+            return nextAtom;
+        }
+        while(listIterator.hasNext()) {
+            Atom atom = listIterator.nextAtom();
+            if (atom.node.isLeaf() || iterationDepth == 1) {
+                next = atom;
+                break;
             }
-            if(treeIterator.hasNext()) next = treeIterator.nextAtom();
+            if (treeIterator == null) {
+                treeIterator = new AtomIteratorTree(iterationDepth-1);
+                treeIterator.setDoAllNodes(doAllNodes);
+            }
+            treeIterator.setRoot(atom); 
+            treeIterator.reset();
+            if(treeIterator.hasNext()) {
+                next = treeIterator.nextAtom();
+                break;
+            }
         }
         return nextAtom;
     }
@@ -168,32 +171,16 @@ public class AtomIteratorTree implements AtomIterator {
     public void setRoot(Atom rootAtom) {
         if(rootAtom == null) {
         	rootNode = null;
-        	doTreeIteration = false;
-        	iterator = AtomIterator.NULL;
         } else if(iterationDepth == 0 || rootAtom.node.isLeaf()) {//singlet iteration of basis atom
             if (!wealreadyknowyourstupid) {
                 System.err.println("don't use AtomIteratorTree as a singlet iterator.");
                 wealreadyknowyourstupid = true;
             }
-	        rootNode = null;
-            doTreeIteration = false;
-            iterator = singletIterator;
-            singletIterator.setAtom(rootAtom);
+            rootNode = rootAtom.node;
+            listIterator.setList(emptyList);
         } else {
-	        rootNode = (AtomTreeNodeGroup)rootAtom.node;
-	        listIterator.setList(rootNode.childList);
-            //TODO look at this more carefully -- ok to choose based on isEmpty?
-	        doTreeIteration = (iterationDepth > 1 && !rootNode.childList.isEmpty() &&
-	                            !rootNode.childList.getFirst().node.isLeaf());
-	        if(doTreeIteration) {
-	            if(treeIterator == null) {
-	            	treeIterator = new AtomIteratorTree(iterationDepth-1);
-	            	treeIterator.setDoAllNodes(doAllNodes);
-	            }
-	            iterator = treeIterator;
-	        } else {
-	            iterator = listIterator;
-	        }
+	        rootNode = rootAtom.node;
+	        listIterator.setList(((AtomTreeNodeGroup)rootNode).childList);
         }
         unset();
     }
@@ -202,19 +189,11 @@ public class AtomIteratorTree implements AtomIterator {
      * Returns the number of iterates given by a full cycle of this iterator.
      */
     public int size() {
+        if(rootNode == null) return 0;
     	unset();
-    	int size = 0;
-        if(doAllNodes && rootNode!=null) size++;
-    	if(!doTreeIteration) {
-    		size += iterator.size();
-    	} else {
-    		listIterator.reset();
-    		while(listIterator.hasNext()) {
-    			treeIterator.setRoot(listIterator.nextAtom());
-				size += treeIterator.size();
-    		}
-    	}
-    	return size;
+        counter.reset();
+        allAtoms(counter);
+    	return counter.callCount();
     }
     
     public final int nBody() {return 1;}
@@ -243,9 +222,10 @@ public class AtomIteratorTree implements AtomIterator {
     
     /**
      * Sets iterator to iterate over all leaf atoms below the basis atom.
-     * Equivalent to setIterationDepth(Integer.MAX_VALUE).
+     * Equivalent to setDoAllNodes(false) and setIterationDepth(Integer.MAX_VALUE)
      */
     public void setAsLeafIterator() {
+        setDoAllNodes(false);
         setIterationDepth(Integer.MAX_VALUE);
     }
     
@@ -259,16 +239,16 @@ public class AtomIteratorTree implements AtomIterator {
 	}
 
             
-    private AtomTreeNodeGroup rootNode;
-    private boolean doTreeIteration;
+    private AtomTreeNode rootNode;
     private AtomIteratorTree treeIterator;//used for recursive iteration to lower levels in tree
     private final AtomIteratorListSimple listIterator = new AtomIteratorListSimple();
-    private final AtomIteratorSinglet singletIterator = new AtomIteratorSinglet();
-    private AtomIterator iterator;
     private int iterationDepth = Integer.MAX_VALUE;
     private Atom next;
     private boolean doAllNodes = false;
     private boolean wealreadyknowyourstupid = false;
+    private final AtomsetDetect detector;
+    private final AtomsetCount counter;
+    private final AtomList emptyList = new AtomList();
     
     /**
      * main method to test and demonstrate use of this class.
