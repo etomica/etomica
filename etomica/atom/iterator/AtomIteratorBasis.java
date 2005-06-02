@@ -7,135 +7,219 @@ package etomica.atom.iterator;
 import etomica.Atom;
 import etomica.AtomSet;
 import etomica.AtomTreeNodeGroup;
+import etomica.action.AtomsetAction;
 import etomica.atom.AtomList;
 
 /**
- * Basic atom iterator that yields the child atoms of a basis that satisfy
- * a target specification (if given one). If the basis atom is a leaf (and
- * thus has no child atoms), iterator takes basis atom itself as its only iterate.
+ * Elementary basis-dependent iterator that gives atoms meeting specification
+ * of a basis and a target.  Iterates are determined as follows:
+ * <ul>
+ * 
+ * <li>the <i>basis atom</i> determines the set of atoms (basis-set) that are candidates for iteration.
+ * If the basis is an atom group, iterates (if any) will always be the child 
+ * atoms of the basis; if the basis is a leaf atom, the single iterate (if any)
+ * will be the basis atom itself.
+ * 
+ * <li>the <i>target atom</i> narrows down the iterates from the basis-set. Possibilities
+ * are: 
+ * <ul>
+ * <li>no target atom is specified: all basis-set atoms will be given on iteration
+ * <li>the target atom is the same as the basis atom: this is equivalent to specifying no target
+ * <li>the target atom is in the species hierarchy above the basis atom, and the
+ * basis atom is descended from it: this is equivalent to specifying no target
+ * <li>the target atom is a child of the basis atom: the target atom will be the only iterate
+ * <li>the target atom is descended from the basis atom, but is not a direct child of it:
+ * the only iterate will be the child atom of the basis through which the target is descended
+ * <li>the target and basis are in different branches of the species hierarchy, such that
+ * the target atom is not descended from the basis atom, and the basis atom is not descended
+ * from the target atom: no iterates will be given
+ * </ul>
+ *
+ * </ul>
  */
 public final class AtomIteratorBasis extends AtomIteratorAdapter implements
-		AtomsetIteratorBasisDependent {
+        AtomsetIteratorBasisDependent {
 
-	/**
-	 * Constructor makes iterator in an unset condition; must call reset
-	 * before beginning iteration.
-	 */
-	public AtomIteratorBasis() {
-		super(new AtomIteratorListSimple());
-		listIterator = (AtomIteratorListSimple)iterator;
-	}
-
-	/**
-	 * Method to specify a target atom, causing the iterator to yield
-	 * only that atom, or its parent in the hierarchy that is a child 
-	 * of the current basis.  Iterator yields no iterates if the specified 
-	 * target is not in the hierarchy below the basis at the time of reset.
-	 * On the other hand, specification is ignored if the target is at or 
-	 * above the hierarchy depth of the basis at time of reset.
-	 * Specifying a zero-length atom set releases any target
-	 * restrictions, and specifies that the iterator should give all of the
-	 * child atoms of the basis.  Only first atom in given array is relevant.
-	 * Call to this method leaves iterator unset; call to reset is required
-	 * before beginning iteration.
-	 */
-	public void setTarget(AtomSet targetAtoms) {
-        switch(targetAtoms.count()) {
-            case 0: 
-                targetAtom = null;
-                break;
-            case 1:
-                targetAtom = targetAtoms.getAtom(0);
-                break;
-            default:
-                throw new IllegalArgumentException("Can specify at most one target atom to AtomIteratorBasis");
-        }
-		if(targetAtom != null) targetDepth = targetAtom.type.getDepth();
-		needSetupIterator = (basis != null);//flag to setup iterator only if presently has a non-null basis
-		listIterator.unset();
-	}
-
-	/**
-	 * Sets the basis for iteration, such that the childList atoms of 
-	 * the first atom in the given array will be subject to iteration (within
-	 * any specifications given by a prior or subsequent call to setTarget).
-	 * If given atom is a leaf, it will itself be the sole iterate given by the iterator.
-	 * If argument is null or otherwise does not specify an atom, 
-	 * iterator will be conditioned to give no iterates until a new basis 
-	 * is specified.  Any atoms beyond the first one in the given array are ignored.
-	 */
-	public void setBasis(AtomSet atoms) {
-		if(atoms == null) {
-			basis = null;
-			listIterator.setList(null);
-			needSetupIterator = false;
-		} else {
-			basis = (Atom)atoms;
-			needSetupIterator = true;
-			listIterator.unset();
-		}
-	}
-    
     /**
-     * Returns false if any of the atoms in the target set are
-     * not descended from the current basis.
+     * Constructor makes iterator in an unset condition; must set basis and call reset before
+     * beginning iteration.
+     */
+    public AtomIteratorBasis() {
+        super(new AtomIteratorListSimple());
+        listIterator = (AtomIteratorListSimple) iterator;
+    }
+
+    /**
+     * Method to specify a target atom. Specifying a zero-length AtomSet or a
+     * length-1 AtomSet with a null atom releases
+     * any target restrictions, and specifies that the iterator should give all
+     * of the basis-set atoms. Call to this method leaves iterator unset; call to reset is
+     * required before beginning iteration.
+     * 
+     * @throws NullPointerException
+     *             if targetAtoms is null (specify no-target using zero-length AtomSet, such as AtomSet.NULL)
+     * @throws IllegalArgumentException
+     *             if targetAtoms.count() is not 0 or 1
+     */
+    public void setTarget(AtomSet targetAtoms) {
+        switch (targetAtoms.count()) {
+        case 0:
+            targetAtom = null;
+            break;
+        case 1:
+            targetAtom = targetAtoms.getAtom(0);
+            break;
+        default:
+            throw new IllegalArgumentException(
+                    "Can specify at most one target atom to AtomIteratorBasis");
+        }
+        if (targetAtom != null) {
+            targetDepth = targetAtom.type.getDepth();
+        }
+        needSetupIterator = (basis != null);//flag to setup iterator only if
+                                            // presently has a non-null basis
+        listIterator.unset();
+    }
+
+    /**
+     * Sets the basis for iteration, such that the childList atoms of the given
+     * atom will be subject to iteration (within any specifications given by a
+     * prior or subsequent call to setTarget). If given atom is a leaf, it will
+     * itself be the sole candidate iterate given by the iterator. If argument is null or
+     * otherwise does not specify an atom, iterator will be conditioned to give
+     * no iterates until a new basis is specified. The given AtomSet, if not
+     * null, must have a size of 1.
+     * 
+     * @throws IllegalArgumentException 
+     *              if atoms.count() is not 0 or 1
+     */
+    public void setBasis(AtomSet atoms) {
+        if (atoms == null || atoms.count() == 0) {
+            basis = null;
+            listIterator.setList(null);
+            needSetupIterator = false;
+        } else if (atoms.count() == 1) {
+            basis = atoms.getAtom(0);
+            needSetupIterator = true;
+        } else {
+            throw new IllegalArgumentException(
+                    "Inappropriate number of atoms given in basis");
+        }
+        listIterator.unset();
+    }
+
+    /**
+     * Returns true if the given target with the present basis could
+     * yield an iterate. Assumes that the basis -- if it is a group -- 
+     * has child atoms. 
      */
     public boolean haveTarget(AtomSet target) {
-        for(int i=target.count()-1; i>=0; i--) {
-            if(!target.getAtom(i).node.isDescendedFrom(basis)) {//isDescendedFrom returns false if basis is null
-                return false;
+        if(basis == null) return false;
+        switch (target.count()) {
+        case 0:
+            return true;
+        case 1:
+            Atom targetAtom = target.getAtom(0);
+            if(targetAtom == null) {
+                return true;
             }
+            if(targetAtom.type.getDepth() <= basis.type.getDepth()) { 
+                return basis.node.isDescendedFrom(targetAtom);
+            }
+            return targetAtom.node.isDescendedFrom(basis);
+        default:
+            return false;
         }
-        return true;
     }
-	
-	/**
-	 * Puts iterator in a state ready to begin iteration.
-	 */
-	public void reset() {
-		if(needSetupIterator) setupIterator();
-		listIterator.reset();
-	}
-	
-	/**
-	 * Common method to complete tasks needed to adjust to new target or basis.
-	 * Any call to setBasis or setTarget sets flag that indicates this method should
-	 * be invoked upon reset.
-	 */
-	private void setupIterator() {
-		needSetupIterator = false;
-		try {
-			if(targetAtom == null || targetDepth <= basis.type.getDepth()) {
-				if(basis.node.isLeaf()) {//if the basis is a leaf atom, we define the iterates to be just the basis atom itself
-					littleList.clear();
-					littleList.add(basis);
-					listIterator.setList(littleList);
-				} else {
-					listIterator.setList(((AtomTreeNodeGroup)basis.node).childList);
-				}
-			} else {
-				//return child of basis that is or is above targetAtom (if in hierarchy of basis)
-				//do no looping if not in hierarchy of basis				
-				Atom targetNode = targetAtom.node.childWhereDescendedFrom(basis.node).atom();
-				littleList.clear();
-				littleList.add(targetNode);
-				listIterator.setList(littleList);
-			}		
-		} catch(Exception e) {listIterator.setList(null);}//this could happen if basis==null or childWhereDescendedFrom returns null
 
-	}
+    /**
+     * Puts iterator in a state ready to begin iteration.
+     */
+    public void reset() {
+        if (basis == null)
+            return;
+        if (needSetupIterator)
+            setupIterator();
+        listIterator.reset();
+    }
 
-	/**
-	 * Returns 1, indicating that only a single-atom basis is appropriate.
-	 */
-	public int basisSize() {
-		return 1;
-	}
+    /**
+     * Performs action on all iterates given by iterator in its present condition.
+     * Unaffected by reset status, but will clobber iteration state.
+     */
+    public void allAtoms(AtomsetAction action) {
+        if (basis == null)
+            return;
+        if (needSetupIterator)
+            setupIterator();
+        super.allAtoms(action);
+    }
 
-	private final AtomIteratorListSimple listIterator;//the wrapped iterator
-	private final AtomList littleList = new AtomList();//used to form a list of one iterate if target is specified
-	private Atom targetAtom;
-	private int targetDepth;
-	private Atom basis;
-	private boolean needSetupIterator = true;//flag to indicate if setupIterator must be called upon reset
+    /**
+     * Returns 1, indicating that only a single-atom basis is appropriate.
+     */
+    public int basisSize() {
+        return 1;
+    }
+
+    /**
+     * Common method to complete tasks needed to adjust to new target or basis.
+     * Any call to setBasis or setTarget sets flag that indicates this method
+     * should be invoked upon reset.
+     */
+    private void setupIterator() {
+        needSetupIterator = false;
+        try {
+            if (targetAtom == null) {
+                setupBasisIteration();
+            } else if(targetDepth <= basis.type.getDepth()) {
+                if(basis.node.isDescendedFrom(targetAtom)) {
+                    setupBasisIteration();
+                } else {
+                    listIterator.setList(null);
+                }
+            } else {//targetAtom is not null, and is not in hierarchy above
+                    // basis
+                //return child of basis that is or is above targetAtom (if in
+                // hierarchy of basis)
+                //do no looping if not in hierarchy of basis
+                Atom targetNode = targetAtom.node.childWhereDescendedFrom(
+                        basis.node).atom();
+                littleList.clear();
+                littleList.add(targetNode);
+                listIterator.setList(littleList);
+            }
+        } catch (Exception e) {
+            listIterator.setList(null);
+        }//this could happen if basis==null or childWhereDescendedFrom returns
+         // null
+
+    }
+
+    /**
+     * Convenience method used by setupIterator
+     */
+    private void setupBasisIteration() {
+        if (basis.node.isLeaf()) {//if the basis is a leaf atom, we
+                                  // define the iterates to be just the
+                                  // basis atom itself
+            littleList.clear();
+            littleList.add(basis);
+            listIterator.setList(littleList);
+        } else {
+            listIterator
+                    .setList(((AtomTreeNodeGroup) basis.node).childList);
+        }
+    }
+
+    private final AtomIteratorListSimple listIterator;//the wrapped iterator
+    private final AtomList littleList = new AtomList();//used to form a list of
+                                                       // one iterate if target
+                                                       // is specified
+    private Atom targetAtom;
+    private int targetDepth;
+    private Atom basis;
+    private boolean needSetupIterator = true;//flag to indicate if
+                                             // setupIterator must be called
+                                             // upon reset
 }
