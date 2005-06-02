@@ -2,220 +2,109 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import junit.framework.TestCase;
 import etomica.Atom;
+import etomica.AtomSet;
 import etomica.AtomTreeNodeGroup;
-import etomica.IteratorDirective;
-import etomica.Phase;
-import etomica.Simulation;
-import etomica.Species;
-import etomica.SpeciesSpheres;
-import etomica.action.AtomAction;
+import etomica.SpeciesMaster;
+import etomica.SpeciesRoot;
 import etomica.atom.AtomList;
-import etomica.atom.iterator.AtomIteratorList;
 import etomica.atom.iterator.AtomIteratorTree;
+import etomica.junit.UnitTest;
 
 /**
- * @author aawalker
- *
- * To change this generated comment edit the template variable "typecomment":
- * Window>Preferences>Java>Templates.
- * To enable and disable the creation of type comments go to
- * Window>Preferences>Java>Code Generation.
+ * Unit test for AtomIteratorTree
  */
-public class AtomIteratorTreeTest extends TestCase {
+public class AtomIteratorTreeTest extends IteratorTest {
 
-	private Species species0,species1;
-	private AtomIteratorTree iterator;
-	private AtomIteratorList listIterator;
-	private IteratorDirective id;
-	private final int nMolecules=10;
-	private final int nAtoms0=2;
-	private final int nAtoms1=3;
-	private final int nLists=8;
-	private Phase phase;
-	private LinkedList[] list;
-	private AtomAction[] lister;
-	private Atom basis0,basis1,basis2;
-	private AtomList atomList0,atomList1,atomList2;
+    protected void setUp() {
+        n0a = 1;
+        nAtoms = 3;
+        n1a = 0;
+        n2a = 0;
+        nTree = new int[] { 5, 4, 3 };
+        root = UnitTest.makeStandardSpeciesTree(new int[] { n0a },
+                nAtoms, new int[] { n1a }, new int[] { n2a }, nTree);
+        rootNode = (AtomTreeNodeGroup) root.node;
+        speciesMaster = (SpeciesMaster)rootNode.getDescendant(new int[] {0});
 
-	public static void main(String[] args) {
-		junit.textui.TestRunner.run(AtomIteratorTreeTest.class);
-	}
+        iterator = new AtomIteratorTree();
+    }
+    
+    //species 0: 5 molecules, each a group of three atoms
+    //species 1: 10 no-group single-atom molecules
+    //species 2: 3 molecules, each with 5 subgroups of 4 groups of 3 atoms
+    public void testIterator() {
+        Lister testLister = new Lister();
+        LinkedList list = null;
+        Atom iterate = null;
+        AtomList iterates = null;
+        Atom iterationRoot = null;
+        int count = 0;
 
-	protected void setUp() {
-		Simulation sim = new Simulation();
-		phase = new Phase();
-		species0 = new SpeciesSpheres(nMolecules/2,2);
-		species1 = new SpeciesSpheres(nMolecules/2,3);
-		sim.elementCoordinator.go();
-		basis0 = species0.getAgent(phase);
-		basis1 = species1.getAgent(phase);
-		basis2 = phase.speciesMaster;
-		atomList0 = ((AtomTreeNodeGroup)species0.getAgent(phase).node).childList;
-		atomList1 = ((AtomTreeNodeGroup)species1.getAgent(phase).node).childList;
-		atomList2 = phase.speciesMaster.atomList;
-		iterator = new AtomIteratorTree();
-		listIterator = new AtomIteratorList();
-		id = new IteratorDirective();
-		list=new LinkedList[nLists];
-		for (int i=0;i<nLists;i++) {
-			list[i]=new LinkedList();
-		}
-		lister=new AtomAction[nLists];
-		for (int i=0;i<list.length;i++) {
-			lister[i]=new Lister(i);
-			}
-		}
-	
-	private void clearLists() {
-		for (int i=0;i<nLists;i++) {
-			list[i].clear();
-		}
-	}
-	
-	private void printLists() {
-		for (int i=0;i<nLists;i++) {
-			System.out.println(list[i]);
-		}
-		System.out.println();
-	}
+        //test initial iterator provides no iterates
+        list = generalIteratorMethodTests(iterator);
+        assertEquals(list.size(), 0);
+        
+        //test iteration over all nodes
+        count = 1 + 1 + 3 + n0a*(1 + nAtoms) + n1a*(1) 
+                + n2a*(1 + nTree[0]*(1 + nTree[1]*(1 + nTree[2])));
+        iterationRoot = root;
+        iterator.setDoAllNodes(true);
+        list = testIterateCount(iterationRoot, count);
 
-	public void testNMomlecules() {
-
-		iterator.setRoot(basis2);
-
-		iterator.setIterationDepth(0);
-
-		iterator.setRoot(basis0);
-
-		assertEquals(1,iterator.size());
-		
-		iterator.setRoot(basis1);
-		assertEquals(1,iterator.size());
-		
-		iterator.setRoot(basis2);
-		assertEquals(1,iterator.size());
-		
-		iterator.setIterationDepth(1);
-		
-		iterator.setRoot(basis0);
-		assertEquals(nMolecules/2,iterator.size());
-//		System.out.println(iterator.size());
-
-		iterator.setRoot(basis1);
-		assertEquals(nMolecules/2,iterator.size());
-//		System.out.println(iterator.size());
-
-		iterator.setRoot(basis2);
-		assertEquals(2,iterator.size());
-//		System.out.println(iterator.size());
-		
-		iterator.setIterationDepth(2);
-
-		iterator.setRoot(basis0);
-		assertEquals((nMolecules/2)*nAtoms0,iterator.size());
-		
-		iterator.setRoot(basis1);
-		assertEquals((nMolecules/2)*nAtoms1,iterator.size());
-		
-		iterator.setRoot(basis2);
-		assertEquals(nMolecules,iterator.size());
-		
-		iterator.setIterationDepth(3);
-
-		iterator.setRoot(basis0);
-		assertEquals((nMolecules/2)*nAtoms0,iterator.size());
-		
-		iterator.setRoot(basis1);
-		assertEquals((nMolecules/2)*nAtoms1,iterator.size());
-		
-		iterator.setRoot(basis2);
-		assertEquals((nMolecules/2)*(nAtoms0+nAtoms1),iterator.size());
-
-		iterator.setAsLeafIterator();
-		
-		iterator.setRoot(basis0);
-		assertEquals((nMolecules/2)*nAtoms0,iterator.size());
-		
-		iterator.setRoot(basis1);
-		assertEquals((nMolecules/2)*nAtoms1,iterator.size());
-		
-		iterator.setRoot(basis2);
-		assertEquals((nMolecules/2)*(nAtoms0+nAtoms1),iterator.size());		
-	}
-	
-	public void testAllDepth0() {
-
-		iterator.setIterationDepth(0);
-		
-		iterator.all(basis0,id,lister[0]);
-		LinkedList list0 = new LinkedList();
-		list0.add(basis0.toString());
-		assertEquals(list0,list[0]);
-		
-		clearLists();
-	}
-	
-	public void testAllDepth1() {
-		
-		iterator.setIterationDepth(1);
-
-		iterator.all(basis0,id,lister[0]);
-		listIterator.all(basis0,id,lister[1]);
-		assertEquals(list[0],list[1]);
-		
-		iterator.all(basis1,id,lister[2]);
-		listIterator.all(basis1,id,lister[3]);
-		assertEquals(list[2],list[3]);
-		
-		iterator.all(basis2,id,lister[4]);
-		listIterator.all(basis2,id,lister[5]);
-		assertEquals(list[4],list[5]);
-		
-		clearLists();
-	}
-	
-	public void testAllLeaf() {
-		
-		AtomIteratorList listIterator0 = new AtomIteratorList(atomList0);
-		AtomIteratorList listIterator1 = new AtomIteratorList(atomList1);
-
-		iterator.setAsLeafIterator();
-
-		iterator.all(basis0,id,lister[0]);
-		while (listIterator0.hasNext()) {
-			listIterator.all(listIterator0.next(),id,lister[1]);
-		}
-		assertEquals(list[0],list[1]);
-		
-		iterator.all(basis2,id,lister[2]);
-		while (listIterator1.hasNext()) {
-			listIterator.all(listIterator1.next(),id,lister[1]);
-		}
-//		System.out.println(list[2]);
-//		System.out.println(list[1]);
-		assertEquals(list[2],list[1]);
-		
-		clearLists();
-	}
-	
-	
+        if (n0a>0) {
+            iterationRoot = rootNode.getDescendant(new int[]{0,0,0,0});
+            testOneIterate(iterationRoot,iterationRoot);
+        }
+        
+        //test iteration of leaf atoms
+        iterationRoot = root;
+        iterator.setAsLeafIterator();
+        count = n0a*nAtoms + n1a + n2a*nTree[0]*nTree[1]*nTree[2];
+        list = testIterateCount(root, count);
+        list = testListIterates(root, speciesMaster.atomList);
+        
+        testNoIterates(null);
+    }
+    
+    private LinkedList testIterateCount(Atom root, int count) {
+        iterator.setRoot(root);
+        LinkedList list = generalIteratorMethodTests(iterator);
+        System.out.println(list.size()+ " "+count);
+        assertEquals(list.size(), count);
+        return list;
+    }
+    
+    private LinkedList testOneIterate(Atom root, Atom iterate) {
+        iterator.setRoot(root);
+        LinkedList list = generalIteratorMethodTests(iterator);
+        Lister testLister = new Lister();
+        testLister.actionPerformed(iterate);
+        assertEquals(list, testLister.list);
+        return list;
+    }
+    
+    private LinkedList testListIterates(Atom root, AtomList iterates) {
+        iterator.setRoot(root);
+        LinkedList list = generalIteratorMethodTests(iterator);
+        Lister testLister = new Lister();
+        testLister.addEachToList(iterates);
+        assertEquals(list, testLister.list);
+        return list;
+    }
+    
+    private void testNoIterates(Atom root) {
+        iterator.setRoot(root);
+        LinkedList list = generalIteratorMethodTests(iterator);
+        assertEquals(list.size(), 0);
+    }
 
 
-	class Lister implements AtomAction {
-
-		private final int i;
-
-		public Lister(int i) {
-			this.i=i;
-		}
-		public void actionPerformed(AtomSet as) {
-			list[i].add(as.toString());	
-		}
-		public void actionPerformed(Atom a) {
-			list[i].add(a.toString());
-		}
-	}
+    private SpeciesRoot root;
+    private SpeciesMaster speciesMaster;
+    private AtomIteratorTree iterator;
+    private AtomTreeNodeGroup rootNode;
+    int n0a, nAtoms, n1a, n2a;
+    int[] nTree;
 
 }
