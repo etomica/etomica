@@ -59,7 +59,7 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
     }
     
     public final boolean equals(AtomSet atoms) {
-        if (atoms.count() != 1) return false;
+        if (atoms == null || atoms.count() != 1) return false;
         return this == atoms.getAtom(0);
     }
     
