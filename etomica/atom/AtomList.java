@@ -445,8 +445,9 @@ public class AtomList implements java.io.Serializable
         if(atom == null) return -1;
         int index = 0;
         for (AtomLinker e = header.next; e != header; e = e.next) {
+            if (e.atom == null) continue; //skip tabs
             if (atom.equals(e.atom)) return index;
-            if(e.atom != null) index++;//modification for tab entry
+            index++;
         }
         return -1;
     }
