@@ -57,7 +57,7 @@ public class AtomIteratorBasisTest extends IteratorTest {
 //                new int[] {n2a, n2b},
 //                nTree
 //        );
-        iterator = new AtomIteratorBasis();
+        basisIterator = new AtomIteratorBasis();
     }
     
     //species 0: 5 molecules, each a group of three atoms
@@ -72,10 +72,10 @@ public class AtomIteratorBasisTest extends IteratorTest {
         Atom iterate = null;
         AtomList iterates = null;
         
-        assertEquals(iterator.basisSize(), 1);
+        assertEquals(basisIterator.basisSize(), 1);
         
         //test initial iterator provides no iterates
-        list = generalIteratorMethodTests(iterator);
+        list = generalIteratorMethodTests(basisIterator);
         assertEquals(list.size(), 0);
         
         //test no-target iteration of children of a basis
@@ -98,8 +98,8 @@ public class AtomIteratorBasisTest extends IteratorTest {
         testOneIterate(basis, target, iterate);
 
         //test subsequent nulling of target
-        iterator.setTarget(new AtomsetArray(1));
-        list = generalIteratorMethodTests(iterator);
+        basisIterator.setTarget(new AtomsetArray(1));
+        list = generalIteratorMethodTests(basisIterator);
         assertEquals(list.size(), nAtoms);
         testLister.clear();
         testLister.addEachToList(((AtomTreeNodeGroup)basis.node).childList);
@@ -155,7 +155,7 @@ public class AtomIteratorBasisTest extends IteratorTest {
         //test null target -- should throw NullPointerException
         boolean caught = false;
         try {
-            iterator.setTarget(null);
+            basisIterator.setTarget(null);
         } catch(NullPointerException ex) {
             caught = true;
         }
@@ -164,7 +164,7 @@ public class AtomIteratorBasisTest extends IteratorTest {
         //test target size -- should throw IllegalArgumentException
         caught = false;
         try {
-            iterator.setTarget(new AtomsetArray(2));
+            basisIterator.setTarget(new AtomsetArray(2));
         } catch(IllegalArgumentException ex) {
             caught = true;
         }
@@ -174,39 +174,39 @@ public class AtomIteratorBasisTest extends IteratorTest {
     }
     
     private LinkedList testOneIterate(Atom basis, AtomSet target, Atom iterate) {
-        iterator.setBasis(basis);
-        assertTrue(iterator.haveTarget(target));
-        iterator.setTarget(target);
-        LinkedList list = generalIteratorMethodTests(iterator);
+        basisIterator.setBasis(basis);
+        assertTrue(basisIterator.haveTarget(target));
+        basisIterator.setTarget(target);
+        LinkedList list = generalIteratorMethodTests(basisIterator);
         Lister testLister = new Lister();
         testLister.actionPerformed(iterate);
         assertEquals(list, testLister.list);
-        assertTrue(iterator.haveTarget(target));//test again to ensure iteration didn't change anything
+        assertTrue(basisIterator.haveTarget(target));//test again to ensure iteration didn't change anything
         return list;
     }
     
     private LinkedList testListIterates(Atom basis, AtomSet target, AtomList iterates) {
-        iterator.setBasis(basis);
-        assertTrue(iterator.haveTarget(target));
-        iterator.setTarget(target);
-        LinkedList list = generalIteratorMethodTests(iterator);
+        basisIterator.setBasis(basis);
+        assertTrue(basisIterator.haveTarget(target));
+        basisIterator.setTarget(target);
+        LinkedList list = generalIteratorMethodTests(basisIterator);
         Lister testLister = new Lister();
         testLister.addEachToList(iterates);
         assertEquals(list, testLister.list);
-        assertTrue(iterator.haveTarget(target));//test again to ensure iteration didn't change anything
+        assertTrue(basisIterator.haveTarget(target));//test again to ensure iteration didn't change anything
         return list;
     }
     
     private void testNoIterates(Atom basis, AtomSet target) {
-        iterator.setBasis(basis);
-        assertFalse(iterator.haveTarget(target));
-        iterator.setTarget(target);
-        LinkedList list = generalIteratorMethodTests(iterator);
+        basisIterator.setBasis(basis);
+        assertFalse(basisIterator.haveTarget(target));
+        basisIterator.setTarget(target);
+        LinkedList list = generalIteratorMethodTests(basisIterator);
         assertEquals(list.size(), 0);
-        assertFalse(iterator.haveTarget(target));//test again to ensure iteration didn't change anything
+        assertFalse(basisIterator.haveTarget(target));//test again to ensure iteration didn't change anything
     }
     
-    private AtomIteratorBasis iterator;
+    private AtomIteratorBasis basisIterator;
     private AtomTreeNodeGroup rootNode;
     int n0a, n0b, nAtoms, n1a, n1b, n2a, n2b;
     int[] nTree;

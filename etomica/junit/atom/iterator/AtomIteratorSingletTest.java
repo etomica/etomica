@@ -30,7 +30,7 @@ public class AtomIteratorSingletTest extends IteratorTest {
     
     public void setUp() {
         Space space = new Space2D();
-        iterator = new AtomIteratorSinglet();
+        singletIterator = new AtomIteratorSinglet();
         testAtom1 = new Atom(space);
         testAtom2 = new Atom(space);
         list1 = makeTestList(new Atom[] {testAtom1});
@@ -39,26 +39,26 @@ public class AtomIteratorSingletTest extends IteratorTest {
     
     public void testIterator() {
         print("starting");
-        LinkedList list = generalIteratorMethodTests(iterator);
-        iterator.setAtom(testAtom1);
-        list = generalIteratorMethodTests(iterator);
+        LinkedList list = generalIteratorMethodTests(singletIterator);
+        singletIterator.setAtom(testAtom1);
+        list = generalIteratorMethodTests(singletIterator);
         assertEquals(list,list1);
-        iterator.setAtom(null);
-        assertNull(iterator.getAtom());
-        list = generalIteratorMethodTests(iterator);
-        assertNull(iterator.getAtom());
+        singletIterator.setAtom(null);
+        assertNull(singletIterator.getAtom());
+        list = generalIteratorMethodTests(singletIterator);
+        assertNull(singletIterator.getAtom());
         assertTrue(list.size() == 0);
-        iterator.setAtom(testAtom2);
-        list = generalIteratorMethodTests(iterator);
+        singletIterator.setAtom(testAtom2);
+        list = generalIteratorMethodTests(singletIterator);
         assertEquals(list, list2);
-        iterator.setAtom(testAtom1);
-        assertEquals(testAtom1, iterator.getAtom());
-        list = generalIteratorMethodTests(iterator);
+        singletIterator.setAtom(testAtom1);
+        assertEquals(testAtom1, singletIterator.getAtom());
+        list = generalIteratorMethodTests(singletIterator);
         assertEquals(list, list1);
-        assertEquals(testAtom1, iterator.getAtom());
+        assertEquals(testAtom1, singletIterator.getAtom());
     }
     
-    private AtomIteratorSinglet iterator;
+    private AtomIteratorSinglet singletIterator;
     private Atom testAtom1, testAtom2;
     private LinkedList list1, list2;
 
