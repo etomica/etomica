@@ -424,7 +424,7 @@ public class AtomList implements java.io.Serializable
     public AtomLinker entry(Atom atom) {
         if(atom == null) return null;
         for (AtomLinker e = header.next; e != header; e = e.next) {
-            if (atom.equals(e.atom)) return e;
+            if (e.atom!=null && atom.equals(e.atom)) return e;
         }
         return null;
     }
