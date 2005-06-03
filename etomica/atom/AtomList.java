@@ -9,6 +9,7 @@ import etomica.Atom;
 import etomica.AtomIterator;
 import etomica.Debug;
 import etomica.Simulation;
+import etomica.atom.iterator.AtomIteratorListSimple;
 
 /**
  * Linked list implementation of the <tt>List</tt> interface.  Implements all
@@ -84,6 +85,13 @@ public class AtomList implements java.io.Serializable
         for(int i=0; i<atoms.length; i++) {
             addLast(atoms[i]);
         }
+    }
+    
+    /**
+     * Copy constructor.
+     */
+    public AtomList(AtomList list) {
+        this(new AtomIteratorListSimple(list));
     }
     
     /**
