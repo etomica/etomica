@@ -34,12 +34,9 @@ public class AtomIteratorBasisTest extends IteratorTest {
     
     public void setUp() {
         n0a = 5;
-        n0b = 7;
         nAtoms = 3;
         n1a = 10;
-        n1b = 10;
         n2a = 3;
-        n2b = 3;
         nTree = new int[] {5, 4, 3};
         SpeciesRoot root = UnitTest.makeStandardSpeciesTree(
                 new int[] {n0a},
@@ -208,7 +205,7 @@ public class AtomIteratorBasisTest extends IteratorTest {
     
     private AtomIteratorBasis basisIterator;
     private AtomTreeNodeGroup rootNode;
-    int n0a, n0b, nAtoms, n1a, n1b, n2a, n2b;
+    int n0a, nAtoms, n1a, n2a;
     int[] nTree;
 
 }
