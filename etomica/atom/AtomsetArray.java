@@ -74,7 +74,8 @@ public class AtomsetArray implements AtomSet {
 
     /**
      * Copies the atoms in the given atom set to the wrapped array of atoms.
-     * Throws IllegalArgumentException if length of array is not equal to count
+     * 
+     * @throws IllegalArgumentException if length of array is not equal to count
      * field of this instance.
      */
     public void setAtoms(AtomSet atomSet) {

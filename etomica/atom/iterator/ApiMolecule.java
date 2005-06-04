@@ -23,7 +23,7 @@ import etomica.action.AtomsetAction;
 public class ApiMolecule implements AtomsetIteratorMolecule, AtomPairIterator {
 
     /**
-     * @param api11 iterator for single molecule pair form from target specification
+     * @param api11 iterator for single molecule pair formed from target specification
      * @param api1A iterator for all pairs formed with a target molecule
      * @param apiAA iterator for all pairs in the phase
      */
