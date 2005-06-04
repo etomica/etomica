@@ -171,11 +171,12 @@ public abstract class AtomTreeNode implements Comparable {
     /**
      * Implementation of Comparable interface.  Returns -1, 0, 1 if given atomTreeNode
      * is less, equal, or greater, respectively, than this node.  Order is determined
-     * by comparison of atomIndex values.
+     * by comparison of (absolute value of) atomIndex values.
      */
     public int compareTo(Object atomTreeNode) {
         int otherIndex = ((AtomTreeNode)atomTreeNode).atomIndex;
-        return otherIndex > atomIndex ? 1 : (otherIndex == atomIndex ? 0 : -1);
+        //use "<" for ">" because atomIndex is negative
+        return otherIndex < atomIndex ? 1 : (otherIndex == atomIndex ? 0 : -1);
     }
                 
     protected final Atom atom;
