@@ -10,10 +10,17 @@ import etomica.atom.AtomsetArray;
  * Singlet pair iterator for which atoms in pair are defined via a basis pair
  * and a target specification. Name of class indicates that it returns 1 atom
  * from one basis, and 1 atom from the other. Basis may be same or different
- * from each other. Atoms specified by basis and target are as defined in
- * AtomIteratorBasis. The target atomset must include at least two atoms --
- * expected use of this class is inside another iterator that directs targets of
- * fewer than two atoms to 1A or AA iterators.<br> 
+ * from each other. Atoms specified by basis and target are largely as defined
+ * in AtomIteratorBasis, but with some differences. Unlike AtomIteratorBasis, no
+ * iterate atom is indicated if target doesn't specify it, so (1) target atom
+ * set must include at least two atoms (anything less throws an exception); (2)
+ * more than two target atoms can be specified, but they must consistently point
+ * to exactly two iterate atoms; and (3) presence of any target atom that
+ * doesn't indicate an atom for the current basis causes iterator to yield no
+ * iterates (this contrasts with AtomIteratorBasis, for which a target atom
+ * could be in hierarchy above the basis atom). <br>
+ * Expected use of this class is inside another iterator that directs targets of
+ * fewer than two atoms to 1A or AA iterators. <br>
  * Rules for determining atoms in iterate pair are as follows.
  * <ul>
  * <li>The basis locates the candidate atoms, with each atom in the iterate
@@ -21,8 +28,8 @@ import etomica.atom.AtomsetArray;
  * corresponds to the first basis atom, and the second atom in the iterate pair
  * corresponds to the second basis atom. In each case, the candidate iterate
  * atom is a child of the basis atom, unless the basis is a leaf atom, in which
- * case the candidate iterate atom will be the basis atom itself. If basis atoms are
- * the same as each other, the iterate atoms will be ordered such that
+ * case the candidate iterate atom will be the basis atom itself. If basis atoms
+ * are the same as each other, the iterate atoms will be ordered such that
  * atom0.compareTo(atom1) < 0, otherwise they are ordered according to the basis
  * atom ordering.
  * <li>The target specifies which basis child-atom appears in the iterate pair.
@@ -31,10 +38,10 @@ import etomica.atom.AtomsetArray;
  * must specify exactly one atom for each basis atom (or two if both basis atoms
  * are the same atom). If either of the basis atoms has no atoms corresponding
  * to it, or has multiple atoms (if basis atoms are different) corresponding to
- * it, then no iterates are given.  
- * <li>Every target atom must specify an iterate atom, so if there are more than two
- * target atoms, some target atoms must specify the same iterate atom (e.g., they
- * may be different descendants of the same child of a basis atom).
+ * it, then no iterates are given.
+ * <li>Every target atom must specify an iterate atom, so if there are more
+ * than two target atoms, some target atoms must specify the same iterate atom
+ * (e.g., they may be different descendants of the same child of a basis atom).
  * <li>A target atom will indicate an iterate atom for a basis if the target is
  * descended from the basis; then the iterate atom will be the child of the
  * basis through which the target atom is descended (which is the target itself
@@ -88,7 +95,7 @@ public class Api11 extends AtomPairIteratorAdapter implements
 
     /**
      * Returns true if the indicated target atoms would yield an iterate for the
-     * current basis. Returns false if no iterate would be given or if 
+     * current basis. Returns false if no iterate would be given or if
      * newTarget.count() < 2.
      */
     public boolean haveTarget(AtomSet newTarget) {
@@ -222,8 +229,8 @@ public class Api11 extends AtomPairIteratorAdapter implements
     }
 
     /**
-     * Returns 1 if the current basis and target will give an iterate,
-     * otherwise returns 0.
+     * Returns 1 if the current basis and target will give an iterate, otherwise
+     * returns 0.
      */
     public int size() {
         if (needUpdateAtoms)
@@ -232,8 +239,8 @@ public class Api11 extends AtomPairIteratorAdapter implements
     }
 
     /**
-     * Returns true if the current basis and target would give the
-     * indicate set of atoms.
+     * Returns true if the current basis and target would give the indicate set
+     * of atoms.
      */
     public boolean contains(AtomSet atoms) {
         if (needUpdateAtoms)
