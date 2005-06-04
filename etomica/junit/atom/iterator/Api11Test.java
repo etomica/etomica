@@ -30,7 +30,7 @@ public class Api11Test extends IteratorTest {
      */
     public Api11Test() {
         super();
-        UnitTest.VERBOSE = true;
+//        UnitTest.VERBOSE = true;
     }
     
     public void setUp() {
