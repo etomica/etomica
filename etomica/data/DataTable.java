@@ -149,23 +149,23 @@ public class DataTable implements DataBinManager {
 
     protected void fireDataChangedEvent() {
         for (int i = 0; i < listeners.length; i++) {
-            listeners[i].tableDataChanged();
+            listeners[i].tableDataChanged(this);
         }
     }
 
     protected void fireColumnAddedEvent(DataBin newColumn) {
         for (int i = 0; i < listeners.length; i++) {
-            listeners[i].tableColumnAdded(newColumn);
+            listeners[i].tableColumnAdded(this, newColumn);
         }
     }
     protected void fireColumnRemovedEvent(int index, DataBin removedColumn) {
         for (int i = 0; i < listeners.length; i++) {
-            listeners[i].tableColumnRemoved(index, removedColumn);
+            listeners[i].tableColumnRemoved(this, index, removedColumn);
         }
     }
     protected void fireRowCountChangedEvent(int oldCount, int newCount) {
         for (int i = 0; i < listeners.length; i++) {
-            listeners[i].tableRowCountChanged(oldCount, newCount);
+            listeners[i].tableRowCountChanged(this, oldCount, newCount);
         }
     }
     
@@ -184,7 +184,6 @@ public class DataTable implements DataBinManager {
      */
     private void update() {
         columnHeadings = new String[columns.length];
-        columnChangedFlag = new boolean[columns.length];
         updateRowCount();
     }
 
@@ -213,8 +212,6 @@ public class DataTable implements DataBinManager {
 
     private DataBin[] columns = new DataBin[0];
     private String[] columnHeadings = new String[0];
-    private boolean[] columnChangedFlag = new boolean[0];
-    private String[] rowHeadings = null;
     private DataTableListener[] listeners = new DataTableListener[0];
     private boolean updatingOnAnyChange;
     private int rowCount;

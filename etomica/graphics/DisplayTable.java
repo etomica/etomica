@@ -86,7 +86,7 @@ public class DisplayTable extends Display implements DataTableListener,
     /**
      * Causes the display of the plot to be updated.
      */
-    public void tableDataChanged() {
+    public void tableDataChanged(DataTable table) {
         tableSource.fireTableDataChanged();
         repaint();
     }
@@ -94,7 +94,7 @@ public class DisplayTable extends Display implements DataTableListener,
     /**
      * Updates the units array for the new column, using the default units.
      */
-    public void tableColumnAdded(DataBin newColumn) {
+    public void tableColumnAdded(DataTable table, DataBin newColumn) {
         units = (Unit[]) Arrays.addObject(units, newColumn.getDimension()
                 .defaultIOUnit());
         tableSource.fireTableStructureChanged();
@@ -103,7 +103,7 @@ public class DisplayTable extends Display implements DataTableListener,
     /**
      * Causes the corresponding units element to be removed.
      */
-    public void tableColumnRemoved(int index, DataBin oldColumn) {
+    public void tableColumnRemoved(DataTable table, int index, DataBin oldColumn) {
         units = (Unit[]) Arrays.removeObject(units, units[index]);
         tableSource.fireTableStructureChanged();
     }
@@ -111,7 +111,7 @@ public class DisplayTable extends Display implements DataTableListener,
     /**
      * Has no effect. Part of the DataTableListener interface.
      */
-    public void tableRowCountChanged(int oldCount, int newCount) {
+    public void tableRowCountChanged(DataTable table, int oldCount, int newCount) {
         tableSource.fireTableStructureChanged();
     }
 
