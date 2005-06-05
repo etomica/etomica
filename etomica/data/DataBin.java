@@ -6,13 +6,13 @@ import etomica.DataTranslator;
 import etomica.units.Dimension;
 
 /**
- * DataSink that receives and holds data without pushing it downstream. Notifies
- * a DataBinManager when the data is changed, which can then access the data via
- * the DataSource methods implemented by this class.  Dimension (e.g., length, time)
- * is set at construction and cannot be changed (this is because the class does
- * not push its data, but instead serves as a data source to its DataBinManager; 
- * it therefore does not have a way to notify downstream sinks if its dimension
- * field changes).
+ * DataSink that receives and holds data without pushing it downstream. May
+ * notify a DataBinManager when the data is changed, which can then access the
+ * data via the DataSource methods implemented by this class. Dimension (e.g.,
+ * length, time) is set at construction and cannot be changed (this is because
+ * the class does not push its data, but instead serves as a data source to its
+ * DataBinManager; it therefore does not have a way to notify downstream sinks
+ * if its dimension field changes).
  * 
  * @author David Kofke
  *  
@@ -24,16 +24,26 @@ import etomica.units.Dimension;
 public class DataBin implements DataSink, DataSource {
 
     /**
+     * Constructs DataBin with null DataBinManager
+     * 
+     * @param dimension
+     *            The physical dimensions of the data in this bin.
+     */
+    public DataBin(Dimension dimension) {
+        this(null, dimension);
+    }
+
+    /**
      * Construct new DataBin that will notify the given DataBinManager (via the
-     * manager's dataChangeNotify method) any time the bin's putData method is
-     * invoked.
+     * manager's dataChangeNotify method) (if not null) any time the bin's
+     * putData method is invoked.
      * 
      * @param dataBinManager
-     *            manger of this bin; declared final
+     *            manger of this bin; declared final; null value is permitted
      * @param dimension
      *            The physical dimensions (e.g., length, time) of the data in
      *            this bin. Used to select units (e.g., Anstroms, picoseconds)
-     *            when data is displayed or written to file.  Declared final.
+     *            when data is displayed or written to file. Declared final.
      */
     public DataBin(DataBinManager dataBinManager, Dimension dimension) {
         y = new double[0];
@@ -51,8 +61,10 @@ public class DataBin implements DataSink, DataSource {
         } else {
             System.arraycopy(values, 0, y, 0, values.length);
         }
-        dataChanged = true;
-        dataBinManager.dataChangeNotify(this);
+        if (dataBinManager != null) {
+            dataChanged = true;
+            dataBinManager.dataChangeNotify(this);
+        }
     }
 
     /**
@@ -69,15 +81,17 @@ public class DataBin implements DataSink, DataSource {
     public int getDataLength() {
         return y.length;
     }
-    
+
     /**
      * Sets the physical dimensions (e.g., length, time) of the data in this
      * bin. This is set at construction, so calls to this method are not needed.
-     * Exception is thrown if given dimension does not match dimension 
-     * set in constructor. 
+     * Exception is thrown if given dimension does not match dimension set in
+     * constructor.
      */
     public void setDimension(Dimension dimension) {
-        if(this.dimension != dimension) throw new IllegalArgumentException("Cannot change dimension of DataBin after construction");
+        if (this.dimension != dimension)
+            throw new IllegalArgumentException(
+                    "Cannot change dimension of DataBin after construction");
     }
 
     /**
