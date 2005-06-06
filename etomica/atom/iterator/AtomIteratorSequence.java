@@ -15,8 +15,9 @@ import etomica.atom.AtomList;
  * and direction cannot be changed afterward. Iteration ends at the first
  * encounter of a linker having a null atom (i.e., at any Tab or a list header).
  * No list specification is provided; rather iteration is performed beginning
- * with a linker associated with the atom via an AtomToLinker instance given at
- * construction. Default version uses the atom's sequencer as the linker.
+ * with a specified linker. This linker may be specified directly, or as one
+ * associated with a specified atom via an AtomToLinker instance (given at
+ * construction - default uses the atom's sequencer as the linker).
  */
 
 /*
@@ -25,7 +26,8 @@ import etomica.atom.AtomList;
 public class AtomIteratorSequence implements AtomIteratorAtomDependent {
 
     /**
-     * Default instance uses the atom's sequencer as the linker to begin list
+     * Constructs a new class to iterate in the specified direction. Default
+     * uses the atom's sequencer as the linker to begin atom-specified
      * iteration.
      */
     public AtomIteratorSequence(IteratorDirective.Direction direction) {
@@ -33,9 +35,13 @@ public class AtomIteratorSequence implements AtomIteratorAtomDependent {
     }
 
     /**
-     * Constructs new class with hasNext as false. Must invoke setAtom and reset
-     * before beginning iteration. Argument is class that identifies the linker
-     * for beginning iteration, given an atom.
+     * Constructs new class to iterate in the specified direction. Must invoke
+     * setAtom or setFirst and reset before beginning iteration. AtomToLinker
+     * instance provides a rule that identifies the linker for beginning
+     * iteration, given an atom.
+     * 
+     * @throws IllegalArgumentException
+     *             if direction is null
      */
     //see etomica.nbr.cell.ApiIntraspecies1ACell for non-default use of this
     // constructor
@@ -49,10 +55,17 @@ public class AtomIteratorSequence implements AtomIteratorAtomDependent {
         setFirst(emptyList.header);
     }
 
+    /**
+     * Indicates if iterator has another atom iterate. Has no connection to
+     * nextLinker method.
+     */
     public boolean hasNext() {
         return next.atom != null;
     }
 
+    /**
+     * Same as nextAtom.
+     */
     public final AtomSet next() {
         return nextAtom();
     }
@@ -80,67 +93,106 @@ public class AtomIteratorSequence implements AtomIteratorAtomDependent {
         AtomLinker thisLinker = next;
         next = upListNow ? next.next : next.previous;
         return thisLinker;
-    }//end of nextLinker
+    }
 
+    /**
+     * Returns the next atom without advancing the iterator.
+     */
     public AtomSet peek() {
         return next.atom;
     }
 
+    /**
+     * Puts iterator in a state in which hasNext is false.
+     */
     public void unset() {
         next = emptyList.header;
     }
 
+    /**
+     * Initializes iterator for iteration.
+     */
     public void reset() {
         next = first;
     }
 
+    /**
+     * Performs action on all atoms for current condition (as given via setFirst
+     * or setAtom) of iterator. Unaffected by and does not affect state (hasNext
+     * status) of iterator.
+     */
     public void allAtoms(AtomsetAction action) {
-        for (AtomLinker link = first; link.atom != null; 
-                link = upListNow ? link.next : link.previous) {
+        for (AtomLinker link = first; link.atom != null; link = upListNow ? link.next
+                : link.previous) {
             action.actionPerformed(link.atom);
         }
     }
 
+    /**
+     * Returns true if given atom set is among the iterates, if iterated after a
+     * call to reset().
+     */
     public boolean contains(AtomSet atom) {
+        if (atom == null || atom.count() != 1)
+            return false;
         detector.setAtoms(atom);
         detector.reset();
         allAtoms(detector);
         return detector.detectedAtom();
     }
 
+    /**
+     * Returns the number of iterates given by this iterator, if iterated after
+     * a call to reset().
+     */
     public int size() {
         counter.reset();
         allAtoms(counter);
         return counter.callCount();
     }
 
+    /**
+     * Returns 1, indicating that this is an Atom iterator.
+     */
     public int nBody() {
         return 1;
     }
 
     /**
      * Sets the first atom for iteration. Iteration proceeds from this atom up
-     * and/or down the list, as specified by setDirection and setNumToSkip.
-     * Atom's sequencer is used to identify its position in the list.
+     * and/or down the list, depending on how iterator was configured at
+     * construction, and ends when a null-atom linker is encountered.
      */
     public void setAtom(Atom atom) {
         setFirst(atomToLinker.getLinker(atom));
     }
 
+    /**
+     * Sets the linker where iteration begins. The given linker's atom will be
+     * the first iterate given. If linker has a null atom, no iterates will be
+     * given. Otherwise, iteration proceeds from this linker up and/or down the
+     * list, depending on how iterator was configured at construction, and
+     * ends when a null-atom linker is encountered.
+     *  
+     */
     public void setFirst(AtomLinker newFirst) {
         first = (newFirst != null) ? newFirst : emptyList.header;
         unset();
     }
 
     /**
-     * @return the linker of the atom corresponding to the most recent call to
-     *         setFirst, or the list header if a first atom has not be
-     *         specified.
+     * @return the linker given at the most recent call to
+     *         setFirst, or an empty-list list header if a first linker
+     *         specified, or unset has been invoked.
      */
     public AtomLinker getFirst() {
         return first;
     }
 
+    /**
+     * Returns the direction of iteration for this iterator as configured
+     * at construction.
+     */
     public IteratorDirective.Direction getDirection() {
         return upListNow ? IteratorDirective.UP : IteratorDirective.DOWN;
     }
@@ -154,7 +206,7 @@ public class AtomIteratorSequence implements AtomIteratorAtomDependent {
     private AtomLinker first;//nonnull
 
     /**
-     * Interface for class the determines the atom linker given an atom to begin
+     * Interface for class that determines an atom linker given an atom to begin
      * iteration.
      */
     public interface AtomToLinker {

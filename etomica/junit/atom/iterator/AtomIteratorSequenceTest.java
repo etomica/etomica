@@ -4,10 +4,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 
+import etomica.Atom;
 import etomica.AtomTreeNodeGroup;
 import etomica.IteratorDirective;
 import etomica.SpeciesAgent;
 import etomica.SpeciesRoot;
+import etomica.action.AtomsetAction;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorSequence;
@@ -60,6 +62,16 @@ public class AtomIteratorSequenceTest extends ListIteratorTest {
         Object[] list0 = listUp0.toArray();
         Object[] list1 = listDn1.toArray();
         assertTrue(Arrays.equals(list0, list1));
+        
+        //check that allAtoms doesn't clobber iteration state
+        //(as documented for this iterator)
+        upIterator.setAtom(list.getFirst());
+        upIterator.reset();
+        for(int i=0; i<nAtoms/2; i++) upIterator.nextAtom();
+        Atom next = (Atom)upIterator.peek();
+        upIterator.allAtoms(AtomsetAction.NULL);
+        assertTrue(upIterator.hasNext());
+        assertEquals(next, upIterator.next());
     }
     
     /**
