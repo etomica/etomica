@@ -39,7 +39,7 @@ public class ActivityIntegrate extends Activity {
 	public void run() {
         integrator.fireNonintervalEvent(new IntegratorNonintervalEvent(integrator, IntegratorNonintervalEvent.START));
 	    integrator.initialize();
-        int stepCount = 0;
+        long stepCount = 0;
         int iieCount = interval;//changed from "interval + 1"
         while(stepCount < maxSteps) {
         	if (Debug.ON && stepCount == Debug.START) Debug.DEBUG_NOW = true;
@@ -122,7 +122,7 @@ public class ActivityIntegrate extends Activity {
      * Accessor method for the number of doStep calls to be
      * performed by this integrator after it is started.
      */
-	public int getMaxSteps() {
+	public long getMaxSteps() {
 		return maxSteps;
 	}
 
@@ -132,7 +132,7 @@ public class ActivityIntegrate extends Activity {
      * be changed while activity is running; if set to a value
      * less than number of steps already executed, integration will end.
      */
-	public void setMaxSteps(int maxSteps) {
+	public void setMaxSteps(long maxSteps) {
 		if(maxSteps < 0) maxSteps = 0;
 		this.maxSteps = maxSteps;
 	}
@@ -165,7 +165,7 @@ public class ActivityIntegrate extends Activity {
 	private boolean resetRequested;
 	private boolean doSleep;
 	private int sleepPeriod;
-	protected int maxSteps = Integer.MAX_VALUE;
+	protected long maxSteps = Long.MAX_VALUE;
 	IntegratorIntervalEvent intervalEvent;
 
 }

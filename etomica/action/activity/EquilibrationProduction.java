@@ -98,7 +98,7 @@ public class EquilibrationProduction extends ActivityGroupSeries {
 	 * @return the number of steps integrator performed during the production
 	 *         period.
 	 */
-	public int getProductionSteps() {
+	public long getProductionSteps() {
 		return productionActivity.getMaxSteps();
 	}
 
@@ -114,7 +114,7 @@ public class EquilibrationProduction extends ActivityGroupSeries {
 	 * @return the number of integrator steps performed during the equilibration
 	 *         period.
 	 */
-	public int getEquilibrationSteps() {
+	public long getEquilibrationSteps() {
 		return equilibrationActivity.getMaxSteps();
 	}
 
