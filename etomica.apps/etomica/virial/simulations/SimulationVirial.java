@@ -24,6 +24,7 @@ import etomica.virial.MCMoveClusterRotateMolecule3D;
 import etomica.virial.MeterVirial;
 import etomica.virial.P0Cluster;
 import etomica.virial.PhaseCluster;
+import etomica.virial.SpeciesFactory;
 
 /**
  * Generic simulation using Mayer sampling to evaluate cluster integrals
