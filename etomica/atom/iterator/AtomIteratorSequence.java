@@ -43,8 +43,6 @@ public class AtomIteratorSequence implements AtomIteratorAtomDependent {
      * @throws IllegalArgumentException
      *             if direction is null
      */
-    //see etomica.nbr.cell.ApiIntraspecies1ACell for non-default use of this
-    // constructor
     public AtomIteratorSequence(IteratorDirective.Direction direction,
             AtomToLinker atomToLinker) {
         if (direction == null)
