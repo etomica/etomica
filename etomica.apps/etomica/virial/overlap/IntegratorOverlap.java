@@ -6,6 +6,7 @@ import etomica.Integrator;
 import etomica.IntegratorIntervalEvent;
 import etomica.PotentialMaster;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorRatioAverage;
 import etomica.utility.Arrays;
 
 /**
@@ -21,7 +22,6 @@ public class IntegratorOverlap extends Integrator {
         setNumSubSteps(1000);
         stepFreq = new double[numIntegrators];
         accumulators = virialAccumulators;
-        errors = new double[numIntegrators];
         intervalEvent = new IntegratorIntervalEvent[numIntegrators];
         totNumSubSteps = new int[numIntegrators];
         for (int i=0; i<numIntegrators; i++) {
@@ -102,7 +102,14 @@ public class IntegratorOverlap extends Integrator {
             else {
                 data = (double[][])accumulators[i].getTranslator().fromArray(accumulators[i].getData(nBennetPoints-minDiffLoc-1));
             }
-            errors[i] = data[AccumulatorAverage.ERROR.index][1] / data[AccumulatorAverage.AVERAGE.index][1];
+            double error = data[AccumulatorRatioAverage.RATIO_ERROR.index][1];
+            if (i==1) {
+                data = (double[][])accumulators[1-i].getTranslator().fromArray(accumulators[1-i].getData(nBennetPoints-minDiffLoc-1));
+            }
+            else {
+                data = (double[][])accumulators[1-i].getTranslator().fromArray(accumulators[1-i].getData(minDiffLoc));
+            }
+            double otherRatio = data[AccumulatorRatioAverage.RATIO.index][1];
 //            System.out.println(i+" errors "+errors[i]);
 //            System.out.print("Bennet "+i+" ");
 //            for (int j=0; j<accumulators[i].getNBennetPoints(); j++) {
@@ -110,13 +117,16 @@ public class IntegratorOverlap extends Integrator {
 //                System.out.print(allData[AccumulatorAverage.ERROR.index][1]/allData[AccumulatorAverage.AVERAGE.index][1]+" ");
 //            }
 //            System.out.print("\n");
-            if (!Double.isNaN(errors[i]) && errors[i] > 0.0) {
-                errors[i] *= errors[i];
+            System.out.println(i+" "+Math.abs(error)+" "+Math.abs(otherRatio));
+            if (!Double.isNaN(error) && !Double.isNaN(otherRatio)) {
+                error *= error;
+                otherRatio *= otherRatio;
             }
             else {
-                errors[i] = 1.0;
+                error = 1.0;
+                otherRatio = 1.0;
             }
-            stepFreq[i] = errors[i]*totNumSubSteps[i] / errors[0];
+            stepFreq[i] = otherRatio*error*totNumSubSteps[i];
             freqTotal += stepFreq[i];
         }
 //        System.out.print("ratio error ");
@@ -132,6 +142,11 @@ public class IntegratorOverlap extends Integrator {
         for (int i=0; i<numIntegrators; i++) {
             stepFreq[i] /= freqTotal;
             System.out.print(stepFreq[i]+" ");
+        }
+        System.out.print("\n");
+        System.out.print("steps ");
+        for (int i=0; i<numIntegrators; i++) {
+            System.out.print((double)totNumSubSteps[i]/(totNumSubSteps[0]+totNumSubSteps[1])+" ");
         }
         System.out.print("\n");
     }
@@ -167,15 +182,25 @@ public class IntegratorOverlap extends Integrator {
     public Object makeAgent(Atom a) {
         return null;
     }
+    
+    public void setEquilibrating(boolean flag) {
+        for (int i=0; i<numIntegrators; i++) {
+            integrators[i].setEquilibrating(flag);
+        }
+    }        
 
+    public void setStepFreq0(double freq) {
+        stepFreq[0] = freq;
+        stepFreq[1] = 1-freq;
+    }
+    
     private int numIntegrators;
     private Integrator[] integrators;
-    private double[] stepFreq;
+    private final double[] stepFreq;
     private int numSubSteps;
     private int[] totNumSubSteps;
     private int minDiffLoc=-1;
     private AccumulatorVirialOverlapSingleAverage[] accumulators;
-    private double[] errors;
     private IntegratorIntervalEvent[] intervalEvent;
     private DataSourceVirialOverlap dsvo;
     private boolean doAdjustStepFreq;
