@@ -24,9 +24,8 @@ import etomica.space.Vector;
 
 public class P1WCAWall extends Potential1 implements PotentialSoft {
 
-    private final int D;
     private final Vector gradient;
-    private double sigma, sigma2;
+    private double sigma;
     private double epsilon;
     private double cutoff;
 
@@ -38,7 +37,6 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
         super(space);
         setSigma(sigma);
         setEpsilon(epsilon);
-        D = space.D();
         gradient = space.makeVector();
     }
 
@@ -108,7 +106,6 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
      */
     public void setSigma(double radius) {
         this.sigma = radius;
-        sigma2 = radius * radius;
         cutoff = radius * Math.pow(2, 1. / 6.);
     }
 

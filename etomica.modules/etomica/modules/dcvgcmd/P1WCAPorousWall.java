@@ -24,7 +24,6 @@ import etomica.space.Vector;
 
 public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
 
-    private final int D;
     private final Vector gradient;
     private double sigma, sigma2;
     private double epsilon;
@@ -41,7 +40,6 @@ public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
         super(space);
         setSigma(sigma);
         setEpsilon(epsilon);
-        D = space.D();
         gradient = space.makeVector();
     }
 
@@ -53,13 +51,12 @@ public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
 
     public double energy(AtomSet atom) {
         Atom a = (Atom) atom;
-        Vector dimensions = boundary.dimensions();
         Vector r = a.coord.position();
         double rz = r.x(2);
         double dz2 = (z - rz);
         dz2 *= dz2;
         if(dz2 > cutoff2 || inPore(r)) return 0.0;
-        else return energy(dz2);
+        return energy(dz2);
     }//end of energy
 
     private double energy(double r2) {
@@ -90,7 +87,6 @@ public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
 
     public Vector gradient(AtomSet atom) {
         Atom a = (Atom) atom;
-        Vector dimensions = boundary.dimensions();
         Vector r = a.coord.position();
         double rz = r.x(2);
         double dz2 = (z - rz);
