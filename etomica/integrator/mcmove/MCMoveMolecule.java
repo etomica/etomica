@@ -4,6 +4,7 @@ import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
+import etomica.space.Vector;
 
 /**
  * Standard Monte Carlo molecule-displacement trial move.
@@ -17,10 +18,14 @@ import etomica.action.AtomGroupAction;
 public class MCMoveMolecule extends MCMoveAtom {
     
     protected final AtomGroupAction moveMoleculeAction;
+    protected final Vector groupTranslationVector;
 
     public MCMoveMolecule(PotentialMaster potentialMaster) {
         super(potentialMaster);
-        moveMoleculeAction = new AtomGroupAction(new AtomActionTranslateBy(potentialMaster.getSpace()));
+        AtomActionTranslateBy translator = new AtomActionTranslateBy(potentialMaster.getSpace());
+        groupTranslationVector = translator.getTranslationVector();
+        moveMoleculeAction = new AtomGroupAction(translator);
+        
         //set directive to exclude intramolecular contributions to the energy
 
         //TODO enable meter to do this
@@ -40,15 +45,15 @@ public class MCMoveMolecule extends MCMoveAtom {
 
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar(phase);
-        translationVector.setRandomCube();
-        translationVector.TE(stepSize);
+        groupTranslationVector.setRandomCube();
+        groupTranslationVector.TE(stepSize);
         moveMoleculeAction.actionPerformed(atom);
         uNew = Double.NaN;
         return true;
     }//end of doTrial
     
     public void rejectNotify() {
-        translationVector.TE(-1);
+        groupTranslationVector.TE(-1);
         moveMoleculeAction.actionPerformed(atom);
     }
         
