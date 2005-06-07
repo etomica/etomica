@@ -29,11 +29,11 @@ public class MeterVirialB3 extends MeterVirial {
 	}
 	
 	public static double B3HS(double sigma) {
-		return etomica.virial.cluster.Standard.C3HS(sigma);
+		return etomica.virial.cluster.Standard.B3HS(sigma);
 	}
 	
 	public static Cluster[] B3Clusters(Potential2 potential) {
-		return new Cluster[] {new Ring(3, -1./3., new MayerGeneral(potential))};
+		return new Cluster[] {new Ring(3, new MayerGeneralSpherical(potential))};
 	}
 
 }

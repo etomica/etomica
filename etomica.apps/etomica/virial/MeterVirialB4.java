@@ -28,7 +28,7 @@ public class MeterVirialB4 extends MeterVirial {
 	}
 	
 	public static Cluster[] B4Clusters(Potential2 potential) {
-		MayerFunction f = new MayerGeneral(potential);
+		MayerFunctionSpherical f = new MayerGeneralSpherical(potential);
 		Cluster c1 = new ReeHoover(4, 3.0, new Cluster.BondGroup(f, Standard.D4));
 		Cluster c2 = new Cluster(4, -2.0, new Cluster.BondGroup(f, Standard.D6));
 		return new Cluster[] {c1, c2};

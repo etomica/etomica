@@ -1,8 +1,9 @@
 package etomica.virial;
 
-import etomica.Phase;
-import etomica.data.meter.MeterScalar;
+import etomica.MeterScalar;
+import etomica.SimulationElement;
 import etomica.units.Dimension;
+import etomica.Phase;
 
 /**
  * @author kofke
@@ -27,10 +28,10 @@ public class MeterSign extends MeterScalar {
 	}
 
 	/**
-	 * @see etomica.data.meter.MeterScalar#getData()
+	 * @see etomica.MeterScalar#getData()
 	 */
 	public double getDataAsScalar(Phase p) {
-		return (cluster.value(((PhaseCluster)p).getPairSet().resetPairs(), beta)>0) ? +1.0 : -1.0;
+		return (cluster.value(((PhaseCluster)p).getPairSet(), beta)>0) ? +1.0 : -1.0;
 	}
 
 	/**

@@ -29,10 +29,10 @@ public class MeterCluster extends MeterScalar {
 	}
 
 	/**
-	 * @see etomica.data.meter.MeterScalar#getData()
+	 * @see etomica.MeterScalar#getData()
 	 */
 	public double getDataAsScalar(Phase p) {
-		return cluster.value(((PhaseCluster)p).getPairSet().resetPairs(), beta);
+		return cluster.value(((PhaseCluster)p).getCPairSet(), beta);
 	}
 
 	/**
@@ -74,5 +74,4 @@ public class MeterCluster extends MeterScalar {
 		this.temperature = temperature;
 		beta = 1.0/temperature;
 	}
-
 }

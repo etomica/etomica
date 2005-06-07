@@ -45,11 +45,11 @@ public class MeterVirialAbs extends MeterGroup implements DatumSource {
 	}
 
 	/**
-	 * @see etomica.data.meter.MeterGroup#updateValues()
+	 * @see etomica.MeterGroup#updateValues()
 	 */
 	public void updateValues() {
 		double pi = simulationPotential.pi((PhaseCluster)phase);
-		PairSet pairSet = ((PhaseCluster)phase).getPairSet().resetPairs();//resetPairs not needed if can be sure it is done in potential.pi method call
+		PairSet pairSet = ((PhaseCluster)phase).getPairSet();//resetPairs not needed if can be sure it is done in potential.pi method call
 		currentValues[0] = refCluster.value(pairSet, refBeta)/pi;
 		currentValues[1] = simulationPotential.mostRecentIsPositive() ? +1 : -1;
 	}
