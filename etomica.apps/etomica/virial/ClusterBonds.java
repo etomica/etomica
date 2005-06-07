@@ -198,31 +198,6 @@ public class ClusterBonds {
 	private int nPermutations; //permutations.length
 	private double rPermutations; //reciprocal of nPermutations
 	
-	/**
-	 * Checks for equality of this cluster with another.  Returns true if they
-	 * have the same number of points, and if all bonds between
-	 * pairs are equal.  Not a test of topological equality (i.e., equality
-	 * without considering labels or indexes of points); each point is
-	 * considered labeled and clusters must have corresponding bonds between
-	 * pairs to return true.
-	 */
-//	public boolean equals(Object obj) {
-//		if(super.equals(obj)) return true;//return true if this is the same instance as the test cluster
-//		if(!(obj instanceof Cluster)) return false;
-//		Cluster test = (Cluster)obj;
-//		if(this.nPoints != test.nPoints) return false;
-//		for(int i=0; i<nPoints-1; i++) {
-//			for(int j=i+1; j<nPoints; j++) {
-//				MayerFunction thisBond = this.bondArray[i][j];
-//				MayerFunction testBond = test.bondArray[i][j];
-//				if((thisBond==null) ? (testBond==null) : thisBond.equals(testBond)) continue;//both bonds are null, or they're equal; keep going
-//				return false; //mismatch found
-//			}
-//		}
-//		return true;
-//		//could use java.util.Arrays.equals to test bondArray equality
-//	}
-	
 	private void makePermutations() {
 		java.util.LinkedList pList = new java.util.LinkedList();//permutations giving unique arrays
 		java.util.LinkedList aList = new java.util.LinkedList();//unique permuted arrays

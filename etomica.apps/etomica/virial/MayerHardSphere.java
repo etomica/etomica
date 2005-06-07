@@ -1,6 +1,7 @@
 package etomica.virial;
 
 import etomica.Default;
+import etomica.Space;
 import etomica.space.CoordinatePair;
 
 /**
@@ -8,21 +9,22 @@ import etomica.space.CoordinatePair;
  *
  * Hard-sphere Mayer function.  -1 if r < sigma; 0 otherwise
  */
-public class MayerHardSphere implements MayerFunction {
+public class MayerHardSphere extends MayerFunctionSpherical {
 
 	private double sigma, sigma2;
 	/**
 	 * Constructor for MayerHardSphere.
 	 */
-	public MayerHardSphere() {
-		this(Default.ATOM_SIZE);
+	public MayerHardSphere(Space space) {
+		this(space, Default.ATOM_SIZE);
 	}
-	public MayerHardSphere(double sigma) {
+	public MayerHardSphere(Space space, double sigma) {
+        super(space);
 		setSigma(sigma);
 	}
 
 	/**
-	 * @see etomica.virial.MayerFunction#f(etomica.AtomPair)
+	 * @see etomica.virial.MayerFunctionSpherical#f(etomica.AtomPair)
 	 */
 	public double f(CoordinatePair cPair, double beta) {
 		return (cPair.r2()<sigma2) ? -1.0 : 0.0;

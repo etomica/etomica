@@ -33,8 +33,8 @@ public class ClusterWeightAbs implements ClusterWeight {
 		return weightCluster.pointCount();
 	}
 	
-	public double value(CoordinatePairSet cPairSet, double beta) {
-		return Math.abs(weightCluster.value(cPairSet, beta));
+	public double value(CoordinatePairSet cPairSet, AtomPairSet aPairSet, double beta) {
+		return Math.abs(weightCluster.value(cPairSet, aPairSet, beta));
 	}
 	
 }

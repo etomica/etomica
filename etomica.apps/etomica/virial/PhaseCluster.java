@@ -1,7 +1,9 @@
 package etomica.virial;
 
+import etomica.AtomTreeNodeGroup;
 import etomica.Phase;
 import etomica.Simulation;
+import etomica.atom.AtomList;
 import etomica.space.BoundaryRectangularNonperiodic;
 
 /**
@@ -33,6 +35,10 @@ public class PhaseCluster extends Phase {
 		return isTrial ? cPairTrialSet : cPairSet;
 	}
     
+    public AtomPairSet getAPairSet() {
+        return aPairSet;
+    }
+    
 	/**
      * returns the cluster used for sampling in this phase
 	 */
@@ -50,8 +56,11 @@ public class PhaseCluster extends Phase {
 		isTrial = true;
 		// increase ID to notify clusters to recalculate value
         if(cPairSet == null) {
-            cPairSet = new CoordinatePairSet(speciesMaster.atomList,space);
-            cPairTrialSet = new CoordinatePairSet(speciesMaster.atomList,space);
+            // assume 1 species
+            AtomList molecules = ((AtomTreeNodeGroup)speciesMaster.node.childList.getFirst().node).childList;
+            cPairSet = new CoordinatePairSet(molecules,space);
+            cPairTrialSet = new CoordinatePairSet(molecules,space);
+            aPairSet = new AtomPairSet(molecules);
         }
 		cPairTrialSet.reset();
 	}
@@ -80,5 +89,6 @@ public class PhaseCluster extends Phase {
 	
 	private boolean isTrial;
 	private CoordinatePairSet cPairSet, cPairTrialSet, cPairSetTmp;
+    private AtomPairSet aPairSet;
 	private final ClusterWeight sampleCluster;
 }

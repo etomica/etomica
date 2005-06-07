@@ -38,14 +38,16 @@ public class MeterVirial extends MeterArray {
      */
     public void setSampleCluster(ClusterWeight sampleCluster) {
         CoordinatePairSet cPairSet = ((PhaseCluster)phase[0]).getCPairSet();
-        weightFactor = sampleCluster.value(cPairSet,beta) / integrator.getWeight();
+        AtomPairSet aPairSet = ((PhaseCluster)phase[0]).getAPairSet();
+        weightFactor = sampleCluster.value(cPairSet,aPairSet,beta) / integrator.getWeight();
     }
     
 	public double[] getDataAsArray(Phase p) {
 		CoordinatePairSet cPairSet = ((PhaseCluster)p).getCPairSet();
+        AtomPairSet aPairSet = ((PhaseCluster)p).getAPairSet();
 		double w = weightFactor * integrator.getWeight();
 		for (int i=0; i<clusters.length; i++) {
-			phaseData[i] = clusters[i].value(cPairSet,beta)/w;
+			phaseData[i] = clusters[i].value(cPairSet,aPairSet,beta)/w;
 		}
 		return phaseData;
 	}

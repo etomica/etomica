@@ -25,10 +25,10 @@ public class ClusterWeightUmbrella implements ClusterWeight {
 		return clusterArray[0].pointCount();
 	}
 
-	public double value(CoordinatePairSet cPairSet, double beta) {
+	public double value(CoordinatePairSet cPairSet, AtomPairSet aPairSet, double beta) {
 		double sum = 0.0;
 		for (int i=0; i<clusterArray.length; i++) {
-			double v = clusterArray[i].value(cPairSet,beta);
+			double v = clusterArray[i].value(cPairSet,aPairSet,beta);
 			sum += v*v*weightRatio[i];
 		}
 		return Math.sqrt(sum);

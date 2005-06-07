@@ -1,6 +1,7 @@
 package etomica.virial;
 
 import etomica.Default;
+import etomica.Space;
 import etomica.potential.Potential2Spherical;
 import etomica.space.CoordinatePair;
 
@@ -10,21 +11,22 @@ import etomica.space.CoordinatePair;
  * A Mayer function that returns abs(f) or, when separation is less than a
  * specified amount (sigma), max (abs (f), 1.0).  Suitable for MC sampling.
  */
-public class MayerModified implements MayerFunction {
+public class MayerModified extends MayerFunctionSpherical {
 
 	/**
 	 * Constructor for MayerModified.
 	 */
-	public MayerModified(Potential2Spherical potential) {
-		this(potential, Default.ATOM_SIZE);
+	public MayerModified(Space space, Potential2Spherical potential) {
+		this(space, potential, Default.ATOM_SIZE);
 	}
-	public MayerModified(Potential2Spherical potential, double sigma) {
+	public MayerModified(Space space, Potential2Spherical potential, double sigma) {
+        super(space);
 		this.potential = potential;
 		setSigma(sigma);
 	}
 
 	/**
-	 * @see etomica.virial.MayerFunction#f(etomica.AtomPair, double)
+	 * @see etomica.virial.MayerFunctionSpherical#f(etomica.AtomPair, double)
 	 */
 	public double f(CoordinatePair cPair, double beta) {
 		// FIXME: this calculates distance twice

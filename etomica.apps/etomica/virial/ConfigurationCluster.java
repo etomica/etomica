@@ -3,7 +3,9 @@ package etomica.virial;
 import etomica.Atom;
 import etomica.Configuration;
 import etomica.Space;
+import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomList;
+import etomica.atom.AtomPositionFirstAtom;
 import etomica.atom.iterator.AtomIteratorListCompound;
 import etomica.space.Vector;
 
@@ -34,9 +36,14 @@ public class ConfigurationCluster extends Configuration {
 		iterator.setLists(lists);
 		iterator.reset();
         if (!iterator.hasNext()) return;
-		while(iterator.hasNext()) iterator.nextAtom().coord.position().E(center);//put all at center of box
+        AtomActionTranslateTo translator = new AtomActionTranslateTo(space);
+        translator.setDestination(center);
+        translator.setAtomPositionDefinition(new AtomPositionFirstAtom());
+		while(iterator.hasNext()) { 
+            translator.actionPerformed(iterator.nextAtom()); //.coord.position().E(center);//put all at center of box
+        }
         phase.trialNotify();
-		double value = phase.getSampleCluster().value(phase.getCPairSet(), 1.0);
+		double value = phase.getSampleCluster().value(phase.getCPairSet(), phase.getAPairSet(), 1.0);
         if (value == 0) {
             System.out.println("initial cluster value bad... trying to fix it.  don't hold your breath.");
         }
@@ -48,10 +55,10 @@ public class ConfigurationCluster extends Configuration {
                 translationVector.setRandomCube();
                 translationVector.TE(dimVector);
                 Atom a = iterator.nextAtom();
-                a.coord.position().PE(translationVector);
-//                System.out.println("moved "+a+" to "+a.coord.position());
+                translator.setDestination(translationVector);
+                translator.actionPerformed(a);
 			}
-			value = phase.getSampleCluster().value(phase.getCPairSet(),1.0);
+			value = phase.getSampleCluster().value(phase.getCPairSet(),phase.getAPairSet(),1.0);
             if (value != 0) {
                 System.out.println("that wasn't so bad.");
             }

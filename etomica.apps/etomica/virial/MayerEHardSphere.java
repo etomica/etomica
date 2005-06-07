@@ -1,5 +1,6 @@
 package etomica.virial;
 
+import etomica.Space;
 import etomica.space.CoordinatePair;
 
 /**
@@ -7,7 +8,7 @@ import etomica.space.CoordinatePair;
  *
  * The e-function for hard spheres, returning 0 for r<sigma, 1 otherwise.
  */
-public class MayerEHardSphere extends MayerE {
+public class MayerEHardSphere extends MayerESpherical {
 
 	private double sigma, sigma2;
 
@@ -15,12 +16,12 @@ public class MayerEHardSphere extends MayerE {
 	 * Constructor for MayerEHardSphere.
 	 * @param potential
 	 */
-	public MayerEHardSphere() {
-		this(1.0);
+	public MayerEHardSphere(Space space) {
+		this(space,1.0);
 	}
 	
-	public MayerEHardSphere(double sigma) {
-		super(null);
+	public MayerEHardSphere(Space space, double sigma) {
+		super(space,null);
 		setSigma(sigma);
 	}
 

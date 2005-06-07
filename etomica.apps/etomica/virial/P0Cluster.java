@@ -31,7 +31,8 @@ public class P0Cluster extends Potential0 {
 	}
 	
 	public double weight() {
-		return phaseCluster.getSampleCluster().value(phaseCluster.getCPairSet(), 1/temperature);
+//        System.out.println("w "+phaseCluster.getSampleCluster().value(phaseCluster.getCPairSet(), phaseCluster.getAPairSet(), 1/temperature));
+		return phaseCluster.getSampleCluster().value(phaseCluster.getCPairSet(), phaseCluster.getAPairSet(), 1/temperature);
 	}
 
     public void setPhase(Phase phase) {
@@ -46,7 +47,8 @@ public class P0Cluster extends Potential0 {
      * @deprecated use weight()
      */
     public double energy(AtomSet atoms) {
-		double w = phaseCluster.getSampleCluster().value(phaseCluster.getCPairSet(), 1/temperature);
+		double w = phaseCluster.getSampleCluster().value(
+                phaseCluster.getCPairSet(), phaseCluster.getAPairSet(), 1/temperature);
 		if (w == 0) return Double.POSITIVE_INFINITY;
 		return -Math.log(w)*temperature;
     }

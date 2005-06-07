@@ -1,0 +1,32 @@
+package etomica.virial;
+
+import etomica.AtomPair;
+import etomica.AtomSet;
+import etomica.Space;
+import etomica.space.CoordinatePair;
+
+/**
+ * @author kofke
+ *
+ * Abstract class for a Mayer f-function, which takes a pair of atoms and
+ * returns exp(-u(pair)/kT) - 1
+ */
+public abstract class MayerFunctionSpherical implements MayerFunction {
+
+    public MayerFunctionSpherical(Space space) {
+        coordPair = space.makeCoordinatePair();
+    }
+
+    /**
+     * returns Mayer function between atoms in the pair at temperature
+     * 1/beta
+     */
+    public abstract double f(CoordinatePair cPair, double beta);
+
+    public double f(AtomSet pair, double beta) {
+        coordPair.reset((AtomPair)pair);
+        return f(coordPair,beta);
+    }
+
+    private final CoordinatePair coordPair;
+}

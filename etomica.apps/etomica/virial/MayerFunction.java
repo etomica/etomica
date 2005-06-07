@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.space.CoordinatePair;
+import etomica.AtomSet;
 
 /**
  * @author kofke
@@ -14,6 +14,6 @@ public interface MayerFunction {
      * returns Mayer function between atoms in the pair at temperature
      * 1/beta
      */
-	public abstract double f(CoordinatePair cPair, double beta);
+	public abstract double f(AtomSet pair, double beta);
 	
 }

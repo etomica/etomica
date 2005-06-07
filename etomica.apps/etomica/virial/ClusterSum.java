@@ -3,28 +3,28 @@ package etomica.virial;
 
 public class ClusterSum implements ClusterAbstract {
 
-	/**
-	 * Constructor for ClusterSum.
-	 */
-	public ClusterSum(ClusterBonds[] subClusters, double[] subClusterWeights, MayerFunction[] fArray) {
+    /**
+     * Constructor for ClusterSum.
+     */
+    public ClusterSum(ClusterBonds[] subClusters, double[] subClusterWeights, MayerFunction[] fArray) {
         if (subClusterWeights.length != subClusters.length) throw new IllegalArgumentException("number of clusters and weights must be the same");
-		clusters = new ClusterBonds[subClusters.length];
+        clusters = new ClusterBonds[subClusters.length];
         clusterWeights = subClusterWeights;
         int pointCount = subClusters[0].pointCount();
-		for(int i=0; i<clusters.length; i++) {
-			clusters[i] = subClusters[i];
-			if(clusters[i].pointCount() != pointCount) throw new IllegalArgumentException("Attempt to construct ClusterSum with clusters having differing numbers of points");
-		}
+        for(int i=0; i<clusters.length; i++) {
+            clusters[i] = subClusters[i];
+            if(clusters[i].pointCount() != pointCount) throw new IllegalArgumentException("Attempt to construct ClusterSum with clusters having differing numbers of points");
+        }
         f = fArray;
         fValues = new double[pointCount][pointCount][fArray.length];
-	}
+    }
 
-	// equal point count enforced in constructor 
-	public int pointCount() {
-		return clusters[0].pointCount();
-	}
+    // equal point count enforced in constructor 
+    public int pointCount() {
+        return clusters[0].pointCount();
+    }
 
-	public double value(CoordinatePairSet cPairs, double beta) {
+    public double value(CoordinatePairSet cPairs, AtomPairSet aPairs, double beta) {
         int thisCPairID = cPairs.getID();
 //        System.out.println(thisCPairID+" "+cPairID+" "+lastCPairID+" "+value+" "+lastValue+" "+f[0].getClass());
         if (thisCPairID == cPairID) return value;
@@ -46,26 +46,28 @@ public class ClusterSum implements ClusterAbstract {
         for(int i=0; i<nPoints-1; i++) {
             for(int j=i+1; j<nPoints; j++) {
                 for(int k=0; k<f.length; k++) {
-                    fValues[i][j][k] = f[k].f(cPairs.getCPair(i,j),beta);
+                    if (f[k] instanceof MayerFunctionSpherical) {
+                        fValues[i][j][k] = ((MayerFunctionSpherical)f[k]).f(cPairs.getCPair(i,j),beta);
+                    }
+                    else {
+                        fValues[i][j][k] = f[k].f(aPairs.getAPair(i,j),beta);
+                    }
                     fValues[j][i][k] = fValues[i][j][k];
                 }
             }
         }
 
-		value = 0.0;
-		for(int i=0; i<clusters.length; i++) {
+        value = 0.0;
+        for(int i=0; i<clusters.length; i++) {
             double v = clusters[i].value(fValues);
-//            System.out.println("in cs.v "+clusterWeights[i]+" "+v);
             value += clusterWeights[i] * v;
-//			value += clusterWeights[i] * clusters[i].value(fValues);
-		}
-//        System.out.println(value);
-		return value;
-	}
-	
-	public ClusterBonds[] cluster() {return clusters;}
+        }
+        return value;
+    }
+    
+    public ClusterBonds[] cluster() {return clusters;}
 
-	private final ClusterBonds[] clusters;
+    private final ClusterBonds[] clusters;
     private final double[] clusterWeights;
     private final MayerFunction[] f;
     private final double[][][] fValues;
