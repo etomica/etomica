@@ -67,16 +67,20 @@ public class UnitTest {
         Species species0 = null;
         Species species1 = null;
         Species species2 = null;
+        int nPhase = 0;
         if (n0 != null) {
             species0 = new SpeciesSpheres(sim, nA0);
+            nPhase = n0.length;
         }
         if (n1 != null) {
             species1 = new SpeciesSpheresMono(sim);
+            nPhase = n1.length;
         }
         if (n2 != null) {
             species2 = new SpeciesTree(sim, n2Tree);
+            nPhase = n2.length;
         }
-        for (int i = 0; i < n0.length; i++) {
+        for (int i = 0; i < nPhase; i++) {
             Phase phase = new Phase(sim);
             if (species0 != null)
                 phase.getAgent(species0).setNMolecules(n0[i]);
