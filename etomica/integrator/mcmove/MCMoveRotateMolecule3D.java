@@ -17,15 +17,15 @@ import etomica.space3d.Vector3D;
 public class MCMoveRotateMolecule3D extends MCMove {
     
     private final MeterPotentialEnergy energyMeter;
-    private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
+    protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     
-    private final AtomIteratorTree leafAtomIterator = new AtomIteratorTree();
+    protected final AtomIteratorTree leafAtomIterator = new AtomIteratorTree();
     
-    private transient double uOld;
-    private transient double uNew = Double.NaN;
-    private transient Atom molecule;
-    private transient Vector3D r0;
-    private transient RotationTensor rotationTensor;
+    protected transient double uOld;
+    protected transient double uNew = Double.NaN;
+    protected transient Atom molecule;
+    protected transient Vector3D r0;
+    protected transient RotationTensor rotationTensor;
     public int count;
     public int count1;
     public boolean flag = false;
@@ -87,15 +87,15 @@ public class MCMoveRotateMolecule3D extends MCMove {
     public void rejectNotify() {
         leafAtomIterator.reset();
         
-          rotationTensor.invert();
-          leafAtomIterator.reset();
-          AtomActionTransform.doAction(leafAtomIterator, r0, rotationTensor);
+        rotationTensor.invert();
+        leafAtomIterator.reset();
+        AtomActionTransform.doAction(leafAtomIterator, r0, rotationTensor);
         
     }//end of rejectNotify
     
     public double energyChange(Phase phase) {
         if(this.phases[0] != phase) return 0.0;
-        else return uNew - uOld;
+        return uNew - uOld;
     }
 
  
