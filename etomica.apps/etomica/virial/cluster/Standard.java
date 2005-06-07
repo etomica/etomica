@@ -125,7 +125,12 @@ public final class Standard {
         do {
             int iBond = 0, iEBond = 0;
             int numBonds = clusterD.getNumConnections();
-            int[][][] bondList = new int[nBondTypes][numBonds][2];
+            int[][][] bondList = new int[nBondTypes][][];
+            bondList[0] = new int[numBonds][2];
+            if (nBondTypes == 2) {
+                int totalBonds = nBody*(nBody-1)/2;
+                bondList[1] = new int[totalBonds-numBonds][2];
+            }
             for (int i = 0; i < nBody; i++) {
                 int lastBond = i;
                 int[] iConnections = clusterD.mConnections[i];
@@ -179,16 +184,26 @@ public final class Standard {
 	public static double B2HS(double sigma) {
 		return 2.0*Math.PI/3.0 * sigma*sigma*sigma;
 	}
-	public static double C3HS(double sigma) {
+	public static double B3HS(double sigma) {
 		double b0 = B2HS(sigma);
 		return 5./8. * b0 * b0;
 	}
     
-    public static double D4HS(double sigma) {
+    public static double B4HS(double sigma) {
         double b0 = B2HS(sigma);
         return (219.0*Math.sqrt(2.0)/2240.0/Math.PI-89.0/280.0+4131.0/2240.0/Math.PI*Math.atan(Math.sqrt(2.0)))*b0*b0*b0;
     }
 	
+    public static double B5HS(double sigma) {
+        double b0 = B2HS(sigma);
+        return 0.110252*b0*b0*b0*b0;
+    }
+    
+    public static double B6HS(double sigma) {
+        double b0 = B2HS(sigma);
+        return 0.03881*b0*b0*b0*b0*b0;
+    }
+    
 //	public static Cluster[] B6Clusters(MayerFunction f) {
 //
 //		int[][] FRH1 = new int[][] {{0,1},{0,2},{0,4},{0,5},{1,2},{1,3},{1,5}
