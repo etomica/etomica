@@ -87,7 +87,7 @@ public class PotentialMasterSite extends PotentialMaster {
     public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
 		if(!enabled) return;
     	AtomSet targetAtoms = id.getTargetAtoms();
-    	if (targetAtoms == null) {
+    	if (targetAtoms.count() == 0) {
     		//no target atoms specified -- do one-target algorithm to SpeciesMaster
             neighborIterator.setPhase(phase);
             neighborIterator.setDirection(IteratorDirective.UP);
