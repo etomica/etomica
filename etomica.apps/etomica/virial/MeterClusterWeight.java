@@ -21,10 +21,11 @@ public class MeterClusterWeight extends MeterScalar {
     
     public double getDataAsScalar(Phase p) {
     	weight.reset();
-    	potential.calculate(p, new IteratorDirective(), weight);
+    	potential.calculate(p, up, weight);
     	return weight.sum();
     }
 
     private final PotentialMaster potential;
     private final PotentialCalculationClusterWeightSum weight = new PotentialCalculationClusterWeightSum();
+    private final IteratorDirective up = new IteratorDirective();
 }
