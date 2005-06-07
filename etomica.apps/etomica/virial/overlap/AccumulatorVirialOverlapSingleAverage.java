@@ -39,7 +39,7 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
 		if (aSpan <= 0.0) throw new IllegalArgumentException("aSpan must be positive");
 		for (int i=0; i<nBennetPoints; i++) {
 			expX[i] = Math.exp(2.0*aSpan*(double)(i-(nBennetPoints-1)/2)/(double)(nBennetPoints-1))*aCenter;
-            System.out.println("bennet param "+i+" "+expX[i]);
+//            System.out.println("bennet param "+i+" "+expX[i]);
 		}
 	}
 
