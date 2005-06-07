@@ -25,9 +25,9 @@ import etomica.virial.ConfigurationCluster;
 import etomica.virial.IntegratorClusterMC;
 import etomica.virial.MCMoveClusterAtom;
 import etomica.virial.MCMoveClusterAtomMulti;
-import etomica.virial.MayerE;
+import etomica.virial.MayerESpherical;
 import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerGeneral;
+import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.MeterVirial;
 import etomica.virial.P0Cluster;
@@ -75,13 +75,25 @@ public class SimulationVirialOverlap extends Simulation {
             integrators[iPhase] = new IntegratorClusterMC(potentialMaster);
             integrators[iPhase].setTemperature(temperature);
             integrators[iPhase].addPhase(phase[iPhase]);
-            integrators[iPhase].setEquilibrating(true);
+            integrators[iPhase].setEquilibrating(false);
             MCMoveAtom mcMoveAtom1 = new MCMoveClusterAtom(potentialMaster);
-            mcMoveAtom1.setStepSize(1.495);
+            if (iPhase == 0) {
+                mcMoveAtom1.setStepSize(0.764);
+            }
+            else {
+                mcMoveAtom1.setStepSize(1.146);
+            }
+//            mcMoveAtom1.setStepSize(1.495);
             integrators[iPhase].addMCMove(mcMoveAtom1);
             if (nMolecules>2) {
                 MCMoveClusterAtomMulti multiMove = new MCMoveClusterAtomMulti(potentialMaster, nMolecules-1);
-                multiMove.setStepSize(0.951);
+                if (iPhase == 0) {
+                    multiMove.setStepSize(0.261);
+                }
+                else {
+                    multiMove.setStepSize(0.41);
+                }
+//                multiMove.setStepSize(0.951);
                 integrators[iPhase].addMCMove(multiMove);
             }
             ConfigurationCluster configuration = new ConfigurationCluster(space);
@@ -103,7 +115,7 @@ public class SimulationVirialOverlap extends Simulation {
         
         integratorOS = new IntegratorOverlap(potentialMaster, integrators, accumulators);
         integratorOS.setNumSubSteps(Default.BLOCK_SIZE);
-        integratorOS.setAdjustStepFreq(true);
+        integratorOS.setAdjustStepFreq(false);
         ai = new ActivityIntegrate(integratorOS);
         ai.setInterval(1);
         getController().addAction(ai);
@@ -164,7 +176,8 @@ public class SimulationVirialOverlap extends Simulation {
 		int nPoints = 5;
 		double temperature = 1.3; //temperature governing sampling of configurations
 //		double sigmaHSRef = 1.2*sigmaLJ1B(1.0/temperature);  //diameter of reference HS system
-		double sigmaHSRef = 1.0;
+		double sigmaHSRef = 1.6;
+        double sigmaLJ = 1.0;
 		double b0 = 2*Math.PI/3. * Math.pow(sigmaHSRef,3);
 		Default.ATOM_SIZE = 1.0;
 		System.out.println("sigmaHSRef: "+sigmaHSRef);
@@ -173,24 +186,27 @@ public class SimulationVirialOverlap extends Simulation {
 		System.out.println("B4HS: "+(b0*b0*b0*(219.0*Math.sqrt(2.0)/2240.0/Math.PI-89.0/280.0+4131.0/2240.0/Math.PI*Math.atan(Math.sqrt(2.0))))+" = "
 				+(219.0*Math.sqrt(2.0)/2240.0/Math.PI-89.0/280.0+4131.0/2240.0/Math.PI*Math.atan(Math.sqrt(2.0)))+" B2HS^3");
 		
-		MayerHardSphere fRef = new MayerHardSphere(1.0);
-        MayerEHardSphere eRef = new MayerEHardSphere(1.0);
-		Space3D space = new Space3D();
-        P2LennardJones p2LJ = new P2LennardJones(space,1.0,1.0);
-		MayerGeneral fTarget = new MayerGeneral(p2LJ);
-        MayerE eTarget = new MayerE(p2LJ);
+        Space3D space = new Space3D();
+		MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
+        MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);
+        P2LennardJones p2LJ = new P2LennardJones(space,sigmaLJ,1.0);
+		MayerGeneralSpherical fTarget = new MayerGeneralSpherical(space,p2LJ);
+        MayerESpherical eTarget = new MayerESpherical(space,p2LJ);
 		
-        ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef,true,eRef);
-        ClusterAbstract targetCluster = Standard.virialCluster(nPoints, fTarget,true,eTarget);
+        ClusterAbstract refCluster = Standard.virialCluster(nPoints,fRef,true,eRef);
+        ClusterAbstract targetCluster = Standard.virialCluster(nPoints,fTarget,true,eTarget);
 
-		int maxSteps = 100;
+		int maxSteps = 100000;
 		
-        Default.BLOCK_SIZE = 1000000;
-		while (true) {
-			SimulationVirialOverlap sim = new SimulationVirialOverlap(new Space3D(), temperature, refCluster, targetCluster);
+        Default.BLOCK_SIZE = 1000;
+//		while (true) {
+			SimulationVirialOverlap sim = new SimulationVirialOverlap(space, temperature, refCluster, targetCluster);
 			sim.ai.setMaxSteps(maxSteps);
+//            sim.integratorOS.setEquilibrating(true);
+//            sim.integratorOS.setAdjustStepFreq(true);
+            sim.integratorOS.setStepFreq0(0.0001);
 			sim.ai.actionPerformed();
-			System.out.println("average: "+sim.dsvo.getData()[0]+", error="+sim.dsvo.getError());
+			System.out.println("average: "+sim.dsvo.getData()[0]+", error: "+sim.dsvo.getError());
             double[][] allYourBase = (double[][])sim.accumulators[0].getTranslator().fromArray(sim.accumulators[0].getData(sim.dsvo.minDiffLocation()));
             System.out.println("hard sphere ratio average: "+allYourBase[AccumulatorRatioAverage.RATIO.index][1]
                               +" error: "+allYourBase[AccumulatorRatioAverage.RATIO_ERROR.index][1]);
@@ -209,7 +225,7 @@ public class SimulationVirialOverlap extends Simulation {
             System.out.println("lennard jones overlap average: "+allYourBase[AccumulatorAverage.AVERAGE.index][1]
                               +" stdev: "+allYourBase[AccumulatorAverage.STANDARD_DEVIATION.index][1]
                               +" error: "+allYourBase[AccumulatorAverage.ERROR.index][1]);
-		}
+//		}
 		
 	}//end of main
 }
