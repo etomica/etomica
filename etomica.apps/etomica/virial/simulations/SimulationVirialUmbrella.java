@@ -22,7 +22,7 @@ import etomica.virial.cluster.Standard;
 public class SimulationVirialUmbrella extends SimulationVirial {
 
 	public SimulationVirialUmbrella(Space aSpace, double temperature, ClusterSum refCluster, ClusterSum[] targetClusters) {
-		super(aSpace,new SpeciesFactorySpheres(),temperature,makeUmbrellaCluster(refCluster,targetClusters),refCluster,targetClusters);
+		this(aSpace,new SpeciesFactorySpheres(),temperature,refCluster,targetClusters);
 	}
 	
     public SimulationVirialUmbrella(Space aSpace, SpeciesFactory speciesFactory, double temperature, ClusterSum refCluster, ClusterSum[] targetClusters) {
