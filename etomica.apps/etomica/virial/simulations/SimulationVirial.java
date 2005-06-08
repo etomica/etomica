@@ -58,7 +58,7 @@ public class SimulationVirial extends Simulation {
             if (nMolecules>2) {
                 mcMoveMulti = new MCMoveClusterAtomMulti(potentialMaster, nMolecules-1);
                 mcMoveMulti.setStepSize(0.41);
-                integrator.addMCMove(mcMoveRotate);
+                integrator.addMCMove(mcMoveMulti);
             }
         }
         else {
