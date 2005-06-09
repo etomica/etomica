@@ -9,6 +9,8 @@
 //http://www.sgi.com/software/opengl/advanced97/notes/node196.html#stencilsection
 //http://ask.ii.uib.no/ebt-bin/nph-dweb/dynaweb/SGI_Developer/OpenGL_RM
 package etomica.graphics;
+import java.awt.Color;
+
 import etomica.Atom;
 import etomica.Phase;
 import etomica.atom.AtomFilter;
@@ -91,13 +93,8 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   private double[][] shellOrigins;
 
   //Local function variables (primarily used in display(), drawDisplay(), and drawBoundary())
-  private float xCent, yCent, zCent;
   private java.awt.Color lastColor;
   private long T0 = 0, Frames = 0;
-  private java.awt.Color c;
-  private etomica.Atom a;
-  private Vector r;
-  private int i, j, k;
   private float drawExpansionShiftX = 0f, drawExpansionShiftY = 0f, drawExpansionShiftZ = 0f;
   //private TextField scaleText = new TextField();
   //private Font font = new Font("sansserif", Font.PLAIN, 10);
@@ -157,7 +154,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     }//end DAK
     
     //Set the background clear color
-    c = getBackground();
+    Color c = getBackground();
     gl.glClearColor((float)c.getRed()/255f, (float)c.getGreen()/255f, (float)c.getBlue()/255f, (float)c.getAlpha()/255f);
 
     //Enables Clearing Of The Depth Buffer
@@ -224,7 +221,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     wellList = new int[DRAW_QUALITY_MAX];
     sphereList[0] = gl.glGenLists(11);
     wellList[0] = sphereList[0] + 1;
-    for(j = 1; j < DRAW_QUALITY_MAX; j++) {
+    for(int j = 1; j < DRAW_QUALITY_MAX; j++) {
       sphereList[j] = wellList[j-1] + 1;
       wellList[j] = sphereList[j] + 1;
     }
@@ -258,7 +255,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     vertAll = new float[countAll*3];
     atoms = new Atom[countAll];
     
-    i = 0;
+    int i = 0;
     
 	drawExpansionShiftX = 0f; 
 	drawExpansionShiftY = 0f;
@@ -412,13 +409,13 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
 
     if(walls.length > 0) {
       lastColor = null;
-      i = walls.length - 1;
+      int i = walls.length - 1;
       i += i<<1;
       while(i >= 0) {
-        a = walls[i/3];
+        Atom a = walls[i/3];
         if(!atomFilter.accept(a)) {i-=3; continue;}
-        c = colorScheme.atomColor(a);
-        r = a.coord.position();
+        Color c = colorScheme.atomColor(a);
+        Vector r = a.coord.position();
         //Update the positions of the atom
         vertWalls[i] = (float)r.x(0) - xCenter + drawExpansionShiftX;
         vertWalls[i+1] = (float)r.x(1) - yCenter + drawExpansionShiftY;
@@ -435,7 +432,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         if(displayPhase.getDrawOverflow()) {
 //          setDrawExpansionFactor(1.0);
           if(computeShiftOrigin(a, displayPhase.getPhase().boundary())) {
-            j = originShifts.length;
+            int j = originShifts.length;
             while((--j) >= 0) {
               gl.glPushMatrix();
               gl.glTranslatef(originShifts[j][0], originShifts[j][1], originShifts[j][2]);
@@ -450,15 +447,13 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     }
     if(sphereCores.length > 0) {
       lastColor = null;
-      i = sphereCores.length - 1;
+      int i = sphereCores.length - 1;
       i += i<<1;
       while(i >= 0) {
-        a = sphereCores[i/3];
+        Atom a = sphereCores[i/3];
         if(!atomFilter.accept(a)) {i-=3; continue;}
-        Vector r3 = a.coord.position();
-//        System.out.println(a.toString()+", "+r3.x+", "+r3.y+", "+r3.z);
-        c = colorScheme.atomColor(a);
-        r = a.coord.position();
+        Color c = colorScheme.atomColor(a);
+        Vector r = a.coord.position();
         //Update the positions of the atom
         vertSphereCores[i] = (float)r.x(0) - xCenter + drawExpansionShiftX;
         vertSphereCores[i+1] = (float)r.x(1) - yCenter + drawExpansionShiftY;
@@ -478,7 +473,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         if(displayPhase.getDrawOverflow()) {
 //          setDrawExpansionFactor(1.0);
           if(computeShiftOrigin(a, displayPhase.getPhase().boundary())) {
-            j = originShifts.length;
+            int j = originShifts.length;
             while((--j) >= 0) {
               gl.glPushMatrix();
               gl.glTranslatef(originShifts[j][0], originShifts[j][1], originShifts[j][2]);
@@ -492,10 +487,10 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
       }
     }
     if(sphereWells.length > 0) {
-      i = sphereWells.length;
+      int i = sphereWells.length;
       gl.glColor4ub(wR, wG, wB, wA);
       while((--i) >= 0) {
-        a = sphereWells[i];
+        Atom a = sphereWells[i];
         if(!atomFilter.accept(a)) {continue;}
         if(wellListRadius != ((AtomTypeWell)a.type).wellRadius())
           initWellList(((AtomTypeWell)a.type).wellRadius());
@@ -506,7 +501,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         if(displayPhase.getDrawOverflow()) {
 //          setDrawExpansionFactor(1.0);
           if(computeShiftOrigin(a, displayPhase.getPhase().boundary())) {
-            j = originShifts.length;
+            int j = originShifts.length;
             while((--j) >= 0) {
               gl.glPushMatrix();
               gl.glTranslatef(originShifts[j][0], originShifts[j][1], originShifts[j][2]);
@@ -519,10 +514,10 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
       }
     }
     if(sphereRotators.length > 0) {
-      i = sphereRotators.length;
+      int i = sphereRotators.length;
       gl.glColor3ub(mR, mG, mB);
       while((--i) >= 0) {
-        a = sphereRotators[i];
+        Atom a = sphereRotators[i];
         if(!atomFilter.accept(a)) {continue;}
         gl.glPushMatrix();
         gl.glTranslatef(vertSphereCores[vertSphereRotatorBase[i]], vertSphereCores[vertSphereRotatorBase[i]+1], vertSphereCores[vertSphereRotatorBase[i]+2]);
@@ -531,7 +526,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         if(displayPhase.getDrawOverflow()) {
 //          setDrawExpansionFactor(1.0);
           if(computeShiftOrigin(a, displayPhase.getPhase().boundary())) {
-            j = originShifts.length;
+            int j = originShifts.length;
             while((--j) >= 0) {
               gl.glPushMatrix();
               gl.glTranslatef(originShifts[j][0], originShifts[j][1], originShifts[j][2]);
@@ -652,8 +647,10 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
 
     //Draw periodic images if indicated
     // The following if() block sets up the display list.
+    int k = 0;
     if(displayPhase.getImageShells() > 0) {
 //      setDrawExpansionFactor(1.0);
+      int j = DRAW_QUALITY_VERY_LOW;
       if(displayPhase.getImageShells() == 1) j=DRAW_QUALITY_LOW;
       else if(displayPhase.getImageShells() > 1) j=DRAW_QUALITY_VERY_LOW;
       k = getQuality();
@@ -667,7 +664,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     // Finish and compile the display list, then redraw it for each shell image
     if(displayPhase.getImageShells() > 0) {
       gl.glEndList();
-      j = shellOrigins.length;
+      int j = shellOrigins.length;
       while((--j) >= 0) {
         gl.glPushMatrix();
         gl.glTranslated(shellOrigins[j][0],shellOrigins[j][1],shellOrigins[j][2]);
@@ -691,7 +688,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
       gl.glColor3ub((byte)0, (byte)-1, (byte)-1);
       drawBoundary(displayPhase.getImageShells());
       if (drawBoundary == DRAW_BOUNDARY_SHELL) {
-        j = displayPhase.getImageShells();
+        int j = displayPhase.getImageShells();
         while((--j) >= 0) {
           drawBoundary(j);
         } 
@@ -718,17 +715,14 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   }
         
   private void drawBoundary(int num) {
-    xCent = xCenter+((2*xCenter)*num);
-    yCent = yCenter+((2*yCenter)*num);
-    zCent = zCenter+((2*zCenter)*num);
     gl.glBegin(GL_LINES);
     Polyhedron shape = (Polyhedron)displayPhase.getPhase().boundary().getShape();
     LineSegment[] edges = shape.getEdges();
     for(int i=0; i<edges.length; i++) {
-        vertex.E((Vector3D)edges[i].getVertices()[0]);
+        vertex.E(edges[i].getVertices()[0]);
         vertex.TE((1+2*num));
         gl.glVertex3f((float)vertex.x(0), (float)vertex.x(1), (float)vertex.x(2));
-        vertex.E((Vector3D)edges[i].getVertices()[1]);
+        vertex.E(edges[i].getVertices()[1]);
         vertex.TE((1+2*num));
         gl.glVertex3f((float)vertex.x(0), (float)vertex.x(1), (float)vertex.x(2));
     }
@@ -751,7 +745,6 @@ public void setDrawExpansionFactor(double drawExpansionFactor) {
 	this.drawExpansionFactor = drawExpansionFactor;
 	if(displayPhase != null && displayPhase.getPhase() != null) {
 		Vector box = displayPhase.getPhase().boundary().dimensions();
-		float I = displayPhase.getImageShells();
 		float mult = (float)(0.5*(drawExpansionFactor - 1.0));//*(2*I+1);
 		drawExpansionShiftX = (float)(mult*box.x(0));
 		drawExpansionShiftY = (float)(mult*box.x(1));
