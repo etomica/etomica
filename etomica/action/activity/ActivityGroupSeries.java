@@ -57,33 +57,33 @@ public class ActivityGroupSeries extends Activity {
      * by a thread made upon invoking the start method.
      */
     public void run() {
-    	while(numActions > 0) {
-    		synchronized(this) {
-    			currentAction = actions[0];
-    			removeAction(currentAction);
-    		}
-    		boolean exceptionThrown = false;
-            currentAction.actionPerformed();
-
-//            try {
-//    			currentAction.actionPerformed();
-//    		}
-//    		catch (Exception e) {
-//    			//TODO write message to error stream
-//    			e.printStackTrace();
-//    			exceptionThrown = true;
-//    		}
-    		//TODO mark this as whether completed normally
-    		synchronized(this) {
-    			completedActions = (Action[])Arrays.addObject(completedActions, currentAction);
-    			currentAction = null;
-    		}
-    		if(exceptionThrown || pauseRequested || pauseAfterEachAction) doWait();
-    		if(haltRequested) break;
-    	}
-    	synchronized(this) {
-    		notifyAll();//notify any threads requesting halt and waiting for execution to complete
-    	}
+	    	while(numActions > 0) {
+	    		synchronized(this) {
+	    			currentAction = actions[0];
+	    			removeAction(currentAction);
+	    		}
+	    		boolean exceptionThrown = false;
+	            currentAction.actionPerformed();
+	
+	//            try {
+	//    			currentAction.actionPerformed();
+	//    		}
+	//    		catch (Exception e) {
+	//    			//TODO write message to error stream
+	//    			e.printStackTrace();
+	//    			exceptionThrown = true;
+	//    		}
+	    		//TODO mark this as whether completed normally
+	    		synchronized(this) {
+	    			completedActions = (Action[])Arrays.addObject(completedActions, currentAction);
+	    			currentAction = null;
+	    		}
+	    		if(exceptionThrown || pauseRequested || pauseAfterEachAction) doWait();
+	    		if(haltRequested) break;
+	    	}
+	    	synchronized(this) {
+	    		notifyAll();//notify any threads requesting halt and waiting for execution to complete
+	    	}
     }
             
     /**
