@@ -12,6 +12,8 @@ import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWall;
 import etomica.atom.AtomTypeWell;
 import etomica.atom.iterator.AtomIteratorList;
+import etomica.math.geometry.LineSegment;
+import etomica.math.geometry.Polygon;
 import etomica.space.Boundary;
 import etomica.space.ICoordinateAngular;
 import etomica.space.Vector;
@@ -112,22 +114,17 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
             AtomTypeWall wType = (AtomTypeWall)a.type;
             xP = origin[0] + (int)(displayPhase.getToPixels()*r.x(0));
             yP = origin[1] + (int)(displayPhase.getToPixels()*r.x(1));
-            int t = Math.max(1,(int)((double)wType.getThickness()*(double)displayPhase.getToPixels()/(double)etomica.units.BaseUnit.Length.Sim.TO_PIXELS));
-            int xS = (int)((double)wType.getDrawShift()[0]*(double)displayPhase.getToPixels()/(double)etomica.units.BaseUnit.Length.Sim.TO_PIXELS);
-            int yS = (int)((double)wType.getDrawShift()[1]*(double)displayPhase.getToPixels()/(double)etomica.units.BaseUnit.Length.Sim.TO_PIXELS);
+            int t = Math.max(1,(int)(wType.getThickness()*displayPhase.getToPixels()/etomica.units.BaseUnit.Length.Sim.TO_PIXELS));
+            int xS = (int)(wType.getDrawShift()[0]*displayPhase.getToPixels()/etomica.units.BaseUnit.Length.Sim.TO_PIXELS);
+            int yS = (int)(wType.getDrawShift()[1]*displayPhase.getToPixels()/etomica.units.BaseUnit.Length.Sim.TO_PIXELS);
             if(!(wType.isHorizontal() || wType.isVertical())) {  //not horizontal or vertical; draw line
                 int x1 = xP + (int)(displayPhase.getToPixels()*wType.getLength()*wType.getCosZ());
                 int y1 = yP + (int)(displayPhase.getToPixels()*wType.getLength()*wType.getSinZ());
                 g.drawLine(xP+xS, yP+yS, x1+xS, y1+yS);
             }
             else if(wType.isLongWall()) {
-                java.awt.Rectangle rect = g.getClipBounds();
-                //int wP = vertical ? t : (int)(toPixels*atom.parentPhase().boundary().dimensions().x(1));
-                //int hP = horizontal ? t : (int)(toPixels*atom.parentPhase().boundary().dimensions().x(0));
                 int wP = wType.isVertical() ? t : Integer.MAX_VALUE;
                 int hP = wType.isHorizontal() ? t : Integer.MAX_VALUE;
-                //int X = vertical ? xP : origin[0];
-                //int Y = horizontal ? yP : origin[1];
                 int X = wType.isVertical() ? xP : 0;
                 int Y = wType.isHorizontal() ? yP : 0;
                 g.fillRect(X+xS,Y+yS,wP,hP);
@@ -189,12 +186,19 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
 
         //Draw other features if indicated
         if(drawBoundary>DRAW_BOUNDARY_NONE) {
-            Vector dimensions = displayPhase.getPhase().boundary().dimensions();
             g.setColor(Color.gray);
             double toPixels = displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS;
-            g.drawRect(displayPhase.getOrigin()[0],displayPhase.getOrigin()[1],
-                        (int)(toPixels*dimensions.x(0))-1,
-                        (int)(toPixels*dimensions.x(1))-1);
+            Polygon shape = (Polygon)displayPhase.getPhase().boundary().getShape();
+            LineSegment[] edges = shape.getEdges();
+            int ox = displayPhase.getOrigin()[0];
+            int oy = displayPhase.getOrigin()[1];
+            for(int i=0; i<edges.length; i++) {
+                int x1 = ox + (int)(toPixels*edges[i].getVertices()[0].x(0));
+                int y1 = oy + (int)(toPixels*edges[i].getVertices()[0].x(1));
+                int x2 = ox + (int)(toPixels*edges[i].getVertices()[1].x(0));
+                int y2 = oy + (int)(toPixels*edges[i].getVertices()[1].x(1));
+                g.drawLine(x1,y1,x2,y2);
+            }
         }
 
 
