@@ -57,7 +57,7 @@ public class AtomIteratorCell implements AtomIterator {
     }//end of allAtoms
     
 	/**
-     * Returns the number of atom pairs the iterator will return if reset and
+     * Returns the number of atoms the iterator will return if reset and
      * iterated in its present state.
      */
 	public int size() {
@@ -67,9 +67,8 @@ public class AtomIteratorCell implements AtomIterator {
 	}
 	
 	/**
-     * Indicates whether the given atom pair will be among the iterates given by
-     * the iterator if reset in its present state. True only if an iterated pair
-     * would match the atoms as ordered in the given array.
+     * Indicates whether the given atom will be among the iterates given by
+     * the iterator if reset in its present state.
      */
 	public boolean contains(AtomSet atoms) {
         if(!(atoms instanceof Atom)) return false;
@@ -82,7 +81,7 @@ public class AtomIteratorCell implements AtomIterator {
         return atomIterator.hasNext();
     }
     
-    public AtomSet next() {
+    public final AtomSet next() {
         return nextAtom();
     }
     
@@ -132,7 +131,7 @@ public class AtomIteratorCell implements AtomIterator {
     }//end of advanceCell
     
    
-    private AtomIteratorListSimple atomIterator;
+    private final AtomIteratorListSimple atomIterator;
     private final RectangularLattice.Iterator cellIterator;
 
     }
