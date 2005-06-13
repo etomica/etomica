@@ -4,7 +4,7 @@ import etomica.Atom;
 import etomica.Space;
 import etomica.atom.AtomList;
 import etomica.atom.AtomPositionFirstAtom;
-import etomica.atom.iterator.AtomIteratorList;
+import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.space.CoordinatePair;
 
 /**
@@ -42,7 +42,7 @@ public class CoordinatePairSet {
     }
 
     private void setAtoms(AtomList list, Space space) {
-        AtomIteratorList iterator = new AtomIteratorList(list);
+        AtomIteratorListTabbed iterator = new AtomIteratorListTabbed(list);
         int N = list.size();
         Atom[] atoms = new Atom[N];
         iterator.reset();

@@ -5,7 +5,7 @@ import java.util.Observer;
 
 import etomica.action.PhaseInflate;
 import etomica.atom.AtomLinker;
-import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.RectangularLattice;
 import etomica.space.Boundary;
@@ -174,7 +174,7 @@ public class Phase {
      * more than one of the positions.
      */
     public Atom[] nearestAtom(Vector[] r) {
-    	AtomIterator iterator = new AtomIteratorListSimple(speciesMaster.atomList);
+    	AtomIterator iterator = new AtomIteratorListTabbed(speciesMaster.atomList);
     	Atom[] nearest = new Atom[r.length];
     	for(int i=0; i<r.length; i++) {
 	    	double r2Min = Double.MAX_VALUE;

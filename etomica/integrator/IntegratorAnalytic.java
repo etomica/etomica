@@ -3,7 +3,7 @@ package etomica.integrator;
 import etomica.Atom;
 import etomica.Phase;
 import etomica.PotentialMaster;
-import etomica.atom.iterator.AtomIteratorList;
+import etomica.atom.iterator.AtomIteratorListTabbed;
 
 /**
  * Integrator that generates atom trajectories from an analytic formula.
@@ -21,7 +21,7 @@ import etomica.atom.iterator.AtomIteratorList;
  
  public class IntegratorAnalytic extends IntegratorMD {
     
-    private final AtomIteratorList atomIterator = new AtomIteratorList();
+    private final AtomIteratorListTabbed atomIterator = new AtomIteratorListTabbed();
     private AtomAction action;
     
     public IntegratorAnalytic(PotentialMaster potentialMaster) {

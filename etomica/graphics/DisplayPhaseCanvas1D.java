@@ -12,7 +12,7 @@ import etomica.atom.AtomFilter;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWall;
 import etomica.atom.AtomTypeWell;
-import etomica.atom.iterator.AtomIteratorList;
+import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space1d.Space1D;
@@ -31,7 +31,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
     private int annotationHeight = 12;
     private int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
     private final static Color wellColor = new Color(185,185,185, 110);
-    private final AtomIteratorList atomIterator = new AtomIteratorList();
+    private final AtomIteratorListTabbed atomIterator = new AtomIteratorListTabbed();
     private AtomFilter atomFilter;
     
     public DisplayPhaseCanvas1D(DisplayPhase _phase) {

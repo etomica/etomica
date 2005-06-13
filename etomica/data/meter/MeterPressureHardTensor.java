@@ -4,7 +4,7 @@ import etomica.EtomicaInfo;
 import etomica.Integrator;
 import etomica.Phase;
 import etomica.Space;
-import etomica.atom.iterator.AtomIteratorList;
+import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.integrator.IntegratorHard;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
@@ -13,7 +13,7 @@ public class MeterPressureHardTensor extends MeterTensor implements IntegratorHa
     
     private double[][] virialSum;
     private double t0, t, velocity2;
-    private final AtomIteratorList ai1 = new AtomIteratorList();
+    private final AtomIteratorListTabbed ai1 = new AtomIteratorListTabbed();
     private Tensor velocityTensor, v, pressureTensor;
     private IntegratorHard integratorHard;
     private int D;

@@ -11,7 +11,7 @@ import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWall;
 import etomica.atom.AtomTypeWell;
-import etomica.atom.iterator.AtomIteratorList;
+import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polygon;
 import etomica.space.Boundary;
@@ -34,7 +34,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
     private int annotationHeight = 12;
     private int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
     private final static Color wellColor = Color.pink;//new Color(185,185,185, 110);
-    private final AtomIteratorList atomIterator = new AtomIteratorList();
+    private final AtomIteratorListTabbed atomIterator = new AtomIteratorListTabbed();
     private AtomFilter atomFilter;
         
     public DisplayPhaseCanvas2D(DisplayPhase _phase) {

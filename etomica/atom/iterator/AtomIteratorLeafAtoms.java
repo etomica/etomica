@@ -20,8 +20,8 @@ public final class AtomIteratorLeafAtoms extends AtomIteratorAdapter implements 
 	 * return no atoms until a call to setPhase is performed.
 	 */
 	public AtomIteratorLeafAtoms() {
-		super(new AtomIteratorList());
-		listIterator = (AtomIteratorList)iterator;
+		super(new AtomIteratorListTabbed());
+		listIterator = (AtomIteratorListTabbed)iterator;
 	}
 
 	/**
@@ -70,7 +70,7 @@ public final class AtomIteratorLeafAtoms extends AtomIteratorAdapter implements 
 		setPhase(phase);
 	}
 
-	private final AtomIteratorList listIterator;
+	private final AtomIteratorListTabbed listIterator;
 	private Phase phase;
 	private Species species;
 	

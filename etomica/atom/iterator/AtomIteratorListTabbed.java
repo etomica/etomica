@@ -11,18 +11,20 @@ import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 
 /**
- * Atom iterator that traverses the elements of an AtomList. Configurable to
- * permit iteration beginning at any specified tab, and ending at any specified
- * tab type. Iteration proceeds uplist only.
+ * Atom iterator that traverses the elements of a tabbed (or untabbed) atom
+ * list. Configurable to permit iteration beginning at any specified tab, and
+ * ending at any specified tab type. Iteration proceeds uplist only.
+ * 
+ * @see AtomListTabbed
  */
 
-public final class AtomIteratorList implements AtomIterator,
+public final class AtomIteratorListTabbed implements AtomIterator,
         AtomsetIteratorListDependent {
 
     /**
      * Constructs a new iterator using an empty list as its basis for iteration.
      */
-    public AtomIteratorList() {
+    public AtomIteratorListTabbed() {
         this(new AtomList());
     }
 
@@ -32,7 +34,7 @@ public final class AtomIteratorList implements AtomIterator,
      * list and iterate to the end, ignoring any tabs before reaching the end.
      * Iterator must be reset before use.
      */
-    public AtomIteratorList(AtomList list) {
+    public AtomIteratorListTabbed(AtomList list) {
         sequenceIterator = new AtomIteratorSequence(IteratorDirective.UP);
         setList(list);
     }

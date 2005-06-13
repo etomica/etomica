@@ -2,9 +2,10 @@ package etomica;
 
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
+import etomica.atom.AtomListTabbed;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomLinker.Tab;
-import etomica.atom.iterator.AtomIteratorList;
+import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.atom.iterator.AtomIteratorTree;
 
 /**
@@ -27,9 +28,9 @@ public final class SpeciesMaster extends Atom {
     //reference to phase is kept in node
     
     /**
-     * List of leaf atoms in phase, suitable for iteration via an AtomIteratorList.
+     * Tabbed list of leaf atoms in phase, suitable for iteration via an AtomIteratorTabbedList.
      */
-    public final AtomList atomList = new AtomList();
+    public final AtomList atomList = new AtomListTabbed();
 
     SpeciesMaster(Simulation sim, Phase p) {
         super(sim.space, sim.speciesRoot.childType, new NodeFactory(p), AtomSequencerFactory.SIMPLE);
@@ -161,7 +162,7 @@ public final class SpeciesMaster extends Atom {
         Phase phase = new Phase(sim);
 //        sim.elementCoordinator.go();
         
-        AtomIteratorList listIterator = new AtomIteratorList();
+        AtomIteratorListTabbed listIterator = new AtomIteratorListTabbed();
         listIterator.setList(phase.speciesMaster.atomList);
         listIterator.reset();
         while(listIterator.hasNext()) System.out.println(listIterator.next().toString());

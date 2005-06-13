@@ -8,6 +8,7 @@ import etomica.PhaseListener;
 import etomica.SimulationEvent;
 import etomica.Space;
 import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
 import etomica.nbr.site.AtomSite;
@@ -29,7 +30,7 @@ public class NeighborCellManagerFixed implements PhaseCellManager {
 
     private final CellLattice lattice;
     private final Space space;
-    private final AtomIteratorListSimple atomIterator;
+    private final AtomIteratorListTabbed atomIterator;
     private final RectangularLattice.Iterator siteIterator;
     
     /**
@@ -39,7 +40,7 @@ public class NeighborCellManagerFixed implements PhaseCellManager {
      */
     public NeighborCellManagerFixed(Phase phase, int nCells) {
         space = phase.space();
-        atomIterator = new AtomIteratorListSimple(phase.speciesMaster().atomList);
+        atomIterator = new AtomIteratorListTabbed(phase.speciesMaster().atomList);
 
         lattice = new CellLattice(phase.boundary().dimensions(), AtomSite.FACTORY);
         int[] size = new int[space.D()];

@@ -6,7 +6,7 @@ import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.units.*;
 import etomica.atom.AtomList;
-import etomica.atom.iterator.AtomIteratorList;
+import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.data.DataSourceCountSteps;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorMC;
@@ -79,7 +79,7 @@ public class SimulationVirialWater extends SimulationGraphic {
 		speciesAgent.firstMolecule().coord.translateTo(new Vector3D(15.,15.,15.));
 				
 		AtomList childList = ((AtomTreeNodeGroup)phase.getAgent(species).node).childList;
-		AtomIteratorList list1 = new AtomIteratorList(childList);
+		AtomIteratorListTabbed list1 = new AtomIteratorListTabbed(childList);
 		list1.reset();
 		while(list1.hasNext()) list1.next().coord.translateTo(origin);
 	}

@@ -15,7 +15,7 @@ import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomList;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.atom.iterator.AtomIteratorList;
+import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.lattice.AbstractLattice;
 import etomica.lattice.BravaisLattice;
 import etomica.space.Vector;
@@ -291,7 +291,7 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
         
         BravaisLattice squareLattice;
         AtomList siteList = new AtomList();
-        AtomIteratorList iterator = new AtomIteratorList(siteList);
+        AtomIteratorListTabbed iterator = new AtomIteratorListTabbed(siteList);
         MySite[][] sites;
         int size, size1;
         double scale;

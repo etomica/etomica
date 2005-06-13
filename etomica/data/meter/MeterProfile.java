@@ -5,7 +5,7 @@ import etomica.EtomicaInfo;
 import etomica.MeterAbstract;
 import etomica.Phase;
 import etomica.Space;
-import etomica.atom.iterator.AtomIteratorList;
+import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.data.DataSourceUniform;
 import etomica.space.Boundary;
 import etomica.space.Vector;
@@ -33,7 +33,7 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
     MeterScalarAtomic meter;
     
     private double profileNorm = 1.0;
-    private final AtomIteratorList ai1 = new AtomIteratorList();
+    private final AtomIteratorListTabbed ai1 = new AtomIteratorListTabbed();
     
     /**
      * Default constructor sets profile along the y-axis, with 100 histogram points.

@@ -2,7 +2,7 @@ package etomica.virial.simulations;
 
 import etomica.*;
 import etomica.atom.AtomList;
-import etomica.atom.iterator.AtomIteratorList;
+import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -66,7 +66,7 @@ public class SimulationSign extends SimulationGraphic {
 		speciesAgent.firstMolecule().coord.translateTo(new Vector3D(5.,5.,5.));
 				
 		AtomList childList = ((AtomTreeNodeGroup)phase.getAgent(species).node).childList;
-		AtomIteratorList list1 = new AtomIteratorList(childList);
+		AtomIteratorListTabbed list1 = new AtomIteratorListTabbed(childList);
 		list1.reset();
 		while(list1.hasNext()) list1.next().coord.translateTo(origin);
 	}

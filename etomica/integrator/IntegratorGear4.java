@@ -11,7 +11,7 @@ import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Space;
-import etomica.atom.iterator.AtomIteratorList;
+import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;
@@ -26,7 +26,7 @@ import etomica.space.Vector;
  */
 public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
 
-    protected final AtomIteratorList atomIterator = new AtomIteratorList();
+    protected final AtomIteratorListTabbed atomIterator = new AtomIteratorListTabbed();
     private final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms = new IteratorDirective();
     protected final Space space;

@@ -18,7 +18,7 @@ import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWall;
 import etomica.atom.AtomTypeWell;
-import etomica.atom.iterator.AtomIteratorList;
+import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polyhedron;
 import etomica.space.Boundary;
@@ -268,7 +268,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
 		drawExpansionShiftZ = (float)(mult*box.x(2));
 	}
 
-    AtomIteratorList iter = new AtomIteratorList(displayPhase.getPhase().speciesMaster.atomList);
+    AtomIteratorListTabbed iter = new AtomIteratorListTabbed(displayPhase.getPhase().speciesMaster.atomList);
     iter.reset();
     while(iter.hasNext()) {
       Atom a = iter.nextAtom();

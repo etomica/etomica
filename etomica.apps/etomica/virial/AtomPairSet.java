@@ -3,7 +3,7 @@ package etomica.virial;
 import etomica.Atom;
 import etomica.AtomPair;
 import etomica.atom.AtomList;
-import etomica.atom.iterator.AtomIteratorList;
+import etomica.atom.iterator.AtomIteratorListTabbed;
 
 /**
  * Class that holds a set of atom pairs.  Takes a list of atoms in its
@@ -30,7 +30,7 @@ public class AtomPairSet {
     }
 
     private void setAtoms(AtomList list) {
-        AtomIteratorList iterator = new AtomIteratorList(list);
+        AtomIteratorListTabbed iterator = new AtomIteratorListTabbed(list);
         int N = list.size();
         Atom[] atoms = new Atom[N];
         iterator.reset();
