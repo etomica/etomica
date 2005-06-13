@@ -5,10 +5,10 @@ import etomica.AtomIterator;
 import etomica.AtomSet;
 import etomica.AtomTreeNode;
 import etomica.AtomTreeNodeGroup;
+import etomica.IteratorDirective;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
-import etomica.atom.AtomList;
 
 /**
  * Atom iterator that traverses all atoms at or to a specified depth below a
@@ -84,9 +84,9 @@ public class AtomIteratorTree implements AtomIterator {
             act.actionPerformed(rootNode.atom());
             if (iterationDepth == 0) return;
         }
-		listIterator.reset();
-		while(listIterator.hasNext()) {
-            Atom atom = listIterator.nextAtom();
+		seqIterator.reset();
+		while(seqIterator.hasNext()) {
+            Atom atom = seqIterator.nextAtom();
             if (atom.node.isLeaf() || iterationDepth == 1) {
                 act.actionPerformed(atom);
             }
@@ -136,7 +136,7 @@ public class AtomIteratorTree implements AtomIterator {
             unset();
             return;
         }
-        listIterator.reset();
+        seqIterator.reset();
         if (treeIterator != null) treeIterator.unset();
         next = rootNode.atom();
         if(!doAllNodes && iterationDepth>0 && !rootNode.isLeaf()) nextAtom();
@@ -153,8 +153,8 @@ public class AtomIteratorTree implements AtomIterator {
             next = treeIterator.nextAtom();
             return nextAtom;
         }
-        while(listIterator.hasNext()) {
-            Atom atom = listIterator.nextAtom();
+        while(seqIterator.hasNext()) {
+            Atom atom = seqIterator.nextAtom();
             if (atom.node.isLeaf() || iterationDepth == 1) {
                 next = atom;
                 break;
@@ -201,10 +201,10 @@ public class AtomIteratorTree implements AtomIterator {
                 wealreadyknowyourstupid = true;
             }
             rootNode = rootAtom.node;
-            listIterator.setList(emptyList);
+            seqIterator.setFirst(null);
         } else {
 	        rootNode = rootAtom.node;
-	        listIterator.setList(((AtomTreeNodeGroup)rootNode).childList);
+            seqIterator.setFirst(((AtomTreeNodeGroup)rootNode).childList.firstEntry());
         }
         unset();
     }
@@ -281,13 +281,12 @@ public class AtomIteratorTree implements AtomIterator {
             
     private AtomTreeNode rootNode;
     private AtomIteratorTree treeIterator;//used for recursive iteration to lower levels in tree
-    private final AtomIteratorListSimple listIterator = new AtomIteratorListSimple();
+    private final AtomIteratorSequence seqIterator = new AtomIteratorSequence(IteratorDirective.UP);
     private int iterationDepth = Integer.MAX_VALUE;
     private Atom next;
     private boolean doAllNodes = false;
     private boolean wealreadyknowyourstupid = false;
     private final AtomsetDetect detector;
     private final AtomsetCount counter;
-    private final AtomList emptyList = new AtomList();
         
 }//end of AtomIteratorTree
