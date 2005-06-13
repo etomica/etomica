@@ -7,6 +7,7 @@ package etomica.atom.iterator;
 import etomica.Atom;
 import etomica.AtomSet;
 import etomica.AtomTreeNodeGroup;
+import etomica.IteratorDirective;
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomList;
 
@@ -45,8 +46,10 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
      * beginning iteration.
      */
     public AtomIteratorBasis() {
-        super(new AtomIteratorListSimple());
-        listIterator = (AtomIteratorListSimple) iterator;
+        super(new AtomIteratorSequence(IteratorDirective.UP));
+        listIterator = (AtomIteratorSequence) iterator;
+        littleList.clear();
+        list = littleList;
     }
 
     /**
@@ -96,7 +99,9 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
     public void setBasis(AtomSet atoms) {
         if (atoms == null || atoms.count() == 0) {
             basis = null;
-            listIterator.setList(null);
+            littleList.clear();
+            list = littleList;
+            listIterator.setFirst(list.header.next);
             needSetupIterator = false;
         } else if (atoms.count() == 1) {
             basis = atoms.getAtom(0);
@@ -136,10 +141,13 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
      * Puts iterator in a state ready to begin iteration.
      */
     public void reset() {
-        if (basis == null)
+        if (basis == null) {
             return;
-        if (needSetupIterator)
+        }
+        if (needSetupIterator) {
             setupIterator();
+        }
+        listIterator.setFirst(list.header.next);
         listIterator.reset();
     }
 
@@ -148,10 +156,13 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
      * Unaffected by reset status, but will clobber iteration state.
      */
     public void allAtoms(AtomsetAction action) {
-        if (basis == null)
+        if (basis == null) {
             return;
-        if (needSetupIterator)
+        }
+        if (needSetupIterator) {
             setupIterator();
+        }
+        listIterator.setFirst(list.header.next);
         super.allAtoms(action);
     }
 
@@ -176,7 +187,8 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
                 if(basis.node.isDescendedFrom(targetAtom)) {
                     setupBasisIteration();
                 } else {
-                    listIterator.setList(null);
+                    littleList.clear();
+                    list = littleList;
                 }
             } else {//targetAtom is not null, and is not in hierarchy above
                     // basis
@@ -187,10 +199,11 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
                         basis.node).atom();
                 littleList.clear();
                 littleList.add(targetNode);
-                listIterator.setList(littleList);
+                list = littleList;
             }
         } catch (Exception e) {
-            listIterator.setList(null);
+            littleList.clear();
+            list = littleList;
         }//this could happen if basis==null or childWhereDescendedFrom returns
          // null
 
@@ -205,20 +218,20 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
                                   // basis atom itself
             littleList.clear();
             littleList.add(basis);
-            listIterator.setList(littleList);
+            list = littleList;
         } else {
-            listIterator
-                    .setList(((AtomTreeNodeGroup) basis.node).childList);
+            list = ((AtomTreeNodeGroup) basis.node).childList;
         }
     }
 
-    private final AtomIteratorListSimple listIterator;//the wrapped iterator
+    private final AtomIteratorSequence listIterator;//the wrapped iterator
     private final AtomList littleList = new AtomList();//used to form a list of
                                                        // one iterate if target
                                                        // is specified
     private Atom targetAtom;
     private int targetDepth;
     private Atom basis;
+    private AtomList list = littleList;
     private boolean needSetupIterator = true;//flag to indicate if
                                              // setupIterator must be called
                                              // upon reset
