@@ -1,13 +1,13 @@
 package etomica.atom;
 
 import etomica.Atom;
-import etomica.AtomIterator;
 import etomica.Debug;
 
 
 /**
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Extension of AtomList that can include tabs that reference positions in
+ * the list.  AtomIteratorListTabbed can be configured to start and/or stop
+ * iteration at any of these tabs.
  *
  * @author David Kofke
  *
@@ -20,31 +20,10 @@ import etomica.Debug;
 public class AtomListTabbed extends AtomList {
 
     /**
-     * 
+     * Makes an empty list.
      */
     public AtomListTabbed() {
         super();
-    }
-
-    /**
-     * @param atoms
-     */
-    public AtomListTabbed(Atom[] atoms) {
-        super(atoms);
-    }
-
-    /**
-     * @param list
-     */
-    public AtomListTabbed(AtomList list) {
-        super(list);
-    }
-
-    /**
-     * @param iterator
-     */
-    public AtomListTabbed(AtomIterator iterator) {
-        super(iterator);
     }
 
     /**
