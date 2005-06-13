@@ -3,7 +3,7 @@ package etomica.spin;
 import etomica.Atom;
 import etomica.Phase;
 import etomica.Space;
-import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.data.meter.MeterScalar;
 import etomica.space.Vector;
 import etomica.units.Dimension;
@@ -54,6 +54,6 @@ public class MeterSpin extends MeterScalar {
         return Dimension.UNDEFINED;
     }
 
-    private final AtomIteratorListSimple iterator = new AtomIteratorListSimple();
+    private final AtomIteratorListTabbed iterator = new AtomIteratorListTabbed();
     private final Vector sum;
 }
