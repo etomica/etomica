@@ -8,7 +8,7 @@ import etomica.AtomSet;
 import etomica.action.AtomAction;
 import etomica.action.AtomsetActionAdapter;
 import etomica.atom.AtomList;
-import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.atom.iterator.AtomIteratorListTabbed;
 
 /**
  * Class used to test iterators by collecting a list of strings
@@ -63,7 +63,7 @@ class Lister extends AtomsetActionAdapter implements AtomAction {
      * Performs action of each element of array.
      */
     public void addEachToList(AtomList list) {
-        AtomIteratorListSimple iterator = new AtomIteratorListSimple(list);
+        AtomIteratorListTabbed iterator = new AtomIteratorListTabbed(list);
         iterator.reset();
         while(iterator.hasNext()) {
             actionPerformed(iterator.nextAtom());
