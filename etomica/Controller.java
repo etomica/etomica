@@ -38,6 +38,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
      * by a thread made upon invoking the start method.
      */
     public void run() {
+        Thread.currentThread().setName("Controller thread");
         fireEvent(new ControllerEvent(this, ControllerEvent.START));
         while(numActions > 0) {
             synchronized(this) {
@@ -48,8 +49,10 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
             if(currentAction instanceof Activity) {
                 waitObject.currentActionDone = false;
                 waitObject.exceptionThrown = false;
+                //define a thread to run the activity
                 Thread localRunner = new Thread(new Runnable() {
                     public void run() {
+                        Thread.currentThread().setName(currentAction.getLabel()+" thread");
                         RuntimeException exception = null;
                         try {
                             currentAction.actionPerformed();
@@ -69,6 +72,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                         }
                     }
                 });
+                //start the activity's thread, and wait for it to exit
                 localRunner.start();
                 while(!waitObject.currentActionDone) {
                     try {
