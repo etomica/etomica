@@ -9,11 +9,10 @@ import etomica.AtomPair;
 import etomica.AtomSet;
 import etomica.Debug;
 import etomica.Integrator;
-import etomica.IntegratorNonintervalEvent;
 import etomica.IntegratorIntervalEvent;
 import etomica.IntegratorIntervalListener;
+import etomica.IntegratorNonintervalEvent;
 import etomica.IntegratorNonintervalListener;
-import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Potential;
 import etomica.action.AtomsetActionAdapter;
@@ -22,7 +21,6 @@ import etomica.atom.iterator.AtomIteratorTree;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.PotentialCalculationAgents;
 import etomica.nbr.cell.ApiAACell;
-import etomica.nbr.cell.AtomIteratorCell;
 import etomica.potential.Potential2;
 import etomica.utility.Arrays;
 
@@ -56,7 +54,6 @@ public class NeighborManager implements IntegratorNonintervalListener, Integrato
         pbcEnforcer.setApplyToMolecules(false);
         this.potentialMaster = potentialMaster;
         cellNbrIterator = new ApiAACell(potentialMaster.getSpace().D());
-        atomIterator = new AtomIteratorCell(potentialMaster.getSpace().D());
 	}
 
 	/* (non-Javadoc)
@@ -64,8 +61,7 @@ public class NeighborManager implements IntegratorNonintervalListener, Integrato
 	 */
     public void nonintervalAction(IntegratorNonintervalEvent evt) {
 		if((evt.type().mask & (IntegratorNonintervalEvent.START.mask | IntegratorNonintervalEvent.INITIALIZE.mask)) != 0) {
-            Phase[] phases = ((Integrator)evt.getSource()).getPhase();
-            IteratorDirective idUp = new IteratorDirective();
+            Phase[] phases = evt.getSource().getPhase();
             for (int i=0; i<phases.length; i++) {
                 pbcEnforcer.setPhase(phases[i]);
                 pbcEnforcer.actionPerformed();
@@ -73,8 +69,8 @@ public class NeighborManager implements IntegratorNonintervalListener, Integrato
                 potentialMaster.calculate(phases[i],pc);
                 potentialMaster.getNbrCellManager(phases[i]).assignCellAll();
             }
-			reset(((Integrator)evt.getSource()).getPhase());
-            ((Integrator)evt.getSource()).reset();
+			reset(evt.getSource().getPhase());
+            evt.getSource().reset();
         }
     }
     
@@ -236,7 +232,6 @@ public class NeighborManager implements IntegratorNonintervalListener, Integrato
 	private final NeighborCheck neighborCheck;
 	private final NeighborReset neighborReset;
     private final ApiAACell cellNbrIterator;
-    private final AtomIteratorCell atomIterator;
     private final PotentialMasterNbr potentialMaster;
 	private int priority;
     private PhaseImposePbc pbcEnforcer;
