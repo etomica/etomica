@@ -18,7 +18,8 @@ import etomica.atom.AtomLinker;
 import etomica.atom.AtomPairVector;
 import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.AtomIteratorListSimple;
-import etomica.atom.iterator.AtomIteratorSequencerList;
+import etomica.atom.iterator.AtomIteratorSequence;
+import etomica.atom.iterator.AtomIteratorSequenceDirectable;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomsetIteratorMolecule;
 import etomica.lattice.CellLattice;
@@ -50,7 +51,7 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
         
         //this iterator is used to loop through list of occupants of atoms's cell;
         //construct with AtomToLinker that gives appropriate linker
-        aiInnerSeq = new AtomIteratorSequencerList(new AtomIteratorSequencerList.AtomToLinker() {
+        aiInnerSeq = new AtomIteratorSequenceDirectable(new AtomIteratorSequence.AtomToLinker() {
             public AtomLinker getLinker(Atom atom) {return ((AtomSequencerCell)atom.seq).nbrLink;}
         });
         nbrCellListIterator = new ApiInnerFixed(aiOuter, aiInnerList);//used only by allAtoms
@@ -229,7 +230,7 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
     private final ApiInnerFixed nbrCellListIterator;//used only by allAtoms
     private final CellLattice.NeighborIterator neighborIterator;
     private final AtomIteratorListSimple aiInnerList;
-    private final AtomIteratorSequencerList aiInnerSeq;
+    private final AtomIteratorSequenceDirectable aiInnerSeq;
     private final AtomIteratorSinglet aiOuter;
     private final AtomPairVector pair = new AtomPairVector();
     private final int[] latticeIndex;

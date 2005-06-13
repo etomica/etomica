@@ -43,7 +43,7 @@ public final class ApiBuilder {
      * (if direction is set to null).
      */
     public static ApiIntragroup makeNonAdjacentPairIterator() {
-        AtomIteratorSequencerList aiInner = new AtomIteratorSequencerList();
+        AtomIteratorSequenceDirectable aiInner = new AtomIteratorSequenceDirectable();
         aiInner.setNumToSkip(2);
         return new ApiIntragroup(new ApiInnerVariable(
                                         new AtomIteratorBasis(),aiInner));
@@ -97,8 +97,8 @@ public final class ApiBuilder {
         if(types[0] == types[1]) {
             AtomFilter typeFilter = new AtomFilterTypeInstance(types[0]);
             AtomIterator outer = AtomIteratorFiltered.makeIterator(new AtomIteratorBasis(), typeFilter);
-            AtomIteratorFiltered inner = AtomIteratorFiltered.makeIterator(new AtomIteratorSequencerList(), typeFilter);
-            ((AtomIteratorSequencerList)inner.getWrappedIterator()).setNumToSkip(1);
+            AtomIteratorFiltered inner = AtomIteratorFiltered.makeIterator(new AtomIteratorSequenceDirectable(), typeFilter);
+            ((AtomIteratorSequenceDirectable)inner.getWrappedIterator()).setNumToSkip(1);
             return new ApiIntragroup(new ApiInnerVariable(outer, (AtomIteratorAtomDependent)inner));
         } 
         return makeIntergroupTypeIterator(types);

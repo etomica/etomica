@@ -35,13 +35,13 @@ public class ApiIntraspecies1A extends AtomPairIteratorAdapter implements
     public ApiIntraspecies1A(Species[] species) {
         super(new ApiInnerVariable(
                 new AtomIteratorSinglet(),
-                new AtomIteratorSequencerList()));
+                new AtomIteratorSequenceDirectable()));
         if(species == null || species.length < 1 || species[0] == null) throw new NullPointerException("Constructor of ApiIntraspecies1A requires two non-null species references to the same instance");
         if(species[0] != species[1]) throw new IllegalArgumentException("Constructor of ApiIntraspecies1A requires references to the same species instance");
         this.species = species[0];
 
         aiOuter = (AtomIteratorSinglet)((ApiInnerVariable)iterator).getOuterIterator();
-        aiInner = (AtomIteratorSequencerList)((ApiInnerVariable)iterator).getInnerIterator();
+        aiInner = (AtomIteratorSequenceDirectable)((ApiInnerVariable)iterator).getInnerIterator();
         aiInner.setNumToSkip(1);
         setPhase(null);
     }
@@ -98,7 +98,7 @@ public class ApiIntraspecies1A extends AtomPairIteratorAdapter implements
         aiInner.setAtom(targetMolecule);
     }
     
-    private final AtomIteratorSequencerList aiInner;
+    private final AtomIteratorSequenceDirectable aiInner;
     private final AtomIteratorSinglet aiOuter;
     private final Species species;
     

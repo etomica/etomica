@@ -17,7 +17,8 @@ import etomica.atom.AtomList;
  * No list specification is provided; rather iteration is performed beginning
  * with a specified linker. This linker may be specified directly, or as one
  * associated with a specified atom via an AtomToLinker instance (given at
- * construction - default uses the atom's sequencer as the linker).
+ * construction - default uses the atom's sequencer as the linker). Direct,
+ * unterminating iteration of linkers can be performed using nextLinker method. 
  */
 
 /*
@@ -62,7 +63,7 @@ public class AtomIteratorSequence implements AtomIteratorAtomDependent {
     }
 
     /**
-     * Same as nextAtom.
+     * Same as nextAtom, for AtomsetIterator interface.
      */
     public final AtomSet next() {
         return nextAtom();
@@ -91,6 +92,13 @@ public class AtomIteratorSequence implements AtomIteratorAtomDependent {
         AtomLinker thisLinker = next;
         next = upListNow ? next.next : next.previous;
         return thisLinker;
+    }
+    
+    /**
+     * Returns the next linker without advancing the iterator.
+     */
+    public AtomLinker peekLinker() {
+        return next;
     }
 
     /**

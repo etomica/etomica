@@ -26,8 +26,8 @@ public final class ApiIntragroup extends AtomPairIteratorAdapter implements
 	public ApiIntragroup() {
 		this(new ApiInnerVariable(
 					new AtomIteratorBasis(),
-					new AtomIteratorSequencerList()));
-        ((AtomIteratorSequencerList)aiInner).setNumToSkip(1);
+					new AtomIteratorSequenceDirectable()));
+        ((AtomIteratorSequenceDirectable)aiInner).setNumToSkip(1);
     }
     
     public ApiIntragroup(ApiComposite pairIterator) {

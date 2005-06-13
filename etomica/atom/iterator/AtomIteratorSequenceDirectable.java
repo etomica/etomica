@@ -10,6 +10,7 @@ import etomica.atom.AtomLinker;
 
 /**
  * Iterator for looping through the sequence list relative to a specified atom.
+ * Iteration terminates at the first encounter of a null-atom linker.
  * Can be configured to loop upList, downList, or both direction from specified
  * atom. Also can be configured to skip any number of atoms from the specified
  * atom. No list specification is provided; rather iteration is performed
@@ -206,7 +207,7 @@ public class AtomIteratorSequenceDirectable implements
     /**
      * Used to set iterator for down-half of iteration only.
      */
-    private void resetDown() {
+    protected void resetDown() {
         dnListIterator.reset();
         for (int n = numToSkip; n != 0; n--) {//ok if iterator expires before n = 0
             dnListIterator.nextAtom();

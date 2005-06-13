@@ -9,7 +9,7 @@ import etomica.AtomSet;
  */
 
 //TODO fix this class
-public class AtomIteratorSequencerBonded extends AtomIteratorSequencerList {
+public class AtomIteratorSequencerBonded extends AtomIteratorSequenceDirectable {
 
     public AtomIteratorSequencerBonded() {
         super();
@@ -17,26 +17,21 @@ public class AtomIteratorSequencerBonded extends AtomIteratorSequencerList {
     }
     public boolean contains(AtomSet atom) {
         reset();
-        return listIterator.peek() == atom; 
+        return iterator.peek() == atom; 
     }
 
     public int size() {
         reset();
-        return listIterator.hasNext() ? 1 : 0;
+        return iterator.hasNext() ? 1 : 0;
     }
 
     public Atom nextAtom() {
-        Atom next = listIterator.nextAtom();
+        Atom next = iterator.nextAtom();
         if (doGoDown)
             resetDown();
         else
-            listIterator.unset();
+            iterator.unset();
         return next;
     }
-
-    public AtomSet next() {
-        return nextAtom();
-    }
-    
 
 }
