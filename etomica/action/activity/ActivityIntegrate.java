@@ -27,6 +27,7 @@ public class ActivityIntegrate extends Activity {
 		setInterval(1);
 		doSleep = Default.DO_SLEEP;
 		sleepPeriod = 10;
+        setLabel("ActivityIntegrate");
 	}
 
     /**
