@@ -3,13 +3,14 @@ package etomica.space;
 import etomica.Default;
 import etomica.Space;
 import etomica.math.geometry.Parallelepiped;
+import etomica.math.geometry.Polytope;
+import etomica.space3d.Vector3D;
 
 /**
  * @author skkwak
- * 
- * TODO To change the template for this generated type comment go to Window -
- * Preferences - Java - Code Style - Code Templates
  */
+
+//nan needs a cleanup of imageOrigins & getOverflowShifts.
 public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeriodic {
 
 	protected final boolean[] isPeriodic;
@@ -26,16 +27,26 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
 	private double oldRefDistance = 0.0;
 	private double refDistance = 0.0;
 	private final double[] workXEZ = new double[3];
-	public boolean constantStrain = true; //true is default!!!
-	private boolean useBruteForceNearestImageMethod = true; //true is for brute force
-											   // method!!!
+	public boolean constantStrain = true;
+	private boolean useBruteForceNearestImageMethod = true; 
+	// in the above, true uses brute force method!!
 
 	public BoundaryDeformablePeriodic(Space space) {
 		this(space, makePeriodicity(space.D));
 	}
 
 	public BoundaryDeformablePeriodic(Space space, boolean[] periodicity) {
-		super(space, new Parallelepiped(space));
+	    //nan 2D
+	    this(space, periodicity, new Vector3D (1,0,0), new Vector3D (0,1,0), 
+	            new Vector3D (0,0,1));	
+	}
+	
+//	nan 2D
+	public BoundaryDeformablePeriodic(Space space, boolean[] periodicity, 
+	        Vector3D a, Vector3D b, Vector3D c) {
+	    //super(space, new Parallelepiped(space, a, b, c));
+//	  nan 2D
+		super(space, makeShape(space, (Vector)a, (Vector)b, (Vector)c));
 		isPeriodic = (boolean[]) periodicity.clone();
 		boundaryTensor = space.makeTensor();
 		boundaryTensorCopy = space.makeTensor();
@@ -51,7 +62,16 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
 		setDimensions(workVector);
 		makeStrainTensor();
 	}
-
+//	nan 2D
+    private static Polytope makeShape(Space space, Vector a, Vector b, Vector c) {
+        switch(space.D()) {
+            case 1: throw new IllegalArgumentException("Wrong number of dimensions for BoundaryDeformablePeriodic");
+            case 2: throw new IllegalArgumentException("Wrong number of dimensions for BoundaryDeformablePeriodic");
+            case 3: return new Parallelepiped(space, (Vector3D)a, (Vector3D)b,
+                    (Vector3D)c);
+            default: throw new IllegalArgumentException("BoundaryRectangular not appropriate to given space");
+        }
+    }
 	public boolean[] getPeriodicity() {
 		return isPeriodic;
 	}
