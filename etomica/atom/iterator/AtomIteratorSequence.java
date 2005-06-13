@@ -89,9 +89,8 @@ public class AtomIteratorSequence implements AtomIteratorAtomDependent {
      * during the iteration.
      */
     public AtomLinker nextLinker() {
-        AtomLinker thisLinker = next;
         next = upListNow ? next.next : next.previous;
-        return thisLinker;
+        return upListNow ? next.previous : next.next;
     }
     
     /**
