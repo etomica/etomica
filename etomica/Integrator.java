@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.space.Vector;
 import etomica.units.Dimension;
@@ -140,7 +140,7 @@ public abstract class Integrator implements java.io.Serializable {
     //how do agents get placed in atoms made during the simulation?
     protected void deployAgents() { //puts an Agent of this integrator in each
         // atom of all phases
-        AtomIteratorListSimple iterator = new AtomIteratorListSimple();
+        AtomIteratorListTabbed iterator = new AtomIteratorListTabbed();
         for (int i = 0; i < phase.length; i++) {
             Phase p = phase[i];
             iterator.setList(p.speciesMaster.atomList);
