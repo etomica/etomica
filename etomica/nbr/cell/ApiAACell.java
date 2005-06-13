@@ -14,10 +14,8 @@ import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
 import etomica.atom.AtomList;
 import etomica.atom.AtomPairVector;
-import etomica.atom.iterator.ApiBuilder;
-import etomica.atom.iterator.ApiInnerFixed;
+import etomica.atom.iterator.ApiInterList;
 import etomica.atom.iterator.ApiListSimple;
-import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
 import etomica.space.BoundaryPeriodic;
@@ -40,9 +38,10 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular {
         cellIterator = new RectangularLattice.Iterator(D);
         neighborIterator = new CellLattice.NeighborIterator(D);
         neighborIterator.setDirection(IteratorDirective.UP);
-        interListIterator = ApiBuilder.makeInterlistIterator();
-        aiInner = ((AtomIteratorListSimple)interListIterator.getInnerIterator());
-        aiOuter = ((AtomIteratorListSimple)interListIterator.getOuterIterator());
+        interListIterator = new ApiInterList();
+//        interListIterator = ApiBuilder.makeInterlistIterator();
+//        aiInner = ((AtomIteratorListSimple)interListIterator.getInnerIterator());
+//        aiOuter = ((AtomIteratorListSimple)interListIterator.getOuterIterator());
         intraListIterator = new ApiListSimple();
         listIterator = intraListIterator;
 	}
@@ -83,13 +82,13 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular {
             intraListIterator.allAtoms(action);
 
             //loop over neighbor cells
-            aiOuter.setList(list);
+            interListIterator.setOuterList(list);
             neighborIterator.setSite(cellIterator.nextIndex());
             neighborIterator.reset();
             while(neighborIterator.hasNext()) {
                 Cell neighborCell = (Cell)neighborIterator.next(); 
-                aiInner.setList(neighborCell.occupants());
-                if(aiInner.size() > 0) interListIterator.allAtoms(action);
+                interListIterator.setInnerList(neighborCell.occupants());
+                if(neighborCell.occupants().size() > 0) interListIterator.allAtoms(action);
             }
         }//end of outer loop over cells
     }//end of allAtoms
@@ -156,7 +155,7 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular {
         neighborIterator.unset();
         listIterator.unset();
         advanceLists();
-
+        //System.out.println("reset in ApiAACell");
     }//end of reset
     
     // Moves to next pair of lists that can provide an iterate
@@ -165,7 +164,7 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular {
         do {
               //advance neighbor cell
             if(neighborIterator.hasNext()) {
-                aiInner.setList(((Cell)neighborIterator.next()).occupants());
+                interListIterator.setInnerList(((Cell)neighborIterator.next()).occupants());
                 listIterator = interListIterator;
                 interListIterator.reset();
 
@@ -176,7 +175,7 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular {
                 neighborIterator.setSite(cellIterator.nextIndex());
 
                 if(!list.isEmpty()) {//central cell has molecules
-                    aiOuter.setList(list); //for neighbor-cell looping
+                    interListIterator.setOuterList(list); //for neighbor-cell looping
                     intraListIterator.setList(list);//for intra-cell looping
                     neighborIterator.reset();
 
@@ -203,8 +202,9 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular {
     private AtomPairIterator listIterator;
     private Phase phase;
     private final ApiListSimple intraListIterator;
-    private final AtomIteratorListSimple aiInner, aiOuter;
-    private final ApiInnerFixed interListIterator;
+    private final ApiInterList interListIterator;
+//    private final AtomIteratorListSimple aiInner, aiOuter;
+//    private final ApiInnerFixed interListIterator;
     private final CellLattice.NeighborIterator neighborIterator;
     private final RectangularLattice.Iterator cellIterator;
 
