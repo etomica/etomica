@@ -3,6 +3,7 @@ import etomica.Atom;
 import etomica.Space;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
+import etomica.atom.AtomListTabbed;
 import etomica.junit.UnitTest;
 import etomica.space3d.Space3D;
 
@@ -43,7 +44,7 @@ public abstract class ListIteratorTest extends IteratorTest {
 		
 		Space space = new Space3D();
 //		 make empty list to start
-		AtomList atomList = new AtomList();
+		AtomList atomList = new AtomListTabbed();
 		
 		iteratorStateTests(atomList); 
 
