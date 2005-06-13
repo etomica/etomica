@@ -23,8 +23,8 @@ import etomica.space3d.Space3D;
 public abstract class ListIteratorTest extends IteratorTest {
 	
 	public ListIteratorTest() {
-		tabType1 = AtomLinker.Tab.requestTabType();
-		tabType2 = AtomLinker.Tab.requestTabType();
+        tabType1 = AtomLinker.Tab.requestTabType();
+        tabType2 = AtomLinker.Tab.requestTabType();
 	}
 
     /**
@@ -45,37 +45,39 @@ public abstract class ListIteratorTest extends IteratorTest {
 //		 make empty list to start
 		AtomList atomList = new AtomList();
 		
-//		listElements();
-		int nMolecules=0;
-		if(UnitTest.VERBOSE) System.out.println("The size of the empty list is "+atomList.size());
-		if(UnitTest.VERBOSE) System.out.println("The element in the empty list is "+atomList.getFirst());
 		iteratorStateTests(atomList); 
 
-//		set zeroth element of array to null
-/*		atomList.add(0, null);
-		listElements();
-		iterator.setList(atomList);
-		iteratorStateTests(iterator);
-		System.out.println("Just created list with null element in middle");
-*/// 		added first atom; 1 element in list
-		atomList.add(new Atom(space));
-		nMolecules=++nMolecules;
-		if(UnitTest.VERBOSE) System.out.println("The value of nMolecules is: "+nMolecules);
-		iteratorStateTests(atomList);  
-//		 added second atom; 2 elements in list
-		atomList.add(new Atom(space));
-		nMolecules=++nMolecules;
-		if(UnitTest.VERBOSE) System.out.println("The value of nMolecules is: "+nMolecules);
-		iteratorStateTests(atomList);
-//		 adding eight atoms; 10 elements in list
-		for(int i=0; i<8; i++) {
+        AtomLinker.Tab tab1 = AtomLinker.newTab(atomList, tabType1);
+        AtomLinker.Tab tab2 = AtomLinker.newTab(atomList, tabType2);
+        AtomLinker.Tab tab3 = AtomLinker.newTab(atomList, tabType1);
+		for(int i=1; i<11; i++) {
 			atomList.add(new Atom(space));
-			nMolecules=++nMolecules;
-			if(UnitTest.VERBOSE) System.out.println("The value of nMolecules is: "+nMolecules);
-		}
-		iteratorStateTests(atomList);
-		if(UnitTest.VERBOSE) System.out.println("The size of the list: "+ atomList.size());
-
+            //test with no tabs
+            iteratorStateTests(atomList); 
+            for(int j=0; j<i; j++) {
+                //test with one tab, testing at every position in the list
+                atomList.addBefore(tab1, atomList.entry(j));
+                iteratorStateTests(atomList);
+                for(int k=0; k<i; k++) {
+                    //test with two different tabs, each at every position in list
+                    atomList.addBefore(tab2, atomList.entry(k));
+                    //test without considering 2nd tab
+                    iteratorStateTests(atomList);
+                    //test while considering 2nd tab
+                    iteratorStateTests(atomList);
+                    for(int m=0; m<i; m++) {
+                        //test with three different tabs, each at every position in list
+                        atomList.addBefore(tab3, atomList.entry(m));
+//                        System.out.println(atomList.size()+" "+i+" "+j+" "+k+" "+m);
+                        iteratorStateTests(atomList);
+                        atomList.remove(tab3);
+                    }
+                    atomList.remove(tab2);
+                }
+                atomList.remove(tab1);
+            }
+        }
+        
         //		put a tab at the beginning of the list
 		atomList.addFirst(AtomLinker.newTab(atomList, tabType1));
 		iteratorStateTests(atomList);
@@ -92,7 +94,7 @@ public abstract class ListIteratorTest extends IteratorTest {
 //		put adjacent tabs in the list; second tab of a different type
 		newTab = AtomLinker.newTab(atomList, tabType2);
 		atomList.addBefore(newTab, atomList.entry(5));
-		iteratorStateTests(atomList);
+		iteratorStateTests(atomList); 
 		if(UnitTest.VERBOSE) System.out.println("The size of the list: "+ atomList.size());
 
         //set up lists containing just tabs

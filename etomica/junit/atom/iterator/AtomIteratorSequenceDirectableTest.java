@@ -56,7 +56,6 @@ public class AtomIteratorSequenceDirectableTest extends ListIteratorTest {
             int upCount = Math.max(0, count-i);
             int dnCount = Math.max(0, 1-i);
             int allCount = upCount + dnCount;
-            System.out.println("allCount: "+allCount);
             if(i == 0) allCount--;
             
             assertEquals(lists0[0].size(), upCount);
@@ -73,7 +72,6 @@ public class AtomIteratorSequenceDirectableTest extends ListIteratorTest {
             int upCount = Math.max(0, 1-i);
             int dnCount = Math.max(0, count-i);
             int allCount = upCount + dnCount;
-            System.out.println("allCount: "+allCount);
             if(i == 0) allCount--;
             
             assertEquals(lists0[0].size(), upCount);
@@ -90,7 +88,6 @@ public class AtomIteratorSequenceDirectableTest extends ListIteratorTest {
             int upCount = Math.max(0, (count+1)/2-i);
             int dnCount = Math.max(0, (count+1)/2-i);
             int allCount = upCount + dnCount;
-            System.out.println("allCount: "+allCount);
             if(i == 0) allCount--;
             
             assertEquals(lists1[0].size(), upCount);
@@ -107,7 +104,6 @@ public class AtomIteratorSequenceDirectableTest extends ListIteratorTest {
             int upCount = Math.max(0, (count+1)/2-i-2);
             int dnCount = Math.max(0, (count+1)/2-i+2);
             int allCount = upCount + dnCount;
-            System.out.println("allCount: "+allCount);
             if(i == 0) allCount--;
             
             assertEquals(lists1[0].size(), upCount);
