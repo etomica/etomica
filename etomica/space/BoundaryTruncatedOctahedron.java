@@ -63,22 +63,22 @@ public class BoundaryTruncatedOctahedron extends Boundary implements BoundaryPer
     
     
     public double[][] imageOrigins(int nShells) {
-//        Vector workVector = space.makeVector();
-//        int shellFormula = (2 * nShells) + 1;
-//        int nImages = space.powerD(shellFormula) - 1;
-//        double[][] origins = new double[nImages][space.D()];
-//        indexIterator.setSize(shellFormula);
-//        indexIterator.reset();
-//        int k = 0;
-//        while(indexIterator.hasNext()) {
-//            int[] index = indexIterator.next();
-//            workVector.E(index);
-//            workVector.PE(-(double)nShells);
-//            if(workVector.isZero()) continue;
-//            workVector.TE(dimensions);
-//            workVector.assignTo(origins[k++]);
-//        }
-//        return origins;
+        Vector workVector = space.makeVector();
+        int shellFormula = (2 * nShells) + 1;
+        int nImages = space.powerD(shellFormula) - 1;
+        double[][] origins = new double[nImages][space.D()];
+        indexIterator.setSize(shellFormula);
+        indexIterator.reset();
+        int k = 0;
+        while(indexIterator.hasNext()) {
+            int[] index = indexIterator.next();
+            workVector.E(index);
+            workVector.PE(-(double)nShells);
+            if(workVector.isZero()) continue;
+            workVector.TE(dimensions);
+            workVector.assignTo(origins[k++]);
+        }
+        return origins;
     }
 
     public float[][] getOverflowShifts(Vector rr, double distance) {
