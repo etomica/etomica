@@ -76,7 +76,7 @@ public class NeighborManager implements IntegratorNonintervalListener, Integrato
     
     public void intervalAction(IntegratorIntervalEvent evt) {
 		if (--iieCount == 0) {
-			updateNbrsIfNeeded((Integrator)evt.getSource());
+			updateNbrsIfNeeded(evt.getSource());
 			iieCount = updateInterval;
         }
 	}

@@ -90,7 +90,7 @@ public class MCMoveSemigrand extends MCMove {
         for(int i=0; i<nSpecies; i++) {
             speciesSet[i] = species[i];
             if(phases[0] != null) agentSet[i] = species[i].getAgent(phases[0]);
-            fugacityFraction[i] = 1.0/(double)nSpecies;
+            fugacityFraction[i] = 1.0/nSpecies;
             reservoirs[i] = new AtomList();
         }
     }
@@ -133,7 +133,7 @@ public class MCMoveSemigrand extends MCMove {
         else if(f < 0.0) f = 0.0; //interpret any value less than 0.0 as setting f[i] = 0.0
         
         if(fugacityFraction[i] == 1.0) { //old value is 1; set others uniformly
-            double fNew = (1.0-f)/(double)(nSpecies-1);
+            double fNew = (1.0-f)/(nSpecies-1);
             for(int k=0; k<nSpecies; k++) fugacityFraction[k] = fNew;
         }
         else {

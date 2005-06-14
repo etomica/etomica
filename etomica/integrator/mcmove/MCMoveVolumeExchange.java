@@ -41,7 +41,7 @@ public final class MCMoveVolumeExchange extends MCMove {
     public MCMoveVolumeExchange(PotentialMaster potentialMaster, Space space) {
         super(potentialMaster, 2);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        ROOT = 1.0/(double)space.D();
+        ROOT = 1.0/space.D();
         setStepSizeMax(Double.MAX_VALUE);
         setStepSizeMin(Double.MIN_VALUE);
         setStepSize(0.3);

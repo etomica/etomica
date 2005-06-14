@@ -62,7 +62,7 @@ public class MCMoveInsertDelete extends MCMove {
     public void setSpecies(Species s) {
         species = s;
         if(phases[0] != null) {
-            speciesAgent = (SpeciesAgent)species.getAgent(phases[0]);
+            speciesAgent = species.getAgent(phases[0]);
             speciesAgentNode = (AtomTreeNodeGroup)speciesAgent.node; 
         }
         moleculeFactory = species.moleculeFactory();
@@ -72,7 +72,7 @@ public class MCMoveInsertDelete extends MCMove {
     public void setPhase(Phase[] p) {
         super.setPhase(p);
         if(species != null) {
-            speciesAgent = (SpeciesAgent)species.getAgent(phases[0]);
+            speciesAgent = species.getAgent(phases[0]);
             speciesAgentNode = (AtomTreeNodeGroup)speciesAgent.node; 
         }
     }
@@ -116,10 +116,9 @@ public class MCMoveInsertDelete extends MCMove {
             energyMeter.setTarget(testMolecule);
             uNew = energyMeter.getDataAsScalar(phases[0]);
            return (+mu - uNew)/temperature;
-        } else {//delete
-            uNew = 0.0;
-            return (-mu + uOld)/temperature;
         }
+        uNew = 0.0;
+        return (-mu + uOld)/temperature;
     }
     
     public void acceptNotify() {

@@ -31,7 +31,6 @@ public final class MCMoveMoleculeExchange extends MCMove {
     
     private Phase firstPhase;
     private Phase secondPhase;
-    private final double ROOT;
     private final MeterPotentialEnergy energyMeter;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private final AtomActionTranslateTo moleculeTranslator;
@@ -47,7 +46,6 @@ public final class MCMoveMoleculeExchange extends MCMove {
     public MCMoveMoleculeExchange(PotentialMaster potentialMaster, Space space) {
         super(potentialMaster, 2);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        ROOT = 1.0/space.D();
         setTunable(false);
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(true);

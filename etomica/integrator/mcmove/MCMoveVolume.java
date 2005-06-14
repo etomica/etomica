@@ -59,7 +59,7 @@ public class MCMoveVolume extends MCMove {
         hOld = uOld + pressure*vOld;
         vScale = (2.*Simulation.random.nextDouble()-1.)*stepSize;
         vNew = vOld * Math.exp(vScale); //Step in ln(V)
-        double rScale = Math.exp(vScale/(double)D);
+        double rScale = Math.exp(vScale/D);
         inflate.setScale(rScale);
         inflate.actionPerformed();
         uNew = Double.NaN;
@@ -93,7 +93,7 @@ public class MCMoveVolume extends MCMove {
     public final double getPressure() {return pressure;}
     public final double pressure() {return pressure;}
     public Dimension getPressureDimension() {return Dimension.PRESSURE;}
-    public final void setLogPressure(int lp) {setPressure(Math.pow(10.,(double)lp));}
+    public final void setLogPressure(int lp) {setPressure(Math.pow(10.,lp));}
     
     /**
      * main method to test and demonstrate this class
