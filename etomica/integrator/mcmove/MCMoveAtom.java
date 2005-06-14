@@ -5,6 +5,8 @@ import etomica.AtomIterator;
 import etomica.Default;
 import etomica.Phase;
 import etomica.PotentialMaster;
+import etomica.atom.AtomSource;
+import etomica.atom.AtomSourceRandomLeaf;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.MCMove;
@@ -30,18 +32,14 @@ public class MCMoveAtom extends MCMove {
     protected Atom atom;
     protected double uOld;
     protected double uNew = Double.NaN;
-/*debug* /
-    private int idx1 = 8;
-    private int idx2 = 9;
-    private int kmax = 3240;
-    private int k = 0;
-    private Atom atomIdx1, atomIdx2;
-/* */
+    protected AtomSource atomSource;
+
     public MCMoveAtom(PotentialMaster potentialMaster) {
         super(potentialMaster, 1);
+        atomSource = new AtomSourceRandomLeaf();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         translationVector = potentialMaster.getSpace().makeVector();
-        setStepSizeMax(Default.BOX_SIZE);
+        setStepSizeMax(Default.BOX_SIZE/2);
         setStepSizeMin(0.0);
         setStepSize(Default.ATOM_SIZE);
         perParticleFrequency = true;
@@ -57,38 +55,18 @@ public class MCMoveAtom extends MCMove {
      * Method to perform trial move.
      */
     public boolean doTrial() {
-      //  Atom atom0 = phase.speciesMaster.atomList.getFirst();
-  //      System.out.println(((IteratorFactoryCell.NeighborSequencer)atom0.seq).nbrLink.previous.toString()+((IteratorFactoryCell.NeighborSequencer)atom0.seq).nbrLink.next.toString()+((AtomLinker.Tab[])((IteratorFactoryCell.NeighborSequencer)atom0.seq).cell.agents[0])[0].toString());
- /*debug* / atomIdx1 = phase.speciesMaster.atomList.get(idx1);
-           atomIdx2 = phase.speciesMaster.atomList.get(idx2);  // */
-        Phase phase = phases[0];
-        if(phase.atomCount()==0) return false;
- /*debug* /       k++;  // */
-        atom = phase.speciesMaster.atomList.getRandom();
-/*debug* /        if(k>3240 && (atom.node.index() == idx1 || atom.node.index() == idx2)) System.out.println(k + " " + atom.node.index()+atom.coord.position().toString());
-/*debug* /        if(k == 1683) {
-                     if(k>kmax && (atom.node.index() == 0)) System.out.println(((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.previous.toString()+((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.next.toString()+((AtomLinker.Tab[])((IteratorFactoryCell.NeighborSequencer)atom.seq).cell.agents[0])[0].toString());
-    
-            System.out.println("hi!");
-        }// */
+        atom = atomSource.getAtom();
+        if (atom == null) return false;
         energyMeter.setTarget(atom);
-        uOld = energyMeter.getDataAsScalar(phase);
-        if(uOld > 1e10) {
+        uOld = energyMeter.getDataAsScalar(phases[0]);
+        if(uOld > 1e10 && !Default.FIX_OVERLAP) {
             System.out.println("Uold: "+uOld);
-   /*debug* /
-            //System.out.println("Uold: "+uOld);
-      //      while(iterator.hasNext()) {
-      //          System.out.println(iterator.next().coord.position().toString());
-      //      }
-      //      System.out.println();
-      //      */
             throw new RuntimeException("Overlap found in configuration");
         }
         translationVector.setRandomCube();
         translationVector.TE(stepSize);
         atom.coord.position().PE(translationVector);
         uNew = Double.NaN;
- //       phase.boundary().centralImage(atom.coord.position());
         return true;
     }//end of doTrial
     
@@ -119,9 +97,6 @@ public class MCMoveAtom extends MCMove {
      * Method called by IntegratorMC in the event that the most recent trial is accepted.
      */
     public void acceptNotify() {  /* do nothing */
-  /*debug* /      if(k>kmax && (atom.node.index() == idx1 || atom.node.index() == idx2)) System.out.println(k+"  acc2 " + atomIdx1.node.index()+atomIdx1.coord.position().toString() + atomIdx2.node.index() + atomIdx2.coord.position().toString() + Math.sqrt(parentIntegrator().parentSimulation().space.r2(atomIdx1.coord.position(),atomIdx2.coord.position(),phase.boundary())));
-            //     if(k>kmax && (atom.node.index() == 0)) System.out.println(((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.previous.toString()+((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.next.toString()+((AtomLinker.Tab[])((IteratorFactoryCell.NeighborSequencer)atom.seq).cell.agents[0])[0].toString());
-    // */  
     }
     
     /**
@@ -130,14 +105,8 @@ public class MCMoveAtom extends MCMove {
      * before the most recent call to doTrial.
      */
     public void rejectNotify() {
-  /*debug* /          if(k>kmax && (atom.node.index() == idx1 || atom.node.index() == idx2)) System.out.println(k+"  rej1 " + atomIdx1.node.index()+atomIdx1.coord.position().toString() + atomIdx2.node.index() + atomIdx2.coord.position().toString() + Math.sqrt(parentIntegrator().parentSimulation().space.r2(atomIdx1.coord.position(),atomIdx2.coord.position(),phase.boundary())));
-            //         if(k>kmax && (atom.node.index() == 0)) System.out.println(((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.previous.toString()+((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.next.toString()+((AtomLinker.Tab[])((IteratorFactoryCell.NeighborSequencer)atom.seq).cell.agents[0])[0].toString());
-             */
         translationVector.TE(-1);
         atom.coord.position().PE(translationVector);
-  /*debug* /          if(k>kmax && (atom.node.index() == idx1 || atom.node.index() == idx2)) System.out.println(k+"  rej2 " + atomIdx1.node.index()+atomIdx1.coord.position().toString() + atomIdx2.node.index() + atomIdx2.coord.position().toString() + Math.sqrt(parentIntegrator().parentSimulation().space.r2(atomIdx1.coord.position(),atomIdx2.coord.position(),phase.boundary())));
-            //         if(k>kmax && (atom.node.index() == 0)) System.out.println(((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.previous.toString()+((IteratorFactoryCell.NeighborSequencer)atom.seq).nbrLink.next.toString()+((AtomLinker.Tab[])((IteratorFactoryCell.NeighborSequencer)atom.seq).cell.agents[0])[0].toString());
-     // } // */
     }
         
     
@@ -146,6 +115,25 @@ public class MCMoveAtom extends MCMove {
         affectedAtomIterator.setAtom(atom);
         return affectedAtomIterator;
     }
+    
+    public void setPhase(Phase[] p) {
+        super.setPhase(p);
+        atomSource.setPhase(p[0]);
+    }
+    
+    /**
+     * @return Returns the atomSource.
+     */
+    public AtomSource getAtomSource() {
+        return atomSource;
+    }
+    /**
+     * @param atomSource The atomSource to set.
+     */
+    public void setAtomSource(AtomSource source) {
+        atomSource = source;
+    }
+    
 /*
     public static void main(String[] args) {
         

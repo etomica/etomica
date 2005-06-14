@@ -4,6 +4,7 @@ import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
+import etomica.atom.AtomSourceRandomMolecule;
 import etomica.space.Vector;
 
 /**
@@ -33,7 +34,7 @@ public class MCMoveMolecule extends MCMoveAtom {
  //           public boolean excludes(Potential p) {return (p instanceof Potential1.Intramolecular);}
  //       });
         setName("MCMoveMolecule");
-        
+        setAtomSource(new AtomSourceRandomMolecule());
     }
     
 
@@ -41,7 +42,7 @@ public class MCMoveMolecule extends MCMoveAtom {
         Phase phase = phases[0];
         if(phase.moleculeCount()==0) return false;
         
-        atom = phase.randomMolecule();
+        atom = atomSource.getAtom();
 
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar(phase);
