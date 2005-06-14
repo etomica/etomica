@@ -12,7 +12,8 @@ import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 
 /**
- * Returns all pairs formed from two different lists of atoms.
+ * Returns all pairs formed from two different lists of atoms.  Incorrect
+ * behavior will result if both lists refer to the same instance.
  * 
  */
 public class ApiInterList implements AtomPairIterator {
@@ -26,9 +27,8 @@ public class ApiInterList implements AtomPairIterator {
 	}
 	
 	/**
-	 * Constructs iterator to return pairs from the given list.  Requires
+	 * Constructs iterator to return pairs from the given lists.  Requires
 	 * reset() before first use.
-	 * @param list
 	 */
 	public ApiInterList(AtomList outerList, AtomList innerList) {
 		setOuterList(outerList);
@@ -37,7 +37,8 @@ public class ApiInterList implements AtomPairIterator {
 
 	/**
 	 * Returns true if the given pair of atoms are both in the current
-	 * list.  Does not consider order of atoms.
+	 * lists, with the first atom considered from the outer list, and
+     * the second atom from the inner list.  
 	 */
 	public boolean contains(AtomSet pair) {
 		if(!(pair instanceof AtomPair) || 
@@ -68,6 +69,9 @@ public class ApiInterList implements AtomPairIterator {
 		nextOuter = outerList.header;
 	}
 
+    /**
+     * Same as nextPair.
+     */
     public AtomSet next() {
         return nextPair();
     }
