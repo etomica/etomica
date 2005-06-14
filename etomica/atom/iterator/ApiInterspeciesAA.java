@@ -20,13 +20,12 @@ public class ApiInterspeciesAA extends AtomPairIteratorAdapter implements
      * @param species array of two different, non-null species
      */
     public ApiInterspeciesAA(Species[] species) {
-        super(ApiBuilder.makeInterlistIterator());
+        super(new ApiInterList());
+        apiInterList = (ApiInterList)iterator;
         species0 = species[0];
         species1 = species[1];
         if(species0 == null || species1 == null) throw new NullPointerException("Constructor of ApiInterspeciesAA requires two non-null species");
         if(species0 == species1) throw new IllegalArgumentException("Constructor of ApiInterspeciesAA requires two different species");
-        aiOuter = (AtomIteratorListSimple)((ApiInnerFixed)iterator).getOuterIterator();
-        aiInner = (AtomIteratorListSimple)((ApiInnerFixed)iterator).getInnerIterator();
     }
 
     /** 
@@ -35,14 +34,14 @@ public class ApiInterspeciesAA extends AtomPairIteratorAdapter implements
     public void setPhase(Phase phase) {
         if(phase == null) {
             emptyList.clear();
-            aiOuter.setList(emptyList);
+            apiInterList.setOuterList(emptyList);
         } else {
-            aiOuter.setList(((AtomTreeNodeGroup)phase.getAgent(species0).node).childList);
-            aiInner.setList(((AtomTreeNodeGroup)phase.getAgent(species1).node).childList);
+            apiInterList.setOuterList(((AtomTreeNodeGroup)phase.getAgent(species0).node).childList);
+            apiInterList.setInnerList(((AtomTreeNodeGroup)phase.getAgent(species1).node).childList);
         }
     }
 
-    private final AtomIteratorListSimple aiInner, aiOuter;
+    private final ApiInterList apiInterList;
     private final Species species0, species1;
     private final AtomList emptyList = new AtomList();
 }

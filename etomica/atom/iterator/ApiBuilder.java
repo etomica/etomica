@@ -48,22 +48,7 @@ public final class ApiBuilder {
         return new ApiIntragroup(new ApiInnerVariable(
                                         new AtomIteratorBasis(),aiInner));
     }
-    
-    /**
-     * Makes a pair iterator that forms pairs from the atoms of two different lists.
-     * To set the list, access the inner and outer iterators, thus:<br>
-     * <code>
-     * ApiInnerFixed pairIterator = makeInterlistIterator();
-     * ((AtomIteratorListSimple)pairIterator.getInnerIterator).setList(innerList);
-     * ((AtomIteratorListSimple)pairIterator.getOuterIterator).setList(outerList);
-     * </code>
-     * Proper functioning of iterator requires that the lists be different
-     * instances, but this requirement is not enforced by the iterator. 
-     */
-    public static ApiInnerFixed makeInterlistIterator() {
-        return new ApiInnerFixed(new AtomIteratorListSimple(), new AtomIteratorListSimple());
-    }
-    
+        
     /**
      * Returns an intergroup iterator that filters the iterates so that only
      * those having the given type instances are returned.  The given types are
