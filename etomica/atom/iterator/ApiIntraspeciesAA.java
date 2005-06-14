@@ -27,11 +27,11 @@ public class ApiIntraspeciesAA extends AtomPairIteratorAdapter implements
      * @param species array of two non-null elements referencing the same species instance
      */
     public ApiIntraspeciesAA(Species[] species) {
-        super(new ApiListSimple());
+        super(new ApiIntraList());
         if(species == null || species.length < 1 || species[0] == null) throw new NullPointerException("Constructor of ApiIntraspeciesAA requires two non-null species references to the same instance");
         if(species[0] != species[1]) throw new IllegalArgumentException("Constructor of ApiIntraspeciesAA requires references to the same species instance");
         this.species = species[0];
-        pairIterator = (ApiListSimple)iterator;
+        pairIterator = (ApiIntraList)iterator;
     }
 
     /** 
@@ -46,7 +46,7 @@ public class ApiIntraspeciesAA extends AtomPairIteratorAdapter implements
         }
     }
 
-    private final ApiListSimple pairIterator;
+    private final ApiIntraList pairIterator;
     private final Species species;
     private final AtomList emptyList = new AtomList();
 }

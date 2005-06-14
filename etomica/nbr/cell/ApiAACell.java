@@ -15,7 +15,7 @@ import etomica.action.AtomsetDetect;
 import etomica.atom.AtomList;
 import etomica.atom.AtomPairVector;
 import etomica.atom.iterator.ApiInterList;
-import etomica.atom.iterator.ApiListSimple;
+import etomica.atom.iterator.ApiIntraList;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
 import etomica.space.BoundaryPeriodic;
@@ -39,10 +39,7 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular {
         neighborIterator = new CellLattice.NeighborIterator(D);
         neighborIterator.setDirection(IteratorDirective.UP);
         interListIterator = new ApiInterList();
-//        interListIterator = ApiBuilder.makeInterlistIterator();
-//        aiInner = ((AtomIteratorListSimple)interListIterator.getInnerIterator());
-//        aiOuter = ((AtomIteratorListSimple)interListIterator.getOuterIterator());
-        intraListIterator = new ApiListSimple();
+        intraListIterator = new ApiIntraList();
         listIterator = intraListIterator;
 	}
 
@@ -201,10 +198,8 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular {
    
     private AtomPairIterator listIterator;
     private Phase phase;
-    private final ApiListSimple intraListIterator;
+    private final ApiIntraList intraListIterator;
     private final ApiInterList interListIterator;
-//    private final AtomIteratorListSimple aiInner, aiOuter;
-//    private final ApiInnerFixed interListIterator;
     private final CellLattice.NeighborIterator neighborIterator;
     private final RectangularLattice.Iterator cellIterator;
 

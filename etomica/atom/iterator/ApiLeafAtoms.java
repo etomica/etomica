@@ -18,8 +18,8 @@ public class ApiLeafAtoms extends AtomPairIteratorAdapter implements
 	 * beginning iteration.
 	 */
 	public ApiLeafAtoms() {
-		super(new ApiListSimple());
-		apiList = (ApiListSimple)iterator;
+		super(new ApiIntraList());
+		apiList = (ApiIntraList)iterator;
 	}
 
 	/**
@@ -30,5 +30,5 @@ public class ApiLeafAtoms extends AtomPairIteratorAdapter implements
 		apiList.setList(phase.speciesMaster().atomList);
 	}
 
-	private final ApiListSimple apiList;
+	private final ApiIntraList apiList;
 }
