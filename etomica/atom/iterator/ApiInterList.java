@@ -12,7 +12,7 @@ import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 
 /**
- * Returns all pairs formed from two different lists of atoms.  Incorrect
+ * Returns all pairs formed from two different untabbed lists of atoms.  Incorrect
  * behavior will result if both lists refer to the same instance.
  * 
  */

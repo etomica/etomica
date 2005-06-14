@@ -12,7 +12,7 @@ import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 
 /**
- * Returns all pairs formed from a single list of atoms.
+ * Returns all pairs formed from a single list of atoms.  Can work with tabbed list.
  */
 public class ApiIntraList implements AtomPairIterator, AtomsetIteratorListDependent {
 
