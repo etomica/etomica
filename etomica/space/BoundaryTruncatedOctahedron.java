@@ -127,29 +127,46 @@ public class BoundaryTruncatedOctahedron extends Boundary implements BoundaryPer
     }
     
 	public void nearestImage(Vector dr) {
-	    	dr.PE(centralImage(dr));
-	    }
+        double n = ((TruncatedOctahedron)shape).getContainingCubeEdgeLength();
+        intoContainingCube.EModShift(dr, dimensions);
+        rrounded.Ev1Pv2(dr,intoContainingCube);
+        rrounded.TE(1./n);
+        int aint = (int)(4.0/3.0*(Math.abs(rrounded.x(0))+Math.abs(rrounded.x(1))+Math.abs(rrounded.x(2))));
+        double corr = 0.5 * n * aint;
+        if(corr != 0.0) {
+            if(rrounded.x(0) > 0) intoTruncatedOctahedron.setX(0, intoContainingCube.x(0) - corr);
+                else intoTruncatedOctahedron.setX(0, intoContainingCube.x(0) + corr);
+            if(rrounded.x(1) > 0) intoTruncatedOctahedron.setX(1, intoContainingCube.x(1) - corr);
+                else intoTruncatedOctahedron.setX(1, intoContainingCube.x(1) + corr);
+            if(rrounded.x(2) > 0) intoTruncatedOctahedron.setX(2, intoContainingCube.x(2) - corr);
+                else intoTruncatedOctahedron.setX(2, intoContainingCube.x(2) + corr);
+        } else {
+            intoTruncatedOctahedron.E(intoContainingCube);
+        }
+        dr.PE(intoTruncatedOctahedron);
+    }
 
 	public Vector centralImage(Vector r) {
-	    	double n = ((TruncatedOctahedron)shape).getContainingCubeEdgeLength();
-	    	intoContainingCube.EModShift(r, dimensions);
-	    	rrounded.Ev1Pv2(r,intoContainingCube);
-	    	rrounded.TE(1./n);
-	    	rrounded.PE(-0.5);
-	        int aint = (int)(4.0/3.0*(Math.abs(rrounded.x(0))+Math.abs(rrounded.x(1))+Math.abs(rrounded.x(2))));
-	        double corr = 0.5 * n * aint;
-	        if(corr != 0.0) {
-		        if(rrounded.x(0) > 0) intoTruncatedOctahedron.setX(0, intoContainingCube.x(0) - corr);
-		        	else intoTruncatedOctahedron.setX(0, intoContainingCube.x(0) + corr);
-		        if(rrounded.x(1) > 0) intoTruncatedOctahedron.setX(1, intoContainingCube.x(1) - corr);
-		    		else intoTruncatedOctahedron.setX(1, intoContainingCube.x(1) + corr);
-		        if(rrounded.x(2) > 0) intoTruncatedOctahedron.setX(2, intoContainingCube.x(2) - corr);
-		    		else intoTruncatedOctahedron.setX(2, intoContainingCube.x(2) + corr);
-	        } else {
-		        intoTruncatedOctahedron.E(intoContainingCube);
-	        }
-	        return intoTruncatedOctahedron;
-	    }
+    	double n = ((TruncatedOctahedron)shape).getContainingCubeEdgeLength();
+    	intoContainingCube.EModShift(r, dimensions);
+    	rrounded.Ev1Pv2(r,intoContainingCube);
+    	rrounded.TE(1./n);
+    	rrounded.PE(-0.5);
+        int aint = (int)(4.0/3.0*(Math.abs(rrounded.x(0))+Math.abs(rrounded.x(1))+Math.abs(rrounded.x(2))));
+        double corr = 0.5 * n * aint;
+        if(corr != 0.0) {
+	        if(rrounded.x(0) > 0) intoTruncatedOctahedron.setX(0, intoContainingCube.x(0) - corr);
+	        	else intoTruncatedOctahedron.setX(0, intoContainingCube.x(0) + corr);
+	        if(rrounded.x(1) > 0) intoTruncatedOctahedron.setX(1, intoContainingCube.x(1) - corr);
+	    		else intoTruncatedOctahedron.setX(1, intoContainingCube.x(1) + corr);
+	        if(rrounded.x(2) > 0) intoTruncatedOctahedron.setX(2, intoContainingCube.x(2) - corr);
+	    		else intoTruncatedOctahedron.setX(2, intoContainingCube.x(2) + corr);
+        } else {
+	        intoTruncatedOctahedron.E(intoContainingCube);
+        }
+        return intoTruncatedOctahedron;
+    }
+    
     private final Vector temp;
     protected final Vector intoTruncatedOctahedron;
     protected final Vector rrounded;
