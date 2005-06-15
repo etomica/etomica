@@ -66,7 +66,7 @@ public class Plane {
         a = normal.x(0);
         b = normal.x(1);
         c = normal.x(2);
-        d = -(a*point.x(0)+b*point.x(1)+c*point.x(2));
+        d = -normal.dot(point);
         normalize();
     }
     
@@ -82,10 +82,7 @@ public class Plane {
         work1.Ev1Mv2(p3,p1);
         work1.XE(work0);
         work1.normalize();
-        a = work1.x(0);
-        b = work1.x(1);
-        c = work1.x(2);
-        d = -work1.dot(p1);
+        setNormalPoint(work1, p1);
 //        work.E(1.0);
 //        Vector3D px = new Vector3D(p1.x(0),p2.x(0),p3.x(0));
 //        Vector3D py = new Vector3D(p1.x(1),p2.x(1),p3.x(1));
