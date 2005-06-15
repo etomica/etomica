@@ -26,10 +26,13 @@ public final class SpecialFunctions {
         if(i < 0){
             throw new IllegalArgumentException("Argument less than zero: "+i);
         }
-        else{
-            return (i <= 1) ? 1 :(i*factorial(i-1));
-        }
+        return (i <= 1) ? 1 :(i*factorial(i-1));
     }
+    
+    public static double sgn(double x) {
+        return (x < 0.0) ? -1.0 : ((x > 0.0) ? +1.0 : 0.0);
+    }
+
     
     //non-recursive version
 //	public static int factorial(int n) {
