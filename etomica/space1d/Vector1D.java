@@ -1,6 +1,7 @@
 package etomica.space1d;
 
 import etomica.Simulation;
+import etomica.math.SpecialFunctions;
 import etomica.space.Boundary;
 import etomica.space.Vector;
 
@@ -84,7 +85,10 @@ public final class Vector1D extends etomica.space.Vector {  //declared final for
             x -= rx;
         }
 
-
+        public void PEa1SGNv1(double a1, Vector v1) {
+            x += a1*SpecialFunctions.sgn(((Vector1D)v1).x);
+        }
+        
         public etomica.space.Vector P(Vector u) {Vector1D u1=(Vector1D)u; WORK.x = x+u1.x; return WORK;}
         public etomica.space.Vector M(Vector u) {Vector1D u1=(Vector1D)u; WORK.x = x-u1.x; return WORK;}
         public etomica.space.Vector T(Vector u) {Vector1D u1=(Vector1D)u; WORK.x = x*u1.x; return WORK;}

@@ -169,6 +169,14 @@ public abstract class Vector implements java.io.Serializable, Cloneable {
      */
     public abstract void Ev1Pv2(Vector v1, Vector v2); //sets equal to sum of
 
+    /**
+     * Adds/subtracts a scalar to each element, with the choice of 
+     * addition or subtraction for each element determined by the corresponding
+     * element of the vector v1.  In symbols, this is += a1*sgn(v1).  Zero
+     * is added if the corresponding element of v1 is zero.
+     */
+    public abstract void PEa1SGNv1(double a1, Vector v1);
+    
     // vectors
     /**
      * Sets the components of this vector equal to (v1 - v2)

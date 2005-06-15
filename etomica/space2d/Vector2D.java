@@ -1,6 +1,7 @@
 package etomica.space2d;
 
 import etomica.Simulation;
+import etomica.math.SpecialFunctions;
 import etomica.space.Boundary;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -58,6 +59,12 @@ public final class Vector2D extends etomica.space.Vector {  //declared final for
 			double dy = y-u1.y;
 			return dx*dx + dy*dy;
 		}
+        
+        public void PEa1SGNv1(double a1, Vector v1) {
+            x += a1*SpecialFunctions.sgn(((Vector2D)v1).x);
+            y += a1*SpecialFunctions.sgn(((Vector2D)v1).y);
+        }
+
         public void Ev1Pv2(Vector u1, Vector u2) {
             Vector2D v1 = (Vector2D)u1; Vector2D v2 = (Vector2D)u2;
             x = v1.x + v2.x;

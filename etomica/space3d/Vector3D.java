@@ -1,6 +1,7 @@
 package etomica.space3d;
 
 import etomica.Simulation;
+import etomica.math.SpecialFunctions;
 import etomica.space.Boundary;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -40,6 +41,11 @@ public final class Vector3D extends Vector {
             x = ((Vector3D)v1).x + a1*((Vector3D)v2).x; 
             y = ((Vector3D)v1).y + a1*((Vector3D)v2).y; 
             z = ((Vector3D)v1).z + a1*((Vector3D)v2).z; 
+        }
+        public void PEa1SGNv1(double a1, Vector v1) {
+            x += a1*SpecialFunctions.sgn(((Vector3D)v1).x);
+            y += a1*SpecialFunctions.sgn(((Vector3D)v1).y);
+            z += a1*SpecialFunctions.sgn(((Vector3D)v1).z);
         }
         public void PE(Vector u) {x += ((Vector3D)u).x; y += ((Vector3D)u).y; z += ((Vector3D)u).z;}
         public void PE(double a) {x += a; y += a; z += a;}
