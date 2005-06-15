@@ -8,7 +8,7 @@ import etomica.Phase;
 
 /**
  * Iterator that returns all pairs that can be formed from all
- * leaf atoms of a given phase.  Wraps an ApiListSimple instance.
+ * leaf atoms of a given phase.  Wraps an ApiIntraList instance.
  */
 public class ApiLeafAtoms extends AtomPairIteratorAdapter implements
 		AtomsetIteratorPhaseDependent {
