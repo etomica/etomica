@@ -30,7 +30,6 @@ public final class ApiBuilder {
      */
     public static ApiIntragroup makeAdjacentPairIterator() {
         AtomIteratorSequenceAdjacent aiInner = new AtomIteratorSequenceAdjacent();
-        //        aiInner.setNumToSkip(1);
         return new ApiIntragroup(new ApiInnerVariable(new AtomIteratorBasis(),
                 aiInner));
     }
