@@ -11,6 +11,7 @@ import etomica.Space;
 import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomSourceRandomLeafSeq;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPressure;
@@ -43,6 +44,7 @@ public class TestLJMC3D extends Simulation {
         Default.makeLJDefaults();
 	    integrator = new IntegratorMC(potentialMaster);
 	    mcMoveAtom = new MCMoveAtom(potentialMaster);
+        mcMoveAtom.setAtomSource(new AtomSourceRandomLeafSeq());
         mcMoveAtom.setStepSize(0.2*Default.ATOM_SIZE);
         integrator.addMCMove(mcMoveAtom);
         integrator.setEquilibrating(false);
