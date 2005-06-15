@@ -200,12 +200,13 @@ public class TruncatedOctahedron extends Polyhedron {
     }
 	
 	public boolean contains (etomica.space.Vector v) {
-		double x = v.x(0) - position.x(0);
-		double y = v.x(1) - position.x(1);
-		double z = v.x(2) - position.x(2);
-		return (x >= (edgeLength/2)*Math.sqrt(6)) && (x <= -(edgeLength/2)*Math.sqrt(6)) && (y >=
-			(edgeLength/2)*Math.sqrt(6)) && (y <= -(edgeLength/2)*Math.sqrt(6)) && (z >= edgeLength*Math.sqrt(2))
-			&& (z <= -edgeLength*Math.sqrt(2));
+        double length = getContainingCubeEdgeLength();
+		double x = Math.abs(v.x(0) - position.x(0))/length;
+		double y = Math.abs(v.x(1) - position.x(1))/length;
+		double z = Math.abs(v.x(2) - position.x(2))/length;
+		if(x > 0.5 || y > 0.5 || z > 0.5) return false;
+		if(x + y + z > 0.75) return false;
+        return true;
 	}
 	
 	public double getVolume() {
@@ -213,6 +214,6 @@ public class TruncatedOctahedron extends Polyhedron {
 		double volume = 8 * Math.sqrt(2)*(edgeLength*edgeLength*edgeLength);
 		return volume;
 	}
-	
+    	
     private double edgeLength;
 }
