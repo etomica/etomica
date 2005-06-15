@@ -1,6 +1,9 @@
 package etomica.math.geometry;
 import java.util.LinkedList;
 
+import etomica.space.Vector;
+import etomica.space3d.Vector3D;
+
 /**
  * Representation of a mathematical polyhedron, a 3-dimensional polytope. Contains
  * all information needed to represent a polyhedron, methods to set its position
@@ -61,6 +64,28 @@ public abstract class Polyhedron extends Polytope {
             sum += faces[i].getArea();
         }
         return sum;
+    }
+    
+    /**
+     * Returns the perpendicular distance to the nearest face of the 
+     * polyhedron.  Assumes that given point is contained in polyhedron;
+     * if not, returns NaN.
+     * @param r
+     * @return
+     */
+    public double distanceTo(Vector r) {
+        updateVertices();
+        if(!contains(r)) return Double.NaN;
+        double d = Double.POSITIVE_INFINITY;
+        Plane plane = new Plane();
+        for(int i=0; i<faces.length; i++) {
+            Polygon f = faces[i];
+            plane.setThreePoints((Vector3D)f.getVertices()[0], 
+                    (Vector3D)f.getVertices()[1], (Vector3D)f.getVertices()[2]);
+            double d1 = Math.abs(plane.distanceTo((Vector3D)r));
+            if(d1 < d) d = d1;
+        }
+        return d;
     }
     
     /**
