@@ -6,8 +6,16 @@ import etomica.lattice.IndexIteratorSequential;
 import etomica.math.geometry.TruncatedOctahedron;
 
 /**
- * Boundary that is in the shape of a rectangular parallelepiped.  
- * Periodicity in each direction is specified by subclass.
+ * This class enables creation of a periodic truncated-octahedron boundary.  Truncated
+ * octahedrons are spacefillers; unlike spheres, about which voids form when placed in
+ * an array, truncated octahedrons can be flush with other truncated octahedrons at 
+ * every face when grouped in an array.  Moreover, truncated octahedrons are 
+ * considerably more sphere-like than cubes, and using a truncated octahedron as a 
+ * boundary greatly increases the isotropy of the system.
+ * 
+ * There are no subclasses for periodic and nonperiodic boundary conditions for this
+ * class because nonperiodic boundary conditions are not applicable for truncated
+ * octahedrons.
  */
 /*
  * History Created on Jan 24, 2005 by kofke
