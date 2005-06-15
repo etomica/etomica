@@ -23,7 +23,8 @@ public class Plane {
     //such that a^2 + b^c + c^2 = 1
     private double a, b, c, d;
     private Vector3D[] inPlane; //work vectors used by inPlaneSquare method
-    private Vector3D ctr; //work vector used by inPlaneSquare method (no-x0 version)
+    private Vector3D work0; //work vector used by inPlaneSquare method (no-x0 version)
+    private Vector3D work1; //work vector used by inPlaneSquare method (no-x0 version)
     
     /**
      * Tolerance used to judge if a given point is in the plane.
@@ -58,26 +59,61 @@ public class Plane {
     }
     
     /**
-     * Returns a new plane having x, y, and z intercepts given by the arguments.
+     * Defines the plane via a normal vector (1st argument) and
+     * a point (2nd argument).
      */
-    public static Plane newInterceptForm(double a, double b, double c) {
-        if(a == 0 || b == 0 || c == 0) throw new IllegalArgumentException("Arguments to intercept-form Plane constructor do not define a plane"); 
-        return new Plane(1.0/a, 1.0/b, 1.0/c, -1.0);
+    public void setNormalPoint(Vector3D normal, Vector3D point) {
+        a = normal.x(0);
+        b = normal.x(1);
+        c = normal.x(2);
+        d = -(a*point.x(0)+b*point.x(1)+c*point.x(2));
+        normalize();
     }
     
     /**
-     * Returns a new plane with the given normal (1st argument)through the 
-     * given point (2nd argument).
+     * Defines the plane by specifying three points that lie in it.
      */
-    public static Plane newNormalPointForm(Vector3D normal, Vector3D point) {
-        double a = normal.x(0);
-        double b = normal.x(1);
-        double c = normal.x(2);
-        double x0 = point.x(0);
-        double y0 = point.x(1);
-        double z0 = point.x(2);
-        return new Plane(a, b, c, -(a*x0+b*y0+c*z0));
+    public void setThreePoints(Vector3D p1, Vector3D p2, Vector3D p3) {
+        if(work0 == null) {
+            work0 = new Vector3D();
+            work1 = new Vector3D();
+        }
+        work0.Ev1Mv2(p2,p1);
+        work1.Ev1Mv2(p3,p1);
+        work1.XE(work0);
+        work1.normalize();
+        a = work1.x(0);
+        b = work1.x(1);
+        c = work1.x(2);
+        d = -work1.dot(p1);
+//        work.E(1.0);
+//        Vector3D px = new Vector3D(p1.x(0),p2.x(0),p3.x(0));
+//        Vector3D py = new Vector3D(p1.x(1),p2.x(1),p3.x(1));
+//        Vector3D pz = new Vector3D(p1.x(2),p2.x(2),p3.x(2));
+//        double aa = det(work, py, pz);
+//        double bb = det(px, work, pz);
+//        double cc = det(px, py, work);
+//        double dd = -det(px, py, pz);
+//        double norm = Math.sqrt(aa*aa+bb*bb+cc*cc);
+//        aa/=norm; bb/=norm; cc/=norm; dd/=norm;
+//        a = aa; b = bb; c = cc; d = dd;
+//        System.out.println("a "+a+" "+aa);
+//        System.out.println("b "+b+" "+bb);
+//        System.out.println("c "+c+" "+cc);
+//        System.out.println("d "+d+" "+dd);
+//        System.out.println("check1 "+(a*p1.x(0)+b*p1.x(1)+c*p1.x(2)+d));
+//        System.out.println("check2 "+(a*p2.x(0)+b*p2.x(1)+c*p2.x(2)+d));
+//        System.out.println("check3 "+(a*p3.x(0)+b*p3.x(1)+c*p3.x(2)+d));
+//        normalize();
     }
+    
+    //used by setThreePoints
+//    private double det(Vector3D p1, Vector3D p2, Vector3D p3) {
+//        return p1.x(0)*(p2.x(1)*p3.x(2)-p3.x(1)*p2.x(2))
+//             - p1.x(1)*(p2.x(0)*p3.x(2)-p3.x(0)*p2.x(2))
+//             + p1.x(2)*(p2.x(0)*p3.x(1)-p3.x(0)*p2.x(1));
+//    }
+    
     
     /**
      * Sets the given vector to be a unit normal vector to the plane and returns it.  
@@ -85,10 +121,8 @@ public class Plane {
      */
     public Vector3D getNormalVector(Vector3D normal) {
         if(normal == null) return new Vector3D(a, b, c);
-        else {
-            normal.E(a,b,c);
-            return normal;
-        }
+        normal.E(a,b,c);
+        return normal;
     }
     /**
      * Computes and returns two unit vectors perpendicular to each other and in the plane.
@@ -172,10 +206,8 @@ public class Plane {
      */
     public Vector3D center(Vector3D v) {
         if(v == null) return new Vector3D(-d*a, -d*b, -d*c);
-        else {
-            v.E(-d*a, -d*b, -d*c);
-            return v;
-        }
+        v.E(-d*a, -d*b, -d*c);
+        return v;
     }
     
     /**
@@ -261,7 +293,7 @@ public class Plane {
         inPlane = inPlaneVectors(inPlane);
         Vector3D p1 = inPlane[0];
         Vector3D p2 = inPlane[1];
-      //  System.out.println("ctr: "+x0.toString());
+      //  System.out.println("work: "+x0.toString());
       //  System.out.println("p1 : "+p1.toString());
       //  System.out.println("p2 : "+p2.toString());
         double t = d/Math.sqrt(2.0);
@@ -276,7 +308,7 @@ public class Plane {
      * inPlaneSquare with square centered on point in plane closest to origin.
      */
     public Vector3D[] inPlaneSquare(double d, Vector3D[] s) {
-        return inPlaneSquare(center(ctr), d, s);
+        return inPlaneSquare(center(work0), d, s);
     }
     
      
