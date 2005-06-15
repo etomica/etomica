@@ -22,18 +22,18 @@ public final class SpecialFunctions {
                          - 1.453152027 + 1.061405429*t)))))*Math.exp(-x*x);
     }
     
-    public static int factorial(int i){
-        if(i < 0){
-            throw new IllegalArgumentException("Argument less than zero: "+i);
+    /**
+     * The factorial function, n!
+     * 
+     * @throws IllegalArgumentException if n < 0
+     */
+    public static int factorial(int n){
+        if(n < 0){
+            throw new IllegalArgumentException("Argument less than zero: "+n);
         }
-        return (i <= 1) ? 1 :(i*factorial(i-1));
+        return (n <= 1) ? 1 :(n*factorial(n-1));
     }
-    
-    public static double sgn(double x) {
-        return (x < 0.0) ? -1.0 : ((x > 0.0) ? +1.0 : 0.0);
-    }
-
-    
+        
     //non-recursive version
 //	public static int factorial(int n) {
 //		if(n < 0) throw new IllegalArgumentException("Illegal to pass negative value to factorial");
@@ -43,11 +43,20 @@ public final class SpecialFunctions {
 //		}
 //		return factorial;	
 //	}
-	
+
+    /**
+     * The sign function, returning -1 if x < 0, zero if x == 0, and +1 if x > 0.
+     */
+    public static double sgn(double x) {
+        return (x < 0.0) ? -1.0 : ((x > 0.0) ? +1.0 : 0.0);
+    }
+
+
     /**
      * Returns the ln(gamma), the natural logarithm of the gamma function.
+     * This method is not tested.
      */
-    //method is not tested
+
     public static double lnGamma(double x) {
     	double tmp = x+5.5;
     	double y = x;
