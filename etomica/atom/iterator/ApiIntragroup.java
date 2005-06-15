@@ -4,11 +4,12 @@
  */
 package etomica.atom.iterator;
 
-import etomica.Atom;
 import etomica.AtomIterator;
 import etomica.AtomSet;
-import etomica.AtomTreeNodeGroup;
 import etomica.IteratorDirective;
+import etomica.action.AtomsetAction;
+import etomica.action.AtomsetCount;
+import etomica.action.AtomsetDetect;
 
 /**
  * Returns iterates from from the childList of a single basis atom.  Behavior is set
@@ -71,7 +72,6 @@ public final class ApiIntragroup extends AtomPairIteratorAdapter implements
 	 * is greater no error results; only first atom in array is used.
 	 */
 	public void setBasis(AtomSet atoms) {
-		basis = (atoms != null) ? (Atom)atoms : null;
 		aiOuter.setBasis(atoms);
 	}
 	
@@ -89,9 +89,41 @@ public final class ApiIntragroup extends AtomPairIteratorAdapter implements
 	 * reset and iterated in its present state.
 	 */
 	public int size() {
-		int n = ((AtomTreeNodeGroup)basis.node).childList.size();
-		return oneTarget ? n-1 : n*(n-1)/2;
+        if(counter == null) {
+            counter = new AtomsetCount();
+        } else {
+            counter.reset();
+        }
+        allAtoms(counter);
+        return counter.callCount();
 	}
+    
+    public boolean contains(AtomSet atoms) {
+        if(atoms == null || atoms.count() != 2) return false;
+        if(detector == null) {
+            detector = new AtomsetDetect(atoms);
+        } else {
+            detector.setAtoms(atoms);
+            detector.reset();
+        }
+        allAtoms(detector);
+        return detector.detectedAtom();
+    }
+    
+    /**
+     * Performs action on all iterates for iterator as currently
+     * conditioned (basis, target, direction).  Clobbers
+     * iteration state.
+     */
+    public void allAtoms(AtomsetAction action) {
+        //iterate in the prescribed direction from the target
+        if(oneTarget) aiInner.setDirection(direction);
+        
+        //no target given -- iterate over all pairs
+        else aiInner.setDirection(IteratorDirective.UP);
+        
+        super.allAtoms(action);
+    }
 	
 	/**
 	 * Returns 1, indicating the the array given to the setBasis method
@@ -113,5 +145,6 @@ public final class ApiIntragroup extends AtomPairIteratorAdapter implements
 	private final AtomsetIteratorDirectable aiInner;//local, specifically typed copy
 	private boolean oneTarget;
     private IteratorDirective.Direction direction;
-	private Atom basis;//atom most recently specified in setBasis; used by size() and contains(Atom[]) methods
+    private AtomsetCount counter;
+    private AtomsetDetect detector;
 }
