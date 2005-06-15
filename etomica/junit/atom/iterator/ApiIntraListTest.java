@@ -5,7 +5,7 @@ import etomica.atom.iterator.ApiIntraList;
 
 
 /**
- * Performs unit tests of the ApiListSimple iterator
+ * Performs unit tests of the ApiIntraList iterator
  *
  * @author David Kofke
  *
@@ -15,12 +15,12 @@ import etomica.atom.iterator.ApiIntraList;
  * History
  * Created on May 19, 2005 by kofke
  */
-public class ApiListSimpleTest extends ListIteratorTest {
+public class ApiIntraListTest extends ListIteratorTest {
 
     /**
      * 
      */
-    public ApiListSimpleTest() {
+    public ApiIntraListTest() {
         super();
     }
     
