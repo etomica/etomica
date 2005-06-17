@@ -77,9 +77,10 @@ public final class ApiInnerFixed implements AtomPairIterator, ApiComposite {
      * is significant (this means that a value of true is returned only if
      * one of the pairs returned by the iterator will have the same two 
      * atoms in the same atom1/atom2 position as the given pair). Not
-     * dependent on state of hasNext.
+     * dependent on state of hasNext.  Returns false if pair is null.
      */
     public boolean contains(AtomSet pair) {
+        if(pair == null) return false;
     	return aiOuter.contains(((AtomPair)pair).atom0) 
 				&& aiInner.contains(((AtomPair)pair).atom1);
     }
