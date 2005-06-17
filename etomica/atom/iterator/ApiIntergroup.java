@@ -150,7 +150,7 @@ public final class ApiIntergroup extends AtomPairIteratorAdapter implements
 
     private final AtomsetIteratorBasisDependent aiOuter;
     private final AtomsetIteratorBasisDependent aiInner;
-    private AtomSet targetAtoms;
+    private AtomSet targetAtoms = AtomSet.NULL;
     private final AtomsetArray emptyTarget = new AtomsetArray(0);
     private boolean needSetupIterators = true;
 
