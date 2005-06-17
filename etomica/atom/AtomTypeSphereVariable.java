@@ -5,7 +5,7 @@
 package etomica.atom;
 
 import etomica.Atom;
-import etomica.AtomType;
+import etomica.AtomTypeGroup;
 import etomica.Default;
 import etomica.Parameter;
 
@@ -14,10 +14,10 @@ public class AtomTypeSphereVariable extends AtomTypeSphere {
     
     int index;
     
-    public AtomTypeSphereVariable(AtomType parentType, int index) {
+    public AtomTypeSphereVariable(AtomTypeGroup parentType, int index) {
         this(parentType, index, Default.ATOM_MASS);
     }
-    public AtomTypeSphereVariable(AtomType parentType, int index, double m) {
+    public AtomTypeSphereVariable(AtomTypeGroup parentType, int index, double m) {
         super(parentType, m, Double.NaN);
         this.index = index;
     }

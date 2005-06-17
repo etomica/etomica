@@ -5,7 +5,7 @@
 package etomica.atom;
 
 import etomica.Atom;
-import etomica.AtomType;
+import etomica.AtomTypeGroup;
 import etomica.AtomTypeLeaf;
 import etomica.Default;
 
@@ -19,10 +19,10 @@ public class AtomTypeSphere extends AtomTypeLeaf {
     
     double diameter, radius;
     
-    public AtomTypeSphere(AtomType parentType) {
+    public AtomTypeSphere(AtomTypeGroup parentType) {
         this(parentType, Default.ATOM_MASS, Default.ATOM_SIZE);
     }
-    public AtomTypeSphere(AtomType parentType, double m, double d) {
+    public AtomTypeSphere(AtomTypeGroup parentType, double m, double d) {
         super(parentType, m);
         setDiameter(d);
     }

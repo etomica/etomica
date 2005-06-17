@@ -4,7 +4,7 @@
  */
 package etomica.atom;
 
-import etomica.AtomType;
+import etomica.AtomTypeGroup;
 import etomica.AtomTypeLeaf;
 import etomica.Constants;
 import etomica.Phase;
@@ -29,7 +29,7 @@ public final class AtomTypeWall extends AtomTypeLeaf {
         private Constants.Alignment alignment;
         public double pAccumulator, qAccumulator; //net sum of momentum and heat transferred to wall
         
-        public AtomTypeWall(Space space, AtomType parentType, double m, double l, double x, double y, double z) {
+        public AtomTypeWall(Space space, AtomTypeGroup parentType, double m, double l, double x, double y, double z) {
             super(parentType, m);
             setLength(l);
             setXAngle(x);

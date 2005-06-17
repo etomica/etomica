@@ -40,7 +40,8 @@ public class SpeciesTree extends Species implements EtomicaElement {
     private SpeciesTree(Simulation sim, AtomSequencerFactory seqFactory, 
             int[] nA, AtomTypeGroup agentType) {
         super(sim, new AtomFactoryTree(sim.space, seqFactory, agentType, nA), agentType);
-        AtomTypeSphere atomType = new AtomTypeSphere(((AtomFactoryTree)factory).getLeafType(), Default.ATOM_MASS, Default.ATOM_SIZE);
+        //getLeafType will return the an AtomTypeGroup because leaf factory is not yet set
+        AtomTypeSphere atomType = new AtomTypeSphere((AtomTypeGroup)((AtomFactoryTree)factory).getLeafType(), Default.ATOM_MASS, Default.ATOM_SIZE);
         ((AtomFactoryTree)factory).setLeafFactory(new AtomFactoryMono(sim.space, atomType, seqFactory));
         factory.setSpecies(this);
         
