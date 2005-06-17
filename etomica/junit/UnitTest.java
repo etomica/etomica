@@ -1,5 +1,8 @@
 package etomica.junit;
 
+import etomica.AtomFactory;
+import etomica.AtomTypeGroup;
+import etomica.AtomTypeLeaf;
 import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Simulation;
@@ -9,12 +12,15 @@ import etomica.SpeciesRoot;
 import etomica.SpeciesSpheres;
 import etomica.SpeciesSpheresMono;
 import etomica.SpeciesTree;
+import etomica.atom.AtomFactoryHetero;
+import etomica.atom.AtomFactoryMono;
+import etomica.atom.AtomSequencerFactory;
+import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.space3d.Space3D;
 
 /**
- * TODO To change the template for this generated type comment go to Window -
- * Preferences - Java - Code Style - Code Templates
+ * Contains some convenience methods and fields useful for implementing unit tests.
  * 
  * @author David Kofke
  *  
@@ -28,11 +34,10 @@ public class UnitTest {
     public static boolean VERBOSE = false;
 
     /**
-     *  
+     *  Private to prevent instantiation
      */
     private UnitTest() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
     public static SpeciesRoot makeStandardSpeciesTree() {
@@ -88,6 +93,53 @@ public class UnitTest {
                 phase.getAgent(species1).setNMolecules(n1[i]);
             if (species2 != null)
                 phase.getAgent(species2).setNMolecules(n2[i]);
+        }
+        return sim.speciesRoot;
+    }
+
+    /**
+     * Makes tree hierarchy of one or more species in a single phase. Number of
+     * species if determined by length of nMolecules array. Each molecule is
+     * heterogeneous, formed from atoms of different types. For example:
+     * <ul>
+     * <li>nMolecules = {5,3} will form two species, with five molecules of
+     * speciesA and 3 molecule of SpeciesB.
+     * <li>Then with nAtoms = {{2,1,4},{2,3}}, a speciesA molecule will contain
+     * 2+1+4 = 7 atoms, with 2 of type-a, 1 of type-b, and 4 of type-c, and a
+     * speciesB molecule will contain 2+3 = 5 atoms, with 2 of type-d and 3 of
+     * type-e.  All types are different instance of AtomTypeSphere.
+     * </ul>
+     * 
+     * @param nMolecules
+     *            number of molecules made of each species. Number of species is
+     *            determined by length of this array.
+     * @param nAtoms
+     *            first index corresponds to species, so nAtoms.length should
+     *            equal nMolecules.length. Number of types in a species-j
+     *            molecule is given by the length of the nAtoms[j] subarray, and
+     *            the elements of this array give the number of atoms of each
+     *            type used to form a molecule.
+     * @return root of the species hierarchy
+     */
+    public static SpeciesRoot makeMultitypeSpeciesTree(int[] nMolecules,
+            int[][] nAtoms) {
+        Space space = new Space3D();
+        Simulation sim = new Simulation(space, new PotentialMaster(space),
+                new int[] { 1, 4, 4, 11, 6, 3, 3 });
+
+        for (int i = 0; i < nMolecules.length; i++) {
+            AtomTypeGroup agentType = Species.makeAgentType(sim);
+            AtomFactoryHetero factory = new AtomFactoryHetero(space,
+                    AtomSequencerFactory.SIMPLE, agentType);
+            AtomFactory[] childFactories = new AtomFactory[nAtoms[i].length];
+            for (int j = 0; j < childFactories.length; j++) {
+                AtomTypeLeaf atomType = new AtomTypeSphere(factory.getType());
+                childFactories[j] = new AtomFactoryMono(space, atomType,
+                        AtomSequencerFactory.SIMPLE);
+            }
+            factory.setChildFactory(childFactories, nAtoms[i]);
+            Species species = new Species(sim, factory, agentType);
+            species.setNMolecules(nMolecules[i]);
         }
         return sim.speciesRoot;
     }
