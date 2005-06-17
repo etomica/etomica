@@ -37,6 +37,13 @@ public class AtomTypeLeaf extends AtomType {
     }
     
     /**
+     * Returns true, indicating that this is a leaf type.
+     */
+    public boolean isLeaf() {
+        return true;
+    }
+    
+    /**
      * Sets  mass of this atom and updates reciprocal mass accordingly.  Setting
      * mass to largest machine double (Double.MAX_VALUE) causes reciprocal mass 
      * to be set to zero.

@@ -19,7 +19,7 @@ import etomica.nbr.NeighborManagerAgent;
  * instance.
  */
 
-public class AtomType implements java.io.Serializable, Comparable {
+public abstract class AtomType implements java.io.Serializable, Comparable {
 
     public static Parameter.Source[] parameterSource = new Parameter.Source[0];
     AtomFactory creator;//set in constructor of AtomFactory
@@ -74,6 +74,8 @@ public class AtomType implements java.io.Serializable, Comparable {
 //        System.out.println("AtomType constructor:"+mass);
         neighborManagerAgent = new NeighborManagerAgent();
     }
+    
+    public abstract boolean isLeaf();
     
     public AtomType getParentType() {
         return parentType;
@@ -172,6 +174,8 @@ public class AtomType implements java.io.Serializable, Comparable {
     public boolean isInteracting() {
         return neighborManagerAgent.getPotentials().length > 0;
     }
+    
+
     
     //prototype of a real atom type
 /*    public final static class Carbon extends Sphere {
