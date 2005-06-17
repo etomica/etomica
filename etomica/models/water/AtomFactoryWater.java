@@ -30,8 +30,8 @@ public class AtomFactoryWater extends AtomFactory {
     public AtomFactoryWater(Space space, AtomSequencerFactory sequencerFactory, AtomTypeGroup agentType) {
 		super(space, new AtomTypeGroup(agentType,new AtomPositionGeometricCenter(space)), sequencerFactory, AtomTreeNodeWater.FACTORY);
 
-        AtomTypeSphere hType = new AtomTypeSphere(atomType, 1.0, /*Electron.UNIT.toSim(0.4238),*/ 2.0);
-        AtomTypeSphere oType = new AtomTypeSphere(atomType, 16.0, /*Electron.UNIT.toSim(-0.8476),*/ 3.167);
+        AtomTypeSphere hType = new AtomTypeSphere((AtomTypeGroup)atomType, 1.0, /*Electron.UNIT.toSim(0.4238),*/ 2.0);
+        AtomTypeSphere oType = new AtomTypeSphere((AtomTypeGroup)atomType, 16.0, /*Electron.UNIT.toSim(-0.8476),*/ 3.167);
 
         hFactory = new AtomFactoryMono(space, hType, AtomSequencerFactory.SIMPLE);
 		oFactory = new AtomFactoryMono(space, oType, AtomSequencerFactory.SIMPLE);
