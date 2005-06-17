@@ -126,14 +126,14 @@ public class UnitTest {
         Space space = new Space3D();
         Simulation sim = new Simulation(space, new PotentialMaster(space),
                 new int[] { 1, 4, 4, 11, 6, 3, 3 });
-
+//        new SpeciesSpheres(sim);
         for (int i = 0; i < nMolecules.length; i++) {
             AtomTypeGroup agentType = Species.makeAgentType(sim);
             AtomFactoryHetero factory = new AtomFactoryHetero(space,
                     AtomSequencerFactory.SIMPLE, agentType);
             AtomFactory[] childFactories = new AtomFactory[nAtoms[i].length];
             for (int j = 0; j < childFactories.length; j++) {
-                AtomTypeLeaf atomType = new AtomTypeSphere(factory.getType());
+                AtomTypeLeaf atomType = new AtomTypeSphere((AtomTypeGroup)factory.getType());
                 childFactories[j] = new AtomFactoryMono(space, atomType,
                         AtomSequencerFactory.SIMPLE);
             }
@@ -141,6 +141,7 @@ public class UnitTest {
             Species species = new Species(sim, factory, agentType);
             species.setNMolecules(nMolecules[i]);
         }
+        new Phase(sim);
         return sim.speciesRoot;
     }
 
