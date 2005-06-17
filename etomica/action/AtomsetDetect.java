@@ -4,6 +4,7 @@
  */
 package etomica.action;
 
+import etomica.Atom;
 import etomica.AtomSet;
 
 /**
@@ -16,7 +17,7 @@ import etomica.AtomSet;
 
  //used by some iterators to implement their contains() method
 
-public class AtomsetDetect extends AtomsetActionAdapter {
+public class AtomsetDetect extends AtomActionAdapter {
 
 	/**
 	 * Constructs to test for the given atoms. Given array is copied, so
@@ -30,14 +31,20 @@ public class AtomsetDetect extends AtomsetActionAdapter {
 	
 	/**
 	 * Sets detect to true if atoms in the given array are the same 
-	 * (in order) as the atoms given in constructor at time of 
-	 * instantiation.  Detect will stay true until reset(), 
+	 * (in order) as the atoms specified via setAtoms.  Detect will stay true until reset(), 
 	 * regardless of outcome of subsequent calls to this method.
 	 */
 	public void actionPerformed(AtomSet atom) {
 		if(detected) return;
 		detected = atom.equals(atoms);
 	}
+    
+    /**
+     * Same as actionPerformed(AtomSet), taking a single Atom.
+     */
+    public void actionPerformed(Atom atom) {
+        actionPerformed((AtomSet)atom);
+    }
 	
 	/**
 	 * Sets detected to false.
