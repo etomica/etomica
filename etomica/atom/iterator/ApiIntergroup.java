@@ -6,8 +6,8 @@ package etomica.atom.iterator;
 
 import etomica.Atom;
 import etomica.AtomIterator;
-import etomica.AtomPair;
 import etomica.AtomSet;
+import etomica.action.AtomsetAction;
 import etomica.atom.AtomsetArray;
 
 /**
@@ -146,6 +146,17 @@ public final class ApiIntergroup extends AtomPairIteratorAdapter implements
      */
     public AtomIterator getOuterIterator() {
         return (AtomIterator) aiOuter;
+    }
+    
+    /**
+     * Sets up atom iterators (if needed) and performs action on all 
+     * pair iterates.
+     */
+    public void allAtoms(AtomsetAction action) {
+        if(needSetupIterators) {
+            setupIterators();
+        }
+        super.allAtoms(action);
     }
 
     private final AtomsetIteratorBasisDependent aiOuter;
