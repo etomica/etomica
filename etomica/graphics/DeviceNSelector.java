@@ -21,12 +21,10 @@ import etomica.simulations.HSMD2D;
   //could improve by allowing to set phase/agent before elementcoordinator call
 public class DeviceNSelector extends DeviceSlider {
     
-    private SpeciesAgent speciesAgent;
     private etomica.action.SimulationRestart restartAction;
     
     public DeviceNSelector(Simulation simulation, SpeciesAgent agent) {
         super(simulation.getController());
-        this.speciesAgent = agent;
         restartAction = new etomica.action.SimulationRestart(simulation);
         
 //        setNMajor(6);
@@ -54,7 +52,7 @@ public class DeviceNSelector extends DeviceSlider {
         sim.species.setName("Disk");
         
 //        sim.elementCoordinator.go();
-        DeviceNSelector nSelector = new DeviceNSelector(sim,sim.phase.getAgent(sim.species));
+        new DeviceNSelector(sim,sim.phase.getAgent(sim.species));
 //        nSelector.setDisplayPhase(graphic.display);
         graphic.makeAndDisplayFrame();
     }//end of main
