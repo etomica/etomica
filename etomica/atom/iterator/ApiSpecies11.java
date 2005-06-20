@@ -54,6 +54,13 @@ public class ApiSpecies11 extends AtomPairIteratorAdapter implements
         //performs no action
     }
 
+    /**
+     * 
+     * @throws NullPointerException
+     *          if targetAtoms is null
+     * @throws IllegalArgumentException
+     *          if targetAtoms.count() is < 2
+     */
     public void setTarget(AtomSet targetAtoms) {
         ((Api11)iterator).setTarget(targetAtoms);
     }

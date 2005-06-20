@@ -74,6 +74,9 @@ public final class AtomsetIteratorSpeciesAgent extends AtomsetIteratorAdapter
      * Allows iteration only if each atom in given AtomSet is
      * derived from one of the species, with each species being
      * applied to no more than one target atom.
+     * 
+     * @throws NullPointerException
+     *          if targetAtoms is null
      */
     public void setTarget(AtomSet targetAtoms) {
         if (targetAtoms.count() == 0) {

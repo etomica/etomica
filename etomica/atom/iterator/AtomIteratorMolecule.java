@@ -50,6 +50,11 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
      * If argument is null, of zero length, or if targetAtoms[0] is null, then
      * no target atom is specified and all molecules of the species in the
      * phase will be given on iteration.
+     * 
+     * @throws NullPointerException
+     *          if targetAtoms is null
+     * @throws IllegalArgumentException
+     *          if targetAtoms.count() is not 0 or 1
      */
     public void setTarget(AtomSet targetAtoms) {
         switch(targetAtoms.count()) {

@@ -35,7 +35,12 @@ public class ApiMolecule implements AtomsetIteratorMolecule, AtomPairIterator {
         this.apiAA = apiAA;
         iterator = (AtomPairIterator)apiAA;
 	}
-    
+
+    /**
+     * 
+     * @throws NullPointerException
+     *          if targetAtoms is null; use AtomSet.NULL instead
+     */
     public void setTarget(AtomSet targetAtoms) {
         switch (targetAtoms.count()) {
         case 0:

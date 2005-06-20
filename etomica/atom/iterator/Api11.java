@@ -133,7 +133,9 @@ public class Api11 extends AtomPairIteratorAdapter implements
      * met, then no iterate will be given on reset.
      * 
      * @throws IllegalArgumentException
-     *             if target.count() < 2
+     *             if newTarget.count() < 2
+     * @throws NullPointerException 
+     *             if newTarget is null
      */
     public void setTarget(AtomSet newTarget) {
         if (newTarget.count() < 2)

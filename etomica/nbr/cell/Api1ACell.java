@@ -190,6 +190,10 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
      * is determined from the first atom of the array, which may be the molecule
      * itself or an atom that is part of it.  If the atom is null or is not 
      * in one of the species given at construction, no iterates will be returned.
+     * @throws NullPointerException
+     *          if targetAtoms is null; use AtomSet.NULL instead
+     * @throws IllegalArgumentException
+     *          if targetAtoms.count() is not 0 or 1
      */
     public void setTarget(AtomSet targetAtoms) {
         switch(targetAtoms.count()) {

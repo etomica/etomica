@@ -86,6 +86,11 @@ public class ApiInterspecies1A extends AtomPairIteratorAdapter implements
      * is determined from the first atom of the array, which may be the molecule
      * itself or an atom that is part of it.  If the atom is null or is not 
      * in one of the species given at construction, no iterates will be returned.
+     * 
+     * @throws NullPointerException
+     *          if targetAtoms is null
+     * @throws IllegalArgumentException
+     *          if targetAtoms.count() is not 1
      */
     public void setTarget(AtomSet targetAtoms) {
         if(targetAtoms.count() != 1) throw new IllegalArgumentException("1A pair iterator must have exactly 1 target atom");
