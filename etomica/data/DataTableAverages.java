@@ -37,7 +37,6 @@ public class DataTableAverages extends DataTable {
      */
     public DataTableAverages(Integrator integrator, Type[] types) {
         super();
-        this.integrator = integrator;
         this.types = (Type[]) types.clone();
         actionGroup = new ActionGroup();
         intervalAction = new IntervalActionAdapter(actionGroup, integrator);
