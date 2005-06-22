@@ -1,47 +1,75 @@
 package etomica.data;
 
 import etomica.Constants;
+import etomica.Data;
+import etomica.data.types.DataArithmetic;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataGroup;
+import etomica.utility.Function;
 
 /**
  * Accumulator for calculating ratio between two sums
  */
 public class AccumulatorRatioAverage extends AccumulatorAverage {
     
-    public double[] getData() {
-        int currentBlockCount = blockSize - blockCountDown;
-        if(count+currentBlockCount == 0) {
-            setNaN(data);
-        } else {
+    public Data getData() {
+        if (mostRecent == null) return null;
+        if(count > 0) {
             super.getData();
-            int numBaseStats = super.getDataLength();
-            data[(numBaseStats+0)*nData+0] = 1; // average
-            data[(numBaseStats+1)*nData+0] = 0; // error
-            data[(numBaseStats+2)*nData+0] = 0; // std dev
-            double errorRatio0 = error[0]/average[0];
-            errorRatio0 *= errorRatio0;
-            double stdevRatio0 = standardDeviation[0]/average[0];
-            stdevRatio0 *= stdevRatio0;
-            for(int i=1; i<nData; i++) {
-                double errorRatio = Double.NaN;
-                double stdevRatio = Double.NaN;
-                if (average[0] != 0.0) {
-                    errorRatio = error[i]/average[i];
-                    errorRatio = Math.sqrt(errorRatio*errorRatio + errorRatio0) * Math.abs(average[i]/average[0]);
-                    stdevRatio = standardDeviation[i]/average[i];
-                    stdevRatio = Math.sqrt(stdevRatio*stdevRatio + stdevRatio0) * Math.abs(average[i]/average[0]);
-                }
-                data[(numBaseStats+0)*nData+i] = sum[i]/sum[0];
-                data[(numBaseStats+1)*nData+i] = ratioError[i] = errorRatio;
-                data[(numBaseStats+2)*nData+i] = ratioStandardDeviation[i] = stdevRatio;
+            double average0 = ((DataDoubleArray)average).getData()[0];
+            if (average0 == 0) {
+                ratio.E(Double.NaN);
+                ratioError.E(Double.NaN);
+                ratioStandardDeviation.E(Double.NaN);
+                return dataGroup;
             }
+
+            ratio.E((Data)sum);
+            ratio.TE(1/((DataDoubleArray)sum).getData()[0]);
+
+            double errorRatio0 = ((DataDoubleArray)error).getData()[0]/average0;
+            errorRatio0 *= errorRatio0;
+            ratioError.E((Data)error);
+            ratioError.TE(error);
+            ratioError.PE(errorRatio0);
+            ratioError.map(Function.Sqrt.INSTANCE);
+            ratioError.TE(ratio);
+            ratioError.map(Function.Abs.INSTANCE);
+
+            double stdevRatio0 = ((DataDoubleArray)standardDeviation).getData()[0]/average0;
+            ratioStandardDeviation.E((Data)standardDeviation);
+            ratioStandardDeviation.TE(standardDeviation);
+            ratioStandardDeviation.PE(stdevRatio0);
+            ratioStandardDeviation.map(Function.Sqrt.INSTANCE);
+            ratioStandardDeviation.TE(ratio);
+            ratioStandardDeviation.map(Function.Abs.INSTANCE);
         }
-        return data;
+        return dataGroup;
+    }
+
+    public void reset() {
+        super.reset();
+        ratio.E(Double.NaN);
+        ratioError.E(Double.NaN);
+        ratioStandardDeviation.E(Double.NaN);
     }
     
-    public int getDataLength() {
-        return 3+super.getDataLength();
+    protected void initialize(Data value) {
+        ratio = (DataArithmetic)value.makeCopy();
+        ratioError = (DataArithmetic)value.makeCopy();
+        ratioStandardDeviation = (DataArithmetic)value.makeCopy();
+        super.initialize(value);
+        Data[] dataGroups = new Data[dataGroup.getNData()+2];
+        int i;
+        for (i=0; i<dataGroup.getNData(); i++) {
+            dataGroups[i] = dataGroup.getData(i);
+        }
+        dataGroups[i++] = (Data)ratio;
+        dataGroups[i++] = (Data)ratioError;
+        dataGroups[i++] = (Data)ratioStandardDeviation;
+        dataGroup = new DataGroup(value.getDataInfo(),dataGroups);
     }
-     
+    
     public static class Type extends AccumulatorAverage.Type {
         protected Type(String label, int index) {super(label,index);}       
         public Constants.TypedConstant[] choices() {return VIRIAL_CHOICES;}
@@ -56,12 +84,6 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
     public static final AccumulatorAverage.Type RATIO_ERROR = VIRIAL_CHOICES[6];
     public static final AccumulatorAverage.Type RATIO_STANDARD_DEVIATION = VIRIAL_CHOICES[7];
 
-    protected void setNData(int nData) {
-        ratioStandardDeviation = redimension(nData, ratioError);
-        ratioError = redimension(nData, ratioError);
-        super.setNData(nData);
-    }
-     
     //need separate fields because ratio values are calculated from the non-ratio values.
-    protected double[] ratioStandardDeviation, ratioError;
+    protected DataArithmetic ratio, ratioStandardDeviation, ratioError;
 }
