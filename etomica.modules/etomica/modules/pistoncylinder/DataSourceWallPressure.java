@@ -1,6 +1,7 @@
 package etomica.modules.pistoncylinder;
 
 import etomica.Phase;
+import etomica.Space;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P1HardMovingBoundary;
@@ -11,8 +12,8 @@ import etomica.potential.P1HardMovingBoundary;
  */
 public class DataSourceWallPressure extends MeterPressureHard {
 
-    public DataSourceWallPressure(P1HardMovingBoundary potential, IntegratorHard integrator) {
-        super(integrator);
+    public DataSourceWallPressure(Space space, P1HardMovingBoundary potential, IntegratorHard integrator) {
+        super(space,integrator);
         wallPotential = potential;
     }
     
@@ -27,7 +28,7 @@ public class DataSourceWallPressure extends MeterPressureHard {
     }
     
     public double getDataAsScalar(Phase p) {
-        double elapsedTime = timer.getData()[0];
+        double elapsedTime = timer.getDataAsScalar();
         double value = virialSum / elapsedTime;
         timer.reset();
         virialSum = 0;

@@ -1,7 +1,9 @@
 package etomica.modules.pistoncylinder;
 
+import etomica.DataInfo;
+import etomica.Meter;
 import etomica.Phase;
-import etomica.data.meter.MeterScalar;
+import etomica.data.DataSourceScalar;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.space.Vector;
 import etomica.units.Dimension;
@@ -10,9 +12,9 @@ import etomica.units.DimensionRatio;
 /**
  * Specialized density meter for piston/cylinder system
  */
-public class MeterPistonDensity extends MeterScalar {
+public class MeterPistonDensity extends DataSourceScalar implements Meter {
     public MeterPistonDensity(P1HardMovingBoundary potential, int wallDim, double atomDiameter) {
-        super();
+        super(new DataInfo("Density",new DimensionRatio(Dimension.QUANTITY,Dimension.VOLUME)));
         pistonPotential = potential;
         wallD = wallDim;
         collisionDiameter = atomDiameter;
@@ -22,9 +24,9 @@ public class MeterPistonDensity extends MeterScalar {
         collisionDiameter = d;
     }
     
-    public double getDataAsScalar(Phase p) {
+    public double getDataAsScalar() {
         double volume = 1;
-        final Vector dimensions = p.boundary().dimensions();
+        final Vector dimensions = phase.boundary().dimensions();
         for (int i=0; i<dimensions.D(); i++) {
             double d = dimensions.x(i) - collisionDiameter;
             if (i==wallD) {
@@ -32,13 +34,27 @@ public class MeterPistonDensity extends MeterScalar {
             }
             volume *= d;
         }
-        return p.moleculeCount()/volume;
+        return phase.moleculeCount()/volume;
     }
     
     public Dimension getDimension() {
         return new DimensionRatio(Dimension.QUANTITY, Dimension.VOLUME);
     }
 
+    /**
+     * @return Returns the phase.
+     */
+    public Phase getPhase() {
+        return phase;
+    }
+    /**
+     * @param phase The phase to set.
+     */
+    public void setPhase(Phase phase) {
+        this.phase = phase;
+    }
+
+    private Phase phase;
     private P1HardMovingBoundary pistonPotential;
     private int wallD;
     private double collisionDiameter;

@@ -30,7 +30,6 @@ import etomica.integrator.IntervalActionAdapter;
 import etomica.modifier.ModifierBoolean;
 import etomica.modules.dcvgcmd.IntegratorDCVGCMD.Mu1Modulator;
 import etomica.modules.dcvgcmd.IntegratorDCVGCMD.Mu2Modulator;
-import etomica.units.Dimension;
 import etomica.units.Kelvin;
 
 /**
@@ -136,8 +135,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
     table.setShowingRowLabels(true);
     table.setPrecision(7);
 	
-	sim.accumulator1.makeDataPusher(new AccumulatorAverage.Type[]{AccumulatorAverage.AVERAGE}).addDataSink(profilePlot.getDataTable().makeColumn(Dimension.QUANTITY));
-    sim.accumulator2.makeDataPusher(new AccumulatorAverage.Type[]{AccumulatorAverage.AVERAGE}).addDataSink(profilePlot.getDataTable().makeColumn(Dimension.QUANTITY));
+	sim.accumulator1.addDataSink(profilePlot.getDataTable().makeColumn(),new AccumulatorAverage.Type[]{AccumulatorAverage.AVERAGE});
+    sim.accumulator2.addDataSink(profilePlot.getDataTable().makeColumn(),new AccumulatorAverage.Type[]{AccumulatorAverage.AVERAGE});
 
 //set color of molecules	
 	ColorSchemeByType.setColor(sim.species,colorA);

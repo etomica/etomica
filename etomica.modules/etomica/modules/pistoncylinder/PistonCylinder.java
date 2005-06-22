@@ -12,6 +12,8 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPressureHard;
+import etomica.data.types.DataDouble;
+import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.potential.P1HardBoundary;
@@ -108,28 +110,28 @@ public class PistonCylinder extends Simulation {
         sim.integrator.setTimeStep(20.0);
         Default.BLOCK_SIZE=1000;
 
-        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
-        pMeter.setPhase(new Phase[]{sim.phase});
+        MeterPressureHard pMeter = new MeterPressureHard(sim.space,sim.integrator);
+        pMeter.setPhase(sim.phase);
         AccumulatorAverage pAcc = new AccumulatorAverage();
         DataPump pump = new DataPump(pMeter,new DataSink[]{pAcc});
         IntervalActionAdapter adapter = new IntervalActionAdapter(pump,sim.integrator);
         adapter.setActionInterval(10);
         
         MeterPistonDensity dMeter = new MeterPistonDensity(sim.pistonPotential,1,Default.ATOM_SIZE);
-        dMeter.setPhase(new Phase[]{sim.phase});
+        dMeter.setPhase(sim.phase);
         AccumulatorAverage dAcc = new AccumulatorAverage();
         pump = new DataPump(dMeter,new DataSink[]{dAcc});
         adapter = new IntervalActionAdapter(pump,sim.integrator);
         adapter.setActionInterval(10);
         
-        System.out.println("density (mol/L) = "+dMeter.getDataAsScalar(sim.phase)*10000/6.0221367);
+        System.out.println("density (mol/L) = "+dMeter.getDataAsScalar()*10000/6.0221367);
       
         sim.getController().actionPerformed();
         
-        System.out.println("density average "+dAcc.getData()[AccumulatorAverage.AVERAGE.index]*10000/6.0221367+" +/- "
-                +dAcc.getData()[AccumulatorAverage.ERROR.index]*10000/6.0221367);
-        System.out.println("Z="+pAcc.getData()[AccumulatorAverage.AVERAGE.index]+" +/- "
-                +pAcc.getData()[AccumulatorAverage.ERROR.index]);
+        System.out.println("density average "+((DataDouble)((DataGroup)dAcc.getData()).getData(AccumulatorAverage.AVERAGE.index)).x*10000/6.0221367+" +/- "
+                +((DataDouble)((DataGroup)dAcc.getData()).getData(AccumulatorAverage.ERROR.index)).x*10000/6.0221367);
+        System.out.println("Z="+((DataDouble)((DataGroup)pAcc.getData()).getData(AccumulatorAverage.AVERAGE.index)).x+" +/- "
+                +((DataDouble)((DataGroup)pAcc.getData()).getData(AccumulatorAverage.ERROR.index)).x);
 
    }
        

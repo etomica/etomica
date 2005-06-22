@@ -2,6 +2,7 @@ package etomica.modules.dcvgcmd;
 
 import etomica.Atom;
 import etomica.AtomTreeNodeGroup;
+import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.Species;
@@ -29,6 +30,10 @@ public class MyMCMove extends MCMoveInsertDelete {
 		setZFraction(zFraction);
 	}
 
+    public void setPhase(Phase[] p) {
+        energyMeter.setPhase(p[0]);
+    }
+    
 	/**
 	 * Chooses and performs with equal probability an elementary molecule insertion
 	 * or deletion.
@@ -58,7 +63,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 			}
 			testMolecule = activeAtoms.getRandom();
 			energyMeter.setTarget(testMolecule);
-			uOld = energyMeter.getDataAsScalar(phases[0]);
+			uOld = energyMeter.getDataAsScalar();
 		} 
 		uNew = Double.NaN;
 		return true;
