@@ -17,7 +17,7 @@ import etomica.units.Dimension;
  * kinetic-energy meter.
  */
 
-public final class MeterTemperature extends DataSourceScalar implements Meter {
+public class MeterTemperature extends DataSourceScalar implements Meter {
 
 	public MeterTemperature() {
 		super(new DataInfo("Temperature", Dimension.TEMPERATURE));
