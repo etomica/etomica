@@ -1,6 +1,7 @@
 package etomica;
 
 import etomica.data.meter.MeterKineticEnergy;
+import etomica.data.types.DataDoubleArray;
 import etomica.integrator.IntegratorMD;
 import etomica.units.Dimension;
 
@@ -10,54 +11,44 @@ import etomica.units.Dimension;
 public class IntegratorKineticEnergy implements DataSource, IntegratorNonintervalListener {
 
     public IntegratorKineticEnergy(IntegratorMD aIntegrator) {
+        data = new DataDoubleArray(new DataInfo("Potential Energy",Dimension.ENERGY));
         integrator = aIntegrator;
         integrator.addListener(this);
-        meterKE = new MeterKineticEnergy();
     }
     
-    public double[] getData() {
-        return integrator.getKineticEnergy();
+    public DataInfo getDataInfo() {
+        return data.getDataInfo();
+    }
+    
+    public Data getData() {
+        final double[] x = data.getData();
+        final double[] PE = integrator.getKineticEnergy();
+        for (int i=0; i<x.length; i++) {
+            x[i] = PE[i];
+        }
+        return data;
     }
  
-    /**
-     * Length of data is the number of phases tracked by integrator; returns it.
-     */
-    public int getDataLength() {
-        return integrator.getPhase().length;
-    }
-
     public int getPriority() {return 200;}
     
     public void nonintervalAction(IntegratorNonintervalEvent evt) {
-        if (evt.type() == IntegratorNonintervalEvent.DONE) {
+        if (evt.type() == IntegratorEvent.START) {
+            data.setLength(evt.getSource().getPhase().length);
+        }
+        else if (evt.type() == IntegratorEvent.DONE) {
             double[] currentKE = integrator.getKineticEnergy();
             Phase[] phase = integrator.getPhase();
-            meterKE.setPhase(phase);
-            double[] KE = meterKE.getData();
+            MeterKineticEnergy meterKE = new MeterKineticEnergy();
             for (int i=0; i<phase.length; i++) {
-                if (Math.abs(KE[i] - currentKE[i]) > 1.e-9) {
-                    System.out.println("final kinetic energy ("+currentKE[i]+") for "+phase[i]+" doesn't match actual energy ("+KE[i]+")");
+                meterKE.setPhase(phase[i]);
+                double KE = meterKE.getDataAsScalar();
+                if (Math.abs(KE - currentKE[i]) > 1.e-9) {
+                    System.out.println("final kinetic energy ("+currentKE[i]+") for "+phase[i]+" doesn't match actual energy ("+KE+")");
                 }
             }
         }
     }
     
-    public String getLabel() {
-        return label;
-    }
-    public void setLabel(String string) {
-        label = string;
-    }
-
-    public Dimension getDimension() {
-        return Dimension.ENERGY;
-    }
-
-    public DataTranslator getTranslator() {
-        return DataTranslator.IDENTITY;
-    }
-
+    private final DataDoubleArray data;
     private IntegratorMD integrator;
-    private String label = "Kinetic Energy";
-    private MeterKineticEnergy meterKE;
 }
