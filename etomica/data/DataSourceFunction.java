@@ -1,7 +1,10 @@
 package etomica.data;
 
+import etomica.Data;
+import etomica.DataInfo;
 import etomica.DataSource;
-import etomica.DataTranslator;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataFunction;
 import etomica.units.Dimension;
 import etomica.utility.Function;
 import etomica.utility.IntegerRange;
@@ -23,11 +26,14 @@ public class DataSourceFunction implements DataSource, DataSourceDependent {
         this(new Function.Constant(0.0));
     }
     public DataSourceFunction(Function function) {
+        data = new DataFunction(new DataInfo("y",Dimension.NULL),new DataInfo("x",Dimension.NULL));
         xSource = new DataSourceUniform();
         this.function = function;
-        dimension = Dimension.NULL;
-        label = "";
         update();
+    }
+    
+    public DataInfo getDataInfo() {
+        return data.getDataInfo();
     }
     
     public DataSource getXSource() {return xSource;}
@@ -42,39 +48,22 @@ public class DataSourceFunction implements DataSource, DataSourceDependent {
     	return new IntegerRange(1,1);
     }
     
-    public double[] getData() {
-        return y;
+    public Data getData() {
+        return data;
     }
-    
-    public int getDataLength() {
-        return y.length;
-    }
-    
-    public double[] xValues() {return x;}
     
     public void update() {
-        x = xSource.getData();
-        y = new double[x.length];
+        DataDoubleArray xData = (DataDoubleArray)xSource.getData();
+        data.setLength(xData.getLength());
+        data.getTData().E(xData);
+        y = data.getData();
         for(int i=0; i<x.length; i++) {
             y[i] = function.f(x[i]);
         }
     }
     
-    public void setDimension(Dimension dimension) {this.dimension = dimension;}
-    public Dimension getDimension() {return dimension;}
-    
-    public Dimension getXDimension() {return xSource.getDimension();}
-    
-    public String getXLabel() {return xSource.getLabel();}
-    public String getLabel() {return label;}
-    public void setLabel(String label) {this.label = label;}
-    
+    private DataFunction data;
     private DataSource xSource;
     private Function function;
     private double[] x, y;
-    private String label;
-    private Dimension dimension;
-    
-    public DataTranslator getTranslator() {return DataTranslator.IDENTITY;}
- 
 }//end of DataSourceFunction

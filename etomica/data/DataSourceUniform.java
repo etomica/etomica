@@ -1,20 +1,21 @@
 package etomica.data;
 
 import etomica.Constants;
+import etomica.Data;
+import etomica.DataInfo;
 import etomica.DataSource;
-import etomica.DataTranslator;
+import etomica.data.types.DataDoubleArray;
 import etomica.units.Dimension;
 
 /**
  * A DataSource object that provides a set of uniformly spaced values between
- * two limits.  Number of points and range can be configured.  Range can be set
- * inclusive or exclusive of end points (independently).<br>
+ * two limits. Number of points and range can be configured. Range can be set
+ * inclusive or exclusive of end points (independently). A physical dimension
+ * (e.g., length, time) can be associated with the data at construction (only).
+ * <br>
  * Used principally to provide a set of "x" values for a function or plot.
- *
- * @see DataSourceUniform.LimitType
- *
- * @author David Kofke
  * 
+ * @author David Kofke
  */
 /*
  * History
@@ -24,31 +25,31 @@ import etomica.units.Dimension;
 
 public class DataSourceUniform implements DataSource {
     
-    private Dimension dimension = Dimension.NULL;
-    private String label = "";
-    
-    private LimitType typeMin, typeMax;
-    private double xMin, xMax;
-    private double[] x = new double[2];
-    private double dx;
-    
     /**
-     * Default constructor. Chooses 100 points between 0 and 1, inclusive.
+     * Default constructor. Chooses 100 points between 0 and 1, inclusive,
+     * and sets dataInfo dimension to Dimension.NULL (which cannot be changed
+     * after construction).
      */
     public DataSourceUniform() {
-        this(100, 0.0, 1.0);
+        this(Dimension.NULL, 100, 0.0, 1.0);
     }
     
     /**
      * Constructs a DataSourceUniform using the indicated number of values
      * and x range, and INCLUSIVE limits.
      */
-    public DataSourceUniform(int nValues, double xMin, double xMax) {
-    	this(nValues, xMin, xMax, INCLUSIVE, INCLUSIVE);
+    public DataSourceUniform(Dimension dimension, int nValues, double xMin, double xMax) {
+    	this(dimension, nValues, xMin, xMax, INCLUSIVE, INCLUSIVE);
     }
     
-    public DataSourceUniform(int nValues, double xMin, double xMax, 
+    /**
+     * Constructs a DataSourceUniform using the indicated number of values,
+     * x range, and limit types, with dataInfo indicating that the data have
+     * the given dimension.  Dimension cannot be changed after construction.
+     */
+    public DataSourceUniform(Dimension dimension, int nValues, double xMin, double xMax, 
                    LimitType typeMin, LimitType typeMax) {
+        data = new DataDoubleArray(new DataInfo("Uniform", dimension));
         if(nValues < 2) nValues = 2;
         calculateX(nValues, xMin, xMax, typeMin, typeMax);
     }
@@ -60,7 +61,7 @@ public class DataSourceUniform implements DataSource {
                    LimitType typeMin, LimitType typeMax) {
         
         //determine number of intervals between left and right end points
-        double intervalCount = (double)(nValues - 1);
+        double intervalCount = (nValues - 1);
 
         
         /*
@@ -81,7 +82,8 @@ public class DataSourceUniform implements DataSource {
         else if(typeMin == EXCLUSIVE) x0 += dx;
         
         //calculate values
-        x = new double[nValues];
+        data.setLength(nValues);
+        x = data.getData();
         for(int i=0; i<nValues; i++) x[i] = x0 + i*dx;
         
         //save parameters for later use
@@ -91,6 +93,9 @@ public class DataSourceUniform implements DataSource {
         this.typeMax = typeMax;
     }//end of calculateX
     
+    public DataInfo getDataInfo() {
+        return data.getDataInfo();
+    }
     /**
      * Returns the index of the x value closest to the argument.
      * @throws an IllegalArgumentException if the argument is outside the defined range.
@@ -108,7 +113,7 @@ public class DataSourceUniform implements DataSource {
     
     /**
      * Sets the number of uniformly spaced values.
-     * Minimum allowable value is 2.
+     * Minimum allowable value is 2 (smaller values cause return with no action).
      */
     public void setNValues(int nValues) {
         if(nValues < 2) return;
@@ -159,50 +164,17 @@ public class DataSourceUniform implements DataSource {
       public void setTypeMax(LimitType typeMax) {
         calculateX(x.length, xMin, xMax, typeMin, typeMax);
       }
+      
       /**
        * Accessor method for the type of the right limit.
        */
-       public LimitType getTypeMax() {return typeMax;}
+      public LimitType getTypeMax() {return typeMax;}
        
-       
-      ////////methods to implement DataSource interface//////////
-      
       /**
        * Returns the uniformly spaced values.
         */
-      public double[] getData() {return x;}
-      
-      public int getDataLength() {
-          return x.length;
-      }
-      
-      /**
-       * Returns an Identity translator, indicating that the data
-       * is not suitably interpreted as another object.
-       */
-      public DataTranslator getTranslator() {return DataTranslator.IDENTITY;}
-      /**
-       * Accessor method for the physical dimension associated with the values.
-       * Default is Dimension.NULL (dimensionless).
-       * Implementation of DataSource interface.
-       */
-      public Dimension getDimension() {return dimension;}
-      /**
-       * Mutator method for the physical dimension associated with the values.
-       */
-      public void setDimension(Dimension dim) {dimension = dim;}
-      
-      /**
-       * Accessor method for a label associated with the values.
-       * Implementation of the DataSource interface.
-       */
-      public String getLabel() {return label;}
-      /**
-       * Mutator method for a label associated with the values.
-       */
-      public void setLabel(String text) {label = text;}
-        
-    
+      public Data getData() {return data;}
+            
 	/**
 	 * Typed constant that indicates the way limits of the range are interpreted.
 	 * Choices for the left and right limits may be made independently.<br>
@@ -226,7 +198,7 @@ public class DataSourceUniform implements DataSource {
 	 */
 	public static class LimitType extends Constants.TypedConstant {
         public LimitType(String label) {super(label);}       
-        public Constants.TypedConstant[] choices() {return (Constants.TypedConstant[])CHOICES;}
+        public Constants.TypedConstant[] choices() {return CHOICES;}
         public static final LimitType[] CHOICES = 
             new LimitType[] {
                 new LimitType("Inclusive"),
@@ -236,6 +208,12 @@ public class DataSourceUniform implements DataSource {
     public static final LimitType INCLUSIVE = LimitType.CHOICES[0];
     public static final LimitType HALF_STEP = LimitType.CHOICES[1];
     public static final LimitType EXCLUSIVE = LimitType.CHOICES[2];
+    
+    private LimitType typeMin, typeMax;
+    private double xMin, xMax;
+    private double[] x;
+    private final DataDoubleArray data;
+    private double dx;
     
     /**
      * Main method to demonstrate and check class.
@@ -251,13 +229,13 @@ public class DataSourceUniform implements DataSource {
         source.setNValues(n);
         source.setTypeMin(DataSourceUniform.INCLUSIVE);
         source.setTypeMax(DataSourceUniform.INCLUSIVE);
-        for(int i=0; i<n; i++) System.out.print(source.getData()[i] + "  ");
+        for(int i=0; i<n; i++) System.out.print(((DataDoubleArray)source.getData()).getData()[i] + "  ");
         System.out.println();
         source.setTypeMax(DataSourceUniform.HALF_STEP);
-        for(int i=0; i<n; i++) System.out.print(source.getData()[i] + "  ");
+        for(int i=0; i<n; i++) System.out.print(((DataDoubleArray)source.getData()).getData()[i] + "  ");
         System.out.println();
         source.setTypeMax(DataSourceUniform.EXCLUSIVE);
-        for(int i=0; i<n; i++) System.out.print(source.getData()[i] + "  ");
+        for(int i=0; i<n; i++) System.out.print(((DataDoubleArray)source.getData()).getData()[i] + "  ");
         System.out.println("");
         System.out.println("Done");
         

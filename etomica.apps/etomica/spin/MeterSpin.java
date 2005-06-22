@@ -4,7 +4,7 @@ import etomica.Atom;
 import etomica.Phase;
 import etomica.Space;
 import etomica.atom.iterator.AtomIteratorListTabbed;
-import etomica.data.meter.MeterScalar;
+import etomica.data.DataSourceScalar;
 import etomica.space.Vector;
 import etomica.units.Dimension;
 
@@ -21,7 +21,7 @@ import etomica.units.Dimension;
  * History
  * Created on May 25, 2005 by kofke
  */
-public class MeterSpin extends MeterScalar {
+public class MeterSpin extends DataSourceScalar {
 
     /**
      * 

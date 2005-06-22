@@ -2,7 +2,7 @@ package etomica.graphics;
 import java.awt.Color;
 import java.awt.Graphics;
 
-import etomica.data.meter.MeterScalar;
+import etomica.data.DataSourceScalar;
 
     public class DisplayScrollingGraph extends Display {
 
@@ -24,7 +24,7 @@ import etomica.data.meter.MeterScalar;
         double vAvg;
         double v2Avg;
         double stdDev;
-        MeterScalar meter;
+        DataSourceScalar meter;
         etomica.units.Unit unit;
         
         public DisplayScrollingGraph() {
@@ -55,7 +55,7 @@ import etomica.data.meter.MeterScalar;
     /**
      * Accessor method for the meter that generates the displayed value.
      */
-    public MeterScalar getMeter() {
+    public DataSourceScalar getMeter() {
         System.out.println("DisplayBox.getMeter value = "+meter);
         return meter;
     }
@@ -63,7 +63,7 @@ import etomica.data.meter.MeterScalar;
     /**
      * Specifies the meter that generates the displayed value.
      */
-    public void setMeter(MeterScalar m) {
+    public void setMeter(DataSourceScalar m) {
         meter = m;
         setUnit(m.defaultIOUnit());
     }

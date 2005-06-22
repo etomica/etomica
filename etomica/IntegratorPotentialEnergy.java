@@ -1,6 +1,7 @@
 package etomica;
 
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.types.DataDoubleArray;
 import etomica.units.Dimension;
 
 /**
@@ -9,52 +10,43 @@ import etomica.units.Dimension;
 public class IntegratorPotentialEnergy implements DataSource, IntegratorNonintervalListener {
 
     public IntegratorPotentialEnergy(Integrator aIntegrator) {
+        data = new DataDoubleArray(new DataInfo("Potential Energy",Dimension.ENERGY));
         integrator = aIntegrator;
         integrator.addListener(this);
     }
     
-    public double[] getData() {
-        return integrator.getPotentialEnergy();
+    public DataInfo getDataInfo() {
+        return data.getDataInfo();
     }
     
-    /**
-     * Length of data is the number of phases tracked by integrator; returns it.
-     */
-    public int getDataLength() {
-        return integrator.getPhase().length;
+    public Data getData() {
+        final double[] x = data.getData();
+        final double[] PE = integrator.getPotentialEnergy();
+        for (int i=0; i<x.length; i++) {
+            x[i] = PE[i];
+        }
+        return data;
     }
-
+    
     public void nonintervalAction(IntegratorNonintervalEvent evt) {
-        if (evt.type() == IntegratorIntervalEvent.DONE) {
+        if (evt.type() == IntegratorIntervalEvent.START) {
+            data.setLength(evt.getSource().getPhase().length);
+        }
+        else if (evt.type() == IntegratorIntervalEvent.DONE) {
             double[] currentPE = integrator.getPotentialEnergy();
             Phase[] phase = integrator.getPhase();
             MeterPotentialEnergy meterPE = new MeterPotentialEnergy(integrator.potential);
-            meterPE.setPhase(phase);
-            double[] PE = meterPE.getData();
             for (int i=0; i<phase.length; i++) {
-                if (Math.abs(PE[i] - currentPE[i]) > 1.e-9*Math.abs(PE[i]+currentPE[i])) {
-                    System.out.println("final potential energy ("+currentPE[i]+") for "+phase[i]+" doesn't match actual energy ("+PE[i]+")");
+                meterPE.setPhase(phase[i]);
+                double PE = meterPE.getDataAsScalar();
+                if (Math.abs(PE - currentPE[i]) > 1.e-9*Math.abs(PE+currentPE[i])) {
+                    System.out.println("final potential energy ("+currentPE[i]+") for "+phase[i]+" doesn't match actual energy ("+PE+")");
                     meterPE.getData();
                 }
             }
         }
     }
-    
-    public String getLabel() {
-        return label;
-    }
-    public void setLabel(String string) {
-        label = string;
-    }
 
-    public Dimension getDimension() {
-        return Dimension.ENERGY;
-    }
-
-    public DataTranslator getTranslator() {
-        return DataTranslator.IDENTITY;
-    }
-
+    private final DataDoubleArray data;
     private Integrator integrator;
-    private String label = "Potential Energy";
 }

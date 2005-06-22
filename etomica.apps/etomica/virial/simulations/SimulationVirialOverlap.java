@@ -2,7 +2,7 @@ package etomica.virial.simulations;
 
 import etomica.Default;
 import etomica.Integrator;
-import etomica.MeterAbstract;
+import etomica.Meter;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.Space;
@@ -166,7 +166,7 @@ public class SimulationVirialOverlap extends Simulation {
     protected PhaseCluster[] phase;
     protected Species species;
     protected IntegratorClusterMC[] integrators;
-    protected MeterAbstract[] meters;
+    protected Meter[] meters;
     protected ActivityIntegrate ai;
     protected IntegratorOverlap integratorOS;
 

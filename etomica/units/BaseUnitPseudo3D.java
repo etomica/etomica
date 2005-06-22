@@ -3,12 +3,9 @@ package etomica.units;
 public abstract class BaseUnitPseudo3D extends BaseUnit implements BaseUnit.D3 {
     
     public static final double FALSE_DEPTH = 5.0;  //Angstroms
-
-    private BaseUnit baseUnit3D;
     
     public BaseUnitPseudo3D(BaseUnit unit3D, double mult) {
     	super(unit3D.toSim(1.0)*mult, unit3D.toString(), unit3D.symbol(), unit3D.dimension(), unit3D.prefixAllowed());
-        baseUnit3D = unit3D;
 //        name = unit3D.toString();
 //        symbol = unit3D.symbol();
 //        prefixAllowed = unit3D.prefixAllowed();

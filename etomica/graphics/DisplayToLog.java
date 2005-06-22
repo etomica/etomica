@@ -14,9 +14,9 @@ import javax.swing.JLabel;
 
 import etomica.Integrator;
 import etomica.IntegratorIntervalEvent;
-import etomica.MeterAbstract;
+import etomica.Meter;
 import etomica.Simulation;
-import etomica.data.meter.MeterScalar;
+import etomica.data.DataSourceScalar;
 import etomica.utility.java2.Iterator;
 
 
@@ -80,9 +80,9 @@ public class DisplayToLog extends Display {
     
     public void doUpdate() {
         for(Iterator iter=simulation().getMeterList().iterator(); iter.hasNext(); ) {
-            MeterAbstract meter = (MeterAbstract)iter.next();
-            if(!(meter instanceof MeterScalar)) continue;
-            logFile.print(((MeterScalar)meter).average() + " " + ((MeterScalar)meter).error()+ "  ");
+            Meter meter = (Meter)iter.next();
+            if(!(meter instanceof DataSourceScalar)) continue;
+            logFile.print(((DataSourceScalar)meter).average() + " " + ((DataSourceScalar)meter).error()+ "  ");
         }
         logFile.println();
     }

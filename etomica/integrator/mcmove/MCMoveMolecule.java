@@ -45,7 +45,7 @@ public class MCMoveMolecule extends MCMoveAtom {
         atom = atomSource.getAtom();
 
         energyMeter.setTarget(atom);
-        uOld = energyMeter.getDataAsScalar(phase);
+        uOld = energyMeter.getDataAsScalar();
         groupTranslationVector.setRandomCube();
         groupTranslationVector.TE(stepSize);
         moveMoleculeAction.actionPerformed(atom);

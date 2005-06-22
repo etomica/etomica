@@ -1,14 +1,15 @@
 package etomica.data.meter;
 
 import etomica.AtomPair;
+import etomica.DataInfo;
 import etomica.Default;
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.MeterAbstract;
+import etomica.Meter;
 import etomica.Phase;
 import etomica.Space;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
+import etomica.data.DataSourceScalar;
 import etomica.math.SphericalHarmonics;
 import etomica.space.CoordinatePair;
 import etomica.space.Vector;
@@ -21,13 +22,12 @@ import etomica.units.Dimension;
    * @author Jhumpa Adhikari
    */
 
-public class MeterBondOrderParameterQ extends MeterAbstract implements EtomicaElement {
+public class MeterBondOrderParameterQ  extends DataSourceScalar implements Meter {
 	
     public MeterBondOrderParameterQ(Space space) {
-        super(1);
+        super(new DataInfo("Bond Q Order Parameter", Dimension.UNDEFINED));
         setL(6);
         setR2Cut(Math.pow(5.0*Default.ATOM_SIZE, 2));
-        setLabel("Bond Q Order Parameter");
         cPair = space.makeCoordinatePair();
     }
     
@@ -40,7 +40,8 @@ public class MeterBondOrderParameterQ extends MeterAbstract implements EtomicaEl
      * Returns the value of the bond-order parameter for the given phase
      * in its current configuration.  Returned array has only one element.
      */
-    public double[] getData(Phase phase) {
+    public double getDataAsScalar() {
+        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
         int nbSum = 0;
         for(int m=-L; m<=L; m++) {
             int idx = m+L;
@@ -76,10 +77,8 @@ public class MeterBondOrderParameterQ extends MeterAbstract implements EtomicaEl
             int idx = m+L;
             QL += Qreal[idx]*Qreal[idx] - Qimag[idx]*Qimag[idx];
         }
-        value[0] = Math.sqrt(coeff*QL)/(double)nbSum;
-        return value;
-        
-    }//end of currentValue
+        return Math.sqrt(coeff*QL)/nbSum;
+    }
     
     public int getL(){return L;}
     /**
@@ -93,8 +92,6 @@ public class MeterBondOrderParameterQ extends MeterAbstract implements EtomicaEl
         Qimag = new double[2*L + 1];
         coeff = 4*Math.PI/(2*L + 1);
     }
-        
-    public Dimension getDimension() {return Dimension.NULL;}
 
     /**
      * Sets the iterator that gives the atoms over which the order parameter
@@ -120,14 +117,26 @@ public class MeterBondOrderParameterQ extends MeterAbstract implements EtomicaEl
     public void setR2Cut(double r2c){
     	r2Cut = r2c;
     }
-	
-    private SphericalHarmonics sh;
+    
+    /**
+     * @return Returns the phase.
+     */
+    public Phase getPhase() {
+        return phase;
+    }
+    /**
+     * @param phase The phase to set.
+     */
+    public void setPhase(Phase phase) {
+        this.phase = phase;
+    }
+
+    private Phase phase;
     private double[] Qreal, Qimag;
     private int L;
     private AtomsetIteratorPhaseDependent pairIterator = new ApiLeafAtoms();
     private double r2Cut;
     private double[] rThetaPhi = new double[3];
-    private final double[] value = new double[1];
     private double coeff;
     private final CoordinatePair cPair;
     

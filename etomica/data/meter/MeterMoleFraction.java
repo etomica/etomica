@@ -1,9 +1,12 @@
 package etomica.data.meter;
 
-import etomica.EtomicaElement;
+import etomica.DataInfo;
 import etomica.EtomicaInfo;
+import etomica.Meter;
 import etomica.Phase;
 import etomica.Species;
+import etomica.data.DataSourceScalar;
+import etomica.units.Dimension;
 
 /**
  * Meter for measurement of the species mole fraction in a phase.
@@ -11,12 +14,11 @@ import etomica.Species;
  *
  * @author David Kofke
  */
-public class MeterMoleFraction extends MeterScalar implements EtomicaElement {
+public class MeterMoleFraction extends DataSourceScalar implements Meter {
     private Species species;
    
     public MeterMoleFraction() {
-        super();
-        setLabel("Mole fraction");
+        super(new DataInfo("Mole Fraction",Dimension.FRACTION));
     }
     
     public void setSpecies(Species s) {
@@ -29,11 +31,24 @@ public class MeterMoleFraction extends MeterScalar implements EtomicaElement {
         return info;
     }
 
-    public double getDataAsScalar(Phase phase) {
+    public double getDataAsScalar() {
+        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
     	return (species == null) ? Double.NaN :
          	(double)phase.getAgent(species).moleculeCount()/(double)phase.moleculeCount();
      }
-        
-    public etomica.units.Dimension getDimension() {return etomica.units.Dimension.FRACTION;}
 
+    /**
+     * @return Returns the phase.
+     */
+    public Phase getPhase() {
+        return phase;
+    }
+    /**
+     * @param phase The phase to set.
+     */
+    public void setPhase(Phase phase) {
+        this.phase = phase;
+    }
+
+    private Phase phase;
 }//end of MeterMoleFraction

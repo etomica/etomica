@@ -2,7 +2,10 @@ package etomica.data;
 
 import etomica.Atom;
 import etomica.AtomIterator;
+import etomica.DataInfo;
+import etomica.EtomicaElement;
 import etomica.space.ICoordinateKinetic;
+import etomica.units.Dimension;
 
 /**
  * Meter for the root-mean-square velocity of a set of atoms. Useful to obtain
@@ -11,27 +14,27 @@ import etomica.space.ICoordinateKinetic;
  * @author David Kofke
  */
 
-public class DataSourceRmsVelocity extends DataSourceAdapter {
+public class DataSourceRmsVelocity extends DataSourceScalar implements EtomicaElement {
 
 	//TODO define a dimension for this property
 	public DataSourceRmsVelocity() {
-		super(etomica.units.Dimension.UNDEFINED);
+		super(new DataInfo("RMS Velocity", Dimension.UNDEFINED));
 	}
 
 	/**
 	 * Returns the rms velocity of the atoms given by the iterator. Value is
 	 * given in the first element of the array, which is always of dimension 1.
 	 */
-	public double[] getData() {
+	public double getDataAsScalar() {
 		iterator.reset();
 		int count = 0;
-		value[0] = 0.0;
+		double value = 0.0;
 		while (iterator.hasNext()) {
 			Atom atom = iterator.nextAtom();
-			value[0] += Math.sqrt(((ICoordinateKinetic)atom.coord).velocity().squared());
+			value += Math.sqrt(((ICoordinateKinetic)atom.coord).velocity().squared());
 			count++;
 		}
-		value[0] /= (double) count;
+		value /= count;
 		return value;
 	}
     
@@ -61,7 +64,5 @@ public class DataSourceRmsVelocity extends DataSourceAdapter {
 	}
 
 	private AtomIterator iterator = AtomIterator.NULL;
-
-	private final double[] value = new double[1];
 
 }//end of DataSourceVelocityRms

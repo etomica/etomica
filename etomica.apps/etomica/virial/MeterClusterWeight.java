@@ -3,14 +3,14 @@ package etomica.virial;
 import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.PotentialMaster;
-import etomica.data.meter.MeterScalar;
+import etomica.data.DataSourceScalar;
 import etomica.units.Dimension;
 
 /**
  * Meter to calculate the sampling weight of a cluster configuration.   
  */
  
-public class MeterClusterWeight extends MeterScalar {
+public class MeterClusterWeight extends DataSourceScalar {
     
     public MeterClusterWeight(PotentialMaster potentialMaster) {
         setLabel("Cluster Weight");

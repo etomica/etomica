@@ -1,6 +1,5 @@
 package etomica.space1d;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Space;
 import etomica.space.Boundary;
@@ -22,7 +21,7 @@ import etomica.space.Boundary;
   * redefined position() in CoordinateGroup to be first-atom position (as it has
   * been for Space3D for some time now).
   */
-public class Space1D extends Space implements EtomicaElement {
+public class Space1D extends Space {
     
     public static int drawingHeight = 10;  //height for drawing to 2D image
     public final int D() {return D;}

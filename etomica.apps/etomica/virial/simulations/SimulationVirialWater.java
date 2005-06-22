@@ -128,7 +128,7 @@ public class SimulationVirialWater extends SimulationGraphic {
 		bMeter.setHistorying(true);
 		DisplayPlot bPlot = new DisplayPlot(this);
 		bPlot.setDataSources(bMeter.getHistory());
-		bPlot.setWhichValue(MeterAbstract.CURRENT);
+		bPlot.setWhichValue(MeterAbsMeter);
 		bMeter.getHistory().setHistoryLength(1000);
 		bPlot.setLabel("B running average");
 		
@@ -232,7 +232,7 @@ public class SimulationVirialWater extends SimulationGraphic {
 		meterClusterTable.setDatumSources(meterVirial);
 		meterClusterTable.setLabel("Cluster");
 		meterClusterTable.setWhichValues(
-			new DataSource.ValueType[] {MeterAbstract.CURRENT, MeterAbstract.AVERAGE, MeterAbstract.ERROR});
+			new DataSource.ValueType[] {Meter.CURRENT, Meter.AVERAGE, Meter.ERROR});
 		meterClusterTable.setUpdateInterval(1000);
 		meterClusterTable.setPrecision(8);
 		DataSourceCountSteps meterCycles = new DataSourceCountSteps(sim);

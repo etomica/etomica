@@ -58,7 +58,7 @@ import etomica.utility.NameMaker;
   * 7/3/02  added reset method
   */
   
-public class Phase {
+public class Phase implements EtomicaElement {
         
     private Boundary boundary;
     public final SpeciesMaster speciesMaster;
@@ -112,6 +112,7 @@ public class Phase {
      * @return The given name of this phase
      */
     public final String getName() {return name;}
+    
     /**
      * Method to set the name of this simulation element. The element's name
      * provides a convenient way to label output data that is associated with

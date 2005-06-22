@@ -4,7 +4,9 @@
  */
 package etomica.data;
 
-import etomica.DataTranslator;
+import etomica.Data;
+import etomica.DataInfo;
+import etomica.data.types.DataInteger;
 import etomica.units.Dimension;
 
 /**
@@ -18,37 +20,30 @@ public class AccumulatorCounter extends DataAccumulator {
 	 * @param dataSource
 	 */
 	public AccumulatorCounter() {
-		setDimension(Dimension.QUANTITY);
+        data = new DataInteger(new DataInfo("Counter", Dimension.QUANTITY));
 	}
+    
+    public DataInfo getDataInfo() {
+        return data.getDataInfo();
+    }
 
 	/* (non-Javadoc)
 	 * @see etomica.Accumulator#add(double[])
 	 */
-	protected void addData(double[] values) {
-		count++;
+	protected void addData(Data dummyData) {
+		data.x++;
 	}
 
 	/* (non-Javadoc)
 	 * @see etomica.DataSource#getData()
 	 */
-	public double[] getData() {
-		data[0] = count;
+	public Data getData() {
 		return data;
 	}
 	
 	public void reset() {
-		count = 0;
+		data.x = 0;
 	}
 	
-    /**
-     * Returns 1.
-     */
-    public int getDataLength() {
-        return 1;
-    }
-    
-	int count;
-	final double[] data = new double[1];
-	
-	public DataTranslator getTranslator() {return DataTranslator.IDENTITY;}
+	final DataInteger data;
 }

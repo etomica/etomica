@@ -58,7 +58,7 @@ public class MCMoveAtom extends MCMove {
         atom = atomSource.getAtom();
         if (atom == null) return false;
         energyMeter.setTarget(atom);
-        uOld = energyMeter.getDataAsScalar(phases[0]);
+        uOld = energyMeter.getDataAsScalar();
         if(uOld > 1e10 && !Default.FIX_OVERLAP) {
             System.out.println("Uold: "+uOld);
             throw new RuntimeException("Overlap found in configuration");
@@ -87,7 +87,7 @@ public class MCMoveAtom extends MCMove {
      */
     public double lnProbabilityRatio() {
 //        energyMeter.setTarget(atom);
-        uNew = energyMeter.getDataAsScalar(phases[0]);
+        uNew = energyMeter.getDataAsScalar();
         return -(uNew - uOld)/temperature;
     }
     
@@ -118,6 +118,7 @@ public class MCMoveAtom extends MCMove {
     
     public void setPhase(Phase[] p) {
         super.setPhase(p);
+        energyMeter.setPhase(p[0]);
         atomSource.setPhase(p[0]);
     }
     

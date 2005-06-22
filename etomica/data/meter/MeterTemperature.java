@@ -1,8 +1,10 @@
 package etomica.data.meter;
 
-import etomica.EtomicaElement;
+import etomica.DataInfo;
 import etomica.EtomicaInfo;
+import etomica.Meter;
 import etomica.Phase;
+import etomica.data.DataSourceScalar;
 import etomica.units.Dimension;
 
 /**
@@ -15,12 +17,10 @@ import etomica.units.Dimension;
  * kinetic-energy meter.
  */
 
-public final class MeterTemperature extends MeterScalar implements
-		EtomicaElement {
+public final class MeterTemperature extends DataSourceScalar implements Meter {
 
 	public MeterTemperature() {
-		super();
-		setLabel("Temperature");
+		super(new DataInfo("Temperature", Dimension.TEMPERATURE));
 		meterKE = new MeterKineticEnergy();
 	}
 
@@ -30,14 +30,30 @@ public final class MeterTemperature extends MeterScalar implements
 		return info;
 	}
 
-	public double getDataAsScalar(Phase phase) {
-		return (2. / (double) (phase.atomCount() * phase.boundary().dimensions().D()))
-				* meterKE.getDataAsScalar(phase);
+	public double getDataAsScalar() {
+        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
+		return (2. / (phase.atomCount() * phase.boundary().dimensions().D()))
+				* meterKE.getDataAsScalar();
 	}
 
 	public Dimension getDimension() {
 		return Dimension.TEMPERATURE;
 	}
 
+    /**
+     * @return Returns the phase.
+     */
+    public Phase getPhase() {
+        return phase;
+    }
+    /**
+     * @param phase The phase to set.
+     */
+    public void setPhase(Phase phase) {
+        this.phase = phase;
+        meterKE.setPhase(phase);
+    }
+
+    private Phase phase;
 	private final MeterKineticEnergy meterKE;
 }

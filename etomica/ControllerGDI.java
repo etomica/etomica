@@ -1,6 +1,6 @@
 package etomica ;
 import etomica.data.AccumulatorAverage;
-import etomica.data.meter.MeterScalar;
+import etomica.data.DataSourceScalar;
 import etomica.modifier.ModifierGeneral;
 import etomica.utility.Function;
 
@@ -24,7 +24,7 @@ public class ControllerGDI extends Controller implements EtomicaElement {
     private  double          factor;
     private  Integrator      integrator1,integrator2;
     private  ModifierGeneral       modifierIndependentVariable,modifierDependentVariable;
-    private  MeterScalar     meter1phase1,meter1phase2,meter2phase1,meter2phase2;
+    private  DataSourceScalar     meter1phase1,meter1phase2,meter2phase1,meter2phase2;
     private  AccumulatorAverage accAve1phase1, accAve1phase2, accAve2phase1, accAve2phase2;
     private  DataManager AM1phase1, AM1phase2, AM2phase1, AM2phase2;
     private  double          i0 ;
@@ -49,7 +49,7 @@ public class ControllerGDI extends Controller implements EtomicaElement {
     public ControllerGDI(Simulation sim, ModifierGeneral modifierIndependentVariable1, ModifierGeneral modifierDependentVariable1,
                             double i1, double d1, double finalvalue,
                             Integrator int1, Integrator int2,
-                            MeterScalar m1, MeterScalar m2, MeterScalar m3, MeterScalar m4) {
+                            DataSourceScalar m1, DataSourceScalar m2, DataSourceScalar m3, DataSourceScalar m4) {
         this(sim, modifierIndependentVariable1, modifierDependentVariable1,
                             i1,d1,finalvalue,
                             int1, int2,
@@ -59,7 +59,7 @@ public class ControllerGDI extends Controller implements EtomicaElement {
     public ControllerGDI(Simulation sim, ModifierGeneral modifierIndependentVariable1, ModifierGeneral modifierDependentVariable1,
                             double i1, double d1, double finalvalue,
                             Integrator int1, Integrator int2,
-                            MeterScalar m1, MeterScalar m2, MeterScalar m3, MeterScalar m4,
+                            DataSourceScalar m1, DataSourceScalar m2, DataSourceScalar m3, DataSourceScalar m4,
                             Function iFunction, Function dFunction) {
         super(sim);
         this.definition(modifierIndependentVariable1, modifierDependentVariable1,
@@ -72,7 +72,7 @@ public class ControllerGDI extends Controller implements EtomicaElement {
     public void definition(ModifierGeneral modifierIndependentVariable1, ModifierGeneral modifierDependentVariable1,
                             double i1,double d1,double finalvalue,
                             Integrator int1,Integrator int2,
-                            MeterScalar m1, MeterScalar m2, MeterScalar m3, MeterScalar m4,
+                            DataSourceScalar m1, DataSourceScalar m2, DataSourceScalar m3, DataSourceScalar m4,
                             Function iFunction, Function dFunction) {
         iF = iFunction;
         dF = dFunction;

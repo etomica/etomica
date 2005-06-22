@@ -1,10 +1,12 @@
 package etomica.data.meter;
+import etomica.DataInfo;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Phase;
+import etomica.Space;
 import etomica.data.DataSourceCountTime;
+import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorHard;
-import etomica.integrator.IntegratorMD;
 import etomica.units.Dimension;
 
 /**
@@ -14,14 +16,13 @@ import etomica.units.Dimension;
  *
  * @author David Kofke
  */
-public class MeterPressureHard extends MeterScalar implements
+public class MeterPressureHard extends DataSourceScalar implements
                                                 IntegratorHard.CollisionListener,
                                                 MeterCollisional,
                                                 EtomicaElement {
     
-    public MeterPressureHard(IntegratorHard integrator) {
-        super();
-        setLabel("Pressure");
+    public MeterPressureHard(Space space, IntegratorHard integrator) {
+        super(new DataInfo("Pressure", Dimension.pressure(space.D())));
         timer = new DataSourceCountTime();
         setIntegrator(integrator);
     }
@@ -31,23 +32,22 @@ public class MeterPressureHard extends MeterScalar implements
         return info;
     }
         
-    public Dimension getDimension() {return Dimension.PRESSURE;}
-
     /**
      * Returns P = (NT - (virial sum)/((elapsed time)*T*(space dimension)))/V
      * Virial sum and elapsed time apply to period since last call to this method.
      */
     //TODO consider how to ensure timer is advanced before this method is invoked
-    public double getDataAsScalar(Phase p) {
-        if (integratorHard.getPhase()[0] != p) {
+    public double getDataAsScalar() {
+        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
+        if (integratorHard.getPhase()[0] != phase) {
             throw new IllegalArgumentException("Integrator must act on meter's phase");
         }
         else if (!integratorHard.isIsothermal()) {
             throw new IllegalStateException("Integrator must be isothermal");
         }
-        double elapsedTime = timer.getData()[0];
+        double elapsedTime = timer.getDataAsScalar();
         if(elapsedTime == 0.0) return Double.NaN;
-        double value = (integratorHard.getTemperature()*p.atomCount() - virialSum/(p.space().D()*elapsedTime)) / p.boundary().volume();
+        double value = (integratorHard.getTemperature()*phase.atomCount() - virialSum/(phase.space().D()*elapsedTime)) / phase.boundary().volume();
 
         virialSum = 0.0;
         timer.reset();
@@ -75,12 +75,31 @@ public class MeterPressureHard extends MeterScalar implements
      */
 	protected void setIntegrator(IntegratorHard newIntegrator) {
 		if(newIntegrator == integratorHard) return;
-		if(integratorHard != null) integratorHard.removeCollisionListener(this);
-		integratorHard = newIntegrator;
-	    timer.setIntegrator(new IntegratorMD[] {newIntegrator});
-	    if(newIntegrator != null) integratorHard.addCollisionListener(this);
+		if(integratorHard != null) {
+            integratorHard.removeCollisionListener(this);
+            integratorHard.removeListener(timer);
+        }
+        integratorHard = newIntegrator;
+	    if(newIntegrator != null) {
+            newIntegrator.addListener(timer);
+            integratorHard.addCollisionListener(this);
+        }
 	}
-   
+    
+    /**
+     * @return Returns the phase.
+     */
+    public Phase getPhase() {
+        return phase;
+    }
+    /**
+     * @param phase The phase to set.
+     */
+    public void setPhase(Phase phase) {
+        this.phase = phase;
+    }
+
+    private Phase phase;
     protected double virialSum = 0.0;
     private IntegratorHard integratorHard;
     protected final DataSourceCountTime timer;

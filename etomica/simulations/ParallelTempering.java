@@ -3,7 +3,7 @@ package etomica.simulations;
 import etomica.Controller;
 import etomica.DataSource;
 import etomica.Default;
-import etomica.MeterAbstract;
+import etomica.Meter;
 import etomica.Phase;
 import etomica.SpeciesSpheresMono;
 import etomica.action.PhaseImposePbc;
@@ -102,7 +102,7 @@ public class ParallelTempering extends SimulationGraphic {
 		phaseTracker.setUpdateInterval(10);
 		DisplayPlot phaseTrackPlot = new DisplayPlot();
 		phaseTrackPlot.setDoLegend(false);
-		phaseTrackPlot.setWhichValue(MeterAbstract.CURRENT);
+		phaseTrackPlot.setWhichValue(MeterAbsMeter);
 		phaseTrackPlot.setDataSources(phaseTracker.dataSource());
 		phaseTrackPlot.setLabel("Track");
 		phaseTrackPlot.setUpdateInterval(10);
@@ -110,7 +110,7 @@ public class ParallelTempering extends SimulationGraphic {
 		DisplayTable acceptanceTable = new DisplayTable();
 		acceptanceTable.setDatumSources(meterAccept);
 		acceptanceTable.setLabel("Accept");
-		acceptanceTable.setWhichValues(new MeterAbstract.ValueType[] {MeterAbstract.CURRENT, MeterAbstract.AVERAGE, MeterAbstract.ERROR});
+		acceptanceTable.setWhichValues(new Meter.ValueType[] {Meter.CURRENT, Meter.AVERAGE, Meter.ERROR});
                                 
 		controller = new Controller();
         

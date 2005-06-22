@@ -87,7 +87,7 @@ public class SimulationVirialOS extends SimulationGraphic {
 		
 	  DisplayPlot clusterPlot = new DisplayPlot(refSimulation);
 	  clusterPlot.setDataSources(meter.allMeters());
-	  clusterPlot.setWhichValue(MeterAbstract.AVERAGE);
+	  clusterPlot.setWhichValue(MeterAbsMeter);
 		
 	  refSimulation.elementCoordinator.go();
 	  clusterPlot.setDataSources(meter.allMeters());

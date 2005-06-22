@@ -185,10 +185,33 @@ public abstract class Dimension implements java.io.Serializable {
     public static final Dimension VOLUME = new Volume();
     public static final Dimension VOLUME2D = new Volume2D();
 	public static final Dimension UNDEFINED = new Undefined();
-   public static final Dimension[] ALL = new Dimension[] {
+    public static final Dimension[] ALL = new Dimension[] {
         NULL, QUANTITY, MASS, LENGTH, TIME, ANGLE, CHARGE, DIPOLE, ENERGY, 
         TEMPERATURE, PRESSURE, PRESSURE2D, VOLUME, VOLUME2D, UNDEFINED};
 
+    public static final Dimension pressure(int D) {
+        switch(D) {
+            case 2:
+                return PRESSURE2D;
+            case 3:
+                return PRESSURE;
+            default:
+                throw new IllegalArgumentException("number of dimensions must be 2 or 3");
+        }
+    }
+
+    public static final Dimension volume(int D) {
+        switch(D) {
+            case 1:
+                return LENGTH;
+            case 2:
+                return VOLUME2D;
+            case 3:
+                return VOLUME;
+            default:
+                throw new IllegalArgumentException("number of dimensions must be 1, 2 or 3");
+        }
+    }
     
     /**
      * Returns all dimension classes with the same signature as the one given.

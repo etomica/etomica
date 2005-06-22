@@ -43,6 +43,7 @@ public class MeterPressureHardTensor extends MeterTensor implements IntegratorHa
     public Dimension getDimension() {return Dimension.TEMPERATURE;}
     
     public Tensor getData() {
+        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
         double t = integratorHard.elapsedTime();
         if (t > t0) {
             velocityTensor.E(0.);

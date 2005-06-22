@@ -1,6 +1,6 @@
 package etomica.virial.overlap;
 
-import etomica.data.meter.MeterScalar;
+import etomica.data.DataSourceScalar;
 import etomica.units.Dimension;
 
 /**
@@ -9,7 +9,7 @@ import etomica.units.Dimension;
  * Meter to computer cluster integral by processing averages from overlap-
  * sampling meters.
  */
-public class MeterClusterOverlap extends MeterScalar {
+public class MeterClusterOverlap extends DataSourceScalar {
 
 	/**
 	 * Constructor for MeterClusterOverlap.
@@ -26,7 +26,7 @@ public class MeterClusterOverlap extends MeterScalar {
 	}
 
 	/**
-	 * @see etomica.data.meter.MeterScalar#getData()
+	 * @see etomica.data.DataSourceScalar#getData()
 	 */
 	public double getData() {
 		double[] refNegative = referenceMeter.allMeters()[0].average();
@@ -57,7 +57,7 @@ public class MeterClusterOverlap extends MeterScalar {
 	}
 
 	/**
-	 * @see etomica.MeterAbstract#getDimension()
+	 * @see etomica.Meter#getDimension()
 	 */
 	public Dimension getDimension() {
 		return null;

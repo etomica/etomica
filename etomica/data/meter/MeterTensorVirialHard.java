@@ -44,6 +44,7 @@ public class MeterTensorVirialHard extends MeterTensor implements IntegratorHard
     //XXX phase parameter is not used appropriately here
     //TODO consider how to ensure timer is advanced before this method is invoked
     public Tensor getDataAsTensor(Phase phase) {
+        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
         double elapsedTime = timer.getData()[0];
         if(elapsedTime == 0.0) {
             virialTensor.E(Double.NaN);

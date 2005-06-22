@@ -1,9 +1,11 @@
 package etomica.data.meter;
 
-import etomica.EtomicaElement;
+import etomica.DataInfo;
 import etomica.EtomicaInfo;
+import etomica.Meter;
 import etomica.Phase;
 import etomica.PotentialMaster;
+import etomica.data.DataSourceScalar;
 import etomica.units.Dimension;
 
 /**
@@ -11,14 +13,13 @@ import etomica.units.Dimension;
  * This meter is constructed from kinetic-energy and a potential-energy meters
  * An instance of this meter is placed in each phase to allow for energy measurements in the phase
  */
-public final class MeterEnergy extends MeterScalar implements EtomicaElement {
+public final class MeterEnergy extends DataSourceScalar implements Meter {
 
     private MeterKineticEnergy kinetic;
     private MeterPotentialEnergy potential;
     
     public MeterEnergy(PotentialMaster potentialMaster) {
-    	super();
-        setLabel("Energy");
+    	super(new DataInfo("Energy",Dimension.ENERGY));
         kinetic = new MeterKineticEnergy();
         potential = new MeterPotentialEnergy(potentialMaster);
     }
@@ -28,48 +29,32 @@ public final class MeterEnergy extends MeterScalar implements EtomicaElement {
         return info;
     }
     
-    public Dimension getDimension() {return Dimension.ENERGY;}
-
-    /**
-     * @return a handle to the kinetic-energy meter
-     */
-    public MeterKineticEnergy meterKinetic() {return kinetic;}
-    /**
-     * @return a handle to the potential-energy meter
-     */
-    public MeterPotentialEnergy meterPotential() {return potential;}
-    /**
-     * Accessor method to set the kinetic-energy meter to something other than the default
-     */
-    public void setMeterKinetic(MeterKineticEnergy mke) {kinetic = mke;}
-    /**
-     * Accessor method to set the potential-energy meter to something other than the default
-     */
-    public void setMeterPotential(MeterPotentialEnergy mpe) {potential = mpe;}
-    
     /**
      * @return the current value of the total kinetic energy of the molecules in the phase
      */
-    public double kinetic() {return kinetic.getData()[0];}
+    public double getKineticEnergy() {return kinetic.getDataAsScalar();}
     /**
      * @return the current value of the total potential energy of the molecules in the phase
      */
-    public double potential() {return potential.getData()[0];}
+    public double getPotentialEnergy() {return potential.getDataAsScalar();}
     
     /**
      * Sets the phase(s) where the energy is measured
      * Propagates change to the kinetic- and potential-energy meters
      */
-    public void setPhase(Phase[] p) {
-    	super.setPhase(p);
+    public void setPhase(Phase p) {
     	kinetic.setPhase(p);
     	potential.setPhase(p);
+    }
+    
+    public Phase getPhase() {
+        return kinetic.getPhase();
     }
     
     /**
      * Current value of the total energy (kinetic + potential)
      */
-    public double getDataAsScalar(Phase phase) {
-        return kinetic.getDataAsScalar(phase) + potential.getDataAsScalar(phase);
+    public double getDataAsScalar() {
+        return kinetic.getDataAsScalar() + potential.getDataAsScalar();
     }
 }

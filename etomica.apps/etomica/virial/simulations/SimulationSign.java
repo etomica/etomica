@@ -125,7 +125,7 @@ public class SimulationSign extends SimulationGraphic {
 		this.meterSign = meterSign;
 
 		MeterDatumSourceWrapper bMeter = new MeterDatumSourceWrapper(meterSign);
-		bMeter.setWhichValue(MeterAbstract.AVERAGE);
+		bMeter.setWhichValue(MeterAbsMeter);
 		bMeter.setHistorying(true);
 		meterSign.setHistorying(true);
 		DisplayPlot bPlot = new DisplayPlot(this);

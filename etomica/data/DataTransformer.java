@@ -4,6 +4,7 @@
  */
 package etomica.data;
 
+import etomica.Data;
 import etomica.DataSink;
 
 /**
@@ -37,7 +38,7 @@ public abstract class DataTransformer extends DataPipe {
 	/* (non-Javadoc)
 	 * @see etomica.Integrator.IntervalListener#intervalAction(etomica.Integrator.IntervalEvent)
 	 */
-	public void putData(double[] newData) {
+	public void putData(Data newData) {
         pushData(transformData(newData));
     }
 
@@ -45,6 +46,6 @@ public abstract class DataTransformer extends DataPipe {
      * Defines the transformation performed by this class.  Input and 
      * output data need not be the same length.
      */
-    protected abstract double[] transformData(double[] data);
+    protected abstract Data transformData(Data data);
 
 }

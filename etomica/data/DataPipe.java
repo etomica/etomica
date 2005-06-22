@@ -1,5 +1,6 @@
 package etomica.data;
 
+import etomica.Data;
 import etomica.DataSink;
 
 
@@ -19,6 +20,6 @@ public abstract class DataPipe extends DataPusher implements DataSink {
         super();
     }
 
-    public abstract void putData(double[] values);
+    public abstract void putData(Data data);
 
 }

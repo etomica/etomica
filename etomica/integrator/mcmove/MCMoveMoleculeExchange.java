@@ -82,7 +82,8 @@ public final class MCMoveMoleculeExchange extends MCMove {
         dSpecies = species.getAgent(dPhase);  //deletion-phase species Agent
         
         energyMeter.setTarget(molecule);
-        uOld = energyMeter.getDataAsScalar(dPhase);
+        energyMeter.setPhase(dPhase);
+        uOld = energyMeter.getDataAsScalar();
 
         moleculeTranslator.setDestination(iPhase.randomPosition());         //place at random in insertion phase
         moleculeTranslator.actionPerformed(molecule);
@@ -99,8 +100,9 @@ public final class MCMoveMoleculeExchange extends MCMove {
     }
     
     public double lnProbabilityRatio() {
+        energyMeter.setPhase(iPhase);
         energyMeter.setTarget(molecule);
-        uNew = energyMeter.getDataAsScalar(iPhase);
+        uNew = energyMeter.getDataAsScalar();
         return -(uNew - uOld)/temperature;
     }
     

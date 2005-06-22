@@ -5,7 +5,7 @@ import etomica.EtomicaInfo;
 import etomica.Integrator;
 import etomica.IntegratorIntervalEvent;
 import etomica.IntegratorIntervalListener;
-import etomica.MeterAbstract;
+import etomica.Meter;
 import etomica.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
@@ -19,7 +19,7 @@ import etomica.units.Dimension;
  *  @author David Kofke
  */
 
-public class MeterMeanSquareDisplacement extends MeterAbstract implements 
+public class MeterMeanSquareDisplacement extends Meter implements 
                                                 EtomicaElement {
 
     private int nAtoms = 0;

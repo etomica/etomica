@@ -21,7 +21,7 @@ import etomica.utility.NameMaker;
  * @author David Kofke
  */
 
-public abstract class Integrator implements java.io.Serializable {
+public abstract class Integrator implements EtomicaElement {
 
     protected final PotentialMaster potential;
     protected Phase firstPhase;
@@ -90,10 +90,9 @@ public abstract class Integrator implements java.io.Serializable {
      * potential energy.
      */
     public void reset() {
-        meterPE.setPhase(phase);
-        double[] cpe = meterPE.getData();
         for (int i=0; i<phase.length; i++) {
-            currentPotentialEnergy[i] = cpe[i];
+            meterPE.setPhase(phase[i]);
+            currentPotentialEnergy[i] = meterPE.getDataAsScalar();
             if (currentPotentialEnergy[i] == Double.POSITIVE_INFINITY) {
                 if (Default.FIX_OVERLAP) {
                     System.out.println("overlap in "+phase[i]);

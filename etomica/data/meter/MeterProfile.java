@@ -1,12 +1,18 @@
 package etomica.data.meter;
 import etomica.Atom;
-import etomica.EtomicaElement;
+import etomica.Data;
+import etomica.DataInfo;
+import etomica.DataSource;
 import etomica.EtomicaInfo;
-import etomica.MeterAbstract;
+import etomica.Meter;
 import etomica.Phase;
 import etomica.Space;
-import etomica.atom.iterator.AtomIteratorListTabbed;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.atom.iterator.AtomIteratorPhaseDependent;
+import etomica.data.DataSourceAtomic;
 import etomica.data.DataSourceUniform;
+import etomica.data.types.DataDouble;
+import etomica.data.types.DataFunction;
 import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.units.Dimension;
@@ -19,28 +25,13 @@ import etomica.units.Dimension;
  * 
  * @author Rob Riggleman
  */
-public class MeterProfile extends MeterFunction implements EtomicaElement {
-    
-    /**
-     * Vector describing the orientation of the profile.
-     * For example, (1,0) is along the x-axis.
-     */
-    final Vector profileVector;
-    final Vector position;
-    /**
-     * Meter that defines the property being profiled.
-     */
-    MeterScalarAtomic meter;
-    
-    private double profileNorm = 1.0;
-    private final AtomIteratorListTabbed ai1 = new AtomIteratorListTabbed();
+public class MeterProfile implements DataSource, Meter {
     
     /**
      * Default constructor sets profile along the y-axis, with 100 histogram points.
      */
     public MeterProfile(Space space) {
-        super(new DataSourceUniform());
-        setNDataPerPhase(((DataSourceUniform)xDataSource).getNValues());
+        xDataSource = new DataSourceUniform();
         profileVector = space.makeVector();
         profileVector.setX(0, 1.0);
         position = space.makeVector();
@@ -50,33 +41,27 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
         EtomicaInfo info = new EtomicaInfo("Breaks a meter's measurements into a profile taken along some direction in phase");
         return info;
     }
-    
-    /**
-     * Returns the ordinate label for the profile, obtained from the associated meter.
-     */
-    public String getLabel() {return ((MeterScalar)meter).getLabel();}
-    
-    /**
-     * Indicates that the abscissa coordinate is dimensionless.
-     * Abscissa is formed as the ratio of the profile position relative to its maximum value.
-     */
-    public Dimension getXDimension() {return Dimension.NULL;}
-    
-    /**
-     * Returns the dimensions of the ordinate, obtained from the associated meter.
-     */
-    public Dimension getDimension() {return (meter==null) ? null : ((MeterScalar)meter).getDimension();}
-        
+
+    public DataInfo getDataInfo() {
+        return data.getDataInfo();
+    }
+
     /**
      * The meter that defines the profiled quantity
      */
-    public MeterAbstract getMeter() {return (MeterAbstract)meter;}
+    public DataSourceAtomic getDataSource() {return meter;}
     
     /**
      * Accessor method for the meter that defines the profiled quantity.
      */
-    public void setMeter(MeterScalarAtomic m) {
+    public void setDataSource(DataSourceAtomic m) {
+        if (!(m instanceof DataDouble.Source)) {
+            throw new IllegalArgumentException("data source must return a DataDouble");
+        }
         meter = m;
+        data = new DataFunction(new DataInfo(m.getDataInfo().getLabel()+" Profile",m.getDataInfo().getDimension()),
+                new DataInfo("x",Dimension.LENGTH));
+        data.setLength(xDataSource.getNValues());
     }
     
     /**
@@ -98,27 +83,63 @@ public class MeterProfile extends MeterFunction implements EtomicaElement {
     /**
      * Returns the profile for the current configuration.
      */
-    public double[] getDataAsArray(Phase p) {
-        Boundary boundary = p.boundary();
+    public Data getData() {
+        Boundary boundary = phase.boundary();
         profileNorm = 1.0/boundary.dimensions().dot(profileVector);
-        for (int i = 0; i <nDataPerPhase; i++) {
-            phaseData[i] = 0.0;
-        }
-        ai1.setList(p.speciesMaster.atomList);
+        data.E(0);
+        double[] y = data.getData();
         ai1.reset();
         while(ai1.hasNext()) {
             Atom a = ai1.nextAtom();
-            double value = meter.getDataAsScalar(a);
+            double value = ((DataDouble)meter.getData(a)).x;
             position.E(a.coord.position());
             position.PE(boundary.centralImage(position));
-            int i = ((DataSourceUniform)xDataSource).getIndex(position.dot(profileVector)*profileNorm);
-            phaseData[i] += value;
+            int i = xDataSource.getIndex(position.dot(profileVector)*profileNorm);
+            y[i] += value;
         }
-        double dx = (((DataSourceUniform)xDataSource).getXMax() - ((DataSourceUniform)xDataSource).getXMin())/nDataPerPhase;
-        double norm = 1.0/(p.atomCount()*dx);
-        for (int i =0; i < nDataPerPhase; i++) {
-            phaseData[i] *= norm;
-        }
-        return phaseData;
+        double dx = (xDataSource.getXMax() - xDataSource.getXMin())/data.getLength();
+        double norm = 1.0/(phase.atomCount()*dx);
+        data.TE(norm);
+        return data;
     }
+    /**
+     * @return Returns the phase.
+     */
+    public Phase getPhase() {
+        return phase;
+    }
+    /**
+     * @param phase The phase to set.
+     */
+    public void setPhase(Phase phase) {
+        this.phase = phase;
+        ai1.setPhase(phase);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    private Phase phase;
+    private String name;
+    private DataSourceUniform xDataSource;
+    private DataFunction data;
+    /**
+     * Vector describing the orientation of the profile.
+     * For example, (1,0) is along the x-axis.
+     */
+    final Vector profileVector;
+    final Vector position;
+    /**
+     * Meter that defines the property being profiled.
+     */
+    DataSourceAtomic meter;
+    
+    private double profileNorm = 1.0;
+    private final AtomIteratorPhaseDependent ai1 = new AtomIteratorLeafAtoms();
+    
 }//end of MeterProfile

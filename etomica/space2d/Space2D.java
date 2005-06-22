@@ -1,6 +1,5 @@
 package etomica.space2d;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Space;
 import etomica.space.Boundary;
@@ -22,9 +21,8 @@ import etomica.space.Boundary;
   * redefined position() in CoordinateGroup to be first-atom position (as it has
   * been for Space3D for some time now).
   */
-public class Space2D extends Space implements EtomicaElement {
+public class Space2D extends Space {
     
-    public static final int D = 2;
     public final int D() {return D;}
     public final int powerD(int n) {return n*n;}
     public final double powerD(double a) {return a*a;}

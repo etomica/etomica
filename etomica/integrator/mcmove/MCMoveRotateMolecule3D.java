@@ -56,7 +56,7 @@ public class MCMoveRotateMolecule3D extends MCMove {
             
         molecule = phase.randomMolecule();
         energyMeter.setTarget(molecule);
-        uOld = energyMeter.getDataAsScalar(phase);
+        uOld = energyMeter.getDataAsScalar();
         if(uOld < Double.MAX_VALUE) uOldSave = uOld;
         
         double dTheta = (2*Simulation.random.nextDouble() - 1.0)*stepSize;
@@ -75,7 +75,7 @@ public class MCMoveRotateMolecule3D extends MCMove {
     
     public double lnProbabilityRatio() {
         energyMeter.setTarget(molecule);
-        uNew = energyMeter.getDataAsScalar(phases[0]);
+        uNew = energyMeter.getDataAsScalar();
         if(uOld > Double.MAX_VALUE) uOld = uOldSave;
         return -(uNew - uOld)/temperature;
     }
@@ -107,4 +107,11 @@ public class MCMoveRotateMolecule3D extends MCMove {
     }
 
 
+    /* (non-Javadoc)
+     * @see etomica.integrator.MCMove#setPhase(etomica.Phase[])
+     */
+    public void setPhase(Phase[] p) {
+        super.setPhase(p);
+        energyMeter.setPhase(p[0]);
+    }
 }

@@ -3,7 +3,6 @@ package etomica.data;
 import etomica.Action;
 import etomica.DataSink;
 import etomica.DataSource;
-import etomica.DataTranslator;
 
 /**
  * A data pusher that can move data from a source to its sinks
@@ -18,9 +17,8 @@ public class DataPump extends DataPusher implements Action {
 	public DataPump(DataSource dataSource, DataSink[] dataSinks) {
 		if(dataSource == null) throw new NullPointerException("Error: cannot construct data pump without a data source");
 		this.dataSource = dataSource;
-        setDefaultLabel(dataSource.getLabel());
-        setDimension(dataSource.getDimension());
 		setDataSinks(dataSinks);
+        setLabel("Data Pump");
 	}
     
     /**
@@ -44,10 +42,14 @@ public class DataPump extends DataPusher implements Action {
         return dataSource;
     }
 
-    public DataTranslator getTranslator() {
-        return DataTranslator.IDENTITY;
+    public String getLabel() {
+        return label;
+    }
+    
+    public void setLabel(String label) {
+        this.label = label;
     }
     
     private final DataSource dataSource;
-    
+    private String label;
 }

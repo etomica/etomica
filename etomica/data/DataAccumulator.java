@@ -4,10 +4,10 @@
  */
 package etomica.data;
 
+import etomica.Data;
 import etomica.DataSink;
 import etomica.DataSource;
-import etomica.Default;
-import etomica.Simulation;
+import etomica.utility.NameMaker;
 
 /**
  * DataPipe that accumulates and transforms given data and intermittently transmits
@@ -17,10 +17,7 @@ public abstract class DataAccumulator extends DataPipe implements DataSource {
 
     public DataAccumulator() {
         setPushInterval(1);
-        if (Default.AUTO_REGISTER) {
-            Simulation.getDefault().register(this);
-        }
-
+        setName(NameMaker.makeName(this.getClass()));
     }
     
 	/**
@@ -41,7 +38,7 @@ public abstract class DataAccumulator extends DataPipe implements DataSource {
 	/* (non-Javadoc)
 	 * @see etomica.Integrator.IntervalListener#intervalAction(etomica.Integrator.IntervalEvent)
 	 */
-	public void putData(double[] newData) {
+	public void putData(Data newData) {
         if(!active) return;
         addData(newData);
 		if (--putCount == 0) {
@@ -52,11 +49,9 @@ public abstract class DataAccumulator extends DataPipe implements DataSource {
         }
 	}
 
-    protected abstract void addData(double[] data);
+    protected abstract void addData(Data data);
     
-    public abstract int getDataLength();
-    
-    public abstract double[] getData();
+    public abstract Data getData();
     
     public abstract void reset();
     
@@ -96,6 +91,32 @@ public abstract class DataAccumulator extends DataPipe implements DataSource {
     }
     
     /**
+     * Accessor method of the name of this phase
+     * 
+     * @return The given name of this phase
+     */
+    public final String getName() {return name;}
+    
+    /**
+     * Method to set the name of this simulation element. The element's name
+     * provides a convenient way to label output data that is associated with
+     * it.  This method might be used, for example, to place a heading on a
+     * column of data. Default name is the base class followed by the integer
+     * index of this element.
+     * 
+     * @param name The name string to be associated with this element
+     */
+    public void setName(String name) {this.name = name;}
+
+    /**
+     * Overrides the Object class toString method to have it return the output of getName
+     * 
+     * @return The name given to the phase
+     */
+    public String toString() {return getName();}
+
+    
+    /**
 	 * Counter that keeps track of the number of interval events received since last call to updateSums
 	 */
 	protected int putCount;
@@ -109,5 +130,5 @@ public abstract class DataAccumulator extends DataPipe implements DataSource {
 	 * Flag specifying whether the manager responds to integrator events
 	 */
 	protected boolean active=true;
-    
+    private String name;
 }

@@ -1,6 +1,6 @@
 package etomica.virial.simulations;
 
-import etomica.MeterAbstract;
+import etomica.Meter;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.Space;
@@ -91,7 +91,7 @@ public class SimulationVirial extends Simulation {
         setAccumulator(new AccumulatorRatioAverage());
 	}
 	
-	public MeterAbstract meter;
+	public Meter meter;
 	public DataAccumulator accumulator;
 	public DataPump accumulatorPump;
 	public Species species;
@@ -104,7 +104,7 @@ public class SimulationVirial extends Simulation {
     public MCMove mcMoveRotate;
     public MCMove mcMoveMulti;
 
-	public void setMeter(MeterAbstract newMeter) {
+	public void setMeter(Meter newMeter) {
 		if (accumulator != null) { 
 			if (accumulatorPump != null) {
                 // XXX oops, sorry you're screwed.

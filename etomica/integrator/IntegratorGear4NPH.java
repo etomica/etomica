@@ -4,6 +4,9 @@ package etomica.integrator;
 import etomica.Atom;
 import etomica.AtomPair;
 import etomica.AtomsetIterator;
+import etomica.Data;
+import etomica.DataInfo;
+import etomica.DataSource;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
@@ -13,8 +16,8 @@ import etomica.Potential;
 import etomica.PotentialMaster;
 import etomica.Space;
 import etomica.action.PhaseInflate;
-import etomica.data.meter.MeterArray;
 import etomica.data.meter.MeterTemperature;
+import etomica.data.types.DataDoubleArray;
 import etomica.modifier.ModifierBoolean;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialCalculation;
@@ -94,7 +97,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     public boolean addPhase(Phase p) {
         boolean b = super.addPhase(p);
         inflate.setPhase(firstPhase);
-        meterTemperature.setPhase(phase);
+        meterTemperature.setPhase(firstPhase);
         return b;
     }
     
@@ -112,7 +115,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     }//end of doStep
     
     public void drivePT() {
-        double kineticT = meterTemperature.getData()[0];
+        double kineticT = meterTemperature.getDataAsScalar();
         double mvsq = kineticT * D * firstPhase.atomCount();
         double volume = firstPhase.volume();
         double pCurrent = firstPhase.getDensity()*kineticT - forceSumNPH.w/(D*volume);
@@ -124,7 +127,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     }
     
     public void drivePH() {
-        double kineticT = meterTemperature.getDataAsScalar(firstPhase);
+        double kineticT = meterTemperature.getDataAsScalar();
         double mvsq = kineticT * D * firstPhase.atomCount();
         double volume = firstPhase.volume();
         double pCurrent = firstPhase.getDensity()*kineticT - forceSumNPH.w/(D*volume);
@@ -207,7 +210,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
             setIsothermal(isothermal);
             if(!isothermal) {
                 calculateForces();
-                double kineticT = meterTemperature.getDataAsScalar(firstPhase);
+                double kineticT = meterTemperature.getDataAsScalar();
                 double mvsq = kineticT * D * firstPhase.atomCount();
                 double volume = firstPhase.volume();
                 double pCurrent = firstPhase.getDensity()*kineticT - forceSumNPH.w/(D*volume);
@@ -220,23 +223,30 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
 
     //meter group for temperature, pressure, enthalpy, obtaining values from
     //most recent call to the ForceSumNPH instance
-    public final class MeterTPH extends MeterArray {
+    public final class MeterTPH implements DataSource {
         
         public MeterTPH() {
-            super(3);//3 is number of meters in group
+            data = new DataDoubleArray(new DataInfo("TPH",Dimension.UNDEFINED));
+            data.setLength(3);
         }
-        public double[] getDataAsArray(Phase p) {
-            double kineticT = meterTemperature.getDataAsScalar(p);
-            double mvsq = kineticT* D * p.atomCount();
-            double volume = p.volume();
-            double pCurrent = p.getDensity()*kineticT - IntegratorGear4NPH.this.forceSumNPH.w/(D*volume);
+        
+        public DataInfo getDataInfo() {
+            return data.getDataInfo();
+        }
+        
+        public Data getData() {
+            double kineticT = meterTemperature.getDataAsScalar();
+            double mvsq = kineticT* D * phase[0].atomCount();
+            double volume = phase[0].volume();
+            double pCurrent = phase[0].getDensity()*kineticT - IntegratorGear4NPH.this.forceSumNPH.w/(D*volume);
             double hCurrent = 0.5*mvsq + IntegratorGear4NPH.this.forceSumNPH.u + pCurrent*volume;
-            phaseData[0] = kineticT;
-            phaseData[1] = pCurrent;
-            phaseData[2] = hCurrent/p.moleculeCount();
-            return phaseData;
+            data.getData()[0] = kineticT;
+            data.getData()[1] = pCurrent;
+            data.getData()[2] = hCurrent/phase[0].moleculeCount();
+            return data;
         }
-        public Dimension getDimension() {return Dimension.NULL;}
+        
+        private DataDoubleArray data;
     }
         
     public final class ForceSumNPH extends PotentialCalculation {

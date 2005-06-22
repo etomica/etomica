@@ -10,11 +10,10 @@ import etomica.integrator.MCMove;
 public class DataSourceAcceptanceProbability extends DataSourceAcceptanceRatio {
 
     public DataSourceAcceptanceProbability() {
-        this(new MCMove[0]);
+        this(null);
     }
-    public DataSourceAcceptanceProbability(MCMove[] move) {
+    public DataSourceAcceptanceProbability(MCMove move) {
         super(move);
-        setLabel("AcceptanceProbability");
     }
     
     /**
@@ -23,10 +22,8 @@ public class DataSourceAcceptanceProbability extends DataSourceAcceptanceRatio {
      * returned array applies to the corresponding element in the
      * MCMove array.
      */
-    public double[] getData() {
-        for (int i=0; i<move.length; i++) {
-            ratioArray[i] = move[i].acceptanceProbability();
-        }
-        return ratioArray;
+    public double getDataAsScalar() {
+        if (move == null) return Double.NaN;
+        return move.acceptanceProbability();
     }
 }

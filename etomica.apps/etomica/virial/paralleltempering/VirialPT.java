@@ -121,7 +121,7 @@ public class VirialPT extends SimulationGraphic {
 			meterClusterTable.setDatumSources(meterVirial[i].allMeters());
 			meterClusterTable.addDatumSources(meterVirial[i]);
 			meterClusterTable.setLabel("Table "+temperature);
-			meterClusterTable.setWhichValues(new DataSource.ValueType[] {MeterAbstract.CURRENT, MeterAbstract.AVERAGE, MeterAbstract.ERROR});
+			meterClusterTable.setWhichValues(new DataSource.ValueType[] {Meter.CURRENT, Meter.AVERAGE, Meter.ERROR});
 			meterClusterTable.setUpdateInterval(1000);
 			meterClusterTable.setPrecision(5);
 			integratorPT.addListener(meterClusterTable);
@@ -145,7 +145,7 @@ public class VirialPT extends SimulationGraphic {
 		phaseTracker.setUpdateInterval(10);
 		DisplayPlot phaseTrackPlot = new DisplayPlot();
 		phaseTrackPlot.setDoLegend(false);
-		phaseTrackPlot.setWhichValue(MeterAbstract.CURRENT);
+		phaseTrackPlot.setWhichValue(MeterAbsMeter);
 		phaseTrackPlot.setDataSources(phaseTracker.dataSource());
 		phaseTrackPlot.setLabel("Track");
 		phaseTrackPlot.setUpdateInterval(10);
@@ -153,7 +153,7 @@ public class VirialPT extends SimulationGraphic {
 		DisplayTable acceptanceTable = new DisplayTable();
 		acceptanceTable.setDatumSources(meterAccept);
 		acceptanceTable.setLabel("Accept");
-		acceptanceTable.setWhichValues(MeterAbstract.CURRENT);
+		acceptanceTable.setWhichValues(MeterAbsMeter);
         
 //		DeviceButton logTableButton = new DeviceButton(perturbTable.makeLogTableAction());
 //		logTableButton.setLabel("Perturb table out");
@@ -175,7 +175,7 @@ public class VirialPT extends SimulationGraphic {
 		bMeter.setHistorying(true);
 		DisplayPlot bPlot = new DisplayPlot(this);
 		bPlot.setDataSources(bMeter.getHistory());	
-		bPlot.setWhichValue(MeterAbstract.CURRENT);
+		bPlot.setWhichValue(MeterAbsMeter);
 		bMeter.getHistory().setHistoryLength(1000);
 		bPlot.setLabel("B average ("+meterVirial[k].getTemperature()+")");
 		

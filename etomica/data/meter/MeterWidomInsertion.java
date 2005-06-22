@@ -1,15 +1,16 @@
 package etomica.data.meter;
 
 import etomica.Atom;
-import etomica.AtomTreeNodeGroup;
+import etomica.DataInfo;
 import etomica.Default;
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
+import etomica.Meter;
 import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Space;
 import etomica.Species;
 import etomica.action.AtomActionTranslateTo;
+import etomica.data.DataSourceScalar;
 import etomica.units.Dimension;
 
 /**
@@ -29,12 +30,11 @@ import etomica.units.Dimension;
  * 
  * @author David Kofke
  */
-public class MeterWidomInsertion extends MeterScalar implements EtomicaElement {
+public class MeterWidomInsertion extends DataSourceScalar implements Meter {
 
 	public MeterWidomInsertion(Space space, PotentialMaster potentialMaster) {
-		super();
+		super(new DataInfo("exp(-\u03BC/kT)", Dimension.NULL));//"\u03BC" is Unicode for greek "mu"
 		energyMeter = new MeterPotentialEnergy(potentialMaster);
-		setLabel("exp(-\u03BC/kT)"); //"\u03BC" is Unicode for greek "mu"
 		nInsert = 100;
 		setResidual(true);
 		setTemperature(Default.TEMPERATURE);
@@ -56,14 +56,6 @@ public class MeterWidomInsertion extends MeterScalar implements EtomicaElement {
 	 * public MeterWidomInsertion(Species s, DisplayPhase d) { this(); display =
 	 * d; setSpecies(s); setActive(false); }
 	 */
-
-	/**
-	 * Returns Dimension.NULL, indicating that the measured property is
-	 * dimensionless.
-	 */
-	public Dimension getDimension() {
-		return Dimension.NULL;
-	} //need to modify to check for isResidual
 
 	/**
 	 * Sets flag specifying if full or residual chemical potential is computed
@@ -142,27 +134,43 @@ public class MeterWidomInsertion extends MeterScalar implements EtomicaElement {
 	 * @return the sum of exp(-uTest/kT)/nInsert, multiplied by n <sub>i
 	 *         </sub>/V if <code>residual</code> is false
 	 */
-	public double getDataAsScalar(Phase phase) {
+	public double getDataAsScalar() {
+        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
 		double sum = 0.0; //sum for local insertion average
-		testMolecule.node.setParent(phase.getAgent(species));
+        phase.addMolecule(testMolecule, phase.getAgent(species));
 		energyMeter.setTarget(testMolecule);
 		for (int i = nInsert; i > 0; i--) { //perform nInsert insertions
             atomTranslator.setDestination(phase.randomPosition());
             atomTranslator.actionPerformed(testMolecule);
 			//            if(display != null && i % 10 ==0) display.repaint();
-			double u = energyMeter.getDataAsScalar(phase);
+			double u = energyMeter.getDataAsScalar();
 			if (u < Double.POSITIVE_INFINITY) //add to test-particle average
 				sum += Math.exp(-u / temperature);
 		}
 
-		testMolecule.node.setParent((AtomTreeNodeGroup) null);
+        phase.removeMolecule(testMolecule);
 
 		if (!residual)
 			sum *= phase.volume() / phase.getAgent(species).moleculeCount(); //multiply
 		// by
 		// V/N
-		return sum / (double) nInsert; //return average
+		return sum / nInsert; //return average
 	}
+    /**
+     * @return Returns the phase.
+     */
+    public Phase getPhase() {
+        return phase;
+    }
+    /**
+     * @param phase The phase to set.
+     */
+    public void setPhase(Phase phase) {
+        this.phase = phase;
+        energyMeter.setPhase(phase);
+    }
+
+    private Phase phase;
 
 	/**
 	 * Number of insertions attempted in each call to currentValue Default is

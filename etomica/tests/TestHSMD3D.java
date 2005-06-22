@@ -83,7 +83,7 @@ public class TestHSMD3D extends Simulation {
         
         phase = new Phase(this);
         integrator.addPhase(phase);
-        phase.setConfiguration(new ConfigurationFile(space,"HSMD3D"+Integer.toString(numAtoms)));
+//        phase.setConfiguration(new ConfigurationFile(space,"HSMD3D"+Integer.toString(numAtoms)));
         
 //        WriteConfiguration writeConfig = new WriteConfiguration("foo",phase,1);
 //        integrator.addIntervalListener(writeConfig);
@@ -99,11 +99,12 @@ public class TestHSMD3D extends Simulation {
         }
         TestHSMD3D sim = new TestHSMD3D(new Space3D(), numAtoms);
 
-        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
+        MeterPressureHard pMeter = new MeterPressureHard(sim.space,sim.integrator);
+        pMeter.setPhase(sim.phase);
         
         sim.getController().actionPerformed();
         
-        double Z = pMeter.getDataAsScalar(sim.phase)*sim.phase.volume()/(sim.phase.moleculeCount()*sim.integrator.getTemperature());
+        double Z = pMeter.getDataAsScalar()*sim.phase.volume()/(sim.phase.moleculeCount()*sim.integrator.getTemperature());
         System.out.println("Z="+Z);
         
         // compressibility factor for this system should be 5.22

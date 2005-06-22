@@ -15,6 +15,9 @@ import etomica.atom.AtomSourceRandomLeafSeq;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPressure;
+import etomica.data.types.DataDouble;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -69,7 +72,7 @@ public class TestLJMC3D extends Simulation {
         integrator.addMCMoveListener(((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).makeMCMoveListener());
         
         ConfigurationFile config = new ConfigurationFile(space,"LJMC3D"+Integer.toString(numAtoms));
-        phase.setConfiguration(config);
+//        phase.setConfiguration(config);
         integrator.addPhase(phase);
         ((PotentialMasterCell)potentialMaster).calculate(phase, new PotentialCalculationAgents());
         ((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).assignCellAll();
@@ -100,21 +103,21 @@ public class TestLJMC3D extends Simulation {
         
         sim.getController().actionPerformed();
         
-        double[][] pData = (double[][])pAccumulator.getTranslator().fromArray(pAccumulator.getData()); 
-        double Z = pData[AccumulatorAverage.AVERAGE.index][0]*sim.phase.volume()/(sim.phase.moleculeCount()*sim.integrator.getTemperature());
-        double[] data = energyAccumulator.getData();
-        double PE = data[AccumulatorAverage.AVERAGE.index]/numAtoms;
+        double Z = ((DataDouble)((DataGroup)pAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x*sim.phase.volume()/(sim.phase.moleculeCount()*sim.integrator.getTemperature());
+        double avgPE = ((DataDoubleArray)((DataGroup)energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).getData()[0];
+        avgPE /= numAtoms;
         System.out.println("Z="+Z);
-        System.out.println("PE/epsilon="+PE);
+        System.out.println("PE/epsilon="+avgPE);
         double temp = sim.integrator.getTemperature();
-        double Cv = data[AccumulatorAverage.STANDARD_DEVIATION.index]/temp;
+        double Cv = ((DataDoubleArray)((DataGroup)energyAccumulator.getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index)).getData()[0];
+        Cv /= temp;
         Cv *= Cv/numAtoms;
         System.out.println("Cv/k="+Cv);
         
         if (Math.abs(Z-0.11) > 0.15) {
             System.exit(1);
         }
-        if (Math.abs(PE+4.355) > 0.04) {
+        if (Math.abs(avgPE+4.355) > 0.04) {
             System.exit(1);
         }
         if (Math.abs(Cv-0.6) > 0.4) {

@@ -92,7 +92,7 @@ public class Simulation {
     /**
      * @return the <code>nth</code> instantiated meter (indexing from zero)
      */
-    public final MeterAbstract meter(int n) {return (MeterAbstract)getElement(MeterAbstract.class, n);}
+    public final Meter meter(int n) {return (Meter)getElement(Meter.class, n);}
 	/**
 	 * @return the <code>nth</code> instantiated logger (indexing from zero)
 	 */
@@ -151,7 +151,7 @@ public class Simulation {
         phaseList.add(phase);
     }
     
-    public void register(MeterAbstract meter) {
+    public void register(Meter meter) {
         meterList.add(meter);
     }
     
@@ -181,7 +181,7 @@ public class Simulation {
         phaseList.remove(phase);
     }
     
-    public void unregister(MeterAbstract meter) {
+    public void unregister(Meter meter) {
         meterList.remove(meter);
     }
     

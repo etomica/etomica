@@ -1,4 +1,5 @@
 package etomica.data;
+import etomica.DataInfo;
 import etomica.EtomicaInfo;
 import etomica.integrator.MCMove;
 import etomica.units.Decimal;
@@ -10,17 +11,15 @@ import etomica.units.Unit;
  * Returns acceptance rate as kept by the MCMove.
  */
 
-public class DataSourceAcceptanceRatio extends DataSourceAdapter {
+public class DataSourceAcceptanceRatio extends DataSourceScalar {
     
-    protected MCMove[] move;
-    protected double[] ratioArray;
+    protected MCMove move;
     
     public DataSourceAcceptanceRatio() {
-    	this(new MCMove[0]);
+    	this(null);
     }
-    public DataSourceAcceptanceRatio(MCMove[] move) {
-        super(Dimension.FRACTION);
-        setLabel("AcceptanceRatio");
+    public DataSourceAcceptanceRatio(MCMove move) {
+        super(new DataInfo("AcceptanceRatio", Dimension.FRACTION));
         setMove(move);
     }
    
@@ -35,33 +34,24 @@ public class DataSourceAcceptanceRatio extends DataSourceAdapter {
     public Unit defaultIOUnit() {return Decimal.UNIT;}
     
     /**
-     * Sets the moves for which the acceptance ratios are reported.
-     * @param mv
+     * Sets the move for which the acceptance ratio is reported.
      */
-    public void setMove(MCMove[] mv) {
-        move = (MCMove[])mv.clone();
-        ratioArray = new double[move.length];
+    public void setMove(MCMove mv) {
+        move = mv;
     }
         
     /**
-     * @return the moves for which the acceptance ratios are reported.
+     * @return the move for which the acceptance ratio is reported.
      */
-    public MCMove[] getMove() {return move;}
+    public MCMove getMove() {return move;}
 
     /**
-     * Returns the value of the acceptance ratios as currently kept by
-     * the MCMove classes identified with setMove.  Each element of the
-     * returned array applies to the corresponding element in the
-     * MCMove array.
+     * Returns the value of the acceptance ratio as currently kept by
+     * the MCMove class identified with setMove.
      */
-    public double[] getData() {
-    	for (int i=0; i<move.length; i++) {
-    		ratioArray[i] = move[i].acceptanceRatio();
-    	}
-        return ratioArray;
+    public double getDataAsScalar() {
+        if (move == null) return Double.NaN;
+        return move.acceptanceRatio();
     }
     
-    public int getDataLength() {
-        return move.length;
-    }
 }

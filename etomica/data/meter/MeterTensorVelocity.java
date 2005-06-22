@@ -60,6 +60,7 @@ public class MeterTensorVelocity extends MeterTensor /*implements MeterTensor.At
      * Returns the velocity dyad (mass*vv) summed over all atoms, and divided by N
      */
     public Tensor getDataAsTensor(Phase p) {
+        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
         ai1.setPhase(p);
         ai1.reset();
         velocityTensor.E(0.0);

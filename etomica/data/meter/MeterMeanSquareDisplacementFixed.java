@@ -6,6 +6,7 @@ import etomica.Integrator;
 import etomica.IntegratorIntervalEvent;
 import etomica.IntegratorIntervalListener;
 import etomica.Space;
+import etomica.data.DataSourceFunction;
 import etomica.integrator.IntegratorMD;
 import etomica.space.Vector;
 import etomica.units.Count;
@@ -28,7 +29,7 @@ import etomica.units.Unit;
   * 09/08/02 (DAK) new from MeterMeanSquareDisplacement.
   */
 
-public class MeterMeanSquareDisplacementFixed extends MeterFunction implements 
+public class MeterMeanSquareDisplacementFixed extends DataSourceFunction implements 
                                                 EtomicaElement {
 
     public static final String getVersion() {return "MeterMeanSquareDisplacementFixed:02.09.08/"+etomica.data.meter.VERSION;}
@@ -124,7 +125,7 @@ public class MeterMeanSquareDisplacementFixed extends MeterFunction implements
     }
     
     public double[] getData() {
-            
+        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
         for(int j=0; j<nPoints; j++) {
             y[j] = 0.0;
         }

@@ -2,6 +2,7 @@ package etomica.space;
 
 import etomica.space2d.Vector2D;
 import etomica.space3d.Vector3D;
+import etomica.utility.Function;
 
 /*
  * History Created on Jan 24, 2005 by kofke
@@ -357,5 +358,15 @@ public abstract class Vector implements java.io.Serializable, Cloneable {
      * angle theta on its current position.
      */
     public abstract void randomRotate(double thetaStep);
+    
+    /**
+     * Returns true if any element of the vector is not-a-number.
+     */
+    public abstract boolean isNaN();
+    
+    /**
+     * Applies the given function to each element of the vector.
+     */
+    public abstract void map(Function f);
 
 }

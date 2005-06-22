@@ -1,12 +1,13 @@
 package etomica.atom;
 
 import etomica.Atom;
+import etomica.Data;
+import etomica.DataInfo;
 import etomica.DataSource;
-import etomica.DataTranslator;
 import etomica.Space;
 import etomica.action.AtomActionAdapter;
 import etomica.action.AtomGroupAction;
-import etomica.data.DataTranslatorVector;
+import etomica.data.types.DataVector;
 import etomica.space.Vector;
 import etomica.units.Dimension;
 
@@ -30,10 +31,12 @@ public class AtomPositionGeometricCenter extends AtomActionAdapter implements Da
     public AtomPositionGeometricCenter(Space space) {
         this.space = space;
         vectorSum = space.makeVector();
-        center = space.makeVector();
-        dataTranslator = new DataTranslatorVector(space);
+        data = new DataVector(space, new DataInfo("Geometic Center", Dimension.LENGTH));
         groupWrapper = new AtomGroupAction(new MyAction());
-        setLabel("Geometric center");
+    }
+
+    public DataInfo getDataInfo() {
+        return data.getDataInfo();
     }
 
     /*
@@ -49,16 +52,9 @@ public class AtomPositionGeometricCenter extends AtomActionAdapter implements Da
      * Returns the center of mass (calculated so far) as an array. Does not
      * reset COM sums. Implementation of DataSource interface.
      */
-    public double[] getData() {
-        return dataTranslator.toArray(getCenter());
-    }
-
-    /**
-     * Returns the lenght of the data returned, which equals the dimension of
-     * the space.
-     */
-    public int getDataLength() {
-        return space.D();
+    public Data getData() {
+        getCenter();
+        return data;
     }
 
     /**
@@ -66,8 +62,8 @@ public class AtomPositionGeometricCenter extends AtomActionAdapter implements Da
      * reset center-position sums.
      */
     public Vector getCenter() {
-        center.Ea1Tv1(1.0 / natoms, vectorSum);
-        return center;
+        data.x.Ea1Tv1(1.0 / natoms, vectorSum);
+        return data.x;
     }
 
     //AtomPositionDefinition interface implementation
@@ -75,20 +71,6 @@ public class AtomPositionGeometricCenter extends AtomActionAdapter implements Da
         reset();
         actionPerformed(atom);
         return getCenter();
-    }
-
-    /**
-     * Returns Dimension.LENGTH
-     */
-    public Dimension getDimension() {
-        return Dimension.LENGTH;
-    }
-
-    /**
-     * Returns a new DataTranslatorVector instance
-     */
-    public DataTranslator getTranslator() {
-        return new DataTranslatorVector(space);
     }
 
     /**
@@ -109,8 +91,8 @@ public class AtomPositionGeometricCenter extends AtomActionAdapter implements Da
     }
 
     private final Space space;
-    private final Vector vectorSum, center;
-    private final DataTranslatorVector dataTranslator;
+    private final DataVector data;
+    private final Vector vectorSum;
     private AtomGroupAction groupWrapper;
     private int natoms;
 }

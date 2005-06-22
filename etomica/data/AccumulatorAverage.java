@@ -5,10 +5,14 @@
 package etomica.data;
 
 import etomica.Constants;
+import etomica.Data;
+import etomica.DataInfo;
 import etomica.DataSink;
-import etomica.DataTranslator;
 import etomica.Default;
-import etomica.units.Dimension;
+import etomica.Constants.TypedConstant;
+import etomica.data.types.DataArithmetic;
+import etomica.data.types.DataGroup;
+import etomica.utility.Function;
 
 /**
  * Accumulator that keeps statistics for averaging and error analysis.
@@ -17,12 +21,8 @@ public class AccumulatorAverage extends DataAccumulator {
 
 	public AccumulatorAverage() {
 		super();
-        allData = new double[getDataLength()][]; 
-		setNData(0);
 		setBlockSize(Default.BLOCK_SIZE);
-        setDimension(Dimension.UNDEFINED);
         setPushInterval(100);
-        reset();
 	}
 	
 	public void setBlockSize(int blockSize) {
@@ -32,21 +32,27 @@ public class AccumulatorAverage extends DataAccumulator {
 	public int getBlockSize() {
 		return blockSize;
 	}
+    
+    public DataInfo getDataInfo() {
+        return dataGroup.getDataInfo();
+    }
 
     /**
      * Add the given values to the sums and block sums.  If any 
      * of the given data values is NaN, method returns with no 
      * effect on accumulation sums.
      */
-    public void addData(double[] value) {
-    	if(value.length != nData) setNData(value.length);
-        for(int i=0; i<nData; i++) if(Double.isNaN(value[i])) return;
-    	for(int i=nDataMinus1; i>=0; i--) {
-            double v = value[i];
-    		mostRecent[i] = v;
-			blockSum[i] += v;
-			blockSumSq[i] += v*v;
-    	}
+    public void addData(Data data) {
+        DataArithmetic value = (DataArithmetic)data;
+        if(value.isNaN()) return;
+        if (mostRecent == null) {
+            initialize(data);
+        }
+  		mostRecent.E(data);
+  	    blockSum.PE(value);
+        work.E(data);
+        work.TE(value);
+        blockSumSq.PE(work);
 		if(--blockCountDown == 0) {//count down to zero to determine completion of block
 		    doBlockSum();
         }
@@ -55,134 +61,105 @@ public class AccumulatorAverage extends DataAccumulator {
     protected void doBlockSum() {
         count++;
         blockCountDown = blockSize;
-        for(int i=nDataMinus1; i>=0; i--) {
-            blockSum[i] /= blockSize;//compute block average
-            sum[i] += blockSum[i];
-            sumSquare[i] += blockSum[i]*blockSum[i];
-            sumSquareBlock[i] += blockSumSq[i];
-            //reset blocks
-            mostRecentBlock[i] = blockSum[i];
-            blockSum[i] = 0.0;
-            blockSumSq[i] = 0.0;
-        }
+        blockSum.TE(1/(double)blockSize);//compute block average
+        sum.PE(blockSum);
+        work.E((Data)blockSum);
+        work.TE(blockSum);
+        sumSquare.PE(work);
+        sumSquareBlock.PE(blockSumSq);
+        //reset blocks
+        mostRecentBlock.E((Data)blockSum);
+        blockSum.E(0.0);
+        blockSumSq.E(0.0);
     }
     
-    public double[] getData() {
+    public Data getData() {
+        if (mostRecent == null) return null;
         int currentBlockCount = blockSize - blockCountDown;
         double countFraction = (double)currentBlockCount/(double)blockSize;
         double currentCount = count + countFraction;
-        if(count+currentBlockCount == 0) {
-            setNaN(data);
-        } else {
-            for(int i=0; i<nData; i++) {
-                double currentBlockAverage = blockSum[i]/currentBlockCount;
-                double avg;
-                if (countFraction > 0) {
-                    avg = (sum[i] + countFraction*currentBlockAverage)/currentCount;
-                }
-                else {
-                    avg = sum[i] / count;
-                }
-                double avgSquared = avg*avg;
-                double err = Math.sqrt((sumSquare[i]/count - (sum[i]*sum[i]/count)/count)/(count-1));
-                double stdev = Math.sqrt((sumSquareBlock[i]+blockSumSq[i])/(currentCount*blockSize) - avgSquared);
-                double mrBlock = (!Double.isNaN(mostRecentBlock[i])) ? mostRecentBlock[i] : currentBlockAverage;
-                data[0*nData+i] = mostRecent[i];
-                data[1*nData+i] = average[i] = avg;
-                data[2*nData+i] = error[i] = err;
-                data[3*nData+i] = standardDeviation[i] = stdev;
-                data[4*nData+i] = mrBlock;
-            }
+        if(count+currentBlockCount > 0) {
+//            double currentBlockAverage = blockSum[i]/currentBlockCount;
+//            if (countFraction > 0) {
+//                average = (sum[i] + countFraction*currentBlockAverage)/currentCount;
+//            }
+//            else {
+            average.E((Data)sum);
+            average.TE(1/(double)count);
+            work.E((Data)average);
+            work.TE(average);
+            error.E((Data)sumSquare);
+            error.TE(1/(double)count);
+            error.ME(work);
+            error.TE(1/(double)(count-1));
+            error.map(Function.Sqrt.INSTANCE);
+            standardDeviation.E((Data)sumSquareBlock);
+            standardDeviation.PE(blockSumSq);
+            standardDeviation.TE(1/currentCount*blockSize);
+            standardDeviation.ME(work);
+            standardDeviation.map(Function.Sqrt.INSTANCE);
+//            mrBlock = (!Double.isNaN(mostRecentBlock[i])) ? mostRecentBlock[i] : currentBlockAverage;
         }
-        return data;
+        return dataGroup;
     }
    
-    protected void setNaN(double[] x) {
-		for(int i=x.length-1; i>=0; i--) x[i] = Double.NaN;
-	}
-	protected void setZero(double[] x) {
-		for(int i=x.length-1; i>=0; i--) x[i] = 0.0;
-	}
-	        
 	/**
 	 * Resets all sums to zero
 	 */
     public void reset() {
         count = 0;
-        setZero(sum);
-        setZero(sumSquare);
-        setZero(sumSquareBlock);
-        setNaN(error);
+        sum.E(0);
+        sumSquare.E(0);
+        sumSquareBlock.E(0);
+        blockSum.E(0);
+        blockSumSq.E(0);
+        error.E(Double.NaN);
+        mostRecent.E(Double.NaN);
+        mostRecentBlock.E(Double.NaN);
+        average.E(Double.NaN);
+        standardDeviation.E(Double.NaN);
         blockCountDown = blockSize;
-        setZero(blockSum);
-        setZero(blockSumSq);
-        setNaN(mostRecent);
-        setNaN(mostRecentBlock);
     }
     
-    protected void setNData(int nData) {
-    	this.nData = nData;
-        translator = new DataTranslatorArray(getDataLength(),nData);
-        nDataMinus1 = nData-1;
-        data = new double[getDataLength()*nData];
-    	sum = redimension(nData, sum);
-    	sumSquare = redimension(nData, sumSquare);
-        sumSquareBlock = redimension(nData, sumSquareBlock);
-    	standardDeviation = redimension(nData, standardDeviation);
-    	average = redimension(nData, average);
-    	error = redimension(nData, error);
-    	blockSum = redimension(nData, blockSum);
-        blockSumSq = redimension(nData, blockSumSq);
-    	mostRecent = redimension(nData, mostRecent);
-    	mostRecentBlock = redimension(nData, mostRecentBlock);
-    	if(!saveOnRedimension) reset();
-        allData[0] = mostRecent;
-        allData[1] = average;
-        allData[2] = error;
-        allData[3] = standardDeviation;
-        allData[4] = mostRecentBlock;
-        for(int i=0; i<dataSinkList.length; i++) {
-            if(dataSinkList[i] instanceof SinkWrapper) {
-                ((SinkWrapper)dataSinkList[i]).pusher.setNData(nData);
-            }
+    protected void initialize(Data value) {
+        sum = (DataArithmetic)value.makeCopy();
+        sumSquare = (DataArithmetic)value.makeCopy();
+        sumSquareBlock = (DataArithmetic)value.makeCopy();
+        standardDeviation = (DataArithmetic)value.makeCopy();
+        average = (DataArithmetic)value.makeCopy();
+        error = (DataArithmetic)value.makeCopy();
+        blockSum = (DataArithmetic)value.makeCopy();
+        blockSumSq = (DataArithmetic)value.makeCopy();
+        mostRecent = (DataArithmetic)value.makeCopy();
+        mostRecentBlock = (DataArithmetic)value.makeCopy();
+        work = (DataArithmetic)value.makeCopy();
+        reset();
+        dataGroup = new DataGroup(value.getDataInfo(),new Data[]{(Data)mostRecent,
+                (Data)average,(Data)error,(Data)standardDeviation,(Data)mostRecentBlock});
+    }
+    
+    public void addDataSink(DataSink dataSink, Type[] types) {
+        int[] indexes = new int[types.length];
+        for (int i=0; i<types.length; i++) {
+            indexes[i] = types[i].index;
         }
+        DataGroupFilter filter = new DataGroupFilter(indexes);
+        addDataSink(filter);
+        filter.addDataSink(dataSink);
     }
     
-    /**
-     * Creates a new array that is a redimensioning of the
-     * given array, resized to the given integer value.
-     * Truncates or pads with zeros as needed, and returns the
-     * resized array.  Used by setNData.
-     */
-    protected double[] redimension(int n, double[] old) {
-    	double[] newArray = new double[n];
-    	if(saveOnRedimension && old != null) {
-    		int k = (n > old.length) ? old.length : n;
-            System.arraycopy(old, 0, newArray, 0, k);
-    		//need to handle updating of counters, which should be different for new and old sums if saving on redimension
-    		throw new etomica.exception.MethodNotImplementedException("Capability to save data on redimension not yet implemented"); 
-    	}
-    	return newArray;
+    public int getCount() {
+        return count;
     }
 
-    public DataTranslator getTranslator() {
-        return translator;
-    }
-    
-	public DataType[] dataChoices() {return CHOICES;}
-    
-    public DataPusher makeDataPusher(Type[] types) {
-       AccumulatorPusher newPusher = new AccumulatorPusher(types);
-       addDataSink(newPusher.makeDataSink());
-       return newPusher;
-    }
+    public TypedConstant[] dataChoices() {return CHOICES;}
     
     /**
 	 * Typed constant that can be used to indicated the quantity
 	 * to be taken from a meter (e.g., average, error, current value, etc.).
 	 * Used primarily by Display objects.
 	 */
-	public static class Type extends etomica.data.DataType {
+	public static class Type extends TypedConstant {
         protected Type(String label, int index) {
             super(label);
             this.index = index;
@@ -203,108 +180,13 @@ public class AccumulatorAverage extends DataAccumulator {
     public static final Type STANDARD_DEVIATION = CHOICES[3];
     public static final Type MOST_RECENT_BLOCK = CHOICES[4];
 	
-    public int getCount() {
-        return count;
-    }
-
-	/**
-	 * @return Returns the saveOnRedimension.
-	 */
-	public boolean isSaveOnRedimension() {
-		return saveOnRedimension;
-	}
-	/**
-	 * @param saveOnRedimension The saveOnRedimension to set.
-	 */
-	public void setSaveOnRedimension(boolean saveOnRedimension) {
-		this.saveOnRedimension = saveOnRedimension;
-		if(saveOnRedimension) throw new IllegalArgumentException("Save on redimension not yet implemented correctly");
-	}
-    
-    public int getDataLength() {
-        return 5;
-    }
-	
-    protected double[] sum, sumSquare, blockSum, blockSumSq, sumSquareBlock;
-    protected double[] mostRecent;
-    protected double[] mostRecentBlock;
-    protected double[] average, error, standardDeviation;
+    protected DataArithmetic sum, sumSquare, blockSum, blockSumSq, sumSquareBlock;
+    protected DataArithmetic mostRecent;
+    protected DataArithmetic mostRecentBlock;
+    protected DataArithmetic average, error, standardDeviation;
+    protected DataArithmetic work;
+    protected DataGroup dataGroup;
     protected int count, blockCountDown;
     protected int blockSize;
-    protected int nDataMinus1;
-    protected int nData;
-    protected boolean saveOnRedimension = false;
-    
-    //array concatenating mostRecent, average, etc. for return by getData
-    protected double[] data;
-    
-    //the elements of allData point to mostRecent, average, etc. arrays (see setNData)
-    protected final double[][] allData;
-    
-    protected DataTranslator translator;
-
-    private class AccumulatorPusher extends DataPusher {
-        
-        AccumulatorPusher(Type[] types) {
-            indexes = new int[types.length];
-            selectedAllData = new double[types.length][];
-            for(int i=0; i<indexes.length; i++) {
-                indexes[i] = types[i].index;
-            }
-            setNData(AccumulatorAverage.this.nData);
-        }
-
-        //push data obtained from outer class 
-        protected void pushData() {
-            if(nData == 1) {
-                for(int i=0; i<indexes.length; i++) {
-                    selectedData[i] = selectedAllData[i][0];
-                }
-            } else {
-                for(int i=0, k=0; i<indexes.length; i++, k+=nData) {
-                    System.arraycopy(selectedAllData[i], 0, selectedData, k, nData);
-                }
-            }
-            pushData(selectedData);
-        }
-        
-        void setNData(int nData) {
-            selectedData = new double[indexes.length*nData];
-            for(int i=0; i<indexes.length; i++) {
-                selectedAllData[i] = allData[indexes[i]];
-            }
-            selectedTranslator = new DataTranslatorArray(indexes.length,nData);
-        }
-        
-        public DataTranslator getTranslator() {
-            return selectedTranslator;
-        }
-        
-        protected DataSink makeDataSink() {
-            return new SinkWrapper(this);
-        }
-        
-        private double[] selectedData;
-        private final double[][] selectedAllData;
-        private final int[] indexes;
-        private DataTranslator selectedTranslator;
-    }//end of AccumulatorPusher
-    
-    /**
-     * Wraps an AccumulatorPusher instance so that it may be put 
-     * in the AccumulatorAverage's list of data sinks.
-     */
-    private static class SinkWrapper implements DataSink {
-        final AccumulatorPusher pusher;
-        SinkWrapper(AccumulatorPusher pusher) {
-            this.pusher = pusher;
-        }
-        public void putData(double[] dummy) {
-            pusher.pushData();
-        }
-        public void setLabel(String s) {pusher.setLabel(s);}
-        public void setDimension(Dimension d) {pusher.setDimension(d);}
-        public void setDefaultLabel(String s) {pusher.setDefaultLabel(s);}
-    }
     
 }//end of AccumulatorAverage

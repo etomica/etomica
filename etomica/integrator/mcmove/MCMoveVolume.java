@@ -49,13 +49,14 @@ public class MCMoveVolume extends MCMove {
     public void setPhase(Phase[] p) {
         if(p == null) return;
         super.setPhase(p);
-        inflate.setPhase(phases[0]);
+        energyMeter.setPhase(p[0]);
+        inflate.setPhase(p[0]);
     }
     
     public boolean doTrial() {
         Phase phase = phases[0];
         double vOld = phase.volume();
-        uOld = energyMeter.getDataAsScalar(phase);
+        uOld = energyMeter.getDataAsScalar();
         hOld = uOld + pressure*vOld;
         vScale = (2.*Simulation.random.nextDouble()-1.)*stepSize;
         vNew = vOld * Math.exp(vScale); //Step in ln(V)
@@ -71,7 +72,7 @@ public class MCMoveVolume extends MCMove {
     }
     
     public double lnProbabilityRatio() {
-        uNew = energyMeter.getDataAsScalar(phases[0]);
+        uNew = energyMeter.getDataAsScalar();
         double hNew = uNew + pressure*vNew;
         return -(hNew - hOld)/temperature;
     }

@@ -1,11 +1,12 @@
 package etomica.data.meter;
-import etomica.Atom;
 import etomica.AtomSet;
-import etomica.EtomicaElement;
+import etomica.DataInfo;
 import etomica.EtomicaInfo;
 import etomica.IteratorDirective;
+import etomica.Meter;
 import etomica.Phase;
 import etomica.PotentialMaster;
+import etomica.data.DataSourceScalar;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.units.Dimension;
 
@@ -17,11 +18,10 @@ import etomica.units.Dimension;
  * @author David Kofke
  */
  
-public class MeterPotentialEnergy extends MeterScalar implements EtomicaElement {
+public class MeterPotentialEnergy extends DataSourceScalar implements Meter {
     
     public MeterPotentialEnergy(PotentialMaster potentialMaster) {
-        super();
-        setLabel("Potential Energy");
+        super(new DataInfo("Potential Energy",Dimension.ENERGY));
         iteratorDirective.includeLrc = true;
         potential = potentialMaster;
         iteratorDirective.setDirection(null); // so that "both" will work
@@ -32,11 +32,6 @@ public class MeterPotentialEnergy extends MeterScalar implements EtomicaElement 
         return info;
     }
 
-    /**
-     * Returns Dimension.ENERGY
-     */
-    public Dimension getDimension() {return Dimension.ENERGY;}
-    
     /**
      * Sets flag indicating whether calculated energy should include
      * long-range correction for potential truncation (true) or not (false).
@@ -56,16 +51,30 @@ public class MeterPotentialEnergy extends MeterScalar implements EtomicaElement 
     	iteratorDirective.setTargetAtoms(atoms);
     }
     
- /**
-  * Computes total potential energy for phase.
-  * Currently, does not include long-range correction to truncation of energy
-  */
-    public double getDataAsScalar(Phase phase) {
+   /**
+    * Computes total potential energy for phase.
+    * Currently, does not include long-range correction to truncation of energy
+    */
+    public double getDataAsScalar() {
+        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
     	energy.zeroSum();
         potential.calculate(phase, iteratorDirective, energy);
         return energy.getSum();
     }
-    
+    /**
+     * @return Returns the phase.
+     */
+    public Phase getPhase() {
+        return phase;
+    }
+    /**
+     * @param phase The phase to set.
+     */
+    public void setPhase(Phase phase) {
+        this.phase = phase;
+    }
+
+    private Phase phase;
     private final IteratorDirective iteratorDirective = new IteratorDirective();
     private final PotentialCalculationEnergySum energy = new PotentialCalculationEnergySum();
     private final PotentialMaster potential;

@@ -3,7 +3,8 @@ package etomica.data.meter;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
-import etomica.MeterAbstract;
+import etomica.Meter;
+import etomica.data.DataSourceAtomic;
 import etomica.data.DataSourceUniform;
 import etomica.integrator.IntegratorHard;
 
@@ -46,9 +47,9 @@ public class MeterProfileHard extends MeterProfile implements IntegratorHard.Col
      * May be called with either a Meter.MeterCollisional or a MeterAbstract.  If both types of meter
      * are desired to contribute to average, should be called once with each.
      */
-    public void setMeter(MeterAbstract m) {
+    public void setMeter(Meter m) {
         if (m instanceof MeterCollisional) {cMeter = (MeterCollisional)m;}
-        if (m instanceof MeterScalarAtomic) {meter = (MeterScalarAtomic)m;}
+        if (m instanceof DataSourceAtomic) {meter = (DataSourceAtomic)m;}
     }
     
     public double[] getData() {

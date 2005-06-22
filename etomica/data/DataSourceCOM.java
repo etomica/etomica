@@ -2,12 +2,14 @@ package etomica.data;
 
 import etomica.Atom;
 import etomica.AtomTypeLeaf;
+import etomica.Data;
+import etomica.DataInfo;
 import etomica.DataSource;
-import etomica.DataTranslator;
 import etomica.Space;
 import etomica.action.AtomActionAdapter;
 import etomica.action.AtomGroupAction;
 import etomica.atom.AtomPositionDefinition;
+import etomica.data.types.DataVector;
 import etomica.space.Vector;
 import etomica.units.Dimension;
 
@@ -31,12 +33,13 @@ import etomica.units.Dimension;
 public class DataSourceCOM extends AtomActionAdapter implements DataSource, AtomPositionDefinition {
 
     public DataSourceCOM(Space space) {
-        this.space = space;
         vectorSum = space.makeVector();
-        com = space.makeVector();
-        dataTranslator = new DataTranslatorVector(space);
+        data = new DataVector(space, new DataInfo("Center of Mass", Dimension.LENGTH));
         groupWrapper = new AtomGroupAction(new MyAction());
-        setLabel("COM");
+    }
+    
+    public DataInfo getDataInfo() {
+        return data.getDataInfo();
     }
 
     /*
@@ -52,25 +55,18 @@ public class DataSourceCOM extends AtomActionAdapter implements DataSource, Atom
      * Returns the center of mass (calculated so far) as an array.
      * Does not reset COM sums.  Implementation of DataSource interface.
      */
-    public double[] getData() {
-        return dataTranslator.toArray(getCOM());
+    public Data getData() {
+        data.x.Ea1Tv1(1.0 / massSum, vectorSum);
+        return data;
     }
-
-    /**
-     * Returns the lenght of the data returned, which equals the 
-     * dimension of the space.
-     */
-    public int getDataLength() {
-        return space.D();
-    }
-    
+   
     /**
      * Returns the center of mass (calculated so far) as a vector.
      * Does not reset COM sums.
      */
     public Vector getCOM() {
-        com.Ea1Tv1(1.0 / massSum, vectorSum);
-        return com;
+        getData();
+        return data.x;
     }
     
     //AtomPositionDefinition interface implementation
@@ -78,20 +74,6 @@ public class DataSourceCOM extends AtomActionAdapter implements DataSource, Atom
         reset();
         actionPerformed(atom);
         return getCOM();
-    }
-
-    /**
-     * Returns Dimension.LENGTH
-     */
-    public Dimension getDimension() {
-        return Dimension.LENGTH;
-    }
-
-    /**
-     * Returns a new DataTranslatorVector instance
-     */
-    public DataTranslator getTranslator() {
-        return new DataTranslatorVector(space);
     }
 
     /**
@@ -111,9 +93,8 @@ public class DataSourceCOM extends AtomActionAdapter implements DataSource, Atom
         }
     }
     
-    private final Space space;
-    private final Vector vectorSum, com;
-    private final DataTranslatorVector dataTranslator;
+    private final Vector vectorSum;
+    private final DataVector data;
     private double massSum;
     private AtomGroupAction groupWrapper;
 }

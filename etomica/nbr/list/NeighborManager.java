@@ -70,7 +70,6 @@ public class NeighborManager implements IntegratorNonintervalListener, Integrato
                 potentialMaster.getNbrCellManager(phases[i]).assignCellAll();
             }
 			reset(evt.getSource().getPhase());
-            evt.getSource().reset();
         }
     }
     

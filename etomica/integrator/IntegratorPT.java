@@ -2,10 +2,12 @@ package etomica.integrator;
 
 import etomica.Atom;
 import etomica.AtomIterator;
+import etomica.Data;
+import etomica.DataInfo;
+import etomica.DataSource;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
-import etomica.IntegratorEvent;
 import etomica.IntegratorIntervalEvent;
 import etomica.IntegratorNonintervalEvent;
 import etomica.Phase;
@@ -13,7 +15,7 @@ import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.SimulationEvent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.data.DataSourceAdapter;
+import etomica.data.types.DataDoubleArray;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveListener;
 import etomica.space.Vector;
@@ -312,14 +314,19 @@ public static class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap
  * simulation.  Designed for input to a DisplayPlot to provide a graphical
  * record of how the phases swap configurations.
  */
-    public class PhaseTracker extends DataSourceAdapter implements MCMoveListener {
+    public class PhaseTracker implements DataSource, MCMoveListener {
         
         private int[] track;
         private double[] dtrack;
+        private DataDoubleArray data;
         
         public PhaseTracker() {
-            super(Dimension.NULL);
             IntegratorPT.this.addMCMoveListener(this);
+            data = new DataDoubleArray(new DataInfo("Phase Tracker", Dimension.NULL));
+        }
+        
+        public DataInfo getDataInfo() {
+            return data.getDataInfo();
         }
         
         public void actionPerformed(SimulationEvent evt) {actionPerformed((MCMoveEvent)evt);}
@@ -341,12 +348,12 @@ public static class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap
         public Dimension getDimension() {return Dimension.NULL;}
         
         /**
-         * Specifies phases that are tracked.
+         * Specifies the number of phases that are tracked.
          */
-         //don't need to pass phases; just number of phases
         public void setNumPhases(int numPhases) {
             track = new int[numPhases];
-            dtrack = new double[numPhases];
+            data.setLength(numPhases);
+            dtrack = data.getData();
             for(int i=0; i<numPhases; i++) {
                 track[i] = i;
             }
@@ -356,11 +363,11 @@ public static class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap
          * Returns array y such that y[i] is the current
          * phase of the configuration that began in phase i.
          */
-        public double[] getData() {
+        public Data getData() {
             for (int i=0; i<track.length; i++) {
                 dtrack[i] = track[i];
             }
-            return dtrack;
+            return data;
         }
         
         public int getDataLength() {

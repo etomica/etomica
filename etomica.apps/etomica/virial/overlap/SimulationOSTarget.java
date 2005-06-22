@@ -60,7 +60,7 @@ public class SimulationOSTarget extends SimulationGraphic {
 		
 	    DisplayPlot clusterPlot = new DisplayPlot(this);
 	    clusterPlot.setDataSources(meter);
-	    clusterPlot.setWhichValue(MeterAbstract.AVERAGE);
+	    clusterPlot.setWhichValue(MeterAbsMeter);
 		
 	    this.elementCoordinator.go();
 	    clusterPlot.setDataSources(meter);

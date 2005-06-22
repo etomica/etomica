@@ -1,11 +1,10 @@
 package etomica.space3d;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Space;
 import etomica.space.Boundary;
 
-public class Space3D extends Space implements EtomicaElement {
+public class Space3D extends Space {
 
     public final int D() {return D;}
     public final int powerD(int n) {return n*n*n;}

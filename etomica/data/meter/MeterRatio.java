@@ -1,17 +1,18 @@
 package etomica.data.meter;
 import etomica.Phase;
+import etomica.data.DataSourceScalar;
 import etomica.units.Dimension;
 import etomica.units.DimensionRatio;
 	
 /**
  * Class used to construct meters for intensive properties formed as the ratio of two extensive properties (e.g., energy/mole)
  */
-public class MeterRatio extends MeterScalar {
+public class MeterRatio extends DataSourceScalar {
 	    
-	protected MeterScalar nMeter;
-	protected MeterScalar dMeter;
+	protected DataSourceScalar nMeter;
+	protected DataSourceScalar dMeter;
 	    
-	public MeterRatio(MeterScalar numerator, MeterScalar denominator) {
+	public MeterRatio(DataSourceScalar numerator, DataSourceScalar denominator) {
 	    super();
 	    setNumerator(numerator);
 	    setDenominator(denominator);
@@ -22,6 +23,7 @@ public class MeterRatio extends MeterScalar {
 	}
 	    
 	public double getDataAsScalar(Phase p) {
+        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
 	    return nMeter.getDataAsScalar(p)/dMeter.getDataAsScalar(p);
 	}
 	
@@ -31,8 +33,8 @@ public class MeterRatio extends MeterScalar {
 	    dMeter.setPhase(p);
 	}
 	    
-	public void setNumerator(MeterScalar numerator) {nMeter = numerator;}
-	public void setDenominator(MeterScalar denominator) {dMeter = denominator;}
+	public void setNumerator(DataSourceScalar numerator) {nMeter = numerator;}
+	public void setDenominator(DataSourceScalar denominator) {dMeter = denominator;}
 	    
 	    
 }

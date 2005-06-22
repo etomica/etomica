@@ -2,10 +2,13 @@ package etomica.data.meter;
 
 import etomica.Atom;
 import etomica.AtomTypeLeaf;
+import etomica.DataInfo;
 import etomica.EtomicaInfo;
+import etomica.Meter;
 import etomica.Phase;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
+import etomica.data.DataSourceScalar;
 import etomica.space.ICoordinateKinetic;
 import etomica.units.Dimension;
 
@@ -19,12 +22,12 @@ import etomica.units.Dimension;
  /* History of changes
   * 7/03/02  Added non-registering constructor (space argument)
   */
-public class MeterKineticEnergy extends MeterScalar
+public class MeterKineticEnergy extends DataSourceScalar implements Meter
 {
     private AtomIteratorPhaseDependent iterator;
     
     public MeterKineticEnergy() {
-        setLabel("Kinetic Energy");
+        super(new DataInfo("Kinetic Energy",Dimension.ENERGY));
         setIterator(new AtomIteratorLeafAtoms());
     }
     
@@ -33,11 +36,6 @@ public class MeterKineticEnergy extends MeterScalar
         return info;
     }
 
-    /**
-     * Returns Dimension.ENERGY.
-     */
-    public Dimension getDimension() {return Dimension.ENERGY;}
-	
     /**
      * Returns the iterator that defines the atoms summed for their
      * kinetic energy.
@@ -61,7 +59,8 @@ public class MeterKineticEnergy extends MeterScalar
 	 * the iterator when applied to the given phase.  Does not include contributions
      * from atoms having infinite mass (it assumes they are stationary).
 	 */
-    public double getDataAsScalar(Phase phase) {
+    public double getDataAsScalar() {
+        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
         double ke = 0.0;
         iterator.setPhase(phase);
         iterator.reset();
@@ -73,4 +72,19 @@ public class MeterKineticEnergy extends MeterScalar
         }
         return ke;
     }//end of getDataAsScalar
+    
+    /**
+     * @return Returns the phase.
+     */
+    public Phase getPhase() {
+        return phase;
+    }
+    /**
+     * @param phase The phase to set.
+     */
+    public void setPhase(Phase phase) {
+        this.phase = phase;
+    }
+
+    private Phase phase;
  }

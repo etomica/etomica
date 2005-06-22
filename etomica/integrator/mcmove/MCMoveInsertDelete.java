@@ -71,6 +71,7 @@ public class MCMoveInsertDelete extends MCMove {
     
     public void setPhase(Phase[] p) {
         super.setPhase(p);
+        energyMeter.setPhase(p[0]);
         if(species != null) {
             speciesAgent = species.getAgent(phases[0]);
             speciesAgentNode = (AtomTreeNodeGroup)speciesAgent.node; 
@@ -100,7 +101,7 @@ public class MCMoveInsertDelete extends MCMove {
             testMolecule = speciesAgent.randomMolecule();
             //delete molecule only upon accepting trial
             energyMeter.setTarget(testMolecule);
-            uOld = energyMeter.getDataAsScalar(phases[0]);
+            uOld = energyMeter.getDataAsScalar();
         } 
         uNew = Double.NaN;
         return true;
@@ -114,7 +115,7 @@ public class MCMoveInsertDelete extends MCMove {
     public double lnProbabilityRatio() {
         if(insert) {
             energyMeter.setTarget(testMolecule);
-            uNew = energyMeter.getDataAsScalar(phases[0]);
+            uNew = energyMeter.getDataAsScalar();
            return (+mu - uNew)/temperature;
         }
         uNew = 0.0;

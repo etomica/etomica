@@ -1,7 +1,7 @@
 package etomica.virial.dos;
 
 import etomica.Simulation;
-import etomica.data.meter.MeterFunction;
+import etomica.data.DataSourceFunction;
 import etomica.units.Dimension;
 import etomica.virial.Cluster;
 import etomica.virial.P0Cluster;
@@ -14,7 +14,7 @@ import etomica.virial.PhaseCluster;
 /* History
  * 08/21/03 (DAK) invoke resetPairs for pairSet in currentValue method
  */
-public class MeterDOS extends MeterFunction {
+public class MeterDOS extends DataSourceFunction {
 
 	private P0Cluster p0;
 	private Cluster cluster;
@@ -36,7 +36,7 @@ public class MeterDOS extends MeterFunction {
 	}
 
 	/**
-	 * @see etomica.data.meter.MeterScalar#getData()
+	 * @see etomica.data.DataSourceScalar#getData()
 	 */
 	public double[] getData() {
 		for(int i=0; i<nPoints; i++) y[i] = 0.0;

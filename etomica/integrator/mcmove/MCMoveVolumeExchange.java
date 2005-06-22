@@ -63,8 +63,10 @@ public final class MCMoveVolumeExchange extends MCMove {
     }
     
     public boolean doTrial() {
-        uOld1 = energyMeter.getDataAsScalar(firstPhase);
-        uOld2 = energyMeter.getDataAsScalar(secondPhase);
+        energyMeter.setPhase(firstPhase);
+        uOld1 = energyMeter.getDataAsScalar();
+        energyMeter.setPhase(secondPhase);
+        uOld2 = energyMeter.getDataAsScalar();
         hOld = uOld1 + uOld2;
         double v1Old = firstPhase.volume();
         double v2Old = secondPhase.volume();
@@ -87,8 +89,10 @@ public final class MCMoveVolumeExchange extends MCMove {
     }
         
     public double lnProbabilityRatio() {
-        uNew1 = energyMeter.getDataAsScalar(firstPhase);
-        uNew2 = energyMeter.getDataAsScalar(secondPhase);
+        energyMeter.setPhase(firstPhase);
+        uNew1 = energyMeter.getDataAsScalar();
+        energyMeter.setPhase(secondPhase);
+        uNew2 = energyMeter.getDataAsScalar();
         double hNew = uNew1 + uNew2;
         return -(hNew - hOld)/temperature;
     }

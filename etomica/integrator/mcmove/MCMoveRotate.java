@@ -47,7 +47,7 @@ public class MCMoveRotate extends MCMove {
         molecule = phase.randomMolecule();
 
         energyMeter.setTarget(molecule);
-        uOld = energyMeter.getDataAsScalar(phase);
+        uOld = energyMeter.getDataAsScalar();
         orientation = ((ICoordinateAngular)molecule.coord).orientation(); 
         oldOrientation.E(orientation);  //save old orientation
         orientation.randomRotation(stepSize);
@@ -59,7 +59,7 @@ public class MCMoveRotate extends MCMove {
     
     public double lnProbabilityRatio() {
         energyMeter.setTarget(molecule);
-        uNew = energyMeter.getDataAsScalar(phases[0]);
+        uNew = energyMeter.getDataAsScalar();
         return -(uNew - uOld)/temperature;
     }
     
@@ -76,6 +76,11 @@ public class MCMoveRotate extends MCMove {
         affectedAtomIterator.setAtom(molecule);
         affectedAtomIterator.reset();
         return affectedAtomIterator;
+    }
+    
+    public void setPhase(Phase[] p) {
+        super.setPhase(p);
+        energyMeter.setPhase(p[0]);
     }
 
  /*
@@ -144,4 +149,7 @@ public class MCMoveRotate extends MCMove {
         etomica.graphics.SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
     }//end of main
 //   */
+    /* (non-Javadoc)
+     * @see etomica.integrator.MCMove#setPhase(etomica.Phase[])
+     */
 }//end of MCMoveRotate

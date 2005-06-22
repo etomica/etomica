@@ -18,6 +18,8 @@ import etomica.atom.AtomTypeSphere;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPressureHard;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.nbr.CriterionBondedSimple;
@@ -110,7 +112,7 @@ public class TestSWChain extends Simulation {
         }
         TestSWChain sim = new TestSWChain(new Space3D(), numMolecules);
 
-        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator); 
+        MeterPressureHard pMeter = new MeterPressureHard(sim.space,sim.integrator); 
         DataSource energyMeter = new IntegratorPotentialEnergy(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverage();
         DataPump energyManager = new DataPump(energyMeter,new DataSink[]{energyAccumulator});
@@ -119,20 +121,22 @@ public class TestSWChain extends Simulation {
         
         sim.getController().actionPerformed();
         
-        double Z = pMeter.getDataAsScalar(sim.phase)*sim.phase.volume()/(sim.phase.moleculeCount()*sim.integrator.getTemperature());
-        double[] data = energyAccumulator.getData();
-        double PE = data[AccumulatorAverage.AVERAGE.index]/numMolecules;
+        pMeter.setPhase(sim.phase);
+        double Z = pMeter.getDataAsScalar()*sim.phase.volume()/(sim.phase.moleculeCount()*sim.integrator.getTemperature());
+        double avgPE = ((DataDoubleArray)((DataGroup)energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).getData()[0];
+        avgPE /= numMolecules;
         System.out.println("Z="+Z);
-        System.out.println("PE/epsilon="+PE);
+        System.out.println("PE/epsilon="+avgPE);
         double temp = sim.integrator.getTemperature();
-        double Cv = data[AccumulatorAverage.STANDARD_DEVIATION.index]/temp;
+        double Cv = ((DataDoubleArray)((DataGroup)energyAccumulator.getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index)).getData()[0];
+        Cv /= temp;
         Cv *= Cv/numMolecules;
         System.out.println("Cv/k="+Cv);
         
         if (Math.abs(Z-4.5) > 1.5) {
             System.exit(1);
         }
-        if (Math.abs(PE+19.32) > 0.12) {
+        if (Math.abs(avgPE+19.32) > 0.12) {
             System.exit(1);
         }
         // actual value ~2

@@ -127,7 +127,7 @@ public final class AtomTypeWall extends AtomTypeLeaf {
         public final void setAdiabatic(boolean a) {adiabatic = a;}
         
         //Meter that evaluates pressure based on accumulated momentum from collisions with wall
-        public class MeterPressure extends etomica.data.meter.MeterScalar {
+        public class MeterPressure extends etomica.data.DataSourceScalar {
             
             private double timeSum;
             public MeterPressure() {

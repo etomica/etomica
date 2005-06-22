@@ -1,21 +1,27 @@
 package etomica.data.meter;
 import etomica.AtomPair;
-import etomica.EtomicaElement;
+import etomica.Data;
+import etomica.DataInfo;
+import etomica.DataSource;
 import etomica.EtomicaInfo;
+import etomica.Meter;
 import etomica.Phase;
 import etomica.Space;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
 import etomica.data.DataSourceUniform;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataFunction;
 import etomica.space.CoordinatePair;
 import etomica.units.Dimension;
+import etomica.utility.NameMaker;
 
 /**
  * Meter for tabulation of the atomic radial distribution function (RDF).
  *
  * @author David Kofke
  */
-public class MeterRDF extends MeterFunction implements EtomicaElement {
+public class MeterRDF implements DataSource, Meter {
 	
 	/**
 	 * Creates meter with default to compute pair correlation for all
@@ -23,21 +29,26 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	 * @param parent
 	 */
     public MeterRDF(Space space) {
-	    super(new DataSourceUniform());
-        this.space = space;
-	    xDataSourceUniform = (DataSourceUniform)xDataSource;
-        xDataSourceUniform.setTypeMax(DataSourceUniform.HALF_STEP);
-        xDataSourceUniform.setTypeMin(DataSourceUniform.HALF_STEP);
-	    xDataSourceUniform.setDimension(Dimension.LENGTH);
-	    xDataSourceUniform.setLabel("r");
-	    setLabel("rdf");
+	    this.space = space;
+        data = new DataFunction(new DataInfo("RDF",Dimension.FRACTION),new DataInfo("r",Dimension.LENGTH));
+        xDataSource = new DataSourceUniform();
+        xDataSource.setTypeMax(DataSourceUniform.HALF_STEP);
+        xDataSource.setTypeMin(DataSourceUniform.HALF_STEP);
+        DataDoubleArray xData = (DataDoubleArray)xDataSource.getData();
+        data.setLength(xData.getLength());
+        data.getTData().E(xData);
 	    iterator = new ApiLeafAtoms();
 	    cPair = space.makeCoordinatePair();
+        setName(NameMaker.makeName(this.getClass()));
     }
     
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Tabulates radial distribution function");
         return info;
+    }
+    
+    public DataInfo getDataInfo() {
+        return data.getDataInfo();
     }
     
     /**
@@ -65,13 +76,14 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	/**
 	 * Computes RDF for the current configuration of the given phase.
 	 */
-	public double[] getDataAsArray(Phase phase) {
+	public Data getData() {
         cPair.setNearestImageTransformer(phase.boundary());
-        if (nDataPerPhase != xDataSourceUniform.getNValues()) {
-            setNDataPerPhase(xDataSourceUniform.getNValues());
+        if (data.getLength() != xDataSource.getNValues()) {
+            data.setLength(xDataSource.getNValues());
         }
-	    for(int i=0; i<nDataPerPhase; i++) {phaseData[i] = 0.0;}  //zero histogram
-	    double xMax = xDataSourceUniform.getXMax();
+        final double[] y = data.getData();
+	    for(int i=0; i<y.length; i++) {y[i] = 0.0;}  //zero histogram
+	    double xMax = xDataSource.getXMax();
 	    double xMaxSquared = xMax*xMax;
 	    int count = 0;
 		iterator.setPhase(phase);
@@ -81,27 +93,51 @@ public class MeterRDF extends MeterFunction implements EtomicaElement {
 	    	cPair.reset(pair.atom0.coord, pair.atom1.coord);
 	    	double r2 = cPair.r2();       //compute pair separation
 	        if(r2 < xMaxSquared) {
-	            int index = xDataSourceUniform.getIndex(Math.sqrt(r2));  //determine histogram index
-	            phaseData[index]++;                        //add once for each atom
+	            int index = xDataSource.getIndex(Math.sqrt(r2));  //determine histogram index
+	            y[index]++;                        //add once for each atom
 	        }
 	        //TODO consider if this (count) is being used correctly
 	        count++;
 	    }
 //	    int n = phase.atomCount();             //compute normalization: divide by
 	    double norm = count/phase.volume();    //n, and density*(volume of shell)
-	    double[] x = xDataSourceUniform.getData();
-	    double dx2 = 0.5*(xMax - xDataSourceUniform.getXMin())/nDataPerPhase;
-	    for(int i=0; i<nDataPerPhase; i++) {
+	    double[] x = ((DataDoubleArray)xDataSource.getData()).getData();
+	    double dx2 = 0.5*(xMax - xDataSource.getXMin())/data.getLength();
+	    for(int i=0;i<data.getLength(); i++) {
 	        double vShell = space.sphereVolume(x[i]+dx2)-space.sphereVolume(x[i]-dx2);
-	    	phaseData[i] /= (norm*vShell);
+	    	y[i] /= (norm*vShell);
 	    }
-	    return phaseData;
+	    return data;
 	}
 	
+    /**
+     * @return Returns the phase.
+     */
+    public Phase getPhase() {
+        return phase;
+    }
+    /**
+     * @param phase The phase to set.
+     */
+    public void setPhase(Phase phase) {
+        this.phase = phase;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    private Phase phase;
     private final Space space;
+    private final DataFunction data;
     private AtomsetIteratorPhaseDependent iterator;
     private final CoordinatePair cPair;
-    private final DataSourceUniform xDataSourceUniform;//local copy of xDataSource to avoid repeated casts
+    private final DataSourceUniform xDataSource;
+    private String name;
 	
 	/**
 	 * main method to demonstrate and test use of class.

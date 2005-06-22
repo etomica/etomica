@@ -70,6 +70,7 @@ public class MCMoveSemigrand extends MCMove {
      */
     public void setPhase(Phase[] p) {
         super.setPhase(p);
+        energyMeter.setPhase(p[0]);
         if(speciesSet != null) {
             for(int i=0; i<nSpecies; i++) {
                 agentSet[i] = speciesSet[i].getAgent(phases[0]);
@@ -170,7 +171,7 @@ public class MCMoveSemigrand extends MCMove {
   
         deleteMolecule = deleteAgent.randomMolecule();
         energyMeter.setTarget(deleteMolecule);
-        uOld = energyMeter.getDataAsScalar(phases[0]);
+        uOld = energyMeter.getDataAsScalar();
         phases[0].removeMolecule(deleteMolecule);
         
         if(!reservoirs[iInsert].isEmpty()) insertMolecule = reservoirs[iInsert].removeFirst();
@@ -190,7 +191,7 @@ public class MCMoveSemigrand extends MCMove {
     
     public double lnProbabilityRatio() {
         energyMeter.setTarget(insertMolecule);
-        uNew = energyMeter.getDataAsScalar(phases[0]);
+        uNew = energyMeter.getDataAsScalar();
         return -(uNew - uOld)/temperature +
                 Math.log(fugacityFraction[iInsert]/fugacityFraction[iDelete]);
     }
@@ -207,6 +208,8 @@ public class MCMoveSemigrand extends MCMove {
         phases[0].removeMolecule(insertMolecule);
         reservoirs[iInsert].add(insertMolecule.seq);
     }
+    
+    
 
     public double energyChange(Phase phase) {return (this.phases[0] == phase) ? uNew - uOld : 0.0;}
     

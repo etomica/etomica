@@ -1,10 +1,12 @@
 package etomica.data.meter;
-import etomica.EtomicaElement;
+import etomica.DataInfo;
 import etomica.EtomicaInfo;
 import etomica.IteratorDirective;
+import etomica.Meter;
 import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Space;
+import etomica.data.DataSourceScalar;
 import etomica.potential.PotentialCalculationVirialSum;
 import etomica.units.Dimension;
 
@@ -17,7 +19,7 @@ import etomica.units.Dimension;
  * @author David Kofke
  */
  
-public class MeterPressure extends MeterScalar implements EtomicaElement {
+public class MeterPressure extends DataSourceScalar implements Meter {
     
     private IteratorDirective iteratorDirective;
     private final PotentialCalculationVirialSum virial;
@@ -26,10 +28,9 @@ public class MeterPressure extends MeterScalar implements EtomicaElement {
     private final double rD;
     
     public MeterPressure(PotentialMaster potentialMaster, Space space) {
-    	super();
+    	super(new DataInfo("Pressure",Dimension.pressure(space.D)));
         setTemperature(temperature);
-        rD = 1.0/(double)space.D();
-        setLabel("Pressure");
+        rD = 1.0/space.D();
         iteratorDirective = new IteratorDirective();
         iteratorDirective.includeLrc = true;
         potential = potentialMaster;
@@ -56,10 +57,6 @@ public class MeterPressure extends MeterScalar implements EtomicaElement {
 	public void setTemperature(double temperature) {
 		this.temperature = temperature;
 	}
-    /**
-     * Returns Dimension.PRESSURE
-     */
-    public Dimension getDimension() {return Dimension.PRESSURE;}
 
     /**
      * Sets flag indicating whether calculated energy should include
@@ -82,10 +79,25 @@ public class MeterPressure extends MeterScalar implements EtomicaElement {
 	  * ideal-gas contribution.
 	  * Currently, does not include long-range correction to truncation of energy.
 	  */
-    public double getDataAsScalar(Phase phase) {
+    public double getDataAsScalar() {
+        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
     	virial.zeroSum();
         potential.calculate(phase, iteratorDirective, virial);
         return phase.getDensity()*temperature - virial.getSum()*rD/phase.boundary().volume();
     }
     
+    /**
+     * @return Returns the phase.
+     */
+    public Phase getPhase() {
+        return phase;
+    }
+    /**
+     * @param phase The phase to set.
+     */
+    public void setPhase(Phase phase) {
+        this.phase = phase;
+    }
+
+    private Phase phase;
 }//end of MeterPressure

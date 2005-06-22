@@ -1,11 +1,13 @@
 package etomica.data;
 
 import etomica.Atom;
+import etomica.Data;
+import etomica.DataInfo;
 import etomica.DataSource;
-import etomica.DataTranslator;
 import etomica.Space;
 import etomica.action.AtomActionAdapter;
 import etomica.action.AtomGroupAction;
+import etomica.data.types.DataVector;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;
 import etomica.units.Dimension;
@@ -31,11 +33,13 @@ public class DataSourceVelocityAverage extends AtomActionAdapter implements Data
 
     public DataSourceVelocityAverage(Space space) {
         this.space = space;
+        data = new DataVector(space, new DataInfo("Average Velocity", Dimension.UNDEFINED));
         vectorSum = space.makeVector();
-        average = space.makeVector();
-        dataTranslator = new DataTranslatorVector(space);
         groupWrapper = new AtomGroupAction(new MyAction());
-        setLabel("Average Velocity");
+    }
+    
+    public DataInfo getDataInfo() {
+        return data.getDataInfo();
     }
 
     /*
@@ -51,38 +55,18 @@ public class DataSourceVelocityAverage extends AtomActionAdapter implements Data
      * Returns the center of mass (calculated so far) as an array.
      * Does not reset COM sums.  Implementation of DataSource interface.
      */
-    public double[] getData() {
-        return dataTranslator.toArray(getVelocityAverage());
+    public Data getData() {
+        data.x.Ea1Tv1(1.0 / numAtoms, vectorSum);
+        return data;
     }
     
-    /**
-     * Data length equals the spatial dimension; returns it.
-     */
-    public int getDataLength() {
-        return space.D();
-    }
-
     /**
      * Returns the center of mass (calculated so far) as a vector.
      * Does not reset COM sums.
      */
     public Vector getVelocityAverage() {
-        average.Ea1Tv1(1.0 / numAtoms, vectorSum);
-        return average;
-    }
-    
-    /**
-     * Returns Dimension.LENGTH
-     */
-    public Dimension getDimension() {
-        return Dimension.LENGTH;
-    }
-
-    /**
-     * Returns a new DataTranslatorVector instance
-     */
-    public DataTranslator getTranslator() {
-        return new DataTranslatorVector(space);
+        getData();
+        return data.x;
     }
 
     /**
@@ -102,8 +86,8 @@ public class DataSourceVelocityAverage extends AtomActionAdapter implements Data
     }
 
     private final Space space;
-    private final Vector vectorSum, average;
-    private final DataTranslatorVector dataTranslator;
+    private final Vector vectorSum;
+    private final DataVector data;
     private double massSum;
     private int numAtoms;
     private AtomGroupAction groupWrapper;

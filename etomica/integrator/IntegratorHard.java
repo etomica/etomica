@@ -191,19 +191,19 @@ public class IntegratorHard extends IntegratorMD {
         collisionTimeStep = 0.0;
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.thisPhase(firstPhase)) {
             eventList.check();
-            meterPE.setPhase(phase);
-            double[] PE = meterPE.getData();
             for (int i=0; i<phase.length; i++) {
-                if (Math.abs((PE[i] - currentPotentialEnergy[i])/(PE[i]+currentPotentialEnergy[i])) > 1.e-9
-                        && Math.abs(PE[i] - currentPotentialEnergy[i]) > 1.e-9) {
-                    throw new RuntimeException("potential energy of "+phase[i]+" is wrong. it's actually "+PE[i]+" but I thought it was "+currentPotentialEnergy[i]);
+                meterPE.setPhase(phase[i]);
+                double PE = meterPE.getDataAsScalar();
+                if (Math.abs((PE - currentPotentialEnergy[i])/(PE+currentPotentialEnergy[i])) > 1.e-9
+                        && Math.abs(PE - currentPotentialEnergy[i]) > 1.e-9) {
+                    throw new RuntimeException("potential energy of "+phase[i]+" is wrong. it's actually "+PE+" but I thought it was "+currentPotentialEnergy[i]);
                 }
             }
-            meterKE.setPhase(phase);
-            double[] KE = meterKE.getData();
             for (int i=0; i<phase.length; i++) {
-                if (Math.abs(KE[i] - currentKineticEnergy[i]) > 1.e-8) {
-                    throw new RuntimeException("kinetic energy of "+phase[i]+" is wrong. it's actually "+KE[i]+" but I thought it was "+currentKineticEnergy[i]);
+                meterKE.setPhase(phase[i]);
+                double KE = meterKE.getDataAsScalar();
+                if (Math.abs(KE - currentKineticEnergy[i]) > 1.e-8) {
+                    throw new RuntimeException("kinetic energy of "+phase[i]+" is wrong. it's actually "+KE+" but I thought it was "+currentKineticEnergy[i]);
                 }
             }
         }

@@ -1,11 +1,12 @@
 package etomica.data;
 import java.io.PrintStream;
 
+import etomica.Data;
 import etomica.DataSink;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.units.Dimension;
 import etomica.units.Unit;
+import etomica.utility.NameMaker;
 
 /**
  * Writes data to console or another print stream.
@@ -17,6 +18,7 @@ public class DataSinkConsole implements DataSink, EtomicaElement {
      */
     public DataSinkConsole() {
         this(System.out);
+        setName(NameMaker.makeName(this.getClass()));
     }
     
     /**
@@ -34,62 +36,23 @@ public class DataSinkConsole implements DataSink, EtomicaElement {
     
     /**
      * Causes the given values to be written to the print stream.
-     * Data are written one value per line, all following a header
-     * based on the current label and unit.
      */
-    public void putData(double[] data) {
-        out.println(label + " (" + unit.toString() + ")");
-        for(int i=0; i<data.length; i++) {
-            out.println(data[i]);
-        }
-        out.println();
+    public void putData(Data data) {
+        out.println(data.toString());
     }
 
-    /**
-     * Sets the dimension of the data written to this sink.
-     * Part of the DataSink interface.
-     */
-    public void setDimension(Dimension dimension) {
-        this.dimension = dimension;
-        if(unit == Unit.UNDEFINED) unit = dimension.defaultIOUnit();
-    }
-    
-    /**
-     * @return Returns the label.
-     */
-    public String getLabel() {
-        return label;
-    }
-    /**
-     * @param label The label to set.
-     */
-    public void setLabel(String label) {
-        this.label = label;
-    }
-    
-    /**
-     * Sets label to the given value if it was not previously set.
-     * If setLabel was previously called, this method has no effect.
-     * This method is usually invoked automatically when this data
-     * sink is attached to a data pipe.
-     */
-    public void setDefaultLabel(String defaultLabel) {
-        if(label == "") setLabel(defaultLabel);
-    }
-
-
-    /**
-     * @return Returns the unit.
-     */
-    public Unit getUnit() {
-        return unit;
-    }
-    /**
-     * @param unit The unit to set.
-     */
-    public void setUnit(Unit unit) {
-        this.unit = unit;
-    }
+//    /**
+//     * @return Returns the unit.
+//     */
+//    public Unit getUnit() {
+//        return unit;
+//    }
+//    /**
+//     * @param unit The unit to set.
+//     */
+//    public void setUnit(Unit unit) {
+//        this.unit = unit;
+//    }
     
     /**
      * Method called to express incredulity.  Short for
@@ -108,8 +71,19 @@ public class DataSinkConsole implements DataSink, EtomicaElement {
         this.out = out;
     }
     
-    private String label = "";
-    private Dimension dimension = Dimension.UNDEFINED;
+    /**
+     * @return Returns the name.
+     */
+    public String getName() {
+        return name;
+    }
+    /**
+     * @param name The name to set.
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
     private Unit unit = Unit.UNDEFINED;
     private PrintStream out = System.out;
+    private String name;
 }
