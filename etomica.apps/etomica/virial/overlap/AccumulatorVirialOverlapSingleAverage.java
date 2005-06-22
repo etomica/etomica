@@ -1,9 +1,12 @@
 package etomica.virial.overlap;
 
+import etomica.Data;
 import etomica.data.AccumulatorRatioAverage;
+import etomica.data.types.DataDoubleArray;
 
 /**
  * Accumulator for taking ratio between two sums (and pretend it's an "average")
+ * Data added to this accumulator must be a 2-element DataDoubleArray
  */
 public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAverage {
 
@@ -20,7 +23,6 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
         blockOverlapSumSq = new double[nBennetPoints];
 		expX = new double[nBennetPoints];
         setBennetParam(1.0,5);
-		setNData(2);
 	}
 	
 	/**
@@ -46,19 +48,20 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
     /**
      * Add the given values to the sums and block sums
      */
-    public void addData(double[] value) {
-        if(value.length != nData) {
+    public void addData(Data value) {
+        if(((DataDoubleArray)value).getLength() != 2) {
             throw new IllegalArgumentException("must receive cluster value, weight and 'other' weight (only)");
         }
-        if (Math.abs(value[0])-1.0 > 1.e-10) {
-            throw new IllegalArgumentException("value[0] should be 1 (gamma/weight), but it was "+value[0]);
+        if (Math.abs(((DataDoubleArray)value).getData()[0])-1.0 > 1.e-10) {
+            throw new IllegalArgumentException("value[0] should be 1 (gamma/weight), but it was "+((DataDoubleArray)value).getData()[0]);
         }
+        double value1 = ((DataDoubleArray)value).getData()[1];
         for (int j=0; j<nBennetPoints; j++) {
             if (nBennetPoints > 1) {
-                bennetSum[j] += value[1]/(value[1]+ expX[j]);
+                bennetSum[j] += value1/(value1+ expX[j]);
             }
             // this is actually blockSum[1], but for all the various values of the overlap parameter
-            double v = value[1]*(1+expX[j]) / (value[1]+expX[j]);
+            double v = value1*(1+expX[j]) / (value1+expX[j]);
             blockOverlapSum[j] += v;
             blockOverlapSumSq[j] += v*v;
         }
@@ -95,7 +98,7 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
      * Implements DataSource interface, but you probably want to
      * getData for a specific Bennet parameter.
      */
-    public double[] getData() {
+    public Data getData() {
         return getData((nBennetPoints-1)/2);
     }
     
@@ -110,20 +113,17 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
     /**
      * Return all standard data corresponding to the given Bennet parameter.  
      */
-    public double[] getData(int iParam) {
-        int currentBlockCount = blockSize - blockCountDown;
-        if(count+currentBlockCount == 0) {
-            setNaN(data);
-        } else {
+    public Data getData(int iParam) {
+        if(count > 0) {
             // fill in data for set "1" with appropriate "overlap" data
-            sum[1] = overlapSum[iParam];
-            blockSum[1] = blockOverlapSum[iParam];
-            sumSquare[1] = overlapSumSquare[iParam];
-            blockSumSq[1] = blockOverlapSumSq[iParam];
+            ((DataDoubleArray)sum).getData()[1] = overlapSum[iParam];
+            ((DataDoubleArray)blockSum).getData()[1] = blockOverlapSum[iParam];
+            ((DataDoubleArray)sumSquare).getData()[1] = overlapSumSquare[iParam];
+            ((DataDoubleArray)blockSumSq).getData()[1] = blockOverlapSumSq[iParam];
             // let AccumulatorRatioAverage do the work for us
             super.getData();
         }
-        return data;
+        return dataGroup;
     }
     
  	/**
