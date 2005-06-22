@@ -1,6 +1,5 @@
 package etomica.data;
 
-import etomica.units.Dimension;
 import etomica.utility.Arrays;
 
 /**
@@ -46,13 +45,13 @@ public class DataTable implements DataBinManager {
         //need to refresh with each call because columnHeadings isn't 
         //notified when setLabel of DataBin is called
         for (int i = 0; i < columns.length; i++) {
-            columnHeadings[i] = columns[i].getLabel();
+            columnHeadings[i] = columns[i].getDataInfo().getLabel();
         }
         return columnHeadings;
     }
 
-    public DataBin makeColumn(Dimension dimension) {
-        DataBin newColumn = new DataBin(this, dimension);
+    public DataBin makeColumn() {
+        DataBin newColumn = new DataBin(this);
         columns = (DataBin[]) Arrays.addObject(columns, newColumn);
         update();
         fireColumnAddedEvent(newColumn);
