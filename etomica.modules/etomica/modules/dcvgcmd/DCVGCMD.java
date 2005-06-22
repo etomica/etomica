@@ -247,10 +247,10 @@ public class DCVGCMD extends Simulation {
         density2.setSpecies(species1);
         profile1 = new MeterProfile(space);
         profile2 = new MeterProfile(space);
-        profile1.setMeter(density1);
+        profile1.setDataSource(density1);
         profile1.setPhase(phase);
         profile1.setProfileVector(new Vector3D(0.0, 0.0, 1.0));
-        profile2.setMeter(density2);
+        profile2.setDataSource(density2);
         profile2.setPhase(phase);
         profile2.setProfileVector(new Vector3D(0.0, 0.0, 1.0));
 

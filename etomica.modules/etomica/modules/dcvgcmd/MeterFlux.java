@@ -1,28 +1,20 @@
 package etomica.modules.dcvgcmd;
 
-import etomica.EtomicaElement;
+import etomica.DataInfo;
+import etomica.Meter;
 import etomica.Phase;
-import etomica.data.meter.MeterScalar;
+import etomica.data.DataSourceScalar;
 import etomica.units.Dimension;
 
-public class MeterFlux extends MeterScalar implements EtomicaElement{
-    
-	double t0 = 0;
-	int n0 = 0;
-	MyMCMove mcMove;
-	IntegratorDCVGCMD integratorMD;
-	
-	
-	//private final MeterKineticEnergy meterKE;
+public class MeterFlux extends DataSourceScalar implements Meter {
     
 	public MeterFlux(MyMCMove move, IntegratorDCVGCMD integrator) {
-		super();
-		setLabel("Flux");
+		super(new DataInfo("Flux",Dimension.UNDEFINED));
 		mcMove = move;
 		integratorMD = integrator;
 	}
  
-	public double getDataAsScalar(Phase phase) {
+	public double getDataAsScalar() {
 		double t1 = integratorMD.elapsedTime();
         if(t1 == t0) return Double.NaN;
 		int n1 = mcMove.getDeltaN();
@@ -32,8 +24,22 @@ public class MeterFlux extends MeterScalar implements EtomicaElement{
 		return rate;
 	}
     
-	public Dimension getDimension() {
-		return Dimension.UNDEFINED;
+    /**
+     * @return Returns the phase.
+     */
+    public Phase getPhase() {
+        return phase;
+    }
+    /**
+     * @param phase The phase to set.
+     */
+    public void setPhase(Phase phase) {
+        this.phase = phase;
     }
 
+    private Phase phase;
+    private double t0 = 0;
+    private int n0 = 0;
+    private MyMCMove mcMove;
+    private IntegratorDCVGCMD integratorMD;
 }
