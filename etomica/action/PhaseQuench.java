@@ -36,17 +36,22 @@ public class PhaseQuench extends PhaseActionAdapter {
 		this();
 		setTemperature(temperature);
 		meterTemperature = new MeterTemperature();
-		meterTemperature.setPhase(new Phase[] { p });
+        setPhase(p);
 	}
 
+    public void setPhase(Phase p) {
+        super.setPhase(p);
+        meterTemperature.setPhase(p);
+        atomIterator.setPhase(phase);
+    }
+    
 	/**
 	 * @see etomica.action.PhaseActionAdapter#actionPerformed(etomica.Phase)
 	 */
 	public void actionPerformed() {
 		if(phase == null) return;
-		double currentTemperature = meterTemperature.getDataAsScalar(phase);
+		double currentTemperature = meterTemperature.getDataAsScalar();
 		double scale = Math.sqrt(temperature / currentTemperature);
-		atomIterator.setPhase(phase);
 		atomIterator.reset();
 		while (atomIterator.hasNext())
 			((ICoordinateKinetic)atomIterator.nextAtom().coord).velocity().TE(scale);
