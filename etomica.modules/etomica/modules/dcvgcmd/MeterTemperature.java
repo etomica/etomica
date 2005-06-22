@@ -1,14 +1,10 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.AtomTreeNodeGroup;
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Phase;
 import etomica.Species;
 import etomica.SpeciesAgent;
 import etomica.atom.AtomList;
-import etomica.data.meter.MeterKineticEnergy;
-import etomica.data.meter.MeterScalar;
 import etomica.units.Dimension;
 
 /**
@@ -21,14 +17,11 @@ import etomica.units.Dimension;
  * kinetic-energy meter.
  */
 
-public final class MeterTemperature extends MeterScalar implements
-		EtomicaElement {
+public final class MeterTemperature extends etomica.data.meter.MeterTemperature {
 
 	public MeterTemperature(Species species) {
 		super();
 		this.species = species;
-		setLabel("Temperature");
-		meterKE = new MeterKineticEnergy();
 	}
 
 	public static EtomicaInfo getEtomicaInfo() {
@@ -37,22 +30,21 @@ public final class MeterTemperature extends MeterScalar implements
 		return info;
 	}
 
-	public double getDataAsScalar(Phase phase) {
+	public double getDataAsScalar() {
 		SpeciesAgent agent = phase.getAgent(species);
 		AtomList list = ((AtomTreeNodeGroup)agent.node).childList;
 		int size = list.size();
 		int natoms = 0;
-		if(size > 0){
+		if(size > 0) {
 			natoms = size * ((AtomTreeNodeGroup)list.getFirst().node).childList.size();
 		}
 		return (2. / (double) ((phase.atomCount()- natoms) * phase.boundary().dimensions().D()))
-				* meterKE.getDataAsScalar(phase);
+				* meterKE.getDataAsScalar();
 	}
 
 	public Dimension getDimension() {
 		return Dimension.TEMPERATURE;
 	}
 
-	private final MeterKineticEnergy meterKE;
 	private final Species species;
 }
