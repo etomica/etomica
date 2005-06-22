@@ -75,10 +75,10 @@ public class AccumulatorAverage extends DataAccumulator {
     
     public Data getData() {
         if (mostRecent == null) return null;
-        int currentBlockCount = blockSize - blockCountDown;
-        double countFraction = (double)currentBlockCount/(double)blockSize;
-        double currentCount = count + countFraction;
-        if(count+currentBlockCount > 0) {
+//        int currentBlockCount = blockSize - blockCountDown;
+//        double countFraction = (double)currentBlockCount/(double)blockSize;
+//        double currentCount = count + countFraction;
+        if(count > 0) {
 //            double currentBlockAverage = blockSum[i]/currentBlockCount;
 //            if (countFraction > 0) {
 //                average = (sum[i] + countFraction*currentBlockAverage)/currentCount;
@@ -95,7 +95,7 @@ public class AccumulatorAverage extends DataAccumulator {
             error.map(Function.Sqrt.INSTANCE);
             standardDeviation.E((Data)sumSquareBlock);
             standardDeviation.PE(blockSumSq);
-            standardDeviation.TE(1/currentCount*blockSize);
+            standardDeviation.TE(1/count*blockSize);
             standardDeviation.ME(work);
             standardDeviation.map(Function.Sqrt.INSTANCE);
 //            mrBlock = (!Double.isNaN(mostRecentBlock[i])) ? mostRecentBlock[i] : currentBlockAverage;
