@@ -54,6 +54,6 @@ public class MeterTemperature extends DataSourceScalar implements Meter {
         meterKE.setPhase(phase);
     }
 
-    private Phase phase;
-	private final MeterKineticEnergy meterKE;
+    protected Phase phase;
+	protected final MeterKineticEnergy meterKE;
 }
