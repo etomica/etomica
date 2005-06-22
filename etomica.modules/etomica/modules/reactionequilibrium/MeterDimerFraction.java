@@ -1,20 +1,20 @@
 package etomica.modules.reactionequilibrium;
 
 import etomica.Atom;
-import etomica.MeterAbstract;
+import etomica.Data;
+import etomica.DataInfo;
+import etomica.DataSource;
+import etomica.Meter;
 import etomica.Phase;
-import etomica.Simulation;
-import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.data.types.DataDoubleArray;
 import etomica.units.Dimension;
+import etomica.utility.NameMaker;
 
-public final class MeterDimerFraction extends MeterAbstract {
-    String[] labels = new String[5];
-    double[] currentValues = new double[5];
-    int[] count = new int[5];
-    public final int idx;
-    private AtomIteratorListSimple iterator = new AtomIteratorListSimple();
-    public MeterDimerFraction(Simulation sim, int idx) {
-        super(5);
+public final class MeterDimerFraction implements DataSource, Meter {
+    public MeterDimerFraction(int idx) {
+        data = new DataDoubleArray(new DataInfo("Dimer Fraction",Dimension.FRACTION));
+        setName(NameMaker.makeName(this.getClass()));
         labels[0] = "R";
         labels[1] = "B";
         labels[2] = "R-R";
@@ -23,9 +23,12 @@ public final class MeterDimerFraction extends MeterAbstract {
         this.idx = idx;
     }
     
-    public double[] getData(Phase phase) {
+    public DataInfo getDataInfo() {
+        return data.getDataInfo();
+    }
+
+    public Data getData() {
         for(int i=0; i<count.length; i++) {count[i] = 0;}
-        iterator.setList(phase.speciesMaster.atomList);
         iterator.reset();
         while(iterator.hasNext()) {
         	Atom a = iterator.nextAtom();
@@ -57,15 +60,44 @@ public final class MeterDimerFraction extends MeterAbstract {
         }//end of for loop
         
         double nMole = count[0] + count[1] + 0.5*(count[2]+count[3]+count[4]);
+        double[] x = data.getData();
         for(int i=0; i<count.length; i++) {
-        	currentValues[i] = count[i]/nMole;
+        	x[i] = count[i]/nMole;
         }
-        currentValues[2] *= 0.5;
-        currentValues[3] *= 0.5;
-        currentValues[4] *= 0.5;
-        return currentValues;
+        x[2] *= 0.5;
+        x[3] *= 0.5;
+        x[4] *= 0.5;
+        return data;
     }
     
-    public Dimension getXDimension() {return Dimension.NULL;}
-    public Dimension getDimension() {return Dimension.FRACTION;}
+    /**
+     * @return Returns the phase.
+     */
+    public Phase getPhase() {
+        return phase;
+    }
+    /**
+     * @param phase The phase to set.
+     */
+    public void setPhase(Phase phase) {
+        this.phase = phase;
+        iterator.setPhase(phase);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    private String name;
+    private Phase phase;
+    private final DataDoubleArray data;
+    private String[] labels = new String[5];
+    private int[] count = new int[5];
+    public final int idx;
+    private AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
+
 }

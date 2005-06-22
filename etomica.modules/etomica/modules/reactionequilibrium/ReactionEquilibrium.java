@@ -83,7 +83,7 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
 		potentialMaster.setSpecies(BBbonded,
 				new Species[] { speciesB, speciesB });
 
-		meterDimerFraction = new MeterDimerFraction(this, idx);
+		meterDimerFraction = new MeterDimerFraction(idx);
 		thermometer = new MeterTemperature();
 		thermometer.setPhase(phase1);
         
