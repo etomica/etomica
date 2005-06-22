@@ -2,6 +2,7 @@ package etomica.virial;
 
 import etomica.Atom;
 import etomica.Default;
+import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.Vector;
@@ -26,6 +27,11 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom implements MCMoveCluster 
         setStepSize(Default.ATOM_SIZE*1.2);
 	}
 	
+    public void setPhase(Phase[] p) {
+        super.setPhase(p);
+        weightMeter.setPhase(p[0]);
+    }
+    
 	//note that total energy is calculated
 	public boolean doTrial() {
 		if (selectedAtoms[0] == null) selectAtoms();
