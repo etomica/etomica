@@ -122,6 +122,26 @@ public interface Function {
     }
 
     /**
+     * The function f(x) = abs(x)
+     */
+    public static class Abs implements Function {
+
+        public double f(double x) {
+            return Math.abs(x);
+        }
+
+        public double dfdx(double x) {
+            return x > 0 ? 1 : -1;
+        }
+
+        public double inverse(double x) {
+            throw new RuntimeException("function not invertible");
+        }
+
+        public final static Abs INSTANCE = new Abs();
+    }
+
+    /**
      * The function f(x) = a*x + b
      */
     public static class Linear implements Function {

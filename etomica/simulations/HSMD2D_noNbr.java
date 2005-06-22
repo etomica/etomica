@@ -20,7 +20,6 @@ import etomica.potential.P1HardBoundary;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardSphere;
 import etomica.space2d.Space2D;
-import etomica.units.Dimension;
 
 /**
  * Simple hard-sphere molecular dynamics simulation in 2D.
@@ -82,16 +81,14 @@ public class HSMD2D_noNbr extends Simulation {
         meterTemperature.setPhase(phase);
         temperatureAverage = new AccumulatorAverage();
         DataPump temperaturePump = new DataPump(meterTemperature, temperatureAverage);
-        IntervalActionAdapter temperatureAction = new IntervalActionAdapter(temperaturePump, integrator);
+        new IntervalActionAdapter(temperaturePump, integrator);
 
 //        pressureHistory = new AccumulatorHistory();
 //        pressureAverage.makeDataPusher(
 //          new AccumulatorAverage.Type[] {AccumulatorAverage.AVERAGE}).
 //                                      addDataSink(pressureHistory);
         temperatureHistory = new AccumulatorHistory();
-        temperatureAverage.makeDataPusher(
-            new AccumulatorAverage.Type[] {AccumulatorAverage.AVERAGE}).
-                                        addDataSink(temperatureHistory);
+        temperatureAverage.addDataSink(temperatureHistory,new AccumulatorAverage.Type[] {AccumulatorAverage.AVERAGE});
 }
     
     /**
@@ -108,7 +105,7 @@ public class HSMD2D_noNbr extends Simulation {
         DisplayBoxesCAE temperatureDisplay = new DisplayBoxesCAE();
         temperatureDisplay.setAccumulator(sim.temperatureAverage);
         DisplayPlot temperaturePlot = new DisplayPlot();
-        sim.temperatureHistory.addDataSink(temperaturePlot.getDataTable().makeColumn(Dimension.TEMPERATURE));
+        sim.temperatureHistory.addDataSink(temperaturePlot.getDataTable().makeColumn());
         DeviceNSelector nSelector = new DeviceNSelector(sim, sim.phase.getAgent(sim.species));
         DeviceThermoSelector thermo = new DeviceThermoSelector(sim.getController(), sim.integrator);
         graphic.add(nSelector);
