@@ -36,13 +36,18 @@ public class MCMoveSpinFlip extends MCMove {
 
     }
 
+    public void setPhase(Phase[] p) {
+        super.setPhase(p);
+        energyMeter.setPhase(p[0]);
+    }
+    
     /* (non-Javadoc)
      * @see etomica.integrator.MCMove#doTrial()
      */
     public boolean doTrial() {
         atom = phases[0].speciesMaster.atomList.getRandom();
         energyMeter.setTarget(atom);
-        uOld = energyMeter.getDataAsScalar(phases[0]);
+        uOld = energyMeter.getDataAsScalar();
         atom.coord.position().TE(-1);
         uNew = Double.NaN;
         return true;
@@ -59,7 +64,7 @@ public class MCMoveSpinFlip extends MCMove {
      * @see etomica.integrator.MCMove#lnProbabilityRatio()
      */
     public double lnProbabilityRatio() {
-        uNew = energyMeter.getDataAsScalar(phases[0]);
+        uNew = energyMeter.getDataAsScalar();
         return -(uNew - uOld)/temperature;
     }
 

@@ -1,6 +1,8 @@
 package etomica.spin;
 
 import etomica.Atom;
+import etomica.DataInfo;
+import etomica.Meter;
 import etomica.Phase;
 import etomica.Space;
 import etomica.atom.iterator.AtomIteratorListTabbed;
@@ -21,20 +23,20 @@ import etomica.units.Dimension;
  * History
  * Created on May 25, 2005 by kofke
  */
-public class MeterSpin extends DataSourceScalar {
+public class MeterSpin extends DataSourceScalar implements Meter {
 
     /**
      * 
      */
     public MeterSpin(Space space) {
-        super();
+        super(new DataInfo("Spin",Dimension.UNDEFINED));
         sum = space.makeVector();
     }
 
     /* (non-Javadoc)
      * @see etomica.data.meter.MeterScalar#getDataAsScalar(etomica.Phase)
      */
-    public double getDataAsScalar(Phase phase) {
+    public double getDataAsScalar() {
         sum.E(0.0);
         int count = 0;
         iterator.setList(phase.speciesMaster.atomList);
@@ -47,13 +49,20 @@ public class MeterSpin extends DataSourceScalar {
         return sum.x(0)/count;
     }
 
-    /* (non-Javadoc)
-     * @see etomica.DataSource#getDimension()
+    /**
+     * @return Returns the phase.
      */
-    public Dimension getDimension() {
-        return Dimension.UNDEFINED;
+    public Phase getPhase() {
+        return phase;
+    }
+    /**
+     * @param phase The phase to set.
+     */
+    public void setPhase(Phase phase) {
+        this.phase = phase;
     }
 
+    private Phase phase;
     private final AtomIteratorListTabbed iterator = new AtomIteratorListTabbed();
     private final Vector sum;
 }

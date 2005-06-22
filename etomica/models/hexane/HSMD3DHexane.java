@@ -1,21 +1,13 @@
 package etomica.models.hexane;
 
-import etomica.ConfigurationFile;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.Space;
-import etomica.Species;
 import etomica.SpeciesSpheresMono;
-import etomica.action.activity.ActivityIntegrate;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
-import etomica.nbr.CriterionSpecies;
-import etomica.nbr.NeighborCriterion;
-import etomica.nbr.CriterionSimple;
-import etomica.nbr.list.NeighborManager;
 import etomica.nbr.list.PotentialMasterNbr;
-import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.space3d.Space3D;
 
@@ -58,11 +50,12 @@ public class HSMD3DHexane extends Simulation {
         }
         HSMD3DHexane sim = new HSMD3DHexane(new Space3D(), numAtoms);
 
-        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
+        MeterPressureHard pMeter = new MeterPressureHard(sim.space,sim.integrator);
+        pMeter.setPhase(sim.phase);
         
         sim.getController().actionPerformed();
         
-        double Z = pMeter.getDataAsScalar(sim.phase)*sim.phase.volume()/(sim.phase.moleculeCount()*sim.integrator.getTemperature());
+        double Z = pMeter.getDataAsScalar()*sim.phase.volume()/(sim.phase.moleculeCount()*sim.integrator.getTemperature());
         System.out.println("Z="+Z);
         
         // compressibility factor for this system should be 5.22

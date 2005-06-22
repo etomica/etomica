@@ -3,7 +3,6 @@ package etomica.virial.simulations;
 import etomica.Default;
 import etomica.Integrator;
 import etomica.Meter;
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
@@ -13,6 +12,8 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataAccumulator;
 import etomica.data.DataPump;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -25,8 +26,8 @@ import etomica.virial.ConfigurationCluster;
 import etomica.virial.IntegratorClusterMC;
 import etomica.virial.MCMoveClusterAtom;
 import etomica.virial.MCMoveClusterAtomMulti;
-import etomica.virial.MayerESpherical;
 import etomica.virial.MayerEHardSphere;
+import etomica.virial.MayerESpherical;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.MeterVirial;
@@ -101,14 +102,14 @@ public class SimulationVirialOverlap extends Simulation {
             phase[iPhase].setConfiguration(configuration);
             MeterVirial meter = new MeterVirial(new ClusterAbstract[]{aValueClusters[iPhase],aSampleClusters[1-iPhase]},integrators[iPhase],temperature);
             setMeter(meter,iPhase);
-            meters[iPhase].setLabel("Overlap/Target"+iPhase+" meter");
+            meters[iPhase].getDataInfo().setLabel("Overlap/Target"+iPhase+" meter");
             AccumulatorVirialOverlapSingleAverage acc = new AccumulatorVirialOverlapSingleAverage(1);
             double refPref = 600;
             if (iPhase==1) {
                 refPref = 1/refPref; // actually targetPref
             }
             acc.setBennetParam(refPref,0.1);
-            acc.setLabel("Overlap/Target"+iPhase+" accumulator");
+            acc.getDataInfo().setLabel("Overlap/Target"+iPhase+" accumulator");
             setAccumulator(acc,iPhase);
               
         }
@@ -121,7 +122,7 @@ public class SimulationVirialOverlap extends Simulation {
         getController().addAction(ai);
 		
 		dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
-		dsvo.setLabel("Bennet Overlap Ratio");
+		dsvo.getDataInfo().setLabel("Bennet Overlap Ratio");
         integratorOS.setDSVO(dsvo);
 	}
 
@@ -136,7 +137,7 @@ public class SimulationVirialOverlap extends Simulation {
         }
         meters[iPhase] = newMeter;
         if (newMeter != null) {
-            newMeter.setPhase(new Phase[]{phase[iPhase]});
+            newMeter.setPhase(phase[iPhase]);
         }
     }
 
@@ -206,25 +207,25 @@ public class SimulationVirialOverlap extends Simulation {
 //            sim.integratorOS.setAdjustStepFreq(true);
             sim.integratorOS.setStepFreq0(0.0001);
 			sim.ai.actionPerformed();
-			System.out.println("average: "+sim.dsvo.getData()[0]+", error: "+sim.dsvo.getError());
-            double[][] allYourBase = (double[][])sim.accumulators[0].getTranslator().fromArray(sim.accumulators[0].getData(sim.dsvo.minDiffLocation()));
-            System.out.println("hard sphere ratio average: "+allYourBase[AccumulatorRatioAverage.RATIO.index][1]
-                              +" error: "+allYourBase[AccumulatorRatioAverage.RATIO_ERROR.index][1]);
-            System.out.println("hard sphere   average: "+allYourBase[AccumulatorAverage.AVERAGE.index][0]
-                              +" stdev: "+allYourBase[AccumulatorAverage.STANDARD_DEVIATION.index][0]
-                              +" error: "+allYourBase[AccumulatorAverage.ERROR.index][0]);
-            System.out.println("hard sphere overlap average: "+allYourBase[AccumulatorAverage.AVERAGE.index][1]
-                              +" stdev: "+allYourBase[AccumulatorAverage.STANDARD_DEVIATION.index][1]
-                              +" error: "+allYourBase[AccumulatorAverage.ERROR.index][1]);
-            allYourBase = (double[][])sim.accumulators[1].getTranslator().fromArray(sim.accumulators[1].getData(sim.dsvo.minDiffLocation()));
-            System.out.println("lennard jones ratio average: "+allYourBase[AccumulatorRatioAverage.RATIO.index][1]
-                              +" error: "+allYourBase[AccumulatorRatioAverage.RATIO_ERROR.index][1]);
-            System.out.println("lennard jones average: "+allYourBase[AccumulatorAverage.AVERAGE.index][0]
-                              +" stdev: "+allYourBase[AccumulatorAverage.STANDARD_DEVIATION.index][0]
-                              +" error: "+allYourBase[AccumulatorAverage.ERROR.index][0]);
-            System.out.println("lennard jones overlap average: "+allYourBase[AccumulatorAverage.AVERAGE.index][1]
-                              +" stdev: "+allYourBase[AccumulatorAverage.STANDARD_DEVIATION.index][1]
-                              +" error: "+allYourBase[AccumulatorAverage.ERROR.index][1]);
+			System.out.println("average: "+sim.dsvo.getDataAsScalar()+", error: "+sim.dsvo.getError());
+            DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
+            System.out.println("hard sphere ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.RATIO.index)).getData()[1]
+                              +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.RATIO_ERROR.index)).getData()[1]);
+            System.out.println("hard sphere   average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.AVERAGE.index)).getData()[0]
+                              +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index)).getData()[0]
+                              +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.ERROR.index)).getData()[0]);
+            System.out.println("hard sphere overlap average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.AVERAGE.index)).getData()[1]
+                              +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index)).getData()[1]
+                              +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.ERROR.index)).getData()[1]);
+            allYourBase = (DataGroup)sim.accumulators[1].getData(sim.dsvo.minDiffLocation());
+            System.out.println("lennard jones ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.RATIO.index)).getData()[1]
+                              +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.ERROR.index)).getData()[1]);
+            System.out.println("lennard jones average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.AVERAGE.index)).getData()[0]
+                              +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index)).getData()[0]
+                              +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.ERROR.index)).getData()[0]);
+            System.out.println("lennard jones overlap average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.AVERAGE.index)).getData()[1]
+                              +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index)).getData()[1]
+                              +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.ERROR.index)).getData()[1]);
 //		}
 		
 	}//end of main
