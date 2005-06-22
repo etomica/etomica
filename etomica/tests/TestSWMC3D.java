@@ -13,6 +13,8 @@ import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -85,15 +87,16 @@ public class TestSWMC3D extends Simulation {
         
         sim.getController().actionPerformed();
         
-        double[] data = energyAccumulator.getData();
-        double PE = data[AccumulatorAverage.AVERAGE.index]/numAtoms;
-        System.out.println("PE/epsilon="+PE);
+        double avgPE = ((DataDoubleArray)((DataGroup)energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).getData()[0];
+        avgPE /= numAtoms;
+        System.out.println("PE/epsilon="+avgPE);
         double temp = sim.integrator.getTemperature();
-        double Cv = data[AccumulatorAverage.STANDARD_DEVIATION.index]/temp;
+        double Cv = ((DataDoubleArray)((DataGroup)energyAccumulator.getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index)).getData()[0];
+        Cv /= temp;
         Cv *= Cv/numAtoms;
         System.out.println("Cv/k="+Cv);
         
-        if (Math.abs(PE+5.48) > 0.04) {
+        if (Math.abs(avgPE+5.48) > 0.04) {
             System.exit(1);
         }
         // actual value ~0.56

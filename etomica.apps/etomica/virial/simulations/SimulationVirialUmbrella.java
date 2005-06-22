@@ -3,6 +3,8 @@ package etomica.virial.simulations;
 import etomica.Default;
 import etomica.Space;
 import etomica.data.AccumulatorRatioAverage;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataGroup;
 import etomica.potential.P2LennardJones;
 import etomica.space3d.Space3D;
 import etomica.virial.ClusterSum;
@@ -77,9 +79,9 @@ public class SimulationVirialUmbrella extends SimulationVirial {
 //            sim.integrator.setEquilibrating(true);
 			sim.ai.run();
             AccumulatorRatioAverage acc = (AccumulatorRatioAverage)sim.accumulator;
-            double[][] allYourBase = (double[][])acc.getTranslator().fromArray(acc.getData());
-            System.out.println("average: "+allYourBase[AccumulatorRatioAverage.RATIO.index][1]
-                              +" error: "+allYourBase[AccumulatorRatioAverage.RATIO_ERROR.index][1]);
+            DataGroup allYourBase = (DataGroup)acc.getData();
+            System.out.println("average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.RATIO.index)).getData()[1]
+                              +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.RATIO_ERROR.index)).getData()[1]);
 //		}
 	}
 }

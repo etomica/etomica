@@ -1,7 +1,6 @@
 package etomica.virial.simulations;
 
 import etomica.Meter;
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
@@ -87,7 +86,7 @@ public class SimulationVirial extends Simulation {
         allValueClusters[0] = refCluster;
         System.arraycopy(targetClusters,0,allValueClusters,1,targetClusters.length);
         setMeter(new MeterVirial(allValueClusters,integrator,temperature));
-        meter.setLabel("Target/Refernce Ratio");
+        meter.getDataInfo().setLabel("Target/Refernce Ratio");
         setAccumulator(new AccumulatorRatioAverage());
 	}
 	
@@ -115,7 +114,7 @@ public class SimulationVirial extends Simulation {
 		}
 		meter = newMeter;
 		if (meter != null) {
-			meter.setPhase(new Phase[]{phase});
+			meter.setPhase(phase);
 		}
 	}
 
