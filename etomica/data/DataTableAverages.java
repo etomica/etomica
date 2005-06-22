@@ -65,8 +65,7 @@ public class DataTableAverages extends DataTable {
         DataPump dataPump = new DataPump(newSource, accumulator);
         actionGroup.addAction(dataPump);
         accumulator.setPushInterval(tableUpdateInterval);
-        DataPusher accumulatorOut = accumulator.makeDataPusher(types);
-        accumulatorOut.addDataSink(this.makeColumn(newSource.getDimension()));
+        accumulator.addDataSink(this.makeColumn(),types);
     }
 
     /**
@@ -116,7 +115,6 @@ public class DataTableAverages extends DataTable {
     }
 
     private AccumulatorAverage[] accumulators = new AccumulatorAverage[0];
-    private final Integrator integrator;
     private final Type[] types;
     private final ActionGroup actionGroup;
     private final IntervalActionAdapter intervalAction;
