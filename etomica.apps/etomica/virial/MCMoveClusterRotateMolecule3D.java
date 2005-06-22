@@ -33,6 +33,11 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D implem
         weightMeter = new MeterClusterWeight(potential);
         setName("MCMoveClusterMolecule");
     }
+    
+    public void setPhase(Phase[] p) {
+        super.setPhase(p);
+        weightMeter.setPhase(p[0]);
+    }
 
     public boolean doTrial() {
         Phase phase = phases[0];
@@ -42,7 +47,7 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D implem
         while (molecule.node.getOrdinal() == 1) {
             molecule = phase.randomMolecule();
         }
-        uOld = weightMeter.getDataAsScalar(phase);
+        uOld = weightMeter.getDataAsScalar();
         
         double dTheta = (2*Simulation.random.nextDouble() - 1.0)*stepSize;
         rotationTensor.setAxial(dTheta);
@@ -64,7 +69,7 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D implem
     }
     
     public double probabilityRatio() {
-        uNew = weightMeter.getDataAsScalar(phases[0]);
+        uNew = weightMeter.getDataAsScalar();
         return (uOld==0.0) ? Double.POSITIVE_INFINITY : uNew/uOld;
     }
     

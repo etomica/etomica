@@ -21,6 +21,11 @@ public class MCMoveClusterMolecule extends MCMoveMolecule implements MCMoveClust
         setName("MCMoveClusterMolecule");
     }
     
+    public void setPhase(Phase[] p) {
+        super.setPhase(p);
+        weightMeter.setPhase(p[0]);
+    }
+    
     public boolean doTrial() {
 //        System.out.println(((AtomTreeNodeGroup)((AtomTreeNodeGroup)phases[0].speciesMaster.node.childList.getFirst().node).childList.getLast().node).childList.getFirst().coord.position());
         Phase phase = phases[0];
@@ -32,7 +37,7 @@ public class MCMoveClusterMolecule extends MCMoveMolecule implements MCMoveClust
         }
         
         energyMeter.setTarget(atom);
-        uOld = weightMeter.getDataAsScalar(phase);
+        uOld = weightMeter.getDataAsScalar();
         groupTranslationVector.setRandomCube();
         groupTranslationVector.TE(stepSize);
         moveMoleculeAction.actionPerformed(atom);
@@ -49,7 +54,7 @@ public class MCMoveClusterMolecule extends MCMoveMolecule implements MCMoveClust
     }
     
     public double probabilityRatio() {
-        uNew = weightMeter.getDataAsScalar(phases[0]);
+        uNew = weightMeter.getDataAsScalar();
 //        if (Simulation.random.nextInt(200000) == 5) {
 //            System.out.println("uOld "+uOld+" uNew "+uNew);
 //        }

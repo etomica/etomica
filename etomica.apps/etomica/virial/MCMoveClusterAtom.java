@@ -21,13 +21,18 @@ public class MCMoveClusterAtom extends MCMoveAtom implements MCMoveCluster {
         weightMeter = new MeterClusterWeight(potentialMaster);
 	}
 	
+    public void setPhase(Phase[] p) {
+        super.setPhase(p);
+        weightMeter.setPhase(p[0]);
+    }
+    
 	public boolean doTrial() {
         Phase phase = phases[0];
 		atom = phase.speciesMaster.atomList.getRandom();
 		while(atom.node.index()==0) atom = phase.speciesMaster.atomList.getRandom();
 		// this slows things down due to caching
 //		weightMeter.setTarget(atom);
-		uOld = weightMeter.getDataAsScalar(phase);
+		uOld = weightMeter.getDataAsScalar();
         translationVector.setRandomCube();
         translationVector.TE(stepSize);
         atom.coord.position().PE(translationVector);
@@ -41,7 +46,7 @@ public class MCMoveClusterAtom extends MCMoveAtom implements MCMoveCluster {
     }
     
     public double probabilityRatio() {
-        uNew = weightMeter.getDataAsScalar(phases[0]);
+        uNew = weightMeter.getDataAsScalar();
         return (uOld==0.0) ? Double.POSITIVE_INFINITY : uNew/uOld;
     }
 

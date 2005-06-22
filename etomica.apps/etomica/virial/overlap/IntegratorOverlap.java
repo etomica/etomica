@@ -7,6 +7,8 @@ import etomica.IntegratorIntervalEvent;
 import etomica.PotentialMaster;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataGroup;
 import etomica.utility.Arrays;
 
 /**
@@ -71,8 +73,9 @@ public class IntegratorOverlap extends Integrator {
             for (int i=0; i<numIntegrators; i++) {
                 System.out.print("Bennet "+i+" ");
                 for (int j=0; j<accumulators[i].getNBennetPoints(); j++) {
-                    double[][] data = (double[][])accumulators[i].getTranslator().fromArray(accumulators[i].getData(j));
-                    System.out.print(data[AccumulatorAverage.ERROR.index][1]/data[AccumulatorAverage.AVERAGE.index][1]+" ");
+                    DataGroup data = (DataGroup)accumulators[i].getData(j);
+                    System.out.print(((DataDoubleArray)data.getData(AccumulatorAverage.ERROR.index)).getData()[1]
+                                           /((DataDoubleArray)data.getData(AccumulatorAverage.AVERAGE.index)).getData()[1]+" ");
                 }
                 System.out.print("\n");
             }
@@ -95,21 +98,21 @@ public class IntegratorOverlap extends Integrator {
         if (newMinDiffLoc != minDiffLoc && nBennetPoints>1) System.out.println("target minDiffLoc = "+newMinDiffLoc+" refPref "+accumulators[0].getBennetBias(nBennetPoints-newMinDiffLoc-1));
         minDiffLoc = newMinDiffLoc;
         for (int i=0; i<numIntegrators; i++) {
-            double[][] data;
+            DataGroup data;
             if (i==1) {
-                data = (double[][])accumulators[i].getTranslator().fromArray(accumulators[i].getData(minDiffLoc));
+                data = (DataGroup)accumulators[i].getData(minDiffLoc);
             }
             else {
-                data = (double[][])accumulators[i].getTranslator().fromArray(accumulators[i].getData(nBennetPoints-minDiffLoc-1));
+                data = (DataGroup)accumulators[i].getData(nBennetPoints-minDiffLoc-1);
             }
-            double error = data[AccumulatorRatioAverage.RATIO_ERROR.index][1];
+            double error = ((DataDoubleArray)data.getData(AccumulatorRatioAverage.RATIO_ERROR.index)).getData()[1];
             if (i==1) {
-                data = (double[][])accumulators[1-i].getTranslator().fromArray(accumulators[1-i].getData(nBennetPoints-minDiffLoc-1));
+                data = (DataGroup)accumulators[1-i].getData(nBennetPoints-minDiffLoc-1);
             }
             else {
-                data = (double[][])accumulators[1-i].getTranslator().fromArray(accumulators[1-i].getData(minDiffLoc));
+                data = (DataGroup)accumulators[1-i].getData(minDiffLoc);
             }
-            double otherRatio = data[AccumulatorRatioAverage.RATIO.index][1];
+            double otherRatio = ((DataDoubleArray)data.getData(AccumulatorRatioAverage.RATIO.index)).getData()[1];
 //            System.out.println(i+" errors "+errors[i]);
 //            System.out.print("Bennet "+i+" ");
 //            for (int j=0; j<accumulators[i].getNBennetPoints(); j++) {

@@ -1,6 +1,7 @@
 package etomica.virial;
 
 import etomica.Atom;
+import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.integrator.mcmove.MCMoveMolecule;
@@ -35,10 +36,15 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule implements MCMove
         setName("MCMoveClusterMolecule");
 	}
 
+    public void setPhase(Phase[] p) {
+        super.setPhase(p);
+        weightMeter.setPhase(p[0]);
+    }
+    
 	//note that total energy is calculated
 	public boolean doTrial() {
         if (selectedAtoms[0] == null) selectMolecules();
-        uOld = weightMeter.getDataAsScalar(phases[0]);
+        uOld = weightMeter.getDataAsScalar();
         for(int i=0; i<selectedAtoms.length; i++) {
             translationVectors[i].setRandomCube();
             translationVectors[i].TE(stepSize);
@@ -79,7 +85,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule implements MCMove
     }
     
     public double probabilityRatio() {
-        uNew = weightMeter.getDataAsScalar(phases[0]);
+        uNew = weightMeter.getDataAsScalar();
 //        if (Simulation.random.nextInt(200000) == 5) {
 //            System.out.println("uOld "+uOld+" uNew "+uNew);
 //        }

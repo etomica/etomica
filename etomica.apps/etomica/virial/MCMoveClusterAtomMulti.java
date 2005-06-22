@@ -29,7 +29,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom implements MCMoveCluster 
 	//note that total energy is calculated
 	public boolean doTrial() {
 		if (selectedAtoms[0] == null) selectAtoms();
-        uOld = weightMeter.getDataAsScalar(phases[0]);
+        uOld = weightMeter.getDataAsScalar();
         for(int i=0; i<selectedAtoms.length; i++) {
             translationVectors[i].setRandomCube();
             translationVectors[i].TE(stepSize);
@@ -45,7 +45,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom implements MCMoveCluster 
     }
     
     public double probabilityRatio() {
-        uNew = weightMeter.getDataAsScalar(phases[0]);
+        uNew = weightMeter.getDataAsScalar();
         return (uOld==0.0) ? Double.POSITIVE_INFINITY : uNew/uOld;
     }
 
