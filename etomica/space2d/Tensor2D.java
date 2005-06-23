@@ -1,6 +1,8 @@
 package etomica.space2d;
 
 import etomica.space.Tensor;
+import etomica.space.Vector;
+import etomica.utility.Function;
 
 
 
@@ -36,15 +38,47 @@ public class Tensor2D implements etomica.space.Tensor {
         if(i==0) {if(j==0) xx=d; else xy=d;}
         else     {if(j==0) yx=d; else yy=d;}
     }
-    public void E(Tensor2D t) {xx=t.xx; xy=t.xy; yx=t.yx; yy=t.yy;}
-    public void E(Vector2D u1, Vector2D u2) {xx=u1.x*u2.x; xy=u1.x*u2.y; yx=u1.y*u2.x; yy=u1.y*u2.y;}
+    public void E(Tensor t) {
+        xx=((Tensor2D)t).xx;
+        xy=((Tensor2D)t).xy;
+        yx=((Tensor2D)t).yx;
+        yy=((Tensor2D)t).yy;
+    }
+    public void E(Vector u1, Vector u2) {
+        xx=((Vector2D)u1).x*((Vector2D)u2).x;
+        xy=((Vector2D)u1).x*((Vector2D)u2).y;
+        yx=((Vector2D)u1).y*((Vector2D)u2).x;
+        yy=((Vector2D)u1).y*((Vector2D)u2).y;
+    }
     public void E(double a) {xx = xy = yx = yy = a;}
-    public void PE(Tensor2D t) {xx+=t.xx; xy+=t.xy; yx+=t.yx; yy+=t.yy;}
+    public void PE(double a) {
+        xx+=a;
+        xy+=a;
+        yx+=a;
+        yy+=a;
+    }
+    public void PE(Tensor t) {
+        xx+=((Tensor2D)t).xx;
+        xy+=((Tensor2D)t).xy;
+        yx+=((Tensor2D)t).yx;
+        yy+=((Tensor2D)t).yy;
+    }
     public void PE(int i, int j, double a) {
         if(i==0) {if(j==0) xx+=a; else xy+=a;}
         else     {if(j==0) yx+=a; else yy+=a;}
     }
-    public void PE(Vector2D u1, Vector2D u2) {xx+=u1.x*u2.x; xy+=u1.x*u2.y; yx+=u1.y*u2.x; yy+=u1.y*u2.y;}
+    public void PE(Vector u1, Vector u2) {
+        xx+=((Vector2D)u1).x*((Vector2D)u2).x;
+        xy+=((Vector2D)u1).x*((Vector2D)u2).y;
+        yx+=((Vector2D)u1).y*((Vector2D)u2).x;
+        yy+=((Vector2D)u1).y*((Vector2D)u2).y;
+    }
+    public void ME(Tensor t) {
+        xx-=((Tensor2D)t).xx;
+        xy-=((Tensor2D)t).xy;
+        yx-=((Tensor2D)t).yx;
+        yy-=((Tensor2D)t).yy;
+    }
     public double trace() {return xx + yy;}
     public void transpose(){
     	double temp = 0.0;
@@ -57,10 +91,6 @@ public class Tensor2D implements etomica.space.Tensor {
     	temp = xy; xy = -yx/det; yx = -temp/det;
     }
     
-    public void E(etomica.space.Tensor t) {E((Tensor2D)t);}
-    public void E(etomica.space.Vector u1, etomica.space.Vector u2) {E((Vector2D)u1, (Vector2D)u2);}
-    public void PE(etomica.space.Tensor t) {PE((Tensor2D)t);}
-    public void PE(etomica.space.Vector u1, etomica.space.Vector u2) {PE((Vector2D)u1, (Vector2D)u2);}
     public void TE(double a) {xx*=a; xy*=a; yx*=a; yy*=a;}
     public void TE(Tensor t){ Tensor2D u = (Tensor2D)t;
 	    double txx=xx;double txy=xy;
@@ -69,6 +99,12 @@ public class Tensor2D implements etomica.space.Tensor {
 	    xy= txx*u.xy+txy*u.yy; 
 	    yx= tyx*u.xx+tyy*u.yx;   
 	    yy= tyx*u.xy+tyy*u.yy; 
+    }
+    public void DE(Tensor t) {
+        xx/=((Tensor2D)t).xx;
+        xy/=((Tensor2D)t).xy;
+        yx/=((Tensor2D)t).yx;
+        yy/=((Tensor2D)t).yy;
     }
     public void E(double[] d) {
         if(d.length != 4) throw new IllegalArgumentException("Array size incorrector for tensor");
@@ -80,5 +116,15 @@ public class Tensor2D implements etomica.space.Tensor {
         d[0] = xx; d[1] = xy; 
         d[2] = yx; d[3] = yy;
     }
-
+    
+    public boolean isNaN() {
+        return Double.isNaN(xx) || Double.isNaN(xy) || Double.isNaN(yx) || Double.isNaN(yy);
+    }
+    
+    public void map(Function f) {
+        xx = f.f(xx);
+        xy = f.f(xy);
+        yx = f.f(yx);
+        yy = f.f(yy);
+    }
 }

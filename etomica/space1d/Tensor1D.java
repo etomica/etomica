@@ -1,6 +1,8 @@
 package etomica.space1d;
 
 import etomica.space.Tensor;
+import etomica.space.Vector;
+import etomica.utility.Function;
 
 
 
@@ -32,22 +34,21 @@ public class Tensor1D implements etomica.space.Tensor {
     public int length() {return 1;}
     public double component(int i, int j) {return xx;}
     public void setComponent(int i, int j, double d) {xx = d;}
-    public void E(Tensor1D t) {xx=t.xx;}
-    public void E(Vector1D u1, Vector1D u2) {xx=u1.x*u2.x;}
     public void E(double a) {xx = a;}
-    public void PE(Tensor1D t) {xx+=t.xx;}
+    public void PE(double a) {xx+=a;}
     public void PE(int i, int j, double a) {xx += a;}
-    public void PE(Vector1D u1, Vector1D u2) {xx+=u1.x*u2.x;}
     public double trace() {return xx;}
     public void transpose() {}
     public void inverse() {xx = 1.0/xx;}
     
-    public void E(etomica.space.Tensor t) {E((Tensor1D)t);}
-    public void E(etomica.space.Vector u1, etomica.space.Vector u2) {E((Vector1D)u1, (Vector1D)u2);}
-    public void PE(etomica.space.Tensor t) {PE((Tensor1D)t);}
-    public void PE(etomica.space.Vector u1, etomica.space.Vector u2) {PE((Vector1D)u1, (Vector1D)u2);}
+    public void E(Tensor t) {xx=((Tensor1D)t).xx;}
+    public void E(Vector u1, Vector u2) {xx=((Vector1D)u1).x*((Vector1D)u2).x;}
+    public void PE(Tensor t) {xx+=((Tensor1D)t).xx;}
+    public void PE(Vector u1, Vector u2) {xx+=((Vector1D)u1).x*((Vector1D)u2).x;}
+    public void ME(Tensor t) {xx-=((Tensor1D)t).xx;}
     public void TE(double a) {xx*=a;}
     public void TE(Tensor t) {xx*=((Tensor1D)t).xx;}
+    public void DE(Tensor t) {xx/=((Tensor1D)t).xx;}
     public void E(double[] d) {
         if(d.length != 1) throw new IllegalArgumentException("Array size incorrector for tensor");
         xx = d[0];
@@ -56,5 +57,9 @@ public class Tensor1D implements etomica.space.Tensor {
         if(d.length != 1) throw new IllegalArgumentException("Array size incorrector for tensor");
         d[0] = xx;
     }
+    public boolean isNaN() {
+        return Double.isNaN(xx);
+    }
     
+    public void map(Function f) {xx = f.f(xx);}
 }
