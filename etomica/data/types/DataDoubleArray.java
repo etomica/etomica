@@ -14,7 +14,7 @@ import etomica.utility.Function;
  */
 
 /*
- * History Created on Jun 15, 2005 by kofke
+ * History Created on Jun 15, 2005
  */
 public class DataDoubleArray extends Data implements DataArithmetic {
 
@@ -39,7 +39,15 @@ public class DataDoubleArray extends Data implements DataArithmetic {
     }
 
     public void E(Data y) {
-        System.arraycopy(((DataDoubleArray) y).x, 0, x, 0, x.length);
+        this.E(((DataDoubleArray)y.x);
+    }
+    
+    public void E(double[] y) {
+        if(y.length == x.length) {
+            System.arraycopy(y, 0, x, 0, x.length);
+        } else {
+            x = (double[])y.clone();
+        }
     }
 
     public void PE(DataArithmetic y) {
@@ -103,6 +111,10 @@ public class DataDoubleArray extends Data implements DataArithmetic {
         return x.length;
     }
 
+    public double getValue(int i) {
+        return x[i];
+    }
+
     public double[] getData() {
         return x;
     }
@@ -113,6 +125,10 @@ public class DataDoubleArray extends Data implements DataArithmetic {
                 return true;
         }
         return false;
+    }
+    
+    public double[] toArray() {
+        return x;
     }
     
     public DataArithmetic toArithmetic(DataArithmetic data) {

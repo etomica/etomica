@@ -33,6 +33,12 @@ public interface DataArithmetic extends DataNumeric {
     public void TE(double y);
 
     public void map(Function function);
+    
+    public int getLength();//TODO consider changing to setNValues
+    
+    public double getValue(int i);
+    
+    public double[] toArray();
 
     public boolean isNaN();
 }

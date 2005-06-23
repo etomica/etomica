@@ -80,6 +80,21 @@ public class DataDouble extends Data implements DataArithmetic {
         x = function.f(x);
     }
     
+    public double[] toArray() {
+    	    return new double[] {x};
+    }
+    
+    public int getLength() {
+    	    return 1;
+    }
+    
+    public double getValue(int i) {
+    	    if(i == 0) {
+    	    	    return x;
+        }
+    	    throw new IllegalArgumentException("Only permissible value for index is 0; value given is "+i);
+    }
+    
     public DataArithmetic toArithmetic(DataArithmetic data) {
         if (data == null) {
             data = this;
@@ -93,6 +108,7 @@ public class DataDouble extends Data implements DataArithmetic {
     public String toString() {
         return dataInfo.getLabel() + " " + Double.toString(x);
     }
+    
     public double x;
     
     public interface Source extends DataSource {

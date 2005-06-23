@@ -82,6 +82,18 @@ public class DataVector extends Data implements DataArithmetic {
         x.map(function);
     }
     
+    public int getLength() {
+    	    return x.D();
+    }
+    
+    public double getValue(int i) {
+    	    return x.x(i);
+    }
+    
+    public double[] toArray() {
+    	    return x.toArray();
+    }
+    
     public DataArithmetic toArithmetic(DataArithmetic data) {
         if (data == null) {
             data = this;
