@@ -8,6 +8,7 @@ import etomica.Data;
 import etomica.DataInfo;
 import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataFunction;
 import etomica.units.Dimension;
 import etomica.utility.Histogram;
 import etomica.utility.HistogramSimple;
@@ -49,8 +50,9 @@ public class AccumulatorHistogram extends DataAccumulator {
      */
     protected void addData(Data data) {
         DataArithmetic values = (DataArithmetic) data;
-        if (values.getLength() != nData)
+        if (values.getLength() != nData) {
             setNData(values.getLength());
+        }
         for (int i = nDataMinus1; i >= 0; i--) {
             histogram[i].addValue(values.getValue(i));
         }
@@ -61,10 +63,13 @@ public class AccumulatorHistogram extends DataAccumulator {
      */
     public Data getData() {
         if(nData == 1) {
-            ((DataDoubleArray)data).E(histogram[0].getHistogram());
+            ((DataFunction)data).E(histogram[0].getHistogram());
+            ((DataFunction)data).getTData().E(histogram[0].xValues());
+            
         } else {
             for (int i = 0; i < nData; i++) {
-                ((DataDoubleArray)((DataGroup)data).getData(i)).E(histogram[i].getHistogram());
+                ((DataFunction)((DataGroup)data).getData(i)).E(histogram[i].getHistogram());
+                ((DataFunction)((DataGroup)data).getData(i)).getTData().E(histogram[0].xValues());
             }
         }
         return data;
