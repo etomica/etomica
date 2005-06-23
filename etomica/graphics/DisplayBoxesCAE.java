@@ -6,10 +6,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import etomica.Constants;
+import etomica.Data;
 import etomica.DataSink;
 import etomica.data.AccumulatorAverage;
+import etomica.data.DataGroup;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPressureHard;
+import etomica.data.types.DataDouble;
 import etomica.graphics.DisplayBox.LabelType;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.simulations.HSMD2D;
@@ -61,10 +64,10 @@ public class DisplayBoxesCAE extends Display implements DataSink {
      */
     public void setAccumulator(AccumulatorAverage accumulatorAverage) {
         this.accumulatorAverage = accumulatorAverage;
-        accumulatorAverage.makeDataPusher(new AccumulatorAverage.Type[] {
+        accumulatorAverage.addDataSink(this,new AccumulatorAverage.Type[] {
                 AccumulatorAverage.MOST_RECENT,
                 AccumulatorAverage.AVERAGE,
-                AccumulatorAverage.ERROR}).addDataSink(this);
+                AccumulatorAverage.ERROR});
     }
     
     /**
@@ -118,12 +121,13 @@ public class DisplayBoxesCAE extends Display implements DataSink {
         setLabel(jLabelPanelParentGroup.getText());
     }
 
-    public void putData(double[] data) {
-        datumC[0] = data[0];
+    public void putData(Data data) {
+        
+        datumC[0] = ((DataDouble)((DataGroup)data).getData(0)).x;
         currentBox.putData(datumC);
-        datumA[0] = data[1];
+        datumA[0] = ((DataDouble)((DataGroup)data).getData(1)).x;
         averageBox.putData(datumA);
-        datumE[0] = data[2];
+        datumE[0] = ((DataDouble)((DataGroup)data).getData(2)).x;
         errorBox.putData(datumE);
     }
     
@@ -146,11 +150,11 @@ public class DisplayBoxesCAE extends Display implements DataSink {
         HSMD2D sim = new HSMD2D();
         SimulationGraphic graphic = new SimulationGraphic(sim);
         sim.integrator.setIsothermal(true);
-        MeterPressureHard pressureMeter = new MeterPressureHard(sim.integrator);
+        MeterPressureHard pressureMeter = new MeterPressureHard(sim.space,sim.integrator);
         pressureMeter.setPhase(sim.phase);
         AccumulatorAverage accumulator = new AccumulatorAverage();
         DataPump dataPump = new DataPump(pressureMeter, accumulator);
-        IntervalActionAdapter iaa = new IntervalActionAdapter(dataPump, sim.integrator);
+        new IntervalActionAdapter(dataPump, sim.integrator);
         DisplayBoxesCAE boxes = new DisplayBoxesCAE();
         boxes.setAccumulator(accumulator);
         graphic.add(boxes);
