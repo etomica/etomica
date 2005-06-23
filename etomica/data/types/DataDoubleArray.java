@@ -39,7 +39,7 @@ public class DataDoubleArray extends Data implements DataArithmetic {
     }
 
     public void E(Data y) {
-        this.E(((DataDoubleArray)y.x);
+        this.E(((DataDoubleArray)y).x);
     }
     
     public void E(double[] y) {
