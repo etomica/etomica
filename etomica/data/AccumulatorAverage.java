@@ -11,7 +11,6 @@ import etomica.DataSink;
 import etomica.Default;
 import etomica.Constants.TypedConstant;
 import etomica.data.types.DataArithmetic;
-import etomica.data.types.DataGroup;
 import etomica.utility.Function;
 
 /**
