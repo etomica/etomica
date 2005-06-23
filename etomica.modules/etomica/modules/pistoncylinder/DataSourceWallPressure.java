@@ -1,6 +1,5 @@
 package etomica.modules.pistoncylinder;
 
-import etomica.Phase;
 import etomica.Space;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
@@ -27,7 +26,7 @@ public class DataSourceWallPressure extends MeterPressureHard {
         }
     }
     
-    public double getDataAsScalar(Phase p) {
+    public double getDataAsScalar() {
         double elapsedTime = timer.getDataAsScalar();
         double value = virialSum / elapsedTime;
         timer.reset();
