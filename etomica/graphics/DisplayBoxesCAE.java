@@ -12,7 +12,6 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.DataGroup;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPressureHard;
-import etomica.data.types.DataDouble;
 import etomica.graphics.DisplayBox.LabelType;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.simulations.HSMD2D;
@@ -122,13 +121,9 @@ public class DisplayBoxesCAE extends Display implements DataSink {
     }
 
     public void putData(Data data) {
-        
-        datumC[0] = ((DataDouble)((DataGroup)data).getData(0)).x;
-        currentBox.putData(datumC);
-        datumA[0] = ((DataDouble)((DataGroup)data).getData(1)).x;
-        averageBox.putData(datumA);
-        datumE[0] = ((DataDouble)((DataGroup)data).getData(2)).x;
-        errorBox.putData(datumE);
+        currentBox.putData(((DataGroup)data).getData(0));
+        averageBox.putData(((DataGroup)data).getData(1));
+        errorBox.putData(((DataGroup)data).getData(2));
     }
     
     public void setDimension(Dimension dimension) {
@@ -141,9 +136,6 @@ public class DisplayBoxesCAE extends Display implements DataSink {
     		errorBox.setUnit(unit);
     }
     
-    private final double[] datumC = new double[1];
-    private final double[] datumA = new double[1];
-    private final double[] datumE = new double[1];
     private Unit unit = Unit.UNDEFINED;
     
     public static void main(String[] args) {

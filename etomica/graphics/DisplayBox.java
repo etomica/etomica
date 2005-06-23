@@ -5,9 +5,11 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import etomica.Constants;
+import etomica.Data;
 import etomica.DataSink;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
+import etomica.data.types.DataDouble;
 import etomica.units.Dimension;
 import etomica.units.Unit;
 
@@ -193,8 +195,8 @@ public class DisplayBox extends Display implements DataSink, etomica.units.Dimen
     /**
      * Sets the display text to reflect the desired value from the datasource.
      */
-    public void putData(double[] data) {
-        double xValue = unit.fromSim(data[0]);
+    public void putData(Data data) {
+        double xValue = unit.fromSim(((DataDouble)data).x);
         if(integerDisplay) {
             value.setText(Integer.toString((int)xValue));
         } else {
