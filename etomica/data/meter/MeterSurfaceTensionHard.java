@@ -1,5 +1,7 @@
 package etomica.data.meter;
+import etomica.DataInfo;
 import etomica.EtomicaInfo;
+import etomica.Meter;
 import etomica.Phase;
 import etomica.Space;
 import etomica.data.DataSourceScalar;
@@ -15,20 +17,13 @@ import etomica.units.Dimension;
  * @author Rob Riggleman
  */
 
-public class MeterSurfaceTensionHard extends DataSourceScalar {//, EtomicaElement {
-    private final Tensor pressureTensor;
-    private final MeterTensorVelocity velocityTensor;
-    private final MeterTensorVirialHard virialTensor;
-    private double surfaceTension, collisionValue, velocityValue;
-    private int D;
+public class MeterSurfaceTensionHard extends DataSourceScalar implements Meter {//, EtomicaElement {
     
     public MeterSurfaceTensionHard(Space space) {
-        super();
+        super(new DataInfo("Surface Tension",Dimension.ENERGY));
         velocityTensor = new MeterTensorVelocity(space);
         virialTensor = new MeterTensorVirialHard(space);
         pressureTensor = space.makeTensor();
-        D = space.D();
-        setLabel("Surface Tension");
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -49,14 +44,41 @@ public class MeterSurfaceTensionHard extends DataSourceScalar {//, EtomicaElemen
      * Written for 2-, or 3-dimensional systems; assumes that normal to interface is along x-axis.
      */
     
-    public double getDataAsScalar(Phase p) {
+    public double getDataAsScalar() {
         if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
-        pressureTensor.E(velocityTensor.getDataAsTensor(p));
-        pressureTensor.PE(virialTensor.getDataAsTensor(p));
-        if (D == 1) {surfaceTension = pressureTensor.component(0, 0);}
-        else if (D == 2) {surfaceTension = 0.5*(pressureTensor.component(0, 0) - pressureTensor.component(1, 1));}
-        else {surfaceTension = 0.5*(pressureTensor.component(0, 0) - 0.5*(pressureTensor.component(1, 1) + pressureTensor.component(2, 2)));}
+        pressureTensor.E(velocityTensor.getDataAsTensor(phase));
+        pressureTensor.PE(virialTensor.getDataAsTensor(phase));
+        switch (phase.space().D) {
+            case 1:
+                surfaceTension = pressureTensor.component(0, 0);
+                break;
+            case 2:
+                surfaceTension = 0.5*(pressureTensor.component(0, 0) - pressureTensor.component(1, 1));
+                break;
+            case 3:
+                surfaceTension = 0.5*(pressureTensor.component(0, 0) - 0.5*(pressureTensor.component(1, 1) + pressureTensor.component(2, 2)));
+                break;
+        }
         return surfaceTension;
     }
     
+    /**
+     * @return Returns the phase.
+     */
+    public Phase getPhase() {
+        return phase;
+    }
+    /**
+     * @param phase The phase to set.
+     */
+    public void setPhase(Phase phase) {
+        if (phase.space().D < 1 || phase.space().D > 3) throw new IllegalArgumentException("phase's space must be 1, 2 or 3 dimensional");
+        this.phase = phase;
+    }
+
+    private Phase phase;
+    private final Tensor pressureTensor;
+    private final MeterTensorVelocity velocityTensor;
+    private final MeterTensorVirialHard virialTensor;
+    private double surfaceTension;
 }
