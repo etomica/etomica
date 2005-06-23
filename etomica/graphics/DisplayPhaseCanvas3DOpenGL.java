@@ -16,7 +16,6 @@ import etomica.Phase;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.AtomTypeWall;
 import etomica.atom.AtomTypeWell;
 import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.math.geometry.LineSegment;
@@ -279,7 +278,6 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
       if(a.type instanceof AtomTypeOrientedSphere) countSphereRotators++;
       if(a.type instanceof AtomTypeWell) countSphereWells++;
       if(a.type instanceof AtomTypeSphere) countSphereCores++;
-      if(a.type instanceof AtomTypeWall) countWalls++;
       i += 3;
     }
     
@@ -291,7 +289,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     vertSphereWellBase = new int[countSphereWells];
     vertSphereRotatorBase = new int[countSphereRotators];
     vertWalls = new float[countWalls*3];
-    for(int j=0,k=0,l=0,m=0,n=0; (j/3) < atoms.length; j+=3) {
+    for(int j=0,k=0,l=0,m=0; (j/3) < atoms.length; j+=3) {
       if(atoms[j/3].type instanceof AtomTypeSphere) {
         sphereCores[m/3] = atoms[j/3];
         vertSphereCores[m] = vertAll[j];
@@ -308,13 +306,6 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         sphereWells[l] = atoms[j/3];
         vertSphereWellBase[l] = m-3;
         l++;
-      }
-      if(atoms[j/3].type instanceof AtomTypeWall) {
-        walls[n/3] = atoms[j/3];
-        vertWalls[n] = vertAll[j];
-        vertWalls[n+1] = vertAll[j+1];
-        vertWalls[n+2] = vertAll[j+2];
-        n+=3;
       }
     }
     canvasInitialized = true;
@@ -591,8 +582,6 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   protected boolean computeShiftOrigin(Atom a, Boundary b) {
     if(a.type instanceof AtomTypeSphere)
       originShifts = b.getOverflowShifts(a.coord.position(),((AtomTypeSphere)a.type).radius(a));
-    else if(a.type instanceof AtomTypeWall)
-      originShifts = b.getOverflowShifts(a.coord.position(),((AtomTypeWall)a.type).getLength());
     else
       originShifts = new float[0][0];
     if(originShifts.length == 0) return(false);

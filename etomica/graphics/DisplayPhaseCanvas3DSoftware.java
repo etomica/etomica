@@ -14,7 +14,6 @@ import etomica.Species;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.AtomTypeWall;
 import etomica.atom.AtomTypeWell;
 import etomica.space.Boundary;
 import etomica.space.Vector;
@@ -82,7 +81,6 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
         ZsortMap = new int[nvert];
         for (int i = nvert; --i >= 0;)
             ZsortMap[i] = i * 3;
-        int k = 0;
         double xmin = 0., xmax = 0.;
         double ymin = 0., ymax = 0.;
         double zmin = 0., zmax = 0.;
@@ -306,32 +304,6 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
                 g.drawLine(xP-dx, yP-dy, xP+dx, yP+dy);
             }*/
 //            a.type.electroType().draw(g, origin, displayPhase.getToPixels(), r);
-        } else if(a.type instanceof AtomTypeWall) {
-            xP = origin[0] + (int)(displayPhase.getToPixels()*r.x(0));
-            yP = origin[1] + (int)(displayPhase.getToPixels()*r.x(1));
-            int t = Math.max(1,(int)((double)((AtomTypeWall)a.type).getThickness()*(double)displayPhase.getToPixels()/(double)etomica.units.BaseUnit.Length.Sim.TO_PIXELS));
-            if(!(((AtomTypeWall)a.type).isHorizontal() || ((AtomTypeWall)a.type).isVertical())) {  //not horizontal or vertical; draw line
-                int x1 = xP + (int)(displayPhase.getToPixels()*((AtomTypeWall)a.type).getLength()*((AtomTypeWall)a.type).getCosX());
-                int y1 = yP + (int)(displayPhase.getToPixels()*((AtomTypeWall)a.type).getLength()*((AtomTypeWall)a.type).getSinX());
-                g.drawLine(xP, yP, x1, y1);
-            }
-            else if(((AtomTypeWall)a.type).isLongWall()) {
-                java.awt.Rectangle rect = g.getClipBounds();
-                //int wP = vertical ? t : (int)(toPixels*atom.parentPhase().boundary().dimensions().x(1));
-                //int hP = horizontal ? t : (int)(toPixels*atom.parentPhase().boundary().dimensions().x(0));
-                int wP = ((AtomTypeWall)a.type).isVertical() ? t : Integer.MAX_VALUE;
-                int hP = ((AtomTypeWall)a.type).isHorizontal() ? t : Integer.MAX_VALUE;
-                //int X = vertical ? xP : origin[0];
-                //int Y = horizontal ? yP : origin[1];
-                int X = ((AtomTypeWall)a.type).isVertical() ? xP : 0;
-                int Y = ((AtomTypeWall)a.type).isHorizontal() ? yP : 0;
-                g.fillRect(X,Y,wP,hP);
-            }   
-            else {                           //horizontal or vertical; draw box
-                int wP = ((AtomTypeWall)a.type).isVertical() ? t : (int)(displayPhase.getToPixels()*((AtomTypeWall)a.type).getLength());
-                int hP = ((AtomTypeWall)a.type).isHorizontal() ? t : (int)(displayPhase.getToPixels()*((AtomTypeWall)a.type).getLength());
-                g.fillRect(xP,yP,wP,hP);
-            }
         } else { // Not a sphere, wall, or one of their derivatives...
             // Do nothing (how do you draw an object of unkown shape?)
         }
@@ -345,9 +317,8 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
                 shiftOrigin[1] = displayPhase.getOrigin()[1] + (int)(displayPhase.getToPixels()*shifts[i][1]);
             }
             return(true);
-        } else {
-            return(false);
         }
+        return(false);
     }
       
     /**
@@ -440,7 +411,6 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
 //        displayPhase.getColorScheme().colorAllAtoms();
             
         //Draw all atoms
-        Boundary boundary = displayPhase.getPhase().boundary();
         if (nvert <= 0) return;
         for (int i = 0, j; i < nvert; i++) {
             j = ZsortMap[i];

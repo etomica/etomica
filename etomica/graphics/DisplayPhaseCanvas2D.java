@@ -9,7 +9,6 @@ import etomica.Species;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.AtomTypeWall;
 import etomica.atom.AtomTypeWell;
 import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.math.geometry.LineSegment;
@@ -110,30 +109,6 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
                 g.drawLine(xP-dx, yP-dy, xP+dx, yP+dy);
             }
 //            a.type.electroType().draw(g, origin, displayPhase.getToPixels(), r);
-        } else if(a.type instanceof AtomTypeWall) {
-            AtomTypeWall wType = (AtomTypeWall)a.type;
-            xP = origin[0] + (int)(displayPhase.getToPixels()*r.x(0));
-            yP = origin[1] + (int)(displayPhase.getToPixels()*r.x(1));
-            int t = Math.max(1,(int)(wType.getThickness()*displayPhase.getToPixels()/etomica.units.BaseUnit.Length.Sim.TO_PIXELS));
-            int xS = (int)(wType.getDrawShift()[0]*displayPhase.getToPixels()/etomica.units.BaseUnit.Length.Sim.TO_PIXELS);
-            int yS = (int)(wType.getDrawShift()[1]*displayPhase.getToPixels()/etomica.units.BaseUnit.Length.Sim.TO_PIXELS);
-            if(!(wType.isHorizontal() || wType.isVertical())) {  //not horizontal or vertical; draw line
-                int x1 = xP + (int)(displayPhase.getToPixels()*wType.getLength()*wType.getCosZ());
-                int y1 = yP + (int)(displayPhase.getToPixels()*wType.getLength()*wType.getSinZ());
-                g.drawLine(xP+xS, yP+yS, x1+xS, y1+yS);
-            }
-            else if(wType.isLongWall()) {
-                int wP = wType.isVertical() ? t : Integer.MAX_VALUE;
-                int hP = wType.isHorizontal() ? t : Integer.MAX_VALUE;
-                int X = wType.isVertical() ? xP : 0;
-                int Y = wType.isHorizontal() ? yP : 0;
-                g.fillRect(X+xS,Y+yS,wP,hP);
-            }   
-            else {                           //horizontal or vertical; draw box
-                int wP = wType.isVertical() ? t : (int)(displayPhase.getToPixels()*wType.getLength());
-                int hP = wType.isHorizontal() ? t : (int)(displayPhase.getToPixels()*wType.getLength());
-                g.fillRect(xP+xS,yP+yS,wP,hP);
-            }
         } else { // Not a sphere, wall, or one of their derivatives...
             // Do nothing (how do you draw an object of unknown shape?)
         }

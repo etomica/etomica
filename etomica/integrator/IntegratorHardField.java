@@ -12,7 +12,6 @@ import etomica.Potential;
 import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.Space;
-import etomica.atom.AtomTypeWall;
 import etomica.potential.Potential1;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;
@@ -108,8 +107,6 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
-            if(a.type instanceof AtomTypeWall &&
-                !((Agent)a.ia).forceFree) continue;
             ((ICoordinateKinetic)a.coord).velocity().TE(s); //scale momentum
             ((Agent)a.ia).eventLinker.sortKey *= rs;
         }

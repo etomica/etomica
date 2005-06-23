@@ -10,7 +10,6 @@ import etomica.Atom;
 import etomica.Species;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.AtomTypeWall;
 import etomica.atom.AtomTypeWell;
 import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.space.Boundary;
@@ -99,27 +98,6 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
                 g.drawRect(xP, yP, sigmaP, Space1D.drawingHeight);
             }
 //            a.type.electroType().draw(g, origin, displayPhase.getToPixels(), r);
-        } else if(a.type instanceof AtomTypeWall) {
-            xP = baseXP;
-            yP = baseYP - (Space1D.drawingHeight >> 1);
-            int t = Math.max(1,(int)((double)((AtomTypeWall)a.type).getThickness()*(double)displayPhase.getToPixels()/(double)etomica.units.BaseUnit.Length.Sim.TO_PIXELS));
-            if(!(((AtomTypeWall)a.type).isHorizontal() || ((AtomTypeWall)a.type).isVertical())) {  //not horizontal or vertical; draw line
-                int x1 = xP + (int)(displayPhase.getToPixels()*((AtomTypeWall)a.type).getLength()*((AtomTypeWall)a.type).getCosX());
-                int y1 = yP + (int)(displayPhase.getToPixels()*((AtomTypeWall)a.type).getLength()*((AtomTypeWall)a.type).getSinX());
-                g.drawLine(xP, yP, x1, y1);
-            }
-            else if(((AtomTypeWall)a.type).isLongWall()) {
-                int wP = ((AtomTypeWall)a.type).isVertical() ? t : Integer.MAX_VALUE;
-                int hP = ((AtomTypeWall)a.type).isHorizontal() ? t : Space1D.drawingHeight;
-                int X = ((AtomTypeWall)a.type).isVertical() ? xP : 0;
-                int Y = ((AtomTypeWall)a.type).isHorizontal() ? yP : 0;
-                g.fillRect(X,Y,wP,hP);
-            }   
-            else {                           //horizontal or vertical; draw box
-                int wP = ((AtomTypeWall)a.type).isVertical() ? t : (int)(displayPhase.getToPixels()*((AtomTypeWall)a.type).getLength());
-                int hP = ((AtomTypeWall)a.type).isHorizontal() ? t : Space1D.drawingHeight;
-                g.fillRect(xP,yP,wP,hP);
-            }
         } else { // Not a sphere, wall, or one of their derivatives...
             // Do nothing (how do you draw an object of unkown shape?)
         }
@@ -133,9 +111,8 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
                 shiftOrigin[1] = displayPhase.getOrigin()[1] + (int)(displayPhase.getToPixels()*shifts[i][1]);
             }
             return(true);
-        } else {
-            return(false);
         }
+        return(false);
     }
       
     /**
@@ -192,7 +169,6 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
         }
             
         //Draw all atoms
-        Boundary boundary = displayPhase.getPhase().boundary();
         if(displayPhase.getColorScheme() instanceof ColorSchemeCollective) {
             ((ColorSchemeCollective)displayPhase.getColorScheme()).colorAllAtoms(displayPhase.getPhase());
         }
