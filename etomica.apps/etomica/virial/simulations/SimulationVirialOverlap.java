@@ -11,9 +11,9 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataAccumulator;
+import etomica.data.DataGroup;
 import etomica.data.DataPump;
 import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -219,7 +219,7 @@ public class SimulationVirialOverlap extends Simulation {
                               +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.ERROR.index)).getData()[1]);
             allYourBase = (DataGroup)sim.accumulators[1].getData(sim.dsvo.minDiffLocation());
             System.out.println("lennard jones ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.RATIO.index)).getData()[1]
-                              +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.ERROR.index)).getData()[1]);
+                              +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.RATIO_ERROR.index)).getData()[1]);
             System.out.println("lennard jones average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.AVERAGE.index)).getData()[0]
                               +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index)).getData()[0]
                               +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.ERROR.index)).getData()[0]);

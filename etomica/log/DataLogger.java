@@ -5,10 +5,9 @@ import java.io.IOException;
 
 import etomica.Data;
 import etomica.DataSink;
+import etomica.data.DataGroup;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataGroup;
-import etomica.units.Dimension;
 
 
 /**
@@ -17,7 +16,6 @@ import etomica.units.Dimension;
 public class DataLogger implements DataSink {
 
 	private final String fileName;
-    private Dimension dimension;
     private String label = "";
 	
 	public DataLogger(String aFileName) {
@@ -74,10 +72,6 @@ public class DataLogger implements DataSink {
         fileWriter.close();
     }        
     
-    public void setDimension(Dimension dimension) {
-        this.dimension = dimension;
-    }
-
     /**
      * Sets label to the given value if it was not previously set.
      * If setLabel was previously called, this method has no effect.

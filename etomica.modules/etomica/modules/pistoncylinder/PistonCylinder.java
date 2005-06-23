@@ -10,10 +10,10 @@ import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.data.AccumulatorAverage;
+import etomica.data.DataGroup;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataDouble;
-import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.potential.P1HardBoundary;
@@ -71,7 +71,7 @@ public class PistonCylinder extends Simulation {
         wallPotential.setActive(0,true,true);  // left wall
         wallPotential.setActive(0,false,true); // right wall
         wallPotential.setActive(1,true,false); // top wall
-        wallPotential.setActive(1,false,true);// bottom wall
+        wallPotential.setActive(1,false,true); // bottom wall
         if (D==3) {
             wallPotential.setActive(2,true,true);  // front wall
             wallPotential.setActive(2,false,true); // back wall
