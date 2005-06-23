@@ -1,4 +1,4 @@
-package etomica.data.types;
+package etomica.data;
 
 import etomica.Data;
 import etomica.DataInfo;
@@ -32,7 +32,9 @@ public class DataGroup extends Data {
         super(group);
         this.data = new Data[group.data.length];
         for(int i=0; i<data.length; i++) {
-            this.data[i] = group.data[i].makeCopy();
+            if(group.data[i] != null) {
+                this.data[i] = group.data[i].makeCopy();
+            }
         }
     }
     
@@ -69,5 +71,5 @@ public class DataGroup extends Data {
         return string.toString();
     }
     
-    private final Data[] data;
+    final Data[] data;
 }

@@ -1,15 +1,15 @@
 package etomica.data;
 
+import etomica.Data;
+import etomica.DataInfo;
 import etomica.DataSource;
-import etomica.DataTranslator;
-import etomica.exception.MethodNotImplementedException;
 import etomica.units.Dimension;
 import etomica.utility.Arrays;
 
 
 /**
  * Collects one or more data sources into a single DataSource. Data returned
- * by the DataSourceGroup is the concatenation of the data returned
+ * by the DataSourceGroup is a DataGroup formed from the Data given
  * by the component DataSource instances.
  *
  * @author David Kofke
@@ -23,14 +23,12 @@ import etomica.utility.Arrays;
 public class DataSourceGroup implements DataSource {
 
     /**
-     * Forms a DataGroup that contains no data sources.  Must
-     * populate group with addDataSource method. 
+     * Forms a DataSourceGroup that contains no data sources, and which will give
+     * an empty DataGroup for getData.  Must populate group with addDataSource method. 
      */
     public DataSourceGroup() {
-        super();
+        data = new DataGroup(new DataInfo("Data Group", Dimension.NULL), new Data[0]);
         dataSources = new DataSource[0];
-        data = new double[0];
-        dataLength = new int[0];
     }
     
     /**
@@ -45,47 +43,20 @@ public class DataSourceGroup implements DataSource {
             }
         }
     }
+    
+    public DataInfo getDataInfo() {
+        return data.getDataInfo();
+    }
 
     /**
-     * Returns data that is the concatenation of all the data returned
-     * by the component groups.  Length of returned array will be equal
-     * to the sum of the length of the arrays returned by the component
-     * groups at the time this method is called (it is possible for the
-     * length to differ from one call to the next, if the length of one
-     * or more of the component source's data changes).
+     * Returns a DataGroup that is formed from the Data objects returned by
+     * the data sources in this instance.
      */
-    public double[] getData() {
-        int cursor = 0;
+    public Data getData() {
         for(int i=0; i<dataSources.length; i++) {
-            double[] nextData = dataSources[i].getData();
-            if(nextData.length != dataLength[i]) {
-                adjustDataLength(nextData.length - dataLength[i]);
-                dataLength[i] = nextData.length;
-                if(!firstCall) System.err.println("Warning: adjusting data length in DataSourceGroup");
-            }
-            System.arraycopy(nextData, 0, data, cursor, dataLength[i]);
-            cursor += dataLength[i];
+            data.data[i] = dataSources[i].getData();
         }
-        firstCall = false;
-        return data;
-    }
-    
-    /**
-     * Returns the sum of the data lengths of the sources in the group.
-     */
-    public int getDataLength() {
-        int sum = 0;
-        for(int i=0; i<dataSources.length; i++) {
-            sum += dataSources[i].getDataLength();
-        }
-        return sum;
-    }
-    
-    //used by getData
-    private void adjustDataLength(int growth) {
-        double[] newData = new double[data.length + growth];
-        System.arraycopy(data, 0, newData, 0, (growth>0) ? data.length : newData.length);
-        data = newData;
+    	    return data;
     }
     
     /**
@@ -94,44 +65,14 @@ public class DataSourceGroup implements DataSource {
      * getDimension()) as those already added (if any).
      */
     public void addDataSource(DataSource newSource) {
-        if(dimension != null && (newSource.getDimension() != dimension)) {
-//               || newSource.getTranslator() != translator)) {
-            throw new IllegalArgumentException("Illegal attempt to group data sources that give data having different physical dimensions");
+        Dimension newDimension = newSource.getDataInfo().getDimension();
+        if(data.getNData() > 0 && (newDimension != data.getDataInfo().getDimension())) {
+            newDimension = Dimension.UNDEFINED; //TODO maybe make a Dimension.MIXED 
         }
         dataSources = (DataSource[])Arrays.addObject(dataSources, newSource);
-        dataLength = Arrays.resizeArray(dataLength, dataSources.length);
-        dimension = newSource.getDimension();
-        translator = newSource.getTranslator();
-    }
-
-    /* (non-Javadoc)
-     * @see etomica.DataSource#getLabel()
-     */
-    public String getLabel() {
-        if(dataSources.length > 0) return dataSources[0].getLabel();
-        else return "";
-    }
-
-    /* (non-Javadoc)
-     * @see etomica.DataSource#getDimension()
-     */
-    public Dimension getDimension() {
-        return dimension;
-    }
-
-    /* (non-Javadoc)
-     * @see etomica.DataSource#getTranslator()
-     */
-    public DataTranslator getTranslator() {
-        //FIXME translator needs to separate data pieces and translate each
-        throw new MethodNotImplementedException("translator not implemented for DataGroup");
-//        return translator;
+        data = new DataGroup(new DataInfo("Data Group", newDimension), new Data[dataSources.length]);
     }
 
     private DataSource[] dataSources;
-    private Dimension dimension = null;
-    private DataTranslator translator = null;
-    private double[] data;
-    private int[] dataLength;
-    private boolean firstCall = true;
+    private DataGroup data;
 }

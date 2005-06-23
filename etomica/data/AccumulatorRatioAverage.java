@@ -4,7 +4,6 @@ import etomica.Constants;
 import etomica.Data;
 import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataGroup;
 import etomica.utility.Function;
 
 /**
