@@ -7,7 +7,9 @@ package etomica.space;
  * History
  * Created on Jan 24, 2005 by kofke
  */
-public interface Tensor {
+public interface Tensor extends Cloneable {
+    public Object clone();
+    
     public abstract int length();
     public abstract double component(int i, int j);
     public abstract void setComponent(int i, int j, double d);

@@ -16,6 +16,19 @@ public class Tensor3D implements etomica.space.Tensor {
     public Tensor3D (double[] d) {
         this.E(d);
     }
+
+    /**
+     * Support of implementation of Cloneable interface. Returns a new Tensor
+     * with elements equal to this one.
+     */
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException ex) {
+            throw new InternalError(ex.toString());
+        }
+    }
+
     public double component(int i, int j) {
         return ( i==0 ) ? ( (j==0) ? xx : ( j==1 ? xy : xz ) ) : ( (i==1) ? ( (j==0) ? yx : ( (j==1) ? yy : yz ) ) : ( (j==0) ? zx : ((j==1) ? zy : zz)));
     }

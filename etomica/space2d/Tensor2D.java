@@ -18,6 +18,18 @@ public class Tensor2D implements etomica.space.Tensor {
         this.E(d);
     }
 
+    /**
+     * Support of implementation of Cloneable interface. Returns a new Tensor
+     * with elements equal to this one.
+     */
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException ex) {
+            throw new InternalError(ex.toString());
+        }
+    }
+
     public double component(int i, int j) {
         return (i==0) ? ( (j==0) ? xx : xy ) : ( (j==0) ? yx : yy );}
     public void setComponent(int i, int j, double d) {

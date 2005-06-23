@@ -17,6 +17,18 @@ public class Tensor1D implements etomica.space.Tensor {
     public Tensor1D () {xx = 0.0;}
     public Tensor1D (double[] d) {this.E(d);}
 
+    /**
+     * Support of implementation of Cloneable interface. Returns a new Tensor
+     * with elements equal to this one.
+     */
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException ex) {
+            throw new InternalError(ex.toString());
+        }
+    }
+
     public int length() {return 1;}
     public double component(int i, int j) {return xx;}
     public void setComponent(int i, int j, double d) {xx = d;}
