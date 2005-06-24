@@ -3,7 +3,6 @@ import etomica.Atom;
 import etomica.AtomTypeLeaf;
 import etomica.Data;
 import etomica.DataInfo;
-import etomica.DataSource;
 import etomica.EtomicaInfo;
 import etomica.Meter;
 import etomica.Phase;
@@ -24,7 +23,7 @@ import etomica.units.Dimension;
  * @author Rob Riggleman
  */
 
-public class MeterTensorVelocity implements DataSource, Meter, DataSourceAtomic {
+public class MeterTensorVelocity implements Meter, DataSourceAtomic {
     /**
      * Iterator of atoms.
      */
