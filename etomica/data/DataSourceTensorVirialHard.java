@@ -1,4 +1,4 @@
-package etomica.data.meter;
+package etomica.data;
 import etomica.Data;
 import etomica.DataInfo;
 import etomica.DataSource;
@@ -6,7 +6,6 @@ import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Phase;
 import etomica.Space;
-import etomica.data.DataSourceCountTime;
 import etomica.data.types.DataTensor;
 import etomica.integrator.IntegratorHard;
 import etomica.space.Tensor;
@@ -19,9 +18,9 @@ import etomica.units.Dimension;
  * @author Rob Riggleman
  */
 
-public class MeterTensorVirialHard implements DataSource, EtomicaElement, IntegratorHard.CollisionListener {
+public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, IntegratorHard.CollisionListener {
     
-    public MeterTensorVirialHard(Space space, IntegratorHard integrator) {
+    public DataSourceTensorVirialHard(Space space, IntegratorHard integrator) {
         data = new DataTensor(space,new DataInfo("PV/NkT",Dimension.NULL));
         lastData = new DataTensor(space,new DataInfo("PV/NkT",Dimension.NULL));
         timer = new DataSourceCountTime();
