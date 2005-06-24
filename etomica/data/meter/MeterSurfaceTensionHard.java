@@ -1,10 +1,13 @@
 package etomica.data.meter;
 import etomica.DataInfo;
+import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Meter;
 import etomica.Phase;
 import etomica.Space;
 import etomica.data.DataSourceScalar;
+import etomica.data.DataSourceTensorVirialHard;
+import etomica.data.types.DataTensor;
+import etomica.integrator.IntegratorHard;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
 
@@ -17,12 +20,13 @@ import etomica.units.Dimension;
  * @author Rob Riggleman
  */
 
-public class MeterSurfaceTensionHard extends DataSourceScalar implements Meter {//, EtomicaElement {
+public class MeterSurfaceTensionHard extends DataSourceScalar implements EtomicaElement {
     
-    public MeterSurfaceTensionHard(Space space) {
+    public MeterSurfaceTensionHard(Space space, IntegratorHard integrator) {
         super(new DataInfo("Surface Tension",Dimension.ENERGY));
         velocityTensor = new MeterTensorVelocity(space);
-        virialTensor = new MeterTensorVirialHard(space);
+        velocityTensor.setPhase(integrator.getPhase()[0]);
+        virialTensor = new DataSourceTensorVirialHard(space,integrator);
         pressureTensor = space.makeTensor();
     }
     
@@ -32,23 +36,16 @@ public class MeterSurfaceTensionHard extends DataSourceScalar implements Meter {
     }
 
     /**
-     * Returns dimensions of this meters measured quanitity, which in this case is energy
-     */
-    public final Dimension getDimension() {return Dimension.ENERGY;}
-    
-    /**
      * Gives current value of the surface tension, obtained by summing velocity and virial contributions.
      * Virial contribution includes sum over all collisions since last call to this method, while
      * velocity contribution is based on atom velocities in current configuration.
      * Surface tension is given by difference between normal and tangential stress components.
      * Written for 2-, or 3-dimensional systems; assumes that normal to interface is along x-axis.
      */
-    
     public double getDataAsScalar() {
-        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
-        pressureTensor.E(velocityTensor.getDataAsTensor(phase));
-        pressureTensor.PE(virialTensor.getDataAsTensor(phase));
-        switch (phase.space().D) {
+        pressureTensor.E(((DataTensor)velocityTensor.getData()).x);
+        pressureTensor.PE(((DataTensor)virialTensor.getData()).x);
+        switch (pressureTensor.length()) {
             case 1:
                 surfaceTension = pressureTensor.component(0, 0);
                 break;
@@ -66,19 +63,16 @@ public class MeterSurfaceTensionHard extends DataSourceScalar implements Meter {
      * @return Returns the phase.
      */
     public Phase getPhase() {
-        return phase;
-    }
-    /**
-     * @param phase The phase to set.
-     */
-    public void setPhase(Phase phase) {
-        if (phase.space().D < 1 || phase.space().D > 3) throw new IllegalArgumentException("phase's space must be 1, 2 or 3 dimensional");
-        this.phase = phase;
+        return velocityTensor.getPhase();
     }
 
-    private Phase phase;
+    public void setIntegrator(IntegratorHard integrator) {
+        velocityTensor.setPhase(integrator.getPhase()[0]);
+        virialTensor.setIntegrator(integrator);
+    }
+    
     private final Tensor pressureTensor;
     private final MeterTensorVelocity velocityTensor;
-    private final MeterTensorVirialHard virialTensor;
+    private final DataSourceTensorVirialHard virialTensor;
     private double surfaceTension;
 }
