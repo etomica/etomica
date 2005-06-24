@@ -1,13 +1,18 @@
 package etomica.data.meter;
 import etomica.Atom;
 import etomica.AtomTypeLeaf;
+import etomica.Data;
+import etomica.DataInfo;
+import etomica.DataSource;
 import etomica.EtomicaInfo;
+import etomica.Meter;
 import etomica.Phase;
 import etomica.Space;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
+import etomica.data.DataSourceAtomic;
+import etomica.data.types.DataTensor;
 import etomica.space.ICoordinateKinetic;
-import etomica.space.Tensor;
 import etomica.units.Dimension;
 
 /**
@@ -19,29 +24,24 @@ import etomica.units.Dimension;
  * @author Rob Riggleman
  */
 
-public class MeterTensorVelocity extends MeterTensor /*implements MeterTensor.Atomic*/ {
+public class MeterTensorVelocity implements DataSource, Meter, DataSourceAtomic {
     /**
      * Iterator of atoms.
      */
     private final AtomIteratorPhaseDependent ai1 = new AtomIteratorLeafAtoms();
-    /**
-     * Tensor used to form velocity dyad for each atom, and returned by currentValue(atom) method.
-     */
-    private Tensor velocity;
-    /**
-     * Tensor used to sum contributions to velocity dyad, and returned by currentValue() method.
-     */
-    private Tensor velocityTensor;
     
     public MeterTensorVelocity(Space space) {
-        super(space);
-        velocity = space.makeTensor();
-        velocityTensor = space.makeTensor();
+        data = new DataTensor(space,new DataInfo("pp/m",Dimension.ENERGY));
+        atomData = new DataTensor(space,new DataInfo("pp/m",Dimension.ENERGY));
     }
     
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Velocity tensor, formed from averaging dyad of velocity vector for each atom");
         return info;
+    }
+    
+    public DataInfo getDataInfo() {
+        return data.getDataInfo();
     }
        
     /**
@@ -59,29 +59,52 @@ public class MeterTensorVelocity extends MeterTensor /*implements MeterTensor.At
     /**
      * Returns the velocity dyad (mass*vv) summed over all atoms, and divided by N
      */
-    public Tensor getDataAsTensor(Phase p) {
+    public Data getData() {
         if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
-        ai1.setPhase(p);
+        ai1.setPhase(phase);
         ai1.reset();
-        velocityTensor.E(0.0);
+        data.E(0.0);
         int count = 0;
         while(ai1.hasNext()) {
-            Atom a = ai1.nextAtom();
-            velocity.E(((ICoordinateKinetic)a.coord).velocity(), ((ICoordinateKinetic)a.coord).velocity());
-            velocity.TE(((AtomTypeLeaf)a.type).rm());
-            velocityTensor.PE(velocity);
+            getData(ai1.nextAtom());
+            data.PE(atomData);
             count++;
         }
-        velocityTensor.TE(1.0/count);
-        return velocityTensor;
+        data.TE(1.0/count);
+        return data;
     }
     
     /**
      * Returns the velocity dyad (mass*vv) for the given atom.
      */
-//    public Space.Tensor currentValue(Atom atom) {
-//        velocity.E(atom.coord.momentum(), atom.coord.momentum());
-//        velocity.TE(atom.coord.rm());
-//        return velocity;
-//    }
+    public Data getData(Atom atom) {
+        atomData.x.E(((ICoordinateKinetic)atom.coord).velocity(), ((ICoordinateKinetic)atom.coord).velocity());
+        atomData.TE(((AtomTypeLeaf)atom.type).rm());
+        return atomData;
+    }
+
+    /**
+     * @return Returns the phase.
+     */
+    public Phase getPhase() {
+        return phase;
+    }
+    /**
+     * @param phase The phase to set.
+     */
+    public void setPhase(Phase phase) {
+        this.phase = phase;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    private String name;
+    private Phase phase;
+    private final DataTensor data, atomData;
 }
