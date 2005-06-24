@@ -48,7 +48,7 @@ public class DisplayTable extends Display implements DataTableListener,
 
         units = new Unit[dataTable.getColumnCount()];
         for (int i = 0; i < units.length; i++) {
-            units[i] = dataTable.getColumn(i).getDimension().defaultIOUnit();
+            units[i] = dataTable.getColumn(i).getDataInfo().getDimension().defaultIOUnit();
         }
 
         dataTable.addTableListener(this);
@@ -95,7 +95,7 @@ public class DisplayTable extends Display implements DataTableListener,
      * Updates the units array for the new column, using the default units.
      */
     public void tableColumnAdded(DataTable table, DataBin newColumn) {
-        units = (Unit[]) Arrays.addObject(units, newColumn.getDimension()
+        units = (Unit[]) Arrays.addObject(units, newColumn.getDataInfo().getDimension()
                 .defaultIOUnit());
         tableSource.fireTableStructureChanged();
     }
@@ -386,7 +386,7 @@ public class DisplayTable extends Display implements DataTableListener,
                 if (!suffix.equals(""))
                     suffix = "(" + suffix + ")";
             }
-            return dataTable.getColumn(i).getLabel()
+            return dataTable.getColumn(i).getDataInfo().getLabel()
                     + (showingUnits ? suffix : "");
         }
 
@@ -463,7 +463,7 @@ public class DisplayTable extends Display implements DataTableListener,
         //                table.getDataTable().makeColumn(nMeter.getDimension()));
         //end of unique part
 
-        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
+        MeterPressureHard pMeter = new MeterPressureHard(sim.space,sim.integrator);
         pMeter.setPhase(sim.phase);
         MeterNMolecules nMeter = new MeterNMolecules();
         nMeter.setPhase(sim.phase);

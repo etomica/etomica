@@ -3,7 +3,6 @@ import etomica.DataSource;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageSegment;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataBin;
 import etomica.data.DataSourceUniform;
@@ -45,7 +44,7 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
         setName("Data Plot");
         units = new Unit[table.getColumnCount()];
         for(int i=0; i<units.length; i++) {
-            units[i] = table.getColumn(i).getDimension().defaultIOUnit();
+            units[i] = table.getColumn(i).getDataInfo().getDimension().defaultIOUnit();
         }
     }
     
@@ -75,7 +74,7 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
      * Updates the units array for the new column, using the default units.
      */
     public void tableColumnAdded(DataTable table, DataBin newColumn) {
-        units = (Unit[])Arrays.addObject(units, newColumn.getDimension().defaultIOUnit());
+        units = (Unit[])Arrays.addObject(units, newColumn.getDataInfo().getDimension().defaultIOUnit());
     }
 
     /**
@@ -104,15 +103,15 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
         panel.repaint();
         
         for(int i=0; i<dataTable.getColumnCount(); i++) {
-            plot.addLegend(i,doLegend ? dataTable.getColumn(i).getLabel(): "");
+            plot.addLegend(i,doLegend ? dataTable.getColumn(i).getDataInfo().getLabel(): "");
         }
         
-        setLabel(x.getLabel());
+        setLabel(x.getDataInfo().getLabel());
         if(dataTable.getColumnCount() > 0) {
-            plot.setYLabel(dataTable.getColumn(0).getLabel());
+            plot.setYLabel(dataTable.getColumn(0).getDataInfo().getLabel());
         }
 
-        plot.setXLabel(x.getLabel()+ " ("+xUnit.symbol()+")");
+        plot.setXLabel(x.getDataInfo().getLabel()+ " ("+xUnit.symbol()+")");
         
         doUpdate();
     }
@@ -170,7 +169,7 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
      */
     public void setXUnit(Unit u) {
         xUnit = u;
-        if(plot != null && xUnit != null) plot.setXLabel(x.getLabel() + " ("+xUnit.symbol()+")");
+        if(plot != null && xUnit != null) plot.setXLabel(x.getDataInfo().getLabel() + " ("+xUnit.symbol()+")");
     }
     
     /**
@@ -218,7 +217,7 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
         
         public Plot() {
         	super();
-        	setOpaque(false);
+//        	setOpaque(false);
         }
         public void setTopPadding(int i) {
             _topPadding = i;
@@ -231,7 +230,7 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
         sim.integrator.setIsothermal(true);
         AccumulatorHistory history = new AccumulatorHistory();
         history.setHistoryLength(1000);
-        MeterPressureHard pressureMeter = new MeterPressureHard(sim.integrator);
+        MeterPressureHard pressureMeter = new MeterPressureHard(sim.space,sim.integrator);
         pressureMeter.setPhase(sim.phase);
         AccumulatorAverageSegment segment = new AccumulatorAverageSegment(
                 pressureMeter, sim.integrator, 
@@ -239,7 +238,7 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
                 new DisplayBox());
         segment.getDataPump().addDataSink(history);
         DisplayPlot plot = new DisplayPlot();
-        history.addDataSink(plot.getDataTable().makeColumn(pressureMeter.getDimension()));
+        history.addDataSink(plot.getDataTable().makeColumn());
         plot.setXSource(history.getXSource());
         graphic.add(plot);
 
