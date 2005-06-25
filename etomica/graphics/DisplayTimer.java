@@ -15,6 +15,7 @@ public class DisplayTimer extends DisplayBox {
 
     public DisplayTimer(IntegratorMD integrator) {
         timer = new DataSourceCountTime();
+        integrator.addListener(timer);
         DataPump dataPump = new DataPump(timer, this);
         intervalActionAdapter = new IntervalActionAdapter(dataPump, integrator);
         setUpdateInterval(100);
