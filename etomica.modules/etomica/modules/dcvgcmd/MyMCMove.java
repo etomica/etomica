@@ -31,6 +31,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 	}
 
     public void setPhase(Phase[] p) {
+        super.setPhase(p);
         energyMeter.setPhase(p[0]);
     }
     
