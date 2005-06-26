@@ -1,5 +1,6 @@
 package etomica.data;
 
+import etomica.data.types.DataArithmetic;
 import etomica.utility.Arrays;
 
 /**
@@ -18,6 +19,10 @@ import etomica.utility.Arrays;
 public class DataTable implements DataBinManager {
 
     public DataTable() {
+    }
+    
+    public double getValue(int row, int column) {
+        return ((DataArithmetic)columns[column].getData()).getValue(row);
     }
 
     public int getColumnCount() {
@@ -89,15 +94,16 @@ public class DataTable implements DataBinManager {
      */
     public void dataChangeNotify(DataBin bin) {
         //check for change to number of rows (length of longest column)
-        if(bin == longestColumn && bin.getDataLength() < rowCount) {
+        int binLength = ((DataArithmetic)bin.getData()).getLength();
+        if(bin == longestColumn && binLength < rowCount) {
             int oldRowCount = rowCount;
             updateRowCount();
             if(oldRowCount != rowCount) {
                 fireRowCountChangedEvent(oldRowCount, rowCount);
             }
-        } else if(bin.getDataLength() > rowCount) {
+        } else if(binLength > rowCount) {
             int oldRowCount = rowCount;
-            rowCount = bin.getDataLength();
+            rowCount = binLength;
             longestColumn = bin;
             fireRowCountChangedEvent(oldRowCount, rowCount);
         }
@@ -189,7 +195,7 @@ public class DataTable implements DataBinManager {
     private void updateRowCount() {
         int rowCount = 0;
         for (int i = 0; i < columns.length; i++) {
-            int n = columns[i].getDataLength();
+            int n = ((DataArithmetic)columns[i].getData()).getLength();
             if (n > rowCount) {
                 rowCount = n;
                 longestColumn = columns[i];

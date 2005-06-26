@@ -21,6 +21,7 @@ import etomica.data.DataTableAverages;
 import etomica.data.DataTableListener;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPressureHard;
+import etomica.data.types.DataArithmetic;
 import etomica.units.Unit;
 import etomica.utility.Arrays;
 
@@ -338,9 +339,8 @@ public class DisplayTable extends Display implements DataTableListener,
             if (showingRowLabels && column == 0) {
                 if (transposed) {
                     return columnLabel(row);
-                } else {
-                    return (row < rowLabels.length) ? rowLabels[row] : "";
                 }
+                return (row < rowLabels.length) ? rowLabels[row] : "";
             }
             //r and c are the row/column indices for the internal
             // representation
@@ -349,8 +349,8 @@ public class DisplayTable extends Display implements DataTableListener,
             int c = transposed ? row : column - c0;
             DataBin col = dataTable.getColumn(c);
             double value = Double.NaN;
-            if (r < col.getDataLength()) {
-                value = units[c].fromSim(col.getData()[r]);
+            if (r < ((DataArithmetic)col.getData()).getLength()) {
+                value = units[c].fromSim(dataTable.getValue(r, c));
             }
             return new Double(value);
         }
@@ -374,9 +374,8 @@ public class DisplayTable extends Display implements DataTableListener,
             int c = i - c0;
             if (transposed) {
                 return (rowLabels.length > c) ? rowLabels[c] : "";
-            } else {
-                return columnLabel(c);
             }
+            return columnLabel(c);
         }
 
         private String columnLabel(int i) {

@@ -2,14 +2,11 @@ package etomica.graphics;
 import etomica.DataSource;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorHistory;
 import etomica.data.DataBin;
 import etomica.data.DataSourceUniform;
 import etomica.data.DataTable;
 import etomica.data.DataTableListener;
-import etomica.data.meter.MeterPressureHard;
-import etomica.simulations.HSMD2D;
+import etomica.data.types.DataArithmetic;
 import etomica.units.Unit;
 import etomica.utility.Arrays;
 
@@ -123,11 +120,11 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
         if(!plot.isShowing()) return;
         int nSource = dataTable.getColumnCount();
         plot.clear(false);
-        double[] xValues = x.getData();
+        DataArithmetic xValues = (DataArithmetic)x.getData();
         for(int k=0; k<nSource; k++) {
-            DataBin column = dataTable.getColumn(k);
-            for(int i=0; i<column.getDataLength(); i++) {
-                plot.addPoint(k, xUnit.fromSim(xValues[i]), units[k].fromSim(column.getData()[i]), true);
+            DataArithmetic column = (DataArithmetic)dataTable.getColumn(k).getData();
+            for(int i=0; i<column.getLength(); i++) {
+                plot.addPoint(k, xUnit.fromSim(xValues.getValue(i)), units[k].fromSim(column.getValue(i)), true);
 //              if(!Double.isNaN(data[k].y[i])) { 
 //                plot.addPoint(k, x.unit.fromSim(x.y[i]), data[k].unit.fromSim(data[k].y[i]), true);
 //              } else if(i==x.y.length-1) {
@@ -224,24 +221,24 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
         }
     }
     
-    public static void main(String[] args) {
-        HSMD2D sim = new HSMD2D();
-        SimulationGraphic graphic = new SimulationGraphic(sim);
-        sim.integrator.setIsothermal(true);
-        AccumulatorHistory history = new AccumulatorHistory();
-        history.setHistoryLength(1000);
-        MeterPressureHard pressureMeter = new MeterPressureHard(sim.space,sim.integrator);
-        pressureMeter.setPhase(sim.phase);
-        AccumulatorAverageSegment segment = new AccumulatorAverageSegment(
-                pressureMeter, sim.integrator, 
-                new AccumulatorAverage.Type[] {AccumulatorAverage.AVERAGE},
-                new DisplayBox());
-        segment.getDataPump().addDataSink(history);
-        DisplayPlot plot = new DisplayPlot();
-        history.addDataSink(plot.getDataTable().makeColumn());
-        plot.setXSource(history.getXSource());
-        graphic.add(plot);
-
-        graphic.makeAndDisplayFrame();
-    }
+//    public static void main(String[] args) {
+//        HSMD2D sim = new HSMD2D();
+//        SimulationGraphic graphic = new SimulationGraphic(sim);
+//        sim.integrator.setIsothermal(true);
+//        AccumulatorHistory history = new AccumulatorHistory();
+//        history.setHistoryLength(1000);
+//        MeterPressureHard pressureMeter = new MeterPressureHard(sim.space,sim.integrator);
+//        pressureMeter.setPhase(sim.phase);
+//        AccumulatorAverageSegment segment = new AccumulatorAverageSegment(
+//                pressureMeter, sim.integrator, 
+//                new AccumulatorAverage.Type[] {AccumulatorAverage.AVERAGE},
+//                new DisplayBox());
+//        segment.getDataPump().addDataSink(history);
+//        DisplayPlot plot = new DisplayPlot();
+//        history.addDataSink(plot.getDataTable().makeColumn());
+//        plot.setXSource(history.getXSource());
+//        graphic.add(plot);
+//
+//        graphic.makeAndDisplayFrame();
+//    }
 }//end of class
