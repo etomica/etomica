@@ -193,12 +193,15 @@ public class DataTable implements DataBinManager {
     }
 
     private void updateRowCount() {
-        int rowCount = 0;
+        rowCount = 0;
         for (int i = 0; i < columns.length; i++) {
-            int n = ((DataArithmetic)columns[i].getData()).getLength();
-            if (n > rowCount) {
-                rowCount = n;
-                longestColumn = columns[i];
+            DataArithmetic data = (DataArithmetic)columns[i].getData();
+            if (data != null) {
+                int n = data.getLength();
+                if (n > rowCount) {
+                    rowCount = n;
+                    longestColumn = columns[i];
+                }
             }
         }
     }
