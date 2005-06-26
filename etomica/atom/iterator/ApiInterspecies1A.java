@@ -49,6 +49,7 @@ public class ApiInterspecies1A extends AtomPairIteratorAdapter implements
         aiOuter = (AtomIteratorSinglet)((ApiInnerFixed)iterator).getOuterIterator();
         aiInner = (AtomIteratorListSimple)((ApiInnerFixed)iterator).getInnerIterator();
         setPhase(null);
+        swappedPair = new AtomPair();
     }
 
     /** 
