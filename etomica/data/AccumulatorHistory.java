@@ -105,12 +105,15 @@ public class AccumulatorHistory extends DataAccumulator {
         nDataMinus1 = nData - 1;
 
         if (nData == 1) {
-            data = new DataDoubleArray(new DataInfo("History", Dimension.NULL));
+            data = new DataFunction(new DataInfo("History", Dimension.NULL),new DataInfo("Time",Dimension.NULL));
+            ((DataFunction)data).setLength(0);
         } else {
             DataInfo dataInfo = new DataInfo("History", Dimension.NULL);
-            DataDoubleArray[] dataArray = new DataDoubleArray[nData];
+            DataInfo tDataInfo = new DataInfo("Time", Dimension.NULL);
+            DataFunction[] dataArray = new DataFunction[nData];
             for (int i = 0; i < nData; i++) {
-                dataArray[i] = new DataDoubleArray(dataInfo);
+                dataArray[i] = new DataFunction(dataInfo,tDataInfo);
+                dataArray[i].setLength(0);
             }
             data = new DataGroup(new DataInfo("History Group", Dimension.NULL),
                     dataArray);
