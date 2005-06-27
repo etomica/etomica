@@ -1,5 +1,6 @@
 package etomica;
 
+import etomica.compatibility.FeatureSet;
 import etomica.units.Dimension;
 import etomica.utility.NameMaker;
 
@@ -10,12 +11,19 @@ import etomica.utility.NameMaker;
  * @author David Kofke
  */
  
-public abstract class Potential {
+public abstract class Potential extends EtomicaInfo {
     
 	private final int nBody;
 	protected final Space space;
     private String name;
 
+	public FeatureSet getFeatures()
+	{
+		FeatureSet fts = super.getFeatures();
+		return fts.add( "NBODIES", nBody )
+		.add( "SPACEDIM", space.D()  )
+		.add( "POTNAME", name );
+	}
     /**
      * General constructor for a potential instance
      * @param nBody number of atoms to which this potential applies at a time;

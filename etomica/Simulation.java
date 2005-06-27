@@ -25,7 +25,7 @@ import etomica.utility.NameMaker;
  * 04/18/03 (DAK) added LoggerList
  */
  
-public class Simulation {
+public class Simulation extends EtomicaInfo implements java.io.Serializable  {
     
     /**
      * Flag indicating whether simulation is being run within Etomica editor application.
