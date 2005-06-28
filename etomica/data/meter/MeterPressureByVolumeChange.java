@@ -22,11 +22,12 @@ import etomica.units.Dimension;
 public class MeterPressureByVolumeChange implements Meter {
     
     public MeterPressureByVolumeChange(PotentialMaster potentialMaster, boolean[] dimensions) {
-        data = new DataDoubleArray(new DataInfo("Pressure by Volume Change",Dimension.pressure(sim.space.D)),10);
+        data = new DataDoubleArray(new DataInfo("Pressure by Volume Change",Dimension.pressure(potentialMaster.getSpace().D)));
+        data.setLength(10);
         dataArray = data.getData();
         spaceD = dimensions.length;
         potential = potentialMaster;
-        setX(-0.001, 0.001, getNData());
+        setX(-0.001, 0.001, data.getLength());
         inflateDimensions = new boolean[spaceD];
         setInflateDimensions(dimensions);
         iteratorDirective = new IteratorDirective();
@@ -36,6 +37,10 @@ public class MeterPressureByVolumeChange implements Meter {
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Pressure measured by trial volume perturbations");
         return info;
+    }
+    
+    public DataInfo getDataInfo() {
+        return data.getDataInfo();
     }
 
     /**
@@ -58,10 +63,10 @@ public class MeterPressureByVolumeChange implements Meter {
     public boolean[] getInflateDimensions() {return inflateDimensions;}
     
     public void setX(double min, double max, int n) {
-        xDataSource = new DataSourceUniform(n, min, max);
+        xDataSource = new DataSourceUniform(Dimension.volume(potential.getSpace().D),n, min, max);
         //x is scaling in volume if isotropic, but is linear scaling if not isotropic
         double dx = (max-min)/n;
-        final double[] x = xDataSource.getData();
+        final double[] x = ((DataDoubleArray)xDataSource.getData()).getData();
         for(int i=0; i<x.length; i++) { //disallow x = 0
             if(x[i] == 0.0) x[i] = 0.1*dx;
         }
@@ -70,7 +75,7 @@ public class MeterPressureByVolumeChange implements Meter {
         double mult = 1.0/nDimension;
         for(int i=0; i<x.length; i++) {
             scale[i] = Space.makeVector(spaceD);
-            scale[i].E(Math.exp(mult*xDataSource.getData()[i]));
+            scale[i].E(Math.exp(mult*x[i]));
             for(int j=0; j<spaceD; j++) {
                 if(!inflateDimensions[j]) scale[i].setX(j,1.0);
             }
@@ -101,6 +106,7 @@ public class MeterPressureByVolumeChange implements Meter {
         energy.zeroSum();
         potential.calculate(phase, iteratorDirective, energy);
         double uOld = energy.getSum();
+        final double[] x = ((DataDoubleArray)xDataSource.getData()).getData();
         for(int i=0; i<dataArray.length; i++) {
             inflater.setVectorScale(scale[i]);
             inflater.actionPerformed();
@@ -108,7 +114,7 @@ public class MeterPressureByVolumeChange implements Meter {
             potential.calculate(phase, iteratorDirective, energy);
             double uNew = energy.getSum();
             dataArray[i] = Math.exp(-(uNew-uOld)/temperature
-                              + phase.moleculeCount()*xDataSource.getData()[i]);
+                              + phase.moleculeCount()*x[i]);
 
             //TODO shouldn't this be done outside the loop?
             inflater.undo();
@@ -130,8 +136,17 @@ public class MeterPressureByVolumeChange implements Meter {
         this.phase = phase;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+    private String name;
     private Phase phase;
     private final DataDoubleArray data;
+    private double[] dataArray;
     private final PhaseInflate inflater;
     Vector[] scale;
     boolean[] inflateDimensions;
