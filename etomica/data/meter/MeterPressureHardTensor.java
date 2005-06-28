@@ -1,31 +1,29 @@
 package etomica.data.meter;
 import etomica.Atom;
+import etomica.AtomTypeLeaf;
+import etomica.Data;
+import etomica.DataInfo;
+import etomica.DataSource;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
 import etomica.Phase;
 import etomica.Space;
-import etomica.atom.iterator.AtomIteratorListTabbed;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.data.DataSourceCountTime;
+import etomica.data.types.DataTensor;
 import etomica.integrator.IntegratorHard;
+import etomica.space.ICoordinateKinetic;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
 
-public class MeterPressureHardTensor extends MeterTensor implements IntegratorHard.CollisionListener {
-    
-    private double[][] virialSum;
-    private double t0, t, velocity2;
-    private final AtomIteratorListTabbed ai1 = new AtomIteratorListTabbed();
-    private Tensor velocityTensor, v, pressureTensor;
-    private IntegratorHard integratorHard;
-    private int D;
+public class MeterPressureHardTensor implements DataSource, IntegratorHard.CollisionListener {
     
     public MeterPressureHardTensor(Space space) {
-        super();
-        D = space.D();
-        virialSum = new double[D][D];
-        pressureTensor = space.makeTensor();
+        //XXX temperature, really?
+        data = new DataTensor(space,new DataInfo("PV/Nk",Dimension.TEMPERATURE));
         velocityTensor = space.makeTensor();
         v = space.makeTensor();
-        setLabel("PV/Nk");
+        timer = new DataSourceCountTime();
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -33,68 +31,72 @@ public class MeterPressureHardTensor extends MeterTensor implements IntegratorHa
         return info;
     }
     
-    public void setPhase(Phase p) {
-        super.setPhase(p);
-        ai1.setList(p.speciesMaster.atomList);
+    public DataInfo getDataInfo() {
+        return data.getDataInfo();
     }
-
-    public final boolean usesPhaseBoundary() {return false;}
-     
-    public Dimension getDimension() {return Dimension.TEMPERATURE;}
     
-    public Tensor getData() {
-        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
-        double t = integratorHard.elapsedTime();
+    public Data getData() {
+        if (phase == null || integratorHard == null) throw new IllegalStateException("must call setPhase and integrator before using meter");
+        double t = timer.getDataAsScalar();
         if (t > t0) {
+            //XXX Wrong!  you can't use the instantaneous velocity tensor with the average virial tensor
             velocityTensor.E(0.);
-            ai1.reset();
-            while (ai1.hasNext()) {
-                Atom a = ai1.next();
-                v.E(a.coord.momentum(), a.coord.momentum());
-                v.TE((a.coord.rm()));
+            iterator.reset();
+            while (iterator.hasNext()) {
+                Atom a = iterator.nextAtom();
+                v.E(((ICoordinateKinetic)a.coord).velocity(), ((ICoordinateKinetic)a.coord).velocity());
+                v.TE((((AtomTypeLeaf)a.type).rm()));
                 velocityTensor.PE(v);
             }
             
             velocityTensor.TE(1.0/phase.atomCount());
                     
-            for (int h=0; h<D; h++) {
-                for (int j=0; j<D; j++) {
-                    pressureTensor.setComponent(h, j, virialSum[h][j]);
-                    virialSum[h][j] = 0.0;
-                }
-            }
-        
-            pressureTensor.TE(-1/((t-t0)*(double)(D*phase.atomCount())));
-            pressureTensor.PE(velocityTensor);
+            data.x.TE(-1/((t-t0)*phase.space().D()*phase.atomCount()));
+            data.x.PE(velocityTensor);
         
             t0 = t;
         }
-        return pressureTensor;
-    }
-    
-    public double currentValue(int i, int j) {
-        return getData().component(i, j);
+        return data;
     }
     
     public void collisionAction(IntegratorHard.Agent agent) {
         Tensor lcvt = agent.collisionPotential.lastCollisionVirialTensor();
-        for (int i=0; i<lcvt.length(); i++) {
-            for (int j=0; j<lcvt.length(); j++) {
-                virialSum[i][j] += lcvt.component(i, j);
-            }
-        }
+        data.x.PE(lcvt);
     }
     
-    protected void setPhaseIntegrator(Integrator newIntegrator) {
-        super.setPhaseIntegrator(newIntegrator);
-        if(newIntegrator instanceof IntegratorHard) {
-            integratorHard = (IntegratorHard)newIntegrator;
-            integratorHard.addCollisionListener(this);
-            t0 = integratorHard.elapsedTime();
+    protected void setIntegrator(Integrator newIntegrator) {
+        if (newIntegrator == integratorHard) {
+            return;
         }
-        else {
-            System.out.println("Error in integrator type in MeterPressureHardTensor");
-            System.exit(1);
+        if (integratorHard != null) {
+            integratorHard.removeCollisionListener(this);
+            integratorHard.removeListener(timer);
         }
+        timer.reset();
+        if (newIntegrator == null) {
+            phase = null;
+            return;
+        }
+        phase = integratorHard.getPhase()[0];
+        integratorHard = (IntegratorHard)newIntegrator;
+        integratorHard.addCollisionListener(this);
+        integratorHard.addListener(timer);
     }
+    
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    private double t0;
+    private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
+    private Tensor velocityTensor, v;
+    private IntegratorHard integratorHard;
+    private DataSourceCountTime timer;
+    private String name;
+    private Phase phase;
+    private DataTensor data;
 }
