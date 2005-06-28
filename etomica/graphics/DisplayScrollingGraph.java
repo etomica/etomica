@@ -3,6 +3,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 import etomica.data.DataSourceScalar;
+import etomica.data.types.DataDouble;
 
     public class DisplayScrollingGraph extends Display {
 
@@ -65,7 +66,7 @@ import etomica.data.DataSourceScalar;
      */
     public void setMeter(DataSourceScalar m) {
         meter = m;
-        setUnit(m.defaultIOUnit());
+        setUnit(m.getDataInfo().getDimension().defaultIOUnit());
     }
     
     
@@ -83,85 +84,85 @@ import etomica.data.DataSourceScalar;
      */
     public etomica.units.Unit getUnit() {return unit;}
 
-        public void doUpdate() {
-            addValue(meter.getData()[0]); //re-examine this
-        }
+    public void doUpdate() {
+        addValue(((DataDouble)meter.getData()).x); //re-examine this
+    }
         
-        private void updateStatistics() {
-            if(useMeterStatistics) {
-                vAvg = meter.average();
-                stdDev = Math.sqrt(meter.variance());
-            }
-            else {
-                vAvg = v2Avg = 0;
-                for (int n = 0; n < number; n++) {
-                    vAvg += values[n];
-                    v2Avg += values[n] * values[n];
-                }
-                stdDev = 0;
-                if (number > 0) {
-                    vAvg /= number;
-                    v2Avg /= number;
-                    stdDev = Math.sqrt(v2Avg - vAvg * vAvg);
-                }
-            }
+    private void updateStatistics() {
+        if(useMeterStatistics) {
+            vAvg = meter.average();
+            stdDev = Math.sqrt(meter.variance());
         }
-        
-        public void resetScale() {          
-            double min = +Double.MAX_VALUE;
-            double max = -Double.MAX_VALUE;
-            for(int i=0; i<values.length; i++) {
-                min = (values[i] < min) ? values[i] : min;
-                max = (values[i] > max) ? values[i] : max;
-            }
-            setVMin(min-1.1*stdDev);
-            setVMax(max+1.1*stdDev);
-        }
-        
-        public void paint(Graphics g) {doPaint(g);}
-        public void doPaint(Graphics osg) {
-
-            osg.setColor(bgColor);
-            osg.fillRect(0, 0, pixels, pixels);
-            updateStatistics();
-            int x = margin + (int) (number * xScale);
-            int y = margin + (int) ((vMax - vAvg) * yScale);
-            int dy = (int) (stdDev * yScale);
-            osg.setColor(Color.lightGray);
-            osg.fillRect(margin, y - dy, x - margin, 2 * dy);
-            osg.setColor(Color.magenta);
-            osg.drawLine(margin, y, x, y);
-
-            osg.setColor(Color.blue);
-            int xOld = 0;
-            int yOld = 0;
+        else {
+            vAvg = v2Avg = 0;
             for (int n = 0; n < number; n++) {
-                x = margin + (int) (n * xScale);
-                y = current - number + n;
-                if (y < 0)
-                    y += stepsToGraph;
-                y = margin + (int) ((vMax - values[y]) * yScale);
-                if (n == 0)
-                    osg.drawLine(x, y, x, y);
-                else osg.drawLine(xOld, yOld, x, y);
-                xOld = x;
-                yOld = y;
+                vAvg += values[n];
+                v2Avg += values[n] * values[n];
             }
-
-            x = margin;
-            if (tickValues != null) {
-                for (int tick = 0; tick < ticks; tick++) {
-                    y = margin + (int) ((vMax - tickValues[tick]) * yScale);
-                    osg.setColor(Color.cyan);
-                    osg.drawLine(margin, y, pixels - margin, y);
-                    y += margin / 2;
-                    osg.setColor(Color.black);
-                    osg.drawString("" + tickValues[tick], x, y);
-                }
+            stdDev = 0;
+            if (number > 0) {
+                vAvg /= number;
+                v2Avg /= number;
+                stdDev = Math.sqrt(v2Avg - vAvg * vAvg);
             }
-            osg.setColor(Color.red);
-            osg.drawString(legend, pixels / 4, pixels - margin / 2);
         }
+    }
+    
+    public void resetScale() {          
+        double min = +Double.MAX_VALUE;
+        double max = -Double.MAX_VALUE;
+        for(int i=0; i<values.length; i++) {
+            min = (values[i] < min) ? values[i] : min;
+            max = (values[i] > max) ? values[i] : max;
+        }
+        setVMin(min-1.1*stdDev);
+        setVMax(max+1.1*stdDev);
+    }
+    
+    public void paint(Graphics g) {doPaint(g);}
+    public void doPaint(Graphics osg) {
+
+        osg.setColor(bgColor);
+        osg.fillRect(0, 0, pixels, pixels);
+        updateStatistics();
+        int x = margin + (int) (number * xScale);
+        int y = margin + (int) ((vMax - vAvg) * yScale);
+        int dy = (int) (stdDev * yScale);
+        osg.setColor(Color.lightGray);
+        osg.fillRect(margin, y - dy, x - margin, 2 * dy);
+        osg.setColor(Color.magenta);
+        osg.drawLine(margin, y, x, y);
+
+        osg.setColor(Color.blue);
+        int xOld = 0;
+        int yOld = 0;
+        for (int n = 0; n < number; n++) {
+            x = margin + (int) (n * xScale);
+            y = current - number + n;
+            if (y < 0)
+                y += stepsToGraph;
+            y = margin + (int) ((vMax - values[y]) * yScale);
+            if (n == 0)
+                osg.drawLine(x, y, x, y);
+            else osg.drawLine(xOld, yOld, x, y);
+            xOld = x;
+            yOld = y;
+        }
+
+        x = margin;
+        if (tickValues != null) {
+            for (int tick = 0; tick < ticks; tick++) {
+                y = margin + (int) ((vMax - tickValues[tick]) * yScale);
+                osg.setColor(Color.cyan);
+                osg.drawLine(margin, y, pixels - margin, y);
+                y += margin / 2;
+                osg.setColor(Color.black);
+                osg.drawString("" + tickValues[tick], x, y);
+            }
+        }
+        osg.setColor(Color.red);
+        osg.drawString(legend, pixels / 4, pixels - margin / 2);
+    }
 
     public void setNTicks(int n) {
         ticks = n;
