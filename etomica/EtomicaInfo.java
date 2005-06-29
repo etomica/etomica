@@ -25,6 +25,26 @@ public class EtomicaInfo {
 		.add( "DESCRIPTION", description )
 		.add( "SHORT_DESCRIPTION", getShortDescription() );
 	}
+	
+	public static EtomicaInfo getInfo( Class myclass )
+	{
+		etomica.EtomicaInfo info = null;
+		if ( !etomica.EtomicaElement.class.isAssignableFrom( myclass ))
+			return new EtomicaInfo( myclass.getName() );
+		
+        try {
+            java.lang.reflect.Method method = myclass.getMethod("getEtomicaInfo",null);
+            if ( method==null )
+            	return new EtomicaInfo( myclass.getName() );
+            info = (etomica.EtomicaInfo)method.invoke(myclass, null);
+        }
+        catch ( Exception se ) {
+        	System.out.println("Exception retrieving info for class " + myclass.getName()+ ": " + se.getLocalizedMessage() );
+        	return new EtomicaInfo( myclass.getName() );
+        }
+        return info;
+	}
+	
     protected static final int SHORT_DESCRIPTION_LENGTH = 50;
     
     /** The need for a short text to put on pull down menus made it necessary to add this function. By default
