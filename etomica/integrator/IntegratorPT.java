@@ -309,19 +309,18 @@ public static class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap
 
 //----------------- inner class ------------------------------
 
-/**
- * Meter that tracks the swapping of the phases in parallel-tempering
- * simulation.  Designed for input to a DisplayPlot to provide a graphical
- * record of how the phases swap configurations.
- */
-    public class PhaseTracker implements DataSource, MCMoveListener {
+    /**
+     * Meter that tracks the swapping of the phases in parallel-tempering
+     * simulation.  Designed for input to a DisplayPlot to provide a graphical
+     * record of how the phases swap configurations.
+     */
+    public static class PhaseTracker implements DataSource, MCMoveListener {
         
         private int[] track;
         private double[] dtrack;
         private DataDoubleArray data;
         
         public PhaseTracker() {
-            IntegratorPT.this.addMCMoveListener(this);
             data = new DataDoubleArray(new DataInfo("Phase Tracker", Dimension.NULL));
         }
         
@@ -343,9 +342,6 @@ public static class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap
             track[i0] = track[i1];
             track[i1] = temp;
         }
-        
-        public Dimension getXDimension() {return Dimension.NULL;}
-        public Dimension getDimension() {return Dimension.NULL;}
         
         /**
          * Specifies the number of phases that are tracked.
