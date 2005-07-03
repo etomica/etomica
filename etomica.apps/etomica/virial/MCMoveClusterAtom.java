@@ -1,9 +1,3 @@
-/*
- * Created on Sep 10, 2004
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
 package etomica.virial;
 
 import etomica.Phase;
@@ -14,6 +8,11 @@ import etomica.integrator.mcmove.MCMoveAtom;
 /**
  *  Overrides MCMoveAtom to prevent index-0 molecule from being displaced
  */
+
+/*
+ * Created on Sep 10, 2004
+ */
+
 public class MCMoveClusterAtom extends MCMoveAtom implements MCMoveCluster {
 	private MeterClusterWeight weightMeter;
 	public MCMoveClusterAtom(PotentialMaster potentialMaster) {

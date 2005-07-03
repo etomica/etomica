@@ -38,7 +38,7 @@ public class PotentialCalculationAgents extends PotentialCalculation {
 	/**
      * Takes the first pair given by the iterator and adds the potentials
      * to the atoms' NeighborManagerAgents. Performs no action if
-     * the order of the iterator is not exactly 2. The given potential should be
+     * the order of the iterator is not 1 or 2. The given potential should be
      * a concrete potential, not a potential group (this method is called by the
      * 3-argument PotentialCalculation.doCalculation method after screening out
      * PotentialGroup instances, so this requirement should be met
