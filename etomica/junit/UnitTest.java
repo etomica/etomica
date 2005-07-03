@@ -20,7 +20,8 @@ import etomica.atom.iterator.AtomIteratorTree;
 import etomica.space3d.Space3D;
 
 /**
- * Contains some convenience methods and fields useful for implementing unit tests.
+ * Contains some convenience methods and fields useful for implementing unit
+ * tests.
  * 
  * @author David Kofke
  *  
@@ -34,7 +35,7 @@ public class UnitTest {
     public static boolean VERBOSE = false;
 
     /**
-     *  Private to prevent instantiation
+     * Private to prevent instantiation
      */
     private UnitTest() {
         super();
@@ -60,7 +61,9 @@ public class UnitTest {
      * @param n2
      *            number of atoms of species2 in each phase
      * @param n2A
-     *            tree specification of species 2
+     *            tree specification of species 2, e.g., {2,4} indicates that
+     *            each molecule has 2 subgroups, each with 4 atoms (such as
+     *            CH3-CH3)
      * @return root of species hierarchy
      */
 
@@ -107,7 +110,7 @@ public class UnitTest {
      * <li>Then with nAtoms = {{2,1,4},{2,3}}, a speciesA molecule will contain
      * 2+1+4 = 7 atoms, with 2 of type-a, 1 of type-b, and 4 of type-c, and a
      * speciesB molecule will contain 2+3 = 5 atoms, with 2 of type-d and 3 of
-     * type-e.  All types are different instance of AtomTypeSphere.
+     * type-e. All types are different instance of AtomTypeSphere.
      * </ul>
      * 
      * @param nMolecules
@@ -126,14 +129,15 @@ public class UnitTest {
         Space space = new Space3D();
         Simulation sim = new Simulation(space, new PotentialMaster(space),
                 new int[] { 1, 4, 4, 11, 6, 3, 3 });
-//        new SpeciesSpheres(sim);
+        //        new SpeciesSpheres(sim);
         for (int i = 0; i < nMolecules.length; i++) {
             AtomTypeGroup agentType = Species.makeAgentType(sim);
             AtomFactoryHetero factory = new AtomFactoryHetero(space,
                     AtomSequencerFactory.SIMPLE, agentType);
             AtomFactory[] childFactories = new AtomFactory[nAtoms[i].length];
             for (int j = 0; j < childFactories.length; j++) {
-                AtomTypeLeaf atomType = new AtomTypeSphere((AtomTypeGroup)factory.getType());
+                AtomTypeLeaf atomType = new AtomTypeSphere(
+                        (AtomTypeGroup) factory.getType());
                 childFactories[j] = new AtomFactoryMono(space, atomType,
                         AtomSequencerFactory.SIMPLE);
             }

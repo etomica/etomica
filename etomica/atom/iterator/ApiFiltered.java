@@ -16,7 +16,7 @@ import etomica.atom.AtomPairFilter;
 import etomica.atom.AtomPairVector;
 
 /**
- * Wraps an AtomIterator and filters its iterates so that
+ * Wraps an AtomPairIterator and filters its iterates so that
  * only those meeting specified criteria are returned.
  */
 
@@ -26,8 +26,6 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
 	/**
 	 * Returns the iterates of the given iterator that meet
 	 * the critertia of the given filter.
-	 * @param iterator
-	 * @param filter
 	 */
 	public ApiFiltered(AtomPairIterator iterator, AtomPairFilter filter) {
 		this.iterator = iterator;
@@ -39,9 +37,13 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
 	
 	/**
 	 * Returns true if the iterator contains the given atom and
-	 * atom meets the filter's criteria.
+	 * atom meets the filter's criteria.  Returns false if the 
+     * argument is null, or is not an instance of AtomPair.
 	 */
 	public boolean contains(AtomSet pair) {
+        if(!(pair instanceof AtomPair)) {
+            return false;
+        }
 		return filter.accept((AtomPair)pair) && iterator.contains(pair);
 	}
 	
@@ -92,6 +94,9 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
         return nextAtoms;
 	}
 	
+    /**
+     * Returns the next pair and advances the iterator.
+     */
     public AtomPair nextPair() {
         next.copyTo(nextAtoms);
         hasNext = false;
@@ -106,14 +111,14 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
     }
     
 	/**
-	 * Returns next atom without advancing the iterator.
+	 * Returns next pair without advancing the iterator.
 	 */
 	public AtomSet peek() {
 		return next;
 	}
 
 	/**
-	 * Performs the given action on all atoms from iterator that 
+	 * Performs the given action on all pairs from iterator that 
 	 * meet the filter criteria.
 	 */
 	public void allAtoms(AtomsetAction action) {
@@ -131,14 +136,23 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
 		return counter.callCount();
 	}
 	
+    /**
+     * Returns 2, indicating that this is a pair iterator.
+     */
 	public final int nBody() {
-		return iterator.nBody();
+	    return 2;
 	}
 	
+    /**
+     * Passes call on to wrapped iterator and returns value.
+     */
 	public int basisSize() {
         return ((AtomsetIteratorBasisDependent)iterator).basisSize();
     }
     
+    /**
+     * Passes call on to wrapped iterator, if it implements AtomsetIteratorBasisDependent.
+     */
     public void setBasis(AtomSet atoms) {
         ((AtomsetIteratorBasisDependent)iterator).setBasis(atoms);
         if (atoms instanceof AtomPairVector) {
@@ -146,6 +160,9 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
         }
     }
     
+    /**
+     * Passes call on to wrapped iterator and returns value.
+     */
     public boolean haveTarget(AtomSet target) {
         return ((AtomsetIteratorBasisDependent)iterator).haveTarget(target);
     }
@@ -157,11 +174,18 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
 		return iterator;
 	}
 	
+    /**
+     * Passes call on to wrapped iterator, if it implements AtomsetIteratorDirectable.
+     */
 	public void setDirection(Direction direction) {
 		if (iterator instanceof AtomsetIteratorDirectable) {
 		    ((AtomsetIteratorDirectable)iterator).setDirection(direction);
         }
 	}
+    
+    /**
+     * Passes call on to wrapped iterator, if it implements AtomsetIteratorTargetable.
+     */
 	public void setTarget(AtomSet targetAtoms) {
         if (iterator instanceof AtomsetIteratorTargetable) {
             ((AtomsetIteratorTargetable)iterator).setTarget(targetAtoms);

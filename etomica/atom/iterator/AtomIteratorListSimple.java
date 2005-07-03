@@ -67,7 +67,8 @@ public final class AtomIteratorListSimple extends AtomIteratorAdapter implements
      * otherwise.
      */
     public boolean contains(AtomSet atom) {
-        return list.contains((Atom) atom);
+        if(atom == null) return false;
+        return list.contains(atom.getAtom(0));
     }
 
     public void allAtoms(AtomsetAction action) {

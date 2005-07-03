@@ -12,15 +12,19 @@ import etomica.atom.AtomsetArray;
  * from one basis, and 1 atom from the other. Basis may be same or different
  * from each other. Atoms specified by basis and target are largely as defined
  * in AtomIteratorBasis, but with some differences. Unlike AtomIteratorBasis, no
- * iterate atom is indicated if target doesn't specify it, so (1) target atom
- * set must include at least two atoms (anything less throws an exception); (2)
- * more than two target atoms can be specified, but they must consistently point
- * to exactly two iterate atoms; and (3) presence of any target atom that
+ * iterate atom is indicated if target doesn't specify it, so 
+ * <ul>
+ * <li>target atom
+ * set must include at least two atoms (anything less throws an exception); 
+ * <li>more than two target atoms can be specified, but they must consistently point
+ * to exactly two iterate atoms; and 
+ * <li>presence of any target atom that
  * doesn't indicate an atom for the current basis causes iterator to yield no
  * iterates (this contrasts with AtomIteratorBasis, for which a target atom
- * could be in hierarchy above the basis atom). <br>
+ * could be in hierarchy above the basis atom). 
+ * </ul>
  * Expected use of this class is inside another iterator that directs targets of
- * fewer than two atoms to 1A or AA iterators. <br>
+ * fewer than two atoms to 1A or AA iterators. <p>
  * Rules for determining atoms in iterate pair are as follows.
  * <ul>
  * <li>The basis locates the candidate atoms, with each atom in the iterate

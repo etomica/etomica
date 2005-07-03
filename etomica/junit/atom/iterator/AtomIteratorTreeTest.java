@@ -56,7 +56,7 @@ public class AtomIteratorTreeTest extends IteratorTest {
         iterationRoot = root;
         treeIterator.setDoAllNodes(true);
         list = testOneIterate(0, iterationRoot, iterationRoot);
-        testNoIterates(null);
+        testNoIterates((Atom)null);
         list = testArrayIterates(1, iterationRoot, new Atom[] {iterationRoot, speciesMaster});
         list = testArrayIterates(2, iterationRoot, new Atom[] {iterationRoot, speciesMaster, speciesAgent0, speciesAgent1, speciesAgent2});
         list = testIterateCount(3, iterationRoot, 1+1+3+n0a+n1a+n2a);
@@ -64,11 +64,11 @@ public class AtomIteratorTreeTest extends IteratorTest {
         list = testIterateCount(5, iterationRoot, 1+1+3+n0a*(1+nAtoms)+n1a+n2a*(1+nTree[0]*(1+nTree[1])));
         list = testIterateCount(6, iterationRoot, 1+1+3+n0a*(1+nAtoms)+n1a+n2a*(1+nTree[0]*(1+nTree[1]*(1+nTree[2]))));
         list = testIterateCount(100, iterationRoot, 1+1+3+n0a*(1+nAtoms)+n1a+n2a*(1+nTree[0]*(1+nTree[1]*(1+nTree[2]))));
-        testNoIterates(null);
+        testNoIterates((Atom)null);
 
         treeIterator.setDoAllNodes(false);
         list = testOneIterate(0, iterationRoot, iterationRoot);
-        testNoIterates(null);
+        testNoIterates((Atom)null);
         list = testOneIterate(1, iterationRoot, speciesMaster);
         list = testArrayIterates(2, iterationRoot, new Atom[] {speciesAgent0, speciesAgent1, speciesAgent2});
         list = testIterateCount(3, iterationRoot, n0a+n1a+n2a);
@@ -76,13 +76,13 @@ public class AtomIteratorTreeTest extends IteratorTest {
         list = testIterateCount(5, iterationRoot, n0a*nAtoms+n1a+n2a*nTree[0]*(nTree[1]));
         list = testIterateCount(6, iterationRoot, n0a*nAtoms+n1a+n2a*nTree[0]*nTree[1]*nTree[2]);
         list = testIterateCount(100, iterationRoot, n0a*nAtoms+n1a+n2a*nTree[0]*nTree[1]*nTree[2]);
-        testNoIterates(null);
+        testNoIterates((Atom)null);
 
         //test iteration over different depths, starting at a species agent
         iterationRoot = speciesAgent2;
         treeIterator.setDoAllNodes(true);
         list = testOneIterate(0, iterationRoot, iterationRoot);
-        testNoIterates(null);
+        testNoIterates((Atom)null);
         AtomList testList = new AtomList(((AtomTreeNodeGroup)speciesAgent2.node).childList);
         testList.addFirst(iterationRoot);
         list = testListIterates(1, iterationRoot, testList);
@@ -90,18 +90,18 @@ public class AtomIteratorTreeTest extends IteratorTest {
         list = testIterateCount(3, iterationRoot, 1+n2a*(1+nTree[0]*(1+nTree[1])));
         list = testIterateCount(4, iterationRoot, 1+n2a*(1+nTree[0]*(1+nTree[1]*(1+nTree[2]))));
         list = testIterateCount(100, iterationRoot, 1+n2a*(1+nTree[0]*(1+nTree[1]*(1+nTree[2]))));
-        testNoIterates(null);
+        testNoIterates((Atom)null);
 
         treeIterator.setDoAllNodes(false);
         list = testOneIterate(0, iterationRoot, iterationRoot);
-        testNoIterates(null);
+        testNoIterates((Atom)null);
         testList = ((AtomTreeNodeGroup)speciesAgent2.node).childList;
         list = testListIterates(1, iterationRoot, testList);
         list = testIterateCount(2, iterationRoot, n2a*nTree[0]);
         list = testIterateCount(3, iterationRoot, n2a*nTree[0]*(nTree[1]));
         list = testIterateCount(4, iterationRoot, n2a*nTree[0]*nTree[1]*nTree[2]);
         list = testIterateCount(100, iterationRoot, n2a*nTree[0]*nTree[1]*nTree[2]);
-        testNoIterates(null);
+        testNoIterates((Atom)null);
         
         count = 1 + 1 + 3 + n0a*(1 + nAtoms) + n1a*(1) 
         + n2a*(1 + nTree[0]*(1 + nTree[1]*(1 + nTree[2])));
@@ -156,7 +156,7 @@ public class AtomIteratorTreeTest extends IteratorTest {
         assertEquals(list, list1);
 
         
-        testNoIterates(null);
+        testNoIterates((Atom)null);
     }
     
     private LinkedList testIterateCount(int depth, Atom root, int count) {

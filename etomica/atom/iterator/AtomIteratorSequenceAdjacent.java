@@ -41,6 +41,7 @@ public class AtomIteratorSequenceAdjacent implements AtomIteratorAtomDependent, 
     public boolean contains(AtomSet atom) {
         if(atom == null || atom.count() != 1) return false;
         Atom testAtom = atom.getAtom(0);
+        if(testAtom == null) return false;
         if(direction != IteratorDirective.DOWN && (atomSeq.next.atom == testAtom)) {
             return true;
         }

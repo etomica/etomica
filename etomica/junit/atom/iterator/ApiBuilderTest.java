@@ -4,10 +4,8 @@ import java.util.LinkedList;
 
 import etomica.Atom;
 import etomica.AtomPair;
-import etomica.AtomPairIterator;
 import etomica.AtomSet;
 import etomica.AtomTreeNodeGroup;
-import etomica.AtomsetIterator;
 import etomica.IteratorDirective;
 import etomica.SpeciesRoot;
 import etomica.atom.iterator.ApiBuilder;
@@ -63,15 +61,15 @@ public class ApiBuilderTest extends IteratorTest {
         //target matches basis, no direction, two iterates
         api.setDirection(null);
         api.setTarget(target);
-        testIterates(api, target, upNon, dnNon);
+        testApiIterates(api, target, upNon, dnNon);
 
         //target matches basis, up, one iterate
         api.setDirection(UP);
-        testIterates(api, target, upNon);
+        testApiIterates(api, target, upNon);
         
         //target matches basis, down, one iterate
         api.setDirection(DOWN);
-        testIterates(api, target, dnNon);
+        testApiIterates(api, target, dnNon);
         
         //target doesn't match basis, no iterates
         api.setTarget(targetFirst);
@@ -115,15 +113,15 @@ public class ApiBuilderTest extends IteratorTest {
         //target matches basis, no direction, two iterates
         api.setDirection(null);
         api.setTarget(target);
-        testTwoIterates(api, new AtomPair(target, up2), new AtomPair(target, dn));
+        testApiTwoIterates(api, new AtomPair(target, up2), new AtomPair(target, dn));
 
         //target matches basis, up, one iterate
         api.setDirection(UP);
-        testOneIterate(api, new AtomPair(target, up2));
+        testApiOneIterate(api, new AtomPair(target, up2));
         
         //target matches basis, down, one iterate
         api.setDirection(DOWN);
-        testOneIterate(api, new AtomPair(target, dn));
+        testApiOneIterate(api, new AtomPair(target, dn));
         
         //target doesn't match basis, no iterates
         api.setTarget(targetFirst);
@@ -292,12 +290,12 @@ public class ApiBuilderTest extends IteratorTest {
         //target, no direction, two iterates
         api.setDirection(null);
         api.setTarget(target);
-        testTwoIterates(api, new AtomPair(iterate, up), new AtomPair(iterate, dn));
+        testApiTwoIterates(api, new AtomPair(iterate, up), new AtomPair(iterate, dn));
         
         //first in list, no direction, one iterate
         api.setDirection(null);
         api.setTarget(targetFirst);
-        testOneIterate(api, new AtomPair(iterateFirst, upFirst));
+        testApiOneIterate(api, new AtomPair(iterateFirst, upFirst));
         
         //first in list, down, no iterates
         api.setDirection(DOWN);
@@ -307,12 +305,12 @@ public class ApiBuilderTest extends IteratorTest {
         //last in list, down, one iterate
         api.setDirection(DOWN);
         api.setTarget(targetLast);
-        testOneIterate(api, new AtomPair(iterateLast, dnLast));
+        testApiOneIterate(api, new AtomPair(iterateLast, dnLast));
 
         //last in list, no direction, one iterate
         api.setDirection(null);
         api.setTarget(targetLast);
-        testOneIterate(api, new AtomPair(iterateLast, dnLast));
+        testApiOneIterate(api, new AtomPair(iterateLast, dnLast));
         
         //last in list, up, no iterates
         api.setDirection(UP);
@@ -322,18 +320,18 @@ public class ApiBuilderTest extends IteratorTest {
         //first in list, up, one iterate
         api.setDirection(UP);
         api.setTarget(targetFirst);
-        testOneIterate(api, new AtomPair(iterateFirst, upFirst));
+        testApiOneIterate(api, new AtomPair(iterateFirst, upFirst));
 
 
         //target, up, one iterate
         api.setDirection(UP);
         api.setTarget(target);
-        testOneIterate(api, new AtomPair(iterate, up));
+        testApiOneIterate(api, new AtomPair(iterate, up));
 
         //target, down, one iterate
         api.setDirection(DOWN);
         api.setTarget(target);
-        testOneIterate(api, new AtomPair(iterate, dn));
+        testApiOneIterate(api, new AtomPair(iterate, dn));
 
         //no target, n-1 iterates
         api.setTarget(AtomSet.NULL);
@@ -379,12 +377,12 @@ public class ApiBuilderTest extends IteratorTest {
         //target, no direction, two iterates
         api.setDirection(null);
         api.setTarget(target);
-        testIterates(api, iterate, up, dn);
+        testApiIterates(api, iterate, up, dn);
         
         //first in list, no direction, one iterate
         api.setDirection(null);
         api.setTarget(targetFirst);
-        testIterates(api, iterateFirst, upFirst);
+        testApiIterates(api, iterateFirst, upFirst);
         
         //first in list, down, no iterates
         api.setDirection(DOWN);
@@ -394,12 +392,12 @@ public class ApiBuilderTest extends IteratorTest {
         //last in list, down, one iterate
         api.setDirection(DOWN);
         api.setTarget(targetLast);
-        testIterates(api, iterateLast, dnLast);
+        testApiIterates(api, iterateLast, dnLast);
 
         //last in list, no direction, one iterate
         api.setDirection(null);
         api.setTarget(targetLast);
-        testIterates(api, iterateLast, dnLast);
+        testApiIterates(api, iterateLast, dnLast);
         
         //last in list, up, no iterates
         api.setDirection(UP);
@@ -409,18 +407,18 @@ public class ApiBuilderTest extends IteratorTest {
         //first in list, up, one iterate
         api.setDirection(UP);
         api.setTarget(targetFirst);
-        testIterates(api, iterateFirst, upFirst);
+        testApiIterates(api, iterateFirst, upFirst);
 
 
         //target, up, one iterate
         api.setDirection(UP);
         api.setTarget(target);
-        testIterates(api, iterate, up);
+        testApiIterates(api, iterate, up);
 
         //target, down, one iterate
         api.setDirection(DOWN);
         api.setTarget(target);
-        testIterates(api, iterate, dn);
+        testApiIterates(api, iterate, dn);
 
         //no target, (2(n-2) + (n-2)*(n-3))/2 iterates
         //(first and last have n-2, the other n-2 have n-3)
@@ -441,88 +439,6 @@ public class ApiBuilderTest extends IteratorTest {
         testNoIterates(api);
     }
 
-    /**
-     * Tests that iterates given by iterate match a specified list, for
-     * iteration uplist and then dnlist
-     * @param iterator the conditioned iterate
-     * @param iterate the atom0 expected in all pair iterates
-     * @param up array of atom1 expected in the uplist pair iterates
-     * @param dn array of atom1 expected in the dnlist pair iterates
-     * @return the Lister list of iterates
-     */
-    private LinkedList testIterates(AtomPairIterator iterator, Atom iterate,
-            Atom[] up, Atom[] dn) {
-        LinkedList list = generalIteratorMethodTests(iterator);
-        Lister test = new Lister();
-        for(int i=0; i<up.length; i++) {
-            test.actionPerformed(new AtomPair(iterate, up[i]));
-        }
-        for(int i=0; i<dn.length; i++) {
-            test.actionPerformed(new AtomPair(iterate, dn[i]));
-        }
-        assertEquals(list, test.list);
-        return list;
-    }
-
-    /**
-     * Tests that iterates given by iterate match a specified list, for
-     * iteration uplist or dnlist (not both)
-     * @param iterator the conditioned iterate
-     * @param iterate the atom0 expected in all pair iterates
-     * @param partners array of atom1 expected in the pair iterates
-     * @return the Lister list of iterates
-     */
-    private LinkedList testIterates(AtomPairIterator iterator, Atom iterate,
-            Atom[] partners) {
-        LinkedList list = generalIteratorMethodTests(iterator);
-        Lister test = new Lister();
-        for(int i=0; i<partners.length; i++) {
-            test.actionPerformed(new AtomPair(iterate, partners[i]));
-        }
-        assertEquals(list, test.list);
-        return list;
-    }
-
-    /**
-     * Tests that iterator gives two particular iterates
-     */
-    private LinkedList testTwoIterates(AtomPairIterator iterator, AtomPair pair0, AtomPair pair1) {
-        if(pair0.atom1 == null && pair1.atom1 == null) {
-            testNoIterates(iterator);
-            return new LinkedList();
-        }
-        LinkedList list = generalIteratorMethodTests(iterator);
-        Lister test = new Lister();
-        test.actionPerformed(pair0);
-        test.actionPerformed(pair1);
-        assertEquals(list, test.list);
-        return list;
-    }
-
-    /**
-     * Tests that iterator gives a single particular iterate.
-     */
-    private LinkedList testOneIterate(AtomPairIterator iterator, AtomPair pair) {
-        if(pair.atom1 == null) {
-            testNoIterates(iterator);
-            return new LinkedList();
-        }
-        LinkedList list = generalIteratorMethodTests(iterator);
-        Lister test = new Lister();
-        test.actionPerformed(pair);
-        assertEquals(list, test.list);
-        return list;
-    }
-
-    /**
-     * Tests that iterator gives no iterates
-     */
-    private void testNoIterates(AtomsetIterator iterator) {
-        LinkedList list = generalIteratorMethodTests(iterator);
-        assertEquals(list.size(), 0);
-    }
-
-    
     private AtomTreeNodeGroup rootNode;
     int n0a, nAtoms, n1a, n2a, n3a;
     int[] nTree;
