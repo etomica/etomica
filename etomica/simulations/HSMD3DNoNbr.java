@@ -13,7 +13,7 @@ import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P2HardSphere;
-import etomica.space.BoundaryTruncatedOctahedron;
+import etomica.space3d.BoundaryTruncatedOctahedron;
 
 public class HSMD3DNoNbr extends Simulation {
 
