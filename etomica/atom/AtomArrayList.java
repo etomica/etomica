@@ -284,17 +284,17 @@ import etomica.atom.iterator.AtomIteratorArrayList;
 	
 	    /**
 	     * Returns the element at the specified position in this list.
+         * Returns null if the given index is negative or is larger than the 
+         * number of elements in the list.  First index is 0.
 	     *
 	     * @param  index index of element to return.
 	     * @return the element at the specified position in this list.
-	     * @throws    IndexOutOfBoundsException if index is out of range (index
-	     * 		  < 0 || index >= size()).
 	     */
 	    public Atom get(int index) {
-	    	RangeCheck(index);
-	
-	    	return elementData[index];
-	    }
+	    	//RangeCheck(index);
+	    	    return (index < size && index >= 0) ? elementData[index] : null;
+                //TODO performance compare these approaches to getting element and handling out-of-bounds index
+        }
 	
 	    /**
 	     * Replaces the element at the specified position in this list with
@@ -480,6 +480,15 @@ import etomica.atom.iterator.AtomIteratorArrayList;
 	     public AtomIterator iterator() {
 	     	return new AtomIteratorArrayList(this);
 	     }
+         
+         public String toString() {
+             StringBuffer buffer = new StringBuffer();
+             for(int i=0; i<size; i++) {
+                 buffer.append(elementData[i].toString());
+                 buffer.append(" ");
+             }
+             return buffer.toString();
+         }
 	 
 	}
 
