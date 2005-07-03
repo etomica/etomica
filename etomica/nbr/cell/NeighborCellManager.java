@@ -95,7 +95,8 @@ public class NeighborCellManager implements PhaseCellManager {
     }
     
     /**
-     * Assigns cells to all molecules in the phase.
+     * Assigns cells to all interacting atoms in the phase.  Interacting atoms
+     * are those that have one or more potentials that act on them.  
      */
     public void assignCellAll() {
         atomIterator.reset();
