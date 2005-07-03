@@ -5,11 +5,10 @@ import etomica.DataInfo;
 
 
 /**
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- *
- * @author David Kofke
- *
+ * Data object encapsulating a single mutable value of type integer. <br>
+ * 
+ * @author Andrew Schultz and David Kofke
+ *  
  */
 
 /*
@@ -18,6 +17,9 @@ import etomica.DataInfo;
  */
 public class DataInteger extends Data implements DataNumeric {
 
+    /**
+     * Constructs a new instance with the given DataInfo.
+     */
     public DataInteger(DataInfo dataInfo) {
         super(dataInfo);
     }
@@ -38,10 +40,16 @@ public class DataInteger extends Data implements DataNumeric {
         return new DataInteger(this);
     }
 
+    /**
+     * Sets the encapsulated integer to the given value.
+     */
     public void E(Data y) {
         x = ((DataInteger)y).x;
     }
 
+    /**
+     * Sets the encapsulated integer to the given value.
+     */
     public void E(int y) {
         x = y;
     }
@@ -54,8 +62,12 @@ public class DataInteger extends Data implements DataNumeric {
         return data;
     }
 
+    /**
+     * Returns a string formed from the dataInfo label and the encapsulated integer.
+     */
     public String toString() {
         return dataInfo.getLabel() + " " + Integer.toString(x);
     }
+    
     public int x;
 }
