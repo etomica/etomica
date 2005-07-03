@@ -38,7 +38,7 @@ public class PolygonGeneral extends Polygon {
     //must override in subclass (until a general algorithm is implemented)
     public double getArea() {
         throw new MethodNotImplementedException(
-                "General formula for area not in place");
+                "General formula for area not implemented");
     }
 
     /**
@@ -47,7 +47,7 @@ public class PolygonGeneral extends Polygon {
     //must override in subclass (until a general algorithm is implemented)
     public boolean contains(Vector vector) {
         throw new MethodNotImplementedException(
-                "General formula for 'contains' not in place");
+                "General formula for 'contains' not implemented");
     }
 
     public void updateVertices() {

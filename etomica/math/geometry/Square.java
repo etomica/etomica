@@ -25,14 +25,13 @@ public class Square extends Polygon {
      * Constructs a square with edge length having the given value.
      * @param size edge length of the cube
      */
-    //TODO enable 3D embedded space
     public Square(Space embeddedSpace, double size) {
         super(embeddedSpace, 4);
         setEdgeLength(size);
     }
 
     /**
-     * Returns size^2.
+     * Returns edgeLength^2.
      */
     public double getArea() {
         return edgeLength*edgeLength;

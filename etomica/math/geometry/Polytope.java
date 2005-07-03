@@ -27,7 +27,7 @@ import etomica.space.Vector;
  * @author kofke
  *  
  */
-public abstract class Polytope {
+public abstract class Polytope implements Shape {
 
     /**
      * Constructs a polytope of dimension D from the D-1 finite "planes" that
@@ -69,7 +69,7 @@ public abstract class Polytope {
      * by keeping the edge length), it should then invoke
      * applyTranslationRotation() before returning. Subclass methods allowing
      * mutation of the internal representation should invoke updateVertices to
-     * ensure the vertices are reflect the internal state. Vertices may be
+     * ensure the vertices reflect the internal state. Vertices may be
      * changed directly, but these changes will overridden by updateVertices if
      * it is called afterwards.
      */
@@ -84,6 +84,7 @@ public abstract class Polytope {
      * translation/rotation. NOTE: Rotation is not yet implemented.
      */
     protected void applyTranslationRotation() {
+        if(noTranslation) return;
         for (int i = 0; i < vertices.length; i++) {
             vertices[i].Ev1Pv2(position, vertices[i]);
         }
@@ -107,6 +108,7 @@ public abstract class Polytope {
      */
     public void setPosition(Vector r) {
         position.E(r);
+        noTranslation = position.isZero();
         updateVertices();
     }
 
@@ -185,6 +187,7 @@ public abstract class Polytope {
     protected final Vector[] vertices;
     protected final Vector position;
     protected final Polytope[] hyperPlanes;
+    private boolean noTranslation = true;
     //    protected final Orientation orientation;
 
 }
