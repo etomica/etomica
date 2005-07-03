@@ -28,12 +28,7 @@ import etomica.potential.Potential2;
 import etomica.potential.PotentialCalculation;
 
 /**
- * PotentialMaster used to implement neighbor listing.  Instance of this
- * class is given as an argument to the Simulation constructor.
- * Criteria specifying whether two atoms are neighbors for a particular potential
- * are specified in the setSpecies method of this class.  By default, cell assignment
- * uses position definition given by atom's type; this can be changed using
- * the setPositionDefinition method.
+ * 
  * <br>
  */
 public class PotentialMasterSite extends PotentialMaster {
