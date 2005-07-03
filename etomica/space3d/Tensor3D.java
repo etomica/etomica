@@ -16,6 +16,10 @@ public class Tensor3D implements Tensor {
     public Tensor3D (double[] d) {
         this.E(d);
     }
+    
+    public double[] toArray() {
+        return new double[] {xx, xy, xz, yx, yy, yz, zx, zy, zz};
+    }
 
     /**
      * Support of implementation of Cloneable interface. Returns a new Tensor

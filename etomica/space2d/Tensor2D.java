@@ -19,6 +19,12 @@ public class Tensor2D implements etomica.space.Tensor {
     public Tensor2D (double[] d) {
         this.E(d);
     }
+    
+    public double[] toArray() {
+        return new double[] {xx, xy, yx, yy};
+    }
+
+
 
     /**
      * Support of implementation of Cloneable interface. Returns a new Tensor

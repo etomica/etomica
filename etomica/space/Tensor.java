@@ -29,6 +29,7 @@ public interface Tensor extends Cloneable {
     public abstract void TE(double a);
     public abstract void TE(Tensor t);
     public abstract void DE(Tensor t);
+    public double[] toArray();
     public boolean isNaN();
     public void map(Function f);
     /**
