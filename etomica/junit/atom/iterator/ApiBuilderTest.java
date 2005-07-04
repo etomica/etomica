@@ -4,11 +4,11 @@ import java.util.LinkedList;
 
 import etomica.Atom;
 import etomica.AtomPair;
+import etomica.AtomPairIterator;
 import etomica.AtomSet;
 import etomica.AtomTreeNodeGroup;
 import etomica.AtomType;
 import etomica.AtomTypeGroup;
-import etomica.AtomsetIterator;
 import etomica.IteratorDirective;
 import etomica.SpeciesRoot;
 import etomica.atom.iterator.ApiBuilder;
@@ -599,67 +599,6 @@ public class ApiBuilderTest extends IteratorTest {
     }
 
     /**
-     * Used by nonAdjacentPairTests.
-     * Tests that iterates given by iterate match a specified list, for
-     * iteration uplist and then dnlist
-     * @param iterator the conditioned iterate
-     * @param iterate the atom0 expected in all pair iterates
-     * @param up array of atom1 expected in the uplist pair iterates
-     * @param dn array of atom1 expected in the dnlist pair iterates
-     * @return the Lister list of iterates
-     */
-    private LinkedList testIterates(AtomPairIterator iterator, Atom iterate,
-            Atom[] up, Atom[] dn) {
-        LinkedList list = generalIteratorMethodTests(iterator);
-        Lister test = new Lister();
-        for(int i=0; i<up.length; i++) {
-            test.actionPerformed(new AtomPair(iterate, up[i]));
-        }
-        for(int i=0; i<dn.length; i++) {
-            test.actionPerformed(new AtomPair(iterate, dn[i]));
-        }
-        assertEquals(list, test.list);
-        return list;
-    }
-
-    /**
-     * Used by nonAdjacentPairTests.
-     * Tests that iterates given by iterate match a specified list, for
-     * iteration uplist or dnlist (not both)
-     * @param iterator the conditioned iterate
-     * @param iterate the atom0 expected in all pair iterates
-     * @param partners array of atom1 expected in the pair iterates
-     * @return the Lister list of iterates
-     */
-    private LinkedList testIterates(AtomPairIterator iterator, Atom iterate,
-            Atom[] partners) {
-        LinkedList list = generalIteratorMethodTests(iterator);
-        Lister test = new Lister();
-        for(int i=0; i<partners.length; i++) {
-            test.actionPerformed(new AtomPair(iterate, partners[i]));
-        }
-        assertEquals(list, test.list);
-        return list;
-    }
-
-    /**
-     * Used by adjacentPairTests.
-     * Tests that iterator gives two particular iterates
-     */
-    private LinkedList testTwoIterates(AtomPairIterator iterator, AtomPair pair0, AtomPair pair1) {
-        if(pair0.atom1 == null && pair1.atom1 == null) {
-            testNoIterates(iterator);
-            return new LinkedList();
-        }
-        LinkedList list = generalIteratorMethodTests(iterator);
-        Lister test = new Lister();
-        test.actionPerformed(pair0);
-        test.actionPerformed(pair1);
-        assertEquals(list, test.list);
-        return list;
-    }
-
-    /**
      * Used by adjacentPairTests.
      * Tests that iterator gives a single particular iterate.
      */
@@ -674,15 +613,6 @@ public class ApiBuilderTest extends IteratorTest {
         assertEquals(list, test.list);
         return list;
     }
-
-    /**
-     * Tests that iterator gives no iterates
-     */
-    private void testNoIterates(AtomsetIterator iterator) {
-        LinkedList list = generalIteratorMethodTests(iterator);
-        assertEquals(list.size(), 0);
-    }
-
     
     private AtomTreeNodeGroup rootNode;
     int n0a, nAtoms, n1a, n2a, n3a;
