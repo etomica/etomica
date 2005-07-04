@@ -1,10 +1,10 @@
 package etomica;
 
 /**
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Event thrown by integrator when it announces reaching special points in the 
+ * simulation process, such as its beginning and end. 
  *
- * @author David Kofke
+ * @author David Kofke and Andrew Schultz
  *
  */
 

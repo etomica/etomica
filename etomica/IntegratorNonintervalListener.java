@@ -2,9 +2,9 @@ package etomica;
 
 
 /**
- * Interface for a class that listens for integrator events, typically
- * those other than interval event.
- *
+ * Interface for a class that listens for integrator events other than interval events.
+ * Non-interval events are thrown special points in the simulation, such as when it
+ * begins and ends.
  */
 
 /*

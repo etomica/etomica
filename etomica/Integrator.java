@@ -12,13 +12,13 @@ import etomica.utility.Arrays;
 import etomica.utility.NameMaker;
 
 /**
- * Integrator is used to define the algorithm used to move the atoms around and
- * generate new configurations in one or more phases. All integrator methods,
- * such as molecular dynamics or Monte Carlo are implemented via subclasses of
+ * Integrator implements the algorithm used to move the atoms around and
+ * generate new configurations in one or more phases. All integrator techniques,
+ * such as molecular dynamics or Monte Carlo, are implemented via subclasses of
  * this Integrator class. The Integrator's activities are managed via the
  * actions of the governing Controller.
  * 
- * @author David Kofke
+ * @author David Kofke and Andrew Schultz
  */
 
 public abstract class Integrator implements EtomicaElement {
@@ -110,7 +110,7 @@ public abstract class Integrator implements EtomicaElement {
     public void neighborsUpdated() {}
     
     /**
-      ;* Returns a new instance of an agent of this integrator for placement in
+     * Returns a new instance of an agent of this integrator for placement in
      * the given atom in the ia (IntegratorAgent) field.
      */
     public abstract Object makeAgent(Atom a);
@@ -128,6 +128,9 @@ public abstract class Integrator implements EtomicaElement {
         reset();
     }
     
+    /**
+     * Returns true if initialize method has been called.
+     */
     public boolean isInitialized() {
         return initialized;
     }
@@ -153,7 +156,7 @@ public abstract class Integrator implements EtomicaElement {
     }
 
     /**
-     * sets the temperature for this integrator
+     * Sets the temperature for this integrator
      */
     public void setTemperature(double t) {
         temperature = t;

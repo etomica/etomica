@@ -108,6 +108,11 @@ public class AtomIndexManager {
         return new AtomIndexManager(bitLength, 0, 0, 1);
     }
     
+    /**
+     * Special-use method to make index manager. Constructs an index manager 
+     * at the molecule depth, with typeIndex = 0, and ordinal of 1.  Called by
+     * AtomType constructor if parent type is null.
+     */
     public static AtomIndexManager makeSimpleIndexManager(int[] bitLength) {
         return new AtomIndexManager(bitLength, 3, 0, 1);
     }

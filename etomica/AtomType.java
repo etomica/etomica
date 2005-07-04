@@ -21,10 +21,10 @@ import etomica.utility.Arrays;
  * Each Atom has an instance variable named "type" that holds the AtomType
  * instance. <br>
  * AtomType instances are arranged in a hierarchy that parallels the species
- * hierarchy. The atomType of an atom group will be an instance of
+ * hierarchy. The AtomType of an atom group will be an instance of
  * AtomTypeGroup, and will have a set of child types that are the types of the
  * child atoms of the atom group. Whereas an atom group may have more than one
- * child of a given type, an AtomTypeGroup will have the atomType for those
+ * child of a given type, an AtomTypeGroup will have the AtomType for those
  * atoms represented only once.
  */
 
@@ -50,7 +50,7 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
     //    private Parameter.Electrostatic electroParameter;
 
     /**
-     * used only to create root type
+     * Used only to create root type.
      */
     AtomType(AtomIndexManager indexManager) {
         parentType = null;
@@ -107,14 +107,27 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
      */
     public abstract boolean isLeaf();
 
+    /**
+     * Returns the parent AtomType of this AtomType.
+     */
     public AtomType getParentType() {
         return parentType;
     }
 
+    /**
+     * Returns the index manager used to set and interpret the 
+     * index of an atom of this type.
+     */
     public AtomIndexManager getIndexManager() {
         return indexManager;
     }
 
+    /**
+     * Implementation of Comparable interface, based on type index value.  
+     * Returns -1, 0, 1 if getIndexManager().getTypeIndex() for this type
+     * is less, equal, or greater, respectively, than the corresponding 
+     * value for the given type.
+     */
     public int compareTo(Object atomType) {
         int otherIndex = ((AtomType) atomType).indexManager.getTypeIndex();
         int myIndex = indexManager.getTypeIndex();
@@ -127,7 +140,7 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
      * definition of the parent species of the atom. It is null for SpeciesRoot,
      * SpeciesMaster, and SpeciesAgent atoms.
      * 
-     * @return Returns the positionDefinition for an atom of this type.
+     * @return Returns the PositionDefinition for an atom of this type.
      */
     public AtomPositionDefinition getPositionDefinition() {
         return positionDefinition;
@@ -141,6 +154,10 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
         return indexManager.isDescendedFrom(type.indexManager);
     }
 
+    /**
+     * Method not yet implemented. Under developement
+     */
+    //TODO implement or remove the Parameter facility in AtomType
     protected void addGlobalParameter(Parameter.Source source) {
         Parameter[] newParameter = new Parameter[parameter.length + 1];
         for (int i = 0; i < parameter.length; i++)
@@ -169,6 +186,9 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
         return index;
     }
 
+    /**
+     * Returns the AtomFactory that creates an atom of this type.
+     */
     public AtomFactory creator() {
         return creator;
     }
@@ -204,10 +224,18 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
         return speciesIndex;
     }
 
+    /**
+     * Returns an object defined and used by the neighbor manager
+     * (if one is in effect) to implement its neighbor-list scheme. 
+     */
     public NeighborManagerAgent getNbrManagerAgent() {
         return neighborManagerAgent;
     }
 
+    /**
+     * Returns true if one or more potentials are defined to act
+     * on an atom of this type.
+     */
     public boolean isInteracting() {
         return neighborManagerAgent.getPotentials().length > 0;
     }

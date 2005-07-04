@@ -7,17 +7,32 @@ import etomica.space.ICoordinate;
 import etomica.utility.Arrays;
 
  /**
-  * Object corresponding to one physical atom or (in subclasses) group of atoms.
-  * Each atom holds one instance of a Coordinate that is constructed by the governing
-  * space class. 
-  * all simulation kinetics and dynamics are performed by operating on the atom's coordinate.
-  * In addition, an Atom has a type that holds information needed to draw the atom,
-  * and possibly information to be used as parameters in a potential.  Each atom
-  * holds an Integrator.Agent object that may be used to store information needed
-  * by the integrator.
+  * Object corresponding to one physical atom or group of atoms. Each atom holds
+  * the following publicly accessible fields:
+  * <ul>
+  * <li>a Coordinate instance (fieldname: coord) that is constructed by the
+  * governing space class; the coordinate stores information about the state of
+  * the atom -- usually its position and momentum, but other definitions are possible
+  * <li>an AtomType instance (fieldname: type) that holds information this atom
+  * has in common with other atoms made by the same factory
+  * <li>an instance of AtomTreeNode (fieldname: node) that is used to place it
+  * in the species hierarchy
+  * <li>an instance of AtomLinker (fieldname: seq, for sequencer) that places
+  * it in the linked list of children held by its parenttom holds an object
+  * <li>an object (fieldname: ia, for integrator agent) that may be used to
+  * store information needed by the integrator
+  * <li>an array of objects (field name: allAtomAgents) that can be used to
+  * store in each atom any object needed by another class; such a class must
+  * implement Atom.AgentSource and request its object be stored in every atom by
+  * invoking Atom.requestAgentIndex before any atoms are constructed. The
+  * integer returned by this method will indicate the location in the
+  * allAtomAgents array where the agent-source's object will be held.
+  * </ul>
+  * @author David Kofke and C. Daniel Barnes
   * 
-  * @author David Kofke
-  * @author C. Daniel Barnes
+  * @see Coordinate
+  * @see AtomType
+  * @see AtomTreeNode
   */
 public class Atom implements AtomSet, Comparable, java.io.Serializable {
 
@@ -46,37 +61,72 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
         node.setOrdinal(0,++INSTANCE_COUNT);//default index; changed when added to parent after construction
     }
     
+    /**
+     * Returns 1, indicating that this AtomSet is an Atom.
+     */
     public final int count() {return 1;}
     
+    /**
+     * Returns this if i==0, otherwise throws exception.
+     * 
+     * @throws IllegalArgumentException if i != 0
+     */
     public final Atom getAtom(int i) {
         if(i == 0 ) return this;
         throw new IllegalArgumentException();
     }
     
+    /**
+     * Returns true if the given object is this atom instance, or if it is
+     * a length-1 AtomSet holding this instance.
+     */
     public boolean equals(Object object) {
         if(!(object instanceof AtomSet) || ((AtomSet)object).count() != 1) return false;
         return this == ((AtomSet)object).getAtom(0);
     }
-    
+
+    /**
+     * Returns true if the given object is this atom instance, or if it is
+     * a length-1 AtomSet holding this instance.
+     */
     public final boolean equals(AtomSet atoms) {
         if (atoms == null || atoms.count() != 1) return false;
         return this == atoms.getAtom(0);
     }
-    
+
+    /**
+     * Returns true if this atom is in the same species as the given atom.
+     * 
+     * @throws NullPointerException
+     *             if the argument is null
+     */
     public boolean inSameSpecies(Atom atom) {
         return type.getIndexManager().sameSpecies(node.index(), atom.node.index());
     }
+    /**
+     * Returns true if this atom is in the same molecule as the given atom.
+     * 
+     * @throws NullPointerException
+     *             if the argument is null
+     */
     public boolean inSameMolecule(Atom atom) {
         return type.getIndexManager().sameMolecule(node.index(), atom.node.index());
     }
+    /**
+     * Returns true if this atoms is in the same phase as the given atom.
+     * 
+     * @throws NullPointerException
+     *             if the argument is null
+     */
     public boolean inSamePhase(Atom atom) {
         return type.getIndexManager().samePhase(node.index(), atom.node.index());
     }
     
     /**
      * Returns a string of digits that uniquely identifies this atom.  String is
-     * formed by concatenating the index of this atom to the signature
-     * given by the parent of this atom.
+     * formed by concatenating the ordinal of this atom to the signature
+     * given by the parent of this atom.  If atom has no parent, forms a string
+     * from only the ordinal.
      */
     public String signature() {
         if(node.parentGroup() != null) {
@@ -98,7 +148,6 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
     	else return "Group(" + signature() + ")";
     }    
 
-
     /**
      * Assigns the atom's integrator agent to the given instance.
      */
@@ -112,19 +161,33 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
     public int compareTo(Object atom) {
         return node.compareTo(((Atom)atom).node);
     }
+    
     /**
      * Coordinates of this atom.
      * When the atom is constructed the coordinate class is provided by the 
      * governing Space for the simulation.
      */
     public final ICoordinate coord;
-            
+    
+    /**
+     * Integrator agent, used by integrator to implement the simulation integration algorithm.
+     */
     public Object ia;//integrator agent
-                
+    
+    /**
+     * Tree node, used to place the atom in the species tree.
+     */
     public final AtomTreeNode node;
-        
+    
+    /**
+     * Atom type, holding properties held in common with other atoms made by this atom's
+     * factory.
+     */
     public final AtomType type;
     
+    /**
+     * Sequencer, used to access directly this atom's place in the childlist of its parent.
+     */
     public final AtomLinker seq;
     
     /**
@@ -134,9 +197,6 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      * source registers itself with Atom via the Atom.requestAgentIndex method, and
      * the integer returned with that call indicates the place in this array where
      * the source can find its agent in this atom.
-     * Differs from agents class in that all atoms get an instance of an agent if put
-     * in the allatomAgents array, while only atoms produced by a particular factory
-     * are given agents that are in the agents array.
      */
     public Object[] allatomAgents;
     

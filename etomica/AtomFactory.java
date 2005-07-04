@@ -6,7 +6,7 @@ import etomica.atom.AtomSequencerFactory;
  * Class responsible for building new instances of the atoms (or atom groups)
  * that are collected in a given AtomGroup.
  *
- * @author David Kofke
+ * @author David Kofke and Andrew Schultz
  */
  
 public abstract class AtomFactory {
@@ -27,7 +27,7 @@ public abstract class AtomFactory {
     }
     
     public AtomFactory(Space space, AtomType atomType, AtomSequencerFactory sequencerFactory) {
-    	this(space, atomType, sequencerFactory, AtomTreeNodeGroup.FACTORY);
+        this(space, atomType, sequencerFactory, AtomTreeNodeGroup.FACTORY);
     }
     
     public AtomFactory(Space space, AtomType atomType, AtomSequencerFactory sequencerFactory, AtomTreeNodeFactory nodeFactory) {
@@ -49,13 +49,11 @@ public abstract class AtomFactory {
      * Identifies the species for which this factory makes its atoms.
      * Should be invoked only in the species constructor, and by any
      * an atom factory on its child factories.
-     * @param species
      */
     public abstract void setSpecies(Species species);
     
     /**
      * Returns the species that is using this factory or its parent factory.
-     * @return
      */
     public Species getSpecies() {return atomType.getSpecies();}
         

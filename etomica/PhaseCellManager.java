@@ -3,10 +3,11 @@ package etomica;
 import etomica.lattice.CellLattice;
 
 /**
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Interface for class that handles assignment of atoms to cells in a phase.
+ * This facility is needed by neighbor-listing schemes, though it may find use for
+ * other purposes.
  *
- * @author David Kofke
+ * @author David Kofke and Andrew Schultz
  *
  */
 
@@ -16,6 +17,9 @@ import etomica.lattice.CellLattice;
  */
 public interface PhaseCellManager {
 
+    /**
+     * Returns the lattice that defines the cell arrangement.
+     */
     public CellLattice getLattice();
 
     /**
@@ -25,7 +29,6 @@ public interface PhaseCellManager {
 
     /**
      * Assigns the cell for the given atom.
-     * @param atom
      */
     public void assignCell(Atom atom);
 }
