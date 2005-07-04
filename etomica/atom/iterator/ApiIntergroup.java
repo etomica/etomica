@@ -31,15 +31,20 @@ public final class ApiIntergroup extends AtomPairIteratorAdapter implements
                 .getInnerIterator();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see etomica.AtomsetIteratorBasisDependent#setDirective(etomica.IteratorDirective)
+    /**
+     * @throws NullPointerException
+     *          if targetAtoms is null; use AtomSet.NULL instead
+     * @throws IllegalArgumentException
+     *          if targetAtoms.count() > 2
      */
     public void setTarget(AtomSet targetAtoms) {
         if (targetAtoms == null)
             throw new NullPointerException (
                     "Cannot set target to null; use AtomSet.NULL");
+        if (targetAtoms.count() > 2) {
+            throw new IllegalArgumentException(
+                    "Too many target atoms for iterator");
+        }
         this.targetAtoms = targetAtoms;
         needSetupIterators = true;
     }
@@ -58,8 +63,7 @@ public final class ApiIntergroup extends AtomPairIteratorAdapter implements
                     || (aiOuter.haveTarget(target1) && aiInner
                             .haveTarget(target0));
         default:
-            throw new IllegalArgumentException(
-                    "Too many target atoms for iterator");
+            return false;
         }
     }
 
@@ -104,7 +108,7 @@ public final class ApiIntergroup extends AtomPairIteratorAdapter implements
      * basis for the inner-loop iteration. In each case, if the basis atom is
      * not a leaf atom, its children will be the subject of iteration. If the
      * basis atom is a leaf, it will itself be the iterate. If given atomset is
-     * null, or if its length is not at least 2, iterator will give no iterates
+     * null, or if its length is not equal to 2, iterator will give no iterates
      * until a proper basis is specified via another call to this method.
      */
     public void setBasis(AtomSet basisAtoms) {
