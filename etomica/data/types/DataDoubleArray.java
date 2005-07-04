@@ -231,5 +231,5 @@ public class DataDoubleArray extends Data implements DataArithmetic {
         return dataInfo.getLabel() + " " + x.toString();
     }
 
-    private double[] x;
+    private double[] x = new double[0];
 }
