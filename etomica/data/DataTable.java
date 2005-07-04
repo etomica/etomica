@@ -119,6 +119,13 @@ public class DataTable implements DataBinManager {
         }
     }
     
+    //plan:  resignature method to dataChangeNotify(), move updatingOnAnyChange
+    //logic to DataBinManager.  dataChangeNotify checks for changes in row
+    //count and length (firing event if indicated), then firesDataChangedEvent
+    //DataPumpParallel transfers data from set of sources to corresponding
+    //set of sinks
+    //question: how to set up DataPumpParallel to notify DataTable 
+    
 //    public void parameterChangeNotify(DataBin bin) {
 //        int i = getColumnIndex(bin);
 //        if(i == -1) return;
