@@ -78,11 +78,13 @@ public class ActivityGroupSeries extends Activity {
 	    			completedActions = (Action[])Arrays.addObject(completedActions, currentAction);
 	    			currentAction = null;
 	    		}
-	    		if(exceptionThrown || pauseRequested || pauseAfterEachAction) doWait();
-	    		if(haltRequested) break;
-	    	}
-	    	synchronized(this) {
-	    		notifyAll();//notify any threads requesting halt and waiting for execution to complete
+	    		if(exceptionThrown || pauseAfterEachAction) {
+	    		    pauseRequested = true;
+             }
+             
+             if(!doContinue()) {
+                 break;
+             }
 	    	}
     }
             
@@ -126,9 +128,11 @@ public class ActivityGroupSeries extends Activity {
         if(!isActive()) return;
         haltRequested = true;
         if(currentAction instanceof Activity) ((Activity)currentAction).halt();
-        unPause();
         try {
-            wait();  //make thread requesting pause wait until halt is in effect
+            while(isActive()) {
+                unPause();
+                wait();  //make thread requesting pause wait until halt is in effect
+            }
         } catch(InterruptedException e) {}
     }
     

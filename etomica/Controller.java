@@ -79,7 +79,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                         synchronized(waitObject) {
                             //put group thread in wait state while current action runs
                             //need to check again that current action isn't done, to ensure that current-action thread didn't finish between while and here
-                            if(urgentAction == null && !waitObject.currentActionDone) {
+                            while(urgentAction == null && !waitObject.currentActionDone) {
                                 waitObject.wait();
                             }
 //                            System.out.println("done waiting for waitObject");
@@ -108,10 +108,18 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                 fireEvent(new ControllerEvent(this, ControllerEvent.END_ACTION, currentAction));
                 currentAction = null;
             }
+
             doUrgentAction();
-            if(pauseRequested || pauseAfterEachAction) doWait();
-            if(haltRequested) break;
-        }
+            
+            if(pauseAfterEachAction) {
+                pauseRequested = true;
+            }
+            
+            if(!doContinue()) {
+                break;
+            }
+
+        }//end while(numActions > 0)
         doUrgentAction();//could come straight here if doActionNow before adding other actions
         synchronized(this) {
             notifyAll();//notify any threads requesting halt and waiting for execution to complete
@@ -169,7 +177,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     }
     
     public synchronized boolean isActive() {
-    	return (runner != null) && runner.isAlive();
+    	    return (runner != null) && runner.isAlive();
     }
 
     public synchronized void addListener(ControllerListener listener) {
