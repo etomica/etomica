@@ -5,12 +5,20 @@ import java.util.LinkedList;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import etomica.Atom;
 import etomica.Default;
 import etomica.Integrator;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.SimulationContainer;
+import etomica.action.PhaseDeleteMolecules;
+import etomica.atom.AtomFilter;
+import etomica.atom.AtomPositionDefinition;
 import etomica.integrator.IntervalActionAdapter;
+import etomica.math.geometry.Plane;
+import etomica.math.geometry.Polyhedron;
+import etomica.space.Vector;
+import etomica.space3d.Vector3D;
 
 /**
  * General class for graphical presentation of the elements of a molecular simulation.
@@ -167,25 +175,65 @@ public class SimulationGraphic implements SimulationContainer {
      */
     public static void main(String[] args) {
         Default.DO_SLEEP = false;
+        Default.FIX_OVERLAP = true;
 //        etomica.simulations.SwMd2D sim = new etomica.simulations.SwMd2D();
 //        etomica.simulations.LjMd2D sim = new etomica.simulations.LjMd2D();
 //        etomica.simulations.HsMc2d sim = new etomica.simulations.HsMc2d();
 //          etomica.simulations.SWMD3D sim = new etomica.simulations.SWMD3D();
 //      etomica.simulations.HSMD3D sim = new etomica.simulations.HSMD3D();
+      final etomica.simulations.HSMD3DNoNbr sim = new etomica.simulations.HSMD3DNoNbr();
 //      etomica.simulations.ChainHSMD3D sim = new etomica.simulations.ChainHSMD3D();
-        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+//        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
 //        etomica.simulations.HSMD2D_atomNbr sim = new etomica.simulations.HSMD2D_atomNbr();
 //        etomica.simulations.HSMD2D_noNbr sim = new etomica.simulations.HSMD2D_noNbr();
 //        etomica.simulations.GEMCWithRotation sim = new etomica.simulations.GEMCWithRotation();
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
         DeviceNSelector nSelector = new DeviceNSelector(sim,sim.phase.getAgent(sim.species));
         simGraphic.add(nSelector);
+        
+//        AtomFilterInPolytope filter = new AtomFilterInPolytope(sim.phase.boundary().getShape());
+        MyFilter filter = new MyFilter((Polyhedron)sim.phase.boundary().getShape());
+        PhaseDeleteMolecules deleter = new PhaseDeleteMolecules(filter);
+        //positionDefinition shifts atom to same origin as polytope
+        AtomPositionDefinition position = new AtomPositionDefinition() {
+            public Vector position(Atom a) {
+                Vector3D r = (Vector3D)sim.phase.boundary().dimensions().clone();
+                r.TE(-0.5);
+                r.PE(a.coord.position());
+                return r;
+            }
+        };
+        deleter.setPhase(sim.phase);
+        filter.setPositionDefinition(position);
+        DeviceButton deleteButton = new DeviceButton(sim.getController(),deleter);
+        simGraphic.add(deleteButton);
         simGraphic.makeAndDisplayFrame();
         ColorSchemeByType.setColor(sim.species.getFactory().getType(), java.awt.Color.red);
 //        ColorSchemeByType.setColor(sim.species2, java.awt.Color.blue);
         simGraphic.panel().setBackground(java.awt.Color.yellow);
+        Plane plane = new Plane();
+        plane.setThreePoints(new Vector3D(1,1,1), new Vector3D(2,2,2), new Vector3D(4,5,1));
+        
     }//end of main
     
+    private static class MyFilter implements AtomFilter {
+        Polyhedron polyhedron;
+        AtomPositionDefinition positionDefinition;
+        public MyFilter(Polyhedron shape) {
+            this.polyhedron = shape;
+        }
+        public void setPositionDefinition(AtomPositionDefinition def) {
+            positionDefinition = def;
+        }
+        public boolean accept(Atom atom) {
+            Vector r = positionDefinition.position(atom);
+            if(!polyhedron.contains(r)) return false;
+            if(polyhedron.distanceTo(r) < 0.5) return false;
+            return true;
+            
+        }
+        
+    }
 }
 
 
