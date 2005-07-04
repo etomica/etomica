@@ -6,14 +6,18 @@ import etomica.Atom;
 import etomica.AtomPair;
 import etomica.AtomSet;
 import etomica.AtomTreeNodeGroup;
+import etomica.AtomType;
+import etomica.AtomTypeGroup;
+import etomica.AtomsetIterator;
 import etomica.IteratorDirective;
 import etomica.SpeciesRoot;
 import etomica.atom.iterator.ApiBuilder;
+import etomica.atom.iterator.ApiIntergroup;
 import etomica.atom.iterator.ApiIntragroup;
 import etomica.junit.UnitTest;
 
 /**
- * Tests the iterators made by the various methods in ApiBuilder.
+ * Tests the iterators made by the various static methods in ApiBuilder.
  * 
  * @author David Kofke
  *  
@@ -24,15 +28,16 @@ import etomica.junit.UnitTest;
  */
 public class ApiBuilderTest extends IteratorTest {
 
-    /**
-     *  
-     */
-    public ApiBuilderTest() {
+   public ApiBuilderTest() {
         super();
         UnitTest.VERBOSE = false;
     }
 
-    public void setUp() {
+   /**
+    * Setup used by adjacentPairIterator and nonAdjacentPairIterator tests.
+    *
+    */
+    public void setUpA() {
         n0a = 5;
         nAtoms = 10;
         n1a = 10;
@@ -48,6 +53,7 @@ public class ApiBuilderTest extends IteratorTest {
      * non-adjacent atoms are given in pairs with targeted iterate.
      */
     public void testNonAdjacentPairIterator() {
+        setUpA();
         ApiIntragroup api = ApiBuilder.makeNonAdjacentPairIterator();
 
         setup1();
@@ -88,7 +94,160 @@ public class ApiBuilderTest extends IteratorTest {
     }
     
     public void testIntergroupTypeIterator() {
-        //ApiIntergroup api makeIntergroupTypeIterator(AtomType[] types)
+        //make tree of two species
+        //species 0 has 5 molecules, each with 5 atoms, 3 of one type, 2 of another
+        //species 1 has 7 molecules, each with 11 atoms, 4 of one type, 1 of another, and 6 of another
+        //iterator must loop over pairs formed from molecules of each species
+        SpeciesRoot root = UnitTest.makeMultitypeSpeciesTree(new int[] {5,7}, 
+                new int[][] {{3,2},{4,1,6}});
+        rootNode = (AtomTreeNodeGroup)root.node;
+        AtomTypeGroup rootType = (AtomTypeGroup)root.type;
+        AtomType[] types = new AtomType[2];
+        AtomPair basisPair = new AtomPair();
+
+        //test 3-atom type and 4-atom type, no target
+        basisPair.atom0 = rootNode.getDescendant(new int[] {0,0,2});
+        basisPair.atom1 = rootNode.getDescendant(new int[] {0,1,1});
+        types[0] = rootType.getDescendant(new int[] {0,0,0,0});
+        types[1] = rootType.getDescendant(new int[] {0,1,0,0});
+        ApiIntergroup api = ApiBuilder.makeIntergroupTypeIterator(types);
+        api.setBasis(basisPair);
+        LinkedList list0 = generalIteratorMethodTests(api);
+        assertEquals(list0.size(), 12);
+        //test 3 and 4, one of the 3 given as target
+        Atom target0 = rootNode.getDescendant(new int[] {0,0,2,1});
+        api.setTarget(target0);
+        LinkedList list1 = generalIteratorMethodTests(api);
+        assertEquals(list1.size(), 4);
+        //test 3 and 4, one of the 4 given as target
+        Atom target1 = rootNode.getDescendant(new int[] {0,1,1,0});
+        api.setTarget(target1);
+        list1 = generalIteratorMethodTests(api);
+        assertEquals(list1.size(), 3);
+        //test 3 and 4, with targets in both
+        AtomPair pair = new AtomPair(target0, target1);
+        api.setTarget(pair);
+        testOneIterate(api, pair);
+        //order of target shouldn't matter
+        api.setTarget(new AtomPair(target1, target0));
+        testOneIterate(api, pair);
+        //give target that isn't the specified type
+        target0 = rootNode.getDescendant(new int[] {0,0,2,4});
+        api.setTarget(target0);
+        testNoIterates(api);
+        //again
+        target1 = rootNode.getDescendant(new int[] {0,1,1,10});
+        api.setTarget(target1);
+        testNoIterates(api);
+        //no targets again
+        api.setTarget(AtomSet.NULL);
+        list1 = generalIteratorMethodTests(api);
+        assertEquals(list0, list1);
+        
+        //same tests, but switch order of basis; nothing should give iterates
+        //test 3-atom type and 4-atom type, no target
+        basisPair.atom1 = rootNode.getDescendant(new int[] {0,0,2});
+        basisPair.atom0 = rootNode.getDescendant(new int[] {0,1,1});
+        types[0] = rootType.getDescendant(new int[] {0,0,0,0});
+        types[1] = rootType.getDescendant(new int[] {0,1,0,0});
+        api = ApiBuilder.makeIntergroupTypeIterator(types);
+        api.setBasis(basisPair);
+        testNoIterates(api);
+        //test 3 and 4, one of the 3 given as target
+        target0 = rootNode.getDescendant(new int[] {0,0,2,1});
+        api.setTarget(target0);
+        testNoIterates(api);
+        //test 3 and 4, one of the 4 given as target
+        target1 = rootNode.getDescendant(new int[] {0,1,1,0});
+        api.setTarget(target1);
+        testNoIterates(api);
+        //test 3 and 4, with targets in both
+        pair = new AtomPair(target0, target1);
+        api.setTarget(pair);
+        testNoIterates(api);
+
+        //same tests, but switch order of basis and switch order of types
+        //test 3-atom type and 4-atom type, no target
+        basisPair.atom1 = rootNode.getDescendant(new int[] {0,0,2});
+        basisPair.atom0 = rootNode.getDescendant(new int[] {0,1,1});
+        types[1] = rootType.getDescendant(new int[] {0,0,0,0});
+        types[0] = rootType.getDescendant(new int[] {0,1,0,0});
+        api = ApiBuilder.makeIntergroupTypeIterator(types);
+        api.setBasis(basisPair);
+        list0 = generalIteratorMethodTests(api);
+        assertEquals(list0.size(), 12);
+        //test 3 and 4, one of the 3 given as target
+        target0 = rootNode.getDescendant(new int[] {0,0,2,1});
+        api.setTarget(target0);
+        list1 = generalIteratorMethodTests(api);
+        assertEquals(list1.size(), 4);
+        //test 3 and 4, one of the 4 given as target
+        target1 = rootNode.getDescendant(new int[] {0,1,1,0});
+        api.setTarget(target1);
+        list1 = generalIteratorMethodTests(api);
+        assertEquals(list1.size(), 3);
+        //test 3 and 4, with targets in both
+        pair = new AtomPair(target1, target0);
+        api.setTarget(pair);
+        testOneIterate(api, pair);
+
+        //test null basis ok, exception for null target
+        api.setBasis(null);
+        testNoIterates(api);
+        boolean exceptionThrown = false;
+        try {
+            api.setTarget(null);
+        } catch(NullPointerException ex) {exceptionThrown = true;}
+        assertTrue(exceptionThrown);
+
+        //test 3-atom type and 1-atom type, no target
+        basisPair.atom0 = rootNode.getDescendant(new int[] {0,0,2});
+        basisPair.atom1 = rootNode.getDescendant(new int[] {0,1,1});
+        types[0] = rootType.getDescendant(new int[] {0,0,0,0});
+        types[1] = rootType.getDescendant(new int[] {0,1,0,1});
+        api = ApiBuilder.makeIntergroupTypeIterator(types);
+        api.setBasis(basisPair);
+        list0 = generalIteratorMethodTests(api);
+        assertEquals(list0.size(), 3);
+        //test 3 and 1, one of the 3 given as target
+        target0 = rootNode.getDescendant(new int[] {0,0,2,1});
+        api.setTarget(target0);
+        list1 = generalIteratorMethodTests(api);
+        assertEquals(list1.size(), 1);
+        //test 3 and 1, the 1 given as target
+        target1 = rootNode.getDescendant(new int[] {0,1,1,4});
+        api.setTarget(target1);
+        list1 = generalIteratorMethodTests(api);
+        assertEquals(list1.size(), 3);
+        //test 3 and 1, with targets in both
+        pair = new AtomPair(target0, target1);
+        api.setTarget(pair);
+        testOneIterate(api, pair);
+        //order of target shouldn't matter
+        api.setTarget(new AtomPair(target1, target0));
+        testOneIterate(api, pair);
+        //give target that isn't the specified type
+        target0 = rootNode.getDescendant(new int[] {0,0,2,4});
+        api.setTarget(target0);
+        testNoIterates(api);
+        //again
+        target1 = rootNode.getDescendant(new int[] {0,1,1,10});
+        api.setTarget(target1);
+        testNoIterates(api);
+        //no targets again
+        api.setTarget(AtomSet.NULL);
+        list1 = generalIteratorMethodTests(api);
+        assertEquals(list0, list1);
+
+        basisPair.atom0 = rootNode.getDescendant(new int[] {0,0,2});
+        basisPair.atom1 = rootNode.getDescendant(new int[] {0,1,1});
+        types[0] = rootType.getDescendant(new int[] {0,0,0,0});
+        types[1] = rootType.getDescendant(new int[] {0,1,0,0});
+        api = ApiBuilder.makeIntergroupTypeIterator(types);
+        api.setBasis(basisPair);
+        list1 = generalIteratorMethodTests(api);
+        assertEquals(list1.size(), 12);
+
         //incomplete
     }
     
@@ -98,7 +257,7 @@ public class ApiBuilderTest extends IteratorTest {
     }
 
     public void testAdjacentPairIterator() {
-        
+        setUpA();
         ApiIntragroup api = ApiBuilder.makeAdjacentPairIterator();
         
         setup1();
@@ -141,7 +300,7 @@ public class ApiBuilderTest extends IteratorTest {
 
     }
 
-    //******* basis has only one child
+    //******* adjacent/nonadjacent setup -- basis has only one child
     private void setup4() {
         parent = rootNode.getDescendant(new int[] {1,0});//phase1, species0
         target = rootNode.getDescendant(new int[] {1,0,0});
@@ -154,7 +313,7 @@ public class ApiBuilderTest extends IteratorTest {
         iterateLast = target;
     }
 
-    //************ target is descended from but not direct child of basis
+    //************ adjacent/nonadjacent setup -- target is descended from but not direct child of basis
     private void setup3() {
         parent = rootNode.getDescendant(new int[] {0,2,2});//phase0, species2, molecule2
         target = rootNode.getDescendant(new int[] {0,2,2,1,0,1});
@@ -182,7 +341,7 @@ public class ApiBuilderTest extends IteratorTest {
     }
 
 
-    //**********  basis is a leaf atom
+    //**********  adjacent/nonadjacent setup -- basis is a leaf atom
     private void setup2() {
         parent = rootNode.getDescendant(new int[] {0,1,5});//leaf-atom basis
         target = rootNode.getDescendant(new int[] {0,1,5});//atom5 
@@ -222,7 +381,7 @@ public class ApiBuilderTest extends IteratorTest {
 
     }
 
-    //******* basis has child atoms, target is among them
+    //******* adjacent/nonadjacent setup -- basis has child atoms, target is among them
     private void setup1() {
         parent = rootNode.getDescendant(new int[] {0,0,2});
         target = rootNode.getDescendant(new int[] {0,0,2,5});
@@ -439,6 +598,92 @@ public class ApiBuilderTest extends IteratorTest {
         testNoIterates(api);
     }
 
+    /**
+     * Used by nonAdjacentPairTests.
+     * Tests that iterates given by iterate match a specified list, for
+     * iteration uplist and then dnlist
+     * @param iterator the conditioned iterate
+     * @param iterate the atom0 expected in all pair iterates
+     * @param up array of atom1 expected in the uplist pair iterates
+     * @param dn array of atom1 expected in the dnlist pair iterates
+     * @return the Lister list of iterates
+     */
+    private LinkedList testIterates(AtomPairIterator iterator, Atom iterate,
+            Atom[] up, Atom[] dn) {
+        LinkedList list = generalIteratorMethodTests(iterator);
+        Lister test = new Lister();
+        for(int i=0; i<up.length; i++) {
+            test.actionPerformed(new AtomPair(iterate, up[i]));
+        }
+        for(int i=0; i<dn.length; i++) {
+            test.actionPerformed(new AtomPair(iterate, dn[i]));
+        }
+        assertEquals(list, test.list);
+        return list;
+    }
+
+    /**
+     * Used by nonAdjacentPairTests.
+     * Tests that iterates given by iterate match a specified list, for
+     * iteration uplist or dnlist (not both)
+     * @param iterator the conditioned iterate
+     * @param iterate the atom0 expected in all pair iterates
+     * @param partners array of atom1 expected in the pair iterates
+     * @return the Lister list of iterates
+     */
+    private LinkedList testIterates(AtomPairIterator iterator, Atom iterate,
+            Atom[] partners) {
+        LinkedList list = generalIteratorMethodTests(iterator);
+        Lister test = new Lister();
+        for(int i=0; i<partners.length; i++) {
+            test.actionPerformed(new AtomPair(iterate, partners[i]));
+        }
+        assertEquals(list, test.list);
+        return list;
+    }
+
+    /**
+     * Used by adjacentPairTests.
+     * Tests that iterator gives two particular iterates
+     */
+    private LinkedList testTwoIterates(AtomPairIterator iterator, AtomPair pair0, AtomPair pair1) {
+        if(pair0.atom1 == null && pair1.atom1 == null) {
+            testNoIterates(iterator);
+            return new LinkedList();
+        }
+        LinkedList list = generalIteratorMethodTests(iterator);
+        Lister test = new Lister();
+        test.actionPerformed(pair0);
+        test.actionPerformed(pair1);
+        assertEquals(list, test.list);
+        return list;
+    }
+
+    /**
+     * Used by adjacentPairTests.
+     * Tests that iterator gives a single particular iterate.
+     */
+    private LinkedList testOneIterate(AtomPairIterator iterator, AtomPair pair) {
+        if(pair.atom1 == null) {
+            testNoIterates(iterator);
+            return new LinkedList();
+        }
+        LinkedList list = generalIteratorMethodTests(iterator);
+        Lister test = new Lister();
+        test.actionPerformed(pair);
+        assertEquals(list, test.list);
+        return list;
+    }
+
+    /**
+     * Tests that iterator gives no iterates
+     */
+    private void testNoIterates(AtomsetIterator iterator) {
+        LinkedList list = generalIteratorMethodTests(iterator);
+        assertEquals(list.size(), 0);
+    }
+
+    
     private AtomTreeNodeGroup rootNode;
     int n0a, nAtoms, n1a, n2a, n3a;
     int[] nTree;
