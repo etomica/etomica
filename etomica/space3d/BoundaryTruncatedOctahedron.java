@@ -82,8 +82,8 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
             double[][] origins = new double[faces.length][];
             double multiplier = ((TruncatedOctahedron)shape).getContainingCubeEdgeLength();
             for(int i=0; i<faces.length; i++) {
-                Vector3D[] vertices = (Vector3D[])faces[i].getVertices();
-                plane.setThreePoints(vertices[0], vertices[1], vertices[2]);
+                Vector[] vertices = faces[i].getVertices();
+                plane.setThreePoints((Vector3D)vertices[0], (Vector3D)vertices[1], (Vector3D)vertices[2]);
                 plane.getNormalVector(normal);
                 normal.TE(multiplier);
                 origins[i] = normal.toArray();
