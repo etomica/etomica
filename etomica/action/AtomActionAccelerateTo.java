@@ -2,11 +2,14 @@ package etomica.action;
 import etomica.Atom;
 import etomica.Space;
 import etomica.data.DataSourceVelocityAverage;
+import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;
 
 /**
  * Sets the velocity of an atom to a specified vector value.  If applied
- * to a molecule, works with the average velocity of the atoms it comprises.
+ * to a molecule, works with the mass-averaged velocity of the atoms it comprises,
+ * and adds a constant velocity to all atoms to make the mass-averaged velocity
+ * equal a target value.
  */
 public class AtomActionAccelerateTo extends AtomActionAdapter {
     
@@ -16,9 +19,7 @@ public class AtomActionAccelerateTo extends AtomActionAdapter {
     private final AtomGroupAction velocityMeter;
 
     /**
-     * Creates new action with atom position defined by its
-     * center of mass (via DataSourceCOM).
-     * @param space
+     * Creates new action with target velocity equal to zero.
      */
     public AtomActionAccelerateTo(Space space) {
         dr = space.makeVector();
@@ -27,16 +28,24 @@ public class AtomActionAccelerateTo extends AtomActionAdapter {
         velocityMeter = new AtomGroupAction(new DataSourceVelocityAverage(space));
     }
     
+    /**
+     * Adds velocity vector to the atom (or to all atoms forming it) 
+     * so that its mass-average velocity equals the target velocity.
+     */
     public void actionPerformed(Atom atom) {
-        velocityMeter.actionPerformed(atom);
-        Vector currentVelocity = ((DataSourceVelocityAverage)velocityMeter.getAction()).getVelocityAverage();
-        dr.Ev1Mv2(targetVelocity, currentVelocity);
-        ((AtomActionAccelerateBy)atomAccelerator.getAction()).setAccelerationVector(dr);
-        atomAccelerator.actionPerformed(atom);
+        if(atom.type.isLeaf()) {
+            ((ICoordinateKinetic)atom.coord).velocity().E(targetVelocity);
+        } else {
+            velocityMeter.actionPerformed(atom);
+            Vector currentVelocity = ((DataSourceVelocityAverage)velocityMeter.getAction()).getVelocityAverage();
+            dr.Ev1Mv2(targetVelocity, currentVelocity);
+            ((AtomActionAccelerateBy)atomAccelerator.getAction()).setAccelerationVector(dr);
+            atomAccelerator.actionPerformed(atom);
+        }
     }
        
     /**
-     * @return Returns the targetVelocity, the velocity that the
+     * @return Returns the targetVelocity, the mass-average velocity that the
      * atom will be accelerated to by this action.
      */
     public Vector getTargetVelocity() {
