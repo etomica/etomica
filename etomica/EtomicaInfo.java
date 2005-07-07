@@ -6,31 +6,51 @@ import java.util.LinkedList;
 import etomica.compatibility.FeatureSet;
 
 
-public class EtomicaInfo {
+public final class EtomicaInfo {
     
+    protected static final int MAX_SHORT_DESCRIPTION_LENGTH = 50;
+   
     private String description;
+    private String short_description;
     private boolean enabled = true;
+    private FeatureSet features;
     
     public EtomicaInfo() {
         this("No description available");
+        setDefaultFeatureSet();
     }
-    public EtomicaInfo(String desc) {
+    
+    protected void setDefaultFeatureSet()
+    {
+    	features = new FeatureSet();
+    	features.add( "CLASS", this.getClass().getName() )
+		.add( "DESCRIPTION", description )
+		.add( "SHORT_DESCRIPTION", short_description );
+    }
+
+	public EtomicaInfo(String desc) {
         description = desc;
+        if ( desc.length()>MAX_SHORT_DESCRIPTION_LENGTH ) 
+        	short_description = desc.substring( MAX_SHORT_DESCRIPTION_LENGTH-3)+"..."; 
+        else
+        	short_description = desc;
+        setDefaultFeatureSet();
     }
    
-	public FeatureSet getFeatures()
+    public EtomicaInfo(String desc, String short_desc ) {
+        description = desc;
+        short_description = short_desc;
+        setDefaultFeatureSet();
+    }
+
+    public FeatureSet getFeatures()
 	{
-		FeatureSet fts = new FeatureSet();
-		return fts.add( "CLASS", this.getClass().getName() )
-		.add( "DESCRIPTION", description )
-		.add( "SHORT_DESCRIPTION", getShortDescription() );
+    	return features;
 	}
 	
 	public static EtomicaInfo getInfo( Class myclass )
 	{
 		etomica.EtomicaInfo info = null;
-		if ( !etomica.EtomicaElement.class.isAssignableFrom( myclass ))
-			return new EtomicaInfo( myclass.getName() );
 		
         try {
             java.lang.reflect.Method method = myclass.getMethod("getEtomicaInfo",null);
@@ -45,23 +65,16 @@ public class EtomicaInfo {
         return info;
 	}
 	
-    protected static final int SHORT_DESCRIPTION_LENGTH = 50;
+    public String getDescription() {return description;}
+    public void setDescription(String str) {description = str;}
     
     /** The need for a short text to put on pull down menus made it necessary to add this function. By default
      * it takes the description field (possibly long) and will return a substring of it, indicating continuation with
      * with ellipsis (...)
      * @return Short description of this field
      */ 
-    public String getShortDescription() 
-    { 
-    	if ( description.length()<SHORT_DESCRIPTION_LENGTH )
-    		return description;
-    	return description.substring( SHORT_DESCRIPTION_LENGTH );
-    }
-
-    public String getDescription() {return description;}
-    public void setDescription(String str) {description = str;}
-    
+    public String getShortDescription() { return short_description; }
+    public void setShortDescription( String str ) { short_description = str; }
     /**
      * Accessor for flag indicating if component is enabled for use in Etomica.  May be set
      * to false if other required classes are absent (for example, 3D graphics libraries
