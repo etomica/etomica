@@ -36,9 +36,6 @@ public abstract class LoggerAbstract implements IntegratorIntervalListener,
         setName(NameMaker.makeName(this.getClass()));
         setIntegrator(integrator);//for a given integrator.
         setUpdateInterval(100);
-        if (Default.AUTO_REGISTER) {
-            Simulation.getDefault().register(this);
-        }
         setPriority(300);
     }  
     
