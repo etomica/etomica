@@ -12,8 +12,9 @@ import etomica.units.Dimension;
 
 
 /**
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Meter that provides the x-component of the vector average of
+ * spin values (which is represented by the atom's position
+ * vector).
  *
  * @author David Kofke
  *

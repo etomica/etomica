@@ -4,11 +4,10 @@ import etomica.Space;
 
 
 /**
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- *
- * @author David Kofke
- *
+ * Implementation of ICoordinate interface in which
+ * the only atom state parameter is its position, which
+ * is represented by a Vector from an arbitrary-dimension
+ * Space.
  */
 
 /*
@@ -18,14 +17,14 @@ import etomica.Space;
 public class Coordinate implements ICoordinate {
 
     /**
-     * 
+     * Makes the coordinate vector using the given Space.
      */
     public Coordinate(Space space) {
         r = space.makeVector();
     }
 
-    /* (non-Javadoc)
-     * @see etomica.space.ICoordinate#position()
+    /**
+     * Returns the position vector (not a copy).
      */
     public final Vector position() {
         return r;

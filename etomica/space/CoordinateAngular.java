@@ -4,12 +4,10 @@ import etomica.Space;
 
 
 /**
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- *
- * @author David Kofke
- *
- */
+ * Implementation of a coordinate that associates a position and
+ * and orientation with an atom, both made by an arbitrary-dimension
+ * Space.
+  */
 
 /*
  * History

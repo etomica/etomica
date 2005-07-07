@@ -1,8 +1,9 @@
 package etomica;
 
 /**
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Event object given to registered listeners when an integrator fires
+ * any type event.  Object provides information about the type of event
+ * being fired, and gives a reference to the integrator.
  *
  * @author David Kofke
  *

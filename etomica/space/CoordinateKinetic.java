@@ -3,12 +3,8 @@ package etomica.space;
 import etomica.Space;
 
 /**
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- *
- * @author David Kofke
- *
- */
+ * Implemention of a coordinate that has a position and a velocity.
+  */
 
 /*
  * History
@@ -17,13 +13,17 @@ import etomica.Space;
 public class CoordinateKinetic extends Coordinate implements ICoordinateKinetic {
 
     /**
-     * @param a
+     * Constructs object with position and velocity vectors
+     * made by the given space.
      */
     public CoordinateKinetic(Space space) {
         super(space);
         v = space.makeVector();
     }
     
+    /**
+     * Returns the instance of the velocity vector.
+     */
     public final Vector velocity() {
         return v;
     }

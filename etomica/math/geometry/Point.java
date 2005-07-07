@@ -4,8 +4,7 @@ import etomica.Space;
 import etomica.space.Vector;
 
 /**
- * TODO To change the template for this generated type comment go to Window -
- * Preferences - Java - Code Style - Code Templates
+ * A zero-dimensional polytope, a mathematical point in space.
  * 
  * @author David Kofke
  *  
@@ -24,6 +23,9 @@ public class Point extends Polytope {
         super(embeddedSpace, vector);
     }
 
+    /**
+     * Does nothing; the point is the vertex.
+     */
     public void updateVertices() {
         //does nothing because vertex is the internal representation of point
     }

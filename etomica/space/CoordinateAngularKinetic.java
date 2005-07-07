@@ -4,11 +4,8 @@ import etomica.Space;
 
 
 /**
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- *
- * @author David Kofke
- *
+ * Implementation of a coordinate that associates position and orientational
+ * coordinates and momenta with each atom.
  */
 
 /*
@@ -19,7 +16,8 @@ public class CoordinateAngularKinetic extends CoordinateAngular implements
         ICoordinateAngularKinetic {
 
     /**
-     * @param space
+     * Constructs coordinate, making Vector and Orientation instances
+     * from the given Space.
      */
     public CoordinateAngularKinetic(Space space) {
         super(space);
@@ -27,13 +25,16 @@ public class CoordinateAngularKinetic extends CoordinateAngular implements
         omega = space.makeVector();
     }
 
-    /* (non-Javadoc)
-     * @see etomica.space.ICoordinateAngularKinetic#angularVelocity()
+    /**
+     * Returns the angular-velocity vector.
      */
     public Vector angularVelocity() {
         return omega;
     }
 
+    /**
+     * Returns the velocity vector.
+     */
     public Vector velocity() {
         return v;
     }
