@@ -140,7 +140,7 @@ public abstract class Dimension implements java.io.Serializable {
         static double[] signature = {1., -1., -2., 0.};
         public double[] signature() {return signature;}
         public String toString() {return "Pressure";}
-        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.pressure(Simulation.instance.space().D());}
+        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.pressure(3);}
         public Class baseUnit() {return BaseUnit.Pressure.class;}
     }
     public static class Pressure2D extends Pressure {//(D-A/ps^2)/A = D/ps^2
@@ -156,7 +156,7 @@ public abstract class Dimension implements java.io.Serializable {
         static double[] signature = {0., 3., 0., 0.};
         public double[] signature() {return signature;}
         public String toString() {return "Volume";}
-        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.volume(Simulation.instance.space().D());}
+        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.volume(3);}
         public Class baseUnit() {return BaseUnit.Volume.class;}
     }
     public static class Volume2D extends Volume {
