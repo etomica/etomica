@@ -127,7 +127,6 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
     
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Animated display of molecules in a phase as the simulation proceeds");
-        if(Simulation.instance.space.D() == 3 && !_3dEnabled) info.setEnabled(false);
         return info;
     }
     
