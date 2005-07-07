@@ -1,5 +1,6 @@
 package etomica.compatibility;
 
+import etomica.EtomicaInfo;
 import etomica.Potential;
 import etomica.compatibility.Feature;
 import etomica.compatibility.Requirement;
@@ -26,13 +27,15 @@ public final class FeatureSet
 	
 	static public void main( String[] args )
 	{
-		Potential potential = new P1BondedHardSpheres( new Space2D() );
+		//Potential potential = new P1BondedHardSpheres( new Space2D() );
 		RequirementSet req = new RequirementSet()
 		.add( new FeatureRequirement( "SPACEDIM", Feature.GREATER_THAN, 1 ) )
 		.add( new FeatureRequirement( "NBODIES", Feature.IS_EQUAL, 1 ) );
-		if ( potential.getFeatures().satisfies( req ) )
-			System.out.println( "Potential " + potential.getClass().getName() + " SATISFIED requiments." );
+		
+		FeatureSet fss = EtomicaInfo.getInfo( P1BondedHardSpheres.class ).getFeatures();
+		if ( fss.satisfies( req ) )
+			System.out.println( "Potential  SATISFIED requiments." );
 		else
-			System.out.println( "Potential " + potential.getClass().getName() + " DID NOT SATISFY requiments." );
+			System.out.println( "Potential  DID NOT SATISFY requiments." );
 	}
 }
