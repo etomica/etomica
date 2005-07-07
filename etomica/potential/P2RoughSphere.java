@@ -7,7 +7,6 @@ import etomica.AtomType;
 import etomica.AtomTypeLeaf;
 import etomica.Default;
 import etomica.EtomicaInfo;
-import etomica.Simulation;
 import etomica.Space;
 import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateAngularKinetic;
@@ -29,11 +28,8 @@ public class P2RoughSphere extends P2HardSphere {
     private final Vector v12Perp;
     private final Vector impulse;
     
-    public P2RoughSphere() {
-        this(Simulation.getDefault().space, Default.ATOM_SIZE);
-    }
-    public P2RoughSphere(double d) {
-        this(Simulation.getDefault().space, d);
+    public P2RoughSphere(Space space) {
+        this(space, Default.ATOM_SIZE);
     }
     public P2RoughSphere(Space space, double d) {
         super(space,d);

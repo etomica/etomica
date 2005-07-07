@@ -6,7 +6,6 @@ import etomica.AtomTypeLeaf;
 import etomica.Debug;
 import etomica.Default;
 import etomica.EtomicaInfo;
-import etomica.Simulation;
 import etomica.Space;
 import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateKinetic;
@@ -37,13 +36,6 @@ public class P2HardSphere extends Potential2HardSpherical {
    protected final Vector dr;
    protected final Tensor lastCollisionVirialTensor;
     
-    public P2HardSphere() {
-        this(Simulation.getDefault().space, Default.ATOM_SIZE);
-    }
-
-    public P2HardSphere(double d) {
-        this(Simulation.getDefault().space, d);
-    }
     public P2HardSphere(Space space) {
         this(space, Default.ATOM_SIZE);
     }

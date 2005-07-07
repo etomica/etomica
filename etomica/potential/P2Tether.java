@@ -4,7 +4,6 @@ import etomica.AtomSet;
 import etomica.AtomTypeLeaf;
 import etomica.Default;
 import etomica.EtomicaInfo;
-import etomica.Simulation;
 import etomica.Space;
 import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateKinetic;
@@ -21,9 +20,6 @@ import etomica.units.Dimension;
  */
 public class P2Tether extends Potential2HardSpherical {
 
-    public P2Tether() {
-        this(Simulation.getDefault().space);
-    }
     public P2Tether(Space space) {
         super(space);
         setTetherLength(0.75*Default.ATOM_SIZE);

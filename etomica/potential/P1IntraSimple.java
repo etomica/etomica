@@ -2,7 +2,6 @@ package etomica.potential;
 
 import etomica.EtomicaInfo;
 import etomica.PotentialGroup;
-import etomica.Simulation;
 import etomica.Space;
 import etomica.atom.iterator.ApiBuilder;
 
@@ -22,10 +21,6 @@ public class P1IntraSimple extends PotentialGroup implements Potential1.Intramol
     
     public Potential2 bonded;
     public Potential2 nonBonded;
-    
-    public P1IntraSimple() {
-        this(Simulation.getDefault().space);
-    }
     
     public P1IntraSimple(Space space) {
         super(1, space);

@@ -4,7 +4,6 @@ import etomica.AtomPair;
 import etomica.AtomSet;
 import etomica.AtomTypeLeaf;
 import etomica.Default;
-import etomica.Simulation;
 import etomica.Space;
 import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateKinetic;
@@ -20,11 +19,8 @@ import etomica.space.Vector;
  */
 public class P2HardAssociation extends Potential2 implements PotentialHard {
 
-    public P2HardAssociation() {
-        this(Simulation.getDefault().space, Default.POTENTIAL_CUTOFF_FACTOR, Default.POTENTIAL_WELL);
-    }
-    public P2HardAssociation(double wellDiameter, double epsilon) {
-        this(Simulation.getDefault().space, wellDiameter, epsilon);
+    public P2HardAssociation(Space space) {
+        this(space,Default.POTENTIAL_CUTOFF_FACTOR, Default.POTENTIAL_WELL);
     }
     public P2HardAssociation(Space space, double wellDiameter, double epsilon) {
         super(space);

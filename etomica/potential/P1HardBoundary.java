@@ -8,7 +8,6 @@ import etomica.AtomSet;
 import etomica.Debug;
 import etomica.Default;
 import etomica.EtomicaInfo;
-import etomica.Simulation;
 import etomica.Space;
 import etomica.graphics.Drawable;
 import etomica.space.ICoordinateKinetic;
@@ -37,10 +36,6 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     private final Vector work;
     private int[] pixPosition;
     private int[] thickness;
-    
-    public P1HardBoundary() {
-        this(Simulation.getDefault().space);
-    }
     
     public P1HardBoundary(Space space) {
         super(space);

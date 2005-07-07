@@ -1,7 +1,6 @@
 package etomica.potential;
 
 import etomica.EtomicaElement;
-import etomica.Simulation;
 import etomica.Space;
 
 /**
@@ -22,9 +21,6 @@ public class P2Harmonic extends Potential2SoftSpherical implements EtomicaElemen
 	private final boolean r0Zero;
 	private double r0;
     
-    public P2Harmonic(double w) {
-        this(Simulation.getDefault().space, w, 0.0);
-    }
     public P2Harmonic(Space space, double w) {
     	this(space, w, 0.0);
     }
@@ -44,10 +40,8 @@ public class P2Harmonic extends Potential2SoftSpherical implements EtomicaElemen
 
     public double u(double r2) {
     	if(r0Zero) return 0.5*w*r2;
-    	else {
-    		double dr = Math.sqrt(r2) - r0;
-    		return 0.5*w*dr*dr;
-    	}
+    	double dr = Math.sqrt(r2) - r0;
+    	return 0.5*w*dr*dr;
     }
 
     /**
@@ -55,10 +49,8 @@ public class P2Harmonic extends Potential2SoftSpherical implements EtomicaElemen
      */
     public double du(double r2) {
     	if(r0Zero) return w*r2;
-    	else {
-   			double r = Math.sqrt(r2);
-   			return w*r*(r-r0);
-    	}
+    	double r = Math.sqrt(r2);
+    	return w*r*(r-r0);
     }
 
    /**

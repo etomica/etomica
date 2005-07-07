@@ -5,7 +5,6 @@ import etomica.AtomSet;
 import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Simulation;
 import etomica.Space;
 import etomica.space.Vector;
 
@@ -20,10 +19,6 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft, Etomica
 	private double radius;
 	private Atom atom;
 	
-	public P1SoftBoundary() {
-		this(Simulation.getDefault().space);
-	}
-    
 	public P1SoftBoundary(Space space) {
 		super(space);
 		gradient = space.makeVector();

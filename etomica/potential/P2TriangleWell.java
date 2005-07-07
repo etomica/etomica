@@ -5,7 +5,6 @@ import etomica.AtomSet;
 import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Simulation;
 import etomica.Space;
 import etomica.space.Vector;
 
@@ -24,11 +23,8 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
   private double constant;
   private final Vector force;
 
-  public P2TriangleWell() {
-    this(Simulation.getDefault().space,Default.ATOM_SIZE, Default.POTENTIAL_CUTOFF_FACTOR, Default.POTENTIAL_WELL);
-  }
-  public P2TriangleWell(double coreDiameter, double lambda, double epsilon) {
-    this(Simulation.getDefault().space, coreDiameter, lambda, epsilon);
+  public P2TriangleWell(Space space) {
+    this(space,Default.ATOM_SIZE, Default.POTENTIAL_CUTOFF_FACTOR, Default.POTENTIAL_WELL);
   }
   
   public P2TriangleWell(Space space, double coreDiameter, double lambda, double epsilon) {
@@ -50,7 +46,7 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
         double r2 = cPair.r2();
        
         if(r2 < coreDiameterSquared)
-            return Double.MAX_VALUE;
+            return Double.POSITIVE_INFINITY;
 
         if(r2 > wellDiameterSquared)
             return 0.0;

@@ -3,7 +3,6 @@ package etomica.potential;
 import etomica.Atom;
 import etomica.AtomSet;
 import etomica.EtomicaInfo;
-import etomica.Simulation;
 import etomica.Space;
 import etomica.space.Vector;
 
@@ -21,10 +20,6 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
     private final int D;
     private double w = 100.0;
     private final Vector force;
-    
-    public P1Harmonic() {
-        this(Simulation.getDefault().space);
-    }
     
     public P1Harmonic(Space space) {
         super(space);

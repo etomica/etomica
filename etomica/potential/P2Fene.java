@@ -2,7 +2,6 @@ package etomica.potential;
 
 import etomica.Default;
 import etomica.EtomicaElement;
-import etomica.Simulation;
 import etomica.Space;
 
 /**
@@ -20,8 +19,8 @@ public class P2Fene extends Potential2SoftSpherical implements EtomicaElement {
 
     private double r0, r02, h, prefactor;
     
-    public P2Fene() {
-        this(Simulation.getDefault().space, 1.50*Default.ATOM_SIZE, 30.0*Default.POTENTIAL_WELL/Math.pow(Default.ATOM_SIZE,2)/*1.50*Default.ATOM_SIZE, 250.0*/);
+    public P2Fene(Space space) {
+        this(space,1.50*Default.ATOM_SIZE, 30.0*Default.POTENTIAL_WELL/Math.pow(Default.ATOM_SIZE,2)/*1.50*Default.ATOM_SIZE, 250.0*/);
     }
     public P2Fene(Space space, double r0, double amplitude) {
         super(space);

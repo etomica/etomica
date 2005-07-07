@@ -1,7 +1,6 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
-import etomica.Simulation;
 import etomica.Space;
 
 /**
@@ -13,10 +12,6 @@ import etomica.Space;
  
 public class P1BondedHardSpheres extends P1IntraSimple {
 
-    public P1BondedHardSpheres() {
-        this(Simulation.getDefault().space);
-    }
-    
     public P1BondedHardSpheres(Space space) {
         super(space, new P2HardBond(space), new P2HardSphere(space));
     }

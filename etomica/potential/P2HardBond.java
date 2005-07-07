@@ -6,7 +6,6 @@ import etomica.AtomTypeLeaf;
 import etomica.Debug;
 import etomica.Default;
 import etomica.EtomicaInfo;
-import etomica.Simulation;
 import etomica.Space;
 import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateKinetic;
@@ -23,10 +22,6 @@ import etomica.units.Dimension;
  * similar to this potential, but does not have the repulsive core.
  */
 public class P2HardBond extends Potential2 implements PotentialHard {
-
-    public P2HardBond() {
-        this(Simulation.getDefault().space);
-    }
 
     public P2HardBond(Space space) {
         this(space, Default.ATOM_SIZE, 0.15);

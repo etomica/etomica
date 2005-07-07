@@ -197,6 +197,6 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
 // */   
 
 
-    private double rCutoff, r2Cutoff;
-    private final Potential2SoftSpherical potential;
+    protected double rCutoff, r2Cutoff;
+    protected final Potential2SoftSpherical potential;
 }

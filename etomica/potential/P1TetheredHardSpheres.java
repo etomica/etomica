@@ -1,7 +1,6 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
-import etomica.Simulation;
 import etomica.Space;
 
 /**
@@ -13,12 +12,8 @@ import etomica.Space;
  
 public class P1TetheredHardSpheres extends P1IntraSimple {
     
-    public P1TetheredHardSpheres() {
-        this(Simulation.getDefault().space);
-    }
-    
     public P1TetheredHardSpheres(Space space) {
-        super(space, new P2HardSphere(), new P2Tether());
+        super(space, new P2HardSphere(space), new P2Tether(space));
     }
     
     public static EtomicaInfo getEtomicaInfo() {

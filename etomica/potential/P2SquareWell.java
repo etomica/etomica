@@ -5,7 +5,6 @@ import etomica.AtomTypeLeaf;
 import etomica.Debug;
 import etomica.Default;
 import etomica.EtomicaInfo;
-import etomica.Simulation;
 import etomica.Space;
 import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateKinetic;
@@ -31,14 +30,8 @@ public class P2SquareWell extends Potential2HardSpherical {
     protected double lastEnergyChange;
     protected Vector dr;
 
-    public P2SquareWell() {
-        this(Simulation.getDefault().space);
-    }
     public P2SquareWell(Space space) {
         this(space,Default.ATOM_SIZE, Default.POTENTIAL_CUTOFF_FACTOR, Default.POTENTIAL_WELL);
-    }
-    public P2SquareWell(double coreDiameter, double lambda, double epsilon) {
-        this(Simulation.getDefault().space, coreDiameter, lambda, epsilon);
     }
 
     public P2SquareWell(Space space, double coreDiameter, double lambda, double epsilon) {

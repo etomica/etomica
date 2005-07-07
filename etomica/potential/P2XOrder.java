@@ -3,7 +3,6 @@ package etomica.potential;
 import etomica.AtomPair;
 import etomica.AtomSet;
 import etomica.EtomicaInfo;
-import etomica.Simulation;
 import etomica.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -21,10 +20,6 @@ public class P2XOrder extends Potential2 implements PotentialHard {
     
    protected final Vector dr;
     
-    public P2XOrder() {
-        this(Simulation.getDefault().space);
-    }
-
     public P2XOrder(Space space) {
         super(space);
         dr = space.makeVector();
