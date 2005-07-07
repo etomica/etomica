@@ -193,7 +193,6 @@ public final class SpeciesMaster extends Atom {
     public static void main(String args[]) {
 
         Simulation sim = new Simulation();
-        Simulation.instance = sim;
         Species species2 = new SpeciesSpheresMono(sim);
         Species species1 = new SpeciesSpheres(sim, 3);
         Species species0 = new SpeciesSpheres(sim, 2);
