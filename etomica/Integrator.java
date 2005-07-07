@@ -45,9 +45,6 @@ public abstract class Integrator implements EtomicaElement {
         phase = new Phase[0];
         this.potential = potentialMaster;
         meterPE = new MeterPotentialEnergy(potentialMaster);
-        if (Default.AUTO_REGISTER) {
-            Simulation.getDefault().register(this);
-        }
         setTemperature(Default.TEMPERATURE);
     }
 
