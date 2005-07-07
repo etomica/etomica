@@ -17,7 +17,6 @@ import etomica.space.Vector;
    
    public Potential2SoftSpherical(Space space) {
         super(space);
-        rD = 1.0/(double)space.D();
         work1 = space.makeVector();
    }
         
@@ -98,6 +97,5 @@ import etomica.space.Vector;
     }
 
     private final Vector work1;
-    private final double rD;// = 1/D
     
 }//end of Potential2SoftSpherical

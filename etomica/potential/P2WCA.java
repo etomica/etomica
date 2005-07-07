@@ -3,7 +3,6 @@ import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Space;
-import etomica.potential.Potential2SoftSpherical;
 import etomica.units.Dimension;
 
 /**
@@ -51,7 +50,7 @@ public class P2WCA extends Potential2SoftSpherical implements EtomicaElement {
             s6 = s2*s2*s2;
             return epsilon4*s6*(s6 - 1.0) + epsilon;
         }
-        else return 0.0;
+        return 0.0;
      }
 
 
@@ -79,7 +78,7 @@ public class P2WCA extends Potential2SoftSpherical implements EtomicaElement {
             s6 = s2*s2*s2;
             return epsilon624*s6*(s6 - _168div624);
         }
-        else return 0.0;
+        return 0.0;
       }
             
     /**
@@ -126,7 +125,6 @@ public class P2WCA extends Potential2SoftSpherical implements EtomicaElement {
     private double epsilon;
     private double epsilon4, epsilon48, epsilon624;
     private static final double _168div624 = 168./624.;
-    private double r2Last = -1.0;
     private double s6;
     
     /**
