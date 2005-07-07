@@ -4,7 +4,6 @@ import etomica.AtomPair;
 import etomica.AtomSet;
 import etomica.AtomTypeLeaf;
 import etomica.Default;
-import etomica.Simulation;
 import etomica.Space;
 import etomica.potential.P2SquareWell;
 import etomica.space.CoordinatePairKinetic;
@@ -44,10 +43,6 @@ public class P2SquareWellBonded extends P2SquareWell {
 		//constructs 2 BondChangeData classes, one for each atom in possible
 		// bondchange event
 //	}
-
-	public P2SquareWellBonded(int idx, double coreDiameter, double lambda, double epsilon) {
-		this(Simulation.instance.space, idx, coreDiameter, lambda, epsilon);
-	}
 
 	public P2SquareWellBonded(Space space, int idx, double coreDiameter,double lambda, double epsilon) {
 		super(space, coreDiameter, lambda, epsilon);
