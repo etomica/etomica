@@ -37,11 +37,8 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
 	};
 
     public IntegratorHardField(PotentialMaster potentialMaster) {
-        this(potentialMaster,Simulation.getDefault().space);
-    }
-    public IntegratorHardField(PotentialMaster potentialMaster, Space space) {
         super(potentialMaster);
-        this.space = space;
+        space = potentialMaster.getSpace();
         forceSum = new PotentialCalculationForceSum(space);//new IntegratorHardField.ForceSum(sim.space());
         fieldsOnly.addCriterion(new IteratorDirective.PotentialCriterion() {
             public boolean excludes(Potential potential) {

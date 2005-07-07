@@ -11,7 +11,6 @@ import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Potential;
 import etomica.PotentialMaster;
-import etomica.Simulation;
 import etomica.atom.AtomArrayList;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialCalculation;
@@ -116,7 +115,7 @@ public class IntegratorHard extends IntegratorMD {
                 System.out.println("previous time: "+oldTime+" current time: "+collisionTimeStep);
                 System.out.println("collision for "+atoms+" potential "+colliderAgent.collisionPotential.getClass());
                 if (atoms instanceof AtomPair) {
-                    cPairDebug = Simulation.getDefault().space.makeCoordinatePair();
+                    cPairDebug = potential.getSpace().makeCoordinatePair();
                     cPairDebug.setNearestImageTransformer(firstPhase.boundary());
                     cPairDebug.reset(pair);
                     ((CoordinatePairKinetic)cPairDebug).resetV();
@@ -134,7 +133,7 @@ public class IntegratorHard extends IntegratorMD {
             }
             if (Debug.ON && Debug.DEBUG_NOW && Debug.ATOM1 != null 
                   && Debug.ATOM2 != null && Debug.thisPhase(firstPhase)) {
-                cPairDebug = Simulation.getDefault().space.makeCoordinatePair();
+                cPairDebug = potential.getSpace().makeCoordinatePair();
                 cPairDebug.setNearestImageTransformer(firstPhase.boundary());
                 cPairDebug.reset(Debug.ATOM1.coord,Debug.ATOM2.coord);
                 ((CoordinatePairKinetic)cPairDebug).resetV();
@@ -160,7 +159,7 @@ public class IntegratorHard extends IntegratorMD {
             }
             else if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 2 && Debug.ATOM1 != null 
                     && Debug.thisPhase(firstPhase)) {
-                Vector dr = Simulation.getDefault().space.makeVector();
+                Vector dr = potential.getSpace().makeVector();
                 dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)Debug.ATOM1.coord).velocity());
                 System.out.println(Debug.ATOM1+" coordinates "+Debug.ATOM1.coord.position().P(dr));
             }
