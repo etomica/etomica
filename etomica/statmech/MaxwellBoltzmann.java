@@ -30,8 +30,8 @@ public final class MaxwellBoltzmann {
         private double mass;
         private Space space;
         private double a, c;
-        public Distribution() {
-            this(Simulation.instance.space, etomica.Default.TEMPERATURE, etomica.Default.ATOM_MASS);
+        public Distribution(Space space) {
+            this(space, etomica.Default.TEMPERATURE, etomica.Default.ATOM_MASS);
         }
         public Distribution(Space space, double temperature, double mass) {
             this.temperature = temperature;
