@@ -28,11 +28,6 @@ import etomica.utility.NameMaker;
 public class Simulation extends EtomicaInfo implements java.io.Serializable  {
     
     /**
-     * Flag indicating whether simulation is being run within Etomica editor application.
-     * This is set to true by Etomica if it is running; otherwise it is false.
-     */
-    public static boolean inEtomica = false;
-    /**
      * Class that implements the final tying up of the simulation elements before starting the simulation.
      * Default choice is the CoordinatorOneIntegrator.
      */
@@ -43,13 +38,6 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
     public final Space space;
     public final SpeciesRoot speciesRoot;
     
-    /**
-     * A static instance of a Simulation, for which the current value at any time is
-     * used as a default simulation in many places.  Any new instance of a Simulation
-     * is assigned to this field upon construction.
-     */
-    public static Simulation instance;// = new Simulation(new Space2D());
-       
     public Simulation() {
         this(new Space2D());
     }
@@ -68,15 +56,11 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
     
     public Simulation(Space space, PotentialMaster potentialMaster, int[] bitLength) {
         this.space = space;
-        instance = this;
-        instanceCount++;
-        instances.add(this);
         setName(NameMaker.makeName(this.getClass()));
 //        elementCoordinator = new Mediator(this);
         this.potentialMaster = potentialMaster;
         setController(new Controller());
         speciesRoot = new SpeciesRoot(space,(int[])bitLength.clone());
-        instantiationEventManager.fireEvent(new SimulationEvent(this));
     }//end of constructor
                  
     public final Space space() {return space;}
@@ -118,23 +102,6 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
     public final LinkedList getMeterList() {return meterList;}
     public final LinkedList getIntegratorList() {return integratorList;}
     public final LinkedList getSpeciesList() {return speciesList;}
-    
-    public static Simulation getDefault() {
-    	if(instance == null) instance = new Simulation(new Space2D());
-    	return instance;
-    }
-    
-    public static void setDefault(Simulation sim) {
-    	instance = sim;
-    }
-    
-    public static LinkedList getInstances() {
-    	return instances;
-    }
-  
-    public void dispose() {
-    	instances.remove(this);
-    }
     
     /**
      * Add the given DataAccumulator to a list kept by the simulation.
@@ -237,23 +204,9 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
      */
     public String toString() {return getName();}
     
-    private static int instanceCount = 0;
-    
     public static final java.util.Random random = new java.util.Random();
 //    public static final java.util.Random random = new java.util.Random(1);
         
-     /**
-      * Returns the mediator that coordinates the elements of the simulation.
-      * The is the same as the elementCoordinator field, but provides another
-      * way to access it.  This method may someday supercede direct access to
-      * the elementCoordinator field, so it is the preferred way to access it.
-      */
-//     public Mediator mediator() {return elementCoordinator;}
-     
-     public Simulation simulation() {return this;}
-     
-     public static final SimulationEventManager instantiationEventManager = new SimulationEventManager();
-     private static final LinkedList instances = new LinkedList();
      private Controller controller;     
      private final LinkedList dataAccumulatorList = new LinkedList();
      private final LinkedList phaseList = new LinkedList();
