@@ -1,5 +1,6 @@
 package etomica;
 
+import etomica.atom.AtomLinker;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.iterator.ApiInterspecies1A;
 import etomica.atom.iterator.ApiInterspeciesAA;
