@@ -96,7 +96,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     }
     
     public void makeMolecules() {
-        AtomLinker agentHead = speciesMaster.node.childList.header;
+        AtomLinker agentHead = ((AtomTreeNodeGroup)speciesMaster.node).childList.header;
         for (AtomLinker link=agentHead.next; link!=agentHead; link=link.next) {
             ((SpeciesAgent)link.atom).makeMolecules();
         }

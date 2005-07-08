@@ -24,8 +24,6 @@ public final class SpeciesMaster extends Atom {
             PhaseEvent.ATOM_ADDED);
     private final PhaseEvent removalEvent = new PhaseEvent(this,
             PhaseEvent.ATOM_REMOVED);
-    public final AtomTreeNodeGroup node;//shadow superclass field of same name
-                                        // to avoid casts
     public final static int SPECIES_TAB = Tab.requestTabType();
     //reference to phase is kept in node
 
@@ -38,15 +36,14 @@ public final class SpeciesMaster extends Atom {
     SpeciesMaster(Simulation sim, Phase p) {
         super(sim.space, sim.speciesRoot.childType, new NodeFactory(p),
                 AtomLinker.FACTORY);
-        node = (AtomTreeNodeGroup) super.node;
     }
 
     public SpeciesAgent firstSpecies() {
-        return (SpeciesAgent) node.childList.getFirst();
+        return (SpeciesAgent) ((AtomTreeNodeGroup)node).childList.getFirst();
     }
 
     public SpeciesAgent lastSpecies() {
-        return (SpeciesAgent) node.childList.getLast();
+        return (SpeciesAgent) ((AtomTreeNodeGroup)node).childList.getLast();
     }
 
     //    public int atomCount() {return atomList.size();}//or could use
@@ -157,8 +154,6 @@ public final class SpeciesMaster extends Atom {
                 leafAtomCount -= atom.node.leafAtomCount();
                 leafIterator.setRoot(atom);
                 leafIterator.reset();
-                //XXX make sure it is ok to remove atoms from list while
-                // iterating over it
                 while (leafIterator.hasNext()) {
                     speciesMaster.atomList
                             .remove(((AtomTreeNodeLeaf) leafIterator.nextAtom().node).leafLinker);
