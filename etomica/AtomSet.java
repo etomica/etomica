@@ -10,7 +10,7 @@ package etomica;
  * History
  * Created on Feb 18, 2005 by kofke
  */
-public interface AtomSet {
+public interface AtomSet extends java.io.Serializable {
 
     /**
      * Returns the i-th atom, with numbering beginning from 0. 
