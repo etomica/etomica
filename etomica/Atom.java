@@ -57,7 +57,7 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      * @param space
      */
     public Atom(Space space) {
-    	this(space, new AtomTypeSphere(null), AtomTreeNodeLeaf.FACTORY, AtomSequencerFactory.SIMPLE);                        
+    	this(space, new AtomTypeSphere(null), AtomTreeNodeLeaf.FACTORY, AtomLinker.FACTORY);                        
         node.setOrdinal(0,++INSTANCE_COUNT);//default index; changed when added to parent after construction
     }
     

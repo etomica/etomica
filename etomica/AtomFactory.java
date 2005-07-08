@@ -1,5 +1,6 @@
 package etomica;
 
+import etomica.atom.AtomLinker;
 import etomica.atom.AtomSequencerFactory;
 
 /**
@@ -23,7 +24,7 @@ public abstract class AtomFactory implements java.io.Serializable {
      * @param space
      */
     public AtomFactory(Space space, AtomType atomType) {
-        this(space, atomType, AtomSequencerFactory.SIMPLE);
+        this(space, atomType, AtomLinker.FACTORY);
     }
     
     public AtomFactory(Space space, AtomType atomType, AtomSequencerFactory sequencerFactory) {

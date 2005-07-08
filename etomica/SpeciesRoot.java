@@ -1,7 +1,7 @@
 package etomica;
 
+import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
-import etomica.atom.AtomSequencerFactory;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.utility.Arrays;
 
@@ -18,7 +18,7 @@ public final class SpeciesRoot extends Atom {
     private Species[] speciesList = new Species[0];
     
     SpeciesRoot(Space space, int[] bitLength) {
-        super(space, new AtomTypeGroup(AtomIndexManager.makeRootIndexManager(bitLength)), new NodeFactory(), AtomSequencerFactory.SIMPLE);
+        super(space, new AtomTypeGroup(AtomIndexManager.makeRootIndexManager(bitLength)), new NodeFactory(), AtomLinker.FACTORY);
         childType = new AtomTypeGroup((AtomTypeGroup)type,null);
         node.setOrdinal(1);
     }

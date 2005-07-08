@@ -3,7 +3,6 @@ package etomica;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.AtomListTabbed;
-import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomLinker.Tab;
 import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.atom.iterator.AtomIteratorTree;
@@ -38,7 +37,7 @@ public final class SpeciesMaster extends Atom {
 
     SpeciesMaster(Simulation sim, Phase p) {
         super(sim.space, sim.speciesRoot.childType, new NodeFactory(p),
-                AtomSequencerFactory.SIMPLE);
+                AtomLinker.FACTORY);
         node = (AtomTreeNodeGroup) super.node;
     }
 

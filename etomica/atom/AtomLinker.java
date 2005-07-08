@@ -1,9 +1,6 @@
 package etomica.atom;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
 
 import etomica.Atom;
 import etomica.Debug;
@@ -162,5 +159,13 @@ public class AtomLinker implements java.io.Serializable {
         }
             
     }//end of Tab
-        
+
+    public static final AtomSequencerFactory FACTORY = new AtomLinker.Factory();
+    
+    private static final class Factory implements AtomSequencerFactory, java.io.Serializable {
+        public AtomLinker makeSequencer(Atom atom) {
+            return new AtomLinker(atom);
+        }
+    };
+
 }//end of AtomLinker

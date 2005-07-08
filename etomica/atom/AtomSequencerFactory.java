@@ -21,10 +21,4 @@ public interface AtomSequencerFactory {
     
     public AtomLinker makeSequencer(Atom atom);
     
-    public static final AtomSequencerFactory SIMPLE = new AtomSequencerFactory() {
-        public AtomLinker makeSequencer(Atom atom) {
-            return new AtomLinker(atom);
-        }
-    };
-
 }
