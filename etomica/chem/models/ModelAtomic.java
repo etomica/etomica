@@ -9,6 +9,7 @@ import etomica.AtomFactory;
 import etomica.Simulation;
 import etomica.Species;
 import etomica.atom.AtomFactoryMono;
+import etomica.atom.AtomLinker;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTypeSphere;
 import etomica.chem.Electrostatic;
@@ -43,7 +44,7 @@ public abstract class ModelAtomic extends Model {
 	
 	public AtomFactory makeAtomFactory(Simulation sim) {
         AtomSequencerFactory seqFactory = doNeighborIteration() ? sim.potentialMaster.sequencerFactory()
-                 : AtomSequencerFactory.SIMPLE;
+                 : AtomLinker.FACTORY;
 		return new AtomFactoryMono(sim.space,new AtomTypeSphere(Species.makeAgentType(sim)),seqFactory);
 	}
 	/**

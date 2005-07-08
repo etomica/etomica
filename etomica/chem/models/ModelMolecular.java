@@ -10,6 +10,7 @@ import etomica.Simulation;
 import etomica.Species;
 import etomica.atom.AtomFactoryHetero;
 import etomica.atom.AtomFactoryHomo;
+import etomica.atom.AtomLinker;
 import etomica.atom.AtomPositionDefinitionSimple;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTreeNodeGroupArray;
@@ -60,7 +61,7 @@ public abstract class ModelMolecular extends Model {
 	
 	public AtomFactory makeAtomFactory(Simulation sim) {
 		AtomSequencerFactory seqFactory = doNeighborIteration() ? sim.potentialMaster.sequencerFactory()
-																 : AtomSequencerFactory.SIMPLE;
+																 : AtomLinker.FACTORY;
 		AtomTreeNodeFactory nodeFactory = AtomTreeNodeGroupArray.FACTORY;
 //		switch(childCount) {
 //			case 3: nodeFactory = AtomTreeNode3Site.FACTORY; break;

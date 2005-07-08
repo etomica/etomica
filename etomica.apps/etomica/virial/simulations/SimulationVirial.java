@@ -38,7 +38,7 @@ public class SimulationVirial extends Simulation {
         sampleCluster = aSampleCluster;
 		int nMolecules = sampleCluster.pointCount();
 		phase = new PhaseCluster(this,sampleCluster);
-		species = speciesFactory.makeSpecies(this);//SpheresMono(this,AtomSequencerFactory.SIMPLE);
+		species = speciesFactory.makeSpecies(this);//SpheresMono(this,AtomLinker.FACTORY);
         species.setNMolecules(nMolecules);
         phase.makeMolecules();
         

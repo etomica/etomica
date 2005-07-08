@@ -6,6 +6,7 @@ import etomica.AtomTypeGroup;
 import etomica.Space;
 import etomica.Species;
 import etomica.atom.AtomFactoryMono;
+import etomica.atom.AtomLinker;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTypeSphere;
@@ -24,7 +25,7 @@ public class AtomFactoryWater extends AtomFactory {
 	 * @param sequencerFactory
 	 */
 	public AtomFactoryWater(Space space, AtomTypeGroup agentType) {
-        this(space, AtomSequencerFactory.SIMPLE, agentType);
+        this(space, AtomLinker.FACTORY, agentType);
     }
     
     public AtomFactoryWater(Space space, AtomSequencerFactory sequencerFactory, AtomTypeGroup agentType) {
@@ -33,8 +34,8 @@ public class AtomFactoryWater extends AtomFactory {
         AtomTypeSphere hType = new AtomTypeSphere((AtomTypeGroup)atomType, 1.0, /*Electron.UNIT.toSim(0.4238),*/ 2.0);
         AtomTypeSphere oType = new AtomTypeSphere((AtomTypeGroup)atomType, 16.0, /*Electron.UNIT.toSim(-0.8476),*/ 3.167);
 
-        hFactory = new AtomFactoryMono(space, hType, AtomSequencerFactory.SIMPLE);
-		oFactory = new AtomFactoryMono(space, oType, AtomSequencerFactory.SIMPLE);
+        hFactory = new AtomFactoryMono(space, hType, AtomLinker.FACTORY);
+		oFactory = new AtomFactoryMono(space, oType, AtomLinker.FACTORY);
 
 		conformation = new ConformationWater(space); 
 	}

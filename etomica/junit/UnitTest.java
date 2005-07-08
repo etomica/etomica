@@ -14,7 +14,7 @@ import etomica.SpeciesSpheresMono;
 import etomica.SpeciesTree;
 import etomica.atom.AtomFactoryHetero;
 import etomica.atom.AtomFactoryMono;
-import etomica.atom.AtomSequencerFactory;
+import etomica.atom.AtomLinker;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.space3d.Space3D;
@@ -133,13 +133,13 @@ public class UnitTest implements java.io.Serializable {
         for (int i = 0; i < nMolecules.length; i++) {
             AtomTypeGroup agentType = Species.makeAgentType(sim);
             AtomFactoryHetero factory = new AtomFactoryHetero(space,
-                    AtomSequencerFactory.SIMPLE, agentType);
+                    AtomLinker.FACTORY, agentType);
             AtomFactory[] childFactories = new AtomFactory[nAtoms[i].length];
             for (int j = 0; j < childFactories.length; j++) {
                 AtomTypeLeaf atomType = new AtomTypeSphere(
                         (AtomTypeGroup) factory.getType());
                 childFactories[j] = new AtomFactoryMono(space, atomType,
-                        AtomSequencerFactory.SIMPLE);
+                        AtomLinker.FACTORY);
             }
             factory.setChildFactory(childFactories, nAtoms[i]);
             Species species = new Species(sim, factory, agentType);
