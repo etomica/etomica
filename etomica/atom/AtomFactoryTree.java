@@ -43,13 +43,13 @@ public class AtomFactoryTree extends AtomFactoryHomo {
     public AtomFactoryTree(Space space, AtomSequencerFactory seqFactory, AtomTypeGroup parentType,
                                 int[] nAtoms, Conformation[] config) {
         super(space, seqFactory, parentType, nAtoms[0], (config != null) ? config[0] : Conformation.NULL);
-        setChildFactory(subFactory(space, seqFactory, nAtoms, config));
+        setChildFactory(subFactory(seqFactory, nAtoms, config));
         if(childFactory() != null) ((AtomFactoryTree)childFactory()).parentFactory = this;
         depth = nAtoms.length;
     }
     
     //method used by constructor to determine the child factory
-    private AtomFactory subFactory(Space space, AtomSequencerFactory seqFactory,
+    private AtomFactory subFactory(AtomSequencerFactory seqFactory,
                             int[] nAtoms, Conformation[] config) {
         if(config != null && nAtoms.length != config.length) throw new IllegalArgumentException("Error: incompatible specification of nAtoms and config in AtomFactoryTree constructor");
         if(nAtoms.length == 1) return null; 
@@ -129,7 +129,7 @@ public class AtomFactoryTree extends AtomFactoryHomo {
     
 //    public static void main(String[] args) {
 //        Simulation sim = new Simulation();
-//        AtomFactoryMono leafFactory = new AtomFactoryMono(sim.space, AtomSequencerFactory.SIMPLE);
+//        AtomFactoryMono leafFactory = new AtomFactoryMono(sim.space, AtomLinker.FACTORY);
 //        int[] nA = new int[] {2, 1, 3};
 //        AtomFactoryTree treeFactory = new AtomFactoryTree(sim, leafFactory, nA);
 //        Phase phase = new Phase(sim);
