@@ -175,12 +175,7 @@ public class DisplayPolytope extends Display implements Action, EtomicaElement {
 
         switch(polytope.getEmbeddedSpace().D()) {
             case 3:
-                if (DefaultGraphic.DISPLAY_USE_OPENGL) {
-                    canvas = new DisplayPolytopeCanvas3DOpenGL(this, 400, 400);
-                }
-                else {
-                    canvas = new DisplayPolytopeCanvas3DSoftware(this);
-                }
+                canvas = new DisplayPolytopeCanvas3DOpenGL(this, 400, 400);
                 break;
             case 2:
                 canvas = new DisplayPolytopeCanvas2D(this);
@@ -290,47 +285,23 @@ public class DisplayPolytope extends Display implements Action, EtomicaElement {
             if (rotate  && polytope.getEmbeddedSpace().D() == 3) {
                 float xtheta = (y - canvas.getPrevY()) * (360f / canvas.getSize().height);
                 float ytheta = (x - canvas.getPrevX()) * (360f / canvas.getSize().width);
-                if (!DefaultGraphic.DISPLAY_USE_OPENGL) {
-                    ((DisplayPolytopeCanvas3DSoftware)canvas).amat.unit();
-                    ((DisplayPolytopeCanvas3DSoftware)canvas).amat.xrot(xtheta);
-                    ((DisplayPolytopeCanvas3DSoftware)canvas).amat.yrot(ytheta);
-                    ((DisplayPolytopeCanvas3DSoftware)canvas).mat.mult(((DisplayPolytopeCanvas3DSoftware)canvas).amat);
-                } else {
-                    canvas.setXRot(canvas.getXRot()+xtheta);
-                    canvas.setYRot(canvas.getYRot()+ytheta);
-                }
+                canvas.setXRot(canvas.getXRot()+xtheta);
+                canvas.setYRot(canvas.getYRot()+ytheta);
             }
 
             if (translate && polytope.getEmbeddedSpace().D() == 3) {
                 float xShift = (x - canvas.getPrevX())/-(canvas.getSize().width/canvas.getZoom());
                 float yShift = (canvas.getPrevY() - y)/-(canvas.getSize().height/canvas.getZoom());
-                if (!DefaultGraphic.DISPLAY_USE_OPENGL) {
-                    ((DisplayPolytopeCanvas3DSoftware)canvas).tmat.unit();
-                    ((DisplayPolytopeCanvas3DSoftware)canvas).tmat.translate(xShift, yShift, 0);
-                    ((DisplayPolytopeCanvas3DSoftware)canvas).mat.mult(((DisplayPolytopeCanvas3DSoftware)canvas).tmat);
-               } else {
-                    canvas.setShiftX(xShift+canvas.getShiftX());
-                    canvas.setShiftY(yShift+canvas.getShiftY());
-                }
+                canvas.setShiftX(xShift+canvas.getShiftX());
+                canvas.setShiftY(yShift+canvas.getShiftY());
             }                                                   
 
             if (zoom  && polytope.getEmbeddedSpace().D() == 3) {
                 float xShift = 1f+(x-canvas.getPrevX())/canvas.getSize().width;
                 float yShift = 1f+(canvas.getPrevY()-y)/canvas.getSize().height;
                 float shift = (xShift+yShift)/2f;
-                if (!DefaultGraphic.DISPLAY_USE_OPENGL) {
-                    ((DisplayPolytopeCanvas3DSoftware)canvas).zmat.unit();
-                    ((DisplayPolytopeCanvas3DSoftware)canvas).zmat.scale(shift, shift, shift);
-                    ((DisplayPolytopeCanvas3DSoftware)canvas).mat.mult(((DisplayPolytopeCanvas3DSoftware)canvas).zmat);
-                    setScale(shift*shift);
-                    //xfac *= shift*shift;
-                    //settings.setAtomScreenScale(xfac);
-                    //settings.setBondScreenScale(xfac);
-                    //settings.setVectorScreenScale(xfac);
-                } else {
-                    shift = shift == 1f ? 0: shift < 1f ? shift: -shift;
-                    canvas.setZoom(canvas.getZoom()+shift);
-                }
+                shift = shift == 1f ? 0: shift < 1f ? shift: -shift;
+                canvas.setZoom(canvas.getZoom()+shift);
             }
             
             if (!DefaultGraphic.DISPLAY_USE_OPENGL) canvas.repaint();
