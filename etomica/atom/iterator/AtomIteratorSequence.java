@@ -8,6 +8,7 @@ import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
+import etomica.atom.AtomToLinkerSeq;
 
 /**
  * Iterator for looping through a sequence of AtomLink-ed atoms relative to a
@@ -32,7 +33,7 @@ public class AtomIteratorSequence implements AtomIteratorAtomDependent, java.io.
      * iteration.
      */
     public AtomIteratorSequence(IteratorDirective.Direction direction) {
-        this(direction, DEFAULT);
+        this(direction, new AtomToLinkerSeq());
     }
 
     /**
@@ -223,10 +224,4 @@ public class AtomIteratorSequence implements AtomIteratorAtomDependent, java.io.
         public AtomLinker getLinker(Atom atom);
     }
 
-    private static final AtomToLinker DEFAULT = new AtomToLinker() {
-
-        public AtomLinker getLinker(Atom atom) {
-            return (atom != null) ? atom.seq : null;
-        }
-    };
 }
