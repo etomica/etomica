@@ -23,11 +23,6 @@ import etomica.units.UnitSystem;
   
 public class LJ extends UnitSystem implements java.io.Serializable {
     
-    /**
-     * Instance made with current default values of sigma, epsilon and mass.
-     */
-    public static final LJ SYSTEM = new LJ();
-    
     private double sigma = Default.ATOM_SIZE;
     private double epsilon = Default.POTENTIAL_WELL;
     private double mass = Default.ATOM_MASS;
