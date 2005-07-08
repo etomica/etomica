@@ -6,13 +6,11 @@ import java.util.Date;
 import java.util.Locale;
 
 import etomica.Action;
-import etomica.Default;
 import etomica.Integrator;
-import etomica.IntegratorNonintervalEvent;
 import etomica.IntegratorIntervalEvent;
 import etomica.IntegratorIntervalListener;
+import etomica.IntegratorNonintervalEvent;
 import etomica.IntegratorNonintervalListener;
-import etomica.Simulation;
 import etomica.integrator.IntegratorHard;
 import etomica.utility.NameMaker;
 
@@ -30,7 +28,7 @@ import etomica.utility.NameMaker;
 
 public abstract class LoggerAbstract implements IntegratorIntervalListener,
                                                 IntegratorNonintervalListener,
-                                               java.io.Serializable, java.io.Serializable, java.io.Serializable {
+                                                java.io.Serializable {
     
     public LoggerAbstract(){
         setName(NameMaker.makeName(this.getClass()));
