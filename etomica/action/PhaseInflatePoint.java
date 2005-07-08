@@ -6,14 +6,14 @@ import java.awt.Polygon;
 import etomica.Atom;
 import etomica.AtomIterator;
 import etomica.AtomTreeNodeGroup;
-import etomica.AtomType;
+import etomica.AtomTypeLeaf;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.SimulationEventManager;
 import etomica.Space;
 import etomica.atom.AtomFactoryMono;
+import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
-import etomica.atom.AtomSequencerFactory;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.lattice.AbstractLattice;
@@ -36,20 +36,17 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
     private boolean drawCells = false;
     private boolean fillCells = false;
     MyLattice lattice;
-    Vector s = new Vector();  //temporary
-    Vector r0 = new Vector();
+    Vector s;  //temporary
+    Vector r0;
     public boolean expand = true;
     private double lnJTot;
     private double deformationScale = 1.0;
-    private Simulation simulation;
     private AtomIteratorAllMolecules moleculeIterator;
 
-    public PhaseInflatePoint() {
-        this(Simulation.instance);
-    }
     public PhaseInflatePoint(Simulation sim) {
         super("Point volume expansion");
-        simulation = sim;
+        s = sim.space.makeVector();
+        r0 = sim.space.makeVector();
 //        lattice = new MyLattice(sim, 10,new VelocityField(2,20), 0.1);
         lattice = new MyLattice(sim,12,new VelocityField(2,20), 0.002);
 //        setDeformationScale(0.01);
@@ -527,7 +524,7 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
         }
     }
     private class MySiteFactory extends AtomFactoryMono {
-        MySiteFactory(Space space) {super(space, AtomSequencerFactory.SIMPLE);}
+        MySiteFactory(Space space) {super(space, AtomLinker.FACTORY);}
         protected Atom build(AtomTreeNodeGroup parent) {
             return new MySite(space, parent);
         }
