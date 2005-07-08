@@ -31,7 +31,6 @@ public final class PhaseInflate extends PhaseActionAdapter implements Undoable {
         moleculeCenter = new AtomPositionGeometricCenter(space);
         scaleVector = space.makeVector();
         setScale(1.0);
-        inflateEvent = new PhaseEvent(this,PhaseEvent.BOUNDARY_INFLATE);
     }
 
     /**
@@ -100,7 +99,6 @@ public final class PhaseInflate extends PhaseActionAdapter implements Undoable {
         Vector dimensions = phase.boundary().dimensions();
         dimensions.TE(scaleVector);
         phase.setDimensions(dimensions);
-        phase.boundaryEventManager.fireEvent(inflateEvent.setScale(scaleVector));
         moleculeIterator.reset();
         // substract 1 from each dimension so that multiplying by it yields
         // the amount each coordinate is to be translated *by* (not to).
@@ -132,7 +130,6 @@ public final class PhaseInflate extends PhaseActionAdapter implements Undoable {
     }
 
     private final AtomIteratorAllMolecules moleculeIterator;
-    private final PhaseEvent inflateEvent;
     private final AtomActionTranslateBy translator;
     private final AtomGroupAction groupScaler;
     private final Vector scaleVector;
