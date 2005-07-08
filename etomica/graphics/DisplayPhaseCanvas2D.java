@@ -16,7 +16,7 @@ import etomica.math.geometry.Polygon;
 import etomica.space.Boundary;
 import etomica.space.ICoordinateAngular;
 import etomica.space.Vector;
-import etomica.utility.java2.Iterator;
+import java.util.Iterator;
 
     /* History of changes
      * 7/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.

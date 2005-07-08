@@ -23,7 +23,7 @@ import etomica.math.geometry.Polyhedron;
 import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
-import etomica.utility.java2.Iterator;
+import java.util.Iterator;
 import gl4java.utils.glut.GLUTEnum;
 
     /* History of changes
