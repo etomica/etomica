@@ -35,7 +35,7 @@ import etomica.space.BoundaryPeriodic;
  */
 
 public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellular, 
-        AtomPairIterator {
+        AtomPairIterator, java.io.Serializable {
     
 	/**
 	 * Constructor makes iterator that must have phase specified and then be 

@@ -9,7 +9,7 @@ import etomica.space.Vector;
  * primitive vectors.
  */
 
-public class BravaisLattice implements SpaceLattice {
+public class BravaisLattice implements SpaceLattice, java.io.Serializable {
 
     public BravaisLattice(Primitive primitive) {
         this.primitive = primitive;

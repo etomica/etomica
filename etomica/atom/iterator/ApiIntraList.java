@@ -16,7 +16,7 @@ import etomica.atom.AtomList;
  * list.
  */
 public class ApiIntraList implements AtomPairIterator,
-        AtomsetIteratorListDependent {
+        AtomsetIteratorListDependent, java.io.Serializable {
 
     /**
      * Construct iterator with an empty list. No iterates will be given until a

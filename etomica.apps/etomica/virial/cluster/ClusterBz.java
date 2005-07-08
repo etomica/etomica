@@ -14,7 +14,7 @@ import etomica.virial.MayerE;
  * Cluster sum that forms the coefficient for an arbitrary coefficient in the
  * activity (z) expansion of the pressure.
  */
-public class ClusterBz {
+public class ClusterBz implements java.io.Serializable {
 
 	/**
 	 * Constructor for ClusterBz.
@@ -85,7 +85,7 @@ public class ClusterBz {
 	
 	//class holding a set of integers, with methods to advance 
 	//them through all possible values as needed by the cluster
-	public static class IntegerSet {
+	public static class IntegerSet implements java.io.Serializable {
 		public final int n;
 		public final int[] set;
 		public IntegerSet(int n) {

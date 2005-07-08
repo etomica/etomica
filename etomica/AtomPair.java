@@ -9,7 +9,7 @@ package etomica;
  * History
  * Created on Feb 18, 2005 by kofke
  */
-public class AtomPair implements AtomSet, Comparable {
+public class AtomPair implements AtomSet, Comparable, java.io.Serializable {
 
     public AtomPair() {
     }

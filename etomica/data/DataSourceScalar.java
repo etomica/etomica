@@ -9,7 +9,7 @@ import etomica.utility.NameMaker;
  * Particular data source for which the data is a simple scalar of type double.
  */
  
-public abstract class DataSourceScalar implements DataDouble.Source {
+public abstract class DataSourceScalar implements DataDouble.Source, java.io.Serializable {
     
     public DataSourceScalar(DataInfo dataInfo) {
         data = new DataDouble(dataInfo);

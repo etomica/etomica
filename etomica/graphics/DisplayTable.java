@@ -422,7 +422,7 @@ public class DisplayTable extends Display implements DataTableListener,
         }
     }
 
-    private class LogTableAction implements Action {
+    private class LogTableAction implements Action, java.io.Serializable {
 
         public void actionPerformed() {
             etomica.log.LogTable log = new etomica.log.LogTable();

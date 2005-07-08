@@ -16,7 +16,7 @@ import etomica.units.Dimension;
 /*
  * History Created on Jun 15, 2005 by kofke
  */
-public class DataInfo {
+public class DataInfo implements java.io.Serializable {
 
     /**
      * Constructs new instance with descriptive label and dimension.

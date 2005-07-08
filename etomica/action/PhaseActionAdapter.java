@@ -7,7 +7,7 @@ import etomica.Phase;
  * of PhaseAction interface, except for actionPerformed.
  */
 
-public abstract class PhaseActionAdapter implements PhaseAction {
+public abstract class PhaseActionAdapter implements PhaseAction, java.io.Serializable {
 
 	/**
 	 * Constructs the Action with the given descriptive label.

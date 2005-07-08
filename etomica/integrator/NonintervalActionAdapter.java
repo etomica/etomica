@@ -15,7 +15,7 @@ import etomica.IntegratorNonintervalListener;
 /*
  * History Created on Feb 19, 2005 by kofke
  */
-public class NonintervalActionAdapter implements IntegratorNonintervalListener {
+public class NonintervalActionAdapter implements IntegratorNonintervalListener, java.io.Serializable {
 
     /**
      * Creates adapter such that given action is performed in response to

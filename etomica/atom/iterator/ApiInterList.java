@@ -16,7 +16,7 @@ import etomica.atom.AtomList;
  * Incorrect behavior will result if both lists refer to the same instance.
  *  
  */
-public class ApiInterList implements AtomPairIterator {
+public class ApiInterList implements AtomPairIterator, java.io.Serializable {
 
     /**
      * Construct iterator with an empty lists. No iterates will be given until

@@ -17,7 +17,7 @@ import etomica.math.geometry.Shape;
  * History
  * Created on Jun 14, 2005 by kofke
  */
-public class AtomFilterInShape implements AtomFilter {
+public class AtomFilterInShape implements AtomFilter, java.io.Serializable {
 
     /**
      * Create filter in which position definition is given by atom's type.

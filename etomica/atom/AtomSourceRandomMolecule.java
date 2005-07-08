@@ -7,7 +7,7 @@ import etomica.Phase;
 /**
  * AtomSource that returns a completely random molecule.
  */
-public class AtomSourceRandomMolecule implements AtomSource {
+public class AtomSourceRandomMolecule implements AtomSource, java.io.Serializable {
 
     public void setPhase(Phase p) {
         phase = p;

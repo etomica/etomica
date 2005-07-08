@@ -12,7 +12,7 @@ import etomica.atom.AtomFilterTypeInstance;
 /**
  * Provides static methods for construction of some useful pair iterators.
  */
-public final class ApiBuilder {
+public final class ApiBuilder implements java.io.Serializable {
 
     /**
      * Private constructor to prevent instantiation.

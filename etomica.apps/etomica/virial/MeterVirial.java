@@ -14,7 +14,7 @@ import etomica.utility.NameMaker;
  * divided by the sampling bias of the integrator.
  */
 
-public class MeterVirial implements DataSource, Meter {
+public class MeterVirial implements DataSource, Meter, java.io.Serializable {
 
 	protected final ClusterAbstract clusters[];
 	double beta;

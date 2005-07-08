@@ -12,7 +12,7 @@ import etomica.virial.cluster.Standard;
  * Also has several utility methods to charactize a cluster formed from these
  * bonds.
  */
-public class BondList {
+public class BondList implements java.io.Serializable {
 	
 	private int[][] pairs;
 
@@ -82,7 +82,7 @@ public class BondList {
  * Iterator that generates bond lists beginning from an initial list and
  * deleting one or more bonds from it.
  */
-	private static class DeletionIterator {
+	private static class DeletionIterator implements java.io.Serializable {
 		
 		private CombinationIterator comboIterator = new CombinationIterator();
 		private BondList next;

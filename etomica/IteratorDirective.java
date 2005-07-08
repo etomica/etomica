@@ -98,7 +98,7 @@ public final class IteratorDirective implements java.io.Serializable {
      * Multiple criteria are ordered into a linked list by the iterator directive.
      * This is made cloneable to support IteratorDirective.copy functionality.
      */
-    public static abstract class PotentialCriterion implements Cloneable {
+    public static abstract class PotentialCriterion implements Cloneable, java.io.Serializable {
         /**
          * Definition of criterion.  If this method returns true, the potential's atoms
          * are excluded from iteration.

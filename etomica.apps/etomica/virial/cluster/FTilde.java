@@ -4,7 +4,7 @@ import etomica.AtomSet;
 import etomica.virial.MayerFunction;
 
 
-public class FTilde implements MayerFunction {
+public class FTilde implements MayerFunction, java.io.Serializable {
 	private final MayerFunction fWrapped;
 	public FTilde(MayerFunction f) {
 		fWrapped = f;

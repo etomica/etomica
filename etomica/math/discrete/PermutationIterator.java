@@ -13,7 +13,7 @@ package etomica.math.discrete;
  * 08/20/03 (DAK) new
  */
  
-public class PermutationIterator {
+public class PermutationIterator implements java.io.Serializable {
 
 	private final PermutationIterator subPermutation;
 	private boolean hasNext = false;

@@ -10,7 +10,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 /**
  * Writes a table to an excel-formatted file.
  */
-public class LogTable {
+public class LogTable implements java.io.Serializable {
     
     //if true, will write values without overwriting old ones
     private boolean append = false;

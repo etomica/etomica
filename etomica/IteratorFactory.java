@@ -17,7 +17,7 @@ import etomica.atom.iterator.AtomsetIteratorMolecule;
 
 //used by PotentialMaster.setSpecies
 
-public abstract class IteratorFactory {
+public abstract class IteratorFactory implements java.io.Serializable {
 
     /**
      * Selects an appropriate iterator for the given species array.  If array contains

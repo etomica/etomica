@@ -16,7 +16,7 @@ import etomica.utility.Arrays;
 /*
  * History Created on Apr 9, 2005 by kofke
  */
-public class DataTable implements DataBinManager {
+public class DataTable implements DataBinManager, java.io.Serializable {
 
     public DataTable() {
     }

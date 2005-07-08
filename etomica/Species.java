@@ -34,7 +34,7 @@ import etomica.utility.NameMaker;
   * @see PotentialMaster
   */
  
-public class Species {
+public class Species implements java.io.Serializable {
 
     /**
      * Constructs species with molecules built by the given atom factory.
@@ -176,7 +176,7 @@ public class Species {
      * Uses the phase index to index them.
      * Mimics hash functionality.
      */
-    private static final class AgentList {
+    private static final class AgentList implements java.io.Serializable {
         
         private SpeciesAgent[] agentArray = new SpeciesAgent[0];
         

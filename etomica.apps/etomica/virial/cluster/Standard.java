@@ -12,7 +12,7 @@ import etomica.virial.MayerFunction;
  * Class that provides some standard pair sets (via static methods or fields of
  * integer arrays) used in specification of clusters.
  */
-public final class Standard {
+public final class Standard implements java.io.Serializable {
 
 	/**
 	 * Private constructor to prevent instantiation.

@@ -566,7 +566,7 @@ public class IntegratorHard extends IntegratorMD {
     /**
      * Class used to construct a linked list of collision listeners
      */
-    private class CollisionListenerLinker {
+    private class CollisionListenerLinker implements java.io.Serializable {
         CollisionListenerLinker next;
         final CollisionListener listener;
         CollisionListenerLinker(CollisionListener listener, CollisionListenerLinker next) {

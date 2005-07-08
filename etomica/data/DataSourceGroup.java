@@ -20,7 +20,7 @@ import etomica.utility.Arrays;
  * History
  * Created on Apr 8, 2005 by kofke
  */
-public class DataSourceGroup implements DataSource {
+public class DataSourceGroup implements DataSource, java.io.Serializable {
 
     /**
      * Forms a DataSourceGroup that contains no data sources, and which will give

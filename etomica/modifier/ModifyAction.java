@@ -20,7 +20,7 @@ import etomica.units.Dimension;
  * History
  * Created on Feb 1, 2005 by kofke
  */
-public class ModifyAction implements Action {
+public class ModifyAction implements Action, java.io.Serializable {
 
     /**
      * Constuctor requires the wrapped Modifier, which is final.

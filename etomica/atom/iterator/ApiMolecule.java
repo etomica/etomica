@@ -24,7 +24,7 @@ import etomica.action.AtomsetAction;
  * and cannot be changed after construction.
  * 
  */
-public class ApiMolecule implements AtomsetIteratorMolecule, AtomPairIterator {
+public class ApiMolecule implements AtomsetIteratorMolecule, AtomPairIterator, java.io.Serializable {
 
     /**
      * Constructs iterator by wrapping three others.

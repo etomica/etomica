@@ -15,7 +15,7 @@ import etomica.space.Vector;
  * History
  * Created on Jun 28, 2005 by kofke
  */
-public class Hypersphere implements Shape {
+public class Hypersphere implements Shape, java.io.Serializable {
 
     /**
      * Creates hypersphere of the given dimension, positioned at the origin.

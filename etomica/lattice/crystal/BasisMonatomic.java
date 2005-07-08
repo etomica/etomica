@@ -8,7 +8,7 @@ import etomica.space.Vector;
  * Single-atom basis with the coordinate at the origin.
  */
  
-public class BasisMonatomic implements Basis {
+public class BasisMonatomic implements Basis, java.io.Serializable {
     
     /**
      * Creates a single-atom basis with the coordinate at the origin.

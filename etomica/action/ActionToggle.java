@@ -15,7 +15,7 @@ import etomica.modifier.ModifierBoolean;
  * 
  * @author David Kofke
  */
-public class ActionToggle implements Action {
+public class ActionToggle implements Action, java.io.Serializable {
 
     private ModifierBoolean modifier;
     private JButton button;

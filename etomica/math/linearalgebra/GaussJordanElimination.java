@@ -2,7 +2,7 @@ package etomica.math.linearalgebra;
 
 //probably wrong.  See sWAP method.
 //who wrote this?
-public class GaussJordanElimination{
+public class GaussJordanElimination implements java.io.Serializable {
     
     private int []indxc;
     private int []indxr;

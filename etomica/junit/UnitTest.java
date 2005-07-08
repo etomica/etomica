@@ -30,7 +30,7 @@ import etomica.space3d.Space3D;
 /*
  * History Created on Apr 28, 2005 by kofke
  */
-public class UnitTest {
+public class UnitTest implements java.io.Serializable {
 
     public static boolean VERBOSE = false;
 

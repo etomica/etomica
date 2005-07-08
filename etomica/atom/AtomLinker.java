@@ -1,5 +1,10 @@
 package etomica.atom;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+
 import etomica.Atom;
 import etomica.Debug;
 
@@ -11,7 +16,7 @@ import etomica.Debug;
 public class AtomLinker implements java.io.Serializable {
     public final Atom atom;
     //TODO make these private and access with final methods, but test if performance suffers from change
-    public AtomLinker next, previous;
+    public transient AtomLinker next, previous;
     
     /**
      * Constructor throws exception if given atom is null.  Only
@@ -52,6 +57,20 @@ public class AtomLinker implements java.io.Serializable {
         previous.next = this;
         newNext.previous = this;
 	}
+
+    private void writeObject(java.io.ObjectOutputStream out)
+    throws IOException
+    {
+        out.defaultWriteObject();
+    }
+    private void readObject(java.io.ObjectInputStream in)
+    throws IOException, ClassNotFoundException
+    {
+        in.defaultReadObject();
+        // linker is initially not "in the list"
+        next = this;
+        previous = this;
+    }
 
 	/**
 	 * Creates a new tab that is flagged as not a header.

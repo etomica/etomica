@@ -11,7 +11,7 @@ package etomica.utility;
  * minimum and maximum value and can test if a given double is within
  * the range.  Each instance is immutable.
  */
-public final class DoubleRange {
+public final class DoubleRange implements java.io.Serializable {
 
 	private final double min;
 	private final double max;

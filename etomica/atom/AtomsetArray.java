@@ -11,7 +11,7 @@ import etomica.AtomSet;
 /*
  * History Created on Feb 18, 2005 by kofke
  */
-public class AtomsetArray implements AtomSet {
+public class AtomsetArray implements AtomSet, java.io.Serializable {
 
     /**
      * Wraps a new atom array of the given length.

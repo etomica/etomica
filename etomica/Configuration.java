@@ -17,7 +17,7 @@ import etomica.atom.iterator.AtomIteratorListSimple;
   * 09/04/02 (DAK) added Null inner class and NULL field
   * 01/21/04 (DAK) added initializeCoordinate(Phase) method
   */
-public abstract class Configuration {
+public abstract class Configuration implements java.io.Serializable {
 
     public Configuration(Space space) {
         this.space = space;

@@ -12,7 +12,7 @@ import etomica.utility.Arrays;
  * present in multiple lists, or in lists added multiple times to iterator, will
  * be iterated multiple times.
  */
-public class AtomIteratorListCompound implements AtomIterator {
+public class AtomIteratorListCompound implements AtomIterator, java.io.Serializable {
 
     /**
      * Construct iterator to loop over all atoms in each list in the given

@@ -19,7 +19,7 @@ import etomica.units.Dimension;
  * @author Jhumpa Adhikari
  */
 
-public class ModifierGeneral implements Modifier {
+public class ModifierGeneral implements Modifier, java.io.Serializable {
 
     protected Object[] object;
     protected String property;

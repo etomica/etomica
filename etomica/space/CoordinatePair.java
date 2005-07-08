@@ -8,7 +8,7 @@ import etomica.Space;
 /*
  * History Created on Jan 24, 2005 by kofke
  */
-public class CoordinatePair {
+public class CoordinatePair implements java.io.Serializable {
 
     public CoordinatePair(Space space) {
         dr = space.makeVector();

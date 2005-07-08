@@ -13,7 +13,7 @@ package etomica.lattice;
  * History
  * Created on Jan 5, 2005 by kofke
  */
-public class IndexIteratorExpanding implements IndexIterator {
+public class IndexIteratorExpanding implements IndexIterator, java.io.Serializable {
 
     /**
      * 

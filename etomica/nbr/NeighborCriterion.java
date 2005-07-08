@@ -15,7 +15,7 @@ import etomica.atom.AtomPairFilter;
  * methods to set the phase where the criterion is being applied, and to
  * indicate if neighbor list for atom needs updating.
  */
-public abstract class NeighborCriterion implements AtomPairFilter {
+public abstract class NeighborCriterion implements AtomPairFilter, java.io.Serializable {
 
     public abstract boolean accept(AtomPair pair);
     

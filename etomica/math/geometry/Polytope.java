@@ -27,7 +27,7 @@ import etomica.space.Vector;
  * @author kofke
  *  
  */
-public abstract class Polytope implements Shape {
+public abstract class Polytope implements Shape, java.io.Serializable {
 
     /**
      * Constructs a polytope of dimension D from the D-1 finite "planes" that

@@ -12,7 +12,7 @@ import etomica.atom.AtomArrayList;
   * from list while iteration is proceeding.
   */
 
-public class AtomIteratorArrayList implements AtomIterator {
+public class AtomIteratorArrayList implements AtomIterator, java.io.Serializable {
 
     /**
      * Constructs new iterator with an empty list.

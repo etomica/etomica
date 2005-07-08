@@ -200,7 +200,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     private Action urgentAction;
 
     private final WaitObject waitObject = new WaitObject();
-    private static class WaitObject {
+    private static class WaitObject implements java.io.Serializable {
         boolean currentActionDone;
         boolean exceptionThrown;
     };

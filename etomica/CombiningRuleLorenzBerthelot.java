@@ -23,7 +23,7 @@ public class CombiningRuleLorenzBerthelot extends CombiningRule {
         return new Agent();
     }
     
-    public static class Agent {
+    public static class Agent implements java.io.Serializable {
         public double sigma = Default.ATOM_SIZE;
         public double epsilon = Default.POTENTIAL_WELL;
     }

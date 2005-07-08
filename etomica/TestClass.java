@@ -6,7 +6,7 @@ import java.beans.Introspector;
 
 import etomica.utility.Arrays;
 
-public class TestClass {
+public class TestClass implements java.io.Serializable {
     
     public static void main(String arg[]) {
         
@@ -70,7 +70,7 @@ public class TestClass {
         System.out.println(obj1 == obj2);
     }
     
-    private static class InnerA {
+    private static class InnerA implements java.io.Serializable {
         public String name() {return "InnerA";}
         public void setProperty1(double prop1) {}
         public double getProperty1() {return 0.0;}

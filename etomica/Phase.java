@@ -58,7 +58,7 @@ import etomica.utility.NameMaker;
   * 7/3/02  added reset method
   */
   
-public class Phase implements EtomicaElement {
+public class Phase implements EtomicaElement, java.io.Serializable {
         
     private Boundary boundary;
     public final SpeciesMaster speciesMaster;

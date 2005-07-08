@@ -10,7 +10,7 @@ import etomica.utility.Function;
  * History
  * Created on Jan 24, 2005 by kofke
  */
-public class Tensor2D implements etomica.space.Tensor {
+public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
     public int length() {return 2;}
     double xx, xy, yx, yy;
     public static final Tensor2D ZERO = new Tensor2D();

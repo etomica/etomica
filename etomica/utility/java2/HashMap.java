@@ -62,18 +62,18 @@ public class HashMap implements java.io.Serializable {
     public Iterable values() {return new ValueSet();}
     
     
-    public class KeySet implements Iterable {
+    public class KeySet implements Iterable, java.io.Serializable {
         public Iterator iterator() {
             return new EnumerationWrapper(hash.keys());
         }
     }
-    public class ValueSet implements Iterable {
+    public class ValueSet implements Iterable, java.io.Serializable {
         public Iterator iterator() {
             return new EnumerationWrapper(hash.elements());
         }
     }
     
-    private class EnumerationWrapper implements Iterator {
+    private class EnumerationWrapper implements Iterator, java.io.Serializable {
         private final java.util.Enumeration enumeration;
         public EnumerationWrapper(java.util.Enumeration enum) {
             enumeration = enum;

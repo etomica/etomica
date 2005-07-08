@@ -25,7 +25,7 @@ import etomica.space.Vector;
   */
  //plan to develop to configure for different types of drawing.
  //currently does only 2D cells
-public class LatticeRenderer implements Drawable {
+public class LatticeRenderer implements Drawable, java.io.Serializable {
     
     public LatticeRenderer(FiniteLattice lattice) {
         this.lattice = lattice; 

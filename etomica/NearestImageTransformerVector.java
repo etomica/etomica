@@ -16,7 +16,7 @@ import etomica.space.Vector;
  * History
  * Created on Jan 18, 2005 by kofke
  */
-public class NearestImageTransformerVector implements NearestImageTransformer {
+public class NearestImageTransformerVector implements NearestImageTransformer, java.io.Serializable {
 
     /* (non-Javadoc)
      * @see etomica.NearestImageTransformer#nearestImage(etomica.Space.Vector)

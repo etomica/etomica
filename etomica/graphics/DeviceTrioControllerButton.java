@@ -132,7 +132,7 @@ public class DeviceTrioControllerButton extends Device {
     /**
      * Inner class that catches action of simulation panel 
      */        
-     private class ComponentEventControllerButton implements ComponentListener {
+     private class ComponentEventControllerButton implements ComponentListener, java.io.Serializable {
   
         public void componentHidden(ComponentEvent e){}
         public void componentMoved(ComponentEvent e){}

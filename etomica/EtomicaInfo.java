@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import etomica.compatibility.FeatureSet;
 
 
-public class EtomicaInfo {
+public class EtomicaInfo implements java.io.Serializable {
     
     protected static final int MAX_SHORT_DESCRIPTION_LENGTH = 50;
    

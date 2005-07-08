@@ -19,7 +19,7 @@ import etomica.units.Dimension;
  * Evaluates the pressure by examining the change in energy accompanying
  * small changes in volume.
  */
-public class MeterPressureByVolumeChange implements Meter {
+public class MeterPressureByVolumeChange implements Meter, java.io.Serializable {
     
     public MeterPressureByVolumeChange(PotentialMaster potentialMaster, boolean[] dimensions) {
         data = new DataDoubleArray(new DataInfo("Pressure by Volume Change",Dimension.pressure(potentialMaster.getSpace().D)));

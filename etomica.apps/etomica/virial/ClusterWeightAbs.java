@@ -6,7 +6,7 @@ package etomica.virial;
  *
  * cluster weight wrapper (absolute value of wrapped cluster)
  */
-public class ClusterWeightAbs implements ClusterWeight {
+public class ClusterWeightAbs implements ClusterWeight, java.io.Serializable {
 	
 	protected final ClusterAbstract weightCluster;
 	

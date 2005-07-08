@@ -13,7 +13,7 @@ import etomica.utility.NameMaker;
 /*
  * History Created on Oct 25, 2004
  */
-public abstract class Activity implements Action {
+public abstract class Activity implements Action, java.io.Serializable {
 
     /**
      * Create class with a simple default label.

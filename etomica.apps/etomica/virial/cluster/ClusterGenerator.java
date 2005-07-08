@@ -6,7 +6,7 @@ package etomica.virial.cluster;
  * Generates all clusters matching certain criteria.
  * @author andrew
  */
-public class ClusterGenerator {
+public class ClusterGenerator implements java.io.Serializable {
     private final boolean[] mMarked;
     private final int[] mStack;
     private boolean mOnlyDoublyConnected, mOnlyConnected;

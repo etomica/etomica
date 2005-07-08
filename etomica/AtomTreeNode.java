@@ -33,7 +33,7 @@ package etomica;
  * @see AtomIndexManager
  */
  
-public abstract class AtomTreeNode implements Comparable {
+public abstract class AtomTreeNode implements Comparable, java.io.Serializable {
     
     public AtomTreeNode(Atom atom) {
         this.atom = atom;

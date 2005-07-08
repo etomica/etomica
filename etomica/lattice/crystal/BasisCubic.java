@@ -10,7 +10,7 @@ import etomica.space.Vector;
  * @author David Kofke
  */
  
-public class BasisCubic implements Basis {
+public class BasisCubic implements Basis, java.io.Serializable {
     
     /**
      * @param primitive Primitive of the cubic lattice housing this basis.

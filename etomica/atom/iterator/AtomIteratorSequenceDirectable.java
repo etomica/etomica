@@ -23,7 +23,7 @@ import etomica.atom.AtomLinker;
  * History Created on Aug 26, 2004 by kofke
  */
 public class AtomIteratorSequenceDirectable implements
-        AtomIteratorAtomDependent, AtomsetIteratorDirectable {
+        AtomIteratorAtomDependent, AtomsetIteratorDirectable, java.io.Serializable {
 
     /**
      * Default instance uses the atom's sequencer as the linker to begin list

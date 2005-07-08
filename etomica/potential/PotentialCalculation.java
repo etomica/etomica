@@ -19,7 +19,7 @@ import etomica.PotentialMaster;
  * @see PotentialGroup
  */
 
-public abstract class PotentialCalculation {
+public abstract class PotentialCalculation implements java.io.Serializable {
  	
 	/**
 	 * Method called to perform the calculation defined by this class.  If the given

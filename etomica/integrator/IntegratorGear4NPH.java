@@ -205,7 +205,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     }
     
     //inner class used to toggle between NPT and NPH ensembles
-    public class EnsembleToggler implements ModifierBoolean {
+    public class EnsembleToggler implements ModifierBoolean, java.io.Serializable {
         public void setBoolean(boolean isothermal) {
             setIsothermal(isothermal);
             if(!isothermal) {
@@ -223,7 +223,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
 
     //meter group for temperature, pressure, enthalpy, obtaining values from
     //most recent call to the ForceSumNPH instance
-    public final class MeterTPH implements DataSource {
+    public final class MeterTPH implements DataSource, java.io.Serializable {
         
         public MeterTPH() {
             data = new DataDoubleArray(new DataInfo("TPH",Dimension.UNDEFINED));

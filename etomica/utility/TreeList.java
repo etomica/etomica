@@ -21,7 +21,7 @@ import etomica.Debug;
  * an object that is not in the tree.  Do not taunt the tree.  Turning
  * on Debug will attempt to catch problems.
  */
-public class TreeList {
+public class TreeList implements java.io.Serializable {
 
     private TreeLinker head;
 

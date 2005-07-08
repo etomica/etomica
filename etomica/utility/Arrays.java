@@ -9,7 +9,7 @@ import java.lang.reflect.Array;
 /**
  * Non-instantiable class with static utility methods for working with arrays.
  */
-public final class Arrays {
+public final class Arrays implements java.io.Serializable {
 
 	/**
 	 * Private constructor to prevent instantiation.

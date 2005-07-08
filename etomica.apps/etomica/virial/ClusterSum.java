@@ -1,7 +1,7 @@
 package etomica.virial;
 
 
-public class ClusterSum implements ClusterAbstract {
+public class ClusterSum implements ClusterAbstract, java.io.Serializable {
 
     /**
      * Constructor for ClusterSum.

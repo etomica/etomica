@@ -21,7 +21,7 @@ import etomica.DataSource;
 /*
  * History Created on Apr 9, 2005 by kofke
  */
-public class DataBin implements DataSink, DataSource {
+public class DataBin implements DataSink, DataSource, java.io.Serializable {
 
     /**
      * Constructs DataBin with null DataBinManager

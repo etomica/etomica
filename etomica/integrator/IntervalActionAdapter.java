@@ -13,7 +13,7 @@ import etomica.IntegratorIntervalListener;
 /*
  * History Created on Feb 19, 2005 by kofke
  */
-public class IntervalActionAdapter implements IntegratorIntervalListener {
+public class IntervalActionAdapter implements IntegratorIntervalListener, java.io.Serializable {
 
     /**
      * Creates adapter such that given action is performed in response to

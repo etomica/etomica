@@ -21,7 +21,7 @@ import etomica.atom.AtomPairVector;
  */
 
 public class ApiFiltered implements AtomsetIteratorDirectable, 
-            AtomsetIteratorBasisDependent, AtomPairIterator {
+            AtomsetIteratorBasisDependent, AtomPairIterator, java.io.Serializable {
 	
 	/**
 	 * Returns the iterates of the given iterator that meet

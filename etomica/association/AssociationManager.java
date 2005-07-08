@@ -24,7 +24,7 @@ import etomica.integrator.mcmove.MCMoveListener;
  /* History of changes
   * 09/19/02 (DAK) Modified to correctly handle insertion/deletion moves
   */
-public class AssociationManager implements MCMoveListener, Atom.AgentSource {
+public class AssociationManager implements MCMoveListener, Atom.AgentSource, java.io.Serializable {
     
     private final AssociationDefinition associationDefinition;
     private final int index = Atom.requestAgentIndex(this);

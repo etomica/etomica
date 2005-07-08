@@ -389,7 +389,7 @@ public class LinkedList implements java.io.Serializable, Cloneable
     	return new ListItr();
     }
 
-    private class ListItr implements Iterator {
+    private class ListItr implements Iterator, java.io.Serializable {
 	    private Entry lastReturned = header;
 	    private Entry next;
 	    private int nextIndex;
@@ -419,7 +419,7 @@ public class LinkedList implements java.io.Serializable, Cloneable
 	    }
     }//end of ListItr
 
-    private static class Entry {
+    private static class Entry implements java.io.Serializable {
 	    Object element;
 	    Entry next;
 	    Entry previous;

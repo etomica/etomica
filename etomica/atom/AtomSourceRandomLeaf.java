@@ -7,7 +7,7 @@ import etomica.Phase;
 /**
  * AtomSource that returns a completely random leaf atom.
  */
-public class AtomSourceRandomLeaf implements AtomSource {
+public class AtomSourceRandomLeaf implements AtomSource, java.io.Serializable {
 
     public void setPhase(Phase p) {
         list = p.speciesMaster.atomList;

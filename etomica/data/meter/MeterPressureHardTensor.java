@@ -16,7 +16,7 @@ import etomica.space.ICoordinateKinetic;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
 
-public class MeterPressureHardTensor implements DataSource, IntegratorHard.CollisionListener {
+public class MeterPressureHardTensor implements DataSource, IntegratorHard.CollisionListener, java.io.Serializable {
     
     public MeterPressureHardTensor(Space space) {
         //XXX temperature, really?

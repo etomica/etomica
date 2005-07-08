@@ -17,7 +17,7 @@ import etomica.AtomType;
  * History
  * Created on Mar 31, 2005 by kofke
  */
-public class AtomFilterTypeInstance implements AtomFilter {
+public class AtomFilterTypeInstance implements AtomFilter, java.io.Serializable {
 
     /**
      * @param acceptedType type instance that must equal atom type for atom

@@ -10,7 +10,7 @@ import etomica.atom.iterator.AtomIteratorListTabbed;
  * constructor, and forms an instance of AtomPair for each pair formed in the
  * list.  Each AtomPair instance can be accessed via the getSPair method. 
  */
-public class AtomPairSet {
+public class AtomPairSet implements java.io.Serializable {
 
     /**
      * Constructor for AtomPairSet.

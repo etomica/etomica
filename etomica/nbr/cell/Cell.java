@@ -16,7 +16,7 @@ import etomica.lattice.SiteFactory;
  */
 
 
-public class Cell {
+public class Cell implements java.io.Serializable {
 
     public Cell(int latticeArrayIndex) {
         this.latticeArrayIndex = latticeArrayIndex;

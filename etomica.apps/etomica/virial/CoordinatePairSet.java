@@ -22,7 +22,7 @@ import etomica.space.CoordinatePair;
  * 08/21/03 (DAK) rearranged loops in resetPairs method
  */
  
-public class CoordinatePairSet {
+public class CoordinatePairSet implements java.io.Serializable {
 
     /**
      * Constructor for CoordinatePairSet.

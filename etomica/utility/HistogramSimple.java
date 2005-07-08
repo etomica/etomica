@@ -6,7 +6,7 @@ package etomica.utility;
  * 08/04/04 (DAK,AJS,NRC) deleted DataSource.X methods; de-implemented DataSource.X.  Dimension-related material removed
  */
 
-public class HistogramSimple implements Histogram {
+public class HistogramSimple implements Histogram, java.io.Serializable {
 	private double deltaX;
 	private int  sum;
 	private int[] counts;

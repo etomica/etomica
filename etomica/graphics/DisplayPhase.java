@@ -21,7 +21,7 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.space.Vector;
 import etomica.space1d.Space1D;
 import etomica.units.BaseUnit;
-import etomica.utility.java2.LinkedList;
+import java.util.LinkedList;
 
 /**
  * Displays a picture of a phase, with configurations of molecules, boundaries, and other objects as appropriate, assuming 2-dimensional system.  

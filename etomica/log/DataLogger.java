@@ -13,7 +13,7 @@ import etomica.data.types.DataDoubleArray;
 /**
  * Logs data to a file as it comes in.
  */
-public class DataLogger implements DataSink {
+public class DataLogger implements DataSink, java.io.Serializable {
 
 	private final String fileName;
     private String label = "";

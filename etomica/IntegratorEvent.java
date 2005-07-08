@@ -13,7 +13,7 @@ package etomica;
  * History
  * Created on Apr 27, 2005 by kofke
  */
-public class IntegratorEvent {
+public class IntegratorEvent implements java.io.Serializable {
 
     // Typed constants used to indicate the type of event integrator is
     // announcing

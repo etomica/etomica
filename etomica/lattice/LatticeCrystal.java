@@ -17,7 +17,7 @@ import etomica.space.Vector;
  * History
  * Created on Jan 5, 2005 by kofke
  */
-public class LatticeCrystal implements SpaceLattice {
+public class LatticeCrystal implements SpaceLattice, java.io.Serializable {
 
     /**
      * Constructs a lattice having sites given by the "atom" sites

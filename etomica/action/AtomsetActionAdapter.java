@@ -15,7 +15,7 @@ import etomica.AtomSet;
  * @author David Kofke
  */
  
-public abstract class AtomsetActionAdapter implements AtomsetAction {
+public abstract class AtomsetActionAdapter implements AtomsetAction, java.io.Serializable {
     
     protected AtomSet atoms;
     String label;

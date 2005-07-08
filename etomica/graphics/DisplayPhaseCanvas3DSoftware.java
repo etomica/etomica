@@ -447,7 +447,7 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
 
         /** A fairly conventional 3D matrix object that can transform sets of
         3D points and perform a variety of manipulations on the transform */
-    public static class Matrix3D {
+    public static class Matrix3D implements java.io.Serializable {
       double xx, xy, xz, xo;
       double yx, yy, yz, yo;
       double zx, zy, zz, zo;

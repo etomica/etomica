@@ -1,6 +1,6 @@
 package etomica.utility;
 
-public class StringUtility {
+public class StringUtility implements java.io.Serializable {
     
     public static String capitalize(String s) {
         if(s == null || s.length() == 0) return s;

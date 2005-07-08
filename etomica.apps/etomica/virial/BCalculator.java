@@ -12,7 +12,7 @@ import etomica.virial.cluster.ClusterBz;
 
 //need to check that coefficient of b2^8 is correct for B9
 
-public class BCalculator {
+public class BCalculator implements java.io.Serializable {
 
 	/**
 	 * Constructor for BCalculator.

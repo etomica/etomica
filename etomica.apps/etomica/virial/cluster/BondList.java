@@ -9,7 +9,7 @@ import etomica.virial.cluster.graphics.ShowCluster;
  * Also has several utility methods to charactize a cluster formed from these
  * bonds.
  */
-public class BondList {
+public class BondList implements java.io.Serializable {
 	
 	private int[][] pairs;
 
@@ -79,7 +79,7 @@ public class BondList {
  * Iterator that generates bond lists beginning from an initial list and
  * deleting one or more bonds from it.
  */
-	private static class DeletionIterator {
+	private static class DeletionIterator implements java.io.Serializable {
 		
 		private CombinationIterator comboIterator = new CombinationIterator();
 		private BondList next;
@@ -154,7 +154,7 @@ public class BondList {
 		return (count == (n-1));//true if 0 is connected to all others by some path		
 	}
 	
-	public static class PermutationSet {
+	public static class PermutationSet implements java.io.Serializable {
 		final int[][][] signatures;
 		final int[][] prototype;
 		final int[][] nbrCount; //nbrCount[i][0] is no of root point i is bonded to, [i][1] is no of field points

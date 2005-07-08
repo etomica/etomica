@@ -11,7 +11,7 @@ import etomica.Space;
  * Top-level class for a molecular model.
  */
 //TODO provide means to introduce truncation scheme
-public abstract class Model {
+public abstract class Model implements java.io.Serializable {
 	
 	public Model() {
 	}

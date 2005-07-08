@@ -20,7 +20,7 @@ import etomica.potential.PotentialTruncated;
  * @author David Kofke
  */
  
-public class PotentialMaster {
+public class PotentialMaster implements java.io.Serializable {
     
     public PotentialMaster(Space space) {
         this(space,IteratorFactorySimple.INSTANCE);

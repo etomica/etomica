@@ -84,7 +84,7 @@ public class MeterMeanSquareDisplacement extends Meter implements
         data[0] = sum/(double)nAtoms;
     }
     
-    private class BeforePbc implements IntegratorIntervalListener {
+    private class BeforePbc implements IntegratorIntervalListener, java.io.Serializable {
         public int getPriority() {return 50;}//PBC is 100-199
         public void intervalAction(IntegratorIntervalEvent evt) {
              iterator.reset();
@@ -100,7 +100,7 @@ public class MeterMeanSquareDisplacement extends Meter implements
         }//end of intervalAction    
     }//end of BeforePbc
     
-    private class AfterPbc implements IntegratorIntervalListener {
+    private class AfterPbc implements IntegratorIntervalListener, java.io.Serializable {
         public int getPriority() {return 200;}//PBC is 100-199
         public void intervalAction(IntegratorIntervalEvent evt) {
             iterator.reset();

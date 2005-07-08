@@ -15,7 +15,7 @@ import etomica.units.UnitSystem;
  * 09/02/03 (DAK) added DO_SLEEP, used by Integrator
  */
 
-public final class Default {
+public final class Default implements java.io.Serializable {
     
  //   public static String WORKING_DIRECTORY = getWorkingDirectory();
  //   public static String WORKING_DIRECTORY = "D:\\Etomica\\";

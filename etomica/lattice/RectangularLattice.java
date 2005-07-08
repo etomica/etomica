@@ -23,7 +23,7 @@ package etomica.lattice;
 //  for this example, size = {2, 2, 3}, jumpCount = {6, 3, 1}
 //  note that number of sites = size[0]*jumpCount[0]
 
-public class RectangularLattice implements FiniteLattice {
+public class RectangularLattice implements FiniteLattice, java.io.Serializable {
 
     /**
      * Constructs a lattice of the given dimension (D) with sites
@@ -145,7 +145,7 @@ public class RectangularLattice implements FiniteLattice {
     /**
      *  Iterates over all sites of the lattice. 
      */
-    public static class Iterator implements SiteIterator {
+    public static class Iterator implements SiteIterator, java.io.Serializable {
         
         public Iterator(int D) {
             idx = new int[D];

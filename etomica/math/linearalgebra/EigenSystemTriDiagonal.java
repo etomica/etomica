@@ -2,7 +2,7 @@ package etomica.math.linearalgebra;
 
 
 //Eigenvalues and Eigenvectors of a tridiagonal matrix Refer Numerical Recipes page 480-481 
-public class EigenSystemTriDiagonal {
+public class EigenSystemTriDiagonal implements java.io.Serializable {
     
     private int n = 20;
     private double []d ;//contains diagonal elements of the tridiagonal matrix

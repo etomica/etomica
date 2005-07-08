@@ -15,7 +15,7 @@ import etomica.Phase;
  * to the method, concatenated by a number equal to the number of times the
  * method has been invoked previously with the given class.
  */
-public class NameMaker {
+public class NameMaker implements java.io.Serializable {
 
     /**
      * Private constructor prevents instantiation.
@@ -41,7 +41,7 @@ public class NameMaker {
     private static HashMap classList = new HashMap();
 
     //A mutable Integer class used to keep an instance count for each Class.
-    private static class ClassCount {
+    private static class ClassCount implements java.io.Serializable {
         int count = 0;
     }
 

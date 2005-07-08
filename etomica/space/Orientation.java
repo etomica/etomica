@@ -7,7 +7,7 @@ package etomica.space;
  * History
  * Created on Jan 24, 2005 by kofke
  */
-public abstract class Orientation {
+public abstract class Orientation implements java.io.Serializable {
     public abstract void E(Orientation o); //copies the given orientation to this
     public abstract Vector[] bodyFrame();//body-frame axes in the space-fixed frame
     public abstract double[] angle();//set of angles describing the orientation

@@ -32,7 +32,7 @@ public interface DisplayPhaseListener extends EventListener {
      * @see AtomActionAdapter
      */
      //A main method demonstrating the use of this wrapper is included in AtomAction
-    public static class AtomActionWrapper implements DisplayPhaseListener {
+    public static class AtomActionWrapper implements DisplayPhaseListener, java.io.Serializable {
         private AtomActionAdapter atomAction;
         private boolean retractOnRelease = false;
         private boolean retractOnRightClick = false;

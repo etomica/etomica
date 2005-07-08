@@ -11,7 +11,7 @@ package etomica.utility;
  * minimum and maximum value and can test if a given integer is within
  * the range.  Each instance is immutable.
  */
-public final class IntegerRange {
+public final class IntegerRange implements java.io.Serializable {
 
 	private final int min;
 	private final int max;

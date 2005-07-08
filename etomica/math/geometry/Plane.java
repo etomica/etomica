@@ -17,7 +17,7 @@ import etomica.space3d.Vector3D;
   * 09/21/02 (DAK) added method for computing in-plane vectors
   */
 
-public class Plane {
+public class Plane implements java.io.Serializable {
     
     //coefficients defining plane, ax + by + cz + d = 0
     //such that a^2 + b^c + c^2 = 1

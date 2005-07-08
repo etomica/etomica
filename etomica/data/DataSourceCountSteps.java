@@ -24,7 +24,7 @@ import etomica.utility.NameMaker;
  */
 
 public final class DataSourceCountSteps implements DataSource, 
-        IntegratorNonintervalListener, IntegratorIntervalListener, EtomicaElement {
+        IntegratorNonintervalListener, IntegratorIntervalListener, EtomicaElement, java.io.Serializable, {
 
 	/**
 	 * Sets up data source to count integrator steps.

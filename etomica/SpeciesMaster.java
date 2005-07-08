@@ -174,7 +174,7 @@ public final class SpeciesMaster extends Atom {
         private final AtomIteratorTree leafIterator = new AtomIteratorTree();
     } //end of MasterAtomTreeNode
 
-    private static final class NodeFactory implements AtomTreeNodeFactory {
+    private static final class NodeFactory implements AtomTreeNodeFactory, java.io.Serializable {
 
         Phase phase;
 

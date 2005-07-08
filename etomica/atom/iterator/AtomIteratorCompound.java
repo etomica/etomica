@@ -14,7 +14,7 @@ import etomica.utility.Arrays;
  * @author David Kofke
  */
 
-public class AtomIteratorCompound implements AtomIterator {
+public class AtomIteratorCompound implements AtomIterator, java.io.Serializable {
 
     /**
      * Construct iterator to loop over all iterates obtained from each iterator

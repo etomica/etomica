@@ -9,7 +9,7 @@ public interface PotentialReactive {
         
     public BondChangeData[] getBondChangeData();
         
-    public static class BondChangeData {
+    public static class BondChangeData implements java.io.Serializable {
         public Atom atom;
         public Atom[] oldPartners;
         public Atom[] newPartners;

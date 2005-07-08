@@ -10,7 +10,7 @@ import etomica.Space;
   * 09/08/02 (DAK) implemented as function
   */
   
-public final class MaxwellBoltzmann {
+public final class MaxwellBoltzmann implements java.io.Serializable {
     
     //private to prevent instantiation
     private MaxwellBoltzmann() {}
@@ -25,7 +25,7 @@ public final class MaxwellBoltzmann {
     /**
      * Function giving the Maxwell-Boltzmann distribution of speeds.
      */
-    public static class Distribution implements etomica.utility.Function {
+    public static class Distribution implements etomica.utility.Function, java.io.Serializable {
         private double temperature;
         private double mass;
         private Space space;

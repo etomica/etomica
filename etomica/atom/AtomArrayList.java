@@ -425,7 +425,7 @@ import etomica.atom.iterator.AtomIteratorArrayList;
 	     *             instance is emitted (int), followed by all of its elements
 	     *             (each an Atom) in the proper order.
 	     */
-	    private synchronized void writeAtoms(java.io.ObjectOutputStream s)
+	    private synchronized void writeObject(java.io.ObjectOutputStream s)
 	        throws java.io.IOException{
 	    	// Write out element count, and any hidden stuff
 	    	s.defaultWriteObject();
@@ -442,7 +442,7 @@ import etomica.atom.iterator.AtomIteratorArrayList;
 	     * Reconstitute the ArrayList instance from a stream (that is,
 	     * deserialize it).
 	     */
-	    private synchronized void readAtoms(java.io.ObjectInputStream s)
+	    private synchronized void readObject(java.io.ObjectInputStream s)
 	        throws java.io.IOException, ClassNotFoundException {
 	    	// Read in size, and any hidden stuff
 	    	s.defaultReadObject();

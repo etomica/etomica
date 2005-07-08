@@ -16,7 +16,7 @@ public interface Function {
     /**
      * The function f(x) = constant
      */
-    public static class Constant implements Function {
+    public static class Constant implements Function, java.io.Serializable {
 
         private double c;
 
@@ -44,7 +44,7 @@ public interface Function {
     /**
      * The function f(x) = x
      */
-    public static class Identity implements Function {
+    public static class Identity implements Function, java.io.Serializable {
 
         public double f(double x) {
             return x;
@@ -64,7 +64,7 @@ public interface Function {
     /**
      * The function f(x) = 1/x
      */
-    public static class Reciprocal implements Function {
+    public static class Reciprocal implements Function, java.io.Serializable {
 
         public double f(double x) {
             return 1.0 / x;
@@ -84,7 +84,7 @@ public interface Function {
     /**
      * The function f(x) = ln(x)
      */
-    public static class Log implements Function {
+    public static class Log implements Function, java.io.Serializable {
 
         public double f(double x) {
             return Math.log(x);
@@ -104,7 +104,7 @@ public interface Function {
     /**
      * The function f(x) = sqrt(x)
      */
-    public static class Sqrt implements Function {
+    public static class Sqrt implements Function, java.io.Serializable {
 
         public double f(double x) {
             return Math.sqrt(x);
@@ -124,7 +124,7 @@ public interface Function {
     /**
      * The function f(x) = abs(x)
      */
-    public static class Abs implements Function {
+    public static class Abs implements Function, java.io.Serializable {
 
         public double f(double x) {
             return Math.abs(x);
@@ -144,7 +144,7 @@ public interface Function {
     /**
      * The function f(x) = a*x + b
      */
-    public static class Linear implements Function {
+    public static class Linear implements Function, java.io.Serializable {
 
         private final double a, b, ra;
 

@@ -17,7 +17,7 @@ import etomica.action.AtomsetAction;
  * prepare it for iteration.  Subclasses may also override individual
  * methods as appropriate to their implementation.
  */
-public abstract class AtomsetIteratorAdapter implements AtomsetIterator {
+public abstract class AtomsetIteratorAdapter implements AtomsetIterator, java.io.Serializable {
 
 	protected final AtomsetIterator iterator;
 	

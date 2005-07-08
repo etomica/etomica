@@ -19,7 +19,7 @@ import etomica.atom.AtomList;
  */
 
 public final class AtomIteratorListTabbed implements AtomIterator,
-        AtomsetIteratorListDependent {
+        AtomsetIteratorListDependent, java.io.Serializable {
 
     /**
      * Constructs a new iterator using an empty list as its basis for iteration.

@@ -1,7 +1,7 @@
 package etomica.graphics;
 
 
-public final class gluSphere {
+public final class gluSphere implements java.io.Serializable {
   /* Make it not a power of two to avoid cache thrashing on the chip */
   private static final int CACHE_SIZE = 240;
   private static final boolean lines = false;

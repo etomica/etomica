@@ -8,7 +8,7 @@ import etomica.utility.Arrays;
  * An object that may hold one or more data sinks to which it can 
  * push its data.
  */
-public abstract class DataPusher {
+public abstract class DataPusher implements java.io.Serializable {
 
     /**
      * Method called by subclasses to move data into sinks.

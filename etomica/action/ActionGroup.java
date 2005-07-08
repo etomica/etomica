@@ -18,7 +18,7 @@ import etomica.utility.Arrays;
  * History
  * Created on Feb 2, 2005 by kofke
  */
-public class ActionGroup implements Action {
+public class ActionGroup implements Action, java.io.Serializable {
 
     /**
      * Constructs an action group that holds no actions.

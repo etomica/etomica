@@ -4,7 +4,7 @@ import java.awt.Color;
 
 import etomica.Default;
 
-public final class DefaultGraphic {
+public final class DefaultGraphic implements java.io.Serializable {
     
     static {
         Default.IS_GRAPHIC = true;

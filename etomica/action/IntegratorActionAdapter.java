@@ -10,7 +10,7 @@ import etomica.Integrator;
  * Convenience class used to define a IntegratorAction. Implements all methods
  * of IntegratorAction interface, except for actionPerformed.
  */
-public abstract class IntegratorActionAdapter implements IntegratorAction {
+public abstract class IntegratorActionAdapter implements IntegratorAction, java.io.Serializable {
 
 	/**
 	 * Constructs the Action with the given descriptive label.

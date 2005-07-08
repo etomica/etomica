@@ -32,7 +32,7 @@ import etomica.space3d.Vector3D;
   * 10/21/02 (DAK) added static method to set EtomicaTheme
   * 09/02/03 (DAK) setting Default.DO_SLEEP in constructor
   */
-public class SimulationGraphic implements SimulationContainer {
+public class SimulationGraphic implements SimulationContainer, java.io.Serializable {
     
     static {
         try {
@@ -216,7 +216,7 @@ public class SimulationGraphic implements SimulationContainer {
         
     }//end of main
     
-    private static class MyFilter implements AtomFilter {
+    private static class MyFilter implements AtomFilter, java.io.Serializable {
         Polyhedron polyhedron;
         AtomPositionDefinition positionDefinition;
         public MyFilter(Polyhedron shape) {

@@ -18,7 +18,7 @@ package etomica.utility;
 /*
  * Created on Jun 25, 2003
  */
-public class FastFourierTransform {
+public class FastFourierTransform implements java.io.Serializable {
 
 	private double[] real;					// array of real plots
 	private double[] imaginary;				// array of imaginary plots

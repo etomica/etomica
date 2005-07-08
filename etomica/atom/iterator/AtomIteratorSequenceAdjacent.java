@@ -18,7 +18,7 @@ import etomica.atom.AtomList;
  * direction.
  */
 
-public class AtomIteratorSequenceAdjacent implements AtomIteratorAtomDependent, AtomsetIteratorDirectable {
+public class AtomIteratorSequenceAdjacent implements AtomIteratorAtomDependent, AtomsetIteratorDirectable, java.io.Serializable {
 
     /**
      * Constructor gives iterator not ready for iteration.  Must

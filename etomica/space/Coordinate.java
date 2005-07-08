@@ -14,7 +14,7 @@ import etomica.Space;
  * History
  * Created on Jan 26, 2005 by kofke
  */
-public class Coordinate implements ICoordinate {
+public class Coordinate implements ICoordinate, java.io.Serializable {
 
     /**
      * Makes the coordinate vector using the given Space.

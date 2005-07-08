@@ -9,7 +9,7 @@ import etomica.Potential;
  * General Mayer function, which wraps the Mayer potential around an instance of
  * a Potential2 object.
  */
-public class MayerEGeneral implements MayerFunction {
+public class MayerEGeneral implements MayerFunction, java.io.Serializable {
 
 	/**
 	 * Constructor Mayer function using given potential.

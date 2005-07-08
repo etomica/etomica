@@ -34,7 +34,7 @@ import etomica.space.Vector;
 //no need for index when assigning cell
 //different iterator needed
 
-public class NeighborCellManager implements PhaseCellManager {
+public class NeighborCellManager implements PhaseCellManager, java.io.Serializable {
 
     private final CellLattice lattice;
     private final Space space;
@@ -125,7 +125,7 @@ public class NeighborCellManager implements PhaseCellManager {
     }
 
     
-    private class MyMCMoveListener implements MCMoveListener {
+    private class MyMCMoveListener implements MCMoveListener, java.io.Serializable {
         public MyMCMoveListener() {
             treeIterator = new AtomIteratorTree();
             treeIterator.setDoAllNodes(true);

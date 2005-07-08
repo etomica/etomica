@@ -15,7 +15,7 @@ import etomica.action.AtomsetAction;
  * @author David Kofke
  */
 
-public class ApiSinglet implements AtomPairIterator {
+public class ApiSinglet implements AtomPairIterator, java.io.Serializable {
 
     /**
      * Constructs iterator without defining atoms in pair.

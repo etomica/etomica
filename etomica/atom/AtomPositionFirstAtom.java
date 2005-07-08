@@ -8,7 +8,7 @@ import etomica.space.Vector;
  * the first child leaf atom.
  */
 
-public class AtomPositionFirstAtom implements AtomPositionDefinition {
+public class AtomPositionFirstAtom implements AtomPositionDefinition, java.io.Serializable {
 
     public Vector position(Atom atom) {
         return atom.node.firstLeafAtom().coord.position();

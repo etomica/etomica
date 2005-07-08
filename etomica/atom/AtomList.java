@@ -1,6 +1,10 @@
 package etomica.atom;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
@@ -8,6 +12,7 @@ import java.util.Vector;
 import etomica.Atom;
 import etomica.AtomIterator;
 import etomica.Debug;
+import etomica.utility.EtomicaObjectInputStream;
 import etomica.Simulation;
 import etomica.atom.iterator.AtomIteratorListSimple;
 
@@ -530,8 +535,73 @@ public class AtomList implements java.io.Serializable
 	    return result;
     }
 
-    protected int size = 0;
+    protected transient int size = 0;
+
+    private void writeObject(java.io.ObjectOutputStream out)
+    throws IOException
+	{
+        // write header, but header won't write its links
+        out.defaultWriteObject();
+        
+        // figure out how many linkers we will write.  size is re-determined after read.
+        int numLinks = 0;
+        for (AtomLinker e = header.next; e != header; e = e.next) {
+            numLinks++;
+        }
+        out.writeInt(numLinks);
+        for (AtomLinker e = header.next; e != header; e = e.next) {
+            out.writeObject(e);
+        }
+	}
+    private void readObject(java.io.ObjectInputStream in)
+    throws IOException, ClassNotFoundException
+	{
+        EtomicaObjectInputStream etomicaIn = (EtomicaObjectInputStream)in; 
+        etomicaIn.defaultReadObject();
+        // we read size, but zero it now so we can add elements
+        int sz = etomicaIn.readInt();
+        LinkedList atomLinkers = null;
+        if (sz > 0) {
+            atomLinkers = new LinkedList();
+            etomicaIn.linkerLists.put(this,atomLinkers);
+        }
+    	for ( int i=0; i<sz; i++)
+    	{
+            // we don't need this, but it ensures that what we read are AtomLinkers
+    		AtomLinker link = (AtomLinker)in.readObject();
+            atomLinkers.add(link);
+    	}
+        // the list is still invalid
+        size = -1;
+        etomicaIn.atomLists.add(this);
+	}
     
+    private void rebuildList(LinkedList linkers) {
+        if (size != -1) {
+            throw new IllegalStateException("An AtomList must only be rebuilt after unseriailzation");
+        }
+        size = 0;
+        // no linkers were read
+        if (linkers == null) {
+            return;
+        }
+        Iterator linkIterator = linkers.iterator();
+        while (linkIterator.hasNext()) {
+            add((AtomLinker)linkIterator.next());
+        }
+    }
+    
+    public static void rebuildAllLists(EtomicaObjectInputStream in) {
+        Iterator listIterator = in.atomLists.iterator();
+        while (listIterator.hasNext()) {
+            AtomList list = (AtomList)listIterator.next();
+            LinkedList linkers = (LinkedList)in.linkerLists.get(list);
+            list.rebuildList(linkers);
+        }
+        in.atomLists.clear();
+        in.linkerLists.clear();
+    }
+
     //main method to demonstrate and test this class
 /*    public static void main(String[] args) throws java.io.IOException {
         

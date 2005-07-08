@@ -38,7 +38,7 @@ import etomica.action.AtomsetDetect;
  * @author David Kofke and Andrew Schultz
  */
    
-public class AtomIteratorTree implements AtomIterator {
+public class AtomIteratorTree implements AtomIterator, java.io.Serializable {
     
 	/**
 	 * Default gives a leaf-atom iterator.  Must set a root node and

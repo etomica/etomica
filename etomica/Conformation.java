@@ -12,7 +12,7 @@ import etomica.atom.AtomList;
  * each atom group that it builds.  
  */
  
-public abstract class Conformation {
+public abstract class Conformation implements java.io.Serializable {
 
     public Conformation(Space space) {
         this.space = space;

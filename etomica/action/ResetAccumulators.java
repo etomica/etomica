@@ -15,7 +15,7 @@ import etomica.data.DataAccumulator;
  * of accumulators, as specified via a list of AccumulatorManager
  * instances.
  */
-public class ResetAccumulators implements Action {
+public class ResetAccumulators implements Action, java.io.Serializable {
 
 	/**
 	 * 

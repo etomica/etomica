@@ -200,7 +200,7 @@ public interface MCMoveSwap {
 
     // -----------inner class----------------
     
-public static class MCMoveSwapFactoryDefault implements MCMoveSwapFactory {
+public static class MCMoveSwapFactoryDefault implements MCMoveSwapFactory, java.io.Serializable {
     public MCMove makeMCMoveSwap(PotentialMaster potentialMaster, 
                                     Integrator integrator1, Integrator integrator2) {
         return new MCMoveSwapConfiguration(potentialMaster, integrator1, integrator2);
@@ -314,7 +314,7 @@ public static class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap
      * simulation.  Designed for input to a DisplayPlot to provide a graphical
      * record of how the phases swap configurations.
      */
-    public static class PhaseTracker implements DataSource, MCMoveListener {
+    public static class PhaseTracker implements DataSource, MCMoveListener, java.io.Serializable {
         
         private int[] track;
         private double[] dtrack;

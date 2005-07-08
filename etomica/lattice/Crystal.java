@@ -10,7 +10,7 @@ import etomica.space.Vector;
  * of a lattice. The sites of this class are an array of vectors indicating the placement 
  * the "atoms" for the "molecule" at the Bravais lattice site for the given primitive.
  */
-public class Crystal implements AbstractLattice {
+public class Crystal implements AbstractLattice, java.io.Serializable {
     
     /**
      * Constructs a crystal using the given basis and a Bravais lattice 

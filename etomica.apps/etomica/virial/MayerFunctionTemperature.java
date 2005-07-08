@@ -7,7 +7,7 @@ import etomica.AtomSet;
  * the temperature passed to f(), asking the wrapped MayerFunction
  * for its value at the MayerFunctionTemperature's temperature.
  */
-public class MayerFunctionTemperature implements MayerFunction {
+public class MayerFunctionTemperature implements MayerFunction, java.io.Serializable {
 
     public MayerFunctionTemperature(MayerFunction fWrapped, double temperature) {
         beta = 1/temperature;

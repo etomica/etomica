@@ -19,7 +19,7 @@ import etomica.lattice.RectangularLattice;
  * Returns occupants of all cells as iterates.
  */
 
-public class AtomIteratorCell implements AtomIterator {
+public class AtomIteratorCell implements AtomIterator, java.io.Serializable {
 
 	/**
      * Constructor makes iterator that must have phase specified and then be

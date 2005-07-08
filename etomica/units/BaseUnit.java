@@ -20,7 +20,7 @@ package etomica.units;
  * 03/11/04 (DAK) modified with changes introducing Unit interface, PrefixedUnit
  * class
  */
-public abstract class BaseUnit implements Unit {
+public abstract class BaseUnit implements Unit, java.io.Serializable {
     
     /**
      * Constructor defaulting to allow a prefix.

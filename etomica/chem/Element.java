@@ -9,7 +9,7 @@ import java.awt.Color;
  * Subclasses are (or will be) defined to correspond to each element in the
  * periodic table.
  */
-public abstract class Element {
+public abstract class Element implements java.io.Serializable {
 	private Color color;
 	
 	public Element(Color color) {

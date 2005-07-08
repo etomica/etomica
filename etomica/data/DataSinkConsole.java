@@ -11,7 +11,7 @@ import etomica.utility.NameMaker;
 /**
  * Writes data to console or another print stream.
  */
-public class DataSinkConsole implements DataSink, EtomicaElement {
+public class DataSinkConsole implements DataSink, EtomicaElement, java.io.Serializable {
 
     /**
      * Makes class using System.out as the default output stream.

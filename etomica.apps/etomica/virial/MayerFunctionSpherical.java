@@ -11,7 +11,7 @@ import etomica.space.CoordinatePair;
  * Abstract class for a Mayer f-function, which takes a pair of atoms and
  * returns exp(-u(pair)/kT) - 1
  */
-public abstract class MayerFunctionSpherical implements MayerFunction {
+public abstract class MayerFunctionSpherical implements MayerFunction, java.io.Serializable {
 
     public MayerFunctionSpherical(Space space) {
         coordPair = space.makeCoordinatePair();

@@ -11,7 +11,7 @@ import etomica.utility.Function;
  * History
  * Created on Jan 24, 2005 by kofke
  */
-public class Tensor1D implements etomica.space.Tensor {
+public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
     double xx;
     public static final Tensor1D ZERO = new Tensor1D();
     public static final Tensor1D IDENTITY = new Tensor1D(new double[] {1.0});

@@ -109,7 +109,7 @@ public abstract class Device implements GraphicalElement, Dimensioned, java.io.S
 
     private String name;
     
-    private static class ActionSet implements Action {
+    private static class ActionSet implements Action, java.io.Serializable {
         Action preAction, postAction, action;
         
         public void actionPerformed() {

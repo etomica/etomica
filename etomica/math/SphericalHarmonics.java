@@ -3,7 +3,7 @@ package etomica.math;
 import etomica.utility.AssociatedPolynomial;
 
 
-public class SphericalHarmonics{
+public class SphericalHarmonics implements java.io.Serializable {
              
     private static double factor(int l,int m){
         return Math.sqrt(((2.0*l + 1.0)*SpecialFunctions.factorial(l-m))/(4.0*Math.PI*SpecialFunctions.factorial(l+m)));

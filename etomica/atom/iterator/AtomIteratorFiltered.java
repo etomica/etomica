@@ -22,7 +22,7 @@ import etomica.atom.AtomList;
  * created using the static makeIterator method, which attempts to return an
  * iterator that implements interface of wrapped iterator.
  */
-public class AtomIteratorFiltered implements AtomIterator {
+public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable {
 
     /**
      * Returns the iterates of the given iterator that meet the critertia of the

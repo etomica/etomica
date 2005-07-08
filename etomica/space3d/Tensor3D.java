@@ -9,7 +9,7 @@ import etomica.utility.Function;
  * History
  * Created on Jan 24, 2005 by kofke
  */
-public class Tensor3D implements Tensor {
+public class Tensor3D implements Tensor, java.io.Serializable {
     double xx, xy, xz, yx, yy, yz, zx, zy, zz;
     public static final Tensor3D ORIGIN = new Tensor3D();
     public Tensor3D () {xx = xy = xz = yx = yy = yz = zx = zy = zz = 0.0;}

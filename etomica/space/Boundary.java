@@ -13,7 +13,7 @@ import etomica.math.geometry.Polytope;
  * 
  */
 public abstract class Boundary implements NearestImageTransformer,
-        java.io.Serializable {
+        java.io.Serializable, java.io.Serializable, java.io.Serializable {
 
     public Boundary(Space space, Polytope shape) {
         this.space = space;

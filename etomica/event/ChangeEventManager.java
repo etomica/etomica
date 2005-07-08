@@ -12,7 +12,7 @@ import javax.swing.event.EventListenerList;
   * 10/12/02 (DAK) new
   */
   
-public class ChangeEventManager {
+public class ChangeEventManager implements java.io.Serializable {
     
     EventListenerList listenerList = new EventListenerList();
     final ChangeEvent changeEvent;

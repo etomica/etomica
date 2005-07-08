@@ -6,7 +6,7 @@ import etomica.Simulation;
  * Convenience class used to define a SimulationAction. Implements all methods
  * of SimulationAction interface, except for actionPerformed.
  */
-public abstract class SimulationActionAdapter implements SimulationAction {
+public abstract class SimulationActionAdapter implements SimulationAction, java.io.Serializable {
 
 	/**
 	 * Constructs the Action with the given descriptive label.

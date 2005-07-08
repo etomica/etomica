@@ -18,7 +18,7 @@ import etomica.math.discrete.PermutationIterator;
  * computing them all thus saves on recalculation of the r2 separations.
  */
  
-public class ClusterBonds {
+public class ClusterBonds implements java.io.Serializable {
 
 	/**
 	 * Constructor for Cluster, with default to not using permutations (this can

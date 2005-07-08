@@ -20,7 +20,7 @@ import etomica.utility.IntegerRange;
   * 09/08/02 (DAK) new
   */
   
-public class DataSourceFunction implements DataSource, DataSourceDependent {
+public class DataSourceFunction implements DataSource, DataSourceDependent, java.io.Serializable {
     
     public DataSourceFunction() {
         this(new Function.Constant(0.0));

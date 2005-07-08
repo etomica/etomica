@@ -25,7 +25,7 @@ import etomica.units.Dimension;
  * 
  * @author Rob Riggleman
  */
-public class MeterProfile implements DataSource, Meter {
+public class MeterProfile implements DataSource, Meter, java.io.Serializable {
     
     /**
      * Default constructor sets profile along the y-axis, with 100 histogram points.

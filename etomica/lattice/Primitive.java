@@ -11,7 +11,7 @@ import etomica.space.Vector;
  * by the structure of a Bravais lattice.
  */
 //TODO add propertyChangeListeners to be notified if primitive changes
-public abstract class Primitive {
+public abstract class Primitive implements java.io.Serializable {
     
     protected final Vector[] latticeVectors;
     protected final Vector[] latticeVectorsCopy;

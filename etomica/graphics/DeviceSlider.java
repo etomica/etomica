@@ -362,7 +362,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
     /**
      * Slider listener, which relays the slider change events to the modifier
      */
-    private class SliderListener implements ChangeListener {
+    private class SliderListener implements ChangeListener, java.io.Serializable {
         public void stateChanged(ChangeEvent evt) {
             if(modifyAction!=null) {
                 modifyAction.setValueForAction(unit.toSim(slider.getDecimalSliderValue()));            

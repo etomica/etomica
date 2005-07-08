@@ -2,9 +2,9 @@ package etomica.utility;
 //Java2 imports
 //import java.util.LinkedList;
 
-import etomica.utility.java2.LinkedList;
+import java.util.LinkedList;
 
-public class OdeSolver {
+public class OdeSolver implements java.io.Serializable {
     
     /**
      * Performs Runge-Kutta integration for fixed number of constant-sized steps.
@@ -156,7 +156,7 @@ public class OdeSolver {
     public interface Rhs {
         public double[] dydx(Variables xy);
     }
-    public static class Variables {
+    public static class Variables implements java.io.Serializable {
         public double x;
         public double[] y;
         public Variables() {this(1);}

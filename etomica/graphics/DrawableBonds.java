@@ -18,7 +18,7 @@ import etomica.space.Vector;
   * 12/04/02 (DAK) new
   */
 
-public class DrawableBonds implements Drawable {
+public class DrawableBonds implements Drawable, java.io.Serializable {
     
     private AtomIteratorListSimple iterator1;
     private AtomIteratorBonds iteratorBonds = new AtomIteratorBonds();

@@ -10,7 +10,7 @@ import etomica.nbr.list.AtomSequencerNbr;
  * @author andrew
  */
 
-public final class Debug {
+public final class Debug implements java.io.Serializable {
 
 	/**
 	 * true if any debugging should be done

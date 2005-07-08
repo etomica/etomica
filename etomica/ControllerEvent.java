@@ -2,7 +2,7 @@ package etomica;
 
 import etomica.Constants.TypedConstant;
 
-public class ControllerEvent {
+public class ControllerEvent implements java.io.Serializable {
     
     protected final Controller controller;
     protected final Type type;

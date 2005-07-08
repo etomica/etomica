@@ -11,7 +11,7 @@ import etomica.Debug;
  * 
  * @author andrew
  */
-public class TreeLinker {
+public class TreeLinker implements java.io.Serializable {
     public final Object obj;
     public TreeLinker previous, nextLeft, nextRight;
     public double sortKey;

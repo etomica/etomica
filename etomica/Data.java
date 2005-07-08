@@ -20,7 +20,7 @@ package etomica;
 /*
  * History Created on Jun 15, 2005 by kofke
  */
-public abstract class Data {
+public abstract class Data implements java.io.Serializable {
 
     /**
      * Constructs the object with the given DataInfo instance, which is returned

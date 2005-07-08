@@ -7,7 +7,7 @@ package etomica.virial;
  * This differs from a ClusterSum mostly because the sub cluster values are
  * not actually summed.
  */
-public class ClusterWeightUmbrella implements ClusterWeight {
+public class ClusterWeightUmbrella implements ClusterWeight, java.io.Serializable {
 	
 	/**
 	 * Contructs an umbrella cluster from the given clusters.

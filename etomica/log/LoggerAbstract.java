@@ -30,7 +30,7 @@ import etomica.utility.NameMaker;
 
 public abstract class LoggerAbstract implements IntegratorIntervalListener,
                                                 IntegratorNonintervalListener,
-                                               java.io.Serializable {
+                                               java.io.Serializable, java.io.Serializable, java.io.Serializable {
     
     public LoggerAbstract(){
         setName(NameMaker.makeName(this.getClass()));
@@ -233,7 +233,7 @@ public abstract class LoggerAbstract implements IntegratorIntervalListener,
     private boolean fileIsOpen = false; //at the beginning, it is false.
     private String name;
     private int priority;
-	private class WriteAction implements etomica.Action {
+	private class WriteAction implements etomica.Action, java.io.Serializable {
 		public WriteAction() {
 			setLabel("Write");
 		}

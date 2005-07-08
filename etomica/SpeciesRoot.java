@@ -103,7 +103,7 @@ public final class SpeciesRoot extends Atom {
         public void removeAtomNotify(Atom atom) {}
     }
     
-    private static final class NodeFactory implements AtomTreeNodeFactory {
+    private static final class NodeFactory implements AtomTreeNodeFactory, java.io.Serializable {
         public AtomTreeNode makeNode(Atom atom) {
             return new RootAtomTreeNode(atom);
         }

@@ -21,7 +21,7 @@ import etomica.utility.NameMaker;
 
 public class DataSourceCountCollisions implements DataSource,
         IntegratorNonintervalListener, IntegratorHard.CollisionListener,
-        EtomicaElement {
+        EtomicaElement, java.io.Serializable {
 
     /**
      * Sets up data source with no integrator specified. Requires call to

@@ -7,7 +7,7 @@ import etomica.units.Dimension;
 /**
  * Acts as a DataSource to retrieve the energy from the integrator 
  */
-public class IntegratorPotentialEnergy implements DataSource, IntegratorNonintervalListener {
+public class IntegratorPotentialEnergy implements DataSource, IntegratorNonintervalListener, java.io.Serializable {
 
     public IntegratorPotentialEnergy(Integrator aIntegrator) {
         data = new DataDoubleArray(new DataInfo("Potential Energy",Dimension.ENERGY));

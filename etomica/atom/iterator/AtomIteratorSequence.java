@@ -24,7 +24,7 @@ import etomica.atom.AtomList;
 /*
  * Created on June 5, 2005 by kofke
  */
-public class AtomIteratorSequence implements AtomIteratorAtomDependent {
+public class AtomIteratorSequence implements AtomIteratorAtomDependent, java.io.Serializable {
 
     /**
      * Constructs a new class to iterate in the specified direction. Default

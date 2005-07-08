@@ -9,7 +9,7 @@ import etomica.atom.AtomSequencerFactory;
  * @author David Kofke and Andrew Schultz
  */
  
-public abstract class AtomFactory {
+public abstract class AtomFactory implements java.io.Serializable {
     
     public final Space space;
     protected Conformation conformation;

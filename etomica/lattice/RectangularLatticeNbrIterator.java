@@ -15,7 +15,7 @@ import etomica.IteratorDirective;
      * to yield the up- and/or down-neighbors of the site.  The central site is
      * not is not included among the iterates (not a self-neighbor).
      */
-    public abstract class RectangularLatticeNbrIterator implements SiteIterator {
+    public abstract class RectangularLatticeNbrIterator implements SiteIterator, java.io.Serializable {
 
         /**
          * Constructs iterator that needs to be configured before use.  Must specify

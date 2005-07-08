@@ -20,7 +20,7 @@ import etomica.action.AtomsetAction;
  * History of changes 08/25/04 (DAK et al) new
  */
 
-public final class ApiInnerFixed implements AtomPairIterator, ApiComposite {
+public final class ApiInnerFixed implements AtomPairIterator, ApiComposite, java.io.Serializable {
 
     /**
      * Construct a pair iterator using the given atom iterators. Requires call

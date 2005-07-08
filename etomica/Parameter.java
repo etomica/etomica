@@ -9,7 +9,7 @@ import etomica.units.Dimension;
  * @author David Kofke
  */
  
- public abstract class Parameter {
+ public abstract class Parameter implements java.io.Serializable {
     
     public static String VERSION = "Parameter:01.11.23";
     

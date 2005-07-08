@@ -10,7 +10,7 @@ import etomica.Controller;
  * Convenience class used to define a ControllerAction. Implements all methods
  * of ControllerAction interface, except for actionPerformed.
  */
-public abstract class ControllerActionAdapter implements ControllerAction {
+public abstract class ControllerActionAdapter implements ControllerAction, java.io.Serializable {
 
 	/**
 	 * Constructs the Action with the given descriptive label.

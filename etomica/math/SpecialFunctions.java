@@ -4,7 +4,7 @@ package etomica.math;
  * Static-method library of various functions
  */
  
-public final class SpecialFunctions {
+public final class SpecialFunctions implements java.io.Serializable {
     
     private SpecialFunctions() {}
     

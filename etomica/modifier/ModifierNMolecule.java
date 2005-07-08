@@ -11,7 +11,7 @@ import etomica.units.Dimension;
 /*
  * History Created on Jan 31, 2005 by kofke
  */
-public class ModifierNMolecule implements Modifier {
+public class ModifierNMolecule implements Modifier, java.io.Serializable {
 
     /**
      * @param speciesAgent Agent of the affected species in the affected phase.

@@ -24,7 +24,7 @@ import etomica.space.BoundaryPeriodic;
  * Returns iterates formed from all molecule pairs of a single species.
  */
 
-public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular {
+public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, java.io.Serializable {
 
 	/**
      * Constructor makes iterator that must have phase specified and then be

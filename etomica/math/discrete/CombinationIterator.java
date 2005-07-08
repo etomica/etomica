@@ -14,7 +14,7 @@ import etomica.math.SpecialFunctions;
  * 10/30/03 (DAK) new
  */
  
-public class CombinationIterator {
+public class CombinationIterator implements java.io.Serializable {
 
 	private int[] index;
 	private int n, k;

@@ -5,7 +5,7 @@ package etomica.virial.cluster;
  * and score.
  * @author andrew
  */
-public class ClusterDiagram {
+public class ClusterDiagram implements java.io.Serializable {
     public final int mNumBody;
     public final int[][] mConnections;
     public int mNumIdenticalPermutations;

@@ -287,7 +287,7 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
     /**
      * Array of 2D triangular cells formed by bisecting the cells of a square lattice.
      */
-    private class MyLattice implements AbstractLattice {
+    private class MyLattice implements AbstractLattice, java.io.Serializable {
         
         BravaisLattice squareLattice;
         AtomList siteList = new AtomList();
@@ -533,7 +533,7 @@ public class PhaseInflatePoint extends PhaseActionAdapter implements Undoable, e
         }
     }
 
-    private class MyCell {
+    private class MyCell implements java.io.Serializable {
         public MySite origin;
         public double jacobian, lnJacobian;
         public double a11, a12, a21, a22;

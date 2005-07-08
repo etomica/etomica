@@ -8,7 +8,7 @@ import etomica.units.Dimension;
 /**
  * Acts as a DataSource to retrieve the energy from the integrator 
  */
-public class IntegratorKineticEnergy implements DataSource, IntegratorNonintervalListener {
+public class IntegratorKineticEnergy implements DataSource, IntegratorNonintervalListener, java.io.Serializable {
 
     public IntegratorKineticEnergy(IntegratorMD aIntegrator) {
         data = new DataDoubleArray(new DataInfo("Potential Energy",Dimension.ENERGY));

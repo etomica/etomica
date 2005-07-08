@@ -5,7 +5,7 @@ package etomica.utility;
  * For example, defines F(x) = f3(f2(f1(x))).
  * Defaults to identity function if no subfunctions are specified.
  */
-public final class FunctionChain implements Function {
+public final class FunctionChain implements Function, java.io.Serializable {
     
     private Link head, tail;
     
@@ -76,7 +76,7 @@ public final class FunctionChain implements Function {
     /**
      * Class for making linked list of Functions
      */
-    public static class Link {
+    public static class Link implements java.io.Serializable {
         public Link next, previous;
         public final Function function;
         public Link(Function func, Link prev) {

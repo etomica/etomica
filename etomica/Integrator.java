@@ -21,7 +21,7 @@ import etomica.utility.NameMaker;
  * @author David Kofke and Andrew Schultz
  */
 
-public abstract class Integrator implements EtomicaElement {
+public abstract class Integrator implements EtomicaElement, java.io.Serializable {
 
     protected final PotentialMaster potential;
     protected Phase firstPhase;
@@ -414,7 +414,7 @@ public abstract class Integrator implements EtomicaElement {
      * on the listeners priority value.
      * This class has a natural ordering that is inconsistent with equals.
      */
-    private static class ListenerWrapper implements Comparable {
+    private static class ListenerWrapper implements Comparable, java.io.Serializable {
         private final IntegratorIntervalListener listener;
         private ListenerWrapper(IntegratorIntervalListener listener) {
             this.listener = listener;

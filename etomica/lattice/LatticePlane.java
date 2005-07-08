@@ -18,7 +18,7 @@ import etomica.space3d.Vector3D;
   * 09/20/02 (DAK) added planeCopy method
   */
   
-public class LatticePlane implements AtomFilter {
+public class LatticePlane implements AtomFilter, java.io.Serializable {
     
     private final Plane plane;
     private Primitive primitive;

@@ -127,7 +127,7 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
 		else return AtomIterator.NULL;
 	}
 	
-public static class Factory implements IntegratorPT.MCMoveSwapFactory {
+public static class Factory implements IntegratorPT.MCMoveSwapFactory, java.io.Serializable {
 	public MCMove makeMCMoveSwap(IntegratorMC integratorMC, 
 									Integrator integrator1, Integrator integrator2) {
 		return new MCMoveSwapCluster(integratorMC, 

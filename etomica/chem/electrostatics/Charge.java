@@ -13,7 +13,7 @@ import etomica.chem.Electrostatic;
  * To change the template for this generated type comment go to
  * Window>Preferences>Java>Code Generation>Code and Comments
  */
-public class Charge implements Electrostatic {
+public class Charge implements Electrostatic, java.io.Serializable {
 	double q;
 	
 	/**

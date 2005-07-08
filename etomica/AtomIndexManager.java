@@ -22,7 +22,7 @@ package etomica;
 /*
  * History Created on Mar 3, 2005 by kofke
  */
-public class AtomIndexManager {
+public class AtomIndexManager implements java.io.Serializable {
 
     /**
      * @param bitLength

@@ -5,7 +5,7 @@ package etomica;
  * for the interaction of a pair of atoms from the size and/or energy
  * values associated with each.
  */
-public abstract class CombiningRule implements Atom.AgentSource {
+public abstract class CombiningRule implements Atom.AgentSource, java.io.Serializable {
     
     public abstract double sigma(Atom[] pair);
     

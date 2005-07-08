@@ -12,7 +12,7 @@ import etomica.utility.Arrays;
  * store the list of potentials and criteria that apply to 
  * the atoms of that type.
  */
-public class NeighborManagerAgent {
+public class NeighborManagerAgent implements java.io.Serializable {
 
 	/**
 	 * 

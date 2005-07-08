@@ -23,7 +23,7 @@ import etomica.units.Dimension;
  * 8/4/04	DAK,AJS,NRC	Add Index method
  */
 
-public class DataSourceUniform implements DataSource {
+public class DataSourceUniform implements DataSource, java.io.Serializable {
     
     /**
      * Default constructor. Chooses 100 points between 0 and 1, inclusive,

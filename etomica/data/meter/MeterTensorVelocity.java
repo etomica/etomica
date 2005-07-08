@@ -23,7 +23,7 @@ import etomica.units.Dimension;
  * @author Rob Riggleman
  */
 
-public class MeterTensorVelocity implements Meter, DataSourceAtomic {
+public class MeterTensorVelocity implements Meter, DataSourceAtomic, java.io.Serializable {
     /**
      * Iterator of atoms.
      */

@@ -1,7 +1,7 @@
 package etomica.math.linearalgebra;
 
 //Reduction of a symmetric matrix to tridiagonal form Refer Numerical Recipes page474-475 
-public class EigenSystemReduction {
+public class EigenSystemReduction implements java.io.Serializable {
     
     private int n = 20;
     private double []d ;//contains diagonal elements of the tridiagonal matrix

@@ -14,7 +14,7 @@ import etomica.data.DataSourceUniform;
  * scroll the data across the plot window. 
  * @author kofke, schultz, cribbin
  */
-public class HistoryScrolling implements History {
+public class HistoryScrolling implements History, java.io.Serializable {
     
     public HistoryScrolling() {this(100);}
     public HistoryScrolling(int n) {

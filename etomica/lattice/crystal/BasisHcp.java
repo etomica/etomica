@@ -15,7 +15,7 @@ import etomica.space.Vector;
   * 01/19/04 (DAK) revised to extend Basis instead of AtomFactory
   */
  
-public class BasisHcp implements Basis {
+public class BasisHcp implements Basis, java.io.Serializable {
     
     /**
      * Makes a basis using a default that uses AtomFactoryMono
