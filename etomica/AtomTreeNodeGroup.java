@@ -147,10 +147,11 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     //access of entry classes).
     public final AtomList childList = new AtomList();
         
-    public static final AtomTreeNodeFactory FACTORY = new AtomTreeNodeFactory() {
+    public static final AtomTreeNodeFactory FACTORY = new AtomTreeNodeGroup.Factory();
+    
+    private static final class Factory implements AtomTreeNodeFactory, java.io.Serializable {
         public AtomTreeNode makeNode(Atom atom) {
             return new AtomTreeNodeGroup(atom);
         }
-    };
-    
+    }
 }

@@ -44,10 +44,11 @@ public final class AtomTreeNodeLeaf extends AtomTreeNode {
      */
     public int childAtomCount() {return 0;}
 
-    public static final AtomTreeNodeFactory FACTORY = new AtomTreeNodeFactory() {
+    public static final AtomTreeNodeFactory FACTORY = new AtomTreeNodeLeaf.Factory();
+    
+    private static final class Factory implements AtomTreeNodeFactory, java.io.Serializable {
         public AtomTreeNode makeNode(Atom atom) {
             return new AtomTreeNodeLeaf(atom);
         }
-    };
-    
+    }
 }
