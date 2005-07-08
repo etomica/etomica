@@ -134,4 +134,4 @@ public class AtomIteratorCell implements AtomIterator, java.io.Serializable {
     private final AtomIteratorListSimple atomIterator;
     private final RectangularLattice.Iterator cellIterator;
 
-    }
+}
