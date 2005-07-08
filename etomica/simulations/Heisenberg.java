@@ -115,7 +115,8 @@ public class Heisenberg extends Simulation {
         temperatureSlider.setMinimum(0.5);
         temperatureSlider.setMaximum(10.0);
         temperatureSlider.setShowBorder(true);
-        temperatureSlider.setUnit(LJ.SYSTEM.temperature());
+        LJ lj = new LJ();
+        temperatureSlider.setUnit(lj.temperature());
         simGraphic.add(temperatureSlider);
         temperatureSlider.setValue(sim.integrator.getTemperature());
         DeviceSlider fieldSlider = new DeviceSlider(sim.getController(), sim.field, "h");

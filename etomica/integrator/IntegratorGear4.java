@@ -11,12 +11,10 @@ import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Space;
-import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;
-
-//import etomica.units.*;
+import etomica.units.systems.LJ;
 
 /**
  * Gear 4th-order predictor-corrector integrator.
@@ -26,7 +24,6 @@ import etomica.space.Vector;
  */
 public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
 
-    protected final AtomIteratorListTabbed atomIterator = new AtomIteratorListTabbed();
     private final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms = new IteratorDirective();
     protected final Space space;
@@ -47,7 +44,9 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         forceSum = new PotentialCalculationForceSum(space);
         work1 = space.makeVector();
         work2 = space.makeVector();
-        setTimeStep(etomica.units.systems.LJ.SYSTEM.time().toSim(2.0));
+        //XXX this is totally wrong!  This should be based on the actual temperature and
+        //potentials (steepness and depth) used.
+        setTimeStep(new LJ().time().toSim(2.0));
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -57,7 +56,6 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
 
     public boolean addPhase(Phase p) {
         if(!super.addPhase(p)) return false;
-        atomIterator.setList(p.speciesMaster.atomList);
         return true;
     }
 

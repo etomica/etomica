@@ -11,6 +11,7 @@ import etomica.Space;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;
+import etomica.units.systems.LJ;
 
 /* History of changes
  * 08/29/02 (DAK) changed Andersen thermostat to velocity-scaling thermostat
@@ -28,7 +29,9 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         super(potentialMaster);
         this.space = space;
         forceSum = new PotentialCalculationForceSum(space);
-        setTimeStep(etomica.units.systems.LJ.SYSTEM.time().toSim(2.0));
+        //XXX this is totally wrong!  This should be based on the actual temperature and
+        //potentials (steepness and depth) used.
+        setTimeStep(new LJ().time().toSim(2.0));
     }
     
     public static EtomicaInfo getEtomicaInfo() {

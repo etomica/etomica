@@ -12,6 +12,7 @@ import etomica.Space;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;
+import etomica.units.systems.LJ;
 
 /**
  * Constant NVT Molecular Dynamics Integrator-Constraint Method
@@ -42,8 +43,9 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
         work2 = space.makeVector();
         work3 = space.makeVector();
        	work4 = space.makeVector();
-       	
-        setTimeStep(etomica.units.systems.LJ.SYSTEM.time().toSim(2.0));
+        //XXX this is totally wrong!  This should be based on the actual temperature and
+        //potentials (steepness and depth) used.
+        setTimeStep(new LJ().time().toSim(2.0));
     }
 
 	
