@@ -62,6 +62,10 @@ public class EtomicaInfo implements java.io.Serializable {
         	System.out.println("Exception retrieving info for class " + myclass.getName()+ ": " + se.getLocalizedMessage() );
         	return new EtomicaInfo( myclass.getName() );
         }
+        finally {
+        	System.out.println( "Unknown exception raised in EtomicaInfo.getInfo()");
+        }
+        
         return info;
 	}
 	
