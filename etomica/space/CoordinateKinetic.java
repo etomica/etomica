@@ -22,6 +22,26 @@ public class CoordinateKinetic extends Coordinate implements ICoordinateKinetic 
     }
     
     /**
+     * Set this coordinate's parameters equal to those of the
+     * given coordinate.  Overrides superclass to ensure that
+     * orientation is copied.  
+     * 
+     * @throws ClassCastException if argument is not an instance of ICoordinateKinetic
+     */
+    public void E(ICoordinate coord) {
+        this.E((ICoordinateKinetic)coord);
+    }
+    
+    /**
+     * Set this coordinate's parameters equal to those of the
+     * given coordinate.
+     */
+    public void E(ICoordinateKinetic coord) {
+        r.E(coord.position());
+        v.E(coord.velocity());
+    }
+    
+   /**
      * Returns the instance of the velocity vector.
      */
     public final Vector velocity() {

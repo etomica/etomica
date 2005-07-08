@@ -22,6 +22,15 @@ public class Coordinate implements ICoordinate, java.io.Serializable {
     public Coordinate(Space space) {
         r = space.makeVector();
     }
+    
+    
+    /**
+     * Set this coordinate's parameters equal to those of the
+     * given coordinate.
+     */
+    public void E(ICoordinate coord) {
+        r.E(coord.position());
+    }
 
     /**
      * Returns the position vector (not a copy).

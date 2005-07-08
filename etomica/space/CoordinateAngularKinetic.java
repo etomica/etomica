@@ -26,6 +26,19 @@ public class CoordinateAngularKinetic extends CoordinateAngular implements
     }
 
     /**
+     * Set this coordinate's parameters equal to those of the
+     * given coordinate.  Overrides superclass to ensure that
+     * velocities are copied.  
+     * 
+     * @throws ClassCastException if argument is not an instance of CoordinateAngularKinetic
+     */
+    public void E(ICoordinate coord) {
+        super.E(coord);
+        v.E(((CoordinateAngularKinetic)coord).v);
+        omega.E(((CoordinateAngularKinetic)coord).omega);
+    }
+
+    /**
      * Returns the angular-velocity vector.
      */
     public Vector angularVelocity() {
