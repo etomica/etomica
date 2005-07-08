@@ -10,7 +10,6 @@ import etomica.space.Vector;
  * Collection of primitive elements that specify or are determined
  * by the structure of a Bravais lattice.
  */
-//TODO add propertyChangeListeners to be notified if primitive changes
 public abstract class Primitive implements java.io.Serializable {
     
     protected final Vector[] latticeVectors;

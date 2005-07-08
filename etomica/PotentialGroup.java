@@ -156,7 +156,6 @@ public class PotentialGroup extends Potential {
     /**
      * Returns the maximum of the range of all potentials in the group.
      */
-    //TODO something else better than this
 	public double getRange() {
 	    double range = 0;
         for(PotentialLinker link=first; link!=null; link=link.next) {

@@ -4,19 +4,16 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.util.LinkedList;
-/*
- * Created on Jul 6, 2005
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
 
 /**
- * @author andrew
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Extends the java ObjectInputStream to add fields and methods to enable complete
+ * reconstruction of simulation from a serialized form.
  */
+
+/*
+ * Created on Jul 6, 2005
+ */
+
 public class EtomicaObjectInputStream extends ObjectInputStream {
 
     public LinkedList atomLists = new LinkedList();

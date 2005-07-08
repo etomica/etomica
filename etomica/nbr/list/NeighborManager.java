@@ -234,6 +234,7 @@ public class NeighborManager implements IntegratorNonintervalListener,
         cellNbrIterator.setPhase(phase);
         cellNbrIterator.reset();
         //TODO change looping scheme so getPotentials isn't called for every pair
+        //consider doing this by introducing ApiNested interface, with hasNextInner and hasNextOuter methods
         while (cellNbrIterator.hasNext()) {
             AtomPair pair = cellNbrIterator.nextPair();
             Atom atom0 = pair.atom0;
