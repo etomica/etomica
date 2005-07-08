@@ -7,6 +7,7 @@ import etomica.PhaseEvent;
 import etomica.PhaseListener;
 import etomica.SimulationEvent;
 import etomica.Space;
+import etomica.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
@@ -40,7 +41,7 @@ public class NeighborCellManagerFixed implements PhaseCellManager {
      * cells in each dimension is given by nCells. Position definition for each
      * atom is that given by its type (it is set to null in this class).
      */
-    public NeighborCellManagerFixed(Phase phase, int nCells) {
+    public NeighborCellManagerFixed(final Phase phase, int nCells) {
         space = phase.space();
         atomIterator = new AtomIteratorListTabbed(
                 phase.speciesMaster().atomList);
@@ -56,10 +57,12 @@ public class NeighborCellManagerFixed implements PhaseCellManager {
 
         //listener to phase to detect addition of new SpeciesAgent
         //or new atom
-        phase.speciesMaster.addListener(new PhaseListener() {
+        ((SpeciesRoot)phase.speciesMaster.node.parentGroup()).addListener(new PhaseListener() {
 
             public void actionPerformed(SimulationEvent evt) {
-                actionPerformed((PhaseEvent) evt);
+                if (((PhaseEvent)evt).phase() == phase) {
+                    actionPerformed((PhaseEvent)evt);
+                }
             }
 
             public void actionPerformed(PhaseEvent evt) {

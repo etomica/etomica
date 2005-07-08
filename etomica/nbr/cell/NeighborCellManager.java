@@ -13,6 +13,7 @@ import etomica.PhaseEvent;
 import etomica.PhaseListener;
 import etomica.SimulationEvent;
 import etomica.Space;
+import etomica.SpeciesRoot;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
 import etomica.atom.AtomPositionDefinition;
@@ -59,7 +60,7 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
      * definition given by the atom's type is used.  Position definition is
      * declared final.
      */
-    public NeighborCellManager(Phase phase, int nCells, AtomPositionDefinition positionDefinition) {
+    public NeighborCellManager(final Phase phase, int nCells, AtomPositionDefinition positionDefinition) {
         this.positionDefinition = positionDefinition;
         this.phase = phase;
         space = phase.space();
@@ -74,9 +75,11 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
 
         //listener to phase to detect addition of new SpeciesAgent
         //or new atom
-        phase.speciesMaster.addListener(new PhaseListener() {
+        ((SpeciesRoot)phase.speciesMaster.node.parentGroup()).addListener(new PhaseListener() {
             public void actionPerformed(SimulationEvent evt) {
-                actionPerformed((PhaseEvent)evt);
+                if (((PhaseEvent)evt).phase() == phase) {
+                    actionPerformed((PhaseEvent)evt);
+                }
             }
             public void actionPerformed(PhaseEvent evt) {
                 if(evt.type() == PhaseEvent.ATOM_ADDED) {

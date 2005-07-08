@@ -252,7 +252,7 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
             }
         });
 
-        canvas.setPhase(p);
+        canvas.setPhase();
         atomIterator = new AtomIteratorLeafAtoms(p);
     }
 
@@ -297,7 +297,7 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
             }
         });
 
-        canvas.setPhase(phase);
+        canvas.setPhase();
     }
     
     /**

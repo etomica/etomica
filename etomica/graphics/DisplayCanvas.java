@@ -6,6 +6,7 @@ import etomica.Phase;
 import etomica.PhaseEvent;
 import etomica.PhaseListener;
 import etomica.SimulationEvent;
+import etomica.SpeciesRoot;
 import etomica.action.PhaseInflate;
 
 /**
@@ -74,7 +75,11 @@ public abstract class DisplayCanvas extends javax.swing.JPanel implements java.i
     public void actionPerformed(PhaseEvent evt) {
         initialize();
     }
-    public void actionPerformed(SimulationEvent evt) {actionPerformed((PhaseEvent)evt);}
+    public void actionPerformed(SimulationEvent evt) {
+        if (((PhaseEvent)evt).phase() == displayPhase.getPhase()) {
+            actionPerformed((PhaseEvent)evt);
+        }
+    }
         
     public abstract void doPaint(Graphics g);
     
@@ -86,9 +91,10 @@ public abstract class DisplayCanvas extends javax.swing.JPanel implements java.i
         g.drawImage(offScreen, 0, 0, null);
     }
 
-    public void setPhase(Phase p) {
-        inflate = new PhaseInflate(displayPhase.getPhase());
-        p.speciesMaster.addListener(this);
+    public void setPhase() {
+        Phase phase = displayPhase.getPhase();
+        inflate = new PhaseInflate(phase);
+        ((SpeciesRoot)phase.speciesMaster.node.parentGroup()).addListener(this);
     }
     
     /**

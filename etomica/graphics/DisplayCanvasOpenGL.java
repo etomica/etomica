@@ -3,6 +3,7 @@ import etomica.Phase;
 import etomica.PhaseEvent;
 import etomica.PhaseListener;
 import etomica.SimulationEvent;
+import etomica.SpeciesRoot;
 import etomica.action.PhaseInflate;
 import gl4java.awt.GLAnimCanvas;
 
@@ -78,9 +79,10 @@ public abstract class DisplayCanvasOpenGL extends GLAnimCanvas implements java.i
     public void update(Graphics g) {paint(g);}
         
       
-    public void setPhase(Phase p) {
-        inflate = new PhaseInflate(displayPhase.getPhase());
-        p.speciesMaster.addListener(this);
+    public void setPhase() {
+        Phase phase = displayPhase.getPhase();
+        inflate = new PhaseInflate(phase);
+        ((SpeciesRoot)phase.speciesMaster.node.parentGroup()).addListener(this);
     }
               
 

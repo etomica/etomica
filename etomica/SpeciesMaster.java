@@ -18,12 +18,6 @@ import etomica.atom.iterator.AtomIteratorTree;
 public final class SpeciesMaster extends Atom {
 
     private int moleculeCount;
-    //manager and events for addition/removal of descendant atoms
-    private final SimulationEventManager eventManager = new SimulationEventManager();
-    private final PhaseEvent additionEvent = new PhaseEvent(this,
-            PhaseEvent.ATOM_ADDED);
-    private final PhaseEvent removalEvent = new PhaseEvent(this,
-            PhaseEvent.ATOM_REMOVED);
     public final static int SPECIES_TAB = Tab.requestTabType();
     //reference to phase is kept in node
 
@@ -56,15 +50,6 @@ public final class SpeciesMaster extends Atom {
         Phase phase = node.parentPhase();
         return (phase != null) ? phase.getName()
                 : "SpeciesMaster without phase";
-    }
-
-    //event management
-    public synchronized void addListener(PhaseListener listener) {
-        eventManager.addListener(listener);
-    }
-
-    public synchronized void removeListener(PhaseListener listener) {
-        eventManager.removeListener(listener);
     }
 
     private static final class MasterAtomTreeNode extends AtomTreeNodeGroup {
@@ -133,9 +118,7 @@ public final class SpeciesMaster extends Atom {
                                     .nextAtom().node).leafLinker, nextTab);
                 }
             }
-            speciesMaster.eventManager.fireEvent(speciesMaster.additionEvent
-                    .setAtom(atom));
-        }
+       }
 
         //updating of leaf atomList may not be efficient enough for repeated
         // use, but is probably ok
@@ -159,8 +142,6 @@ public final class SpeciesMaster extends Atom {
                             .remove(((AtomTreeNodeLeaf) leafIterator.nextAtom().node).leafLinker);
                 }
             }
-            speciesMaster.eventManager.fireEvent(speciesMaster.removalEvent
-                    .setAtom(atom));
         }
 
         private final Phase parentPhase;

@@ -63,7 +63,6 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     private Boundary boundary;
     public final SpeciesMaster speciesMaster;
     private boolean lrcEnabled = true;
-    public final SimulationEventManager boundaryEventManager = new SimulationEventManager();
     private String name;
     protected final Space space;
     private PhaseCellManager cellManager;

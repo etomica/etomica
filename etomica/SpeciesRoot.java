@@ -16,7 +16,13 @@ public final class SpeciesRoot extends Atom {
     
     final AtomTypeGroup childType;//accessed by SpeciesMaster
     private Species[] speciesList = new Species[0];
-    
+    //manager and events for addition/removal of descendant atoms
+    private final SimulationEventManager eventManager = new SimulationEventManager();
+    private final PhaseEvent additionEvent = new PhaseEvent(this,
+            PhaseEvent.ATOM_ADDED);
+    private final PhaseEvent removalEvent = new PhaseEvent(this,
+            PhaseEvent.ATOM_REMOVED);
+
     SpeciesRoot(Space space, int[] bitLength) {
         super(space, new AtomTypeGroup(AtomIndexManager.makeRootIndexManager(bitLength)), new NodeFactory(), AtomLinker.FACTORY);
         childType = new AtomTypeGroup((AtomTypeGroup)type,null);
@@ -52,7 +58,17 @@ public final class SpeciesRoot extends Atom {
 //            ((SpeciesMaster)iterator.nextAtom()).removeSpecies(species);
         }
     }
-    
+
+    //event management
+    public synchronized void addListener(PhaseListener listener) {
+        eventManager.addListener(listener);
+    }
+
+    public synchronized void removeListener(PhaseListener listener) {
+        eventManager.removeListener(listener);
+    }
+
+
     private static final class RootAtomTreeNode extends AtomTreeNodeGroup {
         
         RootAtomTreeNode(Atom atom) {
@@ -98,9 +114,15 @@ public final class SpeciesRoot extends Atom {
                     speciesList[i].makeAgent((SpeciesMaster)newAtom);
                 }
             }
+            ((SpeciesRoot)atom).eventManager.fireEvent(((SpeciesRoot)atom).additionEvent
+                    .setAtom(atom));
+ 
         }
 
-        public void removeAtomNotify(Atom atom) {}
+        public void removeAtomNotify(Atom atom) {
+            ((SpeciesRoot)atom).eventManager.fireEvent(((SpeciesRoot)atom).removalEvent
+                    .setAtom(atom));
+        }
     }
     
     private static final class NodeFactory implements AtomTreeNodeFactory, java.io.Serializable {

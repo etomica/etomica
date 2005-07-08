@@ -5,7 +5,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
-import etomica.Phase;
 import etomica.atom.AtomFilter;
 
  /* History of changes
@@ -35,7 +34,7 @@ public interface DisplayCanvasInterface {
     public void doPaint(Graphics g);
     public void update(Graphics g);
     public void paint(Graphics g);
-    public void setPhase(Phase p);
+    public void setPhase();
     public void setMovable(boolean b);
     public boolean isMovable();
     public void setResizable(boolean b);
