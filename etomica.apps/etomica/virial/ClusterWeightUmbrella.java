@@ -12,7 +12,7 @@ public class ClusterWeightUmbrella implements ClusterWeight, java.io.Serializabl
 	/**
 	 * Contructs an umbrella cluster from the given clusters.
 	 */
-	public ClusterWeightUmbrella(ClusterSum[] allClusters) {
+	public ClusterWeightUmbrella(ClusterAbstract[] allClusters) {
 		clusterArray = allClusters;
 		weightRatio = new double[allClusters.length];
 		for (int i=0; i<weightRatio.length; i++) {
