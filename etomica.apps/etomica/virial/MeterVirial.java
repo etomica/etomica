@@ -41,6 +41,9 @@ public class MeterVirial implements DataSource, Meter, java.io.Serializable {
     /**
      * Sets the cluster used by the integrator to sample phase space.
      */
+    //XXX this is really fragile.  If the integrator weight is != 1, resetting the 
+    //integrator (which sets the weight to 1) after calling this method
+    //breaks the class
     public void setSampleCluster(ClusterWeight sampleCluster) {
         CoordinatePairSet cPairSet = phase.getCPairSet();
         AtomPairSet aPairSet = phase.getAPairSet();
