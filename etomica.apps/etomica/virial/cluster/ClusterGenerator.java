@@ -1,5 +1,8 @@
 package etomica.virial.cluster;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 
 
 /**
@@ -15,6 +18,7 @@ public class ClusterGenerator implements java.io.Serializable {
     private boolean mReeHoover;
     private ClusterDiagram mClusterCopy;
     private final int[] mConnectStack;
+    private int mStartConnection, mStopConnection;
     private final int[][] mConnectList;
     private int mConnectStackLen;
     private int mTotalNumConnections;
@@ -30,6 +34,8 @@ public class ClusterGenerator implements java.io.Serializable {
         int nConnections = mCluster.mNumBody * (mCluster.mNumBody-1);
         mConnectList = new int[nConnections][2];
         mConnectStack = new int[nConnections];
+        mStartConnection = 0;
+        mStopConnection = Integer.MAX_VALUE;
     }
 
     /**
@@ -443,13 +449,21 @@ public class ClusterGenerator implements java.io.Serializable {
         
         // get # of connections in fully-connected cluster (should be k)
         mTotalNumConnections = mCluster.getNumConnections();
-        mCurrentConnection = 0;
+        mCurrentConnection = mStartConnection;
         mConnectStackLen = 0;
         if (!mAllPermutations && !isMaximumScore()) {
             throw new RuntimeException("initial cluster not maxed");
         }
     }
 
+    public void setStartConnection(int i) {
+        mStartConnection = i;
+    }
+    
+    public void setStopConnection(int i) {
+        mStopConnection = i;
+    }
+    
     /**
      * Advances the cluster to the next cluster matching the given criteria.  Returns
      * false if no more clusters exist. 
@@ -477,6 +491,11 @@ public class ClusterGenerator implements java.io.Serializable {
             }
             int node1 = mConnectList[mCurrentConnection][0];
             int node2 = mConnectList[mCurrentConnection][1];
+            if (mConnectStackLen < 1) {
+//              System.out.println(mConnectStackLen+" "+node1+" "+node2);
+                if (mCurrentConnection == mStopConnection)
+                    return false;
+            }
 //            System.out.println("deleting connection "+mCurrentConnection+" betweeen "+node1+" and "+node2);
             if (!mCluster.deleteConnection(node1, node2)) {
                 throw new RuntimeException(
@@ -552,28 +571,75 @@ public class ClusterGenerator implements java.io.Serializable {
      * Demonstrates how to use this class.
      */
     public static void main(String[] args) {
-        int nBody = 5;
-        int nRootPoints = 2;
+        int nBody = 9;
+        int nRootPoints = 0;
+        if (args.length > 0) nBody = Integer.parseInt(args[0]);
+        if (args.length > 1) nRootPoints = Integer.parseInt(args[1]);
         ClusterDiagram cluster = new ClusterDiagram(nBody,nRootPoints);
         ClusterGenerator generator = new ClusterGenerator(cluster);
         generator.setAllPermutations(false);
-        generator.setOnlyDoublyConnected(false);
-        generator.setExcludeArticulationPoint(true);
-        generator.setExcludeArticulationPair(true);
-        generator.setExcludeNodalPoint(true);
+        generator.setOnlyDoublyConnected(nRootPoints == 0);
+        generator.setExcludeArticulationPoint(nRootPoints > 0);
+        generator.setExcludeArticulationPair(nRootPoints > 0);
+        generator.setExcludeNodalPoint(nRootPoints > 0);
+        generator.setMakeReeHover(nBody > 3);
+        int startConnection = 1, stopConnection = 2;
+        if (args.length > 2) {
+            startConnection = Integer.parseInt(args[2]);
+            stopConnection = Integer.parseInt(args[3]);
+        }
+        if (stopConnection > 0) {
+            generator.setStartConnection(startConnection);
+            generator.setStopConnection(stopConnection);
+        }
         cluster.reset();
         generator.reset();
         long startTime = System.currentTimeMillis();
         int maxConnections = cluster.getNumConnections();
         int[] hist = new int[maxConnections];
-        hist[maxConnections-1] = 1;
+        FileWriter fileWriter = null;
+        String fileName = "";
+        fileName = "B"+nBody;
+        if (stopConnection > 0) {
+            fileName += "_"+startConnection+"_"+stopConnection;
+        }
+        try {
+            fileWriter = new FileWriter(fileName);
+        }catch(IOException e) {
+            throw new RuntimeException("Cannot open "+fileName+", caught IOException: " + e.getMessage());
+        }
+        if (startConnection == 0) {
+            if (nBody > 3) {
+                generator.calcReeHoover();
+            }
+            try {
+                fileWriter.write(cluster.mReeHooverFactor+"\t"+cluster.toString()+"\n");
+                fileWriter.flush();
+            }
+            catch(IOException e) {
+                throw new RuntimeException("Cannot write to "+fileName+", caught IOException: "+e);
+            }
+            hist[maxConnections-1] = 1;
+        }
+        
         while (generator.advance()) {
-//            System.out.println(cluster.mNumIdenticalPermuations + "x\t"+cluster.toString());
+            try {
+                fileWriter.write(cluster.mReeHooverFactor+"\t"+cluster.toString()+"\n");
+            }
+            catch(IOException e) {
+                throw new RuntimeException("Cannot write to "+fileName+", caught IOException: "+e);
+            }
             hist[cluster.getNumConnections()-1]++;
+        }
+        try {
+            fileWriter.close();
+        }
+        catch(IOException e) {
+            throw new RuntimeException("Cannot close "+fileName+", caught IOException: "+e);
         }
         for (int i = 0; i < maxConnections; i++) {
             if (hist[i] > 0) {
-                System.out.println(hist[i] + " clusters of size "+i);
+                System.out.println(hist[i] + " clusters of size "+(i+1));
             }
         }
         System.out.println("total time " + (System.currentTimeMillis() - startTime) / 1000 + " seconds");
