@@ -109,6 +109,10 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
 	    }
 	    return data;
 	}
+    
+    public DataSourceUniform getXDataSource() {
+        return xDataSource;
+    }
 	
     /**
      * @return Returns the phase.
