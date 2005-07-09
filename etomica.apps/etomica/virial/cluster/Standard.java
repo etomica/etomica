@@ -201,9 +201,14 @@ public final class Standard implements java.io.Serializable {
     
     public static double B6HS(double sigma) {
         double b0 = B2HS(sigma);
-        return 0.03881*b0*b0*b0*b0*b0;
+        return 0.038808*b0*b0*b0*b0*b0;
     }
-    
+
+    public static double B7HS(double sigma) {
+        double b0 = B2HS(sigma);
+        return 0.013046*b0*b0*b0*b0*b0*b0;
+    }
+
 //	public static Cluster[] B6Clusters(MayerFunction f) {
 //
 //		int[][] FRH1 = new int[][] {{0,1},{0,2},{0,4},{0,5},{1,2},{1,3},{1,5}
