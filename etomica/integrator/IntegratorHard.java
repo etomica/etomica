@@ -1,5 +1,7 @@
 package etomica.integrator;
 
+import java.io.Serializable;
+
 import etomica.Atom;
 import etomica.AtomPair;
 import etomica.AtomSet;
@@ -52,23 +54,22 @@ public class IntegratorHard extends IntegratorMD {
 
     protected final IteratorDirective upList = new IteratorDirective(IteratorDirective.UP);
     protected final IteratorDirective downList = new IteratorDirective(IteratorDirective.DOWN);
-    protected final ReverseCollisionHandler reverseCollisionHandler = new ReverseCollisionHandler();
-
-    protected final CollisionHandlerUp collisionHandlerUp = new CollisionHandlerUp();
-    protected final CollisionHandlerDown collisionHandlerDown = new CollisionHandlerDown();
     protected final AtomArrayList listToUpdate = new AtomArrayList();
+    protected final TreeList eventList = new TreeList();
+
+    protected final ReverseCollisionHandler reverseCollisionHandler = new ReverseCollisionHandler(listToUpdate);
+    protected final CollisionHandlerUp collisionHandlerUp = new CollisionHandlerUp();
+    protected final CollisionHandlerDown collisionHandlerDown = new CollisionHandlerDown(eventList);
     
     protected PotentialHard nullPotential;
     protected double collisionTimeStep;
     protected int collisionCount;
 
-    protected TreeList eventList;
 
     public IntegratorHard(PotentialMaster potentialMaster) {
         super(potentialMaster);
         nullPotential = null;
         pair = new AtomPair();
-        eventList = new TreeList();
     }
     
     public boolean addPhase(Phase phase) {
@@ -241,6 +242,7 @@ public class IntegratorHard extends IntegratorMD {
         processReverseList();
 
         downList.setTargetAtoms(colliders.atom0);
+        collisionHandlerDown.collisionTimeStep = this.collisionTimeStep;
         potential.calculate(firstPhase, downList, collisionHandlerDown);
 
         Agent agent = (Agent)colliders.atom1.ia;
@@ -250,11 +252,13 @@ public class IntegratorHard extends IntegratorMD {
         agent.resetCollision();
         upList.setTargetAtoms(colliders.atom1);
         collisionHandlerUp.setAtom(colliders.atom1);
+        collisionHandlerUp.collisionTimeStep = this.collisionTimeStep;
         potential.calculate(firstPhase, upList, collisionHandlerUp);
         if (agent.collisionPotential != null) {
             eventList.add(agent.eventLinker);
         }
         downList.setTargetAtoms(colliders.atom1);
+        collisionHandlerDown.collisionTimeStep = this.collisionTimeStep;
         potential.calculate(firstPhase, downList, collisionHandlerDown);
 
     }
@@ -279,10 +283,12 @@ public class IntegratorHard extends IntegratorMD {
         agent.resetCollision();
         upList.setTargetAtoms(a);
         collisionHandlerUp.setAtom(a);
+        collisionHandlerUp.collisionTimeStep = this.collisionTimeStep;
         potential.calculate(firstPhase, upList, collisionHandlerUp);
         if (agent.collisionPotential != null) {
             eventList.add(agent.eventLinker);
         }
+        collisionHandlerDown.collisionTimeStep = this.collisionTimeStep;
         potential.calculate(firstPhase, downList, collisionHandlerDown);
     }
 
@@ -301,6 +307,7 @@ public class IntegratorHard extends IntegratorMD {
             }
             agent.resetCollision();
             upList.setTargetAtoms(reverseAtom);
+            collisionHandlerUp.collisionTimeStep = this.collisionTimeStep;
             collisionHandlerUp.setAtom(reverseAtom);
             potential.calculate(firstPhase, upList, collisionHandlerUp);
             if (agent.collisionPotential != null) {
@@ -346,6 +353,7 @@ public class IntegratorHard extends IntegratorMD {
         }
         upList.setTargetAtoms(AtomSet.NULL);
         collisionHandlerUp.reset();
+        collisionHandlerUp.collisionTimeStep = this.collisionTimeStep;
         potential.calculate(firstPhase, upList, collisionHandlerUp); //assumes only one phase
         eventList.reset();
         atomIterator.reset();
@@ -452,10 +460,11 @@ public class IntegratorHard extends IntegratorMD {
 
     //the up-handler has the logic of the Allen & Tildesley upList subroutine
     //sets collision time of given atom to minimum value for collisions with all atoms uplist of it
-    private final class CollisionHandlerUp extends PotentialCalculation {
+    private static final class CollisionHandlerUp extends PotentialCalculation {
         double minCollisionTime;
         IntegratorHard.Agent aia;
         Atom atom1;
+        double collisionTimeStep;
 
         /**
          * resets the "atom" held by this class, ensuring the method will
@@ -502,7 +511,12 @@ public class IntegratorHard extends IntegratorMD {
 	//the down-handler has the logic of the Allen & Tildesley downList subroutine
 	//sets collision times of atoms downlist of given atom to minimum of their current
 	//value and their value with given atom
-	private final class CollisionHandlerDown extends PotentialCalculation {
+	private static final class CollisionHandlerDown extends PotentialCalculation {
+        double collisionTimeStep;
+        final TreeList eventList;
+        CollisionHandlerDown(TreeList list) {
+            eventList = list;
+        }
 		public void doCalculation(AtomsetIterator iterator, Potential potential) {
 			if (potential.nBody() != 2) return;
 			iterator.reset();
@@ -536,8 +550,12 @@ public class IntegratorHard extends IntegratorMD {
      * with an atom.  The iterator should return an atom and its "down"
      * neighbors.  
      */
-    private final class ReverseCollisionHandler extends PotentialCalculation {
+    private static final class ReverseCollisionHandler extends PotentialCalculation {
+        final AtomArrayList listToUpdate;
         
+        ReverseCollisionHandler(AtomArrayList list) {
+            listToUpdate = list;
+        }
         public void doCalculation(AtomsetIterator iterator, Potential p) {
             if (iterator.nBody() != 2) return;
             iterator.reset();
@@ -566,7 +584,7 @@ public class IntegratorHard extends IntegratorMD {
     /**
      * Class used to construct a linked list of collision listeners
      */
-    private class CollisionListenerLinker implements java.io.Serializable {
+    private static class CollisionListenerLinker implements java.io.Serializable {
         CollisionListenerLinker next;
         final CollisionListener listener;
         CollisionListenerLinker(CollisionListener listener, CollisionListenerLinker next) {
@@ -580,7 +598,7 @@ public class IntegratorHard extends IntegratorMD {
 	* One instance of an Agent is placed in each atom controlled by this integrator.
 	*/
 		public Object makeAgent(Atom a) {
-			return new IntegratorHard.Agent(a);
+			return new IntegratorHard.Agent(a, this);
 		}
  
  /**
@@ -592,12 +610,14 @@ public class IntegratorHard extends IntegratorMD {
   * is processed).
   */
   //Do not use encapsulation since the fields are for referencing by the integrator
-    public class Agent {  //need public so to use with instanceof
+    public static class Agent implements Serializable {  //need public so to use with instanceof
         public Atom atom, collisionPartner;
         public PotentialHard collisionPotential;  //potential governing interaction between collisionPartner and atom containing this Agent
         public TreeLinker eventLinker;
+        private final IntegratorHard integrator;
         
-        public Agent(Atom a) {
+        public Agent(Atom a, IntegratorHard integrator) {
+            this.integrator = integrator;
             atom = a;
             eventLinker = new TreeLinker(this);
             eventLinker.sortKey = Double.POSITIVE_INFINITY;
@@ -616,9 +636,9 @@ public class IntegratorHard extends IntegratorMD {
         public void resetCollision() {
             // events with a (non-null) potential must be in the tree
             // events in the tree must have a potential
-            collisionPotential = nullPotential;
-            if (nullPotential != null) {
-                eventLinker.sortKey = nullPotential.collisionTime(atom,collisionTimeStep);
+            collisionPotential = integrator.nullPotential;
+            if (collisionPotential != null) {
+                eventLinker.sortKey = collisionPotential.collisionTime(atom,integrator.collisionTimeStep);
             }
             else {
                 eventLinker.sortKey = Double.POSITIVE_INFINITY;
