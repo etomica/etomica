@@ -10,7 +10,6 @@ import etomica.Integrator;
 import etomica.IteratorDirective;
 import etomica.Potential;
 import etomica.PotentialMaster;
-import etomica.Simulation;
 import etomica.Space;
 import etomica.potential.Potential1;
 import etomica.space.ICoordinateKinetic;
@@ -136,19 +135,19 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
     * One instance of an Agent is placed in each atom controlled by this integrator.
     */
     public final Object makeAgent(Atom a) {
-        return new Agent(space,a);
+        return new Agent(a,this);
     }
      
     /**
     * Extends IntegratorHard.Agent to hold a force vector.
     */
-    public class Agent extends IntegratorHard.Agent implements Integrator.Forcible { 
+    public static class Agent extends IntegratorHard.Agent implements Integrator.Forcible { 
     
         public final Vector force;
         public boolean forceFree = true;
-        public Agent(Space space, Atom a) {
-            super(a);
-            force = space.makeVector();
+        public Agent(Atom a, IntegratorHardField integrator) {
+            super(a, integrator);
+            force = integrator.space.makeVector();
         }
         public final Vector force() {return force;}
     }//end of Agent
