@@ -8,7 +8,7 @@ package etomica;
  * information about where the atom is located in the atom tree. The methods of
  * this class provide a convenient means for obtaining information from this
  * code. Instances of this class are held in the AtomType instance referenced by
- * the type field of each atom. 
+ * the type field of each atom.<p> 
  * In addition, the AtomIndexManager holds an index that establishes a parallel
  * hierarchy to the atom hierarchy.  The index is coded in the same way as that
  * for the atoms (although the ordinal values will be smaller, as there are
