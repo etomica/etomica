@@ -10,6 +10,7 @@
 //http://ask.ii.uib.no/ebt-bin/nph-dweb/dynaweb/SGI_Developer/OpenGL_RM
 package etomica.graphics;
 import java.awt.Color;
+import java.util.Iterator;
 
 import etomica.Atom;
 import etomica.Phase;
@@ -17,13 +18,12 @@ import etomica.atom.AtomFilter;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
-import etomica.atom.iterator.AtomIteratorListTabbed;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polyhedron;
 import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
-import java.util.Iterator;
 import gl4java.utils.glut.GLUTEnum;
 
     /* History of changes
@@ -247,7 +247,8 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     float vertAll[];
     Atom atoms[];
 
-    countAll = displayPhase.getPhase().speciesMaster.node.leafAtomCount();
+    AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(displayPhase.getPhase());
+    countAll = iter.size();
     
     if(countAll==0) return;
     
@@ -267,7 +268,6 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
 		drawExpansionShiftZ = (float)(mult*box.x(2));
 	}
 
-    AtomIteratorListTabbed iter = new AtomIteratorListTabbed(displayPhase.getPhase().speciesMaster.atomList);
     iter.reset();
     while(iter.hasNext()) {
       Atom a = iter.nextAtom();

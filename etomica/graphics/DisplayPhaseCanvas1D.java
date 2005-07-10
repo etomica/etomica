@@ -5,17 +5,17 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.TextField;
+import java.util.Iterator;
 
 import etomica.Atom;
 import etomica.Species;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
-import etomica.atom.iterator.AtomIteratorListTabbed;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space1d.Space1D;
-import java.util.Iterator;
 
     /* History of changes
      * 7/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.
@@ -30,7 +30,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
     private int annotationHeight = 12;
     private int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
     private final static Color wellColor = new Color(185,185,185, 110);
-    private final AtomIteratorListTabbed atomIterator = new AtomIteratorListTabbed();
+    private final AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms();
     private AtomFilter atomFilter;
     
     public DisplayPhaseCanvas1D(DisplayPhase _phase) {
@@ -170,7 +170,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
         if(displayPhase.getColorScheme() instanceof ColorSchemeCollective) {
             ((ColorSchemeCollective)displayPhase.getColorScheme()).colorAllAtoms(displayPhase.getPhase());
         }
-        atomIterator.setList(displayPhase.getPhase().speciesMaster.atomList);
+        atomIterator.setPhase(displayPhase.getPhase());
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             drawAtom(g, displayPhase.getOrigin(), atomIterator.nextAtom());
