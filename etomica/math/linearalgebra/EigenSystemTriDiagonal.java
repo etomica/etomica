@@ -117,11 +117,9 @@ public class EigenSystemTriDiagonal implements java.io.Serializable {
     
     public double sign(double a , double b){
         if(b > 0.0){
-            return Math.abs(a)*1.0;
+            return Math.abs(a);
         }
-        else{
-            return Math.abs(a)*(-1.0);
-        }
+        return -Math.abs(a);
     }
     
     public double pythag(double a,double b){
@@ -131,9 +129,7 @@ public class EigenSystemTriDiagonal implements java.io.Serializable {
         if(absa > absb){
             return absa*Math.sqrt(1.0 + sqr(absb/absa));
         }
-        else{
-            return (absb == 0.0 ? 0.0:absb*Math.sqrt(1.0 + sqr(absa/absb)));
-        }
+        return (absb == 0.0 ? 0.0:absb*Math.sqrt(1.0 + sqr(absa/absb)));
     }
     
     public double sqr(double a){

@@ -4,7 +4,7 @@ public class StringUtility implements java.io.Serializable {
     
     public static String capitalize(String s) {
         if(s == null || s.length() == 0) return s;
-        else return s.substring(0,1).toUpperCase() + s.substring(1);
+        return s.substring(0,1).toUpperCase() + s.substring(1);
     }
     
     public static String decapitalize(String s) {

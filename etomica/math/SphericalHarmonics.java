@@ -18,18 +18,14 @@ public class SphericalHarmonics implements java.io.Serializable {
             m = -m;
             return Math.pow(-1,m)*y(l,m,theta)*Math.cos(m*phi);
         }
-        else {
-            return y(l,m,theta)*Math.cos(m*phi);
-        }
+        return y(l,m,theta)*Math.cos(m*phi);
     }
     
     public static double imaginaryYm(int l,int m,double theta,double phi){
-       if(m < 0.0){
+        if(m < 0.0){
             m = -m;
             return Math.pow(-1,m)*y(l,m,theta)*Math.sin(m*phi)*(-1.0);
-       }
-       else { 
-         return y(l,m,theta)*Math.sin(m*phi);
-       }
+        }
+        return y(l,m,theta)*Math.sin(m*phi);
     }
 }

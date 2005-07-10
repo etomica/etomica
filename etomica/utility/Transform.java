@@ -17,7 +17,7 @@ public interface Transform {
 			fourier.setData(x);
 			fourier.transform();
 			if (REAL) return fourier.getReal();
-			else return fourier.getImaginary();
+			return fourier.getImaginary();
 		}
 		public double[] xHat() {
 			return fourier.getIndex();
