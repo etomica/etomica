@@ -4,7 +4,7 @@ import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.AtomListTabbed;
 import etomica.atom.AtomLinker.Tab;
-import etomica.atom.iterator.AtomIteratorListTabbed;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorTree;
 
 /**
@@ -177,11 +177,11 @@ public final class SpeciesMaster extends Atom {
         Phase phase = new Phase(sim);
         //        sim.elementCoordinator.go();
 
-        AtomIteratorListTabbed listIterator = new AtomIteratorListTabbed();
-        listIterator.setList(phase.speciesMaster.atomList);
-        listIterator.reset();
-        while (listIterator.hasNext())
-            System.out.println(listIterator.next().toString());
+        AtomIteratorLeafAtoms leafIterator = new AtomIteratorLeafAtoms();
+        leafIterator.setPhase(phase);
+        leafIterator.reset();
+        while (leafIterator.hasNext())
+            System.out.println(leafIterator.next().toString());
         System.out.println();
     }//end of main
 

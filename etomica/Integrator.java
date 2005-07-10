@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import etomica.atom.iterator.AtomIteratorListTabbed;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.space.Vector;
 import etomica.units.Dimension;
@@ -139,10 +139,9 @@ public abstract class Integrator implements EtomicaElement, java.io.Serializable
     //how do agents get placed in atoms made during the simulation?
     protected void deployAgents() { //puts an Agent of this integrator in each
         // atom of all phases
-        AtomIteratorListTabbed iterator = new AtomIteratorListTabbed();
+        AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
         for (int i = 0; i < phase.length; i++) {
-            Phase p = phase[i];
-            iterator.setList(p.speciesMaster.atomList);
+            iterator.setPhase(phase[i]);
             iterator.reset();
             while (iterator.hasNext()) {//does only leaf atoms; do atom groups
                 // need agents?
