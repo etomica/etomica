@@ -43,6 +43,17 @@ public class AtomTypeGroup extends AtomType {
     }
 
     /**
+     * @param species
+     *            The species to set.
+     */
+    public void setSpecies(Species species) {
+        super.setSpecies(species);
+        for (int i=0; i<childTypes.length; i++) {
+            childTypes[i].setSpecies(species);
+        }
+    }
+
+    /**
      * Returns a specified atomType descended from this one in the atomType
      * tree. Each index of the given array specifies the i-th child at the depth
      * of the array index. So if path is {2, 0, 3}, returns the 3rd childType of
