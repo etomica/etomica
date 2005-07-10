@@ -15,8 +15,8 @@ public class HistogramSimple implements Histogram, java.io.Serializable {
 //    private Plot plot;  //HistogramSimple.Plot inner class
     private boolean autoScale;
     private boolean firstValue = true;
-    private double xMin,xMinOld;
-    private double xMax,xMaxOld;
+    private double xMin;
+    private double xMax;
  //   private DoubleRange xRange;
     private int nBins ;
     private String name;
@@ -84,12 +84,10 @@ public class HistogramSimple implements Histogram, java.io.Serializable {
         }
         int i;
         if(x < xMin) {
-            xMinOld = xMin;
             if(autoScale) {xMin = x; redistribute();}
             i = 0;
         }
         else if(x > xMax) {
-            xMaxOld = xMax;
             if(autoScale) {xMax = x; redistribute();}
             i = nBins-1;
         }
