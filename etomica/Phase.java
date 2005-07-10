@@ -61,7 +61,7 @@ import etomica.utility.NameMaker;
 public class Phase implements EtomicaElement, java.io.Serializable {
         
     private Boundary boundary;
-    public final SpeciesMaster speciesMaster;
+    private SpeciesMaster speciesMaster;
     private boolean lrcEnabled = true;
     private String name;
     protected final Space space;
@@ -199,8 +199,6 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         return molecule(i);
     }
       
-      public SpeciesMaster speciesMaster() {return speciesMaster;}
-     
     /**
      * Sets the boundary object of the phase.
      */
@@ -315,6 +313,13 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         return cellManager.getLattice();
     }
     
+    /**
+     * @return Returns the speciesMaster.
+     */
+    public SpeciesMaster getSpeciesMaster() {
+        return speciesMaster;
+    }
+
     public Configuration configuration;
           
     public Phase.Monitor boundaryMonitor = new Phase.Monitor();
