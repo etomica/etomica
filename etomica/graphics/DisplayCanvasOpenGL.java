@@ -4,7 +4,6 @@ import etomica.PhaseEvent;
 import etomica.PhaseListener;
 import etomica.SimulationEvent;
 import etomica.SpeciesRoot;
-import etomica.action.PhaseInflate;
 import gl4java.awt.GLAnimCanvas;
 
 import java.awt.Dimension;
@@ -22,7 +21,6 @@ public abstract class DisplayCanvasOpenGL extends GLAnimCanvas implements java.i
     //protected Graphics osg;
         
     protected DisplayPhase displayPhase;
-    protected PhaseInflate inflate;
 
     /**
      * Flag to indicate if display can be resized
@@ -57,9 +55,13 @@ public abstract class DisplayCanvasOpenGL extends GLAnimCanvas implements java.i
     }
 
     public void actionPerformed(PhaseEvent evt) {
-        initialize();
+        if (evt.phase() == displayPhase.getPhase()) {
+            initialize();
+        }
     }
-    public void actionPerformed(SimulationEvent evt) {actionPerformed((PhaseEvent)evt);}
+    public void actionPerformed(SimulationEvent evt) {
+        actionPerformed((PhaseEvent)evt);
+    }
         
     public void createOffScreen () {
         //if (offScreen == null) { 
@@ -81,8 +83,7 @@ public abstract class DisplayCanvasOpenGL extends GLAnimCanvas implements java.i
       
     public void setPhase() {
         Phase phase = displayPhase.getPhase();
-        inflate = new PhaseInflate(phase);
-        ((SpeciesRoot)phase.speciesMaster.node.parentGroup()).addListener(this);
+        ((SpeciesRoot)phase.getSpeciesMaster().node.parentGroup()).addListener(this);
     }
               
 
