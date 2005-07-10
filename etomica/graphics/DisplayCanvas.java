@@ -73,8 +73,6 @@ public abstract class DisplayCanvas extends javax.swing.JPanel implements java.i
         g.drawImage(offScreen, 0, 0, null);
     }
 
-    public void setPhase() {}
-    
     /**
      * Same as setSize, but included to implement DisplayCanvasInterface,
      * which has this for compatibility with OpenGL.

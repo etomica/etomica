@@ -34,7 +34,6 @@ public interface DisplayCanvasInterface {
     public void doPaint(Graphics g);
     public void update(Graphics g);
     public void paint(Graphics g);
-    public void setPhase();
     public void setMovable(boolean b);
     public boolean isMovable();
     public void setResizable(boolean b);

@@ -7,6 +7,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.LinkedList;
 
 import etomica.Action;
 import etomica.Atom;
@@ -14,14 +15,12 @@ import etomica.AtomIterator;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Phase;
-import etomica.Simulation;
 import etomica.Space;
 import etomica.atom.AtomFilter;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.space.Vector;
 import etomica.space1d.Space1D;
 import etomica.units.BaseUnit;
-import java.util.LinkedList;
 
 /**
  * Displays a picture of a phase, with configurations of molecules, boundaries, and other objects as appropriate, assuming 2-dimensional system.  
@@ -195,8 +194,6 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
         drawables.remove(obj);
     }
     
-    public void initialize() { if(canvas!=null)canvas.initialize(); }
-
     /**
      * @return the phase associated with this display
      */
@@ -252,7 +249,6 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
             }
         });
 
-        canvas.setPhase();
         atomIterator = new AtomIteratorLeafAtoms(p);
     }
 
@@ -296,8 +292,6 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
                 }
             }
         });
-
-        canvas.setPhase();
     }
     
     /**
