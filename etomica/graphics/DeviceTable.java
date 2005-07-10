@@ -6,8 +6,6 @@ import javax.swing.table.AbstractTableModel;
 
 import etomica.EtomicaInfo;
 import etomica.Modifier;
-import etomica.Simulation;
-import etomica.units.Kelvin;
 import etomica.units.Unit;
 
 /**

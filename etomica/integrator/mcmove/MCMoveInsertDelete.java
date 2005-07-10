@@ -116,7 +116,7 @@ public class MCMoveInsertDelete extends MCMove {
         if(insert) {
             energyMeter.setTarget(testMolecule);
             uNew = energyMeter.getDataAsScalar();
-           return (+mu - uNew)/temperature;
+            return (+mu - uNew)/temperature;
         }
         uNew = 0.0;
         return (-mu + uOld)/temperature;
