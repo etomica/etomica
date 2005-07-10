@@ -77,7 +77,6 @@ public class NonintervalActionAdapter implements IntegratorNonintervalListener, 
      *            array of types that will trigger the action
      */
     public void setEventTypes(IntegratorIntervalEvent.Type[] types) {
-        eventTypes = (IntegratorIntervalEvent.Type[]) types.clone();
         eventMask = 0;
         for (int i = 0; i < types.length; i++) {
             eventMask |= types[i].mask;
@@ -86,7 +85,6 @@ public class NonintervalActionAdapter implements IntegratorNonintervalListener, 
 
     private final Action action;
     private int eventMask;
-    private IntegratorIntervalEvent.Type[] eventTypes;
     private boolean active;//set true in constructor
 
 }
