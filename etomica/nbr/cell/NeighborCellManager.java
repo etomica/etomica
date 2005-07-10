@@ -66,7 +66,7 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
         space = phase.space();
         atomIterator = new AtomIteratorTree();
         atomIterator.setDoAllNodes(true);
-        atomIterator.setRoot(phase.speciesMaster);
+        atomIterator.setRoot(phase.getSpeciesMaster());
 
         lattice = new CellLattice(phase.boundary().dimensions(), Cell.FACTORY);
         int[] size = new int[space.D()];
@@ -75,7 +75,7 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
 
         //listener to phase to detect addition of new SpeciesAgent
         //or new atom
-        ((SpeciesRoot)phase.speciesMaster.node.parentGroup()).addListener(new PhaseListener() {
+        ((SpeciesRoot)phase.getSpeciesMaster().node.parentGroup()).addListener(new PhaseListener() {
             public void actionPerformed(SimulationEvent evt) {
                 if (((PhaseEvent)evt).phase() == phase) {
                     actionPerformed((PhaseEvent)evt);

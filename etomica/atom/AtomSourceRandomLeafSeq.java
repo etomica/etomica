@@ -11,7 +11,7 @@ import etomica.Simulation;
 public class AtomSourceRandomLeafSeq extends AtomSourceRandomLeaf {
 
     public void setPhase(Phase p) {
-        list = p.speciesMaster.atomList;
+        list = p.getSpeciesMaster().atomList;
         reset();
     }
     

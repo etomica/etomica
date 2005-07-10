@@ -10,7 +10,7 @@ import etomica.SpeciesMaster;
 public class AtomSourceRandomMoleculeSeq extends AtomSourceRandomMolecule {
 
     public void setPhase(Phase p) {
-        speciesMaster = p.speciesMaster;
+        speciesMaster = p.getSpeciesMaster();
         reset();
     }
     

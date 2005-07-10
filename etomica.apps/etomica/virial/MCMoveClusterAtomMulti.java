@@ -60,9 +60,9 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom implements MCMoveCluster 
     }
     
     public void selectAtoms() {
-    	int total=phases[0].speciesMaster.atomList.size();
+    	int total=phases[0].getSpeciesMaster().atomList.size();
     	for(int i=total-1; i>total-nAtoms-1; i--) {
-    		selectedAtoms[total-1-i] = phases[0].speciesMaster.atomList.get(i);
+    		selectedAtoms[total-1-i] = phases[0].getSpeciesMaster().atomList.get(i);
     	}
     }
 

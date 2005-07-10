@@ -43,8 +43,8 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
 		if(phase1 == null || phase2 == null) {
 			phase1 = (PhaseCluster)integrator1.getPhase(0); 
 			phase2 = (PhaseCluster)integrator2.getPhase(0);
-			iterator1.setList(phase1.speciesMaster.atomList);
-			iterator2.setList(phase2.speciesMaster.atomList);
+			iterator1.setList(phase1.getSpeciesMaster().atomList);
+			iterator2.setList(phase2.getSpeciesMaster().atomList);
 		}
 
 		beta1 = 1.0/integrator1.getTemperature();

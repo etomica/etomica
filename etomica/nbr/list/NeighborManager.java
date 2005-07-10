@@ -105,7 +105,7 @@ public class NeighborManager implements IntegratorNonintervalListener,
             }
             pbcEnforcer.setPhase(phase[i]);
             pbcEnforcer.actionPerformed();
-            iterator.setRoot(phase[i].speciesMaster());
+            iterator.setRoot(phase[i].getSpeciesMaster());
             iterator.allAtoms(neighborReset);
             neighborSetup(phase[i]);
         }
@@ -125,7 +125,7 @@ public class NeighborManager implements IntegratorNonintervalListener,
             for (int j = 0; j < criteria.length; j++) {
                 criteria[j].setPhase(phase[i]);
             }
-            iterator.setRoot(phase[i].speciesMaster());
+            iterator.setRoot(phase[i].getSpeciesMaster());
             iterator.allAtoms(neighborCheck);
             if (neighborCheck.needUpdate) {
                 if (Debug.ON && Debug.DEBUG_NOW) {

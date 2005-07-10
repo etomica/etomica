@@ -10,7 +10,7 @@ import etomica.nbr.list.AtomSequencerNbr;
  * @author andrew
  */
 
-public final class Debug implements java.io.Serializable {
+public final class Debug {
 
 	/**
 	 * true if any debugging should be done
@@ -63,7 +63,7 @@ public final class Debug implements java.io.Serializable {
     /**
      * index of phase of interest.  -1 indicates no particular phase.
      */
-    public static final int PHASE_INDEX = 0;
+    public static final int PHASE_INDEX = 1;
     
     /**
      * determines whether this atom is set to be debugged
@@ -125,8 +125,8 @@ public final class Debug implements java.io.Serializable {
 	 * @param phase the phase containing atoms to be debugged
 	 */
 	public static void setAtoms(Phase phase) {
-		if (ATOM1_NUM > -1) ATOM1 = phase.speciesMaster.atomList.get(ATOM1_NUM);
-		if (ATOM2_NUM > -1) ATOM2 = phase.speciesMaster.atomList.get(ATOM2_NUM);
+		if (ATOM1_NUM > -1) ATOM1 = phase.getSpeciesMaster().atomList.get(ATOM1_NUM);
+		if (ATOM2_NUM > -1) ATOM2 = phase.getSpeciesMaster().atomList.get(ATOM2_NUM);
         if (MOLECULE1_INDEX > -1) MOLECULE1 = phase.molecule(MOLECULE1_INDEX);
         if (MOLECULE2_INDEX > -1) MOLECULE2 = phase.molecule(MOLECULE2_INDEX);
 	}

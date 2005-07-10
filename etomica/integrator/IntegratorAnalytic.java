@@ -54,7 +54,7 @@ import etomica.atom.iterator.AtomIteratorListTabbed;
 	 */
 	public boolean addPhase(Phase p) {
 	    if(!super.addPhase(p)) return false;
-        atomIterator.setList(p.speciesMaster.atomList);
+        atomIterator.setList(p.getSpeciesMaster().atomList);
         return true;
     }
     

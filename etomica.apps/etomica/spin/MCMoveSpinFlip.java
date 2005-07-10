@@ -45,7 +45,7 @@ public class MCMoveSpinFlip extends MCMove {
      * @see etomica.integrator.MCMove#doTrial()
      */
     public boolean doTrial() {
-        atom = phases[0].speciesMaster.atomList.getRandom();
+        atom = phases[0].getSpeciesMaster().atomList.getRandom();
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
         atom.coord.position().TE(-1);

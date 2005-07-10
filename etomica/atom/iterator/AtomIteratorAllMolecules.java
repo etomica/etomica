@@ -37,7 +37,7 @@ public class AtomIteratorAllMolecules extends AtomIteratorAdapter
      * Sets the phase having the molecules to be returned as iterates.
      */
     public void setPhase(Phase phase) {
-        treeIterator.setRoot((phase == null) ? null : phase.speciesMaster);
+        treeIterator.setRoot((phase == null) ? null : phase.getSpeciesMaster());
     }
 
     private final AtomIteratorTree treeIterator;

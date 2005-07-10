@@ -12,7 +12,7 @@ public class ColorSchemeRandom extends ColorSchemeCollective {
     }
     
     public void colorAllAtoms(Phase phase) {
-        iterator.setList(phase.speciesMaster.atomList);
+        iterator.setList(phase.getSpeciesMaster().atomList);
         iterator.reset();
         while(iterator.hasNext()) {
             Atom a = iterator.nextAtom();

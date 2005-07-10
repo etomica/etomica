@@ -32,7 +32,7 @@ public class ApiLeafAtoms extends AtomPairIteratorAdapter implements
             emptyList.clear();
             apiList.setList(emptyList);
         } else {
-            apiList.setList(phase.speciesMaster().atomList);
+            apiList.setList(phase.getSpeciesMaster().atomList);
         }
     }
 

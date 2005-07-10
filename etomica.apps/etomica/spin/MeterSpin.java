@@ -40,7 +40,7 @@ public class MeterSpin extends DataSourceScalar implements Meter {
     public double getDataAsScalar() {
         sum.E(0.0);
         int count = 0;
-        iterator.setList(phase.speciesMaster.atomList);
+        iterator.setList(phase.getSpeciesMaster().atomList);
         iterator.reset();
         while(iterator.hasNext()) {
             Atom atom = iterator.nextAtom();

@@ -41,8 +41,8 @@ public class AtomIndexManagerTest extends TestCase {
         atoms = new Atom[27];
         int i = 0;
         atoms[i++] = sim.speciesRoot;//0
-        atoms[i++] = master0 = phase0.speciesMaster;//1
-        atoms[i++] = master1 = phase1.speciesMaster;//2
+        atoms[i++] = master0 = phase0.getSpeciesMaster();//1
+        atoms[i++] = master1 = phase1.getSpeciesMaster();//2
         atoms[i++] = agent00 = phase0.getAgent(species0);//3
         atoms[i++] = agent01 = phase0.getAgent(species1);//4
         atoms[i++] = agent10 = phase1.getAgent(species0);//5

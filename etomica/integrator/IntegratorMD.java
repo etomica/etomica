@@ -155,7 +155,7 @@ public abstract class IntegratorMD extends Integrator {
             }
             else if (thermostat == ANDERSEN_SINGLE) {
                 for (int i=0; i<phase.length; i++) {
-                    AtomList atomList = phase[i].speciesMaster.atomList;
+                    AtomList atomList = phase[i].getSpeciesMaster().atomList;
                     int index = Simulation.random.nextInt(atomList.size());
                     Atom a = atomList.get(index);
                     double m = ((AtomTypeLeaf)a.type).getMass();

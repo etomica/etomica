@@ -10,7 +10,7 @@ import etomica.Phase;
 public class AtomSourceRandomLeaf implements AtomSource, java.io.Serializable {
 
     public void setPhase(Phase p) {
-        list = p.speciesMaster.atomList;
+        list = p.getSpeciesMaster().atomList;
     }
     
     /**

@@ -44,7 +44,7 @@ public class NeighborCellManagerFixed implements PhaseCellManager {
     public NeighborCellManagerFixed(final Phase phase, int nCells) {
         space = phase.space();
         atomIterator = new AtomIteratorListTabbed(
-                phase.speciesMaster().atomList);
+                phase.getSpeciesMaster().atomList);
 
         lattice = new CellLattice(phase.boundary().dimensions(),
                 AtomSite.FACTORY);
@@ -57,7 +57,7 @@ public class NeighborCellManagerFixed implements PhaseCellManager {
 
         //listener to phase to detect addition of new SpeciesAgent
         //or new atom
-        ((SpeciesRoot)phase.speciesMaster.node.parentGroup()).addListener(new PhaseListener() {
+        ((SpeciesRoot)phase.getSpeciesMaster().node.parentGroup()).addListener(new PhaseListener() {
 
             public void actionPerformed(SimulationEvent evt) {
                 if (((PhaseEvent)evt).phase() == phase) {
