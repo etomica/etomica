@@ -2,6 +2,11 @@ package etomica.log;
 
 import javax.swing.table.AbstractTableModel;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+
 /**
  * Writes a table to an excel-formatted file.
  */
