@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import etomica.AtomTreeNodeGroup;
 import etomica.Phase;
 import etomica.Species;
-import etomica.SpeciesAgent;
 import etomica.SpeciesRoot;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorAllMolecules;

@@ -1,6 +1,5 @@
 package etomica.compatibility;
 
-import etomica.compatibility.Requirement;
 
 public class FeatureRequirement extends Requirement
 {

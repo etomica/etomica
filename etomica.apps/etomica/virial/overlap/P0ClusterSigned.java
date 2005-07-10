@@ -1,6 +1,5 @@
 package etomica.virial.overlap;
 
-import etomica.virial.Cluster;
 import etomica.virial.P0Cluster;
 import etomica.virial.PhaseCluster;
 

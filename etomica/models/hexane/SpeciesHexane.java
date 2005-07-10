@@ -3,7 +3,6 @@
  */
 package etomica.models.hexane;
 
-import etomica.AtomTypeGroup;
 import etomica.Simulation;
 import etomica.atom.AtomSequencerFactory;
 

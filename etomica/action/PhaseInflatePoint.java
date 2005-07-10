@@ -6,7 +6,6 @@ import java.awt.Polygon;
 import etomica.Atom;
 import etomica.AtomIterator;
 import etomica.AtomTreeNodeGroup;
-import etomica.AtomTypeLeaf;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.SimulationEventManager;

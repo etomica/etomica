@@ -1,11 +1,22 @@
 package etomica.virial.overlap;
 
-import etomica.*;
-import etomica.space3d.Boundary;
-import etomica.virial.*;
-import etomica.graphics.*;
+import etomica.Controller;
+import etomica.Phase;
+import etomica.Space;
+import etomica.SpeciesSpheresMono;
+import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.DeviceTrioControllerButton;
+import etomica.graphics.DisplayPhase;
+import etomica.graphics.DisplayPlot;
+import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.space.Boundary;
+import etomica.virial.ConfigurationCluster;
+import etomica.virial.MayerHardSphere;
+import etomica.virial.MeterVirial;
+import etomica.virial.P0Cluster;
+import etomica.virial.PhaseCluster;
 
 /**
  * @author kofke

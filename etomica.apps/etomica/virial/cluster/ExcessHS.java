@@ -1,7 +1,6 @@
 package etomica.virial.cluster;
 
 import etomica.Atom;
-import etomica.virial.Cluster;
 import etomica.virial.CoordinatePairSet;
 import etomica.virial.MayerHardSphere;
 
