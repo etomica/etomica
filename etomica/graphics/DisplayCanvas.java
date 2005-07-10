@@ -2,13 +2,6 @@ package etomica.graphics;
 import java.awt.Graphics;
 import java.awt.Image;
 
-import etomica.Phase;
-import etomica.PhaseEvent;
-import etomica.PhaseListener;
-import etomica.SimulationEvent;
-import etomica.SpeciesRoot;
-import etomica.action.PhaseInflate;
-
 /**
  * Superclass for classes that display information from simulation by painting to a canvas.
  * Defines methods useful for dealing with mouse and key events targeted at the display.
@@ -17,13 +10,12 @@ import etomica.action.PhaseInflate;
  * 
  * @see DisplayPhase.Canvas
  */
-public abstract class DisplayCanvas extends javax.swing.JPanel implements java.io.Serializable, DisplayCanvasInterface, PhaseListener {
+public abstract class DisplayCanvas extends javax.swing.JPanel implements java.io.Serializable, DisplayCanvasInterface {
 
     protected Image offScreen;
     protected Graphics osg;
             
     protected DisplayPhase displayPhase;
-    protected PhaseInflate inflate;
 
     /**
     * Variable specifying whether a line tracing the boundary of the display should be drawn
@@ -71,16 +63,6 @@ public abstract class DisplayCanvas extends javax.swing.JPanel implements java.i
         if(offScreen != null) osg = offScreen.getGraphics();
     }
     
-    //PhaseListener interface
-    public void actionPerformed(PhaseEvent evt) {
-        initialize();
-    }
-    public void actionPerformed(SimulationEvent evt) {
-        if (((PhaseEvent)evt).phase() == displayPhase.getPhase()) {
-            actionPerformed((PhaseEvent)evt);
-        }
-    }
-        
     public abstract void doPaint(Graphics g);
     
     public void update(Graphics g) {paint(g);}
@@ -91,11 +73,7 @@ public abstract class DisplayCanvas extends javax.swing.JPanel implements java.i
         g.drawImage(offScreen, 0, 0, null);
     }
 
-    public void setPhase() {
-        Phase phase = displayPhase.getPhase();
-        inflate = new PhaseInflate(phase);
-        ((SpeciesRoot)phase.speciesMaster.node.parentGroup()).addListener(this);
-    }
+    public void setPhase() {}
     
     /**
      * Same as setSize, but included to implement DisplayCanvasInterface,
@@ -130,8 +108,6 @@ public abstract class DisplayCanvas extends javax.swing.JPanel implements java.i
       drawBoundary = b;
     }
     public int getDrawBoundary() {return drawBoundary;}
-
-    public void initialize() {}
 
     public void setShiftX(float x) {}
     public void setShiftY(float y) {}

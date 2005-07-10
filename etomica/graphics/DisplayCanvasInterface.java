@@ -51,7 +51,6 @@ public interface DisplayCanvasInterface {
     //public void setScale(double s);
     //public int getImageShells();
     //public void setImageShells(int n);
-    public void initialize();
     public void addMouseListener(MouseListener listener);
     public void addMouseMotionListener(MouseMotionListener listener);
     public void addKeyListener(KeyListener listener);

@@ -159,8 +159,6 @@ public class DisplayPolytope extends Display implements Action, EtomicaElement {
         }
     }
     
-    public void initialize() { if(canvas!=null)canvas.initialize(); }
-
     /**
      * @return the polytope associated with this display
      */
@@ -181,7 +179,8 @@ public class DisplayPolytope extends Display implements Action, EtomicaElement {
                 canvas = new DisplayPolytopeCanvas2D(this);
                 break;
             case 1:
-//              canvas = new DisplayBoundaryCanvas1D(this);
+//                canvas = new DisplayBoundaryCanvas1D(this);
+//                break;
             default:
                 throw new IllegalArgumentException("can't handle "+polytope.getEmbeddedSpace().D()+" dimensions");
         }

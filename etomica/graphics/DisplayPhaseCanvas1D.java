@@ -41,8 +41,6 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
         atomFilter = _phase.getAtomFilter();
     }
     
-    public void initialize() {}
-    
     public void setAtomFilter(AtomFilter filter) {atomFilter = filter;}
         
     /**
