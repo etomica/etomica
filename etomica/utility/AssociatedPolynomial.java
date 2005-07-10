@@ -30,18 +30,17 @@ public class AssociatedPolynomial implements java.io.Serializable {
             }
         }
         if(l==m){ return pmm;}
-        else{//Compute Pm,m+1
-                pmmp1 = x*(2.0*m + 1.0)*pmm;
-                if(l==(m+1)){return pmmp1;}
-                else{//Compute Pl,m ,l > m+1
-                pll = 0.0;
-                for(ll = m+2;ll <= l;ll++){
-                    pll = (x*(2.0*ll - 1.0)*pmmp1 - (ll + m - 1.0)*pmm)/(ll - m);
-                    pmm   = pmmp1;
-                    pmmp1 = pll;
-                    }
-                return pll;
-                }
+        //Compute Pm,m+1
+        pmmp1 = x*(2.0*m + 1.0)*pmm;
+        if(l==(m+1)) {
+            return pmmp1;
         }
+        pll = 0.0;
+        for(ll = m+2;ll <= l;ll++) {
+            pll = (x*(2.0*ll - 1.0)*pmmp1 - (ll + m - 1.0)*pmm)/(ll - m);
+            pmm   = pmmp1;
+            pmmp1 = pll;
+        }
+        return pll;
      }
 }

@@ -8,8 +8,8 @@ public class GaussJordanElimination implements java.io.Serializable {
     private int []indxr;
     private int []ipiv;
     
-    private int    i,icol,irow,j,k,l,ll;
-    private double big,dum,pivinv,temp;
+    private int    icol,irow,j,k,l,ll;
+    private double big,dum,pivinv;
     
     public double [][]aa = new double [3][3];
     public double [][]bb = new double[3][1];
@@ -27,7 +27,7 @@ public class GaussJordanElimination implements java.io.Serializable {
             ipiv[j] = 0;
         
         
-        for(i = 0 ; i < n; i++){
+        for(int i = 0 ; i < n; i++){
             big = 0.0;
             for(j = 0;j < n;j++)
                 if(ipiv[j] != 1.0)

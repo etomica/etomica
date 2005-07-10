@@ -99,11 +99,12 @@ public class DecimalSlider extends javax.swing.JSlider {
         labelTable.put(new Integer(minimum), new JLabel(labelValue(mm)));
         
         for(int i =1; i<labels.size(); i++){
-                if((int)(labels.size()-1)!=i){
-                       int nn = (int)(minimum+standardSpacingLabel*i);
+                if(labels.size()-1!=i){
+                       int nn = minimum+standardSpacingLabel*i;
                        mm = nn/(double)(precision);
                        labelTable.put(new Integer(nn), new JLabel(labelValue(mm)));    
-                 }else if((int)(labels.size()-1)==i){
+                 }
+                 else if(labels.size()-1==i){
                        mm = maximum/(double)precision;
                        labelTable.put(new Integer(maximum), new JLabel(labelValue(mm)));    
                  }
@@ -112,7 +113,7 @@ public class DecimalSlider extends javax.swing.JSlider {
     }
     private String labelValue(double d) {
         if(precision == 1) return String.valueOf((int)d);
-        else return String.valueOf(d);
+        return String.valueOf(d);
     }
        
 }

@@ -230,10 +230,9 @@ public class ScientificFormat extends NumberFormat {
 	out[2] = qpos;
 
 	int ppos = 0;
-	int bp, al, nl=0, opp;
+	int bp, al, nl=0;
 	while (ppos < text.length() && (bp = text.indexOf("'", ppos)) >= 0) {
 	    al = bp - ppos;
-	    opp = ppos;
 	    ppos = text.indexOf("'", bp+1);
 	    if (ppos < 0) break;
 
@@ -440,18 +439,14 @@ public class ScientificFormat extends NumberFormat {
 		return exponentialFormat(sign*mantissa, exponent,
 					 result, fieldPosition);
 	    }
-	    else {
 		StringBuffer tmp = new StringBuffer();
 		dfmt.format(number, tmp, fieldPosition);
 		if (tmp.length() > mxwd) {
 		    return exponentialFormat(sign*mantissa, exponent, 
 					     result, fieldPosition);
 		}
-		else {
-		    result.append(tmp.toString());
-		    return result;
-		}
-	    }
+	    result.append(tmp.toString());
+	    return result;
 	}
 	else {
 	    return dfmt.format(number, result, fieldPosition);
@@ -481,18 +476,14 @@ public class ScientificFormat extends NumberFormat {
 		return exponentialFormat(sign*mantissa, exponent,
 					 result, fieldPosition);
 	    }
-	    else {
 		StringBuffer tmp = new StringBuffer();
 		dfmt.format(number, tmp, fieldPosition);
 		if (tmp.length() > mxwd) {
 		    return exponentialFormat(sign*mantissa, exponent, 
 					     result, fieldPosition);
 		}
-		else {
-		    result.append(tmp.toString());
-		    return result;
-		}
-	    }
+	    result.append(tmp.toString());
+	    return result;
 	}
 	else {
 	    return dfmt.format(number, result, fieldPosition);
