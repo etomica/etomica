@@ -4,11 +4,9 @@ import etomica.AtomIterator;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 
-public class AtomActionTransform extends AtomActionAdapter {
+public class AtomTransform {
     
- //   private final AtomIteratorSequential iterator = new AtomIteratorSequential();
-    
-    public static void doAction(AtomIterator iterator, Vector r0, Tensor transformMatrix) {
+    public static void doTransform(AtomIterator iterator, Vector r0, Tensor transformMatrix) {
         while(iterator.hasNext()) {
             Atom a = iterator.nextAtom();
             Vector r = a.coord.position();
@@ -16,5 +14,4 @@ public class AtomActionTransform extends AtomActionAdapter {
         }
     }
     
-    public void actionPerformed(Atom a) {}
 }

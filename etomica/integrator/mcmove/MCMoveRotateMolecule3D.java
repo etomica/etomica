@@ -5,7 +5,7 @@ import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.Space;
-import etomica.action.AtomActionTransform;
+import etomica.action.AtomTransform;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -65,7 +65,7 @@ public class MCMoveRotateMolecule3D extends MCMove {
         leafAtomIterator.setRoot(molecule);
         leafAtomIterator.reset();
         r0.E(molecule.node.firstLeafAtom().coord.position());
-        AtomActionTransform.doAction(leafAtomIterator, r0, rotationTensor);
+        AtomTransform.doTransform(leafAtomIterator, r0, rotationTensor);
             
         uNew = Double.NaN;
         return true;
@@ -89,7 +89,7 @@ public class MCMoveRotateMolecule3D extends MCMove {
         
         rotationTensor.invert();
         leafAtomIterator.reset();
-        AtomActionTransform.doAction(leafAtomIterator, r0, rotationTensor);
+        AtomTransform.doTransform(leafAtomIterator, r0, rotationTensor);
         
     }//end of rejectNotify
     
