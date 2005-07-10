@@ -536,18 +536,18 @@ public class LinkedList implements java.io.Serializable, Cloneable
      */
     private synchronized void readObject(java.io.ObjectInputStream s)
         throws java.io.IOException, ClassNotFoundException {
-	// Read in any hidden serialization magic
+	    // Read in any hidden serialization magic
     	s.defaultReadObject();
 
         // Read in size
-        int size = s.readInt();
+        int streamSize = s.readInt();
 
         // Initialize header
         header = new Entry(null, null, null);
         header.next = header.previous = header;
 
 	// Read in all elements in the proper order.
-	    for (int i=0; i<size; i++)
+	    for (int i=0; i<streamSize; i++)
                 add(s.readObject());
         }
 }
