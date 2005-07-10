@@ -24,7 +24,6 @@ public class Crystal implements AbstractLattice, java.io.Serializable {
         this.basis = basis;
         this.lattice = lattice;
         this.space = lattice.getSpace();
-        latticeIndex = new int[lattice.D()];
     }
     
     public int D() {
@@ -57,6 +56,5 @@ public class Crystal implements AbstractLattice, java.io.Serializable {
 
     protected final Basis basis;
     protected final BravaisLattice lattice;
-    private final int[] latticeIndex;
     private final Space space;
 }//end of Crystal
