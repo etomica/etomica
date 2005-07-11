@@ -83,8 +83,8 @@ public class MeterVirial implements DataSource, Meter, java.io.Serializable {
      * @param phase The phase to set.
      */
     public void setPhase(Phase phase) {
-        setSampleCluster(((PhaseCluster)phase).getSampleCluster());
         this.phase = (PhaseCluster)phase;
+        setSampleCluster(((PhaseCluster)phase).getSampleCluster());
     }
 
     public String getName() {
