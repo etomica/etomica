@@ -4,7 +4,6 @@ import etomica.Controller;
 import etomica.DataSink;
 import etomica.DataSource;
 import etomica.Default;
-import etomica.IntegratorPotentialEnergy;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.Space;
@@ -14,6 +13,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataGroup;
 import etomica.data.DataPump;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
@@ -79,7 +79,7 @@ public class TestSWMC3D extends Simulation {
         Default.BLOCK_SIZE = 10;
         TestSWMC3D sim = new TestSWMC3D(new Space3D(), numAtoms);
 
-        DataSource energyMeter = new IntegratorPotentialEnergy(sim.integrator);
+        DataSource energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverage(energyMeter.getDataInfo());
         DataPump energyManager = new DataPump(energyMeter,new DataSink[]{energyAccumulator});
         energyAccumulator.setBlockSize(50);

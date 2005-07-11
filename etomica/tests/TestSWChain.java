@@ -4,9 +4,7 @@ import etomica.AtomType;
 import etomica.ConfigurationFile;
 import etomica.ConformationLinear;
 import etomica.DataSink;
-import etomica.DataSource;
 import etomica.Default;
-import etomica.IntegratorPotentialEnergy;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.Space;
@@ -18,8 +16,9 @@ import etomica.atom.AtomTypeSphere;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataGroup;
 import etomica.data.DataPump;
+import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterPressureHard;
-import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataDouble;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.nbr.CriterionBondedSimple;
@@ -113,7 +112,8 @@ public class TestSWChain extends Simulation {
         TestSWChain sim = new TestSWChain(new Space3D(), numMolecules);
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.space,sim.integrator); 
-        DataSource energyMeter = new IntegratorPotentialEnergy(sim.integrator);
+        MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
+        energyMeter.setPhase(sim.phase);
         AccumulatorAverage energyAccumulator = new AccumulatorAverage(energyMeter.getDataInfo());
         DataPump energyManager = new DataPump(energyMeter,new DataSink[]{energyAccumulator});
         energyAccumulator.setBlockSize(50);
@@ -123,12 +123,12 @@ public class TestSWChain extends Simulation {
         
         pMeter.setPhase(sim.phase);
         double Z = pMeter.getDataAsScalar()*sim.phase.volume()/(sim.phase.moleculeCount()*sim.integrator.getTemperature());
-        double avgPE = ((DataDoubleArray)((DataGroup)energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).getData()[0];
+        double avgPE = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
         avgPE /= numMolecules;
         System.out.println("Z="+Z);
         System.out.println("PE/epsilon="+avgPE);
         double temp = sim.integrator.getTemperature();
-        double Cv = ((DataDoubleArray)((DataGroup)energyAccumulator.getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index)).getData()[0];
+        double Cv = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index)).x;
         Cv /= temp;
         Cv *= Cv/numMolecules;
         System.out.println("Cv/k="+Cv);
