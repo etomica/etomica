@@ -26,9 +26,9 @@ public final class ColorSchemeByType extends ColorScheme implements Parameter.So
         
     public ColorSchemeByType() {}
             
- /**
-  * Initialize atom color to the color of its type
-  */
+    /**
+     * Initialize atom color to the color of its type
+     */
     public final Color atomColor(Atom a) {
         return(((ParameterColor)a.type.parameter[colorIndex]).getColor());}
   
