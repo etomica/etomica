@@ -103,7 +103,7 @@ public class SimulationVirialOverlap extends Simulation {
             MeterVirial meter = new MeterVirial(new ClusterAbstract[]{aValueClusters[iPhase],aSampleClusters[1-iPhase]},integrators[iPhase],temperature);
             setMeter(meter,iPhase);
             meters[iPhase].getDataInfo().setLabel("Overlap/Target"+iPhase+" meter");
-            AccumulatorVirialOverlapSingleAverage acc = new AccumulatorVirialOverlapSingleAverage(1);
+            AccumulatorVirialOverlapSingleAverage acc = new AccumulatorVirialOverlapSingleAverage(meter.getDataInfo(),1);
             double refPref = 600;
             if (iPhase==1) {
                 refPref = 1/refPref; // actually targetPref
