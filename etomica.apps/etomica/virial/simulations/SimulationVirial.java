@@ -86,8 +86,8 @@ public class SimulationVirial extends Simulation {
         allValueClusters[0] = refCluster;
         System.arraycopy(targetClusters,0,allValueClusters,1,targetClusters.length);
         setMeter(new MeterVirial(allValueClusters,integrator,temperature));
-        meter.getDataInfo().setLabel("Target/Refernce Ratio");
-        setAccumulator(new AccumulatorRatioAverage());
+        meter.getDataInfo().setLabel("Target/Reference Ratio");
+        setAccumulator(new AccumulatorRatioAverage(meter.getDataInfo()));
 	}
 	
 	public Meter meter;

@@ -112,14 +112,14 @@ public class PistonCylinder extends Simulation {
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.space,sim.integrator);
         pMeter.setPhase(sim.phase);
-        AccumulatorAverage pAcc = new AccumulatorAverage();
+        AccumulatorAverage pAcc = new AccumulatorAverage(pMeter.getDataInfo());
         DataPump pump = new DataPump(pMeter,new DataSink[]{pAcc});
         IntervalActionAdapter adapter = new IntervalActionAdapter(pump,sim.integrator);
         adapter.setActionInterval(10);
         
         MeterPistonDensity dMeter = new MeterPistonDensity(sim.pistonPotential,1,Default.ATOM_SIZE);
         dMeter.setPhase(sim.phase);
-        AccumulatorAverage dAcc = new AccumulatorAverage();
+        AccumulatorAverage dAcc = new AccumulatorAverage(dMeter.getDataInfo());
         pump = new DataPump(dMeter,new DataSink[]{dAcc});
         adapter = new IntervalActionAdapter(pump,sim.integrator);
         adapter.setActionInterval(10);

@@ -1,6 +1,7 @@
 package etomica.virial.overlap;
 
 import etomica.Data;
+import etomica.DataInfo;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
 
@@ -10,8 +11,8 @@ import etomica.data.types.DataDoubleArray;
  */
 public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAverage {
 
-	public AccumulatorVirialOverlapSingleAverage(int aNBennetPoints) {
-		super();
+    public AccumulatorVirialOverlapSingleAverage(DataInfo info, int aNBennetPoints) {
+		super(info);
 		nBennetPoints = aNBennetPoints;
 		if (nBennetPoints%2 == 0) {
 			throw new IllegalArgumentException("try again with an odd aNPoints");

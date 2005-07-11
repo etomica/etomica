@@ -86,7 +86,7 @@ public class Heisenberg extends Simulation {
         
         meter = new MeterSpin(space);
         meter.setPhase(phase);
-        dAcc = new AccumulatorAverage();
+        dAcc = new AccumulatorAverage(meter.getDataInfo());
         pump = new DataPump(meter,new DataSink[]{dAcc});
         adapter = new IntervalActionAdapter(pump,integrator);
         adapter.setActionInterval(10);

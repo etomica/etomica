@@ -9,10 +9,11 @@ import etomica.Phase;
 import etomica.Space;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
+import etomica.data.DataGroup;
 import etomica.data.DataSourceAtomic;
 import etomica.data.DataSourceUniform;
 import etomica.data.types.DataDouble;
-import etomica.data.types.DataFunction;
+import etomica.data.types.DataDoubleArray;
 import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.units.Dimension;
@@ -31,7 +32,9 @@ public class MeterProfile implements DataSource, Meter, java.io.Serializable {
      * Default constructor sets profile along the y-axis, with 100 histogram points.
      */
     public MeterProfile(Space space) {
-        xDataSource = new DataSourceUniform();
+        xDataSource = new DataSourceUniform(Dimension.LENGTH);
+        xData = (DataDoubleArray)xDataSource.getData();
+        xData.getDataInfo().setLabel("x");
         profileVector = space.makeVector();
         profileVector.setX(0, 1.0);
         position = space.makeVector();
@@ -55,13 +58,13 @@ public class MeterProfile implements DataSource, Meter, java.io.Serializable {
      * Accessor method for the meter that defines the profiled quantity.
      */
     public void setDataSource(DataSourceAtomic m) {
-        if (!(m instanceof DataDouble.Source)) {
+        if (!(m.getDataInfo().getDataClass().equals(DataDouble.class))) {
             throw new IllegalArgumentException("data source must return a DataDouble");
         }
+        yData = new DataDoubleArray(m.getDataInfo().getLabel()+" Profile", m.getDataInfo().getDimension());
+        yData.setLength(xDataSource.getNValues());
+        data = new DataGroup("Profile group", Dimension.NULL, new Data[] {xData, yData});
         meter = m;
-        data = new DataFunction(m.getDataInfo().getLabel()+" Profile",m.getDataInfo().getDimension(),
-                new DataInfo("x",Dimension.LENGTH));
-        data.setLength(xDataSource.getNValues());
     }
     
     /**
@@ -86,8 +89,8 @@ public class MeterProfile implements DataSource, Meter, java.io.Serializable {
     public Data getData() {
         Boundary boundary = phase.boundary();
         profileNorm = 1.0/boundary.dimensions().dot(profileVector);
-        data.E(0);
-        double[] y = data.getData();
+        yData.E(0);
+        double[] y = yData.getData();
         ai1.reset();
         while(ai1.hasNext()) {
             Atom a = ai1.nextAtom();
@@ -97,9 +100,9 @@ public class MeterProfile implements DataSource, Meter, java.io.Serializable {
             int i = xDataSource.getIndex(position.dot(profileVector)*profileNorm);
             y[i] += value;
         }
-        double dx = (xDataSource.getXMax() - xDataSource.getXMin())/data.getLength();
+        double dx = (xDataSource.getXMax() - xDataSource.getXMin())/y.length;
         double norm = 1.0/(phase.atomCount()*dx);
-        data.TE(norm);
+        yData.TE(norm);
         return data;
     }
     /**
@@ -127,7 +130,9 @@ public class MeterProfile implements DataSource, Meter, java.io.Serializable {
     private Phase phase;
     private String name;
     private DataSourceUniform xDataSource;
-    private DataFunction data;
+    private DataGroup data;
+    private DataDoubleArray xData;
+    private DataDoubleArray yData;
     /**
      * Vector describing the orientation of the profile.
      * For example, (1,0) is along the x-axis.
