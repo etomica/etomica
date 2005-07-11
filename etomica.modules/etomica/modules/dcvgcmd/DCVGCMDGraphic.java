@@ -70,8 +70,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
     meterA.setSpecies(sim.species);
     meterB.setPhase(sim.phase);
     meterB.setSpecies(sim.species1);
-    DisplayBox boxA = new DisplayBox();
-    DisplayBox boxB = new DisplayBox();
+    DisplayBox boxA = new DisplayBox(meterA.getDataInfo());
+    DisplayBox boxB = new DisplayBox(meterB.getDataInfo());
     boxA.setPrecision(3);
     boxB.setPrecision(3);
     boxA.setIntegerDisplay(true);
@@ -115,7 +115,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	//tubePanelSlider.setMaximum(24);
 	
 //Display to see adjusted temperature
-	DisplayBox box1 = new DisplayBox();
+	DisplayBox box1 = new DisplayBox(sim.thermometer.getDataInfo());
     DataPump tpump = new DataPump(sim.thermometer, box1);
 	IntervalActionAdapter interval1 = new IntervalActionAdapter (tpump, sim.integratorDCV);
 	interval1.setActionInterval(10);
@@ -135,8 +135,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
     table.setShowingRowLabels(true);
     table.setPrecision(7);
 	
-	sim.accumulator1.addDataSink(profilePlot.getDataTable().makeColumn(),new AccumulatorAverage.Type[]{AccumulatorAverage.AVERAGE});
-    sim.accumulator2.addDataSink(profilePlot.getDataTable().makeColumn(),new AccumulatorAverage.Type[]{AccumulatorAverage.AVERAGE});
+	sim.accumulator1.addDataSink(profilePlot.getDataTable().makeColumn(sim.accumulator1.getDataInfo()),new AccumulatorAverage.Type[]{AccumulatorAverage.AVERAGE});
+    sim.accumulator2.addDataSink(profilePlot.getDataTable().makeColumn(sim.accumulator2.getDataInfo()),new AccumulatorAverage.Type[]{AccumulatorAverage.AVERAGE});
 
 //set color of molecules	
 	ColorSchemeByType.setColor(sim.species,colorA);

@@ -1,6 +1,5 @@
 package etomica.modules.pistoncylinder;
 
-import etomica.DataInfo;
 import etomica.Meter;
 import etomica.Phase;
 import etomica.data.DataSourceScalar;
@@ -14,7 +13,7 @@ import etomica.units.DimensionRatio;
  */
 public class MeterPistonDensity extends DataSourceScalar implements Meter {
     public MeterPistonDensity(P1HardMovingBoundary potential, int wallDim, double atomDiameter) {
-        super(new DataInfo("Density",new DimensionRatio(Dimension.QUANTITY,Dimension.VOLUME)));
+        super("Density",new DimensionRatio(Dimension.QUANTITY,Dimension.VOLUME));
         pistonPotential = potential;
         wallD = wallDim;
         collisionDiameter = atomDiameter;

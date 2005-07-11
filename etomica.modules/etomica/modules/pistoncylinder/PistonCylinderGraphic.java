@@ -110,8 +110,6 @@ public class PistonCylinderGraphic {
         displayPhase = new DisplayPhase(null);
         displayPhase.setColorScheme(new ColorSchemeByType());
 
-        displayCycles = new DisplayBox();
-        displayCycles.setPrecision(6);
 
         Default.FIX_OVERLAP = true;
         Default.ATOM_SIZE = 3.0;
@@ -349,6 +347,7 @@ public class PistonCylinderGraphic {
         java.awt.GridBagConstraints gbc3 = new java.awt.GridBagConstraints();
         gbc3.gridx = java.awt.GridBagConstraints.RELATIVE;
         gbc3.gridy = 0;
+        displayCycles = new DisplayBox();
         controlPanel.add(displayCycles.graphic(),gbc2);
         
         JPanel statePanel = new JPanel(new GridBagLayout());
@@ -488,6 +487,7 @@ public class PistonCylinderGraphic {
         fixPistonButton.setState(pistonHeld);
 
         meterCycles = new DataSourceCountSteps();
+        displayCycles.setPrecision(6);
         DataPump pump= new DataPump(meterCycles,displayCycles);
         new IntervalActionAdapter(pump,pc.integrator);
         displayCycles.setLabel("Integrator steps");
@@ -546,69 +546,69 @@ public class PistonCylinderGraphic {
         plotP.getDataTable().removeAllColumns();
         
         thermometer.setPhase(pc.phase);
-        AccumulatorHistory temperatureHistory = new AccumulatorHistory();
+        AccumulatorHistory temperatureHistory = new AccumulatorHistory(thermometer.getDataInfo());
         temperatureHistory.setHistoryLength(historyLength);
-        AccumulatorAverage temperatureAvg = new AccumulatorAverage();
+        AccumulatorAverage temperatureAvg = new AccumulatorAverage(thermometer.getDataInfo());
         pump = new DataPump(thermometer,new DataSink[] {temperatureHistory,temperatureAvg});
         IntervalActionAdapter adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
-        DataBin bin = plotT.getDataTable().makeColumn();
+        DataBin bin = plotT.getDataTable().makeColumn(temperatureHistory.getDataInfo());
         temperatureHistory.addDataSink(bin);
         plotT.setUnit(bin,tUnit);
         temperatureDisplayBox.setAccumulator(temperatureAvg);
         temperatureDisplayBox.setUnit(tUnit);
         
-        DataSource targetTemperatureDataSource = new DataSourceScalar(new DataInfo("Temperature",Dimension.TEMPERATURE)) {
+        DataSource targetTemperatureDataSource = new DataSourceScalar("Temperature",Dimension.TEMPERATURE) {
             public double getDataAsScalar() {
                 return temperatureSlider.getModifier().getValue();
             }
         };
-        AccumulatorHistory targetTemperatureHistory = new AccumulatorHistory();
+        AccumulatorHistory targetTemperatureHistory = new AccumulatorHistory(targetTemperatureDataSource.getDataInfo());
         targetTemperatureHistory.setHistoryLength(historyLength);
         DataPump targetTemperatureDataPump = new DataPump(targetTemperatureDataSource, targetTemperatureHistory);
         adapter = new IntervalActionAdapter(targetTemperatureDataPump,pc.integrator);
         adapter.setActionInterval(dataInterval);
-        bin = plotT.getDataTable().makeColumn();
+        bin = plotT.getDataTable().makeColumn(targetTemperatureHistory.getDataInfo());
         targetTemperatureHistory.addDataSink(bin);
         plotT.setUnit(bin,tUnit);
 
         pressureMeter = new DataSourceWallPressure(pc.space,pc.pistonPotential,pc.integrator);
         pressureMeter.setPhase(pc.phase);
-        AccumulatorHistory pressureHistory = new AccumulatorHistory();
+        AccumulatorHistory pressureHistory = new AccumulatorHistory(pressureMeter.getDataInfo());
         pressureHistory.setHistoryLength(historyLength);
-        AccumulatorAverage pressureAvg = new AccumulatorAverage();
+        AccumulatorAverage pressureAvg = new AccumulatorAverage(pressureMeter.getDataInfo());
         pump = new DataPump(pressureMeter, new DataSink[]{pressureHistory,pressureAvg});
         adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
-        bin = plotP.getDataTable().makeColumn();
+        bin = plotP.getDataTable().makeColumn(pressureHistory.getDataInfo());
         pressureHistory.addDataSink(bin);
         plotP.setUnit(bin,pUnit);
         pressureDisplayBox.setAccumulator(pressureAvg);
         pressureDisplayBox.setUnit(pUnit);
 
-        DataSource targetPressureDataSource = new DataSourceScalar(new DataInfo("Pressure",Dimension.PRESSURE)) {
+        DataSource targetPressureDataSource = new DataSourceScalar("Pressure",Dimension.PRESSURE) {
             public double getDataAsScalar() {
                 return pressureSlider.getModifier().getValue();
             }
         };
-        AccumulatorHistory targetPressureHistory = new AccumulatorHistory();
+        AccumulatorHistory targetPressureHistory = new AccumulatorHistory(targetPressureDataSource.getDataInfo());
         targetPressureHistory.setHistoryLength(historyLength);
         pump = new DataPump(targetPressureDataSource, targetPressureHistory);
         adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
-        bin = plotP.getDataTable().makeColumn();
+        bin = plotP.getDataTable().makeColumn(targetPressureHistory.getDataInfo());
         targetPressureHistory.addDataSink(bin);
         plotP.setUnit(bin,pUnit);
 
         densityMeter = new MeterPistonDensity(pc.pistonPotential,1,Default.ATOM_SIZE);
         densityMeter.setPhase(pc.phase);
-        AccumulatorHistory densityHistory = new AccumulatorHistory();
+        AccumulatorHistory densityHistory = new AccumulatorHistory(densityMeter.getDataInfo());
         densityHistory.setHistoryLength(historyLength);
-        AccumulatorAverage densityAvg = new AccumulatorAverage();
+        AccumulatorAverage densityAvg = new AccumulatorAverage(densityMeter.getDataInfo());
         pump = new DataPump(densityMeter,new DataSink[]{densityAvg, densityHistory});
         adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
-        bin = plotD.getDataTable().makeColumn();
+        bin = plotD.getDataTable().makeColumn(densityHistory.getDataInfo());
         densityHistory.addDataSink(bin);
         plotD.setUnit(bin,dUnit);
         densityDisplayBox.setAccumulator(densityAvg);

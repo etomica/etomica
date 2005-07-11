@@ -1,6 +1,5 @@
 package etomica.modules.dcvgcmd;
 
-import etomica.DataInfo;
 import etomica.Meter;
 import etomica.Phase;
 import etomica.data.DataSourceScalar;
@@ -9,7 +8,7 @@ import etomica.units.Dimension;
 public class MeterFlux extends DataSourceScalar implements Meter {
     
 	public MeterFlux(MyMCMove move, IntegratorDCVGCMD integrator) {
-		super(new DataInfo("Flux",Dimension.UNDEFINED));
+		super("Flux",Dimension.UNDEFINED);
 		mcMove = move;
 		integratorMD = integrator;
 	}

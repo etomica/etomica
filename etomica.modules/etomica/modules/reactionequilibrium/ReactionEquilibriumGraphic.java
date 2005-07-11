@@ -171,7 +171,7 @@ public class ReactionEquilibriumGraphic {
 		//so that display is updated when slider changes atom sizes
 		sizeModifier.setDisplay(displayPhase1);
         
-		DisplayBox tBox = new DisplayBox();
+		DisplayBox tBox = new DisplayBox(sim.thermometer.getDataInfo());
 		DataPump tPump = new DataPump (sim.thermometer, tBox);
 		IntervalActionAdapter tAdapter = new IntervalActionAdapter (tPump, sim.integratorHard1);
 		tAdapter.setActionInterval(100);
@@ -180,16 +180,16 @@ public class ReactionEquilibriumGraphic {
 		tBox.setLabelPosition(Constants.NORTH);
 
 		//display of averages
-		AccumulatorAverage dimerfractionaccum = new AccumulatorAverage ();
+		AccumulatorAverage dimerfractionaccum = new AccumulatorAverage (sim.meterDimerFraction.getDataInfo());
 		DataPump tAverageDimer = new DataPump (sim.meterDimerFraction, dimerfractionaccum);
 		DisplayTable table = new DisplayTable();
-		dimerfractionaccum.addDataSink(table.getDataTable().makeColumn());
+		dimerfractionaccum.addDataSink(table.getDataTable().makeColumn(dimerfractionaccum.getDataInfo()));
 
 		//display for history of mole fractions
-		AccumulatorHistory dimerfractionhistory = new AccumulatorHistory();
+		AccumulatorHistory dimerfractionhistory = new AccumulatorHistory(sim.meterDimerFraction.getDataInfo());
 		tAverageDimer.addDataSink(dimerfractionhistory);
 		DisplayPlot plot = new DisplayPlot();
-		dimerfractionhistory.addDataSink (plot.getDataTable().makeColumn());
+		dimerfractionhistory.addDataSink (plot.getDataTable().makeColumn(dimerfractionhistory.getDataInfo()));
 		plot.setLabel("Composition");
 
 		//************* Lay out components ****************//
