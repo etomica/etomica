@@ -7,6 +7,7 @@ import javax.swing.JPanel;
 
 import etomica.Constants;
 import etomica.Data;
+import etomica.DataInfo;
 import etomica.DataSink;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataGroup;
@@ -15,7 +16,6 @@ import etomica.data.meter.MeterPressureHard;
 import etomica.graphics.DisplayBox.LabelType;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.simulations.HSMD2D;
-import etomica.units.Dimension;
 import etomica.units.Unit;
 
 /**
@@ -39,21 +39,26 @@ public class DisplayBoxesCAE extends Display implements DataSink {
 
 	JLabel jLabelPanelParentGroup = new JLabel();
     
-	public DisplayBoxesCAE() {
+    public DisplayBoxesCAE() {
+        this("", Unit.NULL);
+    }
+    
+	public DisplayBoxesCAE(DataInfo info) {
+        this(info.getLabel(), info.getDimension().defaultIOUnit());
+    }
+    
+    public DisplayBoxesCAE(String label, Unit unit) {
 		super();
-		currentBox = new DisplayBox();
-		averageBox = new DisplayBox();
-		errorBox = new DisplayBox();
+		currentBox = new DisplayBox("Current", unit);
+		averageBox = new DisplayBox("Average", unit);
+		errorBox = new DisplayBox("Error", unit);
 		jLabelPanelParentGroup = new JLabel();
         panelParentGroup = new JPanel(new java.awt.BorderLayout());
         panelParentGroup.add(currentBox.graphic(), java.awt.BorderLayout.WEST);
         panelParentGroup.add(averageBox.graphic(), java.awt.BorderLayout.CENTER);
         panelParentGroup.add(errorBox.graphic(), java.awt.BorderLayout.EAST);
-        setLabel("");
+        setLabel(label);
         setLabelType(DisplayBox.STRING);
-        currentBox.setLabel("Current");
-        averageBox.setLabel("Average");
-        errorBox.setLabel("Error");
 	}
 
     /**
@@ -92,17 +97,6 @@ public class DisplayBoxesCAE extends Display implements DataSink {
         return jLabelPanelParentGroup.getText();
     }
 
-    /**
-     * Sets label to the given value if it was not previously set.
-     * If setLabel was previously called, this method has no effect.
-     * This method is usually invoked automatically when this data
-     * sink is attached to a data pipe.
-     */
-    public void setDefaultLabel(String defaultLabel) {
-        if(getLabel() == "") setLabel(defaultLabel);
-    }
-
-
     public void setLabelPosition(Constants.CompassDirection position) {
         labelPosition = position;
         if(labelType != DisplayBox.STRING) return;
@@ -125,10 +119,6 @@ public class DisplayBoxesCAE extends Display implements DataSink {
         averageBox.putData(((DataGroup)data).getData(1));
         errorBox.putData(((DataGroup)data).getData(2));
     }
-    
-    public void setDimension(Dimension dimension) {
-        if(unit == Unit.UNDEFINED) setUnit(dimension.defaultIOUnit());
-    }
 
     public void setUnit(Unit unit) {
     		currentBox.setUnit(unit);
@@ -136,18 +126,16 @@ public class DisplayBoxesCAE extends Display implements DataSink {
     		errorBox.setUnit(unit);
     }
     
-    private Unit unit = Unit.UNDEFINED;
-    
     public static void main(String[] args) {
         HSMD2D sim = new HSMD2D();
         SimulationGraphic graphic = new SimulationGraphic(sim);
         sim.integrator.setIsothermal(true);
         MeterPressureHard pressureMeter = new MeterPressureHard(sim.space,sim.integrator);
         pressureMeter.setPhase(sim.phase);
-        AccumulatorAverage accumulator = new AccumulatorAverage();
+        AccumulatorAverage accumulator = new AccumulatorAverage(pressureMeter.getDataInfo());
         DataPump dataPump = new DataPump(pressureMeter, accumulator);
         new IntervalActionAdapter(dataPump, sim.integrator);
-        DisplayBoxesCAE boxes = new DisplayBoxesCAE();
+        DisplayBoxesCAE boxes = new DisplayBoxesCAE(pressureMeter.getDataInfo());
         boxes.setAccumulator(accumulator);
         graphic.add(boxes);
         graphic.makeAndDisplayFrame();

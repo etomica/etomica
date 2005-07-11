@@ -16,7 +16,7 @@ import etomica.units.DimensionRatio;
 public class MeterDensity extends DataSourceScalar implements Meter {
     
     public MeterDensity() {
-        super(new DataInfo("Number Density",new DimensionRatio(Dimension.QUANTITY,Dimension.VOLUME)));
+        super("Number Density",new DimensionRatio(Dimension.QUANTITY,Dimension.VOLUME));
     }
 
     public static EtomicaInfo getEtomicaInfo() {

@@ -2,7 +2,6 @@ package etomica.data;
 
 import etomica.Atom;
 import etomica.AtomIterator;
-import etomica.DataInfo;
 import etomica.EtomicaElement;
 import etomica.space.ICoordinateKinetic;
 import etomica.units.Dimension;
@@ -18,7 +17,7 @@ public class DataSourceRmsVelocity extends DataSourceScalar implements EtomicaEl
 
 	//TODO define a dimension for this property
 	public DataSourceRmsVelocity() {
-		super(new DataInfo("RMS Velocity", Dimension.UNDEFINED));
+		super("RMS Velocity", Dimension.UNDEFINED);
 	}
 
 	/**

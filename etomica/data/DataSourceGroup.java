@@ -27,7 +27,7 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
      * an empty DataGroup for getData.  Must populate group with addDataSource method. 
      */
     public DataSourceGroup() {
-        data = new DataGroup(new DataInfo("Data Group", Dimension.NULL), new Data[0]);
+        data = new DataGroup("Data Group", Dimension.NULL, new Data[0]);
         dataSources = new DataSource[0];
     }
     
@@ -70,7 +70,7 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
             newDimension = Dimension.UNDEFINED; //TODO maybe make a Dimension.MIXED 
         }
         dataSources = (DataSource[])Arrays.addObject(dataSources, newSource);
-        data = new DataGroup(new DataInfo("Data Group", newDimension), new Data[dataSources.length]);
+        data = new DataGroup("Data Group", newDimension, new Data[dataSources.length]);
     }
 
     private DataSource[] dataSources;

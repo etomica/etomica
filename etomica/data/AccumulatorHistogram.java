@@ -8,7 +8,6 @@ import etomica.Data;
 import etomica.DataInfo;
 import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataFunction;
 import etomica.units.Dimension;
 import etomica.utility.Histogram;
 import etomica.utility.HistogramSimple;
@@ -20,6 +19,7 @@ public class AccumulatorHistogram extends DataAccumulator {
 
     Histogram[] histogram = new Histogram[0];
     private Data data;
+    private DataInfo binnedDataInfo;
     int nData, nDataMinus1;
     private Histogram.Factory histogramFactory;
     private int nBins;
@@ -28,16 +28,17 @@ public class AccumulatorHistogram extends DataAccumulator {
      * Creates instance using HistogramSimple factory and specifying histograms
      * having 100 bins.
      */
-    public AccumulatorHistogram() {
-        this(HistogramSimple.FACTORY);
+    public AccumulatorHistogram(DataInfo info) {
+        this(info, HistogramSimple.FACTORY);
     }
 
-    public AccumulatorHistogram(Histogram.Factory factory) {
-        this(factory, 100);
+    public AccumulatorHistogram(DataInfo info, Histogram.Factory factory) {
+        this(info, factory, 100);
     }
 
-    public AccumulatorHistogram(Histogram.Factory factory, int nBins) {
+    public AccumulatorHistogram(DataInfo info, Histogram.Factory factory, int nBins) {
         this.nBins = nBins;
+        this.binnedDataInfo = info;
         setNData(0);
         histogramFactory = factory;
     }
@@ -63,13 +64,13 @@ public class AccumulatorHistogram extends DataAccumulator {
      */
     public Data getData() {
         if(nData == 1) {
-            ((DataFunction)data).E(histogram[0].getHistogram());
-            ((DataFunction)data).getTData().E(histogram[0].xValues());
+            ((DataDoubleArray)((DataGroup)data).getData(0)).E(histogram[0].getHistogram());
+            ((DataDoubleArray)((DataGroup)data).getData(1)).E(histogram[0].xValues());
             
         } else {
             for (int i = 0; i < nData; i++) {
-                ((DataFunction)((DataGroup)data).getData(i)).E(histogram[i].getHistogram());
-                ((DataFunction)((DataGroup)data).getData(i)).getTData().E(histogram[0].xValues());
+                ((DataDoubleArray)((DataGroup)((DataGroup)data).getData(i)).getData(0)).E(histogram[i].getHistogram());
+                ((DataDoubleArray)((DataGroup)((DataGroup)data).getData(i)).getData(1)).E(histogram[0].xValues());
             }
         }
         return data;
@@ -87,14 +88,17 @@ public class AccumulatorHistogram extends DataAccumulator {
         this.nData = nData;
         nDataMinus1 = nData - 1;
         if(nData == 1) {
-            data = new DataDoubleArray(new DataInfo("Histogram", Dimension.NULL));
+            DataDoubleArray dataH = new DataDoubleArray("Histogram", Dimension.NULL);
+            DataDoubleArray dataBin = new DataDoubleArray(binnedDataInfo.getLabel(), binnedDataInfo.getDimension());
+            data = new DataGroup("Histogram group", Dimension.NULL, new Data[] {dataH, dataBin});
         } else {
-            DataInfo dataInfo = new DataInfo("Histogram", Dimension.NULL);
-            DataDoubleArray[] dataArray = new DataDoubleArray[nData];
+            DataGroup[] dataArray = new DataGroup[nData];
             for(int i=0; i<nData; i++) {
-                dataArray[i] = new DataDoubleArray(dataInfo);
+                DataDoubleArray dataH = new DataDoubleArray("Histogram", Dimension.NULL);
+                DataDoubleArray dataBin = new DataDoubleArray(binnedDataInfo.getLabel(), binnedDataInfo.getDimension());
+                dataArray[i] = new DataGroup("Histogram group", Dimension.NULL, new Data[] {dataH, dataBin});
             }
-            data = new DataGroup(new DataInfo("Histogram Group", Dimension.NULL),dataArray);
+            data = new DataGroup("Group of Histogram groups", Dimension.NULL, dataArray);
         }
         histogram = new Histogram[nData];
         for (int i = 0; i < nData; i++)

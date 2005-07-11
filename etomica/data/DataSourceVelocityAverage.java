@@ -30,7 +30,7 @@ import etomica.units.Dimension;
 public class DataSourceVelocityAverage extends AtomActionAdapter implements DataSource {
 
     public DataSourceVelocityAverage(Space space) {
-        data = new DataVector(space, new DataInfo("Average Velocity", Dimension.UNDEFINED));
+        data = new DataVector(space, "Average Velocity", Dimension.UNDEFINED);
         vectorSum = space.makeVector();
         groupWrapper = new AtomGroupAction(new MyAction());
     }

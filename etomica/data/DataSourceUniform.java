@@ -31,7 +31,11 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
      * after construction).
      */
     public DataSourceUniform() {
-        this(Dimension.NULL, 100, 0.0, 1.0);
+        this(Dimension.NULL);
+    }
+    
+    public DataSourceUniform(Dimension dimension) {
+        this(dimension, 100, 0.0, 1.0);
     }
     
     /**
@@ -49,7 +53,7 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
      */
     public DataSourceUniform(Dimension dimension, int nValues, double xMin, double xMax, 
                    LimitType typeMin, LimitType typeMax) {
-        data = new DataDoubleArray(new DataInfo("Uniform", dimension));
+        data = new DataDoubleArray("Uniform", dimension);
         if(nValues < 2) nValues = 2;
         calculateX(nValues, xMin, xMax, typeMin, typeMax);
     }
@@ -123,7 +127,9 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
     /**
      * Accessor method for number of values.
      */
-     public int getNValues() {return x.length;}
+     public int getNValues() {
+         return x.length;
+     }
     
     /**
      * Mutator method for the left limit of the range.

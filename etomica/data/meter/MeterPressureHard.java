@@ -1,5 +1,4 @@
 package etomica.data.meter;
-import etomica.DataInfo;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Phase;
@@ -22,7 +21,7 @@ public class MeterPressureHard extends DataSourceScalar implements
                                                 EtomicaElement {
     
     public MeterPressureHard(Space space, IntegratorHard integrator) {
-        super(new DataInfo("Pressure", Dimension.pressure(space.D())));
+        super("Pressure", Dimension.pressure(space.D()));
         timer = new DataSourceCountTime();
         setIntegrator(integrator);
     }

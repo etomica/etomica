@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.Data;
+import etomica.DataInfo;
 import etomica.DataSink;
 import etomica.data.DataGroup;
 import etomica.data.types.DataDouble;
@@ -16,9 +17,10 @@ import etomica.data.types.DataDoubleArray;
 public class DataLogger implements DataSink, java.io.Serializable {
 
 	private final String fileName;
-    private String label = "";
+    private DataInfo dataInfo;
 	
-	public DataLogger(String aFileName) {
+	public DataLogger(DataInfo info, String aFileName) {
+        dataInfo = info;
 		fileName = aFileName;
         try { 
             FileWriter fileWriter = new FileWriter(fileName,false);
@@ -29,6 +31,7 @@ public class DataLogger implements DataSink, java.io.Serializable {
 	}
 
 	public void putData(Data data) {
+        dataInfo = data.getDataInfo();
         try { 
             FileWriter fileWriter = new FileWriter(fileName,true);
             if (data instanceof DataGroup) {
@@ -45,7 +48,7 @@ public class DataLogger implements DataSink, java.io.Serializable {
             }
     		fileWriter.write("\n");
             fileWriter.close();
-        }catch(IOException e) {
+        } catch(IOException e) {
             System.err.println("Cannot writing to "+fileName+", caught IOException: " + e.getMessage());
         }
 	}
@@ -72,15 +75,4 @@ public class DataLogger implements DataSink, java.io.Serializable {
         fileWriter.close();
     }        
     
-    /**
-     * Sets label to the given value if it was not previously set.
-     * If setLabel was previously called, this method has no effect.
-     */
-    public void setDefaultLabel(String defaultLabel) {
-        if(label == "") setLabel(defaultLabel);
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
-    }
 }

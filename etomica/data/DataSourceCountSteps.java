@@ -30,7 +30,7 @@ public final class DataSourceCountSteps implements DataSource,
 	 * Sets up data source to count integrator steps.
 	 */
 	public DataSourceCountSteps() {
-        data = new DataInteger(new DataInfo("Integrator steps",Dimension.QUANTITY));
+        data = new DataInteger("Integrator steps",Dimension.QUANTITY);
         setName(NameMaker.makeName(this.getClass()));
 	}
 

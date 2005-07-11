@@ -1,5 +1,4 @@
 package etomica.data.meter;
-import etomica.DataInfo;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Phase;
@@ -23,7 +22,7 @@ import etomica.units.Dimension;
 public class MeterSurfaceTensionHard extends DataSourceScalar implements EtomicaElement {
     
     public MeterSurfaceTensionHard(Space space, IntegratorHard integrator) {
-        super(new DataInfo("Surface Tension",Dimension.ENERGY));
+        super("Surface Tension",Dimension.ENERGY);
         velocityTensor = new MeterTensorVelocity(space);
         velocityTensor.setPhase(integrator.getPhase()[0]);
         virialTensor = new DataSourceTensorVirialHard(space,integrator);

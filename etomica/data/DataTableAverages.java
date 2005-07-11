@@ -60,11 +60,11 @@ public class DataTableAverages extends DataTable {
      * Adds the given data source to those feeding the table.
      */
     public void addDataSource(DataSource newSource) {
-        AccumulatorAverage accumulator = new AccumulatorAverage();
+        AccumulatorAverage accumulator = new AccumulatorAverage(newSource.getDataInfo());
         DataPump dataPump = new DataPump(newSource, accumulator);
         actionGroup.addAction(dataPump);
         accumulator.setPushInterval(tableUpdateInterval);
-        accumulator.addDataSink(this.makeColumn(),types);
+        accumulator.addDataSink(this.makeColumn(accumulator.getDataInfo()),types);
     }
 
     /**

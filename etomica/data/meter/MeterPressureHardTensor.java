@@ -20,7 +20,7 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
     
     public MeterPressureHardTensor(Space space) {
         //XXX temperature, really?
-        data = new DataTensor(space,new DataInfo("PV/Nk",Dimension.TEMPERATURE));
+        data = new DataTensor(space,"PV/Nk",Dimension.TEMPERATURE);
         velocityTensor = space.makeTensor();
         v = space.makeTensor();
         timer = new DataSourceCountTime();

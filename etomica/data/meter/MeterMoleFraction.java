@@ -1,6 +1,5 @@
 package etomica.data.meter;
 
-import etomica.DataInfo;
 import etomica.EtomicaInfo;
 import etomica.Meter;
 import etomica.Phase;
@@ -18,7 +17,7 @@ public class MeterMoleFraction extends DataSourceScalar implements Meter {
     private Species species;
    
     public MeterMoleFraction() {
-        super(new DataInfo("Mole Fraction",Dimension.FRACTION));
+        super("Mole Fraction",Dimension.FRACTION);
     }
     
     public void setSpecies(Species s) {

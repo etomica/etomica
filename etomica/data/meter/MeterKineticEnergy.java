@@ -2,7 +2,6 @@ package etomica.data.meter;
 
 import etomica.Atom;
 import etomica.AtomTypeLeaf;
-import etomica.DataInfo;
 import etomica.EtomicaInfo;
 import etomica.Meter;
 import etomica.Phase;
@@ -27,7 +26,7 @@ public class MeterKineticEnergy extends DataSourceScalar implements Meter
     private AtomIteratorPhaseDependent iterator;
     
     public MeterKineticEnergy() {
-        super(new DataInfo("Kinetic Energy",Dimension.ENERGY));
+        super("Kinetic Energy",Dimension.ENERGY);
         setIterator(new AtomIteratorLeafAtoms());
     }
     

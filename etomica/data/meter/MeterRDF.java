@@ -9,9 +9,9 @@ import etomica.Phase;
 import etomica.Space;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
+import etomica.data.DataGroup;
 import etomica.data.DataSourceUniform;
 import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataFunction;
 import etomica.space.CoordinatePair;
 import etomica.units.Dimension;
 import etomica.utility.NameMaker;
@@ -30,13 +30,17 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
 	 */
     public MeterRDF(Space space) {
 	    this.space = space;
-        data = new DataFunction(new DataInfo("RDF",Dimension.FRACTION),new DataInfo("r",Dimension.LENGTH));
-        xDataSource = new DataSourceUniform();
+
+        xDataSource = new DataSourceUniform(Dimension.LENGTH);
         xDataSource.setTypeMax(DataSourceUniform.HALF_STEP);
         xDataSource.setTypeMin(DataSourceUniform.HALF_STEP);
-        DataDoubleArray xData = (DataDoubleArray)xDataSource.getData();
-        data.setLength(xData.getLength());
-        data.getTData().E(xData);
+        
+        rData = (DataDoubleArray)xDataSource.getData();
+        rData.getDataInfo().setLabel("r");
+        gData = new DataDoubleArray("RDF", Dimension.NULL);
+        gData.setLength(rData.getLength());
+        data = new DataGroup("g(r)", Dimension.UNDEFINED, new Data[] {rData, gData});
+
 	    iterator = new ApiLeafAtoms();
 	    cPair = space.makeCoordinatePair();
         setName(NameMaker.makeName(this.getClass()));
@@ -57,31 +61,28 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
      * configured to compute pair distribution for any set of atom pairs.  At construction
      * the default is an instance of ApiLeafAtoms, which generates pairs from all leaf
      * atoms in the phase.
-     * @param iter
      */
-    public void setIterator(AtomsetIteratorPhaseDependent iter) {iterator = iter;}
+    public void setIterator(AtomsetIteratorPhaseDependent iter) {
+        iterator = iter;
+    }
     
     /**
      * Accessor method for the iterator that generates the atom pairs used to
      * tabulate the radial distribution function.
-     * @return
      */
-    public AtomsetIteratorPhaseDependent getIterator() {return iterator;}
+    public AtomsetIteratorPhaseDependent getIterator() {
+        return iterator;
+    }
     
-    /**
-     * Returns Dimension.NULL, indicating that the measured quantity is dimensionless.
-     */
-    public Dimension getDimension() {return Dimension.NULL;}
-
 	/**
 	 * Computes RDF for the current configuration of the given phase.
 	 */
 	public Data getData() {
         cPair.setNearestImageTransformer(phase.boundary());
-        if (data.getLength() != xDataSource.getNValues()) {
-            data.setLength(xDataSource.getNValues());
+        if (gData.getLength() != xDataSource.getNValues()) {
+            gData.setLength(xDataSource.getNValues());
         }
-        final double[] y = data.getData();
+        final double[] y = gData.getData();
 	    for(int i=0; i<y.length; i++) {y[i] = 0.0;}  //zero histogram
 	    double xMax = xDataSource.getXMax();
 	    double xMaxSquared = xMax*xMax;
@@ -101,11 +102,11 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
 	    }
 //	    int n = phase.atomCount();             //compute normalization: divide by
 	    double norm = count/phase.volume();    //n, and density*(volume of shell)
-	    double[] x = ((DataDoubleArray)xDataSource.getData()).getData();
-	    double dx2 = 0.5*(xMax - xDataSource.getXMin())/data.getLength();
-	    for(int i=0;i<data.getLength(); i++) {
-	        double vShell = space.sphereVolume(x[i]+dx2)-space.sphereVolume(x[i]-dx2);
-	    	y[i] /= (norm*vShell);
+	    double[] r = rData.getData();
+	    double dx2 = 0.5*(xMax - xDataSource.getXMin())/r.length;
+	    for(int i=0;i<r.length; i++) {
+	        double vShell = space.sphereVolume(r[i]+dx2)-space.sphereVolume(r[i]-dx2);
+	        y[i] /= (norm*vShell);
 	    }
 	    return data;
 	}
@@ -137,7 +138,9 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
 
     private Phase phase;
     private final Space space;
-    private final DataFunction data;
+    private final DataGroup data;
+    private final DataDoubleArray rData;
+    private final DataDoubleArray gData;
     private AtomsetIteratorPhaseDependent iterator;
     private final CoordinatePair cPair;
     private final DataSourceUniform xDataSource;

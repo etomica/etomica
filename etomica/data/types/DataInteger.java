@@ -2,6 +2,8 @@ package etomica.data.types;
 
 import etomica.Data;
 import etomica.DataInfo;
+import etomica.data.DataFactory;
+import etomica.units.Dimension;
 
 
 /**
@@ -20,8 +22,8 @@ public class DataInteger extends Data implements DataNumeric {
     /**
      * Constructs a new instance with the given DataInfo.
      */
-    public DataInteger(DataInfo dataInfo) {
-        super(dataInfo);
+    public DataInteger(String label, Dimension dimension) {
+        super(new DataInfo(label, dimension, getFactory()));
     }
 
     /**
@@ -56,7 +58,7 @@ public class DataInteger extends Data implements DataNumeric {
     
     public DataArithmetic toArithmetic(DataArithmetic data) {
         if (data == null) {
-            data = new DataDouble(getDataInfo());
+            data = new DataDouble(getDataInfo().getLabel(), getDataInfo().getDimension());
         }
         ((DataDouble)data).x = x;
         return data;
@@ -69,5 +71,27 @@ public class DataInteger extends Data implements DataNumeric {
         return dataInfo.getLabel() + " " + Integer.toString(x);
     }
     
+    public static DataFactory getFactory() {
+        return FACTORY;
+    }
+    
     public int x;
+    
+    private static final Factory FACTORY = new Factory();
+
+    private static class Factory implements DataFactory {
+        
+        public Data makeData(String label, Dimension dimension) {
+            return new DataInteger(label, dimension);
+        }
+        
+        public Class getDataClass() {
+            return int.class;
+        }
+        
+        public DataFactory copy() {
+            return this;
+        }
+    }
+
 }

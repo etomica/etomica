@@ -31,7 +31,7 @@ public class AtomPositionGeometricCenter extends AtomActionAdapter implements Da
     public AtomPositionGeometricCenter(Space space) {
         this.space = space;
         vectorSum = space.makeVector();
-        data = new DataVector(space, new DataInfo("Geometic Center", Dimension.LENGTH));
+        data = new DataVector(space, "Geometric Center", Dimension.LENGTH);
         groupWrapper = new AtomGroupAction(new MyAction());
     }
 

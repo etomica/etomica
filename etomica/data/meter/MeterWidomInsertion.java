@@ -1,7 +1,6 @@
 package etomica.data.meter;
 
 import etomica.Atom;
-import etomica.DataInfo;
 import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.Meter;
@@ -33,7 +32,7 @@ import etomica.units.Dimension;
 public class MeterWidomInsertion extends DataSourceScalar implements Meter {
 
 	public MeterWidomInsertion(Space space, PotentialMaster potentialMaster) {
-		super(new DataInfo("exp(-\u03BC/kT)", Dimension.NULL));//"\u03BC" is Unicode for greek "mu"
+		super("exp(-\u03BC/kT)", Dimension.NULL);//"\u03BC" is Unicode for greek "mu"
 		energyMeter = new MeterPotentialEnergy(potentialMaster);
 		nInsert = 100;
 		setResidual(true);

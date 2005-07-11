@@ -9,7 +9,6 @@ import etomica.DataInfo;
 import etomica.DataSource;
 import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataFunction;
 import etomica.units.Dimension;
 import etomica.utility.History;
 import etomica.utility.HistoryScrolling;
@@ -23,6 +22,7 @@ public class AccumulatorHistory extends DataAccumulator {
     DataSourceUniform xSource;
     private Data data;
     int nData, nDataMinus1;
+    private DataInfo binnedDataInfo;
     private History.Factory historyFactory;
     private int historyLength;
 
@@ -30,16 +30,17 @@ public class AccumulatorHistory extends DataAccumulator {
      * Creates instance using HistorySimple factory and specifying historys
      * having 100 bins.
      */
-    public AccumulatorHistory() {
-        this(HistoryScrolling.FACTORY);
+    public AccumulatorHistory(DataInfo info) {
+        this(info, HistoryScrolling.FACTORY);
     }
 
-    public AccumulatorHistory(History.Factory factory) {
-        this(factory, 100);
+    public AccumulatorHistory(DataInfo info, History.Factory factory) {
+        this(info, factory, 100);
     }
 
-    public AccumulatorHistory(History.Factory factory, int historyLength) {
+    public AccumulatorHistory(DataInfo info, History.Factory factory, int historyLength) {
         super();
+        binnedDataInfo = info;
         xSource = new DataSourceUniform(Dimension.UNDEFINED, 1, historyLength, historyLength);
         this.historyLength = historyLength;
         historyFactory = factory;
@@ -67,15 +68,13 @@ public class AccumulatorHistory extends DataAccumulator {
      */
     public Data getData() {
         if(nData == 1) {
-            ((DataFunction)data).E(history[0].getHistory());
-            //TODO put this out of its misery
-            ((DataFunction)data).getTData().E(((DataDoubleArray)history[0].getXSource().getData()).toArray());
-            
+            ((DataDoubleArray)((DataGroup)data).getData(0)).E(history[0].getHistory());
+            ((DataDoubleArray)((DataGroup)data).getData(1)).E(history[0].getXSource().getData());
+           
         } else {
             for (int i = 0; i < nData; i++) {
-                ((DataFunction)((DataGroup)data).getData(i)).E(history[i].getHistory());
-                //TODO this too
-                ((DataFunction)((DataGroup)data).getData(i)).getTData().E(((DataDoubleArray)history[i].getXSource().getData()).toArray());
+                ((DataDoubleArray)((DataGroup)((DataGroup)data).getData(i)).getData(0)).E(history[i].getHistory());
+                ((DataDoubleArray)((DataGroup)((DataGroup)data).getData(i)).getData(1)).E(history[0].getXSource().getData());
             }
         }
         return data;
@@ -105,18 +104,22 @@ public class AccumulatorHistory extends DataAccumulator {
         nDataMinus1 = nData - 1;
 
         if (nData == 1) {
-            data = new DataFunction(new DataInfo("History", Dimension.NULL),new DataInfo("Time",Dimension.NULL));
-            ((DataFunction)data).setLength(0);
+            DataDoubleArray dataH = new DataDoubleArray(binnedDataInfo.getLabel()+" History", Dimension.NULL);
+            DataDoubleArray dataBin = new DataDoubleArray("Time", Dimension.UNDEFINED);
+            dataH.setLength(0);
+            dataBin.setLength(0);
+            data = new DataGroup("History group", Dimension.NULL, new Data[] {dataH, dataBin});
+
         } else {
-            DataInfo dataInfo = new DataInfo("History", Dimension.NULL);
-            DataInfo tDataInfo = new DataInfo("Time", Dimension.NULL);
-            DataFunction[] dataArray = new DataFunction[nData];
-            for (int i = 0; i < nData; i++) {
-                dataArray[i] = new DataFunction(dataInfo,tDataInfo);
-                dataArray[i].setLength(0);
+            DataGroup[] dataArray = new DataGroup[nData];
+            for(int i=0; i<nData; i++) {
+                DataDoubleArray dataH = new DataDoubleArray(binnedDataInfo.getLabel()+" History", Dimension.NULL);
+                DataDoubleArray dataBin = new DataDoubleArray("Time", Dimension.UNDEFINED);
+                dataH.setLength(0);
+                dataBin.setLength(0);
+                dataArray[i] = new DataGroup("History group", Dimension.NULL, new Data[] {dataH, dataBin});
             }
-            data = new DataGroup(new DataInfo("History Group", Dimension.NULL),
-                    dataArray);
+            data = new DataGroup("Group of History groups", Dimension.NULL, dataArray);
         }
 
         history = new History[nData];

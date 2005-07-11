@@ -2,7 +2,8 @@ package etomica.data.types;
 
 import etomica.Data;
 import etomica.DataInfo;
-import etomica.DataSource;
+import etomica.data.DataFactory;
+import etomica.units.Dimension;
 import etomica.utility.Function;
 
 /**
@@ -21,10 +22,12 @@ import etomica.utility.Function;
 public class DataDouble extends Data implements DataArithmetic {
 
     /**
-     * Constructs a new instance with the given DataInfo.
+     * Constructs a new instance with given descriptors.
+     * @param label a phrase describing the data
+     * @param dimension the physical dimensions (e.g., mass, time) of the data 
      */
-    public DataDouble(DataInfo dataInfo) {
-        super(dataInfo);
+    public DataDouble(String label, Dimension dimension) {
+        super(new DataInfo(label, dimension, getFactory()));
     }
 
     /**
@@ -170,12 +173,25 @@ public class DataDouble extends Data implements DataArithmetic {
      * The wrapped data value held by this object.
      */
     public double x;
+    
+    public static DataFactory getFactory() {
+        return FACTORY;
+    }
+    
+    private static final Factory FACTORY = new Factory();
 
-    /**
-     * Interface indicating the a data source gives data of type DataDouble.
-     */
-    public interface Source extends DataSource {
-
-        public DataDouble getDataDouble();
+    private static class Factory implements DataFactory {
+        
+        public Data makeData(String label, Dimension dimension) {
+            return new DataDouble(label, dimension);
+        }
+        
+        public Class getDataClass() {
+            return double.class;
+        }
+        
+        public DataFactory copy() {
+            return this;
+        }
     }
 }

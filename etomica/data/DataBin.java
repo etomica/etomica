@@ -26,8 +26,8 @@ public class DataBin implements DataSink, DataSource, java.io.Serializable {
     /**
      * Constructs DataBin with null DataBinManager
      */
-    public DataBin() {
-        this(null);
+    public DataBin(DataInfo info) {
+        this(info, null);
     }
 
     /**
@@ -38,7 +38,8 @@ public class DataBin implements DataSink, DataSource, java.io.Serializable {
      * @param dataBinManager
      *            manger of this bin; declared final; null value is permitted
      */
-    public DataBin(DataBinManager dataBinManager) {
+    public DataBin(DataInfo info, DataBinManager dataBinManager) {
+        this.dataInfo = info;
         this.dataBinManager = dataBinManager;
     }
 
@@ -52,6 +53,7 @@ public class DataBin implements DataSink, DataSource, java.io.Serializable {
         } else {
             data.E(newData);
         }
+        dataInfo = data.getDataInfo();
         if (dataBinManager != null) {
             dataChanged = true;
             dataBinManager.dataChangeNotify(this);
@@ -67,10 +69,11 @@ public class DataBin implements DataSink, DataSource, java.io.Serializable {
     }
     
     public DataInfo getDataInfo() {
-        return (data == null) ? null : data.getDataInfo();
+        return dataInfo;
     }
 
     private Data data;
+    private DataInfo dataInfo;
     private final DataBinManager dataBinManager;
 
     //flag used by DataBinManager to keep track of bin changes

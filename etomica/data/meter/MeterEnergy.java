@@ -1,6 +1,5 @@
 package etomica.data.meter;
 
-import etomica.DataInfo;
 import etomica.EtomicaInfo;
 import etomica.Meter;
 import etomica.Phase;
@@ -19,7 +18,7 @@ public final class MeterEnergy extends DataSourceScalar implements Meter {
     private MeterPotentialEnergy potential;
     
     public MeterEnergy(PotentialMaster potentialMaster) {
-    	super(new DataInfo("Energy",Dimension.ENERGY));
+    	super("Energy",Dimension.ENERGY);
         kinetic = new MeterKineticEnergy();
         potential = new MeterPotentialEnergy(potentialMaster);
     }

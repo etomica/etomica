@@ -1,5 +1,6 @@
 package etomica;
 
+
 /**
  * Abstract container of simulation data and information describing it. Data
  * objects may encapsulate any type of data (such as one or more double values),
@@ -63,4 +64,5 @@ public abstract class Data implements java.io.Serializable {
     public abstract void E(Data data);
 
     protected final DataInfo dataInfo;
-}
+    
+ }

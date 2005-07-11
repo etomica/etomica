@@ -1,7 +1,6 @@
 package etomica.data.meter;
 
 import etomica.Atom;
-import etomica.DataInfo;
 import etomica.EtomicaInfo;
 import etomica.Meter;
 import etomica.Phase;
@@ -27,7 +26,7 @@ public class MeterRadiusGyration extends DataSourceScalar implements Meter {
      * @param parent
      */
     public MeterRadiusGyration(Space space) {
-        super(new DataInfo("Radius of Gyration", Dimension.LENGTH));
+        super("Radius of Gyration", Dimension.LENGTH);
         iterator = new AtomIteratorAllMolecules();
         cPair = space.makeCoordinatePair();
         cm = space.makeVector();

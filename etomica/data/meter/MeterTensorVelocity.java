@@ -30,8 +30,8 @@ public class MeterTensorVelocity implements Meter, DataSourceAtomic, java.io.Ser
     private final AtomIteratorPhaseDependent ai1 = new AtomIteratorLeafAtoms();
     
     public MeterTensorVelocity(Space space) {
-        data = new DataTensor(space,new DataInfo("pp/m",Dimension.ENERGY));
-        atomData = new DataTensor(space,new DataInfo("pp/m",Dimension.ENERGY));
+        data = new DataTensor(space,"pp/m",Dimension.ENERGY);
+        atomData = new DataTensor(space,"pp/m",Dimension.ENERGY);
     }
     
     public static EtomicaInfo getEtomicaInfo() {

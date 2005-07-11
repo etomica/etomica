@@ -34,7 +34,7 @@ public class DataSourceCOM extends AtomActionAdapter implements DataSource, Atom
 
     public DataSourceCOM(Space space) {
         vectorSum = space.makeVector();
-        data = new DataVector(space, new DataInfo("Center of Mass", Dimension.LENGTH));
+        data = new DataVector(space, "Center of Mass", Dimension.LENGTH);
         groupWrapper = new AtomGroupAction(new MyAction());
     }
     

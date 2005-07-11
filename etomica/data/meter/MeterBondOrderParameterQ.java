@@ -1,7 +1,6 @@
 package etomica.data.meter;
 
 import etomica.AtomPair;
-import etomica.DataInfo;
 import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.Meter;
@@ -25,7 +24,7 @@ import etomica.units.Dimension;
 public class MeterBondOrderParameterQ  extends DataSourceScalar implements Meter {
 	
     public MeterBondOrderParameterQ(Space space) {
-        super(new DataInfo("Bond Q Order Parameter", Dimension.UNDEFINED));
+        super("Bond Q Order Parameter", Dimension.UNDEFINED);
         setL(6);
         setR2Cut(Math.pow(5.0*Default.ATOM_SIZE, 2));
         cPair = space.makeCoordinatePair();

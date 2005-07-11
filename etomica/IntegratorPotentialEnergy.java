@@ -10,7 +10,7 @@ import etomica.units.Dimension;
 public class IntegratorPotentialEnergy implements DataSource, IntegratorNonintervalListener, java.io.Serializable {
 
     public IntegratorPotentialEnergy(Integrator aIntegrator) {
-        data = new DataDoubleArray(new DataInfo("Potential Energy",Dimension.ENERGY));
+        data = new DataDoubleArray("Potential Energy",Dimension.ENERGY);
         integrator = aIntegrator;
         integrator.addListener(this);
     }

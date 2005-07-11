@@ -33,7 +33,9 @@ public class DataGroupFilter extends DataPipe {
         for (int i=0; i<indexes.length; i++) {
             pushedData[i] = dataGroup.getData(indexes[i]).makeCopy();
         }
-        pushedDataGroup = new DataGroup(dataGroup.getDataInfo(),pushedData);
+        pushedDataGroup = new DataGroup(dataGroup.getDataInfo().getLabel(),
+                                        dataGroup.getDataInfo().getDimension(),
+                                        pushedData);
     }
     
     private DataGroup pushedDataGroup;

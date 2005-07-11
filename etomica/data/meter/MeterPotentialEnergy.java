@@ -1,6 +1,5 @@
 package etomica.data.meter;
 import etomica.AtomSet;
-import etomica.DataInfo;
 import etomica.EtomicaInfo;
 import etomica.IteratorDirective;
 import etomica.Meter;
@@ -21,7 +20,7 @@ import etomica.units.Dimension;
 public class MeterPotentialEnergy extends DataSourceScalar implements Meter {
     
     public MeterPotentialEnergy(PotentialMaster potentialMaster) {
-        super(new DataInfo("Potential Energy",Dimension.ENERGY));
+        super("Potential Energy",Dimension.ENERGY);
         iteratorDirective.includeLrc = true;
         potential = potentialMaster;
         iteratorDirective.setDirection(null); // so that "both" will work

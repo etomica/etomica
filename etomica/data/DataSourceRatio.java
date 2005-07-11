@@ -1,5 +1,4 @@
 package etomica.data;
-import etomica.DataInfo;
 import etomica.units.DimensionRatio;
 	
 /**
@@ -11,8 +10,8 @@ public class DataSourceRatio extends DataSourceScalar {
 	protected DataSourceScalar dMeter;
 	    
 	public DataSourceRatio(DataSourceScalar numerator, DataSourceScalar denominator) {
-	    super(new DataInfo("Ratio "+numerator.getDataInfo().getLabel()+"/"+denominator.getDataInfo().getLabel(),
-                new DimensionRatio(numerator.getDataInfo().getDimension(),denominator.getDataInfo().getDimension())));
+	    super("Ratio "+numerator.getDataInfo().getLabel()+"/"+denominator.getDataInfo().getLabel(),
+                new DimensionRatio(numerator.getDataInfo().getDimension(),denominator.getDataInfo().getDimension()));
 	    setNumerator(numerator);
 	    setDenominator(denominator);
 	}

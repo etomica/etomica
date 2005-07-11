@@ -1,6 +1,5 @@
 package etomica.data.meter;
 
-import etomica.DataInfo;
 import etomica.EtomicaInfo;
 import etomica.Meter;
 import etomica.Phase;
@@ -17,7 +16,7 @@ import etomica.units.DimensionRatio;
  
 public abstract class MeterLocalDensity extends DataSourceScalar implements Meter {
     public MeterLocalDensity() {
-        super(new DataInfo("Local Density",new DimensionRatio(Dimension.QUANTITY, Dimension.VOLUME)));
+        super("Local Density",new DimensionRatio(Dimension.QUANTITY, Dimension.VOLUME));
     }
 
     public static EtomicaInfo getEtomicaInfo() {

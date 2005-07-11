@@ -114,7 +114,7 @@ public class TestSWChain extends Simulation {
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.space,sim.integrator); 
         DataSource energyMeter = new IntegratorPotentialEnergy(sim.integrator);
-        AccumulatorAverage energyAccumulator = new AccumulatorAverage();
+        AccumulatorAverage energyAccumulator = new AccumulatorAverage(energyMeter.getDataInfo());
         DataPump energyManager = new DataPump(energyMeter,new DataSink[]{energyAccumulator});
         energyAccumulator.setBlockSize(50);
         new IntervalActionAdapter(energyManager, sim.integrator);

@@ -1,5 +1,6 @@
 package etomica.data;
 
+import etomica.DataInfo;
 import etomica.data.types.DataArithmetic;
 import etomica.utility.Arrays;
 
@@ -55,8 +56,8 @@ public class DataTable implements DataBinManager, java.io.Serializable {
         return columnHeadings;
     }
 
-    public DataBin makeColumn() {
-        DataBin newColumn = new DataBin(this);
+    public DataBin makeColumn(DataInfo dataInfo) {
+        DataBin newColumn = new DataBin(dataInfo, this);
         columns = (DataBin[]) Arrays.addObject(columns, newColumn);
         update();
         fireColumnAddedEvent(newColumn);

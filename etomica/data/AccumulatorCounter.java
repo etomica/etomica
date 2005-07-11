@@ -20,7 +20,7 @@ public class AccumulatorCounter extends DataAccumulator {
 	 * @param dataSource
 	 */
 	public AccumulatorCounter() {
-        data = new DataInteger(new DataInfo("Counter", Dimension.QUANTITY));
+        data = new DataInteger("Counter", Dimension.QUANTITY);
 	}
     
     public DataInfo getDataInfo() {

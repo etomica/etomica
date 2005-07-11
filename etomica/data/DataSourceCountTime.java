@@ -1,6 +1,5 @@
 package etomica.data;
 
-import etomica.DataInfo;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.IntegratorIntervalEvent;
@@ -27,7 +26,7 @@ public class DataSourceCountTime extends DataSourceScalar implements
 	 * call to addIntegrator or setIntegrator before use.
 	 */
 	public DataSourceCountTime() {
-		super(new DataInfo("Simulation Time", Dimension.TIME));
+		super("Simulation Time", Dimension.TIME);
 	}
 
 	public static EtomicaInfo getEtomicaInfo() {

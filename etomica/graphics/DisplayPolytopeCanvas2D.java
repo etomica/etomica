@@ -2,7 +2,6 @@ package etomica.graphics;
 import java.awt.Color;
 import java.awt.Graphics;
 
-import etomica.Species;
 import etomica.atom.AtomFilter;
 import etomica.exception.MethodNotImplementedException;
 import etomica.math.geometry.LineSegment;

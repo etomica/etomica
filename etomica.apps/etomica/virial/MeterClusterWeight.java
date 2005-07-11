@@ -1,6 +1,5 @@
 package etomica.virial;
 
-import etomica.DataInfo;
 import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.PotentialMaster;
@@ -14,7 +13,7 @@ import etomica.units.Dimension;
 public class MeterClusterWeight extends DataSourceScalar {
     
     public MeterClusterWeight(PotentialMaster potentialMaster) {
-        super(new DataInfo("Cluster Weight",Dimension.NULL));
+        super("Cluster Weight",Dimension.NULL);
         potential = potentialMaster;
     }
       

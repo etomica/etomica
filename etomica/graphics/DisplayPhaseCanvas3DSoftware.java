@@ -8,6 +8,7 @@ import java.awt.RenderingHints;
 import java.awt.TextField;
 import java.awt.image.MemoryImageSource;
 import java.util.Hashtable;
+import java.util.Iterator;
 
 import etomica.Atom;
 import etomica.Species;
@@ -17,7 +18,6 @@ import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
 import etomica.space.Boundary;
 import etomica.space.Vector;
-import java.util.Iterator;
 
     /* History of changes
      * 07/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.

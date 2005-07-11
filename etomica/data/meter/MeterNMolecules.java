@@ -2,7 +2,6 @@ package etomica.data.meter;
 
 import etomica.Atom;
 import etomica.Data;
-import etomica.DataInfo;
 import etomica.EtomicaInfo;
 import etomica.Meter;
 import etomica.Phase;
@@ -20,7 +19,7 @@ public class MeterNMolecules extends DataSourceScalar implements DataSourceAtomi
     private Species species;
     
     public MeterNMolecules() {
-        super(new DataInfo("Molecules",Dimension.QUANTITY));
+        super("Molecules",Dimension.QUANTITY);
     }
     
     public static EtomicaInfo getEtomicaInfo() {

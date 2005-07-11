@@ -11,6 +11,7 @@ import etomica.DataSink;
 import etomica.Default;
 import etomica.Constants.TypedConstant;
 import etomica.data.types.DataArithmetic;
+import etomica.units.Dimension;
 import etomica.utility.Function;
 
 /**
@@ -18,15 +19,16 @@ import etomica.utility.Function;
  */
 public class AccumulatorAverage extends DataAccumulator {
 
-	public AccumulatorAverage() {
+	public AccumulatorAverage(DataInfo info) {
 		super();
+        initialize(info);
 		setBlockSize(Default.BLOCK_SIZE);
         setPushInterval(100);
 	}
 	
 	public void setBlockSize(int blockSize) {
-		this.blockSize = blockSize;
-        blockCountDown = blockSize;
+	    this.blockSize = blockSize;
+	    blockCountDown = blockSize;
 	}
 	public int getBlockSize() {
 		return blockSize;
@@ -44,9 +46,6 @@ public class AccumulatorAverage extends DataAccumulator {
     public void addData(Data data) {
         DataArithmetic value = (DataArithmetic)data;
         if(value.isNaN()) return;
-        if (mostRecent == null) {
-            initialize(data);
-        }
   		mostRecent.E(data);
   	    blockSum.PE(value);
         work.E(data);
@@ -61,6 +60,7 @@ public class AccumulatorAverage extends DataAccumulator {
         count++;
         blockCountDown = blockSize;
         blockSum.TE(1/(double)blockSize);//compute block average
+        //XXX should we divide blockSumSq by blockSize too?
         sum.PE(blockSum);
         work.E((Data)blockSum);
         work.TE(blockSum);
@@ -120,20 +120,25 @@ public class AccumulatorAverage extends DataAccumulator {
         blockCountDown = blockSize;
     }
     
-    protected void initialize(Data value) {
-        sum = (DataArithmetic)value.makeCopy();
-        sumSquare = (DataArithmetic)value.makeCopy();
-        sumSquareBlock = (DataArithmetic)value.makeCopy();
-        standardDeviation = (DataArithmetic)value.makeCopy();
-        average = (DataArithmetic)value.makeCopy();
-        error = (DataArithmetic)value.makeCopy();
-        blockSum = (DataArithmetic)value.makeCopy();
-        blockSumSq = (DataArithmetic)value.makeCopy();
-        mostRecent = (DataArithmetic)value.makeCopy();
-        mostRecentBlock = (DataArithmetic)value.makeCopy();
-        work = (DataArithmetic)value.makeCopy();
+    protected void initialize(DataInfo dataInfo) {
+        DataFactory factory = dataInfo.getDataFactory();
+        
+        Dimension dimSquared = Dimension.UNDEFINED;//can change this when units facility isbetter developed
+        sum = (DataArithmetic)factory.makeData(dataInfo.getLabel()+"(blkAvg sum)", dataInfo.getDimension());
+        sumSquare = (DataArithmetic)factory.makeData(dataInfo.getLabel()+"(blkAvgSqr sum)", dimSquared);
+        sumSquareBlock = (DataArithmetic)factory.makeData(dataInfo.getLabel()+"(sum value^2)", dataInfo.getDimension());
+        standardDeviation = (DataArithmetic)factory.makeData(dataInfo.getLabel()+"(stddev)", dimSquared);
+        average = (DataArithmetic)factory.makeData(dataInfo.getLabel()+"(avg)", dataInfo.getDimension());
+        error = (DataArithmetic)factory.makeData(dataInfo.getLabel()+"(error)", dataInfo.getDimension());
+        blockSum= (DataArithmetic)factory.makeData(dataInfo.getLabel()+"(blk value)", dataInfo.getDimension());
+        blockSumSq = (DataArithmetic)factory.makeData(dataInfo.getLabel()+"(blk value^2)", dimSquared);
+        mostRecent = (DataArithmetic)factory.makeData(dataInfo.getLabel()+"(most recent)", dataInfo.getDimension());
+        mostRecentBlock= (DataArithmetic)factory.makeData(dataInfo.getLabel()+"(most recent blk)", dataInfo.getDimension());
+        work = (DataArithmetic)factory.makeData("scratch", Dimension.UNDEFINED);
+
         reset();
-        dataGroup = new DataGroup(value.getDataInfo(),new Data[]{(Data)mostRecent,
+        dataGroup = new DataGroup(dataInfo.getLabel()+" Statistics", dataInfo.getDimension(),
+                new Data[]{(Data)mostRecent,
                 (Data)average,(Data)error,(Data)standardDeviation,(Data)mostRecentBlock});
     }
     
@@ -179,9 +184,13 @@ public class AccumulatorAverage extends DataAccumulator {
     public static final Type STANDARD_DEVIATION = CHOICES[3];
     public static final Type MOST_RECENT_BLOCK = CHOICES[4];
 	
-    protected DataArithmetic sum, sumSquare, blockSum, blockSumSq, sumSquareBlock;
-    protected DataArithmetic mostRecent;
-    protected DataArithmetic mostRecentBlock;
+    protected DataArithmetic sum; //sum(blockSum/blkSize) = sum(blockAvg)
+    protected DataArithmetic sumSquare;//sum(blockAvg^2)
+    protected DataArithmetic blockSum;//block(value)
+    protected DataArithmetic blockSumSq;//block(value^2)
+    protected DataArithmetic sumSquareBlock;//sum(value^2)
+    protected DataArithmetic mostRecent;//most recent value
+    protected DataArithmetic mostRecentBlock;//most recent blockAvg
     protected DataArithmetic average, error, standardDeviation;
     protected DataArithmetic work;
     protected DataGroup dataGroup;

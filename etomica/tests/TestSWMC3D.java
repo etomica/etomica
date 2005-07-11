@@ -80,7 +80,7 @@ public class TestSWMC3D extends Simulation {
         TestSWMC3D sim = new TestSWMC3D(new Space3D(), numAtoms);
 
         DataSource energyMeter = new IntegratorPotentialEnergy(sim.integrator);
-        AccumulatorAverage energyAccumulator = new AccumulatorAverage();
+        AccumulatorAverage energyAccumulator = new AccumulatorAverage(energyMeter.getDataInfo());
         DataPump energyManager = new DataPump(energyMeter,new DataSink[]{energyAccumulator});
         energyAccumulator.setBlockSize(50);
         new IntervalActionAdapter(energyManager, sim.integrator);

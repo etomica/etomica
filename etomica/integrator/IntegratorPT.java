@@ -321,7 +321,7 @@ public static class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap
         private DataDoubleArray data;
         
         public PhaseTracker() {
-            data = new DataDoubleArray(new DataInfo("Phase Tracker", Dimension.NULL));
+            data = new DataDoubleArray("Phase Tracker", Dimension.NULL);
         }
         
         public DataInfo getDataInfo() {

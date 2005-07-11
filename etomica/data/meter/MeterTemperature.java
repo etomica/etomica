@@ -1,6 +1,5 @@
 package etomica.data.meter;
 
-import etomica.DataInfo;
 import etomica.EtomicaInfo;
 import etomica.Meter;
 import etomica.Phase;
@@ -20,7 +19,7 @@ import etomica.units.Dimension;
 public class MeterTemperature extends DataSourceScalar implements Meter {
 
 	public MeterTemperature() {
-		super(new DataInfo("Temperature", Dimension.TEMPERATURE));
+		super("Temperature", Dimension.TEMPERATURE);
 		meterKE = new MeterKineticEnergy();
 	}
 

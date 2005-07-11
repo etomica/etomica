@@ -1,7 +1,10 @@
 package etomica.data;
 
+import java.io.Serializable;
+
 import etomica.Data;
 import etomica.DataInfo;
+import etomica.units.Dimension;
 
 
 /**
@@ -18,8 +21,8 @@ import etomica.DataInfo;
  */
 public class DataGroup extends Data {
 
-    public DataGroup(DataInfo dataInfo, Data[] data) {
-        super(dataInfo);
+    public DataGroup(String label, Dimension dimension, Data[] data) {
+        super(new DataInfo(label, dimension, getFactory(data)));
         this.data = (Data[])data.clone();
     }
     
@@ -72,4 +75,37 @@ public class DataGroup extends Data {
     }
     
     final Data[] data;
+    
+    public static DataFactory getFactory(Data[] data) {
+        return new Factory(data);
+    }
+
+    private static class Factory implements DataFactory, Serializable {
+        
+        final Data[] data;
+        
+        Factory(Data[] data) {
+            this.data = (Data[])data.clone();
+        }
+        
+        public Data makeData(String label, Dimension dimension) {
+            Data[] newData = new Data[data.length];
+            for(int i=0; i<data.length; i++) {
+                if(data[i] != null) {
+                    newData[i] = data[i].makeCopy();
+                }
+            }
+            return new DataGroup(label, dimension, newData);
+        }
+        
+        public Class getDataClass() {
+            return DataGroup.class;
+        }
+        
+        public DataFactory copy() {
+            return DataGroup.getFactory(data);
+        }
+        
+    }
+
 }

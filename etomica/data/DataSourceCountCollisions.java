@@ -28,8 +28,8 @@ public class DataSourceCountCollisions implements DataSource,
      * addIntegrator or setIntegrator before use.
      */
     public DataSourceCountCollisions() {
-        data = new DataInteger(new DataInfo("Number of Collisions",
-                Dimension.QUANTITY));
+        data = new DataInteger("Number of Collisions",
+                Dimension.QUANTITY);
         setName(NameMaker.makeName(this.getClass()));
     }
     

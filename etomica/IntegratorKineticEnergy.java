@@ -11,7 +11,7 @@ import etomica.units.Dimension;
 public class IntegratorKineticEnergy implements DataSource, IntegratorNonintervalListener, java.io.Serializable {
 
     public IntegratorKineticEnergy(IntegratorMD aIntegrator) {
-        data = new DataDoubleArray(new DataInfo("Potential Energy",Dimension.ENERGY));
+        data = new DataDoubleArray("Potential Energy",Dimension.ENERGY);
         integrator = aIntegrator;
         integrator.addListener(this);
     }

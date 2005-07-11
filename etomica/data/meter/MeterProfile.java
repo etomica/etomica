@@ -59,7 +59,7 @@ public class MeterProfile implements DataSource, Meter, java.io.Serializable {
             throw new IllegalArgumentException("data source must return a DataDouble");
         }
         meter = m;
-        data = new DataFunction(new DataInfo(m.getDataInfo().getLabel()+" Profile",m.getDataInfo().getDimension()),
+        data = new DataFunction(m.getDataInfo().getLabel()+" Profile",m.getDataInfo().getDimension(),
                 new DataInfo("x",Dimension.LENGTH));
         data.setLength(xDataSource.getNValues());
     }

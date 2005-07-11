@@ -1,5 +1,4 @@
 package etomica.data.meter;
-import etomica.DataInfo;
 import etomica.EtomicaInfo;
 import etomica.IteratorDirective;
 import etomica.Meter;
@@ -28,7 +27,7 @@ public class MeterPressure extends DataSourceScalar implements Meter {
     private final double rD;
     
     public MeterPressure(PotentialMaster potentialMaster, Space space) {
-    	super(new DataInfo("Pressure",Dimension.pressure(space.D)));
+    	super("Pressure",Dimension.pressure(space.D));
         setTemperature(temperature);
         rD = 1.0/space.D();
         iteratorDirective = new IteratorDirective();

@@ -180,8 +180,8 @@ public class SimulationGraphic implements SimulationContainer, java.io.Serializa
 //        etomica.simulations.LjMd2D sim = new etomica.simulations.LjMd2D();
 //        etomica.simulations.HsMc2d sim = new etomica.simulations.HsMc2d();
 //          etomica.simulations.SWMD3D sim = new etomica.simulations.SWMD3D();
-//      etomica.simulations.HSMD3D sim = new etomica.simulations.HSMD3D();
-      final etomica.simulations.HSMD3DNoNbr sim = new etomica.simulations.HSMD3DNoNbr();
+      etomica.simulations.HSMD3D sim = new etomica.simulations.HSMD3D();
+//      final etomica.simulations.HSMD3DNoNbr sim = new etomica.simulations.HSMD3DNoNbr();
 //      etomica.simulations.ChainHSMD3D sim = new etomica.simulations.ChainHSMD3D();
 //        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
 //        etomica.simulations.HSMD2D_atomNbr sim = new etomica.simulations.HSMD2D_atomNbr();
@@ -195,18 +195,18 @@ public class SimulationGraphic implements SimulationContainer, java.io.Serializa
         MyFilter filter = new MyFilter((Polyhedron)sim.phase.boundary().getShape());
         PhaseDeleteMolecules deleter = new PhaseDeleteMolecules(filter);
         //positionDefinition shifts atom to same origin as polytope
-        AtomPositionDefinition position = new AtomPositionDefinition() {
-            public Vector position(Atom a) {
-                Vector3D r = (Vector3D)sim.phase.boundary().dimensions().clone();
-                r.TE(-0.5);
-                r.PE(a.coord.position());
-                return r;
-            }
-        };
-        deleter.setPhase(sim.phase);
-        filter.setPositionDefinition(position);
-        DeviceButton deleteButton = new DeviceButton(sim.getController(),deleter);
-        simGraphic.add(deleteButton);
+//        AtomPositionDefinition position = new AtomPositionDefinition() {
+//            public Vector position(Atom a) {
+//                Vector3D r = (Vector3D)sim.phase.boundary().dimensions().clone();
+//                r.TE(-0.5);
+//                r.PE(a.coord.position());
+//                return r;
+//            }
+//        };
+//        deleter.setPhase(sim.phase);
+//        filter.setPositionDefinition(position);
+//        DeviceButton deleteButton = new DeviceButton(sim.getController(),deleter);
+//        simGraphic.add(deleteButton);
         simGraphic.makeAndDisplayFrame();
         ColorSchemeByType.setColor(sim.species.getFactory().getType(), java.awt.Color.red);
 //        ColorSchemeByType.setColor(sim.species2, java.awt.Color.blue);

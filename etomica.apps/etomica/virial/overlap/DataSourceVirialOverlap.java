@@ -1,6 +1,5 @@
 package etomica.virial.overlap;
 
-import etomica.DataInfo;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataGroup;
 import etomica.data.DataSourceScalar;
@@ -18,7 +17,7 @@ public class DataSourceVirialOverlap extends DataSourceScalar {
 	
 	public DataSourceVirialOverlap(AccumulatorVirialOverlapSingleAverage aRefAccumulator, 
 			AccumulatorVirialOverlapSingleAverage aTargetAccumulator) {
-        super(new DataInfo("Virial Overlap Ratio",Dimension.FRACTION));
+        super("Virial Overlap Ratio",Dimension.FRACTION);
 		refAccumulator = aRefAccumulator;
 		targetAccumulator = aTargetAccumulator;
 		nBennetPoints = aRefAccumulator.getNBennetPoints();

@@ -6,11 +6,11 @@ import javax.swing.JTextField;
 
 import etomica.Constants;
 import etomica.Data;
+import etomica.DataInfo;
 import etomica.DataSink;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.data.types.DataDouble;
-import etomica.units.Dimension;
 import etomica.units.Unit;
 
 /**
@@ -21,7 +21,7 @@ import etomica.units.Unit;
  * @author David Kofke
  */
  
-public class DisplayBox extends Display implements DataSink, etomica.units.Dimensioned, EtomicaElement, javax.swing.event.ChangeListener {
+public class DisplayBox extends Display implements DataSink, EtomicaElement, javax.swing.event.ChangeListener {
     
     /**
      * Descriptive text label to be displayed with the value
@@ -50,20 +50,25 @@ public class DisplayBox extends Display implements DataSink, etomica.units.Dimen
      * Default is null (dimensionless).
      */
     protected etomica.units.Unit unit;
-    protected Dimension dimension;
     
     public DisplayBox() {
+        this("", Unit.NULL);
+    }
+    
+    public DisplayBox(DataInfo info) {
+        this(info.getLabel(), info.getDimension().defaultIOUnit());
+    }
+    
+    public DisplayBox(String label, Unit unit) {
         super();
-        setDimension(Dimension.UNDEFINED);
-        unit = Unit.UNDEFINED;
+        this.unit = unit;
         jLabel = new JLabel();
         value = new JTextField("");
         value.setEditable(false);
         panel.add(value, java.awt.BorderLayout.CENTER);
         setLabelType(STRING);
-        setLabel("");
+        setLabel(label);
  //       panel.setMinimumSize(new java.awt.Dimension(80,60));
-        unit = new etomica.units.PrefixedUnit(etomica.units.BaseUnit.Null.UNIT);
         setPrecision(4);
         setIntegerDisplay(false);
         
@@ -103,18 +108,6 @@ public class DisplayBox extends Display implements DataSink, etomica.units.Dimen
      * Returns the physical units of the displayed value.
      */
     public etomica.units.Unit getUnit() {return unit;}
-    
-    /**
-     * Returns the dimensions of the quantity being measured.
-     * Obtained from the datsource associated with this display.
-     */
-    public etomica.units.Dimension getDimension() {
-        return dimension;
-    }
-    
-    public void setDimension(Dimension dimension) {
-        this.dimension = dimension;
-    }
     
     public java.awt.Component graphic(Object obj) {return panel;}
     

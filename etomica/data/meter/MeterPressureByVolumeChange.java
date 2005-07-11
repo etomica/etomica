@@ -22,7 +22,7 @@ import etomica.units.Dimension;
 public class MeterPressureByVolumeChange implements Meter, java.io.Serializable {
     
     public MeterPressureByVolumeChange(PotentialMaster potentialMaster, boolean[] dimensions) {
-        data = new DataDoubleArray(new DataInfo("Pressure by Volume Change",Dimension.pressure(potentialMaster.getSpace().D)));
+        data = new DataDoubleArray("Pressure by Volume Change",Dimension.pressure(potentialMaster.getSpace().D));
         data.setLength(10);
         dataArray = data.getData();
         spaceD = dimensions.length;

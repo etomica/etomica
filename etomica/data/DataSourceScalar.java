@@ -2,17 +2,19 @@ package etomica.data;
 
 import etomica.Data;
 import etomica.DataInfo;
+import etomica.DataSource;
 import etomica.data.types.DataDouble;
+import etomica.units.Dimension;
 import etomica.utility.NameMaker;
 
 /**
  * Particular data source for which the data is a simple scalar of type double.
  */
  
-public abstract class DataSourceScalar implements DataDouble.Source, java.io.Serializable {
+public abstract class DataSourceScalar implements DataSource, java.io.Serializable {
     
-    public DataSourceScalar(DataInfo dataInfo) {
-        data = new DataDouble(dataInfo);
+    public DataSourceScalar(String label, Dimension dimension) {
+        data = new DataDouble(label, dimension);
         setName(NameMaker.makeName(this.getClass()));
     }
     

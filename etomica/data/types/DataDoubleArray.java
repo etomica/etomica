@@ -1,9 +1,12 @@
 package etomica.data.types;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import etomica.Data;
 import etomica.DataInfo;
+import etomica.data.DataFactory;
+import etomica.units.Dimension;
 import etomica.utility.Function;
 
 /**
@@ -24,8 +27,8 @@ public class DataDoubleArray extends Data implements DataArithmetic {
     /**
      * Constructs a new instance with the given DataInfo.
      */
-    public DataDoubleArray(DataInfo dataInfo) {
-        super(dataInfo);
+    public DataDoubleArray(String label, Dimension dimension) {
+        super(new DataInfo(label, dimension, getFactory(0)));
     }
 
     /**
@@ -33,7 +36,10 @@ public class DataDoubleArray extends Data implements DataArithmetic {
      */
     public DataDoubleArray(DataDoubleArray data) {
         super(data);
-        x = (double[]) data.x.clone();
+        int n = data.x.length;
+        ((Factory)dataInfo.getDataFactory()).dataLength = n;
+        x = new double[n];
+        System.arraycopy(data.x, 0, x, 0, x.length);
     }
 
     /**
@@ -171,6 +177,7 @@ public class DataDoubleArray extends Data implements DataArithmetic {
         if (n < 0)
             throw new IllegalArgumentException("Illegal length: " + n);
         if (n != x.length)
+            ((Factory)dataInfo.getDataFactory()).dataLength = n;
             x = new double[n];
     }
 
@@ -230,6 +237,33 @@ public class DataDoubleArray extends Data implements DataArithmetic {
     public String toString() {
         return dataInfo.getLabel() + " " + x.toString();
     }
-
+    
     private double[] x = new double[0];
+    
+    public static DataFactory getFactory(int n) {
+        Factory factory = new Factory();
+        factory.dataLength = n;
+        return factory;
+    }
+
+    private static class Factory implements DataFactory, Serializable {
+        
+        int dataLength = 0;
+        
+        public Data makeData(String label, Dimension dimension) {
+            DataDoubleArray data = new DataDoubleArray(label, dimension);
+            data.setLength(dataLength);
+            return data;
+        }
+        
+        public Class getDataClass() {
+            return double[].class;
+        }
+        
+        public DataFactory copy() {
+            return DataDoubleArray.getFactory(dataLength);
+        }
+        
+    }
+
 }

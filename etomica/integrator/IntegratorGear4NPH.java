@@ -226,7 +226,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     public final class MeterTPH implements DataSource, java.io.Serializable {
         
         public MeterTPH() {
-            data = new DataDoubleArray(new DataInfo("TPH",Dimension.UNDEFINED));
+            data = new DataDoubleArray("TPH",Dimension.UNDEFINED);
             data.setLength(3);
         }
         

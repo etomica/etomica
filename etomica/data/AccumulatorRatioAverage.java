@@ -2,14 +2,20 @@ package etomica.data;
 
 import etomica.Constants;
 import etomica.Data;
+import etomica.DataInfo;
 import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataDoubleArray;
+import etomica.units.Dimension;
 import etomica.utility.Function;
 
 /**
  * Accumulator for calculating ratio between two sums
  */
 public class AccumulatorRatioAverage extends AccumulatorAverage {
+    
+    public AccumulatorRatioAverage(DataInfo info) {
+        super(info);
+    }
     
     public Data getData() {
         if (mostRecent == null) return null;
@@ -53,11 +59,15 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
         ratioStandardDeviation.E(Double.NaN);
     }
     
-    protected void initialize(Data value) {
-        ratio = (DataArithmetic)value.makeCopy();
-        ratioError = (DataArithmetic)value.makeCopy();
-        ratioStandardDeviation = (DataArithmetic)value.makeCopy();
-        super.initialize(value);
+    protected void initialize(DataInfo dataInfo) {
+        DataFactory factory = dataInfo.getDataFactory();
+        
+        sum = (DataArithmetic)factory.makeData(dataInfo.getLabel()+"(blkAvg sum)", dataInfo.getDimension());
+
+        ratio = (DataArithmetic)factory.makeData("Ratio", Dimension.NULL);
+        ratioError = (DataArithmetic)factory.makeData("Ratio error", Dimension.NULL);
+        ratioStandardDeviation = (DataArithmetic)factory.makeData("Ratio stddev", Dimension.NULL);
+        super.initialize(dataInfo);
         Data[] dataGroups = new Data[dataGroup.getNData()+2];
         int i;
         for (i=0; i<dataGroup.getNData(); i++) {
@@ -66,7 +76,7 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
         dataGroups[i++] = (Data)ratio;
         dataGroups[i++] = (Data)ratioError;
         dataGroups[i++] = (Data)ratioStandardDeviation;
-        dataGroup = new DataGroup(value.getDataInfo(),dataGroups);
+        dataGroup = new DataGroup("Group", Dimension.NULL, dataGroups);
     }
     
     public static class Type extends AccumulatorAverage.Type {

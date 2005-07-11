@@ -3,8 +3,9 @@ import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntervalActionAdapter;
-import etomica.units.Picosecond;
+import etomica.units.Prefix;
 import etomica.units.PrefixedUnit;
+import etomica.units.Second;
 
 /** 
  * DisplayBox to present the elapsed time in a
@@ -14,12 +15,18 @@ import etomica.units.PrefixedUnit;
 public class DisplayTimer extends DisplayBox {
 
     public DisplayTimer(IntegratorMD integrator) {
-        timer = new DataSourceCountTime();
+        this(integrator, new DataSourceCountTime());
+    }        
+        
+    private DisplayTimer(IntegratorMD integrator, DataSourceCountTime timer) {
+        super(timer.getDataInfo());
+        this.timer = timer;
         integrator.addListener(timer);
         DataPump dataPump = new DataPump(timer, this);
         intervalActionAdapter = new IntervalActionAdapter(dataPump, integrator);
         setUpdateInterval(100);
-        this.setUnit(new PrefixedUnit(Picosecond.UNIT));
+        this.setUnit(new PrefixedUnit(Second.UNIT));
+        ((PrefixedUnit)unit).setPrefix(Prefix.PICO);
         this.setPrecision(7);
         graphic().setSize(100,60);
     }

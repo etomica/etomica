@@ -1,7 +1,6 @@
 package etomica.spin;
 
 import etomica.Atom;
-import etomica.DataInfo;
 import etomica.Meter;
 import etomica.Phase;
 import etomica.Space;
@@ -30,7 +29,7 @@ public class MeterSpin extends DataSourceScalar implements Meter {
      * 
      */
     public MeterSpin(Space space) {
-        super(new DataInfo("Spin",Dimension.UNDEFINED));
+        super("Spin",Dimension.UNDEFINED);
         sum = space.makeVector();
     }
 

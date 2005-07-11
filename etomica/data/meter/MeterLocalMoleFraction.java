@@ -1,7 +1,6 @@
 package etomica.data.meter;
 
 import etomica.Atom;
-import etomica.DataInfo;
 import etomica.EtomicaInfo;
 import etomica.Meter;
 import etomica.Phase;
@@ -19,7 +18,7 @@ import etomica.units.Dimension;
 public abstract class MeterLocalMoleFraction extends DataSourceScalar implements Meter
 {
     public MeterLocalMoleFraction() {
-        super(new DataInfo("Local Mole Fraction",Dimension.FRACTION));
+        super("Local Mole Fraction",Dimension.FRACTION);
         setSpecies(null);
     }
 
