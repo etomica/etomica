@@ -417,7 +417,7 @@ public class ReactionEquilibriumGraphic {
 			nSlider.addChangeListener(new javax.swing.event.ChangeListener() {
 				public void stateChanged(javax.swing.event.ChangeEvent evt) {
 					AtomIteratorListSimple iter = new AtomIteratorListSimple(
-							sim.phase1.speciesMaster.atomList);
+							sim.phase1.getSpeciesMaster().atomList);
 					iter.reset();
 					while (iter.hasNext()) {
 						//            			System.out.println(iter.peek().toString());
