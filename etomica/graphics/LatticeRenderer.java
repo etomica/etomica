@@ -93,7 +93,7 @@ public class LatticeRenderer implements Drawable, java.io.Serializable {
         }
         
         public void colorAllAtoms(Phase phase) {
-            allIterator.setList(phase.speciesMaster.atomList);
+            allIterator.setList(phase.getSpeciesMaster().atomList);
             allIterator.reset();
 			//color all atoms according to their type
             while(allIterator.hasNext()) {
@@ -117,7 +117,7 @@ public class LatticeRenderer implements Drawable, java.io.Serializable {
             referenceAtom = a;
             directive.set(a);
 //            nbrIterator.setBasis(a.node.parentGroup());
-            AtomList agentList = a.node.parentPhase().speciesMaster.node.childList;
+            AtomList agentList = a.node.parentPhase().getSpeciesMaster().node.childList;
             if(agentList.size() == 1) return;
             
             nbrIteratorInter = new AtomIterator[agentList.size()-1];
@@ -149,7 +149,7 @@ public class LatticeRenderer implements Drawable, java.io.Serializable {
         }
         
         public void colorAllAtoms(Phase phase) {
-            allIterator.setList(phase.speciesMaster.atomList);
+            allIterator.setList(phase.getSpeciesMaster().atomList);
             allIterator.reset();
             while(allIterator.hasNext()) {
                 Atom atom = allIterator.next();
