@@ -152,6 +152,13 @@ public abstract class Integrator implements EtomicaElement, java.io.Serializable
     }
 
     /**
+     * @return Returns the potential.
+     */
+    public PotentialMaster getPotential() {
+        return potential;
+    }
+
+    /**
      * Sets the temperature for this integrator
      */
     public void setTemperature(double t) {
