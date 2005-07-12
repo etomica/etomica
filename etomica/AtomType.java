@@ -35,7 +35,7 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
     public Parameter[] parameter;
     protected int speciesIndex = -1;
     private Species species;
-    private int index;
+    private final int index;
 
     //fields for linked list of all instances of AtomType
     public final AtomType previousInstance;
@@ -86,7 +86,7 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
             indexManager = parentType.getIndexManager().makeChildManager();
             parentType.childTypes = (AtomType[]) Arrays.addObject(
                     parentType.childTypes, this);
-            index = requestIndex();
+            index = parentType.requestIndex();
         }
         this.positionDefinition = positionDefinition;
 
@@ -108,11 +108,6 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
         return index;
     }
     
-    private int requestIndex() {
-        if(parentType == null) return index++;
-        return ((AtomType)parentType).requestIndex();
-    }
-
     /**
      * Indicates whether this type is at the bottom of the AtomType hierarchy.
      * 
@@ -123,7 +118,7 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
     /**
      * Returns the parent AtomType of this AtomType.
      */
-    public AtomType getParentType() {
+    public AtomTypeGroup getParentType() {
         return parentType;
     }
 

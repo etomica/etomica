@@ -24,7 +24,7 @@ public final class SpeciesRoot extends Atom {
             PhaseEvent.ATOM_REMOVED);
 
     SpeciesRoot(Space space, int[] bitLength) {
-        super(space, new AtomTypeGroup(AtomIndexManager.makeRootIndexManager(bitLength)), new NodeFactory(), AtomLinker.FACTORY);
+        super(space, new AtomTypeRoot(AtomIndexManager.makeRootIndexManager(bitLength)), new NodeFactory(), AtomLinker.FACTORY);
         childType = new AtomTypeGroup((AtomTypeGroup)type,null);
         node.setOrdinal(1);
     }

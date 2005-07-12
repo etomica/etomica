@@ -27,6 +27,11 @@ public class AtomTypeGroup extends AtomType {
             AtomPositionDefinition positionDefinition) {
         super(parentType, positionDefinition);
     }
+    
+    int requestIndex() {
+        if(getParentType() == null) return -1;
+        return getParentType().requestIndex();
+    }
 
     /**
      * Returns false, indicating that this is a group type.
