@@ -124,17 +124,19 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
     }
     
     public MCMoveListener makeMCMoveListener() {
-        return new MyMCMoveListener();
+        return new MyMCMoveListener(space,phase,this);
     }
 
     
-    private class MyMCMoveListener implements MCMoveListener, java.io.Serializable {
-        public MyMCMoveListener() {
+    private static class MyMCMoveListener implements MCMoveListener, java.io.Serializable {
+        public MyMCMoveListener(Space space, Phase phase, NeighborCellManager manager) {
             treeIterator = new AtomIteratorTree();
             treeIterator.setDoAllNodes(true);
             moleculePosition = new DataSourceCOM(space);
             translator = new AtomActionTranslateBy(space);
             moleculeTranslator = new AtomGroupAction(translator);
+            this.phase = phase;
+            neighborCellManager = manager;
         }
         
         public void actionPerformed(SimulationEvent evt) {
@@ -180,7 +182,7 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
                         atom.coord.position().PE(shift);
                     }
                 }
-                assignCell(atom);
+                neighborCellManager.assignCell(atom);
             }
         }
         
@@ -188,5 +190,7 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
         private final AtomPositionDefinition moleculePosition;
         private final AtomActionTranslateBy translator;
         private final AtomGroupAction moleculeTranslator;
+        private final Phase phase;
+        private final NeighborCellManager neighborCellManager;
     }
 }//end of NeighborCellManager

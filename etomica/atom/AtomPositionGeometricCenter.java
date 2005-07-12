@@ -29,10 +29,10 @@ public class AtomPositionGeometricCenter extends AtomActionAdapter implements Da
         AtomPositionDefinition {
 
     public AtomPositionGeometricCenter(Space space) {
-        this.space = space;
         vectorSum = space.makeVector();
         data = new DataVector(space, "Geometric Center", Dimension.LENGTH);
-        groupWrapper = new AtomGroupAction(new MyAction());
+        myAction = new MyAction(vectorSum);
+        groupWrapper = new AtomGroupAction(myAction);
     }
 
     public DataInfo getDataInfo() {
@@ -62,7 +62,7 @@ public class AtomPositionGeometricCenter extends AtomActionAdapter implements Da
      * reset center-position sums.
      */
     public Vector getCenter() {
-        data.x.Ea1Tv1(1.0 / natoms, vectorSum);
+        data.x.Ea1Tv1(1.0 / myAction.nAtoms, vectorSum);
         return data.x;
     }
 
@@ -79,20 +79,26 @@ public class AtomPositionGeometricCenter extends AtomActionAdapter implements Da
      */
     public void reset() {
         vectorSum.E(0.0);
-        natoms = 0;
+        myAction.nAtoms = 0;
     }
 
-    private class MyAction extends AtomActionAdapter {
-
+    private static class MyAction extends AtomActionAdapter {
+        public MyAction(Vector v) {
+            vectorSum = v;
+            nAtoms = 0;
+        }
+        
         public void actionPerformed(Atom a) {
             vectorSum.PE(a.coord.position());
-            natoms++;
+            nAtoms++;
         }
+        
+        private Vector vectorSum;
+        public int nAtoms;
     }
 
-    private final Space space;
     private final DataVector data;
     private final Vector vectorSum;
     private AtomGroupAction groupWrapper;
-    private int natoms;
+    private MyAction myAction;
 }
