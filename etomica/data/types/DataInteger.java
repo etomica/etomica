@@ -71,6 +71,9 @@ public class DataInteger extends Data implements DataNumeric {
         return dataInfo.getLabel() + " " + Integer.toString(x);
     }
     
+    /**
+     * Returns the singleton instance of a factory that makes this data type.
+     */
     public static DataFactory getFactory() {
         return FACTORY;
     }
