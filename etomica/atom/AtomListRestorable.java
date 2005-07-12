@@ -113,7 +113,7 @@ import etomica.atom.iterator.AtomIteratorListSimple;
      * each other as shadow linkers; one linker is used to for this class' linked list,
      * and the other is used for maintenance of the memory of changes.
      */
-    private class AtomLinkerRestorable extends AtomLinker {
+    private static class AtomLinkerRestorable extends AtomLinker {
         int changeCount = 0;
         final AtomLinkerRestorable shadowLinker;
         AtomLinkerRestorable(Atom atom) {

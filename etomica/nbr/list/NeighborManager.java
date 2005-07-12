@@ -301,7 +301,7 @@ public class NeighborManager implements IntegratorNonintervalListener,
      */
     private static class NeighborCheck extends AtomsetActionAdapter {
 
-        private boolean needUpdate = false, unsafe = false;
+        protected boolean needUpdate = false, unsafe = false;
 
         public void actionPerformed(AtomSet atom) {
             final NeighborCriterion[] criterion = ((Atom) atom).type
@@ -337,7 +337,7 @@ public class NeighborManager implements IntegratorNonintervalListener,
      * and resets the criteria as it applies to the atom (e.g., sets its
      * previous-position vector to its current position).
      */
-    private class NeighborReset extends AtomsetActionAdapter {
+    private static class NeighborReset extends AtomsetActionAdapter {
 
         public void actionPerformed(AtomSet atom) {
             //TODO consider removing this check, for perf improvement
