@@ -9,8 +9,8 @@ import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Species;
 import etomica.IteratorDirective.Direction;
+import etomica.action.AtomActionSwap;
 import etomica.action.AtomsetAction;
-import etomica.action.AtomsetActionAdapter;
 
 /**
  * Gives pairs formed from the molecules of two different species in a phase,
@@ -83,9 +83,9 @@ public class ApiInterspecies1A extends AtomPairIteratorAdapter implements
                 .getOuterIterator();
         aiInner = (AtomIteratorListSimple) ((ApiInnerFixed) iterator)
                 .getInnerIterator();
-        setPhase(null);
         swappedPair = new AtomPair();
         swappedPairInternal = new AtomPair();
+        setPhase(null);
     }
 
     /**
@@ -223,7 +223,7 @@ public class ApiInterspecies1A extends AtomPairIteratorAdapter implements
     public void allAtoms(AtomsetAction action) {
         if (doSwap) {
             if (swapWrapper == null)
-                swapWrapper = new SwapWrapper();
+                swapWrapper = new AtomActionSwap(swappedPair);
             swapWrapper.wrappedAction = action;
             super.allAtoms(swapWrapper);
         } else {
@@ -241,19 +241,7 @@ public class ApiInterspecies1A extends AtomPairIteratorAdapter implements
     private Direction allowedDirection0, allowedDirection1;
     private Atom targetAtom, targetMolecule;
     private boolean doSwap;
-    private AtomPair swappedPair;
-    private AtomPair swappedPairInternal;
-    private SwapWrapper swapWrapper;
-
-    private class SwapWrapper extends AtomsetActionAdapter {
-
-        private AtomsetAction wrappedAction;
-
-        public void actionPerformed(AtomSet a) {
-            swappedPair.atom0 = ((AtomPair) a).atom1;
-            swappedPair.atom1 = ((AtomPair) a).atom0;
-            wrappedAction.actionPerformed(swappedPair);
-        }
-
-    }
+    private final AtomPair swappedPair;
+    private final AtomPair swappedPairInternal;
+    private AtomActionSwap swapWrapper;
 }

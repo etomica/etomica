@@ -1,12 +1,16 @@
 package etomica.atom.iterator;
 
 import etomica.Atom;
+import etomica.AtomPair;
 import etomica.AtomSet;
 import etomica.AtomTreeNode;
 import etomica.AtomTreeNodeGroup;
+import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Species;
 import etomica.IteratorDirective.Direction;
+import etomica.action.AtomActionSwap;
+import etomica.action.AtomsetAction;
 
 /**
  * Gives pairs formed from the molecules of a species in a phase, taking one
@@ -58,6 +62,8 @@ public class ApiIntraspecies1A extends AtomPairIteratorAdapter implements
         aiInner = (AtomIteratorSequenceDirectable) ((ApiInnerVariable) iterator)
                 .getInnerIterator();
         aiInner.setNumToSkip(1);
+        swappedPair = new AtomPair();
+        swappedPairInternal = new AtomPair();
         setPhase(null);
     }
 
@@ -83,6 +89,7 @@ public class ApiIntraspecies1A extends AtomPairIteratorAdapter implements
      * directions relative to the target.
      */
     public void setDirection(Direction direction) {
+        doSwap = (direction == IteratorDirective.DOWN);
         aiInner.setDirection(direction);
     }
 
@@ -125,6 +132,52 @@ public class ApiIntraspecies1A extends AtomPairIteratorAdapter implements
         aiInner.setAtom(targetMolecule);
     }
 
+    public boolean contains(AtomSet pair) {
+        if (pair == null || pair.count() != 2) {
+            return false;
+        }
+        if (doSwap) {
+            //need a different swapedPair because calling this fails if pair ==
+            // swappedPair, which is available externally
+            swappedPairInternal.atom0 = pair.getAtom(1);
+            swappedPairInternal.atom1 = pair.getAtom(0);
+            return super.contains(swappedPairInternal);
+        }
+        return super.contains(pair);
+
+    }
+
+    public AtomSet peek() {
+        AtomPair pair = (AtomPair) super.peek();
+        if (doSwap) {
+            swappedPair.atom0 = pair.atom1;
+            swappedPair.atom1 = pair.atom0;
+            return swappedPair;
+        }
+        return pair;
+    }
+
+    public AtomPair nextPair() {
+        AtomPair pair = super.nextPair();
+        if (doSwap && pair != null) {
+            swappedPair.atom0 = pair.atom1;
+            swappedPair.atom1 = pair.atom0;
+            return swappedPair;
+        }
+        return pair;
+    }
+
+    public void allAtoms(AtomsetAction action) {
+        if (doSwap) {
+            if (swapWrapper == null)
+                swapWrapper = new AtomActionSwap(swappedPair);
+            swapWrapper.wrappedAction = action;
+            super.allAtoms(swapWrapper);
+        } else {
+            super.allAtoms(action);
+        }
+    }
+
     private final AtomIteratorSequenceDirectable aiInner;
     private final AtomIteratorSinglet aiOuter;
     private final Species species;
@@ -132,4 +185,9 @@ public class ApiIntraspecies1A extends AtomPairIteratorAdapter implements
     private AtomTreeNodeGroup agentNode;
     private Phase phase;
     private Atom targetAtom, targetMolecule;
+
+    private boolean doSwap;
+    private final AtomPair swappedPair;
+    private final AtomPair swappedPairInternal;
+    private AtomActionSwap swapWrapper;
 }
