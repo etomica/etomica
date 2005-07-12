@@ -160,7 +160,7 @@ public class ApiIntraspecies1ATest extends IteratorTest {
         targetMolecule = (Atom)target;
         api.setTarget(target);
         api.setDirection(DOWN);
-        testApiIterates(api,targetMolecule,dnMolecules(targetMolecule,molecules0));
+        testApiIteratesSwap(api,targetMolecule,dnMolecules(targetMolecule,molecules0));
         
         //species0 leafAtom target; any direction
         if(species0Index != 1) {
