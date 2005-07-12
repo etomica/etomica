@@ -22,7 +22,7 @@ import etomica.Species;
 //child factory cannot be given in constructor because the AtomType the child factory will use cannot be
 //constructed before this factory has made the AtomType used for its atom groups
 
- public class AtomFactoryHomo extends AtomFactory {
+public class AtomFactoryHomo extends AtomFactory {
     
     /**
      * @param space the coordinate factory
