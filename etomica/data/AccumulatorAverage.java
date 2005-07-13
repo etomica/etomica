@@ -93,8 +93,7 @@ public class AccumulatorAverage extends DataAccumulator {
             error.TE(1/(double)(count-1));
             error.map(Function.Sqrt.INSTANCE);
             standardDeviation.E((Data)sumSquareBlock);
-            standardDeviation.PE(blockSumSq);
-            standardDeviation.TE(1/count*blockSize);
+            standardDeviation.TE(1.0/(count*blockSize));
             standardDeviation.ME(work);
             standardDeviation.map(Function.Sqrt.INSTANCE);
 //            mrBlock = (!Double.isNaN(mostRecentBlock[i])) ? mostRecentBlock[i] : currentBlockAverage;
