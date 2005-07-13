@@ -131,14 +131,14 @@ public class TestSWChain extends Simulation {
         Cv *= Cv/numMolecules;
         System.out.println("Cv/k="+Cv);
         
-        if (Math.abs(Z-4.5) > 1.5) {
+        if (Double.isNaN(Z) || Math.abs(Z-4.5) > 1.5) {
             System.exit(1);
         }
-        if (Math.abs(avgPE+19.32) > 0.12) {
+        if (Double.isNaN(avgPE) || Math.abs(avgPE+19.32) > 0.12) {
             System.exit(1);
         }
         // actual value ~2
-        if (!Double.isNaN(Cv) || Cv < 0.5 || Cv > 4.5) {
+        if (Double.isNaN(Cv) || Cv < 0.5 || Cv > 4.5) {
             System.exit(1);
         }
     }

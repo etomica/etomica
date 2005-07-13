@@ -96,11 +96,11 @@ public class TestSWMC3D extends Simulation {
         Cv *= Cv/numAtoms;
         System.out.println("Cv/k="+Cv);
         
-        if (Math.abs(avgPE+5.48) > 0.04) {
+        if (Double.isNaN(avgPE) || Math.abs(avgPE+5.48) > 0.04) {
             System.exit(1);
         }
         // actual value ~0.56
-        if (Math.abs(Cv-0.7) > 0.6) {
+        if (Double.isNaN(Cv) || Math.abs(Cv-0.7) > 0.6) {
             System.exit(1);
         }
     }
