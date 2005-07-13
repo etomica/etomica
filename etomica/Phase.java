@@ -1,8 +1,5 @@
 package etomica;
 
-import java.util.Observable;
-import java.util.Observer;
-
 import etomica.action.PhaseInflate;
 import etomica.atom.AtomLinker;
 import etomica.atom.iterator.AtomIteratorListTabbed;
@@ -66,6 +63,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     private String name;
     protected final Space space;
     private PhaseCellManager cellManager;
+    public Configuration configuration;
     
     /**
      * Constructs phase with default rectangular periodic boundary.
@@ -203,7 +201,6 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      * Sets the boundary object of the phase.
      */
      public void setBoundary(Boundary b) {
-        boundaryMonitor.notifyObservers(b);
         boundary = b;
      }
      
@@ -216,7 +213,6 @@ public class Phase implements EtomicaElement, java.io.Serializable {
          if (c != null) {
              c.initializeCoordinates(this);
          }
-         fireEvent(new PhaseEvent(this, PhaseEvent.RESET));
      }
 
     /**
@@ -293,19 +289,6 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         a.node.dispose();
     }
     
-    public synchronized void addListener(PhaseListener listener) {
-        eventManager.addListener(listener);
-    }
-
-    public synchronized void removeListener(PhaseListener listener) {
-        eventManager.removeListener(listener);
-    }
-
-    protected void fireEvent(PhaseEvent event) {
-        eventManager.fireEvent(event);
-    }    
-     
-    
     /**
      * @return Returns the lattice.
      */
@@ -319,42 +302,6 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     public SpeciesMaster getSpeciesMaster() {
         return speciesMaster;
     }
-
-    public Configuration configuration;
-          
-    public Phase.Monitor boundaryMonitor = new Phase.Monitor();
-//    public SimulationEventManager integratorMonitor = new SimulationEventManager();
-
-    //used to handle firing of reset events
-    private SimulationEventManager eventManager = new SimulationEventManager();
-    
-    public static class Monitor extends Observable implements java.io.Serializable {
-        
-        public void notifyObservers() {
-            this.notifyObservers(null);
-        }
-        public void notifyObservers(Object obj) {
-            setChanged();
-            super.notifyObservers(obj);
-        }
-        public void addObserver(Observer o) {if(o != null) super.addObserver(o);}
-        public void deleteObserver(Observer o) {super.deleteObserver(o);}
-    }
-         
-/*    public static void main(String[] args) {
-        
-        Simulation.instance = new etomica.graphics.SimulationGraphic(); 
-        new Controller();
-        Phase phase = new Phase();
-        Species species = new SpeciesSpheresMono();
-        new IntegratorHard();
-        Potential2 potential = new P2HardSphere();
-        potential.setSpecies(species,species);
-        new etomica.graphics.DisplayPhase();
-//        AtomIterator integrator = phase.makeMoleculeIterator();
-        Simulation.instance.elementCoordinator.go();
-        etomica.graphics.SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
-    }*/
 
 } //end of Phase
         
