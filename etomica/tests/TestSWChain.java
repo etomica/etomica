@@ -25,7 +25,7 @@ import etomica.nbr.CriterionBondedSimple;
 import etomica.nbr.CriterionMolecular;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.NeighborCriterion;
-import etomica.nbr.list.NeighborManager;
+import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterNbr;
 import etomica.potential.P1BondedHardSpheres;
 import etomica.potential.P2HardBond;
@@ -60,7 +60,7 @@ public class TestSWChain extends Simulation {
         integrator.setTimeStep(timeStep);
         integrator.setIsothermal(true);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        NeighborManager nbrManager = ((PotentialMasterNbr)potentialMaster).getNeighborManager();
+        NeighborListManager nbrManager = ((PotentialMasterNbr)potentialMaster).getNeighborManager();
         integrator.addListener(nbrManager);
         nbrManager.setRange(Default.ATOM_SIZE*sqwLambda*neighborRangeFac);
         getController().addAction(activityIntegrate);
@@ -86,7 +86,6 @@ public class TestSWChain extends Simulation {
         potentialMaster.setSpecies(potentialChainIntra, new Species[] {species});
         ((ConformationLinear)species.getFactory().getConformation()).setBondLength(Default.ATOM_SIZE);
 
-        
         potential = new P2SquareWell(space,Default.ATOM_SIZE,sqwLambda,0.5*Default.POTENTIAL_WELL);
         nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         CriterionMolecular criterionMolecular = new CriterionMolecular(nbrCriterion);
@@ -95,8 +94,7 @@ public class TestSWChain extends Simulation {
         
         AtomTypeSphere sphereType = (AtomTypeSphere)((AtomFactoryHomo)species.moleculeFactory()).childFactory().getType();
         potentialMaster.addPotential(potential,new AtomType[]{sphereType,sphereType});
-        ((PotentialMasterNbr)potentialMaster).getNeighborManager().addCriterion(criterion);
-        sphereType.getNbrManagerAgent().addCriterion(criterionMolecular);
+        ((PotentialMasterNbr)potentialMaster).getNeighborManager().addCriterion(nbrCriterion,new AtomType[]{sphereType});
 
         phase = new Phase(this);
 
@@ -140,7 +138,7 @@ public class TestSWChain extends Simulation {
             System.exit(1);
         }
         // actual value ~2
-        if (Cv < 0.5 || Cv > 4.5) {
+        if (!Double.isNaN(Cv) || Cv < 0.5 || Cv > 4.5) {
             System.exit(1);
         }
     }

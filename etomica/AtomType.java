@@ -1,7 +1,6 @@
 package etomica;
 
 import etomica.atom.AtomPositionDefinition;
-import etomica.nbr.NeighborManagerAgent;
 import etomica.utility.Arrays;
 
 //import etomica.electrostatics.*;
@@ -41,12 +40,12 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
     public final AtomType previousInstance;
     private static AtomType lastInstance;
 
-    private final NeighborManagerAgent neighborManagerAgent;
-
     private final AtomIndexManager indexManager;
     private AtomPositionDefinition positionDefinition;
 
     private AtomTypeGroup parentType;
+    
+    private boolean isInteracting = false;
 
     //    private Parameter.Electrostatic electroParameter;
 
@@ -58,7 +57,6 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
         this.indexManager = indexManager;
         positionDefinition = null;
         previousInstance = null;
-        neighborManagerAgent = null;
         index = 0;
     }
 
@@ -99,9 +97,6 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
         for (int i = 0; i < parameter.length; i++) {
             parameter[i] = parameterSource[i].makeParameter();
         }
-
-        //        System.out.println("AtomType constructor:"+mass);
-        neighborManagerAgent = new NeighborManagerAgent();
     }
     
     public int getIndex() {
@@ -232,12 +227,8 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
         return speciesIndex;
     }
 
-    /**
-     * Returns an object defined and used by the neighbor manager
-     * (if one is in effect) to implement its neighbor-list scheme. 
-     */
-    public NeighborManagerAgent getNbrManagerAgent() {
-        return neighborManagerAgent;
+    public void setInteracting(boolean b) {
+        isInteracting = b;
     }
 
     /**
@@ -245,9 +236,9 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
      * on an atom of this type.
      */
     public boolean isInteracting() {
-        return neighborManagerAgent.getPotentials().length > 0;
+        return isInteracting;
     }
-
+    
     //prototype of a real atom type
     /*
      * public final static class Carbon extends Sphere { public Carbon() {

@@ -1,4 +1,5 @@
 package etomica.simulations;
+import etomica.AtomType;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
@@ -6,9 +7,9 @@ import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.integrator.IntegratorHard;
-import etomica.nbr.NeighborCriterion;
 import etomica.nbr.CriterionSimple;
-import etomica.nbr.list.NeighborManager;
+import etomica.nbr.NeighborCriterion;
+import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterNbr;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
@@ -49,7 +50,7 @@ public class HSMD2D extends Simulation {
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 
-        NeighborManager nbrManager = ((PotentialMasterNbr)potentialMaster).getNeighborManager();
+        NeighborListManager nbrManager = ((PotentialMasterNbr)potentialMaster).getNeighborManager();
         nbrManager.setRange(Default.ATOM_SIZE*1.6);
         nbrManager.getPbcEnforcer().setApplyToMolecules(false);
         integrator.addListener(nbrManager);
@@ -72,20 +73,15 @@ public class HSMD2D extends Simulation {
         NeighborCriterion criterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         potential.setCriterion(criterion);
         potentialMaster.setSpecies(potential,new Species[]{species,species});
-        nbrManager.addCriterion(criterion);
-        species.getFactory().getType().getNbrManagerAgent().addCriterion(criterion);
 
         criterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         potential2.setCriterion(criterion);
         potentialMaster.setSpecies(potential2,new Species[]{species2,species2});
-        nbrManager.addCriterion(criterion);
-        species2.getFactory().getType().getNbrManagerAgent().addCriterion(criterion);
 
         criterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         potential22.setCriterion(criterion);
         potentialMaster.setSpecies(potential22,new Species[]{species2,species});
-        species.getFactory().getType().getNbrManagerAgent().addCriterion(criterion);
-        species2.getFactory().getType().getNbrManagerAgent().addCriterion(criterion);
+        nbrManager.addCriterion(criterion,new AtomType[]{species.getFactory().getType(),species2.getFactory().getType()});
 //        potentialMaster.setSpecies(potential,new Species[]{species,species});
 //        potentialMaster.setSpecies(potential,new Species[]{species2,species2});
 //        potentialMaster.setSpecies(potential,new Species[]{species2,species});

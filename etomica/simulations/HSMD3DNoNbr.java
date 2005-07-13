@@ -29,7 +29,6 @@ public class HSMD3DNoNbr extends Simulation {
         super(space, new PotentialMaster(space));
 
         int numAtoms = 256;
-        double neighborRangeFac = 1.6;
         Default.makeLJDefaults();
         Default.ATOM_SIZE = 1.0;
         Default.BOX_SIZE = 14.4573*Math.pow((numAtoms/2020.0),1.0/3.0);
@@ -48,9 +47,9 @@ public class HSMD3DNoNbr extends Simulation {
         this.potentialMaster.setSpecies(potential,new Species[]{species,species});
 
         phase = new Phase(this);
-        phase.setBoundary(new BoundaryTruncatedOctahedron(space));
+//        phase.setBoundary(new BoundaryTruncatedOctahedron(space));
         integrator.addPhase(phase);
-       integrator.addListener(new PhaseImposePbc(phase));
+        integrator.addListener(new PhaseImposePbc(phase));
         
         //ColorSchemeByType.setColor(speciesSpheres0, java.awt.Color.blue);
 

@@ -5,7 +5,6 @@
 package etomica.nbr.list;
 
 import etomica.Atom;
-import etomica.Potential;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomSequencerFactory;
@@ -37,8 +36,7 @@ public class AtomSequencerNbr extends AtomSequencerCell {
      * @param a the new uplist neighbor atom
      * @param potential the potential between the atoms
      */
-    public void addUpNbr(Atom a, Potential potential) {
-        int index = atom.type.getNbrManagerAgent().getPotentialIndex(potential);
+    public void addUpNbr(Atom a, int index) {
         ensureCapacity(index);
         upList[index].add(a);
 //        if (atom.node.getOrdinal() == 1) {
@@ -52,8 +50,7 @@ public class AtomSequencerNbr extends AtomSequencerCell {
      * @param a the new downlist neighbor atom
      * @param potential the potential between the atoms
      */
-    public void addDownNbr(Atom a, Potential potential) {
-        int index = atom.type.getNbrManagerAgent().getPotentialIndex(potential);
+    public void addDownNbr(Atom a, int index) {
         ensureCapacity(index);
         downList[index].add(a);
 //        if (atom.node.getOrdinal() == 1) {
@@ -95,12 +92,10 @@ public class AtomSequencerNbr extends AtomSequencerCell {
     }
 	
     /**
-     * Indicates that neighbor lists will no longer be kept for the given potential.
-     * @param p
+     * Should be called when removing a potential that applied to this atom
      */
     //TODO consider whether this method might foul up the index assignments
-	public void removePotential(Potential p) {
-		atom.type.getNbrManagerAgent().removePotential(p);
+	public void decrementNbrListArrays() {
 		if (upList.length == 0) throw new RuntimeException("potential list empty in removePotential");
 		upList = new AtomArrayList[upList.length-1];
 		downList = new AtomArrayList[downList.length-1];

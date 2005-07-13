@@ -2,7 +2,7 @@
  * History
  * Created on Sep 23, 2004 by kofke
  */
-package etomica.nbr;
+package etomica.potential;
 
 import etomica.Potential;
 import etomica.utility.Arrays;
@@ -12,12 +12,12 @@ import etomica.utility.Arrays;
  * store the list of potentials and criteria that apply to 
  * the atoms of that type.
  */
-public class NeighborManagerAgent implements java.io.Serializable {
+public class PotentialArray implements java.io.Serializable {
 
 	/**
 	 * 
 	 */
-	public NeighborManagerAgent() {
+	public PotentialArray() {
 		super();
 	}
 
@@ -80,24 +80,7 @@ public class NeighborManagerAgent implements java.io.Serializable {
     	return potentials;
     }
     
-    public NeighborCriterion[] getCriterion() {
-    	return criteria;
-    }
-    public void addCriterion(NeighborCriterion criterion) {
-    	for(int i=0; i<criteria.length; i++) {
-    		if(criteria[i] == criterion) return;
-    	}
-        criteria = (NeighborCriterion[])Arrays.addObject(criteria, criterion);
-    }
-    
-    public boolean removeCriterion(NeighborCriterion criterion) {
-        int oldLength = criteria.length;
-        criteria = (NeighborCriterion[])Arrays.removeObject(criteria, criterion);
-        return (oldLength != criteria.length);
-    }
-    
     private Potential[] potentials = new Potential[0];
     private int mostRecentIndex = -1;
-    private NeighborCriterion[] criteria = new NeighborCriterion[0];
 
 }

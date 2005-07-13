@@ -42,7 +42,6 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
     private final AtomIteratorTree atomIterator;
     private final AtomPositionDefinition positionDefinition;
     private final Phase phase;
-
     
     /**
      * Constructs manager for neighbor cells in the given phase.  The number of
@@ -85,7 +84,7 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
                 if(evt.type() == PhaseEvent.ATOM_ADDED) {
                     Atom atom = evt.atom();
                     //new species agent requires another list in each cell
-                    if(atom.type.getNbrManagerAgent().getPotentials().length > 0) {
+                    if(atom.type.isInteracting()) {
                         assignCell(atom);
                     }
                 }

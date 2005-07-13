@@ -6,10 +6,12 @@ package etomica.nbr;
 
 import etomica.Atom;
 import etomica.AtomPair;
+import etomica.AtomType;
 import etomica.AtomsetIterator;
 import etomica.IteratorDirective;
 import etomica.Potential;
 import etomica.PotentialGroup;
+import etomica.PotentialMaster;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.potential.PotentialCalculation;
@@ -22,6 +24,10 @@ import etomica.potential.PotentialCalculation;
  */
 public class PotentialCalculationAgents extends PotentialCalculation {
 
+    public PotentialCalculationAgents(PotentialMaster potentialMaster) {
+        this.potentialMaster = potentialMaster;
+    }
+    
     public void doCalculation(AtomsetIterator iterator, IteratorDirective id, Potential potential) {    
         if(potential instanceof PotentialGroup) {
             iterator.reset();
@@ -50,7 +56,7 @@ public class PotentialCalculationAgents extends PotentialCalculation {
             iterator.reset();
             if(iterator.hasNext()) {
                 Atom atom = (Atom)iterator.next();
-                atom.type.getNbrManagerAgent().addPotential(potential);
+                potentialMaster.addPotentialBad(potential,new AtomType[]{atom.type});
             }
             break;
         case 2:
@@ -60,10 +66,9 @@ public class PotentialCalculationAgents extends PotentialCalculation {
             iterator.reset();
             if (iterator.hasNext()) {
                 AtomPair atoms = (AtomPair)iterator.next();
-                Atom atom0 = atoms.atom0;
-                Atom atom1 = atoms.atom1;
-                atom0.type.getNbrManagerAgent().addPotential(potential);
-                if(atom1.type != atom0.type) atom1.type.getNbrManagerAgent().addPotential(potential);
+                types[0] = atoms.atom0.type;
+                types[1] = atoms.atom1.type;
+                potentialMaster.addPotentialBad(potential,types);
             }
             break;
         }
@@ -81,5 +86,6 @@ public class PotentialCalculationAgents extends PotentialCalculation {
 //        }
 	}
     
-    
+    private final PotentialMaster potentialMaster;
+    private final AtomType[] types = new AtomType[2];
 }

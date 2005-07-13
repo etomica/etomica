@@ -7,6 +7,7 @@ import etomica.atom.iterator.AtomsetIteratorMolecule;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.potential.Potential0;
 import etomica.potential.Potential0Lrc;
+import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialTruncated;
 
@@ -136,6 +137,21 @@ public class PotentialMaster implements java.io.Serializable {
             addPotential(pGroup,parentAtomTypes);
         }
         pGroup.addPotential(potential,atomTypes,this);
+    }
+    
+    public void addPotentialBad(Potential potential, AtomType[] atomTypes) {
+        for (int i=0; i<atomTypes.length; i++) {
+            while (potentialAtomTypeList.length < atomTypes[i].getIndex()+1) {
+                potentialAtomTypeList = (PotentialArray[])etomica.utility.Arrays.addObject(potentialAtomTypeList, new PotentialArray());
+            }
+            PotentialArray potentialAtomType = potentialAtomTypeList[atomTypes[i].getIndex()];
+            potentialAtomType.addPotential(potential);
+            atomTypes[i].setInteracting(true);
+        }
+    }
+    
+    public PotentialArray getPotentials(AtomType atomType) {
+        return potentialAtomTypeList[atomType.getIndex()];
     }
     
     /**
@@ -275,6 +291,7 @@ public class PotentialMaster implements java.io.Serializable {
     protected PotentialLinker first, last;
     protected boolean enabled = true;
     protected final Space space;
+    protected PotentialArray[] potentialAtomTypeList = new PotentialArray[0];
     
     private static class AtomIterator0 extends AtomsetIteratorSinglet implements AtomsetIteratorMolecule {
         AtomIterator0() {

@@ -49,7 +49,7 @@ public class PotentialMasterNbr extends PotentialMaster {
     public PotentialMasterNbr(Space space, AtomPositionDefinition positionDefinition) {
         super(space,new IteratorFactoryCell());
         setNCells(10);
-		neighborManager = new NeighborManager(this);
+		neighborManager = new NeighborListManager(this);
 		atomIterator = new AtomIteratorArrayList();
 		singletIterator = new AtomIteratorSinglet();
 		pairIterator = new ApiInnerFixed(singletIterator, atomIterator);
@@ -80,14 +80,14 @@ public class PotentialMasterNbr extends PotentialMaster {
     	AtomSet targetAtoms = id.getTargetAtoms();
     	if (targetAtoms.count() == 0) {
     		//no target atoms specified -- do one-target algorithm to SpeciesMaster
-    		calculate(phase.getSpeciesMaster(), idUp, pc, phase.getSpeciesMaster().type.getNbrManagerAgent().getPotentials());
+    		calculate(phase.getSpeciesMaster(), idUp, pc, getPotentials(phase.getSpeciesMaster().type).getPotentials());
             if(lrcMaster != null) {
                 lrcMaster.calculate(phase, id, pc);
             }
     	}
     	else if (targetAtoms instanceof Atom) {
     		// one target atom
-			calculate((Atom)targetAtoms, id, pc, ((Atom)targetAtoms).type.getNbrManagerAgent().getPotentials());
+			calculate((Atom)targetAtoms, id, pc, getPotentials(((Atom)targetAtoms).type).getPotentials());
             if(lrcMaster != null) {
                 lrcMaster.calculate(phase, id, pc);
             }
@@ -167,14 +167,14 @@ public class PotentialMasterNbr extends PotentialMaster {
             AtomLinker link = list.header.next;
             if (link != list.header) {
                 for (link = list.header.next; link != list.header; link = link.next) {
-                    Potential[] childPotentials = link.atom.type.getNbrManagerAgent().getPotentials();
+                    Potential[] childPotentials = getPotentials(link.atom.type).getPotentials();
                     calculate(link.atom, id, pc, childPotentials);//recursive call
                 }
             }
 		}
 	}
 
-    public NeighborManager getNeighborManager() {return neighborManager;}
+    public NeighborListManager getNeighborManager() {return neighborManager;}
 
     
     public NeighborCellManager getNbrCellManager(Phase phase) {
@@ -202,7 +202,7 @@ public class PotentialMasterNbr extends PotentialMaster {
 	private final AtomIteratorArrayList atomIterator;
 	private final AtomIteratorSinglet singletIterator;
 	private final ApiInnerFixed pairIterator;
-	private final NeighborManager neighborManager;
+	private final NeighborListManager neighborManager;
     private int nCells;
     private final IteratorDirective idUp = new IteratorDirective();
     private final AtomPositionDefinition positionDefinition;

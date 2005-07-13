@@ -2,6 +2,7 @@
 
 package etomica.simulations;
 
+import etomica.AtomType;
 import etomica.ConformationLinear;
 import etomica.Default;
 import etomica.Phase;
@@ -12,8 +13,6 @@ import etomica.Species;
 import etomica.SpeciesSpheres;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
-import etomica.atom.iterator.ApiFiltered;
-import etomica.atom.iterator.ApiIntergroup;
 import etomica.integrator.IntegratorHard;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.NeighborCriterion;
@@ -72,7 +71,8 @@ public class ChainHSMD3D extends Simulation {
 //FIXME        NeighborCriterionWrapper moleculeCriterion = new NeighborCriterionWrapper(new NeighborCriterion[]{criterion});
 //FIXME        moleculeCriterion.setNeighborRange(3.45 + criterion.getNeighborRange());
 //FIXME        ((PotentialMasterNbr)potentialMaster).setSpecies(p2Inter,new Species[]{species,species},moleculeCriterion);
-        ((AtomFactoryHomo)species.moleculeFactory()).childFactory().getType().getNbrManagerAgent().addCriterion(criterion);
+        ((PotentialMasterNbr)potentialMaster).getNeighborManager().addCriterion(criterion,
+                new AtomType[]{((AtomFactoryHomo)species.moleculeFactory()).childFactory().getType()});
         
         //        Crystal crystal = new LatticeCubicFcc(space);
 //        ConfigurationLattice conformation = new ConfigurationLattice(space, crystal);

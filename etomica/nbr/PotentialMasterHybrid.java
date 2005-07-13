@@ -16,7 +16,7 @@ import etomica.nbr.cell.IteratorFactoryCell;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.AtomSequencerNbr;
-import etomica.nbr.list.NeighborManager;
+import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterNbr;
 import etomica.potential.PotentialCalculation;
 
@@ -110,7 +110,7 @@ public class PotentialMasterHybrid extends PotentialMaster {
         super.setSpecies(potential, species);
     }
     
-    public NeighborManager getNeighborManager() {
+    public NeighborListManager getNeighborManager() {
         return potentialMasterNbr.getNeighborManager();
     }
 

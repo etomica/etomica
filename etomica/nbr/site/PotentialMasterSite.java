@@ -86,7 +86,7 @@ public class PotentialMasterSite extends PotentialMaster {
     		//no target atoms specified -- do one-target algorithm to SpeciesMaster
             neighborIterator.setPhase(phase);
             neighborIterator.setDirection(IteratorDirective.UP);
-    		calculate(phase.getSpeciesMaster(), idUp, pc, phase.getSpeciesMaster().type.getNbrManagerAgent().getPotentials());
+    		calculate(phase.getSpeciesMaster(), idUp, pc, getPotentials(phase.getSpeciesMaster().type).getPotentials());
             if(lrcMaster != null) {
                 lrcMaster.calculate(phase, id, pc);
             }
@@ -95,7 +95,7 @@ public class PotentialMasterSite extends PotentialMaster {
     		// one target atom
             neighborIterator.setPhase(phase);
             neighborIterator.setDirection(id.direction());
-			calculate((Atom)targetAtoms, id, pc, ((Atom)targetAtoms).type.getNbrManagerAgent().getPotentials());
+			calculate((Atom)targetAtoms, id, pc, getPotentials(((Atom)targetAtoms).type).getPotentials());
             if(lrcMaster != null) {
                 lrcMaster.calculate(phase, id, pc);
             }
@@ -156,7 +156,7 @@ public class PotentialMasterSite extends PotentialMaster {
             AtomLinker link = list.header.next;
             if (link != list.header) {
                 for (link = list.header.next; link != list.header; link = link.next) {
-                    Potential[] childPotentials = link.atom.type.getNbrManagerAgent().getPotentials();
+                    Potential[] childPotentials = getPotentials(link.atom.type).getPotentials();
                     calculate(link.atom, id, pc, childPotentials);//recursive call
                 }
             }
