@@ -65,7 +65,7 @@ public class TestSWMC3D extends Simulation {
         ConfigurationFile config = new ConfigurationFile(space,"SWMC3D"+Integer.toString(numAtoms));
         phase.setConfiguration(config);
         integrator.addPhase(phase);
-        ((PotentialMasterCell)potentialMaster).calculate(phase, new PotentialCalculationAgents());
+        ((PotentialMasterCell)potentialMaster).calculate(phase, new PotentialCalculationAgents(potentialMaster));
         ((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).assignCellAll();
 //        WriteConfiguration writeConfig = new WriteConfiguration("SWMC3D"+Integer.toString(numAtoms),phase,1);
 //        integrator.addIntervalListener(writeConfig);
