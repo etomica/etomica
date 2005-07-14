@@ -29,16 +29,18 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
     private final IteratorDirective fieldsOnly = new IteratorDirective();
     private final Space space;
 	
-	private final IteratorDirective.PotentialCriterion noFieldsCriterion = new IteratorDirective.PotentialCriterion() {
-			public boolean excludes(Potential potential) {
-				return (potential instanceof Potential1);
-			}
-	};
+    //XXX not serializable
+    private final IteratorDirective.PotentialCriterion noFieldsCriterion = new IteratorDirective.PotentialCriterion() {
+	    public boolean excludes(Potential potential) {
+	        return (potential instanceof Potential1);
+	    }
+    };
 
     public IntegratorHardField(PotentialMaster potentialMaster) {
         super(potentialMaster);
         space = potentialMaster.getSpace();
         forceSum = new PotentialCalculationForceSum(space);//new IntegratorHardField.ForceSum(sim.space());
+        //XXX not serializable
         fieldsOnly.addCriterion(new IteratorDirective.PotentialCriterion() {
             public boolean excludes(Potential potential) {
                 return !(potential instanceof Potential1);
@@ -147,7 +149,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         public boolean forceFree = true;
         public Agent(Atom a, IntegratorHardField integrator) {
             super(a, integrator);
-            force = integrator.space.makeVector();
+            force = integrator.getPotential().getSpace().makeVector();
         }
         public final Vector force() {return force;}
     }//end of Agent
