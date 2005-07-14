@@ -1,6 +1,7 @@
 package etomica.integrator;
 
 import etomica.Atom;
+import etomica.Phase;
 import etomica.PotentialMaster;
 
 /**
@@ -44,6 +45,16 @@ public class IntegratorAnalytic extends IntegratorMD {
     public void setAction(AtomAction action) {this.action = action;}
     
     public AtomAction getAction() {return action;}
+    
+	/**
+	 * Overrides superclass method to instantiate iterators when iteratorFactory in phase is changed.
+	 * Called by Integrator.addPhase and Integrator.iteratorFactorObserver.
+	 */
+	public boolean addPhase(Phase p) {
+	    if(!super.addPhase(p)) return false;
+        atomIterator.setPhase(p);
+        return true;
+    }
     
     public Object makeAgent(Atom a) {return null;}
     
