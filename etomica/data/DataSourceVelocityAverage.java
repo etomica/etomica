@@ -32,7 +32,8 @@ public class DataSourceVelocityAverage extends AtomActionAdapter implements Data
     public DataSourceVelocityAverage(Space space) {
         data = new DataVector(space, "Average Velocity", Dimension.UNDEFINED);
         vectorSum = space.makeVector();
-        groupWrapper = new AtomGroupAction(new MyAction());
+        myAction = new MyAction(vectorSum);
+        groupWrapper = new AtomGroupAction(myAction);
     }
     
     public DataInfo getDataInfo() {
@@ -53,7 +54,7 @@ public class DataSourceVelocityAverage extends AtomActionAdapter implements Data
      * Does not reset sums.  Implementation of DataSource interface.
      */
     public Data getData() {
-        data.x.Ea1Tv1(1.0 / massSum, vectorSum);
+        data.x.Ea1Tv1(1.0 / myAction.massSum, vectorSum);
         return data;
     }
     
@@ -72,18 +73,23 @@ public class DataSourceVelocityAverage extends AtomActionAdapter implements Data
      */
     public void reset() {
         vectorSum.E(0.0);
-        massSum = 0;
+        myAction.massSum = 0;
     }
 
-    private class MyAction extends AtomActionAdapter {
+    private static class MyAction extends AtomActionAdapter {
+        public MyAction(Vector sum) {
+            vectorSum = sum;
+        }
         public void actionPerformed(Atom a) {
             vectorSum.PE(((ICoordinateKinetic)a.coord).velocity());
             massSum += ((AtomTypeLeaf)a.type).getMass();
         }
+        private final Vector vectorSum;
+        public double massSum;
     }
 
     private final Vector vectorSum;
     private final DataVector data;
-    private double massSum;
+    private MyAction myAction;
     private AtomGroupAction groupWrapper;
 }

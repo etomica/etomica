@@ -35,7 +35,8 @@ public class DataSourceCOM extends AtomActionAdapter implements DataSource, Atom
     public DataSourceCOM(Space space) {
         vectorSum = space.makeVector();
         data = new DataVector(space, "Center of Mass", Dimension.LENGTH);
-        groupWrapper = new AtomGroupAction(new MyAction());
+        myAction = new MyAction(vectorSum);
+        groupWrapper = new AtomGroupAction(myAction);
     }
     
     public DataInfo getDataInfo() {
@@ -56,7 +57,7 @@ public class DataSourceCOM extends AtomActionAdapter implements DataSource, Atom
      * Does not reset COM sums.  Implementation of DataSource interface.
      */
     public Data getData() {
-        data.x.Ea1Tv1(1.0 / massSum, vectorSum);
+        data.x.Ea1Tv1(1.0 / myAction.massSum, vectorSum);
         return data;
     }
    
@@ -82,19 +83,24 @@ public class DataSourceCOM extends AtomActionAdapter implements DataSource, Atom
      */
     public void reset() {
         vectorSum.E(0.0);
-        massSum = 0.0;
+        myAction.massSum = 0.0;
     }
 
-    private class MyAction extends AtomActionAdapter {
+    private static class MyAction extends AtomActionAdapter {
+        public MyAction(Vector sum) {
+            vectorSum = sum;
+        }
         public void actionPerformed(Atom a) {
             double mass = ((AtomTypeLeaf)a.type).getMass();
             vectorSum.PEa1Tv1(mass, a.coord.position());
             massSum += mass;
         }
+        private Vector vectorSum;
+        public double massSum;
     }
     
     private final Vector vectorSum;
     private final DataVector data;
-    private double massSum;
     private AtomGroupAction groupWrapper;
+    private MyAction myAction;
 }
