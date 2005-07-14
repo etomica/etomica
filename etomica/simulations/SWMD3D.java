@@ -110,7 +110,6 @@ public class SWMD3D extends Simulation {
 //	nControl.setMaximum(108);
 	species.setNMolecules(108);
 	phase.setDensity(0.0405);
-//	mediator().go();
   } //end of constructor
 
   public IntegratorHard integrator;
@@ -123,10 +122,14 @@ public class SWMD3D extends Simulation {
 
 
   
-  public class MyColorScheme extends ColorScheme {
+  public static class MyColorScheme extends ColorScheme {
+      public MyColorScheme(Atom redAtom) {
+          atom = redAtom;
+      }
 	  public java.awt.Color atomColor(Atom a) {
-		  return (a == first) ? java.awt.Color.red : java.awt.Color.yellow;
+		  return (a == atom) ? java.awt.Color.red : java.awt.Color.yellow;
 	  }
+      private Atom atom;
   }
 
 }//end of class
