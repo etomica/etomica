@@ -1,9 +1,7 @@
 package etomica.integrator;
 
 import etomica.Atom;
-import etomica.Phase;
 import etomica.PotentialMaster;
-import etomica.atom.iterator.AtomIteratorListTabbed;
 
 /**
  * Integrator that generates atom trajectories from an analytic formula.
@@ -19,9 +17,8 @@ import etomica.atom.iterator.AtomIteratorListTabbed;
   * 7/31/02 (DAK) new
   */
  
- public class IntegratorAnalytic extends IntegratorMD {
+public class IntegratorAnalytic extends IntegratorMD {
     
-    private final AtomIteratorListTabbed atomIterator = new AtomIteratorListTabbed();
     private AtomAction action;
     
     public IntegratorAnalytic(PotentialMaster potentialMaster) {
@@ -47,16 +44,6 @@ import etomica.atom.iterator.AtomIteratorListTabbed;
     public void setAction(AtomAction action) {this.action = action;}
     
     public AtomAction getAction() {return action;}
-    
-	/**
-	 * Overrides superclass method to instantiate iterators when iteratorFactory in phase is changed.
-	 * Called by Integrator.addPhase and Integrator.iteratorFactorObserver.
-	 */
-	public boolean addPhase(Phase p) {
-	    if(!super.addPhase(p)) return false;
-        atomIterator.setList(p.getSpeciesMaster().atomList);
-        return true;
-    }
     
     public Object makeAgent(Atom a) {return null;}
     
