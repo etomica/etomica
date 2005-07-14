@@ -13,38 +13,38 @@ import etomica.space.Vector;
  * @author David Kofke
  */
  
- public abstract class Potential2SoftSpherical extends Potential2 implements Potential2Soft, Potential2Spherical {
+public abstract class Potential2SoftSpherical extends Potential2 implements Potential2Soft, Potential2Spherical {
    
-   public Potential2SoftSpherical(Space space) {
+    public Potential2SoftSpherical(Space space) {
         super(space);
         work1 = space.makeVector();
-   }
+    }
         
-   /**
-    * The pair energy u(r^2).
-    * @param the square of the distance between the particles.
-    */
+    /**
+     * The pair energy u(r^2).
+     * @param the square of the distance between the particles.
+     */
     public abstract double u(double r2);
         
-   /**
-    * The derivative of the pair energy, times the separation r: r du/dr.
-    */
+    /**
+     * The derivative of the pair energy, times the separation r: r du/dr.
+     */
     public abstract double du(double r2);
         
-   /**
-    * The second derivative of the pair energy, times the square of the
-    * separation:  r^2 d^2u/dr^2.
-    */
+    /**
+     * The second derivative of the pair energy, times the square of the
+     * separation:  r^2 d^2u/dr^2.
+     */
     public abstract double d2u(double r2);
         
-   /**
-    * Integral of the potential, used to evaluate corrections for potential truncation.
-    * Specifically, this is the integral from rC (the argument) to infinity of
-    * u(r) A r^(D-1), where D is the spatial dimension, and A is the area of a unit
-    * sphere in D dimensions.  Normally, the long-range potential correction would be obtained
-    * by multiplying this quantity by the pair density nPairs/V, where nPairs is the number of pairs of atoms
-    * affected by this potential, and V is the volume they occupy.
-    */
+    /**
+     * Integral of the potential, used to evaluate corrections for potential truncation.
+     * Specifically, this is the integral from rC (the argument) to infinity of
+     * u(r) A r^(D-1), where D is the spatial dimension, and A is the area of a unit
+     * sphere in D dimensions.  Normally, the long-range potential correction would be obtained
+     * by multiplying this quantity by the pair density nPairs/V, where nPairs is the number of pairs of atoms
+     * affected by this potential, and V is the volume they occupy.
+     */
     public abstract double uInt(double rC);
     
     /**

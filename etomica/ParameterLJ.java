@@ -8,7 +8,7 @@ import etomica.units.Dimension;
  * @author David Kofke
  */
  
- public class ParameterLJ extends Parameter implements Parameter.Size, Parameter.Energy {
+public class ParameterLJ extends Parameter implements Parameter.Size, Parameter.Energy {
     
     /**
      * Accessor method for the size parameter.

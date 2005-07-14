@@ -14,7 +14,7 @@ import etomica.action.AtomsetAction;
  * @author David Kofke
  */
  
- public class AtomsetIteratorSinglet implements AtomsetIterator, java.io.Serializable {
+public class AtomsetIteratorSinglet implements AtomsetIterator, java.io.Serializable {
     
     /**
      * Constructs iterator without defining atom.  No atoms will
