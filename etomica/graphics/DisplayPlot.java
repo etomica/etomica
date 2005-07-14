@@ -210,7 +210,7 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
   * Define inner class as extension of ptolemy.plot.Plot
   * Does not override anything, but may want to later
   */
-    public class Plot extends ptolemy.plot.Plot {
+    public static class Plot extends ptolemy.plot.Plot {
         
         public Plot() {
         	super();

@@ -131,18 +131,18 @@ public class IntegratorTMMC extends IntegratorMC {
      */
     public void setLogger(Logger log) {
         this.log = log;
-        tableModel = new TableModel();
+        tableModel = new TableModel(this);
     }
     public Logger getLogger() {return log;}
     
     
     private double[][] C;
     private double[] H;
-    private double[] weight;
+    protected double[] weight;
     private int weightUpdateInterval;
     private int doStepCount;
     private MacrostateManager macrostateManager;
-    private int nStates;
+    protected int nStates;
     private Logger log;
     private javax.swing.table.AbstractTableModel tableModel;
     
@@ -151,14 +151,20 @@ public class IntegratorTMMC extends IntegratorMC {
      * Table model that describes a single column of numbers, given by the
      * current value of the weights array.
      */
-    private class TableModel extends javax.swing.table.AbstractTableModel {
+    private static class TableModel extends javax.swing.table.AbstractTableModel {
         
-        public int getRowCount() {return nStates;}
+        public TableModel(IntegratorTMMC integrator) {
+            this.integrator = integrator;
+        }
+        
+        public int getRowCount() {return integrator.nStates;}
         public int getColumnCount() {return 1;}
         
         public Object getValueAt(int row, int column) {
-            return new Double(weight[row]);
+            return new Double(integrator.weight[row]);
         }
+        
+        private IntegratorTMMC integrator;
     }
     
 }
