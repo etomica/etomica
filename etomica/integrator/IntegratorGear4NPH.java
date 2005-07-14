@@ -205,29 +205,35 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     }
     
     //inner class used to toggle between NPT and NPH ensembles
-    public class EnsembleToggler implements ModifierBoolean, java.io.Serializable {
+    public static class EnsembleToggler implements ModifierBoolean, java.io.Serializable {
+        public EnsembleToggler(IntegratorGear4NPH integrator) {
+            this.integrator = integrator;
+        }
         public void setBoolean(boolean isothermal) {
-            setIsothermal(isothermal);
+            integrator.setIsothermal(isothermal);
             if(!isothermal) {
-                calculateForces();
-                double kineticT = meterTemperature.getDataAsScalar();
-                double mvsq = kineticT * D * firstPhase.atomCount();
-                double volume = firstPhase.volume();
-                double pCurrent = firstPhase.getDensity()*kineticT - forceSumNPH.w/(D*volume);
-                double hCurrent = 0.5*mvsq + forceSumNPH.u + pCurrent*volume;
-                targetH = hCurrent;
+                integrator.calculateForces();
+                Phase phase = integrator.getPhase()[0];
+                double kineticT = integrator.getMeterTemperature().getDataAsScalar();
+                double mvsq = kineticT * phase.space().D() * phase.atomCount();
+                double volume = phase.volume();
+                double pCurrent = phase.getDensity()*kineticT - integrator.forceSumNPH.w/(phase.space().D()*volume);
+                double hCurrent = 0.5*mvsq + integrator.forceSumNPH.u + pCurrent*volume;
+                integrator.setTargetH(hCurrent);
             }
         }
-        public boolean getBoolean() {return isIsothermal();}
+        public boolean getBoolean() {return integrator.isIsothermal();}
+        private IntegratorGear4NPH integrator;
     }
 
     //meter group for temperature, pressure, enthalpy, obtaining values from
     //most recent call to the ForceSumNPH instance
-    public final class MeterTPH implements DataSource, java.io.Serializable {
+    public static final class MeterTPH implements DataSource, java.io.Serializable {
         
-        public MeterTPH() {
+        public MeterTPH(IntegratorGear4NPH integrator) {
             data = new DataDoubleArray("TPH",Dimension.UNDEFINED);
             data.setLength(3);
+            this.integrator = integrator;
         }
         
         public DataInfo getDataInfo() {
@@ -235,18 +241,20 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         }
         
         public Data getData() {
-            double kineticT = meterTemperature.getDataAsScalar();
-            double mvsq = kineticT* D * phase[0].atomCount();
-            double volume = phase[0].volume();
-            double pCurrent = phase[0].getDensity()*kineticT - IntegratorGear4NPH.this.forceSumNPH.w/(D*volume);
-            double hCurrent = 0.5*mvsq + IntegratorGear4NPH.this.forceSumNPH.u + pCurrent*volume;
+            Phase phase = integrator.getPhase()[0];
+            double kineticT = integrator.getMeterTemperature().getDataAsScalar();
+            double mvsq = kineticT* phase.space().D() * phase.atomCount();
+            double volume = phase.volume();
+            double pCurrent = phase.getDensity()*kineticT - integrator.forceSumNPH.w/(phase.space().D()*volume);
+            double hCurrent = 0.5*mvsq + integrator.forceSumNPH.u + pCurrent*volume;
             data.getData()[0] = kineticT;
             data.getData()[1] = pCurrent;
-            data.getData()[2] = hCurrent/phase[0].moleculeCount();
+            data.getData()[2] = hCurrent/phase.moleculeCount();
             return data;
         }
         
         private DataDoubleArray data;
+        private IntegratorGear4NPH integrator;
     }
         
     public final class ForceSumNPH extends PotentialCalculation {
