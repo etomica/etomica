@@ -15,7 +15,6 @@ import etomica.atom.AtomTypeWell;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.space.Boundary;
 import etomica.space.Vector;
-import etomica.space1d.Space1D;
 
     /* History of changes
      * 7/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.
@@ -28,6 +27,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
     private Font font = new Font("sansserif", Font.PLAIN, 10);
     //  private int annotationHeight = font.getFontMetrics().getHeight();
     private int annotationHeight = 12;
+    private int drawingHeight = 10;
     private int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
     private final static Color wellColor = new Color(185,185,185, 110);
     private final AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms();
@@ -81,19 +81,19 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
         g.setColor(displayPhase.getColorScheme().atomColor(a));
             
         baseXP = origin[0] + (int)(displayPhase.getToPixels()*r.x(0));
-        baseYP = origin[1] + Space1D.drawingHeight/2;
+        baseYP = origin[1] + drawingHeight/2;
         if(a.type instanceof AtomTypeSphere) {
             /* Draw the core of the atom */
             sigmaP = (int)(displayPhase.getToPixels()*((AtomTypeSphere)a.type).diameter(a));
             xP = baseXP - (sigmaP>>1);
-            yP = baseYP - (Space1D.drawingHeight >> 1);
-            g.fillRect(xP, yP, sigmaP, Space1D.drawingHeight);
+            yP = baseYP - (drawingHeight >> 1);
+            g.fillRect(xP, yP, sigmaP, drawingHeight);
             /* Draw the surrounding well, if any */
             if(drawWell) {
                 sigmaP = (int)(displayPhase.getToPixels()*((AtomTypeWell)a.type).wellDiameter());
                 xP = baseXP - (sigmaP>>1);
                 g.setColor(wellColor);
-                g.drawRect(xP, yP, sigmaP, Space1D.drawingHeight);
+                g.drawRect(xP, yP, sigmaP, drawingHeight);
             }
 //            a.type.electroType().draw(g, origin, displayPhase.getToPixels(), r);
         } else { // Not a sphere, wall, or one of their derivatives...

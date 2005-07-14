@@ -6,8 +6,6 @@ import etomica.space.Boundary;
 
 public class Space1D extends Space {
 
-    public static int drawingHeight = 10; //height for drawing to 2D image
-
     public final int D() {
         return D;
     }

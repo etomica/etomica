@@ -19,7 +19,6 @@ import etomica.Space;
 import etomica.atom.AtomFilter;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.space.Vector;
-import etomica.space1d.Space1D;
 import etomica.units.BaseUnit;
 
 /**
@@ -374,7 +373,7 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
         toPixels = scale*BaseUnit.Length.Sim.TO_PIXELS;
         //Determine length and width of drawn image, in pixels
         drawSize[0] = (int)(toPixels*getPhase().boundary().dimensions().x(0));
-        drawSize[1] = (phase.space().D==1) ? Space1D.drawingHeight: (int)(toPixels*getPhase().boundary().dimensions().x(1));
+        drawSize[1] = (phase.space().D==1) ? drawingHeight: (int)(toPixels*getPhase().boundary().dimensions().x(1));
         //Find origin for drawing action
         centralOrigin[0] = (int)(getScale()*originShift[0]) + computeOrigin(align[0],drawSize[0],w);
         centralOrigin[1] = (int)(getScale()*originShift[1]) + computeOrigin(align[1],drawSize[1],h);
@@ -396,6 +395,8 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
     * @see #paint
     */
     private int imageShells = 0;
+    
+    private int drawingHeight = 10;
      
     public void doUpdate() {}
     public void repaint() {if(!DefaultGraphic.DISPLAY_USE_OPENGL) canvas.repaint();}

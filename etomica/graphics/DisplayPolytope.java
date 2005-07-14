@@ -40,6 +40,7 @@ public class DisplayPolytope extends Display implements Action, EtomicaElement {
     public static final int BOTTOM = +1;
     public static boolean _3dEnabled;
     private final int D = 2;
+    private int drawingHeight = 10;
             
     public DisplayCanvasInterface canvas;  //do not instantiate here; instead must be in graphic method
 
@@ -227,7 +228,7 @@ public class DisplayPolytope extends Display implements Action, EtomicaElement {
         toPixels = scale*BaseUnit.Length.Sim.TO_PIXELS;
         //Determine length and width of drawn image, in pixels
         drawSize[0] = (int)(toPixels*dimensions().x(0));
-        drawSize[1] = (polytope.getEmbeddedSpace().D==1) ? Space1D.drawingHeight: (int)(toPixels*dimensions().x(1));
+        drawSize[1] = (polytope.getEmbeddedSpace().D==1) ? drawingHeight: (int)(toPixels*dimensions().x(1));
         //Find origin for drawing action
         centralOrigin[0] = (int)(getScale()*originShift[0]) + computeOrigin(align[0],drawSize[0],w);
         centralOrigin[1] = (int)(getScale()*originShift[1]) + computeOrigin(align[1],drawSize[1],h);
