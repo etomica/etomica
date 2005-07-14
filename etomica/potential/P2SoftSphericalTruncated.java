@@ -96,19 +96,22 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
      * exceeding the truncation radius.
      */
     public Potential0Lrc makeLrcPotential(AtomType[] types) {
-        return new P0Lrc(space, types);
+        return new P0Lrc(space, potential, this, types);
     }
     
     /**
      * Inner class that implements the long-range correction for this truncation scheme.
      */
-    private class P0Lrc extends Potential0Lrc {
+    private static class P0Lrc extends Potential0Lrc {
         
         private final double A;
         private final int D;
+        private P2SoftSphericalTruncated potential;
         
-        public P0Lrc(Space space, AtomType[] types) {
-            super(space, types, potential);
+        public P0Lrc(Space space, Potential2SoftSpherical truncatedPotential, 
+                P2SoftSphericalTruncated potential, AtomType[] types) {
+            super(space, types, truncatedPotential);
+            this.potential = potential;
             A = space.sphereArea(1.0);  //multiplier for differential surface element
             D = space.D();              //spatial dimension
         }
@@ -130,7 +133,8 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
          * @param pairDensity average pairs-per-volume affected by the potential.
          */
         public double uCorrection(double pairDensity) {
-            double integral = potential.integral(rCutoff);
+            double rCutoff = potential.getRange();
+            double integral = ((Potential2SoftSpherical)truncatedPotential).integral(rCutoff);
             return pairDensity*integral;
         }
         
@@ -139,10 +143,12 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
          * r du/dr using integral of u.
          * @param pairDensity average pairs-per-volume affected by the potential.
          */
-            //not checked carefully
+        //not checked carefully
         public double duCorrection(double pairDensity) {
-            double integral = potential.integral(rCutoff);
-            integral = A*space.powerD(rCutoff)*potential.u(r2Cutoff) - D*integral;//need potential to be spherical to apply here
+            double rCutoff = potential.getRange();
+            double integral = ((Potential2SoftSpherical)truncatedPotential).integral(rCutoff);
+            //need potential to be spherical to apply here
+            integral = A*space.powerD(rCutoff)*((Potential2SoftSpherical)truncatedPotential).u(rCutoff*rCutoff) - D*integral;
             return pairDensity*integral;
         }
 
