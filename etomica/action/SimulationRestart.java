@@ -2,10 +2,14 @@ package etomica.action;
 
 import java.util.Iterator;
 
+import etomica.Configuration;
+import etomica.ConfigurationLattice;
+import etomica.ConfigurationSequential;
 import etomica.Integrator;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.data.DataAccumulator;
+import etomica.lattice.LatticeCubicFcc;
 
 /**
  * Action that invokes reset method of all registered simulation elements,
@@ -21,6 +25,12 @@ public final class SimulationRestart extends SimulationActionAdapter {
     public SimulationRestart(Simulation sim) {
         super("Reset");
         setSimulation(sim);
+        if (sim.space().D() == 2) {
+            setConfiguration(new ConfigurationSequential(sim.space()));
+        }
+        else {
+            setConfiguration(new ConfigurationLattice(new LatticeCubicFcc()));
+        }
     }
         
     /**
@@ -29,8 +39,9 @@ public final class SimulationRestart extends SimulationActionAdapter {
     public void actionPerformed() {
 
         for(Iterator iter=simulation.getPhaseList().iterator(); iter.hasNext(); ) {
-            Phase phase = (Phase)iter.next();
-            phase.reset();
+            if (configuration != null) {
+                configuration.initializeCoordinates((Phase)iter.next());
+            }
         }
         
         for(Iterator iter=simulation.getIntegratorList().iterator(); iter.hasNext(); ) {
@@ -44,5 +55,18 @@ public final class SimulationRestart extends SimulationActionAdapter {
         }
     }
     
+    private Configuration configuration;
+    /**
+     * @return Returns the configuration.
+     */
+    public Configuration getConfiguration() {
+        return configuration;
+    }
+    /**
+     * @param configuration The configuration to set.
+     */
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
+    }
 }
         

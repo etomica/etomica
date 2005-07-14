@@ -86,7 +86,7 @@ public class ConfigurationZincblende extends Configuration {
         speciesSpheres1.setNMolecules(32);
         etomica.graphics.ColorSchemeByType.setColor(speciesSpheres0,new java.awt.Color(0,255,0));
         etomica.graphics.ColorSchemeByType.setColor(speciesSpheres1, java.awt.Color.red);
-        phase.setConfiguration(new ConfigurationZincblende(space));
+        new ConfigurationZincblende(space).initializeCoordinates(phase);
 
         etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(sim);
         simGraphic.makeAndDisplayFrame();

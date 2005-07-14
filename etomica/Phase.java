@@ -3,7 +3,6 @@ package etomica;
 import etomica.action.PhaseInflate;
 import etomica.atom.AtomLinker;
 import etomica.atom.iterator.AtomIteratorListTabbed;
-import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.RectangularLattice;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -57,14 +56,6 @@ import etomica.utility.NameMaker;
   
 public class Phase implements EtomicaElement, java.io.Serializable {
         
-    private Boundary boundary;
-    private SpeciesMaster speciesMaster;
-    private boolean lrcEnabled = true;
-    private String name;
-    protected final Space space;
-    private PhaseCellManager cellManager;
-    public Configuration configuration;
-    
     /**
      * Constructs phase with default rectangular periodic boundary.
      */
@@ -76,12 +67,6 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         setName(NameMaker.makeName(this.getClass()));
 
         setBoundary(new BoundaryRectangularPeriodic(space));
-
-        if(space.D() < 3) 
-            setConfiguration(new ConfigurationSequential(space));  //default configuration
-        else
-            setConfiguration(new ConfigurationLattice(new LatticeCubicFcc()));
-
     }//end of constructor
 
     public void setCellManager(PhaseCellManager manager) {
@@ -204,17 +189,6 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         boundary = b;
      }
      
-     /**
-      * Resets phase by initializing coordinates according to current instance of configuration.
-      * Fires PhaseEvent of type RESET after completing action.
-      */
-     public void reset() {
-         Configuration c = getConfiguration();
-         if (c != null) {
-             c.initializeCoordinates(this);
-         }
-     }
-
     /**
      * Returns the current boundary instance.
      * 
@@ -263,15 +237,6 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     
     public int atomCount() {return speciesMaster.node.leafAtomCount();}
         
-    public void setConfiguration(Configuration c) {
-        configuration = c;
-        if (c != null) {
-            c.initializeCoordinates(this);
-        }
-    }
-    
-    public Configuration getConfiguration() {return configuration;}
-    
     /**
      * Adds the given molecule to this phase.
      * @param molecule the molecule to be added
@@ -303,5 +268,12 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         return speciesMaster;
     }
 
+    private Boundary boundary;
+    private SpeciesMaster speciesMaster;
+    private boolean lrcEnabled = true;
+    private String name;
+    protected final Space space;
+    private PhaseCellManager cellManager;
+    
 } //end of Phase
         

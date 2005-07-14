@@ -226,7 +226,7 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
 //        CubicLattice lattice = new LatticeCubicSimple();
 		ConfigurationLattice configuration = new ConfigurationLattice(lattice);
 //        phase.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));
-		phase.setConfiguration(configuration);
+		configuration.initializeCoordinates(phase);
 //		etomica.graphics.DisplayPhase display = new etomica.graphics.DisplayPhase(phase);
 		
         etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(sim);

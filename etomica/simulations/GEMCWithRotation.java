@@ -1,4 +1,6 @@
 package etomica.simulations;
+import etomica.Configuration;
+import etomica.ConfigurationSequential;
 import etomica.Default;
 import etomica.Phase;
 import etomica.PotentialMaster;
@@ -41,7 +43,8 @@ public class GEMCWithRotation extends Simulation {
 	    species = new SpeciesSpheresRotating(this);
         species.setNMolecules(200);
 
-	    phase1 = new Phase(this);	    
+	    phase1 = new Phase(this);
+        
 	    MCMoveRotate mcRotate1 = new MCMoveRotate(potentialMaster, space);
 	    mcRotate1.setPhase(new Phase[] {phase1});
         integrator.addMCMove(mcRotate1);
@@ -52,6 +55,16 @@ public class GEMCWithRotation extends Simulation {
 	    mcRotate2.setPhase(new Phase[] {phase2});
         integrator.addMCMove(mcRotate2);
 
+        Configuration config;
+        if (space.D() == 2) {
+            config = new ConfigurationSequential(space);
+        }
+        else {
+            config = new ConfigurationSequential(space);
+        }
+        config.initializeCoordinates(phase1);
+        config.initializeCoordinates(phase2);
+            
         integrator.setPhase(new Phase[] {phase1, phase2});
         
         MeterDensity meterDensity = new MeterDensity();

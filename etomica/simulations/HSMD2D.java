@@ -1,5 +1,6 @@
 package etomica.simulations;
 import etomica.AtomType;
+import etomica.ConfigurationSequential;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
@@ -91,6 +92,7 @@ public class HSMD2D extends Simulation {
 //		elementCoordinator.go();
         //explicit implementation of elementCoordinator activities
         phase = new Phase(this);
+        new ConfigurationSequential(space).initializeCoordinates(phase);
         integrator.addPhase(phase);
     }
     

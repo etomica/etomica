@@ -1,4 +1,5 @@
 package etomica.simulations;
+import etomica.ConfigurationSequential;
 import etomica.Controller;
 import etomica.Phase;
 import etomica.Simulation;
@@ -38,6 +39,7 @@ public class HsMc2d extends Simulation {
         species = new SpeciesSpheresMono(this);
         species2 = new SpeciesSpheresMono(this);
 	    phase = new Phase(this);
+        new ConfigurationSequential(space).initializeCoordinates(phase);
 	    potential = new P2HardSphere(space);
         potentialMaster.setSpecies(potential, new Species[] {species, species});
         potentialMaster.setSpecies(potential, new Species[] {species, species2});

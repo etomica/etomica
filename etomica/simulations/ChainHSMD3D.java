@@ -3,6 +3,7 @@
 package etomica.simulations;
 
 import etomica.AtomType;
+import etomica.ConfigurationLattice;
 import etomica.ConformationLinear;
 import etomica.Default;
 import etomica.Phase;
@@ -14,6 +15,7 @@ import etomica.SpeciesSpheres;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
 import etomica.integrator.IntegratorHard;
+import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.PotentialMasterNbr;
@@ -60,6 +62,7 @@ public class ChainHSMD3D extends Simulation {
         ((ConformationLinear)((AtomFactoryHomo)species.getFactory()).getConformation()).setAngle(1,0.5);
         
         phase = new Phase(this);
+        new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);
         
         P1BondedHardSpheres p1Intra = new P1BondedHardSpheres(space);
         potentialMaster.setSpecies(p1Intra,new Species[]{species});
