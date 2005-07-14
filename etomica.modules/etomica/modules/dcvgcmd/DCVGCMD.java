@@ -68,7 +68,7 @@ public class DCVGCMD extends Simulation {
 
     private DCVGCMD(Space space) {
         //Instantiate classes
-        super(space, new PotentialMasterHybrid(space));
+        super(space, true, new PotentialMasterHybrid(space));
         Default.ATOM_MASS = 40.;
         Default.ATOM_SIZE = 3.0;
         Default.POTENTIAL_WELL = 119.8;
