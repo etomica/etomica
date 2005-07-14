@@ -154,5 +154,4 @@ public class PrimitiveMonoclinic extends Primitive implements Primitive3D {
     
     public String toString() {return "Monoclinic";}
 
-}//end of PrimitiveOrthorhombic
-    
+}

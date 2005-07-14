@@ -12,8 +12,8 @@ import etomica.space.Vector;
 public class PrimitiveTriclinic extends Primitive implements Primitive3D {
     
     private double a = 1.0, b = 1.0, c = 1.0;
-    private double alpha = 0.5*Math.PI, sinAlpha = Math.sin(alpha), cosAlpha = Math.cos(alpha);
-    private double beta = 0.5*Math.PI, sinBeta = Math.sin(beta), cosBeta = Math.cos(beta);
+    private double alpha = 0.5*Math.PI, cosAlpha = Math.cos(alpha);
+    private double beta = 0.5*Math.PI, cosBeta = Math.cos(beta);
     private double gamma = 0.5*Math.PI, sinGamma = Math.sin(gamma), cosGamma = Math.cos(gamma);
     private boolean isReciprocal = false;
     
@@ -110,7 +110,6 @@ public class PrimitiveTriclinic extends Primitive implements Primitive3D {
         alpha = t;
         angle[0] = alpha;
         cosAlpha = Math.cos(alpha);
-        sinAlpha = Math.sin(alpha);
         setC(c);
     }
     public double getAlpha() {return alpha;}
@@ -122,7 +121,6 @@ public class PrimitiveTriclinic extends Primitive implements Primitive3D {
         beta = t;
         angle[1] = beta;
         cosBeta = Math.cos(beta);
-        sinBeta = Math.sin(beta);
         setC(c);
     }
     public double getBeta() {return beta;}
@@ -188,5 +186,4 @@ public class PrimitiveTriclinic extends Primitive implements Primitive3D {
     
     public String toString() {return "Triclinic";}
 
-}//end of PrimitiveOrthorhombic
-    
+}
