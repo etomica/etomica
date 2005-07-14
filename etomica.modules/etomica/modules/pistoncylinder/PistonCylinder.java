@@ -42,7 +42,7 @@ public class PistonCylinder extends Simulation {
     public double lambda;
 
     public PistonCylinder(int D) {
-        super(Space.makeSpace(D));
+        super(Space.getInstance(D));
         lambda = 1.5;
         controller = getController();
         Default.ATOM_MASS = 16;

@@ -263,7 +263,7 @@ public class ConfigurationLatticeTube extends Configuration implements Atom.Agen
 
     
 	public static void main(String[] args) {
-        Simulation sim = new Simulation(Space3D.INSTANCE);
+        Simulation sim = new Simulation(Space3D.getInstance());
 		Default.ATOM_SIZE = 5.0;
 		Phase phase = new Phase(sim);
 		SpeciesSpheresMono species = new SpeciesSpheresMono(sim);

@@ -63,7 +63,7 @@ public class DCVGCMD extends Simulation {
     
     //Constructor
     public DCVGCMD() {
-        this(new Space3D());
+        this(Space3D.getInstance());
     }
 
     private DCVGCMD(Space space) {

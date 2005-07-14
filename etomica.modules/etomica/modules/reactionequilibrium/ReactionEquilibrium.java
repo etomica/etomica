@@ -35,7 +35,7 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
 	public P2SquareWellBonded BBbonded;
 	public MeterDimerFraction meterDimerFraction;
 	public ReactionEquilibrium() {
-		super(new Space2D());
+		super(Space2D.getInstance());
         controller1 = getController();
         idx = Atom.requestAgentIndex(this);
 
