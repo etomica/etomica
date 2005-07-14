@@ -2,6 +2,7 @@
 
 package etomica.simulations;
 
+import etomica.ConfigurationLattice;
 import etomica.Default;
 import etomica.Phase;
 import etomica.PotentialMaster;
@@ -12,6 +13,7 @@ import etomica.SpeciesSpheresMono;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.integrator.IntegratorHard;
+import etomica.lattice.LatticeCubicFcc;
 import etomica.potential.P2HardSphere;
 import etomica.space3d.Space3D;
 
@@ -50,6 +52,7 @@ public class HSMD3DNoNbr extends Simulation {
 //        phase.setBoundary(new BoundaryTruncatedOctahedron(space));
         integrator.addPhase(phase);
         integrator.addListener(new PhaseImposePbc(phase));
+        new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);
         
         //ColorSchemeByType.setColor(speciesSpheres0, java.awt.Color.blue);
 

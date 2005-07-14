@@ -25,7 +25,7 @@ public class PhaseCluster extends Phase {
         // the coordinates are initialized
         ConfigurationCluster config = new ConfigurationCluster(sim.space);
         config.setPhase(this);
-        setConfiguration(config);
+        config.initializeCoordinates(this);
 	}
 	
     /**

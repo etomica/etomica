@@ -1,4 +1,5 @@
 package etomica.simulations;
+import etomica.ConfigurationSequential;
 import etomica.Controller;
 import etomica.Default;
 import etomica.Phase;
@@ -39,6 +40,7 @@ public class LjMd2D extends Simulation {
         species = new SpeciesSpheresMono(this);
         species.setNMolecules(50);
         phase = new Phase(this);
+        new ConfigurationSequential(space).initializeCoordinates(phase);
         potential = new P2LennardJones(space);
         this.potentialMaster.setSpecies(potential,new Species[]{species,species});
         

@@ -20,6 +20,10 @@ public abstract class Boundary implements NearestImageTransformer,
         this.shape = shape;
     }
     
+    public Space getSpace() {
+        return space;
+    }
+    
     public Polytope getShape() {
         return shape;
     }

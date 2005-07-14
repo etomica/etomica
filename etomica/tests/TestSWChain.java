@@ -99,7 +99,7 @@ public class TestSWChain extends Simulation {
         phase = new Phase(this);
 
         integrator.addPhase(phase);
-        phase.setConfiguration(new ConfigurationFile(space,"SWChain"+Integer.toString(numMolecules)));
+        new ConfigurationFile(space,"SWChain"+Integer.toString(numMolecules)).initializeCoordinates(phase);
     }
     
     public static void main(String[] args) {

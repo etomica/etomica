@@ -3,6 +3,7 @@
 package etomica.simulations;
 
 import etomica.AtomType;
+import etomica.ConfigurationLattice;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
@@ -11,6 +12,7 @@ import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.integrator.IntegratorHard;
+import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.NeighborListManager;
@@ -69,6 +71,7 @@ public class HSMD3D extends Simulation {
         nbrManager.addCriterion(criterion,new AtomType[]{species.getFactory().getType()});
 
         phase = new Phase(this);
+        new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);
         integrator.addPhase(phase);
  //       integrator.addIntervalListener(new PhaseImposePbc(phase));
         

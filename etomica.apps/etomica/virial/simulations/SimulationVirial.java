@@ -80,7 +80,7 @@ public class SimulationVirial extends Simulation {
 		
         ConfigurationCluster configuration = new ConfigurationCluster(space);
         configuration.setPhase(phase);
-        phase.setConfiguration(configuration);
+        configuration.initializeCoordinates(phase);
 
         allValueClusters = new ClusterAbstract[targetClusters.length+1];
         allValueClusters[0] = refCluster;
