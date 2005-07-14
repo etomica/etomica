@@ -39,12 +39,6 @@ public final class Space1D extends Space {
      */
     public double rootD(double a) {return a;}
 
-    public static final Vector1D ORIGIN = new Vector1D();
-
-    public final etomica.space.Vector origin() {
-        return ORIGIN;
-    }
-
     public double sphereVolume(double r) {
         return 2.0 * r;
     } //volume of a sphere of radius r

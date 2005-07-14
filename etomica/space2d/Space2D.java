@@ -8,12 +8,6 @@ import etomica.space.Boundary;
 
 public final class Space2D extends Space {
 
-    public static final Vector2D ORIGIN = new Vector2D();
-
-    public final etomica.space.Vector origin() {
-        return ORIGIN;
-    }
-
     /**
      * Private constructor for singleton.
      */
