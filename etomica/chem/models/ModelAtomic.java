@@ -15,6 +15,7 @@ import etomica.atom.AtomTypeSphere;
 import etomica.chem.Electrostatic;
 import etomica.chem.Element;
 import etomica.chem.Model;
+import etomica.space.CoordinateFactorySphere;
 
 /**
  * @author zhaofang
@@ -45,7 +46,7 @@ public abstract class ModelAtomic extends Model {
 	public AtomFactory makeAtomFactory(Simulation sim) {
         AtomSequencerFactory seqFactory = doNeighborIteration() ? sim.potentialMaster.sequencerFactory()
                  : AtomLinker.FACTORY;
-		return new AtomFactoryMono(sim.space,new AtomTypeSphere(Species.makeAgentType(sim)),seqFactory);
+		return new AtomFactoryMono(new CoordinateFactorySphere(sim.space),new AtomTypeSphere(Species.makeAgentType(sim)),seqFactory);
 	}
 	/**
 	 * Returns the electrostatic.
