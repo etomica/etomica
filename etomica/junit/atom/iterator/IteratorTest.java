@@ -164,6 +164,15 @@ public class IteratorTest extends TestCase {
         }
 
         print("Just tested nBody method");
+        
+//        if(iterator.nBody() == 2) {
+//            iterator.reset();
+//            while(iterator.hasNext()) {
+//                AtomSet pair = iterator.next();
+//                System.out.println(pair.getAtom(0).node.index() + " " + pair.getAtom(1).node.index());
+//                assertTrue(pair.getAtom(0).node.index() < pair.getAtom(1).node.index());
+//            }
+//        }
 
         return lister[0].list;
     }
