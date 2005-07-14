@@ -35,6 +35,7 @@ public class P2HardSphere extends Potential2HardSpherical {
    protected double lastCollisionVirialr2 = 0.0;
    protected final Vector dr;
    protected final Tensor lastCollisionVirialTensor;
+   protected final CoordinatePairKinetic cPair;
     
     public P2HardSphere(Space space) {
         this(space, Default.ATOM_SIZE);
@@ -44,6 +45,7 @@ public class P2HardSphere extends Potential2HardSpherical {
         setCollisionDiameter(d);
         lastCollisionVirialTensor = space.makeTensor();
         dr = space.makeVector();
+        cPair = (CoordinatePairKinetic)coordinatePair;
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -59,7 +61,7 @@ public class P2HardSphere extends Potential2HardSpherical {
      * Time to collision of pair, assuming free-flight kinematics
      */
     public double collisionTime(AtomSet pair, double falseTime) {
-        Vector dv = ((CoordinatePairKinetic)cPair).resetV((AtomPair)pair);
+        Vector dv = cPair.resetV((AtomPair)pair);
         dr.Ev1Pa1Tv2(cPair.reset(),falseTime,dv);
         double bij = dr.dot(dv);
         double time = Double.POSITIVE_INFINITY;
@@ -85,7 +87,7 @@ public class P2HardSphere extends Potential2HardSpherical {
     public void bump(AtomSet atoms, double falseTime) {
         AtomPair pair = (AtomPair)atoms;
         dr.E(cPair.reset(pair));
-        Vector dv = ((CoordinatePairKinetic)cPair).resetV();
+        Vector dv = cPair.resetV();
         dr.PEa1Tv1(falseTime,dv);
         double r2 = dr.squared();
         double bij = dr.dot(dv);

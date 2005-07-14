@@ -2,10 +2,12 @@ package etomica.chem.models.water;
 
 import etomica.Atom;
 import etomica.AtomSet;
+import etomica.Phase;
 import etomica.Space;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
 import etomica.space.Boundary;
+import etomica.space.CoordinatePair;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 import etomica.units.Electron;
@@ -183,6 +185,7 @@ public class P2WaterTIP5P extends Potential2 implements Potential2Soft {
 	private double chargeCharge = Electron.UNIT.toSim(-0.241);
 	private double chargeChargeCharge, chargeChargeH, chargeHH;
 	private Vector3D work, shift;
+    protected CoordinatePair cPair;
 	/**
 	 * Returns the boundary.
 	 * @return Space3D.Boundary
@@ -198,5 +201,8 @@ public class P2WaterTIP5P extends Potential2 implements Potential2Soft {
 	public void setBoundary(Boundary boundary) {
 		this.boundary = boundary;
 	}
+    public void setPhase(Phase phase) {
+        cPair.setNearestImageTransformer(phase.boundary());
+    }
 
 }

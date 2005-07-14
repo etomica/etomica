@@ -3,11 +3,13 @@ package etomica.virial.simulations;
 
 import etomica.AtomPair;
 import etomica.AtomSet;
+import etomica.Phase;
 import etomica.Space;
 import etomica.exception.MethodNotImplementedException;
 import etomica.models.water.AtomTreeNodeWater;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
+import etomica.space.CoordinatePair;
 import etomica.space.Vector;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
@@ -124,9 +126,14 @@ public class P2WaterSPCE extends Potential2 implements Potential2Soft {
         chargeHH = chargeH * chargeH;
     }
 
+    public void setPhase(Phase phase) {
+        cPair.setNearestImageTransformer(phase.boundary());
+    }
+
     public double sigma , sigma2;
     public double epsilon, epsilon4;
     private double chargeH = Electron.UNIT.toSim(0.4238);
     private double chargeO = Electron.UNIT.toSim(-0.8476);
     private double chargeOO, chargeOH, chargeHH;
+    protected CoordinatePair cPair;
 }

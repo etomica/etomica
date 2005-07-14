@@ -2,8 +2,10 @@ package etomica.spin;
 
 import etomica.AtomPair;
 import etomica.AtomSet;
+import etomica.Phase;
 import etomica.Space;
 import etomica.potential.Potential2;
+import etomica.space.CoordinatePair;
 
 /**
  * Magnetic spin potential, with an energy defined by
@@ -70,6 +72,10 @@ public class P2Spin extends Potential2 {
      */
     public void setCoupling(double coupling) {
         this.coupling = coupling;
+    }
+
+    public void setPhase(Phase phase) {
+        //does nothing
     }
 
     private double coupling;

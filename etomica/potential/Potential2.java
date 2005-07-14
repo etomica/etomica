@@ -4,7 +4,6 @@ import etomica.Phase;
 import etomica.Potential;
 import etomica.Space;
 import etomica.nbr.NeighborCriterion;
-import etomica.space.CoordinatePair;
 
 /**
  * Potential acting on or within an atom, or between a pair of atoms or atom
@@ -16,27 +15,21 @@ import etomica.space.CoordinatePair;
 
 public abstract class Potential2 extends Potential {
 
-    //TODO push coordinate pair into subclasses
-    
     /**
-     * Constructs potential with given space a a default CoordinatePair
-     * for spherical, non-kinetic molecules.
+     * Constructs potential with given space a a default CoordinatePair for
+     * spherical, non-kinetic molecules.
      */
     public Potential2(Space space) {
-        this(space, new CoordinatePair(space));
+        super(2, space);
     }
 
     /**
-     * Constructs potential with given space and CoordinatePair.
+     * Informs the potential of the phase on which it acts. Typically this
+     * requires at least that it update the nearestImageTransformer of its
+     * coordinatePair (if it uses one), e.g.:
+     * cPair.setNearestImageTransformer(phase.boundary());
      */
-    public Potential2(Space space, CoordinatePair cPair) {
-        super(2, space);
-        this.cPair = cPair;
-    }
-
-    public void setPhase(Phase phase) {
-        cPair.setNearestImageTransformer(phase.boundary());
-    }
+    public abstract void setPhase(Phase phase);
 
     public void setCriterion(NeighborCriterion criterion) {
         this.criterion = criterion;
@@ -46,8 +39,6 @@ public abstract class Potential2 extends Potential {
         return criterion;
     }
 
-    protected final CoordinatePair cPair;
     protected NeighborCriterion criterion = NeighborCriterion.ALL;
-    
 }//end of Potential2
 

@@ -6,6 +6,7 @@ import etomica.AtomTypeLeaf;
 import etomica.Debug;
 import etomica.Default;
 import etomica.EtomicaInfo;
+import etomica.Phase;
 import etomica.Space;
 import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateKinetic;
@@ -33,6 +34,7 @@ public class P2HardBond extends Potential2 implements PotentialHard {
         setBondDelta(bondDelta);
         lastCollisionVirialTensor = space.makeTensor();
         dr = space.makeVector();
+        cPair = new CoordinatePairKinetic(space);
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -84,9 +86,9 @@ public class P2HardBond extends Potential2 implements PotentialHard {
     public final void bump(AtomSet atoms, double falseTime) {
         AtomPair pair = (AtomPair)atoms;
         cPair.reset(pair);
-        ((CoordinatePairKinetic)cPair).resetV();
+        cPair.resetV();
         dr.E(cPair.dr());
-        Vector dv = ((CoordinatePairKinetic)cPair).dv();
+        Vector dv = cPair.dv();
         dr.PEa1Tv1(falseTime,dv);
         double r2 = dr.squared();
         double bij = dr.dot(dv);
@@ -128,9 +130,9 @@ public class P2HardBond extends Potential2 implements PotentialHard {
      */
     public final double collisionTime(AtomSet pair, double falseTime) {
         cPair.reset((AtomPair)pair);
-        ((CoordinatePairKinetic)cPair).resetV();
+        cPair.resetV();
         dr.E(cPair.dr());
-        Vector dv = ((CoordinatePairKinetic)cPair).dv();
+        Vector dv = cPair.dv();
         dr.PEa1Tv1(falseTime,dv);
         double r2 = dr.squared();
         double bij = dr.dot(dv);
@@ -185,6 +187,10 @@ public class P2HardBond extends Potential2 implements PotentialHard {
     
     public double energyChange() {return 0.0;}
 
+    public void setPhase(Phase phase) {
+        cPair.setNearestImageTransformer(phase.boundary());
+    }
+
     private double minBondLengthSquared;
     private double maxBondLength, maxBondLengthSquared;
     private double bondLength;
@@ -193,6 +199,7 @@ public class P2HardBond extends Potential2 implements PotentialHard {
     private double lastCollisionVirialr2 = 0.0;
     private final Vector dr;
     private final Tensor lastCollisionVirialTensor;
+    private final CoordinatePairKinetic cPair;
 
 
 }

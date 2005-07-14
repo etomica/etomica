@@ -2,7 +2,9 @@ package etomica.potential;
 
 import etomica.AtomPair;
 import etomica.AtomSet;
+import etomica.Phase;
 import etomica.Space;
+import etomica.space.CoordinatePair;
 import etomica.space.Vector;
 
 /**
@@ -15,9 +17,21 @@ import etomica.space.Vector;
  
 public abstract class Potential2SoftSpherical extends Potential2 implements Potential2Soft, Potential2Spherical {
    
+    /**
+     * Makes potential with a non-kinetic CoordinatePair.
+     */
     public Potential2SoftSpherical(Space space) {
+        this(space, new CoordinatePair(space));
+    }
+
+    /**
+     * Makes potential with given Space and CoordinatePair.  Subclasses can access
+     * the CoordinatePair instance via the coordinatePair field of this class.
+     */
+    public Potential2SoftSpherical(Space space, CoordinatePair cPair) {
         super(space);
         work1 = space.makeVector();
+        coordinatePair = cPair;
     }
         
     /**
@@ -51,24 +65,24 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      * Energy of the pair as given by the u(double) method
      */
     public double energy(AtomSet pair) {
-    	cPair.reset((AtomPair)pair);
-        return u(cPair.r2());
+        coordinatePair.reset((AtomPair)pair);
+        return u(coordinatePair.r2());
     }
     
     /**
      * Virial of the pair as given by the du(double) method
      */
     public double virial(AtomSet pair) {
-    	cPair.reset((AtomPair)pair);
-        return du(cPair.r2());
+        coordinatePair.reset((AtomPair)pair);
+        return du(coordinatePair.r2());
     }
     
     /**
      * Hypervirial of the pair as given by the du(double) and d2u(double) methods
      */
     public double hyperVirial(AtomSet pair) {
-    	cPair.reset((AtomPair)pair);
-        double r2 = cPair.r2();
+        coordinatePair.reset((AtomPair)pair);
+        double r2 = coordinatePair.r2();
         return d2u(r2) + du(r2);
     }
     
@@ -76,9 +90,9 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      * Gradient of the pair potential as given by the du(double) method.
      */
     public Vector gradient(AtomSet pair) {
-    	cPair.reset((AtomPair)pair);
-        double r2 = cPair.r2();
-        work1.Ea1Tv1(du(r2)/r2,cPair.dr());
+        coordinatePair.reset((AtomPair)pair);
+        double r2 = coordinatePair.r2();
+        work1.Ea1Tv1(du(r2)/r2,coordinatePair.dr());
         return work1;
     }
     
@@ -96,6 +110,11 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
         return Double.POSITIVE_INFINITY;
     }
 
+    public void setPhase(Phase phase) {
+        coordinatePair.setNearestImageTransformer(phase.boundary());
+    }
+
     private final Vector work1;
+    protected CoordinatePair coordinatePair;
     
 }//end of Potential2SoftSpherical

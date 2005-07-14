@@ -5,7 +5,9 @@ import etomica.AtomSet;
 import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
+import etomica.Phase;
 import etomica.Space;
+import etomica.space.CoordinatePair;
 import etomica.space.Vector;
 
 /**
@@ -22,6 +24,7 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
   private double epsilon;
   private double constant;
   private final Vector force;
+protected CoordinatePair cPair;
 
   public P2TriangleWell(Space space) {
     this(space,Default.ATOM_SIZE, Default.POTENTIAL_CUTOFF_FACTOR, Default.POTENTIAL_WELL);
@@ -106,6 +109,10 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
     }
     public final etomica.units.Dimension getEpsilonDimension() {
         return etomica.units.Dimension.ENERGY;
+    }
+
+    public void setPhase(Phase phase) {
+        cPair.setNearestImageTransformer(phase.boundary());
     }
 }
 

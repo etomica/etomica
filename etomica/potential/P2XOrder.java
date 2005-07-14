@@ -3,7 +3,9 @@ package etomica.potential;
 import etomica.AtomPair;
 import etomica.AtomSet;
 import etomica.EtomicaInfo;
+import etomica.Phase;
 import etomica.Space;
+import etomica.space.CoordinatePair;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 
@@ -19,6 +21,7 @@ import etomica.space.Vector;
 public class P2XOrder extends Potential2 implements PotentialHard {
     
    protected final Vector dr;
+protected CoordinatePair cPair;
     
     public P2XOrder(Space space) {
         super(space);
@@ -72,6 +75,10 @@ public class P2XOrder extends Potential2 implements PotentialHard {
      */
     public double getRange() {
         return Double.POSITIVE_INFINITY;
+    }
+
+    public void setPhase(Phase phase) {
+        cPair.setNearestImageTransformer(phase.boundary());
     }
     
 }//end of P2XOrder

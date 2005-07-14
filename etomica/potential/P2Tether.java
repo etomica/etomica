@@ -21,10 +21,11 @@ import etomica.units.Dimension;
 public class P2Tether extends Potential2HardSpherical {
 
     public P2Tether(Space space) {
-        super(space);
+        super(space, new CoordinatePairKinetic(space));
         setTetherLength(0.75*Default.ATOM_SIZE);
         lastCollisionVirialTensor = space.makeTensor();
         dr = space.makeVector();
+        cPair = (CoordinatePairKinetic)coordinatePair;
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -51,9 +52,9 @@ public class P2Tether extends Potential2HardSpherical {
     public final void bump(AtomSet atoms, double falseTime) {
         AtomPair pair = (AtomPair)atoms;
         cPair.reset(pair);
-        ((CoordinatePairKinetic)cPair).resetV();
+        cPair.resetV();
         dr.E(cPair.dr());
-        Vector dv = ((CoordinatePairKinetic)cPair).dv();
+        Vector dv = cPair.dv();
         dr.PEa1Tv1(falseTime,dv);
         double r2 = dr.squared();
         double bij = dr.dot(dv);
@@ -92,9 +93,9 @@ public class P2Tether extends Potential2HardSpherical {
      */
     public final double collisionTime(AtomSet pair, double falseTime) {
         cPair.reset((AtomPair)pair);
-        ((CoordinatePairKinetic)cPair).resetV();
+        cPair.resetV();
         dr.E(cPair.dr());
-        Vector dv = ((CoordinatePairKinetic)cPair).dv();
+        Vector dv = cPair.dv();
         dr.Ea1Tv1(falseTime,dv);
         double r2 = dr.squared();
         double bij = dr.dot(dv);
@@ -118,6 +119,7 @@ public class P2Tether extends Potential2HardSpherical {
     private double lastCollisionVirialr2 = 0.0;
     private final Vector dr;
     private final Tensor lastCollisionVirialTensor;
+    private final CoordinatePairKinetic cPair;
    
 }//end of P2Tether
   

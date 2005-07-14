@@ -13,6 +13,7 @@ import etomica.chem.models.*;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialTruncation;
+import etomica.space.CoordinatePair;
 import etomica.space.Vector;
 import etomica.space3d.Boundary;
 import etomica.space3d.Space3D;
@@ -168,6 +169,7 @@ public class Abstract3Site extends ModelMolecular {
 		private double chargeO;
 		private double chargeOO, chargeOH, chargeHH;
 		private Vector dr, shift;
+        protected CoordinatePair cPair;
 		/**
 		 * Returns the boundary.
 		 * @return Space3D.Boundary
@@ -183,6 +185,9 @@ public class Abstract3Site extends ModelMolecular {
 		public void setBoundary(Boundary boundary) {
 			this.boundary = boundary;
 		}
+        public void setPhase(Phase phase) {
+            cPair.setNearestImageTransformer(phase.boundary());
+        }
 	}//end of PotentialWW
 	
 	public static class ConfigurationWater extends etomica.Configuration {

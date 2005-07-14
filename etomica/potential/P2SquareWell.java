@@ -29,18 +29,20 @@ public class P2SquareWell extends Potential2HardSpherical {
     protected Tensor lastCollisionVirialTensor;
     protected double lastEnergyChange;
     protected Vector dr;
+    protected final CoordinatePairKinetic cPair;
 
     public P2SquareWell(Space space) {
         this(space,Default.ATOM_SIZE, Default.POTENTIAL_CUTOFF_FACTOR, Default.POTENTIAL_WELL);
     }
 
     public P2SquareWell(Space space, double coreDiameter, double lambda, double epsilon) {
-        super(space);
+        super(space, new CoordinatePairKinetic(space));
         setCoreDiameter(coreDiameter);
         setLambda(lambda);
         setEpsilon(epsilon);
         dr = space.makeVector();
         lastCollisionVirialTensor = space.makeTensor();
+        cPair = (CoordinatePairKinetic)coordinatePair;
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -60,9 +62,9 @@ public class P2SquareWell extends Potential2HardSpherical {
     public void bump(AtomSet atoms, double falseTime) {
         AtomPair pair = (AtomPair)atoms;
         cPair.reset(pair);
-        ((CoordinatePairKinetic)cPair).resetV();
+        cPair.resetV();
         dr.E(cPair.dr());
-        Vector dv = ((CoordinatePairKinetic)cPair).dv();
+        Vector dv = cPair.dv();
         dr.PEa1Tv1(falseTime,dv);
         double r2 = dr.squared();
         double bij = dr.dot(dv);
@@ -136,9 +138,9 @@ public class P2SquareWell extends Potential2HardSpherical {
      */
     public double collisionTime(AtomSet pair, double falseTime) {
         cPair.reset((AtomPair)pair);
-        ((CoordinatePairKinetic)cPair).resetV();
+        cPair.resetV();
         dr.E(cPair.dr());
-        Vector dv = ((CoordinatePairKinetic)cPair).dv();
+        Vector dv = cPair.dv();
         dr.PEa1Tv1(falseTime,dv);
         double r2 = dr.squared();
         double bij = dr.dot(dv);

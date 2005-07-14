@@ -2,6 +2,7 @@ package etomica.potential;
 
 import etomica.AtomPair;
 import etomica.AtomSet;
+import etomica.Phase;
 import etomica.Space;
 import etomica.space.CoordinatePair;
 
@@ -12,12 +13,10 @@ import etomica.space.CoordinatePair;
 
 public abstract class Potential2HardSpherical extends Potential2 implements PotentialHard, Potential2Spherical {
    
-	public Potential2HardSpherical(Space space) {
-		super(space);
+	public Potential2HardSpherical(Space space, CoordinatePair cPair) {
+	    super(space);
+        this.coordinatePair = cPair;
 	}
-    public Potential2HardSpherical(Space space, CoordinatePair cPair) {
-        super(space, cPair);
-    }
 	
 	/**
     * The pair energy u(r^2) with no truncation applied.
@@ -30,8 +29,14 @@ public abstract class Potential2HardSpherical extends Potential2 implements Pote
      * of any PotentialTruncation that may be defined for the potential.
      */
     public double energy(AtomSet pair) {
-    	cPair.reset((AtomPair)pair);
-    	return u(cPair.r2());
+    	    coordinatePair.reset((AtomPair)pair);
+    	    return u(coordinatePair.r2());
     }
+    
+    public void setPhase(Phase phase) {
+        coordinatePair.setNearestImageTransformer(phase.boundary());
+    }
+
+    protected final CoordinatePair coordinatePair;
     
 }

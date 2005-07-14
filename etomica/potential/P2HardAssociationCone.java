@@ -4,7 +4,9 @@ import etomica.AtomSet;
 import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
+import etomica.Phase;
 import etomica.Space;
+import etomica.space.CoordinatePair;
 import etomica.space.ICoordinateAngular;
 import etomica.space.Vector;
 import etomica.units.Dimension;
@@ -24,11 +26,13 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
     private Vector e1;
     private Vector e2;
     private double theta, ec2;
+    private final CoordinatePair cPair;
     
     public P2HardAssociationCone(Space space) {
         super(space);
         e1 = space.makeVector();
         e2 = space.makeVector();
+        cPair = new CoordinatePair(space);
 
         setSigma(Default.ATOM_SIZE);
         setEpsilon(Default.POTENTIAL_WELL);
@@ -56,7 +60,7 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
      * Returns the pair potential energy.
      */
     public double energy(AtomSet pair) {
-    	cPair.reset((AtomPair)pair);
+    	    cPair.reset((AtomPair)pair);
         double eTot = 0.0;
         double r2 = cPair.r2();
                  
@@ -184,6 +188,10 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
         ec2   = ec2*ec2;
     }
     public Dimension getThetaDimension() {return Dimension.ANGLE;}
+
+    public void setPhase(Phase phase) {
+        cPair.setNearestImageTransformer(phase.boundary());
+    }
 
     /**
      * Demonstrates how this class is implemented.

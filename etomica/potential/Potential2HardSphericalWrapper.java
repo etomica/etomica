@@ -1,6 +1,7 @@
 package etomica.potential;
 
 import etomica.AtomSet;
+import etomica.Phase;
 import etomica.Space;
 import etomica.space.Tensor;
 
@@ -13,12 +14,17 @@ import etomica.space.Tensor;
 public class Potential2HardSphericalWrapper extends Potential2HardSpherical {
 
     public Potential2HardSphericalWrapper(Space space, Potential2HardSpherical potential) {
-        super(space);
+        super(space, potential.coordinatePair);
         setPotential(potential);
     }
 
     public void setPotential(Potential2HardSpherical potential) {
         wrappedPotential = potential;
+    }
+    
+    public void setPhase(Phase phase) {
+        if (wrappedPotential==null) throw new RuntimeException("can't set phase of null potential");;
+        wrappedPotential.setPhase(phase);
     }
     
     public double getRange() {
@@ -57,5 +63,4 @@ public class Potential2HardSphericalWrapper extends Potential2HardSpherical {
     
     private Potential2HardSpherical wrappedPotential;
 
-    
 }

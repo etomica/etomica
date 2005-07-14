@@ -48,8 +48,14 @@ public abstract class Potential extends EtomicaInfo {
     
     public abstract double energy(AtomSet atoms);
     
+    /**
+     * Informs the potential of the phase on which it acts.
+     */
     public abstract void setPhase(Phase phase);
-        
+    
+    /**
+     * The number of atoms on which the potential depends.
+     */
     public final int nBody() {return nBody;}
     
 

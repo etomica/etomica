@@ -6,10 +6,12 @@ package etomica.dpd;
 
 import etomica.Default;
 import etomica.EtomicaElement;
+import etomica.Phase;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
+import etomica.space.CoordinatePair;
 import etomica.space.Vector;
 
 /**
@@ -28,6 +30,7 @@ public class P2DPD extends Potential2 implements Potential2Soft, EtomicaElement 
 	double constR;      //temperature-dependent constant appearing in random force
 	Vector rHat, fDissipative, fConservative, fRandom, grad;
 	double bondStrength = 10.0;
+    protected CoordinatePair cPair;
 	
 	public String getVersion() {return "P2DPD:03.04.25/"+etomica.potential.VERSION;}
 	
@@ -221,5 +224,9 @@ public class P2DPD extends Potential2 implements Potential2Soft, EtomicaElement 
 	public void setBondStrength(double bondStrength) {
 		this.bondStrength = bondStrength;
 	}
+
+    public void setPhase(Phase phase) {
+        cPair.setNearestImageTransformer(phase.boundary());
+    }
 
 }//end class-P2DPD

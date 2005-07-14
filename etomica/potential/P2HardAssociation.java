@@ -4,8 +4,8 @@ import etomica.AtomPair;
 import etomica.AtomSet;
 import etomica.AtomTypeLeaf;
 import etomica.Default;
+import etomica.Phase;
 import etomica.Space;
-import etomica.space.CoordinatePair;
 import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Tensor;
@@ -28,7 +28,7 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
         setEpsilon(epsilon);
         setWellDiameter(wellDiameter);
         dr = space.makeVector();
-        cPair = new CoordinatePair(space);
+        cPair = new CoordinatePairKinetic(space);
         lastCollisionVirialTensor = space.makeTensor();
     }
     
@@ -39,9 +39,9 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
     public void bump(AtomSet pair, double falseTime) {
         double eps = 1e-6;
         cPair.reset((AtomPair)pair);
-        ((CoordinatePairKinetic)cPair).resetV();
+        cPair.resetV();
         dr.E(cPair.dr());
-        Vector dv = ((CoordinatePairKinetic)cPair).dv();
+        Vector dv = cPair.dv();
         dr.PEa1Tv1(falseTime,dv);
         double r2 = dr.squared();
         double bij = dr.dot(dv);
@@ -92,9 +92,9 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
     */
     public double collisionTime(AtomSet pair, double falseTime) {
         cPair.reset((AtomPair)pair);
-        ((CoordinatePairKinetic)cPair).resetV();
+        cPair.resetV();
         dr.E(cPair.dr());
-        Vector dv = ((CoordinatePairKinetic)cPair).dv();
+        Vector dv = cPair.dv();
         dr.Ea1Tv1(falseTime,dv);
         double r2 = dr.squared();
         double bij = dr.dot(dv);
@@ -160,12 +160,16 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
         epsilon = s;
     }
     
+    public void setPhase(Phase phase) {
+    cPair.setNearestImageTransformer(phase.boundary());
+}
+
     private double wellDiameter, wellDiameterSquared;
     private double epsilon;
     private double lastCollisionVirial, lastCollisionVirialr2;
     private final Tensor lastCollisionVirialTensor;
     private double lastEnergyChange;
     private final Vector dr;
-    private final CoordinatePair cPair;
+    private final CoordinatePairKinetic cPair;
     
 }//end of P2HardAssociation
