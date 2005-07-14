@@ -1,4 +1,5 @@
 package etomica.simulations;
+import etomica.ConfigurationSequential;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.Species;
@@ -52,6 +53,7 @@ public class HSMD2D_noNbr extends Simulation {
         species = new SpeciesSpheresMono(this);
         species.setNMolecules(64);
 	    phase = new Phase(this);
+        new ConfigurationSequential(space).initializeCoordinates(phase);
 	    P2HardSphere potential = new P2HardSphere(space);
 	    potentialMaster.setSpecies(potential,new Species[]{species,species});
         P1HardBoundary potentialBoundary = new P1HardBoundary(space);
