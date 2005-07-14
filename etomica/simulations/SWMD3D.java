@@ -67,8 +67,7 @@ public class SWMD3D extends Simulation {
 
     phase = new Phase(this);
     ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc());
-    phase.setConfiguration(configuration);
-
+    configuration.initializeCoordinates(phase);
     potential  = new etomica.potential.P2SquareWell(space);
     potential.setLambda(1.6);
 

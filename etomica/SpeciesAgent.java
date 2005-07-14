@@ -51,10 +51,6 @@ public final class SpeciesAgent extends Atom {
             if(n < 0) n = 0;
             for(int i=treeNode.childAtomCount(); i>n; i--) treeNode.childList.getLast().node.dispose();
         }
-        
-        //reconsider this
-        //node.parentPhase().configuration.initializeCoordinates(this);
-        node.parentPhase().reset();
     }
     
     public void makeMolecules() {
