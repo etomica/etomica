@@ -62,7 +62,7 @@ public abstract class AtomFactory implements java.io.Serializable {
      * Method used by subclasses to make the root atom of the group it is building.
      */
     protected Atom newParentAtom() {
-        Atom atom = new Atom(coordFactory, atomType, nodeFactory, sequencerFactory);
+        Atom atom = new Atom(coordFactory.makeCoordinate(), atomType, nodeFactory, sequencerFactory);
         return atom;
     }
 

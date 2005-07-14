@@ -39,13 +39,13 @@ import etomica.utility.Arrays;
   */
 public class Atom implements AtomSet, Comparable, java.io.Serializable {
 
-    public Atom(CoordinateFactory coordFactory, AtomType type, 
+    public Atom(ICoordinate coord, AtomType type, 
                     AtomTreeNodeFactory nodeFactory,
                     AtomSequencerFactory seqFactory) {
-        this.type = type;//do this first
+        this.type = type;
+        this.coord = coord;
         seq = seqFactory.makeSequencer(this);
         node = nodeFactory.makeNode(this);
-        coord = coordFactory.makeCoordinate();
         node.setOrdinal(0,0); //-(++INSTANCE_COUNT));//default index; changed when added to parent after construction
         
         if(agentSource.length > 0) allatomAgents = new Object[agentSource.length];
@@ -60,7 +60,7 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      * depth is 0.
      */
     public Atom(Space space) {
-    	this(new CoordinateFactorySphere(space, false), new AtomTypeSphere(null), AtomTreeNodeLeaf.FACTORY, AtomLinker.FACTORY);                        
+    	this(new CoordinateFactorySphere(space, false).makeCoordinate(), new AtomTypeSphere(null), AtomTreeNodeLeaf.FACTORY, AtomLinker.FACTORY);                        
         node.setOrdinal(0,++INSTANCE_COUNT);//default index; changed when added to parent after construction
     }
     

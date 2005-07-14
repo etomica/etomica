@@ -1,6 +1,5 @@
 package etomica;
 import etomica.atom.AtomLinker;
-import etomica.space.CoordinateFactory;
 import etomica.units.Dimension;
 
 /**
@@ -14,7 +13,7 @@ import etomica.units.Dimension;
 public final class SpeciesAgent extends Atom {
 
     SpeciesAgent(AtomType type, Species species) {
-        super(CoordinateFactory.NULL, type, NODE_FACTORY,  AtomLinker.FACTORY);
+        super(null, type, NODE_FACTORY,  AtomLinker.FACTORY);
         type.setSpecies(species);
     }
         
