@@ -40,7 +40,7 @@ public class P2HardSphere extends Potential2HardSpherical {
         this(space, Default.ATOM_SIZE);
     }
     public P2HardSphere(Space space, double d) {
-        super(space);
+        super(space, new CoordinatePairKinetic(space));
         setCollisionDiameter(d);
         lastCollisionVirialTensor = space.makeTensor();
         dr = space.makeVector();

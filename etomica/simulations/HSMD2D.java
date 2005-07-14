@@ -35,7 +35,7 @@ public class HSMD2D extends Simulation {
     }
     
     public HSMD2D(Space2D space) {
-        super(space, new PotentialMasterNbr(space));
+        super(space, true, new PotentialMasterNbr(space));
 //        super(space, new PotentialMaster(space));//,IteratorFactoryCell.INSTANCE));
         Default.makeLJDefaults();
 //        Default.BOX_SIZE = 30.0;

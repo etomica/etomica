@@ -1,14 +1,8 @@
 package etomica;
 
-import etomica.atom.AtomTypeOrientedSphere;
 import etomica.space.Boundary;
-import etomica.space.Coordinate;
-import etomica.space.CoordinateAngular;
-import etomica.space.CoordinateAngularKinetic;
-import etomica.space.CoordinateKinetic;
 import etomica.space.CoordinatePair;
 import etomica.space.CoordinatePairKinetic;
-import etomica.space.ICoordinate;
 import etomica.space.Orientation;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -19,14 +13,6 @@ import etomica.space2d.Vector2D;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 
-/* History of changes
- * 09/01/02 (DAK) added accelerateTo method to Coordinate
- * 07/10/03 (DAK) added resetV method to CoordinatePair
- * 08/27/03 (DAK) added isZero method to Vector
- * 12/09/03 (DAK) added setRandomInSphere method in Vector
- * 01/22/04 (DAK) added (then removed) CoordinateGroup interface
- */
-
 public abstract class Space implements java.io.Serializable {
     
     public final int D;
@@ -36,7 +22,6 @@ public abstract class Space implements java.io.Serializable {
         if(d < 1 || d > 3) throw new IllegalArgumentException("Illegal dimension for space");
         D = d;
         rD = 1.0/D;
-        kinetic = true;
     }
     
     /**
@@ -74,27 +59,6 @@ public abstract class Space implements java.io.Serializable {
     public abstract Orientation makeOrientation();
     public abstract Tensor makeTensor();
     public abstract Tensor makeRotationTensor();
-
-    public ICoordinate makeCoordinate(Atom atom) {
-        if(atom.node instanceof AtomTreeNodeGroup) return null;
-        
-        //TODO need a better way to sniff out what needs an angular coordinate
-        boolean angular = atom.type instanceof AtomTypeOrientedSphere;
-        if(kinetic) {
-            if(angular) return new CoordinateAngularKinetic(this);
-            return new CoordinateKinetic(this);
-        }
-        if(angular) return new CoordinateAngular(this);
-        return new Coordinate(this);
-    }
-    
-    public CoordinatePair makeCoordinatePair() {
-        if(kinetic) {
-            return new CoordinatePairKinetic(this);
-        }
-        return new CoordinatePair(this);
-    }
-
     
     /**
      * Returns an array of dimension D, with each element equal to the given value.
@@ -167,17 +131,4 @@ public abstract class Space implements java.io.Serializable {
         return vectors;
     }
     
-    /**
-     * @return Returns the kinetic.
-     */
-    public boolean isKinetic() {
-        return kinetic;
-    }
-    /**
-     * @param kinetic The kinetic to set.
-     */
-    public void setKinetic(boolean kinetic) {
-        this.kinetic = kinetic;
-    }
-    private boolean kinetic;
 }//end of Space    

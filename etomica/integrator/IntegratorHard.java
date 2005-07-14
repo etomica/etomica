@@ -116,7 +116,7 @@ public class IntegratorHard extends IntegratorMD {
                 System.out.println("previous time: "+oldTime+" current time: "+collisionTimeStep);
                 System.out.println("collision for "+atoms+" potential "+colliderAgent.collisionPotential.getClass());
                 if (atoms instanceof AtomPair) {
-                    cPairDebug = potential.getSpace().makeCoordinatePair();
+                    cPairDebug = new CoordinatePairKinetic(potential.getSpace());
                     cPairDebug.setNearestImageTransformer(firstPhase.boundary());
                     cPairDebug.reset(pair);
                     ((CoordinatePairKinetic)cPairDebug).resetV();
@@ -134,7 +134,7 @@ public class IntegratorHard extends IntegratorMD {
             }
             if (Debug.ON && Debug.DEBUG_NOW && Debug.ATOM1 != null 
                   && Debug.ATOM2 != null && Debug.thisPhase(firstPhase)) {
-                cPairDebug = potential.getSpace().makeCoordinatePair();
+                cPairDebug = new CoordinatePairKinetic(potential.getSpace());
                 cPairDebug.setNearestImageTransformer(firstPhase.boundary());
                 cPairDebug.reset(Debug.ATOM1.coord,Debug.ATOM2.coord);
                 ((CoordinatePairKinetic)cPairDebug).resetV();

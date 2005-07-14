@@ -14,7 +14,7 @@ public class SpeciesWater extends Species implements EtomicaElement {
         this(sim, nM, Species.makeAgentType(sim));
     }
     private SpeciesWater(Simulation sim, int nM, AtomTypeGroup agentType) {
-       super(sim, new AtomFactoryWater(sim.space, agentType),
+       super(sim, new AtomFactoryWater(sim, agentType),
                agentType);
        factory.setSpecies(this);
        nMolecules = nM;

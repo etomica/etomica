@@ -39,7 +39,7 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
     
     private SpeciesSpheresMono(Simulation sim, AtomSequencerFactory seqFactory,
                                 AtomTypeGroup agentType) {
-        super(sim, new AtomFactoryMono(new CoordinateFactorySphere(sim.space), new AtomTypeSphere(agentType), seqFactory),
+        super(sim, new AtomFactoryMono(new CoordinateFactorySphere(sim), new AtomTypeSphere(agentType), seqFactory),
                 agentType);
         factory.setSpecies(this);
         atomType = (AtomTypeSphere)((AtomFactoryMono)factory).getType();

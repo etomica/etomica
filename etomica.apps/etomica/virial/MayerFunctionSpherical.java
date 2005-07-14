@@ -14,7 +14,7 @@ import etomica.space.CoordinatePair;
 public abstract class MayerFunctionSpherical implements MayerFunction, java.io.Serializable {
 
     public MayerFunctionSpherical(Space space) {
-        coordPair = space.makeCoordinatePair();
+        coordPair = new CoordinatePair(space);
     }
 
     /**

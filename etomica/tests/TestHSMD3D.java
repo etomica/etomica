@@ -35,7 +35,7 @@ public class TestHSMD3D extends Simulation {
 
     public TestHSMD3D(Space space, int numAtoms) {
         // use custom bit lengths to allow for more "molecules"
-        super(space, new PotentialMasterNbr(space), new int[] {1, 4, 4, 21, 1, 1});
+        super(space, true, new PotentialMasterNbr(space), new int[] {1, 4, 4, 21, 1, 1});
         
         double neighborRangeFac = 1.6;
         Default.makeLJDefaults();

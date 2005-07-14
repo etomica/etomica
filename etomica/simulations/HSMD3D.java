@@ -30,7 +30,7 @@ public class HSMD3D extends Simulation {
     }
     private HSMD3D(Space space) {
 //        super(space, new PotentialMaster(space));
-        super(space, new PotentialMasterNbr(space));
+        super(space, true, new PotentialMasterNbr(space));
 
         int numAtoms = 256;
         double neighborRangeFac = 1.6;

@@ -38,24 +38,29 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
     public final Space space;
     public final SpeciesRoot speciesRoot;
     
+    
+    /**
+     * Constructs a default 2D, dynamic simulation.
+     */
     public Simulation() {
         this(new Space2D());
     }
     
     /**
-     * Creates a new simulation using the given space, and sets the static
-     * instance field equal to the new instance.
+     * Creates a new simulation using the given space, with a default
+     * setting of isDynamic = true.
      */
     public Simulation(Space space) {
-    	this(space, new PotentialMaster(space));
+        this(space, true, new PotentialMaster(space));
     }
     
-    public Simulation(Space space, PotentialMaster potentialMaster) {
-        this(space,potentialMaster,Default.BIT_LENGTH);
+    public Simulation(Space space, boolean isDynamic, PotentialMaster potentialMaster) {
+        this(space, isDynamic, potentialMaster,Default.BIT_LENGTH);
     }
     
-    public Simulation(Space space, PotentialMaster potentialMaster, int[] bitLength) {
+    public Simulation(Space space, boolean isDynamic, PotentialMaster potentialMaster, int[] bitLength) {
         this.space = space;
+        this.dynamic = isDynamic;
         setName(NameMaker.makeName(this.getClass()));
 //        elementCoordinator = new Mediator(this);
         this.potentialMaster = potentialMaster;
@@ -204,9 +209,17 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
      */
     public String toString() {return getName();}
     
+    /**
+     * @return Returns a flag indicating whether the simulation involves molecular dynamics.
+     */
+    public boolean isDynamic() {
+        return dynamic;
+    }
+    
     public static final java.util.Random random = new java.util.Random();
 //    public static final java.util.Random random = new java.util.Random(1);
         
+     private final boolean dynamic;
      private Controller controller;     
      private final LinkedList dataAccumulatorList = new LinkedList();
      private final LinkedList phaseList = new LinkedList();

@@ -5,6 +5,7 @@ import etomica.AtomSet;
 import etomica.AtomTypeLeaf;
 import etomica.Default;
 import etomica.Space;
+import etomica.space.CoordinatePair;
 import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Tensor;
@@ -27,6 +28,7 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
         setEpsilon(epsilon);
         setWellDiameter(wellDiameter);
         dr = space.makeVector();
+        cPair = new CoordinatePair(space);
         lastCollisionVirialTensor = space.makeTensor();
     }
     
@@ -118,7 +120,7 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
    * Returns -epsilon if less than well diameter, or zero otherwise.
    */
     public double energy(AtomSet pair) {
-    	cPair.reset((AtomPair)pair);
+    	    cPair.reset((AtomPair)pair);
         return (cPair.r2() < wellDiameterSquared) ?  -epsilon : 0.0;
     }
     
@@ -164,5 +166,6 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
     private final Tensor lastCollisionVirialTensor;
     private double lastEnergyChange;
     private final Vector dr;
+    private final CoordinatePair cPair;
     
 }//end of P2HardAssociation

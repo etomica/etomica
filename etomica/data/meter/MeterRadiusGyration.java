@@ -13,22 +13,16 @@ import etomica.space.Vector;
 import etomica.units.Dimension;
 
 /**
- * Meter for tabulation of the atomic radial distribution function (RDF).
+ * Meter for tabulation of the radius of gyration of a set of chain molecules. 
  * 
  * @author David Kofke
  */
 public class MeterRadiusGyration extends DataSourceScalar implements Meter {
 
-    /**
-     * Creates meter with default to compute pair correlation for all leaf atoms
-     * in a phase.
-     * 
-     * @param parent
-     */
     public MeterRadiusGyration(Space space) {
         super("Radius of Gyration", Dimension.LENGTH);
         iterator = new AtomIteratorAllMolecules();
-        cPair = space.makeCoordinatePair();
+        cPair = new CoordinatePair(space);
         cm = space.makeVector();
         realPos = space.makeVector();
     }
@@ -40,7 +34,7 @@ public class MeterRadiusGyration extends DataSourceScalar implements Meter {
 
     /**
      * Mutator method for the iterator that generates the atom pairs used to
-     * tabulate the radial distribution function. By setting this iterator the
+     * tabulate the ROG. By setting this iterator the
      * meter can be configured to compute pair distribution for any set of atom
      * pairs. At construction the default is an instance of ApiLeafAtoms, which
      * generates pairs from all leaf atoms in the phase.
@@ -53,7 +47,7 @@ public class MeterRadiusGyration extends DataSourceScalar implements Meter {
 
     /**
      * Accessor method for the iterator that generates the atom pairs used to
-     * tabulate the radial distribution function.
+     * tabulate the ROG
      * 
      * @return
      */
@@ -61,9 +55,6 @@ public class MeterRadiusGyration extends DataSourceScalar implements Meter {
         return iterator;
     }
 
-    /**
-     * Computes RDF for the current configuration of the given phase.
-     */
     public double getDataAsScalar() {
         if (phase == null)
             throw new IllegalStateException(

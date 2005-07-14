@@ -1,49 +1,57 @@
 package etomica.space;
 
+import etomica.Simulation;
 import etomica.Space;
 
 /**
- * Constructs coordinates for atoms that have an orientation.
- * Can be configured to return kinetic or non-kinetic coordinates (kinetic
+ * Constructs coordinates for atoms that have an orientation. The Simulation
+ * instance given at construction provides a Space instance, which determines
+ * the spatial dimension of the coordinates (it makes the Vectors and
+ * Orientations that form the coordinates); the Simulation's isDynamic method
+ * specifies if the factory returns kinetic or non-kinetic coordinates (kinetic
  * coordinates can hold atom velocities and are needed for molecular dynamics
- * and similar simulations).  The Space instance given at construction determines
- * the spatial dimension of the coordinates; it makes the Vectors and Orientations 
- * that form the coordinates.
+ * and similar simulations).
  * 
  * @author David Kofke
  *  
  */
 
-
 //TODO provide means to set the type of angular coordinate
-
 /*
  * History Created on Jul 13, 2005 by kofke
  */
 public class CoordinateFactoryAngular implements CoordinateFactory {
 
     /**
-     * Makes factory with default value of isKinetic = true.
-     * 
-     * @param space
-     *            required by Coordinate constructors, and builds the vectors
-     *            used by the coordinates to hold positions and velocities.
+     * Makes factory using the space and isDynamic field of the given
+     * Simulation.
      */
-    public CoordinateFactoryAngular(Space space) {
-        this(space, true);
+    public CoordinateFactoryAngular(Simulation sim) {
+        this(sim.space, sim.isDynamic());
     }
 
+    /**
+     * @param space
+     *            required by Coordinate constructors, and builds the vectors
+     *            and orientations used by the coordinates to hold positions and
+     *            velocities.
+     * @param isKinetic
+     *            flag indicating whether coordinates should include fields for
+     *            linear and angular velocities in addition to positions and
+     *            orientations
+     */
     public CoordinateFactoryAngular(Space space, boolean isKinetic) {
         this.space = space;
         this.isKinetic = isKinetic;
     }
 
     /**
-     * Returns a new instance of CoordinateAngular or CoordinateAngularKinetic, according to
-     * the current value of isKinetic.
+     * Returns a new instance of CoordinateAngular or CoordinateAngularKinetic,
+     * according to the current value of isKinetic.
      */
     public ICoordinate makeCoordinate() {
-        return isKinetic ? new CoordinateAngularKinetic(space) : new CoordinateAngular(space);
+        return isKinetic ? new CoordinateAngularKinetic(space)
+                : new CoordinateAngular(space);
     }
 
     /**

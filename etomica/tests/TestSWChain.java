@@ -43,7 +43,7 @@ public class TestSWChain extends Simulation {
     public Phase phase;
 
     public TestSWChain(Space space, int numMolecules) {
-        super(space, new PotentialMasterNbr(space));
+        super(space, true, new PotentialMasterNbr(space));
         int chainLength = 10;
         int numAtoms = numMolecules * chainLength;
         double sqwLambda = 1.5;

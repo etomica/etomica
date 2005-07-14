@@ -27,7 +27,7 @@ public class MeterBondOrderParameterQ  extends DataSourceScalar implements Meter
         super("Bond Q Order Parameter", Dimension.UNDEFINED);
         setL(6);
         setR2Cut(Math.pow(5.0*Default.ATOM_SIZE, 2));
-        cPair = space.makeCoordinatePair();
+        cPair = new CoordinatePair(space);
     }
     
     public static EtomicaInfo getEtomicaInfo() {

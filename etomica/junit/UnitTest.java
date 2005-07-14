@@ -71,7 +71,7 @@ public class UnitTest implements java.io.Serializable {
     public static SpeciesRoot makeStandardSpeciesTree(int[] n0, int nA0,
             int[] n1, int[] n2, int[] n2Tree) {
         Space space = new Space3D();
-        Simulation sim = new Simulation(space, new PotentialMaster(space),
+        Simulation sim = new Simulation(space, false, new PotentialMaster(space),
                 new int[] { 1, 4, 4, 11, 6, 3, 3 });
         Species species0 = null;
         Species species1 = null;
@@ -128,7 +128,7 @@ public class UnitTest implements java.io.Serializable {
     public static SpeciesRoot makeMultitypeSpeciesTree(int[] nMolecules,
             int[][] nAtoms) {
         Space space = new Space3D();
-        Simulation sim = new Simulation(space, new PotentialMaster(space),
+        Simulation sim = new Simulation(space, false, new PotentialMaster(space),
                 new int[] { 1, 4, 4, 11, 6, 3, 3 });
         //        new SpeciesSpheres(sim);
         for (int i = 0; i < nMolecules.length; i++) {
@@ -139,7 +139,7 @@ public class UnitTest implements java.io.Serializable {
             for (int j = 0; j < childFactories.length; j++) {
                 AtomTypeLeaf atomType = new AtomTypeSphere(
                         (AtomTypeGroup) factory.getType());
-                childFactories[j] = new AtomFactoryMono(new CoordinateFactorySphere(space), atomType,
+                childFactories[j] = new AtomFactoryMono(new CoordinateFactorySphere(space, false), atomType,
                         AtomLinker.FACTORY);
             }
             factory.setChildFactory(childFactories, nAtoms[i]);

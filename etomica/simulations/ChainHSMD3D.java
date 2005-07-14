@@ -32,7 +32,7 @@ public class ChainHSMD3D extends Simulation {
     }
     private ChainHSMD3D(Space space) {
 //        super(space, new PotentialMaster(space));
-        super(space, new PotentialMasterNbr(space));
+        super(space, true, new PotentialMasterNbr(space));
         Default.FIX_OVERLAP = true;
         int numAtoms = 704;
         int chainLength = 4;

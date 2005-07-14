@@ -40,8 +40,7 @@ public class TestLJMC3D extends Simulation {
     public Controller controller;
 
     public TestLJMC3D(Space space, int numAtoms) {
-        super(space,new PotentialMasterCell(space));
-        space.setKinetic(false);
+        super(space, false, new PotentialMasterCell(space));
         Default.makeLJDefaults();
 	    integrator = new IntegratorMC(potentialMaster);
 	    mcMoveAtom = new MCMoveAtom(potentialMaster);

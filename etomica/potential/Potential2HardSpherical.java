@@ -3,6 +3,7 @@ package etomica.potential;
 import etomica.AtomPair;
 import etomica.AtomSet;
 import etomica.Space;
+import etomica.space.CoordinatePair;
 
 /**
  * Methods for a hard (impulsive), spherically-symmetric pair potential.
@@ -14,6 +15,9 @@ public abstract class Potential2HardSpherical extends Potential2 implements Pote
 	public Potential2HardSpherical(Space space) {
 		super(space);
 	}
+    public Potential2HardSpherical(Space space, CoordinatePair cPair) {
+        super(space, cPair);
+    }
 	
 	/**
     * The pair energy u(r^2) with no truncation applied.

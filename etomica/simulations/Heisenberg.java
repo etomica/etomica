@@ -53,8 +53,7 @@ public class Heisenberg extends Simulation {
      * 
      */
     public Heisenberg(Space space) {
-        super(space, new PotentialMasterSite(space));
-        space.setKinetic(false);
+        super(space, false, new PotentialMasterSite(space));
         Default.makeLJDefaults();
         phase = new Phase(this);
         int nCells = 60;

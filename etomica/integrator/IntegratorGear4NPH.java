@@ -269,7 +269,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         private final Vector f;
         public ForceSumNPH(Space space) {
             f = space.makeVector();
-            cPair = (CoordinatePairKinetic)space.makeCoordinatePair();
+            cPair = new CoordinatePairKinetic(space);
         }
         
         //pair

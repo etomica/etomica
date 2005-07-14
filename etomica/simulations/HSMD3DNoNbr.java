@@ -26,7 +26,7 @@ public class HSMD3DNoNbr extends Simulation {
         this(new etomica.space3d.Space3D());
     }
     private HSMD3DNoNbr(Space space) {
-        super(space, new PotentialMaster(space));
+        super(space, true, new PotentialMaster(space));
 
         int numAtoms = 256;
         Default.makeLJDefaults();

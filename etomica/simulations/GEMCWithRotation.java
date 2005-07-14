@@ -27,7 +27,7 @@ public class GEMCWithRotation extends Simulation {
     }
     
     public GEMCWithRotation(Space space) {
-        super(space, new PotentialMaster(space));
+        super(space, false, new PotentialMaster(space));
         Default.ATOM_SIZE = 1.2;
         Default.UNIT_SYSTEM = new etomica.units.systems.LJ();
         Default.TEMPERATURE = Default.UNIT_SYSTEM.temperature().toSim(0.420);

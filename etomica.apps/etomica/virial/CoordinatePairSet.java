@@ -56,7 +56,7 @@ public class CoordinatePairSet implements java.io.Serializable {
             for(int j=0; j<N-1-i; j++) {
                 CoordinatePair cPair;
                 if (atoms[i].coord != null) {
-                    cPair = space.makeCoordinatePair();
+                    cPair = new CoordinatePair(space);
                     cPair.reset(atoms[i].coord,atoms[i+j+1].coord);
                 }
                 else {

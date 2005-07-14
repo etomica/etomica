@@ -42,7 +42,7 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
         data = new DataGroup("g(r)", Dimension.UNDEFINED, new Data[] {rData, gData});
 
 	    iterator = new ApiLeafAtoms();
-	    cPair = space.makeCoordinatePair();
+	    cPair = new CoordinatePair(space);
         setName(NameMaker.makeName(this.getClass()));
     }
     

@@ -23,7 +23,7 @@ public class CriterionSimple extends NeighborCriterion  {
 		this.interactionRange = interactionRange;
         neighborRadius2 = neighborRadius * neighborRadius;
         setSafetyFactor(0.4);
-        cPair = space.makeCoordinatePair();
+        cPair = new CoordinatePair(space);
         nearestImageTransformer = new NearestImageTransformerVector();
         nearestImageTransformer.setPlus(false);
         cPair.setNearestImageTransformer(nearestImageTransformer);

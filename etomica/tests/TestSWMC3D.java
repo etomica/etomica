@@ -39,8 +39,7 @@ public class TestSWMC3D extends Simulation {
     public Controller controller;
 
     public TestSWMC3D(Space space, int numAtoms) {
-        super(space, new PotentialMasterCell(space));
-        space.setKinetic(false);
+        super(space, false, new PotentialMasterCell(space));
         Default.makeLJDefaults();
         double sqwLambda = 1.5;
 	    integrator = new IntegratorMC(potentialMaster);

@@ -1,14 +1,16 @@
 package etomica.space;
 
+import etomica.Simulation;
 import etomica.Space;
 
 /**
  * Constructs coordinates for spherical atoms, having no orientation dependence.
- * Can be configured to return kinetic or non-kinetic coordinates (kinetic
+ * The Simulation instance given at construction provides a Space instance,
+ * which determines the spatial dimension of the coordinates (it makes the
+ * Vectors that form the coordinates); the Simulation's isDynamic method
+ * specifies if the factory returns kinetic or non-kinetic coordinates (kinetic
  * coordinates can hold atom velocities and are needed for molecular dynamics
- * and similar simulations).  The Space instance given at construction determines
- * the spatial dimension of the coordinates; it makes the Vectors that form the 
- * coordinates.
+ * and similar simulations).
  * 
  * @author David Kofke
  *  
@@ -20,16 +22,21 @@ import etomica.Space;
 public class CoordinateFactorySphere implements CoordinateFactory {
 
     /**
-     * Makes factory with default value of isKinetic = true.
-     * 
+     * Makes factory using the space and isDynamic field of the given
+     * Simulation.
+     */
+    public CoordinateFactorySphere(Simulation sim) {
+        this(sim.space, sim.isDynamic());
+    }
+
+    /**
      * @param space
      *            required by Coordinate constructors, and builds the vectors
      *            used by the coordinates to hold positions and velocities.
+     * @param isKinetic
+     *            flag indicating whether coordinates should include fields for
+     *            velocities in addition to positions
      */
-    public CoordinateFactorySphere(Space space) {
-        this(space, true);
-    }
-
     public CoordinateFactorySphere(Space space, boolean isKinetic) {
         this.space = space;
         this.isKinetic = isKinetic;
