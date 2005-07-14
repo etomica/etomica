@@ -61,7 +61,7 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
     
     protected final AtomType[] types;
     protected final boolean interType;
-    private final Potential truncatedPotential;
+    protected final Potential truncatedPotential;
     protected final int[] lrcAtomsPerMolecule = new int[2];
     protected final SpeciesAgent[] agents = new SpeciesAgent[2];
     
