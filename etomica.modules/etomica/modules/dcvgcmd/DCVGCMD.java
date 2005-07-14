@@ -186,7 +186,7 @@ public class DCVGCMD extends Simulation {
         double length = 0.25;
         ConfigurationLatticeTube config = new ConfigurationLatticeTube(
                 new LatticeCubicFcc(), length, speciesTube);
-        phase.setConfiguration(config);
+        config.initializeCoordinates(phase);
 
         //position of hole in porous-wall potential
         poreCenter = space.makeVector();

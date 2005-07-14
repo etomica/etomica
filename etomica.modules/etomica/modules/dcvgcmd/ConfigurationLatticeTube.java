@@ -275,7 +275,7 @@ public class ConfigurationLatticeTube extends Configuration implements Atom.Agen
 //        CubicLattice lattice = new LatticeCubicSimple();
 		ConfigurationLatticeTube configuration = new ConfigurationLatticeTube(lattice, .25, new SpeciesTube(sim, 10,10));
 //        phase.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));
-		phase.setConfiguration(configuration);
+        configuration.initializeCoordinates(phase);
 //		etomica.graphics.DisplayPhase display = new etomica.graphics.DisplayPhase(phase);
 		
         etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(sim);
