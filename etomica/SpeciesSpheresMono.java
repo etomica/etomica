@@ -2,6 +2,7 @@ package etomica;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTypeSphere;
+import etomica.space.CoordinateFactorySphere;
 import etomica.units.Dimension;
 
 /**
@@ -38,7 +39,7 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
     
     private SpeciesSpheresMono(Simulation sim, AtomSequencerFactory seqFactory,
                                 AtomTypeGroup agentType) {
-        super(sim, new AtomFactoryMono(sim.space, new AtomTypeSphere(agentType), seqFactory),
+        super(sim, new AtomFactoryMono(new CoordinateFactorySphere(sim.space), new AtomTypeSphere(agentType), seqFactory),
                 agentType);
         factory.setSpecies(this);
         atomType = (AtomTypeSphere)((AtomFactoryMono)factory).getType();

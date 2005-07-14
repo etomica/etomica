@@ -7,11 +7,11 @@ import etomica.Conformation;
 import etomica.Space;
 
 /**
- * Builds an atom group that comprises atoms arranged in a tree structure.  The
- * atom given by the build() method will be the root of the tree.  It will have
- * a pre-set number of child atoms that are leaf atoms of the tree,
+ * Builds an atom group that comprises atoms arranged in a tree structure.  The root 
+ * of the tree will have a pre-set number of child atoms that are leaf atoms of the tree,
  * or are themselves the root of a subtree.  The leaf atoms that terminate
- * this hierarchy are built by the specified atom factory.
+ * this hierarchy are built an AtomFactory that must be specified after construction
+ * via the setLeafFactory method.
  *
  * @author David Kofke
  */
@@ -43,13 +43,13 @@ public class AtomFactoryTree extends AtomFactoryHomo {
     public AtomFactoryTree(Space space, AtomSequencerFactory seqFactory, AtomTypeGroup parentType,
                                 int[] nAtoms, Conformation[] config) {
         super(space, seqFactory, parentType, nAtoms[0], (config != null) ? config[0] : Conformation.NULL);
-        setChildFactory(subFactory(seqFactory, nAtoms, config));
+        setChildFactory(subFactory(space, seqFactory, nAtoms, config));
         if(childFactory() != null) ((AtomFactoryTree)childFactory()).parentFactory = this;
         depth = nAtoms.length;
     }
     
     //method used by constructor to determine the child factory
-    private AtomFactory subFactory(AtomSequencerFactory seqFactory,
+    private AtomFactory subFactory(Space space, AtomSequencerFactory seqFactory,
                             int[] nAtoms, Conformation[] config) {
         if(config != null && nAtoms.length != config.length) throw new IllegalArgumentException("Error: incompatible specification of nAtoms and config in AtomFactoryTree constructor");
         if(nAtoms.length == 1) return null; 
@@ -95,7 +95,10 @@ public class AtomFactoryTree extends AtomFactoryHomo {
      } 
      
      /**
-      * Sets the factory that makes the leaf atoms of the tree.
+      * Sets the factory that makes the leaf atoms of the tree.  Should be invoked
+      * one time, after construction and before this is used to build a molecule.
+      * 
+      * @throws IllegalStateException if invoked more than once for a single instance.
       */
      public void setLeafFactory(AtomFactory factory) {
         if (getLeafFactory() != null) throw new IllegalStateException("You can set the leaf factory only once!");
@@ -126,37 +129,5 @@ public class AtomFactoryTree extends AtomFactoryHomo {
     //number of layers of atoms below the root atom
     int depth;
     private AtomFactoryTree parentFactory;
-    
-//    public static void main(String[] args) {
-//        Simulation sim = new Simulation();
-//        AtomFactoryMono leafFactory = new AtomFactoryMono(sim.space, AtomLinker.FACTORY);
-//        int[] nA = new int[] {2, 1, 3};
-//        AtomFactoryTree treeFactory = new AtomFactoryTree(sim, leafFactory, nA);
-//        Phase phase = new Phase(sim);
-//        Species species = new Species(treeFactory);
-//        species.setNMolecules(1);
-//        phase.addMolecule(treeFactory.makeAtom(), species.getAgent(phase));
-//        
-//        AtomIteratorTree iterator = new AtomIteratorTree();
-//        iterator.setRoot(phase.speciesMaster);
-//        for(int i=0; i<6; i++) {
-//            System.out.println("i = "+i);
-//            iterator.setIterationDepth(i);
-//            iterator.reset();
-//            while(iterator.hasNext()) System.out.print(iterator.next().toString());
-//            System.out.println();
-//        }
-//        
-//        treeFactory.setNAtoms(new int[] {2,2,1});
-//        AtomIteratorAllMolecules moleculeIterator = new AtomIteratorAllMolecules(phase);
-//        while(moleculeIterator.hasNext()) treeFactory.build(moleculeIterator.nextAtom());
-//        for(int i=0; i<6; i++) {
-//            System.out.println("i = "+i);
-//            iterator.setIterationDepth(i);
-//            iterator.reset();
-//            while(iterator.hasNext()) System.out.print(iterator.next().toString());
-//            System.out.println();
-//        }
-//    }
     
 }//end of AtomFactoryTree

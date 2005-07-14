@@ -9,6 +9,7 @@ import etomica.Conformation;
 import etomica.ConformationLinear;
 import etomica.Space;
 import etomica.Species;
+import etomica.space.CoordinateFactory;
 
 /**
  * Builds an atom group that comprises a set of identically formed atoms or atom groups.
@@ -64,7 +65,7 @@ public class AtomFactoryHomo extends AtomFactory {
      */
     public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomTypeGroup parentType,
                             AtomTreeNodeFactory nodeFactory, int atoms, Conformation config) {
-        super(space, new AtomTypeGroup(parentType, new AtomPositionGeometricCenter(space)), sequencerFactory, nodeFactory);
+        super(CoordinateFactory.NULL, new AtomTypeGroup(parentType, new AtomPositionGeometricCenter(space)), sequencerFactory, nodeFactory);
         atomsPerGroup = atoms;
         conformation = config;
     }
@@ -99,6 +100,8 @@ public class AtomFactoryHomo extends AtomFactory {
      * Sets the factory that makes the identical child atoms of an atom-group formed
      * by this factory.  This method should be called immediately after instantiation.
      * Subsequent attempts to invoke this method will throw an IllegalStateException.
+     * 
+     * @throws IllegalStateException if invoked more than once for an instance
      */
     public void setChildFactory(AtomFactory childFactory) {
         if (this.childFactory != null) throw new IllegalStateException("You can set the child factory only once!");

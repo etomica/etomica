@@ -3,6 +3,9 @@ package etomica;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTypeSphere;
+import etomica.space.Coordinate;
+import etomica.space.CoordinateFactory;
+import etomica.space.CoordinateFactorySphere;
 import etomica.space.ICoordinate;
 import etomica.utility.Arrays;
 
@@ -36,13 +39,13 @@ import etomica.utility.Arrays;
   */
 public class Atom implements AtomSet, Comparable, java.io.Serializable {
 
-    public Atom(Space space, AtomType type, 
+    public Atom(CoordinateFactory coordFactory, AtomType type, 
                     AtomTreeNodeFactory nodeFactory,
                     AtomSequencerFactory seqFactory) {
         this.type = type;//do this first
         seq = seqFactory.makeSequencer(this);
         node = nodeFactory.makeNode(this);
-        coord = space.makeCoordinate(this);//must follow setting of type field
+        coord = coordFactory.makeCoordinate();
         node.setOrdinal(0,0); //-(++INSTANCE_COUNT));//default index; changed when added to parent after construction
         
         if(agentSource.length > 0) allatomAgents = new Object[agentSource.length];
@@ -52,12 +55,12 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
     }
     
     /**
-     * Makes a simple atom for the given space.  Node is for a leaf atom;
-     * sequencer is simple; type is a sphere, unique to the new atom; depth is 0.
-     * @param space
+     * Makes a simple atom for the given space.  Coordinate is non-kinetic sphere;
+     * node is for a leaf atom; sequencer is simple; type is a sphere, unique to the new atom; 
+     * depth is 0.
      */
     public Atom(Space space) {
-    	this(space, new AtomTypeSphere(null), AtomTreeNodeLeaf.FACTORY, AtomLinker.FACTORY);                        
+    	this(new CoordinateFactorySphere(space, false), new AtomTypeSphere(null), AtomTreeNodeLeaf.FACTORY, AtomLinker.FACTORY);                        
         node.setOrdinal(0,++INSTANCE_COUNT);//default index; changed when added to parent after construction
     }
     

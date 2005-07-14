@@ -6,6 +6,7 @@ import etomica.atom.AtomListTabbed;
 import etomica.atom.AtomLinker.Tab;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorTree;
+import etomica.space.CoordinateFactory;
 
 /**
  * Coordinator of all species agents in a phase. Parent is SpeciesRoot, and
@@ -28,7 +29,7 @@ public final class SpeciesMaster extends Atom {
     public final AtomList atomList = new AtomListTabbed();
 
     SpeciesMaster(Simulation sim, Phase p) {
-        super(sim.space, sim.speciesRoot.childType, new NodeFactory(p),
+        super(CoordinateFactory.NULL, sim.speciesRoot.childType, new NodeFactory(p),
                 AtomLinker.FACTORY);
     }
 

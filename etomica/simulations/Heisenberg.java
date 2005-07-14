@@ -32,8 +32,8 @@ import etomica.units.systems.LJ;
 
 
 /**
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Simulation of a simple 2D Ising model.  Prototype
+ * for simulation of a more general magentic system.
  *
  * @author David Kofke
  *

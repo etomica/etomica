@@ -17,6 +17,7 @@ import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.AtomIteratorTree;
+import etomica.space.CoordinateFactorySphere;
 import etomica.space3d.Space3D;
 
 /**
@@ -138,7 +139,7 @@ public class UnitTest implements java.io.Serializable {
             for (int j = 0; j < childFactories.length; j++) {
                 AtomTypeLeaf atomType = new AtomTypeSphere(
                         (AtomTypeGroup) factory.getType());
-                childFactories[j] = new AtomFactoryMono(space, atomType,
+                childFactories[j] = new AtomFactoryMono(new CoordinateFactorySphere(space), atomType,
                         AtomLinker.FACTORY);
             }
             factory.setChildFactory(childFactories, nAtoms[i]);

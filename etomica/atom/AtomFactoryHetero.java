@@ -12,6 +12,7 @@ import etomica.ConformationLinear;
 import etomica.Space;
 import etomica.Species;
 import etomica.data.DataSourceCOM;
+import etomica.space.CoordinateFactory;
 
 /**
  * Builds an atom group that comprises a set of differently-formed atoms or
@@ -56,7 +57,7 @@ public class AtomFactoryHetero extends AtomFactory {
     public AtomFactoryHetero(Space space,
             AtomSequencerFactory sequencerFactory, AtomTypeGroup parentType,
             AtomTreeNodeFactory nodeFactory, Conformation config) {
-        super(space, new AtomTypeGroup(parentType, new DataSourceCOM(space)),
+        super(CoordinateFactory.NULL, new AtomTypeGroup(parentType, new DataSourceCOM(space)),
                 sequencerFactory, nodeFactory);
         conformation = config;
     }

@@ -4,8 +4,8 @@ import etomica.Atom;
 import etomica.AtomFactory;
 import etomica.AtomTreeNodeLeaf;
 import etomica.AtomTypeLeaf;
-import etomica.Space;
 import etomica.Species;
+import etomica.space.CoordinateFactory;
 
 /**
  * Builder of a monoatomic atom group, which comprises just an Atom.
@@ -15,8 +15,8 @@ import etomica.Species;
 
 public class AtomFactoryMono extends AtomFactory {
     
-    public AtomFactoryMono(Space space, AtomTypeLeaf atomType, AtomSequencerFactory seqFactory) {
-        super(space, atomType, seqFactory, AtomTreeNodeLeaf.FACTORY);
+    public AtomFactoryMono(CoordinateFactory coordFactory, AtomTypeLeaf atomType, AtomSequencerFactory seqFactory) {
+        super(coordFactory, atomType, seqFactory, AtomTreeNodeLeaf.FACTORY);
     }
     
     public void setSpecies(Species species) {

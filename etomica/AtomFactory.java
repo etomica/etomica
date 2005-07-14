@@ -2,6 +2,7 @@ package etomica;
 
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomSequencerFactory;
+import etomica.space.CoordinateFactory;
 
 /**
  * Class responsible for building new instances of the atoms (or atom groups)
@@ -12,27 +13,26 @@ import etomica.atom.AtomSequencerFactory;
  
 public abstract class AtomFactory implements java.io.Serializable {
     
-    public final Space space;
     protected Conformation conformation;
     protected AtomSequencerFactory sequencerFactory;
     protected AtomTreeNodeFactory nodeFactory;
     protected final AtomType atomType;
+    protected final CoordinateFactory coordFactory;
     
     /**
      * Makes an atom factory with atoms having AtomSequencerSimple and
      * AtomTreeNodeGroup for sequencer and node, respectively.
-     * @param space
      */
-    public AtomFactory(Space space, AtomType atomType) {
-        this(space, atomType, AtomLinker.FACTORY);
+    public AtomFactory(CoordinateFactory coordFactory, AtomType atomType) {
+        this(coordFactory, atomType, AtomLinker.FACTORY);
     }
     
-    public AtomFactory(Space space, AtomType atomType, AtomSequencerFactory sequencerFactory) {
-        this(space, atomType, sequencerFactory, AtomTreeNodeGroup.FACTORY);
+    public AtomFactory(CoordinateFactory coordFactory, AtomType atomType, AtomSequencerFactory sequencerFactory) {
+        this(coordFactory, atomType, sequencerFactory, AtomTreeNodeGroup.FACTORY);
     }
     
-    public AtomFactory(Space space, AtomType atomType, AtomSequencerFactory sequencerFactory, AtomTreeNodeFactory nodeFactory) {
-        this.space = space;
+    public AtomFactory(CoordinateFactory coordFactory, AtomType atomType, AtomSequencerFactory sequencerFactory, AtomTreeNodeFactory nodeFactory) {
+        this.coordFactory = coordFactory;
         this.sequencerFactory = sequencerFactory;
         this.nodeFactory = nodeFactory;
         this.atomType = atomType;
@@ -62,7 +62,7 @@ public abstract class AtomFactory implements java.io.Serializable {
      * Method used by subclasses to make the root atom of the group it is building.
      */
     protected Atom newParentAtom() {
-        Atom atom = new Atom(space, atomType, nodeFactory, sequencerFactory);
+        Atom atom = new Atom(coordFactory, atomType, nodeFactory, sequencerFactory);
         return atom;
     }
 
@@ -74,10 +74,12 @@ public abstract class AtomFactory implements java.io.Serializable {
     }
     
     /**
-     * Returns the space used to build the atoms made by this factory.
+     * Returns the CoordinateFactory that gives coordinates to the
+     * atom (or the root atom, if this makes an atom group) made by this
+     * AtomFactory
      */
-    public Space getSpace() {
-        return space;
+    public CoordinateFactory getCoordinateFactory() {
+        return coordFactory;
     }
 
     /**

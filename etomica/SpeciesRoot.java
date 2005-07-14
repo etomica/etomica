@@ -3,6 +3,7 @@ package etomica;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.space.CoordinateFactory;
 import etomica.utility.Arrays;
 
 /**
@@ -23,8 +24,8 @@ public final class SpeciesRoot extends Atom {
     private final PhaseEvent removalEvent = new PhaseEvent(this,
             PhaseEvent.ATOM_REMOVED);
 
-    SpeciesRoot(Space space, int[] bitLength) {
-        super(space, new AtomTypeRoot(AtomIndexManager.makeRootIndexManager(bitLength)), new NodeFactory(), AtomLinker.FACTORY);
+    SpeciesRoot(int[] bitLength) {
+        super(CoordinateFactory.NULL, new AtomTypeRoot(AtomIndexManager.makeRootIndexManager(bitLength)), new NodeFactory(), AtomLinker.FACTORY);
         childType = new AtomTypeGroup((AtomTypeGroup)type,null);
         node.setOrdinal(1);
     }

@@ -60,7 +60,7 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
 //        elementCoordinator = new Mediator(this);
         this.potentialMaster = potentialMaster;
         setController(new Controller());
-        speciesRoot = new SpeciesRoot(space,(int[])bitLength.clone());
+        speciesRoot = new SpeciesRoot((int[])bitLength.clone());
     }//end of constructor
                  
     public final Space space() {return space;}

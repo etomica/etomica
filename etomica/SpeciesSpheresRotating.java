@@ -3,6 +3,7 @@ package etomica;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTypeOrientedSphere;
+import etomica.space.CoordinateFactoryAngular;
 import etomica.units.Dimension;
 
 /**
@@ -36,7 +37,7 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     }
     private SpeciesSpheresRotating(Simulation sim, AtomSequencerFactory seqFactory,
                                    AtomTypeGroup agentType) {
-        super(sim, new AtomFactoryMono(sim.space, 
+        super(sim, new AtomFactoryMono(new CoordinateFactoryAngular(sim.space), 
                 new AtomTypeOrientedSphere(agentType,Default.ATOM_MASS,Default.ATOM_SIZE), seqFactory), agentType);
         factory.setSpecies(this);
         protoType = (AtomTypeOrientedSphere)((AtomFactoryMono)factory).getType();

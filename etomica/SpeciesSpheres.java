@@ -4,6 +4,7 @@ import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTypeSphere;
+import etomica.space.CoordinateFactorySphere;
 import etomica.units.Dimension;
 
 /**
@@ -36,7 +37,8 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
         super(sim, new AtomFactoryHomo(sim.space, seqFactory, agentType,
                                 nA, conformation), agentType);
         atomType = new AtomTypeSphere((AtomTypeGroup)factory.getType(), Default.ATOM_MASS, Default.ATOM_SIZE);
-        ((AtomFactoryHomo)factory).setChildFactory(new AtomFactoryMono(sim.space, atomType, seqFactory));
+        ((AtomFactoryHomo)factory).setChildFactory(
+                new AtomFactoryMono(new CoordinateFactorySphere(sim.space), atomType, seqFactory));
         factory.setSpecies(this);
 //        ((AtomFactoryHomo)factory).getType().setChildTypes(new AtomType[]{atomType});
         
