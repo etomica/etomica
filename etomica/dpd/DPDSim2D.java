@@ -43,7 +43,7 @@ public class DPDSim2D extends SimulationGraphic{
 		/**
 		 * @deprecated
 		 */
-		super(new Space2D());	//creates the simulation and its space. 
+		super(Space2D.getInstance());	//creates the simulation and its space. 
 		setIteratorFactory(new IteratorFactoryCell(this));
 		Simulation.instance = this;
 		Default.ATOM_SIZE = 2.0;

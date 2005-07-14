@@ -23,7 +23,7 @@ import etomica.space2d.Space2D;
 public class GEMCWithRotation extends Simulation {
     
     public GEMCWithRotation() {
-        this(Space2D.INSTANCE);
+        this(Space2D.getInstance());
     }
     
     public GEMCWithRotation(Space space) {

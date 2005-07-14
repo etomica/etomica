@@ -24,7 +24,7 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
         setA(a);  
         setB(b);
         setC(c); //also sets reciprocal via update
-        sizeCopy = new double[space.D];
+        sizeCopy = new double[space.D()];
     }
     /**
      * Constructor used by makeReciprocal method.

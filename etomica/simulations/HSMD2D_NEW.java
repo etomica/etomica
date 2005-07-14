@@ -128,7 +128,7 @@ public class HSMD2D_NEW extends SimulationGraphic  {
 	MyMeter wMeter, eMeter;
 
 	public HSMD2D_NEW() {
-		super(new Space2D());
+		super(Space2D.getInstance());
 		etomica.units.BaseUnit.Length.Sim.TO_PIXELS = 8;
 		Simulation.instance = this;
 		integrator = new IntegratorHard(this);

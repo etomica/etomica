@@ -32,7 +32,7 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
 	// in the above, true uses brute force method!!
 
 	public BoundaryDeformablePeriodic(Space space) {
-		this(space, makePeriodicity(space.D));
+		this(space, makePeriodicity(space.D()));
 	}
 
 	public BoundaryDeformablePeriodic(Space space, boolean[] periodicity) {
@@ -348,7 +348,7 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
 	}//end checkCentralImage
 
 	private void updateDimensions() {
-		for (i = 0; i < space.D; i++)
+		for (i = 0; i < space.D(); i++)
 			dimensions.setX(i, Math.abs(boundaryTensor.component(i, i)));
 	}
 

@@ -76,7 +76,7 @@ public class ConfigurationZincblende extends Configuration {
      * Displays configuration without setting up full simulation.
      */
     public static void main(String[] args) {
-        Simulation sim = new Simulation(Space3D.INSTANCE);
+        Simulation sim = new Simulation(Space3D.getInstance());
         Default.ATOM_SIZE = 5.0;
         Space space = sim.space;
         Phase phase = new Phase(sim);

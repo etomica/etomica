@@ -23,7 +23,7 @@ public class LatticeCubicSimple extends BravaisLattice implements CubicLattice {
      * @param latticeConstant spacing between adjacent lattice sites
      */
 	public LatticeCubicSimple(int D, double latticeConstant) {
-		super(new PrimitiveCubic(Space.makeSpace(D)));
+		super(new PrimitiveCubic(Space.getInstance(D)));
         this.primitive = (PrimitiveCubic)getPrimitive();
         primitive.setCubicSize(latticeConstant);
 	}

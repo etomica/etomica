@@ -83,7 +83,7 @@ public class TestLJMC3D extends Simulation {
             numAtoms = Integer.valueOf(args[0]).intValue();
         }
         Default.BLOCK_SIZE = 10;
-        TestLJMC3D sim = new TestLJMC3D(new Space3D(), numAtoms);
+        TestLJMC3D sim = new TestLJMC3D(Space3D.getInstance(), numAtoms);
 
         MeterPressure pMeter = new MeterPressure(sim.potentialMaster,sim.space);
         pMeter.setTemperature(sim.integrator.getTemperature());

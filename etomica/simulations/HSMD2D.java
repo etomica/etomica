@@ -31,12 +31,12 @@ public class HSMD2D extends Simulation {
     public Potential2 potential22;
 
     public HSMD2D() {
-    	this(Space2D.INSTANCE);
+    	this(Space2D.getInstance());
     }
     
     public HSMD2D(Space2D space) {
         super(space, true, new PotentialMasterNbr(space));
-//        super(space, new PotentialMaster(space));//,IteratorFactoryCell.INSTANCE));
+//        super(space, new PotentialMaster(space));//,IteratorFactoryCell.instance));
         Default.makeLJDefaults();
 //        Default.BOX_SIZE = 30.0;
         Default.ATOM_SIZE = 0.38;

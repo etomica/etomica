@@ -24,7 +24,7 @@ public class LatticeCubicDiamond extends LatticeCrystal implements CubicLattice 
     }
     
     public LatticeCubicDiamond(double latticeConstant) {
-        this(new PrimitiveCubic(Space3D.INSTANCE));
+        this(new PrimitiveCubic(Space3D.getInstance()));
         primitive = (PrimitiveCubic)crystal.getLattice().getPrimitive();
         primitive.setCubicSize(latticeConstant);
     }

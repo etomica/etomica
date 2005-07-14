@@ -30,7 +30,7 @@ public class SimulationVirialOS extends SimulationGraphic {
 	}
 	
 	public SimulationVirialOS(double temperature, Cluster targetCluster, Cluster refCluster) {
-		this(new Space3D(), temperature, targetCluster, refCluster);
+		this(Space3D.getInstance(), temperature, targetCluster, refCluster);
 	}
 	
 	public SimulationVirialOS(Space space, double temperature, Cluster targetCluster, Cluster refCluster) {

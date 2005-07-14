@@ -42,7 +42,7 @@ public abstract class ListIteratorTest extends IteratorTest {
      */
 	public void testListVariations() {
 		
-		Space space = new Space3D();
+		Space space = Space3D.getInstance();
 //		 make empty list to start
 		AtomList atomList = new AtomListTabbed();
 		

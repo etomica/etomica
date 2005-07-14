@@ -187,7 +187,7 @@ public class SimulationVirialOverlap extends Simulation {
 		System.out.println("B4HS: "+(b0*b0*b0*(219.0*Math.sqrt(2.0)/2240.0/Math.PI-89.0/280.0+4131.0/2240.0/Math.PI*Math.atan(Math.sqrt(2.0))))+" = "
 				+(219.0*Math.sqrt(2.0)/2240.0/Math.PI-89.0/280.0+4131.0/2240.0/Math.PI*Math.atan(Math.sqrt(2.0)))+" B2HS^3");
 		
-        Space3D space = new Space3D();
+        Space3D space = Space3D.getInstance();
 		MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
         MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);
         P2LennardJones p2LJ = new P2LennardJones(space,sigmaLJ,1.0);

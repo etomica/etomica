@@ -1,20 +1,37 @@
 package etomica.space3d;
 
+import java.io.ObjectStreamException;
+
 import etomica.EtomicaInfo;
 import etomica.Space;
 import etomica.space.Boundary;
 
 /**
  * 
- * Factory and methods appropriate to a 3-dimensional space.
+ * Factory and methods appropriate to a 3-dimensional space.  This is
+ * a singleton class that can be accessed via the static getInstance method. 
  * 
  * @author David Kofke
  *
  */
-public class Space3D extends Space {
+public final class Space3D extends Space {
+
+    /**
+     * Private constructor for singleton.
+     */
+    private Space3D() {
+        super();
+    }
+
+    /**
+     * @return Returns the instance.
+     */
+    public static Space3D getInstance() {
+        return INSTANCE;
+    }
 
     public final int D() {
-        return D;
+        return 3;
     }
 
     public final int powerD(int n) {
@@ -24,6 +41,12 @@ public class Space3D extends Space {
     public final double powerD(double a) {
         return a * a * a;
     }
+    
+    /**
+     * Returns the cube root of the given value, a^(1/D) which is a^(1/3).
+     */
+    public double rootD(double a) {return Math.pow(a, 1./3.);}
+    
 
     public int[] makeArrayD(int i) {
         return new int[] { i, i, i };
@@ -33,13 +56,7 @@ public class Space3D extends Space {
         return new double[] { d, d, d };
     }
 
-    public static final Space3D INSTANCE = new Space3D();
-
-    public Space3D() {
-        super(3);
-    }
-
-    public double sphereVolume(double r) {
+   public double sphereVolume(double r) {
         return (Math.PI * 4.0 * r * r * r / 3.0);
     }
 
@@ -78,5 +95,15 @@ public class Space3D extends Space {
         b.nearestImage(work);
         return work.squared();
     }
+    
+    /**
+     * Required to guarantee singleton when deserializing.
+     * @return the singleton INSTANCE
+     */
+    private Object readResolve() throws ObjectStreamException {
+        return INSTANCE;
+    }
+
+    private static final Space3D INSTANCE = new Space3D();
 
 }//end of Space3D

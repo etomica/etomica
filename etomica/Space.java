@@ -12,33 +12,30 @@ import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 
 public abstract class Space implements java.io.Serializable {
-    
-    public final int D;
-    private final double rD; // reciprocal of D
-    
-    protected Space(int d) {
-        if(d < 1 || d > 3) throw new IllegalArgumentException("Illegal dimension for space");
-        D = d;
-        rD = 1.0/D;
+
+    protected Space() {
     }
     
     /**
      * Returns a space instance of the given dimension, which must be 1, 2, or 3.
      */
-    public static Space makeSpace(int D) {
+    public static Space getInstance(int D) {
         switch(D) {
         case 1: 
-            return Space1D.INSTANCE;
+            return Space1D.getInstance();
         case 2:
-            return Space2D.INSTANCE;
+            return Space2D.getInstance();
         case 3:
-            return Space3D.INSTANCE;
+            return Space3D.getInstance();
         default:
             throw new IllegalArgumentException("Illegal dimension for space");
         }
     }
     
-    public int D() {return D;}
+    public abstract int D();
+    
+    public abstract double rootD(double a);
+    
     /**
      * Returns the given value raised to the Dth power, where D is the dimension of the space.
      */
@@ -47,11 +44,6 @@ public abstract class Space implements java.io.Serializable {
      * Returns the given value raised to the Dth power, where D is the dimension of the space.
      */
     public abstract double powerD(double a);
-    
-    /**
-     * Returns the Dth root of the given value, a^(1/D), where D is the dimension of the space.
-     */
-    public double rootD(double a) {return Math.pow(a, rD);}
     
     public abstract Vector makeVector();
     
@@ -131,5 +123,5 @@ public abstract class Space implements java.io.Serializable {
         for(int i=0; i<n; i++) vectors[i] = makeVector();
         return vectors;
     }
-    
+   
 }//end of Space    

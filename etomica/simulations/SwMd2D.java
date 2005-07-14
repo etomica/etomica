@@ -27,7 +27,7 @@ public class SwMd2D extends Simulation {
     public DisplayPhase display;
 
     public SwMd2D() {
-        this(Space2D.INSTANCE);
+        this(Space2D.getInstance());
     }
     public SwMd2D(Space space) {
         super(space);

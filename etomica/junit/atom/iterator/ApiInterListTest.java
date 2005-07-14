@@ -24,7 +24,7 @@ public class ApiInterListTest extends IteratorTest {
     public void testIterator() {
         
         ApiInterList api = new ApiInterList();
-        Space space = new Space3D();
+        Space space = Space3D.getInstance();
         
         //test that new iterator gives no iterates
         countTest(api, 0);

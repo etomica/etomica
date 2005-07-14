@@ -29,7 +29,7 @@ public class LjMd2D extends Simulation {
     public MeterEnergy energy;
 
     public LjMd2D() {
-        super(Space2D.INSTANCE);
+        super(Space2D.getInstance());
         Default.makeLJDefaults();
         integrator = new IntegratorVelocityVerlet(potentialMaster, space);
         integrator.setTimeStep(0.01);

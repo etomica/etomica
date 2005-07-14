@@ -23,7 +23,7 @@ public class AtomIteratorArrayListTest extends IteratorTest {
     }
     
     public void testListVariations() {
-        Space space = new Space1D();
+        Space space = Space1D.getInstance();
         AtomIteratorArrayList iterator = new AtomIteratorArrayList();
         
         //make sure new iterator gives no iterates

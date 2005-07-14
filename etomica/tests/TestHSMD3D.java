@@ -93,7 +93,7 @@ public class TestHSMD3D extends Simulation {
         if (args.length > 0) {
             numAtoms = Integer.valueOf(args[0]).intValue();
         }
-        TestHSMD3D sim = new TestHSMD3D(new Space3D(), numAtoms);
+        TestHSMD3D sim = new TestHSMD3D(Space3D.getInstance(), numAtoms);
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.space,sim.integrator);
         pMeter.setPhase(sim.phase);

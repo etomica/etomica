@@ -51,10 +51,10 @@ public class Abstract3Site extends ModelMolecular {
 	}
 	
 	public static void main(String[] args) {
-		etomica.graphics.SimulationGraphic sim = new etomica.graphics.SimulationGraphic(Space3D.INSTANCE);
+		etomica.graphics.SimulationGraphic sim = new etomica.graphics.SimulationGraphic(Space3D.getInstance());
 		Model waterModel = new Abstract3Site(3.0, 100.0, 0.5, 1.0, Math.PI*109./180.);
-		Species species = new Species(Space3D.INSTANCE, waterModel);
-		Phase phase = new Phase(Space3D.INSTANCE);
+		Species species = new Species(Space3D.getInstance(), waterModel);
+		Phase phase = new Phase(Space3D.getInstance());
 		etomica.graphics.DisplayPhase display = new etomica.graphics.DisplayPhase(sim);
 		sim.elementCoordinator.go();
 		sim.makeAndDisplayFrame();

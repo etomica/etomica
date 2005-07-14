@@ -27,7 +27,7 @@ public class LatticeCubicFcc extends LatticeCrystal implements CubicLattice {
     }
     
     public LatticeCubicFcc(double latticeConstant) {
-        this(new PrimitiveCubic(Space3D.INSTANCE));
+        this(new PrimitiveCubic(Space3D.getInstance()));
         primitive = (PrimitiveCubic)crystal.getLattice().getPrimitive();
         primitive.setCubicSize(latticeConstant);
     }

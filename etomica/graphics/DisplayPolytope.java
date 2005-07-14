@@ -16,7 +16,6 @@ import etomica.math.geometry.Parallelepiped;
 import etomica.math.geometry.PolygonGeneral;
 import etomica.math.geometry.Polytope;
 import etomica.space.Vector;
-import etomica.space1d.Space1D;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
@@ -228,7 +227,7 @@ public class DisplayPolytope extends Display implements Action, EtomicaElement {
         toPixels = scale*BaseUnit.Length.Sim.TO_PIXELS;
         //Determine length and width of drawn image, in pixels
         drawSize[0] = (int)(toPixels*dimensions().x(0));
-        drawSize[1] = (polytope.getEmbeddedSpace().D==1) ? drawingHeight: (int)(toPixels*dimensions().x(1));
+        drawSize[1] = (polytope.getEmbeddedSpace().D()==1) ? drawingHeight: (int)(toPixels*dimensions().x(1));
         //Find origin for drawing action
         centralOrigin[0] = (int)(getScale()*originShift[0]) + computeOrigin(align[0],drawSize[0],w);
         centralOrigin[1] = (int)(getScale()*originShift[1]) + computeOrigin(align[1],drawSize[1],h);
@@ -348,13 +347,13 @@ public class DisplayPolytope extends Display implements Action, EtomicaElement {
     public static class Applet extends javax.swing.JApplet {
 
         public void init() {
-            Space3D space3D = new Space3D();
+            Space3D space3D = Space3D.getInstance();
             Cuboid cuboid = new Cuboid(space3D);
             Vector3D a = (Vector3D)Space.makeVector(new double[]{1.0,0.2,0.0});
             Vector3D b = (Vector3D)Space.makeVector(new double[]{0.0,1.0,0.2});
             Vector3D c = (Vector3D)Space.makeVector(new double[]{0.2,0.0,1.0});
             Parallelepiped parallelepiped = new Parallelepiped(space3D,a,b,c);
-            Space2D space2D = new Space2D();
+            Space2D space2D = Space2D.getInstance();
             LineSegment lineS1 = new LineSegment(space2D);
             lineS1.getVertices()[1].setX(1,5.0);
             LineSegment lineS2 = new LineSegment(space2D);

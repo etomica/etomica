@@ -20,7 +20,7 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
      * @param slitDim slit dimension (in which PBC are not imposed).
      */
     public BoundaryRectangularSlit(Space space, int slitDim) {
-        super(space,makePeriodicity(space.D,slitDim));
+        super(space,makePeriodicity(space.D(),slitDim));
         sDim = slitDim;
      }
     public void nearestImage(Vector dr) {

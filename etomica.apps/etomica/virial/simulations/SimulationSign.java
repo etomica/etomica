@@ -28,7 +28,7 @@ public class SimulationSign extends SimulationGraphic {
 	 * @see java.lang.Object#Object()
 	 */
 	public SimulationSign(int nMolecules, double simTemperature) {
-		this(new Space3D(), nMolecules, simTemperature);
+		this(Space3D.getInstance(), nMolecules, simTemperature);
 	}
 	
 	/**

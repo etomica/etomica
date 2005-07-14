@@ -70,7 +70,7 @@ public class UnitTest implements java.io.Serializable {
 
     public static SpeciesRoot makeStandardSpeciesTree(int[] n0, int nA0,
             int[] n1, int[] n2, int[] n2Tree) {
-        Space space = new Space3D();
+        Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space, false, new PotentialMaster(space),
                 new int[] { 1, 4, 4, 11, 6, 3, 3 });
         Species species0 = null;
@@ -127,7 +127,7 @@ public class UnitTest implements java.io.Serializable {
      */
     public static SpeciesRoot makeMultitypeSpeciesTree(int[] nMolecules,
             int[][] nAtoms) {
-        Space space = new Space3D();
+        Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space, false, new PotentialMaster(space),
                 new int[] { 1, 4, 4, 11, 6, 3, 3 });
         //        new SpeciesSpheres(sim);

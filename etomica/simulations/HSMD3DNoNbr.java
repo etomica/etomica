@@ -13,7 +13,7 @@ import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P2HardSphere;
-import etomica.space3d.BoundaryTruncatedOctahedron;
+import etomica.space3d.Space3D;
 
 public class HSMD3DNoNbr extends Simulation {
 
@@ -23,7 +23,7 @@ public class HSMD3DNoNbr extends Simulation {
     public P2HardSphere potential;
     
     public HSMD3DNoNbr() {
-        this(new etomica.space3d.Space3D());
+        this(Space3D.getInstance());
     }
     private HSMD3DNoNbr(Space space) {
         super(space, true, new PotentialMaster(space));

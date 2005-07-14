@@ -107,7 +107,7 @@ public class TestSWChain extends Simulation {
         if (args.length > 0) {
             numMolecules = Integer.valueOf(args[0]).intValue();
         }
-        TestSWChain sim = new TestSWChain(new Space3D(), numMolecules);
+        TestSWChain sim = new TestSWChain(Space3D.getInstance(), numMolecules);
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.space,sim.integrator); 
         MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);

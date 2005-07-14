@@ -37,7 +37,7 @@ public class VirialPT extends SimulationGraphic {
 	}
 	
 	public VirialPT(int nMolecules, double[] temperatures) {
-		super(new Space3D());
+		super(Space3D.getInstance());
 		Simulation.instance = this;
 		Default.makeLJDefaults();
 		Default.TRUNCATE_POTENTIALS = false;

@@ -29,7 +29,7 @@ public class HsMc2d extends Simulation {
     public DataSourceCountSteps meterCycles;
 
     public HsMc2d() {
-        super(new Space2D());
+        super(Space2D.getInstance());
 	    integrator = new IntegratorMC(potentialMaster);
 	    mcMoveAtom = new MCMoveAtom(potentialMaster);
         integrator.addMCMove(mcMoveAtom);

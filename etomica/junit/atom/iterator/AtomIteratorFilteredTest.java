@@ -39,7 +39,7 @@ public class AtomIteratorFilteredTest extends IteratorTest {
 
     public void testIterator() {
 
-        Space space = new Space1D();
+        Space space = Space1D.getInstance();
 
         AtomList list = new AtomList();
 

@@ -31,7 +31,7 @@ public class AtomIndexManagerTest extends TestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        Simulation sim = new Simulation(new Space2D());
+        Simulation sim = new Simulation(Space2D.getInstance());
         SpeciesSpheresMono species0 = new SpeciesSpheresMono(sim);
         species0.setNMolecules(20);
         SpeciesSpheres species1 = new SpeciesSpheres(sim, 5);

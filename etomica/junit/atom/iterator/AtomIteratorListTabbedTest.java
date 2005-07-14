@@ -37,7 +37,7 @@ public class AtomIteratorListTabbedTest extends IteratorTest {
      */
     public void testExceptions() {
         boolean exceptionThrown = false;
-        Space space = new Space3D();
+        Space space = Space3D.getInstance();
 
         int tabType1 = AtomLinker.Tab.requestTabType();
         int tabType2 = AtomLinker.Tab.requestTabType();
@@ -77,7 +77,7 @@ public class AtomIteratorListTabbedTest extends IteratorTest {
      */
     public void testListVariations() {
         
-        Space space = new Space3D();
+        Space space = Space3D.getInstance();
         int tabType1 = AtomLinker.Tab.requestTabType();
         int tabType2 = AtomLinker.Tab.requestTabType();
 
@@ -129,7 +129,7 @@ public class AtomIteratorListTabbedTest extends IteratorTest {
     //generates variation of lists with two tabs and different numbers of atoms
     public void tab2Tests(AtomLinker.Tab tab1, AtomLinker.Tab tab2, Tab2Tester tester) {
         // test empty list with two tabs
-        Space space = new Space1D();
+        Space space = Space1D.getInstance();
         AtomList atomList = new AtomListTabbed();
         atomList.add(tab1);
         atomList.add(tab2);

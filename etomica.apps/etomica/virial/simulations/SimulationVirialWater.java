@@ -30,7 +30,7 @@ public class SimulationVirialWater extends SimulationGraphic {
 	 * @see java.lang.Object#Object()
 	 */
 	public SimulationVirialWater(int nMolecules, double simTemperature) {
-		this(new Space3D(), nMolecules, simTemperature);
+		this(Space3D.getInstance(), nMolecules, simTemperature);
 	}
 	
 	/**

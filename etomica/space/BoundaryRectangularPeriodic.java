@@ -17,7 +17,7 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
      * @param space
      */
     public BoundaryRectangularPeriodic(Space space) {
-        super(space, makePeriodicity(space.D));
+        super(space, makePeriodicity(space.D()));
     }
 
     public void nearestImage(Vector dr) {

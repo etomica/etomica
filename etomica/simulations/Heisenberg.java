@@ -46,7 +46,7 @@ import etomica.units.systems.LJ;
 public class Heisenberg extends Simulation {
 
     public Heisenberg() {
-        this(new Space2D());
+        this(Space2D.getInstance());
     }
     
     /**
@@ -104,7 +104,7 @@ public class Heisenberg extends Simulation {
     public AccumulatorAverage dAcc;
     
     public static void main(String[] args) {
-        Heisenberg sim = new Heisenberg(new Space2D());
+        Heisenberg sim = new Heisenberg(Space2D.getInstance());
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
         DisplayPhase displayPhase = simGraphic.getDisplayPhase(sim.phase);
         simGraphic.remove(displayPhase);

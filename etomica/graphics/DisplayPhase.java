@@ -187,7 +187,7 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
         drawables.remove(obj);
     }
     public void addDrawable(Object obj) {
-        if(phase.space().D == 3) drawables.add(obj);
+        if(phase.space().D() == 3) drawables.add(obj);
     }
     public void removeDrawable(Object obj) {
         drawables.remove(obj);
@@ -373,7 +373,7 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
         toPixels = scale*BaseUnit.Length.Sim.TO_PIXELS;
         //Determine length and width of drawn image, in pixels
         drawSize[0] = (int)(toPixels*getPhase().boundary().dimensions().x(0));
-        drawSize[1] = (phase.space().D==1) ? drawingHeight: (int)(toPixels*getPhase().boundary().dimensions().x(1));
+        drawSize[1] = (phase.space().D()==1) ? drawingHeight: (int)(toPixels*getPhase().boundary().dimensions().x(1));
         //Find origin for drawing action
         centralOrigin[0] = (int)(getScale()*originShift[0]) + computeOrigin(align[0],drawSize[0],w);
         centralOrigin[1] = (int)(getScale()*originShift[1]) + computeOrigin(align[1],drawSize[1],h);

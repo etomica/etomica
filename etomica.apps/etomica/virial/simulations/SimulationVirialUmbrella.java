@@ -54,7 +54,7 @@ public class SimulationVirialUmbrella extends SimulationVirial {
         System.out.println("B3HS: "+c0+" = "+(c0/b0/b0)+" B2HS^2");
         System.out.println("B4HS: "+d0+" = "+(d0/(b0*b0*b0))+" B2HS^3");
 		
-		Space3D space = new Space3D();
+		Space3D space = Space3D.getInstance();
 		
         MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
         MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);

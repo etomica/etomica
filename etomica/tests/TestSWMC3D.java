@@ -76,7 +76,7 @@ public class TestSWMC3D extends Simulation {
             numAtoms = Integer.valueOf(args[0]).intValue();
         }
         Default.BLOCK_SIZE = 10;
-        TestSWMC3D sim = new TestSWMC3D(new Space3D(), numAtoms);
+        TestSWMC3D sim = new TestSWMC3D(Space3D.getInstance(), numAtoms);
 
         DataSource energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverage(energyMeter.getDataInfo());

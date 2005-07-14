@@ -50,7 +50,7 @@ public class DPDSim extends SimulationGraphic{
 	public DPDSim() {this(3);}
 	
 	public DPDSim(int dim){
-		super(dim==2 ? (Space)new Space2D() : (Space)new Space3D());	//creates the simulation and its space. 
+		super(dim==2 ? (Space)Space2D.getInstance(): (Space)Space3D.getInstance());	//creates the simulation and its space. 
 		Default.makeLJDefaults();
 		double density = 3.0;
 		double temperature = Default.TEMPERATURE;

@@ -26,7 +26,7 @@ public class Lj2D_NoIntegrator extends SimulationGraphic {
     public MeterEnergy energy;
 
     public Lj2D_NoIntegrator() {
-        super(new Space2D());
+        super(Space2D.getInstance());
         Simulation.instance = this;
 	    species = new SpeciesSpheresMono(this);
 	    phase = new Phase(this);

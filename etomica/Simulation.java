@@ -43,7 +43,7 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
      * Constructs a default 2D, dynamic simulation.
      */
     public Simulation() {
-        this(new Space2D());
+        this(Space2D.getInstance());
     }
     
     /**

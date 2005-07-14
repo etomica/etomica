@@ -39,7 +39,7 @@ public class HSMD2D_noNbr extends Simulation {
     public IntegratorHard integrator;
 
     public HSMD2D_noNbr() {
-    	this(new Space2D());
+    	this(Space2D.getInstance());
     }
     
     public HSMD2D_noNbr(Space2D space) {

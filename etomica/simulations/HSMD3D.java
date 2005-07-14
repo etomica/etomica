@@ -10,13 +10,13 @@ import etomica.Space;
 import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomFactoryMono;
 import etomica.integrator.IntegratorHard;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterNbr;
 import etomica.potential.P2HardSphere;
+import etomica.space3d.Space3D;
 
 public class HSMD3D extends Simulation {
 
@@ -26,7 +26,7 @@ public class HSMD3D extends Simulation {
     public P2HardSphere potential;
     
     public HSMD3D() {
-        this(new etomica.space3d.Space3D());
+        this(Space3D.getInstance());
     }
     private HSMD3D(Space space) {
 //        super(space, new PotentialMaster(space));

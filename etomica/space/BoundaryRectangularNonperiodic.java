@@ -20,7 +20,7 @@ public class BoundaryRectangularNonperiodic extends BoundaryRectangular {
      * @param space
      */
     public BoundaryRectangularNonperiodic(Space space) {
-        super(space, new boolean[space.D]);//boolean elements will all be false
+        super(space, new boolean[space.D()]);//boolean elements will all be false
         zero = space.makeVector();
     }
 

@@ -51,7 +51,7 @@ public class ParallelTempering extends SimulationGraphic {
 	 * @param tMax maximum temperature (LJ units)
 	 */
 	public ParallelTempering(int nM, int nPhase, double tMin, double tMax) {
-		super(new Space2D());
+		super(Space2D.getInstance());
 		Default.makeLJDefaults();
 		Default.HISTORY_PERIOD = 1000; //for phase tracking
 		         

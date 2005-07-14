@@ -17,6 +17,7 @@ import etomica.graphics.DisplayPhase;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.potential.P2SquareWell;
+import etomica.space3d.Space3D;
 import etomica.units.Dimension;
 
 //remember to set up Space3D.CoordinatePair.reset if experiencing 
@@ -52,7 +53,7 @@ public class SWMD3D extends Simulation {
 	}
 	
   public SWMD3D() {
-	super(new etomica.space3d.Space3D());
+	super(Space3D.getInstance());
 //	Default.makeLJDefaults();
     
     integrator = new IntegratorHard(potentialMaster);

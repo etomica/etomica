@@ -29,7 +29,7 @@ public class ApiSingletTest extends IteratorTest {
     }
 
     public void setUp() {
-        Space space = new Space2D();
+        Space space = Space2D.getInstance();
         iterator = new ApiSinglet();
         testAtom1 = new Atom(space);
         testAtom2 = new Atom(space);

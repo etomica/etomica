@@ -101,7 +101,7 @@ public class AtomIteratorCompoundTest extends IteratorTest {
     
     public void doVariations(AtomIteratorCompound iterator, AtomIteratorListSimple[] iterators, int varIndex) {
         
-        Space space = new Space1D();
+        Space space = Space1D.getInstance();
         
         AtomList[] lists = new AtomList[iterators.length];
         for(int i=0; i<lists.length; i++) {

@@ -49,7 +49,7 @@ public class ChainNEW extends SimulationGraphic {
 
 	public ChainNEW() {
   //      super(new etomica.space.continuum.Space(2));
-		super(new Space2D());
+		super(Space2D.getInstance());
 		Default.ATOM_SIZE = 1.0;
  //can't use cell list until integrator is updated for it      setIteratorFactory(new IteratorFactoryCell(this));
 		Simulation.instance = this;

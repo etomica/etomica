@@ -19,6 +19,7 @@ import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.PotentialMasterNbr;
 import etomica.potential.P1BondedHardSpheres;
 import etomica.potential.P2HardSphere;
+import etomica.space3d.Space3D;
 
 public class ChainHSMD3D extends Simulation {
 
@@ -28,7 +29,7 @@ public class ChainHSMD3D extends Simulation {
     public P2HardSphere potential;
     
     public ChainHSMD3D() {
-        this(new etomica.space3d.Space3D());
+        this(Space3D.getInstance());
     }
     private ChainHSMD3D(Space space) {
 //        super(space, new PotentialMaster(space));

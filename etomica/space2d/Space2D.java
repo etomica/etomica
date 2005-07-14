@@ -1,13 +1,35 @@
 package etomica.space2d;
 
+import java.io.ObjectStreamException;
+
 import etomica.EtomicaInfo;
 import etomica.Space;
 import etomica.space.Boundary;
 
-public class Space2D extends Space {
+public final class Space2D extends Space {
+
+    public static final Vector2D ORIGIN = new Vector2D();
+
+    public final etomica.space.Vector origin() {
+        return ORIGIN;
+    }
+
+    /**
+     * Private constructor for singleton.
+     */
+    private Space2D() {
+        super();
+    }
+
+    /**
+     * @return Returns the instance.
+     */
+    public static Space2D getInstance() {
+        return INSTANCE;
+    }
 
     public final int D() {
-        return D;
+        return 2;
     }
 
     public final int powerD(int n) {
@@ -18,16 +40,11 @@ public class Space2D extends Space {
         return a * a;
     }
 
-    public static final Vector2D ORIGIN = new Vector2D();
-
-    public final etomica.space.Vector origin() {
-        return ORIGIN;
-    }
-
-    public static final Space2D INSTANCE = new Space2D();
-
-    public Space2D() {
-        super(2);
+    /**
+     * Returns the square root of the given value, a^(1/D) which is a^(1/2).
+     */
+    public double rootD(double a) {
+        return Math.sqrt(a);
     }
 
     public double sphereVolume(double r) {
@@ -74,5 +91,16 @@ public class Space2D extends Space {
         return Vector2D.WORK.x * Vector2D.WORK.x + Vector2D.WORK.y
                 * Vector2D.WORK.y;
     }
+
+    /**
+     * Required to guarantee singleton when deserializing.
+     * 
+     * @return the singleton INSTANCE
+     */
+    private Object readResolve() throws ObjectStreamException {
+        return INSTANCE;
+    }
+
+    private static final Space2D INSTANCE = new Space2D();
 
 }//end of Space2D

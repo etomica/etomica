@@ -1,13 +1,29 @@
 package etomica.space1d;
 
+import java.io.ObjectStreamException;
+
 import etomica.EtomicaInfo;
 import etomica.Space;
 import etomica.space.Boundary;
 
-public class Space1D extends Space {
+public final class Space1D extends Space {
+    
+    /**
+     * Private constructor for singleton.
+     */
+    private Space1D() {
+        super();
+    }
+    
+    /**
+     * @return Returns the instance.
+     */
+    public static Space1D getInstance() {
+        return INSTANCE;
+    }
 
     public final int D() {
-        return D;
+        return 1;
     }
 
     public final int powerD(int n) {
@@ -17,17 +33,16 @@ public class Space1D extends Space {
     public final double powerD(double a) {
         return a;
     }
+    
+    /**
+     * Returns the Dth root of the given value, a^(1/D), where D is the dimension of the space.
+     */
+    public double rootD(double a) {return a;}
 
     public static final Vector1D ORIGIN = new Vector1D();
 
     public final etomica.space.Vector origin() {
         return ORIGIN;
-    }
-
-    public static final Space1D INSTANCE = new Space1D();
-
-    public Space1D() {
-        super(1);
     }
 
     public double sphereVolume(double r) {
@@ -73,4 +88,15 @@ public class Space1D extends Space {
         b.nearestImage(Vector1D.WORK);
         return Vector1D.WORK.x * Vector1D.WORK.x;
     }
+    
+    /**
+     * Required to guarantee singleton when deserializing.
+     * @return the singleton INSTANCE
+     */
+    private Object readResolve() throws ObjectStreamException {
+        return INSTANCE;
+    }
+    
+    private static final Space1D INSTANCE = new Space1D();
+
 }
