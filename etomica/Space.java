@@ -1,8 +1,6 @@
 package etomica;
 
 import etomica.space.Boundary;
-import etomica.space.CoordinatePair;
-import etomica.space.CoordinatePairKinetic;
 import etomica.space.Orientation;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -56,8 +54,11 @@ public abstract class Space implements java.io.Serializable {
     public double rootD(double a) {return Math.pow(a, rD);}
     
     public abstract Vector makeVector();
+    
     public abstract Orientation makeOrientation();
+    
     public abstract Tensor makeTensor();
+    
     public abstract Tensor makeRotationTensor();
     
     /**
