@@ -1,5 +1,6 @@
 package etomica.space;
 
+import etomica.NearestImageTransformer;
 import etomica.space2d.Vector2D;
 import etomica.space3d.Vector3D;
 import etomica.utility.Function;
@@ -290,12 +291,6 @@ public abstract class Vector implements java.io.Serializable, Cloneable {
     public abstract void transform(Tensor A);
 
     /**
-     * Applies the given tensor transformation to (this-r0).
-     */
-    //TODO update this, either removing it our introducing NearestImageTransformer
-    public abstract void transform(Boundary b, Vector r0, Tensor A);
-
-    /**
      * Assigns each components to (its own) random value between 0 and d.
      */
     public abstract void setRandom(double d);
@@ -368,5 +363,20 @@ public abstract class Vector implements java.io.Serializable, Cloneable {
      * Applies the given function to each element of the vector.
      */
     public abstract void map(Function f);
+
+    /**
+     * Applies the given tensor transformation to the nearest-image transform
+     * of this minus r0.  Specifically, performs<code><p>
+     * this.ME(r0);<br>
+     * nit.nearestImage(this);<br>
+     * this.transform(A);<br>
+     * this.PE(r0)</code>
+     */
+    public void transform(NearestImageTransformer nit, Vector r0, Tensor A) {
+        this.ME(r0);
+        nit.nearestImage(this);
+        this.transform(A);
+        this.PE(r0);
+    }
 
 }

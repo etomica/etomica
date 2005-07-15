@@ -11,16 +11,8 @@ import etomica.utility.Function;
 /*
  * History Created on Jan 24, 2005 by kofke
  */
-public final class Vector2D extends etomica.space.Vector { //declared final for
+public final class Vector2D extends etomica.space.Vector {
 
-    // efficient method
-    // calls
-
-    public static final Vector2D ORIGIN = new Vector2D(0.0, 0.0); //anything
-    // using WORK
-    // is not
-    // thread-safe
-    public static final Vector2D WORK = new Vector2D();
     double x, y;
 
     public Vector2D() {
@@ -164,11 +156,6 @@ public final class Vector2D extends etomica.space.Vector { //declared final for
             y *= a;
     }
 
-    public void DE(double a) {
-        x /= a;
-        y /= a;
-    }
-
     public void DE(Vector u) {
         x /= ((Vector2D) u).x;
         y /= ((Vector2D) u).y;
@@ -262,31 +249,31 @@ public final class Vector2D extends etomica.space.Vector { //declared final for
     }
 
     public etomica.space.Vector P(Vector u) {
-        Vector2D u1 = (Vector2D) u;
-        WORK.x = x + u1.x;
-        WORK.y = y + u1.y;
-        return WORK;
+        Vector2D work = new Vector2D();
+        work.x = x + ((Vector2D)u).x;
+        work.y = y + ((Vector2D)u).y;
+        return work;
     }
 
     public etomica.space.Vector M(Vector u) {
-        Vector2D u1 = (Vector2D) u;
-        WORK.x = x - u1.x;
-        WORK.y = y - u1.y;
-        return WORK;
+        Vector2D work = new Vector2D();
+        work.x = x - ((Vector2D)u).x;
+        work.y = y - ((Vector2D)u).y;
+        return work;
     }
 
     public etomica.space.Vector T(Vector u) {
-        Vector2D u1 = (Vector2D) u;
-        WORK.x = x * u1.x;
-        WORK.y = y * u1.y;
-        return WORK;
+        Vector2D work = new Vector2D();
+        work.x = x * ((Vector2D)u).x;
+        work.y = y * ((Vector2D)u).y;
+        return work;
     }
 
     public etomica.space.Vector D(Vector u) {
-        Vector2D u1 = (Vector2D) u;
-        WORK.x = x / u1.x;
-        WORK.y = y / u1.y;
-        return WORK;
+        Vector2D work = new Vector2D();
+        work.x = x / ((Vector2D)u).x;
+        work.y = y / ((Vector2D)u).y;
+        return work;
     }
 
     public void abs() {
@@ -312,17 +299,10 @@ public final class Vector2D extends etomica.space.Vector { //declared final for
 
     public Vector3D cross(Vector3D u) {
         return new Vector3D(y * u.x(2), -x * u.x(2), x * u.x(1) - y * u.x(0));
-        //        	work.setX(0, y*u.x(2));
-        //            work.setX(1,-x*u.x(2));
-        //            work.setX(2, x*u.x(1) - y*u.x(0));
     }
 
     public Vector3D cross(Vector2D u) {
         return new Vector3D(0.0, 0.0, x * u.y - y * u.x);
-        //            Space3D.Vector.WORK.setX(0, 0.0);
-        //            Space3D.Vector.WORK.setX(1, 0.0);
-        //            Space3D.Vector.WORK.setX(2, x*u.y - y*u.x);
-        //            return Space3D.Vector.WORK;
     }
 
     /**
@@ -347,16 +327,6 @@ public final class Vector2D extends etomica.space.Vector { //declared final for
         double y0 = y;
         x = ((Tensor2D) A).xx * x0 + ((Tensor2D) A).xy * y0;
         y = ((Tensor2D) A).yx * x0 + ((Tensor2D) A).yy * y0;
-    }
-
-    public void transform(Boundary b, Vector r, Tensor A) {
-        Vector2D r2 = (Vector2D) r;
-        Tensor2D A2 = (Tensor2D) A;
-        WORK.x = x - r2.x;
-        WORK.y = y - r2.y;
-        b.nearestImage(WORK);
-        x = r2.x + A2.xx * WORK.x + A2.xy * WORK.y;
-        y = r2.y + A2.yx * WORK.x + A2.yy * WORK.y;
     }
 
     public void randomStep(double d) {

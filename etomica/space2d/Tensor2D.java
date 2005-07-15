@@ -11,10 +11,10 @@ import etomica.utility.Function;
  * Created on Jan 24, 2005 by kofke
  */
 public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
+
     public int length() {return 2;}
     double xx, xy, yx, yy;
-    public static final Tensor2D ZERO = new Tensor2D();
-    public static final Tensor2D WORK = new Tensor2D();  //anything using WORK is not thread-safe
+
     public Tensor2D () {xx = xy = yx = yy = 0.0;}
     public Tensor2D (double[] d) {
         this.E(d);
@@ -113,12 +113,12 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
         yy/=((Tensor2D)t).yy;
     }
     public void E(double[] d) {
-        if(d.length != 4) throw new IllegalArgumentException("Array size incorrector for tensor");
+        if(d.length != 4) throw new IllegalArgumentException("Array size incorrect for tensor; (required, given): ("+4+", "+d);
         xx = d[0]; xy = d[1]; 
         yx = d[2]; yy = d[3];
     }
     public void assignTo(double[] d) {
-        if(d.length != 1) throw new IllegalArgumentException("Array size incorrector for tensor");
+        if(d.length != 4) throw new IllegalArgumentException("Array size incorrect for tensor; (required, given): ("+4+", "+d);
         d[0] = xx; d[1] = xy; 
         d[2] = yx; d[3] = yy;
     }

@@ -387,13 +387,6 @@ public final class Vector3D extends Vector {
         y = y1;
     }
 
-    public void transform(Boundary b, Vector r0, Tensor A) {
-        this.ME(r0);
-        b.nearestImage(this);
-        this.transform(A);
-        this.PE(r0);
-    }
-
     public void randomStep(double d) {
         x += (2. * Simulation.random.nextDouble() - 1) * d;
         y += (2. * Simulation.random.nextDouble() - 1) * d;

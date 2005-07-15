@@ -97,7 +97,7 @@ public class MeterRadiusGyration extends DataSourceScalar implements Meter {
                 cPair.reset(prevAtom.coord, a.coord);
                 Vector dr = cPair.dr();
                 realPos.PE(dr);
-                dr = realPos.M(cm);
+                dr.Ev1Mv2(realPos, cm);// = realPos.M(cm);
                 r2 += dr.squared();
                 prevAtom = a;
             }

@@ -13,7 +13,6 @@ public final class Vector1D extends etomica.space.Vector { //declared final for
                                                            // efficient method
                                                            // calls
 
-    public static final Vector1D ZERO = new Vector1D(0.0);
     public static final Vector1D WORK = new Vector1D();
     double x;
 
@@ -27,7 +26,7 @@ public final class Vector1D extends etomica.space.Vector { //declared final for
 
     public Vector1D(double[] a) {
         x = a[0];
-    }//should check length of a for exception
+    }
 
     public Vector1D(Vector1D u) {
         this.E(u);
@@ -178,27 +177,27 @@ public final class Vector1D extends etomica.space.Vector { //declared final for
     }
 
     public etomica.space.Vector P(Vector u) {
-        Vector1D u1 = (Vector1D) u;
-        WORK.x = x + u1.x;
-        return WORK;
+        Vector1D work = new Vector1D();
+        work.x = x + ((Vector1D)u).x;
+        return work;
     }
 
     public etomica.space.Vector M(Vector u) {
-        Vector1D u1 = (Vector1D) u;
-        WORK.x = x - u1.x;
-        return WORK;
+        Vector1D work = new Vector1D();
+        work.x = x - ((Vector1D)u).x;
+        return work;
     }
 
     public etomica.space.Vector T(Vector u) {
-        Vector1D u1 = (Vector1D) u;
-        WORK.x = x * u1.x;
-        return WORK;
+        Vector1D work = new Vector1D();
+        work.x = x * ((Vector1D)u).x;
+        return work;
     }
 
     public etomica.space.Vector D(Vector u) {
-        Vector1D u1 = (Vector1D) u;
-        WORK.x = x / u1.x;
-        return WORK;
+        Vector1D work = new Vector1D();
+        work.x = x / ((Vector1D)u).x;
+        return work;
     }
 
     public void abs() {
@@ -223,17 +222,6 @@ public final class Vector1D extends etomica.space.Vector { //declared final for
 
     public void transform(etomica.space.Tensor A) {
         x = ((Tensor1D) A).xx * x;
-    }
-
-    public void transform(etomica.space.Boundary b, etomica.space.Vector r0,
-            etomica.space.Tensor A) {
-        transform(b, (Vector1D) r0, (Tensor1D) A);
-    }
-
-    public void transform(Boundary b, Vector1D r0, Tensor1D A) {
-        WORK.x = x - r0.x;
-        b.nearestImage(WORK);
-        x = r0.x + A.xx * WORK.x;
     }
 
     public void randomStep(double d) {
