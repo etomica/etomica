@@ -3,8 +3,8 @@ package etomica.space1d;
 import java.io.ObjectStreamException;
 
 import etomica.EtomicaInfo;
+import etomica.NearestImageTransformer;
 import etomica.Space;
-import etomica.space.Boundary;
 
 public final class Space1D extends Space {
     
@@ -77,10 +77,28 @@ public final class Space1D extends Space {
         return info;
     }
 
-    public static final double r2(Vector1D u1, Vector1D u2, Boundary b) {
-        Vector1D.WORK.x = u1.x - u2.x;
-        b.nearestImage(Vector1D.WORK);
-        return Vector1D.WORK.x * Vector1D.WORK.x;
+    /**
+     * Computes the square of the magnitude of the difference of two vectors, subject
+     * to a nearest image transformation.  This method constructs a new vector that
+     * is used as the work-vector input to the other r2 method.
+     */
+    public static final double r2(Vector1D u1, Vector1D u2, NearestImageTransformer b) {
+        return r2(u1, u2, b, new Vector1D());
+    }
+
+    /**
+     * Computes the square of the magnitude of the difference of two vectors, subject
+     * to a nearest image transformation.  
+     * @param u1 one of the vectors and is unchanged by the calculation
+     * @param u2 the other vector and is unchanged by the calculation
+     * @param b a nearest image transformation
+     * @param work a work vector used for the calculation.
+     */
+    public static final double r2(Vector1D u1, Vector1D u2, NearestImageTransformer b,
+            Vector1D work) {
+        work.Ev1Mv2(u1, u2);
+        b.nearestImage(work);
+        return work.squared();
     }
     
     /**

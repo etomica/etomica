@@ -2,18 +2,14 @@ package etomica.space1d;
 
 import etomica.Simulation;
 import etomica.math.SpecialFunctions;
-import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.utility.Function;
 
 /*
  * History Created on Jan 24, 2005 by kofke
  */
-public final class Vector1D extends etomica.space.Vector { //declared final for
-                                                           // efficient method
-                                                           // calls
-
-    public static final Vector1D WORK = new Vector1D();
+public final class Vector1D extends etomica.space.Vector { 
+    
     double x;
 
     public Vector1D() {
