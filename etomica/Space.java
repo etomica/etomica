@@ -72,10 +72,10 @@ public abstract class Space implements java.io.Serializable {
     public static double r2(Vector u1, Vector u2, Boundary b) { //square distance between two vectors, subject to boundary b
         if(u1.D() != u2.D()) throw new IllegalArgumentException("Space.r2:  Dimension of vectors not equal to each other");
         switch(u1.D()) {
-            case 1: return Space1D.r2((Vector1D)u1, (Vector1D)u2, b);
-            case 2: return Space2D.r2((Vector2D)u1, (Vector2D)u2, b);
-            case 3: return Space3D.r2((Vector3D)u1, (Vector3D)u2, b);
-            default: throw new IllegalArgumentException("Space.r2: Unknown vector dimension");
+            case 1: return Space1D.r2((Vector1D)u1, (Vector1D)u2, b, new Vector1D());
+            case 2: return Space2D.r2((Vector2D)u1, (Vector2D)u2, b, new Vector2D());
+            case 3: return Space3D.r2((Vector3D)u1, (Vector3D)u2, b, new Vector3D());
+            default: throw new UnsupportedOperationException("Unsupported Space dimension");
         }
     }
     /**
