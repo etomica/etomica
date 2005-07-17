@@ -3,110 +3,110 @@ package etomica.virial.paralleltempering;
 import etomica.Atom;
 import etomica.AtomIterator;
 import etomica.Integrator;
-import etomica.IteratorDirective;
 import etomica.Phase;
+import etomica.PotentialMaster;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.atom.iterator.AtomIteratorListSimple;
-import etomica.integrator.IntegratorMC;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.integrator.IntegratorPT;
 import etomica.integrator.MCMove;
 import etomica.space.Vector;
-import etomica.virial.PairSet;
+import etomica.virial.IntegratorClusterMC;
+import etomica.virial.MCMoveCluster;
 import etomica.virial.PhaseCluster;
 
 /**
- * Swaps configurations and pairSet between phases.
+ * Swaps configurations and pairSet between phases for a virial clustering simulation. 
  */
-public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap {
+public class MCMoveSwapCluster extends MCMove implements MCMoveCluster, IntegratorPT.MCMoveSwap {
 
-	private IntegratorMC integrator1, integrator2;	
-	private final IteratorDirective iteratorDirective = new IteratorDirective();
-	private AtomIteratorListSimple iterator1 = new AtomIteratorListSimple();
-	private AtomIteratorListSimple iterator2 = new AtomIteratorListSimple();
+	private IntegratorClusterMC integrator1, integrator2;	
+	private AtomIteratorLeafAtoms iterator1 = new AtomIteratorLeafAtoms();
+	private AtomIteratorLeafAtoms iterator2 = new AtomIteratorLeafAtoms();
 	private AtomIteratorAllMolecules affectedAtomIterator = new AtomIteratorAllMolecules();
 	private Vector r;
 	private PhaseCluster phase1, phase2;
-	private double buOld1, buOld2, buNew1, buNew2 = Double.NaN;
+    private double weightOld1, weightOld2;
+    private double weightNew1, weightNew2;
 	private double beta1, beta2;
 	private final Phase[] swappedPhases = new Phase[2];
 
-	public MCMoveSwapCluster(IntegratorMC integratorMC, 
-									Integrator integrator1, Integrator integrator2) {
-		super(integratorMC);
-		r = integratorMC.space.makeVector();
+	public MCMoveSwapCluster(PotentialMaster potentialMaster, 
+									IntegratorClusterMC integrator1, IntegratorClusterMC integrator2) {
+		super(potentialMaster,2);
+		r = potentialMaster.getSpace().makeVector();
 		setTunable(false);
-		this.integrator1 = (IntegratorMC)integrator1;
-		this.integrator2 = (IntegratorMC)integrator2;		
+		this.integrator1 = integrator1;
+		this.integrator2 = integrator2;		
 	}
 
 	public boolean doTrial() {
 		if(phase1 == null || phase2 == null) {
-			phase1 = (PhaseCluster)integrator1.getPhase(0); 
-			phase2 = (PhaseCluster)integrator2.getPhase(0);
-			iterator1.setList(phase1.getSpeciesMaster().atomList);
-			iterator2.setList(phase2.getSpeciesMaster().atomList);
+			phase1 = (PhaseCluster)integrator1.getPhase()[0];
+			phase2 = (PhaseCluster)integrator2.getPhase()[1];
+			iterator1.setPhase(phase1);
+			iterator2.setPhase(phase2);
 		}
 
 		beta1 = 1.0/integrator1.getTemperature();
 		beta2 = 1.0/integrator2.getTemperature();
 		
-		buOld1 = beta1*potential.calculate(phase1, iteratorDirective, energy.reset()).sum();
-		buOld2 = beta2*potential.calculate(phase2, iteratorDirective, energy.reset()).sum();
-		
+        weightOld1 = integrator1.getWeight();
+        weightOld2 = integrator2.getWeight();
+        
 		//assumes energy will be determined using only pairSets in phases
-		swapPairSets(phase1, phase2);
+        phase1.trialNotify();
+        phase2.trialNotify();
 		
-		buNew1 = buNew2 = Double.NaN;
+		weightNew1 = weightNew2 = Double.NaN;
 		return true;
 	}
     
 	public double lnTrialRatio() {return 0.0;}
     
-	public double lnProbabilityRatio() {
-		buNew1 = beta1*potential.calculate(phase1, iteratorDirective, energy.reset()).sum();
-		buNew2 = beta2*potential.calculate(phase2, iteratorDirective, energy.reset()).sum();
-		return  -(buNew1 + buNew2) + (buOld1 + buOld2);
-	}
-	
-	private void swapPairSets(PhaseCluster phase1, PhaseCluster phase2) {
-		PairSet setA = phase1.getPairSet();
-		phase1.setPairSet(phase2.getPairSet());
-		phase2.setPairSet(setA);
+    public double trialRatio() {return 1.0;}
+    
+    public double lnProbabilityRatio() {
+        return Math.log(probabilityRatio());
+    }
+    
+	public double probabilityRatio() {
+        weightNew1 = phase1.getSampleCluster().value(phase1.getCPairSet(), phase1.getAPairSet(), beta2);
+        weightNew2 = phase2.getSampleCluster().value(phase2.getCPairSet(), phase2.getAPairSet(), beta1);
+		return  (weightNew1 * weightNew2) / (weightOld1 * weightOld2);
 	}
 	
 	/**
 	 * Swaps positions of molecules in two phases.
 	 */
 	public void acceptNotify() {
-		//put pairSets back and now implement swap by exchanges positions
-		swapPairSets(phase1, phase2);
 		
 		iterator1.reset();
 		iterator2.reset();
 
 		while(iterator1.hasNext()) {
-			Atom a1 = iterator1.next();
-			Atom a2 = iterator2.next();//assumes N1 == N2
+			Atom a1 = iterator1.nextAtom();
+			Atom a2 = iterator2.nextAtom();
 
 			//swap coordinates
-			r.E(a1.coord.position());
-				
-			a1.coord.translateTo(a2.coord.position());
-			a2.coord.translateTo(r);			
+            r.E(a1.coord.position());
+            
+            a1.coord.position().E(a2.coord.position());
+            a2.coord.position().E(r);
 		}
+
+        phase1.acceptNotify();
+        phase2.acceptNotify();
 	}
 	
-	/**
-	 * Just re-exchanges pairSets between phases.
-	 */
 	public void rejectNotify() {
-		swapPairSets(phase1, phase2);
-	}
-	
+        phase1.rejectNotify();
+        phase2.rejectNotify();
+    }
+    
 	public double energyChange(Phase phase) {
-		if(phase == phase1) return (buNew1 - buOld1)/beta1;
-		else if(phase == phase2) return (buNew2 - buOld2)/beta2;
-		else return 0.0;
+		if(phase == phase1) return weightNew1/weightOld1;
+		if(phase == phase2) return weightNew2/weightOld2;
+		return 0.0;
 	}
 
 	/**
@@ -120,20 +120,20 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
 
 	public AtomIterator affectedAtoms(Phase p) {
 		if(p == phase1 || p == phase2) {
-			affectedAtomIterator.setBasis(p);
+			affectedAtomIterator.setPhase(p);
 			affectedAtomIterator.reset();
 			return affectedAtomIterator;
 		}
-		else return AtomIterator.NULL;
+		return AtomIterator.NULL;
 	}
 	
-public static class Factory implements IntegratorPT.MCMoveSwapFactory, java.io.Serializable {
-	public MCMove makeMCMoveSwap(IntegratorMC integratorMC, 
-									Integrator integrator1, Integrator integrator2) {
-		return new MCMoveSwapCluster(integratorMC, 
-										integrator1, integrator2);
-	}
-}//end of MCMoveSwapFactoryDefault 
+	public static class Factory implements IntegratorPT.MCMoveSwapFactory, java.io.Serializable {
+	    public MCMove makeMCMoveSwap(PotentialMaster potentialMaster, 
+									 Integrator integrator1, Integrator integrator2) {
+	        return new MCMoveSwapCluster(potentialMaster, 
+										 (IntegratorClusterMC)integrator1, (IntegratorClusterMC)integrator2);
+	    }
+	}//end of MCMoveSwapFactoryDefault 
 	
 }//end of MCMoveSwapPolydisperse
 
