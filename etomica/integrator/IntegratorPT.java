@@ -1,7 +1,5 @@
 package etomica.integrator;
 
-import etomica.Atom;
-import etomica.AtomIterator;
 import etomica.Data;
 import etomica.DataInfo;
 import etomica.DataSource;
@@ -14,11 +12,10 @@ import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.SimulationEvent;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.types.DataDoubleArray;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveListener;
-import etomica.space.Vector;
+import etomica.integrator.mcmove.MCMoveSwapConfiguration;
 import etomica.units.Dimension;
 import etomica.utility.Arrays;
 
@@ -48,7 +45,7 @@ import etomica.utility.Arrays;
 public class IntegratorPT extends IntegratorMC implements EtomicaElement {
     
     public IntegratorPT(PotentialMaster potentialMaster) {
-        this(potentialMaster, new MCMoveSwapFactoryDefault());
+        this(potentialMaster, MCMoveSwapConfiguration.FACTORY);
     }
     public IntegratorPT(PotentialMaster potentialMaster, MCMoveSwapFactory swapFactory) {
         super(potentialMaster);
@@ -77,6 +74,10 @@ public class IntegratorPT extends IntegratorMC implements EtomicaElement {
             addMCMove(newMCMove);
 		}
 	}
+    
+    public boolean addPhase(Phase p) {
+        throw new RuntimeException("IntegratorPT does not work on a phase");
+    }
 	
 	/**
 	 * Fires interval event for this integrator, then instructs
@@ -166,150 +167,31 @@ public class IntegratorPT extends IntegratorMC implements EtomicaElement {
 	private final MCMoveSwapFactory mcMoveSwapFactory;
 
 	
-	//----------- inner interface -----------
-	
 	/**
 	 * Interface for a class that can make a MCMove that will swap
 	 * the configurations of two phases.  Different MCMove classes
 	 * would do this differently, depending on ensemble of simulation
 	 * and other factors.
 	 */
-public interface MCMoveSwapFactory {
-    
-    /**
-     * @param integratorMC the parent integrator using this move
-     * @param integrator1 integrator for one of the phases being swapped
-     * @param integrator2 integrator for the other phase
-     */
-    public MCMove makeMCMoveSwap(PotentialMaster potentialMaster, Integrator integrator1, Integrator integrator2);
-}//end of MCMoveSwapFactory
+	public interface MCMoveSwapFactory {
+	    /**
+	     * @param integratorMC the parent integrator using this move
+	     * @param integrator1 integrator for one of the phases being swapped
+	     * @param integrator2 integrator for the other phase
+	     */
+	    public MCMove makeMCMoveSwap(PotentialMaster potentialMaster, Integrator integrator1, Integrator integrator2);
+	}
 
-    // --------------- inner interface ------------
-    
     /**
      * Interface for a move that swaps two phases.  Enables access to
      * the swapped phases.
      */
-public interface MCMoveSwap {
-    
-    public Phase[] swappedPhases();
-    
-}
-
-
-
-    // -----------inner class----------------
-    
-public static class MCMoveSwapFactoryDefault implements MCMoveSwapFactory, java.io.Serializable {
-    public MCMove makeMCMoveSwap(PotentialMaster potentialMaster, 
-                                    Integrator integrator1, Integrator integrator2) {
-        return new MCMoveSwapConfiguration(potentialMaster, integrator1, integrator2);
+    public interface MCMoveSwap {
+        public Phase[] swappedPhases();
     }
-}//end of MCMoveSwapFactoryDefault 
 
 
-	
-	// -----------inner class----------------
-	
 	/**
-	 * Basic MCMove for swapping coordinates of atoms in two phases.
-	 * Requires same number of atoms in each phase.
-	 */
-public static class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
-
-	private final Integrator integrator1, integrator2;	
-	private final AtomIteratorLeafAtoms iterator1 = new AtomIteratorLeafAtoms();
-	private final AtomIteratorLeafAtoms iterator2 = new AtomIteratorLeafAtoms();
-	private final AtomIteratorLeafAtoms affectedAtomIterator = new AtomIteratorLeafAtoms();
-	private final Vector r;
-	private double u1, u2, temp1, temp2, deltaU1;
-	private final Phase[] swappedPhases = new Phase[2];
-
-	public MCMoveSwapConfiguration(PotentialMaster potentialMaster, 
-	                                Integrator integrator1, Integrator integrator2) {
-  		super(potentialMaster,2);
-		r = potentialMaster.getSpace().makeVector();
-		setTunable(false);
-		this.integrator1 = integrator1;
-		this.integrator2 = integrator2;
-	}
-
-	public boolean doTrial() {
-		temp1 = integrator1.getTemperature();
-		temp2 = integrator2.getTemperature();
-
-        u1 = integrator1.getPotentialEnergy()[0];
-        u2 = integrator2.getPotentialEnergy()[0];
-        deltaU1 = Double.NaN;
-        return true;
-    }
-    
-    // NOOP
-    public void setPhase(Phase[] p) {}
-    
-    public double lnTrialRatio() {return 0.0;}
-    
-    public double lnProbabilityRatio() {
-        deltaU1 = u2 - u1;  //if accepted, energy of phase1 will be u2, and its old energy is u1
-		return  -deltaU1*((1/temp1) - (1/temp2));
-	}
-	
-	/**
-	 * Swaps positions of molecules in two phases.
-	 */
-	public void acceptNotify() {
-		iterator1.setPhase(integrator1.getPhase()[0]);
-		iterator2.setPhase(integrator2.getPhase()[0]);
-
-		iterator1.reset();
-		iterator2.reset();
-
-		while(iterator1.hasNext()) {
-			Atom a1 = iterator1.nextAtom();
-			Atom a2 = iterator2.nextAtom();
-
-			r.E(a1.coord.position());
-				
-			a1.coord.position().E(a2.coord.position());
-			a2.coord.position().E(r);
-		}
-        integrator1.reset();
-        integrator2.reset();
-	}
-	
-	/**
-     * Performs no action; nothing required when move rejected.
-     */
-	public void rejectNotify() {}
-	
-	/**
-	 * Implementation of MCMoveSwap interface
-	 */
-	public Phase[] swappedPhases() {
-	    swappedPhases[0] = integrator1.getPhase()[0];
-	    swappedPhases[1] = integrator2.getPhase()[0];
-	    return swappedPhases;
-	}
-
-	public double energyChange(Phase phase) {
-	    if(phase == integrator1.getPhase()[0]) return +deltaU1;
-	    if(phase == integrator2.getPhase()[0]) return -deltaU1;
-	    return 0.0;
-	}
-	
-	public AtomIterator affectedAtoms(Phase p) {
-	    if(p == integrator1.getPhase()[0] || p == integrator2.getPhase()[0]) {
-	        affectedAtomIterator.setPhase(p);
-	        affectedAtomIterator.reset();
-	        return affectedAtomIterator;
-	    }
-	    return AtomIterator.NULL;
-	}
-}//end of MCMoveSwapConfiguration
-
-//----------------- inner class ------------------------------
-
-    /**
      * Meter that tracks the swapping of the phases in parallel-tempering
      * simulation.  Designed for input to a DisplayPlot to provide a graphical
      * record of how the phases swap configurations.
@@ -370,7 +252,7 @@ public static class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap
             return track.length;
         }
         
-    }//end of MeterPhaseTracker
+    }
     
-}//end of IntegratorPT
+}
 
