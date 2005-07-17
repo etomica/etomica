@@ -20,7 +20,7 @@ public abstract class Space implements java.io.Serializable {
      * Returns a space instance of the given dimension, which must be 1, 2, or 3.
      */
     public static Space getInstance(int D) {
-        switch(Dx) {
+        switch(D) {
         case 1: 
             return Space1D.getInstance();
         case 2:
