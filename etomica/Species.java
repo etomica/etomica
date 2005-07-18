@@ -1,5 +1,4 @@
 package etomica;
-import etomica.action.AtomAction;
 import etomica.units.Dimension;
 import etomica.utility.NameMaker;
 
@@ -92,7 +91,7 @@ public class Species implements java.io.Serializable {
      * Nominal number of molecules of this species in each phase.
      * Actual number may differ if molecules have been added or removed to/from the phase
      */
-    protected int nMolecules = 20;
+    protected int nMolecules = Default.MOLECULE_COUNT;
     
     /**
      * Accessor method for nominal number of molecules in each phase.  Actual 
@@ -116,14 +115,6 @@ public class Species implements java.io.Serializable {
     public void setNMolecules(int n) {
         nMolecules = n;
     }
-        
-    /**
-     * Performs the given action on all of this species agents in all phases.
-     */
-    public void allAgents(AtomAction action) {
-        if(action == null) return;
-        agents.doToAll(action);
-    }
     
     /**
      * Constructs an Agent of this species and sets its parent phase.
@@ -133,10 +124,8 @@ public class Species implements java.io.Serializable {
      * @return The new agent.
      */
     public SpeciesAgent makeAgent(SpeciesMaster parent) {
-        Phase phase = parent.node.parentPhase();
         SpeciesAgent agent = new SpeciesAgent(agentType, this);
         agent.node.setParent((AtomTreeNodeGroup)parent.node);
-        agents.put(phase, agent);   //associate agent with phase; retrieve agent for a given phase using agents.get(p)
         return agent;
     }
 
@@ -147,7 +136,7 @@ public class Species implements java.io.Serializable {
      * @param p The phase for which this species' agent is requested
      * @return The agent of this species in the phase
      */
-    public final SpeciesAgent getAgent(Phase p) {return agents.get(p);}
+    public final SpeciesAgent getAgent(Phase p) {return p.getAgent(this);}
 
     public final AtomFactory getFactory() {
         return factory;
@@ -164,37 +153,9 @@ public class Species implements java.io.Serializable {
         return new AtomTypeGroup(sim.speciesRoot.childType, null);
     }
     
-    final AgentList agents = new AgentList();
     final AtomType agentType;
     protected final AtomFactory factory;
     private String name;
     private final int index;
-
-    /**
-     * Class that keeps a list of all agents in a way that
-     * they can be referenced according to the phase they are in.
-     * Uses the phase index to index them.
-     * Mimics hash functionality.
-     */
-    private static final class AgentList implements java.io.Serializable {
-        
-        private SpeciesAgent[] agentArray = new SpeciesAgent[0];
-        
-        void put(Phase phase, SpeciesAgent agent) {
-            int index = phase.getIndex();
-            //expand array size
-            if(index >= agentArray.length) {
-                agentArray = (SpeciesAgent[])etomica.utility.Arrays.resizeArray(agentArray,index+1);
-            }
-            agentArray[index] = agent;
-        }
-        
-        SpeciesAgent get(Phase phase) {return agentArray[phase.getIndex()];}
-        
-        void doToAll(AtomAction action) {
-            for(int i=agentArray.length-1; i>=0; i--) action.actionPerformed(agentArray[i]);
-        }
-        
-    }//end of AgentList
     
 }
