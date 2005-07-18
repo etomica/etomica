@@ -392,7 +392,7 @@ public abstract class BaseUnit implements Unit, java.io.Serializable {
         if(dimension == null) throw new IllegalArgumentException("null argument for dimension passed to BaseUnit.all()");
         if(dimension == Dimension.NULL) return new Class[] {dimension.baseUnit()};
 	    Class baseUnitClass = dimension.baseUnit();
-	    java.io.File dir = new java.io.File(etomica.Default.CLASS_DIRECTORY+"/units");
+	    java.io.File dir = null;//new java.io.File(etomica.Default.CLASS_DIRECTORY+"/units");
 	    String[] files = dir.list(new java.io.FilenameFilter() {
 	        public boolean accept(java.io.File d, String name) {
 	              return !name.startsWith("BaseUnit") ||
