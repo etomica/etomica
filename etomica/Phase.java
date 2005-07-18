@@ -1,7 +1,17 @@
 package etomica;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Iterator;
+import java.util.LinkedList;
+
 import etomica.action.PhaseInflate;
 import etomica.atom.AtomLinker;
+import etomica.atom.AtomList;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.lattice.RectangularLattice;
 import etomica.space.Boundary;
@@ -270,6 +280,70 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         return speciesMaster;
     }
 
+    public void writePhase(ObjectOutputStream out) throws IOException {
+        out.writeObject(boundary);
+        AtomList agents = ((AtomTreeNodeGroup)speciesMaster.node).childList;
+        out.writeInt(agents.size());
+        for (AtomLinker link = agents.header.next; link != agents.header; link = link.next) {
+            Species species = ((SpeciesAgent)link.atom).type.getSpecies();
+            out.writeObject(species.getSpeciesSignature());
+            out.writeInt(((SpeciesAgent)link.atom).getNMolecules());
+        }
+        AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
+        iterator.setPhase(this);
+        iterator.reset();
+        while (iterator.hasNext()) {
+            out.writeObject(iterator.nextAtom().coord);
+        }
+    }
+    
+    public static Phase readPhase(ObjectInputStream in, Simulation sim, SpeciesResolver resolver) throws IOException, ClassNotFoundException {
+        Boundary newBoundary = (Boundary)in.readObject();
+        Phase newPhase = new Phase(sim);
+        newPhase.setBoundary(newBoundary);
+        
+        LinkedList mySpecies = sim.getSpeciesList();
+        int numSpecies = in.readInt();
+        for (int i = 0; i<numSpecies; i++) {
+            SpeciesSignature speciesSignature = (SpeciesSignature)in.readObject();
+            Iterator iterator = mySpecies.iterator();
+            Species newSpecies = null;
+            Species[] candidates = new Species[0];
+            while (iterator.hasNext()) {
+                Species candidate = (Species)iterator.next();
+                if (speciesSignature.equals(candidate.getSpeciesSignature())) {
+                    candidates = (Species[])etomica.utility.Arrays.addObject(candidates,candidate);
+                    break;
+                }
+                if (candidates.length > 0) {
+                    newSpecies = resolver.whichOneDoYouLike(candidates,speciesSignature.name);
+                }
+            }
+            if (newSpecies == null) {
+                Constructor constructor = speciesSignature.constructor;
+                Object[] parameters = new Object[speciesSignature.parameters.length+1];
+                parameters[0] = sim;
+                System.arraycopy(speciesSignature.parameters,0,parameters,1,parameters.length-1);
+                try {
+                    newSpecies = (Species)constructor.newInstance(parameters);
+                }
+                catch (IllegalAccessException e) {}
+                catch (InstantiationException e) {}
+                catch (InvocationTargetException e) {}
+            }
+            int nMolecules = in.readInt();
+            newPhase.getAgent(newSpecies).setNMolecules(nMolecules);
+        }
+
+        AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
+        iterator.setPhase(newPhase);
+        iterator.reset();
+        while (iterator.hasNext()) {
+            iterator.nextAtom().coord.E(iterator.nextAtom().coord);
+        }
+        return newPhase;
+    }
+    
     private Boundary boundary;
     private SpeciesMaster speciesMaster;
     private boolean lrcEnabled = true;

@@ -1,4 +1,6 @@
 package etomica;
+import java.lang.reflect.Constructor;
+
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomFactoryTree;
 import etomica.atom.AtomSequencerFactory;
@@ -47,15 +49,22 @@ public class SpeciesTree extends Species implements EtomicaElement {
         CoordinateFactory coordFactory = new CoordinateFactorySphere(sim);
         ((AtomFactoryTree)factory).setLeafFactory(new AtomFactoryMono(coordFactory, atomType, seqFactory));
         factory.setSpecies(this);
-        
-        nMolecules = Default.MOLECULE_COUNT;
     }
     
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Species with molecules formed as an arbitrarily specified tree");
         return info;
     }
-
+    public SpeciesSignature getSpeciesSignature() {
+        Constructor constructor = null;
+        try {
+            constructor = this.getClass().getConstructor(new Class[]{Simulation.class});
+        }
+        catch(NoSuchMethodException e) {
+            System.err.println("you have no constructor.  be afraid");
+        }
+        return new SpeciesSignature(getName(),constructor,new Object[]{new Integer(1)});
+    }
 }
 
 

@@ -33,7 +33,7 @@ import etomica.utility.NameMaker;
   * @see PotentialMaster
   */
  
-public class Species implements java.io.Serializable {
+public abstract class Species implements java.io.Serializable {
 
     /**
      * Constructs species with molecules built by the given atom factory.
@@ -152,6 +152,8 @@ public class Species implements java.io.Serializable {
     public static AtomTypeGroup makeAgentType(Simulation sim) {
         return new AtomTypeGroup(sim.speciesRoot.childType, null);
     }
+    
+    public abstract SpeciesSignature getSpeciesSignature();
     
     final AtomType agentType;
     protected final AtomFactory factory;

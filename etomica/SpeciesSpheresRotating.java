@@ -1,5 +1,7 @@
 package etomica;
 
+import java.lang.reflect.Constructor;
+
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTypeOrientedSphere;
@@ -78,7 +80,17 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
      * @return Dimension.LENGTH
      */
     public Dimension getDiameterDimension() {return Dimension.LENGTH;}
- 
+    
+    public SpeciesSignature getSpeciesSignature() {
+        Constructor constructor = null;
+        try {
+            constructor = this.getClass().getConstructor(new Class[]{Simulation.class});
+        }
+        catch(NoSuchMethodException e) {
+            System.err.println("you have no constructor.  be afraid");
+        }
+        return new SpeciesSignature(getName(),constructor,new Object[]{});
+    }
 }
 
 
