@@ -17,17 +17,11 @@ import etomica.units.UnitSystem;
 
 public final class Default implements java.io.Serializable {
     
- //   public static String WORKING_DIRECTORY = getWorkingDirectory();
- //   public static String WORKING_DIRECTORY = "D:\\Etomica\\";
-   public static String WORKING_DIRECTORY = "";
-    
-    public static String CLASS_DIRECTORY = WORKING_DIRECTORY + "etomica";
-    
     public static double ATOM_SIZE = 3.0;  //Angstroms
     
     public static double ATOM_MASS = 40.0; //Daltons
     
-    public static int MOLECULE_COUNT = 20;
+    public static int MOLECULE_COUNT = 0;
     
     public static double BOX_SIZE = 30.0;  //Angstroms
     
