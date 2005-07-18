@@ -207,7 +207,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      * Returns the agent of the given species in this phase.
      */
     public final SpeciesAgent getAgent(Species s) {
-        return (SpeciesAgent)((AtomTreeNodeGroup)speciesMaster.node).childList.get(s.getIndex());
+        return (SpeciesAgent)((AtomTreeNodeGroup)speciesMaster.node).childList.get(s.getIndex()-1);
     }
                        
     public final double volume() {return boundary.volume();}  //infinite volume unless using PBC
