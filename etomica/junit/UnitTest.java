@@ -1,6 +1,7 @@
 package etomica.junit;
 
 import etomica.AtomFactory;
+import etomica.AtomType;
 import etomica.AtomTypeGroup;
 import etomica.AtomTypeLeaf;
 import etomica.Phase;
@@ -9,6 +10,7 @@ import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
 import etomica.SpeciesRoot;
+import etomica.SpeciesSignature;
 import etomica.SpeciesSpheres;
 import etomica.SpeciesSpheresMono;
 import etomica.SpeciesTree;
@@ -143,11 +145,21 @@ public class UnitTest implements java.io.Serializable {
                         AtomLinker.FACTORY);
             }
             factory.setChildFactory(childFactories, nAtoms[i]);
-            Species species = new Species(sim, factory, agentType);
+            Species species = new MySpecies(sim, factory, agentType);
             species.setNMolecules(nMolecules[i]);
         }
         new Phase(sim);
         return sim.speciesRoot;
+    }
+    
+    private static class MySpecies extends Species {
+        MySpecies(Simulation sim, AtomFactory factory, AtomType type) {
+            super(sim, factory, type);
+        }
+        
+        public SpeciesSignature getSpeciesSignature() {
+            return null;
+        }
     }
 
     public static void main(String[] arg) {
