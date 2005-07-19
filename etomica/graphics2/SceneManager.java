@@ -33,18 +33,12 @@ public final class SceneManager implements  java.io.Serializable
     	renderer = r;
     }
 
-    
-    /** Paints the phase in the renderer object */
-    public void doPaint() {
-        if(!isVisible() || getPhase() == null) return;
-	    if(!canvasInitialized) 
-		  	  initCanvas();
-        updateAtomPositions();
-        renderer.render();
-    }
-    
+   
     protected void updateAtomPositions()
     {
+        if(!isVisible() || getPhase() == null) return;
+	    if(!tablesInitialized) 
+		  	  initInternalTables();
     	for ( int i=0; i<sphereCores.length; i++ )
     	{
    		      Atom a = sphereCores[i/3];
@@ -107,7 +101,7 @@ public final class SceneManager implements  java.io.Serializable
     public int getDrawBoundary() {return drawBoundary;}
 
     
-    public synchronized void initCanvas() {
+    public synchronized void initInternalTables() {
       int countSphereCores = 0, countSphereWells = 0, countSphereRotators = 0;
       int countWalls = 0, countAll = 0;
       float vertAll[];
@@ -181,7 +175,7 @@ public final class SceneManager implements  java.io.Serializable
         //renderer.setZoom(z);
       }
       
-      canvasInitialized = true;
+      tablesInitialized = true;
     }
     
 	public double getScale() {
@@ -223,7 +217,7 @@ public final class SceneManager implements  java.io.Serializable
     protected ColorScheme colorScheme;
     protected Atom[] selectedAtoms = new Atom[1];
     protected Renderable renderer;
-    private boolean canvasInitialized = false;
+    private boolean tablesInitialized = false;
 
 //  The groups of atoms
     private Atom sphereCores[];
