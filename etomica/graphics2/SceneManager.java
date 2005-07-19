@@ -8,6 +8,9 @@ import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.graphics2.ColorScheme;
+import etomica.graphics2.ColorSchemeByType;
+
 import etomica.space.Vector;
 
 /**
@@ -110,7 +113,7 @@ public final class SceneManager implements  java.io.Serializable
       float vertAll[];
       Atom atoms[];
 
-      countAll = phase.atomCount();
+      countAll = phase.getSpeciesMaster().node.leafAtomCount();
       
       if(countAll==0) return;
       
