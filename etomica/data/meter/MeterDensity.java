@@ -1,6 +1,5 @@
 package etomica.data.meter;
 
-import etomica.DataInfo;
 import etomica.EtomicaInfo;
 import etomica.Meter;
 import etomica.Phase;
