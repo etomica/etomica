@@ -15,6 +15,7 @@ public class ColorSchemeColliders implements ColorScheme {
         super();
         this.integrator = integrator;
         colorsProvided = false;
+        setDefaultColors();
     }
     /** Set colors to the default colors in the device - red, blue and gray */
     public void setDefaultColors( )
