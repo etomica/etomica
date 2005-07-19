@@ -6,7 +6,8 @@ import etomica.units.Dimension;
 /**
  * Object held by a Data instance and which provides descriptive information
  * about the data encapsulated in it. Information is typically used when
- * displaying or writing the data to file.
+ * displaying or writing the data to file, or making new Data instances that can
+ * work with the one holding this DataInfo..
  * 
  * @author Andrew Schultz and David Kofke
  * 
@@ -28,18 +29,15 @@ public class DataInfo implements java.io.Serializable {
      * @param dimension
      *            physical dimensions (e.g., length, force) of the data; cannot
      *            be changed after construction
+     * @param factory
+     *            a DataFactory that makes Data instances of the type holding
+     *            this DataInfo. New Data instances will be independent of the
+     *            one holding this, but will be structured the same way
      */
     public DataInfo(String label, Dimension dimension, DataFactory factory) {
         this.label = label;
         this.dimension = dimension;
         this.dataFactory = factory;
-    }
-    
-    //remove this constructor
-    public DataInfo(String label, Dimension dimension) {
-        this.label = label;
-        this.dimension = dimension;
-        dataFactory = null;
     }
 
     /**
@@ -51,11 +49,11 @@ public class DataInfo implements java.io.Serializable {
         this.dimension = dataInfo.dimension;
         this.dataFactory = dataInfo.dataFactory.copy();
     }
-    
+
     public DataFactory getDataFactory() {
         return dataFactory;
     }
-    
+
     public Class getDataClass() {
         return dataFactory.getDataClass();
     }
@@ -84,7 +82,7 @@ public class DataInfo implements java.io.Serializable {
     public void setLabel(String label) {
         this.label = label;
     }
-    
+
     public String toString() {
         return label + " (" + dimension.toString() + ")";
     }
