@@ -1,9 +1,12 @@
 package etomica.models.water;
+import java.lang.reflect.Constructor;
+
 import etomica.AtomTypeGroup;
 import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.Simulation;
 import etomica.Species;
+import etomica.SpeciesSignature;
 
 public class SpeciesWater extends Species implements EtomicaElement {
     
@@ -20,4 +23,14 @@ public class SpeciesWater extends Species implements EtomicaElement {
        nMolecules = nM;
     }
     
+    public SpeciesSignature getSpeciesSignature() {
+        Constructor constructor = null;
+        try {
+            constructor = this.getClass().getConstructor(new Class[]{Simulation.class});
+        }
+        catch(NoSuchMethodException e) {
+            System.err.println("you have no constructor.  be afraid");
+        }
+        return new SpeciesSignature(getName(),constructor,new Object[]{});
+    }
 }
