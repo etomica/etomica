@@ -13,7 +13,7 @@ import etomica.units.Dimension;
  * <ul>
  * <li>enables a data handler to take a single data stream and emit multiple
  * different streams from it.  An example is given by the accumulators, which
- * take data an compile one or more new sets of data from it.
+ * take data and compile one or more new sets of data from it.
  * <li>enables data that are naturally related to be handled as a single data
  * object.  For example, data that describes x-y pair values for a function y(x)
  * can be moved around together.
