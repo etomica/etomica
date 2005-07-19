@@ -17,7 +17,7 @@ import etomica.units.Dimension;
  * History
  * Created on Jun 15, 2005 by kofke
  */
-public class DataInteger extends Data implements DataNumeric {
+public class DataInteger extends Data {
 
     /**
      * Constructs a new instance with the given DataInfo.
@@ -56,14 +56,6 @@ public class DataInteger extends Data implements DataNumeric {
         x = y;
     }
     
-    public DataArithmetic toArithmetic(DataArithmetic data) {
-        if (data == null) {
-            data = new DataDouble(getDataInfo().getLabel(), getDataInfo().getDimension());
-        }
-        ((DataDouble)data).x = x;
-        return data;
-    }
-
     /**
      * Returns a string formed from the dataInfo label and the encapsulated integer.
      */

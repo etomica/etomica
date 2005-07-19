@@ -222,15 +222,6 @@ public class DataDoubleArray extends Data implements DataArithmetic {
         return x;
     }
 
-    public DataArithmetic toArithmetic(DataArithmetic data) {
-        if (data == null) {
-            data = this;
-        } else if (data != this) {
-            data.E(this);
-        }
-        return data;
-    }
-
     /**
      * Returns a string formed from the dataInfo label and the array values.
      */

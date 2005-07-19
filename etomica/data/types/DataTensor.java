@@ -157,15 +157,6 @@ public class DataTensor extends Data implements DataArithmetic {
         return x.toArray();
     }
 
-    public DataArithmetic toArithmetic(DataArithmetic data) {
-        if (data == null) {
-            data = this;
-        } else if (data != this) {
-            data.E(this);
-        }
-        return this;
-    }
-
     /**
      * Returns a string formed from the dataInfo label and the tensor values.
      */

@@ -15,7 +15,7 @@ import etomica.utility.Function;
 /*
  * History Created on Jun 15, 2005 by kofke
  */
-public interface DataArithmetic extends DataNumeric {
+public interface DataArithmetic {
 
     /**
      * Equals (=) operation. Sets the data in this instance equal to the values

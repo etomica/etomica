@@ -153,15 +153,6 @@ public class DataDouble extends Data implements DataArithmetic {
     }
 
     
-    public DataArithmetic toArithmetic(DataArithmetic data) {
-        if (data == null) {
-            data = this;
-        } else if (data != this) {
-            data.E(this);
-        }
-        return this;
-    }
-
     /**
      * Returns a string formed from the dataInfo label and this value.
      */
