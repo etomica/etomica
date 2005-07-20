@@ -108,7 +108,7 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
 	protected MCMove selectMove() {
 		if (firstMoveLink == null)
 			return null;
-		int i = Simulation.random.nextInt(frequencyTotal));
+		int i = Simulation.random.nextInt(frequencyTotal);
 		MCMoveLinker link = firstMoveLink;
 		while ((i -= link.fullFrequency) >= 0) {
 			link = link.nextLink;
