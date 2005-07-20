@@ -188,8 +188,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      * Returns a randomly selected molecule from the phase.
      */
     public Atom randomMolecule() {
-        int i = (int)(moleculeCount() * Simulation.random.nextDouble());
-        return molecule(i);
+        return molecule(Simulation.random.nextInt(moleculeCount()));
     }
       
     /**

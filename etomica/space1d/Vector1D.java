@@ -245,7 +245,7 @@ public final class Vector1D extends etomica.space.Vector {
     }
 
     public void randomDirection() {
-        x = (Simulation.random.nextDouble() < 0.5) ? -1.0 : +1.0;
+        x = (Simulation.random.nextBoolean()) ? -1.0 : +1.0;
     }
 
     public void E(Vector u) {

@@ -130,7 +130,7 @@ public class AtomList implements java.io.Serializable
       */
      public Atom getRandom() {
         if(isEmpty()) return null;
-        return entry((int)(Simulation.random.nextDouble()*size)).atom;
+        return entry(Simulation.random.nextInt(size)).atom;
      }
 
     /**

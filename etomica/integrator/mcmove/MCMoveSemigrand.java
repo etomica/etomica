@@ -156,7 +156,7 @@ public class MCMoveSemigrand extends MCMove {
     
     public boolean doTrial() {
         //select species for deletion
-        iDelete = (int)(Simulation.random.nextDouble()*nSpecies);//System.out.println("Random no. :"+randomNo);
+        iDelete = Simulation.random.nextInt(nSpecies);//System.out.println("Random no. :"+randomNo);
         deleteAgent = agentSet[iDelete];
         if(deleteAgent.moleculeCount() == 0) {
             uNew = uOld = 0.0;
@@ -166,7 +166,7 @@ public class MCMoveSemigrand extends MCMove {
         //select species for insertion
         iInsert = iDelete;
         if(nSpecies == 2) iInsert = 1 - iDelete;
-        else while(iInsert == iDelete) {iInsert = (int)(Simulation.random.nextDouble()*nSpecies);}
+        else while(iInsert == iDelete) {iInsert = Simulation.random.nextInt(nSpecies);}
         insertAgent = agentSet[iInsert];
   
         deleteMolecule = deleteAgent.randomMolecule();

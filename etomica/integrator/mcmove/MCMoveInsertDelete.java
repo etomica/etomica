@@ -83,7 +83,7 @@ public class MCMoveInsertDelete extends MCMove {
      * or deletion.
      */
     public boolean doTrial() {
-        insert = Simulation.random.nextDouble() < 0.5;
+        insert = Simulation.random.nextBoolean();
         if(insert) {
             uOld = 0.0;
             

@@ -20,7 +20,7 @@ public class RotationTensor extends Tensor3D implements etomica.space.RotationTe
      * Sets tensor to for rotation by the given angle about a randomly selected axis.
      */
     public void setAxial(double theta) {
-        int n = (int)(Simulation.random.nextDouble()*3);
+        int n = Simulation.random.nextInt(3);
         setAxial(n, theta);
     }
     /**

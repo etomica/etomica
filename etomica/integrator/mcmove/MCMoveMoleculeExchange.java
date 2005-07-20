@@ -62,7 +62,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
     }
         
     public boolean doTrial() {
-        if(Simulation.random.nextDouble() < 0.5) {
+        if(Simulation.random.nextBoolean()) {
             iPhase = firstPhase;
             dPhase = secondPhase;
         }
