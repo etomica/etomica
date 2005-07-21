@@ -18,49 +18,51 @@ public class Potential2HardSphericalWrapper extends Potential2HardSpherical {
         setPotential(potential);
     }
 
-    public void setPotential(Potential2HardSpherical potential) {
+    public void setPotential(PotentialHard potential) {
+        if(potential == null) {
+            throw new NullPointerException("Cannot wrap null potential; use P2Ideal");
+        }
+        if(!(potential instanceof Potential2)) {
+            throw new ClassCastException("Can wrap only 2-body potentials");
+        }
+        if(!(potential instanceof Potential2Spherical)) {
+            throw new ClassCastException("Can wrap only spherical potentials");
+        }
         wrappedPotential = potential;
     }
     
     public void setPhase(Phase phase) {
-        if (wrappedPotential==null) throw new RuntimeException("can't set phase of null potential");;
-        wrappedPotential.setPhase(phase);
+        ((Potential2)wrappedPotential).setPhase(phase);
     }
     
     public double getRange() {
-        return wrappedPotential.getRange();
+        return ((Potential2)wrappedPotential).getRange();
     }
     
     public double collisionTime(AtomSet atoms, double falseTime) {
-        if (wrappedPotential==null) return Double.POSITIVE_INFINITY;
         return wrappedPotential.collisionTime(atoms,falseTime);
     }
     
     public double lastCollisionVirial() {
-        if (wrappedPotential==null) throw new RuntimeException("can't have virial with null potential");;
         return wrappedPotential.lastCollisionVirial();
     }
     
     public Tensor lastCollisionVirialTensor() {
-        if (wrappedPotential==null) throw new RuntimeException("can't have virial with null potential");
         return wrappedPotential.lastCollisionVirialTensor();
     }
     
     public void bump(AtomSet atoms, double falseTime) {
-        if (wrappedPotential==null) throw new RuntimeException("can't bump with null potential");
         wrappedPotential.bump(atoms,falseTime);
     }
     
     public double energyChange() {
-        if (wrappedPotential==null) throw new RuntimeException("can't have energy change with null potential");
         return wrappedPotential.energyChange();
     }
 
     public double u(double r2) {
-        if (wrappedPotential==null) return 0;
-        return wrappedPotential.u(r2);
+        return ((Potential2Spherical)wrappedPotential).u(r2);
     }
     
-    private Potential2HardSpherical wrappedPotential;
+    private PotentialHard wrappedPotential;
 
 }
