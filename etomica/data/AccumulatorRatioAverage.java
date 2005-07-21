@@ -35,7 +35,8 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
             double errorRatio0 = ((DataDoubleArray)error).getData()[0]/average0;
             errorRatio0 *= errorRatio0;
             ratioError.E((Data)error);
-            ratioError.TE(error);
+            ratioError.DE(average);
+            ratioError.TE(ratioError);
             ratioError.PE(errorRatio0);
             ratioError.map(Function.Sqrt.INSTANCE);
             ratioError.TE(ratio);
@@ -43,7 +44,8 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
 
             double stdevRatio0 = ((DataDoubleArray)standardDeviation).getData()[0]/average0;
             ratioStandardDeviation.E((Data)standardDeviation);
-            ratioStandardDeviation.TE(standardDeviation);
+            ratioStandardDeviation.DE(average);
+            ratioStandardDeviation.TE(ratioStandardDeviation);
             ratioStandardDeviation.PE(stdevRatio0);
             ratioStandardDeviation.map(Function.Sqrt.INSTANCE);
             ratioStandardDeviation.TE(ratio);
@@ -68,7 +70,7 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
         ratioError = (DataArithmetic)factory.makeData("Ratio error", Dimension.NULL);
         ratioStandardDeviation = (DataArithmetic)factory.makeData("Ratio stddev", Dimension.NULL);
         super.initialize(dataInfo);
-        Data[] dataGroups = new Data[dataGroup.getNData()+2];
+        Data[] dataGroups = new Data[dataGroup.getNData()+3];
         int i;
         for (i=0; i<dataGroup.getNData(); i++) {
             dataGroups[i] = dataGroup.getData(i);
