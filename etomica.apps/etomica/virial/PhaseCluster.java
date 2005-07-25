@@ -21,11 +21,6 @@ public class PhaseCluster extends Phase {
 		super(sim);
         sampleCluster = cluster;
         setBoundary(new BoundaryRectangularNonperiodic(sim.space));
-        // this is a bit contorted, but config needs to know the phase before 
-        // the coordinates are initialized
-        ConfigurationCluster config = new ConfigurationCluster(sim.space);
-        config.setPhase(this);
-        config.initializeCoordinates(this);
 	}
 	
     /**
