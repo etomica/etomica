@@ -9,13 +9,20 @@ import etomica.potential.PotentialCalculation;
  */
 
 public class PotentialCalculationClusterWeightSum extends PotentialCalculation {
-    protected double sum = 0.0;
         
-    public void reset() {sum = 1.0;}
-    public double sum() {return sum;}
+    public void reset() {
+        weight = 1.0;
+    }
+    public double weight() {
+        return weight;
+    }
 
     protected void doCalculation(AtomsetIterator iterator, Potential potential) {
-        sum = ((P0Cluster)potential).weight();
+        iterator.reset();
+        while (iterator.hasNext()) {
+            weight *= potential.energy(iterator.next());
+        }
 	}
 
+    protected double weight;
 }

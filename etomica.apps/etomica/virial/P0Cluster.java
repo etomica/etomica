@@ -1,6 +1,7 @@
 package etomica.virial;
 
 import etomica.AtomSet;
+import etomica.Debug;
 import etomica.Phase;
 import etomica.Space;
 import etomica.potential.Potential0;
@@ -21,7 +22,6 @@ import etomica.potential.Potential0;
  */
 public class P0Cluster extends Potential0 {
 
-    private double temperature;
     private PhaseCluster phaseCluster;
 	/**
 	 * Constructor for P0Cluster.
@@ -30,27 +30,16 @@ public class P0Cluster extends Potential0 {
 		super(space);
 	}
 	
-	public double weight() {
-//        System.out.println("w "+phaseCluster.getSampleCluster().value(phaseCluster.getCPairSet(), phaseCluster.getAPairSet(), 1/temperature));
-		return phaseCluster.getSampleCluster().value(phaseCluster.getCPairSet(), phaseCluster.getAPairSet(), 1/temperature);
+    // let's all pretend that the cluster weight is the energy.
+	public double energy(AtomSet atoms) {
+        if (Debug.ON && atoms.count() > 0) {
+            throw new IllegalArgumentException("You actually passed atoms to me.  I'm touched.  Now please stop.");
+        }
+		return phaseCluster.getSampleCluster().value(phaseCluster.getCPairSet(), phaseCluster.getAPairSet());
 	}
 
     public void setPhase(Phase phase) {
     	phaseCluster = (PhaseCluster)phase;
-    }
-    
-    public void setTemperature(double aTemperature) {
-        temperature = aTemperature;
-    }
-
-    /**
-     * @deprecated use weight()
-     */
-    public double energy(AtomSet atoms) {
-		double w = phaseCluster.getSampleCluster().value(
-                phaseCluster.getCPairSet(), phaseCluster.getAPairSet(), 1/temperature);
-		if (w == 0) return Double.POSITIVE_INFINITY;
-		return -Math.log(w)*temperature;
     }
     
 }

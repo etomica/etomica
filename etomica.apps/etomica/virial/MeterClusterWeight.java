@@ -22,7 +22,7 @@ public class MeterClusterWeight extends DataSourceScalar {
     public double getDataAsScalar() {
     	weight.reset();
     	potential.calculate(phase, up, weight);
-    	return weight.sum();
+    	return weight.weight();
     }
 
     /**
