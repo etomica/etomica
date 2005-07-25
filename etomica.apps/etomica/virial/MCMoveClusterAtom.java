@@ -26,16 +26,16 @@ public class MCMoveClusterAtom extends MCMoveAtom implements MCMoveCluster {
     }
     
 	public boolean doTrial() {
-        Phase phase = phases[0];
+        PhaseCluster phase = (PhaseCluster)phases[0];
 		atom = phase.getSpeciesMaster().atomList.getRandom();
-		while(atom.node.index()==0) atom = phase.getSpeciesMaster().atomList.getRandom();
+		while(atom.node.getOrdinal()==1) atom = phase.getSpeciesMaster().atomList.getRandom();
 		// this slows things down due to caching
 //		weightMeter.setTarget(atom);
 		uOld = weightMeter.getDataAsScalar();
         translationVector.setRandomCube();
         translationVector.TE(stepSize);
         atom.coord.position().PE(translationVector);
-		((PhaseCluster)phase).trialNotify();
+		phase.trialNotify();
 		uNew = Double.NaN;
 		return true;
 	}
