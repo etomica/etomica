@@ -63,8 +63,8 @@ public class SimulationVirialUmbrella extends SimulationVirial {
         MayerGeneralSpherical fTarget = new MayerGeneralSpherical(space,p2LJ);
         MayerESpherical eTarget = new MayerESpherical(space,p2LJ);
         
-        ClusterSum refCluster = Standard.virialCluster(nPoints, fRef, true, eRef);
-        ClusterSum targetCluster = Standard.virialCluster(nPoints, fTarget, true, eTarget);
+        ClusterSum refCluster = Standard.virialCluster(nPoints, fRef, true, eRef,temperature);
+        ClusterSum targetCluster = Standard.virialCluster(nPoints, fTarget, true, eTarget,temperature);
 		System.out.println("B"+nPoints);
 
         double weightRatio = 2;

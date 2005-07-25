@@ -6,7 +6,7 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
     /**
      * Constructor for ClusterSum.
      */
-    public ClusterSum(ClusterBonds[] subClusters, double[] subClusterWeights, MayerFunction[] fArray) {
+    public ClusterSum(ClusterBonds[] subClusters, double[] subClusterWeights, MayerFunction[] fArray, double temperature) {
         if (subClusterWeights.length != subClusters.length) throw new IllegalArgumentException("number of clusters and weights must be the same");
         clusters = new ClusterBonds[subClusters.length];
         clusterWeights = subClusterWeights;
@@ -17,14 +17,19 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
         }
         f = fArray;
         fValues = new double[pointCount][pointCount][fArray.length];
+        beta = 1/temperature;
     }
 
     // equal point count enforced in constructor 
     public int pointCount() {
         return clusters[0].pointCount();
     }
+    
+    public ClusterAbstract makeCopy() {
+        return new ClusterSum(clusters,clusterWeights,f,1/beta);
+    }
 
-    public double value(CoordinatePairSet cPairs, AtomPairSet aPairs, double beta) {
+    public double value(CoordinatePairSet cPairs, AtomPairSet aPairs) {
         int thisCPairID = cPairs.getID();
 //        System.out.println(thisCPairID+" "+cPairID+" "+lastCPairID+" "+value+" "+lastValue+" "+f[0].getClass());
         if (thisCPairID == cPairID) return value;
@@ -65,7 +70,19 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
         return value;
     }
     
-    public ClusterBonds[] cluster() {return clusters;}
+    public ClusterBonds[] getClusters() {return clusters;}
+    /**
+     * @return Returns the temperature.
+     */
+    public double getTemperature() {
+        return 1/beta;
+    }
+    /**
+     * @param temperature The temperature to set.
+     */
+    public void setTemperature(double temperature) {
+        beta = 1/temperature;
+    }
 
     private final ClusterBonds[] clusters;
     private final double[] clusterWeights;
@@ -73,4 +90,5 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
     private final double[][][] fValues;
     private int cPairID = -1, lastCPairID = -1;
     private double value, lastValue;
+    private double beta;
 }

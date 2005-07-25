@@ -97,10 +97,10 @@ public final class Standard implements java.io.Serializable {
 		return array;
 	}
 
-    public static ClusterAbstract virialCluster(int nBody, MayerFunction f) {
-        return virialCluster(nBody,f,true,new FTilde(f));
+    public static ClusterAbstract virialCluster(int nBody, MayerFunction f, double temperature) {
+        return virialCluster(nBody,f,true,new FTilde(f),temperature);
     }
-    public static ClusterSum virialCluster(int nBody, MayerFunction f, boolean usePermutations, MayerFunction e) {
+    public static ClusterSum virialCluster(int nBody, MayerFunction f, boolean usePermutations, MayerFunction e, double temperature) {
         if (nBody < 4) {
             e = null;
         }
@@ -170,7 +170,7 @@ public final class Standard implements java.io.Serializable {
         if (e != null) {
             allF[1] = e;
         }
-        return new ClusterSum(clusters,weights,allF);
+        return new ClusterSum(clusters,weights,allF,temperature);
 
     }
     

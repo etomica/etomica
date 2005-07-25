@@ -19,16 +19,22 @@ public class ClusterWeightUmbrella implements ClusterWeight, java.io.Serializabl
 			weightRatio[i] = 1.0/weightRatio.length;
 		}
 	}
+    
+    public ClusterAbstract makeCopy() {
+        ClusterWeightUmbrella newCluster = new ClusterWeightUmbrella(clusterArray);
+        newCluster.setWeightRatio(weightRatio);
+        return newCluster;
+    }
 	
 	public int pointCount() {
 		// can they be different?
 		return clusterArray[0].pointCount();
 	}
 
-	public double value(CoordinatePairSet cPairSet, AtomPairSet aPairSet, double beta) {
+	public double value(CoordinatePairSet cPairSet, AtomPairSet aPairSet) {
 		double sum = 0.0;
 		for (int i=0; i<clusterArray.length; i++) {
-			double v = clusterArray[i].value(cPairSet,aPairSet,beta);
+			double v = clusterArray[i].value(cPairSet,aPairSet);
 			sum += v*v*weightRatio[i];
 		}
 		return Math.sqrt(sum);
@@ -43,6 +49,12 @@ public class ClusterWeightUmbrella implements ClusterWeight, java.io.Serializabl
 	public double[] getWeightRatio() {
 		return weightRatio;
 	}
+    
+    public void setTemperature(double temp) {
+        for (int i=0; i<clusterArray.length; i++) {
+            clusterArray[i].setTemperature(temp);
+        }
+    }        
     
     private final ClusterAbstract[] clusterArray;
     private final double[] weightRatio;

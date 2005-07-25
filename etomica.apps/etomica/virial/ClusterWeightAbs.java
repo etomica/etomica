@@ -28,13 +28,21 @@ public class ClusterWeightAbs implements ClusterWeight, java.io.Serializable {
 		}
 		return weightClusters;
 	}
+    
+    public ClusterAbstract makeCopy() {
+        return new ClusterWeightAbs(weightCluster.makeCopy());
+    }
 	
 	public int pointCount() {
 		return weightCluster.pointCount();
 	}
 	
-	public double value(CoordinatePairSet cPairSet, AtomPairSet aPairSet, double beta) {
-		return Math.abs(weightCluster.value(cPairSet, aPairSet, beta));
+	public double value(CoordinatePairSet cPairSet, AtomPairSet aPairSet) {
+		return Math.abs(weightCluster.value(cPairSet, aPairSet));
 	}
+    
+    public void setTemperature(double temp) {
+        weightCluster.setTemperature(temp);
+    }
 	
 }

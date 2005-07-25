@@ -1,6 +1,7 @@
 package etomica.virial.simulations;
 
 import etomica.Meter;
+import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
@@ -34,7 +35,7 @@ public class SimulationVirial extends Simulation {
 	 * Constructor for simulation to determine the ratio bewteen reference and target Clusters
 	 */
 	public SimulationVirial(Space space, SpeciesFactory speciesFactory, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
-		super(space);
+		super(space,false,new PotentialMaster(space));
         sampleCluster = aSampleCluster;
 		int nMolecules = sampleCluster.pointCount();
 		phase = new PhaseCluster(this,sampleCluster);
@@ -43,6 +44,7 @@ public class SimulationVirial extends Simulation {
         phase.makeMolecules();
         
 		integrator = new IntegratorClusterMC(potentialMaster);
+        // it's unclear what this accomplishes, but let's do it just for fun.
 		integrator.setTemperature(temperature);
         integrator.addPhase(phase);
         integrator.setEquilibrating(false);
@@ -75,7 +77,6 @@ public class SimulationVirial extends Simulation {
         }
 		
 		P0Cluster p0 = new P0Cluster(space);
-        p0.setTemperature(temperature);
 		potentialMaster.setSpecies(p0,new Species[]{});
 		
         ConfigurationCluster configuration = new ConfigurationCluster(space);
@@ -85,7 +86,7 @@ public class SimulationVirial extends Simulation {
         allValueClusters = new ClusterAbstract[targetClusters.length+1];
         allValueClusters[0] = refCluster;
         System.arraycopy(targetClusters,0,allValueClusters,1,targetClusters.length);
-        setMeter(new MeterVirial(allValueClusters,integrator,temperature));
+        setMeter(new MeterVirial(allValueClusters,integrator));
         meter.getDataInfo().setLabel("Target/Reference Ratio");
         setAccumulator(new AccumulatorRatioAverage(meter.getDataInfo()));
 	}

@@ -17,18 +17,16 @@ import etomica.utility.NameMaker;
 public class MeterVirial implements DataSource, Meter, java.io.Serializable {
 
 	protected final ClusterAbstract clusters[];
-	double beta;
 	protected final IntegratorClusterMC integrator;
     private double weightFactor;
 	
 	/**
 	 * Constructor for MeterVirial.
 	 */
-	public MeterVirial(ClusterAbstract[] aClusters, IntegratorClusterMC aIntegrator, double temperature) {
+	public MeterVirial(ClusterAbstract[] aClusters, IntegratorClusterMC aIntegrator) {
         setName(NameMaker.makeName(this.getClass()));
 		integrator = aIntegrator;
 		clusters = aClusters;
-		setTemperature(temperature);
         data = new DataDoubleArray("Cluster Value",Dimension.NULL);
 		data.setLength(clusters.length);
         weightFactor = 1.0;
@@ -47,7 +45,7 @@ public class MeterVirial implements DataSource, Meter, java.io.Serializable {
     public void setSampleCluster(ClusterWeight sampleCluster) {
         CoordinatePairSet cPairSet = phase.getCPairSet();
         AtomPairSet aPairSet = phase.getAPairSet();
-        weightFactor = sampleCluster.value(cPairSet,aPairSet,beta) / integrator.getWeight();
+        weightFactor = sampleCluster.value(cPairSet,aPairSet) / integrator.getWeight();
     }
     
 	public Data getData() {
@@ -56,21 +54,14 @@ public class MeterVirial implements DataSource, Meter, java.io.Serializable {
 		double w = weightFactor * integrator.getWeight();
         double[] x = data.getData();
 		for (int i=0; i<clusters.length; i++) {
-			x[i] = clusters[i].value(cPairSet,aPairSet,beta)/w;
+			x[i] = clusters[i].value(cPairSet,aPairSet)/w;
+//            System.out.println("in meter, v="+x[i]*w+" w="+w+" "+integrator);
 		}
 		return data;
 	}
 
 	public Dimension getDimension() {
 		return Dimension.FRACTION;
-	}
-
-	public double getTemperature() {
-		return 1/beta;
-	}
-
-	public void setTemperature(double temperature) {
-		beta = 1.0/temperature;
 	}
 
     /**

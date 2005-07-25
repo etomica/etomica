@@ -7,4 +7,8 @@ package etomica.virial;
  */
 public interface ClusterWeight extends ClusterAbstract {
 
+    public interface Factory {
+        public ClusterWeight makeWeightCluster(ClusterAbstract[] clusters);
+    }
+    
 }
