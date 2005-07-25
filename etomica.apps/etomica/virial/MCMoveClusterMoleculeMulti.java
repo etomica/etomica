@@ -78,6 +78,9 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule implements MCMove
         ((PhaseCluster)phases[0]).rejectNotify();
 	}
 
+    public void acceptNotify() {
+        ((PhaseCluster)phases[0]).acceptNotify();
+    }
     public double trialRatio() {return 1.0;}
     
     public double lnProbabilityRatio() {
