@@ -63,6 +63,13 @@ public class IntegratorClusterMC extends IntegratorMC {
         move.updateCounts(event.wasAccepted,chi,isEquilibrating());
     }
     
+    public void addMCMove(MCMove move) {
+        if (!(move instanceof MCMoveCluster)) {
+            throw new IllegalArgumentException("MC move must be an MCMoveCluster");
+        }
+        super.addMCMove(move);
+    }
+    
     public double getWeight() {
     	return weight;
     }
@@ -70,5 +77,13 @@ public class IntegratorClusterMC extends IntegratorMC {
     public void reset() {
     	super.reset();
     	weight = 1.0;
+    }
+    
+    /**
+     * You seriously better know what you're doing.  Calling this method
+     * inappropriately has been known to kill babies.
+     */
+    public void setWeight(double w) {
+        weight = w;
     }
 }
