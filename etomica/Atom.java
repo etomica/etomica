@@ -4,7 +4,6 @@ import etomica.atom.AtomLinker;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTypeSphere;
 import etomica.space.Coordinate;
-import etomica.space.CoordinateFactory;
 import etomica.space.CoordinateFactorySphere;
 import etomica.space.ICoordinate;
 import etomica.utility.Arrays;
