@@ -60,8 +60,6 @@ public final class SceneManager implements  java.io.Serializable
     
     public void setPhase(Phase phase) {
     	this.phase = phase;
-    	if ( renderer!=null )
-    		renderer.zoomAll();
     }
     
     public Phase getPhase() {
