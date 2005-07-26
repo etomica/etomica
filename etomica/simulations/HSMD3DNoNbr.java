@@ -103,10 +103,16 @@ public class HSMD3DNoNbr extends Simulation {
 		  in.close();
 		  fis.close();
 		  System.out.println( "DeSerialization of class HSMD3DNoNbr succeeded.");
+
+		  // go daddy
+		  simulation.getController().run();
+		  System.out.println( "Simulation run ok");
 		}
 		catch( Exception ex ) {
 			System.err.println( "Could not read simulation from file " + filename + ". Cause: " + ex.getMessage() );
 			ex.printStackTrace();
 		}
+		
+		
     }
 }//end of class
