@@ -171,7 +171,7 @@ public class DataDouble extends Data implements DataArithmetic {
     
     private static final Factory FACTORY = new Factory();
 
-    private static class Factory implements DataFactory {
+    private static class Factory implements DataFactory, java.io.Serializable {
         
         public Data makeData(String label, Dimension dimension) {
             return new DataDouble(label, dimension);
