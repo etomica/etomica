@@ -5,7 +5,6 @@ package etomica.simulations;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import etomica.ConfigurationLattice;
@@ -18,6 +17,7 @@ import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomList;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.potential.P2HardSphere;
@@ -96,12 +96,14 @@ public class HSMD3DNoNbr extends Simulation {
 		try
 		{
 			FileInputStream fis = null;
-			ObjectInputStream in = null;
+			EtomicaObjectInputStream in = null;
 		  fis = new FileInputStream(filename);
 		  in = new EtomicaObjectInputStream(fis);
 		  Simulation simulation = (etomica.Simulation) in.readObject();
+          AtomList.rebuildAllLists(in);
 		  in.close();
 		  fis.close();
+          
 		  System.out.println( "DeSerialization of class HSMD3DNoNbr succeeded.");
 
 		  // go daddy
