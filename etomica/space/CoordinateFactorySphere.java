@@ -1,5 +1,7 @@
 package etomica.space;
 
+import java.io.Serializable;
+
 import etomica.Simulation;
 import etomica.Space;
 
@@ -19,7 +21,7 @@ import etomica.Space;
 /*
  * History Created on Jul 13, 2005 by kofke
  */
-public class CoordinateFactorySphere implements CoordinateFactory {
+public class CoordinateFactorySphere implements CoordinateFactory, Serializable {
 
     /**
      * Makes factory using the space and isDynamic field of the given
