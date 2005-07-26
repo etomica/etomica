@@ -17,7 +17,7 @@ import etomica.utility.Arrays;
  * Atoms are stored with reference to the potential that governs their
  * interactions.
  */
-public class AtomSequencerNbr extends AtomSequencerCell {
+public class AtomSequencerNbr extends AtomSequencerCell implements java.io.Serializable {
 
     protected AtomArrayList[] upList, downList;
 	
@@ -120,7 +120,10 @@ public class AtomSequencerNbr extends AtomSequencerCell {
      * A factory class that will make this atom sequencer.  Typically this
      * is passed to the constructor of the atom factory.
      */
-    public static final AtomSequencerFactory FACTORY = new AtomSequencerFactory() {
+    public static final AtomSequencerFactory FACTORY = new AtomSequencerNbr.Factory();
+    
+    public static final class Factory implements AtomSequencerFactory, java.io.Serializable 
+	{
         public AtomLinker makeSequencer(Atom atom) {
             return new AtomSequencerNbr(atom);
         }
