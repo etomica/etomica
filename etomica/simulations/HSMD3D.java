@@ -2,6 +2,12 @@
 
 package etomica.simulations;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import etomica.AtomType;
 import etomica.ConfigurationLattice;
 import etomica.Default;
@@ -29,6 +35,44 @@ public class HSMD3D extends Simulation {
     
     public HSMD3D() {
         this(Space3D.getInstance());
+    }
+    
+    public static void main( String[] args )
+    {
+    	String filename = "test.bin";
+		
+		try
+		{
+			FileOutputStream fos = null;
+			ObjectOutputStream out = null;
+			HSMD3D simulation = new HSMD3D();
+			fos = new FileOutputStream( filename);
+		  	out = new ObjectOutputStream(fos);
+		  	out.writeObject( simulation );
+		  	out.close();
+		  	fos.close();
+		  	System.out.println( "Serialization of class HSMD3D succeeded.");
+		}
+		catch(IOException ex)
+		{
+			System.err.println( "Exception:" + ex.getMessage() );
+			ex.printStackTrace();
+		}
+		
+		// Serialize back
+		try
+		{
+			FileInputStream fis = null;
+			ObjectInputStream in = null;
+		  fis = new FileInputStream(filename);
+		  in = new ObjectInputStream(fis);
+		  Simulation simulation = (etomica.Simulation) in.readObject();
+		  in.close();
+		  fis.close();
+		}
+		catch( Exception ex ) {
+			System.err.println( "Could not read simulation from file " + filename + ". Cause: " + ex.getLocalizedMessage() );
+		}
     }
     private HSMD3D(Space space) {
 //        super(space, new PotentialMaster(space));
