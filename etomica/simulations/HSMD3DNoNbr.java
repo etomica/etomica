@@ -2,6 +2,12 @@
 
 package etomica.simulations;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import etomica.ConfigurationLattice;
 import etomica.Default;
 import etomica.Phase;
@@ -16,6 +22,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.potential.P2HardSphere;
 import etomica.space3d.Space3D;
+import etomica.utility.EtomicaObjectInputStream;
 
 public class HSMD3DNoNbr extends Simulation {
 
@@ -63,4 +70,43 @@ public class HSMD3DNoNbr extends Simulation {
  //       phase.setDensity(0.7);
     } //end of constructor
 
+    public static void main( String[] args )
+    {
+    	String filename = "test.bin";
+		
+		try
+		{
+			FileOutputStream fos = null;
+			ObjectOutputStream out = null;
+			HSMD3DNoNbr simulation = new HSMD3DNoNbr();
+			fos = new FileOutputStream( filename);
+		  	out = new ObjectOutputStream(fos);
+		  	out.writeObject( simulation );
+		  	out.close();
+		  	fos.close();
+		  	System.out.println( "Serialization of class HSMD3DNoNbr succeeded.");
+		}
+		catch(IOException ex)
+		{
+			System.err.println( "Exception:" + ex.getMessage() );
+			ex.printStackTrace();
+		}
+		
+		// Serialize back
+		try
+		{
+			FileInputStream fis = null;
+			ObjectInputStream in = null;
+		  fis = new FileInputStream(filename);
+		  in = new EtomicaObjectInputStream(fis);
+		  Simulation simulation = (etomica.Simulation) in.readObject();
+		  in.close();
+		  fis.close();
+		  System.out.println( "DeSerialization of class HSMD3DNoNbr succeeded.");
+		}
+		catch( Exception ex ) {
+			System.err.println( "Could not read simulation from file " + filename + ". Cause: " + ex.getMessage() );
+			ex.printStackTrace();
+		}
+    }
 }//end of class
