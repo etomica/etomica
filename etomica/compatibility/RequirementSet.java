@@ -1,11 +1,12 @@
 package etomica.compatibility;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedList;
 
 import etomica.compatibility.Requirement;
 
-public class RequirementSet extends Requirement
+public class RequirementSet extends Requirement implements Serializable
 {
 	RequirementSet() {}
 	public RequirementSet add( Requirement req )

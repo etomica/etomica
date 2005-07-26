@@ -8,6 +8,7 @@ import etomica.potential.P1BondedHardSpheres;
 import etomica.simulations.HSMD3D;
 import etomica.space2d.Space2D;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 
@@ -15,7 +16,7 @@ import java.util.HashMap;
  * Generic algorithms may use the Requirements object interface to test an object's feature for compatibility.
  * @author Henrique
  */
-public final class FeatureSet
+public final class FeatureSet implements Serializable
 {
 	public FeatureSet() {}
 	public FeatureSet add( Feature feat ) { list.put( feat.name, feat ); return this; }

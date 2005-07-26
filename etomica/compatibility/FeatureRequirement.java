@@ -1,7 +1,9 @@
 package etomica.compatibility;
 
+import java.io.Serializable;
 
-public class FeatureRequirement extends Requirement
+
+public class FeatureRequirement extends Requirement implements Serializable
 {
 	FeatureRequirement( int desired_result, Feature value )
 	{

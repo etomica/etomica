@@ -1,8 +1,10 @@
 package etomica.compatibility;
 
+import java.io.Serializable;
+
 
 /** Tentative property-based infrastructure for a general property-based compatibility algorithm */
-public abstract class Feature
+public abstract class Feature implements Serializable
 {
 	public static final int LESS_THAN = -1;
 	public static final int IS_EQUAL = 0;
