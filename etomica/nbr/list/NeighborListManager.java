@@ -38,7 +38,7 @@ import etomica.utility.Arrays;
  * PotentialCalculationCellAssign instance as the PotentialCalculation.
  */
 public class NeighborListManager implements IntegratorNonintervalListener,
-        IntegratorIntervalListener {
+        IntegratorIntervalListener, java.io.Serializable {
 
     /**
      * Configures instance for use by the given PotentialMaster.
