@@ -74,46 +74,46 @@ public class HSMD3DNoNbr extends Simulation {
     {
     	String filename = "test.bin";
 		
-		try
-		{
-			FileOutputStream fos = null;
-			ObjectOutputStream out = null;
-			HSMD3DNoNbr simulation = new HSMD3DNoNbr();
-			fos = new FileOutputStream( filename);
-		  	out = new ObjectOutputStream(fos);
-		  	out.writeObject( simulation );
-		  	out.close();
-		  	fos.close();
-		  	System.out.println( "Serialization of class HSMD3DNoNbr succeeded.");
-		}
-		catch(IOException ex)
-		{
-			System.err.println( "Exception:" + ex.getMessage() );
-			ex.printStackTrace();
-		}
-		
-		// Serialize back
-		try
-		{
-			FileInputStream fis = null;
-			EtomicaObjectInputStream in = null;
-		  fis = new FileInputStream(filename);
-		  in = new EtomicaObjectInputStream(fis);
-		  Simulation simulation = (etomica.Simulation) in.readObject();
-          AtomList.rebuildAllLists(in);
-		  in.close();
-		  fis.close();
-          
-		  System.out.println( "DeSerialization of class HSMD3DNoNbr succeeded.");
+    	try
+    	{
+    	    FileOutputStream fos = null;
+    	    ObjectOutputStream out = null;
+    	    HSMD3DNoNbr simulation = new HSMD3DNoNbr();
+    	    fos = new FileOutputStream( filename);
+			out = new ObjectOutputStream(fos);
+			out.writeObject( simulation );
+			out.close();
+			fos.close();
+			System.out.println( "Serialization of class HSMD3DNoNbr succeeded.");
+    	}
+    	catch(IOException ex)
+    	{
+    	    System.err.println( "Exception:" + ex.getMessage() );
+    	    ex.printStackTrace();
+    	}
+    	
+    	// Serialize back
+    	try
+    	{
+    	    FileInputStream fis = null;
+    	    EtomicaObjectInputStream in = null;
+    	    fis = new FileInputStream(filename);
+    	    in = new EtomicaObjectInputStream(fis);
+    	    Simulation simulation = (etomica.Simulation) in.readObject();
+    	    AtomList.rebuildAllLists(in);
+    	    in.close();
+    	    fis.close();
+    	    
+    	    System.out.println( "DeSerialization of class HSMD3DNoNbr succeeded.");
 
-		  // go daddy
-		  simulation.getController().run();
-		  System.out.println( "Simulation run ok");
-		}
-		catch( Exception ex ) {
-			System.err.println( "Could not read simulation from file " + filename + ". Cause: " + ex.getMessage() );
-			ex.printStackTrace();
-		}
+    	    // go daddy
+    	    simulation.getController().run();
+    	    System.out.println( "Simulation run ok");
+    	}
+    	catch( Exception ex ) {
+    	    System.err.println( "Could not read simulation from file " + filename + ". Cause: " + ex.getMessage() );
+    	    ex.printStackTrace();
+    	}
 		
 		
     }
