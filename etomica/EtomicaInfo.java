@@ -1,8 +1,5 @@
 package etomica;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-
 import etomica.compatibility.FeatureSet;
 
 
