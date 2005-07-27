@@ -43,7 +43,7 @@ public class DataSourceVirialOverlap extends DataSourceScalar {
      */
 	public double getAverage(int iParam) {
         double targetAvg = ((DataDoubleArray)((DataGroup)targetAccumulator.getData(iParam)).getData(AccumulatorRatioAverage.RATIO.index)).getData()[1];
-        double refAvg = ((DataDoubleArray)((DataGroup)targetAccumulator.getData(nBennetPoints-iParam-1)).getData(AccumulatorRatioAverage.RATIO.index)).getData()[1];
+        double refAvg = ((DataDoubleArray)((DataGroup)refAccumulator.getData(nBennetPoints-iParam-1)).getData(AccumulatorRatioAverage.RATIO.index)).getData()[1];
         return refAvg/targetAvg;
 	}
 	
@@ -87,7 +87,7 @@ public class DataSourceVirialOverlap extends DataSourceScalar {
         DataGroup dataGroup = (DataGroup)refAccumulator.getData(nBennetPoints-iParam-1);
 		double refErr = ((DataDoubleArray)dataGroup.getData(AccumulatorRatioAverage.RATIO_ERROR.index)).getData()[1];
         double refAvg = ((DataDoubleArray)dataGroup.getData(AccumulatorRatioAverage.RATIO.index)).getData()[1];
-        dataGroup = (DataGroup)refAccumulator.getData(iParam);
+        dataGroup = (DataGroup)targetAccumulator.getData(iParam);
 		double targetErr = ((DataDoubleArray)dataGroup.getData(AccumulatorRatioAverage.RATIO_ERROR.index)).getData()[1];
 		double targetAvg = ((DataDoubleArray)dataGroup.getData(AccumulatorRatioAverage.RATIO.index)).getData()[1];
 		return Math.abs(avg)*Math.sqrt(refErr*refErr/(refAvg*refAvg)+targetErr*targetErr/(targetAvg*targetAvg));
