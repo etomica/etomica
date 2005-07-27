@@ -5,13 +5,15 @@ import java.util.LinkedList;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import etomica.Action;
 import etomica.Atom;
+import etomica.Controller;
 import etomica.Default;
 import etomica.Integrator;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.SimulationContainer;
-import etomica.action.PhaseDeleteMolecules;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomPositionDefinition;
 import etomica.integrator.IntervalActionAdapter;
@@ -70,21 +72,28 @@ public class SimulationGraphic implements SimulationContainer, java.io.Serializa
      }
      
      private void setupDisplayPhase() {
-         LinkedList integratorList = simulation.getIntegratorList();
-         
-         //TODO find another way to update display
-         Integrator integrator = null;
-         if(integratorList.size() > 0) integrator = (Integrator)integratorList.getFirst();
-         
-         LinkedList phaseList = simulation.getPhaseList();
-         Iterator iterator = phaseList.iterator();
-         while (iterator.hasNext()) {
-             Phase phase = (Phase)iterator.next();
-             DisplayPhase display = new DisplayPhase(phase);
-             add(display);
-             if(integrator != null) integrator.addListener(new IntervalActionAdapter(display));
+         Controller controller = simulation.getController();
+         Action[] activities = controller.pendingActions();
+         LinkedList phaseList = new LinkedList();
+         LinkedList integratorList = new LinkedList(); 
+         for (int i=0; i<activities.length; i++) {
+             if (activities[i] instanceof ActivityIntegrate) {
+                 Integrator integrator = ((ActivityIntegrate)activities[i]).getIntegrator();
+                 if (integratorList.contains(integrator)) continue;
+                 integratorList.add(integrator);
+                 Phase[] phases = integrator.getPhase();
+                 for (int j=0; j<phases.length; j++) {
+                     if (phaseList.contains(phases[j])) continue;
+                     phaseList.add(phases[j]);
+                     DisplayPhase display = new DisplayPhase(phases[j]);
+                     add(display);
+                     // check if 2D?
+                     if (phases[j].space().D() != 3) {
+                         integrator.addListener(new IntervalActionAdapter(display));
+                     }
+                 }
+             }             
          }
-         
      }
 
      public void add(Display display) {
@@ -192,8 +201,8 @@ public class SimulationGraphic implements SimulationContainer, java.io.Serializa
         simGraphic.add(nSelector);
         
 //        AtomFilterInPolytope filter = new AtomFilterInPolytope(sim.phase.boundary().getShape());
-        MyFilter filter = new MyFilter((Polyhedron)sim.phase.boundary().getShape());
-        PhaseDeleteMolecules deleter = new PhaseDeleteMolecules(filter);
+//        MyFilter filter = new MyFilter((Polyhedron)sim.phase.boundary().getShape());
+//        PhaseDeleteMolecules deleter = new PhaseDeleteMolecules(filter);
         //positionDefinition shifts atom to same origin as polytope
 //        AtomPositionDefinition position = new AtomPositionDefinition() {
 //            public Vector position(Atom a) {
