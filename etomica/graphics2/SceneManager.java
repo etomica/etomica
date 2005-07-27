@@ -101,81 +101,75 @@ public final class SceneManager implements  java.io.Serializable
     public int getDrawBoundary() {return drawBoundary;}
 
     
-    public synchronized void initInternalTables() {
-      int countSphereCores = 0, countSphereWells = 0, countSphereRotators = 0;
-      int countWalls = 0, countAll = 0;
-      float vertAll[];
-      Atom atoms[];
-
-      countAll = phase.getSpeciesMaster().node.leafAtomCount();
-      
-      if(countAll==0) return;
-      
-      vertAll = new float[countAll*3];
-      atoms = new Atom[countAll];
-      
-      int i = 0;
-      
-
-
-      AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(phase);
-      iter.reset();
-      while(iter.hasNext()) {
-        Atom a = iter.nextAtom();
-        atoms[i/3] = a;
-        vertAll[i] = (float)a.coord.position().x(0);// + drawExpansionShiftX;
-        vertAll[i+1] = (float)a.coord.position().x(1);// + drawExpansionShiftY;
-        vertAll[i+2] = (float)a.coord.position().x(2);// + drawExpansionShiftZ;
-        if(a.type instanceof AtomTypeOrientedSphere) countSphereRotators++;
-        if(a.type instanceof AtomTypeWell) countSphereWells++;
-        if(a.type instanceof AtomTypeSphere) countSphereCores++;
-        i += 3;
-      }
-      
-      sphereCores = new Atom[countSphereCores];
-      sphereWells = new Atom[countSphereWells];
-      sphereRotators = new Atom[countSphereRotators];
-      walls = new Atom[countWalls];
-      vertSphereCores = new float[countSphereCores*3];
-      vertSphereWellBase = new int[countSphereWells];
-      vertSphereRotatorBase = new int[countSphereRotators];
-      vertWalls = new float[countWalls*3];
-      for(int j=0,k=0,l=0,m=0; (j/3) < atoms.length; j+=3) {
-        if(atoms[j/3].type instanceof AtomTypeSphere) {
-          sphereCores[m/3] = atoms[j/3];
-          vertSphereCores[m] = vertAll[j];
-          vertSphereCores[m+1] = vertAll[j+1];
-          vertSphereCores[m+2] = vertAll[j+2];
-          m+=3;
-        }
-        if(atoms[j/3].type instanceof AtomTypeOrientedSphere) {
-          sphereRotators[k] = atoms[j/3];
-          vertSphereRotatorBase[k] = m-3;
-          k++;
-        }
-        if(atoms[j/3].type instanceof AtomTypeWell) {
-          sphereWells[l] = atoms[j/3];
-          vertSphereWellBase[l] = m-3;
-          l++;
-        }
-      }
-      
-      // Create graphical object for sphere cores
-      for ( int j=0; j<countSphereCores; j++ )
-      {
-      	core_index[j] = renderer.createObject( Renderable.ELLIPSE );
-      }
-      
-      if(phase != null) {
-        float b = (float)phase.boundary().dimensions().x(0);
-//			float z = -70f + (30f/b - 1f)*22f;
-//			float z = -190f + (30f/b - 1f)*22f;//08/12/03 DAK changed 70 to 190
-			float z = -1.30847f - 2.449f * b;//08/14/03 DAK changed to this by linear regressing observed "best" z vs b values
-//			System.out.println(b+"  "+z); 
-        //renderer.setZoom(z);
-      }
-      
-      tablesInitialized = true;
+    public synchronized void initInternalTables() 
+    {
+    	try
+		{
+    		int countSphereCores = 0, countSphereWells = 0, countSphereRotators = 0;
+    		int countWalls = 0, countAll = 0;
+    		float vertAll[];
+    		Atom atoms[];
+    		
+    		countAll = phase.getSpeciesMaster().node.leafAtomCount();
+    		
+    		if(countAll==0) return;
+    		
+    		vertAll = new float[countAll*3];
+    		atoms = new Atom[countAll];
+    		
+    		int i = 0;
+    		AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(phase);
+    		iter.reset();
+    		while(iter.hasNext()) {
+    			Atom a = iter.nextAtom();
+    			atoms[i/3] = a;
+    			vertAll[i] = (float)a.coord.position().x(0);// + drawExpansionShiftX;
+    			vertAll[i+1] = (float)a.coord.position().x(1);// + drawExpansionShiftY;
+    			vertAll[i+2] = (float)a.coord.position().x(2);// + drawExpansionShiftZ;
+    			if(a.type instanceof AtomTypeOrientedSphere) countSphereRotators++;
+    			if(a.type instanceof AtomTypeWell) countSphereWells++;
+    			if(a.type instanceof AtomTypeSphere) countSphereCores++;
+    			i += 3;
+    		}
+    		
+    		sphereCores = new Atom[countSphereCores];
+    		sphereWells = new Atom[countSphereWells];
+    		sphereRotators = new Atom[countSphereRotators];
+    		walls = new Atom[countWalls];
+    		vertSphereCores = new float[countSphereCores*3];
+    		vertSphereWellBase = new int[countSphereWells];
+    		vertSphereRotatorBase = new int[countSphereRotators];
+    		vertWalls = new float[countWalls*3];
+    		for(int j=0,k=0,l=0,m=0; (j/3) < atoms.length; j+=3) {
+    			if(atoms[j/3].type instanceof AtomTypeSphere) {
+    				sphereCores[m/3] = atoms[j/3];
+    				vertSphereCores[m] = vertAll[j];
+    				vertSphereCores[m+1] = vertAll[j+1];
+    				vertSphereCores[m+2] = vertAll[j+2];
+    				m+=3;
+    			}
+    			if(atoms[j/3].type instanceof AtomTypeOrientedSphere) {
+    				sphereRotators[k] = atoms[j/3];
+    				vertSphereRotatorBase[k] = m-3;
+    				k++;
+    			}
+    			if(atoms[j/3].type instanceof AtomTypeWell) {
+    				sphereWells[l] = atoms[j/3];
+    				vertSphereWellBase[l] = m-3;
+    				l++;
+    			}
+    		}
+    		
+    		// Create graphical object for sphere cores
+    		core_index = new int[ countSphereCores ];
+    		for ( int j=0; j<countSphereCores; j++ )
+    		{
+    			core_index[j] = renderer.createObject( Renderable.ELLIPSE );
+    		}
+		}
+    	finally {
+    		tablesInitialized = true;
+    	}
     }
     
 	public double getScale() {
