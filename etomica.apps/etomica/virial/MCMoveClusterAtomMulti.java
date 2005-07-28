@@ -74,7 +74,6 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom implements MCMoveCluster 
     }
     
     public void acceptNotify() {
-    	super.acceptNotify();
     	((PhaseCluster)phases[0]).acceptNotify();
     }
 
