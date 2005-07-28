@@ -41,7 +41,7 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
 		}
 		if (aSpan <= 0.0) throw new IllegalArgumentException("aSpan must be positive");
 		for (int i=0; i<nBennetPoints; i++) {
-			expX[i] = Math.exp(2.0*aSpan*(double)(i-(nBennetPoints-1)/2)/(double)(nBennetPoints-1))*aCenter;
+			expX[i] = Math.exp(2.0*aSpan*(i-(nBennetPoints-1)/2)/(nBennetPoints-1))*aCenter;
 //            System.out.println("bennet param "+i+" "+expX[i]);
 		}
 	}
@@ -53,16 +53,19 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
         if(((DataDoubleArray)value).getLength() != 2) {
             throw new IllegalArgumentException("must receive cluster value, weight and 'other' weight (only)");
         }
-        if (Math.abs(((DataDoubleArray)value).getData()[0])-1.0 > 1.e-10) {
-            throw new IllegalArgumentException("value[0] should be 1 (gamma/weight), but it was "+((DataDoubleArray)value).getData()[0]);
+        if (Math.abs(((DataDoubleArray)value).getData()[0])-1.0 > 1.e-8) {
+            throw new IllegalArgumentException("|value[0]| should be 1 (gamma/weight), but it was "+((DataDoubleArray)value).getData()[0]);
         }
         double value1 = ((DataDoubleArray)value).getData()[1];
         for (int j=0; j<nBennetPoints; j++) {
-            if (nBennetPoints > 1) {
-                bennetSum[j] += value1/(value1+ expX[j]);
-            }
             // this is actually blockSum[1], but for all the various values of the overlap parameter
-            double v = value1*(1+expX[j]) / (value1+expX[j]);
+            // this doesn't look right, but it is.
+            // http://rheneas.eng.buffalo.edu/~andrew/overlapf.pdf
+            double v = value1/(value1+ expX[j]);
+            bennetSum[j] += v;
+            // normalize so it will look mostly like |v0| for large values of expX and
+            // most like |v1| for small values of expX
+            v *= (1+expX[j]);
             blockOverlapSum[j] += v;
             blockOverlapSumSq[j] += v*v;
         }
