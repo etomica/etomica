@@ -59,7 +59,7 @@ public class IntegratorOverlap extends Integrator {
     
     public void doStep() {
         for (int i=0; i<numIntegrators; i++) {
-            int iSubSteps = 10 + (int)(numSubSteps * stepFreq[i]); 
+            int iSubSteps = 10 + (int)((numSubSteps-10*numIntegrators) * stepFreq[i]); 
             for (int j=0; j<iSubSteps; j++) {
                 integrators[i].doStep();
                 integrators[i].fireIntervalEvent(intervalEvent[i]);
@@ -95,7 +95,9 @@ public class IntegratorOverlap extends Integrator {
         double freqTotal = 0;
         int newMinDiffLoc = dsvo.minDiffLocation();
         int nBennetPoints = accumulators[0].getNBennetPoints();
-        if (newMinDiffLoc != minDiffLoc && nBennetPoints>1) System.out.println("target minDiffLoc = "+newMinDiffLoc+" refPref "+accumulators[0].getBennetBias(nBennetPoints-newMinDiffLoc-1));
+        if (newMinDiffLoc != minDiffLoc && nBennetPoints>1) {
+            System.out.println("target minDiffLoc = "+newMinDiffLoc+" refPref "+accumulators[0].getBennetBias(nBennetPoints-newMinDiffLoc-1));
+        }
         minDiffLoc = newMinDiffLoc;
         for (int i=0; i<numIntegrators; i++) {
             DataGroup data;
@@ -120,7 +122,9 @@ public class IntegratorOverlap extends Integrator {
 //                System.out.print(allData[AccumulatorAverage.ERROR.index][1]/allData[AccumulatorAverage.AVERAGE.index][1]+" ");
 //            }
 //            System.out.print("\n");
-            System.out.println(i+" "+Math.abs(error)+" "+Math.abs(otherRatio));
+            if (Debug.ON && Debug.DEBUG_NOW) {
+                System.out.println(i+" "+Math.abs(error)+" "+Math.abs(otherRatio));
+            }
             if (!Double.isNaN(error) && !Double.isNaN(otherRatio)) {
                 error *= error;
                 otherRatio *= otherRatio;
@@ -141,17 +145,21 @@ public class IntegratorOverlap extends Integrator {
 //        System.out.println("ratio "+accumulators[0].getData(AccumulatorVirialAverage.AVERAGE_RATIO)[1]/accumulators[1].getData(AccumulatorVirialAverage.AVERAGE_RATIO)[1]);
 //        System.out.println("errors "+errors[0]+" "+errors[1]);
         // normalize
-        System.out.print("freq ");
         for (int i=0; i<numIntegrators; i++) {
             stepFreq[i] /= freqTotal;
-            System.out.print(stepFreq[i]+" ");
         }
-        System.out.print("\n");
-        System.out.print("steps ");
-        for (int i=0; i<numIntegrators; i++) {
-            System.out.print((double)totNumSubSteps[i]/(totNumSubSteps[0]+totNumSubSteps[1])+" ");
+        if (Debug.ON && Debug.DEBUG_NOW) {
+            System.out.print("freq ");
+            for (int i=0; i<numIntegrators; i++) {
+                System.out.print(stepFreq[i]+" ");
+            }
+            System.out.print("\n");
+            System.out.print("steps ");
+            for (int i=0; i<numIntegrators; i++) {
+                System.out.print((double)totNumSubSteps[i]/(totNumSubSteps[0]+totNumSubSteps[1])+" ");
+            }
+            System.out.print("\n");
         }
-        System.out.print("\n");
     }
     
     /**
@@ -195,6 +203,10 @@ public class IntegratorOverlap extends Integrator {
     public void setStepFreq0(double freq) {
         stepFreq[0] = freq;
         stepFreq[1] = 1-freq;
+    }
+    
+    public double getStepFreq0() {
+        return stepFreq[0];
     }
     
     private int numIntegrators;
