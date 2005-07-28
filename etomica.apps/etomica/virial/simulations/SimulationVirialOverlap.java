@@ -3,7 +3,6 @@ package etomica.virial.simulations;
 import etomica.AtomTypeGroup;
 import etomica.Default;
 import etomica.Integrator;
-import etomica.Meter;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
@@ -54,7 +53,7 @@ public class SimulationVirialOverlap extends Simulation {
 
 	public SimulationVirialOverlap(Space aSpace, SpeciesFactory speciesFactory, double temperature, ClusterAbstract refCluster, ClusterAbstract targetCluster) {
 		this(aSpace,speciesFactory,temperature,new ClusterAbstract[]{refCluster,targetCluster},
-                new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster),ClusterWeightAbs.makeWeightCluster(targetCluster)});
+                new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster.makeCopy()),ClusterWeightAbs.makeWeightCluster(targetCluster.makeCopy())});
 	}
 	
 	public SimulationVirialOverlap(Space aSpace, SpeciesFactory speciesFactory, 
@@ -72,7 +71,7 @@ public class SimulationVirialOverlap extends Simulation {
         integrators = new IntegratorClusterMC[sampleClusters.length];
         meters = new MeterVirial[sampleClusters.length];
         mcMoveAtom1 = new MCMoveAtom[sampleClusters.length];
-        if (nMolecules > 1) {
+        if (nMolecules > 2) {
             mcMoveMulti = new MCMove[sampleClusters.length];
         }
         if (species.getFactory().getType() instanceof AtomTypeGroup) {
@@ -120,20 +119,15 @@ public class SimulationVirialOverlap extends Simulation {
             MeterVirial meter = new MeterVirial(new ClusterAbstract[]{aValueClusters[iPhase],aSampleClusters[1-iPhase]},integrators[iPhase]);
             setMeter(meter,iPhase);
             meters[iPhase].getDataInfo().setLabel("Overlap/Target"+iPhase+" meter");
-            AccumulatorVirialOverlapSingleAverage acc = new AccumulatorVirialOverlapSingleAverage(meter.getDataInfo(),1);
-            double refPref = 600;
-            if (iPhase==1) {
-                refPref = 1/refPref; // actually targetPref
-            }
-            acc.setBennetParam(refPref,0.1);
+            AccumulatorVirialOverlapSingleAverage acc = new AccumulatorVirialOverlapSingleAverage(meter.getDataInfo(),11);
             acc.getDataInfo().setLabel("Overlap/Target"+iPhase+" accumulator");
             setAccumulator(acc,iPhase);
               
         }
         
+        setRefPref(1,5);
         integratorOS = new IntegratorOverlap(potentialMaster, integrators, accumulators);
         integratorOS.setNumSubSteps(Default.BLOCK_SIZE);
-        integratorOS.setAdjustStepFreq(false);
         ai = new ActivityIntegrate(integratorOS);
         ai.setInterval(1);
         getController().addAction(ai);
@@ -143,6 +137,11 @@ public class SimulationVirialOverlap extends Simulation {
         integratorOS.setDSVO(dsvo);
 	}
 
+    public void setRefPref(double refPrefCenter, double span) {
+        accumulators[0].setBennetParam(refPrefCenter,span);
+        accumulators[1].setBennetParam(1/refPrefCenter,span);
+    }
+    
     public void setMeter(MeterVirial newMeter, int iPhase) {
         if (accumulators[iPhase] != null) {
             // we need a new accumulator so nuke the old one now.
@@ -163,12 +162,17 @@ public class SimulationVirialOverlap extends Simulation {
         if (accumulatorPumps[iPhase] == null) {
             accumulatorPumps[iPhase] = new DataPump(meters[iPhase],new DataAccumulator[] {newAccumulator});
             accumulatorAAs[iPhase] = new IntervalActionAdapter(accumulatorPumps[iPhase]);
+            integrators[iPhase].addListener(accumulatorAAs[iPhase]);
         }
         else {
             accumulatorPumps[iPhase].setDataSinks(new AccumulatorRatioAverage[] {newAccumulator});
         }
-        integrators[iPhase].addListener(accumulatorAAs[iPhase]);
         accumulatorAAs[iPhase].setActionInterval(1);
+        if (integratorOS != null) {
+            dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
+            dsvo.getDataInfo().setLabel("Bennet Overlap Ratio");
+            integratorOS.setDSVO(dsvo);
+        }
     }
 	
     public Integrator getIntegrator() {
@@ -176,7 +180,7 @@ public class SimulationVirialOverlap extends Simulation {
     }
     
 	protected DisplayPlot plot;
-	protected DataSourceVirialOverlap dsvo;
+	public DataSourceVirialOverlap dsvo;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     protected IntervalActionAdapter[] accumulatorAAs;
     protected DataPump[] accumulatorPumps;
@@ -187,7 +191,7 @@ public class SimulationVirialOverlap extends Simulation {
     public MCMoveAtom[] mcMoveAtom1;
     public MCMove[] mcMoveRotate;
     public MCMove[] mcMoveMulti;
-    public Meter[] meters;
+    public MeterVirial[] meters;
     public ActivityIntegrate ai;
     public IntegratorOverlap integratorOS;
 
