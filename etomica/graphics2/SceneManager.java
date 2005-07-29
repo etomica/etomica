@@ -10,8 +10,14 @@ import etomica.atom.AtomTypeWell;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.graphics2.ColorScheme;
 import etomica.graphics2.ColorSchemeByType;
+import etomica.math.geometry.LineSegment;
+import etomica.math.geometry.Polyhedron;
+import etomica.math.geometry.Polytope;
+import etomica.math.geometry.Shape;
 
+import etomica.space.Boundary;
 import etomica.space.Vector;
+import etomica.space3d.Vector3D;
 
 /**
  * Converts all drawable information in a Phase object into graphics primitives
@@ -25,8 +31,10 @@ public final class SceneManager implements  java.io.Serializable
     {
         setAtomFilter(AtomFilter.ACCEPT_ALL);
         setScale(1.0);
+ 
     	colorScheme = new ColorSchemeByType();
-    }
+    	
+   }
 
     public void setRenderer( Renderable r )
     {
@@ -45,16 +53,9 @@ public final class SceneManager implements  java.io.Serializable
    		      int c = colorScheme.atomColor(a);
    		      Vector r = a.coord.position();
 
-   		      int index = core_index[i];
-   		      
-   		      renderer.setObjectPosition( index, (float)r.x(0), (float)r.x(1), (float)r.x(2) );
-   		      renderer.setObjectColor( index, c );
-
-   		      if( AtomTypeSphere.class.isAssignableFrom( a.type.getClass() ) )
-   		      {
-   		         float radius = (float) ((AtomTypeSphere)a.type).radius(a);
-   	   		     renderer.setObjectProperty( index, Renderable.ELLIPSE_RADIUS, radius );
-   		      }
+   		      Renderable.Shape shp = core_shapes[i];
+   		      shp.setPosition( r );
+   		      shp.setColor( c );
 		}
     }
     
@@ -161,11 +162,31 @@ public final class SceneManager implements  java.io.Serializable
     		}
     		
     		// Create graphical object for sphere cores
-    		core_index = new int[ countSphereCores ];
+    		core_shapes = new Renderable.Shape[ countSphereCores ];
+    		Vector3D scale = new Vector3D();
     		for ( int j=0; j<countSphereCores; j++ )
     		{
-    			core_index[j] = renderer.createObject( Renderable.ELLIPSE );
+    			// Create object (it's a unit sphere)
+    			Renderable.Sphere shp = renderer.createSphere();
+    			core_shapes[j] = shp;
+    			
+    			// Scale to atom's given size
+    			Atom a = sphereCores[j];
+    			double radius = ((AtomTypeSphere)a.type).diameter( a );
+    			scale.E( radius );
+    			shp.setScale( scale );
     		}
+    		
+    		// Create graphical object for the boundary
+    		Boundary bnd = phase.boundary();
+    		Polyhedron shape = (Polyhedron)bnd.getShape();
+    	    LineSegment[] edges = shape.getEdges();
+    	    
+    	    Renderable.Polyline poly = renderer.createPoly();
+    	    for(i=0; i<edges.length; i++) 
+    	    {  	        
+    	    	poly.appendLine( edges[i].getVertices()[0], edges[i].getVertices()[1] );    	        
+    	    }
 		}
     	finally {
     		tablesInitialized = true;
@@ -201,7 +222,7 @@ public final class SceneManager implements  java.io.Serializable
     static final int DRAW_BOUNDARY_MAX = 4;
     
 
-    protected int[] core_index;
+    protected Renderable.Shape[] core_shapes;
     
     protected final AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms();
     protected AtomFilter atomFilter;
