@@ -72,7 +72,7 @@ public interface DataArithmetic {
     /**
      * Returns the number of values held by the data instance.
      */
-    public int getLength();//TODO consider changing to setNValues
+    public int getLength();//TODO consider changing to getNValues
 
     /**
      * Returns the i-th data value.
@@ -87,8 +87,9 @@ public interface DataArithmetic {
 
     /**
      * Returns a new array formed from the values held by the data instance.
+     * @param array TODO
      */
-    public double[] toArray();
+    public void assignTo(double[] array);
 
     /**
      * Returns true if any data value is true for Double.isNaN
