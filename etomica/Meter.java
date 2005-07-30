@@ -7,6 +7,9 @@ package etomica;
  *
  * @author David Kofke
  */
+
+//TODO consider adding set/getDataLabel methods to Meter interface
+
 public interface Meter extends DataSource, EtomicaElement {
 
     /**
