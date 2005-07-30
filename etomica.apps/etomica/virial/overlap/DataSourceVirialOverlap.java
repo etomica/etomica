@@ -4,6 +4,7 @@ import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataGroup;
 import etomica.data.DataSourceScalar;
 import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataGroup;
 import etomica.units.Dimension;
 
 /**

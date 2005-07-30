@@ -86,9 +86,11 @@ public class SimulationVirial extends Simulation {
         allValueClusters = new ClusterAbstract[targetClusters.length+1];
         allValueClusters[0] = refCluster;
         System.arraycopy(targetClusters,0,allValueClusters,1,targetClusters.length);
-        setMeter(new MeterVirial(allValueClusters,integrator));
-        meter.getDataInfo().setLabel("Target/Reference Ratio");
-        setAccumulator(new AccumulatorRatioAverage(meter.getDataInfo()));
+        setMeter(new MeterVirial(allValueClusters,integrator,temperature));
+        // XXX oops, sorry you're screwed.
+        // integrator.removeIntervalListener(accumulatorPump);
+//        meter.getDataInfo().setLabel("Target/Reference Ratio");
+        setAccumulator(new AccumulatorRatioAverage());
 	}
 	
 	public Meter meter;
@@ -125,7 +127,7 @@ public class SimulationVirial extends Simulation {
 			accumulatorPump = new DataPump(meter,accumulator);
 		}
 		else {
-			accumulatorPump.setDataSinks(new DataAccumulator[] {accumulator});
+			accumulatorPump.setDataSink(accumulator);
 		}
 		integrator.addListener(new IntervalActionAdapter(accumulatorPump));
 	}
