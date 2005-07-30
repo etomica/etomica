@@ -1,43 +1,75 @@
 package etomica.data;
 
 import etomica.Data;
+import etomica.DataInfo;
+import etomica.data.types.CastToGroup;
+import etomica.data.types.DataGroup;
+import etomica.utility.Arrays;
 
 
 /**
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Extracts one or more of the Data instances wrapped in a DataGroup.  If a single instance,
+ * output is the instance itself; if multiple instances, a new DataGroup with the subset is
+ * output.
  *
  * @author David Kofke
  *
  */
 
-public class DataGroupFilter extends DataPipe {
+public class DataGroupFilter extends DataProcessor {
 
+    public DataGroupFilter(int index) {
+        this(new int[] {index});
+    }
+    
     public DataGroupFilter(int[] indexes) {
         this.indexes = (int[])indexes.clone();
+        singleInstance = (indexes.length == 1); 
     }
 
-    public void putData(Data data) {
-        DataGroup dataGroup = (DataGroup)data;
-        if (pushedDataGroup == null) {
-            initialize(dataGroup, indexes);
-        }
-        for(int i=0; i<indexes.length; i++) {
-            pushedDataGroup.getData(i).E(dataGroup.getData(indexes[i]));
-        }
-        pushData(pushedDataGroup);
+    public Data processData(Data data) {
+        return outputData;
     }
     
-    private void initialize(DataGroup dataGroup, int[] indexes) {
-        Data[] pushedData = new Data[indexes.length];
-        for (int i=0; i<indexes.length; i++) {
-            pushedData[i] = dataGroup.getData(indexes[i]).makeCopy();
+    
+    /* (non-Javadoc)
+     * @see etomica.data.DataProcessor#makeOutputDataInfo(etomica.DataInfo)
+     */
+    protected DataInfo processDataInfo(DataInfo inputDataInfo) {
+        Data[] inputData = ((DataGroup.Factory)inputDataInfo.getDataFactory()).getData();
+        if(singleInstance) {
+            if(indexes[0] < inputData.length) {
+                outputData = inputData[indexes[0]];
+            } else {
+                throw new ArrayIndexOutOfBoundsException("DataFilter was constructed to extract a Data element with an index that is larger than the number of Data elements wrapped in the DataGroup. Number of elements: "+inputData.length+"; index array: "+Arrays.toString(indexes));
+            }
+        } else {
+            Data[] pushedData = new Data[indexes.length];
+            try {
+                for (int i=0; i<indexes.length; i++) {
+                    pushedData[i] = inputData[indexes[i]];
+                }
+            } catch(ArrayIndexOutOfBoundsException ex) {
+                throw new ArrayIndexOutOfBoundsException("DataFilter was constructed to extract a Data element with an index that is larger than the number of Data elements wrapped in the DataGroup. Number of elements: "+inputData.length+"; index array: "+Arrays.toString(indexes));
+            }
+            outputData = new DataGroup(inputDataInfo.getLabel(),
+                                            inputDataInfo.getDimension(),
+                                            pushedData);
         }
-        pushedDataGroup = new DataGroup(dataGroup.getDataInfo().getLabel(),
-                                        dataGroup.getDataInfo().getDimension(),
-                                        pushedData);
+        return outputData.getDataInfo();
+    }
+
+    /* (non-Javadoc)
+     * @see etomica.DataSink#getDataCaster(etomica.DataInfo)
+     */
+    public DataProcessor getDataCaster(DataInfo dataInfo) {
+        if(dataInfo.getClass() == DataGroup.class) {
+            return null;
+        }
+        return new CastToGroup();
     }
     
-    private DataGroup pushedDataGroup;
+    private Data outputData;
+    private final boolean singleInstance;
     private final int[] indexes;
 }

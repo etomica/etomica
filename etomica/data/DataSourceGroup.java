@@ -3,6 +3,7 @@ package etomica.data;
 import etomica.Data;
 import etomica.DataInfo;
 import etomica.DataSource;
+import etomica.data.types.DataGroup;
 import etomica.units.Dimension;
 import etomica.utility.Arrays;
 
@@ -50,19 +51,28 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
 
     /**
      * Returns a DataGroup that is formed from the Data objects returned by
-     * the data sources in this instance.
+     * the data sources in this instance.  Dimension of returned data is that of
+     * the Data it holds, if they are all the same; otherwise it is Dimension.UNDEFINED.
      */
     public Data getData() {
+        boolean rebuildData = false;
+        //generate data from sources, check that all returned instances are the same as before
+        //if a new data instance is given, make a new DataGroup that uses it instead of the previous data
         for(int i=0; i<dataSources.length; i++) {
-            data.data[i] = dataSources[i].getData();
+            latestData[i] = dataSources[i].getData();
+            if(latestData[i] != data.getData(i)) {
+                rebuildData = true;
+            }
+        }
+        if(rebuildData) {
+            data = new DataGroup(data.getDataInfo().getLabel(), data.getDataInfo().getDimension(),
+                                    (Data[])latestData.clone());
         }
     	    return data;
     }
     
     /**
-     * Adds the given DataSource to those held by the group.  The new data source
-     * must give data having the same physical dimensions (as indicated by its
-     * getDimension()) as those already added (if any).
+     * Adds the given DataSource to those held by the group.
      */
     public void addDataSource(DataSource newSource) {
         Dimension newDimension = newSource.getDataInfo().getDimension();
@@ -70,9 +80,11 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
             newDimension = Dimension.UNDEFINED; //TODO maybe make a Dimension.MIXED 
         }
         dataSources = (DataSource[])Arrays.addObject(dataSources, newSource);
+        latestData = new Data[dataSources.length];
         data = new DataGroup("Data Group", newDimension, new Data[dataSources.length]);
     }
 
     private DataSource[] dataSources;
+    private Data[] latestData = new Data[0];
     private DataGroup data;
 }
