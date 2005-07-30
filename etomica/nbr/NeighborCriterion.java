@@ -83,4 +83,31 @@ public abstract class NeighborCriterion implements AtomPairFilter, java.io.Seria
          */
         public boolean accept(AtomPair pair) {return true;}
     };
+    
+    public static final NeighborCriterion NONE = new NeighborCriterion() {
+        /**
+         * Always returns false, indicating that neighbor list never needs updating.
+         * This is appropriate if atoms are never added to or removed from phase,
+         * because all atoms are always on neighbor list.
+         */
+        public boolean needUpdate(Atom atom) {return false;}
+        public double getNeighborRange() {return 0.0;}
+        /**
+         * Performs no action.
+         */
+        public void setPhase(Phase phase) {}
+        /**
+         * Always returns false, indicating that neighbor list never needs updating.
+         */
+        public boolean unsafe() {return false;}
+        /**
+         * Performs no action.
+         */
+        public void reset(Atom atom) {}
+        /**
+         * Always returns false, indicating that no atoms pairs are neighbors.
+         */
+        public boolean accept(AtomPair pair) {return false;}
+    };
+
 }
