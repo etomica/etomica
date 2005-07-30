@@ -6,9 +6,13 @@ import java.io.IOException;
 import etomica.Data;
 import etomica.DataInfo;
 import etomica.DataSink;
+import etomica.data.DataProcessor;
+import etomica.data.types.CastToDouble;
+import etomica.data.types.CastToDoubleArray;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
+import etomica.data.types.DataInteger;
 
 
 /**
@@ -17,10 +21,8 @@ import etomica.data.types.DataGroup;
 public class DataLogger implements DataSink, java.io.Serializable {
 
 	private final String fileName;
-    private DataInfo dataInfo;
 	
-	public DataLogger(DataInfo info, String aFileName) {
-        dataInfo = info;
+	public DataLogger(String aFileName) {
 		fileName = aFileName;
         try { 
             FileWriter fileWriter = new FileWriter(fileName,false);
@@ -30,15 +32,21 @@ public class DataLogger implements DataSink, java.io.Serializable {
         }
 	}
 
+    public void putDataInfo(DataInfo info) {}
+    
+    public DataProcessor getDataCaster(DataInfo info) {
+        if (info.getDataClass() == DataDouble.class && info.getDataClass() == DataDoubleArray.class) {
+            return null;
+        }
+        if (info.getDataClass() == DataInteger.class) {
+            return new CastToDouble();
+        }
+        return new CastToDoubleArray();
+    }
+    
 	public void putData(Data data) {
-        dataInfo = data.getDataInfo();
         try { 
             FileWriter fileWriter = new FileWriter(fileName,true);
-            if (data instanceof DataGroup) {
-                for(int i=0; i<((DataGroup)data).getNData(); i++) {
-                    putData(fileWriter,((DataGroup)data).getData(i));
-                }
-            }
             if (data instanceof DataDoubleArray) {
                 double[] values = ((DataDoubleArray)data).getData();
                 for(int j=0; j<values.length; j++) {fileWriter.write(values[j]+" ");}
@@ -52,27 +60,5 @@ public class DataLogger implements DataSink, java.io.Serializable {
             System.err.println("Cannot writing to "+fileName+", caught IOException: " + e.getMessage());
         }
 	}
-    
-    /**
-     * @exception IOException
-     * @param fileWriter
-     * @param data
-     */
-    private void putData(FileWriter fileWriter, Data data) throws IOException {
-        if (data instanceof DataGroup) {
-            for(int i=0; i<((DataGroup)data).getNData(); i++) {
-                putData(fileWriter,((DataGroup)data).getData(i));
-            }
-        }
-        if (data instanceof DataDoubleArray) {
-            double[] values = ((DataDoubleArray)data).getData();
-            for(int j=0; j<values.length; j++) {fileWriter.write(values[j]+" ");}
-        }
-        else if (data instanceof DataDouble) {
-            fileWriter.write(Double.toString(((DataDouble)data).x));
-        }
-        fileWriter.write("\n");
-        fileWriter.close();
-    }        
     
 }
