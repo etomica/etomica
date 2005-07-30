@@ -117,7 +117,7 @@ public class SimulationVirialPT extends Simulation {
             configuration.initializeCoordinates(phase[iTemp]);
             
             setMeter(iTemp,new MeterVirial(allValueClusters[iTemp],integrator[iTemp]));
-            meter[iTemp].getDataInfo().setLabel("Target/Refernce Ratio "+iTemp);
+//            meter[iTemp].getDataInfo().setLabel("Target/Refernce Ratio "+iTemp);
             setAccumulator(iTemp,new AccumulatorRatioAverage(meter[iTemp].getDataInfo()));
 
             if(iTemp>0) {
@@ -167,7 +167,7 @@ public class SimulationVirialPT extends Simulation {
 			accumulatorPump[i] = new DataPump(meter[i],accumulator[i]);
 		}
 		else {
-			accumulatorPump[i].setDataSinks(new DataAccumulator[] {accumulator[i]});
+			accumulatorPump[i].setDataSink(accumulator[i]);
 		}
         dumb[i] = new IntervalActionAdapter(accumulatorPump[i]);
 		integrator[i].addListener(dumb[i]);

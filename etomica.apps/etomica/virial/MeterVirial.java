@@ -27,7 +27,6 @@ public class MeterVirial implements DataSource, Meter, java.io.Serializable {
         setName(NameMaker.makeName(this.getClass()));
 		integrator = aIntegrator;
 		clusters = aClusters;
-		setTemperature(temperature);
         data = new DataDoubleArray("Cluster Value",Dimension.NULL,clusters.length);
         weightFactor = 1.0;
 	}

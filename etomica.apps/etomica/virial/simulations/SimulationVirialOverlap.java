@@ -119,9 +119,9 @@ public class SimulationVirialOverlap extends Simulation {
             configuration.initializeCoordinates(phase[iPhase]);
             MeterVirial meter = new MeterVirial(new ClusterAbstract[]{aValueClusters[iPhase],aSampleClusters[1-iPhase]},integrators[iPhase]);
             setMeter(meter,iPhase);
-            meters[iPhase].getDataInfo().setLabel("Overlap/Target"+iPhase+" meter");
+//            meters[iPhase].getDataInfo().setLabel("Overlap/Target"+iPhase+" meter");
             AccumulatorVirialOverlapSingleAverage acc = new AccumulatorVirialOverlapSingleAverage(meter.getDataInfo(),11);
-            acc.getDataInfo().setLabel("Overlap/Target"+iPhase+" accumulator");
+//            acc.getDataInfo().setLabel("Overlap/Target"+iPhase+" accumulator");
             setAccumulator(acc,iPhase);
               
         }
@@ -134,7 +134,7 @@ public class SimulationVirialOverlap extends Simulation {
         getController().addAction(ai);
 		
 		dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
-		dsvo.getDataInfo().setLabel("Bennet Overlap Ratio");
+//		dsvo.getDataInfo().setLabel("Bennet Overlap Ratio");
         integratorOS.setDSVO(dsvo);
 	}
 
@@ -161,17 +161,17 @@ public class SimulationVirialOverlap extends Simulation {
     public void setAccumulator(AccumulatorVirialOverlapSingleAverage newAccumulator, int iPhase) {
         accumulators[iPhase] = newAccumulator;
         if (accumulatorPumps[iPhase] == null) {
-            accumulatorPumps[iPhase] = new DataPump(meters[iPhase],new DataAccumulator[] {newAccumulator});
+            accumulatorPumps[iPhase] = new DataPump(meters[iPhase],newAccumulator);
             accumulatorAAs[iPhase] = new IntervalActionAdapter(accumulatorPumps[iPhase]);
             integrators[iPhase].addListener(accumulatorAAs[iPhase]);
         }
         else {
-            accumulatorPumps[iPhase].setDataSinks(new AccumulatorRatioAverage[] {newAccumulator});
+            accumulatorPumps[iPhase].setDataSink(newAccumulator);
         }
         accumulatorAAs[iPhase].setActionInterval(1);
         if (integratorOS != null) {
             dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
-            dsvo.getDataInfo().setLabel("Bennet Overlap Ratio");
+//            dsvo.getDataInfo().setLabel("Bennet Overlap Ratio");
             integratorOS.setDSVO(dsvo);
         }
     }
