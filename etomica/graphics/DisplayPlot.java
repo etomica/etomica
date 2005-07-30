@@ -4,7 +4,7 @@ import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.data.DataBin;
 import etomica.data.DataSourceUniform;
-import etomica.data.DataTable;
+import etomica.data.DataSinkTable;
 import etomica.data.DataTableListener;
 import etomica.data.types.DataArithmetic;
 import etomica.units.Unit;
@@ -12,7 +12,7 @@ import etomica.utility.Arrays;
 
 /**
  * Class for creating a plot of simulation data.  Data for plot is taken
- * from a DataTable instance, which can be obtained via the getDataTable
+ * from a DataSinkTable instance, which can be obtained via the getDataTable
  * method.  Data sets are added to the plot by piping the data to a new DataSink
  * obtained from the makeColumn method of the data table.  
  *
@@ -22,16 +22,16 @@ import etomica.utility.Arrays;
 public class DisplayPlot extends Display implements DataTableListener, EtomicaElement {
     
     /**
-     * Creates a plot with a new, empty, DataTable.
+     * Creates a plot with a new, empty, DataSinkTable.
      */
     public DisplayPlot() {
-        this(new DataTable());
+        this(new DataSinkTable());
     }
     
     /**
      * Creates a plot using data from the given table.
      */
-    public DisplayPlot(DataTable table) {
+    public DisplayPlot(DataSinkTable table) {
         super();
         this.dataTable = table;
         table.addTableListener(this);
@@ -51,40 +51,40 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
     }
     
     /**
-     * Returns the DataTable instance that specifies the plot data.
+     * Returns the DataSinkTable instance that specifies the plot data.
      * Data sets are added to the plot by piping them to a new data sink
      * given by the makeColumn method of the table.
      * @return
      */
-    public DataTable getDataTable() {
+    public DataSinkTable getDataTable() {
         return dataTable;
     }
     
     /**
      * Causes the display of the plot to be updated.
      */
-    public void tableDataChanged(DataTable table) {
+    public void tableDataChanged(DataSinkTable table) {
         doUpdate();
     }
     
     /**
      * Updates the units array for the new column, using the default units.
      */
-    public void tableColumnAdded(DataTable table, DataBin newColumn) {
+    public void tableColumnAdded(DataSinkTable table, DataBin newColumn) {
         units = (Unit[])Arrays.addObject(units, newColumn.getDataInfo().getDimension().defaultIOUnit());
     }
 
     /**
      * Causes the corresponding units element to be removed.
      */
-    public void tableColumnRemoved(DataTable table, int index, DataBin oldColumn) {
+    public void tableColumnRemoved(DataSinkTable table, int index, DataBin oldColumn) {
         units = (Unit[])Arrays.removeObject(units, units[index]);
     }
     
     /**
      * Has no effect. Part of the DataTableListener interface.
      */
-    public void tableRowCountChanged(DataTable table, int oldCount, int newCount) {
+    public void tableRowCountChanged(DataSinkTable table, int oldCount, int newCount) {
         //do nothing
     }
     
@@ -198,7 +198,7 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
         panel.setSize(width, height);
     }
     
-    private final DataTable dataTable;
+    private final DataSinkTable dataTable;
     private Plot plot;
     private javax.swing.JPanel panel = new javax.swing.JPanel();
     private boolean doLegend = true;

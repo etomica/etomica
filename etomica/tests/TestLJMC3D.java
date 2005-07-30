@@ -1,7 +1,6 @@
 package etomica.tests;
 import etomica.ConfigurationFile;
 import etomica.Controller;
-import etomica.DataSink;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
@@ -11,11 +10,11 @@ import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomSourceRandomLeafSeq;
 import etomica.data.AccumulatorAverage;
-import etomica.data.DataGroup;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterPressure;
 import etomica.data.types.DataDouble;
+import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -87,14 +86,14 @@ public class TestLJMC3D extends Simulation {
         MeterPressure pMeter = new MeterPressure(sim.potentialMaster,sim.space);
         pMeter.setTemperature(sim.integrator.getTemperature());
         pMeter.setPhase(sim.phase);
-        AccumulatorAverage pAccumulator = new AccumulatorAverage(pMeter.getDataInfo());
+        AccumulatorAverage pAccumulator = new AccumulatorAverage();
         DataPump pPump = new DataPump(pMeter,pAccumulator);
         IntervalActionAdapter iaa = new IntervalActionAdapter(pPump,sim.integrator);
         iaa.setActionInterval(2*numAtoms);
         MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         energyMeter.setPhase(sim.phase);
-        AccumulatorAverage energyAccumulator = new AccumulatorAverage(energyMeter.getDataInfo());
-        DataPump energyManager = new DataPump(energyMeter,new DataSink[]{energyAccumulator});
+        AccumulatorAverage energyAccumulator = new AccumulatorAverage();
+        DataPump energyManager = new DataPump(energyMeter, energyAccumulator);
         energyAccumulator.setBlockSize(50);
         new IntervalActionAdapter(energyManager, sim.integrator);
         

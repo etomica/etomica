@@ -9,11 +9,11 @@ import etomica.Phase;
 import etomica.Space;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
-import etomica.data.DataGroup;
 import etomica.data.DataSourceAtomic;
 import etomica.data.DataSourceUniform;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataFunction;
 import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.units.Dimension;
@@ -32,9 +32,8 @@ public class MeterProfile implements DataSource, Meter, java.io.Serializable {
      * Default constructor sets profile along the y-axis, with 100 histogram points.
      */
     public MeterProfile(Space space) {
-        xDataSource = new DataSourceUniform(Dimension.LENGTH);
+        xDataSource = new DataSourceUniform("x", Dimension.LENGTH);
         xData = (DataDoubleArray)xDataSource.getData();
-        xData.getDataInfo().setLabel("x");
         profileVector = space.makeVector();
         profileVector.setX(0, 1.0);
         position = space.makeVector();
@@ -61,9 +60,8 @@ public class MeterProfile implements DataSource, Meter, java.io.Serializable {
         if (!(m.getDataInfo().getDataClass().equals(DataDouble.class))) {
             throw new IllegalArgumentException("data source must return a DataDouble");
         }
-        yData = new DataDoubleArray(m.getDataInfo().getLabel()+" Profile", m.getDataInfo().getDimension());
-        yData.setLength(xDataSource.getNValues());
-        data = new DataGroup("Profile group", Dimension.NULL, new Data[] {xData, yData});
+        yData = new DataDoubleArray(m.getDataInfo().getLabel()+" Profile", m.getDataInfo().getDimension(),xDataSource.getNValues());
+        data = new DataFunction(new DataDoubleArray[] {xData}, yData);
         meter = m;
     }
     
@@ -130,7 +128,7 @@ public class MeterProfile implements DataSource, Meter, java.io.Serializable {
     private Phase phase;
     private String name;
     private DataSourceUniform xDataSource;
-    private DataGroup data;
+    private DataFunction data;
     private DataDoubleArray xData;
     private DataDoubleArray yData;
     /**

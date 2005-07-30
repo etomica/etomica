@@ -21,7 +21,7 @@ import etomica.integrator.IntervalActionAdapter;
 /*
  * History Created on Apr 10, 2005 by kofke
  */
-public class DataTableAverages extends DataTable {
+public class DataTableAverages extends DataSinkTable {
 
     /**
      * Sets up table with default types that give the current value, the
@@ -60,7 +60,7 @@ public class DataTableAverages extends DataTable {
      * Adds the given data source to those feeding the table.
      */
     public void addDataSource(DataSource newSource) {
-        AccumulatorAverage accumulator = new AccumulatorAverage(newSource.getDataInfo());
+        AccumulatorAverage accumulator = new AccumulatorAverage();
         DataPump dataPump = new DataPump(newSource, accumulator);
         actionGroup.addAction(dataPump);
         accumulator.setPushInterval(tableUpdateInterval);

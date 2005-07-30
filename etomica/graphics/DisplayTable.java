@@ -16,7 +16,7 @@ import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataBin;
-import etomica.data.DataTable;
+import etomica.data.DataSinkTable;
 import etomica.data.DataTableAverages;
 import etomica.data.DataTableListener;
 import etomica.data.meter.MeterNMolecules;
@@ -41,10 +41,10 @@ public class DisplayTable extends Display implements DataTableListener,
         EtomicaElement {
 
     public DisplayTable() {
-        this(new DataTable());
+        this(new DataSinkTable());
     }
 
-    public DisplayTable(DataTable dataTable) {
+    public DisplayTable(DataSinkTable dataTable) {
         this.dataTable = dataTable;
 
         units = new Unit[dataTable.getColumnCount()];
@@ -80,14 +80,14 @@ public class DisplayTable extends Display implements DataTableListener,
         return info;
     }
 
-    public DataTable getDataTable() {
+    public DataSinkTable getDataTable() {
         return dataTable;
     }
 
     /**
      * Causes the display of the plot to be updated.
      */
-    public void tableDataChanged(DataTable table) {
+    public void tableDataChanged(DataSinkTable table) {
         tableSource.fireTableDataChanged();
         repaint();
     }
@@ -95,7 +95,7 @@ public class DisplayTable extends Display implements DataTableListener,
     /**
      * Updates the units array for the new column, using the default units.
      */
-    public void tableColumnAdded(DataTable table, DataBin newColumn) {
+    public void tableColumnAdded(DataSinkTable table, DataBin newColumn) {
         units = (Unit[]) Arrays.addObject(units, newColumn.getDataInfo().getDimension()
                 .defaultIOUnit());
         tableSource.fireTableStructureChanged();
@@ -104,7 +104,7 @@ public class DisplayTable extends Display implements DataTableListener,
     /**
      * Causes the corresponding units element to be removed.
      */
-    public void tableColumnRemoved(DataTable table, int index, DataBin oldColumn) {
+    public void tableColumnRemoved(DataSinkTable table, int index, DataBin oldColumn) {
         units = (Unit[]) Arrays.removeObject(units, units[index]);
         tableSource.fireTableStructureChanged();
     }
@@ -112,7 +112,7 @@ public class DisplayTable extends Display implements DataTableListener,
     /**
      * Has no effect. Part of the DataTableListener interface.
      */
-    public void tableRowCountChanged(DataTable table, int oldCount, int newCount) {
+    public void tableRowCountChanged(DataSinkTable table, int oldCount, int newCount) {
         tableSource.fireTableStructureChanged();
     }
 
@@ -308,7 +308,7 @@ public class DisplayTable extends Display implements DataTableListener,
     }
 
     private final JTable table;
-    private final DataTable dataTable;
+    private final DataSinkTable dataTable;
     private final MyTable tableSource;
     private final JPanel panel;
 

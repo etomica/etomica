@@ -22,8 +22,7 @@ import etomica.units.Dimension;
 public class MeterPressureByVolumeChange implements Meter, java.io.Serializable {
     
     public MeterPressureByVolumeChange(PotentialMaster potentialMaster, boolean[] dimensions) {
-        data = new DataDoubleArray("Pressure by Volume Change",Dimension.pressure(potentialMaster.getSpace().D()));
-        data.setLength(10);
+        data = new DataDoubleArray("Pressure by Volume Change",Dimension.pressure(potentialMaster.getSpace().D()),10);
         dataArray = data.getData();
         spaceD = dimensions.length;
         potential = potentialMaster;
@@ -63,7 +62,7 @@ public class MeterPressureByVolumeChange implements Meter, java.io.Serializable 
     public boolean[] getInflateDimensions() {return inflateDimensions;}
     
     public void setX(double min, double max, int n) {
-        xDataSource = new DataSourceUniform(Dimension.volume(potential.getSpace().D()),n, min, max);
+        xDataSource = new DataSourceUniform("x",Dimension.volume(potential.getSpace().D()),n, min, max);
         //x is scaling in volume if isotropic, but is linear scaling if not isotropic
         double dx = (max-min)/n;
         final double[] x = ((DataDoubleArray)xDataSource.getData()).getData();

@@ -54,6 +54,7 @@ public class HSMD3D extends Simulation {
         integrator = new IntegratorHard(potentialMaster);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
+        this.register(integrator);
 
         NeighborListManager nbrManager = ((PotentialMasterNbr)potentialMaster).getNeighborManager();
         nbrManager.setRange(Default.ATOM_SIZE*1.6);

@@ -10,6 +10,8 @@ import etomica.DataInfo;
 import etomica.DataSink;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
+import etomica.data.DataProcessor;
+import etomica.data.types.CastToDouble;
 import etomica.data.types.DataDouble;
 import etomica.units.Unit;
 
@@ -84,6 +86,23 @@ public class DisplayBox extends Display implements DataSink, EtomicaElement, jav
             }
         });  */
     }//end of constructor
+    
+    public void putDataInfo(DataInfo dataInfo) {
+        if(unit == Unit.NULL) {
+            unit = dataInfo.getDimension().defaultIOUnit();
+        }
+        if(label.equals("")) {
+            setLabel(dataInfo.getLabel());
+        }
+    }
+    
+    /**
+     * Returns caster needed to convert type indicated by DataInfo to a DataDouble.
+     */
+    public DataProcessor getDataCaster(DataInfo dataInfo) {
+        if(dataInfo.getClass() == DataDouble.class) return null;
+        return new CastToDouble();
+    }
     
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Simple display of one data source's value with a label");

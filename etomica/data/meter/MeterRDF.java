@@ -9,9 +9,9 @@ import etomica.Phase;
 import etomica.Space;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
-import etomica.data.DataGroup;
 import etomica.data.DataSourceUniform;
 import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataFunction;
 import etomica.space.CoordinatePair;
 import etomica.units.Dimension;
 import etomica.utility.NameMaker;
@@ -31,15 +31,13 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
     public MeterRDF(Space space) {
 	    this.space = space;
 
-        xDataSource = new DataSourceUniform(Dimension.LENGTH);
+        xDataSource = new DataSourceUniform("r", Dimension.LENGTH);
         xDataSource.setTypeMax(DataSourceUniform.HALF_STEP);
         xDataSource.setTypeMin(DataSourceUniform.HALF_STEP);
         
         rData = (DataDoubleArray)xDataSource.getData();
-        rData.getDataInfo().setLabel("r");
-        gData = new DataDoubleArray("RDF", Dimension.NULL);
-        gData.setLength(rData.getLength());
-        data = new DataGroup("g(r)", Dimension.UNDEFINED, new Data[] {rData, gData});
+        gData = new DataDoubleArray("g(r)", Dimension.NULL,rData.getLength());
+        data = new DataFunction(new DataDoubleArray[] {rData}, gData);
 
 	    iterator = new ApiLeafAtoms();
 	    cPair = new CoordinatePair(space);
@@ -79,8 +77,17 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
 	 */
 	public Data getData() {
         cPair.setNearestImageTransformer(phase.boundary());
-        if (gData.getLength() != xDataSource.getNValues()) {
-            gData.setLength(xDataSource.getNValues());
+        boolean needUpdate = false;
+        if (rData != xDataSource.getData()) {
+            rData = (DataDoubleArray)xDataSource.getData();
+            needUpdate = true;
+        }
+        if (gData.getLength() != rData.getLength()) {
+            gData = new DataDoubleArray(gData.getDataInfo(),new int[]{xDataSource.getNValues()});
+            needUpdate = true;
+        }
+        if (needUpdate) {
+            data = new DataFunction(new DataDoubleArray[] {rData}, gData);
         }
         final double[] y = gData.getData();
 	    for(int i=0; i<y.length; i++) {y[i] = 0.0;}  //zero histogram
@@ -135,12 +142,21 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
     public void setName(String name) {
         this.name = name;
     }
+    
+    public void setDataLabel(String label) {
+        gData = new DataDoubleArray(label, Dimension.NULL, new int[]{xDataSource.getNValues()});
+        data = new DataFunction(new DataDoubleArray[] {rData}, gData);
+    }
+    
+    public String getDataLabel() {
+        return gData.getDataInfo().getLabel();
+    }
 
     private Phase phase;
     private final Space space;
-    private final DataGroup data;
-    private final DataDoubleArray rData;
-    private final DataDoubleArray gData;
+    private DataFunction data;
+    private DataDoubleArray rData;
+    private DataDoubleArray gData;
     private AtomsetIteratorPhaseDependent iterator;
     private final CoordinatePair cPair;
     private final DataSourceUniform xDataSource;

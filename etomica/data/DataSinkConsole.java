@@ -2,10 +2,10 @@ package etomica.data;
 import java.io.PrintStream;
 
 import etomica.Data;
+import etomica.DataInfo;
 import etomica.DataSink;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.units.Unit;
 import etomica.utility.NameMaker;
 
 /**
@@ -32,6 +32,20 @@ public class DataSinkConsole implements DataSink, EtomicaElement, java.io.Serial
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Pipes data to console");
         return info;
+    }
+    
+    /**
+     * Returns null, indicating that any type of Data can be put here without casting.
+     */
+    public DataProcessor getDataCaster(DataInfo dataInfo) {
+        return null;
+    }
+    
+    /**
+     * Causes the given DataInfo to be written to the print stream.
+     */
+    public void putDataInfo(DataInfo dataInfo) {
+        out.println(dataInfo.toString());
     }
     
     /**
@@ -83,7 +97,7 @@ public class DataSinkConsole implements DataSink, EtomicaElement, java.io.Serial
     public void setName(String name) {
         this.name = name;
     }
-    private Unit unit = Unit.UNDEFINED;
+
     private PrintStream out = System.out;
     private String name;
 }

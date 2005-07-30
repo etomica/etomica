@@ -81,7 +81,7 @@ public class HSMD2D_noNbr extends Simulation {
         
         MeterTemperature meterTemperature = new MeterTemperature();
         meterTemperature.setPhase(phase);
-        temperatureAverage = new AccumulatorAverage(meterTemperature.getDataInfo());
+        temperatureAverage = new AccumulatorAverage();
         DataPump temperaturePump = new DataPump(meterTemperature, temperatureAverage);
         new IntervalActionAdapter(temperaturePump, integrator);
 
@@ -107,7 +107,7 @@ public class HSMD2D_noNbr extends Simulation {
         DisplayBoxesCAE temperatureDisplay = new DisplayBoxesCAE();
         temperatureDisplay.setAccumulator(sim.temperatureAverage);
         DisplayPlot temperaturePlot = new DisplayPlot();
-        sim.temperatureHistory.addDataSink(temperaturePlot.getDataTable().makeColumn(sim.temperatureHistory.getDataInfo()));
+        sim.temperatureHistory.setDataSink(temperaturePlot.getDataTable().makeColumn(sim.temperatureHistory.getDataInfo()));
         DeviceNSelector nSelector = new DeviceNSelector(sim, sim.phase.getAgent(sim.species));
         DeviceThermoSelector thermo = new DeviceThermoSelector(sim.getController(), sim.integrator);
         graphic.add(nSelector);

@@ -1,7 +1,6 @@
 package etomica.simulations;
 
 import etomica.AtomType;
-import etomica.DataSink;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
@@ -85,8 +84,8 @@ public class Heisenberg extends Simulation {
         
         meter = new MeterSpin(space);
         meter.setPhase(phase);
-        dAcc = new AccumulatorAverage(meter.getDataInfo());
-        pump = new DataPump(meter,new DataSink[]{dAcc});
+        dAcc = new AccumulatorAverage();
+        pump = new DataPump(meter, dAcc);
         adapter = new IntervalActionAdapter(pump,integrator);
         adapter.setActionInterval(10);
 
@@ -105,6 +104,7 @@ public class Heisenberg extends Simulation {
     
     public static void main(String[] args) {
         Heisenberg sim = new Heisenberg(Space2D.getInstance());
+        sim.register(sim.integrator);
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
         DisplayPhase displayPhase = simGraphic.getDisplayPhase(sim.phase);
         simGraphic.remove(displayPhase);

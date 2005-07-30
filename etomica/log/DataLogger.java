@@ -6,9 +6,9 @@ import java.io.IOException;
 import etomica.Data;
 import etomica.DataInfo;
 import etomica.DataSink;
-import etomica.data.DataGroup;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataGroup;
 
 
 /**
