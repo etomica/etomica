@@ -80,8 +80,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
     boxB.setLabel(" White  ");
     DataPump meterAPump = new DataPump(meterA,boxA);
     DataPump meterBPump = new DataPump(meterB,boxB);
-    IntervalActionAdapter plugA = new IntervalActionAdapter(meterAPump, sim.integratorDCV);
-    IntervalActionAdapter plugB = new IntervalActionAdapter(meterBPump, sim.integratorDCV);
+    new IntervalActionAdapter(meterAPump, sim.integratorDCV);
+    new IntervalActionAdapter(meterBPump, sim.integratorDCV);
     JPanel nMoleculePanel = new JPanel();
     nMoleculePanel.add(boxA.graphic());
     nMoleculePanel.add(boxB.graphic());
@@ -135,8 +135,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
     table.setShowingRowLabels(true);
     table.setPrecision(7);
 	
-	sim.accumulator1.addDataSink(profilePlot.getDataTable().makeColumn(sim.accumulator1.getDataInfo()),new AccumulatorAverage.Type[]{AccumulatorAverage.AVERAGE});
-    sim.accumulator2.addDataSink(profilePlot.getDataTable().makeColumn(sim.accumulator2.getDataInfo()),new AccumulatorAverage.Type[]{AccumulatorAverage.AVERAGE});
+	sim.accumulator1.addDataSink(profilePlot.getDataTable(),new AccumulatorAverage.Type[]{AccumulatorAverage.AVERAGE});
+    sim.accumulator2.addDataSink(profilePlot.getDataTable(),new AccumulatorAverage.Type[]{AccumulatorAverage.AVERAGE});
 
 //set color of molecules	
 	ColorSchemeByType.setColor(sim.species,colorA);
