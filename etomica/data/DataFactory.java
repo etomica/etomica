@@ -22,6 +22,4 @@ public interface DataFactory {
     
     public Class getDataClass();
     
-    public DataFactory copy();
-
 }
