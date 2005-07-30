@@ -385,7 +385,7 @@ public class DisplayTable extends Display implements DataTableListener,
                 if (!suffix.equals(""))
                     suffix = "(" + suffix + ")";
             }
-            return dataTable.getColumn(i).getDataInfo().getLabel()
+            return dataTable.getColumn(i).getHeading()
                     + (showingUnits ? suffix : "");
         }
 

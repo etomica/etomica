@@ -140,9 +140,25 @@ public class DataTable extends Data implements Serializable {
             this.dimension = column.dimension;
         }
         
-        public final double[] data;
-        public String heading;
-        public final Dimension dimension;
+        public void setHeading(String heading) {
+            this.heading = heading;
+        }
+        
+        public String getHeading() {
+            return heading;
+        }
+        
+        public Dimension getDimension() {
+            return dimension;
+        }
+        
+        public double[] getData() {
+            return data;
+        }
+        
+        private final double[] data;
+        private String heading;
+        private final Dimension dimension;
     }
 
 }

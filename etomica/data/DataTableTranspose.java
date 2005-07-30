@@ -25,9 +25,9 @@ public class DataTableTranspose extends DataProcessor {
     protected Data processData(Data inputData) {
         DataTable inputTable = (DataTable)inputData;
         for(int col=0; col<outputTable.getNColumns(); col++) {
-            double[] outputData = outputTable.getColumn(col).data;
+            double[] outputData = outputTable.getColumn(col).getData();
             for(int row=0; row<outputTable.getNRows(); row++) {
-                outputData[row] = inputTable.getColumn(row).data[col];
+                outputData[row] = inputTable.getColumn(row).getData()[col];
             }
         }
         return outputTable;
@@ -40,7 +40,7 @@ public class DataTableTranspose extends DataProcessor {
         DataTable.Factory factory = (DataTable.Factory)inputDataInfo.getDataFactory();
         int nRows = factory.getNRows();
         int nCols = factory.getNColumns();
-        outputData = new DataTable();
+        outputTable = new DataTable();
     }
 
     /* (non-Javadoc)

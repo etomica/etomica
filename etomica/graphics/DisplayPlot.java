@@ -2,11 +2,11 @@ package etomica.graphics;
 import etomica.DataSource;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.data.DataBin;
-import etomica.data.DataSourceUniform;
 import etomica.data.DataSinkTable;
+import etomica.data.DataSourceUniform;
 import etomica.data.DataTableListener;
 import etomica.data.types.DataArithmetic;
+import etomica.data.types.DataTable;
 import etomica.units.Unit;
 import etomica.utility.Arrays;
 
@@ -41,7 +41,7 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
         setName("Data Plot");
         units = new Unit[table.getColumnCount()];
         for(int i=0; i<units.length; i++) {
-            units[i] = table.getColumn(i).getDataInfo().getDimension().defaultIOUnit();
+            units[i] = table.getColumn(i).getDimension().defaultIOUnit();
         }
     }
     
@@ -70,21 +70,25 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
     /**
      * Updates the units array for the new column, using the default units.
      */
-    public void tableColumnAdded(DataSinkTable table, DataBin newColumn) {
-        units = (Unit[])Arrays.addObject(units, newColumn.getDataInfo().getDimension().defaultIOUnit());
+    public void tableColumnCountChanged(DataSinkTable table) {
+        int oldColumnCount = units.length;
+        int newColumnCount = table.getColumnCount();
+        if(newColumnCount > oldColumnCount) {
+            units = (Unit[])Arrays.resizeArray(units, newColumnCount);
+            for(int i=oldColumnCount; i<newColumnCount; i++) {
+                units[i] = table.getColumn(i).getDimension().defaultIOUnit();
+            }
+        } else {
+            //TODO have DisplayTable adjust appropriately to removal of columns; this works only for newColumnCount = 0
+            //may need to remember columns and reassign units to match
+            units = (Unit[])Arrays.resizeArray(units, newColumnCount);
+        }
     }
 
     /**
-     * Causes the corresponding units element to be removed.
-     */
-    public void tableColumnRemoved(DataSinkTable table, int index, DataBin oldColumn) {
-        units = (Unit[])Arrays.removeObject(units, units[index]);
-    }
-    
-    /**
      * Has no effect. Part of the DataTableListener interface.
      */
-    public void tableRowCountChanged(DataSinkTable table, int oldCount, int newCount) {
+    public void tableRowCountChanged(DataSinkTable table) {
         //do nothing
     }
     
@@ -100,12 +104,12 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
         panel.repaint();
         
         for(int i=0; i<dataTable.getColumnCount(); i++) {
-            plot.addLegend(i,doLegend ? dataTable.getColumn(i).getDataInfo().getLabel(): "");
+            plot.addLegend(i,doLegend ? dataTable.getColumn(i).getHeading(): "");
         }
         
         setLabel(x.getDataInfo().getLabel());
         if(dataTable.getColumnCount() > 0) {
-            plot.setYLabel(dataTable.getColumn(0).getDataInfo().getLabel());
+            plot.setYLabel(dataTable.getColumn(0).getHeading());
         }
 
         plot.setXLabel(x.getDataInfo().getLabel()+ " ("+xUnit.symbol()+")");
@@ -122,9 +126,9 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
         plot.clear(false);
         DataArithmetic xValues = (DataArithmetic)x.getData();
         for(int k=0; k<nSource; k++) {
-            DataArithmetic column = (DataArithmetic)dataTable.getColumn(k).getData();
-            for(int i=0; i<column.getLength(); i++) {
-                plot.addPoint(k, xUnit.fromSim(xValues.getValue(i)), units[k].fromSim(column.getValue(i)), true);
+            final double[] data = dataTable.getColumn(k).getData();
+            for(int i=0; i<data.length; i++) {
+                plot.addPoint(k, xUnit.fromSim(xValues.getValue(i)), units[k].fromSim(data[i]), true);
 //              if(!Double.isNaN(data[k].y[i])) { 
 //                plot.addPoint(k, x.unit.fromSim(x.y[i]), data[k].unit.fromSim(data[k].y[i]), true);
 //              } else if(i==x.y.length-1) {
@@ -179,7 +183,7 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
     /**
      * Sets the display units of the given column to the given unit.
      */
-    public void setUnit(DataBin column, Unit newUnit) {
+    public void setUnit(DataTable.Column column, Unit newUnit) {
         for(int i=0; i<dataTable.getColumnCount(); i++) {
             if(dataTable.getColumn(i) == column) {
                 units[i] = newUnit;

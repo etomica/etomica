@@ -108,8 +108,8 @@ public class DataSinkTable implements DataSink, Serializable {
     
     
     public double getValue(int row, int column) {
-        if(dataColumns[column].data.length <= row) return Double.NaN;
-        return dataColumns[column].data[row];
+        if(dataColumns[column].getData().length <= row) return Double.NaN;
+        return dataColumns[column].getData()[row];
     }
 
     public int getColumnCount() {
@@ -123,8 +123,8 @@ public class DataSinkTable implements DataSink, Serializable {
         return rowCount;
     }
 
-    public double[] getColumn(int column) {
-        return dataColumns[column].data;
+    public DataTable.Column getColumn(int column) {
+        return dataColumns[column];
     }
     
 //    /**
@@ -191,7 +191,7 @@ public class DataSinkTable implements DataSink, Serializable {
         int oldRowCount = rowCount;
         rowCount = 0;
         for (int i = 0; i < dataColumns.length; i++) {
-            int n = dataColumns[i].data.length;
+            int n = dataColumns[i].getData().length;
             if (n > rowCount) {
                 rowCount = n;
             }
