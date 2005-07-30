@@ -1,25 +1,27 @@
 package etomica.data;
 
-import etomica.Data;
 import etomica.DataSink;
 
 
 /**
- * An object that serves as a DataSink, and which may hold one or more
- * other data sinks to which it can push its data.
+ * Interface for an object through which data can flow.  It can
+ * serve as a DataSink and pass Data onto another DataSink.
+ *
+ * @author David Kofke
  *
  */
 
 /*
  * History
- * Created on Feb 19, 2005 by kofke
+ * Created on Jul 23, 2005 by kofke
  */
-public abstract class DataPipe extends DataPusher implements DataSink {
-
-    public DataPipe() {
-        super();
-    }
-
-    public abstract void putData(Data data);
+public interface DataPipe extends DataSink {
+    
+    /**
+     * Sets the DataSink that will receive data from this DataPipe.  Any
+     * previously set DataSink(s) is discarded.
+     * @param dataSink the new recipient of Data from this DataPipe.
+     */
+    public void setDataSink(DataSink dataSink);
 
 }
