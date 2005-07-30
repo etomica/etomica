@@ -33,11 +33,12 @@ public abstract class Data implements java.io.Serializable {
     }
 
     /**
-     * Copy constructor, used by subclasses.  Constructs instance by making
-     * a copy of the DataInfo in the given Data instance.
+     * Copy constructor, used by subclasses.  Constructs instance using 
+     * the DataInfo in the given Data instance (i.e., uses instance directly,
+     * not a copy).
      */
     protected Data(Data data) {
-        this(new DataInfo(data.dataInfo));
+        this(data.dataInfo);
     }
 
     /**

@@ -47,7 +47,7 @@ public class DataInfo implements java.io.Serializable {
     public DataInfo(DataInfo dataInfo) {
         this.label = new String(dataInfo.label);
         this.dimension = dataInfo.dimension;
-        this.dataFactory = dataInfo.dataFactory.copy();
+        this.dataFactory = dataInfo.dataFactory;
     }
 
     public DataFactory getDataFactory() {
@@ -71,16 +71,6 @@ public class DataInfo implements java.io.Serializable {
      */
     public String getLabel() {
         return label;
-    }
-
-    /**
-     * Sets the descriptive label for the data.
-     * 
-     * @param label
-     *            new label
-     */
-    public void setLabel(String label) {
-        this.label = label;
     }
 
     public String toString() {
