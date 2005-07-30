@@ -1,0 +1,211 @@
+package etomica.data;
+
+import java.io.Serializable;
+import java.util.HashMap;
+
+import etomica.Data;
+import etomica.DataInfo;
+import etomica.DataSink;
+import etomica.data.types.CastGroupToDoubleArray;
+import etomica.data.types.CastToTable;
+import etomica.data.types.DataGroup;
+import etomica.data.types.DataTable;
+import etomica.utility.Arrays;
+
+/**
+ * Receives data from multiple streams and organizes it in the form of a table,
+ * with each stream of data forming a column of the table. Fires event when data
+ * in table is changed; can be configured to fire when any column of data
+ * changes, or to perform action only when all columns are changed.
+ * 
+ * @author David Kofke
+ *  
+ */
+
+/*
+ * History Created on Apr 9, 2005 by kofke
+ */
+public class DataSinkTable implements DataSink, Serializable {
+
+    public DataSinkTable() {
+    }
+    
+    /* (non-Javadoc)
+     * @see etomica.DataSink#getDataCaster(etomica.DataInfo)
+     */
+    public DataProcessor getDataCaster(DataInfo dataInfo) {
+        if (dataInfo.getDataClass() == DataTable.class) {
+            return null;
+        } else if(dataInfo.getDataClass() == DataGroup.class) {
+            return new CastGroupToDoubleArray();
+        }
+        return new CastToTable();
+    }
+    /* (non-Javadoc)
+     * @see etomica.DataSink#putData(etomica.Data)
+     */
+    public void putData(Data data) {
+        Integer indexObj = (Integer)columnIndexHash.get(data);
+        if (indexObj == null) {
+            addNewData((DataTable)data);
+            indexObj = new Integer(casterIndex++);
+            if ((casterIndex+31)/32 > casterChangedBits.length) {
+                casterChangedBits = Arrays.resizeArray(casterChangedBits,casterChangedBits.length+1);
+            }
+            casterChangedBits[casterChangedBits.length-1] |= 1<<(casterIndex%32);
+            columnIndexHash.put(data,indexObj);
+        }
+        int index = indexObj.intValue();
+        casterChangedBits[index >> 5] &= (0xFFFFFFFF ^ (1<<(index & 0xFFFFFFFF)));
+        if (updatingOnAnyChange) {
+            fireDataChangedEvent();
+        }
+        else {
+            int l = casterChangedBits.length;
+            for (int i=0; i<l; i++) {
+                if (casterChangedBits[i] != 0) {
+                    return;
+                }
+            }
+            fireDataChangedEvent();
+            for (int i=0; i<l-1; i++) {
+                casterChangedBits[i] = 0xFFFFFFFF;
+            }
+            if (casterIndex%32 == 0) {
+                casterChangedBits[l-1] = 0xFFFFFFFF;
+            }
+            else {
+                casterChangedBits[l-1] = (1<<(casterIndex%32)) - 1;
+            }
+        }
+    }
+
+    protected void addNewData(DataTable data) {
+        int nColumns = data.getNColumns();
+        int oldSize = dataColumns.length;
+        dataColumns = (DataTable.Column[])Arrays.resizeArray(dataColumns,oldSize+nColumns);
+        for (int i=0; i<nColumns; i++) {
+            dataColumns[oldSize+i] = data.getColumn(i);
+        }
+        updateRowCount();
+        fireColumnCountChangedEvent();
+    }
+    
+    /* (non-Javadoc)
+     * @see etomica.DataSink#putDataInfo(etomica.DataInfo)
+     */
+    public void putDataInfo(DataInfo dataInfo) {
+    }
+    
+    public void reset() {
+        columnIndexHash.clear();
+        dataColumns = new DataTable.Column[0];
+        updateRowCount();
+        casterIndex = 0;
+        casterChangedBits = new int[0];
+        fireColumnCountChangedEvent();
+    }
+    
+    
+    public double getValue(int row, int column) {
+        if(dataColumns[column].data.length <= row) return Double.NaN;
+        return dataColumns[column].data[row];
+    }
+
+    public int getColumnCount() {
+        return dataColumns.length;
+    }
+
+    /**
+     * Returns the length of the longest column.
+     */
+    public int getRowCount() {
+        return rowCount;
+    }
+
+    public double[] getColumn(int column) {
+        return dataColumns[column].data;
+    }
+    
+//    /**
+//     * Descriptive string for each column.  Returns an
+//     * array of length equal to the number of columns in
+//     * the table.  Each entry is obtained from the getLabel
+//     * method for the column. Never returns null.
+//     */
+//    public String[] getColumnHeadings() {
+//        //need to refresh with each call because columnHeadings isn't 
+//        //notified when setLabel of DataBin is called
+//        for (int i = 0; i < columns.length; i++) {
+//            columnHeadings[i] = columns[i].getDataInfo().getLabel();
+//        }
+//        return columnHeadings;
+//    }
+
+    /**
+     * @return flag defining protocol for firing table events that
+     * notify of column data changes.
+     */
+    public boolean isUpdatingOnAnyChange() {
+        return updatingOnAnyChange;
+    }
+
+    /**
+     * Describes protocol for firing table events that notify of column data
+     * changes. If true, event is fired when any column notifies that it has
+     * changed; if false, event is fired only when all columns have
+     * notified that they have changed (since last time event was fired).
+     */
+    public void setUpdatingOnAnyChange(boolean updatingWithAnyChange) {
+        this.updatingOnAnyChange = updatingWithAnyChange;
+    }
+
+    protected void fireDataChangedEvent() {
+        for (int i = 0; i < listeners.length; i++) {
+            listeners[i].tableDataChanged(this);
+        }
+    }
+
+    protected void fireColumnCountChangedEvent() {
+        for (int i = 0; i < listeners.length; i++) {
+            listeners[i].tableColumnCountChanged(this);
+        }
+    }
+    protected void fireRowCountChangedEvent() {
+        for (int i = 0; i < listeners.length; i++) {
+            listeners[i].tableRowCountChanged(this);
+        }
+    }
+    
+    public void addTableListener(DataTableListener newListener) {
+        listeners = (DataTableListener[]) Arrays.addObject(listeners,
+                newListener);
+    }
+
+    public void removeTableListener(DataTableListener oldListener) {
+        listeners = (DataTableListener[]) Arrays.removeObject(listeners,
+                oldListener);
+    }
+
+    private void updateRowCount() {
+        int oldRowCount = rowCount;
+        rowCount = 0;
+        for (int i = 0; i < dataColumns.length; i++) {
+            int n = dataColumns[i].data.length;
+            if (n > rowCount) {
+                rowCount = n;
+            }
+        }
+        if (oldRowCount != rowCount) {
+            fireRowCountChangedEvent();
+        }
+    }
+    
+    private DataTableListener[] listeners = new DataTableListener[0];
+    private boolean updatingOnAnyChange;
+    private int rowCount;
+    private DataTable.Column[] dataColumns = new DataTable.Column[0];
+    private int casterIndex;
+    private int[] casterChangedBits = new int[0];
+    private HashMap columnIndexHash;
+}
