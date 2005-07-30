@@ -31,7 +31,8 @@ public class DataDouble extends Data implements DataArithmetic {
     }
 
     /**
-     * Copy constructor.
+     * Copy constructor.  Makes a new DataDouble having the same DataInfo instance
+     * and the same data value as the given DataDouble.
      */
     public DataDouble(DataDouble data) {
         super(data);
@@ -127,8 +128,8 @@ public class DataDouble extends Data implements DataArithmetic {
      * Returns a new one-element array formed from the current value of this
      * instance.
      */
-    public double[] toArray() {
-        return new double[] { x };
+    public void assignTo(double[] array) {
+        array[0] = x;
     }
 
     /**
@@ -178,11 +179,7 @@ public class DataDouble extends Data implements DataArithmetic {
         }
         
         public Class getDataClass() {
-            return double.class;
-        }
-        
-        public DataFactory copy() {
-            return this;
+            return DataDouble.class;
         }
     }
 }
