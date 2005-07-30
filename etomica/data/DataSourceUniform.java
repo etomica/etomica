@@ -27,23 +27,23 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
     
     /**
      * Default constructor. Chooses 100 points between 0 and 1, inclusive,
-     * and sets dataInfo dimension to Dimension.NULL (which cannot be changed
-     * after construction).
+     * and sets dataInfo label to "Uniform" and dimension to Dimension.NULL 
+     * (which cannot be changed after construction).
      */
     public DataSourceUniform() {
-        this(Dimension.NULL);
+        this("Uniform", Dimension.NULL);
     }
     
-    public DataSourceUniform(Dimension dimension) {
-        this(dimension, 100, 0.0, 1.0);
+    public DataSourceUniform(String label, Dimension dimension) {
+        this(label, dimension, 100, 0.0, 1.0);
     }
     
     /**
      * Constructs a DataSourceUniform using the indicated number of values
      * and x range, and INCLUSIVE limits.
      */
-    public DataSourceUniform(Dimension dimension, int nValues, double xMin, double xMax) {
-    	this(dimension, nValues, xMin, xMax, INCLUSIVE, INCLUSIVE);
+    public DataSourceUniform(String label, Dimension dimension, int nValues, double xMin, double xMax) {
+    	this(label, dimension, nValues, xMin, xMax, INCLUSIVE, INCLUSIVE);
     }
     
     /**
@@ -51,9 +51,9 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
      * x range, and limit types, with dataInfo indicating that the data have
      * the given dimension.  Dimension cannot be changed after construction.
      */
-    public DataSourceUniform(Dimension dimension, int nValues, double xMin, double xMax, 
+    public DataSourceUniform(String label, Dimension dimension, int nValues, double xMin, double xMax, 
                    LimitType typeMin, LimitType typeMax) {
-        data = new DataDoubleArray("Uniform", dimension);
+        data = new DataDoubleArray(label, dimension, nValues);
         if(nValues < 2) nValues = 2;
         calculateX(nValues, xMin, xMax, typeMin, typeMax);
     }
@@ -86,7 +86,10 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
         else if(typeMin == EXCLUSIVE) x0 += dx;
         
         //calculate values
-        data.setLength(nValues);
+
+        if (nValues != data.getLength()) {
+            data = new DataDoubleArray(data.getDataInfo(), new int[]{nValues});
+        }
         x = data.getData();
         for(int i=0; i<nValues; i++) x[i] = x0 + i*dx;
         
@@ -218,7 +221,7 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
     private LimitType typeMin, typeMax;
     private double xMin, xMax;
     private double[] x;
-    private final DataDoubleArray data;
+    private DataDoubleArray data;
     private double dx;
     
     /**

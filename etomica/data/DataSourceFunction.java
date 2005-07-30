@@ -6,6 +6,7 @@ import etomica.Data;
 import etomica.DataInfo;
 import etomica.DataSource;
 import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataFunction;
 import etomica.units.Dimension;
 import etomica.utility.Function;
 
@@ -27,11 +28,12 @@ public class DataSourceFunction implements DataSource, Serializable {
         this(new Function.Constant(0.0));
     }
     public DataSourceFunction(Function function) {
-        yData = new DataDoubleArray("y", Dimension.NULL);
-        xSource = new DataSourceUniform();
-        xData = (DataDoubleArray)xSource.getData();
-        xData.getDataInfo().setLabel("x");
-        data = new DataGroup("y(x)", Dimension.NULL, new Data[] {xData,yData});
+        this("y(x)", Dimension.NULL, function, 100);
+    }
+    
+    public DataSourceFunction(String label, Dimension dimension, Function function, int nValues) {
+        xSource = new DataSourceUniform("x",Dimension.NULL,nValues,0,1);
+        yData = new DataDoubleArray(label, dimension, nValues);
         this.function = function;
         update();
     }
@@ -58,22 +60,46 @@ public class DataSourceFunction implements DataSource, Serializable {
     }
     
     /**
+     * @return Returns the function.
+     */
+    public Function getFunction() {
+        return function;
+    }
+    /**
+     * @param function The function to set.
+     */
+    public void setFunction(Function function) {
+        this.function = function;
+        update();
+    }
+    /**
      * Recalculates the y values from the current x values.  This must be
      * invoked if the methods of the DataSourceUniform given by getXSource
      * are used to change the x values.
      *
      */
     public void update() {
+        boolean needUpdate = false;
+        if (xData != (DataDoubleArray)xSource.getData()) {
+            xData = (DataDoubleArray)xSource.getData();
+            needUpdate = true;
+        }
         double[] x = xData.getData();
-        yData.setLength(x.length);
+        if (yData.getLength() != x.length) {
+            yData = new DataDoubleArray(yData.getDataInfo(), new int[] {x.length});
+            needUpdate = true;
+        }
+        if (needUpdate) {
+            data = new DataFunction(new DataDoubleArray[] {xData}, yData);
+        }
         double[] y = yData.getData();
         for(int i=0; i<x.length; i++) {
             y[i] = function.f(x[i]);
         }
     }
     
-    private final DataGroup data;
+    private DataFunction data;
     private final DataSourceUniform xSource;
-    private final DataDoubleArray xData, yData;
+    private DataDoubleArray xData, yData;
     private Function function;
 }//end of DataSourceFunction
