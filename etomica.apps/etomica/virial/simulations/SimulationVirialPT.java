@@ -118,7 +118,7 @@ public class SimulationVirialPT extends Simulation {
             
             setMeter(iTemp,new MeterVirial(allValueClusters[iTemp],integrator[iTemp]));
 //            meter[iTemp].getDataInfo().setLabel("Target/Refernce Ratio "+iTemp);
-            setAccumulator(iTemp,new AccumulatorRatioAverage(meter[iTemp].getDataInfo()));
+            setAccumulator(iTemp,new AccumulatorRatioAverage());
 
             if(iTemp>0) {
                 meterAccept[iTemp-1] = new DataSourceAcceptanceRatio(integratorPT.swapMoves()[iTemp-1]);

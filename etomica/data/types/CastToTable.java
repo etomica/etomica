@@ -66,29 +66,29 @@ public class CastToTable extends DataProcessor implements Serializable {
             case 0:
                 int nColumns = outputData.myColumns.length;
                 for (int i=0; i<nColumns; i++) {
-                    ((DataDoubleArray)data).assignColumnTo(i,outputData.myColumns[i].data);
+                    ((DataDoubleArray)data).assignColumnTo(i,outputData.myColumns[i].getData());
                 }
                 break;
             case 1:
-                outputData.myColumns[0].data[0] = ((DataDouble)data).x;
+                outputData.myColumns[0].getData()[0] = ((DataDouble)data).x;
                 break;
             case 2:
-                outputData.myColumns[0].data[0] = ((DataInteger)data).x;
+                outputData.myColumns[0].getData()[0] = ((DataInteger)data).x;
                 break;
             case 3:
-                ((DataVector)data).x.assignTo(outputData.myColumns[0].data);
+                ((DataVector)data).x.assignTo(outputData.myColumns[0].getData());
                 break;
             case 4:
                 Tensor x = ((DataTensor)data).x;
                 for (int i=0; i<x.length(); i++) {
                     for (int j=0; j<x.length(); j++) {
-                        outputData.myColumns[i].data[j] = x.component(i,j);
+                        outputData.myColumns[i].getData()[j] = x.component(i,j);
                     }
                 }
                 break;
             case 5:
-                ((DataFunction)data).getXData(0).assignColumnTo(0,outputData.myColumns[0].data);
-                ((DataFunction)data).getYData().assignColumnTo(0,outputData.myColumns[1].data);
+                ((DataFunction)data).getXData(0).assignColumnTo(0,outputData.myColumns[0].getData());
+                ((DataFunction)data).getYData().assignColumnTo(0,outputData.myColumns[1].getData());
                 break;
             }
             return outputData;

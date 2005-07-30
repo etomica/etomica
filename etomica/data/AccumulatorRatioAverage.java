@@ -14,8 +14,8 @@ import etomica.utility.Function;
  */
 public class AccumulatorRatioAverage extends AccumulatorAverage {
     
-    public AccumulatorRatioAverage(DataInfo info) {
-        super(info);
+    public AccumulatorRatioAverage() {
+        super();
     }
     
     public Data getData() {

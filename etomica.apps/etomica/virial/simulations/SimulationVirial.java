@@ -90,7 +90,7 @@ public class SimulationVirial extends Simulation {
         // XXX oops, sorry you're screwed.
         // integrator.removeIntervalListener(accumulatorPump);
 //        meter.getDataInfo().setLabel("Target/Reference Ratio");
-        setAccumulator(new AccumulatorRatioAverage(meter.getDataInfo()));
+        setAccumulator(new AccumulatorRatioAverage());
 	}
 	
 	public Meter meter;

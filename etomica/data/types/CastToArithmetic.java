@@ -26,7 +26,7 @@ public class CastToArithmetic extends DataProcessor {
             inputType = 0;
         } else if (inputClass == DataGroup.class) {
             inputType = 1;
-            DataGroupExtractor extractor = new DataGroupExtractor(DataJudge.ASSIGNABLE_TO_ARITHMETIC);
+            DataGroupExtractor extractor = new DataGroupExtractor(DataJudge.INSTANCEOF_ARITHMETIC);
             dataArithmetic = extractor.processData(null);
             
         } else {

@@ -3,14 +3,12 @@ package etomica.virial.simulations;
 import etomica.AtomTypeGroup;
 import etomica.Default;
 import etomica.Integrator;
-import etomica.Meter;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
-import etomica.data.DataAccumulator;
 import etomica.data.DataPump;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
@@ -120,7 +118,7 @@ public class SimulationVirialOverlap extends Simulation {
             MeterVirial meter = new MeterVirial(new ClusterAbstract[]{aValueClusters[iPhase],aSampleClusters[1-iPhase]},integrators[iPhase]);
             setMeter(meter,iPhase);
 //            meters[iPhase].getDataInfo().setLabel("Overlap/Target"+iPhase+" meter");
-            AccumulatorVirialOverlapSingleAverage acc = new AccumulatorVirialOverlapSingleAverage(meter.getDataInfo(),11);
+            AccumulatorVirialOverlapSingleAverage acc = new AccumulatorVirialOverlapSingleAverage(11);
 //            acc.getDataInfo().setLabel("Overlap/Target"+iPhase+" accumulator");
             setAccumulator(acc,iPhase);
               
