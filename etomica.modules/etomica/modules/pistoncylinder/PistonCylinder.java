@@ -1,7 +1,6 @@
 package etomica.modules.pistoncylinder;
 
 import etomica.Controller;
-import etomica.DataSink;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
@@ -10,10 +9,10 @@ import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.data.AccumulatorAverage;
-import etomica.data.DataGroup;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataDouble;
+import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.potential.P1HardBoundary;
@@ -112,15 +111,15 @@ public class PistonCylinder extends Simulation {
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.space,sim.integrator);
         pMeter.setPhase(sim.phase);
-        AccumulatorAverage pAcc = new AccumulatorAverage(pMeter.getDataInfo());
-        DataPump pump = new DataPump(pMeter,new DataSink[]{pAcc});
+        AccumulatorAverage pAcc = new AccumulatorAverage();
+        DataPump pump = new DataPump(pMeter, pAcc);
         IntervalActionAdapter adapter = new IntervalActionAdapter(pump,sim.integrator);
         adapter.setActionInterval(10);
         
         MeterPistonDensity dMeter = new MeterPistonDensity(sim.pistonPotential,1,Default.ATOM_SIZE);
         dMeter.setPhase(sim.phase);
-        AccumulatorAverage dAcc = new AccumulatorAverage(dMeter.getDataInfo());
-        pump = new DataPump(dMeter,new DataSink[]{dAcc});
+        AccumulatorAverage dAcc = new AccumulatorAverage();
+        pump = new DataPump(dMeter, dAcc);
         adapter = new IntervalActionAdapter(pump,sim.integrator);
         adapter.setActionInterval(10);
         

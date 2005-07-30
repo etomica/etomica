@@ -14,7 +14,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 
 import etomica.Action;
-import etomica.DataInfo;
 import etomica.DataSink;
 import etomica.DataSource;
 import etomica.Default;
@@ -24,6 +23,7 @@ import etomica.atom.AtomTypeSphere;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataBin;
+import etomica.data.DataFork;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountSteps;
 import etomica.data.DataSourceScalar;
@@ -45,6 +45,7 @@ import etomica.modifier.ModifierBoolean;
 import etomica.modifier.ModifierFunctionWrapper;
 import etomica.modifier.ModifierGeneral;
 import etomica.potential.P2HardSphere;
+import etomica.potential.P2Ideal;
 import etomica.potential.P2SquareWell;
 import etomica.potential.Potential2HardSphericalWrapper;
 import etomica.units.Angstrom;
@@ -81,6 +82,7 @@ public class PistonCylinderGraphic {
     public Potential2HardSphericalWrapper potentialWrapper;
     public P2HardSphere potentialHS;
     public P2SquareWell potentialSW;
+    public P2Ideal potentialIdeal;
     public PotentialGroup potentialGroupHS, potentialGroupSW;
     public DataSourceCountSteps meterCycles;
     public DisplayBox displayCycles; 
@@ -503,6 +505,7 @@ public class PistonCylinderGraphic {
 
         potentialSW = new P2SquareWell(pc.space,Default.ATOM_SIZE,lambda,epsilon);
         potentialHS = new P2HardSphere(pc.space,Default.ATOM_SIZE);
+        potentialIdeal = new P2Ideal(pc.space);
         
         if(potentialChooserListener != null) potentialChooser.removeItemListener(potentialChooserListener);
         
@@ -546,10 +549,10 @@ public class PistonCylinderGraphic {
         plotP.getDataTable().removeAllColumns();
         
         thermometer.setPhase(pc.phase);
-        AccumulatorHistory temperatureHistory = new AccumulatorHistory(thermometer.getDataInfo());
+        AccumulatorHistory temperatureHistory = new AccumulatorHistory();
         temperatureHistory.setHistoryLength(historyLength);
-        AccumulatorAverage temperatureAvg = new AccumulatorAverage(thermometer.getDataInfo());
-        pump = new DataPump(thermometer,new DataSink[] {temperatureHistory,temperatureAvg});
+        AccumulatorAverage temperatureAvg = new AccumulatorAverage();
+        pump = new DataPump(thermometer,new DataFork(new DataSink[] {temperatureHistory,temperatureAvg}));
         IntervalActionAdapter adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
         DataBin bin = plotT.getDataTable().makeColumn(temperatureHistory.getDataInfo());
@@ -576,8 +579,8 @@ public class PistonCylinderGraphic {
         pressureMeter.setPhase(pc.phase);
         AccumulatorHistory pressureHistory = new AccumulatorHistory(pressureMeter.getDataInfo());
         pressureHistory.setHistoryLength(historyLength);
-        AccumulatorAverage pressureAvg = new AccumulatorAverage(pressureMeter.getDataInfo());
-        pump = new DataPump(pressureMeter, new DataSink[]{pressureHistory,pressureAvg});
+        AccumulatorAverage pressureAvg = new AccumulatorAverage();
+        pump = new DataPump(pressureMeter, new DataFork(new DataSink[]{pressureHistory,pressureAvg}));
         adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
         bin = plotP.getDataTable().makeColumn(pressureHistory.getDataInfo());
@@ -602,10 +605,10 @@ public class PistonCylinderGraphic {
 
         densityMeter = new MeterPistonDensity(pc.pistonPotential,1,Default.ATOM_SIZE);
         densityMeter.setPhase(pc.phase);
-        AccumulatorHistory densityHistory = new AccumulatorHistory(densityMeter.getDataInfo());
+        AccumulatorHistory densityHistory = new AccumulatorHistory();
         densityHistory.setHistoryLength(historyLength);
-        AccumulatorAverage densityAvg = new AccumulatorAverage(densityMeter.getDataInfo());
-        pump = new DataPump(densityMeter,new DataSink[]{densityAvg, densityHistory});
+        AccumulatorAverage densityAvg = new AccumulatorAverage();
+        pump = new DataPump(densityMeter,new DataFork(new DataSink[]{densityAvg, densityHistory}));
         adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
         bin = plotD.getDataTable().makeColumn(densityHistory.getDataInfo());
@@ -623,7 +626,7 @@ public class PistonCylinderGraphic {
         plotD.getPlot().setXRange(0, historyLength);
         plotT.getPlot().setYRange(0, 1000.);
         plotP.getPlot().setYRange(0, 1000.);
-        DataSourceUniform xSource = new DataSourceUniform(Dimension.QUANTITY,historyLength, 1, historyLength);
+        DataSourceUniform xSource = new DataSourceUniform("History",Dimension.QUANTITY,historyLength, 1, historyLength);
         plotT.setXSource(xSource);
         plotP.setXSource(xSource);
         plotD.setXSource(xSource);
@@ -647,7 +650,7 @@ public class PistonCylinderGraphic {
                     pc.potentialWrapper.setPotential(potentialSW);
                 }
                 else {
-                    pc.potentialWrapper.setPotential(null);
+                    pc.potentialWrapper.setPotential(potentialIdeal);
                 }
                 pc.integrator.reset();
             }

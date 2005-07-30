@@ -13,7 +13,7 @@ import etomica.utility.NameMaker;
 
 public final class MeterDimerFraction implements DataSource, Meter {
     public MeterDimerFraction(int idx) {
-        data = new DataDoubleArray("Dimer Fraction",Dimension.FRACTION);
+        data = new DataDoubleArray("Dimer Fraction",Dimension.FRACTION,5);
         setName(NameMaker.makeName(this.getClass()));
         labels[0] = "R";
         labels[1] = "B";
