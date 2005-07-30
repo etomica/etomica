@@ -5,6 +5,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.HashMap;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -15,15 +16,13 @@ import etomica.Action;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.data.AccumulatorAverage;
-import etomica.data.DataBin;
 import etomica.data.DataSinkTable;
 import etomica.data.DataTableAverages;
 import etomica.data.DataTableListener;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPressureHard;
-import etomica.data.types.DataArithmetic;
+import etomica.data.types.DataTable.Column;
 import etomica.units.Unit;
-import etomica.utility.Arrays;
 
 /**
  * Presents data in a tabular form.
@@ -49,7 +48,7 @@ public class DisplayTable extends Display implements DataTableListener,
 
         units = new Unit[dataTable.getColumnCount()];
         for (int i = 0; i < units.length; i++) {
-            units[i] = dataTable.getColumn(i).getDataInfo().getDimension().defaultIOUnit();
+            units[i] = dataTable.getColumn(i).getDimension().defaultIOUnit();
         }
 
         dataTable.addTableListener(this);
@@ -93,26 +92,18 @@ public class DisplayTable extends Display implements DataTableListener,
     }
 
     /**
-     * Updates the units array for the new column, using the default units.
+     * Updates the units array for any new or deleted columns, 
+     * using the default units for new columns.
      */
-    public void tableColumnAdded(DataSinkTable table, DataBin newColumn) {
-        units = (Unit[]) Arrays.addObject(units, newColumn.getDataInfo().getDimension()
-                .defaultIOUnit());
-        tableSource.fireTableStructureChanged();
-    }
-
-    /**
-     * Causes the corresponding units element to be removed.
-     */
-    public void tableColumnRemoved(DataSinkTable table, int index, DataBin oldColumn) {
-        units = (Unit[]) Arrays.removeObject(units, units[index]);
+    public void tableColumnCountChanged(DataSinkTable table) {
+        recomputeUnits();
         tableSource.fireTableStructureChanged();
     }
 
     /**
      * Has no effect. Part of the DataTableListener interface.
      */
-    public void tableRowCountChanged(DataSinkTable table, int oldCount, int newCount) {
+    public void tableRowCountChanged(DataSinkTable table) {
         tableSource.fireTableStructureChanged();
     }
 
@@ -189,8 +180,6 @@ public class DisplayTable extends Display implements DataTableListener,
         formatter.setMaximumFractionDigits(n);
     }
 
-    //    public Action makeLogTableAction() {return new LogTableAction();}
-
     public void repaint() {
         table.repaint();
     }
@@ -222,11 +211,34 @@ public class DisplayTable extends Display implements DataTableListener,
     }
 
     /**
+     * Reconstruct the units array.  Manually-set units for columns are stored
+     * in a HashMap (keyed to the column), so this method looks for units in 
+     * the HashMap and if that fails, uses the column's dimension's default unit.
+     * Old units (from old columns) are not removed from the hash, because the 
+     * DataSinkTables doesn't know with certainty that it no longer contains a 
+     * column.  If the column magically comes back, we need to use any 
+     * previously-set unit.
+     */
+    protected void recomputeUnits() {
+        units = new Unit[dataTable.getColumnCount()];
+        for (int i=0; i<units.length; i++) {
+            Column column = dataTable.getColumn(i);
+            units[i] = (Unit)unitHash.get(column);
+            if (units[i] == null) {
+                units[i] = column.getDimension().defaultIOUnit();
+            }
+        }
+    }
+    
+    /**
      * Sets the units of all columns to the given unit.
      */
     public void setAllUnits(Unit newUnit) {
-        for (int i = 0; i < units.length; i++) {
+        unitHash.clear();
+        for (int i=0; i<units.length; i++) {
+            Column column = dataTable.getColumn(i);
             units[i] = newUnit;
+            unitHash.put(column,newUnit);
         }
     }
 
@@ -241,6 +253,7 @@ public class DisplayTable extends Display implements DataTableListener,
      */
     public void setUnit(int i, Unit newUnit) {
         units[i] = newUnit;
+        unitHash.put(dataTable.getColumn(i),newUnit);
     }
 
     /**
@@ -321,6 +334,7 @@ public class DisplayTable extends Display implements DataTableListener,
     private String[] rowLabels = new String[0];
     private String rowLabelColumnHeader = "";
     private Unit[] units = new Unit[0];
+    private final HashMap unitHash = new HashMap();
 
     //structures used to adjust precision of displayed values
     //  private final java.text.NumberFormat formatter =
@@ -347,9 +361,9 @@ public class DisplayTable extends Display implements DataTableListener,
             //of the table
             int r = transposed ? column - c0 : row;
             int c = transposed ? row : column - c0;
-            DataBin col = dataTable.getColumn(c);
+            Column col = dataTable.getColumn(c);
             double value = Double.NaN;
-            if (r < ((DataArithmetic)col.getData()).getLength()) {
+            if (r < col.getData().length) {
                 value = units[c].fromSim(dataTable.getValue(r, c));
             }
             return new Double(value);
