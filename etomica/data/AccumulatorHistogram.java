@@ -24,17 +24,16 @@ public class AccumulatorHistogram extends DataAccumulator {
      * Creates instance using HistogramSimple factory and specifying histograms
      * having 100 bins.
      */
-    public AccumulatorHistogram(DataInfo info) {
-        this(info, HistogramSimple.FACTORY);
+    public AccumulatorHistogram() {
+        this(HistogramSimple.FACTORY);
     }
 
-    public AccumulatorHistogram(DataInfo info, Histogram.Factory factory) {
-        this(info, factory, 100);
+    public AccumulatorHistogram(Histogram.Factory factory) {
+        this(factory, 100);
     }
 
-    public AccumulatorHistogram(DataInfo info, Histogram.Factory factory, int nBins) {
+    public AccumulatorHistogram(Histogram.Factory factory, int nBins) {
         this.nBins = nBins;
-        this.binnedDataInfo = info;
         histogramFactory = factory;
     }
 
@@ -44,8 +43,8 @@ public class AccumulatorHistogram extends DataAccumulator {
      * histogram data is discarded and new histograms are constructed (this
      * behavior can be modified by overriding the setNData method).
      */
-    protected void addData(Data data) {
-        DataArithmetic values = (DataArithmetic) data;
+    protected void addData(Data inputData) {
+        DataArithmetic values = (DataArithmetic)inputData;
         for (int i = nData-1; i >= 0; i--) {
             histogram[i].addValue(values.getValue(i));
         }
@@ -72,6 +71,7 @@ public class AccumulatorHistogram extends DataAccumulator {
      * @param nData
      */
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
+        binnedDataInfo = inputDataInfo;
         nData = ((DataDoubleArray.Factory)inputDataInfo.getDataFactory()).getArrayLength();
         setupData();
         histogram = new Histogram[nData];
@@ -84,8 +84,8 @@ public class AccumulatorHistogram extends DataAccumulator {
     /* (non-Javadoc)
      * @see etomica.DataSink#getDataCaster(etomica.DataInfo)
      */
-    public DataProcessor getDataCaster(DataInfo dataInfo) {
-        if(dataInfo.getClass() == DataDoubleArray.class) {
+    public DataProcessor getDataCaster(DataInfo inputDataInfo) {
+        if(inputDataInfo.getClass() == DataDoubleArray.class) {
             return null;
         }
         return new CastToDoubleArray();
