@@ -18,8 +18,11 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         this.E(d);
     }
     
+    /**
+     * Returns tensor in a 1D array, writing elements columnwise, i.e., xx, yx, zy, xy, etc.
+     */
     public double[] toArray() {
-        return new double[] {xx, xy, xz, yx, yy, yz, zx, zy, zz};
+        return new double[] {xx, yx, zx, xy, yy, zy, xz, yz, zz};
     }
 
     /**
@@ -137,6 +140,12 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         d[6] = zx; d[7] = zy; d[8] = zz;
     }
     
+    public void assignTo(double[][] d) {
+        d[0][0] = xx; d[0][1] = xy; d[0][2] = xz;
+        d[1][0] = yx; d[1][1] = yy; d[1][2] = yz;
+        d[2][0] = zx; d[2][1] = zy; d[2][2] = zz;
+    }
+
     public boolean isNaN() {
         return Double.isNaN(xx) || Double.isNaN(xy) || Double.isNaN(xz)
             || Double.isNaN(yx) || Double.isNaN(yy) || Double.isNaN(yz)

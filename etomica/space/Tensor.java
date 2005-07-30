@@ -40,8 +40,11 @@ public interface Tensor extends Cloneable {
     
     /**
      * Fills the given array with the elements of this tensor.
-     * Array values 0, 1, 2,... are assigned from xx, xy, xz, yx, etc. respectively.
+     * Array values 0, 1, 2,... are assigned from xx, xy, xz, yx, etc. respectively,
+     * filling in a row-wise fashion.
      * @param d
      */
     public abstract void assignTo(double[] d);
+    
+    public abstract void assignTo(double[][] d);
 }

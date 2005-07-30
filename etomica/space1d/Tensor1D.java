@@ -56,6 +56,9 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
         if(d.length != 1) throw new IllegalArgumentException("Array size incorrector for tensor");
         d[0] = xx;
     }
+    public void assignTo(double[][] d) {
+        d[0][0] = xx;
+    }
     public boolean isNaN() {
         return Double.isNaN(xx);
     }

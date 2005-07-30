@@ -20,8 +20,11 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
         this.E(d);
     }
     
+    /**
+     * Returns tensor in an array, writing columnwise, i.e., in order xx, yx, xy, yy.
+     */
     public double[] toArray() {
-        return new double[] {xx, xy, yx, yy};
+        return new double[] {xx, yx, xy, yy};
     }
 
 
@@ -114,13 +117,18 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
     }
     public void E(double[] d) {
         if(d.length != 4) throw new IllegalArgumentException("Array size incorrect for tensor; (required, given): ("+4+", "+d);
-        xx = d[0]; xy = d[1]; 
+        xx = d[0]; xy = d[1];
         yx = d[2]; yy = d[3];
     }
     public void assignTo(double[] d) {
         if(d.length != 4) throw new IllegalArgumentException("Array size incorrect for tensor; (required, given): ("+4+", "+d);
         d[0] = xx; d[1] = xy; 
         d[2] = yx; d[3] = yy;
+    }
+    
+    public void assignTo(double[][] d) {
+        d[0][0] = xx; d[0][1] = xy;
+        d[1][0] = yx; d[1][1] = yy;
     }
     
     public boolean isNaN() {
