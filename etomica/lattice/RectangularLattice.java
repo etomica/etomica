@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Dec 17, 2004 by kofke
- */
 package etomica.lattice;
 
 
@@ -9,19 +5,26 @@ package etomica.lattice;
  * Basic implementation of the AbstractLattice interface, providing construction
  * and access of sites for a lattice of arbitrary dimension. Lattice is
  * retangular in the sense that the size in one dimension does not depend on the
- * index in another dimension (e.g., it cannot be triangular). <br>
- * Internally, sites are stored in a 1-D array of objects, and are accessed by
- * unrolling the index specification to determine the storage-array index.
- * Provides a configurable neighbor iterator that returns the sites within a
- * rectangular box centered on a given site.
+ * index in another dimension (e.g., it cannot be triangular). <p>
+ * RectangularLatticeNbrIterator defines a configurable neighbor iterator that 
+ * returns the sites it defines as neighbors of a given site.
  *  
+ * @see RectangularLatticeNbrIterator
  */
+
+//Internally, sites are stored in a 1-D array of objects, and are accessed by
+//unrolling the index specification to determine the storage-array index.
 
 // Example showing internal ordering of elements
 //  0     1     2     3     4     5     6     7     8     9    10    11   arrayIndex
 //(000) (001) (002) (010) (011) (012) (100) (101) (102) (110) (111) (112) latticeIndex
 //  for this example, size = {2, 2, 3}, jumpCount = {6, 3, 1}
 //  note that number of sites = size[0]*jumpCount[0]
+
+/*
+ * History
+ * Created on Dec 17, 2004 by kofke
+ */
 
 public class RectangularLattice implements FiniteLattice, java.io.Serializable {
 
@@ -104,6 +107,8 @@ public class RectangularLattice implements FiniteLattice, java.io.Serializable {
      * rebuilds the all sites using the site factory.
      * 
      * @param newSize array giving the number of index values in each dimension
+     * 
+     * @throws IllegalArgumentException if length of given array is not equal to D
      */
     public void setSize(int[] newSize) {
         if(newSize.length != D) throw new IllegalArgumentException("Incorrect dimension dimension");
@@ -158,18 +163,16 @@ public class RectangularLattice implements FiniteLattice, java.io.Serializable {
             if(hasNext()) {
                 lattice.increment(idx);
                 return lattice.sites[cursor++];
-            } else {
-                return null;
             }
+            return null;
         }
         public int[] nextIndex() {
             if(hasNext()) {
                 lattice.increment(idx);
                 cursor++;
                 return idx;
-            } else {
-                return null;
             }
+            return null;
         }
         public Object peek() {
             return hasNext() ? lattice.sites[cursor] : null;

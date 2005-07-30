@@ -2,19 +2,26 @@ package etomica.lattice;
 
 import etomica.IteratorDirective;
 
-
+/**
+ * An abstract iterator that generates the neighboring sites of a given site.  
+ * Subclasses provide the specification of the "neighbors" of a site by a suitable
+ * implementation of the updateNeighborList method.
+ * <p>
+ * Iterator can be configured to yield the up- and/or down-neighbors of the site.
+ * The definition of "up" and "down" neighbors is made by the subclass, within
+ * the restriction that if site B is an up-neighbor of site A, then A will
+ * be a down-neighbor of site B.  Note that because of the way periodic boundaries
+ * are treated, a transitive relation is not guaranteed,
+ * meaning that (B upNbr of A) and (C upNbr of B) does not imply (C upNbr of A).
+ * <p>
+ * The central site is not included among the iterates (not a self-neighbor).
+ */
 
 /*
  * History
  * Created on May 26, 2005 by kofke
  */
-/**
- * An iterator that generates the neighboring sites of a given site.  The
- * neighbors are defined as those within a rectangular box centered on the 
- * site, with consideration of periodic boundaries.  Iterator can be configured
- * to yield the up- and/or down-neighbors of the site.  The central site is
- * not is not included among the iterates (not a self-neighbor).
- */
+
 public abstract class RectangularLatticeNbrIterator implements SiteIterator, java.io.Serializable {
 
     /**
