@@ -5,6 +5,7 @@ import etomica.Data;
 import etomica.DataInfo;
 import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataGroup;
 import etomica.units.Dimension;
 import etomica.utility.Function;
 
@@ -61,7 +62,7 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
         ratioStandardDeviation.E(Double.NaN);
     }
     
-    protected void initialize(DataInfo dataInfo) {
+    public DataInfo processDataInfo(DataInfo dataInfo) {
         DataFactory factory = dataInfo.getDataFactory();
         
         sum = (DataArithmetic)factory.makeData(dataInfo.getLabel()+"(blkAvg sum)", dataInfo.getDimension());
@@ -69,7 +70,7 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
         ratio = (DataArithmetic)factory.makeData("Ratio", Dimension.NULL);
         ratioError = (DataArithmetic)factory.makeData("Ratio error", Dimension.NULL);
         ratioStandardDeviation = (DataArithmetic)factory.makeData("Ratio stddev", Dimension.NULL);
-        super.initialize(dataInfo);
+        super.processDataInfo(dataInfo);
         Data[] dataGroups = new Data[dataGroup.getNData()+3];
         int i;
         for (i=0; i<dataGroup.getNData(); i++) {
@@ -79,6 +80,7 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
         dataGroups[i++] = (Data)ratioError;
         dataGroups[i++] = (Data)ratioStandardDeviation;
         dataGroup = new DataGroup("Group", Dimension.NULL, dataGroups);
+        return dataGroup.getDataInfo();
     }
     
     public static class Type extends AccumulatorAverage.Type {

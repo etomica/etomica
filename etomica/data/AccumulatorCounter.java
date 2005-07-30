@@ -21,12 +21,25 @@ public class AccumulatorCounter extends DataAccumulator {
 	 */
 	public AccumulatorCounter() {
         data = new DataInteger("Counter", Dimension.QUANTITY);
+        dataInfo = data.getDataInfo();
 	}
-    
+        
     public DataInfo getDataInfo() {
         return data.getDataInfo();
     }
-
+    
+    public DataProcessor getDataCaster(DataInfo dataInfo) {
+        return null;
+    }
+    
+    public DataInfo processDataInfo(DataInfo dataInfo) {
+        return data.getDataInfo();
+    }
+    
+    public void putDataInfo(DataInfo info) {
+        dataSink.putDataInfo(data.getDataInfo());
+    }
+    
 	/* (non-Javadoc)
 	 * @see etomica.Accumulator#add(double[])
 	 */

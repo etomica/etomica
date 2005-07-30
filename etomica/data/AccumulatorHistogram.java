@@ -6,8 +6,11 @@ package etomica.data;
 
 import etomica.Data;
 import etomica.DataInfo;
+import etomica.data.types.CastToDoubleArray;
 import etomica.data.types.DataArithmetic;
+import etomica.data.types.DataArray;
 import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataFunction;
 import etomica.units.Dimension;
 import etomica.utility.Histogram;
 import etomica.utility.HistogramSimple;
@@ -16,13 +19,6 @@ import etomica.utility.HistogramSimple;
  * Accumulator that keeps histogram of data.
  */
 public class AccumulatorHistogram extends DataAccumulator {
-
-    Histogram[] histogram = new Histogram[0];
-    private Data data;
-    private DataInfo binnedDataInfo;
-    int nData, nDataMinus1;
-    private Histogram.Factory histogramFactory;
-    private int nBins;
 
     /**
      * Creates instance using HistogramSimple factory and specifying histograms
@@ -39,7 +35,6 @@ public class AccumulatorHistogram extends DataAccumulator {
     public AccumulatorHistogram(DataInfo info, Histogram.Factory factory, int nBins) {
         this.nBins = nBins;
         this.binnedDataInfo = info;
-        setNData(0);
         histogramFactory = factory;
     }
 
@@ -51,10 +46,7 @@ public class AccumulatorHistogram extends DataAccumulator {
      */
     protected void addData(Data data) {
         DataArithmetic values = (DataArithmetic) data;
-        if (values.getLength() != nData) {
-            setNData(values.getLength());
-        }
-        for (int i = nDataMinus1; i >= 0; i--) {
+        for (int i = nData-1; i >= 0; i--) {
             histogram[i].addValue(values.getValue(i));
         }
     }
@@ -63,48 +55,52 @@ public class AccumulatorHistogram extends DataAccumulator {
      * Returns the set of histograms.
      */
     public Data getData() {
-        if(nData == 1) {
-            ((DataDoubleArray)((DataGroup)data).getData(0)).E(histogram[0].getHistogram());
-            ((DataDoubleArray)((DataGroup)data).getData(1)).E(histogram[0].xValues());
-            
-        } else {
-            for (int i = 0; i < nData; i++) {
-                ((DataDoubleArray)((DataGroup)((DataGroup)data).getData(i)).getData(0)).E(histogram[i].getHistogram());
-                ((DataDoubleArray)((DataGroup)((DataGroup)data).getData(i)).getData(1)).E(histogram[0].xValues());
-            }
+        for (int i = 0; i < nData; i++) {
+            DataFunction dataFunction = (DataFunction)data.getData(i);
+            dataFunction.getYData().E(histogram[i].getHistogram());
+            dataFunction.getXData(0).E(histogram[i].xValues());
         }
         return data;
     }
-
+    
+    /* (non-Javadoc)
+     * @see etomica.data.DataProcessor#makeOutputDataInfo(etomica.DataInfo)
+     */
     /**
-     * Determines the number of histograms to be recorded, and is invoked when
-     * the add method is called with an array argument of length different than
-     * previously given. As implemented here, setNData(int) causes all
-     * previously-recorded histograms to be discarded.
+     * Sets up data and histograms, discarding any previous results.
      * 
      * @param nData
      */
-    protected void setNData(int nData) {
-        this.nData = nData;
-        nDataMinus1 = nData - 1;
-        if(nData == 1) {
-            DataDoubleArray dataH = new DataDoubleArray("Histogram", Dimension.NULL);
-            DataDoubleArray dataBin = new DataDoubleArray(binnedDataInfo.getLabel(), binnedDataInfo.getDimension());
-            data = new DataGroup("Histogram group", Dimension.NULL, new Data[] {dataH, dataBin});
-        } else {
-            DataGroup[] dataArray = new DataGroup[nData];
-            for(int i=0; i<nData; i++) {
-                DataDoubleArray dataH = new DataDoubleArray("Histogram", Dimension.NULL);
-                DataDoubleArray dataBin = new DataDoubleArray(binnedDataInfo.getLabel(), binnedDataInfo.getDimension());
-                dataArray[i] = new DataGroup("Histogram group", Dimension.NULL, new Data[] {dataH, dataBin});
-            }
-            data = new DataGroup("Group of Histogram groups", Dimension.NULL, dataArray);
-        }
+    protected DataInfo processDataInfo(DataInfo inputDataInfo) {
+        nData = ((DataDoubleArray.Factory)inputDataInfo.getDataFactory()).getArrayLength();
+        setupData();
         histogram = new Histogram[nData];
-        for (int i = 0; i < nData; i++)
+        for (int i = 0; i < nData; i++) {
             histogram[i] = histogramFactory.makeHistogram(nBins);
+        }
+        return data.getDataInfo();
+    }
+    
+    /* (non-Javadoc)
+     * @see etomica.DataSink#getDataCaster(etomica.DataInfo)
+     */
+    public DataProcessor getDataCaster(DataInfo dataInfo) {
+        if(dataInfo.getClass() == DataDoubleArray.class) {
+            return null;
+        }
+        return new CastToDoubleArray();
     }
 
+    /**
+     * Constructs the Data objects used by this class.
+     */
+    private void setupData() {
+        DataDoubleArray dataBin = new DataDoubleArray(binnedDataInfo.getLabel(), binnedDataInfo.getDimension(), nBins);
+//        dataH = new DataDoubleArray("Histogram", Dimension.NULL, new int[] {nBins, nData});
+//        data = new DataFunction(new DataDoubleArray[] {dataBin}, dataH);
+        data = new DataArray("Histogram", Dimension.NULL, nData, DataFunction.getFactory(new DataDoubleArray[] {dataBin}));
+    }
+    
     /**
      * @return Returns nBins, the number of bins in each histogram.
      */
@@ -113,15 +109,19 @@ public class AccumulatorHistogram extends DataAccumulator {
     }
 
     /**
-     * @param bins
-     *            Sets the number of bins in each histogram. Calls setNBins
-     *            method of current histograms, which will discard data or
-     *            modify themselves depending on how they are defined.
+     * Sets the number of bins in each histogram. Calls setNBins method of
+     * current histograms, which will discard data or modify themselves
+     * depending on how they are defined.
      */
     public void setNBins(int nBins) {
         this.nBins = nBins;
-        for (int i = 0; i < nData; i++)
+        for (int i = 0; i < nData; i++) {
             histogram[i].setNBins(nBins);
+        }
+        setupData();
+        if(dataSink != null) {
+            dataSink.putDataInfo(data.getDataInfo());
+        }
     }
 
     public void reset() {
@@ -135,4 +135,14 @@ public class AccumulatorHistogram extends DataAccumulator {
     public DataInfo getDataInfo() {
         return data.getDataInfo();
     }
+    
+    Histogram[] histogram = new Histogram[0];
+    private DataArray data;
+    private DataInfo binnedDataInfo;
+    int nData;
+    private Histogram.Factory histogramFactory;
+    private int nBins;
+//    private DataDoubleArray dataH, dataBin;
+
+
 }

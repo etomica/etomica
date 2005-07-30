@@ -7,46 +7,40 @@ package etomica.data;
 import etomica.Data;
 import etomica.DataSink;
 import etomica.DataSource;
-import etomica.utility.NameMaker;
 
 /**
- * DataPipe that accumulates and transforms given data and intermittently transmits
+ * DataProcessor that accumulates and transforms given data and intermittently transmits
  * processed data to other DataSink(s).
  */
-public abstract class DataAccumulator extends DataPipe implements DataSource {
+public abstract class DataAccumulator extends DataProcessorForked implements DataSource {
 
+    /**
+     * Constructs accumulator with no initial DataSink.
+     */
     public DataAccumulator() {
+        super();
         setPushInterval(1);
-        setName(NameMaker.makeName(this.getClass()));
     }
     
 	/**
-	 * Constructs DataAccumulator with the given DataSinks.
+	 * Constructs DataAccumulator with the given DataSink.
 	 */
-	public DataAccumulator(DataSink[] dataSinks) {
+	public DataAccumulator(DataSink dataSink) {
         this();
-		setDataSinks(dataSinks);
+		setDataSink(dataSink);
 	}
     
-    /**
-     * Constructs DataAccumulator with a single DataSink.
-     */
-    public DataAccumulator(DataSink dataSink) {
-        this(new DataSink[] {dataSink});
-    }
-	
 	/* (non-Javadoc)
 	 * @see etomica.Integrator.IntervalListener#intervalAction(etomica.Integrator.IntervalEvent)
 	 */
-	public void putData(Data newData) {
-        if(!active) return;
-        addData(newData);
+	public Data processData(Data inputData) {
+        if(!active) return null;
+        addData(inputData);
 		if (--putCount == 0) {
 		    putCount = pushInterval;
-            if (dataSinkList.length > 0) {
-                pushData(getData());
-            }
+		    return getData();
         }
+        return null;
 	}
 
     protected abstract void addData(Data data);
@@ -71,7 +65,8 @@ public abstract class DataAccumulator extends DataPipe implements DataSource {
 
     /**
      * Accumulated data are pushed to the data sinks after every pushInterval calls
-     * to putData.  This method returns the current value of pushInterval.
+     * to putData.  This method returns the current value of pushInterval.  Default
+     * value is 1.
      */
     public final int getPushInterval() {
         return pushInterval;
@@ -80,7 +75,10 @@ public abstract class DataAccumulator extends DataPipe implements DataSource {
     /**
      * Accumulated data are pushed to the data sinks after every pushInterval calls
      * to putData.  This method sets the pushInterval, and argument must be greater
-     * than zero.
+     * than zero.  Default value is 1, meaning that every call to addData causes
+     * accumulator data to be pushed to its sink.
+     * 
+     * @throws IllegalArgumentException if argument is less than or equal to zero.
      */
     public final void setPushInterval(int i) {
         if(i > 0) {
@@ -91,29 +89,13 @@ public abstract class DataAccumulator extends DataPipe implements DataSource {
     }
     
     /**
-     * Accessor method of the name of this phase
-     * 
-     * @return The given name of this phase
-     */
-    public final String getName() {return name;}
-    
-    /**
-     * Method to set the name of this simulation element. The element's name
-     * provides a convenient way to label output data that is associated with
-     * it.  This method might be used, for example, to place a heading on a
-     * column of data. Default name is the base class followed by the integer
-     * index of this element.
-     * 
-     * @param name The name string to be associated with this element
-     */
-    public void setName(String name) {this.name = name;}
-
-    /**
      * Overrides the Object class toString method to have it return the output of getName
      * 
      * @return The name given to the phase
      */
-    public String toString() {return getName();}
+    public String toString() {
+        return dataInfo.getLabel();
+    }
 
     
     /**
@@ -129,6 +111,5 @@ public abstract class DataAccumulator extends DataPipe implements DataSource {
 	/**
 	 * Flag specifying whether the manager responds to integrator events
 	 */
-	protected boolean active=true;
-    private String name;
+	protected boolean active = true;
 }

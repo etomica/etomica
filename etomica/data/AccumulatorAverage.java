@@ -11,6 +11,8 @@ import etomica.DataSink;
 import etomica.Default;
 import etomica.Constants.TypedConstant;
 import etomica.data.types.DataArithmetic;
+import etomica.data.types.CastToArithmetic;
+import etomica.data.types.DataGroup;
 import etomica.units.Dimension;
 import etomica.utility.Function;
 
@@ -19,23 +21,21 @@ import etomica.utility.Function;
  */
 public class AccumulatorAverage extends DataAccumulator {
 
-	public AccumulatorAverage(DataInfo info) {
+    public AccumulatorAverage() {
 		super();
-        initialize(info);
 		setBlockSize(Default.BLOCK_SIZE);
         setPushInterval(100);
 	}
 	
-	public void setBlockSize(int blockSize) {
-	    this.blockSize = blockSize;
-	    blockCountDown = blockSize;
-	}
-	public int getBlockSize() {
-		return blockSize;
-	}
-    
     public DataInfo getDataInfo() {
         return dataGroup.getDataInfo();
+    }
+    
+    public DataProcessor getDataCaster(DataInfo dataInfo) {
+        if(DataArithmetic.class.isAssignableFrom(dataInfo.getDataClass())) {
+            return null;
+        }
+        return new CastToArithmetic();
     }
 
     /**
@@ -119,7 +119,16 @@ public class AccumulatorAverage extends DataAccumulator {
         blockCountDown = blockSize;
     }
     
-    protected void initialize(DataInfo dataInfo) {
+    public void setBlockSize(int blockSize) {
+        this.blockSize = blockSize;
+        blockCountDown = blockSize;
+    }
+    
+    public int getBlockSize() {
+        return blockSize;
+    }
+    
+    public DataInfo processDataInfo(DataInfo dataInfo) {
         DataFactory factory = dataInfo.getDataFactory();
         
         Dimension dimSquared = Dimension.UNDEFINED;//can change this when units facility isbetter developed
@@ -139,8 +148,9 @@ public class AccumulatorAverage extends DataAccumulator {
         dataGroup = new DataGroup(dataInfo.getLabel()+" Statistics", dataInfo.getDimension(),
                 new Data[]{(Data)mostRecent,
                 (Data)average,(Data)error,(Data)standardDeviation,(Data)mostRecentBlock});
+        return dataGroup.getDataInfo();
     }
-    
+
     public void addDataSink(DataSink dataSink, Type[] types) {
         int[] indexes = new int[types.length];
         for (int i=0; i<types.length; i++) {
@@ -148,7 +158,7 @@ public class AccumulatorAverage extends DataAccumulator {
         }
         DataGroupFilter filter = new DataGroupFilter(indexes);
         addDataSink(filter);
-        filter.addDataSink(dataSink);
+        filter.setDataSink(dataSink);
     }
     
     public int getCount() {
