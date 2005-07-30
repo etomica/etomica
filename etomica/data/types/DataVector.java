@@ -12,7 +12,7 @@ import etomica.utility.Function;
 
 /**
  * Data object wrapping a single mutable value of type (Space) Vector. Value is
- * final public and can be accessed directly. <br>
+ * final public and can be accessed directly. <p>
  * All arithmetic methods throw ClassCastException if given a Data instance that
  * is not of this type.
  * 
@@ -143,10 +143,10 @@ public class DataVector extends Data implements DataArithmetic {
     }
 
     /**
-     * Returns a new array formed by the elements of the wrapped vector.
+     * Assigns the elements of the wrapped vector to the given array.
      */
-    public double[] toArray() {
-        return x.toArray();
+    public void assignTo(double[] array) {
+        x.assignTo(array);
     }
 
     /**
@@ -170,9 +170,9 @@ public class DataVector extends Data implements DataArithmetic {
     
     private static Factory FACTORY = null;
     
-    private static class Factory implements DataFactory, Serializable {
+    public static class Factory implements DataFactory, Serializable {
         
-        final Space space;
+        private final Space space;
         
         Factory(Space space) {
             this.space = space;
@@ -183,11 +183,11 @@ public class DataVector extends Data implements DataArithmetic {
         }
         
         public Class getDataClass() {
-            return Vector.class;
+            return DataVector.class;
         }
         
-        public DataFactory copy() {
-            return this;
+        public Space getSpace() {
+            return space;
         }
     }
 

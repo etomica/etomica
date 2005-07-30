@@ -153,8 +153,8 @@ public class DataTensor extends Data implements DataArithmetic {
     /**
      * Returns a new array formed by the elements of the wrapped vector.
      */
-   public double[] toArray() {
-        return x.toArray();
+   public void assignTo(double[] array) {
+        x.assignTo(array);
     }
 
     /**
@@ -178,9 +178,10 @@ public class DataTensor extends Data implements DataArithmetic {
     
     private static Factory FACTORY = null;
     
-    private static class Factory implements DataFactory, Serializable {
+    public static class Factory implements DataFactory, Serializable {
         
-        final Space space;
+        private final Space space;
+        
         Factory(Space space) {
             this.space = space;
         }
@@ -190,11 +191,11 @@ public class DataTensor extends Data implements DataArithmetic {
         }
         
         public Class getDataClass() {
-            return Tensor.class;
+            return DataTensor.class;
         }
         
-        public DataFactory copy() {
-            return this;
+        public Space getSpace() {
+            return space;
         }
     }
 
