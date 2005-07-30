@@ -1,22 +1,18 @@
-package etomica.data;
+package etomica.data.types;
 
 import java.io.Serializable;
 
 import etomica.Data;
 import etomica.DataInfo;
+import etomica.data.DataFactory;
 import etomica.units.Dimension;
 
 
 /**
- * Gathers one or more Data instances into a single Data object.  This has
- * several uses
- * <ul>
- * <li>enables a data handler to take a single data stream and emit multiple
+ * Gathers one or more Data instances into a single Data object.  The primary
+ * use is to enables a data handler to take a single data stream and emit multiple
  * different streams from it.  An example is given by the accumulators, which
  * take data and compile one or more new sets of data from it.
- * <li>enables data that are naturally related to be handled as a single data
- * object.  For example, data that describes x-y pair values for a function y(x)
- * can be moved around together.
  * </ul>
  * Data sinks typically need to manipulate data groups to extract the individual
  * data elements in them.
@@ -25,7 +21,7 @@ import etomica.units.Dimension;
  * and a dimension that is the dimension of all of the data objects it holds (if they
  * are all the same) or UNDEFINED (if they are not).
  *
- * @author David Kofke
+ * @author David Kofke and Andrew Schultz
  *
  */
 
@@ -118,7 +114,7 @@ public class DataGroup extends Data {
         return string.toString();
     }
     
-    final Data[] data;
+    private final Data[] data;
     
     /**
      * Returns a factory for a data group holding copies of the
@@ -131,7 +127,7 @@ public class DataGroup extends Data {
         return new Factory(data);
     }
 
-    private static class Factory implements DataFactory, Serializable {
+    public static class Factory implements DataFactory, Serializable {
         
         final Data[] data;
         
@@ -149,12 +145,20 @@ public class DataGroup extends Data {
             return new DataGroup(label, dimension, newData);
         }
         
-        public Class getDataClass() {
-            return DataGroup.class;
+        public DataInfo[] getDataInfoArray() {
+            DataInfo[] array = new DataInfo[data.length];
+            for (int i=0; i<data.length; i++) {
+                array[i] = data[i].getDataInfo();
+            }
+            return array;
         }
         
-        public DataFactory copy() {
-            return DataGroup.getFactory(data);
+        public Data[] getData() {
+            return (Data[])data.clone();
+        }
+        
+        public Class getDataClass() {
+            return DataGroup.class;
         }
         
     }
