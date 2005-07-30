@@ -81,12 +81,9 @@ public class DataInteger extends Data {
         }
         
         public Class getDataClass() {
-            return int.class;
+            return DataInteger.class;
         }
         
-        public DataFactory copy() {
-            return this;
-        }
     }
 
 }
