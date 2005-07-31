@@ -63,7 +63,7 @@ public class DataGroupFilter extends DataProcessor {
      * @see etomica.DataSink#getDataCaster(etomica.DataInfo)
      */
     public DataProcessor getDataCaster(DataInfo dataInfo) {
-        if(dataInfo.getClass() == DataGroup.class) {
+        if(dataInfo.getDataClass() == DataGroup.class) {
             return null;
         }
         return new CastToGroup();

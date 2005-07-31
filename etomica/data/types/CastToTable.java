@@ -15,7 +15,7 @@ import etomica.space.Tensor;
 public class CastToTable extends DataProcessor implements Serializable {
 
         public DataInfo processDataInfo(DataInfo inputDataInfo) {
-            Class inputClass = inputDataInfo.getClass();
+            Class inputClass = inputDataInfo.getDataClass();
             DataFactory factory = inputDataInfo.getDataFactory();
 //            DataTable.Column[] myColumns = null;
             if (inputClass == DataDoubleArray.class) {
