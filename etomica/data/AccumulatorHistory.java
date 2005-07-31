@@ -7,10 +7,11 @@ package etomica.data;
 import etomica.Data;
 import etomica.DataInfo;
 import etomica.DataSource;
+import etomica.data.types.CastToDoubleArray;
 import etomica.data.types.DataArithmetic;
+import etomica.data.types.DataArray;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
-import etomica.data.types.DataGroup;
 import etomica.units.Dimension;
 import etomica.utility.History;
 import etomica.utility.HistoryScrolling;
@@ -22,9 +23,8 @@ public class AccumulatorHistory extends DataAccumulator {
 
     History[] history = new History[0];
     DataSourceUniform xSource;
-    private DataFunction data;
-    int nData, nDataMinus1;
-    private DataInfo binnedDataInfo;
+    private DataArray data;
+    int nData;
     private History.Factory historyFactory;
     private int historyLength;
 
@@ -32,23 +32,46 @@ public class AccumulatorHistory extends DataAccumulator {
      * Creates instance using HistorySimple factory and specifying historys
      * having 100 bins.
      */
-    public AccumulatorHistory(DataInfo info) {
-        this(info, HistoryScrolling.FACTORY);
+    public AccumulatorHistory() {
+        this(HistoryScrolling.FACTORY);
     }
 
-    public AccumulatorHistory(DataInfo info, History.Factory factory) {
-        this(info, factory, 100);
+    public AccumulatorHistory(History.Factory factory) {
+        this(factory, 100);
     }
 
-    public AccumulatorHistory(DataInfo info, History.Factory factory, int historyLength) {
+    public AccumulatorHistory(History.Factory factory, int historyLength) {
         super();
-        binnedDataInfo = info;
         xSource = new DataSourceUniform("Time", Dimension.UNDEFINED, 1, historyLength, historyLength);
         this.historyLength = historyLength;
         historyFactory = factory;
-        setNData(1);
     }
 
+    /**
+     * Returns caster that ensures accumulator will receive a DataDoubleArray.
+     */
+    public DataProcessor getDataCaster(DataInfo inputDataInfo) {
+        if(inputDataInfo.getClass() == DataDoubleArray.class) {
+            return null;
+        }
+        return new CastToDoubleArray();
+    }
+    
+    /**
+     * Sets up data and histories, discarding any previous results.
+     * 
+     * @param nData
+     */
+    protected DataInfo processDataInfo(DataInfo inputDataInfo) {
+        nData = ((DataDoubleArray.Factory)inputDataInfo.getDataFactory()).getArrayLength();
+        setupData();
+        history = new History[nData];
+        for (int i = 0; i < nData; i++) {
+            history[i] = historyFactory.makeHistory(historyLength);
+        }
+        return data.getDataInfo();
+    }
+    
     /**
      * Adds each value in the given array to its own history. If the number of
      * values is different from that given in previous calls to the method, old
@@ -57,27 +80,19 @@ public class AccumulatorHistory extends DataAccumulator {
      */
     protected void addData(Data data) {
         DataArithmetic values = (DataArithmetic)data;
-        if (values.getLength() != nData) {
-            setNData(values.getLength());
-        }
-        for (int i = nDataMinus1; i >= 0; i--) {
+        for (int i = nData-1; i >= 0; i--) {
             history[i].addValue(values.getValue(i));
         }
     }
 
     /**
-     * Returns the set of histograms.
+     * Returns the set of histories.
      */
     public Data getData() {
-        if(nData == 1) {
-            ((DataDoubleArray)((DataGroup)data).getData(0)).E(history[0].getHistory());
-            ((DataDoubleArray)((DataGroup)data).getData(1)).E(history[0].getXSource().getData());
-           
-        } else {
-            for (int i = 0; i < nData; i++) {
-                ((DataDoubleArray)((DataGroup)((DataGroup)data).getData(i)).getData(0)).E(history[i].getHistory());
-                ((DataDoubleArray)((DataGroup)((DataGroup)data).getData(i)).getData(1)).E(history[0].getXSource().getData());
-            }
+        for (int i = 0; i < nData; i++) {
+            DataFunction dataFunction = (DataFunction)data.getData(i);
+            dataFunction.getYData().E(history[i].getHistory());
+            dataFunction.getXData(0).E(history[i].getXSource().getData());
         }
         return data;
     }
@@ -94,39 +109,13 @@ public class AccumulatorHistory extends DataAccumulator {
     }
 
     /**
-     * Determines the number of historys to be recorded, and is invoked when the
-     * add method is called with an array argument of length different than
-     * previously given. As implemented here, setNData(int) causes all
-     * previously-recorded histories to be discarded.
-     * 
-     * @param nData
+     * Constructs the Data objects used by this class.
      */
-    protected void setNData(int nData) {
-        this.nData = nData;
-        nDataMinus1 = nData - 1;
-
-        if (nData == 1) {
-            DataDoubleArray dataBin = new DataDoubleArray("Time", Dimension.UNDEFINED,0);
-            data = new DataFunction(binnedDataInfo.getLabel()+" History", Dimension.NULL, 
-                                        new DataDoubleArray[] {dataBin});
-            dataH = data.getYData();
-
-        } else {
-            DataGroup[] dataArray = new DataGroup[nData];
-            for(int i=0; i<nData; i++) {
-                DataDoubleArray dataH = new DataDoubleArray(binnedDataInfo.getLabel()+" History", Dimension.NULL,0);
-                DataDoubleArray dataBin = new DataDoubleArray("Time", Dimension.UNDEFINED,0);
-                dataArray[i] = new DataGroup("History group", Dimension.NULL, new Data[] {dataH, dataBin});
-            }
-            data = new DataGroup("Group of History groups", Dimension.NULL, dataArray);
-        }
-
-        history = new History[nData];
-        for (int i = 0; i < nData; i++) {
-            history[i] = historyFactory.makeHistory(historyLength);
-        }
+    private void setupData() {
+        DataDoubleArray dataBin = new DataDoubleArray("Time", Dimension.UNDEFINED, historyLength);
+        data = new DataArray("History", Dimension.NULL, nData, DataFunction.getFactory(new DataDoubleArray[] {dataBin}));
     }
-
+    
     /**
      * @return Returns historyLength, the number of bins in each history.
      */
