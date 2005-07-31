@@ -207,5 +207,5 @@ public class DataSinkTable implements DataSink, Serializable {
     private DataTable.Column[] dataColumns = new DataTable.Column[0];
     private int casterIndex;
     private int[] casterChangedBits = new int[0];
-    private HashMap columnIndexHash;
+    private HashMap columnIndexHash = new HashMap();
 }
