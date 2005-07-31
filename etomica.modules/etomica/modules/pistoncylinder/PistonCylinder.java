@@ -1,5 +1,8 @@
 package etomica.modules.pistoncylinder;
 
+import etomica.Configuration;
+import etomica.ConfigurationLattice;
+import etomica.ConfigurationSequential;
 import etomica.Controller;
 import etomica.Default;
 import etomica.Phase;
@@ -15,6 +18,7 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntervalActionAdapter;
+import etomica.lattice.LatticeCubicFcc;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.P2SquareWell;
@@ -50,14 +54,18 @@ public class PistonCylinder extends Simulation {
         phase = new Phase(this);
         phase.setBoundary(new BoundaryRectangularNonperiodic(space));
         Vector newDim;
+        Configuration config;
         if (space.D() == 2) {
+            config = new ConfigurationSequential(space);
             newDim = new Vector2D(80,150);
         }
         else {
+            config = new ConfigurationLattice(new LatticeCubicFcc());
             newDim = new Vector3D(80,80,80);
         }
         phase.setDimensions(newDim);
         phase.makeMolecules();
+        config.initializeCoordinates(phase);
         
         P2SquareWell potentialSW = new P2SquareWell(space,Default.ATOM_SIZE,lambda,31.875);
         potentialWrapper = new Potential2HardSphericalWrapper(space,potentialSW);
