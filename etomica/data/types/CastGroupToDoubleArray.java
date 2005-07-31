@@ -28,7 +28,7 @@ import etomica.units.Dimension;
 public class CastGroupToDoubleArray extends DataProcessor {
 
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
-        if (inputDataInfo.getClass() != DataGroup.class) {
+        if (inputDataInfo.getDataClass() != DataGroup.class) {
             throw new IllegalArgumentException("can only cast from DataGroup");
         }
         String label = inputDataInfo.getLabel();
