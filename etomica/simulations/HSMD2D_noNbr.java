@@ -89,7 +89,7 @@ public class HSMD2D_noNbr extends Simulation {
 //        pressureAverage.makeDataPusher(
 //          new AccumulatorAverage.Type[] {AccumulatorAverage.AVERAGE}).
 //                                      addDataSink(pressureHistory);
-        temperatureHistory = new AccumulatorHistory(temperatureAverage.getDataInfo());
+        temperatureHistory = new AccumulatorHistory();
         temperatureAverage.addDataSink(temperatureHistory,new AccumulatorAverage.Type[] {AccumulatorAverage.AVERAGE});
 }
     
