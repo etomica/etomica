@@ -22,7 +22,6 @@ import etomica.PotentialGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
-import etomica.data.DataBin;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountSteps;
@@ -544,20 +543,20 @@ public class PistonCylinderGraphic {
 
         
         //  data panel
-        plotD.getDataTable().removeAllColumns();
-        plotT.getDataTable().removeAllColumns();
-        plotP.getDataTable().removeAllColumns();
+        // the data channel sending the DataTable should be cut off (and hopefully garbage collected)
+        plotD.getDataTable().reset();
+        plotT.getDataTable().reset();
+        plotP.getDataTable().reset();
         
         thermometer.setPhase(pc.phase);
         AccumulatorHistory temperatureHistory = new AccumulatorHistory();
         temperatureHistory.setHistoryLength(historyLength);
         AccumulatorAverage temperatureAvg = new AccumulatorAverage();
-        pump = new DataPump(thermometer,new DataFork(new DataSink[] {temperatureHistory,temperatureAvg}));
+        pump = new DataPump(thermometer,temperatureAvg);
+        temperatureAvg.addDataSink(temperatureHistory,new AccumulatorAverage.Type[]{AccumulatorAverage.MOST_RECENT});
         IntervalActionAdapter adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
-        DataBin bin = plotT.getDataTable().makeColumn(temperatureHistory.getDataInfo());
-        temperatureHistory.addDataSink(bin);
-        plotT.setUnit(bin,tUnit);
+        temperatureHistory.addDataSink(plotT.getDataTable());
         temperatureDisplayBox.setAccumulator(temperatureAvg);
         temperatureDisplayBox.setUnit(tUnit);
         
@@ -566,26 +565,22 @@ public class PistonCylinderGraphic {
                 return temperatureSlider.getModifier().getValue();
             }
         };
-        AccumulatorHistory targetTemperatureHistory = new AccumulatorHistory(targetTemperatureDataSource.getDataInfo());
+        AccumulatorHistory targetTemperatureHistory = new AccumulatorHistory();
         targetTemperatureHistory.setHistoryLength(historyLength);
         DataPump targetTemperatureDataPump = new DataPump(targetTemperatureDataSource, targetTemperatureHistory);
         adapter = new IntervalActionAdapter(targetTemperatureDataPump,pc.integrator);
         adapter.setActionInterval(dataInterval);
-        bin = plotT.getDataTable().makeColumn(targetTemperatureHistory.getDataInfo());
-        targetTemperatureHistory.addDataSink(bin);
-        plotT.setUnit(bin,tUnit);
+        targetTemperatureHistory.addDataSink(plotT.getDataTable());
 
         pressureMeter = new DataSourceWallPressure(pc.space,pc.pistonPotential,pc.integrator);
         pressureMeter.setPhase(pc.phase);
-        AccumulatorHistory pressureHistory = new AccumulatorHistory(pressureMeter.getDataInfo());
+        AccumulatorHistory pressureHistory = new AccumulatorHistory();
         pressureHistory.setHistoryLength(historyLength);
         AccumulatorAverage pressureAvg = new AccumulatorAverage();
         pump = new DataPump(pressureMeter, new DataFork(new DataSink[]{pressureHistory,pressureAvg}));
         adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
-        bin = plotP.getDataTable().makeColumn(pressureHistory.getDataInfo());
-        pressureHistory.addDataSink(bin);
-        plotP.setUnit(bin,pUnit);
+        pressureHistory.addDataSink(plotP.getDataTable());
         pressureDisplayBox.setAccumulator(pressureAvg);
         pressureDisplayBox.setUnit(pUnit);
 
@@ -594,14 +589,12 @@ public class PistonCylinderGraphic {
                 return pressureSlider.getModifier().getValue();
             }
         };
-        AccumulatorHistory targetPressureHistory = new AccumulatorHistory(targetPressureDataSource.getDataInfo());
+        AccumulatorHistory targetPressureHistory = new AccumulatorHistory();
         targetPressureHistory.setHistoryLength(historyLength);
         pump = new DataPump(targetPressureDataSource, targetPressureHistory);
         adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
-        bin = plotP.getDataTable().makeColumn(targetPressureHistory.getDataInfo());
-        targetPressureHistory.addDataSink(bin);
-        plotP.setUnit(bin,pUnit);
+        targetPressureHistory.addDataSink(plotP.getDataTable());
 
         densityMeter = new MeterPistonDensity(pc.pistonPotential,1,Default.ATOM_SIZE);
         densityMeter.setPhase(pc.phase);
@@ -611,12 +604,14 @@ public class PistonCylinderGraphic {
         pump = new DataPump(densityMeter,new DataFork(new DataSink[]{densityAvg, densityHistory}));
         adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
-        bin = plotD.getDataTable().makeColumn(densityHistory.getDataInfo());
-        densityHistory.addDataSink(bin);
-        plotD.setUnit(bin,dUnit);
+        densityHistory.addDataSink(plotD.getDataTable());
         densityDisplayBox.setAccumulator(densityAvg);
         densityDisplayBox.setUnit(dUnit);
         
+        plotD.setUnit(dUnit);
+        plotT.setUnit(tUnit);
+        plotP.setUnit(pUnit);
+
         plotP.getPlot().setTitle("Pressure ("+pUnit.symbol()+")");
         plotT.getPlot().setTitle("Temperature ("+tUnit.symbol()+")");
         plotD.getPlot().setTitle("Density ("+dUnit.symbol()+")");
