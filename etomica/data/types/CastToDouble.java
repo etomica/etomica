@@ -23,7 +23,7 @@ public class CastToDouble extends DataProcessor {
 
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
         dataDouble = new DataDouble(inputDataInfo.getLabel(), inputDataInfo.getDimension());
-        Class inputClass = inputDataInfo.getClass();
+        Class inputClass = inputDataInfo.getDataClass();
         if (inputClass == DataDouble.class) {
             inputType = 0;
         } else if (inputClass == DataDoubleArray.class) {
