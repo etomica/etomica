@@ -25,7 +25,7 @@ import etomica.units.Dimension;
 public class CastToDoubleArray extends DataProcessor {
 
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
-        Class inputClass = inputDataInfo.getClass();
+        Class inputClass = inputDataInfo.getDataClass();
         String label = inputDataInfo.getLabel();
         Dimension dimension = inputDataInfo.getDimension();
         DataFactory factory = inputDataInfo.getDataFactory();

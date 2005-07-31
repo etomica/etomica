@@ -100,7 +100,7 @@ public class DisplayBox extends Display implements DataSink, EtomicaElement, jav
      * Returns caster needed to convert type indicated by DataInfo to a DataDouble.
      */
     public DataProcessor getDataCaster(DataInfo dataInfo) {
-        if(dataInfo.getClass() == DataDouble.class) return null;
+        if(dataInfo.getDataClass() == DataDouble.class) return null;
         return new CastToDouble();
     }
     
