@@ -61,8 +61,8 @@ public abstract class DataProcessor implements DataPipe, java.io.Serializable {
      * @param dataSinks
      *            The data sinks to set.
      */
-    public void setDataSink(DataSink dataSink) {
-        this.dataSink = dataSink;
+    public void setDataSink(DataSink newDataSink) {
+        dataSink = newDataSink;
         insertedTransformer = false;
         insertTransformerIfNeeded();
         if(dataSink != null && dataInfo != null) {
