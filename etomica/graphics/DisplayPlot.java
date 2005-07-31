@@ -191,6 +191,12 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
             }
         }
     }
+    
+    public void setUnit(Unit newUnit) {
+        for(int i=0; i<dataTable.getColumnCount(); i++) {
+            units[i] = newUnit;
+        }
+    }
 
     /**
      * Sets the drawn size of the plot
