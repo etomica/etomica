@@ -81,8 +81,8 @@ public class AccumulatorHistogram extends DataAccumulator {
         return data.getDataInfo();
     }
     
-    /* (non-Javadoc)
-     * @see etomica.DataSink#getDataCaster(etomica.DataInfo)
+    /**
+     * Returns caster that ensures accumulator will receive a DataDoubleArray.
      */
     public DataProcessor getDataCaster(DataInfo inputDataInfo) {
         if(inputDataInfo.getClass() == DataDoubleArray.class) {
