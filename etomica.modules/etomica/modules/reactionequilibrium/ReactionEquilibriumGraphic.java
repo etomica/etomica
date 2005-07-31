@@ -189,7 +189,7 @@ public class ReactionEquilibriumGraphic {
 		dimerfractionaccum.setDataSink(table.getDataTable());
 
 		//display for history of mole fractions
-		AccumulatorHistory dimerfractionhistory = new AccumulatorHistory(sim.meterDimerFraction.getDataInfo());
+		AccumulatorHistory dimerfractionhistory = new AccumulatorHistory();
         
 		dimerfractionaccum.addDataSink(dimerfractionhistory,new AccumulatorAverage.Type[]{AccumulatorAverage.MOST_RECENT});
 		DisplayPlot plot = new DisplayPlot();
