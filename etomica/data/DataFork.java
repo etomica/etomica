@@ -101,10 +101,11 @@ public class DataFork implements DataPipe, java.io.Serializable {
     public void addDataSink(DataSink newDataSink) {
         if(newDataSink == null) return;
         dataSinkList = (DataSinkWrapper[])Arrays.addObject(dataSinkList, new DataSinkWrapper(newDataSink));
-        insertTransformerIfNeeded(dataSinkList.length-1);
+        int numSinks = dataSinkList.length;
+        insertTransformerIfNeeded(numSinks-1);
         
         if(dataInfo != null) {
-            newDataSink.putDataInfo(dataInfo);
+            dataSinkList[numSinks-1].dataSink.putDataInfo(dataInfo);
         }
     }
 
