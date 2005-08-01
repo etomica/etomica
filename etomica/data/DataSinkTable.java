@@ -6,8 +6,10 @@ import java.util.HashMap;
 import etomica.Data;
 import etomica.DataInfo;
 import etomica.DataSink;
+import etomica.data.types.CastArrayToDoubleArray;
 import etomica.data.types.CastGroupToDoubleArray;
 import etomica.data.types.CastToTable;
+import etomica.data.types.DataArray;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataTable;
 import etomica.utility.Arrays;
@@ -38,6 +40,8 @@ public class DataSinkTable implements DataSink, Serializable {
             return null;
         } else if(dataInfo.getDataClass() == DataGroup.class) {
             return new CastGroupToDoubleArray();
+        } else if(dataInfo.getDataClass() == DataArray.class) {
+            return new CastArrayToDoubleArray();
         }
         return new CastToTable();
     }
