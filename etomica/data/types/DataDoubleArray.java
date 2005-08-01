@@ -291,7 +291,15 @@ public class DataDoubleArray extends Data implements DataArithmetic {
     public void assignColumnFrom(int i, double[] array) {
         System.arraycopy(array,0,x,i*jumpCount[0],jumpCount.length == 1 ? x.length : jumpCount[0]);
     }
-    
+
+    public void assignSubsectionFrom(int[] idx, double[] array) {
+        int offset = 0;
+        for (int i=0; i<idx.length; i++) {
+            offset += idx[i]*jumpCount[i];
+        }
+        System.arraycopy(array,0,x,offset,array.length);
+    }
+
     /**
      * Returns a string formed from the dataInfo label and the array values.
      */
