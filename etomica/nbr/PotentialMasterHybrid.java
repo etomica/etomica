@@ -4,6 +4,7 @@
  */
 package etomica.nbr;
 
+import etomica.AtomType;
 import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Potential;
@@ -58,6 +59,15 @@ public class PotentialMasterHybrid extends PotentialMaster {
     public void calculate(Phase phase, PotentialCalculationAgents pc) {
         super.calculate(phase,new IteratorDirective(),pc);
     }
+    
+    /**
+     * Forward addPotentialBad to the PotentialMasterCell.  PotentialMasterNbr 
+     * needs this too, but gets it on its own from NeighborManager.
+     */
+    public void addPotentialBad(Potential potential, AtomType[] atomTypes) {
+        potentialMasterCell.addPotentialBad(potential, atomTypes);
+    }
+
     
     /**
      * Overrides superclass method to enable direct neighbor-list iteration
