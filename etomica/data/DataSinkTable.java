@@ -56,7 +56,7 @@ public class DataSinkTable implements DataSink, Serializable {
             if ((casterIndex+31)/32 > casterChangedBits.length) {
                 casterChangedBits = Arrays.resizeArray(casterChangedBits,casterChangedBits.length+1);
             }
-            casterChangedBits[casterChangedBits.length-1] |= 1<<(casterIndex%32);
+            casterChangedBits[casterChangedBits.length-1] |= 1<<((casterIndex-1)%32);
             columnIndexHash.put(data,indexObj);
         }
         int index = indexObj.intValue();
