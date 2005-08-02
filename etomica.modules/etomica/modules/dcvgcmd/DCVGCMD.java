@@ -21,7 +21,9 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.CriterionSpecies;
 import etomica.nbr.NeighborCriterion;
+import etomica.nbr.PotentialCalculationAgents;
 import etomica.nbr.PotentialMasterHybrid;
+import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.NeighborListManager;
 import etomica.potential.P2WCA;
 import etomica.space.BoundaryRectangularSlit;
@@ -119,7 +121,7 @@ public class DCVGCMD extends Simulation {
         nbrCriterion = new CriterionSimple(space,potentialTubeAtom.getRange(),neighborRangeFac*potentialTubeAtom.getRange());
         criterion = new CriterionSpecies(nbrCriterion, speciesTube, species);
         potentialTubeAtom.setCriterion(criterion);
-        nbrManager.addCriterion(nbrCriterion,new AtomType[]{species.getFactory().getType()});
+        nbrManager.addCriterion(nbrCriterion,new AtomType[]{species.getFactory().getType(),((AtomFactoryHomo)speciesTube.getFactory()).childFactory().getType()});
         
         P2WCA potentialTubeAtom1 = new P2WCA(space);
         potentialMaster.addPotential(potentialTubeAtom1,new AtomType[] { tubetype, speciestype1});
@@ -150,6 +152,7 @@ public class DCVGCMD extends Simulation {
         species.setNMolecules(20);
         species1.setNMolecules(20);
         phase = new Phase(this);
+        
         integratorDCV = new IntegratorDCVGCMD(potentialMaster, species,
                 species1);
         Default.AUTO_REGISTER = false;
@@ -163,6 +166,7 @@ public class DCVGCMD extends Simulation {
         integratorDCV.addListener(nbrManager);
         nbrManager.setRange(potential.getRange() * neighborRangeFac);
         integratorMC.addMCMoveListener(potentialMasterHybrid.getNbrCellManager(phase).makeMCMoveListener());
+        potentialMasterHybrid.calculate(phase, new PotentialCalculationAgents(potentialMasterHybrid));
 
 
         activityIntegrate = new ActivityIntegrate(
