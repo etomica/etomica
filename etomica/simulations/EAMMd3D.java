@@ -3,6 +3,8 @@ import etomica.AtomTypeLeaf;
 import etomica.Configuration;
 import etomica.ConfigurationLattice;
 import etomica.Controller;
+import etomica.Data;
+import etomica.DataInfo;
 import etomica.DataSink;
 import etomica.Phase;
 import etomica.Simulation;
@@ -12,6 +14,7 @@ import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeSphere;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -63,12 +66,13 @@ public class EAMMd3D extends Simulation {
     public DisplayPlot plot;
     public MeterEnergy energy;
     public ActivityIntegrate activityIntegrate;
+    public DataInfo info2;
 
     public static void main(String[] args) {
     	EAMMd3D sim = new EAMMd3D();
     	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
     	energyMeter.setPhase(sim.phase);
-        AccumulatorAverage energyAccumulator = new AccumulatorAverage();
+    		AccumulatorAverage energyAccumulator = new AccumulatorAverage(energyMeter.getDataInfo()); // kmb added argument 8/3/05
         DataPump energyManager = new DataPump(energyMeter,new DataSink[]{energyAccumulator});
         energyAccumulator.setBlockSize(50);
         IntervalActionAdapter adapter = new IntervalActionAdapter(energyManager, sim.integrator);
@@ -78,13 +82,14 @@ public class EAMMd3D extends Simulation {
     	ColorSchemeByType.setColor(sim.species.getFactory().getType(), java.awt.Color.red);
     	sim.activityIntegrate.setMaxSteps(100);
     	sim.getController().run();
-    	double[] data = energyAccumulator.getData();
-        double PE = data[AccumulatorAverage.AVERAGE.index]/sim.species.getAgent(sim.phase).getNMolecules();
+    	Data data = energyAccumulator.getData(); // kmb change type to Data instead of double[]
+        double PE = AccumulatorAverage.AVERAGE.index/sim.species.getAgent(sim.phase).getNMolecules();  // kmb changed 8/3/05
+        //double PE = data[AccumulatorAverage.AVERAGE.index]/sim.species.getAgent(sim.phase).getNMolecules();  // orig line
         System.out.println("PE/epsilon="+ElectronVolt.UNIT.fromSim(PE));
     }
     
     public EAMMd3D() {
-        super(Space3D.INSTANCE);
+        super(Space3D.getInstance()); //INSTANCE); kmb change 8/3/05
         integrator = new IntegratorVelocityVerlet(potentialMaster, space);
         integrator.setTimeStep(0.01);
         activityIntegrate = new ActivityIntegrate(integrator);
@@ -103,7 +108,8 @@ public class EAMMd3D extends Simulation {
         LatticeCrystal crystal = new LatticeCrystal(new Crystal(
         		primitive, new BasisBetaSnA5(primitive)));
         Configuration config = new ConfigurationLattice(crystal);
-        phase.setConfiguration(config);
+//        phase.setConfiguration(config);  // kmb remove 8/3/05
+        config.initializeCoordinates(phase);  // kmb added 8/3/05
         potential0 = new EmbeddedAtomMethodPInitial(space);
         potentialA = new EmbeddedAtomMethodP2(space, ParameterSetEAM.Sn);
         potentialB = new EmbeddedAtomMethodPMany(space, ParameterSetEAM.Sn);
