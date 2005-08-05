@@ -78,8 +78,8 @@ public final class EmbeddedAtomMethodP2 extends Potential2SoftSpherical implemen
         double rho = Math.exp(-p.beta * ((r/p.Ro) - 1));
     	((Wrapper)pair.atom0.allatomAgents[agentIndex]).x += rho;
     	((Wrapper)pair.atom1.allatomAgents[agentIndex]).x += rho;
-    	((Wrapper)pair.atom0.allatomAgents[agentIndex]).A.PEa1Tv1(-rho*p.beta/p.Ro*2,cPair.dr());
-    	((Wrapper)pair.atom1.allatomAgents[agentIndex]).A.PEa1Tv1(rho*p.beta/p.Ro*2,cPair.dr());
+    	((Wrapper)pair.atom0.allatomAgents[agentIndex]).A.PEa1Tv1(-rho*p.beta/p.Ro*2,coordinatePair.dr()); // kmb changed from cPair on 8/3/05
+    	((Wrapper)pair.atom1.allatomAgents[agentIndex]).A.PEa1Tv1(rho*p.beta/p.Ro*2,coordinatePair.dr());
         return r*(1/p.Z)*(
         		(p.E*p.alpha*p.alpha/p.Ro)*Math.exp(-p.alpha*((r/p.Ro)-1))*((r/p.Ro)-1)
 				+ (p.A*p.E*p.Zd*p.beta/p.Z/p.Ro)
@@ -121,16 +121,16 @@ public final class EmbeddedAtomMethodP2 extends Potential2SoftSpherical implemen
      * Virial of the pair as given by the du(double) method
      */
     public double virial(AtomSet pair) {
-    	cPair.reset((AtomPair)pair);
-        return du(cPair.r2());
+    	coordinatePair.reset((AtomPair)pair);
+        return du(coordinatePair.r2());
     }
     
     /**
      * Hypervirial of the pair as given by the du(double) and d2u(double) methods
      */
     public double hyperVirial(AtomSet pair) {
-    	cPair.reset((AtomPair)pair);
-        double r2 = cPair.r2();
+    	coordinatePair.reset((AtomPair)pair);
+        double r2 = coordinatePair.r2();
         return d2u(r2) + du(r2);
     }
     
@@ -138,11 +138,11 @@ public final class EmbeddedAtomMethodP2 extends Potential2SoftSpherical implemen
      * Gradient of the pair potential as given by the du(double) method.
      */
     public Vector gradient(AtomSet pair) {
-    	cPair.reset((AtomPair)pair);
-        double r2 = cPair.r2();
+    	coordinatePair.reset((AtomPair)pair);
+        double r2 = coordinatePair.r2();
         double r = Math.sqrt(r2);
         this.pair = (AtomPair)pair;
-        work1.Ea1Tv1(du(r2)/r2,cPair.dr());
+        work1.Ea1Tv1(du(r2)/r2,coordinatePair.dr());
 /**        System.out.println("In EmbeddedAtomMethod.P2, du(r2)/r is " +
         		du(r2)/r + 
 				", u is " +
