@@ -72,8 +72,8 @@ public class EAMMd3D extends Simulation {
     	EAMMd3D sim = new EAMMd3D();
     	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
     	energyMeter.setPhase(sim.phase);
-    		AccumulatorAverage energyAccumulator = new AccumulatorAverage(energyMeter.getDataInfo()); // kmb added argument 8/3/05
-        DataPump energyManager = new DataPump(energyMeter,new DataSink[]{energyAccumulator});
+    		AccumulatorAverage energyAccumulator = new AccumulatorAverage();
+        DataPump energyManager = new DataPump(energyMeter,energyAccumulator);
         energyAccumulator.setBlockSize(50);
         IntervalActionAdapter adapter = new IntervalActionAdapter(energyManager, sim.integrator);
         adapter.setActionInterval(5);

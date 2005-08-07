@@ -37,7 +37,7 @@ public class LjMd3D extends Simulation {
     }
     
     public LjMd3D() {
-        super(Space3D.INSTANCE);
+        super(Space3D.getInstance());
         Default.makeLJDefaults();
         integrator = new IntegratorVelocityVerlet(potentialMaster, space);
         integrator.setTimeStep(0.01);
