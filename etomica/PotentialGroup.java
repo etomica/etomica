@@ -188,24 +188,24 @@ public class PotentialGroup extends Potential {
      */
 	//TODO consider what to do with sub-potentials after target atoms are reached
     public void calculate(AtomsetIterator iterator, IteratorDirective id, PotentialCalculation pc) {
-    	AtomSet targetAtoms = id.getTargetAtoms();
-    	IteratorDirective.Direction direction = id.direction();
-		//loop over sub-potentials
-    	//TODO consider separate loops for targetable and directable
- 		for (PotentialLinker link=first; link!= null; link=link.next) {
-			link.iterator.setTarget(targetAtoms);
-            if (link.iterator instanceof AtomsetIteratorDirectable) {
-                ((AtomsetIteratorDirectable)link.iterator).setDirection(direction);
-            }
-		}
-    	iterator.reset();//loop over atom groups affected by this potential group
-		while (iterator.hasNext()) {
-    		AtomSet basisAtoms = iterator.next();
-    		for (PotentialLinker link=first; link!= null; link=link.next) {
-                if(!link.enabled) continue;
-    			link.iterator.setBasis(basisAtoms);   			
-    			pc.doCalculation(link.iterator, id, link.potential);
-    		}
+	    	AtomSet targetAtoms = id.getTargetAtoms();
+	    	IteratorDirective.Direction direction = id.direction();
+			//loop over sub-potentials
+	    	//TODO consider separate loops for targetable and directable
+	 		for (PotentialLinker link=first; link!= null; link=link.next) {
+				link.iterator.setTarget(targetAtoms);
+	            if (link.iterator instanceof AtomsetIteratorDirectable) {
+	                ((AtomsetIteratorDirectable)link.iterator).setDirection(direction);
+	            }
+			}
+	    	iterator.reset();//loop over atom groups affected by this potential group
+			while (iterator.hasNext()) {
+	    		AtomSet basisAtoms = iterator.next();
+	    		for (PotentialLinker link=first; link!= null; link=link.next) {
+	                if(!link.enabled) continue;
+	    			link.iterator.setBasis(basisAtoms);   			
+	    			pc.doCalculation(link.iterator, id, link.potential);
+	    		}
      	}
     }//end calculate
     
@@ -253,9 +253,9 @@ public class PotentialGroup extends Potential {
         protected boolean enabled = true;
 	    //Constructors
 	    public PotentialLinker(Potential a, AtomsetIteratorBasisDependent i, AtomType[] t, PotentialLinker l) {
-	    	potential = a;
-	    	iterator = i;
-	    	next = l;
+		    	potential = a;
+		    	iterator = i;
+		    	next = l;
             if (t != null) {
                 types = (AtomType[])t.clone();
             }
