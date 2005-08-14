@@ -14,8 +14,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 
 import etomica.Action;
-import etomica.DataSink;
-import etomica.DataSource;
 import etomica.Default;
 import etomica.Modifier;
 import etomica.PotentialGroup;
@@ -24,6 +22,8 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
+import etomica.data.DataSink;
+import etomica.data.DataSource;
 import etomica.data.DataSourceCountSteps;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataSourceUniform;

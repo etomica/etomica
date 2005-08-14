@@ -1,12 +1,12 @@
 package etomica.modules.reactionequilibrium;
 
 import etomica.Atom;
-import etomica.Data;
-import etomica.DataInfo;
-import etomica.DataSource;
-import etomica.Meter;
 import etomica.Phase;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.data.Data;
+import etomica.data.DataInfo;
+import etomica.data.DataSource;
+import etomica.data.Meter;
 import etomica.data.types.DataDoubleArray;
 import etomica.units.Dimension;
 import etomica.utility.NameMaker;

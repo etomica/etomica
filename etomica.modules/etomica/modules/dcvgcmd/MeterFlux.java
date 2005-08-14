@@ -1,8 +1,8 @@
 package etomica.modules.dcvgcmd;
 
-import etomica.Meter;
 import etomica.Phase;
 import etomica.data.DataSourceScalar;
+import etomica.data.Meter;
 import etomica.units.Dimension;
 
 public class MeterFlux extends DataSourceScalar implements Meter {
