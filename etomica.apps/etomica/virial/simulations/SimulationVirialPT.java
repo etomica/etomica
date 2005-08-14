@@ -1,7 +1,5 @@
 package etomica.virial.simulations;
 
-import etomica.DataSource;
-import etomica.Meter;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
@@ -9,8 +7,10 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataAccumulator;
 import etomica.data.DataPump;
+import etomica.data.DataSource;
 import etomica.data.DataSourceAcceptanceProbability;
 import etomica.data.DataSourceAcceptanceRatio;
+import etomica.data.Meter;
 import etomica.integrator.IntegratorPT;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.MCMove;

@@ -1,6 +1,6 @@
 package etomica.data.types;
 
-import etomica.Data;
+import etomica.data.Data;
 import etomica.utility.Function;
 
 /**

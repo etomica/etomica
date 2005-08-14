@@ -4,7 +4,7 @@
  */
 package etomica.utility;
 
-import etomica.DataSource;
+import etomica.data.DataSource;
 
 /**
  * @author kofke

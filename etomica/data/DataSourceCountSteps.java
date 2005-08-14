@@ -1,8 +1,5 @@
 package etomica.data;
 
-import etomica.Data;
-import etomica.DataInfo;
-import etomica.DataSource;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.IntegratorIntervalEvent;

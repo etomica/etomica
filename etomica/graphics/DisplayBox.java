@@ -5,12 +5,12 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import etomica.Constants;
-import etomica.Data;
-import etomica.DataInfo;
-import etomica.DataSink;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
+import etomica.data.Data;
+import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
+import etomica.data.DataSink;
 import etomica.data.types.CastToDouble;
 import etomica.data.types.DataDouble;
 import etomica.units.Unit;

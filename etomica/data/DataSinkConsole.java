@@ -1,9 +1,6 @@
 package etomica.data;
 import java.io.PrintStream;
 
-import etomica.Data;
-import etomica.DataInfo;
-import etomica.DataSink;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.utility.NameMaker;

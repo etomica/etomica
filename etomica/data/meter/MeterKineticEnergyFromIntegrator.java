@@ -1,12 +1,12 @@
 package etomica.data.meter;
 
-import etomica.DataInfo;
 import etomica.IntegratorEvent;
 import etomica.IntegratorNonintervalEvent;
 import etomica.IntegratorNonintervalListener;
-import etomica.Meter;
 import etomica.Phase;
+import etomica.data.DataInfo;
 import etomica.data.DataSourceScalar;
+import etomica.data.Meter;
 import etomica.integrator.IntegratorMD;
 import etomica.units.Dimension;
 

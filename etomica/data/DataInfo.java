@@ -1,13 +1,15 @@
-package etomica;
+package etomica.data;
 
-import etomica.data.DataFactory;
 import etomica.units.Dimension;
 
 /**
  * Object held by a Data instance and which provides descriptive information
  * about the data encapsulated in it. Information is typically used when
  * displaying or writing the data to file, or making new Data instances that can
- * work with the one holding this DataInfo..
+ * work with the one holding this DataInfo.
+ * <p>
+ * A DataInfo instance is completely immutable, and it is declared final in the
+ * Data instance holding it.
  * 
  * @author Andrew Schultz and David Kofke
  * 
@@ -24,11 +26,9 @@ public class DataInfo implements java.io.Serializable {
      * Constructs new instance with descriptive label and dimension.
      * 
      * @param label
-     *            descriptive label for the data; may be changed after
-     *            construction
+     *            descriptive label for the data
      * @param dimension
-     *            physical dimensions (e.g., length, force) of the data; cannot
-     *            be changed after construction
+     *            physical dimensions (e.g., length, force) of the data
      * @param factory
      *            a DataFactory that makes Data instances of the type holding
      *            this DataInfo. New Data instances will be independent of the
@@ -41,19 +41,16 @@ public class DataInfo implements java.io.Serializable {
     }
 
     /**
-     * Copy constructor. Makes new instance with fields equal to those of the
-     * given instance.
+     * Returns a DataFactory that will produce new Data instances of the same type
+     * and structure as that holding this DataInfo.
      */
-    public DataInfo(DataInfo dataInfo) {
-        this.label = new String(dataInfo.label);
-        this.dimension = dataInfo.dimension;
-        this.dataFactory = dataInfo.dataFactory;
-    }
-
     public DataFactory getDataFactory() {
         return dataFactory;
     }
 
+    /**
+     * Returns the class of the Data holding this DataInfo instance.
+     */
     public Class getDataClass() {
         return dataFactory.getDataClass();
     }
@@ -73,11 +70,15 @@ public class DataInfo implements java.io.Serializable {
         return label;
     }
 
+    /**
+     * Returns "label (dimension)", where label and dimension are the values
+     * held by this instance.
+     */
     public String toString() {
         return label + " (" + dimension.toString() + ")";
     }
 
-    private String label;
+    private final String label;
     private final Dimension dimension;
     private final DataFactory dataFactory;
 }

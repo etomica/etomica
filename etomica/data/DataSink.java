@@ -1,6 +1,5 @@
-package etomica;
+package etomica.data;
 
-import etomica.data.DataProcessor;
 
 /**
  * A consumer of data.  Data goes in and might (or might not) come out.

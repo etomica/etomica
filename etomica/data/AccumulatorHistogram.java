@@ -4,8 +4,6 @@
  */
 package etomica.data;
 
-import etomica.Data;
-import etomica.DataInfo;
 import etomica.data.types.CastToDoubleArray;
 import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataArray;

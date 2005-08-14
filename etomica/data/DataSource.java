@@ -1,4 +1,4 @@
-package etomica;
+package etomica.data;
 
 /**
  * Interface for an object that can provide Data objects

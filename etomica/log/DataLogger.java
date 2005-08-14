@@ -3,10 +3,10 @@ package etomica.log;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.Data;
-import etomica.DataInfo;
-import etomica.DataSink;
+import etomica.data.Data;
+import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
+import etomica.data.DataSink;
 import etomica.data.types.CastToDouble;
 import etomica.data.types.CastToDoubleArray;
 import etomica.data.types.DataDouble;

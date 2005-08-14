@@ -2,9 +2,6 @@ package etomica.data;
 
 import java.io.Serializable;
 
-import etomica.Data;
-import etomica.DataInfo;
-import etomica.DataSink;
 import etomica.utility.Arrays;
 
 /**

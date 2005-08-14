@@ -4,8 +4,6 @@
  */
 package etomica.data;
 
-import etomica.Data;
-import etomica.DataInfo;
 import etomica.data.types.DataInteger;
 import etomica.units.Dimension;
 

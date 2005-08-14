@@ -3,7 +3,7 @@
  */
 package etomica.utility;
 
-import etomica.DataSource;
+import etomica.data.DataSource;
 import etomica.data.DataSourceUniform;
 
 /**

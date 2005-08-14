@@ -1,6 +1,5 @@
 package etomica.data;
 
-import etomica.Data;
 import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;

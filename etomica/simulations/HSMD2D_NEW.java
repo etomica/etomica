@@ -240,7 +240,7 @@ public class HSMD2D_NEW extends SimulationGraphic  {
 		}
 
 		/**
-		 * @see etomica.Meter#getDimension()
+		 * @see etomica.data.Meter#getDimension()
 		 */
 		public Dimension getDimension() {
 			return Dimension.NULL;

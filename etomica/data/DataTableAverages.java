@@ -1,6 +1,5 @@
 package etomica.data;
 
-import etomica.DataSource;
 import etomica.Integrator;
 import etomica.action.ActionGroup;
 import etomica.data.AccumulatorAverage.Type;

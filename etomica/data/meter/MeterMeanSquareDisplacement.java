@@ -5,8 +5,8 @@ import etomica.EtomicaInfo;
 import etomica.Integrator;
 import etomica.IntegratorIntervalEvent;
 import etomica.IntegratorIntervalListener;
-import etomica.Meter;
 import etomica.Space;
+import etomica.data.Meter;
 import etomica.space.Vector;
 import etomica.units.Dimension;
 

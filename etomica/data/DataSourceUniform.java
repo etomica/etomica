@@ -1,9 +1,6 @@
 package etomica.data;
 
 import etomica.Constants;
-import etomica.Data;
-import etomica.DataInfo;
-import etomica.DataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.units.Dimension;
 

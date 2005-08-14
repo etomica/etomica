@@ -1,8 +1,8 @@
 package etomica.graphics;
-import etomica.DataSource;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.data.DataSinkTable;
+import etomica.data.DataSource;
 import etomica.data.DataSourceUniform;
 import etomica.data.DataTableListener;
 import etomica.data.types.DataArithmetic;

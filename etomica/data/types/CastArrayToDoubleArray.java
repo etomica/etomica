@@ -1,9 +1,9 @@
 package etomica.data.types;
 
 
-import etomica.Data;
-import etomica.DataInfo;
+import etomica.data.Data;
 import etomica.data.DataFactory;
+import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
 import etomica.lattice.IndexIteratorSequential;
 import etomica.space.Tensor;

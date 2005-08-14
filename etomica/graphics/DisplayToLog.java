@@ -14,9 +14,9 @@ import javax.swing.JLabel;
 
 import etomica.Integrator;
 import etomica.IntegratorIntervalEvent;
-import etomica.Meter;
 import etomica.Simulation;
 import etomica.data.DataSourceScalar;
+import etomica.data.Meter;
 import etomica.utility.java2.Iterator;
 
 

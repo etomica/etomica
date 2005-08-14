@@ -1,7 +1,5 @@
 package etomica.data;
 
-import etomica.Data;
-import etomica.DataInfo;
 import etomica.data.types.CastToGroup;
 import etomica.data.types.DataGroup;
 

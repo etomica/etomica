@@ -2,10 +2,10 @@ package etomica.data.types;
 
 import java.io.Serializable;
 
-import etomica.Data;
-import etomica.DataInfo;
 import etomica.Space;
+import etomica.data.Data;
 import etomica.data.DataFactory;
+import etomica.data.DataInfo;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
 import etomica.utility.Function;

@@ -1,14 +1,14 @@
 package etomica.simulations;
 
 import etomica.Controller;
-import etomica.DataSource;
 import etomica.Default;
-import etomica.Meter;
 import etomica.Phase;
 import etomica.SpeciesSpheresMono;
 import etomica.action.PhaseImposePbc;
+import etomica.data.DataSource;
 import etomica.data.DataSourceAcceptanceRatio;
 import etomica.data.DataSourceCountSteps;
+import etomica.data.Meter;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceTrioControllerButton;

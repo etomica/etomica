@@ -1,14 +1,14 @@
 package etomica.data.meter;
 import etomica.Atom;
 import etomica.AtomTypeLeaf;
-import etomica.Data;
-import etomica.DataInfo;
-import etomica.DataSource;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
 import etomica.Phase;
 import etomica.Space;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.data.Data;
+import etomica.data.DataInfo;
+import etomica.data.DataSource;
 import etomica.data.DataSourceCountTime;
 import etomica.data.types.DataTensor;
 import etomica.integrator.IntegratorHard;

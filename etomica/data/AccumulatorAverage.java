@@ -5,9 +5,6 @@
 package etomica.data;
 
 import etomica.Constants;
-import etomica.Data;
-import etomica.DataInfo;
-import etomica.DataSink;
 import etomica.Default;
 import etomica.Constants.TypedConstant;
 import etomica.data.types.DataArithmetic;

@@ -1,7 +1,6 @@
 package etomica.tests;
 import etomica.ConfigurationFile;
 import etomica.Controller;
-import etomica.DataSource;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
@@ -11,6 +10,7 @@ import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
+import etomica.data.DataSource;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;

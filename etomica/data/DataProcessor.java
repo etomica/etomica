@@ -1,8 +1,5 @@
 package etomica.data;
 
-import etomica.Data;
-import etomica.DataInfo;
-import etomica.DataSink;
 
 /**
  * An object that receives Data, processes it, and pushes the result on to a DataSink.

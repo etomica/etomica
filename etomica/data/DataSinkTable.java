@@ -3,9 +3,6 @@ package etomica.data;
 import java.io.Serializable;
 import java.util.HashMap;
 
-import etomica.Data;
-import etomica.DataInfo;
-import etomica.DataSink;
 import etomica.data.types.CastArrayToDoubleArray;
 import etomica.data.types.CastGroupToDoubleArray;
 import etomica.data.types.CastToTable;

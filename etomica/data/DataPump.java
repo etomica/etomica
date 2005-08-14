@@ -1,10 +1,6 @@
 package etomica.data;
 
 import etomica.Action;
-import etomica.Data;
-import etomica.DataInfo;
-import etomica.DataSink;
-import etomica.DataSource;
 
 /**
  * A data pusher that can move data from a source to its sinks

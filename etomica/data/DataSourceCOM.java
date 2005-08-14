@@ -2,9 +2,6 @@ package etomica.data;
 
 import etomica.Atom;
 import etomica.AtomTypeLeaf;
-import etomica.Data;
-import etomica.DataInfo;
-import etomica.DataSource;
 import etomica.Space;
 import etomica.action.AtomActionAdapter;
 import etomica.action.AtomGroupAction;

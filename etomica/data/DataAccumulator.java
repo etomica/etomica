@@ -4,9 +4,6 @@
  */
 package etomica.data;
 
-import etomica.Data;
-import etomica.DataSink;
-import etomica.DataSource;
 
 /**
  * DataProcessor that accumulates and transforms given data and intermittently transmits

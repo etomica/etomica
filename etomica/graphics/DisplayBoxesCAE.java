@@ -6,12 +6,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import etomica.Constants;
-import etomica.Data;
-import etomica.DataInfo;
-import etomica.DataSink;
 import etomica.data.AccumulatorAverage;
+import etomica.data.Data;
+import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
 import etomica.data.DataPump;
+import etomica.data.DataSink;
 import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayBox.LabelType;

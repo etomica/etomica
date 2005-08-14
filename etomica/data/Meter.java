@@ -1,4 +1,7 @@
-package etomica;
+package etomica.data;
+
+import etomica.EtomicaElement;
+import etomica.Phase;
 
 
 /**

@@ -2,9 +2,9 @@ package etomica.data.types;
 
 import java.io.Serializable;
 
-import etomica.Data;
-import etomica.DataInfo;
+import etomica.data.Data;
 import etomica.data.DataFactory;
+import etomica.data.DataInfo;
 import etomica.units.Dimension;
 
 
