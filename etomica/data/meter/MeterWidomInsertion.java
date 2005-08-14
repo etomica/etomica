@@ -9,7 +9,6 @@ import etomica.Space;
 import etomica.Species;
 import etomica.action.AtomActionTranslateTo;
 import etomica.data.DataSourceScalar;
-import etomica.data.Meter;
 import etomica.units.Dimension;
 
 /**

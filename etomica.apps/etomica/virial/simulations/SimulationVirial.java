@@ -8,7 +8,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataAccumulator;
 import etomica.data.DataPump;
-import etomica.data.Meter;
+import etomica.data.meter.Meter;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.MCMove;
 import etomica.integrator.mcmove.MCMoveAtom;

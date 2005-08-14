@@ -7,7 +7,6 @@ import etomica.Species;
 import etomica.data.Data;
 import etomica.data.DataSourceAtomic;
 import etomica.data.DataSourceScalar;
-import etomica.data.Meter;
 import etomica.data.types.DataDouble;
 import etomica.units.Dimension;
 

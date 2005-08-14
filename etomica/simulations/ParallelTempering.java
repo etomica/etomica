@@ -8,7 +8,7 @@ import etomica.action.PhaseImposePbc;
 import etomica.data.DataSource;
 import etomica.data.DataSourceAcceptanceRatio;
 import etomica.data.DataSourceCountSteps;
-import etomica.data.Meter;
+import etomica.data.meter.Meter;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceTrioControllerButton;

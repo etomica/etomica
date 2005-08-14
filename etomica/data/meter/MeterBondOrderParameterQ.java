@@ -8,7 +8,6 @@ import etomica.Space;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
 import etomica.data.DataSourceScalar;
-import etomica.data.Meter;
 import etomica.math.SphericalHarmonics;
 import etomica.space.CoordinatePair;
 import etomica.space.Vector;

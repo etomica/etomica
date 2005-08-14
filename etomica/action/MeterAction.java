@@ -1,5 +1,5 @@
 package etomica.action;
-import etomica.data.Meter;
+import etomica.data.meter.Meter;
 
  /**
   * Interface for object that performs action on a specified Meter.

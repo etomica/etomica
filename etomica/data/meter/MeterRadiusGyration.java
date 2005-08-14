@@ -7,7 +7,6 @@ import etomica.Space;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.data.DataSourceScalar;
-import etomica.data.Meter;
 import etomica.space.CoordinatePair;
 import etomica.space.Vector;
 import etomica.units.Dimension;

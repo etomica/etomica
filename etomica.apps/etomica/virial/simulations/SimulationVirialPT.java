@@ -10,7 +10,7 @@ import etomica.data.DataPump;
 import etomica.data.DataSource;
 import etomica.data.DataSourceAcceptanceProbability;
 import etomica.data.DataSourceAcceptanceRatio;
-import etomica.data.Meter;
+import etomica.data.meter.Meter;
 import etomica.integrator.IntegratorPT;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.MCMove;

@@ -5,7 +5,6 @@ import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Space;
 import etomica.data.DataSourceScalar;
-import etomica.data.Meter;
 import etomica.potential.PotentialCalculationVirialSum;
 import etomica.units.Dimension;
 

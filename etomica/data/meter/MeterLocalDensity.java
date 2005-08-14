@@ -5,7 +5,6 @@ import etomica.Phase;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.DataSourceScalar;
-import etomica.data.Meter;
 import etomica.math.geometry.Polytope;
 import etomica.units.Dimension;
 import etomica.units.DimensionRatio;

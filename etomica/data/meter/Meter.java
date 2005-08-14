@@ -1,7 +1,9 @@
-package etomica.data;
+package etomica.data.meter;
 
 import etomica.EtomicaElement;
 import etomica.Phase;
+import etomica.data.Data;
+import etomica.data.DataSource;
 
 
 /**

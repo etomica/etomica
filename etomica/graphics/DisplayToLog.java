@@ -16,7 +16,7 @@ import etomica.Integrator;
 import etomica.IntegratorIntervalEvent;
 import etomica.Simulation;
 import etomica.data.DataSourceScalar;
-import etomica.data.Meter;
+import etomica.data.meter.Meter;
 import etomica.utility.java2.Iterator;
 
 

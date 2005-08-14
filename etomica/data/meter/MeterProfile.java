@@ -10,7 +10,6 @@ import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.DataSourceAtomic;
 import etomica.data.DataSourceUniform;
-import etomica.data.Meter;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;

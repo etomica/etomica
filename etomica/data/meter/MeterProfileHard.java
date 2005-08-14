@@ -5,7 +5,6 @@ import etomica.EtomicaInfo;
 import etomica.Integrator;
 import etomica.data.DataSourceAtomic;
 import etomica.data.DataSourceUniform;
-import etomica.data.Meter;
 import etomica.integrator.IntegratorHard;
 
 /**

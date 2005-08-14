@@ -4,7 +4,6 @@ import etomica.EtomicaInfo;
 import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.data.DataSourceScalar;
-import etomica.data.Meter;
 import etomica.units.Dimension;
 
 /**

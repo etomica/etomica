@@ -7,7 +7,6 @@ import etomica.IntegratorNonintervalListener;
 import etomica.Phase;
 import etomica.data.DataInfo;
 import etomica.data.DataSourceScalar;
-import etomica.data.Meter;
 import etomica.units.Dimension;
 
 /**

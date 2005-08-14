@@ -4,7 +4,7 @@ import etomica.Phase;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataSource;
-import etomica.data.Meter;
+import etomica.data.meter.Meter;
 import etomica.data.types.DataDoubleArray;
 import etomica.units.Dimension;
 import etomica.utility.NameMaker;
