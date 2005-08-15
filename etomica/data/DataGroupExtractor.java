@@ -6,7 +6,7 @@ import etomica.data.types.DataGroup;
 
 /**
  * Extracts a single Data instance from those wrapped in a DataGroup. 
- * Applies criterial definable by a DataJudge instance to assign a rank
+ * Applies criteria definable by a DataJudge instance to assign a rank
  * to all elements in group, and returns the element having the lowest score.
  * If two or more elements have the minimum score, the first one encountered is the one returned.
  * Process applies recursively to DataGroups held by the DataGroup assigned for extraction. 
@@ -21,6 +21,9 @@ public class DataGroupExtractor extends DataProcessor {
         this.judge = judge;
     }
 
+    /**
+     * Returns the Data object that was selected by a previous call to processDataInfo.
+     */
     public Data processData(Data data) {
         return outputData;
     }
@@ -58,8 +61,9 @@ public class DataGroupExtractor extends DataProcessor {
         return outputWrapper;
     }
 
-    /* (non-Javadoc)
-     * @see etomica.DataSink#getDataCaster(etomica.DataInfo)
+    /**
+     * Returns null if the given DataInfo is for a DataGroup; otherwise
+     * returns a CastToGroup instance.
      */
     public DataProcessor getDataCaster(DataInfo dataInfo) {
         if(dataInfo.getClass() == DataGroup.class) {

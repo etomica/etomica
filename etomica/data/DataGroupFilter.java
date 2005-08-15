@@ -16,22 +16,36 @@ import etomica.utility.Arrays;
 
 public class DataGroupFilter extends DataProcessor {
 
+    /**
+     * Creates a filter that will take the DataGroup element indicated
+     * by the index, counting from 0.
+     */
     public DataGroupFilter(int index) {
         this(new int[] {index});
     }
-    
+
+    /**
+     * Creates a filter that will take the set of elements from the DataGroup
+     * corresponding to the given index values (with indexes counting from 0).
+     */
     public DataGroupFilter(int[] indexes) {
         this.indexes = (int[])indexes.clone();
         singleInstance = (indexes.length == 1); 
     }
 
+    /**
+     * Returns the output data that was established with a previous call to 
+     * processDataInfo.
+     */
     public Data processData(Data data) {
         return outputData;
     }
     
     
-    /* (non-Javadoc)
-     * @see etomica.data.DataProcessor#makeOutputDataInfo(etomica.DataInfo)
+    /**
+     * Determines data that will be output, using the given DataInfo and
+     * the index specification given at construction.  Returns the DataInfo
+     * of the data that will be output.
      */
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
         Data[] inputData = ((DataGroup.Factory)inputDataInfo.getDataFactory()).getData();
@@ -57,8 +71,9 @@ public class DataGroupFilter extends DataProcessor {
         return outputData.getDataInfo();
     }
 
-    /* (non-Javadoc)
-     * @see etomica.DataSink#getDataCaster(etomica.DataInfo)
+    /**
+     * Returns null if the given DataInfo is for a DataGroup; otherwise
+     * returns a CastToGroup instance.
      */
     public DataProcessor getDataCaster(DataInfo dataInfo) {
         if(dataInfo.getDataClass() == DataGroup.class) {
