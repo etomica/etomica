@@ -141,14 +141,19 @@ public class ActivityGroupSeries extends Activity {
      * the pause takes effect.
      */
     public synchronized void pause() {
-//        System.out.println("in AGS.pause "+isPaused()+" "+isActive());
-    	if(isPaused() || !isActive()) return;// already paused, or not active
-        if(currentAction instanceof Activity) {
-//            System.out.println("pausing "+currentAction);
-        	((Activity)currentAction).pause();//activity enforces pause and has calling thread waits till in effect
-//            System.out.println("paused "+currentAction);
-        } else {//currentAction is not a pausable activity; put pause in activity loop
-	        super.pause();
+        //        System.out.println("in AGS.pause "+isPaused()+" "+isActive());
+        if (isPaused() || !isActive()) {
+            return;// already paused, or not active
+        }
+        if (currentAction instanceof Activity) {
+            //            System.out.println("pausing "+currentAction);
+            ((Activity) currentAction).pause();//activity enforces pause and
+                                               // has calling thread wait till
+                                               // in effect
+            //            System.out.println("paused "+currentAction);
+        } else {//currentAction is not a pausable activity; put pause in
+                // activity loop
+            super.pause();
         }
     }
     
