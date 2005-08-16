@@ -102,18 +102,19 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                 currentAction.actionPerformed();
             }
             
-            if(repeatCurrentAction) {
-                if(currentAction instanceof Activity) {
-                    addNextAction(((Activity)currentAction).makeCopy());
-                } else {
-                    addNextAction(currentAction);
-                }
-            }
-            
             //TODO mark this as whether completed normally
             synchronized(this) {
                 completedActions = (Action[])Arrays.addObject(completedActions, currentAction);
                 fireEvent(new ControllerEvent(this, ControllerEvent.END_ACTION, currentAction));
+
+                if(repeatCurrentAction) {
+                    if(currentAction instanceof Activity) {
+                        addNextAction(((Activity)currentAction).makeCopy());
+                    } else {
+                        addNextAction(currentAction);
+                    }
+                }
+            
                 currentAction = null;
             }
 
@@ -205,7 +206,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
      * <p>
      * Default is false.
      */
-    public void setRepeatCurrentAction(boolean repeatCurrentAction) {
+    public synchronized void setRepeatCurrentAction(boolean repeatCurrentAction) {
         this.repeatCurrentAction = repeatCurrentAction;
         if(repeatCurrentAction) {
             setPauseAfterEachAction(true);
@@ -222,6 +223,20 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     public synchronized boolean isActive() {
     	    return (runner != null) && runner.isAlive();
     }
+    
+    /**
+     * Request that the current activity terminate and wait till it does.  
+     * Has no effect on Controller itself, or any pending activities, 
+     * which remain in the queue.
+     */
+    public synchronized void halt() {
+        if(!isActive()) return;
+        pauseRequested = true;
+        if(currentAction instanceof Activity) {
+            ((Activity)currentAction).halt();
+        }
+    }
+
 
     public synchronized void addListener(ControllerListener listener) {
         eventManager.addListener(listener);
