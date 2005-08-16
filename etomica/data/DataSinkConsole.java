@@ -52,19 +52,6 @@ public class DataSinkConsole implements DataSink, EtomicaElement, java.io.Serial
         out.println(data.toString());
     }
 
-//    /**
-//     * @return Returns the unit.
-//     */
-//    public Unit getUnit() {
-//        return unit;
-//    }
-//    /**
-//     * @param unit The unit to set.
-//     */
-//    public void setUnit(Unit unit) {
-//        this.unit = unit;
-//    }
-    
     /**
      * Method called to express incredulity.  Short for
      * "No way! Get out of here!"

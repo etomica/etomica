@@ -2,7 +2,7 @@ package etomica.data;
 
 
 /**
- * A consumer of data.  Data goes in and might (or might not) come out.
+ * A recipient of Data.  Data goes in and might (or might not) come out.
  */
 public interface DataSink {
     
