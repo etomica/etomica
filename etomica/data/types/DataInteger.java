@@ -7,7 +7,7 @@ import etomica.units.Dimension;
 
 
 /**
- * Data object encapsulating a single mutable value of type integer. <br>
+ * Data object encapsulating a single mutable value of type <tt>int</tt>.
  * 
  * @author Andrew Schultz and David Kofke
  *  
@@ -70,6 +70,9 @@ public class DataInteger extends Data {
         return FACTORY;
     }
     
+    /**
+     * The encapsulated <tt>int</tt> value.
+     */
     public int x;
     
     private static final Factory FACTORY = new Factory();

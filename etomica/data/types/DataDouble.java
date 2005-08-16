@@ -7,8 +7,9 @@ import etomica.units.Dimension;
 import etomica.utility.Function;
 
 /**
- * Data object wrapping a single mutable value of type double. Value is
- * public and can be accessed directly.<br>
+ * Data object wrapping a single mutable value of type <tt>double</tt>. Value is
+ * public and can be accessed directly.
+ * <p>
  * All arithmetic methods throw ClassCastException if given a Data instance that
  * is not of this type.
  * 
