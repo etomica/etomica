@@ -47,6 +47,20 @@ public abstract class Dimension implements java.io.Serializable {
 		public Unit defaultIOUnit() {return Unit.NULL;}
 		public Class baseUnit() {return BaseUnit.Null.class;}
 	}
+    
+    /**
+     * Dimension used to indicate that a group of values are not all of
+     * the same dimension.
+     */
+    private static class Mixed extends Dimension {
+        private Mixed() {} //singleton; access via static instances, defined below
+        static double[] signature = {Double.NaN, Double.NaN, Double.NaN, Double.NaN};
+        public double[] signature() {return signature;}
+        public String toString() {return "Mixed";}
+        public Unit defaultIOUnit() {throw new UnsupportedOperationException("No unit is associated with Mixed dimension");}
+        public Class baseUnit() {throw new UnsupportedOperationException("No unit is associated with Mixed dimension");}
+    }
+
 
     /**
      * Dimension for a counted quantity, such as number of molecules
@@ -185,6 +199,7 @@ public abstract class Dimension implements java.io.Serializable {
     public static final Dimension VOLUME = new Volume();
     public static final Dimension VOLUME2D = new Volume2D();
 	public static final Dimension UNDEFINED = new Undefined();
+    public static final Dimension MIXED = new Mixed();
     public static final Dimension[] ALL = new Dimension[] {
         NULL, QUANTITY, MASS, LENGTH, TIME, ANGLE, CHARGE, DIPOLE, ENERGY, 
         TEMPERATURE, PRESSURE, PRESSURE2D, VOLUME, VOLUME2D, UNDEFINED};
