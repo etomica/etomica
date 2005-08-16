@@ -1,11 +1,12 @@
 package etomica.data;
 
+import etomica.data.types.CastToTable;
 import etomica.data.types.DataTable;
 
 
 /**
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Takes a DataTable and returns a different DataTable obtained by performing
+ * a matrix transpose of the input table elements.
  *
  * @author David Kofke
  *
@@ -38,7 +39,8 @@ public class DataTableTranspose extends DataProcessor {
         DataTable.Factory factory = (DataTable.Factory)inputDataInfo.getDataFactory();
         int nRows = factory.getNRows();
         int nCols = factory.getNColumns();
-        outputTable = new DataTable();
+        outputTable = new DataTable(inputDataInfo.getLabel(), inputDataInfo.getDimension(), nRows, nCols);
+        return outputTable.getDataInfo();
     }
 
     /* (non-Javadoc)
