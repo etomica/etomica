@@ -8,6 +8,44 @@ import etomica.utility.Arrays;
  * Organizer of simulation actions to be executed in series.
  */
 public class ActivityGroupSeries extends Activity {
+
+    public ActivityGroupSeries() {
+        super();
+    }
+    
+    /**
+     * Copy constructor.
+     */
+    public ActivityGroupSeries(ActivityGroupSeries activity) {
+        super(activity);
+        for(int i=0; i<activity.completedActions.length; i++) {
+            addCopyAction(activity.completedActions[i]);
+        }
+        if(activity.currentAction != null) {
+            addCopyAction(activity.currentAction);
+        }
+        for(int i=0; i<activity.actions.length; i++) {
+            addCopyAction(activity.actions[i]);
+        }
+        setPauseAfterEachAction(activity.pauseAfterEachAction);
+    }
+    
+    private void addCopyAction(Action action) {
+        if(action instanceof Activity) {
+            addAction(((Activity)action).makeCopy());
+        } else {
+            addAction(action);
+        }
+    }
+    
+    /**
+     * Returns a copy of this ActivityGroupSeries, with all actions newly pending regardless of
+     * their state in this instance.  Activities are copied before being added to the copy;
+     * non-Activity Actions are referenced directly, and are not copied.
+     */
+    public Activity makeCopy() {
+        return new ActivityGroupSeries(this);
+    }
     
     /**
 	 * Adds the given action to the list of actions.
@@ -19,6 +57,7 @@ public class ActivityGroupSeries extends Activity {
 		actions = (Action[])Arrays.addObject(actions, newAction);
 		numActions++;
 	}
+    
 
     /**
      * Removes the given action from the list of actions performed by this controller.
@@ -38,18 +77,25 @@ public class ActivityGroupSeries extends Activity {
     /**
      * @return a list of the actions yet to be performed by this controller. 
      */
-    public synchronized Action[] pendingActions() {return actions;}
+    public synchronized Action[] pendingActions() {
+        return actions;
+    }
     
     /**
-     * @return an array containing the action currently being performed  
-     * (if there is one).
+     * @return an array containing the action currently being performed,   
+     * or a zero-length array if the current action is null.
      */
-    public synchronized Action[] currentActions() {return new Action[] {currentAction};}
+    public synchronized Action[] currentActions() {
+        if(currentAction == null) return new Action[0];
+        return new Action[] {currentAction};
+     }
 
     /**
      * @return a list of the actions completed by this activity group.
      */
-    public synchronized Action[] completedActions() {return completedActions;}
+    public synchronized Action[] completedActions() {
+        return completedActions;
+    }
     
     /**
      * Causes uncompleted actions added to this group to be run in sequence.  Should not be
@@ -107,17 +153,20 @@ public class ActivityGroupSeries extends Activity {
     }
     
     /**
-     * Removes activity group from the paused state, resuming execution where it left off.
+     * Removes activity group from the paused state, resuming execution where it
+     * left off.
      */
     public synchronized void unPause() {
-//        System.out.println("in unPause "+isPaused()+" "+isActive());
-    	if (!isPaused() || !isActive()) return;// not currently paused or not active
-    	pauseRequested = false;
-        if(currentAction instanceof Activity) {
-        	((Activity)currentAction).unPause();
+        //        System.out.println("in unPause "+isPaused()+" "+isActive());
+        if (!isPaused() || !isActive()) {
+            return;// not currently paused or not active
+        }
+        pauseRequested = false;
+        if (currentAction instanceof Activity) {
+            ((Activity) currentAction).unPause();
         } else {
-    		notifyAll();
-    	}
+            notifyAll();
+        }
     }
          
     /**
@@ -127,7 +176,9 @@ public class ActivityGroupSeries extends Activity {
     public synchronized void halt() {
         if(!isActive()) return;
         haltRequested = true;
-        if(currentAction instanceof Activity) ((Activity)currentAction).halt();
+        if(currentAction instanceof Activity) {
+            ((Activity)currentAction).halt();
+        }
         try {
             while(isActive()) {
                 unPause();
@@ -137,9 +188,9 @@ public class ActivityGroupSeries extends Activity {
     }
     
     public synchronized boolean isPaused() {
-    	return super.isPaused() || 
-    			(currentAction instanceof Activity 
-    					&& ((Activity)currentAction).isPaused());
+        return super.isPaused()
+                || (currentAction instanceof Activity && ((Activity) currentAction)
+                        .isPaused());
     }
     
     /**
@@ -149,6 +200,7 @@ public class ActivityGroupSeries extends Activity {
 	public boolean isPauseAfterEachAction() {
 		return pauseAfterEachAction;
 	}
+    
 	/**
 	 * @param pauseAfterEachAction specifies whether activity should pause upon
 	 * completing each action (true), or if next action should begin immediately
@@ -157,7 +209,6 @@ public class ActivityGroupSeries extends Activity {
 	public void setPauseAfterEachAction(boolean pauseAfterEachAction) {
 		this.pauseAfterEachAction = pauseAfterEachAction;
 	}
-
 
     protected Action currentAction;
     protected boolean pauseAfterEachAction;

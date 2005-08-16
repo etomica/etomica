@@ -27,6 +27,30 @@ public class ActivityGroupParallel extends Activity {
 		super();
 		setActions(actions);
 	}
+    
+    /**
+     * Copy constructor.
+     */
+    public ActivityGroupParallel(ActivityGroupParallel activity) {
+        this(copyActions(activity.actions));
+    }
+    
+    private static Action[] copyActions(Action[] actions) {
+        Action[] copy = new Action[actions.length];
+        for(int i=0; i<actions.length; i++) {
+            Action nextAction = actions[i];
+            if(nextAction instanceof Activity) {
+                copy[i] = ((Activity)nextAction).makeCopy();
+            } else {
+                copy[i] = nextAction;
+            }
+        }
+        return copy;
+    }
+    
+    public Activity makeCopy() {
+        return new ActivityGroupParallel(this);
+    }
 
 	/*
 	 * (non-Javadoc)

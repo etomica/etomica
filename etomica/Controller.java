@@ -27,7 +27,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     public synchronized void start() {
         if(isActive()) return;
         runner = new Thread(new Runnable() {
-        	public void run() {actionPerformed();}
+            public void run() {actionPerformed();}
         });
         runner.start();
     }
@@ -100,6 +100,14 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                 }
             } else {//currentAction is not an Activity; run on group's thread
                 currentAction.actionPerformed();
+            }
+            
+            if(repeatCurrentAction) {
+                if(currentAction instanceof Activity) {
+                    addNextAction(((Activity)currentAction).makeCopy());
+                } else {
+                    addNextAction(currentAction);
+                }
             }
             
             //TODO mark this as whether completed normally
@@ -176,6 +184,41 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
         urgentAction = null;
     }
     
+    /**
+     * Adds an action to the beginning of the pending actions list, so that it will be performed next.
+     * This is used by the repeatCurrentAction facility.
+     */
+    private synchronized void addNextAction(Action nextAction) {
+        actions = (Action[])Arrays.resizeArray(actions, actions.length+1);
+        if(actions.length > 1) {
+            System.arraycopy(actions, 0, actions, 1, actions.length-1);
+        }
+        actions[0] = nextAction;
+    }
+    
+    /**
+     * Flag indicating whether the current action should be repeated indefinitely before
+     * moving on to the next action.  Setting this to true also sets pauseAfterEachAction 
+     * to true (setting false then has no effect on pauseAfterEachAction).  In repeating
+     * an action, when an action is completed it is placed again at the head of the pending 
+     * list (for an Action the same instance is use; for an Activity a copy is made).
+     * <p>
+     * Default is false.
+     */
+    public void setRepeatCurrentAction(boolean repeatCurrentAction) {
+        this.repeatCurrentAction = repeatCurrentAction;
+        if(repeatCurrentAction) {
+            setPauseAfterEachAction(true);
+        }
+    }
+    
+    /**
+     * Returns value of repeatCurrentAction flag.
+     */
+    public boolean isRepeatCurrentAction() {
+        return repeatCurrentAction;
+    }
+    
     public synchronized boolean isActive() {
     	    return (runner != null) && runner.isAlive();
     }
@@ -198,6 +241,8 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     
     private boolean wasPaused = false;
     private Action urgentAction;
+    
+    private boolean repeatCurrentAction;
 
     private final WaitObject waitObject = new WaitObject();
     private static class WaitObject implements java.io.Serializable {

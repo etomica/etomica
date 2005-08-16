@@ -22,13 +22,26 @@ public class ActivityIntegrate extends Activity {
 	 * interval = 1, doSleep given by Default class, and sleepPeriod = 10.
 	 */
 	public ActivityIntegrate(Integrator integrator) {
-		super();
-		this.integrator = integrator;
-		setInterval(1);
-		doSleep = Default.DO_SLEEP;
-		sleepPeriod = 10;
+        super();
+        this.integrator = integrator;
+        setInterval(1);
+        doSleep = Default.DO_SLEEP;
+        sleepPeriod = 10;
         setLabel("ActivityIntegrate");
 	}
+    
+    protected ActivityIntegrate(ActivityIntegrate activity) {
+        super(activity);
+        integrator = activity.integrator;
+        setDoSleep(activity.doSleep);
+        setInterval(activity.interval);
+        setMaxSteps(activity.maxSteps);
+        setSleepPeriod(activity.sleepPeriod);
+    }
+    
+    public Activity makeCopy() {
+        return new ActivityIntegrate(this);
+    }
 
     /**
      * Main loop for conduct of integration.  Repeatedly calls doStep() method,

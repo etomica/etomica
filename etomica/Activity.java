@@ -22,7 +22,17 @@ public abstract class Activity implements Action, java.io.Serializable {
         setLabel("Activity");
         setName(NameMaker.makeName(this.getClass()));
     }
+    
+    /**
+     * Copy constructor.
+     */
+    protected Activity(Activity activity) {
+        label = activity.label;
+        name = activity.name;
+    }
 
+    public abstract Activity makeCopy();
+    
     /**
      * Method defining the behavior of the activity. Implementation should
      * ensure regular checking of doContinue() to permit any requests to pause
