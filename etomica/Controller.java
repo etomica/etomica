@@ -25,7 +25,7 @@ import etomica.utility.Arrays;
  * exits, but it may be restarted if Actions are added and start() is invoked
  * again.
  * <p>
- * Each Simulation holds a single, final instance to a Controller.
+ * Each Simulation holds a single, final instance of a Controller.
  * 
  * @author Andrew Schultz and David Kofke
  * 

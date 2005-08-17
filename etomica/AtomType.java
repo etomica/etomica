@@ -13,12 +13,11 @@ import etomica.utility.Arrays;
  * size).
  * <li>it holds an index manager that is used to interpret the atom's index
  * held in its node
- * <li>it holds a class used to manage neighbors, by indicating which
- * potentials apply to the atom
  * </ul>
  * The AtomType of an atom is set by its AtomFactory when it builds a molecule.
  * Each Atom has an instance variable named "type" that holds the AtomType
- * instance. <br>
+ * instance.
+ * <p>
  * AtomType instances are arranged in a hierarchy that parallels the species
  * hierarchy. The AtomType of an atom group will be an instance of
  * AtomTypeGroup, and will have a set of child types that are the types of the
