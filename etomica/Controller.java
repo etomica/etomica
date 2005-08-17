@@ -4,21 +4,36 @@ import etomica.action.activity.ActivityGroupSeries;
 import etomica.utility.Arrays;
 
 /**
- * Organizer of actions of the integrators.  Controller sets the protocol for
- * conduct of the simulation.  For example, the simulation might start and stop 
- * with the push of a button; it might run for a fixed number of cycles and exit;
- * it might run several simulations over a series of states.<p>
- * The Controller runs on its own thread, and it spawns Integrator processes
- * each on its own thread.
+ * Organizer and executor of actions performed by the simulation. The Controller
+ * holds a series of Actions which it performs in series, using a thread that it
+ * launches when start() is invoked. A simple Action will run on the
+ * Controller's thread. An Activity is a subclass of Action that runs on its own
+ * thread, and can be paused or terminated (halted) before it completes
+ * naturally.
+ * <p>
+ * The Controller thread will idle while an Activity is running. While idling,
+ * the Controller will respond to "urgent actions" that another thread
+ * (typically a gui) will ask it to perform. In response, the Controller will
+ * pause the current Activity (or complete the Action if not an Activity),
+ * perform the urgent action, and continue where it left off. This capability is
+ * needed for a user to interact with a simulation that is in progress, without
+ * colliding with an integrator running on this Controller.
+ * <p>
+ * The queue for pending Actions may be altered (given additions or deletions)
+ * while Actions are being executed. As Actions are completed they are moved
+ * into a list of completed Actions. When all Actions are done, the Controller
+ * exits, but it may be restarted if Actions are added and start() is invoked
+ * again.
+ * <p>
+ * Each Simulation holds a single, final instance to a Controller.
+ * 
+ * @author Andrew Schultz and David Kofke
+ * 
+ * @see Action
+ * @see Activity
  */
-public class Controller extends ActivityGroupSeries implements java.io.Serializable, EtomicaElement {
+public class Controller extends ActivityGroupSeries implements java.io.Serializable {
     
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo();
-        info.setDescription("Simple controller that enables start/stop of simulation using a button");
-        return info;
-    }
- 
     /**
      * Method to start this controller's thread, causing execution of the run() method.
      * No action is performed if a thread is already running this controller (i.e., if
@@ -33,9 +48,9 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     }
     
     /**
-     * Causes uncompleted actions added to this group to be run in sequence.  Should not be
-     * executed directly, but instead it is executed
-     * by a thread made upon invoking the start method.
+     * Causes uncompleted actions added to this group to be run in sequence.
+     * Should not be executed directly, but instead it is executed by a thread
+     * made upon invoking the start method.
      */
     public void run() {
         Thread.currentThread().setName("Controller thread");
@@ -141,9 +156,12 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     }
 
     /**
-     * Pauses current activity, executes given action, then resumes current activity.
-     * If current action is already paused, it is not resumed by this method.
-     * @param action Action to be performed right away; cannot be an Activity.
+     * Pauses current activity, executes given action, then resumes current
+     * activity. If current action is already paused, it is not resumed by this
+     * method.
+     * 
+     * @param action
+     *            Action to be performed right away; cannot be an Activity.
      */
     public synchronized void doActionNow(final Action action) {
         if(action instanceof Activity) throw new IllegalArgumentException("can't send Activity here; sorry");
@@ -172,7 +190,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
             });
             localRunner.start();
         }
-    }
+    }//end of run
     
     private synchronized void doUrgentAction() {
 //        System.out.println("doing UrgentAction "+urgentAction);
@@ -190,11 +208,12 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
      * This is used by the repeatCurrentAction facility.
      */
     private synchronized void addNextAction(Action nextAction) {
-        actions = (Action[])Arrays.resizeArray(actions, actions.length+1);
-        if(actions.length > 1) {
-            System.arraycopy(actions, 0, actions, 1, actions.length-1);
+        Action[] newActions = new Action[actions.length+1];
+        newActions[0] = nextAction;
+        for(int i=0; i<actions.length; i++) {
+            newActions[i+1] = actions[i];
         }
-        actions[0] = nextAction;
+        actions = newActions;
     }
     
     /**
@@ -202,7 +221,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
      * moving on to the next action.  Setting this to true also sets pauseAfterEachAction 
      * to true (setting false then has no effect on pauseAfterEachAction).  In repeating
      * an action, when an action is completed it is placed again at the head of the pending 
-     * list (for an Action the same instance is use; for an Activity a copy is made).
+     * action list (for an Action the same instance is used; for an Activity a copy is made).
      * <p>
      * Default is false.
      */
@@ -220,12 +239,17 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
         return repeatCurrentAction;
     }
     
+    /**
+     * Returns true if start was invoked and run did not finish.
+     */
     public synchronized boolean isActive() {
     	    return (runner != null) && runner.isAlive();
     }
     
     /**
-     * Request that the current activity terminate and wait till it does.  
+     * Request that the current activity terminate and wait till it does.
+     * Controller is left in a paused state after termination of activity.
+     * If current action is not an Activity, this has the same effect as pause.  
      * Has no effect on Controller itself, or any pending activities, 
      * which remain in the queue.
      */
@@ -237,15 +261,26 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
         }
     }
 
-
+    /**
+     * Adds the given object to the list of listeners to this Controller.
+     * Nothing is done if listener is null.
+     */
     public synchronized void addListener(ControllerListener listener) {
+        if(listener == null) return;
         eventManager.addListener(listener);
     }
 
+    /**
+     * Removes the given object from the list of listeners to this Controller.
+     */
     public synchronized void removeListener(ControllerListener listener) {
+        if(listener == null) return;
         eventManager.removeListener(listener);
     }
 
+    /**
+     * Notifies all registered listeners of the given event.
+     */
     protected synchronized void fireEvent(ControllerEvent event) {
         eventManager.fireEvent(event);
     }    
@@ -257,7 +292,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     private boolean wasPaused = false;
     private Action urgentAction;
     
-    private boolean repeatCurrentAction;
+    private boolean repeatCurrentAction = false;
 
     private final WaitObject waitObject = new WaitObject();
     private static class WaitObject implements java.io.Serializable {
