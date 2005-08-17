@@ -1,6 +1,8 @@
 package etomica.data;
 
 import etomica.integrator.MCMove;
+import etomica.units.Decimal;
+import etomica.units.Unit;
 
 /**
  * Data source giving the average acceptance probability of MCMove type moves.
@@ -9,6 +11,11 @@ import etomica.integrator.MCMove;
 
 public class DataSourceAcceptanceProbability extends DataSourceAcceptanceRatio {
 
+    /**
+     * Constructs with no MCMove specified.  Calls to getDataAsScalar will return
+     * Double.NaN until an MCMove is specified.
+     *
+     */
     public DataSourceAcceptanceProbability() {
         this(null);
     }
@@ -17,6 +24,11 @@ public class DataSourceAcceptanceProbability extends DataSourceAcceptanceRatio {
     }
     
     /**
+     * @return Decimal.UNIT
+     */
+    public Unit defaultIOUnit() {return Decimal.UNIT;}
+    
+   /**
      * Returns the value of the acceptance ratios as currently kept by
      * the MCMove classes identified with setMove.  Each element of the
      * returned array applies to the corresponding element in the

@@ -13,10 +13,15 @@ import etomica.units.Unit;
 public class DataSourceAcceptanceRatio extends DataSourceScalar {
     
     protected MCMove move;
-    
+
+    /**
+     * Constructs with no MCMove specified.  Calls to getDataAsScalar will return
+     * Double.NaN until an MCMove is specified.
+     */
     public DataSourceAcceptanceRatio() {
-    	this(null);
+        this(null);
     }
+    
     public DataSourceAcceptanceRatio(MCMove move) {
         super("AcceptanceRatio", Dimension.FRACTION);
         setMove(move);
@@ -42,7 +47,9 @@ public class DataSourceAcceptanceRatio extends DataSourceScalar {
     /**
      * @return the move for which the acceptance ratio is reported.
      */
-    public MCMove getMove() {return move;}
+    public MCMove getMove() {
+        return move;
+    }
 
     /**
      * Returns the value of the acceptance ratio as currently kept by
