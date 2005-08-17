@@ -181,11 +181,17 @@ public final class SceneManager implements  java.io.Serializable
     		Boundary bnd = phase.boundary();
     		Polyhedron shape = (Polyhedron)bnd.getShape();
     	    LineSegment[] edges = shape.getEdges();
+    	    Vector3D shift = new Vector3D();
+    	    shift.Ea1Tv1( +0.5, bnd.dimensions() );
     	    
     	    Renderable.Polyline poly = renderer.createPoly();
+	    	Vector3D from = new Vector3D();
+	    	Vector3D to = new Vector3D();
     	    for(i=0; i<edges.length; i++) 
     	    {  	        
-    	    	poly.appendLine( edges[i].getVertices()[0], edges[i].getVertices()[1] );    	        
+    	    	from.Ev1Pv2( edges[i].getVertices()[0], shift );
+    	    	to.Ev1Pv2( edges[i].getVertices()[1], shift );
+    	    	poly.appendLine( from, to );    	        
     	    }
 		}
     	finally {
