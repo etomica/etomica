@@ -124,6 +124,10 @@ public class DataArray extends Data {
         return ((Factory)dataInfo.getDataFactory()).getArrayElementFactory().getClass();
     }
     
+    /**
+     * Returns the dimension of the array, which is the number of integer indices needed
+     * to access one of its elements. 
+     */
     public int getArrayDimension() {
         return jumpCount.length;
     }
@@ -154,8 +158,12 @@ public class DataArray extends Data {
         return dataArray[i];
     }
 
-    /* (non-Javadoc)
-     * @see etomica.lattice.AbstractLattice#site(int[])
+    /**
+     * Returns the element of the array indicated by the given set of indices.
+     * 
+     * @throws ArrayIndexOutOfBoundsException
+     *             if length of given array is less than getArrayDimension (if
+     *             length is greater, excess indices are ignored).
      */
     public Data getData(int[] index) {
         return dataArray[arrayIndex(index)];

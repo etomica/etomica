@@ -93,6 +93,10 @@ public class DataDoubleArray extends Data implements DataArithmetic {
         return new DataDoubleArray(this);
     }
     
+    /**
+     * Returns the dimension of the array, which is the number of integer
+     * indices needed to access one of its elements.
+     */
     public int getArrayDimension() {
         return jumpCount.length;
     }
@@ -238,8 +242,12 @@ public class DataDoubleArray extends Data implements DataArithmetic {
         return x[i];
     }
 
-    /* (non-Javadoc)
-     * @see etomica.lattice.AbstractLattice#site(int[])
+    /**
+     * Returns the element of the array indicated by the given set of indices.
+     * 
+     * @throws ArrayIndexOutOfBoundsException
+     *             if length of given array is less than getArrayDimension (if
+     *             length is greater, excess indices are ignored).
      */
     public double getValue(int[] index) {
         return x[arrayIndex(index)];
@@ -284,14 +292,30 @@ public class DataDoubleArray extends Data implements DataArithmetic {
         System.arraycopy(x, 0, array, 0, x.length);
     }
 
+    /**
+     * Assigns values in the i=th "hypercolumn" of this array to the given array.
+     */
     public void assignColumnTo(int i, double[] array) {
         System.arraycopy(x,i*jumpCount[0],array,0,jumpCount.length == 1 ? x.length : jumpCount[0]);
     }
-    
+
+    /**
+     * Assigns values in given array to the i-th "hypercolumn" of this data array.
+     */
     public void assignColumnFrom(int i, double[] array) {
         System.arraycopy(array,0,x,i*jumpCount[0],jumpCount.length == 1 ? x.length : jumpCount[0]);
     }
 
+    /**
+     * Assigns values in the given array to the subsection of this array
+     * beginning at the specified index.
+     * 
+     * @param idx
+     *            index array of length less than or equal to getArrayDimension
+     *            (right-padded with zeros if shorter)
+     * @param array
+     *            values to be copied into this array
+     */
     public void assignSubsectionFrom(int[] idx, double[] array) {
         int offset = 0;
         for (int i=0; i<idx.length; i++) {

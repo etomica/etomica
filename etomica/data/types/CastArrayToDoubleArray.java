@@ -90,7 +90,7 @@ public class CastArrayToDoubleArray extends DataProcessor {
             throw new IllegalArgumentException("Ok, now you're just being evil; I don't know how to cast a DataArray-wrapped DataGroup into a DataDoubleArray.  Unwrap your groups before sticking them in a DataArray perhaps");
         } else {
             throw new IllegalArgumentException("Cannot cast to DataDoubleArray from "
-                    + innerDataClass + "in DataArray");
+                    + innerDataClass + " in DataArray");
         }
         return outputData.getDataInfo();
     }

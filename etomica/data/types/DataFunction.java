@@ -33,12 +33,17 @@ import etomica.utility.Function;
 public class DataFunction extends Data implements DataArithmetic {
 
     /**
-     * Forms a data group from the given array of data objects.  Given data
-     * array is cloned, but the data instances it holds are kept by this DataGroup.
+     * Forms a DataFunction using the given independent and dependent data
+     * instances.
      * 
-     * @param label a descriptive label for the data collection
-     * @param dimension physical dimensions of the data, or UNDEFINED if they are not of the same physical dimensions
-     * @param data array of data to be encapsulated in this group
+     * @param independentData
+     *            array of DataDoubleArray, each representing independent-data
+     *            values in one dimension. Domain of data is determined by this
+     *            array of independent data.
+     * @param dependentData
+     *            the data defined on the space of independent data; a
+     *            DataDoubleArray with getDimension equal to
+     *            independentData.length
      */
     public DataFunction(DataDoubleArray[] independentData, DataDoubleArray dependentData) {
         super(new DataInfo(dependentData.getDataInfo().getLabel(), 
@@ -47,6 +52,12 @@ public class DataFunction extends Data implements DataArithmetic {
         this.independentData = (DataDoubleArray[])independentData.clone();
     }
     
+    /**
+     * Forms a DataFunction with the given label and dimension, and with a
+     * domain of data defined by the array of independent data.  The array
+     * of dependent data is constructed with shape given by the lengths of
+     * the independent data array.
+     */
     public DataFunction(String label, Dimension dimension, 
             DataDoubleArray[] independentData) {
         super(new DataInfo(label, dimension, getFactory(independentData)));
@@ -94,6 +105,11 @@ public class DataFunction extends Data implements DataArithmetic {
         dependentData.E(((DataFunction)data).dependentData);
     }
     
+    /**
+     * Returns the i-th set of independent data.
+     * @param i
+     * @return
+     */
     public DataDoubleArray getXData(int i) {
         return independentData[i];
     }
