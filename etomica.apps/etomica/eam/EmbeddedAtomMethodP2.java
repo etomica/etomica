@@ -16,7 +16,7 @@ import etomica.units.Dimension;
  * classes in the EAMMd3D simulation class by A. Schultz and K.R. Schadel July 2005.
  */
 
-public final class EmbeddedAtomMethodP2 extends Potential2SoftSpherical implements EtomicaElement {
+public final class EmbeddedAtomMethodP2 extends Potential2SoftSpherical implements EtomicaElement, java.io.Serializable {
 
 	public EmbeddedAtomMethodP2(Space space, ParameterSetEAM p) {
 		super(space);
@@ -181,7 +181,7 @@ public final class EmbeddedAtomMethodP2 extends Potential2SoftSpherical implemen
     	}
     });
     
-    public static class Wrapper {
+    public static class Wrapper implements java.io.Serializable {
     	public Wrapper(Vector v) {
     		A = v;
     	}
