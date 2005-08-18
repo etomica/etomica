@@ -10,20 +10,26 @@ import etomica.utility.Function;
 
 
 /**
- * Collects two or more Data instances, and organizes them into "dependent"
- * and "independent" subgroups. Normally these data represent a functional 
- * dependence, in which the dependent data were calculated at each point in the
- * domain of the independent data. However, nothing about this class enforces
- * the dependence, it merely classifies the data into the two groups.
+ * Collects two or more DataDoubleArray instances, and organizes them into
+ * "dependent" and "independent" subgroups. Normally these data represent a
+ * functional dependence, in which the dependent data were calculated at each
+ * point in the domain of the independent data. However, nothing about this
+ * class enforces the dependence, it merely classifies the data into the two
+ * groups.
  * <p>
- * Data sinks typically need to manipulate DataFunction instances to extract the individual
- * data elements in them.
+ * Multidimensional functions hold the independent data as an array of
+ * one-dimensional DataDoubleArrays, and the dependent data is represented by a
+ * single DataDoubleArray that is formed with a corresponding number of
+ * dimensions.
  * <p>
- * The DataInfo instance for the DataFunction has a the same label and dimension as the 
- * that for the dependent data (although their factories differ).
- *
+ * The DataInfo instance for the DataFunction has a the same label and dimension
+ * as the that for the dependent data (although their factories differ).
+ * <p>
+ * All arithmetic operations apply only to the dependent data. Independent data
+ * values are unaffected by them.
+ * 
  * @author David Kofke and Andrew Schultz
- *
+ *  
  */
 
 /*
@@ -39,54 +45,71 @@ public class DataFunction extends Data implements DataArithmetic {
      * @param independentData
      *            array of DataDoubleArray, each representing independent-data
      *            values in one dimension. Domain of data is determined by this
-     *            array of independent data.
+     *            array of independent data. Given array is cloned for internal
+     *            use, while instances in array are used directly.
      * @param dependentData
      *            the data defined on the space of independent data; a
      *            DataDoubleArray with getDimension equal to
      *            independentData.length
+     * 
+     * @throws IllegalArgumentException
+     *             if length of independentData array does not equal
+     *             dependentData.getArrayDimension(), or if any of the
+     *             independent data have array dimension not equal to 1
      */
     public DataFunction(DataDoubleArray[] independentData, DataDoubleArray dependentData) {
         super(new DataInfo(dependentData.getDataInfo().getLabel(), 
                 dependentData.getDataInfo().getDimension(), getFactory(independentData)));
+        if(dependentData.getArrayDimension() != independentData.length) {
+            throw new IllegalArgumentException("Dimension of dependent data is not compatible with number of independent data elements");
+        }
+        for(int i=0; i<independentData.length; i++) {
+            if(independentData[i].getArrayDimension() != 1) {
+                throw new IllegalArgumentException("All independent data must be of dimension 1");
+            }
+        }
         this.dependentData = dependentData;
         this.independentData = (DataDoubleArray[])independentData.clone();
     }
     
     /**
      * Forms a DataFunction with the given label and dimension, and with a
-     * domain of data defined by the array of independent data.  The array
-     * of dependent data is constructed with shape given by the lengths of
-     * the independent data array.
+     * domain of data defined by the array of independent data. The array of
+     * dependent data is constructed with shape given by the lengths of the
+     * independent data array.
+     * 
+     * @throws IllegalArgumentException
+     *             if any of the independent data have array dimension not equal
+     *             to 1
      */
-    public DataFunction(String label, Dimension dimension, 
+    public DataFunction(String label, Dimension dimension, DataDoubleArray[] independentData) {
+        this(independentData, makeDependentData(label, dimension, independentData));
+    }
+    
+    //used by constructor above
+    private static DataDoubleArray makeDependentData(String label, Dimension dimension, 
             DataDoubleArray[] independentData) {
-        super(new DataInfo(label, dimension, getFactory(independentData)));
         int[] size = new int[independentData.length];
         for (int i=0; i<size.length; i++) {
             size[i] = independentData[i].getLength();
         }
-        dependentData = new DataDoubleArray(label,dimension,size);
-        this.independentData = (DataDoubleArray[])independentData.clone();
+        return new DataDoubleArray(label,dimension,size);
     }
 
     /**
-     * Copy constructor.  Performs a deep copy, forming a new
-     * DataGroup with new instances of copies of this instance's
-     * data objects.
+     * Copy constructor. New DataFunction instance and original share the same 
+     * independent data instances (and DataInfo); new and original have different
+     * instances of dependent data.
      */
     public DataFunction(DataFunction data) {
         super(data);
-        independentData = new DataDoubleArray[data.getXDimension()];
-        for (int i=0; i<independentData.length; i++) {
-            independentData[i] = new DataDoubleArray(data.getXData(i));
-        }
-        dependentData = new DataDoubleArray(data.getYData());
+        this.independentData = data.independentData;
+        dependentData = new DataDoubleArray(data.dependentData);
     }
     
     /**
-     * Returns a deep copy of this instance.  Returned object has its own instances of
-     * all fields, set equal to the values of this instance's fields.  All data
-     * objects in this group are copied.
+     * Returns a copy of this instance, holding the same instances of the independent
+     * data and a new instance of the dependent data.
      */
     public Data makeCopy() {
         return new DataFunction(this);
@@ -94,11 +117,9 @@ public class DataFunction extends Data implements DataArithmetic {
 
 
     /**
-     * Applies the E method to all data elements held, in a one-to-one
-     * correspondence with the elements in the given data group. 
+     * Applies the E (equals) method to the dependent data. 
      * 
      * @throws ClassCastException if the given data is not an instance of DataFunction.
-     * @throws IllegalArgumentException if the given DataGroup has a different number of data elements than this DataGroup.
      * 
      */
     public void E(Data data) {
@@ -107,17 +128,25 @@ public class DataFunction extends Data implements DataArithmetic {
     
     /**
      * Returns the i-th set of independent data.
-     * @param i
-     * @return
+     * 
+     * @throws ArrayIndexOutOfBoundsException
+     *             if i < 0 or i >= getXDimension()
      */
     public DataDoubleArray getXData(int i) {
         return independentData[i];
     }
 
+    /**
+     * Returns the dependent data.
+     */
     public DataDoubleArray getYData() {
         return dependentData;
     }
     
+    /**
+     * Returns the dimension of the independent data, the number of
+     * values the function depends upon.
+     */
     public int getXDimension() {
         return independentData.length;
     }
@@ -215,18 +244,26 @@ public class DataFunction extends Data implements DataArithmetic {
         return dependentData.getLength();
     }
     
+    /**
+     * Returns true if any of the dependent data are NaN.
+     */
     public boolean isNaN() {
         return dependentData.isNaN();
     }
     
+    /**
+     * Assigns dependent-data values to the given array.
+     */
     public void assignTo(double[] array) {
         dependentData.assignTo(array);
     }
     
+    /**
+     * Returns the i-th dependentData value.
+     */
     public double getValue(int i) {
         return dependentData.getValue(i);
     }
-    
 
     /**
      * Returns a string formed from the encapsulated data objects.
@@ -241,18 +278,16 @@ public class DataFunction extends Data implements DataArithmetic {
         return string.toString();
     }
     
-    final DataDoubleArray[] independentData;
-    final DataDoubleArray dependentData;
+    private final DataDoubleArray[] independentData;
+    private final DataDoubleArray dependentData;
     
     /**
-     * Returns a factory for a data group holding copies of the
-     * given data objects.  Each new instance made by the factory
-     * will be a DataGroup having its owns copy of the given data.
-     * When the factory is made, the given Data array is cloned, 
-     * but the data instances it holds are not.
+     * Returns a factory for a DataFunction. Each new instance made by the factory
+     * will be a DataFunction having its own copy of the given dependent
+     * data, while sharing the same instances of the given independent data.
      */
-    public static DataFactory getFactory(DataDoubleArray[] data) {
-        return new Factory(data);
+    public static DataFactory getFactory(DataDoubleArray[] independentData) {
+        return new Factory(independentData);
     }
 
     public static class Factory implements DataFactory, Serializable {
@@ -260,24 +295,35 @@ public class DataFunction extends Data implements DataArithmetic {
         final DataDoubleArray[] independentData;
         
         Factory(DataDoubleArray[] independentData) {
-            this.independentData = independentData;
+            this.independentData = (DataDoubleArray[])independentData.clone();
         }
         
+        /**
+         * Makes a new DataFunction with the given label and dimension for the
+         * dependent data, and with the prototype instances of the independent data.
+         */
         public Data makeData(String label, Dimension dimension) {
             return new DataFunction(label, dimension, independentData);
         }
         
+        /**
+         * Returns DataFunction.class, indicating that this factory makes DataFunction instances.
+         */
         public Class getDataClass() {
             return DataFunction.class;
         }
         
         /**
-         * Returns a clone of the independentData array.
+         * Returns a clone of the independent-data array.
          */
         public DataDoubleArray[] getIndependentData() {
             return (DataDoubleArray[])independentData.clone();
         }
         
+        /**
+         * Returns an array of the lengths of the independent-data arrays
+         * in the DataFunction made by this factory.
+         */
         public int[] getIndependentDataSizes() {
             int[] size = new int[independentData.length];
             for(int i=0; i<size.length; i++) {
@@ -286,6 +332,6 @@ public class DataFunction extends Data implements DataArithmetic {
             return size;
         }
         
-    }
+    }//end of Factory
 
 }

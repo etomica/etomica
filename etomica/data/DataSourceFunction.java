@@ -49,8 +49,7 @@ public class DataSourceFunction implements DataSource, Serializable {
     }
 
     /**
-     * Returns a 2-element DataGroup with the x values in getData(0), and
-     * the y values in getData(1).
+     * Returns the DataFunction made by this source.
      */
     public Data getData() { 
         return data;
