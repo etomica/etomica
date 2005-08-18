@@ -32,21 +32,37 @@ import etomica.utility.Function;
 //unrolling the index specification to determine the storage-array index.
 
 //Example showing internal ordering of elements
-//0     1     2     3     4     5     6     7     8     9    10    11   arrayIndex
+//  0     1     2     3     4     5     6     7     8     9    10    11   arrayIndex
 //(000) (001) (002) (010) (011) (012) (100) (101) (102) (110) (111) (112) index given to getValue(int[])
-//for this example, size = {3, 2, 2}, jumpCount = {6, 3, 1}
-//note that number of sites = size[n]*jumpCount[n] where n = size.length-1
+//for this example, size = {2, 2, 3}, jumpCount = {6, 3, 1}
+//note that number of sites = size[0]*jumpCount[0]
 
 public class DataDoubleArray extends Data implements DataArithmetic {
 
     /**
-     * Constructs a new instance with the given DataInfo.
+     * Constructs a new one-dimensional array of the given length.
+     * 
+     * @param label
+     *            descriptive label for the data, to be held in DataInfo
+     * @param dimension
+     *            physical dimensions of the data, to be held in DataInfo
+     * @param nValues
+     *            length of the one-dimensional array
      */
     public DataDoubleArray(String label, Dimension dimension, int nValues) {
         this(label, dimension, new int[] {nValues});
     }
     
-    
+    /**
+     * Constructs a new multidimensional array of the given shape.
+     * 
+     * @param label
+     *            descriptive label for the data, to be held in DataInfo
+     * @param dimension
+     *            physical dimensions of the data, to be held in DataInfo
+     * @param arrayShape
+     *            length of the array in each dimension
+     */
     public DataDoubleArray(String label, Dimension dimension, int[] arrayShape) {
         super(new DataInfo(label, dimension, getFactory(arrayShape)));
         jumpCount = (int[])arrayShape.clone();
@@ -59,16 +75,21 @@ public class DataDoubleArray extends Data implements DataArithmetic {
     }
 
     /**
-     * Constructs a new instance using the label and dimension from the given DataInfo.
-     * New instance will have a new DataInfo; the factory in the new DataInfo will construct
-     * DataDoubleArray instances using the given arrayShape (which likely differs from the
-     * arrayShape made by the factory in the given DataInfo).
+     * Constructs a new instance using the label and dimension from the given
+     * DataInfo. New instance will have a new DataInfo; the factory in the new
+     * DataInfo will construct DataDoubleArray instances using the given
+     * arrayShape (which likely differs from the arrayShape made by the factory
+     * in the given DataInfo).
      * <p>
-     * This is a convenience constructor, and is equivalent to<br><code>
-     * this(dataInfo.getLabel(), dataInfo.getDimension(), arrayShape);</code>
-     *  
-     * @param dataInfo provides label and Dimension for new instance
-     * @param arrayShape specifies dimensions of new data array.
+     * This is a convenience constructor, and is equivalent to <br>
+     * <code>
+     * this(dataInfo.getLabel(), dataInfo.getDimension(), arrayShape);
+     * </code>
+     * 
+     * @param dataInfo
+     *            provides label and Dimension for new instance
+     * @param arrayShape
+     *            specifies dimensions of new data array.
      */
     public DataDoubleArray(DataInfo dataInfo, int[] arrayShape) {
         this(dataInfo.getLabel(), dataInfo.getDimension(), arrayShape);
@@ -87,7 +108,7 @@ public class DataDoubleArray extends Data implements DataArithmetic {
 
     /**
      * Returns a copy of this instance. Returned object has its own instances of
-     * all fields, set equal to the values of this instance's fields.
+     * the data, initialized to the values in this instance.
      */
     public Data makeCopy() {
         return new DataDoubleArray(this);
@@ -119,7 +140,7 @@ public class DataDoubleArray extends Data implements DataArithmetic {
         if (y.length == x.length) {
             System.arraycopy(y, 0, x, 0, x.length);
         } else {
-            throw new IllegalArgumentException("DataDoubleArray can only be set equal to another of equal arrayShape");
+            throw new IllegalArgumentException("DataDoubleArray can only be set equal to another of equal length");
         }
     }
 
@@ -254,8 +275,8 @@ public class DataDoubleArray extends Data implements DataArithmetic {
     }
     
     /**
-     * Returns the index in the 1-d array for the site corresponding
-     * to the given lattice index.
+     * Returns the index in the 1-d array for the value corresponding
+     * to the given multidimensional array index.
      */
     private final int arrayIndex(int[] index) {
         int idx = 0;
@@ -347,11 +368,19 @@ public class DataDoubleArray extends Data implements DataArithmetic {
             this.arrayShape = arrayShape;
         }
         
+        /**
+         * Returns a new DataDoubleArray using the given label and dimension and
+         * with a shape given by the prototype for this factory.
+         */
         public Data makeData(String label, Dimension dimension) {
             DataDoubleArray data = new DataDoubleArray(label, dimension, arrayShape);
             return data;
         }
         
+        /**
+         * Returns DataDoubleArray.class, indicating that this factory makes
+         * a DataDoubleArray.
+         */
         public Class getDataClass() {
             return DataDoubleArray.class;
         }
@@ -375,6 +404,6 @@ public class DataDoubleArray extends Data implements DataArithmetic {
             return n;
         }
         
-    }
+    }//end of Factory
 
 }
