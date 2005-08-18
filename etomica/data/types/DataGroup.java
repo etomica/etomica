@@ -10,16 +10,19 @@ import etomica.units.Dimension;
 
 /**
  * Gathers one or more Data instances into a single Data object.  The primary
- * use is to enables a data handler to take a single data stream and emit multiple
+ * use is to enable a data handler to take a single data stream and emit multiple
  * different streams from it.  An example is given by the accumulators, which
- * take data and compile one or more new sets of data from it.
- * </ul>
- * Data sinks typically need to manipulate data groups to extract the individual
+ * take data and compile one or more new sets of data from it, and send them out
+ * bundled in a DataGroup.
+ * <p>
+ * The Data instances held by the group are set at construction and cannot be changed.
+ * <p>
+ * Data sinks typically need to manipulate DataGroups to extract the individual
  * data elements in them.
  * <p>
  * The DataInfo instance for the DataGroup has a label that describes the collection,
  * and a dimension that is the dimension of all of the data objects it holds (if they
- * are all the same) or UNDEFINED (if they are not).
+ * are all the same) or MIXED (if they are not).
  *
  * @author David Kofke and Andrew Schultz
  *
@@ -34,14 +37,34 @@ public class DataGroup extends Data {
     /**
      * Forms a data group from the given array of data objects.  Given data
      * array is cloned, but the data instances it holds are kept by this DataGroup.
+     * <p>
+     * Dimension associated with the DataGroup is Dimension.MIXED if the Data it holds
+     * have different dimensions; otherwise dimension is the common dimension of the grouped
+     * Data instances.
      * 
      * @param label a descriptive label for the data collection
-     * @param dimension physical dimensions of the data, or UNDEFINED if they are not of the same physical dimensions
      * @param data array of data to be encapsulated in this group
      */
-    public DataGroup(String label, Dimension dimension, Data[] data) {
-        super(new DataInfo(label, dimension, getFactory(data)));
+    public DataGroup(String label, Data[] data) {
+        super(new DataInfo(label, evaluateDimension(data), getFactory(data)));
         this.data = (Data[])data.clone();
+    }
+    
+    //determines if a given set of Data are all of the same dimension;
+    //if not the same, returns Dimension.MIXED
+    //used by constructor above.
+    private static Dimension evaluateDimension(Data[] data) {
+        if(data.length == 0) {
+            return Dimension.NULL;
+        }
+        Dimension dim = null;
+        for(int i=0; i<data.length; i++) {
+            if((data[i].getDataInfo().getDimension() != dim) && (dim != null)) {
+                return Dimension.MIXED;
+            }
+            dim = data[i].getDataInfo().getDimension();
+        }
+        return dim;
     }
     
     /**
@@ -70,12 +93,15 @@ public class DataGroup extends Data {
 
 
     /**
-     * Applies the E method to all data elements held, in a one-to-one
-     * correspondence with the elements in the given data group. 
+     * Applies the E method to all Data elements held, in a one-to-one
+     * correspondence with the elements in the given data group.
      * 
-     * @throws ClassCastException if the given data is not an instance of DataGroup.
-     * @throws IllegalArgumentException if the given DataGroup has a different number of data elements than this DataGroup.
-     * 
+     * @throws ClassCastException
+     *             if the given data is not an instance of DataGroup.
+     * @throws IllegalArgumentException
+     *             if the given DataGroup has a different number of data
+     *             elements than this DataGroup.
+     *  
      */
     public void E(Data data) {
         if(((DataGroup)data).data.length != this.data.length) {
@@ -88,8 +114,10 @@ public class DataGroup extends Data {
 
     /**
      * Returns the i-th data element in the group, counting from 0.
-     *
-     * @throws ArrayIndexOutOfBounds exception if the given value does not reference a legitimate element
+     * 
+     * @throws ArrayIndexOutOfBounds
+     *             exception if the given value does not reference a legitimate
+     *             element
      */
     public Data getData(int i) {
         return data[i];
@@ -135,6 +163,10 @@ public class DataGroup extends Data {
             this.data = (Data[])data.clone();
         }
         
+        /**
+         * Makes a new DataGroup from the Data in the prototype DataGroup.
+         * Dimension is given to adhere to DataFactory interface, but it is not used.
+         */
         public Data makeData(String label, Dimension dimension) {
             Data[] newData = new Data[data.length];
             for(int i=0; i<data.length; i++) {
@@ -142,9 +174,13 @@ public class DataGroup extends Data {
                     newData[i] = data[i].makeCopy();
                 }
             }
-            return new DataGroup(label, dimension, newData);
+            //drop dimension
+            return new DataGroup(label, newData);
         }
         
+        /**
+         * Returns an array containging the DataInfo of all grouped Data elements.
+         */
         public DataInfo[] getDataInfoArray() {
             DataInfo[] array = new DataInfo[data.length];
             for (int i=0; i<data.length; i++) {
@@ -152,11 +188,17 @@ public class DataGroup extends Data {
             }
             return array;
         }
-        
+
+        /**
+         * Returns a clone of the array of Data held by the prototype DataGroup.
+         */
         public Data[] getData() {
             return (Data[])data.clone();
         }
-        
+
+        /**
+         * Returns DataGroup.class, indicating that this DataFactory produces a DataGroup.
+         */
         public Class getDataClass() {
             return DataGroup.class;
         }

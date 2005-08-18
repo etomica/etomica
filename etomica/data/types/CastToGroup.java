@@ -29,8 +29,7 @@ public class CastToGroup extends DataProcessor {
         //of the Data and then copy the data to it during processData
         inputType = 1;
         wrappedData = inputDataInfo.getDataFactory().makeData(inputDataInfo.getLabel(), inputDataInfo.getDimension());
-        dataGroup = new DataGroup(inputDataInfo.getLabel()+" wrapped", inputDataInfo.getDimension(),
-                        new Data[] {wrappedData});
+        dataGroup = new DataGroup(inputDataInfo.getLabel()+" wrapped", new Data[] {wrappedData});
         return dataGroup.getDataInfo();
     }
     

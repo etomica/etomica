@@ -25,7 +25,7 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
      * an empty DataGroup for getData.  Must populate group with addDataSource method. 
      */
     public DataSourceGroup() {
-        data = new DataGroup("Data Group", Dimension.NULL, new Data[0]);
+        data = new DataGroup("Data Group", new Data[0]);
         dataSources = new DataSource[0];
     }
     
@@ -62,8 +62,7 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
             }
         }
         if(rebuildData) {
-            data = new DataGroup(data.getDataInfo().getLabel(), data.getDataInfo().getDimension(),
-                                    (Data[])latestData.clone());
+            data = new DataGroup(data.getDataInfo().getLabel(), latestData);
         }
     	    return data;
     }
@@ -72,16 +71,12 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
      * Adds the given DataSource to those held by the group.
      */
     public void addDataSource(DataSource newSource) {
-        Dimension newDimension = newSource.getDataInfo().getDimension();
-        if(data.getNData() > 0 && (newDimension != data.getDataInfo().getDimension())) {
-            newDimension = Dimension.UNDEFINED; //TODO maybe make a Dimension.MIXED 
-        }
         dataSources = (DataSource[])Arrays.addObject(dataSources, newSource);
-        latestData = new Data[dataSources.length];
-        data = new DataGroup("Data Group", newDimension, new Data[dataSources.length]);
+        latestData = (Data[])Arrays.addObject(latestData, newSource.getData());
+        data = new DataGroup("Data Group", latestData);
     }
 
-    private DataSource[] dataSources;
+    private DataSource[] dataSources = new DataSource[0];
     private Data[] latestData = new Data[0];
     private DataGroup data;
 }

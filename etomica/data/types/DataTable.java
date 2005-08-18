@@ -460,7 +460,7 @@ public class DataTable extends Data implements DataArithmetic, Serializable {
         public int getNRows() {
             return columnLength;
         }
-    }
+    }//end of Factory
 
     /**
      * Class that wraps a <tt>double[]</tt> array, a descriptive String that
@@ -528,6 +528,6 @@ public class DataTable extends Data implements DataArithmetic, Serializable {
         private final double[] data;
         private String heading;
         private final Dimension dimension;
-    }
+    }//end of Column
 
 }

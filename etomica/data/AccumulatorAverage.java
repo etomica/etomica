@@ -142,7 +142,7 @@ public class AccumulatorAverage extends DataAccumulator {
         work = (DataArithmetic)factory.makeData("scratch", Dimension.UNDEFINED);
 
         reset();
-        dataGroup = new DataGroup(dataInfo.getLabel()+" Statistics", dataInfo.getDimension(),
+        dataGroup = new DataGroup(dataInfo.getLabel()+" Statistics",
                 new Data[]{(Data)mostRecent,
                 (Data)average,(Data)error,(Data)standardDeviation,(Data)mostRecentBlock});
         return dataGroup.getDataInfo();

@@ -77,7 +77,7 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
         dataGroups[i++] = (Data)ratio;
         dataGroups[i++] = (Data)ratioError;
         dataGroups[i++] = (Data)ratioStandardDeviation;
-        dataGroup = new DataGroup("Group", Dimension.NULL, dataGroups);
+        dataGroup = new DataGroup("Group", dataGroups);
         return dataGroup.getDataInfo();
     }
     
