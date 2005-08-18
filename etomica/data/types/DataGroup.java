@@ -35,15 +35,20 @@ import etomica.units.Dimension;
 public class DataGroup extends Data {
 
     /**
-     * Forms a data group from the given array of data objects.  Given data
-     * array is cloned, but the data instances it holds are kept by this DataGroup.
+     * Forms a data group from the given array of data objects. Given data array
+     * is cloned, but the data instances it holds are kept by this DataGroup.
      * <p>
-     * Dimension associated with the DataGroup is Dimension.MIXED if the Data it holds
-     * have different dimensions; otherwise dimension is the common dimension of the grouped
-     * Data instances.
+     * Dimension associated with the DataGroup is Dimension.MIXED if the Data it
+     * holds have different dimensions; otherwise dimension is the common
+     * dimension of the grouped Data instances.
      * 
-     * @param label a descriptive label for the data collection
-     * @param data array of data to be encapsulated in this group
+     * @param label
+     *            a descriptive label for the data collection
+     * @param data
+     *            array of data to be encapsulated in this group
+     * 
+     * @throws NullPointerException
+     *             if any of the elements of the Data array are null
      */
     public DataGroup(String label, Data[] data) {
         super(new DataInfo(label, evaluateDimension(data), getFactory(data)));
@@ -170,9 +175,7 @@ public class DataGroup extends Data {
         public Data makeData(String label, Dimension dimension) {
             Data[] newData = new Data[data.length];
             for(int i=0; i<data.length; i++) {
-                if(data[i] != null) {
-                    newData[i] = data[i].makeCopy();
-                }
+                newData[i] = data[i].makeCopy();
             }
             //drop dimension
             return new DataGroup(label, newData);
