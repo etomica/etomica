@@ -12,7 +12,8 @@ import etomica.utility.Function;
 
 /**
  * Data object wrapping a single mutable value of type (Space) Tensor. Value is
- * final public and can be accessed directly. <br>
+ * final public and can be accessed directly. 
+ * <p>
  * All arithmetic methods throw ClassCastException if given a Data instance that
  * is not of this type.
  * 
@@ -31,8 +32,10 @@ public class DataTensor extends Data implements DataArithmetic {
      * 
      * @param space
      *            used to construct the wrapped Vector
-     * @param dataInfo
-     *            provides information about the wrapped data
+     * @param label
+     *            a descriptive label for this data
+     * @param dimension
+     *            the physical dimensions of the data
      */
     public DataTensor(Space space, String label, Dimension dimension) {
         super(new DataInfo(label, dimension, getFactory(space)));
@@ -50,7 +53,7 @@ public class DataTensor extends Data implements DataArithmetic {
     /**
      * Returns a deep copy of this instance. Returned object has its own
      * instances of all fields, set equal to the values of this instance's
-     * fields.
+     * fields. This instance and the copy share the same DataInfo, which is immutable.
      */
     public Data makeCopy() {
         return new DataTensor(this);
@@ -164,8 +167,11 @@ public class DataTensor extends Data implements DataArithmetic {
         return dataInfo.getLabel() + " " + x.toString();
     }
     
+    /**
+     * Returns a DataFactory that makes a DataTensor for the given Space.
+     */
     public static DataFactory getFactory(Space space) {
-        if(FACTORY == null || FACTORY.space.D() != space.D()) { 
+        if(FACTORY == null || FACTORY.space != space) { 
             FACTORY = new Factory(space);
         }
         return FACTORY;
@@ -176,7 +182,7 @@ public class DataTensor extends Data implements DataArithmetic {
      */
     public final Tensor x;
     
-    private static Factory FACTORY = null;
+    private transient static Factory FACTORY = null;
     
     public static class Factory implements DataFactory, Serializable {
         
@@ -186,17 +192,28 @@ public class DataTensor extends Data implements DataArithmetic {
             this.space = space;
         }
         
+        /**
+         * Makes and returns a new DataTensor using the given label and dimension
+         * for its DataInfo.
+         */
         public Data makeData(String label, Dimension dimension) {
             return new DataTensor(space, label, dimension);
         }
         
+        /**
+         * Returns the class of the data made by this factory.
+         * @return DataTensor.class
+         */
         public Class getDataClass() {
             return DataTensor.class;
         }
         
+        /**
+         * @return the space making the wrapped tensor
+         */
         public Space getSpace() {
             return space;
         }
-    }
+    }//end of Factory
 
 }

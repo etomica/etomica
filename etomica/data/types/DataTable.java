@@ -6,6 +6,7 @@ import etomica.data.Data;
 import etomica.data.DataFactory;
 import etomica.data.DataInfo;
 import etomica.units.Dimension;
+import etomica.utility.Function;
 
 /**
  * Data object that holds <tt>double[]</tt> arrays as if they are columns in a
@@ -16,7 +17,13 @@ import etomica.units.Dimension;
  * The number of columns is set at construction and cannot be changed.
  * <p>
  * All columns are of equal length (i.e., the length of the <tt>double[]</tt>
- * arrays is the same for all columns).
+ * arrays is the same for all columns). The common length of the columns is
+ * set at construction and cannot be changed.
+ * <p>
+ * The label in the DataInfo for this object should be descriptive of the table
+ * as a whole; the dimension in the DataInfo will be Dimension.MIXED if the dimensions
+ * of the data in the columns are not all the same, otherwise it will be the common
+ * dimension of the data in the columns.
  * 
  * @author David Kofke and Andrew Schultz
  *  
@@ -25,7 +32,7 @@ import etomica.units.Dimension;
 /*
  * History Created on Jul 28, 2005 by kofke
  */
-public class DataTable extends Data implements Serializable {
+public class DataTable extends Data implements DataArithmetic, Serializable {
 
     /**
      * Creates a new table using the given arguments. The length of the DataInfo
@@ -58,6 +65,15 @@ public class DataTable extends Data implements Serializable {
         }
         return dim;
     }
+    //used by constructor above
+    private static Column[] makeColumns(DataInfo[] columnDataInfo,
+            int columnLength) {
+        Column[] columns = new Column[columnDataInfo.length];
+        for (int i = 0; i < columnDataInfo.length; i++) {
+            columns[i] = new Column(new double[columnLength], columnDataInfo[i]);
+        }
+        return columns;
+    }
 
     /**
      * Creates a new table with a specified number of columns all of a given
@@ -81,32 +97,8 @@ public class DataTable extends Data implements Serializable {
                 dimension, numColumns, columnLength))));
         myColumns = ((DataTable.Factory) dataInfo.getDataFactory()).myColumns;
     }
-
-    /**
-     * Constructs a new table using the data in the given columns.
-     * 
-     * @param label
-     *            a descriptive label for the table
-     * @param myColumns
-     *            the columns used to make the table (the instance is used
-     *            direction, and is not copied/cloned)
-     */
-    public DataTable(String label, DataTable.Column[] myColumns) {
-        super(new DataInfo(label, Dimension.UNDEFINED, new Factory(myColumns)));
-        this.myColumns = myColumns;
-    }
-
-    //used by constructor
-    private static Column[] makeColumns(DataInfo[] columnDataInfo,
-            int columnLength) {
-        Column[] columns = new Column[columnDataInfo.length];
-        for (int i = 0; i < columnDataInfo.length; i++) {
-            columns[i] = new Column(new double[columnLength], columnDataInfo[i]);
-        }
-        return columns;
-    }
-
-    //used by constructor
+    
+    //used by constructor above
     private static Column[] makeColumns(Dimension dimension, int numColumns,
             int columnLength) {
         Column[] columns = new Column[numColumns];
@@ -115,6 +107,42 @@ public class DataTable extends Data implements Serializable {
                     .toString(i), dimension);
         }
         return columns;
+    }
+
+
+    /**
+     * Constructs a new table using the data in the given columns.
+     * 
+     * @param label
+     *            a descriptive label for the table
+     * @param myColumns
+     *            the columns used to make the table (the instance is used
+     *            directly, and is not copied/cloned)
+     * 
+     * @throws IllegalArgumentException
+     *             if given columns are not all of the same length
+     */
+    public DataTable(String label, DataTable.Column[] myColumns) {
+        super(new DataInfo(label, evaluateDimension(myColumns), new Factory(myColumns)));
+        for(int i=1; i<myColumns.length; i++) {
+            if(myColumns[i].data.length != myColumns[i-1].data.length) {
+                throw new IllegalArgumentException("DataTable requires that all columns be of the same length");
+            }
+        }
+        this.myColumns = myColumns;
+    }
+    //determines if a given set of Columns are all of the same dimension;
+    //if not the same, returns Dimension.MIXED
+    //used by constructor above.
+    private static Dimension evaluateDimension(Column[] columns) {
+        Dimension dim = null;
+        for(int i=0; i<columns.length; i++) {
+            if((columns[i].dimension != dim) && (dim != null)) {
+                return Dimension.MIXED;
+            }
+            dim = columns[i].dimension;
+        }
+        return dim;
     }
 
     /**
@@ -166,11 +194,213 @@ public class DataTable extends Data implements Serializable {
 
     /**
      * Returns the number of rows in each and every column of the table.
+     * 
+     * @throws ArrayIndexOutOfBoundsException
+     *             if the DataTable has zero columns
      */
     public int getNRows() {
         return myColumns[0].data.length;
     }
+    
+    /**
+     * Plus-equals (+=) operation.
+     */
+    public void PE(DataArithmetic y) {
+        if(myColumns.length == 0) {
+            return;
+        }
+        int nRows = getNRows();
+        DataTable table = (DataTable) y;
+        for (int i = 0; i < myColumns.length; i++) {
+            for(int j=0; j<nRows; j++) {
+                myColumns[i].data[j] += table.myColumns[i].data[j];
+            }
+        }
+    }
 
+    /**
+     * Minus-equals (-=) operation.
+     */
+    public void ME(DataArithmetic y) {
+        if(myColumns.length == 0) {
+            return;
+        }
+        int nRows = getNRows();
+        DataTable table = (DataTable) y;
+        for (int i = 0; i < myColumns.length; i++) {
+            for(int j=0; j<nRows; j++) {
+                myColumns[i].data[j] -= table.myColumns[i].data[j];
+            }
+        }
+    }
+
+    /**
+     * Times-equals (*=) operation.
+     */
+    public void TE(DataArithmetic y) {
+        if(myColumns.length == 0) {
+            return;
+        }
+        int nRows = getNRows();
+        DataTable table = (DataTable) y;
+        for (int i = 0; i < myColumns.length; i++) {
+            for(int j=0; j<nRows; j++) {
+                myColumns[i].data[j] *= table.myColumns[i].data[j];
+            }
+        }
+    }
+
+    /**
+     * Divide-equals (/=) operation.
+     */
+    public void DE(DataArithmetic y) {
+        if(myColumns.length == 0) {
+            return;
+        }
+        int nRows = getNRows();
+        DataTable table = (DataTable) y;
+        for (int i = 0; i < myColumns.length; i++) {
+            for(int j=0; j<nRows; j++) {
+                myColumns[i].data[j] /= table.myColumns[i].data[j];
+            }
+        }
+    }
+
+    /**
+     * Equals (=) operation, sets all values in data equal to the given value.
+     */
+    public void E(double y) {
+        {
+            if(myColumns.length == 0) {
+                return;
+            }
+            int nRows = getNRows();
+            for (int i = 0; i < myColumns.length; i++) {
+                for(int j=0; j<nRows; j++) {
+                    myColumns[i].data[j] = y;
+                }
+            }
+        }
+    }
+
+    /**
+     * Plus-equals (+=) operation, adding given value to all values in data.
+     */
+    public void PE(double y) {
+        if (myColumns.length == 0) {
+            return;
+        }
+        int nRows = getNRows();
+        for (int i = 0; i < myColumns.length; i++) {
+            for (int j = 0; j < nRows; j++) {
+                myColumns[i].data[j] += y;
+            }
+        }       
+    }
+
+    /**
+     * Times-equals (*=) operation, multiplying all values in data by given
+     * value.
+     */
+    public void TE(double y) {
+        if (myColumns.length == 0) {
+            return;
+        }
+        int nRows = getNRows();
+        for (int i = 0; i < myColumns.length; i++) {
+            for (int j = 0; j < nRows; j++) {
+                myColumns[i].data[j] *= y;
+            }
+        }       
+    }
+
+    /**
+     * Maps the function on all data values, replace each with the value given
+     * by the function applied to it.
+     */
+    public void map(Function function) {
+        if (myColumns.length == 0) {
+            return;
+        }
+        int nRows = getNRows();
+        for (int i = 0; i < myColumns.length; i++) {
+            Column column = myColumns[i];
+            for (int j = 0; j < nRows; j++) {
+                column.data[j] = function.f(column.data[j]);
+            }
+        }       
+
+    }
+
+    /**
+     * Returns the number of values held by the data instance.
+     */
+    public int getLength() {
+        if(myColumns.length == 0) {
+            return 0;
+        }
+        return getNRows() * myColumns.length;
+    }
+
+    /**
+     * Returns the i-th data value, where the values are numbered by counting down the first column,
+     * then the next, and so on. 
+     * <p>
+     * Specifically, returns column[i/nRows].data[i % nRows].
+     * 
+     * @param i
+     *            index of the desired data value
+     * @return the data value
+     * @throws IllegalArgumentException
+     *             if i >= getLength()
+     */
+    public double getValue(int i) {
+        if(i < 0 || i >= getLength()) {
+            throw new IllegalArgumentException("Illegal index for get value. Maximum is "+getLength());
+        }
+        int nRows = getNRows();
+        return myColumns[i/nRows].data[i % nRows];
+    }
+
+    /**
+     * Returns a new array formed from the values held by the data instance.
+     * 
+     * @throws IllegalArgumentException
+     *             if the length of the array is not equal to getLength
+     */
+    public void assignTo(double[] array) {
+        if(array.length != getLength()) {
+            throw new IllegalArgumentException("Illegal array size; length must be: "+getLength());
+        }
+        if(myColumns.length == 0) {
+            return;
+        }
+        int nRows = getNRows();
+        for(int i=0; i<myColumns.length; i++) {
+            System.arraycopy(myColumns[i].data, 0, array, i*nRows, nRows);
+        }
+    }
+
+    /**
+     * Returns true if any data value is true for Double.isNaN
+     */
+    public boolean isNaN() {
+        if(myColumns.length == 0) {
+            return true;
+        }
+        int nRows = getNRows();
+        for(int i=0; i<myColumns.length; i++) {
+            for(int j=0; j<nRows; j++) {
+                if(Double.isNaN(myColumns[i].data[j])) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    //make package protected so that CastToTable can access
+    //shadows myColumns field in Factory, which is accessible via DataInfo
     final DataTable.Column[] myColumns;
 
     /**
@@ -189,21 +419,25 @@ public class DataTable extends Data implements Serializable {
         }
 
         /**
-         * Makes a new DataTable, assigning the descriptive label to it; the
-         * given Dimension is not used, but is included as an argument to adhere
-         * to the DataFactory interface.
+         * Makes a new DataTable, assigning the descriptive label to it.  If dimension
+         * is null, columns in new table will have dimensions given by the corresponding
+         * columns in the factory's prototype table; if dimension is not null, all columns
+         * in the new table will have the given dimension.
          */
         public Data makeData(String label, Dimension dimension) {
             DataTable.Column[] newColumns = new DataTable.Column[myColumns.length];
             for (int i = 0; i < newColumns.length; i++) {
-                newColumns[i] = new DataTable.Column(myColumns[i]);
+                if(dimension == null) {
+                    newColumns[i] = new DataTable.Column(myColumns[i]);
+                } else {
+                    newColumns[i] = new DataTable.Column(myColumns[i].data, myColumns[i].heading, dimension);
+                }
             }
-            //drops dimension
             return new DataTable(label, newColumns);
         }
 
         /**
-         * Returnsw DataTable.class.
+         * Returns DataTable.class.
          */
         public Class getDataClass() {
             return DataTable.class;

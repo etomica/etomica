@@ -50,16 +50,12 @@ public interface DataArithmetic {
 
     /**
      * Plus-equals (+=) operation, adding given value to all values in data.
-     * 
-     * @param y
      */
     public void PE(double y);
 
     /**
      * Times-equals (*=) operation, multiplying all values in data by given
      * value.
-     * 
-     * @param y
      */
     public void TE(double y);
 
@@ -86,8 +82,10 @@ public interface DataArithmetic {
     public double getValue(int i);
 
     /**
-     * Returns a new array formed from the values held by the data instance.
-     * @param array TODO
+     * Fills the given array with the values held by the data instance.
+     * 
+     * @throws IllegalArgumentException
+     *             if the length of the array is not equal to getLength
      */
     public void assignTo(double[] array);
 

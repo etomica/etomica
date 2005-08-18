@@ -12,7 +12,8 @@ import etomica.utility.Function;
 
 /**
  * Data object wrapping a single mutable value of type (Space) Vector. Value is
- * final public and can be accessed directly. <p>
+ * final public and can be accessed directly. 
+ * <p>
  * All arithmetic methods throw ClassCastException if given a Data instance that
  * is not of this type.
  * 
@@ -31,8 +32,10 @@ public class DataVector extends Data implements DataArithmetic {
      * 
      * @param space
      *            used to construct the wrapped Vector
-     * @param dataInfo
-     *            provides information about the wrapped data
+     * @param label
+     *            a descriptive label for this data
+     * @param dimension
+     *            the physical dimensions of the data
      */
     public DataVector(Space space, String label, Dimension dimension) {
         super(new DataInfo(label, dimension, getFactory(space)));
@@ -49,7 +52,8 @@ public class DataVector extends Data implements DataArithmetic {
 
     /**
      * Returns a deep copy of this instance. Returned object has its own instances of
-     * all fields, set equal to the values of this instance's fields.
+     * all fields, set equal to the values of this instance's fields.  This instance
+     * and the copy share the same DataInfo, which is immutable.
      */
     public Data makeCopy() {
         return new DataVector(this);
@@ -156,8 +160,11 @@ public class DataVector extends Data implements DataArithmetic {
         return dataInfo.getLabel() + " " + x.toString();
     }
     
+    /**
+     * Returns a DataFactory that makes a DataVector for the given Space.
+     */
     public static DataFactory getFactory(Space space) {
-        if(FACTORY == null || FACTORY.space.D() != space.D()) { 
+        if(FACTORY == null || FACTORY.space != space) { 
             FACTORY = new Factory(space);
         }
         return FACTORY;
@@ -168,7 +175,7 @@ public class DataVector extends Data implements DataArithmetic {
      */
     public final Vector x;
     
-    private static Factory FACTORY = null;
+    private transient static Factory FACTORY = null;
     
     public static class Factory implements DataFactory, Serializable {
         
@@ -178,18 +185,26 @@ public class DataVector extends Data implements DataArithmetic {
             this.space = space;
         }
         
+        /**
+         * Makes a new DataVector with DataInfo having the given label and dimension.
+         */
         public Data makeData(String label, Dimension dimension) {
             return new DataVector(space, label, dimension);
         }
         
+        /**
+         * Returns DataVector.class.
+         */
         public Class getDataClass() {
             return DataVector.class;
         }
         
+        /**
+         * Returns the Space used to make the Vectors.
+         */
         public Space getSpace() {
             return space;
         }
-    }
-
+    }//end of Factory
     
 }
