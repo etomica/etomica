@@ -17,6 +17,8 @@ import etomica.units.Dimension;
  * elements accessed via the getData(int[]) method. Shape of multidimensional
  * array is specified at construction and cannot be changed afterwards.
  * <p>
+ * This class might be used, for example, to represent a vector field as a function
+ * of x,y,z coordinates.
  * 
  * @author David Kofke
  *  
@@ -33,18 +35,24 @@ import etomica.units.Dimension;
 //Example showing internal ordering of elements
 //0     1     2     3     4     5     6     7     8     9    10    11   arrayIndex
 //(000) (001) (002) (010) (011) (012) (100) (101) (102) (110) (111) (112) index given to getValue(int[])
-//for this example, size = {3, 2, 2}, jumpCount = {6, 3, 1}
-//note that number of sites = size[n]*jumpCount[n] where n = size.length-1
+//for this example, size = {2, 2, 3}, jumpCount = {6, 3, 1}
+//note that number of sites = size[0]*jumpCount[0]
 
 public class DataArray extends Data {
 
     /**
      * Constructs a 1-dimensional array of Data.
      * 
-     * @param label descriptive label used by the common DataInfo of all arrayed Data instances
-     * @param dimension physical dimensions of the Data held by each array element
-     * @param nValues length of the 1-D array of Data
-     * @param arrayElementFactory constructs a prototype Data element that is copied to populate the array
+     * @param label
+     *            descriptive label used by the common DataInfo of all arrayed
+     *            Data instances
+     * @param dimension
+     *            physical dimensions of the Data held by each array element
+     * @param nValues
+     *            length of the 1-D array of Data
+     * @param arrayElementFactory
+     *            constructs a prototype Data element that is copied to populate
+     *            the array
      */
     public DataArray(String label, Dimension dimension, int nValues, DataFactory arrayElementFactory) {
         this(label, dimension, new int[] {nValues}, arrayElementFactory);
@@ -52,21 +60,27 @@ public class DataArray extends Data {
     
     /**
      * Constructs an arbitrarily shaped array of Data.
-     *  
-     * @param label descriptive label used by the common DataInfo of all arrayed Data instances
-     * @param dimension physical dimensions of the Data held by each array element
-     * @param arraySize dimensions of the Data array
-     * @param arrayElementFactory constructs a prototype Data element that is copied to populate the array
+     * 
+     * @param label
+     *            descriptive label used by the common DataInfo of all arrayed
+     *            Data instances
+     * @param dimension
+     *            physical dimensions of the Data held by each array element
+     * @param arrayShape
+     *            dimensions of the Data array
+     * @param arrayElementFactory
+     *            constructs a prototype Data element that is copied to populate
+     *            the array
      */
-    public DataArray(String label, Dimension dimension, int[] arraySize, DataFactory arrayElementFactory) {
-        super(new DataInfo(label + " Array", dimension, getFactory(arraySize, arrayElementFactory)));
-        jumpCount = (int[])arraySize.clone();
-        jumpCount[0] = 1;
+    public DataArray(String label, Dimension dimension, int[] arrayShape, DataFactory arrayElementFactory) {
+        super(new DataInfo(label + " Array", dimension, getFactory(arrayShape, arrayElementFactory)));
+        jumpCount = (int[])arrayShape.clone();
         //row-wise definition, as done in RectangularLattice
-        for(int i=arraySize.length-1; i>0; i--) {
-            jumpCount[i-1] = jumpCount[i]*arraySize[i];
+        jumpCount[arrayShape.length-1] = 1;
+        for(int i=arrayShape.length-1; i>0; i--) {
+            jumpCount[i-1] = jumpCount[i]*arrayShape[i];
         }
-        dataArray = new Data[arraySize[0]*jumpCount[0]];
+        dataArray = new Data[arrayShape[0]*jumpCount[0]];
         
         //all array elements get the same DataInfo instance
         Data prototype = arrayElementFactory.makeData(label, dimension);
@@ -152,7 +166,9 @@ public class DataArray extends Data {
 
     /**
      * Returns the i-th value of the wrapped array.
-     * @throws ArrayIndexOutOfBoundsException if not (0 <= i < getLength()).
+     * 
+     * @throws ArrayIndexOutOfBoundsException
+     *             if not (0 <= i < getLength()).
      */
     public Data getData(int i) {
         return dataArray[i];
@@ -191,8 +207,12 @@ public class DataArray extends Data {
     private final Data[] dataArray;
     private final int[] jumpCount;
     
-    public static DataFactory getFactory(int[] arraySize, DataFactory factory) {
-        return new Factory(arraySize, factory);
+    /**
+     * Returns a new DataFactory that makes DataArray instances of the given shape with
+     * elements formed using the given DataFactory.
+     */
+    public static DataFactory getFactory(int[] arrayShape, DataFactory factory) {
+        return new Factory(arrayShape, factory);
     }
 
     public static class Factory implements DataFactory, Serializable {
@@ -205,11 +225,19 @@ public class DataArray extends Data {
             this.arrayElementFactory = arrayElementFactory;
         }
         
+        /**
+         * Constructs a new DataArray, using the given label and dimension for its
+         * DataInfo, and with shape and element type as set for this factory at
+         * construction.
+         */
         public Data makeData(String label, Dimension dimension) {
             DataArray data = new DataArray(label, dimension, arraySize, arrayElementFactory);
             return data;
         }
         
+        /**
+         * Returns DataArray.class, indicating that this factory makes DataArray instances.
+         */
         public Class getDataClass() {
             return DataArray.class;
         }
@@ -233,10 +261,13 @@ public class DataArray extends Data {
             return n;
         }
         
+        /**
+         * Returns the factory that makes the Data object held in the array.
+         */
         public DataFactory getArrayElementFactory() {
             return arrayElementFactory;
         }
         
-    }
+    }//end of Factory
 
 }
