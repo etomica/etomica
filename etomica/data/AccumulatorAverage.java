@@ -8,7 +8,6 @@ import etomica.Constants;
 import etomica.Default;
 import etomica.Constants.TypedConstant;
 import etomica.data.types.DataArithmetic;
-import etomica.data.types.CastToArithmetic;
 import etomica.data.types.DataGroup;
 import etomica.units.Dimension;
 import etomica.utility.Function;
@@ -32,7 +31,7 @@ public class AccumulatorAverage extends DataAccumulator {
         if(DataArithmetic.class.isAssignableFrom(dataInfo.getDataClass())) {
             return null;
         }
-        return new CastToArithmetic();
+        throw new ClassCastException("Data type cannot be handled by AccumulatorAverage");
     }
 
     /**
