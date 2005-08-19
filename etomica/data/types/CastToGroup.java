@@ -5,8 +5,11 @@ import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
 
 /**
- * A DataProcessor that wraps a Data instance into a DataGroup.  Has no effect
- * if input Data is already a DataGroup. 
+ * A DataProcessor that effectively wraps a Data instance into a DataGroup.  Has no effect
+ * if input Data is already a DataGroup.
+ * <p>
+ * A new instance of the input Data is wrapped in the output DataGroup, and the
+ * processData method copies the input values to those in the copy.
  *
  * @author David Kofke
  *  
@@ -34,18 +37,14 @@ public class CastToGroup extends DataProcessor {
     }
     
     /**
-     * Extracts a double from the input data and returns it encapsulated in a
-     * DataDouble.
+     * Processes the input Data to update the output DataGroup.  If the input is
+     * a DataGroup, is is simply returned; otherwise it values are copied to the
+     * wrapped Data, and the wrapping DataGroup is returned.
      * 
      * @param data
      *            a Data instance of the type indicated by the DataInfo at
-     *            construction
-     * @return a DataDouble holding the value cast from the given Data; the same
-     *         instance is returned with every invocation.
-     * 
-     * @throws ClassCastException
-     *             if the given Data is not of the same type as indicated by the
-     *             DataInfo given at construction
+     *            the most recent call to processDataInfo
+     * @return a DataGroup holding the values from given Data
      */
     protected Data processData(Data data) {
         switch (inputType) {
@@ -59,6 +58,9 @@ public class CastToGroup extends DataProcessor {
         }
     }
     
+    /**
+     * Returns null, indicating that this DataProcessor can accept any Data type.
+     */
     public DataProcessor getDataCaster(DataInfo info) {
         return null;
     }

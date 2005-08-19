@@ -12,11 +12,22 @@ import etomica.space.Vector;
 import etomica.units.Dimension;
 
 /**
- * A DataProcessor that converts a Data instance into a DataDoubleArray. Copies an
- * element of the input data to the DataDouble's encapsulated value and returns
- * the DataDouble instance.
- * <p> 
- * Can cast from DataDouble, DataDoubleArray, DataInteger, DataVector, DataTensor.
+ * A DataProcessor that converts a homogeneous DataGroup into a multidimensional DataDoubleArray. 
+ * All elements in group must be of the same data type.  If the group contains only one element,
+ * the effect is the same as applying CastToDoubleArray to the element.  Otherwise, if <tt>d</tt>
+ * is the dimension of each grouped element, the resulting DataDoubleArray will be of 
+ * dimension <tt>d+1</tt>.  The added dimension corresponds to the different elements of the group.
+ * <p>
+ * For example:
+ * <ul>
+ * <li>if the DataGroup contains 8 DataDouble instances (thus d = 0), the cast gives a
+ * one-dimensional DataDoubleArray of length 8.
+ * <li>if the DataGroup contains 4 Vector3D instances (thus d = 1), the cast gives a two-dimensional DataDoubleArray
+ * of dimensions (4, 3).
+ * <li>if the DataGroup contains 5 two-dimensional (d = 2) DataDoubleArray of shape (7,80), the cast gives a
+ * three-dimensional DataDoubleArray of shape (5, 7, 80).
+ * </ul>
+ * etc. 
  * 
  * @author David Kofke
  *  
@@ -27,6 +38,14 @@ import etomica.units.Dimension;
  */
 public class CastGroupToDoubleArray extends DataProcessor {
 
+    /**
+     * Prepares processor to handle Data. Uses given DataInfo to determine the
+     * type of Data to expect in subsequent calls to processData.
+     * 
+     * @throws IllegalArgumentException
+     *             if DataInfo does not indicate a DataGroup, or if DataInfo
+     *             indicates that expected DataGroup will not be homogeneous
+     */
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
         if (inputDataInfo.getDataClass() != DataGroup.class) {
             throw new IllegalArgumentException("can only cast from DataGroup");
@@ -113,18 +132,13 @@ public class CastGroupToDoubleArray extends DataProcessor {
     }
     
     /**
-     * Extracts a double from the input data and returns it encapsulated in a
-     * DataDouble.
-     * 
-     * @param data
-     *            a Data instance of the type indicated by the DataInfo at
-     *            construction
-     * @return a DataDouble holding the value cast from the given Data; the same
-     *         instance is returned with every invocation.
+     * Converts data in given group to a DataDoubleArray as described in the
+     * general comments for this class.
      * 
      * @throws ClassCastException
-     *             if the given Data is not of the same type as indicated by the
-     *             DataInfo given at construction
+     *             if the given Data is not a DataGroup with Data elements of
+     *             the type indicated by the most recent call to
+     *             processDataInfo.
      */
     protected Data processData(Data data) {
         DataGroup group = (DataGroup)data;
@@ -191,6 +205,9 @@ public class CastGroupToDoubleArray extends DataProcessor {
         }
     }
     
+    /**
+     * Returns null.
+     */
     public DataProcessor getDataCaster(DataInfo info) {
         return null;
     }

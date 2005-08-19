@@ -9,8 +9,19 @@ import etomica.data.DataProcessor;
 /**
  * A DataProcessor that converts a Data instance into a DataDouble. Copies an
  * element of the input data to the DataDouble's encapsulated value and returns
- * the DataDouble instance.  Can cast from DataDouble, DataDoubleArray, DataInteger,
- * DataGroup.
+ * the DataDouble instance.
+ * Casting for various types of Data is performed as follows:
+ * <ul>
+ * <li><u>DataDoubleArray</u>. Uses only first element of array.
+ * 
+ * <li><u>DataDouble</u>. Does nothing, and returns input data directly.
+ * 
+ * <li><u>DataInteger</u>. Performs a simple cast of the int to a double.
+ * 
+ * <li><u>DataGroup</u>. Uses DataExtractor to locate a DataDoublein DataGroup.  Other 
+ * Data in group are discarded. 
+ * 
+ * </ul>
  * 
  * @author David Kofke
  *  
@@ -21,6 +32,10 @@ import etomica.data.DataProcessor;
  */
 public class CastToDouble extends DataProcessor {
 
+    /**
+     * Prepares processor to handle Data.  Uses given DataInfo to determine the type of Data to
+     * expect in subsequent calls to processData.
+     */
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
         dataDouble = new DataDouble(inputDataInfo.getLabel(), inputDataInfo.getDimension());
         Class inputClass = inputDataInfo.getDataClass();
@@ -72,6 +87,9 @@ public class CastToDouble extends DataProcessor {
         }
     }
     
+    /**
+     * Returns null.
+     */
     public DataProcessor getDataCaster(DataInfo info) {
         return null;
     }
