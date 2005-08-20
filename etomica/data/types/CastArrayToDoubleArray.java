@@ -11,17 +11,31 @@ import etomica.space.Vector;
 import etomica.units.Dimension;
 
 /**
- * A DataProcessor that converts a DataArray instance into a DataDoubleArray. 
- * Copies an element of the input data to the DataDouble's encapsulated value 
- * and returns the DataDoubleArray instance.  No attempt is made to reduce the 
- * number of dimenions in the resulting DataDoubleArray.  If the incoming 
- * DataArray is 1x1x1 and wraps a DataDouble, the resulting DataDoubleArray 
- * also be 3 dimensional.
- * <p> 
- * Can cast from DataDouble, DataDoubleArray, DataInteger, DataVector, DataTensor
- * and DataFunction classes wrapped in a DataArray.
+ * A DataProcessor that converts a DataArray instance into a DataDoubleArray.
+ * The output DataDoubleArray will have a shape that is determined by
+ * concatenating the shape of the input DataArray itself with the shape of the
+ * Data elements is comprises. So, for example, if the shape of the DataArray is
+ * 5x8, the shape of the output DataArray will be, in the case of
+ * <ul>
+ * <li>DataDouble: 5x8 --  each element of the DataArray maps to a
+ * one double
+ * <li>DataDoubleArray, 1-dimensional of length 10: 5x8x10
+ * <li>DataDoubleArray, 2-dimensional of shape 4x10: 5x8x4x10
+ * <li>DataVector, of length D: 5x8xD
+ * </ul>
+ * and so on. The DataArray may be formed from any data type except a
+ * DataGroup.  If elements are DataFunction, the output is as if the
+ * input were just the dependent-data DataDoubleArray held by the DataFunction
+ * (independent-variable data are dropped).
+ * <p>
+ * No attempt is made to reduce the number of dimenions in the resulting
+ * DataDoubleArray. If the incoming DataArray is 1x1x1 and wraps a DataDouble,
+ * the resulting DataDoubleArray also be 3 dimensional.
+ * <p>
+ * Can cast from DataDouble, DataDoubleArray, DataInteger, DataVector,
+ * DataTensor and DataFunction classes wrapped in a DataArray.
  * 
- * @author David Kofke
+ * @author Andrew Schultz and David Kofke
  *  
  */
 
@@ -32,24 +46,27 @@ public class CastArrayToDoubleArray extends DataProcessor {
 
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
         if (inputDataInfo.getDataClass() != DataArray.class) {
-            throw new IllegalArgumentException("can only cast from DataGroup");
+            throw new IllegalArgumentException("can cast only from DataArray");
         }
         D = 0;
         String label = inputDataInfo.getLabel();
         Dimension dimension = inputDataInfo.getDimension();
         DataArray.Factory factory = (DataArray.Factory)inputDataInfo.getDataFactory();
         DataFactory subFactory = factory.getArrayElementFactory();
-//        Data[] data = ((DataArray.Factory)inputDataInfo.getDataFactory()).data;
+
+        //input array has no data; make empty output array
         if (factory.getArrayLength() == 0) {
             inputType = 0;
             outputData = new DataDoubleArray(label,dimension,0);
             return outputData.getDataInfo();
         }
-        Class innerDataClass = subFactory.getDataClass();
-        int[] outerArraySize = factory.getArraySize();
+
+        //prepare iterator to loop over elements of input DataArray
+        int[] outerArraySize = factory.getArrayShape();//shape of the input DataArray
         indexIterator = new IndexIteratorSequential(outerArraySize.length);
         indexIterator.setSize(outerArraySize);
         
+        Class innerDataClass = subFactory.getDataClass();
         if (innerDataClass == DataDoubleArray.class) {
             inputType = 1;
             int[] size = ((DataDoubleArray.Factory)subFactory).getArrayShape();
@@ -155,13 +172,11 @@ public class CastArrayToDoubleArray extends DataProcessor {
                 }
             }
             return outputData;
-        case 6:
+        case 6:  //DataFunction
             while (indexIterator.hasNext()) {
                 int[] idx = indexIterator.next();
                 outputData.assignSubsectionFrom(idx,((DataFunction)dataArray.getData(idx)).getYData().getData());
             }
-            return outputData;
-        case 11:
             return outputData;
         default:
             throw new Error("Assertion error.  Input type out of range: "+inputType);
