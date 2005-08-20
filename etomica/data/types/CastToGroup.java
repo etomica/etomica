@@ -20,6 +20,12 @@ import etomica.data.DataProcessor;
  */
 public class CastToGroup extends DataProcessor {
 
+    /**
+     * Sole constructor.
+     */
+    public CastToGroup() {
+    }
+
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
         Class inputClass = inputDataInfo.getClass();
         dataGroup = null;

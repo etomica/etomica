@@ -44,6 +44,12 @@ import etomica.units.Dimension;
  */
 public class CastArrayToDoubleArray extends DataProcessor {
 
+    /**
+     * Sole constructor.
+     */
+    public CastArrayToDoubleArray() {
+    }
+    
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
         if (inputDataInfo.getDataClass() != DataArray.class) {
             throw new IllegalArgumentException("can cast only from DataArray");

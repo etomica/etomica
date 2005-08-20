@@ -33,6 +33,12 @@ import etomica.data.DataProcessor;
 public class CastToDouble extends DataProcessor {
 
     /**
+     * Sole constructor.
+     */
+    public CastToDouble() {
+    }
+
+    /**
      * Prepares processor to handle Data.  Uses given DataInfo to determine the type of Data to
      * expect in subsequent calls to processData.
      */

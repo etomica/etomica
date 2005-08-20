@@ -46,6 +46,12 @@ import etomica.units.Dimension;
 public class CastToDoubleArray extends DataProcessor {
 
     /**
+     * Sole constructor.
+     */
+    public CastToDoubleArray() {
+    }
+
+    /**
      * Prepares processor to perform cast. Given DataInfo is examined to see
      * what data type will be given to processor.
      * 

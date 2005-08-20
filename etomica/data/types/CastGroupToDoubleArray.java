@@ -39,6 +39,12 @@ import etomica.units.Dimension;
 public class CastGroupToDoubleArray extends DataProcessor {
 
     /**
+     * Sole constructor.
+     */
+    public CastGroupToDoubleArray() {
+    }
+
+    /**
      * Prepares processor to handle Data. Uses given DataInfo to determine the
      * type of Data to expect in subsequent calls to processData.
      * 

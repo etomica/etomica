@@ -44,6 +44,13 @@ import etomica.space.Tensor;
 public class CastToTable extends DataProcessor implements Serializable {
 
     /**
+     * Sole constructor.
+     */
+    public CastToTable() {
+    }
+
+    
+    /**
      * Prepares processor to perform cast. Given DataInfo is examined to see
      * what data type will be given to processor.
      * 
