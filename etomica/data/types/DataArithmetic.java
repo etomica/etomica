@@ -5,10 +5,11 @@ import etomica.utility.Function;
 
 /**
  * Interface for a Data class that supports arithmetic operations on its data.
+ * <p>
  * Methods throw IllegalArgumentException if this instance and operand are not
  * compatible.
  * 
- * @author David Kofke
+ * @author David Kofke and Andrew Schultz
  *  
  */
 
@@ -82,7 +83,7 @@ public interface DataArithmetic {
     public double getValue(int i);
 
     /**
-     * Fills the given array with the values held by the data instance.
+     * Fills the given array with the values held by this Data instance.
      * 
      * @throws IllegalArgumentException
      *             if the length of the array is not equal to getLength

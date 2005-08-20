@@ -5,6 +5,7 @@ import java.io.Serializable;
 import etomica.data.Data;
 import etomica.data.DataFactory;
 import etomica.data.DataInfo;
+import etomica.data.types.DataArray.Factory;
 import etomica.units.Dimension;
 import etomica.utility.Function;
 
@@ -404,8 +405,19 @@ public class DataTable extends Data implements DataArithmetic, Serializable {
     final DataTable.Column[] myColumns;
 
     /**
-     * The inner-class Factory is configured to make another DataTable of the
-     * same shape (nCols, nRows) as this one.
+     * Returns a new DataFactory that makes DataTable instances with the shape
+     * indicates by the given set of columns, and using the header/dimension
+     * info for the given columns.  Data arrays in the new instances are independent
+     * of the given columns' data (except for being initialized to those values).
+     */
+    public static DataFactory getFactory(Column[] columns) {
+        return new Factory(columns);
+    }
+
+    /**
+     * DataFactory that makes DataTable instances of a specific shape.  Each DataTable
+     * constructed by the factory has its own DataColumn instances, with data that
+     * are initialized to a prototype set of data.
      */
     public static class Factory implements DataFactory, Serializable {
 
@@ -430,7 +442,8 @@ public class DataTable extends Data implements DataArithmetic, Serializable {
                 if(dimension == null) {
                     newColumns[i] = new DataTable.Column(myColumns[i]);
                 } else {
-                    newColumns[i] = new DataTable.Column(myColumns[i].data, myColumns[i].heading, dimension);
+                    newColumns[i] = new DataTable.Column((double[])myColumns[i].data.clone(), 
+                            myColumns[i].heading, dimension);
                 }
             }
             return new DataTable(label, newColumns);
@@ -472,17 +485,19 @@ public class DataTable extends Data implements DataArithmetic, Serializable {
 
         /**
          * Makes a Column wrapping the given array and using the DataInfo to
-         * determine the heading and dimension.
+         * determine the heading and dimension.  Given data array is used
+         * directly, not a copy.
          */
-        public Column(double[] data, DataInfo dataInfo) {
+        Column(double[] data, DataInfo dataInfo) {
             this(data, dataInfo.getLabel(), dataInfo.getDimension());
         }
 
         /**
          * Makes a Column wrapping the given array and using the given values
-         * for the heading and dimension.
+         * for the heading and dimension.  Given data array is used directly,
+         * not a copy.
          */
-        public Column(double[] data, String label, Dimension dimension) {
+        Column(double[] data, String label, Dimension dimension) {
             this.data = data;
             this.heading = label;
             this.dimension = dimension;

@@ -160,6 +160,10 @@ public class DataGroup extends Data {
         return new Factory(data);
     }
 
+    /**
+     * DataFactory that makes DataGroups with copies of a specific set of Data.
+     * Instantiate using the static DataGroup.getFactory method.
+     */
     public static class Factory implements DataFactory, Serializable {
         
         final Data[] data;

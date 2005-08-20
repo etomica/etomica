@@ -167,6 +167,9 @@ public class DataDouble extends Data implements DataArithmetic {
      */
     public double x;
     
+    /**
+     * Returns a (singleton) DataFactory that constructs DataDouble instances.
+     */
     public static DataFactory getFactory() {
         return FACTORY;
     }

@@ -8,7 +8,7 @@ import etomica.data.DataInfo;
 import etomica.units.Dimension;
 
 /**
- * Data object that wraps a an array of similarly-formed Data instances. All
+ * Data object that wraps an array of similarly-formed Data instances. All
  * Data instances are formed from the same DataFactory, and differ only in the
  * data they hold.  All hold the same instance of DataInfo.
  * <p>
@@ -219,6 +219,10 @@ public class DataArray extends Data {
         return new Factory(arrayShape, factory);
     }
 
+    /**
+     * DataFactory the constructs DataArray instances of a specific shape.
+     * Instantiate using the static DataArray.getFactory method.
+     */
     public static class Factory implements DataFactory, Serializable {
         
         private final int[] arrayShape;

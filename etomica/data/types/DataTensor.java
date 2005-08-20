@@ -184,6 +184,10 @@ public class DataTensor extends Data implements DataArithmetic {
     
     private transient static Factory FACTORY = null;
     
+    /**
+     * DataFactory that constructs DataTensor instances of a given shape.
+     * Instantiate using the static DataTensor.getFactory method. 
+     */
     public static class Factory implements DataFactory, Serializable {
         
         private final Space space;

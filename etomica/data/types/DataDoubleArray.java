@@ -360,6 +360,10 @@ public class DataDoubleArray extends Data implements DataArithmetic {
         return new Factory(arrayShape);
     }
 
+    /**
+     * DataFactory that constructs DataDoubleArray instances of a specific shape.
+     * Instantiate using the static DataDoubleArray.getFactory method.  
+     */
     public static class Factory implements DataFactory, Serializable {
         
         private final int[] arrayShape;

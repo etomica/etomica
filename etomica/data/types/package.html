@@ -17,8 +17,8 @@
 <body bgcolor="white">
 
 Defines classes that encapsulate various types of data and cast between them.  The
-encapsulating classes are subclasses of {@link etomica.Data Data}, which is the abstract type
-that is transmitted from a {@link etomica.DataSource DataSource} to a {@link etomica.DataSink DataSink} through a data
+encapsulating classes are subclasses of {@link etomica.data.Data Data}, which is the abstract type
+that is transmitted from a {@link etomica.data.DataSource DataSource} to a {@link etomica.data.DataSink DataSink} through a data
 processing stream, via the classes defined in the {@link etomica.data etomica.data} package.
 <p>
 The data held by a Data instance can be changed, and in this sense a Data object is mutable.
@@ -30,7 +30,7 @@ be configured to look like a multidimensional array.  Its structure then refers 
 array -- the number of <tt>double</tt> values it holds, and in what arrangement.  It is this aspect
 of the DataDoubleArray that cannot be changed after construction.
 <p>
-In addition to the data values, a Data object also holds a {@link etomica.DataInfo DataInfo} instance, which 
+In addition to the data values, a Data object also holds a {@link etomica.data.DataInfo DataInfo} instance, which 
 holds descriptive information about the encapsulated data.  The DataInfo held by a Data instance is
 completely immutable -- the DataInfo instance cannot be changed, nor can the information it holds.
 <p>

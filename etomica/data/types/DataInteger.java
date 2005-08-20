@@ -64,7 +64,7 @@ public class DataInteger extends Data {
     }
     
     /**
-     * Returns the singleton instance of a factory that makes this data type.
+     * Returns a (singleton) DataFactory that makes DataInteger instances.
      */
     public static DataFactory getFactory() {
         return FACTORY;

@@ -177,6 +177,9 @@ public class DataVector extends Data implements DataArithmetic {
     
     private transient static Factory FACTORY = null;
     
+    /**
+     * DataFactory that makes DataVector instances of a specific length.
+     */
     public static class Factory implements DataFactory, Serializable {
         
         private final Space space;

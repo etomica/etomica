@@ -290,6 +290,10 @@ public class DataFunction extends Data implements DataArithmetic {
         return new Factory(independentData);
     }
 
+    /**
+     * DataFactory that constructs DataFunction instances all having the same
+     * set of independent data.  Instantiate using the static DataFunction getFactory method.
+     */
     public static class Factory implements DataFactory, Serializable {
         
         final DataDoubleArray[] independentData;
