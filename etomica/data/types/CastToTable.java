@@ -10,7 +10,7 @@ import etomica.space.Tensor;
 
 /**
  * 
- * Processor that takes Data and converts it to a DataTable. Casting for various
+ * A DataProcessor that converts a Data instance into a DataTable. Casting for various
  * types of Data is performed as follows:
  * <ul>
  * <li><u>DataDoubleArray</u>. A one-dimensional array will be put into a
