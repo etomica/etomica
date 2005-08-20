@@ -7,35 +7,35 @@ import etomica.data.DataJudge;
 import etomica.data.DataProcessor;
 
 /**
- * A DataProcessor that converts a Data instance into a DataDouble. Copies an
- * element of the input data to the DataDouble's encapsulated value and returns
- * the DataDouble instance.
+ * A DataProcessor that converts a Data instance into a DataInteger. Copies an
+ * element of the input data to the DataIntegers's encapsulated value and returns
+ * the DataInteger instance.
  * Casting for various types of Data is performed as follows:
  * <ul>
- * <li><u>DataDoubleArray</u>. Uses only first element of array.
+ * <li><u>DataDoubleArray</u>. Uses only first element of array, cast to <tt>int</tt>.
  * 
- * <li><u>DataDouble</u>. Does nothing, and returns input data directly.
+ * <li><u>DataDouble</u>. Casts the encapsulated <tt>double</tt> to an <tt>int</tt>
  * 
- * <li><u>DataInteger</u>. Performs a simple cast of the int to a double.
+ * <li><u>DataInteger</u>. Does nothing, passing the Data through.
  * 
- * <li><u>DataGroup</u>. Uses DataExtractor to locate a DataDouble in DataGroup.  Other 
+ * <li><u>DataGroup</u>. Uses DataExtractor to locate a DataInteger in DataGroup.  Other 
  * Data in group are discarded. 
  * </ul>
  * Attempts to cast other Data types will produce an IllegalArgumentException by processDataInfo.
- * <p>
+ * 
  * @author David Kofke
  *  
  */
 
 /*
- * History Created on Jul 21, 2005 by kofke
+ * History Created on August 20, 2005 by kofke
  */
-public class CastToDouble extends DataProcessor {
+public class CastToInteger extends DataProcessor {
 
     /**
      * Sole constructor.
      */
-    public CastToDouble() {
+    public CastToInteger() {
     }
 
     /**
@@ -47,7 +47,7 @@ public class CastToDouble extends DataProcessor {
      *             general class comments
      */
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
-        dataDouble = new DataDouble(inputDataInfo.getLabel(), inputDataInfo.getDimension());
+        dataInteger = new DataInteger(inputDataInfo.getLabel(), inputDataInfo.getDimension());
         Class inputClass = inputDataInfo.getDataClass();
         if (inputClass == DataDouble.class) {
             inputType = 0;
@@ -57,23 +57,23 @@ public class CastToDouble extends DataProcessor {
             inputType = 2;
         } else if (inputClass == DataGroup.class) {
             inputType = 3;
-            DataGroupExtractor extractor = new DataGroupExtractor(new DataJudge.ByClass(DataDouble.class, true));
-            dataDouble = (DataDouble)extractor.processData(null);
+            DataGroupExtractor extractor = new DataGroupExtractor(new DataJudge.ByClass(DataInteger.class, true));
+            dataInteger= (DataInteger)extractor.processData(null);
         } else {
-            throw new IllegalArgumentException("Cannot cast to double from "
+            throw new IllegalArgumentException("Cannot cast to int from "
                     + inputClass);
         }
-        return dataDouble.getDataInfo();
+        return dataInteger.getDataInfo();
     }
     
     /**
-     * Extracts a double from the input data and returns it encapsulated in a
-     * DataDouble.
+     * Extracts an int from the input data and returns it encapsulated in a
+     * DataInteger.
      * 
      * @param data
      *            a Data instance of the type indicated by the DataInfo at
      *            construction
-     * @return a DataDouble holding the value cast from the given Data; the same
+     * @return a DataInteger holding the value cast from the given Data; the same
      *         instance is returned with every invocation.
      * 
      * @throws ClassCastException
@@ -83,15 +83,15 @@ public class CastToDouble extends DataProcessor {
     protected Data processData(Data data) {
         switch (inputType) {
         case 0:
+            dataInteger.x = (int)((DataDouble) data).x;
             return data;
         case 1:
-            dataDouble.x = ((DataDoubleArray) data).getData()[0];
-            return dataDouble;
+            dataInteger.x = (int)((DataDoubleArray) data).getData()[0];
+            return dataInteger;
         case 2:
-            dataDouble.x = ((DataInteger) data).x;
-            return dataDouble;
+            return dataInteger;
         case 3:
-            return dataDouble;
+            return dataInteger;
         default:
             throw new Error("Assertion error.  Input type out of range: "+inputType);
         }
@@ -104,6 +104,6 @@ public class CastToDouble extends DataProcessor {
         return null;
     }
 
-    private DataDouble dataDouble;
+    private DataInteger dataInteger;
     private int inputType;
 }
