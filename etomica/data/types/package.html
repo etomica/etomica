@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!--
+
+  @(#)package.html	1.60 98/01/27
+
+	Permission is granted to use the Etomica classes
+	for your own academic research and instruction. 
+	All other rights are reserved.  Etomica and software
+	derived from it may not be sold or redistributed in any form. 
+	
+  CopyrightVersion 1.0
+
+-->
+</head>
+<body bgcolor="white">
+
+Defines classes that encapsulate various types of data and cast between them.  The
+encapsulating classes are subclasses of {@link etomica.Data Data}, which is the abstract type
+that is transmitted from a {@link etomica.DataSource DataSource} to a {@link etomica.DataSink DataSink} through a data
+processing stream, via the classes defined in the {@link etomica.data etomica.data} package.
+<p>
+The data held by a Data instance can be changed, and in this sense a Data object is mutable.
+However, the <i>structure</i> of a Data object is immutable; it cannot be changed after construction.
+The <i>structure</i> refers to the type and number of data values held by the Data object.  Simple
+Data objects, such as DataDouble and DataInteger, hold a single data value, and have a trivial structure.
+In contrast, a DataDouble array holds an array of <tt>double</tt> values; moreover this object can
+be configured to look like a multidimensional array.  Its structure then refers to the shape of this
+array -- the number of <tt>double</tt> values it holds, and in what arrangement.  It is this aspect
+of the DataDoubleArray that cannot be changed after construction.
+<p>
+In addition to the data values, a Data object also holds a {@link etomica.DataInfo DataInfo} instance, which 
+holds descriptive information about the encapsulated data.  The DataInfo held by a Data instance is
+completely immutable -- the DataInfo instance cannot be changed, nor can the information it holds.
+<p>
+This package defines classes for casting between Data types.  These classes normally are constructed
+by the <tt>getDataCaster</tt> method of a DataSink, which is invoked by a DataPipe (or similar class)
+when the DataSink is added to it.  The caster is a DataProcessor that will copy the data 
+(as completely as possible) to a new Data instance of the output Data type.  This ensures that the
+DataSink receives a Data instance of the type it is expecting.
+
+<!--
+
+<h2>Package Specification</h2>
+
+##### FILL IN ANY SPECS NEEDED BY JAVA COMPATIBILITY KIT #####
+<ul>
+  <li><a href="">##### REFER TO ANY FRAMEMAKER SPECIFICATION HERE #####</a>
+</ul>
+
+<h2>Related Documentation</h2>
+
+For overviews, tutorials, examples, guides, and tool documentation, please see:
+<ul>
+  <li><a href="">##### REFER TO NON-SPEC DOCUMENTATION HERE #####</a>
+</ul>
+-->
+<!-- Put @see and @since tags down here. -->
+
+</body>
+</html>
