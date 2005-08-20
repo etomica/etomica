@@ -76,11 +76,15 @@ public class DataArray extends Data {
         super(new DataInfo(label + " Array", dimension, getFactory(arrayShape, arrayElementFactory)));
         jumpCount = (int[])arrayShape.clone();
         //row-wise definition, as done in RectangularLattice
-        jumpCount[arrayShape.length-1] = 1;
-        for(int i=arrayShape.length-1; i>0; i--) {
-            jumpCount[i-1] = jumpCount[i]*arrayShape[i];
+        if(arrayShape.length > 0) {
+            jumpCount[arrayShape.length-1] = 1;
+            for(int i=arrayShape.length-1; i>0; i--) {
+                jumpCount[i-1] = jumpCount[i]*arrayShape[i];
+            }
+            dataArray = new Data[arrayShape[0]*jumpCount[0]];
+        } else {
+            dataArray = new Data[0];
         }
-        dataArray = new Data[arrayShape[0]*jumpCount[0]];
         
         //all array elements get the same DataInfo instance
         Data prototype = arrayElementFactory.makeData(label, dimension);
@@ -161,7 +165,7 @@ public class DataArray extends Data {
      * Returns the length of the array in the i-th dimension.
      */
     public int getArraySize(int i) {
-        return ((Factory)dataInfo.getDataFactory()).arraySize[i];
+        return ((Factory)dataInfo.getDataFactory()).arrayShape[i];
     }
 
     /**
@@ -217,11 +221,11 @@ public class DataArray extends Data {
 
     public static class Factory implements DataFactory, Serializable {
         
-        private final int[] arraySize;
+        private final int[] arrayShape;
         private final DataFactory arrayElementFactory;
         
-        Factory(int[] arraySize, DataFactory arrayElementFactory) {
-            this.arraySize = arraySize;
+        Factory(int[] arrayShape, DataFactory arrayElementFactory) {
+            this.arrayShape= (int[])arrayShape.clone();
             this.arrayElementFactory = arrayElementFactory;
         }
         
@@ -231,7 +235,7 @@ public class DataArray extends Data {
          * construction.
          */
         public Data makeData(String label, Dimension dimension) {
-            DataArray data = new DataArray(label, dimension, arraySize, arrayElementFactory);
+            DataArray data = new DataArray(label, dimension, arrayShape, arrayElementFactory);
             return data;
         }
         
@@ -245,8 +249,8 @@ public class DataArray extends Data {
         /**
          * Returns the size of each dimension in the constructed DataDoubleArray.
          */
-        public int[] getArraySize() {
-            return (int[])arraySize.clone();
+        public int[] getArrayShape() {
+            return (int[])arrayShape.clone();
         }
         
         /**
@@ -254,9 +258,12 @@ public class DataArray extends Data {
          * This is the product of the elements in the array returned by getArraySize().
          */
         public int getArrayLength() {
+            if(arrayShape.length == 0) {
+                return 0;
+            }
             int n = 1;
-            for(int i=arraySize.length-1; i>=0; i--) {
-                n *= arraySize[i];
+            for(int i=arrayShape.length-1; i>=0; i--) {
+                n *= arrayShape[i];
             }
             return n;
         }
