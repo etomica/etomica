@@ -8,53 +8,63 @@ import etomica.data.types.DataInteger;
 import etomica.units.Dimension;
 
 /**
- * Data processor that simply counts the number of times its 
- * <code>putData</code> method is invoked.
+ * Data processor that simply counts the number of times its
+ * <code>addData</code> method is invoked. Output is a DataInteger.
  */
 public class AccumulatorCounter extends DataAccumulator {
 
-	/**
-	 * @param parentElement
-	 * @param dataSource
-	 */
-	public AccumulatorCounter() {
+    /**
+     * @param parentElement
+     * @param dataSource
+     */
+    public AccumulatorCounter() {
         data = new DataInteger("Counter", Dimension.QUANTITY);
         dataInfo = data.getDataInfo();
-	}
-        
+    }
+
+    /**
+     * Returns the DataInfo of the output DataInteger.
+     */
     public DataInfo getDataInfo() {
         return data.getDataInfo();
     }
-    
+
+    /**
+     * Returns null, indicating that any Data type is acceptable for input.
+     */
     public DataProcessor getDataCaster(DataInfo dataInfo) {
         return null;
     }
-    
+
+    /**
+     * Does nothing.
+     * 
+     * @return the DataInfo for the output DataInteger
+     */
     public DataInfo processDataInfo(DataInfo dataInfo) {
         return data.getDataInfo();
     }
-    
-    public void putDataInfo(DataInfo info) {
-        dataSink.putDataInfo(data.getDataInfo());
-    }
-    
-	/* (non-Javadoc)
-	 * @see etomica.Accumulator#add(double[])
-	 */
-	protected void addData(Data dummyData) {
-		data.x++;
-	}
 
-	/* (non-Javadoc)
-	 * @see etomica.DataSource#getData()
-	 */
-	public Data getData() {
-		return data;
-	}
-	
-	public void reset() {
-		data.x = 0;
-	}
-	
-	final DataInteger data;
+    /**
+     * Increments the counter. Argument is ignored.
+     */
+    protected void addData(Data dummyData) {
+        data.x++;
+    }
+
+    /**
+     * Returns the DataInteger with the count.
+     */
+    public Data getData() {
+        return data;
+    }
+
+    /**
+     * Sets count to zero.
+     */
+    public void reset() {
+        data.x = 0;
+    }
+
+    private final DataInteger data;
 }
