@@ -30,11 +30,9 @@ import etomica.utility.Arrays;
   * integer returned by this method will indicate the location in the
   * allAtomAgents array where the agent-source's object will be held.
   * </ul>
-  * @author David Kofke and C. Daniel Barnes
+  * <p>
+  * @author David Kofke, Andrew Schultz, and C. Daniel Barnes
   * 
-  * @see Coordinate
-  * @see AtomType
-  * @see AtomTreeNode
   */
 public class Atom implements AtomSet, Comparable, java.io.Serializable {
 
@@ -156,8 +154,9 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
     public void setIntegratorAgent(Object ia) {this.ia = ia;}
 
     /**
-     * Implementation of Comparable interface.  Returns -1, 0, 1 if given atom
-     * is less, equal, or greater, respectively, than this atom.  
+     * Implementation of Comparable interface, with order decided by 
+     * placement in Atom hierarchy.  Returns -1, 0, 1 if given Atom
+     * is less, equal, or greater, respectively, than this Atom.  
      * Order is determined by compareTo method of atoms' nodes.
      */
     public int compareTo(Object atom) {
@@ -166,8 +165,6 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
     
     /**
      * Coordinates of this atom.
-     * When the atom is constructed the coordinate class is provided by the 
-     * governing Space for the simulation.
      */
     public final ICoordinate coord;
     

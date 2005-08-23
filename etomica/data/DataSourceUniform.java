@@ -9,7 +9,7 @@ import etomica.units.Dimension;
  * two limits. Number of points and range can be configured. Range can be set
  * inclusive or exclusive of end points (independently). A physical dimension
  * (e.g., length, time) can be associated with the data at construction (only).
- * <br>
+ * <p>
  * Used principally to provide a set of "x" values for a function or plot.
  * 
  * @author David Kofke
@@ -138,7 +138,7 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
         calculateX(x.length, xMin, xMax, typeMin, typeMax);
      }
      /**
-      * Accessor method for the left limit of the range.
+      * Accessor method for the right limit of the range.
       */
       public double getXMax() {return xMax;}
       
@@ -149,7 +149,7 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
         calculateX(x.length, xMin, xMax, typeMin, typeMax);
      }
      /**
-      * Accessor method for the right limit of the range.
+      * Accessor method for the left limit of the range.
       */
       public double getXMin() {return xMin;}
      
@@ -211,8 +211,21 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
                 new LimitType("Half step"),
                 new LimitType("Exclusive"),};
     }//end of LimitType
+    
+    /**
+     * Limit type indicating that limit is included in range, and that it equals the extreme value.
+     */
     public static final LimitType INCLUSIVE = LimitType.CHOICES[0];
+    
+    /**
+     * Limit type indicating that extreme value should be one half step from the specified limit.
+     */
     public static final LimitType HALF_STEP = LimitType.CHOICES[1];
+    
+    /**
+     * Limit type indicating that specified limit is not included in the range, and that the
+     * extreme value should be one full step from the specified limit.
+     */
     public static final LimitType EXCLUSIVE = LimitType.CHOICES[2];
     
     private LimitType typeMin, typeMax;

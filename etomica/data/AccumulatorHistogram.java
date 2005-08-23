@@ -15,6 +15,8 @@ import etomica.utility.HistogramSimple;
 
 /**
  * Accumulator that keeps histogram of data.
+ * <p>
+ * Input Data must implement DataArithmetic.
  */
 public class AccumulatorHistogram extends DataAccumulator {
 
@@ -26,20 +28,24 @@ public class AccumulatorHistogram extends DataAccumulator {
         this(HistogramSimple.FACTORY);
     }
 
+    /**
+     * Creates instance using given histogram factory with default nBins of 100.
+     */
     public AccumulatorHistogram(Histogram.Factory factory) {
         this(factory, 100);
     }
 
+    /**
+     * Creates instance using the given histogram factory making histograms having
+     * the given number of bins.
+     */
     public AccumulatorHistogram(Histogram.Factory factory, int nBins) {
         this.nBins = nBins;
         histogramFactory = factory;
     }
 
     /**
-     * Adds each value in the given array to its own histogram. If the number of
-     * values is different from that given in previous calls to the method, old
-     * histogram data is discarded and new histograms are constructed (this
-     * behavior can be modified by overriding the setNData method).
+     * Adds each value in the given Data to its own histogram.
      */
     protected void addData(Data inputData) {
         DataArithmetic values = (DataArithmetic)inputData;
@@ -60,13 +66,8 @@ public class AccumulatorHistogram extends DataAccumulator {
         return data;
     }
     
-    /* (non-Javadoc)
-     * @see etomica.data.DataProcessor#makeOutputDataInfo(etomica.DataInfo)
-     */
     /**
      * Sets up data and histograms, discarding any previous results.
-     * 
-     * @param nData
      */
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
         binnedDataInfo = inputDataInfo;
@@ -100,7 +101,7 @@ public class AccumulatorHistogram extends DataAccumulator {
     }
     
     /**
-     * @return Returns nBins, the number of bins in each histogram.
+     * @return the number of bins in each histogram.
      */
     public int getNBins() {
         return nBins;
@@ -122,13 +123,16 @@ public class AccumulatorHistogram extends DataAccumulator {
         }
     }
 
+    /**
+     * Zeros histograms, discarding any previous contributions. 
+     */
     public void reset() {
         for (int i = 0; i < nData; i++)
             histogram[i].reset();
     }
 
-    /* (non-Javadoc)
-     * @see etomica.DataSource#getDataInfo()
+    /**
+     * Returns the DataInfo for the output Data.
      */
     public DataInfo getDataInfo() {
         return data.getDataInfo();
@@ -140,7 +144,5 @@ public class AccumulatorHistogram extends DataAccumulator {
     int nData;
     private Histogram.Factory histogramFactory;
     private int nBins;
-//    private DataDoubleArray dataH, dataBin;
-
 
 }

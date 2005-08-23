@@ -16,12 +16,16 @@
 </head>
 <body bgcolor="white">
 
-Provides interfaces and classes that extend or implement the {@link etomica.Action} interface,
+Provides interfaces and classes that extend or implement the <tt>Action</tt> interface,
 and perform elementary actions on simulation elements.  
 Examples include classes that move an atom, or that change the density of a phase.  
-Interfaces extending Action define actions for different <i>etomica</i> elements, such as
+Interfaces extending {@link etomica.Action Action} define actions for different <i>etomica</i> elements, such as
 Phase, Atom, and so on.  Atomset actions are expected as arguments
-to the allAtoms methods of {@link AtomIterator} and {@link AtomsetIterator}.
+to the allAtoms methods of {@link etomica.AtomIterator AtomIterator} and {@link etomica.AtomsetIterator AtomsetIterator}.
+<p>
+{@link etomica.Activity Activity} implements Action and is an abstract class appropriate
+to encapsulate more complex, time-consuming tasks.  Classes extending Activity are collected
+in {@link etomica.action.activity etomica.action.activity}.
 
 <!--
 

@@ -161,7 +161,7 @@ public class AccumulatorAverage extends DataAccumulator {
 
     /**
      * Sets the size of the block used to group data for error analysis. Has no
-     * effect on statistics accumulated so far.
+     * effect on statistics accumulated so far.  Default is 100.
      * 
      * @param blockSize
      *            new block size.
@@ -179,7 +179,8 @@ public class AccumulatorAverage extends DataAccumulator {
     }
 
     /**
-     * Prepares the accumulator for input data.
+     * Prepares the accumulator for input data.  Discards any previous 
+     * contributions to statistics.
      * 
      * @param dataInfo
      *            the DataInfo instance for the data that will be given to
