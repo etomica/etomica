@@ -1,14 +1,13 @@
 package etomica.virial.cluster;
 
-import etomica.virial.Cluster;
-import etomica.virial.MayerFunction;
+import etomica.virial.ClusterBonds;
 
 /**
  * @author kofke
  *
  * A cluster formed as a simple chain of bonds.
  */
-public class Chain extends Cluster {
+public class Chain extends ClusterBonds {
 
 	/**
 	 * Constructor for Chain.
@@ -16,7 +15,7 @@ public class Chain extends Cluster {
 	 * @param weight weight associated with cluster
 	 * @param MayerFunction bond joining each pair in ring
 	 */
-	public Chain(int n, MayerFunction f) {
-		super(n, new Cluster.BondGroup(f, Standard.chain(n)));
+	public Chain(int n) {
+		super(n, new int[][][] {Standard.chain(n)});
 	}
 }

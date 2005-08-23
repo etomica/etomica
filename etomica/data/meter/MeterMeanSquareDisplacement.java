@@ -1,11 +1,12 @@
 package etomica.data.meter;
-import etomica.AtomIterator;
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
 import etomica.IntegratorIntervalEvent;
 import etomica.IntegratorIntervalListener;
 import etomica.Space;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.atom.iterator.AtomIteratorPhaseDependent;
+import etomica.data.DataSourceScalar;
 import etomica.space.Vector;
 import etomica.units.Dimension;
 
@@ -18,96 +19,110 @@ import etomica.units.Dimension;
  *  @author David Kofke
  */
 
-public class MeterMeanSquareDisplacement extends Meter implements 
-                                                EtomicaElement {
+//seriously consider using MeterMeanSquareDisplacementFixed instead (in development project)
 
-    private int nAtoms = 0;
-    AtomIterator iterator;
-    private Vector[] rAccum, rLast;
-    private Vector deltaR;
-    private final Space space;
+//doesn't implement Meter because phase information comes from integrator
+public class MeterMeanSquareDisplacement extends DataSourceScalar {
+
     
-    public MeterMeanSquareDisplacement(Space space, AtomIterator iter) {
-        this(space);
-        setAtoms(iter);
+    public MeterMeanSquareDisplacement(Space space, Integrator integrator) {
+        this(space, integrator, new AtomIteratorLeafAtoms());
     }
-    public MeterMeanSquareDisplacement(Space space) {
-        super(1);
+
+    public MeterMeanSquareDisplacement(Space space, Integrator integrator, AtomIteratorPhaseDependent iter) {
+        super("Mean square displacement", Dimension.UNDEFINED);
         this.space = space;
-        setLabel("Mean square displacement");
-        deltaR = space.makeVector();
+        this.integrator = integrator;
+        setIterator(iter);
+        integrator.addListener(new BeforePbc(this));
+        integrator.addListener(new AfterPbc(this));
     }
     
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Mean squared displacement, suitable for diffusion calculations");
         return info;
     }
+    
+    public void setIterator(AtomIteratorPhaseDependent iterator) {
+        if(iterator == null) {
+            throw new NullPointerException("Cannot give a null iterator");
+        }
+        this.iterator = iterator;
+        if(integrator.getPhase().length > 0 && integrator.getPhase()[0] != null) {
+            iterator.setPhase(integrator.getPhase()[0]);
+            reset();
+        } else {
+            //throw an exception, because meter won't be informed when integrator has phase set
+            throw new IllegalStateException("Must first define Phase for Integrator before constructing MeterMeanSquareDisplacement");
+        }
+    }
 
-//    public Unit defaultIOUnit() {return Count.UNIT;}
-    
-    /**
-     * Returns dimensions of this meter's output (current UNDEFINED).
-     */
-    public Dimension getDimension() {return Dimension.UNDEFINED;}
-    
     /**
      * Specifies the set of atoms that will be tracked to compute their MSD.
      * The given iterator loops through the atoms.
      */
-    public void setAtoms(AtomIterator iter) {
-        iterator = iter;
-        nAtoms = iter.size();
+    public void reset() {
+        nAtoms = iterator.size();
         rAccum = new Vector[nAtoms];
         rLast = new Vector[nAtoms];
-        iter.reset();
+        iterator.reset();
         int i=0;
-        while(iter.hasNext()) {
+        while(iterator.hasNext()) {
             rAccum[i] = space.makeVector();
             rLast[i] = space.makeVector();
-            rLast[i].E(iter.nextAtom().coord.position());
+            rLast[i].E(iterator.nextAtom().coord.position());
             i++;
         }
     }
-    public AtomIterator getAtoms() {return iterator;}
     
-    public void reset() {
-        super.reset();
-        if(iterator != null) setAtoms(iterator);
-    }
-    
-    public void doMeasurement() {
+    public double getDataAsScalar() {
         double sum = 0.0;
         for(int i=0; i<nAtoms; i++) {
             sum += rAccum[i].squared();
         }
-        data[0] = sum/(double)nAtoms;
+        return sum/nAtoms;
     }
     
-    private class BeforePbc implements IntegratorIntervalListener, java.io.Serializable {
+    private static class BeforePbc implements IntegratorIntervalListener, java.io.Serializable {
+        BeforePbc(MeterMeanSquareDisplacement meter) {
+            this.meter = meter;
+        }
         public int getPriority() {return 50;}//PBC is 100-199
         public void intervalAction(IntegratorIntervalEvent evt) {
-             iterator.reset();
+//            meter.iterator.setPhase(meter.integrator.getPhase()[0]);
+            meter.iterator.reset();
             int i = 0;
             //accumulate difference from last coordinate before pbc applied
-            while(iterator.hasNext()) {
-                Vector r = iterator.nextAtom().coord.position();
-                rAccum[i].PE(r);
-                rAccum[i].ME(rLast[i]);
-                rLast[i].E(r);
+            while(meter.iterator.hasNext()) {
+                Vector r = meter.iterator.nextAtom().coord.position();
+                meter.rAccum[i].PE(r);
+                meter.rAccum[i].ME(meter.rLast[i]);
+                meter.rLast[i].E(r);
                 i++;
             }
         }//end of intervalAction    
+        final MeterMeanSquareDisplacement meter;
     }//end of BeforePbc
     
-    private class AfterPbc implements IntegratorIntervalListener, java.io.Serializable {
+    private static class AfterPbc implements IntegratorIntervalListener, java.io.Serializable {
+        AfterPbc(MeterMeanSquareDisplacement meter) {
+            this.meter = meter;
+        }
         public int getPriority() {return 200;}//PBC is 100-199
         public void intervalAction(IntegratorIntervalEvent evt) {
-            iterator.reset();
+            meter.iterator.reset();
             int i = 0;
             //accumulate difference from last coordinate before pbc applied
             //store last coordinate after pbc applied
-           while(iterator.hasNext()) {rLast[i++].E(iterator.nextAtom().coord.position());}
-        }//end of intervalAction    
+           while(meter.iterator.hasNext()) {meter.rLast[i++].E(meter.iterator.nextAtom().coord.position());}
+        }//end of intervalAction
+        final MeterMeanSquareDisplacement meter;
     }//end of AfterPbc
     
+    private int nAtoms = 0;
+    AtomIteratorPhaseDependent iterator;
+    Integrator integrator;
+    private Vector[] rAccum, rLast;
+    private final Space space;
+
 }//end of class

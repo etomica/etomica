@@ -5,7 +5,6 @@ import java.io.Serializable;
 import etomica.data.Data;
 import etomica.data.DataFactory;
 import etomica.data.DataInfo;
-import etomica.data.types.DataArray.Factory;
 import etomica.units.Dimension;
 import etomica.utility.Function;
 

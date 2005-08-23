@@ -6,7 +6,6 @@ package etomica.action;
 
 import etomica.Atom;
 import etomica.AtomIterator;
-import etomica.Integrator;
 import etomica.IntegratorIntervalEvent;
 import etomica.IntegratorIntervalListener;
 import etomica.Phase;

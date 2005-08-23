@@ -1,8 +1,6 @@
 //This class includes a main method to demonstrate its use
 package etomica.action;
 
-import javax.swing.JButton;
-
 import etomica.Action;
 import etomica.EtomicaInfo;
 import etomica.modifier.ModifierBoolean;
@@ -18,7 +16,6 @@ import etomica.modifier.ModifierBoolean;
 public class ActionToggle implements Action, java.io.Serializable {
 
     private ModifierBoolean modifier;
-    private JButton button;
     private String trueLabel = "True";
     private String falseLabel = "False";
 

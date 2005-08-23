@@ -12,7 +12,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
-import etomica.Action;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.data.AccumulatorAverage;
@@ -433,18 +432,6 @@ public class DisplayTable extends Display implements DataTableListener,
 
         public void mouseExited(MouseEvent evt) {
             panel.transferFocus();
-        }
-    }
-
-    private class LogTableAction implements Action, java.io.Serializable {
-
-        public void actionPerformed() {
-            etomica.log.LogTable log = new etomica.log.LogTable();
-            log.writeTable(tableSource, "output.xls");
-        }
-
-        public String getLabel() {
-            return "Write table to log file";
         }
     }
 

@@ -1,7 +1,6 @@
 package etomica.data;
 
 import etomica.data.types.DataGroup;
-import etomica.units.Dimension;
 import etomica.utility.Arrays;
 
 

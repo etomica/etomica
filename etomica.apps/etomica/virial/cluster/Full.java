@@ -1,6 +1,6 @@
 package etomica.virial.cluster;
 
-import etomica.virial.Cluster;
+import etomica.virial.ClusterBonds;
 import etomica.virial.MayerFunction;
 
 /**
@@ -8,14 +8,13 @@ import etomica.virial.MayerFunction;
  *
  * A cluster formed with a bond between every pair.
  */
-public class Full extends Cluster {
+public class Full extends ClusterBonds {
 
 	/**
 	 * Constructor for a fully joined cluster
 	 * @param n number of points in ring
-	 * @param MayerFunction bond joining each pair in ring
 	 */
-	public Full(int n, MayerFunction f) {
-		super(n, new BondGroup(f, Standard.full(n)));
+	public Full(int n) {
+		super(n, new int[][][] {Standard.full(n)});
 	}
 }

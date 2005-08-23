@@ -6,7 +6,6 @@ package etomica.action;
 
 import etomica.Atom;
 import etomica.Phase;
-import etomica.PhaseEvent;
 import etomica.Space;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.iterator.AtomIteratorAllMolecules;

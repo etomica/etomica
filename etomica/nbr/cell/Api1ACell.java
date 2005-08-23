@@ -26,6 +26,8 @@ import etomica.lattice.CellLattice;
 import etomica.space.BoundaryPeriodic;
 
 /**
+ * Bad comments follow.
+ * 
  * Gives pairs formed from the molecules of a species in a phase, taking one
  * molecule the species with all of its other neighboring molecules. Species is
  * specified at construction and cannot be changed afterwards. Iteration is

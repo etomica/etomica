@@ -80,31 +80,33 @@ public class PotentialMasterSite extends PotentialMaster {
      * superclass method is invoked.
      */
     public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
-		if(!enabled) return;
-    	AtomSet targetAtoms = id.getTargetAtoms();
-    	if (targetAtoms.count() == 0) {
-    		//no target atoms specified -- do one-target algorithm to SpeciesMaster
+        if (!enabled)
+            return;
+        AtomSet targetAtoms = id.getTargetAtoms();
+        if (targetAtoms.count() == 0) {
+            //no target atoms specified -- do one-target algorithm to
+            // SpeciesMaster
             neighborIterator.setPhase(phase);
             neighborIterator.setDirection(IteratorDirective.UP);
-    		calculate(phase.getSpeciesMaster(), idUp, pc, getPotentials(phase.getSpeciesMaster().type).getPotentials());
-            if(lrcMaster != null) {
+            calculate(phase.getSpeciesMaster(), idUp, pc, getPotentials(
+                    phase.getSpeciesMaster().type).getPotentials());
+            if (lrcMaster != null) {
                 lrcMaster.calculate(phase, id, pc);
             }
-    	}
-    	else if (targetAtoms instanceof Atom) {
-    		// one target atom
+        } else if (targetAtoms instanceof Atom) {
+            // one target atom
             neighborIterator.setPhase(phase);
             neighborIterator.setDirection(id.direction());
-			calculate((Atom)targetAtoms, id, pc, getPotentials(((Atom)targetAtoms).type).getPotentials());
-            if(lrcMaster != null) {
+            calculate((Atom) targetAtoms, id, pc, getPotentials(
+                    ((Atom) targetAtoms).type).getPotentials());
+            if (lrcMaster != null) {
                 lrcMaster.calculate(phase, id, pc);
             }
-    	}
-    	else {
-    		//more than one target atom
-    		super.calculate(phase, id, pc);
-    	}
-	}//end calculate
+        } else {
+            //more than one target atom
+            super.calculate(phase, id, pc);
+        }
+    }//end calculate
 	
     /**
      * Performs given PotentialCalculation using potentials/neighbors associated

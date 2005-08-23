@@ -13,7 +13,6 @@ import etomica.data.types.DataDouble;
         int current = 0;
         int pixels = 300;
         int stepsToGraph = 100;
-        boolean useMeterStatistics;
         double[] values = new double[stepsToGraph];
         double vMin = 0.0;
         double vMax = 60.0;
@@ -29,8 +28,7 @@ import etomica.data.types.DataDouble;
         etomica.units.Unit unit;
         
         public DisplayScrollingGraph() {
-            useMeterStatistics = false;
-            clear();
+             clear();
         }
         
         void clear () {
@@ -89,22 +87,16 @@ import etomica.data.types.DataDouble;
     }
         
     private void updateStatistics() {
-        if(useMeterStatistics) {
-            vAvg = meter.average();
-            stdDev = Math.sqrt(meter.variance());
+        vAvg = v2Avg = 0;
+        for (int n = 0; n < number; n++) {
+            vAvg += values[n];
+            v2Avg += values[n] * values[n];
         }
-        else {
-            vAvg = v2Avg = 0;
-            for (int n = 0; n < number; n++) {
-                vAvg += values[n];
-                v2Avg += values[n] * values[n];
-            }
-            stdDev = 0;
-            if (number > 0) {
-                vAvg /= number;
-                v2Avg /= number;
-                stdDev = Math.sqrt(v2Avg - vAvg * vAvg);
-            }
+        stdDev = 0;
+        if (number > 0) {
+            vAvg /= number;
+            v2Avg /= number;
+            stdDev = Math.sqrt(v2Avg - vAvg * vAvg);
         }
     }
     
@@ -190,8 +182,5 @@ import etomica.data.types.DataDouble;
         tickValues = newTicks;
     }
             
-    
-    public void setUseMeterStatistics(boolean b) {useMeterStatistics = b;}
-    public boolean getUseMeterStatistics() {return useMeterStatistics;}
 }
 

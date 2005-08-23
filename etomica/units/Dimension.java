@@ -1,7 +1,7 @@
 package etomica.units;
+import java.util.LinkedList;
+
 import etomica.Default;
-import etomica.Simulation;
-import etomica.utility.java2.LinkedList;
 
 public abstract class Dimension implements java.io.Serializable {
     
