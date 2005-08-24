@@ -10,6 +10,7 @@ import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Modifier;
 import etomica.util.Constants;
+import etomica.util.EnumeratedType;
 
 /**
  * A simple device the permits editing of a single value via a textbox 
@@ -395,9 +396,9 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
      * Typed constant used to indicate the type of label to be used with the display.
      */
      
-	public static class LabelType extends Constants.TypedConstant {
+	public static class LabelType extends EnumeratedType {
         public LabelType(String label) {super(label);}       
-        public Constants.TypedConstant[] choices() {return (Constants.TypedConstant[])CHOICES;}
+        public EnumeratedType[] choices() {return (EnumeratedType[])CHOICES;}
         public static final LabelType[] CHOICES = 
             new LabelType[] {
                 new LabelType("Border"),

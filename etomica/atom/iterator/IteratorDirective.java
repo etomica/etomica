@@ -4,7 +4,7 @@ import etomica.atom.Atom;
 import etomica.atom.AtomSet;
 import etomica.potential.Potential;
 import etomica.util.Constants;
-import etomica.util.Constants.TypedConstant;
+import etomica.util.EnumeratedType;
 
 /**
  * Encapsulation of a set of instructions that an AtomsetIterator
@@ -83,7 +83,7 @@ public final class IteratorDirective implements java.io.Serializable {
     public AtomSet targetAtoms = AtomSet.NULL;
     
     //IteratorDirective.Direction
-    public static final class Direction extends Constants.TypedConstant {
+    public static final class Direction extends EnumeratedType {
         
         private Direction(String label) {
             super(label);
@@ -93,7 +93,7 @@ public final class IteratorDirective implements java.io.Serializable {
             new Direction("Down"),
         };
         
-        public final Constants.TypedConstant[] choices() {return CHOICES;}
+        public final EnumeratedType[] choices() {return CHOICES;}
     }//end of Direction
     public static final Direction UP = Direction.CHOICES[0];
     public static final Direction DOWN = Direction.CHOICES[1];

@@ -14,6 +14,7 @@ import etomica.data.types.CastToDouble;
 import etomica.data.types.DataDouble;
 import etomica.units.Unit;
 import etomica.util.Constants;
+import etomica.util.EnumeratedType;
 
 /**
  * A simple display of a single value in a textbox with an associated label.
@@ -377,9 +378,9 @@ public class DisplayBox extends Display implements DataSink, EtomicaElement, jav
      * Typed constant used to indicate the type of label to be used with the display.
      */
      
-	public static class LabelType extends Constants.TypedConstant {
+	public static class LabelType extends EnumeratedType {
         public LabelType(String label) {super(label);}       
-        public Constants.TypedConstant[] choices() {return CHOICES;}
+        public EnumeratedType[] choices() {return CHOICES;}
         public static final LabelType[] CHOICES = 
             new LabelType[] {
                 new LabelType("Border"),

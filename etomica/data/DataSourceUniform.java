@@ -3,6 +3,7 @@ package etomica.data;
 import etomica.data.types.DataDoubleArray;
 import etomica.units.Dimension;
 import etomica.util.Constants;
+import etomica.util.EnumeratedType;
 
 /**
  * A DataSource object that provides a set of uniformly spaced values between
@@ -202,9 +203,9 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
 	 * To get values that lie at the centers of a set of bins (e.g., for histogramming),
 	 * use HALF_STEP for both limits.
 	 */
-	public static class LimitType extends Constants.TypedConstant {
+	public static class LimitType extends EnumeratedType {
         public LimitType(String label) {super(label);}       
-        public Constants.TypedConstant[] choices() {return CHOICES;}
+        public EnumeratedType[] choices() {return CHOICES;}
         public static final LimitType[] CHOICES = 
             new LimitType[] {
                 new LimitType("Inclusive"),

@@ -16,7 +16,7 @@ import etomica.space.ICoordinateKinetic;
 import etomica.units.Dimension;
 import etomica.util.Constants;
 import etomica.util.Default;
-import etomica.util.Constants.TypedConstant;
+import etomica.util.EnumeratedType;
 /**
  * Superclass of all molecular-dynamics integrators.
  * Extends the Integrator class by adding methods that 
@@ -97,9 +97,9 @@ public abstract class IntegratorMD extends Integrator {
         }
     }
     
-    public static class ThermostatType extends TypedConstant {
+    public static class ThermostatType extends EnumeratedType {
         protected ThermostatType(String label) {super(label);}       
-        public Constants.TypedConstant[] choices() {return CHOICES;}
+        public EnumeratedType[] choices() {return CHOICES;}
     }
     protected static final ThermostatType[] CHOICES = 
         new ThermostatType[] {

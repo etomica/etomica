@@ -2,7 +2,7 @@ package etomica;
 
 import etomica.action.Action;
 import etomica.util.Constants;
-import etomica.util.Constants.TypedConstant;
+import etomica.util.EnumeratedType;
 
 public class ControllerEvent implements java.io.Serializable {
     
@@ -23,12 +23,12 @@ public class ControllerEvent implements java.io.Serializable {
     public Type getType() {return type;}
     public Controller getController() {return controller;}
     
-    public static class Type extends TypedConstant {
+    public static class Type extends EnumeratedType {
         protected Type(String label, int index) {
             super(label);
             this.index = index;
         }       
-        public Constants.TypedConstant[] choices() {return CHOICES;}
+        public EnumeratedType[] choices() {return CHOICES;}
         public final int index;
     }//end of ValueType
     protected static final Type[] CHOICES = 

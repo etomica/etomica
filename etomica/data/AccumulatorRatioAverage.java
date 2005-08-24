@@ -6,6 +6,7 @@ import etomica.data.types.DataGroup;
 import etomica.units.Dimension;
 import etomica.util.Constants;
 import etomica.util.Function;
+import etomica.util.EnumeratedType;
 
 /**
  * Accumulator for calculating ratio between two sums
@@ -83,7 +84,7 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
     
     public static class Type extends AccumulatorAverage.Type {
         protected Type(String label, int index) {super(label,index);}       
-        public Constants.TypedConstant[] choices() {return VIRIAL_CHOICES;}
+        public EnumeratedType[] choices() {return VIRIAL_CHOICES;}
     }
     //XXX such an ugly hack!!!!
     protected static final AccumulatorAverage.Type[] VIRIAL_CHOICES = 

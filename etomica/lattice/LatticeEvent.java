@@ -1,6 +1,7 @@
 package etomica.lattice;
 import etomica.SimulationEvent;
 import etomica.util.Constants;
+import etomica.util.EnumeratedType;
 
 public class LatticeEvent extends SimulationEvent {
     
@@ -22,13 +23,13 @@ public class LatticeEvent extends SimulationEvent {
     public final LatticeEvent setLattice(AbstractLattice c) {lattice = c; return this;}
     public final AbstractLattice lattice() {return lattice;}
     
-    public static class Type extends Constants.TypedConstant {
+    public static class Type extends EnumeratedType {
         private Type(String label) {super(label);}
         public static final Type[] CHOICES = new Type[] {
             new Type("Rebuild"),
             new Type("All-site change"),
             new Type("Reset neighbors")};
-        public final Constants.TypedConstant[] choices() {return CHOICES;}
+        public final EnumeratedType[] choices() {return CHOICES;}
     }
     public static final Type REBUILD = Type.CHOICES[0];
     public static final Type ALL_SITE = Type.CHOICES[1];

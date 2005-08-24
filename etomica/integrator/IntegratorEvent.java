@@ -1,7 +1,7 @@
 package etomica.integrator;
 
 import etomica.util.Constants;
-import etomica.util.Constants.TypedConstant;
+import etomica.util.EnumeratedType;
 
 /**
  * Event object given to registered listeners when an integrator fires
@@ -45,7 +45,7 @@ public class IntegratorEvent implements java.io.Serializable {
     }
 
     //class used to mark the different types of interval events
-    public final static class Type extends Constants.TypedConstant {
+    public final static class Type extends EnumeratedType {
         public final int mask;
         private Type(String label, int mask) {
             super(label);
@@ -55,7 +55,7 @@ public class IntegratorEvent implements java.io.Serializable {
         public static final Type[] choices = new Type[] {
                 START, INTERVAL, DONE, INITIALIZE };
 
-        public final Constants.TypedConstant[] choices() {
+        public final EnumeratedType[] choices() {
             return choices;
         }
     }

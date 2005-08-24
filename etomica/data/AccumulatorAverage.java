@@ -10,7 +10,7 @@ import etomica.units.Dimension;
 import etomica.util.Constants;
 import etomica.util.Default;
 import etomica.util.Function;
-import etomica.util.Constants.TypedConstant;
+import etomica.util.EnumeratedType;
 
 /**
  * Accumulator that keeps statistics for averaging and error analysis. The
@@ -258,7 +258,7 @@ public class AccumulatorAverage extends DataAccumulator {
      * Returns an array with all the choices of enumerated types that specify
      * the statistics made by this accumulator.
      */
-    public TypedConstant[] dataChoices() {
+    public EnumeratedType[] dataChoices() {
         return CHOICES;
     }
 
@@ -268,14 +268,14 @@ public class AccumulatorAverage extends DataAccumulator {
      * array of these types can be given to the addDataSink method to specify
      * the type of statistics to be given to the DataSink.
      */
-    public static class Type extends TypedConstant {
+    public static class Type extends EnumeratedType {
 
         protected Type(String label, int index) {
             super(label);
             this.index = index;
         }
 
-        public Constants.TypedConstant[] choices() {
+        public EnumeratedType[] choices() {
             return CHOICES;
         }
 

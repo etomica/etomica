@@ -17,9 +17,9 @@ public class MCMoveEvent extends SimulationEvent {
     /**
      * Enumerated type that indicate the type of MCMoveEvent.
      */
-/*	public static class Type extends Constants.TypedConstant {
+/*	public static class Type extends Constants.EnumeratedType {
         private Type(String label) {super(label);}       
-        public Constants.TypedConstant[] choices() {return (Constants.TypedConstant[])CHOICES;}
+        public Constants.EnumeratedType[] choices() {return (Constants.EnumeratedType[])CHOICES;}
         public static final Type[] CHOICES = 
             new Type[] {
                 new Type("Trial"),

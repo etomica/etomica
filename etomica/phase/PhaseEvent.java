@@ -5,7 +5,7 @@ import etomica.atom.Atom;
 import etomica.graphics.DisplayPhaseListener;
 import etomica.space.Vector;
 import etomica.util.Constants;
-import etomica.util.Constants.TypedConstant;
+import etomica.util.EnumeratedType;
 
 /**
  * Event that conveys some happening with respect to a phase or the things it contains.
@@ -48,7 +48,7 @@ public class PhaseEvent extends SimulationEvent {
     public final PhaseEvent setScale(double s) {isoScale = s; isotropic = true; return this;}
     public final PhaseEvent setScale(Vector s) {anisoScale = s; isotropic = false; return this;}
     
-    public static class Type extends Constants.TypedConstant {
+    public static class Type extends EnumeratedType {
         private Type(String label) {super(label);}
         public static final Type[] CHOICES = new Type[] {
             new Type("Point selected"),
@@ -58,7 +58,7 @@ public class PhaseEvent extends SimulationEvent {
             new Type("Atom released"),
             new Type("Boundary PhaseInflate"),
             new Type("Reset")};
-        public final Constants.TypedConstant[] choices() {return CHOICES;}
+        public final EnumeratedType[] choices() {return CHOICES;}
     }
     public static final Type POINT_SELECTED =   Type.CHOICES[0];
     public static final Type ATOM_ADDED =       Type.CHOICES[1];
