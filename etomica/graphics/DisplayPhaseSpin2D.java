@@ -3,7 +3,7 @@ package etomica.graphics;
 import java.awt.Color;
 import java.awt.Graphics;
 
-import etomica.Atom;
+import etomica.atom.Atom;
 import etomica.lattice.RectangularLattice;
 import etomica.nbr.site.AtomSequencerSite;
 import etomica.nbr.site.AtomSite;

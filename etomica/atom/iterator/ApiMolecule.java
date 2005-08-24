@@ -4,12 +4,12 @@
  */
 package etomica.atom.iterator;
 
-import etomica.AtomPair;
-import etomica.AtomPairIterator;
-import etomica.AtomSet;
 import etomica.Phase;
 import etomica.IteratorDirective.Direction;
 import etomica.action.AtomsetAction;
+import etomica.atom.AtomPair;
+import etomica.atom.AtomPairIterator;
+import etomica.atom.AtomSet;
 
 /**
  * Adapater class that wraps three atomPair iterators, one suitable for

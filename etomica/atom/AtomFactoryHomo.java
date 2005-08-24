@@ -1,10 +1,5 @@
 package etomica.atom;
 
-import etomica.Atom;
-import etomica.AtomFactory;
-import etomica.AtomTreeNodeFactory;
-import etomica.AtomTreeNodeGroup;
-import etomica.AtomTypeGroup;
 import etomica.Conformation;
 import etomica.ConformationLinear;
 import etomica.Space;

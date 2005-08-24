@@ -1,7 +1,7 @@
-package etomica;
+package etomica.atom;
 
-import etomica.atom.AtomLinker;
-import etomica.atom.AtomSequencerFactory;
+import etomica.Conformation;
+import etomica.Species;
 import etomica.space.CoordinateFactory;
 
 /**

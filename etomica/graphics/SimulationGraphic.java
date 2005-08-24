@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import etomica.Atom;
 import etomica.Controller;
 import etomica.Default;
 import etomica.Integrator;
@@ -14,6 +13,7 @@ import etomica.Simulation;
 import etomica.SimulationContainer;
 import etomica.action.Action;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomPositionDefinition;
 import etomica.integrator.IntervalActionAdapter;

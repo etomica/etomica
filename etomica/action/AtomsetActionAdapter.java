@@ -1,6 +1,6 @@
 package etomica.action;
 
-import etomica.AtomSet;
+import etomica.atom.AtomSet;
 
 /**
  * Base class for classes that perform some elementary action on an atom.

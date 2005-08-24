@@ -4,8 +4,8 @@
  */
 package etomica.action;
 
-import etomica.Atom;
 import etomica.Space;
+import etomica.atom.Atom;
 import etomica.space.Vector;
 
 public class AtomTranslate extends AtomActionAdapter {

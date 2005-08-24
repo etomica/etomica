@@ -2,7 +2,7 @@ package etomica.graphics2;
 
 
 
-import etomica.Atom;
+import etomica.atom.Atom;
 /**
 * Simplest color scheme - colors all atoms with baseColor. 
 * @author Henrique

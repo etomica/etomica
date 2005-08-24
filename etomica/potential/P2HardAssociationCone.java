@@ -1,11 +1,11 @@
 package etomica.potential;
-import etomica.AtomPair;
-import etomica.AtomSet;
 import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Phase;
 import etomica.Space;
+import etomica.atom.AtomPair;
+import etomica.atom.AtomSet;
 import etomica.space.CoordinatePair;
 import etomica.space.ICoordinateAngular;
 import etomica.space.Vector;

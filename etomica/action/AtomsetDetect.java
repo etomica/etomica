@@ -4,8 +4,8 @@
  */
 package etomica.action;
 
-import etomica.Atom;
-import etomica.AtomSet;
+import etomica.atom.Atom;
+import etomica.atom.AtomSet;
 
 /**
  * Action that simply detects if a particular set of atoms is ever

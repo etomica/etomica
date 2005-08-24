@@ -1,8 +1,6 @@
-package etomica;
+package etomica.atom;
 
-import etomica.atom.AtomLinker;
-import etomica.atom.AtomSequencerFactory;
-import etomica.atom.AtomTypeSphere;
+import etomica.Space;
 import etomica.space.Coordinate;
 import etomica.space.CoordinateFactorySphere;
 import etomica.space.ICoordinate;

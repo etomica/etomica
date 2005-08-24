@@ -4,7 +4,7 @@
  */
 package etomica.action;
 
-import etomica.Atom;
+import etomica.atom.Atom;
 import etomica.space.ICoordinateKinetic;
 
 

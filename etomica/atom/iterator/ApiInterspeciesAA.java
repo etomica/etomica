@@ -1,9 +1,9 @@
 package etomica.atom.iterator;
 
-import etomica.AtomTreeNodeGroup;
 import etomica.Phase;
 import etomica.Species;
 import etomica.atom.AtomList;
+import etomica.atom.AtomTreeNodeGroup;
 
 /**
  * Gives pairs formed from the molecules of two different species in a phase.

@@ -1,8 +1,8 @@
 package etomica.virial;
 
-import etomica.Atom;
-import etomica.AtomPair;
 import etomica.Space;
+import etomica.atom.Atom;
+import etomica.atom.AtomPair;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomPositionDefinitionSimple;
 import etomica.exception.MethodNotImplementedException;

@@ -3,11 +3,11 @@ package etomica.junit.atom.iterator;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import etomica.Atom;
-import etomica.AtomSet;
 import etomica.action.AtomAction;
 import etomica.action.AtomsetActionAdapter;
+import etomica.atom.Atom;
 import etomica.atom.AtomList;
+import etomica.atom.AtomSet;
 import etomica.atom.iterator.AtomIteratorListTabbed;
 
 /**

@@ -1,8 +1,8 @@
 package etomica.junit.atom.iterator;
 
-import etomica.AtomTreeNodeGroup;
 import etomica.Phase;
-import etomica.SpeciesRoot;
+import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.junit.UnitTest;
 

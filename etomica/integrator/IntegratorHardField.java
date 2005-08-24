@@ -1,9 +1,5 @@
 package etomica.integrator;
 
-import etomica.Atom;
-import etomica.AtomSet;
-import etomica.AtomTypeLeaf;
-import etomica.AtomsetIterator;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
@@ -11,6 +7,10 @@ import etomica.IteratorDirective;
 import etomica.Potential;
 import etomica.PotentialMaster;
 import etomica.Space;
+import etomica.atom.Atom;
+import etomica.atom.AtomSet;
+import etomica.atom.AtomTypeLeaf;
+import etomica.atom.AtomsetIterator;
 import etomica.potential.Potential1;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;

@@ -4,13 +4,13 @@
  */
 package etomica.atom.iterator;
 
-import etomica.Atom;
-import etomica.AtomSet;
 import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Species;
-import etomica.SpeciesAgent;
+import etomica.atom.Atom;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomsetArray;
+import etomica.atom.SpeciesAgent;
 
 /**
  * Singlet iterator that returns an atom set formed from one or more of the

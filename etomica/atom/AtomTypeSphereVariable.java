@@ -4,8 +4,6 @@
  */
 package etomica.atom;
 
-import etomica.Atom;
-import etomica.AtomTypeGroup;
 import etomica.Default;
 import etomica.Parameter;
 

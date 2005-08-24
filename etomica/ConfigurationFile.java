@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+import etomica.atom.Atom;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorListCompound;
 import etomica.atom.iterator.AtomIteratorTree;

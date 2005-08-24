@@ -1,6 +1,6 @@
 package etomica.action;
 
-import etomica.Atom;
+import etomica.atom.Atom;
 
 /**
  * Interface for a class that can perform an action on an atom.

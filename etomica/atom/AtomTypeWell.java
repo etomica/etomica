@@ -4,7 +4,6 @@
  */
 package etomica.atom;
 
-import etomica.AtomTypeGroup;
 
 public final class AtomTypeWell extends AtomTypeSphere {  
     

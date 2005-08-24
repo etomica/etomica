@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.Atom;
+import etomica.atom.Atom;
 
 /**
  * Interface for potentials that change the bond state of an atom.

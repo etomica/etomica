@@ -3,9 +3,9 @@
  * Created on Sep 22, 2004 by kofke
  */
 package etomica.nbr;
-import etomica.Atom;
-import etomica.AtomPair;
 import etomica.Phase;
+import etomica.atom.Atom;
+import etomica.atom.AtomPair;
 import etomica.atom.AtomPairFilter;
 
 /**

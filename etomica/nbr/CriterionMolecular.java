@@ -1,6 +1,6 @@
 package etomica.nbr;
 
-import etomica.AtomPair;
+import etomica.atom.AtomPair;
 
 /**
  * Pair criterion that judges whether two atoms are or are not in

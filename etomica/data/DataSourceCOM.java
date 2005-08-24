@@ -1,11 +1,11 @@
 package etomica.data;
 
-import etomica.Atom;
-import etomica.AtomTypeLeaf;
 import etomica.Space;
 import etomica.action.AtomActionAdapter;
 import etomica.action.AtomGroupAction;
+import etomica.atom.Atom;
 import etomica.atom.AtomPositionDefinition;
+import etomica.atom.AtomTypeLeaf;
 import etomica.data.types.DataVector;
 import etomica.space.Vector;
 import etomica.units.Dimension;

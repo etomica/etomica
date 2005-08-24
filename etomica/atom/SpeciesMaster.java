@@ -1,9 +1,10 @@
-package etomica;
+package etomica.atom;
 
-import etomica.atom.AtomLinker;
-import etomica.atom.AtomList;
-import etomica.atom.AtomListTabbed;
-import etomica.atom.AtomLinker.Tab;
+import etomica.Phase;
+import etomica.Simulation;
+import etomica.Species;
+import etomica.SpeciesSpheres;
+import etomica.SpeciesSpheresMono;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorTree;
 
@@ -18,7 +19,7 @@ import etomica.atom.iterator.AtomIteratorTree;
 public final class SpeciesMaster extends Atom {
 
     private int moleculeCount;
-    public final static int SPECIES_TAB = Tab.requestTabType();
+    public final static int SPECIES_TAB = AtomLinker.Tab.requestTabType();
     //reference to phase is kept in node
 
     /**
@@ -27,8 +28,8 @@ public final class SpeciesMaster extends Atom {
      */
     public final AtomList atomList = new AtomListTabbed();
 
-    SpeciesMaster(Simulation sim, Phase p) {
-        super(null, sim.speciesRoot.childType, new NodeFactory(p),
+    public SpeciesMaster(Simulation sim, Phase p) {
+        super(null, sim.speciesRoot.getChildType(), new NodeFactory(p),
                 AtomLinker.FACTORY);
     }
 

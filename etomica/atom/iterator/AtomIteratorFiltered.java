@@ -4,17 +4,17 @@
  */
 package etomica.atom.iterator;
 
-import etomica.Atom;
-import etomica.AtomIterator;
-import etomica.AtomSet;
 import etomica.Phase;
 import etomica.IteratorDirective.Direction;
 import etomica.action.AtomAction;
 import etomica.action.AtomActionAdapter;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
+import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
+import etomica.atom.AtomIterator;
 import etomica.atom.AtomList;
+import etomica.atom.AtomSet;
 
 /**
  * Wraps an AtomIterator and filters its iterates so that only those meeting

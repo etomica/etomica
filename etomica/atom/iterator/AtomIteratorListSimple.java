@@ -1,10 +1,10 @@
 package etomica.atom.iterator;
 
-import etomica.AtomSet;
 import etomica.IteratorDirective;
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomList;
 import etomica.atom.AtomListTabbed;
+import etomica.atom.AtomSet;
 
 /**
  * Iterates through the elements of an untabbed AtomList instance. Iterates

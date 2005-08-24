@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.AtomType;
+import etomica.atom.AtomType;
 
 
 /**

@@ -1,6 +1,6 @@
 package etomica.action;
-import etomica.Atom;
-import etomica.AtomIterator;
+import etomica.atom.Atom;
+import etomica.atom.AtomIterator;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 

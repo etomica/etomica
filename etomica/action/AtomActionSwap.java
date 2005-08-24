@@ -6,8 +6,8 @@
  */
 package etomica.action;
 
-import etomica.AtomPair;
-import etomica.AtomSet;
+import etomica.atom.AtomPair;
+import etomica.atom.AtomSet;
 
 
 public class AtomActionSwap extends AtomsetActionAdapter {

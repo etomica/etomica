@@ -1,7 +1,10 @@
-package etomica;
+package etomica.atom;
 
-import etomica.atom.AtomLinker;
-import etomica.atom.AtomList;
+import etomica.Phase;
+import etomica.PhaseEvent;
+import etomica.PhaseListener;
+import etomica.SimulationEventManager;
+import etomica.Species;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.utility.Arrays;
 
@@ -14,7 +17,7 @@ import etomica.utility.Arrays;
  
 public final class SpeciesRoot extends Atom {
     
-    final AtomTypeGroup childType;//accessed by SpeciesMaster
+    private final AtomTypeGroup childType;//accessed by SpeciesMaster
     private Species[] speciesList = new Species[0];
     //manager and events for addition/removal of descendant atoms
     private final SimulationEventManager eventManager = new SimulationEventManager();
@@ -23,7 +26,7 @@ public final class SpeciesRoot extends Atom {
     private final PhaseEvent removalEvent = new PhaseEvent(this,
             PhaseEvent.ATOM_REMOVED);
 
-    SpeciesRoot(int[] bitLength) {
+    public SpeciesRoot(int[] bitLength) {
         super(null, new AtomTypeRoot(AtomIndexManager.makeRootIndexManager(bitLength)), new NodeFactory(), AtomLinker.FACTORY);
         childType = new AtomTypeGroup((AtomTypeGroup)type,null);
         node.setOrdinal(1);
@@ -38,7 +41,8 @@ public final class SpeciesRoot extends Atom {
      * 
      * @return the index assigned to the new species
      */
-    int addSpecies(Species species) {
+    //would prefer this weren't public, but must be accessed by Species
+    public int addSpecies(Species species) {
         speciesList = (Species[])Arrays.addObject(speciesList,species);
         AtomList speciesMasters = ((AtomTreeNodeGroup)node).childList;
         AtomIteratorListSimple iterator = new AtomIteratorListSimple(speciesMasters);
@@ -66,6 +70,14 @@ public final class SpeciesRoot extends Atom {
 
     public synchronized void removeListener(PhaseListener listener) {
         eventManager.removeListener(listener);
+    }
+
+
+    /**
+     * @return Returns the childType.
+     */
+    public AtomTypeGroup getChildType() {
+        return childType;
     }
 
 

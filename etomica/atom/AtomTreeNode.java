@@ -1,4 +1,7 @@
-package etomica;
+package etomica.atom;
+
+import etomica.Phase;
+import etomica.atom.SpeciesAgent.AgentAtomTreeNode;
 
 
 /**

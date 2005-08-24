@@ -1,8 +1,8 @@
 package etomica.potential;
 
-import etomica.AtomSet;
 import etomica.Potential;
 import etomica.Space;
+import etomica.atom.AtomSet;
 
 /**
  * @author kofke

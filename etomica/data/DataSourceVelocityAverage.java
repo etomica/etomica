@@ -1,10 +1,10 @@
 package etomica.data;
 
-import etomica.Atom;
-import etomica.AtomTypeLeaf;
 import etomica.Space;
 import etomica.action.AtomActionAdapter;
 import etomica.action.AtomGroupAction;
+import etomica.atom.Atom;
+import etomica.atom.AtomTypeLeaf;
 import etomica.data.types.DataVector;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;

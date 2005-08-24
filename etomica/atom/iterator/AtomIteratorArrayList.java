@@ -1,10 +1,10 @@
 package etomica.atom.iterator;
 
-import etomica.Atom;
-import etomica.AtomIterator;
-import etomica.AtomSet;
 import etomica.action.AtomsetAction;
+import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomIterator;
+import etomica.atom.AtomSet;
 
  /**
   * An atom iterator of the elements from an AtomArrayList (in proper

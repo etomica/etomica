@@ -1,6 +1,6 @@
-package etomica;
+package etomica.atom;
 
-import etomica.atom.AtomPositionDefinition;
+import etomica.Species;
 
 /**
  * Type for atom that is a group of other atoms, and for which its node is an

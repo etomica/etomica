@@ -4,12 +4,12 @@
  */
 package etomica.atom.iterator;
 
-import etomica.AtomPair;
-import etomica.AtomPairIterator;
-import etomica.AtomSet;
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
+import etomica.atom.AtomPair;
+import etomica.atom.AtomPairIterator;
+import etomica.atom.AtomSet;
 
 /**
  * Returns all pairs formed from two different untabbed lists of atoms.

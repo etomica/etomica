@@ -1,9 +1,9 @@
 package etomica.graphics;
 
 import etomica.Simulation;
-import etomica.SpeciesAgent;
 import etomica.action.Action;
 import etomica.action.ActionGroup;
+import etomica.atom.SpeciesAgent;
 import etomica.modifier.ModifierNMolecule;
 import etomica.simulations.HSMD2D;
 

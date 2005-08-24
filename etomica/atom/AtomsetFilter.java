@@ -1,6 +1,5 @@
 package etomica.atom;
 
-import etomica.AtomSet;
 
 /**
  * Interface for a class that screens atoms according

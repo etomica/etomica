@@ -1,6 +1,5 @@
 package etomica.tests;
 
-import etomica.AtomType;
 import etomica.ConfigurationFile;
 import etomica.ConformationLinear;
 import etomica.Default;
@@ -11,6 +10,7 @@ import etomica.Species;
 import etomica.SpeciesSpheres;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
+import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;

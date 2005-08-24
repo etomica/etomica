@@ -4,7 +4,6 @@
  */
 package etomica.atom;
 
-import etomica.Atom;
 
 /**
  * AtomSequencer is used to structure all the atoms in a phase into

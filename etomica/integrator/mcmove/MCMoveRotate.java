@@ -1,10 +1,10 @@
 package etomica.integrator.mcmove;
 
-import etomica.Atom;
-import etomica.AtomIterator;
 import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Space;
+import etomica.atom.Atom;
+import etomica.atom.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.MCMove;

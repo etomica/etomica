@@ -4,9 +4,9 @@
  */
 package etomica.atom.iterator;
 
-import etomica.AtomSet;
-import etomica.AtomsetIterator;
 import etomica.action.AtomsetAction;
+import etomica.atom.AtomSet;
+import etomica.atom.AtomsetIterator;
 
 /**
  * Adapater class that wraps another AtomsetIterator to implement the

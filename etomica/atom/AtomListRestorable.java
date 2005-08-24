@@ -1,7 +1,5 @@
 package etomica.atom;
 
-import etomica.Atom;
-import etomica.AtomIterator;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.SpeciesSpheresMono;

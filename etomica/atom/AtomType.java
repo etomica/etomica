@@ -1,6 +1,9 @@
-package etomica;
+package etomica.atom;
 
-import etomica.atom.AtomPositionDefinition;
+import etomica.Default;
+import etomica.Parameter;
+import etomica.Species;
+import etomica.Parameter.Source;
 import etomica.utility.Arrays;
 
 //import etomica.electrostatics.*;

@@ -1,6 +1,5 @@
 package etomica.atom;
 
-import etomica.Atom;
 import etomica.Space;
 import etomica.action.AtomActionAdapter;
 import etomica.action.AtomGroupAction;

@@ -1,12 +1,12 @@
 package etomica.potential;
 
-import etomica.AtomPair;
-import etomica.AtomSet;
-import etomica.AtomTypeLeaf;
 import etomica.Debug;
 import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.Space;
+import etomica.atom.AtomPair;
+import etomica.atom.AtomSet;
+import etomica.atom.AtomTypeLeaf;
 import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Tensor;

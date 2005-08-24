@@ -1,8 +1,8 @@
 package etomica.potential;
 
-import etomica.AtomSet;
 import etomica.Phase;
 import etomica.Space;
+import etomica.atom.AtomSet;
 import etomica.space.Tensor;
 
 /**

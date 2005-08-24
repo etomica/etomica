@@ -4,8 +4,7 @@
  */
 package etomica.atom;
 
-import etomica.AtomTypeGroup;
-import etomica.AtomType.SphericalTop;
+import etomica.atom.AtomType.SphericalTop;
 
 
 /**

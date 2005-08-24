@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomSequencerFactory;
+import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.space.CoordinateFactorySphere;
 import etomica.units.Dimension;

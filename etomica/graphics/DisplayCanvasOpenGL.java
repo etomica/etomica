@@ -3,7 +3,7 @@ import etomica.Phase;
 import etomica.PhaseEvent;
 import etomica.PhaseListener;
 import etomica.SimulationEvent;
-import etomica.SpeciesRoot;
+import etomica.atom.SpeciesRoot;
 import gl4java.awt.GLAnimCanvas;
 
 import java.awt.Dimension;

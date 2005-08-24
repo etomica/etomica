@@ -1,6 +1,5 @@
 package etomica.simulations;
 
-import etomica.AtomType;
 import etomica.ConfigurationLattice;
 import etomica.Default;
 import etomica.Phase;
@@ -9,6 +8,7 @@ import etomica.Space;
 import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.SimulationGraphic;

@@ -4,7 +4,7 @@
  */
 package etomica.nbr.cell;
 
-import etomica.Atom;
+import etomica.atom.Atom;
 import etomica.atom.AtomList;
 import etomica.lattice.AbstractLattice;
 import etomica.lattice.RectangularLattice;

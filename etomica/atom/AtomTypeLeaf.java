@@ -1,7 +1,5 @@
-package etomica;
+package etomica.atom;
 
-import etomica.atom.AtomPositionDefinition;
-import etomica.atom.AtomPositionDefinitionSimple;
 import etomica.units.Dimension;
 
 /**

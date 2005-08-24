@@ -7,8 +7,8 @@ import java.awt.RenderingHints;
 import java.awt.TextField;
 import java.util.Iterator;
 
-import etomica.Atom;
 import etomica.Species;
+import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;

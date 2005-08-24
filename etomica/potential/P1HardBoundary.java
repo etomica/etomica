@@ -3,12 +3,12 @@ package etomica.potential;
 
 import java.awt.Color;
 
-import etomica.Atom;
-import etomica.AtomSet;
 import etomica.Debug;
 import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.Space;
+import etomica.atom.Atom;
+import etomica.atom.AtomSet;
 import etomica.graphics.Drawable;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Tensor;

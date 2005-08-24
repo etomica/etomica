@@ -14,8 +14,6 @@
 
 package etomica.atom;
 
-import etomica.Atom;
-import etomica.AtomIterator;
 import etomica.Debug;
 import etomica.atom.iterator.AtomIteratorArrayList;
 

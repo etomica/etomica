@@ -1,5 +1,4 @@
 package etomica.simulations;
-import etomica.AtomTypeLeaf;
 import etomica.Configuration;
 import etomica.ConfigurationLattice;
 import etomica.Controller;
@@ -9,6 +8,7 @@ import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;

@@ -1,12 +1,12 @@
 package etomica.virial.simulations;
 
-import etomica.AtomTypeGroup;
 import etomica.Default;
 import etomica.Integrator;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomTypeGroup;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;

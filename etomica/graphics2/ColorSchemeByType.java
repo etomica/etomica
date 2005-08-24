@@ -1,7 +1,7 @@
 package etomica.graphics2;
 
-import etomica.Atom;
-import etomica.AtomType;
+import etomica.atom.Atom;
+import etomica.atom.AtomType;
 
 import java.util.ArrayList;
 import java.util.HashMap;

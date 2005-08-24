@@ -1,5 +1,6 @@
 package etomica;
 
+import etomica.atom.AtomSet;
 import etomica.compatibility.FeatureSet;
 import etomica.units.Dimension;
 import etomica.utility.NameMaker;

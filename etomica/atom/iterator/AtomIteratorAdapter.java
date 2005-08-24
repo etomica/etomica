@@ -4,8 +4,8 @@
  */
 package etomica.atom.iterator;
 
-import etomica.Atom;
-import etomica.AtomIterator;
+import etomica.atom.Atom;
+import etomica.atom.AtomIterator;
 
 /**
  * Adapater class that wraps another AtomIterator to implement the

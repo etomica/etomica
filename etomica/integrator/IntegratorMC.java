@@ -1,6 +1,5 @@
 package etomica.integrator;
 
-import etomica.Atom;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
@@ -8,6 +7,7 @@ import etomica.Phase;
 import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.SimulationEventManager;
+import etomica.atom.Atom;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveListener;
 

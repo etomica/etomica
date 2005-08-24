@@ -4,8 +4,8 @@
  */
 package etomica.atom.iterator;
 
-import etomica.AtomIterator;
 import etomica.Phase;
+import etomica.atom.AtomIterator;
 
 /**
  * Interface indicating that an atom iterator can determine appropriate

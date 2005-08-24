@@ -2,7 +2,6 @@ package etomica.atom;
 
 import java.io.Serializable;
 
-import etomica.Atom;
 import etomica.atom.iterator.AtomIteratorSequence.AtomToLinker;
 
 /**

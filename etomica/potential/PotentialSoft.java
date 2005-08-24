@@ -4,7 +4,7 @@
  */
 package etomica.potential;
 
-import etomica.AtomSet;
+import etomica.atom.AtomSet;
 import etomica.space.Vector;
 
 

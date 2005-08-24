@@ -1,9 +1,9 @@
 package etomica.potential;
-import etomica.Atom;
-import etomica.AtomPair;
-import etomica.AtomSet;
 import etomica.EtomicaElement;
 import etomica.Space;
+import etomica.atom.Atom;
+import etomica.atom.AtomPair;
+import etomica.atom.AtomSet;
 import etomica.space.Vector;
 import etomica.units.Dimension;
 

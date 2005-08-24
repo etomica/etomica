@@ -1,8 +1,8 @@
 package etomica.models.water;
 
-import etomica.Atom;
-import etomica.AtomTreeNodeFactory;
-import etomica.AtomTreeNodeGroup;
+import etomica.atom.Atom;
+import etomica.atom.AtomTreeNodeFactory;
+import etomica.atom.AtomTreeNodeGroup;
 
 /**
  * 
@@ -24,7 +24,7 @@ public class AtomTreeNodeWater extends AtomTreeNodeGroup {
 	public Atom H1, H2, O;
 	
 	public static final AtomTreeNodeFactory FACTORY = new AtomTreeNodeFactory() {
-		public etomica.AtomTreeNode makeNode(Atom atom) {
+		public etomica.atom.AtomTreeNode makeNode(Atom atom) {
 			return new AtomTreeNodeWater(atom);
 		}
 	};

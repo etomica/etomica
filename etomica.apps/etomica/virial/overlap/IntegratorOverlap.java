@@ -1,10 +1,10 @@
 package etomica.virial.overlap;
 
-import etomica.Atom;
 import etomica.Debug;
 import etomica.Integrator;
 import etomica.IntegratorIntervalEvent;
 import etomica.PotentialMaster;
+import etomica.atom.Atom;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;

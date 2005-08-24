@@ -4,7 +4,7 @@
  */
 package etomica.nbr.cell;
 
-import etomica.Atom;
+import etomica.atom.Atom;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomSequencerFactory;
 

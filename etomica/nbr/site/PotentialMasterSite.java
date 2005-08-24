@@ -4,19 +4,19 @@
  */
 package etomica.nbr.site;
 
-import etomica.Atom;
-import etomica.AtomPair;
-import etomica.AtomSet;
-import etomica.AtomTreeNodeGroup;
 import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Potential;
 import etomica.PotentialMaster;
 import etomica.Space;
+import etomica.atom.Atom;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
+import etomica.atom.AtomPair;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomSequencerFactory;
+import etomica.atom.AtomSet;
+import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomsetIteratorMolecule;
 import etomica.atom.iterator.AtomsetIteratorSinglet;

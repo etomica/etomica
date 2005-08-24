@@ -1,8 +1,8 @@
 package etomica.virial;
 
-import etomica.AtomPair;
-import etomica.AtomSet;
 import etomica.Space;
+import etomica.atom.AtomPair;
+import etomica.atom.AtomSet;
 import etomica.space.CoordinatePair;
 
 /**

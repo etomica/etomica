@@ -4,9 +4,9 @@
  */
 package etomica.action;
 
-import etomica.Atom;
 import etomica.Phase;
 import etomica.Space;
+import etomica.atom.Atom;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.space.Vector;

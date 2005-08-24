@@ -1,12 +1,12 @@
 package etomica.graphics;
 import java.awt.Color;
 
-import etomica.Atom;
-import etomica.AtomType;
 import etomica.Parameter;
 import etomica.Species;
 import etomica.SpeciesSpheresMono;
+import etomica.atom.Atom;
 import etomica.atom.AtomFactoryMono;
+import etomica.atom.AtomType;
 
 /**
  * Colors the atom according to the color given by its type field.  Instantiation

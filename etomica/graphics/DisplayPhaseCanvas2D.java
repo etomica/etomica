@@ -5,8 +5,8 @@ import java.awt.Graphics;
 import java.awt.TextField;
 import java.util.Iterator;
 
-import etomica.Atom;
 import etomica.Species;
+import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;

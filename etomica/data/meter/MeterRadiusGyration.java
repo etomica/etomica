@@ -1,9 +1,9 @@
 package etomica.data.meter;
 
-import etomica.Atom;
 import etomica.EtomicaInfo;
 import etomica.Phase;
 import etomica.Space;
+import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.data.DataSourceScalar;

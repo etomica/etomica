@@ -1,8 +1,8 @@
 //includes a main method to demonstrate use and to test
 package etomica.graphics2;
 
-import etomica.Atom;
-import etomica.AtomTypeLeaf;
+import etomica.atom.Atom;
+import etomica.atom.AtomTypeLeaf;
 import etomica.space.ICoordinateKinetic;
 import etomica.units.Dimension;
 import etomica.units.Kelvin;

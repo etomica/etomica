@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.atom.Atom;
+
 /**
  * Encapulates the rule used to determine the size and/or energy parameter
  * for the interaction of a pair of atoms from the size and/or energy

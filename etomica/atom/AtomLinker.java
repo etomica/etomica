@@ -2,7 +2,6 @@ package etomica.atom;
 
 import java.io.IOException;
 
-import etomica.Atom;
 import etomica.Debug;
 
 /**

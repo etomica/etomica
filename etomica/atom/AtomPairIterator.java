@@ -1,7 +1,7 @@
 /* History
  * Created on Aug 4, 2004
  */
-package etomica;
+package etomica.atom;
 
 
 /**

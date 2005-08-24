@@ -1,6 +1,8 @@
 package etomica;
 
 import etomica.atom.AtomList;
+import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIteratorListSimple;
 
 /**

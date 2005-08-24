@@ -1,7 +1,7 @@
 package etomica.potential;
-import etomica.Atom;
-import etomica.AtomSet;
 import etomica.Space;
+import etomica.atom.Atom;
+import etomica.atom.AtomSet;
 import etomica.potential.EmbeddedAtomMethodP2.Wrapper;
 import etomica.space.Vector;
 

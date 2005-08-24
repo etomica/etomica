@@ -4,12 +4,12 @@
  */
 package etomica.atom.iterator;
 
-import etomica.Atom;
-import etomica.AtomSet;
-import etomica.AtomTreeNodeGroup;
 import etomica.IteratorDirective;
 import etomica.action.AtomsetAction;
+import etomica.atom.Atom;
 import etomica.atom.AtomList;
+import etomica.atom.AtomSet;
+import etomica.atom.AtomTreeNodeGroup;
 
 /**
  * Elementary basis-dependent iterator that gives atoms meeting specification

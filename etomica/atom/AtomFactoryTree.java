@@ -1,8 +1,5 @@
 package etomica.atom;
 
-import etomica.AtomFactory;
-import etomica.AtomType;
-import etomica.AtomTypeGroup;
 import etomica.Conformation;
 import etomica.Space;
 

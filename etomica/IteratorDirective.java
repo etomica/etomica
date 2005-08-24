@@ -1,5 +1,8 @@
 package etomica;
 
+import etomica.atom.Atom;
+import etomica.atom.AtomSet;
+
 /**
  * Encapsulation of a set of instructions that an AtomsetIterator
  * uses to select the atoms it presents on iteration.

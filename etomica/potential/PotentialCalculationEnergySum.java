@@ -1,7 +1,7 @@
 package etomica.potential;
 
-import etomica.AtomsetIterator;
 import etomica.Potential;
+import etomica.atom.AtomsetIterator;
 
 /**
  * Evaluates the energy summed over all iterated atoms. Each call to doCalculate

@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.data.DataAccumulator;
 import etomica.data.meter.Meter;

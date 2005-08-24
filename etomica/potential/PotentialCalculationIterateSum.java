@@ -1,7 +1,7 @@
 package etomica.potential;
 
-import etomica.AtomsetIterator;
 import etomica.Potential;
+import etomica.atom.AtomsetIterator;
 
 /**
  * Sums the number of iterates given by an iterator.  Useful as a debugging

@@ -1,15 +1,15 @@
 package etomica.junit.atom.iterator;
 
-import etomica.Atom;
-import etomica.AtomSet;
-import etomica.AtomTreeNodeGroup;
 import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Species;
-import etomica.SpeciesRoot;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
+import etomica.atom.Atom;
+import etomica.atom.AtomSet;
+import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.AtomsetArray;
+import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.ApiIntraspecies1A;
 import etomica.junit.UnitTest;
 

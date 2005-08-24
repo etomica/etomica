@@ -1,6 +1,6 @@
 package etomica.junit.atom.iterator;
-import etomica.Atom;
 import etomica.Space;
+import etomica.atom.Atom;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.AtomListTabbed;

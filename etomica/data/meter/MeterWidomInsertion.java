@@ -1,6 +1,5 @@
 package etomica.data.meter;
 
-import etomica.Atom;
 import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.Phase;
@@ -8,6 +7,7 @@ import etomica.PotentialMaster;
 import etomica.Space;
 import etomica.Species;
 import etomica.action.AtomActionTranslateTo;
+import etomica.atom.Atom;
 import etomica.data.DataSourceScalar;
 import etomica.units.Dimension;
 

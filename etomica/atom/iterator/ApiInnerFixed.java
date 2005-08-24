@@ -1,11 +1,11 @@
 package etomica.atom.iterator;
 
-import etomica.Atom;
-import etomica.AtomIterator;
-import etomica.AtomPair;
-import etomica.AtomPairIterator;
-import etomica.AtomSet;
 import etomica.action.AtomsetAction;
+import etomica.atom.Atom;
+import etomica.atom.AtomIterator;
+import etomica.atom.AtomPair;
+import etomica.atom.AtomPairIterator;
+import etomica.atom.AtomSet;
 
 /**
  * Pair iterator synthesized from two atom iterators, such that the inner-loop

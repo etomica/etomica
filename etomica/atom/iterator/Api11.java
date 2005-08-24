@@ -1,9 +1,9 @@
 package etomica.atom.iterator;
 
-import etomica.Atom;
-import etomica.AtomSet;
-import etomica.AtomTreeNode;
 import etomica.action.AtomsetAction;
+import etomica.atom.Atom;
+import etomica.atom.AtomSet;
+import etomica.atom.AtomTreeNode;
 import etomica.atom.AtomsetArray;
 
 /**

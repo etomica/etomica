@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.AtomSet;
+import etomica.atom.AtomSet;
 
 /**
  * Methods for properties obtained for a soft, differentiable pair potential.

@@ -3,7 +3,7 @@
  */
 package etomica.nbr;
 
-import etomica.AtomPair;
+import etomica.atom.AtomPair;
 
 /**
  * @author andrew

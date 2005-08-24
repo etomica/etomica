@@ -1,10 +1,10 @@
 package etomica.potential;
 
-import etomica.AtomsetIterator;
 import etomica.IteratorDirective;
 import etomica.Potential;
 import etomica.PotentialGroup;
 import etomica.PotentialMaster;
+import etomica.atom.AtomsetIterator;
 
 /**
  * Class defining a particular action to be performed on a set of atoms using an

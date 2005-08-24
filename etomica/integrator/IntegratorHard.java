@@ -2,10 +2,6 @@ package etomica.integrator;
 
 import java.io.Serializable;
 
-import etomica.Atom;
-import etomica.AtomPair;
-import etomica.AtomSet;
-import etomica.AtomsetIterator;
 import etomica.Debug;
 import etomica.Default;
 import etomica.EtomicaInfo;
@@ -13,7 +9,11 @@ import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Potential;
 import etomica.PotentialMaster;
+import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomPair;
+import etomica.atom.AtomSet;
+import etomica.atom.AtomsetIterator;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialHard;

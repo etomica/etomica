@@ -2,9 +2,9 @@ package etomica.graphics;
 
 import java.awt.Color;
 
-import etomica.Atom;
 import etomica.Phase;
 import etomica.Simulation;
+import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.nbr.cell.Api1ACell;
 

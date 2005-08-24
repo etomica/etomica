@@ -1,7 +1,5 @@
 package etomica.atom;
 
-import etomica.Atom;
-import etomica.AtomSet;
 
 /**
  * AtomSet formed by wrapping an Atom array.  Size of array

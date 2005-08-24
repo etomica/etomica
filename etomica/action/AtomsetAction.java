@@ -1,6 +1,6 @@
 package etomica.action;
 
-import etomica.AtomSet;
+import etomica.atom.AtomSet;
 
 /**
  * Interface for a class that can perform an action on an atom set.

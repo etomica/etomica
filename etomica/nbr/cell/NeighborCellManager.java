@@ -4,19 +4,19 @@
  */
 package etomica.nbr.cell;
 
-import etomica.Atom;
-import etomica.AtomIterator;
-import etomica.AtomTypeLeaf;
 import etomica.Phase;
 import etomica.PhaseCellManager;
 import etomica.PhaseEvent;
 import etomica.PhaseListener;
 import etomica.SimulationEvent;
 import etomica.Space;
-import etomica.SpeciesRoot;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
+import etomica.atom.Atom;
+import etomica.atom.AtomIterator;
 import etomica.atom.AtomPositionDefinition;
+import etomica.atom.AtomTypeLeaf;
+import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.data.DataSourceCOM;
 import etomica.integrator.MCMove;

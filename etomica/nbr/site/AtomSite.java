@@ -4,7 +4,7 @@
  */
 package etomica.nbr.site;
 
-import etomica.Atom;
+import etomica.atom.Atom;
 import etomica.lattice.AbstractLattice;
 import etomica.lattice.RectangularLattice;
 import etomica.lattice.SiteFactory;

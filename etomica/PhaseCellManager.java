@@ -1,5 +1,6 @@
 package etomica;
 
+import etomica.atom.Atom;
 import etomica.lattice.CellLattice;
 
 /**

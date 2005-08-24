@@ -1,6 +1,5 @@
 package etomica.tests;
 
-import etomica.AtomType;
 import etomica.ConfigurationFile;
 import etomica.Default;
 import etomica.Phase;
@@ -9,6 +8,7 @@ import etomica.Space;
 import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
 import etomica.nbr.CriterionSimple;

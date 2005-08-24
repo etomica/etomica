@@ -1,6 +1,5 @@
-package etomica;
+package etomica.atom;
 
-import etomica.atom.AtomLinker;
 
 /**
  * Leaf node in the tree of atoms.  Differs from group node in having firstChild, lastChild,

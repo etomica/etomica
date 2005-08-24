@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.space.Vector;

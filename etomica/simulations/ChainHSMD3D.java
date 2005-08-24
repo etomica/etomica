@@ -2,7 +2,6 @@
 
 package etomica.simulations;
 
-import etomica.AtomType;
 import etomica.ConfigurationLattice;
 import etomica.ConformationLinear;
 import etomica.Default;
@@ -14,6 +13,7 @@ import etomica.Species;
 import etomica.SpeciesSpheres;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
+import etomica.atom.AtomType;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.CriterionSimple;

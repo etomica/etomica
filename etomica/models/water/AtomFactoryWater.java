@@ -1,14 +1,14 @@
 package etomica.models.water;
 
-import etomica.Atom;
-import etomica.AtomFactory;
-import etomica.AtomTypeGroup;
 import etomica.Simulation;
 import etomica.Species;
+import etomica.atom.Atom;
+import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomSequencerFactory;
+import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.space.CoordinateFactory;
 import etomica.space.CoordinateFactorySphere;
@@ -43,7 +43,7 @@ public class AtomFactoryWater extends AtomFactory {
 	}
 
 	/**
-	 * @see etomica.AtomFactory#build(etomica.Atom)
+	 * @see etomica.atom.AtomFactory#build(etomica.Atom)
 	 */
 	public Atom makeAtom() {
         Atom group = newParentAtom();

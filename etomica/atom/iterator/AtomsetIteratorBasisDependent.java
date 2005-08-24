@@ -4,7 +4,7 @@
  */
 package etomica.atom.iterator;
 
-import etomica.AtomSet;
+import etomica.atom.AtomSet;
 
 /**
  * Interface for an AtomIterator that can be conditioned with

@@ -4,9 +4,9 @@
  */
 package etomica.nbr;
 
-import etomica.Atom;
-import etomica.AtomPair;
 import etomica.Phase;
+import etomica.atom.Atom;
+import etomica.atom.AtomPair;
 
 /**
  * Wraps another criterion while adding additional criteria to the acceptance

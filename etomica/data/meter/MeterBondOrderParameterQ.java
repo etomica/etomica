@@ -1,10 +1,10 @@
 package etomica.data.meter;
 
-import etomica.AtomPair;
 import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.Phase;
 import etomica.Space;
+import etomica.atom.AtomPair;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
 import etomica.data.DataSourceScalar;

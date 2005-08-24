@@ -1,4 +1,10 @@
 package etomica;
+import etomica.atom.AtomFactory;
+import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.AtomType;
+import etomica.atom.AtomTypeGroup;
+import etomica.atom.SpeciesAgent;
+import etomica.atom.SpeciesMaster;
 import etomica.units.Dimension;
 import etomica.utility.NameMaker;
 
@@ -150,7 +156,7 @@ public abstract class Species implements java.io.Serializable {
      * PositionDefinition for the agent type is set to null.
      */
     public static AtomTypeGroup makeAgentType(Simulation sim) {
-        return new AtomTypeGroup(sim.speciesRoot.childType, null);
+        return new AtomTypeGroup(sim.speciesRoot.getChildType(), null);
     }
     
     public abstract SpeciesSignature getSpeciesSignature();

@@ -1,12 +1,12 @@
 package etomica.atom.iterator;
 
-import etomica.Atom;
-import etomica.AtomSet;
 import etomica.IteratorDirective;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
+import etomica.atom.Atom;
 import etomica.atom.AtomLinker;
+import etomica.atom.AtomSet;
 
 /**
  * Iterator for looping through the sequence list relative to a specified atom.

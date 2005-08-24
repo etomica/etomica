@@ -1,10 +1,10 @@
 package etomica.integrator.mcmove;
 
-import etomica.Atom;
-import etomica.AtomIterator;
 import etomica.Default;
 import etomica.Phase;
 import etomica.PotentialMaster;
+import etomica.atom.Atom;
+import etomica.atom.AtomIterator;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomLeaf;
 import etomica.atom.iterator.AtomIteratorSinglet;

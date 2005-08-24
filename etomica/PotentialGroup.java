@@ -4,6 +4,9 @@ import java.util.Arrays;
 
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterTypeInstance;
+import etomica.atom.AtomSet;
+import etomica.atom.AtomType;
+import etomica.atom.AtomsetIterator;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.AtomIteratorBasis;
 import etomica.atom.iterator.AtomIteratorFiltered;

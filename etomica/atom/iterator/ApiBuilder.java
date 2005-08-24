@@ -4,10 +4,10 @@
  */
 package etomica.atom.iterator;
 
-import etomica.AtomIterator;
-import etomica.AtomType;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterTypeInstance;
+import etomica.atom.AtomIterator;
+import etomica.atom.AtomType;
 
 /**
  * Provides static methods for construction of some useful pair iterators.

@@ -4,16 +4,16 @@
  */
 package etomica.nbr.cell;
 
-import etomica.AtomPair;
-import etomica.AtomPairIterator;
-import etomica.AtomSet;
 import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
 import etomica.atom.AtomList;
+import etomica.atom.AtomPair;
+import etomica.atom.AtomPairIterator;
 import etomica.atom.AtomPairVector;
+import etomica.atom.AtomSet;
 import etomica.atom.iterator.ApiInterList;
 import etomica.atom.iterator.ApiIntraList;
 import etomica.lattice.CellLattice;

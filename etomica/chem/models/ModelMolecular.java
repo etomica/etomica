@@ -2,18 +2,18 @@
  * Created on Jan 16, 2004
  */
 package etomica.chem.models;
-import etomica.AtomFactory;
-import etomica.AtomTreeNodeFactory;
-import etomica.AtomTypeGroup;
 import etomica.Conformation;
 import etomica.Simulation;
 import etomica.Species;
+import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryHetero;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomPositionDefinitionSimple;
 import etomica.atom.AtomSequencerFactory;
+import etomica.atom.AtomTreeNodeFactory;
 import etomica.atom.AtomTreeNodeGroupArray;
+import etomica.atom.AtomTypeGroup;
 import etomica.chem.Model;
 /**
  * Model for a molecule, which is formed from one or more sub-models, which

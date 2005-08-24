@@ -1,8 +1,8 @@
 package etomica.graphics2;
 
 
-import etomica.Atom;
 import etomica.Phase;
+import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;

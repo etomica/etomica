@@ -1,6 +1,6 @@
 package etomica.data;
 
-import etomica.Atom;
+import etomica.atom.Atom;
 
 
 /**

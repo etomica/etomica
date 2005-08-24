@@ -1,10 +1,10 @@
 
 package etomica.virial.simulations;
 
-import etomica.AtomPair;
-import etomica.AtomSet;
 import etomica.Phase;
 import etomica.Space;
+import etomica.atom.AtomPair;
+import etomica.atom.AtomSet;
 import etomica.exception.MethodNotImplementedException;
 import etomica.models.water.AtomTreeNodeWater;
 import etomica.potential.Potential2;

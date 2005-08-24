@@ -1,9 +1,6 @@
 // includes a main method
 
 package etomica.integrator;
-import etomica.Atom;
-import etomica.AtomPair;
-import etomica.AtomsetIterator;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Integrator;
@@ -13,6 +10,9 @@ import etomica.Potential;
 import etomica.PotentialMaster;
 import etomica.Space;
 import etomica.action.PhaseInflate;
+import etomica.atom.Atom;
+import etomica.atom.AtomPair;
+import etomica.atom.AtomsetIterator;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataSource;

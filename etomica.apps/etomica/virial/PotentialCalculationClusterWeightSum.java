@@ -1,7 +1,7 @@
 package etomica.virial;
 
-import etomica.AtomsetIterator;
 import etomica.Potential;
+import etomica.atom.AtomsetIterator;
 import etomica.potential.PotentialCalculation;
 
 /**

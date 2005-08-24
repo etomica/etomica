@@ -1,10 +1,10 @@
 package etomica.virial.paralleltempering;
 
-import etomica.Atom;
-import etomica.AtomIterator;
 import etomica.Integrator;
 import etomica.Phase;
 import etomica.PotentialMaster;
+import etomica.atom.Atom;
+import etomica.atom.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.integrator.IntegratorPT;

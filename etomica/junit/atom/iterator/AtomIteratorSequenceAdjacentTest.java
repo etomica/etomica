@@ -2,12 +2,12 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.Atom;
-import etomica.AtomTreeNodeGroup;
 import etomica.IteratorDirective;
-import etomica.SpeciesAgent;
-import etomica.SpeciesRoot;
+import etomica.atom.Atom;
 import etomica.atom.AtomList;
+import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.SpeciesAgent;
+import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorSequenceAdjacent;
 import etomica.junit.UnitTest;
 

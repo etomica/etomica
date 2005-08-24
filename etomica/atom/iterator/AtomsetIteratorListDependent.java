@@ -4,8 +4,8 @@
  */
 package etomica.atom.iterator;
 
-import etomica.AtomsetIterator;
 import etomica.atom.AtomList;
+import etomica.atom.AtomsetIterator;
 
 /**
  * Interface for an iterator that requires specification of an 

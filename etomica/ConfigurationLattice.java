@@ -1,7 +1,9 @@
 package etomica;
 
 import etomica.action.AtomActionTranslateTo;
+import etomica.atom.Atom;
 import etomica.atom.AtomList;
+import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorListCompound;
 import etomica.lattice.Crystal;
 import etomica.lattice.IndexIteratorSequential;
@@ -280,7 +282,7 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
 	
 	/**
 	 * Implementation of Atom.AgentSource interface.
-	 * @see etomica.Atom.AgentSource#makeAgent(Atom)
+	 * @see etomica.atom.Atom.AgentSource#makeAgent(Atom)
 	 */
 	public Object makeAgent(Atom a) {return new Agent();}
 	

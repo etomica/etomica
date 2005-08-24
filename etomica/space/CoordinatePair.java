@@ -1,9 +1,9 @@
 package etomica.space;
 
-import etomica.AtomPair;
 import etomica.NearestImageTransformer;
 import etomica.NearestImageTransformerVector;
 import etomica.Space;
+import etomica.atom.AtomPair;
 
 /*
  * History Created on Jan 24, 2005 by kofke

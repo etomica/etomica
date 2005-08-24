@@ -1,13 +1,13 @@
 package etomica.atom.iterator;
 
-import etomica.Atom;
-import etomica.AtomSet;
 import etomica.IteratorDirective;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
+import etomica.atom.Atom;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomToLinkerSeq;
 
 /**

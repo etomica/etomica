@@ -3,13 +3,13 @@ package etomica.junit.atom.iterator;
 import java.util.LinkedList;
 
 import junit.framework.TestCase;
-import etomica.Atom;
-import etomica.AtomIterator;
-import etomica.AtomPair;
-import etomica.AtomPairIterator;
-import etomica.AtomSet;
-import etomica.AtomsetIterator;
+import etomica.atom.Atom;
+import etomica.atom.AtomIterator;
+import etomica.atom.AtomPair;
+import etomica.atom.AtomPairIterator;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomsetArray;
+import etomica.atom.AtomsetIterator;
 import etomica.junit.UnitTest;
 
 /**

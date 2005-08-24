@@ -1,14 +1,14 @@
 package etomica.atom.iterator;
 
-import etomica.Atom;
-import etomica.AtomIterator;
-import etomica.AtomSet;
 import etomica.IteratorDirective;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
+import etomica.atom.Atom;
+import etomica.atom.AtomIterator;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
+import etomica.atom.AtomSet;
 
 /**
  * Atom iterator that traverses the elements of a tabbed (or untabbed) atom

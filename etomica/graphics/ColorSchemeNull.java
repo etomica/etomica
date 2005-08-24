@@ -1,7 +1,7 @@
 package etomica.graphics;
 import java.awt.Color;
 
-import etomica.Atom;
+import etomica.atom.Atom;
 
 /**
  * Does nothing at any time to set atom's color, leaving color to be set to default value.

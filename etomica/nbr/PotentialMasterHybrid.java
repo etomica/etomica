@@ -4,7 +4,6 @@
  */
 package etomica.nbr;
 
-import etomica.AtomType;
 import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Potential;
@@ -13,6 +12,7 @@ import etomica.Space;
 import etomica.Species;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomSequencerFactory;
+import etomica.atom.AtomType;
 import etomica.nbr.cell.IteratorFactoryCell;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;

@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.atom.Atom;
+
 /**
  * Lorenz-Berthelot combining rule, in which the pair diameter is given
  * by the arithmetic mean of the individual atom diamters, and the pair

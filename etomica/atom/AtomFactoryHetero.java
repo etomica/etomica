@@ -2,11 +2,6 @@ package etomica.atom;
 
 import java.util.Arrays;
 
-import etomica.Atom;
-import etomica.AtomFactory;
-import etomica.AtomTreeNodeFactory;
-import etomica.AtomTreeNodeGroup;
-import etomica.AtomTypeGroup;
 import etomica.Conformation;
 import etomica.ConformationLinear;
 import etomica.Space;

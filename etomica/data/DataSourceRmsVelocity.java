@@ -1,8 +1,8 @@
 package etomica.data;
 
-import etomica.Atom;
-import etomica.AtomIterator;
 import etomica.EtomicaElement;
+import etomica.atom.Atom;
+import etomica.atom.AtomIterator;
 import etomica.space.ICoordinateKinetic;
 import etomica.units.Dimension;
 

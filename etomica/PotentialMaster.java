@@ -3,6 +3,8 @@ package etomica;
 import java.util.Arrays;
 
 import etomica.atom.AtomSequencerFactory;
+import etomica.atom.AtomSet;
+import etomica.atom.AtomType;
 import etomica.atom.iterator.AtomsetIteratorMolecule;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.potential.Potential0;

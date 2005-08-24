@@ -1,7 +1,5 @@
 package etomica.integrator;
 
-import etomica.Atom;
-import etomica.AtomTypeLeaf;
 import etomica.Constants;
 import etomica.Default;
 import etomica.Integrator;
@@ -10,7 +8,9 @@ import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.Constants.TypedConstant;
 import etomica.action.AtomActionRandomizeVelocity;
+import etomica.atom.Atom;
 import etomica.atom.AtomList;
+import etomica.atom.AtomTypeLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;

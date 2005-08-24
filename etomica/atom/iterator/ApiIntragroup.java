@@ -4,12 +4,12 @@
  */
 package etomica.atom.iterator;
 
-import etomica.AtomIterator;
-import etomica.AtomSet;
 import etomica.IteratorDirective;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
+import etomica.atom.AtomIterator;
+import etomica.atom.AtomSet;
 
 /**
  * Returns iterates from from the childList of a single basis atom.  Behavior is set

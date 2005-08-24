@@ -4,12 +4,12 @@
  */
 package etomica.action;
 
-import etomica.Atom;
-import etomica.AtomIterator;
 import etomica.IntegratorIntervalEvent;
 import etomica.IntegratorIntervalListener;
 import etomica.Phase;
 import etomica.Space;
+import etomica.atom.Atom;
+import etomica.atom.AtomIterator;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;

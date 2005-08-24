@@ -1,8 +1,8 @@
 package etomica.virial;
 
-import etomica.Atom;
-import etomica.AtomPair;
+import etomica.atom.Atom;
 import etomica.atom.AtomList;
+import etomica.atom.AtomPair;
 import etomica.atom.iterator.AtomIteratorListTabbed;
 
 /**

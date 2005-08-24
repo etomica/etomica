@@ -1,10 +1,10 @@
 package etomica.atom.iterator;
 
-import etomica.Atom;
-import etomica.AtomPair;
-import etomica.AtomPairIterator;
-import etomica.AtomSet;
 import etomica.action.AtomsetAction;
+import etomica.atom.Atom;
+import etomica.atom.AtomPair;
+import etomica.atom.AtomPairIterator;
+import etomica.atom.AtomSet;
 
 /**
  * Iterator that expires after returning a single atom pair, which is specified

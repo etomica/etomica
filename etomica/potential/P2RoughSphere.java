@@ -1,13 +1,13 @@
 package etomica.potential;
 
-import etomica.Atom;
-import etomica.AtomPair;
-import etomica.AtomSet;
-import etomica.AtomType;
-import etomica.AtomTypeLeaf;
 import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.Space;
+import etomica.atom.Atom;
+import etomica.atom.AtomPair;
+import etomica.atom.AtomSet;
+import etomica.atom.AtomType;
+import etomica.atom.AtomTypeLeaf;
 import etomica.space.ICoordinateAngularKinetic;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Tensor;

@@ -10,8 +10,8 @@ import java.awt.image.MemoryImageSource;
 import java.util.Hashtable;
 import java.util.Iterator;
 
-import etomica.Atom;
 import etomica.Species;
+import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;

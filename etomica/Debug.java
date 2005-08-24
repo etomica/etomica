@@ -1,6 +1,8 @@
 package etomica;
 
+import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.integrator.IntegratorHard;
 import etomica.nbr.list.AtomSequencerNbr;
 

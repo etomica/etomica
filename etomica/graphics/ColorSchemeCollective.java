@@ -1,8 +1,8 @@
 package etomica.graphics;
 import java.awt.Color;
 
-import etomica.Atom;
 import etomica.Phase;
+import etomica.atom.Atom;
 
 /**
  * Parent class for color schemes that are best implemented by attaching colors

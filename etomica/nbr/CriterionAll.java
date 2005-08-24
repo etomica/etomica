@@ -4,9 +4,9 @@
  */
 package etomica.nbr;
 
-import etomica.Atom;
-import etomica.AtomPair;
 import etomica.Phase;
+import etomica.atom.Atom;
+import etomica.atom.AtomPair;
 
 /**
  * Specifies that all atoms pairs are to be considered neighbors.  Should

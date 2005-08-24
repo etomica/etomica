@@ -1,8 +1,8 @@
 package etomica.integrator;
 
-import etomica.AtomIterator;
 import etomica.Phase;
 import etomica.PotentialMaster;
+import etomica.atom.AtomIterator;
 
 /**
  * Parent class for all elementary Monte Carlo move classes, as used by

@@ -2,7 +2,6 @@
 
 package etomica.simulations;
 
-import etomica.Atom;
 import etomica.ConfigurationLattice;
 import etomica.Controller;
 import etomica.Modifier;
@@ -12,6 +11,7 @@ import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.Atom;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayPhase;
 import etomica.integrator.IntegratorHard;
