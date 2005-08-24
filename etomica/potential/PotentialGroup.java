@@ -1,21 +1,23 @@
-package etomica;
+package etomica.potential;
 
 import java.util.Arrays;
 
+import etomica.Phase;
+import etomica.Space;
+import etomica.Species;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterTypeInstance;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
-import etomica.atom.AtomsetIterator;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.AtomIteratorBasis;
 import etomica.atom.iterator.AtomIteratorFiltered;
+import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.AtomsetIteratorSpeciesAgent;
-import etomica.potential.Potential0Lrc;
-import etomica.potential.PotentialCalculation;
-import etomica.potential.PotentialTruncated;
+import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.iterator.IteratorDirective.Direction;
 
 /**
  * Collection of potentials that act between the atoms contained in

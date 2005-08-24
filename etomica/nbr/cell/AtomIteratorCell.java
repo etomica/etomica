@@ -9,9 +9,9 @@ import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
 import etomica.atom.Atom;
-import etomica.atom.AtomIterator;
 import etomica.atom.AtomList;
 import etomica.atom.AtomSet;
+import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.lattice.RectangularLattice;
 

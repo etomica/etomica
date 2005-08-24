@@ -1,6 +1,5 @@
 package etomica.virial.simulations;
 
-import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
@@ -12,6 +11,7 @@ import etomica.data.meter.Meter;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.MCMove;
 import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.potential.PotentialMaster;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ConfigurationCluster;

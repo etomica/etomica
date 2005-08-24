@@ -15,7 +15,6 @@ import javax.swing.UIManager;
 
 import etomica.Default;
 import etomica.Modifier;
-import etomica.PotentialGroup;
 import etomica.action.Action;
 import etomica.atom.AtomTypeSphere;
 import etomica.data.AccumulatorAverage;
@@ -47,6 +46,7 @@ import etomica.potential.P2HardSphere;
 import etomica.potential.P2Ideal;
 import etomica.potential.P2SquareWell;
 import etomica.potential.Potential2HardSphericalWrapper;
+import etomica.potential.PotentialGroup;
 import etomica.units.Angstrom;
 import etomica.units.Bar;
 import etomica.units.BaseUnit;

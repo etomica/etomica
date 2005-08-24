@@ -2,7 +2,7 @@ package etomica.data;
 
 import etomica.EtomicaElement;
 import etomica.atom.Atom;
-import etomica.atom.AtomIterator;
+import etomica.atom.iterator.AtomIterator;
 import etomica.space.ICoordinateKinetic;
 import etomica.units.Dimension;
 

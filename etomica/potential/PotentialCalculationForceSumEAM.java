@@ -1,12 +1,11 @@
 package etomica.potential;
 
 import etomica.Integrator;
-import etomica.Potential;
 import etomica.Space;
 import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
-import etomica.atom.AtomsetIterator;
+import etomica.atom.iterator.AtomsetIterator;
 import etomica.space.Vector;
 
 /**

@@ -8,7 +8,6 @@ import etomica.action.AtomsetAction;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomPairIterator;
 import etomica.atom.AtomSet;
 
 /**

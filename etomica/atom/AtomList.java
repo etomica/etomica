@@ -12,6 +12,7 @@ import java.util.Vector;
 import etomica.Debug;
 import etomica.utility.EtomicaObjectInputStream;
 import etomica.Simulation;
+import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorListSimple;
 
 /**

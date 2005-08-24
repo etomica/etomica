@@ -1,4 +1,4 @@
-package etomica;
+package etomica.potential;
 
 import etomica.atom.Atom;
 

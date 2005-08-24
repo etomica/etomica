@@ -10,12 +10,12 @@ import java.util.LinkedList;
 
 import etomica.action.PhaseInflate;
 import etomica.atom.Atom;
-import etomica.atom.AtomIterator;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesMaster;
+import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.lattice.RectangularLattice;

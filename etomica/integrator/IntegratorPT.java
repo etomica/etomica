@@ -6,7 +6,6 @@ import etomica.Integrator;
 import etomica.IntegratorIntervalEvent;
 import etomica.IntegratorNonintervalEvent;
 import etomica.Phase;
-import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.SimulationEvent;
 import etomica.data.Data;
@@ -16,6 +15,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveListener;
 import etomica.integrator.mcmove.MCMoveSwapConfiguration;
+import etomica.potential.PotentialMaster;
 import etomica.units.Dimension;
 import etomica.utility.Arrays;
 

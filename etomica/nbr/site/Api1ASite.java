@@ -5,14 +5,14 @@
 package etomica.nbr.site;
 
 import etomica.Phase;
-import etomica.IteratorDirective.Direction;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomPairIterator;
 import etomica.atom.AtomSet;
+import etomica.atom.iterator.AtomPairIterator;
 import etomica.atom.iterator.AtomsetIteratorMolecule;
+import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLatticeNbrIterator;
 import etomica.lattice.RectangularLatticeNbrIteratorAdjacent;

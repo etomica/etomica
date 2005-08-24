@@ -1,9 +1,10 @@
 /* History
  * Created on Aug 4, 2004
  */
-package etomica.atom;
+package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
+import etomica.atom.AtomSet;
 
 /**
  * Interface for classes that loop over a set of atoms. Permits

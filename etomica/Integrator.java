@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.utility.Arrays;

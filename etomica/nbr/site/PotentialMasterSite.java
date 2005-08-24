@@ -4,10 +4,7 @@
  */
 package etomica.nbr.site;
 
-import etomica.IteratorDirective;
 import etomica.Phase;
-import etomica.Potential;
-import etomica.PotentialMaster;
 import etomica.Space;
 import etomica.atom.Atom;
 import etomica.atom.AtomLinker;
@@ -20,12 +17,15 @@ import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomsetIteratorMolecule;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
+import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.PotentialCalculationAgents;
 import etomica.nbr.cell.IteratorFactoryCell;
 import etomica.nbr.cell.NeighborCellManager;
+import etomica.potential.Potential;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialCalculation;
+import etomica.potential.PotentialMaster;
 
 /**
  * 

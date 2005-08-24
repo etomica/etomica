@@ -2,10 +2,10 @@
  * Created on Jan 16, 2004
  */
 package etomica.chem;
-import etomica.Potential;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.atom.AtomFactory;
+import etomica.potential.Potential;
 
 /**
  * Top-level class for a molecular model.

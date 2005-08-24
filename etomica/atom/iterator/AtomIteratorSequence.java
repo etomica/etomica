@@ -1,6 +1,5 @@
 package etomica.atom.iterator;
 
-import etomica.IteratorDirective;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;

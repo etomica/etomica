@@ -2,10 +2,8 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.IteratorDirective;
 import etomica.atom.Atom;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomPairIterator;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.AtomType;
@@ -14,6 +12,8 @@ import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIntergroup;
 import etomica.atom.iterator.ApiIntragroup;
+import etomica.atom.iterator.AtomPairIterator;
+import etomica.atom.iterator.IteratorDirective;
 import etomica.junit.UnitTest;
 
 /**

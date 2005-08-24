@@ -3,7 +3,6 @@ package etomica.atom.iterator;
 import etomica.action.AtomsetAction;
 import etomica.atom.Atom;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomPairIterator;
 import etomica.atom.AtomSet;
 
 /**

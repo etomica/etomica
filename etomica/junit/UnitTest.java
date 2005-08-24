@@ -1,7 +1,6 @@
 package etomica.junit;
 
 import etomica.Phase;
-import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
@@ -19,6 +18,7 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorTree;
+import etomica.potential.PotentialMaster;
 import etomica.space.CoordinateFactorySphere;
 import etomica.space3d.Space3D;
 

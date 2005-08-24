@@ -2,13 +2,13 @@ package etomica.integrator.mcmove;
 
 import etomica.Default;
 import etomica.Phase;
-import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.action.PhaseInflate;
-import etomica.atom.AtomIterator;
+import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.MCMove;
+import etomica.potential.PotentialMaster;
 import etomica.units.Dimension;
 
 /**

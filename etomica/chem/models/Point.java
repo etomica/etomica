@@ -1,9 +1,9 @@
 package etomica.chem.models;
 
-import etomica.Potential;
 import etomica.Space;
 import etomica.chem.Electrostatic;
 import etomica.chem.Element;
+import etomica.potential.Potential;
 
 /**
  * @author zhaofang

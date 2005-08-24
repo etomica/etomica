@@ -1,6 +1,5 @@
 package etomica.potential;
 
-import etomica.Potential;
 import etomica.Space;
 import etomica.atom.AtomSet;
 

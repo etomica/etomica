@@ -5,7 +5,6 @@
 package etomica.atom.iterator;
 
 import etomica.atom.AtomSet;
-import etomica.atom.AtomsetIterator;
 
 /**
  * Interface for an iterator that can be targeted at one or more atoms.

@@ -6,9 +6,9 @@ import java.awt.Graphics;
 import javax.swing.JPanel;
 
 import etomica.Debug;
-import etomica.IteratorDirective;
 import etomica.NearestImageVectorSource;
 import etomica.Space;
+import etomica.atom.iterator.IteratorDirective;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.RectangularLattice.Iterator;
 import etomica.space.Vector;

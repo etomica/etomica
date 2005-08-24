@@ -5,7 +5,6 @@
 package etomica.atom.iterator;
 
 import etomica.atom.AtomPair;
-import etomica.atom.AtomPairIterator;
 import etomica.atom.AtomSet;
 
 /**

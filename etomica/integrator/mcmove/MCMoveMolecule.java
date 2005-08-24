@@ -1,10 +1,10 @@
 package etomica.integrator.mcmove;
 
 import etomica.Phase;
-import etomica.PotentialMaster;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
 import etomica.atom.AtomSourceRandomMolecule;
+import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 
 /**

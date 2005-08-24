@@ -1,8 +1,8 @@
 package etomica.integrator;
 
 import etomica.Phase;
-import etomica.PotentialMaster;
 import etomica.atom.Atom;
+import etomica.potential.PotentialMaster;
 
 /**
  * Integrator that generates atom trajectories from an analytic formula.

@@ -7,13 +7,13 @@
 package etomica.modules.dcvgcmd;
 import etomica.Integrator;
 import etomica.Modifier;
-import etomica.PotentialMaster;
 import etomica.Species;
 import etomica.atom.Atom;
 import etomica.graphics.DisplayPhaseCanvas3DOpenGL;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
 import etomica.nbr.PotentialMasterHybrid;
+import etomica.potential.PotentialMaster;
 import etomica.units.Dimension;
 
 

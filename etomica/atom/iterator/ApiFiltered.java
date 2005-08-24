@@ -4,16 +4,14 @@
  */
 package etomica.atom.iterator;
 
-import etomica.IteratorDirective.Direction;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
 import etomica.action.AtomsetCount;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomPairFilter;
-import etomica.atom.AtomPairIterator;
 import etomica.atom.AtomPairVector;
 import etomica.atom.AtomSet;
-import etomica.atom.AtomsetIterator;
+import etomica.atom.iterator.IteratorDirective.Direction;
 
 /**
  * Wraps an AtomPairIterator and filters its iterates so that

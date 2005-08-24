@@ -2,7 +2,6 @@ package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.atom.Atom;
-import etomica.atom.AtomIterator;
 import etomica.atom.AtomList;
 import etomica.atom.AtomSet;
 import etomica.utility.Arrays;

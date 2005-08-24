@@ -4,17 +4,17 @@
  */
 package etomica.nbr;
 
-import etomica.IteratorDirective;
-import etomica.Potential;
-import etomica.PotentialGroup;
-import etomica.PotentialMaster;
 import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomType;
-import etomica.atom.AtomsetIterator;
+import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
+import etomica.atom.iterator.IteratorDirective;
+import etomica.potential.Potential;
 import etomica.potential.PotentialCalculation;
+import etomica.potential.PotentialGroup;
+import etomica.potential.PotentialMaster;
 
 /**
  * PotentialCalculation that adds concrete potentials to the NeighborManagerAgents of

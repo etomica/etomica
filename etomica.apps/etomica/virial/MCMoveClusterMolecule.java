@@ -1,8 +1,8 @@
 package etomica.virial;
 
 import etomica.Phase;
-import etomica.PotentialMaster;
 import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.potential.PotentialMaster;
 
 /**
  * Standard Monte Carlo molecule-displacement trial move for cluster integrals.

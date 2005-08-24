@@ -6,7 +6,6 @@ import etomica.ConfigurationLattice;
 import etomica.ConformationLinear;
 import etomica.Default;
 import etomica.Phase;
-import etomica.PotentialGroup;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
@@ -21,6 +20,7 @@ import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.PotentialMasterNbr;
 import etomica.potential.P1BondedHardSpheres;
 import etomica.potential.P2HardSphere;
+import etomica.potential.PotentialGroup;
 import etomica.space3d.Space3D;
 
 public class ChainHSMD3D extends Simulation {

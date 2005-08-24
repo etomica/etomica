@@ -5,7 +5,6 @@
 package etomica.atom.iterator;
 
 import etomica.atom.Atom;
-import etomica.atom.AtomIterator;
 
 /**
  * Interface for an atom iterator that can be altered by setting

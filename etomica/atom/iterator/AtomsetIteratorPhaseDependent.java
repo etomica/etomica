@@ -5,7 +5,6 @@
 package etomica.atom.iterator;
 
 import etomica.Phase;
-import etomica.atom.AtomsetIterator;
 
 /**
  * Interface indicating that an iterator can determine appropriate

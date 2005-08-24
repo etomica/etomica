@@ -1,12 +1,12 @@
 package etomica.spin;
 
 import etomica.Phase;
-import etomica.PotentialMaster;
 import etomica.atom.Atom;
-import etomica.atom.AtomIterator;
+import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.MCMove;
+import etomica.potential.PotentialMaster;
 
 
 /**

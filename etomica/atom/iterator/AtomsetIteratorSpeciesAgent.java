@@ -4,7 +4,6 @@
  */
 package etomica.atom.iterator;
 
-import etomica.IteratorDirective;
 import etomica.Phase;
 import etomica.Species;
 import etomica.atom.Atom;

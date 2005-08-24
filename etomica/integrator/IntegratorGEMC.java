@@ -3,11 +3,11 @@ package etomica.integrator;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Phase;
-import etomica.PotentialMaster;
 import etomica.Space;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveMoleculeExchange;
 import etomica.integrator.mcmove.MCMoveVolumeExchange;
+import etomica.potential.PotentialMaster;
 
 /**
  * Simple Gibbs-ensemble Monte Carlo integrator. Used to evaluate fluid-fluid

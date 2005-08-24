@@ -4,12 +4,12 @@ import java.util.LinkedList;
 
 import junit.framework.TestCase;
 import etomica.atom.Atom;
-import etomica.atom.AtomIterator;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomPairIterator;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomsetArray;
-import etomica.atom.AtomsetIterator;
+import etomica.atom.iterator.AtomIterator;
+import etomica.atom.iterator.AtomPairIterator;
+import etomica.atom.iterator.AtomsetIterator;
 import etomica.junit.UnitTest;
 
 /**

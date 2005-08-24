@@ -1,7 +1,10 @@
-package etomica;
+package etomica.atom.iterator;
 
+import etomica.Constants;
+import etomica.Constants.TypedConstant;
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
+import etomica.potential.Potential;
 
 /**
  * Encapsulation of a set of instructions that an AtomsetIterator

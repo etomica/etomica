@@ -4,24 +4,24 @@
  */
 package etomica.nbr.cell;
 
-import etomica.IteratorDirective;
 import etomica.Phase;
-import etomica.IteratorDirective.Direction;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
 import etomica.atom.Atom;
-import etomica.atom.AtomIterator;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomPairIterator;
 import etomica.atom.AtomPairVector;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.ApiInnerFixed;
+import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSequence;
 import etomica.atom.iterator.AtomIteratorSequenceDirectable;
 import etomica.atom.iterator.AtomIteratorSinglet;
+import etomica.atom.iterator.AtomPairIterator;
 import etomica.atom.iterator.AtomsetIteratorMolecule;
+import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.lattice.CellLattice;
 import etomica.space.BoundaryPeriodic;
 

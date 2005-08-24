@@ -2,8 +2,8 @@ package etomica.data.meter;
 
 import etomica.EtomicaInfo;
 import etomica.Phase;
-import etomica.PotentialMaster;
 import etomica.data.DataSourceScalar;
+import etomica.potential.PotentialMaster;
 import etomica.units.Dimension;
 
 /**

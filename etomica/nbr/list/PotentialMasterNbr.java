@@ -4,10 +4,7 @@
  */
 package etomica.nbr.list;
 
-import etomica.IteratorDirective;
 import etomica.Phase;
-import etomica.Potential;
-import etomica.PotentialMaster;
 import etomica.Space;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
@@ -20,10 +17,13 @@ import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.AtomIteratorArrayList;
 import etomica.atom.iterator.AtomIteratorSinglet;
+import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.PotentialCalculationAgents;
 import etomica.nbr.cell.IteratorFactoryCell;
 import etomica.nbr.cell.NeighborCellManager;
+import etomica.potential.Potential;
 import etomica.potential.PotentialCalculation;
+import etomica.potential.PotentialMaster;
 
 /**
  * PotentialMaster used to implement neighbor listing.  Instance of this

@@ -1,5 +1,8 @@
-package etomica;
+package etomica.potential;
 
+import etomica.EtomicaInfo;
+import etomica.Phase;
+import etomica.Space;
 import etomica.atom.AtomSet;
 import etomica.compatibility.FeatureSet;
 import etomica.units.Dimension;

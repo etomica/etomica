@@ -4,7 +4,6 @@
  */
 package etomica.atom.iterator;
 
-import etomica.IteratorDirective;
 import etomica.action.AtomsetAction;
 import etomica.atom.Atom;
 import etomica.atom.AtomList;

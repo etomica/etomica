@@ -1,9 +1,9 @@
 package etomica.virial;
 
-import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.MCMove;
+import etomica.potential.PotentialMaster;
 
 /**
  * Integrator appropriate for cluster simulations.  Moves are assumed to

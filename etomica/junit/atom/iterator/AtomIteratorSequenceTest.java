@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 
-import etomica.IteratorDirective;
 import etomica.action.AtomsetAction;
 import etomica.atom.Atom;
 import etomica.atom.AtomLinker;
@@ -13,6 +12,7 @@ import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorSequence;
+import etomica.atom.iterator.IteratorDirective;
 import etomica.junit.UnitTest;
 
 /**

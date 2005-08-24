@@ -11,7 +11,6 @@ import etomica.IntegratorIntervalListener;
 import etomica.IntegratorNonintervalEvent;
 import etomica.IntegratorNonintervalListener;
 import etomica.Phase;
-import etomica.Potential;
 import etomica.action.AtomsetActionAdapter;
 import etomica.action.PhaseImposePbc;
 import etomica.atom.Atom;
@@ -22,6 +21,7 @@ import etomica.atom.iterator.AtomIteratorTree;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.PotentialCalculationAgents;
 import etomica.nbr.cell.ApiAACell;
+import etomica.potential.Potential;
 import etomica.potential.Potential2;
 import etomica.utility.Arrays;
 

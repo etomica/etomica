@@ -1,19 +1,19 @@
 package etomica.integrator.mcmove;
 
 import etomica.Phase;
-import etomica.PotentialMaster;
 import etomica.Simulation;
 import etomica.Species;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
 import etomica.atom.AtomFactory;
-import etomica.atom.AtomIterator;
 import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesAgent;
+import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.MCMove;
+import etomica.potential.PotentialMaster;
 
 /**
  * Elementary Monte Carlo move in which a molecule of a specified species is

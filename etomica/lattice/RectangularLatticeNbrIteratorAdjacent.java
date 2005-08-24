@@ -5,7 +5,7 @@ import java.awt.Graphics;
 
 import javax.swing.JPanel;
 
-import etomica.IteratorDirective;
+import etomica.atom.iterator.IteratorDirective;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.RectangularLattice.Iterator;
 

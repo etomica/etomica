@@ -4,8 +4,6 @@
  */
 package etomica.atom.iterator;
 
-import etomica.IteratorDirective;
-import etomica.atom.AtomsetIterator;
 
 /**
  * 

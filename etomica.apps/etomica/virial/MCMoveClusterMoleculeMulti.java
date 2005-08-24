@@ -1,10 +1,10 @@
 package etomica.virial;
 
 import etomica.Phase;
-import etomica.PotentialMaster;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 
 /**

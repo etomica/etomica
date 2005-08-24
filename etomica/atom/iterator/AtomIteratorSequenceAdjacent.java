@@ -1,12 +1,11 @@
 package etomica.atom.iterator;
 
-import etomica.IteratorDirective;
-import etomica.IteratorDirective.Direction;
 import etomica.action.AtomsetAction;
 import etomica.atom.Atom;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.AtomSet;
+import etomica.atom.iterator.IteratorDirective.Direction;
 
 
 /**

@@ -1,16 +1,16 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
-import etomica.IteratorDirective;
 import etomica.Phase;
-import etomica.PotentialMaster;
 import etomica.Space;
 import etomica.action.PhaseInflate;
+import etomica.atom.iterator.IteratorDirective;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.DataSourceUniform;
 import etomica.data.types.DataDoubleArray;
 import etomica.potential.PotentialCalculationEnergySum;
+import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.units.Dimension;
 

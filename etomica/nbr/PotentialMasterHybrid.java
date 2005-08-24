@@ -4,22 +4,22 @@
  */
 package etomica.nbr;
 
-import etomica.IteratorDirective;
 import etomica.Phase;
-import etomica.Potential;
-import etomica.PotentialMaster;
 import etomica.Space;
 import etomica.Species;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomType;
+import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.cell.IteratorFactoryCell;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.AtomSequencerNbr;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterNbr;
+import etomica.potential.Potential;
 import etomica.potential.PotentialCalculation;
+import etomica.potential.PotentialMaster;
 
 /**
  * PotentialMaster that uses both neighbor-cell iteration and cell-list 

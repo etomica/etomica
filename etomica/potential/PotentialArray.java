@@ -4,7 +4,6 @@
  */
 package etomica.potential;
 
-import etomica.Potential;
 import etomica.utility.Arrays;
 
 /**

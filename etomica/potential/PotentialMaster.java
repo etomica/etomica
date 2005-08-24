@@ -1,17 +1,19 @@
-package etomica;
+package etomica.potential;
 
 import java.util.Arrays;
 
+import etomica.Phase;
+import etomica.Space;
+import etomica.Species;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.AtomsetIteratorMolecule;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
-import etomica.potential.Potential0;
-import etomica.potential.Potential0Lrc;
-import etomica.potential.PotentialArray;
-import etomica.potential.PotentialCalculation;
-import etomica.potential.PotentialTruncated;
+import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.iterator.IteratorFactory;
+import etomica.atom.iterator.IteratorFactorySimple;
+import etomica.atom.iterator.IteratorDirective.Direction;
 
 
 /**

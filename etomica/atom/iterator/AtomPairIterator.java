@@ -1,7 +1,9 @@
 /* History
  * Created on Aug 4, 2004
  */
-package etomica.atom;
+package etomica.atom.iterator;
+
+import etomica.atom.AtomPair;
 
 
 /**

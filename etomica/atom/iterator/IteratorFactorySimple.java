@@ -1,15 +1,8 @@
-package etomica;
+package etomica.atom.iterator;
 
+import etomica.Species;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomSequencerFactory;
-import etomica.atom.iterator.ApiInterspecies1A;
-import etomica.atom.iterator.ApiInterspeciesAA;
-import etomica.atom.iterator.ApiIntraspecies1A;
-import etomica.atom.iterator.ApiIntraspeciesAA;
-import etomica.atom.iterator.ApiMolecule;
-import etomica.atom.iterator.ApiSpecies11;
-import etomica.atom.iterator.AtomsetIteratorMolecule;
-import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
 
 public class IteratorFactorySimple extends IteratorFactory {
     

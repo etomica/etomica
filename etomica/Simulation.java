@@ -10,6 +10,7 @@ import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.data.DataAccumulator;
 import etomica.data.meter.Meter;
 import etomica.log.LoggerAbstract;
+import etomica.potential.PotentialMaster;
 import etomica.space2d.Space2D;
 import etomica.utility.NameMaker;
 

@@ -4,8 +4,6 @@
  */
 package etomica.atom.iterator;
 
-import etomica.atom.AtomIterator;
-import etomica.atom.AtomPairIterator;
 
 /**
  * Interface for an atom pair iterator that is formed from two atom iterators.

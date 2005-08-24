@@ -1,7 +1,7 @@
 package etomica.nbr.cell;
 
-import etomica.IteratorFactorySimple;
 import etomica.atom.AtomSequencerFactory;
+import etomica.atom.iterator.IteratorFactorySimple;
 
 //TODO revise after consideration of PotentialMaster
 

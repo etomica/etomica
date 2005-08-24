@@ -5,6 +5,7 @@ import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesMaster;
+import etomica.potential.PotentialMaster;
 import etomica.units.Dimension;
 import etomica.utility.NameMaker;
 
