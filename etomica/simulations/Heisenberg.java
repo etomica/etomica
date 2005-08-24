@@ -1,7 +1,6 @@
 package etomica.simulations;
 
 import etomica.Default;
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
@@ -17,6 +16,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.nbr.PotentialCalculationAgents;
 import etomica.nbr.site.PotentialMasterSite;
+import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.species.Species;

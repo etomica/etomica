@@ -1,7 +1,6 @@
 package etomica.tests;
 
 import etomica.Default;
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
@@ -13,6 +12,7 @@ import etomica.nbr.CriterionSpecies;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterNbr;
+import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.space.Space;

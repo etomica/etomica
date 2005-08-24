@@ -4,7 +4,6 @@
  */
 package etomica.action;
 
-import etomica.Phase;
 import etomica.atom.Atom;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.iterator.AtomIterator;
@@ -14,6 +13,7 @@ import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.DataSourceCOM;
 import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorIntervalListener;
+import etomica.phase.Phase;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;

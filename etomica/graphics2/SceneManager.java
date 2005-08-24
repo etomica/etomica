@@ -1,7 +1,6 @@
 package etomica.graphics2;
 
 
-import etomica.Phase;
 import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomTypeOrientedSphere;
@@ -14,6 +13,7 @@ import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polyhedron;
 import etomica.math.geometry.Polytope;
 import etomica.math.geometry.Shape;
+import etomica.phase.Phase;
 
 import etomica.space.Boundary;
 import etomica.space.Vector;

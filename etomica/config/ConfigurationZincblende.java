@@ -1,13 +1,13 @@
 package etomica.config;
 
 import etomica.Default;
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;

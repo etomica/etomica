@@ -1,7 +1,7 @@
 package etomica.potential;
 
-import etomica.Phase;
 import etomica.nbr.NeighborCriterion;
+import etomica.phase.Phase;
 import etomica.space.Space;
 
 /**

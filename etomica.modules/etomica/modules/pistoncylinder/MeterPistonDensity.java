@@ -1,8 +1,8 @@
 package etomica.modules.pistoncylinder;
 
-import etomica.Phase;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.Meter;
+import etomica.phase.Phase;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.space.Vector;
 import etomica.units.Dimension;

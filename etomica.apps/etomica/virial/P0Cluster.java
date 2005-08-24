@@ -1,8 +1,8 @@
 package etomica.virial;
 
 import etomica.Debug;
-import etomica.Phase;
 import etomica.atom.AtomSet;
+import etomica.phase.Phase;
 import etomica.potential.Potential0;
 import etomica.space.Space;
 

@@ -1,8 +1,8 @@
 package etomica.potential;
 
-import etomica.Phase;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.phase.Phase;
 import etomica.space.Space;
 
 /**

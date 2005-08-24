@@ -1,9 +1,9 @@
 package etomica.atom;
 
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorTree;
+import etomica.phase.Phase;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
 import etomica.species.SpeciesSpheresMono;

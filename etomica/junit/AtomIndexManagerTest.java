@@ -1,13 +1,13 @@
 package etomica.junit;
 
 import junit.framework.TestCase;
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.atom.Atom;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesMaster;
+import etomica.phase.Phase;
 import etomica.space2d.Space2D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;

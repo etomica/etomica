@@ -1,5 +1,8 @@
-package etomica;
+package etomica.phase;
 
+import etomica.Constants;
+import etomica.SimulationEvent;
+import etomica.Constants.TypedConstant;
 import etomica.atom.Atom;
 import etomica.graphics.DisplayPhaseListener;
 import etomica.space.Vector;

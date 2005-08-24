@@ -1,7 +1,7 @@
 package etomica.atom;
 
-import etomica.Phase;
 import etomica.Simulation;
+import etomica.phase.Phase;
 
 /**
  * Returns a semi-random leaf atom from a phase.  Each atom is 0 to N atoms 

@@ -1,12 +1,12 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
-import etomica.Phase;
 import etomica.atom.Atom;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.DataSourceScalar;
+import etomica.phase.Phase;
 import etomica.space.ICoordinateKinetic;
 import etomica.units.Dimension;
 

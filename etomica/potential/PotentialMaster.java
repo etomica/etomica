@@ -2,7 +2,6 @@ package etomica.potential;
 
 import java.util.Arrays;
 
-import etomica.Phase;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
@@ -12,6 +11,7 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.IteratorFactory;
 import etomica.atom.iterator.IteratorFactorySimple;
 import etomica.atom.iterator.IteratorDirective.Direction;
+import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.species.Species;
 

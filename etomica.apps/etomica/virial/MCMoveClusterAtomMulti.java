@@ -1,9 +1,9 @@
 package etomica.virial;
 
 import etomica.Default;
-import etomica.Phase;
 import etomica.atom.Atom;
 import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 

@@ -4,7 +4,6 @@
  */
 package etomica.nbr.site;
 
-import etomica.Phase;
 import etomica.atom.Atom;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
@@ -21,6 +20,7 @@ import etomica.nbr.NeighborCriterion;
 import etomica.nbr.PotentialCalculationAgents;
 import etomica.nbr.cell.IteratorFactoryCell;
 import etomica.nbr.cell.NeighborCellManager;
+import etomica.phase.Phase;
 import etomica.potential.Potential;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialCalculation;

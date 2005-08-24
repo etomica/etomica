@@ -1,6 +1,5 @@
 package etomica.simulations;
 import etomica.Controller;
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
@@ -8,6 +7,7 @@ import etomica.config.ConfigurationSequential;
 import etomica.data.DataSourceCountSteps;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;
 import etomica.space2d.Space2D;
 import etomica.species.Species;

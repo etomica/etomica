@@ -11,6 +11,7 @@ import etomica.data.DataAccumulator;
 import etomica.data.meter.Meter;
 import etomica.integrator.Integrator;
 import etomica.log.LoggerAbstract;
+import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space2d.Space2D;

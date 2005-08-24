@@ -4,7 +4,6 @@
  */
 package etomica.nbr.list;
 
-import etomica.Phase;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLinker;
@@ -20,6 +19,7 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.PotentialCalculationAgents;
 import etomica.nbr.cell.IteratorFactoryCell;
 import etomica.nbr.cell.NeighborCellManager;
+import etomica.phase.Phase;
 import etomica.potential.Potential;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialMaster;

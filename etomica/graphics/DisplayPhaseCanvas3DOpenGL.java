@@ -12,7 +12,6 @@ package etomica.graphics;
 import java.awt.Color;
 import java.util.Iterator;
 
-import etomica.Phase;
 import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomTypeOrientedSphere;
@@ -21,6 +20,7 @@ import etomica.atom.AtomTypeWell;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polyhedron;
+import etomica.phase.Phase;
 import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;

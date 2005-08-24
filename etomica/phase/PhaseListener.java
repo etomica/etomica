@@ -1,4 +1,6 @@
-package etomica;
+package etomica.phase;
+
+import etomica.SimulationListener;
 
 /**
  * Interface for an object that can be registered as a listener to another simulation element.

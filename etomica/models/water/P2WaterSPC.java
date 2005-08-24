@@ -1,9 +1,9 @@
 
 package etomica.models.water;
 
-import etomica.Phase;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
+import etomica.phase.Phase;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
 import etomica.space.Boundary;

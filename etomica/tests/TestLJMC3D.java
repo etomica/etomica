@@ -1,7 +1,6 @@
 package etomica.tests;
 import etomica.Controller;
 import etomica.Default;
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomSourceRandomLeafSeq;
@@ -17,6 +16,7 @@ import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.nbr.PotentialCalculationAgents;
 import etomica.nbr.cell.PotentialMasterCell;
+import etomica.phase.Phase;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.space.Space;

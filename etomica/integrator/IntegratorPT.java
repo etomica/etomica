@@ -2,7 +2,6 @@ package etomica.integrator;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.SimulationEvent;
 import etomica.data.Data;
@@ -12,6 +11,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveListener;
 import etomica.integrator.mcmove.MCMoveSwapConfiguration;
+import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.units.Dimension;
 import etomica.utility.Arrays;

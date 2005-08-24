@@ -1,9 +1,5 @@
 package etomica.spin;
 
-import etomica.Phase;
-import etomica.PhaseCellManager;
-import etomica.PhaseEvent;
-import etomica.PhaseListener;
 import etomica.SimulationEvent;
 import etomica.atom.Atom;
 import etomica.atom.SpeciesRoot;
@@ -11,6 +7,10 @@ import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
 import etomica.nbr.site.AtomSite;
+import etomica.phase.Phase;
+import etomica.phase.PhaseCellManager;
+import etomica.phase.PhaseEvent;
+import etomica.phase.PhaseListener;
 import etomica.space.Space;
 
 /**

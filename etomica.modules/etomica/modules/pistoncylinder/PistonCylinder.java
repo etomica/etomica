@@ -2,7 +2,6 @@ package etomica.modules.pistoncylinder;
 
 import etomica.Controller;
 import etomica.Default;
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.config.Configuration;
@@ -16,6 +15,7 @@ import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.phase.Phase;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.P2SquareWell;

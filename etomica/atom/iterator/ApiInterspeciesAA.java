@@ -1,8 +1,8 @@
 package etomica.atom.iterator;
 
-import etomica.Phase;
 import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
+import etomica.phase.Phase;
 import etomica.species.Species;
 
 /**

@@ -3,6 +3,8 @@ import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveListener;
 import etomica.lattice.LatticeEvent;
 import etomica.lattice.LatticeListener;
+import etomica.phase.PhaseEvent;
+import etomica.phase.PhaseListener;
 
 /**
  * Class to take care of listener lists and event firing for simulation elements.

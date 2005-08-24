@@ -2,11 +2,11 @@ package etomica.graphics;
 
 import java.util.HashMap;
 
-import etomica.Phase;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.lattice.FiniteLattice;
 import etomica.nbr.cell.AtomSequencerCell;
+import etomica.phase.Phase;
 
 
 

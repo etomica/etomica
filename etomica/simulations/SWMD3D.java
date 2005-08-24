@@ -4,7 +4,6 @@ package etomica.simulations;
 
 import etomica.Controller;
 import etomica.Modifier;
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
@@ -14,6 +13,7 @@ import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayPhase;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.phase.Phase;
 import etomica.potential.P2SquareWell;
 import etomica.space3d.Space3D;
 import etomica.species.Species;

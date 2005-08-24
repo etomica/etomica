@@ -2,12 +2,12 @@ package etomica.integrator;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.SimulationEventManager;
 import etomica.atom.Atom;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveListener;
+import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 
 /**

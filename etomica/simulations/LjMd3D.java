@@ -1,7 +1,6 @@
 package etomica.simulations;
 import etomica.Controller;
 import etomica.Default;
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
@@ -10,6 +9,7 @@ import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.phase.Phase;
 import etomica.potential.P2LennardJones;
 import etomica.space3d.Space3D;
 import etomica.species.Species;

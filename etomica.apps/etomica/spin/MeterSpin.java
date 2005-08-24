@@ -1,10 +1,10 @@
 package etomica.spin;
 
-import etomica.Phase;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.Meter;
+import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;

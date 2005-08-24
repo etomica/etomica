@@ -4,7 +4,6 @@
  */
 package etomica.atom.iterator;
 
-import etomica.Phase;
 import etomica.action.AtomAction;
 import etomica.action.AtomActionAdapter;
 import etomica.action.AtomsetAction;
@@ -14,6 +13,7 @@ import etomica.atom.AtomFilter;
 import etomica.atom.AtomList;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.IteratorDirective.Direction;
+import etomica.phase.Phase;
 
 /**
  * Wraps an AtomIterator and filters its iterates so that only those meeting

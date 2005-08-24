@@ -4,11 +4,11 @@
  */
 package etomica.atom.iterator;
 
-import etomica.Phase;
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomsetArray;
 import etomica.atom.SpeciesAgent;
+import etomica.phase.Phase;
 import etomica.species.Species;
 
 /**

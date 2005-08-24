@@ -1,6 +1,6 @@
 package etomica.potential; 
 
-import etomica.Phase;
+import etomica.phase.Phase;
 import etomica.space.Boundary;
 import etomica.space.Space;
 

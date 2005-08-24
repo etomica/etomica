@@ -4,10 +4,10 @@ package etomica.integrator;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Phase;
 import etomica.atom.Atom;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.phase.Phase;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.ICoordinateKinetic;

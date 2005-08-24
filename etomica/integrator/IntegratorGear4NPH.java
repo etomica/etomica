@@ -3,7 +3,6 @@
 package etomica.integrator;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Phase;
 import etomica.action.PhaseInflate;
 import etomica.atom.Atom;
 import etomica.atom.AtomPair;
@@ -15,6 +14,7 @@ import etomica.data.DataSource;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDoubleArray;
 import etomica.modifier.ModifierBoolean;
+import etomica.phase.Phase;
 import etomica.potential.Potential;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialCalculation;

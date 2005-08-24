@@ -1,10 +1,10 @@
 package etomica.data.meter;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Phase;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorHard;
+import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.units.Dimension;
 

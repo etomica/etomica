@@ -1,7 +1,7 @@
 package etomica.atom.iterator;
 
-import etomica.Phase;
 import etomica.Simulation;
+import etomica.phase.Phase;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
 import etomica.species.SpeciesSpheresMono;

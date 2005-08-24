@@ -1,6 +1,6 @@
 package etomica.action;
 
-import etomica.Phase;
+import etomica.phase.Phase;
 
  /**
   * Elementary action performed on a phase.

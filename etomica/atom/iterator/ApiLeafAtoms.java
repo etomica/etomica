@@ -4,8 +4,8 @@
  */
 package etomica.atom.iterator;
 
-import etomica.Phase;
 import etomica.atom.AtomList;
+import etomica.phase.Phase;
 
 /**
  * Iterator that returns all pairs that can be formed from all leaf atoms of a

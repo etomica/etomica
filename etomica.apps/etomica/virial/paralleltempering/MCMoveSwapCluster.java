@@ -1,6 +1,5 @@
 package etomica.virial.paralleltempering;
 
-import etomica.Phase;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
@@ -8,6 +7,7 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorPT;
 import etomica.integrator.MCMove;
+import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.virial.IntegratorClusterMC;

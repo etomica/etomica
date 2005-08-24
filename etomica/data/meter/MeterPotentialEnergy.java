@@ -1,9 +1,9 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
-import etomica.Phase;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceScalar;
+import etomica.phase.Phase;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.PotentialMaster;
 import etomica.units.Dimension;

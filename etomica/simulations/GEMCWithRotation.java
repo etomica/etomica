@@ -1,6 +1,5 @@
 package etomica.simulations;
 import etomica.Default;
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
@@ -9,6 +8,7 @@ import etomica.config.ConfigurationSequential;
 import etomica.data.meter.MeterDensity;
 import etomica.integrator.IntegratorGEMC;
 import etomica.integrator.mcmove.MCMoveRotate;
+import etomica.phase.Phase;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;

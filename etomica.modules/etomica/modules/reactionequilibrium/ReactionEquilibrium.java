@@ -4,7 +4,6 @@ import javax.swing.JPanel;
 
 import etomica.Controller;
 import etomica.Default;
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
@@ -12,6 +11,7 @@ import etomica.atom.Atom;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.DisplayPhase;
 import etomica.integrator.IntegratorHard;
+import etomica.phase.Phase;
 import etomica.space2d.Space2D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;

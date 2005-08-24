@@ -1,11 +1,11 @@
 package etomica.models.hexane;
 
 import etomica.Default;
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
 import etomica.nbr.list.PotentialMasterNbr;
+import etomica.phase.Phase;
 import etomica.potential.Potential2;
 import etomica.space.Space;
 import etomica.space3d.Space3D;

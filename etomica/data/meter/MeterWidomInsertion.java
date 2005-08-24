@@ -2,10 +2,10 @@ package etomica.data.meter;
 
 import etomica.Default;
 import etomica.EtomicaInfo;
-import etomica.Phase;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
 import etomica.data.DataSourceScalar;
+import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.species.Species;

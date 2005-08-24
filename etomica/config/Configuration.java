@@ -1,10 +1,10 @@
 package etomica.config;
 
-import etomica.Phase;
 import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.phase.Phase;
 import etomica.space.Space;
 
 /**

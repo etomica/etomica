@@ -1,7 +1,7 @@
 package etomica.potential;
 
-import etomica.Phase;
 import etomica.atom.AtomSet;
+import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.space.Tensor;
 

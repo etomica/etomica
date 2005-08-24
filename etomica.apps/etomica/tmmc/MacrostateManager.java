@@ -1,6 +1,6 @@
 package etomica.tmmc;
 
-import etomica.Phase;
+import etomica.phase.Phase;
 
 /**
  * Interface for class that defines the macrostates.  Provides

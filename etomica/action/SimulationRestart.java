@@ -2,7 +2,6 @@ package etomica.action;
 
 import java.util.Iterator;
 
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -10,6 +9,7 @@ import etomica.config.ConfigurationSequential;
 import etomica.data.DataAccumulator;
 import etomica.integrator.Integrator;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.phase.Phase;
 
 /**
  * Action that invokes reset method of all registered simulation elements,

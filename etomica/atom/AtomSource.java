@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.Phase;
+import etomica.phase.Phase;
 
 /**
  * Interface for objects when return atoms (meeting some specification)

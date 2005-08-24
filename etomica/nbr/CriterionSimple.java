@@ -1,10 +1,10 @@
 package etomica.nbr;
 
 import etomica.Debug;
-import etomica.Phase;
 import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomPairVector;
+import etomica.phase.Phase;
 import etomica.space.CoordinatePair;
 import etomica.space.NearestImageTransformerVector;
 import etomica.space.Space;

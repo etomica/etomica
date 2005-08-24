@@ -1,9 +1,9 @@
 package etomica.virial;
 
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
+import etomica.phase.Phase;
 import etomica.space.BoundaryRectangularNonperiodic;
 
 /**

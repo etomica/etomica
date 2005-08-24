@@ -1,7 +1,7 @@
 package etomica.integrator;
 
-import etomica.Phase;
 import etomica.atom.Atom;
+import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 
 /**

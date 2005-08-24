@@ -4,10 +4,6 @@
  */
 package etomica.nbr.cell;
 
-import etomica.Phase;
-import etomica.PhaseCellManager;
-import etomica.PhaseEvent;
-import etomica.PhaseListener;
 import etomica.SimulationEvent;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
@@ -22,6 +18,10 @@ import etomica.integrator.MCMove;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveListener;
 import etomica.lattice.CellLattice;
+import etomica.phase.Phase;
+import etomica.phase.PhaseCellManager;
+import etomica.phase.PhaseEvent;
+import etomica.phase.PhaseListener;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;

@@ -1,7 +1,6 @@
 package etomica.simulations;
 import etomica.Controller;
 import etomica.Default;
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.config.ConfigurationSequential;
@@ -9,6 +8,7 @@ import etomica.data.meter.MeterEnergy;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.phase.Phase;
 import etomica.potential.P2LennardJones;
 import etomica.space2d.Space2D;
 import etomica.species.Species;

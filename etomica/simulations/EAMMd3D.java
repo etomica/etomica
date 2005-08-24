@@ -1,6 +1,5 @@
 package etomica.simulations;
 import etomica.Controller;
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
@@ -26,6 +25,7 @@ import etomica.lattice.Crystal;
 import etomica.lattice.LatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.PrimitiveTetragonal;
+import etomica.phase.Phase;
 import etomica.potential.EmbeddedAtomMethodP2;
 import etomica.potential.EmbeddedAtomMethodPInitial;
 import etomica.potential.EmbeddedAtomMethodPMany;

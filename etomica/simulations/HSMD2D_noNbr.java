@@ -1,5 +1,4 @@
 package etomica.simulations;
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
@@ -15,6 +14,7 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntervalActionAdapter;
+import etomica.phase.Phase;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardSphere;

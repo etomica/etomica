@@ -2,10 +2,10 @@ package etomica.integrator;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Phase;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveMoleculeExchange;
 import etomica.integrator.mcmove.MCMoveVolumeExchange;
+import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 

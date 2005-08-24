@@ -1,10 +1,10 @@
 package etomica.atom;
 
-import etomica.Phase;
-import etomica.PhaseEvent;
-import etomica.PhaseListener;
 import etomica.SimulationEventManager;
 import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.phase.Phase;
+import etomica.phase.PhaseEvent;
+import etomica.phase.PhaseListener;
 import etomica.species.Species;
 import etomica.utility.Arrays;
 

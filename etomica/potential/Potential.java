@@ -1,9 +1,9 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
-import etomica.Phase;
 import etomica.atom.AtomSet;
 import etomica.compatibility.FeatureSet;
+import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.utility.NameMaker;

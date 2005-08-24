@@ -1,6 +1,5 @@
 package etomica.integrator.mcmove;
 
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomActionTranslateTo;
@@ -12,6 +11,7 @@ import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.DataSourceCOM;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.MCMove;
+import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;

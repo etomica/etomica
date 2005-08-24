@@ -1,12 +1,12 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
-import etomica.Phase;
 import etomica.atom.Atom;
 import etomica.data.Data;
 import etomica.data.DataSourceAtomic;
 import etomica.data.DataSourceScalar;
 import etomica.data.types.DataDouble;
+import etomica.phase.Phase;
 import etomica.species.Species;
 import etomica.units.Dimension;
 

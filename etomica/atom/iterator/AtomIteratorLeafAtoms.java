@@ -4,8 +4,8 @@
  */
 package etomica.atom.iterator;
 
-import etomica.Phase;
 import etomica.atom.SpeciesMaster;
+import etomica.phase.Phase;
 import etomica.species.Species;
 
 /**

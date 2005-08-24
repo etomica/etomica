@@ -1,7 +1,6 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.Default;
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
@@ -17,6 +16,7 @@ import etomica.lattice.IndexIteratorSequential;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.LatticeCrystal;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;

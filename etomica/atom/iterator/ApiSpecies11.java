@@ -1,9 +1,9 @@
 package etomica.atom.iterator;
 
-import etomica.Phase;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.IteratorDirective.Direction;
+import etomica.phase.Phase;
 import etomica.species.Species;
 
 /**

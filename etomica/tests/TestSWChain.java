@@ -1,7 +1,6 @@
 package etomica.tests;
 
 import etomica.Default;
-import etomica.Phase;
 import etomica.Simulation;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
@@ -23,6 +22,7 @@ import etomica.nbr.CriterionSimple;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterNbr;
+import etomica.phase.Phase;
 import etomica.potential.P1BondedHardSpheres;
 import etomica.potential.P2HardBond;
 import etomica.potential.P2SquareWell;

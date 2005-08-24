@@ -1,8 +1,8 @@
 package etomica.virial;
 
-import etomica.Phase;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceScalar;
+import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.units.Dimension;
 

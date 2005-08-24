@@ -4,7 +4,6 @@
  */
 package etomica.nbr;
 
-import etomica.Phase;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomType;
@@ -15,6 +14,7 @@ import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.AtomSequencerNbr;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterNbr;
+import etomica.phase.Phase;
 import etomica.potential.Potential;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialMaster;

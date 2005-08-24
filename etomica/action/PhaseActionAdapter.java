@@ -1,6 +1,6 @@
 package etomica.action;
 
-import etomica.Phase;
+import etomica.phase.Phase;
 
 /**
  * Convenience class used to define a PhaseAction. Implements all methods

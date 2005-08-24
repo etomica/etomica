@@ -1,9 +1,9 @@
 package etomica.action;
 
 import etomica.Default;
-import etomica.Phase;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterTemperature;
+import etomica.phase.Phase;
 import etomica.space.ICoordinateKinetic;
 
 /**

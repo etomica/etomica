@@ -5,7 +5,6 @@
 package etomica.nbr.list;
 
 import etomica.Debug;
-import etomica.Phase;
 import etomica.action.AtomsetActionAdapter;
 import etomica.action.PhaseImposePbc;
 import etomica.atom.Atom;
@@ -21,6 +20,7 @@ import etomica.integrator.IntegratorNonintervalListener;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.PotentialCalculationAgents;
 import etomica.nbr.cell.ApiAACell;
+import etomica.phase.Phase;
 import etomica.potential.Potential;
 import etomica.potential.Potential2;
 import etomica.utility.Arrays;

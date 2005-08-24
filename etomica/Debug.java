@@ -5,6 +5,7 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.integrator.IntegratorHard;
 import etomica.nbr.list.AtomSequencerNbr;
+import etomica.phase.Phase;
 
 /**
  * Class holding static fields that determine whether debugging is on, how

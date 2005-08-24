@@ -1,10 +1,10 @@
 package etomica.potential;
 
 import etomica.Default;
-import etomica.Phase;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
+import etomica.phase.Phase;
 import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;

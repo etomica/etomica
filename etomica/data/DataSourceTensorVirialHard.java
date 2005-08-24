@@ -1,9 +1,9 @@
 package etomica.data;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Phase;
 import etomica.data.types.DataTensor;
 import etomica.integrator.IntegratorHard;
+import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Dimension;

@@ -2,11 +2,11 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.Phase;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.junit.UnitTest;
+import etomica.phase.Phase;
 import etomica.species.Species;
 
 /**

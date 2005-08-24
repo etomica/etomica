@@ -3,10 +3,10 @@
  * Created on Sep 22, 2004 by kofke
  */
 package etomica.nbr;
-import etomica.Phase;
 import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomPairFilter;
+import etomica.phase.Phase;
 
 /**
  * Atom filter used to specify whether two atoms are considered neighbors,

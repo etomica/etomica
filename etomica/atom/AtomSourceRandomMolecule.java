@@ -1,7 +1,7 @@
 package etomica.atom;
 
 import etomica.Debug;
-import etomica.Phase;
+import etomica.phase.Phase;
 
 /**
  * AtomSource that returns a completely random molecule.

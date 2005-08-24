@@ -1,8 +1,8 @@
 package etomica.spin;
 
-import etomica.Phase;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
+import etomica.phase.Phase;
 import etomica.potential.Potential2;
 import etomica.space.CoordinatePair;
 import etomica.space.Space;

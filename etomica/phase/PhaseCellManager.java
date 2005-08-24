@@ -1,4 +1,4 @@
-package etomica;
+package etomica.phase;
 
 import etomica.atom.Atom;
 import etomica.lattice.CellLattice;

@@ -1,11 +1,11 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
-import etomica.Phase;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.data.DataSourceScalar;
+import etomica.phase.Phase;
 import etomica.space.CoordinatePair;
 import etomica.space.Space;
 import etomica.space.Vector;

@@ -4,7 +4,6 @@
  */
 package etomica.nbr.cell;
 
-import etomica.Phase;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
@@ -23,6 +22,7 @@ import etomica.atom.iterator.AtomsetIteratorMolecule;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.lattice.CellLattice;
+import etomica.phase.Phase;
 import etomica.space.BoundaryPeriodic;
 
 /**

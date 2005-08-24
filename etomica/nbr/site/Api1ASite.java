@@ -4,7 +4,6 @@
  */
 package etomica.nbr.site;
 
-import etomica.Phase;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
@@ -18,6 +17,7 @@ import etomica.lattice.RectangularLatticeNbrIterator;
 import etomica.lattice.RectangularLatticeNbrIteratorAdjacent;
 import etomica.nbr.cell.AtomSequencerCell;
 import etomica.nbr.cell.Cell;
+import etomica.phase.Phase;
 import etomica.space.BoundaryPeriodic;
 
 /**

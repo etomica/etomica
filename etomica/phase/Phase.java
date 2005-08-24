@@ -1,4 +1,4 @@
-package etomica;
+package etomica.phase;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -8,6 +8,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import etomica.EtomicaElement;
+import etomica.Simulation;
 import etomica.action.PhaseInflate;
 import etomica.atom.Atom;
 import etomica.atom.AtomLinker;

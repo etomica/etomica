@@ -2,7 +2,7 @@
  * History
  * Created on Jul 25, 2004 by kofke
  */
-package etomica;
+package etomica.phase;
 
 import etomica.utility.IntegerRange;
 
