@@ -2,13 +2,13 @@ package etomica.modules.reactionequilibrium;
 
 import javax.swing.JPanel;
 
-import etomica.Action;
-import etomica.Atom;
-import etomica.AtomTypeLeaf;
 import etomica.Constants;
 import etomica.Modifier;
-import etomica.SpeciesAgent;
 import etomica.SpeciesSpheresMono;
+import etomica.action.Action;
+import etomica.atom.Atom;
+import etomica.atom.AtomTypeLeaf;
+import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;

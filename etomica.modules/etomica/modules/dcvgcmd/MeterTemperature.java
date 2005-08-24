@@ -1,10 +1,10 @@
 package etomica.modules.dcvgcmd;
 
-import etomica.AtomTreeNodeGroup;
 import etomica.EtomicaInfo;
 import etomica.Species;
-import etomica.SpeciesAgent;
 import etomica.atom.AtomList;
+import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.SpeciesAgent;
 import etomica.units.Dimension;
 
 /**

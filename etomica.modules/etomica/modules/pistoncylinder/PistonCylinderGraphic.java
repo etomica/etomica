@@ -13,10 +13,10 @@ import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 
-import etomica.Action;
 import etomica.Default;
 import etomica.Modifier;
 import etomica.PotentialGroup;
+import etomica.action.Action;
 import etomica.atom.AtomTypeSphere;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;

@@ -5,11 +5,11 @@
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 package etomica.modules.dcvgcmd;
-import etomica.Atom;
 import etomica.Integrator;
 import etomica.Modifier;
 import etomica.PotentialMaster;
 import etomica.Species;
+import etomica.atom.Atom;
 import etomica.graphics.DisplayPhaseCanvas3DOpenGL;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;

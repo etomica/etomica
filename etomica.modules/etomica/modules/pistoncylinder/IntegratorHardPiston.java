@@ -1,9 +1,9 @@
 package etomica.modules.pistoncylinder;
 
-import etomica.Atom;
 import etomica.Debug;
 import etomica.Phase;
 import etomica.PotentialMaster;
+import etomica.atom.Atom;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.PotentialHard;

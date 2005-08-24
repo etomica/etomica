@@ -1,7 +1,7 @@
 package etomica.modules.reactionequilibrium;
 
-import etomica.Atom;
 import etomica.Phase;
+import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
 import etomica.data.DataInfo;

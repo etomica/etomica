@@ -7,9 +7,9 @@ import java.awt.Color;
 
 import javax.swing.JPanel;
 
-import etomica.Atom;
 import etomica.Default;
 import etomica.Modifier;
+import etomica.atom.Atom;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomFilter;
 import etomica.data.AccumulatorAverage;

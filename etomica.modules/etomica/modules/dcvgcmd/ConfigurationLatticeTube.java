@@ -1,7 +1,5 @@
 package etomica.modules.dcvgcmd;
 
-import etomica.Atom;
-import etomica.AtomTreeNodeGroup;
 import etomica.Configuration;
 import etomica.Conformation;
 import etomica.Default;
@@ -10,9 +8,11 @@ import etomica.Simulation;
 import etomica.Space;
 import etomica.SpeciesSpheresMono;
 import etomica.action.AtomActionTranslateTo;
+import etomica.atom.Atom;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.AtomPositionGeometricCenter;
+import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorListCompound;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.lattice.IndexIteratorSequential;
@@ -312,7 +312,7 @@ public class ConfigurationLatticeTube extends Configuration implements Atom.Agen
 	
 	/**
 	 * Implementation of Atom.AgentSource interface.
-	 * @see etomica.Atom.AgentSource#makeAgent(Atom)
+	 * @see etomica.atom.Atom.AgentSource#makeAgent(Atom)
 	 */
 	public Object makeAgent(Atom a) {return new Agent();}
 	
