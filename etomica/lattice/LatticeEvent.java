@@ -1,6 +1,6 @@
 package etomica.lattice;
-import etomica.Constants;
 import etomica.SimulationEvent;
+import etomica.util.Constants;
 
 public class LatticeEvent extends SimulationEvent {
     

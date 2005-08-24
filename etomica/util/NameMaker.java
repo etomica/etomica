@@ -2,7 +2,7 @@
  * History
  * Created on Nov 15, 2004 by kofke
  */
-package etomica.utility;
+package etomica.util;
 
 import java.util.HashMap;
 

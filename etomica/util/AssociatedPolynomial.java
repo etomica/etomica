@@ -1,4 +1,4 @@
-package etomica.utility;//simulate..Special Functions
+package etomica.util;//simulate..Special Functions
     //Refer Numerical Recipes Pg 254
 
 public class AssociatedPolynomial implements java.io.Serializable {

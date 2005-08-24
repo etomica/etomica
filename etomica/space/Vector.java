@@ -2,7 +2,7 @@ package etomica.space;
 
 import etomica.space2d.Vector2D;
 import etomica.space3d.Vector3D;
-import etomica.utility.Function;
+import etomica.util.Function;
 
 /*
  * History Created on Jan 24, 2005 by kofke

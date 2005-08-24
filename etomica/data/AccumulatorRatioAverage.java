@@ -1,11 +1,11 @@
 package etomica.data;
 
-import etomica.Constants;
 import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.units.Dimension;
-import etomica.utility.Function;
+import etomica.util.Constants;
+import etomica.util.Function;
 
 /**
  * Accumulator for calculating ratio between two sums

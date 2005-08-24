@@ -1,6 +1,6 @@
 package etomica.action;
 
-import etomica.utility.Arrays;
+import etomica.util.Arrays;
 
 
 /**

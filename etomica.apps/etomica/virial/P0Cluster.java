@@ -1,10 +1,10 @@
 package etomica.virial;
 
-import etomica.Debug;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.potential.Potential0;
 import etomica.space.Space;
+import etomica.util.Debug;
 
 /**
  * @author David Kofke

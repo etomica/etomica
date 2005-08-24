@@ -10,8 +10,8 @@ import etomica.data.types.DataArray;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.units.Dimension;
-import etomica.utility.History;
-import etomica.utility.HistoryScrolling;
+import etomica.util.History;
+import etomica.util.HistoryScrolling;
 
 /**
  * Accumulator that keeps history of data.

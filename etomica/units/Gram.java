@@ -1,5 +1,5 @@
 package etomica.units;
-import etomica.Constants;
+import etomica.util.Constants;
 
 public final class Gram extends BaseUnit.Mass {
 

@@ -1,7 +1,7 @@
 package etomica.potential;
 
-import etomica.Default;
 import etomica.atom.Atom;
+import etomica.util.Default;
 
 /**
  * Lorenz-Berthelot combining rule, in which the pair diameter is given

@@ -1,5 +1,4 @@
 package etomica.simulations;
-import etomica.Default;
 import etomica.Simulation;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
@@ -15,6 +14,7 @@ import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresRotating;
+import etomica.util.Default;
 
 /**
  * Simple Gibbs-ensemble Monte Carlo simulation of rotating molecules.

@@ -1,8 +1,8 @@
 package etomica.data;
 
-import etomica.Constants;
 import etomica.data.types.DataDoubleArray;
 import etomica.units.Dimension;
+import etomica.util.Constants;
 
 /**
  * A DataSource object that provides a set of uniformly spaced values between

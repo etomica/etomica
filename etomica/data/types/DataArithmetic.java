@@ -1,7 +1,7 @@
 package etomica.data.types;
 
 import etomica.data.Data;
-import etomica.utility.Function;
+import etomica.util.Function;
 
 /**
  * Interface for a Data class that supports arithmetic operations on its data.

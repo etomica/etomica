@@ -8,7 +8,7 @@ import etomica.data.DataTableListener;
 import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataTable;
 import etomica.units.Unit;
-import etomica.utility.Arrays;
+import etomica.util.Arrays;
 
 /**
  * Class for creating a plot of simulation data.  Data for plot is taken

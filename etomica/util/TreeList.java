@@ -1,9 +1,8 @@
 /*
  * Created on Aug 23, 2004
  */
-package etomica.utility;
+package etomica.util;
 
-import etomica.Debug;
 
 /**
  * TreeList is a generic binary tree structure made up of TreeLinkers.

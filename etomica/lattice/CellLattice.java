@@ -4,9 +4,9 @@
  */
 package etomica.lattice;
 
-import etomica.Default;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.util.Default;
 
 /**
  * A lattice of arbitrarily-sized rectangular cells, such that a point in space can be 

@@ -1,4 +1,4 @@
-package etomica.utility;
+package etomica.util;
 //Java2 imports
 //import java.util.LinkedList;
 

@@ -6,7 +6,7 @@ import java.beans.PropertyChangeSupport;
 
 import javax.swing.JPanel;
 
-import etomica.utility.NameMaker;
+import etomica.util.NameMaker;
 
 /**
  * Superclass of all classes that display something from the simulation.

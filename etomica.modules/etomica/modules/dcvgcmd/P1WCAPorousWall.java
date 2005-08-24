@@ -6,7 +6,6 @@
  */
 package etomica.modules.dcvgcmd;
 
-import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
@@ -14,6 +13,7 @@ import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.util.Default;
 
 /**
  * @author Owner

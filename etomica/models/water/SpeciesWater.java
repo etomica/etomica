@@ -1,12 +1,12 @@
 package etomica.models.water;
 import java.lang.reflect.Constructor;
 
-import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.Simulation;
 import etomica.atom.AtomTypeGroup;
 import etomica.species.Species;
 import etomica.species.SpeciesSignature;
+import etomica.util.Default;
 
 public class SpeciesWater extends Species implements EtomicaElement {
     

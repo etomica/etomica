@@ -1,12 +1,12 @@
 package etomica.virial.simulations;
 
-import etomica.Default;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.potential.P2LennardJones;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.util.Default;
 import etomica.virial.ClusterSum;
 import etomica.virial.ClusterWeightUmbrella;
 import etomica.virial.MayerEHardSphere;

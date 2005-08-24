@@ -1,11 +1,11 @@
 package etomica.phase;
 
-import etomica.Constants;
 import etomica.SimulationEvent;
-import etomica.Constants.TypedConstant;
 import etomica.atom.Atom;
 import etomica.graphics.DisplayPhaseListener;
 import etomica.space.Vector;
+import etomica.util.Constants;
+import etomica.util.Constants.TypedConstant;
 
 /**
  * Event that conveys some happening with respect to a phase or the things it contains.

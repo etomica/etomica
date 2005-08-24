@@ -1,6 +1,5 @@
 package etomica.potential;
 
-import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomPair;
@@ -9,6 +8,7 @@ import etomica.phase.Phase;
 import etomica.space.CoordinatePair;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.util.Default;
 
 /**
  * Hard core with an attractive tail that goes to zero linearly with r.

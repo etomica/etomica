@@ -23,7 +23,7 @@
  *                  
  */
 //package rplante.text;
-package etomica.utility;
+package etomica.util;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;

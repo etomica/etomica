@@ -1,7 +1,7 @@
 package etomica.integrator;
 
-import etomica.Constants;
-import etomica.Constants.TypedConstant;
+import etomica.util.Constants;
+import etomica.util.Constants.TypedConstant;
 
 /**
  * Event object given to registered listeners when an integrator fires

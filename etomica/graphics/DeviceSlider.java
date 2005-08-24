@@ -20,8 +20,8 @@ import etomica.event.ChangeEventManager;
 import etomica.modifier.ModifierGeneral;
 import etomica.modifier.ModifyAction;
 import etomica.units.Unit;
-import etomica.utility.DecimalSlider;
-import etomica.utility.StringUtility;
+import etomica.util.DecimalSlider;
+import etomica.util.StringUtility;
 
 /**
  * Device the changes a property using a graphical slider, via a Modifier.

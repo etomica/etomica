@@ -9,7 +9,7 @@ import etomica.data.meter.Meter;
 import etomica.data.types.DataDoubleArray;
 import etomica.phase.Phase;
 import etomica.units.Dimension;
-import etomica.utility.NameMaker;
+import etomica.util.NameMaker;
 
 public final class MeterDimerFraction implements DataSource, Meter {
     public MeterDimerFraction(int idx) {

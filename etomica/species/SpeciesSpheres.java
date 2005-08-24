@@ -1,7 +1,6 @@
 package etomica.species;
 import java.lang.reflect.Constructor;
 
-import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Simulation;
@@ -14,6 +13,7 @@ import etomica.config.Conformation;
 import etomica.config.ConformationLinear;
 import etomica.space.CoordinateFactorySphere;
 import etomica.units.Dimension;
+import etomica.util.Default;
 
 /**
  * Species in which molecules are made of arbitrary number of spheres,

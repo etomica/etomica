@@ -1,11 +1,11 @@
 package etomica.virial;
 
-import etomica.Default;
 import etomica.atom.Atom;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
+import etomica.util.Default;
 
 /**
  * @author kofke

@@ -25,13 +25,13 @@ public final class MaxwellBoltzmann implements java.io.Serializable {
     /**
      * Function giving the Maxwell-Boltzmann distribution of speeds.
      */
-    public static class Distribution implements etomica.utility.Function, java.io.Serializable {
+    public static class Distribution implements etomica.util.Function, java.io.Serializable {
         private double temperature;
         private double mass;
         private Space space;
         private double a, c;
         public Distribution(Space space) {
-            this(space, etomica.Default.TEMPERATURE, etomica.Default.ATOM_MASS);
+            this(space, etomica.util.Default.TEMPERATURE, etomica.util.Default.ATOM_MASS);
         }
         public Distribution(Space space, double temperature, double mass) {
             this.temperature = temperature;

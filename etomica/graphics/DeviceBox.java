@@ -6,10 +6,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import etomica.Constants;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Modifier;
+import etomica.util.Constants;
 
 /**
  * A simple device the permits editing of a single value via a textbox 

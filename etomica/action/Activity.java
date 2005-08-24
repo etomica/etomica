@@ -1,6 +1,6 @@
 package etomica.action;
 
-import etomica.utility.NameMaker;
+import etomica.util.NameMaker;
 
 /**
  * An Action that supports the capability of pausing/unpausing and terminating

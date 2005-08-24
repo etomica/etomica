@@ -3,7 +3,7 @@ package etomica.space1d;
 import etomica.Simulation;
 import etomica.math.SpecialFunctions;
 import etomica.space.Vector;
-import etomica.utility.Function;
+import etomica.util.Function;
 
 /*
  * History Created on Jan 24, 2005 by kofke

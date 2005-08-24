@@ -1,9 +1,9 @@
 package etomica.potential;
-import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.space.Space;
 import etomica.units.Dimension;
+import etomica.util.Default;
 
 /**
  * Lennard-Jones interatomic potential.

@@ -6,7 +6,7 @@ import etomica.data.Data;
 import etomica.data.DataFactory;
 import etomica.data.DataInfo;
 import etomica.units.Dimension;
-import etomica.utility.Function;
+import etomica.util.Function;
 
 /**
  * Data object that holds <tt>double[]</tt> arrays as if they are columns in a

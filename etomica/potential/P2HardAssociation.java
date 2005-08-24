@@ -1,6 +1,5 @@
 package etomica.potential;
 
-import etomica.Default;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
@@ -10,6 +9,7 @@ import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
+import etomica.util.Default;
 
 /**
  * Purely attractive square-well potential with no repulsive core.  Similar

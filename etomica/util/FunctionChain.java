@@ -1,4 +1,4 @@
-package etomica.utility;
+package etomica.util;
 
 /**
  * Defines a function as chain of other functions.

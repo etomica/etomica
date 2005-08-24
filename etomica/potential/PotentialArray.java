@@ -4,7 +4,7 @@
  */
 package etomica.potential;
 
-import etomica.utility.Arrays;
+import etomica.util.Arrays;
 
 /**
  * Instances of this class are created by AtomType classes to

@@ -3,7 +3,7 @@ import java.io.PrintStream;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.utility.NameMaker;
+import etomica.util.NameMaker;
 
 /**
  * Writes data to console or another print stream.

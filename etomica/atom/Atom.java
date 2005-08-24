@@ -4,7 +4,7 @@ import etomica.space.Coordinate;
 import etomica.space.CoordinateFactorySphere;
 import etomica.space.ICoordinate;
 import etomica.space.Space;
-import etomica.utility.Arrays;
+import etomica.util.Arrays;
 
  /**
   * Object corresponding to one physical atom or group of atoms. Each atom holds

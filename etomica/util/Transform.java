@@ -1,4 +1,4 @@
-package etomica.utility;
+package etomica.util;
 
 /**
  * Function interface that takes an array of doubles and returns a 

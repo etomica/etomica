@@ -146,7 +146,7 @@ public class PotentialMaster implements java.io.Serializable {
     public void addPotentialBad(Potential potential, AtomType[] atomTypes) {
         for (int i=0; i<atomTypes.length; i++) {
             while (potentialAtomTypeList.length < atomTypes[i].getIndex()+1) {
-                potentialAtomTypeList = (PotentialArray[])etomica.utility.Arrays.addObject(potentialAtomTypeList, new PotentialArray());
+                potentialAtomTypeList = (PotentialArray[])etomica.util.Arrays.addObject(potentialAtomTypeList, new PotentialArray());
             }
             PotentialArray potentialAtomType = potentialAtomTypeList[atomTypes[i].getIndex()];
             potentialAtomType.addPotential(potential);

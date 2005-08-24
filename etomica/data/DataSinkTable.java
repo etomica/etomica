@@ -9,7 +9,7 @@ import etomica.data.types.CastToTable;
 import etomica.data.types.DataArray;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataTable;
-import etomica.utility.Arrays;
+import etomica.util.Arrays;
 
 /**
  * Receives data from multiple streams and organizes it in the form of a table,

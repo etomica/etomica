@@ -5,13 +5,13 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import etomica.Controller;
-import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.action.Action;
 import etomica.integrator.Integrator;
 import etomica.simulations.HSMD3D;
 import etomica.units.PrefixedUnit;
+import etomica.util.Default;
 
 /**
  * Permits selection of temperature from a discrete set of values.  Also has option

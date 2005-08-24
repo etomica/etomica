@@ -7,7 +7,6 @@ import java.awt.Color;
 
 import javax.swing.JPanel;
 
-import etomica.Default;
 import etomica.Modifier;
 import etomica.atom.Atom;
 import etomica.atom.AtomFactoryHomo;
@@ -31,6 +30,7 @@ import etomica.modifier.ModifierBoolean;
 import etomica.modules.dcvgcmd.IntegratorDCVGCMD.Mu1Modulator;
 import etomica.modules.dcvgcmd.IntegratorDCVGCMD.Mu2Modulator;
 import etomica.units.Kelvin;
+import etomica.util.Default;
 
 /**
  * @author msellers and nsives

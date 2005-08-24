@@ -10,7 +10,7 @@ import etomica.integrator.IntegratorNonintervalListener;
 import etomica.units.Count;
 import etomica.units.Dimension;
 import etomica.units.Unit;
-import etomica.utility.NameMaker;
+import etomica.util.NameMaker;
 
 /**
  * Data source that keeps track of the number of steps performed by an

@@ -1,6 +1,5 @@
 package etomica.nbr;
 
-import etomica.Debug;
 import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomPairVector;
@@ -9,6 +8,7 @@ import etomica.space.CoordinatePair;
 import etomica.space.NearestImageTransformerVector;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.util.Debug;
 
 /**
  * Simple neighbor criterion based on distance moved by a leaf atom since

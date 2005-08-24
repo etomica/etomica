@@ -2,7 +2,7 @@
  * History
  * Created on Aug 6, 2004 by kofke
  */
-package etomica.utility;
+package etomica.util;
 
 /**
  * @author kofke

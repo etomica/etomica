@@ -4,7 +4,6 @@
  */
 package etomica.nbr.list;
 
-import etomica.Debug;
 import etomica.action.AtomsetActionAdapter;
 import etomica.action.PhaseImposePbc;
 import etomica.atom.Atom;
@@ -23,7 +22,8 @@ import etomica.nbr.cell.ApiAACell;
 import etomica.phase.Phase;
 import etomica.potential.Potential;
 import etomica.potential.Potential2;
-import etomica.utility.Arrays;
+import etomica.util.Arrays;
+import etomica.util.Debug;
 
 /**
  * Initiates the process of updating the neighbor lists. Instance is constructed

@@ -1,6 +1,5 @@
 package etomica.simulations;
 
-import etomica.Default;
 import etomica.Simulation;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
@@ -28,6 +27,7 @@ import etomica.spin.NeighborCellManagerFixed;
 import etomica.spin.P1MagneticField;
 import etomica.spin.P2Spin;
 import etomica.units.systems.LJ;
+import etomica.util.Default;
 
 
 /**

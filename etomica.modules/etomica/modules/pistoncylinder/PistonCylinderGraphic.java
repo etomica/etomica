@@ -13,7 +13,6 @@ import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 
-import etomica.Default;
 import etomica.Modifier;
 import etomica.action.Action;
 import etomica.atom.AtomTypeSphere;
@@ -59,6 +58,7 @@ import etomica.units.Liter;
 import etomica.units.Mole;
 import etomica.units.Unit;
 import etomica.units.UnitRatio;
+import etomica.util.Default;
 
 
 public class PistonCylinderGraphic {
@@ -177,7 +177,7 @@ public class PistonCylinderGraphic {
 	    
 	    //slider for scale of display
 	    ModifierFunctionWrapper scaleModulator = new ModifierFunctionWrapper(displayPhase, "scale");
-	    scaleModulator.setFunction(new etomica.utility.Function.Linear(0.01, 0.0));
+	    scaleModulator.setFunction(new etomica.util.Function.Linear(0.01, 0.0));
 	    scaleSlider = new DeviceSlider(null, scaleModulator);
 	    JPanel scaleSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
 	    scaleSliderPanel.add(scaleSlider.graphic());	    

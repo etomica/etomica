@@ -7,7 +7,7 @@ import etomica.data.meter.Meter;
 import etomica.data.types.DataDoubleArray;
 import etomica.phase.Phase;
 import etomica.units.Dimension;
-import etomica.utility.NameMaker;
+import etomica.util.NameMaker;
 
 /**
  * Measures value of clusters in a phase and returns the values

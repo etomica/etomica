@@ -1,6 +1,6 @@
 package etomica.virial.cluster;
 import etomica.math.SpecialFunctions;
-import etomica.utility.Arrays;
+import etomica.util.Arrays;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterSum;

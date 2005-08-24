@@ -28,7 +28,7 @@ import etomica.space.Vector;
 import etomica.species.Species;
 import etomica.species.SpeciesResolver;
 import etomica.species.SpeciesSignature;
-import etomica.utility.NameMaker;
+import etomica.util.NameMaker;
 
 /* History of changes
  * 09/01/02 (DAK) setConfiguration sets new configuration so that it zeros total momentum
@@ -322,7 +322,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
             while (iterator.hasNext()) {
                 Species candidate = (Species)iterator.next();
                 if (speciesSignature.equals(candidate.getSpeciesSignature())) {
-                    candidates = (Species[])etomica.utility.Arrays.addObject(candidates,candidate);
+                    candidates = (Species[])etomica.util.Arrays.addObject(candidates,candidate);
                     break;
                 }
                 if (candidates.length > 0) {

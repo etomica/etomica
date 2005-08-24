@@ -1,4 +1,4 @@
-package etomica.utility;
+package etomica.util;
 
 
 /* History

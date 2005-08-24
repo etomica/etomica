@@ -4,7 +4,7 @@ import etomica.action.AtomsetAction;
 import etomica.atom.Atom;
 import etomica.atom.AtomList;
 import etomica.atom.AtomSet;
-import etomica.utility.Arrays;
+import etomica.util.Arrays;
 
 /**
  * Iterates over all the atoms given across an array of atom lists. Atoms

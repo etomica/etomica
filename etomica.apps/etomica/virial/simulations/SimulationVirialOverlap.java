@@ -1,6 +1,5 @@
 package etomica.virial.simulations;
 
-import etomica.Default;
 import etomica.Simulation;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeGroup;
@@ -18,6 +17,7 @@ import etomica.potential.P2LennardJones;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
+import etomica.util.Default;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;

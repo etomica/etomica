@@ -4,13 +4,13 @@
  */
 package etomica.data;
 
-import etomica.Constants;
-import etomica.Default;
-import etomica.Constants.TypedConstant;
 import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataGroup;
 import etomica.units.Dimension;
-import etomica.utility.Function;
+import etomica.util.Constants;
+import etomica.util.Default;
+import etomica.util.Function;
+import etomica.util.Constants.TypedConstant;
 
 /**
  * Accumulator that keeps statistics for averaging and error analysis. The

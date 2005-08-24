@@ -2,7 +2,7 @@ package etomica.action.activity;
 
 import etomica.action.Action;
 import etomica.action.Activity;
-import etomica.utility.Arrays;
+import etomica.util.Arrays;
 
 /**
  * Organizer of simulation actions to be executed in series.

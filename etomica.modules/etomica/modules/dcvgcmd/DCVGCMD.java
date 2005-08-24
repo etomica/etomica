@@ -1,6 +1,5 @@
 package etomica.modules.dcvgcmd;
 
-import etomica.Default;
 import etomica.Simulation;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
@@ -31,6 +30,7 @@ import etomica.space3d.Vector3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
+import etomica.util.Default;
 
 /**
  * 

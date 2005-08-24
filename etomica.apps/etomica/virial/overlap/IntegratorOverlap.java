@@ -1,6 +1,5 @@
 package etomica.virial.overlap;
 
-import etomica.Debug;
 import etomica.atom.Atom;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
@@ -9,7 +8,8 @@ import etomica.data.types.DataGroup;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorIntervalEvent;
 import etomica.potential.PotentialMaster;
-import etomica.utility.Arrays;
+import etomica.util.Arrays;
+import etomica.util.Debug;
 
 /**
  * This integrator class manages (2) sub-integrators for an overlap

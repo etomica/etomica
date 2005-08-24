@@ -1,7 +1,7 @@
 package etomica.units;
 import java.util.LinkedList;
 
-import etomica.Default;
+import etomica.util.Default;
 
 public abstract class Dimension implements java.io.Serializable {
     
@@ -92,7 +92,7 @@ public abstract class Dimension implements java.io.Serializable {
         static double[] signature = {1., 0., 0., 0.};
         public double[] signature() {return signature;}
         public String toString() {return "Mass";}
-        public Unit defaultIOUnit() {return etomica.Default.UNIT_SYSTEM.mass();}
+        public Unit defaultIOUnit() {return etomica.util.Default.UNIT_SYSTEM.mass();}
         public Class baseUnit() {return BaseUnit.Mass.class;}
     }
     public static class Length extends Dimension {
@@ -132,7 +132,7 @@ public abstract class Dimension implements java.io.Serializable {
         static double[] signature = {0.5, 2.5, -1., 0.};
         public double[] signature() {return signature;}
         public String toString() {return "Dipole moment";}
-        public Unit defaultIOUnit() {return etomica.Default.UNIT_SYSTEM.dipole();}
+        public Unit defaultIOUnit() {return etomica.util.Default.UNIT_SYSTEM.dipole();}
         public Class baseUnit() {return BaseUnit.Dipole.class;}
     }
     public static class Energy extends Dimension {//D-A^2/ps^2

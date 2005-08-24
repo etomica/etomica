@@ -3,7 +3,7 @@ package etomica.atom.iterator;
 import etomica.action.AtomsetAction;
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
-import etomica.utility.Arrays;
+import etomica.util.Arrays;
 
 /**
  * Iterates over all the atoms given across an array of iterators. Atoms given

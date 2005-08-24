@@ -1,12 +1,12 @@
 package etomica.space;
 
-import etomica.Default;
 import etomica.lattice.IndexIteratorSequential;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
 import etomica.math.geometry.Rectangle;
 import etomica.math.geometry.Rectangular;
+import etomica.util.Default;
 
 /**
  * Boundary that is in the shape of a rectangular parallelepiped.  

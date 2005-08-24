@@ -1,6 +1,5 @@
 package etomica.simulations;
 import etomica.Controller;
-import etomica.Default;
 import etomica.Simulation;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.config.ConfigurationSequential;
@@ -13,6 +12,7 @@ import etomica.potential.P2LennardJones;
 import etomica.space2d.Space2D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
+import etomica.util.Default;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 2D

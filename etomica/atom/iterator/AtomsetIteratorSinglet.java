@@ -1,8 +1,8 @@
 package etomica.atom.iterator;
 
-import etomica.Debug;
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomSet;
+import etomica.util.Debug;
 
 /**
  * Iterator that expires after returning a single atom set, which is

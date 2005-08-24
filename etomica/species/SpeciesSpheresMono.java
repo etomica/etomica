@@ -1,7 +1,6 @@
 package etomica.species;
 import java.lang.reflect.Constructor;
 
-import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Simulation;
@@ -11,6 +10,7 @@ import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.space.CoordinateFactorySphere;
 import etomica.units.Dimension;
+import etomica.util.Default;
 
 /**
  * Species in which molecules are each made of a single spherical atom.

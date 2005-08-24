@@ -9,7 +9,7 @@ import etomica.integrator.IntegratorNonintervalListener;
 import etomica.units.Count;
 import etomica.units.Dimension;
 import etomica.units.Unit;
-import etomica.utility.NameMaker;
+import etomica.util.NameMaker;
 
 /**
  * This is a data source to count the number of collisions processed by a

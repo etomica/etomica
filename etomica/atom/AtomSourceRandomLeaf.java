@@ -1,7 +1,7 @@
 package etomica.atom;
 
-import etomica.Debug;
 import etomica.phase.Phase;
+import etomica.util.Debug;
 
 /**
  * AtomSource that returns a completely random leaf atom.

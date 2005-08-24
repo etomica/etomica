@@ -1,5 +1,4 @@
 package etomica.potential;
-import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomPair;
@@ -10,6 +9,7 @@ import etomica.space.ICoordinateAngular;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
+import etomica.util.Default;
 
 /**
  * Lennard-Jones potential with a square-well cone of attraction. 

@@ -2,7 +2,6 @@
 
 package etomica.simulations;
 
-import etomica.Default;
 import etomica.Simulation;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
@@ -22,6 +21,7 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
+import etomica.util.Default;
 
 public class ChainHSMD3D extends Simulation {
 

@@ -13,7 +13,7 @@ import etomica.phase.Phase;
 import etomica.space.CoordinatePair;
 import etomica.space.Space;
 import etomica.units.Dimension;
-import etomica.utility.NameMaker;
+import etomica.util.NameMaker;
 
 /**
  * Meter for tabulation of the atomic radial distribution function (RDF).

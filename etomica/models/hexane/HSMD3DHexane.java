@@ -1,6 +1,5 @@
 package etomica.models.hexane;
 
-import etomica.Default;
 import etomica.Simulation;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
@@ -10,6 +9,7 @@ import etomica.potential.Potential2;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
+import etomica.util.Default;
 
 /**
  * Hard sphere simulation of hexane molecule behavior.

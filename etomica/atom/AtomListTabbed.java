@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.Debug;
+import etomica.util.Debug;
 
 
 /**

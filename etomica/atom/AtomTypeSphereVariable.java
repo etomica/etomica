@@ -4,8 +4,8 @@
  */
 package etomica.atom;
 
-import etomica.Default;
 import etomica.Parameter;
+import etomica.util.Default;
 
 
 public class AtomTypeSphereVariable extends AtomTypeSphere {

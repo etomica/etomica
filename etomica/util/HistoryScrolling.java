@@ -1,7 +1,7 @@
 /* History
  * 08/09/04 (DAK, AS, NC) new from History (when it was defined as a class)
  */
-package etomica.utility;
+package etomica.util;
 
 import etomica.data.DataSource;
 import etomica.data.DataSourceUniform;

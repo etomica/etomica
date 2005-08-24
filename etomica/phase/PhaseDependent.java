@@ -4,7 +4,7 @@
  */
 package etomica.phase;
 
-import etomica.utility.IntegerRange;
+import etomica.util.IntegerRange;
 
 /**
  * @author kofke

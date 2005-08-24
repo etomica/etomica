@@ -7,7 +7,7 @@ import etomica.data.Data;
 import etomica.data.DataFactory;
 import etomica.data.DataInfo;
 import etomica.units.Dimension;
-import etomica.utility.Function;
+import etomica.util.Function;
 
 /**
  * Data object that wraps a mutable array of doubles. Data may be treated alternately as a simple 

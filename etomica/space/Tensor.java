@@ -1,6 +1,6 @@
 package etomica.space;
 
-import etomica.utility.Function;
+import etomica.util.Function;
 
 
 

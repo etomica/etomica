@@ -1,6 +1,6 @@
 package etomica.math;
 
-import etomica.utility.AssociatedPolynomial;
+import etomica.util.AssociatedPolynomial;
 
 
 public class SphericalHarmonics implements java.io.Serializable {

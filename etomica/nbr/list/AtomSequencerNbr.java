@@ -9,7 +9,7 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomSequencerFactory;
 import etomica.nbr.cell.AtomSequencerCell;
-import etomica.utility.Arrays;
+import etomica.util.Arrays;
 
 /**
  * Sequencer used to maintain neighbor lists.  Holds lists of atoms

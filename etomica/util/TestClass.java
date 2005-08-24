@@ -1,10 +1,9 @@
-package etomica;
+package etomica.util;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 
-import etomica.utility.Arrays;
 
 public class TestClass implements java.io.Serializable {
     

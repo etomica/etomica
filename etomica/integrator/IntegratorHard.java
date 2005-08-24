@@ -2,8 +2,6 @@ package etomica.integrator;
 
 import java.io.Serializable;
 
-import etomica.Debug;
-import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
@@ -21,8 +19,10 @@ import etomica.space.CoordinatePair;
 import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;
-import etomica.utility.TreeLinker;
-import etomica.utility.TreeList;
+import etomica.util.Debug;
+import etomica.util.Default;
+import etomica.util.TreeLinker;
+import etomica.util.TreeList;
 
 /**
  * Parent class of all integrators for hard potentials.

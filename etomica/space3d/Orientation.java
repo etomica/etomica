@@ -1,7 +1,7 @@
 package etomica.space3d;
 
-import etomica.Constants;
 import etomica.Simulation;
+import etomica.util.Constants;
 
 
 

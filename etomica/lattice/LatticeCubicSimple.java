@@ -1,7 +1,7 @@
 package etomica.lattice;
-import etomica.Default;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.space.Space;
+import etomica.util.Default;
 
 /**
  * A simple cubic lattice, with one site per cubic unit cell.

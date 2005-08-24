@@ -1,12 +1,12 @@
 package etomica.modules.pistoncylinder;
 
-import etomica.Debug;
 import etomica.atom.Atom;
 import etomica.integrator.IntegratorHard;
 import etomica.phase.Phase;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.PotentialHard;
 import etomica.potential.PotentialMaster;
+import etomica.util.Debug;
 
 /**
  * Integrator for DMD with a piston (P1HardMovingBoundary)

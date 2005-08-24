@@ -1,8 +1,8 @@
 package etomica.virial;
 
-import etomica.Default;
 import etomica.space.CoordinatePair;
 import etomica.space.Space;
+import etomica.util.Default;
 
 /**
  * @author kofke

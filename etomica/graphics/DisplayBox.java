@@ -4,7 +4,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import etomica.Constants;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.data.Data;
@@ -14,6 +13,7 @@ import etomica.data.DataSink;
 import etomica.data.types.CastToDouble;
 import etomica.data.types.DataDouble;
 import etomica.units.Unit;
+import etomica.util.Constants;
 
 /**
  * A simple display of a single value in a textbox with an associated label.

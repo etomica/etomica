@@ -5,7 +5,7 @@ import etomica.math.SpecialFunctions;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space2d.Vector2D;
-import etomica.utility.Function;
+import etomica.util.Function;
 
 /*
  * History Created on Jan 24, 2005 by kofke

@@ -4,7 +4,7 @@ import etomica.data.Data;
 import etomica.data.DataFactory;
 import etomica.data.DataInfo;
 import etomica.units.Dimension;
-import etomica.utility.Function;
+import etomica.util.Function;
 
 /**
  * Data object wrapping a single mutable value of type <tt>double</tt>. Value is

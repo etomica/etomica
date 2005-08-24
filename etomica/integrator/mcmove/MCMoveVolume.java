@@ -1,6 +1,5 @@
 package etomica.integrator.mcmove;
 
-import etomica.Default;
 import etomica.Simulation;
 import etomica.action.PhaseInflate;
 import etomica.atom.iterator.AtomIterator;
@@ -10,6 +9,7 @@ import etomica.integrator.MCMove;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.units.Dimension;
+import etomica.util.Default;
 
 /**
  * Standard Monte Carlo volume-change move for simulations in the NPT ensemble.

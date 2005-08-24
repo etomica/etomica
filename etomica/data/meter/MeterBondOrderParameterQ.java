@@ -1,6 +1,5 @@
 package etomica.data.meter;
 
-import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomPair;
 import etomica.atom.iterator.ApiLeafAtoms;
@@ -12,6 +11,7 @@ import etomica.space.CoordinatePair;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
+import etomica.util.Default;
 
  /** The Bond Order Parameter Ql provides a metric that indicates the crystallinity of a phase.
    * Appropriate for 3-dimensional system only.

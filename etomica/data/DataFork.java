@@ -2,7 +2,7 @@ package etomica.data;
 
 import java.io.Serializable;
 
-import etomica.utility.Arrays;
+import etomica.util.Arrays;
 
 /**
  * DataSink that takes a data stream and forwards it across multiple sinks.

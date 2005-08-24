@@ -6,7 +6,7 @@ import etomica.action.Action;
 import etomica.units.Dimension;
 import etomica.units.Dimensioned;
 import etomica.units.Unit;
-import etomica.utility.NameMaker;
+import etomica.util.NameMaker;
 
 /**
  * Base class for all Devices.  These are objects that permit manipulation of the

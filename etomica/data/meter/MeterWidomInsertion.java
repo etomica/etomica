@@ -1,6 +1,5 @@
 package etomica.data.meter;
 
-import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
@@ -10,6 +9,7 @@ import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.species.Species;
 import etomica.units.Dimension;
+import etomica.util.Default;
 
 /**
  * Meter to measure the chemical potential (as its exponent: exp(-mu/kT)) of a

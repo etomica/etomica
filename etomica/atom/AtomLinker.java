@@ -2,7 +2,7 @@ package etomica.atom;
 
 import java.io.IOException;
 
-import etomica.Debug;
+import etomica.util.Debug;
 
 /**
  * Class for constructing linked lists of Atoms.

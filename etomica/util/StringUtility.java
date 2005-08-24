@@ -1,4 +1,4 @@
-package etomica.utility;
+package etomica.util;
 
 public class StringUtility implements java.io.Serializable {
     

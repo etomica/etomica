@@ -3,7 +3,7 @@ package etomica;
 import etomica.action.Action;
 import etomica.action.Activity;
 import etomica.action.activity.ActivityGroupSeries;
-import etomica.utility.Arrays;
+import etomica.util.Arrays;
 
 /**
  * Organizer and executor of actions performed by the simulation. The Controller

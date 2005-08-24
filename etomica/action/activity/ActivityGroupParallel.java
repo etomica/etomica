@@ -8,7 +8,7 @@ import java.util.LinkedList;
 
 import etomica.action.Action;
 import etomica.action.Activity;
-import etomica.utility.Arrays;
+import etomica.util.Arrays;
 
 /**
  * Organizer of simulation actions to be executed in parallel,

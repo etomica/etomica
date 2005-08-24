@@ -5,7 +5,6 @@ import java.awt.Component;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import etomica.Constants;
 import etomica.data.AccumulatorAverage;
 import etomica.data.Data;
 import etomica.data.DataInfo;
@@ -18,6 +17,7 @@ import etomica.graphics.DisplayBox.LabelType;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.simulations.HSMD2D;
 import etomica.units.Unit;
+import etomica.util.Constants;
 
 /**
  * Display that presents three boxes with the current value, average, 

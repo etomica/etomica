@@ -1,5 +1,4 @@
 package etomica.modules.reactionequilibrium;
-import etomica.Default;
 import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
@@ -10,6 +9,7 @@ import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
+import etomica.util.Default;
 
 
 /**

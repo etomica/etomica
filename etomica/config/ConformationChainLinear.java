@@ -1,5 +1,4 @@
 package etomica.config;
-import etomica.Default;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
@@ -9,6 +8,7 @@ import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
+import etomica.util.Default;
 
 /**
  * Places atoms in a straight line.

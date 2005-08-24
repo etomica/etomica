@@ -12,12 +12,11 @@
  * you entered into with Sun.
  */
 
-package etomica.utility;
+package etomica.util;
 
 import java.util.Collections;
 import java.util.List;
 
-import etomica.Debug;
 
 	/**
 	 * Resizable-array implementation of the List interface.  Implements

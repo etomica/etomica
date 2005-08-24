@@ -1,12 +1,12 @@
 package etomica.potential;
 
-import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.util.Default;
 
 /**
  * @author David Kofke

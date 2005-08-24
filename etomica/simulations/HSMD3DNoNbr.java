@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
-import etomica.Default;
 import etomica.Simulation;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
@@ -22,7 +21,8 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
-import etomica.utility.EtomicaObjectInputStream;
+import etomica.util.Default;
+import etomica.util.EtomicaObjectInputStream;
 
 public class HSMD3DNoNbr extends Simulation {
 

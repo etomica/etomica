@@ -12,7 +12,7 @@ import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
-import etomica.utility.NameMaker;
+import etomica.util.NameMaker;
 
 /**
  * Abstract class, used to define the basic methods of reading in/writing out the data.

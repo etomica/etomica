@@ -1,10 +1,10 @@
 package etomica.potential;
 
-import etomica.Default;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.util.Default;
 
 
 /**

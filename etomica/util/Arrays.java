@@ -2,7 +2,7 @@
  * History
  * Created on Oct 28, 2004 by kofke, schultz
  */
-package etomica.utility;
+package etomica.util;
 
 import java.lang.reflect.Array;
 

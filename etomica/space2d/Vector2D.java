@@ -6,7 +6,7 @@ import etomica.space.Boundary;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
-import etomica.utility.Function;
+import etomica.util.Function;
 
 /*
  * History Created on Jan 24, 2005 by kofke

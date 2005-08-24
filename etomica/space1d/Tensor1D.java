@@ -2,7 +2,7 @@ package etomica.space1d;
 
 import etomica.space.Tensor;
 import etomica.space.Vector;
-import etomica.utility.Function;
+import etomica.util.Function;
 
 /*
  * History

@@ -6,7 +6,7 @@ import etomica.phase.Phase;
 import etomica.phase.PhaseEvent;
 import etomica.phase.PhaseListener;
 import etomica.species.Species;
-import etomica.utility.Arrays;
+import etomica.util.Arrays;
 
 /**
  * Parent of all SpeciesMaster instances in a simulation, and thus the root

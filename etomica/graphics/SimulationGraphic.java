@@ -6,7 +6,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import etomica.Controller;
-import etomica.Default;
 import etomica.Simulation;
 import etomica.SimulationContainer;
 import etomica.action.Action;
@@ -21,6 +20,7 @@ import etomica.math.geometry.Polyhedron;
 import etomica.phase.Phase;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
+import etomica.util.Default;
 
 /**
  * General class for graphical presentation of the elements of a molecular simulation.

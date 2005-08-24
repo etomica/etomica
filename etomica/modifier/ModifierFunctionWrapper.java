@@ -1,6 +1,6 @@
 package etomica.modifier;
 
-import etomica.utility.Function;
+import etomica.util.Function;
 
 /**
  * Extends the configurable modifier to permit a function to be applied to

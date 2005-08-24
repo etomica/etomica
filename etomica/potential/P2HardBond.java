@@ -1,7 +1,5 @@
 package etomica.potential;
 
-import etomica.Debug;
-import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
@@ -13,6 +11,8 @@ import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.Dimension;
+import etomica.util.Debug;
+import etomica.util.Default;
 
 /**
  * Potential that acts like a hard string connecting the centers of two atoms.

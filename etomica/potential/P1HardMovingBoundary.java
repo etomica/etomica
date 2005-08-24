@@ -2,8 +2,6 @@ package etomica.potential;
 
 import java.awt.Color;
 
-import etomica.Debug;
-import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
@@ -14,6 +12,8 @@ import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
+import etomica.util.Debug;
+import etomica.util.Default;
 
 /**
  * Potential that places hard repulsive walls that move and 

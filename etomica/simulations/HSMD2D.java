@@ -1,5 +1,4 @@
 package etomica.simulations;
-import etomica.Default;
 import etomica.Simulation;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
@@ -15,6 +14,7 @@ import etomica.potential.Potential2;
 import etomica.space2d.Space2D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
+import etomica.util.Default;
 
 /**
  * Simple hard-sphere molecular dynamics simulation in 2D.

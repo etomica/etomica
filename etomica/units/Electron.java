@@ -1,5 +1,5 @@
 package etomica.units;
-import etomica.Constants;
+import etomica.util.Constants;
 
 /**
  * Unit of charge equal to the magnitude of the charge on an electron

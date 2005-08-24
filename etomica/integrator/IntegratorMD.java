@@ -1,9 +1,6 @@
 package etomica.integrator;
 
-import etomica.Constants;
-import etomica.Default;
 import etomica.Simulation;
-import etomica.Constants.TypedConstant;
 import etomica.action.AtomActionRandomizeVelocity;
 import etomica.atom.Atom;
 import etomica.atom.AtomList;
@@ -17,6 +14,9 @@ import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.space.ICoordinateKinetic;
 import etomica.units.Dimension;
+import etomica.util.Constants;
+import etomica.util.Default;
+import etomica.util.Constants.TypedConstant;
 /**
  * Superclass of all molecular-dynamics integrators.
  * Extends the Integrator class by adding methods that 

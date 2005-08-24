@@ -1,6 +1,5 @@
 package etomica.config;
 
-import etomica.Default;
 import etomica.Simulation;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
@@ -12,6 +11,7 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
+import etomica.util.Default;
 
 /**
  * Sets the configuration to the zincblende structure, which consists

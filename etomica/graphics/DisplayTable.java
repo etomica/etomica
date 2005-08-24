@@ -338,7 +338,7 @@ public class DisplayTable extends Display implements DataTableListener,
     //structures used to adjust precision of displayed values
     //  private final java.text.NumberFormat formatter =
     // java.text.NumberFormat.getInstance();
-    private final java.text.NumberFormat formatter = new etomica.utility.ScientificFormat();
+    private final java.text.NumberFormat formatter = new etomica.util.ScientificFormat();
     private final javax.swing.table.DefaultTableCellRenderer numberRenderer = new javax.swing.table.DefaultTableCellRenderer() {
 
         public void setValue(Object value) {

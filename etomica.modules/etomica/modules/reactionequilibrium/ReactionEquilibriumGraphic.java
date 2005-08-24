@@ -2,7 +2,6 @@ package etomica.modules.reactionequilibrium;
 
 import javax.swing.JPanel;
 
-import etomica.Constants;
 import etomica.Modifier;
 import etomica.action.Action;
 import etomica.atom.Atom;
@@ -28,6 +27,7 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.units.Dimension;
 import etomica.units.Kelvin;
 import etomica.units.PrefixedUnit;
+import etomica.util.Constants;
 
 /**
  * @author William Scharmach

@@ -8,7 +8,7 @@ import etomica.data.DataInfo;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
-import etomica.utility.Function;
+import etomica.util.Function;
 
 /**
  * Data object wrapping a single mutable value of type (Space) Tensor. Value is

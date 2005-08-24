@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
-import etomica.Debug;
-import etomica.utility.EtomicaObjectInputStream;
+import etomica.util.Debug;
+import etomica.util.EtomicaObjectInputStream;
 import etomica.Simulation;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorListSimple;

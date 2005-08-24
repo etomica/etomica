@@ -14,9 +14,9 @@
 
 package etomica.atom;
 
-import etomica.Debug;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayList;
+import etomica.util.Debug;
 
 	/**
 	 * Resizable-array implementation of the List interface.  Implements

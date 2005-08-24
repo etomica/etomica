@@ -1,9 +1,8 @@
 /*
  * Created on Aug 23, 2004 
  */
-package etomica.utility;
+package etomica.util;
 
-import etomica.Debug;
 
 /**
  * Linker used in the binary tree TreeList.  TreeLinkers point to the

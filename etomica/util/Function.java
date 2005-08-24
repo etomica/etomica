@@ -1,4 +1,4 @@
-package etomica.utility;
+package etomica.util;
 
 /**
  * Interface for the basic features of a function that maps a double onto

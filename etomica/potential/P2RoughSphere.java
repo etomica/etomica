@@ -1,6 +1,5 @@
 package etomica.potential;
 
-import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
 import etomica.atom.AtomPair;
@@ -12,6 +11,7 @@ import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
+import etomica.util.Default;
 
 /**
  * Basic hard-(rod/disk/sphere) potential, with surface roughness to couple rotation and translational motions.

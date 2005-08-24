@@ -4,7 +4,7 @@
  */
 package etomica.atom;
 
-import etomica.Default;
+import etomica.util.Default;
 
 /**
  * Atom type for a simple monatomic atom that has a length scale associated

@@ -1,6 +1,5 @@
 package etomica.tests;
 import etomica.Controller;
-import etomica.Default;
 import etomica.Simulation;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.config.ConfigurationFile;
@@ -21,6 +20,7 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
+import etomica.util.Default;
 
 /**
  * Simple hard-sphere Monte Carlo simulation in 2D.

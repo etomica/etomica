@@ -4,8 +4,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import etomica.Debug;
-import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -14,8 +12,10 @@ import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.units.Dimension;
-import etomica.utility.Arrays;
-import etomica.utility.NameMaker;
+import etomica.util.Arrays;
+import etomica.util.Debug;
+import etomica.util.Default;
+import etomica.util.NameMaker;
 
 /**
  * Integrator implements the algorithm used to move the atoms around and

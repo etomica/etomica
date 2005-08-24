@@ -14,7 +14,7 @@ import etomica.integrator.mcmove.MCMoveSwapConfiguration;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.units.Dimension;
-import etomica.utility.Arrays;
+import etomica.util.Arrays;
 
 /**
  * Parallel-tempering integrator.  Oversees other integrators that are defined to perform

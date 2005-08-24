@@ -1,6 +1,5 @@
 package etomica.modules.dcvgcmd;
 
-import etomica.Default;
 import etomica.Simulation;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
@@ -21,6 +20,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
+import etomica.util.Default;
 
 /**
  * Creates a configuration using a CubicLattice to specify positions.  Has

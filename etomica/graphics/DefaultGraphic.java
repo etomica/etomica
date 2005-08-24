@@ -2,7 +2,7 @@ package etomica.graphics;
 
 import java.awt.Color;
 
-import etomica.Default;
+import etomica.util.Default;
 
 public final class DefaultGraphic implements java.io.Serializable {
     

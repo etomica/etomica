@@ -1,6 +1,5 @@
 package etomica.space3d;
 
-import etomica.Default;
 import etomica.exception.MethodNotImplementedException;
 import etomica.lattice.IndexIteratorSequential;
 import etomica.math.geometry.Plane;
@@ -11,6 +10,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryPeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.util.Default;
 
 /**
  * This class enables creation of a periodic truncated-octahedron boundary.

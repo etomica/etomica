@@ -16,7 +16,8 @@ import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.species.Species;
-import etomica.utility.NameMaker;
+import etomica.util.Default;
+import etomica.util.NameMaker;
 
 /**
  * The main class that organizes the elements of a molecular simulation.

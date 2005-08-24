@@ -10,8 +10,8 @@ import etomica.data.types.DataArray;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.units.Dimension;
-import etomica.utility.Histogram;
-import etomica.utility.HistogramSimple;
+import etomica.util.Histogram;
+import etomica.util.HistogramSimple;
 
 /**
  * Accumulator that keeps histogram of data.

@@ -1,7 +1,6 @@
 package etomica.modules.pistoncylinder;
 
 import etomica.Controller;
-import etomica.Default;
 import etomica.Simulation;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.config.Configuration;
@@ -28,6 +27,7 @@ import etomica.space3d.Vector3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Bar;
+import etomica.util.Default;
 
 /**
  * Simple hard-sphere MD in piston-cylinder apparatus

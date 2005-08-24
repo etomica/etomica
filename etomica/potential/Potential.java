@@ -6,7 +6,7 @@ import etomica.compatibility.FeatureSet;
 import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.units.Dimension;
-import etomica.utility.NameMaker;
+import etomica.util.NameMaker;
 
 /**
  * Superclass for all Potential classes, which define how the atoms in the
