@@ -1,9 +1,9 @@
 package etomica.modules.pistoncylinder;
 
-import etomica.Space;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P1HardMovingBoundary;
+import etomica.space.Space;
 
 /**
  * data source front for virial sum from P1HardMovingBoundary

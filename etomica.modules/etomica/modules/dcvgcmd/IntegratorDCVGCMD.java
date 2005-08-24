@@ -5,11 +5,11 @@
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 package etomica.modules.dcvgcmd;
-import etomica.Integrator;
 import etomica.Modifier;
 import etomica.Species;
 import etomica.atom.Atom;
 import etomica.graphics.DisplayPhaseCanvas3DOpenGL;
+import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
 import etomica.nbr.PotentialMasterHybrid;
@@ -148,7 +148,7 @@ public class IntegratorDCVGCMD extends Integrator {
     }
 		
 	/**
-	 * @see etomica.Integrator#doReset()
+	 * @see etomica.integrator.Integrator#doReset()
 	 */
 	public void reset() {
         if(!initialized) return;
@@ -160,7 +160,7 @@ public class IntegratorDCVGCMD extends Integrator {
 	}
 
 	/**
-	 * @see etomica.Integrator#makeAgent(etomica.Atom)
+	 * @see etomica.integrator.Integrator#makeAgent(etomica.Atom)
 	 */
 	public Object makeAgent(Atom a) {
 		return integratormd.makeAgent(a);
