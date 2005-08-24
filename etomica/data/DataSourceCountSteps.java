@@ -2,11 +2,11 @@ package etomica.data;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.IntegratorIntervalEvent;
-import etomica.IntegratorIntervalListener;
-import etomica.IntegratorNonintervalEvent;
-import etomica.IntegratorNonintervalListener;
 import etomica.data.types.DataInteger;
+import etomica.integrator.IntegratorIntervalEvent;
+import etomica.integrator.IntegratorIntervalListener;
+import etomica.integrator.IntegratorNonintervalEvent;
+import etomica.integrator.IntegratorNonintervalListener;
 import etomica.units.Count;
 import etomica.units.Dimension;
 import etomica.units.Unit;

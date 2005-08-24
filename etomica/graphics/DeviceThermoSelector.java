@@ -8,8 +8,8 @@ import etomica.Controller;
 import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Integrator;
 import etomica.action.Action;
+import etomica.integrator.Integrator;
 import etomica.simulations.HSMD3D;
 import etomica.units.PrefixedUnit;
 

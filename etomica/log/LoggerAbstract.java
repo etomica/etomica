@@ -5,13 +5,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import etomica.Integrator;
-import etomica.IntegratorIntervalEvent;
-import etomica.IntegratorIntervalListener;
-import etomica.IntegratorNonintervalEvent;
-import etomica.IntegratorNonintervalListener;
 import etomica.action.Action;
+import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorHard;
+import etomica.integrator.IntegratorIntervalEvent;
+import etomica.integrator.IntegratorIntervalListener;
+import etomica.integrator.IntegratorNonintervalEvent;
+import etomica.integrator.IntegratorNonintervalListener;
 import etomica.utility.NameMaker;
 
 /**

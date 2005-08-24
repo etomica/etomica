@@ -2,7 +2,6 @@ package etomica.integrator;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Integrator;
 import etomica.Space;
 import etomica.atom.Atom;
 import etomica.atom.AtomTypeLeaf;

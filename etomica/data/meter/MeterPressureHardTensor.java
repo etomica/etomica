@@ -1,6 +1,5 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
-import etomica.Integrator;
 import etomica.Phase;
 import etomica.Space;
 import etomica.atom.Atom;
@@ -11,6 +10,7 @@ import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.DataSourceCountTime;
 import etomica.data.types.DataTensor;
+import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorHard;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Tensor;

@@ -7,7 +7,6 @@ import javax.swing.JPanel;
 
 import etomica.Controller;
 import etomica.Default;
-import etomica.Integrator;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.SimulationContainer;
@@ -16,6 +15,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomPositionDefinition;
+import etomica.integrator.Integrator;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.math.geometry.Plane;
 import etomica.math.geometry.Polyhedron;

@@ -1,7 +1,6 @@
 package etomica.virial.simulations;
 
 import etomica.Default;
-import etomica.Integrator;
 import etomica.Simulation;
 import etomica.Space;
 import etomica.Species;
@@ -13,6 +12,7 @@ import etomica.data.DataPump;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayPlot;
+import etomica.integrator.Integrator;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.MCMove;
 import etomica.integrator.mcmove.MCMoveAtom;

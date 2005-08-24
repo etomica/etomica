@@ -6,9 +6,9 @@ package etomica.action.activity;
 
 import java.util.LinkedList;
 
-import etomica.Integrator;
 import etomica.action.Action;
 import etomica.action.ResetAccumulators;
+import etomica.integrator.Integrator;
 
 /**
  * Pre-configured activity group that runs the integrator through a set of

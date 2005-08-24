@@ -6,10 +6,10 @@ package etomica.action.activity;
 
 import etomica.Debug;
 import etomica.Default;
-import etomica.Integrator;
-import etomica.IntegratorNonintervalEvent;
-import etomica.IntegratorIntervalEvent;
 import etomica.action.Activity;
+import etomica.integrator.Integrator;
+import etomica.integrator.IntegratorIntervalEvent;
+import etomica.integrator.IntegratorNonintervalEvent;
 
 /**
  * Activity that repeatedly invokes an Integrator's doStep method.

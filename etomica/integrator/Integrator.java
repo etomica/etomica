@@ -1,9 +1,13 @@
-package etomica;
+package etomica.integrator;
 
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import etomica.Debug;
+import etomica.Default;
+import etomica.EtomicaElement;
+import etomica.Phase;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;

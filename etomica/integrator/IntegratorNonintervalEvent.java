@@ -1,4 +1,4 @@
-package etomica;
+package etomica.integrator;
 
 /**
  * Event thrown by integrator when it announces reaching special points in the 

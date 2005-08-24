@@ -2,7 +2,6 @@ package etomica.integrator;
 
 import etomica.Constants;
 import etomica.Default;
-import etomica.Integrator;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.Constants.TypedConstant;

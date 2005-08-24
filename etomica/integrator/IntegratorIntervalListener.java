@@ -1,4 +1,4 @@
-package etomica;
+package etomica.integrator;
 
 /**
  * Interface for a class that listens in particular to interval events from an

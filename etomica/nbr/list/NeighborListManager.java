@@ -5,11 +5,6 @@
 package etomica.nbr.list;
 
 import etomica.Debug;
-import etomica.Integrator;
-import etomica.IntegratorIntervalEvent;
-import etomica.IntegratorIntervalListener;
-import etomica.IntegratorNonintervalEvent;
-import etomica.IntegratorNonintervalListener;
 import etomica.Phase;
 import etomica.action.AtomsetActionAdapter;
 import etomica.action.PhaseImposePbc;
@@ -18,6 +13,11 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.AtomIteratorTree;
+import etomica.integrator.Integrator;
+import etomica.integrator.IntegratorIntervalEvent;
+import etomica.integrator.IntegratorIntervalListener;
+import etomica.integrator.IntegratorNonintervalEvent;
+import etomica.integrator.IntegratorNonintervalListener;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.PotentialCalculationAgents;
 import etomica.nbr.cell.ApiAACell;

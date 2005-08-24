@@ -1,8 +1,8 @@
 package etomica.data;
 
-import etomica.Integrator;
 import etomica.action.ActionGroup;
 import etomica.data.AccumulatorAverage.Type;
+import etomica.integrator.Integrator;
 import etomica.integrator.IntervalActionAdapter;
 
 /**

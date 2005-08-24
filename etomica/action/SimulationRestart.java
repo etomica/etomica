@@ -5,10 +5,10 @@ import java.util.Iterator;
 import etomica.Configuration;
 import etomica.ConfigurationLattice;
 import etomica.ConfigurationSequential;
-import etomica.Integrator;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.data.DataAccumulator;
+import etomica.integrator.Integrator;
 import etomica.lattice.LatticeCubicFcc;
 
 /**

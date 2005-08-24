@@ -6,11 +6,11 @@
  */
 package etomica.integrator.mcmove;
 
-import etomica.Integrator;
 import etomica.Phase;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.integrator.Integrator;
 import etomica.integrator.MCMove;
 import etomica.integrator.IntegratorPT.MCMoveSwap;
 import etomica.integrator.IntegratorPT.MCMoveSwapFactory;

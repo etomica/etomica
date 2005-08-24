@@ -2,9 +2,6 @@ package etomica.integrator;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Integrator;
-import etomica.IntegratorIntervalEvent;
-import etomica.IntegratorNonintervalEvent;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.SimulationEvent;

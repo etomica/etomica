@@ -1,8 +1,5 @@
 package etomica.integrator;
 
-import etomica.Integrator;
-import etomica.IntegratorIntervalEvent;
-import etomica.IntegratorIntervalListener;
 import etomica.action.Action;
 
 /**
@@ -54,7 +51,7 @@ public class IntervalActionAdapter implements IntegratorIntervalListener, java.i
      * Returns the priority, which determines the order in which listeners are
      * informed when integrator fires an interval event. Default is 400.
      * 
-     * @see etomica.IntegratorIntervalListener#getPriority()
+     * @see etomica.integrator.IntegratorIntervalListener#getPriority()
      */
     public int getPriority() {
         return priority;

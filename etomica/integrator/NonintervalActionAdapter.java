@@ -1,9 +1,5 @@
 package etomica.integrator;
 
-import etomica.Integrator;
-import etomica.IntegratorNonintervalEvent;
-import etomica.IntegratorIntervalEvent;
-import etomica.IntegratorNonintervalListener;
 import etomica.action.Action;
 
 /**

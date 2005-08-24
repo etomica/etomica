@@ -1,4 +1,4 @@
-package etomica;
+package etomica.integrator;
 
 /**
  * Interface for objects that register as listeners of an Integrator. This

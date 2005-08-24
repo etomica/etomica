@@ -6,8 +6,8 @@ package etomica.utility;
 
 import java.util.HashMap;
 
-import etomica.Integrator;
 import etomica.Phase;
+import etomica.integrator.Integrator;
 
 /**
  * Utility class with a method that generates a unique string that can be used

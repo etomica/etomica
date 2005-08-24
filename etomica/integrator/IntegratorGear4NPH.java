@@ -3,7 +3,6 @@
 package etomica.integrator;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Integrator;
 import etomica.Phase;
 import etomica.Space;
 import etomica.action.PhaseInflate;

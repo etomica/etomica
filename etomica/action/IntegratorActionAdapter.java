@@ -4,7 +4,7 @@
  */
 package etomica.action;
 
-import etomica.Integrator;
+import etomica.integrator.Integrator;
 
 /**
  * Convenience class used to define a IntegratorAction. Implements all methods
