@@ -1,4 +1,4 @@
-package etomica;
+package etomica.config;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomList;

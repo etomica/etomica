@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
-import etomica.ConfigurationLattice;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
@@ -16,6 +15,7 @@ import etomica.SpeciesSpheresMono;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomList;
+import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.potential.P2HardSphere;

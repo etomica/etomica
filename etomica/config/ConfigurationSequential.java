@@ -1,4 +1,4 @@
-package etomica;
+package etomica.config;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;

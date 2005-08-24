@@ -1,8 +1,8 @@
 package etomica.atom;
 
-import etomica.Conformation;
-import etomica.ConformationLinear;
 import etomica.Species;
+import etomica.config.Conformation;
+import etomica.config.ConformationLinear;
 import etomica.space.CoordinateFactory;
 import etomica.space.Space;
 

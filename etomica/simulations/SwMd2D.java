@@ -1,5 +1,4 @@
 package etomica.simulations;
-import etomica.ConfigurationSequential;
 import etomica.Controller;
 import etomica.Default;
 import etomica.Phase;
@@ -8,6 +7,7 @@ import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.config.ConfigurationSequential;
 import etomica.graphics.DisplayPhase;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P2SquareWell;

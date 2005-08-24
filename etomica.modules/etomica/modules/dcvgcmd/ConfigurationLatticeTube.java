@@ -1,7 +1,5 @@
 package etomica.modules.dcvgcmd;
 
-import etomica.Configuration;
-import etomica.Conformation;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
@@ -14,6 +12,8 @@ import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorListCompound;
 import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.config.Configuration;
+import etomica.config.Conformation;
 import etomica.lattice.IndexIteratorSequential;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.LatticeCrystal;

@@ -1,8 +1,5 @@
 package etomica.modules.pistoncylinder;
 
-import etomica.Configuration;
-import etomica.ConfigurationLattice;
-import etomica.ConfigurationSequential;
 import etomica.Controller;
 import etomica.Default;
 import etomica.Phase;
@@ -10,6 +7,9 @@ import etomica.Simulation;
 import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.config.Configuration;
+import etomica.config.ConfigurationLattice;
+import etomica.config.ConfigurationSequential;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPressureHard;

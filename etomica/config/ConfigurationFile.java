@@ -1,4 +1,4 @@
-package etomica;
+package etomica.config;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

@@ -1,8 +1,8 @@
 package etomica.spin;
 
-import etomica.Configuration;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.config.Configuration;
 import etomica.space.Space;
 import etomica.space.Vector;
 

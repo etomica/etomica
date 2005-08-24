@@ -1,5 +1,4 @@
 package etomica.tests;
-import etomica.ConfigurationFile;
 import etomica.Controller;
 import etomica.Default;
 import etomica.Phase;
@@ -8,6 +7,7 @@ import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomSourceRandomLeafSeq;
+import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;

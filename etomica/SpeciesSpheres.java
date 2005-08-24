@@ -6,6 +6,8 @@ import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
+import etomica.config.Conformation;
+import etomica.config.ConformationLinear;
 import etomica.space.CoordinateFactorySphere;
 import etomica.units.Dimension;
 

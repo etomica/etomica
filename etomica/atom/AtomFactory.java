@@ -1,7 +1,7 @@
 package etomica.atom;
 
-import etomica.Conformation;
 import etomica.Species;
+import etomica.config.Conformation;
 import etomica.space.CoordinateFactory;
 
 /**

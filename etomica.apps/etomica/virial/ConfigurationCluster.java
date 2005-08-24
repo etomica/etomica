@@ -1,11 +1,11 @@
 package etomica.virial;
 
-import etomica.Configuration;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
 import etomica.atom.AtomList;
 import etomica.atom.AtomPositionFirstAtom;
 import etomica.atom.iterator.AtomIteratorListCompound;
+import etomica.config.Configuration;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -26,7 +26,7 @@ public class ConfigurationCluster extends Configuration {
 	}
 
 	/**
-	 * @see etomica.Configuration#initializePositions(etomica.AtomIterator)
+	 * @see etomica.config.Configuration#initializePositions(etomica.AtomIterator)
 	 */
     //XXX this can't actually handle multi-atom molecules
 	public void initializePositions(AtomList[] lists) {

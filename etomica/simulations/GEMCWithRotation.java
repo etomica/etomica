@@ -1,6 +1,4 @@
 package etomica.simulations;
-import etomica.Configuration;
-import etomica.ConfigurationSequential;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
@@ -8,6 +6,8 @@ import etomica.Species;
 import etomica.SpeciesSpheresRotating;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.config.Configuration;
+import etomica.config.ConfigurationSequential;
 import etomica.data.meter.MeterDensity;
 import etomica.integrator.IntegratorGEMC;
 import etomica.integrator.mcmove.MCMoveRotate;

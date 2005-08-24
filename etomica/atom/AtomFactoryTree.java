@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.Conformation;
+import etomica.config.Conformation;
 import etomica.space.Space;
 
 /**

@@ -1,9 +1,9 @@
 package etomica.modules.dcvgcmd;
 
-import etomica.Conformation;
 import etomica.atom.Atom;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.config.Conformation;
 import etomica.space.Space;
 
 /**

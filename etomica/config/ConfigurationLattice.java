@@ -1,5 +1,9 @@
-package etomica;
+package etomica.config;
 
+import etomica.Default;
+import etomica.Phase;
+import etomica.Simulation;
+import etomica.SpeciesSpheresMono;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
 import etomica.atom.AtomList;

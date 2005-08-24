@@ -1,7 +1,7 @@
 /*
  * Created on Mar 24, 2005
  */
-package etomica;
+package etomica.config;
 
 import etomica.space.Space;
 import etomica.space.Vector;

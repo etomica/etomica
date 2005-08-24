@@ -1,11 +1,11 @@
 package etomica.simulations;
-import etomica.ConfigurationSequential;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.config.ConfigurationSequential;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;

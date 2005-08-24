@@ -1,6 +1,4 @@
 package etomica.simulations;
-import etomica.Configuration;
-import etomica.ConfigurationLattice;
 import etomica.Controller;
 import etomica.Phase;
 import etomica.Simulation;
@@ -10,6 +8,8 @@ import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
+import etomica.config.Configuration;
+import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.Data;
