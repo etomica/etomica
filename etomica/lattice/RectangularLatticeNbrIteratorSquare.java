@@ -6,10 +6,10 @@ import java.awt.Graphics;
 import javax.swing.JPanel;
 
 import etomica.Debug;
-import etomica.NearestImageVectorSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.RectangularLattice.Iterator;
+import etomica.space.NearestImageVectorSource;
 import etomica.space.Space;
 import etomica.space.Vector;
 

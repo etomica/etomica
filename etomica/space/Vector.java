@@ -1,6 +1,5 @@
 package etomica.space;
 
-import etomica.NearestImageTransformer;
 import etomica.space2d.Vector2D;
 import etomica.space3d.Vector3D;
 import etomica.utility.Function;

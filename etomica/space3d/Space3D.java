@@ -3,7 +3,7 @@ package etomica.space3d;
 import java.io.ObjectStreamException;
 
 import etomica.EtomicaInfo;
-import etomica.NearestImageTransformer;
+import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 
 /**

@@ -1,7 +1,5 @@
 package etomica.space;
 
-import etomica.NearestImageTransformer;
-import etomica.NearestImageTransformerVector;
 import etomica.atom.AtomPair;
 
 /*

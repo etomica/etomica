@@ -1,6 +1,5 @@
-package etomica;
+package etomica.space;
 
-import etomica.space.Vector;
 
 
 /**

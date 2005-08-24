@@ -3,7 +3,7 @@ package etomica.space1d;
 import java.io.ObjectStreamException;
 
 import etomica.EtomicaInfo;
-import etomica.NearestImageTransformer;
+import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 
 public final class Space1D extends Space {
