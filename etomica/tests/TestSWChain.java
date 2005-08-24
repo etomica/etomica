@@ -5,7 +5,6 @@ import etomica.ConformationLinear;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.Space;
 import etomica.Species;
 import etomica.SpeciesSpheres;
 import etomica.action.activity.ActivityIntegrate;
@@ -29,6 +28,7 @@ import etomica.nbr.list.PotentialMasterNbr;
 import etomica.potential.P1BondedHardSpheres;
 import etomica.potential.P2HardBond;
 import etomica.potential.P2SquareWell;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 
 /**

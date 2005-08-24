@@ -1,12 +1,12 @@
 package etomica.virial;
 
 import etomica.Configuration;
-import etomica.Space;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
 import etomica.atom.AtomList;
 import etomica.atom.AtomPositionFirstAtom;
 import etomica.atom.iterator.AtomIteratorListCompound;
+import etomica.space.Space;
 import etomica.space.Vector;
 
 /**

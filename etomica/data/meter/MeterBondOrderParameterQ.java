@@ -3,13 +3,13 @@ package etomica.data.meter;
 import etomica.Default;
 import etomica.EtomicaInfo;
 import etomica.Phase;
-import etomica.Space;
 import etomica.atom.AtomPair;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
 import etomica.data.DataSourceScalar;
 import etomica.math.SphericalHarmonics;
 import etomica.space.CoordinatePair;
+import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
 

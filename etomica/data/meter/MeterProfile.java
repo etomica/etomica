@@ -1,7 +1,6 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.Phase;
-import etomica.Space;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
@@ -14,6 +13,7 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.space.Boundary;
+import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
 

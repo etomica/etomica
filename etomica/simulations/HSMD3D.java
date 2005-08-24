@@ -4,7 +4,6 @@ import etomica.ConfigurationLattice;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.Space;
 import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
@@ -19,6 +18,7 @@ import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterNbr;
 import etomica.potential.P2HardSphere;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 
 /**

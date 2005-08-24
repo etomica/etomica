@@ -1,10 +1,10 @@
 package etomica.potential;
 
 import etomica.Phase;
-import etomica.Space;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.SpeciesAgent;
+import etomica.space.Space;
 
 /**
  * Zero-body potential implementing the long-range correction 

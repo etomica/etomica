@@ -1,7 +1,6 @@
 package etomica.space3d;
 
 import etomica.Default;
-import etomica.Space;
 import etomica.exception.MethodNotImplementedException;
 import etomica.lattice.IndexIteratorSequential;
 import etomica.math.geometry.Plane;
@@ -10,6 +9,7 @@ import etomica.math.geometry.Polyhedron;
 import etomica.math.geometry.TruncatedOctahedron;
 import etomica.space.Boundary;
 import etomica.space.BoundaryPeriodic;
+import etomica.space.Space;
 import etomica.space.Vector;
 
 /**

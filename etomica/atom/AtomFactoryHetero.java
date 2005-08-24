@@ -4,10 +4,10 @@ import java.util.Arrays;
 
 import etomica.Conformation;
 import etomica.ConformationLinear;
-import etomica.Space;
 import etomica.Species;
 import etomica.data.DataSourceCOM;
 import etomica.space.CoordinateFactory;
+import etomica.space.Space;
 
 /**
  * Builds an atom group that comprises a set of differently-formed atoms or

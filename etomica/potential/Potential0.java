@@ -1,6 +1,6 @@
 package etomica.potential; 
 
-import etomica.Space;
+import etomica.space.Space;
 
 /**
  * Potential that does not depend on any atom positions.

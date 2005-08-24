@@ -1,12 +1,12 @@
 package etomica.virial;
 
-import etomica.Space;
 import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomPositionDefinitionSimple;
 import etomica.exception.MethodNotImplementedException;
 import etomica.space.ICoordinate;
+import etomica.space.Space;
 import etomica.space.Vector;
 
 public class CoordinatePairMolecular extends etomica.space.CoordinatePair {

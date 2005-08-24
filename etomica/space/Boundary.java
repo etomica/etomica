@@ -1,7 +1,6 @@
 package etomica.space;
 
 import etomica.NearestImageTransformer;
-import etomica.Space;
 import etomica.math.geometry.Polytope;
 
 /**

@@ -1,8 +1,8 @@
 package etomica.action;
-import etomica.Space;
 import etomica.atom.Atom;
 import etomica.atom.AtomPositionDefinition;
 import etomica.data.DataSourceCOM;
+import etomica.space.Space;
 import etomica.space.Vector;
 
 /**

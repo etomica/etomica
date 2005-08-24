@@ -1,8 +1,8 @@
 package etomica.potential; 
 
 import etomica.Phase;
-import etomica.Space;
 import etomica.space.Boundary;
+import etomica.space.Space;
 
 /**
  * Potential acting on a single atom or atom group.

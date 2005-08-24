@@ -1,8 +1,8 @@
 package etomica.lattice.crystal;
-import etomica.Space;
 import etomica.lattice.Primitive;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.Polytope;
+import etomica.space.Space;
 import etomica.space.Vector;
 
 /**

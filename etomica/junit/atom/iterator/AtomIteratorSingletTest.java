@@ -2,9 +2,9 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.Space;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorSinglet;
+import etomica.space.Space;
 import etomica.space2d.Space2D;
 
 

@@ -5,7 +5,6 @@
 package etomica.nbr.site;
 
 import etomica.Phase;
-import etomica.Space;
 import etomica.atom.Atom;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
@@ -26,6 +25,7 @@ import etomica.potential.Potential;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialMaster;
+import etomica.space.Space;
 
 /**
  * 

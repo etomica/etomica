@@ -1,7 +1,7 @@
 package etomica.atom;
 
 import etomica.Conformation;
-import etomica.Space;
+import etomica.space.Space;
 
 /**
  * Builds an atom group that comprises atoms arranged in a tree structure.  The root 

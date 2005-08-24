@@ -6,11 +6,11 @@ import java.awt.Color;
 import etomica.Debug;
 import etomica.Default;
 import etomica.EtomicaInfo;
-import etomica.Space;
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
 import etomica.graphics.Drawable;
 import etomica.space.ICoordinateKinetic;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 

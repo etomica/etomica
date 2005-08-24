@@ -1,6 +1,5 @@
 package etomica.space;
 
-import etomica.Space;
 
 /**
  * Implemention of a coordinate that has a position and a velocity.

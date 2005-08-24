@@ -1,9 +1,9 @@
 package etomica.lattice;
 
-import etomica.Space;
 import etomica.lattice.crystal.Primitive2D;
 import etomica.lattice.crystal.Primitive3D;
 import etomica.math.geometry.Polytope;
+import etomica.space.Space;
 import etomica.space.Vector;
 
 /**

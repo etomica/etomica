@@ -1,8 +1,8 @@
 package etomica.potential;
-import etomica.Space;
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
 import etomica.potential.EmbeddedAtomMethodP2.Wrapper;
+import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.units.ElectronVolt;

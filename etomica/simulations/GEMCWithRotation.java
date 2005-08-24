@@ -4,7 +4,6 @@ import etomica.ConfigurationSequential;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.Space;
 import etomica.Species;
 import etomica.SpeciesSpheresRotating;
 import etomica.action.PhaseImposePbc;
@@ -14,6 +13,7 @@ import etomica.integrator.IntegratorGEMC;
 import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
+import etomica.space.Space;
 import etomica.space2d.Space2D;
 
 /**

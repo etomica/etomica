@@ -1,7 +1,6 @@
 package etomica.space;
 
 import etomica.Default;
-import etomica.Space;
 import etomica.math.geometry.Parallelepiped;
 import etomica.math.geometry.Polytope;
 import etomica.space3d.Vector3D;

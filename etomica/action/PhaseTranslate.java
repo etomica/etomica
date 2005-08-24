@@ -4,8 +4,8 @@
  */
 package etomica.action;
 
-import etomica.Space;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.space.Space;
 import etomica.space.Vector;
 
 /**

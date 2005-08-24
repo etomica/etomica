@@ -1,9 +1,9 @@
 package etomica.nbr.cell;
 
-import etomica.Space;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomSequencerFactory;
 import etomica.nbr.site.PotentialMasterSite;
+import etomica.space.Space;
 
 /**
  * @author andrew

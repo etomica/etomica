@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
-import etomica.Space;
+import etomica.space.Space;
 
 /**
  * Intramolecular potential in which bonded and nonbonded atoms interact with a

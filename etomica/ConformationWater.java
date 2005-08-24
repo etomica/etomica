@@ -3,6 +3,7 @@ package etomica;
 import etomica.atom.Atom;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.space.Space;
 
 
 public class ConformationWater extends Conformation {

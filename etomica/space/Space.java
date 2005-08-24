@@ -1,9 +1,5 @@
-package etomica;
+package etomica.space;
 
-import etomica.space.Boundary;
-import etomica.space.Orientation;
-import etomica.space.Tensor;
-import etomica.space.Vector;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
 import etomica.space2d.Space2D;

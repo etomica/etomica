@@ -1,8 +1,8 @@
 package etomica.potential;
 
 import etomica.Phase;
-import etomica.Space;
 import etomica.nbr.NeighborCriterion;
+import etomica.space.Space;
 
 /**
  * Potential acting on or within an atom, or between a pair of atoms or atom

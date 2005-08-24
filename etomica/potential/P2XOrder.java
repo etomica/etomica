@@ -2,10 +2,10 @@ package etomica.potential;
 
 import etomica.EtomicaInfo;
 import etomica.Phase;
-import etomica.Space;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.space.CoordinatePair;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 

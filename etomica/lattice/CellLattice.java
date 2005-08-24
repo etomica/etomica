@@ -5,7 +5,7 @@
 package etomica.lattice;
 
 import etomica.Default;
-import etomica.Space;
+import etomica.space.Space;
 import etomica.space.Vector;
 
 /**

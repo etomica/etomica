@@ -2,9 +2,9 @@ package etomica.atom;
 
 import etomica.Conformation;
 import etomica.ConformationLinear;
-import etomica.Space;
 import etomica.Species;
 import etomica.space.CoordinateFactory;
+import etomica.space.Space;
 
 /**
  * Builds an atom group that comprises a set of identically formed atoms or atom groups.

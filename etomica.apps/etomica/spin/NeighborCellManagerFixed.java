@@ -5,13 +5,13 @@ import etomica.PhaseCellManager;
 import etomica.PhaseEvent;
 import etomica.PhaseListener;
 import etomica.SimulationEvent;
-import etomica.Space;
 import etomica.atom.Atom;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
 import etomica.nbr.site.AtomSite;
+import etomica.space.Space;
 
 /**
  * Neighbor manager for system in which there is an unchanging, one-to-one

@@ -1,7 +1,7 @@
 package etomica.virial;
 
-import etomica.Space;
 import etomica.space.CoordinatePair;
+import etomica.space.Space;
 
 /**
  * Mayer function that wraps another MayerFunctionSpherical and ignores 

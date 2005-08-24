@@ -3,8 +3,8 @@
  *
  */
 package etomica.models.hexane;
-import etomica.Space;
 import etomica.lattice.crystal.PrimitiveTriclinic;
+import etomica.space.Space;
 
 /**
  * @author nancycribbin

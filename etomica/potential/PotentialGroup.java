@@ -3,7 +3,6 @@ package etomica.potential;
 import java.util.Arrays;
 
 import etomica.Phase;
-import etomica.Space;
 import etomica.Species;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterTypeInstance;
@@ -18,6 +17,7 @@ import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.AtomsetIteratorSpeciesAgent;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.IteratorDirective.Direction;
+import etomica.space.Space;
 
 /**
  * Collection of potentials that act between the atoms contained in

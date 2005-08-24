@@ -4,7 +4,7 @@ import java.io.ObjectStreamException;
 
 import etomica.EtomicaInfo;
 import etomica.NearestImageTransformer;
-import etomica.Space;
+import etomica.space.Space;
 
 public final class Space2D extends Space {
 

@@ -2,12 +2,12 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.Space;
 import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorFiltered;
 import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.space.Space;
 import etomica.space1d.Space1D;
 
 /**

@@ -1,9 +1,9 @@
 package etomica.atom;
 
-import etomica.Space;
 import etomica.space.Coordinate;
 import etomica.space.CoordinateFactorySphere;
 import etomica.space.ICoordinate;
+import etomica.space.Space;
 import etomica.utility.Arrays;
 
  /**

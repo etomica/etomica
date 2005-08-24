@@ -2,10 +2,10 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.Space;
 import etomica.atom.Atom;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.ApiInterList;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 
 /**

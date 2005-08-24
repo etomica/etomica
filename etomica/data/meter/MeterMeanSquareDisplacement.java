@@ -1,12 +1,12 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
-import etomica.Space;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorIntervalListener;
+import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
 

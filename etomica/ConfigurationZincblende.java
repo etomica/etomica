@@ -5,6 +5,7 @@ import etomica.action.AtomGroupAction;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 

@@ -1,10 +1,10 @@
 package etomica.potential;
 
-import etomica.Space;
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeSphere;
 import etomica.space.ICoordinateKinetic;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 

@@ -4,8 +4,8 @@
  */
 package etomica.math.geometry;
 
-import etomica.Space;
 import etomica.exception.MethodNotImplementedException;
+import etomica.space.Space;
 import etomica.space3d.Vector3D;
 
 /**

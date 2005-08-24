@@ -2,7 +2,7 @@ package etomica.potential;
 
 import etomica.Default;
 import etomica.EtomicaElement;
-import etomica.Space;
+import etomica.space.Space;
 
 /**
  * Finite elastic nonlinear extensible (FENE) spring potential.

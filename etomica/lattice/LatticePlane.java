@@ -1,10 +1,10 @@
 package etomica.lattice;
 
-import etomica.Space;
 import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
 import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.math.geometry.Plane;
+import etomica.space.Space;
 import etomica.space3d.Vector3D;
 
 /**

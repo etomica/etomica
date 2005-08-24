@@ -1,11 +1,11 @@
 package etomica.virial;
 
-import etomica.Space;
 import etomica.atom.Atom;
 import etomica.atom.AtomList;
 import etomica.atom.AtomPositionFirstAtom;
 import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.space.CoordinatePair;
+import etomica.space.Space;
 
 /**
  * @author David Kofke

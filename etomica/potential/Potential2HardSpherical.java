@@ -1,10 +1,10 @@
 package etomica.potential;
 
 import etomica.Phase;
-import etomica.Space;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.space.CoordinatePair;
+import etomica.space.Space;
 
 /**
  * Methods for a hard (impulsive), spherically-symmetric pair potential.

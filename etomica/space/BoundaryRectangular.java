@@ -1,7 +1,6 @@
 package etomica.space;
 
 import etomica.Default;
-import etomica.Space;
 import etomica.lattice.IndexIteratorSequential;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.LineSegment;

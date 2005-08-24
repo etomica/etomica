@@ -1,6 +1,6 @@
 package etomica.statmech;
 import etomica.Simulation;
-import etomica.Space;
+import etomica.space.Space;
 
 /**
  * Class with static methods for implementing features of the Maxwell-Boltzmann velocity distribution

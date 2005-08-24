@@ -12,12 +12,12 @@ import java.util.LinkedList;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Phase;
-import etomica.Space;
 import etomica.action.Action;
 import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.BaseUnit;
 

@@ -8,6 +8,7 @@ import etomica.atom.Atom;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorListCompound;
 import etomica.atom.iterator.AtomIteratorTree;
+import etomica.space.Space;
 import etomica.space.Vector;
 
 /**

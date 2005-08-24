@@ -21,6 +21,7 @@ import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.lattice.RectangularLattice;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
+import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.utility.NameMaker;
 

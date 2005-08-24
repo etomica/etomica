@@ -3,9 +3,9 @@
  */
 package etomica.chem;
 import etomica.Simulation;
-import etomica.Space;
 import etomica.atom.AtomFactory;
 import etomica.potential.Potential;
+import etomica.space.Space;
 
 /**
  * Top-level class for a molecular model.

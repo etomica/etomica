@@ -5,7 +5,6 @@
 package etomica.nbr.list;
 
 import etomica.Phase;
-import etomica.Space;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLinker;
@@ -24,6 +23,7 @@ import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.Potential;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialMaster;
+import etomica.space.Space;
 
 /**
  * PotentialMaster used to implement neighbor listing.  Instance of this

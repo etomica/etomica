@@ -4,7 +4,7 @@
 package etomica.models.hexane;
 
 import etomica.ConfigurationLattice;
-import etomica.Space;
+import etomica.space.Space;
 
 
 /**

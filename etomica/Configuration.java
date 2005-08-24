@@ -4,6 +4,7 @@ import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.space.Space;
 
 /**
  * General class for assignment of coordinates to a group of atoms.

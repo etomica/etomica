@@ -1,7 +1,7 @@
 package etomica.potential;
 
-import etomica.Space;
 import etomica.atom.AtomSet;
+import etomica.space.Space;
 
 /**
  * @author kofke

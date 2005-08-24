@@ -1,7 +1,6 @@
 package etomica.integrator.mcmove;
 
 import etomica.Phase;
-import etomica.Space;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
@@ -10,6 +9,7 @@ import etomica.integrator.MCMove;
 import etomica.potential.PotentialMaster;
 import etomica.space.ICoordinateAngular;
 import etomica.space.Orientation;
+import etomica.space.Space;
 
 /**
  * Performs a rotation of an atom (not a molecule) that has an orientation coordinate.

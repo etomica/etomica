@@ -8,13 +8,13 @@ import java.awt.event.MouseMotionListener;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Space;
 import etomica.action.Action;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Parallelepiped;
 import etomica.math.geometry.PolygonGeneral;
 import etomica.math.geometry.Polytope;
+import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;

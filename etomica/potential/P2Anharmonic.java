@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.EtomicaElement;
-import etomica.Space;
+import etomica.space.Space;
 
 
 /**

@@ -2,13 +2,13 @@ package etomica.integrator.mcmove;
 
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.Space;
 import etomica.action.PhaseInflate;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.MCMove;
 import etomica.potential.PotentialMaster;
+import etomica.space.Space;
 
 /**
  * Elementary Monte Carlo trial that exchanges volume between two phases.  Trial

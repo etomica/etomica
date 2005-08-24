@@ -11,7 +11,6 @@ import etomica.ConfigurationLattice;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.Space;
 import etomica.Species;
 import etomica.SpeciesSpheresMono;
 import etomica.action.PhaseImposePbc;
@@ -21,6 +20,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.utility.EtomicaObjectInputStream;
 

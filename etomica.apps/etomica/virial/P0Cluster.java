@@ -2,9 +2,9 @@ package etomica.virial;
 
 import etomica.Debug;
 import etomica.Phase;
-import etomica.Space;
 import etomica.atom.AtomSet;
 import etomica.potential.Potential0;
+import etomica.space.Space;
 
 /**
  * @author David Kofke

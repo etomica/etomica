@@ -2,7 +2,6 @@ package etomica.potential;
 
 import etomica.Default;
 import etomica.EtomicaInfo;
-import etomica.Space;
 import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
@@ -10,6 +9,7 @@ import etomica.atom.AtomType;
 import etomica.atom.AtomTypeLeaf;
 import etomica.space.ICoordinateAngularKinetic;
 import etomica.space.ICoordinateKinetic;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 

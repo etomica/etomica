@@ -1,9 +1,9 @@
 package etomica.potential;
 
 import etomica.Phase;
-import etomica.Space;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.space.Space;
 
 /**
  * Collects potentials used for long-range correction.

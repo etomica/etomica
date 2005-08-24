@@ -6,7 +6,7 @@ package etomica.math.geometry;
 
 import java.util.LinkedList;
 
-import etomica.Space;
+import etomica.space.Space;
 import etomica.space.Vector;
 
 /**

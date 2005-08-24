@@ -1,6 +1,6 @@
 package etomica.math.geometry;
 
-import etomica.Space;
+import etomica.space.Space;
 import etomica.space.Vector;
 
 /**

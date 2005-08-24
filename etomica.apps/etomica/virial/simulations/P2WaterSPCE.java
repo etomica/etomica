@@ -2,7 +2,6 @@
 package etomica.virial.simulations;
 
 import etomica.Phase;
-import etomica.Space;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.exception.MethodNotImplementedException;
@@ -10,6 +9,7 @@ import etomica.models.water.AtomTreeNodeWater;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
 import etomica.space.CoordinatePair;
+import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Electron;
 import etomica.units.Kelvin;

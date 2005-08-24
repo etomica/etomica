@@ -5,10 +5,10 @@
 package etomica.action;
 
 import etomica.Phase;
-import etomica.Space;
 import etomica.atom.Atom;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.space.Space;
 import etomica.space.Vector;
 
 /**

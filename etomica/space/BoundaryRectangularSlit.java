@@ -1,6 +1,5 @@
 package etomica.space;
 
-import etomica.Space;
 
 /**
  * Class for implementing slit periodic boundary conditions, in which

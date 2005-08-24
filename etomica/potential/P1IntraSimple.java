@@ -1,8 +1,8 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
-import etomica.Space;
 import etomica.atom.iterator.ApiBuilder;
+import etomica.space.Space;
 
 
 /**

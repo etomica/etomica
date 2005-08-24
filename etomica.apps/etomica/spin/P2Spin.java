@@ -1,11 +1,11 @@
 package etomica.spin;
 
 import etomica.Phase;
-import etomica.Space;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.potential.Potential2;
 import etomica.space.CoordinatePair;
+import etomica.space.Space;
 
 /**
  * Magnetic spin potential, with an energy defined by

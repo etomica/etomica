@@ -9,7 +9,6 @@ import etomica.PhaseCellManager;
 import etomica.PhaseEvent;
 import etomica.PhaseListener;
 import etomica.SimulationEvent;
-import etomica.Space;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
 import etomica.atom.Atom;
@@ -24,6 +23,7 @@ import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveListener;
 import etomica.lattice.CellLattice;
 import etomica.space.Boundary;
+import etomica.space.Space;
 import etomica.space.Vector;
 
 /**

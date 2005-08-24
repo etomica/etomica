@@ -1,7 +1,7 @@
 package etomica.action;
-import etomica.Space;
 import etomica.atom.Atom;
 import etomica.space.ICoordinateKinetic;
+import etomica.space.Space;
 import etomica.space.Vector;
 
 /**

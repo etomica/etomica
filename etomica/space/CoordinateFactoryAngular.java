@@ -1,7 +1,6 @@
 package etomica.space;
 
 import etomica.Simulation;
-import etomica.Space;
 
 /**
  * Constructs coordinates for atoms that have an orientation. The Simulation

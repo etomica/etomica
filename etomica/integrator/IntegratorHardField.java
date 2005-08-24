@@ -2,7 +2,6 @@ package etomica.integrator;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Space;
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
@@ -12,6 +11,7 @@ import etomica.potential.Potential;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialMaster;
 import etomica.space.ICoordinateKinetic;
+import etomica.space.Space;
 import etomica.space.Vector;
 
 /**

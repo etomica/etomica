@@ -2,7 +2,7 @@ package etomica.potential;
 import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Space;
+import etomica.space.Space;
 import etomica.units.Dimension;
 
 /**

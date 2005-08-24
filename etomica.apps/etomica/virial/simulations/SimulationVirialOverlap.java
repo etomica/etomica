@@ -2,7 +2,6 @@ package etomica.virial.simulations;
 
 import etomica.Default;
 import etomica.Simulation;
-import etomica.Space;
 import etomica.Species;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeGroup;
@@ -17,6 +16,7 @@ import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.MCMove;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.potential.P2LennardJones;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;

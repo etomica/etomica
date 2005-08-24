@@ -1,12 +1,12 @@
 package etomica.atom;
 
-import etomica.Space;
 import etomica.action.AtomActionAdapter;
 import etomica.action.AtomGroupAction;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.types.DataVector;
+import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
 

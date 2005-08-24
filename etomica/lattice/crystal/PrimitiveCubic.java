@@ -1,10 +1,10 @@
 package etomica.lattice.crystal;
 
-import etomica.Space;
 import etomica.lattice.Primitive;
 import etomica.math.geometry.Cube;
 import etomica.math.geometry.Polytope;
 import etomica.math.geometry.Square;
+import etomica.space.Space;
 import etomica.space.Vector;
 
 /**

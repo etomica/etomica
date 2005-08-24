@@ -1,9 +1,9 @@
 package etomica.virial;
 
 import etomica.Default;
-import etomica.Space;
 import etomica.potential.Potential2Spherical;
 import etomica.space.CoordinatePair;
+import etomica.space.Space;
 
 /**
  * @author kofke

@@ -1,6 +1,5 @@
 package etomica.space;
 
-import etomica.Space;
 import etomica.atom.AtomPair;
 
 /*

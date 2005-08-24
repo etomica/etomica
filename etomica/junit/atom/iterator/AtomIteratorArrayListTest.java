@@ -5,11 +5,11 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.Space;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.iterator.AtomIteratorArrayList;
 import etomica.junit.UnitTest;
+import etomica.space.Space;
 import etomica.space1d.Space1D;
 
 /**

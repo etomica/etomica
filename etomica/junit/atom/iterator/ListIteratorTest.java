@@ -1,10 +1,10 @@
 package etomica.junit.atom.iterator;
-import etomica.Space;
 import etomica.atom.Atom;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.AtomListTabbed;
 import etomica.junit.UnitTest;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 
 /**

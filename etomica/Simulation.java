@@ -12,6 +12,7 @@ import etomica.data.meter.Meter;
 import etomica.integrator.Integrator;
 import etomica.log.LoggerAbstract;
 import etomica.potential.PotentialMaster;
+import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.utility.NameMaker;
 

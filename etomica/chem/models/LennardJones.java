@@ -4,11 +4,11 @@
 package etomica.chem.models;
 
 import etomica.Default;
-import etomica.Space;
 import etomica.chem.Electrostatic;
 import etomica.chem.Element;
 import etomica.potential.P2LennardJones;
 import etomica.potential.Potential;
+import etomica.space.Space;
 
 /**
  * @author zhaofang
