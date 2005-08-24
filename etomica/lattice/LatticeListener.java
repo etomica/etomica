@@ -1,5 +1,5 @@
 package etomica.lattice;
-import etomica.SimulationListener;
+import etomica.simulation.SimulationListener;
 
 /**
  * Interface for an object that can be registered as a listener to a lattice.

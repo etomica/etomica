@@ -1,7 +1,7 @@
 package etomica.atom;
 
-import etomica.Simulation;
 import etomica.phase.Phase;
+import etomica.simulation.Simulation;
 
 public class AtomSourceRandomMoleculeSeq extends AtomSourceRandomMolecule {
 

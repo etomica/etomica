@@ -1,6 +1,5 @@
 package etomica.config;
 
-import etomica.Simulation;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
 import etomica.atom.AtomList;
@@ -14,6 +13,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.Primitive;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.phase.Phase;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;

@@ -439,7 +439,7 @@ public class DisplayTable extends Display implements DataTableListener,
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
-        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+        etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
         SimulationGraphic graphic = new SimulationGraphic(sim);
         sim.integrator.setIsothermal(true);
 

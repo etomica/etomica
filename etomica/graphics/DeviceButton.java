@@ -103,7 +103,7 @@ public class DeviceButton extends Device implements EtomicaElement {
      */
     public static void main(String[] args) {
         
-        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+        etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
         final SimulationGraphic graphic = new SimulationGraphic(sim);
         
         //here's the part unique to this class

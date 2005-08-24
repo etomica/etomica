@@ -3,12 +3,12 @@ import java.lang.reflect.Constructor;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Simulation;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomFactoryTree;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
+import etomica.simulation.Simulation;
 import etomica.space.CoordinateFactory;
 import etomica.space.CoordinateFactorySphere;
 import etomica.util.Default;

@@ -161,7 +161,7 @@ public class DeviceTable extends Device /*implements EtomicaElement*/ {
         javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
         f.setSize(600,350);
 
-        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+        etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
 
         PotentialSquareWell potential = new PotentialSquareWell(sim);
         sim.p2 = new P2SimpleWrapper(sim,sim.potential);

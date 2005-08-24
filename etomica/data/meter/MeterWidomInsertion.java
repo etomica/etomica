@@ -188,7 +188,7 @@ public class MeterWidomInsertion extends DataSourceScalar implements Meter {
 
 	// /*
 	//    public static void main(String[] args) {
-	//        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+	//        etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
 	//        MeterWidomInsertion meter = new MeterWidomInsertion();
 	//        etomica.graphics.DisplayBox box = new
 	// etomica.graphics.DisplayBox((DatumSource)meter);

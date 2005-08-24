@@ -1,6 +1,6 @@
 package etomica.space2d;
 
-import etomica.Simulation;
+import etomica.simulation.Simulation;
 import etomica.util.Constants;
 
 

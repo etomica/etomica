@@ -1,9 +1,9 @@
 package etomica.graphics;
-import etomica.SimulationEvent;
 import etomica.atom.SpeciesRoot;
 import etomica.phase.Phase;
 import etomica.phase.PhaseEvent;
 import etomica.phase.PhaseListener;
+import etomica.simulation.SimulationEvent;
 import gl4java.awt.GLAnimCanvas;
 
 import java.awt.Dimension;

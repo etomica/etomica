@@ -3,7 +3,6 @@ import java.lang.reflect.Constructor;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Simulation;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomSequencerFactory;
@@ -11,6 +10,7 @@ import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.config.Conformation;
 import etomica.config.ConformationLinear;
+import etomica.simulation.Simulation;
 import etomica.space.CoordinateFactorySphere;
 import etomica.units.Dimension;
 import etomica.util.Default;

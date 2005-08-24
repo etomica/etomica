@@ -95,7 +95,7 @@ public class DeviceCheckBox extends Device implements EtomicaElement {
      */
 //    public static void main(String[] args) {
 //        
-//        final etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+//        final etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
 //        Simulation.instance = sim;
 //        
 //        //here's the part unique to this class

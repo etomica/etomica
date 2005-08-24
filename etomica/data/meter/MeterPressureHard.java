@@ -109,7 +109,7 @@ public class MeterPressureHard extends DataSourceScalar implements
      * Pressure is measured in a hard-sphere MD simulation.
      */
  /*   public static void main(String[] args) {
-        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+        etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
         Simulation.instance = sim;
         
         //here's the part unique to this class

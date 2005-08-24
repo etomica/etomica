@@ -1,6 +1,5 @@
 package etomica.integrator;
 
-import etomica.Simulation;
 import etomica.action.AtomActionRandomizeVelocity;
 import etomica.atom.Atom;
 import etomica.atom.AtomList;
@@ -12,6 +11,7 @@ import etomica.data.meter.MeterTemperature;
 import etomica.exception.MethodNotImplementedException;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
 import etomica.units.Dimension;
 import etomica.util.Constants;

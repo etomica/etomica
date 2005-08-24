@@ -1,4 +1,4 @@
-package etomica.simulations;
+package etomica.simulation.prototypes;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;

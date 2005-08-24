@@ -2,7 +2,7 @@ package etomica.space;
 
 import java.io.Serializable;
 
-import etomica.Simulation;
+import etomica.simulation.Simulation;
 
 /**
  * Constructs coordinates for spherical atoms, having no orientation dependence.

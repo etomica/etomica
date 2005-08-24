@@ -1,6 +1,5 @@
 package etomica.virial.simulations;
 
-import etomica.Simulation;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeGroup;
 import etomica.data.AccumulatorAverage;
@@ -14,6 +13,7 @@ import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.MCMove;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.potential.P2LennardJones;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;

@@ -4,11 +4,11 @@ import java.awt.event.ComponentListener;
 
 import javax.swing.JPanel;
 
-import etomica.Simulation;
 import etomica.action.ResetAccumulators;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.Controller;
-import etomica.simulations.HSMD2D;
+import etomica.simulation.Simulation;
+import etomica.simulation.prototypes.HSMD2D;
 
 /**
  * Device comprising three buttons: (1) attaches to a controller to toggle its pause/resume state; 

@@ -1,6 +1,5 @@
-package etomica.simulations;
+package etomica.simulation.prototypes;
 
-import etomica.Simulation;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.config.ConfigurationLattice;
@@ -15,6 +14,7 @@ import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterNbr;
 import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
@@ -128,7 +128,7 @@ public class HSMD3D extends Simulation {
     public static void main(String[] args) {
         Default.DO_SLEEP = false;
         Default.FIX_OVERLAP = true;
-        etomica.simulations.HSMD3D sim = new etomica.simulations.HSMD3D();
+        etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D();
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
         DeviceNSelector nSelector = new DeviceNSelector(sim,sim.phase.getAgent(sim.species));
         simGraphic.add(nSelector);

@@ -1,6 +1,5 @@
 package etomica.tests;
 
-import etomica.Simulation;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomType;
@@ -25,6 +24,7 @@ import etomica.phase.Phase;
 import etomica.potential.P1BondedHardSpheres;
 import etomica.potential.P2HardBond;
 import etomica.potential.P2SquareWell;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;

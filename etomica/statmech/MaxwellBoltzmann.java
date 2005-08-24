@@ -1,5 +1,5 @@
 package etomica.statmech;
-import etomica.Simulation;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 
 /**

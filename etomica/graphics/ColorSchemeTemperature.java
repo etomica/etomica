@@ -63,7 +63,7 @@ public class ColorSchemeTemperature extends ColorScheme {
 /*    public static void main(String[] args) {
         Frame f = new Frame();   //create a window
         f.setSize(600,350);
-        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+        etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
         Simulation.instance = sim;
         
         //part unique to this example

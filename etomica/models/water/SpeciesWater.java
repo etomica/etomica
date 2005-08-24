@@ -2,8 +2,8 @@ package etomica.models.water;
 import java.lang.reflect.Constructor;
 
 import etomica.EtomicaElement;
-import etomica.Simulation;
 import etomica.atom.AtomTypeGroup;
+import etomica.simulation.Simulation;
 import etomica.species.Species;
 import etomica.species.SpeciesSignature;
 import etomica.util.Default;

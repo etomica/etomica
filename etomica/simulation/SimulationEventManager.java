@@ -1,4 +1,4 @@
-package etomica;
+package etomica.simulation;
 import etomica.action.activity.ControllerEvent;
 import etomica.action.activity.ControllerListener;
 import etomica.integrator.mcmove.MCMoveEvent;

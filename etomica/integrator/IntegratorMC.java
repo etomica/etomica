@@ -2,13 +2,13 @@ package etomica.integrator;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Simulation;
-import etomica.SimulationEventManager;
 import etomica.atom.Atom;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveListener;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.simulation.SimulationEventManager;
 
 /**
  * Integrator to perform Metropolis Monte Carlo sampling. Works with a set of

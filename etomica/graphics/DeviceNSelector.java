@@ -1,11 +1,11 @@
 package etomica.graphics;
 
-import etomica.Simulation;
 import etomica.action.Action;
 import etomica.action.ActionGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.modifier.ModifierNMolecule;
-import etomica.simulations.HSMD2D;
+import etomica.simulation.Simulation;
+import etomica.simulation.prototypes.HSMD2D;
 
 /**
  * Slider that selects the number of atoms of a given species in a phase.

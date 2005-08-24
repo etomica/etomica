@@ -15,7 +15,7 @@ import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayBox.LabelType;
 import etomica.integrator.IntervalActionAdapter;
-import etomica.simulations.HSMD2D;
+import etomica.simulation.prototypes.HSMD2D;
 import etomica.units.Unit;
 import etomica.util.Constants;
 

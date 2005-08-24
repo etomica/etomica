@@ -1,8 +1,8 @@
 package etomica.action.activity;
 
-import etomica.SimulationEventManager;
 import etomica.action.Action;
 import etomica.action.Activity;
+import etomica.simulation.SimulationEventManager;
 import etomica.util.Arrays;
 
 /**

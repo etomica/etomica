@@ -2,7 +2,6 @@
  * Created on Jan 16, 2004
  */
 package etomica.chem.models;
-import etomica.Simulation;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryHetero;
 import etomica.atom.AtomFactoryHomo;
@@ -14,6 +13,7 @@ import etomica.atom.AtomTreeNodeGroupArray;
 import etomica.atom.AtomTypeGroup;
 import etomica.chem.Model;
 import etomica.config.Conformation;
+import etomica.simulation.Simulation;
 import etomica.species.Species;
 /**
  * Model for a molecule, which is formed from one or more sub-models, which

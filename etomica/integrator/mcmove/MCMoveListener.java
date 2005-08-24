@@ -1,6 +1,6 @@
 package etomica.integrator.mcmove;
 
-import etomica.SimulationListener;
+import etomica.simulation.SimulationListener;
 
 /**
  * Interface for an object that listens for events fired by a MCMove object.

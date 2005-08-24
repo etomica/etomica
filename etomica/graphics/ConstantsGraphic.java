@@ -1,7 +1,7 @@
 package etomica.graphics;
 import java.awt.Color;
 
-import etomica.Simulation;
+import etomica.simulation.Simulation;
 
 public class ConstantsGraphic extends Object {
     

@@ -5,7 +5,7 @@ import etomica.compatibility.Feature;
 import etomica.compatibility.Requirement;
 import etomica.potential.P1BondedHardSpheres;
 import etomica.potential.Potential;
-import etomica.simulations.HSMD3D;
+import etomica.simulation.prototypes.HSMD3D;
 import etomica.space2d.Space2D;
 
 import java.io.Serializable;

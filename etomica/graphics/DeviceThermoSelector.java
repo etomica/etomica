@@ -9,7 +9,7 @@ import etomica.EtomicaInfo;
 import etomica.action.Action;
 import etomica.action.activity.Controller;
 import etomica.integrator.Integrator;
-import etomica.simulations.HSMD3D;
+import etomica.simulation.prototypes.HSMD3D;
 import etomica.units.PrefixedUnit;
 import etomica.util.Default;
 

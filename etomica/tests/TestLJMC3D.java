@@ -1,5 +1,4 @@
 package etomica.tests;
-import etomica.Simulation;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomSourceRandomLeafSeq;
@@ -18,6 +17,7 @@ import etomica.nbr.cell.PotentialMasterCell;
 import etomica.phase.Phase;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;

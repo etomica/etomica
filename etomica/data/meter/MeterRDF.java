@@ -166,7 +166,7 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
 	 */
 /*	 public static void main(String[] args) {
 	    
-	    etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+	    etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
 	    Simulation.instance = sim;
 	    
 	    MeterRDF meter = new MeterRDF(sim);

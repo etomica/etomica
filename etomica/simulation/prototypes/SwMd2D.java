@@ -1,5 +1,4 @@
-package etomica.simulations;
-import etomica.Simulation;
+package etomica.simulation.prototypes;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
@@ -8,6 +7,7 @@ import etomica.graphics.DisplayPhase;
 import etomica.integrator.IntegratorHard;
 import etomica.phase.Phase;
 import etomica.potential.P2SquareWell;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.species.Species;

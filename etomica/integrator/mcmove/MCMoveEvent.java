@@ -1,7 +1,7 @@
 package etomica.integrator.mcmove;
 
-import etomica.SimulationEvent;
 import etomica.integrator.MCMove;
+import etomica.simulation.SimulationEvent;
 
 public class MCMoveEvent extends SimulationEvent {
     

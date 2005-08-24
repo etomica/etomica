@@ -2,9 +2,9 @@
  * Created on Jan 16, 2004
  */
 package etomica.chem;
-import etomica.Simulation;
 import etomica.atom.AtomFactory;
 import etomica.potential.Potential;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 
 /**

@@ -223,7 +223,7 @@ public class DisplayBox extends Display implements DataSink, EtomicaElement, jav
      */
 /*    public static void main(String[] args) {
 
-   //     etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+   //     etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
    //     Simulation.instance = sim;
 
         Simulation sim = Simulation.instance;

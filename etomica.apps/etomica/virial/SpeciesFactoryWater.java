@@ -1,7 +1,7 @@
 package etomica.virial;
 
-import etomica.Simulation;
 import etomica.models.water.SpeciesWater;
+import etomica.simulation.Simulation;
 import etomica.species.Species;
 
 

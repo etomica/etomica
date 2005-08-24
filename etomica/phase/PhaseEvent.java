@@ -1,8 +1,8 @@
 package etomica.phase;
 
-import etomica.SimulationEvent;
 import etomica.atom.Atom;
 import etomica.graphics.DisplayPhaseListener;
+import etomica.simulation.SimulationEvent;
 import etomica.space.Vector;
 import etomica.util.Constants;
 import etomica.util.EnumeratedType;

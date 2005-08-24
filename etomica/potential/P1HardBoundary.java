@@ -210,7 +210,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
  /*   
     public static void main(String[] args) {
         
-        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
+        etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
         Simulation.instance = sim;
         sim.species.setNMolecules(10);
         P1HardBoundary potential = new P1HardBoundary();

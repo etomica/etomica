@@ -5,8 +5,8 @@ import java.awt.GridLayout;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.SimulationEventManager;
-import etomica.SimulationListener;
+import etomica.simulation.SimulationEventManager;
+import etomica.simulation.SimulationListener;
 
 /**
  * Selector for fractions in a ternary system.  Presents a triangle that can
@@ -298,7 +298,7 @@ public class DeviceTernarySelector extends Device implements EtomicaElement {
     }
     
 //    public static void main(String[] args) {
-//        SimulationGraphic sim = new etomica.simulations.HSMD2D();
+//        SimulationGraphic sim = new etomica.simulation.prototypes.HSMD2D();
 //        Simulation.instance = sim;
 //        DeviceTernarySelector selector = 
 //            new DeviceTernarySelector(sim, new String[] {"Benzene","Toluene","Xylene"});

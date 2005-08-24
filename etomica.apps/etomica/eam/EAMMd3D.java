@@ -1,5 +1,4 @@
-package etomica.simulations;
-import etomica.Simulation;
+package etomica.simulation.prototypes;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
@@ -30,6 +29,7 @@ import etomica.potential.EmbeddedAtomMethodP2;
 import etomica.potential.EmbeddedAtomMethodPInitial;
 import etomica.potential.EmbeddedAtomMethodPMany;
 import etomica.potential.ParameterSetEAM;
+import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;

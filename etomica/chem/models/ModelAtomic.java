@@ -5,7 +5,6 @@
  * Window>Preferences>Java>Code Generation>Code and Comments
  */
 package etomica.chem.models;
-import etomica.Simulation;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomLinker;
@@ -14,6 +13,7 @@ import etomica.atom.AtomTypeSphere;
 import etomica.chem.Electrostatic;
 import etomica.chem.Element;
 import etomica.chem.Model;
+import etomica.simulation.Simulation;
 import etomica.space.CoordinateFactorySphere;
 import etomica.species.Species;
 

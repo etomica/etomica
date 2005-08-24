@@ -7,7 +7,7 @@ package etomica.units;
  *
  * @see Unit
  * @see Dimension
- * @see etomica.Simulation
+ * @see etomica.simulation.Simulation
  */
 public abstract class UnitSystem implements java.io.Serializable {
     

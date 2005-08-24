@@ -1,6 +1,5 @@
 package etomica.modules.dcvgcmd;
 
-import etomica.Simulation;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomType;
@@ -22,6 +21,7 @@ import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.NeighborListManager;
 import etomica.phase.Phase;
 import etomica.potential.P2WCA;
+import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Space;
 import etomica.space.Vector;

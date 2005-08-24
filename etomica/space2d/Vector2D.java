@@ -1,7 +1,7 @@
 package etomica.space2d;
 
-import etomica.Simulation;
 import etomica.math.SpecialFunctions;
+import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.Tensor;
 import etomica.space.Vector;

@@ -1,6 +1,5 @@
-package etomica.simulations;
+package etomica.simulation.prototypes;
 
-import etomica.Simulation;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.data.AccumulatorAverage;
@@ -16,6 +15,7 @@ import etomica.integrator.IntervalActionAdapter;
 import etomica.nbr.PotentialCalculationAgents;
 import etomica.nbr.site.PotentialMasterSite;
 import etomica.phase.Phase;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.species.Species;

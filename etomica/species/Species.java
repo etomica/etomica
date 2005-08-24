@@ -1,5 +1,4 @@
 package etomica.species;
-import etomica.Simulation;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.AtomType;
@@ -8,6 +7,7 @@ import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesMaster;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.units.Dimension;
 import etomica.util.Default;
 import etomica.util.NameMaker;

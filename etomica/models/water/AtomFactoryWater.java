@@ -1,6 +1,5 @@
 package etomica.models.water;
 
-import etomica.Simulation;
 import etomica.atom.Atom;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryMono;
@@ -9,6 +8,7 @@ import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
+import etomica.simulation.Simulation;
 import etomica.space.CoordinateFactory;
 import etomica.space.CoordinateFactorySphere;
 import etomica.species.Species;

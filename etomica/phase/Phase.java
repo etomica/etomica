@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import etomica.EtomicaElement;
-import etomica.Simulation;
 import etomica.action.PhaseInflate;
 import etomica.atom.Atom;
 import etomica.atom.AtomLinker;
@@ -21,6 +20,7 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.lattice.RectangularLattice;
+import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;

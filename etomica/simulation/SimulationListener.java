@@ -1,4 +1,4 @@
-package etomica;
+package etomica.simulation;
 
 /**
  * Interface for an object that can be registered as a listener to another simulation element.
