@@ -1,4 +1,6 @@
 package etomica;
+import etomica.action.activity.ControllerEvent;
+import etomica.action.activity.ControllerListener;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveListener;
 import etomica.lattice.LatticeEvent;

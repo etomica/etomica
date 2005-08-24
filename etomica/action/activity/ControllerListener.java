@@ -1,4 +1,6 @@
-package etomica;
+package etomica.action.activity;
+
+import etomica.SimulationListener;
 
 /**
  * Interface for an object that can be registered as a listener to another simulation element.

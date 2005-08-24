@@ -1,8 +1,8 @@
 package etomica.simulations;
-import etomica.Controller;
 import etomica.Simulation;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.Controller;
 import etomica.config.ConfigurationSequential;
 import etomica.data.DataSourceCountSteps;
 import etomica.integrator.IntegratorMC;

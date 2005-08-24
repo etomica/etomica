@@ -2,11 +2,11 @@ package etomica.graphics;
 
 import java.awt.Color;
 
-import etomica.Controller;
 import etomica.EtomicaInfo;
 import etomica.action.Action;
 import etomica.action.ActionGroup;
 import etomica.action.ActionToggle;
+import etomica.action.activity.Controller;
 import etomica.modifier.ModifierBoolean;
 
 /**

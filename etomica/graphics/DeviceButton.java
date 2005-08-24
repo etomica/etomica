@@ -5,10 +5,10 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
-import etomica.Controller;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.action.Action;
+import etomica.action.activity.Controller;
 
 /**
  * Button that causes an action to be performed.

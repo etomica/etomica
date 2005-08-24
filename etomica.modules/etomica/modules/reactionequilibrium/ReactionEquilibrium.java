@@ -2,10 +2,10 @@ package etomica.modules.reactionequilibrium;
 
 import javax.swing.JPanel;
 
-import etomica.Controller;
 import etomica.Simulation;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.Controller;
 import etomica.atom.Atom;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.DisplayPhase;

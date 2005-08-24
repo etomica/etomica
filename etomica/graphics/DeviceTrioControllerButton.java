@@ -4,10 +4,10 @@ import java.awt.event.ComponentListener;
 
 import javax.swing.JPanel;
 
-import etomica.Controller;
 import etomica.Simulation;
 import etomica.action.ResetAccumulators;
 import etomica.action.SimulationRestart;
+import etomica.action.activity.Controller;
 import etomica.simulations.HSMD2D;
 
 /**

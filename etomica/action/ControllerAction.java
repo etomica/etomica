@@ -1,6 +1,6 @@
 package etomica.action;
 
-import etomica.Controller;
+import etomica.action.activity.Controller;
 
  /**
   * Elementary action performed on a controller.

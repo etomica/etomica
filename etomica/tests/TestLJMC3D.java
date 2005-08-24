@@ -1,7 +1,7 @@
 package etomica.tests;
-import etomica.Controller;
 import etomica.Simulation;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.Controller;
 import etomica.atom.AtomSourceRandomLeafSeq;
 import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverage;

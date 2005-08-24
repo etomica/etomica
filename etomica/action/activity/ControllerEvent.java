@@ -1,4 +1,4 @@
-package etomica;
+package etomica.action.activity;
 
 import etomica.action.Action;
 import etomica.util.Constants;

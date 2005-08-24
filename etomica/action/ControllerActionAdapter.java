@@ -4,7 +4,7 @@
  */
 package etomica.action;
 
-import etomica.Controller;
+import etomica.action.activity.Controller;
 
 /**
  * Convenience class used to define a ControllerAction. Implements all methods

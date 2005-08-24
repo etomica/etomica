@@ -4,10 +4,10 @@ import java.awt.event.ItemListener;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import etomica.Controller;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.action.Action;
+import etomica.action.activity.Controller;
 import etomica.integrator.Integrator;
 import etomica.simulations.HSMD3D;
 import etomica.units.PrefixedUnit;

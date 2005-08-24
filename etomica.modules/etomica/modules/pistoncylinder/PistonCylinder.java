@@ -1,8 +1,8 @@
 package etomica.modules.pistoncylinder;
 
-import etomica.Controller;
 import etomica.Simulation;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.Controller;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.config.ConfigurationSequential;
