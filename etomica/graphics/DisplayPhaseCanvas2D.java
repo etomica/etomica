@@ -5,7 +5,6 @@ import java.awt.Graphics;
 import java.awt.TextField;
 import java.util.Iterator;
 
-import etomica.Species;
 import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomTypeOrientedSphere;
@@ -17,6 +16,7 @@ import etomica.math.geometry.Polygon;
 import etomica.space.Boundary;
 import etomica.space.ICoordinateAngular;
 import etomica.space.Vector;
+import etomica.species.Species;
 
     /* History of changes
      * 7/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.

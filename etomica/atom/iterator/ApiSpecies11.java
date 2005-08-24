@@ -1,10 +1,10 @@
 package etomica.atom.iterator;
 
 import etomica.Phase;
-import etomica.Species;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.IteratorDirective.Direction;
+import etomica.species.Species;
 
 /**
  * Iterator that returns a single pair of atoms taken from one or two species

@@ -4,7 +4,7 @@
  */
 package etomica.atom.iterator;
 
-import etomica.Species;
+import etomica.species.Species;
 
 /**
  * Atom iterator that is set a Species.  Extends

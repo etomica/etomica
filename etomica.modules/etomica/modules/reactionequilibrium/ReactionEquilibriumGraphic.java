@@ -4,7 +4,6 @@ import javax.swing.JPanel;
 
 import etomica.Constants;
 import etomica.Modifier;
-import etomica.SpeciesSpheresMono;
 import etomica.action.Action;
 import etomica.atom.Atom;
 import etomica.atom.AtomTypeLeaf;
@@ -25,6 +24,7 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.potential.P2SquareWell;
+import etomica.species.SpeciesSpheresMono;
 import etomica.units.Dimension;
 import etomica.units.Kelvin;
 import etomica.units.PrefixedUnit;

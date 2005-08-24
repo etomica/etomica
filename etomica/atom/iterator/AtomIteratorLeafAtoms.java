@@ -5,8 +5,8 @@
 package etomica.atom.iterator;
 
 import etomica.Phase;
-import etomica.Species;
 import etomica.atom.SpeciesMaster;
+import etomica.species.Species;
 
 /**
  * Iterator that will loop over all leaf atoms in a phase. Can be configured to

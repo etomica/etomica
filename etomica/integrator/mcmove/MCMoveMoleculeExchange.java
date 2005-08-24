@@ -2,7 +2,6 @@ package etomica.integrator.mcmove;
 
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.Species;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
@@ -16,6 +15,7 @@ import etomica.integrator.MCMove;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.Species;
 
 /**
  * Performs a trial that results in the exchange of a molecule from one phase to another.

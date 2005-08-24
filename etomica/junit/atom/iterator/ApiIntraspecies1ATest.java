@@ -1,7 +1,6 @@
 package etomica.junit.atom.iterator;
 
 import etomica.Phase;
-import etomica.Species;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
 import etomica.atom.Atom;
@@ -12,6 +11,7 @@ import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.ApiIntraspecies1A;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.junit.UnitTest;
+import etomica.species.Species;
 
 
 /**

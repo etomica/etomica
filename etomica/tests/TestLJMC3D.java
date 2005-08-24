@@ -3,8 +3,6 @@ import etomica.Controller;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.Species;
-import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomSourceRandomLeafSeq;
 import etomica.config.ConfigurationFile;
@@ -23,6 +21,8 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.Species;
+import etomica.species.SpeciesSpheresMono;
 
 /**
  * Simple Lennard-Jones Monte Carlo simulation in 3D.

@@ -3,7 +3,6 @@
  */
 package etomica.chem.models;
 import etomica.Simulation;
-import etomica.Species;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryHetero;
 import etomica.atom.AtomFactoryHomo;
@@ -15,6 +14,7 @@ import etomica.atom.AtomTreeNodeGroupArray;
 import etomica.atom.AtomTypeGroup;
 import etomica.chem.Model;
 import etomica.config.Conformation;
+import etomica.species.Species;
 /**
  * Model for a molecule, which is formed from one or more sub-models, which
  * typically would describe the atoms in the molecule, or groups of atoms.

@@ -6,7 +6,6 @@
  */
 package etomica.chem.models;
 import etomica.Simulation;
-import etomica.Species;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomLinker;
@@ -16,6 +15,7 @@ import etomica.chem.Electrostatic;
 import etomica.chem.Element;
 import etomica.chem.Model;
 import etomica.space.CoordinateFactorySphere;
+import etomica.species.Species;
 
 /**
  * @author zhaofang

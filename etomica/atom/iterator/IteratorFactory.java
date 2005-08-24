@@ -1,7 +1,7 @@
 package etomica.atom.iterator;
 
-import etomica.Species;
 import etomica.atom.AtomSequencerFactory;
+import etomica.species.Species;
 
 /**
  * Class for construction of iterators of molecules.  Iterators are given for looping

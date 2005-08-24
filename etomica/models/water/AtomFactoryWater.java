@@ -1,7 +1,6 @@
 package etomica.models.water;
 
 import etomica.Simulation;
-import etomica.Species;
 import etomica.atom.Atom;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryMono;
@@ -12,6 +11,7 @@ import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.space.CoordinateFactory;
 import etomica.space.CoordinateFactorySphere;
+import etomica.species.Species;
 
 /**
  * Factory that constructs a water molecule, with three child atoms of two

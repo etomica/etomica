@@ -2,12 +2,12 @@ package etomica.atom;
 
 import java.util.Arrays;
 
-import etomica.Species;
 import etomica.config.Conformation;
 import etomica.config.ConformationLinear;
 import etomica.data.DataSourceCOM;
 import etomica.space.CoordinateFactory;
 import etomica.space.Space;
+import etomica.species.Species;
 
 /**
  * Builds an atom group that comprises a set of differently-formed atoms or

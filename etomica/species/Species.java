@@ -1,4 +1,7 @@
-package etomica;
+package etomica.species;
+import etomica.Default;
+import etomica.Phase;
+import etomica.Simulation;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.AtomType;

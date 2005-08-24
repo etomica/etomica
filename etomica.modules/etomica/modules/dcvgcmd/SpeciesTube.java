@@ -1,7 +1,7 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.Simulation;
-import etomica.SpeciesSpheres;
+import etomica.species.SpeciesSpheres;
 
 /**
  * @author nsives, msellers

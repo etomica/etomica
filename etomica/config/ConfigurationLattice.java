@@ -3,7 +3,6 @@ package etomica.config;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.SpeciesSpheresMono;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
 import etomica.atom.AtomList;
@@ -19,6 +18,7 @@ import etomica.lattice.crystal.BasisMonatomic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesSpheresMono;
 
 /**
  * Creates a configuration using a CubicLattice to specify positions.  Has

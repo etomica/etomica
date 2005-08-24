@@ -3,13 +3,13 @@ package etomica.junit.atom.iterator;
 import java.util.LinkedList;
 
 import etomica.Phase;
-import etomica.Species;
 import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.junit.UnitTest;
+import etomica.species.Species;
 
 /**
  * Unit test for ApiIntraspeciesAA

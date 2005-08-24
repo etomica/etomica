@@ -3,8 +3,6 @@ import etomica.Controller;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.Species;
-import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverage;
@@ -21,6 +19,8 @@ import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2SquareWell;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.Species;
+import etomica.species.SpeciesSpheresMono;
 
 /**
  * Simple hard-sphere Monte Carlo simulation in 2D.

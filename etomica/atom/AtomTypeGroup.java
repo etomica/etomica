@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.Species;
+import etomica.species.Species;
 
 /**
  * Type for atom that is a group of other atoms, and for which its node is an

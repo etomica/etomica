@@ -3,7 +3,6 @@ package etomica.config;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.SpeciesSpheresMono;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
 import etomica.atom.AtomList;
@@ -12,6 +11,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
+import etomica.species.SpeciesSpheresMono;
 
 /**
  * Sets the configuration to the zincblende structure, which consists
@@ -85,8 +85,8 @@ public class ConfigurationZincblende extends Configuration {
         Default.ATOM_SIZE = 5.0;
         Space space = sim.space;
         Phase phase = new Phase(sim);
-        etomica.SpeciesSpheresMono speciesSpheres0  = new etomica.SpeciesSpheresMono(sim);
-        etomica.SpeciesSpheresMono speciesSpheres1  = new etomica.SpeciesSpheresMono(sim);
+        etomica.species.SpeciesSpheresMono speciesSpheres0  = new etomica.species.SpeciesSpheresMono(sim);
+        etomica.species.SpeciesSpheresMono speciesSpheres1  = new etomica.species.SpeciesSpheresMono(sim);
         speciesSpheres0.setNMolecules(32);
         speciesSpheres1.setNMolecules(32);
         etomica.graphics.ColorSchemeByType.setColor(speciesSpheres0,new java.awt.Color(0,255,0));

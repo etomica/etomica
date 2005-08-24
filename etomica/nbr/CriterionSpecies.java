@@ -1,8 +1,8 @@
 
 package etomica.nbr;
 
-import etomica.Species;
 import etomica.atom.AtomPair;
+import etomica.species.Species;
 
 /**
  * Filters atoms pairs to match a given pair of species.

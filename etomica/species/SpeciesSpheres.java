@@ -1,6 +1,10 @@
-package etomica;
+package etomica.species;
 import java.lang.reflect.Constructor;
 
+import etomica.Default;
+import etomica.EtomicaElement;
+import etomica.EtomicaInfo;
+import etomica.Simulation;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomSequencerFactory;

@@ -1,7 +1,6 @@
 package etomica.atom.iterator;
 
 import etomica.Phase;
-import etomica.Species;
 import etomica.action.AtomActionSwap;
 import etomica.action.AtomsetAction;
 import etomica.atom.Atom;
@@ -10,6 +9,7 @@ import etomica.atom.AtomSet;
 import etomica.atom.AtomTreeNode;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.IteratorDirective.Direction;
+import etomica.species.Species;
 
 /**
  * Gives pairs formed from the molecules of two different species in a phase,

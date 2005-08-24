@@ -3,8 +3,6 @@ package etomica.tests;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.Species;
-import etomica.SpeciesSpheres;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomType;
@@ -30,6 +28,8 @@ import etomica.potential.P2HardBond;
 import etomica.potential.P2SquareWell;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.Species;
+import etomica.species.SpeciesSpheres;
 
 /**
  * Simple square-well chain simulation.

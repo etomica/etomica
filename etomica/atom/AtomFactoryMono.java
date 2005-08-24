@@ -1,7 +1,7 @@
 package etomica.atom;
 
-import etomica.Species;
 import etomica.space.CoordinateFactory;
+import etomica.species.Species;
 
 /**
  * Builder of a monoatomic atom group, which comprises just an Atom.

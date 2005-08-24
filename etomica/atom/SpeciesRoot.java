@@ -4,8 +4,8 @@ import etomica.Phase;
 import etomica.PhaseEvent;
 import etomica.PhaseListener;
 import etomica.SimulationEventManager;
-import etomica.Species;
 import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.species.Species;
 import etomica.utility.Arrays;
 
 /**

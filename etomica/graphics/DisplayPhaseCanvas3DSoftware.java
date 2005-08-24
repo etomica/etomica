@@ -10,7 +10,6 @@ import java.awt.image.MemoryImageSource;
 import java.util.Hashtable;
 import java.util.Iterator;
 
-import etomica.Species;
 import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomTypeOrientedSphere;
@@ -18,6 +17,7 @@ import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
 import etomica.space.Boundary;
 import etomica.space.Vector;
+import etomica.species.Species;
 
     /* History of changes
      * 07/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.

@@ -1,8 +1,8 @@
 package etomica.atom.iterator;
 
-import etomica.Species;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomSequencerFactory;
+import etomica.species.Species;
 
 public class IteratorFactorySimple extends IteratorFactory {
     

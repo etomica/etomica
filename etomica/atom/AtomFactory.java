@@ -1,8 +1,8 @@
 package etomica.atom;
 
-import etomica.Species;
 import etomica.config.Conformation;
 import etomica.space.CoordinateFactory;
+import etomica.species.Species;
 
 /**
  * Class responsible for building new instances of the atoms (or atom groups)

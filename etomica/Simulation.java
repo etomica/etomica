@@ -14,6 +14,7 @@ import etomica.log.LoggerAbstract;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
+import etomica.species.Species;
 import etomica.utility.NameMaker;
 
 /**

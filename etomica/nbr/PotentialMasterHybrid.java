@@ -5,7 +5,6 @@
 package etomica.nbr;
 
 import etomica.Phase;
-import etomica.Species;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomType;
@@ -20,6 +19,7 @@ import etomica.potential.Potential;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
+import etomica.species.Species;
 
 /**
  * PotentialMaster that uses both neighbor-cell iteration and cell-list 

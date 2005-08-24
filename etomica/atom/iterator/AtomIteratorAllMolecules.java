@@ -2,9 +2,9 @@ package etomica.atom.iterator;
 
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.Species;
-import etomica.SpeciesSpheres;
-import etomica.SpeciesSpheresMono;
+import etomica.species.Species;
+import etomica.species.SpeciesSpheres;
+import etomica.species.SpeciesSpheresMono;
 
 /**
  * Iterator for all the molecules in a phase. Loops over all those atoms that

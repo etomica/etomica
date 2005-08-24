@@ -1,8 +1,8 @@
 package etomica.virial;
 
 import etomica.Simulation;
-import etomica.Species;
-import etomica.SpeciesSpheresMono;
+import etomica.species.Species;
+import etomica.species.SpeciesSpheresMono;
 
 
 /**

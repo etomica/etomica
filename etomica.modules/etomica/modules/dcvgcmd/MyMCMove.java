@@ -2,7 +2,6 @@ package etomica.modules.dcvgcmd;
 
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.Species;
 import etomica.action.AtomActionRandomizeVelocity;
 import etomica.atom.Atom;
 import etomica.atom.AtomList;
@@ -11,6 +10,7 @@ import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.potential.PotentialMaster;
 import etomica.space3d.Vector3D;
+import etomica.species.Species;
 
 /**
  * @author kofke

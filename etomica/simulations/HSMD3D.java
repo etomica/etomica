@@ -3,8 +3,6 @@ package etomica.simulations;
 import etomica.Default;
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.Species;
-import etomica.SpeciesSpheresMono;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.config.ConfigurationLattice;
@@ -20,6 +18,8 @@ import etomica.nbr.list.PotentialMasterNbr;
 import etomica.potential.P2HardSphere;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.Species;
+import etomica.species.SpeciesSpheresMono;
 
 /**
  * 

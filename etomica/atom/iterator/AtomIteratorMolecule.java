@@ -5,13 +5,13 @@
 package etomica.atom.iterator;
 
 import etomica.Phase;
-import etomica.Species;
 import etomica.atom.Atom;
 import etomica.atom.AtomList;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTreeNode;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.IteratorDirective.Direction;
+import etomica.species.Species;
 
 /**
  * Iterator for the molecules of a single species in a phase.  Can be targeted to

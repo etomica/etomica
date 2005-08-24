@@ -2,8 +2,8 @@ package etomica.atom;
 
 import etomica.Default;
 import etomica.Parameter;
-import etomica.Species;
 import etomica.Parameter.Source;
+import etomica.species.Species;
 import etomica.utility.Arrays;
 
 //import etomica.electrostatics.*;

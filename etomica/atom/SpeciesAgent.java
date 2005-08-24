@@ -1,5 +1,5 @@
 package etomica.atom;
-import etomica.Species;
+import etomica.species.Species;
 import etomica.units.Dimension;
 
 /**

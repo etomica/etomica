@@ -1,10 +1,10 @@
 package etomica.atom;
 
-import etomica.Species;
 import etomica.config.Conformation;
 import etomica.config.ConformationLinear;
 import etomica.space.CoordinateFactory;
 import etomica.space.Space;
+import etomica.species.Species;
 
 /**
  * Builds an atom group that comprises a set of identically formed atoms or atom groups.

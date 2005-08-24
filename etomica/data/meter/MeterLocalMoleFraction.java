@@ -2,12 +2,12 @@ package etomica.data.meter;
 
 import etomica.EtomicaInfo;
 import etomica.Phase;
-import etomica.Species;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorSpeciesDependent;
 import etomica.data.DataSourceScalar;
 import etomica.math.geometry.Polytope;
+import etomica.species.Species;
 import etomica.units.Dimension;
 
 /**

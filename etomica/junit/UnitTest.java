@@ -2,11 +2,6 @@ package etomica.junit;
 
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.Species;
-import etomica.SpeciesSignature;
-import etomica.SpeciesSpheres;
-import etomica.SpeciesSpheresMono;
-import etomica.SpeciesTree;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryHetero;
 import etomica.atom.AtomFactoryMono;
@@ -21,6 +16,11 @@ import etomica.potential.PotentialMaster;
 import etomica.space.CoordinateFactorySphere;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.Species;
+import etomica.species.SpeciesSignature;
+import etomica.species.SpeciesSpheres;
+import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesTree;
 
 /**
  * Contains some convenience methods and fields useful for implementing unit

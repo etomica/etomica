@@ -2,11 +2,11 @@ package etomica.atom;
 
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.Species;
-import etomica.SpeciesSpheres;
-import etomica.SpeciesSpheresMono;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorTree;
+import etomica.species.Species;
+import etomica.species.SpeciesSpheres;
+import etomica.species.SpeciesSpheresMono;
 
 /**
  * Coordinator of all species agents in a phase. Parent is SpeciesRoot, and

@@ -23,6 +23,9 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.Species;
+import etomica.species.SpeciesResolver;
+import etomica.species.SpeciesSignature;
 import etomica.utility.NameMaker;
 
 /* History of changes

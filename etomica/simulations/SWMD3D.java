@@ -6,8 +6,6 @@ import etomica.Controller;
 import etomica.Modifier;
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.Species;
-import etomica.SpeciesSpheresMono;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.Atom;
@@ -18,6 +16,8 @@ import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.potential.P2SquareWell;
 import etomica.space3d.Space3D;
+import etomica.species.Species;
+import etomica.species.SpeciesSpheresMono;
 import etomica.units.Dimension;
 
 //remember to set up Space3D.CoordinatePair.reset if experiencing 
@@ -71,7 +71,7 @@ public class SWMD3D extends Simulation {
     potential  = new etomica.potential.P2SquareWell(space);
     potential.setLambda(1.6);
 
-    species  = new etomica.SpeciesSpheresMono(this);
+    species  = new etomica.species.SpeciesSpheresMono(this);
 	species.setNMolecules(108);
 
 	

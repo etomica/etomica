@@ -4,9 +4,9 @@ import java.lang.reflect.Constructor;
 import etomica.Default;
 import etomica.EtomicaElement;
 import etomica.Simulation;
-import etomica.Species;
-import etomica.SpeciesSignature;
 import etomica.atom.AtomTypeGroup;
+import etomica.species.Species;
+import etomica.species.SpeciesSignature;
 
 public class SpeciesWater extends Species implements EtomicaElement {
     

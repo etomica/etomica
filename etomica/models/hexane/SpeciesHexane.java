@@ -13,7 +13,7 @@ import etomica.atom.AtomSequencerFactory;
  * @author nancycribbin
  */
 
-public class SpeciesHexane extends etomica.SpeciesSpheres {
+public class SpeciesHexane extends etomica.species.SpeciesSpheres {
     public SpeciesHexane(Simulation sim){
         super(sim, sim.potentialMaster.sequencerFactory(), 6, 
                 new ConformationHexane(sim.space));

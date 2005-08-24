@@ -2,10 +2,10 @@ package etomica.atom;
 
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.SpeciesSpheresMono;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.species.SpeciesSpheresMono;
 
 /**
  * An extension of the AtomList class that permits the list to be restored

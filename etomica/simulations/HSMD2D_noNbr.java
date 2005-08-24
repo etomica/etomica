@@ -1,8 +1,6 @@
 package etomica.simulations;
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.Species;
-import etomica.SpeciesSpheresMono;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.config.ConfigurationSequential;
@@ -21,6 +19,8 @@ import etomica.potential.P1HardBoundary;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardSphere;
 import etomica.space2d.Space2D;
+import etomica.species.Species;
+import etomica.species.SpeciesSpheresMono;
 
 /**
  * Simple hard-sphere molecular dynamics simulation in 2D.

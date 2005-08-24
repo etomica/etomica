@@ -3,7 +3,6 @@ package etomica.potential;
 import java.util.Arrays;
 
 import etomica.Phase;
-import etomica.Species;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
@@ -14,6 +13,7 @@ import etomica.atom.iterator.IteratorFactory;
 import etomica.atom.iterator.IteratorFactorySimple;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.space.Space;
+import etomica.species.Species;
 
 
 /**

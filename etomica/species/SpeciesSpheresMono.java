@@ -1,68 +1,72 @@
-package etomica;
-
+package etomica.species;
 import java.lang.reflect.Constructor;
 
+import etomica.Default;
+import etomica.EtomicaElement;
+import etomica.EtomicaInfo;
+import etomica.Simulation;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTypeGroup;
-import etomica.atom.AtomTypeOrientedSphere;
-import etomica.space.CoordinateFactoryAngular;
+import etomica.atom.AtomTypeSphere;
+import etomica.space.CoordinateFactorySphere;
 import etomica.units.Dimension;
 
 /**
- * Species in which molecules are made of a single atom of type OrientedSphere
- *
- * @author David Kofke
- * @see AtomTypeOrientedSphere
+ * Species in which molecules are each made of a single spherical atom.
+ * Does not permit multiatomic molecules.  The advantage of this species
+ * over the multiatomic version (used with 1 atom), is that one layer of
+ * the atom hierarchy is eliminated in SpeciesSpheresMono.  Each atom is
+ * the direct child of the species agent (i.e., each atom is at the "molecule"
+ * level in the hierarchy, without an intervening AtomGroup).
  * 
+ * @author David Kofke
  */
 
-public class SpeciesSpheresRotating extends Species implements EtomicaElement {
+public class SpeciesSpheresMono extends Species implements EtomicaElement {
+
+    private final AtomTypeSphere atomType;
     
-    public double mass;
-    
-    public AtomTypeOrientedSphere protoType;
     /**
      * Constructs instance with space and AtomSequencer.Factory taken from
      * given simulation, and using default number of molecules given by
      * Default.MOLECULE_COUNT.
      */
-    public SpeciesSpheresRotating(Simulation sim) {
+    public SpeciesSpheresMono(Simulation sim) {
         this(sim, sim.potentialMaster.sequencerFactory());
     }
-        
+
     /**
      * Constructs instance with default number of molecules given by
      * Default.MOLECULE_COUNT.
      */
-    public SpeciesSpheresRotating(Simulation sim, AtomSequencerFactory seqFactory) {
+    public SpeciesSpheresMono(Simulation sim, AtomSequencerFactory seqFactory) {
         this(sim, seqFactory, Species.makeAgentType(sim));
     }
-    private SpeciesSpheresRotating(Simulation sim, AtomSequencerFactory seqFactory,
-                                   AtomTypeGroup agentType) {
-        super(sim, new AtomFactoryMono(new CoordinateFactoryAngular(sim), 
-                new AtomTypeOrientedSphere(agentType,Default.ATOM_MASS,Default.ATOM_SIZE), seqFactory), agentType);
+    
+    private SpeciesSpheresMono(Simulation sim, AtomSequencerFactory seqFactory,
+                                AtomTypeGroup agentType) {
+        super(sim, new AtomFactoryMono(new CoordinateFactorySphere(sim), new AtomTypeSphere(agentType), seqFactory),
+                agentType);
         factory.setSpecies(this);
-        protoType = (AtomTypeOrientedSphere)((AtomFactoryMono)factory).getType();
-        mass = protoType.getMass();
+        atomType = (AtomTypeSphere)((AtomFactoryMono)factory).getType();
         nMolecules = Default.MOLECULE_COUNT;
     }
-            
+    
     public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Molecules formed from spheres with an attached rotatable direction");
+        EtomicaInfo info = new EtomicaInfo("Species with molecules composed of one or more spherical atoms");
         return info;
     }
               
     /**
      * The mass of each of the spheres.
      */
-    public final double getMass() {return mass;}
+    public double getMass() {return atomType.getMass();}
     /**
      * Sets the mass of all spheres to the given value.
      */
-    public final void setMass(double m) {
-        mass = m;
-        protoType.setMass(m);
+    public void setMass(double m) {
+        atomType.setMass(m);
     }
     /**
      * @return Dimension.MASS
@@ -72,11 +76,11 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     /**
      * The diameter of each of the spheres.
      */
-    public final double getDiameter() {return protoType.diameter(null);}
+    public double getDiameter() {return atomType.diameter(null);}
     /**
      * Sets the diameter of all spheres to the given value.
      */
-    public void setDiameter(double d) {protoType.setDiameter(d);}
+    public void setDiameter(double d) {atomType.setDiameter(d);}
     /**
      * @return Dimension.LENGTH
      */
@@ -92,6 +96,5 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
         }
         return new SpeciesSignature(getName(),constructor,new Object[]{});
     }
+    
 }
-
-

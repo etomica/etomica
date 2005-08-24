@@ -1,7 +1,7 @@
 package etomica.virial;
 
 import etomica.Simulation;
-import etomica.Species;
+import etomica.species.Species;
 
 public interface SpeciesFactory {
 

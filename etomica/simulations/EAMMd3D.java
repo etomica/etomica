@@ -2,8 +2,6 @@ package etomica.simulations;
 import etomica.Controller;
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.Species;
-import etomica.SpeciesSpheresMono;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeLeaf;
@@ -33,6 +31,8 @@ import etomica.potential.EmbeddedAtomMethodPInitial;
 import etomica.potential.EmbeddedAtomMethodPMany;
 import etomica.potential.ParameterSetEAM;
 import etomica.space3d.Space3D;
+import etomica.species.Species;
+import etomica.species.SpeciesSpheresMono;
 import etomica.units.ElectronVolt;
 
 /**

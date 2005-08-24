@@ -2,7 +2,6 @@ package etomica.integrator.mcmove;
 
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.Species;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
 import etomica.atom.AtomList;
@@ -15,6 +14,7 @@ import etomica.data.DataSourceCOM;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.MCMove;
 import etomica.potential.PotentialMaster;
+import etomica.species.Species;
 
 /**
  * Basic Monte Carlo move for semigrand-ensemble simulations.  Move consists
