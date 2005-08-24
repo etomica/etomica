@@ -1,4 +1,4 @@
-package etomica;
+package etomica.action;
 
 /**
  * Interface for a class that performs a specific action. If the action is

@@ -1,6 +1,5 @@
 package etomica.action;
 
-import etomica.Action;
 import etomica.Integrator;
 
  /**

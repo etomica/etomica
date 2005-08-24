@@ -6,10 +6,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
-import etomica.Action;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Space;
+import etomica.action.Action;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Parallelepiped;

@@ -8,7 +8,7 @@ import etomica.data.meter.Meter;
   * 
   */
  
-public interface MeterAction extends etomica.Action {
+public interface MeterAction extends etomica.action.Action {
 
     /**
      * Returns the meter subject to action.

@@ -1,7 +1,7 @@
 package etomica.modifier;
 
-import etomica.Action;
 import etomica.Modifier;
+import etomica.action.Action;
 import etomica.units.Dimension;
 
 

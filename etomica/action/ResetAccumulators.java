@@ -7,7 +7,6 @@ package etomica.action;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import etomica.Action;
 import etomica.data.DataAccumulator;
 
 /**

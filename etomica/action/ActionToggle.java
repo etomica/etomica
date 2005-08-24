@@ -1,7 +1,6 @@
 //This class includes a main method to demonstrate its use
 package etomica.action;
 
-import etomica.Action;
 import etomica.EtomicaInfo;
 import etomica.modifier.ModifierBoolean;
 

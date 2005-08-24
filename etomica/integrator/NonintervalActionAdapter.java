@@ -1,10 +1,10 @@
 package etomica.integrator;
 
-import etomica.Action;
 import etomica.Integrator;
 import etomica.IntegratorNonintervalEvent;
 import etomica.IntegratorIntervalEvent;
 import etomica.IntegratorNonintervalListener;
+import etomica.action.Action;
 
 /**
  * Adapter that causes an action to be performed as the result of an integrator

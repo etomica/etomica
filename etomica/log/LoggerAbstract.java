@@ -5,12 +5,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import etomica.Action;
 import etomica.Integrator;
 import etomica.IntegratorIntervalEvent;
 import etomica.IntegratorIntervalListener;
 import etomica.IntegratorNonintervalEvent;
 import etomica.IntegratorNonintervalListener;
+import etomica.action.Action;
 import etomica.integrator.IntegratorHard;
 import etomica.utility.NameMaker;
 
@@ -231,7 +231,7 @@ public abstract class LoggerAbstract implements IntegratorIntervalListener,
     private boolean fileIsOpen = false; //at the beginning, it is false.
     private String name;
     private int priority;
-	private class WriteAction implements etomica.Action, java.io.Serializable {
+	private class WriteAction implements etomica.action.Action, java.io.Serializable {
 		public WriteAction() {
 			setLabel("Write");
 		}

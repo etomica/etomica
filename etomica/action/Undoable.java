@@ -3,7 +3,8 @@
  * Created on Oct 27, 2004 by kofke
  */
 package etomica.action;
-import etomica.Action;
+
+
 /**
  * Interface for an action that can be "undone", such that its effect
  * is reversed if the undo() method is invoked immediately after the

@@ -2,9 +2,9 @@ package etomica.graphics;
 
 import java.awt.Color;
 
-import etomica.Action;
 import etomica.Controller;
 import etomica.EtomicaInfo;
+import etomica.action.Action;
 import etomica.action.ActionGroup;
 import etomica.action.ActionToggle;
 import etomica.modifier.ModifierBoolean;

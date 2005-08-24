@@ -1,4 +1,4 @@
-package etomica;
+package etomica.action;
 
 import etomica.utility.NameMaker;
 

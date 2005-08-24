@@ -1,6 +1,7 @@
 package etomica;
 
 import etomica.Constants.TypedConstant;
+import etomica.action.Action;
 
 public class ControllerEvent implements java.io.Serializable {
     

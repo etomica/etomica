@@ -1,5 +1,7 @@
 package etomica;
 
+import etomica.action.Action;
+import etomica.action.Activity;
 import etomica.action.activity.ActivityGroupSeries;
 import etomica.utility.Arrays;
 

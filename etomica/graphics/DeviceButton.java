@@ -5,10 +5,10 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
-import etomica.Action;
 import etomica.Controller;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
+import etomica.action.Action;
 
 /**
  * Button that causes an action to be performed.
@@ -55,7 +55,7 @@ public class DeviceButton extends Device implements EtomicaElement {
     /**
      * Returns the currently defined action associated with the button.
      */
-    public etomica.Action getAction() {return targetAction;}
+    public etomica.action.Action getAction() {return targetAction;}
 
     /**
      * Defines the action to be performed when the button is pressed.

@@ -6,8 +6,8 @@ package etomica.action.activity;
 
 import java.util.LinkedList;
 
-import etomica.Action;
-import etomica.Activity;
+import etomica.action.Action;
+import etomica.action.Activity;
 import etomica.utility.Arrays;
 
 /**

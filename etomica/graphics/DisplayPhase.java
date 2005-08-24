@@ -9,13 +9,13 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.LinkedList;
 
-import etomica.Action;
 import etomica.Atom;
 import etomica.AtomIterator;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Phase;
 import etomica.Space;
+import etomica.action.Action;
 import etomica.atom.AtomFilter;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.space.Vector;

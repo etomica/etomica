@@ -11,11 +11,11 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import etomica.Action;
 import etomica.Controller;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.Modifier;
+import etomica.action.Action;
 import etomica.event.ChangeEventManager;
 import etomica.modifier.ModifierGeneral;
 import etomica.modifier.ModifyAction;
