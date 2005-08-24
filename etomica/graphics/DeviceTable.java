@@ -5,7 +5,7 @@ import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
 import etomica.EtomicaInfo;
-import etomica.Modifier;
+import etomica.modifier.Modifier;
 import etomica.units.Unit;
 
 /**

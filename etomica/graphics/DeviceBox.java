@@ -8,7 +8,7 @@ import javax.swing.JTextField;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.Modifier;
+import etomica.modifier.Modifier;
 import etomica.util.Constants;
 import etomica.util.EnumeratedType;
 

@@ -1,6 +1,5 @@
 package etomica.modifier;
 
-import etomica.Modifier;
 import etomica.atom.SpeciesAgent;
 import etomica.units.Dimension;
 

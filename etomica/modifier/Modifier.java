@@ -1,4 +1,4 @@
-package etomica;
+package etomica.modifier;
 
 import etomica.units.Dimension;
 

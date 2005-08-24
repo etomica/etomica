@@ -1,6 +1,6 @@
 package etomica.modules.pistoncylinder;
 
-import etomica.Modifier;
+import etomica.modifier.Modifier;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.units.Dimension;
 

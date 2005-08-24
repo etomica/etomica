@@ -1,10 +1,10 @@
 package etomica.graphics;
 import java.awt.Color;
 
-import etomica.Parameter;
 import etomica.atom.Atom;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomType;
+import etomica.atom.Parameter;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 

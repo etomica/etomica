@@ -1,7 +1,6 @@
 package etomica.atom;
 
-import etomica.Parameter;
-import etomica.Parameter.Source;
+import etomica.atom.Parameter.Source;
 import etomica.species.Species;
 import etomica.util.Arrays;
 import etomica.util.Default;

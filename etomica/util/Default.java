@@ -1,9 +1,9 @@
 package etomica.util;
 
-import etomica.Parameter;
-import etomica.Parameter.Energy;
-import etomica.Parameter.Mass;
-import etomica.Parameter.Size;
+import etomica.atom.Parameter;
+import etomica.atom.Parameter.Energy;
+import etomica.atom.Parameter.Mass;
+import etomica.atom.Parameter.Size;
 import etomica.units.Bar;
 import etomica.units.Dimension;
 import etomica.units.Kelvin;

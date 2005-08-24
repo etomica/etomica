@@ -13,7 +13,6 @@ import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 
-import etomica.Modifier;
 import etomica.action.Action;
 import etomica.atom.AtomTypeSphere;
 import etomica.data.AccumulatorAverage;
@@ -38,6 +37,7 @@ import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntervalActionAdapter;
+import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.modifier.ModifierFunctionWrapper;
 import etomica.modifier.ModifierGeneral;

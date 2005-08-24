@@ -7,7 +7,6 @@ import java.awt.Color;
 
 import javax.swing.JPanel;
 
-import etomica.Modifier;
 import etomica.atom.Atom;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomFilter;
@@ -26,6 +25,7 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntervalActionAdapter;
+import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.modules.dcvgcmd.IntegratorDCVGCMD.Mu1Modulator;
 import etomica.modules.dcvgcmd.IntegratorDCVGCMD.Mu2Modulator;

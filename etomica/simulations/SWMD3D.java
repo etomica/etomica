@@ -3,7 +3,6 @@
 package etomica.simulations;
 
 import etomica.Controller;
-import etomica.Modifier;
 import etomica.Simulation;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
@@ -13,6 +12,7 @@ import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayPhase;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.modifier.Modifier;
 import etomica.phase.Phase;
 import etomica.potential.P2SquareWell;
 import etomica.space3d.Space3D;
@@ -32,7 +32,7 @@ public class SWMD3D extends Simulation {
         }
 
 		/**
-		 * @see etomica.Modifier#setValue(double)
+		 * @see etomica.modifier.Modifier#setValue(double)
 		 */
 		public void setValue(double d) {
 			potential.setCoreDiameter(d);
@@ -40,7 +40,7 @@ public class SWMD3D extends Simulation {
 		}
 
 		/**
-		 * @see etomica.Modifier#getValue()
+		 * @see etomica.modifier.Modifier#getValue()
 		 */
 		public double getValue() {
 			return potential.getCoreDiameter();
