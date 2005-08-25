@@ -19,7 +19,7 @@ import etomica.units.Dimension;
  * stored for that particular atom in the array.
  */
 
-public final class EmbeddedAtomMethodPMany extends P1SoftBoundary {
+public final class EmbeddedAtomMethodPMany extends Potential1 {
 
 	public EmbeddedAtomMethodPMany(Space space, ParameterSetEAM p) {
 		super(space);

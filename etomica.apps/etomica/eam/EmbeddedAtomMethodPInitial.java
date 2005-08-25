@@ -15,7 +15,7 @@ import etomica.space.Vector;
  * This class was created by A. Schultz and K.R. Schadel July 2005.
  */
 
-public final class EmbeddedAtomMethodPInitial extends P1SoftBoundary {
+public final class EmbeddedAtomMethodPInitial extends Potential1 {
 
 	public EmbeddedAtomMethodPInitial(Space space) {
 		super(space);
