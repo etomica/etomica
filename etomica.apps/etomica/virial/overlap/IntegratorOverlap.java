@@ -5,6 +5,7 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorIntervalEvent;
 import etomica.potential.PotentialMaster;
@@ -18,7 +19,7 @@ import etomica.util.Debug;
 public class IntegratorOverlap extends Integrator {
 
     public IntegratorOverlap(PotentialMaster potentialMaster, Integrator[] aIntegrators, AccumulatorVirialOverlapSingleAverage[] virialAccumulators) {
-        super(potentialMaster);
+        super(potentialMaster,0);
         numIntegrators = aIntegrators.length;
         integrators = aIntegrators;
         setNumSubSteps(1000);
@@ -184,10 +185,22 @@ public class IntegratorOverlap extends Integrator {
         return true;
     }
 
-    public void reset() {
-        for (int i=0; i<numIntegrators; i++) {
-            integrators[i].reset();
+    public void reset() throws ConfigurationOverlapException {
+        ConfigurationOverlapException overlapException = null;
+	    for(int i=0; i<numIntegrators; i++) {
+            try {
+                integrators[i].reset();
+            }
+            catch (ConfigurationOverlapException e) {
+                if (overlapException == null) {
+                    overlapException = e;
+                }
+            }
         }
+        if (overlapException != null) {
+            throw overlapException;
+        }
+        // don't call super.reset(), it tries to calculate the potential energy
     }
 
     public Object makeAgent(Atom a) {

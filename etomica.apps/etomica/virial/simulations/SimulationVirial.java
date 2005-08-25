@@ -43,7 +43,7 @@ public class SimulationVirial extends Simulation {
         species.setNMolecules(nMolecules);
         phase.makeMolecules();
         
-		integrator = new IntegratorClusterMC(potentialMaster);
+		integrator = new IntegratorClusterMC(this);
         // it's unclear what this accomplishes, but let's do it just for fun.
 		integrator.setTemperature(temperature);
         integrator.addPhase(phase);
@@ -53,25 +53,23 @@ public class SimulationVirial extends Simulation {
 		getController().addAction(ai);
 		
         if (phase.randomMolecule().node.isLeaf()) {
-            mcMoveAtom1 = new MCMoveClusterAtom(potentialMaster);
+            mcMoveAtom1 = new MCMoveClusterAtom(this);
             mcMoveAtom1.setStepSize(1.15);
             integrator.addMCMove(mcMoveAtom1);
             if (nMolecules>2) {
-                mcMoveMulti = new MCMoveClusterAtomMulti(potentialMaster, nMolecules-1);
+                mcMoveMulti = new MCMoveClusterAtomMulti(this, nMolecules-1);
                 mcMoveMulti.setStepSize(0.41);
                 integrator.addMCMove(mcMoveMulti);
             }
         }
         else {
-            mcMoveAtom1 = new MCMoveClusterMolecule(potentialMaster);
-            mcMoveAtom1.setStepSize(3.0);
+            mcMoveAtom1 = new MCMoveClusterMolecule(potentialMaster,3.0);
             integrator.addMCMove(mcMoveAtom1);
             mcMoveRotate = new MCMoveClusterRotateMolecule3D(potentialMaster,space);
             mcMoveRotate.setStepSize(Math.PI);
             integrator.addMCMove(mcMoveRotate);
             if (nMolecules>2) {
-                mcMoveMulti = new MCMoveClusterMoleculeMulti(potentialMaster, nMolecules-1);
-                mcMoveMulti.setStepSize(0.41);
+                mcMoveMulti = new MCMoveClusterMoleculeMulti(potentialMaster,0.41,nMolecules-1);
                 integrator.addMCMove(mcMoveMulti);
             }
         }
@@ -90,7 +88,7 @@ public class SimulationVirial extends Simulation {
         // XXX oops, sorry you're screwed.
         // integrator.removeIntervalListener(accumulatorPump);
 //        meter.getDataInfo().setLabel("Target/Reference Ratio");
-        setAccumulator(new AccumulatorRatioAverage());
+        setAccumulator(new AccumulatorRatioAverage(this));
 	}
 	
 	public Meter meter;

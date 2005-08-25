@@ -3,6 +3,7 @@ package etomica.virial.overlap;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.Data;
 import etomica.data.types.DataDoubleArray;
+import etomica.simulation.Simulation;
 
 /**
  * Accumulator for taking ratio between two sums (and pretend it's an "average")
@@ -10,8 +11,12 @@ import etomica.data.types.DataDoubleArray;
  */
 public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAverage {
 
-    public AccumulatorVirialOverlapSingleAverage(int aNBennetPoints) {
-		super();
+	public AccumulatorVirialOverlapSingleAverage(Simulation sim, int aNBennetPoints) {
+		this(sim.getDefaults().blockSize,aNBennetPoints);
+	}
+	
+    public AccumulatorVirialOverlapSingleAverage(int blockSize, int aNBennetPoints) {
+		super(blockSize);
 		nBennetPoints = aNBennetPoints;
 		if (nBennetPoints%2 == 0) {
 			throw new IllegalArgumentException("try again with an odd aNPoints");
