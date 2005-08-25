@@ -20,7 +20,6 @@ import etomica.simulation.Simulation;
 import etomica.simulation.SimulationContainer;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
-import etomica.util.Default;
 
 /**
  * General class for graphical presentation of the elements of a molecular simulation.

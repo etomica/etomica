@@ -41,16 +41,23 @@ public class Default implements java.io.Serializable {
     public boolean ignoreOverlap = false;
     
     /**
-     * Default value for doSleep field in Integrator class.  The default defined
-     * here is <false>, indicating that Integrator should not pause during
-     * integration loop.  Instantiation of any SimulationGraphic class changes
-     * this default to true, which is appropriate for simulations that use
-     * interactive graphics -- doSleep <true> is needed for a responsive
-     * interface.  Change in this default has no effect on any Integrators
-     * previously constructed.
+     * Default value for doSleep field in ActivityIntegrate class. The default defined
+     * here is <tt>false</tt>, indicating that Integrator should not pause during
+     * integration loop.  For simulations that use interactive graphics it may
+     * be helpful to make doSleep <tt>true</tt> to ensure a responsive
+     * interface.  Change in this default has no effect on any classes
+     * instantiated prior to the change.
      */
     public boolean doSleep = false;
-    
+ 
+    /**
+     * Default block size used for error estimation in simulation averages.
+     */
+    public int blockSize = 1000;
+ 
+    //default unit system for I/O (internal calculations are all done in simulation units)
+    public static UnitSystem unitSystem = new UnitSystem.Sim();
+        
     /**
      * Integer array indicating the maximum number of atoms at each depth in the
      * atom hierarchy.  Maximum depth is given by the size of the array.  Each
@@ -85,12 +92,4 @@ public class Default implements java.io.Serializable {
         etomica.units.BaseUnit.Length.Sim.TO_PIXELS = 30;
     }
     
-    /**
-     * Default block size used for error estimation in simulation averages.
-     */
-    public int blockSize = 1000;
- 
-	//default unit system for I/O (internal calculations are all done in simulation units)
-	public UnitSystem unitSystem = new UnitSystem.Sim();
-        
 }

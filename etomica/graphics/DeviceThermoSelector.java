@@ -25,7 +25,7 @@ import etomica.units.Unit;
 public class DeviceThermoSelector extends Device implements EtomicaElement {
     
      public DeviceThermoSelector(Simulation sim, final Integrator integrator) {
-        this(sim.getDefaults().unitSystem.temperature(),sim.getDefaults().ignoreOverlap);
+        this(Dimension.TEMPERATURE.defaultIOUnit(),sim.getDefaults().ignoreOverlap);
         setController(controller);
         setIntegrator(integrator);
      }
