@@ -30,9 +30,7 @@ public final class MaxwellBoltzmann implements java.io.Serializable {
         private double mass;
         private Space space;
         private double a, c;
-        public Distribution(Space space) {
-            this(space, etomica.util.Default.TEMPERATURE, etomica.util.Default.ATOM_MASS);
-        }
+
         public Distribution(Space space, double temperature, double mass) {
             this.temperature = temperature;
             this.mass = mass;

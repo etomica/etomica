@@ -2,8 +2,8 @@ package etomica.space;
 
 import etomica.math.geometry.Parallelepiped;
 import etomica.math.geometry.Polytope;
+import etomica.simulation.Simulation;
 import etomica.space3d.Vector3D;
-import etomica.util.Default;
 
 /**
  * @author skkwak
@@ -30,22 +30,22 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
 	private boolean useBruteForceNearestImageMethod = true; 
 	// in the above, true uses brute force method!!
 
-	public BoundaryDeformablePeriodic(Space space) {
-		this(space, makePeriodicity(space.D()));
+	public BoundaryDeformablePeriodic(Simulation sim) {
+		this(sim.space, makePeriodicity(sim.space.D()), sim.getDefaults().boxSize);
 	}
 
-	public BoundaryDeformablePeriodic(Space space, boolean[] periodicity) {
+	public BoundaryDeformablePeriodic(Space space, boolean[] periodicity, double boxSize) {
 	    //nan 2D
-	    this(space, periodicity, new Vector3D (1,0,0), new Vector3D (0,1,0), 
+	    this(space, periodicity, boxSize, new Vector3D (1,0,0), new Vector3D (0,1,0), 
 	            new Vector3D (0,0,1));	
 	}
 	
 //	nan 2D
-	public BoundaryDeformablePeriodic(Space space, boolean[] periodicity, 
+	public BoundaryDeformablePeriodic(Space space, boolean[] periodicity, double boxSize, 
 	        Vector3D a, Vector3D b, Vector3D c) {
 	    //super(space, new Parallelepiped(space, a, b, c));
 //	  nan 2D
-		super(space, makeShape(space, (Vector)a, (Vector)b, (Vector)c));
+		super(space, makeShape(space, a, b, c));
 		isPeriodic = (boolean[]) periodicity.clone();
 		boundaryTensor = space.makeTensor();
 		boundaryTensorCopy = space.makeTensor();
@@ -57,7 +57,7 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
 		nearestDr = space.makeVector();
 		workTensor = space.makeTensor();
 		tempT = space.makeTensor();
-		workVector.E(Default.BOX_SIZE);
+		workVector.E(boxSize);
 		setDimensions(workVector);
 		makeStrainTensor();
 	}

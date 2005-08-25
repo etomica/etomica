@@ -21,7 +21,7 @@ import etomica.phase.Phase;
 import etomica.space.BoundaryPeriodic;
 
 /**
- * Returns iterates formed from all molecule pairs of a single species.
+ * Returns iterates formed from all cell-based neighbor pairs.
  */
 
 public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, java.io.Serializable {
@@ -33,10 +33,14 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, jav
      * @param D
      *            the dimension of the space of the simulation (used to
      *            construct cell iterators)
+     * @param range
+     *            the distance within which pairs of atoms are considered
+     *            neighbors. Used to define neighbor cells; some iterates may
+     *            exceed this separation
      */
-	public ApiAACell(int D) {
+	public ApiAACell(int D, double range) {
         cellIterator = new RectangularLattice.Iterator(D);
-        neighborIterator = new CellLattice.NeighborIterator(D);
+        neighborIterator = new CellLattice.NeighborIterator(D, range);
         neighborIterator.setDirection(IteratorDirective.UP);
         interListIterator = new ApiInterList();
         intraListIterator = new ApiIntraList();

@@ -3,7 +3,6 @@ import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationSequential;
-import etomica.data.meter.MeterDensity;
 import etomica.integrator.IntegratorGEMC;
 import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.phase.Phase;
@@ -14,7 +13,6 @@ import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresRotating;
-import etomica.util.Default;
 
 /**
  * Simple Gibbs-ensemble Monte Carlo simulation of rotating molecules.
@@ -30,11 +28,11 @@ public class GEMCWithRotation extends Simulation {
     
     public GEMCWithRotation(Space space) {
         super(space, false, new PotentialMaster(space));
-        Default.ATOM_SIZE = 1.2;
-        Default.UNIT_SYSTEM = new etomica.units.systems.LJ();
-        Default.TEMPERATURE = Default.UNIT_SYSTEM.temperature().toSim(0.420);
-        IntegratorGEMC integrator = new IntegratorGEMC(potentialMaster, space);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        defaults.atomSize = 1.2;
+        defaults.unitSystem = new etomica.units.systems.LJ();
+        defaults.temperature = defaults.unitSystem.temperature().toSim(0.420);
+        IntegratorGEMC integrator = new IntegratorGEMC(this);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         getController().addAction(activityIntegrate);
 	    activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
@@ -50,7 +48,7 @@ public class GEMCWithRotation extends Simulation {
         integrator.addMCMove(mcRotate1);
 
 	    phase2 = new Phase(this);
-	    MeterDensity meter2 = new MeterDensity();	    
+	    //MeterDensity meter2 = new MeterDensity();	    
 	    MCMoveRotate mcRotate2 = new MCMoveRotate(potentialMaster, space);
 	    mcRotate2.setPhase(new Phase[] {phase2});
         integrator.addMCMove(mcRotate2);
@@ -67,9 +65,9 @@ public class GEMCWithRotation extends Simulation {
             
         integrator.setPhase(new Phase[] {phase1, phase2});
         
-        MeterDensity meterDensity = new MeterDensity();
+        //MeterDensity meterDensity = new MeterDensity();
 
-	    potential = new P2LennardJones(space);
+	    potential = new P2LennardJones(this);
 	    potential.setSigma(species.getDiameter());
 
         this.potentialMaster.setSpecies(potential,new Species[] {species, species});

@@ -3,6 +3,7 @@ import etomica.EtomicaInfo;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
+import etomica.simulation.Simulation;
 import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
@@ -10,7 +11,6 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.util.Debug;
-import etomica.util.Default;
 
 /**
  * Basic square-well potential.
@@ -30,12 +30,14 @@ public class P2SquareWell extends Potential2HardSpherical {
     protected double lastEnergyChange;
     protected Vector dr;
     protected final CoordinatePairKinetic cPair;
+    protected final boolean ignoreOverlap;
 
-    public P2SquareWell(Space space) {
-        this(space,Default.ATOM_SIZE, Default.POTENTIAL_CUTOFF_FACTOR, Default.POTENTIAL_WELL);
+    public P2SquareWell(Simulation sim) {
+        this(sim.space, sim.getDefaults().atomSize, sim.getDefaults().potentialCutoffFactor, 
+                sim.getDefaults().potentialWell, sim.getDefaults().ignoreOverlap);
     }
 
-    public P2SquareWell(Space space, double coreDiameter, double lambda, double epsilon) {
+    public P2SquareWell(Space space, double coreDiameter, double lambda, double epsilon, boolean ignoreOverlap) {
         super(space, new CoordinatePairKinetic(space));
         setCoreDiameter(coreDiameter);
         setLambda(lambda);
@@ -43,6 +45,7 @@ public class P2SquareWell extends Potential2HardSpherical {
         dr = space.makeVector();
         lastCollisionVirialTensor = space.makeTensor();
         cPair = (CoordinatePairKinetic)coordinatePair;
+        this.ignoreOverlap = ignoreOverlap;
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -74,7 +77,7 @@ public class P2SquareWell extends Potential2HardSpherical {
         double reduced_m = 1.0/(rm0+rm1);
         double nudge = 0;
         if(2*r2 < (coreDiameterSquared+wellDiameterSquared)) {   // Hard-core collision
-            if (Debug.ON && !Default.FIX_OVERLAP && Math.abs(r2 - coreDiameterSquared)/coreDiameterSquared > 1.e-9) {
+            if (Debug.ON && !ignoreOverlap && Math.abs(r2 - coreDiameterSquared)/coreDiameterSquared > 1.e-9) {
                 throw new RuntimeException("atoms "+pair+" not at the right distance "+r2+" "+coreDiameterSquared);
             }
             lastCollisionVirial = 2.0*reduced_m*bij;
@@ -150,7 +153,7 @@ public class P2SquareWell extends Potential2HardSpherical {
         if(r2 < wellDiameterSquared) {  // Already inside wells
 
             if(bij < 0.0) {    // Check for hard-core collision
-                if(Default.FIX_OVERLAP && r2 < coreDiameterSquared) {   // Inside core; collision now
+                if(ignoreOverlap && r2 < coreDiameterSquared) {   // Inside core; collision now
                     return falseTime;
                 }
 

@@ -29,7 +29,6 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
-import etomica.util.Default;
 
 /**
  * Simple square-well chain simulation.
@@ -42,38 +41,38 @@ public class TestSWChain extends Simulation {
     public Phase phase;
 
     public TestSWChain(Space space, int numMolecules) {
-        super(space, true, new PotentialMasterNbr(space));
+        super(space, true, new PotentialMasterNbr(space, 1.5*1.2));
         int chainLength = 10;
         int numAtoms = numMolecules * chainLength;
         double sqwLambda = 1.5;
         double neighborRangeFac = 1.2;
         double bondFactor = 0.15;
-        Default.makeLJDefaults();
+        defaults.makeLJDefaults();
         double timeStep = 0.005;
         double simTime = 100000.0/numAtoms;
         int nSteps = (int)(simTime / timeStep);
 
         // makes eta = 0.35
-        Default.BOX_SIZE = 14.4094*Math.pow((numAtoms/2000.0),1.0/3.0);
-        integrator = new IntegratorHard(potentialMaster);
+        defaults.boxSize = 14.4094*Math.pow((numAtoms/2000.0),1.0/3.0);
+        integrator = new IntegratorHard(this);
         integrator.setTimeStep(timeStep);
         integrator.setIsothermal(true);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         NeighborListManager nbrManager = ((PotentialMasterNbr)potentialMaster).getNeighborManager();
         integrator.addListener(nbrManager);
-        nbrManager.setRange(Default.ATOM_SIZE*sqwLambda*neighborRangeFac);
+        nbrManager.setRange(defaults.atomSize*sqwLambda*neighborRangeFac);
         getController().addAction(activityIntegrate);
         activityIntegrate.setMaxSteps(nSteps);
-        int nCells = (int)(2*Default.BOX_SIZE/(neighborRangeFac*sqwLambda*Default.ATOM_SIZE));
+        int nCells = (int)(2*defaults.boxSize/(neighborRangeFac*sqwLambda*defaults.atomSize));
         ((PotentialMasterNbr)potentialMaster).setNCells(nCells);
 
-        P2SquareWell potential = new P2SquareWell(space,Default.ATOM_SIZE,sqwLambda,0.5*Default.POTENTIAL_WELL);
+        P2SquareWell potential = new P2SquareWell(space,defaults.atomSize,sqwLambda,0.5*defaults.potentialWell, false);
         NeighborCriterion nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
 
         SpeciesSpheres species = new SpeciesSpheres(this,chainLength);
         species.setNMolecules(numMolecules);
-        P1BondedHardSpheres potentialChainIntra = new P1BondedHardSpheres(space);
-        ((P2HardBond)potentialChainIntra.bonded).setBondLength(Default.ATOM_SIZE);
+        P1BondedHardSpheres potentialChainIntra = new P1BondedHardSpheres(this);
+        ((P2HardBond)potentialChainIntra.bonded).setBondLength(defaults.atomSize);
         ((P2HardBond)potentialChainIntra.bonded).setBondDelta(bondFactor);
         CriterionBondedSimple criterion = new CriterionBondedSimple(nbrCriterion);
         criterion.setBonded(false);
@@ -83,9 +82,9 @@ public class TestSWChain extends Simulation {
         criterion.setBonded(true);
         potentialChainIntra.bonded.setCriterion(criterion);
         potentialMaster.setSpecies(potentialChainIntra, new Species[] {species});
-        ((ConformationLinear)species.getFactory().getConformation()).setBondLength(Default.ATOM_SIZE);
+        ((ConformationLinear)species.getFactory().getConformation()).setBondLength(defaults.atomSize);
 
-        potential = new P2SquareWell(space,Default.ATOM_SIZE,sqwLambda,0.5*Default.POTENTIAL_WELL);
+        potential = new P2SquareWell(space,defaults.atomSize,sqwLambda,0.5*defaults.potentialWell,false);
         nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         CriterionMolecular criterionMolecular = new CriterionMolecular(nbrCriterion);
         criterionMolecular.setIntraMolecular(false);
@@ -111,7 +110,7 @@ public class TestSWChain extends Simulation {
         MeterPressureHard pMeter = new MeterPressureHard(sim.space,sim.integrator); 
         MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         energyMeter.setPhase(sim.phase);
-        AccumulatorAverage energyAccumulator = new AccumulatorAverage();
+        AccumulatorAverage energyAccumulator = new AccumulatorAverage(sim);
         DataPump energyManager = new DataPump(energyMeter, energyAccumulator);
         energyAccumulator.setBlockSize(50);
         new IntervalActionAdapter(energyManager, sim.integrator);

@@ -6,7 +6,6 @@ import etomica.units.Prefix;
 import etomica.units.Radian;
 import etomica.units.Unit;
 import etomica.units.UnitSystem;
-import etomica.util.Default;
 
 /**
  * Lennard-Jones system of units, such that all quantities are made
@@ -23,9 +22,9 @@ import etomica.util.Default;
   
 public class LJ extends UnitSystem implements java.io.Serializable {
     
-    private double sigma = Default.ATOM_SIZE;
-    private double epsilon = Default.POTENTIAL_WELL;
-    private double mass = Default.ATOM_MASS;
+    private double sigma = 1.0;
+    private double epsilon = 1.0;
+    private double mass = 1.0;
     
     private Mass massUnit = new Mass(sigma, epsilon, mass);
     private Length lengthUnit = new Length(sigma, epsilon, mass);

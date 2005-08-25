@@ -32,31 +32,34 @@ public class HSMD2D extends Simulation {
     public Potential2 potential22;
 
     public HSMD2D() {
-    	this(Space2D.getInstance());
+        this(new Default());
     }
     
-    public HSMD2D(Space2D space) {
-        super(space, true, new PotentialMasterNbr(space));
+    public HSMD2D(Default defaults) {
+    	this(Space2D.getInstance(), defaults);
+    }
+    
+    private HSMD2D(Space2D space, Default defaults) {
+        super(space, true, new PotentialMasterNbr(space, 1.6*0.38), Default.BIT_LENGTH, defaults);
 //        super(space, new PotentialMaster(space));//,IteratorFactoryCell.instance));
-        Default.makeLJDefaults();
-//        Default.BOX_SIZE = 30.0;
-        Default.ATOM_SIZE = 0.38;
+        defaults.makeLJDefaults();
+        defaults.atomSize = 0.38;
 
         double neighborRangeFac = 1.6;
-        int nCells = (int)(Default.BOX_SIZE/neighborRangeFac);
+        int nCells = (int)(defaults.boxSize/neighborRangeFac);
         System.out.println("nCells: "+nCells);
         ((PotentialMasterNbr)potentialMaster).setNCells(nCells);
 
-        integrator = new IntegratorHard(potentialMaster);
+        integrator = new IntegratorHard(this);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 
         NeighborListManager nbrManager = ((PotentialMasterNbr)potentialMaster).getNeighborManager();
-        nbrManager.setRange(Default.ATOM_SIZE*1.6);
+        nbrManager.setRange(defaults.atomSize*1.6);
         nbrManager.getPbcEnforcer().setApplyToMolecules(false);
         integrator.addListener(nbrManager);
 
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
@@ -64,9 +67,9 @@ public class HSMD2D extends Simulation {
 	    species2 = new SpeciesSpheresMono(this);
         species.setNMolecules(512);
         species2.setNMolecules(5);
-        potential = new P2HardSphere(space);
-        potential2 = new P2HardSphere(space);
-        potential22 = new P2HardSphere(space);
+        potential = new P2HardSphere(this);
+        potential2 = new P2HardSphere(this);
+        potential22 = new P2HardSphere(this);
 //	    this.potentialMaster.setSpecies(potential,new Species[]{species,species});
 	    //this.potentialMaster.setSpecies(potential,new Species[]{species2,species2});
 	    //this.potentialMaster.setSpecies(potential,new Species[]{species,species2});

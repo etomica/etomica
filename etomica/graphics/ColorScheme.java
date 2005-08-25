@@ -12,12 +12,10 @@ import etomica.atom.Atom;
  
 public abstract class ColorScheme implements java.io.Serializable {
 
-    public static String getVersion() {return "01.07.13";}
- 
     protected Color baseColor;
     
     public ColorScheme() {
-        this(DefaultGraphic.ATOM_COLOR);
+        this(DEFAULT_ATOM_COLOR);
     }
     public ColorScheme(Color color) {
         baseColor = color;
@@ -28,6 +26,8 @@ public abstract class ColorScheme implements java.io.Serializable {
     public final void setBaseColor(Color c) {baseColor = c;}
     public final Color getBaseColor() {return baseColor;}
 
+    public static Color DEFAULT_ATOM_COLOR = Color.BLACK;
+    
     /**
      * Colors all atoms with baseColor.
      */

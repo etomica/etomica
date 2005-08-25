@@ -4,15 +4,15 @@
  */
 package etomica.atom;
 
-import etomica.util.Default;
+import etomica.simulation.Simulation;
 
 
 public class AtomTypeSphereVariable extends AtomTypeSphere {
     
     int index;
     
-    public AtomTypeSphereVariable(AtomTypeGroup parentType, int index) {
-        this(parentType, index, Default.ATOM_MASS);
+    public AtomTypeSphereVariable(Simulation sim, AtomTypeGroup parentType, int index) {
+        this(parentType, index, sim.getDefaults().atomMass);
     }
     public AtomTypeSphereVariable(AtomTypeGroup parentType, int index, double m) {
         super(parentType, m, Double.NaN);

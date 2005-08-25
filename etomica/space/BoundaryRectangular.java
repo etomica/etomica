@@ -6,7 +6,7 @@ import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
 import etomica.math.geometry.Rectangle;
 import etomica.math.geometry.Rectangular;
-import etomica.util.Default;
+import etomica.simulation.Simulation;
 
 /**
  * Boundary that is in the shape of a rectangular parallelepiped.  
@@ -17,11 +17,15 @@ import etomica.util.Default;
  */
 public abstract class BoundaryRectangular extends Boundary implements BoundaryPeriodic {
 
-    public BoundaryRectangular(Space space, boolean[] periodicity) {
+    public BoundaryRectangular(Simulation sim, boolean[] periodicity) {
+        this(sim.space, periodicity, sim.getDefaults().boxSize);
+    }
+    
+    public BoundaryRectangular(Space space, boolean[] periodicity, double boxSize) {
         super(space, makeShape(space));
         isPeriodic = (boolean[])periodicity.clone();
         dimensions = space.makeVector();
-        dimensions.E(Default.BOX_SIZE);
+        dimensions.E(boxSize);
         temp = space.makeVector();
         modShift = space.makeVector();
         dimensionsCopy = space.makeVector();

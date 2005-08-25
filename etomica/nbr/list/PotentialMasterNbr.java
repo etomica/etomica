@@ -38,18 +38,18 @@ public class PotentialMasterNbr extends PotentialMaster {
 	 * Invokes superclass constructor, specifying IteratorFactoryCell
      * for generating molecule iterators.  Sets default nCells of 10. 
 	 */
-	public PotentialMasterNbr(Space space) {
-        this(space, null);
+	public PotentialMasterNbr(Space space, double range) {
+        this(space, range, null);
     }
     
     /**
      * Constructs class using given position definition for all atom cell assignments.
      * @param positionDefinition if null, specifies use of atom type's position definition
      */
-    public PotentialMasterNbr(Space space, AtomPositionDefinition positionDefinition) {
+    public PotentialMasterNbr(Space space, double range, AtomPositionDefinition positionDefinition) {
         super(space,new IteratorFactoryCell());
         setNCells(10);
-		neighborManager = new NeighborListManager(this);
+		neighborManager = new NeighborListManager(this, range);
 		atomIterator = new AtomIteratorArrayList();
 		singletIterator = new AtomIteratorSinglet();
 		pairIterator = new ApiInnerFixed(singletIterator, atomIterator);

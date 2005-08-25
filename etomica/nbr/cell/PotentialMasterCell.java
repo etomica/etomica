@@ -18,19 +18,23 @@ import etomica.space.Space;
 public class PotentialMasterCell extends PotentialMasterSite {
 
     /**
-     * @param space
+     * Constructs with null AtomPositionDefinition, which indicates the position
+     * definition given with each atom's AtomType should be used.
+     * 
+     * @param space the governing Space
+     * @param range the neighbor distance.  May be changed after construction.
      */
-    public PotentialMasterCell(Space space) {
-        this(space,null);
+    public PotentialMasterCell(Space space, double range) {
+        this(space, range, null);
     }
 
     /**
      * @param space
      * @param positionDefinition
      */
-    public PotentialMasterCell(Space space,
+    public PotentialMasterCell(Space space, double range,
             AtomPositionDefinition positionDefinition) {
-        super(space, positionDefinition, new Api1ACell(space.D()));
+        super(space, positionDefinition, new Api1ACell(space.D(), range));
     }
 
     public void setRange(double d) {

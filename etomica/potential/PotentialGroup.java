@@ -14,7 +14,6 @@ import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.AtomsetIteratorSpeciesAgent;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.species.Species;

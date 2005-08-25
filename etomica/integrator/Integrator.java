@@ -8,6 +8,7 @@ import etomica.EtomicaElement;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
@@ -46,12 +47,12 @@ public abstract class Integrator implements EtomicaElement, java.io.Serializable
     protected MeterPotentialEnergy meterPE;
     protected double[] currentPotentialEnergy = new double[0];
 
-    public Integrator(PotentialMaster potentialMaster) {
+    public Integrator(PotentialMaster potentialMaster, double temperature) {
         setName(NameMaker.makeName(this.getClass()));
         phase = new Phase[0];
         this.potential = potentialMaster;
         meterPE = new MeterPotentialEnergy(potentialMaster);
-        setTemperature(Default.TEMPERATURE);
+        setTemperature(temperature);
     }
 
 
@@ -92,17 +93,13 @@ public abstract class Integrator implements EtomicaElement, java.io.Serializable
      * integrator is started or initialized. This also recalculates the 
      * potential energy.
      */
-    public void reset() {
+    public void reset() throws ConfigurationOverlapException {
         for (int i=0; i<phase.length; i++) {
             meterPE.setPhase(phase[i]);
             currentPotentialEnergy[i] = meterPE.getDataAsScalar();
             if (currentPotentialEnergy[i] == Double.POSITIVE_INFINITY) {
-                if (Default.FIX_OVERLAP) {
-                    System.out.println("overlap in "+phase[i]);
-                }
-                else {
-                    throw new RuntimeException("overlap in "+phase[i]);
-                }
+                System.err.println("overlap in configuration for "+phase[i]+" when resetting integrator");
+                throw new ConfigurationOverlapException(phase[i]);
             }
         }
     }
@@ -125,7 +122,7 @@ public abstract class Integrator implements EtomicaElement, java.io.Serializable
      * been performed (i.e. fires IntervalEvent of type field set to
      * INITIALIZE).
      */
-    public final void initialize() {
+    public final void initialize() throws ConfigurationOverlapException {
         setup();
         initialized = true;
         reset();
@@ -138,7 +135,7 @@ public abstract class Integrator implements EtomicaElement, java.io.Serializable
         return initialized;
     }
 
-    protected void setup() {
+    protected void setup() throws ConfigurationOverlapException {
         deployAgents();
     }
 

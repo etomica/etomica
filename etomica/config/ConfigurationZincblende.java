@@ -82,7 +82,7 @@ public class ConfigurationZincblende extends Configuration {
      */
     public static void main(String[] args) {
         Simulation sim = new Simulation(Space3D.getInstance());
-        Default.ATOM_SIZE = 5.0;
+        sim.getDefaults().atomSize = 5.0;
         Space space = sim.space;
         Phase phase = new Phase(sim);
         etomica.species.SpeciesSpheresMono speciesSpheres0  = new etomica.species.SpeciesSpheresMono(sim);

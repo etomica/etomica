@@ -6,6 +6,7 @@ import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.config.ConfigurationSequential;
 import etomica.data.DataAccumulator;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.Integrator;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.phase.Phase;
@@ -31,6 +32,7 @@ public final class SimulationRestart extends SimulationActionAdapter {
         else {
             setConfiguration(new ConfigurationLattice(new LatticeCubicFcc()));
         }
+        ignoreOverlap = sim.getDefaults().ignoreOverlap;
     }
         
     /**
@@ -46,7 +48,16 @@ public final class SimulationRestart extends SimulationActionAdapter {
         
         for(Iterator iter=simulation.getIntegratorList().iterator(); iter.hasNext(); ) {
             Integrator integrator = (Integrator)iter.next();
-            if(integrator.isInitialized()) integrator.initialize();
+            if(integrator.isInitialized()) {
+                try {
+                    integrator.initialize();
+                }
+                catch (ConfigurationOverlapException e) {
+                    if (!ignoreOverlap) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
         }
         
         for(Iterator iter=simulation.getDataAccumulatorList().iterator(); iter.hasNext(); ) {
@@ -55,7 +66,6 @@ public final class SimulationRestart extends SimulationActionAdapter {
         }
     }
     
-    private Configuration configuration;
     /**
      * @return Returns the configuration.
      */
@@ -68,5 +78,8 @@ public final class SimulationRestart extends SimulationActionAdapter {
     public void setConfiguration(Configuration configuration) {
         this.configuration = configuration;
     }
+
+    private Configuration configuration;
+    private boolean ignoreOverlap;
 }
         

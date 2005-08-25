@@ -9,18 +9,19 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.phase.Phase;
 import etomica.potential.Potential;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialHard;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.CoordinatePair;
 import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;
 import etomica.util.Debug;
-import etomica.util.Default;
 import etomica.util.TreeLinker;
 import etomica.util.TreeList;
 
@@ -65,9 +66,13 @@ public class IntegratorHard extends IntegratorMD {
     protected double collisionTimeStep;
     protected int collisionCount;
 
-
-    public IntegratorHard(PotentialMaster potentialMaster) {
-        super(potentialMaster);
+    public IntegratorHard(Simulation sim) {
+        this(sim.potentialMaster,sim.getDefaults().timeStep,sim.getDefaults().temperature);
+    }
+    
+    public IntegratorHard(PotentialMaster potentialMaster, double timeStep, 
+            double temperature) {
+        super(potentialMaster,timeStep,temperature);
         nullPotential = null;
         pair = new AtomPair();
     }
@@ -142,9 +147,9 @@ public class IntegratorHard extends IntegratorMD {
                 Vector dv = ((CoordinatePairKinetic)cPairDebug).dv();
                 dr.PEa1Tv1(collisionTimeStep,dv);
                 double r2 = dr.squared();
-                if (Debug.LEVEL > 1 || Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {
+                if (Debug.LEVEL > 1 || Math.sqrt(r2) < Debug.ATOM_SIZE-1.e-11) {
                     System.out.println("distance between "+Debug.ATOM1+" and "+Debug.ATOM2+" is "+Math.sqrt(r2));
-                    if (Debug.LEVEL > 2 || Math.sqrt(r2) < Default.ATOM_SIZE-1.e-11) {
+                    if (Debug.LEVEL > 2 || Math.sqrt(r2) < Debug.ATOM_SIZE-1.e-11) {
                         dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)Debug.ATOM1.coord).velocity());
                         System.out.println(Debug.ATOM1+" coordinates "+Debug.ATOM1.coord.position().P(dr));
                         dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)Debug.ATOM2.coord).velocity());
@@ -334,9 +339,18 @@ public class IntegratorHard extends IntegratorMD {
         super.setup();
     }
     
-    public void reset() {
-        super.reset();
+    public void reset() throws ConfigurationOverlapException {
+        ConfigurationOverlapException overlapException = null;
+        try {
+            super.reset();
+        }
+        catch (ConfigurationOverlapException e) {
+            overlapException = e;
+        }
         neighborsUpdated();
+        if (overlapException != null) {
+            throw overlapException;
+        }
     }
 
     /**

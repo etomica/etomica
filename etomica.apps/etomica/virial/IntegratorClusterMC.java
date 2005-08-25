@@ -1,8 +1,8 @@
 package etomica.virial;
 
+import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.MCMove;
-import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 
 /**
@@ -19,8 +19,8 @@ public class IntegratorClusterMC extends IntegratorMC {
 
 	protected double weight;
 	
-    public IntegratorClusterMC(PotentialMaster potentialMaster) {
-        super(potentialMaster);
+    public IntegratorClusterMC(Simulation sim) {
+        super(sim);
         weight = 1.0;
     }
 
@@ -74,9 +74,9 @@ public class IntegratorClusterMC extends IntegratorMC {
     	return weight;
     }
     
-    public void reset() {
-    	super.reset();
-    	weight = 1.0;
+    public void reset() throws ConfigurationOverlapException {
+        weight = 1.0;
+        super.reset();
     }
     
     /**

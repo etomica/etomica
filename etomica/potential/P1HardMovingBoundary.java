@@ -13,7 +13,6 @@ import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.util.Debug;
-import etomica.util.Default;
 
 /**
  * Potential that places hard repulsive walls that move and 
@@ -27,7 +26,8 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
      * @param space
      * @param wallDimension dimension which the wall is perpendicular to
      */
-    public P1HardMovingBoundary(Space space, Boundary boundary, int wallDimension, double mass) {
+    public P1HardMovingBoundary(Space space, Boundary boundary, int wallDimension, double mass,
+            boolean ignoreOverlap) {
         super(space);
         D = space.D();
         wallD = wallDimension;
@@ -36,6 +36,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         force = 0.0;
         pistonBoundary = boundary;
         virialSum = 0.0;
+        this.ignoreOverlap = ignoreOverlap;
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -134,8 +135,8 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         double discr = -1.0;
         if (dr*dv < 0.0 || dr*a < 0.0) {
             // either moving toward or accelerating toward each other
-            if ((Debug.ON || Default.FIX_OVERLAP) && Math.abs(dr) < collisionRadius && dr*dv < 0.0) {
-                if (Default.FIX_OVERLAP) return falseTime;
+            if ((Debug.ON || ignoreOverlap) && Math.abs(dr) < collisionRadius && dr*dv < 0.0) {
+                if (ignoreOverlap) return falseTime;
                 throw new RuntimeException("overlap "+atoms+" "+dr+" "+dv+" "+a);
             }
             double drc;
@@ -161,7 +162,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
                 }
             }
         }
-        if (Default.FIX_OVERLAP && t<0.0) t = 0.0;
+        if (ignoreOverlap && t<0.0) t = 0.0;
         if (Debug.ON && (t<0.0 || Debug.DEBUG_NOW && Debug.anyAtom(atoms))) {
             System.out.println(atoms+" "+a+" "+dr+" "+dv+" "+discr+" "+t+" "+(t+falseTime)+" "+(((Atom)atoms).coord.position().x(wallD)+((ICoordinateKinetic)((Atom)atoms).coord).velocity().x(wallD)*(t+falseTime))+" "+(wallPosition+wallVelocity*(t+falseTime)-0.5*a*(t+falseTime)*(t+falseTime)));
             if (t<0) throw new RuntimeException("foo");
@@ -283,6 +284,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     private final Boundary pistonBoundary;
     private double thickness = 0.0;
     private double virialSum;
+    private boolean ignoreOverlap;
     
 }//end of P1HardBoundary
    

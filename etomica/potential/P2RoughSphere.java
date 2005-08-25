@@ -6,12 +6,12 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeLeaf;
+import etomica.simulation.Simulation;
 import etomica.space.ICoordinateAngularKinetic;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
-import etomica.util.Default;
 
 /**
  * Basic hard-(rod/disk/sphere) potential, with surface roughness to couple rotation and translational motions.
@@ -27,11 +27,11 @@ public class P2RoughSphere extends P2HardSphere {
     private final Vector v12Perp;
     private final Vector impulse;
     
-    public P2RoughSphere(Space space) {
-        this(space, Default.ATOM_SIZE);
+    public P2RoughSphere(Simulation sim) {
+        this(sim.space, sim.getDefaults().atomSize, sim.getDefaults().ignoreOverlap);
     }
-    public P2RoughSphere(Space space, double d) {
-        super(space,d);
+    public P2RoughSphere(Space space, double d, boolean ignoreOverlap) {
+        super(space,d,ignoreOverlap);
         v12Surface = space.makeVector();
         v12Par = space.makeVector();
         v12Perp = space.makeVector();

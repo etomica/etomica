@@ -16,10 +16,10 @@ package etomica.space;
 public class BoundaryRectangularNonperiodic extends BoundaryRectangular {
 
     /**
-     * @param space
+     * Make a boundary with unit volume.
      */
     public BoundaryRectangularNonperiodic(Space space) {
-        super(space, new boolean[space.D()]);//boolean elements will all be false
+        super(space, new boolean[space.D()], 1.0);//boolean elements will all be false
         zero = space.makeVector();
     }
 

@@ -2,6 +2,7 @@ package etomica.atom;
 
 import etomica.config.Conformation;
 import etomica.config.ConformationLinear;
+import etomica.simulation.Simulation;
 import etomica.space.CoordinateFactory;
 import etomica.space.Space;
 import etomica.species.Species;
@@ -25,8 +26,8 @@ public class AtomFactoryHomo extends AtomFactory {
      * @param sequencerFactory makes sequencers for each of the atoms built by this factory
      * @param parentType the type instance of the atoms that are parents of those made by this factory
      */
-    public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomTypeGroup parentType) {
-        this(space, sequencerFactory, parentType, 1);
+    public AtomFactoryHomo(Simulation sim, AtomSequencerFactory sequencerFactory, AtomTypeGroup parentType) {
+        this(sim, sequencerFactory, parentType, 1);
     }
     /**
      * @param space the coordinate factory
@@ -34,8 +35,8 @@ public class AtomFactoryHomo extends AtomFactory {
      * @param parentType the type instance of the atoms that are parents of those made by this factory
      * @param atoms the number of identical children per group (default is 1).
      */
-    public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomTypeGroup parentType, int atoms) {
-        this(space, sequencerFactory, parentType, atoms, new ConformationLinear(space));
+    public AtomFactoryHomo(Simulation sim, AtomSequencerFactory sequencerFactory, AtomTypeGroup parentType, int atoms) {
+        this(sim.space, sequencerFactory, parentType, atoms, new ConformationLinear(sim));
     }
     /**
      * @param space the coordinate factory

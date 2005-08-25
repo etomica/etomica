@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
-import etomica.space.Space;
+import etomica.simulation.Simulation;
 
 /**
  * Intramolecular potential in which bonded atoms interact with a hard tether
@@ -12,8 +12,8 @@ import etomica.space.Space;
  
 public class P1TetheredHardSpheres extends P1IntraSimple {
     
-    public P1TetheredHardSpheres(Space space) {
-        super(space, new P2HardSphere(space), new P2Tether(space));
+    public P1TetheredHardSpheres(Simulation sim) {
+        super(sim.space, new P2HardSphere(sim), new P2Tether(sim));
     }
     
     public static EtomicaInfo getEtomicaInfo() {

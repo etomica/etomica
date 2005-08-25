@@ -18,8 +18,12 @@ import etomica.simulation.Simulation;
   
 public class IntegratorTMMC extends IntegratorMC {
     
-    public IntegratorTMMC(PotentialMaster potentialMaster) {
-        super(potentialMaster);
+    public IntegratorTMMC(Simulation sim) {
+        this(sim.potentialMaster, sim.getDefaults().temperature);
+    }
+    
+    public IntegratorTMMC(PotentialMaster potentialMaster, double temperature) {
+        super(potentialMaster, temperature);
         setWeightUpdateInterval(1000000); //10^6
     }
     

@@ -2,7 +2,6 @@ package etomica.lattice;
 import etomica.lattice.crystal.BasisCubicDiamond;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.space3d.Space3D;
-import etomica.util.Default;
 
 /**
  * Cubic primitive with a 4-site fcc basis, on which each site 
@@ -16,11 +15,14 @@ import etomica.util.Default;
 public class LatticeCubicDiamond extends LatticeCrystal implements CubicLattice {
     
     /**
-     * Cubic bcc crystal with a lattice constant that gives a
-     * maximum-density structure for spheres of size Default.ATOM_SIZE. 
+     * Cubic bcc crystal with a lattice constant that gives a maximum-density
+     * structure for spheres of unit size.
+     * <p>
+     * Use scaleBy method if desired to make lattice constant give maximum
+     * density for another sphere size.
      */
     public LatticeCubicDiamond() {
-        this(4.0/Math.sqrt(3.0)*Default.ATOM_SIZE);
+        this(4.0/Math.sqrt(3.0));
     }
     
     public LatticeCubicDiamond(double latticeConstant) {
@@ -57,6 +59,13 @@ public class LatticeCubicDiamond extends LatticeCrystal implements CubicLattice 
         return primitive.getCubicSize();
     }
     
+    /**
+     * Rescales the lattice by the given factor. Multiplies the lattice constant
+     * by the given value.
+     */
+    public void scaleBy(double scaleFactor) {
+        primitive.scaleSize(scaleFactor);
+    }
 
     /**
      * Returns "Diamond".

@@ -6,12 +6,11 @@ import etomica.atom.AtomTypeGroup;
 import etomica.simulation.Simulation;
 import etomica.species.Species;
 import etomica.species.SpeciesSignature;
-import etomica.util.Default;
 
 public class SpeciesWater extends Species implements EtomicaElement {
     
     public SpeciesWater(Simulation sim) {
-        this(sim, Default.MOLECULE_COUNT);
+        this(sim, sim.getDefaults().moleculeCount);
     }
     public SpeciesWater(Simulation sim, int nM) {
         this(sim, nM, Species.makeAgentType(sim));

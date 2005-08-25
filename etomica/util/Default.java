@@ -1,11 +1,6 @@
 package etomica.util;
 
-import etomica.atom.Parameter;
-import etomica.atom.Parameter.Energy;
-import etomica.atom.Parameter.Mass;
-import etomica.atom.Parameter.Size;
 import etomica.units.Bar;
-import etomica.units.Dimension;
 import etomica.units.Kelvin;
 import etomica.units.UnitSystem;
 
@@ -19,40 +14,31 @@ import etomica.units.UnitSystem;
  * 09/02/03 (DAK) added DO_SLEEP, used by Integrator
  */
 
-public final class Default implements java.io.Serializable {
+public class Default implements java.io.Serializable {
     
-    public static double ATOM_SIZE = 3.0;  //Angstroms
+    public double atomSize = 3.0;  //Angstroms
     
-    public static double ATOM_MASS = 40.0; //Daltons
+    public double atomMass = 40.0; //Daltons
     
-    public static int MOLECULE_COUNT = 0;
+    public int moleculeCount = 0;
     
-    public static double BOX_SIZE = 30.0;  //Angstroms
+    public double boxSize = 30.0;  //Angstroms
     
-    public static double TEMPERATURE = Kelvin.UNIT.toSim(300.);
+    public double temperature = Kelvin.UNIT.toSim(300.);
     
-    public static double PRESSURE = Bar.UNIT.toSim(1.0);
+    public double pressure = Bar.UNIT.toSim(1.0);
     
-    public static double POTENTIAL_WELL = Kelvin.UNIT.toSim(300.);
+    public double potentialWell = Kelvin.UNIT.toSim(300.);
     
-    public static double POTENTIAL_CUTOFF_FACTOR = 2.5; //dimensionless multiplier for cutoff distance of potential
+    public double potentialCutoffFactor = 2.5; //dimensionless multiplier for cutoff distance of potential
     
-    public static double TIME_STEP = 0.05;  //picoseconds 
+    public double timeStep = 0.05;  //picoseconds 
     
-    public static int HISTORY_PERIOD = 100;
+    public int historyPeriod = 100;
     
-    public static boolean IS_GRAPHIC = false;
+    public boolean isGraphic = false;
     
-    public static boolean FIX_OVERLAP = false;
-    
-    public static boolean AUTO_REGISTER = true;
-    
-    /**
-     * Flag indicating how iteration is done in potential calculations.  If
-     * true, then hasNext()/next() construct is used, if false, all() construct
-     * is used.
-     */
-    public static final boolean EXPLICIT_LOOP = true;
+    public boolean ignoreOverlap = false;
     
     /**
      * Default value for doSleep field in Integrator class.  The default defined
@@ -63,7 +49,7 @@ public final class Default implements java.io.Serializable {
      * interface.  Change in this default has no effect on any Integrators
      * previously constructed.
      */
-    public static boolean DO_SLEEP = false;
+    public boolean doSleep = false;
     
     /**
      * Integer array indicating the maximum number of atoms at each depth in the
@@ -88,53 +74,23 @@ public final class Default implements java.io.Serializable {
      * Sets default atom size, mass, and potential-well to unity, and scales
      * other defaults appropriately.
      */
-    public static void makeLJDefaults() {
-        ATOM_SIZE = 1.0;
-        ATOM_MASS = 1.0;
-        POTENTIAL_WELL = 1.0;
-        TEMPERATURE = 1.0;
+    public void makeLJDefaults() {
+        atomSize = 1.0;
+        atomMass = 1.0;
+        potentialWell = 1.0;
+        temperature = 1.0;
 //        PRESSURE = 1.0;
-        TIME_STEP = 0.04;
-        BOX_SIZE = 10.0;
+        timeStep = 0.04;
+        boxSize = 10.0;
         etomica.units.BaseUnit.Length.Sim.TO_PIXELS = 30;
     }
     
     /**
      * Default block size used for error estimation in simulation averages.
      */
-    public static int BLOCK_SIZE = 1000;
+    public int blockSize = 1000;
  
-/*    private static String getWorkingDirectory(){
-        String dir = System.getProperty("user.dir");
-        System.out.println("working directory, in Default: "+dir);
-        if(dir.indexOf("VisualCafe") != -1) return "D:\\etomica";
-        dir = dir.replace('\\', '/');
-        return dir+"/";
-    }*/
-    
-    public static final Parameter.Size SIZE_PARAMETER = new Parameter.Size() {
-        double sigma = Default.ATOM_SIZE;
-        public double getSigma() {return sigma;}
-        public void setSigma(double s) {sigma = s;}
-        public Dimension getSigmaDimension() {return Dimension.LENGTH;}
-    };
-    
-    public static final Parameter.Energy ENERGY_PARAMETER = new Parameter.Energy() {
-        double epsilon = Default.POTENTIAL_WELL;
-        public double getEpsilon() {return epsilon;}
-        public void setEpsilon(double e) {epsilon = e;}
-        public Dimension getEpsilonDimension() {return Dimension.ENERGY;}
-    };
-        
-    
-    public static final Parameter.Mass MASS_PARAMETER = new Parameter.Mass() {
-        double mass = Default.ATOM_MASS;
-        public double getMass() {return mass;}
-        public void setMass(double m) {mass = m;}
-        public Dimension getMassDimension() {return Dimension.MASS;}
-    };
-
 	//default unit system for I/O (internal calculations are all done in simulation units)
-	public static UnitSystem UNIT_SYSTEM = new UnitSystem.Sim();
+	public UnitSystem unitSystem = new UnitSystem.Sim();
         
 }

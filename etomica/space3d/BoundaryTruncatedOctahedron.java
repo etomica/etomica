@@ -6,11 +6,11 @@ import etomica.math.geometry.Plane;
 import etomica.math.geometry.Polygon;
 import etomica.math.geometry.Polyhedron;
 import etomica.math.geometry.TruncatedOctahedron;
+import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryPeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.util.Default;
 
 /**
  * This class enables creation of a periodic truncated-octahedron boundary.
@@ -31,13 +31,16 @@ import etomica.util.Default;
 public class BoundaryTruncatedOctahedron extends Boundary implements
         BoundaryPeriodic {
 
-    public BoundaryTruncatedOctahedron(Space space) {
+    public BoundaryTruncatedOctahedron(Simulation sim) {
+        this(sim.space, sim.getDefaults().boxSize);
+    }
+    public BoundaryTruncatedOctahedron(Space space, double boxSize) {
         super(space, new TruncatedOctahedron(space));
         isPeriodic = new boolean[space.D()];
         for (int i = 0; i < space.D(); i++)
             isPeriodic[i] = true;
         dimensions = space.makeVector();
-        dimensions.E(Default.BOX_SIZE);
+        dimensions.E(boxSize);
         rrounded = space.makeVector();
         intoTruncatedOctahedron = space.makeVector();
         intoContainingCube = space.makeVector();

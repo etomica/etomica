@@ -10,7 +10,6 @@ import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.IteratorFactory;
 import etomica.atom.iterator.IteratorFactorySimple;
-import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.species.Species;

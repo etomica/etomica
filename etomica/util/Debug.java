@@ -68,6 +68,8 @@ public final class Debug {
      */
     public static final int PHASE_INDEX = 1;
     
+    public static final double ATOM_SIZE = 1.0;
+    
     /**
      * determines whether this atom is set to be debugged
      * (via ATOMx_NUM and setAtoms(phase)).

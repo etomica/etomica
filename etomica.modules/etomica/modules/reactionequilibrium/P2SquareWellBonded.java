@@ -91,7 +91,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 
 	public double collisionTime(AtomSet atoms, double falseTime) {
 		
-		if (Default.FIX_OVERLAP) {
+		if (Default.ignoreOverlap) {
 			
 			// ** Makes 2 things, and atomPair pair, 
 			AtomPair pair = (AtomPair) atoms;

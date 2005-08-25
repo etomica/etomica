@@ -85,7 +85,7 @@ public class MCMoveRotate extends MCMove {
 
  /*
     public static void main(String[] args) {
-        Default.ATOM_SIZE =1.2;
+        Default.atomSize =1.2;
         Simulation.instance = new Simulation();
         Phase phase1 = new Phase();
         

@@ -7,11 +7,11 @@ import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
 import etomica.data.DataSourceScalar;
 import etomica.math.SphericalHarmonics;
 import etomica.phase.Phase;
+import etomica.simulation.Simulation;
 import etomica.space.CoordinatePair;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
-import etomica.util.Default;
 
  /** The Bond Order Parameter Ql provides a metric that indicates the crystallinity of a phase.
    * Appropriate for 3-dimensional system only.
@@ -22,10 +22,14 @@ import etomica.util.Default;
 
 public class MeterBondOrderParameterQ  extends DataSourceScalar implements Meter {
 	
-    public MeterBondOrderParameterQ(Space space) {
+    public MeterBondOrderParameterQ(Simulation sim) {
+        this(sim.space,5.0*sim.getDefaults().atomSize);
+    }
+    
+    public MeterBondOrderParameterQ(Space space, double rCut) {
         super("Bond Q Order Parameter", Dimension.UNDEFINED);
         setL(6);
-        setR2Cut(Math.pow(5.0*Default.ATOM_SIZE, 2));
+        setR2Cut(rCut*rCut);
         cPair = new CoordinatePair(space);
     }
     
@@ -141,7 +145,7 @@ public class MeterBondOrderParameterQ  extends DataSourceScalar implements Meter
 
 /*    public static void main(String[] args) {
         
-        Default.ATOM_SIZE = 1.0;
+        Default.atomSize = 1.0;
         Simulation sim = new Simulation(new Space3D());
         Simulation.instance = sim;
         

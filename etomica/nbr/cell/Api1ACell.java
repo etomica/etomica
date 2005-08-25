@@ -26,11 +26,7 @@ import etomica.phase.Phase;
 import etomica.space.BoundaryPeriodic;
 
 /**
- * Bad comments follow.
- * 
- * Gives pairs formed from the molecules of a species in a phase, taking one
- * molecule the species with all of its other neighboring molecules. Species is
- * specified at construction and cannot be changed afterwards. Iteration is
+ * Generates pairs that are cell-based neighbors of a specific Atom. Iteration is
  * performed using cell lists, which defines the neighboring molecules.
  * Direction is related to ordering of cells and, within a cell, ordering of
  * molecules in cell's occupant list.
@@ -40,14 +36,20 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
         AtomPairIterator, java.io.Serializable {
     
 	/**
-	 * Constructor makes iterator that must have phase specified and then be 
-	 * reset() before iteration.
+     * Constructor makes iterator that must have phase specified and then be
+     * reset() before iteration.
      * 
-     * @param D the dimension of the space of the simulation (used to construct cell iterators)
-     * @param species length = 2 array with the (different) species whose molecules are interacting 
+     * @param D
+     *            the dimension of the space of the simulation (used to
+     *            construct cell iterators)
+     * @param range
+     *            the distance within which pairs of atoms are considered
+     *            neighbors. Used to define neighbor cells; some iterates may
+     *            exceed this separation
+     *  
      */
-	public Api1ACell(int D) {
-        neighborIterator = new CellLattice.NeighborIterator(D);
+	public Api1ACell(int D, double range) {
+        neighborIterator = new CellLattice.NeighborIterator(D, range);
         aiOuter = new AtomIteratorSinglet();
         aiSeq = new AtomIteratorSequence(IteratorDirective.UP);
         //this iterator is used to loop through list of occupants of atoms's cell;

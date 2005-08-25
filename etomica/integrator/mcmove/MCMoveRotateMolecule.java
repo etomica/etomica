@@ -108,7 +108,7 @@ public class MCMoveRotateMolecule extends MCMove {
 
     
 /*   public static void main(String[] args) {
-        Default.ATOM_SIZE =1.2;
+        Default.atomSize =1.2;
         Simulation.instance = new Simulation(/*new Space2DCell()* /);
         Phase phase1 = new Phase();
         
@@ -169,7 +169,7 @@ public class MCMoveRotateMolecule extends MCMove {
      //  controller1.add(integratorMC1);
         
 		Simulation.instance.panel().setBackground(java.awt.Color.blue);		
-	//	((simulate.Space2DCell.CellListIteratorFactory)phase1.iteratorFactory()).setNeighborDistance(1.2*Default.ATOM_SIZE);
+	//	((simulate.Space2DCell.CellListIteratorFactory)phase1.iteratorFactory()).setNeighborDistance(1.2*Default.atomSize);
     //    ((simulate.Space2DCell.CellListIteratorFactory)phase1.iteratorFactory()).setNCells(6,10);
         Simulation.makeAndDisplayFrame(Simulation.instance);
     }//end of main

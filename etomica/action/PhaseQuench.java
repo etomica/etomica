@@ -4,7 +4,6 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterTemperature;
 import etomica.phase.Phase;
 import etomica.space.ICoordinateKinetic;
-import etomica.util.Default;
 
 /**
  * Scales all velocities of a phase so that its kinetic temperature is equal to
@@ -12,30 +11,21 @@ import etomica.util.Default;
  */
 public class PhaseQuench extends PhaseActionAdapter {
 
-	/**
-	 * Constructs class without specifying phase and using Default temperature.
-	 * Requires call to setPhase before action will have any effect.
-	 */
-	public PhaseQuench() {
-		super("Quench");
-		setTemperature(Default.TEMPERATURE);
+    /**
+     * Constructs class without specifying phase and using Default temperature.
+     * Requires call to setPhase before action will have any effect.
+     */
+    public PhaseQuench(double temperature) {
+        super("Quench");
+        setTemperature(temperature);
+        meterTemperature = new MeterTemperature();
 	}
 	
-	/**
-	 * Constructs class ready to perform quench on given phase,
-	 * using Default temperature.
-	 */
-	public PhaseQuench(Phase p) {
-		this(p, Default.TEMPERATURE);
-	}
-
 	/**
 	 * Constructs class ready to perform quench on given phase to given temperature.
 	 */
 	public PhaseQuench(Phase p, double temperature) {
-		this();
-		setTemperature(temperature);
-		meterTemperature = new MeterTemperature();
+		this(temperature);
         setPhase(p);
 	}
 

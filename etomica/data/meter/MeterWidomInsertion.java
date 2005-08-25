@@ -6,10 +6,10 @@ import etomica.atom.Atom;
 import etomica.data.DataSourceScalar;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.Species;
 import etomica.units.Dimension;
-import etomica.util.Default;
 
 /**
  * Meter to measure the chemical potential (as its exponent: exp(-mu/kT)) of a
@@ -30,14 +30,17 @@ import etomica.util.Default;
  */
 public class MeterWidomInsertion extends DataSourceScalar implements Meter {
 
-	public MeterWidomInsertion(Space space, PotentialMaster potentialMaster) {
-		super("exp(-\u03BC/kT)", Dimension.NULL);//"\u03BC" is Unicode for greek "mu"
-		energyMeter = new MeterPotentialEnergy(potentialMaster);
-		nInsert = 100;
-		setResidual(true);
-		setTemperature(Default.TEMPERATURE);
+    public MeterWidomInsertion(Simulation sim) {
+        this(sim.space,sim.potentialMaster,sim.getDefaults().temperature);
+    }
+    
+    public MeterWidomInsertion(Space space, PotentialMaster potentialMaster, double temperature) {
+        super("exp(-\u03BC/kT)", Dimension.NULL);//"\u03BC" is Unicode for greek "mu"
+        energyMeter = new MeterPotentialEnergy(potentialMaster);
+        nInsert = 100;
+        setResidual(true);
+        setTemperature(temperature);
         atomTranslator = new AtomActionTranslateTo(space); 
-
 	}
 
 	public static EtomicaInfo getEtomicaInfo() {

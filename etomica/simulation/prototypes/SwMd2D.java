@@ -12,7 +12,6 @@ import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.Default;
 
 /**
  * Simple square-well molecular dynamics simulation in 2D
@@ -32,11 +31,11 @@ public class SwMd2D extends Simulation {
     }
     public SwMd2D(Space space) {
         super(space);
-        Default.makeLJDefaults();
-        Default.ATOM_SIZE = 0.8;
-        integrator = new IntegratorHard(potentialMaster);
+        defaults.makeLJDefaults();
+        defaults.atomSize = 0.8;
+        integrator = new IntegratorHard(this);
         integrator.setTimeStep(0.01);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setInterval(5);
         activityIntegrate.setSleepPeriod(1);
         integrator.setTimeStep(0.02);
@@ -46,7 +45,7 @@ public class SwMd2D extends Simulation {
         species.setNMolecules(50);
         phase = new Phase(this);
         new ConfigurationSequential(space).initializeCoordinates(phase);
-        potential = new P2SquareWell(space);
+        potential = new P2SquareWell(this);
         this.potentialMaster.setSpecies(potential,new Species[]{species,species});
         
 //      elementCoordinator.go();

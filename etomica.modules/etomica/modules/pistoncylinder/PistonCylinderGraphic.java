@@ -107,13 +107,13 @@ public class PistonCylinderGraphic {
     double lambda, epsilon, mass;
     
     public PistonCylinderGraphic() {
-        Default.BLOCK_SIZE = 100;
+        Default.blockSize = 100;
         displayPhase = new DisplayPhase(null);
         displayPhase.setColorScheme(new ColorSchemeByType());
 
 
-        Default.FIX_OVERLAP = true;
-        Default.ATOM_SIZE = 3.0;
+        Default.ignoreOverlap = true;
+        Default.atomSize = 3.0;
         eUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
         historyLength = 100;
         
@@ -125,7 +125,7 @@ public class PistonCylinderGraphic {
         
         lambda = 2.0;
         epsilon = eUnit.toSim(1500.0);
-        mass = Default.ATOM_MASS;
+        mass = Default.atomMass;
         
         //restart action and button
         controlButtons = new DeviceTrioControllerButton();
@@ -197,7 +197,7 @@ public class PistonCylinderGraphic {
 	    scaleSlider.getSlider().setLabelTable(scaleSlider.getSlider().createStandardLabels(10));
 		
 		//add meter and display for current kinetic temperature
-		Default.HISTORY_PERIOD = 1000;
+		Default.historyPeriod = 1000;
 
 		thermometer = new MeterTemperature();
 
@@ -503,8 +503,8 @@ public class PistonCylinderGraphic {
         temperatureSlider.setModifier(new ModifierGeneral(pc.integrator,"temperature"));
         temperatureSlider.setController(pc.getController());
 
-        potentialSW = new P2SquareWell(pc.space,Default.ATOM_SIZE,lambda,epsilon);
-        potentialHS = new P2HardSphere(pc.space,Default.ATOM_SIZE);
+        potentialSW = new P2SquareWell(pc.space,Default.atomSize,lambda,epsilon);
+        potentialHS = new P2HardSphere(pc.space,Default.atomSize);
         potentialIdeal = new P2Ideal(pc.space);
         
         if(potentialChooserListener != null) potentialChooser.removeItemListener(potentialChooserListener);
@@ -597,7 +597,7 @@ public class PistonCylinderGraphic {
         adapter.setActionInterval(dataInterval);
         targetPressureHistory.addDataSink(plotP.getDataTable());
 
-        densityMeter = new MeterPistonDensity(pc.pistonPotential,1,Default.ATOM_SIZE);
+        densityMeter = new MeterPistonDensity(pc.pistonPotential,1,Default.atomSize);
         densityMeter.setPhase(pc.phase);
         AccumulatorHistory densityHistory = new AccumulatorHistory();
         densityHistory.setHistoryLength(historyLength);
@@ -657,7 +657,7 @@ public class PistonCylinderGraphic {
     private class ModifierAtomDiameter implements Modifier {
 
         public void setValue(double d) {
-            Default.ATOM_SIZE = d;
+            Default.atomSize = d;
             //assume one type of atom
             ((AtomTypeSphere)pc.phase.firstAtom().type).setDiameter(d);
             PistonCylinderGraphic.this.densityMeter.setAtomDiameter(d);
@@ -669,7 +669,7 @@ public class PistonCylinderGraphic {
         }
 
         public double getValue() {
-            return Default.ATOM_SIZE;
+            return Default.atomSize;
         }
 
         public Dimension getDimension() {

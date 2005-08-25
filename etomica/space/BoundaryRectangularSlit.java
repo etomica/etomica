@@ -1,5 +1,7 @@
 package etomica.space;
 
+import etomica.simulation.Simulation;
+
 
 /**
  * Class for implementing slit periodic boundary conditions, in which
@@ -12,14 +14,17 @@ package etomica.space;
  */
 public class BoundaryRectangularSlit extends BoundaryRectangular {
     
+    public BoundaryRectangularSlit(Simulation sim, int slitDim) {
+        this(sim.space, slitDim, sim.getDefaults().boxSize);
+    }
     /**
      * Constructor for periodic boundary conditions with a slit 
      * in the given dimension.
      * @param space
      * @param slitDim slit dimension (in which PBC are not imposed).
      */
-    public BoundaryRectangularSlit(Space space, int slitDim) {
-        super(space,makePeriodicity(space.D(),slitDim));
+    public BoundaryRectangularSlit(Space space, int slitDim, double boxSize) {
+        super(space,makePeriodicity(space.D(),slitDim),boxSize);
         sDim = slitDim;
      }
     public void nearestImage(Vector dr) {

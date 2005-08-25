@@ -87,7 +87,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         makeMolecules();
         setName(NameMaker.makeName(this.getClass()));
 
-        setBoundary(new BoundaryRectangularPeriodic(space));
+        setBoundary(new BoundaryRectangularPeriodic(sim));
     }//end of constructor
 
     public void setCellManager(PhaseCellManager manager) {

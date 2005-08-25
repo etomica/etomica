@@ -6,6 +6,7 @@ import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.types.DataDoubleArray;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveListener;
 import etomica.integrator.mcmove.MCMoveSwapConfiguration;
@@ -41,11 +42,17 @@ import etomica.util.Arrays;
 
 public class IntegratorPT extends IntegratorMC implements EtomicaElement {
     
-    public IntegratorPT(PotentialMaster potentialMaster) {
-        this(potentialMaster, MCMoveSwapConfiguration.FACTORY);
+    public IntegratorPT(Simulation sim) {
+        this(sim.potentialMaster,sim.getDefaults().temperature);
     }
-    public IntegratorPT(PotentialMaster potentialMaster, MCMoveSwapFactory swapFactory) {
-        super(potentialMaster);
+    
+    public IntegratorPT(PotentialMaster potentialMaster, double temperature) {
+        this(potentialMaster, MCMoveSwapConfiguration.FACTORY, temperature);
+    }
+    
+    public IntegratorPT(PotentialMaster potentialMaster, MCMoveSwapFactory swapFactory, 
+            double temperature) {
+        super(potentialMaster,temperature);
         setSwapInterval(100);
         mcMoveSwapFactory = swapFactory;
     }
@@ -111,20 +118,42 @@ public class IntegratorPT extends IntegratorMC implements EtomicaElement {
         }
     }
     
-    protected void setup() {
+    protected void setup() throws ConfigurationOverlapException {
+        ConfigurationOverlapException overlapException = null;
         for(int i=0; i<nIntegrators; i++) {
-            integrators[i].initialize();
+            try {
+                integrators[i].initialize();
+            }
+            catch (ConfigurationOverlapException e) {
+                if (overlapException == null) {
+                    overlapException = e;
+                }
+            }
         }
         super.setup();
+        if (overlapException != null) {
+            throw overlapException;
+        }
     }        
     
     /**
      * Resets this integrator and passes on the reset to all managed integrators.
      */
-    public void reset() {
+    public void reset() throws ConfigurationOverlapException {
+        ConfigurationOverlapException overlapException = null;
 	    for(int i=0; i<nIntegrators; i++) {
-	        integrators[i].reset();
-	    }
+            try {
+                integrators[i].reset();
+            }
+            catch (ConfigurationOverlapException e) {
+                if (overlapException == null) {
+                    overlapException = e;
+                }
+            }
+        }
+        if (overlapException != null) {
+            throw overlapException;
+        }
         // don't call super.reset(), it tries to calculate the potential energy
 	}
     

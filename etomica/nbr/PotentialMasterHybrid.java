@@ -36,18 +36,18 @@ public class PotentialMasterHybrid extends PotentialMaster {
      * and position definition to null, causing cell assignment to be
      * based on atom type's position definition. 
 	 */
-	public PotentialMasterHybrid(Space space) {
-        this(space, null);
+	public PotentialMasterHybrid(Space space, double range) {
+        this(space, null, range);
     }
     
     /**
      * Constructs class using given position definition for all atom cell assignments.
      * @param positionDefinition if null, specifies use of atom type's position definition
      */
-   public PotentialMasterHybrid(Space space, AtomPositionDefinition positionDefinition) {
+   public PotentialMasterHybrid(Space space, AtomPositionDefinition positionDefinition, double range) {
         super(space,new IteratorFactoryCell());
-        potentialMasterNbr = new PotentialMasterNbr(space, positionDefinition);
-        potentialMasterCell = new PotentialMasterCell(space, positionDefinition);
+        potentialMasterNbr = new PotentialMasterNbr(space, range, positionDefinition);
+        potentialMasterCell = new PotentialMasterCell(space, range, positionDefinition);
 	}
     
     /**

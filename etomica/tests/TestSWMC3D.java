@@ -20,11 +20,10 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.Default;
 
 /**
  * Simple hard-sphere Monte Carlo simulation in 2D.
- * Initial configurations at http://gordon.eng.buffalo.edu/etomica/tests/
+ * Initial configurations at http://rheneas.eng.buffalo.edu/etomica/tests/
  * @author David Kofke
  */
  
@@ -38,15 +37,15 @@ public class TestSWMC3D extends Simulation {
     public Controller controller;
 
     public TestSWMC3D(Space space, int numAtoms) {
-        super(space, false, new PotentialMasterCell(space));
-        Default.makeLJDefaults();
+        super(space, false, new PotentialMasterCell(space, 1.5));
+        defaults.makeLJDefaults();
         double sqwLambda = 1.5;
-	    integrator = new IntegratorMC(potentialMaster);
-	    mcMoveAtom = new MCMoveAtom(potentialMaster);
-        mcMoveAtom.setStepSize(Default.ATOM_SIZE);
+	    integrator = new IntegratorMC(this);
+	    mcMoveAtom = new MCMoveAtom(this);
+        mcMoveAtom.setStepSize(defaults.atomSize);
         integrator.addMCMove(mcMoveAtom);
         integrator.setEquilibrating(false);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setMaxSteps(500000);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
@@ -54,7 +53,7 @@ public class TestSWMC3D extends Simulation {
 	    phase = new Phase(this);
         phase.setDensity(0.7);
         integrator.addMCMoveListener(((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).makeMCMoveListener());
-        potential = new P2SquareWell(space,Default.ATOM_SIZE,sqwLambda,Default.POTENTIAL_WELL);
+        potential = new P2SquareWell(space,defaults.atomSize,sqwLambda,defaults.potentialWell,false);
         ((PotentialMasterCell)potentialMaster).setNCells((int)(phase.boundary().dimensions().x(0)/potential.getRange()));
         ((PotentialMasterCell)potentialMaster).setRange(potential.getRange());
         potential.setCriterion(etomica.nbr.NeighborCriterion.ALL);
@@ -73,11 +72,11 @@ public class TestSWMC3D extends Simulation {
         if (args.length > 0) {
             numAtoms = Integer.valueOf(args[0]).intValue();
         }
-        Default.BLOCK_SIZE = 10;
         TestSWMC3D sim = new TestSWMC3D(Space3D.getInstance(), numAtoms);
+        sim.getDefaults().blockSize = 10;
 
         DataSource energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
-        AccumulatorAverage energyAccumulator = new AccumulatorAverage();
+        AccumulatorAverage energyAccumulator = new AccumulatorAverage(sim);
         DataPump energyManager = new DataPump(energyMeter, energyAccumulator);
         energyAccumulator.setBlockSize(50);
         new IntervalActionAdapter(energyManager, sim.integrator);

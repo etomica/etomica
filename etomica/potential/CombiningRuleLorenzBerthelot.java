@@ -1,6 +1,7 @@
 package etomica.potential;
 
 import etomica.atom.Atom;
+import etomica.simulation.Simulation;
 import etomica.util.Default;
 
 /**
@@ -9,6 +10,10 @@ import etomica.util.Default;
  * energy parameter is given by the geometric mean of the atom values.
  */
 public class CombiningRuleLorenzBerthelot extends CombiningRule {
+    
+    public CombiningRuleLorenzBerthelot(Simulation sim) {
+        this.defaults = sim.getDefaults();
+    }
     
     public double sigma(Atom[] pair) {
         double sigma1 = ((Agent)pair[0].allatomAgents[0]).sigma;
@@ -23,12 +28,17 @@ public class CombiningRuleLorenzBerthelot extends CombiningRule {
     }
     
     public Object makeAgent(Atom a) {
-        return new Agent();
+        return new Agent(defaults.atomSize, defaults.potentialWell);
     }
     
     public static class Agent implements java.io.Serializable {
-        public double sigma = Default.ATOM_SIZE;
-        public double epsilon = Default.POTENTIAL_WELL;
+        Agent(double sigma, double epsilon) {
+            this.sigma = sigma;
+            this.epsilon = epsilon;
+        }
+        public double sigma;
+        public double epsilon;
     }
-        
+    
+    private Default defaults;
 }

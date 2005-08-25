@@ -22,7 +22,6 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.Default;
 
 /**
  * Simple Lennard-Jones Monte Carlo simulation in 3D.
@@ -39,28 +38,27 @@ public class TestLJMC3D extends Simulation {
     public Controller controller;
 
     public TestLJMC3D(Space space, int numAtoms) {
-        super(space, false, new PotentialMasterCell(space));
-        Default.makeLJDefaults();
-	    integrator = new IntegratorMC(potentialMaster);
-	    mcMoveAtom = new MCMoveAtom(potentialMaster);
+        super(space, false, new PotentialMasterCell(space, 1.6));
+        defaults.makeLJDefaults();
+	    integrator = new IntegratorMC(this);
+	    mcMoveAtom = new MCMoveAtom(this);
         mcMoveAtom.setAtomSource(new AtomSourceRandomLeafSeq());
-        mcMoveAtom.setStepSize(0.2*Default.ATOM_SIZE);
+        mcMoveAtom.setStepSize(0.2*defaults.atomSize);
         integrator.addMCMove(mcMoveAtom);
         integrator.setEquilibrating(false);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setMaxSteps(200000);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         species.setNMolecules(numAtoms);
 	    phase = new Phase(this);
         phase.setDensity(0.65);
-        potential = new P2LennardJones(space);
-        P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(potential);
+        potential = new P2LennardJones(this);
         double truncationRadius = 3.0*potential.getSigma();
         if(truncationRadius > 0.5*phase.boundary().dimensions().x(0)) {
             throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*phase.boundary().dimensions().x(0));
         }
-        potentialTruncated.setTruncationRadius(truncationRadius);
+        P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(potential, truncationRadius);
         ((PotentialMasterCell)potentialMaster).setNCells((int)(3.0*phase.boundary().dimensions().x(0)/potentialTruncated.getRange()));
         ((PotentialMasterCell)potentialMaster).setRange(potentialTruncated.getRange());
         potentialTruncated.setCriterion(etomica.nbr.NeighborCriterion.ALL);
@@ -80,19 +78,19 @@ public class TestLJMC3D extends Simulation {
         if (args.length > 0) {
             numAtoms = Integer.valueOf(args[0]).intValue();
         }
-        Default.BLOCK_SIZE = 10;
         TestLJMC3D sim = new TestLJMC3D(Space3D.getInstance(), numAtoms);
 
+        sim.getDefaults().blockSize = 10;
         MeterPressure pMeter = new MeterPressure(sim.potentialMaster,sim.space);
         pMeter.setTemperature(sim.integrator.getTemperature());
         pMeter.setPhase(sim.phase);
-        AccumulatorAverage pAccumulator = new AccumulatorAverage();
+        AccumulatorAverage pAccumulator = new AccumulatorAverage(sim);
         DataPump pPump = new DataPump(pMeter,pAccumulator);
         IntervalActionAdapter iaa = new IntervalActionAdapter(pPump,sim.integrator);
         iaa.setActionInterval(2*numAtoms);
         MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         energyMeter.setPhase(sim.phase);
-        AccumulatorAverage energyAccumulator = new AccumulatorAverage();
+        AccumulatorAverage energyAccumulator = new AccumulatorAverage(sim);
         DataPump energyManager = new DataPump(energyMeter, energyAccumulator);
         energyAccumulator.setBlockSize(50);
         new IntervalActionAdapter(energyManager, sim.integrator);

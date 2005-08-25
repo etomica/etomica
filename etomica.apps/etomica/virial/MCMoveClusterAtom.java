@@ -2,7 +2,7 @@ package etomica.virial;
 
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.phase.Phase;
-import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 
 
 /**
@@ -15,9 +15,9 @@ import etomica.potential.PotentialMaster;
 
 public class MCMoveClusterAtom extends MCMoveAtom implements MCMoveCluster {
 	private MeterClusterWeight weightMeter;
-	public MCMoveClusterAtom(PotentialMaster potentialMaster) {
-		super(potentialMaster);
-        weightMeter = new MeterClusterWeight(potentialMaster);
+	public MCMoveClusterAtom(Simulation sim) {
+        super(sim);
+        weightMeter = new MeterClusterWeight(sim.potentialMaster);
 	}
 	
     public void setPhase(Phase[] p) {

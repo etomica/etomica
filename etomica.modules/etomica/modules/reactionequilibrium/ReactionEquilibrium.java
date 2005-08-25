@@ -40,7 +40,7 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
         idx = Atom.requestAgentIndex(this);
 
 		double diameter = 1.0;
-		Default.ATOM_SIZE = diameter;
+		Default.atomSize = diameter;
 
 		//controller and integrator
 		integratorHard1 = new IntegratorHard(potentialMaster);
@@ -58,22 +58,22 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
         phase1.makeMolecules();
 
 		//potentials
-		AAbonded = new P2SquareWellBonded(space, idx, 0.5 * Default.ATOM_SIZE, //core
+		AAbonded = new P2SquareWellBonded(space, idx, 0.5 * Default.atomSize, //core
+				2.0, //well multiplier
+				Default.potentialWell);
+		ABbonded = new P2SquareWellBonded(space, idx, 0.5 * Default.atomSize, //core
+				2.0, //well multiplier
+				Default.potentialWell);
+		BBbonded = new P2SquareWellBonded(space, idx, 0.5 * Default.atomSize, //core
+				2.0, //well multiplier
+				Default.potentialWell);
+/*		P2SquareWell AAbonded = new P2SquareWell(space, 0.5 * Default.atomSize, //core
 				2.0, //well multiplier
 				Default.POTENTIAL_WELL);
-		ABbonded = new P2SquareWellBonded(space, idx, 0.5 * Default.ATOM_SIZE, //core
+		P2SquareWell ABbonded = new P2SquareWell(space, 0.5 * Default.atomSize, //core
 				2.0, //well multiplier
 				Default.POTENTIAL_WELL);
-		BBbonded = new P2SquareWellBonded(space, idx, 0.5 * Default.ATOM_SIZE, //core
-				2.0, //well multiplier
-				Default.POTENTIAL_WELL);
-/*		P2SquareWell AAbonded = new P2SquareWell(space, 0.5 * Default.ATOM_SIZE, //core
-				2.0, //well multiplier
-				Default.POTENTIAL_WELL);
-		P2SquareWell ABbonded = new P2SquareWell(space, 0.5 * Default.ATOM_SIZE, //core
-				2.0, //well multiplier
-				Default.POTENTIAL_WELL);
-		P2SquareWell BBbonded = new P2SquareWell(space, 0.5 * Default.ATOM_SIZE, //core
+		P2SquareWell BBbonded = new P2SquareWell(space, 0.5 * Default.atomSize, //core
 				2.0, //well multiplier
 				Default.POTENTIAL_WELL);*/
 		potentialMaster.setSpecies(AAbonded,
@@ -87,7 +87,7 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
 		thermometer = new MeterTemperature();
 		thermometer.setPhase(phase1);
         
-		ActivityIntegrate activityIntegrate = new ActivityIntegrate(integratorHard1);
+		ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integratorHard1);
 		activityIntegrate.setDoSleep(true);
 		activityIntegrate.setSleepPeriod(1);
 		getController().addAction(activityIntegrate);

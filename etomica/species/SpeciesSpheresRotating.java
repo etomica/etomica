@@ -11,7 +11,6 @@ import etomica.atom.AtomTypeOrientedSphere;
 import etomica.simulation.Simulation;
 import etomica.space.CoordinateFactoryAngular;
 import etomica.units.Dimension;
-import etomica.util.Default;
 
 /**
  * Species in which molecules are made of a single atom of type OrientedSphere
@@ -45,11 +44,11 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     private SpeciesSpheresRotating(Simulation sim, AtomSequencerFactory seqFactory,
                                    AtomTypeGroup agentType) {
         super(sim, new AtomFactoryMono(new CoordinateFactoryAngular(sim), 
-                new AtomTypeOrientedSphere(agentType,Default.ATOM_MASS,Default.ATOM_SIZE), seqFactory), agentType);
+                new AtomTypeOrientedSphere(agentType,sim.getDefaults().atomMass,sim.getDefaults().atomSize), seqFactory), agentType);
         factory.setSpecies(this);
         protoType = (AtomTypeOrientedSphere)((AtomFactoryMono)factory).getType();
         mass = protoType.getMass();
-        nMolecules = Default.MOLECULE_COUNT;
+        nMolecules = sim.getDefaults().moleculeCount;
     }
             
     public static EtomicaInfo getEtomicaInfo() {

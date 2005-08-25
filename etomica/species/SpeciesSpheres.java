@@ -13,7 +13,6 @@ import etomica.config.ConformationLinear;
 import etomica.simulation.Simulation;
 import etomica.space.CoordinateFactorySphere;
 import etomica.units.Dimension;
-import etomica.util.Default;
 
 /**
  * Species in which molecules are made of arbitrary number of spheres,
@@ -34,7 +33,7 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
         this(sim, 1);
     }
     public SpeciesSpheres(Simulation sim, int nA) {
-        this(sim, sim.potentialMaster.sequencerFactory(), nA, new ConformationLinear(sim.space));
+        this(sim, sim.potentialMaster.sequencerFactory(), nA, new ConformationLinear(sim));
     }
     public SpeciesSpheres(Simulation sim, AtomSequencerFactory seqFactory, 
             int nA, Conformation conformation) {
@@ -44,13 +43,13 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
             int nA, Conformation conformation, AtomTypeGroup agentType) {
         super(sim, new AtomFactoryHomo(sim.space, seqFactory, agentType,
                                 nA, conformation), agentType);
-        atomType = new AtomTypeSphere((AtomTypeGroup)factory.getType(), Default.ATOM_MASS, Default.ATOM_SIZE);
+        atomType = new AtomTypeSphere((AtomTypeGroup)factory.getType(), sim.getDefaults().atomMass, sim.getDefaults().atomSize);
         ((AtomFactoryHomo)factory).setChildFactory(
                 new AtomFactoryMono(new CoordinateFactorySphere(sim), atomType, seqFactory));
         factory.setSpecies(this);
 //        ((AtomFactoryHomo)factory).getType().setChildTypes(new AtomType[]{atomType});
         
-        nMolecules = Default.MOLECULE_COUNT;
+        nMolecules = sim.getDefaults().moleculeCount;
         mass = atomType.getMass();
     }
     

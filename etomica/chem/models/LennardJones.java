@@ -7,8 +7,8 @@ import etomica.chem.Electrostatic;
 import etomica.chem.Element;
 import etomica.potential.P2LennardJones;
 import etomica.potential.Potential;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.util.Default;
 
 /**
  * @author zhaofang
@@ -20,8 +20,8 @@ public class LennardJones extends ModelAtomic {
 	
 	private final double sigma, epsilon;
 	
-	public LennardJones(){
-		this(Default.ATOM_SIZE, Default.POTENTIAL_WELL);
+	public LennardJones(Simulation sim){
+		this(sim.getDefaults().atomSize, sim.getDefaults().potentialWell);
 	}
 	
 	public LennardJones(double s, double e){

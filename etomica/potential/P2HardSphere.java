@@ -4,13 +4,13 @@ import etomica.EtomicaInfo;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
+import etomica.simulation.Simulation;
 import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.util.Debug;
-import etomica.util.Default;
 
 /**
  * Basic hard-(rod/disk/sphere) potential.
@@ -33,19 +33,21 @@ public class P2HardSphere extends Potential2HardSpherical {
    protected double sig2;
    protected double lastCollisionVirial = 0.0;
    protected double lastCollisionVirialr2 = 0.0;
+   protected final boolean ignoreOverlap;
    protected final Vector dr;
    protected final Tensor lastCollisionVirialTensor;
    protected final CoordinatePairKinetic cPair;
     
-    public P2HardSphere(Space space) {
-        this(space, Default.ATOM_SIZE);
+    public P2HardSphere(Simulation sim) {
+        this(sim.space, sim.getDefaults().atomSize, sim.getDefaults().ignoreOverlap);
     }
-    public P2HardSphere(Space space, double d) {
+    public P2HardSphere(Space space, double d, boolean ignoreOverlap) {
         super(space, new CoordinatePairKinetic(space));
         setCollisionDiameter(d);
         lastCollisionVirialTensor = space.makeTensor();
         dr = space.makeVector();
         cPair = (CoordinatePairKinetic)coordinatePair;
+        this.ignoreOverlap = ignoreOverlap;
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -67,7 +69,7 @@ public class P2HardSphere extends Potential2HardSpherical {
         double time = Double.POSITIVE_INFINITY;
 
         if(bij < 0.0) {
-        	if (Default.FIX_OVERLAP && dr.squared() < sig2) return falseTime;
+        	if (ignoreOverlap && dr.squared() < sig2) return falseTime;
             double v2 = dv.squared();
             double discriminant = bij*bij - v2 * ( dr.squared() - sig2 );
             if(discriminant > 0) {

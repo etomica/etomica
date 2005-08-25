@@ -4,7 +4,7 @@
  */
 package etomica.atom;
 
-import etomica.util.Default;
+import etomica.simulation.Simulation;
 
 /**
  * Atom type for a simple monatomic atom that has a length scale associated
@@ -16,8 +16,8 @@ public class AtomTypeSphere extends AtomTypeLeaf {
     
     double diameter, radius;
     
-    public AtomTypeSphere(AtomTypeGroup parentType) {
-        this(parentType, Default.ATOM_MASS, Default.ATOM_SIZE);
+    public AtomTypeSphere(Simulation sim, AtomTypeGroup parentType) {
+        this(parentType, sim.getDefaults().atomMass, sim.getDefaults().atomSize);
     }
     public AtomTypeSphere(AtomTypeGroup parentType, double m, double d) {
         super(parentType, m);

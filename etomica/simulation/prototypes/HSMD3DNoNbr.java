@@ -32,27 +32,31 @@ public class HSMD3DNoNbr extends Simulation {
     public P2HardSphere potential;
     
     public HSMD3DNoNbr() {
-        this(Space3D.getInstance());
+        this(new Default());
     }
-    private HSMD3DNoNbr(Space space) {
-        super(space, true, new PotentialMaster(space));
+    
+    public HSMD3DNoNbr(Default defaults) {
+        this(Space3D.getInstance(), defaults);
+    }
+    private HSMD3DNoNbr(Space space, Default defaults) {
+        super(space, true, new PotentialMaster(space), Default.BIT_LENGTH, defaults);
 
         int numAtoms = 256;
-        Default.makeLJDefaults();
-        Default.ATOM_SIZE = 1.0;
-        Default.BOX_SIZE = 14.4573*Math.pow((numAtoms/2020.0),1.0/3.0);
+        defaults.makeLJDefaults();
+        defaults.atomSize = 1.0;
+        defaults.boxSize = 14.4573*Math.pow((numAtoms/2020.0),1.0/3.0);
 
-        integrator = new IntegratorHard(potentialMaster);
+        integrator = new IntegratorHard(this);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         species.setNMolecules(numAtoms);
-        potential = new P2HardSphere(space);
+        potential = new P2HardSphere(this);
         this.potentialMaster.setSpecies(potential,new Species[]{species,species});
 
         phase = new Phase(this);

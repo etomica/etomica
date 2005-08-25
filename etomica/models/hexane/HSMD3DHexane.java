@@ -26,13 +26,13 @@ public class HSMD3DHexane extends Simulation {
     
     public HSMD3DHexane(Space space, int numAtoms){
         // use custom bit lengths to allow for more "molecules"        
-        super(space, true, new PotentialMasterNbr(space), new int[]{1,4,4,21,1,1});
+        super(space, true, new PotentialMasterNbr(space, 1.6), new int[]{1,4,4,21,1,1}, new Default());
         
         double neighborRangeFac = 1.6;
-        Default.makeLJDefaults();
+        defaults.makeLJDefaults();
         
-        Default.BOX_SIZE = 14.4573*Math.pow(numAtoms/2000.0,1.0/3.0);
-        ((PotentialMasterNbr)potentialMaster).setNCells((int)(Default.BOX_SIZE/neighborRangeFac));
+        defaults.boxSize = 14.4573*Math.pow(numAtoms/2000.0,1.0/3.0);
+        ((PotentialMasterNbr)potentialMaster).setNCells((int)(defaults.boxSize/neighborRangeFac));
         
         
         

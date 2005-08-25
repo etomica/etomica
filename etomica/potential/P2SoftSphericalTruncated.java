@@ -4,7 +4,6 @@ import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.util.Default;
 
 
 /**
@@ -21,10 +20,6 @@ import etomica.util.Default;
  */
 public class P2SoftSphericalTruncated extends Potential2SoftSpherical
                implements PotentialTruncated {
-
-    public P2SoftSphericalTruncated(Potential2SoftSpherical potential) {
-        this(potential, Default.POTENTIAL_CUTOFF_FACTOR * Default.ATOM_SIZE);
-    }
     
     public P2SoftSphericalTruncated(Potential2SoftSpherical potential, double truncationRadius) {
         super(potential.getSpace());

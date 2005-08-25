@@ -5,6 +5,7 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.phase.Phase;
+import etomica.simulation.Simulation;
 import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
@@ -12,7 +13,6 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.util.Debug;
-import etomica.util.Default;
 
 /**
  * Potential that acts like a hard string connecting the centers of two atoms.
@@ -24,17 +24,18 @@ import etomica.util.Default;
  */
 public class P2HardBond extends Potential2 implements PotentialHard {
 
-    public P2HardBond(Space space) {
-        this(space, Default.ATOM_SIZE, 0.15);
+    public P2HardBond(Simulation sim) {
+        this(sim.space, sim.getDefaults().atomSize, 0.15, sim.getDefaults().ignoreOverlap);
     }
 
-    public P2HardBond(Space space, double bondLength, double bondDelta) {
+    public P2HardBond(Space space, double bondLength, double bondDelta, boolean ignoreOverlap) {
         super(space);
         setBondLength(bondLength);
         setBondDelta(bondDelta);
         lastCollisionVirialTensor = space.makeTensor();
         dr = space.makeVector();
         cPair = new CoordinatePairKinetic(space);
+        this.ignoreOverlap = ignoreOverlap;
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -93,7 +94,7 @@ public class P2HardBond extends Potential2 implements PotentialHard {
         double r2 = dr.squared();
         double bij = dr.dot(dv);
 
-        if (Debug.ON && !Default.FIX_OVERLAP) {
+        if (Debug.ON && !ignoreOverlap) {
             if (bij<0.0 && Math.abs(r2 - minBondLengthSquared)/minBondLengthSquared > 1.e-9) {
                 throw new RuntimeException("atoms "+pair+" not at the right distance "+r2+" "+minBondLengthSquared);
             }
@@ -138,7 +139,7 @@ public class P2HardBond extends Potential2 implements PotentialHard {
         double bij = dr.dot(dv);
         double v2 = dv.squared();
         
-        if (Default.FIX_OVERLAP && ((r2 > maxBondLengthSquared && bij > 0.0) ||
+        if (ignoreOverlap && ((r2 > maxBondLengthSquared && bij > 0.0) ||
                 (r2 < minBondLengthSquared && bij < 0.0))) {
             //outside bond, moving apart or overalpped and moving together; collide now
             return falseTime;
@@ -197,9 +198,9 @@ public class P2HardBond extends Potential2 implements PotentialHard {
     private double bondDelta;
     private double lastCollisionVirial = 0.0;
     private double lastCollisionVirialr2 = 0.0;
+    private boolean ignoreOverlap;
     private final Vector dr;
     private final Tensor lastCollisionVirialTensor;
     private final CoordinatePairKinetic cPair;
-
 
 }

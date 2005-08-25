@@ -9,6 +9,7 @@ package etomica.integrator.mcmove;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.Integrator;
 import etomica.integrator.MCMove;
 import etomica.integrator.IntegratorPT.MCMoveSwap;
@@ -63,6 +64,8 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 	
 	/**
 	 * Swaps positions of molecules in two phases.
+     * 
+     * @throws RuntimeException wrapping a ConfigurationOverlapException if overlap is detected in either phase
 	 */
 	public void acceptNotify() {
 		iterator1.setPhase(integrator1.getPhase()[0]);
@@ -80,8 +83,20 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 			a1.coord.position().E(a2.coord.position());
 			a2.coord.position().E(r);
 		}
-        integrator1.reset();
-        integrator2.reset();
+        ConfigurationOverlapException overlapException = null;
+        try {
+            integrator1.reset();
+        } catch(ConfigurationOverlapException e) {
+            overlapException = e;
+        }
+        try {
+            integrator2.reset();
+        } catch(ConfigurationOverlapException e) {
+            overlapException = e;
+        }
+        if(overlapException != null) {
+            throw new RuntimeException(overlapException);
+        }
 	}
 	
 	/**

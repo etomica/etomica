@@ -5,11 +5,12 @@
 package etomica.action.activity;
 
 import etomica.action.Activity;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorNonintervalEvent;
+import etomica.simulation.Simulation;
 import etomica.util.Debug;
-import etomica.util.Default;
 
 /**
  * Activity that repeatedly invokes an Integrator's doStep method.
@@ -21,11 +22,16 @@ public class ActivityIntegrate extends Activity {
 	 * the given integrator (which is final).  Defaults include
 	 * interval = 1, doSleep given by Default class, and sleepPeriod = 10.
 	 */
-	public ActivityIntegrate(Integrator integrator) {
+	public ActivityIntegrate(Simulation sim, Integrator integrator) {
+        this(integrator,sim.getDefaults().doSleep,sim.getDefaults().ignoreOverlap);
+    }
+    
+    public ActivityIntegrate(Integrator integrator, boolean doSleep, boolean ignoreOverlap) {
         super();
         this.integrator = integrator;
         setInterval(1);
-        doSleep = Default.DO_SLEEP;
+        this.doSleep = doSleep;
+        this.ignoreOverlap = ignoreOverlap;
         sleepPeriod = 10;
         setLabel("ActivityIntegrate");
 	}
@@ -50,17 +56,33 @@ public class ActivityIntegrate extends Activity {
      * loop continues until number of steps equals maxSteps field.  This method should
      * not be called directly, but instead is called by the instance's actionPerformed method.
      */
-	public void run() {
+    public void run() {
         integrator.fireNonintervalEvent(new IntegratorNonintervalEvent(integrator, IntegratorNonintervalEvent.START));
-	    integrator.initialize();
+        try {
+            integrator.initialize();
+        }
+        catch (ConfigurationOverlapException e) {
+            if (!ignoreOverlap) {
+                throw new RuntimeException(e);
+            }
+        }
         long stepCount = 0;
         int iieCount = interval;//changed from "interval + 1"
         while(stepCount < maxSteps) {
-        	if (Debug.ON && stepCount == Debug.START) Debug.DEBUG_NOW = true;
-        	if (Debug.ON && stepCount == Debug.STOP) halt();
-        	if (Debug.ON && Debug.DEBUG_NOW) System.out.println("*** integrator step "+stepCount);
-        	if (!doContinue()) break;
-        	if (resetRequested) {integrator.reset();}
+            if (Debug.ON && stepCount == Debug.START) Debug.DEBUG_NOW = true;
+            if (Debug.ON && stepCount == Debug.STOP) halt();
+            if (Debug.ON && Debug.DEBUG_NOW) System.out.println("*** integrator step "+stepCount);
+            if (!doContinue()) break;
+            if (resetRequested) {
+                try {
+                    integrator.reset();
+                }
+                catch (ConfigurationOverlapException e) {
+                    if (!ignoreOverlap) {
+                        throw new RuntimeException(e);
+                    }
+                }
+        	    }
             integrator.doStep();
             if(--iieCount == 0) {
                 integrator.fireIntervalEvent(intervalEvent);
@@ -178,6 +200,7 @@ public class ActivityIntegrate extends Activity {
 	protected int interval;
 	private boolean resetRequested;
 	private boolean doSleep;
+    private boolean ignoreOverlap;
 	private int sleepPeriod;
 	protected long maxSteps = Long.MAX_VALUE;
 	IntegratorIntervalEvent intervalEvent;

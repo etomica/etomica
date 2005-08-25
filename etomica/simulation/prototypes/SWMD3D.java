@@ -54,21 +54,21 @@ public class SWMD3D extends Simulation {
 	
   public SWMD3D() {
 	super(Space3D.getInstance());
-//	Default.makeLJDefaults();
+//	defaults.makeLJDefaults();
     
-    integrator = new IntegratorHard(potentialMaster);
+    integrator = new IntegratorHard(this);
 //  integrator.addIntervalListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
     integrator.setTimeStep(0.01);
     integrator.setIsothermal(true);
     integrator.setTemperature(300);
-    ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+    ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
     getController().addAction(activityIntegrate);
 
 
     phase = new Phase(this);
     ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc());
     configuration.initializeCoordinates(phase);
-    potential  = new etomica.potential.P2SquareWell(space);
+    potential  = new etomica.potential.P2SquareWell(this);
     potential.setLambda(1.6);
 
     species  = new etomica.species.SpeciesSpheresMono(this);

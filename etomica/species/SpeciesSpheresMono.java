@@ -10,7 +10,6 @@ import etomica.atom.AtomTypeSphere;
 import etomica.simulation.Simulation;
 import etomica.space.CoordinateFactorySphere;
 import etomica.units.Dimension;
-import etomica.util.Default;
 
 /**
  * Species in which molecules are each made of a single spherical atom.
@@ -46,11 +45,11 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
     
     private SpeciesSpheresMono(Simulation sim, AtomSequencerFactory seqFactory,
                                 AtomTypeGroup agentType) {
-        super(sim, new AtomFactoryMono(new CoordinateFactorySphere(sim), new AtomTypeSphere(agentType), seqFactory),
+        super(sim, new AtomFactoryMono(new CoordinateFactorySphere(sim), new AtomTypeSphere(sim, agentType), seqFactory),
                 agentType);
         factory.setSpecies(this);
         atomType = (AtomTypeSphere)((AtomFactoryMono)factory).getType();
-        nMolecules = Default.MOLECULE_COUNT;
+        nMolecules = sim.getDefaults().moleculeCount;
     }
     
     public static EtomicaInfo getEtomicaInfo() {

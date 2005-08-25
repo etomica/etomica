@@ -115,7 +115,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 	private AtomList activeAtoms = new AtomList();
 	private AtomIteratorListSimple atomIterator;// = new AtomIteratorList();
 	IntegratorDCVGCMD integrator;
-	private final AtomActionRandomizeVelocity randomizer = new AtomActionRandomizeVelocity();
+	private final AtomActionRandomizeVelocity randomizer = new AtomActionRandomizeVelocity(0);
 	
 	/**
 	 * Returns the zFraction.

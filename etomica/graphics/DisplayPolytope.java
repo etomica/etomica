@@ -243,7 +243,7 @@ public class DisplayPolytope extends Display implements Action, EtomicaElement {
     }
 
     public void doUpdate() {}
-    public void repaint() {if(!DefaultGraphic.DISPLAY_USE_OPENGL) canvas.repaint();}
+    public void repaint() {if(!(canvas instanceof DisplayPhaseCanvas3DOpenGL)) canvas.repaint();}
       
     public void setMovable(boolean b) {canvas.setMovable(b);}
     public boolean isMovable() {return canvas.isMovable();}
@@ -303,7 +303,7 @@ public class DisplayPolytope extends Display implements Action, EtomicaElement {
                 canvas.setZoom(canvas.getZoom()+shift);
             }
             
-            if (!DefaultGraphic.DISPLAY_USE_OPENGL) canvas.repaint();
+            if (!(canvas instanceof DisplayPhaseCanvas3DOpenGL)) canvas.repaint();
             if(polytope.getEmbeddedSpace().D() == 3) {
                 canvas.setPrevX(evt.getX());
                 canvas.setPrevY(evt.getY());

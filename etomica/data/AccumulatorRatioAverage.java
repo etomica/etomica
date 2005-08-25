@@ -3,18 +3,22 @@ package etomica.data;
 import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
+import etomica.simulation.Simulation;
 import etomica.units.Dimension;
-import etomica.util.Constants;
-import etomica.util.Function;
 import etomica.util.EnumeratedType;
+import etomica.util.Function;
 
 /**
  * Accumulator for calculating ratio between two sums
  */
 public class AccumulatorRatioAverage extends AccumulatorAverage {
     
-    public AccumulatorRatioAverage() {
-        super();
+    public AccumulatorRatioAverage(Simulation sim) {
+        this(sim.getDefaults().blockSize);
+    }
+    
+    public AccumulatorRatioAverage(int blockSize) {
+        super(blockSize);
     }
     
     public Data getData() {

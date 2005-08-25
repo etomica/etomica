@@ -3,9 +3,8 @@ package etomica.virial;
 import etomica.atom.Atom;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.phase.Phase;
-import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.Vector;
-import etomica.util.Default;
 
 /**
  * @author kofke
@@ -15,8 +14,8 @@ import etomica.util.Default;
  */
 public class MCMoveClusterAtomMulti extends MCMoveAtom implements MCMoveCluster {
 
-    public MCMoveClusterAtomMulti(PotentialMaster potentialMaster, int nAtoms) {
-        super(potentialMaster);
+    public MCMoveClusterAtomMulti(Simulation sim, int nAtoms) {
+        super(sim);
         this.nAtoms = nAtoms;
         selectedAtoms = new Atom[nAtoms];
         translationVectors = new Vector[nAtoms];
@@ -24,7 +23,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom implements MCMoveCluster 
             translationVectors[i] = potential.getSpace().makeVector();
         }
         weightMeter = new MeterClusterWeight(potential);
-        setStepSize(Default.ATOM_SIZE*1.2);
+        setStepSize(sim.getDefaults().atomSize*1.2);
 	}
 	
     public void setPhase(Phase[] p) {

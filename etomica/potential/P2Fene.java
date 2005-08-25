@@ -1,8 +1,8 @@
 package etomica.potential;
 
 import etomica.EtomicaElement;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.util.Default;
 
 /**
  * Finite elastic nonlinear extensible (FENE) spring potential.
@@ -19,8 +19,9 @@ public class P2Fene extends Potential2SoftSpherical implements EtomicaElement {
 
     private double r0, r02, h, prefactor;
     
-    public P2Fene(Space space) {
-        this(space,1.50*Default.ATOM_SIZE, 30.0*Default.POTENTIAL_WELL/Math.pow(Default.ATOM_SIZE,2)/*1.50*Default.ATOM_SIZE, 250.0*/);
+    public P2Fene(Simulation sim) {
+        this(sim.space, 1.50*sim.getDefaults().atomSize, 
+                30.0*sim.getDefaults().potentialWell/Math.pow(sim.getDefaults().atomSize,2)/*1.50*Default.atomSize, 250.0*/);
     }
     public P2Fene(Space space, double r0, double amplitude) {
         super(space);

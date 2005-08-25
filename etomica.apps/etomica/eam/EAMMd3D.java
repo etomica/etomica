@@ -92,7 +92,7 @@ public class EAMMd3D extends Simulation {
         super(Space3D.getInstance()); //INSTANCE); kmb change 8/3/05
         integrator = new IntegratorVelocityVerlet(potentialMaster, space);
         integrator.setTimeStep(0.01);
-        activityIntegrate = new ActivityIntegrate(integrator);
+        activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);

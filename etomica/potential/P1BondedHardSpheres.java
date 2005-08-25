@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
-import etomica.space.Space;
+import etomica.simulation.Simulation;
 
 /**
  * Intramolecular potential in which bonded and nonbonded atoms interact with a
@@ -12,8 +12,8 @@ import etomica.space.Space;
  
 public class P1BondedHardSpheres extends P1IntraSimple {
 
-    public P1BondedHardSpheres(Space space) {
-        super(space, new P2HardBond(space), new P2HardSphere(space));
+    public P1BondedHardSpheres(Simulation sim) {
+        super(sim.space, new P2HardBond(sim), new P2HardSphere(sim));
     }
     
     public static EtomicaInfo getEtomicaInfo() {

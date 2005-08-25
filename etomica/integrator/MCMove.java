@@ -23,12 +23,12 @@ public abstract class MCMove implements java.io.Serializable {
      * construction to size the (final) phases array and cannot be changed.
      */
 	public MCMove(PotentialMaster potentialMaster, int nPhases) {
-		this.potential = potentialMaster;
-		setAcceptanceTarget(0.5);
-		nominalFrequency = 100;
-		perParticleFrequency = false;
+        this.potential = potentialMaster;
+        setAcceptanceTarget(0.5);
+        nominalFrequency = 100;
+        perParticleFrequency = false;
         phases = new Phase[nPhases];
-	}
+    }
 
 	/**
 	 * Updates statistics regarding the acceptance rate of this move.

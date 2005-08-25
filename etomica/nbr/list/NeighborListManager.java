@@ -43,7 +43,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     /**
      * Configures instance for use by the given PotentialMaster.
      */
-    public NeighborListManager(PotentialMasterNbr potentialMaster) {
+    public NeighborListManager(PotentialMasterNbr potentialMaster, double range) {
         super();
         setUpdateInterval(1);
         iieCount = updateInterval;
@@ -55,7 +55,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         pbcEnforcer = new PhaseImposePbc();
         pbcEnforcer.setApplyToMolecules(false);
         this.potentialMaster = potentialMaster;
-        cellNbrIterator = new ApiAACell(potentialMaster.getSpace().D());
+        cellNbrIterator = new ApiAACell(potentialMaster.getSpace().D(), range);
     }
 
     /**

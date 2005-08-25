@@ -7,11 +7,13 @@ import java.util.LinkedList;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.action.Action;
-import etomica.action.activity.Controller;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.Integrator;
+import etomica.simulation.Simulation;
 import etomica.simulation.prototypes.HSMD3D;
+import etomica.units.Dimension;
 import etomica.units.PrefixedUnit;
-import etomica.util.Default;
+import etomica.units.Unit;
 
 /**
  * Permits selection of temperature from a discrete set of values.  Also has option
@@ -22,19 +24,23 @@ import etomica.util.Default;
  */
 public class DeviceThermoSelector extends Device implements EtomicaElement {
     
-     public DeviceThermoSelector(Controller controller, final Integrator integrator) {
-        this();
+     public DeviceThermoSelector(Simulation sim, final Integrator integrator) {
+        this(sim.getDefaults().unitSystem.temperature(),sim.getDefaults().ignoreOverlap);
         setController(controller);
         setIntegrator(integrator);
      }
      
-     public DeviceThermoSelector() {
+     public DeviceThermoSelector(Unit tempUnit, boolean fixOverlap) {
         super();
         selector = new javax.swing.JComboBox(new Object[] {new Object()});
         setTemperatures(new double[] {200.0, 400.0, 600.0});
         selector.setEditable(false);
         label = new javax.swing.JLabel("");
-        setUnit(Default.UNIT_SYSTEM.temperature());
+        if (tempUnit.dimension() != Dimension.TEMPERATURE) {
+            throw new IllegalArgumentException("temperature unit must have dimensions of temperature");
+        }
+        setUnit(tempUnit);
+        this.fixOverlap = fixOverlap;
 
         panel = new javax.swing.JPanel(new java.awt.BorderLayout(0,1));
         panel.add(label, java.awt.BorderLayout.NORTH);
@@ -80,7 +86,14 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
                 if(isothermal) {
                     integrator.setTemperature(temperature);
                 }
-                integrator.reset();
+                try {
+                    integrator.reset();
+                }
+                catch (ConfigurationOverlapException e) {
+                    if (!fixOverlap) {
+                        throw new RuntimeException("overlap in configuration");
+                    }
+                }
             }
             public String getLabel() {
                 return DeviceThermoSelector.this.getLabel().toString();
@@ -150,6 +163,7 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
     private boolean isothermal = false;
     private double temperature;
     private Action targetAction;
+    private boolean fixOverlap;
     
     //main method to demonstrate and test class
     public static void main(String[] args) {
@@ -157,7 +171,7 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
         HSMD3D sim = new HSMD3D();
         SimulationGraphic graphic = new SimulationGraphic(sim);
         
-        DeviceThermoSelector device = new DeviceThermoSelector(sim.getController(), sim.integrator);
+        DeviceThermoSelector device = new DeviceThermoSelector(sim, sim.integrator);
         device.setTemperatures(new double[] {0.5, 1.0, 2.0, 5.0});
         graphic.add(device);
         LinkedList displays = graphic.displayList();

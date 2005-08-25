@@ -4,14 +4,16 @@ import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.util.Default;
 
 /**
  * @author David Kofke
  *
- * Inverse-power potential between an atom and all four boundaries of the phase.
+ * Inverse-power potential between an atom and all four boundaries of the phase.  Potential
+ * is of the form <tt>u(r) = (R/r)^12</tt>, where <tt>R</tt> is the repulsion radius.  This
+ * term is summed over all four boundaries.
  */
 public class P1SoftBoundary extends Potential1 implements PotentialSoft, EtomicaElement {
 
@@ -19,10 +21,13 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft, Etomica
 	private double radius;
 	private Atom atom;
 	
-	public P1SoftBoundary(Space space) {
+    public P1SoftBoundary(Simulation sim) {
+        this(sim.space, 0.5*sim.getDefaults().atomSize);
+    }
+	public P1SoftBoundary(Space space, double radius) {
 		super(space);
 		gradient = space.makeVector();
-		setRadius(0.5*Default.ATOM_SIZE);
+		setRadius(radius);
 	}
     
 	public static EtomicaInfo getEtomicaInfo() {
@@ -41,7 +46,7 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft, Etomica
 	
 	private double energy(double r) {
 		r /= radius;
-		double r2 = r*r;
+		double r2 = 1./(r*r);
 		double r6 = r2*r2*r2;
 		return r6*r6;
 	}

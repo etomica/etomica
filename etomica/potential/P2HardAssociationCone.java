@@ -4,12 +4,12 @@ import etomica.EtomicaInfo;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
+import etomica.simulation.Simulation;
 import etomica.space.CoordinatePair;
 import etomica.space.ICoordinateAngular;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
-import etomica.util.Default;
 
 /**
  * Lennard-Jones potential with a square-well cone of attraction. 
@@ -28,15 +28,20 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
     private double theta, ec2;
     private final CoordinatePair cPair;
     
-    public P2HardAssociationCone(Space space) {
+    public P2HardAssociationCone(Simulation sim) {
+        this(sim.space, sim.getDefaults().atomSize, sim.getDefaults().potentialWell, 
+                sim.getDefaults().potentialCutoffFactor);
+    }
+    
+    public P2HardAssociationCone(Space space, double sigma, double epsilon, double cutoffFactorLJ) {
         super(space);
         e1 = space.makeVector();
         e2 = space.makeVector();
         cPair = new CoordinatePair(space);
 
-        setSigma(Default.ATOM_SIZE);
-        setEpsilon(Default.POTENTIAL_WELL);
-        setCutoffFactorLJ(Default.POTENTIAL_CUTOFF_FACTOR);
+        setSigma(sigma);
+        setEpsilon(epsilon);
+        setCutoffFactorLJ(cutoffFactorLJ);
 //        setWellCutoff(getSigma());
         setWellCutoffFactor(1.0);
         setWellEpsilon(8.0*getEpsilon());

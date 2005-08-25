@@ -27,7 +27,6 @@ import etomica.spin.NeighborCellManagerFixed;
 import etomica.spin.P1MagneticField;
 import etomica.spin.P2Spin;
 import etomica.units.systems.LJ;
-import etomica.util.Default;
 
 
 /**
@@ -53,7 +52,7 @@ public class Heisenberg extends Simulation {
      */
     public Heisenberg(Space space) {
         super(space, false, new PotentialMasterSite(space));
-        Default.makeLJDefaults();
+        defaults.makeLJDefaults();
         phase = new Phase(this);
         int nCells = 60;
         int numAtoms = space.powerD(nCells);
@@ -65,11 +64,11 @@ public class Heisenberg extends Simulation {
         
         potential = new P2Spin(space);
         field = new P1MagneticField(space);
-        integrator = new IntegratorMC(potentialMaster);
+        integrator = new IntegratorMC(this);
         mcmove = new MCMoveSpinFlip(potentialMaster);
         integrator.addMCMove(mcmove);
         
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setDoSleep(false);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
@@ -84,7 +83,7 @@ public class Heisenberg extends Simulation {
         
         meter = new MeterSpin(space);
         meter.setPhase(phase);
-        dAcc = new AccumulatorAverage();
+        dAcc = new AccumulatorAverage(this);
         pump = new DataPump(meter, dAcc);
         adapter = new IntervalActionAdapter(pump,integrator);
         adapter.setActionInterval(10);

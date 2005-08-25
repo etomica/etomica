@@ -48,7 +48,7 @@ public class PistonCylinder extends Simulation {
         super(Space.getInstance(D));
         lambda = 1.5;
         controller = getController();
-        Default.ATOM_MASS = 16;
+        Default.atomMass = 16;
         species = new SpeciesSpheresMono(this);
         species.setNMolecules(112);
         phase = new Phase(this);
@@ -67,13 +67,13 @@ public class PistonCylinder extends Simulation {
         phase.makeMolecules();
         config.initializeCoordinates(phase);
         
-        P2SquareWell potentialSW = new P2SquareWell(space,Default.ATOM_SIZE,lambda,31.875);
+        P2SquareWell potentialSW = new P2SquareWell(space,Default.atomSize,lambda,31.875);
         potentialWrapper = new Potential2HardSphericalWrapper(space,potentialSW);
-//        potential = new P2HardSphere(space,Default.ATOM_SIZE);
+//        potential = new P2HardSphere(space,Default.atomSize);
         potentialMaster.setSpecies(potentialWrapper,new Species[]{species,species});
         
         wallPotential = new P1HardBoundary(space);
-        wallPotential.setCollisionRadius(Default.ATOM_SIZE*0.5); //potential.getCoreDiameter()*0.5);
+        wallPotential.setCollisionRadius(Default.atomSize*0.5); //potential.getCoreDiameter()*0.5);
         potentialMaster.setSpecies(wallPotential,new Species[]{species});
         wallPotential.setActive(0,true,true);  // left wall
         wallPotential.setActive(0,false,true); // right wall
@@ -84,8 +84,8 @@ public class PistonCylinder extends Simulation {
             wallPotential.setActive(2,false,true); // back wall
         }
 
-        pistonPotential = new P1HardMovingBoundary(space,phase.boundary(),1,Default.ATOM_MASS*100);
-        pistonPotential.setCollisionRadius(Default.ATOM_SIZE*0.5);
+        pistonPotential = new P1HardMovingBoundary(space,phase.boundary(),1,Default.atomMass*100);
+        pistonPotential.setCollisionRadius(Default.atomSize*0.5);
         pistonPotential.setWallPosition(0.0);
         pistonPotential.setWallVelocity(0.5);
         if (D == 3) {
@@ -103,7 +103,7 @@ public class PistonCylinder extends Simulation {
         integrator.setThermostatInterval(1);
         integrator.setThermostat(IntegratorMD.ANDERSEN_SINGLE);
         integrator.setTimeStep(1.0);
-        ai = new ActivityIntegrate(integrator);
+        ai = new ActivityIntegrate(this,integrator);
         getController().addAction(ai);
         
     }
@@ -115,7 +115,7 @@ public class PistonCylinder extends Simulation {
         PistonCylinder sim = new PistonCylinder(3);
         sim.ai.setMaxSteps(50000);
         sim.integrator.setTimeStep(20.0);
-        Default.BLOCK_SIZE=1000;
+        Default.blockSize=1000;
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.space,sim.integrator);
         pMeter.setPhase(sim.phase);
@@ -124,7 +124,7 @@ public class PistonCylinder extends Simulation {
         IntervalActionAdapter adapter = new IntervalActionAdapter(pump,sim.integrator);
         adapter.setActionInterval(10);
         
-        MeterPistonDensity dMeter = new MeterPistonDensity(sim.pistonPotential,1,Default.ATOM_SIZE);
+        MeterPistonDensity dMeter = new MeterPistonDensity(sim.pistonPotential,1,Default.atomSize);
         dMeter.setPhase(sim.phase);
         AccumulatorAverage dAcc = new AccumulatorAverage();
         pump = new DataPump(dMeter, dAcc);

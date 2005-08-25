@@ -1,6 +1,5 @@
 package etomica.atom;
 
-import etomica.space.Coordinate;
 import etomica.space.CoordinateFactorySphere;
 import etomica.space.ICoordinate;
 import etomica.space.Space;
@@ -51,12 +50,13 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
     
     /**
      * Makes a simple atom for the given space.  Coordinate is non-kinetic sphere;
-     * node is for a leaf atom; sequencer is simple; type is a sphere, unique to the new atom; 
+     * node is for a leaf atom; sequencer is simple; type is a sphere with unit mass 
+     * and unit size, unique to the new atom; 
      * depth is 0.
      */
     public Atom(Space space) {
-    	this(new CoordinateFactorySphere(space, false).makeCoordinate(), new AtomTypeSphere(null), AtomTreeNodeLeaf.FACTORY, AtomLinker.FACTORY);                        
-        node.setOrdinal(0,++INSTANCE_COUNT);//default index; changed when added to parent after construction
+        this(new CoordinateFactorySphere(space, false).makeCoordinate(), new AtomTypeSphere(null,1,1), AtomTreeNodeLeaf.FACTORY, AtomLinker.FACTORY);                        
+            node.setOrdinal(0,++INSTANCE_COUNT);//default index; changed when added to parent after construction
     }
     
     /**

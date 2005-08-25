@@ -126,8 +126,8 @@ public class SimulationVirialOverlap extends Simulation {
         
         setRefPref(1,5);
         integratorOS = new IntegratorOverlap(potentialMaster, integrators, accumulators);
-        integratorOS.setNumSubSteps(Default.BLOCK_SIZE);
-        ai = new ActivityIntegrate(integratorOS);
+        integratorOS.setNumSubSteps(Default.blockSize);
+        ai = new ActivityIntegrate(this,integratorOS);
         ai.setInterval(1);
         getController().addAction(ai);
 		
@@ -203,7 +203,7 @@ public class SimulationVirialOverlap extends Simulation {
 		double sigmaHSRef = 1.6;
         double sigmaLJ = 1.0;
 		double b0 = 2*Math.PI/3. * Math.pow(sigmaHSRef,3);
-		Default.ATOM_SIZE = 1.0;
+		Default.atomSize = 1.0;
 		System.out.println("sigmaHSRef: "+sigmaHSRef);
 		System.out.println("B2HS: "+b0);
 		System.out.println("B3HS: "+(5./8.*b0*b0)+" = "+(5.0/8.0)+" B2HS^2");
@@ -222,7 +222,7 @@ public class SimulationVirialOverlap extends Simulation {
 
 		int maxSteps = 100000;
 		
-        Default.BLOCK_SIZE = 1000;
+        Default.blockSize = 1000;
 //		while (true) {
 			SimulationVirialOverlap sim = new SimulationVirialOverlap(space, new SpeciesFactorySpheres(), temperature, refCluster, targetCluster);
 			sim.ai.setMaxSteps(maxSteps);

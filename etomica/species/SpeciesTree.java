@@ -11,7 +11,6 @@ import etomica.atom.AtomTypeSphere;
 import etomica.simulation.Simulation;
 import etomica.space.CoordinateFactory;
 import etomica.space.CoordinateFactorySphere;
-import etomica.util.Default;
 
 /**
  * Species in which molecules are formed as an arbitrarily shaped tree.
@@ -50,7 +49,7 @@ public class SpeciesTree extends Species implements EtomicaElement {
             int[] nA, AtomTypeGroup agentType) {
         super(sim, new AtomFactoryTree(sim.space, seqFactory, agentType, nA), agentType);
         //getLeafType will return the an AtomTypeGroup because leaf factory is not yet set
-        AtomTypeSphere atomType = new AtomTypeSphere((AtomTypeGroup)((AtomFactoryTree)factory).getLeafType(), Default.ATOM_MASS, Default.ATOM_SIZE);
+        AtomTypeSphere atomType = new AtomTypeSphere((AtomTypeGroup)((AtomFactoryTree)factory).getLeafType(), sim.getDefaults().atomMass, sim.getDefaults().atomSize);
         CoordinateFactory coordFactory = new CoordinateFactorySphere(sim);
         ((AtomFactoryTree)factory).setLeafFactory(new AtomFactoryMono(coordFactory, atomType, seqFactory));
         factory.setSpecies(this);

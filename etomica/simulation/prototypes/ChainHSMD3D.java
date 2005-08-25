@@ -15,13 +15,11 @@ import etomica.nbr.list.PotentialMasterNbr;
 import etomica.phase.Phase;
 import etomica.potential.P1BondedHardSpheres;
 import etomica.potential.P2HardSphere;
-import etomica.potential.PotentialGroup;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
-import etomica.util.Default;
 
 public class ChainHSMD3D extends Simulation {
 
@@ -35,40 +33,40 @@ public class ChainHSMD3D extends Simulation {
     }
     private ChainHSMD3D(Space space) {
 //        super(space, new PotentialMaster(space));
-        super(space, true, new PotentialMasterNbr(space));
-        Default.FIX_OVERLAP = true;
+        super(space, true, new PotentialMasterNbr(space, 1.6));
+        defaults.ignoreOverlap = true;
         int numAtoms = 704;
         int chainLength = 4;
         double neighborRangeFac = 1.6;
-        Default.makeLJDefaults();
-        Default.ATOM_SIZE = 1.0;
-        Default.BOX_SIZE = 14.4573*Math.pow((chainLength*numAtoms/2020.0),1.0/3.0);
-        int nCells = (int)(Default.BOX_SIZE/neighborRangeFac);
+        defaults.makeLJDefaults();
+        defaults.atomSize = 1.0;
+        defaults.boxSize = 14.4573*Math.pow((chainLength*numAtoms/2020.0),1.0/3.0);
+        int nCells = (int)(defaults.boxSize/neighborRangeFac);
         System.out.println("nCells: "+nCells);
         ((PotentialMasterNbr)potentialMaster).setNCells(nCells);
 //FIXME        ((PotentialMasterNbr)potentialMaster).setAtomPositionDefinition(new DataSourceCOM(space));
 
-        integrator = new IntegratorHard(potentialMaster);
+        integrator = new IntegratorHard(this);
         integrator.setIsothermal(false);
         integrator.addListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
         integrator.setTimeStep(0.01);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheres(this,chainLength);
         species.setNMolecules(numAtoms);
-        ((ConformationLinear)((AtomFactoryHomo)species.getFactory()).getConformation()).setBondLength(Default.ATOM_SIZE);
+        ((ConformationLinear)((AtomFactoryHomo)species.getFactory()).getConformation()).setBondLength(defaults.atomSize);
         ((ConformationLinear)((AtomFactoryHomo)species.getFactory()).getConformation()).setAngle(1,0.5);
         
         phase = new Phase(this);
         new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);
         
-        P1BondedHardSpheres p1Intra = new P1BondedHardSpheres(space);
+        P1BondedHardSpheres p1Intra = new P1BondedHardSpheres(this);
         potentialMaster.setSpecies(p1Intra,new Species[]{species});
         
-        PotentialGroup p2Inter = new PotentialGroup(2, space);
-        potential = new P2HardSphere(space);
+        //PotentialGroup p2Inter = new PotentialGroup(2, space);
+        potential = new P2HardSphere(this);
         NeighborCriterion criterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
 //FIXME        ApiFiltered interIterator = new ApiFiltered(new ApiIntergroup(),criterion);
 //FIXME        p2Inter.addPotential(potential,interIterator);

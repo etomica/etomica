@@ -35,21 +35,21 @@ public class TestHSMD3D extends Simulation {
 
     public TestHSMD3D(Space space, int numAtoms) {
         // use custom bit lengths to allow for more "molecules"
-        super(space, true, new PotentialMasterNbr(space), new int[] {1, 4, 4, 21, 1, 1});
+        super(space, true, new PotentialMasterNbr(space, 1.6), new int[] {1, 4, 4, 21, 1, 1}, new Default());
         
         double neighborRangeFac = 1.6;
-        Default.makeLJDefaults();
+        defaults.makeLJDefaults();
         // makes eta = 0.35
-        Default.BOX_SIZE = 14.4573*Math.pow((numAtoms/2000.0),1.0/3.0);
-        ((PotentialMasterNbr)potentialMaster).setNCells((int)(Default.BOX_SIZE/neighborRangeFac));
-        integrator = new IntegratorHard(potentialMaster);
+        defaults.boxSize = 14.4573*Math.pow((numAtoms/2000.0),1.0/3.0);
+        ((PotentialMasterNbr)potentialMaster).setNCells((int)(defaults.boxSize/neighborRangeFac));
+        integrator = new IntegratorHard(this);
         NeighborListManager nbrManager = ((PotentialMasterNbr)potentialMaster).getNeighborManager();
-        nbrManager.setRange(Default.ATOM_SIZE*1.6);
+        nbrManager.setRange(defaults.atomSize*1.6);
         nbrManager.getPbcEnforcer().setApplyToMolecules(false);
         integrator.addListener(nbrManager);
         integrator.setTimeStep(0.01);
         integrator.setIsothermal(true);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         getController().addAction(activityIntegrate);
         activityIntegrate.setMaxSteps(20000000/numAtoms);
         species = new SpeciesSpheresMono(this);
@@ -57,13 +57,13 @@ public class TestHSMD3D extends Simulation {
         species.setNMolecules(numAtoms);
         species2.setNMolecules(numAtoms/100);
 
-        potential = new P2HardSphere(space);
+        potential = new P2HardSphere(this);
         NeighborCriterion nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         CriterionSpecies criterion = new CriterionSpecies(nbrCriterion, species, species);
         potential.setCriterion(criterion);
         potentialMaster.setSpecies(potential,new Species[]{species,species});
 
-        potential = new P2HardSphere(space);
+        potential = new P2HardSphere(this);
         nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         criterion = new CriterionSpecies(nbrCriterion, species, species2);
         potential.setCriterion(criterion);
@@ -71,7 +71,7 @@ public class TestHSMD3D extends Simulation {
         //only need to call since all the criteria are equivalent
         nbrManager.addCriterion(nbrCriterion,new AtomType[]{species.getFactory().getType(),species2.getFactory().getType()});
 
-        potential = new P2HardSphere(space);
+        potential = new P2HardSphere(this);
         nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         criterion = new CriterionSpecies(nbrCriterion, species2, species2);
         potential.setCriterion(criterion);

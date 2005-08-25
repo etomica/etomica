@@ -1,9 +1,9 @@
 package etomica.potential;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.units.Dimension;
-import etomica.util.Default;
 
 /**
  * Weeks-Chandler-Andersen potential.  Obtained by truncating the Lennard-Jones
@@ -18,8 +18,8 @@ public class P2WCA extends Potential2SoftSpherical implements EtomicaElement {
     /**
      * Constructs potential using default sigma and epsilon given by Default class.
      */
-    public P2WCA(Space space) {
-        this(space, Default.ATOM_SIZE, Default.POTENTIAL_WELL);
+    public P2WCA(Simulation sim) {
+        this(sim.space, sim.getDefaults().atomSize, sim.getDefaults().potentialWell);
     }
     
     public P2WCA(Space space, double sigma, double epsilon) {

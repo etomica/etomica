@@ -4,6 +4,7 @@ import etomica.action.ActionGroup;
 import etomica.data.AccumulatorAverage.Type;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntervalActionAdapter;
+import etomica.simulation.Simulation;
 
 /**
  * Data table that collects the AccumulatorAverage statistics for a collection
@@ -26,32 +27,30 @@ public class DataTableAverages extends DataSinkTable {
      * Sets up table with default types that give the current value, the
      * average, and the error bars.
      */
-    public DataTableAverages(Integrator integrator) {
+    public DataTableAverages(Simulation sim, Integrator integrator) {
+        this(integrator,sim.getDefaults().blockSize);
+    }
+    
+    public DataTableAverages(Integrator integrator, int blockSize) {
         this(integrator, new Type[] { AccumulatorAverage.MOST_RECENT,
-                AccumulatorAverage.AVERAGE, AccumulatorAverage.ERROR });
+                AccumulatorAverage.AVERAGE, AccumulatorAverage.ERROR }, 
+                blockSize, null);
     }
 
     /**
      * Sets up table with no sources.
      */
-    public DataTableAverages(Integrator integrator, Type[] types) {
+    public DataTableAverages(Integrator integrator, Type[] types, int blockSize, 
+            DataSource[] sources) {
         super();
         this.types = (Type[]) types.clone();
         actionGroup = new ActionGroup();
         intervalAction = new IntervalActionAdapter(actionGroup, integrator);
-    }
-
-    /**
-     * Sets up table with averages accumulated for the given data sources.
-     * Interval events from the given integrator cause movement of data from the
-     * sources. All accumulators collect statistics as specified by the given
-     * array of types.
-     */
-    public DataTableAverages(Integrator integrator, Type[] types,
-            DataSource[] sources) {
-        this(integrator, types);
-        for (int i = 0; i < sources.length; i++) {
-            addDataSource(sources[i]);
+        this.blockSize = blockSize;
+        if (sources != null) {
+            for (int i = 0; i < sources.length; i++) {
+                addDataSource(sources[i]);
+            }
         }
     }
 
@@ -59,7 +58,7 @@ public class DataTableAverages extends DataSinkTable {
      * Adds the given data source to those feeding the table.
      */
     public void addDataSource(DataSource newSource) {
-        AccumulatorAverage accumulator = new AccumulatorAverage();
+        AccumulatorAverage accumulator = new AccumulatorAverage(blockSize);
         DataPump dataPump = new DataPump(newSource, accumulator);
         actionGroup.addAction(dataPump);
         accumulator.setPushInterval(tableUpdateInterval);
@@ -118,4 +117,5 @@ public class DataTableAverages extends DataSinkTable {
     private final IntervalActionAdapter intervalAction;
     private int tableUpdateInterval = 100;
     private int accumulatorUpdateInterval = 1;
+    private int blockSize;
 }

@@ -7,12 +7,12 @@ import etomica.EtomicaInfo;
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
 import etomica.graphics.Drawable;
+import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.util.Debug;
-import etomica.util.Default;
 
 /**
  * Potential that places hard repulsive walls coinciding with the
@@ -36,10 +36,16 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     private final Vector work;
     private int[] pixPosition;
     private int[] thickness;
+    private boolean ignoreOverlap;
     
-    public P1HardBoundary(Space space) {
+    public P1HardBoundary(Simulation sim) {
+        this(sim.space, sim.getDefaults().temperature, sim.getDefaults().ignoreOverlap);
+    }
+    
+    public P1HardBoundary(Space space, double temperature, boolean ignoreOverlap) {
         super(space);
-        temperature = Default.TEMPERATURE;
+        this.temperature = temperature;
+        this.ignoreOverlap = ignoreOverlap;
         work = space.makeVector();
         isActiveDim = new boolean[space.D()][2];
     }
@@ -96,7 +102,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
             }
             if(t < tmin) tmin = t;
         }
-        if (Default.FIX_OVERLAP && tmin<0.0) tmin = 0.0;
+        if (ignoreOverlap && tmin<0.0) tmin = 0.0;
         if (Debug.ON && tmin < 0.0) {
             System.out.println("t "+tmin+" "+a+" "+work+" "+v+" "+boundary.dimensions());
             throw new RuntimeException("you screwed up");
@@ -215,7 +221,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
         sim.species.setNMolecules(10);
         P1HardBoundary potential = new P1HardBoundary();
         potential.set(sim.phase.speciesMaster);
-        potential.setCollisionRadius(0.5*Default.ATOM_SIZE);
+        potential.setCollisionRadius(0.5*Default.atomSize);
   //      sim.phase.setBoundary(sim.space().makeBoundary(Space2D.Boundary.NONE));
         sim.elementCoordinator.go();
         

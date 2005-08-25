@@ -31,16 +31,16 @@ public class HsMc2d extends Simulation {
 
     public HsMc2d() {
         super(Space2D.getInstance());
-	    integrator = new IntegratorMC(potentialMaster);
-	    mcMoveAtom = new MCMoveAtom(potentialMaster);
+	    integrator = new IntegratorMC(this);
+	    mcMoveAtom = new MCMoveAtom(this);
         integrator.addMCMove(mcMoveAtom);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this, integrator);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         species2 = new SpeciesSpheresMono(this);
 	    phase = new Phase(this);
         new ConfigurationSequential(space).initializeCoordinates(phase);
-	    potential = new P2HardSphere(space);
+	    potential = new P2HardSphere(this);
         potentialMaster.setSpecies(potential, new Species[] {species, species});
         potentialMaster.setSpecies(potential, new Species[] {species, species2});
         potentialMaster.setSpecies(potential, new Species[] {species2, species2});

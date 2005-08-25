@@ -7,9 +7,11 @@ import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.potential.Potential;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -35,8 +37,13 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
 	    }
     };
 
-    public IntegratorHardField(PotentialMaster potentialMaster) {
-        super(potentialMaster);
+    public IntegratorHardField(Simulation sim) {
+        this(sim.potentialMaster,sim.getDefaults().timeStep,sim.getDefaults().temperature);
+    }
+    
+    public IntegratorHardField(PotentialMaster potentialMaster, double timeStep, 
+            double temperature) {
+        super(potentialMaster,timeStep,temperature);
         space = potentialMaster.getSpace();
         forceSum = new PotentialCalculationForceSum(space);//new IntegratorHardField.ForceSum(sim.space());
         //XXX not serializable
@@ -77,7 +84,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         }
     }
     
-    public void reset() {
+    public void reset() throws ConfigurationOverlapException {
         calculateForces();
         super.reset();
     }

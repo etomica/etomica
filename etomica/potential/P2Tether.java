@@ -3,13 +3,13 @@ import etomica.EtomicaInfo;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
+import etomica.simulation.Simulation;
 import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.Dimension;
-import etomica.util.Default;
 /**
  * Potential that acts like a hard string connecting the centers of two atoms.
  * Meant for use as an intra-molecular interaction.
@@ -20,9 +20,14 @@ import etomica.util.Default;
  */
 public class P2Tether extends Potential2HardSpherical {
 
-    public P2Tether(Space space) {
+    public P2Tether(Simulation sim) {
+        this(sim.space, 0.75*sim.getDefaults().atomSize, sim.getDefaults().ignoreOverlap);
+    }
+    
+    public P2Tether(Space space, double tetherLength, boolean ignoreOverlap) {
         super(space, new CoordinatePairKinetic(space));
-        setTetherLength(0.75*Default.ATOM_SIZE);
+        setTetherLength(tetherLength);
+        this.ignoreOverlap = ignoreOverlap;
         lastCollisionVirialTensor = space.makeTensor();
         dr = space.makeVector();
         cPair = (CoordinatePairKinetic)coordinatePair;
@@ -100,7 +105,7 @@ public class P2Tether extends Potential2HardSpherical {
         double r2 = dr.squared();
         double bij = dr.dot(dv);
         double v2 = dv.squared();
-        if(Default.FIX_OVERLAP && r2 > tetherLengthSquared && bij > 0) {return 0.0;}  //outside tether, moving apart; collide now
+        if(ignoreOverlap && r2 > tetherLengthSquared && bij > 0) {return 0.0;}  //outside tether, moving apart; collide now
         double discr = bij*bij - v2 * ( r2 - tetherLengthSquared );
         return (-bij + Math.sqrt(discr))/v2 + falseTime;
     }
@@ -120,6 +125,7 @@ public class P2Tether extends Potential2HardSpherical {
     private final Vector dr;
     private final Tensor lastCollisionVirialTensor;
     private final CoordinatePairKinetic cPair;
+    private final boolean ignoreOverlap;
    
 }//end of P2Tether
   

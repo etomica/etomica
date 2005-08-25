@@ -13,12 +13,14 @@ import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDoubleArray;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.modifier.ModifierBoolean;
 import etomica.phase.Phase;
 import etomica.potential.Potential;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.CoordinatePairKinetic;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -46,8 +48,14 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     protected int D;
     protected final MeterTemperature meterTemperature = new MeterTemperature();
     
-    public IntegratorGear4NPH(PotentialMaster potentialMaster, Space space) {
-        super(potentialMaster, space);
+    public IntegratorGear4NPH(Simulation sim) {
+        this(sim.potentialMaster,sim.space,sim.getDefaults().timeStep,
+                sim.getDefaults().temperature);
+    }
+    
+    public IntegratorGear4NPH(PotentialMaster potentialMaster, Space space, 
+            double timeStep, double temperature) {
+        super(potentialMaster, space, timeStep, temperature);
         kp = 1.0/rrp/getTimeStep();
         kh = 1.0/rrh/getTimeStep();
         D = space.D();
@@ -183,12 +191,12 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
 //--------------------------------------------------------------
 
 
-    public void reset() {
-        super.reset();
+    public void reset() throws ConfigurationOverlapException {
         vol1 = 0.0;
         vol2 = 0.0;
         vol3 = 0.0;
         vol4 = 0.0;
+        super.reset();
     }
               
 //--------------------------------------------------------------

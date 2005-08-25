@@ -3,6 +3,7 @@ package etomica.integrator;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveListener;
 import etomica.phase.Phase;
@@ -23,12 +24,16 @@ import etomica.simulation.SimulationEventManager;
 
 public class IntegratorMC extends Integrator implements EtomicaElement {
 
+    public IntegratorMC(Simulation sim) {
+        this(sim.potentialMaster,sim.getDefaults().temperature);
+    }
+    
 	/**
 	 * Constructs integrator and establishes PotentialMaster instance that
 	 * will be used by moves to calculate the energy.
 	 */
-	public IntegratorMC(PotentialMaster potentialMaster) {
-		super(potentialMaster);
+	public IntegratorMC(PotentialMaster potentialMaster, double temperature) {
+		super(potentialMaster,temperature);
 		setIsothermal(true); //has no practical effect, but sets value of
 		// isothermal to be consistent with way integrator
 		// is sampling
@@ -245,7 +250,7 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
      * Causes recalculation of move frequencies and zero of selection counts for
      * moves.
      */
-    public void reset() {
+    public void reset() throws ConfigurationOverlapException {
         recomputeMoveFrequencies();
         for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
             link.selectionCount = 0;

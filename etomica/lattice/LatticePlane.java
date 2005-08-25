@@ -116,7 +116,7 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
         //use normal as a work vector, giving a point contained by the plane
         //in its desired position
         delta.E(origin);
-		delta.PEa1Tv1(((double)i+0.000001)*2.0*Math.PI/normal.squared(),normal);
+		delta.PEa1Tv1((i+0.000001)*2.0*Math.PI/normal.squared(),normal);
 //		delta.PEa1Tv1(((double)i+0.000001)*2.0*Math.PI,normal);
         plane.moveTo(delta);
     }
@@ -154,11 +154,11 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
      * Plane is instantiated and returned as the copy.
      */
     public Plane planeCopy(Plane copy) {
-        if(copy == null) return new Plane(plane);
-        else {
-            copy.E(plane); 
-            return copy;
+        if(copy == null) {
+            return new Plane(plane);
         }
+        copy.E(plane); 
+        return copy;
     }
     
     /**

@@ -46,7 +46,7 @@ public abstract class ModelAtomic extends Model {
 	public AtomFactory makeAtomFactory(Simulation sim) {
         AtomSequencerFactory seqFactory = doNeighborIteration() ? sim.potentialMaster.sequencerFactory()
                  : AtomLinker.FACTORY;
-		return new AtomFactoryMono(new CoordinateFactorySphere(sim),new AtomTypeSphere(Species.makeAgentType(sim)),seqFactory);
+		return new AtomFactoryMono(new CoordinateFactorySphere(sim),new AtomTypeSphere(sim,Species.makeAgentType(sim)),seqFactory);
 	}
 	/**
 	 * Returns the electrostatic.

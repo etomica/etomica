@@ -1,8 +1,8 @@
 package etomica.virial;
 
+import etomica.simulation.Simulation;
 import etomica.space.CoordinatePair;
 import etomica.space.Space;
-import etomica.util.Default;
 
 /**
  * @author kofke
@@ -15,8 +15,8 @@ public class MayerHardSphere extends MayerFunctionSpherical {
 	/**
 	 * Constructor for MayerHardSphere.
 	 */
-	public MayerHardSphere(Space space) {
-		this(space, Default.ATOM_SIZE);
+	public MayerHardSphere(Simulation sim) {
+		this(sim.space, sim.getDefaults().atomSize);
 	}
 	public MayerHardSphere(Space space, double sigma) {
         super(space);

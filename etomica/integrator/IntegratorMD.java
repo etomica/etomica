@@ -8,14 +8,13 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.exception.MethodNotImplementedException;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
 import etomica.units.Dimension;
-import etomica.util.Constants;
-import etomica.util.Default;
 import etomica.util.EnumeratedType;
 /**
  * Superclass of all molecular-dynamics integrators.
@@ -25,15 +24,14 @@ import etomica.util.EnumeratedType;
 
 public abstract class IntegratorMD extends Integrator {
     
-    public IntegratorMD(PotentialMaster potentialMaster) {
-        super(potentialMaster);
-        setTimeStep(Default.TIME_STEP);
+    public IntegratorMD(PotentialMaster potentialMaster, double timeStep, double temperature) {
+        super(potentialMaster,temperature);
+        setTimeStep(timeStep);
         thermostat = ANDERSEN;
         atomIterator = new AtomIteratorLeafAtoms();
         setThermostatInterval(100);
         meterKE = new MeterKineticEnergy();
-        atomActionRandomizeVelocity = new AtomActionRandomizeVelocity();
-        atomActionRandomizeVelocity.setTemperature(temperature);
+        atomActionRandomizeVelocity = new AtomActionRandomizeVelocity(temperature);
         meterTemperature = new MeterTemperature();
         currentKineticEnergy = new double[1];
     }
@@ -49,7 +47,10 @@ public abstract class IntegratorMD extends Integrator {
     public Dimension getTimeStepDimension() {return Dimension.TIME;}
 
     protected void setup() {
-        super.setup();
+        try {
+            super.setup();
+        }
+        catch (ConfigurationOverlapException e) {}
         thermostatCount = 1;
         meterKE.setPhase(firstPhase);
         doThermostat();
@@ -58,8 +59,7 @@ public abstract class IntegratorMD extends Integrator {
     /**
      * reset the integrator's kinetic energy tracker
      */
-    public void reset() {
-        super.reset();
+    public void reset() throws ConfigurationOverlapException {
         meterKE.setPhase(firstPhase);
         if (phase.length != currentKineticEnergy.length) {
             currentKineticEnergy = new double[phase.length];
@@ -68,6 +68,7 @@ public abstract class IntegratorMD extends Integrator {
             meterKE.setPhase(phase[i]);
             currentKineticEnergy[i] = meterKE.getDataAsScalar();
         }
+        super.reset();
     }
 
     /**

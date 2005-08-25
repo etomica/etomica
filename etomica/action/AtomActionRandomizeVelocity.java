@@ -23,13 +23,6 @@ import etomica.util.Default;
 public class AtomActionRandomizeVelocity extends AtomActionAdapter {
 
     /**
-     * Constructs class with Default.TEMPERATURE.
-     */
-    public AtomActionRandomizeVelocity() {
-        this(Default.TEMPERATURE);
-    }
-
-    /**
      * Constructs class to assign velocities according to the given temperature.
      * May be subsequently changed with setTemperature method.
      */
@@ -67,6 +60,9 @@ public class AtomActionRandomizeVelocity extends AtomActionAdapter {
      * @param temperature The temperature to set.
      */
     public void setTemperature(double temperature) {
+        if (temperature < 0) {
+            throw new IllegalArgumentException("temperature must be non-negative");
+        }
         this.temperature = temperature;
     }
     

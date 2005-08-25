@@ -5,7 +5,6 @@ import etomica.potential.EmbeddedAtomMethodP2.Wrapper;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
-import etomica.units.ElectronVolt;
 
 /**
  * This class defines the many-body term of the Embedded-Atom Method (EAM) interatomic 

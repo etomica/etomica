@@ -46,17 +46,17 @@ public class HSMD2D_noNbr extends Simulation {
     public HSMD2D_noNbr(Space2D space) {
         super(space);
 
-        integrator = new IntegratorHard(potentialMaster);
+        integrator = new IntegratorHard(this);
         integrator.setIsothermal(false);
-        activityIntegrate = new ActivityIntegrate(integrator);
+        activityIntegrate = new ActivityIntegrate(this,integrator);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         species.setNMolecules(64);
 	    phase = new Phase(this);
         new ConfigurationSequential(space).initializeCoordinates(phase);
-	    P2HardSphere potential = new P2HardSphere(space);
+	    P2HardSphere potential = new P2HardSphere(this);
 	    potentialMaster.setSpecies(potential,new Species[]{species,species});
-        P1HardBoundary potentialBoundary = new P1HardBoundary(space);
+        P1HardBoundary potentialBoundary = new P1HardBoundary(this);
         potentialMaster.setSpecies(potentialBoundary, new Species[] {species});
 //        potentialBoundary.setActive(0,true,true);
 //        potentialBoundary.setActive(1,true,true);
@@ -81,7 +81,7 @@ public class HSMD2D_noNbr extends Simulation {
         
         MeterTemperature meterTemperature = new MeterTemperature();
         meterTemperature.setPhase(phase);
-        temperatureAverage = new AccumulatorAverage();
+        temperatureAverage = new AccumulatorAverage(this);
         DataPump temperaturePump = new DataPump(meterTemperature, temperatureAverage);
         new IntervalActionAdapter(temperaturePump, integrator);
 
@@ -109,7 +109,7 @@ public class HSMD2D_noNbr extends Simulation {
         DisplayPlot temperaturePlot = new DisplayPlot();
         sim.temperatureHistory.setDataSink(temperaturePlot.getDataTable());
         DeviceNSelector nSelector = new DeviceNSelector(sim, sim.phase.getAgent(sim.species));
-        DeviceThermoSelector thermo = new DeviceThermoSelector(sim.getController(), sim.integrator);
+        DeviceThermoSelector thermo = new DeviceThermoSelector(sim, sim.integrator);
         graphic.add(nSelector);
         graphic.add(thermo);
 //        graphic.add(pressureDisplay);

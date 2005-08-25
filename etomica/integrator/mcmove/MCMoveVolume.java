@@ -8,8 +8,8 @@ import etomica.integrator.MCMove;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
+import etomica.space.Space;
 import etomica.units.Dimension;
-import etomica.util.Default;
 
 /**
  * Standard Monte Carlo volume-change move for simulations in the NPT ensemble.
@@ -27,20 +27,23 @@ public class MCMoveVolume extends MCMove {
     private transient double uOld, hOld, vNew, vScale;
     private transient double uNew = Double.NaN;
 
+    public MCMoveVolume(Simulation sim) {
+        this(sim.potentialMaster, sim.space, sim.getDefaults().pressure);
+    }
+    
     /**
-     * 
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
-     * @param D the spatial dimension of the simulation, Space.D()
+     * @param space the governing space for the simulation
      */
-    public MCMoveVolume(PotentialMaster potentialMaster, int D) {
+    public MCMoveVolume(PotentialMaster potentialMaster, Space space, double pressure) {
         super(potentialMaster, 1);
-        this.D = D;
+        this.D = space.D();
         inflate = new PhaseInflate(potentialMaster.getSpace());
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         setStepSizeMax(1.0);
         setStepSizeMin(0.0);
         setStepSize(0.10);
-        setPressure(Default.PRESSURE);
+        setPressure(pressure);
         energyMeter.setIncludeLrc(true);
         setName("MCMoveVolume");
         

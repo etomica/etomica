@@ -5,10 +5,10 @@ import etomica.atom.Atom;
 import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
-import etomica.util.Default;
 
 /**
  * Places atoms in a straight line.  Does not zero total momentum.
@@ -19,8 +19,8 @@ import etomica.util.Default;
 
 public class ConformationLinear extends Conformation {
     
-    public ConformationLinear(Space space) {
-        this(space, 0.55*Default.ATOM_SIZE);
+    public ConformationLinear(Simulation sim) {
+        this(sim.space, 0.55*sim.getDefaults().atomSize);
     }
     public ConformationLinear(Space space, double bondLength) {
     	this(space, bondLength, new double[] {etomica.units.Degree.UNIT.toSim(45.), 0.0});

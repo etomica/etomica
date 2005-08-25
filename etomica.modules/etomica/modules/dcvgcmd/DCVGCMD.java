@@ -71,9 +71,9 @@ public class DCVGCMD extends Simulation {
     private DCVGCMD(Space space) {
         //Instantiate classes
         super(space, true, new PotentialMasterHybrid(space));
-        Default.ATOM_MASS = 40.;
-        Default.ATOM_SIZE = 3.0;
-        Default.POTENTIAL_WELL = 119.8;
+        Default.atomMass = 40.;
+        Default.atomSize = 3.0;
+        Default.potentialWell = 119.8;
         //Default.makeLJDefaults();
         //Default.BOX_SIZE = 14.0;
 
@@ -89,7 +89,7 @@ public class DCVGCMD extends Simulation {
         double neighborRangeFac = 1.4;
         final NeighborListManager nbrManager = potentialMasterHybrid.getNeighborManager();
         nbrManager.getPbcEnforcer().setApplyToMolecules(false);
-        int nCells = (int) (40 / (neighborRangeFac * Default.ATOM_SIZE));
+        int nCells = (int) (40 / (neighborRangeFac * Default.atomSize));
         potentialMasterHybrid.setNCells(nCells);
 
         //0-0 intraspecies interaction
@@ -169,8 +169,7 @@ public class DCVGCMD extends Simulation {
         potentialMasterHybrid.calculate(phase, new PotentialCalculationAgents(potentialMasterHybrid));
 
 
-        activityIntegrate = new ActivityIntegrate(
-                integratorDCV);
+        activityIntegrate = new ActivityIntegrate(this,integratorDCV);
         getController().addAction(activityIntegrate);
 
         //make MC integrator next

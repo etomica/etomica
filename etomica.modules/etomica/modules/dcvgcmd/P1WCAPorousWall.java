@@ -33,7 +33,7 @@ public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
     private double z;
 
     public P1WCAPorousWall(Space space) {
-        this(space, Default.ATOM_SIZE, Default.POTENTIAL_WELL);
+        this(space, Default.atomSize, Default.potentialWell);
     }
 
     public P1WCAPorousWall(Space space, double sigma, double epsilon) {

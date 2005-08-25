@@ -57,39 +57,43 @@ public class HSMD3D extends Simulation {
      * Sole public constructor, makes a simulation using a 3D space.
      */
     public HSMD3D() {
-        this(Space3D.getInstance());
+        this(new Default());
+    }
+    
+    public HSMD3D(Default defaults) {
+        this(Space3D.getInstance(), defaults);
     }
     
     //we use a second, private constructor to permit the space to
     //appear twice in the call to the superclass constructor; alternatively
     //we could have passed Space3D.getInstance() twice
-    private HSMD3D(Space space) {
+    private HSMD3D(Space space, Default defaults) {
 
         // invoke the superclass constructor
         // "true" is indicating to the superclass that this is a dynamic simulation
         // the PotentialMaster is selected such as to implement neighbor listing
-        super(space, true, new PotentialMasterNbr(space));
+        super(space, true, new PotentialMasterNbr(space, 1.6), Default.BIT_LENGTH, defaults);
 
         int numAtoms = 256;
         double neighborRangeFac = 1.6;
-        Default.makeLJDefaults();
-        Default.ATOM_SIZE = 1.0;
-        Default.BOX_SIZE = 14.4573*Math.pow((numAtoms/2020.0),1.0/3.0);
-        int nCells = (int)(Default.BOX_SIZE/neighborRangeFac);
+        defaults.makeLJDefaults();
+        defaults.atomSize = 1.0;
+        defaults.boxSize = 14.4573*Math.pow((numAtoms/2020.0),1.0/3.0);
+        int nCells = (int)(defaults.boxSize/neighborRangeFac);
         System.out.println("nCells: "+nCells);
         ((PotentialMasterNbr)potentialMaster).setNCells(nCells);
 
-        integrator = new IntegratorHard(potentialMaster);
+        integrator = new IntegratorHard(this);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
         this.register(integrator);
 
         NeighborListManager nbrManager = ((PotentialMasterNbr)potentialMaster).getNeighborManager();
-        nbrManager.setRange(Default.ATOM_SIZE*1.6);
+        nbrManager.setRange(defaults.atomSize*1.6);
         nbrManager.getPbcEnforcer().setApplyToMolecules(false);
         integrator.addListener(nbrManager);
 
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
@@ -99,7 +103,7 @@ public class HSMD3D extends Simulation {
 //        Crystal crystal = new LatticeCubicFcc(space);
 //        ConfigurationLattice configuration = new ConfigurationLattice(space, crystal);
 //        phase.setConfiguration(configuration);
-        potential = new P2HardSphere(space);
+        potential = new P2HardSphere(this);
 //        this.potentialMaster.setSpecies(potential,new Species[]{species,species});
 
         NeighborCriterion criterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
@@ -126,9 +130,10 @@ public class HSMD3D extends Simulation {
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
-        Default.DO_SLEEP = false;
-        Default.FIX_OVERLAP = true;
-        etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D();
+        Default defaults = new Default();
+        defaults.doSleep = false;
+        defaults.ignoreOverlap = true;
+        etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D(defaults);
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
         DeviceNSelector nSelector = new DeviceNSelector(sim,sim.phase.getAgent(sim.species));
         simGraphic.add(nSelector);

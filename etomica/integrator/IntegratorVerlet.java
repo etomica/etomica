@@ -5,12 +5,13 @@ import etomica.EtomicaInfo;
 import etomica.atom.Atom;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.systems.LJ;
 
 /* History
  * 
@@ -24,15 +25,18 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
     private final Space space;
     
     Vector work;
-                
-    public IntegratorVerlet(PotentialMaster potentialMaster, Space space) {
-        super(potentialMaster);
+
+    public IntegratorVerlet(Simulation sim) {
+        this(sim.potentialMaster,sim.space,sim.getDefaults().timeStep,
+                sim.getDefaults().temperature);
+    }
+    
+    public IntegratorVerlet(PotentialMaster potentialMaster, Space space, 
+            double timeStep, double temperature) {
+        super(potentialMaster,timeStep,temperature);
         this.space = space;
         forceSum = new PotentialCalculationForceSum(space);
         work = space.makeVector();
-        //XXX this is totally wrong!  This should be based on the actual temperature and
-        //potentials (steepness and depth) used.
-        setTimeStep(new LJ().time().toSim(2.0));
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -75,7 +79,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
     }//end of doStep
     
 
-    public void reset() {
+    public void reset() throws ConfigurationOverlapException {
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();

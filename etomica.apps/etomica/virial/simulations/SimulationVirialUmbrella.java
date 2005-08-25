@@ -48,7 +48,7 @@ public class SimulationVirialUmbrella extends SimulationVirial {
         double b0 = Standard.B2HS(sigmaHSRef);
         double c0 = Standard.B3HS(sigmaHSRef);
         double d0 = Standard.B4HS(sigmaHSRef);
-        Default.ATOM_SIZE = 1.0;
+        Default.atomSize = 1.0;
         System.out.println("sigmaHSRef: "+sigmaHSRef);
         System.out.println("B2HS: "+b0);
         System.out.println("B3HS: "+c0+" = "+(c0/b0/b0)+" B2HS^2");

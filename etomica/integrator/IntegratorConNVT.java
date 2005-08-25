@@ -8,10 +8,10 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.phase.Phase;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.systems.LJ;
 
 /**
  * Constant NVT Molecular Dynamics Integrator-Constraint Method
@@ -32,9 +32,14 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
     private final Space space;
     Vector work, work1, work2, work3, work4;
     double halfTime, mass;
-                
-    public IntegratorConNVT(PotentialMaster potentialMaster, Space space) {
-        super(potentialMaster);
+
+    public IntegratorConNVT(Simulation sim) {
+        this(sim.potentialMaster,sim.space,sim.getDefaults().timeStep,sim.getDefaults().temperature);
+    }
+    
+    public IntegratorConNVT(PotentialMaster potentialMaster, Space space, 
+            double timeStep, double temperature) {
+        super(potentialMaster,timeStep,temperature);
         forceSum = new PotentialCalculationForceSum(space);
         this.space = space;
         work = space.makeVector();
@@ -42,9 +47,6 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
         work2 = space.makeVector();
         work3 = space.makeVector();
        	work4 = space.makeVector();
-        //XXX this is totally wrong!  This should be based on the actual temperature and
-        //potentials (steepness and depth) used.
-        setTimeStep(new LJ().time().toSim(2.0));
     }
 
 	
@@ -94,7 +96,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 		atomIterator.reset();	
 		double Free=0.0;
 		//degrees of freedom
-		Free=(double)((phase.moleculeCount()-1)*dim); 
+		Free=((phase.moleculeCount()-1)*dim); 
 		
 		double k=0.0;
         double chi;

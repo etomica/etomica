@@ -1,5 +1,7 @@
 package etomica.space;
 
+import etomica.simulation.Simulation;
+
 
 
 /**
@@ -12,11 +14,15 @@ package etomica.space;
  */
 public class BoundaryRectangularPeriodic extends BoundaryRectangular {
 
+    public BoundaryRectangularPeriodic(Simulation sim) {
+        this(sim.space, sim.getDefaults().boxSize);
+    }
+    
     /**
      * @param space
      */
-    public BoundaryRectangularPeriodic(Space space) {
-        super(space, makePeriodicity(space.D()));
+    public BoundaryRectangularPeriodic(Space space, double boxSize) {
+        super(space, makePeriodicity(space.D()), boxSize);
     }
 
     public void nearestImage(Vector dr) {

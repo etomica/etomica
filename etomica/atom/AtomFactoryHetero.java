@@ -5,6 +5,7 @@ import java.util.Arrays;
 import etomica.config.Conformation;
 import etomica.config.ConformationLinear;
 import etomica.data.DataSourceCOM;
+import etomica.simulation.Simulation;
 import etomica.space.CoordinateFactory;
 import etomica.space.Space;
 import etomica.species.Species;
@@ -25,9 +26,9 @@ public class AtomFactoryHetero extends AtomFactory {
      *            array of atom factories, each of which makes a different
      *            child.
      */
-    public AtomFactoryHetero(Space space,
+    public AtomFactoryHetero(Simulation sim,
             AtomSequencerFactory sequencerFactory, AtomTypeGroup parentType) {
-        this(space, sequencerFactory, parentType, new ConformationLinear(space));
+        this(sim.space, sequencerFactory, parentType, new ConformationLinear(sim));
     }
 
     /**

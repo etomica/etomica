@@ -7,6 +7,7 @@ import etomica.integrator.mcmove.MCMoveMoleculeExchange;
 import etomica.integrator.mcmove.MCMoveVolumeExchange;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 
 /**
@@ -20,12 +21,18 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
 
     public Phase secondPhase;
 
-    public IntegratorGEMC(PotentialMaster potentialMaster, Space space) {
-        super(potentialMaster);
+    public IntegratorGEMC(Simulation sim) {
+        this(sim.potentialMaster,sim.space,sim.getDefaults().temperature,
+                sim.getDefaults().atomSize,sim.getDefaults().ignoreOverlap);
+    }
+    
+    public IntegratorGEMC(PotentialMaster potentialMaster, Space space, 
+            double temperature, double stepSize, boolean ignoreOverlap) {
+        super(potentialMaster,temperature);
         phaseCountMax = 2;
         phase = new Phase[phaseCountMax];
-        atomDisplace0 = new MCMoveAtom(potentialMaster);
-        atomDisplace1 = new MCMoveAtom(potentialMaster);
+        atomDisplace0 = new MCMoveAtom(potentialMaster,stepSize,Double.POSITIVE_INFINITY,ignoreOverlap);
+        atomDisplace1 = new MCMoveAtom(potentialMaster,stepSize,Double.POSITIVE_INFINITY,ignoreOverlap);
         volumeExchange = new MCMoveVolumeExchange(potentialMaster, space);
         moleculeExchange = new MCMoveMoleculeExchange(potentialMaster, space);
         setMCMoves(new MCMove[] { atomDisplace0, atomDisplace1, volumeExchange,
@@ -51,6 +58,7 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
         if(phase0 == null) return;
         this.phase[0] = phase0;
         atomDisplace0.setPhase(new Phase[] {phase0});
+        atomDisplace0.setStepSizeMax(0.5*phase0.boundary().dimensions().min());
         if(phase[1] != null) {
             volumeExchange.setPhase(phase);
             moleculeExchange.setPhase(phase);
@@ -60,6 +68,7 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
         if(phase1 == null) return;
         this.phase[1] = phase1;
         atomDisplace1.setPhase(new Phase[] {phase1});
+        atomDisplace0.setStepSizeMax(0.5*phase1.boundary().dimensions().min());
         if(phase[0] != null) {
             volumeExchange.setPhase(phase);
             moleculeExchange.setPhase(phase);

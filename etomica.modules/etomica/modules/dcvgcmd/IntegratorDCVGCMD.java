@@ -6,6 +6,7 @@
  */
 package etomica.modules.dcvgcmd;
 import etomica.atom.Atom;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.DisplayPhaseCanvas3DOpenGL;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorMC;
@@ -49,7 +50,7 @@ public class IntegratorDCVGCMD extends Integrator {
         if (MDStepCount > interval || MDStepCount == 0) MDStepCount = interval;
     }
     
-    public void setup() {
+    protected void setup() throws ConfigurationOverlapException {
         integratormc.initialize();
         integratormd.initialize();
         super.setup();

@@ -7,9 +7,11 @@ import etomica.EtomicaInfo;
 import etomica.atom.Atom;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.phase.Phase;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -36,9 +38,14 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
     static final double GEAR2 = 11./12.;
     static final double GEAR3 = 1./3.;
     static final double GEAR4 = 1./24.;
-                
-    public IntegratorGear4(PotentialMaster potentialMaster, Space space) {
-        super(potentialMaster);
+
+    public IntegratorGear4(Simulation sim) {
+        this(sim.potentialMaster,sim.space,sim.getDefaults().timeStep,sim.getDefaults().temperature);
+    }
+    
+    public IntegratorGear4(PotentialMaster potentialMaster, Space space, 
+            double timeStep, double temperature) {
+        super(potentialMaster,timeStep,temperature);
         this.space = space;
         forceSum = new PotentialCalculationForceSum(space);
         work1 = space.makeVector();
@@ -158,7 +165,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         }
     }
 
-    public void reset() {
+    public void reset() throws ConfigurationOverlapException {
         //XXX is this check really necessary?
         if(potential == null || firstPhase == null) return;
         calculateForces();

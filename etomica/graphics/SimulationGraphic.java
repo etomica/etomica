@@ -183,8 +183,6 @@ public class SimulationGraphic implements SimulationContainer, java.io.Serializa
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
-        Default.DO_SLEEP = false;
-        Default.FIX_OVERLAP = true;
 //        etomica.simulation.prototypes.SwMd2D sim = new etomica.simulation.prototypes.SwMd2D();
 //        etomica.simulation.prototypes.LjMd2D sim = new etomica.simulation.prototypes.LjMd2D();
 //        etomica.simulation.prototypes.HsMc2d sim = new etomica.simulation.prototypes.HsMc2d();
@@ -196,6 +194,8 @@ public class SimulationGraphic implements SimulationContainer, java.io.Serializa
 //        etomica.simulation.prototypes.HSMD2D_atomNbr sim = new etomica.simulation.prototypes.HSMD2D_atomNbr();
 //        etomica.simulation.prototypes.HSMD2D_noNbr sim = new etomica.simulation.prototypes.HSMD2D_noNbr();
 //        etomica.simulation.prototypes.GEMCWithRotation sim = new etomica.simulation.prototypes.GEMCWithRotation();
+      sim.getDefaults().doSleep = false;
+      sim.getDefaults().ignoreOverlap = true;
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
         DeviceNSelector nSelector = new DeviceNSelector(sim,sim.phase.getAgent(sim.species));
         simGraphic.add(nSelector);

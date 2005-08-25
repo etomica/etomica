@@ -6,12 +6,13 @@ import etomica.atom.AtomSourceRandomLeaf;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.MCMove;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.units.Dimension;
-import etomica.util.Default;
 
 /**
  * Standard Monte Carlo atom-displacement trial move.
@@ -33,18 +34,26 @@ public class MCMoveAtom extends MCMove {
     protected double uOld;
     protected double uNew = Double.NaN;
     protected AtomSource atomSource;
+    protected boolean fixOverlap;
 
-    public MCMoveAtom(PotentialMaster potentialMaster) {
+    public MCMoveAtom(Simulation sim) {
+        this(sim.potentialMaster, sim.getDefaults().atomSize, sim.getDefaults().boxSize/2, 
+                sim.getDefaults().ignoreOverlap);
+    }
+    
+    public MCMoveAtom(PotentialMaster potentialMaster, double stepSize, double stepSizeMax,
+            boolean fixOverlap) {
         super(potentialMaster, 1);
         atomSource = new AtomSourceRandomLeaf();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         translationVector = potentialMaster.getSpace().makeVector();
-        setStepSizeMax(Default.BOX_SIZE/2);
+        setStepSizeMax(stepSizeMax);
         setStepSizeMin(0.0);
-        setStepSize(Default.ATOM_SIZE);
+        setStepSize(stepSize);
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(false);
         setName("MCMoveAtom");
+        this.fixOverlap = fixOverlap;
     }
     
     public final Dimension getStepSizeDimension() {return Dimension.LENGTH;}
@@ -59,9 +68,9 @@ public class MCMoveAtom extends MCMove {
         if (atom == null) return false;
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
-        if(uOld > 1e10 && !Default.FIX_OVERLAP) {
+        if(uOld > 1e10 && !fixOverlap) {
             System.out.println("Uold: "+uOld);
-            throw new RuntimeException("Overlap found in configuration");
+            throw new RuntimeException(new ConfigurationOverlapException(atom.node.parentPhase()));
         }
         translationVector.setRandomCube();
         translationVector.TE(stepSize);

@@ -220,12 +220,10 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
             case 2:
                 boxY = (int)(phase.boundary().dimensions().x(1) * BaseUnit.Length.Sim.TO_PIXELS);
                 canvas = new DisplayPhaseCanvas2D(this);
-/*comment this line for applet*/                DefaultGraphic.DISPLAY_USE_OPENGL = false;
                 break;
             case 1:
             default:
                 canvas = new DisplayPhaseCanvas1D(this);
-/*comment this line for applet*/               DefaultGraphic.DISPLAY_USE_OPENGL = false;
                 break;
         }
         
@@ -399,7 +397,7 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
     private int drawingHeight = 10;
      
     public void doUpdate() {}
-    public void repaint() {if(!DefaultGraphic.DISPLAY_USE_OPENGL) canvas.repaint();}
+    public void repaint() {if(!(canvas instanceof DisplayPhaseCanvas3DOpenGL)) canvas.repaint();}
       
     public void setMovable(boolean b) {canvas.setMovable(b);}
     public boolean isMovable() {return canvas.isMovable();}
@@ -484,50 +482,26 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
             if (rotate  && phase.space().D() == 3) {
                 float xtheta = (y - canvas.getPrevY()) * (360f / canvas.getSize().height);
                 float ytheta = (x - canvas.getPrevX()) * (360f / canvas.getSize().width);
-                if (!DefaultGraphic.DISPLAY_USE_OPENGL) {
-                    ((DisplayPhaseCanvas3DSoftware)canvas).amat.unit();
-                    ((DisplayPhaseCanvas3DSoftware)canvas).amat.xrot(xtheta);
-                    ((DisplayPhaseCanvas3DSoftware)canvas).amat.yrot(ytheta);
-                    ((DisplayPhaseCanvas3DSoftware)canvas).mat.mult(((DisplayPhaseCanvas3DSoftware)canvas).amat);
-                } else {
-                    canvas.setXRot(canvas.getXRot()+xtheta);
-                    canvas.setYRot(canvas.getYRot()+ytheta);
-                }
+                canvas.setXRot(canvas.getXRot()+xtheta);
+                canvas.setYRot(canvas.getYRot()+ytheta);
             }
 
             if (translate && phase.space().D() == 3) {
                 float xShift = (x - canvas.getPrevX())/-(canvas.getSize().width/canvas.getZoom());
                 float yShift = (canvas.getPrevY() - y)/-(canvas.getSize().height/canvas.getZoom());
-                if (!DefaultGraphic.DISPLAY_USE_OPENGL) {
-                    ((DisplayPhaseCanvas3DSoftware)canvas).tmat.unit();
-                    ((DisplayPhaseCanvas3DSoftware)canvas).tmat.translate(xShift, yShift, 0);
-                    ((DisplayPhaseCanvas3DSoftware)canvas).mat.mult(((DisplayPhaseCanvas3DSoftware)canvas).tmat);
-               } else {
-                    canvas.setShiftX(xShift+canvas.getShiftX());
-                    canvas.setShiftY(yShift+canvas.getShiftY());
-                }
+                canvas.setShiftX(xShift+canvas.getShiftX());
+                canvas.setShiftY(yShift+canvas.getShiftY());
             }                                                   
 
             if (zoom  && phase.space().D() == 3) {
                 float xShift = 1f+(x-canvas.getPrevX())/canvas.getSize().width;
                 float yShift = 1f+(canvas.getPrevY()-y)/canvas.getSize().height;
                 float shift = (xShift+yShift)/2f;
-                if (!DefaultGraphic.DISPLAY_USE_OPENGL) {
-                    ((DisplayPhaseCanvas3DSoftware)canvas).zmat.unit();
-                    ((DisplayPhaseCanvas3DSoftware)canvas).zmat.scale(shift, shift, shift);
-                    ((DisplayPhaseCanvas3DSoftware)canvas).mat.mult(((DisplayPhaseCanvas3DSoftware)canvas).zmat);
-                    setScale(shift*shift);
-                    //xfac *= shift*shift;
-                    //settings.setAtomScreenScale(xfac);
-                    //settings.setBondScreenScale(xfac);
-                    //settings.setVectorScreenScale(xfac);
-                } else {
-                    shift = shift == 1f ? 0: shift < 1f ? shift: -shift;
-                    canvas.setZoom(canvas.getZoom()+shift);
-                }
+                shift = shift == 1f ? 0: shift < 1f ? shift: -shift;
+                canvas.setZoom(canvas.getZoom()+shift);
             }
             
-            if (!DefaultGraphic.DISPLAY_USE_OPENGL) canvas.repaint();
+            if (!(canvas instanceof DisplayPhaseCanvas3DOpenGL)) canvas.repaint();
             if(phase.space().D() == 3) {
                 canvas.setPrevX(evt.getX());
                 canvas.setPrevY(evt.getY());

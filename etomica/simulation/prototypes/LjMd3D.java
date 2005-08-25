@@ -13,7 +13,6 @@ import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.Default;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D
@@ -38,16 +37,16 @@ public class LjMd3D extends Simulation {
     
     public LjMd3D() {
         super(Space3D.getInstance());
-        Default.makeLJDefaults();
-        integrator = new IntegratorVelocityVerlet(potentialMaster, space);
+        defaults.makeLJDefaults();
+        integrator = new IntegratorVelocityVerlet(this);
         integrator.setTimeStep(0.01);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         species.setNMolecules(50);
         phase = new Phase(this);
-        potential = new P2LennardJones(space);
+        potential = new P2LennardJones(this);
         this.potentialMaster.setSpecies(potential,new Species[]{species,species});
         
 //      elementCoordinator.go();

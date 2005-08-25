@@ -14,7 +14,6 @@ import javax.swing.table.AbstractTableModel;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.data.AccumulatorAverage;
 import etomica.data.DataSinkTable;
 import etomica.data.DataTableAverages;
 import etomica.data.DataTableListener;
@@ -467,9 +466,7 @@ public class DisplayTable extends Display implements DataTableListener,
         pMeter.setPhase(sim.phase);
         MeterNMolecules nMeter = new MeterNMolecules();
         nMeter.setPhase(sim.phase);
-        DataTableAverages dataTable = new DataTableAverages(sim.integrator,
-                new AccumulatorAverage.Type[] { AccumulatorAverage.MOST_RECENT,
-                        AccumulatorAverage.AVERAGE, AccumulatorAverage.ERROR });
+        DataTableAverages dataTable = new DataTableAverages(sim,sim.integrator);
         dataTable.addDataSource(pMeter);
         dataTable.addDataSource(nMeter);
         DisplayTable table = new DisplayTable(dataTable);

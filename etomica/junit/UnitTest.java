@@ -21,6 +21,7 @@ import etomica.species.SpeciesSignature;
 import etomica.species.SpeciesSpheres;
 import etomica.species.SpeciesSpheresMono;
 import etomica.species.SpeciesTree;
+import etomica.util.Default;
 
 /**
  * Contains some convenience methods and fields useful for implementing unit
@@ -74,7 +75,7 @@ public class UnitTest implements java.io.Serializable {
             int[] n1, int[] n2, int[] n2Tree) {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space, false, new PotentialMaster(space),
-                new int[] { 1, 4, 4, 11, 6, 3, 3 });
+                new int[] { 1, 4, 4, 11, 6, 3, 3 }, new Default());
         Species species0 = null;
         Species species1 = null;
         Species species2 = null;
@@ -131,15 +132,15 @@ public class UnitTest implements java.io.Serializable {
             int[][] nAtoms) {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space, false, new PotentialMaster(space),
-                new int[] { 1, 4, 4, 11, 6, 3, 3 });
+                new int[] { 1, 4, 4, 11, 6, 3, 3 }, new Default());
         //        new SpeciesSpheres(sim);
         for (int i = 0; i < nMolecules.length; i++) {
             AtomTypeGroup agentType = Species.makeAgentType(sim);
-            AtomFactoryHetero factory = new AtomFactoryHetero(space,
+            AtomFactoryHetero factory = new AtomFactoryHetero(sim,
                     AtomLinker.FACTORY, agentType);
             AtomFactory[] childFactories = new AtomFactory[nAtoms[i].length];
             for (int j = 0; j < childFactories.length; j++) {
-                AtomTypeLeaf atomType = new AtomTypeSphere(
+                AtomTypeLeaf atomType = new AtomTypeSphere(sim,
                         (AtomTypeGroup) factory.getType());
                 childFactories[j] = new AtomFactoryMono(new CoordinateFactorySphere(space, false), atomType,
                         AtomLinker.FACTORY);

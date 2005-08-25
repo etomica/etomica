@@ -432,7 +432,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
 //           mySlider.setMinimum(0);  // possible to give double value
 //           mySlider.setMaximum(6.2); // possible to give double value
 //           mySlider.setModifier(diaModifier); // call modifier instance after setting precision, minimum, and maximum
-////           mySlider.setValue(2*Default.ATOM_SIZE);// if modifier instance is called first then setValue method should be called to set slider value
+////           mySlider.setValue(2*Default.atomSize);// if modifier instance is called first then setValue method should be called to set slider value
 ////           mySlider.setLabel("  ");  // without this, shows modifier demension  
 //           mySlider.setShowValues(true); // default "false" - true makes panel to put Slider and TextField, which shows the values of slider
 //           mySlider.setEditValues(true); // defaulst " false" - decide to edit the values after true setShowValues 

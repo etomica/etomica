@@ -1,8 +1,10 @@
 package etomica.integrator;
 
 import etomica.atom.Atom;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 
 /**
  * Integrator that generates atom trajectories from an analytic formula.
@@ -22,8 +24,12 @@ public class IntegratorAnalytic extends IntegratorMD {
     
     private AtomAction action;
     
-    public IntegratorAnalytic(PotentialMaster potentialMaster) {
-        super(potentialMaster);
+    public IntegratorAnalytic(Simulation sim) {
+        this(sim.potentialMaster,sim.getDefaults().timeStep);
+    }
+    
+    public IntegratorAnalytic(PotentialMaster potentialMaster, double timeStep) {
+        super(potentialMaster,timeStep,0);
     }
     
     public void doStep() {
@@ -37,7 +43,7 @@ public class IntegratorAnalytic extends IntegratorMD {
         }
     }
     
-    public void reset() {
+    public void reset() throws ConfigurationOverlapException {
         elapsedTime = 0.0;
         super.reset();
     }

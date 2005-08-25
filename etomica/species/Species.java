@@ -9,7 +9,6 @@ import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.units.Dimension;
-import etomica.util.Default;
 import etomica.util.NameMaker;
 
 
@@ -53,6 +52,7 @@ public abstract class Species implements java.io.Serializable {
     public Species(Simulation sim, AtomFactory factory, AtomType agentType) {
         this.factory = factory;
         this.agentType = agentType;
+        nMolecules = sim.getDefaults().moleculeCount;
         setName(NameMaker.makeName(this.getClass()));
         index = sim.speciesRoot.addSpecies(this);
         factory.setSpecies(this);
@@ -101,7 +101,7 @@ public abstract class Species implements java.io.Serializable {
      * Nominal number of molecules of this species in each phase.
      * Actual number may differ if molecules have been added or removed to/from the phase
      */
-    protected int nMolecules = Default.MOLECULE_COUNT;
+    protected int nMolecules;;
     
     /**
      * Accessor method for nominal number of molecules in each phase.  Actual 

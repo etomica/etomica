@@ -4,12 +4,12 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.phase.Phase;
+import etomica.simulation.Simulation;
 import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
-import etomica.util.Default;
 
 /**
  * Purely attractive square-well potential with no repulsive core.  Similar
@@ -20,8 +20,8 @@ import etomica.util.Default;
  */
 public class P2HardAssociation extends Potential2 implements PotentialHard {
 
-    public P2HardAssociation(Space space) {
-        this(space,Default.POTENTIAL_CUTOFF_FACTOR, Default.POTENTIAL_WELL);
+    public P2HardAssociation(Simulation sim) {
+        this(sim.space, sim.getDefaults().potentialCutoffFactor, sim.getDefaults().potentialWell);
     }
     public P2HardAssociation(Space space, double wellDiameter, double epsilon) {
         super(space);

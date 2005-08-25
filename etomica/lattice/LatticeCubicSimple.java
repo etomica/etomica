@@ -1,7 +1,6 @@
 package etomica.lattice;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.space.Space;
-import etomica.util.Default;
 
 /**
  * A simple cubic lattice, with one site per cubic unit cell.
@@ -10,10 +9,10 @@ import etomica.util.Default;
 public class LatticeCubicSimple extends BravaisLattice implements CubicLattice {
     
 	/**
-	 * Simple 3D cubic lattice with a lattice constant given by Default.ATOM_SIZE. 
+	 * Simple 3D cubic lattice with a unit lattice constant. 
 	 */
     public LatticeCubicSimple() {
-        this(3, Default.ATOM_SIZE);
+        this(3, 1.0);
     }
     
     /**
@@ -37,6 +36,14 @@ public class LatticeCubicSimple extends BravaisLattice implements CubicLattice {
     
     public double getLatticeConstant() {
         return primitive.getCubicSize();
+    }
+    
+    /**
+     * Rescales the lattice by the given factor. Multiplies the lattice constant
+     * by the given value.
+     */
+    public void scaleBy(double scaleFactor) {
+        primitive.scaleSize(scaleFactor);
     }
     
     /**

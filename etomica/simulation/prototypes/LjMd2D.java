@@ -8,6 +8,7 @@ import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.phase.Phase;
 import etomica.potential.P2LennardJones;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
 import etomica.species.Species;
@@ -30,18 +31,22 @@ public class LjMd2D extends Simulation {
     public MeterEnergy energy;
 
     public LjMd2D() {
-        super(Space2D.getInstance());
-        Default.makeLJDefaults();
-        integrator = new IntegratorVelocityVerlet(potentialMaster, space);
+        this(new Default());
+    }
+    
+    public LjMd2D(Default defaults) {
+        super(Space2D.getInstance(), false, new PotentialMaster(Space2D.getInstance()), Default.BIT_LENGTH, defaults);
+        defaults.makeLJDefaults();
+        integrator = new IntegratorVelocityVerlet(this);
         integrator.setTimeStep(0.01);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         species.setNMolecules(50);
         phase = new Phase(this);
         new ConfigurationSequential(space).initializeCoordinates(phase);
-        potential = new P2LennardJones(space);
+        potential = new P2LennardJones(this);
         this.potentialMaster.setSpecies(potential,new Species[]{species,species});
         
 //      elementCoordinator.go();

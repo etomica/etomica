@@ -1,6 +1,5 @@
 package etomica.lattice;
 import etomica.simulation.SimulationEvent;
-import etomica.util.Constants;
 import etomica.util.EnumeratedType;
 
 public class LatticeEvent extends SimulationEvent {

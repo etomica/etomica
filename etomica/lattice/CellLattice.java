@@ -6,7 +6,6 @@ package etomica.lattice;
 
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.util.Default;
 
 /**
  * A lattice of arbitrarily-sized rectangular cells, such that a point in space can be 
@@ -88,12 +87,12 @@ public class CellLattice extends RectangularLattice {
      * specify the neighbor range in terms of a distance, rather than an index range. 
      */
     public static class NeighborIterator extends RectangularLatticeNbrIteratorSquare {
-        public NeighborIterator(int D) {
+        public NeighborIterator(int D, double range) {
             super(D);
             idx = new int[D];
             previousDimensions = Space.makeVector(D);
             neighborDistance = new double[D];
-            setRange(Default.ATOM_SIZE);
+            setRange(range);
         }
         
         /**

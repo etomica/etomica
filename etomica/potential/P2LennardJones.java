@@ -1,9 +1,9 @@
 package etomica.potential;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.units.Dimension;
-import etomica.util.Default;
 
 /**
  * Lennard-Jones interatomic potential.
@@ -15,8 +15,8 @@ import etomica.util.Default;
  */
 public final class P2LennardJones extends Potential2SoftSpherical implements EtomicaElement {
 
-    public P2LennardJones(Space space) {
-        this(space, Default.ATOM_SIZE, Default.POTENTIAL_WELL);
+    public P2LennardJones(Simulation sim) {
+        this(sim.space, sim.getDefaults().atomSize, sim.getDefaults().potentialWell);
     }
     public P2LennardJones(Space space, double sigma, double epsilon) {
         super(space);
