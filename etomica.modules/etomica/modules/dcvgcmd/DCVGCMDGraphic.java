@@ -121,9 +121,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	interval1.setActionInterval(10);
     box1.setUnit((Kelvin.UNIT));
 				
-    DataTableAverages dataTable = new DataTableAverages(sim.integratorDCV,
-            new AccumulatorAverage.Type[] { AccumulatorAverage.MOST_RECENT,
-            AccumulatorAverage.AVERAGE, AccumulatorAverage.ERROR });
+    DataTableAverages dataTable = new DataTableAverages(sim,sim.integratorDCV);
     dataTable.addDataSource(sim.meterFlux0);
     dataTable.addDataSource(sim.meterFlux1);
     dataTable.addDataSource(sim.meterFlux2);

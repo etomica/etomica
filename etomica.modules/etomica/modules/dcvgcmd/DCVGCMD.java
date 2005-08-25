@@ -71,9 +71,9 @@ public class DCVGCMD extends Simulation {
     private DCVGCMD(Space space) {
         //Instantiate classes
         super(space, true, new PotentialMasterHybrid(space));
-        Default.atomMass = 40.;
-        Default.atomSize = 3.0;
-        Default.potentialWell = 119.8;
+        defaults.atomMass = 40.;
+        defaults.atomSize = 3.0;
+        defaults.potentialWell = 119.8;
         //Default.makeLJDefaults();
         //Default.BOX_SIZE = 14.0;
 
@@ -89,11 +89,11 @@ public class DCVGCMD extends Simulation {
         double neighborRangeFac = 1.4;
         final NeighborListManager nbrManager = potentialMasterHybrid.getNeighborManager();
         nbrManager.getPbcEnforcer().setApplyToMolecules(false);
-        int nCells = (int) (40 / (neighborRangeFac * Default.atomSize));
+        int nCells = (int) (40 / (neighborRangeFac * defaults.atomSize));
         potentialMasterHybrid.setNCells(nCells);
 
         //0-0 intraspecies interaction
-        potential = new P2WCA(space);
+        potential = new P2WCA(this);
         NeighborCriterion nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         CriterionSpecies criterion = new CriterionSpecies(nbrCriterion, species, species);
         potential.setCriterion(criterion);
@@ -101,7 +101,7 @@ public class DCVGCMD extends Simulation {
         potentialMaster.setSpecies(potential, new Species[] {species, species});
         
         //1-1 intraspecies interaction
-        P2WCA potential11 = new P2WCA(space);
+        P2WCA potential11 = new P2WCA(this);
         nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential11.getRange());
         criterion = new CriterionSpecies(nbrCriterion, species1, species1);
         potential11.setCriterion(criterion);
@@ -109,21 +109,21 @@ public class DCVGCMD extends Simulation {
         potentialMaster.setSpecies(potential11, new Species[] {species1, species1});
 
         //0-1 interspecies interaction
-        potential1 = new P2WCA(space);
+        potential1 = new P2WCA(this);
         nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential1.getRange());
         criterion = new CriterionSpecies(nbrCriterion, species1, species);
         potential1.setCriterion(criterion);
         nbrManager.addCriterion(nbrCriterion, new AtomType[]{species.getFactory().getType(),species1.getFactory().getType()});
         potentialMaster.setSpecies(potential1, new Species[] { species1, species });
 
-        P2WCA potentialTubeAtom = new P2WCA(space);
+        P2WCA potentialTubeAtom = new P2WCA(this);
         potentialMaster.addPotential(potentialTubeAtom,new AtomType[] { tubetype, speciestype});
         nbrCriterion = new CriterionSimple(space,potentialTubeAtom.getRange(),neighborRangeFac*potentialTubeAtom.getRange());
         criterion = new CriterionSpecies(nbrCriterion, speciesTube, species);
         potentialTubeAtom.setCriterion(criterion);
         nbrManager.addCriterion(nbrCriterion,new AtomType[]{species.getFactory().getType(),((AtomFactoryHomo)speciesTube.getFactory()).childFactory().getType()});
         
-        P2WCA potentialTubeAtom1 = new P2WCA(space);
+        P2WCA potentialTubeAtom1 = new P2WCA(this);
         potentialMaster.addPotential(potentialTubeAtom1,new AtomType[] { tubetype, speciestype1});
         nbrCriterion = new CriterionSimple(space,potentialTubeAtom1.getRange(),neighborRangeFac*potentialTubeAtom.getRange());
         criterion = new CriterionSpecies(nbrCriterion, speciesTube, species1);
@@ -155,11 +155,8 @@ public class DCVGCMD extends Simulation {
         
         integratorDCV = new IntegratorDCVGCMD(potentialMaster, species,
                 species1);
-        Default.AUTO_REGISTER = false;
-        final IntegratorVelocityVerlet integrator = new IntegratorVelocityVerlet(
-                potentialMaster, space);
-        final IntegratorMC integratorMC = new IntegratorMC(potentialMaster);
-        Default.AUTO_REGISTER = true;
+        final IntegratorVelocityVerlet integrator = new IntegratorVelocityVerlet(this);
+        final IntegratorMC integratorMC = new IntegratorMC(this);
         integratorDCV.addPhase(phase);
 
         /***/
@@ -181,7 +178,7 @@ public class DCVGCMD extends Simulation {
         integrator.setTimeStep(0.01);
         //integrator.setInterval(10);
         activityIntegrate.setDoSleep(true);
-        phase.setBoundary(new BoundaryRectangularSlit(space, 2));
+        phase.setBoundary(new BoundaryRectangularSlit(this, 2));
 //        phase.setBoundary(new BoundaryRectangularPeriodic(space));
         phase.setDimensions(new Vector3D(40, 40, 80));
         // Crystal crystal = new Crystal(new PrimitiveTetragonal(space, 20,
@@ -250,11 +247,11 @@ public class DCVGCMD extends Simulation {
         profile2.setPhase(phase);
         profile2.setProfileVector(new Vector3D(0.0, 0.0, 1.0));
 
-        accumulator1 = new AccumulatorAverage();
+        accumulator1 = new AccumulatorAverage(this);
         DataPump profile1pump = new DataPump(profile1, accumulator1);
         new IntervalActionAdapter(profile1pump, integratorDCV);
 
-        accumulator2 = new AccumulatorAverage();
+        accumulator2 = new AccumulatorAverage(this);
         DataPump profile2pump = new DataPump(profile2, accumulator2);
         new IntervalActionAdapter(profile2pump, integratorDCV);
 

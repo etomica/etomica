@@ -20,7 +20,6 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.Default;
 
 /**
  * Creates a configuration using a CubicLattice to specify positions.  Has
@@ -264,7 +263,7 @@ public class ConfigurationLatticeTube extends Configuration implements Atom.Agen
     
 	public static void main(String[] args) {
         Simulation sim = new Simulation(Space3D.getInstance());
-		Default.atomSize = 5.0;
+		sim.getDefaults().atomSize = 5.0;
 		Phase phase = new Phase(sim);
 		SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
 		int k = 4;
