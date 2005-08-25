@@ -3,6 +3,7 @@ package etomica.virial;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 
 /**
  * Standard Monte Carlo molecule-displacement trial move for cluster integrals.
@@ -15,8 +16,13 @@ public class MCMoveClusterMolecule extends MCMoveMolecule implements MCMoveClust
     
     private final MeterClusterWeight weightMeter;
 
-    public MCMoveClusterMolecule(PotentialMaster potentialMaster) {
-        super(potentialMaster);
+    public MCMoveClusterMolecule(Simulation sim) {
+    	this(sim.potentialMaster,sim.getDefaults().atomSize,sim.getDefaults().boxSize*0.5);
+    }
+    
+    public MCMoveClusterMolecule(PotentialMaster potentialMaster, double stepSize, 
+    		double stepSizeMax) {
+        super(potentialMaster,stepSize,stepSizeMax,false);
         weightMeter = new MeterClusterWeight(potential);
         setName("MCMoveClusterMolecule");
     }

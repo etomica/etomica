@@ -7,11 +7,9 @@ import etomica.atom.AtomTypeSphere;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorRatioAverage;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataPump;
-import etomica.data.DataSink;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.ColorSchemeByType;
@@ -72,7 +70,7 @@ public class EAMMd3D extends Simulation {
     	EAMMd3D sim = new EAMMd3D();
     	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
     	energyMeter.setPhase(sim.phase);
-    		AccumulatorAverage energyAccumulator = new AccumulatorAverage();
+    	AccumulatorAverage energyAccumulator = new AccumulatorAverage(sim);
         DataPump energyManager = new DataPump(energyMeter,energyAccumulator);
         energyAccumulator.setBlockSize(50);
         IntervalActionAdapter adapter = new IntervalActionAdapter(energyManager, sim.integrator);
@@ -90,7 +88,7 @@ public class EAMMd3D extends Simulation {
     
     public EAMMd3D() {
         super(Space3D.getInstance()); //INSTANCE); kmb change 8/3/05
-        integrator = new IntegratorVelocityVerlet(potentialMaster, space);
+        integrator = new IntegratorVelocityVerlet(this);
         integrator.setTimeStep(0.01);
         activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setSleepPeriod(2);
