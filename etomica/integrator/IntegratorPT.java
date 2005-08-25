@@ -42,17 +42,12 @@ import etomica.util.Arrays;
 
 public class IntegratorPT extends IntegratorMC implements EtomicaElement {
     
-    public IntegratorPT(Simulation sim) {
-        this(sim.potentialMaster,sim.getDefaults().temperature);
+    public IntegratorPT(PotentialMaster potentialMaster) {
+        this(potentialMaster, MCMoveSwapConfiguration.FACTORY);
     }
     
-    public IntegratorPT(PotentialMaster potentialMaster, double temperature) {
-        this(potentialMaster, MCMoveSwapConfiguration.FACTORY, temperature);
-    }
-    
-    public IntegratorPT(PotentialMaster potentialMaster, MCMoveSwapFactory swapFactory, 
-            double temperature) {
-        super(potentialMaster,temperature);
+    public IntegratorPT(PotentialMaster potentialMaster, MCMoveSwapFactory swapFactory) {
+        super(potentialMaster,0);
         setSwapInterval(100);
         mcMoveSwapFactory = swapFactory;
     }
