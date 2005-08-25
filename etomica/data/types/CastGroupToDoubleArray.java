@@ -87,6 +87,7 @@ public class CastGroupToDoubleArray extends DataProcessor {
                     size[i] = dataArray.getArrayShape(i-1);
                 }
                 inputType = 2;
+                outputData = new DataDoubleArray(label, dimension, size);
             }
         } else if (innerDataClass == DataDouble.class) {
             inputType = 3;
