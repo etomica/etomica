@@ -56,7 +56,7 @@ public class Default implements java.io.Serializable {
     public int blockSize = 1000;
  
     //default unit system for I/O (internal calculations are all done in simulation units)
-    public static UnitSystem unitSystem = new UnitSystem.Sim();
+    public static UnitSystem UNIT_SYSTEM = new UnitSystem.Sim();
         
     /**
      * Integer array indicating the maximum number of atoms at each depth in the
