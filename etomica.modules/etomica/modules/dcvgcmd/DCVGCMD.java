@@ -17,7 +17,6 @@ import etomica.nbr.CriterionSpecies;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.PotentialCalculationAgents;
 import etomica.nbr.PotentialMasterHybrid;
-import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.NeighborListManager;
 import etomica.phase.Phase;
 import etomica.potential.P2WCA;
@@ -30,7 +29,6 @@ import etomica.space3d.Vector3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
-import etomica.util.Default;
 
 /**
  * 
@@ -70,7 +68,7 @@ public class DCVGCMD extends Simulation {
 
     private DCVGCMD(Space space) {
         //Instantiate classes
-        super(space, true, new PotentialMasterHybrid(space));
+        super(space, true, new PotentialMasterHybrid(space,5.2));
         defaults.atomMass = 40.;
         defaults.atomSize = 3.0;
         defaults.potentialWell = 119.8;
@@ -130,30 +128,31 @@ public class DCVGCMD extends Simulation {
         potentialTubeAtom1.setCriterion(criterion);
         nbrManager.addCriterion(nbrCriterion,new AtomType[]{species1.getFactory().getType()});
 
-        potentialwall = new P1WCAWall(space);
+        potentialwall = new P1WCAWall(this);
         potentialMaster.setSpecies(potentialwall, new Species[] { species });
 
-        potentialwall1 = new P1WCAWall(space);
+        potentialwall1 = new P1WCAWall(this);
         potentialMaster.setSpecies(potentialwall1, new Species[] { species1 });
 
-        potentialwallPorousA = new P1WCAPorousWall(space);
+        potentialwallPorousA = new P1WCAPorousWall(this);
         potentialMaster.setSpecies(potentialwallPorousA, new Species[] { species });
         
-        potentialwallPorousA1 = new P1WCAPorousWall(space);
+        potentialwallPorousA1 = new P1WCAPorousWall(this);
         potentialMaster.setSpecies(potentialwallPorousA1, new Species[] { species1 });
         
-        potentialwallPorousB = new P1WCAPorousWall(space);
+        potentialwallPorousB = new P1WCAPorousWall(this);
         potentialMaster.setSpecies(potentialwallPorousB, new Species[] { species });
         
-        potentialwallPorousB1 = new P1WCAPorousWall(space);
+        potentialwallPorousB1 = new P1WCAPorousWall(this);
         potentialMaster.setSpecies(potentialwallPorousB1, new Species[] { species1 });
 
 
         species.setNMolecules(20);
         species1.setNMolecules(20);
         phase = new Phase(this);
-        
-        integratorDCV = new IntegratorDCVGCMD(potentialMaster, species,
+
+        double temperature = Kelvin.UNIT.toSim(500.);
+        integratorDCV = new IntegratorDCVGCMD(potentialMaster, temperature, species,
                 species1);
         final IntegratorVelocityVerlet integrator = new IntegratorVelocityVerlet(this);
         final IntegratorMC integratorMC = new IntegratorMC(this);
@@ -171,7 +170,6 @@ public class DCVGCMD extends Simulation {
 
         //make MC integrator next
         integratorDCV.setIntegrators(integratorMC, integrator);
-        integratorDCV.setTemperature(Kelvin.UNIT.toSim(500.));
         integrator.setIsothermal(false);
         integrator.setMeterTemperature(new MeterTemperature(speciesTube));
         //integrator.setSleepPeriod(1);

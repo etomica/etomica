@@ -11,9 +11,9 @@ import etomica.atom.Atom;
 import etomica.atom.AtomSet;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.util.Default;
 
 /**
  * @author Owner
@@ -29,8 +29,8 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
     private double epsilon;
     private double cutoff;
 
-    public P1WCAWall(Space space) {
-        this(space, Default.atomSize, Default.potentialWell);
+    public P1WCAWall(Simulation sim) {
+        this(sim.space, sim.getDefaults().atomSize, sim.getDefaults().potentialWell);
     }
 
     public P1WCAWall(Space space, double sigma, double epsilon) {

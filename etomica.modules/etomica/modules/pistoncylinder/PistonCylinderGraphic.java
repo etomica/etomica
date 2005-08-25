@@ -25,6 +25,7 @@ import etomica.data.DataSourceCountSteps;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataSourceUniform;
 import etomica.data.meter.MeterTemperature;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceSlider;
@@ -105,15 +106,17 @@ public class PistonCylinderGraphic {
     public int plotUpdateInterval, dataInterval, guiInterval;
     public Unit eUnit;
     double lambda, epsilon, mass;
+    Default defaults;
     
     public PistonCylinderGraphic() {
-        Default.blockSize = 100;
+        defaults = new Default();
+        defaults.blockSize = 100;
         displayPhase = new DisplayPhase(null);
         displayPhase.setColorScheme(new ColorSchemeByType());
 
 
-        Default.ignoreOverlap = true;
-        Default.atomSize = 3.0;
+        defaults.ignoreOverlap = true;
+        defaults.atomSize = 3.0;
         eUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
         historyLength = 100;
         
@@ -125,7 +128,7 @@ public class PistonCylinderGraphic {
         
         lambda = 2.0;
         epsilon = eUnit.toSim(1500.0);
-        mass = Default.atomMass;
+        mass = defaults.atomMass;
         
         //restart action and button
         controlButtons = new DeviceTrioControllerButton();
@@ -197,7 +200,7 @@ public class PistonCylinderGraphic {
 	    scaleSlider.getSlider().setLabelTable(scaleSlider.getSlider().createStandardLabels(10));
 		
 		//add meter and display for current kinetic temperature
-		Default.historyPeriod = 1000;
+		defaults.historyPeriod = 1000;
 
 		thermometer = new MeterTemperature();
 
@@ -332,9 +335,9 @@ public class PistonCylinderGraphic {
         button2D.addItemListener(new ItemListener() {
            public void itemStateChanged(ItemEvent evt) {
                if(button2D.isSelected()) {
-                   setSimulation(new PistonCylinder(2));
+                   setSimulation(new PistonCylinder(2, defaults));
                } else {
-                   setSimulation(new PistonCylinder(3));
+                   setSimulation(new PistonCylinder(3, defaults));
                }
            }
         });
@@ -407,7 +410,7 @@ public class PistonCylinderGraphic {
         };
         repainter.start();
         
-        setSimulation(new PistonCylinder(2));
+        setSimulation(new PistonCylinder(2, defaults));
     }
     
     public void setSimulation(PistonCylinder sim) {
@@ -503,8 +506,8 @@ public class PistonCylinderGraphic {
         temperatureSlider.setModifier(new ModifierGeneral(pc.integrator,"temperature"));
         temperatureSlider.setController(pc.getController());
 
-        potentialSW = new P2SquareWell(pc.space,Default.atomSize,lambda,epsilon);
-        potentialHS = new P2HardSphere(pc.space,Default.atomSize);
+        potentialSW = new P2SquareWell(pc.space,defaults.atomSize,lambda,epsilon,defaults.ignoreOverlap);
+        potentialHS = new P2HardSphere(pc.space,defaults.atomSize,defaults.ignoreOverlap);
         potentialIdeal = new P2Ideal(pc.space);
         
         if(potentialChooserListener != null) potentialChooser.removeItemListener(potentialChooserListener);
@@ -552,7 +555,7 @@ public class PistonCylinderGraphic {
         thermometer.setPhase(pc.phase);
         AccumulatorHistory temperatureHistory = new AccumulatorHistory();
         temperatureHistory.setHistoryLength(historyLength);
-        AccumulatorAverage temperatureAvg = new AccumulatorAverage();
+        AccumulatorAverage temperatureAvg = new AccumulatorAverage(sim);
         pump = new DataPump(thermometer,temperatureAvg);
         temperatureAvg.addDataSink(temperatureHistory,new AccumulatorAverage.Type[]{AccumulatorAverage.MOST_RECENT});
         IntervalActionAdapter adapter = new IntervalActionAdapter(pump,pc.integrator);
@@ -577,7 +580,7 @@ public class PistonCylinderGraphic {
         pressureMeter.setPhase(pc.phase);
         AccumulatorHistory pressureHistory = new AccumulatorHistory();
         pressureHistory.setHistoryLength(historyLength);
-        AccumulatorAverage pressureAvg = new AccumulatorAverage();
+        AccumulatorAverage pressureAvg = new AccumulatorAverage(sim);
         pump = new DataPump(pressureMeter, new DataFork(new DataSink[]{pressureHistory,pressureAvg}));
         adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
@@ -597,11 +600,11 @@ public class PistonCylinderGraphic {
         adapter.setActionInterval(dataInterval);
         targetPressureHistory.addDataSink(plotP.getDataTable());
 
-        densityMeter = new MeterPistonDensity(pc.pistonPotential,1,Default.atomSize);
+        densityMeter = new MeterPistonDensity(pc.pistonPotential,1,defaults.atomSize);
         densityMeter.setPhase(pc.phase);
         AccumulatorHistory densityHistory = new AccumulatorHistory();
         densityHistory.setHistoryLength(historyLength);
-        AccumulatorAverage densityAvg = new AccumulatorAverage();
+        AccumulatorAverage densityAvg = new AccumulatorAverage(sim);
         pump = new DataPump(densityMeter,new DataFork(new DataSink[]{densityAvg, densityHistory}));
         adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
@@ -648,7 +651,9 @@ public class PistonCylinderGraphic {
                 else {
                     pc.potentialWrapper.setPotential(potentialIdeal);
                 }
-                pc.integrator.reset();
+                try {
+                    pc.integrator.reset();
+                } catch(ConfigurationOverlapException e) {}
             }
             public String getLabel() {return "";}
         });
@@ -657,7 +662,7 @@ public class PistonCylinderGraphic {
     private class ModifierAtomDiameter implements Modifier {
 
         public void setValue(double d) {
-            Default.atomSize = d;
+            defaults.atomSize = d;
             //assume one type of atom
             ((AtomTypeSphere)pc.phase.firstAtom().type).setDiameter(d);
             PistonCylinderGraphic.this.densityMeter.setAtomDiameter(d);
@@ -669,7 +674,7 @@ public class PistonCylinderGraphic {
         }
 
         public double getValue() {
-            return Default.atomSize;
+            return defaults.atomSize;
         }
 
         public Dimension getDimension() {

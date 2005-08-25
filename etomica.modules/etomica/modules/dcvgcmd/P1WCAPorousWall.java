@@ -11,9 +11,9 @@ import etomica.atom.Atom;
 import etomica.atom.AtomSet;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.util.Default;
 
 /**
  * @author Owner
@@ -32,8 +32,8 @@ public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
     private Vector[] poreCenters;
     private double z;
 
-    public P1WCAPorousWall(Space space) {
-        this(space, Default.atomSize, Default.potentialWell);
+    public P1WCAPorousWall(Simulation sim) {
+        this(sim.space, sim.getDefaults().atomSize, sim.getDefaults().potentialWell);
     }
 
     public P1WCAPorousWall(Space space, double sigma, double epsilon) {

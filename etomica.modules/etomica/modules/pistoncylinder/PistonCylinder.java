@@ -18,6 +18,7 @@ import etomica.potential.P1HardBoundary;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.P2SquareWell;
 import etomica.potential.Potential2HardSphericalWrapper;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
@@ -45,10 +46,14 @@ public class PistonCylinder extends Simulation {
     public double lambda;
 
     public PistonCylinder(int D) {
-        super(Space.getInstance(D));
+        this(D, new Default());
+    }
+    
+    public PistonCylinder(int D, Default defaults) {
+        super(Space.getInstance(D), true, new PotentialMaster(Space.getInstance(D)), Default.BIT_LENGTH, defaults);
         lambda = 1.5;
         controller = getController();
-        Default.atomMass = 16;
+        defaults.atomMass = 16;
         species = new SpeciesSpheresMono(this);
         species.setNMolecules(112);
         phase = new Phase(this);
@@ -67,13 +72,13 @@ public class PistonCylinder extends Simulation {
         phase.makeMolecules();
         config.initializeCoordinates(phase);
         
-        P2SquareWell potentialSW = new P2SquareWell(space,Default.atomSize,lambda,31.875);
+        P2SquareWell potentialSW = new P2SquareWell(space,defaults.atomSize,lambda,31.875,defaults.ignoreOverlap);
         potentialWrapper = new Potential2HardSphericalWrapper(space,potentialSW);
 //        potential = new P2HardSphere(space,Default.atomSize);
         potentialMaster.setSpecies(potentialWrapper,new Species[]{species,species});
         
-        wallPotential = new P1HardBoundary(space);
-        wallPotential.setCollisionRadius(Default.atomSize*0.5); //potential.getCoreDiameter()*0.5);
+        wallPotential = new P1HardBoundary(this);
+        wallPotential.setCollisionRadius(defaults.atomSize*0.5); //potential.getCoreDiameter()*0.5);
         potentialMaster.setSpecies(wallPotential,new Species[]{species});
         wallPotential.setActive(0,true,true);  // left wall
         wallPotential.setActive(0,false,true); // right wall
@@ -84,8 +89,8 @@ public class PistonCylinder extends Simulation {
             wallPotential.setActive(2,false,true); // back wall
         }
 
-        pistonPotential = new P1HardMovingBoundary(space,phase.boundary(),1,Default.atomMass*100);
-        pistonPotential.setCollisionRadius(Default.atomSize*0.5);
+        pistonPotential = new P1HardMovingBoundary(space,phase.boundary(),1,defaults.atomMass*100, defaults.ignoreOverlap);
+        pistonPotential.setCollisionRadius(defaults.atomSize*0.5);
         pistonPotential.setWallPosition(0.0);
         pistonPotential.setWallVelocity(0.5);
         if (D == 3) {
@@ -97,7 +102,7 @@ public class PistonCylinder extends Simulation {
         pistonPotential.setThickness(1.0);
         potentialMaster.setSpecies(pistonPotential,new Species[]{species});
         
-        integrator = new IntegratorHardPiston(potentialMaster,pistonPotential);
+        integrator = new IntegratorHardPiston(this,pistonPotential);
         integrator.addPhase(phase);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(1);
@@ -115,18 +120,18 @@ public class PistonCylinder extends Simulation {
         PistonCylinder sim = new PistonCylinder(3);
         sim.ai.setMaxSteps(50000);
         sim.integrator.setTimeStep(20.0);
-        Default.blockSize=1000;
+        sim.getDefaults().blockSize=1000;
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.space,sim.integrator);
         pMeter.setPhase(sim.phase);
-        AccumulatorAverage pAcc = new AccumulatorAverage();
+        AccumulatorAverage pAcc = new AccumulatorAverage(sim);
         DataPump pump = new DataPump(pMeter, pAcc);
         IntervalActionAdapter adapter = new IntervalActionAdapter(pump,sim.integrator);
         adapter.setActionInterval(10);
         
-        MeterPistonDensity dMeter = new MeterPistonDensity(sim.pistonPotential,1,Default.atomSize);
+        MeterPistonDensity dMeter = new MeterPistonDensity(sim.pistonPotential,1,sim.getDefaults().atomSize);
         dMeter.setPhase(sim.phase);
-        AccumulatorAverage dAcc = new AccumulatorAverage();
+        AccumulatorAverage dAcc = new AccumulatorAverage(sim);
         pump = new DataPump(dMeter, dAcc);
         adapter = new IntervalActionAdapter(pump,sim.integrator);
         adapter.setActionInterval(10);

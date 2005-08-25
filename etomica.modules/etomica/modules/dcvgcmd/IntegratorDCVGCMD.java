@@ -36,8 +36,8 @@ public class IntegratorDCVGCMD extends Integrator {
     private final PotentialMasterHybrid potentialMasterHybrid;
 	private int MDStepCount, MDStepRepetitions;
     
-	public IntegratorDCVGCMD(PotentialMaster parent, Species species1, Species species2) {
-		super(parent);
+	public IntegratorDCVGCMD(PotentialMaster parent, double temperature, Species species1, Species species2) {
+		super(parent, temperature);
 		this.speciesA = species1;
 		this.speciesB = species2;
 		potentialMasterHybrid = (parent instanceof PotentialMasterHybrid)
@@ -82,7 +82,9 @@ public class IntegratorDCVGCMD extends Integrator {
             potentialMasterHybrid.getNeighborManager().setQuiet(true);
             potentialMasterHybrid.getNeighborManager().updateNbrsIfNeeded(integratormd);
             potentialMasterHybrid.getNeighborManager().setQuiet(false);
-			integratormd.reset();
+            try {
+                integratormd.reset();
+            } catch(ConfigurationOverlapException e) {}
 	 	} else {
             MDStepCount--;
 	 		integratormd.doStep();
@@ -151,7 +153,7 @@ public class IntegratorDCVGCMD extends Integrator {
 	/**
 	 * @see etomica.integrator.Integrator#doReset()
 	 */
-	public void reset() {
+	public void reset() throws ConfigurationOverlapException {
         if(!initialized) return;
         potentialMasterHybrid.setUseNbrLists(false);
 		integratormc.reset();
