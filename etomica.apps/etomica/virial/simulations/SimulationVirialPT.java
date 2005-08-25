@@ -12,9 +12,11 @@ import etomica.integrator.IntegratorPT;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.MCMove;
 import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.Species;
+import etomica.util.Default;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ConfigurationCluster;
@@ -38,8 +40,10 @@ public class SimulationVirialPT extends Simulation {
 	/**
 	 * Constructor for simulation to determine the ratio bewteen reference and target Clusters
 	 */
-	public SimulationVirialPT(Space space, SpeciesFactory speciesFactory, double[] temperature, ClusterWeight.Factory sampleClusterFactory, ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
-		super(space);
+	public SimulationVirialPT(Space space, Default defaults, SpeciesFactory speciesFactory, 
+			double[] temperature, ClusterWeight.Factory sampleClusterFactory, 
+			ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
+		super(space,false,new PotentialMaster(space),Default.BIT_LENGTH,defaults);
         
 		int nMolecules = refCluster.pointCount();
 		species = speciesFactory.makeSpecies(this);//SpheresMono(this,AtomLinker.FACTORY);
@@ -82,32 +86,30 @@ public class SimulationVirialPT extends Simulation {
             phase[iTemp] = new PhaseCluster(this,sampleCluster[iTemp]);
             phase[iTemp].makeMolecules();
             
-            integrator[iTemp] = new IntegratorClusterMC(potentialMaster);
+            integrator[iTemp] = new IntegratorClusterMC(this);
             integrator[iTemp].setTemperature(temperature[iTemp]);
             integrator[iTemp].addPhase(phase[iTemp]);
             integrator[iTemp].setEquilibrating(false);
             integratorPT.addIntegrator(integrator[iTemp]);
             
             if (phase[iTemp].randomMolecule().node.isLeaf()) {
-                mcMoveAtom1[iTemp] = new MCMoveClusterAtom(potentialMaster);
+                mcMoveAtom1[iTemp] = new MCMoveClusterAtom(this);
                 mcMoveAtom1[iTemp].setStepSize(1.15);
                 integrator[iTemp].addMCMove(mcMoveAtom1[iTemp]);
                 if (nMolecules>2) {
-                    mcMoveMulti[iTemp] = new MCMoveClusterAtomMulti(potentialMaster, nMolecules-1);
+                    mcMoveMulti[iTemp] = new MCMoveClusterAtomMulti(this, nMolecules-1);
                     mcMoveMulti[iTemp].setStepSize(0.41);
                     integrator[iTemp].addMCMove(mcMoveMulti[iTemp]);
                 }
             }
             else {
-                mcMoveAtom1[iTemp] = new MCMoveClusterMolecule(potentialMaster);
-                mcMoveAtom1[iTemp].setStepSize(3.0);
+                mcMoveAtom1[iTemp] = new MCMoveClusterMolecule(potentialMaster, 3.0);
                 integrator[iTemp].addMCMove(mcMoveAtom1[iTemp]);
                 mcMoveRotate[iTemp] = new MCMoveClusterRotateMolecule3D(potentialMaster,space);
                 mcMoveRotate[iTemp].setStepSize(Math.PI);
                 integrator[iTemp].addMCMove(mcMoveRotate[iTemp]);
                 if (nMolecules>2) {
-                    mcMoveMulti[iTemp] = new MCMoveClusterMoleculeMulti(potentialMaster, nMolecules-1);
-                    mcMoveMulti[iTemp].setStepSize(0.41);
+                    mcMoveMulti[iTemp] = new MCMoveClusterMoleculeMulti(potentialMaster, 0.41, nMolecules-1);
                     integrator[iTemp].addMCMove(mcMoveMulti[iTemp]);
                 }
             }
@@ -118,7 +120,7 @@ public class SimulationVirialPT extends Simulation {
             
             setMeter(iTemp,new MeterVirial(allValueClusters[iTemp],integrator[iTemp]));
 //            meter[iTemp].getDataInfo().setLabel("Target/Refernce Ratio "+iTemp);
-            setAccumulator(iTemp,new AccumulatorRatioAverage());
+            setAccumulator(iTemp,new AccumulatorRatioAverage(getDefaults().blockSize));
 
             if(iTemp>0) {
                 meterAccept[iTemp-1] = new DataSourceAcceptanceRatio(integratorPT.swapMoves()[iTemp-1]);

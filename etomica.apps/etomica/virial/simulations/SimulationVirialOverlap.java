@@ -13,6 +13,7 @@ import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.MCMove;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.potential.P2LennardJones;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -50,14 +51,15 @@ import etomica.virial.overlap.IntegratorOverlap;
  */
 public class SimulationVirialOverlap extends Simulation {
 
-	public SimulationVirialOverlap(Space aSpace, SpeciesFactory speciesFactory, double temperature, ClusterAbstract refCluster, ClusterAbstract targetCluster) {
-		this(aSpace,speciesFactory,temperature,new ClusterAbstract[]{refCluster,targetCluster},
+	public SimulationVirialOverlap(Space aSpace, Default defaults, SpeciesFactory speciesFactory, 
+			double temperature, ClusterAbstract refCluster, ClusterAbstract targetCluster) {
+		this(aSpace,defaults,speciesFactory,temperature,new ClusterAbstract[]{refCluster,targetCluster},
                 new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster.makeCopy()),ClusterWeightAbs.makeWeightCluster(targetCluster.makeCopy())});
 	}
 	
-	public SimulationVirialOverlap(Space aSpace, SpeciesFactory speciesFactory, 
+	public SimulationVirialOverlap(Space aSpace, Default defaults, SpeciesFactory speciesFactory, 
             double temperature, final ClusterAbstract[] aValueClusters, final ClusterWeight[] aSampleClusters) {
-		super(aSpace);
+		super(aSpace,false,new PotentialMaster(aSpace),Default.BIT_LENGTH,defaults);
 
         sampleClusters = aSampleClusters;
         int nMolecules = sampleClusters[0].pointCount();
@@ -84,30 +86,28 @@ public class SimulationVirialOverlap extends Simulation {
             // integrator for iPhase samples based on iPhase cluster
             phase[iPhase] = new PhaseCluster(this,sampleClusters[iPhase]);
             
-            integrators[iPhase] = new IntegratorClusterMC(potentialMaster);
+            integrators[iPhase] = new IntegratorClusterMC(this);
             integrators[iPhase].setTemperature(temperature);
             integrators[iPhase].addPhase(phase[iPhase]);
             integrators[iPhase].setEquilibrating(false);
             if (phase[iPhase].randomMolecule().node.isLeaf()) {
-                mcMoveAtom1[iPhase] = new MCMoveClusterAtom(potentialMaster);
+                mcMoveAtom1[iPhase] = new MCMoveClusterAtom(this);
                 mcMoveAtom1[iPhase].setStepSize(1.15);
                 integrators[iPhase].addMCMove(mcMoveAtom1[iPhase]);
                 if (nMolecules>2) {
-                    mcMoveMulti[iPhase] = new MCMoveClusterAtomMulti(potentialMaster, nMolecules-1);
+                    mcMoveMulti[iPhase] = new MCMoveClusterAtomMulti(this, nMolecules-1);
                     mcMoveMulti[iPhase].setStepSize(0.41);
                     integrators[iPhase].addMCMove(mcMoveMulti[iPhase]);
                 }
             }
             else {
-                mcMoveAtom1[iPhase] = new MCMoveClusterMolecule(potentialMaster);
-                mcMoveAtom1[iPhase].setStepSize(3.0);
+                mcMoveAtom1[iPhase] = new MCMoveClusterMolecule(potentialMaster, 3.0);
                 integrators[iPhase].addMCMove(mcMoveAtom1[iPhase]);
                 mcMoveRotate[iPhase] = new MCMoveClusterRotateMolecule3D(potentialMaster,space);
                 mcMoveRotate[iPhase].setStepSize(Math.PI);
                 integrators[iPhase].addMCMove(mcMoveRotate[iPhase]);
                 if (nMolecules>2) {
-                    mcMoveMulti[iPhase] = new MCMoveClusterMoleculeMulti(potentialMaster, nMolecules-1);
-                    mcMoveMulti[iPhase].setStepSize(0.41);
+                    mcMoveMulti[iPhase] = new MCMoveClusterMoleculeMulti(potentialMaster, 0.41, nMolecules-1);
                     integrators[iPhase].addMCMove(mcMoveMulti[iPhase]);
                 }
             }
@@ -118,7 +118,7 @@ public class SimulationVirialOverlap extends Simulation {
             MeterVirial meter = new MeterVirial(new ClusterAbstract[]{aValueClusters[iPhase],aSampleClusters[1-iPhase]},integrators[iPhase]);
             setMeter(meter,iPhase);
 //            meters[iPhase].getDataInfo().setLabel("Overlap/Target"+iPhase+" meter");
-            AccumulatorVirialOverlapSingleAverage acc = new AccumulatorVirialOverlapSingleAverage(11);
+            AccumulatorVirialOverlapSingleAverage acc = new AccumulatorVirialOverlapSingleAverage(this, 11);
 //            acc.getDataInfo().setLabel("Overlap/Target"+iPhase+" accumulator");
             setAccumulator(acc,iPhase);
               
@@ -126,7 +126,7 @@ public class SimulationVirialOverlap extends Simulation {
         
         setRefPref(1,5);
         integratorOS = new IntegratorOverlap(potentialMaster, integrators, accumulators);
-        integratorOS.setNumSubSteps(Default.blockSize);
+        integratorOS.setNumSubSteps(getDefaults().blockSize);
         ai = new ActivityIntegrate(this,integratorOS);
         ai.setInterval(1);
         getController().addAction(ai);
@@ -195,7 +195,8 @@ public class SimulationVirialOverlap extends Simulation {
     public IntegratorOverlap integratorOS;
 
 	public static void main(String[] args) {
-		Default.makeLJDefaults();
+		Default defaults = new Default();
+		defaults.makeLJDefaults();
 
 		int nPoints = 5;
 		double temperature = 1.3; //temperature governing sampling of configurations
@@ -203,7 +204,7 @@ public class SimulationVirialOverlap extends Simulation {
 		double sigmaHSRef = 1.6;
         double sigmaLJ = 1.0;
 		double b0 = 2*Math.PI/3. * Math.pow(sigmaHSRef,3);
-		Default.atomSize = 1.0;
+		defaults.atomSize = 1.0;
 		System.out.println("sigmaHSRef: "+sigmaHSRef);
 		System.out.println("B2HS: "+b0);
 		System.out.println("B3HS: "+(5./8.*b0*b0)+" = "+(5.0/8.0)+" B2HS^2");
@@ -222,9 +223,9 @@ public class SimulationVirialOverlap extends Simulation {
 
 		int maxSteps = 100000;
 		
-        Default.blockSize = 1000;
+        defaults.blockSize = 1000;
 //		while (true) {
-			SimulationVirialOverlap sim = new SimulationVirialOverlap(space, new SpeciesFactorySpheres(), temperature, refCluster, targetCluster);
+			SimulationVirialOverlap sim = new SimulationVirialOverlap(space, defaults, new SpeciesFactorySpheres(), temperature, refCluster, targetCluster);
 			sim.ai.setMaxSteps(maxSteps);
 //            sim.integratorOS.setEquilibrating(true);
 //            sim.integratorOS.setAdjustStepFreq(true);

@@ -23,12 +23,13 @@ import etomica.virial.cluster.Standard;
  */
 public class SimulationVirialUmbrella extends SimulationVirial {
 
-	public SimulationVirialUmbrella(Space aSpace, double temperature, ClusterSum refCluster, ClusterSum[] targetClusters) {
-		this(aSpace,new SpeciesFactorySpheres(),temperature,refCluster,targetClusters);
+	public SimulationVirialUmbrella(Space aSpace, Default defaults, double temperature, 
+			ClusterSum refCluster, ClusterSum[] targetClusters) {
+		this(aSpace,defaults,new SpeciesFactorySpheres(),temperature,refCluster,targetClusters);
 	}
 	
-    public SimulationVirialUmbrella(Space aSpace, SpeciesFactory speciesFactory, double temperature, ClusterSum refCluster, ClusterSum[] targetClusters) {
-        super(aSpace,speciesFactory,temperature,makeUmbrellaCluster(refCluster,targetClusters),refCluster,targetClusters);
+    public SimulationVirialUmbrella(Space aSpace, Default defaults, SpeciesFactory speciesFactory, double temperature, ClusterSum refCluster, ClusterSum[] targetClusters) {
+        super(aSpace,defaults,speciesFactory,temperature,makeUmbrellaCluster(refCluster,targetClusters),refCluster,targetClusters);
     }
     
     private static ClusterWeightUmbrella makeUmbrellaCluster(ClusterSum refSampleCluster, ClusterSum[] targetSampleClusters) {
@@ -39,7 +40,8 @@ public class SimulationVirialUmbrella extends SimulationVirial {
     }
 
 	public static void main(String[] args) {
-		Default.makeLJDefaults();
+		Default defaults = new Default();
+		defaults.makeLJDefaults();
 
 		final int nPoints = 5;
         double temperature = 1.3;
@@ -48,7 +50,7 @@ public class SimulationVirialUmbrella extends SimulationVirial {
         double b0 = Standard.B2HS(sigmaHSRef);
         double c0 = Standard.B3HS(sigmaHSRef);
         double d0 = Standard.B4HS(sigmaHSRef);
-        Default.atomSize = 1.0;
+        defaults.atomSize = 1.0;
         System.out.println("sigmaHSRef: "+sigmaHSRef);
         System.out.println("B2HS: "+b0);
         System.out.println("B3HS: "+c0+" = "+(c0/b0/b0)+" B2HS^2");
@@ -72,7 +74,7 @@ public class SimulationVirialUmbrella extends SimulationVirial {
 		int steps = 100000000;
 
 //		while (true) {
-			SimulationVirialUmbrella sim = new SimulationVirialUmbrella(space, temperature, refCluster, 
+			SimulationVirialUmbrella sim = new SimulationVirialUmbrella(space, defaults, temperature, refCluster, 
 					new ClusterSum[]{targetCluster});
 			((ClusterWeightUmbrella)sim.sampleCluster).setWeightRatio(new double[] {1.0,weightRatio});
 			sim.ai.setMaxSteps(steps);

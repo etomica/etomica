@@ -12,6 +12,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.Species;
+import etomica.util.Default;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ConfigurationCluster;
@@ -34,8 +35,8 @@ public class SimulationVirial extends Simulation {
 	/**
 	 * Constructor for simulation to determine the ratio bewteen reference and target Clusters
 	 */
-	public SimulationVirial(Space space, SpeciesFactory speciesFactory, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
-		super(space,false,new PotentialMaster(space));
+	public SimulationVirial(Space space, Default defaults, SpeciesFactory speciesFactory, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
+		super(space,false,new PotentialMaster(space),Default.BIT_LENGTH,defaults);
         sampleCluster = aSampleCluster;
 		int nMolecules = sampleCluster.pointCount();
 		phase = new PhaseCluster(this,sampleCluster);
