@@ -14,7 +14,6 @@ import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.Default;
 
 public class ReactionEquilibrium extends Simulation implements Atom.AgentSource {
 
@@ -40,10 +39,10 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
         idx = Atom.requestAgentIndex(this);
 
 		double diameter = 1.0;
-		Default.atomSize = diameter;
+		defaults.atomSize = diameter;
 
 		//controller and integrator
-		integratorHard1 = new IntegratorHard(potentialMaster);
+		integratorHard1 = new IntegratorHard(this);
 		integratorHard1.setIsothermal(true);
 //        integratorHard1.setThermostat(IntegratorMD.ANDERSEN_SINGLE);
 
@@ -58,15 +57,15 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
         phase1.makeMolecules();
 
 		//potentials
-		AAbonded = new P2SquareWellBonded(space, idx, 0.5 * Default.atomSize, //core
+		AAbonded = new P2SquareWellBonded(space, idx, 0.5 * defaults.atomSize, //core
 				2.0, //well multiplier
-				Default.potentialWell);
-		ABbonded = new P2SquareWellBonded(space, idx, 0.5 * Default.atomSize, //core
+				defaults.potentialWell, defaults.ignoreOverlap);
+		ABbonded = new P2SquareWellBonded(space, idx, 0.5 * defaults.atomSize, //core
 				2.0, //well multiplier
-				Default.potentialWell);
-		BBbonded = new P2SquareWellBonded(space, idx, 0.5 * Default.atomSize, //core
+				defaults.potentialWell, defaults.ignoreOverlap);
+		BBbonded = new P2SquareWellBonded(space, idx, 0.5 * defaults.atomSize, //core
 				2.0, //well multiplier
-				Default.potentialWell);
+				defaults.potentialWell, defaults.ignoreOverlap);
 /*		P2SquareWell AAbonded = new P2SquareWell(space, 0.5 * Default.atomSize, //core
 				2.0, //well multiplier
 				Default.POTENTIAL_WELL);

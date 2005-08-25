@@ -9,8 +9,8 @@ import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
-import etomica.data.DataFork;
 import etomica.data.DataPump;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
@@ -41,7 +41,7 @@ public class ReactionEquilibriumGraphic {
 	public ReactionEquilibriumGraphic(ReactionEquilibrium sim) {
 		initializing = true;
 		DeviceTrioControllerButton control = new DeviceTrioControllerButton(sim);
-		DeviceThermoSelector tSelect = new DeviceThermoSelector(sim.controller1, sim.integratorHard1);
+		DeviceThermoSelector tSelect = new DeviceThermoSelector(sim, sim.integratorHard1);
 		final DisplayPhase displayPhase1 = new DisplayPhase(sim.phase1);
         sim.integratorHard1.addListener(new IntervalActionAdapter(
                 new Action() {
@@ -181,7 +181,7 @@ public class ReactionEquilibriumGraphic {
 		tBox.setLabelPosition(Constants.NORTH);
 
 		//display of averages
-		AccumulatorAverage dimerfractionaccum = new AccumulatorAverage();
+		AccumulatorAverage dimerfractionaccum = new AccumulatorAverage(sim);
 		DataPump tAverageDimer = new DataPump (sim.meterDimerFraction, dimerfractionaccum);
         IntervalActionAdapter dAdapter = new IntervalActionAdapter (tAverageDimer, sim.integratorHard1);
         dAdapter.setActionInterval(100);
@@ -429,7 +429,9 @@ public class ReactionEquilibriumGraphic {
                         a[0] = null;
                         a[1] = null;
 					}
-					sim.integratorHard1.reset();
+                     try {
+                         sim.integratorHard1.reset();
+                     } catch(ConfigurationOverlapException e) {}
 				}
 			});
 			//            nSlider = new DeviceSlider(new NMoleculeModulator(s));
@@ -459,7 +461,9 @@ public class ReactionEquilibriumGraphic {
 					final double newMass = value;
 					mass.setText(Integer.toString(value));
 					((AtomTypeLeaf)species.type.getSpecies().getFactory().getType()).setMass(newMass);
-					sim.integratorHard1.reset();
+                     try {
+                         sim.integratorHard1.reset();
+                     } catch(ConfigurationOverlapException e) {}
 				}
 			};
 			mass.addActionListener(myListener);

@@ -4,12 +4,10 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.potential.P2SquareWell;
-import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
-import etomica.util.Default;
 
 
 /**
@@ -44,8 +42,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 		// bondchange event
 //	}
 
-	public P2SquareWellBonded(Space space, int idx, double coreDiameter,double lambda, double epsilon) {
-		super(space, coreDiameter, lambda, epsilon);
+	public P2SquareWellBonded(Space space, int idx, double coreDiameter,double lambda, double epsilon,boolean ignoreOverlap) {
+		super(space, coreDiameter, lambda, epsilon, ignoreOverlap);
 		this.idx = idx;
 	}
 
@@ -91,16 +89,16 @@ public class P2SquareWellBonded extends P2SquareWell {
 
 	public double collisionTime(AtomSet atoms, double falseTime) {
 		
-		if (Default.ignoreOverlap) {
+		if (ignoreOverlap) {
 			
 			// ** Makes 2 things, and atomPair pair, 
 			AtomPair pair = (AtomPair) atoms;
 			Atom a1Partner = (Atom) pair.atom0.allatomAgents[idx];
 			
 			cPair.reset(pair);
-			((CoordinatePairKinetic) cPair).resetV();
+			cPair.resetV();
 			dr.E(cPair.dr());
-			Vector dv = ((CoordinatePairKinetic) cPair).dv();
+			Vector dv = cPair.dv();
 			dr.PEa1Tv1(falseTime, dv);
 			double r2 = dr.squared();
 			double bij = dr.dot(dv);
@@ -123,9 +121,9 @@ public class P2SquareWellBonded extends P2SquareWell {
 
 		AtomPair pair = (AtomPair) atoms;
 		cPair.reset(pair);
-		((CoordinatePairKinetic) cPair).resetV();
+		cPair.resetV();
 		dr.E(cPair.dr());
-		Vector dv = ((CoordinatePairKinetic) cPair).dv();
+		Vector dv = cPair.dv();
 		dr.PEa1Tv1(falseTime, dv);
 		double r2 = dr.squared();
 		double bij = dr.dot(dv);
