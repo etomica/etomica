@@ -5,6 +5,7 @@ import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.Vector;
 
 /**
@@ -17,15 +18,20 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule implements MCMove
 
     private final MeterClusterWeight weightMeter;
 
-	/**
+    public MCMoveClusterMoleculeMulti(Simulation sim, int nAtoms) {
+    	this(sim.potentialMaster,sim.getDefaults().atomSize, nAtoms);
+    }
+    
+    /**
 	 * Constructor for MCMoveAtomMulti.
 	 * @param parentIntegrator
 	 * @param nAtoms number of atoms to move in a trial.  Number of atoms in
 	 * phase should be at least one greater than this value (greater
 	 * because first atom is never moved)
 	 */
-	public MCMoveClusterMoleculeMulti(PotentialMaster potentialMaster, int nAtoms) {
-		super(potentialMaster);
+	public MCMoveClusterMoleculeMulti(PotentialMaster potentialMaster, 
+			double stepSize, int nAtoms) {
+		super(potentialMaster,stepSize,Double.POSITIVE_INFINITY,false);
 		this.nAtoms = nAtoms;
 		selectedAtoms = new Atom[nAtoms];
         translationVectors = new Vector[nAtoms];

@@ -17,12 +17,11 @@ public class MCMoveClusterMolecule extends MCMoveMolecule implements MCMoveClust
     private final MeterClusterWeight weightMeter;
 
     public MCMoveClusterMolecule(Simulation sim) {
-    	this(sim.potentialMaster,sim.getDefaults().atomSize,sim.getDefaults().boxSize*0.5);
+    	this(sim.potentialMaster,sim.getDefaults().atomSize);
     }
     
-    public MCMoveClusterMolecule(PotentialMaster potentialMaster, double stepSize, 
-    		double stepSizeMax) {
-        super(potentialMaster,stepSize,stepSizeMax,false);
+    public MCMoveClusterMolecule(PotentialMaster potentialMaster, double stepSize) {
+        super(potentialMaster,stepSize,Double.POSITIVE_INFINITY,false);
         weightMeter = new MeterClusterWeight(potential);
         setName("MCMoveClusterMolecule");
     }
