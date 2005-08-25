@@ -35,6 +35,7 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
 	public MeterDimerFraction meterDimerFraction;
 	public ReactionEquilibrium() {
 		super(Space2D.getInstance());
+        defaults.ignoreOverlap = true;
         controller1 = getController();
         idx = Atom.requestAgentIndex(this);
 
