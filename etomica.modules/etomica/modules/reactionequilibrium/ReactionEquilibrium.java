@@ -6,6 +6,8 @@ import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.Atom;
+import etomica.config.Configuration;
+import etomica.config.ConfigurationSequential;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.DisplayPhase;
 import etomica.integrator.IntegratorHard;
@@ -56,6 +58,8 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
         speciesA.setNMolecules(50);
         speciesB.setNMolecules(50);
         phase1.makeMolecules();
+        Configuration config = new ConfigurationSequential(space);
+        config.initializeCoordinates(phase1);
 
 		//potentials
 		AAbonded = new P2SquareWellBonded(space, idx, 0.5 * defaults.atomSize, //core
