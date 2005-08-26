@@ -6,7 +6,7 @@ import etomica.action.Action;
 import etomica.atom.Atom;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.SpeciesAgent;
-import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
@@ -420,8 +420,7 @@ public class ReactionEquilibriumGraphic {
 			nSlider.setMaximum(40);
 			nSlider.addChangeListener(new javax.swing.event.ChangeListener() {
 				public void stateChanged(javax.swing.event.ChangeEvent evt) {
-					AtomIteratorListSimple iter = new AtomIteratorListSimple(
-							sim.phase1.getSpeciesMaster().atomList);
+					AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(sim.phase1);
 					iter.reset();
 					while (iter.hasNext()) {
 						//            			System.out.println(iter.peek().toString());
