@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!--
+
+  @(#)package.html	1.60 98/01/27
+
+	Permission is granted to use the Etomica classes
+	for your own academic research and instruction. 
+	All other rights are reserved.  Etomica and software
+	derived from it may not be sold or redistributed in any form. 
+	
+  CopyrightVersion 1.0
+
+-->
+</head>
+<body bgcolor="white">
+
+Provides classes the define and organize atoms and the information related to them.  The
+physical atoms that are manipulated in a simulation are represented by instances of the
+class <@link etomica.atom.Atom Atom}. Atom plays a larger role than this, however. Instances of Atom 
+are arranged into a tree structure, through which they organize atoms into molecules, species, and phases.
+<p>
+This "Atom tree" may be understood as follows:
+<ul>
+<li>At the top of the tree is an instance of <u>SpeciesRoot</u>, which serves as a single point of reference
+for all Atom instances in the simulation.
+<li>At the bottom of the tree are the "<u>leaf Atoms</u>", which correspond the physical atoms being simulated.
+<li>Below the SpeciesRoot atom are instances of <u>SpeciesMaster</u>, which correspond to the phases being 
+simulated.  All Atoms in the tree below a given SpeciesMaster belong to a single Phase, and are subject to interaction
+with each other (Atoms in different Phases have no mutual interactions).  Every instance of a Phase has a 
+single SpeciesMaster field.
+<li>Below each SpeciesMaster in the tree are one or more <u>SpeciesAgent</u> instances.  There is a SpeciesAgent
+for each Species that has been instantiated by the Simulation.
+<li>SpeciesRoot, SpeciesMaster, and SpeciesAgent are all subclasses of Atom.
+<li>Below each SpeciesAgent are Atom instances that represent the molecules of the corresponding Species.  This
+is the "<u>molecule layer</u>" of the tree.  If the molecules are monatomic, this branch of the tree terminates
+here, and the molecules are the physical "leaf" atoms of that species.  Note that there is no Molecule class; these
+and all other nodes of the tree are (logically) Atom instances.
+<li>For multiatomic species, below the molecules will be one or more levels that represent molecule subgroups
+(e.g., methyl groups), and finally the physical atoms themselves (which often are directly below the molecule layer).
+</ul>
+The tree structure is implemented by the {@link etomica.atom.AtomTreeNode} AtomTreeNode class, 
+which is held as a field by each Atom.  AtomTreeNode
+is subclassed into AtomTreeNodeLeaf and AtomTreeNodeGroup, respectively, for Atoms that are leaf atoms in the 
+species hierarchy, and atom groups, which include everything else.  
+<p>
+Information about an Atom's position in the atom hierarchy is coded in an integer index, which can
+be interpreted using the methods of AtomIndexManger.  The appropriate instance of AtomIndexManager
+for this purpose is held by the Atom's AtomType instance (discussed below).
+<p>
+The state of an Atom -- usually its position and perhaps velocity (but more general definitions are possible) --
+is held by a Coordinate field (defined in {@link etomica.space etomica.space}) which is made by the governing Space
+and which is provided to the Atom at construction. The conduct of the simulation primarily entails the manipulation 
+of the fields of the Atom Coordinates.
+<p>
+The {@link etomica.atom.AtomType AtomType} class is used to hold information that is common to many Atom instances.
+Each Atom has a final AtomType field that is specifed at construction. Atoms that that are group atoms (having 
+AtomTreeNodeGroup as their node field) have types that are (or extend) AtomTypeGroup. Leaf atoms have types that 
+extend AtomTypeLeaf. Instances of AtomType are arranged in a hierarchy that parallels that Atom hierarchy.  
+Important features are as follows:
+<ul>
+<li>At the top of the type hierarchy is AtomTypeRoot, which is the AtomType held by SpeciesRoot.
+<li>Below AtomTypeRoot is a single instance of AtomTypeGroup, which is the AtomType held by all SpeciesMaster 
+instances.  The Phase an atom is in has no significance to its AtomType.
+<li>Below the SpeciesMaster AtomType is an AtomType instance corresponding to each Species.  All SpeciesAgents
+for a given Species reference the same AtomType.
+<li>Likewise, on down the tree all similarly formed Atoms will reference the same AtomType instance.  The AtomType
+tree is a condensed version of the Atom tree; it has the same number of layers, but each layer in general has
+fewer nodes.
+</ul>
+AtomTypes are very important in defining the interactions between Atoms, as developed in the 
+{@link etomica.potential etomica.potential} package.
+<p>
+Each Atom instance at or below the molecule layer is constructed by an {@link etomica.atom.AtomFactory AtomFactory}.
+Complicated molecules are constructed by piecing together groups of atoms constructed by subfactories.  Thus the
+AtomFactories can be viewed in a hierarchy that mimicks the AtomType hierarchy; accordingly there is a one-to-one 
+correspondence between the AtomTypes and the AtomFactories.  The key AtomFactories are:
+<ul>
+<li><u>AtomFactoryMono</u>, which produces a leaf atom.
+<li><u>AtomFactoryHomo</u>, which produces an Atom that groups identically-formed child atoms (made by a single
+subfactory).
+<li><u>AtomFactoryHetero</u>, which produces an Atom that groups heterogeneous child atoms (made by more than
+one subfactory).
+</ul>
+This package also defines data structures used to collect Atom instances.  These include:
+<ul>
+<li><u>AtomSet</u>, an interface for a collection of an arbitrary (but usually small) number of atoms.
+<li><u>AtomPair</u>, an AtomSet formed from exactly two Atoms.
+<li><u>AtomList</u>, a linked list of Atoms; good for making mutable collections (atoms easily added and removed)
+for which random access is not often demanded
+<li><u>AtomArrayList</u>, a collection of Atoms which provides fast access at the expense of slower mutability
+</ul>
+AtomSet, and AtomPair in particular, are the expected arguments of Potential classes when calculating interatomic
+interactions.  Iteration over Atoms, AtomPairs and AtomSets is provided by the classes of 
+{@link etomica.atom.iterator etomica.atom.iterator}.
+<p>
+Atom groups hold their child Atoms in an AtomList.  Each Atom has a field the gives directly its linker
+used to place it in this list. Access to this linker is needed for iterations that begin with a specific Atom.
+<p>
+The Parameter classes are not well developed are subject to substantial change or elimination in the near future.
+
+<!--
+
+<h2>Package Specification</h2>
+
+##### FILL IN ANY SPECS NEEDED BY JAVA COMPATIBILITY KIT #####
+<ul>
+  <li><a href="">##### REFER TO ANY FRAMEMAKER SPECIFICATION HERE #####</a>
+</ul>
+
+<h2>Related Documentation</h2>
+
+For overviews, tutorials, examples, guides, and tool documentation, please see:
+<ul>
+  <li><a href="">##### REFER TO NON-SPEC DOCUMENTATION HERE #####</a>
+</ul>
+-->
+<!-- Put @see and @since tags down here. -->
+
+</body>
+</html>

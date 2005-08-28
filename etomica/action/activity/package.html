@@ -16,8 +16,9 @@
 </head>
 <body bgcolor="white">
 
-Collects classes that extend Activity, which implements Action and is an abstract class appropriate
-to encapsulate complex, time-consuming tasks.  Unlike a simple Action, an Activity can be paused
+Collects classes that extend {@link etomica.action.Activity Activity}, which implements Action 
+and is an abstract class appropriate to encapsulate complex, time-consuming tasks.  
+Unlike a simple Action, an Activity can be paused
 or even halted prematurely, typically through interaction with a user interface.  The class
 that "runs" an Integrator, repeatedly invoking its doStep method, is an example of an Activity.
 <p>
@@ -27,7 +28,7 @@ simultaneously, on separate threads).  Traversal across a series of state points
 to perform a thermodynamic-integration calculation, could be suitably implemented as an 
 ActivityGroupSeries.
 <p>
-The {@link etomica.Controller Controller} is a special ActivityGroupSeries that loops through a mutable
+The {@link etomica.action.activity.Controller Controller} is a special ActivityGroupSeries that loops through a mutable
 list of Actions/Activities, performing each in turn.  Each Simulation has one Controller instance,
 through which the simulation is conducted and other tasks are performed.  
 

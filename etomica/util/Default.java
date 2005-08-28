@@ -6,12 +6,9 @@ import etomica.units.UnitSystem;
 
 /**
  * Class holding fields that define many of the default values used in building
- * a simulation.
+ * a simulation.  
+ * 
  * @author kofke
- */
-
-/* History
- * 09/02/03 (DAK) added DO_SLEEP, used by Integrator
  */
 
 public class Default implements java.io.Serializable {
@@ -65,10 +62,15 @@ public class Default implements java.io.Serializable {
      * under one atom.  This is used to assign index values to each atom when it
      * is made.  The indexes permit quick comparison of the relative ordering
      * and/or hierarchical relation of any two atoms.  Sum of digits in array
-     * should not exceed 31. For example, {5, 16, 7, 3} indicates 31
-     * speciesAgents maximum, 65,536 molecules each, 128 groups per molecule, 8
-     * atoms per group (number of species agents is one fewer, because index 0
-     * is assigned to species master)
+     * should equal 32. For example, {1, 4, 4, 14, 6, 3} indicates 1 SpeciesRoot
+     * (this should always be the case), 2^4 = 16 SpeciesMasters (Phases), 2^4 = 16
+     * SpeciesAgents (Species), 2^14 =16,384 molecules of a given species in each phase,
+     * 2^6 = 64 subgroups per molecule, and 2^3 = 8 atoms per subgroup (note that
+     * a molecule need not be structured this way; for example it is ok with this
+     * bitLength array to have a monatomic species, there may be 16,384 such monatomic
+     * molecules in one phase).
+     * 
+     * The default is {1, 4, 4, 16, 6, 3}.
      */
     // powers of 2, for reference:
     //  n | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 |  14  |  15  |  16  |  17   |  18   |  19   |   20    |
@@ -78,15 +80,24 @@ public class Default implements java.io.Serializable {
 
     
     /**
-     * Sets default atom size, mass, and potential-well to unity, and scales
-     * other defaults appropriately.
+     * Sets defaults as follows:
+     * <ul>
+     * <li>atomSize = 1.0
+     * <li>atomMass = 1.0
+     * <li>potentialWell = 1.0
+     * <li>temperature = 1.0
+     * <li>pressure = 1.0
+     * <li>timeStep = 0.04
+     * <li>boxSize = 10
+     * </ul>
+     * Also sets etomica.units.BaseUnit.Length.Sim.TO_PIXELS = 30.
      */
     public void makeLJDefaults() {
         atomSize = 1.0;
         atomMass = 1.0;
         potentialWell = 1.0;
         temperature = 1.0;
-//        PRESSURE = 1.0;
+        pressure = 1.0;
         timeStep = 0.04;
         boxSize = 10.0;
         etomica.units.BaseUnit.Length.Sim.TO_PIXELS = 30;
