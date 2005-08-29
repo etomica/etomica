@@ -10,7 +10,7 @@ import etomica.util.Arrays;
 
 /**
  * Parent of all SpeciesMaster instances in a simulation, and thus the root
- * of the hierarcy of atoms.  A single instance
+ * of the hierarchy of atoms.  A single instance
  * of this class is constructed and held the the Simulation. This class ensures
  * that an agent of every species is added to every phase.  
  */
