@@ -3,21 +3,15 @@ package etomica.atom.iterator;
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
 import etomica.potential.Potential;
-import etomica.util.Constants;
 import etomica.util.EnumeratedType;
 
 /**
  * Encapsulation of a set of instructions that an AtomsetIterator
  * uses to select the atoms it presents on iteration.
  *
- * @author David Kofke
+ * @author David Kofke and Andrew Schultz
  */
 
-/* History
- * 02/21/03 (DAK) added constructor taking Direction and Atom
- * 08/30/03 (DAK) added copying of skipFirst to copy method
- * 
- */
 public final class IteratorDirective implements java.io.Serializable {
     
   

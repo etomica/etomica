@@ -16,7 +16,7 @@
 </head>
 <body bgcolor="white">
 
-Provides classes the define and organize atoms and the information related to them.  The
+Provides classes that define and organize atoms and the information related to them.  The
 physical atoms that are manipulated in a simulation are represented by instances of the
 class <@link etomica.atom.Atom Atom}. Atom plays a larger role than this, however. Instances of Atom 
 are arranged into a tree structure, through which they organize atoms into molecules, species, and phases.
@@ -95,10 +95,10 @@ AtomSet, and AtomPair in particular, are the expected arguments of Potential cla
 interactions.  Iteration over Atoms, AtomPairs and AtomSets is provided by the classes of 
 {@link etomica.atom.iterator etomica.atom.iterator}.
 <p>
-Atom groups hold their child Atoms in an AtomList.  Each Atom has a field the gives directly its linker
-used to place it in this list. Access to this linker is needed for iterations that begin with a specific Atom.
+Atom groups hold their child Atoms in an AtomList.  The AtomLinkers used to form this list are referable directly
+as fields of their corresponding Atoms; access to this linker is needed for iterations that begin with a specific Atom.
 <p>
-The Parameter classes are not well developed are subject to substantial change or elimination in the near future.
+The Parameter classes are not carefully developed are subject to substantial change or elimination in the near future.
 
 <!--
 
