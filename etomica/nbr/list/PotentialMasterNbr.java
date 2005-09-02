@@ -49,10 +49,11 @@ public class PotentialMasterNbr extends PotentialMaster {
     public PotentialMasterNbr(Space space, double range, AtomPositionDefinition positionDefinition) {
         super(space,new IteratorFactoryCell());
         setNCells(10);
-		neighborManager = new NeighborListManager(this, range);
-		atomIterator = new AtomIteratorArrayList();
-		singletIterator = new AtomIteratorSinglet();
-		pairIterator = new ApiInnerFixed(singletIterator, atomIterator);
+        neighborManager = new NeighborListManager(this, range);
+        atomIterator = new AtomIteratorArrayList();
+        singletIterator = new AtomIteratorSinglet();
+        pairIterator = new ApiInnerFixed(singletIterator, atomIterator);
+        swappedPairIterator = new ApiInnerFixed(singletIterator, atomIterator, true);
         this.positionDefinition = positionDefinition;
 	}
     
@@ -116,7 +117,7 @@ public class PotentialMasterNbr extends PotentialMaster {
             case 2:
                 AtomSequencerNbr seq = (AtomSequencerNbr)atom.seq;
                 AtomArrayList[] list;
-                if (direction == IteratorDirective.UP || direction == null) {
+                if (direction != IteratorDirective.DOWN) {
                     list = seq.getUpList();
 //                  list.length may be less than potentials.length, if atom hasn't yet interacted with another using one of the potentials
                     if(i < list.length) {
@@ -125,12 +126,12 @@ public class PotentialMasterNbr extends PotentialMaster {
                         pc.doCalculation(pairIterator, id, potentials[i]);
                     }
                 }
-                if (direction == IteratorDirective.DOWN || direction == null) {
+                if (direction != IteratorDirective.UP) {
                     list = seq.getDownList();
                     if(i < list.length) {
                         atomIterator.setList(list[i]);
                         //System.out.println("Dn :"+atomIterator.size());
-                        pc.doCalculation(pairIterator, id, potentials[i]);
+                        pc.doCalculation(swappedPairIterator, id, potentials[i]);
                     }
                 }
                 break;//switch
@@ -202,6 +203,7 @@ public class PotentialMasterNbr extends PotentialMaster {
 	private final AtomIteratorArrayList atomIterator;
 	private final AtomIteratorSinglet singletIterator;
 	private final ApiInnerFixed pairIterator;
+    private final ApiInnerFixed swappedPairIterator;
 	private final NeighborListManager neighborManager;
     private int nCells;
     private final IteratorDirective idUp = new IteratorDirective();
