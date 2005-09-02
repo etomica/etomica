@@ -69,7 +69,6 @@ public class MCMoveAtom extends MCMove {
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
         if(uOld > 1e10 && !fixOverlap) {
-            System.out.println("Uold: "+uOld);
             throw new RuntimeException(new ConfigurationOverlapException(atom.node.parentPhase()));
         }
         translationVector.setRandomCube();

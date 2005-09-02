@@ -1,8 +1,6 @@
 //includes main method
 package etomica.potential;
 
-import java.awt.Color;
-
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
@@ -186,7 +184,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     
     public void draw(java.awt.Graphics g, int[] origin, double scale) {
         if (boundary == null) return;
-        g.setColor(Color.gray);
+        g.setColor(java.awt.Color.gray);
         double toPixel = scale*etomica.units.BaseUnit.Length.Sim.TO_PIXELS;
         // if not 2D serious problems!
         for (int i=0; i<2; i++) {

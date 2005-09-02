@@ -32,9 +32,13 @@ public class AtomIteratorSequence implements AtomIteratorAtomDependent, java.io.
      * iteration.
      */
     public AtomIteratorSequence(IteratorDirective.Direction direction) {
-        this(direction, new AtomToLinkerSeq());
+        this(direction, 0);
     }
 
+    public AtomIteratorSequence(IteratorDirective.Direction direction, int numToSkip) {
+        this(direction, numToSkip, new AtomToLinkerSeq());
+    }
+    
     /**
      * Constructs new class to iterate in the specified direction. Must invoke
      * setAtom or setFirst and reset before beginning iteration. AtomToLinker
@@ -44,13 +48,17 @@ public class AtomIteratorSequence implements AtomIteratorAtomDependent, java.io.
      * @throws IllegalArgumentException
      *             if direction is null
      */
-    public AtomIteratorSequence(IteratorDirective.Direction direction,
+    public AtomIteratorSequence(IteratorDirective.Direction direction, int numToSkip,
             AtomToLinker atomToLinker) {
         if (direction == null)
             throw new IllegalArgumentException(
                     "Must specify direction to constructor of AtomLinkerIterator");
         upListNow = (direction == IteratorDirective.UP);
         this.atomToLinker = atomToLinker;
+        if (numToSkip < 0) {
+            throw new IllegalArgumentException("num to skip must not be negative");
+        }
+        this.numToSkip = numToSkip;
         setFirst(emptyList.header);
     }
 
@@ -119,6 +127,9 @@ public class AtomIteratorSequence implements AtomIteratorAtomDependent, java.io.
      */
     public void reset() {
         next = first;
+        for (int n = numToSkip; n != 0; n--) {//ok if iterator expires before n = 0
+            nextAtom();
+        }
     }
 
     /**
@@ -209,6 +220,7 @@ public class AtomIteratorSequence implements AtomIteratorAtomDependent, java.io.
     private final AtomList emptyList = new AtomList();
     private AtomLinker next;//nonnull
     private AtomLinker first;//nonnull
+    private final int numToSkip;
 
     /**
      * Interface for class that determines an atom linker given an atom to begin

@@ -9,7 +9,6 @@ import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
 import etomica.atom.AtomList;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomPairVector;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.ApiInterList;
 import etomica.atom.iterator.ApiIntraList;
@@ -128,7 +127,6 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, jav
         if(!hasNext()) return null;
         AtomPair nextPair = listIterator.nextPair();
         nextPair.copyTo(pair);
-        pair.nearestImageVector = neighborIterator.getNearestImageVector();
         if(!listIterator.hasNext()) {
             advanceLists();
         }
@@ -207,5 +205,5 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, jav
     private final CellLattice.NeighborIterator neighborIterator;
     private final RectangularLattice.Iterator cellIterator;
 
-    private final AtomPairVector pair = new AtomPairVector();
+    private final AtomPair pair = new AtomPair();
 }

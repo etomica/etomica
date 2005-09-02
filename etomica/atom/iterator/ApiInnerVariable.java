@@ -27,8 +27,14 @@ public class ApiInnerVariable implements AtomPairIterator, ApiComposite, java.io
      */
     public ApiInnerVariable(AtomIterator aiOuter,
             AtomIteratorAtomDependent aiInner) {
+        this(aiOuter,aiInner,false);
+    }
+    
+    public ApiInnerVariable(AtomIterator aiOuter,
+            AtomIteratorAtomDependent aiInner, boolean doSwap) {
         this.aiOuter = aiOuter;
         this.aiInner = aiInner;
+        this.doSwap = doSwap;
         unset();
     }
 
@@ -69,9 +75,9 @@ public class ApiInnerVariable implements AtomPairIterator, ApiComposite, java.io
         if(pair == null || pair.count() != 2) {
             return false;
         }
-        if (aiOuter.contains(pair.getAtom(0))) {
-            aiInner.setAtom(pair.getAtom(0));
-            return aiInner.contains(pair.getAtom(1));
+        if (aiOuter.contains(pair.getAtom(doSwap ? 1 : 0))) {
+            aiInner.setAtom(pair.getAtom(doSwap ? 1 : 0));
+            return aiInner.contains(pair.getAtom(doSwap ? 0 : 1));
         }
         return false;
     }
@@ -108,8 +114,13 @@ public class ApiInnerVariable implements AtomPairIterator, ApiComposite, java.io
         hasNext = false;
         needUpdate1 = false;
         while (aiOuter.hasNext()) { //loop over outer iterator...
-            pair.atom0 = aiOuter.nextAtom();
-            aiInner.setAtom(pair.atom0);
+            if (doSwap) {
+                pair.atom1 = aiOuter.nextAtom();
+            }
+            else {
+                pair.atom0 = aiOuter.nextAtom();
+            }
+            aiInner.setAtom(doSwap ? pair.atom1 : pair.atom0);
             aiInner.reset();
             if (aiInner.hasNext()) { //until inner iterator has another
                 hasNext = true;
@@ -127,10 +138,20 @@ public class ApiInnerVariable implements AtomPairIterator, ApiComposite, java.io
             return null;
         }
         if (needUpdate1) {
-            pair.atom0 = atom1;
+            if (doSwap) {
+                pair.atom1 = atom1;
+            }
+            else {
+                pair.atom0 = atom1;
+            }
             needUpdate1 = false;
         } //aiOuter was advanced
-        pair.atom1 = (Atom) aiInner.peek();
+        if (doSwap) {
+            pair.atom0 = (Atom) aiInner.peek();
+        }
+        else {
+            pair.atom1 = (Atom) aiInner.peek();
+        }
         return pair;
     }
 
@@ -151,10 +172,20 @@ public class ApiInnerVariable implements AtomPairIterator, ApiComposite, java.io
         //it is not done directly in the while-loop because pair must first
         // return with the old atom1 intact
         if (needUpdate1) {
-            pair.atom0 = atom1;
+            if (doSwap) {
+                pair.atom1 = atom1;
+            }
+            else {
+                pair.atom0 = atom1;
+            }
             needUpdate1 = false;
         } //aiOuter was advanced
-        pair.atom1 = aiInner.nextAtom();
+        if (doSwap) {
+            pair.atom0 = aiInner.nextAtom();
+        }
+        else {
+            pair.atom1 = aiInner.nextAtom();
+        }
         while (!aiInner.hasNext()) { //Inner is done for this atom1, loop until
                                      // it is prepared for next
             if (aiOuter.hasNext()) { //Outer has another atom1...
@@ -177,12 +208,23 @@ public class ApiInnerVariable implements AtomPairIterator, ApiComposite, java.io
     public void allAtoms(AtomsetAction act) {
         aiOuter.reset();
         while (aiOuter.hasNext()) {
-            pair.atom0 = aiOuter.nextAtom();
-            aiInner.setAtom(pair.atom0);
-            aiInner.reset();
-            while (aiInner.hasNext()) {
-                pair.atom1 = aiInner.nextAtom();
-                act.actionPerformed(pair);
+            if (doSwap) {
+                pair.atom1 = aiOuter.nextAtom();
+                aiInner.setAtom(pair.atom1);
+                aiInner.reset();
+                while (aiInner.hasNext()) {
+                    pair.atom0 = aiInner.nextAtom();
+                    act.actionPerformed(pair);
+                }
+            }
+            else {
+                pair.atom0 = aiOuter.nextAtom();
+                aiInner.setAtom(pair.atom0);
+                aiInner.reset();
+                while (aiInner.hasNext()) {
+                    pair.atom1 = aiInner.nextAtom();
+                    act.actionPerformed(pair);
+                }
             }
         }
     }
@@ -200,6 +242,7 @@ public class ApiInnerVariable implements AtomPairIterator, ApiComposite, java.io
      */
     protected final AtomIteratorAtomDependent aiInner;
     protected final AtomIterator aiOuter;
+    protected final boolean doSwap;
 
 } //end of class ApiInnerVariable
 

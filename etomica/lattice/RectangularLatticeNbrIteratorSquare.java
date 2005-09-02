@@ -8,7 +8,6 @@ import javax.swing.JPanel;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.RectangularLattice.Iterator;
-import etomica.space.NearestImageVectorSource;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.Debug;
@@ -27,13 +26,10 @@ import etomica.util.Debug;
  * Created on May 26, 2005 by kofke
  */
 public class RectangularLatticeNbrIteratorSquare extends
-        RectangularLatticeNbrIterator implements NearestImageVectorSource {
+        RectangularLatticeNbrIterator {
 
     protected final int[] range;
     protected int furthestNeighborDelta;
-    protected Vector[] pbc;
-    protected final Vector[] nearestImageVectors;
-    protected int nearestImageVectorCursor;
     private final Vector period;
     protected int halfNeighborCount;
 
@@ -43,10 +39,6 @@ public class RectangularLatticeNbrIteratorSquare extends
     public RectangularLatticeNbrIteratorSquare(int D) {
         super(D);
         range = new int[D];
-        nearestImageVectors = new Vector[Math.round((float)Math.pow(3,D))];
-        for (int i=0; i<nearestImageVectors.length; i++) {
-            nearestImageVectors[i] = Space.makeVector(D);
-        }
         Vector newPeriod = Space.makeVector(D);
         newPeriod.E(1.0);
         period = Space.makeVector(D);
@@ -61,7 +53,6 @@ public class RectangularLatticeNbrIteratorSquare extends
         neighborCount = 0; //(direction == null) ? 2*halfNeighborCount : halfNeighborCount;
         int centralSiteIndex = lattice.arrayIndex(centralSite);
         cursor = 0;
-        nearestImageVectorCursor = (nearestImageVectors.length-1)/2;
         if(doDown) gatherDownNeighbors(0, centralSiteIndex - furthestNeighborDelta);
         if(doUp) gatherUpNeighbors(0, centralSiteIndex+1);
         needNeighborUpdate = false;
@@ -96,9 +87,7 @@ public class RectangularLatticeNbrIteratorSquare extends
         //up to but not including the row where the central site is located
         if(iMin < 0) {//need to implement periodic boundaries
             if (isPeriodic[d]) {
-                nearestImageVectorCursor += cursorJump[d];
                 gatherNeighbors(d, -iMin, startIndex+dim*lattice.jumpCount[d]);
-                nearestImageVectorCursor -= cursorJump[d];
             }
             gatherNeighbors(d, centralIndex, startIndex-iMin*lattice.jumpCount[d]);//note that iMin<0
         } else {//no concern for PBC; gather all neighbors in plane
@@ -125,9 +114,7 @@ public class RectangularLatticeNbrIteratorSquare extends
         if(iMax >= dim) {
             gatherNeighbors(d, dim-centralIndex-1, startIndex);
             if (isPeriodic[d]) {
-                nearestImageVectorCursor -= cursorJump[d];
                 gatherNeighbors(d, iMax-dim+1, startIndex-(centralIndex+1)*lattice.jumpCount[d]);
-                nearestImageVectorCursor += cursorJump[d];
             }
         } else {
             gatherNeighbors(d, range[d], startIndex);
@@ -145,7 +132,6 @@ public class RectangularLatticeNbrIteratorSquare extends
             for(int i=0; i<nSteps; i++) {
                 neighborCount++;
                 neighbors[cursor++] = startIndex++;
-                pbc[cursor] = nearestImageVectors[nearestImageVectorCursor];
             }
         } else {//step from one row to the next and gather neighbors in each row
             int d1 = d+1;
@@ -157,9 +143,7 @@ public class RectangularLatticeNbrIteratorSquare extends
                 for(int i=0; i<nSteps; i++) {
                     int startIndex1 = startIndex+i*lattice.jumpCount[d];
                     if (isPeriodic[d1]) {
-                        nearestImageVectorCursor += cursorJump[d1];
                         gatherNeighbors(d1, -iMin, startIndex1+dim*lattice.jumpCount[d1]);
-                        nearestImageVectorCursor -= cursorJump[d1];
                     }
                     gatherNeighbors(d1, iMax+1, startIndex1-iMin*lattice.jumpCount[d1]);//note that iMin<0
                 }
@@ -168,9 +152,7 @@ public class RectangularLatticeNbrIteratorSquare extends
                     int startIndex1 = startIndex+i*lattice.jumpCount[d];
                     gatherNeighbors(d1, dim-iMin, startIndex1);
                     if (isPeriodic[d1]) {
-                        nearestImageVectorCursor -= cursorJump[d1];
                         gatherNeighbors(d1, iMax-dim+1, startIndex1-iMin*lattice.jumpCount[d1]);
-                        nearestImageVectorCursor += cursorJump[d1];
                     }
                 }
             } else {//no need to consider PBC
@@ -210,7 +192,6 @@ public class RectangularLatticeNbrIteratorSquare extends
         }
         halfNeighborCount = (halfNeighborCount-1)/2;
         neighbors = new int[2*halfNeighborCount];
-        pbc = new Vector[2*halfNeighborCount+1];
         furthestNeighborDelta = lattice.arrayIndex(range);
         needNeighborUpdate = true;
         unset();
@@ -221,10 +202,6 @@ public class RectangularLatticeNbrIteratorSquare extends
      */
     public int[] getRange() {
         return (int[])range.clone();
-    }
-
-    public Vector getNearestImageVector() {
-        return pbc[cursor];
     }
 
     /**
@@ -243,19 +220,16 @@ public class RectangularLatticeNbrIteratorSquare extends
         for (int i=0; i<D; i++) {
             idx[i] = -1;
         }
-        int count = 0;
         double[] vectorElements = new double[D];
         // increments the last dimension first, starting at {-1,-1,-1}
         cursorJump[D-1] = 1;
         for (int i=D-2; i>-1; i--) {
             cursorJump[i] = cursorJump[i+1]*3;
         }
-        nearestImageVectors[(nearestImageVectors.length-1)/2] = Space.makeVector(D);
         while (idx[0] < 2) {
             for(int j=0; j<D; j++) {
                 vectorElements[j] = idx[j]*period.x(j);
             }
-            nearestImageVectors[count++].E(vectorElements);
             int i=D-1;
             idx[i]++;
             while (idx[i] > 1 && i > 0) {
@@ -263,7 +237,6 @@ public class RectangularLatticeNbrIteratorSquare extends
                 idx[--i]++;
             }
         }
-        nearestImageVectors[(nearestImageVectors.length-1)/2] = null;
     
     }
 
@@ -362,14 +335,6 @@ public class RectangularLatticeNbrIteratorSquare extends
                     MySite site = (MySite)iterator.next();
 //                    System.out.println(site.index);
                     site.color = java.awt.Color.GREEN.darker();
-                    Vector niv = iterator.getNearestImageVector();
-                    if(niv != null) {
-                        for(int i=0; i<3; i++) {
-                            double pbci = niv.x(i);
-                            if(pbci < 0) site.color = site.color.darker().darker();
-                            if(pbci > 0) site.color = site.color.brighter().brighter();
-                        }
-                    }
                 }
                 //generate up neighbors and color them blue
                 iterator.setDirection(IteratorDirective.UP);
@@ -379,14 +344,6 @@ public class RectangularLatticeNbrIteratorSquare extends
                     MySite site = (MySite)iterator.next();
 //                    System.out.println(site.index);
                     site.color = java.awt.Color.BLUE.darker();
-                    Vector niv = iterator.getNearestImageVector();
-                    if(niv != null) {
-                        for(int i=0; i<3; i++) {
-                            double pbci = niv.x(i);
-                            if(pbci < 0) site.color = site.color.darker().darker();
-                            if(pbci > 0) site.color = site.color.brighter().brighter();
-                        }
-                    }
                 }
 //                siteIterator.reset();
 //                while(siteIterator.hasNext()) {
@@ -404,7 +361,7 @@ public class RectangularLatticeNbrIteratorSquare extends
 //                }
                 
                 //color central site red
-                ((MySite)lattice.site(iterator.centralSite)).color = Color.RED;
+//                ((MySite)lattice.site(iterator.centralSite)).color = Color.RED;
                 int nx = 5; //number of planes to draw before moving down to another line of planes
                 for(int k=0; k<lattice.size[0]; k++) {//loop over planes
                     int ox = k % nx;       //set origin for drawing each lattice plane

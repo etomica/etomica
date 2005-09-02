@@ -12,6 +12,7 @@ import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
+import etomica.util.Debug;
 
 /**
  * Simple hard-sphere Monte Carlo simulation in 2D.
@@ -33,12 +34,15 @@ public class HsMc2d extends Simulation {
         super(Space2D.getInstance());
 	    integrator = new IntegratorMC(this);
 	    mcMoveAtom = new MCMoveAtom(this);
-        integrator.addMCMove(mcMoveAtom);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this, integrator);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         species2 = new SpeciesSpheresMono(this);
-	    phase = new Phase(this);
+        species.setNMolecules(20);
+        species2.setNMolecules(20);
+        phase = new Phase(this);
+        phase.makeMolecules();
+        Debug.setAtoms(phase);
         new ConfigurationSequential(space).initializeCoordinates(phase);
 	    potential = new P2HardSphere(this);
         potentialMaster.setSpecies(potential, new Species[] {species, species});
@@ -47,6 +51,7 @@ public class HsMc2d extends Simulation {
 	    meterCycles = new DataSourceCountSteps();
 
         integrator.addPhase(phase);
+        integrator.addMCMove(mcMoveAtom);
         integrator.addListener(new PhaseImposePbc(phase));
 
 //	    LatticeRenderer.ColorSchemeCell colorSchemeCell = new LatticeRenderer.ColorSchemeCell();

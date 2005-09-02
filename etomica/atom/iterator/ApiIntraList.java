@@ -71,6 +71,13 @@ public class ApiIntraList implements AtomPairIterator,
         nextOuter = list.header;
     }
 
+    /**
+     * Returns the number of iterates, which is list.size*(list.size-1)/2
+     */
+    public int size() {
+        return list.size() * (list.size() - 1) / 2;
+    }
+
     public AtomSet next() {
         return nextPair();
     }
@@ -117,13 +124,6 @@ public class ApiIntraList implements AtomPairIterator,
                 }
             }
         }
-    }
-
-    /**
-     * Returns the number of iterates, which is list.size*(list.size-1)/2
-     */
-    public int size() {
-        return list.size() * (list.size() - 1) / 2;
     }
 
     /**

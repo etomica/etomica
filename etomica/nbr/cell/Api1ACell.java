@@ -10,12 +10,11 @@ import etomica.action.AtomsetDetect;
 import etomica.atom.Atom;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomPairVector;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.ApiInnerFixed;
+import etomica.atom.iterator.ApiSequence1A;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSequence;
-import etomica.atom.iterator.AtomIteratorSequenceDirectable;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomPairIterator;
 import etomica.atom.iterator.AtomsetIteratorMolecule;
@@ -48,20 +47,25 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
      *            exceed this separation
      *  
      */
-	public Api1ACell(int D, double range) {
+    public Api1ACell(int D, double range) {
         neighborIterator = new CellLattice.NeighborIterator(D, range);
         aiOuter = new AtomIteratorSinglet();
         aiSeq = new AtomIteratorSequence(IteratorDirective.UP);
         //this iterator is used to loop through list of occupants of atoms's cell;
         //construct with AtomToLinker that gives appropriate linker
-        aiSeqDirectable = new AtomIteratorSequenceDirectable(new AtomIteratorSequence.AtomToLinker() {
-            public AtomLinker getLinker(Atom atom) {return ((AtomSequencerCell)atom.seq).nbrLink;}
-        });
-        nbrCellListIterator = new ApiInnerFixed(aiOuter, aiSeq);//used only by allAtoms
+        aiSeqDirectableUp = new AtomIteratorSequence(IteratorDirective.UP, 1, 
+                new AtomIteratorSequence.AtomToLinker() {
+                    public AtomLinker getLinker(Atom atom) {return ((AtomSequencerCell)atom.seq).nbrLink;}
+                });
+        aiSeqDirectableDn = new AtomIteratorSequence(IteratorDirective.DOWN, 1, 
+                new AtomIteratorSequence.AtomToLinker() {
+                    public AtomLinker getLinker(Atom atom) {return ((AtomSequencerCell)atom.seq).nbrLink;}
+                });
+        nbrCellListIteratorInner = new ApiSequence1A(aiSeqDirectableUp,aiSeqDirectableDn); //used only by allAtoms
+        nbrCellListIteratorUp = new ApiInnerFixed(aiOuter, aiSeq);//used only by allAtoms
+        nbrCellListIteratorDn = new ApiInnerFixed(aiOuter, aiSeq, true);//used only by allAtoms
         latticeIndex = new int[D];
 
-        aiSeqDirectable.setDirection(null);
-        aiSeqDirectable.setNumToSkip(1);
         neighborIterator.setDirection(null);
         setPhase(null);
 	}
@@ -80,22 +84,36 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
      */
     public void allAtoms(AtomsetAction action) {
         if(pair.atom0 == null) return;
-        aiOuter.setAtom(pair.atom0);
+        aiOuter.setAtom(targetAtom);
         neighborIterator.checkDimensions();
-        Cell cell = ((AtomSequencerCell)pair.atom0.seq).cell;
+        Cell cell = ((AtomSequencerCell)targetAtom.seq).cell;
         lattice.latticeIndex(cell.latticeArrayIndex,latticeIndex);
         
         //get pairs in targetMolecule's cell
-        aiSeqDirectable.setAtom(pair.atom0);
-        nbrCellListIterator.allAtoms(action);
+        nbrCellListIteratorInner.setAtom(targetAtom);
+        nbrCellListIteratorInner.allAtoms(action);
 
-        //loop over neighbor cells
+        //loop over neighbor cells up from central cell
         neighborIterator.setSite(latticeIndex);
-        neighborIterator.reset();
-        while(neighborIterator.hasNext()) {
-            Cell neighborCell = (Cell)neighborIterator.next(); 
-            aiSeq.setFirst(neighborCell.occupants().header.next);
-            if(neighborCell.occupants().size() > 0) nbrCellListIterator.allAtoms(action);
+        if (direction != IteratorDirective.DOWN) {
+            neighborIterator.setDirection(IteratorDirective.UP);
+            neighborIterator.reset();
+            while(neighborIterator.hasNext()) {
+                Cell neighborCell = (Cell)neighborIterator.next(); 
+                aiSeq.setFirst(neighborCell.occupants().header.next);
+                if(neighborCell.occupants().size() > 0) nbrCellListIteratorUp.allAtoms(action);
+            }
+        }
+
+        //loop over neighbor cells down from central cell
+        if (direction != IteratorDirective.UP) {
+            neighborIterator.setDirection(IteratorDirective.DOWN);
+            neighborIterator.reset();
+            while(neighborIterator.hasNext()) {
+                Cell neighborCell = (Cell)neighborIterator.next(); 
+                aiSeq.setFirst(neighborCell.occupants().header.next);
+                if(neighborCell.occupants().size() > 0) nbrCellListIteratorDn.allAtoms(action);
+            }
         }
     }//end of allAtoms
     
@@ -132,8 +150,12 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
     
     public AtomPair nextPair() {
         if(!hasNext()) return null;
-        pair.atom1 = aiInner.nextAtom();
-        pair.nearestImageVector = neighborIterator.getNearestImageVector();
+        if (upListNow) {
+            pair.atom1 = aiInner.nextAtom();
+        }
+        else {
+            pair.atom0 = aiInner.nextAtom();
+        }
         if(!aiInner.hasNext()) {
             advanceLists();
         }
@@ -157,25 +179,40 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
     }
     
     public void reset() {
-        if(pair.atom0 == null) {
+        if(targetAtom == null) {
             unset();
             return;
         }
+        inCentralCell = true;
+        upListNow = (direction != IteratorDirective.DOWN);
         neighborIterator.checkDimensions();
         Cell cell = ((AtomSequencerCell)pair.atom0.seq).cell;
         lattice.latticeIndex(cell.latticeArrayIndex,latticeIndex);
         neighborIterator.setSite(latticeIndex);
+        neighborIterator.setDirection(upListNow ? IteratorDirective.UP : IteratorDirective.DOWN);
         neighborIterator.reset();
         
         //start with targetMolecule's cell
-        aiSeqDirectable.setAtom(pair.atom0);
-        aiSeqDirectable.reset();
-
-        if(!aiSeqDirectable.hasNext()) { 
-            advanceLists();
-        } else {
-            aiInner = aiSeqDirectable;
+        if (upListNow) {
+            aiSeqDirectableUp.setAtom(targetAtom);
+            aiSeqDirectableUp.reset();
+            if (aiSeqDirectableUp.hasNext()) {
+                aiInner = aiSeqDirectableUp;
+                pair.atom0 = targetAtom;
+                return;
+            }
         }
+        if (doGoDown) {
+            aiSeqDirectableDn.setAtom(targetAtom);
+            aiSeqDirectableDn.reset();
+            if (aiSeqDirectableDn.hasNext()) {
+                upListNow = false;
+                aiInner = aiSeqDirectableDn;
+                pair.atom1 = targetAtom;
+                return;
+            }
+        }
+        advanceLists();
     }
     
     /**
@@ -185,8 +222,10 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
      * list of cell of target atom, and then by the cell ordering of neighboring cells.
      */
     public void setDirection(Direction direction) {
-        aiSeqDirectable.setDirection(direction);
+        this.direction = direction;
+        doGoDown = (direction != IteratorDirective.UP);
         neighborIterator.setDirection(direction);
+        nbrCellListIteratorInner.setDirection(direction);
     }
 
     /**
@@ -202,10 +241,10 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
     public void setTarget(AtomSet targetAtoms) {
         switch(targetAtoms.count()) {
         case 0: 
-            pair.atom0 = null;
+            targetAtom = null;
             break;
         case 1:
-            pair.atom0 = targetAtoms.getAtom(0);
+            targetAtom = targetAtoms.getAtom(0);
             break;
         default:
             throw new IllegalArgumentException("Can specify at most one target atom to iterator");
@@ -216,10 +255,32 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
     // Moves to next neighbor-cell list that can provide an iterate
     // This should be invoked only if aiInner.hasNext is false
     private void advanceLists() {
-        aiInner = aiSeq;//need to switch from aiSeqDirectable on first call
+        if (inCentralCell && upListNow && doGoDown) {
+            aiSeqDirectableDn.setAtom(targetAtom);
+            aiSeqDirectableDn.reset();
+            if (aiSeqDirectableDn.hasNext()) {
+                upListNow = false;
+                aiInner = aiSeqDirectableDn;
+                pair.atom1 = targetAtom;
+                return;
+            }
+        }
+        if (direction == null && inCentralCell) {
+            pair.atom0 = targetAtom;
+            upListNow = true;
+        }
+        inCentralCell = false;
+        aiInner = aiSeq;//need to switch from aiSeqDirectableXX
         do {
-              //advance neighbor cell 
+            //advance neighbor cell 
             if(neighborIterator.hasNext()) {
+                aiSeq.setFirst(((Cell)neighborIterator.next()).occupants().header.next);
+                aiSeq.reset();
+            } else if (upListNow && doGoDown) {
+                upListNow = false;
+                neighborIterator.setDirection(IteratorDirective.DOWN);
+                neighborIterator.reset();
+                pair.atom1 = targetAtom;
                 aiSeq.setFirst(((Cell)neighborIterator.next()).occupants().header.next);
                 aiSeq.reset();
             } else {//no more cells
@@ -235,13 +296,19 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
         return neighborIterator;
     }
    
-    private final ApiInnerFixed nbrCellListIterator;//used only by allAtoms
+    private final ApiSequence1A nbrCellListIteratorInner;//used only by allAtoms
+    private final ApiInnerFixed nbrCellListIteratorUp;//used only by allAtoms
+    private final ApiInnerFixed nbrCellListIteratorDn;//used only by allAtoms
     private final CellLattice.NeighborIterator neighborIterator;
-    private final AtomIteratorSequenceDirectable aiSeqDirectable;
+    private final AtomIteratorSequence aiSeqDirectableUp, aiSeqDirectableDn;
     private final AtomIteratorSequence aiSeq;
     private final AtomIteratorSinglet aiOuter;
-    private final AtomPairVector pair = new AtomPairVector();
+    private final AtomPair pair = new AtomPair();
     private final int[] latticeIndex;
+    private IteratorDirective.Direction direction;
+    private boolean doGoDown, upListNow;
+    private boolean inCentralCell;
+    private Atom targetAtom;
     
     private CellLattice lattice;
     

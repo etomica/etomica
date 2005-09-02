@@ -2,7 +2,6 @@ package etomica.nbr;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomPairVector;
 import etomica.phase.Phase;
 import etomica.space.CoordinatePair;
 import etomica.space.NearestImageTransformerVector;
@@ -68,6 +67,7 @@ public class CriterionSimple extends NeighborCriterion  {
 	}
 
 	public void setPhase(Phase phase) {
+        cPair.setNearestImageTransformer(phase.boundary());
 	}
     
 	public boolean unsafe() {
@@ -78,7 +78,6 @@ public class CriterionSimple extends NeighborCriterion  {
 	}
 
 	public boolean accept(AtomPair pair) {
-        nearestImageTransformer.setNearestImageVector(((AtomPairVector)pair).nearestImageVector);
 		cPair.reset(pair);
 		if (Debug.ON && Debug.DEBUG_NOW && ((Debug.LEVEL > 1 && Debug.anyAtom(pair)) || (Debug.LEVEL == 1 && Debug.allAtoms(pair)))) {
 			if (cPair.r2() < neighborRadius2 || (Debug.LEVEL > 1 && Debug.allAtoms(pair))) {

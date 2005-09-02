@@ -156,13 +156,6 @@ public abstract class Prefix implements java.io.Serializable {
     }
 
     /**
-     * Returns a prefix corresponding to a given key.  Obtains
-     * indicated key from the given event passed as the argument.
-     */
-    public static Prefix keySelect(java.awt.event.KeyEvent evt) {
-        return keySelect(evt.getKeyChar());
-    }
-    /**
      * Returns a prefix corresponding to the given key.
      * For example, 'm' gives MILLI, 'M' give MEGA, 'f' gives FEMTO, etc.
      */

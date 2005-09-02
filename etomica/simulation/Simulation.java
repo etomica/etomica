@@ -233,8 +233,8 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
         this.defaults = defaults;
     }
     
-    public static final java.util.Random random = new java.util.Random();
-//    public static final java.util.Random random = new java.util.Random(1);
+//    public static final java.util.Random random = new java.util.Random();
+    public static final java.util.Random random = new java.util.Random(1);
         
     /**
      * Integer array indicating the maximum number of atoms at each depth in the

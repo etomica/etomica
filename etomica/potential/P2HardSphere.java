@@ -136,7 +136,10 @@ public class P2HardSphere extends Potential2HardSpherical {
      * Zero if separation is greater than collision diameter, infinity otherwise
      */
     public double u(double r2) {
-        return (r2 < sig2) ? Double.POSITIVE_INFINITY : 0.0;
+        if (r2 < sig2) {
+            return Double.POSITIVE_INFINITY;
+        }
+        return 0.0;
     }
     
     public double energyChange() {return 0.0;}

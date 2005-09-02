@@ -16,6 +16,5 @@ import etomica.chem.Element;
  */
 public class Undefined extends Element {
 	public Undefined() {
-		super(java.awt.Color.BLUE);
 	}
 }

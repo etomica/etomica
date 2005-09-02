@@ -74,7 +74,7 @@ public class TestSWChain extends Simulation {
         P1BondedHardSpheres potentialChainIntra = new P1BondedHardSpheres(this);
         ((P2HardBond)potentialChainIntra.bonded).setBondLength(defaults.atomSize);
         ((P2HardBond)potentialChainIntra.bonded).setBondDelta(bondFactor);
-        CriterionBondedSimple criterion = new CriterionBondedSimple(nbrCriterion);
+        CriterionBondedSimple criterion = new CriterionBondedSimple(NeighborCriterion.ALL);
         criterion.setBonded(false);
         potential.setCriterion(criterion);
         potentialChainIntra.setNonbonded(potential);

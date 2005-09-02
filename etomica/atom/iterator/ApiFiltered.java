@@ -9,7 +9,6 @@ import etomica.action.AtomsetActionAdapter;
 import etomica.action.AtomsetCount;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomPairFilter;
-import etomica.atom.AtomPairVector;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.IteratorDirective.Direction;
 
@@ -28,8 +27,8 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
 	public ApiFiltered(AtomPairIterator iterator, AtomPairFilter filter) {
 		this.iterator = iterator;
 		this.filter = filter;
-        nextAtoms = new AtomPairVector();
-        next = new AtomPairVector();
+        nextAtoms = new AtomPair();
+        next = new AtomPair();
 	}
 
 	
@@ -52,20 +51,20 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
 		return hasNext;
 	}
 
-	/**
-	 * Puts iterator in state ready for iteration.
-	 */
-	public void reset() {
-		iterator.reset();
+    /**
+     * Puts iterator in state ready for iteration.
+     */
+    public void reset() {
+	    iterator.reset();
         hasNext = false;
-		while(iterator.hasNext()) {
-            iterator.nextPair().copyTo(next);
+        while(iterator.hasNext()) {
+            next = iterator.nextPair();
             if(filter.accept(next)) {
                 hasNext = true;
                 break;
             }
-		}
-	}
+        }
+    }
 
 	/**
 	 * Sets iterator so that hasNext returns false.
@@ -80,17 +79,8 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
 	 * filter's criteria.
 	 */
 	public AtomSet next() {
-        next.copyTo(nextAtoms);
-        hasNext = false;
-		while(iterator.hasNext()) {
-            iterator.nextPair().copyTo(next);
-            if(filter.accept(next)) {
-                hasNext = true;
-                break;
-            }
-		}
-        return nextAtoms;
-	}
+	    return nextPair();
+    }
 	
     /**
      * Returns the next pair and advances the iterator.
@@ -99,7 +89,7 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
         next.copyTo(nextAtoms);
         hasNext = false;
         while(iterator.hasNext()) {
-            iterator.nextPair().copyTo(next);
+            next = iterator.nextPair();
             if(filter.accept(next)) {
                 hasNext = true;
                 break;
@@ -153,9 +143,6 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
      */
     public void setBasis(AtomSet atoms) {
         ((AtomsetIteratorBasisDependent)iterator).setBasis(atoms);
-        if (atoms instanceof AtomPairVector) {
-            ((AtomPairVector)next).nearestImageVector = ((AtomPairVector)atoms).nearestImageVector;
-        }
     }
     
     /**
@@ -193,7 +180,7 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
 	private final AtomPairIterator iterator;
 	private final AtomPairFilter filter;
 	private AtomPair next;
-	private final AtomPairVector nextAtoms;
+	private final AtomPair nextAtoms;
     private boolean hasNext;
 
 	/**

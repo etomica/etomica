@@ -132,27 +132,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         if(!isVisible() || displayPhase.getPhase() == null) {return;}
         int w = getSize().width;
         int h = getSize().height;
-        
-/** uncomment this section -------- commented for applet only  -------------         
-        String vers = System.getProperty("java.version");
-        if (vers.compareTo("1.2") >= 0) {
-            Graphics2D g2 = (Graphics2D) g;
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
-                RenderingHints.VALUE_ANTIALIAS_OFF);
-            g2.setRenderingHint(RenderingHints.KEY_RENDERING, 
-                RenderingHints.VALUE_RENDER_SPEED);
-            g2.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, 
-                RenderingHints.VALUE_COLOR_RENDER_SPEED);
-            if(quality>=DRAW_QUALITY_HIGH) {
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setRenderingHint(RenderingHints.KEY_RENDERING, 
-                    RenderingHints.VALUE_RENDER_QUALITY);
-                g2.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, 
-                    RenderingHints.VALUE_COLOR_RENDER_QUALITY);
-            }
-        }
-   */         
+
         g.setColor(getBackground());
         g.fillRect(0,0,w,h);
         displayPhase.computeImageParameters2(w, h);
@@ -163,8 +143,8 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
             double toPixels = displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS;
             Polygon shape = (Polygon)displayPhase.getPhase().boundary().getShape();
             LineSegment[] edges = shape.getEdges();
-            int ox = displayPhase.getOrigin()[0];
-            int oy = displayPhase.getOrigin()[1];
+            int ox = displayPhase.getOrigin()[0] + (int)(toPixels*displayPhase.getPhase().boundary().dimensions().x(0)*0.5);
+            int oy = displayPhase.getOrigin()[1] + (int)(toPixels*displayPhase.getPhase().boundary().dimensions().x(1)*0.5);
             for(int i=0; i<edges.length; i++) {
                 int x1 = ox + (int)(toPixels*edges[i].getVertices()[0].x(0));
                 int y1 = oy + (int)(toPixels*edges[i].getVertices()[0].x(1));

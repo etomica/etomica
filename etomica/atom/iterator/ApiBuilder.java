@@ -28,9 +28,9 @@ public final class ApiBuilder implements java.io.Serializable {
      * set to null).
      */
     public static ApiIntragroup makeAdjacentPairIterator() {
-        AtomIteratorSequenceAdjacent aiInner = new AtomIteratorSequenceAdjacent();
-        return new ApiIntragroup(new ApiInnerVariable(new AtomIteratorBasis(),
-                aiInner));
+        AtomIteratorSequenceAdjacent aiInnerUp = new AtomIteratorSequenceAdjacent(IteratorDirective.UP);
+        AtomIteratorSequenceAdjacent aiInnerDn = new AtomIteratorSequenceAdjacent(IteratorDirective.DOWN);
+        return new ApiIntragroup(aiInnerUp, aiInnerDn);
     }
 
     /**
@@ -42,10 +42,9 @@ public final class ApiBuilder implements java.io.Serializable {
      * or both (if direction is set to null).
      */
     public static ApiIntragroup makeNonAdjacentPairIterator() {
-        AtomIteratorSequenceDirectable aiInner = new AtomIteratorSequenceDirectable();
-        aiInner.setNumToSkip(2);
-        return new ApiIntragroup(new ApiInnerVariable(new AtomIteratorBasis(),
-                aiInner));
+        AtomIteratorSequence aiInnerUp = new AtomIteratorSequence(IteratorDirective.UP, 2);
+        AtomIteratorSequence aiInnerDn = new AtomIteratorSequence(IteratorDirective.DOWN, 2);
+        return new ApiIntragroup(aiInnerUp, aiInnerDn);
     }
 
     /**
@@ -78,7 +77,7 @@ public final class ApiBuilder implements java.io.Serializable {
      * iterator's setBasis method is invoked. Child atoms of the first basis
      * atom only having type = types[0] are given, in pairs with child atoms of
      * the second basis atom only having type = types[1]. If the two given types
-     * are the different instances, an intergroup iterator is returned. An
+     * are different instances, an intergroup iterator is returned. An
      * exception is thrown if the types array is not of length 2.
      */
     public static AtomsetIteratorBasisDependent makeIntragroupTypeIterator(
@@ -90,12 +89,11 @@ public final class ApiBuilder implements java.io.Serializable {
             AtomFilter typeFilter = new AtomFilterTypeInstance(types[0]);
             AtomIterator outer = AtomIteratorFiltered.makeIterator(
                     new AtomIteratorBasis(), typeFilter);
-            AtomIteratorFiltered inner = AtomIteratorFiltered.makeIterator(
-                    new AtomIteratorSequenceDirectable(), typeFilter);
-            ((AtomIteratorSequenceDirectable) inner.getWrappedIterator())
-                    .setNumToSkip(1);
-            return new ApiIntragroup(new ApiInnerVariable(outer,
-                    (AtomIteratorAtomDependent) inner));
+            AtomIteratorFiltered innerUp = AtomIteratorFiltered.makeIterator(
+                    new AtomIteratorSequence(IteratorDirective.UP, 1), typeFilter);
+            AtomIteratorFiltered innerDn = AtomIteratorFiltered.makeIterator(
+                    new AtomIteratorSequence(IteratorDirective.DOWN, 1), typeFilter);
+            return new ApiIntragroup((AtomsetIteratorBasisDependent)outer, (AtomIteratorAtomDependent)innerUp, (AtomIteratorAtomDependent)innerDn);
         }
         return makeIntergroupTypeIterator(types);
     }

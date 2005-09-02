@@ -51,14 +51,14 @@ public final class Debug {
 	 * in a phase (set by calling setAtoms(phase)) More debugging information will be
 	 * printed out about this particular atom.  -1 indicates no particular atom.
 	 */
-	public static final int ATOM1_NUM = 1500;
+	public static final int ATOM1_NUM = 38;
 	
 	/**
 	 * leaf atom number of second atom of interest.  This is often used in conjunction with 
 	 * ATOM1_INDEX to collect information about a pair of atoms.  -1 indicates no
 	 * particular atom.  
 	 */
-	public static final int ATOM2_NUM = -1;
+	public static final int ATOM2_NUM = 39;
 	
     public static final int MOLECULE1_INDEX = -1;
     public static final int MOLECULE2_INDEX = -1;

@@ -1,4 +1,4 @@
-package etomica.util;
+package etomica.graphics;
 
 import java.util.Hashtable;
 

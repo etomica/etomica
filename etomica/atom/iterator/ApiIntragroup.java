@@ -7,6 +7,7 @@ package etomica.atom.iterator;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
+import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 
 /**
@@ -15,30 +16,38 @@ import etomica.atom.AtomSet;
  * are given; otherwise, if an atom is specified there, pairs will be formed from the
  * childList atoms with the basis' child from which the target atom is descended.  
  */
-public final class ApiIntragroup extends AtomPairIteratorAdapter implements
-		AtomsetIteratorBasisDependent, AtomsetIteratorDirectable, ApiComposite {
+public final class ApiIntragroup implements
+		AtomsetIteratorBasisDependent, AtomsetIteratorDirectable {
 
 	/**
 	 * Constructor makes iterator that must have basis specified and then be 
 	 * reset() before iteration.
 	 */
 	public ApiIntragroup() {
-		this(new ApiInnerVariable(
-					new AtomIteratorBasis(),
-					new AtomIteratorSequenceDirectable()));
-        ((AtomIteratorSequenceDirectable)aiInner).setNumToSkip(1);
+		this(new AtomIteratorSequence(IteratorDirective.UP, 1),
+                new AtomIteratorSequence(IteratorDirective.DOWN, 1));
     }
     
-    public ApiIntragroup(ApiComposite pairIterator) {
-        super(pairIterator);
-		aiOuter = (AtomIteratorBasis)pairIterator.getOuterIterator();
-		aiInner = (AtomsetIteratorDirectable)pairIterator.getInnerIterator();
+    public ApiIntragroup(AtomIteratorAtomDependent aiInnerUp, AtomIteratorAtomDependent aiInnerDn) {
+        this(new AtomIteratorBasis(), aiInnerUp, aiInnerDn);
+    }
+    
+    public ApiIntragroup(AtomsetIteratorBasisDependent aiOuter, 
+            AtomIteratorAtomDependent aiInnerUp, AtomIteratorAtomDependent aiInnerDn) {
+        this.aiOuter = aiOuter;
+        apiUp = new ApiInnerVariable((AtomIterator)aiOuter, aiInnerUp, false);
+        apiDown = new ApiInnerVariable((AtomIterator)aiOuter, aiInnerDn, true);
 	}
 
-	public void setTarget(AtomSet targetAtoms) {
+    public int nBody() {
+        return 2;
+    }
+    
+    public void setTarget(AtomSet targetAtoms) {
         if(targetAtoms == null) throw new NullPointerException("Cannot set target to null; use AtomSet.NULL");
-		aiOuter.setTarget(targetAtoms);
-        oneTarget = targetAtoms.count() != 0 && targetAtoms.getAtom(0) != null && (targetAtoms.count() == 1 || targetAtoms.getAtom(1) == null);
+        aiOuter.setTarget(targetAtoms);
+        oneTarget = targetAtoms.count() != 0 && targetAtoms.getAtom(0) != null 
+                        && (targetAtoms.count() == 1 || targetAtoms.getAtom(1) == null);
 	}
     
     public boolean haveTarget(AtomSet targetAtoms) {
@@ -52,13 +61,24 @@ public final class ApiIntragroup extends AtomPairIteratorAdapter implements
 	 * Puts iterator in a state to begin iteration.
 	 */
 	public void reset() {
-        //iterate in the prescribed direction from the target
-        if(oneTarget) aiInner.setDirection(direction);
+        //upList if no target given (then do all pairs) or if specified by direction
+        upListNow = (!oneTarget || direction != IteratorDirective.DOWN);
+        //dnList only if one target and not explicitly directed up
+        doGoDown = (oneTarget && direction != IteratorDirective.UP);
         
-        //no target given -- iterate over all pairs
-        else aiInner.setDirection(IteratorDirective.UP);
-        iterator.reset();
+        if (upListNow) {
+            apiUp.reset();
+        }
+        else {//if upListNow is false, doGoDown must be true
+            apiUp.unset();
+            apiDown.reset();
+        }
 	}
+    
+    public void unset() {
+        apiDown.unset();
+        apiUp.unset();
+    }
 
 	/**
 	 * Specifies the parent atom of the iterates. Pairs given by the
@@ -108,19 +128,42 @@ public final class ApiIntragroup extends AtomPairIteratorAdapter implements
         return detector.detectedAtom();
     }
     
+    public boolean hasNext() {
+        return upListNow ? apiUp.hasNext() : apiDown.hasNext();
+    }
+
+    public AtomSet next() {
+        return nextPair();
+    }
+    
+    public AtomSet peek() {
+        return upListNow ? apiUp.peek() : apiDown.peek();
+    }
+    
+    public AtomPair nextPair() {
+        if (upListNow) {
+            AtomPair next = apiUp.nextPair();
+            if (!apiUp.hasNext() && doGoDown) {
+                upListNow = false;
+                apiDown.reset();
+            }
+            return next;
+        }
+        return apiDown.nextPair();
+    }
+    
     /**
      * Performs action on all iterates for iterator as currently
      * conditioned (basis, target, direction).  Clobbers
      * iteration state.
      */
     public void allAtoms(AtomsetAction action) {
-        //iterate in the prescribed direction from the target
-        if(oneTarget) aiInner.setDirection(direction);
-        
-        //no target given -- iterate over all pairs
-        else aiInner.setDirection(IteratorDirective.UP);
-        
-        super.allAtoms(action);
+        if (!oneTarget || direction != IteratorDirective.DOWN) {
+            apiUp.allAtoms(action);
+        }
+        if (oneTarget && direction != IteratorDirective.UP) {
+            apiDown.allAtoms(action);
+        }
     }
 	
 	/**
@@ -130,19 +173,12 @@ public final class ApiIntragroup extends AtomPairIteratorAdapter implements
 	public int basisSize() {
 		return 1;
 	}
-	
-    public AtomIterator getInnerIterator() {
-        return (AtomIterator)aiInner;
-    }
     
-    public AtomIterator getOuterIterator() {
-        return aiOuter;
-    }
-    
-	private final AtomIteratorBasis aiOuter;//local, specifically typed copy
-	private final AtomsetIteratorDirectable aiInner;//local, specifically typed copy
+	private final AtomsetIteratorBasisDependent aiOuter;//local, specifically typed copy
 	private boolean oneTarget;
     private IteratorDirective.Direction direction;
     private AtomsetCount counter;
     private AtomsetDetect detector;
+    private final ApiInnerVariable apiUp, apiDown;
+    private boolean doGoDown, upListNow;
 }

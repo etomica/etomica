@@ -7,10 +7,12 @@ package etomica.nbr.site;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
+import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.AtomPairIterator;
 import etomica.atom.iterator.AtomsetIteratorMolecule;
+import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLatticeNbrIterator;
@@ -21,12 +23,8 @@ import etomica.phase.Phase;
 import etomica.space.BoundaryPeriodic;
 
 /**
- * Gives pairs formed from the molecules of a species in a phase, taking one
- * molecule the species with all of its other neighboring molecules. Species is
- * specified at construction and cannot be changed afterwards. Iteration is
- * performed using cell lists, which defines the neighboring molecules.
- * Direction is related to ordering of cells and, within a cell, ordering of
- * molecules in cell's occupant list.
+ * Iteration is performed using site lists.
+ * Direction is related to ordering of sites.
  */
 
 public class Api1ASite implements AtomsetIteratorMolecule, AtomPairIterator {
@@ -42,7 +40,7 @@ public class Api1ASite implements AtomsetIteratorMolecule, AtomPairIterator {
         neighborIterator = new RectangularLatticeNbrIteratorAdjacent(D);
         
         latticeIndex = new int[D];
-
+        
         neighborIterator.setDirection(null);
         setPhase(null);
 	}
@@ -53,22 +51,38 @@ public class Api1ASite implements AtomsetIteratorMolecule, AtomPairIterator {
             neighborIterator.setLattice(lattice);
             neighborIterator.setPeriodicity(((BoundaryPeriodic)phase.boundary()).getPeriodicity());
         }
+        else {
+            neighborIterator.setLattice(null);
+        }
 	}
 
     /**
      * Performs action on all iterates.
      */
     public void allAtoms(AtomsetAction action) {
-        if(pair.atom0 == null) return;
-        Cell cell = ((AtomSequencerCell)pair.atom0.seq).getCell();
+        if(targetAtom == null) return;
+        Cell cell = ((AtomSequencerCell)targetAtom.seq).getCell();
         lattice.latticeIndex(cell.getLatticeArrayIndex(),latticeIndex);
         
         //loop over neighbor cells
         neighborIterator.setSite(latticeIndex);
-        neighborIterator.reset();
-        while(neighborIterator.hasNext()) {
-            pair.atom1 = ((AtomSite)neighborIterator.next()).getAtom();
-            action.actionPerformed(pair);
+        if (direction != IteratorDirective.DOWN) {
+            pair.atom0 = targetAtom;
+            neighborIterator.setDirection(IteratorDirective.UP);
+            neighborIterator.reset();
+            while(neighborIterator.hasNext()) {
+                pair.atom1 = ((AtomSite)neighborIterator.next()).getAtom();
+                action.actionPerformed(pair);
+            }
+        }
+        if (direction != IteratorDirective.UP) {
+            pair.atom1 = targetAtom;
+            neighborIterator.setDirection(IteratorDirective.DOWN);
+            neighborIterator.reset();
+            while(neighborIterator.hasNext()) {
+                pair.atom0 = ((AtomSite)neighborIterator.next()).getAtom();
+                action.actionPerformed(pair);
+            }
         }
     }//end of allAtoms
     
@@ -96,7 +110,7 @@ public class Api1ASite implements AtomsetIteratorMolecule, AtomPairIterator {
 	}
 
     public boolean hasNext() {
-        return neighborIterator.hasNext();
+        return next != null;
     }
     
     public AtomSet next() {
@@ -105,12 +119,40 @@ public class Api1ASite implements AtomsetIteratorMolecule, AtomPairIterator {
     
     public AtomPair nextPair() {
         if(!hasNext()) return null;
-        pair.atom1 = ((AtomSite)neighborIterator.next()).getAtom();
+        if (upListNow) {
+            pair.atom1 = next;
+            if (neighborIterator.hasNext()) {
+                next = ((AtomSite)neighborIterator.next()).getAtom();
+            }
+            else if (doGoDown) {
+                upListNow = false;
+                neighborIterator.setDirection(IteratorDirective.DOWN);
+                neighborIterator.reset();
+                next = ((AtomSite)neighborIterator.next()).getAtom();
+            }
+            else {
+                next = null;
+            }
+        }
+        else {
+            pair.atom0 = next;
+            if (neighborIterator.hasNext()) {
+                next = ((AtomSite)neighborIterator.next()).getAtom();
+            }
+            else {
+                next = null;
+            }
+        }
         return pair;
     }
     
     public AtomSet peek() {
-        pair.atom1 = ((AtomSite)neighborIterator.peek()).getAtom();
+        if (upListNow) {
+            pair.atom1 = next;
+        }
+        else {
+            pair.atom0 = next;
+        }
         return pair;
     }
     
@@ -126,14 +168,24 @@ public class Api1ASite implements AtomsetIteratorMolecule, AtomPairIterator {
     }
     
     public void reset() {
-        if(pair.atom0 == null) {
+        if(targetAtom == null) {
             unset();
             return;
         }
-        AtomSite site = ((AtomSequencerSite)pair.atom0.seq).getSite();
+        AtomSite site = ((AtomSequencerSite)targetAtom.seq).getSite();
         lattice.latticeIndex(site.latticeArrayIndex,latticeIndex);
+        upListNow = (direction != IteratorDirective.DOWN);
         neighborIterator.setSite(latticeIndex);
+        if (upListNow) {
+            neighborIterator.setDirection(IteratorDirective.UP);
+            pair.atom0 = targetAtom;
+        }
+        else {
+            neighborIterator.setDirection(IteratorDirective.DOWN);
+            pair.atom1 = targetAtom;
+        }
         neighborIterator.reset();
+        next = ((AtomSite)neighborIterator.next()).getAtom();
     }
     
     /**
@@ -143,7 +195,8 @@ public class Api1ASite implements AtomsetIteratorMolecule, AtomPairIterator {
      * list of cell of target atom, and then by the cell ordering of neighboring cells.
      */
     public void setDirection(Direction direction) {
-        neighborIterator.setDirection(direction);
+        this.direction = direction;
+        doGoDown = (direction != IteratorDirective.UP);
     }
 
     /**
@@ -159,10 +212,10 @@ public class Api1ASite implements AtomsetIteratorMolecule, AtomPairIterator {
     public void setTarget(AtomSet targetAtoms) {
         switch(targetAtoms.count()) {
         case 0: 
-            pair.atom0 = null;
+            targetAtom = null;
             break;
         case 1:
-            pair.atom0 = targetAtoms.getAtom(0);
+            targetAtom = targetAtoms.getAtom(0);
             break;
         default:
             throw new IllegalArgumentException("Can specify at most one target atom to iterator");
@@ -173,6 +226,11 @@ public class Api1ASite implements AtomsetIteratorMolecule, AtomPairIterator {
     private final RectangularLatticeNbrIterator neighborIterator;
     private final AtomPair pair = new AtomPair();
     private final int[] latticeIndex;
+    private boolean doGoDown;
+    private boolean upListNow;
+    private IteratorDirective.Direction direction;
+    private Atom targetAtom;
+    private Atom next;
     
     private CellLattice lattice;
     

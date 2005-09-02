@@ -144,7 +144,7 @@ public class AtomIteratorTree implements AtomIterator, java.io.Serializable {
      * Returns the next atom in the iteration sequence.
      */
     public Atom nextAtom() {
-    	if(next == null) return null;
+        if(next == null) return null;
         Atom nextAtom = next;
         next = null;
         if (treeIterator != null && treeIterator.hasNext()) {
@@ -175,14 +175,14 @@ public class AtomIteratorTree implements AtomIterator, java.io.Serializable {
      * Returns the next atom in the iteration sequence.  Same as nextAtom().
      */
     public AtomSet next() {
-    	return nextAtom();
+        return nextAtom();
     }
 
     /**
      * Returns the next atom without advancing the iterator.
      */
     public AtomSet peek() {
-    	return next;
+        return next;
     }
         
     /**
@@ -192,7 +192,7 @@ public class AtomIteratorTree implements AtomIterator, java.io.Serializable {
      */
     public void setRoot(Atom rootAtom) {
         if(rootAtom == null) {
-        	rootNode = null;
+            rootNode = null;
         } else if(iterationDepth == 0 || rootAtom.node.isLeaf()) {//singlet iteration of basis atom
             if (!wealreadyknowyourstupid) {
                 System.err.println("don't use AtomIteratorTree as a singlet iterator.");
@@ -201,7 +201,7 @@ public class AtomIteratorTree implements AtomIterator, java.io.Serializable {
             rootNode = rootAtom.node;
             seqIterator.setFirst(null);
         } else {
-	        rootNode = rootAtom.node;
+            rootNode = rootAtom.node;
             seqIterator.setFirst(((AtomTreeNodeGroup)rootNode).childList.firstEntry());
         }
         unset();

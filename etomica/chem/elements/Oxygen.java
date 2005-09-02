@@ -15,7 +15,7 @@ import etomica.chem.Element;
 public class Oxygen extends Element{
 
 	private Oxygen() {
-		super(java.awt.Color.RED);
+		super();
 	}
 	
 	public final static Oxygen INSTANCE = new Oxygen();

@@ -17,7 +17,7 @@ import etomica.atom.iterator.IteratorDirective.Direction;
  * direction.
  */
 
-public class AtomIteratorSequenceAdjacent implements AtomIteratorAtomDependent, AtomsetIteratorDirectable, java.io.Serializable {
+public class AtomIteratorSequenceAdjacent implements AtomIteratorAtomDependent, java.io.Serializable {
 
     /**
      * Constructor gives iterator not ready for iteration.  Must
@@ -25,9 +25,9 @@ public class AtomIteratorSequenceAdjacent implements AtomIteratorAtomDependent, 
      * null, meaning that both adjacent atoms (if there are two)
      * will be given by iterator.
      */
-    public AtomIteratorSequenceAdjacent() {
+    public AtomIteratorSequenceAdjacent(IteratorDirective.Direction direction) {
         super();
-        setDirection(null);
+        this.direction = direction;
         setAtom(null);
         unset();
     }
@@ -41,10 +41,10 @@ public class AtomIteratorSequenceAdjacent implements AtomIteratorAtomDependent, 
         if(atom == null || atom.count() != 1) return false;
         Atom testAtom = atom.getAtom(0);
         if(testAtom == null) return false;
-        if(direction != IteratorDirective.DOWN && (atomSeq.next.atom == testAtom)) {
+        if(direction == IteratorDirective.UP && (atomSeq.next.atom == testAtom)) {
             return true;
         }
-        if(direction != IteratorDirective.UP && (atomSeq.previous.atom == testAtom)) {
+        if(direction == IteratorDirective.DOWN && (atomSeq.previous.atom == testAtom)) {
             return true;
         }
         return false;
@@ -56,35 +56,24 @@ public class AtomIteratorSequenceAdjacent implements AtomIteratorAtomDependent, 
      * depend on or affect iteration state.
      */
     public int size() {
-        int sum = 0;
-        if(direction != IteratorDirective.DOWN && (atomSeq.next.atom != null)) {
-            sum++;
+        if(direction == IteratorDirective.UP && (atomSeq.next.atom != null)) {
+            return 1;
         }
-        if(direction != IteratorDirective.UP && (atomSeq.previous.atom != null)) {
-            sum++;
+        if(direction == IteratorDirective.DOWN && (atomSeq.previous.atom != null)) {
+            return 1;
         }
-        return sum;
-    }
-
-    /**
-     * Sets the direction in which iterates will be obtained.  If
-     * UP, only currentAtom.seq.next.atom will be given as the only 
-     * iterate; if DOWN, only currentAtom.seq.previous.atom will
-     * be given.  If null, both will be given.
-     */
-    public void setDirection(Direction direction) {
-        this.direction = direction;
+        return 0;
     }
 
     /**
      * Performs action on all iterates for current condition of iterator.
      */
     public void allAtoms(AtomsetAction action) {
-        if(direction != IteratorDirective.DOWN) {
+        if(direction == IteratorDirective.UP) {
             Atom atom = atomSeq.next.atom;
             if(atom != null) action.actionPerformed(atom);
         }
-        if(direction != IteratorDirective.UP) {
+        else {
             Atom atom = atomSeq.previous.atom;
             if(atom != null) action.actionPerformed(atom);
         }
@@ -94,7 +83,7 @@ public class AtomIteratorSequenceAdjacent implements AtomIteratorAtomDependent, 
      * Returns true if another iterate is forthcoming, false otherwise.
      */
     public boolean hasNext() {
-        return doUp || doDown;
+        return hasNext;
     }
 
     /**
@@ -115,43 +104,42 @@ public class AtomIteratorSequenceAdjacent implements AtomIteratorAtomDependent, 
      * Returns the next iterator, or null if hasNext is false.
      */
     public Atom nextAtom() {
-        if(doUp) {
-            doUp = false;
+        if (!hasNext) {
+            return null;
+        }
+        hasNext = false;
+        if(direction == IteratorDirective.UP) {
             return atomSeq.next.atom;
         }
-        if(doDown) {
-            doDown = false;
-            return atomSeq.previous.atom;
-        }
-        return null;
+        return atomSeq.previous.atom;
     }
 
     /**
      * Returns the next iterate without advancing the iterator.
      */
     public AtomSet peek() {
-        if(doUp) {
+        if (!hasNext) {
+            return null;
+        }
+        if(direction == IteratorDirective.UP) {
             return atomSeq.next.atom;
         }
-        if(doDown) {
-            return atomSeq.previous.atom;
-        }
-        return null;
+        return atomSeq.previous.atom;
     }
 
     /**
      * Readies the iterator to begin iteration.
      */
     public void reset() {
-        doUp = (direction != IteratorDirective.DOWN) && (atomSeq.next.atom != null);
-        doDown = (direction != IteratorDirective.UP) && (atomSeq.previous.atom != null);
+        hasNext = ((direction != IteratorDirective.DOWN) && (atomSeq.next.atom != null)) ||
+                  ((direction != IteratorDirective.UP) && (atomSeq.previous.atom != null));
     }
 
     /**
      * Puts iterator in a state where hasNext is false.
      */
     public void unset() {
-        doUp = doDown = false;
+        hasNext = false;
     }   
     
     /**
@@ -165,6 +153,7 @@ public class AtomIteratorSequenceAdjacent implements AtomIteratorAtomDependent, 
     
     private AtomLinker atomSeq;
     private boolean doUp, doDown;
-    private Direction direction;
+    private final Direction direction;
     private final AtomList emptyList = new AtomList();
+    private boolean hasNext;
 }

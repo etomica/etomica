@@ -1,7 +1,5 @@
 package etomica.potential;
 
-import java.awt.Color;
-
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
@@ -262,7 +260,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     }
     
     public void draw(java.awt.Graphics g, int[] origin, double scale) {
-        g.setColor(Color.gray);
+        g.setColor(java.awt.Color.gray);
         double toPixel = scale*etomica.units.BaseUnit.Length.Sim.TO_PIXELS;
         int xP = origin[0] + (wallD==0 ? (int)((wallPosition-thickness)*toPixel) : 0);
         int yP = origin[1] + (wallD==1 ? (int)((wallPosition-thickness)*toPixel) : 0);

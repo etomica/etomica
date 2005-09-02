@@ -62,6 +62,7 @@ public class TestHSMD3D extends Simulation {
         CriterionSpecies criterion = new CriterionSpecies(nbrCriterion, species, species);
         potential.setCriterion(criterion);
         potentialMaster.setSpecies(potential,new Species[]{species,species});
+        nbrManager.addCriterion(nbrCriterion,new AtomType[]{species.getFactory().getType(),species.getFactory().getType()});
 
         potential = new P2HardSphere(this);
         nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
@@ -76,6 +77,7 @@ public class TestHSMD3D extends Simulation {
         criterion = new CriterionSpecies(nbrCriterion, species2, species2);
         potential.setCriterion(criterion);
         potentialMaster.setSpecies(potential,new Species[]{species2,species2});
+        nbrManager.addCriterion(nbrCriterion,new AtomType[]{species2.getFactory().getType(),species2.getFactory().getType()});
         
         phase = new Phase(this);
         integrator.addPhase(phase);

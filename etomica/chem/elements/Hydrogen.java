@@ -15,7 +15,7 @@ import etomica.chem.Element;
 public class Hydrogen extends Element {
 	
 	private Hydrogen() {
-		super(java.awt.Color.WHITE);
+		super();
 	}
 	
 	public final static Hydrogen INSTANCE = new Hydrogen();

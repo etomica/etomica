@@ -72,6 +72,11 @@ public abstract class RectangularLatticeNbrIterator implements SiteIterator, jav
      */
     //other iterators assume that this call is inexpensive if neighbor list is not being updated
     public void reset() {
+        if (lattice == null) {
+            cursor = 0;
+            neighborCount = 0;
+            return;
+        }
         if(needNeighborUpdate) updateNeighborList();
         cursor = 0;
     }
@@ -88,6 +93,9 @@ public abstract class RectangularLatticeNbrIterator implements SiteIterator, jav
      * iterator.
      */
     public int[] nextIndex() {
+        if (!hasNext()) {
+            return null;
+        }
         lattice.latticeIndex(neighbors[cursor++],latticeIndex);
         return latticeIndex;
     }
@@ -149,8 +157,8 @@ public abstract class RectangularLatticeNbrIterator implements SiteIterator, jav
      * size of lattice must be compatible with range of neighbor interactions.
      */
     public void setLattice(AbstractLattice lattice) {
-        if(lattice.D() != this.D) throw new IllegalArgumentException("Iterator given lattice with incompatible dimension");
         this.lattice = (RectangularLattice)lattice;
+        if(lattice != null && lattice.D() != this.D) throw new IllegalArgumentException("Iterator given lattice with incompatible dimension");
         needNeighborUpdate = true;
     }
     public void setPeriodicity(boolean[] periodicity) {
