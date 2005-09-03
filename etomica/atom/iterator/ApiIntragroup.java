@@ -68,16 +68,24 @@ public final class ApiIntragroup implements AtomPairIterator,
         
         if (upListNow) {
             apiUp.reset();
+            if(!apiUp.hasNext()) {
+                upListNow = false;
+            }
         }
-        else {//if upListNow is false, doGoDown must be true
+        
+        if(!upListNow) {//accounts for possibility that upIterator is empty
             apiUp.unset();
-            apiDown.reset();
+            if(doGoDown) {
+                apiDown.reset();
+            } else {
+                apiDown.unset();
+            }
         }
 	}
     
     public void unset() {
+        upListNow = false;
         apiDown.unset();
-        apiUp.unset();
     }
 
 	/**
