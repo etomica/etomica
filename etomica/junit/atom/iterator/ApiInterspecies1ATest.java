@@ -321,7 +321,7 @@ public class ApiInterspecies1ATest extends IteratorTest {
         targetMolecule = (Atom) target;
         api.setTarget(target);
         api.setDirection(DOWN);
-        testApiIterates(api, DOWN, targetMolecule, molecules0);
+        testApiIterates(api, UP, targetMolecule, molecules0);
         api.allAtoms(speciesTest);
     }
 
