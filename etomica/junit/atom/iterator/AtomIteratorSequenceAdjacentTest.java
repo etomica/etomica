@@ -31,7 +31,8 @@ public class AtomIteratorSequenceAdjacentTest extends IteratorTest {
     }
 
     public void setUp() {
-        iterator = new AtomIteratorSequenceAdjacent();
+        iteratorUp = new AtomIteratorSequenceAdjacent(IteratorDirective.UP);
+        iteratorDn = new AtomIteratorSequenceAdjacent(IteratorDirective.DOWN);
     }
     
     public void testIteration() {
@@ -46,22 +47,20 @@ public class AtomIteratorSequenceAdjacentTest extends IteratorTest {
         Atom atom = atomList.get(5);
         Atom dnAtom = atomList.get(4);
         Atom upAtom = atomList.get(6);
-        iterator.setAtom(atom);
-        iterator.setDirection(null);
-        LinkedList list = generalIteratorMethodTests(iterator);
-        assertEquals(list.size(), 2);
+        LinkedList list = null;
         Lister test = new Lister();
-        test.addEachToList(new Atom[] {upAtom, dnAtom});
-        assertEquals(list, test.list);
         
-        iterator.setDirection(IteratorDirective.UP);
+        iteratorUp.setAtom(atom);
+        iteratorDn.setAtom(atom);
+        
+        iterator = iteratorUp;
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 1);
         test.clear();
         test.addEachToList(new Atom[] {upAtom});
         assertEquals(list, test.list);
 
-        iterator.setDirection(IteratorDirective.DOWN);
+        iterator = iteratorDn;
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 1);
         test.clear();
@@ -71,19 +70,14 @@ public class AtomIteratorSequenceAdjacentTest extends IteratorTest {
         //atom at end of list        
         atom = atomList.get(nAtoms-1);
         dnAtom = atomList.get(nAtoms-2);
-        iterator.setAtom(atom);
-        iterator.setDirection(null);
-        list = generalIteratorMethodTests(iterator);
-        assertEquals(list.size(), 1);
-        test.clear();
-        test.addEachToList(new Atom[] {dnAtom});
-        assertEquals(list, test.list);
+        iteratorUp.setAtom(atom);
+        iteratorDn.setAtom(atom);
         
-        iterator.setDirection(IteratorDirective.UP);
+        iterator = iteratorUp;
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 0);
 
-        iterator.setDirection(IteratorDirective.DOWN);
+        iterator = iteratorDn;
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 1);
         test.clear();
@@ -93,22 +87,17 @@ public class AtomIteratorSequenceAdjacentTest extends IteratorTest {
         //atom at beginning of list        
         atom = atomList.get(0);
         upAtom = atomList.get(1);
-        iterator.setAtom(atom);
-        iterator.setDirection(null);
-        list = generalIteratorMethodTests(iterator);
-        assertEquals(list.size(), 1);
-        test.clear();
-        test.addEachToList(new Atom[] {upAtom});
-        assertEquals(list, test.list);
+        iteratorUp.setAtom(atom);
+        iteratorDn.setAtom(atom);
         
-        iterator.setDirection(IteratorDirective.UP);
+        iterator = iteratorUp;
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 1);
         test.clear();
         test.addEachToList(new Atom[] {upAtom});
         assertEquals(list, test.list);
 
-        iterator.setDirection(IteratorDirective.DOWN);
+        iterator = iteratorDn;
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 0);
 
@@ -116,18 +105,16 @@ public class AtomIteratorSequenceAdjacentTest extends IteratorTest {
         agent.setNMolecules(1);
         assertEquals(atomList.size(), 1);
         atom = atomList.get(0);
-        iterator.setAtom(atom);
-        iterator.setDirection(null);
+        iteratorUp.setAtom(atom);
+        iteratorDn.setAtom(atom);
+        iterator = iteratorUp;
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 0);
-        iterator.setDirection(IteratorDirective.UP);
-        list = generalIteratorMethodTests(iterator);
-        assertEquals(list.size(), 0);
-        iterator.setDirection(IteratorDirective.DOWN);
+        iterator = iteratorDn;
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 0);
         
     }
     
-    AtomIteratorSequenceAdjacent iterator;
+    AtomIteratorSequenceAdjacent iteratorUp, iteratorDn, iterator;
 }

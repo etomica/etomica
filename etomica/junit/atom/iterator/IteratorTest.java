@@ -10,6 +10,7 @@ import etomica.atom.AtomsetArray;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomPairIterator;
 import etomica.atom.iterator.AtomsetIterator;
+import etomica.atom.iterator.IteratorDirective;
 import etomica.junit.UnitTest;
 
 /**
@@ -209,11 +210,16 @@ public class IteratorTest extends TestCase {
      * @param partners array of atom1 expected in the pair iterates
      * @return the Lister list of iterates
      */
-    protected LinkedList testApiIterates(AtomPairIterator iterator, Atom iterate, Atom[] partners) {
+    protected LinkedList testApiIterates(AtomPairIterator iterator, IteratorDirective.Direction direction,
+            Atom iterate, Atom[] partners) {
         LinkedList list = generalIteratorMethodTests(iterator);
         Lister test = new Lister();
         for(int i=0; i<partners.length; i++) {
-            test.actionPerformed(new AtomPair(iterate, partners[i]));
+            if(direction == IteratorDirective.UP) {
+                test.actionPerformed(new AtomPair(iterate, partners[i]));
+            } else {
+                test.actionPerformed(new AtomPair(partners[i], iterate));
+            }
         }
         assertEquals(list, test.list);
         return list;
@@ -238,7 +244,7 @@ public class IteratorTest extends TestCase {
      * Tests that iterator gives two particular iterates
      */
     protected LinkedList testApiTwoIterates(AtomPairIterator iterator, AtomPair pair0, AtomPair pair1) {
-        if(pair0.atom1 == null && pair1.atom1 == null) {
+        if((pair0.atom1 == null || pair0.atom0 == null) && (pair1.atom0 == null || pair1.atom1 == null)) {
             testNoIterates(iterator);
             return new LinkedList();
         }
@@ -254,7 +260,7 @@ public class IteratorTest extends TestCase {
      * Tests that iterator gives a single particular iterate.
      */
     protected LinkedList testApiOneIterate(AtomPairIterator iterator, AtomPair pair) {
-        if(pair.atom1 == null) {
+        if(pair.atom0 == null || pair.atom1 == null) {
             testNoIterates(iterator);
             return new LinkedList();
         }
@@ -293,7 +299,7 @@ public class IteratorTest extends TestCase {
             test.actionPerformed(new AtomPair(iterate, up[i]));
         }
         for(int i=0; i<dn.length; i++) {
-            test.actionPerformed(new AtomPair(iterate, dn[i]));
+            test.actionPerformed(new AtomPair(dn[i], iterate));
         }
         assertEquals(list, test.list);
         return list;

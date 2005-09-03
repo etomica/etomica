@@ -172,7 +172,7 @@ public class ApiInterspecies1ATest extends IteratorTest {
                 nMolecules[0] / 2 });
         targetMolecule = (Atom) target;
         api.setTarget(target);
-        LinkedList list0 = testApiIterates(api, targetMolecule, molecules1);
+        LinkedList list0 = testApiIterates(api, UP, targetMolecule, molecules1);
         api.allAtoms(speciesTest);
 
         //species0 target; up
@@ -181,12 +181,12 @@ public class ApiInterspecies1ATest extends IteratorTest {
         targetMolecule = (Atom) target;
         api.setTarget(target);
         api.setDirection(UP);
-        testApiIterates(api, targetMolecule, molecules1);
+        testApiIterates(api, UP, targetMolecule, molecules1);
         api.allAtoms(speciesTest);
 
         //null direction should give previous list
         api.setDirection(null);
-        LinkedList list1 = testApiIterates(api, targetMolecule, molecules1);
+        LinkedList list1 = testApiIterates(api, UP, targetMolecule, molecules1);
         assertEquals(list0, list1);
 
         //species0 target; down
@@ -204,7 +204,7 @@ public class ApiInterspecies1ATest extends IteratorTest {
             targetMolecule = ((Atom) target).node.parentGroup();
             api.setTarget(target);
             api.setDirection(UP);
-            testApiIterates(api, targetMolecule, molecules1);
+            testApiIterates(api, UP, targetMolecule, molecules1);
             api.allAtoms(speciesTest);
         }
 
@@ -304,7 +304,7 @@ public class ApiInterspecies1ATest extends IteratorTest {
         targetMolecule = (Atom) target;
         api.setTarget(target);
         api.setDirection(null);
-        testApiIterates(api, targetMolecule, molecules0);
+        testApiIterates(api, UP, targetMolecule, molecules0);
         api.allAtoms(speciesTest);
 
         //species1 target; up
@@ -321,7 +321,7 @@ public class ApiInterspecies1ATest extends IteratorTest {
         targetMolecule = (Atom) target;
         api.setTarget(target);
         api.setDirection(DOWN);
-        testApiIterates(api, targetMolecule, molecules0);
+        testApiIterates(api, DOWN, targetMolecule, molecules0);
         api.allAtoms(speciesTest);
     }
 

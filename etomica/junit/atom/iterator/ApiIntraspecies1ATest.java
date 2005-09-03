@@ -152,7 +152,7 @@ public class ApiIntraspecies1ATest extends IteratorTest {
         targetMolecule = (Atom)target;
         api.setTarget(target);
         api.setDirection(UP);
-        testApiIterates(api,targetMolecule,upMolecules(targetMolecule,molecules0));
+        testApiIterates(api,UP, targetMolecule,upMolecules(targetMolecule,molecules0));
         api.allAtoms(speciesTest);
 
         //species0 target; down
@@ -168,7 +168,7 @@ public class ApiIntraspecies1ATest extends IteratorTest {
             targetMolecule = ((Atom)target).node.parentGroup();
             api.setTarget(target);
             api.setDirection(UP);
-            testApiIterates(api,targetMolecule,upMolecules(targetMolecule, molecules0));
+            testApiIterates(api,UP, targetMolecule,upMolecules(targetMolecule, molecules0));
             api.allAtoms(speciesTest);
         }
 
