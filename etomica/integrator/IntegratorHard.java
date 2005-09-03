@@ -542,7 +542,7 @@ public class IntegratorHard extends IntegratorMD {
                     System.out.println("collision down time "+collisionTime+" for atom "+atomPair+" "+pHard.getClass());
                 }
 				if(collisionTime < Double.POSITIVE_INFINITY) {
-					Agent aia = (Agent)atomPair.atom1.ia;
+					Agent aia = (Agent)atomPair.atom0.ia;
 					if(collisionTime < aia.collisionTime()) {
 						if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atomPair))) {
 							System.out.println("setting down time "+collisionTime+" for atom "+atomPair);
@@ -550,7 +550,7 @@ public class IntegratorHard extends IntegratorMD {
                         if (aia.collisionPotential != null) {
                             aia.eventLinker.remove();
                         }
-                        aia.setCollision(collisionTime, atomPair.atom0, pHard);
+                        aia.setCollision(collisionTime, atomPair.atom1, pHard);
                         eventList.add(aia.eventLinker);
 					}//end if
 				}//end if
