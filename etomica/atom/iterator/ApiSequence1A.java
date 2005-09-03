@@ -55,12 +55,14 @@ public class ApiSequence1A implements AtomPairIterator, AtomsetIteratorDirectabl
         if (!upListNow && doGoDown) {
             apiUp.unset();
             apiDown.reset();
+        } else {
+            apiDown.unset();
         }
     }
     
     public void unset() {
         apiDown.unset();
-        apiUp.unset();
+        upListNow = false;
     }
 	
     /**
@@ -118,9 +120,11 @@ public class ApiSequence1A implements AtomPairIterator, AtomsetIteratorDirectabl
     public AtomPair nextPair() {
         if (upListNow) {
             AtomPair next = apiUp.nextPair();
-            if (!apiUp.hasNext() && doGoDown) {
+            if(!apiUp.hasNext()) {
                 upListNow = false;
-                apiDown.reset();
+                if(doGoDown) {
+                    apiDown.reset();
+                }
             }
             return next;
         }
