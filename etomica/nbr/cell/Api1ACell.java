@@ -149,7 +149,11 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
     }
     
     public AtomPair nextPair() {
-        if(!hasNext()) return null;
+    	if (needUpdate) {
+    		needUpdate = false;
+    		advanceLists();
+    	}
+        if (!hasNext()) return null;
         if (upListNow) {
             pair.atom1 = aiInner.nextAtom();
         }
@@ -157,7 +161,7 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
             pair.atom0 = aiInner.nextAtom();
         }
         if(!aiInner.hasNext()) {
-            advanceLists();
+        	needUpdate = true;
         }
         return pair;
     }
@@ -186,29 +190,30 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
         inCentralCell = true;
         upListNow = (direction != IteratorDirective.DOWN);
         neighborIterator.checkDimensions();
-        Cell cell = ((AtomSequencerCell)pair.atom0.seq).cell;
+        Cell cell = ((AtomSequencerCell)targetAtom.seq).cell;
         lattice.latticeIndex(cell.latticeArrayIndex,latticeIndex);
         neighborIterator.setSite(latticeIndex);
         neighborIterator.setDirection(upListNow ? IteratorDirective.UP : IteratorDirective.DOWN);
         neighborIterator.reset();
+        needUpdate = false;
         
         //start with targetMolecule's cell
         if (upListNow) {
             aiSeqDirectableUp.setAtom(targetAtom);
             aiSeqDirectableUp.reset();
+            pair.atom0 = targetAtom;
             if (aiSeqDirectableUp.hasNext()) {
                 aiInner = aiSeqDirectableUp;
-                pair.atom0 = targetAtom;
                 return;
             }
         }
         if (doGoDown) {
             aiSeqDirectableDn.setAtom(targetAtom);
             aiSeqDirectableDn.reset();
+            pair.atom1 = targetAtom;
             if (aiSeqDirectableDn.hasNext()) {
                 upListNow = false;
                 aiInner = aiSeqDirectableDn;
-                pair.atom1 = targetAtom;
                 return;
             }
         }
@@ -308,6 +313,7 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
     private IteratorDirective.Direction direction;
     private boolean doGoDown, upListNow;
     private boolean inCentralCell;
+    private boolean needUpdate;
     private Atom targetAtom;
     
     private CellLattice lattice;
