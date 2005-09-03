@@ -42,7 +42,7 @@ public class ReactionEquilibriumGraphic {
 		initializing = true;
 		DeviceTrioControllerButton control = new DeviceTrioControllerButton(sim);
 		DeviceThermoSelector tSelect = new DeviceThermoSelector(sim, sim.integratorHard1);
-		final DisplayPhase displayPhase1 = new DisplayPhase(sim.phase1);
+		displayPhase1 = new DisplayPhase(sim.phase1);
         sim.integratorHard1.addListener(new IntervalActionAdapter(
                 new Action() {
                     public void actionPerformed() {
@@ -266,7 +266,7 @@ public class ReactionEquilibriumGraphic {
 			}
 
 			public void keyTyped(java.awt.event.KeyEvent e) {
-				etomica.units.Prefix prefix = etomica.units.Prefix.keySelect(e);
+				etomica.units.Prefix prefix = etomica.units.Prefix.keySelect(e.getKeyChar());
 				if (prefix == null || prefix.value() > 1000.0
 						|| prefix.value() < 1.0)
 					return;
@@ -411,28 +411,46 @@ public class ReactionEquilibriumGraphic {
 
 		//    public java.awt.TextField mass = new java.awt.TextField("40");
 
-		public MySpeciesEditor(final ReactionEquilibrium sim, SpeciesAgent s, String label) {
-			super();
-			species = s;
-			nSlider = new DeviceNSelector(sim, species);
-			//nSlider.setDisplayPhase(DisplayPhase1);
-			nSlider.setMinimum(0);
-			nSlider.setMaximum(40);
-			nSlider.addChangeListener(new javax.swing.event.ChangeListener() {
-				public void stateChanged(javax.swing.event.ChangeEvent evt) {
-					AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(sim.phase1);
-					iter.reset();
-					while (iter.hasNext()) {
-						//            			System.out.println(iter.peek().toString());
+        public MySpeciesEditor(final ReactionEquilibrium sim, SpeciesAgent s, String label) {
+            super();
+            species = s;
+            nSlider = new DeviceNSelector(sim, species);
+            //nSlider.setDisplayPhase(DisplayPhase1);
+            nSlider.setMinimum(0);
+            nSlider.setMaximum(40);
+            nSlider.setPostAction(new Action() {
+                public String getLabel() {return "";}
+                public void actionPerformed() {
+                    AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(sim.phase1);
+                    iter.reset();
+                    while (iter.hasNext()) {
+                        //                      System.out.println(iter.peek().toString());
                         Atom[] a = (Atom[])iter.nextAtom().allatomAgents[sim.idx];
                         a[0] = null;
                         a[1] = null;
-					}
+                    }
                      try {
                          sim.integratorHard1.reset();
                      } catch(ConfigurationOverlapException e) {}
-				}
-			});
+                     displayPhase1.repaint();
+                }
+           });
+//            nSlider.addChangeListener(new javax.swing.event.ChangeListener() {
+//                public void stateChanged(javax.swing.event.ChangeEvent evt) {
+//                    AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(sim.phase1);
+//                    iter.reset();
+//                    while (iter.hasNext()) {
+//                        //                      System.out.println(iter.peek().toString());
+//                        Atom[] a = (Atom[])iter.nextAtom().allatomAgents[sim.idx];
+//                        a[0] = null;
+//                        a[1] = null;
+//                    }
+//                     try {
+//                         sim.integratorHard1.reset();
+//                     } catch(ConfigurationOverlapException e) {}
+//                     displayPhase1.repaint();
+//                }
+//            });
 			//            nSlider = new DeviceSlider(new NMoleculeModulator(s));
 			//            nSlider.setShowBorder(true);
 			//// nSlider.setLabel(label);
@@ -600,4 +618,5 @@ public class ReactionEquilibriumGraphic {
 		}
 	}//end of WellModulator
 	boolean initializing;
+    private DisplayPhase displayPhase1;
 }
