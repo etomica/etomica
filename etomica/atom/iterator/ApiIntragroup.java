@@ -16,7 +16,7 @@ import etomica.atom.AtomSet;
  * are given; otherwise, if an atom is specified there, pairs will be formed from the
  * childList atoms with the basis' child from which the target atom is descended.  
  */
-public final class ApiIntragroup implements
+public final class ApiIntragroup implements AtomPairIterator,
 		AtomsetIteratorBasisDependent, AtomsetIteratorDirectable {
 
 	/**
