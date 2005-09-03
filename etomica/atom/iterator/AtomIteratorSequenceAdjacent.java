@@ -152,7 +152,6 @@ public class AtomIteratorSequenceAdjacent implements AtomIteratorAtomDependent, 
     }
     
     private AtomLinker atomSeq;
-    private boolean doUp, doDown;
     private final Direction direction;
     private final AtomList emptyList = new AtomList();
     private boolean hasNext;
