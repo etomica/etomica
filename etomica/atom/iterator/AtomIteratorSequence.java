@@ -138,8 +138,13 @@ public class AtomIteratorSequence implements AtomIteratorAtomDependent, java.io.
      * status) of iterator.
      */
     public void allAtoms(AtomsetAction action) {
-        for (AtomLinker link = first; link.atom != null; link = upListNow ? link.next
-                : link.previous) {
+        AtomLinker link = first;
+        for(int i=0; i<numToSkip; i++) {
+            if(link.atom == null) return;
+            link = upListNow ? link.next : link.previous; 
+        }
+        
+        for (; link.atom != null; link = upListNow ? link.next : link.previous) {
             action.actionPerformed(link.atom);
         }
     }
