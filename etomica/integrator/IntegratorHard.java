@@ -539,13 +539,13 @@ public class IntegratorHard extends IntegratorMD {
 				AtomPair atomPair = (AtomPair)iterator.next();
 				double collisionTime = pHard.collisionTime(atomPair,collisionTimeStep);
                 if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atomPair)))) {
-                    System.out.println("collision down time "+collisionTime+" for atom "+atomPair+" "+pHard.getClass());
+                    System.out.println("collision down time "+collisionTime+" for atoms "+atomPair+" "+pHard.getClass());
                 }
 				if(collisionTime < Double.POSITIVE_INFINITY) {
 					Agent aia = (Agent)atomPair.atom0.ia;
 					if(collisionTime < aia.collisionTime()) {
 						if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atomPair))) {
-							System.out.println("setting down time "+collisionTime+" for atom "+atomPair);
+							System.out.println("setting down time "+collisionTime+" for atoms "+atomPair);
 						}
                         if (aia.collisionPotential != null) {
                             aia.eventLinker.remove();
@@ -576,15 +576,15 @@ public class IntegratorHard extends IntegratorMD {
             // look for pairs in which pair[0] is the collision partner of pair[1]
             while (iterator.hasNext()) {
                 AtomPair pair = (AtomPair)iterator.next();
-                Atom aPartner = ((Agent)pair.atom1.ia).collisionPartner();
+                Atom aPartner = ((Agent)pair.atom0.ia).collisionPartner();
                 if (Debug.ON && Debug.DEBUG_NOW && ((Debug.allAtoms(pair) && Debug.LEVEL > 1) || (Debug.anyAtom(pair) && Debug.LEVEL > 2))) {
                     System.out.println(pair.atom1+" thought it would collide with "+aPartner);
                 }
-                if(aPartner == pair.atom0) {
+                if(aPartner == pair.atom1) {
                     if (Debug.ON && Debug.DEBUG_NOW && (Debug.allAtoms(pair) || Debug.LEVEL > 2)) {
-                        System.out.println("Will update "+pair.atom1+" because it wanted to collide with "+aPartner);
+                        System.out.println("Will update "+pair.atom0+" because it wanted to collide with "+aPartner);
                     }
-                    listToUpdate.add(pair.atom1);
+                    listToUpdate.add(pair.atom0);
                 }
             }
         }
