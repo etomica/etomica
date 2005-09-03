@@ -149,18 +149,23 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
     }
     
     public AtomPair nextPair() {
-    	if (needUpdate) {
-    		needUpdate = false;
-    		advanceLists();
-    	}
         if (!hasNext()) return null;
         if (upListNow) {
             pair.atom1 = aiInner.nextAtom();
+            if (needUpdate) {
+        		needUpdate = false;
+    			pair.atom0 = targetAtom;
+            }
         }
         else {
             pair.atom0 = aiInner.nextAtom();
+            if (needUpdate) {
+        		needUpdate = false;
+    			pair.atom1 = targetAtom;
+            }
         }
         if(!aiInner.hasNext()) {
+        	advanceLists();
         	needUpdate = true;
         }
         return pair;
@@ -266,12 +271,10 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
             if (aiSeqDirectableDn.hasNext()) {
                 upListNow = false;
                 aiInner = aiSeqDirectableDn;
-                pair.atom1 = targetAtom;
                 return;
             }
         }
         if (direction == null && inCentralCell) {
-            pair.atom0 = targetAtom;
             upListNow = true;
         }
         inCentralCell = false;
@@ -285,7 +288,6 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
                 upListNow = false;
                 neighborIterator.setDirection(IteratorDirective.DOWN);
                 neighborIterator.reset();
-                pair.atom1 = targetAtom;
                 aiSeq.setFirst(((Cell)neighborIterator.next()).occupants().header.next);
                 aiSeq.reset();
             } else {//no more cells
