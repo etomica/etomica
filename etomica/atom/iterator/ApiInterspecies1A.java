@@ -1,5 +1,7 @@
 package etomica.atom.iterator;
 
+import java.util.Arrays;
+
 import etomica.action.AtomActionSwap;
 import etomica.action.AtomsetAction;
 import etomica.atom.Atom;
@@ -37,13 +39,13 @@ import etomica.species.Species;
  * History Created on Dec 30, 2004 by kofke
  */
 
-public class ApiInterspecies1A extends AtomPairIteratorAdapter implements
-        AtomsetIteratorMolecule {
+public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorMolecule {
 
     /**
-     * Constructs iterator such that atom0 of the pair iterates is in
-     * species[0], and atom1 is in species[1], regardless of which is specified
-     * via setTarget.
+     * Sorts given array of species according to species index, then constructs iterator 
+     * such that atom0 of the pair iterates is in (sorted) species[0], and atom1 is in 
+     * (sorted) species[1], regardless of which is specified via setTarget.  Thus the
+     * species index of atom0 is less than that of atom1, for all iterates.
      * 
      * @param species
      *            array of two different, non-null species
@@ -56,8 +58,7 @@ public class ApiInterspecies1A extends AtomPairIteratorAdapter implements
      *             null
      */
     public ApiInterspecies1A(Species[] species) {
-        super(new ApiInnerFixed(new AtomIteratorSinglet(),
-                new AtomIteratorListSimple()));
+        super();
         if (species.length != 2) {
             throw new IllegalArgumentException(
                     "Constructor of ApiInterspecies1A requires an array of two species");
@@ -70,20 +71,15 @@ public class ApiInterspecies1A extends AtomPairIteratorAdapter implements
             throw new IllegalArgumentException(
                     "Constructor of ApiInterspeciesAA requires two different species");
         }
+        aiOuter = new AtomIteratorSinglet();
+        aiInner = new AtomIteratorListSimple();
+        apiUp = new ApiInnerFixed(aiOuter, aiInner, false);
+        apiDown = new ApiInnerFixed(aiOuter, aiInner, true);
+        iterator = apiUp;
+
+        Arrays.sort(species);
         species0 = species[0];
         species1 = species[1];
-        allowedDirection0 = IteratorDirective.UP;
-        allowedDirection1 = IteratorDirective.DOWN;
-        if (species0.getIndex() > species1.getIndex()) {
-            allowedDirection0 = IteratorDirective.DOWN;
-            allowedDirection1 = IteratorDirective.UP;
-        }
-        aiOuter = (AtomIteratorSinglet) ((ApiInnerFixed) iterator)
-                .getOuterIterator();
-        aiInner = (AtomIteratorListSimple) ((ApiInnerFixed) iterator)
-                .getInnerIterator();
-        swappedPair = new AtomPair();
-        swappedPairInternal = new AtomPair();
         setPhase(null);
     }
 
@@ -144,14 +140,14 @@ public class ApiInterspecies1A extends AtomPairIteratorAdapter implements
      * part of either species.
      */
     private void identifyTargetMolecule() {
-        doSwap = false;
         if (phase == null || targetAtom == null) {
             targetMolecule = null;
         } else {
             AtomTreeNode targetNode = targetAtom.node
                     .childWhereDescendedFrom(agentNode0);
             if (targetNode != null) { //target is species0
-                allowedDirection = allowedDirection0;
+                allowedDirection = IteratorDirective.UP;
+                iterator = apiUp;
                 targetMolecule = targetNode.atom();
                 aiInner.setList(agentNode1.childList);
             } else { //target is not species0
@@ -159,10 +155,10 @@ public class ApiInterspecies1A extends AtomPairIteratorAdapter implements
                         .childWhereDescendedFrom(agentNode1);
 
                 if (targetNode != null) {//target is species1
-                    allowedDirection = allowedDirection1;
+                    allowedDirection = IteratorDirective.DOWN;
+                    iterator = apiDown;
                     targetMolecule = targetNode.atom();
                     aiInner.setList(agentNode0.childList);
-                    doSwap = true;
 
                 } else { //target not in either species
                     targetMolecule = null;
@@ -185,62 +181,53 @@ public class ApiInterspecies1A extends AtomPairIteratorAdapter implements
     }
 
     public boolean contains(AtomSet pair) {
-        if (pair == null || pair.count() != 2) {
-            return false;
-        }
-        if (doSwap) {
-            //need a different swapedPair because calling this fails if pair ==
-            // swappedPair, which is available externally
-            swappedPairInternal.atom0 = pair.getAtom(1);
-            swappedPairInternal.atom1 = pair.getAtom(0);
-            return super.contains(swappedPairInternal);
-        }
-        return super.contains(pair);
+        return iterator.contains(pair);
 
     }
 
     public AtomSet peek() {
-        AtomPair pair = (AtomPair) super.peek();
-        if (doSwap) {
-            swappedPair.atom0 = pair.atom1;
-            swappedPair.atom1 = pair.atom0;
-            return swappedPair;
-        }
-        return pair;
+        return iterator.peek();
     }
 
     public AtomPair nextPair() {
-        AtomPair pair = super.nextPair();
-        if (doSwap && pair != null) {
-            swappedPair.atom0 = pair.atom1;
-            swappedPair.atom1 = pair.atom0;
-            return swappedPair;
-        }
-        return pair;
+        return iterator.nextPair();
     }
 
     public void allAtoms(AtomsetAction action) {
-        if (doSwap) {
-            if (swapWrapper == null)
-                swapWrapper = new AtomActionSwap(swappedPair);
-            swapWrapper.wrappedAction = action;
-            super.allAtoms(swapWrapper);
-        } else {
-            super.allAtoms(action);
-        }
+        iterator.allAtoms(action);
+    }
+    
+    public boolean hasNext() {
+        return iterator.hasNext();
+    }
+    
+    public int nBody() {
+        return 2;
+    }
+    
+    public AtomSet next() {
+        return iterator.nextPair();
+    }
+    
+    public void reset() {
+        iterator.reset();
     }
 
+    public int size() {
+        return iterator.size();
+    }
+    
+    public void unset() {
+        iterator.unset();
+    }
+    
     private final AtomIteratorListSimple aiInner;
     private final AtomIteratorSinglet aiOuter;
     private final Species species0, species1;
-
+    private final ApiInnerFixed apiUp, apiDown;
+    private ApiInnerFixed iterator;
+    private IteratorDirective.Direction direction, allowedDirection;
     private AtomTreeNodeGroup agentNode0, agentNode1;
     private Phase phase;
-    private Direction direction, allowedDirection;
-    private Direction allowedDirection0, allowedDirection1;
     private Atom targetAtom, targetMolecule;
-    private boolean doSwap;
-    private final AtomPair swappedPair;
-    private final AtomPair swappedPairInternal;
-    private AtomActionSwap swapWrapper;
 }

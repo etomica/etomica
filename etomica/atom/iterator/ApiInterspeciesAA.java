@@ -1,5 +1,7 @@
 package etomica.atom.iterator;
 
+import java.util.Arrays;
+
 import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.phase.Phase;
@@ -20,8 +22,10 @@ public class ApiInterspeciesAA extends AtomPairIteratorAdapter implements
 
     /**
      * Constructs iterator that provides iterates taken from the molecules of
-     * two species. Atoms in iterate pairs will be such that species of atom0 is
-     * species[0], and species of atom1 is species[1].
+     * two species. Given array is sorted in increasing order of species index. 
+     * Then atoms in iterate pairs will be such that species of atom0 is
+     * species[0] (having smaller species index), and species of atom1 is species[1]
+     * (having larger species index).
      * 
      * @param species
      *            array of two different, non-null species
@@ -36,6 +40,7 @@ public class ApiInterspeciesAA extends AtomPairIteratorAdapter implements
         if(species.length != 2) {
             throw new IllegalArgumentException("Incorrect array length; must be 2 but length is "+species.length);
         }
+        Arrays.sort(species);
         species0 = species[0];
         species1 = species[1];
         if (species0 == null || species1 == null) {
