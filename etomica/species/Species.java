@@ -42,7 +42,7 @@ import etomica.util.NameMaker;
   * @see PotentialMaster
   */
  
-public abstract class Species implements java.io.Serializable {
+public abstract class Species implements Comparable, java.io.Serializable {
 
     /**
      * Constructs species with molecules built by the given atom factory.
@@ -68,6 +68,17 @@ public abstract class Species implements java.io.Serializable {
 
     public int getIndex() {
         return index;
+    }
+    
+    /**
+     * Implementation of Comparable interface according to the relative order of this and the
+     * given species' indexes.  If this index is greater, returns +1; if they are equal, returns 0;
+     * if the given species index is greater, returns -1.
+     * 
+     * @throws ClassCastException if the given object is not an instance of Species
+     */
+    public int compareTo(Object species) {
+        return ((Species)species).index > index ? -1 : (((Species)species).index == index ? 0 : +1);       
     }
     
     /**
