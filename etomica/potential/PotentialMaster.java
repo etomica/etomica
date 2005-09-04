@@ -107,6 +107,11 @@ public class PotentialMaster implements java.io.Serializable {
      * The given types should not include any type which is the descendent of 
      * another.  Potential group heirarchy will be constructed as needed above
      * the level of the given atom types.
+     * <p>
+     * The order of the elements in the atomTypes array is not relevant, and is
+     * subject to rearrangement by the method -- the array is sorted (using the compareTo
+     * method of AtomType) before doing anything else.
+     * 
      */
     public void addPotential(Potential potential, AtomType[] atomTypes) {
         if (potential.nBody() != atomTypes.length) {
