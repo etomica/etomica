@@ -556,8 +556,7 @@ public class PistonCylinderGraphic {
         AccumulatorHistory temperatureHistory = new AccumulatorHistory();
         temperatureHistory.setHistoryLength(historyLength);
         AccumulatorAverage temperatureAvg = new AccumulatorAverage(sim);
-        pump = new DataPump(thermometer,temperatureAvg);
-        temperatureAvg.addDataSink(temperatureHistory,new AccumulatorAverage.Type[]{AccumulatorAverage.MOST_RECENT});
+        pump = new DataPump(thermometer,new DataFork(new DataSink[]{temperatureHistory,temperatureAvg}));
         IntervalActionAdapter adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
         temperatureHistory.addDataSink(plotT.getDataTable());
