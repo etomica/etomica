@@ -39,6 +39,7 @@ public class ReactionEquilibriumGraphic {
 	public JPanel panel = new JPanel();
 
 	public ReactionEquilibriumGraphic(ReactionEquilibrium sim) {
+		sim.register(sim.integratorHard1);
 		initializing = true;
 		DeviceTrioControllerButton control = new DeviceTrioControllerButton(sim);
 		DeviceThermoSelector tSelect = new DeviceThermoSelector(sim, sim.integratorHard1);
@@ -429,10 +430,10 @@ public class ReactionEquilibriumGraphic {
                         a[0] = null;
                         a[1] = null;
                     }
-                     try {
-                         sim.integratorHard1.reset();
-                     } catch(ConfigurationOverlapException e) {}
-                     displayPhase1.repaint();
+                    try {
+                    	sim.integratorHard1.reset();
+                    } catch(ConfigurationOverlapException e) {}
+                    displayPhase1.repaint();
                 }
            });
 //            nSlider.addChangeListener(new javax.swing.event.ChangeListener() {
