@@ -92,7 +92,7 @@ public class AtomsetIteratorSinglet implements AtomsetIterator, java.io.Serializ
      * not advance iterator.
      */
     public AtomSet peek() {
-    	return hasNext ? null : atom;
+    	return hasNext ? atom : null;
     }
     
     public final int nBody() {return nBody;}
