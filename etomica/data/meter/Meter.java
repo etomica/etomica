@@ -19,12 +19,12 @@ public interface Meter extends DataSource, EtomicaElement {
      * Each subsequent call to getData() will cause the measurement to be
      * performed on the given Phase.
      */
-	public void setPhase(Phase phase);
-	
-	/**
-	 * Accessor method for the phase on which the meter performs
-	 * its measurements.
-	 */
-	 public Phase getPhase();
-		
+    public void setPhase(Phase phase);
+    
+    /**
+     * Accessor method for the phase on which the meter performs
+     * its measurements.
+     */
+     public Phase getPhase();
+        
 }
