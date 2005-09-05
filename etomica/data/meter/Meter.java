@@ -1,40 +1,30 @@
 package etomica.data.meter;
 
 import etomica.EtomicaElement;
-import etomica.data.Data;
 import etomica.data.DataSource;
 import etomica.phase.Phase;
 
 
 /**
  * A Phase-dependent DataSource.  Subclasses must implement the
- * getData(Phase) method, and define the nDataPerPhase field.
+ * getData(Phase) method
  *
  * @author David Kofke
  */
 
-//TODO consider adding set/getDataLabel methods to Meter interface
-
 public interface Meter extends DataSource, EtomicaElement {
 
     /**
-     * Sets the phase on which the meter performs its measurements.
-     * A subsequent call to getData() will cause the measurement to be
-     * performed on this phase.
+     * Sets the Phase on which the meter performs its measurements.
+     * Each subsequent call to getData() will cause the measurement to be
+     * performed on the given Phase.
      */
-	public void setPhase(Phase p);
+	public void setPhase(Phase phase);
 	
 	/**
-	 * Accessor method for the phases on which the meter performs
+	 * Accessor method for the phase on which the meter performs
 	 * its measurements.
 	 */
 	 public Phase getPhase();
-	
-	/**
-	 * Defined by the subclass to specify what property is measured by 
-	 * the meter. Call to method should cause measured value(s) to be
-	 * placed in the phaseData[] array.
-	 */
-    public abstract Data getData();
-	
-}//end of MeterAbstract	 
+		
+}
