@@ -24,7 +24,11 @@ public interface AtomsetIterator {
     public boolean contains(AtomSet atom);
     
     /**
-     * Indicates whether the iterator has another atom.
+     * Indicates whether the iterator has another atom.  
+     * Once the iterator expires, this remains false, and will 
+     * return true again only upon a call to reset.  No other methods
+     * have the effect of making hasNext return true if it is
+     * presently false.
      */
     public boolean hasNext();
     
@@ -39,17 +43,12 @@ public interface AtomsetIterator {
     public void unset();
     
 	/**
-	 * Returns the next atom in the iteration sequence.
-	 * No specific behavior is guaranteed if hasNext() == false 
-	 * at the time method is called, except that calling next()
-	 * will not cause hasNext() to become true.
+	 * Returns the next AtomSet iterate, or null if hasNext() is false.
 	 */
     public AtomSet next();
     
     /**
      * Returns the next iterate without advancing the iterator.
-     * No specific behavior is guaranteed if hasNext() == false 
-     * at the time method is called.
      */
     public AtomSet peek();
     

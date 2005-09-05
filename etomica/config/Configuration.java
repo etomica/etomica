@@ -8,30 +8,48 @@ import etomica.phase.Phase;
 import etomica.space.Space;
 
 /**
- * General class for assignment of coordinates to a group of atoms.
+ * General class for assignment of molecules to positions in a phase.
+ * Subclasses define algorithms for the placement of molecules via their
+ * implementation of the <tt>initializePositions</tt> method.  
+ * <p>
+ * The arrangement of atoms within the molecules is not handled by this
+ * class; {@see etomica.config.Conformation}. 
  * 
- * @author David Kofke
+ * @author David Kofke and Andrew Schultz
  */
  
- /* History of changes
-  * 09/01/02 (DAK) added field to flag whether total momentum should be set to
-  * zero when initalizing (made in conjunction with change to Space.
-  * CoordinateGroup classes, which no longer do randomizeMomentum to zero total
-  * momentum). 
-  * 09/04/02 (DAK) added Null inner class and NULL field
-  * 01/21/04 (DAK) added initializeCoordinate(Phase) method
-  */
 public abstract class Configuration implements java.io.Serializable {
 
     public Configuration(Space space) {
         this.space = space;
     }
 
-    public abstract void initializePositions(AtomList[] atomList);
+    /**
+     * Defines the placement of the molecules. Atoms in all lists are 
+     * considered for placement.  Subclasses define the specific algorithm
+     * for placement, and for interpretation of the different lists.  
+     * Some subclasses will simply place all atoms as if they are in a single
+     * list, while others will place atoms in different lists in different 
+     * ways, for example to form a lattice appropriate to a compound
+     * (i.e., a solid-phase mixture).
+     * 
+     * @param atomList array of list of molecules to be placed by this class
+     */
+    protected abstract void initializePositions(AtomList[] atomList);
     
+    /**
+     * Primary means by which this class is used to arrange molecules in the Phase.
+     * Generates an array of AtomLists holding the molecules in the Phase, with
+     * one list for each Species.  This array is then passed to <tt>initializePositions</tt>.
+     * <p>
+     * Also sets the dimensions field for this class to that of the Boundary
+     * in the given Phase.
+     * 
+     * @param phase
+     */
     public void initializeCoordinates(Phase phase) {
-    	setDimensions(phase.boundary().dimensions().toArray());
-		AtomList speciesAgentList = ((AtomTreeNodeGroup)phase.getSpeciesMaster().node).childList;
+        setDimensions(phase.boundary().dimensions().toArray());
+        AtomList speciesAgentList = ((AtomTreeNodeGroup)phase.getSpeciesMaster().node).childList;
         AtomIteratorListSimple speciesAgentIterator = new AtomIteratorListSimple(speciesAgentList);
         AtomList[] moleculeLists = new AtomList[speciesAgentList.size()];
         int i=0;
@@ -43,10 +61,16 @@ public abstract class Configuration implements java.io.Serializable {
         initializePositions(moleculeLists);
     }
     
+    /**
+     * Sets the dimensions of the volume within which the molecules are arranged.
+     */
     public void setDimensions(double[] dim) {
         dimensions = (double[])dim.clone();
     }
 
+    /**
+     * Returns the dimensions of the volume within which the molecules are arranged.
+     */
     public double[] getDimensions() {return dimensions;}
     
     protected double[] dimensions;

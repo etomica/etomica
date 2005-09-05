@@ -8,7 +8,11 @@ import etomica.space.Space;
  * a list of atoms in a standard conformation, which then can be manipulated
  * further by a Configuration class to place the molecules in a phase, or by
  * a super-conformation class that arranges these atoms with other ones in a 
- * molecule.<br>  
+ * molecule.
+ * <p>
+ * Specific arrange of atoms performed by the class is defined by the subclass
+ * via its implementation of the <tt>initializePositions</tt> method.
+ * <p>  
  * This class is used by an AtomFactory to arrange into a standard configuration
  * each atom group that it builds.  
  */

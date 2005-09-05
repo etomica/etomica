@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!--
+
+  @(#)package.html	1.60 98/01/27
+
+	Permission is granted to use the Etomica classes
+	for your own academic research and instruction. 
+	All other rights are reserved.  Etomica and software
+	derived from it may not be sold or redistributed in any form. 
+	
+  CopyrightVersion 1.0
+
+-->
+</head>
+<body bgcolor="white">
+
+Provides classes for specifying the arrangement of atoms and molecules in space.  Two general categories
+of classes are defined: 
+<ul>
+<li>classes extending <@link etomica.config.Configuration Configuration> define
+arrangements of molecules a Phase.  A Configuration acts on all molecules in the phase,
+and their placement takes into account the dimensions of the Phase's Boundary.
+<li>classes extending <@link etomica.config.Conformation Conformation> define arrangements
+of Atoms in an atom group. These classes act on the atoms in an AtomList, and they put the
+atoms in some specified arrangement that typically is centered on or near the origin.
+</ul>
+Each AtomFactory holds a Conformation class that it uses to place in a standard arrangement
+the Atoms in the atom group it builds.
+<p>
+The molecules initially populating a Phase have the coordinates given to them by their AtomFactory.
+Thus most molecules initially lie on top of one another.  A Configuration must be instantiated and 
+applied (using its <tt>initializeCoordinates</tt> method) to the Phase before simulation commences.
+
+
+
+<!--
+
+<h2>Package Specification</h2>
+
+##### FILL IN ANY SPECS NEEDED BY JAVA COMPATIBILITY KIT #####
+<ul>
+  <li><a href="">##### REFER TO ANY FRAMEMAKER SPECIFICATION HERE #####</a>
+</ul>
+
+<h2>Related Documentation</h2>
+
+For overviews, tutorials, examples, guides, and tool documentation, please see:
+<ul>
+  <li><a href="">##### REFER TO NON-SPEC DOCUMENTATION HERE #####</a>
+</ul>
+-->
+<!-- Put @see and @since tags down here. -->
+
+</body>
+</html>

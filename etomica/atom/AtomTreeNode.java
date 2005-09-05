@@ -1,6 +1,5 @@
 package etomica.atom;
 
-import etomica.atom.SpeciesAgent.AgentAtomTreeNode;
 import etomica.phase.Phase;
 
 

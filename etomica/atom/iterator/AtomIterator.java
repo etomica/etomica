@@ -17,10 +17,8 @@ import etomica.atom.AtomSet;
 public interface AtomIterator extends AtomsetIterator {
                     
 	/**
-	 * Returns the next atom in the iteration sequence.
-	 * No specific behavior is guaranteed if hasNext() == false 
-	 * at the time method is called, except that calling next()
-	 * will not cause hasNext() to become true.
+	 * Returns the next atom in the iteration sequence, or
+     * null if hasNext() is false.
 	 */
     public Atom nextAtom();
         

@@ -10,8 +10,6 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.SpeciesSpheresMono;
-import etomica.util.Default;
 
 /**
  * Sets the configuration to the zincblende structure, which consists
@@ -40,8 +38,7 @@ public class ConfigurationZincblende extends Configuration {
      */
     public void initializePositions(AtomList[] lists) {
         if(lists == null || lists.length != 2) {//need an exception for this
-            System.err.println("inappropriate argument to ConfigurationZincBlende");
-            return;
+            throw new IllegalArgumentException("inappropriate argument to ConfigurationZincBlende");
         }
         if(lists[0].size() != lists[1].size()) {
             System.err.println("Warning: different numbers of molecules for two species in ConfigurationZincBlende");
