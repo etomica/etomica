@@ -2,7 +2,6 @@ package etomica.data;
 
 import etomica.data.types.DataDoubleArray;
 import etomica.units.Dimension;
-import etomica.util.Constants;
 import etomica.util.EnumeratedType;
 
 /**
