@@ -81,19 +81,18 @@ public class ApiInterspeciesAATest extends IteratorTest {
         speciesTestForward(rootNode, species, phaseIndex, 0, 1);
         speciesTestForward(rootNode, species, phaseIndex, 0, 2);
         speciesTestForward(rootNode, species, phaseIndex, 1, 2);
-        speciesTestBackward(rootNode, species, phaseIndex, 0, 1);
-        speciesTestBackward(rootNode, species, phaseIndex, 0, 2);
-        speciesTestBackward(rootNode, species, phaseIndex, 1, 2);
+        speciesTestForward(rootNode, species, phaseIndex, 1, 0);
+        speciesTestForward(rootNode, species, phaseIndex, 2, 0);
+        speciesTestForward(rootNode, species, phaseIndex, 2, 1);
     }
 
     /**
-     * Test iteration in various directions with different targets.  Iterator constructed with
-     * index of first species less than index of second.
+     * Test iteration in various directions with different targets.
      */
     private void speciesTestForward(AtomTreeNodeGroup rootNode, Species[] species, int phaseIndex, int species0Index, int species1Index) {
         ApiInterspeciesAA api = new ApiInterspeciesAA(new Species[] {species[species0Index], species[species1Index]});
         Phase phase = rootNode.getDescendant(new int[] {phaseIndex}).node.parentPhase();
-        AtomsetAction speciesTest = new SpeciesTestAction(species[species0Index], species[species1Index]);
+        AtomsetAction speciesTest = new SpeciesTestAction();
 
         api.setPhase(phase);
         Atom[] molecules0 = ((AtomTreeNodeGroup)phase.getAgent(species[species0Index]).node).childList.toArray();
@@ -109,34 +108,11 @@ public class ApiInterspeciesAATest extends IteratorTest {
         testNoIterates(api);
     }
 
-    /**
-     * Test iterator constructed with second species having index less than first
-     */
-    private void speciesTestBackward(AtomTreeNodeGroup rootNode, Species[] species, int phaseIndex, int species0Index, int species1Index) {
-        ApiInterspeciesAA api = new ApiInterspeciesAA(new Species[] {species[species1Index], species[species0Index]});
-        Phase phase = rootNode.getDescendant(new int[] {phaseIndex}).node.parentPhase();
-        AtomsetAction speciesTest = new SpeciesTestAction(species[species1Index], species[species0Index]);
-
-        api.setPhase(phase);
-        Atom[] molecules0 = ((AtomTreeNodeGroup)phase.getAgent(species[species0Index]).node).childList.toArray();
-        Atom[] molecules1 = ((AtomTreeNodeGroup)phase.getAgent(species[species1Index]).node).childList.toArray();
-        
-        int count = molecules0.length * molecules1.length;
-        
-        countTest(api, count);
-        api.allAtoms(speciesTest);
-        
-    }
-
     private class SpeciesTestAction extends AtomsetActionAdapter {
-        final Species species0, species1;
-        public SpeciesTestAction(Species species0, Species species1) {
-            this.species0 = species0;
-            this.species1 = species1;
+        public SpeciesTestAction() {
         }
         public void actionPerformed(AtomSet atoms) {
-            assertTrue(atoms.getAtom(0).type.getSpecies() == species0);
-            assertTrue(atoms.getAtom(1).type.getSpecies() == species1);
+            assertTrue(atoms.getAtom(0).node.index() < atoms.getAtom(1).node.index());
         }
     }
     
