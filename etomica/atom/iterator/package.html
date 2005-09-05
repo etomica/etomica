@@ -67,6 +67,12 @@ that the iterator provides (respectively) a single pair (each Atom 1 time); a sp
 all (A) atoms matching some specification; or all (A) atoms formed with all (A) other atoms matching specifications
 given to the iterator.
 <p>
+Most of the pair iterators are implemented such that they return the same AtomPair instance for each iterate; the only
+change with each iteration is the identity of the Atoms in the pair.  Thus one
+should treat the returned AtomPair as immutable.  If the atoms in the instance are reassigned by the client, the iterator
+may function incorrectly when returning subsequent iterates.  For similar reasons, pairs should be used immediately 
+or copied to another AtomPair instance before obtaining the next pair iterate.
+<p>
 The class <tt>ApiBuilder</tt> provides static methods for constructing some useful AtomPair iterators.  It does
 this by passing appropriate arguments or Atom iterators to configurable AtomPair iterators.
 <p>

@@ -13,6 +13,12 @@ import etomica.atom.AtomSet;
  * current outer-loop atom at the start of each inner-loop iteration. All pairs
  * returned by iterator are the same Atom[] instance, and differ only in the
  * Atom instances held by it.
+ * <p>
+ * Iterator can be condition to put the atoms in either order in the AtomPair that
+ * it returns.  Thus the inner-loop Atom may be atom0 of the returned AtomPair,
+ * or it may be atom1.  This behavior is set at construction, and cannot be changed
+ * afterwards.  Default behavior has outer loop atoms as atom0, and inner loop atoms
+ * as atom1.
  */
 
 /*
@@ -30,6 +36,20 @@ public class ApiInnerVariable implements AtomPairIterator, ApiComposite, java.io
         this(aiOuter,aiInner,false);
     }
     
+    /**
+     * Construct a pair iterator using the given atom iterators, indicating
+     * whether the atoms ordering in the AtomPair should be swapped from the
+     * default behavior.
+     * 
+     * @param aiOuter
+     *            outer-loop iterator
+     * @param aiInner
+     *            inner-loop iterator
+     * @param doSwap
+     *            if false (default), outer-loop atoms are given in atom0, and
+     *            inner loop in atom1; if true outer-loop atoms are given in
+     *            atom1, and inner loop in atom0
+     */
     public ApiInnerVariable(AtomIterator aiOuter,
             AtomIteratorAtomDependent aiInner, boolean doSwap) {
         this.aiOuter = aiOuter;
