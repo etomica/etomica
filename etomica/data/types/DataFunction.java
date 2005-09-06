@@ -27,6 +27,10 @@ import etomica.util.Function;
  * <p>
  * All arithmetic operations apply only to the dependent data. Independent data
  * values are unaffected by them.
+ * <p>
+ * Note that all instances created by the same factory will hold the same instances
+ * of the independent data.  Thus if the independent data is changed in any instance,
+ * it will be reflected in all instances that were constructed by the factory.
  * 
  * @author David Kofke and Andrew Schultz
  *  
@@ -58,18 +62,25 @@ public class DataFunction extends Data implements DataArithmetic {
      *             independent data have array dimension not equal to 1
      */
     public DataFunction(DataDoubleArray[] independentData, DataDoubleArray dependentData) {
-        super(new DataInfo(dependentData.getDataInfo().getLabel(), 
-                dependentData.getDataInfo().getDimension(), getFactory(independentData)));
-        if(dependentData.getArrayDimension() != independentData.length) {
+        this(dependentData.getDataInfo().getLabel(), dependentData.getDataInfo().getDimension(),
+                (Factory)getFactory(independentData), dependentData);
+    }
+    
+    /*
+     * Used by public constructor above, and by private constructor used by factory, below.
+     */
+    private DataFunction(String label, Dimension dimension, Factory factory, DataDoubleArray dependentData) {
+        super(new DataInfo(label, dimension, factory));
+        if(dependentData.getArrayDimension() != factory.independentData.length) {
             throw new IllegalArgumentException("Dimension of dependent data is not compatible with number of independent data elements");
         }
-        for(int i=0; i<independentData.length; i++) {
-            if(independentData[i].getArrayDimension() != 1) {
+        for(int i=0; i<factory.independentData.length; i++) {
+            if(factory.independentData[i].getArrayDimension() != 1) {
                 throw new IllegalArgumentException("All independent data must be of dimension 1");
             }
         }
         this.dependentData = dependentData;
-        this.independentData = (DataDoubleArray[])independentData.clone();
+        this.independentData = factory.independentData;
     }
     
     /**
@@ -86,7 +97,14 @@ public class DataFunction extends Data implements DataArithmetic {
         this(independentData, makeDependentData(label, dimension, independentData));
     }
     
-    //used by constructor above
+    /**
+     * Used by Factory.
+     */
+    private DataFunction(String label, Dimension dimension, Factory factory) {
+        this(label, dimension, factory, makeDependentData(label, dimension, factory.independentData));
+    }
+    
+    //used by constructors above
     private static DataDoubleArray makeDependentData(String label, Dimension dimension, 
             DataDoubleArray[] independentData) {
         int[] size = new int[independentData.length];
@@ -278,13 +296,15 @@ public class DataFunction extends Data implements DataArithmetic {
         return string.toString();
     }
     
-    private final DataDoubleArray[] independentData;
+    private final DataDoubleArray[] independentData;//shadows the field in Factory
     private final DataDoubleArray dependentData;
     
     /**
      * Returns a factory for a DataFunction. Each new instance made by the factory
      * will be a DataFunction having its own copy of the given dependent
-     * data, while sharing the same instances of the given independent data.
+     * data, while sharing the same instances of the given independent data
+     * (not the array itself, but the elements it holds are common to all
+     * DataFunction instances made by the factory).
      */
     public static DataFactory getFactory(DataDoubleArray[] independentData) {
         return new Factory(independentData);
@@ -307,7 +327,7 @@ public class DataFunction extends Data implements DataArithmetic {
          * dependent data, and with the prototype instances of the independent data.
          */
         public Data makeData(String label, Dimension dimension) {
-            return new DataFunction(label, dimension, independentData);
+            return new DataFunction(label, dimension, this);
         }
         
         /**

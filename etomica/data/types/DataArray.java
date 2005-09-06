@@ -73,21 +73,28 @@ public class DataArray extends Data {
      *            the array
      */
     public DataArray(String label, Dimension dimension, int[] arrayShape, DataFactory arrayElementFactory) {
-        super(new DataInfo(label + " Array", dimension, getFactory(arrayShape, arrayElementFactory)));
-        jumpCount = (int[])arrayShape.clone();
+        this(label + " Array", dimension, (Factory)getFactory(arrayShape, arrayElementFactory));
+    }
+    
+    /*
+     * Used by factory and constructor above
+     */
+    private DataArray(String label, Dimension dimension, Factory factory) {
+        super(new DataInfo(label, dimension, factory));
+        jumpCount = (int[])factory.arrayShape.clone();
         //row-wise definition, as done in RectangularLattice
-        if(arrayShape.length > 0) {
-            jumpCount[arrayShape.length-1] = 1;
-            for(int i=arrayShape.length-1; i>0; i--) {
-                jumpCount[i-1] = jumpCount[i]*arrayShape[i];
+        if(factory.arrayShape.length > 0) {
+            jumpCount[factory.arrayShape.length-1] = 1;
+            for(int i=factory.arrayShape.length-1; i>0; i--) {
+                jumpCount[i-1] = jumpCount[i]*factory.arrayShape[i];
             }
-            dataArray = new Data[arrayShape[0]*jumpCount[0]];
+            dataArray = new Data[factory.arrayShape[0]*jumpCount[0]];
         } else {
             dataArray = new Data[0];
         }
         
         //all array elements get the same DataInfo instance
-        Data prototype = arrayElementFactory.makeData(label, dimension);
+        Data prototype = factory.arrayElementFactory.makeData(label, dimension);
         for(int i=0; i<dataArray.length; i++) {
             dataArray[i] = prototype.makeCopy();
         }

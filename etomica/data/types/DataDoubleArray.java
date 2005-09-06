@@ -64,14 +64,7 @@ public class DataDoubleArray extends Data implements DataArithmetic {
      *            length of the array in each dimension
      */
     public DataDoubleArray(String label, Dimension dimension, int[] arrayShape) {
-        super(new DataInfo(label, dimension, getFactory(arrayShape)));
-        jumpCount = (int[])arrayShape.clone();
-        //row-wise definition, as done in RectangularLattice
-        jumpCount[arrayShape.length-1] = 1;
-        for(int i=arrayShape.length-1; i>0; i--) {
-            jumpCount[i-1] = jumpCount[i]*arrayShape[i];
-        }
-        x = new double[arrayShape[0]*jumpCount[0]];
+        this(label, dimension, (Factory)getFactory(arrayShape));
     }
 
     /**
@@ -106,6 +99,19 @@ public class DataDoubleArray extends Data implements DataArithmetic {
         jumpCount = data.jumpCount;
     }
 
+    /**
+     * Constructor used by Factory
+     */
+    private DataDoubleArray(String label, Dimension dimension, Factory factory) {
+        super(new DataInfo(label, dimension, factory));
+        jumpCount = (int[])factory.arrayShape.clone();
+        //row-wise definition, as done in RectangularLattice
+        jumpCount[factory.arrayShape.length-1] = 1;
+        for(int i=factory.arrayShape.length-1; i>0; i--) {
+            jumpCount[i-1] = jumpCount[i]*factory.arrayShape[i];
+        }
+        x = new double[factory.arrayShape[0]*jumpCount[0]];
+   }
     /**
      * Returns a copy of this instance. Returned object has its own instances of
      * the data, initialized to the values in this instance.
@@ -377,7 +383,7 @@ public class DataDoubleArray extends Data implements DataArithmetic {
          * with a shape given by the prototype for this factory.
          */
         public Data makeData(String label, Dimension dimension) {
-            DataDoubleArray data = new DataDoubleArray(label, dimension, arrayShape);
+            DataDoubleArray data = new DataDoubleArray(label, dimension, this);
             return data;
         }
         
