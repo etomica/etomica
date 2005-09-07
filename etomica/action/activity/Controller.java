@@ -296,7 +296,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     
     private boolean repeatCurrentAction = false;
 
-    private final WaitObject waitObject = new WaitObject();
+    protected final WaitObject waitObject = new WaitObject();
     private static class WaitObject implements java.io.Serializable {
         boolean currentActionDone;
         boolean exceptionThrown;
