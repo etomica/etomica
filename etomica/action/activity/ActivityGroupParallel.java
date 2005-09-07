@@ -163,12 +163,10 @@ public class ActivityGroupParallel extends Activity {
 	}
 
 	protected int numActions;
-
 	protected Action[] actions;
-
 	protected MyThread lastThread, firstThread;
 
-	private class MyThread extends Thread {
+	private static class MyThread extends Thread {
 		public MyThread(Action action) {
 			this.action = action;
 		}
@@ -183,10 +181,8 @@ public class ActivityGroupParallel extends Activity {
 			}
 		}
 
-		private Action action;
-
-		private MyThread nextThread;
-
-		private boolean completedNormally;
+		protected Action action;
+		protected MyThread nextThread;
+		protected boolean completedNormally;
 	}
 }
