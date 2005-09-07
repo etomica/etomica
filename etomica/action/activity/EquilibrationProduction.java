@@ -43,7 +43,7 @@ public class EquilibrationProduction extends ActivityGroupSeries {
 		productionPreparationActivity = new ActivityGroupSeries();
 		productionPreparationActivity.addAction(new ResetAccumulators(
 				dataManagerList));
-		productionPreparationActivity.addAction(setIntegratorForProduction);
+		productionPreparationActivity.addAction(new MyAction(productionIntegrator));
 		addAction(productionPreparationActivity);
 
 		addAction(productionActivity);
@@ -129,11 +129,16 @@ public class EquilibrationProduction extends ActivityGroupSeries {
 	 * be done at construction because equilibriation and production might use the
 	 * same integrator instance.
 	 */
-	private Action setIntegratorForProduction = new Action() {
+	private static class MyAction implements Action {
 		private String label = "Set integrator for production";
+        private Integrator integrator;
 
+        public MyAction(Integrator integrator) {
+            this.integrator = integrator;
+        }
+        
 		public void actionPerformed() {
-			productionActivity.getIntegrator().setEquilibrating(false);
+			integrator.setEquilibrating(false);
 		}
 
 		public String getLabel() {
