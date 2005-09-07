@@ -18,7 +18,7 @@ import etomica.species.SpeciesSpheresMono;
 
 public final class SpeciesMaster extends Atom {
 
-    private int moleculeCount;
+    protected int moleculeCount;
     public final static int SPECIES_TAB = AtomLinker.Tab.requestTabType();
     //reference to phase is kept in node
 
@@ -93,25 +93,25 @@ public final class SpeciesMaster extends Atom {
         }
 
         //does not pass notification up to parent (root)
-        public void addAtomNotify(Atom atom) {
-            if (atom.node.parentGroup() instanceof SpeciesAgent) {
+        public void addAtomNotify(Atom newAtom) {
+            if (newAtom.node.parentGroup() instanceof SpeciesAgent) {
                 speciesMaster.moleculeCount++;
-            } else if (atom instanceof SpeciesAgent) {
-                speciesMaster.moleculeCount += ((SpeciesAgent) atom)
+            } else if (newAtom instanceof SpeciesAgent) {
+                speciesMaster.moleculeCount += ((SpeciesAgent) newAtom)
                         .moleculeCount();
-                AtomLinker.Tab newTab = AtomLinker.Tab.newTab(
+                AtomLinker.Tab newTab = AtomLinker.newTab(
                         speciesMaster.atomList, SPECIES_TAB);
                 speciesMaster.atomList.add(newTab);
-                ((SpeciesAgent) atom).firstLeafAtomTab = newTab;
+                ((SpeciesAgent) newAtom).firstLeafAtomTab = newTab;
             }
-            AtomLinker.Tab nextTab = atom.node.parentSpeciesAgent().firstLeafAtomTab.nextTab;
+            AtomLinker.Tab nextTab = newAtom.node.parentSpeciesAgent().firstLeafAtomTab.nextTab;
 
-            leafAtomCount += atom.node.leafAtomCount();
-            if (atom.node.isLeaf()) {
+            leafAtomCount += newAtom.node.leafAtomCount();
+            if (newAtom.node.isLeaf()) {
                 speciesMaster.atomList.addBefore(
-                        ((AtomTreeNodeLeaf) atom.node).leafLinker, nextTab);
+                        ((AtomTreeNodeLeaf) newAtom.node).leafLinker, nextTab);
             } else {
-                leafIterator.setRoot(atom);
+                leafIterator.setRoot(newAtom);
                 leafIterator.reset();
                 while (leafIterator.hasNext()) {
                     speciesMaster.atomList
@@ -123,7 +123,7 @@ public final class SpeciesMaster extends Atom {
 
         //updating of leaf atomList may not be efficient enough for repeated
         // use, but is probably ok
-        public void removeAtomNotify(Atom atom) {
+        public void removeAtomNotify(Atom oldAtom) {
             if (atom.node.parentGroup() instanceof SpeciesAgent) {
                 speciesMaster.moleculeCount--;
             } else if (atom instanceof SpeciesAgent) {
