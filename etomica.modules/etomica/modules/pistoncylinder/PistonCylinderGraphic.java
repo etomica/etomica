@@ -105,7 +105,10 @@ public class PistonCylinderGraphic {
     public DataSourceWallPressure pressureMeter;
     public int plotUpdateInterval, dataInterval, guiInterval;
     public Unit eUnit;
-    double lambda, epsilon, mass;
+    public double lambda, epsilon, mass;
+    public DeviceSlider doSleepSlider;
+    public int repaintSleep = 100;
+    public int integratorSleep = 10;
     Default defaults;
     
     public PistonCylinderGraphic() {
@@ -234,9 +237,37 @@ public class PistonCylinderGraphic {
 	    pressureSlider.getSlider().setMajorTickSpacing(200);
 	    pressureSlider.getSlider().setMinorTickSpacing(50);
 	    pressureSlider.getSlider().setLabelTable(
-        pressureSlider.getSlider().createStandardLabels(200,100));
+            pressureSlider.getSlider().createStandardLabels(200,100));
 	    pressureSlider.setValue(p0);
         
+        DeviceSlider repaintSlider = new DeviceSlider(null);
+        repaintSlider.setShowValues(true);
+        repaintSlider.setEditValues(true);
+        repaintSlider.setMinimum(0);
+        repaintSlider.setMaximum(1000);
+        repaintSlider.getSlider().setMajorTickSpacing(200);
+        repaintSlider.getSlider().setLabelTable(
+                repaintSlider.getSlider().createStandardLabels(200,100));
+        repaintSlider.setValue(repaintSleep);
+        repaintSlider.setModifier(new Modifier() {
+            public String getLabel() {return "";}
+            public Dimension getDimension() {return Dimension.UNDEFINED;}
+            public void setValue(double v) {
+                repaintSleep = (int)v;
+            }
+            public double getValue() {return (double)repaintSleep;}
+        });
+        
+        doSleepSlider = new DeviceSlider(null);
+        doSleepSlider.setShowValues(true);
+        doSleepSlider.setEditValues(true);
+        doSleepSlider.setMinimum(0);
+        doSleepSlider.setMaximum(100);
+        doSleepSlider.getSlider().setMajorTickSpacing(20);
+        doSleepSlider.getSlider().setLabelTable(
+                doSleepSlider.getSlider().createStandardLabels(20,10));
+        doSleepSlider.setValue(integratorSleep);
+
         //set-pressure history
 //        etomica.MeterScalar pressureSetting = new MeterDatumSourceWrapper(pressureSlider.getModulator());
 //        pressureSetting.setHistorying(true);
@@ -353,6 +384,16 @@ public class PistonCylinderGraphic {
         gbc3.gridy = 0;
         displayCycles = new DisplayBox();
         controlPanel.add(displayCycles.graphic(),gbc2);
+
+        JPanel repaintSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
+        repaintSlider.setShowBorder(false);
+        repaintSliderPanel.setBorder(new javax.swing.border.TitledBorder("Repaint delay"));
+        repaintSliderPanel.add(repaintSlider.graphic());
+
+        JPanel doSleepSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
+        repaintSlider.setShowBorder(false);
+        doSleepSliderPanel.setBorder(new javax.swing.border.TitledBorder("Integrator step delay"));
+        doSleepSliderPanel.add(doSleepSlider.graphic());
         
         JPanel statePanel = new JPanel(new GridBagLayout());
         statePanel.add(temperaturePanel, gbc2);
@@ -368,9 +409,14 @@ public class PistonCylinderGraphic {
         parameterPanel.add(massBox.graphic());
         potentialPanel.add(parameterPanel,gbc2);
         
+        JPanel guiPanel = new JPanel(new GridBagLayout());
+        guiPanel.add(repaintSliderPanel, gbc2);
+        guiPanel.add(doSleepSliderPanel, gbc2);
+        
         JTabbedPane setupPanel = new JTabbedPane();
         setupPanel.add(statePanel, "State");
         setupPanel.add(potentialPanel, "Potential");
+        setupPanel.add(guiPanel, "Controls");
         
         //panel for the density, temperature, and pressure displays
         JPanel dataPanel = new JPanel(new GridBagLayout());
@@ -403,7 +449,7 @@ public class PistonCylinderGraphic {
             public void run() {
                 while (true) {
                     panel.repaint();
-                    try{Thread.sleep(100);}
+                    try{Thread.sleep(repaintSleep);}
                     catch(InterruptedException e){}
                 }
             }
@@ -459,7 +505,7 @@ public class PistonCylinderGraphic {
             displayPanel.remove(blankPanel);
         }
         if (D == 2) {
-            pc.ai.setSleepPeriod(10);
+            pc.ai.setSleepPeriod(integratorSleep);
             displayPanel.insertTab(displayPhase.getLabel(), null, displayPhasePanel, "", 0);
 //            displayPanel.add(displayPhase.getLabel(), displayPhasePanel);
             displayPhase.setPhase(pc.phase);
@@ -471,7 +517,7 @@ public class PistonCylinderGraphic {
             displayPhasePanel.add(displayPhase.graphic(),java.awt.BorderLayout.WEST);
 //            pc.integrator.addIntervalListener(displayPhase);
         } else {
-            pc.ai.setSleepPeriod(1);
+            pc.ai.setSleepPeriod(integratorSleep);
             displayPanel.add("Run Faster", blankPanel);
         }
         scaleSlider.setController(pc.controller);
@@ -545,6 +591,21 @@ public class PistonCylinderGraphic {
         pressureSlider.setPostAction(new ActionPistonUpdate(pc.integrator));
         pressureSlider.setController(pc.getController());
 
+        doSleepSlider.setModifier(new Modifier() {
+            public String getLabel() {return "";}
+            public Dimension getDimension() {return Dimension.UNDEFINED;}
+            public void setValue(double v) {
+                integratorSleep = (int)v;
+                if (integratorSleep > 0) {
+                    pc.ai.setDoSleep(true);
+                    pc.ai.setSleepPeriod(integratorSleep);
+                }
+                else {
+                    pc.ai.setDoSleep(false);
+                }
+            }
+            public double getValue() {return (double)integratorSleep;}
+        });
         
         //  data panel
         // the data channel sending the DataTable should be cut off (and hopefully garbage collected)
