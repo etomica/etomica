@@ -124,19 +124,19 @@ public final class SpeciesMaster extends Atom {
         //updating of leaf atomList may not be efficient enough for repeated
         // use, but is probably ok
         public void removeAtomNotify(Atom oldAtom) {
-            if (atom.node.parentGroup() instanceof SpeciesAgent) {
+            if (oldAtom.node.parentGroup() instanceof SpeciesAgent) {
                 speciesMaster.moleculeCount--;
-            } else if (atom instanceof SpeciesAgent) {
-                speciesMaster.moleculeCount -= ((SpeciesAgent) atom)
+            } else if (oldAtom instanceof SpeciesAgent) {
+                speciesMaster.moleculeCount -= ((SpeciesAgent) oldAtom)
                         .moleculeCount();
             }
-            if (atom.node.isLeaf()) {
+            if (oldAtom.node.isLeaf()) {
                 leafAtomCount--;
-                speciesMaster.atomList.remove(((AtomTreeNodeLeaf) atom.node).leafLinker);
+                speciesMaster.atomList.remove(((AtomTreeNodeLeaf) oldAtom.node).leafLinker);
 
             } else {
-                leafAtomCount -= atom.node.leafAtomCount();
-                leafIterator.setRoot(atom);
+                leafAtomCount -= oldAtom.node.leafAtomCount();
+                leafIterator.setRoot(oldAtom);
                 leafIterator.reset();
                 while (leafIterator.hasNext()) {
                     speciesMaster.atomList
