@@ -96,6 +96,7 @@ public class PistonCylinderGraphic {
     public MeterPistonDensity densityMeter;
     public DeviceToggleButton fixPistonButton;
     public DisplayPlot plotT, plotD, plotP;
+    public Unit tUnit, dUnit, pUnit;
     public final javax.swing.JTabbedPane displayPanel;
     public DeviceBox sigBox, epsBox, lamBox, massBox;
 	private DisplayBoxesCAE densityDisplayBox, temperatureDisplayBox, pressureDisplayBox;
@@ -473,9 +474,7 @@ public class PistonCylinderGraphic {
         int D = pc.space.D();
 
 
-        Unit tUnit = Kelvin.UNIT;
-        Unit dUnit;
-        Unit pUnit;
+        tUnit = Kelvin.UNIT;
 
         if (pc.space.D() == 2) {
             dUnit = new UnitRatio(Mole.UNIT, 
@@ -650,7 +649,7 @@ public class PistonCylinderGraphic {
 
         DataSource targetPressureDataSource = new DataSourceScalar("Pressure",Dimension.PRESSURE) {
             public double getDataAsScalar() {
-                return pressureSlider.getModifier().getValue();
+                return pUnit.toSim(pressureSlider.getValue());
             }
         };
         AccumulatorHistory targetPressureHistory = new AccumulatorHistory();
