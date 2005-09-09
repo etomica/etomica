@@ -76,7 +76,7 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
         if(newColumnCount > oldColumnCount) {
             units = (Unit[])Arrays.resizeArray(units, newColumnCount);
             for(int i=oldColumnCount; i<newColumnCount; i++) {
-                units[i] = table.getColumn(i).getDimension().defaultIOUnit();
+                units[i] = (defaultUnit != null) ? defaultUnit : table.getColumn(i).getDimension().defaultIOUnit();
             }
         } else {
             //TODO have DisplayTable adjust appropriately to removal of columns; this works only for newColumnCount = 0
@@ -193,6 +193,7 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
     }
     
     public void setUnit(Unit newUnit) {
+    	defaultUnit = newUnit;
         for(int i=0; i<dataTable.getColumnCount(); i++) {
             units[i] = newUnit;
         }
@@ -215,6 +216,7 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
     protected DataSource x;
     private Unit xUnit = Unit.NULL;
     private Unit[] units = new Unit[0];
+    private Unit defaultUnit;
 
  /**
   * Define inner class as extension of ptolemy.plot.Plot
