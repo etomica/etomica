@@ -34,11 +34,11 @@ public final class MeterDimerFraction implements DataSource, Meter {
         	Atom a = iterator.nextAtom();
         	Atom partner = (Atom)a.allatomAgents[idx];
   //      	if(partner != null) System.out.println(a.node.index()+" "+partner.node.index());
-            if(a.type.getSpeciesIndex()== 0) {
+            if(a.type.getSpeciesIndex()== 1) {
                if(partner == null) {
                  count[0]++;  //A radical
                }
-               else if(partner.type.getSpeciesIndex()== 0) {
+               else if(partner.type.getSpeciesIndex()== 1) {
                  count[2]++;  //A-A
                }
                else {
@@ -49,7 +49,7 @@ public final class MeterDimerFraction implements DataSource, Meter {
                if(partner == null) {
                  count[1]++;  //B radical
                }
-               else if(partner.type.getSpeciesIndex()== 0) {
+               else if(partner.type.getSpeciesIndex()== 1) {
                  count[3]++;  //A-B
                }
                else {

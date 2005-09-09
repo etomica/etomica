@@ -3,7 +3,6 @@ package etomica.modules.reactionequilibrium;
 import javax.swing.JPanel;
 
 import etomica.action.Action;
-import etomica.atom.Atom;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -426,9 +425,7 @@ public class ReactionEquilibriumGraphic {
                     iter.reset();
                     while (iter.hasNext()) {
                         //                      System.out.println(iter.peek().toString());
-                        Atom[] a = (Atom[])iter.nextAtom().allatomAgents[sim.idx];
-                        a[0] = null;
-                        a[1] = null;
+                        iter.nextAtom().allatomAgents[sim.idx] = null;
                     }
                     try {
                     	sim.integratorHard1.reset();

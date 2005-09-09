@@ -19,83 +19,84 @@ import etomica.species.SpeciesSpheresMono;
 
 public class ReactionEquilibrium extends Simulation implements Atom.AgentSource {
 
-	public Controller controller1;
-	public JPanel panel = new JPanel(new java.awt.BorderLayout());
-	public IntegratorHard integratorHard1;
-	public java.awt.Component display;
-	public Phase phase1;
-	public DisplayPhase displayPhase1;
-	public etomica.action.SimulationRestart restartAction;
-	public boolean initializing = true;
-	public int idx;
-	public MeterTemperature thermometer;
-	public SpeciesSpheresMono speciesA;
-	public SpeciesSpheresMono speciesB;
-	public P2SquareWellBonded AAbonded;
-	public P2SquareWellBonded ABbonded;
-	public P2SquareWellBonded BBbonded;
-	public MeterDimerFraction meterDimerFraction;
-	public ReactionEquilibrium() {
-		super(Space2D.getInstance());
+    public Controller controller1;
+    public JPanel panel = new JPanel(new java.awt.BorderLayout());
+    public IntegratorHard integratorHard1;
+    public java.awt.Component display;
+    public Phase phase1;
+    public DisplayPhase displayPhase1;
+    public etomica.action.SimulationRestart restartAction;
+    public boolean initializing = true;
+    public int idx;
+    public MeterTemperature thermometer;
+    public SpeciesSpheresMono speciesA;
+    public SpeciesSpheresMono speciesB;
+    public P2SquareWellBonded AAbonded;
+    public P2SquareWellBonded ABbonded;
+    public P2SquareWellBonded BBbonded;
+    public MeterDimerFraction meterDimerFraction;
+    public ReactionEquilibrium() {
+        super(Space2D.getInstance());
         defaults.ignoreOverlap = true;
         controller1 = getController();
         idx = Atom.requestAgentIndex(this);
 
-		double diameter = 1.0;
-		defaults.atomSize = diameter;
+        double diameter = 1.0;
+        defaults.atomSize = diameter;
 
-		//controller and integrator
-		integratorHard1 = new IntegratorHard(this);
-		integratorHard1.setIsothermal(true);
+        //controller and integrator
+        integratorHard1 = new IntegratorHard(this);
+        integratorHard1.setIsothermal(true);
 //        integratorHard1.setThermostat(IntegratorMD.ANDERSEN_SINGLE);
 
-		//construct phase
-		phase1 = new Phase(this);
-		integratorHard1.addPhase(phase1);
-		speciesA = new SpeciesSpheresMono(this);
-		speciesB = new SpeciesSpheresMono(this);
-		speciesA.setDiameter(diameter);
+        //construct phase
+        phase1 = new Phase(this);
+        integratorHard1.addPhase(phase1);
+        speciesA = new SpeciesSpheresMono(this);
+        speciesB = new SpeciesSpheresMono(this);
+        speciesA.setDiameter(diameter);
         speciesA.setNMolecules(30);
         speciesB.setNMolecules(30);
         phase1.makeMolecules();
         Configuration config = new ConfigurationSequential(space);
         config.initializeCoordinates(phase1);
 
-		//potentials
-		AAbonded = new P2SquareWellBonded(space, idx, 0.5 * defaults.atomSize, //core
-				2.0, //well multiplier
-				defaults.potentialWell, defaults.ignoreOverlap);
-		ABbonded = new P2SquareWellBonded(space, idx, 0.5 * defaults.atomSize, //core
-				2.0, //well multiplier
-				defaults.potentialWell, defaults.ignoreOverlap);
-		BBbonded = new P2SquareWellBonded(space, idx, 0.5 * defaults.atomSize, //core
-				2.0, //well multiplier
-				defaults.potentialWell, defaults.ignoreOverlap);
-/*		P2SquareWell AAbonded = new P2SquareWell(space, 0.5 * Default.atomSize, //core
-				2.0, //well multiplier
-				Default.POTENTIAL_WELL);
-		P2SquareWell ABbonded = new P2SquareWell(space, 0.5 * Default.atomSize, //core
-				2.0, //well multiplier
-				Default.POTENTIAL_WELL);
-		P2SquareWell BBbonded = new P2SquareWell(space, 0.5 * Default.atomSize, //core
-				2.0, //well multiplier
-				Default.POTENTIAL_WELL);*/
-		potentialMaster.setSpecies(AAbonded,
-				new Species[] { speciesA, speciesA });
-		potentialMaster.setSpecies(ABbonded,
-				new Species[] { speciesA, speciesB });
-		potentialMaster.setSpecies(BBbonded,
-				new Species[] { speciesB, speciesB });
+        //potentials
+        AAbonded = new P2SquareWellBonded(space, idx, 0.5 * defaults.atomSize, //core
+                2.0, //well multiplier
+                defaults.potentialWell, defaults.ignoreOverlap);
+        ABbonded = new P2SquareWellBonded(space, idx, 0.5 * defaults.atomSize, //core
+                2.0, //well multiplier
+                defaults.potentialWell, defaults.ignoreOverlap);
+        BBbonded = new P2SquareWellBonded(space, idx, 0.5 * defaults.atomSize, //core
+                2.0, //well multiplier
+                defaults.potentialWell, defaults.ignoreOverlap);
+/*      P2SquareWell AAbonded = new P2SquareWell(space, 0.5 * Default.atomSize, //core
+                2.0, //well multiplier
+                Default.POTENTIAL_WELL);
+        P2SquareWell ABbonded = new P2SquareWell(space, 0.5 * Default.atomSize, //core
+                2.0, //well multiplier
+                Default.POTENTIAL_WELL);
+        P2SquareWell BBbonded = new P2SquareWell(space, 0.5 * Default.atomSize, //core
+                2.0, //well multiplier
+                Default.POTENTIAL_WELL);*/
+        potentialMaster.setSpecies(AAbonded,
+                new Species[] { speciesA, speciesA });
+        potentialMaster.setSpecies(ABbonded,
+                new Species[] { speciesA, speciesB });
+        potentialMaster.setSpecies(BBbonded,
+                new Species[] { speciesB, speciesB });
 
-		meterDimerFraction = new MeterDimerFraction(idx);
-		thermometer = new MeterTemperature();
-		thermometer.setPhase(phase1);
+        meterDimerFraction = new MeterDimerFraction(idx);
+        meterDimerFraction.setPhase(phase1);
+        thermometer = new MeterTemperature();
+        thermometer.setPhase(phase1);
         
-		ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integratorHard1);
-		activityIntegrate.setDoSleep(true);
-		activityIntegrate.setSleepPeriod(1);
-		getController().addAction(activityIntegrate);
-		integratorHard1.addListener(new PhaseImposePbc(phase1));
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integratorHard1);
+        activityIntegrate.setDoSleep(true);
+        activityIntegrate.setSleepPeriod(1);
+        getController().addAction(activityIntegrate);
+        integratorHard1.addListener(new PhaseImposePbc(phase1));
 	}
 
 	/**
@@ -107,7 +108,7 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
 	 * @return Object always null
 	 */
 	public Object makeAgent(Atom a) {
-		return new Atom[2];
+		return null;
 	}
 
 	public static void main(String[] args) {

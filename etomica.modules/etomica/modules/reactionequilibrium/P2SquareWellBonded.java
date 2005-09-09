@@ -66,7 +66,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 	*/
 
 	public Object makeAgent(Atom a) {
-		return new Atom[2];
+		return null;
 	}
 
 
@@ -87,35 +87,32 @@ public class P2SquareWellBonded extends P2SquareWell {
 	 * kinematics.
 	 */
 
-	public double collisionTime(AtomSet atoms, double falseTime) {
-		
-		if (ignoreOverlap) {
-			
-			// ** Makes 2 things, and atomPair pair, 
-			AtomPair pair = (AtomPair) atoms;
-			Atom a1Partner1 = ((Atom[]) pair.atom0.allatomAgents[idx])[0];
-            Atom a1Partner2 = ((Atom[]) pair.atom0.allatomAgents[idx])[1];
-			
-			cPair.reset(pair);
-			cPair.resetV();
-			dr.E(cPair.dr());
-			Vector dv = cPair.dv();
-			dr.PEa1Tv1(falseTime, dv);
-			double r2 = dr.squared();
-			double bij = dr.dot(dv);
+    public double collisionTime(AtomSet atoms, double falseTime) {
+        
+        if (ignoreOverlap) {
+            
+            // ** Makes 2 things, and atomPair pair, 
+            AtomPair pair = (AtomPair) atoms;
+            Atom a1Partner = (Atom) pair.atom0.allatomAgents[idx];
+            
+            cPair.reset(pair);
+            cPair.resetV();
+            dr.E(cPair.dr());
+            Vector dv = cPair.dv();
+            dr.PEa1Tv1(falseTime, dv);
+            double r2 = dr.squared();
+            double bij = dr.dot(dv);
 
-			//inside well but not mutually bonded; collide now if approaching
-			if ((a1Partner1 != pair.atom1 && r2 < wellDiameterSquared)
-			 || (a1Partner1 == pair.atom1 && r2 < coreDiameterSquared)
-             || (a1Partner2 != pair.atom1 && r2 < wellDiameterSquared) 
-             || (a1Partner2 == pair.atom1 && r2 < coreDiameterSquared))
-				return (bij < 0.0) ? falseTime : Double.POSITIVE_INFINITY;
-		}
-		//mutually bonded, or outside well; collide as SW
-		double time = super.collisionTime(atoms, falseTime);
-//		if(!Double.isInfinite(time)) System.out.println("Collision time: "+time+" for "+atoms.toString());
-		return time;
-	}
+            //inside well but not mutually bonded; collide now if approaching
+            if ((a1Partner != pair.atom1 && r2 < wellDiameterSquared)
+             || (a1Partner == pair.atom1 && r2 < coreDiameterSquared))
+                return (bij < 0.0) ? falseTime : Double.POSITIVE_INFINITY;
+        }
+        //mutually bonded, or outside well; collide as SW
+        double time = super.collisionTime(atoms, falseTime);
+//      if(!Double.isInfinite(time)) System.out.println("Collision time: "+time+" for "+atoms.toString());
+        return time;
+    }
 
 	
 	public void bump(AtomSet atoms, double falseTime) {
@@ -142,16 +139,14 @@ public class P2SquareWellBonded extends P2SquareWell {
 		double reduced_m = 2.0 / (rm0 + rm1);
 		double ke = bij * bij * reduced_m / (4.0 * r2);
 		
-		Atom a0Partner1 = ((Atom[]) a0.allatomAgents[idx])[0];
-		Atom a0Partner2 = ((Atom[]) a0.allatomAgents[idx])[1];
-		Atom a1Partner1 = ((Atom[]) a1.allatomAgents[idx])[0];
-		Atom a1Partner2 = ((Atom[]) a1.allatomAgents[idx])[1];
+		Atom a0Partner = (Atom) a0.allatomAgents[idx];
+		Atom a1Partner = (Atom) a1.allatomAgents[idx];
 
-		boolean a0Saturated = (a0Partner1 != null) && (a0Partner2 != null);
-		boolean a1Saturated = (a1Partner1 != null) && (a1Partner2 != null);
+		boolean a0Saturated = (a0Partner != null);
+		boolean a1Saturated = (a1Partner != null);
 
-		if (a0Partner1 == a1 || a0Partner2 == a1) {	//atoms are bonded to each
-            if (a1Partner1 != a0 && a1Partner2 != a0) {
+		if (a0Partner == a1) {	//atoms are bonded to each
+            if (a1Partner != a0) {
                 throw new IllegalStateException("partner mismatch");      
             }
 
@@ -175,38 +170,13 @@ public class P2SquareWellBonded extends P2SquareWell {
 				// Atoms need to escape, so what needs to happen is, we need to find which cell in 
 				// All Atom Agents array is full, with atom a1, or a0, and set those spaces equal to null. 
 
-					if( a0Partner1 == a1)
-					{	((Atom[]) a0.allatomAgents[idx])[0] = null;
-						//((Atom[]) a1.allatomAgents[idx])[0] = null;
-					}  // Did I change the class field ?
-
-					if( a0Partner2 == a1)
-					{	((Atom[]) a0.allatomAgents[idx])[1] = null; }  // Did I change the class field ?
-
-					if( a1Partner1 == a0)
-					{	((Atom[]) a1.allatomAgents[idx])[0] = null; }  // Did I change the class field ?
-
-					if( a1Partner2 == a1)
-					{	((Atom[]) a1.allatomAgents[idx])[1] = null; }  // Did I change the class field ?
-
+					if( a0Partner == a1)
+					{	
+                        a0.allatomAgents[idx] = null;
+                        a1.allatomAgents[idx] = null;
+					}
 
 					nudge = eps;
-
-					//System.out.println("escape");
-
-/*					
-					if(a0Partner1 == a1)
-					{	
-						(a0.allatomAgents[idx]) = null;	
-					
-if (( (Atom[]) a0.allatomAgents[idx])[0] == a1)
- ((Atom[]) a0.allatomAgents[idx])[0] = null;
-					{
-					a0.allatomAgents[idx] = null;
-					a1.allatomAgents[idx] = null;
-
-*/
-				
 				
 				}
 
@@ -224,15 +194,8 @@ if (( (Atom[]) a0.allatomAgents[idx])[0] == a1)
 						* reduced_m
 						* (bij + Math.sqrt(bij * bij + 4.0 * r2 * epsilon
 								/ reduced_m));
-				if (a0Partner1 == null)
-					((Atom[]) a0.allatomAgents[idx])[0] = a1;
-				else
-					((Atom[]) a0.allatomAgents[idx])[1] = a1;
-				if (a1Partner1 == null)
-					((Atom[]) a1.allatomAgents[idx])[0] = a0;
-				else
-					((Atom[]) a1.allatomAgents[idx])[1] = a0;
-
+				a0.allatomAgents[idx] = a1;
+                 a1.allatomAgents[idx] = a0;
 				nudge = -eps;
 				//System.out.println("bonded");
 			}
