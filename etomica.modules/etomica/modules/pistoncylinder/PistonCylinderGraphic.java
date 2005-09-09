@@ -161,10 +161,7 @@ public class PistonCylinderGraphic {
         temperatureSlider.setEditValues(true);
         temperatureSlider.setMinimum(0);
         temperatureSlider.setMaximum(1000);
-        temperatureSlider.getSlider().setMajorTickSpacing(200);
-        temperatureSlider.getSlider().setMinorTickSpacing(50);
-        temperatureSlider.getSlider().setLabelTable(
-        temperatureSlider.getSlider().createStandardLabels(200,100));
+        temperatureSlider.setNMajor(4);
         temperatureSlider.setValue(300);
 
 	    //combo box to select potentials
@@ -235,10 +232,7 @@ public class PistonCylinderGraphic {
         pressureSlider.setEditValues(true);
         pressureSlider.setMinimum(0);
         pressureSlider.setMaximum(1000);
-	    pressureSlider.getSlider().setMajorTickSpacing(200);
-	    pressureSlider.getSlider().setMinorTickSpacing(50);
-	    pressureSlider.getSlider().setLabelTable(
-            pressureSlider.getSlider().createStandardLabels(200,100));
+        pressureSlider.setNMajor(4);
 	    pressureSlider.setValue(p0);
         
         DeviceSlider repaintSlider = new DeviceSlider(null);
@@ -246,9 +240,7 @@ public class PistonCylinderGraphic {
         repaintSlider.setEditValues(true);
         repaintSlider.setMinimum(0);
         repaintSlider.setMaximum(1000);
-        repaintSlider.getSlider().setMajorTickSpacing(200);
-        repaintSlider.getSlider().setLabelTable(
-                repaintSlider.getSlider().createStandardLabels(200,100));
+        repaintSlider.setNMajor(4);
         repaintSlider.setValue(repaintSleep);
         repaintSlider.setModifier(new Modifier() {
             public String getLabel() {return "";}
@@ -256,7 +248,7 @@ public class PistonCylinderGraphic {
             public void setValue(double v) {
                 repaintSleep = (int)v;
             }
-            public double getValue() {return (double)repaintSleep;}
+            public double getValue() {return repaintSleep;}
         });
         
         doSleepSlider = new DeviceSlider(null);
@@ -264,9 +256,7 @@ public class PistonCylinderGraphic {
         doSleepSlider.setEditValues(true);
         doSleepSlider.setMinimum(0);
         doSleepSlider.setMaximum(100);
-        doSleepSlider.getSlider().setMajorTickSpacing(20);
-        doSleepSlider.getSlider().setLabelTable(
-                doSleepSlider.getSlider().createStandardLabels(20,10));
+        doSleepSlider.setNMajor(5);
         doSleepSlider.setValue(integratorSleep);
 
         //set-pressure history
