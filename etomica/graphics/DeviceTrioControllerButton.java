@@ -27,9 +27,7 @@ public class DeviceTrioControllerButton extends Device {
     private DeviceControllerButton button1;
     private Simulation simulation;
     private DeviceButton button2;
-    private DeviceButton button3; 
-    private SimulationRestart simReset;
-    private ResetAccumulators resetAccumulators;
+    private DeviceButton button3;
 	private double width;
 	private boolean firstResized = true;
 	private String shape;
@@ -103,9 +101,9 @@ public class DeviceTrioControllerButton extends Device {
         return jp;
     }
     
-    public DeviceControllerButton controllerButton() {return button1;}
-    public DeviceButton resetButton() {return button2;}
-    public DeviceButton resetAveragesButton() {return button3;}
+    public DeviceControllerButton getControllerButton() {return button1;}
+    public DeviceButton getRestartButton() {return button2;}
+    public DeviceButton getResetAveragesButton() {return button3;}
  
     /**
      * Sets controller toggle button to read "Start"
@@ -132,7 +130,7 @@ public class DeviceTrioControllerButton extends Device {
     /**
      * Inner class that catches action of simulation panel 
      */        
-     private class ComponentEventControllerButton implements ComponentListener, java.io.Serializable {
+    private class ComponentEventControllerButton implements ComponentListener, java.io.Serializable {
   
         public void componentHidden(ComponentEvent e){}
         public void componentMoved(ComponentEvent e){}
