@@ -203,7 +203,7 @@ public class AccumulatorAverage extends DataAccumulator {
                 + "(sum value^2)", dataInfo.getDimension());
         standardDeviation = (DataArithmetic) factory.makeData(dataInfo
                 .getLabel()
-                + "(stddev)", dimSquared);
+                + "(stddev)", dataInfo.getDimension());
         average = (DataArithmetic) factory.makeData(dataInfo.getLabel()
                 + "(avg)", dataInfo.getDimension());
         error = (DataArithmetic) factory.makeData(dataInfo.getLabel()
