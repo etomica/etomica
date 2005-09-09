@@ -542,6 +542,14 @@ public class PistonCylinderGraphic {
         new IntervalActionAdapter(pump,pc.integrator);
         displayCycles.setLabel("Integrator steps");
         controlButtons.setSimulation(pc);
+        controlButtons.getRestartButton().setPreAction(new Action() {
+            public String getLabel() {
+                return "Piston Reset";
+            }
+            public void actionPerformed() {
+                pc.pistonPotential.setWallPosition(0.0);
+            }
+        });
 
         
         //  state panel
@@ -603,7 +611,7 @@ public class PistonCylinderGraphic {
                     pc.ai.setDoSleep(false);
                 }
             }
-            public double getValue() {return (double)integratorSleep;}
+            public double getValue() {return integratorSleep;}
         });
         
         //  data panel
