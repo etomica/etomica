@@ -462,6 +462,7 @@ public class PistonCylinderGraphic {
         pc = sim;
         pc.species.setMass(mass);
         int D = pc.space.D();
+        pc.register(pc.integrator);
 
 
         tUnit = Kelvin.UNIT;
@@ -478,7 +479,8 @@ public class PistonCylinderGraphic {
 
         // set up GUI
         BaseUnit.Length.Sim.TO_PIXELS = 600/pc.phase.boundary().dimensions().x(1);
-        pc.ai.setDoSleep(true);
+        pc.ai.setDoSleep(integratorSleep > 0);
+        pc.ai.setSleepPeriod(integratorSleep);
         pc.integrator.setTimeStep(0.5);
         pc.integrator.removeAllListeners();
 
@@ -494,7 +496,6 @@ public class PistonCylinderGraphic {
             displayPanel.remove(blankPanel);
         }
         if (D == 2) {
-            pc.ai.setSleepPeriod(integratorSleep);
             displayPanel.insertTab(displayPhase.getLabel(), null, displayPhasePanel, "", 0);
 //            displayPanel.add(displayPhase.getLabel(), displayPhasePanel);
             displayPhase.setPhase(pc.phase);
@@ -506,7 +507,6 @@ public class PistonCylinderGraphic {
             displayPhasePanel.add(displayPhase.graphic(),java.awt.BorderLayout.WEST);
 //            pc.integrator.addIntervalListener(displayPhase);
         } else {
-            pc.ai.setSleepPeriod(integratorSleep);
             displayPanel.add("Run Faster", blankPanel);
         }
         scaleSlider.setController(pc.controller);
@@ -532,15 +532,6 @@ public class PistonCylinderGraphic {
         new IntervalActionAdapter(pump,pc.integrator);
         displayCycles.setLabel("Integrator steps");
         controlButtons.setSimulation(pc);
-        controlButtons.getRestartButton().setPreAction(new Action() {
-            public String getLabel() {
-                return "Piston Reset";
-            }
-            public void actionPerformed() {
-                pc.pistonPotential.setWallPosition(0.0);
-            }
-        });
-
         
         //  state panel
         pc.integrator.setIsothermal(buttonIsothermal.isSelected());
@@ -593,13 +584,8 @@ public class PistonCylinderGraphic {
             public Dimension getDimension() {return Dimension.UNDEFINED;}
             public void setValue(double v) {
                 integratorSleep = (int)v;
-                if (integratorSleep > 0) {
-                    pc.ai.setDoSleep(true);
-                    pc.ai.setSleepPeriod(integratorSleep);
-                }
-                else {
-                    pc.ai.setDoSleep(false);
-                }
+                pc.ai.setDoSleep(integratorSleep > 0);
+                pc.ai.setSleepPeriod(integratorSleep);
             }
             public double getValue() {return integratorSleep;}
         });
