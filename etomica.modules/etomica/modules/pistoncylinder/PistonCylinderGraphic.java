@@ -236,7 +236,7 @@ public class PistonCylinderGraphic {
 	    pressureSlider.setValue(p0);
         
         DeviceSlider repaintSlider = new DeviceSlider(null);
-        repaintSlider.setShowValues(true);
+        repaintSlider.setShowValues(false);
         repaintSlider.setEditValues(true);
         repaintSlider.setMinimum(0);
         repaintSlider.setMaximum(1000);
@@ -252,12 +252,14 @@ public class PistonCylinderGraphic {
         });
         
         doSleepSlider = new DeviceSlider(null);
-        doSleepSlider.setShowValues(true);
+        doSleepSlider.setShowValues(false);
         doSleepSlider.setEditValues(true);
         doSleepSlider.setMinimum(0);
         doSleepSlider.setMaximum(100);
         doSleepSlider.setNMajor(5);
         doSleepSlider.setValue(integratorSleep);
+        
+//        integratorTimeStepSlider = new DeviceSlider(null);
 
         //set-pressure history
 //        etomica.MeterScalar pressureSetting = new MeterDatumSourceWrapper(pressureSlider.getModulator());
