@@ -387,17 +387,17 @@ public class PistonCylinderGraphic {
 
         JPanel repaintSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
         repaintSlider.setShowBorder(false);
-        repaintSliderPanel.setBorder(new javax.swing.border.TitledBorder("Repaint delay"));
+        repaintSliderPanel.setBorder(new javax.swing.border.TitledBorder("Repaint delay (ms)"));
         repaintSliderPanel.add(repaintSlider.graphic());
 
         JPanel doSleepSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
         doSleepSlider.setShowBorder(false);
-        doSleepSliderPanel.setBorder(new javax.swing.border.TitledBorder("Integrator step delay"));
+        doSleepSliderPanel.setBorder(new javax.swing.border.TitledBorder("Integrator step delay (ms)"));
         doSleepSliderPanel.add(doSleepSlider.graphic());
         
         JPanel integratorTimeStepSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
         repaintSlider.setShowBorder(false);
-        integratorTimeStepSliderPanel.setBorder(new javax.swing.border.TitledBorder("Integrator time step"));
+        integratorTimeStepSliderPanel.setBorder(new javax.swing.border.TitledBorder("Integrator time step (ps)"));
         integratorTimeStepSliderPanel.add(integratorTimeStepSlider.graphic());
         
         JPanel statePanel = new JPanel(new GridBagLayout());
