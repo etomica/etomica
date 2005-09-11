@@ -107,7 +107,7 @@ public class PistonCylinderGraphic {
     public int plotUpdateInterval, dataInterval, guiInterval;
     public Unit eUnit;
     public double lambda, epsilon, mass;
-    public DeviceSlider doSleepSlider;
+    public DeviceSlider doSleepSlider, integratorTimeStepSlider;
     public int repaintSleep = 100;
     public int integratorSleep = 10;
     Default defaults;
@@ -259,7 +259,14 @@ public class PistonCylinderGraphic {
         doSleepSlider.setNMajor(5);
         doSleepSlider.setValue(integratorSleep);
         
-//        integratorTimeStepSlider = new DeviceSlider(null);
+        integratorTimeStepSlider = new DeviceSlider(null);
+        integratorTimeStepSlider.setShowValues(false);
+        integratorTimeStepSlider.setEditValues(true);
+        integratorTimeStepSlider.setPrecision(2);
+        integratorTimeStepSlider.setMinimum(0.0);
+        integratorTimeStepSlider.setMaximum(5);
+        integratorTimeStepSlider.setNMajor(5);
+        integratorTimeStepSlider.setValue(0.5);
 
         //set-pressure history
 //        etomica.MeterScalar pressureSetting = new MeterDatumSourceWrapper(pressureSlider.getModulator());
@@ -384,9 +391,14 @@ public class PistonCylinderGraphic {
         repaintSliderPanel.add(repaintSlider.graphic());
 
         JPanel doSleepSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
-        repaintSlider.setShowBorder(false);
+        doSleepSlider.setShowBorder(false);
         doSleepSliderPanel.setBorder(new javax.swing.border.TitledBorder("Integrator step delay"));
         doSleepSliderPanel.add(doSleepSlider.graphic());
+        
+        JPanel integratorTimeStepSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
+        repaintSlider.setShowBorder(false);
+        integratorTimeStepSliderPanel.setBorder(new javax.swing.border.TitledBorder("Integrator time step"));
+        integratorTimeStepSliderPanel.add(integratorTimeStepSlider.graphic());
         
         JPanel statePanel = new JPanel(new GridBagLayout());
         statePanel.add(temperaturePanel, gbc2);
@@ -405,6 +417,7 @@ public class PistonCylinderGraphic {
         JPanel guiPanel = new JPanel(new GridBagLayout());
         guiPanel.add(repaintSliderPanel, gbc2);
         guiPanel.add(doSleepSliderPanel, gbc2);
+        guiPanel.add(integratorTimeStepSliderPanel, gbc2);
         
         JTabbedPane setupPanel = new JTabbedPane();
         setupPanel.add(statePanel, "State");
@@ -483,7 +496,6 @@ public class PistonCylinderGraphic {
         BaseUnit.Length.Sim.TO_PIXELS = 600/pc.phase.boundary().dimensions().x(1);
         pc.ai.setDoSleep(integratorSleep > 0);
         pc.ai.setSleepPeriod(integratorSleep);
-        pc.integrator.setTimeStep(0.5);
         pc.integrator.removeAllListeners();
 
         pc.wallPotential.setLongWall(0,true,true);  // left wall
@@ -590,6 +602,16 @@ public class PistonCylinderGraphic {
                 pc.ai.setSleepPeriod(integratorSleep);
             }
             public double getValue() {return integratorSleep;}
+        });
+        
+        pc.integrator.setTimeStep(integratorTimeStepSlider.getValue());
+        integratorTimeStepSlider.setModifier(new Modifier() {
+            public String getLabel() {return "";}
+            public Dimension getDimension() {return Dimension.TIME;}
+            public void setValue(double v) {
+                pc.integrator.setTimeStep(v);
+            }
+            public double getValue() {return pc.integrator.getTimeStep();}
         });
         
         //  data panel
