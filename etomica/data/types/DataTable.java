@@ -12,7 +12,9 @@ import etomica.util.Function;
  * Data object that holds <tt>double[]</tt> arrays as if they are columns in a
  * table. The inner class <tt>Column</tt> wraps the array along with a
  * descriptive String heading and a Dimension instance that indicates the
- * physical dimensions of the data in the column.
+ * physical dimensions of the data in the column.  Descriptive immutable String 
+ * labels can also be associated with the rows (row headers).
+ * be 
  * <p>
  * The number of columns is set at construction and cannot be changed.
  * <p>
@@ -36,20 +38,31 @@ public class DataTable extends Data implements DataArithmetic, Serializable {
 
     /**
      * Creates a new table using the given arguments. The length of the DataInfo
-     * array specifies the number of columns.
+     * array specifies the number of columns.  No row headers are defined.
      * 
      * @param label
      *            a descriptive label for the table
      * @param columnDataInfo
      *            set of DataInfo instances used to set the heading and
      *            dimension of each column
-     * @param columnLength
+     * @param nRows
      *            the length of each and every column
      */
-    public DataTable(String label, DataInfo[] columnDataInfo, int columnLength) {
-        super(new DataInfo(label, evaluateDimension(columnDataInfo), new Factory(makeColumns(
-                columnDataInfo, columnLength))));
-        myColumns = ((DataTable.Factory) dataInfo.getDataFactory()).myColumns;
+    public DataTable(String label, DataInfo[] columnDataInfo, int nRows) {
+        this(label, evaluateDimension(columnDataInfo), 
+                        makeColumns(columnDataInfo, nRows));
+    }
+    
+    //bridge to the next private constructor; makes this instances columns the same as
+    //the prototype in the factory
+    private DataTable(String label, Dimension dimension, Column[] columns) {
+        this(label, dimension, columns, new Factory(columns));
+    }
+    
+    //used by Factory and by constructor above
+    private DataTable(String label, Dimension dimension, Column[] columns, Factory factory) {
+        super(new DataInfo(label, dimension, factory));
+        myColumns = columns;
     }
     
     //determines if a given set of DataInfo are all of the same dimension;
@@ -67,10 +80,10 @@ public class DataTable extends Data implements DataArithmetic, Serializable {
     }
     //used by constructor above
     private static Column[] makeColumns(DataInfo[] columnDataInfo,
-            int columnLength) {
+            int nRows) {
         Column[] columns = new Column[columnDataInfo.length];
         for (int i = 0; i < columnDataInfo.length; i++) {
-            columns[i] = new Column(new double[columnLength], columnDataInfo[i]);
+            columns[i] = new Column(new double[nRows], columnDataInfo[i]);
         }
         return columns;
     }
@@ -79,39 +92,61 @@ public class DataTable extends Data implements DataArithmetic, Serializable {
      * Creates a new table with a specified number of columns all of a given
      * length. The assigned heading for each column is its ordinal (starting
      * from 0), e.g., the heading of the first column is '0'.  All columns are
-     * assigned the given Dimension, which is also the Dimension of the DataTable
-     * (as kept in DataInfo).
+     * assigned the given Dimension, which is also the Dimension of the DataTable
+     * (as kept in DataInfo).  No row headers are defined.
      * 
      * @param label
      *            a descriptive label for the table
      * @param dimension
      *            indicates the common Dimension for all columns
-     * @param numColumns
+     * @param nColumns
      *            the number of columns to make
-     * @param columnLength
+     * @param nRows
      *            the length of each and every column
      */
-    public DataTable(String label, Dimension dimension, int numColumns,
-            int columnLength) {
+    public DataTable(String label, Dimension dimension, int nColumns, int nRows) {
         super(new DataInfo(label, dimension, new Factory(makeColumns(
-                dimension, numColumns, columnLength))));
-        myColumns = ((DataTable.Factory) dataInfo.getDataFactory()).myColumns;
+                dimension, nColumns, nRows))));
+        myColumns = ((DataTable.Factory) dataInfo.getDataFactory()).prototypeColumns;
+    }
+    
+    /**
+     * Creates a new table with a specified number of columns and with row
+     * headers as given. Number of rows is determined by the length of the
+     * rowHeaders array. The assigned heading for each column is its ordinal
+     * (starting from 0), e.g., the heading of the first column is '0'. All
+     * columns are assigned the given Dimension, which is also the Dimension of
+     * the DataTable (as kept in DataInfo).
+     * 
+     * @param label
+     *            a descriptive label for the table
+     * @param dimension
+     *            indicates the common Dimension for all columns
+     * @param nColumns
+     *            the number of columns to make
+     * @param rowHeaders
+     *            array of Strings with descriptive labels for the rows; the
+     *            number of rows is the length of this array
+     */
+    public DataTable(String label, Dimension dimension, int nColumns, String[] rowHeaders) {
+        super(new DataInfo(label, dimension, 
+                new Factory(makeColumns(dimension, nColumns, rowHeaders.length), rowHeaders)));
+        myColumns = ((DataTable.Factory) dataInfo.getDataFactory()).prototypeColumns;
     }
     
     //used by constructor above
-    private static Column[] makeColumns(Dimension dimension, int numColumns,
-            int columnLength) {
-        Column[] columns = new Column[numColumns];
-        for (int i = 0; i < numColumns; i++) {
-            columns[i] = new Column(new double[columnLength], Integer
-                    .toString(i), dimension);
+    private static Column[] makeColumns(Dimension dimension, int nColumns,
+            int nRows) {
+        Column[] columns = new Column[nColumns];
+        for (int i = 0; i < nColumns; i++) {
+            columns[i] = new Column(new double[nRows], Integer.toString(i), dimension);
         }
         return columns;
     }
 
 
     /**
-     * Constructs a new table using the data in the given columns.
+     * Constructs a new table using the data in the given columns.  No row headers are defined.
      * 
      * @param label
      *            a descriptive label for the table
@@ -147,7 +182,7 @@ public class DataTable extends Data implements DataArithmetic, Serializable {
 
     /**
      * Copy constructor. Makes a new DataTable with new Column instances having
-     * the same data values as in the given DataTable.
+     * the same data values and row headings as in the given DataTable.
      */
     public DataTable(DataTable dataTable) {
         super(dataTable);
@@ -162,6 +197,16 @@ public class DataTable extends Data implements DataArithmetic, Serializable {
      */
     public Data makeCopy() {
         return new DataTable(this);
+    }
+    
+    /**
+     * Returns the row header (a descriptive string for the row) for the i-th row
+     * of the table (numbered from zero).  Returns and empty string if no row
+     * headers were specified at construction.
+     */
+    public String getRowHeaders(int i) {
+        String[] rowHeaders = ((Factory)dataInfo.getDataFactory()).getRowHeaders(); 
+        return (rowHeaders == null) ? "" : rowHeaders[i];
     }
 
     /**
@@ -416,17 +461,25 @@ public class DataTable extends Data implements DataArithmetic, Serializable {
     /**
      * DataFactory that makes DataTable instances of a specific shape.  Each DataTable
      * constructed by the factory has its own DataColumn instances, with data that
-     * are initialized to a prototype set of data.
+     * are initialized to a prototype set of data.  All constructed instances reference
+     * the same rowHeader array (if not null).
      */
     public static class Factory implements DataFactory, Serializable {
 
-        final DataTable.Column[] myColumns;
-        String[] rowHeaders;
-        String[] columnHeaders;
-        int columnLength;
+        private final Column[] prototypeColumns;
+        private final String[] rowHeaders;
 
-        Factory(DataTable.Column[] myColumns) {
-            this.myColumns = myColumns;
+        Factory(Column[] myColumns) {
+            this(myColumns, null);
+        }
+        
+        Factory(Column[] myColumns, String[] rowHeaders) {
+            this.prototypeColumns = myColumns;
+            if(rowHeaders != null) {
+                this.rowHeaders = (String[])rowHeaders.clone();
+            } else {
+                this.rowHeaders = null;
+            }
         }
 
         /**
@@ -436,16 +489,25 @@ public class DataTable extends Data implements DataArithmetic, Serializable {
          * in the new table will have the given dimension.
          */
         public Data makeData(String label, Dimension dimension) {
-            DataTable.Column[] newColumns = new DataTable.Column[myColumns.length];
+            DataTable.Column[] newColumns = new DataTable.Column[prototypeColumns.length];
             for (int i = 0; i < newColumns.length; i++) {
                 if(dimension == null) {
-                    newColumns[i] = new DataTable.Column(myColumns[i]);
+                    newColumns[i] = new DataTable.Column(prototypeColumns[i]);
                 } else {
-                    newColumns[i] = new DataTable.Column((double[])myColumns[i].data.clone(), 
-                            myColumns[i].heading, dimension);
+                    newColumns[i] = new DataTable.Column((double[])prototypeColumns[i].data.clone(), 
+                            prototypeColumns[i].heading, dimension);
                 }
             }
-            return new DataTable(label, newColumns);
+            if(dimension == null) {
+                dimension = newColumns[0].getDimension();
+                for(int i = 1; i < newColumns.length; i++) {
+                    if((newColumns[i].getDimension() != dimension)) {
+                        dimension = Dimension.MIXED;
+                        break;
+                    }
+                }
+            }
+            return new DataTable(label, dimension, newColumns, this);
         }
 
         /**
@@ -462,7 +524,7 @@ public class DataTable extends Data implements DataArithmetic, Serializable {
          * @return
          */
         public int getNColumns() {
-            return columnHeaders.length;
+            return prototypeColumns.length;
         }
 
         /**
@@ -470,7 +532,11 @@ public class DataTable extends Data implements DataArithmetic, Serializable {
          * this DataFactory.
          */
         public int getNRows() {
-            return columnLength;
+            return prototypeColumns[0].data.length;
+        }
+        
+        public String[] getRowHeaders() {
+            return rowHeaders;
         }
     }//end of Factory
 

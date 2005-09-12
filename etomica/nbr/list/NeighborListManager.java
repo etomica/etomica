@@ -59,7 +59,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     }
 
     /**
-     * Reacts to an integrator START or INITIALIZE event, preparing the
+     * Reacts to an integrator INITIALIZE event, preparing the
      * neighbor-list facility. Performs the following actions:
      * <ul>
      * <li>applies periodic boundary conditions, to move all atoms to the
@@ -70,7 +70,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * </ul>
      */
     public void nonintervalAction(IntegratorNonintervalEvent evt) {
-        if ((evt.type().mask & (IntegratorNonintervalEvent.START.mask | IntegratorNonintervalEvent.INITIALIZE.mask)) != 0) {
+        if ((evt.type().mask & (IntegratorNonintervalEvent.INITIALIZE.mask)) != 0) {
             Phase[] phases = evt.getSource().getPhase();
             for (int i = 0; i < phases.length; i++) {
                 pbcEnforcer.setPhase(phases[i]);

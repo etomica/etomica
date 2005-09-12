@@ -79,7 +79,7 @@ public final class DataSourceCountSteps implements DataSource,
     }
     
     public void nonintervalAction(IntegratorNonintervalEvent evt) {
-		if (evt.type() == IntegratorIntervalEvent.START) {
+		if (evt.type() == IntegratorIntervalEvent.INITIALIZE) {
 			data.x = 0;
 		}
 	}

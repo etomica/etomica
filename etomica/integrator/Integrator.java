@@ -15,7 +15,6 @@ import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.util.Arrays;
 import etomica.util.Debug;
-import etomica.util.Default;
 import etomica.util.NameMaker;
 
 /**
@@ -125,6 +124,7 @@ public abstract class Integrator implements EtomicaElement, java.io.Serializable
     public final void initialize() throws ConfigurationOverlapException {
         setup();
         initialized = true;
+        fireNonintervalEvent(new IntegratorNonintervalEvent(this, IntegratorEvent.INITIALIZE));
         reset();
     }
     

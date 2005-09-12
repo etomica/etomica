@@ -68,7 +68,7 @@ public class DataSourceCountTime extends DataSourceScalar implements
      * Resets the timer to zero if the event is a start event
      */
     public void nonintervalAction(IntegratorNonintervalEvent evt) {
-		if(evt.type() == IntegratorIntervalEvent.START) {
+		if(evt.type() == IntegratorIntervalEvent.INITIALIZE) {
 			reset();
 		}
 	}

@@ -88,8 +88,8 @@ public class DataSinkTable implements DataSink, Serializable {
         for (int i=0; i<nColumns; i++) {
             dataColumns[oldSize+i] = data.getColumn(i);
         }
-        updateRowCount();
         fireColumnCountChangedEvent();
+        updateRowCount();
     }
     
     /* (non-Javadoc)
