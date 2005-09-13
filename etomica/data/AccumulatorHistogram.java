@@ -84,7 +84,7 @@ public class AccumulatorHistogram extends DataAccumulator {
      * Returns caster that ensures accumulator will receive a DataDoubleArray.
      */
     public DataProcessor getDataCaster(DataInfo inputDataInfo) {
-        if(inputDataInfo.getClass() == DataDoubleArray.class) {
+        if(inputDataInfo.getDataClass() == DataDoubleArray.class) {
             return null;
         }
         return new CastToDoubleArray();
