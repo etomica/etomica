@@ -92,7 +92,7 @@ public class DataTable extends Data implements DataArithmetic, Serializable {
      * Creates a new table with a specified number of columns all of a given
      * length. The assigned heading for each column is its ordinal (starting
      * from 0), e.g., the heading of the first column is '0'.  All columns are
-     * assigned the given Dimension, which is also the Dimension of the DataTableç
+     * assigned the given Dimension, which is also the Dimension of the DataTable
      * (as kept in DataInfo).  No row headers are defined.
      * 
      * @param label
@@ -611,3 +611,4 @@ public class DataTable extends Data implements DataArithmetic, Serializable {
     }//end of Column
 
 }
+
