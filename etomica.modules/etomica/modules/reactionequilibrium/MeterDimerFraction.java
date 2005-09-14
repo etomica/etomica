@@ -6,20 +6,16 @@ import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.meter.Meter;
-import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataTable;
 import etomica.phase.Phase;
 import etomica.units.Dimension;
 import etomica.util.NameMaker;
 
 public final class MeterDimerFraction implements DataSource, Meter {
     public MeterDimerFraction(int idx) {
-        data = new DataDoubleArray("Dimer Fraction",Dimension.FRACTION,5);
+        data = new DataTable("Dimer Fraction", Dimension.FRACTION, 1, 
+                new String[] {"R", "B", "R-R", "R-B", "B-B"});
         setName(NameMaker.makeName(this.getClass()));
-        labels[0] = "R";
-        labels[1] = "B";
-        labels[2] = "R-R";
-        labels[3] = "R-B";
-        labels[4] = "B-B";
         this.idx = idx;
     }
     
@@ -60,7 +56,7 @@ public final class MeterDimerFraction implements DataSource, Meter {
         }//end of for loop
         
         double nMole = count[0] + count[1] + 0.5*(count[2]+count[3]+count[4]);
-        double[] x = data.getData();
+        double[] x = data.getColumn(0).getData();
         for(int i=0; i<count.length; i++) {
         	x[i] = count[i]/nMole;
         }
@@ -94,8 +90,7 @@ public final class MeterDimerFraction implements DataSource, Meter {
 
     private String name;
     private Phase phase;
-    private final DataDoubleArray data;
-    private String[] labels = new String[5];
+    private final DataTable data;
     private int[] count = new int[5];
     public final int idx;
     private AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
