@@ -21,7 +21,7 @@ import etomica.data.DataFork;
 import etomica.data.DataPump;
 import etomica.data.DataSink;
 import etomica.data.DataSource;
-import etomica.data.DataSourceCountSteps;
+import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataSourceUniform;
 import etomica.data.meter.MeterTemperature;
@@ -84,7 +84,7 @@ public class PistonCylinderGraphic {
     public P2SquareWell potentialSW;
     public P2Ideal potentialIdeal;
     public PotentialGroup potentialGroupHS, potentialGroupSW;
-    public DataSourceCountSteps meterCycles;
+    public DataSourceCountTime meterCycles;
     public DisplayBox displayCycles; 
     public MeterTemperature thermometer;
     public DisplayPhase displayPhase;
@@ -539,12 +539,12 @@ public class PistonCylinderGraphic {
         fixPistonButton.setPostAction(new ActionPistonUpdate(pc.integrator));
         fixPistonButton.setState(pistonHeld);
 
-        meterCycles = new DataSourceCountSteps();
+        meterCycles = new DataSourceCountTime();
         pc.integrator.addListener(meterCycles);
         displayCycles.setPrecision(6);
         DataPump pump= new DataPump(meterCycles,displayCycles);
         new IntervalActionAdapter(pump,pc.integrator);
-        displayCycles.setLabel("Integrator steps");
+        displayCycles.setLabel("Simulation time");
         controlButtons.setSimulation(pc);
         
         //  state panel
