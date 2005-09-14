@@ -6,9 +6,9 @@ package etomica.data;
 
 import etomica.data.types.CastToDoubleArray;
 import etomica.data.types.DataArithmetic;
-import etomica.data.types.DataArray;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
+import etomica.data.types.DataGroup;
 import etomica.units.Dimension;
 import etomica.util.Histogram;
 import etomica.util.HistogramSimple;
@@ -94,10 +94,11 @@ public class AccumulatorHistogram extends DataAccumulator {
      * Constructs the Data objects used by this class.
      */
     private void setupData() {
-        DataDoubleArray dataBin = new DataDoubleArray(binnedDataInfo.getLabel(), binnedDataInfo.getDimension(), nBins);
-//        dataH = new DataDoubleArray("Histogram", Dimension.NULL, new int[] {nBins, nData});
-//        data = new DataFunction(new DataDoubleArray[] {dataBin}, dataH);
-        data = new DataArray("Histogram", Dimension.NULL, nData, DataFunction.getFactory(new DataDoubleArray[] {dataBin}));
+        DataFunction[] dataFunctions = new DataFunction[nData];
+        for (int i=0; i<nData; i++) {
+            dataFunctions[i] = new DataFunction(binnedDataInfo.getLabel()+" Histogram",Dimension.NULL,new DataDoubleArray[]{new DataDoubleArray(binnedDataInfo.getLabel(), binnedDataInfo.getDimension(), nBins)});
+        }
+        data = new DataGroup("Histogram",dataFunctions);
     }
     
     /**
@@ -139,7 +140,7 @@ public class AccumulatorHistogram extends DataAccumulator {
     }
     
     Histogram[] histogram = new Histogram[0];
-    private DataArray data;
+    private DataGroup data;
     private DataInfo binnedDataInfo;
     int nData;
     private Histogram.Factory histogramFactory;
