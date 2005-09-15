@@ -21,16 +21,16 @@ The data managed by these classes is typically that which would be considered th
 the simulation; data needed to conduct the simulation (such as the atom positions) are not normally 
 handled by these classes.
 <p>
-The abstract class <@link etomica.data.Data Data> is the generic class for encapsulation of data.
+The abstract class {@link etomica.data.Data Data} is the generic class for encapsulation of data.
 Major subclasses of it are defined in <@link etomica.data.types etomica.data.types>, and include
 (for example) classes that encapsulate primitives and primitive arrays 
 (such as <tt>double</tt> and <tt>double[]</tt>).  In addition to the actual data values, the Data
-class also holds an instance of <@link etomica.data.DataInfo DataInfo>.  The DataInfo holds information
+class also holds an instance of {@link etomica.data.DataInfo DataInfo}.  The DataInfo holds information
 about the values held by the Data instance; in particular it has a descriptive <tt>String</tt> label and
-an instance of <@link etomica.units.Dimension Dimension> that indicates the physical dimensions
+an instance of {@link etomica.units.Dimension Dimension} that indicates the physical dimensions
 of the data values.  DataInfo also holds a DataFactory that can be used to construct new Data instances
 having the same type and structure as the Data holding the DataInfo (for more information about the
-<i>structure</i> of a Data instance, see <@link etomica.data.types the types package>).  DataInfo is 
+<i>structure</i> of a Data instance, see {@link etomica.data.types the types package}).  DataInfo is 
 declared final in Data, and is itself immutable.  To change the information in DataInfo, it is necessary
 to change it in the DataSource, which should generate a new Data instance with the updated information.
 <p>
@@ -50,12 +50,12 @@ held by the DataInfo. The DataPump performs this preparation automatically.
 <p>
 Sometimes it is necessary for a Data instance to be cast to another Data type,
 one that a Data processing element is configured to handle.  To treat this circumstance there are
-Data casters defined in <@link etomica.data.types etomica.data.types>, which are DataProcessor
+Data casters defined in {@link etomica.data.types etomica.data.types}, which are DataProcessor
 subclasses to perform this transformation.  These caster are inserted automatically, if needed,
 when a DataSink is added to a DataPipe.
 <p>
 Most DataSources are classes that perform some measurement on a Phase; a DataSource of this variety
-is termed a <tt>Meter</tt>, many of which are defined in the package <@link etomica.data.meter etomica.data.meter>.
+is termed a <tt>Meter</tt>, many of which are defined in the package {@link etomica.data.meter etomica.data.meter}.
 Some DataSources are not connected to a Phase; examples includes sources that report the simulation
 time, or yield the acceptance probability for a Monte Carlo trial.  Some such classes are defined in this
 package (<i>i.e.</i>, <tt>etomica.data</tt>).
@@ -63,7 +63,7 @@ package (<i>i.e.</i>, <tt>etomica.data</tt>).
 Several Data instances can be bundled and processed as a single Data instance.  DataGroup is configured
 to hold heterogeneous Data instances (having different type or structure); DataArray can hold multiple
 Data instances of the same type and structure (and sharing the same DataInfo).  These classes are defined
-in <@link etomica.data.types etomica.data.types>.  Often Data collected this way must be "unpacked" 
+in {@link etomica.data.types etomica.data.types}.  Often Data collected this way must be "unpacked" 
 at some point downstream; this is not easily done in a general way, and the developer must insert a DataGroupExtractor
 or DataGroupFilter that specifies how such Data are handled.
 
