@@ -186,7 +186,7 @@ public class DataGroup extends Data {
         }
         
         /**
-         * Returns an array containging the DataInfo of all grouped Data elements.
+         * Returns an array containing the DataInfo of all grouped Data elements.
          */
         public DataInfo[] getDataInfoArray() {
             DataInfo[] array = new DataInfo[data.length];
