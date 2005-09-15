@@ -62,6 +62,7 @@ public class DataTable extends Data implements DataArithmetic, Serializable {
     //used by Factory and by constructor above
     private DataTable(String label, Dimension dimension, Column[] columns, Factory factory) {
         super(new DataInfo(label, dimension, factory));
+        rowHeaders = factory.rowHeaders;
         myColumns = columns;
     }
     
@@ -108,6 +109,7 @@ public class DataTable extends Data implements DataArithmetic, Serializable {
         super(new DataInfo(label, dimension, new Factory(makeColumns(
                 dimension, nColumns, nRows))));
         myColumns = ((DataTable.Factory) dataInfo.getDataFactory()).prototypeColumns;
+        rowHeaders = ((DataTable.Factory) dataInfo.getDataFactory()).rowHeaders;
     }
     
     /**
@@ -132,6 +134,7 @@ public class DataTable extends Data implements DataArithmetic, Serializable {
         super(new DataInfo(label, dimension, 
                 new Factory(makeColumns(dimension, nColumns, rowHeaders.length), rowHeaders)));
         myColumns = ((DataTable.Factory) dataInfo.getDataFactory()).prototypeColumns;
+        this.rowHeaders = ((DataTable.Factory) dataInfo.getDataFactory()).rowHeaders;
     }
     
     //used by constructor above
@@ -151,8 +154,8 @@ public class DataTable extends Data implements DataArithmetic, Serializable {
      * @param label
      *            a descriptive label for the table
      * @param myColumns
-     *            the columns used to make the table (the instance is used
-     *            directly, and is not copied/cloned)
+     *            the columns used to make the table (the array instance is cloned,
+     *            but the columns are not).
      * 
      * @throws IllegalArgumentException
      *             if given columns are not all of the same length
@@ -164,7 +167,8 @@ public class DataTable extends Data implements DataArithmetic, Serializable {
                 throw new IllegalArgumentException("DataTable requires that all columns be of the same length");
             }
         }
-        this.myColumns = myColumns;
+        this.myColumns = (DataTable.Column[])myColumns.clone();
+        rowHeaders = ((DataTable.Factory) dataInfo.getDataFactory()).rowHeaders;
     }
     //determines if a given set of Columns are all of the same dimension;
     //if not the same, returns Dimension.MIXED
@@ -190,6 +194,7 @@ public class DataTable extends Data implements DataArithmetic, Serializable {
         for (int i = 0; i < myColumns.length; i++) {
             myColumns[i] = new DataTable.Column(dataTable.myColumns[i]);
         }
+        rowHeaders = ((DataTable.Factory) dataInfo.getDataFactory()).rowHeaders;
     }
 
     /**
@@ -205,8 +210,18 @@ public class DataTable extends Data implements DataArithmetic, Serializable {
      * headers were specified at construction.
      */
     public String getRowHeaders(int i) {
-        String[] rowHeaders = ((Factory)dataInfo.getDataFactory()).getRowHeaders(); 
         return (rowHeaders == null) ? "" : rowHeaders[i];
+    }
+    
+    public void setRowHeaders(String[] rowHeaders) {
+        if (rowHeaders == null) {
+            this.rowHeaders = null;
+            return;
+        }
+        if (getNRows() != rowHeaders.length) {
+            throw new IllegalArgumentException("number of row headers must match number of rows");
+        }
+        this.rowHeaders = (String[])rowHeaders.clone();
     }
 
     /**
@@ -447,6 +462,7 @@ public class DataTable extends Data implements DataArithmetic, Serializable {
     //make package protected so that CastToTable can access
     //shadows myColumns field in Factory, which is accessible via DataInfo
     final DataTable.Column[] myColumns;
+    private String[] rowHeaders;
 
     /**
      * Returns a new DataFactory that makes DataTable instances with the shape
@@ -474,7 +490,7 @@ public class DataTable extends Data implements DataArithmetic, Serializable {
         }
         
         Factory(Column[] myColumns, String[] rowHeaders) {
-            this.prototypeColumns = myColumns;
+            this.prototypeColumns = (Column[])myColumns.clone();
             if(rowHeaders != null) {
                 this.rowHeaders = (String[])rowHeaders.clone();
             } else {

@@ -195,32 +195,20 @@ public class AccumulatorAverage extends DataAccumulator {
         Dimension dimSquared = Dimension.UNDEFINED;//can change this when units
                                                    // facility isbetter
                                                    // developed
-        sum = (DataArithmetic) factory.makeData(dataInfo.getLabel()
-                + "(blkAvg sum)", dataInfo.getDimension());
-        sumSquare = (DataArithmetic) factory.makeData(dataInfo.getLabel()
-                + "(blkAvgSqr sum)", dimSquared);
-        sumSquareBlock = (DataArithmetic) factory.makeData(dataInfo.getLabel()
-                + "(sum value^2)", dataInfo.getDimension());
-        standardDeviation = (DataArithmetic) factory.makeData(dataInfo
-                .getLabel()
-                + "(stddev)", dataInfo.getDimension());
-        average = (DataArithmetic) factory.makeData(dataInfo.getLabel()
-                + "(avg)", dataInfo.getDimension());
-        error = (DataArithmetic) factory.makeData(dataInfo.getLabel()
-                + "(error)", dataInfo.getDimension());
-        blockSum = (DataArithmetic) factory.makeData(dataInfo.getLabel()
-                + "(blk value)", dataInfo.getDimension());
-        blockSumSq = (DataArithmetic) factory.makeData(dataInfo.getLabel()
-                + "(blk value^2)", dimSquared);
-        mostRecent = (DataArithmetic) factory.makeData(dataInfo.getLabel()
-                + "(most recent)", dataInfo.getDimension());
-        mostRecentBlock = (DataArithmetic) factory.makeData(dataInfo.getLabel()
-                + "(most recent blk)", dataInfo.getDimension());
-        work = (DataArithmetic) factory
-                .makeData("scratch", Dimension.UNDEFINED);
+        sum = (DataArithmetic) factory.makeData("blkAvg sum", dataInfo.getDimension());
+        sumSquare = (DataArithmetic) factory.makeData("blkAvgSqr sum", dimSquared);
+        sumSquareBlock = (DataArithmetic) factory.makeData("sum value^2", dataInfo.getDimension());
+        standardDeviation = (DataArithmetic) factory.makeData("stddev", dataInfo.getDimension());
+        average = (DataArithmetic) factory.makeData("avg", dataInfo.getDimension());
+        error = (DataArithmetic) factory.makeData("error", dataInfo.getDimension());
+        blockSum = (DataArithmetic) factory.makeData("blk value", dataInfo.getDimension());
+        blockSumSq = (DataArithmetic) factory.makeData("blk value^2", dimSquared);
+        mostRecent = (DataArithmetic) factory.makeData("most recent", dataInfo.getDimension());
+        mostRecentBlock = (DataArithmetic) factory.makeData("most recent blk", dataInfo.getDimension());
+        work = (DataArithmetic) factory.makeData("scratch", Dimension.UNDEFINED);
 
         reset();
-        dataGroup = new DataGroup(dataInfo.getLabel() + " Statistics",
+        dataGroup = new DataGroup(dataInfo.getLabel(),
                 new Data[] { (Data) mostRecent, (Data) average, (Data) error,
                         (Data) standardDeviation, (Data) mostRecentBlock });
         return dataGroup.getDataInfo();

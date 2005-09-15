@@ -9,6 +9,7 @@ import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataArray;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
+import etomica.data.types.DataTable;
 import etomica.units.Dimension;
 import etomica.util.History;
 import etomica.util.HistoryScrolling;
@@ -48,7 +49,8 @@ public class AccumulatorHistory extends DataAccumulator {
      * Returns caster that ensures accumulator will receive a DataDoubleArray.
      */
     public DataProcessor getDataCaster(DataInfo inputDataInfo) {
-        if(inputDataInfo.getDataClass() == DataDoubleArray.class) {
+        if(inputDataInfo.getDataClass() == DataDoubleArray.class || 
+                inputDataInfo.getDataClass() == DataTable.class) {
             return null;
         }
         return new CastToDoubleArray();
@@ -60,7 +62,14 @@ public class AccumulatorHistory extends DataAccumulator {
      * @param nData
      */
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
-        nData = ((DataDoubleArray.Factory)inputDataInfo.getDataFactory()).getArrayLength();
+        DataFactory factory = inputDataInfo.getDataFactory();
+        if (factory instanceof DataDoubleArray.Factory) {
+            nData = ((DataDoubleArray.Factory)inputDataInfo.getDataFactory()).getArrayLength();
+        }
+        else {
+            nData = ((DataTable.Factory)inputDataInfo.getDataFactory()).getNRows()
+                  * ((DataTable.Factory)inputDataInfo.getDataFactory()).getNColumns();
+        }
         setupData(inputDataInfo.getDimension());
         history = new History[nData];
         for (int i = 0; i < nData; i++) {

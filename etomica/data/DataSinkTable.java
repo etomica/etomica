@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 
 import etomica.data.types.CastArrayToDoubleArray;
+import etomica.data.types.CastGroupOfTablesToDataTable;
 import etomica.data.types.CastGroupToDoubleArray;
 import etomica.data.types.CastToTable;
 import etomica.data.types.DataArray;
@@ -36,6 +37,16 @@ public class DataSinkTable implements DataSink, Serializable {
         if (dataInfo.getDataClass() == DataTable.class) {
             return null;
         } else if(dataInfo.getDataClass() == DataGroup.class) {
+            DataInfo[] info = ((DataGroup.Factory)dataInfo.getDataFactory()).getDataInfoArray(); 
+            Class innerDataClass = info[0].getDataClass();
+            for (int i = 1; i<info.length; i++) {
+                if (info[i].getDataClass() != innerDataClass) {
+                    throw new IllegalArgumentException("DataSinkTable can only handle homogeneous groups");
+                }
+            }
+            if(innerDataClass == DataTable.class) {
+                return new CastGroupOfTablesToDataTable();
+            }
             return new CastGroupToDoubleArray();
         } else if(dataInfo.getDataClass() == DataArray.class) {
             return new CastArrayToDoubleArray();
@@ -83,6 +94,12 @@ public class DataSinkTable implements DataSink, Serializable {
 
     protected void addNewData(DataTable data) {
         int nColumns = data.getNColumns();
+        if (dataColumns.length == 0) {
+            rowHeaders = new String[data.getNRows()];
+            for (int i=0; i<rowHeaders.length; i++) {
+                rowHeaders[i] = data.getRowHeaders(i);
+            }
+        }
         int oldSize = dataColumns.length;
         dataColumns = (DataTable.Column[])Arrays.resizeArray(dataColumns,oldSize+nColumns);
         for (int i=0; i<nColumns; i++) {
@@ -105,6 +122,7 @@ public class DataSinkTable implements DataSink, Serializable {
         casterIndex = 0;
         casterChangedBits = new int[0];
         fireColumnCountChangedEvent();
+        rowHeaders = null;
     }
     
     
@@ -122,6 +140,10 @@ public class DataSinkTable implements DataSink, Serializable {
      */
     public int getRowCount() {
         return rowCount;
+    }
+    
+    public String getRowHeader(int i) {
+        return rowHeaders[i];
     }
 
     public DataTable.Column getColumn(int column) {
@@ -209,4 +231,5 @@ public class DataSinkTable implements DataSink, Serializable {
     private int casterIndex;
     private int[] casterChangedBits = new int[0];
     private HashMap columnIndexHash = new HashMap();
+    private String[] rowHeaders;
 }

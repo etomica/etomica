@@ -102,7 +102,12 @@ public class DisplayTable extends Display implements DataTableListener,
      * Has no effect. Part of the DataTableListener interface.
      */
     public void tableRowCountChanged(DataSinkTable table) {
+        rowLabels = new String[table.getRowCount()];
+        for (int i=0; i<rowLabels.length; i++) {
+            rowLabels[i] = table.getRowHeader(i);
+        }
         tableSource.fireTableStructureChanged();
+        
     }
 
     /**
