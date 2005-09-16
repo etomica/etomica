@@ -3,7 +3,6 @@ import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
-import etomica.modules.reactionequilibrium.MeterDimerFraction;
 import etomica.potential.P2SquareWell;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
@@ -32,7 +31,6 @@ public class P2SquareWellBonded extends P2SquareWell {
 	// This is an  index for an array Array ==> {1,2,3,4,5,6...}
 	//			          idx = 2      | 
 	public final int idx;
-	public MeterDimerFraction meterDimerFraction;
 
 	public P2SquareWellBonded(Space space, int idx, double coreDiameter,double lambda, double epsilon) {
 		super(space, coreDiameter, lambda, epsilon, true);
@@ -136,9 +134,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 			double bij = dr.dot(dv);
 			boolean areBonded = areBonded(pair.atom0,pair.atom1);
 			//inside well but not mutually bonded; collide now if approaching
-            if ((!areBonded && r2 < wellDiameterSquared) 
-                || (areBonded && r2 < coreDiameterSquared)) {
-				return (bij < 0.0) ? falseTime : Double.MAX_VALUE;
+            if (!areBonded && r2 < wellDiameterSquared) {
+                return (bij < 0) ? falseTime : Double.POSITIVE_INFINITY;
             }
 		}
 		//mutually bonded, or outside well; collide as SW
@@ -149,13 +146,6 @@ public class P2SquareWellBonded extends P2SquareWell {
 
 	
 	public void bump(AtomSet atoms, double falseTime) {
-
-//		 ************ This gets run less than Collision Time		
-		//System.out.println("P2SquaredWell: ran Bump Method");
-
-		//meterDimerFraction.getData();
-	
-		// *** Data Declaration Section
 
 		AtomPair pair = (AtomPair) atoms;
 		cPair.reset(pair);
@@ -170,31 +160,17 @@ public class P2SquareWellBonded extends P2SquareWell {
 		
 		// ke is kinetic energy due to components of velocity
 		Atom a0 = pair.atom0;
-		Atom a1 = pair.atom1;	
-//        if (((Atom[])a0.allatomAgents[idx])[3]!=null) {
-//            throw new RuntimeException("a0 "+a0+" has 4 neighbors");
-//        }
-//        if (((Atom[])a1.allatomAgents[idx])[3]!=null) {
-//            throw new RuntimeException("a1 "+a1+" has 4 neighbors");
-//        }
+		Atom a1 = pair.atom1;
 		
 		double reduced_m = 2.0 / (((AtomTypeLeaf)a0.type).rm + ((AtomTypeLeaf)a1.type).rm);
 		double ke = bij * bij * reduced_m / (4.0 * r2);
 		
 		
 		if (areBonded(a0,a1)) {		//atoms are bonded to each
-            if (!areBonded(a1,a0)) {
-                throw new RuntimeException("symmetric is good and you are bad");
-            }
 			if (2 * r2 < (coreDiameterSquared + wellDiameterSquared)) { // Hard-core collision															
 				lastCollisionVirial = reduced_m * bij;
 	
 			} else { 				// Well collision assume separating because mutually bonded
-                if (r2 > wellDiameterSquared && bij < 0.0) {
-                    if (a0.node.getOrdinal() == 1 && a1.node.getOrdinal() == 2) {
-                        throw new RuntimeException("atoms "+a0+" and "+a1+" think they're bonded but they're "+r2+" apart");
-                    }
-                }
 				if (ke < epsilon) 		// Not enough kinetic energy to escape
 				{ 
 					lastCollisionVirial = reduced_m * bij;
@@ -203,21 +179,12 @@ public class P2SquareWellBonded extends P2SquareWell {
 				else{ 	
 lastCollisionVirial = 0.5 * reduced_m * bij- Math.sqrt(reduced_m * r2 * (ke - epsilon));
 					unbond(a1,a0);
-                    if (areBonded(a0,a1)) {
-                        throw new RuntimeException("busted");
-                    }
 					nudge = eps;
-                    if (a0.node.getOrdinal() == 1 && a1.node.getOrdinal() == 2) {
-                        System.out.println("unbonding 1 and 2");
-                    }
 				}
 
 			}
         }
 		else { 	//not bonded to each other
-            if (areBonded(a1,a0)) {
-                throw new RuntimeException("symmetric is good and you are bad (#2)");
-            }
 			//well collision; decide whether to bond or have hard repulsion
 			if (full(a0) || full(a1)) { 
 				lastCollisionVirial = reduced_m * bij;
@@ -226,9 +193,6 @@ lastCollisionVirial = 0.5 * reduced_m * bij- Math.sqrt(reduced_m * r2 * (ke - ep
                 lastCollisionVirial = 0.5* reduced_m* (bij + Math.sqrt(bij * bij + 4.0 * r2 * epsilon/ reduced_m));
 				bond(a0,a1);
 				nudge = -eps;
-                if (a0.node.getOrdinal() == 1 && a1.node.getOrdinal() == 2) {
-                    System.out.println("bonding 1 and 2");
-                }
 			}
 		} 
 
@@ -244,7 +208,6 @@ lastCollisionVirial = 0.5 * reduced_m * bij- Math.sqrt(reduced_m * r2 * (ke - ep
 			a0.coord.position().PEa1Tv1(-nudge, dr);
 			a1.coord.position().PEa1Tv1(nudge, dr);
 		}
-
 	}//end of bump
 }//end of class
 
