@@ -65,11 +65,6 @@ public class P2SquareWellBonded extends P2SquareWell {
 	}
 	*/
 
-	public Object makeAgent(Atom a) {
-		return null;
-	}
-
-
 	public void setBarrier(double b) {
 		barrier = b;
 	}
