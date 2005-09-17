@@ -8,6 +8,7 @@ import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
+import etomica.data.DataFork;
 import etomica.data.DataPump;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
@@ -181,17 +182,20 @@ public class ReactionEquilibriumGraphic {
 		tBox.setLabelPosition(Constants.NORTH);
 
 		//display of averages
-		AccumulatorAverage dimerfractionaccum = new AccumulatorAverage(sim);
-		DataPump tAverageDimer = new DataPump (sim.meterDimerFraction, dimerfractionaccum);
-        IntervalActionAdapter dAdapter = new IntervalActionAdapter (tAverageDimer, sim.integratorHard1);
+        DataFork dimerFork = new DataFork();
+		DataPump dimerPump = new DataPump (sim.meterDimerFraction, dimerFork);
+        IntervalActionAdapter dAdapter = new IntervalActionAdapter (dimerPump, sim.integratorHard1);
         dAdapter.setActionInterval(100);
+        AccumulatorAverage dimerfractionaccum = new AccumulatorAverage(sim);
+        dimerfractionaccum.setPushInterval(10);
+        dimerFork.addDataSink(dimerfractionaccum);
 		DisplayTable table = new DisplayTable();
 		dimerfractionaccum.setDataSink(table.getDataTable());
 
 		//display for history of mole fractions
 		AccumulatorHistory dimerfractionhistory = new AccumulatorHistory();
         
-		dimerfractionaccum.addDataSink(dimerfractionhistory,new AccumulatorAverage.Type[]{AccumulatorAverage.MOST_RECENT});
+		dimerFork.addDataSink(dimerfractionhistory);
 		DisplayPlot plot = new DisplayPlot();
 		dimerfractionhistory.addDataSink (plot.getDataTable());
 		plot.setLabel("Composition");
