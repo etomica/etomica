@@ -15,6 +15,7 @@ public final class MeterDimerFraction implements DataSource, Meter {
     public MeterDimerFraction(int idx) {
         data = new DataTable("Dimer Fraction", Dimension.FRACTION, 1, 
                 new String[] {"R", "B", "R-R", "R-B", "B-B"});
+        data.getColumn(0).setHeading("");
         setName(NameMaker.makeName(this.getClass()));
         this.idx = idx;
     }
