@@ -76,7 +76,7 @@ public class AccumulatorHistogram extends DataAccumulator {
                     dataFunctions[i] = dataFunction;
                 }
                 else {
-                    new DataFunction(binnedDataInfo.getLabel()+" Histogram",Dimension.NULL,
+                    dataFunctions[i] = new DataFunction(binnedDataInfo.getLabel()+" Histogram",Dimension.NULL,
                             new DataDoubleArray[]{new DataDoubleArray(binnedDataInfo.getLabel(), 
                                     binnedDataInfo.getDimension(), histogram[i].getNBins())});
                 }
