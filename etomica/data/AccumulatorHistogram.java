@@ -58,6 +58,34 @@ public class AccumulatorHistogram extends DataAccumulator {
      * Returns the set of histograms.
      */
     public Data getData() {
+        // check to see if current data functions are the right length
+        // histogram might change the number of bins on its own.
+        boolean success = true;
+        for (int i=0; i<nData; i++) {
+            DataFunction dataFunction = (DataFunction)data.getData(i);
+            if (dataFunction.getLength() != histogram[i].getNBins()) {
+                success = false;
+            }
+        }
+        if (!success) {
+            DataFunction[] dataFunctions = new DataFunction[nData];
+            // attempt to re-use old DataFunctions
+            for (int i=0; i<nData; i++) {
+                DataFunction dataFunction = (DataFunction)data.getData(i);
+                if (dataFunction.getLength() == histogram[i].getNBins()) {
+                    dataFunctions[i] = dataFunction;
+                }
+                else {
+                    new DataFunction(binnedDataInfo.getLabel()+" Histogram",Dimension.NULL,
+                            new DataDoubleArray[]{new DataDoubleArray(binnedDataInfo.getLabel(), 
+                                    binnedDataInfo.getDimension(), histogram[i].getNBins())});
+                }
+            }
+            // creating a new data instance might confuse downstream data sinks, but
+            // we have little choice and they should deal.
+            data = new DataGroup("Histogram",dataFunctions);
+        }   
+            
         for (int i = 0; i < nData; i++) {
             DataFunction dataFunction = (DataFunction)data.getData(i);
             dataFunction.getYData().E(histogram[i].getHistogram());
@@ -72,11 +100,11 @@ public class AccumulatorHistogram extends DataAccumulator {
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
         binnedDataInfo = inputDataInfo;
         nData = ((DataDoubleArray.Factory)inputDataInfo.getDataFactory()).getArrayLength();
-        setupData();
         histogram = new Histogram[nData];
         for (int i = 0; i < nData; i++) {
             histogram[i] = histogramFactory.makeHistogram(nBins);
         }
+        setupData();
         return data.getDataInfo();
     }
     
@@ -96,7 +124,7 @@ public class AccumulatorHistogram extends DataAccumulator {
     private void setupData() {
         DataFunction[] dataFunctions = new DataFunction[nData];
         for (int i=0; i<nData; i++) {
-            dataFunctions[i] = new DataFunction(binnedDataInfo.getLabel()+" Histogram",Dimension.NULL,new DataDoubleArray[]{new DataDoubleArray(binnedDataInfo.getLabel(), binnedDataInfo.getDimension(), nBins)});
+            dataFunctions[i] = new DataFunction(binnedDataInfo.getLabel()+" Histogram",Dimension.NULL,new DataDoubleArray[]{new DataDoubleArray(binnedDataInfo.getLabel(), binnedDataInfo.getDimension(), histogram[i].getNBins())});
         }
         data = new DataGroup("Histogram",dataFunctions);
     }
