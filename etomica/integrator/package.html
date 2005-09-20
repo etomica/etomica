@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!--
+
+  @(#)package.html	1.60 98/01/27
+
+	Permission is granted to use the Etomica classes
+	for your own academic research and instruction. 
+	All other rights are reserved.  Etomica and software
+	derived from it may not be sold or redistributed in any form. 
+	
+  CopyrightVersion 1.0
+
+-->
+</head>
+<body bgcolor="white">
+
+Provides Integrator classes that implement different molecular simulation algorithms.  
+The Integrator moves the simulated atoms around, generating configurations and thereby
+conducting the simulation.  All integrator techniques, such as molecular dynamics or Monte Carlo, 
+are implemented via subclasses of the Integrator class.  Repeated calls to the Integrator's
+doStep method generate successive configurations.  This process is typically performed by
+an {@link etomica.action.activity.ActivityIntegrate ActivityIntegrate} instance.
+<p>
+The Integrator maintains a list of IntegratorListeners, which are notified when the Integrator
+starts, is reset, and finishes or, for IntegratorIntervalListeners, when the integrators
+completes a specified number of doStep calls.  Although the listeners are kept by the Integrator,
+firing of the event is performed by the Activity running the Integrator.  Arbitrary Actions can be
+performed in response to an IntegratorEvent through the use of an IntervalActionAdapter.
+<p>
+The general categories of Integrator are IntegratorMD, for molecular dynamics, and IntegratorMC,
+for Monte Carlo.  Molecular dynamics integration of hard potentials requires the use of a special
+integrator, IntegratorHard.  IntegratorMC holds a set of MCMove instances which define the types
+of Monte Carlo trials that are performed in the simulation.
+<p>
+To use an Integrator, add the instance to a new ActivityIntegrate instance, and add the
+ActivityIntegrate to the Simulation's Controller.  The Phase upon which the Integrator acts
+must be set before beginning the simulation.  Some Integrators require the specification of
+multiple phases.  It can also be helpful to invoke the register method in the governing Simulation,
+passing the Integrator instance; this will cause the Integrator to be reset when the Simulation
+is reset to a new (or initial) condition.
+
+<!--
+
+<h2>Package Specification</h2>
+
+##### FILL IN ANY SPECS NEEDED BY JAVA COMPATIBILITY KIT #####
+<ul>
+  <li><a href="">##### REFER TO ANY FRAMEMAKER SPECIFICATION HERE #####</a>
+</ul>
+
+<h2>Related Documentation</h2>
+
+For overviews, tutorials, examples, guides, and tool documentation, please see:
+<ul>
+  <li><a href="">##### REFER TO NON-SPEC DOCUMENTATION HERE #####</a>
+</ul>
+-->
+<!-- Put @see and @since tags down here. -->
+
+</body>
+</html>

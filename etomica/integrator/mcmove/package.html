@@ -1,0 +1,51 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!--
+
+  @(#)package.html	1.60 98/01/27
+
+	Permission is granted to use the Etomica classes
+	for your own academic research and instruction. 
+	All other rights are reserved.  Etomica and software
+	derived from it may not be sold or redistributed in any form. 
+	
+  CopyrightVersion 1.0
+
+-->
+</head>
+<body bgcolor="white">
+
+Defines Monte Carlo trial moves that are used by the IntegratorMC class.  Subclasses
+of MCMove perform specific trial moves that together define the statistical mechanical
+ensemble and Monte Carlo algorithm used to sample atomic configurations.  The MCMove subclasses
+provide appropriate information needed for IntegratorMC to calculate and apply acceptance
+probabilities according to the Metropolis (or another) algorithm.
+<p>
+To use these classes, add instances of them to the governing instance of IntegratorMC.  With each
+call to doStep, the Integrator selects one of the added MCMoves at random, performs the trial, 
+and decides acceptance. The MCMove is notified of the outcome of the acceptance decision.
+<p>
+The likelihood of selection of a given MCMove (relative to the others added to the Integrator)
+may be adjusted.
+
+<!--
+
+<h2>Package Specification</h2>
+
+##### FILL IN ANY SPECS NEEDED BY JAVA COMPATIBILITY KIT #####
+<ul>
+  <li><a href="">##### REFER TO ANY FRAMEMAKER SPECIFICATION HERE #####</a>
+</ul>
+
+<h2>Related Documentation</h2>
+
+For overviews, tutorials, examples, guides, and tool documentation, please see:
+<ul>
+  <li><a href="">##### REFER TO NON-SPEC DOCUMENTATION HERE #####</a>
+</ul>
+-->
+<!-- Put @see and @since tags down here. -->
+
+</body>
+</html>
