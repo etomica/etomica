@@ -397,7 +397,7 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
     private int drawingHeight = 10;
      
     public void doUpdate() {}
-    public void repaint() {if(!(canvas instanceof DisplayPhaseCanvas3DOpenGL)) canvas.repaint();}
+    public void repaint() {canvas.repaint();}
       
     public void setMovable(boolean b) {canvas.setMovable(b);}
     public boolean isMovable() {return canvas.isMovable();}
