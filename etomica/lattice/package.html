@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!--
+
+  @(#)package.html	1.60 98/01/27
+
+	Permission is granted to use the Etomica classes
+	for your own academic research and instruction. 
+	All other rights are reserved.  Etomica and software
+	derived from it may not be sold or redistributed in any form. 
+	
+  CopyrightVersion 1.0
+
+-->
+</head>
+<body bgcolor="white">
+
+Provides classes for defining regular arrays of objects (sites), typically points in space.  The
+AbstractLattice is the key interface in the package; it associates an Object with an
+array of integers (or index).  The number integers in the array needed to specify a site
+defines the dimension of the lattice.
+<p>
+Implementation of SpaceLattice indicates that the lattice objects
+are points in space (instances of etomica.space.Vector), while BravaisLattice is an
+implementation of SpaceLattice that defines the points in terms of a set of primitive
+vectors (defined by the Primitive class).  A Crystal is a BravaisLattice with an
+associated Basis, which can be used to define a molecular crystal, or (using LatticeCrystal) 
+as an alternative representation of other lattices (e.g., an fcc lattice as cubic primitive with four
+basis points, versus as an fcc primitive with one basis point).
+<p>
+RectangularLattice is a generic, arbitrary-dimension implementation of AbstractLattice that
+defines the lattice over a rectangular set of index values (i.e., the range of each index element 
+is finite and independent of the other index element values).
+<p>
+Several iterators (implementing IndexIterator) are defined for generating index arrays to 
+enumerate the sites of the lattice.
+
+<!--
+
+<h2>Package Specification</h2>
+
+##### FILL IN ANY SPECS NEEDED BY JAVA COMPATIBILITY KIT #####
+<ul>
+  <li><a href="">##### REFER TO ANY FRAMEMAKER SPECIFICATION HERE #####</a>
+</ul>
+
+<h2>Related Documentation</h2>
+
+For overviews, tutorials, examples, guides, and tool documentation, please see:
+<ul>
+  <li><a href="">##### REFER TO NON-SPEC DOCUMENTATION HERE #####</a>
+</ul>
+-->
+<!-- Put @see and @since tags down here. -->
+
+</body>
+</html>

@@ -5,7 +5,7 @@ import etomica.space.Vector;
 
 /**
  * Arbitrary-dimension Bravais Lattice, in which the sites are instances of 
- * Space.Vector, with positions given as linear combinations of a set of
+ * etomica.space.Vector, with positions given as linear combinations of a set of
  * primitive vectors.
  */
 
@@ -29,12 +29,10 @@ public class BravaisLattice implements SpaceLattice, java.io.Serializable {
      * by adding together the primitive vectors, each multiplied by the corresponding
      * integer index given by the array argument.  Vectors are computed
      * on-the-fly.  Index may comprise any integer values (positive, negative, or zero).
+     * The same Vector instance is returned with every call.
      */
     public Object site(int[] index) {
         if(index.length != getSpace().D()) throw new IllegalArgumentException("index given to site method of lattice must have number of elements equal to dimension of lattice");
-//        Vector vector = getSpace().makeVector();
-        //TODO figure a way to get unscaled lattice vectors without this
-        //method call, which makes copies each time
         latticeVector.E(0);
         Vector[] latticeVectors = primitive.vectors();
         for(int i=0; i<index.length; i++) {

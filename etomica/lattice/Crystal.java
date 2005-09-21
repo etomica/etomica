@@ -36,7 +36,8 @@ public class Crystal implements AbstractLattice, java.io.Serializable {
     
     /**
      * Returns the basis at the Bravais-lattice site corresponding
-     * to the given index.
+     * to the given index.  A newly-constructed array of vectors
+     * is returned with each call.
      * 
      * @return a Space.Vector array with the positions of the basis sites
      */

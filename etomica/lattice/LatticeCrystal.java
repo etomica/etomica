@@ -46,9 +46,10 @@ public class LatticeCrystal implements SpaceLattice, java.io.Serializable {
     }
 
     /**
-     * Returns a Space.Vector instance giving the location of the referenced
+     * Returns a etomica.space.Vector instance giving the location of the referenced
      * site.  The first D-1 indices indicate the Bravais-lattice position, and 
-     * the last index specifies the basis atom at the Bravais site.
+     * the last index specifies the basis atom at the Bravais site.  The same
+     * Vector instance is returned with each call.
      */
     public Object site(int[] index) {
         if(index.length != D) throw new IllegalArgumentException("index given to site method of lattice must have number of elements equal to dimension of lattice");
