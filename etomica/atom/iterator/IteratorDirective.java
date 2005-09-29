@@ -1,5 +1,7 @@
 package etomica.atom.iterator;
 
+import java.io.ObjectStreamException;
+
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
 import etomica.potential.Potential;
@@ -88,6 +90,15 @@ public final class IteratorDirective implements java.io.Serializable {
         };
         
         public final EnumeratedType[] choices() {return CHOICES;}
+
+        /**
+         * Required to guarantee singleton when deserializing.
+         * @return the singleton INSTANCE
+         */
+        private Object readResolve() throws ObjectStreamException {
+        	return this.toString().equals("Up") ? IteratorDirective.UP : IteratorDirective.DOWN;
+        }
+        
     }//end of Direction
     public static final Direction UP = Direction.CHOICES[0];
     public static final Direction DOWN = Direction.CHOICES[1];
