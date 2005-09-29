@@ -1,5 +1,6 @@
 package etomica.atom.iterator;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import etomica.action.AtomsetAction;
@@ -38,7 +39,8 @@ import etomica.species.Species;
  * History Created on Dec 30, 2004 by kofke
  */
 
-public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorMolecule {
+public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorMolecule,
+        Serializable {
 
     /**
      * Sorts given array of species according to species index, then constructs iterator 

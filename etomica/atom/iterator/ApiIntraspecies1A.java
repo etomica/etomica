@@ -1,5 +1,7 @@
 package etomica.atom.iterator;
 
+import java.io.Serializable;
+
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTreeNode;
@@ -18,7 +20,7 @@ import etomica.species.Species;
  */
 
 public class ApiIntraspecies1A extends ApiSequence1A implements
-        AtomsetIteratorMolecule {
+        AtomsetIteratorMolecule, Serializable {
 
     /**
      * @param species

@@ -4,6 +4,8 @@
  */
 package etomica.atom.iterator;
 
+import java.io.Serializable;
+
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
@@ -17,7 +19,8 @@ import etomica.atom.AtomSet;
  * childList atoms with the basis' child from which the target atom is descended.  
  */
 public final class ApiIntragroup implements AtomPairIterator,
-		AtomsetIteratorBasisDependent, AtomsetIteratorDirectable {
+		AtomsetIteratorBasisDependent, AtomsetIteratorDirectable,
+        Serializable {
 
 	/**
 	 * Constructor makes iterator that must have basis specified and then be 
