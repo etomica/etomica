@@ -16,9 +16,9 @@
 </head>
 <body bgcolor="white">
 
-Collects classes that extend {@link etomica.action.Activity Activity}, which implements Action 
+Collects classes that extend  etomica.action.Activity, which implements Action 
 and is an abstract class appropriate to encapsulate complex, time-consuming tasks.  
-Unlike a simple Action, an Activity can be paused
+Unlike a simple {@link etomica.action.Action Action}, an {@link etomica.action.Activity Activity} can be paused
 or even halted prematurely, typically through interaction with a user interface.  The class
 that "runs" an Integrator, repeatedly invoking its doStep method, is an example of an Activity.
 <p>
