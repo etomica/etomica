@@ -12,7 +12,7 @@ import etomica.atom.AtomSet;
 /**
  * Returns iterates from a list.  
  */
-public class ApiSequence1A implements AtomPairIterator, AtomsetIteratorDirectable {
+public class ApiSequence1A implements AtomPairIterator, AtomsetIteratorDirectable, java.io.Serializable {
 
     /**
      * Constructor makes iterator that must have list specified and then be 
