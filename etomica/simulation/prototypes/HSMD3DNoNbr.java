@@ -105,7 +105,7 @@ public class HSMD3DNoNbr extends Simulation {
     	    fis = new FileInputStream(filename);
     	    in = new EtomicaObjectInputStream(fis);
     	    simulation = (etomica.simulation.Simulation) in.readObject();
-    	    AtomList.rebuildAllLists(in);
+            in.finalizeRead();
     	    in.close();
     	    fis.close();
     	    
