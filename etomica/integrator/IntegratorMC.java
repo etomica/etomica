@@ -295,7 +295,7 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
 	/**
 	 * Linker used to construct linked-list of MCMove instances
 	 */
-	private static class MCMoveLinker {
+	private static class MCMoveLinker implements java.io.Serializable {
 		int frequency, fullFrequency;
 		final MCMove move;
 		boolean perParticleFrequency;
