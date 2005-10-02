@@ -101,6 +101,26 @@ public abstract class IntegratorMD extends Integrator {
     public static class ThermostatType extends EnumeratedType {
         protected ThermostatType(String label) {super(label);}       
         public EnumeratedType[] choices() {return CHOICES;}
+
+        /**
+         * Required to guarantee singleton when deserializing.
+         * @return the singleton INSTANCE
+         */
+        private Object readResolve() {
+            if (this.toString().equals("Velocity Scaling")) {
+                return VELOCITY_SCALING;
+            }
+            if (this.toString().equals("Andersen")) {
+                return ANDERSEN;
+            }
+            if (this.toString().equals("Andersen Single")) {
+                return ANDERSEN_SINGLE;
+            }
+            if (this.toString().equals("Nose Hoover")) {
+                return NOSE_HOOVER;
+            }
+            throw new RuntimeException("unknown thermostat type: "+this);
+        }
     }
     protected static final ThermostatType[] CHOICES = 
         new ThermostatType[] {
