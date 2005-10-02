@@ -5,17 +5,11 @@
 package etomica.nbr.list;
 
 import java.io.IOException;
-import java.io.Serializable;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLinker;
-import etomica.atom.AtomList;
 import etomica.atom.AtomSequencerFactory;
-import etomica.atom.AtomTreeNodeGroup;
-import etomica.atom.AtomTypeGroup;
-import etomica.atom.SpeciesMaster;
-import etomica.atom.SpeciesRoot;
 import etomica.nbr.cell.AtomSequencerCell;
 import etomica.util.Arrays;
 import etomica.util.DirtyObject;
@@ -134,7 +128,6 @@ public class AtomSequencerNbr extends AtomSequencerCell implements DirtyObject {
     private void writeObject(java.io.ObjectOutputStream out)
     throws IOException
     {
-        System.out.println("writing");
         // write nothing.
         out.defaultWriteObject();
         
@@ -142,8 +135,8 @@ public class AtomSequencerNbr extends AtomSequencerCell implements DirtyObject {
         atomListInts[0] = new int[upList.length][];
         for (int i=0; i<upList.length; i++) {
             atomListInts[0][i] = new int[upList[i].size()];
-            for (int j=0; j<atomListInts[0].length; j++) {
-                atomListInts[0][i][j] = upList[i].get(i).node.index();
+            for (int j=0; j<atomListInts[0][i].length; j++) {
+                atomListInts[0][i][j] = upList[i].get(j).node.index();
                 
             }
         }
@@ -151,16 +144,11 @@ public class AtomSequencerNbr extends AtomSequencerCell implements DirtyObject {
         atomListInts[1] = new int[downList.length][];
         for (int i=0; i<upList.length; i++) {
             atomListInts[1][i] = new int[downList[i].size()];
-            for (int j=0; j<atomListInts[1].length; j++) {
-                atomListInts[1][i][j] = downList[i].get(i).node.index();
+            for (int j=0; j<atomListInts[1][i].length; j++) {
+                atomListInts[1][i][j] = downList[i].get(j).node.index();
             }
         }
-        ObjectData data = new ObjectData();
-        data.atomListInts = atomListInts;
-        // speciesAgent => SpeciesMaster
-        data.speciesMaster = (SpeciesMaster)atom.node.parentSpeciesAgent().node.parentGroup();
-        out.writeObject(data);
-        System.out.println("done");
+        out.writeObject(atomListInts);
     }
 
     /**
@@ -182,17 +170,19 @@ public class AtomSequencerNbr extends AtomSequencerCell implements DirtyObject {
      * Rebuilds the neighbor lists from the previously-read Atom indices.
      */
     public void rebuild(Object data) {
-        ObjectData myData = (ObjectData)data;
-        upList = new AtomArrayList[myData.atomListInts[0].length];
+        int[][][] atomListInts = (int[][][])data;
+        upList = new AtomArrayList[atomListInts[0].length];
         for (int i=0; i<upList.length; i++) {
-            for (int j=0; j<myData.atomListInts[0][i].length; j++) {
-                upList[i].add(getAtomForIndex(myData.atomListInts[0][i][j],myData.speciesMaster));
+            upList[i] = new AtomArrayList();
+            for (int j=0; j<atomListInts[0][i].length; j++) {
+                upList[i].add(EtomicaObjectInputStream.getAtomForIndex(atomListInts[0][i][j]));
             }
         }
-        downList = new AtomArrayList[myData.atomListInts[1].length];
+        downList = new AtomArrayList[atomListInts[1].length];
         for (int i=0; i<downList.length; i++) {
-            for (int j=0; j<myData.atomListInts[1][i].length; j++) {
-                upList[i].add(getAtomForIndex(myData.atomListInts[1][i][j],myData.speciesMaster));
+            downList[i] = new AtomArrayList();
+            for (int j=0; j<atomListInts[1][i].length; j++) {
+                upList[i].add(EtomicaObjectInputStream.getAtomForIndex(atomListInts[1][i][j]));
             }
         }
     }
@@ -210,40 +200,4 @@ public class AtomSequencerNbr extends AtomSequencerCell implements DirtyObject {
         }
     };
 
-    /**
-     * Wrapper class used to store both neighbor lists and SpeciesMaster
-     */
-    private static class ObjectData implements Serializable {
-        int[][][] atomListInts;
-        SpeciesMaster speciesMaster;
-    }
-    
-    /**
-     * Finds the child of the given speciesMaster having the given index.
-     * @throws IllegalArgumentException if no Atom is found.
-     */
-    //Calling this repeatedly will be quite expensive for phases with long (flat)
-    //AtomLists.  
-    private static Atom getAtomForIndex(int index, SpeciesMaster speciesMaster) {
-        Atom atom = speciesMaster;
-outer:  while (true) {
-            if (atom.node.index() == index) {
-                return atom;
-            }
-            if (!(atom.type instanceof AtomTypeGroup)) {
-                // atom of interest thinks it's below the leaf level
-                throw new IllegalArgumentException("Failed to find Atom with index "+index);
-            }
-            AtomList childList = ((AtomTreeNodeGroup)atom.node).childList;
-            for (AtomLinker link=childList.header.next; link!=childList.header; link=link.next) {
-                if (link.atom.type.getIndexManager().sameAncestry(link.atom.node.index(),index)) {
-                    atom = link.atom;
-                    continue outer;
-                }
-            }
-            
-            // no children were ancestors of the atom of interest
-            throw new IllegalArgumentException("Failed to find Atom with index "+index);
-        }
-    }
 }

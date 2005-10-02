@@ -1,9 +1,12 @@
 package etomica.atom;
 
+import java.io.IOException;
+
 import etomica.space.CoordinateFactorySphere;
 import etomica.space.ICoordinate;
 import etomica.space.Space;
 import etomica.util.Arrays;
+import etomica.util.EtomicaObjectInputStream;
 
  /**
   * Object corresponding to one physical atom or group of atoms. Each atom holds
@@ -216,7 +219,15 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
     public static int requestAgentIndex(AgentSource aSource) {
         agentSource = (AgentSource[])Arrays.addObject(agentSource, aSource);
         return agentSource.length - 1;
-    }    
+    }
+    
+    private void readObject(java.io.ObjectInputStream in)
+    throws IOException, ClassNotFoundException
+    {
+        EtomicaObjectInputStream etomicaIn = (EtomicaObjectInputStream)in; 
+        etomicaIn.defaultReadObject();
+        etomicaIn.addAtom(this);
+    }
     
     /**
      * Interface for an object that makes an agent to be placed in each atom
