@@ -4,6 +4,8 @@
  */
 package etomica.nbr.cell;
 
+import java.io.Serializable;
+
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
 import etomica.atom.Atom;
@@ -74,22 +76,7 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
 
         //listener to phase to detect addition of new SpeciesAgent
         //or new atom
-        ((SpeciesRoot)phase.getSpeciesMaster().node.parentGroup()).addListener(new PhaseListener() {
-            public void actionPerformed(SimulationEvent evt) {
-                if (((PhaseEvent)evt).phase() == phase) {
-                    actionPerformed((PhaseEvent)evt);
-                }
-            }
-            public void actionPerformed(PhaseEvent evt) {
-                if(evt.type() == PhaseEvent.ATOM_ADDED) {
-                    Atom atom = evt.atom();
-                    //new species agent requires another list in each cell
-                    if(atom.type.isInteracting()) {
-                        assignCell(atom);
-                    }
-                }
-            }
-        });
+        ((SpeciesRoot)phase.getSpeciesMaster().node.parentGroup()).addListener(new MyPhaseListener(phase,this));
     }
 
     public CellLattice getLattice() {
@@ -127,6 +114,34 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
     }
 
     
+    private static final class MyPhaseListener implements PhaseListener, Serializable {
+        private final Phase phase;
+        private final NeighborCellManager neighborCellManager;
+
+        private MyPhaseListener(Phase phase, NeighborCellManager manager) {
+            super();
+            this.phase = phase;
+            neighborCellManager = manager;
+        }
+
+        public void actionPerformed(SimulationEvent evt) {
+            if (((PhaseEvent)evt).phase() == phase) {
+                actionPerformed((PhaseEvent)evt);
+            }
+        }
+
+        public void actionPerformed(PhaseEvent evt) {
+            if(evt.type() == PhaseEvent.ATOM_ADDED) {
+                Atom atom = evt.atom();
+                //new species agent requires another list in each cell
+                if(atom.type.isInteracting()) {
+                    neighborCellManager.assignCell(atom);
+                }
+            }
+        }
+    }
+
+
     private static class MyMCMoveListener implements MCMoveListener, java.io.Serializable {
         public MyMCMoveListener(Space space, Phase phase, NeighborCellManager manager) {
             treeIterator = new AtomIteratorTree();
