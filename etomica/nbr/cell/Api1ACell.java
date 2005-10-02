@@ -34,7 +34,7 @@ import etomica.space.BoundaryPeriodic;
 public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellular, 
         AtomPairIterator, java.io.Serializable {
     
-	/**
+    /**
      * Constructor makes iterator that must have phase specified and then be
      * reset() before iteration.
      * 
@@ -53,14 +53,9 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
         aiSeq = new AtomIteratorSequence(IteratorDirective.UP);
         //this iterator is used to loop through list of occupants of atoms's cell;
         //construct with AtomToLinker that gives appropriate linker
-        aiSeqDirectableUp = new AtomIteratorSequence(IteratorDirective.UP, 1, 
-                new AtomIteratorSequence.AtomToLinker() {
-                    public AtomLinker getLinker(Atom atom) {return ((AtomSequencerCell)atom.seq).nbrLink;}
-                });
-        aiSeqDirectableDn = new AtomIteratorSequence(IteratorDirective.DOWN, 1, 
-                new AtomIteratorSequence.AtomToLinker() {
-                    public AtomLinker getLinker(Atom atom) {return ((AtomSequencerCell)atom.seq).nbrLink;}
-                });
+        MyAtomToLinker atomToLinker = new MyAtomToLinker();
+        aiSeqDirectableUp = new AtomIteratorSequence(IteratorDirective.UP, 1, atomToLinker);
+        aiSeqDirectableDn = new AtomIteratorSequence(IteratorDirective.DOWN, 1, atomToLinker);
         nbrCellListIteratorInner = new ApiSequence1A(aiSeqDirectableUp,aiSeqDirectableDn); //used only by allAtoms
         nbrCellListIteratorUp = new ApiInnerFixed(aiOuter, aiSeq);//used only by allAtoms
         nbrCellListIteratorDn = new ApiInnerFixed(aiOuter, aiSeq, true);//used only by allAtoms
@@ -303,6 +298,10 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
         return neighborIterator;
     }
    
+    private static final class MyAtomToLinker implements AtomIteratorSequence.AtomToLinker, java.io.Serializable {
+        public AtomLinker getLinker(Atom atom) {return ((AtomSequencerCell)atom.seq).nbrLink;}
+    }
+
     private final ApiSequence1A nbrCellListIteratorInner;//used only by allAtoms
     private final ApiInnerFixed nbrCellListIteratorUp;//used only by allAtoms
     private final ApiInnerFixed nbrCellListIteratorDn;//used only by allAtoms

@@ -47,7 +47,9 @@ public class AtomSequencerCell extends AtomLinker {
      * Singleton factory suitable to passing to the Atom constructor to specify
      * that atom sequencers should be this class.
      */
-    public static final AtomSequencerFactory FACTORY = new AtomSequencerFactory() {
+    public static final AtomSequencerCellFactory FACTORY = new AtomSequencerCellFactory();
+    
+    private static class AtomSequencerCellFactory implements AtomSequencerFactory, java.io.Serializable {
         public AtomLinker makeSequencer(Atom atom) {return new AtomSequencerCell(atom);}
     };
 }
