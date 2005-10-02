@@ -9,11 +9,12 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
-import etomica.simulation.Simulation;
-import etomica.util.Debug;
-import etomica.util.EtomicaObjectInputStream;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.simulation.Simulation;
+import etomica.util.Debug;
+import etomica.util.DirtyObject;
+import etomica.util.EtomicaObjectInputStream;
 
 /**
  * Linked list implementation of the <tt>List</tt> interface.  Implements all
@@ -71,7 +72,7 @@ import etomica.atom.iterator.AtomIteratorListSimple;
  * on Debug will attempt to catch problems.
  */
 
-public class AtomList implements java.io.Serializable
+public class AtomList implements java.io.Serializable, DirtyObject
 {
     public final AtomLinker.Tab header = AtomLinker.newHeader(this);//modification for tab entry
     
@@ -562,7 +563,7 @@ public class AtomList implements java.io.Serializable
         LinkedList atomLinkers = null;
         if (sz > 0) {
             atomLinkers = new LinkedList();
-            etomicaIn.linkerLists.put(this,atomLinkers);
+            etomicaIn.objectData.put(this,atomLinkers);
         }
     	for ( int i=0; i<sz; i++)
     	{
@@ -572,10 +573,11 @@ public class AtomList implements java.io.Serializable
     	}
         // the list is still invalid
         size = -1;
-        etomicaIn.atomLists.add(this);
+        etomicaIn.dirtyObjects.add(this);
 	}
     
-    private void rebuildList(LinkedList linkers) {
+    public void rebuild(Object data) {
+        LinkedList linkers = (LinkedList)data;
         if (size != -1) {
             throw new IllegalStateException("An AtomList must only be rebuilt after unseriailzation");
         }
@@ -590,17 +592,6 @@ public class AtomList implements java.io.Serializable
         }
     }
     
-    public static void rebuildAllLists(EtomicaObjectInputStream in) {
-        Iterator listIterator = in.atomLists.iterator();
-        while (listIterator.hasNext()) {
-            AtomList list = (AtomList)listIterator.next();
-            LinkedList linkers = (LinkedList)in.linkerLists.get(list);
-            list.rebuildList(linkers);
-        }
-        in.atomLists.clear();
-        in.linkerLists.clear();
-    }
-
     //main method to demonstrate and test this class
 /*    public static void main(String[] args) throws java.io.IOException {
         

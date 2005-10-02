@@ -3,7 +3,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
+
+import etomica.atom.SpeciesRoot;
 
 /**
  * Extends the java ObjectInputStream to add fields and methods to enable complete
@@ -16,8 +19,9 @@ import java.util.LinkedList;
 
 public class EtomicaObjectInputStream extends ObjectInputStream {
 
-    public LinkedList atomLists = new LinkedList();
-    public HashMap linkerLists = new HashMap();
+    public SpeciesRoot speciesRoot;
+    public LinkedList dirtyObjects = new LinkedList();
+    public HashMap objectData = new HashMap();
     
     /**
      * @param out
@@ -35,4 +39,13 @@ public class EtomicaObjectInputStream extends ObjectInputStream {
         super();
     }
 
+    public void finalizeRead() {
+        Iterator listIterator = dirtyObjects.iterator();
+        while (listIterator.hasNext()) {
+            DirtyObject obj = (DirtyObject)listIterator.next();
+            obj.rebuild(objectData.get(obj));
+        }
+        dirtyObjects.clear();
+        objectData.clear();
+    }
 }
