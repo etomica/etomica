@@ -66,8 +66,6 @@ public class SWMD3D extends Simulation {
 
 
     phase = new Phase(this);
-    ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc());
-    configuration.initializeCoordinates(phase);
     potential  = new etomica.potential.P2SquareWell(this);
     potential.setLambda(1.6);
 
@@ -108,8 +106,10 @@ public class SWMD3D extends Simulation {
 
 //	DeviceNSelector nControl = new DeviceNSelector(speciesSpheres0.getAgent(phase0));
 //	nControl.setMaximum(108);
-	species.setNMolecules(108);
+	phase.makeMolecules();
 	phase.setDensity(0.0405);
+    ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc());
+    configuration.initializeCoordinates(phase);
   } //end of constructor
 
   public IntegratorHard integrator;
