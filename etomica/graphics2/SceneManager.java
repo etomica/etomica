@@ -9,7 +9,7 @@ import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.math.geometry.LineSegment;
-import etomica.math.geometry.Polyhedron;
+import etomica.math.geometry.Polytope;
 import etomica.phase.Phase;
 import etomica.space.Boundary;
 import etomica.space.Vector;
@@ -175,14 +175,14 @@ public final class SceneManager implements  java.io.Serializable
     		
     		// Create graphical object for the boundary
     		Boundary bnd = phase.boundary();
-    		Polyhedron shape = (Polyhedron)bnd.getShape();
+    		Polytope shape = bnd.getShape();
     	    LineSegment[] edges = shape.getEdges();
-    	    Vector3D shift = new Vector3D();
+    	    Vector shift = phase.space().makeVector();
     	    shift.Ea1Tv1( +0.5, bnd.dimensions() );
     	    
     	    Renderable.Polyline poly = renderer.createPoly();
-	    	Vector3D from = new Vector3D();
-	    	Vector3D to = new Vector3D();
+	    	Vector from = phase.space().makeVector();
+	    	Vector to = phase.space().makeVector();
     	    for(i=0; i<edges.length; i++) 
     	    {  	        
     	    	from.Ev1Pv2( edges[i].getVertices()[0], shift );
