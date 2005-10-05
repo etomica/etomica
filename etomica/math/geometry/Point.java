@@ -29,6 +29,10 @@ public class Point extends Polytope {
     public void updateVertices() {
         //does nothing because vertex is the internal representation of point
     }
+    
+    public LineSegment[] getEdges() {
+    	return edges;
+    }
 
     /**
      * Returns zero.
@@ -45,4 +49,5 @@ public class Point extends Polytope {
         return vertices[0].equals(v);
     }
 
+    private final static LineSegment[] edges = new LineSegment[0];
 }

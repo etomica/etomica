@@ -27,6 +27,7 @@ public class LineSegment extends Polytope implements Rectangular {
      */
     LineSegment(Space embeddedSpace, Vector v0, Vector v1) {
         super(new Point[] {new Point(embeddedSpace, v0), new Point(embeddedSpace, v1)});
+        edges = new LineSegment[]{this};
     }
 
     public void updateVertices() {
@@ -94,6 +95,10 @@ public class LineSegment extends Polytope implements Rectangular {
     public Vector getEdgeLengths() {
         return new Vector1D(getLength());
     }
+    
+    public LineSegment[] getEdges() {
+    	return edges;
+    }
 
 
     public static void main(String[] args) {
@@ -107,4 +112,6 @@ public class LineSegment extends Polytope implements Rectangular {
         p1.setX(1, 6.0);
         System.out.println(segment.contains(p1));
     }
+    
+    private final LineSegment[] edges;
 }

@@ -176,6 +176,8 @@ public abstract class Polytope implements Shape, java.io.Serializable {
         }
         return (Vector[]) list.toArray(new Vector[0]);
     }
+    
+    public abstract LineSegment[] getEdges();
 
     protected final Space embeddedSpace;
     protected final int D;
