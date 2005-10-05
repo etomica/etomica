@@ -35,6 +35,14 @@ import etomica.space.Space;
 public class PotentialMasterNbr extends PotentialMaster {
 
 	/**
+     * Default constructor.  Range should be set manually via 
+     * neighborCellManager.
+     */
+    public PotentialMasterNbr(Space space) {
+        this(space,1.0);
+    }
+    
+    /**
 	 * Invokes superclass constructor, specifying IteratorFactoryCell
      * for generating molecule iterators.  Sets default nCells of 10. 
 	 */
@@ -56,6 +64,10 @@ public class PotentialMasterNbr extends PotentialMaster {
         swappedPairIterator = new ApiInnerFixed(singletIterator, atomIterator, true);
         this.positionDefinition = positionDefinition;
 	}
+    
+    public void setRange(double range) {
+        neighborManager.setRange(range);
+    }
     
     /**
      * Performs cell-assignment potentialCalculation.  Assigns all molecules

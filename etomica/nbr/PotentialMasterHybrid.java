@@ -44,11 +44,16 @@ public class PotentialMasterHybrid extends PotentialMaster {
      * Constructs class using given position definition for all atom cell assignments.
      * @param positionDefinition if null, specifies use of atom type's position definition
      */
-   public PotentialMasterHybrid(Space space, AtomPositionDefinition positionDefinition, double range) {
+    public PotentialMasterHybrid(Space space, AtomPositionDefinition positionDefinition, double range) {
         super(space,new IteratorFactoryCell());
         potentialMasterNbr = new PotentialMasterNbr(space, range, positionDefinition);
         potentialMasterCell = new PotentialMasterCell(space, range, positionDefinition);
 	}
+   
+    public void setRange(double range) {
+        potentialMasterNbr.setRange(range);
+        potentialMasterCell.setRange(range);
+    }
     
     /**
      * Performs cell-assignment potentialCalculation.  Assigns all molecules

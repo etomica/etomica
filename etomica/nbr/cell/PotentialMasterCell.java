@@ -18,6 +18,14 @@ import etomica.space.Space;
 public class PotentialMasterCell extends PotentialMasterSite {
 
     /**
+     * Creates PotentialMasterCell with default (1.0) range.  Range
+     * should be set manually via setRange method.
+     */
+    public PotentialMasterCell(Space space) {
+        this(space,1.0);
+    }
+    
+    /**
      * Constructs with null AtomPositionDefinition, which indicates the position
      * definition given with each atom's AtomType should be used.
      * 
