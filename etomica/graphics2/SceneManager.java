@@ -45,7 +45,7 @@ public final class SceneManager implements  java.io.Serializable
 		  	  initInternalTables();
     	for ( int i=0; i<sphereCores.length; i++ )
     	{
-   		      Atom a = sphereCores[i/3];
+   		      Atom a = sphereCores[i];
    		      int c = colorScheme.atomColor(a);
    		      Vector r = a.coord.position();
 
