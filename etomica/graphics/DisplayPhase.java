@@ -14,6 +14,7 @@ import etomica.EtomicaInfo;
 import etomica.action.Action;
 import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
+import etomica.atom.AtomFilterStatic;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.phase.Phase;
@@ -49,7 +50,7 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
     public static boolean _3dEnabled;
     private final int D = 2;
     protected ColorScheme colorScheme = new ColorSchemeByType();
-    protected AtomFilter atomFilter = AtomFilter.ACCEPT_ALL;
+    protected AtomFilter atomFilter = AtomFilterStatic.ACCEPT_ALL;
     LinkedList drawables = new LinkedList();  //was ArrayList before Java2 conversion
     private Phase phase;
             
@@ -308,7 +309,7 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
      * Default is AtomFilter.ALL, according to which all atoms are displayed.
      */
     public void setAtomFilter(AtomFilter filter) {
-        atomFilter = (filter == null) ? AtomFilter.ACCEPT_ALL : filter;
+        atomFilter = (filter == null) ? AtomFilterStatic.ACCEPT_ALL : filter;
         if(canvas != null) canvas.setAtomFilter(atomFilter);
     }
     /**

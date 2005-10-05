@@ -3,18 +3,14 @@ package etomica.graphics2;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
+import etomica.atom.AtomFilterStatic;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.graphics2.ColorScheme;
-import etomica.graphics2.ColorSchemeByType;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polyhedron;
-import etomica.math.geometry.Polytope;
-import etomica.math.geometry.Shape;
 import etomica.phase.Phase;
-
 import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
@@ -29,7 +25,7 @@ public final class SceneManager implements  java.io.Serializable
     
     public SceneManager() 
     {
-        setAtomFilter(AtomFilter.ACCEPT_ALL);
+        setAtomFilter(AtomFilterStatic.ACCEPT_ALL);
         setScale(1.0);
  
     	colorScheme = new ColorSchemeByType();
