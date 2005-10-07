@@ -2,6 +2,7 @@ package etomica.graphics;
 
 import etomica.action.Action;
 import etomica.action.ActionGroupSeries;
+import etomica.action.SimulationRestart;
 import etomica.atom.SpeciesAgent;
 import etomica.modifier.ModifierNMolecule;
 import etomica.simulation.Simulation;
@@ -21,15 +22,15 @@ import etomica.simulation.prototypes.HSMD2D;
   //could improve by allowing to set phase/agent before elementcoordinator call
 public class DeviceNSelector extends DeviceSlider {
     
-    private etomica.action.SimulationRestart restartAction;
-    
     public DeviceNSelector(Simulation simulation, SpeciesAgent agent) {
         super(simulation.getController());
-        restartAction = new etomica.action.SimulationRestart(simulation);
+        SimulationRestart restartAction = new SimulationRestart(simulation);
         
 //        setNMajor(6);
 	    setMinimum(0);
-	    setMaximum(60);
+        int max = 60;
+        if (agent.getNMolecules() > max) max = agent.getNMolecules();
+	    setMaximum(max);
 	    getSlider().setSnapToTicks(false);
 	    getSlider().setMajorTickSpacing(10);
 	    graphic(null).setSize(new java.awt.Dimension(40,30));
