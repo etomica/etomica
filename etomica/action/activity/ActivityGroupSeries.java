@@ -7,7 +7,7 @@ import etomica.util.Arrays;
 /**
  * Organizer of simulation actions to be executed in series.
  */
-public class ActivityGroupSeries extends Activity {
+public class ActivityGroupSeries extends Activity implements ActivityGroup {
 
     public ActivityGroupSeries() {
         super();
@@ -24,8 +24,8 @@ public class ActivityGroupSeries extends Activity {
         if(activity.currentAction != null) {
             addCopyAction(activity.currentAction);
         }
-        for(int i=0; i<activity.actions.length; i++) {
-            addCopyAction(activity.actions[i]);
+        for(int i=0; i<activity.pendingActions.length; i++) {
+            addCopyAction(activity.pendingActions[i]);
         }
         setPauseAfterEachAction(activity.pauseAfterEachAction);
     }
@@ -54,7 +54,7 @@ public class ActivityGroupSeries extends Activity {
 	 */
 	public synchronized void addAction(Action newAction) {
 		//FIXME this doesn't actually check that newAction isn't already in the array
-		actions = (Action[])Arrays.addObject(actions, newAction);
+		pendingActions = (Action[])Arrays.addObject(pendingActions, newAction);
 		numActions++;
 	}
     
@@ -66,8 +66,8 @@ public class ActivityGroupSeries extends Activity {
      * @return true if the action was removed
      */
 	public synchronized boolean removeAction(Action action) {
-		actions = (Action[]) Arrays.removeObject(actions, action);
-		int newNumActions = actions.length;
+		pendingActions = (Action[]) Arrays.removeObject(pendingActions, action);
+		int newNumActions = pendingActions.length;
 		if (newNumActions == numActions)
 			return false;
 		numActions = newNumActions;
@@ -77,15 +77,15 @@ public class ActivityGroupSeries extends Activity {
     /**
      * @return a list of the actions yet to be performed by this controller. 
      */
-    public synchronized Action[] pendingActions() {
-        return actions;
+    public synchronized Action[] getPendingActions() {
+        return pendingActions;
     }
     
     /**
      * @return an array containing the action currently being performed,   
      * or a zero-length array if the current action is null.
      */
-    public synchronized Action[] currentActions() {
+    public synchronized Action[] getCurrentActions() {
         if(currentAction == null) return new Action[0];
         return new Action[] {currentAction};
      }
@@ -93,8 +93,20 @@ public class ActivityGroupSeries extends Activity {
     /**
      * @return a list of the actions completed by this activity group.
      */
-    public synchronized Action[] completedActions() {
+    public synchronized Action[] getCompletedActions() {
         return completedActions;
+    }
+    
+    public synchronized Action[] getAllActions() {
+    	Action[] allActions = new Action[pendingActions.length+completedActions.length
+    	                                 +((currentAction==null) ? 0 : 1)];
+    	System.arraycopy(completedActions,0,allActions,0,completedActions.length);
+    	int i = completedActions.length;
+    	if (currentAction != null) {
+    		allActions[i++] = currentAction;
+    	}
+    	System.arraycopy(pendingActions,0,allActions,i,pendingActions.length);
+    	return allActions;
     }
     
     /**
@@ -105,7 +117,7 @@ public class ActivityGroupSeries extends Activity {
     public void run() {
 	    	while(numActions > 0) {
 	    		synchronized(this) {
-	    			currentAction = actions[0];
+	    			currentAction = pendingActions[0];
 	    			removeAction(currentAction);
 	    		}
 	    		boolean exceptionThrown = false;
@@ -218,7 +230,7 @@ public class ActivityGroupSeries extends Activity {
     protected Action currentAction;
     protected boolean pauseAfterEachAction;
     protected int numActions;
-    protected Action[] actions = new Action[0];
+    protected Action[] pendingActions = new Action[0];
     protected Action[] completedActions = new Action[0];
 
 }//end of ActivityGroupSeries

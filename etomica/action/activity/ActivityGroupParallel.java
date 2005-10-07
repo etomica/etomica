@@ -14,7 +14,7 @@ import etomica.util.Arrays;
  * Organizer of simulation actions to be executed in parallel,
  * each on its own thread.
  */
-public class ActivityGroupParallel extends Activity {
+public class ActivityGroupParallel extends Activity implements ActivityGroup {
 
 	/**
 	 *  
@@ -114,8 +114,8 @@ public class ActivityGroupParallel extends Activity {
 		}
 	}
 
-	public synchronized Action[] getActions() {
-		return actions;
+	public synchronized Action[] getAllActions() {
+		return (Action[])actions.clone();
 	}
 
 	public synchronized Action[] getCompletedActions() {
@@ -127,6 +127,22 @@ public class ActivityGroupParallel extends Activity {
 			}
 		}
 		return (Action[])completedActions.toArray();
+	}
+	
+	public synchronized Action[] getPendingActions() {
+		if (firstThread == null) return (Action[])actions.clone();
+		return new Action[0];
+	}
+	
+	public synchronized Action[] getCurrentActions() {
+		if (firstThread == null) return new Action[0];
+		LinkedList currentActions = new LinkedList();
+		for (MyThread thread = firstThread; thread != null; thread = thread.nextThread) {
+			if (thread.isAlive()) {
+				currentActions.add(thread.action);
+			}
+		}
+		return (Action[])currentActions.toArray();
 	}
 	
 	public synchronized void setActions(Action[] actions) {

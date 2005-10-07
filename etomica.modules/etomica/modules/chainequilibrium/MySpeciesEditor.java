@@ -7,7 +7,7 @@
 package etomica.modules.chainequilibrium;
 
 import etomica.action.Action;
-import etomica.action.ActionGroup;
+import etomica.action.ActionGroupSeries;
 import etomica.atom.Atom;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.SpeciesAgent;
@@ -143,7 +143,7 @@ class MySpeciesEditor extends javax.swing.JPanel {
                 public String getLabel() {return "";}
                 
             };
-            targetAction = new ActionGroup(new Action[] {targetAction, anotherAction});
+            targetAction = new ActionGroupSeries(new Action[] {targetAction, anotherAction});
         }
     }
     

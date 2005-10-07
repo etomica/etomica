@@ -59,7 +59,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
         fireEvent(new ControllerEvent(this, ControllerEvent.START));
         while(numActions > 0) {
             synchronized(this) {
-                currentAction = actions[0];
+                currentAction = pendingActions[0];
                 removeAction(currentAction);
             }
             fireEvent(new ControllerEvent(this, ControllerEvent.START_ACTION, currentAction));
@@ -210,12 +210,12 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
      * This is used by the repeatCurrentAction facility.
      */
     private synchronized void addNextAction(Action nextAction) {
-        Action[] newActions = new Action[actions.length+1];
+        Action[] newActions = new Action[pendingActions.length+1];
         newActions[0] = nextAction;
-        for(int i=0; i<actions.length; i++) {
-            newActions[i+1] = actions[i];
+        for(int i=0; i<pendingActions.length; i++) {
+            newActions[i+1] = pendingActions[i];
         }
-        actions = newActions;
+        pendingActions = newActions;
     }
     
     /**

@@ -1,6 +1,6 @@
 package etomica.data;
 
-import etomica.action.ActionGroup;
+import etomica.action.ActionGroupSeries;
 import etomica.data.AccumulatorAverage.Type;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntervalActionAdapter;
@@ -44,7 +44,7 @@ public class DataTableAverages extends DataSinkTable {
             DataSource[] sources) {
         super();
         this.types = (Type[]) types.clone();
-        actionGroup = new ActionGroup();
+        actionGroup = new ActionGroupSeries();
         intervalAction = new IntervalActionAdapter(actionGroup, integrator);
         this.blockSize = blockSize;
         if (sources != null) {
@@ -113,7 +113,7 @@ public class DataTableAverages extends DataSinkTable {
 
     private AccumulatorAverage[] accumulators = new AccumulatorAverage[0];
     private final Type[] types;
-    private final ActionGroup actionGroup;
+    private final ActionGroupSeries actionGroup;
     private final IntervalActionAdapter intervalAction;
     private int tableUpdateInterval = 100;
     private int accumulatorUpdateInterval = 1;

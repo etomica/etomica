@@ -1,7 +1,7 @@
 package etomica.graphics;
 
 import etomica.action.Action;
-import etomica.action.ActionGroup;
+import etomica.action.ActionGroupSeries;
 import etomica.atom.SpeciesAgent;
 import etomica.modifier.ModifierNMolecule;
 import etomica.simulation.Simulation;
@@ -34,7 +34,7 @@ public class DeviceNSelector extends DeviceSlider {
 	    getSlider().setMajorTickSpacing(10);
 	    graphic(null).setSize(new java.awt.Dimension(40,30));
         setModifier(new ModifierNMolecule(agent));
-        targetAction = new ActionGroup(new Action[]{modifyAction,restartAction});
+        targetAction = new ActionGroupSeries(new Action[]{modifyAction,restartAction});
 	    
 	    if(agent.type.getSpecies().getName() == "") {
 	        setLabel("Number of molecules");

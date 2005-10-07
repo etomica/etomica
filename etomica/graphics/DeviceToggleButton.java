@@ -4,7 +4,7 @@ import java.awt.Color;
 
 import etomica.EtomicaInfo;
 import etomica.action.Action;
-import etomica.action.ActionGroup;
+import etomica.action.ActionGroupSeries;
 import etomica.action.ActionToggle;
 import etomica.action.activity.Controller;
 import etomica.modifier.ModifierBoolean;
@@ -42,7 +42,7 @@ public class DeviceToggleButton extends DeviceButton {
     
     public void setModifier(ModifierBoolean modifier, String trueText, String falseText) {
         toggleAction = new ActionToggle(modifier, trueText, falseText);
-        setAction(new ActionGroup(new Action[] { toggleAction, relabelButton }));
+        setAction(new ActionGroupSeries(new Action[] { toggleAction, relabelButton }));
         getButton().setText(modifier.getBoolean() ? trueText : falseText);
     }
 

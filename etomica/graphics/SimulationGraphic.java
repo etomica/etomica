@@ -72,7 +72,7 @@ public class SimulationGraphic implements SimulationContainer, java.io.Serializa
      
      private void setupDisplayPhase() {
          Controller controller = simulation.getController();
-         Action[] activities = controller.pendingActions();
+         Action[] activities = controller.getPendingActions();
          LinkedList phaseList = new LinkedList();
          LinkedList integratorList = new LinkedList(); 
          for (int i=0; i<activities.length; i++) {
