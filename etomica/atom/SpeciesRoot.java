@@ -62,6 +62,10 @@ public final class SpeciesRoot extends Atom {
 //            ((SpeciesMaster)iterator.nextAtom()).removeSpecies(species);
         }
     }
+    
+    public Species[] getSpecies() {
+        return (Species[])speciesList.clone();
+    }
 
     //event management
     public synchronized void addListener(PhaseListener listener) {
@@ -131,9 +135,9 @@ public final class SpeciesRoot extends Atom {
  
         }
 
-        public void removeAtomNotify(Atom atom) {
+        public void removeAtomNotify(Atom oldAtom) {
             ((SpeciesRoot)atom).eventManager.fireEvent(((SpeciesRoot)atom).removalEvent
-                    .setAtom(atom));
+                    .setAtom(oldAtom));
         }
     }
     
