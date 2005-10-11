@@ -18,7 +18,7 @@ import etomica.util.Arrays;
 /*
  * Created July 21, 2005
  */
-public class DataFork implements DataPipe, java.io.Serializable {
+public class DataFork implements DataPipeForked, java.io.Serializable {
 
     /**
      * Constructs with no initial DataSinks.  Sinks can be added and
@@ -68,8 +68,15 @@ public class DataFork implements DataPipe, java.io.Serializable {
         }
     }
 
-    /**
-     * @return the i-th DataSink
+    /* (non-Javadoc)
+     * @see etomica.data.DataPipeForked#getDataSinkCount()
+     */
+    public int getDataSinkCount() {
+        return dataSinkList.length;
+    }
+    
+    /* (non-Javadoc)
+     * @see etomica.data.DataPipeForked#getDataSink(int)
      */
     public DataSink getDataSink(int i) {
         return dataSinkList[i].dataSink;
@@ -88,12 +95,8 @@ public class DataFork implements DataPipe, java.io.Serializable {
         setDataSinks(new DataSink[] {dataSink});
     }
 
-    /**
-     * Sets the list of DataSinks that receive the Data entering this DataFork.
-     * All previously added DataSinks are discarded.  If argument is null, all
-     * existing DataSinks are discarded and none are added.
-     * 
-     * @param dataSinks The data sinks to set.
+    /* (non-Javadoc)
+     * @see etomica.data.DataPipeForked#setDataSinks(etomica.data.DataSink[])
      */
     public void setDataSinks(DataSink[] dataSinks) {
         dataSinkList = new DataSinkWrapper[0];
@@ -105,12 +108,8 @@ public class DataFork implements DataPipe, java.io.Serializable {
         }
     }
 
-    /**
-     * Adds the given DataSink to those receiving the Data entering this DataFork,
-     * keeping all previously entered DataSinks.  If argument is null, no action
-     * is performed.
-     * 
-     * @param dataSink
+    /* (non-Javadoc)
+     * @see etomica.data.DataPipeForked#addDataSink(etomica.data.DataSink)
      */
     public void addDataSink(DataSink newDataSink) {
         if(newDataSink == null) return;
@@ -123,11 +122,8 @@ public class DataFork implements DataPipe, java.io.Serializable {
         }
     }
 
-    /**
-     * Removes the specified data sink.  Does nothing if the given DataSink is
-     * not currently a DataSink for this DataFork.
-     * 
-     * @param dataSink data sink to be removed from this list, if present.
+    /* (non-Javadoc)
+     * @see etomica.data.DataPipeForked#removeDataSink(etomica.data.DataSink)
      */
     public void removeDataSink(DataSink dataSink) {
         for(int i=0; i<dataSinkList.length; i++) {

@@ -13,7 +13,7 @@ package etomica.data;
  * History
  * Created on Jul 23, 2005 by kofke
  */
-public abstract class DataProcessorForked extends DataProcessor {
+public abstract class DataProcessorForked extends DataProcessor implements DataPipeForked {
 
     public DataProcessorForked() {
         dataFork = new DataFork();
@@ -25,6 +25,14 @@ public abstract class DataProcessorForked extends DataProcessor {
      */
     public DataSink getDataSink() {
         return dataFork.getDataSink(0);
+    }
+    
+    public DataSink getDataSink(int i) {
+        return dataFork.getDataSink(i);
+    }
+    
+    public int getDataSinkCount() {
+        return dataFork.getDataSinkCount();
     }
     
     /* (non-Javadoc)
