@@ -15,6 +15,7 @@ import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.AtomsetIteratorSpeciesAgent;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.phase.Phase;
+import etomica.potential.PotentialMaster.PotentialLinker;
 import etomica.space.Space;
 import etomica.species.Species;
 
@@ -192,24 +193,24 @@ public class PotentialGroup extends Potential {
      */
 	//TODO consider what to do with sub-potentials after target atoms are reached
     public void calculate(AtomsetIterator iterator, IteratorDirective id, PotentialCalculation pc) {
-	    	AtomSet targetAtoms = id.getTargetAtoms();
-	    	IteratorDirective.Direction direction = id.direction();
-			//loop over sub-potentials
-	    	//TODO consider separate loops for targetable and directable
-	 		for (PotentialLinker link=first; link!= null; link=link.next) {
-				link.iterator.setTarget(targetAtoms);
-	            if (link.iterator instanceof AtomsetIteratorDirectable) {
-	                ((AtomsetIteratorDirectable)link.iterator).setDirection(direction);
-	            }
-			}
-	    	iterator.reset();//loop over atom groups affected by this potential group
-			while (iterator.hasNext()) {
-	    		AtomSet basisAtoms = iterator.next();
-	    		for (PotentialLinker link=first; link!= null; link=link.next) {
-	                if(!link.enabled) continue;
-	    			link.iterator.setBasis(basisAtoms);   			
-	    			pc.doCalculation(link.iterator, id, link.potential);
-	    		}
+    	AtomSet targetAtoms = id.getTargetAtoms();
+    	IteratorDirective.Direction direction = id.direction();
+		//loop over sub-potentials
+    	//TODO consider separate loops for targetable and directable
+ 		for (PotentialLinker link=first; link!= null; link=link.next) {
+			link.iterator.setTarget(targetAtoms);
+            if (link.iterator instanceof AtomsetIteratorDirectable) {
+                ((AtomsetIteratorDirectable)link.iterator).setDirection(direction);
+            }
+		}
+    	iterator.reset();//loop over atom groups affected by this potential group
+		while (iterator.hasNext()) {
+    		AtomSet basisAtoms = iterator.next();
+    		for (PotentialLinker link=first; link!= null; link=link.next) {
+                if(!link.enabled) continue;
+    			link.iterator.setBasis(basisAtoms);   			
+    			pc.doCalculation(link.iterator, id, link.potential);
+    		}
      	}
     }//end calculate
     
@@ -246,6 +247,19 @@ public class PotentialGroup extends Potential {
         return false;
     }
 
+    public Potential[] getPotentials() {
+        int nPotentials=0;
+        for(PotentialLinker link=first; link!=null; link=link.next) {
+            nPotentials++;
+        }
+        Potential[] potentials = new Potential[nPotentials];
+        int i=0;
+        for(PotentialLinker link=first; link!=null; link=link.next) {
+            potentials[i++] = link.potential;
+        }
+        return potentials;
+    }
+    
 	protected PotentialLinker first;
 	protected Phase phase;
 

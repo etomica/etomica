@@ -52,19 +52,19 @@ public class PotentialMaster implements java.io.Serializable {
       * and potentials.
       */
     public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
-        	if(!enabled) return;
-        	AtomSet targetAtoms = id.getTargetAtoms();
-        	boolean phaseChanged = (phase != mostRecentPhase);
-        	mostRecentPhase = phase;
-        	for(PotentialLinker link=first; link!=null; link=link.next) {
-        	    if(!link.enabled) continue;
-        	    if(phaseChanged) {
-        	        link.iterator.setPhase(phase);
-        	        link.potential.setPhase(phase);
-        	    }
-        	    link.iterator.setTarget(targetAtoms);
-        	    link.iterator.setDirection(id.direction());
-        	    pc.doCalculation(link.iterator, id, link.potential);
+        if(!enabled) return;
+    	AtomSet targetAtoms = id.getTargetAtoms();
+    	boolean phaseChanged = (phase != mostRecentPhase);
+    	mostRecentPhase = phase;
+    	for(PotentialLinker link=first; link!=null; link=link.next) {
+    	    if(!link.enabled) continue;
+    	    if(phaseChanged) {
+    	        link.iterator.setPhase(phase);
+    	        link.potential.setPhase(phase);
+    	    }
+    	    link.iterator.setTarget(targetAtoms);
+    	    link.iterator.setDirection(id.direction());
+    	    pc.doCalculation(link.iterator, id, link.potential);
         }//end for
         if(lrcMaster != null) {
             lrcMaster.calculate(phase, id, pc);
@@ -290,6 +290,19 @@ public class PotentialMaster implements java.io.Serializable {
      */
     public Space getSpace() {
         return space;
+    }
+    
+    public Potential[] getPotentials() {
+        int nPotentials=0;
+        for(PotentialLinker link=first; link!=null; link=link.next) {
+            nPotentials++;
+        }
+        Potential[] potentials = new Potential[nPotentials];
+        int i=0;
+        for(PotentialLinker link=first; link!=null; link=link.next) {
+            potentials[i++] = link.potential;
+        }
+        return potentials;
     }
     
 	protected PotentialMasterLrc lrcMaster;
