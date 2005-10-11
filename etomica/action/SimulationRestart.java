@@ -33,6 +33,7 @@ public final class SimulationRestart extends SimulationActionAdapter {
             setConfiguration(new ConfigurationLattice(new LatticeCubicFcc()));
         }
         ignoreOverlap = sim.getDefaults().ignoreOverlap;
+        accumulatorAction = new SimulationDataAction(sim, new ResetAccumulators());
     }
         
     /**
@@ -40,9 +41,10 @@ public final class SimulationRestart extends SimulationActionAdapter {
      */
     public void actionPerformed() {
 
-        for(Iterator iter=simulation.getPhaseList().iterator(); iter.hasNext(); ) {
+        Phase[] phases = simulation.getPhases();
+        for(int i=0; i<phases.length; i++) {
             if (configuration != null) {
-                configuration.initializeCoordinates((Phase)iter.next());
+                configuration.initializeCoordinates(phases[i]);
             }
         }
         
@@ -59,11 +61,8 @@ public final class SimulationRestart extends SimulationActionAdapter {
                 }
             }
         }
-        
-        for(Iterator iter=simulation.getDataAccumulatorList().iterator(); iter.hasNext(); ) {
-            DataAccumulator dataAccumulator = (DataAccumulator)iter.next();
-            dataAccumulator.reset();
-        }
+    
+        accumulatorAction.actionPerformed();
     }
     
     /**
@@ -81,5 +80,5 @@ public final class SimulationRestart extends SimulationActionAdapter {
 
     private Configuration configuration;
     private boolean ignoreOverlap;
+    private final SimulationDataAction accumulatorAction;
 }
-        

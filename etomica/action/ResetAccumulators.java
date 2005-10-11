@@ -1,43 +1,18 @@
-/*
- * History
- * Created on Nov 4, 2004 by kofke
- */
 package etomica.action;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-
 import etomica.data.DataAccumulator;
+import etomica.data.DataStreamAction;
 
-/**
- * Action that performs a call to the reset() method of a set
- * of accumulators, as specified via a list of AccumulatorManager
- * instances.
- */
-public class ResetAccumulators implements Action, java.io.Serializable {
+public class ResetAccumulators extends DataStreamAction {
 
-	/**
-	 * 
-	 */
-	public ResetAccumulators(LinkedList accumulatorManagerList) {
-		this.accumulatorManagerList = accumulatorManagerList;
-	}
+    public ResetAccumulators() {
+        super();
+    }
 
-	public void actionPerformed() {
-		Iterator iterator = accumulatorManagerList.iterator();
-		while (iterator.hasNext()) {
-			((DataAccumulator)iterator.next()).reset();
-		}
-	}
+    public void dataWalkerAction(Object obj) {
+        if (obj instanceof DataAccumulator) {
+            ((DataAccumulator)obj).reset();
+        }
+    }
 
-	public String getLabel() {
-		return label;
-	}
-
-	public void setLabel(String label) {
-		this.label = label;
-	}
-
-	private final LinkedList accumulatorManagerList;
-	private String label = "Reset Accumulators";
 }

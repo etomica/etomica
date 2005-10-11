@@ -312,15 +312,14 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         Phase newPhase = new Phase(sim);
         newPhase.setBoundary(newBoundary);
         
-        LinkedList mySpecies = sim.getSpeciesList();
+        Species[] mySpecies = sim.getSpecies();
         int numSpecies = in.readInt();
         for (int i = 0; i<numSpecies; i++) {
             SpeciesSignature speciesSignature = (SpeciesSignature)in.readObject();
-            Iterator iterator = mySpecies.iterator();
             Species newSpecies = null;
             Species[] candidates = new Species[0];
-            while (iterator.hasNext()) {
-                Species candidate = (Species)iterator.next();
+            for (int j=0; j<mySpecies.length; j++) {
+                Species candidate = mySpecies[j];
                 if (speciesSignature.equals(candidate.getSpeciesSignature())) {
                     candidates = (Species[])etomica.util.Arrays.addObject(candidates,candidate);
                     break;

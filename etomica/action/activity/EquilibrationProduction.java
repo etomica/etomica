@@ -8,6 +8,7 @@ import java.util.LinkedList;
 
 import etomica.action.Action;
 import etomica.action.ResetAccumulators;
+import etomica.action.SimulationDataAction;
 import etomica.integrator.Integrator;
 import etomica.simulation.Simulation;
 
@@ -41,8 +42,8 @@ public class EquilibrationProduction extends ActivityGroupSeries {
 		addAction(equilibrationActivity);
 
 		productionPreparationActivity = new ActivityGroupSeries();
-		productionPreparationActivity.addAction(new ResetAccumulators(
-				dataManagerList));
+		productionPreparationActivity.addAction(new SimulationDataAction(sim,
+				new ResetAccumulators()));
 		productionPreparationActivity.addAction(new MyAction(productionIntegrator));
 		addAction(productionPreparationActivity);
 

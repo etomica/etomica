@@ -1,6 +1,5 @@
 package etomica.simulation;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 
 import etomica.EtomicaInfo;
@@ -9,14 +8,15 @@ import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.data.DataAccumulator;
-import etomica.data.meter.Meter;
+import etomica.data.DataSource;
+import etomica.data.DataStuff;
 import etomica.integrator.Integrator;
-import etomica.log.LoggerAbstract;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.species.Species;
+import etomica.util.Arrays;
 import etomica.util.Default;
 import etomica.util.NameMaker;
 
@@ -36,13 +36,6 @@ import etomica.util.NameMaker;
  */
  
 public class Simulation extends EtomicaInfo implements java.io.Serializable  {
-    
-    /**
-     * Class that implements the final tying up of the simulation elements before starting the simulation.
-     * Default choice is the CoordinatorOneIntegrator.
-     */
-//    public Mediator elementCoordinator;
-    protected HashMap elementLists = new HashMap(16);
     
     public final PotentialMaster potentialMaster;
     public final Space space;
@@ -80,44 +73,28 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
     }//end of constructor
                  
     public final Space space() {return space;}
-    /**
-     * @return the <code>nth</code> instantiated phase (indexing from zero)
-     */
-    public final Phase phase(int n) {return (Phase)getElement(Phase.class, n);}
 
-    /**
-     * @return the <code>nth</code> instantiated integrator (indexing from zero)
-     */
-    public final Integrator integrator(int n) {return (Integrator)getElement(Integrator.class, n);}
-    /**
-     * @return the <code>nth</code> instantiated meter (indexing from zero)
-     */
-    public final Meter meter(int n) {return (Meter)getElement(Meter.class, n);}
-	/**
-	 * @return the <code>nth</code> instantiated logger (indexing from zero)
-	 */
-	public final LoggerAbstract logger(int n) {return (LoggerAbstract)getElement(LoggerAbstract.class, n);}
-
-	private Object getElement(Class clazz, int n) {
-		LinkedList list = (LinkedList)elementLists.get(clazz);
-		if(n < 0 || n >= list.size()) return null;
-		return list.get(n);
-	}
-	
-	public final LinkedList getLoggerList() {return loggerList;}
-    public final LinkedList getDataAccumulatorList() {return dataAccumulatorList;}
-    public final LinkedList getPhaseList() {
-        phaseList.clear();
+    public final Phase[] getPhases() {
+        int nPhases = ((AtomTreeNodeGroup)speciesRoot.node).childList.size();
+        Phase[] phases = new Phase[nPhases];
         AtomIteratorListSimple listIterator = new AtomIteratorListSimple(((AtomTreeNodeGroup)speciesRoot.node).childList);
         listIterator.reset();
+        int i=0;
         while(listIterator.hasNext()) {
-            phaseList.add(listIterator.nextAtom().node.parentPhase());
+            phases[i++] = listIterator.nextAtom().node.parentPhase();
         }
-        return phaseList;
+        return phases;
     }
-    public final LinkedList getMeterList() {return meterList;}
     public final LinkedList getIntegratorList() {return integratorList;}
-    public final LinkedList getSpeciesList() {return speciesList;}
+    public final Species[] getSpecies() {
+        return speciesRoot.getSpecies();
+    }
+    public DataStuff[] getDataStreams() {
+        return (DataStuff[])dataStreams.clone();
+    }
+    public void clearDataStreams() {
+        dataStreams = new DataStuff[0];
+    }
     
     /**
      * Add the given DataAccumulator to a list kept by the simulation.
@@ -126,28 +103,18 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
      * the getDataManagerList method.  A DataAccumulator may be
      * removed from the list via the unregister method.
      */
-    public void register(DataAccumulator dataManager) {
-     	dataAccumulatorList.add(dataManager);
-    }
-
-    public void register(Phase phase) {
-        phaseList.add(phase);
-    }
-    
-    public void register(Meter meter) {
-        meterList.add(meter);
-    }
-    
     public void register(Integrator integrator) {
         integratorList.add(integrator);
     }
     
-    public void register(Species species) {
-        speciesList.add(species);
-    }
-    
-    public void register(LoggerAbstract logger) {
-        loggerList.add(logger);
+    public void register(DataSource dataSource, Object client) {
+        for (int i=0; i<dataStreams.length; i++) {
+            if (dataStreams[i].getDataSource() == dataSource) {
+                dataStreams[i].addClient(client);
+                return;
+            }
+        }
+        dataStreams = (DataStuff[])Arrays.addObject(dataStreams,new DataStuff(dataSource,client));
     }
     
     /**
@@ -156,28 +123,8 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
      * this list.  If the given dataManager is not in the list already,
      * the method returns without taking any action.
      */
-    public void unregister(DataAccumulator dataAccumulator) {
-    	dataAccumulatorList.remove(dataAccumulator);
-    }
-     
-    public void unregister(Phase phase) {
-        phaseList.remove(phase);
-    }
-    
-    public void unregister(Meter meter) {
-        meterList.remove(meter);
-    }
-    
     public void unregister(Integrator integrator) {
         integratorList.remove(integrator);
-    }
-    
-    public void unregister(Species species) {
-        speciesList.remove(species);
-    }
-    
-    public void unregister(LoggerAbstract logger) {
-        loggerList.remove(logger);
     }
     
 	public Controller getController() {
@@ -256,12 +203,8 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
 
     private final boolean dynamic;
     private Controller controller;     
-    private final LinkedList dataAccumulatorList = new LinkedList();
-    private final LinkedList phaseList = new LinkedList();
-    private final LinkedList loggerList = new LinkedList();
-    private final LinkedList meterList = new LinkedList();
     private final LinkedList integratorList = new LinkedList();
-    private final LinkedList speciesList = new LinkedList();
+    private DataStuff[] dataStreams = new DataStuff[0];
     private String name;
     protected Default defaults;
      /**

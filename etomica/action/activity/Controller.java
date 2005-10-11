@@ -285,7 +285,11 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
      */
     protected synchronized void fireEvent(ControllerEvent event) {
         eventManager.fireEvent(event);
-    }    
+    }
+    
+    public String toString() {
+        return "Controller";
+    }
     
     private SimulationEventManager eventManager = new SimulationEventManager();
 

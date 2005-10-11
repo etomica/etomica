@@ -5,6 +5,7 @@ import java.awt.event.ComponentListener;
 import javax.swing.JPanel;
 
 import etomica.action.ResetAccumulators;
+import etomica.action.SimulationDataAction;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.Controller;
 import etomica.simulation.Simulation;
@@ -84,7 +85,7 @@ public class DeviceTrioControllerButton extends Device {
         button2.setController(c);
         button3.setController(c);
         button2.setAction(new SimulationRestart(sim));
-        button3.setAction(new ResetAccumulators(sim.getDataAccumulatorList()));
+        button3.setAction(new SimulationDataAction(sim,new ResetAccumulators()));
     }
     
     /**
