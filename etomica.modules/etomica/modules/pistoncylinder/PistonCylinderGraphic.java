@@ -621,9 +621,9 @@ public class PistonCylinderGraphic {
         AccumulatorHistory temperatureHistory = new AccumulatorHistory();
         temperatureHistory.setHistoryLength(historyLength);
         AccumulatorAverage temperatureAvg = new AccumulatorAverage(sim);
-        pc.register(temperatureAvg);
         temperatureAvg.setPushInterval(10);
         pump = new DataPump(thermometer,new DataFork(new DataSink[]{temperatureHistory,temperatureAvg}));
+        pc.register(thermometer,pump);
         IntervalActionAdapter adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
         temperatureHistory.addDataSink(plotT.getDataTable());
@@ -647,9 +647,9 @@ public class PistonCylinderGraphic {
         AccumulatorHistory pressureHistory = new AccumulatorHistory();
         pressureHistory.setHistoryLength(historyLength);
         AccumulatorAverage pressureAvg = new AccumulatorAverage(sim);
-        pc.register(pressureAvg);
         pressureAvg.setPushInterval(10);
         pump = new DataPump(pressureMeter, new DataFork(new DataSink[]{pressureHistory,pressureAvg}));
+        pc.register(pressureMeter,pump);
         adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
         pressureHistory.addDataSink(plotP.getDataTable());
@@ -673,9 +673,9 @@ public class PistonCylinderGraphic {
         AccumulatorHistory densityHistory = new AccumulatorHistory();
         densityHistory.setHistoryLength(historyLength);
         AccumulatorAverage densityAvg = new AccumulatorAverage(sim);
-        pc.register(densityAvg);
         densityAvg.setPushInterval(10);
         pump = new DataPump(densityMeter,new DataFork(new DataSink[]{densityAvg, densityHistory}));
+        pc.register(densityMeter,pump);
         adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
         densityHistory.addDataSink(plotD.getDataTable());
