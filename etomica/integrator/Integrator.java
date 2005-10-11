@@ -417,6 +417,14 @@ public abstract class Integrator implements EtomicaElement, java.io.Serializable
 	public interface Forcible {
 		public Vector force();
 	}
+    
+    public synchronized IntegratorIntervalListener[] getIntervalListeners() {
+        IntegratorIntervalListener[] listenerArray = new IntegratorIntervalListener[listenerWrapperArray.length];
+        for (int i=0; i<listenerArray.length; i++) {
+            listenerArray[i] = listenerWrapperArray[i].listener;
+        }
+        return listenerArray;
+    }
 
 	/**
      * Wraps interval listener an implements a Comparable interface based
