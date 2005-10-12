@@ -53,12 +53,12 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
     /**
      * Add the given values to the sums and block sums
      */
+    // the values coming in should be gamma1/|gamma1| and |gamma2|/|gamma1|
+    // where 1 and 2 are target and reference or vica versa, depending on
+    // which phase the values are coming from.
     public void addData(Data value) {
         if(((DataDoubleArray)value).getLength() != 2) {
             throw new IllegalArgumentException("must receive cluster value, weight and 'other' weight (only)");
-        }
-        if (Math.abs(((DataDoubleArray)value).getData()[0])-1.0 > 1.e-8) {
-            throw new IllegalArgumentException("|value[0]| should be 1 (gamma/weight), but it was "+((DataDoubleArray)value).getData()[0]);
         }
         double value1 = ((DataDoubleArray)value).getData()[1];
         for (int j=0; j<nBennetPoints; j++) {
