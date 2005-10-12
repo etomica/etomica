@@ -1,10 +1,11 @@
-package etomica.data;
+package etomica.simulation;
 
+import etomica.data.DataSource;
 import etomica.util.Arrays;
 
-public class DataStuff {
+public class DataStreamHeader implements java.io.Serializable {
 
-    public DataStuff(DataSource dataSource, Object object) {
+    DataStreamHeader(DataSource dataSource, Object object) {
         this.dataSource = dataSource;
         clients = new Object[]{object};
     }

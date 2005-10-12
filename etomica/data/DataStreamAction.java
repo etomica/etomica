@@ -2,7 +2,7 @@ package etomica.data;
 
 import etomica.action.Action;
 
-public abstract class DataStreamAction implements Action {
+public abstract class DataStreamAction implements Action, java.io.Serializable {
 
     public DataStreamAction() {
         super();
@@ -18,10 +18,10 @@ public abstract class DataStreamAction implements Action {
     
     public void actionPerformed(Object obj) {
         dataWalkerAction(obj);
-        if (obj instanceof DataFork) {
-            int n = ((DataFork)obj).getDataSinkCount();
+        if (obj instanceof DataPipeForked) {
+            int n = ((DataPipeForked)obj).getDataSinkCount();
             for (int i=0; i<n; i++) {
-                actionPerformed(((DataFork)obj).getDataSink(i));
+                actionPerformed(((DataPipeForked)obj).getDataSink(i));
             }
         }
         else if (obj instanceof DataProcessor) {

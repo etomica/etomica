@@ -5,7 +5,7 @@
 package etomica.action;
 
 import etomica.data.DataStreamAction;
-import etomica.data.DataStuff;
+import etomica.simulation.DataStreamHeader;
 import etomica.simulation.Simulation;
 
 /**
@@ -24,9 +24,13 @@ public class SimulationDataAction implements Action, java.io.Serializable {
 	}
 
 	public void actionPerformed() {
-        DataStuff[] stuffs = simulation.getDataStreams();
-        for (int i=0; i<stuffs.length; i++) {
-            streamAction.setStart(stuffs[i]);
+        DataStreamHeader[] streams = simulation.getDataStreams();
+        for (int i=0; i<streams.length; i++) {
+            Object[] clients = streams[i].getClients();
+            for (int j=0; j<clients.length; j++) {
+                streamAction.setStart(clients[j]);
+                streamAction.actionPerformed();
+            }
         }
     }
 

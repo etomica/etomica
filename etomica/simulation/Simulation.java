@@ -7,9 +7,7 @@ import etomica.action.activity.Controller;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorListSimple;
-import etomica.data.DataAccumulator;
 import etomica.data.DataSource;
-import etomica.data.DataStuff;
 import etomica.integrator.Integrator;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
@@ -89,11 +87,11 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
     public final Species[] getSpecies() {
         return speciesRoot.getSpecies();
     }
-    public DataStuff[] getDataStreams() {
-        return (DataStuff[])dataStreams.clone();
+    public DataStreamHeader[] getDataStreams() {
+        return (DataStreamHeader[])dataStreams.clone();
     }
     public void clearDataStreams() {
-        dataStreams = new DataStuff[0];
+        dataStreams = new DataStreamHeader[0];
     }
     
     /**
@@ -114,7 +112,7 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
                 return;
             }
         }
-        dataStreams = (DataStuff[])Arrays.addObject(dataStreams,new DataStuff(dataSource,client));
+        dataStreams = (DataStreamHeader[])Arrays.addObject(dataStreams,new DataStreamHeader(dataSource,client));
     }
     
     /**
@@ -125,6 +123,18 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
      */
     public void unregister(Integrator integrator) {
         integratorList.remove(integrator);
+    }
+    
+    public void unregister(DataSource dataSource, Object client) {
+        for (int i=0; i<dataStreams.length; i++) {
+            if (dataStreams[i].getDataSource() == dataSource) {
+                dataStreams[i].removeClient(client);
+                if (dataStreams[i].getClients().length == 0) {
+                    dataStreams = (DataStreamHeader[])Arrays.removeObject(dataStreams,dataStreams[i]);
+                }
+                return;
+            }
+        }
     }
     
 	public Controller getController() {
@@ -204,7 +214,7 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
     private final boolean dynamic;
     private Controller controller;     
     private final LinkedList integratorList = new LinkedList();
-    private DataStuff[] dataStreams = new DataStuff[0];
+    private DataStreamHeader[] dataStreams = new DataStreamHeader[0];
     private String name;
     protected Default defaults;
      /**
