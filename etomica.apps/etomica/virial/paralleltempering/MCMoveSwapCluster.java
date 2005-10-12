@@ -66,8 +66,8 @@ public class MCMoveSwapCluster extends MCMove implements MCMoveCluster, Integrat
         }
 
         //assumes energy will be determined using only pairSets in phases
-        phase1.trialNotify();
-        phase2.trialNotify();
+        phase1.trialNotify(null);
+        phase2.trialNotify(null);
 		
         weightNew1 = weightNew2 = Double.NaN;
         return true;
