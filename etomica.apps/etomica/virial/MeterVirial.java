@@ -18,7 +18,6 @@ public class MeterVirial implements DataSource, Meter, java.io.Serializable {
 
 	protected final ClusterAbstract clusters[];
 	protected final IntegratorClusterMC integrator;
-    private double weightFactor;
 	
 	/**
 	 * Constructor for MeterVirial.
@@ -28,33 +27,20 @@ public class MeterVirial implements DataSource, Meter, java.io.Serializable {
 		integrator = aIntegrator;
 		clusters = aClusters;
         data = new DataDoubleArray("Cluster Value",Dimension.NULL,clusters.length);
-        weightFactor = 1.0;
 	}
 
 	public DataInfo getDataInfo() {
         return data.getDataInfo();
     }
     
-    /**
-     * Sets the cluster used by the integrator to sample phase space.
-     */
-    //XXX this is really fragile.  If the integrator weight is != 1, resetting the 
-    //integrator (which sets the weight to 1) after calling this method
-    //breaks the class
-    public void setSampleCluster(ClusterWeight sampleCluster) {
-        CoordinatePairSet cPairSet = phase.getCPairSet();
-        AtomPairSet aPairSet = phase.getAPairSet();
-        weightFactor = sampleCluster.value(cPairSet,aPairSet) / integrator.getWeight();
-    }
-    
 	public Data getData() {
 		CoordinatePairSet cPairSet = phase.getCPairSet();
         AtomPairSet aPairSet = phase.getAPairSet();
-		double w = weightFactor * integrator.getWeight();
+        double w = sampleCluster.value(cPairSet,aPairSet);
         double[] x = data.getData();
 		for (int i=0; i<clusters.length; i++) {
 			x[i] = clusters[i].value(cPairSet,aPairSet)/w;
-//            System.out.println("in meter, v="+x[i]*w+" w="+w+" "+integrator);
+//            System.out.println("in meter "+getName()+" "+i+" "+clusters[i]+", v="+x[i]*w+" w="+w+" "+integrator);
 		}
 		return data;
 	}
@@ -74,7 +60,7 @@ public class MeterVirial implements DataSource, Meter, java.io.Serializable {
      */
     public void setPhase(Phase phase) {
         this.phase = (PhaseCluster)phase;
-        setSampleCluster(((PhaseCluster)phase).getSampleCluster());
+        sampleCluster = ((PhaseCluster)phase).getSampleCluster();
     }
 
     public String getName() {
@@ -87,4 +73,5 @@ public class MeterVirial implements DataSource, Meter, java.io.Serializable {
     private String name;
     private PhaseCluster phase;
 	private final DataDoubleArray data;
+    private ClusterWeight sampleCluster;
 }
