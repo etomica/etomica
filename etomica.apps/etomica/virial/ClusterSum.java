@@ -1,6 +1,7 @@
 package etomica.virial;
 
 
+
 public class ClusterSum implements ClusterAbstract, java.io.Serializable {
 
     /**
@@ -17,6 +18,7 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
         }
         f = fArray;
         fValues = new double[pointCount][pointCount][fArray.length];
+        fOld = new double[pointCount][fArray.length];
         beta = 1/temperature;
     }
 
@@ -32,12 +34,19 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
     public double value(CoordinatePairSet cPairs, AtomPairSet aPairs) {
         int thisCPairID = cPairs.getID();
 //        System.out.println(thisCPairID+" "+cPairID+" "+lastCPairID+" "+value+" "+lastValue+" "+f[0].getClass());
-        if (thisCPairID == cPairID) return value;
+        if (thisCPairID == cPairID) {
+//            System.out.println("clusterSum returning recent "+value);
+            return value;
+        }
         if (thisCPairID == lastCPairID) {
             // we went back to the previous cluster, presumably because the last
             // cluster was a trial that was rejected.  so drop the most recent value/ID
+            if (oldDirtyAtom > -1) {
+                revertF();
+            }
             cPairID = lastCPairID;
             value = lastValue;
+//            System.out.println("clusterSum returning previous recent "+value);
             return value;
         }
         // a new cluster
@@ -45,8 +54,73 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
         lastValue = value;
         cPairID = thisCPairID;
         
+//        System.out.println("before");
+        for (int i=0; i<pointCount()-1; i++) {
+            for (int j=i+1; j<pointCount(); j++) {
+//                System.out.println(i+" "+j+" "+fValues[i][j][0]);
+            }
+        }
+        updateF(cPairs,aPairs);
+//        System.out.println("updated");
+        for (int i=0; i<pointCount()-1; i++) {
+            for (int j=i+1; j<pointCount(); j++) {
+//                System.out.println(i+" "+j+" "+fValues[i][j][0]);
+            }
+        }
+//        checkF(cPairs,aPairs);
+        
+        calcValue();
+        
+//        System.out.println("clusterSum returning new "+value);
+        return value;
+    }
+    
+    protected void calcValue() {
+        value = 0.0;
+        for(int i=0; i<clusters.length; i++) {
+            double v = clusters[i].value(fValues);
+            value += clusterWeights[i] * v;
+        }
+    }        
+    
+    protected void revertF() {
         int nPoints = pointCount();
 
+        for(int j=0; j<nPoints; j++) {
+            if (j == oldDirtyAtom) {
+                continue;
+            }
+            for(int k=0; k<f.length; k++) {
+                fValues[oldDirtyAtom][j][k] = fOld[j][k];
+                fValues[j][oldDirtyAtom][k] = fOld[j][k];
+            }
+        }
+        oldDirtyAtom = -1;
+    }
+    
+    protected void updateF(CoordinatePairSet cPairs, AtomPairSet aPairs) {
+        int nPoints = pointCount();
+
+        if (cPairs.dirtyAtom > -1) {
+            int i = cPairs.dirtyAtom;
+            oldDirtyAtom = i;
+            for(int j=0; j<nPoints; j++) {
+                if (j == i) {
+                    continue;
+                }
+                for(int k=0; k<f.length; k++) {
+                    fOld[j][k] = fValues[i][j][k];
+                    if (f[k] instanceof MayerFunctionSpherical) {
+                        fValues[i][j][k] = ((MayerFunctionSpherical)f[k]).f(cPairs.getCPair(i,j),beta);
+                    }
+                    else {
+                        fValues[i][j][k] = f[k].f(aPairs.getAPair(i,j),beta);
+                    }
+                    fValues[j][i][k] = fValues[i][j][k];
+                }
+            }
+            return;
+        }
         // recalculate all f values for all pairs
         for(int i=0; i<nPoints-1; i++) {
             for(int j=i+1; j<nPoints; j++) {
@@ -57,17 +131,34 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
                     else {
                         fValues[i][j][k] = f[k].f(aPairs.getAPair(i,j),beta);
                     }
+//                    System.out.println(i+" "+j+" "+k+" "+fValues[i][j][k]);
                     fValues[j][i][k] = fValues[i][j][k];
                 }
             }
         }
-
-        value = 0.0;
-        for(int i=0; i<clusters.length; i++) {
-            double v = clusters[i].value(fValues);
-            value += clusterWeights[i] * v;
+    }
+    
+    private void checkF(CoordinatePairSet cPairs, AtomPairSet aPairs) {
+        int nPoints = pointCount();
+        for(int i=0; i<nPoints-1; i++) {
+            for(int j=i+1; j<nPoints; j++) {
+                for(int k=0; k<f.length; k++) {
+                    if (f[k] instanceof MayerFunctionSpherical) {
+                        if (fValues[i][j][k] != ((MayerFunctionSpherical)f[k]).f(cPairs.getCPair(i,j),beta)) {
+                            throw new RuntimeException("oops1 "+i+" "+j+" "+k+" "+((MayerFunctionSpherical)f[k]).f(cPairs.getCPair(i,j),beta));
+                        }
+                    }
+                    else {
+                        if (fValues[i][j][k] != f[k].f(aPairs.getAPair(i,j),beta)) {
+                            throw new RuntimeException("oops2 "+i+" "+j+" "+k+" "+f[k].f(aPairs.getAPair(i,j),beta));
+                        }
+                    }
+                    if (fValues[j][i][k] != fValues[i][j][k]) {
+                        throw new RuntimeException("oops3 "+i+" "+j+" "+k+" "+fValues[j][i][k]+" "+fValues[i][j][k]);
+                    }
+                }
+            }
         }
-        return value;
     }
     
     public ClusterBonds[] getClusters() {return clusters;}
@@ -84,11 +175,13 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
         beta = 1/temperature;
     }
 
-    private final ClusterBonds[] clusters;
-    private final double[] clusterWeights;
-    private final MayerFunction[] f;
-    private final double[][][] fValues;
-    private int cPairID = -1, lastCPairID = -1;
-    private double value, lastValue;
-    private double beta;
+    protected final ClusterBonds[] clusters;
+    protected final double[] clusterWeights;
+    protected final MayerFunction[] f;
+    protected final double[][][] fValues;
+    protected final double[][] fOld;
+    protected int oldDirtyAtom;
+    protected int cPairID = -1, lastCPairID = -1;
+    protected double value, lastValue;
+    protected double beta;
 }

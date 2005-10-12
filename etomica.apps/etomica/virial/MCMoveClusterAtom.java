@@ -14,8 +14,8 @@ import etomica.simulation.Simulation;
  */
 
 public class MCMoveClusterAtom extends MCMoveAtom implements MCMoveCluster {
-	private MeterClusterWeight weightMeter;
-	public MCMoveClusterAtom(Simulation sim) {
+
+    public MCMoveClusterAtom(Simulation sim) {
         super(sim);
         weightMeter = new MeterClusterWeight(sim.potentialMaster);
 	}
@@ -29,13 +29,11 @@ public class MCMoveClusterAtom extends MCMoveAtom implements MCMoveCluster {
         PhaseCluster phase = (PhaseCluster)phases[0];
 		atom = phase.getSpeciesMaster().atomList.getRandom();
 		while(atom.node.getOrdinal()==1) atom = phase.getSpeciesMaster().atomList.getRandom();
-		// this slows things down due to caching
-//		weightMeter.setTarget(atom);
 		uOld = weightMeter.getDataAsScalar();
         translationVector.setRandomCube();
         translationVector.TE(stepSize);
         atom.coord.position().PE(translationVector);
-		phase.trialNotify();
+		phase.trialNotify(atom);
 		uNew = Double.NaN;
 		return true;
 	}
@@ -62,4 +60,6 @@ public class MCMoveClusterAtom extends MCMoveAtom implements MCMoveCluster {
     	super.acceptNotify();
     	((PhaseCluster)phases[0]).acceptNotify();
     }
+
+    private MeterClusterWeight weightMeter;
 }

@@ -42,7 +42,7 @@ public class ConfigurationCluster extends Configuration {
 		while(iterator.hasNext()) { 
             translator.actionPerformed(iterator.nextAtom()); //.coord.position().E(center);//put all at center of box
         }
-        phase.trialNotify();
+        phase.trialNotify(null);
 		double value = phase.getSampleCluster().value(phase.getCPairSet(), phase.getAPairSet());
         if (value == 0) {
             System.out.println("initial cluster value bad... trying to fix it.  don't hold your breath.");

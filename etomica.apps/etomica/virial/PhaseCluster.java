@@ -1,5 +1,6 @@
 package etomica.virial;
 
+import etomica.atom.Atom;
 import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.phase.Phase;
@@ -43,13 +44,14 @@ public class PhaseCluster extends Phase {
 
     /**
      * Inform the phase that a trial move has been made so it can update
-     * the coordinate pairs.
+     * the coordinate pairs.  If molecule is not null, only coordinate pairs 
+     * containing that atom are updated.
      */
-	public void trialNotify() {
-		// atom(s) have been moved.  leave cPairSet as is and update
-		// cPairTrialSet and set a flag to use it.
-		isTrial = true;
-		// increase ID to notify clusters to recalculate value
+    public void trialNotify(Atom molecule) {
+        // atom(s) have been moved.  leave cPairSet as is and update
+        // cPairTrialSet and set a flag to use it.
+        isTrial = true;
+        // increase ID to notify clusters to recalculate value
         if(cPairSet == null) {
             // assume 1 species
             AtomList molecules = ((AtomTreeNodeGroup)((AtomTreeNodeGroup)getSpeciesMaster().node).childList.getFirst().node).childList;
@@ -57,8 +59,18 @@ public class PhaseCluster extends Phase {
             cPairTrialSet = new CoordinatePairSet(molecules,space);
             aPairSet = new AtomPairSet(molecules);
         }
-		cPairTrialSet.reset();
-	}
+
+        if (molecule != null) {
+            int dirtyAtom = molecule.node.getOrdinal()-1;
+            // copy old cPairSet to trial cPairSet
+            cPairTrialSet.E(cPairSet);
+            cPairTrialSet.dirtyAtom = dirtyAtom;
+        }
+        else {
+            cPairTrialSet.dirtyAtom = -1;
+        }
+        cPairTrialSet.reset();
+    }
 	
     /**
      * Informs the phase that the trial was accepted so it will keep the new 
@@ -81,6 +93,7 @@ public class PhaseCluster extends Phase {
 		// move was rejected.  stop using cPairTrialSet.
 		isTrial = false;
 	}
+    
 	
 	private boolean isTrial;
 	private CoordinatePairSet cPairSet, cPairTrialSet, cPairSetTmp;

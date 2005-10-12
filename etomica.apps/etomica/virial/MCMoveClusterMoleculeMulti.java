@@ -57,7 +57,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule implements MCMove
             groupTranslationVector.E(translationVectors[i]);
             moveMoleculeAction.actionPerformed(selectedAtoms[i]);
         }
-        ((PhaseCluster)phases[0]).trialNotify();
+        ((PhaseCluster)phases[0]).trialNotify(null);
         uNew = Double.NaN;
         return true;
 	}
@@ -76,6 +76,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule implements MCMove
 	}
 	
 	public void rejectNotify() {
+//        System.out.println("multi rejected");
         for(int i=0; i<selectedAtoms.length; i++) {
             groupTranslationVector.E(translationVectors[i]);
             groupTranslationVector.TE(-1);
@@ -85,6 +86,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule implements MCMove
 	}
 
     public void acceptNotify() {
+//        System.out.println("multi accepted");
         ((PhaseCluster)phases[0]).acceptNotify();
     }
     public double trialRatio() {return 1.0;}
@@ -95,9 +97,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule implements MCMove
     
     public double probabilityRatio() {
         uNew = weightMeter.getDataAsScalar();
-//        if (Simulation.random.nextInt(200000) == 5) {
-//            System.out.println("uOld "+uOld+" uNew "+uNew);
-//        }
+//        System.out.println("multi uOld "+uOld+" uNew "+uNew);
         return (uOld==0.0) ? Double.POSITIVE_INFINITY : uNew/uOld;
     }
     

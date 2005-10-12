@@ -29,7 +29,7 @@ public class CoordinatePairSet implements java.io.Serializable {
      * @param list The list of atoms for which the set of pairs is formed.
      */
     public CoordinatePairSet(AtomList list, Space space) {
-        cPairs = new CoordinatePair[list.size()-1][];
+        cPairs = new CoordinatePair[list.size()][];
         setAtoms(list, space);
     }
     
@@ -51,7 +51,7 @@ public class CoordinatePairSet implements java.io.Serializable {
             Atom atom = iterator.nextAtom();
             atoms[k++] = atom;
         }
-        for(int i=0; i<N-1; i++) {
+        for(int i=0; i<N; i++) {
             cPairs[i] = new CoordinatePair[N-1-i];
             for(int j=0; j<N-1-i; j++) {
                 CoordinatePair cPair;
@@ -69,21 +69,45 @@ public class CoordinatePairSet implements java.io.Serializable {
     }
     
     public void reset() {
-        int N = cPairs.length;
-        for(int i=0; i<N; i++) {
-            CoordinatePair[] cPairs2 = cPairs[i];
-            for(int j=0; j<N-i; j++) {
-                cPairs2[j].reset();
+        if (dirtyAtom == -1) {
+            int N = cPairs.length;
+            for(int i=0; i<N; i++) {
+                CoordinatePair[] cPairs2 = cPairs[i];
+                for(int j=0; j<N-i-1; j++) {
+                    cPairs2[j].reset();
+                }
+            }
+        }
+        else {
+            // reset only pairs containing dirty atom
+            for (int i=0; i<dirtyAtom; i++) {
+                cPairs[i][dirtyAtom-i-1].reset();
+            }
+            final CoordinatePair[] cPairs2 = cPairs[dirtyAtom];
+            for (int i=0; i<cPairs2.length; i++) {
+                cPairs2[i].reset();
             }
         }
         ID = staticID++;
+    }
+    
+    public void E(CoordinatePairSet c) {
+        int N = cPairs.length;
+        for(int i=0; i<N; i++) {
+            CoordinatePair[] cPairs2 = cPairs[i];
+            CoordinatePair[] c2 = c.cPairs[i];
+            for(int j=0; j<N-i-1; j++) {
+                cPairs2[j].drE(c2[j].dr());
+            }
+        }
     }
     
     public int getID() {
         return ID;
     }
     
-    private final CoordinatePair[][] cPairs;
+    protected final CoordinatePair[][] cPairs;
     private int ID;
     private static int staticID;
+    public int dirtyAtom;
 }

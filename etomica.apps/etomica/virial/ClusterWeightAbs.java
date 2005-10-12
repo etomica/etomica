@@ -29,6 +29,10 @@ public class ClusterWeightAbs implements ClusterWeight, java.io.Serializable {
 		return weightClusters;
 	}
     
+    public ClusterAbstract getSubCluster() {
+        return weightCluster;
+    }
+    
     public ClusterAbstract makeCopy() {
         return new ClusterWeightAbs(weightCluster.makeCopy());
     }

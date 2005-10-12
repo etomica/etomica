@@ -20,8 +20,6 @@ import etomica.space.Space;
 
 public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D implements MCMoveCluster {
 
-    private final MeterClusterWeight weightMeter;
-
     /**
      * @param potentialMaster
      * @param space
@@ -49,7 +47,7 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D implem
         uOld = weightMeter.getDataAsScalar();
         
         double dTheta = (2*Simulation.random.nextDouble() - 1.0)*stepSize;
-        rotationTensor.setAxial(dTheta);
+        rotationTensor.setAxial(Simulation.random.nextInt(3),dTheta);
 
         leafAtomIterator.setRoot(molecule);
         leafAtomIterator.reset();
@@ -57,7 +55,7 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D implem
         AtomTransform.doTransform(leafAtomIterator, r0, rotationTensor);
             
         uNew = Double.NaN;
-        ((PhaseCluster)phases[0]).trialNotify();
+        ((PhaseCluster)phases[0]).trialNotify(null);
         return true;
     }
     
@@ -82,4 +80,6 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D implem
         ((PhaseCluster)phases[0]).rejectNotify();
     }
         
+    private final MeterClusterWeight weightMeter;
+
 }

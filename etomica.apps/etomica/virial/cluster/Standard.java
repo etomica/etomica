@@ -4,7 +4,12 @@ import etomica.util.Arrays;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterSum;
+import etomica.virial.ClusterSumEF;
+import etomica.virial.ClusterSumSticky;
+import etomica.virial.ClusterTree;
+import etomica.virial.ClusterTreeEF;
 import etomica.virial.MayerFunction;
+import etomica.virial.MayerHardSphere;
 
 /**
  * @author kofke
@@ -98,11 +103,24 @@ public final class Standard implements java.io.Serializable {
 	}
 
     public static ClusterAbstract virialCluster(int nBody, MayerFunction f, double temperature) {
-        return virialCluster(nBody,f,true,new FTilde(f),temperature);
+        return virialCluster(nBody,f,true,new FTilde(f),temperature,true);
     }
-    public static ClusterSum virialCluster(int nBody, MayerFunction f, boolean usePermutations, MayerFunction e, double temperature) {
+    public static ClusterAbstract virialCluster(int nBody, MayerFunction f, boolean usePermutations, MayerFunction e, double temperature, boolean useTree) {
         if (nBody < 4) {
             e = null;
+        }
+        if (useTree && e==null) {
+            useTree=false;
+        }
+        if (useTree) {
+            usePermutations = false;
+        }
+        if (useTree) {
+            System.out.println("using cluster Tree");
+        }
+        ClusterDiagramTree tree = null;
+        if (useTree) {
+            tree = new ClusterDiagramTree(nBody,2);
         }
         int nBondTypes = (e == null) ? 1 : 2;
         ClusterDiagram clusterD = new ClusterDiagram(nBody,0);
@@ -122,7 +140,15 @@ public final class Standard implements java.io.Serializable {
         double[] weights = new double[0];
         int fullSymmetry = usePermutations ? SpecialFunctions.factorial(nBody) : 1;
         double weightPrefactor = -fullSymmetry*nBody/(double)(nBody-1);
+//        double weightPrefactor = -fullSymmetry*(nBody-1)/(double)(nBody*SpecialFunctions.factorial(nBody-1));
+        if (useTree) {
+            tree.setPrefactor(weightPrefactor);
+        }
         do {
+            if (useTree) {
+                tree.addClusterDiagram(clusterD);
+                continue;
+            }
             int iBond = 0, iEBond = 0;
             int numBonds = clusterD.getNumConnections();
             int[][][] bondList = new int[nBondTypes][][];
@@ -165,13 +191,26 @@ public final class Standard implements java.io.Serializable {
             newWeights[weights.length] = clusterD.mReeHooverFactor*weightPrefactor/clusterD.mNumIdenticalPermutations;
             weights = newWeights;
         } while (generator.advance());
+        if (true) {
+            if (useTree) {
+                tree.collapse();
+                return new ClusterTreeEF(tree,new MayerFunction[]{e},temperature);
+            }
+            if (e != null) {
+                return new ClusterSumEF(clusters,weights,new MayerFunction[]{e},temperature);
+            }
+            return new ClusterSum(clusters,weights,new MayerFunction[]{f},temperature);
+        }
         MayerFunction[] allF = new MayerFunction[nBondTypes];
         allF[0] = f;
         if (e != null) {
             allF[1] = e;
         }
+        if (useTree) {
+            tree.collapse();
+            return new ClusterTree(tree,allF,temperature);
+        }
         return new ClusterSum(clusters,weights,allF,temperature);
-
     }
     
 	public static final int[][] B2 = new int[][] {{0,1}};

@@ -48,7 +48,7 @@ public class MCMoveClusterMolecule extends MCMoveMolecule implements MCMoveClust
         moveMoleculeAction.actionPerformed(atom);
         uNew = Double.NaN;
 //        System.out.println(((AtomTreeNodeGroup)((AtomTreeNodeGroup)phases[0].speciesMaster.node.childList.getFirst().node).childList.getLast().node).childList.getFirst().coord.position());
-        ((PhaseCluster)phases[0]).trialNotify();
+        ((PhaseCluster)phases[0]).trialNotify(atom);
         return true;
     }
     

@@ -40,7 +40,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom implements MCMoveCluster 
             translationVectors[i].TE(stepSize);
             selectedAtoms[i].coord.position().PE(translationVectors[i]);
         }
-		((PhaseCluster)phases[0]).trialNotify();
+		((PhaseCluster)phases[0]).trialNotify(null);
 		uNew = Double.NaN;
 		return true;
 	}
