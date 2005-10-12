@@ -97,7 +97,7 @@ public class CoordinatePairSet implements java.io.Serializable {
             CoordinatePair[] cPairs2 = cPairs[i];
             CoordinatePair[] c2 = c.cPairs[i];
             for(int j=0; j<N-i-1; j++) {
-                cPairs2[j].drE(c2[j].dr());
+                cPairs2[j].dr().E(c2[j].dr());
             }
         }
     }
