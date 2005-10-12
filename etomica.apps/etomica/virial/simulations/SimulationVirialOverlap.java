@@ -2,6 +2,7 @@ package etomica.virial.simulations;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeGroup;
+import etomica.atom.AtomTypeLeaf;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
@@ -11,7 +12,6 @@ import etomica.graphics.DisplayPlot;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.MCMove;
-import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -24,11 +24,9 @@ import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
 import etomica.virial.ConfigurationCluster;
 import etomica.virial.IntegratorClusterMC;
-import etomica.virial.MCMoveClusterAtom;
 import etomica.virial.MCMoveClusterAtomMulti;
-import etomica.virial.MCMoveClusterMolecule;
 import etomica.virial.MCMoveClusterMoleculeMulti;
-import etomica.virial.MCMoveClusterRotateMolecule3D;
+import etomica.virial.MCMoveClusterRotateMoleculeMulti;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerESpherical;
 import etomica.virial.MayerGeneralSpherical;
@@ -71,9 +69,8 @@ public class SimulationVirialOverlap extends Simulation {
         phase = new PhaseCluster[sampleClusters.length];
         integrators = new IntegratorClusterMC[sampleClusters.length];
         meters = new MeterVirial[sampleClusters.length];
-        mcMoveAtom1 = new MCMoveAtom[sampleClusters.length];
         if (nMolecules > 2) {
-            mcMoveMulti = new MCMove[sampleClusters.length];
+            mcMoveTranslate = new MCMove[sampleClusters.length];
         }
         if (species.getFactory().getType() instanceof AtomTypeGroup) {
             mcMoveRotate = new MCMove[sampleClusters.length];
@@ -90,25 +87,20 @@ public class SimulationVirialOverlap extends Simulation {
             integrators[iPhase].setTemperature(temperature);
             integrators[iPhase].addPhase(phase[iPhase]);
             integrators[iPhase].setEquilibrating(false);
-            if (phase[iPhase].randomMolecule().node.isLeaf()) {
-                mcMoveAtom1[iPhase] = new MCMoveClusterAtom(this);
-                mcMoveAtom1[iPhase].setStepSize(1.15);
-                integrators[iPhase].addMCMove(mcMoveAtom1[iPhase]);
-                if (nMolecules>2) {
-                    mcMoveMulti[iPhase] = new MCMoveClusterAtomMulti(this, nMolecules-1);
-                    mcMoveMulti[iPhase].setStepSize(0.41);
-                    integrators[iPhase].addMCMove(mcMoveMulti[iPhase]);
-                }
+            if (species.getFactory().getType() instanceof AtomTypeLeaf) {
+//                if (nMolecules>2) {
+                    mcMoveTranslate[iPhase] = new MCMoveClusterAtomMulti(this, nMolecules-1);
+                    mcMoveTranslate[iPhase].setStepSize(0.41);
+                    integrators[iPhase].addMCMove(mcMoveTranslate[iPhase]);
+//                }
             }
             else {
-                mcMoveAtom1[iPhase] = new MCMoveClusterMolecule(potentialMaster, 3.0);
-                integrators[iPhase].addMCMove(mcMoveAtom1[iPhase]);
-                mcMoveRotate[iPhase] = new MCMoveClusterRotateMolecule3D(potentialMaster,space);
+                mcMoveRotate[iPhase] = new MCMoveClusterRotateMoleculeMulti(potentialMaster,space,nMolecules-1,1.0,109.5*Math.PI/180.);
                 mcMoveRotate[iPhase].setStepSize(Math.PI);
                 integrators[iPhase].addMCMove(mcMoveRotate[iPhase]);
                 if (nMolecules>2) {
-                    mcMoveMulti[iPhase] = new MCMoveClusterMoleculeMulti(potentialMaster, 0.41, nMolecules-1);
-                    integrators[iPhase].addMCMove(mcMoveMulti[iPhase]);
+                    mcMoveTranslate[iPhase] = new MCMoveClusterMoleculeMulti(potentialMaster, 0.41, nMolecules-1);
+                    integrators[iPhase].addMCMove(mcMoveTranslate[iPhase]);
                 }
             }
             
@@ -116,10 +108,9 @@ public class SimulationVirialOverlap extends Simulation {
             configuration.setPhase(phase[iPhase]);
             configuration.initializeCoordinates(phase[iPhase]);
             MeterVirial meter = new MeterVirial(new ClusterAbstract[]{aValueClusters[iPhase],aSampleClusters[1-iPhase]},integrators[iPhase]);
+            meter.setName("Meter"+iPhase);
             setMeter(meter,iPhase);
-//            meters[iPhase].getDataInfo().setLabel("Overlap/Target"+iPhase+" meter");
             AccumulatorVirialOverlapSingleAverage acc = new AccumulatorVirialOverlapSingleAverage(this, 11);
-//            acc.getDataInfo().setLabel("Overlap/Target"+iPhase+" accumulator");
             setAccumulator(acc,iPhase);
               
         }
@@ -132,7 +123,6 @@ public class SimulationVirialOverlap extends Simulation {
         getController().addAction(ai);
 		
 		dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
-//		dsvo.getDataInfo().setLabel("Bennet Overlap Ratio");
         integratorOS.setDSVO(dsvo);
 	}
 
@@ -169,7 +159,6 @@ public class SimulationVirialOverlap extends Simulation {
         accumulatorAAs[iPhase].setActionInterval(1);
         if (integratorOS != null) {
             dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
-//            dsvo.getDataInfo().setLabel("Bennet Overlap Ratio");
             integratorOS.setDSVO(dsvo);
         }
     }
@@ -187,9 +176,8 @@ public class SimulationVirialOverlap extends Simulation {
     public PhaseCluster[] phase;
     protected Species species;
     public IntegratorClusterMC[] integrators;
-    public MCMoveAtom[] mcMoveAtom1;
     public MCMove[] mcMoveRotate;
-    public MCMove[] mcMoveMulti;
+    public MCMove[] mcMoveTranslate;
     public MeterVirial[] meters;
     public ActivityIntegrate ai;
     public IntegratorOverlap integratorOS;
@@ -218,8 +206,8 @@ public class SimulationVirialOverlap extends Simulation {
 		MayerGeneralSpherical fTarget = new MayerGeneralSpherical(space,p2LJ);
         MayerESpherical eTarget = new MayerESpherical(space,p2LJ);
 		
-        ClusterAbstract refCluster = Standard.virialCluster(nPoints,fRef,true,eRef,temperature);
-        ClusterAbstract targetCluster = Standard.virialCluster(nPoints,fTarget,true,eTarget,temperature);
+        ClusterAbstract refCluster = Standard.virialCluster(nPoints,fRef,true,eRef,temperature,true);
+        ClusterAbstract targetCluster = Standard.virialCluster(nPoints,fTarget,true,eTarget,temperature,true);
 
 		int maxSteps = 100000;
 		
