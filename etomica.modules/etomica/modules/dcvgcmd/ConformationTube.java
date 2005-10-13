@@ -17,13 +17,11 @@ public class ConformationTube extends Conformation {
 
 	int atomsPerRing;
 
-	int ctr;
-
 	double tubeRadius;
 
-	double A, B, Q, dz;
+	double A, B, Q;
 
-	double dtheta, theta, theta0;
+	double dtheta;
 
 	public ConformationTube(Space space, int atomsPerRing) {
 		
