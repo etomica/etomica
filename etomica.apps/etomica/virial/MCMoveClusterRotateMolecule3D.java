@@ -1,11 +1,15 @@
 package etomica.virial;
 
+import etomica.action.AtomAction;
 import etomica.action.AtomTransform;
+import etomica.atom.Atom;
+import etomica.atom.AtomTreeNodeGroup;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * @author andrew
@@ -34,6 +38,10 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D implem
     public void setPhase(Phase[] p) {
         super.setPhase(p);
         weightMeter.setPhase(p[0]);
+        oldPositions = new Vector[((AtomTreeNodeGroup)molecule.node).childList.size()-1];
+        for (int j=0; j<oldPositions.length; j++) {
+            oldPositions[j] = p[0].space().makeVector();
+        }
     }
 
     public boolean doTrial() {
@@ -51,9 +59,21 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D implem
 
         leafAtomIterator.setRoot(molecule);
         leafAtomIterator.reset();
-        r0.E(molecule.node.firstLeafAtom().coord.position());
+        Atom first = leafAtomIterator.nextAtom();
+        int j=0;
+        while (leafAtomIterator.hasNext()) {
+            oldPositions[j++].E(leafAtomIterator.nextAtom().coord.position());
+        }
+        leafAtomIterator.reset();
+        r0.E(first.coord.position());
         AtomTransform.doTransform(leafAtomIterator, r0, rotationTensor);
             
+        if (trialCount-- == 0) {
+            relaxAction.setAtom(molecule);
+            relaxAction.actionPerformed();
+            trialCount = relaxInterval;
+        }
+
         uNew = Double.NaN;
         ((PhaseCluster)phases[0]).trialNotify(null);
         return true;
@@ -79,7 +99,14 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D implem
         super.rejectNotify();
         ((PhaseCluster)phases[0]).rejectNotify();
     }
-        
+    
+    public void setRelaxAction(AtomAction action) {
+        relaxAction = action;
+    }
+    
     private final MeterClusterWeight weightMeter;
+    protected int trialCount, relaxInterval = 100;
+    protected AtomAction relaxAction;
+    private Vector[] oldPositions;
 
 }

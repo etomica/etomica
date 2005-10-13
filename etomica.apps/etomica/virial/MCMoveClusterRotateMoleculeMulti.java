@@ -6,16 +6,15 @@
  */
 package etomica.virial;
 
+import etomica.action.AtomAction;
 import etomica.action.AtomTransform;
 import etomica.atom.Atom;
 import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
-import etomica.models.water.AtomTreeNodeWater;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.RotationTensor;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -33,78 +32,57 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D
      * @param space
      */
     public MCMoveClusterRotateMoleculeMulti(PotentialMaster potentialMaster,
-            Space space, int numMolecules, double bondDistance, double bondAngle) {
+            Space space, int numMolecules) {
         super(potentialMaster, space);
         weightMeter = new MeterClusterWeight(potential);
         setName("MCMoveClusterMolecule");
         nMolecules = numMolecules;
         selectedMolecules = new Atom[nMolecules];
-        oldPositions = new Vector[nMolecules][2];
-        for (int i=0; i<nMolecules; i++) {
-            for (int j=0; j<2; j++) {
-                oldPositions[i][j] = space.makeVector();
-            }
-        }
-        distance = bondDistance;
-        cosAngle = Math.cos(bondAngle);
-        sinAngle = Math.sin(bondAngle);
-        work = space.makeVector();
+        oldPositions = new Vector[nMolecules][];
     }
     
     public void setPhase(Phase[] p) {
         super.setPhase(p);
         weightMeter.setPhase(p[0]);
         selectMolecules();
+        for (int i=0; i<nMolecules; i++) {
+            molecule = selectedMolecules[i];
+            oldPositions[i] = new Vector[((AtomTreeNodeGroup)molecule.node).childList.size()-1];
+            for (int j=0; j<oldPositions[i].length; j++) {
+                oldPositions[i][j] = p[0].space().makeVector();
+            }
+        }
     }
 
     public boolean doTrial() {
         uOld = weightMeter.getDataAsScalar();
+        boolean doRelax = false;
+        if (trialCount-- == 0) {
+            doRelax = true;
+            trialCount = relaxInterval;
+        }
         for (int i=0; i<selectedMolecules.length; i++) {
             molecule = selectedMolecules[i];
-            AtomTreeNodeWater waterNode= (AtomTreeNodeWater)molecule.node;
-            Atom O = waterNode.O;
-            Atom H1 = waterNode.H1;
-            Atom H2 = waterNode.H2;
-//            if (foo-- == 0) {
-//                foo = 10000;
-//                Vector v1 = (Vector)H1.coord.position().clone();
-//                v1.ME(O.coord.position());
-//                Vector v2 = (Vector)H2.coord.position().clone();
-//                v2.ME(O.coord.position());
-//                double d = v1.dot(v2);
-//                System.out.println(i+"d = "+(d+0.3338068592338)+" "+(Math.sqrt(v1.squared())-1)+" "+(Math.sqrt(v2.squared())-1));
-//            }
+            leafAtomIterator.setRoot(molecule);
+            Atom O = leafAtomIterator.nextAtom();
         
             double dTheta = (2*Simulation.random.nextDouble() - 1.0)*stepSize;
             rotationTensor.setAxial(Simulation.random.nextInt(3),dTheta);
-            oldPositions[i][0].E(H1.coord.position());
-            oldPositions[i][1].E(H2.coord.position());
-            leafAtomIterator.setRoot(molecule);
+            
+            int j=0;
+            while (leafAtomIterator.hasNext()) {
+                oldPositions[i][j++].E(leafAtomIterator.nextAtom().coord.position());
+            }
             leafAtomIterator.reset();
             r0.E(O.coord.position());
 //            System.out.println(molecule+" starting at "+molecule.node.lastLeafAtom().coord.position());
             AtomTransform.doTransform(leafAtomIterator, r0, rotationTensor);
 //            System.out.println(molecule+" moved to "+molecule.node.lastLeafAtom().coord.position());
             
-            if (foo2-- == 0) {
-                foo2 = 100;
-                // normalize OH1
-                Vector p1 = H1.coord.position();
-                p1.ME(O.coord.position());
-                p1.TE(1/Math.sqrt(p1.squared()));
-                Vector p2 = H2.coord.position();
-                p2.ME(O.coord.position());
-                p2.TE(1/Math.sqrt(p2.squared()));
-                // move H2 to fix bond angle
-                double d = p1.dot(p2);
-                work.Ev1Pa1Tv2(p2,-d,p1);
-                work.TE(1/Math.sqrt(work.squared()));
-                p2.Ea1Tv1(sinAngle,work);
-                p2.PEa1Tv1(cosAngle,p1);
-                p2.TE(distance/Math.sqrt(p2.squared()));
-                p1.TE(distance);
-                p1.PE(O.coord.position());
-                p2.PE(O.coord.position());
+            
+            if (doRelax && relaxAction != null) {
+                relaxAction.setAtom(molecule);
+                relaxAction.actionPerformed();
             }
         }
             
@@ -141,20 +119,26 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D
 //        super.rejectNotify();
         for (int i=0; i<selectedMolecules.length; i++) {
             molecule = selectedMolecules[i];
-            AtomTreeNodeWater waterNode = (AtomTreeNodeWater)molecule.node;
-            waterNode.H1.coord.position().E(oldPositions[i][0]);
-            waterNode.H2.coord.position().E(oldPositions[i][1]);
-//            System.out.println(molecule+" back to "+molecule.node.lastLeafAtom().coord.position());
+            leafAtomIterator.setRoot(molecule);
+            leafAtomIterator.reset();
+            // skip first Atom
+            leafAtomIterator.nextAtom();
+            int j=0;
+            while (leafAtomIterator.hasNext()) {
+                leafAtomIterator.nextAtom().coord.position().E(oldPositions[i][j++]);
+            }
         }
         ((PhaseCluster)phases[0]).rejectNotify();
+    }
+    
+    public void setRelaxAction(AtomAction action) {
+        relaxAction = action;
     }
     
     private final MeterClusterWeight weightMeter;
     private final Atom[] selectedMolecules;
     private final Vector[][] oldPositions;
     private final int nMolecules;
-    private int foo = 10000, foo2 = 100;
-    private final double distance;
-    private final double cosAngle, sinAngle;
-    private final Vector work;
+    private int trialCount, relaxInterval = 100;
+    private AtomAction relaxAction;
 }

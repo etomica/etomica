@@ -76,7 +76,7 @@ public class SimulationVirial extends Simulation {
             else {
                 System.out.println("using multi-atom moves");
                 mcMoveTranslate = new MCMoveClusterMoleculeMulti(potentialMaster,0.41,nMolecules-1);
-                mcMoveRotate = new MCMoveClusterRotateMoleculeMulti(potentialMaster,space,nMolecules-1,1.0,109.5/180.0*Math.PI);
+                mcMoveRotate = new MCMoveClusterRotateMoleculeMulti(potentialMaster,space,nMolecules-1);
                 mcMoveRotate.setStepSize(Math.PI);
             }
             integrator.addMCMove(mcMoveRotate);

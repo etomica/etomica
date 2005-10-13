@@ -95,7 +95,7 @@ public class SimulationVirialOverlap extends Simulation {
 //                }
             }
             else {
-                mcMoveRotate[iPhase] = new MCMoveClusterRotateMoleculeMulti(potentialMaster,space,nMolecules-1,1.0,109.5*Math.PI/180.);
+                mcMoveRotate[iPhase] = new MCMoveClusterRotateMoleculeMulti(potentialMaster,space,nMolecules-1);
                 mcMoveRotate[iPhase].setStepSize(Math.PI);
                 integrators[iPhase].addMCMove(mcMoveRotate[iPhase]);
                 if (nMolecules>2) {
