@@ -7,16 +7,19 @@ import etomica.simulation.Simulation;
 import etomica.species.Species;
 import etomica.species.SpeciesSignature;
 
-public class SpeciesWater extends Species implements EtomicaElement {
+/**
+ * Species for 3-point water molecule.
+ */
+public class SpeciesWater3P extends Species implements EtomicaElement {
     
-    public SpeciesWater(Simulation sim) {
+    public SpeciesWater3P(Simulation sim) {
         this(sim, sim.getDefaults().moleculeCount);
     }
-    public SpeciesWater(Simulation sim, int nM) {
+    public SpeciesWater3P(Simulation sim, int nM) {
         this(sim, nM, Species.makeAgentType(sim));
     }
-    private SpeciesWater(Simulation sim, int nM, AtomTypeGroup agentType) {
-       super(sim, new AtomFactoryWater(sim, agentType),
+    private SpeciesWater3P(Simulation sim, int nM, AtomTypeGroup agentType) {
+       super(sim, new AtomFactoryWater3P(sim, agentType),
                agentType);
        factory.setSpecies(this);
        nMolecules = nM;

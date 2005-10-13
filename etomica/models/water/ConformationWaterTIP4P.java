@@ -5,13 +5,17 @@ import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.config.Conformation;
 import etomica.space.Space;
 
-public class ConformationWater extends Conformation {
+/**
+ * Conformation for 4-point water molecule.
+ */
+public class ConformationWaterTIP4P extends Conformation {
 
-    private double bondLengthOH = 1.0;
-    private double angleHOH = 109.5*Math.PI/180.;
+    private double bondLengthOH = 0.9572;
+    private double angleHOH = 104.52*Math.PI/180.;
+    private double rOM=0.15;
     private final AtomIteratorListSimple iterator;
 
-    public ConformationWater(Space space) {
+    public ConformationWaterTIP4P(Space space) {
         super(space);
         iterator = new AtomIteratorListSimple();
     }
@@ -32,6 +36,9 @@ public class ConformationWater extends Conformation {
                 
         Atom h2 = iterator.nextAtom();
         h2.coord.position().E(new double[] {x+bondLengthOH*Math.cos(angleHOH), y+bondLengthOH*Math.sin(angleHOH), 0.0});
+        
+        Atom m = iterator.nextAtom();
+        m.coord.position().E(new double[] {x+rOM*Math.cos(angleHOH/2.0), y+rOM*Math.sin(angleHOH/2.0), 0.0});
 
     }//end of initializePositions
     

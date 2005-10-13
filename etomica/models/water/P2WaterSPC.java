@@ -12,6 +12,10 @@ import etomica.space.Space;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 
+/** 
+ * SPC potential for water.  Requires the molecule node be an
+ * AtomTreeNodeWater. 
+ */
 public class P2WaterSPC extends Potential2 implements Potential2Soft {
 
 	public P2WaterSPC(Space space, Boundary boundary) {
@@ -30,8 +34,8 @@ public class P2WaterSPC extends Potential2 implements Potential2Soft {
 		double sum = 0.0;
 		double r2 = 0.0;
 			
-		AtomTreeNodeWater node1 = (AtomTreeNodeWater)((AtomPair)pair).atom0.node;
-		AtomTreeNodeWater node2 = (AtomTreeNodeWater)((AtomPair)pair).atom1.node;
+		AtomTreeNodeWater3P node1 = (AtomTreeNodeWater3P)((AtomPair)pair).atom0.node;
+		AtomTreeNodeWater3P node2 = (AtomTreeNodeWater3P)((AtomPair)pair).atom1.node;
 		
 		//compute O-O distance to consider truncation	
 		etomica.space3d.Vector3D O1r = (etomica.space3d.Vector3D)node1.O.coord.position();
