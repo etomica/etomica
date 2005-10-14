@@ -10,6 +10,7 @@ import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.simulation.Simulation;
 import etomica.space.CoordinateFactory;
+import etomica.space.CoordinateFactorySphere;
 import etomica.species.Species;
 
 /**
@@ -37,9 +38,10 @@ public class AtomFactoryWater4P extends AtomFactory {
         AtomTypeSphere oType = new AtomTypeSphere((AtomTypeGroup)atomType, 16.0, 3.154);
         AtomTypeSphere mType = new AtomTypeSphere((AtomTypeGroup)atomType, 1.0, 2.0);
 
-        hFactory = new AtomFactoryMono(coordFactory, hType, AtomLinker.FACTORY);
-		oFactory = new AtomFactoryMono(coordFactory, oType, AtomLinker.FACTORY);
-		mFactory = new AtomFactoryMono(coordFactory, mType, AtomLinker.FACTORY);
+        CoordinateFactory leafCoordFactory = new CoordinateFactorySphere(sim);
+        hFactory = new AtomFactoryMono(leafCoordFactory, hType, AtomLinker.FACTORY);
+		oFactory = new AtomFactoryMono(leafCoordFactory, oType, AtomLinker.FACTORY);
+		mFactory = new AtomFactoryMono(leafCoordFactory, mType, AtomLinker.FACTORY);
 		
 		conformation = new ConformationWaterTIP4P(sim.space); 
 	}
