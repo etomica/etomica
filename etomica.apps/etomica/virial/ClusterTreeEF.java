@@ -30,7 +30,7 @@ public class ClusterTreeEF extends ClusterTree {
 
     public ClusterAbstract makeCopy() {
         MayerFunction[] eArray = new MayerFunction[numF];
-        System.arraycopy(f,numF,eArray,0,numF);
+        System.arraycopy(f,0,eArray,0,numF);
         return new ClusterTreeEF(bondsTree,eArray,1/beta);
     }
 
