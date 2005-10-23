@@ -44,7 +44,7 @@ public class DataGroupExtractor extends DataProcessor {
         MyWrapper outputWrapper = new MyWrapper(null, DataJudge.MAX_RANK);
         for(int i=0; i<inputData.length; i++) {
             Data testData = inputData[i];
-            if(judge.doRecurse() && testData.getDataInfo().getClass() == DataGroup.class) {
+            if(judge.doRecurse() && testData.getDataInfo().getDataClass() == DataGroup.class) {
                 MyWrapper testWrapper = findBestData(testData.getDataInfo(), depth+1);
                 if(testWrapper.rank < outputWrapper.rank) {
                     outputWrapper.data = testWrapper.data;
@@ -65,8 +65,8 @@ public class DataGroupExtractor extends DataProcessor {
      * Returns null if the given DataInfo is for a DataGroup; otherwise
      * returns a CastToGroup instance.
      */
-    public DataProcessor getDataCaster(DataInfo dataInfo) {
-        if(dataInfo.getClass() == DataGroup.class) {
+    public DataProcessor getDataCaster(DataInfo incomingDataInfo) {
+        if(incomingDataInfo.getDataClass() == DataGroup.class) {
             return null;
         }
         return new CastToGroup();
