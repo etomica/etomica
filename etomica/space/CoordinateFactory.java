@@ -21,18 +21,4 @@ public interface CoordinateFactory {
     
     public boolean isKinetic();
     
-    /**
-     * Defines a CoordinateFactory that always returns null from makeCoordinate.
-     */
-    public static final CoordinateFactory NULL = new CoordinateFactory() {
-        public ICoordinate makeCoordinate() {
-            return null;
-        }
-        
-        public void setKinetic(boolean kinetic) {}
-        
-        public boolean isKinetic() {
-            return false;
-        }
-    };
 }
