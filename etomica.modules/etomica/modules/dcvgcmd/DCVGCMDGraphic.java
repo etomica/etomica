@@ -139,7 +139,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 //set color of molecules	
 	ColorSchemeByType.setColor(sim.species,colorA);
 	ColorSchemeByType.setColor(sim.species1,colorB);
-	ColorSchemeByType.setColor(((AtomFactoryHomo)sim.speciesTube.getFactory()).childFactory().getType(),java.awt.Color.cyan);
+	ColorSchemeByType.setColor(((AtomFactoryHomo)sim.speciesTube.getFactory()).getChildFactory().getType(),java.awt.Color.cyan);
 	
 //panel for the start buttons
 	  JPanel startPanel = (JPanel)device.graphic();

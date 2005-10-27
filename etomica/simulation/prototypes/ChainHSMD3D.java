@@ -74,7 +74,7 @@ public class ChainHSMD3D extends Simulation {
 //FIXME        moleculeCriterion.setNeighborRange(3.45 + criterion.getNeighborRange());
 //FIXME        ((PotentialMasterNbr)potentialMaster).setSpecies(p2Inter,new Species[]{species,species},moleculeCriterion);
         ((PotentialMasterNbr)potentialMaster).getNeighborManager().addCriterion(criterion,
-                new AtomType[]{((AtomFactoryHomo)species.moleculeFactory()).childFactory().getType()});
+                new AtomType[]{((AtomFactoryHomo)species.moleculeFactory()).getChildFactory().getType()});
         
         //        Crystal crystal = new LatticeCubicFcc(space);
 //        ConfigurationLattice conformation = new ConfigurationLattice(space, crystal);

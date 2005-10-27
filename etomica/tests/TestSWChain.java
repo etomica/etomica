@@ -90,7 +90,7 @@ public class TestSWChain extends Simulation {
         criterionMolecular.setIntraMolecular(false);
         potential.setCriterion(criterionMolecular);
         
-        AtomTypeSphere sphereType = (AtomTypeSphere)((AtomFactoryHomo)species.moleculeFactory()).childFactory().getType();
+        AtomTypeSphere sphereType = (AtomTypeSphere)((AtomFactoryHomo)species.moleculeFactory()).getChildFactory().getType();
         potentialMaster.addPotential(potential,new AtomType[]{sphereType,sphereType});
         ((PotentialMasterNbr)potentialMaster).getNeighborManager().addCriterion(nbrCriterion,new AtomType[]{sphereType});
 

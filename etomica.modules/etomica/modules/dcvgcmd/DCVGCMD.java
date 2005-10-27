@@ -79,7 +79,7 @@ public class DCVGCMD extends Simulation {
         species1 = new SpeciesSpheresMono(this);
         speciesTube = new SpeciesTube(this, 20, 40);
         AtomType tubetype = ((AtomFactoryHomo) speciesTube.moleculeFactory())
-                .childFactory().getType();
+                .getChildFactory().getType();
         AtomType speciestype = species.moleculeFactory().getType();
         AtomType speciestype1 = species1.moleculeFactory().getType();
         
@@ -119,7 +119,7 @@ public class DCVGCMD extends Simulation {
         nbrCriterion = new CriterionSimple(space,potentialTubeAtom.getRange(),neighborRangeFac*potentialTubeAtom.getRange());
         criterion = new CriterionSpecies(nbrCriterion, speciesTube, species);
         potentialTubeAtom.setCriterion(criterion);
-        nbrManager.addCriterion(nbrCriterion,new AtomType[]{species.getFactory().getType(),((AtomFactoryHomo)speciesTube.getFactory()).childFactory().getType()});
+        nbrManager.addCriterion(nbrCriterion,new AtomType[]{species.getFactory().getType(),((AtomFactoryHomo)speciesTube.getFactory()).getChildFactory().getType()});
         
         P2WCA potentialTubeAtom1 = new P2WCA(this);
         potentialMaster.addPotential(potentialTubeAtom1,new AtomType[] { tubetype, speciestype1});
