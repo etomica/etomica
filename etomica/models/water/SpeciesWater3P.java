@@ -21,7 +21,6 @@ public class SpeciesWater3P extends Species implements EtomicaElement {
     private SpeciesWater3P(Simulation sim, int nM, AtomTypeGroup agentType) {
        super(sim, new AtomFactoryWater3P(sim, agentType),
                agentType);
-       factory.setSpecies(this);
        nMolecules = nM;
     }
     
