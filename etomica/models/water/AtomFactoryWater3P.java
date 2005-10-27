@@ -10,6 +10,7 @@ import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.simulation.Simulation;
 import etomica.space.CoordinateFactory;
+import etomica.space.CoordinateFactoryNull;
 import etomica.space.CoordinateFactorySphere;
 import etomica.species.Species;
 
@@ -31,7 +32,7 @@ public class AtomFactoryWater3P extends AtomFactory {
     }
     
     public AtomFactoryWater3P(Simulation sim, AtomSequencerFactory sequencerFactory, AtomTypeGroup agentType) {
-		super(CoordinateFactory.NULL, new AtomTypeGroup(agentType,new AtomPositionGeometricCenter(sim.space)), sequencerFactory, AtomTreeNodeWater3P.FACTORY);
+		super(new CoordinateFactoryNull(), new AtomTypeGroup(agentType,new AtomPositionGeometricCenter(sim.space)), sequencerFactory, AtomTreeNodeWater3P.FACTORY);
 
         AtomTypeSphere hType = new AtomTypeSphere((AtomTypeGroup)atomType, 1.0, 2.0);
         AtomTypeSphere oType = new AtomTypeSphere((AtomTypeGroup)atomType, 16.0, 3.167);
