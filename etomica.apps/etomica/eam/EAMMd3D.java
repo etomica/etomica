@@ -96,11 +96,11 @@ public class EAMMd3D extends Simulation {
         species = new SpeciesSpheresMono(this);
         species.setNMolecules(216);
         ((AtomTypeLeaf)species.getFactory().getType()).setMass(118.71);
-        ((AtomTypeSphere)species.getFactory().getType()).setDiameter(3.44); 
         //The diameter given is really the equilibrium distance between the atoms.
-        int j = EmbeddedAtomMethodP2.agentIndex; 
-        	// This forces the EmbeddedAtomMethodP2 to 
-        	//request an agentIndex from Atom.
+        ((AtomTypeSphere)species.getFactory().getType()).setDiameter(3.44); 
+        // This forces the EmbeddedAtomMethodP2 to 
+        //request an agentIndex from Atom.
+        potentialA = new EmbeddedAtomMethodP2(space, ParameterSetEAM.Sn);
         phase = new Phase(this);
         PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.8318, 3.1819);
         LatticeCrystal crystal = new LatticeCrystal(new Crystal(
@@ -108,9 +108,8 @@ public class EAMMd3D extends Simulation {
         Configuration config = new ConfigurationLattice(crystal);
 //        phase.setConfiguration(config);  // kmb remove 8/3/05
         config.initializeCoordinates(phase);  // kmb added 8/3/05
-        potential0 = new EmbeddedAtomMethodPInitial(space);
-        potentialA = new EmbeddedAtomMethodP2(space, ParameterSetEAM.Sn);
-        potentialB = new EmbeddedAtomMethodPMany(space, ParameterSetEAM.Sn);
+        potential0 = new EmbeddedAtomMethodPInitial(space, potentialA.agentIndex);
+        potentialB = new EmbeddedAtomMethodPMany(space, ParameterSetEAM.Sn, potentialA.agentIndex);
         this.potentialMaster.setSpecies(potentialB, new Species[]{species});
         this.potentialMaster.setSpecies(potentialA, new Species[]{species,species});
         this.potentialMaster.setSpecies(potential0, new Species[]{species});    

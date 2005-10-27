@@ -21,11 +21,11 @@ import etomica.units.Dimension;
 
 public final class EmbeddedAtomMethodPMany extends Potential1 {
 
-	public EmbeddedAtomMethodPMany(Space space, ParameterSetEAM p) {
+	public EmbeddedAtomMethodPMany(Space space, ParameterSetEAM p, int agentIndex) {
 		super(space);
         this.p = p;
         gradient = space.makeVector(); //initializes the vector "gradient"
-        
+        EAMAgentIndex = agentIndex;
     }
 
     public Dimension getEpsilonDimension() {return Dimension.ENERGY;}
@@ -51,7 +51,7 @@ public final class EmbeddedAtomMethodPMany extends Potential1 {
      */
 	
 	public double rhoSummed(AtomSet a) {
-		return ((Wrapper)((Atom)a).allatomAgents[EmbeddedAtomMethodP2.agentIndex]).x;
+		return ((Wrapper)((Atom)a).allatomAgents[EAMAgentIndex]).x;
 	}
 	
 	public double energy(AtomSet a) {
@@ -61,7 +61,7 @@ public final class EmbeddedAtomMethodPMany extends Potential1 {
 	}
 	
 	public Vector A(AtomSet a) {
-		return ((Wrapper)((Atom)a).allatomAgents[EmbeddedAtomMethodP2.agentIndex]).A;
+		return ((Wrapper)((Atom)a).allatomAgents[EAMAgentIndex]).A;
 	}
 
 	public Vector gradient(AtomSet a) {
@@ -105,9 +105,5 @@ public final class EmbeddedAtomMethodPMany extends Potential1 {
 		this.radius = radius;
 	}
 	
-	
-
+	private final int EAMAgentIndex;
 }
-
-    
-

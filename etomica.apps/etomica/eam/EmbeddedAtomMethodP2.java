@@ -3,6 +3,7 @@ import etomica.EtomicaElement;
 import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
+import etomica.atom.Atom.AgentSource;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
@@ -16,12 +17,13 @@ import etomica.units.Dimension;
  * classes in the EAMMd3D simulation class by A. Schultz and K.R. Schadel July 2005.
  */
 
-public final class EmbeddedAtomMethodP2 extends Potential2SoftSpherical implements EtomicaElement, java.io.Serializable {
+public final class EmbeddedAtomMethodP2 extends Potential2SoftSpherical implements EtomicaElement, AgentSource, java.io.Serializable {
 
 	public EmbeddedAtomMethodP2(Space space, ParameterSetEAM p) {
 		super(space);
         this.p = p;
         work1 = space.makeVector();
+        agentIndex = Atom.requestAgentIndex(this);
     }
 	
 	
@@ -175,11 +177,11 @@ public final class EmbeddedAtomMethodP2 extends Potential2SoftSpherical implemen
     private ParameterSetEAM p;
     private double r2Last = -1.0;
     private AtomPair pair;
-    public static final int agentIndex = Atom.requestAgentIndex(new Atom.AgentSource() {
-    	public Object makeAgent(Atom atom) {
-    		return new Wrapper((atom.coord != null) ? (Vector)atom.coord.position().clone() : null);
-    	}
-    });
+    public final int agentIndex;
+    
+    public Object makeAgent(Atom atom) {
+        return new Wrapper((atom.coord != null) ? (Vector)atom.coord.position().clone() : null);
+    }
     
     public static class Wrapper implements java.io.Serializable {
     	public Wrapper(Vector v) {

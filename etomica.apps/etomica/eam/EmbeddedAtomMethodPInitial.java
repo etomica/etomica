@@ -17,20 +17,21 @@ import etomica.space.Vector;
 
 public final class EmbeddedAtomMethodPInitial extends Potential1 {
 
-	public EmbeddedAtomMethodPInitial(Space space) {
+	public EmbeddedAtomMethodPInitial(Space space, int agentIndex) {
 		super(space);
 		gradient = space.makeVector();
 		gradient.E(0);
+        EAMAgentIndex = agentIndex;
     }
 	
 	public double energy(AtomSet a) {
-		((Wrapper)((Atom)a).allatomAgents[EmbeddedAtomMethodP2.agentIndex]).x = 0;
+		((Wrapper)((Atom)a).allatomAgents[EAMAgentIndex]).x = 0;
 		return 0;
 	}
 
 	public Vector gradient(AtomSet a) {
-		((Wrapper)((Atom)a).allatomAgents[EmbeddedAtomMethodP2.agentIndex]).x = 0;
-		((Wrapper)((Atom)a).allatomAgents[EmbeddedAtomMethodP2.agentIndex]).A.E(0);
+		((Wrapper)((Atom)a).allatomAgents[EAMAgentIndex]).x = 0;
+		((Wrapper)((Atom)a).allatomAgents[EAMAgentIndex]).A.E(0);
 		return gradient;
 	}
 	
@@ -39,7 +40,5 @@ public final class EmbeddedAtomMethodPInitial extends Potential1 {
     }
    
 	Vector gradient;
+    private int EAMAgentIndex;
 }
-
-    
-
