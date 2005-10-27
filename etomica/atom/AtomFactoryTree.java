@@ -41,7 +41,7 @@ public class AtomFactoryTree extends AtomFactoryHomo {
                                 int[] nAtoms, Conformation[] config) {
         super(space, seqFactory, parentType, nAtoms[0], (config != null) ? config[0] : Conformation.NULL);
         setChildFactory(subFactory(space, seqFactory, nAtoms, config));
-        if(childFactory() != null) ((AtomFactoryTree)childFactory()).parentFactory = this;
+        if(getChildFactory() != null) ((AtomFactoryTree)getChildFactory()).parentFactory = this;
         depth = nAtoms.length;
     }
     
@@ -65,7 +65,7 @@ public class AtomFactoryTree extends AtomFactoryHomo {
         AtomFactoryHomo factory = this;
         for(int i=0; i<n.length; i++) {
             factory.setAtomsPerGroup(n[i]);
-            if(i < n.length -1) factory = (AtomFactoryHomo)factory.childFactory();
+            if(i < n.length -1) factory = (AtomFactoryHomo)factory.getChildFactory();
         }
     }
 
@@ -87,8 +87,8 @@ public class AtomFactoryTree extends AtomFactoryHomo {
      * Returns the factory that produces the leaf atoms of the tree.
      */
      public AtomFactory getLeafFactory() {
-        return (childFactory() instanceof AtomFactoryTree) ?
-                ((AtomFactoryTree)childFactory()).getLeafFactory() : childFactory();
+        return (getChildFactory() instanceof AtomFactoryTree) ?
+                ((AtomFactoryTree)getChildFactory()).getLeafFactory() : getChildFactory();
      } 
      
      /**

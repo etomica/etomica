@@ -3,7 +3,7 @@ package etomica.atom;
 import etomica.config.Conformation;
 import etomica.config.ConformationLinear;
 import etomica.simulation.Simulation;
-import etomica.space.CoordinateFactory;
+import etomica.space.CoordinateFactoryNull;
 import etomica.space.Space;
 import etomica.species.Species;
 
@@ -61,7 +61,7 @@ public class AtomFactoryHomo extends AtomFactory {
      */
     public AtomFactoryHomo(Space space, AtomSequencerFactory sequencerFactory, AtomTypeGroup parentType,
                             AtomTreeNodeFactory nodeFactory, int atoms, Conformation config) {
-        super(CoordinateFactory.NULL, new AtomTypeGroup(parentType, new AtomPositionGeometricCenter(space)), sequencerFactory, nodeFactory);
+        super(new CoordinateFactoryNull(), new AtomTypeGroup(parentType, new AtomPositionGeometricCenter(space)), sequencerFactory, nodeFactory);
         atomsPerGroup = atoms;
         conformation = config;
     }
@@ -90,7 +90,7 @@ public class AtomFactoryHomo extends AtomFactory {
      * Returns the subfactory that produces each of the identical atoms
      * in the group made by this factory.
      */
-    public AtomFactory childFactory() {return childFactory;}
+    public AtomFactory getChildFactory() {return childFactory;}
 
     /**
      * Sets the factory that makes the identical child atoms of an atom-group formed
@@ -122,7 +122,6 @@ public class AtomFactoryHomo extends AtomFactory {
 
      protected AtomFactory childFactory;
      private int atomsPerGroup;
-     
 
 }//end of AtomFactoryHomo
     

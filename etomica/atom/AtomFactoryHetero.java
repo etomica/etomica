@@ -6,7 +6,7 @@ import etomica.config.Conformation;
 import etomica.config.ConformationLinear;
 import etomica.data.DataSourceCOM;
 import etomica.simulation.Simulation;
-import etomica.space.CoordinateFactory;
+import etomica.space.CoordinateFactoryNull;
 import etomica.space.Space;
 import etomica.species.Species;
 
@@ -53,7 +53,7 @@ public class AtomFactoryHetero extends AtomFactory {
     public AtomFactoryHetero(Space space,
             AtomSequencerFactory sequencerFactory, AtomTypeGroup parentType,
             AtomTreeNodeFactory nodeFactory, Conformation config) {
-        super(CoordinateFactory.NULL, new AtomTypeGroup(parentType, new DataSourceCOM(space)),
+        super(new CoordinateFactoryNull(), new AtomTypeGroup(parentType, new DataSourceCOM(space)),
                 sequencerFactory, nodeFactory);
         conformation = config;
     }
