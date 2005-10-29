@@ -258,6 +258,12 @@ public class MultiharmonicGraphic {
         SimulationGraphic.makeAndDisplayFrame(simGraphic.panel);
     }
 
+    public static class Applet extends javax.swing.JApplet {
+
+        public void init() {
+            getContentPane().add(new MultiharmonicGraphic().panel);
+        }
+    }
 
     JPanel panel;
 
