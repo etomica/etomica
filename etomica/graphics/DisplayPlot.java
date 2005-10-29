@@ -181,6 +181,13 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
     }
     
     /**
+     * Returns the source for the x-axis value.
+     */
+    public DataSource getXSource() {
+        return x;
+    }
+    
+    /**
      * Sets the display units of the given column to the given unit.
      */
     public void setUnit(DataTable.Column column, Unit newUnit) {
