@@ -10,8 +10,9 @@ import etomica.units.Dimension;
 
 
 /**
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Computes the free-enery difference through free-energy perturbation.
+ * Written specifically for harmonic 1-body potential, but wouldn't be hard
+ * to modify for more general cases.
  *
  * @author David Kofke
  *
@@ -43,6 +44,8 @@ public class MeterFreeEnergy extends DataSourceScalar implements Meter {
             Atom a = iterator.nextAtom();
             sum += target.energy(a) - reference.energy(a);
         }
+//        if(sum < 0) System.out.println("deltaU: "+sum);
+//       System.out.println(target.getSpringConstant()+" "+target.getX0().x(0)+" "+reference.getSpringConstant()+" "+reference.getX0().x(0));
         return Math.exp(-sum);
     }
 

@@ -41,10 +41,12 @@ public class Multiharmonic extends Simulation {
      */
     public Multiharmonic() {
         super(Space1D.getInstance());
-        defaults.atomSize = 0.2;
-        double x0 = 10;
+        defaults.makeLJDefaults();
+        defaults.atomSize = 0.02;
+        double x0 = 1;
         species = new SpeciesSpheresMono(this);
         phase = new Phase(this);
+        phase.boundary().setDimensions(new Vector1D(3.0));
         controller = getController();
         integrator = new IntegratorVelocityVerlet(this);
         integrator.addPhase(phase);
