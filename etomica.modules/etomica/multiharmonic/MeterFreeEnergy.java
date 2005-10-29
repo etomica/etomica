@@ -23,20 +23,13 @@ import etomica.units.Dimension;
  * Created on Oct 28, 2005 by kofke
  */
 public class MeterFreeEnergy extends DataSourceScalar implements Meter {
-
-    /**
-     * @param label
-     * @param dimension
-     */
+    
     public MeterFreeEnergy(P1Harmonic reference, P1Harmonic target) {
         super("Free energy", Dimension.ENERGY);
         this.reference = reference;
         this.target = target;
     }
-
-    /* (non-Javadoc)
-     * @see etomica.data.DataSourceScalar#getDataAsScalar()
-     */
+    
     public double getDataAsScalar() {
         iterator.reset();
         double sum = 0.0;
@@ -44,22 +37,14 @@ public class MeterFreeEnergy extends DataSourceScalar implements Meter {
             Atom a = iterator.nextAtom();
             sum += target.energy(a) - reference.energy(a);
         }
-//        if(sum < 0) System.out.println("deltaU: "+sum);
-//       System.out.println(target.getSpringConstant()+" "+target.getX0().x(0)+" "+reference.getSpringConstant()+" "+reference.getX0().x(0));
         return Math.exp(-sum);
     }
-
-    /* (non-Javadoc)
-     * @see etomica.data.meter.Meter#setPhase(etomica.phase.Phase)
-     */
+    
     public void setPhase(Phase phase) {
         iterator.setPhase(phase);
         this.phase = phase;
     }
-
-    /* (non-Javadoc)
-     * @see etomica.data.meter.Meter#getPhase()
-     */
+    
     public Phase getPhase() {
         return phase;
     }
