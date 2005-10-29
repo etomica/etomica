@@ -224,6 +224,7 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
                 break;
             case 1:
             default:
+                boxY = 10;
                 canvas = new DisplayPhaseCanvas1D(this);
                 break;
         }
