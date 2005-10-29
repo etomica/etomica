@@ -77,6 +77,7 @@ public class HistoryCollapsing implements History {
         if (++intervalCount != interval) {
             return;
         }
+        intervalCount = 0;
         if (cursor == history.length) {
             collapseData();
         }
@@ -85,8 +86,11 @@ public class HistoryCollapsing implements History {
     }
 
     protected void collapseData() {
-        for (int i=0; i<cursor/2; i++) {
+        for (int i=1; i<cursor/2; i++) {
             history[i] = history[i*2];
+        }
+        for(int i=cursor/2+1; i<cursor; i++) {
+            history[i] = Double.NaN;
         }
         cursor /= 2;
         interval *= 2;
