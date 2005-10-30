@@ -87,6 +87,9 @@ public class MultiharmonicGraphic {
         cast.setDataSink(log);
         log.setDataSink(plot.getDataTable());
         
+        DisplayPlot energyPlot = new DisplayPlot();
+        sim.historyEnergy.setDataSink(energyPlot.getDataTable());
+        
         DeviceSlider x0Slider = new DeviceSlider(sim.controller);
         final DeviceSlider omegaASlider = new DeviceSlider(sim.controller);
         final DeviceSlider omegaBSlider = new DeviceSlider(sim.controller);
@@ -138,11 +141,27 @@ public class MultiharmonicGraphic {
                 return 0.0;
             }
         };
+        Function fUAvg = new Function() {
+            public double f(double x) {
+                return sim.phase.atomCount();
+            }
+            public double dfdx(double x) {
+                return 0.0;
+            }
+            public double inverse(double f) {
+                return 0.0;
+            }
+        };
         final DataSourceFunction exact = new DataSourceFunction(deltaF);
+        final DataSourceFunction uAvg = new DataSourceFunction(fUAvg);
         exact.getXSource().setNValues(sim.history.getDataLength());
+        uAvg.getXSource().setNValues(sim.historyEnergy.getDataLength());
         CastToDoubleArray cast2 = new CastToDoubleArray();
+        CastToDoubleArray cast2U = new CastToDoubleArray();
         DataPump exactPump = new DataPump(exact, cast2);
+        DataPump uPump = new DataPump(uAvg, cast2U);
         cast2.setDataSink(plot.getDataTable());
+        cast2U.setDataSink(energyPlot.getDataTable());
         //make action for slider that updates function values and pumps them to plot
         ActionGroupSeries exactGroup = new ActionGroupSeries(new Action[] {
             new Action() {
@@ -150,9 +169,12 @@ public class MultiharmonicGraphic {
                     exact.update();
                 }
                 public String getLabel() {return "";}
-            }, exactPump}
+            }, exactPump, uPump}
         );
         plot.getDataTable().setUpdatingOnAnyChange(true);
+        energyPlot.getDataTable().setUpdatingOnAnyChange(true);
+        plot.getPlot().setTitle("Free energy difference");
+        energyPlot.getPlot().setTitle("Average energy");
 
         final DisplayPlot uPlot = new DisplayPlot();
         final double yMax = 2.0;
@@ -182,6 +204,7 @@ public class MultiharmonicGraphic {
                 return 0.0;
             }
         };
+
         final DataSourceFunction uA = new DataSourceFunction(fUA);
         final DataSourceFunction uB = new DataSourceFunction(fUB);
         uA.getXSource().setXMax(sim.phase.boundary().dimensions().x(0));
@@ -202,7 +225,7 @@ public class MultiharmonicGraphic {
                         uB.update();
                         uAPump.actionPerformed();
                         uBPump.actionPerformed();
-                        uPlot.repaint();
+                        uPlot.getPlot().repaint();
                     }
                     public String getLabel() {return "";}
                 }, exactGroup}
@@ -231,6 +254,10 @@ public class MultiharmonicGraphic {
         gbc2.gridx = 0;
         gbc2.gridy = 1;
         controlPanel.add(sliderPanel, gbc2);
+        
+        //energy plot
+        energyPlot.setSize(300,200);
+        panel.add(energyPlot.graphic(),gbc2);
         
         //plot of potential and display of phase
         JPanel phasePanel = new JPanel(new GridBagLayout());

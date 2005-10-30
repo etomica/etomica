@@ -8,7 +8,7 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
-import etomica.data.DataSourceFunction;
+import etomica.data.meter.MeterEnergy;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.phase.Phase;
@@ -18,7 +18,6 @@ import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.Function;
 import etomica.util.HistoryCollapsingAverage;
 
 
@@ -80,17 +79,31 @@ public class Multiharmonic extends Simulation {
         meter = new MeterFreeEnergy(potentialA, potentialB);
         meter.setPhase(phase);
         accumulator = new AccumulatorAverage(this);
+        accumulator.setBlockSize(100);
         dataPump = new DataPump(meter, accumulator);
         new IntervalActionAdapter(dataPump, integrator);
         
+        meterEnergy = new MeterEnergy(potentialMaster);
+        meterEnergy.setPhase(phase);
+        accumulatorEnergy = new AccumulatorAverage(this);
+        accumulatorEnergy.setBlockSize(100);
+        DataPump dataPumpEnergy = new DataPump(meterEnergy, accumulatorEnergy);
+        new IntervalActionAdapter(dataPumpEnergy, integrator);
+        
         register(meter,dataPump);
+        register(meterEnergy,dataPumpEnergy);
         
         history = new AccumulatorHistory(HistoryCollapsingAverage.FACTORY);
         accumulator.addDataSink(history, new AccumulatorAverage.Type[] {AccumulatorAverage.AVERAGE});
-         
+
+        historyEnergy = new AccumulatorHistory(HistoryCollapsingAverage.FACTORY);
+        accumulatorEnergy.addDataSink(historyEnergy, new AccumulatorAverage.Type[] {AccumulatorAverage.AVERAGE});
+
     }
 
-
+    MeterEnergy meterEnergy;
+    AccumulatorAverage accumulatorEnergy;
+    AccumulatorHistory historyEnergy;
     SpeciesSpheresMono species;
     Phase phase;
     Controller controller;
