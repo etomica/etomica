@@ -37,7 +37,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 		this.idx = idx;
 	}
 
-// This function will tell the user, if passed an atom weither or not that atom can bond
+	// This function will tell the user, if passed an atom weither or not that atom can bond
 	public boolean full(Atom a) {
 		int j = ((Atom[]) a.allatomAgents[idx]).length;	//check INDEXING
 		for(int i=0; i != j; ++i){
@@ -177,7 +177,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 					nudge = -eps;
 				} 
 				else{ 	
-lastCollisionVirial = 0.5 * reduced_m * bij- Math.sqrt(reduced_m * r2 * (ke - epsilon));
+				    lastCollisionVirial = 0.5 * reduced_m * bij- Math.sqrt(reduced_m * r2 * (ke - epsilon));
 					unbond(a1,a0);
 					nudge = eps;
 				}

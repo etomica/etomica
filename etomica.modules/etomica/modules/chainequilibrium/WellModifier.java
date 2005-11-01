@@ -21,8 +21,6 @@ class WellModifier implements Modifier {
 	WellModifier(P2SquareWell pot) {
 		potential = pot;
 		fullDiameter = potential.getCoreDiameter() * potential.getLambda();
-//		 ********* Marker 
-		System.out.println("Graphic: Created a Well Modifer");
 	}
 
 	public String getLabel() {
@@ -44,8 +42,6 @@ class WellModifier implements Modifier {
 	}
 
 	public double getValue() {
-//		 ********* Marker 
-		System.out.println("Graphic: Well Modifer: get Value function");
 		return currentValue;
 	}
 }//end of WellModulator

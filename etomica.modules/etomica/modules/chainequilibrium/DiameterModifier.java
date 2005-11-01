@@ -30,8 +30,6 @@ class DiameterModifier implements Modifier {
 		this.potentialBB = potentialBB;
 		this.speciesR = speciesR;
 		this.speciesB = speciesB;
-//		 ********* Marker 
-		System.out.println("Graphic: Created a Diameter Modifer");
 	}
 
 	public Dimension getDimension() {

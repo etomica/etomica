@@ -40,45 +40,12 @@ class MySpeciesEditor extends javax.swing.JPanel {
         sim = simGraphic.simulation;
 		nSlider = new MyNSelector(simGraphic, species);
 		
-		// ********** Marker ********
-		System.out.println("Made a New Species Editor");
-		
 		//nSlider.setDisplayPhase(DisplayPhase1);
         int majorSpacing = 50;
 		nSlider.setMinimum(0);
 		nSlider.setMaximum(100);
         nSlider.getSlider().setLabelTable(nSlider.getSlider().createStandardLabels(majorSpacing));
         
-        
-//        nSlider.addChangeListener(new javax.swing.event.ChangeListener() {
-//			
-//			public void stateChanged(javax.swing.event.ChangeEvent evt) {
-//
-//				// ********* Marker 
-//				//System.out.println("Graphic: State Change");
-//				
-//				AtomIteratorListSimple iter = new AtomIteratorListSimple(
-//						sim.phase1.speciesMaster.atomList);
-//				iter.reset();
-//				while (iter.hasNext()) {
-//					//            			System.out.println(iter.peek().toString());
-//                    Atom[] a = (Atom[])iter.nextAtom().allatomAgents[sim.idx];
-//                    a[0] = null;
-//                    a[1] = null;
-//				}
-//				sim.integratorHard1.reset();
-//                simGraphic.displayPhase1.repaint();
-//			}
-//		});
-		//            nSlider = new DeviceSlider(new NMoleculeModulator(s));
-		//            nSlider.setShowBorder(true);
-		//// nSlider.setLabel(label);
-		//			nSlider.setLabel("Atom count");
-		//	        nSlider.setMinimum(0);
-		//	        nSlider.setMaximum(40);
-		//	        nSlider.getSlider().setSnapToTicks(true);
-		//	        nSlider.graphic(null).setSize(new java.awt.Dimension(40,30));
-
 		//listener for changes to mass textbox
 		java.awt.event.ActionListener myListener = new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent event) {
@@ -101,13 +68,8 @@ class MySpeciesEditor extends javax.swing.JPanel {
                     sim.integratorHard1.reset();
                 } catch (ConfigurationOverlapException e) {
                 }
-//				 ********* Marker 
-				System.out.println("Graphic: Action Preformed");
 			}
 		};
-		
-//		 ********* Marker 
-		System.out.println("Graphic: Added Mass Listener");
 		
 		mass.addActionListener(myListener);
 		mass.setBorder(new javax.swing.border.TitledBorder("Mass"));

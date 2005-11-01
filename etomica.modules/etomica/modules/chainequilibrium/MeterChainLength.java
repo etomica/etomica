@@ -31,7 +31,6 @@ public class MeterChainLength implements Meter, Atom.AgentSource {
 
     public MeterChainLength(int idx) {
         data = new DataDoubleArray("Chain Length Distribution",Dimension.FRACTION,10);
-        //System.out.println("New MolecularCount Function");
         this.tagIndex = Atom.requestAgentIndex(this);
         this.nbrIndex = idx;
         setName(NameMaker.makeName(this.getClass()));
@@ -187,29 +186,6 @@ public class MeterChainLength implements Meter, Atom.AgentSource {
         return ctr;
         //int j = ((Atom[]) a.allatomAgents[nbrIndex]).length;
         
-//        Atom[] array = findAllWhite(a);
-//        if (array[0] == null) { // no white partners, terminal node
-//            ((atomTag) a.allatomAgents[tagIndex]).process();
-//            return 1;
-//        } else {
-//            int t = Length(array);
-//            if (t == 1) {
-//                return recursive(array[0]);
-//            }
-//            if (t == 2) {
-//                return (recursive(array[0]) + recursive(array[1]));
-//            }
-//            if (t == 3) {
-//                return (recursive(array[0]) + recursive(array[1]) + recursive(array[2]));
-//            }
-//            if (t == 4) {
-//                return (recursive(array[0]) + recursive(array[1])
-//                        + recursive(array[2]) + recursive(array[3]));
-//            } else {
-//                return 5;
-//            }
-//        }
-
     }
     
     

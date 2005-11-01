@@ -22,8 +22,6 @@ class WellDepthModifier implements Modifier {
 
 	WellDepthModifier(P2SquareWell pot) {
 		potential = pot;
-//		 ********* Marker 
-		System.out.println("Graphic: Created a WellDepht Modifer Modifer");
 	}
 
 	public String getLabel() {
