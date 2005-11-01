@@ -5,7 +5,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.awt.Point;
 import java.util.Hashtable;
 
 /**
@@ -16,9 +15,6 @@ import java.util.Hashtable;
  * 
  */
 public abstract class Plot extends Component {
-
-    protected int xPixels;
-    protected int yPixels;
 
     /**
      * Constructor sets default size of the plot
@@ -44,10 +40,6 @@ public abstract class Plot extends Component {
         super.setSize(x, y);
     }
 
-    protected double xmin_ = -1;
-    protected double xmax_ = 1;
-    protected double ymin_ = -1;
-    protected double ymax_ = 1;
 
     /**
      * Sets up a mapping from physical units to pixel units.
@@ -64,11 +56,6 @@ public abstract class Plot extends Component {
         this.ymax_ = ymax;
     }
 
-    protected int umin = 0;
-    protected int umax = xPixels;
-    protected int vmin = 0;
-    protected int vmax = yPixels;
-
     /**
      * Computes the x pixel value of a point in the world window.
      *
@@ -79,18 +66,6 @@ public abstract class Plot extends Component {
     public int xPixel(double x) {
         double u = umin + (x - xmin_) / (xmax_ - xmin_) * (umax - umin);
         return (int) Math.round(u);
-    }
-
-    public double xWorld(int x) {
-        double wx = x - umin;
-        wx /= umax - umin;
-        return xmin_ + wx * (xmax_ - xmin_);
-    }
-
-    public double yWorld(int y) {
-        double wy = y - vmin;
-        wy /= vmax - vmin;
-        return ymax_ - wy * (ymax_ - ymin_);
     }
 
     /**
@@ -106,17 +81,6 @@ public abstract class Plot extends Component {
     }
 
     /**
-     * Computes the (x, y) pixel values of a point in the world window.
-     *
-     * @param x the x coordinate of the point in the world window
-     * @param y the y coordinate of the point in the world window
-     * @return the (x, y) pixel value of this point on the plot
-     */
-    public Point getPoint(double x, double y) {
-        return new Point(xPixel(x), yPixel(y));
-    }
-
-    /**
      * Computes the separation in pixels of two points in the world window.
      *
      * @param dx the x coordinate difference of the two points in the world
@@ -127,7 +91,6 @@ public abstract class Plot extends Component {
         return new Dimension(xPixel(dx) - xPixel(0), yPixel(0) - yPixel(dy));
     }
 
-    protected Graphics osg;
     
     /**
      * Classes which inherit from Plot must define this method.
@@ -141,12 +104,6 @@ public abstract class Plot extends Component {
      */
     public void clear() {
         osg.clearRect(0, 0, getSize().width, getSize().height);
-    }
-
-    public void plotPoint(double x, double y) {
-        int ix = xPixel(x);
-        int iy = yPixel(y);
-        osg.drawLine(ix, iy, ix, iy);
     }
 
     public void plotLine(double x1, double y1, double x2, double y2) {
@@ -170,26 +127,6 @@ public abstract class Plot extends Component {
         int sw = fm.stringWidth(s);
         ix -= sw / 2;
         osg.drawString(s, ix, iy);
-    }
-
-    public void plotStringLeft(String s, double x, double y) {
-        int ix = xPixel(x);
-        int iy = yPixel(y);
-        FontMetrics fm = osg.getFontMetrics();
-        int sw = fm.stringWidth(s);
-        ix -= sw;
-        osg.drawString(s, ix, iy);
-    }
-
-    public void boxArea(double x1, double x2, double y1, double y2) {
-        double x = Math.min(x1, x2);
-        double y = Math.max(y1, y2);
-        double dx = Math.abs(x1 - x2);
-        double dy = Math.abs(y1 - y2);
-        int ix = xPixel(x);
-        int iy = yPixel(y);
-        Dimension d = getDimension(dx, dy);
-        osg.fillRect(ix, iy, d.width, d.height);
     }
 
     public void plotBox(double x1, double x2, double y1, double y2) {
@@ -236,17 +173,6 @@ public abstract class Plot extends Component {
         osg.drawOval(ix, iy, d.width, d.height);
     }
 
-    public void boxClear(double x1, double x2, double y1, double y2) {
-        double x = Math.min(x1, x2);
-        double y = Math.max(y1, y2);
-        double dx = Math.abs(x1 - x2);
-        double dy = Math.abs(y1 - y2);
-        int ix = xPixel(x);
-        int iy = yPixel(y);
-        Dimension d = getDimension(dx, dy);
-        osg.clearRect(ix, iy, d.width, d.height);
-    }
-
     public void update(Graphics g) {
         paint(g);
     }
@@ -255,59 +181,6 @@ public abstract class Plot extends Component {
         osg = g;
         paint();
     }
-
-    public void setAxes (double xmin, double xmax,
-              double ymin, double ymax) {
-        int ntick = 10;
-        double dx = (xmax - xmin) / ntick;
-        double dy = (ymax - ymin) / ntick;
-        this.xmin_ = xmin - dx;
-        this.xmax_ = xmax + dx;
-        this.ymin_ = ymin - dy;
-        this.ymax_ = ymax + dy;
-    }
-    
-    public void drawAxes () {
-        int ntick = 10;
-        double dx = (xmax_ - xmin_) / (ntick+2);
-        double dy = (ymax_ - ymin_) / (ntick+2);
-        double xmin = xmin_ + dx;
-        double xmax = xmax_ - dx;
-        double ymin = ymin_ + dy;
-        double ymax = ymax_ - dy;
-        this.xmin_ = xmin - dx;
-        this.xmax_ = xmax + dx;
-        this.ymin_ = ymin - dy;
-        this.ymax_ = ymax + dy;
-
-        double x0 = Math.max(0, xmin);
-        double y0 = Math.max(0, ymin);
-        if (ymin * ymax < 0)
-            y0 = 0;
-        else
-            y0 = ymin;
-        plotLine(xmin, y0, xmax, y0);
-        plotLine(x0, ymin, x0, ymax);
-        double tx = 0.1 * dy;
-        double ty = 0.1 * dx;
-        for (int itick = 0; itick <= ntick; itick++) {
-            double x = xmin + itick * dx;
-            plotLine(x, y0 - tx, x, y0 + tx);
-            double y = ymin + itick * dy;
-            plotLine(x0 - ty, y, x0 + ty, y);
-        }
-    }
-
-    public void setColor(Color c) {
-        osg.setColor(c);
-    }
-
-    Hashtable colorTable;
-    String[] awtColorString = { "black", "blue", "cyan", "darkGray", "gray",
-            "green", "lightGray", "magenta", "orange", "pink", "red", "white", "yellow"};
-    Color[] awtColor = { Color.black, Color.blue, Color.cyan, Color.darkGray,
-            Color.gray, Color.green, Color.lightGray, Color.magenta,
-            Color.orange, Color.pink, Color.red, Color.white, Color.yellow};
 
     private void populateColorTable() {
         for (int i = 0; i < awtColor.length; i++)
@@ -326,24 +199,26 @@ public abstract class Plot extends Component {
             System.err.println("Plot: no such color " + s);
     }
 
-    public void setBackground(String s) {
-        if (colorTable == null) {
-            colorTable = new Hashtable();
-            populateColorTable();
-        }
-        Color c = (Color) colorTable.get(s);
-        if (c != null)
-            setBackground(c);
-        else
-            System.err.println("Plot: no such color " + s);
-    }
+    protected int xPixels;
+    protected int yPixels;
+    
+    protected double xmin_ = -1;
+    protected double xmax_ = 1;
+    protected double ymin_ = -1;
+    protected double ymax_ = 1;
 
-    public void setXORMode() {
-        osg.setXORMode(getBackground());
-    }
+    protected int umin;
+    protected int umax;
+    protected int vmin;
+    protected int vmax;
+    
+    protected Graphics osg;
 
-    public void setPaintMode() {
-        osg.setPaintMode();
-    }
+    Hashtable colorTable;
+    String[] awtColorString = { "black", "blue", "cyan", "darkGray", "gray",
+            "green", "lightGray", "magenta", "orange", "pink", "red", "white", "yellow"};
+    Color[] awtColor = { Color.black, Color.blue, Color.cyan, Color.darkGray,
+            Color.gray, Color.green, Color.lightGray, Color.magenta,
+            Color.orange, Color.pink, Color.red, Color.white, Color.yellow};
 
 }
