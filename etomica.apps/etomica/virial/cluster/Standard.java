@@ -138,9 +138,8 @@ public final class Standard implements java.io.Serializable {
         }
         ClusterBonds[] clusters = new ClusterBonds[0];
         double[] weights = new double[0];
-        int fullSymmetry = usePermutations ? SpecialFunctions.factorial(nBody) : 1;
-        double weightPrefactor = -fullSymmetry*nBody/(double)(nBody-1);
-//        double weightPrefactor = -fullSymmetry*(nBody-1)/(double)(nBody*SpecialFunctions.factorial(nBody-1));
+        int fullSymmetry = usePermutations ? 1 : SpecialFunctions.factorial(nBody);
+        double weightPrefactor = (1-nBody)/(double)fullSymmetry;
         if (useTree) {
             tree.setPrefactor(weightPrefactor);
         }
