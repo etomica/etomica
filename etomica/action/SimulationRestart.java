@@ -26,11 +26,11 @@ public final class SimulationRestart extends SimulationActionAdapter {
     public SimulationRestart(Simulation sim) {
         super("Reset");
         setSimulation(sim);
-        if (sim.space().D() == 2) {
-            setConfiguration(new ConfigurationSequential(sim.space()));
+        if (sim.space().D() == 3) {
+            setConfiguration(new ConfigurationLattice(new LatticeCubicFcc()));
         }
         else {
-            setConfiguration(new ConfigurationLattice(new LatticeCubicFcc()));
+            setConfiguration(new ConfigurationSequential(sim.space()));
         }
         ignoreOverlap = sim.getDefaults().ignoreOverlap;
         accumulatorAction = new SimulationDataAction(sim, new ResetAccumulators());
