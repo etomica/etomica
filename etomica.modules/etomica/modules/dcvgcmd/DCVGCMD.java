@@ -154,12 +154,11 @@ public class DCVGCMD extends Simulation {
         double temperature = Kelvin.UNIT.toSim(500.);
         integratorDCV = new IntegratorDCVGCMD(potentialMaster, temperature, species,
                 species1);
-        final IntegratorVelocityVerlet integrator = new IntegratorVelocityVerlet(this);
+        final IntegratorVelocityVerlet integratorMD = new IntegratorVelocityVerlet(this);
         final IntegratorMC integratorMC = new IntegratorMC(this);
         integratorDCV.addPhase(phase);
 
         /***/
-        integratorDCV.addListener(nbrManager);
         nbrManager.setRange(potential.getRange() * neighborRangeFac);
         integratorMC.addMCMoveListener(potentialMasterHybrid.getNbrCellManager(phase).makeMCMoveListener());
         potentialMasterHybrid.calculate(phase, new PotentialCalculationAgents(potentialMasterHybrid));
@@ -169,12 +168,13 @@ public class DCVGCMD extends Simulation {
         getController().addAction(activityIntegrate);
 
         //make MC integrator next
-        integratorDCV.setIntegrators(integratorMC, integrator);
-        integrator.setIsothermal(false);
-        integrator.setMeterTemperature(new MeterTemperature(speciesTube));
+        integratorDCV.setIntegrators(integratorMC, integratorMD);
+        integratorMD.setIsothermal(false);
+        integratorMD.setMeterTemperature(new MeterTemperature(speciesTube));
         //integrator.setSleepPeriod(1);
-        integrator.setTimeStep(0.01);
+        integratorMD.setTimeStep(0.01);
         //integrator.setInterval(10);
+        integratorMD.addListener(nbrManager);
         activityIntegrate.setDoSleep(true);
         phase.setBoundary(new BoundaryRectangularSlit(this, 2));
 //        phase.setBoundary(new BoundaryRectangularPeriodic(space));
@@ -253,6 +253,7 @@ public class DCVGCMD extends Simulation {
         DataPump profile2pump = new DataPump(profile2, accumulator2);
         new IntervalActionAdapter(profile2pump, integratorDCV);
 
+        ((PotentialMasterHybrid)potentialMaster).getNbrCellManager(phase).assignCellAll();
 //remove for nbrlist        integrator.addIntervalListener(new PhaseImposePbc(phase));
     } //End of constructor
 
