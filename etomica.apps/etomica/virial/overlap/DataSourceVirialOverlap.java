@@ -55,11 +55,11 @@ public class DataSourceVirialOverlap extends DataSourceScalar {
     public int minDiffLocation() {
 		int minDiffLoc = 0;
 		double minDiff = Math.abs(refAccumulator.getBennetAverage(nBennetPoints-1)
-                -targetAccumulator.getBennetAverage(0));
+                /targetAccumulator.getBennetAverage(0)-1);
 		for (int i=1; i<nBennetPoints; i++) {
             // use average instead of sum to avoid race condition with overlap integrator
-            double newDiff = Math.abs(refAccumulator.getBennetAverage(nBennetPoints-i-1)
-                             -targetAccumulator.getBennetAverage(i));
+            double newDiff = Math.abs(refAccumulator.getBennetAverage(nBennetPoints-i-1)/
+                             targetAccumulator.getBennetAverage(i)-1);
 			if (newDiff < minDiff) {
 				minDiffLoc = i;
 				minDiff = newDiff;
