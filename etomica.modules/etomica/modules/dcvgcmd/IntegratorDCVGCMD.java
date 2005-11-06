@@ -9,8 +9,11 @@ import etomica.atom.Atom;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.DisplayPhaseCanvas3DOpenGL;
 import etomica.integrator.Integrator;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
+import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.modifier.Modifier;
 import etomica.nbr.PotentialMasterHybrid;
 import etomica.potential.PotentialMaster;
@@ -54,7 +57,6 @@ public class IntegratorDCVGCMD extends Integrator {
         integratormc.initialize();
         integratormd.initialize();
         super.setup();
-        System.out.println("Exiting IntegratorDCVGCMD.setup");
     }
     
     public void setTemperature(double t) {
@@ -77,7 +79,10 @@ public class IntegratorDCVGCMD extends Integrator {
 			mcMove2.setupActiveAtoms();
 			mcMove3.setupActiveAtoms();
 			mcMove4.setupActiveAtoms();
-			for(int i=0; i<50; i++) integratormc.doStep();
+			for(int i=0; i<50; i++) {
+                integratormc.doStep();
+                integratormc.fireIntervalEvent(intervalEventMC);
+            }
             potentialMasterHybrid.setUseNbrLists(true);
             potentialMasterHybrid.getNeighborManager().setQuiet(true);
             potentialMasterHybrid.getNeighborManager().updateNbrsIfNeeded(integratormd);
@@ -88,6 +93,7 @@ public class IntegratorDCVGCMD extends Integrator {
 	 	} else {
             MDStepCount--;
 	 		integratormd.doStep();
+            integratormd.fireIntervalEvent(intervalEventMD);
 	 		elapsedTime += integratormd.getTimeStep();	
 		} 
 	}
@@ -138,7 +144,9 @@ public class IntegratorDCVGCMD extends Integrator {
 		mcMove4.setSpecies(speciesB);
 		mcMove3.integrator = this;
 		mcMove4.integrator = this;
-		//two more mcmoves here
+
+        intervalEventMC = new IntegratorIntervalEvent(integratormc, 1);
+        intervalEventMD = new IntegratorIntervalEvent(integratormd, 1);
 	}
 	
 	public void setMu(double mu1, double mu2) {
@@ -173,13 +181,6 @@ public class IntegratorDCVGCMD extends Integrator {
 		return new MyMCMove[] {mcMove1, mcMove2, mcMove3, mcMove4};
 	}
 
-//	/**
-//	 * @see etomica.Integrator#addPhase(etomica.Phase)
-//	 */
-//	public boolean addPhase(Phase p) {
-//		return super.addPhase(p);
-//		return true;
-//		
-//	}
+    IntegratorIntervalEvent intervalEventMD, intervalEventMC;
 
 }
