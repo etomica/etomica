@@ -44,7 +44,7 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
 		return info;
 	}
 
-	/**
+    /**
 	 * Sets moves in given array to be integrator's set of moves, deleting any
 	 * existing moves.
 	 */
@@ -90,6 +90,30 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
 		moveCount++;
 		recomputeMoveFrequencies();
 	}
+
+    /**
+     * Removes the given MCMove from the set of moves performed by the integrator and
+     * recalculates move frequencies.  Returns false if the move was not used by
+     * the integrator.
+     */
+    public boolean removeMCMove(MCMove move) {
+        //make sure move wasn't added already
+        if (move == firstMoveLink.move) {
+            firstMoveLink = firstMoveLink.nextLink;
+            moveCount--;
+            recomputeMoveFrequencies();
+            return true;
+        }
+        for (MCMoveLinker link = firstMoveLink; link.nextLink != null; link = link.nextLink) {
+            if (move == link.nextLink.move) {
+                link.nextLink = link.nextLink.nextLink;
+                moveCount--;
+                recomputeMoveFrequencies();
+                return true;
+            }
+        }
+        return false;
+    }
 
 	/**
 	 * Invokes superclass method and informs all MCMoves about the new phase.
