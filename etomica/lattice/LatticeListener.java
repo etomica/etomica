@@ -1,5 +1,4 @@
 package etomica.lattice;
-import etomica.simulation.SimulationListener;
 
 /**
  * Interface for an object that can be registered as a listener to a lattice.
@@ -7,7 +6,7 @@ import etomica.simulation.SimulationListener;
  *
  * @author David Kofke
  */
-public interface LatticeListener extends SimulationListener {
+public interface LatticeListener {
 
     public void actionPerformed(LatticeEvent event);
 

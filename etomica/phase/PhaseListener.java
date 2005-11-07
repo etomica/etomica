@@ -1,6 +1,5 @@
 package etomica.phase;
 
-import etomica.simulation.SimulationListener;
 
 /**
  * Interface for an object that can be registered as a listener to another simulation element.
@@ -8,7 +7,7 @@ import etomica.simulation.SimulationListener;
  *
  * @author David Kofke
  */
-public interface PhaseListener extends SimulationListener {
+public interface PhaseListener {
 
     public void actionPerformed(PhaseEvent event);
 

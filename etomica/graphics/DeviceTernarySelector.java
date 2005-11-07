@@ -6,7 +6,6 @@ import java.awt.GridLayout;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.simulation.SimulationEventManager;
-import etomica.simulation.SimulationListener;
 
 /**
  * Selector for fractions in a ternary system.  Presents a triangle that can
@@ -217,7 +216,7 @@ public class DeviceTernarySelector extends Device implements EtomicaElement {
             int x = evt.getX();
             int y = evt.getY();
             double[] frac = triangle.fractions(x,y);
-            for(SimulationListener.Linker linker=listenerManager.first(); linker!=null; linker=linker.next) {
+            for(SimulationEventManager.Linker linker=listenerManager.first(); linker!=null; linker=linker.next) {
                 ((Listener)linker.listener).ternaryAction(frac[0], frac[1], frac[2]);
             }
             //System.out.println(frac[0]+" "+frac[1]+" "+frac[2]);
@@ -293,7 +292,7 @@ public class DeviceTernarySelector extends Device implements EtomicaElement {
         }//end of fractions
     }//end of Triangle
     
-    public interface Listener extends SimulationListener {
+    public interface Listener {
         public void ternaryAction(double x1, double x2, double x3);
     }
     

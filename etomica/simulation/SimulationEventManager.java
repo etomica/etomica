@@ -1,4 +1,6 @@
 package etomica.simulation;
+import java.io.Serializable;
+
 import etomica.action.activity.ControllerEvent;
 import etomica.action.activity.ControllerListener;
 import etomica.integrator.mcmove.MCMoveEvent;
@@ -18,17 +20,13 @@ import etomica.phase.PhaseListener;
  */
 public class SimulationEventManager implements java.io.Serializable {
     
-    //A Linker class is used to construct a linked list of listeners.
-    private SimulationListener.Linker first;
-    int listenerCount = 0;
-    
     /**
      * Adds a listener.  Synchronized to avoid conflict with removeListener.
      */
-    public synchronized void addListener(SimulationListener listener) {
+    public synchronized void addListener(Object listener) {
         //add listener to beginning of list 
         //placement at end causes problem if a listener removes and then adds itself to the list as part of its response to the event
-        first = new SimulationListener.Linker(listener, first, null);
+        first = new SimulationEventManager.Linker(listener, first, null);
         if(first.next != null) first.next.previous = first;
         listenerCount++;
     }
@@ -36,8 +34,8 @@ public class SimulationEventManager implements java.io.Serializable {
     /**
      * Removes a listener.  Synchronized to avoid conflict with addListener.
      */
-    public synchronized void removeListener(SimulationListener listener) {
-        for(SimulationListener.Linker link=first; link!=null; link=link.next) {
+    public synchronized void removeListener(Object listener) {
+        for(SimulationEventManager.Linker link=first; link!=null; link=link.next) {
             if(link.listener == listener) {
             	listenerCount--;
                 if(link == first) {first = link.next;}
@@ -60,38 +58,45 @@ public class SimulationEventManager implements java.io.Serializable {
      * using this class just to maintain list of listeners, while firing
      * events to them using methods outside this class.
      */
-     public SimulationListener.Linker first() {return first;}
-
-//probably ok to make not synchronized.  Addition and removal of listeners
-//while firing event does not disturb complete event firing, since the the link keeps its next/previous
-//handles when removed, and additions are made only to the end of the list
-    public void fireEvent(SimulationEvent event) {
-        for(SimulationListener.Linker link=first; link!=null; link=link.next) {
-            link.listener.actionPerformed(event);
-        }
-    }
+     public SimulationEventManager.Linker first() {return first;}
 
     public void fireEvent(PhaseEvent event) {
-        for(SimulationListener.Linker link=first; link!=null; link=link.next) {
+        for(SimulationEventManager.Linker link=first; link!=null; link=link.next) {
             ((PhaseListener)link.listener).actionPerformed(event);
         }
     }
 
     public void fireEvent(ControllerEvent event) {
-        for(SimulationListener.Linker link=first; link!=null; link=link.next) {
+        for(SimulationEventManager.Linker link=first; link!=null; link=link.next) {
             ((ControllerListener)link.listener).actionPerformed(event);
         }
     }
 
     public void fireEvent(MCMoveEvent event) {
-        for(SimulationListener.Linker link=first; link!=null; link=link.next) {
+        for(SimulationEventManager.Linker link=first; link!=null; link=link.next) {
             ((MCMoveListener)link.listener).actionPerformed(event);
         }
     }
 
     public void fireEvent(LatticeEvent event) {
-        for(SimulationListener.Linker link=first; link!=null; link=link.next) {
+        for(SimulationEventManager.Linker link=first; link!=null; link=link.next) {
             ((LatticeListener)link.listener).actionPerformed(event);
+        }
+    }
+
+    private SimulationEventManager.Linker first;
+    int listenerCount = 0;
+    
+    /**
+     * Class used to construct a two-way linked list of listeners.
+     */
+    public static class Linker implements java.io.Serializable {
+        public Object listener;
+        public Linker next, previous;
+        public Linker(Object listener, Linker next, Linker previous) {
+            this.listener = listener;
+            this.next = next;
+            this.previous = previous;
         }
     }
 
