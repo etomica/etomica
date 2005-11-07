@@ -126,7 +126,7 @@ public class P2WaterSPCE extends Potential2 implements Potential2Soft {
     }
 
     public void setPhase(Phase phase) {
-        cPair.setNearestImageTransformer(phase.boundary());
+        cPair.setNearestImageTransformer(phase.getBoundary());
     }
 
     public double sigma , sigma2;

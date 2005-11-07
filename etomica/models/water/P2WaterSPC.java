@@ -154,7 +154,7 @@ public class P2WaterSPC extends Potential2 implements Potential2Soft {
 		this.boundary = boundary;
 	}
     public void setPhase(Phase phase) {
-        cPair.setNearestImageTransformer(phase.boundary());
+        cPair.setNearestImageTransformer(phase.getBoundary());
     }
 
 }

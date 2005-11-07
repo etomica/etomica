@@ -206,12 +206,12 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
         if(p == null) return;
         phase = p;
         
-        int boxX = (int)(phase.boundary().dimensions().x(0) * BaseUnit.Length.Sim.TO_PIXELS);
+        int boxX = (int)(phase.getBoundary().dimensions().x(0) * BaseUnit.Length.Sim.TO_PIXELS);
         int boxY = 1;
 
         switch(phase.space().D()) {
             case 3:
-                boxY = (int)(phase.boundary().dimensions().x(1) * BaseUnit.Length.Sim.TO_PIXELS);
+                boxY = (int)(phase.getBoundary().dimensions().x(1) * BaseUnit.Length.Sim.TO_PIXELS);
                 boxX *=1.4;
                 boxY *=1.4;
                     canvas = new DisplayPhaseCanvas3DOpenGL(this, boxX, boxY);
@@ -219,7 +219,7 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
                 else canvas = new DisplayPhaseCanvas3DSoftware(this);
  */               break;
             case 2:
-                boxY = (int)(phase.boundary().dimensions().x(1) * BaseUnit.Length.Sim.TO_PIXELS);
+                boxY = (int)(phase.getBoundary().dimensions().x(1) * BaseUnit.Length.Sim.TO_PIXELS);
                 canvas = new DisplayPhaseCanvas2D(this);
                 break;
             case 1:
@@ -256,17 +256,17 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
         if (phaseCanvas == null) return;
         if(phase == null) throw new IllegalStateException("Cannot set canvas before setting phase");
         
-        int boxX = (int)(phase.boundary().dimensions().x(0) * BaseUnit.Length.Sim.TO_PIXELS);
+        int boxX = (int)(phase.getBoundary().dimensions().x(0) * BaseUnit.Length.Sim.TO_PIXELS);
         int boxY = 1;
 
         switch(phase.space().D()) {
             case 3:
-                boxY = (int)(phase.boundary().dimensions().x(1) * BaseUnit.Length.Sim.TO_PIXELS);
+                boxY = (int)(phase.getBoundary().dimensions().x(1) * BaseUnit.Length.Sim.TO_PIXELS);
                 boxX *=1.4;
                 boxY *=1.4;
                 break;
             case 2:
-                boxY = (int)(phase.boundary().dimensions().x(1) * BaseUnit.Length.Sim.TO_PIXELS);
+                boxY = (int)(phase.getBoundary().dimensions().x(1) * BaseUnit.Length.Sim.TO_PIXELS);
                 break;
             case 1:
             default:
@@ -372,8 +372,8 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
         //Compute factor converting simulation units to pixels for this display
         toPixels = scale*BaseUnit.Length.Sim.TO_PIXELS;
         //Determine length and width of drawn image, in pixels
-        drawSize[0] = (int)(toPixels*getPhase().boundary().dimensions().x(0));
-        drawSize[1] = (phase.space().D()==1) ? drawingHeight: (int)(toPixels*getPhase().boundary().dimensions().x(1));
+        drawSize[0] = (int)(toPixels*getPhase().getBoundary().dimensions().x(0));
+        drawSize[1] = (phase.space().D()==1) ? drawingHeight: (int)(toPixels*getPhase().getBoundary().dimensions().x(1));
         //Find origin for drawing action
         centralOrigin[0] = (int)(getScale()*originShift[0]) + computeOrigin(align[0],drawSize[0],w);
         centralOrigin[1] = (int)(getScale()*originShift[1]) + computeOrigin(align[1],drawSize[1],h);
@@ -543,7 +543,7 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
             atomIterator.reset();
             while(atomIterator.hasNext()) {
                 Atom atom = atomIterator.nextAtom();
-                double r2 = Space.r2(point,atom.coord.position(),getPhase().boundary());
+                double r2 = Space.r2(point,atom.coord.position(),getPhase().getBoundary());
                 if(r2 < r2Min) {
                     nearestAtom = atom;
                     r2Min = r2;

@@ -113,7 +113,7 @@ protected CoordinatePair cPair;
     }
 
     public void setPhase(Phase phase) {
-        cPair.setNearestImageTransformer(phase.boundary());
+        cPair.setNearestImageTransformer(phase.getBoundary());
     }
 }
 

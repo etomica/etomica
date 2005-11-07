@@ -34,7 +34,7 @@ public abstract class Potential2HardSpherical extends Potential2 implements Pote
     }
     
     public void setPhase(Phase phase) {
-        coordinatePair.setNearestImageTransformer(phase.boundary());
+        coordinatePair.setNearestImageTransformer(phase.getBoundary());
     }
 
     protected final CoordinatePair coordinatePair;

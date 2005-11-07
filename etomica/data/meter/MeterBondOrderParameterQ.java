@@ -50,7 +50,7 @@ public class MeterBondOrderParameterQ  extends DataSourceScalar implements Meter
             Qreal[idx] = 0.0;
             Qimag[idx] = 0.0;
         }
-        cPair.setNearestImageTransformer(phase.boundary());
+        cPair.setNearestImageTransformer(phase.getBoundary());
         pairIterator.setPhase(phase);
         pairIterator.reset();
         while(pairIterator.hasNext()) {

@@ -76,7 +76,7 @@ public abstract class MeterLocalMoleFraction extends DataSourceScalar implements
         this.phase = phase;
         iterator.setPhase(phase);
         if (shape == null) {
-            setShape(phase.boundary().getShape());
+            setShape(phase.getBoundary().getShape());
         }
     }
 

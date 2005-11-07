@@ -164,7 +164,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     
     protected void corrector() {
         super.corrector();
-        double volOld = firstPhase.boundary().volume();
+        double volOld = firstPhase.getBoundary().volume();
         double voi = D*volOld*chi;
         double corvol = voi - vol1;
         double volNew = volOld + c0*corvol;
@@ -179,7 +179,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         
     protected void predictor() {
         super.predictor();
-        double volOld = firstPhase.boundary().volume();
+        double volOld = firstPhase.getBoundary().volume();
         double volNew = volOld + p1*vol1 + p2*vol2 + p3*vol3 + p4*vol4;
         vol1 += p1*vol2 + p2*vol3 + p3*vol4;
         vol2 += p1*vol3 + p2*vol4;

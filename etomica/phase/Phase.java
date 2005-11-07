@@ -214,7 +214,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      * 
      * @return The current instance of the boundary class
      */
-    public final Boundary boundary() {return boundary;}
+    public final Boundary getBoundary() {return boundary;}
     
     public final void setDimensions(Vector d) {
         boundary.setDimensions(d);

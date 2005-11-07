@@ -161,7 +161,7 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
     }
     
     public void setPhase(Phase phase) {
-    cPair.setNearestImageTransformer(phase.boundary());
+    cPair.setNearestImageTransformer(phase.getBoundary());
 }
 
     private double wellDiameter, wellDiameterSquared;

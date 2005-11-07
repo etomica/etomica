@@ -264,8 +264,8 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
         g.setColor(atomColor);
             
         if(a.type instanceof AtomTypeSphere) {
-            baseXP = origin[0] + (int)(displayPhase.getToPixels()*(tvert[sorted]+(displayPhase.getPhase().boundary().dimensions().x(0)/2)));
-            baseYP = origin[1] + (int)(displayPhase.getToPixels()*(tvert[sorted+1]+(displayPhase.getPhase().boundary().dimensions().x(1)/2)));
+            baseXP = origin[0] + (int)(displayPhase.getToPixels()*(tvert[sorted]+(displayPhase.getPhase().getBoundary().dimensions().x(0)/2)));
+            baseYP = origin[1] + (int)(displayPhase.getToPixels()*(tvert[sorted+1]+(displayPhase.getPhase().getBoundary().dimensions().x(1)/2)));
             /* Draw the core of the atom */
             sigmaP = (int)(2.0f*getCircleRadius(tvert[sorted+2], ((AtomTypeSphere)a.type).radius(a)));
             //sigmaP = (int)(displayPhase.getToPixels()*2.0f*((AtomType.Sphere)a.type).radius());

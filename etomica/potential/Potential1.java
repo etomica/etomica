@@ -18,7 +18,7 @@ public abstract class Potential1 extends Potential {
     }
 
     public void setPhase(Phase phase) {
-    	boundary = phase.boundary();
+    	boundary = phase.getBoundary();
     }
     
     /**

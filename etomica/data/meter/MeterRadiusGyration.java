@@ -58,7 +58,7 @@ public class MeterRadiusGyration extends DataSourceScalar implements Meter {
         if (phase == null)
             throw new IllegalStateException(
                     "must call setPhase before using meter");
-        cPair.setNearestImageTransformer(phase.boundary());
+        cPair.setNearestImageTransformer(phase.getBoundary());
         iterator.setPhase(phase);
         iterator.reset();
         AtomIteratorTree leafIterator = new AtomIteratorTree();

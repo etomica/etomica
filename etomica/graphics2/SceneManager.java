@@ -174,7 +174,7 @@ public final class SceneManager implements  java.io.Serializable
     		}
     		
     		// Create graphical object for the boundary
-    		Boundary bnd = phase.boundary();
+    		Boundary bnd = phase.getBoundary();
     		Polytope shape = bnd.getShape();
     	    LineSegment[] edges = shape.getEdges();
     	    Vector shift = phase.space().makeVector();

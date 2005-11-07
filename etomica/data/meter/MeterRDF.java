@@ -75,7 +75,7 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
 	 * Computes RDF for the current configuration of the given phase.
 	 */
 	public Data getData() {
-        cPair.setNearestImageTransformer(phase.boundary());
+        cPair.setNearestImageTransformer(phase.getBoundary());
         boolean needUpdate = false;
         if (rData != xDataSource.getData()) {
             rData = (DataDoubleArray)xDataSource.getData();

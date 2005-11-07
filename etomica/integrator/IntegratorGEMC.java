@@ -58,7 +58,7 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
         if(phase0 == null) return;
         this.phase[0] = phase0;
         atomDisplace0.setPhase(new Phase[] {phase0});
-        atomDisplace0.setStepSizeMax(0.5*phase0.boundary().dimensions().min());
+        atomDisplace0.setStepSizeMax(0.5*phase0.getBoundary().dimensions().min());
         if(phase[1] != null) {
             volumeExchange.setPhase(phase);
             moleculeExchange.setPhase(phase);
@@ -68,7 +68,7 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
         if(phase1 == null) return;
         this.phase[1] = phase1;
         atomDisplace1.setPhase(new Phase[] {phase1});
-        atomDisplace0.setStepSizeMax(0.5*phase1.boundary().dimensions().min());
+        atomDisplace0.setStepSizeMax(0.5*phase1.getBoundary().dimensions().min());
         if(phase[0] != null) {
             volumeExchange.setPhase(phase);
             moleculeExchange.setPhase(phase);

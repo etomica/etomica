@@ -67,7 +67,7 @@ public class CriterionSimple extends NeighborCriterion  {
 	}
 
 	public void setPhase(Phase phase) {
-        cPair.setNearestImageTransformer(phase.boundary());
+        cPair.setNearestImageTransformer(phase.getBoundary());
 	}
     
 	public boolean unsafe() {

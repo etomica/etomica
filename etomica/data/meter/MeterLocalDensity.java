@@ -58,7 +58,7 @@ public abstract class MeterLocalDensity extends DataSourceScalar implements Mete
         this.phase = phase;
         iterator.setPhase(phase);
         if (shape == null) {
-            setShape(phase.boundary().getShape());
+            setShape(phase.getBoundary().getShape());
         }
     }
 

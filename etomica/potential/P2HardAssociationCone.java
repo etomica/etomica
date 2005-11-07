@@ -195,7 +195,7 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
     public Dimension getThetaDimension() {return Dimension.ANGLE;}
 
     public void setPhase(Phase phase) {
-        cPair.setNearestImageTransformer(phase.boundary());
+        cPair.setNearestImageTransformer(phase.getBoundary());
     }
 
     /**

@@ -141,10 +141,10 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         if(drawBoundary>DRAW_BOUNDARY_NONE) {
             g.setColor(Color.gray);
             double toPixels = displayPhase.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS;
-            Polygon shape = (Polygon)displayPhase.getPhase().boundary().getShape();
+            Polygon shape = (Polygon)displayPhase.getPhase().getBoundary().getShape();
             LineSegment[] edges = shape.getEdges();
-            int ox = displayPhase.getOrigin()[0] + (int)(toPixels*displayPhase.getPhase().boundary().dimensions().x(0)*0.5);
-            int oy = displayPhase.getOrigin()[1] + (int)(toPixels*displayPhase.getPhase().boundary().dimensions().x(1)*0.5);
+            int ox = displayPhase.getOrigin()[0] + (int)(toPixels*displayPhase.getPhase().getBoundary().dimensions().x(0)*0.5);
+            int oy = displayPhase.getOrigin()[1] + (int)(toPixels*displayPhase.getPhase().getBoundary().dimensions().x(1)*0.5);
             for(int i=0; i<edges.length; i++) {
                 int x1 = ox + (int)(toPixels*edges[i].getVertices()[0].x(0));
                 int y1 = oy + (int)(toPixels*edges[i].getVertices()[0].x(1));
@@ -167,7 +167,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
 //        displayPhase.getColorScheme().colorAllAtoms();
             
         //Draw all atoms
-        Boundary boundary = displayPhase.getPhase().boundary();
+        Boundary boundary = displayPhase.getPhase().getBoundary();
         if(displayPhase.getColorScheme() instanceof ColorSchemeCollective) {
             ((ColorSchemeCollective)displayPhase.getColorScheme()).colorAllAtoms(displayPhase.getPhase());
         }
@@ -194,7 +194,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
 
         //Draw periodic images if indicated
         if(displayPhase.getImageShells() > 0) {
-            double[][] origins = displayPhase.getPhase().boundary().imageOrigins(displayPhase.getImageShells());  //more efficient to save rather than recompute each time
+            double[][] origins = displayPhase.getPhase().getBoundary().imageOrigins(displayPhase.getImageShells());  //more efficient to save rather than recompute each time
             for(int i=0; i<origins.length; i++) {
                 g.copyArea(displayPhase.getOrigin()[0],displayPhase.getOrigin()[1],displayPhase.getDrawSize()[0],displayPhase.getDrawSize()[1],(int)(displayPhase.getToPixels()*origins[i][0]),(int)(displayPhase.getToPixels()*origins[i][1]));
             }

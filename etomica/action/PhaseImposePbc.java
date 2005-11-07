@@ -50,7 +50,7 @@ public final class PhaseImposePbc extends PhaseActionAdapter implements
 	}
 
 	public void actionPerformed() {
-		Boundary boundary = phase.boundary();
+		Boundary boundary = phase.getBoundary();
 		iterator.reset();
         if (applyToMolecules) {
             while (iterator.hasNext()) {

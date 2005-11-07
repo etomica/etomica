@@ -54,8 +54,8 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, jav
         this.phase = phase;
         cellIterator.setLattice(phase.getLattice());
 		neighborIterator.setLattice(phase.getLattice());
-        neighborIterator.setPeriod(phase.boundary().dimensions());
-        neighborIterator.setPeriodicity(((BoundaryPeriodic)phase.boundary()).getPeriodicity());
+        neighborIterator.setPeriod(phase.getBoundary().dimensions());
+        neighborIterator.setPeriodicity(((BoundaryPeriodic)phase.getBoundary()).getPeriodicity());
         unset();
 	}
     

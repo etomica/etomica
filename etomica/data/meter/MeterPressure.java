@@ -81,7 +81,7 @@ public class MeterPressure extends DataSourceScalar implements Meter {
         if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
     	virial.zeroSum();
         potential.calculate(phase, iteratorDirective, virial);
-        return phase.getDensity()*temperature - virial.getSum()*rD/phase.boundary().volume();
+        return phase.getDensity()*temperature - virial.getSum()*rD/phase.getBoundary().volume();
     }
     
     /**

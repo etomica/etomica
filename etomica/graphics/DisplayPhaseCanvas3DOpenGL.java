@@ -143,7 +143,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     if(displayPhase != null) {
         Phase phase = displayPhase.getPhase();
         if(phase != null) {
-            float b = (float)phase.boundary().dimensions().x(0);
+            float b = (float)phase.getBoundary().dimensions().x(0);
 //			float z = -70f + (30f/b - 1f)*22f;
 //			float z = -190f + (30f/b - 1f)*22f;//08/12/03 DAK changed 70 to 190
 			float z = -1.30847f - 2.449f * b;//08/14/03 DAK changed to this by linear regressing observed "best" z vs b values
@@ -261,7 +261,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
 	drawExpansionShiftY = 0f;
 	drawExpansionShiftZ = 0f;
 	if(drawExpansionFactor != 1.0) {
-		Vector box = displayPhase.getPhase().boundary().dimensions();
+		Vector box = displayPhase.getPhase().getBoundary().dimensions();
 		float mult = (float)(0.5*(drawExpansionFactor - 1.0)/* *(2.0*displayPhase.getImageShells()+1)*/);
 		drawExpansionShiftX = (float)(mult*box.x(0));
 		drawExpansionShiftY = (float)(mult*box.x(1));
@@ -419,7 +419,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         //Draw overflow images if so indicated
         if(displayPhase.getDrawOverflow()) {
 //          setDrawExpansionFactor(1.0);
-          if(computeShiftOrigin(a, displayPhase.getPhase().boundary())) {
+          if(computeShiftOrigin(a, displayPhase.getPhase().getBoundary())) {
             int j = originShifts.length;
             while((--j) >= 0) {
               gl.glPushMatrix();
@@ -460,7 +460,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         //Draw overflow images if so indicated
         if(displayPhase.getDrawOverflow()) {
 //          setDrawExpansionFactor(1.0);
-          if(computeShiftOrigin(a, displayPhase.getPhase().boundary())) {
+          if(computeShiftOrigin(a, displayPhase.getPhase().getBoundary())) {
             int j = originShifts.length;
             while((--j) >= 0) {
               gl.glPushMatrix();
@@ -488,7 +488,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         //Draw overflow images if so indicated
         if(displayPhase.getDrawOverflow()) {
 //          setDrawExpansionFactor(1.0);
-          if(computeShiftOrigin(a, displayPhase.getPhase().boundary())) {
+          if(computeShiftOrigin(a, displayPhase.getPhase().getBoundary())) {
             int j = originShifts.length;
             while((--j) >= 0) {
               gl.glPushMatrix();
@@ -513,7 +513,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         //Draw overflow images if so indicated
         if(displayPhase.getDrawOverflow()) {
 //          setDrawExpansionFactor(1.0);
-          if(computeShiftOrigin(a, displayPhase.getPhase().boundary())) {
+          if(computeShiftOrigin(a, displayPhase.getPhase().getBoundary())) {
             int j = originShifts.length;
             while((--j) >= 0) {
               gl.glPushMatrix();
@@ -601,7 +601,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     gl.glLoadIdentity();
     //PhaseTranslate & Zoom to the desired position
 //    gl.glTranslatef(shiftX, shiftY, shiftZ-(displayPhase.getImageShells()<<5));//changed to '5' from '7' (08/12/03 DAK)
-	gl.glTranslatef(shiftX, shiftY, (float)(shiftZ-2.5*2*displayPhase.getImageShells()*displayPhase.getPhase().boundary().dimensions().x(0)));//changed to this (08/14/03 DAK)
+	gl.glTranslatef(shiftX, shiftY, (float)(shiftZ-2.5*2*displayPhase.getImageShells()*displayPhase.getPhase().getBoundary().dimensions().x(0)));//changed to this (08/14/03 DAK)
     //Rotate accordingly
     gl.glRotatef(xRot, 1f, 0f, 0f);
     gl.glRotatef(yRot, 0f, 1f, 0f);
@@ -609,9 +609,9 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     //Color all atoms according to colorScheme in DisplayPhase
 //    displayPhase.getColorScheme().colorAllAtoms();
 
-    xCenter = (float)(drawExpansionFactor*displayPhase.getPhase().boundary().dimensions().x(0)*.5);
-    yCenter = (float)(drawExpansionFactor*displayPhase.getPhase().boundary().dimensions().x(1)*.5);
-    zCenter = (float)(drawExpansionFactor*displayPhase.getPhase().boundary().dimensions().x(2)*.5);
+    xCenter = (float)(drawExpansionFactor*displayPhase.getPhase().getBoundary().dimensions().x(0)*.5);
+    yCenter = (float)(drawExpansionFactor*displayPhase.getPhase().getBoundary().dimensions().x(1)*.5);
+    zCenter = (float)(drawExpansionFactor*displayPhase.getPhase().getBoundary().dimensions().x(2)*.5);
     center.E(xCenter, yCenter, zCenter);
     rightClipPlane[3] = leftClipPlane[3] = xCenter + ((2*xCenter)*displayPhase.getImageShells());
     topClipPlane[3] = bottomClipPlane[3] = yCenter + ((2*yCenter)*displayPhase.getImageShells());
@@ -641,7 +641,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
       else if(displayPhase.getImageShells() > 1) j=DRAW_QUALITY_VERY_LOW;
       k = getQuality();
       setQuality(j);
-      shellOrigins = displayPhase.getPhase().boundary().imageOrigins(displayPhase.getImageShells());
+      shellOrigins = displayPhase.getPhase().getBoundary().imageOrigins(displayPhase.getImageShells());
       //more efficient to save rather than recompute each time
       gl.glNewList(displayList, GL_COMPILE_AND_EXECUTE);
     }
@@ -702,7 +702,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         
   private void drawBoundary(int num) {
     gl.glBegin(GL_LINES);
-    Polyhedron shape = (Polyhedron)displayPhase.getPhase().boundary().getShape();
+    Polyhedron shape = (Polyhedron)displayPhase.getPhase().getBoundary().getShape();
     LineSegment[] edges = shape.getEdges();
     for(int i=0; i<edges.length; i++) {
         vertex.E(edges[i].getVertices()[0]);
@@ -730,7 +730,7 @@ public double getDrawExpansionFactor() {
 public void setDrawExpansionFactor(double drawExpansionFactor) {
 	this.drawExpansionFactor = drawExpansionFactor;
 	if(displayPhase != null && displayPhase.getPhase() != null) {
-		Vector box = displayPhase.getPhase().boundary().dimensions();
+		Vector box = displayPhase.getPhase().getBoundary().dimensions();
 		float mult = (float)(0.5*(drawExpansionFactor - 1.0));//*(2*I+1);
 		drawExpansionShiftX = (float)(mult*box.x(0));
 		drawExpansionShiftY = (float)(mult*box.x(1));

@@ -186,7 +186,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
 
         //Draw periodic images if indicated
         if(displayPhase.getImageShells() > 0) {
-            double[][] origins = displayPhase.getPhase().boundary().imageOrigins(displayPhase.getImageShells());  //more efficient to save rather than recompute each time
+            double[][] origins = displayPhase.getPhase().getBoundary().imageOrigins(displayPhase.getImageShells());  //more efficient to save rather than recompute each time
             for(int i=0; i<origins.length; i++) {
                 g.copyArea(displayPhase.getOrigin()[0],displayPhase.getOrigin()[1],displayPhase.getDrawSize()[0],displayPhase.getDrawSize()[1],(int)(displayPhase.getToPixels()*origins[i][0]),(int)(displayPhase.getToPixels()*origins[i][1]));
             }

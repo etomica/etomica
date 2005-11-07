@@ -189,7 +189,7 @@ public class P2HardBond extends Potential2 implements PotentialHard {
     public double energyChange() {return 0.0;}
 
     public void setPhase(Phase phase) {
-        cPair.setNearestImageTransformer(phase.boundary());
+        cPair.setNearestImageTransformer(phase.getBoundary());
     }
 
     private double minBondLengthSquared;

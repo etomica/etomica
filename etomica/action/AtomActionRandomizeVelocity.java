@@ -5,7 +5,6 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;
 import etomica.statmech.MaxwellBoltzmann;
-import etomica.util.Default;
 
 
 /**

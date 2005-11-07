@@ -17,7 +17,7 @@ public class PotentialCalculationForceSum extends PotentialCalculation {
     private final Vector f;
     
     public PotentialCalculationForceSum(Space space) {
-            f = space.makeVector();
+        f = space.makeVector();
     }
         
 	/**

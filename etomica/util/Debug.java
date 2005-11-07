@@ -39,26 +39,26 @@ public final class Debug {
 	 * performance should suffer as the level goes up, and
 	 * finding useful information might get difficult.
 	 */
-	public static int LEVEL = 2;
+	public static int LEVEL = 1;
 	
     /**
      * true if debugging is currently enabled (when the integrator reaches step START) 
      */
-    public static boolean DEBUG_NOW = true;
+    public static boolean DEBUG_NOW = false;
 
 	/**
 	 * leaf atom number of first atom of interest.  The atom is the nth leaf atom 
 	 * in a phase (set by calling setAtoms(phase)) More debugging information will be
 	 * printed out about this particular atom.  -1 indicates no particular atom.
 	 */
-	public static final int ATOM1_NUM = 38;
+	public static final int ATOM1_NUM = -1;
 	
 	/**
 	 * leaf atom number of second atom of interest.  This is often used in conjunction with 
 	 * ATOM1_INDEX to collect information about a pair of atoms.  -1 indicates no
 	 * particular atom.  
 	 */
-	public static final int ATOM2_NUM = 39;
+	public static final int ATOM2_NUM = -1;
 	
     public static final int MOLECULE1_INDEX = -1;
     public static final int MOLECULE2_INDEX = -1;

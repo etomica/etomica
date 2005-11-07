@@ -46,7 +46,7 @@ public class NeighborCellManagerFixed implements PhaseCellManager {
         atomIterator = new AtomIteratorListTabbed(
                 phase.getSpeciesMaster().atomList);
 
-        lattice = new CellLattice(phase.boundary().dimensions(),
+        lattice = new CellLattice(phase.getBoundary().dimensions(),
                 AtomSite.FACTORY);
         int[] size = new int[space.D()];
         for (int i = 0; i < space.D(); i++)

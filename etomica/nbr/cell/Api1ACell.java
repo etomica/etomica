@@ -69,8 +69,8 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
         if(phase != null) {
             lattice = (CellLattice)phase.getLattice();
             neighborIterator.setLattice(lattice);
-            neighborIterator.setPeriod(phase.boundary().dimensions());
-            neighborIterator.setPeriodicity(((BoundaryPeriodic)phase.boundary()).getPeriodicity());
+            neighborIterator.setPeriod(phase.getBoundary().dimensions());
+            neighborIterator.setPeriodicity(((BoundaryPeriodic)phase.getBoundary()).getPeriodicity());
         }
 	}
 

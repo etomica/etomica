@@ -46,7 +46,7 @@ public class MeterPressureHard extends DataSourceScalar implements
         }
         double elapsedTime = timer.getDataAsScalar();
         if(elapsedTime == 0.0) return Double.NaN;
-        double value = (integratorHard.getTemperature()*phase.atomCount() - virialSum/(phase.space().D()*elapsedTime)) / phase.boundary().volume();
+        double value = (integratorHard.getTemperature()*phase.atomCount() - virialSum/(phase.space().D()*elapsedTime)) / phase.getBoundary().volume();
 
         virialSum = 0.0;
         timer.reset();
