@@ -1,15 +1,10 @@
 package etomica.compatibility;
 
-import etomica.EtomicaInfo;
-import etomica.compatibility.Feature;
-import etomica.compatibility.Requirement;
-import etomica.potential.P1BondedHardSpheres;
-import etomica.potential.Potential;
-import etomica.simulation.prototypes.HSMD3D;
-import etomica.space2d.Space2D;
-
 import java.io.Serializable;
 import java.util.HashMap;
+
+import etomica.EtomicaInfo;
+import etomica.potential.P1BondedHardSpheres;
 
 
 /** Container for a class features. EtomicaInfo has a method getFeatures() that returns a FeatureSet.
