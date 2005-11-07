@@ -1,6 +1,7 @@
 package etomica.atom;
 
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
@@ -51,6 +52,18 @@ public final class SpeciesMaster extends Atom {
         Phase phase = node.parentPhase();
         return (phase != null) ? phase.getName()
                 : "SpeciesMaster without phase";
+    }
+    
+    public void removeSpecies(Species species) {
+        AtomList speciesAgents= ((AtomTreeNodeGroup)node).childList;
+        AtomIteratorListSimple iterator = new AtomIteratorListSimple(speciesAgents);
+        iterator.reset();
+        while (iterator.hasNext()) {
+            Atom speciesAgent = iterator.nextAtom();
+            if (speciesAgent.type.getSpecies() == species) {
+                speciesAgent.node.setParent((Atom)null);
+            }
+        }
     }
 
     private static final class MasterAtomTreeNode extends AtomTreeNodeGroup {

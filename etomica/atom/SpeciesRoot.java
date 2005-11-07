@@ -59,7 +59,7 @@ public final class SpeciesRoot extends Atom {
         AtomIteratorListSimple iterator = new AtomIteratorListSimple(speciesMasters);
         iterator.reset();
         while (iterator.hasNext()) {
-//            ((SpeciesMaster)iterator.nextAtom()).removeSpecies(species);
+            ((SpeciesMaster)iterator.nextAtom()).removeSpecies(species);
         }
     }
     
