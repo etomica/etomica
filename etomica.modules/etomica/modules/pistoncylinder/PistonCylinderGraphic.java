@@ -491,7 +491,7 @@ public class PistonCylinderGraphic {
         }
 
         // set up GUI
-        BaseUnit.Length.Sim.TO_PIXELS = 600/pc.phase.boundary().dimensions().x(1);
+        BaseUnit.Length.Sim.TO_PIXELS = 600/pc.phase.getBoundary().dimensions().x(1);
         pc.ai.setDoSleep(integratorSleep > 0);
         pc.ai.setSleepPeriod(integratorSleep);
         pc.integrator.removeAllListeners();

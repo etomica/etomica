@@ -207,15 +207,15 @@ public class MultiharmonicGraphic {
 
         final DataSourceFunction uA = new DataSourceFunction(fUA);
         final DataSourceFunction uB = new DataSourceFunction(fUB);
-        uA.getXSource().setXMax(sim.phase.boundary().dimensions().x(0));
-        uB.getXSource().setXMax(sim.phase.boundary().dimensions().x(0));
+        uA.getXSource().setXMax(sim.phase.getBoundary().dimensions().x(0));
+        uB.getXSource().setXMax(sim.phase.getBoundary().dimensions().x(0));
         CastToDoubleArray cast3 = new CastToDoubleArray();
         CastToDoubleArray cast4 = new CastToDoubleArray();
         final DataPump uAPump = new DataPump(uA, cast3);
         final DataPump uBPump = new DataPump(uB, cast4);
         cast3.setDataSink(uPlot.getDataTable());
         cast4.setDataSink(uPlot.getDataTable());
-        ((DataSourceUniform)uPlot.getXSource()).setXMax(sim.phase.boundary().dimensions().x(0));
+        ((DataSourceUniform)uPlot.getXSource()).setXMax(sim.phase.getBoundary().dimensions().x(0));
         ActionGroupSeries uGroup = new ActionGroupSeries(new Action[] {
                 new Action() {
                     public void actionPerformed() {

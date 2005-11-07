@@ -89,7 +89,7 @@ public class PistonCylinder extends Simulation {
             wallPotential.setActive(2,false,true); // back wall
         }
 
-        pistonPotential = new P1HardMovingBoundary(space,phase.boundary(),1,defaults.atomMass*100, defaults.ignoreOverlap);
+        pistonPotential = new P1HardMovingBoundary(space,phase.getBoundary(),1,defaults.atomMass*100, defaults.ignoreOverlap);
         pistonPotential.setCollisionRadius(defaults.atomSize*0.5);
         pistonPotential.setWallPosition(0.0);
         pistonPotential.setWallVelocity(0.5);

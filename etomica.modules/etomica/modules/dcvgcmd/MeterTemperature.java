@@ -38,7 +38,7 @@ public final class MeterTemperature extends etomica.data.meter.MeterTemperature 
 		if(size > 0) {
 			natoms = size * ((AtomTreeNodeGroup)list.getFirst().node).childList.size();
 		}
-		return (2. / (double) ((phase.atomCount()- natoms) * phase.boundary().dimensions().D()))
+		return (2. / (double) ((phase.atomCount()- natoms) * phase.getBoundary().dimensions().D()))
 				* meterKE.getDataAsScalar();
 	}
 

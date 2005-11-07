@@ -45,7 +45,7 @@ public class Multiharmonic extends Simulation {
         double x0 = 1;
         species = new SpeciesSpheresMono(this);
         phase = new Phase(this);
-        phase.boundary().setDimensions(new Vector1D(3.0));
+        phase.getBoundary().setDimensions(new Vector1D(3.0));
         controller = getController();
         integrator = new IntegratorVelocityVerlet(this);
         integrator.addPhase(phase);
