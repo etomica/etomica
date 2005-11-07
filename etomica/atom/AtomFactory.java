@@ -54,11 +54,6 @@ public abstract class AtomFactory implements java.io.Serializable {
     public abstract void setSpecies(Species species);
     
     /**
-     * Returns the species that is using this factory or its parent factory.
-     */
-    public Species getSpecies() {return atomType.getSpecies();}
-        
-    /**
      * Method used by subclasses to make the root atom of the group it is building.
      */
     protected Atom newParentAtom() {
