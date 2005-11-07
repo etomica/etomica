@@ -45,7 +45,6 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
                                    AtomTypeGroup agentType) {
         super(sim, new AtomFactoryMono(new CoordinateFactoryAngular(sim), 
                 new AtomTypeOrientedSphere(agentType,sim.getDefaults().atomMass,sim.getDefaults().atomSize), seqFactory), agentType);
-        factory.setSpecies(this);
         protoType = (AtomTypeOrientedSphere)((AtomFactoryMono)factory).getType();
         mass = protoType.getMass();
         nMolecules = sim.getDefaults().moleculeCount;
