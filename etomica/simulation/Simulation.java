@@ -107,8 +107,7 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
     
     public void register(DataSource dataSource, Object client) {
         for (int i=0; i<dataStreams.length; i++) {
-            if (dataStreams[i].getDataSource() == dataSource) {
-                dataStreams[i].addClient(client);
+            if (dataStreams[i].getDataSource() == dataSource && dataStreams[i].getClient() == client) {
                 return;
             }
         }
@@ -127,11 +126,8 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
     
     public void unregister(DataSource dataSource, Object client) {
         for (int i=0; i<dataStreams.length; i++) {
-            if (dataStreams[i].getDataSource() == dataSource) {
-                dataStreams[i].removeClient(client);
-                if (dataStreams[i].getClients().length == 0) {
-                    dataStreams = (DataStreamHeader[])Arrays.removeObject(dataStreams,dataStreams[i]);
-                }
+            if (dataStreams[i].getDataSource() == dataSource && dataStreams[i].getClient() == client) {
+                dataStreams = (DataStreamHeader[])Arrays.removeObject(dataStreams,dataStreams[i]);
                 return;
             }
         }

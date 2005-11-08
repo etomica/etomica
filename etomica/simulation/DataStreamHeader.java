@@ -1,40 +1,26 @@
 package etomica.simulation;
 
 import etomica.data.DataSource;
-import etomica.util.Arrays;
 
 public class DataStreamHeader implements java.io.Serializable {
 
     DataStreamHeader(DataSource dataSource, Object object) {
         this.dataSource = dataSource;
-        clients = new Object[]{object};
+        client = object;
     }
     
     public DataSource getDataSource() {
         return dataSource;
     }
     
-    public void setClients(Object[] objects) {
-        clients = (Object[])objects.clone();
+    public void setClient(Object object) {
+        client = object;
     }
     
-    public Object[] getClients() {
-        return (Object[])clients.clone();
+    public Object getClient() {
+        return client;
     }
     
-    public void removeClient(Object object) {
-        clients = Arrays.removeObject(clients,object);
-    }
-    
-    public void addClient(Object object) {
-        for (int i=0; i<clients.length; i++) {
-            if (clients[i] == object) {
-                return;
-            }
-        }
-        clients = Arrays.addObject(clients,object);
-    }
-
     private final DataSource dataSource;
-    private Object[] clients;
+    private Object client;
 }

@@ -26,11 +26,8 @@ public class SimulationDataAction implements Action, java.io.Serializable {
 	public void actionPerformed() {
         DataStreamHeader[] streams = simulation.getDataStreams();
         for (int i=0; i<streams.length; i++) {
-            Object[] clients = streams[i].getClients();
-            for (int j=0; j<clients.length; j++) {
-                streamAction.setStart(clients[j]);
-                streamAction.actionPerformed();
-            }
+            streamAction.setStart(streams[i].getClient());
+            streamAction.actionPerformed();
         }
     }
 
