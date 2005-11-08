@@ -128,8 +128,8 @@ public final class SpeciesRoot extends Atom {
                     speciesList[i].makeAgent((SpeciesMaster)newAtom);
                 }
             }
-            removalEvent.setPhase(newAtom.node.parentPhase());
-            removalEvent.setAtom(newAtom);
+            additionEvent.setPhase(newAtom.node.parentPhase());
+            additionEvent.setAtom(newAtom);
             ((SpeciesRoot)atom).eventManager.fireEvent(additionEvent);
  
         }
