@@ -48,6 +48,20 @@ public class PhaseEvent extends SimulationEvent {
     public final PhaseEvent setScale(Vector s) {anisoScale = s; isotropic = false; return this;}
     
     public static class Type extends EnumeratedType {
+
+        /**
+         * Required to guarantee singleton when deserializing.
+         * @return the singleton INSTANCE
+         */
+        private Object readResolve() {
+            for (int i=0; i<CHOICES.length; i++) {
+                if (this.toString().equals(CHOICES[i].toString())) {
+                    return CHOICES[i];
+                }
+            }
+            throw new RuntimeException("unknown PhaseEvent type: "+this);
+        }
+
         private Type(String label) {super(label);}
         public static final Type[] CHOICES = new Type[] {
             new Type("Point selected"),
