@@ -1,9 +1,5 @@
 package etomica.graphics;
-import etomica.atom.SpeciesRoot;
-import etomica.phase.Phase;
-import etomica.phase.PhaseEvent;
 import etomica.phase.PhaseListener;
-import etomica.simulation.SimulationEvent;
 import gl4java.awt.GLAnimCanvas;
 
 import java.awt.Dimension;
@@ -16,12 +12,10 @@ import java.awt.Graphics;
  * @author Steve Hotchkiss
  */
  
-public abstract class DisplayCanvasOpenGL extends GLAnimCanvas implements java.io.Serializable, DisplayCanvasInterface, PhaseListener {
+public abstract class DisplayCanvasOpenGL extends GLAnimCanvas implements java.io.Serializable, DisplayCanvasInterface {
     //protected Image offScreen;
     //protected Graphics osg;
         
-    protected DisplayPhase displayPhase;
-
     /**
      * Flag to indicate if display can be resized
      */
@@ -54,15 +48,6 @@ public abstract class DisplayCanvasOpenGL extends GLAnimCanvas implements java.i
         setBackground(java.awt.Color.black);
     }
 
-    public void actionPerformed(PhaseEvent evt) {
-        if (evt.phase() == displayPhase.getPhase()) {
-            initialize();
-        }
-    }
-    public void actionPerformed(SimulationEvent evt) {
-        actionPerformed((PhaseEvent)evt);
-    }
-        
     public void createOffScreen () {
         //if (offScreen == null) { 
             //createOffScreen(getSize().width, getSize().height);
@@ -81,12 +66,6 @@ public abstract class DisplayCanvasOpenGL extends GLAnimCanvas implements java.i
     public void update(Graphics g) {paint(g);}
         
       
-    public void setPhase() {
-        Phase phase = displayPhase.getPhase();
-        ((SpeciesRoot)phase.getSpeciesMaster().node.parentGroup()).addListener(this);
-    }
-              
-
     public void setMovable(boolean b) {movable = b;}
     public boolean isMovable() {return movable;}
     public void setResizable(boolean b) {resizable = b;}

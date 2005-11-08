@@ -17,10 +17,13 @@ import etomica.atom.AtomFilter;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
+import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polyhedron;
 import etomica.phase.Phase;
+import etomica.phase.PhaseEvent;
+import etomica.phase.PhaseListener;
 import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
@@ -39,7 +42,7 @@ import gl4java.utils.glut.GLUTEnum;
      */
 
 //Class used to define canvas onto which configuration is drawn
-public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements GLUTEnum {
+public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements GLUTEnum, PhaseListener {
     
   private final double rightClipPlane[] = new double[4];
   private final double leftClipPlane[] = new double[4];
@@ -129,6 +132,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         colorScheme = displayPhase.getColorScheme();
         atomFilter = displayPhase.getAtomFilter();
     }
+    setPhase();
   }
       
   //public void preInit() {
@@ -386,6 +390,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     private etomica.space3d.Vector3D[] points;
     private etomica.space3d.Vector3D normal;
     private etomica.space3d.Vector3D nearest;
+    protected DisplayPhase displayPhase;
     
   private void drawDisplay() {
     
@@ -715,27 +720,36 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     gl.glEnd();
   }
     
-/**
- * Returns the drawExpansionFactor.
- * @return double
- */
-public double getDrawExpansionFactor() {
-	return drawExpansionFactor;
-}
-
-/**
- * Sets the drawExpansionFactor.
- * @param drawExpansionFactor The drawExpansionFactor to set
- */
-public void setDrawExpansionFactor(double drawExpansionFactor) {
-	this.drawExpansionFactor = drawExpansionFactor;
-	if(displayPhase != null && displayPhase.getPhase() != null) {
-		Vector box = displayPhase.getPhase().getBoundary().dimensions();
-		float mult = (float)(0.5*(drawExpansionFactor - 1.0));//*(2*I+1);
-		drawExpansionShiftX = (float)(mult*box.x(0));
-		drawExpansionShiftY = (float)(mult*box.x(1));
-		drawExpansionShiftZ = (float)(mult*box.x(2));
-	}
-}
-
+    /**
+     * Returns the drawExpansionFactor.
+     * @return double
+     */
+    public double getDrawExpansionFactor() {
+    	return drawExpansionFactor;
+    }
+    
+    /**
+     * Sets the drawExpansionFactor.
+     * @param drawExpansionFactor The drawExpansionFactor to set
+     */
+    public void setDrawExpansionFactor(double drawExpansionFactor) {
+    	this.drawExpansionFactor = drawExpansionFactor;
+    	if(displayPhase != null && displayPhase.getPhase() != null) {
+    		Vector box = displayPhase.getPhase().getBoundary().dimensions();
+    		float mult = (float)(0.5*(drawExpansionFactor - 1.0));//*(2*I+1);
+    		drawExpansionShiftX = (float)(mult*box.x(0));
+    		drawExpansionShiftY = (float)(mult*box.x(1));
+    		drawExpansionShiftZ = (float)(mult*box.x(2));
+    	}
+    }
+    public void actionPerformed(PhaseEvent evt) {
+        if (evt.phase() == displayPhase.getPhase()) {
+            initialize();
+        }
+    }
+    public void setPhase() {
+        Phase phase = displayPhase.getPhase();
+        ((SpeciesRoot)phase.getSpeciesMaster().node.parentGroup()).addListener(this);
+    }
+    
 }  //end of DisplayPhase.Canvas
