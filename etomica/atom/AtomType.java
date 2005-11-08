@@ -134,7 +134,7 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
     public int compareTo(Object atomType) {
         int otherIndex = ((AtomType) atomType).indexManager.getTypeIndex();
         int myIndex = indexManager.getTypeIndex();
-        return otherIndex > myIndex ? 1 : (otherIndex == myIndex ? 0 : -1);
+        return otherIndex > myIndex ? -1 : (otherIndex == myIndex ? 0 : 1);
     }
 
     /**
