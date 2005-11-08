@@ -107,17 +107,10 @@ public abstract class IntegratorMD extends Integrator {
          * @return the singleton INSTANCE
          */
         private Object readResolve() {
-            if (this.toString().equals("Velocity Scaling")) {
-                return VELOCITY_SCALING;
-            }
-            if (this.toString().equals("Andersen")) {
-                return ANDERSEN;
-            }
-            if (this.toString().equals("Andersen Single")) {
-                return ANDERSEN_SINGLE;
-            }
-            if (this.toString().equals("Nose Hoover")) {
-                return NOSE_HOOVER;
+            for (int i=0; i<CHOICES.length; i++) {
+                if (this.toString().equals(CHOICES[i].toString())) {
+                    return CHOICES[i];
+                }
             }
             throw new RuntimeException("unknown thermostat type: "+this);
         }
@@ -125,7 +118,7 @@ public abstract class IntegratorMD extends Integrator {
     protected static final ThermostatType[] CHOICES = 
         new ThermostatType[] {
             new ThermostatType("Velocity Scaling"), new ThermostatType("Andersen"),
-            new ThermostatType("Andersen Single"), new ThermostatType("Nose Hoover")};
+            new ThermostatType("Andersen Single"), new ThermostatType("Nose Hoover (unimplemented)")};
     public static final ThermostatType VELOCITY_SCALING = CHOICES[0];
     public static final ThermostatType ANDERSEN = CHOICES[1];
     public static final ThermostatType ANDERSEN_SINGLE = CHOICES[2];
@@ -137,6 +130,10 @@ public abstract class IntegratorMD extends Integrator {
      */
     public void setThermostat(ThermostatType aThermostat) {
         thermostat = aThermostat;
+    }
+
+    public ThermostatType getThermostat() {
+        return thermostat;
     }
 
     /**
