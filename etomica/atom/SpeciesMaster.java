@@ -105,7 +105,6 @@ public final class SpeciesMaster extends Atom {
             return true;
         }
 
-        //does not pass notification up to parent (root)
         public void addAtomNotify(Atom newAtom) {
             if (newAtom.node.parentGroup() instanceof SpeciesAgent) {
                 speciesMaster.moleculeCount++;
@@ -132,6 +131,9 @@ public final class SpeciesMaster extends Atom {
                                     .nextAtom().node).leafLinker, nextTab);
                 }
             }
+            if (parentNode() != null) {
+                parentNode().addAtomNotify(newAtom);
+            }
        }
 
         //updating of leaf atomList may not be efficient enough for repeated
@@ -155,6 +157,9 @@ public final class SpeciesMaster extends Atom {
                     speciesMaster.atomList
                             .remove(((AtomTreeNodeLeaf) leafIterator.nextAtom().node).leafLinker);
                 }
+            }
+            if (parentNode() != null) {
+                parentNode().addAtomNotify(oldAtom);
             }
         }
 
