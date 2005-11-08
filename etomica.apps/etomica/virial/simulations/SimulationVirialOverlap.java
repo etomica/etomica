@@ -69,9 +69,7 @@ public class SimulationVirialOverlap extends Simulation {
         phase = new PhaseCluster[sampleClusters.length];
         integrators = new IntegratorClusterMC[sampleClusters.length];
         meters = new MeterVirial[sampleClusters.length];
-        if (nMolecules > 2) {
-            mcMoveTranslate = new MCMove[sampleClusters.length];
-        }
+        mcMoveTranslate = new MCMove[sampleClusters.length];
         if (species.getFactory().getType() instanceof AtomTypeGroup) {
             mcMoveRotate = new MCMove[sampleClusters.length];
         }
@@ -88,20 +86,16 @@ public class SimulationVirialOverlap extends Simulation {
             integrators[iPhase].addPhase(phase[iPhase]);
             integrators[iPhase].setEquilibrating(false);
             if (species.getFactory().getType() instanceof AtomTypeLeaf) {
-//                if (nMolecules>2) {
-                    mcMoveTranslate[iPhase] = new MCMoveClusterAtomMulti(this, nMolecules-1);
-                    mcMoveTranslate[iPhase].setStepSize(0.41);
-                    integrators[iPhase].addMCMove(mcMoveTranslate[iPhase]);
-//                }
+                mcMoveTranslate[iPhase] = new MCMoveClusterAtomMulti(this, nMolecules-1);
+                mcMoveTranslate[iPhase].setStepSize(0.41);
+                integrators[iPhase].addMCMove(mcMoveTranslate[iPhase]);
             }
             else {
                 mcMoveRotate[iPhase] = new MCMoveClusterRotateMoleculeMulti(potentialMaster,space,nMolecules-1);
                 mcMoveRotate[iPhase].setStepSize(Math.PI);
                 integrators[iPhase].addMCMove(mcMoveRotate[iPhase]);
-                if (nMolecules>2) {
-                    mcMoveTranslate[iPhase] = new MCMoveClusterMoleculeMulti(potentialMaster, 0.41, nMolecules-1);
-                    integrators[iPhase].addMCMove(mcMoveTranslate[iPhase]);
-                }
+                mcMoveTranslate[iPhase] = new MCMoveClusterMoleculeMulti(potentialMaster, 0.41, nMolecules-1);
+                integrators[iPhase].addMCMove(mcMoveTranslate[iPhase]);
             }
             
             ConfigurationCluster configuration = new ConfigurationCluster(space);
@@ -110,7 +104,7 @@ public class SimulationVirialOverlap extends Simulation {
             MeterVirial meter = new MeterVirial(new ClusterAbstract[]{aValueClusters[iPhase],aSampleClusters[1-iPhase]},integrators[iPhase]);
             meter.setName("Meter"+iPhase);
             setMeter(meter,iPhase);
-            AccumulatorVirialOverlapSingleAverage acc = new AccumulatorVirialOverlapSingleAverage(this, 11);
+            AccumulatorVirialOverlapSingleAverage acc = new AccumulatorVirialOverlapSingleAverage(this, 11, iPhase==0);
             setAccumulator(acc,iPhase);
               
         }
@@ -128,7 +122,7 @@ public class SimulationVirialOverlap extends Simulation {
 
     public void setRefPref(double refPrefCenter, double span) {
         accumulators[0].setBennetParam(refPrefCenter,span);
-        accumulators[1].setBennetParam(1/refPrefCenter,span);
+        accumulators[1].setBennetParam(refPrefCenter,span);
     }
     
     public void setMeter(MeterVirial newMeter, int iPhase) {

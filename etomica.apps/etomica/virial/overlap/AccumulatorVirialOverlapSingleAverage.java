@@ -4,6 +4,7 @@ import etomica.data.AccumulatorRatioAverage;
 import etomica.data.Data;
 import etomica.data.types.DataDoubleArray;
 import etomica.simulation.Simulation;
+import etomica.util.Debug;
 
 /**
  * Accumulator for taking ratio between two sums (and pretend it's an "average")
@@ -11,13 +12,14 @@ import etomica.simulation.Simulation;
  */
 public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAverage {
 
-	public AccumulatorVirialOverlapSingleAverage(Simulation sim, int aNBennetPoints) {
-		this(sim.getDefaults().blockSize,aNBennetPoints);
+	public AccumulatorVirialOverlapSingleAverage(Simulation sim, int aNBennetPoints, boolean aIsReference) {
+		this(sim.getDefaults().blockSize,aNBennetPoints, aIsReference);
 	}
 	
-    public AccumulatorVirialOverlapSingleAverage(int blockSize, int aNBennetPoints) {
+    public AccumulatorVirialOverlapSingleAverage(int blockSize, int aNBennetPoints, boolean aIsReference) {
 		super(blockSize);
 		nBennetPoints = aNBennetPoints;
+        isReference = aIsReference;
 		if (nBennetPoints%2 == 0) {
 			throw new IllegalArgumentException("try again with an odd aNPoints");
 		}
@@ -57,19 +59,22 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
     // where 1 and 2 are target and reference or vica versa, depending on
     // which phase the values are coming from.
     public void addData(Data value) {
-        if(((DataDoubleArray)value).getLength() != 2) {
-            throw new IllegalArgumentException("must receive cluster value, weight and 'other' weight (only)");
+        if (Debug.ON && ((DataDoubleArray)value).getLength() != 2) {
+            throw new IllegalArgumentException("must receive cluster value and 'other' weight (only)");
         }
         double value1 = ((DataDoubleArray)value).getData()[1];
         for (int j=0; j<nBennetPoints; j++) {
             // this is actually blockSum[1], but for all the various values of the overlap parameter
             // this doesn't look right, but it is.
             // http://rheneas.eng.buffalo.edu/~andrew/overlapf.pdf
-            double v = value1/(value1+ expX[j]);
+            double v = value1*(1+expX[j]);
+            if (isReference) {
+                v /= value1 + expX[j];
+            }
+            else {
+                v /= expX[j]*value1 + 1;
+            }
             bennetSum[j] += v;
-            // normalize so it will look mostly like |v0| for large values of expX and
-            // most like |v1| for small values of expX
-            v *= (1+expX[j]);
             blockOverlapSum[j] += v;
             blockOverlapSumSq[j] += v*v;
         }
@@ -151,4 +156,5 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
     private final double[] bennetSum;
     private final int nBennetPoints;
     private final double[] expX;
+    private final boolean isReference;
 }

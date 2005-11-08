@@ -97,7 +97,7 @@ public class IntegratorOverlap extends Integrator {
         int newMinDiffLoc = dsvo.minDiffLocation();
         int nBennetPoints = accumulators[0].getNBennetPoints();
         if (newMinDiffLoc != minDiffLoc && nBennetPoints>1) {
-            System.out.println("target minDiffLoc = "+newMinDiffLoc+" refPref "+accumulators[0].getBennetBias(nBennetPoints-newMinDiffLoc-1));
+            System.out.println("target minDiffLoc = "+newMinDiffLoc+" refPref "+accumulators[0].getBennetBias(newMinDiffLoc));
         }
         minDiffLoc = newMinDiffLoc;
         for (int i=0; i<numIntegrators; i++) {
@@ -106,11 +106,11 @@ public class IntegratorOverlap extends Integrator {
                 data = (DataGroup)accumulators[i].getData(minDiffLoc);
             }
             else {
-                data = (DataGroup)accumulators[i].getData(nBennetPoints-minDiffLoc-1);
+                data = (DataGroup)accumulators[i].getData(minDiffLoc);
             }
             double error = ((DataDoubleArray)data.getData(AccumulatorRatioAverage.RATIO_ERROR.index)).getData()[1];
             if (i==1) {
-                data = (DataGroup)accumulators[1-i].getData(nBennetPoints-minDiffLoc-1);
+                data = (DataGroup)accumulators[1-i].getData(minDiffLoc);
             }
             else {
                 data = (DataGroup)accumulators[1-i].getData(minDiffLoc);

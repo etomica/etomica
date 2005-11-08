@@ -43,7 +43,7 @@ public class DataSourceVirialOverlap extends DataSourceScalar {
      */
 	public double getAverage(int iParam) {
         double targetAvg = ((DataDoubleArray)((DataGroup)targetAccumulator.getData(iParam)).getData(AccumulatorRatioAverage.RATIO.index)).getData()[1];
-        double refAvg = ((DataDoubleArray)((DataGroup)refAccumulator.getData(nBennetPoints-iParam-1)).getData(AccumulatorRatioAverage.RATIO.index)).getData()[1];
+        double refAvg = ((DataDoubleArray)((DataGroup)refAccumulator.getData(iParam)).getData(AccumulatorRatioAverage.RATIO.index)).getData()[1];
         return refAvg/targetAvg;
 	}
 	
@@ -54,12 +54,11 @@ public class DataSourceVirialOverlap extends DataSourceScalar {
 	 */
     public int minDiffLocation() {
 		int minDiffLoc = 0;
-		double minDiff = Math.abs(refAccumulator.getBennetAverage(nBennetPoints-1)
-                /targetAccumulator.getBennetAverage(0)-1);
+		double minDiff = Math.abs(refAccumulator.getBennetAverage(0)
+                /targetAccumulator.getBennetAverage(0)-refAccumulator.getBennetBias(0));
 		for (int i=1; i<nBennetPoints; i++) {
-            // use average instead of sum to avoid race condition with overlap integrator
-            double newDiff = Math.abs(refAccumulator.getBennetAverage(nBennetPoints-i-1)/
-                             targetAccumulator.getBennetAverage(i)-1);
+            double newDiff = Math.abs(refAccumulator.getBennetAverage(i)/
+                             targetAccumulator.getBennetAverage(i)-refAccumulator.getBennetBias(i));
 			if (newDiff < minDiff) {
 				minDiffLoc = i;
 				minDiff = newDiff;
@@ -84,7 +83,7 @@ public class DataSourceVirialOverlap extends DataSourceScalar {
      */
 	public double getError(int iParam) {
 		double avg = getAverage(iParam);
-        DataGroup dataGroup = (DataGroup)refAccumulator.getData(nBennetPoints-iParam-1);
+        DataGroup dataGroup = (DataGroup)refAccumulator.getData(iParam);
 		double refErr = ((DataDoubleArray)dataGroup.getData(AccumulatorRatioAverage.RATIO_ERROR.index)).getData()[1];
         double refAvg = ((DataDoubleArray)dataGroup.getData(AccumulatorRatioAverage.RATIO.index)).getData()[1];
         dataGroup = (DataGroup)targetAccumulator.getData(iParam);
