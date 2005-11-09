@@ -164,6 +164,14 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
         return node.compareTo(((Atom)atom).node);
     }
     
+    public void setGlobalIndex(SpeciesMaster speciesMaster) {
+        globalIndex = speciesMaster.requestGlobalIndex();
+    }
+
+    public int getGlobalIndex() {
+        return globalIndex;
+    }
+    
     /**
      * Coordinates of this atom.
      */
@@ -210,6 +218,8 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      * to assign a unique index to such atoms.
      */
     private static int INSTANCE_COUNT = 0;
+    
+    private int globalIndex = -1;
     
     /**
      * Adds given agent source to allatomAgent-source array and returns index
