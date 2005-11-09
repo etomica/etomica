@@ -26,7 +26,7 @@ public abstract class EventManager implements java.io.Serializable {
      * Adds a listener.  Synchronized to avoid conflict with removeListener.
      */
     public synchronized void addListener(Object listener) {
-        if (listener.getClass() == getListenerClass()) {
+        if (listener.getClass().isInstance(getListenerClass())) {
             throw new IllegalArgumentException("must add listeners of class "+getListenerClass());
         }
         //add listener to beginning of list 
