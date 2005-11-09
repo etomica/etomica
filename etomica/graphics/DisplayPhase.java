@@ -520,7 +520,6 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
             point.setX(1, y);
    //         phase().boundary().centralImage(point);
             dpe.setPhase(getPhase());
-            dpe.setPoint(point);
             dpe.setKeyEvent(null);
             dpe.setMouseEvent(evt);
             if(atomSelectEnabled && !atomSelected) {
