@@ -124,13 +124,10 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
             neighborCellManager = manager;
         }
 
-        public void actionPerformed(SimulationEvent evt) {
-            if (((PhaseEvent)evt).phase() == phase) {
-                actionPerformed((PhaseEvent)evt);
-            }
-        }
-
         public void actionPerformed(PhaseEvent evt) {
+            if (evt.phase() != phase) {
+                return;
+            }
             if(evt.type() == PhaseEvent.ATOM_ADDED) {
                 Atom atom = evt.atom();
                 //new species agent requires another list in each cell
