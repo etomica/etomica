@@ -4,6 +4,9 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.phase.Phase;
+import etomica.phase.PhaseEvent;
+import etomica.phase.PhaseEventManager;
+import etomica.phase.PhaseListener;
 import etomica.simulation.Simulation;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
@@ -21,6 +24,15 @@ public final class SpeciesMaster extends Atom {
 
     protected int moleculeCount;
     public final static int SPECIES_TAB = AtomLinker.Tab.requestTabType();
+    private final PhaseEventManager eventManager = new PhaseEventManager();
+
+    private final PhaseEvent changeIndexEvent;
+    private final PhaseEvent maxGlobalIndexEvent;
+    private int[] indexReservoir;
+    private int reservoirSize = 50;
+    private int reservoirCount;
+    private int maxIndex;
+
     //reference to phase is kept in node
 
     /**
@@ -32,6 +44,12 @@ public final class SpeciesMaster extends Atom {
     public SpeciesMaster(Simulation sim, Phase p) {
         super(null, sim.speciesRoot.getChildType(), new NodeFactory(p),
                 AtomLinker.FACTORY);
+        indexReservoir = new int[reservoirSize];
+        maxIndex = -1;
+        reservoirCount = 0;
+        setGlobalIndex(this);
+        changeIndexEvent = new PhaseEvent(this,PhaseEvent.ATOM_CHANGE_INDEX);
+        maxGlobalIndexEvent = new PhaseEvent(this,PhaseEvent.GLOBAL_INDEX);
     }
 
     public SpeciesAgent firstSpecies() {
@@ -66,6 +84,99 @@ public final class SpeciesMaster extends Atom {
         }
     }
 
+    //event management
+    public synchronized void addListener(PhaseListener listener) {
+        eventManager.addListener(listener);
+    }
+
+    public synchronized void removeListener(PhaseListener listener) {
+        eventManager.removeListener(listener);
+    }
+
+    public int requestGlobalIndex() {
+        if (reservoirCount == 0) {
+            return ++maxIndex;
+        }
+        reservoirCount--;
+        return indexReservoir[reservoirCount];
+    }
+    
+    public void returnGlobalIndex(int index) {
+        // add the index to the reservoir first
+        indexReservoir[reservoirCount] = index;
+        reservoirCount++;
+        if (reservoirCount == reservoirSize) {
+            // reservoir is full
+            collapseGlobalIndices();
+        }
+    }
+    
+    /**
+     * Collapses the global indices.  At the end, the maximum global index of 
+     * an atom in the simulation will be maxIndex.  At the start, if indices 
+     * in the reservoir are greater than the final maximum global index, they
+     * are discarded.  Then Atom with global indices greater than the final 
+     * maximum global index are given indices from the reservoir that are less
+     * than the final maximum global index.  At the end maxIndex is decreased 
+     * by maxIndex.
+     */
+    private void collapseGlobalIndices() {
+        for (int j=0; j<reservoirCount; ) {
+            if (indexReservoir[j] > maxIndex-reservoirSize) {
+                // this index isn't useful to us, so just drop it
+                reservoirCount--;
+                indexReservoir[j] = indexReservoir[reservoirCount];
+                continue;
+            }
+            j++;
+        }
+        AtomIteratorTree treeIterator = new AtomIteratorTree(this,Integer.MAX_VALUE,true);
+        treeIterator.reset();
+        // loop over all the atoms.  Any atoms whose index is 
+        while (treeIterator.hasNext()) {
+            Atom a = treeIterator.nextAtom();
+            if (a.getGlobalIndex() > maxIndex-reservoirSize) {
+                changeIndexEvent.setPhase(a.node.parentPhase());
+                changeIndexEvent.setAtom(a);
+                changeIndexEvent.setIndex(a.getGlobalIndex());
+                // Just re-invoke the Atom's method without first "returning"
+                // the index to the reservoir.  The old index gets dropped on the
+                // floor.
+                a.setGlobalIndex(this);
+                eventManager.fireEvent(changeIndexEvent);
+            }
+        }
+        maxIndex -= reservoirSize;
+        maxGlobalIndexEvent.setIndex(maxIndex);
+        eventManager.fireEvent(maxGlobalIndexEvent);
+        if (reservoirCount != 0) {
+            System.out.println("reservoir still has atoms:");
+            for (int i=0; i<reservoirCount; i++) {
+                System.out.print(indexReservoir[i]+" ");
+            }
+            throw new RuntimeException("I was fully expecting the reservoir to be empty!");
+        }
+    }
+    
+    /**
+     * Sets the size of the atom global index reservoir.
+     * @param size
+     */
+    public void setIndexReservoirSize(int size) {
+        if (size < 0) {
+            throw new IllegalArgumentException("Reservoir size must not be negative");
+        }
+        collapseGlobalIndices();
+        // Set the actual reservoir size to one more because we collapse the
+        // indices when it's full, not when it's full and we have another to add.
+        reservoirSize = size+1;
+        indexReservoir = new int[reservoirSize];
+    }
+    
+    public int getIndexReservoirSize() {
+        return reservoirSize;
+    }
+
     private static final class MasterAtomTreeNode extends AtomTreeNodeGroup {
 
         MasterAtomTreeNode(Phase parentPhase, Atom atom) {
@@ -73,6 +184,10 @@ public final class SpeciesMaster extends Atom {
             speciesMaster = (SpeciesMaster) atom;
             this.parentPhase = parentPhase;
             leafIterator.setAsLeafIterator();
+            additionEvent = new PhaseEvent(atom, PhaseEvent.ATOM_ADDED);
+            additionEvent.setPhase(parentPhase);
+            removalEvent = new PhaseEvent(atom, PhaseEvent.ATOM_REMOVED);
+            removalEvent.setPhase(parentPhase);
         }
 
         public Phase parentPhase() {
@@ -131,6 +246,9 @@ public final class SpeciesMaster extends Atom {
                                     .nextAtom().node).leafLinker, nextTab);
                 }
             }
+            newAtom.setGlobalIndex((SpeciesMaster)atom);
+            additionEvent.setAtom(newAtom);
+            ((SpeciesMaster)atom).eventManager.fireEvent(additionEvent);
             if (parentNode() != null) {
                 parentNode().addAtomNotify(newAtom);
             }
@@ -158,11 +276,16 @@ public final class SpeciesMaster extends Atom {
                             .remove(((AtomTreeNodeLeaf) leafIterator.nextAtom().node).leafLinker);
                 }
             }
+            removalEvent.setAtom(oldAtom);
+            ((SpeciesMaster)atom).eventManager.fireEvent(removalEvent);
+            ((SpeciesMaster)atom).returnGlobalIndex(oldAtom.getGlobalIndex());
             if (parentNode() != null) {
                 parentNode().removeAtomNotify(oldAtom);
             }
         }
 
+        private final PhaseEvent additionEvent;
+        private final PhaseEvent removalEvent;
         private final Phase parentPhase;
         private final SpeciesMaster speciesMaster;
         private final AtomIteratorTree leafIterator = new AtomIteratorTree();

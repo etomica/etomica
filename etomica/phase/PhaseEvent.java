@@ -3,7 +3,6 @@ package etomica.phase;
 import etomica.atom.Atom;
 import etomica.graphics.DisplayPhaseListener;
 import etomica.simulation.SimulationEvent;
-import etomica.space.Vector;
 import etomica.util.EnumeratedType;
 
 /**
@@ -12,17 +11,7 @@ import etomica.util.EnumeratedType;
  * @see PhaseListener
  * @see DisplayPhaseListener
  */
-public class PhaseEvent extends SimulationEvent {
-    
-    protected Phase phase;
-    protected Atom atom;
-    protected Vector point;
-    protected Type type;
-    
-    //for boundary inflation event
-    public double isoScale;
-    public Vector anisoScale;
-    public boolean isotropic;
+public class PhaseEvent extends java.util.EventObject {
     
     public PhaseEvent(Object source) {
         this(source, null);
@@ -35,17 +24,23 @@ public class PhaseEvent extends SimulationEvent {
     public void setType(Type t) {type = t;}
     public Type type() {return type;}
     
-    public final PhaseEvent setPhase(Phase p) {phase = p; return this;}
-    public final Phase phase() {return phase;}
-    
-    public final PhaseEvent setPoint(Vector p) {point = p; return this;}
-    public Vector point() {return point;}
+    public void setPhase(Phase p) {
+        phase = p;
+    }
+    public Phase getPhase() {
+        return phase;
+    }
     
     public final PhaseEvent setAtom(Atom a) {atom = a; return this;}
     public Atom atom() {return atom;}
     
-    public final PhaseEvent setScale(double s) {isoScale = s; isotropic = true; return this;}
-    public final PhaseEvent setScale(Vector s) {anisoScale = s; isotropic = false; return this;}
+    public final void setIndex(int i) {index = i;}
+    public final int getIndex() {return index;}
+    
+    protected Phase phase;
+    protected Atom atom;
+    protected Type type;
+    protected int index;
     
     public static class Type extends EnumeratedType {
 
@@ -64,21 +59,15 @@ public class PhaseEvent extends SimulationEvent {
 
         private Type(String label) {super(label);}
         public static final Type[] CHOICES = new Type[] {
-            new Type("Point selected"),
             new Type("Atom added"),
             new Type("Atom removed"),
-            new Type("Atom selected"),
-            new Type("Atom released"),
-            new Type("Boundary PhaseInflate"),
-            new Type("Reset")};
+            new Type("Atom changed index"),
+            new Type("Max global index decreased")};
         public final EnumeratedType[] choices() {return CHOICES;}
     }
-    public static final Type POINT_SELECTED =   Type.CHOICES[0];
-    public static final Type ATOM_ADDED =       Type.CHOICES[1];
-    public static final Type ATOM_REMOVED =     Type.CHOICES[2];
-    public static final Type ATOM_SELECTED =    Type.CHOICES[3];
-    public static final Type ATOM_RELEASED =    Type.CHOICES[4];
-    public static final Type BOUNDARY_INFLATE = Type.CHOICES[5];
-    public static final Type RESET =            Type.CHOICES[6];
+    public static final Type ATOM_ADDED =        Type.CHOICES[0];
+    public static final Type ATOM_REMOVED =      Type.CHOICES[1];
+    public static final Type ATOM_CHANGE_INDEX = Type.CHOICES[2];
+    public static final Type GLOBAL_INDEX =      Type.CHOICES[3];
 }//end of PhaseEvent
     

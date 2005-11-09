@@ -57,13 +57,7 @@ public class NeighborCellManagerFixed implements PhaseCellManager {
 
         //listener to phase to detect addition of new SpeciesAgent
         //or new atom
-        ((SpeciesRoot)phase.getSpeciesMaster().node.parentGroup()).addListener(new PhaseListener() {
-
-            public void actionPerformed(SimulationEvent evt) {
-                if (((PhaseEvent)evt).phase() == phase) {
-                    actionPerformed((PhaseEvent)evt);
-                }
-            }
+        phase.getSpeciesMaster().addListener(new PhaseListener() {
 
             public void actionPerformed(PhaseEvent evt) {
                 if (evt.type() == PhaseEvent.ATOM_ADDED) {

@@ -3,7 +3,7 @@ package etomica.integrator.mcmove;
 import etomica.integrator.MCMove;
 import etomica.simulation.SimulationEvent;
 
-public class MCMoveEvent extends SimulationEvent {
+public class MCMoveEvent extends java.util.EventObject {
     
 //    public final Type type;
     public MCMove mcMove;

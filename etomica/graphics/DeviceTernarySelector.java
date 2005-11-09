@@ -5,7 +5,9 @@ import java.awt.GridLayout;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.simulation.SimulationEventManager;
+import etomica.lattice.LatticeEvent;
+import etomica.lattice.LatticeListener;
+import etomica.util.EventManager;
 
 /**
  * Selector for fractions in a ternary system.  Presents a triangle that can
@@ -16,7 +18,6 @@ import etomica.simulation.SimulationEventManager;
  */
 public class DeviceTernarySelector extends Device implements EtomicaElement {
     
-    private Triangle triangle;
     private int sideLength, h;
     private int precision;
     private int power; //10^precision
@@ -25,9 +26,9 @@ public class DeviceTernarySelector extends Device implements EtomicaElement {
     private boolean showValues = false;
     private javax.swing.JTextField[] boxes;
     private javax.swing.JPanel boxPanel;
-    private javax.swing.JPanel trianglePanel;
+    private TrianglePanel trianglePanel;
     private javax.swing.JPanel panel;
-    private final SimulationEventManager listenerManager = new SimulationEventManager();
+    private final MyEventManager eventManager;
     
     public DeviceTernarySelector() {
         this(new String[] {"A", "B", "C"});
@@ -44,6 +45,7 @@ public class DeviceTernarySelector extends Device implements EtomicaElement {
         setSideLength(200);
         trianglePanel.addMouseListener(new ClickListener());
         setPrecision(3);
+        eventManager = new MyEventManager();
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -53,10 +55,10 @@ public class DeviceTernarySelector extends Device implements EtomicaElement {
     }
     
     public void addListener(DeviceTernarySelector.Listener listener) {
-        listenerManager.addListener(listener);
+        eventManager.addListener(listener);
     }
     public void removeListener(DeviceTernarySelector.Listener listener) {
-        listenerManager.removeListener(listener);
+        eventManager.removeListener(listener);
     }
     
     private int x0() {return panel.getFontMetrics(panel.getFont()).stringWidth(symbols[0]);}
@@ -110,7 +112,9 @@ public class DeviceTernarySelector extends Device implements EtomicaElement {
     public boolean isShowValues() {return showValues;}
     
     private void makeTriangle() {
-        triangle = new Triangle(sideLength, x0(), y0());
+        Triangle triangle = new Triangle(sideLength, x0(), y0());
+        trianglePanel.setTriangle(triangle);
+        eventManager.setTriangle(triangle);
     }
     
     /**
@@ -207,19 +211,18 @@ public class DeviceTernarySelector extends Device implements EtomicaElement {
                             triangle.ticks2[k][0],triangle.ticks2[k][1]);
             }
         }//end paintComponent method
+        
+        public void setTriangle(Triangle newTriangle) {
+            triangle = newTriangle;
+        }
+        
+        private Triangle triangle;
     }//end of TrianglePanel class
     
-    //listener for mouse events.  Reads mouse position and converts
-    //to fractions
+    //listener for mouse events and forwards them to the event manager
     private class ClickListener extends java.awt.event.MouseAdapter {
         public void mousePressed(java.awt.event.MouseEvent evt) {
-            int x = evt.getX();
-            int y = evt.getY();
-            double[] frac = triangle.fractions(x,y);
-            for(SimulationEventManager.Linker linker=listenerManager.first(); linker!=null; linker=linker.next) {
-                ((Listener)linker.listener).ternaryAction(frac[0], frac[1], frac[2]);
-            }
-            //System.out.println(frac[0]+" "+frac[1]+" "+frac[2]);
+            eventManager.fireEvent(evt);
         }
     }//end of ClickListener class
     
@@ -294,6 +297,28 @@ public class DeviceTernarySelector extends Device implements EtomicaElement {
     
     public interface Listener {
         public void ternaryAction(double x1, double x2, double x3);
+    }
+    
+    //Reads mouse position and converts to fractions
+    protected static class MyEventManager extends EventManager {
+        public void fireEvent(java.awt.event.MouseEvent evt) {
+            int x = evt.getX();
+            int y = evt.getY();
+            double[] frac = triangle.fractions(x,y);
+            for(EventManager.Linker link=first; link!=null; link=link.next) {
+                ((Listener)link.listener).ternaryAction(frac[0], frac[1], frac[2]);
+            }
+        }
+        
+        public void setTriangle(Triangle newTriangle) {
+            triangle = newTriangle;
+        }
+
+        protected Class getListenerClass () {
+            return Listener.class;
+        }
+        
+        private Triangle triangle;
     }
     
 //    public static void main(String[] args) {

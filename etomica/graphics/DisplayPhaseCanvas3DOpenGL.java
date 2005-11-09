@@ -743,13 +743,11 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     	}
     }
     public void actionPerformed(PhaseEvent evt) {
-        if (evt.phase() == displayPhase.getPhase()) {
-            initialize();
-        }
+        initialize();
     }
     public void setPhase() {
         Phase phase = displayPhase.getPhase();
-        ((SpeciesRoot)phase.getSpeciesMaster().node.parentGroup()).addListener(this);
+        phase.getSpeciesMaster().addListener(this);
     }
     
 }  //end of DisplayPhase.Canvas

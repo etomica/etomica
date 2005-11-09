@@ -76,7 +76,7 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
 
         //listener to phase to detect addition of new SpeciesAgent
         //or new atom
-        ((SpeciesRoot)phase.getSpeciesMaster().node.parentGroup()).addListener(new MyPhaseListener(phase,this));
+        phase.getSpeciesMaster().addListener(new MyPhaseListener(this));
     }
 
     public CellLattice getLattice() {
@@ -115,19 +115,14 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
 
     
     private static final class MyPhaseListener implements PhaseListener, Serializable {
-        private final Phase phase;
         private final NeighborCellManager neighborCellManager;
 
-        private MyPhaseListener(Phase phase, NeighborCellManager manager) {
+        private MyPhaseListener(NeighborCellManager manager) {
             super();
-            this.phase = phase;
             neighborCellManager = manager;
         }
 
         public void actionPerformed(PhaseEvent evt) {
-            if (evt.phase() != phase) {
-                return;
-            }
             if(evt.type() == PhaseEvent.ATOM_ADDED) {
                 Atom atom = evt.atom();
                 //new species agent requires another list in each cell
@@ -150,10 +145,6 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
             neighborCellManager = manager;
         }
         
-        public void actionPerformed(SimulationEvent evt) {
-            actionPerformed((MCMoveEvent)evt);
-        }
-
         public void actionPerformed(MCMoveEvent evt) {
             if (!evt.isTrialNotify && evt.wasAccepted) {
                 return;

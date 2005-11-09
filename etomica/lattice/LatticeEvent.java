@@ -2,7 +2,7 @@ package etomica.lattice;
 import etomica.simulation.SimulationEvent;
 import etomica.util.EnumeratedType;
 
-public class LatticeEvent extends SimulationEvent {
+public class LatticeEvent extends java.util.EventObject {
     
     protected AbstractLattice lattice;
     protected Type type;

@@ -231,7 +231,6 @@ public class IntegratorPT extends IntegratorMC implements EtomicaElement {
             return data.getDataInfo();
         }
         
-        public void actionPerformed(SimulationEvent evt) {actionPerformed((MCMoveEvent)evt);}
         /**
          * Method called when two phases are successfully exchanged.
          */

@@ -2,7 +2,6 @@ package etomica.action.activity;
 
 import etomica.action.Action;
 import etomica.action.Activity;
-import etomica.simulation.SimulationEventManager;
 import etomica.util.Arrays;
 
 /**
@@ -291,7 +290,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
         return "Controller";
     }
     
-    private SimulationEventManager eventManager = new SimulationEventManager();
+    private ControllerEventManager eventManager = new ControllerEventManager();
 
     private Thread runner;
     
