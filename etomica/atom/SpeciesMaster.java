@@ -159,7 +159,7 @@ public final class SpeciesMaster extends Atom {
                 }
             }
             if (parentNode() != null) {
-                parentNode().addAtomNotify(oldAtom);
+                parentNode().removeAtomNotify(oldAtom);
             }
         }
 
