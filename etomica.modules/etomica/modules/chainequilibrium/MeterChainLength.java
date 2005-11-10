@@ -7,6 +7,7 @@
 package etomica.modules.chainequilibrium;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomAgentManager;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
 import etomica.data.DataInfo;
@@ -22,16 +23,16 @@ import etomica.util.NameMaker;
  */
 public class MeterChainLength implements Meter, Atom.AgentSource {
 
-    public final int tagIndex;
     public final int nbrIndex;
     private final DataDoubleArray data;
     private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
     private Phase phase;
     private String name;
+    private AtomAgentManager agentManager;
+    private AtomTag[] atomTags;
 
     public MeterChainLength(int idx) {
         data = new DataDoubleArray("Chain Length Distribution",Dimension.FRACTION,10);
-        this.tagIndex = Atom.requestAgentIndex(this);
         this.nbrIndex = idx;
         setName(NameMaker.makeName(this.getClass()));
     }
@@ -53,7 +54,7 @@ public class MeterChainLength implements Meter, Atom.AgentSource {
         iterator.reset();
         while (iterator.hasNext()) {
             Atom a = iterator.nextAtom();
-            ((AtomTag) a.allatomAgents[tagIndex]).reset();
+            atomTags[a.getGlobalIndex()].reset();
         }
 
         iterator.reset();
@@ -61,7 +62,7 @@ public class MeterChainLength implements Meter, Atom.AgentSource {
 
         while(iterator.hasNext()) {
             Atom a = iterator.nextAtom();
-            if (!((AtomTag)a.allatomAgents[tagIndex]).white()) continue;
+            if (!atomTags[a.getGlobalIndex()].white()) continue;
 
             int j = recursive(a);
             if ((j < 7) || (j == 7)) {
@@ -121,7 +122,7 @@ public class MeterChainLength implements Meter, Atom.AgentSource {
         for (int i = 0; i != j; ++i) {
             Atom current = ((Atom[]) (a.allatomAgents[nbrIndex]))[i];
             if (current != null) { // There is an atom
-                if (((AtomTag) current.allatomAgents[tagIndex]).white()) {
+                if (atomTags[current.getGlobalIndex()].white()) {
                     ctr++;
                 }
             }
@@ -160,7 +161,7 @@ public class MeterChainLength implements Meter, Atom.AgentSource {
         for (int i = 0; i != j; ++i) {
             Atom current = ((Atom[]) (a.allatomAgents[nbrIndex]))[i];
             if (current != null) { // There is an atom
-                if (((AtomTag) current.allatomAgents[tagIndex]).white()) {
+                if (atomTags[current.getGlobalIndex()].white()) {
                     array[ctr] = current;
                     ++ctr;
                 }
@@ -170,9 +171,9 @@ public class MeterChainLength implements Meter, Atom.AgentSource {
     }
 
     public int recursive(Atom a) {
-        if (((AtomTag) a.allatomAgents[tagIndex]).white()) {
+        if (atomTags[a.getGlobalIndex()].white()) {
             //System.out.println("Ran recursive");
-            ((AtomTag) a.allatomAgents[tagIndex]).process();
+            atomTags[a.getGlobalIndex()].process();
         }
         Atom[] nbrs = ((Atom[]) a.allatomAgents[nbrIndex]);
 
@@ -180,7 +181,7 @@ public class MeterChainLength implements Meter, Atom.AgentSource {
         
         for(int i=0; i<nbrs.length; i++) {
             if(nbrs[i] == null) continue;
-            if(!((AtomTag)nbrs[i].allatomAgents[tagIndex]).white()) continue; 
+            if(!atomTags[nbrs[i].getGlobalIndex()].white()) continue; 
             ctr += recursive(nbrs[i]);
         }
         return ctr;
@@ -201,6 +202,13 @@ public class MeterChainLength implements Meter, Atom.AgentSource {
      */
     public void setPhase(Phase phase) {
         this.phase = phase;
+        if (agentManager != null) {
+            // allow old agentManager to de-register itself as a PhaseListener
+            agentManager.setPhase(null);
+        }
+        agentManager = new AtomAgentManager(this,phase);
+        atomTags = (AtomTag[])agentManager.getAgents();
+        
         iterator.setPhase(phase);
     }
 
