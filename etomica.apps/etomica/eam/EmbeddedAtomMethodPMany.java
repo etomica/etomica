@@ -1,6 +1,7 @@
 package etomica.potential;
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
+import etomica.phase.Phase;
 import etomica.potential.EmbeddedAtomMethodP2.Wrapper;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -21,11 +22,11 @@ import etomica.units.Dimension;
 
 public final class EmbeddedAtomMethodPMany extends Potential1 {
 
-	public EmbeddedAtomMethodPMany(Space space, ParameterSetEAM p, int agentIndex) {
+	public EmbeddedAtomMethodPMany(Space space, ParameterSetEAM p, EmbeddedAtomMethodP2 eamP2) {
 		super(space);
         this.p = p;
         gradient = space.makeVector(); //initializes the vector "gradient"
-        EAMAgentIndex = agentIndex;
+        agentSource = eamP2;
     }
 
     public Dimension getEpsilonDimension() {return Dimension.ENERGY;}
@@ -35,6 +36,11 @@ public final class EmbeddedAtomMethodPMany extends Potential1 {
     private final Vector gradient;
 	private double radius;
 	
+    public void setPhase(Phase phase) {
+        super.setPhase(phase);
+        agents = agentSource.getAgents(phase);
+    }
+    
 	/**
      * The following field returns the EAM model's many-body-potential term, "energy",
      * which approximates the energy required to embedd atom i in the surrounding 
@@ -51,7 +57,7 @@ public final class EmbeddedAtomMethodPMany extends Potential1 {
      */
 	
 	public double rhoSummed(AtomSet a) {
-		return ((Wrapper)((Atom)a).allatomAgents[EAMAgentIndex]).x;
+		return agents[((Atom)a).getGlobalIndex()].x;
 	}
 	
 	public double energy(AtomSet a) {
@@ -61,7 +67,7 @@ public final class EmbeddedAtomMethodPMany extends Potential1 {
 	}
 	
 	public Vector A(AtomSet a) {
-		return ((Wrapper)((Atom)a).allatomAgents[EAMAgentIndex]).A;
+		return agents[((Atom)a).getGlobalIndex()].A;
 	}
 
 	public Vector gradient(AtomSet a) {
@@ -105,5 +111,6 @@ public final class EmbeddedAtomMethodPMany extends Potential1 {
 		this.radius = radius;
 	}
 	
-	private final int EAMAgentIndex;
+    private final EmbeddedAtomMethodP2 agentSource;
+    private Wrapper[] agents;
 }

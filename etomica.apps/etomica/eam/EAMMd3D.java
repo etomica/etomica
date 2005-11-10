@@ -108,8 +108,8 @@ public class EAMMd3D extends Simulation {
         Configuration config = new ConfigurationLattice(crystal);
 //        phase.setConfiguration(config);  // kmb remove 8/3/05
         config.initializeCoordinates(phase);  // kmb added 8/3/05
-        potential0 = new EmbeddedAtomMethodPInitial(space, potentialA.agentIndex);
-        potentialB = new EmbeddedAtomMethodPMany(space, ParameterSetEAM.Sn, potentialA.agentIndex);
+        potential0 = new EmbeddedAtomMethodPInitial(space, potentialA);
+        potentialB = new EmbeddedAtomMethodPMany(space, ParameterSetEAM.Sn, potentialA);
         this.potentialMaster.setSpecies(potentialB, new Species[]{species});
         this.potentialMaster.setSpecies(potentialA, new Species[]{species,species});
         this.potentialMaster.setSpecies(potential0, new Species[]{species});    

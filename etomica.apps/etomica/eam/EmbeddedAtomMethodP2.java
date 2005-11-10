@@ -1,12 +1,15 @@
 package etomica.potential;
 import etomica.EtomicaElement;
 import etomica.atom.Atom;
+import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.Atom.AgentSource;
+import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
+import etomica.util.Arrays;
 
 /**
  * This class defines the pairwise term of the Embedded-Atom Method (EAM) interatomic 
@@ -17,16 +20,34 @@ import etomica.units.Dimension;
  * classes in the EAMMd3D simulation class by A. Schultz and K.R. Schadel July 2005.
  */
 
-public final class EmbeddedAtomMethodP2 extends Potential2SoftSpherical implements EtomicaElement, AgentSource, java.io.Serializable {
+public final class EmbeddedAtomMethodP2 extends Potential2SoftSpherical implements EtomicaElement, AgentSource {
 
 	public EmbeddedAtomMethodP2(Space space, ParameterSetEAM p) {
 		super(space);
         this.p = p;
         work1 = space.makeVector();
-        agentIndex = Atom.requestAgentIndex(this);
     }
 	
-	
+    public void setPhase(Phase phase){
+        super.setPhase(phase);
+        agents = getAgents(phase);
+    }
+    
+    public Wrapper[] getAgents(Phase phase) {
+        if (agentManager == null) {
+//          ((SpeciesRoot)phase.getSpeciesMaster().node.parentGroup()).addListener(this);
+          agentManager = new AtomAgentManager[0];
+        }
+        int index = phase.getIndex();
+        if (index+1 > agentManager.length) {
+            agentManager = (AtomAgentManager[])Arrays.resizeArray(agentManager,index+1);
+        }
+        if (agentManager[index] == null) {
+            agentManager[index] = new AtomAgentManager(this,phase);
+        }
+        agents = (Wrapper[])agentManager[index].getAgents();
+        return agents;
+    }
 
     /**
      * The following field returns the EAM model's pair-potential term, u, which 
@@ -57,8 +78,8 @@ public final class EmbeddedAtomMethodP2 extends Potential2SoftSpherical implemen
     	double r = Math.sqrt(r2);
     	double a = p.alpha * ((r/p.Ro) - 1);
     	double rho = Math.exp(-p.beta * ((r/p.Ro) - 1));
-    	((Wrapper)pair.atom0.allatomAgents[agentIndex]).x += rho;
-    	((Wrapper)pair.atom1.allatomAgents[agentIndex]).x += rho;
+    	agents[pair.atom0.getGlobalIndex()].x += rho;
+        agents[pair.atom1.getGlobalIndex()].x += rho;
     	double Eref = - p.E * (1 + a) * Math.exp(- a);
     	double Fref = p.A * p.E * p.Zd/p.Z * rho *
 		(Math.log(p.Zd/p.Z) - p.beta * ((r/p.Ro) - 1));
@@ -78,10 +99,11 @@ public final class EmbeddedAtomMethodP2 extends Potential2SoftSpherical implemen
     public double du(double r2) {
         double r = Math.sqrt(r2);
         double rho = Math.exp(-p.beta * ((r/p.Ro) - 1));
-    	((Wrapper)pair.atom0.allatomAgents[agentIndex]).x += rho;
-    	((Wrapper)pair.atom1.allatomAgents[agentIndex]).x += rho;
-    	((Wrapper)pair.atom0.allatomAgents[agentIndex]).A.PEa1Tv1(-rho*p.beta/p.Ro*2,coordinatePair.dr()); // kmb changed from cPair on 8/3/05
-    	((Wrapper)pair.atom1.allatomAgents[agentIndex]).A.PEa1Tv1(rho*p.beta/p.Ro*2,coordinatePair.dr());
+        
+        agents[pair.atom0.getGlobalIndex()].x += rho;
+        agents[pair.atom1.getGlobalIndex()].x += rho;
+        agents[pair.atom0.getGlobalIndex()].A.PEa1Tv1(-rho*p.beta/p.Ro*2,coordinatePair.dr()); // kmb changed from cPair on 8/3/05
+        agents[pair.atom1.getGlobalIndex()].A.PEa1Tv1(rho*p.beta/p.Ro*2,coordinatePair.dr());
         return r*(1/p.Z)*(
         		(p.E*p.alpha*p.alpha/p.Ro)*Math.exp(-p.alpha*((r/p.Ro)-1))*((r/p.Ro)-1)
 				+ (p.A*p.E*p.Zd*p.beta/p.Z/p.Ro)
@@ -145,7 +167,7 @@ public final class EmbeddedAtomMethodP2 extends Potential2SoftSpherical implemen
         double r = Math.sqrt(r2);
         this.pair = (AtomPair)pair;
         work1.Ea1Tv1(du(r2)/r2,coordinatePair.dr());
-/**        System.out.println("In EmbeddedAtomMethod.P2, du(r2)/r is " +
+/*        System.out.println("In EmbeddedAtomMethod.P2, du(r2)/r is " +
         		du(r2)/r + 
 				", u is " +
 				u(r2) +
@@ -177,7 +199,8 @@ public final class EmbeddedAtomMethodP2 extends Potential2SoftSpherical implemen
     private ParameterSetEAM p;
     private double r2Last = -1.0;
     private AtomPair pair;
-    public final int agentIndex;
+    protected AtomAgentManager[] agentManager;
+    protected Wrapper[] agents;
     
     public Object makeAgent(Atom atom) {
         return new Wrapper((atom.coord != null) ? (Vector)atom.coord.position().clone() : null);
