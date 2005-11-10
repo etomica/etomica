@@ -1,8 +1,10 @@
 package etomica.graphics;
 
+import java.awt.Color;
 import java.util.HashMap;
 
 import etomica.atom.Atom;
+import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.lattice.FiniteLattice;
 import etomica.nbr.cell.AtomSequencerCell;
@@ -19,6 +21,10 @@ public class ColorSchemeCell extends ColorSchemeCollective {
     private final HashMap hash = new HashMap();
     private final AtomIteratorListSimple allIterator = new AtomIteratorListSimple();
     
+    public ColorSchemeCell(SpeciesRoot root) {
+        super(root);
+    }
+    
     public void setLattice(FiniteLattice lattice) {
         Object[] sites = lattice.sites();
         for(int i=0; i<sites.length; i++) {
@@ -32,7 +38,7 @@ public class ColorSchemeCell extends ColorSchemeCollective {
         while(allIterator.hasNext()) {
             Atom atom = allIterator.nextAtom();
             Object cell = ((AtomSequencerCell)atom.seq).getCell();
-            atom.allatomAgents[agentIndex] = hash.get(cell);
+            atomColors[atom.getGlobalIndex()] = (Color)hash.get(cell);
         }
     }
 }

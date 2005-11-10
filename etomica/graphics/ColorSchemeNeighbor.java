@@ -22,6 +22,7 @@ public class ColorSchemeNeighbor extends ColorSchemeCollective {
     private final ColorSchemeByType typeColorScheme = new ColorSchemeByType();
     
     public ColorSchemeNeighbor(Simulation sim) {
+        super(sim.speciesRoot);
         nbrIterator = new Api1ACell(sim.space().D(), sim.getDefaults().atomSize);
         nbrIterator.setDirection(null);
     }
@@ -32,7 +33,7 @@ public class ColorSchemeNeighbor extends ColorSchemeCollective {
 		//color all atoms according to their type
         while(allIterator.hasNext()) {
             Atom atom = allIterator.nextAtom();
-            atom.allatomAgents[agentIndex] = typeColorScheme.atomColor(atom);//Color.green;
+            atomColors[atom.getGlobalIndex()] = typeColorScheme.atomColor(atom);//Color.green;
         }
         //color blue the neighbor atoms in same group
         nbrIterator.setPhase(phase);
@@ -40,13 +41,13 @@ public class ColorSchemeNeighbor extends ColorSchemeCollective {
         while(nbrIterator.hasNext()) {
             Atom  atom = nbrIterator.nextPair().atom1;
             if(atom.type == referenceAtom.type) {
-                atom.allatomAgents[agentIndex] = Color.blue;
+                atomColors[atom.getGlobalIndex()] = Color.blue;
             } else {
-                atom.allatomAgents[agentIndex] = Color.yellow;
+                atomColors[atom.getGlobalIndex()] = Color.yellow;
             }
         }
         //color red the target atom 
-        referenceAtom.allatomAgents[agentIndex] = Color.red;
+        atomColors[referenceAtom.getGlobalIndex()] = Color.red;
     }
     
     public void setAtom(Atom a) {

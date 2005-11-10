@@ -2,7 +2,12 @@ package etomica.graphics;
 import java.awt.Color;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomAgentManager;
+import etomica.atom.SpeciesRoot;
 import etomica.phase.Phase;
+import etomica.simulation.SimulationEvent;
+import etomica.simulation.SimulationListener;
+import etomica.util.Arrays;
 
 /**
  * Parent class for color schemes that are best implemented by attaching colors
@@ -11,22 +16,59 @@ import etomica.phase.Phase;
  * ColorScheme is a subclass of this one.
  */
     
-public abstract class ColorSchemeCollective extends ColorScheme implements Atom.AgentSource {
+public abstract class ColorSchemeCollective extends ColorScheme implements Atom.AgentSource, SimulationListener {
     
-    protected static int agentIndex = -1;
+    private AtomAgentManager[] agentManager;
+    protected Color[] atomColors;
     
-    public ColorSchemeCollective() {
+    public ColorSchemeCollective(SpeciesRoot root) {
         super();
-        if(agentIndex < 0) agentIndex = Atom.requestAgentIndex(this);
+        root.addListener(this);
+        agentManager = new AtomAgentManager[0];
     }
     
-    public abstract void colorAllAtoms(Phase phase);
-        //determine color
-        //then assign it to atom like this: atom.allatomAgents[agentIndex] = color
-        
-    public Color atomColor(Atom a) {return (Color)a.allatomAgents[agentIndex];}
+    //determine color
+    //then assign it to atom like this: atom.allatomAgents[agentIndex] = color
+    public void colorAllAtoms(Phase phase){
+        int index = phase.getIndex();
+        if (index+1 > agentManager.length) {
+            agentManager = (AtomAgentManager[])Arrays.resizeArray(agentManager,index+1);
+        }
+        if (agentManager[index] == null) {
+            agentManager[index] = new AtomAgentManager(this,phase);
+        }
+        atomColors = (Color[])agentManager[index].getAgents();
+    }
+    
+    public Color atomColor(Atom a) {return atomColors[a.getGlobalIndex()];}
    
+    public void actionPerformed(SimulationEvent evt) {
+        if (evt.type() == SimulationEvent.PHASE_REMOVED) {
+            Phase p = evt.getPhase();
+            if (agentManager[p.getIndex()] != null) {
+                // allow AtomAgentManager to register itself as a PhaseListener
+                agentManager[p.getIndex()].setPhase(null);
+                agentManager[p.getIndex()] = null;
+            }
+            // compact the array if there are null elements at the end.
+            int i;
+            for (i=agentManager.length; i>0; i++) {
+                if (agentManager[i-1] != null) {
+                    break;
+                }
+            }
+            if (i > 0 && i < agentManager.length) {
+                agentManager = (AtomAgentManager[])Arrays.resizeArray(agentManager,i);
+            }
+        }
+    }
+    
     //set aside a agent index entry to store the color with the atom 
-    public Object makeAgent(Atom a) {return null;}
+    public Object makeAgent(Atom a) {
+        // return a color if a is null (AtomAgentManager uses this to determine
+        // the class
+        if (a == null) {return Color.white;}
+        return null;
+    }
 }
 
