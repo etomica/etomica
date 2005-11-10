@@ -105,6 +105,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         // reset might be called because atoms were added or removed
         // calling getAgents ensures we have an up-to-date array.
         agents = (Agent[])agentManager.getAgents();
+        forceSum.setAgents(agents);
 
         atomIterator.reset();
         while(atomIterator.hasNext()) {

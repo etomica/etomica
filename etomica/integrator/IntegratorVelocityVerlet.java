@@ -113,7 +113,8 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         // reset might be called because atoms were added or removed
         // calling getAgents ensures we have an up-to-date array.
         agents = (MyAgent[])agentManager.getAgents();
-
+        forceSum.setAgents(agents);
+        
         atomIterator.setPhase(phase[0]);
         atomIterator.reset();
         while(atomIterator.hasNext()) {

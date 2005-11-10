@@ -85,6 +85,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
     }
     
     public void reset() throws ConfigurationOverlapException {
+        agents = (HardFieldAgent[])agentManager.getAgents();
         forceSum.setAgents((HardFieldAgent[])agents);
         calculateForces();
         super.reset();
@@ -169,22 +170,16 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
      */
     public static final class PotentialCalculationForceSum extends etomica.potential.PotentialCalculationForceSum {
 
-        private HardFieldAgent[] integratorAgents;
-        
         public PotentialCalculationForceSum(Space space) {
              super(space);
         }
 
-        public void setAgents(HardFieldAgent[] agents) {
-            integratorAgents = agents;
-        }
-        
 		public void doCalculation(AtomsetIterator iterator, Potential potential) {
 			super.doCalculation(iterator,potential);
             iterator.reset();
             while(iterator.hasNext()) {
                 AtomSet atoms = iterator.next();
-                integratorAgents[atoms.getAtom(0).getGlobalIndex()].forceFree = false;
+                ((HardFieldAgent)integratorAgents[atoms.getAtom(0).getGlobalIndex()]).forceFree = false;
             }
 		}
     }//end ForceSums
