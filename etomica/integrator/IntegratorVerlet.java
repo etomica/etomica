@@ -3,9 +3,13 @@ package etomica.integrator;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
+import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.Atom.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
+import etomica.integrator.IntegratorConNVT.Agent;
+import etomica.phase.Phase;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -18,13 +22,17 @@ import etomica.space.Vector;
  * 06/18/03 (DAK) changed doReset so that rMrLast is given by dt*p/m instead of
  * -dt*p/m
  */
-public final class IntegratorVerlet extends IntegratorMD implements EtomicaElement {
+public final class IntegratorVerlet extends IntegratorMD implements EtomicaElement, AgentSource {
 
     public final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms = new IteratorDirective();
     private final Space space;
-    
+    private double t2;
+
     Vector work;
+
+    protected Agent[] agents;
+    protected AtomAgentManager agentManager;
 
     public IntegratorVerlet(Simulation sim) {
         this(sim.potentialMaster,sim.space,sim.getDefaults().timeStep,
@@ -44,13 +52,27 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         return info;
     }
         
-	private double t2;
-
     public final void setTimeStep(double t) {
         super.setTimeStep(t);
         t2 = timeStep * timeStep;
     }
           
+    public boolean addPhase(Phase p) {
+        if(!super.addPhase(p)) return false;
+        agentManager = new AtomAgentManager(this,p);
+        return true;
+    }
+    
+    public void removePhase(Phase oldPhase) {
+        if (oldPhase == firstPhase) {
+            // allow agentManager to de-register itself as a PhaseListener
+            agentManager.setPhase(null);
+            agentManager = null;
+            agents = null;
+        }
+        super.removePhase(oldPhase);
+    }
+    
 //--------------------------------------------------------------
 // steps all particles across time interval tStep
 
@@ -59,7 +81,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         //Compute forces on each atom
         atomIterator.reset();
         while(atomIterator.hasNext()) {   //zero forces on all atoms
-            ((Agent)atomIterator.nextAtom().ia).force.E(0.0);
+            agents[atomIterator.nextAtom().getGlobalIndex()].force.E(0.0);
         }
         potential.calculate(firstPhase, allAtoms, forceSum);
 
@@ -67,7 +89,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
-            Agent agent = (Agent)a.ia;
+            Agent agent = agents[a.getGlobalIndex()];
             Vector r = a.coord.position();
             work.E(r);
             r.PE(agent.rMrLast);
@@ -80,10 +102,14 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
     
 
     public void reset() throws ConfigurationOverlapException {
+        // reset might be called because atoms were added or removed
+        // calling getAgents ensures we have an up-to-date array.
+        agents = (Agent[])agentManager.getAgents();
+
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
-            Agent agent = (Agent)a.ia;
+            Agent agent = agents[a.getGlobalIndex()];
             agent.rMrLast.Ea1Tv1(timeStep,((ICoordinateKinetic)a.coord).velocity());//06/13/03 removed minus sign before timeStep
         }
         super.reset();
@@ -109,32 +135,5 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         public Vector force() {return force;}
     }//end of Agent
     
-/*    public static void main(String[] args) {
-        
-	    IntegratorVerlet integrator = new IntegratorVerlet();
-	    SpeciesSpheres species = new SpeciesSpheres();
-	    Phase phase = new Phase();
-	    P2LennardJones potential = new P2LennardJones();
-	    Controller controller = new Controller();
-	    DisplayPhase display = new DisplayPhase();
-	    IntegratorMD.Timer timer = integrator.new Timer(integrator.chronoMeter());
-	    timer.setUpdateInterval(10);
-
-		MeterEnergy energy = new MeterEnergy();
-		energy.setPhase(phase);
-		energy.setHistorying(true);
-		energy.setActive(true);		
-		energy.getHistory().setNValues(500);		
-		DisplayPlot plot = new DisplayPlot();
-		plot.setLabel("Energy");
-		plot.setDataSource(energy.getHistory());
-		
-		integrator.setSleepPeriod(2);
-		
-		Simulation.instance.elementCoordinator.go();
-        Simulation.makeAndDisplayFrame(Simulation.instance);
-
-    }//end of main 
-    */
 }//end of IntegratorVerlet
 
