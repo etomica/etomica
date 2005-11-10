@@ -32,8 +32,8 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
 	
     //XXX not serializable
     private final IteratorDirective.PotentialCriterion noFieldsCriterion = new IteratorDirective.PotentialCriterion() {
-	    public boolean excludes(Potential potential) {
-	        return (potential instanceof Potential1);
+	    public boolean excludes(Potential candidatePotential) {
+	        return (candidatePotential instanceof Potential1);
 	    }
     };
 
@@ -48,8 +48,8 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         forceSum = new PotentialCalculationForceSum(space);//new IntegratorHardField.ForceSum(sim.space());
         //XXX not serializable
         fieldsOnly.addCriterion(new IteratorDirective.PotentialCriterion() {
-            public boolean excludes(Potential potential) {
-                return !(potential instanceof Potential1);
+            public boolean excludes(Potential candidatePotential) {
+                return !(candidatePotential instanceof Potential1);
             }
         });
         upList.addCriterion(noFieldsCriterion);
@@ -73,7 +73,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
-            Agent agent = (Agent)a.ia;
+            HardFieldAgent agent = (HardFieldAgent)agents[a.getGlobalIndex()];
             agent.decrementCollisionTime(tStep);
             a.coord.position().PEa1Tv1(tStep,((ICoordinateKinetic)a.coord).velocity());
             if(!agent.forceFree) {
@@ -85,6 +85,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
     }
     
     public void reset() throws ConfigurationOverlapException {
+        forceSum.setAgents((HardFieldAgent[])agents);
         calculateForces();
         super.reset();
     }
@@ -94,7 +95,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         //Compute all forces
         atomIterator.reset();
         while(atomIterator.hasNext()) {   //zero forces on all atoms
-            Agent iagent = (Agent)atomIterator.nextAtom().ia;
+            HardFieldAgent iagent = (HardFieldAgent)agents[atomIterator.nextAtom().getGlobalIndex()];
             iagent.force.E(0.0);
             iagent.forceFree = true;
         }
@@ -112,18 +113,18 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
             ((ICoordinateKinetic)a.coord).velocity().TE(s); //scale momentum
-            ((Agent)a.ia).eventLinker.sortKey *= rs;
+            agents[a.getGlobalIndex()].eventLinker.sortKey *= rs;
         }
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
  //           System.out.println(a.coord.position().toString()+a.coord.momentum().toString()+"  "+
  //                               a.coord.momentum().squared());
-            Agent iagent = (Agent)a.ia;
+            HardFieldAgent iagent = (HardFieldAgent)agents[a.getGlobalIndex()];
             if(!iagent.forceFree) updateAtom(a);//update because not force free
             Atom partner = iagent.collisionPartner();
             if(partner == null) continue;
-            Agent jagent = (Agent)partner.ia;
+            HardFieldAgent jagent = (HardFieldAgent)agents[partner.getGlobalIndex()];
             if(!iagent.forceFree) {
                 updateAtom(partner);//update because partner not force free
                 continue;
@@ -142,18 +143,18 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
     * Produces the Agent defined by this integrator.
     * One instance of an Agent is placed in each atom controlled by this integrator.
     */
-    public final Object makeAgent(Atom a) {
-        return new Agent(a,this);
+    public Object makeAgent(Atom a) {
+        return new HardFieldAgent(a,this);
     }
      
     /**
     * Extends IntegratorHard.Agent to hold a force vector.
     */
-    public static class Agent extends IntegratorHard.Agent implements Integrator.Forcible { 
+    public static class HardFieldAgent extends IntegratorHard.Agent implements Integrator.Forcible { 
     
         public final Vector force;
         public boolean forceFree = true;
-        public Agent(Atom a, IntegratorHardField integrator) {
+        public HardFieldAgent(Atom a, IntegratorHardField integrator) {
             super(a, integrator);
             force = integrator.getPotential().getSpace().makeVector();
         }
@@ -167,9 +168,15 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
      * are considered, and also sets forceFree flag of Agent appropriately.
      */
     public static final class PotentialCalculationForceSum extends etomica.potential.PotentialCalculationForceSum {
+
+        private HardFieldAgent[] integratorAgents;
         
         public PotentialCalculationForceSum(Space space) {
              super(space);
+        }
+
+        public void setAgents(HardFieldAgent[] agents) {
+            integratorAgents = agents;
         }
         
 		public void doCalculation(AtomsetIterator iterator, Potential potential) {
@@ -177,7 +184,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
             iterator.reset();
             while(iterator.hasNext()) {
                 AtomSet atoms = iterator.next();
-                ((Agent)atoms.getAtom(0).ia).forceFree = false;
+                integratorAgents[atoms.getAtom(0).getGlobalIndex()].forceFree = false;
             }
 		}
     }//end ForceSums
