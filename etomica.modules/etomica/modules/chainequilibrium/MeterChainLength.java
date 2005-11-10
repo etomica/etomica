@@ -47,6 +47,7 @@ public class MeterChainLength implements Meter, Atom.AgentSource {
     // atoms
     public Data getData() {
         agents = agentSource.getAgents(phase);
+        atomTags = (AtomTag[])tagManager.getAgents();
         
         //System.out.println("Meter Dimer Frac: ran MolculeFraction Method");
         //double[] array = new double[1];
@@ -209,7 +210,6 @@ public class MeterChainLength implements Meter, Atom.AgentSource {
             tagManager.setPhase(null);
         }
         tagManager = new AtomAgentManager(this,phase);
-        atomTags = (AtomTag[])tagManager.getAgents();
         
         iterator.setPhase(phase);
     }
