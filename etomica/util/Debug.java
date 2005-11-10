@@ -160,11 +160,6 @@ public final class Debug {
 					upNbrCount++;
 				}
 			}
-            if (ATOM1.ia instanceof IntegratorHard.Agent && upNbrCount == 0) {
-                if (((IntegratorHard.Agent)ATOM1.ia).collisionPartner == ATOM2) {
-                    throw new IllegalStateException(ATOM2+" is collision partner of "+ATOM1+" but isn't in "+ATOM1+"'s uplist of neighbors");
-                }
-            }
 			list = ((AtomSequencerNbr)Debug.ATOM2.seq).getDownList();
 			for (int i=0; i<list.length; i++) {
 				if (list[i].contains(Debug.ATOM1)) {
