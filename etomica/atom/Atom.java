@@ -150,11 +150,6 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
     }    
 
     /**
-     * Assigns the atom's integrator agent to the given instance.
-     */
-    public void setIntegratorAgent(Object ia) {this.ia = ia;}
-
-    /**
      * Implementation of Comparable interface, with order decided by 
      * placement in Atom hierarchy.  Returns -1, 0, 1 if given Atom
      * is less, equal, or greater, respectively, than this Atom.  
@@ -168,7 +163,7 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
         globalIndex = speciesMaster.requestGlobalIndex();
     }
 
-    public int getGlobalIndex() {
+    public final int getGlobalIndex() {
         return globalIndex;
     }
     
@@ -176,11 +171,6 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      * Coordinates of this atom.
      */
     public final ICoordinate coord;
-    
-    /**
-     * Integrator agent, used by integrator to implement the simulation integration algorithm.
-     */
-    public Object ia;//integrator agent
     
     /**
      * Tree node, used to place the atom in the species tree.
