@@ -3,8 +3,12 @@ package etomica.integrator;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
+import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.Atom.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.exception.ConfigurationOverlapException;
+import etomica.integrator.IntegratorHard.Agent;
 import etomica.phase.Phase;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
@@ -25,13 +29,16 @@ import etomica.space.Vector;
  * @author Chris Iacovella
  * @author David Kofke
  */
-public final class IntegratorConNVT extends IntegratorMD implements EtomicaElement {
+public final class IntegratorConNVT extends IntegratorMD implements EtomicaElement, AgentSource {
 
     public final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms = new IteratorDirective();
     private final Space space;
     Vector work, work1, work2, work3, work4;
     double halfTime, mass;
+
+    protected Agent[] agents;
+    protected AtomAgentManager agentManager;
 
     public IntegratorConNVT(Simulation sim) {
         this(sim.potentialMaster,sim.space,sim.getDefaults().timeStep,sim.getDefaults().temperature);
@@ -63,11 +70,21 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 	
 	public boolean addPhase(Phase p) {
 	    if(!super.addPhase(p)) return false;
+        agentManager = new AtomAgentManager(this,p);
         phase = p;
         return true;
     }
     
-        
+    public void removePhase(Phase oldPhase) {
+        if (oldPhase == firstPhase) {
+            // allow agentManager to de-register itself as a PhaseListener
+            agentManager.setPhase(null);
+            agentManager = null;
+            agents = null;
+        }
+        super.removePhase(oldPhase);
+    }
+    
   	public final void setTimeStep(double t) {
     	super.setTimeStep(t);
     	halfTime = timeStep/2.0;
@@ -87,7 +104,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
         //Compute forces on each atom
         atomIterator.reset();
         while(atomIterator.hasNext()) {   //zero forces on all atoms
-            ((Agent)atomIterator.nextAtom().ia).force.E(0.0);
+            agents[atomIterator.nextAtom().getGlobalIndex()].force.E(0.0);
         }
         potential.calculate(firstPhase, allAtoms, forceSum);
 	
@@ -102,12 +119,10 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
         double chi;
 		while(atomIterator.hasNext()) {
 			Atom a = atomIterator.nextAtom();
-			Agent agent = (Agent)a.ia;
-			//Space.Vector r = a.coord.position();
 			Vector v = ((ICoordinateKinetic)a.coord).velocity();
             
 			work1.E(v); //work1 = v
-			work2.E(agent.force);	//work2=F
+			work2.E(agents[a.getGlobalIndex()].force);	//work2=F
 			work1.PEa1Tv1(halfTime*((AtomTypeLeaf)a.type).rm(),work2); //work1= p/m + F*Dt2/m = v + F*Dt2/m
             
         	k+=work1.squared();
@@ -121,7 +136,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 		atomIterator.reset();
 		while(atomIterator.hasNext()) {
 			Atom a = atomIterator.nextAtom();
-			Agent agent = (Agent)a.ia;
+			Agent agent = agents[a.getGlobalIndex()];
 			Vector v = ((ICoordinateKinetic)a.coord).velocity();
 		
 			double scale = (2.0*chi-1.0); 
@@ -148,7 +163,12 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
     }//end of doStep
     
 
-//--------------------------------------------------------------
+    public void reset() throws ConfigurationOverlapException {
+        // reset might be called because atoms were added or removed
+        // calling getAgents ensures we have an up-to-date array.
+        agents = (Agent[])agentManager.getAgents();
+        super.reset();
+    }
 
     public final Object makeAgent(Atom a) {
         return new Agent(space,a);
@@ -167,25 +187,5 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
         public Vector force() {return force;}
     }//end of Agent
     
-/*    public static void main(String[] args) {
-        
-	    IntegratorConNVT integrator = new IntegratorConNVT();
-	    SpeciesSpheres species = new SpeciesSpheres();
-	    Phase phase = new Phase();
-	    P2LennardJones potential = new P2LennardJones();
-	    Controller controller = new Controller();
-	    DisplayPhase display = new DisplayPhase();
-	    IntegratorMD.Timer timer = integrator.new Timer(integrator.chronoMeter());
-	    timer.setUpdateInterval(10);
-		integrator.setTemp(Default.TEMPERATURE);
-		
-		
-		integrator.setSleepPeriod(2);
-		
-		Simulation.instance.elementCoordinator.go();
-        Simulation.makeAndDisplayFrame(Simulation.instance);
-
-    }//end of main 
-    */
-}//end of IntegratorConNVT
+}
 
