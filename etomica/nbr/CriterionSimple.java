@@ -1,12 +1,15 @@
 package etomica.nbr;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomPair;
+import etomica.atom.Atom.AgentSource;
 import etomica.phase.Phase;
 import etomica.space.CoordinatePair;
 import etomica.space.NearestImageTransformerVector;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.util.Arrays;
 import etomica.util.Debug;
 
 /**
@@ -15,7 +18,7 @@ import etomica.util.Debug;
  * @author andrew
  *
  */
-public class CriterionSimple extends NeighborCriterion  {
+public class CriterionSimple extends NeighborCriterion implements AgentSource  {
 
 	public CriterionSimple(Space space, double interactionRange, double neighborRadius) {
 		super();
@@ -53,13 +56,13 @@ public class CriterionSimple extends NeighborCriterion  {
 	}
 	
 	public boolean needUpdate(Atom atom) {
-		r2 = atom.coord.position().Mv1Squared((Vector)atom.allatomAgents[agentIndex]);
+		r2 = atom.coord.position().Mv1Squared(agents[atom.getGlobalIndex()]);
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.thisAtom(atom)) {
             System.out.println("atom "+atom+" displacement "+r2+" "+atom.coord.position());
         }
 		if (Debug.ON && Debug.DEBUG_NOW && r2 > displacementLimit2 / (4.0*safetyFactor*safetyFactor)) {
 			System.out.println("atom "+atom+" exceeded safe limit ("+r2+" > "+displacementLimit2 / (4.0*safetyFactor*safetyFactor)+")");
-			System.out.println("old position "+atom.allatomAgents[agentIndex]);
+			System.out.println("old position "+agents[atom.getGlobalIndex()]);
 			System.out.println("new position "+atom.coord.position());
             throw new RuntimeException("stop that");
 		}
@@ -68,6 +71,18 @@ public class CriterionSimple extends NeighborCriterion  {
 
 	public void setPhase(Phase phase) {
         cPair.setNearestImageTransformer(phase.getBoundary());
+        if (agentManager == null) {
+//            ((SpeciesRoot)phase.getSpeciesMaster().node.parentGroup()).addListener(this);
+            agentManager = new AtomAgentManager[0];
+        }
+        int index = phase.getIndex();
+        if (index+1 > agentManager.length) {
+            agentManager = (AtomAgentManager[])Arrays.resizeArray(agentManager,index+1);
+        }
+        if (agentManager[index] == null) {
+            agentManager[index] = new AtomAgentManager(this,phase);
+        }
+        agents = (Vector[])agentManager[index].getAgents();
 	}
     
 	public boolean unsafe() {
@@ -88,18 +103,21 @@ public class CriterionSimple extends NeighborCriterion  {
 	}
 	
 	public void reset(Atom atom) {
-		((Vector)atom.allatomAgents[agentIndex]).E(atom.coord.position());
+		agents[atom.getGlobalIndex()].E(atom.coord.position());
 	}
 
-	private double interactionRange, displacementLimit2, neighborRadius2;
+    public Object makeAgent(Atom atom) {
+        if (atom == null) {
+            return cPair.dr().clone();
+        }
+        return (atom.coord != null) ? atom.coord.position().clone() : null;
+    }
+
+    private double interactionRange, displacementLimit2, neighborRadius2;
 	private final CoordinatePair cPair;
-	protected static final int agentIndex = Atom.requestAgentIndex(new Atom.AgentSource() {
-		public Object makeAgent(Atom atom) {
-			return (atom.coord != null) ? atom.coord.position().clone() : null;
-		}
-	});
 	protected double safetyFactor;
 	protected double r2, r2MaxSafe;
     private final NearestImageTransformerVector nearestImageTransformer;
-	
+    private AtomAgentManager[] agentManager;
+    protected Vector[] agents;
 }
