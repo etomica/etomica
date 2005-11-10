@@ -3,6 +3,7 @@ import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
+import etomica.phase.Phase;
 import etomica.potential.P2SquareWell;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
@@ -28,20 +29,24 @@ import etomica.space.Vector;
  */
 public class P2SquareWellBonded extends P2SquareWell {
 
-	// This is an  index for an array Array ==> {1,2,3,4,5,6...}
-	//			          idx = 2      | 
-	public final int idx;
+    private ReactionEquilibrium agentSource;
+	private Atom[][] agents;
 
-	public P2SquareWellBonded(Space space, int idx, double coreDiameter,double lambda, double epsilon) {
+	public P2SquareWellBonded(Space space, ReactionEquilibrium sim, double coreDiameter,double lambda, double epsilon) {
 		super(space, coreDiameter, lambda, epsilon, true);
-		this.idx = idx;
+		agentSource = sim;
 	}
 
+    public void setPhase(Phase phase){
+        super.setPhase(phase);
+        agents = agentSource.getAgents(phase);
+    }
+    
 	// This function will tell the user, if passed an atom weither or not that atom can bond
 	public boolean full(Atom a) {
-		int j = ((Atom[]) a.allatomAgents[idx]).length;	//check INDEXING
+		int j = agents[a.getGlobalIndex()].length;	//check INDEXING
 		for(int i=0; i != j; ++i){
-			if(((Atom[]) a.allatomAgents[idx])[i] == null){
+			if (agents[a.getGlobalIndex()][i] == null) {
 				return false;
 			}
 		}
@@ -50,9 +55,9 @@ public class P2SquareWellBonded extends P2SquareWell {
 	
 // This will tell you what the lowest open space is in atom a
 	public int lowest(Atom a){
-		int j = ((Atom[]) a.allatomAgents[idx]).length;	//check INDEXING
+		int j = agents[a.getGlobalIndex()].length;	//check INDEXING
 		for(int i=0; i != j; ++i){
-			if(((Atom[]) a.allatomAgents[idx])[i] == null){
+			if (agents[a.getGlobalIndex()][i] == null) {
 				return i;
 			}
 		}
@@ -61,9 +66,9 @@ public class P2SquareWellBonded extends P2SquareWell {
 	
 // This function tells you if two atoms are bonded
 	public boolean areBonded(Atom a, Atom b){
-		int j = ((Atom[]) a.allatomAgents[idx]).length;	//check INDEXING
+		int j = agents[a.getGlobalIndex()].length;	//check INDEXING
 		for(int i=0; i != j; ++i){
-			if(((Atom[]) a.allatomAgents[idx])[i] == b){		
+			if (agents[a.getGlobalIndex()][i] == b){		
 				return true;
 			}
 		}
@@ -77,8 +82,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 		}
 		int i = lowest(a);		// (0 is the First Space) 
 		int j = lowest(b);
-		((Atom[]) a.allatomAgents[idx])[i] = b;
-		((Atom[]) b.allatomAgents[idx])[j] = a;
+		agents[a.getGlobalIndex()][i] = b;
+		agents[b.getGlobalIndex()][j] = a;
 	}
 	
 // this function unbonds two atoms
@@ -88,10 +93,10 @@ public class P2SquareWellBonded extends P2SquareWell {
 		}
         boolean success = false;
 		// Unbonding the Atom, Atom A's side
-		int j = ((Atom[]) a.allatomAgents[idx]).length;	//check INDEXING
+		int j = agents[a.getGlobalIndex()].length;	//check INDEXING
 		for(int i=0; i != j; ++i){
-			if(((Atom[]) a.allatomAgents[idx])[i] == b){	// double bonds???
-				((Atom[]) a.allatomAgents[idx])[i] = null;
+			if (agents[a.getGlobalIndex()][i] == b){	// double bonds???
+				agents[a.getGlobalIndex()][i] = null;
                 success = true;
 			}
 		}
@@ -100,10 +105,10 @@ public class P2SquareWellBonded extends P2SquareWell {
         }
         success = false;
 		// Unbonding the Atom, Atom B's side
-		j = ((Atom[]) b.allatomAgents[idx]).length;	//check INDEXING
+		j = agents[b.getGlobalIndex()].length;	//check INDEXING
 		for(int i=0; i != j; ++i){
-			if(((Atom[]) b.allatomAgents[idx])[i] == a){	// double bonds???
-				((Atom[]) b.allatomAgents[idx])[i] = null;
+			if (agents[b.getGlobalIndex()][i] == a){	// double bonds???
+				agents[b.getGlobalIndex()][i] = null;
                 success = true;
 			}
 		}

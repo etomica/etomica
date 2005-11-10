@@ -23,18 +23,19 @@ import etomica.util.NameMaker;
  */
 public class MeterChainLength implements Meter, Atom.AgentSource {
 
-    public final int nbrIndex;
     private final DataDoubleArray data;
     private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
     private Phase phase;
     private String name;
-    private AtomAgentManager agentManager;
+    private AtomAgentManager tagManager;
     private AtomTag[] atomTags;
+    private final ReactionEquilibrium agentSource;
+    private Atom[][] agents;
 
-    public MeterChainLength(int idx) {
+    public MeterChainLength(ReactionEquilibrium sim) {
         data = new DataDoubleArray("Chain Length Distribution",Dimension.FRACTION,10);
-        this.nbrIndex = idx;
         setName(NameMaker.makeName(this.getClass()));
+        agentSource = sim;
     }
 
     public Object makeAgent(Atom a) {
@@ -45,7 +46,8 @@ public class MeterChainLength implements Meter, Atom.AgentSource {
     //returns the number of molecules with [1,2,3,4,5,6,7-10,10-13,13-25, >25]
     // atoms
     public Data getData() {
-
+        agents = agentSource.getAgents(phase);
+        
         //System.out.println("Meter Dimer Frac: ran MolculeFraction Method");
         //double[] array = new double[1];
         //array[0] = 2.1;
@@ -88,12 +90,12 @@ public class MeterChainLength implements Meter, Atom.AgentSource {
 
     //this function tells you if next is terminal (I.e it is bonded once)
     public boolean terminal(Atom current, Atom next) {
-        int j = ((Atom[]) next.allatomAgents[nbrIndex]).length; //check INDEXING
+        int j = agents[next.getGlobalIndex()].length; //check INDEXING
         for (int i = 0; i != j; ++i) {
-            if (((Atom[]) next.allatomAgents[nbrIndex])[i] == current) {
+            if (agents[next.getGlobalIndex()][i] == current) {
 
             } else {
-                if (((Atom[]) next.allatomAgents[nbrIndex])[i] != null) {
+                if (agents[next.getGlobalIndex()][i] != null) {
                     return false;
                 }
             }
@@ -103,9 +105,9 @@ public class MeterChainLength implements Meter, Atom.AgentSource {
 
     //returns true only if there is NOTHING bonded to the atom
     public boolean empty(Atom a) {
-        int j = ((Atom[]) a.allatomAgents[nbrIndex]).length; //check INDEXING
+        int j = agents[a.getGlobalIndex()].length; //check INDEXING
         for (int i = 0; i != j; ++i) {
-            if (((Atom[]) a.allatomAgents[nbrIndex])[i] != null) {
+            if (agents[a.getGlobalIndex()][i] != null) {
                 return false;
             }
         }
@@ -115,12 +117,12 @@ public class MeterChainLength implements Meter, Atom.AgentSource {
     //returns the number of unmarked atoms it is bonded too (not including
     // itself)
     public int NumberUmarkedBonded(Atom a) {
-        int j = ((Atom[]) a.allatomAgents[nbrIndex]).length; //check INDEXING
+        int j = agents[a.getGlobalIndex()].length; //check INDEXING
         int ctr = 0;
 
         // Loops through all the spots atom a can use to bond
         for (int i = 0; i != j; ++i) {
-            Atom current = ((Atom[]) (a.allatomAgents[nbrIndex]))[i];
+            Atom current = agents[a.getGlobalIndex()][i];
             if (current != null) { // There is an atom
                 if (atomTags[current.getGlobalIndex()].white()) {
                     ctr++;
@@ -132,10 +134,10 @@ public class MeterChainLength implements Meter, Atom.AgentSource {
 
     public int NumberBonded(Atom a) {
         //System.out.println("Molecular Count: ran Number Bonded");
-        int j = ((Atom[]) a.allatomAgents[nbrIndex]).length;
+        int j = agents[a.getGlobalIndex()].length;
         int ctr = 0;
         for (int i = 0; i != j; ++i) {
-            Atom current = ((Atom[]) (a.allatomAgents[nbrIndex]))[i];
+            Atom current = agents[a.getGlobalIndex()][i];
             if (current != null) { // There is an atom
                 if (current != a) {
                     ctr++;
@@ -148,7 +150,7 @@ public class MeterChainLength implements Meter, Atom.AgentSource {
     //This returns an array of all the white atoms attached to atom a
     public Atom[] findAllWhite(Atom a) {
         //System.out.println("Molecular Count: find all white method");
-        int j = ((Atom[]) a.allatomAgents[nbrIndex]).length; //check INDEXING
+        int j = agents[a.getGlobalIndex()].length; //check INDEXING
         Atom[] array = new Atom[j];
         int ctr = 0;
 
@@ -159,7 +161,7 @@ public class MeterChainLength implements Meter, Atom.AgentSource {
 
         // Loops through all the spots atom a can use to bond
         for (int i = 0; i != j; ++i) {
-            Atom current = ((Atom[]) (a.allatomAgents[nbrIndex]))[i];
+            Atom current = agents[a.getGlobalIndex()][i];
             if (current != null) { // There is an atom
                 if (atomTags[current.getGlobalIndex()].white()) {
                     array[ctr] = current;
@@ -175,7 +177,7 @@ public class MeterChainLength implements Meter, Atom.AgentSource {
             //System.out.println("Ran recursive");
             atomTags[a.getGlobalIndex()].process();
         }
-        Atom[] nbrs = ((Atom[]) a.allatomAgents[nbrIndex]);
+        Atom[] nbrs = agents[a.getGlobalIndex()];
 
         int ctr = 1;
         
@@ -202,12 +204,12 @@ public class MeterChainLength implements Meter, Atom.AgentSource {
      */
     public void setPhase(Phase phase) {
         this.phase = phase;
-        if (agentManager != null) {
+        if (tagManager != null) {
             // allow old agentManager to de-register itself as a PhaseListener
-            agentManager.setPhase(null);
+            tagManager.setPhase(null);
         }
-        agentManager = new AtomAgentManager(this,phase);
-        atomTags = (AtomTag[])agentManager.getAgents();
+        tagManager = new AtomAgentManager(this,phase);
+        atomTags = (AtomTag[])tagManager.getAgents();
         
         iterator.setPhase(phase);
     }

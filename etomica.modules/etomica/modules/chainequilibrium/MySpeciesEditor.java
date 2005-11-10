@@ -87,11 +87,12 @@ class MySpeciesEditor extends javax.swing.JPanel {
             
             Action anotherAction = new Action() {
                 public void actionPerformed() {
+                    Atom[][] agents = sim.getAgents(sim.phase1);
                     AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(sim.phase1);
                     iter.reset();
                     while (iter.hasNext()) {
                         //                      System.out.println(iter.peek().toString());
-                        Atom[] a = (Atom[])iter.nextAtom().allatomAgents[sim.idx];
+                        Atom[] a = agents[iter.nextAtom().getGlobalIndex()];
                         a[0] = null;
                         a[1] = null;
                     }

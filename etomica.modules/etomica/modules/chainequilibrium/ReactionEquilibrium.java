@@ -6,12 +6,14 @@ import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.Atom;
+import etomica.atom.AtomAgentManager;
 import etomica.config.ConfigurationSequential;
 import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
+import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 
@@ -25,22 +27,22 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
 	public Phase phase1;
 	public etomica.action.SimulationRestart restartAction;
 	public boolean initializing = true;
-	public int idx;
 	public MeterTemperature thermometer;
 	public SpeciesSpheresMono speciesA;
 	public SpeciesSpheresMono speciesB;
 	public P2SquareWellBonded AAbonded;
 	public P2SquareWellBonded ABbonded;
 	public P2SquareWellBonded BBbonded;
+    public AtomAgentManager agentManager;
+    public Atom[] agents;
 	
     public ReactionEquilibrium() {
         super(Space2D.getInstance());
         controller1 = getController();
 
         double diameter = 1.0;
-        idx = Atom.requestAgentIndex(this);
         
-        molecularCount = new MeterChainLength(idx);
+        molecularCount = new MeterChainLength(this);
 		
 
         getDefaults().atomSize = diameter;
@@ -61,11 +63,11 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
         molecularCount.setPhase(phase1);
     	
 		//potentials
-        AAbonded = new P2SquareWellBonded(space, idx, 0.5 * getDefaults().atomSize, 
+        AAbonded = new P2SquareWellBonded(space, this, 0.5 * getDefaults().atomSize, 
                 2.0, getDefaults().potentialWell);
-		ABbonded = new P2SquareWellBonded(space, idx, 0.5 * getDefaults().atomSize,
+		ABbonded = new P2SquareWellBonded(space, this, 0.5 * getDefaults().atomSize,
 		        2.0, getDefaults().potentialWell);
-		BBbonded = new P2SquareWellBonded(space, idx, 0.5 * getDefaults().atomSize,
+		BBbonded = new P2SquareWellBonded(space, this, 0.5 * getDefaults().atomSize,
 		        2.0, getDefaults().potentialWell);
 
 		potentialMaster.setSpecies(AAbonded,
@@ -87,6 +89,14 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
 		getController().addAction(activityIntegrate);
 		integratorHard1.addListener(new PhaseImposePbc(phase1));
 	}
+    
+    public Atom[][] getAgents(Phase phase) {
+        // the other classes don't know it, but there's only one phase.  :)
+        if (agentManager == null) {
+          agentManager = new AtomAgentManager(this,phase);
+        }
+        return (Atom[][])agentManager.getAgents();
+    }
 
 	/**
 	 * Implementation of Atom.AgentSource interface, returning null. Agent in
