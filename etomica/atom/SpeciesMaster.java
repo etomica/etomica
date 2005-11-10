@@ -280,8 +280,11 @@ public final class SpeciesMaster extends Atom {
                 treeIterator.setRoot(oldAtom);
                 treeIterator.reset();
                 while (treeIterator.hasNext()) {
-                    speciesMaster.atomList
-                            .remove(((AtomTreeNodeLeaf) treeIterator.nextAtom().node).leafLinker);
+                    Atom childAtom = treeIterator.nextAtom();
+                    if (childAtom.type.isLeaf()) {
+                    	speciesMaster.atomList
+                            .remove(((AtomTreeNodeLeaf)childAtom.node).leafLinker);
+                    }
                 }
             }
             removalEvent.setAtom(oldAtom);
