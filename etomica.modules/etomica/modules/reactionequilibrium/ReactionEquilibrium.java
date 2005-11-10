@@ -6,6 +6,8 @@ import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.Atom;
+import etomica.atom.AtomAgentManager;
+import etomica.atom.Atom.AgentSource;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationSequential;
 import etomica.data.meter.MeterTemperature;
@@ -14,10 +16,12 @@ import etomica.integrator.IntegratorHard;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
+import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
+import etomica.util.Arrays;
 
-public class ReactionEquilibrium extends Simulation implements Atom.AgentSource {
+public class ReactionEquilibrium extends Simulation implements AgentSource {
 
     public Controller controller1;
     public JPanel panel = new JPanel(new java.awt.BorderLayout());
@@ -27,7 +31,6 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
     public DisplayPhase displayPhase1;
     public etomica.action.SimulationRestart restartAction;
     public boolean initializing = true;
-    public int idx;
     public MeterTemperature thermometer;
     public SpeciesSpheresMono speciesA;
     public SpeciesSpheresMono speciesB;
@@ -35,11 +38,13 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
     public P2SquareWellBonded ABbonded;
     public P2SquareWellBonded BBbonded;
     public MeterDimerFraction meterDimerFraction;
+    public AtomAgentManager agentManager;
+    public Atom[] agents;
+    
     public ReactionEquilibrium() {
         super(Space2D.getInstance());
         defaults.ignoreOverlap = true;
         controller1 = getController();
-        idx = Atom.requestAgentIndex(this);
 
         double diameter = 1.0;
         defaults.atomSize = diameter;
@@ -62,13 +67,13 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
         config.initializeCoordinates(phase1);
 
         //potentials
-        AAbonded = new P2SquareWellBonded(space, idx, 0.5 * defaults.atomSize, //core
+        AAbonded = new P2SquareWellBonded(space, this, 0.5 * defaults.atomSize, //core
                 2.0, //well multiplier
                 defaults.potentialWell, defaults.ignoreOverlap);
-        ABbonded = new P2SquareWellBonded(space, idx, 0.5 * defaults.atomSize, //core
+        ABbonded = new P2SquareWellBonded(space, this, 0.5 * defaults.atomSize, //core
                 2.0, //well multiplier
                 defaults.potentialWell, defaults.ignoreOverlap);
-        BBbonded = new P2SquareWellBonded(space, idx, 0.5 * defaults.atomSize, //core
+        BBbonded = new P2SquareWellBonded(space, this, 0.5 * defaults.atomSize, //core
                 2.0, //well multiplier
                 defaults.potentialWell, defaults.ignoreOverlap);
 /*      P2SquareWell AAbonded = new P2SquareWell(space, 0.5 * Default.atomSize, //core
@@ -87,7 +92,7 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
         potentialMaster.setSpecies(BBbonded,
                 new Species[] { speciesB, speciesB });
 
-        meterDimerFraction = new MeterDimerFraction(idx);
+        meterDimerFraction = new MeterDimerFraction(this);
         meterDimerFraction.setPhase(phase1);
         thermometer = new MeterTemperature();
         thermometer.setPhase(phase1);
@@ -98,18 +103,30 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
         getController().addAction(activityIntegrate);
         integratorHard1.addListener(new PhaseImposePbc(phase1));
 	}
+    
+    public Atom[] getAgents(Phase phase) {
+        // the other classes don't know it, but there's only one phase.  :)
+        if (agentManager == null) {
+          agentManager = new AtomAgentManager(this,phase);
+        }
+        return (Atom[])agentManager.getAgents();
+    }
 
-	/**
-	 * Implementation of Atom.AgentSource interface, returning null. Agent in
-	 * atom is used to hold bonding partner.
-	 * 
-	 * @param a
-	 *            ignored
-	 * @return Object always null
-	 */
-	public Object makeAgent(Atom a) {
-		return null;
-	}
+    /**
+     * Implementation of Atom.AgentSource interface, returning null. Agent in
+     * atom is used to hold bonding partner.
+     * 
+     * @param a
+     *            ignored
+     * @return Object always null
+     */
+    public Object makeAgent(Atom a) {
+        if (a == null) {
+            // return bogus atom so AtomAgentManager knows the class
+            return new Atom(Space3D.getInstance());
+        }
+        return null;
+    }
 
 	public static void main(String[] args) {
 		javax.swing.JFrame f = new javax.swing.JFrame(); //create a window
@@ -134,13 +151,3 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
 
 }//end of KineticsModule class
 
-//=======================================================================
-/**
- * A modulator specific for the square-well potential. The modulated value is
- * the ratio of the core diameter to the well diameter. This is not explicitly
- * given as a field of the potential, so the modulator must do some manipulation
- * of the accessible fields to implement changes. The value passed to setValue
- * is interpreted as 100 times this ratio, and is used to adjust the core
- * diameter and lambda value of the potential accordingly. The full well
- * diameter of the potential (lambda*sigma) is fixed at construction.
- */

@@ -3,6 +3,7 @@ import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
+import etomica.phase.Phase;
 import etomica.potential.P2SquareWell;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
@@ -29,10 +30,9 @@ import etomica.units.Dimension;
  */
 public class P2SquareWellBonded extends P2SquareWell {
 
-	// This is an  index for an array Array ==> {1,2,3,4,5,6...}
-	//			          idx = 2      | 
-	public final int idx;
 	private double barrier;
+    protected ReactionEquilibrium agentSource;
+    protected Atom[] agents;
 
 	// *** Below are different types of constructor functions that Make P2SqaredWells ***	
 
@@ -42,29 +42,16 @@ public class P2SquareWellBonded extends P2SquareWell {
 		// bondchange event
 //	}
 
-	public P2SquareWellBonded(Space space, int idx, double coreDiameter,double lambda, double epsilon,boolean ignoreOverlap) {
+	public P2SquareWellBonded(Space space, ReactionEquilibrium sim, double coreDiameter,double lambda, double epsilon,boolean ignoreOverlap) {
 		super(space, coreDiameter, lambda, epsilon, ignoreOverlap);
-		this.idx = idx;
+        agentSource = sim;
 	}
 
-	/**
-	 * Implementation of Atom.AgentSource interface, returning null. Agent in atom is used to hold bonding partner.
-	 * @param a ignored  
-	 * @return Object always null
-	 */
-
-	// **** This makeAgent function adds a peice of data to the atom class, we are adding 
-	//	An array of 2 atoms, so from every atom in our simulation there is an array [1,2]
-	// 	in each space is saved an atom which "points" to another atom in the simulation which
-	//	That atom is bonded to. 
-	
-	/*
-	public boolean full(Atom a) {
-
-	
-	}
-	*/
-
+    public void setPhase(Phase phase){
+        super.setPhase(phase);
+        agents = agentSource.getAgents(phase);
+    }
+    
 	public void setBarrier(double b) {
 		barrier = b;
 	}
@@ -88,7 +75,7 @@ public class P2SquareWellBonded extends P2SquareWell {
             
             // ** Makes 2 things, and atomPair pair, 
             AtomPair pair = (AtomPair) atoms;
-            Atom a1Partner = (Atom) pair.atom0.allatomAgents[idx];
+            Atom a1Partner = agents[pair.atom0.getGlobalIndex()];
             
             cPair.reset(pair);
             cPair.resetV();
@@ -134,8 +121,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 		double reduced_m = 2.0 / (rm0 + rm1);
 		double ke = bij * bij * reduced_m / (4.0 * r2);
 		
-		Atom a0Partner = (Atom) a0.allatomAgents[idx];
-		Atom a1Partner = (Atom) a1.allatomAgents[idx];
+		Atom a0Partner = agents[a0.getGlobalIndex()];
+		Atom a1Partner = agents[a1.getGlobalIndex()];
 
 		boolean a0Saturated = (a0Partner != null);
 		boolean a1Saturated = (a1Partner != null);
@@ -167,8 +154,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 
 					if( a0Partner == a1)
 					{	
-                        a0.allatomAgents[idx] = null;
-                        a1.allatomAgents[idx] = null;
+					    agents[a0.getGlobalIndex()] = null;
+                        agents[a1.getGlobalIndex()] = null;
 					}
 
 					nudge = eps;
@@ -189,8 +176,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 						* reduced_m
 						* (bij + Math.sqrt(bij * bij + 4.0 * r2 * epsilon
 								/ reduced_m));
-				a0.allatomAgents[idx] = a1;
-                 a1.allatomAgents[idx] = a0;
+				agents[a0.getGlobalIndex()] = a1;
+				agents[a1.getGlobalIndex()] = a0;
 				nudge = -eps;
 				//System.out.println("bonded");
 			}
@@ -211,4 +198,5 @@ public class P2SquareWellBonded extends P2SquareWell {
 		}
 
 	}//end of bump
+    
 }//end of class
