@@ -44,8 +44,6 @@ public abstract class Integrator implements EtomicaElement, java.io.Serializable
     protected MeterPotentialEnergy meterPE;
     protected double[] currentPotentialEnergy = new double[0];
 
-    public long maxSteps, interval, stepCount;
-
     public Integrator(PotentialMaster potentialMaster, double temperature) {
         setName(NameMaker.makeName(this.getClass()));
         phase = new Phase[0];
