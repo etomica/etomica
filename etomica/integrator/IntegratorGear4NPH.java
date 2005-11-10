@@ -150,7 +150,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         //Compute all forces
         atomIterator.reset();
         while(atomIterator.hasNext()) {   //zero forces on all atoms
-            ((Agent)atomIterator.nextAtom().ia).force.E(0.0);
+            agents[atomIterator.nextAtom().getGlobalIndex()].force.E(0.0);
         }
         forceSumNPH.u = 0.0;
         forceSumNPH.w = 0.0;
@@ -279,8 +279,8 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
                 rvx += hv * cPair.vDotr()/r2;
                 f.E(potentialSoft.gradient(pair));
                 vf -= cPair.dv().dot(f); //maybe should be (-)?
-                ((Integrator.Forcible)pair.atom0.ia).force().PE(f);
-                ((Integrator.Forcible)pair.atom1.ia).force().ME(f);
+                agents[pair.atom0.getGlobalIndex()].force().PE(f);
+                agents[pair.atom1.getGlobalIndex()].force().ME(f);
             }//end while
         }//end of calculate
     }//end ForceSums

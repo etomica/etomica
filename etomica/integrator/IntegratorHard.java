@@ -180,8 +180,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
                 }
                 Debug.checkAtoms();
                 if (Debug.LEVEL > 1) {
-                    PotentialHard p = ((Agent)Debug.ATOM1.ia).collisionPotential;
-                    System.out.println(Debug.ATOM1+" collision time "+((Agent)Debug.ATOM1.ia).collisionTime()+" with "+((Agent)Debug.ATOM1.ia).collisionPartner
+                    PotentialHard p = agents[Debug.ATOM1.getGlobalIndex()].collisionPotential;
+                    System.out.println(Debug.ATOM1+" collision time "+agents[Debug.ATOM1.getGlobalIndex()].collisionTime()+" with "+agents[Debug.ATOM1.getGlobalIndex()].collisionPartner
                             +" with potential "+(p!=null ? p.getClass() : null));
                 }
             }
