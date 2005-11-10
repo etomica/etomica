@@ -1,6 +1,5 @@
 package etomica.graphics;
 import etomica.atom.Atom;
-import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.phase.Phase;
 
@@ -8,8 +7,8 @@ public class ColorSchemeRandom extends ColorSchemeCollective {
     
     private final AtomIteratorListTabbed iterator = new AtomIteratorListTabbed();
     
-    public ColorSchemeRandom(SpeciesRoot root) {
-        super(root);
+    public ColorSchemeRandom() {
+        super();
     }
     
     public void colorAllAtoms(Phase phase) {

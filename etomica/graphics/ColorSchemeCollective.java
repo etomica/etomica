@@ -21,15 +21,17 @@ public abstract class ColorSchemeCollective extends ColorScheme implements Atom.
     private AtomAgentManager[] agentManager;
     protected Color[] atomColors;
     
-    public ColorSchemeCollective(SpeciesRoot root) {
+    public ColorSchemeCollective() {
         super();
-        root.addListener(this);
-        agentManager = new AtomAgentManager[0];
     }
     
     //determine color
     //then assign it to atom like this: atom.allatomAgents[agentIndex] = color
     public void colorAllAtoms(Phase phase){
+        if (agentManager == null) {
+            ((SpeciesRoot)phase.getSpeciesMaster().node.parentGroup()).addListener(this);
+            agentManager = new AtomAgentManager[0];
+        }
         int index = phase.getIndex();
         if (index+1 > agentManager.length) {
             agentManager = (AtomAgentManager[])Arrays.resizeArray(agentManager,index+1);

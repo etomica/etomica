@@ -22,7 +22,7 @@ public class ColorSchemeNeighbor extends ColorSchemeCollective {
     private final ColorSchemeByType typeColorScheme = new ColorSchemeByType();
     
     public ColorSchemeNeighbor(Simulation sim) {
-        super(sim.speciesRoot);
+        super();
         nbrIterator = new Api1ACell(sim.space().D(), sim.getDefaults().atomSize);
         nbrIterator.setDirection(null);
     }

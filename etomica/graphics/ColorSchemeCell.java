@@ -21,8 +21,8 @@ public class ColorSchemeCell extends ColorSchemeCollective {
     private final HashMap hash = new HashMap();
     private final AtomIteratorListSimple allIterator = new AtomIteratorListSimple();
     
-    public ColorSchemeCell(SpeciesRoot root) {
-        super(root);
+    public ColorSchemeCell() {
+        super();
     }
     
     public void setLattice(FiniteLattice lattice) {
