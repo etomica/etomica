@@ -4,7 +4,6 @@ package etomica.integrator;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.action.PhaseInflate;
-import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
@@ -199,18 +198,6 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         super.reset();
     }
               
-//--------------------------------------------------------------
-
-    public Object makeAgent(Atom a) {
-        return new Agent(space,a);
-    }
-            
-    public static class Agent extends IntegratorGear4.Agent {  //need public so to use with instanceof
-        public Agent(Space space, Atom a) {
-            super(space, a);
-        }
-    }
-    
     //inner class used to toggle between NPT and NPH ensembles
     public static class EnsembleToggler implements ModifierBoolean, java.io.Serializable {
         public EnsembleToggler(IntegratorGear4NPH integrator) {
