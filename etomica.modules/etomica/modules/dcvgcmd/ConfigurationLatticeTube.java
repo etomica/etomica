@@ -26,7 +26,7 @@ import etomica.species.SpeciesSpheresMono;
  * capability to assign lattice site to atoms when specifying their coordinates.
  * See setAssigningSitesToAtoms method.
  */
-public class ConfigurationLatticeTube extends Configuration implements Atom.AgentSource {
+public class ConfigurationLatticeTube extends Configuration {
 
     public ConfigurationLatticeTube(LatticeCrystal lattice, double length, SpeciesTube tubeSpecies) {
         this(lattice, length, tubeSpecies, new IndexIteratorSequential(lattice.D()));//need a default iterator
@@ -151,7 +151,6 @@ public class ConfigurationLatticeTube extends Configuration implements Atom.Agen
             site.PE(offsetVector);
             atomActionTranslateTo.setDestination(site);
             atomActionTranslateTo.actionPerformed(a);
-            if(assigningSitesToAtoms) ((Agent)a.allatomAgents[siteIndex]).site = (Vector)site.clone();//assign site to atom if so indicated
         }
         //loop for multiple tubes.
         AtomIteratorListSimple tubeiterator = new AtomIteratorListSimple(list);
@@ -201,66 +200,11 @@ public class ConfigurationLatticeTube extends Configuration implements Atom.Agen
 	private final LatticeCrystal lattice;
     private final IndexIteratorSizable indexIterator;
     private final Vector work;
-	private boolean assigningSitesToAtoms = false;
-	private int siteIndex = -1;
     private final AtomActionTranslateTo atomActionTranslateTo;
     private final AtomIteratorListCompound atomIterator;
     private final double length;
     private final SpeciesTube tubeSpecies;
 
-//  /**
-//  * Sets the size of the lattice (number of atoms in each direction) so that
-//  * it has a number of sites equal or greater than the given value n. Sets
-//  * lattice to be square (same number in all directions), and finds smallest
-//  * size that gives number of sites equal or exceeding the given value.
-//  */
-// public void setSize(int n) {
-//     if (n < 0 || n >= Integer.MAX_VALUE)
-//         throw new IllegalArgumentException(
-//                 "Inappropriate size specified for lattice: " + n);
-//     int i = (int)Math.pow(n,1/D());
-//     while(i <= n) {
-//         if ((int)Math.pow(i,D()) >= n) break;
-//         i++;
-//     }
-//     setSize(primitive.space.makeArrayD(i));
-// }
-//
-// /**
-//  * Performs same actions as setSize(int), then size of primitive vectors are
-//  * adjusted such that lattice will fit in the given dimensions. Assumes all
-//  * dimension values are equal (future development will address case of non-
-//  * square dimensions).
-//  */
-// public void setSize(int n, double[] dimensions) {
-//     if (n < 0 || n >= Integer.MAX_VALUE)
-//         throw new IllegalArgumentException(
-//                 "Inappropriate size specified for lattice: " + n);
-//     int i = (int)Math.pow(n,1/D());
-//     while(i <= n) {
-//         if ((int)Math.pow(i,D()) >= n) break;
-//         i++;
-//     }
-//     //size primitive vectors to given dimensions
-//     double[] newLength = new double[D()];
-//     for (int j = 0; j < D(); j++)
-//         newLength[j] = dimensions[j] / (double) i;
-//     primitive.setSize(newLength);
-//     setSize(primitive.space.makeArrayD(i));
-// }
-
-// /**
-//  * Translates the lattice so that the first site is positioned at the
-//  * given point.
-//  */
-// public void shiftFirstTo(Space.Vector r) {
-//     Space.Vector[] coords = (Space.Vector[])sites();
-//     for(int i=coords.length-1; i>=0; i--) {
-//         coords[i].ME(r);
-//     }
-// }
-
-    
 	public static void main(String[] args) {
         Simulation sim = new Simulation(Space3D.getInstance());
 		sim.getDefaults().atomSize = 5.0;
@@ -279,48 +223,6 @@ public class ConfigurationLatticeTube extends Configuration implements Atom.Agen
 		
         etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(sim);
 		simGraphic.makeAndDisplayFrame();
-	}
-
-	/**
-	 * Returns the assigningSitesToAtoms field.
-	 * @return boolean
-	 */
-	public boolean isAssigningSitesToAtoms() {
-		return assigningSitesToAtoms;
-	}
-
-	/**
-	 * Sets flage that causes sites to be assigned to atoms.  When this is set
-	 * to true, an atom agent is made in every new Atom instance, which will
-	 * hold a field that points to the site used to set the atom's position
-	 * during any call to initializeCoordinates.
-	 * @param assigningSitesToAtoms The assigningSitesToAtoms to set
-	 */
-	public void setAssigningSitesToAtoms(boolean assigningSitesToAtoms) {
-		this.assigningSitesToAtoms = assigningSitesToAtoms;
-		if(assigningSitesToAtoms && siteIndex < 0) siteIndex = Atom.requestAgentIndex(this);
-	}
-	
-	/**
-	 * Returns the index used to access the site.  Given an atom, its site is
-	 * accessed via: 
-	 * ((ConfigurationLatticeTube.Agent)atom.allAtomAgents[siteIndex]).site
-	 * @return int the site index in allatomAgents with this class' agent
-	 */
-	public final int siteIndex() {return siteIndex;}
-	
-	/**
-	 * Implementation of Atom.AgentSource interface.
-	 * @see etomica.atom.Atom.AgentSource#makeAgent(Atom)
-	 */
-	public Object makeAgent(Atom a) {return new Agent();}
-	
-	/**
-	 * Atom agent that simply has a field that points to a lattice site
-	 * associated with the atom.
-	 */
-	public static class Agent {
-		public Vector site;
 	}
 
 }

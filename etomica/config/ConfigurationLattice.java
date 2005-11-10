@@ -24,7 +24,7 @@ import etomica.species.SpeciesSpheresMono;
  * capability to assign lattice site to atoms when specifying their coordinates.
  * See setAssigningSitesToAtoms method.
  */
-public class ConfigurationLattice extends Configuration implements Atom.AgentSource {
+public class ConfigurationLattice extends Configuration {
 
     public ConfigurationLattice(Primitive primitive) {
         this(new LatticeCrystal(new Crystal(primitive, new BasisMonatomic(primitive.space))));
@@ -124,7 +124,6 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
             site.PE(offsetVector);
             atomActionTranslateTo.setDestination(site);
             atomActionTranslateTo.actionPerformed(a);
-            if(assigningSitesToAtoms) ((Agent)a.allatomAgents[siteIndex]).site = (Vector)site.clone();//assign site to atom if so indicated
         }
     }
     
@@ -161,8 +160,6 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
     private final IndexIteratorSizable indexIterator;
     private final Vector work;
 	private boolean rescalingToFitVolume = true;
-	private boolean assigningSitesToAtoms = false;
-	private int siteIndex = -1;
     private final AtomActionTranslateTo atomActionTranslateTo;
     private final AtomIteratorListCompound atomIterator;
 
@@ -254,48 +251,6 @@ public class ConfigurationLattice extends Configuration implements Atom.AgentSou
 	 */
 	public void setRescalingToFitVolume(boolean resizeLatticeToFitVolume) {
 		this.rescalingToFitVolume = resizeLatticeToFitVolume;
-	}
-
-	/**
-	 * Returns the assigningSitesToAtoms field.
-	 * @return boolean
-	 */
-	public boolean isAssigningSitesToAtoms() {
-		return assigningSitesToAtoms;
-	}
-
-	/**
-	 * Sets flag that causes sites to be assigned to atoms.  When this is set
-	 * to true, an atom agent is made in every new Atom instance, which will
-	 * hold a field that points to the site used to set the atom's position
-	 * during any call to initializeCoordinates.
-	 * @param assigningSitesToAtoms The assigningSitesToAtoms to set
-	 */
-	public void setAssigningSitesToAtoms(boolean assigningSitesToAtoms) {
-		this.assigningSitesToAtoms = assigningSitesToAtoms;
-		if(assigningSitesToAtoms && siteIndex < 0) siteIndex = Atom.requestAgentIndex(this);
-	}
-	
-	/**
-	 * Returns the index used to access the site.  Given an atom, its site is
-	 * accessed via: 
-	 * ((ConfigurationLattice.Agent)atom.allAtomAgents[siteIndex]).site
-	 * @return int the site index in allatomAgents with this class' agent
-	 */
-	public final int siteIndex() {return siteIndex;}
-	
-	/**
-	 * Implementation of Atom.AgentSource interface.
-	 * @see etomica.atom.Atom.AgentSource#makeAgent(Atom)
-	 */
-	public Object makeAgent(Atom a) {return new Agent();}
-	
-	/**
-	 * Atom agent that simply has a field that points to a lattice site
-	 * associated with the atom.
-	 */
-	public static class Agent {
-		public Vector site;
 	}
 
 }
