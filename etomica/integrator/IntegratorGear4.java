@@ -5,7 +5,9 @@ package etomica.integrator;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
+import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.Atom.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.phase.Phase;
@@ -23,7 +25,7 @@ import etomica.units.systems.LJ;
  * @author Ed Maginn
  * @author David Kofke
  */
-public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
+public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, AgentSource {
 
     private final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms = new IteratorDirective();
@@ -38,6 +40,9 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
     static final double GEAR2 = 11./12.;
     static final double GEAR3 = 1./3.;
     static final double GEAR4 = 1./24.;
+
+    protected Agent[] agents;
+    protected AtomAgentManager agentManager;
 
     public IntegratorGear4(Simulation sim) {
         this(sim.potentialMaster,sim.space,sim.getDefaults().timeStep,sim.getDefaults().temperature);
@@ -62,9 +67,20 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
 
     public boolean addPhase(Phase p) {
         if(!super.addPhase(p)) return false;
+        agentManager = new AtomAgentManager(this,p);
         return true;
     }
 
+    public void removePhase(Phase oldPhase) {
+        if (oldPhase == firstPhase) {
+            // allow agentManager to de-register itself as a PhaseListener
+            agentManager.setPhase(null);
+            agentManager = null;
+            agents = null;
+        }
+        super.removePhase(oldPhase);
+    }
+    
     public void setTimeStep(double dt) {
         super.setTimeStep(dt);
         p1 = dt;
@@ -91,7 +107,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         //Compute all forces
         atomIterator.reset();
         while(atomIterator.hasNext()) {   //zero forces on all atoms
-            ((IntegratorGear4.Agent)atomIterator.nextAtom().ia).force.E(0.0);
+            agents[atomIterator.nextAtom().getGlobalIndex()].force.E(0.0);
         }
         //Compute forces on each atom
         potential.calculate(firstPhase, allAtoms, forceSum);
@@ -103,7 +119,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
-            Agent agent = (IntegratorGear4.Agent)a.ia;
+            Agent agent = agents[a.getGlobalIndex()];
             Vector r = a.coord.position();
             Vector v = ((ICoordinateKinetic)a.coord).velocity();
             work1.E(v);
@@ -132,7 +148,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
-            Agent agent = (Agent)a.ia;
+            Agent agent = agents[a.getGlobalIndex()];
             Vector r = a.coord.position();
             Vector v = ((ICoordinateKinetic)a.coord).velocity();
             r.PEa1Tv1(p1, agent.dr1);
@@ -167,12 +183,13 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement {
 
     public void reset() throws ConfigurationOverlapException {
         //XXX is this check really necessary?
+        agents = (Agent[])agentManager.getAgents();
         if(potential == null || firstPhase == null) return;
         calculateForces();
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
-            Agent agent = (IntegratorGear4.Agent)a.ia;
+            Agent agent = agents[a.getGlobalIndex()];
             agent.dr1.E(((ICoordinateKinetic)a.coord).velocity());
             agent.dr2.Ea1Tv1(((AtomTypeLeaf)a.type).rm(),agent.force);
             agent.dr3.E(0.0);
