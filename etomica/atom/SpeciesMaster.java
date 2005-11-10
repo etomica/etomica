@@ -111,6 +111,10 @@ public final class SpeciesMaster extends Atom {
         }
     }
     
+    public int getMaxGlobalIndex() {
+        return maxIndex;
+    }
+    
     /**
      * Collapses the global indices.  At the end, the maximum global index of 
      * an atom in the simulation will be maxIndex.  At the start, if indices 
@@ -174,7 +178,7 @@ public final class SpeciesMaster extends Atom {
     }
     
     public int getIndexReservoirSize() {
-        return reservoirSize;
+        return reservoirSize-1;
     }
 
     private static final class MasterAtomTreeNode extends AtomTreeNodeGroup {
@@ -183,7 +187,8 @@ public final class SpeciesMaster extends Atom {
             super(atom);
             speciesMaster = (SpeciesMaster) atom;
             this.parentPhase = parentPhase;
-            leafIterator.setAsLeafIterator();
+            treeIterator.setDoAllNodes(true);
+            treeIterator.setIterationDepth(Integer.MAX_VALUE);
             additionEvent = new PhaseEvent(atom, PhaseEvent.ATOM_ADDED);
             additionEvent.setPhase(parentPhase);
             removalEvent = new PhaseEvent(atom, PhaseEvent.ATOM_REMOVED);
@@ -237,16 +242,19 @@ public final class SpeciesMaster extends Atom {
             if (newAtom.node.isLeaf()) {
                 speciesMaster.atomList.addBefore(
                         ((AtomTreeNodeLeaf) newAtom.node).leafLinker, nextTab);
+                newAtom.setGlobalIndex((SpeciesMaster)atom);
             } else {
-                leafIterator.setRoot(newAtom);
-                leafIterator.reset();
-                while (leafIterator.hasNext()) {
-                    speciesMaster.atomList
-                            .addBefore(((AtomTreeNodeLeaf) leafIterator
-                                    .nextAtom().node).leafLinker, nextTab);
+                treeIterator.setRoot(newAtom);
+                treeIterator.reset();
+                while (treeIterator.hasNext()) {
+                    Atom childAtom = treeIterator.nextAtom();
+                    if (childAtom.type.isLeaf()) {
+                        speciesMaster.atomList.addBefore(
+                                ((AtomTreeNodeLeaf) childAtom.node).leafLinker, nextTab);
+                    }
+                    childAtom.setGlobalIndex((SpeciesMaster)atom);
                 }
             }
-            newAtom.setGlobalIndex((SpeciesMaster)atom);
             additionEvent.setAtom(newAtom);
             ((SpeciesMaster)atom).eventManager.fireEvent(additionEvent);
             if (parentNode() != null) {
@@ -269,11 +277,11 @@ public final class SpeciesMaster extends Atom {
 
             } else {
                 leafAtomCount -= oldAtom.node.leafAtomCount();
-                leafIterator.setRoot(oldAtom);
-                leafIterator.reset();
-                while (leafIterator.hasNext()) {
+                treeIterator.setRoot(oldAtom);
+                treeIterator.reset();
+                while (treeIterator.hasNext()) {
                     speciesMaster.atomList
-                            .remove(((AtomTreeNodeLeaf) leafIterator.nextAtom().node).leafLinker);
+                            .remove(((AtomTreeNodeLeaf) treeIterator.nextAtom().node).leafLinker);
                 }
             }
             removalEvent.setAtom(oldAtom);
@@ -288,7 +296,7 @@ public final class SpeciesMaster extends Atom {
         private final PhaseEvent removalEvent;
         private final Phase parentPhase;
         private final SpeciesMaster speciesMaster;
-        private final AtomIteratorTree leafIterator = new AtomIteratorTree();
+        private final AtomIteratorTree treeIterator = new AtomIteratorTree();
     } //end of MasterAtomTreeNode
 
     private static final class NodeFactory implements AtomTreeNodeFactory, java.io.Serializable {
