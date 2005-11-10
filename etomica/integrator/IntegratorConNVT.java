@@ -8,7 +8,6 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.atom.Atom.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.IntegratorHard.Agent;
 import etomica.phase.Phase;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
@@ -62,16 +61,9 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
         return info;
     }
 
-	/**
-	 * Overrides superclass method to instantiate iterators when iteratorFactory in phase is changed.
-	 * Called by Integrator.addPhase and Integrator.iteratorFactorObserver.
-	 */
-	private Phase phase;
-	
 	public boolean addPhase(Phase p) {
 	    if(!super.addPhase(p)) return false;
         agentManager = new AtomAgentManager(this,p);
-        phase = p;
         return true;
     }
     
@@ -113,7 +105,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 		atomIterator.reset();	
 		double Free=0.0;
 		//degrees of freedom
-		Free=((phase.moleculeCount()-1)*dim); 
+		Free=((firstPhase.moleculeCount()-1)*dim); 
 		
 		double k=0.0;
         double chi;
