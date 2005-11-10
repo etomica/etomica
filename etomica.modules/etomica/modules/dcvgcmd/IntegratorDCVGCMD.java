@@ -170,13 +170,6 @@ public class IntegratorDCVGCMD extends Integrator {
 		elapsedTime = 0.0;
 	}
 
-	/**
-	 * @see etomica.integrator.Integrator#makeAgent(etomica.Atom)
-	 */
-	public Object makeAgent(Atom a) {
-		return integratormd.makeAgent(a);
-	}
-	
 	public MyMCMove[] mcMoves() {
 		return new MyMCMove[] {mcMove1, mcMove2, mcMove3, mcMove4};
 	}

@@ -62,10 +62,7 @@ public class IntegratorAnalytic extends IntegratorMD {
         return true;
     }
     
-    public Object makeAgent(Atom a) {return null;}
-    
     private double elapsedTime = 0.0;
-    
     
     /**
      * Extends AtomAction class to add a method to set the time.

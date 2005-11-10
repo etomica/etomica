@@ -5,8 +5,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import etomica.EtomicaElement;
-import etomica.atom.Atom;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.phase.Phase;
@@ -45,6 +43,8 @@ public abstract class Integrator implements EtomicaElement, java.io.Serializable
     private String name;
     protected MeterPotentialEnergy meterPE;
     protected double[] currentPotentialEnergy = new double[0];
+
+    public long maxSteps, interval, stepCount;
 
     public Integrator(PotentialMaster potentialMaster, double temperature) {
         setName(NameMaker.makeName(this.getClass()));
@@ -109,12 +109,6 @@ public abstract class Integrator implements EtomicaElement, java.io.Serializable
     public void neighborsUpdated() {}
     
     /**
-     * Returns a new instance of an agent of this integrator for placement in
-     * the given atom in the ia (IntegratorAgent) field.
-     */
-    public abstract Object makeAgent(Atom a);
-
-    /**
      * Initializes the integrator, performing the following steps: (1) deploys
      * agents in all atoms; (2) call reset method; (3) fires an event
      * indicating to registered listeners indicating that initialization has
@@ -135,24 +129,7 @@ public abstract class Integrator implements EtomicaElement, java.io.Serializable
         return initialized;
     }
 
-    protected void setup() throws ConfigurationOverlapException {
-        deployAgents();
-    }
-
-    //how do agents get placed in atoms made during the simulation?
-    protected void deployAgents() { //puts an Agent of this integrator in each
-        // atom of all phases
-        AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
-        for (int i = 0; i < phase.length; i++) {
-            iterator.setPhase(phase[i]);
-            iterator.reset();
-            while (iterator.hasNext()) {//does only leaf atoms; do atom groups
-                // need agents?
-                Atom a = iterator.nextAtom();
-                a.setIntegratorAgent(makeAgent(a));
-            }
-        }
-    }
+    protected void setup() throws ConfigurationOverlapException {}
 
     /**
      * @return Returns the potential.

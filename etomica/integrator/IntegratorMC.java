@@ -2,7 +2,6 @@ package etomica.integrator;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.atom.Atom;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveEventManager;
@@ -10,7 +9,6 @@ import etomica.integrator.mcmove.MCMoveListener;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.util.EventManager;
 
 /**
  * Integrator to perform Metropolis Monte Carlo sampling. Works with a set of
@@ -302,13 +300,6 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
 		eventManager.removeListener(listener);
 		if (eventManager.listenerCount() == 0)
 			eventManager = null;
-	}
-
-	/**
-	 * Returns null.
-	 */
-	public Object makeAgent(Atom a) {
-		return null;
 	}
 
 	private MCMoveLinker firstMoveLink, lastMoveLink;
