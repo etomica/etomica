@@ -44,11 +44,6 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
         seq = seqFactory.makeSequencer(this);
         node = nodeFactory.makeNode(this);
         node.setOrdinal(0,0); //-(++INSTANCE_COUNT));//default index; changed when added to parent after construction
-        
-        if(agentSource.length > 0) allatomAgents = new Object[agentSource.length];
-        for(int i=0; i<agentSource.length; i++) {
-            allatomAgents[i] = agentSource[i].makeAgent(this);
-        }
     }
     
     /**
@@ -196,7 +191,7 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      * the integer returned with that call indicates the place in this array where
      * the source can find its agent in this atom.
      */
-    public Object[] allatomAgents;
+//    public Object[] allatomAgents;
     
     /**
      * Array used to record all agent sources requesting to place an agent in every atom.
