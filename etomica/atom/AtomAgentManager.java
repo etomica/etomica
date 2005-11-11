@@ -84,7 +84,7 @@ public class AtomAgentManager implements PhaseListener {
             Atom a = evt.atom();
             if (a.type.isLeaf()) {
                 int index = a.getGlobalIndex();
-                if (agents[index] != null) {
+                if (agents.length > index && agents[index] != null) {
                     // Atom used to have an agent.  nuke it.
                     agents[index] = null;
                 }
@@ -136,6 +136,7 @@ public class AtomAgentManager implements PhaseListener {
             if (newMaxIndex < a.getGlobalIndex()) {
                 newMaxIndex = a.getGlobalIndex();
             }
+            return;
         }
         agents[a.getGlobalIndex()] = agentSource.makeAgent(a);
     }
