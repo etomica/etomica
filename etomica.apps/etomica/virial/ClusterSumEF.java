@@ -86,8 +86,8 @@ public class ClusterSumEF extends ClusterSum {
                     }
                     fValues[i][j][k+numF] = eValue;
                     fValues[j][i][k+numF] = eValue;
-                    fValues[j][i][k] = eValue + 1;
-                    fValues[i][j][k] = eValue + 1;
+                    fValues[j][i][k] = eValue - 1;
+                    fValues[i][j][k] = eValue - 1;
                 }
             }
         }
