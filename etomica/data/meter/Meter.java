@@ -2,7 +2,7 @@ package etomica.data.meter;
 
 import etomica.EtomicaElement;
 import etomica.data.DataSource;
-import etomica.phase.Phase;
+import etomica.phase.PhaseDependent;
 
 
 /**
@@ -12,19 +12,6 @@ import etomica.phase.Phase;
  * @author David Kofke
  */
 
-public interface Meter extends DataSource, EtomicaElement {
+public interface Meter extends DataSource, EtomicaElement, PhaseDependent {
 
-    /**
-     * Sets the Phase on which the meter performs its measurements.
-     * Each subsequent call to getData() will cause the measurement to be
-     * performed on the given Phase.
-     */
-    public void setPhase(Phase phase);
-    
-    /**
-     * Accessor method for the phase on which the meter performs
-     * its measurements.
-     */
-     public Phase getPhase();
-        
 }
