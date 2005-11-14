@@ -4,7 +4,6 @@
  */
 package etomica.atom.iterator;
 
-import etomica.phase.Phase;
 
 /**
  * Interface indicating that an atom iterator can determine appropriate
@@ -12,6 +11,4 @@ import etomica.phase.Phase;
  */
 public interface AtomIteratorPhaseDependent extends AtomIterator, AtomsetIteratorPhaseDependent {
 
-	public void setPhase(Phase phase);
-	
 }
