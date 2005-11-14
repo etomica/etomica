@@ -199,13 +199,19 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	
 	public static void main(String[] arg ){
 		
-		Default.BIT_LENGTH = new int[] {1,4,4,12,11,0};
 		DCVGCMD sim = new DCVGCMD();
         sim.activityIntegrate.setDoSleep(false);
 		DCVGCMDGraphic graphic = new DCVGCMDGraphic(sim);
 		graphic.makeAndDisplayFrame();
 	}//end of main
 	
+    public static class Applet extends javax.swing.JApplet {
+
+        public void init() {
+            getContentPane().add(new DCVGCMDGraphic(new DCVGCMD()).panel());
+        }
+    }
+
     private class CutAway implements AtomFilter, ModifierBoolean {
         
         private boolean active = false;

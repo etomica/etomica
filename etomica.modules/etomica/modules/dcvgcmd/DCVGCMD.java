@@ -29,6 +29,7 @@ import etomica.space3d.Vector3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
+import etomica.util.Default;
 
 /**
  * 
@@ -68,7 +69,7 @@ public class DCVGCMD extends Simulation {
 
     private DCVGCMD(Space space) {
         //Instantiate classes
-        super(space, true, new PotentialMasterHybrid(space,5.2));
+        super(space, true, new PotentialMasterHybrid(space,5.2),new int[] {1,4,4,12,11,0},new Default());
         defaults.atomMass = 40.;
         defaults.atomSize = 3.0;
         defaults.potentialWell = 119.8;
@@ -167,7 +168,6 @@ public class DCVGCMD extends Simulation {
         activityIntegrate = new ActivityIntegrate(this,integratorDCV);
         getController().addAction(activityIntegrate);
 
-        //make MC integrator next
         integratorDCV.setIntegrators(integratorMC, integratorMD);
         integratorMD.setIsothermal(false);
         integratorMD.setMeterTemperature(new MeterTemperature(speciesTube));
