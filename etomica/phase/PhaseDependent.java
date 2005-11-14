@@ -4,18 +4,23 @@
  */
 package etomica.phase;
 
-import etomica.util.IntegerRange;
 
 /**
  * @author kofke
  *
- * Interface for an object that depends on one or more phases.
+ * Interface for an object that depends on a phase.
  */
 public interface PhaseDependent {
 	
-	public Phase[] getPhase();
-	
-	public void setPhase(Phase[] phase);
-	
-	public IntegerRange phaseCountRange();
+    /**
+     * Sets the Phase on which the object acts.
+     */
+    public void setPhase(Phase phase);
+    
+    /**
+     * Accessor method for the phase on which the object performs
+     * its activities.
+     */
+     public Phase getPhase();
+        
 }
