@@ -238,8 +238,14 @@ public class ClusterBonds implements java.io.Serializable {
 	 */
 	public void setUsePermutations(boolean usePermutations) {
 		this.usePermutations = usePermutations;
-		if(usePermutations) makePermutations();
-		else nPermutations = 1;
+		if(usePermutations) {
+            makePermutations();
+        }
+        else {
+            nPermutations = 1;
+            //discard the array
+            permutations = null;
+        }
 	}
 	
 	/**
