@@ -58,9 +58,12 @@ public class ConfigurationCluster extends Configuration {
                 translator.setDestination(translationVector);
                 translator.actionPerformed(a);
 			}
+            phase.trialNotify(null);
 			value = phase.getSampleCluster().value(phase.getCPairSet(),phase.getAPairSet());
+            System.out.println("value "+value);
             if (value != 0) {
                 System.out.println("that wasn't so bad.");
+                phase.acceptNotify();
             }
 		}
 	}
