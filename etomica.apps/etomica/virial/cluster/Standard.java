@@ -102,10 +102,11 @@ public final class Standard implements java.io.Serializable {
 		return array;
 	}
 
-    public static ClusterAbstract virialCluster(int nBody, MayerFunction f, double temperature) {
-        return virialCluster(nBody,f,true,new FTilde(f),temperature,true);
+    public static ClusterAbstract virialCluster(int nBody, MayerFunction f) {
+        return virialCluster(nBody,f,true,new FTilde(f),true);
     }
-    public static ClusterAbstract virialCluster(int nBody, MayerFunction f, boolean usePermutations, MayerFunction e, double temperature, boolean useTree) {
+    public static ClusterAbstract virialCluster(int nBody, MayerFunction f, 
+            boolean usePermutations, MayerFunction e, boolean useTree) {
         if (nBody < 4) {
             e = null;
         }
@@ -113,10 +114,9 @@ public final class Standard implements java.io.Serializable {
             useTree=false;
         }
         if (useTree) {
-            usePermutations = false;
-        }
-        if (useTree) {
             System.out.println("using cluster Tree");
+            //permutations don't make sense with a tree
+            usePermutations = false;
         }
         ClusterDiagramTree tree = null;
         if (useTree) {
@@ -182,7 +182,7 @@ public final class Standard implements java.io.Serializable {
                 }
             }
             // only use permutations if the diagram has permutations
-            boolean thisUsePermutations = usePermutations && clusterD.mNumIdenticalPermutations < fullSymmetry;
+            boolean thisUsePermutations = usePermutations && clusterD.mNumIdenticalPermutations < SpecialFunctions.factorial(nBody);
             // only use e-bonds if one of the diagrms has some
             clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, thisUsePermutations));
             double [] newWeights = new double[weights.length+1];
@@ -193,12 +193,12 @@ public final class Standard implements java.io.Serializable {
         if (true) {
             if (useTree) {
                 tree.collapse();
-                return new ClusterTreeEF(tree,new MayerFunction[]{e},temperature);
+                return new ClusterTreeEF(tree,new MayerFunction[]{e});
             }
             if (e != null) {
-                return new ClusterSumEF(clusters,weights,new MayerFunction[]{e},temperature);
+                return new ClusterSumEF(clusters,weights,new MayerFunction[]{e});
             }
-            return new ClusterSum(clusters,weights,new MayerFunction[]{f},temperature);
+            return new ClusterSum(clusters,weights,new MayerFunction[]{f});
         }
         MayerFunction[] allF = new MayerFunction[nBondTypes];
         allF[0] = f;
@@ -207,9 +207,9 @@ public final class Standard implements java.io.Serializable {
         }
         if (useTree) {
             tree.collapse();
-            return new ClusterTree(tree,allF,temperature);
+            return new ClusterTree(tree,allF);
         }
-        return new ClusterSum(clusters,weights,allF,temperature);
+        return new ClusterSum(clusters,weights,allF);
     }
     
 	public static final int[][] B2 = new int[][] {{0,1}};

@@ -7,7 +7,7 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
     /**
      * Constructor for ClusterSum.
      */
-    public ClusterSum(ClusterBonds[] subClusters, double[] subClusterWeights, MayerFunction[] fArray, double temperature) {
+    public ClusterSum(ClusterBonds[] subClusters, double[] subClusterWeights, MayerFunction[] fArray) {
         if (subClusterWeights.length != subClusters.length) throw new IllegalArgumentException("number of clusters and weights must be the same");
         clusters = new ClusterBonds[subClusters.length];
         clusterWeights = subClusterWeights;
@@ -19,7 +19,6 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
         f = fArray;
         fValues = new double[pointCount][pointCount][fArray.length];
         fOld = new double[pointCount][fArray.length];
-        beta = 1/temperature;
     }
 
     // equal point count enforced in constructor 
@@ -28,7 +27,9 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
     }
     
     public ClusterAbstract makeCopy() {
-        return new ClusterSum(clusters,clusterWeights,f,1/beta);
+        ClusterSum copy = new ClusterSum(clusters,clusterWeights,f);
+        copy.setTemperature(1/beta);
+        return copy;
     }
 
     public double value(CoordinatePairSet cPairs, AtomPairSet aPairs) {

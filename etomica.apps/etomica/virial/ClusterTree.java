@@ -16,17 +16,18 @@ import etomica.virial.cluster.ClusterDiagramTree;
  */
 public class ClusterTree implements ClusterAbstract {
 
-    public ClusterTree(ClusterDiagramTree bonds, MayerFunction[] fArray, double temperature) {
+    public ClusterTree(ClusterDiagramTree bonds, MayerFunction[] fArray) {
         bondsTree = bonds;
         f = fArray;
-        beta = 1/temperature;
         int nBody = bonds.pointCount();
         fValues = new double[nBody*(nBody-1)/2][fArray.length];
         fOld = new double[nBody][fArray.length];
     }
 
     public ClusterAbstract makeCopy() {
-        return new ClusterTree(bondsTree,f,1/beta);
+        ClusterTree copy = new ClusterTree(bondsTree,f);
+        copy.setTemperature(1/beta);
+        return copy;
     }
 
     public int pointCount() {
@@ -43,6 +44,7 @@ public class ClusterTree implements ClusterAbstract {
             // we went back to the previous cluster, presumably because the last
             // cluster was a trial that was rejected.  so drop the most recent value/ID
             if (oldDirtyAtom > -1) {
+                System.out.println("reverting");
                 revertF();
             }
             cPairID = lastCPairID;

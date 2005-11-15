@@ -16,8 +16,8 @@ import etomica.simulation.Simulation;
  */
 public class ClusterSumSticky extends ClusterSum {
 
-    public ClusterSumSticky(ClusterBonds[] subClusters, double[] subClusterWeights, MayerFunction[] fArray, double temperature) {
-        super(subClusters,subClusterWeights,fArray,temperature);
+    public ClusterSumSticky(ClusterBonds[] subClusters, double[] subClusterWeights, MayerFunction[] fArray) {
+        super(subClusters,subClusterWeights,fArray);
         iDiagram = 0; // full star, hopefully
         numDiagrams = clusters.length;
     }

@@ -22,16 +22,17 @@ public class ClusterTreeEF extends ClusterTree {
      * @param fArray
      * @param temperature
      */
-    public ClusterTreeEF(ClusterDiagramTree bonds, MayerFunction[] eArray,
-            double temperature) {
-        super(bonds, (MayerFunction[])Arrays.resizeArray(eArray,eArray.length*2), temperature);
+    public ClusterTreeEF(ClusterDiagramTree bonds, MayerFunction[] eArray) {
+        super(bonds, (MayerFunction[])Arrays.resizeArray(eArray,eArray.length*2));
         numF = f.length/2;
     }
 
     public ClusterAbstract makeCopy() {
         MayerFunction[] eArray = new MayerFunction[numF];
         System.arraycopy(f,0,eArray,0,numF);
-        return new ClusterTreeEF(bondsTree,eArray,1/beta);
+        ClusterTreeEF copy = new ClusterTreeEF(bondsTree,eArray);
+        copy.setTemperature(1/beta);
+        return copy;
     }
 
     protected void updateF(CoordinatePairSet cPairs, AtomPairSet aPairs) {

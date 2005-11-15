@@ -23,11 +23,19 @@ public class ClusterSumEF extends ClusterSum {
      * @param temperature
      */
     public ClusterSumEF(ClusterBonds[] subClusters, double[] subClusterWeights,
-            MayerFunction[] eArray, double temperature) {
-        super(subClusters, subClusterWeights, (MayerFunction[])Arrays.resizeArray(eArray,eArray.length*2), temperature);
+            MayerFunction[] eArray) {
+        super(subClusters, subClusterWeights, (MayerFunction[])Arrays.resizeArray(eArray,eArray.length*2));
         numF = f.length/2;
     }
     
+    public ClusterAbstract makeCopy() {
+        MayerFunction[] e = new MayerFunction[numF];
+        System.arraycopy(f,0,e,0,numF);
+        ClusterSum copy = new ClusterSumEF(clusters,clusterWeights,e);
+        copy.setTemperature(1/beta);
+        return copy;
+    }
+
     protected void revertF() {
         int nPoints = pointCount();
 
