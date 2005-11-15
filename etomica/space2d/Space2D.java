@@ -4,6 +4,7 @@ import java.io.ObjectStreamException;
 
 import etomica.EtomicaInfo;
 import etomica.space.NearestImageTransformer;
+import etomica.space.RotationTensor;
 import etomica.space.Space;
 
 public final class Space2D extends Space {
@@ -61,8 +62,8 @@ public final class Space2D extends Space {
         return new Tensor2D();
     }
 
-    public etomica.space.Tensor makeRotationTensor() {
-        return new RotationTensor();
+    public RotationTensor makeRotationTensor() {
+        return new RotationTensor2D();
     }
 
     public int[] makeArrayD(int i) {

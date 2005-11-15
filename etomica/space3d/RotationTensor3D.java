@@ -9,20 +9,14 @@ import etomica.simulation.Simulation;
  * History
  * Created on Jan 24, 2005 by kofke
  */
-public class RotationTensor extends Tensor3D implements etomica.space.RotationTensor {
-    public RotationTensor() {super(); reset();}
+public class RotationTensor3D extends Tensor3D implements etomica.space.RotationTensor {
+    public RotationTensor3D() {super(); reset();}
     public void reset() {
         xx = 1.0; xy = 0.0; xz = 0.0;
         yx = 0.0; yy = 1.0; yz = 0.0;
         zx = 0.0; zy = 0.0; zz = 1.0;
     }
-    /**
-     * Sets tensor to for rotation by the given angle about a randomly selected axis.
-     */
-    public void setAxial(double theta) {
-        int n = Simulation.random.nextInt(3);
-        setAxial(n, theta);
-    }
+
     /**
      * Sets tensor for rotation about the indicated axis (0=x,1=y,2=z) by 
      * the given angle.
@@ -79,7 +73,7 @@ public class RotationTensor extends Tensor3D implements etomica.space.RotationTe
         Vector3D r1 = new Vector3D(2,2,3);
         System.out.println("r1_before" + r1.toString());
         Tensor3D tensor = new Tensor3D(new double[] {1,2,0,1,1,2,0,0,1});
-        RotationTensor tensor2 = new RotationTensor();
+        RotationTensor3D tensor2 = new RotationTensor3D();
         tensor2.E(tensor);
         System.out.println("tensor2_before " + tensor2.xx + "  " +tensor2.xy +"  "+tensor2.xz +"  "+tensor2.yx +"  "+tensor2.yy +"  "+tensor2.yz +"  "+tensor2.zx +"  "+tensor2.zy +"  "+tensor2.zz); 
         System.out.println();

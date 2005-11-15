@@ -4,6 +4,7 @@ import java.io.ObjectStreamException;
 
 import etomica.EtomicaInfo;
 import etomica.space.NearestImageTransformer;
+import etomica.space.RotationTensor;
 import etomica.space.Space;
 
 /**
@@ -76,8 +77,8 @@ public final class Space3D extends Space {
         return new Tensor3D();
     }
 
-    public etomica.space.Tensor makeRotationTensor() {
-        return new RotationTensor();
+    public RotationTensor makeRotationTensor() {
+        return new RotationTensor3D();
     }
 
     public static EtomicaInfo getEtomicaInfo() {
