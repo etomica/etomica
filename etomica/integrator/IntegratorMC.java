@@ -126,7 +126,7 @@ public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
     public void setTemperature(double temperature) {
     	super.setTemperature(temperature);
     	// moveManager will be null when called from superclass constructor
-    	if (moveManager == null) {
+    	if (moveManager != null) {
     		moveManager.setTemperature(temperature);
     	}
     }
