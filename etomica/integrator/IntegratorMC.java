@@ -38,6 +38,7 @@ public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
 		// isothermal to be consistent with way integrator
 		// is sampling
         moveManager = new MCMoveManager();
+        moveManager.setTemperature(temperature);
 	}
 
 	public static EtomicaInfo getEtomicaInfo() {
