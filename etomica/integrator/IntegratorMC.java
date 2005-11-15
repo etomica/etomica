@@ -59,74 +59,77 @@ public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
         moveManager = newMoveManager;
     }
 
-	/**
-	 * Invokes superclass method and informs all MCMoves about the new phase.
+    /**
+     * Invokes superclass method and informs all MCMoves about the new phase.
      * Moves are not notified if they have a number of phases different from
      * the number of phases handled by the integrator.
-	 */
-	public void setPhase(Phase p) {
-		super.setPhase(p);
-        moveManager.setPhase(p);
-	}
+     */
+    public void setPhase(Phase p) {
+    	super.setPhase(p);
+    	moveManager.setPhase(p);
+    }
 
-	/**
-	 * Method to select and perform an elementary Monte Carlo move. The type of
-	 * move performed is chosen from all MCMoves that have been added to the
-	 * integrator. Each MCMove has associated with it a (unnormalized)
-	 * frequency, which when weighed against the frequencies given the other
-	 * MCMoves, determines the likelihood that the move is selected. After
-	 * completing move, fires an MCMove event if there are any listeners.
-	 */
-	public void doStep() {
-		//select the move
-		MCMove move = moveManager.selectMove();
-		if (move == null)
-			return;
+    /**
+     * Method to select and perform an elementary Monte Carlo move. The type of
+     * move performed is chosen from all MCMoves that have been added to the
+     * integrator. Each MCMove has associated with it a (unnormalized)
+     * frequency, which when weighed against the frequencies given the other
+     * MCMoves, determines the likelihood that the move is selected. After
+     * completing move, fires an MCMove event if there are any listeners.
+     */
+    public void doStep() {
+    	//select the move
+    	MCMove move = moveManager.selectMove();
+    	if (move == null)
+    		return;
 
-		//perform the trial
-		//returns false if the trial cannot be attempted; for example an
-		// atom-displacement trial in a phase with no molecules
-		if (!move.doTrial())
-			return;
+    	//perform the trial
+    	//returns false if the trial cannot be attempted; for example an
+    	// atom-displacement trial in a phase with no molecules
+    	if (!move.doTrial())
+    		return;
 
-		//notify any listeners that move has been attempted
-		if (eventManager != null) { //consider using a final boolean flag that
-			// is set in constructor
-			event.mcMove = move;
-			event.isTrialNotify = true;
-			eventManager.fireEvent(event);
-		}
+    	//notify any listeners that move has been attempted
+    	if (eventManager != null) { //consider using a final boolean flag that
+    		// is set in constructor
+    		event.mcMove = move;
+    		event.isTrialNotify = true;
+    		eventManager.fireEvent(event);
+    	}
 
-		//decide acceptance
-		double lnChi = move.lnTrialRatio() + move.lnProbabilityRatio();
-        double chi = lnChi == -Double.POSITIVE_INFINITY ? 0.0 : 
+    	//decide acceptance
+    	double lnChi = move.lnTrialRatio() + move.lnProbabilityRatio();
+    	double chi = lnChi == -Double.POSITIVE_INFINITY ? 0.0 : 
                                 (lnChi > 0.0 ? 1.0 : Math.exp(lnChi));
-		if (chi == 0.0 || (chi < 1.0 && chi < Simulation.random.nextDouble())) {//reject
-			move.rejectNotify();
-			event.wasAccepted = false;
-		} else {
-			move.acceptNotify();
-			event.wasAccepted = true;
-            currentPotentialEnergy += move.energyChange(phase);
-		}
+    	if (chi == 0.0 || (chi < 1.0 && chi < Simulation.random.nextDouble())) {//reject
+    		move.rejectNotify();
+    		event.wasAccepted = false;
+    	} else {
+    		move.acceptNotify();
+    		event.wasAccepted = true;
+    		currentPotentialEnergy += move.energyChange(phase);
+    	}
 
-		//notify listeners of outcome
-		if (eventManager != null) {
-			event.isTrialNotify = false;
-			eventManager.fireEvent(event);
-		}
+    	//notify listeners of outcome
+    	if (eventManager != null) {
+    		event.isTrialNotify = false;
+    		eventManager.fireEvent(event);
+    	}
 
-		move.updateCounts(event.wasAccepted, chi, equilibrating);
-	}
+    	move.updateCounts(event.wasAccepted, chi, equilibrating);
+    }
 
-	/**
-	 * Sets the temperature for this integrator and all the MCMove instances it
-	 * currently holds.
-	 */
-	public void setTemperature(double temperature) {
-		super.setTemperature(temperature);
-        moveManager.setTemperature(temperature);
-	}
+    /**
+     * Sets the temperature for this integrator and all the MCMove instances it
+     * currently holds.
+     */
+    public void setTemperature(double temperature) {
+    	super.setTemperature(temperature);
+    	// moveManager will be null when called from superclass constructor
+    	if (moveManager == null) {
+    		moveManager.setTemperature(temperature);
+    	}
+    }
 
     /**
      * Causes recalculation of move frequencies and zero of selection counts for
@@ -137,29 +140,29 @@ public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
         super.reset();
     }
 
-	/**
-	 * Adds a listener that will be notified when a MCMove trial is attempted
-	 * and when it is completed.
-	 */
-	public void addMCMoveListener(MCMoveListener listener) {
-		if (eventManager == null)
-			eventManager = new MCMoveEventManager();
-		eventManager.addListener(listener);
-	}
+    /**
+     * Adds a listener that will be notified when a MCMove trial is attempted
+     * and when it is completed.
+     */
+    public void addMCMoveListener(MCMoveListener listener) {
+    	if (eventManager == null)
+    		eventManager = new MCMoveEventManager();
+    	eventManager.addListener(listener);
+    }
 
-	/**
-	 * Removes the given listener.
-	 */
-	public void removeMCMoveListener(MCMoveListener listener) {
-		if (eventManager == null)
-			return; //should define an exception
-		eventManager.removeListener(listener);
-		if (eventManager.listenerCount() == 0)
-			eventManager = null;
-	}
+    /**
+     * Removes the given listener.
+     */
+    public void removeMCMoveListener(MCMoveListener listener) {
+    	if (eventManager == null)
+    		return; //should define an exception
+    	eventManager.removeListener(listener);
+    	if (eventManager.listenerCount() == 0)
+    		eventManager = null;
+    }
 
     protected MCMoveManager moveManager;
-	protected MCMoveEventManager eventManager;
+    protected MCMoveEventManager eventManager;
 	protected final MCMoveEvent event = new MCMoveEvent(this);
 
 }
