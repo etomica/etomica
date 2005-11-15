@@ -11,11 +11,11 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.AtomIteratorTree;
-import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
+import etomica.integrator.IntegratorPhase;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.PotentialCalculationAgents;
 import etomica.nbr.cell.ApiAACell;
@@ -70,16 +70,14 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * </ul>
      */
     public void nonintervalAction(IntegratorNonintervalEvent evt) {
-        if ((evt.type().mask & (IntegratorNonintervalEvent.INITIALIZE.mask)) != 0) {
-            Phase[] phases = evt.getSource().getPhase();
-            for (int i = 0; i < phases.length; i++) {
-                pbcEnforcer.setPhase(phases[i]);
-                pbcEnforcer.actionPerformed();
-                PotentialCalculationAgents pc = new PotentialCalculationAgents(potentialMaster);
-                potentialMaster.calculate(phases[i], pc);
-                potentialMaster.getNbrCellManager(phases[i]).assignCellAll();
-            }
-            reset(evt.getSource().getPhase());
+        if (evt.type() == IntegratorNonintervalEvent.INITIALIZE) {
+            Phase phase = ((IntegratorPhase)evt.getSource()).getPhase();
+            pbcEnforcer.setPhase(phase);
+            pbcEnforcer.actionPerformed();
+            PotentialCalculationAgents pc = new PotentialCalculationAgents(potentialMaster);
+            potentialMaster.calculate(phase, pc);
+            potentialMaster.getNbrCellManager(phase).assignCellAll();
+            reset(((IntegratorPhase)evt.getSource()).getPhase());
         }
     }
 
@@ -89,7 +87,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      */
     public void intervalAction(IntegratorIntervalEvent evt) {
         if (--iieCount == 0) {
-            updateNbrsIfNeeded(evt.getSource());
+            updateNbrsIfNeeded(((IntegratorPhase)evt.getSource()));
             iieCount = updateInterval;
         }
     }
@@ -99,17 +97,15 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * resets neighbors of all atoms, and sets up all neighbor
      * lists.
      */
-    public void reset(Phase[] phase) {
-        for (int i = 0; i < phase.length; i++) {
-            for (int j = 0; j < criteriaArray.length; j++) {
-                criteriaArray[j].setPhase(phase[i]);
-            }
-            pbcEnforcer.setPhase(phase[i]);
-            pbcEnforcer.actionPerformed();
-            iterator.setRoot(phase[i].getSpeciesMaster());
-            iterator.allAtoms(neighborReset);
-            neighborSetup(phase[i]);
+    public void reset(Phase phase) {
+        for (int j = 0; j < criteriaArray.length; j++) {
+            criteriaArray[j].setPhase(phase);
         }
+        pbcEnforcer.setPhase(phase);
+        pbcEnforcer.actionPerformed();
+        iterator.setRoot(phase.getSpeciesMaster());
+        iterator.allAtoms(neighborReset);
+        neighborSetup(phase);
     }
 
     /**
@@ -118,30 +114,28 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * neighbor lists.  Performs this action on all phases acted on
      * by given integrator.
      */
-    public void updateNbrsIfNeeded(Integrator integrator) {
+    public void updateNbrsIfNeeded(IntegratorPhase integrator) {
         boolean resetIntegrator = false;
-        Phase[] phase = integrator.getPhase();
-        for (int i = 0; i < phase.length; i++) {
-            neighborCheck.reset();
-            for (int j = 0; j < criteriaArray.length; j++) {
-                criteriaArray[j].setPhase(phase[i]);
+        Phase phase = integrator.getPhase();
+        neighborCheck.reset();
+        for (int j = 0; j < criteriaArray.length; j++) {
+            criteriaArray[j].setPhase(phase);
+        }
+        iterator.setRoot(phase.getSpeciesMaster());
+        iterator.allAtoms(neighborCheck);
+        if (neighborCheck.needUpdate) {
+            if (Debug.ON && Debug.DEBUG_NOW) {
+                System.out.println("Updating neighbors");
             }
-            iterator.setRoot(phase[i].getSpeciesMaster());
-            iterator.allAtoms(neighborCheck);
-            if (neighborCheck.needUpdate) {
-                if (Debug.ON && Debug.DEBUG_NOW) {
-                    System.out.println("Updating neighbors");
-                }
-                if (neighborCheck.unsafe && !quiet) {
-                    System.err
-                            .println("Atoms exceeded the safe neighbor limit");
-                }
-                pbcEnforcer.setPhase(phase[i]);
-                pbcEnforcer.actionPerformed();
-                iterator.allAtoms(neighborReset);
-                neighborSetup(phase[i]);
-                resetIntegrator = true;
+            if (neighborCheck.unsafe && !quiet) {
+                System.err
+                        .println("Atoms exceeded the safe neighbor limit");
             }
+            pbcEnforcer.setPhase(phase);
+            pbcEnforcer.actionPerformed();
+            iterator.allAtoms(neighborReset);
+            neighborSetup(phase);
+            resetIntegrator = true;
         }
         //TODO consider a reset(Phase) method for integrator to reset relative
         // to just the affected phase

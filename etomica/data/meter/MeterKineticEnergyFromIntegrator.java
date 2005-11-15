@@ -25,33 +25,20 @@ public class MeterKineticEnergyFromIntegrator extends DataSourceScalar implement
     }
     
     public double getDataAsScalar() {
-        final double[] KE = integrator.getKineticEnergy();
-        final Phase[] integratorPhases = integrator.getPhase();
-        for (int i=0; i<KE.length; i++) {
-            if (integratorPhases[i] == phase) {
-                return KE[i];
-            }
-        }
-        throw new IllegalStateException("Meter's phase not handled by the Meter's integrator");
+        return integrator.getKineticEnergy();
     }
  
     public int getPriority() {return 200;}
     
     public void nonintervalAction(IntegratorNonintervalEvent evt) {
         if (evt.type() == IntegratorEvent.DONE) {
-            double[] currentKE = integrator.getKineticEnergy();
+            double currentKE = integrator.getKineticEnergy();
             MeterKineticEnergy meterKE = new MeterKineticEnergy();
             meterKE.setPhase(phase);
             double KE = meterKE.getDataAsScalar();
-            final Phase[] integratorPhases = integrator.getPhase();
-            for (int i=0; i<currentKE.length; i++) {
-                if (integratorPhases[i] == phase) {
-                    if (Math.abs(KE - currentKE[i]) > 1.e-9*Math.abs(KE+currentKE[i])) {
-                        System.out.println("final kinetic energy ("+currentKE[i]+") for "+integratorPhases[i]+" doesn't match actual energy ("+KE+")");
-                        meterKE.getData();
-                    }
-                    return;
-                }
+            if (Math.abs(KE - currentKE) > 1.e-9*Math.abs(KE+currentKE)) {
+                System.out.println("final kinetic energy ("+currentKE+") for "+phase+" doesn't match actual energy ("+KE+")");
+                meterKE.getData();
             }
         }
     }

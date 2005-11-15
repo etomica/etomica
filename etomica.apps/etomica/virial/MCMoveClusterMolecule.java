@@ -26,14 +26,12 @@ public class MCMoveClusterMolecule extends MCMoveMolecule implements MCMoveClust
         setName("MCMoveClusterMolecule");
     }
     
-    public void setPhase(Phase[] p) {
+    public void setPhase(Phase p) {
         super.setPhase(p);
-        weightMeter.setPhase(p[0]);
+        weightMeter.setPhase(p);
     }
     
     public boolean doTrial() {
-//        System.out.println(((AtomTreeNodeGroup)((AtomTreeNodeGroup)phases[0].speciesMaster.node.childList.getFirst().node).childList.getLast().node).childList.getFirst().coord.position());
-        Phase phase = phases[0];
         if(phase.moleculeCount()==1) return false;
         
         atom = phase.randomMolecule();
@@ -48,7 +46,7 @@ public class MCMoveClusterMolecule extends MCMoveMolecule implements MCMoveClust
         moveMoleculeAction.actionPerformed(atom);
         uNew = Double.NaN;
 //        System.out.println(((AtomTreeNodeGroup)((AtomTreeNodeGroup)phases[0].speciesMaster.node.childList.getFirst().node).childList.getLast().node).childList.getFirst().coord.position());
-        ((PhaseCluster)phases[0]).trialNotify(atom);
+        ((PhaseCluster)phase).trialNotify(atom);
         return true;
     }
     
@@ -68,12 +66,12 @@ public class MCMoveClusterMolecule extends MCMoveMolecule implements MCMoveClust
     
     public void acceptNotify() {
         super.acceptNotify();
-        ((PhaseCluster)phases[0]).acceptNotify();
+        ((PhaseCluster)phase).acceptNotify();
     }
     
     public void rejectNotify() {
         super.rejectNotify();
-        ((PhaseCluster)phases[0]).rejectNotify();
+        ((PhaseCluster)phase).rejectNotify();
     }
         
 }

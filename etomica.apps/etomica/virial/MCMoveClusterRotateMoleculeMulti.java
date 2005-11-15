@@ -41,15 +41,15 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D
         oldPositions = new Vector[nMolecules][];
     }
     
-    public void setPhase(Phase[] p) {
+    public void setPhase(Phase p) {
         super.setPhase(p);
-        weightMeter.setPhase(p[0]);
+        weightMeter.setPhase(p);
         selectMolecules();
         for (int i=0; i<nMolecules; i++) {
             molecule = selectedMolecules[i];
             oldPositions[i] = new Vector[((AtomTreeNodeGroup)molecule.node).childList.size()-1];
             for (int j=0; j<oldPositions[i].length; j++) {
-                oldPositions[i][j] = p[0].space().makeVector();
+                oldPositions[i][j] = p.space().makeVector();
             }
         }
     }
@@ -88,12 +88,12 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D
         }
             
         uNew = Double.NaN;
-        ((PhaseCluster)phases[0]).trialNotify(null);
+        ((PhaseCluster)phase).trialNotify(null);
         return true;
     }
     
     public void selectMolecules() {
-        AtomList atomList = ((AtomTreeNodeGroup)phases[0].getSpeciesMaster().firstSpecies().node).childList;
+        AtomList atomList = ((AtomTreeNodeGroup)phase.getSpeciesMaster().firstSpecies().node).childList;
         int total=atomList.size();
         for(int i=total-1; i>total-nMolecules-1; i--) {
             selectedMolecules[total-1-i] = atomList.get(i);
@@ -113,7 +113,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D
     
     public void acceptNotify() {
         super.acceptNotify();
-        ((PhaseCluster)phases[0]).acceptNotify();
+        ((PhaseCluster)phase).acceptNotify();
     }
     
     public void rejectNotify() {
@@ -129,7 +129,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D
                 leafAtomIterator.nextAtom().coord.position().E(oldPositions[i][j++]);
             }
         }
-        ((PhaseCluster)phases[0]).rejectNotify();
+        ((PhaseCluster)phase).rejectNotify();
     }
     
     public void setRelaxAction(AtomAction action) {

@@ -4,15 +4,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import etomica.EtomicaElement;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
-import etomica.units.Dimension;
-import etomica.util.Arrays;
-import etomica.util.Debug;
 import etomica.util.NameMaker;
 
 /**
@@ -24,34 +18,21 @@ import etomica.util.NameMaker;
  * 
  * @author David Kofke and Andrew Schultz
  */
-
-public abstract class Integrator implements EtomicaElement, java.io.Serializable {
+public abstract class Integrator implements java.io.Serializable {
 
     protected final PotentialMaster potential;
-    protected Phase firstPhase;
-    protected Phase[] phase;
     protected boolean equilibrating = false;
     protected boolean initialized = false;
-    public int phaseCountMax = 1;
     protected int sleepPeriod = 10;
     private final LinkedList intervalListeners = new LinkedList();
     private final LinkedList listeners = new LinkedList();
     private ListenerWrapper[] listenerWrapperArray = new ListenerWrapper[0];
-    int integrationCount = 0;
-    protected double temperature;
-    protected boolean isothermal = false;
     private String name;
-    protected MeterPotentialEnergy meterPE;
-    protected double[] currentPotentialEnergy = new double[0];
 
-    public Integrator(PotentialMaster potentialMaster, double temperature) {
+    public Integrator(PotentialMaster potentialMaster) {
         setName(NameMaker.makeName(this.getClass()));
-        phase = new Phase[0];
         this.potential = potentialMaster;
-        meterPE = new MeterPotentialEnergy(potentialMaster);
-        setTemperature(temperature);
     }
-
 
     /**
      * Accessor method of the name of this phase
@@ -91,21 +72,8 @@ public abstract class Integrator implements EtomicaElement, java.io.Serializable
      * potential energy.
      */
     public void reset() throws ConfigurationOverlapException {
-        for (int i=0; i<phase.length; i++) {
-            meterPE.setPhase(phase[i]);
-            currentPotentialEnergy[i] = meterPE.getDataAsScalar();
-            if (currentPotentialEnergy[i] == Double.POSITIVE_INFINITY) {
-                System.err.println("overlap in configuration for "+phase[i]+" when resetting integrator");
-                throw new ConfigurationOverlapException(phase[i]);
-            }
-        }
     }
 
-    /**
-     * Perform any action necessary when neighbor lists are updated 
-     */
-    public void neighborsUpdated() {}
-    
     /**
      * Initializes the integrator, performing the following steps: (1) deploys
      * agents in all atoms; (2) call reset method; (3) fires an event
@@ -137,114 +105,20 @@ public abstract class Integrator implements EtomicaElement, java.io.Serializable
     }
 
     /**
-     * Sets the temperature for this integrator
+     * @return Returns flag indicating whether integrator is in equilibration mode.
      */
-    public void setTemperature(double t) {
-        temperature = t;
+    public boolean isEquilibrating() {
+        return equilibrating;
     }
 
     /**
-     * @return the integrator's temperature
+     * @param equilibrating
+     *            Sets equilibration mode of integrator.
      */
-    public final double getTemperature() {
-        return temperature;
+    public void setEquilibrating(boolean equilibrating) {
+        this.equilibrating = equilibrating;
     }
 
-    /**
-     * @return the dimenension of temperature (TEMPERATURE)
-     */ 
-    public final Dimension getTemperatureDimension() {
-        return Dimension.TEMPERATURE;
-    }
-
-    /**
-     * @return the potential energy of each phase handled by this integrator
-     */
-    public double[] getPotentialEnergy() {
-        return currentPotentialEnergy;
-    }
-    
-	//Other introspected properties
-	public void setIsothermal(boolean b) {
-		isothermal = b;
-	}
-
-	public boolean isIsothermal() {
-		return isothermal;
-	}
-
-	/**
-	 * @return Returns flag indicating whether integrator is in equilibration mode.
-	 */
-	public boolean isEquilibrating() {
-		return equilibrating;
-	}
-
-	/**
-	 * @param equilibrating
-	 *            Sets equilibration mode of integrator.
-	 */
-	public void setEquilibrating(boolean equilibrating) {
-		this.equilibrating = equilibrating;
-	}
-
-	/**
-	 * @return true if integrator can perform integration of another phase,
-	 *         false if the integrator has all the phases it was built to handle
-	 */
-	public boolean wantsPhase() {
-		return phase.length < phaseCountMax;
-	}
-
-	/**
-	 * Performs activities needed to set up integrator to work on given phase.
-	 * 
-	 * @return true if the phase was successfully added to the integrator; false
-	 *         otherwise
-	 */
-	//perhaps should throw an exception rather than returning a boolean "false"
-	public boolean addPhase(Phase p) {
-		for (int i = 0; i < phase.length; i++) {
-			if (phase[i] == p)
-				return false;
-		} //check that phase is not already registered
-		if (!this.wantsPhase()) {
-			return false;
-		} //if another phase not wanted, return false
-		phase = (Phase[])Arrays.addObject(phase,p);
-		firstPhase = phase[0];
-        if (Debug.ON && p.getIndex() == Debug.PHASE_INDEX) {
-            Debug.setAtoms(p);
-        }
-        double[] cpe = new double[phase.length];
-        System.arraycopy(currentPotentialEnergy, 0, cpe, 0, currentPotentialEnergy.length);
-        currentPotentialEnergy = cpe;
-        //leave subsequent reset() call the task of updating the last cpe value
-        return true;
-	}
-
-    /**
-     * Performs activities needed to disconnect integrator from given phase.
-     * This method should not be called directly; instead it is invoked by the
-     * phase in its setIntegrator method
-     */
-    public void removePhase(Phase p) {
-        for (int i = 0; i < phase.length; i++) {
-            if (phase[i] == p) {//phase found; remove it
-                phase = (Phase[])Arrays.removeObject(phase,p);
-                if (phase.length > 0) {
-                    firstPhase = phase[0];
-                }
-                break;
-            }
-        }
-    }
-    
-    public Phase[] getPhase() {
-        return phase;
-    }
-
-    
     /**
      * Arranges interval listeners registered with this iterator in order such that
      * those with the smallest (closer to zero) priority value are performed
@@ -331,14 +205,14 @@ public abstract class Integrator implements EtomicaElement, java.io.Serializable
      * this integrator.  If listener has already been added to integrator, it is
      * not added again.  If listener is null, NullPointerException is thrown.
      */
-	private synchronized void addIntervalListener(IntegratorIntervalListener iil) {
+    private synchronized void addIntervalListener(IntegratorIntervalListener iil) {
         if(iil == null) throw new NullPointerException("Cannot add null as a listener to Integrator");
         ListenerWrapper wrapper = findWrapper(iil);
         if(wrapper == null) { //listener not already in list, so OK to add it now
             intervalListeners.add(new ListenerWrapper(iil));
             sortListeners();
         }
-	}
+    }
         
     /**
      * Finds and returns the ListenerWrapper used to put the given listener in the list.
@@ -358,11 +232,11 @@ public abstract class Integrator implements EtomicaElement, java.io.Serializable
      * by this integrator.  No action results if given listener is null or is not registered
      * with this integrator.
      */
-	private synchronized void removeIntervalListener(IntegratorIntervalListener iil) {
+    private synchronized void removeIntervalListener(IntegratorIntervalListener iil) {
         ListenerWrapper wrapper = findWrapper(iil);
-	    intervalListeners.remove(wrapper);
+        intervalListeners.remove(wrapper);
         sortListeners();
-	}
+    }
 
     /**
      * Adds the given listener to those that receive non-interval events fired by
@@ -385,13 +259,13 @@ public abstract class Integrator implements EtomicaElement, java.io.Serializable
         listeners.remove(iil);
     }
 
-	/**
-	 * Integrator agent that holds a force vector. Used to indicate that an atom
-	 * could be under the influence of a force.
-	 */
-	public interface Forcible {
-		public Vector force();
-	}
+    /**
+     * Integrator agent that holds a force vector. Used to indicate that an atom
+     * could be under the influence of a force.
+     */
+    public interface Forcible {
+        public Vector force();
+    }
     
     public synchronized IntegratorIntervalListener[] getIntervalListeners() {
         IntegratorIntervalListener[] listenerArray = new IntegratorIntervalListener[listenerWrapperArray.length];
@@ -401,7 +275,7 @@ public abstract class Integrator implements EtomicaElement, java.io.Serializable
         return listenerArray;
     }
 
-	/**
+    /**
      * Wraps interval listener an implements a Comparable interface based
      * on the listeners priority value.
      * This class has a natural ordering that is inconsistent with equals.
@@ -422,4 +296,3 @@ public abstract class Integrator implements EtomicaElement, java.io.Serializable
          }
     }
 }
-

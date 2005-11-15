@@ -4,6 +4,8 @@ import etomica.action.PhaseInflate;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.exception.ConfigurationOverlapException;
+import etomica.integrator.IntegratorPhase;
 import etomica.integrator.MCMove;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
@@ -25,8 +27,10 @@ import etomica.space.Space;
 public final class MCMoveVolumeExchange extends MCMove {
     
     private final MeterPotentialEnergy energyMeter;
-    private Phase firstPhase;
-    private Phase secondPhase;
+    private final Phase firstPhase;
+    private final Phase secondPhase;
+    private final IntegratorPhase integrator1;
+    private final IntegratorPhase integrator2;
     private final PhaseInflate inflate1;
     private final PhaseInflate inflate2;
     private transient double uOld1, uOld2;
@@ -38,7 +42,8 @@ public final class MCMoveVolumeExchange extends MCMove {
     
     private transient double hOld, v1Scale, v2Scale;
 
-    public MCMoveVolumeExchange(PotentialMaster potentialMaster, Space space) {
+    public MCMoveVolumeExchange(PotentialMaster potentialMaster, Space space,
+            IntegratorPhase integrator1, IntegratorPhase integrator2) {
         super(potentialMaster, 2);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         ROOT = 1.0/space.D();
@@ -50,12 +55,10 @@ public final class MCMoveVolumeExchange extends MCMove {
         energyMeter.setIncludeLrc(false);
         inflate1 = new PhaseInflate(space);
         inflate2 = new PhaseInflate(space);
-    }
-    
-    public void setPhase(Phase[] p) {
-        super.setPhase(p);
-        firstPhase = p[0];
-        secondPhase = p[1];
+        this.integrator1 = integrator1;
+        this.integrator2 = integrator2;
+        firstPhase = integrator1.getPhase();
+        secondPhase = integrator2.getPhase();
         inflate1.setPhase(firstPhase);
         inflate2.setPhase(secondPhase);
         phase1AtomIterator.setPhase(firstPhase);
@@ -97,7 +100,14 @@ public final class MCMoveVolumeExchange extends MCMove {
         return -(hNew - hOld)/temperature;
     }
     
-    public void acceptNotify() {  /* do nothing */}
+    public void acceptNotify() {
+        try {
+            integrator1.reset();
+            integrator2.reset();
+        } catch(ConfigurationOverlapException e) {
+            throw new RuntimeException(e);
+        }
+    }
     
     public void rejectNotify() {
         inflate1.undo();

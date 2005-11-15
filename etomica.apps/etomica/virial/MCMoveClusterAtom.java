@@ -20,20 +20,19 @@ public class MCMoveClusterAtom extends MCMoveAtom implements MCMoveCluster {
         weightMeter = new MeterClusterWeight(sim.potentialMaster);
 	}
 	
-    public void setPhase(Phase[] p) {
+    public void setPhase(Phase p) {
         super.setPhase(p);
-        weightMeter.setPhase(p[0]);
+        weightMeter.setPhase(p);
     }
     
 	public boolean doTrial() {
-        PhaseCluster phase = (PhaseCluster)phases[0];
 		atom = phase.getSpeciesMaster().atomList.getRandom();
 		while(atom.node.getOrdinal()==1) atom = phase.getSpeciesMaster().atomList.getRandom();
 		uOld = weightMeter.getDataAsScalar();
         translationVector.setRandomCube();
         translationVector.TE(stepSize);
         atom.coord.position().PE(translationVector);
-		phase.trialNotify(atom);
+		((PhaseCluster)phase).trialNotify(atom);
 		uNew = Double.NaN;
 		return true;
 	}
@@ -53,12 +52,12 @@ public class MCMoveClusterAtom extends MCMoveAtom implements MCMoveCluster {
 
     public void rejectNotify() {
     	super.rejectNotify();
-    	((PhaseCluster)phases[0]).rejectNotify();
+    	((PhaseCluster)phase).rejectNotify();
     }
     
     public void acceptNotify() {
     	super.acceptNotify();
-    	((PhaseCluster)phases[0]).acceptNotify();
+    	((PhaseCluster)phase).acceptNotify();
     }
 
     private MeterClusterWeight weightMeter;

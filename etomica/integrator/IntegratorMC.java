@@ -6,6 +6,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveEventManager;
 import etomica.integrator.mcmove.MCMoveListener;
+import etomica.integrator.mcmove.MCMoveManager;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -21,7 +22,7 @@ import etomica.simulation.Simulation;
  * @see MCMove
  */
 
-public class IntegratorMC extends Integrator implements EtomicaElement {
+public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
 
     public IntegratorMC(Simulation sim) {
         this(sim.potentialMaster,sim.getDefaults().temperature);
@@ -36,6 +37,7 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
 		setIsothermal(true); //has no practical effect, but sets value of
 		// isothermal to be consistent with way integrator
 		// is sampling
+        moveManager = new MCMoveManager();
 	}
 
 	public static EtomicaInfo getEtomicaInfo() {
@@ -44,74 +46,17 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
 	}
 
     /**
-	 * Sets moves in given array to be integrator's set of moves, deleting any
-	 * existing moves.
-	 */
-	public void setMCMoves(MCMove[] moves) {
-		firstMoveLink = null;
-		moveCount = 0;
-		for (int i = 0; i < moves.length; i++) {
-			addMCMove(moves[i]);
-		}
-	}
-
-	/**
-	 * Constructs and returns array of all moves added to the integrator.
-	 */
-	public MCMove[] getMCMoves() {
-		MCMove[] moves = new MCMove[moveCount];
-		int i = 0;
-		for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
-			moves[i++] = link.move;
-		}
-		return moves;
-	}
-
-	/**
-	 * Adds the given MCMove to the set of moves performed by the integrator and
-	 * recalculates move frequencies.
-	 */
-	public void addMCMove(MCMove move) {
-		//make sure move wasn't added already
-		for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
-			if (move == link.move)
-				return;
-		}
-		if (firstMoveLink == null) {
-			firstMoveLink = new MCMoveLinker(move);
-            lastMoveLink = firstMoveLink;
-		} else {
-			lastMoveLink.nextLink = new MCMoveLinker(move);
-			lastMoveLink = lastMoveLink.nextLink;
-		}
-		if(move.phases.length == phase.length) move.setPhase(phase);
-		move.setTemperature(temperature);
-		moveCount++;
-		recomputeMoveFrequencies();
-	}
+     * @return Returns the moveManager.
+     */
+    public MCMoveManager getMoveManager() {
+        return moveManager;
+    }
 
     /**
-     * Removes the given MCMove from the set of moves performed by the integrator and
-     * recalculates move frequencies.  Returns false if the move was not used by
-     * the integrator.
+     * @param moveManager The moveManager to set.
      */
-    public boolean removeMCMove(MCMove move) {
-        //make sure move wasn't added already
-        if (move == firstMoveLink.move) {
-            firstMoveLink = firstMoveLink.nextLink;
-            moveCount--;
-            recomputeMoveFrequencies();
-            return true;
-        }
-        for (MCMoveLinker link = firstMoveLink; link.nextLink != null; link = link.nextLink) {
-            if (move == link.nextLink.move) {
-                link.nextLink = link.nextLink.nextLink;
-                moveCount--;
-                recomputeMoveFrequencies();
-                return true;
-            }
-        }
-        return false;
+    public void setMoveManager(MCMoveManager newMoveManager) {
+        moveManager = newMoveManager;
     }
 
 	/**
@@ -119,29 +64,9 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
      * Moves are not notified if they have a number of phases different from
      * the number of phases handled by the integrator.
 	 */
-	public boolean addPhase(Phase p) {
-		if (!super.addPhase(p))
-			return false;
-		for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
-			if(link.move.phases.length == phase.length) link.move.setPhase(phase);
-		}
-		return true;
-	}
-
-	/**
-	 * Selects a MCMove instance from among those added to the integrator, with
-	 * probability in proportion to the frequency value assigned to the move.
-	 */
-	protected MCMove selectMove() {
-		if (firstMoveLink == null)
-			return null;
-		int i = Simulation.random.nextInt(frequencyTotal);
-		MCMoveLinker link = firstMoveLink;
-		while ((i -= link.fullFrequency) >= 0) {
-			link = link.nextLink;
-		}
-		link.selectionCount++;
-		return link.move;
+	public void setPhase(Phase p) {
+		super.setPhase(p);
+        moveManager.setPhase(p);
 	}
 
 	/**
@@ -154,7 +79,7 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
 	 */
 	public void doStep() {
 		//select the move
-		MCMove move = selectMove();
+		MCMove move = moveManager.selectMove();
 		if (move == null)
 			return;
 
@@ -182,9 +107,7 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
 		} else {
 			move.acceptNotify();
 			event.wasAccepted = true;
-            for (int i=0; i<phase.length; i++) {
-                currentPotentialEnergy[i] += move.energyChange(phase[i]);
-            }
+            currentPotentialEnergy += move.energyChange(phase);
 		}
 
 		//notify listeners of outcome
@@ -197,76 +120,12 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
 	}
 
 	/**
-	 * Sets the partial, unnormalized frequency for performing the given move,
-	 * relative to the other moves that have been added to the integrator. If
-	 * the perParticleFrequency flag for the move is true, the full frequency is
-	 * determined by multiplying this partial frequency by the number of
-	 * molecules in the phases affected by the integrator when this method (or
-	 * setPerParticleFrequency) is invoked; otherwise the full frequency equals
-	 * this partial frequency. <br>
-	 * Each move is performed (on average) an amount in proportion to the full
-	 * frequency. Moves having the same full frequency are performed with equal
-	 * likelihood. <br>
-	 * Default value of the (partial) frequency is 100, which is (for example)
-	 * the nominal value for MCMoveAtom. <br>
-	 */
-
-	public void setFrequency(MCMove move, int frequency) {
-		MCMoveLinker link = null;
-		for (link = firstMoveLink; link != null; link = link.nextLink) {
-			if (link.move == move)
-				break;
-		}
-		if (link == null)
-			throw new RuntimeException(
-					"Attempt to change frequency of MCMove that is not managed by integrator");
-		link.frequency = frequency;
-		recomputeMoveFrequencies();
-	}
-
-	/**
-	 * Indicates if frequency for the given move indicates full frequency, or
-	 * frequency per particle. If per particle, frequency assigned to move is
-	 * multiplied by the number of particles affected by the move at time this
-	 * method (or setFrequency) is called (full frequency is not otherwise
-	 * regularly updated for changing particle numbers). <br>
-	 * 
-	 * @see #setFrequency
-	 */
-	public final void setPerParticleFrequency(MCMove move,
-			boolean isPerParticleFrequency) {
-		MCMoveLinker link = null;
-		for (link = firstMoveLink; link != null; link = link.nextLink) {
-			if (link.move == move)
-				break;
-		}
-		if (link == null)
-			throw new RuntimeException(
-					"Attempt to change frequency of MCMove that is not managed by integrator");
-		link.perParticleFrequency = isPerParticleFrequency;
-		recomputeMoveFrequencies();
-	}
-
-	/**
-	 * Recomputes all the move frequencies.
-	 */
-	protected void recomputeMoveFrequencies() {
-		frequencyTotal = 0;
-		for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
-			link.resetFullFrequency();
-			frequencyTotal += link.fullFrequency;
-		}
-	}
-
-	/**
 	 * Sets the temperature for this integrator and all the MCMove instances it
 	 * currently holds.
 	 */
 	public void setTemperature(double temperature) {
 		super.setTemperature(temperature);
-		for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
-			link.move.setTemperature(temperature);
-		}
+        moveManager.setTemperature(temperature);
 	}
 
     /**
@@ -274,10 +133,7 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
      * moves.
      */
     public void reset() throws ConfigurationOverlapException {
-        recomputeMoveFrequencies();
-        for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
-            link.selectionCount = 0;
-        }
+        moveManager.recomputeMoveFrequencies();
         super.reset();
     }
 
@@ -302,44 +158,8 @@ public class IntegratorMC extends Integrator implements EtomicaElement {
 			eventManager = null;
 	}
 
-	private MCMoveLinker firstMoveLink, lastMoveLink;
-	private int frequencyTotal;
-	private int moveCount;
+    protected MCMoveManager moveManager;
 	protected MCMoveEventManager eventManager;
 	protected final MCMoveEvent event = new MCMoveEvent(this);
 
-	/**
-	 * Linker used to construct linked-list of MCMove instances
-	 */
-	private static class MCMoveLinker implements java.io.Serializable {
-		int frequency, fullFrequency;
-		final MCMove move;
-		boolean perParticleFrequency;
-		int selectionCount;
-		MCMoveLinker nextLink;
-
-		MCMoveLinker(MCMove move) {
-			this.move = move;
-			frequency = move.getNominalFrequency();
-			perParticleFrequency = move.isNominallyPerParticleFrequency();
-		}
-
-		/**
-		 * Updates the full frequency based on the current value of the
-		 * frequency, the status of the perParticleFrequency flag, and the
-		 * current number of molecules in the phases affected by the move.
-		 */
-		void resetFullFrequency() {
-			fullFrequency = frequency;
-            Phase[] phases = move.getPhase();
-			if (perParticleFrequency && phases != null) {
-				int mCount = 0;
-				for (int i = 0; i < phases.length; i++)
-					if (phases[i] != null)
-						mCount += phases[i].moleculeCount();
-				fullFrequency *= mCount;
-			}
-		}
-
-	}
-}//end of IntegratorMC
+}

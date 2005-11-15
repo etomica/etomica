@@ -3,9 +3,9 @@ import etomica.EtomicaInfo;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.DataSourceScalar;
-import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorIntervalListener;
+import etomica.integrator.IntegratorPhase;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
@@ -25,11 +25,11 @@ import etomica.units.Dimension;
 public class MeterMeanSquareDisplacement extends DataSourceScalar {
 
     
-    public MeterMeanSquareDisplacement(Space space, Integrator integrator) {
+    public MeterMeanSquareDisplacement(Space space, IntegratorPhase integrator) {
         this(space, integrator, new AtomIteratorLeafAtoms());
     }
 
-    public MeterMeanSquareDisplacement(Space space, Integrator integrator, AtomIteratorPhaseDependent iter) {
+    public MeterMeanSquareDisplacement(Space space, IntegratorPhase integrator, AtomIteratorPhaseDependent iter) {
         super("Mean square displacement", Dimension.UNDEFINED);
         this.space = space;
         this.integrator = integrator;
@@ -48,8 +48,8 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
             throw new NullPointerException("Cannot give a null iterator");
         }
         this.iterator = iterator;
-        if(integrator.getPhase().length > 0 && integrator.getPhase()[0] != null) {
-            iterator.setPhase(integrator.getPhase()[0]);
+        if(integrator.getPhase() != null) {
+            iterator.setPhase(integrator.getPhase());
             reset();
         } else {
             //throw an exception, because meter won't be informed when integrator has phase set
@@ -121,8 +121,8 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
     
     private int nAtoms = 0;
     AtomIteratorPhaseDependent iterator;
-    Integrator integrator;
-    private Vector[] rAccum, rLast;
+    IntegratorPhase integrator;
+    protected Vector[] rAccum, rLast;
     private final Space space;
 
 }//end of class

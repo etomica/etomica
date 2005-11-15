@@ -66,7 +66,7 @@ public class Heisenberg extends Simulation {
         field = new P1MagneticField(space);
         integrator = new IntegratorMC(this);
         mcmove = new MCMoveSpinFlip(potentialMaster);
-        integrator.addMCMove(mcmove);
+        integrator.getMoveManager().addMCMove(mcmove);
         
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setDoSleep(false);
@@ -77,7 +77,7 @@ public class Heisenberg extends Simulation {
         potentialMaster.addPotential(field, new AtomType[] {type});
         potentialMaster.addPotential(potential, new AtomType[] {type, type});
         
-        integrator.addPhase(phase);
+        integrator.setPhase(phase);
         ((PotentialMasterSite)potentialMaster).calculate(phase, new PotentialCalculationAgents(potentialMaster));
         phase.getCellManager().assignCellAll();
         

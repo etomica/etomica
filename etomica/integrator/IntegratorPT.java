@@ -6,16 +6,12 @@ import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.types.DataDoubleArray;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveListener;
 import etomica.integrator.mcmove.MCMoveSwapConfiguration;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
-import etomica.simulation.SimulationEvent;
 import etomica.units.Dimension;
-import etomica.util.Arrays;
 
 /**
  * Parallel-tempering integrator.  Oversees other integrators that are defined to perform
@@ -40,16 +36,21 @@ import etomica.util.Arrays;
   * 7/16/02 (DAK) new
   */
 
-public class IntegratorPT extends IntegratorMC implements EtomicaElement {
+public class IntegratorPT extends IntegratorManagerMC implements EtomicaElement {
     
     public IntegratorPT(PotentialMaster potentialMaster) {
         this(potentialMaster, MCMoveSwapConfiguration.FACTORY);
     }
     
     public IntegratorPT(PotentialMaster potentialMaster, MCMoveSwapFactory swapFactory) {
-        super(potentialMaster,0);
-        setSwapInterval(100);
+        super(potentialMaster);
+        setGlobalMoveInterval(100);
         mcMoveSwapFactory = swapFactory;
+    }
+    
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo("Parallel-tempering Monte Carlo simulation");
+        return info;
     }
     
     /**
@@ -59,132 +60,16 @@ public class IntegratorPT extends IntegratorMC implements EtomicaElement {
      * the most recently added integrator/phase (and the next one, if another
      * is added subsequently).
      */
-	public void addIntegrator(Integrator integrator){
-		int n = integrators.length;
-		Integrator[] newintegrators = new Integrator[n+1];
-		for(int i=0; i<n; i++) {newintegrators[i] = integrators[i];}
-		newintegrators[n] = integrator;
-		integrators = newintegrators;
-		nIntegrators++;
-		
-		if(nIntegrators > 1) {
-            MCMove newMCMove = mcMoveSwapFactory.makeMCMoveSwap(potential, integrators[n-1], integrators[n]);
-            mcMoveSwap = (MCMove[])Arrays.addObject(mcMoveSwap,newMCMove);
-            addMCMove(newMCMove);
+	public void addIntegrator(IntegratorPhase integrator){
+	    super.addIntegrator(integrator);
+        
+		if (nIntegrators > 1) {
+            MCMove newMCMove = mcMoveSwapFactory.makeMCMoveSwap(potential, (IntegratorPhase)integrators[nIntegrators-1], 
+                    (IntegratorPhase)integrators[nIntegrators]);
+            moveManager.addMCMove(newMCMove);
 		}
 	}
     
-    public boolean addPhase(Phase p) {
-        throw new RuntimeException("IntegratorPT does not work on a phase");
-    }
-	
-	/**
-	 * Fires interval event for this integrator, then instructs
-	 * each sub-integrator to fire event.
-	 */
-	public void fireIntervalEvent(IntegratorIntervalEvent ie) {
-	    super.fireIntervalEvent(ie);
-	    for(int i=0; i<nIntegrators; i++) {
-	        integrators[i].fireIntervalEvent(ie);
-	    }
-	}
-	
-    /**
-     * Fires non-interval event for this integrator, then instructs
-     * each sub-integrator to fire event.
-     */
-    public void fireNonintervalEvent(IntegratorNonintervalEvent ie) {
-        super.fireNonintervalEvent(ie);
-        for(int i=0; i<nIntegrators; i++) {
-            integrators[i].fireNonintervalEvent(ie);
-        }
-    }
-    
-	/**
-     * Performs a Monte Carlo trial that attempts to swap the configurations
-     * between two "adjacent" phases, or instructs all integrators to perform
-     * a single doStep.
-     */
-    public void doStep() {
-        if(Simulation.random.nextDouble() < swapProbability) {
-            super.doStep();
-        } else {
-            for(int i=0; i<nIntegrators; i++) integrators[i].doStep();
-        }
-    }
-    
-    protected void setup() throws ConfigurationOverlapException {
-        ConfigurationOverlapException overlapException = null;
-        for(int i=0; i<nIntegrators; i++) {
-            try {
-                integrators[i].initialize();
-            }
-            catch (ConfigurationOverlapException e) {
-                if (overlapException == null) {
-                    overlapException = e;
-                }
-            }
-        }
-        super.setup();
-        if (overlapException != null) {
-            throw overlapException;
-        }
-    }        
-    
-    /**
-     * Resets this integrator and passes on the reset to all managed integrators.
-     */
-    public void reset() throws ConfigurationOverlapException {
-        ConfigurationOverlapException overlapException = null;
-	    for(int i=0; i<nIntegrators; i++) {
-            try {
-                integrators[i].reset();
-            }
-            catch (ConfigurationOverlapException e) {
-                if (overlapException == null) {
-                    overlapException = e;
-                }
-            }
-        }
-        if (overlapException != null) {
-            throw overlapException;
-        }
-        // don't call super.reset(), it tries to calculate the potential energy
-	}
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Parallel-tempering Monte Carlo simulation");
-        return info;
-    }
-    
-    /**
-     * Returns an array containing all the MCMove classes that perform
-     * swaps between the phases.
-     */
-    public MCMove[] swapMoves() {return mcMoveSwap;}
-    
-    /**
-     * Sets the average interval between phase-swap trials.  With each 
-     * call to doStep of this integrator, there will be a probability of
-     * 1/nSwap that a swap trial will be attempted.  A swap is attempted
-     * for only one pair of phases.  Default is 100.
-     */
-    public void setSwapInterval(int nSwap) {
-        if(nSwap < 1) nSwap = 1;
-        this.nSwap = nSwap;
-        swapProbability = 1.0/nSwap;
-    }
-    
-    /**
-     * Accessor method for the average interval between phase-swap trials.
-     */
-    public int getSwapInterval() {return nSwap;}
-    
-    private int nSwap;
-    private double swapProbability;
-	private Integrator[] integrators = new Integrator[0];
-	private MCMove[] mcMoveSwap = new MCMove[0];
-	private int nIntegrators = 0;
 	private final MCMoveSwapFactory mcMoveSwapFactory;
 
 	
@@ -200,7 +85,7 @@ public class IntegratorPT extends IntegratorMC implements EtomicaElement {
 	     * @param integrator1 integrator for one of the phases being swapped
 	     * @param integrator2 integrator for the other phase
 	     */
-	    public MCMove makeMCMoveSwap(PotentialMaster potentialMaster, Integrator integrator1, Integrator integrator2);
+	    public MCMove makeMCMoveSwap(PotentialMaster potentialMaster, IntegratorPhase integrator1, IntegratorPhase integrator2);
 	}
 
     /**

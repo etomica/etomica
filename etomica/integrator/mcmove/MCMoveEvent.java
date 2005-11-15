@@ -1,7 +1,6 @@
 package etomica.integrator.mcmove;
 
 import etomica.integrator.MCMove;
-import etomica.simulation.SimulationEvent;
 
 public class MCMoveEvent extends java.util.EventObject {
     

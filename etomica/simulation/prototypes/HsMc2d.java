@@ -50,8 +50,8 @@ public class HsMc2d extends Simulation {
         potentialMaster.setSpecies(potential, new Species[] {species2, species2});
 	    meterCycles = new DataSourceCountSteps();
 
-        integrator.addPhase(phase);
-        integrator.addMCMove(mcMoveAtom);
+        integrator.setPhase(phase);
+        integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.addListener(new PhaseImposePbc(phase));
 
 //	    LatticeRenderer.ColorSchemeCell colorSchemeCell = new LatticeRenderer.ColorSchemeCell();

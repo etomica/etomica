@@ -49,15 +49,13 @@ public class MCMoveVolume extends MCMove {
         
     }
     
-    public void setPhase(Phase[] p) {
-        if(p == null) return;
+    public void setPhase(Phase p) {
         super.setPhase(p);
-        energyMeter.setPhase(p[0]);
-        inflate.setPhase(p[0]);
+        energyMeter.setPhase(p);
+        inflate.setPhase(p);
     }
     
     public boolean doTrial() {
-        Phase phase = phases[0];
         double vOld = phase.volume();
         uOld = energyMeter.getDataAsScalar();
         hOld = uOld + pressure*vOld;
@@ -71,7 +69,7 @@ public class MCMoveVolume extends MCMove {
     }//end of doTrial
     
     public double lnTrialRatio() {
-        return (phases[0].moleculeCount()+1)*vScale;
+        return (phase.moleculeCount()+1)*vScale;
     }
     
     public double lnProbabilityRatio() {
@@ -86,10 +84,10 @@ public class MCMoveVolume extends MCMove {
         inflate.undo();
     }
 
-    public double energyChange(Phase phase) {return (this.phases[0] == phase) ? uNew - uOld : 0.0;}
+    public double energyChange(Phase p) {return (p == phase) ? uNew - uOld : 0.0;}
     
-    public AtomIterator affectedAtoms(Phase phase) {
-        if(this.phases[0] != phase) return AtomIterator.NULL;
+    public AtomIterator affectedAtoms(Phase p) {
+        if(p != phase) return AtomIterator.NULL;
         return new AtomIteratorAllMolecules(phase);
     }
 

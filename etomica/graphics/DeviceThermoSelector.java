@@ -9,7 +9,7 @@ import etomica.EtomicaInfo;
 import etomica.action.Action;
 import etomica.action.activity.Controller;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.Integrator;
+import etomica.integrator.IntegratorPhase;
 import etomica.simulation.Simulation;
 import etomica.simulation.prototypes.HSMD3D;
 import etomica.units.Dimension;
@@ -25,7 +25,7 @@ import etomica.units.Unit;
  */
 public class DeviceThermoSelector extends Device implements EtomicaElement {
     
-     public DeviceThermoSelector(Simulation sim, final Integrator integrator) {
+     public DeviceThermoSelector(Simulation sim, final IntegratorPhase integrator) {
         this(sim.getController(),Dimension.TEMPERATURE.defaultIOUnit(),sim.getDefaults().ignoreOverlap);
         setController(controller);
         setIntegrator(integrator);
@@ -79,7 +79,7 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
         doAction(targetAction);
     }
 
-    public void setIntegrator(final Integrator integrator) {
+    public void setIntegrator(final IntegratorPhase integrator) {
         targetAction = new Action() {
             public void actionPerformed() {
                 if(integrator == null) return;

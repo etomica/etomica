@@ -12,6 +12,7 @@ import etomica.integrator.IntegratorPT;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.MCMove;
 import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.integrator.mcmove.MCMoveManager;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -88,29 +89,31 @@ public class SimulationVirialPT extends Simulation {
             
             integrator[iTemp] = new IntegratorClusterMC(this);
             integrator[iTemp].setTemperature(temperature[iTemp]);
-            integrator[iTemp].addPhase(phase[iTemp]);
+            integrator[iTemp].setPhase(phase[iTemp]);
             integrator[iTemp].setEquilibrating(false);
             integratorPT.addIntegrator(integrator[iTemp]);
+            
+            MCMoveManager moveManager = integrator[iTemp].getMoveManager();
             
             if (phase[iTemp].randomMolecule().node.isLeaf()) {
                 mcMoveAtom1[iTemp] = new MCMoveClusterAtom(this);
                 mcMoveAtom1[iTemp].setStepSize(1.15);
-                integrator[iTemp].addMCMove(mcMoveAtom1[iTemp]);
+                moveManager.addMCMove(mcMoveAtom1[iTemp]);
                 if (nMolecules>2) {
                     mcMoveMulti[iTemp] = new MCMoveClusterAtomMulti(this, nMolecules-1);
                     mcMoveMulti[iTemp].setStepSize(0.41);
-                    integrator[iTemp].addMCMove(mcMoveMulti[iTemp]);
+                    moveManager.addMCMove(mcMoveMulti[iTemp]);
                 }
             }
             else {
                 mcMoveAtom1[iTemp] = new MCMoveClusterMolecule(potentialMaster, 3.0);
-                integrator[iTemp].addMCMove(mcMoveAtom1[iTemp]);
+                moveManager.addMCMove(mcMoveAtom1[iTemp]);
                 mcMoveRotate[iTemp] = new MCMoveClusterRotateMolecule3D(potentialMaster,space);
                 mcMoveRotate[iTemp].setStepSize(Math.PI);
-                integrator[iTemp].addMCMove(mcMoveRotate[iTemp]);
+                moveManager.addMCMove(mcMoveRotate[iTemp]);
                 if (nMolecules>2) {
                     mcMoveMulti[iTemp] = new MCMoveClusterMoleculeMulti(potentialMaster, 0.41, nMolecules-1);
-                    integrator[iTemp].addMCMove(mcMoveMulti[iTemp]);
+                    moveManager.addMCMove(mcMoveMulti[iTemp]);
                 }
             }
             
@@ -123,8 +126,9 @@ public class SimulationVirialPT extends Simulation {
             setAccumulator(iTemp,new AccumulatorRatioAverage(getDefaults().blockSize));
 
             if(iTemp>0) {
-                meterAccept[iTemp-1] = new DataSourceAcceptanceRatio(integratorPT.swapMoves()[iTemp-1]);
-                meterAcceptP[iTemp-1] = new DataSourceAcceptanceProbability(integratorPT.swapMoves()[iTemp-1]);
+                MCMove swapMove = integratorPT.getMoveManager().getMCMoves()[iTemp-1];
+                meterAccept[iTemp-1] = new DataSourceAcceptanceRatio(swapMove);
+                meterAcceptP[iTemp-1] = new DataSourceAcceptanceProbability(swapMove);
             }
         }
         P0Cluster p0 = new P0Cluster(space);

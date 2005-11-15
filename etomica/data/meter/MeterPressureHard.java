@@ -38,7 +38,7 @@ public class MeterPressureHard extends DataSourceScalar implements
     //TODO consider how to ensure timer is advanced before this method is invoked
     public double getDataAsScalar() {
         if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
-        if (integratorHard.getPhase()[0] != phase) {
+        if (integratorHard.getPhase() != phase) {
             throw new IllegalArgumentException("Integrator must act on meter's phase");
         }
         else if (!integratorHard.isIsothermal()) {

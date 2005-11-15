@@ -65,22 +65,15 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
         return info;
     }
 
-    public boolean addPhase(Phase p) {
-        if(!super.addPhase(p)) return false;
-        agentManager = new AtomAgentManager(this,p);
-        return true;
-    }
-
-    public void removePhase(Phase oldPhase) {
-        if (oldPhase == firstPhase) {
+    public void setPhase(Phase p) {
+        if (phase != null) {
             // allow agentManager to de-register itself as a PhaseListener
             agentManager.setPhase(null);
-            agentManager = null;
-            agents = null;
         }
-        super.removePhase(oldPhase);
+        super.setPhase(p);
+        agentManager = new AtomAgentManager(this,p);
     }
-    
+
     public void setTimeStep(double dt) {
         super.setTimeStep(dt);
         p1 = dt;
@@ -110,7 +103,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
             agents[atomIterator.nextAtom().getGlobalIndex()].force.E(0.0);
         }
         //Compute forces on each atom
-        potential.calculate(firstPhase, allAtoms, forceSum);
+        potential.calculate(phase, allAtoms, forceSum);
         
     }//end of calculateForces
     
@@ -182,9 +175,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
     }
 
     public void reset() throws ConfigurationOverlapException {
-        //XXX is this check really necessary?
         agents = (Agent[])agentManager.getAgents();
-        if(potential == null || firstPhase == null) return;
         calculateForces();
         atomIterator.reset();
         while(atomIterator.hasNext()) {
@@ -206,7 +197,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
         return new Agent(space,a);
     }
             
-    public static class Agent implements Integrator.Forcible {  //need public so to use with instanceof
+    public static class Agent implements IntegratorPhase.Forcible {  //need public so to use with instanceof
         public Atom atom;
         public Vector force;
         public Vector dr1, dr2, dr3, dr4;

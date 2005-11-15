@@ -42,9 +42,9 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule implements MCMove
         setName("MCMoveClusterMolecule");
 	}
 
-    public void setPhase(Phase[] p) {
+    public void setPhase(Phase p) {
         super.setPhase(p);
-        weightMeter.setPhase(p[0]);
+        weightMeter.setPhase(p);
     }
     
 	//note that total energy is calculated
@@ -57,14 +57,14 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule implements MCMove
             groupTranslationVector.E(translationVectors[i]);
             moveMoleculeAction.actionPerformed(selectedAtoms[i]);
         }
-        ((PhaseCluster)phases[0]).trialNotify(null);
+        ((PhaseCluster)phase).trialNotify(null);
         uNew = Double.NaN;
         return true;
 	}
 	
 	// inefficient if selecting most of a large set of atoms
 	protected Atom[] selectMolecules() {
-        AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(phases[0]);
+        AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(phase);
         if (iterator.size()-1 != nAtoms) throw new IllegalStateException("move should work on number of molecules in phase-1");
         iterator.reset();
         int i=0;
@@ -82,12 +82,12 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule implements MCMove
             groupTranslationVector.TE(-1);
             moveMoleculeAction.actionPerformed(selectedAtoms[i]);
         }
-        ((PhaseCluster)phases[0]).rejectNotify();
+        ((PhaseCluster)phase).rejectNotify();
 	}
 
     public void acceptNotify() {
 //        System.out.println("multi accepted");
-        ((PhaseCluster)phases[0]).acceptNotify();
+        ((PhaseCluster)phase).acceptNotify();
     }
     public double trialRatio() {return 1.0;}
     

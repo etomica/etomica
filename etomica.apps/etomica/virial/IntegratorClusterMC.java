@@ -1,6 +1,5 @@
 package etomica.virial;
 
-import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.MCMove;
 import etomica.simulation.Simulation;
@@ -17,11 +16,8 @@ import etomica.simulation.Simulation;
  */
 public class IntegratorClusterMC extends IntegratorMC {
 
-	protected double weight;
-	
     public IntegratorClusterMC(Simulation sim) {
         super(sim);
-        weight = 1.0;
     }
 
 	/**
@@ -29,7 +25,7 @@ public class IntegratorClusterMC extends IntegratorMC {
      */
     public void doStep() {
         //select the move
-        MCMove move = selectMove();
+        MCMove move = moveManager.selectMove();
         if(move == null) return;
         
         //perform the trial
@@ -51,7 +47,6 @@ public class IntegratorClusterMC extends IntegratorMC {
         } else {
             move.acceptNotify();
             event.wasAccepted = true;
-            weight *= chi;
         }
 
         //notify listeners of outcome
@@ -63,27 +58,4 @@ public class IntegratorClusterMC extends IntegratorMC {
         move.updateCounts(event.wasAccepted,chi,isEquilibrating());
     }
     
-    public void addMCMove(MCMove move) {
-        if (!(move instanceof MCMoveCluster)) {
-            throw new IllegalArgumentException("MC move must be an MCMoveCluster");
-        }
-        super.addMCMove(move);
-    }
-    
-    public double getWeight() {
-    	return weight;
-    }
-    
-    public void reset() throws ConfigurationOverlapException {
-        weight = 1.0;
-        super.reset();
-    }
-    
-    /**
-     * You seriously better know what you're doing.  Calling this method
-     * inappropriately has been known to kill babies.
-     */
-    public void setWeight(double w) {
-        weight = w;
-    }
 }

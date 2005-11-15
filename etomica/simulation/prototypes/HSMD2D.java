@@ -96,7 +96,7 @@ public class HSMD2D extends Simulation {
         //explicit implementation of elementCoordinator activities
         phase = new Phase(this);
         new ConfigurationSequential(space).initializeCoordinates(phase);
-        integrator.addPhase(phase);
+        integrator.setPhase(phase);
     }
     
     /**

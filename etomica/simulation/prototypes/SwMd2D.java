@@ -50,7 +50,7 @@ public class SwMd2D extends Simulation {
         
 //      elementCoordinator.go();
         //explicit implementation of elementCoordinator activities
-        integrator.addPhase(phase);
+        integrator.setPhase(phase);
         integrator.addListener(new PhaseImposePbc(phase));
     } 
 }

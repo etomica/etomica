@@ -68,12 +68,12 @@ public class MCMoveSemigrand extends MCMove {
     /**
      * Extends the superclass method to initialize the exchange-set species agents for the phase.
      */
-    public void setPhase(Phase[] p) {
+    public void setPhase(Phase p) {
         super.setPhase(p);
-        energyMeter.setPhase(p[0]);
+        energyMeter.setPhase(phase);
         if(speciesSet != null) {
             for(int i=0; i<nSpecies; i++) {
-                agentSet[i] = speciesSet[i].getAgent(phases[0]);
+                agentSet[i] = speciesSet[i].getAgent(phase);
             }
         }
     }//end setPhase
@@ -90,7 +90,7 @@ public class MCMoveSemigrand extends MCMove {
         reservoirs = new AtomList[nSpecies];
         for(int i=0; i<nSpecies; i++) {
             speciesSet[i] = species[i];
-            if(phases[0] != null) agentSet[i] = species[i].getAgent(phases[0]);
+            if(phase != null) agentSet[i] = species[i].getAgent(phase);
             fugacityFraction[i] = 1.0/nSpecies;
             reservoirs[i] = new AtomList();
         }
@@ -172,11 +172,11 @@ public class MCMoveSemigrand extends MCMove {
         deleteMolecule = deleteAgent.randomMolecule();
         energyMeter.setTarget(deleteMolecule);
         uOld = energyMeter.getDataAsScalar();
-        phases[0].removeMolecule(deleteMolecule);
+        phase.removeMolecule(deleteMolecule);
         
         if(!reservoirs[iInsert].isEmpty()) insertMolecule = reservoirs[iInsert].removeFirst();
         else insertMolecule = insertAgent.moleculeFactory().makeAtom();
-        phases[0].addMolecule(insertMolecule, insertAgent);
+        phase.addMolecule(insertMolecule, insertAgent);
         moleculeTranslator.setDestination(atomPositionDefinition.position(deleteMolecule));
         moleculeTranslator.actionPerformed(insertMolecule);
         //in general, should also randomize orintation and internal coordinates
@@ -203,18 +203,18 @@ public class MCMoveSemigrand extends MCMove {
 
     public void rejectNotify() {
         //put deleted molecule back into phase
-        phases[0].addMolecule(deleteMolecule, deleteAgent);
+        phase.addMolecule(deleteMolecule, deleteAgent);
         //remove inserted molecule and put in reservoir
-        phases[0].removeMolecule(insertMolecule);
+        phase.removeMolecule(insertMolecule);
         reservoirs[iInsert].add(insertMolecule.seq);
     }
     
     
 
-    public double energyChange(Phase phase) {return (this.phases[0] == phase) ? uNew - uOld : 0.0;}
+    public double energyChange(Phase p) {return (p == phase) ? uNew - uOld : 0.0;}
     
-    public final AtomIterator affectedAtoms(Phase phase) {
-        if(this.phases[0] != phase) return AtomIterator.NULL;
+    public final AtomIterator affectedAtoms(Phase p) {
+        if(p != phase) return AtomIterator.NULL;
         insertAtomIterator.setAtom(insertMolecule);
         deleteAtomIterator.setAtom(deleteMolecule);
         affectedAtomIterator.reset();
@@ -235,88 +235,4 @@ public class MCMoveSemigrand extends MCMove {
         moleculeTranslator.setAtomPositionDefinition(positionDefinition);
     }
 
-//    public static void main(String[] args) {
-//        
-//        Simulation.instance = new etomica.graphics.SimulationGraphic(new Space2D());
-//        Default.TRUNCATE_POTENTIALS = false;
-//	    IntegratorMC integrator = new IntegratorMC();
-//	    integrator.setDoSleep(true);
-//		integrator.setSleepPeriod(2);
-//	    MCMoveAtom mcMove = new MCMoveAtom(integrator);
-//	    MCMoveMolecule mcMoveMolecule = new MCMoveMolecule(integrator);
-//	    MCMoveRotateMolecule mcMoveRotate = new MCMoveRotateMolecule(integrator);
-//	    final MCMoveSemigrand mcMoveSemi = new MCMoveSemigrand(integrator);
-//	    //one species with 3 atoms per molecule
-//	    SpeciesSpheres species0 = new SpeciesSpheres(1,3);
-//	    //two species with 1 atom per molecule
-//	    SpeciesSpheresMono species1 = new SpeciesSpheresMono(5);
-//	    SpeciesSpheresMono species2 = new SpeciesSpheresMono(5);
-//	    
-//	    mcMoveSemi.setSpecies(new Species[] {species0, species1, species2});
-//        etomica.graphics.ColorSchemeByType.setColor(species1, java.awt.Color.red);
-//        etomica.graphics.ColorSchemeByType.setColor(species2, java.awt.Color.green);
-//	    species0.setDiameter(3.0);
-//	    species1.setDiameter(5.0);
-//	    species2.setDiameter(1.0);
-//	    Phase phase = new Phase();
-//	    
-//	    //intramolecular potential for 3-atom molecules
-//	    P1TetheredHardSpheres potential0 = new P1TetheredHardSpheres();
-//	    //hard-sphere intermolecular potential for 3-atom molecules
-//	    PotentialGroup potential00 = new PotentialGroup(2);
-//	        Potential2 potential00a = new P2HardSphere(potential00, 3.0);
-//	    //0-1 species potential
-//	    PotentialGroup potential01 = new PotentialGroup(2);
-//	        Potential2 potential01a = new P2HardSphere(potential01, 4.0);
-//	    //0-2 species potential
-//	    PotentialGroup potential02 = new PotentialGroup(2);
-//	        Potential2 potential02a =new P2HardSphere(potential02, 2.0);
-//	    //1-1 species potential
-//	    P2HardSphere potential11 = new P2HardSphere(5.0);
-//	    //1-2 species potential
-//	    P2HardSphere potential12 = new P2HardSphere(3.0);
-//	    //2-2 species potential
-//	    P2HardSphere potential22 = new P2HardSphere(1.0);
-//	    potential0.setSpecies(new Species[] {species0});
-//	    potential00.setSpecies(new Species[] {species0, species0});
-//	    potential01.setSpecies(new Species[] {species0, species1});
-//	    potential02.setSpecies(new Species[] {species0, species2});
-//	    potential11.setSpecies(species1, species1);
-//	    potential12.setSpecies(species1, species2);
-//	    potential22.setSpecies(species2, species2);
-//	    Controller controller = new Controller();
-//	    etomica.graphics.DisplayPhase display = new etomica.graphics.DisplayPhase();
-//
-//		MeterMoleFraction density0 = new MeterMoleFraction();
-//		density0.setPhase(new Phase[] {phase});
-//		AccumulatorHistory density0Hist = new AccumulatorHistory(HistoryScrolling.FACTORY, 500);
-//		AccumulatorManager density0HistManager = new AccumulatorManager(density0, new Accumulator[] {density0Hist});
-//		etomica.graphics.DisplayPlot plot = new etomica.graphics.DisplayPlot();
-//		plot.setLabel("Species0 density");
-//		plot.setDataSources(density0Hist);
-//		
-//		MeterPotentialEnergy energyMeter = new MeterPotentialEnergy();
-//		AccumulatorHistory energyHist = new AccumulatorHistory();
-//		AccumulatorManager energyHistManager = new AccumulatorManager(energyMeter, new Accumulator[] {energyHist});
-//		energyHistManager.setUpdateInterval(1);
-//		etomica.graphics.DisplayPlot energyPlot = new etomica.graphics.DisplayPlot();
-//		energyPlot.setDataSources(energyHist);
-//		
-//		etomica.graphics.DeviceTernarySelector selector = 
-//		    new etomica.graphics.DeviceTernarySelector(Simulation.instance, 
-//		                            new String[] {"Black", "Red", "Green"});
-//		selector.addListener(new etomica.graphics.DeviceTernarySelector.Listener() {
-//		    public void ternaryAction(double x0, double x1, double x2) {
-//		        mcMoveSemi.setFugacityFraction(new double[] {x0, x1, x2});
-//		    }
-//		});
-//		
-//		Simulation.instance.elementCoordinator.go();
-//		density0.setSpecies(species0);
-//	    
-//        etomica.graphics.SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
-//        
-//    }//end of main
-// */
-
-}//end of MCMoveSemigrand
+}

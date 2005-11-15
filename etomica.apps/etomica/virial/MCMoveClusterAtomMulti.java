@@ -26,9 +26,9 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom implements MCMoveCluster 
         setStepSize(sim.getDefaults().atomSize*1.2);
 	}
 	
-    public void setPhase(Phase[] p) {
+    public void setPhase(Phase p) {
         super.setPhase(p);
-        weightMeter.setPhase(p[0]);
+        weightMeter.setPhase(p);
     }
     
 	//note that total energy is calculated
@@ -40,7 +40,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom implements MCMoveCluster 
             translationVectors[i].TE(stepSize);
             selectedAtoms[i].coord.position().PE(translationVectors[i]);
         }
-		((PhaseCluster)phases[0]).trialNotify(null);
+		((PhaseCluster)phase).trialNotify(null);
 		uNew = Double.NaN;
 		return true;
 	}
@@ -59,9 +59,9 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom implements MCMoveCluster 
     }
     
     public void selectAtoms() {
-    	int total=phases[0].getSpeciesMaster().atomList.size();
+    	int total=phase.getSpeciesMaster().atomList.size();
     	for(int i=total-1; i>total-nAtoms-1; i--) {
-    		selectedAtoms[total-1-i] = phases[0].getSpeciesMaster().atomList.get(i);
+    		selectedAtoms[total-1-i] = phase.getSpeciesMaster().atomList.get(i);
     	}
     }
 
@@ -69,11 +69,11 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom implements MCMoveCluster 
         for(int i=0; i<selectedAtoms.length; i++) {
             selectedAtoms[i].coord.position().ME(translationVectors[i]);
         }
-    	((PhaseCluster)phases[0]).rejectNotify();
+    	((PhaseCluster)phase).rejectNotify();
     }
     
     public void acceptNotify() {
-    	((PhaseCluster)phases[0]).acceptNotify();
+    	((PhaseCluster)phase).acceptNotify();
     }
 
     private MeterClusterWeight weightMeter;

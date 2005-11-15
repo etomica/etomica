@@ -10,6 +10,7 @@ import etomica.action.Action;
 import etomica.action.ResetAccumulators;
 import etomica.action.SimulationDataAction;
 import etomica.integrator.Integrator;
+import etomica.integrator.IntegratorPhase;
 import etomica.simulation.Simulation;
 
 /**
@@ -34,8 +35,8 @@ public class EquilibrationProduction extends ActivityGroupSeries {
 	 *            list of accumulatorManagers that will be reset between
 	 *            equilibration and production periods
 	 */
-	public EquilibrationProduction(Simulation sim, Integrator equilibrationIntegrator,
-			Integrator productionIntegrator, LinkedList dataManagerList) {
+	public EquilibrationProduction(Simulation sim, IntegratorPhase equilibrationIntegrator,
+			IntegratorPhase productionIntegrator, LinkedList dataManagerList) {
 		equilibrationActivity = new ActivityIntegrate(sim,equilibrationIntegrator);
 		productionActivity = new ActivityIntegrate(sim,productionIntegrator);
 		equilibrationIntegrator.setEquilibrating(true);
@@ -60,7 +61,7 @@ public class EquilibrationProduction extends ActivityGroupSeries {
 	 *            list of accumulatorManagers that will be reset between
 	 *            equilibration and production periods
 	 */
-	public EquilibrationProduction(Simulation sim, Integrator commonIntegrator,
+	public EquilibrationProduction(Simulation sim, IntegratorPhase commonIntegrator,
 			LinkedList accumulatorManagerList) {
 		this(sim, commonIntegrator, commonIntegrator, accumulatorManagerList);
 	}

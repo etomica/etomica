@@ -25,10 +25,10 @@ public class MCMoveClusterDiagram extends MCMove implements MCMoveCluster {
         weightMeter = new MeterClusterWeight(potentialMaster);
     }
     
-    public void setPhase(Phase[] p) {
+    public void setPhase(Phase p) {
         super.setPhase(p);
-        weightMeter.setPhase(p[0]);
-        cluster = (ClusterSumSticky)((ClusterWeightAbs)((PhaseCluster)p[0]).getSampleCluster()).getSubCluster();
+        weightMeter.setPhase(p);
+        cluster = (ClusterSumSticky)((ClusterWeightAbs)((PhaseCluster)p).getSampleCluster()).getSubCluster();
     }
     
     public boolean doTrial() {

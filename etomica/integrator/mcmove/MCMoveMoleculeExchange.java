@@ -9,6 +9,8 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.DataSourceCOM;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.exception.ConfigurationOverlapException;
+import etomica.integrator.IntegratorPhase;
 import etomica.integrator.MCMove;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
@@ -31,6 +33,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
     
     private Phase firstPhase;
     private Phase secondPhase;
+    private final IntegratorPhase integrator1, integrator2;
     private final MeterPotentialEnergy energyMeter;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private final AtomActionTranslateTo moleculeTranslator;
@@ -42,8 +45,10 @@ public final class MCMoveMoleculeExchange extends MCMove {
     private transient SpeciesAgent iSpecies, dSpecies;
     private transient double uOld;
     private transient double uNew = Double.NaN;
+    
 
-    public MCMoveMoleculeExchange(PotentialMaster potentialMaster, Space space) {
+    public MCMoveMoleculeExchange(PotentialMaster potentialMaster, Space space,
+            IntegratorPhase integrator1, IntegratorPhase integrator2) {
         super(potentialMaster, 2);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         setTunable(false);
@@ -53,14 +58,12 @@ public final class MCMoveMoleculeExchange extends MCMove {
         moleculeTranslator = new AtomActionTranslateTo(space);
         translationVector = moleculeTranslator.getTranslationVector();
         setAtomPositionDefinition(new DataSourceCOM(space));
+        this.integrator1 = integrator1;
+        this.integrator2 = integrator2;
+        firstPhase = integrator1.getPhase();
+        secondPhase = integrator2.getPhase();
     }
     
-    public void setPhase(Phase[] p) {
-        super.setPhase(p);
-        firstPhase = p[0];
-        secondPhase = p[1];
-    }
-        
     public boolean doTrial() {
         if(Simulation.random.nextBoolean()) {
             iPhase = firstPhase;
@@ -106,7 +109,14 @@ public final class MCMoveMoleculeExchange extends MCMove {
         return -(uNew - uOld)/temperature;
     }
     
-    public void acceptNotify() {  /* do nothing */}
+    public void acceptNotify() {
+        try {
+            integrator1.reset();
+            integrator2.reset();
+        } catch(ConfigurationOverlapException e) {
+            throw new RuntimeException(e);
+        }
+    }
     
     public void rejectNotify() {
         translationVector.TE(-1);

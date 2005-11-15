@@ -3,7 +3,6 @@ package etomica.integrator.mcmove;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
 import etomica.atom.AtomSourceRandomMolecule;
-import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
@@ -46,7 +45,6 @@ public class MCMoveMolecule extends MCMoveAtom {
     
 
     public boolean doTrial() {
-        Phase phase = phases[0];
         if(phase.moleculeCount()==0) return false;
         
         atom = atomSource.getAtom();

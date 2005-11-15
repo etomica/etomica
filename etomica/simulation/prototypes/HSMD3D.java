@@ -114,7 +114,7 @@ public class HSMD3D extends Simulation {
 
         phase = new Phase(this);
         new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);
-        integrator.addPhase(phase);
+        integrator.setPhase(phase);
  //       integrator.addIntervalListener(new PhaseImposePbc(phase));
         
         //ColorSchemeByType.setColor(speciesSpheres0, java.awt.Color.blue);

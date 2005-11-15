@@ -48,7 +48,7 @@ public class SimulationVirial extends Simulation {
 		integrator = new IntegratorClusterMC(this);
         // it's unclear what this accomplishes, but let's do it just for fun.
 		integrator.setTemperature(temperature);
-        integrator.addPhase(phase);
+        integrator.setPhase(phase);
         integrator.setEquilibrating(false);
 		ai = new ActivityIntegrate(this,integrator);
 		ai.setInterval(1);
@@ -79,9 +79,9 @@ public class SimulationVirial extends Simulation {
                 mcMoveRotate = new MCMoveClusterRotateMoleculeMulti(potentialMaster,space,nMolecules-1);
                 mcMoveRotate.setStepSize(Math.PI);
             }
-            integrator.addMCMove(mcMoveRotate);
+            integrator.getMoveManager().addMCMove(mcMoveRotate);
         }
-        integrator.addMCMove(mcMoveTranslate);
+        integrator.getMoveManager().addMCMove(mcMoveTranslate);
 		
 		P0Cluster p0 = new P0Cluster(space);
 		potentialMaster.setSpecies(p0,new Species[]{});

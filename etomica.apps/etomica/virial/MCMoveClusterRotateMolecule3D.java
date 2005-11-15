@@ -35,17 +35,16 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D implem
         setName("MCMoveClusterMolecule");
     }
     
-    public void setPhase(Phase[] p) {
+    public void setPhase(Phase p) {
         super.setPhase(p);
-        weightMeter.setPhase(p[0]);
+        weightMeter.setPhase(p);
         oldPositions = new Vector[((AtomTreeNodeGroup)molecule.node).childList.size()-1];
         for (int j=0; j<oldPositions.length; j++) {
-            oldPositions[j] = p[0].space().makeVector();
+            oldPositions[j] = p.space().makeVector();
         }
     }
 
     public boolean doTrial() {
-        Phase phase = phases[0];
         if(phase.moleculeCount()==1) {molecule = null; return false;}
             
         molecule = phase.randomMolecule();
@@ -75,7 +74,7 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D implem
         }
 
         uNew = Double.NaN;
-        ((PhaseCluster)phases[0]).trialNotify(null);
+        ((PhaseCluster)phase).trialNotify(null);
         return true;
     }
     
@@ -92,12 +91,12 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D implem
     
     public void acceptNotify() {
         super.acceptNotify();
-        ((PhaseCluster)phases[0]).acceptNotify();
+        ((PhaseCluster)phase).acceptNotify();
     }
     
     public void rejectNotify() {
         super.rejectNotify();
-        ((PhaseCluster)phases[0]).rejectNotify();
+        ((PhaseCluster)phase).rejectNotify();
     }
     
     public void setRelaxAction(AtomAction action) {

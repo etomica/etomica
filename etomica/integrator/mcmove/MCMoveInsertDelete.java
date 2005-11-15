@@ -61,19 +61,19 @@ public class MCMoveInsertDelete extends MCMove {
 //perhaps should have a way to ensure that two instances of this class aren't assigned the same species
     public void setSpecies(Species s) {
         species = s;
-        if(phases[0] != null) {
-            speciesAgent = species.getAgent(phases[0]);
+        if(phase != null) {
+            speciesAgent = species.getAgent(phase);
             speciesAgentNode = (AtomTreeNodeGroup)speciesAgent.node; 
         }
         moleculeFactory = species.moleculeFactory();
     }
     public Species getSpecies() {return species;}
     
-    public void setPhase(Phase[] p) {
+    public void setPhase(Phase p) {
         super.setPhase(p);
-        energyMeter.setPhase(p[0]);
+        energyMeter.setPhase(phase);
         if(species != null) {
-            speciesAgent = species.getAgent(phases[0]);
+            speciesAgent = species.getAgent(phase);
             speciesAgentNode = (AtomTreeNodeGroup)speciesAgent.node; 
         }
     }
@@ -89,9 +89,9 @@ public class MCMoveInsertDelete extends MCMove {
             
             if(!reservoir.isEmpty()) testMolecule = reservoir.removeFirst();
             else testMolecule = moleculeFactory.makeAtom();
-            phases[0].addMolecule(testMolecule, speciesAgent);
+            phase.addMolecule(testMolecule, speciesAgent);
 
-            atomTranslator.setDestination(phases[0].randomPosition());
+            atomTranslator.setDestination(phase.randomPosition());
             atomTranslator.actionPerformed(testMolecule);
         } else {//delete
             if(speciesAgent.moleculeCount() == 0) {
@@ -108,8 +108,8 @@ public class MCMoveInsertDelete extends MCMove {
     }//end of doTrial
     
     public double lnTrialRatio() {//note that moleculeCount() gives the number of molecules after the trial is attempted
-        return insert ? Math.log(phases[0].volume()/speciesAgent.moleculeCount()) 
-                      : Math.log((speciesAgent.moleculeCount()+1)/phases[0].volume());        
+        return insert ? Math.log(phase.volume()/speciesAgent.moleculeCount()) 
+                      : Math.log((speciesAgent.moleculeCount()+1)/phase.volume());        
     }
     
     public double lnProbabilityRatio() {
@@ -125,7 +125,7 @@ public class MCMoveInsertDelete extends MCMove {
     public void acceptNotify() {
         //      accepted deletion - remove from phase and add to reservoir 
         if(!insert) {
-            phases[0].removeMolecule(testMolecule);
+            phase.removeMolecule(testMolecule);
             reservoir.add(testMolecule.seq);
         }
     }
@@ -133,19 +133,19 @@ public class MCMoveInsertDelete extends MCMove {
     public void rejectNotify() {
         //      rejected insertion - remove from phase and return to reservoir
         if(insert) {
-            phases[0].removeMolecule(testMolecule);
+            phase.removeMolecule(testMolecule);
             reservoir.add(testMolecule.seq);
         }
     }
     
-    public double energyChange(Phase phase) {return (this.phases[0] == phase) ? uNew - uOld : 0.0;}
+    public double energyChange(Phase p) {return (p == phase) ? uNew - uOld : 0.0;}
 
     /**
      * Returns an iterator giving molecule that is being added or deleted 
      * in the current or most recent trial.
      */
-    public final AtomIterator affectedAtoms(Phase phase) {
-        if(this.phases[0] != phase) return AtomIterator.NULL;
+    public final AtomIterator affectedAtoms(Phase p) {
+        if(p != phase) return AtomIterator.NULL;
         affectedAtomIterator.setAtom(testMolecule);
         return affectedAtomIterator;
     }

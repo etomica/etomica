@@ -22,7 +22,7 @@ import etomica.util.EnumeratedType;
  * set the time step.
  */
 
-public abstract class IntegratorMD extends Integrator {
+public abstract class IntegratorMD extends IntegratorPhase {
     
     public IntegratorMD(PotentialMaster potentialMaster, double timeStep, double temperature) {
         super(potentialMaster,temperature);
@@ -33,7 +33,6 @@ public abstract class IntegratorMD extends Integrator {
         meterKE = new MeterKineticEnergy();
         atomActionRandomizeVelocity = new AtomActionRandomizeVelocity(temperature);
         meterTemperature = new MeterTemperature();
-        currentKineticEnergy = new double[1];
     }
 
     /**
@@ -52,7 +51,7 @@ public abstract class IntegratorMD extends Integrator {
         }
         catch (ConfigurationOverlapException e) {}
         thermostatCount = 1;
-        meterKE.setPhase(firstPhase);
+        meterKE.setPhase(phase);
         doThermostat();
     }
     
@@ -60,21 +59,15 @@ public abstract class IntegratorMD extends Integrator {
      * reset the integrator's kinetic energy tracker
      */
     public void reset() throws ConfigurationOverlapException {
-        meterKE.setPhase(firstPhase);
-        if (phase.length != currentKineticEnergy.length) {
-            currentKineticEnergy = new double[phase.length];
-        }
-        for (int i=0; i<phase.length; i++) {
-            meterKE.setPhase(phase[i]);
-            currentKineticEnergy[i] = meterKE.getDataAsScalar();
-        }
+        meterKE.setPhase(phase);
+        currentKineticEnergy = meterKE.getDataAsScalar();
         super.reset();
     }
 
     /**
      * @return the current kinetic energy as tracked by the integrator
      */
-    public double[] getKineticEnergy() {
+    public double getKineticEnergy() {
         return currentKineticEnergy;
     }
 
@@ -157,29 +150,23 @@ public abstract class IntegratorMD extends Integrator {
             thermostatCount = thermostatInterval;
             if (thermostat == VELOCITY_SCALING || !isothermal) {
                 // calculate current kinetic temperature
-                for (int i=0; i<phase.length; i++) {
-                    scaleMomenta(phase[i]);
-                    meterKE.setPhase(phase[i]);
-                    currentKineticEnergy[i] = meterKE.getDataAsScalar();
-                }
+                scaleMomenta(phase);
+                meterKE.setPhase(phase);
+                currentKineticEnergy = meterKE.getDataAsScalar();
             }
             else if (thermostat == ANDERSEN) {
-                for (int i=0; i<phase.length; i++) {
-                    randomizeMomenta(phase[i]);
-                    meterKE.setPhase(phase[i]);
-                    currentKineticEnergy[i] = meterKE.getDataAsScalar();
-                }
+                randomizeMomenta(phase);
+                meterKE.setPhase(phase);
+                currentKineticEnergy = meterKE.getDataAsScalar();
             }
             else if (thermostat == ANDERSEN_SINGLE) {
-                for (int i=0; i<phase.length; i++) {
-                    AtomList atomList = phase[i].getSpeciesMaster().atomList;
-                    int index = Simulation.random.nextInt(atomList.size());
-                    Atom a = atomList.get(index);
-                    double m = ((AtomTypeLeaf)a.type).getMass();
-                    currentKineticEnergy[i] -= 0.5*m*((ICoordinateKinetic)a.coord).velocity().squared();
-                    randomizeMomentum(atomList.get(index));
-                    currentKineticEnergy[i] += 0.5*m*((ICoordinateKinetic)a.coord).velocity().squared();
-                }
+                AtomList atomList = phase.getSpeciesMaster().atomList;
+                int index = Simulation.random.nextInt(atomList.size());
+                Atom a = atomList.get(index);
+                double m = ((AtomTypeLeaf)a.type).getMass();
+                currentKineticEnergy -= 0.5*m*((ICoordinateKinetic)a.coord).velocity().squared();
+                randomizeMomentum(atomList.get(index));
+                currentKineticEnergy += 0.5*m*((ICoordinateKinetic)a.coord).velocity().squared();
             }
             else if (thermostat == NOSE_HOOVER) {
                 throw new MethodNotImplementedException("feel free to write the Nose Hoover thermostat");
@@ -263,7 +250,7 @@ public abstract class IntegratorMD extends Integrator {
      * Elementary time step for the MD simulation
      */
     protected double timeStep;
-    protected double[] currentKineticEnergy;
+    protected double currentKineticEnergy;
     protected AtomIteratorLeafAtoms atomIterator;
     protected ThermostatType thermostat;
     private int thermostatCount, thermostatInterval;

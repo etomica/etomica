@@ -10,7 +10,7 @@ import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.Integrator;
+import etomica.integrator.IntegratorPhase;
 import etomica.integrator.MCMove;
 import etomica.integrator.IntegratorPT.MCMoveSwap;
 import etomica.integrator.IntegratorPT.MCMoveSwapFactory;
@@ -25,7 +25,7 @@ import etomica.space.Vector;
 	 */
 public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 
-	private final Integrator integrator1, integrator2;	
+	private final IntegratorPhase integrator1, integrator2;	
 	private final AtomIteratorLeafAtoms iterator1 = new AtomIteratorLeafAtoms();
 	private final AtomIteratorLeafAtoms iterator2 = new AtomIteratorLeafAtoms();
 	private final AtomIteratorLeafAtoms affectedAtomIterator = new AtomIteratorLeafAtoms();
@@ -34,7 +34,7 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 	private final Phase[] swappedPhases = new Phase[2];
 
 	public MCMoveSwapConfiguration(PotentialMaster potentialMaster, 
-	                                Integrator integrator1, Integrator integrator2) {
+	                                IntegratorPhase integrator1, IntegratorPhase integrator2) {
   		super(potentialMaster,2);
 		r = potentialMaster.getSpace().makeVector();
 		setTunable(false);
@@ -46,14 +46,11 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 		temp1 = integrator1.getTemperature();
 		temp2 = integrator2.getTemperature();
 
-        u1 = integrator1.getPotentialEnergy()[0];
-        u2 = integrator2.getPotentialEnergy()[0];
+        u1 = integrator1.getPotentialEnergy();
+        u2 = integrator2.getPotentialEnergy();
         deltaU1 = Double.NaN;
         return true;
     }
-    
-    // NOOP
-    public void setPhase(Phase[] p) {}
     
     public double lnTrialRatio() {return 0.0;}
     
@@ -68,8 +65,8 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
      * @throws RuntimeException wrapping a ConfigurationOverlapException if overlap is detected in either phase
 	 */
 	public void acceptNotify() {
-		iterator1.setPhase(integrator1.getPhase()[0]);
-		iterator2.setPhase(integrator2.getPhase()[0]);
+		iterator1.setPhase(integrator1.getPhase());
+		iterator2.setPhase(integrator2.getPhase());
 
 		iterator1.reset();
 		iterator2.reset();
@@ -108,19 +105,19 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 	 * Implementation of MCMoveSwap interface
 	 */
 	public Phase[] swappedPhases() {
-	    swappedPhases[0] = integrator1.getPhase()[0];
-	    swappedPhases[1] = integrator2.getPhase()[0];
+	    swappedPhases[0] = integrator1.getPhase();
+	    swappedPhases[1] = integrator2.getPhase();
 	    return swappedPhases;
 	}
 
 	public double energyChange(Phase phase) {
-	    if(phase == integrator1.getPhase()[0]) return +deltaU1;
-	    if(phase == integrator2.getPhase()[0]) return -deltaU1;
+	    if(phase == integrator1.getPhase()) return +deltaU1;
+	    if(phase == integrator2.getPhase()) return -deltaU1;
 	    return 0.0;
 	}
 	
 	public AtomIterator affectedAtoms(Phase p) {
-	    if(p == integrator1.getPhase()[0] || p == integrator2.getPhase()[0]) {
+	    if(p == integrator1.getPhase() || p == integrator2.getPhase()) {
 	        affectedAtomIterator.setPhase(p);
 	        affectedAtomIterator.reset();
 	        return affectedAtomIterator;
@@ -132,7 +129,7 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
     
 	private static class SwapFactory implements MCMoveSwapFactory, java.io.Serializable {
 	    public MCMove makeMCMoveSwap(PotentialMaster potentialMaster, 
-                                     Integrator integrator1, Integrator integrator2) {
+                                     IntegratorPhase integrator1, IntegratorPhase integrator2) {
 	        return new MCMoveSwapConfiguration(potentialMaster, integrator1, integrator2);
 	    }
 	} 

@@ -51,7 +51,7 @@ public class LjMd3D extends Simulation {
         
 //      elementCoordinator.go();
         //explicit implementation of elementCoordinator activities
-        integrator.addPhase(phase);
+        integrator.setPhase(phase);
         PhaseImposePbc imposepbc = new PhaseImposePbc();
         imposepbc.setPhase(phase);
         integrator.addListener(imposepbc);

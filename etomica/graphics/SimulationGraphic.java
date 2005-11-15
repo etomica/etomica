@@ -12,6 +12,7 @@ import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomPositionDefinition;
 import etomica.integrator.Integrator;
+import etomica.integrator.IntegratorPhase;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.math.geometry.Plane;
 import etomica.math.geometry.Polyhedron;
@@ -78,16 +79,16 @@ public class SimulationGraphic implements SimulationContainer, java.io.Serializa
          for (int i=0; i<activities.length; i++) {
              if (activities[i] instanceof ActivityIntegrate) {
                  Integrator integrator = ((ActivityIntegrate)activities[i]).getIntegrator();
-                 if (integratorList.contains(integrator)) continue;
-                 integratorList.add(integrator);
-                 Phase[] phases = integrator.getPhase();
-                 for (int j=0; j<phases.length; j++) {
-                     if (phaseList.contains(phases[j])) continue;
-                     phaseList.add(phases[j]);
-                     DisplayPhase display = new DisplayPhase(phases[j]);
+                 if (integrator instanceof IntegratorPhase) {
+                     //FIXME need to handle IntegratorManagerMC as well
+                     if (integratorList.contains(integrator)) continue;
+                     integratorList.add(integrator);
+                     Phase phase = ((IntegratorPhase)integrator).getPhase();
+                     if (phaseList.contains(phase)) continue;
+                     phaseList.add(phase);
+                     DisplayPhase display = new DisplayPhase(phase);
                      add(display);
-                     // check if 2D?
-                     if (phases[j].space().D() != 3) {
+                     if (phase.space().D() != 3) {
                          integrator.addListener(new IntervalActionAdapter(display));
                      }
                  }

@@ -61,20 +61,12 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
         return info;
     }
 
-	public boolean addPhase(Phase p) {
-	    if(!super.addPhase(p)) return false;
-        agentManager = new AtomAgentManager(this,p);
-        return true;
-    }
-    
-    public void removePhase(Phase oldPhase) {
-        if (oldPhase == firstPhase) {
-            // allow agentManager to de-register itself as a PhaseListener
+	public void setPhase(Phase p) {
+        if (phase != null) {
             agentManager.setPhase(null);
-            agentManager = null;
-            agents = null;
         }
-        super.removePhase(oldPhase);
+	    super.setPhase(p);
+        agentManager = new AtomAgentManager(this,p);
     }
     
   	public final void setTimeStep(double t) {
@@ -98,14 +90,14 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
         while(atomIterator.hasNext()) {   //zero forces on all atoms
             agents[atomIterator.nextAtom().getGlobalIndex()].force.E(0.0);
         }
-        potential.calculate(firstPhase, allAtoms, forceSum);
+        potential.calculate(phase, allAtoms, forceSum);
 	
 		//MoveA
 		//Advance velocities from T-Dt/2 to T without constraint
 		atomIterator.reset();	
 		double Free=0.0;
 		//degrees of freedom
-		Free=((firstPhase.moleculeCount()-1)*dim); 
+		Free=((phase.moleculeCount()-1)*dim); 
 		
 		double k=0.0;
         double chi;
@@ -167,7 +159,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
         return new Agent(space,a);
     }
             
-	public final static class Agent implements Integrator.Forcible {  //need public so to use with instanceof
+	public final static class Agent implements IntegratorPhase.Forcible {  //need public so to use with instanceof
         public Atom atom;
         public Vector force;
     

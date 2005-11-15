@@ -65,7 +65,7 @@ public class HSMD2D_noNbr extends Simulation {
         
         integrator.addListener(new PhaseImposePbc(phase));
         integrator.setNullPotential(new P1HardPeriodic(space));
-        integrator.addPhase(phase);
+        integrator.setPhase(phase);
 //        integrator.setIsothermal(true);
         
 //        MeterPressureHard meterPressure = new MeterPressureHard(integrator);

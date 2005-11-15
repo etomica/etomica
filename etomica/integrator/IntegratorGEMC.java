@@ -2,13 +2,9 @@ package etomica.integrator;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveMoleculeExchange;
 import etomica.integrator.mcmove.MCMoveVolumeExchange;
-import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
-import etomica.space.Space;
 
 /**
  * Simple Gibbs-ensemble Monte Carlo integrator. Used to evaluate fluid-fluid
@@ -17,28 +13,10 @@ import etomica.space.Space;
  * @author David Kofke
  */
 
-public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
+public class IntegratorGEMC extends IntegratorManagerMC implements EtomicaElement {
 
-    public Phase secondPhase;
-
-    public IntegratorGEMC(Simulation sim) {
-        this(sim.potentialMaster,sim.space,sim.getDefaults().temperature,
-                sim.getDefaults().atomSize,sim.getDefaults().ignoreOverlap);
-    }
-    
-    public IntegratorGEMC(PotentialMaster potentialMaster, Space space, 
-            double temperature, double stepSize, boolean ignoreOverlap) {
-        super(potentialMaster,temperature);
-        phaseCountMax = 2;
-        phase = new Phase[phaseCountMax];
-        atomDisplace0 = new MCMoveAtom(potentialMaster,stepSize,Double.POSITIVE_INFINITY,ignoreOverlap);
-        atomDisplace1 = new MCMoveAtom(potentialMaster,stepSize,Double.POSITIVE_INFINITY,ignoreOverlap);
-        volumeExchange = new MCMoveVolumeExchange(potentialMaster, space);
-        moleculeExchange = new MCMoveMoleculeExchange(potentialMaster, space);
-        setMCMoves(new MCMove[] { atomDisplace0, atomDisplace1, volumeExchange,
-                moleculeExchange });
-        atomDisplace0.setAdjustInterval(100);
-        atomDisplace1.setAdjustInterval(100);
+    public IntegratorGEMC(PotentialMaster potentialMaster) {
+        super(potentialMaster);
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -47,41 +25,22 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
         return info;
     }
 
-    public boolean addPhase(Phase p) {
-        if(phase[0] == null) setPhase0(p);
-        else if(phase[1] == null) setPhase1(p);
-        else return false;
-        return true;
-    }
-
-    private void setPhase0(Phase phase0) {
-        if(phase0 == null) return;
-        this.phase[0] = phase0;
-        atomDisplace0.setPhase(new Phase[] {phase0});
-        atomDisplace0.setStepSizeMax(0.5*phase0.getBoundary().dimensions().min());
-        if(phase[1] != null) {
-            volumeExchange.setPhase(phase);
-            moleculeExchange.setPhase(phase);
+    public void addIntegrator(Integrator newIntegrator) {
+        if (!(newIntegrator instanceof IntegratorPhase)) {
+            throw new IllegalArgumentException("Sub integrators must be able to handle a phase");
         }
-    }
-    private void setPhase1(Phase phase1) {
-        if(phase1 == null) return;
-        this.phase[1] = phase1;
-        atomDisplace1.setPhase(new Phase[] {phase1});
-        atomDisplace0.setStepSizeMax(0.5*phase1.getBoundary().dimensions().min());
-        if(phase[0] != null) {
-            volumeExchange.setPhase(phase);
-            moleculeExchange.setPhase(phase);
+        if (nIntegrators == 2) {
+            throw new IllegalArgumentException("Only 2 sub-integrators can be added");
         }
-    }
-
-    public Phase[] getPhase() {
-        return phase;
-    }
-
-    public void setPhase(Phase[] phases) {
-        setPhase0(phases[0]);
-        setPhase1(phases[1]);
+        super.addIntegrator(newIntegrator);
+        if (nIntegrators == 2) {
+            volumeExchange = new MCMoveVolumeExchange(potential, potential.getSpace(),
+                    (IntegratorPhase)integrators[0],(IntegratorPhase)integrators[1]);
+            moleculeExchange = new MCMoveMoleculeExchange(potential, potential.getSpace(),
+                    (IntegratorPhase)integrators[0],(IntegratorPhase)integrators[1]);
+            moveManager.addMCMove(volumeExchange);
+            moveManager.addMCMove(moleculeExchange);
+        }
     }
 
     /**
@@ -102,22 +61,7 @@ public class IntegratorGEMC extends IntegratorMC implements EtomicaElement {
         return moleculeExchange;
     }
 
-    /**
-     * Returns the object that performs the atom-displacement move in the GE
-     * simulation. Having handle to this object is needed to adjust trial
-     * frequency and view acceptance rate.
-     * 
-     * @param i
-     *            indicates request for move for 0th phase (i = 0) or first
-     *            phase (i = 1)
-     */
-    public MCMoveAtom getMCMoveAtom(int i) {
-        return (i == 0) ? atomDisplace0 : atomDisplace1;
-    }
-
-    private final MCMoveAtom atomDisplace0;
-    private final MCMoveAtom atomDisplace1;
-    private final MCMoveVolumeExchange volumeExchange;
-    private final MCMoveMoleculeExchange moleculeExchange;
+    private MCMoveVolumeExchange volumeExchange;
+    private MCMoveMoleculeExchange moleculeExchange;
 
 }

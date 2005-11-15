@@ -9,9 +9,9 @@ import etomica.data.DataPump;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayPlot;
-import etomica.integrator.Integrator;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.MCMove;
+import etomica.integrator.mcmove.MCMoveManager;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -83,19 +83,22 @@ public class SimulationVirialOverlap extends Simulation {
             
             integrators[iPhase] = new IntegratorClusterMC(this);
             integrators[iPhase].setTemperature(temperature);
-            integrators[iPhase].addPhase(phase[iPhase]);
+            integrators[iPhase].setPhase(phase[iPhase]);
             integrators[iPhase].setEquilibrating(false);
+            
+            MCMoveManager moveManager = integrators[iPhase].getMoveManager();
+            
             if (species.getFactory().getType() instanceof AtomTypeLeaf) {
                 mcMoveTranslate[iPhase] = new MCMoveClusterAtomMulti(this, nMolecules-1);
                 mcMoveTranslate[iPhase].setStepSize(0.41);
-                integrators[iPhase].addMCMove(mcMoveTranslate[iPhase]);
+                moveManager.addMCMove(mcMoveTranslate[iPhase]);
             }
             else {
                 mcMoveRotate[iPhase] = new MCMoveClusterRotateMoleculeMulti(potentialMaster,space,nMolecules-1);
                 mcMoveRotate[iPhase].setStepSize(Math.PI);
-                integrators[iPhase].addMCMove(mcMoveRotate[iPhase]);
+                moveManager.addMCMove(mcMoveRotate[iPhase]);
                 mcMoveTranslate[iPhase] = new MCMoveClusterMoleculeMulti(potentialMaster, 0.41, nMolecules-1);
-                integrators[iPhase].addMCMove(mcMoveTranslate[iPhase]);
+                moveManager.addMCMove(mcMoveTranslate[iPhase]);
             }
             
             ConfigurationCluster configuration = new ConfigurationCluster(space);
@@ -157,10 +160,6 @@ public class SimulationVirialOverlap extends Simulation {
         }
     }
 	
-    public Integrator getIntegrator() {
-        return integratorOS;
-    }
-    
 	protected DisplayPlot plot;
 	public DataSourceVirialOverlap dsvo;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;

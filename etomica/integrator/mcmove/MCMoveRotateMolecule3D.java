@@ -51,7 +51,6 @@ public class MCMoveRotateMolecule3D extends MCMove {
     }
      
     public boolean doTrial() {
-        Phase phase = phases[0];
         if(phase.moleculeCount()==0) {molecule = null; return false;}
             
         molecule = phase.randomMolecule();
@@ -93,14 +92,14 @@ public class MCMoveRotateMolecule3D extends MCMove {
         
     }//end of rejectNotify
     
-    public double energyChange(Phase phase) {
-        if(this.phases[0] != phase) return 0.0;
+    public double energyChange(Phase p) {
+        if(p != phase) return 0.0;
         return uNew - uOld;
     }
 
  
-    public final AtomIterator affectedAtoms(Phase phase) {
-        if(this.phases[0] != phase) return AtomIterator.NULL;
+    public final AtomIterator affectedAtoms(Phase p) {
+        if(p != phase) return AtomIterator.NULL;
         affectedAtomIterator.setAtom(molecule);
         affectedAtomIterator.reset();
         return affectedAtomIterator;
@@ -110,8 +109,8 @@ public class MCMoveRotateMolecule3D extends MCMove {
     /* (non-Javadoc)
      * @see etomica.integrator.MCMove#setPhase(etomica.Phase[])
      */
-    public void setPhase(Phase[] p) {
+    public void setPhase(Phase p) {
         super.setPhase(p);
-        energyMeter.setPhase(p[0]);
+        energyMeter.setPhase(p);
     }
 }

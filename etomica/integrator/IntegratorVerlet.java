@@ -8,7 +8,6 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.atom.Atom.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.IntegratorConNVT.Agent;
 import etomica.phase.Phase;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
@@ -57,20 +56,13 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         t2 = timeStep * timeStep;
     }
           
-    public boolean addPhase(Phase p) {
-        if(!super.addPhase(p)) return false;
-        agentManager = new AtomAgentManager(this,p);
-        return true;
-    }
-    
-    public void removePhase(Phase oldPhase) {
-        if (oldPhase == firstPhase) {
+    public void setPhase(Phase p) {
+        if (phase != null) {
             // allow agentManager to de-register itself as a PhaseListener
             agentManager.setPhase(null);
-            agentManager = null;
-            agents = null;
         }
-        super.removePhase(oldPhase);
+        super.setPhase(p);
+        agentManager = new AtomAgentManager(this,p);
     }
     
 //--------------------------------------------------------------
@@ -83,7 +75,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         while(atomIterator.hasNext()) {   //zero forces on all atoms
             agents[atomIterator.nextAtom().getGlobalIndex()].force.E(0.0);
         }
-        potential.calculate(firstPhase, allAtoms, forceSum);
+        potential.calculate(phase, allAtoms, forceSum);
 
         //take step
         atomIterator.reset();
@@ -122,7 +114,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         return new Agent(space,a);
     }
             
-	public final static class Agent implements Integrator.Forcible {  //need public so to use with instanceof
+	public final static class Agent implements IntegratorPhase.Forcible {  //need public so to use with instanceof
         public Atom atom;
         public Vector force;
         public Vector rMrLast;  //r - rLast

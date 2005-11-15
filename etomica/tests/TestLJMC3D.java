@@ -44,7 +44,7 @@ public class TestLJMC3D extends Simulation {
 	    mcMoveAtom = new MCMoveAtom(this);
         mcMoveAtom.setAtomSource(new AtomSourceRandomLeafSeq());
         mcMoveAtom.setStepSize(0.2*defaults.atomSize);
-        integrator.addMCMove(mcMoveAtom);
+        integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.setEquilibrating(false);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setMaxSteps(200000);
@@ -66,7 +66,7 @@ public class TestLJMC3D extends Simulation {
         integrator.addMCMoveListener(((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).makeMCMoveListener());
         
         new ConfigurationFile(space,"LJMC3D"+Integer.toString(numAtoms)).initializeCoordinates(phase);
-        integrator.addPhase(phase);
+        integrator.setPhase(phase);
         ((PotentialMasterCell)potentialMaster).calculate(phase, new PotentialCalculationAgents(potentialMaster));
         ((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).assignCellAll();
 //        WriteConfiguration writeConfig = new WriteConfiguration("LJMC3D"+Integer.toString(numAtoms),phase,1);

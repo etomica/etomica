@@ -100,11 +100,10 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     public double getTargetT() {return targetT;}
     public Dimension getTargetTDimension() {return Dimension.TEMPERATURE;}
 
-    public boolean addPhase(Phase p) {
-        boolean b = super.addPhase(p);
-        inflate.setPhase(firstPhase);
-        meterTemperature.setPhase(firstPhase);
-        return b;
+    public void setPhase(Phase p) {
+        super.setPhase(p);
+        inflate.setPhase(phase);
+        meterTemperature.setPhase(phase);
     }
     
     
@@ -122,11 +121,11 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     
     public void drivePT() {
         double kineticT = meterTemperature.getDataAsScalar();
-        double mvsq = kineticT * D * firstPhase.atomCount();
-        double volume = firstPhase.volume();
-        double pCurrent = firstPhase.getDensity()*kineticT - forceSumNPH.w/(D*volume);
+        double mvsq = kineticT * D * phase.atomCount();
+        double volume = phase.volume();
+        double pCurrent = phase.getDensity()*kineticT - forceSumNPH.w/(D*volume);
         double pDot = kp*(targetP - pCurrent);
-        double kDot = kp*(targetT - kineticT)*firstPhase.atomCount();
+        double kDot = kp*(targetT - kineticT)*phase.atomCount();
         chi = ( - forceSumNPH.rvx - D*pDot*volume)/
                     ( forceSumNPH.x + D*D*pCurrent*volume);
         zeta = (forceSumNPH.vf - kDot)/mvsq - chi;
@@ -134,9 +133,9 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     
     public void drivePH() {
         double kineticT = meterTemperature.getDataAsScalar();
-        double mvsq = kineticT * D * firstPhase.atomCount();
-        double volume = firstPhase.volume();
-        double pCurrent = firstPhase.getDensity()*kineticT - forceSumNPH.w/(D*volume);
+        double mvsq = kineticT * D * phase.atomCount();
+        double volume = phase.volume();
+        double pCurrent = phase.getDensity()*kineticT - forceSumNPH.w/(D*volume);
         double hCurrent = 0.5*mvsq + forceSumNPH.u + pCurrent*volume;
         double pDot = kp*(targetP - pCurrent);
         double hDot = kh*(targetH - hCurrent);
@@ -158,12 +157,12 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         forceSumNPH.rvx = 0.0;
         forceSumNPH.vf = 0.0;
 
-        potential.calculate(firstPhase, allAtoms, forceSumNPH);
+        potential.calculate(phase, allAtoms, forceSumNPH);
     }//end of calculateForces
     
     protected void corrector() {
         super.corrector();
-        double volOld = firstPhase.getBoundary().volume();
+        double volOld = phase.getBoundary().volume();
         double voi = D*volOld*chi;
         double corvol = voi - vol1;
         double volNew = volOld + c0*corvol;
@@ -178,7 +177,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         
     protected void predictor() {
         super.predictor();
-        double volOld = firstPhase.getBoundary().volume();
+        double volOld = phase.getBoundary().volume();
         double volNew = volOld + p1*vol1 + p2*vol2 + p3*vol3 + p4*vol4;
         vol1 += p1*vol2 + p2*vol3 + p3*vol4;
         vol2 += p1*vol3 + p2*vol4;
@@ -207,7 +206,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
             integrator.setIsothermal(isothermal);
             if(!isothermal) {
                 integrator.calculateForces();
-                Phase phase = integrator.getPhase()[0];
+                Phase phase = integrator.getPhase();
                 double kineticT = integrator.getMeterTemperature().getDataAsScalar();
                 double mvsq = kineticT * phase.space().D() * phase.atomCount();
                 double volume = phase.volume();
@@ -234,7 +233,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         }
         
         public Data getData() {
-            Phase phase = integrator.getPhase()[0];
+            Phase phase = integrator.getPhase();
             double kineticT = integrator.getMeterTemperature().getDataAsScalar();
             double mvsq = kineticT* phase.space().D() * phase.atomCount();
             double volume = phase.volume();

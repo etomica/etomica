@@ -96,7 +96,7 @@ public class TestSWChain extends Simulation {
 
         phase = new Phase(this);
 
-        integrator.addPhase(phase);
+        integrator.setPhase(phase);
         new ConfigurationFile(space,"SWChain"+Integer.toString(numMolecules)).initializeCoordinates(phase);
     }
     

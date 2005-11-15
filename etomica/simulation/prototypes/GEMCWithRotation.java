@@ -4,6 +4,9 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationSequential;
 import etomica.integrator.IntegratorGEMC;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.integrator.mcmove.MCMoveManager;
 import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.phase.Phase;
 import etomica.potential.P2LennardJones;
@@ -31,7 +34,7 @@ public class GEMCWithRotation extends Simulation {
         defaults.atomSize = 1.2;
         defaults.UNIT_SYSTEM = new etomica.units.systems.LJ();
         defaults.temperature = defaults.UNIT_SYSTEM.temperature().toSim(0.420);
-        IntegratorGEMC integrator = new IntegratorGEMC(this);
+        integrator = new IntegratorGEMC(potentialMaster);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         getController().addAction(activityIntegrate);
 	    activityIntegrate.setDoSleep(true);
@@ -43,16 +46,24 @@ public class GEMCWithRotation extends Simulation {
 
 	    phase1 = new Phase(this);
         
-	    MCMoveRotate mcRotate1 = new MCMoveRotate(potentialMaster, space);
-	    mcRotate1.setPhase(new Phase[] {phase1});
-        integrator.addMCMove(mcRotate1);
+	    IntegratorMC integratorMC = new IntegratorMC(this);
+        integratorMC.setPhase(phase1);
+        MCMoveManager moveManager = integratorMC.getMoveManager();
+        moveManager.addMCMove(new MCMoveRotate(potentialMaster, space));
+        moveManager.addMCMove(new MCMoveAtom(this));
+        integrator.addIntegrator(integratorMC);
+        
 
 	    phase2 = new Phase(this);
-	    //MeterDensity meter2 = new MeterDensity();	    
-	    MCMoveRotate mcRotate2 = new MCMoveRotate(potentialMaster, space);
-	    mcRotate2.setPhase(new Phase[] {phase2});
-        integrator.addMCMove(mcRotate2);
-
+        integratorMC = new IntegratorMC(this);
+        integratorMC.setPhase(phase1);
+        moveManager = integratorMC.getMoveManager();
+        moveManager.addMCMove(new MCMoveRotate(potentialMaster, space));
+        moveManager.addMCMove(new MCMoveAtom(this));
+        // GEMC integrator adds volume and molecule exchange moves once
+        // it has 2 integrators
+        integrator.addIntegrator(integratorMC);
+        
         Configuration config;
         if (space.D() == 2) {
             config = new ConfigurationSequential(space);
@@ -63,10 +74,6 @@ public class GEMCWithRotation extends Simulation {
         config.initializeCoordinates(phase1);
         config.initializeCoordinates(phase2);
             
-        integrator.setPhase(new Phase[] {phase1, phase2});
-        
-        //MeterDensity meterDensity = new MeterDensity();
-
 	    potential = new P2LennardJones(this);
 	    potential.setSigma(species.getDiameter());
 

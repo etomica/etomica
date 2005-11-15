@@ -87,7 +87,7 @@ public class ChainHSMD3D extends Simulation {
 
 //      elementCoordinator.go();
         //explicit implementation of elementCoordinator activities
-        integrator.addPhase(phase);
+        integrator.setPhase(phase);
  //       integrator.addIntervalListener(new PhaseImposePbc(phase));
         
         //ColorSchemeByType.setColor(speciesSpheres0, java.awt.Color.blue);

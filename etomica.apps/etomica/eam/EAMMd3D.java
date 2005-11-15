@@ -114,7 +114,7 @@ public class EAMMd3D extends Simulation {
         this.potentialMaster.setSpecies(potentialA, new Species[]{species,species});
         this.potentialMaster.setSpecies(potential0, new Species[]{species});    
 
-        integrator.addPhase(phase);
+        integrator.setPhase(phase);
         PhaseImposePbc imposepbc = new PhaseImposePbc();
         imposepbc.setPhase(phase);
         integrator.addListener(imposepbc);

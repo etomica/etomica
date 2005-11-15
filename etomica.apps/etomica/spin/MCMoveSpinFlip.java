@@ -36,16 +36,16 @@ public class MCMoveSpinFlip extends MCMove {
 
     }
 
-    public void setPhase(Phase[] p) {
+    public void setPhase(Phase p) {
         super.setPhase(p);
-        energyMeter.setPhase(p[0]);
+        energyMeter.setPhase(p);
     }
     
     /* (non-Javadoc)
      * @see etomica.integrator.MCMove#doTrial()
      */
     public boolean doTrial() {
-        atom = phases[0].getSpeciesMaster().atomList.getRandom();
+        atom = phase.getSpeciesMaster().atomList.getRandom();
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
         atom.coord.position().TE(-1);
@@ -85,8 +85,8 @@ public class MCMoveSpinFlip extends MCMove {
     /* (non-Javadoc)
      * @see etomica.integrator.MCMove#affectedAtoms(etomica.Phase)
      */
-    public AtomIterator affectedAtoms(Phase phase) {
-        if(this.phases[0] != phase) return AtomIterator.NULL;
+    public AtomIterator affectedAtoms(Phase p) {
+        if(p != phase) return AtomIterator.NULL;
         affectedAtomIterator.setAtom(atom);
         return affectedAtomIterator;
     }
@@ -94,8 +94,8 @@ public class MCMoveSpinFlip extends MCMove {
     /* (non-Javadoc)
      * @see etomica.integrator.MCMove#energyChange(etomica.Phase)
      */
-    public double energyChange(Phase phase) {
-        return (this.phases[0] == phase) ? uNew - uOld : 0.0;
+    public double energyChange(Phase p) {
+        return (p == phase) ? uNew - uOld : 0.0;
     }
 
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();

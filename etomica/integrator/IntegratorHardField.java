@@ -101,7 +101,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
             iagent.forceFree = true;
         }
         //Compute forces on each atom
-        potential.calculate(firstPhase, fieldsOnly, forceSum);
+        potential.calculate(phase, fieldsOnly, forceSum);
         
     }//end of calculateForces
     
@@ -151,13 +151,13 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
     /**
     * Extends IntegratorHard.Agent to hold a force vector.
     */
-    public static class HardFieldAgent extends IntegratorHard.Agent implements Integrator.Forcible { 
+    public static class HardFieldAgent extends IntegratorHard.Agent implements IntegratorPhase.Forcible { 
     
         public final Vector force;
         public boolean forceFree = true;
         public HardFieldAgent(Atom a, IntegratorHardField integrator) {
             super(a, integrator);
-            force = integrator.getPotential().getSpace().makeVector();
+            force = integrator.space.makeVector();
         }
         public final Vector force() {return force;}
     }//end of Agent

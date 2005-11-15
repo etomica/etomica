@@ -77,7 +77,7 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
             phase = null;
             return;
         }
-        phase = integratorHard.getPhase()[0];
+        phase = integratorHard.getPhase();
         integratorHard = (IntegratorHard)newIntegrator;
         integratorHard.addCollisionListener(this);
         integratorHard.addListener(timer);

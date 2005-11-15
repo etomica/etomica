@@ -9,7 +9,6 @@ import java.io.ObjectOutputStream;
 
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomList;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
@@ -61,7 +60,7 @@ public class HSMD3DNoNbr extends Simulation {
 
         phase = new Phase(this);
 //        phase.setBoundary(new BoundaryTruncatedOctahedron(space));
-        integrator.addPhase(phase);
+        integrator.setPhase(phase);
         integrator.addListener(new PhaseImposePbc(phase));
         new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);
         

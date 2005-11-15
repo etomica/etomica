@@ -27,7 +27,6 @@ public abstract class MCMove implements java.io.Serializable {
         setAcceptanceTarget(0.5);
         nominalFrequency = 100;
         perParticleFrequency = false;
-        phases = new Phase[nPhases];
     }
 
 	/**
@@ -116,16 +115,15 @@ public abstract class MCMove implements java.io.Serializable {
      * two or more phases.
      * @param p
      */
-	public void setPhase(Phase[] p) {
-        if(p.length != phases.length) throw new IllegalArgumentException("Invalid number of phases for MCMove");
-		System.arraycopy(p, 0, phases, 0, p.length);
+	public void setPhase(Phase p) {
+        phase = p;
 	}
 
     /**
      * @return the phase(s) on which this move acts.
      */
-	public Phase[] getPhase() {
-		return phases;
+	public Phase getPhase() {
+		return phase;
 	}
 
     protected void adjustStepSize() {
@@ -151,7 +149,7 @@ public abstract class MCMove implements java.io.Serializable {
                 }
                 stepSize *= 1.0+adjustStep;
                 if (noisyAdjustment) {
-                    System.out.println(phases[0]+" "+this.getClass()+" increasing step size to "+stepSize+" (acceptance="+(double)nAccept/nTrials+")");
+                    System.out.println(phase+" "+this.getClass()+" increasing step size to "+stepSize+" (acceptance="+(double)nAccept/nTrials+")");
                 }
                 lastAdjust = 1;
             }
@@ -164,7 +162,7 @@ public abstract class MCMove implements java.io.Serializable {
                 }
                 stepSize *= 1.0-adjustStep;
                 if (noisyAdjustment) {
-                    System.out.println(phases[0]+" "+this.getClass()+" decreasing step size to "+stepSize+" (acceptance="+(double)nAccept/nTrials+")");
+                    System.out.println(phase+" "+this.getClass()+" decreasing step size to "+stepSize+" (acceptance="+(double)nAccept/nTrials+")");
                 }
                 lastAdjust = -1;
             }
@@ -406,7 +404,7 @@ public abstract class MCMove implements java.io.Serializable {
 	private int nTrials, nAccept, nTrialsSum, nAcceptSum, adjustInterval;
     private double chiSum;
 	protected boolean tunable = true;
-	protected final Phase[] phases;
+	protected Phase phase;
 	private String name;
 	protected double temperature;
 	protected final PotentialMaster potential;

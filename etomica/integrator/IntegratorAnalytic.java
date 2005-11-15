@@ -56,10 +56,9 @@ public class IntegratorAnalytic extends IntegratorMD {
 	 * Overrides superclass method to instantiate iterators when iteratorFactory in phase is changed.
 	 * Called by Integrator.addPhase and Integrator.iteratorFactorObserver.
 	 */
-	public boolean addPhase(Phase p) {
-	    if(!super.addPhase(p)) return false;
+	public void setPhase(Phase p) {
+	    super.setPhase(p);
         atomIterator.setPhase(p);
-        return true;
     }
     
     private double elapsedTime = 0.0;

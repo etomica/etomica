@@ -85,7 +85,7 @@ public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, I
             timer.reset();
             integratorHard.addCollisionListener(this);
             newIntegrator.addListener(timer);
-            setPhase(integratorHard.getPhase()[0]);
+            setPhase(integratorHard.getPhase());
         }
     }
     

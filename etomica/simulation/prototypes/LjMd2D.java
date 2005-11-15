@@ -51,7 +51,7 @@ public class LjMd2D extends Simulation {
         
 //      elementCoordinator.go();
         //explicit implementation of elementCoordinator activities
-        integrator.addPhase(phase);
+        integrator.setPhase(phase);
 		
 		energy = new MeterEnergy(potentialMaster);
 //		energy.setHistorying(true);

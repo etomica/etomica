@@ -4,8 +4,8 @@ import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorPT;
+import etomica.integrator.IntegratorPhase;
 import etomica.integrator.MCMove;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
@@ -40,8 +40,8 @@ public class MCMoveSwapCluster extends MCMove implements MCMoveCluster, Integrat
 
     public boolean doTrial() {
         if(phase1 == null || phase2 == null) {
-            phase1 = (PhaseCluster)integrator1.getPhase()[0];
-            phase2 = (PhaseCluster)integrator2.getPhase()[0];
+            phase1 = (PhaseCluster)integrator1.getPhase();
+            phase2 = (PhaseCluster)integrator2.getPhase();
             iterator1.setPhase(phase1);
             iterator2.setPhase(phase2);
         }
@@ -96,14 +96,10 @@ public class MCMoveSwapCluster extends MCMove implements MCMoveCluster, Integrat
 		
         phase1.acceptNotify();
         phase2.acceptNotify();
-//        System.out.println(integrator2.getWeight()+" "+weightOld2+" "+weightNew2);
-        integrator1.setWeight(integrator1.getWeight()*weightNew1/weightOld1);
-        integrator2.setWeight(integrator2.getWeight()*weightNew2/weightOld2);
     }
 	
     public void rejectNotify() {
 //        System.out.println("rejected");
-//        System.out.println(integrator2.getWeight()+" "+weightOld2+" "+weightNew2);
         iterator1.reset();
         iterator2.reset();
 
@@ -150,7 +146,7 @@ public class MCMoveSwapCluster extends MCMove implements MCMoveCluster, Integrat
     
     private static class SwapFactory implements IntegratorPT.MCMoveSwapFactory, java.io.Serializable {
         public MCMove makeMCMoveSwap(PotentialMaster potentialMaster, 
-                                     Integrator integrator1, Integrator integrator2) {
+                                     IntegratorPhase integrator1, IntegratorPhase integrator2) {
             return new MCMoveSwapCluster(potentialMaster, 
                                          (IntegratorClusterMC)integrator1, (IntegratorClusterMC)integrator2);
         }

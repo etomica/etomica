@@ -43,7 +43,7 @@ public class TestSWMC3D extends Simulation {
 	    integrator = new IntegratorMC(this);
 	    mcMoveAtom = new MCMoveAtom(this);
         mcMoveAtom.setStepSize(defaults.atomSize);
-        integrator.addMCMove(mcMoveAtom);
+        integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.setEquilibrating(false);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setMaxSteps(500000);
@@ -60,7 +60,7 @@ public class TestSWMC3D extends Simulation {
         potentialMaster.setSpecies(potential, new Species[] {species, species});
         
         new ConfigurationFile(space,"SWMC3D"+Integer.toString(numAtoms)).initializeCoordinates(phase);
-        integrator.addPhase(phase);
+        integrator.setPhase(phase);
         ((PotentialMasterCell)potentialMaster).calculate(phase, new PotentialCalculationAgents(potentialMaster));
         ((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).assignCellAll();
 //        WriteConfiguration writeConfig = new WriteConfiguration("SWMC3D"+Integer.toString(numAtoms),phase,1);

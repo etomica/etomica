@@ -42,7 +42,6 @@ public class MCMoveRotate extends MCMove {
     }
      
     public boolean doTrial() {
-        Phase phase = phases[0];
         if(phase.moleculeCount()==0) {return false;}
         molecule = phase.randomMolecule();
 
@@ -69,87 +68,17 @@ public class MCMoveRotate extends MCMove {
         orientation.E(oldOrientation);
     }
 
-    public double energyChange(Phase phase) {return (this.phases[0] == phase) ? uNew - uOld : 0.0;}
+    public double energyChange(Phase p) {return (p == phase) ? uNew - uOld : 0.0;}
     
-    public final AtomIterator affectedAtoms(Phase phase) {
-        if(this.phases[0] != phase) return AtomIterator.NULL;
+    public final AtomIterator affectedAtoms(Phase p) {
+        if(p != phase) return AtomIterator.NULL;
         affectedAtomIterator.setAtom(molecule);
         affectedAtomIterator.reset();
         return affectedAtomIterator;
     }
     
-    public void setPhase(Phase[] p) {
+    public void setPhase(Phase p) {
         super.setPhase(p);
-        energyMeter.setPhase(p[0]);
+        energyMeter.setPhase(p);
     }
-
- /*
-    public static void main(String[] args) {
-        Default.atomSize =1.2;
-        Simulation.instance = new Simulation();
-        Phase phase1 = new Phase();
-        
-        IntegratorMC integratorMC1 = new IntegratorMC();
-        MCMoveAtom mcmove= new MCMoveAtom(integratorMC1);
-        MCMoveRotate mcrotate = new MCMoveRotate(integratorMC1);
-        Default.TEMPERATURE = LennardJones.Temperature.UNIT.toSim(1.30);
-        //MCMoveVolumeXY mcmovevolume = new MCMoveVolumeXY();
-//        MeterPressureByVolumeChange meterp = new MeterPressureByVolumeChange();
-	    integratorMC1.setDoSleep(false);
-
-/*	    meterp.setPhase(phase1);
-	    meterp.setInflateDimensions(new boolean[] {true, false});
-	    meterp.setActive(true);
-        etomica.graphics.DisplayPlot plot1 = new etomica.graphics.DisplayPlot();
-	    plot1.setDataSources(meterp);
-	       
-	    plot1.setWhichValue(MeterAbstract.AVERAGE);
-* /        integratorMC1.setTemperature(Default.TEMPERATURE);  
-
-	    SpeciesSpheresRotating speciesSpheres1 = new SpeciesSpheresRotating(80);
-	  //  SpeciesSpheresRotating speciesSpheres1 = new SpeciesSpheresRotating(200);
-	    speciesSpheres1.setDiameter(1.2);
-	    
-	    P2HardAssociationCone potential = new P2HardAssociationCone();
-	    potential.setWellCutoff(1.5*speciesSpheres1.getDiameter());
-	    
-	    Controller controller1 = new Controller();
-	  
-	    etomica.graphics.DisplayPhase displayPhase1 = new etomica.graphics.DisplayPhase();
-	    MeterEnergy meterEnergy1 = new MeterEnergy();
-	    
-	    etomica.graphics.DisplayBox box1 = new etomica.graphics.DisplayBox();
-	    
-	    box1.setMeter(meterEnergy1);
-	    box1.setWhichValue(MeterAbstract.AVERAGE);
-		
-		displayPhase1.setPhase(phase1);
-		
-		etomica.graphics.DeviceSlider temperatureSlider = new etomica.graphics.DeviceSlider(integratorMC1, "temperature");
-	    temperatureSlider.setUnit(new etomica.units.Unit(Kelvin.UNIT));
-	    temperatureSlider.setMinimum(50);
-	    temperatureSlider.setMaximum(500);
-	   
-	    phase1.setIntegrator(integratorMC1);
-        phase1.boundary().dimensions().setX(0,15);
-        
-		Simulation.instance.elementCoordinator.go(); 
-        //phase1.integrator().setTemperature();
-        //meterEnergy1.setPhase(phase1);
-        //meterpxx.setPhase(phase1);
-        //phase1.setIntegrator(integratorMC1);
-       // integratorMC1.addIntervalListener(box1);
-       // integratorMC1.addIntervalListener(meterp);
-        //integratorMC1.setTemperature(Kelvin.UNIT.toSim(10));
-        //integratorMC1.addIntervalListener(box2);
-//        integratorMC1.addIntervalListener(phase1);
-     //  controller1.add(integratorMC1);
-        
-	//	Simulation.instance.panel().setBackground(java.awt.Color.blue);		
-        etomica.graphics.SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
-    }//end of main
-//   */
-    /* (non-Javadoc)
-     * @see etomica.integrator.MCMove#setPhase(etomica.Phase[])
-     */
-}//end of MCMoveRotate
+}

@@ -80,7 +80,7 @@ public class TestHSMD3D extends Simulation {
         nbrManager.addCriterion(nbrCriterion,new AtomType[]{species2.getFactory().getType(),species2.getFactory().getType()});
         
         phase = new Phase(this);
-        integrator.addPhase(phase);
+        integrator.setPhase(phase);
         new ConfigurationFile(space,"HSMD3D"+Integer.toString(numAtoms)).initializeCoordinates(phase);
         
 //        WriteConfiguration writeConfig = new WriteConfiguration("foo",phase,1);
