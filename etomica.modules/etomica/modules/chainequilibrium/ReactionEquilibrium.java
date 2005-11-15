@@ -51,7 +51,7 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
         integratorHard1.setIsothermal(true);
 
         phase1 = new Phase(this);
-        integratorHard1.addPhase(phase1);	
+        integratorHard1.setPhase(phase1);	
         speciesA = new SpeciesSpheresMono(this);
         speciesB = new SpeciesSpheresMono(this);
         speciesA.setDiameter(diameter);

@@ -5,15 +5,13 @@
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 package etomica.modules.dcvgcmd;
-import etomica.atom.Atom;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.DisplayPhaseCanvas3DOpenGL;
-import etomica.integrator.Integrator;
-import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
-import etomica.integrator.IntegratorNonintervalEvent;
+import etomica.integrator.IntegratorPhase;
+import etomica.integrator.mcmove.MCMoveManager;
 import etomica.modifier.Modifier;
 import etomica.nbr.PotentialMasterHybrid;
 import etomica.potential.PotentialMaster;
@@ -27,7 +25,7 @@ import etomica.units.Dimension;
  * To change the template for this generated type comment go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-public class IntegratorDCVGCMD extends Integrator {
+public class IntegratorDCVGCMD extends IntegratorPhase {
 	
 	IntegratorMC integratormc;
 	IntegratorMD integratormd;
@@ -126,20 +124,21 @@ public class IntegratorDCVGCMD extends Integrator {
 		integratormd = intmd;
         integratormc.setTemperature(temperature);
         integratormd.setTemperature(temperature);
-		integratormd.addPhase(phase[0]);
-		integratormc.addPhase(phase[0]);
+		integratormd.setPhase(phase);
+		integratormc.setPhase(phase);
 		mcMove1 = new MyMCMove(potential, -zFraction);
 		mcMove2 = new MyMCMove(potential, +zFraction);
-		integratormc.addMCMove (mcMove1);
-		integratormc.addMCMove (mcMove2);
+        MCMoveManager moveManager = integratormc.getMoveManager();
+		moveManager.addMCMove (mcMove1);
+		moveManager.addMCMove (mcMove2);
 		mcMove1.setSpecies(speciesA);
 		mcMove2.setSpecies(speciesA);
 		mcMove1.integrator = this;
 		mcMove2.integrator = this;
 		mcMove3 = new MyMCMove(potential, -zFraction);
 		mcMove4 = new MyMCMove(potential, +zFraction);
-		integratormc.addMCMove (mcMove3);
-		integratormc.addMCMove (mcMove4);
+		moveManager.addMCMove (mcMove3);
+		moveManager.addMCMove (mcMove4);
 		mcMove3.setSpecies(speciesB);
 		mcMove4.setSpecies(speciesB);
 		mcMove3.integrator = this;
@@ -159,7 +158,7 @@ public class IntegratorDCVGCMD extends Integrator {
     }
 		
 	/**
-	 * @see etomica.integrator.Integrator#doReset()
+	 * @see etomica.integrator.IntegratorPhase#doReset()
 	 */
 	public void reset() throws ConfigurationOverlapException {
         if(!initialized) return;

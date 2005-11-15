@@ -157,7 +157,7 @@ public class DCVGCMD extends Simulation {
                 species1);
         final IntegratorVelocityVerlet integratorMD = new IntegratorVelocityVerlet(this);
         final IntegratorMC integratorMC = new IntegratorMC(this);
-        integratorDCV.addPhase(phase);
+        integratorDCV.setPhase(phase);
 
         /***/
         nbrManager.setRange(potential.getRange() * neighborRangeFac);

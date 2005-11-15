@@ -48,7 +48,7 @@ public class Multiharmonic extends Simulation {
         phase.getBoundary().setDimensions(new Vector1D(3.0));
         controller = getController();
         integrator = new IntegratorVelocityVerlet(this);
-        integrator.addPhase(phase);
+        integrator.setPhase(phase);
         integrator.setTimeStep(0.02);
         integrator.setIsothermal(true);
         integrator.setTemperature(1.0);

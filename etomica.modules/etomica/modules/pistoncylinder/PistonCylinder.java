@@ -103,7 +103,7 @@ public class PistonCylinder extends Simulation {
         potentialMaster.setSpecies(pistonPotential,new Species[]{species});
         
         integrator = new IntegratorHardPiston(this,pistonPotential);
-        integrator.addPhase(phase);
+        integrator.setPhase(phase);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(1);
         integrator.setThermostat(IntegratorMD.ANDERSEN_SINGLE);

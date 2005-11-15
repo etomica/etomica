@@ -30,9 +30,9 @@ public class MyMCMove extends MCMoveInsertDelete {
 		setZFraction(zFraction);
 	}
 
-    public void setPhase(Phase[] p) {
+    public void setPhase(Phase p) {
         super.setPhase(p);
-        energyMeter.setPhase(p[0]);
+        energyMeter.setPhase(p);
     }
     
 	/**
@@ -45,19 +45,19 @@ public class MyMCMove extends MCMoveInsertDelete {
 			uOld = 0.0;
 			if(!reservoir.isEmpty()) testMolecule = reservoir.removeFirst();
 			else testMolecule = moleculeFactory.makeAtom();
-            phases[0].addMolecule(testMolecule, speciesAgent);
-			position = (Vector3D)phases[0].randomPosition();
+            phase.addMolecule(testMolecule, speciesAgent);
+			position = (Vector3D)phase.randomPosition();
 			double z = position.x(2);
 			if(nearOrigin) {
 				z *= zFraction;
 			} else {
 				z *= zFraction;
-				z = phases[0].getBoundary().dimensions().x(2) - z;
+				z = phase.getBoundary().dimensions().x(2) - z;
 			}
 			position.setX(2,z); //multiply z-coordinate by zFraction		
 			atomTranslator.setDestination(position);
 			atomTranslator.actionPerformed(testMolecule);
-            phases[0].getCellManager().assignCell(testMolecule);
+            phase.getCellManager().assignCell(testMolecule);
 		} else {//delete
 			if(activeAtoms.size() == 0) {
 				testMolecule = null;//added this line 09/19/02
@@ -72,13 +72,13 @@ public class MyMCMove extends MCMoveInsertDelete {
 	}//end of doTrial
 
 	public double lnTrialRatio() {//note that moleculeCount() gives the number of molecules after the trial is attempted
-		return insert ? Math.log(zFraction*phases[0].volume()/(activeAtoms.size()+1)) 
-					  : Math.log((activeAtoms.size())/zFraction/phases[0].volume());        
+		return insert ? Math.log(zFraction*phase.volume()/(activeAtoms.size()+1)) 
+					  : Math.log((activeAtoms.size())/zFraction/phase.volume());        
 	}
 
 	public void acceptNotify() {
 		if(!insert) {
-			phases[0].removeMolecule(testMolecule);
+			phase.removeMolecule(testMolecule);
 			activeAtoms.remove(testMolecule);
 			deltaN--;
 		} else {
@@ -92,7 +92,7 @@ public class MyMCMove extends MCMoveInsertDelete {
     public void setupActiveAtoms() {
     	activeAtoms.clear();
     	atomIterator.reset();
-    	double zBoundary = phases[0].getBoundary().dimensions().x(2);
+    	double zBoundary = phase.getBoundary().dimensions().x(2);
     	double zmin = nearOrigin ? 0.0 : (1.0-zFraction)*zBoundary;
     	double zmax = nearOrigin ? zFraction*zBoundary : zBoundary;
     	while(atomIterator.hasNext()) {
