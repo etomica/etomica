@@ -47,7 +47,7 @@ public abstract class Space implements java.io.Serializable {
     
     public abstract Tensor makeTensor();
     
-    public abstract Tensor makeRotationTensor();
+    public abstract RotationTensor makeRotationTensor();
     
     /**
      * Returns an array of dimension D, with each element equal to the given value.
