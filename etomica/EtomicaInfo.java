@@ -28,7 +28,7 @@ public class EtomicaInfo implements java.io.Serializable {
 	public EtomicaInfo(String desc) {
         description = desc;
         if ( desc.length()>MAX_SHORT_DESCRIPTION_LENGTH ) 
-        	short_description = desc.substring( MAX_SHORT_DESCRIPTION_LENGTH-3)+"..."; 
+        	short_description = desc.substring(0, MAX_SHORT_DESCRIPTION_LENGTH-3)+"..."; 
         else
         	short_description = desc;
         setDefaultFeatureSet();
