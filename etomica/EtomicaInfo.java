@@ -1,5 +1,7 @@
 package etomica;
 
+import java.lang.reflect.InvocationTargetException;
+
 import etomica.compatibility.FeatureSet;
 
 
@@ -48,19 +50,24 @@ public class EtomicaInfo implements java.io.Serializable {
 	public static EtomicaInfo getInfo( Class myclass )
 	{
 		etomica.EtomicaInfo info = null;
-		
+        java.lang.reflect.Method method = null;
+        
         try {
-            java.lang.reflect.Method method = myclass.getMethod("getEtomicaInfo",null);
-            if ( method==null )
-            	return new EtomicaInfo( myclass.getName() );
-            info = (etomica.EtomicaInfo)method.invoke(myclass, null);
+            method = myclass.getMethod("getEtomicaInfo",null);
         }
-        catch ( Exception se ) {
-        	System.out.println("Exception retrieving info for class " + myclass.getName()+ ": " + se.getLocalizedMessage() );
+        catch ( NoSuchMethodException se ) {
+        	// class does not have a getEtomicaInfo method
         	return new EtomicaInfo( myclass.getName() );
         }
-        finally {
-        	System.out.println( "Unknown exception raised in EtomicaInfo.getInfo()");
+
+        try {
+            info = (etomica.EtomicaInfo)method.invoke(myclass, null);
+        }
+        catch (IllegalAccessException e) {
+            System.out.println("Exception retrieving info for class " + myclass.getName()+ ": " + e.getLocalizedMessage() );
+        }
+        catch (InvocationTargetException e) {
+            System.out.println("Exception retrieving info for class " + myclass.getName()+ ": " + e.getLocalizedMessage() );
         }
         
         return info;
