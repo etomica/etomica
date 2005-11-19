@@ -19,6 +19,10 @@ import etomica.util.Arrays;
 
 public class IntegratorManagerMC extends Integrator {
 
+    public IntegratorManagerMC(Simulation sim) {
+        this(sim.potentialMaster);
+    }
+    
     public IntegratorManagerMC(PotentialMaster potentialMaster) {
         super(potentialMaster);
         setGlobalMoveInterval(2);

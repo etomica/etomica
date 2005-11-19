@@ -11,6 +11,7 @@ import etomica.integrator.mcmove.MCMoveListener;
 import etomica.integrator.mcmove.MCMoveSwapConfiguration;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.units.Dimension;
 
 /**
@@ -37,6 +38,10 @@ import etomica.units.Dimension;
   */
 
 public class IntegratorPT extends IntegratorManagerMC implements EtomicaElement {
+    
+    public IntegratorPT(Simulation sim) {
+        this(sim.potentialMaster);
+    }
     
     public IntegratorPT(PotentialMaster potentialMaster) {
         this(potentialMaster, MCMoveSwapConfiguration.FACTORY);
