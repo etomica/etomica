@@ -67,8 +67,10 @@ public class ActionGroupSeries implements Action, java.io.Serializable, ActionGr
      * Removes the given action from the group.  No warning or
      * error is given if action is not in the group already.
      */
-    public void removeAction(Action oldAction) {
+    public boolean removeAction(Action oldAction) {
+        int num = actions.length;
         actions = (Action[])Arrays.removeObject(actions, oldAction);
+        return actions.length != num; 
     }
     
     public Action[] getAllActions() {
