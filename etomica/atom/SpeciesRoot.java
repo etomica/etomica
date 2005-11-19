@@ -50,7 +50,17 @@ public final class SpeciesRoot extends Atom {
         return speciesList.length;
     }
 
-    public void removeSpecies(Species species) {
+    public boolean removeSpecies(Species species) {
+        boolean success = false;
+        for (int i=0; i<speciesList.length; i++) {
+            if (speciesList[i] == species) {
+                success = true;
+                break;
+            }
+        }
+        if (!success) {
+            return false;
+        }
         speciesList = (Species[])Arrays.removeObject(speciesList,species);
         AtomList speciesMasters = ((AtomTreeNodeGroup)node).childList;
         AtomIteratorListSimple iterator = new AtomIteratorListSimple(speciesMasters);
@@ -58,6 +68,16 @@ public final class SpeciesRoot extends Atom {
         while (iterator.hasNext()) {
             ((SpeciesMaster)iterator.nextAtom()).removeSpecies(species);
         }
+        
+        AtomType[] agentTypes = childType.childTypes;
+        AtomType removedType = null;
+        for (int i=0; i<agentTypes.length; i++) {
+            if (agentTypes[i].getSpecies() == species) {
+                removedType = agentTypes[i];
+            }
+        }
+        childType.childTypes = (AtomType[])Arrays.removeObject(childType.childTypes,removedType);
+        return true;
     }
     
     public Species[] getSpecies() {
