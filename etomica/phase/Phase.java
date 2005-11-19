@@ -284,6 +284,9 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      * @return Returns the lattice.
      */
     public RectangularLattice getLattice() {
+        if (cellManager == null) {
+            return null;
+        }
         return cellManager.getLattice();
     }
     
