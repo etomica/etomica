@@ -178,7 +178,7 @@ public final class SceneManager implements  java.io.Serializable
     		Polytope shape = bnd.getShape();
     	    LineSegment[] edges = shape.getEdges();
     	    Vector shift = phase.space().makeVector();
-    	    shift.Ea1Tv1( +0.5, bnd.dimensions() );
+    	    shift.Ea1Tv1( +0.5, bnd.getDimensions() );
     	    
     	    Renderable.Polyline poly = renderer.createPoly();
 	    	Vector from = phase.space().makeVector();

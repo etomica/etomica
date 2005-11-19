@@ -112,7 +112,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         if (pressure >= 0.0) {
             double area = 1.0;
             if (pressure > 0.0) {
-                final Vector dimensions = pistonBoundary.dimensions();
+                final Vector dimensions = pistonBoundary.getDimensions();
                 for (int i=0; i<D; i++) {
                     if (i != wallD) {
                         area *= (dimensions.x(i)-collisionRadius*2.0);
@@ -174,7 +174,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         if (pressure >= 0.0) {
             double area = 1.0;
             if (pressure > 0.0) {
-                final Vector dimensions = pistonBoundary.dimensions();
+                final Vector dimensions = pistonBoundary.getDimensions();
                 for (int i=0; i<D; i++) {
                     if (i != wallD) {
                         area *= (dimensions.x(i)-collisionRadius*2.0);
@@ -205,7 +205,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     
     public double lastWallVirial() {
         double area = 1.0;
-        final Vector dimensions = pistonBoundary.dimensions();
+        final Vector dimensions = pistonBoundary.getDimensions();
         for (int i=0; i<D; i++) {
             if (i != wallD) {
                 area *= (dimensions.x(i)-collisionRadius*2.0);
@@ -241,7 +241,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     public void advanceAcrossTimeStep(double tStep) {
         if (pressure >= 0.0) {
             double area = 1.0;
-            final Vector dimensions = pistonBoundary.dimensions();
+            final Vector dimensions = pistonBoundary.getDimensions();
             for (int i=0; i<D; i++) {
                 if (i != wallD) {
                     area *= (dimensions.x(i)-collisionRadius*2.0);
@@ -265,8 +265,8 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         int xP = origin[0] + (wallD==0 ? (int)((wallPosition-thickness)*toPixel) : 0);
         int yP = origin[1] + (wallD==1 ? (int)((wallPosition-thickness)*toPixel) : 0);
         int t = Math.max(1,(int)(thickness*toPixel));
-        int wP = wallD==0 ? t : (int)(toPixel*pistonBoundary.dimensions().x(0));
-        int hP = wallD==1 ? t : (int)(toPixel*pistonBoundary.dimensions().x(1));
+        int wP = wallD==0 ? t : (int)(toPixel*pistonBoundary.getDimensions().x(0));
+        int hP = wallD==1 ? t : (int)(toPixel*pistonBoundary.getDimensions().x(1));
         g.fillRect(xP,yP,wP,hP);
     }
     

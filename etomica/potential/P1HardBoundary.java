@@ -55,7 +55,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     
     public double energy(AtomSet a) {
         double e = 0.0;
-        Vector dimensions = boundary.dimensions();
+        Vector dimensions = boundary.getDimensions();
         double collisionRadiusSquared = collisionRadius*collisionRadius;
         double rx = ((Atom)a).coord.position().x(0);
         double ry = ((Atom)a).coord.position().x(1);
@@ -76,7 +76,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
         work.E(((Atom)a).coord.position());
         Vector v = ((ICoordinateKinetic)((Atom)a).coord).velocity();
         work.PEa1Tv1(falseTime,v);
-        Vector dimensions = boundary.dimensions();
+        Vector dimensions = boundary.getDimensions();
         double tmin = Double.POSITIVE_INFINITY;
         for(int i=work.D()-1; i>=0; i--) {
             double vx = v.x(i);
@@ -102,7 +102,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
         }
         if (ignoreOverlap && tmin<0.0) tmin = 0.0;
         if (Debug.ON && tmin < 0.0) {
-            System.out.println("t "+tmin+" "+a+" "+work+" "+v+" "+boundary.dimensions());
+            System.out.println("t "+tmin+" "+a+" "+work+" "+v+" "+boundary.getDimensions());
             throw new RuntimeException("you screwed up");
         }
         return tmin + falseTime;
@@ -114,7 +114,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
         work.E(((Atom)a).coord.position());
         Vector v = ((ICoordinateKinetic)((Atom)a).coord).velocity();
         work.PEa1Tv1(falseTime,v);
-        Vector dimensions = boundary.dimensions();
+        Vector dimensions = boundary.getDimensions();
         double delmin = Double.MAX_VALUE;
         int imin = 0;
         //figure out which component is colliding
@@ -194,14 +194,14 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
                 thickness[i] = 1;
                 if (longWallDim == null || !longWallDim[i][j]) {
                     pixPosition[1-i] = origin[1-i];
-                    thickness[1-i] = (int)(boundary.dimensions().x(1-i)*toPixel);
+                    thickness[1-i] = (int)(boundary.getDimensions().x(1-i)*toPixel);
                 }
                 else {
                     pixPosition[1-i] = 0;
                     thickness[1-i] = Integer.MAX_VALUE;
                 }
                 if (j==1) {
-                    pixPosition[i] += (int)(boundary.dimensions().x(i)*toPixel);
+                    pixPosition[i] += (int)(boundary.getDimensions().x(i)*toPixel);
                 }
                 g.fillRect(pixPosition[0],pixPosition[1],thickness[0],thickness[1]);
             }

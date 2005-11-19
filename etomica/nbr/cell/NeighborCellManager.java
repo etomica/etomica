@@ -69,7 +69,7 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
         atomIterator.setDoAllNodes(true);
         atomIterator.setRoot(phase.getSpeciesMaster());
 
-        lattice = new CellLattice(phase.getBoundary().dimensions(), Cell.FACTORY);
+        lattice = new CellLattice(phase.getBoundary().getDimensions(), Cell.FACTORY);
         int[] size = new int[space.D()];
         for(int i=0; i<space.D(); i++) size[i] = nCells;
         lattice.setSize(size);

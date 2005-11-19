@@ -1,7 +1,6 @@
 package etomica.spin;
 
 import etomica.atom.Atom;
-import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
@@ -10,7 +9,6 @@ import etomica.phase.Phase;
 import etomica.phase.PhaseCellManager;
 import etomica.phase.PhaseEvent;
 import etomica.phase.PhaseListener;
-import etomica.simulation.SimulationEvent;
 import etomica.space.Space;
 
 /**
@@ -46,7 +44,7 @@ public class NeighborCellManagerFixed implements PhaseCellManager {
         atomIterator = new AtomIteratorListTabbed(
                 phase.getSpeciesMaster().atomList);
 
-        lattice = new CellLattice(phase.getBoundary().dimensions(),
+        lattice = new CellLattice(phase.getBoundary().getDimensions(),
                 AtomSite.FACTORY);
         int[] size = new int[space.D()];
         for (int i = 0; i < space.D(); i++)
