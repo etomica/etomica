@@ -37,8 +37,7 @@ public class ActionToggle implements Action, java.io.Serializable {
     }
 
     public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo();
-        info.setDescription("Action that toggles a boolean value");
+        EtomicaInfo info = new EtomicaInfo("Action that toggles a boolean value");
         return info;
     }
 
