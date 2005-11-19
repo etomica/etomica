@@ -9,7 +9,6 @@ import java.util.LinkedList;
 import etomica.action.Action;
 import etomica.action.ResetAccumulators;
 import etomica.action.SimulationDataAction;
-import etomica.action.SimulationRestart;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorPhase;
 import etomica.simulation.Simulation;
@@ -32,19 +31,17 @@ public class EquilibrationProduction extends ActivityGroupSeries {
 	 *            the integrator used for equilibration
 	 * @param productionIntegrator
 	 *            the integrator used for production
-	 * @param accumulatorManagerList
-	 *            list of accumulatorManagers that will be reset between
-	 *            equilibration and production periods
 	 */
 	public EquilibrationProduction(Simulation sim, IntegratorPhase equilibrationIntegrator,
-			IntegratorPhase productionIntegrator, LinkedList dataManagerList) {
+			IntegratorPhase productionIntegrator) {
 		equilibrationActivity = new ActivityIntegrate(sim,equilibrationIntegrator);
 		productionActivity = new ActivityIntegrate(sim,productionIntegrator);
 		equilibrationIntegrator.setEquilibrating(true);
 		addAction(equilibrationActivity);
 
 		productionPreparationActivity = new ActivityGroupSeries();
-		productionPreparationActivity.addAction(new SimulationRestart(sim));
+		productionPreparationActivity.addAction(new SimulationDataAction(sim,
+                new ResetAccumulators()));
 		productionPreparationActivity.addAction(new MyAction(productionIntegrator));
 		addAction(productionPreparationActivity);
 
@@ -57,13 +54,9 @@ public class EquilibrationProduction extends ActivityGroupSeries {
 	 * 
 	 * @param commonIntegrator
 	 *            the integrator used for equilibration and production
-	 * @param accumulatorManagerList
-	 *            list of accumulatorManagers that will be reset between
-	 *            equilibration and production periods
 	 */
-	public EquilibrationProduction(Simulation sim, IntegratorPhase commonIntegrator,
-			LinkedList accumulatorManagerList) {
-		this(sim, commonIntegrator, commonIntegrator, accumulatorManagerList);
+	public EquilibrationProduction(Simulation sim, IntegratorPhase commonIntegrator) {
+		this(sim, commonIntegrator, commonIntegrator);
 	}
 
 	/**
