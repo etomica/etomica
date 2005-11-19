@@ -18,7 +18,7 @@ import etomica.util.Arrays;
  * point. 
  * @author andrew
  */
-public class AtomAgentManager implements PhaseListener {
+public class AtomAgentManager implements PhaseListener, java.io.Serializable {
 
     public AtomAgentManager(AgentSource source, Phase phase) {
         agentSource = source;
