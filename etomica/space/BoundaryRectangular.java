@@ -44,7 +44,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
         }
     }
 
-    public final etomica.space.Vector dimensions() {
+    public final etomica.space.Vector getDimensions() {
         return dimensionsCopy;
     }
 

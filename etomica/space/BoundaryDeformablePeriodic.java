@@ -83,7 +83,7 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
 		return isPeriodic;
 	}
 
-	public final etomica.space.Vector dimensions() {
+	public final etomica.space.Vector getDimensions() {
 		return dimensionsCopy;
 	}
 

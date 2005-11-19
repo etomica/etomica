@@ -1,5 +1,7 @@
 package etomica.space;
 
+import etomica.simulation.Simulation;
+
 
 
 /**
@@ -14,6 +16,13 @@ package etomica.space;
  * Created on Jan 27, 2005 by kofke
  */
 public class BoundaryRectangularNonperiodic extends BoundaryRectangular {
+
+    /**
+     * Make a boundary with unit volume.
+     */
+    public BoundaryRectangularNonperiodic(Simulation sim) {
+        this(sim.space);
+    }
 
     /**
      * Make a boundary with unit volume.

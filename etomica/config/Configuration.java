@@ -48,7 +48,7 @@ public abstract class Configuration implements java.io.Serializable {
      * @param phase
      */
     public void initializeCoordinates(Phase phase) {
-        setDimensions(phase.getBoundary().dimensions().toArray());
+        setDimensions(phase.getBoundary().getDimensions().toArray());
         AtomList speciesAgentList = ((AtomTreeNodeGroup)phase.getSpeciesMaster().node).childList;
         AtomIteratorListSimple speciesAgentIterator = new AtomIteratorListSimple(speciesAgentList);
         AtomList[] moleculeLists = new AtomList[speciesAgentList.size()];

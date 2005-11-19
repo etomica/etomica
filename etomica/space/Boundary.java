@@ -68,7 +68,7 @@ public abstract class Boundary implements NearestImageTransformer,
      *         boundaries, while for others (e.g., octahedral) the definition is
      *         particular to the boundary.
      */
-    public abstract Vector dimensions();
+    public abstract Vector getDimensions();
 
     /**
      * Sets the nominal length of the boundary in each direction.

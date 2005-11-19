@@ -85,7 +85,7 @@ public class MeterProfile implements DataSource, Meter, java.io.Serializable {
      */
     public Data getData() {
         Boundary boundary = phase.getBoundary();
-        profileNorm = 1.0/boundary.dimensions().dot(profileVector);
+        profileNorm = 1.0/boundary.getDimensions().dot(profileVector);
         yData.E(0);
         double[] y = yData.getData();
         ai1.reset();
