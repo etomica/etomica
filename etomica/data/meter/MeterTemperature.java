@@ -30,7 +30,7 @@ public class MeterTemperature extends DataSourceScalar implements Meter {
 
 	public double getDataAsScalar() {
         if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
-		return (2. / (phase.atomCount() * phase.getBoundary().dimensions().D()))
+		return (2. / (phase.atomCount() * phase.space().D()))
 				* meterKE.getDataAsScalar();
 	}
 
