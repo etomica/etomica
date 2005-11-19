@@ -52,7 +52,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 				z *= zFraction;
 			} else {
 				z *= zFraction;
-				z = phase.getBoundary().dimensions().x(2) - z;
+				z = phase.getBoundary().getDimensions().x(2) - z;
 			}
 			position.setX(2,z); //multiply z-coordinate by zFraction		
 			atomTranslator.setDestination(position);
@@ -92,7 +92,7 @@ public class MyMCMove extends MCMoveInsertDelete {
     public void setupActiveAtoms() {
     	activeAtoms.clear();
     	atomIterator.reset();
-    	double zBoundary = phase.getBoundary().dimensions().x(2);
+    	double zBoundary = phase.getBoundary().getDimensions().x(2);
     	double zmin = nearOrigin ? 0.0 : (1.0-zFraction)*zBoundary;
     	double zmax = nearOrigin ? zFraction*zBoundary : zBoundary;
     	while(atomIterator.hasNext()) {

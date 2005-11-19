@@ -188,7 +188,7 @@ public class DCVGCMD extends Simulation {
 
         //position of hole in porous-wall potential
         poreCenter = space.makeVector();
-        poreCenter.Ea1Tv1(0.5, phase.getBoundary().dimensions());
+        poreCenter.Ea1Tv1(0.5, phase.getBoundary().getDimensions());
         Vector[] poreCentersVector = new Vector[] { poreCenter };
         potentialwallPorousA.setPoreCenters(poreCentersVector);
         potentialwallPorousA1.setPoreCenters(poreCentersVector);
@@ -204,8 +204,8 @@ public class DCVGCMD extends Simulation {
         potentialwallPorousB1.setPoreRadius(poreRadius);
 
         //place porous-wall potentials; put just past the edges of the tube
-        double zA = (length + 0.05) * phase.getBoundary().dimensions().x(2);
-        double zB = (1.0 - length - 0.05) * phase.getBoundary().dimensions().x(2);
+        double zA = (length + 0.05) * phase.getBoundary().getDimensions().x(2);
+        double zB = (1.0 - length - 0.05) * phase.getBoundary().getDimensions().x(2);
         potentialwallPorousA.setZ(zA);
         potentialwallPorousA1.setZ(zA);
         potentialwallPorousB.setZ(zB);
