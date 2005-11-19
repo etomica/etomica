@@ -11,14 +11,18 @@ import etomica.space.ICoordinateKinetic;
  */
 public class PhaseQuench extends PhaseActionAdapter {
 
+    public PhaseQuench() {
+        super("Quench");
+        meterTemperature = new MeterTemperature();
+    }
+    
     /**
      * Constructs class without specifying phase and using Default temperature.
      * Requires call to setPhase before action will have any effect.
      */
     public PhaseQuench(double temperature) {
-        super("Quench");
+        this();
         setTemperature(temperature);
-        meterTemperature = new MeterTemperature();
 	}
 	
 	/**
@@ -31,7 +35,7 @@ public class PhaseQuench extends PhaseActionAdapter {
 
     public void setPhase(Phase p) {
         super.setPhase(p);
-        meterTemperature.setPhase(p);
+        meterTemperature.setPhase(phase);
         atomIterator.setPhase(phase);
     }
     

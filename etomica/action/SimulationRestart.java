@@ -5,7 +5,6 @@ import java.util.Iterator;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.config.ConfigurationSequential;
-import etomica.data.DataAccumulator;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.Integrator;
 import etomica.lattice.LatticeCubicFcc;
@@ -23,9 +22,17 @@ import etomica.simulation.Simulation;
 
 public final class SimulationRestart extends SimulationActionAdapter {
     
-    public SimulationRestart(Simulation sim) {
+    public SimulationRestart() {
         super("Reset");
+    }
+    
+    public SimulationRestart(Simulation sim) {
+        this();
         setSimulation(sim);
+    }
+    
+    public void setSimulation(Simulation sim) {
+        super.setSimulation(sim);
         if (sim.space().D() == 3) {
             setConfiguration(new ConfigurationLattice(new LatticeCubicFcc()));
         }
@@ -80,5 +87,5 @@ public final class SimulationRestart extends SimulationActionAdapter {
 
     private Configuration configuration;
     private boolean ignoreOverlap;
-    private final SimulationDataAction accumulatorAction;
+    private SimulationDataAction accumulatorAction;
 }
