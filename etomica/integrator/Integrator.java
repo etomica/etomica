@@ -275,6 +275,16 @@ public abstract class Integrator implements java.io.Serializable {
         return listenerArray;
     }
 
+    public synchronized IntegratorNonintervalListener[] getNonintervalListeners() {
+        IntegratorNonintervalListener[] listenerArray = new IntegratorNonintervalListener[listeners.size()];
+        Iterator iter = listeners.iterator();
+        int i=0;
+        while(iter.hasNext()) {
+            listenerArray[i++] = (IntegratorNonintervalListener)iter.next();
+        }
+        return listenerArray;
+    }
+
     /**
      * Wraps interval listener an implements a Comparable interface based
      * on the listeners priority value.
