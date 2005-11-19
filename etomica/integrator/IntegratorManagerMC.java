@@ -25,6 +25,8 @@ public class IntegratorManagerMC extends Integrator {
     
     public IntegratorManagerMC(PotentialMaster potentialMaster) {
         super(potentialMaster);
+        integrators = new Integrator[0];
+        intervalEvents = new IntegratorIntervalEvent[0];
         setGlobalMoveInterval(2);
         moveManager = new MCMoveManager();
     }
