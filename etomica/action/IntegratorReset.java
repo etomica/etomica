@@ -14,6 +14,10 @@ import etomica.integrator.Integrator;
  */
 public class IntegratorReset extends IntegratorActionAdapter {
 
+    public IntegratorReset() {
+        super();
+    }
+    
     public IntegratorReset(Integrator integrator, boolean ignoreOverlap) {
         super(integrator,"Reset integrator");
         this.ignoreOverlap = ignoreOverlap;
@@ -30,6 +34,20 @@ public class IntegratorReset extends IntegratorActionAdapter {
                 }
             }
         }
+    }
+
+    /**
+     * @return Returns the ignoreOverlap.
+     */
+    public boolean isIgnoreOverlap() {
+        return ignoreOverlap;
+    }
+
+    /**
+     * @param ignoreOverlap The ignoreOverlap to set.
+     */
+    public void setIgnoreOverlap(boolean ignoreOverlap) {
+        this.ignoreOverlap = ignoreOverlap;
     }
 
     private boolean ignoreOverlap;

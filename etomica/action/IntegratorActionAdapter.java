@@ -12,7 +12,9 @@ import etomica.integrator.Integrator;
  */
 public abstract class IntegratorActionAdapter implements IntegratorAction, java.io.Serializable {
 
-	/**
+    public IntegratorActionAdapter() {}
+
+    /**
 	 * Constructs the Action with the given descriptive label.
 	 */
 	public IntegratorActionAdapter(Integrator integrator, String label) {
