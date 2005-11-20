@@ -6,6 +6,7 @@ import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.types.DataVector;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
@@ -27,6 +28,10 @@ import etomica.units.Dimension;
 public class AtomPositionGeometricCenter extends AtomActionAdapter implements DataSource,
         AtomPositionDefinition {
 
+    public AtomPositionGeometricCenter(Simulation sim) {
+        this(sim.space());
+    }
+    
     public AtomPositionGeometricCenter(Space space) {
         vectorSum = space.makeVector();
         data = new DataVector(space, "Geometric Center", Dimension.LENGTH);
