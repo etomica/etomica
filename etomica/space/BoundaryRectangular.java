@@ -144,7 +144,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
     protected final Vector dimensionsHalf;
     private final IndexIteratorSequential indexIterator;
     private final boolean[] needShift;
-    protected final boolean[] isPeriodic;
+    protected boolean[] isPeriodic;
     protected final float[][] shift0 = new float[0][0];
     protected float[][] shift;
 
