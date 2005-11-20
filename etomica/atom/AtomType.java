@@ -150,6 +150,13 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
     }
 
     /**
+     * Sets the PositionDefinition used for this AtomType
+     */
+    public void setPositionDefinition(AtomPositionDefinition newPositionDefinition) {
+        positionDefinition = newPositionDefinition;
+    }
+    
+    /**
      * Returns true if an atom of this type is descended from an atom (any atom)
      * having the given type.
      */
