@@ -14,9 +14,15 @@ import etomica.simulation.Simulation;
  */
 public class BoundaryRectangularSlit extends BoundaryRectangular {
     
+    public BoundaryRectangularSlit(Simulation sim) {
+        //consumer can set appropriate slit dim later
+        this(sim,0);
+    }
+    
     public BoundaryRectangularSlit(Simulation sim, int slitDim) {
         this(sim.space, slitDim, sim.getDefaults().boxSize);
     }
+    
     /**
      * Constructor for periodic boundary conditions with a slit 
      * in the given dimension.
@@ -26,7 +32,17 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
     public BoundaryRectangularSlit(Space space, int slitDim, double boxSize) {
         super(space,makePeriodicity(space.D(),slitDim),boxSize);
         sDim = slitDim;
-     }
+    }
+    
+    public void setSlitDim(int slitDim) {
+        isPeriodic = makePeriodicity(space.D(),slitDim);
+        sDim = slitDim;
+    }
+    
+    public int getSlitDim() {
+        return sDim;
+    }
+    
     public void nearestImage(Vector dr) {
         double x = dr.x(sDim);
         dr.PE(dimensionsHalf);
@@ -48,5 +64,6 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
         }
         return isPeriodic;
     }
-    private final int sDim;
+    
+    private int sDim;
 }
