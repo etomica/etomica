@@ -231,6 +231,9 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      */
     public interface AgentSource {
         public Object makeAgent(Atom a);
+        
+        //allow any agent to be disconnected from other elements 
+        public void releaseAgent(Object agent); 
     }
     
 }//end of Atom
