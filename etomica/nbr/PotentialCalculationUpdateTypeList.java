@@ -22,9 +22,9 @@ import etomica.potential.PotentialMaster;
  * instance of this class to the PotentialMaster's calculate method (the PotentialMaster
  * should be an instance of PotentialMasterNbr or PotentialMasterCell).
  */
-public class PotentialCalculationAgents extends PotentialCalculation {
+public class PotentialCalculationUpdateTypeList extends PotentialCalculation {
 
-    public PotentialCalculationAgents(PotentialMaster potentialMaster) {
+    public PotentialCalculationUpdateTypeList(PotentialMaster potentialMaster) {
         this.potentialMaster = potentialMaster;
     }
     
@@ -56,7 +56,7 @@ public class PotentialCalculationAgents extends PotentialCalculation {
             iterator.reset();
             if(iterator.hasNext()) {
                 Atom atom = (Atom)iterator.next();
-                potentialMaster.addPotentialBad(potential,new AtomType[]{atom.type});
+                potentialMaster.addToPotentialTypeList(potential,new AtomType[]{atom.type});
             }
             break;
         case 2:
@@ -68,7 +68,7 @@ public class PotentialCalculationAgents extends PotentialCalculation {
                 AtomPair atoms = (AtomPair)iterator.next();
                 types[0] = atoms.atom0.type;
                 types[1] = atoms.atom1.type;
-                potentialMaster.addPotentialBad(potential,types);
+                potentialMaster.addToPotentialTypeList(potential,types);
             }
             break;
         }

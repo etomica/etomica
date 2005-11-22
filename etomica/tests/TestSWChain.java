@@ -81,7 +81,7 @@ public class TestSWChain extends Simulation {
         criterion = new CriterionBondedSimple(NeighborCriterion.ALL);
         criterion.setBonded(true);
         potentialChainIntra.bonded.setCriterion(criterion);
-        potentialMaster.setSpecies(potentialChainIntra, new Species[] {species});
+        potentialMaster.addPotential(potentialChainIntra, new Species[] {species});
         ((ConformationLinear)species.getFactory().getConformation()).setBondLength(defaults.atomSize);
 
         potential = new P2SquareWell(space,defaults.atomSize,sqwLambda,0.5*defaults.potentialWell,false);

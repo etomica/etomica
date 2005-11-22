@@ -55,9 +55,9 @@ public class HSMD2D_noNbr extends Simulation {
 	    phase = new Phase(this);
         new ConfigurationSequential(space).initializeCoordinates(phase);
 	    P2HardSphere potential = new P2HardSphere(this);
-	    potentialMaster.setSpecies(potential,new Species[]{species,species});
+	    potentialMaster.addPotential(potential,new Species[]{species,species});
         P1HardBoundary potentialBoundary = new P1HardBoundary(this);
-        potentialMaster.setSpecies(potentialBoundary, new Species[] {species});
+        potentialMaster.addPotential(potentialBoundary, new Species[] {species});
 //        potentialBoundary.setActive(0,true,true);
 //        potentialBoundary.setActive(1,true,true);
 //        potentialBoundary.setActive(0,false,true);

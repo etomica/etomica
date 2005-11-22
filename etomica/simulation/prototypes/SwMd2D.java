@@ -46,7 +46,7 @@ public class SwMd2D extends Simulation {
         phase = new Phase(this);
         new ConfigurationSequential(space).initializeCoordinates(phase);
         potential = new P2SquareWell(this);
-        this.potentialMaster.setSpecies(potential,new Species[]{species,species});
+        this.potentialMaster.addPotential(potential,new Species[]{species,species});
         
 //      elementCoordinator.go();
         //explicit implementation of elementCoordinator activities

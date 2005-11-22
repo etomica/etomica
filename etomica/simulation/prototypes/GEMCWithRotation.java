@@ -77,7 +77,7 @@ public class GEMCWithRotation extends Simulation {
 	    potential = new P2LennardJones(this);
 	    potential.setSigma(species.getDiameter());
 
-        this.potentialMaster.setSpecies(potential,new Species[] {species, species});
+        this.potentialMaster.addPotential(potential,new Species[] {species, species});
 
         integrator.addListener(new PhaseImposePbc(phase1));
         integrator.addListener(new PhaseImposePbc(phase2));

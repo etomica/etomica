@@ -132,7 +132,7 @@ public class SimulationVirialPT extends Simulation {
             }
         }
         P0Cluster p0 = new P0Cluster(space);
-        potentialMaster.setSpecies(p0,new Species[]{});
+        potentialMaster.addPotential(p0,new Species[]{});
 	}
 	
 	public Meter[] meter;

@@ -16,7 +16,7 @@ import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.AtomIteratorArrayList;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.nbr.PotentialCalculationAgents;
+import etomica.nbr.PotentialCalculationUpdateTypeList;
 import etomica.nbr.cell.IteratorFactoryCell;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.phase.Phase;
@@ -74,7 +74,7 @@ public class PotentialMasterNbr extends PotentialMaster {
      * to their cells, and invokes superclass method causing setup to be
      * performed iterating using species/potential hierarchy.
      */
-    public void calculate(Phase phase, PotentialCalculationAgents pc) {
+    public void calculate(Phase phase, PotentialCalculationUpdateTypeList pc) {
         super.calculate(phase, new IteratorDirective(), pc);
     }
 

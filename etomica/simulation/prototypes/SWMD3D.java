@@ -97,7 +97,7 @@ public class SWMD3D extends Simulation {
 
 
 //	mediator().go();
-    this.potentialMaster.setSpecies(potential,new Species[]{species,species});
+    this.potentialMaster.addPotential(potential,new Species[]{species,species});
 
     integrator.setPhase(phase);
     integrator.addListener(new PhaseImposePbc(phase));

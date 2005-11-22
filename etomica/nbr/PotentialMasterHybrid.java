@@ -61,7 +61,7 @@ public class PotentialMasterHybrid extends PotentialMaster {
      * performed iterating using species/potential hierarchy.
      */
     //TODO move this method to PotentialMaster superclass
-    public void calculate(Phase phase, PotentialCalculationAgents pc) {
+    public void calculate(Phase phase, PotentialCalculationUpdateTypeList pc) {
         super.calculate(phase,new IteratorDirective(),pc);
     }
     
@@ -69,8 +69,8 @@ public class PotentialMasterHybrid extends PotentialMaster {
      * Forward addPotentialBad to the PotentialMasterCell.  PotentialMasterNbr 
      * needs this too, but gets it on its own from NeighborManager.
      */
-    public void addPotentialBad(Potential potential, AtomType[] atomTypes) {
-        potentialMasterCell.addPotentialBad(potential, atomTypes);
+    public void addToPotentialTypeList(Potential potential, AtomType[] atomTypes) {
+        potentialMasterCell.addToPotentialTypeList(potential, atomTypes);
     }
 
     
@@ -119,10 +119,10 @@ public class PotentialMasterHybrid extends PotentialMaster {
     /* (non-Javadoc)
      * @see etomica.PotentialMaster#setSpecies(etomica.Potential, etomica.Species[])
      */
-    public void setSpecies(Potential potential, Species[] species) {
-        potentialMasterNbr.setSpecies(potential, species);
-        potentialMasterCell.setSpecies(potential, species);
-        super.setSpecies(potential, species);
+    public void addPotential(Potential potential, Species[] species) {
+        potentialMasterNbr.addPotential(potential, species);
+        potentialMasterCell.addPotential(potential, species);
+        super.addPotential(potential, species);
     }
     
     public NeighborListManager getNeighborManager() {

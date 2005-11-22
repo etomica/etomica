@@ -45,9 +45,9 @@ public class HsMc2d extends Simulation {
         Debug.setAtoms(phase);
         new ConfigurationSequential(space).initializeCoordinates(phase);
 	    potential = new P2HardSphere(this);
-        potentialMaster.setSpecies(potential, new Species[] {species, species});
-        potentialMaster.setSpecies(potential, new Species[] {species, species2});
-        potentialMaster.setSpecies(potential, new Species[] {species2, species2});
+        potentialMaster.addPotential(potential, new Species[] {species, species});
+        potentialMaster.addPotential(potential, new Species[] {species, species2});
+        potentialMaster.addPotential(potential, new Species[] {species2, species2});
 	    meterCycles = new DataSourceCountSteps();
 
         integrator.setPhase(phase);

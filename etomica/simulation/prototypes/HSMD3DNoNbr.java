@@ -56,7 +56,7 @@ public class HSMD3DNoNbr extends Simulation {
         species = new SpeciesSpheresMono(this);
         species.setNMolecules(numAtoms);
         potential = new P2HardSphere(this);
-        this.potentialMaster.setSpecies(potential,new Species[]{species,species});
+        this.potentialMaster.addPotential(potential,new Species[]{species,species});
 
         phase = new Phase(this);
 //        phase.setBoundary(new BoundaryTruncatedOctahedron(space));

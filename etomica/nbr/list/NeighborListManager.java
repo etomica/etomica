@@ -17,7 +17,7 @@ import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
 import etomica.integrator.IntegratorPhase;
 import etomica.nbr.NeighborCriterion;
-import etomica.nbr.PotentialCalculationAgents;
+import etomica.nbr.PotentialCalculationUpdateTypeList;
 import etomica.nbr.cell.ApiAACell;
 import etomica.phase.Phase;
 import etomica.potential.Potential;
@@ -74,7 +74,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
             Phase phase = ((IntegratorPhase)evt.getSource()).getPhase();
             pbcEnforcer.setPhase(phase);
             pbcEnforcer.actionPerformed();
-            PotentialCalculationAgents pc = new PotentialCalculationAgents(potentialMaster);
+            PotentialCalculationUpdateTypeList pc = new PotentialCalculationUpdateTypeList(potentialMaster);
             potentialMaster.calculate(phase, pc);
             potentialMaster.getNbrCellManager(phase).assignCellAll();
             reset(((IntegratorPhase)evt.getSource()).getPhase());

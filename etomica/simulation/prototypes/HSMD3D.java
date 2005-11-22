@@ -108,7 +108,7 @@ public class HSMD3D extends Simulation {
 
         NeighborCriterion criterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
         potential.setCriterion(criterion);
-        potentialMaster.setSpecies(potential,new Species[]{species,species});
+        potentialMaster.addPotential(potential,new Species[]{species,species});
 
         nbrManager.addCriterion(criterion,new AtomType[]{species.getFactory().getType()});
 

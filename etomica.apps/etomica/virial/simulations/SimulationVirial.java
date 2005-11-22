@@ -84,7 +84,7 @@ public class SimulationVirial extends Simulation {
         integrator.getMoveManager().addMCMove(mcMoveTranslate);
 		
 		P0Cluster p0 = new P0Cluster(space);
-		potentialMaster.setSpecies(p0,new Species[]{});
+		potentialMaster.addPotential(p0,new Species[]{});
 		
         ConfigurationCluster configuration = new ConfigurationCluster(space);
         configuration.setPhase(phase);

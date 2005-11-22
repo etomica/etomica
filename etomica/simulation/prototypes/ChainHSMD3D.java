@@ -63,7 +63,7 @@ public class ChainHSMD3D extends Simulation {
         new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);
         
         P1BondedHardSpheres p1Intra = new P1BondedHardSpheres(this);
-        potentialMaster.setSpecies(p1Intra,new Species[]{species});
+        potentialMaster.addPotential(p1Intra,new Species[]{species});
         
         //PotentialGroup p2Inter = new PotentialGroup(2, space);
         potential = new P2HardSphere(this);

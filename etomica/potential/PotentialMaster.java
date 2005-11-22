@@ -80,7 +80,7 @@ public class PotentialMaster implements java.io.Serializable {
      * intra-species potential, defining the iteractions between molecules of the
      * same species).
      */
-    public void setSpecies(Potential potential, Species[] species) {
+    public void addPotential(Potential potential, Species[] species) {
     	if (potential.nBody() == 0) {
     		addPotential(potential, new AtomIterator0(),null);
     	}
@@ -126,7 +126,7 @@ public class PotentialMaster implements java.io.Serializable {
             if (depth[i] > maxDepth) maxDepth = depth[i];
         }
         if (maxDepth == 3) {
-            setSpecies(potential,moleculeSpecies(atomTypes));
+            addPotential(potential,moleculeSpecies(atomTypes));
             return;
         }
         AtomType[] parentAtomTypes = new AtomType[atomTypes.length];
@@ -147,7 +147,7 @@ public class PotentialMaster implements java.io.Serializable {
         pGroup.addPotential(potential,atomTypes,this);
     }
     
-    public void addPotentialBad(Potential potential, AtomType[] atomTypes) {
+    public void addToPotentialTypeList(Potential potential, AtomType[] atomTypes) {
         for (int i=0; i<atomTypes.length; i++) {
             while (potentialAtomTypeList.length < atomTypes[i].getIndex()+1) {
                 potentialAtomTypeList = (PotentialArray[])etomica.util.Arrays.addObject(potentialAtomTypeList, new PotentialArray());

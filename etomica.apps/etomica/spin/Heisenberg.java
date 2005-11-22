@@ -12,7 +12,7 @@ import etomica.graphics.DisplayPhaseSpin2D;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
-import etomica.nbr.PotentialCalculationAgents;
+import etomica.nbr.PotentialCalculationUpdateTypeList;
 import etomica.nbr.site.PotentialMasterSite;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
@@ -78,7 +78,7 @@ public class Heisenberg extends Simulation {
         potentialMaster.addPotential(potential, new AtomType[] {type, type});
         
         integrator.setPhase(phase);
-        ((PotentialMasterSite)potentialMaster).calculate(phase, new PotentialCalculationAgents(potentialMaster));
+        ((PotentialMasterSite)potentialMaster).calculate(phase, new PotentialCalculationUpdateTypeList(potentialMaster));
         phase.getCellManager().assignCellAll();
         
         meter = new MeterSpin(space);

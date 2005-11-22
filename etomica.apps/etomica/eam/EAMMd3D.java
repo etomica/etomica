@@ -110,9 +110,9 @@ public class EAMMd3D extends Simulation {
         config.initializeCoordinates(phase);  // kmb added 8/3/05
         potential0 = new EmbeddedAtomMethodPInitial(space, potentialA);
         potentialB = new EmbeddedAtomMethodPMany(space, ParameterSetEAM.Sn, potentialA);
-        this.potentialMaster.setSpecies(potentialB, new Species[]{species});
-        this.potentialMaster.setSpecies(potentialA, new Species[]{species,species});
-        this.potentialMaster.setSpecies(potential0, new Species[]{species});    
+        this.potentialMaster.addPotential(potentialB, new Species[]{species});
+        this.potentialMaster.addPotential(potentialA, new Species[]{species,species});
+        this.potentialMaster.addPotential(potential0, new Species[]{species});    
 
         integrator.setPhase(phase);
         PhaseImposePbc imposepbc = new PhaseImposePbc();

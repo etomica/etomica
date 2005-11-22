@@ -75,7 +75,7 @@ public class SimulationVirialOverlap extends Simulation {
         }
         
         P0Cluster p0 = new P0Cluster(space);
-        potentialMaster.setSpecies(p0,new Species[]{});
+        potentialMaster.addPotential(p0,new Species[]{});
         
         for (int iPhase=0; iPhase<sampleClusters.length; iPhase++) {
             // integrator for iPhase samples based on iPhase cluster

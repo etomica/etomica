@@ -47,7 +47,7 @@ public class LjMd3D extends Simulation {
         species.setNMolecules(50);
         phase = new Phase(this);
         potential = new P2LennardJones(this);
-        this.potentialMaster.setSpecies(potential,new Species[]{species,species});
+        this.potentialMaster.addPotential(potential,new Species[]{species,species});
         
 //      elementCoordinator.go();
         //explicit implementation of elementCoordinator activities
