@@ -16,6 +16,7 @@ public interface Renderable
 		public void setRotation( float angle, Vector axis );
 		public void setColor( int color_index );
 		public void setColorScheme( ColorScheme scheme );
+        public void dispose();
 	};
 	public interface Sphere extends Shape
 	{
