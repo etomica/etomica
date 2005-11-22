@@ -102,6 +102,11 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
         }
     }
     
+    public void setup() {
+        agents = (Agent[])agentManager.getAgents();
+        super.setup();
+    }
+    
     /* (non-Javadoc)
      * @see etomica.Integrator#setTemperature(double)
      */
