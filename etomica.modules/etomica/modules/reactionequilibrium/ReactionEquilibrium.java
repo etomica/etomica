@@ -127,6 +127,8 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         }
         return null;
     }
+    
+    public void releaseAgent(Object agent) {}
 
 	public static void main(String[] args) {
 		javax.swing.JFrame f = new javax.swing.JFrame(); //create a window

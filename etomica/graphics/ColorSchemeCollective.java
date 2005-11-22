@@ -72,5 +72,7 @@ public abstract class ColorSchemeCollective extends ColorScheme implements Atom.
         if (a == null) {return Color.white;}
         return null;
     }
+    
+    public void releaseAgent(Object agent) {}
 }
 

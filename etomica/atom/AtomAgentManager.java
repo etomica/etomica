@@ -48,6 +48,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
         if (phase == null) {
             // zero-out the array so the agents get GC'd
             agents = (Object[])Array.newInstance(agentSource.makeAgent(null).getClass(),0);
+            return;
         }
         phase.getSpeciesMaster().addListener(this);
         // hope the class returns an actual class with a null Atom and use it to construct
@@ -86,6 +87,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
                 int index = a.getGlobalIndex();
                 if (agents.length > index && agents[index] != null) {
                     // Atom used to have an agent.  nuke it.
+                    agentSource.releaseAgent(agents[index]);
                     agents[index] = null;
                 }
                 else if (agents.length < index+1) {

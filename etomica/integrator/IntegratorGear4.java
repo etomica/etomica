@@ -196,6 +196,8 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
     public Object makeAgent(Atom a) {
         return new Agent(space,a);
     }
+    
+    public void releaseAgent(Object agent) {}
             
     public static class Agent implements IntegratorPhase.Forcible {  //need public so to use with instanceof
         public Atom atom;
@@ -218,49 +220,4 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
         
         public Vector force() {return force;}
     }
-
-/*    public static void main(String[] args) {
-        
-	    IntegratorGear4 integratorGear4 = new IntegratorGear4();
-	    SpeciesSpheres speciesSpheres1 = new SpeciesSpheres();
-//	    speciesSpheres1.setMass(1.0);
-	    Phase phase1 = new Phase();
-	    P2LennardJones P2LennardJones1 = new P2LennardJones();
-	    Controller controller1 = new Controller();
-	    DisplayPhase displayPhase1 = new DisplayPhase();
-	    DisplayPlot plot = new DisplayPlot();
-	    IntegratorMD.Timer timer = integratorGear4.new Timer(integratorGear4.chronoMeter());
-	    timer.setUpdateInterval(10);
-	//    integratorGear4.setTimeStep(0.005);
-	    integratorGear4.setSleepPeriod(2);
-		Simulation.instance.panel().setBackground(java.awt.Color.yellow);
-
-        Meter ke = new MeterKineticEnergy();
-        Meter temp = new MeterTemperature();
-        Meter energy = new MeterEnergy();
-        energy.setHistorying(true);
-        plot.setDataSources(energy.getHistory());
-        Phase phase = Simulation.instance.phase(0);
-        ke.setPhase(phase);
-        temp.setPhase(phase);
-        energy.setPhase(phase);
-        DisplayBox box1 = new DisplayBox();
-        box1.setMeter(ke);
-        box1.setUpdateInterval(10);
-        DisplayBox box2 = new DisplayBox();
-        box2.setMeter(temp);
-        box2.setUnit(new Unit(Kelvin.UNIT));
-        DisplayBox box3 = new DisplayBox();
-        box3.setMeter(energy);
-        box3.setPrecision(7);
-                                            
-		Simulation.instance.elementCoordinator.go();
-
-   //     P2LennardJones1.setIterator(new AtomPairIterator(phase));
-   //     P2LennardJones1.set(speciesSpheres1.getAgent(phase));
-				
-		Simulation.makeAndDisplayFrame(Simulation.instance);
-    }//end of main
-   */ 
-}//end of IntegratorGear4
-
+}

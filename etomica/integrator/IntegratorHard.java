@@ -652,6 +652,10 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
         }
         return new Agent(a,this);
     }
+    
+    // don't need to remove the agent from the event list because reset will
+    // get called and that will totally clear the event list
+    public void releaseAgent(Object agent) {}
  
     /**
      * Agent defined by this integrator.

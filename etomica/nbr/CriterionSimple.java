@@ -112,6 +112,8 @@ public class CriterionSimple extends NeighborCriterion implements AgentSource  {
         }
         return (atom.coord != null) ? atom.coord.position().clone() : null;
     }
+    
+    public void releaseAgent(Object agent) {}
 
     private double interactionRange, displacementLimit2, neighborRadius2;
 	private final CoordinatePair cPair;
