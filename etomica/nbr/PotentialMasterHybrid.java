@@ -83,6 +83,15 @@ public class PotentialMasterHybrid extends PotentialMaster {
         else potentialMasterCell.calculate(phase,id,pc);
     }
     
+    public double getCellRange() {
+        return potentialMasterCell.getRange();
+    }
+    
+    public void setCellRange(int newRange) {
+        potentialMasterNbr.setCellRange(newRange);
+        potentialMasterCell.setCellRange(newRange);
+    }
+    
     public double getRange() {
         return potentialMasterCell.getRange();
     }
