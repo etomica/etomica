@@ -75,11 +75,11 @@ public class PistonCylinder extends Simulation {
         P2SquareWell potentialSW = new P2SquareWell(space,defaults.atomSize,lambda,31.875,defaults.ignoreOverlap);
         potentialWrapper = new Potential2HardSphericalWrapper(space,potentialSW);
 //        potential = new P2HardSphere(space,Default.atomSize);
-        potentialMaster.setSpecies(potentialWrapper,new Species[]{species,species});
+        potentialMaster.addPotential(potentialWrapper,new Species[]{species,species});
         
         wallPotential = new P1HardBoundary(this);
         wallPotential.setCollisionRadius(defaults.atomSize*0.5); //potential.getCoreDiameter()*0.5);
-        potentialMaster.setSpecies(wallPotential,new Species[]{species});
+        potentialMaster.addPotential(wallPotential,new Species[]{species});
         wallPotential.setActive(0,true,true);  // left wall
         wallPotential.setActive(0,false,true); // right wall
         wallPotential.setActive(1,true,false); // top wall
@@ -100,7 +100,7 @@ public class PistonCylinder extends Simulation {
             pistonPotential.setPressure(Bar.UNIT.toSim(100.0));
         }
         pistonPotential.setThickness(1.0);
-        potentialMaster.setSpecies(pistonPotential,new Species[]{species});
+        potentialMaster.addPotential(pistonPotential,new Species[]{species});
         
         integrator = new IntegratorHardPiston(this,pistonPotential);
         integrator.setPhase(phase);

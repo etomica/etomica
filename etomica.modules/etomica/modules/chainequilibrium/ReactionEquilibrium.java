@@ -70,12 +70,12 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
 		BBbonded = new P2SquareWellBonded(space, this, 0.5 * getDefaults().atomSize,
 		        2.0, getDefaults().potentialWell);
 
-		potentialMaster.setSpecies(AAbonded,
+		potentialMaster.addPotential(AAbonded,
 		        new Species[] { speciesA, speciesA });
-		potentialMaster.setSpecies(ABbonded,
+		potentialMaster.addPotential(ABbonded,
 		        new Species[] { speciesA, speciesB });
 		
-		potentialMaster.setSpecies(BBbonded,new Species[] { speciesB, speciesB });
+		potentialMaster.addPotential(BBbonded,new Species[] { speciesB, speciesB });
 
 
 		// **** Setting Up the thermometer Meter *****

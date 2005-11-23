@@ -57,7 +57,7 @@ public class Multiharmonic extends Simulation {
         potentialA = new P1Harmonic(space);
         potentialA.setX0(new Vector1D(x0));
         potentialA.setSpringConstant(1.0);
-        potentialMaster.setSpecies(potentialA, new Species[] {species});
+        potentialMaster.addPotential(potentialA, new Species[] {species});
         
         phase.makeMolecules();
         

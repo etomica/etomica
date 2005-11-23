@@ -85,11 +85,11 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         P2SquareWell BBbonded = new P2SquareWell(space, 0.5 * Default.atomSize, //core
                 2.0, //well multiplier
                 Default.POTENTIAL_WELL);*/
-        potentialMaster.setSpecies(AAbonded,
+        potentialMaster.addPotential(AAbonded,
                 new Species[] { speciesA, speciesA });
-        potentialMaster.setSpecies(ABbonded,
+        potentialMaster.addPotential(ABbonded,
                 new Species[] { speciesA, speciesB });
-        potentialMaster.setSpecies(BBbonded,
+        potentialMaster.addPotential(BBbonded,
                 new Species[] { speciesB, speciesB });
 
         meterDimerFraction = new MeterDimerFraction(this);

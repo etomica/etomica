@@ -15,7 +15,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.CriterionSpecies;
 import etomica.nbr.NeighborCriterion;
-import etomica.nbr.PotentialCalculationAgents;
+import etomica.nbr.PotentialCalculationUpdateTypeList;
 import etomica.nbr.PotentialMasterHybrid;
 import etomica.nbr.list.NeighborListManager;
 import etomica.phase.Phase;
@@ -97,7 +97,7 @@ public class DCVGCMD extends Simulation {
         CriterionSpecies criterion = new CriterionSpecies(nbrCriterion, species, species);
         potential.setCriterion(criterion);
         nbrManager.addCriterion(nbrCriterion,new AtomType[]{species.getFactory().getType()});
-        potentialMaster.setSpecies(potential, new Species[] {species, species});
+        potentialMaster.addPotential(potential, new Species[] {species, species});
         
         //1-1 intraspecies interaction
         P2WCA potential11 = new P2WCA(this);
@@ -105,7 +105,7 @@ public class DCVGCMD extends Simulation {
         criterion = new CriterionSpecies(nbrCriterion, species1, species1);
         potential11.setCriterion(criterion);
         nbrManager.addCriterion(nbrCriterion,new AtomType[]{species1.getFactory().getType()});
-        potentialMaster.setSpecies(potential11, new Species[] {species1, species1});
+        potentialMaster.addPotential(potential11, new Species[] {species1, species1});
 
         //0-1 interspecies interaction
         potential1 = new P2WCA(this);
@@ -113,7 +113,7 @@ public class DCVGCMD extends Simulation {
         criterion = new CriterionSpecies(nbrCriterion, species1, species);
         potential1.setCriterion(criterion);
         nbrManager.addCriterion(nbrCriterion, new AtomType[]{species.getFactory().getType(),species1.getFactory().getType()});
-        potentialMaster.setSpecies(potential1, new Species[] { species1, species });
+        potentialMaster.addPotential(potential1, new Species[] { species1, species });
 
         P2WCA potentialTubeAtom = new P2WCA(this);
         potentialMaster.addPotential(potentialTubeAtom,new AtomType[] { tubetype, speciestype});
@@ -130,22 +130,22 @@ public class DCVGCMD extends Simulation {
         nbrManager.addCriterion(nbrCriterion,new AtomType[]{species1.getFactory().getType()});
 
         potentialwall = new P1WCAWall(this);
-        potentialMaster.setSpecies(potentialwall, new Species[] { species });
+        potentialMaster.addPotential(potentialwall, new Species[] { species });
 
         potentialwall1 = new P1WCAWall(this);
-        potentialMaster.setSpecies(potentialwall1, new Species[] { species1 });
+        potentialMaster.addPotential(potentialwall1, new Species[] { species1 });
 
         potentialwallPorousA = new P1WCAPorousWall(this);
-        potentialMaster.setSpecies(potentialwallPorousA, new Species[] { species });
+        potentialMaster.addPotential(potentialwallPorousA, new Species[] { species });
         
         potentialwallPorousA1 = new P1WCAPorousWall(this);
-        potentialMaster.setSpecies(potentialwallPorousA1, new Species[] { species1 });
+        potentialMaster.addPotential(potentialwallPorousA1, new Species[] { species1 });
         
         potentialwallPorousB = new P1WCAPorousWall(this);
-        potentialMaster.setSpecies(potentialwallPorousB, new Species[] { species });
+        potentialMaster.addPotential(potentialwallPorousB, new Species[] { species });
         
         potentialwallPorousB1 = new P1WCAPorousWall(this);
-        potentialMaster.setSpecies(potentialwallPorousB1, new Species[] { species1 });
+        potentialMaster.addPotential(potentialwallPorousB1, new Species[] { species1 });
 
 
         species.setNMolecules(20);
@@ -162,7 +162,7 @@ public class DCVGCMD extends Simulation {
         /***/
         nbrManager.setRange(potential.getRange() * neighborRangeFac);
         integratorMC.addMCMoveListener(potentialMasterHybrid.getNbrCellManager(phase).makeMCMoveListener());
-        potentialMasterHybrid.calculate(phase, new PotentialCalculationAgents(potentialMasterHybrid));
+        potentialMasterHybrid.calculate(phase, new PotentialCalculationUpdateTypeList(potentialMasterHybrid));
 
 
         activityIntegrate = new ActivityIntegrate(this,integratorDCV);
