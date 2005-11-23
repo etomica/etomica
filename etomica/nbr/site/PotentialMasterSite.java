@@ -193,9 +193,9 @@ public class PotentialMasterSite extends PotentialMaster {
             phase.setCellManager(manager);
         }
         else {
-            manager.setCellRange(cellRange);
             manager.setPotentialRange(range);
         }
+        manager.setCellRange(cellRange);
         manager.checkDimensions();
         return manager;
     }

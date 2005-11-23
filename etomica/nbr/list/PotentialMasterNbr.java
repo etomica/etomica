@@ -198,13 +198,12 @@ public class PotentialMasterNbr extends PotentialMaster {
         NeighborCellManager manager = (NeighborCellManager)phase.getCellManager();
         if (manager == null) {
             manager = new NeighborCellManager(phase, neighborManager.getRange(), positionDefinition);
-            manager.setCellRange(cellRange);
             phase.setCellManager(manager);
         }
         else {
-            manager.setCellRange(cellRange);
             manager.setPotentialRange(neighborManager.getRange());
         }
+        manager.setCellRange(cellRange);
         manager.checkDimensions();
         return manager;
     }
