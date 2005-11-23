@@ -88,8 +88,8 @@ public class DCVGCMD extends Simulation {
         double neighborRangeFac = 1.4;
         final NeighborListManager nbrManager = potentialMasterHybrid.getNeighborManager();
         nbrManager.getPbcEnforcer().setApplyToMolecules(false);
-        int nCells = (int) (40 / (neighborRangeFac * defaults.atomSize));
-        potentialMasterHybrid.setNCells(nCells);
+        potentialMasterHybrid.setCellRange(1);
+        potentialMasterHybrid.setRange(neighborRangeFac * defaults.atomSize);
 
         //0-0 intraspecies interaction
         potential = new P2WCA(this);
