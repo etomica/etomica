@@ -41,7 +41,7 @@ public class TestHSMD3D extends Simulation {
         defaults.makeLJDefaults();
         // makes eta = 0.35
         defaults.boxSize = 14.4573*Math.pow((numAtoms/2000.0),1.0/3.0);
-        ((PotentialMasterNbr)potentialMaster).setCellRange(2);
+        ((PotentialMasterNbr)potentialMaster).setCellRange(1);
         ((PotentialMasterNbr)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
         integrator = new IntegratorHard(this);
         NeighborListManager nbrManager = ((PotentialMasterNbr)potentialMaster).getNeighborManager();
