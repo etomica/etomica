@@ -204,7 +204,6 @@ public class PotentialMasterNbr extends PotentialMaster {
             manager.setPotentialRange(neighborManager.getRange());
         }
         manager.setCellRange(cellRange);
-        manager.checkDimensions();
         return manager;
     }
 

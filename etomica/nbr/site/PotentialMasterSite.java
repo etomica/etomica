@@ -196,7 +196,6 @@ public class PotentialMasterSite extends PotentialMaster {
             manager.setPotentialRange(range);
         }
         manager.setCellRange(cellRange);
-        manager.checkDimensions();
         return manager;
     }
     

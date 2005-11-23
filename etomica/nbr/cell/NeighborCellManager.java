@@ -80,10 +80,6 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
     }
 
     public CellLattice getLattice() {
-        Vector dimensions = phase.getBoundary().getDimensions();
-        if (!dimensions.equals(lattice.getDimensions())) {
-            setPotentialRange(range);
-        }
         return lattice;
     }
 
@@ -139,6 +135,10 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
      * are those that have one or more potentials that act on them.  
      */
     public void assignCellAll() {
+        // ensure that any changes to cellRange, potentialRange and boundary
+        // dimension take effect
+        checkDimensions();
+        
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom atom = atomIterator.nextAtom();
