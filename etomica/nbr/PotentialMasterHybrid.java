@@ -50,11 +50,6 @@ public class PotentialMasterHybrid extends PotentialMaster {
         potentialMasterCell = new PotentialMasterCell(space, range, positionDefinition);
 	}
    
-    public void setRange(double range) {
-        potentialMasterNbr.setRange(range);
-        potentialMasterCell.setRange(range);
-    }
-    
     /**
      * Performs cell-assignment potentialCalculation.  Assigns all molecules
      * to their cells, and invokes superclass method causing setup to be
@@ -73,7 +68,6 @@ public class PotentialMasterHybrid extends PotentialMaster {
         potentialMasterCell.addToPotentialTypeList(potential, atomTypes);
     }
 
-    
     /**
      * Overrides superclass method to enable direct neighbor-list iteration
      * instead of iteration via species/potential hierarchy. If no target atoms are
@@ -87,23 +81,19 @@ public class PotentialMasterHybrid extends PotentialMaster {
 		if(!enabled) return;
         if (useNbrLists) potentialMasterNbr.calculate(phase,id,pc);
         else potentialMasterCell.calculate(phase,id,pc);
-	}//end calculate
-	
-    public int getNCells() {
-        return potentialMasterCell.getNCells();
-    }
-    public void setNCells(int cells) {
-        potentialMasterNbr.setNCells(cells);
-        potentialMasterCell.setNCells(cells);
     }
     
+    public double getRange() {
+        return potentialMasterCell.getRange();
+    }
+
+    public void setRange(double newRange) {
+        potentialMasterNbr.setRange(newRange);
+        potentialMasterCell.setRange(newRange);
+    }
+
     public NeighborCellManager getNbrCellManager(Phase phase) {
-        NeighborCellManager manager = (NeighborCellManager)phase.getCellManager();
-        if (manager == null) {
-            manager = new NeighborCellManager(phase,getNCells(),getAtomPositionDefinition());
-            phase.setCellManager(manager);
-        }
-        return manager;
+        return potentialMasterNbr.getNbrCellManager(phase);
     }
 
     public AtomSequencerFactory sequencerFactory() {return AtomSequencerNbr.FACTORY;}

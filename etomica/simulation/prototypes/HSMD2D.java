@@ -40,15 +40,13 @@ public class HSMD2D extends Simulation {
     }
     
     private HSMD2D(Space2D space, Default defaults) {
-        super(space, true, new PotentialMasterNbr(space, 1.6*0.38), Default.BIT_LENGTH, defaults);
+        super(space, true, new PotentialMasterNbr(space), Default.BIT_LENGTH, defaults);
 //        super(space, new PotentialMaster(space));//,IteratorFactoryCell.instance));
         defaults.makeLJDefaults();
         defaults.atomSize = 0.38;
 
         double neighborRangeFac = 1.6;
-        int nCells = (int)(defaults.boxSize/neighborRangeFac);
-        System.out.println("nCells: "+nCells);
-        ((PotentialMasterNbr)potentialMaster).setNCells(nCells);
+        ((PotentialMasterNbr)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
 
         integrator = new IntegratorHard(this);
         integrator.setIsothermal(false);

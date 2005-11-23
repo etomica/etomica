@@ -38,7 +38,7 @@ public class TestLJMC3D extends Simulation {
     public Controller controller;
 
     public TestLJMC3D(Space space, int numAtoms) {
-        super(space, false, new PotentialMasterCell(space, 1.6));
+        super(space, false, new PotentialMasterCell(space));
         defaults.makeLJDefaults();
 	    integrator = new IntegratorMC(this);
 	    mcMoveAtom = new MCMoveAtom(this);
@@ -59,7 +59,7 @@ public class TestLJMC3D extends Simulation {
             throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*phase.getBoundary().getDimensions().x(0));
         }
         P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(potential, truncationRadius);
-        ((PotentialMasterCell)potentialMaster).setNCells((int)(3.0*phase.getBoundary().getDimensions().x(0)/potentialTruncated.getRange()));
+        ((PotentialMasterCell)potentialMaster).setCellRange(3);
         ((PotentialMasterCell)potentialMaster).setRange(potentialTruncated.getRange());
         potentialTruncated.setCriterion(etomica.nbr.NeighborCriterion.ALL);
         potentialMaster.addPotential(potentialTruncated, new Species[] {species, species});

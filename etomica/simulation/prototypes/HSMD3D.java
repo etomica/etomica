@@ -79,9 +79,7 @@ public class HSMD3D extends Simulation {
         defaults.makeLJDefaults();
         defaults.atomSize = 1.0;
         defaults.boxSize = 14.4573*Math.pow((numAtoms/2020.0),1.0/3.0);
-        int nCells = (int)(defaults.boxSize/neighborRangeFac);
-        System.out.println("nCells: "+nCells);
-        ((PotentialMasterNbr)potentialMaster).setNCells(nCells);
+        ((PotentialMasterNbr)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
 
         integrator = new IntegratorHard(this);
         integrator.setIsothermal(false);

@@ -32,7 +32,8 @@ public class HSMD3DHexane extends Simulation {
         defaults.makeLJDefaults();
         
         defaults.boxSize = 14.4573*Math.pow(numAtoms/2000.0,1.0/3.0);
-        ((PotentialMasterNbr)potentialMaster).setNCells((int)(defaults.boxSize/neighborRangeFac));
+        ((PotentialMasterNbr)potentialMaster).setCellRange(1);
+        ((PotentialMasterNbr)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
         
         
         

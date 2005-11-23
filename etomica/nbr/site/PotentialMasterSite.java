@@ -53,13 +53,34 @@ public class PotentialMasterSite extends PotentialMaster {
     
     public PotentialMasterSite(Space space, AtomPositionDefinition positionDefinition, AtomsetIteratorMolecule neighborIterator) {
         super(space,new IteratorFactoryCell());
-        setNCells(10);
         singletAtomIterator = new AtomIteratorSinglet();
 		singletPairIterator = new AtomsetIteratorSinglet(2);
         this.positionDefinition = positionDefinition;//use atom type's position definition as default
         this.neighborIterator = neighborIterator;
 	}
     
+    public void setRange(double newRange) {
+        range = newRange;
+    }
+    
+    public double getRange() {
+        return range;
+    }
+    
+    /**
+     * @return Returns the cellRange.
+     */
+    public int getCellRange() {
+        return cellRange;
+    }
+
+    /**
+     * @param cellRange The cellRange to set.
+     */
+    public void setCellRange(int cellRange) {
+        this.cellRange = cellRange;
+    }
+
     /**
      * Performs cell-assignment potentialCalculation.  Assigns all molecules
      * to their cells, and invokes superclass method causing setup to be
@@ -168,27 +189,23 @@ public class PotentialMasterSite extends PotentialMaster {
     public NeighborCellManager getNbrCellManager(Phase phase) {
         NeighborCellManager manager = (NeighborCellManager)phase.getCellManager();
         if (manager == null) {
-            manager = new NeighborCellManager(phase,nCells,positionDefinition);
+            manager = new NeighborCellManager(phase,range,positionDefinition);
             phase.setCellManager(manager);
         }
-        return manager;
-    }
-
-    public int getNCells() {
-        return nCells;
-    }
-    public void setNCells(int cells) {
-        if (cells < 3) {
-            throw new IllegalArgumentException("You must have at least 3 cells");
+        else {
+            manager.setCellRange(cellRange);
+            manager.setPotentialRange(range);
         }
-        nCells = cells;
+        manager.checkDimensions();
+        return manager;
     }
     
     public AtomSequencerFactory sequencerFactory() {return AtomSequencerSite.FACTORY;}
     
     private final AtomIteratorSinglet singletAtomIterator;
 	private final AtomsetIteratorSinglet singletPairIterator;
-    private int nCells;
+    private double range;
+    private int cellRange;
     private final IteratorDirective idUp = new IteratorDirective();
     private final AtomPositionDefinition positionDefinition;
     protected final AtomsetIteratorMolecule neighborIterator;

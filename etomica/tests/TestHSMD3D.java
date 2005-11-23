@@ -35,13 +35,14 @@ public class TestHSMD3D extends Simulation {
 
     public TestHSMD3D(Space space, int numAtoms) {
         // use custom bit lengths to allow for more "molecules"
-        super(space, true, new PotentialMasterNbr(space, 1.6), new int[] {1, 4, 4, 21, 1, 1}, new Default());
+        super(space, true, new PotentialMasterNbr(space), new int[] {1, 4, 4, 21, 1, 1}, new Default());
         
         double neighborRangeFac = 1.6;
         defaults.makeLJDefaults();
         // makes eta = 0.35
         defaults.boxSize = 14.4573*Math.pow((numAtoms/2000.0),1.0/3.0);
-        ((PotentialMasterNbr)potentialMaster).setNCells((int)(defaults.boxSize/neighborRangeFac));
+        ((PotentialMasterNbr)potentialMaster).setCellRange(2);
+        ((PotentialMasterNbr)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
         integrator = new IntegratorHard(this);
         NeighborListManager nbrManager = ((PotentialMasterNbr)potentialMaster).getNeighborManager();
         nbrManager.setRange(defaults.atomSize*1.6);
@@ -91,7 +92,7 @@ public class TestHSMD3D extends Simulation {
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
-        int numAtoms = 4000;
+        int numAtoms = 500;
         if (args.length > 0) {
             numAtoms = Integer.valueOf(args[0]).intValue();
         }

@@ -91,8 +91,7 @@ public class CellLattice extends RectangularLattice {
             super(D);
             idx = new int[D];
             previousDimensions = Space.makeVector(D);
-            neighborDistance = new double[D];
-            setRange(range);
+            setNeighborDistance(range);
         }
         
         /**
@@ -100,29 +99,19 @@ public class CellLattice extends RectangularLattice {
          * from a central cell.  Specifically, the integer range in direction
          * j is 1 + (int)(neighborDistance/cellSize[j]). 
          */
-        public void setRange(double neighborDistance) {
-            for(int i=0; i<D; i++) {
-                this.neighborDistance[i] = neighborDistance;
-            }
-            setRange(this.neighborDistance);
-        }
-
-        /**
-         * Defines neighbors to be all cells that are within the given distance
-         * from a central cell, possible with a different distance specified in 
-         * each direction.  Specifically, the integer range in direction
-         * j is 1 + (int)(size[j]*neighborDistance/dimensions[j]). 
-         */
-        public void setRange(double[] neighborDistance) {
-            if(neighborDistance.length != D) throw new IllegalArgumentException("Dimension of neighborDistance array inconsistent with dimension of lattice");
+        public void setNeighborDistance(double newNeighborDistance) {
+            neighborDistance = newNeighborDistance;
             if(lattice == null) return;
             for(int i=0; i<D; i++) {
-                idx[i] = 1+(int)(lattice.getSize()[i]*neighborDistance[i]/((CellLattice)lattice).dimensions.x(i));
-                this.neighborDistance[i] = neighborDistance[i];
+                idx[i] = 1+(int)(lattice.getSize()[i]*neighborDistance/((CellLattice)lattice).dimensions.x(i));
             }
             super.setRange(idx);
         }
         
+        public double getNeighborDistance() {
+            return neighborDistance;
+        }
+
         /**
          * Checks whether lattice dimensions have changed, and updates integer
          * neighbor range if they have. 
@@ -131,13 +120,13 @@ public class CellLattice extends RectangularLattice {
             if(lattice == null) return;
             Vector currentDimensions = ((CellLattice)lattice).getDimensions();
             if(!previousDimensions.equals(currentDimensions)) {
-                setRange(neighborDistance);
+                setNeighborDistance(neighborDistance);
                 previousDimensions.E(currentDimensions);
             }
         }
         
         private final int[] idx;//a work array
         private final Vector previousDimensions;
-        private final double[] neighborDistance;
+        private double neighborDistance;
     }//end of NeighborIterator
 }

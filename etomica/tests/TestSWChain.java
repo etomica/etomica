@@ -41,7 +41,7 @@ public class TestSWChain extends Simulation {
     public Phase phase;
 
     public TestSWChain(Space space, int numMolecules) {
-        super(space, true, new PotentialMasterNbr(space, 1.5*1.2));
+        super(space, true, new PotentialMasterNbr(space));
         int chainLength = 10;
         int numAtoms = numMolecules * chainLength;
         double sqwLambda = 1.5;
@@ -63,8 +63,8 @@ public class TestSWChain extends Simulation {
         nbrManager.setRange(defaults.atomSize*sqwLambda*neighborRangeFac);
         getController().addAction(activityIntegrate);
         activityIntegrate.setMaxSteps(nSteps);
-        int nCells = (int)(2*defaults.boxSize/(neighborRangeFac*sqwLambda*defaults.atomSize));
-        ((PotentialMasterNbr)potentialMaster).setNCells(nCells);
+        ((PotentialMasterNbr)potentialMaster).setCellRange(2);
+        ((PotentialMasterNbr)potentialMaster).setRange(neighborRangeFac*sqwLambda*defaults.atomSize);
 
         P2SquareWell potential = new P2SquareWell(space,defaults.atomSize,sqwLambda,0.5*defaults.potentialWell, false);
         NeighborCriterion nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());

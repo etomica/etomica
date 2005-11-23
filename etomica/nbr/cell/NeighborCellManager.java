@@ -44,14 +44,16 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
     private final AtomIteratorTree atomIterator;
     private final AtomPositionDefinition positionDefinition;
     private final Phase phase;
+    private int cellRange = 2;
+    private double range;
     
     /**
      * Constructs manager for neighbor cells in the given phase.  The number of
      * cells in each dimension is given by nCells. Position definition for each
      * atom is that given by its type (it is set to null in this class).
      */
-    public NeighborCellManager(Phase phase, int nCells) {
-        this(phase,nCells, null);
+    public NeighborCellManager(Phase phase, double potentialRange) {
+        this(phase, potentialRange, null);
     }
     
     /**
@@ -61,7 +63,7 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
      * definition given by the atom's type is used.  Position definition is
      * declared final.
      */
-    public NeighborCellManager(final Phase phase, int nCells, AtomPositionDefinition positionDefinition) {
+    public NeighborCellManager(final Phase phase, double potentialRange, AtomPositionDefinition positionDefinition) {
         this.positionDefinition = positionDefinition;
         this.phase = phase;
         space = phase.space();
@@ -70,9 +72,7 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
         atomIterator.setRoot(phase.getSpeciesMaster());
 
         lattice = new CellLattice(phase.getBoundary().getDimensions(), Cell.FACTORY);
-        int[] size = new int[space.D()];
-        for(int i=0; i<space.D(); i++) size[i] = nCells;
-        lattice.setSize(size);
+        setPotentialRange(potentialRange);
 
         //listener to phase to detect addition of new SpeciesAgent
         //or new atom
@@ -80,7 +80,58 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
     }
 
     public CellLattice getLattice() {
+        Vector dimensions = phase.getBoundary().getDimensions();
+        if (!dimensions.equals(lattice.getDimensions())) {
+            setPotentialRange(range);
+        }
         return lattice;
+    }
+
+    /**
+     * Sets the potential range to the given value.  Cells are made large 
+     * enough so that cellRange*cellSize > potentialRange.
+     */
+    public void setPotentialRange(double newRange) {
+        range = newRange;
+    }
+    
+    /**
+     * Returns the potential range.
+     */
+    public double getPotentialRange() {
+        return range;
+    }
+    
+    /**
+     * Returns the cellRange.
+     */
+    public int getCellRange() {
+        return cellRange;
+    }
+
+    /**
+     * Sets the cell range to the given value.  Cells are made large 
+     * enough so that cellRange*cellSize > potentialRange
+     */
+    public void setCellRange(int newCellRange) {
+        cellRange = newCellRange;
+    }
+    
+    /**
+     * Checks the phase's dimensions to make sure the number of cells is 
+     * appropriate.
+     */
+    public void checkDimensions() {
+        int[] nCells = new int[space.D()];
+        Vector dimensions = phase.getBoundary().getDimensions();
+        lattice.setDimensions(dimensions);
+        for (int i=0; i<space.D(); i++) {
+            nCells[i] = (int)Math.floor(cellRange*dimensions.x(i)/range);
+        }
+        int[] oldSize = lattice.getSize();
+        if (!oldSize.equals(nCells)) {
+            lattice.setSize(nCells);
+        }
     }
     
     /**

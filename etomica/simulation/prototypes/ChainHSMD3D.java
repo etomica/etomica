@@ -41,9 +41,7 @@ public class ChainHSMD3D extends Simulation {
         defaults.makeLJDefaults();
         defaults.atomSize = 1.0;
         defaults.boxSize = 14.4573*Math.pow((chainLength*numAtoms/2020.0),1.0/3.0);
-        int nCells = (int)(defaults.boxSize/neighborRangeFac);
-        System.out.println("nCells: "+nCells);
-        ((PotentialMasterNbr)potentialMaster).setNCells(nCells);
+        ((PotentialMasterNbr)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
 //FIXME        ((PotentialMasterNbr)potentialMaster).setAtomPositionDefinition(new DataSourceCOM(space));
 
         integrator = new IntegratorHard(this);

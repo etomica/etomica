@@ -56,17 +56,21 @@ public class PotentialMasterNbr extends PotentialMaster {
      */
     public PotentialMasterNbr(Space space, double range, AtomPositionDefinition positionDefinition) {
         super(space,new IteratorFactoryCell());
-        setNCells(10);
         neighborManager = new NeighborListManager(this, range);
         atomIterator = new AtomIteratorArrayList();
         singletIterator = new AtomIteratorSinglet();
         pairIterator = new ApiInnerFixed(singletIterator, atomIterator);
         swappedPairIterator = new ApiInnerFixed(singletIterator, atomIterator, true);
         this.positionDefinition = positionDefinition;
+        cellRange = 2;
 	}
     
     public void setRange(double range) {
         neighborManager.setRange(range);
+    }
+    
+    public void getRange() {
+        neighborManager.getRange();
     }
     
     /**
@@ -193,17 +197,24 @@ public class PotentialMasterNbr extends PotentialMaster {
     public NeighborCellManager getNbrCellManager(Phase phase) {
         NeighborCellManager manager = (NeighborCellManager)phase.getCellManager();
         if (manager == null) {
-            manager = new NeighborCellManager(phase, nCells, positionDefinition);
+            manager = new NeighborCellManager(phase, neighborManager.getRange(), positionDefinition);
+            manager.setCellRange(cellRange);
             phase.setCellManager(manager);
         }
+        else {
+            manager.setCellRange(cellRange);
+            manager.setPotentialRange(neighborManager.getRange());
+        }
+        manager.checkDimensions();
         return manager;
     }
 
-    public int getNCells() {
-        return nCells;
+    public void setCellRange(int newCellRange) {
+        cellRange = newCellRange;
     }
-    public void setNCells(int cells) {
-        nCells = cells;
+
+    public int getCellRange() {
+        return cellRange;
     }
     
     public AtomSequencerFactory sequencerFactory() {return AtomSequencerNbr.FACTORY;}
@@ -217,7 +228,7 @@ public class PotentialMasterNbr extends PotentialMaster {
 	private final ApiInnerFixed pairIterator;
     private final ApiInnerFixed swappedPairIterator;
 	private final NeighborListManager neighborManager;
-    private int nCells;
+    private int cellRange;
     private final IteratorDirective idUp = new IteratorDirective();
     private final AtomPositionDefinition positionDefinition;
     

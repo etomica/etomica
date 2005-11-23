@@ -37,7 +37,7 @@ public class TestSWMC3D extends Simulation {
     public Controller controller;
 
     public TestSWMC3D(Space space, int numAtoms) {
-        super(space, false, new PotentialMasterCell(space, 1.5));
+        super(space, false, new PotentialMasterCell(space));
         defaults.makeLJDefaults();
         double sqwLambda = 1.5;
 	    integrator = new IntegratorMC(this);
@@ -54,7 +54,7 @@ public class TestSWMC3D extends Simulation {
         phase.setDensity(0.7);
         integrator.addMCMoveListener(((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).makeMCMoveListener());
         potential = new P2SquareWell(space,defaults.atomSize,sqwLambda,defaults.potentialWell,false);
-        ((PotentialMasterCell)potentialMaster).setNCells((int)(phase.getBoundary().getDimensions().x(0)/potential.getRange()));
+        ((PotentialMasterCell)potentialMaster).setCellRange(2);
         ((PotentialMasterCell)potentialMaster).setRange(potential.getRange());
         potential.setCriterion(etomica.nbr.NeighborCriterion.ALL);
         potentialMaster.addPotential(potential, new Species[] {species, species});

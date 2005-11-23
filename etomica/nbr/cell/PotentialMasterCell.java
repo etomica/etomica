@@ -46,7 +46,7 @@ public class PotentialMasterCell extends PotentialMasterSite {
     }
 
     public void setRange(double d) {
-        ((Api1ACell)neighborIterator).getNbrCellIterator().setRange(d);
+        ((Api1ACell)neighborIterator).getNbrCellIterator().setNeighborDistance(d);
     }
     
     public AtomSequencerFactory sequencerFactory() {return AtomSequencerCell.FACTORY;}
