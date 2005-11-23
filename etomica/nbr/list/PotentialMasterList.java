@@ -17,12 +17,12 @@ import etomica.atom.iterator.AtomIteratorArrayList;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.PotentialCalculationUpdateTypeList;
+import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.cell.IteratorFactoryCell;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.phase.Phase;
 import etomica.potential.Potential;
 import etomica.potential.PotentialCalculation;
-import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 
 /**
@@ -32,13 +32,13 @@ import etomica.space.Space;
  * are specified in the setSpecies method of this class.
  * <br>
  */
-public class PotentialMasterNbr extends PotentialMaster {
+public class PotentialMasterList extends PotentialMasterNbr {
 
 	/**
      * Default constructor.  Range should be set manually via 
      * neighborCellManager.
      */
-    public PotentialMasterNbr(Space space) {
+    public PotentialMasterList(Space space) {
         this(space,1.0);
     }
     
@@ -46,7 +46,7 @@ public class PotentialMasterNbr extends PotentialMaster {
 	 * Invokes superclass constructor, specifying IteratorFactoryCell
      * for generating molecule iterators.  Sets default nCells of 10. 
 	 */
-	public PotentialMasterNbr(Space space, double range) {
+	public PotentialMasterList(Space space, double range) {
         this(space, range, null);
     }
     
@@ -54,7 +54,7 @@ public class PotentialMasterNbr extends PotentialMaster {
      * Constructs class using given position definition for all atom cell assignments.
      * @param positionDefinition if null, specifies use of atom type's position definition
      */
-    public PotentialMasterNbr(Space space, double range, AtomPositionDefinition positionDefinition) {
+    public PotentialMasterList(Space space, double range, AtomPositionDefinition positionDefinition) {
         super(space,new IteratorFactoryCell());
         neighborManager = new NeighborListManager(this, range);
         atomIterator = new AtomIteratorArrayList();
@@ -73,15 +73,6 @@ public class PotentialMasterNbr extends PotentialMaster {
         neighborManager.getRange();
     }
     
-    /**
-     * Performs cell-assignment potentialCalculation.  Assigns all molecules
-     * to their cells, and invokes superclass method causing setup to be
-     * performed iterating using species/potential hierarchy.
-     */
-    public void calculate(Phase phase, PotentialCalculationUpdateTypeList pc) {
-        super.calculate(phase, new IteratorDirective(), pc);
-    }
-
 
     /**
      * Overrides superclass method to enable direct neighbor-list iteration

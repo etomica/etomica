@@ -13,11 +13,11 @@ import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.AtomSequencerNbr;
 import etomica.nbr.list.NeighborListManager;
-import etomica.nbr.list.PotentialMasterNbr;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
 import etomica.potential.Potential;
+import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
-import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.species.Species;
 
@@ -28,7 +28,7 @@ import etomica.species.Species;
  * proceeds.  See DCVGCMD simulation module for an example.
  * <br>
  */
-public class PotentialMasterHybrid extends PotentialMaster {
+public class PotentialMasterHybrid extends PotentialMasterNbr {
 
 	/**
 	 * Invokes superclass constructor, specifying IteratorFactoryCell
@@ -46,28 +46,18 @@ public class PotentialMasterHybrid extends PotentialMaster {
      */
     public PotentialMasterHybrid(Space space, AtomPositionDefinition positionDefinition, double range) {
         super(space,new IteratorFactoryCell());
-        potentialMasterNbr = new PotentialMasterNbr(space, range, positionDefinition);
+        potentialMasterNbr = new PotentialMasterList(space, range, positionDefinition);
         potentialMasterCell = new PotentialMasterCell(space, range, positionDefinition);
 	}
-   
+
     /**
-     * Performs cell-assignment potentialCalculation.  Assigns all molecules
-     * to their cells, and invokes superclass method causing setup to be
-     * performed iterating using species/potential hierarchy.
-     */
-    //TODO move this method to PotentialMaster superclass
-    public void calculate(Phase phase, PotentialCalculationUpdateTypeList pc) {
-        super.calculate(phase,new IteratorDirective(),pc);
-    }
-    
-    /**
-     * Forward addPotentialBad to the PotentialMasterCell.  PotentialMasterNbr 
+     * Forward updateTypeList to the PotentialMasterCell.  PotentialMasterNbr 
      * needs this too, but gets it on its own from NeighborManager.
      */
-    public void addToPotentialTypeList(Potential potential, AtomType[] atomTypes) {
-        potentialMasterCell.addToPotentialTypeList(potential, atomTypes);
+    public void updateTypeList(Phase phase) {
+        potentialMasterCell.updateTypeList(phase);
     }
-
+    
     /**
      * Overrides superclass method to enable direct neighbor-list iteration
      * instead of iteration via species/potential hierarchy. If no target atoms are
@@ -121,7 +111,6 @@ public class PotentialMasterHybrid extends PotentialMaster {
     public void addPotential(Potential potential, Species[] species) {
         potentialMasterNbr.addPotential(potential, species);
         potentialMasterCell.addPotential(potential, species);
-        super.addPotential(potential, species);
     }
     
     public NeighborListManager getNeighborManager() {
@@ -129,6 +118,6 @@ public class PotentialMasterHybrid extends PotentialMaster {
     }
 
     private boolean useNbrLists;
-    private final PotentialMasterNbr potentialMasterNbr;
+    private final PotentialMasterList potentialMasterNbr;
     private final PotentialMasterCell potentialMasterCell;
 }

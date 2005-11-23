@@ -9,7 +9,7 @@ import etomica.nbr.CriterionSimple;
 import etomica.nbr.CriterionSpecies;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.NeighborListManager;
-import etomica.nbr.list.PotentialMasterNbr;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
@@ -35,16 +35,16 @@ public class TestHSMD3D extends Simulation {
 
     public TestHSMD3D(Space space, int numAtoms) {
         // use custom bit lengths to allow for more "molecules"
-        super(space, true, new PotentialMasterNbr(space), new int[] {1, 4, 4, 21, 1, 1}, new Default());
+        super(space, true, new PotentialMasterList(space), new int[] {1, 4, 4, 21, 1, 1}, new Default());
         
         double neighborRangeFac = 1.6;
         defaults.makeLJDefaults();
         // makes eta = 0.35
         defaults.boxSize = 14.4573*Math.pow((numAtoms/2000.0),1.0/3.0);
-        ((PotentialMasterNbr)potentialMaster).setCellRange(1);
-        ((PotentialMasterNbr)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
+        ((PotentialMasterList)potentialMaster).setCellRange(1);
+        ((PotentialMasterList)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
         integrator = new IntegratorHard(this);
-        NeighborListManager nbrManager = ((PotentialMasterNbr)potentialMaster).getNeighborManager();
+        NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager();
         nbrManager.setRange(defaults.atomSize*1.6);
         nbrManager.getPbcEnforcer().setApplyToMolecules(false);
         integrator.addListener(nbrManager);

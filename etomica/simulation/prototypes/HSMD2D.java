@@ -6,7 +6,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.NeighborListManager;
-import etomica.nbr.list.PotentialMasterNbr;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
@@ -40,19 +40,19 @@ public class HSMD2D extends Simulation {
     }
     
     private HSMD2D(Space2D space, Default defaults) {
-        super(space, true, new PotentialMasterNbr(space), Default.BIT_LENGTH, defaults);
+        super(space, true, new PotentialMasterList(space), Default.BIT_LENGTH, defaults);
 //        super(space, new PotentialMaster(space));//,IteratorFactoryCell.instance));
         defaults.makeLJDefaults();
         defaults.atomSize = 0.38;
 
         double neighborRangeFac = 1.6;
-        ((PotentialMasterNbr)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
+        ((PotentialMasterList)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
 
         integrator = new IntegratorHard(this);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 
-        NeighborListManager nbrManager = ((PotentialMasterNbr)potentialMaster).getNeighborManager();
+        NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager();
         nbrManager.setRange(defaults.atomSize*1.6);
         nbrManager.getPbcEnforcer().setApplyToMolecules(false);
         integrator.addListener(nbrManager);

@@ -11,7 +11,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.NeighborCriterion;
-import etomica.nbr.list.PotentialMasterNbr;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
 import etomica.potential.P1BondedHardSpheres;
 import etomica.potential.P2HardSphere;
@@ -33,7 +33,7 @@ public class ChainHSMD3D extends Simulation {
     }
     private ChainHSMD3D(Space space) {
 //        super(space, new PotentialMaster(space));
-        super(space, true, new PotentialMasterNbr(space, 1.6));
+        super(space, true, new PotentialMasterList(space));
         defaults.ignoreOverlap = true;
         int numAtoms = 704;
         int chainLength = 4;
@@ -41,12 +41,12 @@ public class ChainHSMD3D extends Simulation {
         defaults.makeLJDefaults();
         defaults.atomSize = 1.0;
         defaults.boxSize = 14.4573*Math.pow((chainLength*numAtoms/2020.0),1.0/3.0);
-        ((PotentialMasterNbr)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
+        ((PotentialMasterList)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
 //FIXME        ((PotentialMasterNbr)potentialMaster).setAtomPositionDefinition(new DataSourceCOM(space));
 
         integrator = new IntegratorHard(this);
         integrator.setIsothermal(false);
-        integrator.addListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
+        integrator.addListener(((PotentialMasterList)potentialMaster).getNeighborManager());
         integrator.setTimeStep(0.01);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setDoSleep(true);
@@ -71,7 +71,7 @@ public class ChainHSMD3D extends Simulation {
 //FIXME        NeighborCriterionWrapper moleculeCriterion = new NeighborCriterionWrapper(new NeighborCriterion[]{criterion});
 //FIXME        moleculeCriterion.setNeighborRange(3.45 + criterion.getNeighborRange());
 //FIXME        ((PotentialMasterNbr)potentialMaster).setSpecies(p2Inter,new Species[]{species,species},moleculeCriterion);
-        ((PotentialMasterNbr)potentialMaster).getNeighborManager().addCriterion(criterion,
+        ((PotentialMasterList)potentialMaster).getNeighborManager().addCriterion(criterion,
                 new AtomType[]{((AtomFactoryHomo)species.moleculeFactory()).getChildFactory().getType()});
         
         //        Crystal crystal = new LatticeCubicFcc(space);

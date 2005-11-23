@@ -18,20 +18,20 @@ import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.PotentialCalculationUpdateTypeList;
+import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.cell.IteratorFactoryCell;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.phase.Phase;
 import etomica.potential.Potential;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialCalculation;
-import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 
 /**
  * 
  * <br>
  */
-public class PotentialMasterSite extends PotentialMaster {
+public class PotentialMasterSite extends PotentialMasterNbr {
 
 	/**
 	 * Invokes superclass constructor, specifying IteratorFactoryCell
@@ -80,16 +80,6 @@ public class PotentialMasterSite extends PotentialMaster {
     public void setCellRange(int cellRange) {
         this.cellRange = cellRange;
     }
-
-    /**
-     * Performs cell-assignment potentialCalculation.  Assigns all molecules
-     * to their cells, and invokes superclass method causing setup to be
-     * performed iterating using species/potential hierarchy.
-     */
-    public void calculate(Phase phase, PotentialCalculationUpdateTypeList pc) {
-        super.calculate(phase, new IteratorDirective(), pc);
-    }
-
 
     /**
      * Overrides superclass method to enable direct neighbor-list iteration

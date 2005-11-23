@@ -4,6 +4,8 @@
  */
 package etomica.nbr;
 
+import java.util.LinkedList;
+
 import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomType;
@@ -14,7 +16,6 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.potential.Potential;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialGroup;
-import etomica.potential.PotentialMaster;
 
 /**
  * PotentialCalculation that adds concrete potentials to the NeighborManagerAgents of
@@ -24,10 +25,6 @@ import etomica.potential.PotentialMaster;
  */
 public class PotentialCalculationUpdateTypeList extends PotentialCalculation {
 
-    public PotentialCalculationUpdateTypeList(PotentialMaster potentialMaster) {
-        this.potentialMaster = potentialMaster;
-    }
-    
     public void doCalculation(AtomsetIterator iterator, IteratorDirective id, Potential potential) {    
         if(potential instanceof PotentialGroup) {
             iterator.reset();
@@ -56,7 +53,7 @@ public class PotentialCalculationUpdateTypeList extends PotentialCalculation {
             iterator.reset();
             if(iterator.hasNext()) {
                 Atom atom = (Atom)iterator.next();
-                potentialMaster.addToPotentialTypeList(potential,new AtomType[]{atom.type});
+                potentialAtomTypeList.add(new PotentialAtomTypeWrapper(potential,new AtomType[]{atom.type}));
             }
             break;
         case 2:
@@ -66,26 +63,24 @@ public class PotentialCalculationUpdateTypeList extends PotentialCalculation {
             iterator.reset();
             if (iterator.hasNext()) {
                 AtomPair atoms = (AtomPair)iterator.next();
-                types[0] = atoms.atom0.type;
-                types[1] = atoms.atom1.type;
-                potentialMaster.addToPotentialTypeList(potential,types);
+                potentialAtomTypeList.add(new PotentialAtomTypeWrapper(potential,new AtomType[]{atoms.atom0.type,atoms.atom1.type}));
             }
             break;
         }
-//		if(iterator.nBody() != 2) return;
-//        if (iterator instanceof AtomsetIteratorDirectable) {
-//            ((AtomsetIteratorDirectable)iterator).setDirection(IteratorDirective.UP);
-//        }
-//		iterator.reset();
-//        if (iterator.hasNext()) {
-//            AtomPair atoms = (AtomPair)iterator.next();
-//            Atom atom0 = atoms.atom0;
-//            Atom atom1 = atoms.atom1;
-//            atom0.type.getNbrManagerAgent().addPotential(potential);
-//            if(atom1.type != atom0.type) atom1.type.getNbrManagerAgent().addPotential(potential);
-//        }
 	}
-    
-    private final PotentialMaster potentialMaster;
-    private final AtomType[] types = new AtomType[2];
+
+    public LinkedList getPotentialsTypeList() {
+        return potentialAtomTypeList;
+    }
+
+    protected LinkedList potentialAtomTypeList = new LinkedList();
+
+    public static class PotentialAtomTypeWrapper {
+        public PotentialAtomTypeWrapper(Potential p, AtomType[] types) {
+            potential = p;
+            atomTypes = types;
+        }
+        public Potential potential;
+        public AtomType[] atomTypes;
+    }
 }

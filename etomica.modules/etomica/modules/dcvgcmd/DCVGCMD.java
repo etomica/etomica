@@ -162,7 +162,7 @@ public class DCVGCMD extends Simulation {
         /***/
         nbrManager.setRange(potential.getRange() * neighborRangeFac);
         integratorMC.addMCMoveListener(potentialMasterHybrid.getNbrCellManager(phase).makeMCMoveListener());
-        potentialMasterHybrid.calculate(phase, new PotentialCalculationUpdateTypeList(potentialMasterHybrid));
+        potentialMasterHybrid.updateTypeList(phase);
 
 
         activityIntegrate = new ActivityIntegrate(this,integratorDCV);

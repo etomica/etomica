@@ -2,7 +2,7 @@ package etomica.models.hexane;
 
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
-import etomica.nbr.list.PotentialMasterNbr;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
 import etomica.potential.Potential2;
 import etomica.simulation.Simulation;
@@ -26,14 +26,14 @@ public class HSMD3DHexane extends Simulation {
     
     public HSMD3DHexane(Space space, int numAtoms){
         // use custom bit lengths to allow for more "molecules"        
-        super(space, true, new PotentialMasterNbr(space, 1.6), new int[]{1,4,4,21,1,1}, new Default());
+        super(space, true, new PotentialMasterList(space), new int[]{1,4,4,21,1,1}, new Default());
         
         double neighborRangeFac = 1.6;
         defaults.makeLJDefaults();
         
         defaults.boxSize = 14.4573*Math.pow(numAtoms/2000.0,1.0/3.0);
-        ((PotentialMasterNbr)potentialMaster).setCellRange(1);
-        ((PotentialMasterNbr)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
+        ((PotentialMasterList)potentialMaster).setCellRange(1);
+        ((PotentialMasterList)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
         
         
         

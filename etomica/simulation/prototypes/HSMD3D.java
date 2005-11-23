@@ -11,7 +11,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.NeighborListManager;
-import etomica.nbr.list.PotentialMasterNbr;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;
 import etomica.simulation.Simulation;
@@ -72,21 +72,21 @@ public class HSMD3D extends Simulation {
         // invoke the superclass constructor
         // "true" is indicating to the superclass that this is a dynamic simulation
         // the PotentialMaster is selected such as to implement neighbor listing
-        super(space, true, new PotentialMasterNbr(space, 1.6), Default.BIT_LENGTH, defaults);
+        super(space, true, new PotentialMasterList(space, 1.6), Default.BIT_LENGTH, defaults);
 
         int numAtoms = 256;
         double neighborRangeFac = 1.6;
         defaults.makeLJDefaults();
         defaults.atomSize = 1.0;
         defaults.boxSize = 14.4573*Math.pow((numAtoms/2020.0),1.0/3.0);
-        ((PotentialMasterNbr)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
+        ((PotentialMasterList)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
 
         integrator = new IntegratorHard(this);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
         this.register(integrator);
 
-        NeighborListManager nbrManager = ((PotentialMasterNbr)potentialMaster).getNeighborManager();
+        NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager();
         nbrManager.setRange(defaults.atomSize*1.6);
         nbrManager.getPbcEnforcer().setApplyToMolecules(false);
         integrator.addListener(nbrManager);

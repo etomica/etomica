@@ -5,7 +5,6 @@
 package etomica.nbr.cell;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;

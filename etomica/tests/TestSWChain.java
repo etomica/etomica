@@ -19,7 +19,7 @@ import etomica.nbr.CriterionMolecular;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.NeighborListManager;
-import etomica.nbr.list.PotentialMasterNbr;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
 import etomica.potential.P1BondedHardSpheres;
 import etomica.potential.P2HardBond;
@@ -41,7 +41,7 @@ public class TestSWChain extends Simulation {
     public Phase phase;
 
     public TestSWChain(Space space, int numMolecules) {
-        super(space, true, new PotentialMasterNbr(space));
+        super(space, true, new PotentialMasterList(space));
         int chainLength = 10;
         int numAtoms = numMolecules * chainLength;
         double sqwLambda = 1.5;
@@ -58,13 +58,13 @@ public class TestSWChain extends Simulation {
         integrator.setTimeStep(timeStep);
         integrator.setIsothermal(true);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
-        NeighborListManager nbrManager = ((PotentialMasterNbr)potentialMaster).getNeighborManager();
+        NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager();
         integrator.addListener(nbrManager);
         nbrManager.setRange(defaults.atomSize*sqwLambda*neighborRangeFac);
         getController().addAction(activityIntegrate);
         activityIntegrate.setMaxSteps(nSteps);
-        ((PotentialMasterNbr)potentialMaster).setCellRange(2);
-        ((PotentialMasterNbr)potentialMaster).setRange(neighborRangeFac*sqwLambda*defaults.atomSize);
+        ((PotentialMasterList)potentialMaster).setCellRange(2);
+        ((PotentialMasterList)potentialMaster).setRange(neighborRangeFac*sqwLambda*defaults.atomSize);
 
         P2SquareWell potential = new P2SquareWell(space,defaults.atomSize,sqwLambda,0.5*defaults.potentialWell, false);
         NeighborCriterion nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
@@ -92,7 +92,7 @@ public class TestSWChain extends Simulation {
         
         AtomTypeSphere sphereType = (AtomTypeSphere)((AtomFactoryHomo)species.moleculeFactory()).getChildFactory().getType();
         potentialMaster.addPotential(potential,new AtomType[]{sphereType,sphereType});
-        ((PotentialMasterNbr)potentialMaster).getNeighborManager().addCriterion(nbrCriterion,new AtomType[]{sphereType});
+        ((PotentialMasterList)potentialMaster).getNeighborManager().addCriterion(nbrCriterion,new AtomType[]{sphereType});
 
         phase = new Phase(this);
 

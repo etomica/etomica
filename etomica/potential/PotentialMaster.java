@@ -147,21 +147,6 @@ public class PotentialMaster implements java.io.Serializable {
         pGroup.addPotential(potential,atomTypes,this);
     }
     
-    public void addToPotentialTypeList(Potential potential, AtomType[] atomTypes) {
-        for (int i=0; i<atomTypes.length; i++) {
-            while (potentialAtomTypeList.length < atomTypes[i].getIndex()+1) {
-                potentialAtomTypeList = (PotentialArray[])etomica.util.Arrays.addObject(potentialAtomTypeList, new PotentialArray());
-            }
-            PotentialArray potentialAtomType = potentialAtomTypeList[atomTypes[i].getIndex()];
-            potentialAtomType.addPotential(potential);
-            atomTypes[i].setInteracting(true);
-        }
-    }
-    
-    public PotentialArray getPotentials(AtomType atomType) {
-        return potentialAtomTypeList[atomType.getIndex()];
-    }
-    
     /**
      * Returns the potential that applies to the specified types,
      * or null of no existing potential applies.
@@ -312,7 +297,6 @@ public class PotentialMaster implements java.io.Serializable {
     protected PotentialLinker first, last;
     protected boolean enabled = true;
     protected final Space space;
-    protected PotentialArray[] potentialAtomTypeList = new PotentialArray[0];
     
     private static class AtomIterator0 extends AtomsetIteratorSinglet implements AtomsetIteratorMolecule {
         AtomIterator0() {
