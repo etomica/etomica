@@ -14,16 +14,12 @@ import java.util.Iterator;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
-import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
-import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polyhedron;
 import etomica.phase.Phase;
-import etomica.phase.PhaseEvent;
-import etomica.phase.PhaseListener;
 import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
@@ -42,7 +38,7 @@ import gl4java.utils.glut.GLUTEnum;
      */
 
 //Class used to define canvas onto which configuration is drawn
-public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements GLUTEnum, PhaseListener {
+public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements GLUTEnum {
     
   private final double rightClipPlane[] = new double[4];
   private final double leftClipPlane[] = new double[4];
@@ -56,20 +52,17 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   private final float LightSpecular[] = { 1f, 1f, 1f, 1f };
   private final float LightDiffuse[] = { 0.93f, 0.93f, 0.93f, 1f };
   private final float LightPosition[] = { 1f, 1f, 3f, 0f };
-  private final float LightPosition2[] = { -1f, -1f, -3f, 0f };
   private int sphereList[]; // Storage number for our sphere
   private int wellList[]; // Storage number for our wells
   private int displayList; // Storage number for displaying image shells
   private double sphereListRadius = 0f;
   private double wellListRadius = 0f;
-  private boolean glInitialized = false, canvasInitialized = false;
+  private boolean glInitialized = false;
   private double drawExpansionFactor = 1.0;
   private final Vector3D vertex = new Vector3D();
 
   //The transparent grey color for the wells
   private final static byte wR=(byte)200, wG=(byte)200, wB=(byte)200, wA=(byte)160;
-  //The marker color for the orientations
-  private final static byte mR=(byte)255, mG=(byte)10, mB=(byte)60;
   
   //Variables for translations and zooms
   private float shiftZ = -70f, shiftX = 0f, shiftY = 0f;
@@ -79,16 +72,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   private float xCenter, yCenter, zCenter;
   private etomica.space3d.Vector3D center = new etomica.space3d.Vector3D();
 
-  //The groups of atoms
-  private Atom sphereCores[];
-  private Atom sphereWells[];
-  private Atom sphereRotators[];
-  private Atom walls[];
-  //The verticies of said atoms
-  private float vertSphereCores[];
-  private int vertSphereWellBase[];
-  private int vertSphereRotatorBase[];
-  private float vertWalls[];
+  private final float vert[];
       
   //Work vector for overflow images
   private float[][] originShifts;
@@ -126,13 +110,13 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     //scaleText.setVisible(true);
     //scaleText.setEditable(false);
     //scaleText.setBounds(0,0,100,50);
+    vert = new float[3];
     setAnimateFps(24.);
     displayPhase = newDisplayPhase;
     if(displayPhase != null) {
         colorScheme = displayPhase.getColorScheme();
         atomFilter = displayPhase.getAtomFilter();
     }
-    setPhase();
   }
       
   //public void preInit() {
@@ -243,78 +227,8 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     //stop();
     
     glInitialized = true;
-}
-      
-  public synchronized void initialize() {
-    int countSphereCores = 0, countSphereWells = 0, countSphereRotators = 0;
-    int countWalls = 0, countAll = 0;
-    float vertAll[];
-    Atom atoms[];
-
-    AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(displayPhase.getPhase());
-    countAll = iter.size();
-    
-    if(countAll==0) return;
-    
-    vertAll = new float[countAll*3];
-    atoms = new Atom[countAll];
-    
-    int i = 0;
-    
-	drawExpansionShiftX = 0f; 
-	drawExpansionShiftY = 0f;
-	drawExpansionShiftZ = 0f;
-	if(drawExpansionFactor != 1.0) {
-		Vector box = displayPhase.getPhase().getBoundary().getDimensions();
-		float mult = (float)(0.5*(drawExpansionFactor - 1.0)/* *(2.0*displayPhase.getImageShells()+1)*/);
-		drawExpansionShiftX = (float)(mult*box.x(0));
-		drawExpansionShiftY = (float)(mult*box.x(1));
-		drawExpansionShiftZ = (float)(mult*box.x(2));
-	}
-
-    iter.reset();
-    while(iter.hasNext()) {
-      Atom a = iter.nextAtom();
-      atoms[i/3] = a;
-      vertAll[i] = (float)a.coord.position().x(0);// + drawExpansionShiftX;
-      vertAll[i+1] = (float)a.coord.position().x(1);// + drawExpansionShiftY;
-      vertAll[i+2] = (float)a.coord.position().x(2);// + drawExpansionShiftZ;
-      if(a.type instanceof AtomTypeOrientedSphere) countSphereRotators++;
-      if(a.type instanceof AtomTypeWell) countSphereWells++;
-      if(a.type instanceof AtomTypeSphere) countSphereCores++;
-      i += 3;
-    }
-    
-    sphereCores = new Atom[countSphereCores];
-    sphereWells = new Atom[countSphereWells];
-    sphereRotators = new Atom[countSphereRotators];
-    walls = new Atom[countWalls];
-    vertSphereCores = new float[countSphereCores*3];
-    vertSphereWellBase = new int[countSphereWells];
-    vertSphereRotatorBase = new int[countSphereRotators];
-    vertWalls = new float[countWalls*3];
-    for(int j=0,k=0,l=0,m=0; (j/3) < atoms.length; j+=3) {
-      if(atoms[j/3].type instanceof AtomTypeSphere) {
-        sphereCores[m/3] = atoms[j/3];
-        vertSphereCores[m] = vertAll[j];
-        vertSphereCores[m+1] = vertAll[j+1];
-        vertSphereCores[m+2] = vertAll[j+2];
-        m+=3;
-      }
-      if(atoms[j/3].type instanceof AtomTypeOrientedSphere) {
-        sphereRotators[k] = atoms[j/3];
-        vertSphereRotatorBase[k] = m-3;
-        k++;
-      }
-      if(atoms[j/3].type instanceof AtomTypeWell) {
-        sphereWells[l] = atoms[j/3];
-        vertSphereWellBase[l] = m-3;
-        l++;
-      }
-    }
-    canvasInitialized = true;
   }
-
+  
   public void reshape(int width, int height) {
     if(!glInitialized) return;
     super.reshape(width, height);
@@ -368,29 +282,13 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     wellListRadius = wellRadius;
   }
 
-  /**
-  * Sets the size of the display to a new value and scales the image so that
-  * the phase fits in the canvas in the same proportion as before.
-  */
-  public void scaleSetSize(int width, int height) {
-    System.out.println("Scale: New WxH: "+width+"x"+height);
-    /*if(getBounds().width * getBounds().height != 0) {  //reset scale based on larger size change
-      double ratio1 = (double)width/(double)getBounds().width;
-      double ratio2 = (double)height/(double)getBounds().height;
-      double factor = Math.min(ratio1, ratio2);
-      //double factor = (Math.abs(Math.log(ratio1)) > Math.abs(Math.log(ratio2))) ? ratio1 : ratio2;
-      displayPhase.setScale(displayPhase.getScale()*factor);
-      setSize(width, height);
-    }*/
-  }
-  
   public void setAtomFilter(AtomFilter filter) {atomFilter = filter;}
 
-    private etomica.math.geometry.Plane plane; // (DAK) 09/21/02
-    private etomica.space3d.Vector3D[] points;
-    private etomica.space3d.Vector3D normal;
-    private etomica.space3d.Vector3D nearest;
-    protected DisplayPhase displayPhase;
+  private etomica.math.geometry.Plane plane; // (DAK) 09/21/02
+  private etomica.space3d.Vector3D[] points;
+  private etomica.space3d.Vector3D normal;
+  private etomica.space3d.Vector3D nearest;
+  protected DisplayPhase displayPhase;
     
   private void drawDisplay() {
     
@@ -400,136 +298,67 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
         ((ColorSchemeCollective)displayPhase.getColorScheme()).colorAllAtoms(displayPhase.getPhase());
     }
 
-    if(walls.length > 0) {
-      lastColor = null;
-      int i = walls.length - 1;
-      i += i<<1;
-      while(i >= 0) {
-        Atom a = walls[i/3];
-        if(!atomFilter.accept(a)) {i-=3; continue;}
-        Color c = colorScheme.atomColor(a);
-        Vector r = a.coord.position();
-        //Update the positions of the atom
-        vertWalls[i] = (float)r.x(0) - xCenter + drawExpansionShiftX;
-        vertWalls[i+1] = (float)r.x(1) - yCenter + drawExpansionShiftY;
-        vertWalls[i+2] = (float)r.x(2) - zCenter + drawExpansionShiftZ;
-        //Update the color for the atom
-        if(!c.equals(lastColor)) {
-          gl.glColor4ub((byte)c.getRed(), (byte)c.getGreen(), (byte)c.getBlue(), (byte)c.getAlpha());
-          lastColor = c;
-        }
-        gl.glPushMatrix();
-        gl.glTranslatef(vertWalls[i], vertWalls[i+1], vertWalls[i+2]);
-        //!!! Draw wall here
-        //Draw overflow images if so indicated
-        if(displayPhase.getDrawOverflow()) {
-//          setDrawExpansionFactor(1.0);
-          if(computeShiftOrigin(a, displayPhase.getPhase().getBoundary())) {
-            int j = originShifts.length;
-            while((--j) >= 0) {
-              gl.glPushMatrix();
-              gl.glTranslatef(originShifts[j][0], originShifts[j][1], originShifts[j][2]);
-              //!!! Draw wall here
-              gl.glPopMatrix();
+    AtomIteratorLeafAtoms atomIter = new AtomIteratorLeafAtoms(displayPhase.getPhase());
+    atomIter.reset();
+    
+    lastColor = null;
+    while (atomIter.hasNext()) {
+        Atom a = atomIter.nextAtom();
+        if (a.type instanceof AtomTypeSphere) {
+            if(!atomFilter.accept(a)) {continue;}
+            
+            boolean drawOverflow = false;
+            if(displayPhase.getDrawOverflow()) {
+                drawOverflow = computeShiftOrigin(a, displayPhase.getPhase().getBoundary());
             }
-          }
-        }
-        gl.glPopMatrix();
-        i-=3;
-      }
-    }
-    if(sphereCores.length > 0) {
-      lastColor = null;
-      int i = sphereCores.length - 1;
-      i += i<<1;
-      while(i >= 0) {
-        Atom a = sphereCores[i/3];
-        if(!atomFilter.accept(a)) {i-=3; continue;}
-        Color c = colorScheme.atomColor(a);
-        Vector r = a.coord.position();
-        //Update the positions of the atom
-        vertSphereCores[i] = (float)r.x(0) - xCenter + drawExpansionShiftX;
-        vertSphereCores[i+1] = (float)r.x(1) - yCenter + drawExpansionShiftY;
-        vertSphereCores[i+2] = (float)r.x(2) - zCenter + drawExpansionShiftZ;
-        //Update the color for the atom
-        if(!c.equals(lastColor)) {
-          gl.glColor4ub((byte)c.getRed(), (byte)c.getGreen(), (byte)c.getBlue(), (byte)c.getAlpha());
-          lastColor = c;
-        }
-        if(sphereListRadius != ((AtomTypeSphere)a.type).radius(a))
-          initSphereList(((AtomTypeSphere)a.type).radius(a));
-        gl.glPushMatrix();
-        gl.glTranslatef(vertSphereCores[i], vertSphereCores[i+1], vertSphereCores[i+2]);
-        gl.glCallList(sphereList[getQuality()]);
-        //gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 2);
-        //Draw overflow images if so indicated
-        if(displayPhase.getDrawOverflow()) {
-//          setDrawExpansionFactor(1.0);
-          if(computeShiftOrigin(a, displayPhase.getPhase().getBoundary())) {
-            int j = originShifts.length;
-            while((--j) >= 0) {
-              gl.glPushMatrix();
-              gl.glTranslatef(originShifts[j][0], originShifts[j][1], originShifts[j][2]);
-              gl.glCallList(sphereList[getQuality()]);
-              gl.glPopMatrix();
+            Color c = colorScheme.atomColor(a);
+            Vector r = a.coord.position();
+            //Update the positions of the atom
+            vert[0] = (float)r.x(0) - xCenter + drawExpansionShiftX;
+            vert[1] = (float)r.x(1) - yCenter + drawExpansionShiftY;
+            vert[2] = (float)r.x(2) - zCenter + drawExpansionShiftZ;
+            //Update the color for the atom
+            if(!c.equals(lastColor)) {
+              gl.glColor4ub((byte)c.getRed(), (byte)c.getGreen(), (byte)c.getBlue(), (byte)c.getAlpha());
+              lastColor = c;
             }
-          }
-        }
-        gl.glPopMatrix();
-        i-=3;
-      }
-    }
-    if(sphereWells.length > 0) {
-      int i = sphereWells.length;
-      gl.glColor4ub(wR, wG, wB, wA);
-      while((--i) >= 0) {
-        Atom a = sphereWells[i];
-        if(!atomFilter.accept(a)) {continue;}
-        if(wellListRadius != ((AtomTypeWell)a.type).wellRadius())
-          initWellList(((AtomTypeWell)a.type).wellRadius());
-        gl.glPushMatrix();
-        gl.glTranslatef(vertSphereCores[vertSphereWellBase[i]], vertSphereCores[vertSphereWellBase[i]+1], vertSphereCores[vertSphereWellBase[i]+2]);
-        gl.glCallList(wellList[getQuality()]);
-        //Draw overflow images if so indicated
-        if(displayPhase.getDrawOverflow()) {
-//          setDrawExpansionFactor(1.0);
-          if(computeShiftOrigin(a, displayPhase.getPhase().getBoundary())) {
-            int j = originShifts.length;
-            while((--j) >= 0) {
-              gl.glPushMatrix();
-              gl.glTranslatef(originShifts[j][0], originShifts[j][1], originShifts[j][2]);
-              gl.glCallList(wellList[getQuality()]);
-              gl.glPopMatrix();
+            if(sphereListRadius != ((AtomTypeSphere)a.type).radius(a))
+              initSphereList(((AtomTypeSphere)a.type).radius(a));
+            gl.glPushMatrix();
+            gl.glTranslatef(vert[0], vert[1], vert[2]);
+            gl.glCallList(sphereList[getQuality()]);
+            //gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 2);
+            //Draw overflow images if so indicated
+            if (drawOverflow) {
+                int j = originShifts.length;
+                while((--j) >= 0) {
+                  gl.glPushMatrix();
+                  gl.glTranslatef(originShifts[j][0], originShifts[j][1], originShifts[j][2]);
+                  gl.glCallList(sphereList[getQuality()]);
+                  gl.glPopMatrix();
+                }
             }
-          }
-        }
-        gl.glPopMatrix();
-      }
-    }
-    if(sphereRotators.length > 0) {
-      int i = sphereRotators.length;
-      gl.glColor3ub(mR, mG, mB);
-      while((--i) >= 0) {
-        Atom a = sphereRotators[i];
-        if(!atomFilter.accept(a)) {continue;}
-        gl.glPushMatrix();
-        gl.glTranslatef(vertSphereCores[vertSphereRotatorBase[i]], vertSphereCores[vertSphereRotatorBase[i]+1], vertSphereCores[vertSphereRotatorBase[i]+2]);
-        ///!!! Draw rotator orientation here
-        //Draw overflow images if so indicated
-        if(displayPhase.getDrawOverflow()) {
-//          setDrawExpansionFactor(1.0);
-          if(computeShiftOrigin(a, displayPhase.getPhase().getBoundary())) {
-            int j = originShifts.length;
-            while((--j) >= 0) {
-              gl.glPushMatrix();
-              gl.glTranslatef(originShifts[j][0], originShifts[j][1], originShifts[j][2]);
-              ///!!! Draw rotator orientation here
-              gl.glPopMatrix();
+            gl.glPopMatrix();
+            if (a.type instanceof AtomTypeWell) {
+                gl.glColor4ub(wR, wG, wB, wA);
+                if(wellListRadius != ((AtomTypeWell)a.type).wellRadius())
+                    initWellList(((AtomTypeWell)a.type).wellRadius());
+                gl.glPushMatrix();
+                gl.glTranslatef(vert[0], vert[1], vert[2]);
+                gl.glCallList(wellList[getQuality()]);
+                //Draw overflow images if so indicated
+                if (drawOverflow) {
+                    int j = originShifts.length;
+                    while((--j) >= 0) {
+                      gl.glPushMatrix();
+                      gl.glTranslatef(originShifts[j][0], originShifts[j][1], originShifts[j][2]);
+                      gl.glCallList(wellList[getQuality()]);
+                      gl.glPopMatrix();
+                    }
+                }
+                gl.glPopMatrix();
             }
-          }
         }
-        gl.glPopMatrix();
-      }
     }
     
     //Draw other features if indicated
@@ -594,8 +423,6 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   * display is the method that handles the drawing of the phase to the screen.
   */
   public synchronized void display() {
-    //Makes sure there is something to draw
-    if(!canvasInitialized) {this.initialize();return;}
     //Ensure GL is initialized correctly
     if (glj.gljMakeCurrent() == false)
       return;
@@ -742,12 +569,4 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     		drawExpansionShiftZ = (float)(mult*box.x(2));
     	}
     }
-    public void actionPerformed(PhaseEvent evt) {
-        initialize();
-    }
-    public void setPhase() {
-        Phase phase = displayPhase.getPhase();
-        phase.getSpeciesMaster().addListener(this);
-    }
-    
 }  //end of DisplayPhase.Canvas

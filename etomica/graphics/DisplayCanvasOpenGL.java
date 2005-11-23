@@ -1,5 +1,4 @@
 package etomica.graphics;
-import etomica.phase.PhaseListener;
 import gl4java.awt.GLAnimCanvas;
 
 import java.awt.Dimension;
@@ -93,6 +92,5 @@ public abstract class DisplayCanvasOpenGL extends GLAnimCanvas implements java.i
     public void setMinimumSize(Dimension temp) {}
     public void setMaximumSize(Dimension temp) {}
     public void setPreferredSize(Dimension temp) {}
-    public void initialize() {}
 } //end of DisplayCanvas class
 
