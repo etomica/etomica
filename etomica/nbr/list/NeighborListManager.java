@@ -76,7 +76,6 @@ public class NeighborListManager implements IntegratorNonintervalListener,
             pbcEnforcer.actionPerformed();
             PotentialCalculationUpdateTypeList pc = new PotentialCalculationUpdateTypeList(potentialMaster);
             potentialMaster.calculate(phase, pc);
-            potentialMaster.getNbrCellManager(phase).assignCellAll();
             reset(((IntegratorPhase)evt.getSource()).getPhase());
         }
     }
