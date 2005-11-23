@@ -5,13 +5,13 @@
 package etomica.nbr.cell;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
 import etomica.atom.Atom;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomTypeLeaf;
-import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.data.DataSourceCOM;
@@ -23,7 +23,6 @@ import etomica.phase.Phase;
 import etomica.phase.PhaseCellManager;
 import etomica.phase.PhaseEvent;
 import etomica.phase.PhaseListener;
-import etomica.simulation.SimulationEvent;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -118,15 +117,20 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
      * appropriate.
      */
     public void checkDimensions() {
-        int[] nCells = new int[space.D()];
+    	int D = space.D();
+        int[] nCells = new int[D];
         Vector dimensions = phase.getBoundary().getDimensions();
         lattice.setDimensions(dimensions);
-        for (int i=0; i<space.D(); i++) {
+        for (int i=0; i<D; i++) {
             nCells[i] = (int)Math.floor(cellRange*dimensions.x(i)/range);
         }
+        //only update the lattice (expensive) if the number of cells changed
         int[] oldSize = lattice.getSize();
-        if (!oldSize.equals(nCells)) {
-            lattice.setSize(nCells);
+        for (int i=0; i<D; i++) {
+            if (oldSize[i] != nCells[i]) {
+                lattice.setSize(nCells);
+                break;
+            }
         }
     }
     
