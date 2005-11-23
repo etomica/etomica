@@ -46,6 +46,7 @@ public class PotentialMasterCell extends PotentialMasterSite {
     }
 
     public void setRange(double d) {
+        super.setRange(d);
         ((Api1ACell)neighborIterator).getNbrCellIterator().setNeighborDistance(d);
     }
     
