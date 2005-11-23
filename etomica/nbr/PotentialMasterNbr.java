@@ -15,11 +15,11 @@ import etomica.space.Space;
 
 public class PotentialMasterNbr extends PotentialMaster {
 
-    public PotentialMasterNbr(Space space) {
+    protected PotentialMasterNbr(Space space) {
         super(space);
     }
 
-    public PotentialMasterNbr(Space space, IteratorFactory iteratorFactory) {
+    protected PotentialMasterNbr(Space space, IteratorFactory iteratorFactory) {
         super(space, iteratorFactory);
     }
 
