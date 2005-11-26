@@ -132,7 +132,7 @@ public class AtomFactoryHetero extends AtomFactory {
         // don't use numberFraction since it won't necessarily be equal to 
         // the actual fraction generated for each type
         double[] fraction = new double[childCount.length];
-        for (int i=0; i<fraction.length;i ++) {
+        for (int i=0; i<fraction.length; i++) {
             fraction[i] = (double)childCount[i]/totalChildCount;
         }
         return fraction;
@@ -178,8 +178,14 @@ public class AtomFactoryHetero extends AtomFactory {
      * Sets the factories that make the child atoms of this factory's atom.
      * If the number of factories changes, the number fractions are set so 
      * that there is an equal amount of each child.
+     *
+     * @throws IllegalArgumentException
+     *             if newChildFactory is an empty array
      */
     public void setChildFactory(AtomFactory[] newChildFactory) {
+        if (childFactory.length != 0) {
+            throw new IllegalStateException("You can set the child factory only once!");
+        }
         childFactory = (AtomFactory[])newChildFactory.clone();
         if (numberFraction.length != childFactory.length) {
             double[] fraction = new double[childFactory.length];
@@ -209,7 +215,9 @@ public class AtomFactoryHetero extends AtomFactory {
             throw new IllegalArgumentException("Number of children must not be negative");
         }
         totalChildCount = numChildren;
-        setNumberFraction(numberFraction);
+        if (numberFraction.length > 0) {
+            setNumberFraction(numberFraction);
+        }
     }
 
     /**
