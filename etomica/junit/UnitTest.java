@@ -145,7 +145,8 @@ public class UnitTest implements java.io.Serializable {
                 childFactories[j] = new AtomFactoryMono(new CoordinateFactorySphere(space, false), atomType,
                         AtomLinker.FACTORY);
             }
-            factory.setChildFactory(childFactories, nAtoms[i]);
+            factory.setChildFactory(childFactories);
+            factory.setChildCount(nAtoms[i]);
             Species species = new MySpecies(sim, factory, agentType);
             species.setNMolecules(nMolecules[i]);
         }
