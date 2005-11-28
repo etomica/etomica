@@ -11,13 +11,12 @@ import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.virial.IntegratorClusterMC;
-import etomica.virial.MCMoveCluster;
 import etomica.virial.PhaseCluster;
 
 /**
  * Swaps configurations and pairSet between phases for a virial clustering simulation. 
  */
-public class MCMoveSwapCluster extends MCMove implements MCMoveCluster, IntegratorPT.MCMoveSwap {
+public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap {
 
     private IntegratorClusterMC integrator1, integrator2;	
     private AtomIteratorLeafAtoms iterator1 = new AtomIteratorLeafAtoms();
@@ -73,15 +72,9 @@ public class MCMoveSwapCluster extends MCMove implements MCMoveCluster, Integrat
         return true;
     }
     
-    public double lnTrialRatio() {return 0.0;}
+    public double getB() {return 0.0;}
     
-    public double trialRatio() {return 1.0;}
-    
-    public double lnProbabilityRatio() {
-        return Math.log(probabilityRatio());
-    }
-    
-    public double probabilityRatio() {
+    public double getA() {
         weightNew1 = phase1.getSampleCluster().value(phase1.getCPairSet(), phase1.getAPairSet());
         weightNew2 = phase2.getSampleCluster().value(phase2.getCPairSet(), phase2.getAPairSet());
 //        System.out.println(weightOld1+" "+weightOld2+" "+weightNew1+" "+weightNew2);

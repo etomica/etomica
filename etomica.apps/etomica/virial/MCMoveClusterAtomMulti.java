@@ -12,7 +12,7 @@ import etomica.space.Vector;
  * Extension of MCMoveAtom that does trial in which several atom positions are
  * perturbed.  However, position of first atom is never altered.  
  */
-public class MCMoveClusterAtomMulti extends MCMoveAtom implements MCMoveCluster {
+public class MCMoveClusterAtomMulti extends MCMoveAtom {
 
     public MCMoveClusterAtomMulti(Simulation sim, int nAtoms) {
         super(sim);
@@ -45,17 +45,13 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom implements MCMoveCluster 
 		return true;
 	}
 	
-    public double lnProbabilityRatio() {
-    	return Math.log(probabilityRatio());
-    }
-    
-    public double probabilityRatio() {
+    public double getA() {
         uNew = weightMeter.getDataAsScalar();
         return (uOld==0.0) ? Double.POSITIVE_INFINITY : uNew/uOld;
     }
 
-    public double trialRatio() {
-    	return 1.0;
+    public double getB() {
+    	return 0.0;
     }
     
     public void selectAtoms() {

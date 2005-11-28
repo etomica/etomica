@@ -86,18 +86,18 @@ public final class MCMoveVolumeExchange extends MCMove {
         return true;
     }//end of doTrial
     
-    public double lnTrialRatio() {
-        return (firstPhase.moleculeCount()+1)*Math.log(v1Scale) +
-                + (secondPhase.moleculeCount()+1)*Math.log(v2Scale);
+    public double getA() {
+        return Math.pow(v1Scale,(firstPhase.moleculeCount()+1))
+                * Math.pow(v2Scale,(secondPhase.moleculeCount()+1));
     }
         
-    public double lnProbabilityRatio() {
+    public double getB() {
         energyMeter.setPhase(firstPhase);
         uNew1 = energyMeter.getDataAsScalar();
         energyMeter.setPhase(secondPhase);
         uNew2 = energyMeter.getDataAsScalar();
         double hNew = uNew1 + uNew2;
-        return -(hNew - hOld)/temperature;
+        return -(hNew - hOld);
     }
     
     public void acceptNotify() {

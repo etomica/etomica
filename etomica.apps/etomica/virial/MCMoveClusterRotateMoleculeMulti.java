@@ -24,8 +24,7 @@ import etomica.space.Vector;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D
-        implements MCMoveCluster {
+public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
 
     /**
      * @param potentialMaster
@@ -100,13 +99,11 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D
         }
     }
 
-    public double trialRatio() {return 1.0;}
-    
-    public double lnProbabilityRatio() {
-        return Math.log(probabilityRatio());
+    public double getB() {
+        return 0.0;
     }
     
-    public double probabilityRatio() {
+    public double getA() {
         uNew = weightMeter.getDataAsScalar();
         return (uOld==0.0) ? Double.POSITIVE_INFINITY : uNew/uOld;
     }

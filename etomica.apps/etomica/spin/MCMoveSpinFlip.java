@@ -56,16 +56,16 @@ public class MCMoveSpinFlip extends MCMove {
     /* (non-Javadoc)
      * @see etomica.integrator.MCMove#lnTrialRatio()
      */
-    public double lnTrialRatio() {
-        return 0.0;
+    public double getA() {
+        return 1.0;
     }
 
     /* (non-Javadoc)
      * @see etomica.integrator.MCMove#lnProbabilityRatio()
      */
-    public double lnProbabilityRatio() {
+    public double getB() {
         uNew = energyMeter.getDataAsScalar();
-        return -(uNew - uOld)/temperature;
+        return -(uNew - uOld);
     }
 
     /* (non-Javadoc)

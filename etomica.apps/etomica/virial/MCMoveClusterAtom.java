@@ -13,7 +13,7 @@ import etomica.simulation.Simulation;
  * Created on Sep 10, 2004
  */
 
-public class MCMoveClusterAtom extends MCMoveAtom implements MCMoveCluster {
+public class MCMoveClusterAtom extends MCMoveAtom {
 
     public MCMoveClusterAtom(Simulation sim) {
         super(sim);
@@ -37,17 +37,13 @@ public class MCMoveClusterAtom extends MCMoveAtom implements MCMoveCluster {
 		return true;
 	}
 	
-    public double lnProbabilityRatio() {
-    	return Math.log(probabilityRatio());
+    public double getB() {
+    	return 0;
     }
     
-    public double probabilityRatio() {
+    public double getA() {
         uNew = weightMeter.getDataAsScalar();
         return (uOld==0.0) ? Double.POSITIVE_INFINITY : uNew/uOld;
-    }
-
-    public double trialRatio() {
-    	return 1.0;
     }
 
     public void rejectNotify() {

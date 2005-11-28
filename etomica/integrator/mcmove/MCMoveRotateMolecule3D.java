@@ -70,13 +70,13 @@ public class MCMoveRotateMolecule3D extends MCMove {
         return true;
     }//end of doTrial
     
-    public double lnTrialRatio() {return 0.0;}
+    public double getA() {return 1.0;}
     
-    public double lnProbabilityRatio() {
+    public double getB() {
         energyMeter.setTarget(molecule);
         uNew = energyMeter.getDataAsScalar();
         if(uOld > Double.MAX_VALUE) uOld = uOldSave;
-        return -(uNew - uOld)/temperature;
+        return -(uNew - uOld);
     }
     
     public void acceptNotify() {  /* do nothing */

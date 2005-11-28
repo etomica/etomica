@@ -38,7 +38,6 @@ public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
 		// isothermal to be consistent with way integrator
 		// is sampling
         moveManager = new MCMoveManager();
-        moveManager.setTemperature(temperature);
 	}
 
 	public static EtomicaInfo getEtomicaInfo() {
@@ -99,9 +98,7 @@ public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
     	}
 
     	//decide acceptance
-    	double lnChi = move.lnTrialRatio() + move.lnProbabilityRatio();
-    	double chi = lnChi == -Double.POSITIVE_INFINITY ? 0.0 : 
-                                (lnChi > 0.0 ? 1.0 : Math.exp(lnChi));
+    	double chi = move.getA() * Math.exp(move.getB()/temperature);
     	if (chi == 0.0 || (chi < 1.0 && chi < Simulation.random.nextDouble())) {//reject
     		move.rejectNotify();
     		event.wasAccepted = false;
@@ -118,18 +115,6 @@ public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
     	}
 
     	move.updateCounts(event.wasAccepted, chi, equilibrating);
-    }
-
-    /**
-     * Sets the temperature for this integrator and all the MCMove instances it
-     * currently holds.
-     */
-    public void setTemperature(double temperature) {
-    	super.setTemperature(temperature);
-    	// moveManager will be null when called from superclass constructor
-    	if (moveManager != null) {
-    		moveManager.setTemperature(temperature);
-    	}
     }
 
     /**

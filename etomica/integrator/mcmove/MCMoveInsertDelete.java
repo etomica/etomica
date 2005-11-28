@@ -107,19 +107,19 @@ public class MCMoveInsertDelete extends MCMove {
         return true;
     }//end of doTrial
     
-    public double lnTrialRatio() {//note that moleculeCount() gives the number of molecules after the trial is attempted
-        return insert ? Math.log(phase.volume()/speciesAgent.moleculeCount()) 
-                      : Math.log((speciesAgent.moleculeCount()+1)/phase.volume());        
+    public double getA() {//note that moleculeCount() gives the number of molecules after the trial is attempted
+        return insert ? phase.volume()/speciesAgent.moleculeCount() 
+                      : (speciesAgent.moleculeCount()+1)/phase.volume();        
     }
     
-    public double lnProbabilityRatio() {
+    public double getB() {
         if(insert) {
             energyMeter.setTarget(testMolecule);
             uNew = energyMeter.getDataAsScalar();
-            return (+mu - uNew)/temperature;
+            return (+mu - uNew);
         }
         uNew = 0.0;
-        return (-mu + uOld)/temperature;
+        return (-mu + uOld);
     }
     
     public void acceptNotify() {

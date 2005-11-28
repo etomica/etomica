@@ -175,9 +175,7 @@ public class IntegratorManagerMC extends Integrator {
         }
 
         //decide acceptance
-        double lnChi = move.lnTrialRatio() + move.lnProbabilityRatio();
-        double chi = lnChi == -Double.POSITIVE_INFINITY ? 0.0 : 
-                                (lnChi > 0.0 ? 1.0 : Math.exp(lnChi));
+        double chi = move.getA();
         if (chi == 0.0 || (chi < 1.0 && chi < Simulation.random.nextDouble())) {//reject
             move.rejectNotify();
             event.wasAccepted = false;

@@ -67,14 +67,14 @@ public abstract class MCMove implements java.io.Serializable {
 	 * from state i, and Tji is the probability that a subsequent call to
 	 * doTrial would return to state i from state j.
 	 */
-	public abstract double lnTrialRatio();
+	public abstract double getA();
 
 	/**
 	 * Returns the log of the limiting-distribution probabilities of states,
 	 * ln(Pj/Pi), for the states encountered before (i) and after (j) the most
 	 * recent call to doTrial.
 	 */
-	public abstract double lnProbabilityRatio();
+	public abstract double getB();
 
 	/**
 	 * Method called by IntegratorMC in the event that the most recent trial is
@@ -299,21 +299,6 @@ public abstract class MCMove implements java.io.Serializable {
 		return stepSizeMin;
 	}
 
-	/**
-	 * @return Returns the temperature.
-	 */
-	public double getTemperature() {
-		return temperature;
-	}
-
-	/**
-	 * @param temperature
-	 *            The temperature to set.
-	 */
-	public void setTemperature(double temperature) {
-		this.temperature = temperature;
-	}
-
     /**
      * Sets the interval between steps size adjustments.  This
      * also resets the acceptance averages and other step adjustment 
@@ -406,7 +391,6 @@ public abstract class MCMove implements java.io.Serializable {
 	protected boolean tunable = true;
 	protected Phase phase;
 	private String name;
-	protected double temperature;
 	protected final PotentialMaster potential;
     private int lastAdjust;
     private double adjustStep;

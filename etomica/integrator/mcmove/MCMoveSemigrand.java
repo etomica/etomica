@@ -184,16 +184,15 @@ public class MCMoveSemigrand extends MCMove {
         return true;
     }//end of doTrial
     
-    public double lnTrialRatio() {
-        return Math.log((double)(deleteAgent.moleculeCount()+1)
-                        /(double)insertAgent.moleculeCount());
+    public double getA() {
+        return (double)(deleteAgent.moleculeCount()+1)/(double)insertAgent.moleculeCount()
+                *(fugacityFraction[iInsert]/fugacityFraction[iDelete]);
     }
     
-    public double lnProbabilityRatio() {
+    public double getB() {
         energyMeter.setTarget(insertMolecule);
         uNew = energyMeter.getDataAsScalar();
-        return -(uNew - uOld)/temperature +
-                Math.log(fugacityFraction[iInsert]/fugacityFraction[iDelete]);
+        return -(uNew - uOld);
     }
     
     public void acceptNotify() {

@@ -52,12 +52,15 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
         return true;
     }
     
-    public double lnTrialRatio() {return 0.0;}
-    
-    public double lnProbabilityRatio() {
+    public double getA() {
+    	// have to do this here since Integrator won't understand T dependence 
         deltaU1 = u2 - u1;  //if accepted, energy of phase1 will be u2, and its old energy is u1
-		return  -deltaU1*((1/temp1) - (1/temp2));
-	}
+        return Math.exp(-deltaU1*((1/temp1) - (1/temp2)));
+    }
+    
+    public double getB() {
+        return 0.0;
+    }
 	
 	/**
 	 * Swaps positions of molecules in two phases.

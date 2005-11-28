@@ -12,7 +12,7 @@ import etomica.simulation.Simulation;
  /* History of changes
   * 7/9/02 Added energyChange() method
   */
-public class MCMoveClusterMolecule extends MCMoveMolecule implements MCMoveCluster {
+public class MCMoveClusterMolecule extends MCMoveMolecule {
     
     private final MeterClusterWeight weightMeter;
 
@@ -50,13 +50,9 @@ public class MCMoveClusterMolecule extends MCMoveMolecule implements MCMoveClust
         return true;
     }
     
-    public double trialRatio() {return 1.0;}
+    public double getB() {return 0.0;}
     
-    public double lnProbabilityRatio() {
-        return Math.log(probabilityRatio());
-    }
-    
-    public double probabilityRatio() {
+    public double getA() {
         uNew = weightMeter.getDataAsScalar();
 //        if (Simulation.random.nextInt(200000) == 5) {
 //            System.out.println("uOld "+uOld+" uNew "+uNew);

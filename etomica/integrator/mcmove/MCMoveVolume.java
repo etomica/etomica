@@ -68,14 +68,14 @@ public class MCMoveVolume extends MCMove {
         return true;
     }//end of doTrial
     
-    public double lnTrialRatio() {
-        return (phase.moleculeCount()+1)*vScale;
+    public double getA() {
+        return Math.exp((phase.moleculeCount()+1)*vScale);
     }
     
-    public double lnProbabilityRatio() {
+    public double getB() {
         uNew = energyMeter.getDataAsScalar();
         double hNew = uNew + pressure*vNew;
-        return -(hNew - hOld)/temperature;
+        return -(hNew - hOld);
     }
     
     public void acceptNotify() {  /* do nothing */}

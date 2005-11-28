@@ -40,7 +40,7 @@ public class IntegratorClusterMC extends IntegratorMC {
         }
         
         //decide acceptance
-        double chi = ((MCMoveCluster)move).trialRatio() * ((MCMoveCluster)move).probabilityRatio();
+        double chi = move.getA();
         if(chi == 0.0 || (chi < 1.0 && chi < Simulation.random.nextDouble())) {//reject
             move.rejectNotify();
             event.wasAccepted = false;

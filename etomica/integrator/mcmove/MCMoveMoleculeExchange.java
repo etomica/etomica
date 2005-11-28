@@ -95,18 +95,18 @@ public final class MCMoveMoleculeExchange extends MCMove {
         return true;
     }//end of doTrial
     
-    public double lnTrialRatio() {
+    public double getA() {
         //note that dSpecies.nMolecules has been decremented
         //and iSpecies.nMolecules has been incremented
-        return Math.log( (dSpecies.moleculeCount()+1)/dPhase.volume()
-                         * iPhase.volume()/iSpecies.moleculeCount() ); 
+        return (dSpecies.moleculeCount()+1)/dPhase.volume()
+               * iPhase.volume()/iSpecies.moleculeCount(); 
     }
     
-    public double lnProbabilityRatio() {
+    public double getB() {
         energyMeter.setPhase(iPhase);
         energyMeter.setTarget(molecule);
         uNew = energyMeter.getDataAsScalar();
-        return -(uNew - uOld)/temperature;
+        return -(uNew - uOld);
     }
     
     public void acceptNotify() {

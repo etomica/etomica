@@ -14,7 +14,7 @@ import etomica.space.Vector;
  * Extension of MCMoveAtom that does trial in which several atom positions are
  * perturbed.  However, position of first atom is never altered.  
  */
-public class MCMoveClusterMoleculeMulti extends MCMoveMolecule implements MCMoveCluster {
+public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
 
     private final MeterClusterWeight weightMeter;
 
@@ -91,7 +91,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule implements MCMove
     }
     public double trialRatio() {return 1.0;}
     
-    public double lnProbabilityRatio() {
+    public double getB() {
         return Math.log(probabilityRatio());
     }
     

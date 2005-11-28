@@ -54,7 +54,6 @@ public class MCMoveManager {
         if (phase != null) {
             move.setPhase(phase);
         }
-        move.setTemperature(temperature);
         moveCount++;
         recomputeMoveFrequencies();
     }
@@ -129,22 +128,7 @@ public class MCMoveManager {
         }
     }
 
-    /**
-     * @return Returns the temperature.
-     */
-    public double getTemperature() {
-        return temperature;
-    }
-
-    /**
-     * @param temperature The temperature to set.
-     */
-    public void setTemperature(double newTemperature) {
-        temperature = newTemperature;
-    }
-
     private Phase phase;
-    private double temperature;
     private MCMoveLinker firstMoveLink, lastMoveLink;
     private int frequencyTotal;
     private int moveCount;

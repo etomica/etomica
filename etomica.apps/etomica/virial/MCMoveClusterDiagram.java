@@ -17,7 +17,7 @@ import etomica.potential.PotentialMaster;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class MCMoveClusterDiagram extends MCMove implements MCMoveCluster {
+public class MCMoveClusterDiagram extends MCMove {
 
     private MeterClusterWeight weightMeter;
     public MCMoveClusterDiagram(PotentialMaster potentialMaster) {
@@ -38,21 +38,13 @@ public class MCMoveClusterDiagram extends MCMove implements MCMoveCluster {
         return true;
     }
     
-    public double trialRatio() {
-        return 1;
-    }
-    
-    public double probabilityRatio() {
+    public double getA() {
         uNew = weightMeter.getDataAsScalar();
-//        System.out.println("uNew "+uNew+" uOld "+uOld);
-        return uNew/uOld;
+//      System.out.println("uNew "+uNew+" uOld "+uOld);
+      return uNew/uOld;
     }
     
-    public double lnTrialRatio() {
-        return Math.log(trialRatio());
-    }
-    
-    public double lnProbabilityRatio() {
+    public double getB() {
         return 0;
     }
     

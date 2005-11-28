@@ -86,20 +86,20 @@ public class MCMoveAtom extends MCMove {
      * Tji is the probability that a subsequent call to doTrial would return to state i
      * from state j.
      */
-    public double lnTrialRatio() {return 0.0;}
+    public double getA() {return 1.0;}
     
     /**
      * Returns the log of the limiting-distribution probabilities of states, ln(Pj/Pi), 
      * for the states encountered before (i) and after (j) the most recent call to 
      * doTrial.
      */
-    public double lnProbabilityRatio() {
+    public double getB() {
 //        energyMeter.setTarget(atom);
         uNew = energyMeter.getDataAsScalar();
-        return -(uNew - uOld)/temperature;
+        return -(uNew - uOld);
     }
     
-    public double energyChange(Phase p) {return (phase == p) ? uNew - uOld : 0.0;}
+    public double energyChange(Phase p) {return uNew - uOld;}
     
     /**
      * Method called by IntegratorMC in the event that the most recent trial is accepted.
@@ -142,68 +142,4 @@ public class MCMoveAtom extends MCMove {
     public void setAtomSource(AtomSource source) {
         atomSource = source;
     }
-    
-/*
-    public static void main(String[] args) {
-        
-        Simulation.instance = new etomica.graphics.SimulationGraphic();
-	    IntegratorMC integrator = new IntegratorMC();
-	    MCMoveAtom mcMove = new MCMoveAtom(integrator);//comment this line to examine LRC by itself
-	    SpeciesSpheresMono species = new SpeciesSpheresMono();
-	    species.setNMolecules(72);
-	    final Phase phase = new Phase();
-	    P2LennardJones potential = new P2LennardJones();
-	    Controller controller = new Controller();
-	    etomica.graphics.DisplayPhase display = new etomica.graphics.DisplayPhase();
-
-		MeterEnergy energy = new MeterEnergy();
-		energy.setPhase(phase);
-		energy.setHistorying(true);
-		energy.setActive(true);		
-		energy.getHistory().setNValues(500);		
-		etomica.graphics.DisplayPlot plot = new etomica.graphics.DisplayPlot();
-		plot.setLabel("Energy");
-		plot.setDataSources(energy.getHistory());
-		
-		integrator.setSleepPeriod(2);
-		
-		etomica.graphics.DeviceToggleButton lrcToggle = new etomica.graphics.DeviceToggleButton(Simulation.instance,
-		    new ModifierBoolean() {
-		        public void setBoolean(boolean b) {phase.setLrcEnabled(b);}
-		        public boolean getBoolean() {return phase.isLrcEnabled();}
-		    },"LRC enabled", "LRC disabled" );
-		
-		Simulation.instance.elementCoordinator.go();
-	    
-        potential.setIterator(new AtomPairIteratorGeneral(phase));
-        potential.set(species.getAgent(phase));
-        
-        etomica.graphics.SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
-    }//end of main
-    */
-    
-    /**
-     * Class used to examine configuration in cases when a large energy is found
-     * before the trial is made.  A debugging tool.
-     */
-//      private class PotentialCalculationEnergySumNearestPair extends PotentialCalculationEnergySum {
-//        public double r2Min;
-//        Atom atom1, atom2;
-//
-//        public void calculate(AtomPairIterator iterator, Potential2 potential) {
-//            r2Min = Double.MAX_VALUE;
-//            atom1 = atom2 = null;
-//            while(iterator.hasNext()) {
-//                AtomPair pair = iterator.next();
-//                sum += potential.energy(pair);
-//                if(pair.r2() < r2Min) {
-//                    r2Min = pair.r2();
-//                    atom1 = pair.atom1();
-//                    atom2 = pair.atom2();
-//                }
-//                if(sum >= Double.MAX_VALUE) return;
-//            }//end while
-//        }//end of calculate
-//    }
- // */   
 }
