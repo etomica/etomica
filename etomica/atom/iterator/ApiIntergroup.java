@@ -17,11 +17,15 @@ public final class ApiIntergroup extends AtomPairIteratorAdapter implements
         AtomsetIteratorBasisDependent, ApiComposite {
 
     public ApiIntergroup() {
-        this(
-                new ApiInnerFixed(new AtomIteratorBasis(),
-                        new AtomIteratorBasis()));
+        this(new ApiInnerFixed(new AtomIteratorBasis(),
+                  new AtomIteratorBasis()));
     }
 
+    /**
+     * Constructs a pair iterator that returns iterates from the given
+     * pairIterator, which is expected to contain two basis-dependent 
+     * iterators.
+     */
     public ApiIntergroup(ApiComposite pairIterator) {
         super(pairIterator);
         aiOuter = (AtomsetIteratorBasisDependent) pairIterator
