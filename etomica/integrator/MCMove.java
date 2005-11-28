@@ -61,18 +61,16 @@ public abstract class MCMove implements java.io.Serializable {
 	public abstract boolean doTrial();
 
 	/**
-	 * Returns log of the ratio of the trial probabilities, ln(Tji/Tij) for the
-	 * states encountered before (i) and after (j) the most recent call to
-	 * doTrial(). Tij is the probability that this move would generate state j
-	 * from state i, and Tji is the probability that a subsequent call to
-	 * doTrial would return to state i from state j.
+     * Returns the temperature-independent part of the acceptance probability.  
+     * The actual acceptance probility is calculated as max(1,A*exp(-B/T))
+     * where T is the IntegratorPhase's temperature.
 	 */
 	public abstract double getA();
 
 	/**
-	 * Returns the log of the limiting-distribution probabilities of states,
-	 * ln(Pj/Pi), for the states encountered before (i) and after (j) the most
-	 * recent call to doTrial.
+	 * Returns the temperature-dependent part of the acceptance probability.  
+     * The actual acceptance probility is calculated as max(1,A*exp(-B/T))
+     * where T is the IntegratorPhase's temperature.
 	 */
 	public abstract double getB();
 
