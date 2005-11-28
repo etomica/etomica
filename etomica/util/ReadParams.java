@@ -121,7 +121,7 @@ public class ReadParams implements java.io.Serializable {
                 field.setDouble(wrapper,Double.parseDouble(value));
             }
             else if (type == boolean.class) {
-                field.setBoolean(wrapper,Boolean.parseBoolean(value));
+                field.setBoolean(wrapper,Boolean.valueOf(value).booleanValue());
             }
             else if (type.isArray()) {
                 Class subType = type.getComponentType();
@@ -150,7 +150,7 @@ public class ReadParams implements java.io.Serializable {
                 else if (subType == boolean.class) {
                     boolean[] array = new boolean[strings.length-1];
                     for (int i=0; i<array.length; i++) {
-                        array[i] = Boolean.parseBoolean(strings[i+1]);
+                        array[i] = Boolean.valueOf(strings[i+1]).booleanValue();
                     }
                     field.set(wrapper,array);
                 }
