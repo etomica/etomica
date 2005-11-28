@@ -63,7 +63,7 @@ class MySpeciesEditor extends javax.swing.JPanel {
 					value = 1000000;
 				final double newMass = value;
 				mass.setText(Integer.toString(value));
-				((AtomTypeLeaf)species.type.getSpecies().getFactory().getType()).setMass(newMass);
+				((AtomTypeLeaf)species.type.getSpecies().getMoleculeType()).setMass(newMass);
 				try {
                     sim.integratorHard1.reset();
                 } catch (ConfigurationOverlapException e) {

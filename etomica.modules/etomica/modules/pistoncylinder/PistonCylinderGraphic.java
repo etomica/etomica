@@ -14,6 +14,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 
 import etomica.action.Action;
+import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
@@ -469,11 +470,11 @@ public class PistonCylinderGraphic {
             pistonHeld = pc.pistonPotential.isStationary();
             lambda = potentialSW.getLambda();
             epsilon = potentialSW.getEpsilon();
-            mass = pc.species.getMass();
+            mass = ((AtomTypeLeaf)pc.species.getMoleculeType()).getMass();
             pc.getController().halt();
         }
         pc = sim;
-        pc.species.setMass(mass);
+        ((AtomTypeLeaf)pc.species.getMoleculeType()).setMass(mass);
         int D = pc.space.D();
         pc.register(pc.integrator);
 

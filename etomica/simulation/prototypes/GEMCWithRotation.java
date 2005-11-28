@@ -1,6 +1,7 @@
 package etomica.simulation.prototypes;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomTypeSphere;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationSequential;
 import etomica.integrator.IntegratorGEMC;
@@ -75,7 +76,7 @@ public class GEMCWithRotation extends Simulation {
         config.initializeCoordinates(phase2);
             
 	    potential = new P2LennardJones(this);
-	    potential.setSigma(species.getDiameter());
+	    potential.setSigma(((AtomTypeSphere)species.getMoleculeType()).diameter(null));
 
         this.potentialMaster.addPotential(potential,new Species[] {species, species});
 

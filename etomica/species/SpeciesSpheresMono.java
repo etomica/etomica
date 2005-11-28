@@ -24,8 +24,6 @@ import etomica.units.Dimension;
 
 public class SpeciesSpheresMono extends Species implements EtomicaElement {
 
-    private final AtomTypeSphere atomType;
-    
     /**
      * Constructs instance with space and AtomSequencer.Factory taken from
      * given simulation, and using default number of molecules given by
@@ -47,43 +45,13 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
                                 AtomTypeGroup agentType) {
         super(sim, new AtomFactoryMono(new CoordinateFactorySphere(sim), new AtomTypeSphere(sim, agentType), seqFactory),
                 agentType);
-        atomType = (AtomTypeSphere)((AtomFactoryMono)factory).getType();
-        nMolecules = sim.getDefaults().moleculeCount;
     }
     
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Species with molecules composed of one or more spherical atoms");
         return info;
     }
-              
-    /**
-     * The mass of each of the spheres.
-     */
-    public double getMass() {return atomType.getMass();}
-    /**
-     * Sets the mass of all spheres to the given value.
-     */
-    public void setMass(double m) {
-        atomType.setMass(m);
-    }
-    /**
-     * @return Dimension.MASS
-     */
-    public Dimension getMassDimension() {return Dimension.MASS;}
-                
-    /**
-     * The diameter of each of the spheres.
-     */
-    public double getDiameter() {return atomType.diameter(null);}
-    /**
-     * Sets the diameter of all spheres to the given value.
-     */
-    public void setDiameter(double d) {atomType.setDiameter(d);}
-    /**
-     * @return Dimension.LENGTH
-     */
-    public Dimension getDiameterDimension() {return Dimension.LENGTH;}
-    
+
     public SpeciesSignature getSpeciesSignature() {
         Constructor constructor = null;
         try {

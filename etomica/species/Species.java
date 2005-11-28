@@ -159,6 +159,10 @@ public abstract class Species implements Comparable, java.io.Serializable {
      */
     public final SpeciesAgent getAgent(Phase p) {return p.getAgent(this);}
 
+    public final AtomType getMoleculeType() {
+        return factory.getType();
+    }
+    
     public final AtomFactory getFactory() {
         return factory;
     }

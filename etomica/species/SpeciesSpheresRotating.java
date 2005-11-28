@@ -22,9 +22,6 @@ import etomica.units.Dimension;
 
 public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     
-    public double mass;
-    
-    public AtomTypeOrientedSphere protoType;
     /**
      * Constructs instance with space and AtomSequencer.Factory taken from
      * given simulation, and using default number of molecules given by
@@ -45,9 +42,6 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
                                    AtomTypeGroup agentType) {
         super(sim, new AtomFactoryMono(new CoordinateFactoryAngular(sim), 
                 new AtomTypeOrientedSphere(agentType,sim.getDefaults().atomMass,sim.getDefaults().atomSize), seqFactory), agentType);
-        protoType = (AtomTypeOrientedSphere)((AtomFactoryMono)factory).getType();
-        mass = protoType.getMass();
-        nMolecules = sim.getDefaults().moleculeCount;
     }
             
     public static EtomicaInfo getEtomicaInfo() {
@@ -55,35 +49,6 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
         return info;
     }
               
-    /**
-     * The mass of each of the spheres.
-     */
-    public final double getMass() {return mass;}
-    /**
-     * Sets the mass of all spheres to the given value.
-     */
-    public final void setMass(double m) {
-        mass = m;
-        protoType.setMass(m);
-    }
-    /**
-     * @return Dimension.MASS
-     */
-    public Dimension getMassDimension() {return Dimension.MASS;}
-                
-    /**
-     * The diameter of each of the spheres.
-     */
-    public final double getDiameter() {return protoType.diameter(null);}
-    /**
-     * Sets the diameter of all spheres to the given value.
-     */
-    public void setDiameter(double d) {protoType.setDiameter(d);}
-    /**
-     * @return Dimension.LENGTH
-     */
-    public Dimension getDiameterDimension() {return Dimension.LENGTH;}
-    
     public SpeciesSignature getSpeciesSignature() {
         Constructor constructor = null;
         try {
@@ -95,5 +60,3 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
         return new SpeciesSignature(getName(),constructor,new Object[]{});
     }
 }
-
-

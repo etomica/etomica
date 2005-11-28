@@ -5,6 +5,7 @@ import javax.swing.JPanel;
 import etomica.action.Action;
 import etomica.atom.Atom;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.AtomTypeSphere;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.AccumulatorAverage;
@@ -481,7 +482,7 @@ public class ReactionEquilibriumGraphic {
 						value = 1000000;
 					final double newMass = value;
 					mass.setText(Integer.toString(value));
-					((AtomTypeLeaf)species.type.getSpecies().getFactory().getType()).setMass(newMass);
+					((AtomTypeLeaf)species.type.getSpecies().getMoleculeType()).setMass(newMass);
                      try {
                          sim.integratorHard1.reset();
                      } catch(ConfigurationOverlapException e) {}
@@ -540,14 +541,14 @@ public class ReactionEquilibriumGraphic {
 			potentialRR.setCoreDiameter(newCoreDiameter);
 			potentialRB.setCoreDiameter(newCoreDiameter);
 			potentialBB.setCoreDiameter(newCoreDiameter);
-			speciesR.setDiameter(d);
-			speciesB.setDiameter(d);
+			((AtomTypeSphere)speciesR.getMoleculeType()).setDiameter(d);
+			((AtomTypeSphere)speciesB.getMoleculeType()).setDiameter(d);
 			if (display != null)
 				display.repaint();
 		}
 
 		public double getValue() {
-			return speciesR.getDiameter();
+			return ((AtomTypeSphere)speciesR.getMoleculeType()).diameter(null);
 		}
 
 		public void setDisplay(DisplayPhase display) {

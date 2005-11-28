@@ -6,6 +6,7 @@ import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.Atom;
+import etomica.atom.AtomTypeSphere;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayPhase;
@@ -36,7 +37,7 @@ public class SWMD3D extends Simulation {
 		 */
 		public void setValue(double d) {
 			potential.setCoreDiameter(d);
-			species.setDiameter(d);
+			((AtomTypeSphere)species.getMoleculeType()).setDiameter(d);
 		}
 
 		/**

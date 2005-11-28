@@ -7,13 +7,13 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomTypeSphere;
 import etomica.config.ConfigurationSequential;
 import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
-import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 
@@ -54,9 +54,9 @@ public class ReactionEquilibrium extends Simulation implements Atom.AgentSource 
         integratorHard1.setPhase(phase1);	
         speciesA = new SpeciesSpheresMono(this);
         speciesB = new SpeciesSpheresMono(this);
-        speciesA.setDiameter(diameter);
-        speciesA.setNMolecules(10);      
-        speciesB.setNMolecules(40);      
+        ((AtomTypeSphere)speciesA.getMoleculeType()).setDiameter(diameter);
+        speciesA.setNMolecules(10);
+        speciesB.setNMolecules(40);
         phase1.makeMolecules();
         new ConfigurationSequential(space).initializeCoordinates(phase1);
 
