@@ -73,9 +73,9 @@ public class MyMCMove extends MCMoveInsertDelete {
 		return true;
 	}//end of doTrial
 
-	public double lnTrialRatio() {//note that moleculeCount() gives the number of molecules after the trial is attempted
-		return insert ? Math.log(zFraction*phase.volume()/(activeAtoms.size()+1)) 
-					  : Math.log((activeAtoms.size())/zFraction/phase.volume());        
+	public double getA() {//note that moleculeCount() gives the number of molecules after the trial is attempted
+		return insert ? zFraction*phase.volume()/(activeAtoms.size()+1) 
+					  : activeAtoms.size()/zFraction/phase.volume();        
 	}
 
 	public void acceptNotify() {
