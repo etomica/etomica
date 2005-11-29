@@ -5,6 +5,7 @@ import etomica.atom.Atom;
 import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.integrator.IntegratorPhase;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
@@ -24,10 +25,11 @@ public class MyMCMove extends MCMoveInsertDelete {
 	 * Constructor for MyMCMove.
 	 * @param parent
 	 */
-	public MyMCMove(PotentialMaster parent, double zFraction) {
-		super(parent);
-		position =  (Vector3D)parent.getSpace().makeVector();
+	public MyMCMove(IntegratorPhase integrator, double zFraction) {
+		super(integrator.getPotential());
+		position =  (Vector3D)integrator.getPotential().getSpace().makeVector();
 		setZFraction(zFraction);
+        this.integrator = integrator;
 	}
 
     public void setPhase(Phase p) {
@@ -83,7 +85,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 			deltaN--;
 		} else {
 			activeAtoms.add(testMolecule);
-            randomizer.setTemperature(temperature);
+            randomizer.setTemperature(integrator.getTemperature());
 			randomizer.actionPerformed(testMolecule);
 			deltaN++;
 		}
@@ -113,8 +115,8 @@ public class MyMCMove extends MCMoveInsertDelete {
 	private boolean nearOrigin;
 	private AtomList activeAtoms = new AtomList();
 	private AtomIteratorListSimple atomIterator;// = new AtomIteratorList();
-	IntegratorDCVGCMD integrator;
 	private final AtomActionRandomizeVelocity randomizer = new AtomActionRandomizeVelocity(0);
+    private final IntegratorPhase integrator;
 	
 	/**
 	 * Returns the zFraction.

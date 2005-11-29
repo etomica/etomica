@@ -126,23 +126,19 @@ public class IntegratorDCVGCMD extends IntegratorPhase {
         integratormd.setTemperature(temperature);
 		integratormd.setPhase(phase);
 		integratormc.setPhase(phase);
-		mcMove1 = new MyMCMove(potential, -zFraction);
-		mcMove2 = new MyMCMove(potential, +zFraction);
+		mcMove1 = new MyMCMove(this, -zFraction);
+		mcMove2 = new MyMCMove(this, +zFraction);
         MCMoveManager moveManager = integratormc.getMoveManager();
 		moveManager.addMCMove (mcMove1);
 		moveManager.addMCMove (mcMove2);
 		mcMove1.setSpecies(speciesA);
 		mcMove2.setSpecies(speciesA);
-		mcMove1.integrator = this;
-		mcMove2.integrator = this;
-		mcMove3 = new MyMCMove(potential, -zFraction);
-		mcMove4 = new MyMCMove(potential, +zFraction);
+		mcMove3 = new MyMCMove(this, -zFraction);
+		mcMove4 = new MyMCMove(this, +zFraction);
 		moveManager.addMCMove (mcMove3);
 		moveManager.addMCMove (mcMove4);
 		mcMove3.setSpecies(speciesB);
 		mcMove4.setSpecies(speciesB);
-		mcMove3.integrator = this;
-		mcMove4.integrator = this;
 
         intervalEventMC = new IntegratorIntervalEvent(integratormc, 1);
         intervalEventMD = new IntegratorIntervalEvent(integratormd, 1);
