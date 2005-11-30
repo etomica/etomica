@@ -43,6 +43,11 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
         if (phase != null) {
             // remove ourselves as a listener to the old phase
             phase.getSpeciesMaster().removeListener(this);
+            for (int i=0; i<agents.length; i++) {
+                if (agents[i] != null) {
+                    agentSource.releaseAgent(agents[i]);
+                }
+            }
         }
         phase = newPhase;
         if (phase == null) {
