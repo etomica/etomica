@@ -69,8 +69,8 @@ public class PotentialMasterList extends PotentialMasterNbr {
         neighborManager.setRange(range);
     }
     
-    public void getRange() {
-        neighborManager.getRange();
+    public double getRange() {
+        return neighborManager.getRange();
     }
     
 
