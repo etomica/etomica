@@ -140,6 +140,11 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                 pauseRequested = true;
             }
             
+            if(haltRequested) {
+                fireEvent(new ControllerEvent(this, ControllerEvent.HALTED));
+                haltRequested = false;
+            }
+            
             if(!doContinue()) {
                 break;
             }
@@ -149,11 +154,8 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
         synchronized(this) {
             notifyAll();//notify any threads requesting halt and waiting for execution to complete
         }
-        if(haltRequested) {
-            fireEvent(new ControllerEvent(this, ControllerEvent.HALTED));
-        } else {
-            fireEvent(new ControllerEvent(this, ControllerEvent.NO_MORE_ACTIONS));
-        }
+
+        fireEvent(new ControllerEvent(this, ControllerEvent.NO_MORE_ACTIONS));
     }
 
     /**
@@ -244,7 +246,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
      * Returns true if start was invoked and run did not finish.
      */
     public synchronized boolean isActive() {
-    	    return (runner != null) && runner.isAlive();
+        return (runner != null) && runner.isAlive();
     }
     
     /**
@@ -257,6 +259,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     public synchronized void halt() {
         if(!isActive()) return;
         pauseRequested = true;
+        haltRequested = true;
         if(currentAction instanceof Activity) {
             ((Activity)currentAction).halt();
         }
