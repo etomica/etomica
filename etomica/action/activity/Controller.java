@@ -98,21 +98,15 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                             while(urgentAction == null && !waitObject.currentActionDone) {
                                 waitObject.wait();
                             }
-//                            System.out.println("done waiting for waitObject");
                         }
                     } catch(InterruptedException e) {}
 
-                    if (waitObject.exceptionThrown) {
-                        throw new RuntimeException("action failed");
+                    if (!waitObject.exceptionThrown) {
+                        synchronized(this) {
+                            doUrgentAction();
+                            if(!wasPaused) unPause();
+                        }
                     }
-                    
-                    synchronized(this) {
-//                        System.out.println("trying to do urgentAction");
-                        doUrgentAction();
-//                        System.out.println("in run "+wasPaused);
-                        if(!wasPaused) unPause();
-                    }
-                    
                 }
             } else {//currentAction is not an Activity; run on group's thread
                 currentAction.actionPerformed();
@@ -123,7 +117,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                 completedActions = (Action[])Arrays.addObject(completedActions, currentAction);
                 fireEvent(new ControllerEvent(this, ControllerEvent.END_ACTION, currentAction));
 
-                if(repeatCurrentAction) {
+                if(!waitObject.exceptionThrown && repeatCurrentAction) {
                     if(currentAction instanceof Activity) {
                         addNextAction(((Activity)currentAction).makeCopy());
                     } else {
@@ -134,6 +128,11 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                 currentAction = null;
             }
 
+            if (waitObject.exceptionThrown) {
+                fireEvent(new ControllerEvent(this, ControllerEvent.NO_MORE_ACTIONS));
+                throw new RuntimeException("action failed");
+            }
+            
             doUrgentAction();
             
             if(pauseAfterEachAction) {
