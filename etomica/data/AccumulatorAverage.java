@@ -5,6 +5,7 @@
 package etomica.data;
 
 import etomica.data.types.DataArithmetic;
+import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.simulation.Simulation;
 import etomica.units.Dimension;
@@ -101,6 +102,14 @@ public class AccumulatorAverage extends DataAccumulator {
         work.E((Data) blockSum);
         work.TE(blockSum);
         sumSquare.PE(work);
+        if (!mostRecentBlock.isNaN()) {
+            work.E((Data)blockSum);
+            work.TE(mostRecentBlock);
+            correlationSum.PE(work);
+        }
+        else {
+            firstBlock.E((Data)blockSum);
+        }
         sumSquareBlock.PE(blockSumSq);
         //reset blocks
         mostRecentBlock.E((Data) blockSum);
@@ -132,14 +141,25 @@ public class AccumulatorAverage extends DataAccumulator {
             error.E((Data) sumSquare);
             error.TE(1 / (double) count);
             error.ME(work);
+
+            // error's intermediate value is useful for calculating block correlation
+            blockCorrelation.E((Data)sum);
+            blockCorrelation.TE(2.0);
+            blockCorrelation.ME(firstBlock);
+            blockCorrelation.ME(mostRecentBlock);
+            blockCorrelation.TE(average);
+            blockCorrelation.ME(correlationSum);
+            blockCorrelation.TE(1.0/(1-count));
+            blockCorrelation.PE(work);
+            blockCorrelation.DE(error);
+            
+            // ok, now finish up with error
             error.TE(1 / (double) (count - 1));
             error.map(Function.Sqrt.INSTANCE);
             standardDeviation.E((Data) sumSquareBlock);
             standardDeviation.TE(1.0 / (count * blockSize));
             standardDeviation.ME(work);
             standardDeviation.map(Function.Sqrt.INSTANCE);
-            //            mrBlock = (!Double.isNaN(mostRecentBlock[i])) ?
-            // mostRecentBlock[i] : currentBlockAverage;
         }
         return dataGroup;
     }
@@ -148,6 +168,10 @@ public class AccumulatorAverage extends DataAccumulator {
      * Resets all sums to zero. All statistics are cleared.
      */
     public void reset() {
+        if (sum == null) {
+            //no data has been added yet, so nothing to reset
+            return;
+        }
         count = 0;
         sum.E(0);
         sumSquare.E(0);
@@ -160,6 +184,9 @@ public class AccumulatorAverage extends DataAccumulator {
         average.E(Double.NaN);
         standardDeviation.E(Double.NaN);
         blockCountDown = blockSize;
+        blockCorrelation.E(Double.NaN);
+        correlationSum.E(0);
+        firstBlock.E(0);
     }
 
     /**
@@ -205,12 +232,15 @@ public class AccumulatorAverage extends DataAccumulator {
         blockSumSq = (DataArithmetic) factory.makeData("blk value^2", dimSquared);
         mostRecent = (DataArithmetic) factory.makeData("most recent", dataInfo.getDimension());
         mostRecentBlock = (DataArithmetic) factory.makeData("most recent blk", dataInfo.getDimension());
+        blockCorrelation = (DataArithmetic) factory.makeData("blk correlation", dataInfo.getDimension());
+        firstBlock = (DataArithmetic) factory.makeData("first blk", dataInfo.getDimension());
+        correlationSum = (DataArithmetic) factory.makeData("correlation sum", dataInfo.getDimension());
         work = (DataArithmetic) factory.makeData("scratch", Dimension.UNDEFINED);
 
         reset();
         dataGroup = new DataGroup(dataInfo.getLabel(),
                 new Data[] { (Data) mostRecent, (Data) average, (Data) error,
-                        (Data) standardDeviation, (Data) mostRecentBlock });
+                        (Data) standardDeviation, (Data) mostRecentBlock,(Data)blockCorrelation});
         return dataGroup.getDataInfo();
     }
 
@@ -277,12 +307,14 @@ public class AccumulatorAverage extends DataAccumulator {
             new Type("Latest value", 0), new Type("Average", 1),
             new Type("67% Confidence limits", 2),
             new Type("Standard deviation", 3),
-            new Type("Latest block average", 4) };
+            new Type("Latest block average", 4),
+            new Type("Block correlation", 5) };
     public static final Type MOST_RECENT = CHOICES[0];
     public static final Type AVERAGE = CHOICES[1];
     public static final Type ERROR = CHOICES[2];
     public static final Type STANDARD_DEVIATION = CHOICES[3];
     public static final Type MOST_RECENT_BLOCK = CHOICES[4];
+    public static final Type BLOCK_CORRELATION = CHOICES[5];
 
     protected DataArithmetic sum; //sum(blockSum/blkSize) = sum(blockAvg)
     protected DataArithmetic sumSquare;//sum(blockAvg^2)
@@ -292,6 +324,7 @@ public class AccumulatorAverage extends DataAccumulator {
     protected DataArithmetic mostRecent;//most recent value
     protected DataArithmetic mostRecentBlock;//most recent blockAvg
     protected DataArithmetic average, error, standardDeviation;
+    protected DataArithmetic correlationSum, blockCorrelation, firstBlock;
     protected DataArithmetic work;
     protected DataGroup dataGroup;
     protected int count, blockCountDown;
