@@ -1,8 +1,11 @@
 package etomica.action.activity;
 
+import java.util.HashMap;
+
 import etomica.action.Action;
 import etomica.action.Activity;
 import etomica.util.Arrays;
+import etomica.util.EnumeratedType;
 
 /**
  * Organizer and executor of actions performed by the simulation. The Controller
@@ -35,6 +38,33 @@ import etomica.util.Arrays;
  */
 public class Controller extends ActivityGroupSeries implements java.io.Serializable {
     
+    public Controller() {
+        actionStatusMap = new HashMap();
+        waitObject = new WaitObject();
+        eventManager = new ControllerEventManager();
+    }
+    
+    public synchronized void addAction(Action newAction) {
+        super.addAction(newAction);
+        actionStatusMap.put(newAction,PENDING);
+    }
+    
+    public synchronized boolean removeAction(Action oldAction) {
+        if (super.removeAction(oldAction)) {
+            actionStatusMap.remove(oldAction);
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Returns the status of an action held by the controller.  Returns
+     * null for actions not held by the controller.
+     */
+    public synchronized ActionStatus getActionStatus(Action action) {
+        return (ActionStatus)actionStatusMap.get(action);
+    }
+    
     /**
      * Method to start this controller's thread, causing execution of the run() method.
      * No action is performed if a thread is already running this controller (i.e., if
@@ -59,7 +89,10 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
         while(numActions > 0) {
             synchronized(this) {
                 currentAction = pendingActions[0];
+                //removeAction will remove the action from the status map
                 removeAction(currentAction);
+                //put it back
+                actionStatusMap.put(currentAction,CURRENT);
             }
             fireEvent(new ControllerEvent(this, ControllerEvent.START_ACTION, currentAction));
             if(currentAction instanceof Activity) {
@@ -112,8 +145,18 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                 currentAction.actionPerformed();
             }
             
-            //TODO mark this as whether completed normally
             synchronized(this) {
+                //update the action's status
+                actionStatusMap.remove(currentAction);
+                if (waitObject.exceptionThrown) {
+                    actionStatusMap.put(currentAction,FAILED);
+                }
+                else if (haltRequested) {
+                    actionStatusMap.put(currentAction,STOPPED);
+                }
+                else {
+                    actionStatusMap.put(currentAction,COMPLETED);
+                }
                 completedActions = (Action[])Arrays.addObject(completedActions, currentAction);
                 fireEvent(new ControllerEvent(this, ControllerEvent.END_ACTION, currentAction));
 
@@ -292,7 +335,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
         return "Controller";
     }
     
-    private ControllerEventManager eventManager = new ControllerEventManager();
+    private final ControllerEventManager eventManager;
 
     private Thread runner;
     
@@ -301,12 +344,46 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     
     private boolean repeatCurrentAction = false;
 
-    protected final WaitObject waitObject = new WaitObject();
+    protected final WaitObject waitObject;
     private static class WaitObject implements java.io.Serializable {
         boolean currentActionDone;
         boolean exceptionThrown;
     };
 
-}//end of Controller
+    private HashMap actionStatusMap;
+    
+    /**
+     * Enumerated type describing the status of an action.
+     */
+    public static class ActionStatus extends EnumeratedType {
+        protected ActionStatus(String label) {
+            super(label);
+        }       
+        public EnumeratedType[] choices() {return CHOICES;}
+        /**
+         * Required to guarantee singleton when deserializing.
+         * @return the singleton INSTANCE
+         */
+        private Object readResolve() {
+            for (int i=0; i<CHOICES.length; i++) {
+                if (this.toString().equals(CHOICES[i].toString())) {
+                    return CHOICES[i];
+                }
+            }
+            throw new RuntimeException("unknown action status: "+this);
+        }
+    }
+    protected static final ActionStatus[] CHOICES = 
+        new ActionStatus[] {
+            new ActionStatus("Pending"),
+            new ActionStatus("Current"), 
+            new ActionStatus("Completed"),
+            new ActionStatus("Stopped"),
+            new ActionStatus("Failed")};
+    public static final ActionStatus PENDING = CHOICES[0];
+    public static final ActionStatus CURRENT = CHOICES[1];
+    public static final ActionStatus COMPLETED = CHOICES[2];
+    public static final ActionStatus STOPPED = CHOICES[3];
+    public static final ActionStatus FAILED = CHOICES[4];
 
-
+}
