@@ -2,12 +2,10 @@ package etomica.data;
 
 public interface DataPipeForked extends DataPipe {
 
-    public int getDataSinkCount();
-
     /**
      * @return the i-th DataSink
      */
-    public DataSink getDataSink(int i);
+    public DataSink[] getDataSinks();
 
     /**
      * Sets the list of DataSinks that receive the Data entering this DataFork.

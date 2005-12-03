@@ -24,15 +24,15 @@ public abstract class DataProcessorForked extends DataProcessor implements DataP
      * @see etomica.data.DataProcessor#getDataSink()
      */
     public DataSink getDataSink() {
-        return dataFork.getDataSink(0);
+        DataSink[] dataSinks = getDataSinks();
+        if (dataSinks.length == 0) {
+            return null;
+        }
+        return dataSinks[0];
     }
     
-    public DataSink getDataSink(int i) {
-        return dataFork.getDataSink(i);
-    }
-    
-    public int getDataSinkCount() {
-        return dataFork.getDataSinkCount();
+    public DataSink[] getDataSinks() {
+        return dataFork.getDataSinks();
     }
     
     /* (non-Javadoc)
@@ -52,8 +52,8 @@ public abstract class DataProcessorForked extends DataProcessor implements DataP
      * 
      * @param dataSink
      */
-    public void addDataSink(DataSink dataSink) {
-        dataFork.addDataSink(dataSink);
+    public void addDataSink(DataSink newDataSink) {
+        dataFork.addDataSink(newDataSink);
     }
 
     /**
@@ -61,8 +61,8 @@ public abstract class DataProcessorForked extends DataProcessor implements DataP
      * 
      * @param dataSink data sink to be removed from this list, if present.
      */
-    public void removeDataSink(DataSink dataSink) {
-        dataFork.removeDataSink(dataSink);
+    public void removeDataSink(DataSink oldDataSink) {
+        dataFork.removeDataSink(oldDataSink);
     }
 
     private final DataFork dataFork;

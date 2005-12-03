@@ -40,7 +40,7 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
     /**
      * Returns null, indicating that this DataSink can accept any type of Data.
      */
-    public DataProcessor getDataCaster(DataInfo dataInfo) {
+    public DataProcessor getDataCaster(DataInfo incomingDataInfo) {
         return null;
     }
     
@@ -60,26 +60,20 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
      * Puts the given DataInfo through into all DataSinks, inserting
      * a data caster before any sinks needing one.
      */
-    public void putDataInfo(DataInfo dataInfo) {
-        this.dataInfo = dataInfo;
+    public void putDataInfo(DataInfo incomingDataInfo) {
+        dataInfo = incomingDataInfo;
         for(int i=dataSinkList.length-1; i>=0; i--) {
             insertTransformerIfNeeded(i);
-            dataSinkList[i].dataSink.putDataInfo(dataInfo);
+            dataSinkList[i].dataSink.putDataInfo(incomingDataInfo);
         }
     }
 
-    /* (non-Javadoc)
-     * @see etomica.data.DataPipeForked#getDataSinkCount()
-     */
-    public int getDataSinkCount() {
-        return dataSinkList.length;
-    }
-    
-    /* (non-Javadoc)
-     * @see etomica.data.DataPipeForked#getDataSink(int)
-     */
-    public DataSink getDataSink(int i) {
-        return dataSinkList[i].dataSink;
+    public DataSink[] getDataSinks() {
+        DataSink[] sinks = new DataSink[dataSinkList.length];
+        for (int i=0; i<sinks.length; i++) {
+            sinks[i] = dataSinkList[i].dataSink;
+        }
+        return sinks;
     }
     
     /**
