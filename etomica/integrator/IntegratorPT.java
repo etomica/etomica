@@ -69,8 +69,8 @@ public class IntegratorPT extends IntegratorManagerMC implements EtomicaElement 
 	    super.addIntegrator(integrator);
         
 		if (nIntegrators > 1) {
-            MCMove newMCMove = mcMoveSwapFactory.makeMCMoveSwap(potential, (IntegratorPhase)integrators[nIntegrators-1], 
-                    (IntegratorPhase)integrators[nIntegrators]);
+            MCMove newMCMove = mcMoveSwapFactory.makeMCMoveSwap(potential, (IntegratorPhase)integrators[nIntegrators-2], 
+                    (IntegratorPhase)integrators[nIntegrators-1]);
             moveManager.addMCMove(newMCMove);
 		}
 	}
