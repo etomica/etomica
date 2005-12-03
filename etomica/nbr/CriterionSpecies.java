@@ -21,7 +21,6 @@ public class CriterionSpecies extends CriterionAdapter {
         super(criterion);
         this.species0 = species0;
         this.species1 = species1;
-        isIntraSpecies = species0 == species1;
     }
     
     /**
@@ -40,7 +39,10 @@ public class CriterionSpecies extends CriterionAdapter {
         return false;
     }
     
-    private final boolean isIntraSpecies;
+    public Species[] getSpecies() {
+        return new Species[]{species0,species1};
+    }
+    
     private final Species species0;
     private final Species species1;
 
