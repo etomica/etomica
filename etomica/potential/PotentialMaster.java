@@ -167,6 +167,27 @@ public class PotentialMaster implements java.io.Serializable {
     }
     
     /**
+     * Returns the AtomTypes that the given potential applies to if the given 
+     * potential is within this potential group.  If the potential is not 
+     * contained by the potential master or any PotentialGroup it holds, or 
+     * does not apply to specific AtomTypes, null is returned.
+     */
+    public AtomType[] getAtomTypes(Potential potential) {
+        for(PotentialLinker link=first; link!=null; link=link.next) {
+            if (link.potential == potential) {
+                return link.types;
+            }
+            if (link.potential instanceof PotentialGroup) {
+                AtomType[] types = ((PotentialGroup)link.potential).getAtomTypes(potential);
+                if (types != null) {
+                    return types;
+                }
+            }
+        }
+        return null;
+    }
+    
+    /**
      * Returns an array containing the atom types for the molecules
      * corresponding to the given array of species.
      */

@@ -15,7 +15,6 @@ import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.AtomsetIteratorSpeciesAgent;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.phase.Phase;
-import etomica.potential.PotentialMaster.PotentialLinker;
 import etomica.space.Space;
 import etomica.species.Species;
 
@@ -100,12 +99,12 @@ public class PotentialGroup extends Potential {
         return species;
     }
     
-	/**
-	 * Adds the given potential to this group, defining it to apply to the atoms
+    /**
+     * Adds the given potential to this group, defining it to apply to the atoms
      * provided by the given basis-dependent iterator.  
-	 */
-	public synchronized void addPotential(Potential potential, AtomsetIteratorBasisDependent iterator) {
-	    addPotential(potential,iterator,null);
+     */
+    public synchronized void addPotential(Potential potential, AtomsetIteratorBasisDependent iterator) {
+        addPotential(potential,iterator,null);
     }
     
     private void addPotential(Potential potential, AtomsetIteratorBasisDependent iterator, AtomType[] types) {
@@ -139,86 +138,109 @@ public class PotentialGroup extends Potential {
         }
         return null;
     }
-	
-	//TODO this needs some work
-	public double energy(AtomSet basisAtoms) {
-		if(basisAtoms.count() != this.nBody()) {
-			throw new IllegalArgumentException("Error: number of atoms for energy calculation inconsistent with order of potential");
-		}
-		double sum = 0.0;
-		for (PotentialLinker link=first; link!= null; link=link.next) {	
+
+    /**
+     * Returns the AtomTypes that the given potential applies to if the given 
+     * potential is within this potential group.  If the potential is not 
+     * within this group or does not apply to specific AtomTypes, null is 
+     * returned.
+     */
+    public AtomType[] getAtomTypes(Potential potential) {
+        for(PotentialLinker link=first; link!=null; link=link.next) {
+            if (link.potential == potential) {
+                return link.types;
+            }
+            if (link.potential instanceof PotentialGroup) {
+                AtomType[] types = ((PotentialGroup)link.potential).getAtomTypes(potential);
+                if (types != null) {
+                    return types;
+                }
+            }
+        }
+        return null;
+    }
+    
+    //TODO this needs some work
+    public double energy(AtomSet basisAtoms) {
+        if(basisAtoms.count() != this.nBody()) {
+            throw new IllegalArgumentException("Error: number of atoms for energy calculation inconsistent with order of potential");
+        }
+        double sum = 0.0;
+        for (PotentialLinker link=first; link!= null; link=link.next) {	
             if(!link.enabled) continue;
-			//if(firstIterate) ((AtomsetIteratorBasisDependent)link.iterator).setDirective(id);
-			link.iterator.setBasis(basisAtoms);
-			link.iterator.reset();
-			while(link.iterator.hasNext()) {
-				sum += link.potential.energy(link.iterator.next());
-			}
-		}
-		return sum;
-	}
-	
+            //if(firstIterate) ((AtomsetIteratorBasisDependent)link.iterator).setDirective(id);
+            link.iterator.setBasis(basisAtoms);
+            link.iterator.reset();
+            while(link.iterator.hasNext()) {
+                sum += link.potential.energy(link.iterator.next());
+            }
+        }
+        return sum;
+    }
+    
     /**
      * Returns the maximum of the range of all potentials in the group.
      */
-	public double getRange() {
-	    double range = 0;
+    public double getRange() {
+        double range = 0;
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if (link.potential.getRange() > range) {
                 range = link.potential.getRange();
             }
         }
         return range;
-	}
+    }
 	
-	/**
-	 * Removes given potential from the group.  No error is generated if
-	 * potential is not in group.
-	 */
-	public synchronized void removePotential(Potential potential) {
-		PotentialLinker previous = null;
-		for(PotentialLinker link=first; link!=null; link=link.next) {
-			if(link.potential == potential) {//found it
-				if(previous == null) first = link.next;  //it's the first one
-				else previous.next = link.next;          //it's not the first one
-				return;
-			}//end if
-			previous = link;
-		}//end for
-	}//end removePotential
+    /**
+     * Removes given potential from the group.  No error is generated if
+     * potential is not in group.
+     */
+    public synchronized void removePotential(Potential potential) {
+        PotentialLinker previous = null;
+        for(PotentialLinker link=first; link!=null; link=link.next) {
+            if(link.potential == potential) {//found it
+                if(previous == null) first = link.next;  //it's the first one
+                else previous.next = link.next;          //it's not the first one
+                return;
+            }//end if
+            previous = link;
+        }//end for
+    }//end removePotential
     
     /**
      * Performs the specified calculation over the iterates given by the iterator,
      * using the directive to set up the iterators for the sub-potentials of this group.
      */
-	//TODO consider what to do with sub-potentials after target atoms are reached
+    //TODO consider what to do with sub-potentials after target atoms are reached
     public void calculate(AtomsetIterator iterator, IteratorDirective id, PotentialCalculation pc) {
     	AtomSet targetAtoms = id.getTargetAtoms();
     	IteratorDirective.Direction direction = id.direction();
-		//loop over sub-potentials
+    	//loop over sub-potentials
     	//TODO consider separate loops for targetable and directable
- 		for (PotentialLinker link=first; link!= null; link=link.next) {
-			link.iterator.setTarget(targetAtoms);
+    	for (PotentialLinker link=first; link!= null; link=link.next) {
+    	    link.iterator.setTarget(targetAtoms);
+            // are all iterators with basis size=1 directable and all
+            // iterators with basis size=2 not-directable
             if (link.iterator instanceof AtomsetIteratorDirectable) {
                 ((AtomsetIteratorDirectable)link.iterator).setDirection(direction);
             }
-		}
+    	}
     	iterator.reset();//loop over atom groups affected by this potential group
-		while (iterator.hasNext()) {
-    		AtomSet basisAtoms = iterator.next();
-    		for (PotentialLinker link=first; link!= null; link=link.next) {
-                if(!link.enabled) continue;
-    			link.iterator.setBasis(basisAtoms);   			
-    			pc.doCalculation(link.iterator, id, link.potential);
-    		}
-     	}
+    	while (iterator.hasNext()) {
+    	    AtomSet basisAtoms = iterator.next();
+    	    for (PotentialLinker link=first; link!= null; link=link.next) {
+    	        if(!link.enabled) continue;
+    	        link.iterator.setBasis(basisAtoms);
+    	        pc.doCalculation(link.iterator, id, link.potential);
+    	    }
+    	}
     }//end calculate
     
     public void setPhase(Phase phase) {
     	this.phase = phase;
   		for (PotentialLinker link=first; link!= null; link=link.next) {
-			link.potential.setPhase(phase);
-		}
+  		    link.potential.setPhase(phase);
+  		}
     }
     
     /**
@@ -260,28 +282,27 @@ public class PotentialGroup extends Potential {
         return potentials;
     }
     
-	protected PotentialLinker first;
-	protected Phase phase;
+    protected PotentialLinker first;
+    protected Phase phase;
 
-	protected static class PotentialLinker implements java.io.Serializable {
-	    protected final Potential potential;
-	    protected final AtomsetIteratorBasisDependent iterator;
+    protected static class PotentialLinker implements java.io.Serializable {
+        protected final Potential potential;
+        protected final AtomsetIteratorBasisDependent iterator;
         protected final AtomType[] types;
-	    protected PotentialLinker next;
+        protected PotentialLinker next;
         protected boolean enabled = true;
-	    //Constructors
-	    public PotentialLinker(Potential a, AtomsetIteratorBasisDependent i, AtomType[] t, PotentialLinker l) {
-		    	potential = a;
-		    	iterator = i;
-		    	next = l;
+        //Constructors
+        public PotentialLinker(Potential a, AtomsetIteratorBasisDependent i, AtomType[] t, PotentialLinker l) {
+            potential = a;
+            iterator = i;
+            next = l;
             if (t != null) {
                 types = (AtomType[])t.clone();
             }
             else {
                 types = null;
             }
-	    }
-	}
+        }
+    }
 
-}//end PotentialGroup
-    
+}
