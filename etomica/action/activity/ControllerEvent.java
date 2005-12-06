@@ -38,7 +38,8 @@ public class ControllerEvent implements java.io.Serializable {
             new Type("Start urgent action", 3),
             new Type("End urgent action", 4),
             new Type("No more actions", 5),
-            new Type("Halted", 6)};
+            new Type("Halted", 6),
+            new Type("Reset", 7)};
     public static final Type START = CHOICES[0];
     public static final Type START_ACTION = CHOICES[1];
     public static final Type END_ACTION = CHOICES[2];
@@ -46,4 +47,5 @@ public class ControllerEvent implements java.io.Serializable {
     public static final Type END_URGENT_ACTION = CHOICES[4];
     public static final Type NO_MORE_ACTIONS = CHOICES[5];
     public static final Type HALTED = CHOICES[6];
+    public static final Type RESET = CHOICES[7];
 }//end of ControllerEvent

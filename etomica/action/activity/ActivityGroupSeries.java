@@ -61,18 +61,38 @@ public class ActivityGroupSeries extends Activity implements ActivityGroup {
 
     /**
      * Removes the given action from the list of actions performed by this controller.
-     * If action is currently running, or is not in list of actions to be performed,
-     * method returns without doing anything.
+     * If action is currently running, or is not in list of actions, method returns 
+     * without doing anything.
      * @return true if the action was removed
      */
 	public synchronized boolean removeAction(Action action) {
 		pendingActions = (Action[]) Arrays.removeObject(pendingActions, action);
-		int newNumActions = pendingActions.length;
-		if (newNumActions == numActions)
-			return false;
-		numActions = newNumActions;
+		if (pendingActions.length == numActions) {
+            int oldNumCompleted = completedActions.length;
+            completedActions = (Action[]) Arrays.removeObject(completedActions, action);
+            return completedActions.length != oldNumCompleted;
+        }
+		numActions = pendingActions.length;
 		return true;
 	}
+    
+    /**
+     * Marks all actions as pending.  Previously completed actions are put 
+     * first in the new list of pending actions.  The Controller must be 
+     * inactive or halted before calling this method.
+     */
+    public synchronized void reset() {
+        if (currentAction != null) {
+            //throw an exception?  call halt?
+            return;
+        }
+        Action[] newPendingActions = new Action[completedActions.length+numActions];
+        System.arraycopy(completedActions,0,newPendingActions,0,completedActions.length);
+        System.arraycopy(pendingActions,0,newPendingActions,completedActions.length,numActions);
+        numActions = newPendingActions.length;
+        pendingActions = newPendingActions;
+        completedActions = new Action[0];
+    }
 	
     /**
      * @return a list of the actions yet to be performed by this controller. 
@@ -115,35 +135,27 @@ public class ActivityGroupSeries extends Activity implements ActivityGroup {
      * by a thread made upon invoking the start method.
      */
     public void run() {
-	    	while(numActions > 0) {
-	    		synchronized(this) {
-	    			currentAction = pendingActions[0];
-	    			removeAction(currentAction);
-	    		}
-	    		boolean exceptionThrown = false;
-	            currentAction.actionPerformed();
-	
-	//            try {
-	//    			currentAction.actionPerformed();
-	//    		}
-	//    		catch (Exception e) {
-	//    			//TODO write message to error stream
-	//    			e.printStackTrace();
-	//    			exceptionThrown = true;
-	//    		}
-	    		//TODO mark this as whether completed normally
-	    		synchronized(this) {
-	    			completedActions = (Action[])Arrays.addObject(completedActions, currentAction);
-	    			currentAction = null;
-	    		}
-	    		if(exceptionThrown || pauseAfterEachAction) {
-	    		    pauseRequested = true;
-             }
+        while(numActions > 0) {
+            synchronized(this) {
+                currentAction = pendingActions[0];
+                removeAction(currentAction);
+            }
+            boolean exceptionThrown = false;
+            currentAction.actionPerformed();
+
+            //TODO mark this as whether completed normally
+            synchronized(this) {
+                completedActions = (Action[])Arrays.addObject(completedActions, currentAction);
+                currentAction = null;
+            }
+            if(exceptionThrown || pauseAfterEachAction) {
+                pauseRequested = true;
+            }
              
-             if(!doContinue()) {
-                 break;
-             }
-	    	}
+            if(!doContinue()) {
+                break;
+            }
+        }
     }
             
     /**
