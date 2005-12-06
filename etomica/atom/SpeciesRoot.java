@@ -109,6 +109,8 @@ public final class SpeciesRoot extends Atom {
             additionEvent.setType(SimulationEvent.PHASE_ADDED);
             removalEvent = new SimulationEvent(this);
             removalEvent.setType(SimulationEvent.PHASE_REMOVED);
+            ordinalReservoir = new OrdinalReservoir(this);
+            ordinalReservoir.setReservoirSize(3);
         }
         public Phase parentPhase() {
             throw new RuntimeException("Error:  Unexpected call to parentPhase in SpeciesRoot");
@@ -139,7 +141,11 @@ public final class SpeciesRoot extends Atom {
          */
         public final boolean childrenAreGroups() {return true;}
         
-        /**
+        int newChildIndex() {
+            return ordinalReservoir.requestNewOrdinal();
+        }
+        
+       /**
          * Checks that new atom is a SpeciesMaster instance, and adds a
          * species agent to it for every species currently in simulation.
          */
@@ -157,6 +163,7 @@ public final class SpeciesRoot extends Atom {
 
         public void removeAtomNotify(Atom oldAtom) {
             if(oldAtom instanceof SpeciesMaster) {
+                ordinalReservoir.returnOrdinal(oldAtom.node.getOrdinal());
                 removalEvent.setPhase(oldAtom.node.parentPhase());
                 ((SpeciesRoot)atom).eventManager.fireEvent(removalEvent);
             }
@@ -164,6 +171,7 @@ public final class SpeciesRoot extends Atom {
         
         private final SimulationEvent additionEvent;
         private final SimulationEvent removalEvent;
+        private final OrdinalReservoir ordinalReservoir;
     }
     
     private static final class NodeFactory implements AtomTreeNodeFactory, java.io.Serializable {

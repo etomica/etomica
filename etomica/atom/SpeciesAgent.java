@@ -68,8 +68,13 @@ public final class SpeciesAgent extends Atom {
         
         private AgentAtomTreeNode(Atom atom) {
             super(atom);
+            ordinalReservoir = new OrdinalReservoir(this);
         }
 
+        int newChildIndex() {
+            return ordinalReservoir.requestNewOrdinal();
+        }
+        
        /**
         * Overrides parent class method and terminates recursive call to identify this
         * as a constituent atom's species agent.
@@ -82,6 +87,14 @@ public final class SpeciesAgent extends Atom {
         public final Atom parentMolecule() {
             throw new RuntimeException("Error:  Unexpected call to parentMolecule in SpeciesAgent");
         }
+        
+        public void removeAtomNotify(Atom oldAtom) {
+            if (oldAtom.node.parentGroup() == atom) {
+                ordinalReservoir.returnOrdinal(oldAtom.node.getOrdinal());
+            }
+        }
+        
+        private final OrdinalReservoir ordinalReservoir;
     }
     
     private final static AtomTreeNodeFactory NODE_FACTORY = new AtomTreeNodeFactory() {
