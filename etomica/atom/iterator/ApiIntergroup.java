@@ -13,7 +13,7 @@ import etomica.atom.AtomsetArray;
  * Iterator that returns pairs formed using two different basis atoms, so that
  * the iterates are taken from two different groups.
  */
-public final class ApiIntergroup extends AtomPairIteratorAdapter implements
+public class ApiIntergroup extends AtomPairIteratorAdapter implements
         AtomsetIteratorBasisDependent, ApiComposite {
 
     public ApiIntergroup() {
@@ -70,7 +70,7 @@ public final class ApiIntergroup extends AtomPairIteratorAdapter implements
         }
     }
 
-    private void setupIterators() {
+    protected void setupIterators() {
         switch (targetAtoms.count()) {
         case 0:
             aiOuter.setTarget(targetAtoms);
@@ -135,7 +135,7 @@ public final class ApiIntergroup extends AtomPairIteratorAdapter implements
      * Returns 2, indicating that the setBasis method expects an array of two
      * atoms.
      */
-    public final int basisSize() {
+    public int basisSize() {
         return 2;
     }
 
@@ -166,10 +166,10 @@ public final class ApiIntergroup extends AtomPairIteratorAdapter implements
         super.allAtoms(action);
     }
 
-    private final AtomsetIteratorBasisDependent aiOuter;
-    private final AtomsetIteratorBasisDependent aiInner;
-    private AtomSet targetAtoms = AtomSet.NULL;
-    private final AtomsetArray emptyTarget = new AtomsetArray(0);
-    private boolean needSetupIterators = true;
+    protected final AtomsetIteratorBasisDependent aiOuter;
+    protected final AtomsetIteratorBasisDependent aiInner;
+    protected AtomSet targetAtoms = AtomSet.NULL;
+    protected final AtomsetArray emptyTarget = new AtomsetArray(0);
+    protected boolean needSetupIterators = true;
 
 }

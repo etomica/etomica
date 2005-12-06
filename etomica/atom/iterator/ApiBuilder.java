@@ -11,7 +11,7 @@ import etomica.atom.AtomType;
 /**
  * Provides static methods for construction of some useful pair iterators.
  */
-public final class ApiBuilder implements java.io.Serializable {
+public final class ApiBuilder {
 
     /**
      * Private constructor to prevent instantiation.
@@ -77,7 +77,7 @@ public final class ApiBuilder implements java.io.Serializable {
      * iterator's setBasis method is invoked. Child atoms of the first basis
      * atom only having type = types[0] are given, in pairs with child atoms of
      * the second basis atom only having type = types[1]. If the two given types
-     * are different instances, an intergroup iterator is returned. An
+     * are different instances, an ApiIntragroupFixed iterator is returned. An
      * exception is thrown if the types array is not of length 2.
      */
     public static AtomsetIteratorBasisDependent makeIntragroupTypeIterator(
@@ -85,16 +85,19 @@ public final class ApiBuilder implements java.io.Serializable {
         if (types.length != 2)
             throw new IllegalArgumentException(
                     "Incorrect number of types; must be 2");
+        AtomFilter typeFilter = new AtomFilterTypeInstance(types[0]);
+        AtomIterator outer = AtomIteratorFiltered.makeIterator(
+                new AtomIteratorBasis(), typeFilter);
+
         if (types[0] == types[1]) {
-            AtomFilter typeFilter = new AtomFilterTypeInstance(types[0]);
-            AtomIterator outer = AtomIteratorFiltered.makeIterator(
-                    new AtomIteratorBasis(), typeFilter);
             AtomIteratorFiltered innerUp = AtomIteratorFiltered.makeIterator(
                     new AtomIteratorSequence(IteratorDirective.UP, 1), typeFilter);
             AtomIteratorFiltered innerDn = AtomIteratorFiltered.makeIterator(
                     new AtomIteratorSequence(IteratorDirective.DOWN, 1), typeFilter);
-            return new ApiIntragroup((AtomsetIteratorBasisDependent)outer, (AtomIteratorAtomDependent)innerUp, (AtomIteratorAtomDependent)innerDn);
+            return new ApiIntragroup((AtomsetIteratorBasisDependent)outer, 
+                    (AtomIteratorAtomDependent)innerUp, (AtomIteratorAtomDependent)innerDn);
         }
-        return makeIntergroupTypeIterator(types);
+        AtomIterator inner = AtomIteratorFiltered.makeIterator(new AtomIteratorBasis(), typeFilter);
+        return new ApiIntragroupFixed(new ApiInnerFixed(outer, inner));
     }
 }
