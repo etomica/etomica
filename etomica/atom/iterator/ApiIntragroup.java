@@ -13,7 +13,7 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 
 /**
- * Returns iterates from from the childList of a single basis atom.  Behavior is set
+ * Returns iterates from the childList of a single basis atom.  Behavior is set
  * via iterator directive: if no atom is specified there, all pairs formed from the childList
  * are given; otherwise, if an atom is specified there, pairs will be formed from the
  * childList atoms with the basis' child from which the target atom is descended.  
