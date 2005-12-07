@@ -14,8 +14,13 @@ import etomica.space.Space;
 public class PrimitiveHexane extends PrimitiveTriclinic {
     
     public PrimitiveHexane(Space space) {
+        //In units of sigma
         super(space, 2.86842545, 1.338313769, 1.290909603, 0.779541414, 1.109209538,
                 0.768992016);
+        
+        //In units of Angstroms
+//        super(space, 28.68425449956680, 13.38313769270750, 12.90909602969220, 
+//                0.779541414, 1.109209538, 0.768992016);
     }
 }
 
