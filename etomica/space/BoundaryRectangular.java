@@ -25,6 +25,21 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
         super(space, makeShape(space));
         isPeriodic = (boolean[])periodicity.clone();
         dimensions = space.makeVector();
+        dimensions.E(boxSize); 
+        
+        temp = space.makeVector();
+        modShift = space.makeVector();
+        dimensionsCopy = space.makeVector();
+        dimensionsHalf = space.makeVector();
+        indexIterator = new IndexIteratorSequential(space.D());
+        needShift = new boolean[space.D()];//used by getOverflowShifts
+        updateDimensions();
+    }
+
+    public BoundaryRectangular(Space space, boolean[] periodicity, double[] boxSize) {
+        super(space, makeShape(space));
+        isPeriodic = (boolean[])periodicity.clone();
+        dimensions = space.makeVector();
         dimensions.E(boxSize);
         temp = space.makeVector();
         modShift = space.makeVector();
@@ -34,6 +49,21 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
         needShift = new boolean[space.D()];//used by getOverflowShifts
         updateDimensions();
     }
+    
+    public BoundaryRectangular(Space space, boolean[] periodicity, Vector boxSize) {
+        super(space, makeShape(space));
+        isPeriodic = (boolean[])periodicity.clone();
+        dimensions = space.makeVector();
+        dimensions.E(boxSize);
+        temp = space.makeVector();
+        modShift = space.makeVector();
+        dimensionsCopy = space.makeVector();
+        dimensionsHalf = space.makeVector();
+        indexIterator = new IndexIteratorSequential(space.D());
+        needShift = new boolean[space.D()];//used by getOverflowShifts
+        updateDimensions();
+    }
+    
     
     private static Polytope makeShape(Space space) {
         switch(space.D()) {
