@@ -10,6 +10,11 @@ import etomica.space3d.Vector3D;
  */
 
 //nan needs a cleanup of imageOrigins & getOverflowShifts.
+/**
+ * Warning, this class assumes a rectangular system!!
+ * @author nancycribbin
+ *
+ */
 public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeriodic {
 
 	protected final boolean[] isPeriodic;
@@ -22,7 +27,7 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
 	private final Vector workVector;
 	private final Vector nearestDr;
 	private final Tensor workTensor;
-	private final Tensor tempT;
+	private final Tensor strainTensor;
 	private double oldRefDistance = 0.0;
 	private double refDistance = 0.0;
 	private final double[] workXEZ = new double[3];
@@ -36,12 +41,17 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
 
 	public BoundaryDeformablePeriodic(Space space, boolean[] periodicity, double boxSize) {
 	    //nan 2D
-	    this(space, periodicity, boxSize, new Vector3D (1,0,0), new Vector3D (0,1,0), 
-	            new Vector3D (0,0,1));	
+	    this(space, periodicity, new Vector3D (boxSize,0,0), 
+	            new Vector3D (0,boxSize,0), new Vector3D (0,0,boxSize));	
+	}
+	
+	public BoundaryDeformablePeriodic(Space space, boolean[] periodicity, Vector3D[] vex){
+	    this(space, periodicity, vex[0], vex[1], vex[2]);
+	    
 	}
 	
 //	nan 2D
-	public BoundaryDeformablePeriodic(Space space, boolean[] periodicity, double boxSize, 
+	public BoundaryDeformablePeriodic(Space space, boolean[] periodicity, 
 	        Vector3D a, Vector3D b, Vector3D c) {
 	    //super(space, new Parallelepiped(space, a, b, c));
 //	  nan 2D
@@ -56,11 +66,16 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
 		workVector = space.makeVector();
 		nearestDr = space.makeVector();
 		workTensor = space.makeTensor();
-		tempT = space.makeTensor();
-		workVector.E(boxSize);
+		strainTensor = space.makeTensor();
+		workVector.E(a.P(b.P(c)));
 		setDimensions(workVector);
 		makeStrainTensor();
 	}
+	
+
+	
+	
+	
 //	nan 2D
     private static Polytope makeShape(Space space, Vector a, Vector b, Vector c) {
         switch(space.D()) {
@@ -126,9 +141,9 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
 	}
 	
 	public void makeStrainTensor() {
-		tempT.E(boundaryTensorCopy);
-		tempT.transpose(); //r=h*s -->h matrix is a transpose of boundaryTensor
-		tempT.inverse(); //to get s, inverse of h times r, which is a position
+		strainTensor.E(boundaryTensorCopy);
+		strainTensor.transpose(); //r=h*s -->h matrix is a transpose of boundaryTensor
+		strainTensor.inverse(); //to get s, inverse of h times r, which is a position
 						 // of atom
 	}
 
@@ -136,20 +151,26 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
 		useBruteForceNearestImageMethod = bb;
 	}
 //skkwak next!!!
+	
+	/**
+	 * Checks for the nearest image.  The argument vector is changed by this method.
+	 */
 	public void checkNearestImage(Vector dr2) { // dr2 is not dr^2
+	    //the stuff after the first if is the "new technique"
 		if (!useBruteForceNearestImageMethod) {
 			if (!constantStrain) {
 				makeStrainTensor();
 			} //in Main Class, makeStrainTensor() must be called then set up
 			  // boolean of contantStrain!!!
 
-			double xi = dr2.x(0) * tempT.component(0, 0) + dr2.x(1)
-					* tempT.component(0, 1) + dr2.x(2) * tempT.component(0, 2);
-			double eta = dr2.x(0) * tempT.component(1, 0) + dr2.x(1)
-					* tempT.component(1, 1) + dr2.x(2) * tempT.component(1, 2);
-			double zeta = dr2.x(0) * tempT.component(2, 0) + dr2.x(1)
-					* tempT.component(2, 1) + dr2.x(2) * tempT.component(2, 2);
+			double xi = dr2.x(0) * strainTensor.component(0, 0) + dr2.x(1)
+					* strainTensor.component(0, 1) + dr2.x(2) * strainTensor.component(0, 2);
+			double eta = dr2.x(0) * strainTensor.component(1, 0) + dr2.x(1)
+					* strainTensor.component(1, 1) + dr2.x(2) * strainTensor.component(1, 2);
+			double zeta = dr2.x(0) * strainTensor.component(2, 0) + dr2.x(1)
+					* strainTensor.component(2, 1) + dr2.x(2) * strainTensor.component(2, 2);
 
+			//This series of if statements sets xi, eta, and zeta equal to 0 if they are close enough to it (i.e. very very small).
 			if (xi > -1.0e-10 && xi < 1.0e-10) {
 				xi = 0;
 			}
@@ -160,10 +181,12 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
 				zeta = 0;
 			}
 
+			//Increment xi, eta, & zeta
 			xi += 0.5;
 			eta += 0.5;
 			zeta += 0.5;
 
+			//Move xi, eta, and zeta between 0 and 1, if they are not already 
 			while (xi < 0) {
 				xi += 1;
 			}
@@ -183,6 +206,7 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
 				zeta -= 1;
 			}
 
+			//Decrement xi, eta, & zeta
 			xi -= 0.5;
 			eta -= 0.5;
 			zeta -= 0.5;
@@ -207,12 +231,12 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
 			oldRefDistance = Math.sqrt(dr2.squared());
 			nearestDr.E(dr2);
 
-			double xi = dr2.x(0) * tempT.component(0, 0) + dr2.x(1)
-					* tempT.component(0, 1) + dr2.x(2) * tempT.component(0, 2);
-			double eta = dr2.x(0) * tempT.component(1, 0) + dr2.x(1)
-					* tempT.component(1, 1) + dr2.x(2) * tempT.component(1, 2);
-			double zeta = dr2.x(0) * tempT.component(2, 0) + dr2.x(1)
-					* tempT.component(2, 1) + dr2.x(2) * tempT.component(2, 2);
+			double xi = dr2.x(0) * strainTensor.component(0, 0) + dr2.x(1)
+					* strainTensor.component(0, 1) + dr2.x(2) * strainTensor.component(0, 2);
+			double eta = dr2.x(0) * strainTensor.component(1, 0) + dr2.x(1)
+					* strainTensor.component(1, 1) + dr2.x(2) * strainTensor.component(1, 2);
+			double zeta = dr2.x(0) * strainTensor.component(2, 0) + dr2.x(1)
+					* strainTensor.component(2, 1) + dr2.x(2) * strainTensor.component(2, 2);
 
 			workXEZ[0] = xi;
 			workXEZ[1] = eta;
@@ -298,12 +322,12 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
 			makeStrainTensor();
 		} //in Main Class, makeStrainTensor() must be called then set up
 		  // boolean of contantStrain!!!
-		double xi = r2.x(0) * tempT.component(0, 0) + r2.x(1)
-				* tempT.component(0, 1) + r2.x(2) * tempT.component(0, 2);
-		double eta = r2.x(0) * tempT.component(1, 0) + r2.x(1)
-				* tempT.component(1, 1) + r2.x(2) * tempT.component(1, 2);
-		double zeta = r2.x(0) * tempT.component(2, 0) + r2.x(1)
-				* tempT.component(2, 1) + r2.x(2) * tempT.component(2, 2);
+		double xi = r2.x(0) * strainTensor.component(0, 0) + r2.x(1)
+				* strainTensor.component(0, 1) + r2.x(2) * strainTensor.component(0, 2);
+		double eta = r2.x(0) * strainTensor.component(1, 0) + r2.x(1)
+				* strainTensor.component(1, 1) + r2.x(2) * strainTensor.component(1, 2);
+		double zeta = r2.x(0) * strainTensor.component(2, 0) + r2.x(1)
+				* strainTensor.component(2, 1) + r2.x(2) * strainTensor.component(2, 2);
 
 		if (Math.abs(xi) < 1e-10) {
 			xi = 0;
