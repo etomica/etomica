@@ -97,27 +97,22 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
             fireEvent(new ControllerEvent(this, ControllerEvent.START_ACTION, currentAction));
             if(currentAction instanceof Activity) {
                 waitObject.currentActionDone = false;
-                waitObject.exceptionThrown = false;
+                waitObject.actionException = null;
                 //define a thread to run the activity
                 Thread localRunner = new Thread(new Runnable() {
                     public void run() {
                         Thread.currentThread().setName(currentAction.getLabel()+" thread");
-                        RuntimeException exception = null;
                         try {
                             currentAction.actionPerformed();
                         }
                         catch (RuntimeException e) {
-                            exception = e;
                             synchronized(waitObject) {
-                                waitObject.exceptionThrown = true;
+                                waitObject.actionException = e;
                             }
                         }
                         synchronized(waitObject) {
                             waitObject.currentActionDone = true;
                             waitObject.notifyAll();
-                        }
-                        if (exception != null) {
-                            throw exception;
                         }
                     }
                 });
@@ -134,7 +129,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                         }
                     } catch(InterruptedException e) {}
 
-                    if (!waitObject.exceptionThrown) {
+                    if (waitObject.actionException == null) {
                         synchronized(this) {
                             doUrgentAction();
                             if(!wasPaused) unPause();
@@ -148,7 +143,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
             synchronized(this) {
                 //update the action's status
                 actionStatusMap.remove(currentAction);
-                if (waitObject.exceptionThrown) {
+                if (waitObject.actionException != null) {
                     actionStatusMap.put(currentAction,FAILED);
                 }
                 else if (haltRequested) {
@@ -160,7 +155,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                 completedActions = (Action[])Arrays.addObject(completedActions, currentAction);
                 fireEvent(new ControllerEvent(this, ControllerEvent.END_ACTION, currentAction));
 
-                if(!waitObject.exceptionThrown && repeatCurrentAction) {
+                if(waitObject.actionException == null && repeatCurrentAction) {
                     if(currentAction instanceof Activity) {
                         addNextAction(((Activity)currentAction).makeCopy());
                     } else {
@@ -171,9 +166,9 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                 currentAction = null;
             }
 
-            if (waitObject.exceptionThrown) {
+            if (waitObject.actionException != null) {
                 fireEvent(new ControllerEvent(this, ControllerEvent.NO_MORE_ACTIONS));
-                throw new RuntimeException("action failed");
+                throw new RuntimeException("action failed", waitObject.actionException);
             }
             
             doUrgentAction();
@@ -347,7 +342,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     protected final WaitObject waitObject;
     private static class WaitObject implements java.io.Serializable {
         boolean currentActionDone;
-        boolean exceptionThrown;
+        Exception actionException;
     };
 
     private HashMap actionStatusMap;
