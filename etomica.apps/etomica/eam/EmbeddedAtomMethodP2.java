@@ -203,6 +203,9 @@ public final class EmbeddedAtomMethodP2 extends Potential2SoftSpherical implemen
     protected Wrapper[] agents;
     
     public Object makeAgent(Atom atom) {
+        if (atom == null) {
+            return new Wrapper(null);
+        }
         return new Wrapper((atom.coord != null) ? (Vector)atom.coord.position().clone() : null);
     }
     
