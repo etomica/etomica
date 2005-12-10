@@ -7,11 +7,12 @@ import etomica.atom.AtomTypeSphere;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
-import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.types.DataDouble;
+import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
@@ -78,12 +79,13 @@ public class EAMMd3D extends Simulation {
         SimulationGraphic simgraphic = new SimulationGraphic(sim);
     	simgraphic.makeAndDisplayFrame();
     	ColorSchemeByType.setColor(sim.species.getFactory().getType(), java.awt.Color.red);
-    	sim.activityIntegrate.setMaxSteps(100);
+    	sim.activityIntegrate.setMaxSteps(1000);
     	sim.getController().run();
-    	Data data = energyAccumulator.getData(); // kmb change type to Data instead of double[]
-        double PE = AccumulatorAverage.AVERAGE.index/sim.species.getAgent(sim.phase).getNMolecules();  // kmb changed 8/3/05
+    	DataGroup data = (DataGroup)energyAccumulator.getData(); // kmb change type to Data instead of double[]
+        double PE = ((DataDouble)((DataGroup)data).getData(AccumulatorAverage.AVERAGE.index)).x
+                    /sim.species.getAgent(sim.phase).getNMolecules();  // kmb changed 8/3/05
         //double PE = data[AccumulatorAverage.AVERAGE.index]/sim.species.getAgent(sim.phase).getNMolecules();  // orig line
-        System.out.println("PE/epsilon="+ElectronVolt.UNIT.fromSim(PE));
+        System.out.println("PE(eV)="+ElectronVolt.UNIT.fromSim(PE));
     }
     
     public EAMMd3D() {
