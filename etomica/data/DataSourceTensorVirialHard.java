@@ -17,10 +17,14 @@ import etomica.units.Dimension;
 
 public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, IntegratorHard.CollisionListener, java.io.Serializable {
     
-    public DataSourceTensorVirialHard(Space space, IntegratorHard integrator) {
+    public DataSourceTensorVirialHard(Space space) {
         data = new DataTensor(space, "PV/NkT",Dimension.NULL);
         lastData = new DataTensor(space, "PV/NkT",Dimension.NULL);
         timer = new DataSourceCountTime();
+    }
+    
+    public DataSourceTensorVirialHard(Space space, IntegratorHard integrator) {
+        this(space);
         setIntegrator(integrator);
     }
     

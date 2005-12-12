@@ -14,10 +14,27 @@ import etomica.units.Dimension;
  */
 public class MeterKineticEnergyFromIntegrator extends DataSourceScalar implements Meter, IntegratorNonintervalListener, java.io.Serializable {
 
-    public MeterKineticEnergyFromIntegrator(IntegratorMD aIntegrator) {
+    public MeterKineticEnergyFromIntegrator() {
         super("Kinetic Energy",Dimension.ENERGY);
-        integrator = aIntegrator;
-        integrator.addListener(this);
+    }
+    
+    public MeterKineticEnergyFromIntegrator(IntegratorMD aIntegrator) {
+        this();
+        setIntegrator(aIntegrator);
+    }
+    
+    public void setIntegrator(IntegratorMD newIntegrator) {
+        if (integrator != null) {
+            integrator.removeListener(this);
+        }
+        integrator = newIntegrator;
+        if (integrator != null) {
+            integrator.addListener(this);
+        }
+    }
+    
+    public IntegratorMD getIntegrator() {
+        return integrator;
     }
     
     public DataInfo getDataInfo() {

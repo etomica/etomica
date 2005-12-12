@@ -3,6 +3,7 @@ package etomica.data.meter;
 import etomica.data.DataInfo;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
 import etomica.integrator.IntegratorPhase;
@@ -14,10 +15,27 @@ import etomica.units.Dimension;
  */
 public class MeterPotentialEnergyFromIntegrator extends DataSourceScalar implements Meter, IntegratorNonintervalListener, java.io.Serializable {
 
-    public MeterPotentialEnergyFromIntegrator(IntegratorPhase aIntegrator) {
+    public MeterPotentialEnergyFromIntegrator() {
         super("Potential Energy",Dimension.ENERGY);
-        integrator = aIntegrator;
-        integrator.addListener(this);
+    }
+    
+    public MeterPotentialEnergyFromIntegrator(IntegratorPhase aIntegrator) {
+        this();
+        setIntegrator(aIntegrator);
+    }
+    
+    public void setIntegrator(IntegratorPhase newIntegrator) {
+        if (integrator != null) {
+            integrator.removeListener(this);
+        }
+        integrator = newIntegrator;
+        if (integrator != null) {
+            integrator.addListener(this);
+        }
+    }
+    
+    public IntegratorPhase getIntegrator() {
+        return integrator;
     }
     
     public DataInfo getDataInfo() {
