@@ -40,6 +40,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     
     public Controller() {
         actionStatusMap = new HashMap();
+        actionExceptionMap = new HashMap();
         waitObject = new WaitObject();
         eventManager = new ControllerEventManager();
     }
@@ -47,11 +48,14 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     public synchronized void addAction(Action newAction) {
         super.addAction(newAction);
         actionStatusMap.put(newAction,PENDING);
+        // don't need to add to the exception map because HashMap will return
+        // null if we don't add it.
     }
     
     public synchronized boolean removeAction(Action oldAction) {
         if (super.removeAction(oldAction)) {
             actionStatusMap.remove(oldAction);
+            actionExceptionMap.remove(oldAction);
             return true;
         }
         return false;
@@ -63,6 +67,15 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
      */
     public synchronized ActionStatus getActionStatus(Action action) {
         return (ActionStatus)actionStatusMap.get(action);
+    }
+    
+    /**
+     * Returns the exception thrown by an action held by the controller.  
+     * Returns null if the given action did not throw an exception or is not 
+     * held by the controller.
+     */
+    public synchronized Exception getException(Action action) {
+        return (Exception)actionStatusMap.get(action);
     }
     
     /**
@@ -145,6 +158,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                 actionStatusMap.remove(currentAction);
                 if (waitObject.actionException != null) {
                     actionStatusMap.put(currentAction,FAILED);
+                    actionExceptionMap.put(currentAction,waitObject.actionException);
                 }
                 else if (haltRequested) {
                     actionStatusMap.put(currentAction,STOPPED);
@@ -345,7 +359,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
         Exception actionException;
     };
 
-    private HashMap actionStatusMap;
+    private final HashMap actionStatusMap, actionExceptionMap;
     
     /**
      * Enumerated type describing the status of an action.
