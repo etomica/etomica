@@ -85,7 +85,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
      * held by the controller.
      */
     public synchronized Exception getException(Action action) {
-        return (Exception)actionStatusMap.get(action);
+        return (Exception)actionExceptionMap.get(action);
     }
     
     /**
