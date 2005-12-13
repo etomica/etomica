@@ -570,7 +570,7 @@ public class PistonCylinderGraphic {
         ModifierAtomDiameter sigModifier = new ModifierAtomDiameter();
         ModifierGeneral epsModifier = new ModifierGeneral(potentialSW, "epsilon");
         ModifierGeneral lamModifier = new ModifierGeneral(potentialSW, "lambda");
-        ModifierGeneral massModifier = new ModifierGeneral(pc.species,"mass");
+        ModifierGeneral massModifier = new ModifierGeneral(pc.species.getMoleculeType(),"mass");
         sigBox.setModifier(sigModifier);
         sigBox.setLabel("Core Diameter ("+Angstrom.UNIT.symbol()+")");
         epsBox.setUnit(eUnit);
