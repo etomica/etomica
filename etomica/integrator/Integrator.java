@@ -82,6 +82,7 @@ public abstract class Integrator implements java.io.Serializable {
      * INITIALIZE).
      */
     public final void initialize() throws ConfigurationOverlapException {
+        initialized = false;
         setup();
         initialized = true;
         fireNonintervalEvent(new IntegratorNonintervalEvent(this, IntegratorEvent.INITIALIZE));

@@ -148,14 +148,15 @@ public abstract class IntegratorMD extends IntegratorPhase {
     public void doThermostat() {
         if (--thermostatCount == 0) {
             thermostatCount = thermostatInterval;
-            if (thermostat == VELOCITY_SCALING || !isothermal) {
-                // calculate current kinetic temperature
-                scaleMomenta(phase);
+            if (thermostat == ANDERSEN || !initialized) {
+                // if initializing the system always randomize the velocity
+                randomizeMomenta(phase);
                 meterKE.setPhase(phase);
                 currentKineticEnergy = meterKE.getDataAsScalar();
             }
-            else if (thermostat == ANDERSEN) {
-                randomizeMomenta(phase);
+            if (thermostat == VELOCITY_SCALING || (!initialized && thermostat == NOSE_HOOVER)) {
+                // rescale randomized velocities for Nose Hoover during initialization
+                scaleMomenta(phase);
                 meterKE.setPhase(phase);
                 currentKineticEnergy = meterKE.getDataAsScalar();
             }
