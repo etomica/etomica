@@ -17,8 +17,9 @@ public interface NonCubicLattice extends SpaceLattice {
     
     /**
      * Accesses the length of each edge of a unit cell.
+     * @return the length of each edge of a unit cell, in double array form
      */
-    public double getLatticeConstant();
+    public double[] getLatticeConstant();
     
     
 }
