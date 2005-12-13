@@ -79,19 +79,6 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     }
     
     /**
-     * Method to start this controller's thread, causing execution of the run() method.
-     * No action is performed if a thread is already running this controller (i.e., if
-     * start was called before, and actions remain to be completed).
-     */
-    public synchronized void start() {
-        if(isActive()) return;
-        runner = new Thread(new Runnable() {
-            public void run() {actionPerformed();}
-        });
-        runner.start();
-    }
-    
-    /**
      * Causes uncompleted actions added to this group to be run in sequence.
      * Should not be executed directly, but instead it is executed by a thread
      * made upon invoking the start method.
@@ -294,13 +281,6 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     }
     
     /**
-     * Returns true if start was invoked and run did not finish.
-     */
-    public synchronized boolean isActive() {
-        return (runner != null) && runner.isAlive();
-    }
-    
-    /**
      * Request that the current activity terminate and wait till it does.
      * Controller is left in a paused state after termination of activity.
      * If current action is not an Activity, this has the same effect as pause.  
@@ -346,8 +326,6 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     
     private final ControllerEventManager eventManager;
 
-    private Thread runner;
-    
     private boolean wasPaused = false;
     private Action urgentAction;
     

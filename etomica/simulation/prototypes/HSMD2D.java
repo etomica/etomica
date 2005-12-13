@@ -102,7 +102,7 @@ public class HSMD2D extends Simulation {
      */
     public static void main(String[] args) {
         HSMD2D sim = new HSMD2D();
-		sim.getController().start();
+		sim.getController().actionPerformed();
     }//end of main
     
 }

@@ -12,7 +12,19 @@ public class ControllerToggle extends ControllerActionAdapter {
     
     public void actionPerformed() {
     	if(controller == null) return;
-        if(!controller.isActive()) controller.start();
+        if(!controller.isActive()) {
+            Thread runner = new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        controller.actionPerformed();
+                    }
+                    catch (RuntimeException e) {
+                        // do something useful
+                    }
+                }
+            });
+            runner.start();
+        }
         else if(!controller.isPaused()) controller.pause();
         else controller.unPause();
     }
