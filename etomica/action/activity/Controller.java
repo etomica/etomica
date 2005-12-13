@@ -61,6 +61,16 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
         return false;
     }
     
+    public synchronized void reset() {
+        for (int i=0; i<completedActions.length; i++) {
+            actionStatusMap.remove(completedActions[i]);
+            actionStatusMap.put(completedActions[i],PENDING);
+            actionExceptionMap.remove(completedActions[i]);
+        }
+        super.reset();
+        fireEvent(new ControllerEvent(this, ControllerEvent.RESET, currentAction));
+    }
+    
     /**
      * Returns the status of an action held by the controller.  Returns
      * null for actions not held by the controller.
@@ -169,6 +179,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
 
             if (waitObject.actionException != null) {
                 fireEvent(new ControllerEvent(this, ControllerEvent.NO_MORE_ACTIONS));
+                isActive = false;
                 throw new RuntimeException("action failed", waitObject.actionException);
             }
             

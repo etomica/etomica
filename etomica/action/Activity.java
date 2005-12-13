@@ -179,7 +179,7 @@ public abstract class Activity implements Action, java.io.Serializable {
         this.name = name;
     }
 
-    private boolean isActive = false;
+    protected boolean isActive = false;
     protected boolean haltRequested = false;
     protected boolean pauseRequested = false;
     private boolean isPaused = false;
