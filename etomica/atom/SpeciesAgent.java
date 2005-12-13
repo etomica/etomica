@@ -89,6 +89,7 @@ public final class SpeciesAgent extends Atom {
         }
         
         public void removeAtomNotify(Atom oldAtom) {
+            super.removeAtomNotify(oldAtom);
             if (oldAtom.node.parentGroup() == atom) {
                 ordinalReservoir.returnOrdinal(oldAtom.node.getOrdinal());
             }
