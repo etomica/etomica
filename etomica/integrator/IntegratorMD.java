@@ -172,7 +172,8 @@ public abstract class IntegratorMD extends IntegratorPhase {
             else if (thermostat == NOSE_HOOVER) {
                 throw new MethodNotImplementedException("feel free to write the Nose Hoover thermostat");
             }
-            else {
+            // ANDERSEN was handled at the start
+            else if (thermostat != ANDERSEN) {
                 throw new RuntimeException("Unknown thermostat: "+thermostat);
             }
         }
