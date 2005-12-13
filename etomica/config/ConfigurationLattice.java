@@ -20,7 +20,7 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 
 /**
- * Creates a configuration using a CubicLattice to specify positions.  Has
+ * Creates a configuration.  Has
  * capability to assign lattice site to atoms when specifying their coordinates.
  * See setAssigningSitesToAtoms method.
  */
