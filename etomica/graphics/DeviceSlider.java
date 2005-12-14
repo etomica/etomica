@@ -137,7 +137,6 @@ public class DeviceSlider extends Device implements EtomicaElement {
         setMaximum(500);
         slider.setDecimalSliderMajorTickSpacing(100);
         slider.setDecimalSliderMinorTickSpacing(50);
-        slider.addChangeListener(new SliderListener());  //SliderListener is an inner class defined below
 
         gbConst.gridx = 0; gbConst.gridy = 0;
         gbLayout.setConstraints(getSlider(), gbConst);
@@ -355,23 +354,6 @@ public class DeviceSlider extends Device implements EtomicaElement {
      */
      public void setSlider(JSlider s) {}
      
-     public void addChangeListener(ChangeListener l) {changeEventManager.addChangeListener(l);}
-     public void removeChangeListener(ChangeListener l) {changeEventManager.removeChangeListener(l);}
-    
-    /**
-     * Slider listener, which relays the slider change events to the modifier
-     */
-    private class SliderListener implements ChangeListener, java.io.Serializable {
-        public void stateChanged(ChangeEvent evt) {
-            if(modifyAction!=null) {
-                modifyAction.setValueForAction(unit.toSim(slider.getDecimalSliderValue()));            
-                textField.setText(String.valueOf(slider.getDecimalSliderValue()));
-                doAction(targetAction);
-                changeEventManager.fireChangeEvent(evt);
-            }
-       }
-    }
-    
     /**
      * Method to demonstrate and test the use of this class.  
      * Slider is used to control the diameter of a hard-sphere in MD simulation
