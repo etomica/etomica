@@ -1,10 +1,9 @@
-package etomica.spin;
+package etomica.nbr.site;
 
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
-import etomica.nbr.site.AtomSite;
 import etomica.phase.Phase;
 import etomica.phase.PhaseCellManager;
 import etomica.phase.PhaseEvent;
