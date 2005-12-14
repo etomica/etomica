@@ -8,14 +8,11 @@ import java.awt.event.ActionListener;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.action.Action;
 import etomica.action.activity.Controller;
-import etomica.event.ChangeEventManager;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.modifier.ModifyAction;
@@ -92,8 +89,6 @@ public class DeviceSlider extends Device implements EtomicaElement {
     private boolean showBorder = false;
     private int nMajor = 3;
     protected Action targetAction;
-    
-    protected final ChangeEventManager changeEventManager = new ChangeEventManager(this);
     
     public DeviceSlider(Controller controller) {
         super(controller);
