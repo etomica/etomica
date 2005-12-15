@@ -1,8 +1,10 @@
-package etomica.potential;
+package etomica.eam;
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
+import etomica.eam.EmbeddedAtomMethodP2.Wrapper;
 import etomica.phase.Phase;
-import etomica.potential.EmbeddedAtomMethodP2.Wrapper;
+import etomica.potential.Potential1;
+import etomica.potential.PotentialSoft;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;

@@ -1,7 +1,6 @@
 package etomica.tmmc;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.MCMove;
-import etomica.log.Logger;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 
@@ -113,7 +112,6 @@ public class IntegratorTMMC extends IntegratorMC {
             weight[i] = weight[i-1] - Math.log((C[i-1][2]/H[i-1])/(C[i][0]/H[i]));
         }
         doStepCount = weightUpdateInterval;
-        if(log != null) log.append(tableModel);
     }//end of updateWeights 
     
     /**
@@ -129,17 +127,6 @@ public class IntegratorTMMC extends IntegratorMC {
      */
     public int getWeightUpdateInterval() {return weightUpdateInterval;}
     
-    /**
-     * Sets the class used to write out the weights to file.  Logger's append method is
-     * invoked every time weights are updated.
-     */
-    public void setLogger(Logger log) {
-        this.log = log;
-        tableModel = new TableModel(this);
-    }
-    public Logger getLogger() {return log;}
-    
-    
     private double[][] C;
     private double[] H;
     protected double[] weight;
@@ -147,28 +134,4 @@ public class IntegratorTMMC extends IntegratorMC {
     private int doStepCount;
     private MacrostateManager macrostateManager;
     protected int nStates;
-    private Logger log;
-    private javax.swing.table.AbstractTableModel tableModel;
-    
-    
-    /**
-     * Table model that describes a single column of numbers, given by the
-     * current value of the weights array.
-     */
-    private static class TableModel extends javax.swing.table.AbstractTableModel {
-        
-        public TableModel(IntegratorTMMC integrator) {
-            this.integrator = integrator;
-        }
-        
-        public int getRowCount() {return integrator.nStates;}
-        public int getColumnCount() {return 1;}
-        
-        public Object getValueAt(int row, int column) {
-            return new Double(integrator.weight[row]);
-        }
-        
-        private IntegratorTMMC integrator;
-    }
-    
 }

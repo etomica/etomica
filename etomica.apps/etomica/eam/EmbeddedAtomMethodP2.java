@@ -1,4 +1,4 @@
-package etomica.potential;
+package etomica.eam;
 import etomica.EtomicaElement;
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
@@ -6,6 +6,7 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.Atom.AgentSource;
 import etomica.phase.Phase;
+import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;

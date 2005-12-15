@@ -1,4 +1,4 @@
-package etomica.simulation.prototypes;
+package etomica.eam;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
@@ -24,10 +24,6 @@ import etomica.lattice.LatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.phase.Phase;
-import etomica.potential.EmbeddedAtomMethodP2;
-import etomica.potential.EmbeddedAtomMethodPInitial;
-import etomica.potential.EmbeddedAtomMethodPMany;
-import etomica.potential.ParameterSetEAM;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.Species;

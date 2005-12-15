@@ -1,7 +1,7 @@
 /*
  * Created on Jul 12, 2005
  */
-package etomica.potential;
+package etomica.eam;
 
 import etomica.units.ElectronVolt;
 
