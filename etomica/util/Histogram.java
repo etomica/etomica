@@ -29,6 +29,9 @@ public interface Histogram {
 	public void setXRange(DoubleRange range);
 	public DoubleRange getXRange();
 	
+    /**
+     * resets all histogram values and counts to zero
+     */
 	public void reset();
 	
 	public interface Factory {
