@@ -12,7 +12,6 @@ public class HistogramSimple implements Histogram, java.io.Serializable {
 	private int[] counts;
 	private double[] histogram;
     private double xvalues[];
-//    private Plot plot;  //HistogramSimple.Plot inner class
     private boolean autoScale;
     private boolean firstValue = true;
     private double xMin;
@@ -67,14 +66,6 @@ public class HistogramSimple implements Histogram, java.io.Serializable {
 	    for(int j=0; j<x.length; j++) {addValue(x[j]);}
 	}
 	
-/*    public void addValue(double x) {     //takes new value and updates histogram
-	    int i = (int)Math.floor(((x-xMin)/deltaX));
-	    i = (i >= nBins) ? nBins-1 : i;  // i = Max(i,nBins)
-	    i = (i < 0) ? 0 : i;                 // i = Max(i,0);
-	    counts[i]++;
-	    sum++;
-    }
- */   
     public void addValue(double x) {     //takes new value and updates histogram
         if(firstValue) {
             xMin = x - Math.abs(0.1*x);
@@ -110,6 +101,9 @@ public class HistogramSimple implements Histogram, java.io.Serializable {
     public int getNBins() {return nBins;}
     public void setNBins(int n) {
         this.nBins = n;
+        counts = new int[n];
+        histogram = new double[n];
+        xvalues = new double[n];
         reset();
     }
     
@@ -159,37 +153,6 @@ public class HistogramSimple implements Histogram, java.io.Serializable {
  
     public double[] xValues() {return xvalues;}
     
-/*    public Plot getPlot() {                //returns a Plot capable of displaying the histogram
-        if(plot == null) plot = new Plot();
-        return plot;
-    }
-    
-    public class Plot extends ptolemy.plot.Plot {
-        
-        public Plot() {
-            setTitle("HistogramSimple");
-            setYRange(0, 1);
-            setXRange(xMin, xMax);
-//            setPointsPersistence(nPoints);
-            setImpulses(true); 
-            setMarksStyle("none");
-            update();
-        }
-        
-        public void update() {  //redraws plot with current values of histogram
-            clear(false);
-            repaint();
-            setXRange(xMin, xMax);
-            double[] hist = getHistogram();
-            double[] x = HistogramSimple.this.getX();
-            for(int i=0; i<hist.length; i++) {
-//                System.out.println(x[i]+"  "+hist[i]);
-                addPoint(0, x[i],hist[i],false);
-            }
-            repaint();
-        }
-    }
- */  
     public static final Histogram.Factory FACTORY = 
     	new Histogram.Factory() {
     		public Histogram makeHistogram() {return new HistogramSimple();}
