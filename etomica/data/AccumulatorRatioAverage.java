@@ -93,12 +93,12 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
     //XXX such an ugly hack!!!!
     protected static final AccumulatorAverage.Type[] VIRIAL_CHOICES = 
         new AccumulatorAverage.Type[] {
-            CHOICES[0], CHOICES[1], CHOICES[2], CHOICES[3], CHOICES[4],
-            new Type("Ratio",5),
-            new Type("Ratio error",6), new Type("Ratio standard deviation",7)};
-    public static final AccumulatorAverage.Type RATIO = VIRIAL_CHOICES[5];
-    public static final AccumulatorAverage.Type RATIO_ERROR = VIRIAL_CHOICES[6];
-    public static final AccumulatorAverage.Type RATIO_STANDARD_DEVIATION = VIRIAL_CHOICES[7];
+            CHOICES[0], CHOICES[1], CHOICES[2], CHOICES[3], CHOICES[4], CHOICES[5],
+            new Type("Ratio",6),
+            new Type("Ratio error",7), new Type("Ratio standard deviation",8)};
+    public static final AccumulatorAverage.Type RATIO = VIRIAL_CHOICES[6];
+    public static final AccumulatorAverage.Type RATIO_ERROR = VIRIAL_CHOICES[7];
+    public static final AccumulatorAverage.Type RATIO_STANDARD_DEVIATION = VIRIAL_CHOICES[8];
 
     //need separate fields because ratio values are calculated from the non-ratio values.
     protected DataArithmetic ratio, ratioStandardDeviation, ratioError;
