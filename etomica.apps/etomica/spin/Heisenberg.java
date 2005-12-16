@@ -1,4 +1,4 @@
-package etomica.simulation.prototypes;
+package etomica.spin;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
@@ -20,11 +20,6 @@ import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
-import etomica.spin.ConfigurationAligned;
-import etomica.spin.MCMoveSpinFlip;
-import etomica.spin.MeterSpin;
-import etomica.spin.P1MagneticField;
-import etomica.spin.P2Spin;
 import etomica.units.systems.LJ;
 
 
