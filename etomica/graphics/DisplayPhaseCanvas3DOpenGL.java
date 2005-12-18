@@ -311,7 +311,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
             if(displayPhase.getDrawOverflow()) {
                 drawOverflow = computeShiftOrigin(a, displayPhase.getPhase().getBoundary());
             }
-            Color c = colorScheme.atomColor(a);
+            Color c = colorScheme.getAtomColor(a);
             Vector r = a.coord.position();
             //Update the positions of the atom
             vert[0] = (float)r.x(0) - xCenter + drawExpansionShiftX;

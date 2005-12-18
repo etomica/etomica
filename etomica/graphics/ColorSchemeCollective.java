@@ -42,7 +42,7 @@ public abstract class ColorSchemeCollective extends ColorScheme implements Atom.
         atomColors = (Color[])agentManager[index].getAgents();
     }
     
-    public Color atomColor(Atom a) {return atomColors[a.getGlobalIndex()];}
+    public Color getAtomColor(Atom a) {return atomColors[a.getGlobalIndex()];}
    
     public void actionPerformed(SimulationEvent evt) {
         if (evt.type() == SimulationEvent.PHASE_REMOVED) {

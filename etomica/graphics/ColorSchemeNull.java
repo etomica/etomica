@@ -16,6 +16,6 @@ public final class ColorSchemeNull extends ColorScheme {
  /**
   * Return without changing atom's color.
   */
-    public final Color atomColor(Atom a) {return null;}
+    public final Color getAtomColor(Atom a) {return null;}
 
 }

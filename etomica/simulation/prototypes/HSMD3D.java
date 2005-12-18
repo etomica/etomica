@@ -5,6 +5,7 @@ import etomica.atom.AtomType;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceNSelector;
+import etomica.graphics.DisplayPhase;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
@@ -136,7 +137,8 @@ public class HSMD3D extends Simulation {
         DeviceNSelector nSelector = new DeviceNSelector(sim,sim.phase.getAgent(sim.species));
         simGraphic.add(nSelector);
         simGraphic.makeAndDisplayFrame();
-        ColorSchemeByType.setColor(sim.species.getFactory().getType(), java.awt.Color.red);
+        ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
+        colorScheme.setColor(sim.species.getMoleculeType(), java.awt.Color.red);
         simGraphic.panel().setBackground(java.awt.Color.yellow);
     }//end of main
 

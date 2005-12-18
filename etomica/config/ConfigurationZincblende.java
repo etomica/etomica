@@ -4,6 +4,8 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.DisplayPhase;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
@@ -86,11 +88,12 @@ public class ConfigurationZincblende extends Configuration {
         etomica.species.SpeciesSpheresMono speciesSpheres1  = new etomica.species.SpeciesSpheresMono(sim);
         speciesSpheres0.setNMolecules(32);
         speciesSpheres1.setNMolecules(32);
-        etomica.graphics.ColorSchemeByType.setColor(speciesSpheres0,new java.awt.Color(0,255,0));
-        etomica.graphics.ColorSchemeByType.setColor(speciesSpheres1, java.awt.Color.red);
         new ConfigurationZincblende(space).initializeCoordinates(phase);
 
         etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(sim);
+        ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
+        colorScheme.setColor(speciesSpheres0.getMoleculeType(),new java.awt.Color(0,255,0));
+        colorScheme.setColor(speciesSpheres1.getMoleculeType(), java.awt.Color.red);
         simGraphic.makeAndDisplayFrame();
     }//end of main
     

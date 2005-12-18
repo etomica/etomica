@@ -11,6 +11,8 @@ import etomica.action.activity.Controller;
 import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomPositionDefinition;
+import etomica.atom.AtomType;
+import etomica.atom.AtomTypeGroup;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorPhase;
 import etomica.integrator.IntervalActionAdapter;
@@ -217,7 +219,21 @@ public class SimulationGraphic implements SimulationContainer, java.io.Serializa
 //        DeviceButton deleteButton = new DeviceButton(sim.getController(),deleter);
 //        simGraphic.add(deleteButton);
         simGraphic.makeAndDisplayFrame();
-        ColorSchemeByType.setColor(sim.species.getFactory().getType(), java.awt.Color.red);
+        AtomType moleculeType = sim.species.getMoleculeType();
+        final ColorSchemeByType colorScheme = new ColorSchemeByType();
+        ((DisplayPhase) simGraphic.displayList().getFirst())
+                .setColorScheme(colorScheme);
+        if (moleculeType.isLeaf()) {
+            colorScheme.setColor(moleculeType, java.awt.Color.red);
+        }
+        else {
+            AtomType leafType = ((AtomTypeGroup)moleculeType).getChildTypes()[0];
+            colorScheme.setColor(leafType, java.awt.Color.red);
+            if (((AtomTypeGroup)moleculeType).getChildTypes().length > 1) {
+                leafType = ((AtomTypeGroup)moleculeType).getChildTypes()[1];
+                colorScheme.setColor(leafType, java.awt.Color.blue);
+            }
+        }
 //        ColorSchemeByType.setColor(sim.species2, java.awt.Color.blue);
         simGraphic.panel().setBackground(java.awt.Color.yellow);
         Plane plane = new Plane();

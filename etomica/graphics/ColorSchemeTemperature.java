@@ -46,7 +46,7 @@ public class ColorSchemeTemperature extends ColorScheme {
         range = 1.0/(KEMax-KEMin);
     }
         
-    public Color atomColor(Atom a) {
+    public Color getAtomColor(Atom a) {
         float red, blue;
         double ke = ((AtomTypeLeaf)a.type).getMass()*((ICoordinateKinetic)a.coord).velocity().squared();
         if(ke > KEMax) {blue = 0.0f;}

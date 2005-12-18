@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.util.HashMap;
 
 import etomica.atom.Atom;
-import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.lattice.FiniteLattice;
 import etomica.nbr.cell.AtomSequencerCell;

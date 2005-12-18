@@ -118,23 +118,23 @@ public class DeviceToggleButton extends DeviceButton {
 
         //here's the part unique to this class
         //sets up button to toggle atoms between red and blue
+        final ColorSchemeByType colorScheme = new ColorSchemeByType();
         ((DisplayPhase) graphic.displayList().getFirst())
-                .setColorScheme(new ColorSchemeByType());
+                .setColorScheme(colorScheme);
         ModifierBoolean modifier = new ModifierBoolean() {
 
             public void setBoolean(boolean b) {
                 if (b)
-                    ColorSchemeByType.setColor(sim.species, Color.RED);
+                    colorScheme.setColor(sim.species.getMoleculeType(), Color.RED);
                 else
-                    ColorSchemeByType.setColor(sim.species, Color.BLUE);
+                    colorScheme.setColor(sim.species.getMoleculeType(), Color.BLUE);
                 //                sim.panel().repaint();
             }
 
             public boolean getBoolean() {
-                return ColorSchemeByType.getColor(sim.species) == Color.RED;
+                return colorScheme.getColor(sim.species.getMoleculeType()) == Color.RED;
             }
         };
-        ActionToggle action = new ActionToggle(modifier);
         DeviceToggleButton button = new DeviceToggleButton(sim.getController(),
                 modifier);
         button.setTrueLabel("Red");

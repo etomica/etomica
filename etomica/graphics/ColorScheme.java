@@ -21,7 +21,7 @@ public abstract class ColorScheme implements java.io.Serializable {
         baseColor = color;
     }
     
-    public abstract Color atomColor(Atom a);
+    public abstract Color getAtomColor(Atom a);
     
     public final void setBaseColor(Color c) {baseColor = c;}
     public final Color getBaseColor() {return baseColor;}
@@ -34,6 +34,6 @@ public abstract class ColorScheme implements java.io.Serializable {
     public static class Simple extends ColorScheme {
         public Simple() {super();}
         public Simple(java.awt.Color color) {super(color);}
-        public Color atomColor(Atom a) {return baseColor;}
+        public Color getAtomColor(Atom a) {return baseColor;}
     }//end of Simple
 }//end of ColorScheme

@@ -127,7 +127,7 @@ public class SWMD3D extends Simulation {
       public MyColorScheme(Atom redAtom) {
           atom = redAtom;
       }
-	  public java.awt.Color atomColor(Atom a) {
+	  public java.awt.Color getAtomColor(Atom a) {
 		  return (a == atom) ? java.awt.Color.red : java.awt.Color.yellow;
 	  }
       private Atom atom;

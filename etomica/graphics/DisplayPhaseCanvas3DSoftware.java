@@ -260,7 +260,7 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
             drawWell = true;
         }
 
-        Color atomColor = colorScheme.atomColor(a);
+        Color atomColor = colorScheme.getAtomColor(a);
         g.setColor(atomColor);
             
         if(a.type instanceof AtomTypeSphere) {

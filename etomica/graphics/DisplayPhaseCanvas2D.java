@@ -77,7 +77,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         boolean drawOrientation = (a.type instanceof AtomTypeOrientedSphere);
         boolean drawWell = (a.type instanceof AtomTypeWell);
 
-        g.setColor(displayPhase.getColorScheme().atomColor(a));
+        g.setColor(displayPhase.getColorScheme().getAtomColor(a));
             
         baseXP = origin[0] + (int)(displayPhase.getToPixels()*r.x(0));
         baseYP = origin[1] + (int)(displayPhase.getToPixels()*r.x(1));

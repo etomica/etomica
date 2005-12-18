@@ -78,7 +78,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
             drawWell = true;
         }
 
-        g.setColor(displayPhase.getColorScheme().atomColor(a));
+        g.setColor(displayPhase.getColorScheme().getAtomColor(a));
             
         baseXP = origin[0] + (int)(displayPhase.getToPixels()*r.x(0));
         baseYP = origin[1] + drawingHeight/2;
