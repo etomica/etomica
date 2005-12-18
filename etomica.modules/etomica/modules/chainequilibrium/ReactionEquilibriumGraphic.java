@@ -124,7 +124,8 @@ public class ReactionEquilibriumGraphic {
 
 		DeviceThermoSelector tSelect = setup(sim);
         tSelect.setIntegrator(sim.integratorHard1);
-        ColorSchemeByType.setColor(sim.speciesA, java.awt.Color.red);
+        ColorSchemeByType colorScheme = (ColorSchemeByType)displayPhase1.getColorScheme();
+        colorScheme.setColor(sim.speciesA.getMoleculeType(), java.awt.Color.red);
 
         int ms = 10;
         AEditor.nSlider.getSlider().setMajorTickSpacing(ms);

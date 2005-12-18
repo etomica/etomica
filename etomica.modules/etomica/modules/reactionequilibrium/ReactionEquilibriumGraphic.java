@@ -59,7 +59,7 @@ public class ReactionEquilibriumGraphic {
 		tSelect.setUnit(Kelvin.UNIT);
 		tSelect.setSelected(3); //sets 300K as selected temperature
 		tSelect.getLabel().setText("Set value");
-		ColorSchemeByType.setColor(sim.speciesA, java.awt.Color.red);
+        ((ColorSchemeByType)displayPhase1.getColorScheme()).setColor(sim.speciesA.getMoleculeType(), java.awt.Color.red);
 
 		//	adjustment of species properties
 		MySpeciesEditor AEditor = new MySpeciesEditor(sim, 

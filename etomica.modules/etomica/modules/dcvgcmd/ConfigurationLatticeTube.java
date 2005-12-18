@@ -10,6 +10,8 @@ import etomica.atom.iterator.AtomIteratorListCompound;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.config.Configuration;
 import etomica.config.Conformation;
+import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.DisplayPhase;
 import etomica.lattice.IndexIteratorSequential;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.LatticeCrystal;
@@ -212,7 +214,6 @@ public class ConfigurationLatticeTube extends Configuration {
 		SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
 		int k = 4;
 		species.setNMolecules(4*k*k*k);
-		etomica.graphics.ColorSchemeByType.setColor(species, java.awt.Color.red);
 //        CubicLattice lattice = new LatticeCubicBcc();
         LatticeCrystal lattice = new LatticeCubicFcc();
 //        CubicLattice lattice = new LatticeCubicSimple();
@@ -222,6 +223,8 @@ public class ConfigurationLatticeTube extends Configuration {
 //		etomica.graphics.DisplayPhase display = new etomica.graphics.DisplayPhase(phase);
 		
         etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(sim);
+        ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
+        colorScheme.setColor(species.getMoleculeType(), java.awt.Color.red);
 		simGraphic.makeAndDisplayFrame();
 	}
 

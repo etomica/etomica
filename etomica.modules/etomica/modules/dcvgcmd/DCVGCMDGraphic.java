@@ -136,10 +136,11 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	sim.accumulator1.addDataSink(profilePlot.getDataTable(),new AccumulatorAverage.Type[]{AccumulatorAverage.AVERAGE});
     sim.accumulator2.addDataSink(profilePlot.getDataTable(),new AccumulatorAverage.Type[]{AccumulatorAverage.AVERAGE});
 
-//set color of molecules	
-	ColorSchemeByType.setColor(sim.species,colorA);
-	ColorSchemeByType.setColor(sim.species1,colorB);
-	ColorSchemeByType.setColor(((AtomFactoryHomo)sim.speciesTube.getFactory()).getChildFactory().getType(),java.awt.Color.cyan);
+//set color of molecules
+    ColorSchemeByType colorScheme = (ColorSchemeByType)display.getColorScheme();
+	colorScheme.setColor(sim.species.getMoleculeType(),colorA);
+	colorScheme.setColor(sim.species1.getMoleculeType(),colorB);
+	colorScheme.setColor(((AtomFactoryHomo)sim.speciesTube.getFactory()).getChildFactory().getType(),java.awt.Color.cyan);
 	
 //panel for the start buttons
 	  JPanel startPanel = (JPanel)device.graphic();

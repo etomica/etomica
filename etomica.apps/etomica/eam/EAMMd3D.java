@@ -74,11 +74,12 @@ public class EAMMd3D extends Simulation {
         adapter.setActionInterval(5);
         SimulationGraphic simgraphic = new SimulationGraphic(sim);
     	simgraphic.makeAndDisplayFrame();
-    	ColorSchemeByType.setColor(sim.species.getFactory().getType(), java.awt.Color.red);
+        ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simgraphic.displayList().getFirst()).getColorScheme());
+    	colorScheme.setColor(sim.species.getMoleculeType(),java.awt.Color.red);
     	sim.activityIntegrate.setMaxSteps(1000);
     	sim.getController().run();
     	DataGroup data = (DataGroup)energyAccumulator.getData(); // kmb change type to Data instead of double[]
-        double PE = ((DataDouble)((DataGroup)data).getData(AccumulatorAverage.AVERAGE.index)).x
+        double PE = ((DataDouble)data.getData(AccumulatorAverage.AVERAGE.index)).x
                     /sim.species.getAgent(sim.phase).getNMolecules();  // kmb changed 8/3/05
         //double PE = data[AccumulatorAverage.AVERAGE.index]/sim.species.getAgent(sim.phase).getNMolecules();  // orig line
         System.out.println("PE(eV)="+ElectronVolt.UNIT.fromSim(PE));
