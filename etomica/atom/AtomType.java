@@ -29,16 +29,10 @@ import etomica.util.Default;
 
 public abstract class AtomType implements java.io.Serializable, Comparable {
 
-    public static Parameter.Source[] parameterSource = new Parameter.Source[0];
     AtomFactory creator;//set in constructor of AtomFactory
-    public Parameter[] parameter;
     protected int speciesIndex = -1;
     private Species species;
     private final int index;
-
-    //fields for linked list of all instances of AtomType
-    public final AtomType previousInstance;
-    private static AtomType lastInstance;
 
     private final AtomIndexManager indexManager;
     private AtomPositionDefinition positionDefinition;
@@ -56,7 +50,6 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
         parentType = null;
         this.indexManager = indexManager;
         positionDefinition = null;
-        previousInstance = null;
         index = 0;
     }
 
@@ -87,16 +80,6 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
             index = parentType.requestIndex();
         }
         this.positionDefinition = positionDefinition;
-
-        //update linked list of instances
-        this.previousInstance = lastInstance;
-        lastInstance = this;
-
-        //set up global parameters
-        parameter = new Parameter[parameterSource.length];
-        for (int i = 0; i < parameter.length; i++) {
-            parameter[i] = parameterSource[i].makeParameter();
-        }
     }
     
     public int getIndex() {
@@ -162,38 +145,6 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
      */
     public boolean isDescendedFrom(AtomType type) {
         return indexManager.isDescendedFrom(type.indexManager);
-    }
-
-    /**
-     * Method not yet implemented. Under developement
-     */
-    //TODO implement or remove the Parameter facility in AtomType
-    protected void addGlobalParameter(Parameter.Source source) {
-        Parameter[] newParameter = new Parameter[parameter.length + 1];
-        for (int i = 0; i < parameter.length; i++)
-            newParameter[i] = parameter[i];
-        newParameter[parameter.length] = source.makeParameter();
-        parameter = newParameter;
-    }
-
-    /**
-     * Adds given parameter source to parameter-source array and returns index
-     * indicating where in atomtype parameter-array the source's parameter will
-     * be placed.
-     */
-    public static int requestParameterIndex(Parameter.Source source) {
-        Parameter.Source[] newSource = new Parameter.Source[parameterSource.length + 1];
-        for (int i = 0; i < parameterSource.length; i++)
-            newSource[i] = parameterSource[i];
-        int index = parameterSource.length;
-        newSource[index] = source;
-        parameterSource = newSource;
-
-        //make parameter for any existing AtomType instances
-        for (AtomType t = lastInstance; t != null; t = t.previousInstance) {
-            t.addGlobalParameter(source);
-        }
-        return index;
     }
 
     /**
