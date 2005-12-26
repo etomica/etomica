@@ -105,7 +105,7 @@ public class PotentialMaster implements java.io.Serializable {
      * Indicates to the PotentialMaster that the given potential should apply to 
      * the specified atom types.  The potential is assumed to be intermolecular.
      * The given types should not include any type which is the descendent of 
-     * another.  Potential group heirarchy will be constructed as needed above
+     * another.  Potential group hierarchy will be constructed as needed above
      * the level of the given atom types.
      * <p>
      * The order of the elements in the atomTypes array is not relevant, and is
