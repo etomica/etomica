@@ -27,6 +27,9 @@ public abstract class Dimension implements java.io.Serializable {
         this.name = name;
     }
     
+    /**
+     * Returns the unit of this dimension as derived in the given system of units.
+     */
     public abstract Unit getUnit(UnitSystem unitSystem);
     
     public String toString() {
@@ -34,8 +37,8 @@ public abstract class Dimension implements java.io.Serializable {
     }
     /**
      * The signature is the exponents of each of the base dimensions forming the
-     * given dimension.  Base dimensions are, in order: mass, length, time,
-     * number.
+     * given dimension.  Base dimensions are, in order: length, mass, time, current, 
+     * temperature, number, luminosity.
      */
     public double[] signature() {
         return (double[])signature.clone();

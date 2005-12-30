@@ -3,7 +3,8 @@ package etomica.units;
 import java.io.ObjectStreamException;
 
 /**
- * Null unit used for dimensionless quantities
+ * Dimension specified dimensionless quantities which have no other interpretation
+ * (e.g., the quantity is not known to be an angle, or a fraction).
  */
 public final class Null extends Dimension {
 

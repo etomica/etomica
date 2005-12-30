@@ -3,12 +3,18 @@ package etomica.units;
 import java.io.ObjectStreamException;
 
 /**
- * Simulation unit for a quantity representing a fractional amount.  Examples
+ * Dimension for a quantity representing a fractional amount.  Examples
  * include a decimal, percent, parts-per-million, etc.
  */
 public final class Fraction extends Dimension {
 
+    /**
+     * Singleton instance of this class.
+     */
     public static final Dimension DIMENSION = Null.DIMENSION;
+    /**
+     * The simulation unit is the Decimal.
+     */
     public static final Unit SIM_UNIT = Decimal.UNIT;
 
     private Fraction() {

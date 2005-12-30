@@ -3,25 +3,25 @@ package etomica.units;
 import java.io.ObjectStreamException;
 
 /**
- * Dimension for all units of time.
+ * The dimension for luminous intensity.  Simulation unit is the Candela.
  */
-public final class Time extends Dimension {
+public final class LuminousIntensity extends Dimension {
 
     /**
      * Singleton instance of this class.
      */
-    public static final Dimension DIMENSION = new Time();
+    public static final Dimension DIMENSION = new LuminousIntensity();
     /**
-     * Simulation unit for time is the picosecond.
+     * The Candela unit.
      */
-    public static final Unit SIM_UNIT = Picosecond.UNIT;
+    public static final Unit SIM_UNIT = Candela.UNIT;
 
-    private Time() {
-        super("Time", 0, 0, 1);
+    private LuminousIntensity() {
+        super("Luminous Intensity", 0, 0, 0, 0, 0, 0, 1);// LMTCtNl
     }
-
+    
     public Unit getUnit(UnitSystem unitSystem) {
-        return unitSystem.time();
+        return unitSystem.luminousIntensity();
     }
 
     /**
@@ -34,4 +34,5 @@ public final class Time extends Dimension {
     }
 
     private static final long serialVersionUID = 1;
+
 }

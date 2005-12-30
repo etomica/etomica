@@ -1,13 +1,8 @@
 package etomica.units;
 
 /**
- * Base class for classes describing the default units to be used for I/O operations.
- * An instance of a UnitSystem class is held in a static field in the Simulation class 
- * to define the default system of units.
- *
- * @see Unit
- * @see Dimension
- * @see etomica.simulation.Simulation
+ * Specifies a system of units.  Defines methods that return specific units for
+ * various types of quanities.
  */
 public abstract class UnitSystem implements java.io.Serializable {
     
@@ -24,6 +19,9 @@ public abstract class UnitSystem implements java.io.Serializable {
     public abstract Unit pressure();
     public abstract Unit volume();
     public abstract Unit area();
+    public Unit luminousIntensity() {
+        return Candela.UNIT;
+    }
     
  /**
   * System of units based on simulation units of Daltons, picoseconds, and Angstroms
@@ -44,7 +42,7 @@ public abstract class UnitSystem implements java.io.Serializable {
         public Unit pressure2D() {return Pressure2D.SIM_UNIT;}
         public Unit volume() {return Volume.SIM_UNIT;}
         public Unit area() {return Area.SIM_UNIT;}
+        private static final long serialVersionUID = 1;
     }
     public static final UnitSystem SIM = new Sim();
-    private static final long serialVersionUID = 1;
 }

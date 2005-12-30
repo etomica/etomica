@@ -3,11 +3,18 @@ package etomica.units;
 import java.io.ObjectStreamException;
 
 /**
- * Base for all volume units. Simulation unit of volume is A^3
+ * Dimension for all volume units.
  */
 public final class Volume extends Dimension {
     
+    /**
+     * Singleton instance of this class.
+     */
     public static final Dimension DIMENSION = new Volume();
+    
+    /**
+     * Simulation unit of volume is cubic Angstroms.
+     */
     public static final Unit SIM_UNIT = new SimpleUnit(DIMENSION, 1, "cubic Angstroms", "\u00c5^3", Prefix.NOT_ALLOWED);
 
     private Volume() {
@@ -18,6 +25,14 @@ public final class Volume extends Dimension {
         return unitSystem.volume();
     }
 
+    /**
+     * Returns the Dimension instance for the "volume" appropriate to the given
+     * dimension. In particular, for D = 3, returns Volume.DIMENSION; for D = 2,
+     * returns Area.DIMENSION; for D = 1, returns Length.DIMENSION.
+     * 
+     * @throws IllegalArgumentException
+     *             if D is not equal to 1, 2, or 3.
+     */
    public static Dimension dimension(int D) {
         switch(D) {
             case 3: 
