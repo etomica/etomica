@@ -6,6 +6,7 @@ import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.species.Species;
 import etomica.units.Dimension;
+import etomica.units.Temperature;
 
 /**
  * Meter for measurement of the temperature based on kinetic-energy
@@ -43,7 +44,7 @@ public final class MeterTemperature extends etomica.data.meter.MeterTemperature 
 	}
 
 	public Dimension getDimension() {
-		return Dimension.TEMPERATURE;
+		return Temperature.DIMENSION;
 	}
 
 	private final Species species;

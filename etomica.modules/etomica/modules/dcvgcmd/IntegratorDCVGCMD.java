@@ -17,6 +17,7 @@ import etomica.nbr.PotentialMasterHybrid;
 import etomica.potential.PotentialMaster;
 import etomica.species.Species;
 import etomica.units.Dimension;
+import etomica.units.Null;
 
 
 /**
@@ -103,14 +104,14 @@ public class IntegratorDCVGCMD extends IntegratorPhase {
 	   }
 	   public String getLabel() {return "mu1";}
 	   public double getValue() {return mcMove1.getMu();}
-	   public Dimension getDimension() {return Dimension.NULL;} } 
+	   public Dimension getDimension() {return Null.DIMENSION;} } 
 	
 	public class Mu2Modulator implements Modifier {
 	   public void setValue(double x) {
 		setMu(mcMove1.getMu(), x);
 	   }
 	   public double getValue() {return mcMove2.getMu();}
-	   public Dimension getDimension() {return Dimension.NULL;} 
+	   public Dimension getDimension() {return Null.DIMENSION;} 
 	   public String getLabel() {return "mu2";}
 	}
 	

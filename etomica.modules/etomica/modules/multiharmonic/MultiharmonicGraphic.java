@@ -23,8 +23,8 @@ import etomica.integrator.IntervalActionAdapter;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.space1d.Vector1D;
-import etomica.units.BaseUnit;
 import etomica.units.Dimension;
+import etomica.units.Length;
 import etomica.util.Function;
 
 
@@ -47,9 +47,8 @@ public class MultiharmonicGraphic {
      */
     public MultiharmonicGraphic() {
         super();
-        System.out.println(BaseUnit.Length.Sim.TO_PIXELS);
         final Multiharmonic sim = new Multiharmonic();
-        BaseUnit.Length.Sim.TO_PIXELS = 133.0;
+//        Length.Sim.TO_PIXELS = 133.0;
 
         sim.register(sim.integrator);
         DeviceTrioControllerButton control = new DeviceTrioControllerButton(sim);
@@ -110,7 +109,7 @@ public class MultiharmonicGraphic {
                 return sim.potentialB.getX0().x(0);
             }
             public String getLabel() {return "x0";}
-            public Dimension getDimension() {return Dimension.LENGTH;}
+            public Dimension getDimension() {return Length.DIMENSION;}
         };
         x0Slider.setModifier(x0Modifier);
         x0Slider.setMinimum(1.0);

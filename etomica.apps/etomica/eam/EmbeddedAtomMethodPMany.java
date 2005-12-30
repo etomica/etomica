@@ -8,6 +8,7 @@ import etomica.potential.PotentialSoft;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
+import etomica.units.Energy;
 
 /**
  * This class defines the many-body term of the Embedded-Atom Method (EAM) interatomic 
@@ -31,7 +32,7 @@ public final class EmbeddedAtomMethodPMany extends Potential1 implements Potenti
         agentSource = eamP2;
     }
 
-    public Dimension getEpsilonDimension() {return Dimension.ENERGY;}
+    public Dimension getEpsilonDimension() {return Energy.DIMENSION;}
     private ParameterSetEAM p;
     private double r2Last = -1.0;
     

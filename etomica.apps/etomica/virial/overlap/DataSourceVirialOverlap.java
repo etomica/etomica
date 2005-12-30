@@ -4,7 +4,7 @@ import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataSourceScalar;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
-import etomica.units.Dimension;
+import etomica.units.Fraction;
 
 /**
  * Measures ratio of two cluster integrals using overlap sampling.  The resulting ratio is 
@@ -17,7 +17,7 @@ public class DataSourceVirialOverlap extends DataSourceScalar {
 	
 	public DataSourceVirialOverlap(AccumulatorVirialOverlapSingleAverage aRefAccumulator, 
 			AccumulatorVirialOverlapSingleAverage aTargetAccumulator) {
-        super("Virial Overlap Ratio",Dimension.FRACTION);
+        super("Virial Overlap Ratio",Fraction.DIMENSION);
 		refAccumulator = aRefAccumulator;
 		targetAccumulator = aTargetAccumulator;
 		nBennetPoints = aRefAccumulator.getNBennetPoints();

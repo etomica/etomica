@@ -28,7 +28,7 @@ class WellModifier implements Modifier {
 	}
 
 	public Dimension getDimension() {
-		return etomica.units.Dimension.NULL;
+		return etomica.units.Null.DIMENSION;
 	}
 
 	public void setValue(double d) {

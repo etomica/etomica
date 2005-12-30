@@ -14,7 +14,7 @@ import etomica.data.DataInfo;
 import etomica.data.meter.Meter;
 import etomica.data.types.DataDoubleArray;
 import etomica.phase.Phase;
-import etomica.units.Dimension;
+import etomica.units.Fraction;
 import etomica.util.NameMaker;
 
 /**
@@ -33,7 +33,7 @@ public class MeterChainLength implements Meter, Atom.AgentSource {
     private Atom[][] agents;
 
     public MeterChainLength(ReactionEquilibrium sim) {
-        data = new DataDoubleArray("Chain Length Distribution",Dimension.FRACTION,10);
+        data = new DataDoubleArray("Chain Length Distribution",Fraction.DIMENSION,10);
         setName(NameMaker.makeName(this.getClass()));
         agentSource = sim;
     }

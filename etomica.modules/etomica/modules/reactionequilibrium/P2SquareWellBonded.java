@@ -9,6 +9,7 @@ import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
+import etomica.units.Energy;
 
 
 /**
@@ -61,7 +62,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 	}
 
 	public Dimension getBarrierDimension() {
-		return Dimension.ENERGY;
+		return Energy.DIMENSION;
 	}
 
 	/**

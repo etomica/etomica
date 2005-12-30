@@ -6,7 +6,7 @@ import etomica.data.DataSourceScalar;
 import etomica.data.meter.Meter;
 import etomica.phase.Phase;
 import etomica.potential.P1Harmonic;
-import etomica.units.Dimension;
+import etomica.units.Energy;
 
 
 /**
@@ -25,7 +25,7 @@ import etomica.units.Dimension;
 public class MeterFreeEnergy extends DataSourceScalar implements Meter {
     
     public MeterFreeEnergy(P1Harmonic reference, P1Harmonic target) {
-        super("Free energy", Dimension.ENERGY);
+        super("Free energy", Energy.DIMENSION);
         this.reference = reference;
         this.target = target;
     }

@@ -10,6 +10,7 @@ import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
+import etomica.units.Energy;
 import etomica.util.Arrays;
 
 /**
@@ -196,7 +197,7 @@ public final class EmbeddedAtomMethodP2 extends Potential2SoftSpherical implemen
     }
 
     private final Vector work1;
-    public Dimension getEpsilonDimension() {return Dimension.ENERGY;}
+    public Dimension getEpsilonDimension() {return Energy.DIMENSION;}
     private ParameterSetEAM p;
     private double r2Last = -1.0;
     private AtomPair pair;

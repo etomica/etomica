@@ -34,7 +34,7 @@ class DiameterModifier implements Modifier {
 	}
 
 	public Dimension getDimension() {
-		return etomica.units.Dimension.LENGTH;
+		return etomica.units.Length.DIMENSION;
 	}
 
 	public void setValue(double d) {

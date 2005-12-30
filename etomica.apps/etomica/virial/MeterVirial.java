@@ -7,6 +7,8 @@ import etomica.data.meter.Meter;
 import etomica.data.types.DataDoubleArray;
 import etomica.phase.Phase;
 import etomica.units.Dimension;
+import etomica.units.Fraction;
+import etomica.units.Null;
 import etomica.util.NameMaker;
 
 /**
@@ -26,7 +28,7 @@ public class MeterVirial implements DataSource, Meter, java.io.Serializable {
         setName(NameMaker.makeName(this.getClass()));
 		integrator = aIntegrator;
 		clusters = aClusters;
-        data = new DataDoubleArray("Cluster Value",Dimension.NULL,clusters.length);
+        data = new DataDoubleArray("Cluster Value",Null.DIMENSION,clusters.length);
 	}
 
 	public DataInfo getDataInfo() {
@@ -46,7 +48,7 @@ public class MeterVirial implements DataSource, Meter, java.io.Serializable {
 	}
 
 	public Dimension getDimension() {
-		return Dimension.FRACTION;
+		return Fraction.DIMENSION;
 	}
 
     /**

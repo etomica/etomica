@@ -29,7 +29,7 @@ class WellDepthModifier implements Modifier {
 	}
 
 	public Dimension getDimension() {
-		return etomica.units.Dimension.ENERGY;
+		return etomica.units.Energy.DIMENSION;
 	}
 
 	public void setValue(double d) {

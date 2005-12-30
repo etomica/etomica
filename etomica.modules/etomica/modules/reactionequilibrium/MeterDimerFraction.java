@@ -7,12 +7,12 @@ import etomica.data.DataInfo;
 import etomica.data.meter.Meter;
 import etomica.data.types.DataTable;
 import etomica.phase.Phase;
-import etomica.units.Dimension;
+import etomica.units.Fraction;
 import etomica.util.NameMaker;
 
 public final class MeterDimerFraction implements Meter {
     public MeterDimerFraction(ReactionEquilibrium sim) {
-        data = new DataTable("Dimer Fraction", Dimension.FRACTION, 1, 
+        data = new DataTable("Dimer Fraction", Fraction.DIMENSION, 1, 
                 new String[] {"R", "B", "R-R", "R-B", "B-B"});
         data.getColumn(0).setHeading("");
         setName(NameMaker.makeName(this.getClass()));

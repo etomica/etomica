@@ -5,6 +5,7 @@ import etomica.data.DataSourceScalar;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.units.Dimension;
+import etomica.units.Null;
 
 /**
  * Meter to calculate the sampling weight of a cluster configuration.   
@@ -13,11 +14,11 @@ import etomica.units.Dimension;
 public class MeterClusterWeight extends DataSourceScalar {
     
     public MeterClusterWeight(PotentialMaster potentialMaster) {
-        super("Cluster Weight",Dimension.NULL);
+        super("Cluster Weight",Null.DIMENSION);
         potential = potentialMaster;
     }
       
-    public Dimension getDimension() {return Dimension.NULL;}
+    public Dimension getDimension() {return Null.DIMENSION;}
     
     public double getDataAsScalar() {
     	weight.reset();

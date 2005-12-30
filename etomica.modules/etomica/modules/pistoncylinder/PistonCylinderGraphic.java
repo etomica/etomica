@@ -50,16 +50,23 @@ import etomica.potential.Potential2HardSphericalWrapper;
 import etomica.potential.PotentialGroup;
 import etomica.units.Angstrom;
 import etomica.units.Bar;
-import etomica.units.BaseUnit;
-import etomica.units.BaseUnitPseudo3D;
 import etomica.units.Dalton;
 import etomica.units.Dimension;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
+import etomica.units.Length;
 import etomica.units.Liter;
 import etomica.units.Mole;
+import etomica.units.Pixel;
+import etomica.units.Pressure;
+import etomica.units.Pressure2D;
+import etomica.units.Quantity;
+import etomica.units.Temperature;
+import etomica.units.Time;
+import etomica.units.Undefined;
 import etomica.units.Unit;
 import etomica.units.UnitRatio;
+import etomica.units.systems.MKS;
 import etomica.util.Default;
 
 
@@ -243,7 +250,7 @@ public class PistonCylinderGraphic {
         repaintSlider.setValue(repaintSleep);
         repaintSlider.setModifier(new Modifier() {
             public String getLabel() {return "";}
-            public Dimension getDimension() {return Dimension.UNDEFINED;}
+            public Dimension getDimension() {return Undefined.DIMENSION;}
             public void setValue(double v) {
                 repaintSleep = (int)v;
             }
@@ -483,8 +490,8 @@ public class PistonCylinderGraphic {
 
         if (pc.space.D() == 2) {
             dUnit = new UnitRatio(Mole.UNIT, 
-                    new BaseUnitPseudo3D.Volume(Liter.UNIT));
-            pUnit = new BaseUnitPseudo3D.Pressure(Bar.UNIT);
+                                    MKS.SYSTEM.area());
+            pUnit = Pressure2D.DIMENSION.getUnit(MKS.SYSTEM);
         }
         else {
             dUnit = new UnitRatio(Mole.UNIT, Liter.UNIT);
@@ -492,7 +499,7 @@ public class PistonCylinderGraphic {
         }
 
         // set up GUI
-        BaseUnit.Length.Sim.TO_PIXELS = 600/pc.phase.getBoundary().getDimensions().x(1);
+        displayPhase.setPixelUnit(new Pixel(600/pc.phase.getBoundary().getDimensions().x(1)));
         pc.ai.setDoSleep(integratorSleep > 0);
         pc.ai.setSleepPeriod(integratorSleep);
         pc.integrator.removeAllListeners();
@@ -585,7 +592,7 @@ public class PistonCylinderGraphic {
         
         pressureSlider.setUnit(pUnit);
         pressureSliderPanel.setBorder(new javax.swing.border.TitledBorder("Set Pressure ("+pUnit.toString()+")"));
-        Dimension pDim = (D==2) ? Dimension.PRESSURE2D : Dimension.PRESSURE;
+        Dimension pDim = Pressure.dimension(D);
         pc.pistonPotential.setPressure(pUnit.toSim(pressureSlider.getValue()));
         pressureSlider.setModifier(new ModifierPistonPressure(pc.pistonPotential,pDim));
         pressureSlider.setPostAction(new ActionPistonUpdate(pc.integrator));
@@ -593,7 +600,7 @@ public class PistonCylinderGraphic {
 
         doSleepSlider.setModifier(new Modifier() {
             public String getLabel() {return "";}
-            public Dimension getDimension() {return Dimension.UNDEFINED;}
+            public Dimension getDimension() {return Undefined.DIMENSION;}
             public void setValue(double v) {
                 integratorSleep = (int)v;
                 pc.ai.setDoSleep(integratorSleep > 0);
@@ -605,7 +612,7 @@ public class PistonCylinderGraphic {
         pc.integrator.setTimeStep(integratorTimeStepSlider.getValue());
         integratorTimeStepSlider.setModifier(new Modifier() {
             public String getLabel() {return "";}
-            public Dimension getDimension() {return Dimension.TIME;}
+            public Dimension getDimension() {return Time.DIMENSION;}
             public void setValue(double v) {
                 pc.integrator.setTimeStep(v);
             }
@@ -631,7 +638,7 @@ public class PistonCylinderGraphic {
         temperatureDisplayBox.setAccumulator(temperatureAvg);
         temperatureDisplayBox.setUnit(tUnit);
         
-        DataSource targetTemperatureDataSource = new DataSourceScalar("Temperature",Dimension.TEMPERATURE) {
+        DataSource targetTemperatureDataSource = new DataSourceScalar("Temperature",Temperature.DIMENSION) {
             public double getDataAsScalar() {
                 return temperatureSlider.getModifier().getValue();
             }
@@ -657,7 +664,7 @@ public class PistonCylinderGraphic {
         pressureDisplayBox.setAccumulator(pressureAvg);
         pressureDisplayBox.setUnit(pUnit);
 
-        DataSource targetPressureDataSource = new DataSourceScalar("Pressure",Dimension.PRESSURE) {
+        DataSource targetPressureDataSource = new DataSourceScalar("Pressure",Pressure.DIMENSION) {
             public double getDataAsScalar() {
                 return pUnit.toSim(pressureSlider.getValue());
             }
@@ -696,7 +703,7 @@ public class PistonCylinderGraphic {
         plotD.getPlot().setXRange(0, historyLength);
         plotT.getPlot().setYRange(0, 1000.);
         plotP.getPlot().setYRange(0, 1000.);
-        DataSourceUniform xSource = new DataSourceUniform("History",Dimension.QUANTITY,historyLength, 1, historyLength);
+        DataSourceUniform xSource = new DataSourceUniform("History",Quantity.DIMENSION,historyLength, 1, historyLength);
         plotT.setXSource(xSource);
         plotP.setXSource(xSource);
         plotD.setXSource(xSource);
@@ -751,7 +758,7 @@ public class PistonCylinderGraphic {
         }
 
         public Dimension getDimension() {
-            return Dimension.LENGTH;
+            return Length.DIMENSION;
         }
         
         public String getLabel() {

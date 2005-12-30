@@ -528,7 +528,7 @@ public class ReactionEquilibriumGraphic {
 		}
 
 		public Dimension getDimension() {
-			return etomica.units.Dimension.LENGTH;
+			return etomica.units.Length.DIMENSION;
 		}
 
 		public void setValue(double d) {
@@ -575,7 +575,7 @@ public class ReactionEquilibriumGraphic {
 		}
 
 		public Dimension getDimension() {
-			return etomica.units.Dimension.ENERGY;
+			return etomica.units.Energy.DIMENSION;
 		}
 
 		public void setValue(double d) {
@@ -605,7 +605,7 @@ public class ReactionEquilibriumGraphic {
 		}
 
 		public Dimension getDimension() {
-			return etomica.units.Dimension.NULL;
+			return etomica.units.Null.DIMENSION;
 		}
 
 		public void setValue(double d) {

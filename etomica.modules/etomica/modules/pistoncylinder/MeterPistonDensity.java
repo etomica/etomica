@@ -7,13 +7,15 @@ import etomica.potential.P1HardMovingBoundary;
 import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.units.DimensionRatio;
+import etomica.units.Quantity;
+import etomica.units.Volume;
 
 /**
  * Specialized density meter for piston/cylinder system
  */
 public class MeterPistonDensity extends DataSourceScalar implements Meter {
     public MeterPistonDensity(P1HardMovingBoundary potential, int wallDim, double atomDiameter) {
-        super("Density",new DimensionRatio(Dimension.QUANTITY,Dimension.VOLUME));
+        super("Density",new DimensionRatio(Quantity.DIMENSION, Volume.DIMENSION));
         pistonPotential = potential;
         wallD = wallDim;
         collisionDiameter = atomDiameter;
@@ -36,10 +38,6 @@ public class MeterPistonDensity extends DataSourceScalar implements Meter {
         return phase.moleculeCount()/volume;
     }
     
-    public Dimension getDimension() {
-        return new DimensionRatio(Dimension.QUANTITY, Dimension.VOLUME);
-    }
-
     /**
      * @return Returns the phase.
      */
