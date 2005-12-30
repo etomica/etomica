@@ -4,6 +4,7 @@ import java.awt.Graphics;
 
 import etomica.data.DataSourceScalar;
 import etomica.data.types.DataDouble;
+import etomica.units.UnitSystem;
 
     public class DisplayScrollingGraph extends Display {
 
@@ -64,7 +65,7 @@ import etomica.data.types.DataDouble;
      */
     public void setMeter(DataSourceScalar m) {
         meter = m;
-        setUnit(m.getDataInfo().getDimension().defaultIOUnit());
+        setUnit(m.getDataInfo().getDimension().getUnit(UnitSystem.SIM));
     }
     
     

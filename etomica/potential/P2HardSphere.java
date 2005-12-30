@@ -128,7 +128,7 @@ public class P2HardSphere extends Potential2HardSpherical {
         sig2 = c*c;
     }
     public etomica.units.Dimension getCollisionDiameterDimension() {
-        return etomica.units.Dimension.LENGTH;
+        return etomica.units.Length.DIMENSION;
     }
     
     /**

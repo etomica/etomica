@@ -4,7 +4,7 @@ import etomica.EtomicaInfo;
 import etomica.data.DataSourceScalar;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.units.Dimension;
+import etomica.units.Energy;
 
 /**
  * Meter for measurement of the total (potential and kinetic) energy in a phase
@@ -17,7 +17,7 @@ public final class MeterEnergy extends DataSourceScalar implements Meter {
     private MeterPotentialEnergy potential;
     
     public MeterEnergy(PotentialMaster potentialMaster) {
-    	super("Energy",Dimension.ENERGY);
+    	super("Energy",Energy.DIMENSION);
         kinetic = new MeterKineticEnergy();
         potential = new MeterPotentialEnergy(potentialMaster);
     }

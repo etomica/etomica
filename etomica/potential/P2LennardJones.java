@@ -4,6 +4,8 @@ import etomica.EtomicaInfo;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.units.Dimension;
+import etomica.units.Energy;
+import etomica.units.Length;
 
 /**
  * Lennard-Jones interatomic potential.
@@ -102,7 +104,7 @@ public final class P2LennardJones extends Potential2SoftSpherical implements Eto
         sigmaSquared = s*s;
         rCLast = 0.0;
     }
-    public Dimension getSigmaDimension() {return Dimension.LENGTH;}
+    public Dimension getSigmaDimension() {return Length.DIMENSION;}
     
     /**
      * Accessor method for Lennard-Jones energy parameter
@@ -118,7 +120,7 @@ public final class P2LennardJones extends Potential2SoftSpherical implements Eto
         epsilon48 = eps*48.0;
         epsilon624 = eps*624.0;
     }
-    public Dimension getEpsilonDimension() {return Dimension.ENERGY;}
+    public Dimension getEpsilonDimension() {return Energy.DIMENSION;}
    
     private double sigma, sigmaSquared;
     private double epsilon;

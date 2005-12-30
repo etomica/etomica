@@ -7,7 +7,9 @@ import etomica.data.DataSourceUniform;
 import etomica.data.DataTableListener;
 import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataTable;
+import etomica.units.Null;
 import etomica.units.Unit;
+import etomica.units.UnitSystem;
 import etomica.util.Arrays;
 
 /**
@@ -41,7 +43,7 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
         setName("Data Plot");
         units = new Unit[table.getColumnCount()];
         for(int i=0; i<units.length; i++) {
-            units[i] = table.getColumn(i).getDimension().defaultIOUnit();
+            units[i] = table.getColumn(i).getDimension().getUnit(UnitSystem.SIM);
         }
     }
     
@@ -76,7 +78,7 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
         if(newColumnCount > oldColumnCount) {
             units = (Unit[])Arrays.resizeArray(units, newColumnCount);
             for(int i=oldColumnCount; i<newColumnCount; i++) {
-                units[i] = (defaultUnit != null) ? defaultUnit : table.getColumn(i).getDimension().defaultIOUnit();
+                units[i] = (defaultUnit != null) ? defaultUnit : table.getColumn(i).getDimension().getUnit(UnitSystem.SIM);
             }
         } else {
             //TODO have DisplayTable adjust appropriately to removal of columns; this works only for newColumnCount = 0
@@ -221,7 +223,7 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
     private javax.swing.JPanel panel = new javax.swing.JPanel();
     private boolean doLegend = true;
     protected DataSource x;
-    private Unit xUnit = Unit.NULL;
+    private Unit xUnit = Null.UNIT;
     private Unit[] units = new Unit[0];
     private Unit defaultUnit;
 

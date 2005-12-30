@@ -9,7 +9,7 @@ import etomica.data.types.DataVector;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Dimension;
+import etomica.units.Length;
 
 /**
  * Calculates the geometric center over a set of atoms. The position of all
@@ -34,7 +34,7 @@ public class AtomPositionGeometricCenter extends AtomActionAdapter implements Da
     
     public AtomPositionGeometricCenter(Space space) {
         vectorSum = space.makeVector();
-        data = new DataVector(space, "Geometric Center", Dimension.LENGTH);
+        data = new DataVector(space, "Geometric Center", Length.DIMENSION);
         myAction = new MyAction(vectorSum);
         groupWrapper = new AtomGroupAction(myAction);
     }

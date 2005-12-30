@@ -83,7 +83,7 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
     /**
      * Returns the dimension (length) of the radial cutoff distance.
      */
-    public etomica.units.Dimension getTruncationRadiusDimension() {return etomica.units.Dimension.LENGTH;}
+    public etomica.units.Dimension getTruncationRadiusDimension() {return etomica.units.Length.DIMENSION;}
     
     /**
      * Returns the zero-body potential that evaluates the contribution to the

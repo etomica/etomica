@@ -10,6 +10,7 @@ import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
+import etomica.units.Length;
 import etomica.util.Debug;
 
 /**
@@ -235,7 +236,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     /**
      * Indicates collision radius has dimensions of Length.
      */
-    public etomica.units.Dimension getCollisionRadiusDimension() {return etomica.units.Dimension.LENGTH;}
+    public etomica.units.Dimension getCollisionRadiusDimension() {return etomica.units.Length.DIMENSION;}
 
     
     public void advanceAcrossTimeStep(double tStep) {
@@ -259,9 +260,8 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         thickness = t;
     }
     
-    public void draw(java.awt.Graphics g, int[] origin, double scale) {
+    public void draw(java.awt.Graphics g, int[] origin, double toPixel) {
         g.setColor(java.awt.Color.gray);
-        double toPixel = scale*etomica.units.BaseUnit.Length.Sim.TO_PIXELS;
         int xP = origin[0] + (wallD==0 ? (int)((wallPosition-thickness)*toPixel) : 0);
         int yP = origin[1] + (wallD==1 ? (int)((wallPosition-thickness)*toPixel) : 0);
         int t = Math.max(1,(int)(thickness*toPixel));

@@ -8,7 +8,7 @@ import etomica.data.DataSourceScalar;
 import etomica.math.geometry.Polytope;
 import etomica.phase.Phase;
 import etomica.species.Species;
-import etomica.units.Dimension;
+import etomica.units.Fraction;
 
 /**
  * Meter for measurement of species mole fraction within a specified subvolume
@@ -17,7 +17,7 @@ import etomica.units.Dimension;
 public abstract class MeterLocalMoleFraction extends DataSourceScalar implements Meter
 {
     public MeterLocalMoleFraction() {
-        super("Local Mole Fraction",Dimension.FRACTION);
+        super("Local Mole Fraction",Fraction.DIMENSION);
         setSpecies(null);
     }
 

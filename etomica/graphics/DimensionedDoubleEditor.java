@@ -4,11 +4,13 @@ import java.beans.PropertyEditorSupport;
 
 import javax.swing.JComboBox;
 
-import etomica.units.BaseUnit;
 import etomica.units.Dimension;
+import etomica.units.Null;
 import etomica.units.Prefix;
 import etomica.units.PrefixedUnit;
+import etomica.units.SimpleUnit;
 import etomica.units.Unit;
+import etomica.units.UnitSystem;
 
 /**
  * Editor to set the value of a double-type property having units associated with it.
@@ -40,12 +42,12 @@ public class DimensionedDoubleEditor extends PropertyEditorSupport
     public DimensionedDoubleEditor(Dimension dimension) {
         super();
         valueEditor = java.beans.PropertyEditorManager.findEditor(Double.TYPE);
-        if(dimension == null) dimension = Dimension.NULL;
-        Unit defaultUnit = dimension.defaultIOUnit();
+        if(dimension == null) dimension = Null.DIMENSION;
+        Unit defaultUnit = dimension.getUnit(UnitSystem.SIM);
         unit = (defaultUnit instanceof PrefixedUnit) ? (PrefixedUnit)defaultUnit : new PrefixedUnit(defaultUnit);
         prefix = unit.prefix();
         baseUnit = unit.unit();
-        availableUnits = BaseUnit.all(dimension); //all BaseUnit classes of the given dimensions
+        //this is broken  availableUnits = SimpleUnit.all(dimension); //all BaseUnit classes of the given dimensions
         availableUnitNames = new StringBuffer[availableUnits.length];
         for(int i=0; i<availableUnitNames.length; i++) {
             availableUnitNames[i] = new StringBuffer();
@@ -65,10 +67,10 @@ public class DimensionedDoubleEditor extends PropertyEditorSupport
     }
     
     private void setupNames() {
-        BaseUnit base = null;
+        SimpleUnit base = null;
         for(int i=0; i<availableUnits.length; i++) {
 	        try {
-	            base = (BaseUnit)availableUnits[i].newInstance();
+	            base = (SimpleUnit)availableUnits[i].newInstance();
 	        }
 	        catch(InstantiationException e) {System.out.println(e.toString()); System.exit(1);}
 	        catch(IllegalAccessException e) {System.out.println(e.toString()); System.exit(1);}
@@ -91,7 +93,7 @@ public class DimensionedDoubleEditor extends PropertyEditorSupport
         Object value = getValue();
         Class baseClass = availableUnits[unitList.getSelectedIndex()];
 	    try {
-	        baseUnit = (BaseUnit)baseClass.newInstance();
+	        baseUnit = (SimpleUnit)baseClass.newInstance();
 	    }
 	    catch(InstantiationException e) {System.out.println(e.toString()); System.exit(1);}
 	    catch(IllegalAccessException e) {System.out.println(e.toString()); System.exit(1);}

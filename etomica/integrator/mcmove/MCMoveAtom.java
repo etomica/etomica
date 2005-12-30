@@ -13,6 +13,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.units.Dimension;
+import etomica.units.Length;
 
 /**
  * Standard Monte Carlo atom-displacement trial move.
@@ -56,9 +57,9 @@ public class MCMoveAtom extends MCMove {
         this.fixOverlap = fixOverlap;
     }
     
-    public final Dimension getStepSizeDimension() {return Dimension.LENGTH;}
-    public final Dimension getStepSizeMaxDimension() {return Dimension.LENGTH;}
-    public final Dimension getStepSizeMinDimension() {return Dimension.LENGTH;}
+    public final Dimension getStepSizeDimension() {return Length.DIMENSION;}
+    public final Dimension getStepSizeMaxDimension() {return Length.DIMENSION;}
+    public final Dimension getStepSizeMinDimension() {return Length.DIMENSION;}
     
     /**
      * Method to perform trial move.

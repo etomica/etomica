@@ -1,19 +1,31 @@
 package etomica.units;
+import java.io.ObjectStreamException;
+
 import etomica.util.Constants;
 
-public final class Gram extends BaseUnit.Mass {
+public final class Gram extends SimpleUnit {
 
   /**
-   * Convenience instance of this unit to permit unit to be assigned
-   * without creating a new instance of it each time
+   * Singleton instance of this unit.
    */
     public static final Gram UNIT = new Gram();
     
-    public Gram() {
-        super(
+    private Gram() {
+        super(Mass.DIMENSION,
         	Constants.AVOGADRO, //conversion from grams to Daltons
-        	"grams",
-        	"g"
+        	"grams", "g", Prefix.ALLOWED
         	);   
     }
+    
+    /**
+     * Required to guarantee singleton when deserializing.
+     * 
+     * @return the singleton UNIT
+     */
+    private Object readResolve() throws ObjectStreamException {
+        return UNIT;
+    }
+    
+    private static final long serialVersionUID = 1;
+
 }

@@ -8,7 +8,7 @@ import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorPhase;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Dimension;
+import etomica.units.Undefined;
 
 /**
  *  Computes the mean square displacement for a set of atoms.
@@ -30,7 +30,7 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
     }
 
     public MeterMeanSquareDisplacement(Space space, IntegratorPhase integrator, AtomIteratorPhaseDependent iter) {
-        super("Mean square displacement", Dimension.UNDEFINED);
+        super("Mean square displacement", Undefined.DIMENSION);
         this.space = space;
         this.integrator = integrator;
         setIterator(iter);

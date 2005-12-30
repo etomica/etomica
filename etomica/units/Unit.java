@@ -53,7 +53,4 @@ public interface Unit extends java.io.Serializable {
 	 */
 	public boolean prefixAllowed();
 
-    public static Unit NULL = BaseUnit.Null.UNIT;
-    public static Unit UNDEFINED = BaseUnit.Undefined.UNIT;
-
 }

@@ -10,6 +10,7 @@ import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.Dimension;
+import etomica.units.Length;
 /**
  * Potential that acts like a hard string connecting the centers of two atoms.
  * Meant for use as an intra-molecular interaction.
@@ -49,7 +50,7 @@ public class P2Tether extends Potential2HardSpherical {
         tetherLength = t;
         tetherLengthSquared = t*t;
     }
-    public Dimension getTetherLengthDimension() {return Dimension.LENGTH;}
+    public Dimension getTetherLengthDimension() {return Length.DIMENSION;}
 
     /**
      * Implements collision dynamics for pair attempting to separate beyond tether distance

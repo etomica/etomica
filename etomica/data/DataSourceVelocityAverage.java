@@ -8,7 +8,7 @@ import etomica.data.types.DataVector;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Dimension;
+import etomica.units.Undefined;
 
 /**
  * Calculates the mass average velocity over a set of atoms. The velocity
@@ -27,7 +27,7 @@ import etomica.units.Dimension;
 public class DataSourceVelocityAverage extends AtomActionAdapter implements DataSource {
 
     public DataSourceVelocityAverage(Space space) {
-        data = new DataVector(space, "Average Velocity", Dimension.UNDEFINED);
+        data = new DataVector(space, "Average Velocity", Undefined.DIMENSION);
         vectorSum = space.makeVector();
         myAction = new MyAction(vectorSum);
         groupWrapper = new AtomGroupAction(myAction);

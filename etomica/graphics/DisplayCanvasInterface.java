@@ -6,6 +6,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 import etomica.atom.AtomFilter;
+import etomica.units.Pixel;
 
  /* History of changes
   * 09/07/02 (DAK) added atomFilter
@@ -59,6 +60,8 @@ public interface DisplayCanvasInterface {
     public void setMaximumSize(Dimension temp);
     public void setPreferredSize(Dimension temp);
     public void setBounds(int x, int y, int width, int height);
+    public void setPixelUnit(Pixel pixel);
+    public Pixel getPixelUnit();
     public java.awt.Dimension getSize();
     public void repaint();
     public void requestFocus();

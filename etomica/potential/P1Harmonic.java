@@ -6,6 +6,8 @@ import etomica.atom.AtomSet;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
+import etomica.units.Length;
+import etomica.units.Undefined;
 
 /**
  * Potential in which attaches a harmonic spring between each affected atom and
@@ -54,14 +56,14 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
     }
     
     public Dimension getX0Dimension() {
-        return Dimension.LENGTH;
+        return Length.DIMENSION;
     }
     /**
      * Not implemented correctly.  
      * Should be energy/length^2.
      */
     public Dimension getSpringConstantDimension() {
-        return Dimension.UNDEFINED;
+        return Undefined.DIMENSION;
     }
 
     public double energy(AtomSet a) {

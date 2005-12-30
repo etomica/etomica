@@ -6,7 +6,7 @@ import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorHard;
 import etomica.phase.Phase;
 import etomica.space.Space;
-import etomica.units.Dimension;
+import etomica.units.Pressure;
 
 /**
  * Meter for the pressure (given as the compressibility factor) of a hard potential.
@@ -21,7 +21,7 @@ public class MeterPressureHard extends DataSourceScalar implements
                                                 EtomicaElement {
     
     public MeterPressureHard(Space space, IntegratorHard integrator) {
-        super("Pressure", Dimension.pressure(space.D()));
+        super("Pressure", Pressure.dimension(space.D()));
         timer = new DataSourceCountTime();
         setIntegrator(integrator);
     }

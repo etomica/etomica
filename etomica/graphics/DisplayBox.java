@@ -12,7 +12,9 @@ import etomica.data.DataProcessor;
 import etomica.data.DataSink;
 import etomica.data.types.CastToDouble;
 import etomica.data.types.DataDouble;
+import etomica.units.Null;
 import etomica.units.Unit;
+import etomica.units.UnitSystem;
 import etomica.util.Constants;
 import etomica.util.EnumeratedType;
 
@@ -55,11 +57,11 @@ public class DisplayBox extends Display implements DataSink, EtomicaElement, jav
     protected etomica.units.Unit unit;
     
     public DisplayBox() {
-        this("", Unit.NULL);
+        this("", Null.UNIT);
     }
     
     public DisplayBox(DataInfo info) {
-        this(info.getLabel(), info.getDimension().defaultIOUnit());
+        this(info.getLabel(), info.getDimension().getUnit(UnitSystem.SIM));
     }
     
     public DisplayBox(String label, Unit unit) {
@@ -89,8 +91,8 @@ public class DisplayBox extends Display implements DataSink, EtomicaElement, jav
     }//end of constructor
     
     public void putDataInfo(DataInfo dataInfo) {
-        if(unit == Unit.NULL) {
-            unit = dataInfo.getDimension().defaultIOUnit();
+        if(unit == Null.UNIT) {
+            unit = dataInfo.getDimension().getUnit(UnitSystem.SIM);
         }
         if(label.equals("")) {
             setLabel(dataInfo.getLabel());

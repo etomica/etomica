@@ -20,6 +20,7 @@ import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Dimension;
+import etomica.units.Length;
 
 //remember to set up Space3D.CoordinatePair.reset if experiencing 
 //problems with this simulation hanging
@@ -29,7 +30,7 @@ public class SWMD3D extends Simulation {
 	public class MyModifier implements Modifier {
 
         public Dimension getDimension() {
-            return Dimension.LENGTH;
+            return Length.DIMENSION;
         }
 
 		/**

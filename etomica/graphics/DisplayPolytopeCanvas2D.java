@@ -84,7 +84,7 @@ public class DisplayPolytopeCanvas2D extends DisplayCanvas {
         //Draw other features if indicated
         if(drawBoundary>DRAW_BOUNDARY_NONE) {
             g.setColor(Color.gray);
-            double toPixels = displayPolytope.getScale()*etomica.units.BaseUnit.Length.Sim.TO_PIXELS;
+            double toPixels = displayPolytope.getScale()*pixel.toPixels();
             Polygon shape = (Polygon)displayPolytope.getPolytope();
             LineSegment[] edges = shape.getEdges();
             int ox = displayPolytope.getOrigin()[0];

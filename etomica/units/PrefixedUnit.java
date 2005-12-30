@@ -6,9 +6,7 @@ package etomica.units;
  * after construction. However, the prefix can be changed using the setPrefix
  * method.
  *
- * @see UnitSystem
- * @see UnitRatio
- * @see BaseUnit
+ * @see SimpleUnit
  * @see Prefix
  */
 
@@ -101,5 +99,8 @@ public class PrefixedUnit implements Unit, java.io.Serializable {
      * @see etomica.units.Unit#prefixAllowed()
      */
     public boolean prefixAllowed() {return false;}
+    
+    private static final long serialVersionUID = 1;
+
 
 }

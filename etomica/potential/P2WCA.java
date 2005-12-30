@@ -4,6 +4,8 @@ import etomica.EtomicaInfo;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.units.Dimension;
+import etomica.units.Energy;
+import etomica.units.Length;
 
 /**
  * Weeks-Chandler-Andersen potential.  Obtained by truncating the Lennard-Jones
@@ -103,7 +105,7 @@ public class P2WCA extends Potential2SoftSpherical implements EtomicaElement {
 		rangeSquared = range*range;
 
     }
-    public Dimension getSigmaDimension() {return Dimension.LENGTH;}
+    public Dimension getSigmaDimension() {return Length.DIMENSION;}
     
     /**
      * Accessor method for the energy parameter
@@ -119,7 +121,7 @@ public class P2WCA extends Potential2SoftSpherical implements EtomicaElement {
         epsilon48 = eps*48.0;
         epsilon624 = eps*624.0;
     }
-    public Dimension getEpsilonDimension() {return Dimension.ENERGY;}
+    public Dimension getEpsilonDimension() {return Energy.DIMENSION;}
    
     private double sigma, sigmaSquared, range, rangeSquared;
     private double epsilon;

@@ -5,10 +5,10 @@
 package etomica.data;
 
 import etomica.data.types.DataArithmetic;
-import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.simulation.Simulation;
 import etomica.units.Dimension;
+import etomica.units.Undefined;
 import etomica.util.EnumeratedType;
 import etomica.util.Function;
 
@@ -219,7 +219,7 @@ public class AccumulatorAverage extends DataAccumulator {
     public DataInfo processDataInfo(DataInfo dataInfo) {
         DataFactory factory = dataInfo.getDataFactory();
 
-        Dimension dimSquared = Dimension.UNDEFINED;//can change this when units
+        Dimension dimSquared = Undefined.DIMENSION;//can change this when units
                                                    // facility isbetter
                                                    // developed
         sum = (DataArithmetic) factory.makeData("blkAvg sum", dataInfo.getDimension());
@@ -235,7 +235,7 @@ public class AccumulatorAverage extends DataAccumulator {
         blockCorrelation = (DataArithmetic) factory.makeData("blk correlation", dataInfo.getDimension());
         firstBlock = (DataArithmetic) factory.makeData("first blk", dataInfo.getDimension());
         correlationSum = (DataArithmetic) factory.makeData("correlation sum", dataInfo.getDimension());
-        work = (DataArithmetic) factory.makeData("scratch", Dimension.UNDEFINED);
+        work = (DataArithmetic) factory.makeData("scratch", Undefined.DIMENSION);
 
         reset();
         dataGroup = new DataGroup(dataInfo.getLabel(),

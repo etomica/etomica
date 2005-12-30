@@ -1,17 +1,27 @@
 package etomica.units;
 
-public final class Dalton extends BaseUnit.Mass {
+import java.io.ObjectStreamException;
 
-  /**
-   * Singleton instance of this unit.
-   */
+public final class Dalton extends SimpleUnit {
+
+    /**
+     * Singleton instance of this unit.
+     */
     public static final Dalton UNIT = new Dalton();
-  
+
     private Dalton() {
-        super(
-			1.0,
-			"Daltons",
-        	"D"
-        	);
+        super(Mass.DIMENSION, 1.0, "Daltons", "D", Prefix.ALLOWED);
     }
+    
+    /**
+     * Required to guarantee singleton when deserializing.
+     * 
+     * @return the singleton UNIT
+     */
+    private Object readResolve() throws ObjectStreamException {
+        return UNIT;
+    }
+    
+    private static final long serialVersionUID = 1;
+
 }

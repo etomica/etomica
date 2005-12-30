@@ -9,7 +9,11 @@ import etomica.space.CoordinatePair;
 import etomica.space.ICoordinateAngular;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.units.Angle;
 import etomica.units.Dimension;
+import etomica.units.Energy;
+import etomica.units.Length;
+import etomica.units.Null;
 
 /**
  * Lennard-Jones potential with a square-well cone of attraction. 
@@ -107,7 +111,7 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
         sigmaSquared = s*s;
         setCutoffFactorLJ(cutoffFactor);
     }
-    public static final Dimension getSigmaDimension() {return Dimension.LENGTH;}
+    public static final Dimension getSigmaDimension() {return Length.DIMENSION;}
 
     /**
     * Accessor method for Lennard-Jones cutoff distance; divided by sigma
@@ -124,7 +128,7 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
         cutoffLJSquared = cutoffLJ*cutoffLJ;
        // calculateLRC();
     }
-    public static final Dimension getCutoffFactorLJDimension() {return Dimension.NULL;}
+    public static final Dimension getCutoffFactorLJDimension() {return Null.DIMENSION;}
    
     /**
     * Accessor method for attractive-well diameter divided by sigma
@@ -139,7 +143,7 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
         wellCutoffSquared = wellCutoff*wellCutoff;
     }
           
-    public static final Dimension getWellCutoffFactorDimension() {return Dimension.NULL;}
+    public static final Dimension getWellCutoffFactorDimension() {return Null.DIMENSION;}
 
     /**
     * Accessor method for Lennard-Jones energy parameter
@@ -152,7 +156,7 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
         epsilon = eps;
         epsilon4 = 4.0 * eps;
     }
-    public static final Dimension getEpsilonDimension() {return Dimension.ENERGY;}
+    public static final Dimension getEpsilonDimension() {return Energy.DIMENSION;}
     
     /**
     * Accessor method for attractive-well diameter.
@@ -166,7 +170,7 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
         wellCutoffSquared = wcut*wcut;
     }
  */         
-    public static final Dimension getWellCutoffDimension() {return Dimension.LENGTH;}
+    public static final Dimension getWellCutoffDimension() {return Length.DIMENSION;}
     
     /**
     * Accessor method for attractive-well depth parameter.
@@ -177,7 +181,7 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
     */
     public void setWellEpsilon(double weps) {wellEpsilon = weps;}
           
-    public static final Dimension getWellEpsilonDimension() {return Dimension.ENERGY;}
+    public static final Dimension getWellEpsilonDimension() {return Energy.DIMENSION;}
     
     /**
      * Accessor method for angle describing width of cone.
@@ -192,7 +196,7 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
         ec2    = Math.cos(theta);
         ec2   = ec2*ec2;
     }
-    public Dimension getThetaDimension() {return Dimension.ANGLE;}
+    public Dimension getThetaDimension() {return Angle.DIMENSION;}
 
     public void setPhase(Phase phase) {
         cPair.setNearestImageTransformer(phase.getBoundary());

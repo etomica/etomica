@@ -12,7 +12,7 @@ import etomica.integrator.mcmove.MCMoveSwapConfiguration;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.units.Dimension;
+import etomica.units.Null;
 
 /**
  * Parallel-tempering integrator.  Oversees other integrators that are defined to perform
@@ -114,7 +114,7 @@ public class IntegratorPT extends IntegratorManagerMC implements EtomicaElement 
         private DataDoubleArray data;
         
         public PhaseTracker() {
-            data = new DataDoubleArray("Phase Tracker", Dimension.NULL,0);
+            data = new DataDoubleArray("Phase Tracker", Null.DIMENSION,0);
         }
         
         public DataInfo getDataInfo() {

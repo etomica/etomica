@@ -2,6 +2,7 @@ package etomica.util;
 
 import etomica.units.Bar;
 import etomica.units.Kelvin;
+import etomica.units.Length;
 import etomica.units.UnitSystem;
 
 /**
@@ -100,7 +101,6 @@ public class Default implements java.io.Serializable {
         pressure = 1.0;
         timeStep = 0.04;
         boxSize = 10.0;
-        etomica.units.BaseUnit.Length.Sim.TO_PIXELS = 30;
     }
     
 }

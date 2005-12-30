@@ -8,7 +8,7 @@ import etomica.data.DataSourceScalar;
 import etomica.data.types.DataDouble;
 import etomica.phase.Phase;
 import etomica.species.Species;
-import etomica.units.Dimension;
+import etomica.units.Quantity;
 
 /**
  * Meter for recording the total number of molecules in the phase
@@ -18,7 +18,7 @@ public class MeterNMolecules extends DataSourceScalar implements DataSourceAtomi
     private Species species;
     
     public MeterNMolecules() {
-        super("Molecules",Dimension.QUANTITY);
+        super("Molecules",Quantity.DIMENSION);
     }
     
     public static EtomicaInfo getEtomicaInfo() {

@@ -6,6 +6,7 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.space.ICoordinateKinetic;
 import etomica.units.Dimension;
 import etomica.units.Kelvin;
+import etomica.units.Temperature;
 /**
  * Colors atoms according to their kinetic energy.
  * Atoms with high KE are colored red, and those with low KE are colored blue.
@@ -40,7 +41,7 @@ public class ColorSchemeTemperature implements ColorScheme {
         KEMin = t;
         range = 1.0/(KEMax-KEMin);
     }
-    public Dimension getTLowDimension() {return Dimension.TEMPERATURE;}
+    public Dimension getTLowDimension() {return Temperature.DIMENSION;}
     public double getTHigh() {return THigh;}
     public void setTHigh(double t) {
         THigh = t;

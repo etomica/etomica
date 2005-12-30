@@ -8,7 +8,7 @@ import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
 import etomica.units.Count;
-import etomica.units.Dimension;
+import etomica.units.Quantity;
 import etomica.units.Unit;
 import etomica.util.NameMaker;
 
@@ -27,7 +27,7 @@ public final class DataSourceCountSteps implements DataSource,
 	 * Sets up data source to count integrator steps.
 	 */
 	public DataSourceCountSteps() {
-        data = new DataInteger("Integrator steps",Dimension.QUANTITY);
+        data = new DataInteger("Integrator steps",Quantity.DIMENSION);
         setName(NameMaker.makeName(this.getClass()));
 	}
 

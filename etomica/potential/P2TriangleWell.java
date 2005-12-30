@@ -85,7 +85,7 @@ protected CoordinatePair cPair;
         constant = epsilon/(coreDiameter*(1.0 - lambda));
     }
     public final etomica.units.Dimension getCoreDiameterDimension() {
-        return etomica.units.Dimension.LENGTH;
+        return etomica.units.Length.DIMENSION;
     }
     
     public double getRange() {
@@ -100,7 +100,7 @@ protected CoordinatePair cPair;
         constant = epsilon/(coreDiameter*(1.0 - lambda));
     }
     public final etomica.units.Dimension getLambdaDimension() {
-        return etomica.units.Dimension.NULL;
+        return etomica.units.Null.DIMENSION;
     }
 
     public double getEpsilon() {return epsilon;}
@@ -109,7 +109,7 @@ protected CoordinatePair cPair;
         constant = epsilon/(coreDiameter*(1.0 - lambda));
     }
     public final etomica.units.Dimension getEpsilonDimension() {
-        return etomica.units.Dimension.ENERGY;
+        return etomica.units.Energy.DIMENSION;
     }
 
     public void setPhase(Phase phase) {

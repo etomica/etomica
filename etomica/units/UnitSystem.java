@@ -21,13 +21,10 @@ public abstract class UnitSystem implements java.io.Serializable {
     public abstract Unit dipole();
     public abstract Unit energy();
     public abstract Unit temperature();
-    public abstract Unit pressure(int D);
-    public abstract Unit volume(int D);
+    public abstract Unit pressure();
+    public abstract Unit volume();
+    public abstract Unit area();
     
-    //Default pressure and volume units are those for 2-D system
-    public Unit pressure() {return pressure(2);}
-    public Unit volume() {return volume(2);}
-
  /**
   * System of units based on simulation units of Daltons, picoseconds, and Angstroms
   */
@@ -39,13 +36,15 @@ public abstract class UnitSystem implements java.io.Serializable {
         public Unit length() {return Angstrom.UNIT;}
         public Unit time() {return Picosecond.UNIT;}
         public Unit angle() {return Radian.UNIT;}
-        public Unit charge() {return BaseUnit.Charge.Sim.UNIT;}
-        public Unit dipole() {return BaseUnit.Dipole.Sim.UNIT;}
-        public Unit energy() {return BaseUnit.Energy.Sim.UNIT;}
-        public Unit temperature() {return BaseUnit.Temperature.Sim.UNIT;}
-        public Unit pressure(int D) {return (D==2) ? BaseUnit.Pressure2D.Sim.UNIT : BaseUnit.Pressure.Sim.UNIT;}
-        public Unit volume(int D) {return (D==2) ? BaseUnit.Volume2D.Sim.UNIT : BaseUnit.Volume.Sim.UNIT;}
+        public Unit charge() {return Charge.SIM_UNIT;}
+        public Unit dipole() {return Dipole.SIM_UNIT;}
+        public Unit energy() {return Energy.SIM_UNIT;}
+        public Unit temperature() {return Temperature.SIM_UNIT;}
+        public Unit pressure() {return Pressure.SIM_UNIT;}
+        public Unit pressure2D() {return Pressure2D.SIM_UNIT;}
+        public Unit volume() {return Volume.SIM_UNIT;}
+        public Unit area() {return Area.SIM_UNIT;}
     }
     public static final UnitSystem SIM = new Sim();
-    //will also define CGS, atomic, English
+    private static final long serialVersionUID = 1;
 }

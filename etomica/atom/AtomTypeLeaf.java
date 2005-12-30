@@ -1,6 +1,7 @@
 package etomica.atom;
 
 import etomica.units.Dimension;
+import etomica.units.Mass;
 
 /**
  * Type for an atom that is a leaf in the species hierarchy. An atom of this
@@ -70,7 +71,7 @@ public class AtomTypeLeaf extends AtomType {
      * Returns Dimension.MASS, indicating that "mass" has dimensions of mass.
      */
     public final Dimension getMassDimension() {
-        return Dimension.MASS;
+        return Mass.DIMENSION;
     }
 
     public double mass, rm;

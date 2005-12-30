@@ -6,6 +6,7 @@ import etomica.compatibility.FeatureSet;
 import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.units.Dimension;
+import etomica.units.Length;
 import etomica.util.NameMaker;
 
 /**
@@ -47,7 +48,7 @@ public abstract class Potential extends EtomicaInfo {
     public abstract double getRange();
     
     public Dimension getRangeDimension() {
-        return Dimension.LENGTH;
+        return Length.DIMENSION;
     }
     
     public abstract double energy(AtomSet atoms);

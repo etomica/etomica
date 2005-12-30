@@ -20,7 +20,7 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.BaseUnit;
+import etomica.units.Pixel;
 
 /**
  * Displays a picture of a phase, with configurations of molecules, boundaries, and other objects as appropriate, assuming 2-dimensional system.  
@@ -206,12 +206,12 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
         if(p == null) return;
         phase = p;
         
-        int boxX = (int)(phase.getBoundary().getDimensions().x(0) * BaseUnit.Length.Sim.TO_PIXELS);
+        int boxX = (int)(phase.getBoundary().getDimensions().x(0) * pixel.toPixels());
         int boxY = 1;
 
         switch(phase.space().D()) {
             case 3:
-                boxY = (int)(phase.getBoundary().getDimensions().x(1) * BaseUnit.Length.Sim.TO_PIXELS);
+                boxY = (int)(phase.getBoundary().getDimensions().x(1) * pixel.toPixels());
                 boxX *=1.4;
                 boxY *=1.4;
                     canvas = new DisplayPhaseCanvas3DOpenGL(this, boxX, boxY);
@@ -219,7 +219,7 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
                 else canvas = new DisplayPhaseCanvas3DSoftware(this);
  */               break;
             case 2:
-                boxY = (int)(phase.getBoundary().getDimensions().x(1) * BaseUnit.Length.Sim.TO_PIXELS);
+                boxY = (int)(phase.getBoundary().getDimensions().x(1) * pixel.toPixels());
                 canvas = new DisplayPhaseCanvas2D(this);
                 break;
             case 1:
@@ -229,6 +229,7 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
                 break;
         }
         
+        canvas.setPixelUnit(pixel);
         setSize(boxX, boxY);
 
         InputEventHandler listener = new InputEventHandler();
@@ -256,17 +257,17 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
         if (phaseCanvas == null) return;
         if(phase == null) throw new IllegalStateException("Cannot set canvas before setting phase");
         
-        int boxX = (int)(phase.getBoundary().getDimensions().x(0) * BaseUnit.Length.Sim.TO_PIXELS);
+        int boxX = (int)(phase.getBoundary().getDimensions().x(0) * pixel.toPixels());
         int boxY = 1;
 
         switch(phase.space().D()) {
             case 3:
-                boxY = (int)(phase.getBoundary().getDimensions().x(1) * BaseUnit.Length.Sim.TO_PIXELS);
+                boxY = (int)(phase.getBoundary().getDimensions().x(1) * pixel.toPixels());
                 boxX *=1.4;
                 boxY *=1.4;
                 break;
             case 2:
-                boxY = (int)(phase.getBoundary().getDimensions().x(1) * BaseUnit.Length.Sim.TO_PIXELS);
+                boxY = (int)(phase.getBoundary().getDimensions().x(1) * pixel.toPixels());
                 break;
             case 1:
             default:
@@ -370,7 +371,7 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
     }
     public void computeImageParameters2(int w, int h) {
         //Compute factor converting simulation units to pixels for this display
-        toPixels = scale*BaseUnit.Length.Sim.TO_PIXELS;
+        toPixels = scale*pixel.toPixels();
         //Determine length and width of drawn image, in pixels
         drawSize[0] = (int)(toPixels*getPhase().getBoundary().getDimensions().x(0));
         drawSize[1] = (phase.space().D()==1) ? drawingHeight: (int)(toPixels*getPhase().getBoundary().getDimensions().x(1));
@@ -388,16 +389,6 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
         }
     }
 
-    /**
-    * Number of periodic-image shells to be drawn when drawing this phase to the
-    * screen.  Default value is 0.
-    *
-    * @see #paint
-    */
-    private int imageShells = 0;
-    
-    private int drawingHeight = 10;
-     
     public void doUpdate() {}
     public void repaint() {canvas.repaint();}
       
@@ -406,8 +397,28 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
     public void setResizable(boolean b) {canvas.setResizable(b);}
     public boolean isResizable() {return canvas.isResizable();}
     
+    
+    
     //Methods for handling DisplayPhaseEvents
     
+    /**
+     * Returns unit for conversion between simulation units and display pixels.
+     */
+    public Pixel getPixelUnit() {
+        return pixel;
+    }
+
+    /**
+     * Sets unit for conversion between simulation units and display pixels.
+     */
+    public void setPixelUnit(Pixel pixel) {
+        this.pixel = pixel;
+        if(canvas != null) {
+            canvas.setPixelUnit(pixel);
+            computeImageParameters();
+        }
+    }
+
     public synchronized void addDisplayPhaseListener(DisplayPhaseListener dpl) {
         displayPhaseListeners.addElement(dpl);
     }
@@ -428,6 +439,18 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
             listener.displayPhaseAction(dpe);
         }
     }
+    
+    /**
+     * Number of periodic-image shells to be drawn when drawing this phase to the
+     * screen.  Default value is 0.
+     *
+     * @see #paint
+     */
+     private int imageShells = 0;
+     
+     private int drawingHeight = 10;
+      
+     private Pixel pixel = new Pixel();
     
     /**
      * Class to listen for and interpret mouse and key events on the configuration display.

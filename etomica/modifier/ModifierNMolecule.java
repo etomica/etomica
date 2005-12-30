@@ -2,6 +2,7 @@ package etomica.modifier;
 
 import etomica.atom.SpeciesAgent;
 import etomica.units.Dimension;
+import etomica.units.Quantity;
 
 /**
  * Modifier class that enables change of the number of molecules of a particular species
@@ -35,7 +36,7 @@ public class ModifierNMolecule implements Modifier, java.io.Serializable {
     }
 
     public Dimension getDimension() {
-        return Dimension.QUANTITY;
+        return Quantity.DIMENSION;
     }
     
     public String getLabel() {

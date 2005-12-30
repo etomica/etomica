@@ -6,7 +6,7 @@ import etomica.data.DataSourceScalar;
 import etomica.phase.Phase;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.PotentialMaster;
-import etomica.units.Dimension;
+import etomica.units.Energy;
 
 /**
  * Meter for evaluation of the potential energy in a phase.
@@ -19,7 +19,7 @@ import etomica.units.Dimension;
 public class MeterPotentialEnergy extends DataSourceScalar implements Meter {
     
     public MeterPotentialEnergy(PotentialMaster potentialMaster) {
-        super("Potential Energy",Dimension.ENERGY);
+        super("Potential Energy",Energy.DIMENSION);
         iteratorDirective.includeLrc = true;
         potential = potentialMaster;
         iteratorDirective.setDirection(null); // so that "both" will work

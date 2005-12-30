@@ -6,7 +6,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.units.Dimension;
+import etomica.units.Null;
 
 /**
  * A MeterTensor that returns the virial component of the pressure tensor for a hard potential.  
@@ -18,8 +18,8 @@ import etomica.units.Dimension;
 public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, IntegratorHard.CollisionListener, java.io.Serializable {
     
     public DataSourceTensorVirialHard(Space space) {
-        data = new DataTensor(space, "PV/NkT",Dimension.NULL);
-        lastData = new DataTensor(space, "PV/NkT",Dimension.NULL);
+        data = new DataTensor(space, "PV/NkT",Null.DIMENSION);
+        lastData = new DataTensor(space, "PV/NkT",Null.DIMENSION);
         timer = new DataSourceCountTime();
     }
     

@@ -6,6 +6,7 @@ import etomica.data.Data;
 import etomica.data.DataFactory;
 import etomica.data.DataInfo;
 import etomica.units.Dimension;
+import etomica.units.Null;
 
 
 /**
@@ -60,7 +61,7 @@ public class DataGroup extends Data {
     //used by constructor above.
     private static Dimension evaluateDimension(Data[] data) {
         if(data.length == 0) {
-            return Dimension.NULL;
+            return Null.DIMENSION;
         }
         Dimension dim = null;
         for(int i=0; i<data.length; i++) {

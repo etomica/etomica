@@ -12,8 +12,9 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorPhase;
 import etomica.simulation.Simulation;
 import etomica.simulation.prototypes.HSMD3D;
-import etomica.units.Dimension;
+import etomica.units.Kelvin;
 import etomica.units.PrefixedUnit;
+import etomica.units.Temperature;
 import etomica.units.Unit;
 
 /**
@@ -25,8 +26,11 @@ import etomica.units.Unit;
  */
 public class DeviceThermoSelector extends Device implements EtomicaElement {
     
+    /**
+     * Constructor that specifies Kelvin as temperature units.
+     */
      public DeviceThermoSelector(Simulation sim, final IntegratorPhase integrator) {
-        this(sim.getController(),Dimension.TEMPERATURE.defaultIOUnit(),sim.getDefaults().ignoreOverlap);
+        this(sim.getController(), Kelvin.UNIT, sim.getDefaults().ignoreOverlap);
         setController(controller);
         setIntegrator(integrator);
      }
@@ -37,7 +41,7 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
         setTemperatures(new double[] {200.0, 400.0, 600.0});
         selector.setEditable(false);
         label = new javax.swing.JLabel("");
-        if (tempUnit.dimension() != Dimension.TEMPERATURE) {
+        if (!tempUnit.dimension().equals(Temperature.DIMENSION)) {
             throw new IllegalArgumentException("temperature unit must have dimensions of temperature");
         }
         setUnit(tempUnit);

@@ -9,6 +9,7 @@ import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.units.Dimension;
+import etomica.units.Quantity;
 import etomica.util.NameMaker;
 
 
@@ -123,7 +124,7 @@ public abstract class Species implements Comparable, java.io.Serializable {
      * @see SpeciesAgent#getNMolecules
      */
     public int getNMolecules() {return nMolecules;}
-    public Dimension getNMoleculesDimension() {return Dimension.QUANTITY;}
+    public Dimension getNMoleculesDimension() {return Quantity.DIMENSION;}
     
     /**
      * Sets the number of molecules of this species for each phase.

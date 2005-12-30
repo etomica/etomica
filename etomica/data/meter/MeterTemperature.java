@@ -4,6 +4,7 @@ import etomica.EtomicaInfo;
 import etomica.data.DataSourceScalar;
 import etomica.phase.Phase;
 import etomica.units.Dimension;
+import etomica.units.Temperature;
 
 /**
  * Meter for measurement of the temperature based on kinetic-energy
@@ -18,7 +19,7 @@ import etomica.units.Dimension;
 public class MeterTemperature extends DataSourceScalar implements Meter {
 
 	public MeterTemperature() {
-		super("Temperature", Dimension.TEMPERATURE);
+		super("Temperature", Temperature.DIMENSION);
 		meterKE = new MeterKineticEnergy();
 	}
 
@@ -35,7 +36,7 @@ public class MeterTemperature extends DataSourceScalar implements Meter {
 	}
 
 	public Dimension getDimension() {
-		return Dimension.TEMPERATURE;
+		return Temperature.DIMENSION;
 	}
 
     /**

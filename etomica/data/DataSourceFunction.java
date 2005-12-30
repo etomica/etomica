@@ -5,6 +5,7 @@ import java.io.Serializable;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.units.Dimension;
+import etomica.units.Null;
 import etomica.util.Function;
 
 /**
@@ -25,11 +26,11 @@ public class DataSourceFunction implements DataSource, Serializable {
         this(new Function.Constant(0.0));
     }
     public DataSourceFunction(Function function) {
-        this("y(x)", Dimension.NULL, function, 100);
+        this("y(x)", Null.DIMENSION, function, 100);
     }
     
     public DataSourceFunction(String label, Dimension dimension, Function function, int nValues) {
-        xSource = new DataSourceUniform("x",Dimension.NULL,nValues,0,1);
+        xSource = new DataSourceUniform("x",Null.DIMENSION,nValues,0,1);
         yData = new DataDoubleArray(label, dimension, nValues);
         this.function = function;
         update();

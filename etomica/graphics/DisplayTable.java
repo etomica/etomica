@@ -21,6 +21,7 @@ import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataTable.Column;
 import etomica.units.Unit;
+import etomica.units.UnitSystem;
 
 /**
  * Presents data in a tabular form.
@@ -46,7 +47,7 @@ public class DisplayTable extends Display implements DataTableListener,
 
         units = new Unit[dataTable.getColumnCount()];
         for (int i = 0; i < units.length; i++) {
-            units[i] = dataTable.getColumn(i).getDimension().defaultIOUnit();
+            units[i] = dataTable.getColumn(i).getDimension().getUnit(UnitSystem.SIM);
         }
 
         dataTable.addTableListener(this);
@@ -228,7 +229,7 @@ public class DisplayTable extends Display implements DataTableListener,
             Column column = dataTable.getColumn(i);
             units[i] = (Unit)unitHash.get(column);
             if (units[i] == null) {
-                units[i] = column.getDimension().defaultIOUnit();
+                units[i] = column.getDimension().getUnit(UnitSystem.SIM);
             }
         }
     }

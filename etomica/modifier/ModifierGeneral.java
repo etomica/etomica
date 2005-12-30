@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import etomica.units.Dimension;
+import etomica.units.Null;
 
 /**
  * Implements the Modifier functionality using introspection to obtain the accessor methods for a property.
@@ -38,7 +39,7 @@ public class ModifierGeneral implements Modifier, java.io.Serializable {
      * @param property the name of the property being modified
      */
     public ModifierGeneral(Object[] obj, String prop) {
-        dimension = Dimension.NULL;
+        dimension = Null.DIMENSION;
         nObjects = obj.length;
         object    = new Object[nObjects];
         property = prop;

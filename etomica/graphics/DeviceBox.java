@@ -9,6 +9,7 @@ import javax.swing.JTextField;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.modifier.Modifier;
+import etomica.units.Null;
 import etomica.util.Constants;
 import etomica.util.EnumeratedType;
 
@@ -77,7 +78,7 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
         panel.add(value, java.awt.BorderLayout.CENTER);
         setLabelType(STRING);
  //       panel.setMinimumSize(new java.awt.Dimension(80,60));
-        unit = etomica.units.BaseUnit.Null.UNIT;
+        unit = etomica.units.Null.UNIT;
         setPrecision(4);
         
         BoxListener listener = new BoxListener();
@@ -130,7 +131,7 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
      */
     public etomica.units.Dimension getDimension() {
         if(modifier != null) return modifier.getDimension();
-        else return etomica.units.Dimension.NULL;
+        else return etomica.units.Null.DIMENSION;
     }
     
     public java.awt.Component graphic(Object obj) {return panel;}

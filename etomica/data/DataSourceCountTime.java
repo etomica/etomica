@@ -7,8 +7,8 @@ import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
-import etomica.units.Dimension;
 import etomica.units.Picosecond;
+import etomica.units.Time;
 import etomica.units.Unit;
 
 /**
@@ -26,7 +26,7 @@ public class DataSourceCountTime extends DataSourceScalar implements
 	 * call to addIntegrator or setIntegrator before use.
 	 */
 	public DataSourceCountTime() {
-		super("Simulation Time", Dimension.TIME);
+		super("Simulation Time", Time.DIMENSION);
 	}
 
 	public static EtomicaInfo getEtomicaInfo() {

@@ -8,7 +8,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.units.Dimension;
+import etomica.units.Energy;
 
 /**
  * This is a meter to measure the surface tension for a hard potential.  
@@ -22,7 +22,7 @@ import etomica.units.Dimension;
 public class MeterSurfaceTensionHard extends DataSourceScalar implements EtomicaElement {
     
     public MeterSurfaceTensionHard(Space space, IntegratorHard integrator) {
-        super("Surface Tension",Dimension.ENERGY);
+        super("Surface Tension",Energy.DIMENSION);
         velocityTensor = new MeterTensorVelocity(space);
         velocityTensor.setPhase(integrator.getPhase());
         virialTensor = new DataSourceTensorVirialHard(space,integrator);

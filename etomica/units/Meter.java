@@ -1,6 +1,8 @@
 package etomica.units;
 
-public final class Meter extends BaseUnit.Length {
+import java.io.ObjectStreamException;
+
+public final class Meter extends SimpleUnit {
 
   /**
    * Singleton instance of this unit.
@@ -8,10 +10,21 @@ public final class Meter extends BaseUnit.Length {
     public static final Meter UNIT = new Meter();
     
     private Meter() {
-    	super(
-        	1e+10, //conversion from meters to Angstroms
-	        "meters",
-	        "m"
-    	);
+    	    super(Length.DIMENSION,
+    	            1e+10, //conversion from meters to Angstroms
+    	            "meters", "m", Prefix.ALLOWED
+    	    );
     }
+    
+    /**
+     * Required to guarantee singleton when deserializing.
+     * 
+     * @return the singleton UNIT
+     */
+    private Object readResolve() throws ObjectStreamException {
+        return UNIT;
+    }
+    
+    private static final long serialVersionUID = 1;
+
 }

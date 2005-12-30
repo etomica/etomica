@@ -24,7 +24,12 @@ import etomica.space.CoordinatePairKinetic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
+import etomica.units.Energy;
 import etomica.units.Kelvin;
+import etomica.units.Null;
+import etomica.units.Pressure;
+import etomica.units.Temperature;
+import etomica.units.Undefined;
 
 /**
  * Gear 4th-order predictor-corrector integrator for constant enthalphy, pressure.
@@ -79,26 +84,26 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         setTimeStep(timeStep);
     }
     public double getRelaxationRateP() {return rrp;}
-    public Dimension getRelaxationRatePDimension() {return Dimension.NULL;}
+    public Dimension getRelaxationRatePDimension() {return Null.DIMENSION;}
     
     public void setRelaxationRateH(double value) {
         rrh = value;
         setTimeStep(timeStep);
     }
     public double getRelaxationRateH() {return rrh;}
-    public Dimension getRelaxationRateHDimension() {return Dimension.NULL;}
+    public Dimension getRelaxationRateHDimension() {return Null.DIMENSION;}
     
     public synchronized void setTargetH(double value) {targetH = value;}
     public double getTargetH() {return targetH;}
-    public Dimension getTargetHDimension() {return Dimension.ENERGY;}
+    public Dimension getTargetHDimension() {return Energy.DIMENSION;}
     
     public synchronized void setTargetP(double value) {targetP = value;}
     public double getTargetP() {return targetP;}
-    public Dimension getTargetPDimension() {return Dimension.PRESSURE;}
+    public Dimension getTargetPDimension() {return Pressure.DIMENSION;}
     
     public synchronized void setTargetT(double value) {targetT = value;}
     public double getTargetT() {return targetT;}
-    public Dimension getTargetTDimension() {return Dimension.TEMPERATURE;}
+    public Dimension getTargetTDimension() {return Temperature.DIMENSION;}
 
     public void setPhase(Phase p) {
         super.setPhase(p);
@@ -224,7 +229,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     public static final class MeterTPH implements DataSource, java.io.Serializable {
         
         public MeterTPH(IntegratorGear4NPH integrator) {
-            data = new DataDoubleArray("TPH",Dimension.UNDEFINED,3);
+            data = new DataDoubleArray("TPH",Undefined.DIMENSION,3);
             this.integrator = integrator;
         }
         

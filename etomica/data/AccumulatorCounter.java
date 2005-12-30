@@ -5,7 +5,7 @@
 package etomica.data;
 
 import etomica.data.types.DataInteger;
-import etomica.units.Dimension;
+import etomica.units.Quantity;
 
 /**
  * Data processor that simply counts the number of times its
@@ -18,7 +18,7 @@ public class AccumulatorCounter extends DataAccumulator {
      * @param dataSource
      */
     public AccumulatorCounter() {
-        data = new DataInteger("Counter", Dimension.QUANTITY);
+        data = new DataInteger("Counter", Quantity.DIMENSION);
         dataInfo = data.getDataInfo();
     }
 

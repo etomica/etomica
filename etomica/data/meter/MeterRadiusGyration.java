@@ -9,7 +9,7 @@ import etomica.phase.Phase;
 import etomica.space.CoordinatePair;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Dimension;
+import etomica.units.Length;
 
 /**
  * Meter for tabulation of the radius of gyration of a set of chain molecules. 
@@ -19,7 +19,7 @@ import etomica.units.Dimension;
 public class MeterRadiusGyration extends DataSourceScalar implements Meter {
 
     public MeterRadiusGyration(Space space) {
-        super("Radius of Gyration", Dimension.LENGTH);
+        super("Radius of Gyration", Length.DIMENSION);
         iterator = new AtomIteratorAllMolecules();
         cPair = new CoordinatePair(space);
         cm = space.makeVector();

@@ -4,6 +4,7 @@
  */
 package etomica.data;
 
+import etomica.units.Undefined;
 import etomica.data.types.CastToDoubleArray;
 import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataArray;
@@ -40,7 +41,7 @@ public class AccumulatorHistory extends DataAccumulator {
 
     public AccumulatorHistory(History.Factory factory, int historyLength) {
         super();
-        xSource = new DataSourceUniform("Time", Dimension.UNDEFINED, 1, historyLength, historyLength);
+        xSource = new DataSourceUniform("Time", Undefined.DIMENSION, 1, historyLength, historyLength);
         this.historyLength = historyLength;
         historyFactory = factory;
     }
@@ -118,7 +119,7 @@ public class AccumulatorHistory extends DataAccumulator {
      * Constructs the Data objects used by this class.
      */
     private void setupData(Dimension dimension) {
-        DataDoubleArray dataBin = new DataDoubleArray("Time", Dimension.UNDEFINED, historyLength);
+        DataDoubleArray dataBin = new DataDoubleArray("Time", Undefined.DIMENSION, historyLength);
         data = new DataArray("History", dimension, nData, DataFunction.getFactory(new DataDoubleArray[] {dataBin}));
     }
     

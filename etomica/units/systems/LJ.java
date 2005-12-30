@@ -1,8 +1,9 @@
 package etomica.units.systems;
-import etomica.units.BaseUnit;
+
 import etomica.units.Count;
 import etomica.units.Decimal;
-import etomica.units.Prefix;
+import etomica.units.Dimension;
+import etomica.units.Electron;
 import etomica.units.Radian;
 import etomica.units.Unit;
 import etomica.units.UnitSystem;
@@ -10,180 +11,325 @@ import etomica.units.UnitSystem;
 /**
  * Lennard-Jones system of units, such that all quantities are made
  * dimensionless with respect to a characteristic size (sigma), energy (epsilon)
- * and mass. Values of sigma, epsilon and mass may be set to any value using the
- * static accessor methods (set/get).  Changes are immediately propagated to the
- * sim- >LJ unit conversion factors.
+ * and mass. Values of sigma, epsilon and mass reside with the instance of
+ * the LJ unit system, to which each unit refers when making its conversion.
+ * Thus any changes in sigma, epsilon, or mass are immediately recognized
+ * by the unit conversions.
+ * 
+ * Values of sigma, epsilon, and mass are specified in simulation units.
+ * Default values are weach 1.0.
  */
- 
- /* History
-  * 03/12/04 (DAK) removed most static features, allowing for different
-  * instances
-  */
-  
+
 public class LJ extends UnitSystem implements java.io.Serializable {
-    
+
+    //parent class for the LJ units
+    public static abstract class LJUnit implements Unit {
+
+        /**
+         * Unit must provide instance of LJ unit system at construction.
+         * Conversions should be defined for each unit in reference to 
+         * lj.sigma, lj.epsilon, and lj.mass.
+         */
+        protected LJUnit(LJ ljSystem) {
+            lj = ljSystem;
+        }
+
+        public abstract Dimension dimension();
+
+        public abstract String symbol();
+
+        public abstract double fromSim(double x);
+
+        public double toSim(double x) {
+            if (x == 0.0) {
+                return 0.0;
+            }
+            return 1.0 / fromSim(1.0 / x);
+        }
+
+        public boolean prefixAllowed() {
+            return false;
+        }
+
+        protected final LJ lj;
+    }
+
     private double sigma = 1.0;
     private double epsilon = 1.0;
     private double mass = 1.0;
+    private static final long serialVersionUID = 1;
+
+    private final Unit massUnit = new Mass(this);
+    private final Unit lengthUnit = new Length(this);
+    private final Unit timeUnit = new Time(this);
+    private final Unit dipoleUnit = new Dipole(this);
+    private final Unit energyUnit = new Energy(this);
+    private final Unit temperatureUnit = new Temperature(this);
+    private final Unit pressureUnit = new Pressure(this);
+    private final Unit volumeUnit = new Volume(this);
+    private final Unit areaUnit = new Area(this);
+
+    //accessor and mutator methods
+    public double getSigma() {
+        return sigma;
+    }
+
+    public void setSigma(double s) {
+        sigma = s;
+    }
+
+    public double getEpsilon() {
+        return epsilon;
+    }
+
+    public void setEpsilon(double e) {
+        epsilon = e;
+    }
+
+    public double getMass() {
+        return mass;
+    }
+
+    public void setMass(double m) {
+        mass = m;
+    }
+
+    //implementation of UnitSystem interface
+    public Unit quantity() {
+        return Count.UNIT;
+    }
+
+    public Unit fraction() {
+        return Decimal.UNIT;
+    }
+
+    public Unit mass() {
+        return massUnit;
+    }
+
+    public Unit length() {
+        return lengthUnit;
+    }
+
+    public Unit time() {
+        return timeUnit;
+    }
+
+    public Unit angle() {
+        return Radian.UNIT;
+    }
+
+    public Unit charge() {
+        return Electron.UNIT;
+    }
+
+    public Unit dipole() {
+        return dipoleUnit;
+    }
+
+    public Unit energy() {
+        return energyUnit;
+    }
+
+    public Unit temperature() {
+        return temperatureUnit;
+    }
+
+    public Unit pressure() {
+        return pressureUnit;
+    }
+
+    public Unit volume() {
+        return volumeUnit;
+    }
+
+    public Unit area() {
+        return areaUnit;
+    }
+
+    //definitions of the LJ units
     
-    private Mass massUnit = new Mass(sigma, epsilon, mass);
-    private Length lengthUnit = new Length(sigma, epsilon, mass);
-    private Time timeUnit = new Time(sigma, epsilon, mass);
-    private Charge chargeUnit = new Charge(sigma, epsilon, mass);
-    private Dipole dipoleUnit = new Dipole(sigma, epsilon, mass);
-    private Energy energyUnit = new Energy(sigma, epsilon, mass);
-    private Temperature temperatureUnit = new Temperature(sigma, epsilon, mass);
-    private Pressure2D pressure2DUnit = new Pressure2D(sigma, epsilon, mass);
-    private Pressure pressureUnit = new Pressure(sigma, epsilon, mass);
-    private Volume2D volume2DUnit = new Volume2D(sigma, epsilon, mass);
-    private Volume volumeUnit = new Volume(sigma, epsilon, mass);
-        
-    public double getSigma() {return sigma;}
-    public void setSigma(double s) {sigma = s; update();}
-    public double getEpsilon() {return epsilon;}
-    public void setEpsilon(double e) {epsilon = e; update();}
-    public double getMass() {return mass;}
-    public void setMass(double m) {mass = m; update();}
-    
-	public Unit quantity() {return Count.UNIT;}
-    public Unit fraction() {return Decimal.UNIT;}
-	public Unit mass() {return massUnit;}
-	public Unit length() {return lengthUnit;}
-	public Unit time() {return timeUnit;}
-	public Unit angle() {return Radian.UNIT;}
-	public Unit charge() {return chargeUnit;}  
-	public Unit dipole() {return dipoleUnit;}  
-	public Unit energy() {return energyUnit;}
-	public Unit temperature() {return energyUnit;}
-	public Unit pressure(int D) {return (D==2) ? (Unit)pressure2DUnit : (Unit)pressureUnit;}  
-	public Unit volume(int D) {return (D==2) ? (Unit)volume2DUnit : (Unit)volumeUnit;} 
+    // \u03B5 is unicode for epsilon
+    // \u03C3 is unicode for sigma
+    // \u00BD is unicode for "1/2"
 
-        
-    private void update() {
-        massUnit.updateConversions(sigma, epsilon, mass);
-        lengthUnit.updateConversions(sigma, epsilon, mass);
-        timeUnit.updateConversions(sigma, epsilon, mass);
-        chargeUnit.updateConversions(sigma, epsilon, mass);
-        dipoleUnit.updateConversions(sigma, epsilon, mass);
-        energyUnit.updateConversions(sigma, epsilon, mass);
-        temperatureUnit.updateConversions(sigma, epsilon, mass);
-        pressureUnit.updateConversions(sigma, epsilon, mass);
-        pressure2DUnit.updateConversions(sigma, epsilon, mass);
-        volumeUnit.updateConversions(sigma, epsilon, mass);
-        volume2DUnit.updateConversions(sigma, epsilon, mass);
-    }
-    
-    //  \u03B5 is unicode for epsilon
-    //  \u03C3 is unicode for sigma
-    //  \u00BD is unicode for "1/2"
-    
-    public static final class Mass extends BaseUnit.Mass {
-        private Mass(double sigma, double epsilon, double mass) {
-        	super(1.0, "LJ units", "m", Prefix.NOT_ALLOWED);
-        	updateConversions(sigma, epsilon, mass);
+    private static final class Mass extends LJUnit {
+        private Mass(LJ ljSystem) {
+            super(ljSystem);
         }
-        private void updateConversions(double sigma, double epsilon, double mass) {
-            setToSimConversionFactor(mass); //conversion from LJ unit to simulation unit
+
+        public Dimension dimension() {
+            return etomica.units.Mass.DIMENSION;
         }
+
+        public String symbol() {
+            return "m";
+        }
+
+        public double fromSim(double x) {
+            return x / lj.mass;
+        }
+
+        private static final long serialVersionUID = 1;
     }
 
-    public static final class Length extends BaseUnit.Length {
-        private Length(double sigma, double epsilon, double mass) {
-			super(1.0, "LJ units", "\u03C3", Prefix.NOT_ALLOWED);
-			updateConversions(sigma, epsilon, mass);
+    private static final class Length extends LJUnit {
+        private Length(LJ ljSystem) {
+            super(ljSystem);
         }
-        private void updateConversions(double sigma, double epsilon, double mass) {
-			setToSimConversionFactor(sigma); //conversion from LJ unit to simulation unit
+
+        public Dimension dimension() {
+            return etomica.units.Length.DIMENSION;
         }
+
+        public String symbol() {
+            return "\u03C3";
+        }
+
+        public double fromSim(double x) {
+            return x / lj.sigma;
+        }
+
+        private static final long serialVersionUID = 1;
     }
 
-    public static final class Time extends BaseUnit.Time {
-        private Time(double sigma, double epsilon, double mass) {
-			super(1.0, "LJ units", "(\u03B5m\u03C3^2)^\u00BD", Prefix.NOT_ALLOWED);
-            updateConversions(sigma, epsilon, mass);
+    private static final class Time extends LJUnit {
+        private Time(LJ ljSystem) {
+            super(ljSystem);
         }
-        private void updateConversions(double sigma, double epsilon, double mass) {
-			setToSimConversionFactor(1.0/Math.sqrt(epsilon * mass * sigma*sigma)); //conversion from LJ unit to simulation unit
+
+        public Dimension dimension() {
+            return etomica.units.Time.DIMENSION;
         }
+
+        public String symbol() {
+            return "(\u03B5m\u03C3^2)^\u00BD";
+        }
+
+        public double fromSim(double x) {
+            return x * Math.sqrt(lj.epsilon / lj.mass) / lj.sigma;
+        }
+
+        private static final long serialVersionUID = 1;
     }
 
-    public static final class Charge extends BaseUnit.Charge {
-        private Charge(double sigma, double epsilon, double mass) {
-			super(1.0, "LJ units", "(\u03B5\u03C3)^(-\u00BD)", Prefix.NOT_ALLOWED);
-            updateConversions(sigma, epsilon, mass);
+    private static final class Dipole extends LJUnit {
+        private Dipole(LJ ljSystem) {
+            super(ljSystem);
         }
-        private void updateConversions(double sigma, double epsilon, double mass) {
-			setToSimConversionFactor(Math.sqrt(epsilon * sigma)); //conversion from LJ unit to simulation unit
+
+        public Dimension dimension() {
+            return etomica.units.Dipole.DIMENSION;
         }
+
+        public String symbol() {
+            return "e\u03C3";
+        }
+
+        public double fromSim(double x) {
+            return Electron.UNIT.fromSim(x) / lj.sigma;
+        }
+
+        private static final long serialVersionUID = 1;
     }
 
-    public static final class Dipole extends BaseUnit.Dipole {
-        private Dipole(double sigma, double epsilon, double mass) {
-			super(1.0, "LJ units", "(\u03B5\u03C3^3)^(-\u00BD)", Prefix.NOT_ALLOWED);
-            updateConversions(sigma, epsilon, mass);
+    private static final class Energy extends LJUnit {
+        private Energy(LJ ljSystem) {
+            super(ljSystem);
         }
-        private void updateConversions(double sigma, double epsilon, double mass) {
-			setToSimConversionFactor(Math.sqrt(epsilon * sigma*sigma*sigma)); //conversion from LJ unit to simulation unit
+
+        public Dimension dimension() {
+            return etomica.units.Energy.DIMENSION;
         }
+
+        public String symbol() {
+            return "\u03B5";
+        }
+
+        public double fromSim(double x) {
+            return x / lj.epsilon;
+        }
+
+        private static final long serialVersionUID = 1;
     }
 
-    public static final class Energy extends BaseUnit.Energy {
-        private Energy(double sigma, double epsilon, double mass) {
-			super(1.0, "LJ units", "\u03B5", Prefix.NOT_ALLOWED);
-            updateConversions(sigma, epsilon, mass);
+    private static final class Temperature extends LJUnit {
+        private Temperature(LJ ljSystem) {
+            super(ljSystem);
         }
-        private void updateConversions(double sigma, double epsilon, double mass) {
-			setToSimConversionFactor(epsilon); //conversion from LJ unit to simulation unit
+
+        public Dimension dimension() {
+            return etomica.units.Temperature.DIMENSION;
         }
+
+        public String symbol() {
+            return "\u03B5/k";
+        }
+
+        public double fromSim(double x) {
+            return x / lj.epsilon;
+        }
+
+        private static final long serialVersionUID = 1;
     }
 
+    private static final class Pressure extends LJUnit {
+        private Pressure(LJ ljSystem) {
+            super(ljSystem);
+        }
 
-    public static final class Temperature extends BaseUnit.Temperature {
-        private Temperature(double sigma, double epsilon, double mass) {
-			super(1.0, "LJ units", "\u03B5", Prefix.NOT_ALLOWED);
-            updateConversions(sigma, epsilon, mass);
+        public Dimension dimension() {
+            return etomica.units.Pressure.DIMENSION;
         }
-        private void updateConversions(double sigma, double epsilon, double mass) {
-			setToSimConversionFactor(epsilon); //conversion from LJ unit to simulation unit
-        }
-    }
-    public static final class Pressure extends BaseUnit.Pressure {
-        private Pressure(double sigma, double epsilon, double mass) {
-			super(1.0, "LJ units", "\u03B5/\u03C3^3", Prefix.NOT_ALLOWED);
-            updateConversions(sigma, epsilon, mass);
-        }
-        private void updateConversions(double sigma, double epsilon, double mass) {
-			setToSimConversionFactor(epsilon/(sigma*sigma*sigma)); //conversion from LJ unit to simulation unit
-        }
-    }
 
-    public static final class Pressure2D extends BaseUnit.Pressure2D {
-        private Pressure2D(double sigma, double epsilon, double mass) {
-			super(1.0, "LJ units", "\u03B5/\u03C3^2", Prefix.NOT_ALLOWED);
-            updateConversions(sigma, epsilon, mass);
+        public String symbol() {
+            return "\u03B5/\u03C3^3";
         }
-        private void updateConversions(double sigma, double epsilon, double mass) {
-			setToSimConversionFactor(epsilon/(sigma*sigma)); //conversion from LJ unit to simulation unit
+
+        public double fromSim(double x) {
+            return x * lj.sigma * lj.sigma * lj.sigma / lj.epsilon;
         }
+
+        private static final long serialVersionUID = 1;
     }
 
-    public static final class Volume extends BaseUnit.Volume {
-        private Volume(double sigma, double epsilon, double mass) {
-			super(1.0, "LJ units", "\u03C3^3", Prefix.NOT_ALLOWED);
-            updateConversions(sigma, epsilon, mass);
+    private static final class Volume extends LJUnit {
+        private Volume(LJ ljSystem) {
+            super(ljSystem);
         }
-        private void updateConversions(double sigma, double epsilon, double mass) {
-			setToSimConversionFactor(sigma*sigma*sigma); //conversion from LJ unit to simulation unit
+
+        public Dimension dimension() {
+            return etomica.units.Volume.DIMENSION;
         }
+
+        public String symbol() {
+            return "\u03C3^3";
+        }
+
+        public double fromSim(double x) {
+            return x / (lj.sigma * lj.sigma * lj.sigma);
+        }
+
+        private static final long serialVersionUID = 1;
     }
 
-    public static final class Volume2D extends BaseUnit.Volume2D {
-        private Volume2D(double sigma, double epsilon, double mass) {
-			super(1.0, "LJ units", "\u03C3^2", Prefix.NOT_ALLOWED);
-            updateConversions(sigma, epsilon, mass);
+    private static final class Area extends LJUnit {
+        private Area(LJ ljSystem) {
+            super(ljSystem);
         }
-        private void updateConversions(double sigma, double epsilon, double mass) {
-			setToSimConversionFactor(sigma*sigma); //conversion from LJ unit to simulation unit
+
+        public Dimension dimension() {
+            return etomica.units.Area.DIMENSION;
         }
+
+        public String symbol() {
+            return "\u03C3^2";
+        }
+
+        public double fromSim(double x) {
+            return x / (lj.sigma * lj.sigma);
+        }
+
+        private static final long serialVersionUID = 1;
     }
 }

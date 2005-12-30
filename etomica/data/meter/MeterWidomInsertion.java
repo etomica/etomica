@@ -10,6 +10,8 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.Species;
 import etomica.units.Dimension;
+import etomica.units.Null;
+import etomica.units.Temperature;
 
 /**
  * Meter to measure the chemical potential (as its exponent: exp(-mu/kT)) of a
@@ -35,7 +37,7 @@ public class MeterWidomInsertion extends DataSourceScalar implements Meter {
     }
     
     public MeterWidomInsertion(Space space, PotentialMaster potentialMaster, double temperature) {
-        super("exp(-\u03BC/kT)", Dimension.NULL);//"\u03BC" is Unicode for greek "mu"
+        super("exp(-\u03BC/kT)", Null.DIMENSION);//"\u03BC" is Unicode for greek "mu"
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         nInsert = 100;
         setResidual(true);
@@ -124,7 +126,7 @@ public class MeterWidomInsertion extends DataSourceScalar implements Meter {
 	 * @return Dimension.TEMPERATURE
 	 */
 	public Dimension getTemperatureDimension() {
-		return Dimension.TEMPERATURE;
+		return Temperature.DIMENSION;
 	}
 
 	/**

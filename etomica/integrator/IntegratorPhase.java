@@ -6,6 +6,7 @@ import etomica.phase.Phase;
 import etomica.phase.PhaseDependent;
 import etomica.potential.PotentialMaster;
 import etomica.units.Dimension;
+import etomica.units.Temperature;
 import etomica.util.Debug;
 
 /**
@@ -74,7 +75,7 @@ public abstract class IntegratorPhase extends Integrator implements PhaseDepende
      * @return the dimenension of temperature (TEMPERATURE)
      */ 
     public final Dimension getTemperatureDimension() {
-        return Dimension.TEMPERATURE;
+        return Temperature.DIMENSION;
     }
 
     /**

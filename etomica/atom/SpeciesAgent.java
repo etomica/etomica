@@ -1,6 +1,7 @@
 package etomica.atom;
 import etomica.species.Species;
 import etomica.units.Dimension;
+import etomica.units.Quantity;
 
 /**
  * The SpeciesAgent is a representative of the species in each phase.
@@ -59,7 +60,7 @@ public final class SpeciesAgent extends Atom {
     }
     
     public int getNMolecules() {return moleculeCount();}
-    public Dimension getNMoleculesDimension() {return Dimension.QUANTITY;}
+    public Dimension getNMoleculesDimension() {return Quantity.DIMENSION;}
 
     /**
      * Special AtomTreeNode class for SpeciesAgent.

@@ -1,17 +1,13 @@
-/*
- * History
- * Created on Jul 30, 2004 by kofke
- */
 package etomica.units;
 
+import java.io.ObjectStreamException;
+
 /**
- * @author kofke
- *
  * Decimal representation of something that represents the fractional 
  * amount of a whole (e.g., mole fraction) as a percentage value typically
  * between 0 and 100.
  */
-public class Percent extends etomica.units.BaseUnit.Fraction {
+public final class Percent extends SimpleUnit {
 
   /**
    * Singleton instance of this unit 
@@ -19,11 +15,21 @@ public class Percent extends etomica.units.BaseUnit.Fraction {
 	public static final Percent UNIT = new Percent();
 
 	private Percent() {
-       super(
+       super(Fraction.DIMENSION,
         	0.01,
-        	"Percent",
-        	"%",
-        	Prefix.NOT_ALLOWED
+        	"Percent", "%", Prefix.NOT_ALLOWED
         	);
 	}
+    
+    /**
+     * Required to guarantee singleton when deserializing.
+     * 
+     * @return the singleton UNIT
+     */
+    private Object readResolve() throws ObjectStreamException {
+        return UNIT;
+    }
+    
+    private static final long serialVersionUID = 1;
+
 }

@@ -2,6 +2,7 @@ package etomica.data;
 
 import etomica.data.types.DataDoubleArray;
 import etomica.units.Dimension;
+import etomica.units.Null;
 import etomica.util.EnumeratedType;
 
 /**
@@ -28,7 +29,7 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
      * (which cannot be changed after construction).
      */
     public DataSourceUniform() {
-        this("Uniform", Dimension.NULL);
+        this("Uniform", Null.DIMENSION);
     }
     
     public DataSourceUniform(String label, Dimension dimension) {

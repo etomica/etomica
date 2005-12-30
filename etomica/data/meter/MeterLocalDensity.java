@@ -6,8 +6,9 @@ import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.DataSourceScalar;
 import etomica.math.geometry.Polytope;
 import etomica.phase.Phase;
-import etomica.units.Dimension;
 import etomica.units.DimensionRatio;
+import etomica.units.Quantity;
+import etomica.units.Volume;
 
 /**
  * Meter for measurement of density within a specified subvolume
@@ -15,7 +16,7 @@ import etomica.units.DimensionRatio;
  
 public abstract class MeterLocalDensity extends DataSourceScalar implements Meter {
     public MeterLocalDensity() {
-        super("Local Density",new DimensionRatio(Dimension.QUANTITY, Dimension.VOLUME));
+        super("Local Density",new DimensionRatio(Quantity.DIMENSION, Volume.DIMENSION));
     }
 
     public static EtomicaInfo getEtomicaInfo() {

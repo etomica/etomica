@@ -14,13 +14,13 @@ import etomica.phase.Phase;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.units.Dimension;
+import etomica.units.Temperature;
 
 public class MeterPressureHardTensor implements DataSource, IntegratorHard.CollisionListener, java.io.Serializable {
     
     public MeterPressureHardTensor(Space space) {
         //XXX temperature, really?
-        data = new DataTensor(space,"PV/Nk",Dimension.TEMPERATURE);
+        data = new DataTensor(space,"PV/Nk",Temperature.DIMENSION);
         velocityTensor = space.makeTensor();
         v = space.makeTensor();
         timer = new DataSourceCountTime();

@@ -10,6 +10,9 @@ import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.Dimension;
+import etomica.units.Energy;
+import etomica.units.Length;
+import etomica.units.Null;
 import etomica.util.Debug;
 
 /**
@@ -210,7 +213,7 @@ public class P2SquareWell extends Potential2HardSpherical {
         wellDiameter = coreDiameter*lambda;
         wellDiameterSquared = wellDiameter*wellDiameter;
     }
-    public Dimension getCoreDiameterDimension() {return Dimension.LENGTH;}
+    public Dimension getCoreDiameterDimension() {return Length.DIMENSION;}
 
     /**
      * Accessor method for well-diameter multiplier.
@@ -227,7 +230,7 @@ public class P2SquareWell extends Potential2HardSpherical {
         wellDiameter = coreDiameter*lambda;
         wellDiameterSquared = wellDiameter*wellDiameter;
     }
-    public Dimension getLambdaDimension() {return Dimension.NULL;}
+    public Dimension getLambdaDimension() {return Null.DIMENSION;}
 
     /**
      * Accessor method for depth of well
@@ -239,7 +242,7 @@ public class P2SquareWell extends Potential2HardSpherical {
     public void setEpsilon(double eps) {
         epsilon = eps;
     }
-    public Dimension getEpsilonDimension() {return Dimension.ENERGY;}
+    public Dimension getEpsilonDimension() {return Energy.DIMENSION;}
 
 }
   

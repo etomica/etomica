@@ -163,7 +163,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
         //do drawing of all drawing objects that have been added to the display
         for(Iterator iter=displayPhase.getDrawables().iterator(); iter.hasNext(); ) {
             Drawable obj = (Drawable)iter.next();
-            obj.draw(g, displayPhase.getOrigin(), displayPhase.getScale());
+            obj.draw(g, displayPhase.getOrigin(), displayPhase.getToPixels());
         }
             
         //Draw all atoms

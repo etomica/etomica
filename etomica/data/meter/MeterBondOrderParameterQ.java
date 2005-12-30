@@ -11,7 +11,7 @@ import etomica.simulation.Simulation;
 import etomica.space.CoordinatePair;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Dimension;
+import etomica.units.Undefined;
 
  /** The Bond Order Parameter Ql provides a metric that indicates the crystallinity of a phase.
    * Appropriate for 3-dimensional system only.
@@ -27,7 +27,7 @@ public class MeterBondOrderParameterQ  extends DataSourceScalar implements Meter
     }
     
     public MeterBondOrderParameterQ(Space space, double rCut) {
-        super("Bond Q Order Parameter", Dimension.UNDEFINED);
+        super("Bond Q Order Parameter", Undefined.DIMENSION);
         setL(6);
         setR2Cut(rCut*rCut);
         cPair = new CoordinatePair(space);

@@ -1,18 +1,14 @@
 package etomica.units;
 
-import etomica.units.BaseUnit.Length;
-
 /**
  * Unit converting between simulation unit of length and pixels rendered in an
- * image.  Default value is 10 pixels per Angstrom.
+ * image.  Conversion factor is set a construction.
  */
-public class Pixel extends Length {
+public class Pixel extends SimpleUnit {
 	
-	/**
-	 * Class used for common definition of pixel unit, but not a singleton.
-	 */
-	public static Pixel UNIT = new Pixel();
-
+    /**
+     * Constructs with default of 10 pixels per Angstrom.
+     */
 	public Pixel() {
 		this(10.0);
 	}
@@ -21,11 +17,19 @@ public class Pixel extends Length {
 	 * units to pixels.  Default is 10.
 	 */
 	public Pixel(double toPixels) {
-		super(
+		super(Length.DIMENSION, 
 			1.0/toPixels, //need to pass superclass conversion from pixels to simulation units
-			"Pixel", 
-			"px", 
-			Prefix.NOT_ALLOWED
+			"Pixel","px", Prefix.NOT_ALLOWED
 			);
+        this.toPixels = toPixels;
 	}
+    
+    public double toPixels() {
+        return toPixels;
+    }
+    
+    private final double toPixels;
+        
+    private static final long serialVersionUID = 1;
+
 }

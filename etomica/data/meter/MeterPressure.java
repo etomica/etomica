@@ -6,7 +6,7 @@ import etomica.phase.Phase;
 import etomica.potential.PotentialCalculationVirialSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
-import etomica.units.Dimension;
+import etomica.units.Pressure;
 
 /**
  * Meter for evaluation of the soft-potential pressure in a phase.
@@ -26,7 +26,7 @@ public class MeterPressure extends DataSourceScalar implements Meter {
     private final double rD;
     
     public MeterPressure(PotentialMaster potentialMaster, Space space) {
-    	super("Pressure",Dimension.pressure(space.D()));
+    	super("Pressure",Pressure.dimension(space.D()));
         setTemperature(temperature);
         rD = 1.0/space.D();
         iteratorDirective = new IteratorDirective();

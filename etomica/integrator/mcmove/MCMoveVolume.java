@@ -10,6 +10,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.units.Dimension;
+import etomica.units.Pressure;
 
 /**
  * Standard Monte Carlo volume-change move for simulations in the NPT ensemble.
@@ -94,7 +95,7 @@ public class MCMoveVolume extends MCMove {
     public void setPressure(double p) {pressure = p;}
     public final double getPressure() {return pressure;}
     public final double pressure() {return pressure;}
-    public Dimension getPressureDimension() {return Dimension.PRESSURE;}
+    public Dimension getPressureDimension() {return Pressure.DIMENSION;}
     public final void setLogPressure(int lp) {setPressure(Math.pow(10.,lp));}
     
     /**

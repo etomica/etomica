@@ -10,6 +10,8 @@ import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
+import etomica.units.Length;
+import etomica.units.Temperature;
 import etomica.util.Debug;
 
 /**
@@ -144,7 +146,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     
     public void setTemperature(double t) {temperature = t;}
     public double getTemperature() {return temperature;}
-    public etomica.units.Dimension getTemperatureDimension() {return etomica.units.Dimension.TEMPERATURE;}
+    public etomica.units.Dimension getTemperatureDimension() {return Temperature.DIMENSION;}
         
     /**
      * not yet implemented
@@ -167,7 +169,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     /**
      * Indicates collision radius has dimensions of Length.
      */
-    public etomica.units.Dimension getCollisionRadiusDimension() {return etomica.units.Dimension.LENGTH;}
+    public etomica.units.Dimension getCollisionRadiusDimension() {return Length.DIMENSION;}
 
     public void setActive(int dim, boolean first, boolean isActive) {
         isActiveDim[dim][first?0:1] = isActive;
@@ -182,10 +184,9 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
         longWallDim[dim][first?0:1] = longWall;
     }
     
-    public void draw(java.awt.Graphics g, int[] origin, double scale) {
+    public void draw(java.awt.Graphics g, int[] origin, double toPixel) {
         if (boundary == null) return;
         g.setColor(java.awt.Color.gray);
-        double toPixel = scale*etomica.units.BaseUnit.Length.Sim.TO_PIXELS;
         // if not 2D serious problems!
         for (int i=0; i<2; i++) {
             for (int j=0; j<2; j++) {

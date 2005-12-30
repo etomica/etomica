@@ -10,6 +10,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataGroup;
 import etomica.units.Dimension;
+import etomica.units.Null;
 import etomica.util.Histogram;
 import etomica.util.HistogramSimple;
 
@@ -76,7 +77,7 @@ public class AccumulatorHistogram extends DataAccumulator {
                     dataFunctions[i] = dataFunction;
                 }
                 else {
-                    dataFunctions[i] = new DataFunction(binnedDataInfo.getLabel()+" Histogram",Dimension.NULL,
+                    dataFunctions[i] = new DataFunction(binnedDataInfo.getLabel()+" Histogram",Null.DIMENSION,
                             new DataDoubleArray[]{new DataDoubleArray(binnedDataInfo.getLabel(), 
                                     binnedDataInfo.getDimension(), histogram[i].getNBins())});
                 }
@@ -124,7 +125,7 @@ public class AccumulatorHistogram extends DataAccumulator {
     private void setupData() {
         DataFunction[] dataFunctions = new DataFunction[nData];
         for (int i=0; i<nData; i++) {
-            dataFunctions[i] = new DataFunction(binnedDataInfo.getLabel()+" Histogram",Dimension.NULL,new DataDoubleArray[]{new DataDoubleArray(binnedDataInfo.getLabel(), binnedDataInfo.getDimension(), histogram[i].getNBins())});
+            dataFunctions[i] = new DataFunction(binnedDataInfo.getLabel()+" Histogram",Null.DIMENSION,new DataDoubleArray[]{new DataDoubleArray(binnedDataInfo.getLabel(), binnedDataInfo.getDimension(), histogram[i].getNBins())});
         }
         data = new DataGroup("Histogram",dataFunctions);
     }

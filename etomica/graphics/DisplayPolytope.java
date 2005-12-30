@@ -19,7 +19,8 @@ import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.units.BaseUnit;
+import etomica.units.Length;
+import etomica.units.Pixel;
 
 /**
  * Displays a picture of a polytope.  
@@ -40,6 +41,7 @@ public class DisplayPolytope extends Display implements Action, EtomicaElement {
     public static boolean _3dEnabled;
     private final int D = 2;
     private int drawingHeight = 10;
+    private Pixel pixel = new Pixel();
             
     public DisplayCanvasInterface canvas;  //do not instantiate here; instead must be in graphic method
 
@@ -224,7 +226,7 @@ public class DisplayPolytope extends Display implements Action, EtomicaElement {
     }
     public void computeImageParameters2(int w, int h) {
         //Compute factor converting simulation units to pixels for this display
-        toPixels = scale*BaseUnit.Length.Sim.TO_PIXELS;
+        toPixels = scale*pixel.toPixels();
         //Determine length and width of drawn image, in pixels
         drawSize[0] = (int)(toPixels*dimensions().x(0));
         drawSize[1] = (polytope.getEmbeddedSpace().D()==1) ? drawingHeight: (int)(toPixels*dimensions().x(1));
@@ -250,6 +252,24 @@ public class DisplayPolytope extends Display implements Action, EtomicaElement {
     public void setResizable(boolean b) {canvas.setResizable(b);}
     public boolean isResizable() {return canvas.isResizable();}
     
+    /**
+     * Returns unit for conversion between simulation units and display pixels.
+     */
+    public Pixel getPixelUnit() {
+        return pixel;
+    }
+    
+    /**
+     * Sets unit for conversion between simulation units and display pixels.
+     */
+    public void setPixelUnit(Pixel pixel) {
+        this.pixel = pixel;
+        if(canvas != null) {
+            canvas.setPixelUnit(pixel);
+            computeImageParameters();
+        }
+    }
+
     /**
      * Class to listen for and interpret mouse and key events on the configuration display.
      */

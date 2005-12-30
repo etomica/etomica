@@ -1,6 +1,7 @@
 package etomica.statmech;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.units.Mass;
 
 /**
  * Class with static methods for implementing features of the Maxwell-Boltzmann velocity distribution
@@ -67,14 +68,14 @@ public final class MaxwellBoltzmann implements java.io.Serializable {
          //   c /= space.sphereArea(1.0);
         }
         public double getTemperature() {return temperature;}
-        public etomica.units.Dimension getTemperatureDimension() {return etomica.units.Dimension.TEMPERATURE;}
+        public etomica.units.Dimension getTemperatureDimension() {return etomica.units.Temperature.DIMENSION;}
 
         public void setMass(double m) {
             mass = m;
             update();
         }
         public double getMass() {return mass;}
-        public etomica.units.Dimension getMassDimension() {return etomica.units.Dimension.MASS;}
+        public etomica.units.Dimension getMassDimension() {return Mass.DIMENSION;}
     }//end of Distribution
         
     

@@ -4,7 +4,7 @@ import etomica.EtomicaInfo;
 import etomica.data.DataSourceScalar;
 import etomica.phase.Phase;
 import etomica.species.Species;
-import etomica.units.Dimension;
+import etomica.units.Fraction;
 
 /**
  * Meter for measurement of the species mole fraction in a phase.
@@ -16,7 +16,7 @@ public class MeterMoleFraction extends DataSourceScalar implements Meter {
     private Species species;
    
     public MeterMoleFraction() {
-        super("Mole Fraction",Dimension.FRACTION);
+        super("Mole Fraction",Fraction.DIMENSION);
     }
     
     public void setSpecies(Species s) {

@@ -15,7 +15,7 @@ import etomica.phase.Phase;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Dimension;
+import etomica.units.Length;
 
 /**
  * Meter that takes a (scalar) Meter and records its property as a 1-dimensional function of position in the simulation volume.
@@ -31,7 +31,7 @@ public class MeterProfile implements DataSource, Meter, java.io.Serializable {
      * Default constructor sets profile along the y-axis, with 100 histogram points.
      */
     public MeterProfile(Space space) {
-        xDataSource = new DataSourceUniform("x", Dimension.LENGTH);
+        xDataSource = new DataSourceUniform("x", Length.DIMENSION);
         xData = (DataDoubleArray)xDataSource.getData();
         profileVector = space.makeVector();
         profileVector.setX(0, 1.0);

@@ -12,7 +12,8 @@ import etomica.data.types.DataFunction;
 import etomica.phase.Phase;
 import etomica.space.CoordinatePair;
 import etomica.space.Space;
-import etomica.units.Dimension;
+import etomica.units.Length;
+import etomica.units.Null;
 import etomica.util.NameMaker;
 
 /**
@@ -30,12 +31,12 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
     public MeterRDF(Space space) {
 	    this.space = space;
 
-        xDataSource = new DataSourceUniform("r", Dimension.LENGTH);
+        xDataSource = new DataSourceUniform("r", Length.DIMENSION);
         xDataSource.setTypeMax(DataSourceUniform.HALF_STEP);
         xDataSource.setTypeMin(DataSourceUniform.HALF_STEP);
         
         rData = (DataDoubleArray)xDataSource.getData();
-        gData = new DataDoubleArray("g(r)", Dimension.NULL,rData.getLength());
+        gData = new DataDoubleArray("g(r)", Null.DIMENSION,rData.getLength());
         data = new DataFunction(new DataDoubleArray[] {rData}, gData);
 
 	    iterator = new ApiLeafAtoms();
@@ -143,7 +144,7 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
     }
     
     public void setDataLabel(String label) {
-        gData = new DataDoubleArray(label, Dimension.NULL, new int[]{xDataSource.getNValues()});
+        gData = new DataDoubleArray(label, Null.DIMENSION, new int[]{xDataSource.getNValues()});
         data = new DataFunction(new DataDoubleArray[] {rData}, gData);
     }
     

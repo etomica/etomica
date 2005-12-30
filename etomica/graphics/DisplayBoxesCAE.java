@@ -16,7 +16,9 @@ import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayBox.LabelType;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.simulation.prototypes.HSMD2D;
+import etomica.units.Null;
 import etomica.units.Unit;
+import etomica.units.UnitSystem;
 import etomica.util.Constants;
 
 /**
@@ -41,11 +43,11 @@ public class DisplayBoxesCAE extends Display implements DataSink {
 	JLabel jLabelPanelParentGroup = new JLabel();
     
     public DisplayBoxesCAE() {
-        this("", Unit.NULL);
+        this("", Null.UNIT);
     }
     
 	public DisplayBoxesCAE(DataInfo info) {
-        this(info.getLabel(), info.getDimension().defaultIOUnit());
+        this(info.getLabel(), info.getDimension().getUnit(UnitSystem.SIM));
     }
     
     public DisplayBoxesCAE(String label, Unit unit) {
@@ -80,8 +82,8 @@ public class DisplayBoxesCAE extends Display implements DataSink {
         if(getLabel().equals("")) {
             setLabel(dataInfo.getLabel());
         }
-        if(getUnit() == Unit.NULL) {
-            setUnit(dataInfo.getDimension().defaultIOUnit());
+        if(getUnit() == Null.UNIT) {
+            setUnit(dataInfo.getDimension().getUnit(UnitSystem.SIM));
         }
     }
     /**

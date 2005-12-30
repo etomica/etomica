@@ -8,7 +8,7 @@ import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.DataSourceScalar;
 import etomica.phase.Phase;
 import etomica.space.ICoordinateKinetic;
-import etomica.units.Dimension;
+import etomica.units.Energy;
 
 /**
  * Meter for the total kinetic energy in a phase
@@ -25,7 +25,7 @@ public class MeterKineticEnergy extends DataSourceScalar implements Meter
     private AtomIteratorPhaseDependent iterator;
     
     public MeterKineticEnergy() {
-        super("Kinetic Energy",Dimension.ENERGY);
+        super("Kinetic Energy",Energy.DIMENSION);
         setIterator(new AtomIteratorLeafAtoms());
     }
     

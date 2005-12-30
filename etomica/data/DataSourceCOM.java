@@ -8,7 +8,7 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.data.types.DataVector;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Dimension;
+import etomica.units.Length;
 
 /**
  * Calculates the center of mass (COM) over a set of atoms. The mass and
@@ -32,7 +32,7 @@ public class DataSourceCOM extends AtomActionAdapter implements DataSource, Atom
 
     public DataSourceCOM(Space space) {
         vectorSum = space.makeVector();
-        data = new DataVector(space, "Center of Mass", Dimension.LENGTH);
+        data = new DataVector(space, "Center of Mass", Length.DIMENSION);
         myAction = new MyAction(vectorSum);
         groupWrapper = new AtomGroupAction(myAction);
     }

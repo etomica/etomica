@@ -4,7 +4,7 @@ import etomica.EtomicaElement;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.space.ICoordinateKinetic;
-import etomica.units.Dimension;
+import etomica.units.Undefined;
 
 /**
  * Meter for the root-mean-square velocity of a set of atoms. Useful to obtain
@@ -17,7 +17,7 @@ public class DataSourceRmsVelocity extends DataSourceScalar implements EtomicaEl
 
 	//TODO define a dimension for this property
 	public DataSourceRmsVelocity() {
-		super("RMS Velocity", Dimension.UNDEFINED);
+		super("RMS Velocity", Undefined.DIMENSION);
 	}
 
 	/**

@@ -12,6 +12,7 @@ import etomica.phase.Phase;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.units.Dimension;
+import etomica.units.Energy;
 
 /**
  * A meter to compute the velocity component of the pressure tensor. 
@@ -29,8 +30,8 @@ public class MeterTensorVelocity implements Meter, DataSourceAtomic, java.io.Ser
     private final AtomIteratorPhaseDependent ai1 = new AtomIteratorLeafAtoms();
     
     public MeterTensorVelocity(Space space) {
-        data = new DataTensor(space,"pp/m",Dimension.ENERGY);
-        atomData = new DataTensor(space,"pp/m",Dimension.ENERGY);
+        data = new DataTensor(space,"pp/m",Energy.DIMENSION);
+        atomData = new DataTensor(space,"pp/m",Energy.DIMENSION);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -45,7 +46,7 @@ public class MeterTensorVelocity implements Meter, DataSourceAtomic, java.io.Ser
     /**
      * Returns the dimension of the measured value, here given as energy
      */
-    public Dimension getDimension() {return Dimension.ENERGY;}
+    public Dimension getDimension() {return Energy.DIMENSION;}
     
     /**
      * Descriptive label

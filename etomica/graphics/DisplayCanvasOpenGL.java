@@ -1,4 +1,5 @@
 package etomica.graphics;
+import etomica.units.Pixel;
 import gl4java.awt.GLAnimCanvas;
 
 import java.awt.Dimension;
@@ -39,6 +40,8 @@ public abstract class DisplayCanvasOpenGL extends GLAnimCanvas implements java.i
      * Default value is <code>BOUNDARY_OUTLINE</code>
      */
     int drawBoundary = DRAW_BOUNDARY_OUTLINE;
+    
+    protected Pixel pixel;
         
 
     public DisplayCanvasOpenGL(int width, int height) {
@@ -92,5 +95,21 @@ public abstract class DisplayCanvasOpenGL extends GLAnimCanvas implements java.i
     public void setMinimumSize(Dimension temp) {}
     public void setMaximumSize(Dimension temp) {}
     public void setPreferredSize(Dimension temp) {}
+    
+    /**
+     * Returns unit for conversion between simulation units and display pixels.
+     */
+    public Pixel getPixelUnit() {
+        return pixel;
+    }
+    
+    /**
+     * Sets unit for conversion between simulation units and display pixels.
+     */
+    public void setPixelUnit(Pixel pixel) {
+        this.pixel = pixel;
+    }
+
+
 } //end of DisplayCanvas class
 

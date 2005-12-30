@@ -17,6 +17,7 @@ import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.modifier.ModifyAction;
 import etomica.units.Unit;
+import etomica.units.UnitSystem;
 import etomica.util.StringUtility;
 
 /**
@@ -160,7 +161,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
         if(m == null) throw new NullPointerException();
         modifyAction = null;
         if(unit == null) {
-            setUnit(m.getDimension().defaultIOUnit());
+            setUnit(m.getDimension().getUnit(UnitSystem.SIM));
         }
         slider.setDecimalSliderValue(unit.fromSim(m.getValue()));
         modifyAction = new ModifyAction(m);

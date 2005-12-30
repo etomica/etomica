@@ -4,8 +4,9 @@ import etomica.EtomicaInfo;
 import etomica.data.DataSourceScalar;
 import etomica.phase.Phase;
 import etomica.species.Species;
-import etomica.units.Dimension;
 import etomica.units.DimensionRatio;
+import etomica.units.Quantity;
+import etomica.units.Volume;
 
 /**
  * Meter for measurement of the total molecule number density in a phase
@@ -13,8 +14,8 @@ import etomica.units.DimensionRatio;
  */
 public class MeterDensity extends DataSourceScalar implements Meter {
     
-    public MeterDensity() {
-        super("Number Density",new DimensionRatio(Dimension.QUANTITY,Dimension.VOLUME));
+    public MeterDensity(int d) {
+        super("Number Density",new DimensionRatio(Quantity.DIMENSION, Volume.dimension(d)));
     }
 
     public static EtomicaInfo getEtomicaInfo() {

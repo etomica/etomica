@@ -8,7 +8,7 @@ import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
 import etomica.integrator.IntegratorPhase;
 import etomica.phase.Phase;
-import etomica.units.Dimension;
+import etomica.units.Energy;
 
 /**
  * Acts as a DataSource to retrieve the energy from the integrator 
@@ -16,7 +16,7 @@ import etomica.units.Dimension;
 public class MeterPotentialEnergyFromIntegrator extends DataSourceScalar implements Meter, IntegratorNonintervalListener, java.io.Serializable {
 
     public MeterPotentialEnergyFromIntegrator() {
-        super("Potential Energy",Dimension.ENERGY);
+        super("Potential Energy",Energy.DIMENSION);
     }
     
     public MeterPotentialEnergyFromIntegrator(IntegratorPhase aIntegrator) {

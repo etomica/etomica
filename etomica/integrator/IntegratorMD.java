@@ -15,6 +15,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
 import etomica.units.Dimension;
+import etomica.units.Time;
 import etomica.util.EnumeratedType;
 /**
  * Superclass of all molecular-dynamics integrators.
@@ -43,7 +44,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
         timeStep = t;
     }
     public final double getTimeStep() {return timeStep;}
-    public Dimension getTimeStepDimension() {return Dimension.TIME;}
+    public Dimension getTimeStepDimension() {return Time.DIMENSION;}
 
     protected void setup() {
         try {

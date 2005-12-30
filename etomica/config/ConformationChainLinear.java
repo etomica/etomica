@@ -9,6 +9,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
+import etomica.units.Length;
 
 /**
  * Places atoms in a straight line.
@@ -41,7 +42,7 @@ public class ConformationChainLinear extends ConformationChain {
     }
 
     public double getBondLength() {return bondLength;}
-    public Dimension getBondLengthDimension() {return Dimension.LENGTH;}
+    public Dimension getBondLengthDimension() {return Length.DIMENSION;}
     
     //need to re-express this in terms of a Space.Orientation object
     public void setAngle(int i, double t) {//t in radians

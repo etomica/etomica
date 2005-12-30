@@ -12,6 +12,7 @@ import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.Dimension;
+import etomica.units.Length;
 import etomica.util.Debug;
 
 /**
@@ -77,7 +78,7 @@ public class P2HardBond extends Potential2 implements PotentialHard {
     }
 
     public final Dimension getBondLengthDimension() {
-        return Dimension.LENGTH;
+        return Length.DIMENSION;
     }
 
     /**

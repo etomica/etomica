@@ -1,249 +1,87 @@
 package etomica.units;
-import java.util.LinkedList;
-
-import etomica.util.Default;
+import java.io.ObjectStreamException;
+import java.util.Arrays;
 
 public abstract class Dimension implements java.io.Serializable {
-    
-    public Dimension() {}
-    
+
     /**
-     * Returns the unit corresponding to this dimension as given by the unitSystem object held by Simulation.
-     * This becomes the default unit used for input/output in Devices and Displays.
+     * Number of base dimensions, equal to seven.  
+     * Base dimensions are: length, mass, time, current, temperature, number, luminosity.
      */
-    public abstract Unit defaultIOUnit();
-    /**
-     * Class object for the base unit corresponding to this dimension.
-     */
-    public abstract Class baseUnit();
+    public static final int N_BASE = 7;
+
+    public Dimension(String name, double length, double mass, double time) {
+        this(name, length, mass, time, 0, 0, 0, 0);
+    }
     
+    public Dimension(String name, double length, double mass, double time, double current,
+            double temperature, double number, double luminosity) {
+        this(name, new double[] {length, mass, time, current, temperature, number, luminosity});
+    }
+    
+    public Dimension(String name, double[] signature) {
+        if(signature.length != N_BASE) {
+            throw new IllegalArgumentException("Incorrect length of signature array given to Dimension constructor. Given value = "+signature.length+"; expected value: "+N_BASE);
+        }
+        this.signature = (double[])signature.clone();
+        this.name = name;
+    }
+    
+    public abstract Unit getUnit(UnitSystem unitSystem);
+    
+    public String toString() {
+        return name;
+    }
     /**
      * The signature is the exponents of each of the base dimensions forming the
      * given dimension.  Base dimensions are, in order: mass, length, time,
      * number.
      */
-    public abstract double[] signature();
-    
+    public double[] signature() {
+        return (double[])signature.clone();
+    }
+        
     /**
-     * Dimension for a dimensionless quantity
+     * Returns true if the given object is a Dimension instance with the same signature as this.
      */
-    public static class Null extends Dimension {
-        private Null() {} //singleton; access via static instances, defined below
-        static double[] signature = {0., 0., 0., 0.};
-        public double[] signature() {return signature;}
-        public String toString() {return "Dimensionless";}
-        public Unit defaultIOUnit() {return Unit.NULL;}
-        public Class baseUnit() {return BaseUnit.Null.class;}
+    public boolean equals(Object dim) {
+        if(dim instanceof Dimension) {
+            return Arrays.equals(this.signature, ((Dimension)dim).signature);
+        }
+        return false;
     }
     
-	/**
-	 * Dimension indicating that a dimensions class is not yet defined
-	 */
-	public static class Undefined extends Dimension {
-		private Undefined() {} //singleton; access via static instances, defined below
-		static double[] signature = {0., 0., 0., 0.};
-		public double[] signature() {return signature;}
-		public String toString() {return "Undefined";}
-		public Unit defaultIOUnit() {return Unit.NULL;}
-		public Class baseUnit() {return BaseUnit.Null.class;}
-	}
-    
+    private final double[] signature;
+    private final String name;
+
     /**
      * Dimension used to indicate that a group of values are not all of
-     * the same dimension.
+     * the same dimension.  Singleton.  The equals method for this instance
+     * returns true only if its argument is the same instance.
      */
-    private static class Mixed extends Dimension {
-        private Mixed() {} //singleton; access via static instances, defined below
-        static double[] signature = {Double.NaN, Double.NaN, Double.NaN, Double.NaN};
-        public double[] signature() {return signature;}
-        public String toString() {return "Mixed";}
-        public Unit defaultIOUnit() {throw new UnsupportedOperationException("No unit is associated with Mixed dimension");}
-        public Class baseUnit() {throw new UnsupportedOperationException("No unit is associated with Mixed dimension");}
-    }
+    public static Dimension MIXED = new Mixed();
 
-
-    /**
-     * Dimension for a counted quantity, such as number of molecules
-     */
-    public static class Quantity extends Dimension {
-        private Quantity() {}
-        static double[] signature = {0., 0., 0., 1.};
-        public double[] signature() {return signature;}
-        public String toString() {return "Quantity";}
-        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.quantity();}
-        public Class baseUnit() {return BaseUnit.Quantity.class;}
-    }
+//   public static final Dimension[] ALL = new Dimension[] {
+//        NULL, QUANTITY, MASS, LENGTH, TIME, ANGLE, CHARGE, DIPOLE, ENERGY, 
+//        TEMPERATURE, PRESSURE, PRESSURE2D, VOLUME, VOLUME2D, UNDEFINED};
+//
     
-    /**
-     * Dimension for a fraction quantity, such as mole fraction.
-     */
-    public static class Fraction extends Dimension {
-        private Fraction() {}
-        static double[] signature = {0., 0., 0., 0.};
-        public double[] signature() {return signature;}
-        public String toString() {return "Decimal";}
-        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.fraction();}
-        public Class baseUnit() {return BaseUnit.Fraction.class;}
-   	
-    }
-    //remaining dimensions have obvious interpretations
-    public static class Mass extends Dimension {
-        private Mass() {}
-        static double[] signature = {1., 0., 0., 0.};
-        public double[] signature() {return signature;}
-        public String toString() {return "Mass";}
-        public Unit defaultIOUnit() {return etomica.util.Default.UNIT_SYSTEM.mass();}
-        public Class baseUnit() {return BaseUnit.Mass.class;}
-    }
-    public static class Length extends Dimension {
-        private Length() {}
-        static double[] signature = {0., 1., 0., 0.};
-        public double[] signature() {return signature;}
-        public String toString() {return "Length";}
-        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.length();}
-        public Class baseUnit() {return BaseUnit.Length.class;}
-    }
-    public static class Time extends Dimension {
-        private Time() {}
-        static double[] signature = {0., 0., 1., 0.};
-        public double[] signature() {return signature;}
-        public String toString() {return "Time";}
-        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.time();}
-        public Class baseUnit() {return BaseUnit.Time.class;}
-    }
-    public static class Angle extends Dimension {
-        private Angle() {}
-        static double[] signature = {0., 0., 0., 0.};
-        public double[] signature() {return signature;}
-        public String toString() {return "Angle";}
-        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.angle();}
-        public Class baseUnit() {return BaseUnit.Angle.class;}
-    }
-    public static class Charge extends Dimension {//(D-A^3/ps^2)^(1/2)
-        private Charge() {}
-        static double[] signature = {0.5, 1.5, -1., 0.};
-        public double[] signature() {return signature;}
-        public String toString() {return "Charge";}
-        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.charge();}
-        public Class baseUnit() {return BaseUnit.Charge.class;}
-    }
-    public static class Dipole extends Dimension {//(D-A^5/ps^2)^(1/2)
-        private Dipole() {}
-        static double[] signature = {0.5, 2.5, -1., 0.};
-        public double[] signature() {return signature;}
-        public String toString() {return "Dipole moment";}
-        public Unit defaultIOUnit() {return etomica.util.Default.UNIT_SYSTEM.dipole();}
-        public Class baseUnit() {return BaseUnit.Dipole.class;}
-    }
-    public static class Energy extends Dimension {//D-A^2/ps^2
-        private Energy() {}
-        static double[] signature = {1., 2., -2., 0.};
-        public double[] signature() {return signature;}
-        public String toString() {return "Energy";}
-        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.energy();}
-        public Class baseUnit() {return BaseUnit.Energy.class;}
-    }
-    public static class Temperature extends Energy {
-        private Temperature() {}
-        public String toString() {return "Temperature";}
-        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.temperature();}
-        public Class baseUnit() {return BaseUnit.Temperature.class;}
-    }
-    public static class Pressure extends Dimension {//(D-A/ps^2)/A^2 = D/(A-ps^2)
-        private Pressure() {}
-        static double[] signature = {1., -1., -2., 0.};
-        public double[] signature() {return signature;}
-        public String toString() {return "Pressure";}
-        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.pressure(3);}
-        public Class baseUnit() {return BaseUnit.Pressure.class;}
-    }
-    public static class Pressure2D extends Pressure {//(D-A/ps^2)/A = D/ps^2
-        private Pressure2D() {}
-        static double[] signature = {1., 0., -2., 0.};
-        public double[] signature() {return signature;}
-        public String toString() {return "2D pressure";}
-        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.pressure(2);}
-        public Class baseUnit() {return BaseUnit.Pressure2D.class;}
-    }
-    public static class Volume extends Dimension {
-        private Volume() {}
-        static double[] signature = {0., 3., 0., 0.};
-        public double[] signature() {return signature;}
-        public String toString() {return "Volume";}
-        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.volume(3);}
-        public Class baseUnit() {return BaseUnit.Volume.class;}
-    }
-    public static class Volume2D extends Volume {
-        private Volume2D() {}
-        static double[] signature = {0., 2., 0., 0.};
-        public double[] signature() {return signature;}
-        public String toString() {return "2D volume";}
-        public Unit defaultIOUnit() {return Default.UNIT_SYSTEM.volume(2);}
-        public Class baseUnit() {return BaseUnit.Volume2D.class;}
-    }
-    
-    //Singleton instances of each dimension
-	public static final Dimension NULL = new Null();
-    public static final Dimension QUANTITY = new Quantity();
-	public static final Dimension FRACTION = new Fraction();
-    public static final Dimension MASS = new Mass();
-    public static final Dimension LENGTH = new Length();
-    public static final Dimension TIME = new Time();
-    public static final Dimension ANGLE = new Angle();
-    public static final Dimension CHARGE = new Charge();
-    public static final Dimension DIPOLE = new Dipole();
-    public static final Dimension ENERGY = new Energy();
-    public static final Dimension TEMPERATURE = new Temperature();
-    public static final Dimension PRESSURE = new Pressure();
-    public static final Dimension PRESSURE2D = new Pressure2D();
-    public static final Dimension VOLUME = new Volume();
-    public static final Dimension VOLUME2D = new Volume2D();
-	public static final Dimension UNDEFINED = new Undefined();
-    public static final Dimension MIXED = new Mixed();
-    public static final Dimension[] ALL = new Dimension[] {
-        NULL, QUANTITY, MASS, LENGTH, TIME, ANGLE, CHARGE, DIPOLE, ENERGY, 
-        TEMPERATURE, PRESSURE, PRESSURE2D, VOLUME, VOLUME2D, UNDEFINED};
-
-    public static final Dimension pressure(int D) {
-        switch(D) {
-            case 2:
-                return PRESSURE2D;
-            case 3:
-                return PRESSURE;
-            default:
-                throw new IllegalArgumentException("number of dimensions must be 2 or 3");
-        }
-    }
-
-    public static final Dimension volume(int D) {
-        switch(D) {
-            case 1:
-                return LENGTH;
-            case 2:
-                return VOLUME2D;
-            case 3:
-                return VOLUME;
-            default:
-                throw new IllegalArgumentException("number of dimensions must be 1, 2 or 3");
-        }
-    }
-    
-    /**
-     * Returns all dimension classes with the same signature as the one given.
-     */
-    public static Dimension[] convertSignature(double[] sig) {
- //       java.util.ArrayList dimList = new java.util.ArrayList(5);
-        LinkedList dimList = new LinkedList();
-        for(int i=0; i<ALL.length; i++) {
-            double[] dSig = ALL[i].signature();
-            if(sig[0]==dSig[0] && sig[1]==dSig[1] && sig[2]==dSig[2] && sig[3]==dSig[3]) {
-                dimList.add(ALL[i]);
-            }
-        }
-        Dimension[] dimArr = new Dimension[dimList.size()];
-        dimList.toArray(dimArr);
-        return dimArr;
-    }
+//    /**
+//     * Returns all dimension classes with the same signature as the one given.
+//     */
+//    public static Dimension[] convertSignature(double[] sig) {
+// //       java.util.ArrayList dimList = new java.util.ArrayList(5);
+//        LinkedList dimList = new LinkedList();
+//        for(int i=0; i<ALL.length; i++) {
+//            double[] dSig = ALL[i].signature();
+//            if(sig[0]==dSig[0] && sig[1]==dSig[1] && sig[2]==dSig[2] && sig[3]==dSig[3]) {
+//                dimList.add(ALL[i]);
+//            }
+//        }
+//        Dimension[] dimArr = new Dimension[dimList.size()];
+//        dimList.toArray(dimArr);
+//        return dimArr;
+//    }
     /**
      * Method to determine the dimension of a property via introspection.
      *
@@ -274,6 +112,32 @@ public abstract class Dimension implements java.io.Serializable {
                 }
             }//end of if(methodName...) block
         }//end of for loop
-        return NULL;
+        return Null.DIMENSION;
      }//end of introspect method
+     
+     private static class Mixed extends Dimension {
+         
+         private Mixed() {
+             super("Mixed", 
+                 Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
+         }
+         /**
+          * Required to guarantee singleton when deserializing.
+          * 
+          * @return the singleton MIXED
+          */
+         private Object readResolve() throws ObjectStreamException {
+             return MIXED;
+         }
+         
+         public boolean equals(Object object) {
+             return (this == object);
+         }
+         
+         public Unit getUnit(UnitSystem unitSystem) {
+             return Undefined.UNIT;
+         }
+         
+         private static final long serialVersionUID = 1;
+     }
 }
