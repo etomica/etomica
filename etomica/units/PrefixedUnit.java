@@ -1,8 +1,8 @@
 package etomica.units;
 
 /**
- * Implementation of the Unit interface formed from a Unit (usually a BaseUnit,
- * e. g., grams) and a Prefix (e. g., kilo). The baseUnit cannot be changed
+ * Implementation of the Unit interface formed from a base Unit (e. g., grams) 
+ * and a Prefix (e. g., kilo). The base unit cannot be changed
  * after construction. However, the prefix can be changed using the setPrefix
  * method.
  *

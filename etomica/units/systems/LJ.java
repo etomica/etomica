@@ -17,7 +17,7 @@ import etomica.units.UnitSystem;
  * by the unit conversions.
  * 
  * Values of sigma, epsilon, and mass are specified in simulation units.
- * Default values are weach 1.0.
+ * Default values are each 1.0.
  */
 
 public class LJ extends UnitSystem implements java.io.Serializable {
