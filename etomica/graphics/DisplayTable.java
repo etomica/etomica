@@ -21,7 +21,7 @@ import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataTable.Column;
 import etomica.units.Unit;
-import etomica.units.UnitSystem;
+import etomica.units.systems.UnitSystem;
 
 /**
  * Presents data in a tabular form.

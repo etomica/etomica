@@ -2,6 +2,8 @@ package etomica.units;
 
 import java.io.ObjectStreamException;
 
+import etomica.units.systems.UnitSystem;
+
 /**
  * The dimension for the quantity of discrete things (e.g. molecules). Examples
  * include Count and Mole.

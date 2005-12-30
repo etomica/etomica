@@ -2,6 +2,8 @@ package etomica.units;
 
 import java.io.ObjectStreamException;
 
+import etomica.units.systems.UnitSystem;
+
 /**
  * Dimension for all volume units.
  */

@@ -2,6 +2,8 @@ package etomica.units;
 import java.io.ObjectStreamException;
 import java.util.Arrays;
 
+import etomica.units.systems.UnitSystem;
+
 public abstract class Dimension implements java.io.Serializable {
 
     /**

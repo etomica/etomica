@@ -2,6 +2,8 @@ package etomica.units;
 
 import java.io.ObjectStreamException;
 
+import etomica.units.systems.UnitSystem;
+
 /**
  * Dimension for all units of mass. Simulation unit for mass is the Dalton (or atomic
  * mass unit, 1/N_Avo grams).

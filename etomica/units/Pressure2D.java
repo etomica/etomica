@@ -2,6 +2,8 @@ package etomica.units;
 
 import java.io.ObjectStreamException;
 
+import etomica.units.systems.UnitSystem;
+
 /**
  * Simulation unit of (2D) pressure is (D-A/ps^2)/A = D/ps^2
  */

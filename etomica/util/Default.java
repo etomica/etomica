@@ -3,7 +3,7 @@ package etomica.util;
 import etomica.units.Bar;
 import etomica.units.Kelvin;
 import etomica.units.Length;
-import etomica.units.UnitSystem;
+import etomica.units.systems.UnitSystem;
 
 /**
  * Class holding fields that define many of the default values used in building

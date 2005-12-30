@@ -10,7 +10,7 @@ import etomica.units.Prefix;
 import etomica.units.PrefixedUnit;
 import etomica.units.SimpleUnit;
 import etomica.units.Unit;
-import etomica.units.UnitSystem;
+import etomica.units.systems.UnitSystem;
 
 /**
  * Editor to set the value of a double-type property having units associated with it.

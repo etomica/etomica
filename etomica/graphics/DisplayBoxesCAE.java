@@ -18,7 +18,7 @@ import etomica.integrator.IntervalActionAdapter;
 import etomica.simulation.prototypes.HSMD2D;
 import etomica.units.Null;
 import etomica.units.Unit;
-import etomica.units.UnitSystem;
+import etomica.units.systems.UnitSystem;
 import etomica.util.Constants;
 
 /**

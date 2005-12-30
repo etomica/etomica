@@ -9,7 +9,7 @@ import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataTable;
 import etomica.units.Null;
 import etomica.units.Unit;
-import etomica.units.UnitSystem;
+import etomica.units.systems.UnitSystem;
 import etomica.util.Arrays;
 
 /**

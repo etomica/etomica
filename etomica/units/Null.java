@@ -2,6 +2,8 @@ package etomica.units;
 
 import java.io.ObjectStreamException;
 
+import etomica.units.systems.UnitSystem;
+
 /**
  * Dimension specified dimensionless quantities which have no other interpretation
  * (e.g., the quantity is not known to be an angle, or a fraction).

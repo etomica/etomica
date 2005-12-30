@@ -2,6 +2,8 @@ package etomica.units;
 
 import java.io.ObjectStreamException;
 
+import etomica.units.systems.UnitSystem;
+
 /**
  * Dimension for a quantity representing a fractional amount.  Examples
  * include a decimal, percent, parts-per-million, etc.

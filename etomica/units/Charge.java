@@ -2,6 +2,8 @@ package etomica.units;
 
 import java.io.ObjectStreamException;
 
+import etomica.units.systems.UnitSystem;
+
 /**
  * The dimension for electrical charge. The simulation unit of charge is the
  * charge of an electron.

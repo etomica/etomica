@@ -6,7 +6,6 @@ import etomica.units.Dimension;
 import etomica.units.Electron;
 import etomica.units.Radian;
 import etomica.units.Unit;
-import etomica.units.UnitSystem;
 
 /**
  * Lennard-Jones system of units, such that all quantities are made

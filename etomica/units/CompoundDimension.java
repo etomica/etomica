@@ -1,5 +1,7 @@
 package etomica.units;
 
+import etomica.units.systems.UnitSystem;
+
 public class CompoundDimension extends Dimension {
 
     public CompoundDimension(Dimension[] dimensions, double[] exponents) {

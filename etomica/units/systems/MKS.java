@@ -18,7 +18,6 @@ import etomica.units.PrefixedUnit;
 import etomica.units.Radian;
 import etomica.units.Second;
 import etomica.units.Unit;
-import etomica.units.UnitSystem;
 
 /**
  * Meter-Kilogram-Second system of units

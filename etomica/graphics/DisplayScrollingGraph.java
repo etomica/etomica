@@ -4,7 +4,7 @@ import java.awt.Graphics;
 
 import etomica.data.DataSourceScalar;
 import etomica.data.types.DataDouble;
-import etomica.units.UnitSystem;
+import etomica.units.systems.UnitSystem;
 
     public class DisplayScrollingGraph extends Display {
 

@@ -1,5 +1,7 @@
 package etomica.units;
 
+import etomica.units.systems.UnitSystem;
+
 /**
  * Class to form a dimension from ratio of two dimensions. Used primarily to
  * construct intensive quantities, such as energy/volume.

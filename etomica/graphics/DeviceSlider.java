@@ -17,7 +17,7 @@ import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.modifier.ModifyAction;
 import etomica.units.Unit;
-import etomica.units.UnitSystem;
+import etomica.units.systems.UnitSystem;
 import etomica.util.StringUtility;
 
 /**
