@@ -18,12 +18,12 @@ public abstract class Prefix implements java.io.Serializable {
     private Prefix() {}
     
     /**
-     * Constant used when invoking multi-argument constructor of PrefixedUnit class to indicate
+     * Constant used when invoking constructor of SimpleUnit class to indicate
      * that the unit permits the use of a prefix.
      */
     public static final boolean ALLOWED = true;
     /**
-     * Constant used when invoking multi-argument constructor of PrefixedUnit class to indicate
+     * Constant used when invoking constructor of SimpleUnit class to indicate
      * that the unit does not permit the use of a prefix.
      */
     public static final boolean NOT_ALLOWED = false;
