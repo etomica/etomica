@@ -3,6 +3,9 @@ import java.io.ObjectStreamException;
 
 import etomica.util.Constants;
 
+/**
+ * The bar unit of pressure, equal to 10^5 N/m^2.
+ */
 public final class Bar extends SimpleUnit {
 
   /**

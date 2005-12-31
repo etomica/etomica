@@ -13,7 +13,7 @@ public final class Mole extends SimpleUnit {
     private Mole() {
         super(Quantity.DIMENSION,
                Constants.AVOGADRO, //6.022e22; conversion from moles to count (number)
-               "mole",
+               "moles",
                "mol",
                Prefix.ALLOWED
         	);

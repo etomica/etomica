@@ -11,7 +11,7 @@ public final class Angstrom extends SimpleUnit {
 
     private Angstrom() {
         super(Length.DIMENSION, 1.0,// conversion to simulation units
-                "Angstroms", "\u00c5", // unicode for the Angstrom symbol
+                "angstroms", "\u00c5", // unicode for the Angstrom symbol
                 Prefix.NOT_ALLOWED);
     }
 

@@ -4,19 +4,22 @@ import java.io.ObjectStreamException;
 import etomica.util.Constants;
 
 /**
- * The Joule unit of energy, equal to 1 N-m or 1 kg-m^2/s^2.
+ * The Pascal unit of pressure, equal to 1 N/m^2.
  */
-public final class Joule extends SimpleUnit {
+public final class Pascal extends SimpleUnit {
 
   /**
    * Singleton instance of this unit.
    */
-    public static final Joule UNIT = new Joule();
-    
-    private Joule() {
-        super(Energy.DIMENSION,
-        	Constants.AVOGADRO*1000.*1e20*1e-24, //6.022e22; conversion from kg-m^2/s^2 to Dalton-A^2/ps^2
-        	"joules", "J", Prefix.ALLOWED
+    public static final Pascal UNIT = new Pascal();
+  
+  /**
+   * Conversion factor to/from simulation units
+   */
+    private Pascal() {
+        super(Pressure.DIMENSION,
+                Constants.AVOGADRO*1000.*1e-10*1e-24, //6.022e-8; conversion from kg/(m-s^2) to D/(A-ps^2)
+                "pascals", "Pa", Prefix.ALLOWED
         	);   
     }
     

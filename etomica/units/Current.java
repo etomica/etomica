@@ -5,24 +5,25 @@ import java.io.ObjectStreamException;
 import etomica.units.systems.UnitSystem;
 
 /**
- * The dimension for electrical charge. Internally, charge q always represents
+ * The dimension for electrical current. Internally, charge q always represents
  * q/(4 pi epsilon0)^(1/2), so that the force via Coulomb's law is given by q1q2/r^2. 
- * This gives a quantity have units of sqrt(force)*length, or mass^(1/2)-length^(3/2)/time, 
+ * This gives a quantity for charge having units of sqrt(force)*length, or mass^(1/2)-length^(3/2)/time, 
  * so the simulation unit of for the quantity representing charge is sqrt(D-A^3)/ps.
+ * Consequently the simulation unit for current (charge/time) is sqrt(D-A^3)/ps^2.
  */
-public class Charge extends Dimension {
+public class Current extends Dimension {
 
     /**
      * Singleton instance of this class.
      */
-    public static final Dimension DIMENSION = new Charge();
+    public static final Dimension DIMENSION = new Current();
     /**
-     * Simulation unit of charge.
+     * Simulation unit of electrical current.
      */
-    public static final Unit SIM_UNIT = new SimpleUnit(DIMENSION, 1.0, "sim charge units", "(D-A^3/ps^2)^(1/2)/(4 pi \u03B50)^(1/2)", Prefix.NOT_ALLOWED);
+    public static final Unit SIM_UNIT = new SimpleUnit(DIMENSION, 1.0, "sim current units", "(D-A^3)^(1/2)/ps/(4 pi \u03B50)^(1/2)", Prefix.NOT_ALLOWED);
 
-    private Charge() {
-        super("Charge", 0, 0, 1, 1, 0, 0, 0);
+    private Current() {
+        super("Current", 0, 0, 0, 1, 0, 0, 0);
     }
 
     public Unit getUnit(UnitSystem unitSystem) {

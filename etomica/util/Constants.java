@@ -5,16 +5,13 @@ import etomica.data.AccumulatorAverage;
 /**
  * Collection of assorted physical constants.  All values
  * are in simulations units in which time is in picoseconds, length is in Angstroms,
- * and mass is in Daltons (amu).  Also defines several enumerated constants (or typed
- * constants).
+ * and mass is in Daltons (amu).  Also defines several enumerated-type constants.
  */
 public final class Constants {
 
     //private constructor to prevent instantiation
     private Constants() {
     }
-    
-    public String VERSION = "01.11.20";    
     
     public static final double TWO_PI = 2.0*Math.PI;
     
@@ -26,20 +23,23 @@ public final class Constants {
     */
     
     /**
-     * Avogadro's number.
+     * Avogadro's number, 6.0221415e23.
      */
-    public static final double AVOGADRO = 6.0221367e23;
+    //http://physics.nist.gov/cgi-bin/cuu/Value?na|search_for=abbr_in!
+    public static final double AVOGADRO = 6.0221415e23;
         
     
     /**
      * The standard acceleration of gravity on Earth.
      */
-    public static final double G = 9.8*1e10/1e24;  //acceleration of gravity (on Earth), in A/ps^2
+//  acceleration of gravity (on Earth), in A/ps^2
+    public static final double G = 9.8*1e10/1e24;  
 
     /**
      * Boltzmann's constant.
      */
-    public static final double BOLTZMANN_K = 1.380658e-23 * 1000 * AVOGADRO * 1e20 * 1e-24; //Boltzmann's constant, converted from J/K to amu-A^2/ps^2 (where it equals 0.8314)
+//  Boltzmann's constant, converted from J/K to amu-A^2/ps^2 (where it equals 0.8314)
+    public static final double BOLTZMANN_K = 1.380658e-23 * 1000 * AVOGADRO * 1e20 * 1e-24; 
 
     /**
      * Enumerated type for the directions TOP, BOTTOM, LEFT, RIGHT, FRONT, BACK.

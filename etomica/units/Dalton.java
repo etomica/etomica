@@ -10,7 +10,7 @@ public final class Dalton extends SimpleUnit {
     public static final Dalton UNIT = new Dalton();
 
     private Dalton() {
-        super(Mass.DIMENSION, 1.0, "Daltons", "D", Prefix.ALLOWED);
+        super(Mass.DIMENSION, 1.0, "daltons", "D", Prefix.ALLOWED);
     }
     
     /**

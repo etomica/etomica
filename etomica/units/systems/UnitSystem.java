@@ -9,6 +9,7 @@ import etomica.units.Dalton;
 import etomica.units.Decimal;
 import etomica.units.Dipole;
 import etomica.units.Energy;
+import etomica.units.Force;
 import etomica.units.Picosecond;
 import etomica.units.Pressure;
 import etomica.units.Pressure2D;
@@ -31,6 +32,7 @@ public abstract class UnitSystem implements java.io.Serializable {
     public abstract Unit angle();
     public abstract Unit charge();
     public abstract Unit dipole();
+    public abstract Unit force();
     public abstract Unit energy();
     public abstract Unit temperature();
     public abstract Unit pressure();
@@ -53,6 +55,7 @@ public abstract class UnitSystem implements java.io.Serializable {
         public Unit angle() {return Radian.UNIT;}
         public Unit charge() {return Charge.SIM_UNIT;}
         public Unit dipole() {return Dipole.SIM_UNIT;}
+        public Unit force() {return Force.SIM_UNIT;}
         public Unit energy() {return Energy.SIM_UNIT;}
         public Unit temperature() {return Temperature.SIM_UNIT;}
         public Unit pressure() {return Pressure.SIM_UNIT;}

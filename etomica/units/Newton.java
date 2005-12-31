@@ -4,19 +4,19 @@ import java.io.ObjectStreamException;
 import etomica.util.Constants;
 
 /**
- * The Joule unit of energy, equal to 1 N-m or 1 kg-m^2/s^2.
+ * The Newton unit of force, equal to 1 kg-m/s^2.
  */
-public final class Joule extends SimpleUnit {
+public final class Newton extends SimpleUnit {
 
   /**
    * Singleton instance of this unit.
    */
-    public static final Joule UNIT = new Joule();
+    public static final Newton UNIT = new Newton();
     
-    private Joule() {
-        super(Energy.DIMENSION,
-        	Constants.AVOGADRO*1000.*1e20*1e-24, //6.022e22; conversion from kg-m^2/s^2 to Dalton-A^2/ps^2
-        	"joules", "J", Prefix.ALLOWED
+    private Newton() {
+        super(Force.DIMENSION,
+        	Constants.AVOGADRO*1000.*1e10*1e-24, //6.022e12; conversion from kg-m/s^2 to Dalton-A/ps^2
+        	"newtons", "N", Prefix.ALLOWED
         	);   
     }
     

@@ -19,7 +19,7 @@ public class Pixel extends SimpleUnit {
 	public Pixel(double toPixels) {
 		super(Length.DIMENSION, 
 			1.0/toPixels, //need to pass superclass conversion from pixels to simulation units
-			"Pixel","px", Prefix.NOT_ALLOWED
+			"pixel","px", Prefix.NOT_ALLOWED
 			);
         this.toPixels = toPixels;
 	}

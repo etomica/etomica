@@ -13,6 +13,7 @@ import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.units.Meter;
 import etomica.units.Mole;
+import etomica.units.Newton;
 import etomica.units.Prefix;
 import etomica.units.PrefixedUnit;
 import etomica.units.Radian;
@@ -64,6 +65,10 @@ public class MKS extends UnitSystem {
         return Debye.UNIT;
     } // ??
 
+    public Unit force() {
+        return Newton.UNIT;
+    }
+    
     public Unit energy() {
         return Joule.UNIT;
     }
