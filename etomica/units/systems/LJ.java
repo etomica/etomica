@@ -62,6 +62,7 @@ public class LJ extends UnitSystem implements java.io.Serializable {
     private final Unit lengthUnit = new Length(this);
     private final Unit timeUnit = new Time(this);
     private final Unit dipoleUnit = new Dipole(this);
+    private final Unit forceUnit = new Force(this);
     private final Unit energyUnit = new Energy(this);
     private final Unit temperatureUnit = new Temperature(this);
     private final Unit pressureUnit = new Pressure(this);
@@ -124,6 +125,10 @@ public class LJ extends UnitSystem implements java.io.Serializable {
 
     public Unit dipole() {
         return dipoleUnit;
+    }
+    
+    public Unit force() {
+        return forceUnit;
     }
 
     public Unit energy() {
@@ -227,6 +232,26 @@ public class LJ extends UnitSystem implements java.io.Serializable {
 
         public double fromSim(double x) {
             return Electron.UNIT.fromSim(x) / lj.sigma;
+        }
+
+        private static final long serialVersionUID = 1;
+    }
+
+    private static final class Force extends LJUnit {
+        private Force(LJ ljSystem) {
+            super(ljSystem);
+        }
+
+        public Dimension dimension() {
+            return etomica.units.Force.DIMENSION;
+        }
+
+        public String symbol() {
+            return "\u03B5/\u03C3";// epsilon/sigma
+        }
+
+        public double fromSim(double x) {
+            return x * lj.sigma / lj.epsilon;
         }
 
         private static final long serialVersionUID = 1;
