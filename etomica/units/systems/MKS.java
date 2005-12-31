@@ -42,7 +42,7 @@ public class MKS extends UnitSystem {
     }
 
     public Unit mass() {
-        return new PrefixedUnit(Prefix.KILO, Gram.UNIT);
+        return KILOGRAM;
     }
 
     public Unit length() {
@@ -62,8 +62,8 @@ public class MKS extends UnitSystem {
     }
 
     public Unit dipole() {
-        return Debye.UNIT;
-    } // ??
+        return COULOMB_METER;
+    }
 
     public Unit force() {
         return Newton.UNIT;
@@ -90,11 +90,14 @@ public class MKS extends UnitSystem {
     }
     
     private static final Unit SQUARE_METER = new CompoundUnit(new Unit[] {Meter.UNIT}, new double[] {2});
+    private static final Unit KILOGRAM = new PrefixedUnit(Prefix.KILO, Gram.UNIT);
+    private static final Unit COULOMB_METER = 
+        new CompoundUnit(new Unit[] {Coulomb.UNIT, Meter.UNIT}, new double[] {1, 1});
     
     /**
      * Required to guarantee singleton when deserializing.
      * 
-     * @return the singleton UNIT
+     * @return the singleton SYSTEM
      */
     private Object readResolve() throws ObjectStreamException {
         return SYSTEM;

@@ -5,7 +5,7 @@ import java.io.ObjectStreamException;
 import etomica.units.systems.UnitSystem;
 
 /**
- * Dimension for all units of length. Simulation unit of length is the Angstrom.
+ * Dimension for all units of length. Simulation unit of length is the angstrom.
  */
 public final class Length extends Dimension {
 
@@ -13,6 +13,9 @@ public final class Length extends Dimension {
      * Singleton instance of this class.
      */
     public static final Dimension DIMENSION = new Length();
+    /**
+     * Simulation unit for length is the angstrom.
+     */
     public static final Unit SIM_UNIT = Angstrom.UNIT;
  
     private Length() {

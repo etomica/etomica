@@ -6,9 +6,9 @@ import etomica.units.systems.UnitSystem;
 
 /**
  * The dimension for electrical charge. Internally, charge q always represents
- * q/(4 pi epsilon0)^(1/2), so that the force via Coulomb's law is given by q1q2/r^2. 
- * This gives a quantity have units of sqrt(force)*length, or mass^(1/2)-length^(3/2)/time, 
- * so the simulation unit of for the quantity representing charge is sqrt(D-A^3)/ps.
+ * q/(4 pi epsilon0)^(1/2), so that the force via Coulomb's law is given by q1*q2/r^2. 
+ * Internally, charge is a quantity having units of sqrt(force)*length, or mass^(1/2)-length^(3/2)/time, 
+ * so the simulation unit for the quantity representing charge is sqrt(D-A^3)/ps.
  */
 public class Charge extends Dimension {
 

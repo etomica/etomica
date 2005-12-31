@@ -4,7 +4,7 @@ import java.io.ObjectStreamException;
 import etomica.util.Constants;
 
 /**
- * Unit of charge equal to the magnitude of the charge on an electron
+ * Unit of charge equal to the magnitude of the charge on an electron.
  */
 public final class Electron extends SimpleUnit {
 
@@ -15,8 +15,8 @@ public final class Electron extends SimpleUnit {
     
     private Electron() {
         super(Charge.DIMENSION, 
-        	4.803e-10*Math.sqrt(Constants.AVOGADRO*1e24*1e-24), //372.7; conversion from (electron/esu)*(g-cm^3/s^2)^(1/2) to (amu-A^3/ps^2)^(1/2)
-	        "electron-charge units","e", Prefix.ALLOWED
+                1.0/Math.sqrt(4.0 * Math.PI * Constants.EPSILON_0), //372.7; conversion to (amu-A^3/ps^2)^(1/2); need only divide by sqrt(4 pi eps0) because eps0 is defined in Constants in terms of the electron charge. 
+	        "elementary charges","e", Prefix.ALLOWED
         	);   
     }
     

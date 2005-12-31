@@ -1,6 +1,7 @@
 package etomica.util;
 
 import etomica.data.AccumulatorAverage;
+import etomica.units.Joule;
 
 /**
  * Collection of assorted physical constants.  All values
@@ -25,22 +26,49 @@ public final class Constants {
     /**
      * Avogadro's number, 6.0221415e23.
      */
-    //http://physics.nist.gov/cgi-bin/cuu/Value?na|search_for=abbr_in!
+    // reference:  http://physics.nist.gov/cgi-bin/cuu/Value?na|search_for=abbr_in!
     public static final double AVOGADRO = 6.0221415e23;
         
     
     /**
      * The standard acceleration of gravity on Earth.
      */
-//  acceleration of gravity (on Earth), in A/ps^2
+    //  acceleration of gravity (on Earth), in A/ps^2
     public static final double G = 9.8*1e10/1e24;  
 
     /**
-     * Boltzmann's constant.
+     * Boltzmann's constant, in (sim units)/kelvin.  Specifically,
+     * equal to 0.8314517839107 (daltons)(angstroms^2)(ps^-2)(kelvin^-1).
      */
-//  Boltzmann's constant, converted from J/K to amu-A^2/ps^2 (where it equals 0.8314)
+    //  Boltzmann's constant, converted from J/K to D-A^2/ps^2/K (where it equals 0.8314)
+    // (1.38e-23 kg-m^2/s^2/K/molecule)(1000 g/kg)(N_avo D/g)(10^10 A/m)^2 (10^-12 s/ps)^2  
     public static final double BOLTZMANN_K = 1.380658e-23 * 1000 * AVOGADRO * 1e20 * 1e-24; 
 
+    /**
+     * Planck's constant, in simulation units.  Specifically, equal to approximately 39.903127 D-A^2/ps.
+     */
+    //convert from J-s to simulation units
+    public static final double PLANCK_H = Joule.UNIT.toSim(6.6260693e-34) * 1e12;
+    
+    /**
+     * The permittivity of a vacuum, in (sim units) (electron charge)^2. Specifically,
+     * equal to  5.7276575390366254E-7 (ps^2)(daltons^-1)(angstroms^-3)(electrons^2).
+     */
+    //epsilon0, converted from C^2/(N-m^2) to e^2 ps^2/(D-A^3)
+    // (8.854e-12 C^2 s^2/(kg-m^3)) (1/1.60217653e-12 e/C)^2 (10^12 ps/s)^2 (10^-3 kg/g) (1/Avo g/D) (10^-10 m/A)^3
+    public static final double EPSILON_0 = 8.8541878176e-12 * (1.0/1.60217653e-19/1.60217653e-19)
+            * 1e24 * 1e-3 / AVOGADRO * 1e-30;
+    
+    public static final double LIGHT_SPEED = 299792458 * 1e10 * 1e-12;//convert m/s to A/ps
+    
+    public static void main(String arg[]) {
+        System.out.println("Avogadro's number: "+AVOGADRO);
+        System.out.println("Boltzmann's constant: "+BOLTZMANN_K);
+        System.out.println("Planck's constant: "+PLANCK_H);
+        System.out.println("Epsilon0: "+EPSILON_0);
+        System.out.println("1.0/sqrt(4 Pi Epsilon0): "+1.0/Math.sqrt(4.*Math.PI*EPSILON_0));
+        System.out.println("Debye toSim: "+etomica.units.Debye.UNIT.toSim(1.0));
+    }
     /**
      * Enumerated type for the directions TOP, BOTTOM, LEFT, RIGHT, FRONT, BACK.
      * Used to express the orientation of an object.
