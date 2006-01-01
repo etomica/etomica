@@ -17,7 +17,6 @@ import etomica.space.Boundary;
 import etomica.space.ICoordinateAngular;
 import etomica.space.Vector;
 import etomica.species.Species;
-import etomica.units.Length;
 
     /* History of changes
      * 7/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.
@@ -161,7 +160,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         //do drawing of all drawing objects that have been added to the display
         for(Iterator iter=displayPhase.getDrawables().iterator(); iter.hasNext(); ) {
             Drawable obj = (Drawable)iter.next();
-            obj.draw(g, displayPhase.getOrigin(), displayPhase.getScale());
+            obj.draw(g, displayPhase.getOrigin(), displayPhase.getToPixels());
         }
             
         //Color all atoms according to colorScheme in DisplayPhase
