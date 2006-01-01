@@ -415,6 +415,26 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
         this.pixel = pixel;
         if(canvas != null) {
             canvas.setPixelUnit(pixel);
+
+            int boxX = (int)(phase.getBoundary().getDimensions().x(0) * pixel.toPixels());
+            int boxY = 1;
+
+            switch(phase.space().D()) {
+                case 3:
+                    boxY = (int)(phase.getBoundary().getDimensions().x(1) * pixel.toPixels());
+                    boxX *=1.4;
+                    boxY *=1.4;
+                    break;
+                case 2:
+                    boxY = (int)(phase.getBoundary().getDimensions().x(1) * pixel.toPixels());
+                    break;
+                case 1:
+                default:
+                    break;
+            }
+            
+            setSize(boxX, boxY);
+
             computeImageParameters();
         }
     }
