@@ -97,14 +97,14 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
     public double trace() {return xx + yy;}
     
     public void transpose(){
-        	double temp = xy; xy = yx; yx = temp;
+        double temp = xy; xy = yx; yx = temp;
     }
     
     public void inverse() {
-        	double det = xx*yy -xy*yx;
-        	double temp =0.0;
-        	temp = xx; xx = yy/det; yy = temp/det;
-        	temp = xy; xy = -yx/det; yx = -temp/det;
+        double det = xx*yy -xy*yx;
+        double temp =0.0;
+        temp = xx; xx = yy/det; yy = temp/det;
+        temp = xy; xy = -yx/det; yx = -temp/det;
     }
     
     public void TE(double a) {xx*=a; xy*=a; yx*=a; yy*=a;}
