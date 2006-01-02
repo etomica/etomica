@@ -26,6 +26,8 @@ public class CoordinatePair implements java.io.Serializable {
      * calculating distances.  The nearest image is the pair of images that
      * are closest when all periodic-boundary images are considered.
      * Most often the class given here will be an instance of Boundary.
+     * If this method is not called, no nearest-image transformation
+     * is performed by reset.
      */
     public void setNearestImageTransformer(NearestImageTransformer b) {
         this.nearestImageTransformer = b;
@@ -44,7 +46,7 @@ public class CoordinatePair implements java.io.Serializable {
      * be calculated.
      * 
      * @return the separation vector between the pair of atoms, with nearest-image
-     * transformation taken into account
+     * transformation taken into account.  Separation is defined as pair.atom1 - pair.atom0.
      */
     public Vector reset(AtomPair pair) {
         return reset(pair.atom0.coord, pair.atom1.coord);
@@ -56,7 +58,7 @@ public class CoordinatePair implements java.io.Serializable {
      * be calculated.
      * 
      * @return the separation vector between the pair of coordinates, with nearest-image
-     * transformation taken into account
+     * transformation taken into account.  Separation is defined as coord2 - coord1.
      */
     public Vector reset(ICoordinate coord1, ICoordinate coord2) {
         c1 = (Coordinate)coord1;
@@ -69,7 +71,8 @@ public class CoordinatePair implements java.io.Serializable {
      * coordinate/atom pair.
      * 
      * @return the separation vector between the pair of coordinates, with nearest-image
-     * transformation taken into account
+     * transformation taken into account.  Separation is defined as coord2 - coord1, where
+     * "2" and "1" are as given in the last call to reset with arguments.
      * @throws NullPointerException if no coordinates or atoms were previously specified
      */
     public Vector reset() {

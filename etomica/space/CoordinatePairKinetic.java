@@ -37,7 +37,8 @@ public class CoordinatePairKinetic extends CoordinatePair {
      * to resetV) do not perform any velocity-related calculations; the resetV
      * methods must be called explicitly if relative velocities are of interest.
      * 
-     * @return the relative velocity of the pair of atoms
+     * @return the relative velocity of the pair of atoms, defined as pair.atom1 -
+     *         pair.atom0
      * @throws ClassCastException
      *             if the atoms' coordinates do not implement ICoordinateKinetic
      */
@@ -53,7 +54,7 @@ public class CoordinatePairKinetic extends CoordinatePair {
      * of the resetV methods must be called explicitly if relative velocities
      * are of interest.
      * 
-     * @return the relative velocity of the pair of atoms
+     * @return the relative velocity of the pair of atoms, defined as coord2-coord1
      * @throws ClassCastException
      *             if the atoms' coordinates do not implement ICoordinateKinetic
      */
@@ -69,7 +70,7 @@ public class CoordinatePairKinetic extends CoordinatePair {
      * arguments.
      * 
      * @return the relative velocity of the most recently specified pair of
-     *         atoms
+     *         atoms, defined as described in the other resetV methods.
      * @throws ClassCastException
      *             if the atoms' coordinates do not implement ICoordinateKinetic
      * @throws NullPointerException

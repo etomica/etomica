@@ -4,36 +4,44 @@ import etomica.math.geometry.Polytope;
 
 /**
  * Parent class of boundary objects that describe the size and periodic nature
- * of the phase boundaries.  Each Phase has its own instance of this class. 
- * It may be referenced by a coordinate pair when computing distances between
- * atoms, or by a cell iterator when generating neighbor lists.  It is also
- * used by objects that enforce periodic images.
+ * of the phase boundaries. Each Phase has its own instance of this class. It
+ * may be referenced by a coordinate pair when computing distances between
+ * atoms, or by a cell iterator when generating neighbor lists. It is also used
+ * by objects that enforce periodic images.
  * 
  */
-public abstract class Boundary implements NearestImageTransformer,
-        java.io.Serializable {
+public abstract class Boundary implements NearestImageTransformer, java.io.Serializable {
 
+    /**
+     * Subclasses must invoke this constructor and provide a Space instance that
+     * can be used to generate Vectors, and a Polytope that defines the shape
+     * and volume of the boundary region. Both are final.
+     */
     public Boundary(Space space, Polytope shape) {
         this.space = space;
         this.shape = shape;
     }
-    
+
+    /**
+     * Returns the Space instance given at construction.
+     */
     public Space getSpace() {
         return space;
     }
-    
+
+    /**
+     * Returns the Polytope instance given at construction.
+     */
     public Polytope getShape() {
         return shape;
     }
-    
+
     /**
      * @return the volume enclosed by the boundary
      */
     public double volume() {
         return shape.getVolume();
     }
-
-
 
     /**
      * Determines the translation vector needed to apply a periodic-image
@@ -51,7 +59,8 @@ public abstract class Boundary implements NearestImageTransformer,
 
     /**
      * Transforms the given vector to replace it with a minimum-image distance
-     * vector consistent with the periodic boundaries.
+     * vector consistent with the periodic boundaries. Implementation of
+     * nearestImageTransformer interface.
      * 
      * @param dr
      *            a distance vector between two points in the volume; upon
@@ -71,9 +80,9 @@ public abstract class Boundary implements NearestImageTransformer,
     public abstract Vector getDimensions();
 
     /**
-     * Sets the nominal length of the boundary in each direction.
-     * 
-     * @param v
+     * Sets the nominal length of the boundary in each direction. Specific
+     * interpretation of the given values (which are the elements of the given
+     * Vector) depends on the subclass.
      */
     public abstract void setDimensions(Vector v);
 
@@ -101,7 +110,7 @@ public abstract class Boundary implements NearestImageTransformer,
     /**
      * Set of vectors describing the displacements needed to translate the
      * central image to all of the periodic images. The first index specifies
-     * each perioidic image, while the second index indicates the xyz components
+     * each periodic image, while the second index indicates the xyz components
      * of the translation vector.
      * 
      * @param nShells

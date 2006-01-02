@@ -12,15 +12,19 @@ import etomica.simulation.Simulation;
  * Boundary that is in the shape of a rectangular parallelepiped.  
  * Periodicity in each direction is specified by subclass.
  */
-/*
- * History Created on Jan 24, 2005 by kofke
- */
 public abstract class BoundaryRectangular extends Boundary implements BoundaryPeriodic {
 
+    /**
+     * Constructs cubic boundary of the given periodicity, using the space and default box-size
+     * given by the Simulation. 
+     */
     public BoundaryRectangular(Simulation sim, boolean[] periodicity) {
         this(sim.space, periodicity, sim.getDefaults().boxSize);
     }
-    
+
+    /**
+     * Constructs cubic boundary of the given periodicity with each edge of length boxSize
+     */
     public BoundaryRectangular(Space space, boolean[] periodicity, double boxSize) {
         super(space, makeShape(space));
         isPeriodic = (boolean[])periodicity.clone();
@@ -36,6 +40,10 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
         updateDimensions();
     }
 
+    /**
+     * Constructs rectangular boundary of the given periodicity with edges given by the
+     * values in the array boxSize.
+     */
     public BoundaryRectangular(Space space, boolean[] periodicity, double[] boxSize) {
         super(space, makeShape(space));
         isPeriodic = (boolean[])periodicity.clone();
@@ -50,21 +58,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
         updateDimensions();
     }
     
-    public BoundaryRectangular(Space space, boolean[] periodicity, Vector boxSize) {
-        super(space, makeShape(space));
-        isPeriodic = (boolean[])periodicity.clone();
-        dimensions = space.makeVector();
-        dimensions.E(boxSize);
-        temp = space.makeVector();
-        modShift = space.makeVector();
-        dimensionsCopy = space.makeVector();
-        dimensionsHalf = space.makeVector();
-        indexIterator = new IndexIteratorSequential(space.D());
-        needShift = new boolean[space.D()];//used by getOverflowShifts
-        updateDimensions();
-    }
-    
-    
+    //used by constructors
     private static Polytope makeShape(Space space) {
         switch(space.D()) {
             case 1: return new LineSegment(space);
@@ -74,10 +68,20 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
         }
     }
 
+    /**
+     * Returns a vector with elements equal to the lengths of the edges of
+     * the boundary.  The returned Vector does not represent the values internally,
+     * so manipulation of the vector has no effect on this BoundaryRectangular instance.
+     */
     public final etomica.space.Vector getDimensions() {
         return dimensionsCopy;
     }
 
+    /**
+     * Returns a vector that describes a point selected uniformly within
+     * the boundary.  The same Vector instance is returned with each call, with
+     * a new random point each time.
+     */
     public etomica.space.Vector randomPosition() {
         temp.setRandom(dimensions);
         return temp;
@@ -89,20 +93,39 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
         ((Rectangular)shape).setEdgeLengths(dimensions);
     }
 
-
+    /**
+     * Sets the size and shape of the rectangular boundary.  Values are 
+     * copied, so manipulation of the given vector has no subsequent effect
+     * on this Boundary instance.
+     */
     public void setDimensions(etomica.space.Vector v) {
         dimensions.E(v);
         updateDimensions();
     }
 
+    /**
+     * Returns the "volume" of the retangular region defined by this Boundary.
+     * For a 2D and 1D spaces, this volume is actually an area and length, respectively.
+     */
     public double volume() {
         return shape.getVolume();
     }
 
+    /**
+     * Returns the array that defines the directions of periodicity.  A true value
+     * for each element indicates that the boundary is periodic in the correspoinding
+     * direction.  The returned array is the internal representation, not a copy, so
+     * changing it will affect the periodicity of the boundary.
+     */
     public boolean[] getPeriodicity() {
         return isPeriodic;
     }
 
+    /**
+     * Returns a set of image origins for a set of periodic image shells.  
+     * The returned array is of dimension [(2*nShells+1)^D][D], where D
+     * is the dimension of the space.
+     */
     public double[][] imageOrigins(int nShells) {
         Vector workVector = space.makeVector();
         int shellFormula = (2 * nShells) + 1;

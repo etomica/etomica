@@ -6,14 +6,9 @@ import etomica.simulation.Simulation;
 
 /**
  * Boundary that is not periodic in any direction.  Volume is specified,
- * but nothing about boundary enforces dimensions on the atoms.  This must
+ * but nothing about boundary enforces the dimensions on the atoms.  This effect must
  * be introduced with a potential or other construct that is made consistent
  * with the boundary.
- */
-
-/*
- * History
- * Created on Jan 27, 2005 by kofke
  */
 public class BoundaryRectangularNonperiodic extends BoundaryRectangular {
 
@@ -63,5 +58,5 @@ public class BoundaryRectangularNonperiodic extends BoundaryRectangular {
     private final Vector zero;
     protected final float[][] shift0 = new float[0][0];//cannot be static because several phases may be using at once
     protected final double[][] origins= new double[0][0];//cannot be static because several phases may be using at once
-    
+    private static final long serialVersionUID = 1L;
 }
