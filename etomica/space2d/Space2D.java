@@ -8,7 +8,7 @@ import etomica.space.RotationTensor;
 import etomica.space.Space;
 
 /**
- * Factory and methods appropriate to a 1-dimensional space.  This is
+ * Factory and methods appropriate to a 2-dimensional space.  This is
  * a singleton class that can be accessed only via the static getInstance method.
  */
 public final class Space2D extends Space {
