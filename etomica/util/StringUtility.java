@@ -1,13 +1,30 @@
 package etomica.util;
 
-public class StringUtility implements java.io.Serializable {
+/**
+ * Non-instantiable class providing a few static methods for String manipulation.
+ */
+public class StringUtility {
     
+    /**
+     * Private construction to ensure non-instantiation.
+     */
+    private StringUtility() {}
+    
+    /**
+     * Capitalizes the first letter of the given string.
+     * Can accept zero-length or null argument, and simply returns the same.
+     */
     public static String capitalize(String s) {
         if(s == null || s.length() == 0) return s;
         return s.substring(0,1).toUpperCase() + s.substring(1);
     }
     
+    /**
+     * Converts the first letter of the given string to lower case.
+     * Can accept zero-length or null argument, and simply returns the same.
+     */
     public static String decapitalize(String s) {
+        if(s == null || s.length() == 0) return s;
         return s.substring(0,1).toLowerCase() + s.substring(1);
     }
     

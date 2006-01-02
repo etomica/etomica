@@ -7,12 +7,13 @@ import etomica.space.Vector;
 import etomica.space2d.Vector2D;
 import etomica.util.Function;
 
-/*
- * History Created on Jan 24, 2005 by kofke
+/**
+ * Implementation of the Vector class for a 3-dimensional space.
  */
 public final class Vector3D extends Vector {
 
     double x, y, z;
+    private static final long serialVersionUID = 1L;
 
     public int D() {
         return 3;

@@ -8,15 +8,12 @@ import etomica.space.RotationTensor;
 import etomica.space.Space;
 
 /**
- * 
  * Factory and methods appropriate to a 3-dimensional space.  This is
- * a singleton class that can be accessed via the static getInstance method. 
- * 
- * @author David Kofke
- *
+ * a singleton class that can be accessed only via the static getInstance method.
  */
 public final class Space3D extends Space {
 
+    
     /**
      * Private constructor for singleton.
      */
@@ -112,6 +109,7 @@ public final class Space3D extends Space {
     
     /**
      * Required to guarantee singleton when deserializing.
+     * 
      * @return the singleton INSTANCE
      */
     private Object readResolve() throws ObjectStreamException {
@@ -119,5 +117,6 @@ public final class Space3D extends Space {
     }
 
     private static final Space3D INSTANCE = new Space3D();
+    private static final long serialVersionUID = 1L;
 
 }//end of Space3D

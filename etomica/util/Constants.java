@@ -20,11 +20,11 @@ public final class Constants {
        Units for internal calculations (simulation units)
             time: ps
           length: Angstroms
-            mass: amu
+            mass: Daltons, or atomic mass units (amu)
     */
     
     /**
-     * Avogadro's number, 6.0221415e23.
+     * Avogadro's number, 6.0221415e23 molecules/mole.
      */
     // reference:  http://physics.nist.gov/cgi-bin/cuu/Value?na|search_for=abbr_in!
     public static final double AVOGADRO = 6.0221415e23;

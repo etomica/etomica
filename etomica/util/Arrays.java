@@ -9,7 +9,7 @@ import java.lang.reflect.Array;
 /**
  * Non-instantiable class with static utility methods for working with arrays.
  */
-public final class Arrays implements java.io.Serializable {
+public final class Arrays {
 
 	/**
 	 * Private constructor to prevent instantiation.
@@ -93,7 +93,7 @@ public final class Arrays implements java.io.Serializable {
      * and is of same type as given array.  Order of objects in the new
      * array is unchanged from their order in the original array. 
      * If object is not in the given array,
-     * method returns quietly without performing any action.
+     * method returns original array without performing any action.
      * @param array array with the objects
      * @param newObject object being removed
      * @return new array with the object removed

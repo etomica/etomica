@@ -12,17 +12,27 @@ import etomica.util.Function;
 public class Tensor3D implements Tensor, java.io.Serializable {
 
     double xx, xy, xz, yx, yy, yz, zx, zy, zz;
+    private static final long serialVersionUID = 1L;
 
+    /**
+     * Default constructor sets all elements to zero.
+     */
     public Tensor3D () {xx = xy = xz = yx = yy = yz = zx = zy = zz = 0.0;}
+    
+    
+    /**
+     * Constructs tensor with elements set by the given array.  Elements
+     * are interpreted in order as xx, xy, xz, yx, yy, yz, zx, zy, zz.
+     */
     public Tensor3D (double[] d) {
         this.E(d);
     }
     
     /**
-     * Returns tensor in a 1D array, writing elements columnwise, i.e., xx, yx, zy, xy, etc.
+     * Returns tensor in a new array, writing elements row-wise, i.e.: xx, xy, xz, yx, yy, yz, zx, zy, zz;
      */
     public double[] toArray() {
-        return new double[] {xx, yx, zx, xy, yy, zy, xz, yz, zz};
+        return new double[] {xx, xy, xz, yx, yy, yz, zx, zy, zz};
     }
 
     /**
@@ -84,10 +94,10 @@ public class Tensor3D implements Tensor, java.io.Serializable {
     }
     public double trace() {return xx+yy+zz;}
     public void transpose() { 
-    	double temp = 0.0;
-    	temp = xy; xy = yx; yx = temp;
-    	temp = xz; xz = zx; zx = temp;
-    	temp = zy; zy = yz; yz = temp;    	
+        	double temp = 0.0;
+        	temp = xy; xy = yx; yx = temp;
+        	temp = xz; xz = zx; zx = temp;
+        	temp = zy; zy = yz; yz = temp;    	
     }
     public void inverse() {
         double txx=xx;double txy=xy;double txz=xz;
@@ -134,7 +144,7 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         zx = d[6]; zy = d[7]; zz = d[8];
     }
     public void assignTo(double[] d) {
-        if(d.length != 1) throw new IllegalArgumentException("Array size incorrector for tensor");
+        if(d.length != 9) throw new IllegalArgumentException("Array size incorrector for tensor");
         d[0] = xx; d[1] = xy; d[2] = xz; 
         d[3] = yx; d[4] = yy; d[5] = yz;
         d[6] = zx; d[7] = zy; d[8] = zz;

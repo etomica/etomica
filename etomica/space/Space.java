@@ -14,6 +14,8 @@ public abstract class Space implements java.io.Serializable {
     
     /**
      * Returns a space instance of the given dimension, which must be 1, 2, or 3.
+     * 
+     * @throws IllegalArgumentException if D is not 1, 2, or 3.
      */
     public static Space getInstance(int D) {
         switch(D) {
@@ -28,25 +30,44 @@ public abstract class Space implements java.io.Serializable {
         }
     }
     
+    /**
+     * The dimension of this space.
+     */
     public abstract int D();
-    
+
+    /**
+     * Returns the given value raised to the power 1/D, where D is the dimension of the space.
+     */
     public abstract double rootD(double a);
     
     /**
      * Returns the given value raised to the Dth power, where D is the dimension of the space.
      */
     public abstract int powerD(int a);
+    
     /**
      * Returns the given value raised to the Dth power, where D is the dimension of the space.
      */
     public abstract double powerD(double a);
     
+    /**
+     * Constructs and returns a new Vector appropriate to the space.
+     */
     public abstract Vector makeVector();
-    
+
+    /**
+     * Constructs and returns a new Orientation appropriate to the space.
+     */
     public abstract Orientation makeOrientation();
     
+    /**
+     * Constructs and returns a new Tensor appropriate to the space.
+     */
     public abstract Tensor makeTensor();
-    
+
+    /**
+     * Constructs and returns a new RotationTensor appropriate to the space.
+     */
     public abstract RotationTensor makeRotationTensor();
     
     /**
@@ -58,12 +79,31 @@ public abstract class Space implements java.io.Serializable {
      */
     public abstract double[] makeArrayD(double d);
 
+    /**
+     * Returns the "volume" of the "sphere" defined in the D-dimensional space.
+     * In 1-D, this is twice the radius; in 2-D the area of the circle; 
+     * in 3-D the volume of the sphere.
+     *
+     * @param r the radius
+     * @return the volume
+     */
     public abstract double sphereVolume(double r);
 
+    /**
+     * Returns the surface "area" of the "sphere" defined in the D-dimensional space.
+     * In 1-D this is zero; in 2-D the circumference of the circle; in 3-D 
+     * the surface area of the sphere.
+     *
+     * @param r the radius
+     * @return the area
+     */
     public abstract double sphereArea(double r);
     
     /**
      * Returns the square distance between the two vectors, using the given boundary condition.
+     * 
+     * @throws IllegalArgumentException if u1.D() is not equal to u2.D().
+     * @throws UnsupportedOperationException if the u1.D is not 1, 2, or 3.
      */
     public static double r2(Vector u1, Vector u2, Boundary b) { //square distance between two vectors, subject to boundary b
         if(u1.D() != u2.D()) throw new IllegalArgumentException("Space.r2:  Dimension of vectors not equal to each other");
@@ -76,6 +116,8 @@ public abstract class Space implements java.io.Serializable {
     }
     /**
      * Returns a Vector from the space of the given dimension.
+     * 
+     * @throws IllegalArgumentException if D is not 1, 2, or 3.
      */
     public static Vector makeVector(int D) {
         switch(D) {
@@ -88,6 +130,8 @@ public abstract class Space implements java.io.Serializable {
     /**
      * Returns a Vector initialized to the given set of values in the array.
      * Spatial dimension of the Vector is determined by the length of a.
+     * 
+     * @throws IllegalArgumentException if a.length is not 1, 2, or 3.
      */
     public static Vector makeVector(double[] a) {
         switch(a.length) {

@@ -2,18 +2,18 @@ package etomica.space2d;
 
 import etomica.math.SpecialFunctions;
 import etomica.simulation.Simulation;
-import etomica.space.Boundary;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 import etomica.util.Function;
 
-/*
- * History Created on Jan 24, 2005 by kofke
+/**
+ * Implementation of the Vector class for a 2-dimensional space.
  */
 public final class Vector2D extends etomica.space.Vector {
 
     double x, y;
+    private static final long serialVersionUID = 1L;
 
     public Vector2D() {
         x = 0.0;

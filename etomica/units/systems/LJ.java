@@ -19,6 +19,8 @@ import etomica.units.Unit;
  * Default values are each 1.0.
  */
 
+// consider whether LJ units for charge, dipole, etc should be reduced by 4 pi eps0 rather than by electron charge 
+
 public class LJ extends UnitSystem implements java.io.Serializable {
 
     //parent class for the LJ units

@@ -44,15 +44,13 @@ import etomica.util.NameMaker;
  * <p>
  * <ol>
  * <li>It holds a SpeciesMaster instance, which provides the root of a
- * hierarchy of atoms that represent the physical object that interact.
+ * hierarchy of atoms that represent the physical objects that interact.
  * <li>It holds a Boundary object, obtained from the governing Space, that
  * defines the volume of the phase and the behavior of atoms as they move into or
  * across the boundary of the phase.
- * <li>It has a Configuration object that determines the default initial
- * configuration of the atoms in the phase.
  * <li>It maintains a list of listeners that are informed when significant
  * events happen in the phase (such as a change in its boundary).
- * <li>Each Phase has a unique species index assigned when it is constructed.
+ * <li>Each Phase has a unique index assigned when it is constructed.
  * The index assignment begins at 0 and is incremented after each Phase
  * construction. This index is useful when collecting things in reference to the
  * phase.
@@ -62,17 +60,13 @@ import etomica.util.NameMaker;
  * instances which are simply DataSource objects that require a phase to
  * generate their data. <br>
  * A simulation may involve more than one phase. All Phase instances are
- * normally registered with the default simulation upon their construction, and
- * may be accessed via the simulation's getPhaseList method.
+ * registered with the simulation specified upon their construction, and
+ * may be accessed via the simulation's getPhases method.
  * 
  * @author David Kofke
  * @see Boundary
  */
  
- /* History of changes
-  * 7/3/02  added reset method
-  */
-  
 public class Phase implements EtomicaElement, java.io.Serializable {
         
     /**

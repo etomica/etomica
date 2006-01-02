@@ -3,6 +3,9 @@ import java.io.ObjectStreamException;
 
 import etomica.util.Constants;
 
+/**
+ * The mole unit of quantity, approximately equal to 6.022e23 simulation units.
+ */
 public final class Mole extends SimpleUnit {
 
   /**
@@ -12,7 +15,7 @@ public final class Mole extends SimpleUnit {
     
     private Mole() {
         super(Quantity.DIMENSION,
-               Constants.AVOGADRO, //6.022e22; conversion from moles to count (number)
+               Constants.AVOGADRO, //6.022e23; conversion from moles to count (number)
                "moles",
                "mol",
                Prefix.ALLOWED

@@ -7,6 +7,10 @@ import etomica.space.NearestImageTransformer;
 import etomica.space.RotationTensor;
 import etomica.space.Space;
 
+/**
+ * Factory and methods appropriate to a 1-dimensional space.  This is
+ * a singleton class that can be accessed only via the static getInstance method.
+ */
 public final class Space1D extends Space {
     
     /**
@@ -23,15 +27,15 @@ public final class Space1D extends Space {
         return INSTANCE;
     }
 
-    public final int D() {
+    public int D() {
         return 1;
     }
 
-    public final int powerD(int n) {
+    public int powerD(int n) {
         return n;
     }
 
-    public final double powerD(double a) {
+    public double powerD(double a) {
         return a;
     }
     
@@ -104,6 +108,7 @@ public final class Space1D extends Space {
     
     /**
      * Required to guarantee singleton when deserializing.
+     * 
      * @return the singleton INSTANCE
      */
     private Object readResolve() throws ObjectStreamException {
@@ -111,5 +116,6 @@ public final class Space1D extends Space {
     }
     
     private static final Space1D INSTANCE = new Space1D();
+    private static final long serialVersionUID = 1L;
 
 }

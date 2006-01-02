@@ -15,7 +15,8 @@ import etomica.phase.Phase;
  * to the method, concatenated by a number equal to the number of times the
  * method has been invoked previously with the given class.
  */
-public class NameMaker implements java.io.Serializable {
+//this class will fail if used with serialization
+public class NameMaker {
 
     /**
      * Private constructor prevents instantiation.

@@ -15,7 +15,7 @@ public final class Electron extends SimpleUnit {
     
     private Electron() {
         super(Charge.DIMENSION, 
-                1.0/Math.sqrt(4.0 * Math.PI * Constants.EPSILON_0), //372.7; conversion to (amu-A^3/ps^2)^(1/2); need only divide by sqrt(4 pi eps0) because eps0 is defined in Constants in terms of the electron charge. 
+                1.0/Math.sqrt(4.0 * Math.PI * Constants.EPSILON_0), //372.7; conversion to (D-A^3/ps^2)^(1/2); need only divide by sqrt(4 pi eps0) because eps0 is defined in Constants in terms of the electron charge. 
 	        "elementary charges","e", Prefix.ALLOWED
         	);   
     }

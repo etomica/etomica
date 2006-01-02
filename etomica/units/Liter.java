@@ -2,11 +2,13 @@ package etomica.units;
 
 import java.io.ObjectStreamException;
 
+/**
+ * The liter unit of volume, equal to 1000 cm^3 or 0.001 m^3 or 10^27 A^3.
+ */
 public final class Liter extends SimpleUnit {
 
   /**
-   * Convenience instance of this unit to permit unit to be assigned
-   * without creating a new instance of it each time
+   * Singleton instance of this class.
    */
     public static final Liter UNIT = new Liter();
     

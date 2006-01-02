@@ -2,6 +2,9 @@ package etomica.units;
 
 import java.io.ObjectStreamException;
 
+/**
+ * The meter unit of length, equal to 10^10 angstroms.
+ */
 public final class Meter extends SimpleUnit {
 
   /**

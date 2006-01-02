@@ -5,12 +5,14 @@ import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.util.Function;
 
-/*
- * History Created on Jan 24, 2005 by kofke
+/**
+ * Implementation of the Vector class for a 1-dimensional space. In this case the vector
+ * is a trivial object formed from just one element.
  */
 public final class Vector1D extends etomica.space.Vector { 
     
     double x;
+    private static final long serialVersionUID = 1L;
 
     public Vector1D() {
         x = 0.0;

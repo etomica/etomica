@@ -7,6 +7,10 @@ import etomica.space.NearestImageTransformer;
 import etomica.space.RotationTensor;
 import etomica.space.Space;
 
+/**
+ * Factory and methods appropriate to a 1-dimensional space.  This is
+ * a singleton class that can be accessed only via the static getInstance method.
+ */
 public final class Space2D extends Space {
 
     /**
@@ -23,29 +27,35 @@ public final class Space2D extends Space {
         return INSTANCE;
     }
 
-    public final int D() {
+    public int D() {
         return 2;
     }
 
-    public final int powerD(int n) {
+    public int powerD(int n) {
         return n * n;
     }
 
-    public final double powerD(double a) {
+    public double powerD(double a) {
         return a * a;
     }
 
     /**
-     * Returns the square root of the given value, a^(1/D) which is a^(1/2).
+     * Returns the square root of the given value, a^(1/D), which is a^(1/2).
      */
     public double rootD(double a) {
         return Math.sqrt(a);
     }
 
+    /**
+     * Returns PI r^2.
+     */
     public double sphereVolume(double r) {
         return Math.PI * r * r;
     } //volume of a sphere of radius r
 
+    /**
+     * Returns 2 PI r.
+     */
     public double sphereArea(double r) {
         return 2.0 * Math.PI * r;
     } //surface area of sphere of radius r (used for differential shell volume)
@@ -113,5 +123,6 @@ public final class Space2D extends Space {
     }
 
     private static final Space2D INSTANCE = new Space2D();
+    private static final long serialVersionUID = 1L;
 
 }//end of Space2D

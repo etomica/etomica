@@ -17,7 +17,6 @@ import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
 import etomica.integrator.IntegratorPhase;
 import etomica.nbr.NeighborCriterion;
-import etomica.nbr.PotentialCalculationUpdateTypeList;
 import etomica.nbr.cell.ApiAACell;
 import etomica.phase.Phase;
 import etomica.potential.Potential;

@@ -4,30 +4,35 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.util.Function;
 
-
-
-/*
- * History
- * Created on Jan 24, 2005 by kofke
+/**
+ * Implementation of a tensor for a 2-dimensional space.  Tensor is formed from four elements.
  */
 public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
 
-    public int length() {return 2;}
     double xx, xy, yx, yy;
+    private static final long serialVersionUID = 1;
+    
+    public int length() {return 2;}
 
+    /**
+     * Default constructor sets all tensor elements to zero.
+     */
     public Tensor2D () {xx = xy = yx = yy = 0.0;}
+    
+    /**
+     * Constructs tensor with elements set by the given array.  Elements
+     * are interpreted in order as xx, xy, yx, yy.
+     */
     public Tensor2D (double[] d) {
         this.E(d);
     }
     
     /**
-     * Returns tensor in an array, writing columnwise, i.e., in order xx, yx, xy, yy.
+     * Returns tensor in an array, writing rowwise, i.e., in order xx, xy, yx, yy.
      */
     public double[] toArray() {
-        return new double[] {xx, yx, xy, yy};
+        return new double[] {xx, xy, yx, yy};
     }
-
-
 
     /**
      * Support of implementation of Cloneable interface. Returns a new Tensor
@@ -88,16 +93,18 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
         yx-=((Tensor2D)t).yx;
         yy-=((Tensor2D)t).yy;
     }
+    
     public double trace() {return xx + yy;}
+    
     public void transpose(){
-    	double temp = 0.0;
-    	temp = xy; xy = yx; yx = temp;
+        	double temp = xy; xy = yx; yx = temp;
     }
+    
     public void inverse() {
-    	double det = xx*yy -xy*yx;
-    	double temp =0.0;
-    	temp = xx; xx = yy/det; yy = temp/det;
-    	temp = xy; xy = -yx/det; yx = -temp/det;
+        	double det = xx*yy -xy*yx;
+        	double temp =0.0;
+        	temp = xx; xx = yy/det; yy = temp/det;
+        	temp = xy; xy = -yx/det; yx = -temp/det;
     }
     
     public void TE(double a) {xx*=a; xy*=a; yx*=a; yy*=a;}

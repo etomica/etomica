@@ -27,14 +27,14 @@ import etomica.util.NameMaker;
   * etc.) The agent for a given phase may be obtained through the getAgent
   * method. <br>
   * <li>Each Species has a unique species index assigned when it is
-  * constructed. The index assignment begins at 0 and is incremented after
+  * constructed. The index assignment begins at 1 and is incremented after
   * each Species construction. This index is useful when collecting things
   * in reference to the species (for example, in the use of neighbor lists).
   * </ol>
   * The number of molecules of a species in a phase may be changed at run
   * time. Interactions among all molecules in a phase are defined by
   * associating an intermolecular potential to one or more Species via a
-  * call to the setSpecies method of the PotentialMaster for the simulation.
+  * call to the addPotential method of the PotentialMaster for the simulation.
   * 
   * @author David Kofke
   * @author C. Daniel Barnes

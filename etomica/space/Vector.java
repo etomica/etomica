@@ -4,8 +4,29 @@ import etomica.space2d.Vector2D;
 import etomica.space3d.Vector3D;
 import etomica.util.Function;
 
-/*
- * History Created on Jan 24, 2005 by kofke
+/**
+ * Class defining methods for a vector in a D-dimensional space.  Arithmetic vector operations
+ * are named with capital letters that are coded to the operations performed:
+ * <ul>
+ * <li>E for "equals" =
+ * <li>P for "plus", +
+ * <li>M for "minus", -
+ * <li>T for "times", *
+ * <li>D for "divided", /
+ * </ul>
+ * The operation may be interpreted by writing the corresponding symbolic expression; for
+ * example, PE is "+=" and will cause each element of this vector to be incremented by
+ * some amount (specific to the method).  Most arithemetic operations involving two
+ * or more vectors simply apply element-by-element.  Additionally, standard vector
+ * operations are defined, such as the dot product and cross product (indicatate with "X" in the name).
+ * <p>
+ * Vector names also may include a1, a2, v1, v2, etc.  An "a" indicates a scalar, while
+ * a "v" indicates another vector.  Thus the method Ea1Tv1 (read "= a1*v1) will replace
+ * all elements of this vector with the elements of vector v1, each multiplied by the
+ * scalar a1.
+ * <p>
+ * Vector components may be accessed and changed via the methods "x" and "setX", respectively. 
+ * 
  */
 public abstract class Vector implements java.io.Serializable, Cloneable {
 
@@ -22,7 +43,7 @@ public abstract class Vector implements java.io.Serializable, Cloneable {
     }
 
     /**
-     * Dimension of the space occupied by the vector. Number of element in the
+     * Dimension of the space occupied by the vector. Number of elements in the
      * vector.
      */
     public abstract int D();
@@ -168,7 +189,7 @@ public abstract class Vector implements java.io.Serializable, Cloneable {
     /**
      * Sets the components of this vector equal to (v1 + v2)
      */
-    public abstract void Ev1Pv2(Vector v1, Vector v2); //sets equal to sum of
+    public abstract void Ev1Pv2(Vector v1, Vector v2);
 
     /**
      * Adds/subtracts a scalar to each element, with the choice of 

@@ -4,13 +4,20 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.util.Function;
 
-/*
- * History
- * Created on Jan 24, 2005 by kofke
+/**
+ * Implementation of a tensor for a 1-dimensional space.  In this case the tensor
+ * is a trivial object formed from just one element.
  */
 public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
+
     double xx;
+    private static final long serialVersionUID = 1;
+
+    /**
+     * Default constructor sets tensor element to zero.
+     */
     public Tensor1D () {xx = 0.0;}
+    
     public Tensor1D (double[] d) {this.E(d);}
 
     public double[] toArray() {

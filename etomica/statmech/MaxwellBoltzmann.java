@@ -4,14 +4,11 @@ import etomica.space.Space;
 import etomica.units.Mass;
 
 /**
- * Class with static methods for implementing features of the Maxwell-Boltzmann velocity distribution
+ * Non-instantiable class with static methods for implementing features of the 
+ * Maxwell-Boltzmann velocity distribution.
  */
  
- /* History
-  * 09/08/02 (DAK) implemented as function
-  */
-  
-public final class MaxwellBoltzmann implements java.io.Serializable {
+public final class MaxwellBoltzmann {
     
     //private to prevent instantiation
     private MaxwellBoltzmann() {}
