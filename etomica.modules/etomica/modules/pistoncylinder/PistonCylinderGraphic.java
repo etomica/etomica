@@ -50,16 +50,19 @@ import etomica.potential.Potential2HardSphericalWrapper;
 import etomica.potential.PotentialGroup;
 import etomica.units.Angstrom;
 import etomica.units.Bar;
+import etomica.units.CompoundUnit;
 import etomica.units.Dalton;
 import etomica.units.Dimension;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.units.Length;
 import etomica.units.Liter;
+import etomica.units.Meter;
 import etomica.units.Mole;
 import etomica.units.Pixel;
+import etomica.units.Prefix;
+import etomica.units.PrefixedUnit;
 import etomica.units.Pressure;
-import etomica.units.Pressure2D;
 import etomica.units.Quantity;
 import etomica.units.Temperature;
 import etomica.units.Time;
@@ -491,7 +494,9 @@ public class PistonCylinderGraphic {
         if (pc.space.D() == 2) {
             dUnit = new UnitRatio(Mole.UNIT, 
                                     MKS.SYSTEM.area());
-            pUnit = Pressure2D.DIMENSION.getUnit(MKS.SYSTEM);
+            Unit[] units = new Unit[] {Bar.UNIT, new PrefixedUnit(Prefix.NANO, Meter.UNIT)};
+            double[] exponents = new double[] {1.0, 1.0};
+            pUnit = new CompoundUnit(units, exponents);
         }
         else {
             dUnit = new UnitRatio(Mole.UNIT, Liter.UNIT);
@@ -591,7 +596,7 @@ public class PistonCylinderGraphic {
         massBox.setController(pc.getController());
         
         pressureSlider.setUnit(pUnit);
-        pressureSliderPanel.setBorder(new javax.swing.border.TitledBorder("Set Pressure ("+pUnit.toString()+")"));
+        pressureSliderPanel.setBorder(new javax.swing.border.TitledBorder("Set Pressure ("+pUnit.symbol()+")"));
         Dimension pDim = Pressure.dimension(D);
         pc.pistonPotential.setPressure(pUnit.toSim(pressureSlider.getValue()));
         pressureSlider.setModifier(new ModifierPistonPressure(pc.pistonPotential,pDim));
