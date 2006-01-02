@@ -3,12 +3,6 @@ package etomica.space;
 import etomica.util.Function;
 
 
-
-
-/*
- * History
- * Created on Jan 24, 2005 by kofke
- */
 public interface Tensor extends Cloneable {
     public Object clone();
     

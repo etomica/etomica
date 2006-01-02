@@ -20,19 +20,10 @@ import etomica.util.NameMaker;
 
 /**
  * The main class that organizes the elements of a molecular simulation.
- * Holds a single space object that is referenced in
- * many places to obtain spatial elements such as vectors and boundaries.  Also
- * holds an object that specifies the unit system used to default all I/O.  A single
- * instance of Simulation is held as a static field, and which forms the default
- * Simulation class needed in the constructor of all simulation elements.
- *
- * @author David Kofke
+ * Holds a single Space instance that is referenced in
+ * many places to obtain spatial elements such as vectors and boundaries.
  */
 
-/* History
- * 04/18/03 (DAK) added LoggerList
- */
- 
 public class Simulation extends EtomicaInfo implements java.io.Serializable  {
     
     public final PotentialMaster potentialMaster;

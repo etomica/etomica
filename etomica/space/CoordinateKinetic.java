@@ -3,12 +3,8 @@ package etomica.space;
 
 /**
  * Implemention of a coordinate that has a position and a velocity.
-  */
-
-/*
- * History
- * Created on Jan 26, 2005 by kofke
  */
+
 public class CoordinateKinetic extends Coordinate implements ICoordinateKinetic {
 
     /**
@@ -41,11 +37,12 @@ public class CoordinateKinetic extends Coordinate implements ICoordinateKinetic 
     }
     
    /**
-     * Returns the instance of the velocity vector.
+     * Returns the instance of the velocity vector (not a copy).
      */
     public final Vector velocity() {
         return v;
     }
 
     protected final Vector v;
+    private static final long serialVersionUID = 1L;
 }

@@ -1,19 +1,18 @@
 package etomica.space;
 
-
+import java.io.Serializable;
 
 /**
- * Implementation of a coordinate that associates a position and
+ * Implementation of a Coordinate that associates a position and
  * and orientation with an atom, both made by an arbitrary-dimension
  * Space.
-  */
-
-/*
- * History
- * Created on Jan 26, 2005 by kofke
  */
-public class CoordinateAngular extends Coordinate implements ICoordinateAngular {
 
+public class CoordinateAngular extends Coordinate implements ICoordinateAngular, Serializable {
+
+    /**
+     * Makes theh coordinate using Vector and Orientation from the given Space.
+     */
     public CoordinateAngular(Space space) {
         super(space);
         orientation = space.makeOrientation();
@@ -31,12 +30,14 @@ public class CoordinateAngular extends Coordinate implements ICoordinateAngular 
         orientation.E(((CoordinateAngular)coord).orientation);
     }
 
-    /* (non-Javadoc)
-     * @see etomica.space.ICoordinateAngular#orientation()
+    /**
+     * Returns the orientation (not a copy).
      */
     public Orientation orientation() {
         return orientation;
     }
 
     protected Orientation orientation;
+    private static final long serialVersionUID = 1L;
+
 }

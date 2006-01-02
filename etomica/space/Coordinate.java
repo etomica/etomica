@@ -1,7 +1,5 @@
 package etomica.space;
 
-
-
 /**
  * Implementation of ICoordinate interface in which
  * the only atom state parameter is its position, which
@@ -9,10 +7,6 @@ package etomica.space;
  * Space.
  */
 
-/*
- * History
- * Created on Jan 26, 2005 by kofke
- */
 public class Coordinate implements ICoordinate, java.io.Serializable {
 
     /**
@@ -39,4 +33,5 @@ public class Coordinate implements ICoordinate, java.io.Serializable {
     }
 
     protected final Vector r;
+    private static final long serialVersionUID = 1L;
 }

@@ -1,7 +1,7 @@
 package etomica.space;
 
-/*
- * History Created on Jan 24, 2005 by kofke
+/**
+ * Interface for a Coordinate that includes a Vector that defines the atom's position.
  */
 public interface ICoordinate {
     
@@ -13,6 +13,9 @@ public interface ICoordinate {
      */
     public void E(ICoordinate coord);
 
+    /**
+     * Returns the position vector.
+     */
     public Vector position();
 
 }

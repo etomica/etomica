@@ -67,5 +67,6 @@ public class CoordinateFactorySphere implements CoordinateFactory, Serializable 
 
     private final Space space;
     private boolean isKinetic;
+    private static final long serialVersionUID = 1L;
 
 }

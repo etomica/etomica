@@ -1,15 +1,8 @@
 package etomica.space;
 
-
-
 /**
  * Implementation of a coordinate that associates position and orientational
- * coordinates and momenta with each atom.
- */
-
-/*
- * History
- * Created on Jan 26, 2005 by kofke
+ * coordinates and velocities with each atom.
  */
 public class CoordinateAngularKinetic extends CoordinateAngular implements
         ICoordinateAngularKinetic {
@@ -38,18 +31,20 @@ public class CoordinateAngularKinetic extends CoordinateAngular implements
     }
 
     /**
-     * Returns the angular-velocity vector.
+     * Returns the angular-velocity vector (not a copy).
      */
     public Vector angularVelocity() {
         return omega;
     }
 
     /**
-     * Returns the velocity vector.
+     * Returns the velocity vector (not a copy).
      */
     public Vector velocity() {
         return v;
     }
 
     private Vector v, omega;
+    private static final long serialVersionUID = 1L;
+
 }
