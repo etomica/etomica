@@ -8,6 +8,8 @@ import java.awt.event.ActionListener;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
@@ -131,6 +133,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
         slider.setDecimalSliderValue(300);
         setMinimum(100);
         setMaximum(500);
+        slider.addChangeListener(new SliderListener());
         slider.setDecimalSliderMajorTickSpacing(100);
         slider.setDecimalSliderMinorTickSpacing(50);
 
@@ -349,6 +352,19 @@ public class DeviceSlider extends Device implements EtomicaElement {
      * show up on the property sheet.
      */
      public void setSlider(JSlider s) {}
+     
+     /**
+      * Slider listener, which relays the slider change events to the modifier
+      */
+     private class SliderListener implements ChangeListener, java.io.Serializable {
+         public void stateChanged(ChangeEvent evt) {
+             if(modifyAction!=null) {
+                 modifyAction.setValueForAction(unit.toSim(slider.getDecimalSliderValue()));
+                 textField.setText(String.valueOf(slider.getDecimalSliderValue()));
+                 doAction(targetAction);
+             }
+         }
+     }
      
     /**
      * Method to demonstrate and test the use of this class.  
