@@ -69,7 +69,7 @@ public class ReactionEquilibriumGraphic {
 		
         // DISPLAYPHASE is all the stuff you see on the Right, the pic, the graphs
         // the FINAL line makes the Pairent and everything below is attached to DisplayPhase1
-        displayPhase1 = new DisplayPhase(sim.phase1);
+        displayPhase1 = new DisplayPhase(sim.phase1,sim.getDefaults().pixelUnit);
 
         DisplayBox tBox = new DisplayBox();
 

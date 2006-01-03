@@ -88,7 +88,7 @@ public class SimulationGraphic implements SimulationContainer, java.io.Serializa
                      Phase phase = ((IntegratorPhase)integrator).getPhase();
                      if (phaseList.contains(phase)) continue;
                      phaseList.add(phase);
-                     DisplayPhase display = new DisplayPhase(phase);
+                     DisplayPhase display = new DisplayPhase(phase,simulation.getDefaults().pixelUnit);
                      add(display);
                      if (phase.space().D() != 3) {
                          integrator.addListener(new IntervalActionAdapter(display));

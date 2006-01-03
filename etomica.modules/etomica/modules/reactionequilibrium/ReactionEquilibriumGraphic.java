@@ -45,7 +45,7 @@ public class ReactionEquilibriumGraphic {
 		initializing = true;
 		DeviceTrioControllerButton control = new DeviceTrioControllerButton(sim);
 		DeviceThermoSelector tSelect = new DeviceThermoSelector(sim, sim.integratorHard1);
-		displayPhase1 = new DisplayPhase(sim.phase1);
+		displayPhase1 = new DisplayPhase(sim.phase1,sim.getDefaults().pixelUnit);
         sim.integratorHard1.addListener(new IntervalActionAdapter(
                 new Action() {
                     public void actionPerformed() {

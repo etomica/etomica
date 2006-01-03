@@ -112,16 +112,18 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
    }
   
     public DisplayPhase(Phase phase) {
+        this(phase,new Pixel());
+    }
+    
+    public DisplayPhase(Phase phase, Pixel pixel) {
         super();
+        this.pixel = pixel;
         System.out.println("Serenity now");
         setLabel("Configuration");
 
         align[0] = align[1] = CENTER;
 
         setPhase(phase);
-
-        
- //        ((javax.swing.JPanel)graphic()).setLayout(null);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -470,7 +472,7 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
      
      private int drawingHeight = 10;
       
-     private Pixel pixel = new Pixel();
+     private Pixel pixel;
     
     /**
      * Class to listen for and interpret mouse and key events on the configuration display.

@@ -53,7 +53,7 @@ public class MultiharmonicGraphic {
         sim.register(sim.integrator);
         DeviceTrioControllerButton control = new DeviceTrioControllerButton(sim);
 
-        final DisplayPhase displayPhase = new DisplayPhase(sim.phase);
+        final DisplayPhase displayPhase = new DisplayPhase(sim.phase,sim.getDefaults().pixelUnit);
         sim.integrator.addListener(new IntervalActionAdapter(
                 new Action() {
                     public void actionPerformed() {
