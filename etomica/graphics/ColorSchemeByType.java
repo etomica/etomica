@@ -26,23 +26,11 @@ public final class ColorSchemeByType extends ColorScheme {
     
     public Color getColor(AtomType type) {
         Color color = (Color)colorMap.get(type);
-        if(color == null) color = defaultColor;
+        if (color == null) {
+            color = defaultColor;
+        }
         return color;
     }
     
-   /**
-     * @return Returns the defaultColor.
-     */
-    public Color getDefaultColor() {
-        return defaultColor;
-    }
-    /**
-     * @param defaultColor The defaultColor to set.
-     */
-    public void setDefaultColor(Color defaultColor) {
-        this.defaultColor = defaultColor;
-    }
-    
-    private Color defaultColor = Color.RED;
     private final HashMap colorMap;
 }
