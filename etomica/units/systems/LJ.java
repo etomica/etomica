@@ -6,6 +6,7 @@ import etomica.units.Dimension;
 import etomica.units.Electron;
 import etomica.units.Radian;
 import etomica.units.Unit;
+import etomica.util.Strings;
 
 /**
  * Lennard-Jones system of units, such that all quantities are made
@@ -23,53 +24,38 @@ import etomica.units.Unit;
 
 public class LJ extends UnitSystem implements java.io.Serializable {
 
-    //parent class for the LJ units
-    public static abstract class LJUnit implements Unit {
-
-        /**
-         * Unit must provide instance of LJ unit system at construction.
-         * Conversions should be defined for each unit in reference to 
-         * lj.sigma, lj.epsilon, and lj.mass.
-         */
-        protected LJUnit(LJ ljSystem) {
-            lj = ljSystem;
-        }
-
-        public abstract Dimension dimension();
-
-        public abstract String symbol();
-
-        public abstract double fromSim(double x);
-
-        public double toSim(double x) {
-            if (x == 0.0) {
-                return 0.0;
-            }
-            return 1.0 / fromSim(1.0 / x);
-        }
-
-        public boolean prefixAllowed() {
-            return false;
-        }
-
-        protected final LJ lj;
+    /**
+     * Constructs LJ unit system with default values of sigma, epsilon and mass each equal to unity.
+     * Default uses unicode for symbols
+     */
+    public LJ() {
+        this(1.0, 1.0, 1.0, true);
     }
 
-    private double sigma = 1.0;
-    private double epsilon = 1.0;
-    private double mass = 1.0;
-    private static final long serialVersionUID = 1;
-
-    private final Unit massUnit = new Mass(this);
-    private final Unit lengthUnit = new Length(this);
-    private final Unit timeUnit = new Time(this);
-    private final Unit dipoleUnit = new Dipole(this);
-    private final Unit forceUnit = new Force(this);
-    private final Unit energyUnit = new Energy(this);
-    private final Unit temperatureUnit = new Temperature(this);
-    private final Unit pressureUnit = new Pressure(this);
-    private final Unit volumeUnit = new Volume(this);
-    private final Unit areaUnit = new Area(this);
+    /**
+     * Constructs LJ unit system with given values of sigma, epsilon, mass.
+     * 
+     * @param unicodeSymbols
+     *            if true, Unit symbols will be constructed using unicode
+     *            expressions for sigma and epsilon and other symbols; otherwise
+     *            substitutes are used.
+     */
+    public LJ(double sigma, double epsilon, double mass, boolean unicodeSymbols) {
+        this.sigma = sigma;
+        this.epsilon = epsilon;
+        this.mass = mass;
+        if(unicodeSymbols) {
+            EPS = "\u03B5";
+            SIG = "\u03C3";
+            HALF = "\u00BD";
+            DOT = "\u22C5";
+        } else {
+            EPS = "epsilon";
+            SIG = "sigma";
+            HALF = "1/2";
+            DOT = "-";
+        }
+    }
 
     //accessor and mutator methods
     public double getSigma() {
@@ -152,12 +138,70 @@ public class LJ extends UnitSystem implements java.io.Serializable {
     public Unit area() {
         return areaUnit;
     }
-
-    //definitions of the LJ units
+    
+    public Unit viscosity() {
+        return viscosityUnit;
+    }
+    
+    private double sigma = 1.0;
+    private double epsilon = 1.0;
+    private double mass = 1.0;
+    private static final long serialVersionUID = 1;
     
     // \u03B5 is unicode for epsilon
     // \u03C3 is unicode for sigma
     // \u00BD is unicode for "1/2"
+    private final String EPS;
+    private final String SIG;
+    private final String HALF;
+    private final String DOT;
+
+    private final Unit massUnit = new Mass(this);
+    private final Unit lengthUnit = new Length(this);
+    private final Unit timeUnit = new Time(this);
+    private final Unit dipoleUnit = new Dipole(this);
+    private final Unit forceUnit = new Force(this);
+    private final Unit energyUnit = new Energy(this);
+    private final Unit temperatureUnit = new Temperature(this);
+    private final Unit pressureUnit = new Pressure(this);
+    private final Unit volumeUnit = new Volume(this);
+    private final Unit areaUnit = new Area(this);
+    private final Unit viscosityUnit = new Viscosity(this);
+
+    //definitions of the LJ units
+    
+
+    //parent class for the LJ units
+    public static abstract class LJUnit implements Unit {
+
+        /**
+         * Unit must provide instance of LJ unit system at construction.
+         * Conversions should be defined for each unit in reference to 
+         * lj.sigma, lj.epsilon, and lj.mass.
+         */
+        protected LJUnit(LJ ljSystem) {
+            lj = ljSystem;
+        }
+
+        public abstract Dimension dimension();
+
+        public abstract String symbol();
+
+        public abstract double fromSim(double x);
+
+        public double toSim(double x) {
+            if (x == 0.0) {
+                return 0.0;
+            }
+            return 1.0 / fromSim(1.0 / x);
+        }
+
+        public boolean prefixAllowed() {
+            return false;
+        }
+
+        protected final LJ lj;
+    }
 
     private static final class Mass extends LJUnit {
         private Mass(LJ ljSystem) {
@@ -189,7 +233,7 @@ public class LJ extends UnitSystem implements java.io.Serializable {
         }
 
         public String symbol() {
-            return "\u03C3";
+            return lj.SIG;
         }
 
         public double fromSim(double x) {
@@ -209,7 +253,7 @@ public class LJ extends UnitSystem implements java.io.Serializable {
         }
 
         public String symbol() {
-            return "(\u03B5m\u03C3^2)^\u00BD";
+            return "("+lj.EPS+lj.DOT+"m"+lj.DOT+lj.SIG+Strings.exponent(2)+")"+Strings.exponent(lj.HALF);
         }
 
         public double fromSim(double x) {
@@ -229,7 +273,7 @@ public class LJ extends UnitSystem implements java.io.Serializable {
         }
 
         public String symbol() {
-            return "e\u03C3";
+            return "e"+lj.DOT+lj.SIG;
         }
 
         public double fromSim(double x) {
@@ -248,8 +292,8 @@ public class LJ extends UnitSystem implements java.io.Serializable {
             return etomica.units.Force.DIMENSION;
         }
 
-        public String symbol() {
-            return "\u03B5/\u03C3";// epsilon/sigma
+        public String symbol() { // \u03B5/\u03C3";// epsilon/sigma
+            return lj.EPS+"/"+lj.SIG;
         }
 
         public double fromSim(double x) {
@@ -269,7 +313,7 @@ public class LJ extends UnitSystem implements java.io.Serializable {
         }
 
         public String symbol() {
-            return "\u03B5";
+            return lj.EPS;//"\u03B5";
         }
 
         public double fromSim(double x) {
@@ -289,7 +333,7 @@ public class LJ extends UnitSystem implements java.io.Serializable {
         }
 
         public String symbol() {
-            return "\u03B5/k";
+            return lj.EPS+"/k";//"\u03B5/k";
         }
 
         public double fromSim(double x) {
@@ -309,7 +353,7 @@ public class LJ extends UnitSystem implements java.io.Serializable {
         }
 
         public String symbol() {
-            return "\u03B5/\u03C3^3";
+            return lj.EPS+"/"+lj.SIG+Strings.exponent(3);//"\u03B5/\u03C3^3";
         }
 
         public double fromSim(double x) {
@@ -329,7 +373,7 @@ public class LJ extends UnitSystem implements java.io.Serializable {
         }
 
         public String symbol() {
-            return "\u03C3^3";
+            return lj.SIG+Strings.exponent(3);//"\u03C3^3";
         }
 
         public double fromSim(double x) {
@@ -349,7 +393,7 @@ public class LJ extends UnitSystem implements java.io.Serializable {
         }
 
         public String symbol() {
-            return "\u03C3^2";
+            return lj.SIG+Strings.exponent(2);
         }
 
         public double fromSim(double x) {
@@ -358,4 +402,26 @@ public class LJ extends UnitSystem implements java.io.Serializable {
 
         private static final long serialVersionUID = 1;
     }
+    
+    private static final class Viscosity extends LJUnit {
+        private Viscosity(LJ ljSystem) {
+            super(ljSystem);
+        }
+
+        public Dimension dimension() {
+            return etomica.units.Viscosity.DIMENSION;
+        }
+
+        public String symbol() {
+            return lj.SIG+Strings.exponent(2)+"/(m"+lj.DOT+lj.EPS+")"+Strings.exponent(lj.HALF);//\u03C3^2/(m\u03B5)^\u00BD";
+        }
+
+        public double fromSim(double x) {
+            return x * lj.sigma * lj.sigma / Math.sqrt(lj.epsilon * lj.mass);
+        }
+
+        private static final long serialVersionUID = 1;
+    }
+
+
 }

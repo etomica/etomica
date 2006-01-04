@@ -16,6 +16,7 @@ import etomica.units.Pressure2D;
 import etomica.units.Radian;
 import etomica.units.Temperature;
 import etomica.units.Unit;
+import etomica.units.Viscosity;
 import etomica.units.Volume;
 
 /**
@@ -38,6 +39,7 @@ public abstract class UnitSystem implements java.io.Serializable {
     public abstract Unit pressure();
     public abstract Unit volume();
     public abstract Unit area();
+    public abstract Unit viscosity();
     public Unit luminousIntensity() {
         return Candela.UNIT;
     }
@@ -62,6 +64,7 @@ public abstract class UnitSystem implements java.io.Serializable {
         public Unit pressure2D() {return Pressure2D.SIM_UNIT;}
         public Unit volume() {return Volume.SIM_UNIT;}
         public Unit area() {return Area.SIM_UNIT;}
+        public Unit viscosity() {return Viscosity.SIM_UNIT;}
         private static final long serialVersionUID = 1;
     }
     public static final UnitSystem SIM = new Sim();

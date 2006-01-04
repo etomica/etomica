@@ -3,12 +3,12 @@ package etomica.util;
 /**
  * Non-instantiable class providing a few static methods for String manipulation.
  */
-public class StringUtility {
+public class Strings {
     
     /**
      * Private construction to ensure non-instantiation.
      */
-    private StringUtility() {}
+    private Strings() {}
     
     /**
      * Capitalizes the first letter of the given string.
@@ -49,6 +49,32 @@ public class StringUtility {
         return s;
     }
     
+    /**
+     * Returns a String that formats the given value as an exponent.  If
+     * the given value is equal to 1.0, returns an empty string.
+     */
+    //this method may be expanded to handle other types of formatting, such as HTML
+    public static String exponent(double v) {
+        if(v == 1) {
+            return "";
+        } else if ((int)v == v) {
+            return "^"+(int)v;
+        } else {
+            return "^"+v;
+        }
+    }
+    
+    /**
+     * Returns a String that formats the given String as an exponent.  If
+     * the given value is equal to 1.0, returns an empty string.
+     */
+    public static String exponent(String v) {
+        if(v.equals("")) {
+            return v;
+        } else {
+            return "^"+v;
+        }
+    }
     
     public static void main(String[] args) {
         System.out.println("First argument capitalized: "+capitalize(args[0]));

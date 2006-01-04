@@ -2,18 +2,18 @@ package etomica.units.systems;
 
 import java.io.ObjectStreamException;
 
-import etomica.units.Bar;
+import etomica.units.Barye;
 import etomica.units.CompoundUnit;
 import etomica.units.Coulomb;
-import etomica.units.CubicMeter;
+import etomica.units.CubicCentimeter;
 import etomica.units.Decimal;
+import etomica.units.Dyne;
+import etomica.units.Erg;
 import etomica.units.Gram;
-import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.units.Meter;
 import etomica.units.Mole;
-import etomica.units.Newton;
-import etomica.units.Pascal;
+import etomica.units.Poise;
 import etomica.units.Prefix;
 import etomica.units.PrefixedUnit;
 import etomica.units.Radian;
@@ -21,16 +21,16 @@ import etomica.units.Second;
 import etomica.units.Unit;
 
 /**
- * Meter-Kilogram-Second system of units
+ * Centimeter-Gram-Second system of units.
  */
-public class MKS extends UnitSystem {
+public class CGS extends UnitSystem {
 
     /**
      * Singleton instance of this unit system.
      */
-    public static final MKS SYSTEM = new MKS();
+    public static final CGS SYSTEM = new CGS();
 
-    private MKS() {
+    private CGS() {
     }
 
     public Unit quantity() {
@@ -42,11 +42,11 @@ public class MKS extends UnitSystem {
     }
 
     public Unit mass() {
-        return KILOGRAM;
+        return Gram.UNIT;
     }
 
     public Unit length() {
-        return Meter.UNIT;
+        return CENTIMETER;
     }
 
     public Unit time() {
@@ -62,15 +62,15 @@ public class MKS extends UnitSystem {
     }
 
     public Unit dipole() {
-        return COULOMB_METER;
+        return COULOMB_CENTIMETER;
     }
 
     public Unit force() {
-        return Newton.UNIT;
+        return Dyne.UNIT;
     }
     
     public Unit energy() {
-        return Joule.UNIT;
+        return Erg.UNIT;
     }
 
     public Unit temperature() {
@@ -78,27 +78,25 @@ public class MKS extends UnitSystem {
     }
 
     public Unit pressure() {
-        return Bar.UNIT;
+        return Barye.UNIT;
     }
 
     public Unit volume() {
-        return CubicMeter.UNIT;
+        return CubicCentimeter.UNIT;
     }
     
     public Unit area() {
-        return SQUARE_METER;
+        return SQUARE_CENTIMETER;
     }
     
     public Unit viscosity() {
-        return PASCAL_SECOND;
+        return Poise.UNIT;
     }
     
-    private static final Unit SQUARE_METER = new CompoundUnit(new Unit[] {Meter.UNIT}, new double[] {2});
-    private static final Unit KILOGRAM = new PrefixedUnit(Prefix.KILO, Gram.UNIT);
-    private static final Unit COULOMB_METER = 
-        new CompoundUnit(new Unit[] {Coulomb.UNIT, Meter.UNIT}, new double[] {1, 1});
-    private static final Unit PASCAL_SECOND = 
-        new CompoundUnit(new Unit[] {Pascal.UNIT, Second.UNIT}, new double[] {1, 1});
+    private static final Unit CENTIMETER = new PrefixedUnit(Prefix.CENTI, Meter.UNIT);
+    private static final Unit SQUARE_CENTIMETER = new CompoundUnit(new Unit[] {CENTIMETER}, new double[] {2});
+    private static final Unit COULOMB_CENTIMETER = 
+        new CompoundUnit(new Unit[] {Coulomb.UNIT, CENTIMETER}, new double[] {1, 1});
     
     /**
      * Required to guarantee singleton when deserializing.

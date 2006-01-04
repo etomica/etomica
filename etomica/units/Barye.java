@@ -1,26 +1,25 @@
 package etomica.units;
 import java.io.ObjectStreamException;
 
-import etomica.util.Constants;
-
 /**
- * The bar unit of pressure, equal to 10^5 N/m^2.
- * Equal to approximately 0.006022 simulation pressure units.
+ * The barye unit of pressure, equal to 1 dyn/cm^2.
+ * This is the standard unit of pressure in the CGS unit system.
+ * It is equal to 0.1 bar or 6.022e-4 simulation pressure units.
  */
-public final class Bar extends SimpleUnit {
+public final class Barye extends SimpleUnit {
 
   /**
    * Singleton instance of this unit.
    */
-    public static final Bar UNIT = new Bar();
+    public static final Barye UNIT = new Barye();
   
   /**
    * Conversion factor to/from simulation units
    */
-    private Bar() {
+    private Barye() {
         super(Pressure.DIMENSION,
-                1e5*1000.*1e-10*1e-24*Constants.AVOGADRO, //6.022e-3; conversion from 10^5 kg/(m-s^2) to amu/(A-ps^2)
-                "bars", "bar", Prefix.ALLOWED
+                Bar.UNIT.toSim(0.1), //6.022e-4; conversion from 10^5 kg/(m-s^2) to amu/(A-ps^2)
+                "baryes", "Ba", Prefix.ALLOWED
         	);   
     }
     

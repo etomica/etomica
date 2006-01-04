@@ -20,7 +20,7 @@ import etomica.modifier.ModifierGeneral;
 import etomica.modifier.ModifyAction;
 import etomica.units.Unit;
 import etomica.units.systems.UnitSystem;
-import etomica.util.StringUtility;
+import etomica.util.Strings;
 
 /**
  * Device the changes a property using a graphical slider, via a Modifier.
@@ -309,7 +309,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
     private void setLabelDefault() {
         String suffix = (unit.symbol().length() > 0) ? " ("+unit.symbol()+")" : "";
         if(modifyAction != null) 
-            setLabel(StringUtility.capitalize(modifyAction.getLabel())+suffix);
+            setLabel(Strings.capitalize(modifyAction.getLabel())+suffix);
     }
 
     /**

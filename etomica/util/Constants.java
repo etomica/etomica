@@ -2,6 +2,7 @@ package etomica.util;
 
 import etomica.data.AccumulatorAverage;
 import etomica.units.Joule;
+import etomica.units.systems.LJ;
 
 /**
  * Collection of assorted physical constants.  All values
@@ -67,7 +68,9 @@ public final class Constants {
         System.out.println("Planck's constant: "+PLANCK_H);
         System.out.println("Epsilon0: "+EPSILON_0);
         System.out.println("1.0/sqrt(4 Pi Epsilon0): "+1.0/Math.sqrt(4.*Math.PI*EPSILON_0));
-        System.out.println("Debye toSim: "+etomica.units.Debye.UNIT.toSim(1.0));
+        System.out.println("unit toSim: "+etomica.units.systems.MKS.SYSTEM.viscosity().toSim(1.0));
+        System.out.println("unit toSim: "+etomica.units.Poise.UNIT.toSim(1.0));
+        System.out.println("symbol: "+new LJ(1,1,1,false).viscosity().symbol());
     }
     /**
      * Enumerated type for the directions TOP, BOTTOM, LEFT, RIGHT, FRONT, BACK.

@@ -4,6 +4,14 @@ import java.util.Arrays;
 
 import etomica.units.systems.UnitSystem;
 
+/**
+ * Parent of all Dimension classes, which describe the physical dimensions
+ * (e.g., mass, length, force) of a quantity.  All dimensions are derived from
+ * seven base dimensions (length, mass, time, electrical current, temperature,
+ * number or mole, and luminosity).  Dimension is coded as a "signature", which
+ * is an array of seven value that are the exponents of these base dimensions
+ * forming the specified dimension.
+ */
 public abstract class Dimension implements java.io.Serializable {
 
     /**

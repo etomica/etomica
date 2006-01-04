@@ -4,23 +4,24 @@ import java.io.ObjectStreamException;
 import etomica.util.Constants;
 
 /**
- * The bar unit of pressure, equal to 10^5 N/m^2.
- * Equal to approximately 0.006022 simulation pressure units.
+ * The Poise unit of viscosity, equal to 1 gram/(cm-sec).
+ * This is the standard unit of viscosity in the CGS unit system.
+ * It is equal to 0.1 pascal-seconds or approximately 6022.1 simulation viscosity units.
  */
-public final class Bar extends SimpleUnit {
+public final class Poise extends SimpleUnit {
 
   /**
    * Singleton instance of this unit.
    */
-    public static final Bar UNIT = new Bar();
+    public static final Poise UNIT = new Poise();
   
   /**
    * Conversion factor to/from simulation units
    */
-    private Bar() {
+    private Poise() {
         super(Pressure.DIMENSION,
-                1e5*1000.*1e-10*1e-24*Constants.AVOGADRO, //6.022e-3; conversion from 10^5 kg/(m-s^2) to amu/(A-ps^2)
-                "bars", "bar", Prefix.ALLOWED
+                1e-8*1e-12*Constants.AVOGADRO, //6022.1; conversion from g/(cm-sec) to D/(A-ps)
+                "poise", "P", Prefix.ALLOWED
         	);   
     }
     
