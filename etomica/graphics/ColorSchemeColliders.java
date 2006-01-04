@@ -30,10 +30,10 @@ public class ColorSchemeColliders extends ColorScheme {
      */ 
     public Color getAtomColor(Atom a) {
         IntegratorHard.Agent colliderAgent = integrator.colliderAgent();
-        if(colliderAgent == null) return baseColor;
+        if(colliderAgent == null) return defaultColor;
         else if(a == colliderAgent.atom) return colliderColor;
         else if(a == colliderAgent.collisionPartner) return partnerColor;
-        else return baseColor;
+        else return defaultColor;
     }
 }//end of HighlightColliders
 
