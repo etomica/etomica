@@ -194,11 +194,6 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
 //    public Object[] allatomAgents;
     
     /**
-     * Array used to record all agent sources requesting to place an agent in every atom.
-     */
-    private static AgentSource[] agentSource = new AgentSource[0];
-    
-    /**
      * Counter for number of times an atom is instantiated without a parent.  Used
      * to assign a unique index to such atoms.
      */
@@ -206,34 +201,12 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
     
     private int globalIndex = -1;
     
-    /**
-     * Adds given agent source to allatomAgent-source array and returns index
-     * indicating where in atom's allatomAgent-array the source's agent will
-     * be placed.
-     */
-    public static int requestAgentIndex(AgentSource aSource) {
-        agentSource = (AgentSource[])Arrays.addObject(agentSource, aSource);
-        return agentSource.length - 1;
-    }
-    
     private void readObject(java.io.ObjectInputStream in)
     throws IOException, ClassNotFoundException
     {
         EtomicaObjectInputStream etomicaIn = (EtomicaObjectInputStream)in; 
         etomicaIn.defaultReadObject();
         etomicaIn.addAtom(this);
-    }
-    
-    /**
-     * Interface for an object that makes an agent to be placed in each atom
-     * upon construction.  AgentSource objects register with the AtomFactory
-     * the produces the atom.
-     */
-    public interface AgentSource {
-        public Object makeAgent(Atom a);
-        
-        //allow any agent to be disconnected from other elements 
-        public void releaseAgent(Object agent); 
     }
     
 }//end of Atom

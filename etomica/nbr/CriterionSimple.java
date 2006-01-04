@@ -3,7 +3,7 @@ package etomica.nbr;
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomPair;
-import etomica.atom.Atom.AgentSource;
+import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.phase.Phase;
 import etomica.space.CoordinatePair;
 import etomica.space.NearestImageTransformerVector;

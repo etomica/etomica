@@ -2,7 +2,6 @@ package etomica.atom;
 
 import java.lang.reflect.Array;
 
-import etomica.atom.Atom.AgentSource;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.phase.Phase;
 import etomica.phase.PhaseEvent;
@@ -148,6 +147,18 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
         agents[a.getGlobalIndex()] = agentSource.makeAgent(a);
     }
     
+    /**
+     * Interface for an object that makes an agent to be placed in each atom
+     * upon construction.  AgentSource objects register with the AtomFactory
+     * the produces the atom.
+     */
+    public interface AgentSource {
+        public Object makeAgent(Atom a);
+        
+        //allow any agent to be disconnected from other elements 
+        public void releaseAgent(Object agent); 
+    }
+
     private final AgentSource agentSource;
     protected Object[] agents;
     private AtomList newAtomList;

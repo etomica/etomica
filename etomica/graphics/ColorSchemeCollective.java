@@ -4,6 +4,7 @@ import java.awt.Color;
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.SpeciesRoot;
+import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.phase.Phase;
 import etomica.simulation.SimulationEvent;
 import etomica.simulation.SimulationListener;
@@ -16,7 +17,7 @@ import etomica.util.Arrays;
  * ColorScheme is a subclass of this one.
  */
     
-public abstract class ColorSchemeCollective extends ColorScheme implements Atom.AgentSource, SimulationListener {
+public abstract class ColorSchemeCollective extends ColorScheme implements AgentSource, SimulationListener {
     
     private AtomAgentManager[] agentManager;
     protected Color[] atomColors;
