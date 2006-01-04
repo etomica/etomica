@@ -41,7 +41,7 @@ public class Parallelepiped extends Hexahedron {
     public double getVolume() {
         work.E(a);
         work.XE(b);
-        return 8.0*work.dot(c);//8.0 is because a,b,c are half edge length
+        return 8.0*Math.abs(work.dot(c));//8.0 is because a,b,c are half edge length
     }
 
     public double getSurfaceArea() {
