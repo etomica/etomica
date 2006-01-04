@@ -4,7 +4,7 @@ import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
-import etomica.atom.Atom.AgentSource;
+import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.phase.Phase;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Space;
@@ -22,7 +22,7 @@ import etomica.util.Arrays;
  * classes in the EAMMd3D simulation class by A. Schultz and K.R. Schadel July 2005.
  */
 
-public final class EmbeddedAtomMethodP2 extends Potential2SoftSpherical implements EtomicaElement, AgentSource {
+public final class EmbeddedAtomMethodP2 extends Potential2SoftSpherical implements EtomicaElement, AtomAgentManager.AgentSource {
 
 	public EmbeddedAtomMethodP2(Space space, ParameterSetEAM p) {
 		super(space);
