@@ -8,7 +8,7 @@ import etomica.action.activity.Controller;
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.Atom.AgentSource;
+import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationSequential;
 import etomica.data.meter.MeterTemperature;

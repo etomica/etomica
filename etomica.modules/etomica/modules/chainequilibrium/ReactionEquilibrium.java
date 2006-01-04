@@ -8,6 +8,7 @@ import etomica.action.activity.Controller;
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomTypeSphere;
+import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.config.ConfigurationSequential;
 import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
@@ -17,7 +18,7 @@ import etomica.space2d.Space2D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 
-public class ReactionEquilibrium extends Simulation implements Atom.AgentSource {
+public class ReactionEquilibrium extends Simulation implements AgentSource {
 
 	public MeterChainLength molecularCount;
 	public Controller controller1;

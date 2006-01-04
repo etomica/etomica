@@ -8,6 +8,7 @@ package etomica.modules.chainequilibrium;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
 import etomica.data.DataInfo;
@@ -21,7 +22,7 @@ import etomica.util.NameMaker;
  * @author Matt Moynihan MoleuclarCount returns an array with the number of
  *         atoms In molecules with [1,2,3,4,5,6,7-10,10-13,13-25, <25] atoms
  */
-public class MeterChainLength implements Meter, Atom.AgentSource {
+public class MeterChainLength implements Meter, AgentSource {
 
     private final DataDoubleArray data;
     private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
