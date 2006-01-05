@@ -12,7 +12,7 @@ import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomTypeLeaf;
-import etomica.atom.Atom.AgentSource;
+import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.data.DataSourceCOM;
