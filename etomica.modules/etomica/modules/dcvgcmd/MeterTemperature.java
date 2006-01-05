@@ -1,7 +1,7 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.EtomicaInfo;
-import etomica.atom.AtomList;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.species.Species;
@@ -33,11 +33,11 @@ public final class MeterTemperature extends etomica.data.meter.MeterTemperature 
 
 	public double getDataAsScalar() {
 		SpeciesAgent agent = phase.getAgent(species);
-		AtomList list = ((AtomTreeNodeGroup)agent.node).childList;
+		AtomArrayList list = ((AtomTreeNodeGroup)agent.node).childList;
 		int size = list.size();
 		int natoms = 0;
 		if(size > 0) {
-			natoms = size * ((AtomTreeNodeGroup)list.getFirst().node).childList.size();
+			natoms = size * ((AtomTreeNodeGroup)list.get(0).node).childList.size();
 		}
 		return (2. / (double) ((phase.atomCount()- natoms) * phase.getBoundary().getDimensions().D()))
 				* meterKE.getDataAsScalar();

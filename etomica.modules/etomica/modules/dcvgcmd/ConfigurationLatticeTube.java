@@ -2,11 +2,12 @@ package etomica.modules.dcvgcmd;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTreeNodeGroup;
-import etomica.atom.iterator.AtomIteratorListCompound;
+import etomica.atom.iterator.AtomIteratorArrayListCompound;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.config.Configuration;
 import etomica.config.Conformation;
@@ -44,11 +45,11 @@ public class ConfigurationLatticeTube extends Configuration {
         this.length = length;
         this.tubeSpecies = tubeSpecies;
         atomActionTranslateTo = new AtomActionTranslateTo(lattice.getSpace());
-        atomIterator = new AtomIteratorListCompound();
+        atomIterator = new AtomIteratorArrayListCompound();
         work = space.makeVector();
 	}
 	
-    public void initializePositions(AtomList[] lists) {
+    public void initializePositions(AtomArrayList[] lists) {
         if(lists.length == 0) return;
         atomIterator.setLists(lists);
         int sumOfMolecules = atomIterator.size();
@@ -203,7 +204,7 @@ public class ConfigurationLatticeTube extends Configuration {
     private final IndexIteratorSizable indexIterator;
     private final Vector work;
     private final AtomActionTranslateTo atomActionTranslateTo;
-    private final AtomIteratorListCompound atomIterator;
+    private final AtomIteratorArrayListCompound atomIterator;
     private final double length;
     private final SpeciesTube tubeSpecies;
 

@@ -1,8 +1,8 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.atom.Atom;
-import etomica.atom.AtomList;
-import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.atom.AtomArrayList;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.config.Conformation;
 import etomica.space.Space;
 
@@ -43,13 +43,13 @@ public class ConformationTube extends Conformation {
 		
 	}	
 
-	public void initializePositions(AtomList atomList) {
+	public void initializePositions(AtomArrayList atomList) {
 
 		int size = atomList.size();
 		if (size == 0)
 			return;
 
-		AtomIteratorListSimple atomIterator = new AtomIteratorListSimple();
+		AtomIteratorArrayListSimple atomIterator = new AtomIteratorArrayListSimple();
 		atomIterator.setList(atomList);
 		atomIterator.reset();
 

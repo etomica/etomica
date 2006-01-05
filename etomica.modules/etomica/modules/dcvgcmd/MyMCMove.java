@@ -4,11 +4,10 @@ import etomica.action.AtomActionRandomizeVelocity;
 import etomica.atom.Atom;
 import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
-import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.integrator.IntegratorPhase;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.phase.Phase;
-import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space3d.Vector3D;
 import etomica.species.Species;
@@ -114,7 +113,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 	private Vector3D position;
 	private boolean nearOrigin;
 	private AtomList activeAtoms = new AtomList();
-	private AtomIteratorListSimple atomIterator;// = new AtomIteratorList();
+	private AtomIteratorArrayListSimple atomIterator;// = new AtomIteratorList();
 	private final AtomActionRandomizeVelocity randomizer = new AtomActionRandomizeVelocity(0);
     private final IntegratorPhase integrator;
 	
@@ -141,7 +140,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 	 */
 	public void setSpecies(Species s) {
 		super.setSpecies(s);
-		atomIterator = new AtomIteratorListSimple();
+		atomIterator = new AtomIteratorArrayListSimple();
 		atomIterator.setList(((AtomTreeNodeGroup)speciesAgent.node).childList);
 	}
 
