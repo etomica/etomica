@@ -1,7 +1,7 @@
 package etomica.spin;
 
-import etomica.atom.AtomList;
-import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.atom.AtomArrayList;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.config.Configuration;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -27,13 +27,13 @@ public class ConfigurationAligned extends Configuration {
      */
     public ConfigurationAligned(Space space) {
         super(space);
-        iterator = new AtomIteratorListSimple();
+        iterator = new AtomIteratorArrayListSimple();
     }
 
     /**
      * Sets all spins to be aligned in the +x direction
      */
-    public void initializePositions(AtomList[] atomList) {
+    public void initializePositions(AtomArrayList[] atomList) {
         for(int i=0; i<atomList.length; i++) {
             iterator.setList(atomList[i]);
             iterator.reset();
@@ -45,5 +45,5 @@ public class ConfigurationAligned extends Configuration {
         }
     }
 
-    private final AtomIteratorListSimple iterator;
+    private final AtomIteratorArrayListSimple iterator;
 }

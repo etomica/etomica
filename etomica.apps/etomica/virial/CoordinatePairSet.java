@@ -1,9 +1,9 @@
 package etomica.virial;
 
 import etomica.atom.Atom;
-import etomica.atom.AtomList;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPositionFirstAtom;
-import etomica.atom.iterator.AtomIteratorListTabbed;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.space.CoordinatePair;
 import etomica.space.Space;
 
@@ -28,7 +28,7 @@ public class CoordinatePairSet implements java.io.Serializable {
      * Constructor for CoordinatePairSet.
      * @param list The list of atoms for which the set of pairs is formed.
      */
-    public CoordinatePairSet(AtomList list, Space space) {
+    public CoordinatePairSet(AtomArrayList list, Space space) {
         cPairs = new CoordinatePair[list.size()][];
         setAtoms(list, space);
     }
@@ -41,8 +41,8 @@ public class CoordinatePairSet implements java.io.Serializable {
         return i<j ? cPairs[i][j-i-1] : cPairs[j][i-j-1];
     }
 
-    private void setAtoms(AtomList list, Space space) {
-        AtomIteratorListTabbed iterator = new AtomIteratorListTabbed(list);
+    private void setAtoms(AtomArrayList list, Space space) {
+        AtomIteratorArrayListSimple iterator = new AtomIteratorArrayListSimple(list);
         int N = list.size();
         Atom[] atoms = new Atom[N];
         iterator.reset();
