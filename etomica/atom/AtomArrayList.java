@@ -15,7 +15,7 @@
 package etomica.atom;
 
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorArrayList;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.util.Debug;
 
 	/**
@@ -290,9 +290,9 @@ import etomica.util.Debug;
 	     * @return the element at the specified position in this list.
 	     */
 	    public Atom get(int index) {
-	    	//RangeCheck(index);
-	    	    return (index < size && index >= 0) ? elementData[index] : null;
-                //TODO performance compare these approaches to getting element and handling out-of-bounds index
+	        //RangeCheck(index);
+	        return (index < size && index >= 0) ? elementData[index] : null;
+	        //TODO performance compare these approaches to getting element and handling out-of-bounds index
         }
 	
 	    /**
@@ -365,11 +365,25 @@ import etomica.util.Debug;
 	    	int numMoved = size - index - 1;
 	    	if (numMoved > 0)
 	    		System.arraycopy(elementData, index+1, elementData, index,
-	    				numMoved);
+	    		        numMoved);
 	    	elementData[--size] = null; // Let gc do its work
 	
 	    	return oldValue;
 	    }
+        
+        public Atom removeAndReplace(int index) {
+            RangeCheck(index);
+            
+            Atom oldAtom = elementData[index];
+            
+            size--;
+            if (index < size) {
+                elementData[index] = elementData[size];
+                elementData[size] = null;
+            }
+            
+            return oldAtom;
+        }
 	
 	    /**
 	     * Removes all of the elements from this list.  The list will
@@ -477,7 +491,7 @@ import etomica.util.Debug;
 	      * @see #modCount
 	      */
 	     public AtomIterator iterator() {
-	     	return new AtomIteratorArrayList(this);
+	     	return new AtomIteratorArrayListSimple(this);
 	     }
          
          public String toString() {

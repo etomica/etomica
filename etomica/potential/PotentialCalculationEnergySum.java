@@ -1,5 +1,6 @@
 package etomica.potential;
 
+import etomica.atom.AtomSet;
 import etomica.atom.iterator.AtomsetIterator;
 
 /**
@@ -26,7 +27,12 @@ public final class PotentialCalculationEnergySum extends PotentialCalculation {
 	protected void doCalculation(AtomsetIterator iterator, Potential potential) {
 		iterator.reset();
 		while(iterator.hasNext()) {
-			sum += potential.energy(iterator.next());
+            AtomSet atoms = iterator.peek();
+			sum += potential.energy(atoms);
+            if (sum == Double.POSITIVE_INFINITY) {
+                System.out.println("infinity energy for "+atoms);
+            }
+            iterator.next();
 		}
 	}
 	

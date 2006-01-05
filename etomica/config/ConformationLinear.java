@@ -2,9 +2,9 @@ package etomica.config;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
-import etomica.atom.AtomList;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomTreeNodeGroup;
-import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -35,7 +35,7 @@ public class ConformationLinear extends Conformation {
         translator = new AtomActionTranslateBy(space);
         moveToOrigin = new AtomActionTranslateTo(space);
         translationVector = translator.getTranslationVector();
-        atomIterator = new AtomIteratorListSimple();
+        atomIterator = new AtomIteratorArrayListSimple();
     }
 
     public void setBondLength(double b) {
@@ -69,7 +69,7 @@ public class ConformationLinear extends Conformation {
         orientation.TE(1.0/bondLength);
     }
 
-    public void initializePositions(AtomList atomList) {
+    public void initializePositions(AtomArrayList atomList) {
         int size = atomList.size();
         if(size == 0) return;
 
@@ -97,6 +97,6 @@ public class ConformationLinear extends Conformation {
     private Vector translationVector;
     private AtomActionTranslateBy translator;
     private AtomActionTranslateTo moveToOrigin;
-    private final AtomIteratorListSimple atomIterator;
+    private final AtomIteratorArrayListSimple atomIterator;
 }//end of ConformationLinear
       

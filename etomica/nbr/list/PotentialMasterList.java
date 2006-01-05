@@ -13,7 +13,7 @@ import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.ApiInnerFixed;
-import etomica.atom.iterator.AtomIteratorArrayList;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.PotentialCalculationUpdateTypeList;
@@ -57,7 +57,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
     public PotentialMasterList(Space space, double range, AtomPositionDefinition positionDefinition) {
         super(space,new IteratorFactoryCell());
         neighborManager = new NeighborListManager(this, range);
-        atomIterator = new AtomIteratorArrayList();
+        atomIterator = new AtomIteratorArrayListSimple();
         singletIterator = new AtomIteratorSinglet();
         pairIterator = new ApiInnerFixed(singletIterator, atomIterator);
         swappedPairIterator = new ApiInnerFixed(singletIterator, atomIterator, true);
@@ -86,6 +86,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
     public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
 		if(!enabled) return;
     	AtomSet targetAtoms = id.getTargetAtoms();
+        neighborManager.setPhase(phase);
     	if (targetAtoms.count() == 0) {
     		//no target atoms specified -- do one-target algorithm to SpeciesMaster
     		calculate(phase.getSpeciesMaster(), idUp, pc, getPotentials(phase.getSpeciesMaster().type).getPotentials());
@@ -122,10 +123,9 @@ public class PotentialMasterList extends PotentialMasterNbr {
                 pc.doCalculation(singletIterator, id, potentials[i]);
                 break;
             case 2:
-                AtomSequencerNbr seq = (AtomSequencerNbr)atom.seq;
                 AtomArrayList[] list;
                 if (direction != IteratorDirective.DOWN) {
-                    list = seq.getUpList();
+                    list = neighborManager.getUpList(atom);
 //                  list.length may be less than potentials.length, if atom hasn't yet interacted with another using one of the potentials
                     if(i < list.length) {
                         atomIterator.setList(list[i]);
@@ -134,7 +134,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                     }
                 }
                 if (direction != IteratorDirective.UP) {
-                    list = seq.getDownList();
+                    list = neighborManager.getDownList(atom);
                     if(i < list.length) {
                         atomIterator.setList(list[i]);
                         //System.out.println("Dn :"+atomIterator.size());
@@ -171,13 +171,12 @@ public class PotentialMasterList extends PotentialMasterNbr {
 		//if atom has children, repeat process with them
 		if(!atom.node.isLeaf()) {
             //cannot use AtomIterator field because of recursive call
-            AtomList list = ((AtomTreeNodeGroup) atom.node).childList;
-            AtomLinker link = list.header.next;
-            if (link != list.header) {
-                for (link = list.header.next; link != list.header; link = link.next) {
-                    Potential[] childPotentials = getPotentials(link.atom.type).getPotentials();
-                    calculate(link.atom, id, pc, childPotentials);//recursive call
-                }
+            AtomArrayList list = ((AtomTreeNodeGroup) atom.node).childList;
+            int size = list.size();
+            for (int i=0; i<size; i++) {
+                Atom a = list.get(i);
+                Potential[] childPotentials = getPotentials(a.type).getPotentials();
+                calculate(a, id, pc, childPotentials);//recursive call
             }
 		}
 	}
@@ -212,7 +211,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         return positionDefinition;
     }
 
-	private final AtomIteratorArrayList atomIterator;
+	private final AtomIteratorArrayListSimple atomIterator;
 	private final AtomIteratorSinglet singletIterator;
 	private final ApiInnerFixed pairIterator;
     private final ApiInnerFixed swappedPairIterator;

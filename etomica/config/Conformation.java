@@ -1,5 +1,6 @@
 package etomica.config;
 
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomList;
 import etomica.space.Space;
 
@@ -26,7 +27,7 @@ public abstract class Conformation implements java.io.Serializable {
     /**
      * Defined by subclass to assign coordinates to the atoms in the given list.
      */
-    public abstract void initializePositions(AtomList atomList);
+    public abstract void initializePositions(AtomArrayList atomList);
 
     protected final Space space;
     
@@ -34,6 +35,6 @@ public abstract class Conformation implements java.io.Serializable {
      * Conformation that does nothing to the atom positions.
      */
     public final static Conformation NULL = new Conformation(null) {
-        public void initializePositions(AtomList list) {}
+        public void initializePositions(AtomArrayList list) {}
     };
 }//end of Configuration

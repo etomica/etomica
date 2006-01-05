@@ -5,6 +5,7 @@
 package etomica.nbr.cell;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomList;
 import etomica.lattice.AbstractLattice;
 import etomica.lattice.RectangularLattice;
@@ -22,21 +23,17 @@ public class Cell implements java.io.Serializable {
         this.latticeArrayIndex = latticeArrayIndex;
     }
     
-    public AtomList occupants() {return occupants;}
+    public AtomArrayList occupants() {return occupants;}
     
     public void addAtom(Atom atom) {
-        AtomSequencerCell seq = (AtomSequencerCell)atom.seq;
-        if(this == seq.cell) return;
-        if(seq.cell != null) seq.cell.occupants().remove(seq.nbrLink);
-        seq.cell = this;
-        occupants.add(((AtomSequencerCell)atom.seq).nbrLink);
+        occupants.add(atom);
     }
     
     public int getLatticeArrayIndex() {
         return latticeArrayIndex;
     }
     
-    private final AtomList occupants = new AtomList();
+    private final AtomArrayList occupants = new AtomArrayList();
     final int latticeArrayIndex;//identifies site in lattice
 
     public static final SiteFactory FACTORY = new CellFactory();

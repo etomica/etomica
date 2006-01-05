@@ -73,7 +73,7 @@ public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorMolec
                     "Constructor of ApiInterspeciesAA requires two different species");
         }
         aiOuter = new AtomIteratorSinglet();
-        aiInner = new AtomIteratorListSimple();
+        aiInner = new AtomIteratorArrayListSimple();
         apiUp = new ApiInnerFixed(aiOuter, aiInner, false);
         apiDown = new ApiInnerFixed(aiOuter, aiInner, true);
         iterator = apiUp;
@@ -222,7 +222,7 @@ public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorMolec
         iterator.unset();
     }
     
-    private final AtomIteratorListSimple aiInner;
+    private final AtomIteratorArrayListSimple aiInner;
     private final AtomIteratorSinglet aiOuter;
     private final Species species0, species1;
     private final ApiInnerFixed apiUp, apiDown;

@@ -2,9 +2,9 @@ package etomica.config;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
-import etomica.atom.AtomList;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomTreeNodeGroup;
-import etomica.atom.iterator.AtomIteratorListCompound;
+import etomica.atom.iterator.AtomIteratorArrayListCompound;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -26,14 +26,14 @@ public class ConfigurationSequential extends Configuration {
 
 	private boolean fill;
 	private boolean squareConfig;
-    private final AtomIteratorListCompound atomIterator;
+    private final AtomIteratorArrayListCompound atomIterator;
     private final AtomActionTranslateTo atomActionTranslateTo;
 
 	public ConfigurationSequential(Space space) {
 		super(space);
 		setFillVertical(true);
 		setSquareConfig(false); // hexagonalLattice is Default!!
-        atomIterator = new AtomIteratorListCompound();
+        atomIterator = new AtomIteratorArrayListCompound();
         atomActionTranslateTo = new AtomActionTranslateTo(space);
 	}
     
@@ -43,7 +43,7 @@ public class ConfigurationSequential extends Configuration {
 	public void setSquareConfig(boolean b){ squareConfig = b;}
 	public boolean getSquareConfig() {return squareConfig;}
     
-    public void initializePositions(AtomList[] lists) {
+    public void initializePositions(AtomArrayList[] lists) {
         atomIterator.setLists(lists);
 
         double Lx = dimensions[0];

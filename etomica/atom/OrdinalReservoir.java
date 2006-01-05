@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 
 
 /**
@@ -36,12 +36,32 @@ class OrdinalReservoir implements java.io.Serializable {
      * or later reused for a new atom.
      */
     public void returnOrdinal(int ordinal) {
+        if (ordinal == maxOrdinal) {
+            return;
+        }
         // add the index to the reservoir first
         ordinalReservoir[reservoirCount] = ordinal;
         reservoirCount++;
-        if (reservoirCount == reservoirSize) {
-            // reservoir is full
-            collapseOrdinals();
+        // reservoir is full
+        int oldReservoirCount = reservoirCount;
+        AtomIteratorArrayListSimple childIterator = new AtomIteratorArrayListSimple(atomNode.childList);
+        childIterator.reset();
+        // loop over child atoms.  Any atoms whose ordinal exceeds the future
+        // max is given a new one
+        
+        while (childIterator.hasNext()) {
+            Atom a = childIterator.nextAtom();
+            if (a.node.getOrdinal() > maxOrdinal-oldReservoirCount) {
+                a.node.setOrdinal(requestNewOrdinal());
+            }
+        }
+        maxOrdinal -= oldReservoirCount;
+        if (reservoirCount != 0) {
+            System.out.println("reservoir still has atoms:");
+            for (int i=0; i<reservoirCount; i++) {
+                System.out.print(ordinalReservoir[i]+" ");
+            }
+            throw new RuntimeException("I was fully expecting the reservoir to be empty!");
         }
     }
     
@@ -59,34 +79,6 @@ class OrdinalReservoir implements java.io.Serializable {
      * by the current previous number of ordinals in the reservoir.
      */
     private void collapseOrdinals() {
-        int oldReservoirCount = reservoirCount;
-        for (int j=0; j<reservoirCount; ) {
-            if (ordinalReservoir[j] > maxOrdinal-oldReservoirCount) {
-                // this index isn't useful to us, so just drop it
-                reservoirCount--;
-                ordinalReservoir[j] = ordinalReservoir[reservoirCount];
-                continue;
-            }
-            j++;
-        }
-        AtomIteratorListSimple childIterator = new AtomIteratorListSimple(atomNode.childList);
-        childIterator.reset();
-        // loop over child atoms.  Any atoms whose ordinal exceeds the future
-        // max is given a new one
-        while (childIterator.hasNext()) {
-            Atom a = childIterator.nextAtom();
-            if (a.node.getOrdinal() > maxOrdinal-oldReservoirCount) {
-                a.node.setOrdinal(requestNewOrdinal());
-            }
-        }
-        maxOrdinal -= oldReservoirCount;
-        if (reservoirCount != 0) {
-            System.out.println("reservoir still has atoms:");
-            for (int i=0; i<reservoirCount; i++) {
-                System.out.print(ordinalReservoir[i]+" ");
-            }
-            throw new RuntimeException("I was fully expecting the reservoir to be empty!");
-        }
     }
     
     /**

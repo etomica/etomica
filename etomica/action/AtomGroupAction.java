@@ -1,8 +1,8 @@
 package etomica.action;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLinker;
-import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
 
 /**
@@ -34,9 +34,10 @@ public class AtomGroupAction extends AtomActionAdapter {
         if(atom.node.isLeaf()) {
             action.actionPerformed(atom);
         } else {
-            AtomList atomList = ((AtomTreeNodeGroup)atom.node).childList;
-            for(AtomLinker link=atomList.header.next; link.atom!=null; link=link.next) {
-                this.actionPerformed(link.atom);
+            AtomArrayList atomList = ((AtomTreeNodeGroup)atom.node).childList;
+            int size = atomList.size();
+            for(int i=0; i<size; i++) {
+                this.actionPerformed(atomList.get(i));
             }
         }
     }

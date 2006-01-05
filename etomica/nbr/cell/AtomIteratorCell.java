@@ -8,10 +8,11 @@ import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
 import etomica.atom.Atom;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomList;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.lattice.RectangularLattice;
 import etomica.phase.Phase;
 
@@ -31,7 +32,7 @@ public class AtomIteratorCell implements AtomIterator, java.io.Serializable {
      */
 	public AtomIteratorCell(int D) {
         cellIterator = new RectangularLattice.Iterator(D);
-        atomIterator = new AtomIteratorListSimple();
+        atomIterator = new AtomIteratorArrayListSimple();
 	}
 
 	public void setPhase(Phase phase) {
@@ -46,7 +47,7 @@ public class AtomIteratorCell implements AtomIterator, java.io.Serializable {
         cellIterator.reset();
         while(cellIterator.hasNext()) {//outer loop over all cells
             Cell cell = (Cell)cellIterator.next();
-            AtomList list = cell.occupants();
+            AtomArrayList list = cell.occupants();
             
             //consider pairs formed from molecules in cell
             if(!list.isEmpty()) {
@@ -121,7 +122,7 @@ public class AtomIteratorCell implements AtomIterator, java.io.Serializable {
     private void advanceLists() {
         do {
             if(cellIterator.hasNext()) {
-                AtomList list = ((Cell)cellIterator.next()).occupants();
+                AtomArrayList list = ((Cell)cellIterator.next()).occupants();
                 atomIterator.setList(list);
                 atomIterator.reset();
             } else {//no more cells at all
@@ -131,7 +132,7 @@ public class AtomIteratorCell implements AtomIterator, java.io.Serializable {
     }//end of advanceCell
     
    
-    private final AtomIteratorListSimple atomIterator;
+    private final AtomIteratorArrayListSimple atomIterator;
     private final RectangularLattice.Iterator cellIterator;
 
 }

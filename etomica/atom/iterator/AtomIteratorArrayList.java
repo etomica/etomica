@@ -1,6 +1,8 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
+import etomica.action.AtomsetCount;
+import etomica.action.AtomsetDetect;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
@@ -11,61 +13,51 @@ import etomica.atom.AtomSet;
   * from list while iteration is proceeding.
   */
 
-public class AtomIteratorArrayList implements AtomIterator, java.io.Serializable {
+public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implements AtomIteratorAtomDependent {
 
     /**
      * Constructs new iterator with an empty list.
      */
- 	public AtomIteratorArrayList() {
- 		this(new AtomArrayList());
+ 	public AtomIteratorArrayList(IteratorDirective.Direction direction) {
+ 		this(direction, 0);
  	}
     
     /**
      * Constructs new iterator set to iterate given list (upon reset).
      */
- 	public AtomIteratorArrayList(AtomArrayList atomList) {
- 		list = atomList;
- 	}
-    
-    /**
-     * Sets the list for iteration.  Null value is permitted, which will
-     * cause iterator to give not iterates.
-     */
- 	public void setList(AtomArrayList atomList) {
-        if(atomList != null) {
-            list = atomList;
-        } else {
-            emptyList.clear();
-            list = emptyList;
-        }
- 	}
- 	
-    /**
-     * Returns 1, indicating that this is an atom iterator.
-     */
- 	public int nBody() {
-        return 1;
+ 	public AtomIteratorArrayList(IteratorDirective.Direction direction, int numToSkip) {
+        this(direction, numToSkip, new AtomArrayList());
     }
     
-    /**
-     * Puts iterator in state in which hasNext is false.
-     */
- 	public void unset() {
-        cursor = size();
-    }
- 
-    /**
-     * Indicates if iterator has another iterate.
-     */
- 	public boolean hasNext() {
- 	    return cursor < size();
+    public AtomIteratorArrayList(IteratorDirective.Direction direction, int numToSkip, 
+            AtomArrayList atomList) {
+        if (direction == null)
+            throw new IllegalArgumentException(
+                    "Must specify direction to constructor of AtomLinkerIterator");
+        upListNow = (direction == IteratorDirective.UP);
+
+        list = atomList;
+        this.numToSkip = numToSkip;
  	}
- 
+    
     /**
      * Returns the next iterate and advances the iterator.
      */
  	public Atom nextAtom() {
- 		return list.get(cursor++);
+        if (cursor == -1) {
+            return null;
+        }
+        int oldCursor = cursor;
+        if (upListNow) {
+            cursor++;
+            if (cursor == list.size()) {
+                cursor = -1;
+            }
+        }
+        else {
+            cursor--;
+        }
+ 		return list.get(oldCursor);
  	}
  	
     /**
@@ -86,26 +78,55 @@ public class AtomIteratorArrayList implements AtomIterator, java.io.Serializable
      * Returns the number of iterates that would be given by this iterator
      * if reset with the current list.
      */
- 	public int size() {
- 		return list.size();
- 	}
+    public int size() {
+        counter.reset();
+        allAtoms(counter);
+        return counter.callCount();
+    }
 
     /**
      * Performs action on all elements of current list.
      */
  	public void allAtoms(AtomsetAction act) {
- 		int arraySize = size();
- 		for (int i=0; i<arraySize; i++) {
- 			act.actionPerformed(list.get(i));
- 		}
+ 		int arraySize = list.size();
+        if (upListNow) {
+            for (int i=firstCursor; i<arraySize; i++) {
+                act.actionPerformed(list.get(i));
+            }
+        }
+        else {
+            for (int i=firstCursor; i>-1; i--) {
+                act.actionPerformed(list.get(i));
+            }
+        }
  	}
 
     /**
      * Puts iterator in state ready to begin iteration.
      */
  	public void reset() {
- 		cursor = 0;
+ 		cursor = firstCursor;
+        if (upListNow) {
+            cursor += numToSkip;
+            if (cursor > list.size()-1) {
+                cursor = -1;
+            }
+        }
+        else {
+            cursor -= numToSkip;
+            if (cursor < 0) {
+                cursor = -1;
+            }
+        }
  	}
+    
+    public boolean hasNext() {
+        return cursor != -1;
+    }
+    
+    public void unset() {
+        cursor = -1;
+    }
  	
     /**
      * Returns true if the given atom is in the list.
@@ -114,14 +135,28 @@ public class AtomIteratorArrayList implements AtomIterator, java.io.Serializable
         if(atom == null || atom.count() != 1) {
             return false;
         }
- 		return list.contains(atom.getAtom(0));
+        detector.setAtoms(atom);
+        detector.reset();
+        allAtoms(detector);
+        return detector.detectedAtom();
  	}
  
     /**
-     * Index of element to be returned by subsequent call to next.
+     * Sets the first atom for iteration. Iteration proceeds from this atom up
+     * and/or down the list, depending on how iterator was configured at
+     * construction, and ends when a null-atom linker is encountered.
      */
-    protected int cursor = 0;
+    public void setAtom(Atom atom) {
+        // null pointer exception means you should have called setList earlier
+        firstCursor = list.indexOf(atom);
+        if (firstCursor == -1) {
+            throw new IllegalStateException("the given atom is not in the list");
+        }
+    }
 
-    protected AtomArrayList list;
-    private final AtomArrayList emptyList = new AtomArrayList();
+    protected final boolean upListNow;
+    private final AtomsetCount counter = new AtomsetCount();
+    private final AtomsetDetect detector = new AtomsetDetect(null);
+    private final int numToSkip;
+    private int firstCursor;
  }

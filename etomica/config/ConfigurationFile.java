@@ -5,8 +5,8 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import etomica.atom.Atom;
-import etomica.atom.AtomList;
-import etomica.atom.iterator.AtomIteratorListCompound;
+import etomica.atom.AtomArrayList;
+import etomica.atom.iterator.AtomIteratorArrayListCompound;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -20,10 +20,10 @@ public class ConfigurationFile extends Configuration {
         super(space);
         confName = aConfName;
         newPos = space.makeVector();
-        atomIterator = new AtomIteratorListCompound();
+        atomIterator = new AtomIteratorArrayListCompound();
     }
     
-    public void initializePositions(AtomList[] atomLists) {
+    public void initializePositions(AtomArrayList[] atomLists) {
         if (atomLists.length == 0) return;
         String fileName = confName+".pos";
         FileReader fileReader;
@@ -68,5 +68,5 @@ public class ConfigurationFile extends Configuration {
     
     private String confName;
     private Vector newPos;
-    private final AtomIteratorListCompound atomIterator;
+    private final AtomIteratorArrayListCompound atomIterator;
 }

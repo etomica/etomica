@@ -8,9 +8,6 @@ import java.io.IOException;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLinker;
-import etomica.atom.AtomSequencerFactory;
-import etomica.nbr.cell.AtomSequencerCell;
 import etomica.util.Arrays;
 import etomica.util.DirtyObject;
 import etomica.util.EtomicaObjectInputStream;
@@ -21,15 +18,14 @@ import etomica.util.EtomicaObjectInputStream;
  * Atoms are stored with reference to the potential that governs their
  * interactions.
  */
-public class AtomSequencerNbr extends AtomSequencerCell implements DirtyObject {
+public class AtomNeighborLists implements DirtyObject {
 
     protected transient AtomArrayList[] upList, downList;
 	
     /**
      * Constructs sequencer for the given atom.
      */
-    public AtomSequencerNbr(Atom a) {
-        super(a);
+    public AtomNeighborLists() {
         upList = new AtomArrayList[0];
         downList = new AtomArrayList[0];
     }
@@ -187,17 +183,4 @@ public class AtomSequencerNbr extends AtomSequencerCell implements DirtyObject {
         }
     }
     
-    /**
-     * A factory class that will make this atom sequencer.  Typically this
-     * is passed to the constructor of the atom factory.
-     */
-    public static final AtomSequencerFactory FACTORY = new AtomSequencerNbr.Factory();
-    
-    public static final class Factory implements AtomSequencerFactory, java.io.Serializable 
-	{
-        public AtomLinker makeSequencer(Atom atom) {
-            return new AtomSequencerNbr(atom);
-        }
-    };
-
 }

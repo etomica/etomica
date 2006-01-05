@@ -6,8 +6,9 @@ package etomica.junit.atom.iterator;
 import java.util.LinkedList;
 
 import etomica.atom.Atom;
-import etomica.atom.AtomList;
-import etomica.atom.iterator.AtomIteratorListCompound;
+import etomica.atom.AtomArrayList;
+import etomica.atom.iterator.AtomIteratorArrayListCompound;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.junit.UnitTest;
 import etomica.space.Space;
@@ -25,24 +26,24 @@ public class AtomIteratorListCompoundTest extends IteratorTest {
     
     public void testListVariations() {
 
-        AtomIteratorListCompound iterator = new AtomIteratorListCompound();
+        AtomIteratorArrayListCompound iterator = new AtomIteratorArrayListCompound();
         
         //make sure new iterator gives no iterates
         LinkedList list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 0);
         // make empty lists to start
-        AtomList atomList1 = new AtomList();
-        AtomList atomList2 = new AtomList();
-        AtomList atomList3 = new AtomList();
-        AtomList[] array = new AtomList[] {atomList1, atomList2, atomList3};
+        AtomArrayList atomList1 = new AtomArrayList();
+        AtomArrayList atomList2 = new AtomArrayList();
+        AtomArrayList atomList3 = new AtomArrayList();
+        AtomArrayList[] array = new AtomArrayList[] {atomList1, atomList2, atomList3};
         iterator.setLists(array);
         
         //test various combinations of lists of different sizes
         doVariations(iterator, array, 2);
         
-        atomList1.removeFirst();
-        atomList1.removeFirst();
-        atomList2.removeFirst();
+        atomList1.remove(0);
+        atomList1.remove(0);
+        atomList2.remove(0);
         
         int i1 = atomList1.size();
         int i2 = atomList2.size();
@@ -64,12 +65,12 @@ public class AtomIteratorListCompoundTest extends IteratorTest {
         assertEquals(list.size(),i1+2*i2+i3);
 
         //setLists
-        iterator.setLists(new AtomList[] {atomList1});
+        iterator.setLists(new AtomArrayList[] {atomList1});
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(),i1);
         
         //add same list twice
-        iterator.setLists(new AtomList[] {atomList1, atomList1});
+        iterator.setLists(new AtomArrayList[] {atomList1, atomList1});
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(),2*i1);
         
@@ -94,7 +95,7 @@ public class AtomIteratorListCompoundTest extends IteratorTest {
         
     }
     
-    public void doVariations(AtomIteratorListCompound iterator, AtomList[] lists, int varIndex) {
+    public void doVariations(AtomIteratorArrayListCompound iterator, AtomArrayList[] lists, int varIndex) {
         
         Space space = Space1D.getInstance();
         
@@ -113,12 +114,15 @@ public class AtomIteratorListCompoundTest extends IteratorTest {
         generalIteratorMethodTests(iterator);
     }
     
-    private Atom[] makeArray(AtomList[] lists) {
-        AtomList aList = new AtomList();
-        AtomIteratorListSimple iter = new AtomIteratorListSimple();
+    private Atom[] makeArray(AtomArrayList[] lists) {
+        AtomArrayList aList = new AtomArrayList();
+        AtomIteratorArrayListSimple iter = new AtomIteratorArrayListSimple();
         for(int i=0; i<lists.length; i++) {
             iter.setList(lists[i]);
-            aList.addAll(iter);
+            iter.reset();
+            while (iter.hasNext()) {
+                aList.add(iter.nextAtom());
+            }
         }
         return aList.toArray();
     }

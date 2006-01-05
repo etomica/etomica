@@ -6,7 +6,7 @@ package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.atom.Atom;
-import etomica.atom.AtomList;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTreeNodeGroup;
 
@@ -45,8 +45,8 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
      * beginning iteration.
      */
     public AtomIteratorBasis() {
-        super(new AtomIteratorSequence(IteratorDirective.UP));
-        listIterator = (AtomIteratorSequence) iterator;
+        super(new AtomIteratorArrayListSimple());
+        listIterator = (AtomIteratorArrayListSimple) iterator;
         littleList.clear();
         list = littleList;
     }
@@ -100,7 +100,7 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
             basis = null;
             littleList.clear();
             list = littleList;
-            listIterator.setFirst(list.header.next);
+            listIterator.setList(list);
             needSetupIterator = false;
         } else if (atoms.count() == 1) {
             basis = atoms.getAtom(0);
@@ -146,7 +146,7 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
         if (needSetupIterator) {
             setupIterator();
         }
-        listIterator.setFirst(list.header.next);
+        listIterator.setList(list);
         listIterator.reset();
     }
 
@@ -161,7 +161,7 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
         if (needSetupIterator) {
             setupIterator();
         }
-        listIterator.setFirst(list.header.next);
+        listIterator.setList(list);
         super.allAtoms(action);
     }
 
@@ -223,14 +223,14 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
         }
     }
 
-    private final AtomIteratorSequence listIterator;//the wrapped iterator
-    private final AtomList littleList = new AtomList();//used to form a list of
+    private final AtomIteratorArrayListSimple listIterator;//the wrapped iterator
+    private final AtomArrayList littleList = new AtomArrayList();//used to form a list of
                                                        // one iterate if target
                                                        // is specified
     private Atom targetAtom;
     private int targetDepth;
     private Atom basis;
-    private AtomList list = littleList;
+    private AtomArrayList list;
     private boolean needSetupIterator = true;//flag to indicate if
                                              // setupIterator must be called
                                              // upon reset

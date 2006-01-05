@@ -104,8 +104,6 @@ public class SWMD3D extends Simulation {
     integrator.setPhase(phase);
     integrator.addListener(new PhaseImposePbc(phase));
 
-    first = species.getAgent(phase).firstMolecule();
-
 //	DeviceNSelector nControl = new DeviceNSelector(speciesSpheres0.getAgent(phase0));
 //	nControl.setMaximum(108);
 	phase.makeMolecules();
@@ -120,7 +118,6 @@ public class SWMD3D extends Simulation {
   public P2SquareWell potential;
   public Controller controller;
   public DisplayPhase display;
-  Atom first;
 
 
   

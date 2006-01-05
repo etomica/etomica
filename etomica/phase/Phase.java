@@ -9,6 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import etomica.EtomicaElement;
 import etomica.action.PhaseInflate;
 import etomica.atom.Atom;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
@@ -91,9 +92,9 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     }
     
     public void makeMolecules() {
-        AtomLinker agentHead = ((AtomTreeNodeGroup)speciesMaster.node).childList.header;
-        for (AtomLinker link=agentHead.next; link!=agentHead; link=link.next) {
-            ((SpeciesAgent)link.atom).makeMolecules();
+        AtomArrayList agentList = ((AtomTreeNodeGroup)speciesMaster.node).childList;
+        for (int i=0; i<agentList.size(); i++) {
+            ((SpeciesAgent)agentList.get(i)).makeMolecules();
         }
     }
     
@@ -151,13 +152,16 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         if(i >= moleculeCount() || i < 0) 
             throw new IndexOutOfBoundsException("Index: "+i+
                                                 ", Number of molecules: "+moleculeCount());
-        int sum = 0;
-        SpeciesAgent s;
-        for(s=speciesMaster.firstSpecies(); s!=null; s=s.nextSpecies()) {
-            sum += s.node.childAtomCount();
-            if(sum > i) break;
+        AtomArrayList agentList = ((AtomTreeNodeGroup)speciesMaster.node).childList;
+        for (int agentIndex=0; agentIndex<agentList.size(); agentIndex++) {
+            AtomArrayList moleculeList = ((AtomTreeNodeGroup)agentList.get(agentIndex).node).childList;
+            int count = moleculeList.size();
+            if (i < count) {
+                return moleculeList.get(i);
+            }
+            i -= count;
         }
-        return ((AtomTreeNodeGroup)s.node).childList.get(i-(sum-((AtomTreeNodeGroup)s.node).childAtomCount()));
+        throw new IllegalStateException("how can this be?!?!?!");
     }
     
     /**
@@ -293,12 +297,12 @@ public class Phase implements EtomicaElement, java.io.Serializable {
 
     public void writePhase(ObjectOutputStream out) throws IOException {
         out.writeObject(boundary);
-        AtomList agents = ((AtomTreeNodeGroup)speciesMaster.node).childList;
+        AtomArrayList agents = ((AtomTreeNodeGroup)speciesMaster.node).childList;
         out.writeInt(agents.size());
-        for (AtomLinker link = agents.header.next; link != agents.header; link = link.next) {
-            Species species = ((SpeciesAgent)link.atom).type.getSpecies();
+        for (int i=0; i<agents.size(); i++) {
+            Species species = agents.get(i).type.getSpecies();
             out.writeObject(species.getSpeciesSignature());
-            out.writeInt(((SpeciesAgent)link.atom).getNMolecules());
+            out.writeInt(((SpeciesAgent)agents.get(i)).getNMolecules());
         }
         AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
         iterator.setPhase(this);

@@ -5,7 +5,7 @@
 package etomica.atom.iterator;
 
 import etomica.atom.Atom;
-import etomica.atom.AtomList;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTreeNode;
 import etomica.atom.AtomTreeNodeGroup;
@@ -28,8 +28,8 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
      * species[0] is relevant, and must not be null.
      */
     public AtomIteratorMolecule(Species[] species) {
-        super(new AtomIteratorListSimple());
-        listIterator = (AtomIteratorListSimple)iterator;
+        super(new AtomIteratorArrayListSimple());
+        listIterator = (AtomIteratorArrayListSimple)iterator;
         this.species = species[0];
         setList();
     }
@@ -84,8 +84,7 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
     private void setList() {
         //no phase is specified
         if(speciesAgentNode == null) {
-            littleList.clear();
-            listIterator.setList(littleList);
+            listIterator.setList(null);
             
         //no target -- iterate all molecules of species
         } else if(targetAtom == null) {
@@ -100,9 +99,9 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
         }
     }
 
-    private final AtomIteratorListSimple listIterator;
+    private final AtomIteratorArrayListSimple listIterator;
     private final Species species;
-    private final AtomList littleList = new AtomList();
+    private final AtomArrayList littleList = new AtomArrayList();
     private AtomTreeNodeGroup speciesAgentNode;
     private Atom targetAtom;
 }

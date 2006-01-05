@@ -20,11 +20,7 @@ public final class SpeciesAgent extends Atom {
         
     public final AtomFactory moleculeFactory() {return type.getSpecies().moleculeFactory();}
       
-    public SpeciesAgent nextSpecies() {return (SpeciesAgent)seq.next.atom;}
     public int moleculeCount() {return ((AtomTreeNodeGroup)node).childAtomCount();}
-    public Atom firstMolecule() {return ((AtomTreeNodeGroup)node).childList.getFirst();}
-    public Atom lastMolecule() {return ((AtomTreeNodeGroup)node).childList.getLast();}
-    public Atom randomMolecule() {return ((AtomTreeNodeGroup)node).childList.getRandom();}
             
     public Atom addNewAtom() {
         Atom aNew = moleculeFactory().makeAtom();
@@ -44,13 +40,17 @@ public final class SpeciesAgent extends Atom {
     public void setNMolecules(int n) {
         lastNMolecules = n;
         AtomTreeNodeGroup treeNode = (AtomTreeNodeGroup)node;
-        while(treeNode.childList.size() > 0) treeNode.childList.getLast().node.dispose();
+//        for (int i=treeNode.childList.size()-1; i>0; i--) {
+//            treeNode.childList.get(i).node.dispose();
+//        }
         if(n > treeNode.childAtomCount()) {
             for(int i=treeNode.childAtomCount(); i<n; i++) addNewAtom();
         }
         else if(n < treeNode.childAtomCount()) {
             if(n < 0) n = 0;
-            for(int i=treeNode.childAtomCount(); i>n; i--) treeNode.childList.getLast().node.dispose();
+            for (int i=treeNode.childList.size(); i>n; i--) {
+                treeNode.childList.get(i-1).node.dispose();
+            }
         }
     }
     
@@ -69,11 +69,6 @@ public final class SpeciesAgent extends Atom {
         
         private AgentAtomTreeNode(Atom atom) {
             super(atom);
-            ordinalReservoir = new OrdinalReservoir(this);
-        }
-
-        int newChildIndex() {
-            return ordinalReservoir.requestNewOrdinal();
         }
         
        /**
@@ -92,11 +87,9 @@ public final class SpeciesAgent extends Atom {
         public void removeAtomNotify(Atom oldAtom) {
             super.removeAtomNotify(oldAtom);
             if (oldAtom.node.parentGroup() == atom) {
-                ordinalReservoir.returnOrdinal(oldAtom.node.getOrdinal());
+//                ordinalReservoir.returnOrdinal(oldAtom.node.getOrdinal());
             }
         }
-        
-        private final OrdinalReservoir ordinalReservoir;
     }
     
     private final static AtomTreeNodeFactory NODE_FACTORY = new AtomTreeNodeFactory() {

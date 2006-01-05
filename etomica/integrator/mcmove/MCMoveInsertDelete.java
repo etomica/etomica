@@ -2,6 +2,7 @@ package etomica.integrator.mcmove;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
@@ -34,7 +35,6 @@ public class MCMoveInsertDelete extends MCMove {
     //directive must specify "BOTH" to get energy with all atom pairs
     protected final MeterPotentialEnergy energyMeter;
 	protected Species species;
-	protected AtomTreeNodeGroup speciesAgentNode;
     protected SpeciesAgent speciesAgent;
 	protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
 	protected Atom testMolecule;
@@ -44,6 +44,7 @@ public class MCMoveInsertDelete extends MCMove {
 	protected final AtomList reservoir;
     protected final AtomActionTranslateTo atomTranslator;
     protected AtomFactory moleculeFactory;
+    protected AtomArrayList moleculeList;
 
     public MCMoveInsertDelete(PotentialMaster potentialMaster) {
         super(potentialMaster, 1);
@@ -63,7 +64,7 @@ public class MCMoveInsertDelete extends MCMove {
         species = s;
         if(phase != null) {
             speciesAgent = species.getAgent(phase);
-            speciesAgentNode = (AtomTreeNodeGroup)speciesAgent.node; 
+            moleculeList = ((AtomTreeNodeGroup)speciesAgent.node).childList;
         }
         moleculeFactory = species.moleculeFactory();
     }
@@ -74,7 +75,7 @@ public class MCMoveInsertDelete extends MCMove {
         energyMeter.setPhase(phase);
         if(species != null) {
             speciesAgent = species.getAgent(phase);
-            speciesAgentNode = (AtomTreeNodeGroup)speciesAgent.node; 
+            moleculeList = ((AtomTreeNodeGroup)speciesAgent.node).childList;
         }
     }
     
@@ -98,7 +99,7 @@ public class MCMoveInsertDelete extends MCMove {
                 testMolecule = null;
                 return false;
             }
-            testMolecule = speciesAgent.randomMolecule();
+            testMolecule = moleculeList.get(Simulation.random.nextInt(moleculeList.size()));
             //delete molecule only upon accepting trial
             energyMeter.setTarget(testMolecule);
             uOld = energyMeter.getDataAsScalar();

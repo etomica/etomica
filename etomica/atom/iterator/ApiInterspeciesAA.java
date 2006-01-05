@@ -2,7 +2,7 @@ package etomica.atom.iterator;
 
 import java.util.Arrays;
 
-import etomica.atom.AtomList;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.phase.Phase;
 import etomica.species.Species;
@@ -35,8 +35,8 @@ public class ApiInterspeciesAA extends AtomPairIteratorAdapter implements
      *             if species.length != 2 or if species[0] == species[1]
      */
     public ApiInterspeciesAA(Species[] species) {
-        super(new ApiInterList());
-        apiInterList = (ApiInterList) iterator;
+        super(new ApiInterArrayList());
+        apiInterList = (ApiInterArrayList) iterator;
         if(species.length != 2) {
             throw new IllegalArgumentException("Incorrect array length; must be 2 but length is "+species.length);
         }
@@ -69,7 +69,7 @@ public class ApiInterspeciesAA extends AtomPairIteratorAdapter implements
         }
     }
 
-    private final ApiInterList apiInterList;
+    private final ApiInterArrayList apiInterList;
     private final Species species0, species1;
-    private final AtomList emptyList = new AtomList();
+    private final AtomArrayList emptyList = new AtomArrayList();
 }

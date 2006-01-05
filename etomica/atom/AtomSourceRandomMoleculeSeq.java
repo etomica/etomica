@@ -7,39 +7,44 @@ public class AtomSourceRandomMoleculeSeq extends AtomSourceRandomMolecule {
 
     public void setPhase(Phase p) {
         speciesMaster = p.getSpeciesMaster();
+        agentList = ((AtomTreeNodeGroup)speciesMaster.node).childList;
         reset();
     }
     
     public Atom getAtom() {
-        if (prevLinker == null || !prevLinker.atom.node.inSimulation()) {
-            // no suitable previous atom to step forward from 
+        int moleculeCount = speciesMaster.moleculeCount();
+        // this is probably innapropriate for atom removal
+        if (prevIndex == -1 || prevIndex > moleculeCount-1) {
+            // no suitable previous atom to step forward from the beginning
             reset();
             // no atoms in the phase
-            if (prevLinker == null) return null;
+            if (prevIndex == -1) return null;
         }
         int lookAhead = Simulation.random.nextInt(maxLookAhead+1);
-
-        int i = 0;
-        while (i < lookAhead) {
-            for ( ; i<lookAhead && prevLinker.atom != null; i++) {
-                prevLinker = prevLinker.next;
+        
+        for ( ; agentIndex<agentList.size(); agentIndex++) {
+            // advance through the species if needed
+            moleculeList = ((AtomTreeNodeGroup)agentList.get(agentIndex).node).childList;
+            int count = moleculeList.size();
+            if (prevIndex+lookAhead < count) {
+                prevIndex += lookAhead;
+                lookAhead = -1;
             }
-            if (prevLinker.atom == null) {
-                // wrapped back to first molecule of the species
-                // ==> advance to next species
-                SpeciesAgent s = prevLinker.next.atom.node.parentSpeciesAgent().nextSpecies();
-                // last species ==> go to first species
-                if (s == null)
-                    s = speciesMaster.firstSpecies();
-                prevLinker = ((AtomTreeNodeGroup)s.node).childList.firstEntry();
-                // no molecules in that species, find one with molecules
-                while (prevLinker == null) {
-                    s = s.nextSpecies();
-                    prevLinker = ((AtomTreeNodeGroup)s.node).childList.firstEntry();
+            prevIndex -= count;
+        }
+        if (lookAhead > -1) {
+            // we ran out of species, so start over with the first species
+            for (agentIndex=0 ; agentIndex<agentList.size(); agentIndex++) {
+                moleculeList = ((AtomTreeNodeGroup)agentList.get(agentIndex).node).childList;
+                int count = moleculeList.size();
+                if (prevIndex+lookAhead < count) {
+                    prevIndex += lookAhead;
+                    lookAhead = -1;
                 }
+                prevIndex -= count;
             }
         }
-        return prevLinker.atom;
+        return moleculeList.get(prevIndex);
     }
 
     /**
@@ -48,17 +53,19 @@ public class AtomSourceRandomMoleculeSeq extends AtomSourceRandomMolecule {
     public void reset() {
         int size = speciesMaster.moleculeCount();
         if (size == 0) {
-            prevLinker = null;
+            prevIndex = -1;
             return;
         }
-        int jump = Simulation.random.nextInt(size);
-        int sum = 0;
-        SpeciesAgent s;
-        for(s=speciesMaster.firstSpecies(); s!=null; s=s.nextSpecies()) {
-            sum += s.node.childAtomCount();
-            if(sum > jump) break;
+        prevIndex = Simulation.random.nextInt(size);
+        
+        for (agentIndex=0; agentIndex<agentList.size(); agentIndex++) {
+            moleculeList = ((AtomTreeNodeGroup)agentList.get(agentIndex).node).childList;
+            int count = moleculeList.size();
+            if (prevIndex < count) {
+                break;
+            }
+            prevIndex -= count;
         }
-        prevLinker = ((AtomTreeNodeGroup)s.node).childList.entry(jump-(sum-((AtomTreeNodeGroup)s.node).childAtomCount()));
     }
 
     /**
@@ -78,5 +85,6 @@ public class AtomSourceRandomMoleculeSeq extends AtomSourceRandomMolecule {
     
     protected int maxLookAhead = 10;
     protected SpeciesMaster speciesMaster;
-    protected AtomLinker prevLinker;
+    protected AtomArrayList moleculeList, agentList;
+    protected int prevIndex, agentIndex;
 }

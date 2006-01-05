@@ -61,7 +61,7 @@ public class Api1ASite implements AtomsetIteratorMolecule, AtomPairIterator {
      */
     public void allAtoms(AtomsetAction action) {
         if(targetAtom == null) return;
-        Cell cell = ((AtomSequencerCell)targetAtom.seq).getCell();
+        AtomSite cell = ((AtomSequencerSite)targetAtom.seq).getSite();
         lattice.latticeIndex(cell.getLatticeArrayIndex(),latticeIndex);
         
         //loop over neighbor cells

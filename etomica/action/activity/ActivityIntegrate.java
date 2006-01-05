@@ -82,7 +82,7 @@ public class ActivityIntegrate extends Activity {
                         throw new RuntimeException(e);
                     }
                 }
-        	    }
+            }
             integrator.doStep();
             if(--iieCount == 0) {
                 integrator.fireIntervalEvent(intervalEvent);

@@ -7,10 +7,13 @@ package etomica.nbr.cell;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomList;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
+import etomica.atom.iterator.ApiInterArrayList;
 import etomica.atom.iterator.ApiInterList;
+import etomica.atom.iterator.ApiIntraArrayList;
 import etomica.atom.iterator.ApiIntraList;
 import etomica.atom.iterator.AtomPairIterator;
 import etomica.atom.iterator.IteratorDirective;
@@ -41,8 +44,8 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, jav
         cellIterator = new RectangularLattice.Iterator(D);
         neighborIterator = new CellLattice.NeighborIterator(D, range);
         neighborIterator.setDirection(IteratorDirective.UP);
-        interListIterator = new ApiInterList();
-        intraListIterator = new ApiIntraList();
+        interListIterator = new ApiInterArrayList();
+        intraListIterator = new ApiIntraArrayList();
         listIterator = intraListIterator;
 	}
 
@@ -69,7 +72,7 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, jav
             //get cell without advancing -- advance is done via nextIndex,
             // below
             Cell cell = (Cell)cellIterator.peek();
-            AtomList list = cell.occupants();
+            AtomArrayList list = cell.occupants();
             
             //no molecules of species in cell
             if(list.isEmpty()) {
@@ -170,7 +173,7 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, jav
                 //advance central cell and set up neighbor cell iterator if
                 // central cell has some molecules
             } else if(cellIterator.hasNext()) {
-                AtomList list = ((Cell)cellIterator.peek()).occupants();
+                AtomArrayList list = ((Cell)cellIterator.peek()).occupants();
                 neighborIterator.setSite(cellIterator.nextIndex());
 
                 if(!list.isEmpty()) {//central cell has molecules
@@ -200,8 +203,8 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, jav
    
     private AtomPairIterator listIterator;
     private Phase phase;
-    private final ApiIntraList intraListIterator;
-    private final ApiInterList interListIterator;
+    private final ApiIntraArrayList intraListIterator;
+    private final ApiInterArrayList interListIterator;
     private final CellLattice.NeighborIterator neighborIterator;
     private final RectangularLattice.Iterator cellIterator;
 

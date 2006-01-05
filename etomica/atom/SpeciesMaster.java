@@ -1,7 +1,7 @@
 package etomica.atom;
 
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.phase.Phase;
 import etomica.phase.PhaseEvent;
@@ -52,14 +52,6 @@ public final class SpeciesMaster extends Atom {
         maxGlobalIndexEvent = new PhaseEvent(this,PhaseEvent.GLOBAL_INDEX);
     }
 
-    public SpeciesAgent firstSpecies() {
-        return (SpeciesAgent) ((AtomTreeNodeGroup)node).childList.getFirst();
-    }
-
-    public SpeciesAgent lastSpecies() {
-        return (SpeciesAgent) ((AtomTreeNodeGroup)node).childList.getLast();
-    }
-
     //    public int atomCount() {return atomList.size();}//or could use
     // node.leafAtomCount()
     public int moleculeCount() {
@@ -73,8 +65,8 @@ public final class SpeciesMaster extends Atom {
     }
     
     public void removeSpecies(Species species) {
-        AtomList speciesAgents= ((AtomTreeNodeGroup)node).childList;
-        AtomIteratorListSimple iterator = new AtomIteratorListSimple(speciesAgents);
+        AtomArrayList speciesAgents = ((AtomTreeNodeGroup)node).childList;
+        AtomIteratorArrayListSimple iterator = new AtomIteratorArrayListSimple(speciesAgents);
         iterator.reset();
         while (iterator.hasNext()) {
             Atom speciesAgent = iterator.nextAtom();
@@ -193,8 +185,6 @@ public final class SpeciesMaster extends Atom {
             additionEvent.setPhase(parentPhase);
             removalEvent = new PhaseEvent(atom, PhaseEvent.ATOM_REMOVED);
             removalEvent.setPhase(parentPhase);
-            ordinalReservoir = new OrdinalReservoir(this);
-            ordinalReservoir.setReservoirSize(3);
         }
 
         public Phase parentPhase() {
@@ -227,10 +217,6 @@ public final class SpeciesMaster extends Atom {
             return true;
         }
 
-        int newChildIndex() {
-            return ordinalReservoir.requestNewOrdinal();
-        }
-        
         public void addAtomNotify(Atom newAtom) {
             if (newAtom.node.parentGroup() instanceof SpeciesAgent) {
                 speciesMaster.moleculeCount++;
@@ -276,7 +262,7 @@ public final class SpeciesMaster extends Atom {
             } else if (oldAtom instanceof SpeciesAgent) {
                 speciesMaster.moleculeCount -= ((SpeciesAgent) oldAtom)
                         .moleculeCount();
-                ordinalReservoir.returnOrdinal(oldAtom.node.getOrdinal());
+//                ordinalReservoir.returnOrdinal(oldAtom.node.getOrdinal());
             }
             
             if (oldAtom.node.isLeaf()) {
@@ -307,7 +293,6 @@ public final class SpeciesMaster extends Atom {
         private final Phase parentPhase;
         private final SpeciesMaster speciesMaster;
         private final AtomIteratorTree treeIterator = new AtomIteratorTree();
-        private final OrdinalReservoir ordinalReservoir;
     } //end of MasterAtomTreeNode
 
     private static final class NodeFactory implements AtomTreeNodeFactory, java.io.Serializable {

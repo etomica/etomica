@@ -7,7 +7,7 @@ import java.util.LinkedList;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.atom.iterator.AtomIteratorArrayList;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.junit.UnitTest;
 import etomica.space.Space;
 import etomica.space1d.Space1D;
@@ -24,7 +24,7 @@ public class AtomIteratorArrayListTest extends IteratorTest {
     
     public void testListVariations() {
         Space space = Space1D.getInstance();
-        AtomIteratorArrayList iterator = new AtomIteratorArrayList();
+        AtomIteratorArrayListSimple iterator = new AtomIteratorArrayListSimple();
         
         //make sure new iterator gives no iterates
         LinkedList list = generalIteratorMethodTests(iterator);

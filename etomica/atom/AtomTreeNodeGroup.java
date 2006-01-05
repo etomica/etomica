@@ -10,10 +10,6 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     public AtomTreeNodeGroup(Atom atom) {
         super(atom);
     }
-        
-    int newChildIndex() {
-        return childList.isEmpty() ? 1 : childList.getLast().node.getOrdinal()+1;
-    }
     
     /**
      * Set this atom's index and update indexes of its descendants.
@@ -36,11 +32,8 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
      * according to their position in the childList.
      */
     public void assignChildOrdinals() {
-        int i = 0;
-        for(AtomLinker link=childList.header.next;
-                        link!=childList.header; 
-                        link = link.next) {
-            link.atom.node.setOrdinal(atomIndex, ++i);
+        for (int i = 0; i < childList.size(); i++) {
+            childList.get(i).node.setOrdinal(atomIndex, i+1);
         }
     }
 
@@ -72,11 +65,9 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     public boolean isLeaf() {return false;}
     
     public Atom firstLeafAtom() {
-        AtomLinker link = childList.header.next;
-        while(link != childList.header) {
-            Atom a1 = link.atom.node.firstLeafAtom();
+        for (int i = 0; i < childList.size(); i++) {
+            Atom a1 = childList.get(i).node.firstLeafAtom();
             if(a1 != null) return a1;
-            link = link.next;
         }
         return null;
     }
@@ -85,11 +76,9 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
      * Returns the last leaf atom descended from this group.
      */
     public Atom lastLeafAtom() {
-        AtomLinker link = childList.header.previous;
-        while(link != childList.header) {
-            Atom a1 = link.atom.node.lastLeafAtom();
+        for (int i = childList.size()-1; i > -1; i--) {
+            Atom a1 = childList.get(i).node.lastLeafAtom();
             if(a1 != null) return a1;
-            link = link.previous;
         }
         return null;
     }
@@ -143,7 +132,7 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     //consider a mechanism to ensure this; a inner mutator class made available only
     //to list's creator, for example (still wouldn't prevent modification via direct
     //access of entry classes).
-    public final AtomList childList = new AtomList();
+    public final AtomArrayList childList = new AtomArrayList();
         
     public static final AtomTreeNodeFactory FACTORY = new AtomTreeNodeGroup.Factory();
     

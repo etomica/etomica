@@ -32,7 +32,6 @@ public class AtomSequencerCell extends AtomLinker {
     public void remove() {
         super.remove();
         if (cell != null) {
-            cell.occupants().remove(nbrLink);
             cell = null;
         }
     }

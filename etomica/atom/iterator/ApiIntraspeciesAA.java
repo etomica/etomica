@@ -4,6 +4,7 @@
  */
 package etomica.atom.iterator;
 
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.phase.Phase;
@@ -35,7 +36,7 @@ public class ApiIntraspeciesAA extends AtomPairIteratorAdapter implements
      *             to different species instances
      */
     public ApiIntraspeciesAA(Species[] species) {
-        super(new ApiIntraList());
+        super(new ApiIntraArrayList());
         if (species.length != 2)
             throw new IllegalArgumentException(
                     "Constructor of ApiIntraspecies1A requires two references to the same species instance");
@@ -46,7 +47,7 @@ public class ApiIntraspeciesAA extends AtomPairIteratorAdapter implements
             throw new IllegalArgumentException(
                     "Constructor of ApiIntraspecies1A requires references to the same species instance");
         this.species = species[0];
-        pairIterator = (ApiIntraList) iterator;
+        pairIterator = (ApiIntraArrayList) iterator;
     }
 
     /**
@@ -59,11 +60,11 @@ public class ApiIntraspeciesAA extends AtomPairIteratorAdapter implements
             pairIterator.setList(emptyList);
         } else {
             pairIterator
-                    .setList(((AtomTreeNodeGroup) phase.getAgent(species).node).childList);
+                    .setList(((AtomTreeNodeGroup)phase.getAgent(species).node).childList);
         }
     }
 
-    private final ApiIntraList pairIterator;
+    private final ApiIntraArrayList pairIterator;
     private final Species species;
-    private final AtomList emptyList = new AtomList();
+    private final AtomArrayList emptyList = new AtomArrayList();
 }

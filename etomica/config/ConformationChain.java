@@ -1,8 +1,8 @@
 package etomica.config;
 
 import etomica.atom.Atom;
-import etomica.atom.AtomList;
-import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.atom.AtomArrayList;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -16,7 +16,7 @@ public abstract class ConformationChain extends Conformation {
 
 	public ConformationChain(Space space){	
 		super(space);		
-		atomIterator = new AtomIteratorListSimple();
+		atomIterator = new AtomIteratorArrayListSimple();
 		//orientationVector = space.makeVector();
 		//wrongNumberOfVectors = "Wrong number of vectors in the argument to ConformationChain subclass.";
 	}
@@ -37,7 +37,7 @@ public abstract class ConformationChain extends Conformation {
 	 * Places a set of atoms in a linearly connected fashion.
 	 * @ param atomlist a list of atoms in the order in which they are linked
 	 */
-	public void initializePositions(AtomList atomlist){
+	public void initializePositions(AtomArrayList atomlist){
 		
 		//First, check that we actually have some atoms
 		int size = atomlist.size();
@@ -80,7 +80,7 @@ public abstract class ConformationChain extends Conformation {
 	
 	//TODO Should we have a method here that moves the atom somehow- rotate, translate, etc.?
 	
-	private final AtomIteratorListSimple atomIterator;
+	private final AtomIteratorArrayListSimple atomIterator;
 
 	//private Vector orientationVector;	
 }

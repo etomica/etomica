@@ -2,6 +2,7 @@ package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.atom.Atom;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomList;
 import etomica.atom.AtomSet;
 import etomica.util.Arrays;
@@ -11,7 +12,7 @@ import etomica.util.Arrays;
  * present in multiple lists, or in lists added multiple times to iterator, will
  * be iterated multiple times.
  */
-public class AtomIteratorListCompound implements AtomIterator, java.io.Serializable {
+public class AtomIteratorArrayListCompound implements AtomIterator, java.io.Serializable {
 
     /**
      * Construct iterator to loop over all atoms in each list in the given
@@ -19,17 +20,17 @@ public class AtomIteratorListCompound implements AtomIterator, java.io.Serializa
      * use, but references to lists it contains are maintained (lists are
      * not copied).
      */
-    public AtomIteratorListCompound(AtomList[] lists) {
-        listSet = (AtomList[])lists.clone();
-        iterator = new AtomIteratorListSimple();
+    public AtomIteratorArrayListCompound(AtomArrayList[] lists) {
+        listSet = (AtomArrayList[])lists.clone();
+        iterator = new AtomIteratorArrayListSimple();
         unset();
     }
 
     /**
      * Constructs iterator that will give no iterates until a list is added.
      */
-    public AtomIteratorListCompound() {
-        this(new AtomList[0]);
+    public AtomIteratorArrayListCompound() {
+        this(new AtomArrayList[0]);
     }
 
     /**
@@ -39,11 +40,11 @@ public class AtomIteratorListCompound implements AtomIterator, java.io.Serializa
      * different instance each time. If list is null, no action is taken. 
      * Iterator is left in an unset state.
      */
-    public void addList(AtomList list) {
+    public void addList(AtomArrayList list) {
         if (list == null) {
             return;
         }
-        listSet = (AtomList[]) Arrays.addObject(listSet, list);
+        listSet = (AtomArrayList[]) Arrays.addObject(listSet, list);
         unset();
     }
 
@@ -54,11 +55,11 @@ public class AtomIteratorListCompound implements AtomIterator, java.io.Serializa
      * the iterator; reference to array is not kept (clone of array is used
      * internally by iterator). Leaves iterator unset.
      */
-    public void setLists(AtomList[] lists) {
+    public void setLists(AtomArrayList[] lists) {
         if (lists == null) {
-            listSet = new AtomList[0];
+            listSet = new AtomArrayList[0];
         } else {
-            listSet = (AtomList[]) lists.clone();
+            listSet = (AtomArrayList[]) lists.clone();
         }
         unset();
     }
@@ -69,8 +70,8 @@ public class AtomIteratorListCompound implements AtomIterator, java.io.Serializa
      * list was added multiple times, removes only one reference to it. Leaves
      * iterator unset.
      */
-    public void removeList(AtomList list) {
-        listSet = (AtomList[]) Arrays.removeObject(listSet, list);
+    public void removeList(AtomArrayList list) {
+        listSet = (AtomArrayList[]) Arrays.removeObject(listSet, list);
         unset();
     }
 
@@ -186,8 +187,8 @@ public class AtomIteratorListCompound implements AtomIterator, java.io.Serializa
         }
     }
 
-    private AtomList[] listSet;
-    private final AtomIteratorListSimple iterator;
+    private AtomArrayList[] listSet;
+    private final AtomIteratorArrayListSimple iterator;
     private int index;
 
 }//end of AtomIteratorListCompound

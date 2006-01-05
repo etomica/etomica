@@ -1,7 +1,7 @@
 package etomica.models.water;
 import etomica.atom.Atom;
-import etomica.atom.AtomList;
-import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.atom.AtomArrayList;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.config.Conformation;
 import etomica.space.Space;
 
@@ -12,14 +12,14 @@ public class ConformationWater3P extends Conformation {
 
     private double bondLengthOH = 1.0;
     private double angleHOH = 109.5*Math.PI/180.;
-    private final AtomIteratorListSimple iterator;
+    private final AtomIteratorArrayListSimple iterator;
 
     public ConformationWater3P(Space space) {
         super(space);
-        iterator = new AtomIteratorListSimple();
+        iterator = new AtomIteratorArrayListSimple();
     }
     
-    public void initializePositions(AtomList list){
+    public void initializePositions(AtomArrayList list){
         
         iterator.setList(list);
         double x = 0.0;

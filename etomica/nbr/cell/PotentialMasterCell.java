@@ -1,8 +1,13 @@
 package etomica.nbr.cell;
 
+import etomica.atom.Atom;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomSequencerFactory;
+import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.site.PotentialMasterSite;
+import etomica.phase.Phase;
+import etomica.potential.Potential;
+import etomica.potential.PotentialCalculation;
 import etomica.space.Space;
 
 /**
@@ -50,7 +55,14 @@ public class PotentialMasterCell extends PotentialMasterSite {
         ((Api1ACell)neighborIterator).getNbrCellIterator().setNeighborDistance(d);
     }
     
+    public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
+        currentNeighborCellManager = getNbrCellManager(phase);
+    }
+    protected void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc, final Potential[] potentials) {
+        ((Api1ACell)neighborIterator).setCentralCell(currentNeighborCellManager.getCell(atom));
+        super.calculate(atom,id,pc,potentials);
+    }
     public AtomSequencerFactory sequencerFactory() {return AtomSequencerCell.FACTORY;}
     
-
+    private NeighborCellManager currentNeighborCellManager;
 }

@@ -1,9 +1,10 @@
 package etomica.config;
 
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesAgent;
-import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.phase.Phase;
 import etomica.space.Space;
 
@@ -35,7 +36,7 @@ public abstract class Configuration implements java.io.Serializable {
      * 
      * @param atomList array of list of molecules to be placed by this class
      */
-    protected abstract void initializePositions(AtomList[] atomList);
+    protected abstract void initializePositions(AtomArrayList[] atomList);
     
     /**
      * Primary means by which this class is used to arrange molecules in the Phase.
@@ -49,9 +50,9 @@ public abstract class Configuration implements java.io.Serializable {
      */
     public void initializeCoordinates(Phase phase) {
         setDimensions(phase.getBoundary().getDimensions().toArray());
-        AtomList speciesAgentList = ((AtomTreeNodeGroup)phase.getSpeciesMaster().node).childList;
-        AtomIteratorListSimple speciesAgentIterator = new AtomIteratorListSimple(speciesAgentList);
-        AtomList[] moleculeLists = new AtomList[speciesAgentList.size()];
+        AtomArrayList speciesAgentList = ((AtomTreeNodeGroup)phase.getSpeciesMaster().node).childList;
+        AtomIteratorArrayListSimple speciesAgentIterator = new AtomIteratorArrayListSimple(speciesAgentList);
+        AtomArrayList[] moleculeLists = new AtomArrayList[speciesAgentList.size()];
         int i=0;
         speciesAgentIterator.reset();
         while (speciesAgentIterator.hasNext()) {

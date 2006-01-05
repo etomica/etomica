@@ -2,8 +2,8 @@ package etomica.config;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
-import etomica.atom.AtomList;
-import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.atom.AtomArrayList;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPhase;
 import etomica.lattice.LatticeCubicFcc;
@@ -22,7 +22,7 @@ public class ConfigurationZincblende extends Configuration {
     
     private final ConfigurationLattice fcc;
     private final AtomGroupAction translator;
-    private final AtomIteratorListSimple iterator0, iterator1;
+    private final AtomIteratorArrayListSimple iterator0, iterator1;
     private final LatticeCubicFcc lattice;
     
     public ConfigurationZincblende(Space space) {
@@ -30,15 +30,15 @@ public class ConfigurationZincblende extends Configuration {
         lattice = new LatticeCubicFcc();
         fcc = new ConfigurationLattice(lattice);
         translator = new AtomGroupAction(new AtomActionTranslateBy(space));
-        iterator0 = new AtomIteratorListSimple();
-        iterator1 = new AtomIteratorListSimple();
+        iterator0 = new AtomIteratorArrayListSimple();
+        iterator1 = new AtomIteratorArrayListSimple();
     }
     
     /**
      * Initializes positions of atoms to the zincblende structure.  The given
      * array should hold exactly two AtomLists, each with the same number of atoms.
      */
-    public void initializePositions(AtomList[] lists) {
+    public void initializePositions(AtomArrayList[] lists) {
         if(lists == null || lists.length != 2) {//need an exception for this
             throw new IllegalArgumentException("inappropriate argument to ConfigurationZincBlende");
         }
@@ -47,8 +47,8 @@ public class ConfigurationZincblende extends Configuration {
         }
         
         //create fcc lattice each species at same positions
-        fcc.initializePositions(new AtomList[]{lists[0]});
-        fcc.initializePositions(new AtomList[]{lists[1]});
+        fcc.initializePositions(new AtomArrayList[]{lists[0]});
+        fcc.initializePositions(new AtomArrayList[]{lists[1]});
         
         //shift lattice in all three directions by one-quarter the lattice constant
         Vector3D shift = new Vector3D();

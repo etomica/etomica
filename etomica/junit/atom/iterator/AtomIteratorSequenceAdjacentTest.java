@@ -41,7 +41,7 @@ public class AtomIteratorSequenceAdjacentTest extends IteratorTest {
                 new int[] {nAtoms},2,new int[] {nAtoms},null,null);
         AtomTreeNodeGroup rootNode = (AtomTreeNodeGroup)root.node;
         SpeciesAgent agent = (SpeciesAgent)rootNode.getDescendant(new int[] {0,0});
-        AtomList atomList = ((AtomTreeNodeGroup)agent.node).childList;
+        AtomList atomList = new AtomList(((AtomTreeNodeGroup)agent.node).childList.toArray());
 
         //atom in middle of list
         Atom atom = atomList.get(5);

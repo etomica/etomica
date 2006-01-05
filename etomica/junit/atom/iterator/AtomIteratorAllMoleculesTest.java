@@ -2,11 +2,11 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.atom.AtomList;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.junit.UnitTest;
 import etomica.phase.Phase;
 import etomica.species.Species;
@@ -58,10 +58,12 @@ public class AtomIteratorAllMoleculesTest extends IteratorTest {
 
         iterator.setPhase(phase);
         
-        AtomList moleculeList = new AtomList();
+        AtomArrayList moleculeList = new AtomArrayList();
         for(int i=0; i<species.length; i++) {
-            AtomList molecules = ((AtomTreeNodeGroup)phase.getAgent(species[i]).node).childList;
-            moleculeList.addAll(new AtomIteratorListSimple(molecules));
+            AtomArrayList molecules = ((AtomTreeNodeGroup)phase.getAgent(species[i]).node).childList;
+            for (int j=0; j<molecules.size(); j++) {
+                moleculeList.add(molecules.get(j));
+            }
         }
         
         LinkedList list = testIterates(iterator, moleculeList.toArray());

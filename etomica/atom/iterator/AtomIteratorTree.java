@@ -82,9 +82,9 @@ public class AtomIteratorTree implements AtomIterator, java.io.Serializable {
             act.actionPerformed(rootNode.atom());
             if (iterationDepth == 0) return;
         }
-		seqIterator.reset();
-		while(seqIterator.hasNext()) {
-            Atom atom = seqIterator.nextAtom();
+		listIterator.reset();
+		while(listIterator.hasNext()) {
+            Atom atom = listIterator.nextAtom();
             if (atom.node.isLeaf() || iterationDepth == 1) {
                 act.actionPerformed(atom);
             }
@@ -134,7 +134,7 @@ public class AtomIteratorTree implements AtomIterator, java.io.Serializable {
             unset();
             return;
         }
-        seqIterator.reset();
+        listIterator.reset();
         if (treeIterator != null) treeIterator.unset();
         next = rootNode.atom();
         if(!doAllNodes && iterationDepth>0 && !rootNode.isLeaf()) nextAtom();
@@ -151,8 +151,8 @@ public class AtomIteratorTree implements AtomIterator, java.io.Serializable {
             next = treeIterator.nextAtom();
             return nextAtom;
         }
-        while(seqIterator.hasNext()) {
-            Atom atom = seqIterator.nextAtom();
+        while(listIterator.hasNext()) {
+            Atom atom = listIterator.nextAtom();
             if (atom.node.isLeaf() || iterationDepth == 1) {
                 next = atom;
                 break;
@@ -199,10 +199,10 @@ public class AtomIteratorTree implements AtomIterator, java.io.Serializable {
                 wealreadyknowyourstupid = true;
             }
             rootNode = rootAtom.node;
-            seqIterator.setFirst(null);
+            listIterator.setList(null);
         } else {
             rootNode = rootAtom.node;
-            seqIterator.setFirst(((AtomTreeNodeGroup)rootNode).childList.firstEntry());
+            listIterator.setList(((AtomTreeNodeGroup)rootNode).childList);
         }
         unset();
     }
@@ -279,7 +279,7 @@ public class AtomIteratorTree implements AtomIterator, java.io.Serializable {
             
     private AtomTreeNode rootNode;
     private AtomIteratorTree treeIterator;//used for recursive iteration to lower levels in tree
-    private final AtomIteratorSequence seqIterator = new AtomIteratorSequence(IteratorDirective.UP);
+    private final AtomIteratorArrayListSimple listIterator = new AtomIteratorArrayListSimple();
     private int iterationDepth = Integer.MAX_VALUE;
     private Atom next;
     private boolean doAllNodes = false;

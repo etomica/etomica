@@ -5,6 +5,7 @@
 package etomica.nbr.site;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.AtomPair;
@@ -126,7 +127,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * the hierarchy until leaf atoms are reached.
      */
     //TODO make a "TerminalGroup" indicator in type that permits child atoms but indicates that no potentials apply directly to them
-	private void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc, final Potential[] potentials) {
+	protected void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc, final Potential[] potentials) {
         for(int i=0; i<potentials.length; i++) {
             switch (potentials[i].nBody()) {
             case 1:
@@ -165,13 +166,12 @@ public class PotentialMasterSite extends PotentialMasterNbr {
 		//if atom has children, repeat process with them
 		if(!atom.node.isLeaf()) {
             //cannot use AtomIterator field because of recursive call
-            AtomList list = ((AtomTreeNodeGroup) atom.node).childList;
-            AtomLinker link = list.header.next;
-            if (link != list.header) {
-                for (link = list.header.next; link != list.header; link = link.next) {
-                    Potential[] childPotentials = getPotentials(link.atom.type).getPotentials();
-                    calculate(link.atom, id, pc, childPotentials);//recursive call
-                }
+            AtomArrayList list = ((AtomTreeNodeGroup) atom.node).childList;
+            int size = list.size();
+            for (int i=0; i<size; i++) {
+                Atom a = list.get(i);
+                Potential[] childPotentials = getPotentials(a.type).getPotentials();
+                calculate(a, id, pc, childPotentials);//recursive call
             }
 		}
 	}

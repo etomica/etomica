@@ -7,9 +7,12 @@ package etomica.nbr.list;
 import etomica.action.AtomsetActionAdapter;
 import etomica.action.PhaseImposePbc;
 import etomica.atom.Atom;
+import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
+import etomica.atom.Atom.AgentSource;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorIntervalListener;
@@ -37,7 +40,7 @@ import etomica.util.Debug;
  * PotentialCalculationCellAssign instance as the PotentialCalculation.
  */
 public class NeighborListManager implements IntegratorNonintervalListener,
-        IntegratorIntervalListener, java.io.Serializable {
+        IntegratorIntervalListener, AgentSource, java.io.Serializable {
 
     /**
      * Configures instance for use by the given PotentialMaster.
@@ -55,6 +58,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         pbcEnforcer.setApplyToMolecules(false);
         this.potentialMaster = potentialMaster;
         cellNbrIterator = new ApiAACell(potentialMaster.getSpace().D(), range);
+        agentManagers = new AtomAgentManager[0];
     }
 
     /**
@@ -71,8 +75,6 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     public void nonintervalAction(IntegratorNonintervalEvent evt) {
         if (evt.type() == IntegratorNonintervalEvent.INITIALIZE) {
             Phase phase = ((IntegratorPhase)evt.getSource()).getPhase();
-            pbcEnforcer.setPhase(phase);
-            pbcEnforcer.actionPerformed();
             potentialMaster.updateTypeList(phase);
             reset(((IntegratorPhase)evt.getSource()).getPhase());
         }
@@ -100,8 +102,6 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         }
         pbcEnforcer.setPhase(phase);
         pbcEnforcer.actionPerformed();
-        iterator.setRoot(phase.getSpeciesMaster());
-        iterator.allAtoms(neighborReset);
         neighborSetup(phase);
     }
 
@@ -130,7 +130,6 @@ public class NeighborListManager implements IntegratorNonintervalListener,
             }
             pbcEnforcer.setPhase(phase);
             pbcEnforcer.actionPerformed();
-            iterator.allAtoms(neighborReset);
             neighborSetup(phase);
             resetIntegrator = true;
         }
@@ -236,6 +235,19 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * @param phase phase in which neighbor setup is performed.
      */
     public void neighborSetup(Phase phase) {
+        int phaseIndex = phase.getIndex();
+        if (agentManagers.length < phaseIndex) {
+            agentManagers = (AtomAgentManager[])Arrays.resizeArray(agentManagers,phaseIndex);
+        }
+        if (agentManagers[phaseIndex-1] == null) {
+            agentManagers[phaseIndex-1] = new AtomAgentManager(this,phase);
+        }
+        neighborLists = (AtomNeighborLists[])agentManagers[phaseIndex-1].getAgents();
+
+        iterator.setRoot(phase.getSpeciesMaster());
+        neighborReset.setNeighborLists(neighborLists);
+        iterator.allAtoms(neighborReset);
+        
         potentialMaster.getNbrCellManager(phase).assignCellAll();
 
         cellNbrIterator.setPhase(phase);
@@ -251,8 +263,8 @@ public class NeighborListManager implements IntegratorNonintervalListener,
                     continue;
                 }
                 if (((Potential2) potentials[i]).getCriterion().accept(pair)) {
-                    ((AtomSequencerNbr) pair.atom0.seq).addUpNbr(pair.atom1,i);
-                    ((AtomSequencerNbr) pair.atom1.seq).addDownNbr(pair.atom0,
+                    neighborLists[pair.atom0.getGlobalIndex()].addUpNbr(pair.atom1,i);
+                    neighborLists[pair.atom1.getGlobalIndex()].addDownNbr(pair.atom0,
                             potentialMaster.getPotentials(pair.atom1.type).getPotentialIndex(potentials[i]));
                 }
             }
@@ -291,6 +303,18 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     public void setQuiet(boolean quiet) {
         this.quiet = quiet;
     }
+    
+    public void setPhase(Phase phase) {
+        neighborLists = (AtomNeighborLists[])agentManagers[phase.getIndex()-1].getAgents();
+    }
+    
+    public AtomArrayList[] getUpList(Atom atom) {
+        return neighborLists[atom.getGlobalIndex()].getUpList();
+    }
+
+    public AtomArrayList[] getDownList(Atom atom) {
+        return neighborLists[atom.getGlobalIndex()].getDownList();
+    }
 
     private NeighborCriterion[] criteriaArray = new NeighborCriterion[0];
     private int updateInterval;
@@ -304,6 +328,8 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     private PhaseImposePbc pbcEnforcer;
     private boolean quiet;
     private NeighborCriterion[][] criteria = new NeighborCriterion[0][0];
+    private AtomNeighborLists[] neighborLists;
+    private AtomAgentManager[] agentManagers;
 
     /**
      * Atom action class that checks if any criteria indicate that the given
@@ -365,10 +391,24 @@ public class NeighborListManager implements IntegratorNonintervalListener,
                 return;//don't want SpeciesMaster or SpeciesAgents
             }
             final NeighborCriterion[] criterion = neighborListManager.getCriterion(((Atom) atom).type);
-            ((AtomSequencerNbr) ((Atom) atom).seq).clearNbrs();
+            neighborLists[((Atom) atom).getGlobalIndex()].clearNbrs();
             for (int i = 0; i < criterion.length; i++) {
                 criterion[i].reset((Atom) atom);
             }
         }
+        
+        public void setNeighborLists(AtomNeighborLists[] newNeighborLists) {
+            neighborLists = newNeighborLists;
+        }
+        
+        private AtomNeighborLists[] neighborLists;
+    }
+    
+    public Object makeAgent(Atom atom) {
+        return new AtomNeighborLists();
+    }
+    
+    public void releaseAgent(Object agent) {
+        ((AtomNeighborLists)agent).clearNbrs();
     }
 }

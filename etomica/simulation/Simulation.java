@@ -6,6 +6,7 @@ import etomica.EtomicaInfo;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesRoot;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.data.DataSource;
 import etomica.integrator.Integrator;
@@ -66,7 +67,7 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
     public final Phase[] getPhases() {
         int nPhases = ((AtomTreeNodeGroup)speciesRoot.node).childList.size();
         Phase[] phases = new Phase[nPhases];
-        AtomIteratorListSimple listIterator = new AtomIteratorListSimple(((AtomTreeNodeGroup)speciesRoot.node).childList);
+        AtomIteratorArrayListSimple listIterator = new AtomIteratorArrayListSimple(((AtomTreeNodeGroup)speciesRoot.node).childList);
         listIterator.reset();
         int i=0;
         while(listIterator.hasNext()) {

@@ -9,8 +9,10 @@ import java.io.Serializable;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
 import etomica.atom.Atom;
+import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.Atom.AgentSource;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.data.DataSourceCOM;
@@ -35,7 +37,7 @@ import etomica.space.Vector;
 //no need for index when assigning cell
 //different iterator needed
 
-public class NeighborCellManager implements PhaseCellManager, java.io.Serializable {
+public class NeighborCellManager implements PhaseCellManager, AgentSource, java.io.Serializable {
 
     private final CellLattice lattice;
     private final Space space;
@@ -44,6 +46,9 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
     private final Phase phase;
     private int cellRange = 2;
     private double range;
+    private final AtomAgentManager agentManager;
+    private final Cell bogusCell = new Cell(-1);
+    private Cell[] cells;
     
     /**
      * Constructs manager for neighbor cells in the given phase.  The number of
@@ -75,6 +80,7 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
         //listener to phase to detect addition of new SpeciesAgent
         //or new atom
         phase.getSpeciesMaster().addListener(new MyPhaseListener(this));
+        agentManager = new AtomAgentManager(this,phase);
     }
 
     public CellLattice getLattice() {
@@ -141,15 +147,33 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
         // ensure that any changes to cellRange, potentialRange and boundary
         // dimension take effect
         checkDimensions();
+
+        Object[] allCells = lattice.sites();
+        for (int i=0; i<allCells.length; i++) {
+            ((Cell)allCells[i]).occupants().clear();
+        }
+        
+        cells = (Cell[])agentManager.getAgents();
+        for (int i=0; i<cells.length; i++) {
+            cells[i] = null;
+        }
         
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom atom = atomIterator.nextAtom();
             if (atom.type.isInteracting()  && (atom.type instanceof AtomTypeLeaf && ((AtomTypeLeaf)atom.type).getMass()!=Double.POSITIVE_INFINITY ||
-                    ((AtomSequencerCell)atom.seq).cell == null)) {
+                    ((AtomSequencerCell)atom.seq).getCell() == null)) {
                 assignCell(atom);
             }
         }
+    }
+    
+    protected Cell getCell(Atom atom) {
+        return cells[atom.getGlobalIndex()];
+    }
+    
+    protected void removeFromCell(Atom atom) {
+        cells[atom.getGlobalIndex()] = null;
     }
     
     /**
@@ -166,7 +190,13 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
     public MCMoveListener makeMCMoveListener() {
         return new MyMCMoveListener(space,phase,this);
     }
-
+    
+    public Object makeAgent(Atom atom) {
+        // return a placeholder cell.  We'll decide which cell later
+        return bogusCell;
+    }
+    
+    public void releaseAgent(Object agent) {}
     
     private static final class MyPhaseListener implements PhaseListener, Serializable {
         private final NeighborCellManager neighborCellManager;
@@ -224,7 +254,8 @@ public class NeighborCellManager implements PhaseCellManager, java.io.Serializab
 
         private void updateCell(Atom atom) {
             Boundary boundary = phase.getBoundary();
-            if (((AtomSequencerCell)atom.seq).cell != null) {
+            if (neighborCellManager.getCell(atom) != null) {
+                neighborCellManager.removeFromCell(atom);
                 if (!atom.node.isLeaf()) {
                     Vector shift = boundary.centralImage(moleculePosition.position(atom));
                     if (!shift.isZero()) {

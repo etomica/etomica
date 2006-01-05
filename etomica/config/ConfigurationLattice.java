@@ -2,9 +2,9 @@ package etomica.config;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
-import etomica.atom.AtomList;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomTreeNodeGroup;
-import etomica.atom.iterator.AtomIteratorListCompound;
+import etomica.atom.iterator.AtomIteratorArrayListCompound;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPhase;
 import etomica.lattice.Crystal;
@@ -42,11 +42,11 @@ public class ConfigurationLattice extends Configuration {
         this.lattice = lattice;
         this.indexIterator = indexIterator;
         atomActionTranslateTo = new AtomActionTranslateTo(lattice.getSpace());
-        atomIterator = new AtomIteratorListCompound();
+        atomIterator = new AtomIteratorArrayListCompound();
         work = space.makeVector();
 	}
 	
-    public void initializePositions(AtomList[] lists) {
+    public void initializePositions(AtomArrayList[] lists) {
         if(lists.length == 0) return;
         atomIterator.setLists(lists);
         int sumOfMolecules = atomIterator.size();
@@ -163,7 +163,7 @@ public class ConfigurationLattice extends Configuration {
     private final Vector work;
 	private boolean rescalingToFitVolume = true;
     private final AtomActionTranslateTo atomActionTranslateTo;
-    private final AtomIteratorListCompound atomIterator;
+    private final AtomIteratorArrayListCompound atomIterator;
 
 //  /**
 //  * Sets the size of the lattice (number of atoms in each direction) so that
