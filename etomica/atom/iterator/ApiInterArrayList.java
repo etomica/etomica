@@ -122,9 +122,9 @@ public class ApiInterArrayList implements AtomPairIterator, java.io.Serializable
      * list.
      */
     public void allAtoms(AtomsetAction action) {
-        for (int i=0; i<outerList.size()-1; i++) {
+        for (int i=0; i<outerList.size(); i++) {
             atoms.atom0 = outerList.get(i);
-            for (int j=0; j<innerList.size()-1; j++) {
+            for (int j=0; j<innerList.size(); j++) {
                 atoms.atom1 = innerList.get(j);
                 action.actionPerformed(atoms);
             }
