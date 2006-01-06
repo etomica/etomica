@@ -6,6 +6,7 @@ package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.atom.Atom;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 
@@ -19,11 +20,11 @@ public class ApiSequence1A implements AtomPairIterator, AtomsetIteratorDirectabl
      * reset() before iteration.
      */
     public ApiSequence1A() {
-        this(new AtomIteratorSequence(IteratorDirective.UP, 1),
-                new AtomIteratorSequence(IteratorDirective.DOWN, 1));
+        this(new AtomIteratorArrayList(IteratorDirective.UP, 1),
+                new AtomIteratorArrayList(IteratorDirective.DOWN, 1));
     }
     
-    public ApiSequence1A(AtomIteratorAtomDependent aiInnerUp, AtomIteratorAtomDependent aiInnerDn) {
+    public ApiSequence1A(AtomIteratorArrayList aiInnerUp, AtomIteratorArrayList aiInnerDn) {
         this.aiOuter = new AtomIteratorSinglet();
         apiUp = new ApiInnerVariable(aiOuter, aiInnerUp, false);
         apiDown = new ApiInnerVariable(aiOuter, aiInnerDn, true);
@@ -35,6 +36,10 @@ public class ApiSequence1A implements AtomPairIterator, AtomsetIteratorDirectabl
     
     public void setAtom(Atom atom) {
         aiOuter.setAtom(atom);
+    }
+    
+    public void setList(AtomArrayList list) {
+        arrayList = list;
     }
     
     /**
@@ -149,4 +154,5 @@ public class ApiSequence1A implements AtomPairIterator, AtomsetIteratorDirectabl
     private IteratorDirective.Direction direction;
     private final ApiInnerVariable apiUp, apiDown;
     private boolean doGoDown, upListNow;
+    private AtomArrayList arrayList;
 }

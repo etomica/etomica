@@ -27,8 +27,8 @@ public final class ApiIntragroup implements AtomPairIterator,
 	 * reset() before iteration.
 	 */
 	public ApiIntragroup() {
-		this(new AtomIteratorSequence(IteratorDirective.UP, 1),
-                new AtomIteratorSequence(IteratorDirective.DOWN, 1));
+		this(new AtomIteratorArrayList(IteratorDirective.UP, 1),
+                new AtomIteratorArrayList(IteratorDirective.DOWN, 1));
     }
     
     public ApiIntragroup(AtomIteratorAtomDependent aiInnerUp, AtomIteratorAtomDependent aiInnerDn) {
