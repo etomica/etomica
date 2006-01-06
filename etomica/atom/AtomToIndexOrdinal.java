@@ -2,7 +2,6 @@ package etomica.atom;
 
 import java.io.Serializable;
 
-import etomica.atom.iterator.AtomIteratorArraySequence.AtomToIndex;
 
 /**
  * Defines the index as the Atom's ordinal.
@@ -10,8 +9,11 @@ import etomica.atom.iterator.AtomIteratorArraySequence.AtomToIndex;
  */
 public class AtomToIndexOrdinal implements AtomToIndex, Serializable {
 
+    /**
+     * @throws NullPointerException if the atom is null.
+     */
     public int getIndex(Atom atom) {
-        return (atom != null) ? atom.node.getOrdinal() : -1;
+        return atom.node.getOrdinal()-1;
     }
     
     private static final long serialVersionUID = 1L;
