@@ -46,12 +46,12 @@ public class AtomIteratorSequenceTest extends ListIteratorTest {
                 null,0,new int[] {nAtoms},null,null);
         SpeciesAgent agent = (SpeciesAgent)((AtomTreeNodeGroup)root.node).getDescendant(new int[] {0,0});
         AtomList list = new AtomList(((AtomTreeNodeGroup)agent.node).childList.toArray());
-        upIterator.setAtom(list.getFirst());
-        dnIterator.setAtom(list.getFirst());
+        upIterator.setFirst(list.header.next);
+        dnIterator.setFirst(list.header.next);
         LinkedList listUp0 = generalIteratorMethodTests(upIterator);
         LinkedList listDn0 = generalIteratorMethodTests(dnIterator);
-        upIterator.setAtom(list.getLast());
-        dnIterator.setAtom(list.getLast());
+        upIterator.setFirst(list.header.previous);
+        dnIterator.setFirst(list.header.previous);
         LinkedList listUp1 = generalIteratorMethodTests(upIterator);
         LinkedList listDn1 = generalIteratorMethodTests(dnIterator);
         assertEquals(listUp0.size(),nAtoms);
@@ -65,7 +65,7 @@ public class AtomIteratorSequenceTest extends ListIteratorTest {
         
         //check that allAtoms doesn't clobber iteration state
         //(as documented for this iterator)
-        upIterator.setAtom(list.getFirst());
+        upIterator.setFirst(list.header.next);
         upIterator.reset();
         for(int i=0; i<nAtoms/2; i++) upIterator.nextAtom();
         Atom next = (Atom)upIterator.peek();
