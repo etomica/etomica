@@ -5,7 +5,6 @@ import java.awt.Graphics;
 import java.awt.TextField;
 import java.util.Iterator;
 
-import sun.security.provider.certpath.Vertex;
 import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomTypeOrientedSphere;
