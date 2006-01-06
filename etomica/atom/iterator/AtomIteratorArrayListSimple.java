@@ -65,7 +65,10 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
      * Returns the next iterate and advances the iterator.
      */
  	public Atom nextAtom() {
- 		return list.get(cursor++);
+        if (cursor < size()) {
+            return list.get(cursor++);
+        }
+        return null;
  	}
  	
     /**
