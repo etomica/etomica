@@ -7,7 +7,6 @@ import etomica.atom.Atom;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.AtomSet;
-import etomica.atom.AtomToLinkerSeq;
 
 /**
  * Iterator for looping through a sequence of AtomLink-ed atoms relative to a
@@ -24,7 +23,7 @@ import etomica.atom.AtomToLinkerSeq;
 /*
  * Created on June 5, 2005 by kofke
  */
-public class AtomIteratorSequence implements AtomIteratorAtomDependent, java.io.Serializable {
+public class AtomIteratorSequence implements AtomIterator, java.io.Serializable {
 
     /**
      * Constructs a new class to iterate in the specified direction. Default
@@ -35,26 +34,18 @@ public class AtomIteratorSequence implements AtomIteratorAtomDependent, java.io.
         this(direction, 0);
     }
 
-    public AtomIteratorSequence(IteratorDirective.Direction direction, int numToSkip) {
-        this(direction, numToSkip, new AtomToLinkerSeq());
-    }
-    
     /**
      * Constructs new class to iterate in the specified direction. Must invoke
-     * setAtom or setFirst and reset before beginning iteration. AtomToLinker
-     * instance provides a rule that identifies the linker for beginning
-     * iteration, given an atom.
+     * setAtom or setFirst and reset before beginning iteration.
      * 
      * @throws IllegalArgumentException
      *             if direction is null
      */
-    public AtomIteratorSequence(IteratorDirective.Direction direction, int numToSkip,
-            AtomToLinker atomToLinker) {
+    public AtomIteratorSequence(IteratorDirective.Direction direction, int numToSkip) {
         if (direction == null)
             throw new IllegalArgumentException(
                     "Must specify direction to constructor of AtomLinkerIterator");
         upListNow = (direction == IteratorDirective.UP);
-        this.atomToLinker = atomToLinker;
         if (numToSkip < 0) {
             throw new IllegalArgumentException("num to skip must not be negative");
         }
@@ -180,15 +171,6 @@ public class AtomIteratorSequence implements AtomIteratorAtomDependent, java.io.
     }
 
     /**
-     * Sets the first atom for iteration. Iteration proceeds from this atom up
-     * and/or down the list, depending on how iterator was configured at
-     * construction, and ends when a null-atom linker is encountered.
-     */
-    public void setAtom(Atom atom) {
-        setFirst(atomToLinker.getLinker(atom));
-    }
-
-    /**
      * Sets the linker where iteration begins. The given linker's atom will be
      * the first iterate given. If linker has a null atom, no iterates will be
      * given. Otherwise, iteration proceeds from this linker up and/or down the
@@ -219,7 +201,6 @@ public class AtomIteratorSequence implements AtomIteratorAtomDependent, java.io.
     }
 
     private final boolean upListNow;
-    private final AtomToLinker atomToLinker;
     private final AtomsetCount counter = new AtomsetCount();
     private final AtomsetDetect detector = new AtomsetDetect(null);
     private final AtomList emptyList = new AtomList();
