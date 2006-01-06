@@ -268,6 +268,7 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
     // This should be invoked only if aiInner.hasNext is false
     private void advanceLists() {
         if (inCentralCell && upListNow && doGoDown) {
+            aiSeqDirectableDn.setList(centralCell.occupants());
             aiSeqDirectableDn.setAtom(targetAtom);
             aiSeqDirectableDn.reset();
             if (aiSeqDirectableDn.hasNext()) {

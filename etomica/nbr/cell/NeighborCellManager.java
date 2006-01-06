@@ -10,6 +10,7 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomAgentManager.AgentSource;
@@ -161,8 +162,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, java.
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom atom = atomIterator.nextAtom();
-            if (atom.type.isInteracting()  && (atom.type instanceof AtomTypeLeaf && ((AtomTypeLeaf)atom.type).getMass()!=Double.POSITIVE_INFINITY ||
-                    ((AtomSequencerCell)atom.seq).getCell() == null)) {
+            if (atom.type.isInteracting()  && (atom.type instanceof AtomTypeLeaf && ((AtomTypeLeaf)atom.type).getMass()!=Double.POSITIVE_INFINITY)) {
                 assignCell(atom);
             }
         }
@@ -173,6 +173,9 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, java.
     }
     
     protected void removeFromCell(Atom atom) {
+        Cell cell = cells[atom.getGlobalIndex()];
+        AtomArrayList cellOccupants = cell.occupants();
+        cellOccupants.remove(cellOccupants.indexOf(atom));
         cells[atom.getGlobalIndex()] = null;
     }
     
@@ -184,7 +187,9 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, java.
         Vector position = (positionDefinition != null) ?
                 positionDefinition.position(atom) :
                     atom.type.getPositionDefinition().position(atom);
-        ((Cell)lattice.site(position)).addAtom(atom);
+        Cell atomCell = (Cell)lattice.site(position);
+        atomCell.addAtom(atom);
+        cells[atom.getGlobalIndex()] = atomCell;
     }
     
     public MCMoveListener makeMCMoveListener() {

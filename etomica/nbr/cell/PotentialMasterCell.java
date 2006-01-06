@@ -57,6 +57,7 @@ public class PotentialMasterCell extends PotentialMasterSite {
     
     public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
         currentNeighborCellManager = getNbrCellManager(phase);
+        super.calculate(phase,id,pc);
     }
     protected void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc, final Potential[] potentials) {
         ((Api1ACell)neighborIterator).setCentralCell(currentNeighborCellManager.getCell(atom));
