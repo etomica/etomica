@@ -2,6 +2,9 @@ package etomica.units;
 
 import java.io.ObjectStreamException;
 
+/**
+ * Standard degree angular unit, such that for example a right angle is 90 degrees.
+ */
 public final class Degree extends SimpleUnit {
 
   /**
