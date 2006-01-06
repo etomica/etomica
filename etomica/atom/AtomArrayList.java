@@ -283,16 +283,16 @@ import etomica.util.Debug;
 	
 	    /**
 	     * Returns the element at the specified position in this list.
-         * Returns null if the given index is negative or is larger than the 
-         * number of elements in the list.  First index is 0.
+         * Behavior is undefined if the given index is negative or is larger than the 
+         * number of elements in the list.  If Debug.ON is true, an exception is thrown 
+         * if the index is out of range.  First index is 0.
 	     *
 	     * @param  index index of element to return.
 	     * @return the element at the specified position in this list.
 	     */
 	    public Atom get(int index) {
-	        //RangeCheck(index);
-	        return (index < size && index >= 0) ? elementData[index] : null;
-	        //TODO performance compare these approaches to getting element and handling out-of-bounds index
+	        RangeCheck(index);
+	        return elementData[index];
         }
 	
 	    /**
