@@ -2,8 +2,6 @@ package etomica.space;
 
 import etomica.simulation.Simulation;
 
-
-
 /**
  * Boundary that is not periodic in any direction.  Volume is specified,
  * but nothing about boundary enforces the dimensions on the atoms.  This effect must

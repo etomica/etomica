@@ -105,7 +105,7 @@ public class P2RoughSphere extends P2HardSphere {
     
     //especially need to consider more carefully this method
     public final Tensor lastCollisionVirialTensor() {
-        lastCollisionVirialTensor.E(dr, dr);
+        lastCollisionVirialTensor.Ev1v2(dr, dr);
         lastCollisionVirialTensor.TE(lastCollisionVirialr2);
         return lastCollisionVirialTensor;        
     }

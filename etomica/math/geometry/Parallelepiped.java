@@ -6,6 +6,7 @@ package etomica.math.geometry;
 
 import etomica.exception.MethodNotImplementedException;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 
 /**
@@ -14,7 +15,7 @@ import etomica.space3d.Vector3D;
  * @author kofke
  * 
  */
-public class Parallelepiped extends Hexahedron {
+public class Parallelepiped extends Hexahedron implements Parallelotope {
 
     /**
      * Default constructor makes a cube of unit size
@@ -32,7 +33,7 @@ public class Parallelepiped extends Hexahedron {
         this.b = (Vector3D)embeddedSpace.makeVector();
         this.c = (Vector3D)embeddedSpace.makeVector();
         work = (Vector3D)embeddedSpace.makeVector();
-        setEdgeVectors(a, b, c);
+        setEdgeVectors(new Vector[] {a, b, c});
     }
 
     /**
@@ -100,10 +101,10 @@ public class Parallelepiped extends Hexahedron {
      * Sets the lengths and directions of all edges of the parellelepiped.
      * Given instances are copied to an internal representation.
      */
-    public void setEdgeVectors(Vector3D aNew, Vector3D bNew, Vector3D cNew) {
-        a.Ea1Tv1(0.5, aNew);
-        b.Ea1Tv1(0.5, bNew);
-        c.Ea1Tv1(0.5, cNew);
+    public void setEdgeVectors(Vector[] vectors) {
+        a.Ea1Tv1(0.5, vectors[0]);
+        b.Ea1Tv1(0.5, vectors[1]);
+        c.Ea1Tv1(0.5, vectors[2]);
         updateVertices();
     }
 

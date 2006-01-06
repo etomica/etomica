@@ -12,12 +12,6 @@ public abstract class Orientation implements java.io.Serializable {
     public abstract void E(Orientation o);
 
     /**
-     * Axes defining the orientation of the frame of the oriented body.
-     */
-    public abstract Vector[] bodyFrame();// body-frame axes in the
-                                            // space-fixed frame
-
-    /**
      * Set of angles describing the orientation, according to a
      * convention defined by the implementation.
      */
@@ -41,14 +35,14 @@ public abstract class Orientation implements java.io.Serializable {
     public abstract void randomRotation(double theta);
 
     /**
-     * Changes the components of the given vector from a space frame
+     * Changes the components of all vectors in the given array 
      * to the body frame representation for the current orientation.
      */
-    public abstract void convertToBodyFrame(Vector v);
+    public abstract void convertToBodyFrame(Vector[] v);
 
     /**
-     * Changes the components of the given vector from a body frame of
+     * Changes the components all vectors in the given array from a body frame of
      * the current orientation to the space frame.
      */
-    public abstract void convertToSpaceFrame(Vector v);
+    public abstract void convertToSpaceFrame(Vector[] v);
 }

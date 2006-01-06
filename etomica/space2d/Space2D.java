@@ -4,6 +4,7 @@ import java.io.ObjectStreamException;
 
 import etomica.EtomicaInfo;
 import etomica.space.NearestImageTransformer;
+import etomica.space.Orientation;
 import etomica.space.RotationTensor;
 import etomica.space.Space;
 
@@ -64,8 +65,8 @@ public final class Space2D extends Space {
         return new Vector2D();
     }
 
-    public etomica.space.Orientation makeOrientation() {
-        return new Orientation();
+    public Orientation makeOrientation() {
+        return new Orientation2D();
     }
 
     public etomica.space.Tensor makeTensor() {

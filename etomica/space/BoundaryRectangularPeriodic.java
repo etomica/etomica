@@ -2,24 +2,20 @@ package etomica.space;
 
 import etomica.simulation.Simulation;
 
-
-
 /**
  * Rectangular boundary that is periodic in every dimension.
  */
-
-/*
- * History
- * Created on Apr 7, 2005 by kofke
- */
 public class BoundaryRectangularPeriodic extends BoundaryRectangular {
 
+    /**
+     * Constructs cubic boundary with the default box-size given by the Simulation.
+     */
     public BoundaryRectangularPeriodic(Simulation sim) {
         this(sim.space, sim.getDefaults().boxSize);
     }
     
     /**
-     * @param space
+     * Constructs cubic boundary for the given Space, with each edge of length boxSize.
      */
     public BoundaryRectangularPeriodic(Space space, double boxSize) {
         super(space, makePeriodicity(space.D()), boxSize);
@@ -43,5 +39,7 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
         }
         return isPeriodic;
     }
+    
+    private static final long serialVersionUID = 1L;
     
 }

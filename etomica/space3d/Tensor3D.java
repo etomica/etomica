@@ -3,21 +3,20 @@ package etomica.space3d;
 
 import etomica.space.Tensor;
 import etomica.space.Vector;
+import etomica.space2d.Vector2D;
 import etomica.util.Function;
 
-/*
- * History
- * Created on Jan 24, 2005 by kofke
- */
 public class Tensor3D implements Tensor, java.io.Serializable {
 
-    double xx, xy, xz, yx, yy, yz, zx, zy, zz;
+    double xx, xy, xz, yx, yy, yz, zx, zy, zz;//don't make private because access is needed by package classes
     private static final long serialVersionUID = 1L;
 
     /**
      * Default constructor sets all elements to zero.
      */
-    public Tensor3D () {xx = xy = xz = yx = yy = yz = zx = zy = zz = 0.0;}
+    public Tensor3D () {
+        xx = xy = xz = yx = yy = yz = zx = zy = zz = 0.0;
+    }
     
     
     /**
@@ -50,7 +49,9 @@ public class Tensor3D implements Tensor, java.io.Serializable {
     public double component(int i, int j) {
         return ( i==0 ) ? ( (j==0) ? xx : ( j==1 ? xy : xz ) ) : ( (i==1) ? ( (j==0) ? yx : ( (j==1) ? yy : yz ) ) : ( (j==0) ? zx : ((j==1) ? zy : zz)));
     }
-    public int length() {return 3;}
+    
+    public int D() {return 3;}
+    
     public void setComponent(int i, int j, double d) {
         if (i==0) {if (j==0) {xx = d;} else if (j==1) {xy = d;} else xz = d;}
         else if (i==1) {if (j==0) {yx = d;} else if (j==1) {yy=d;} else yz = d;}
@@ -62,43 +63,65 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         yx=t.yx; yy=t.yy; yz=t.yz;
         zx=t.zx; zy=t.zy; zz=t.zz;
     }
-    public void E(Vector t1, Vector t2) {
-        Vector3D u1 = (Vector3D)t1;
-        Vector3D u2 = (Vector3D)t2;
+    
+    public void E(Vector[] v) {
+        if(v.length != 3) {
+            throw new IllegalArgumentException("Tensor requires 3 vectors to set its values");
+        }
+        xx = ((Vector3D)v[0]).x; xy = ((Vector3D)v[1]).x; xz = ((Vector3D)v[2]).x;
+        yx = ((Vector3D)v[0]).y; yy = ((Vector3D)v[1]).y; yz = ((Vector3D)v[2]).y;
+        zx = ((Vector3D)v[0]).z; zy = ((Vector3D)v[1]).z; zz = ((Vector3D)v[2]).z;
+    }
+
+    public void Ev1v2(Vector v1, Vector v2) {
+        Vector3D u1 = (Vector3D)v1;
+        Vector3D u2 = (Vector3D)v2;
         xx=u1.x*u2.x; xy=u1.x*u2.y; xz=u1.x*u2.z;
         yx=u1.y*u2.x; yy=u1.y*u2.y; yz=u1.y*u2.z;
         zx=u1.z*u2.x; zy=u1.z*u2.y; zz=u1.z*u2.z;
     }
-    public void E(double a) {xx=xy=xz=yx=yy=yz=zx=zy=zz=a;}
+    
+    public void E(double a) {
+        xx=xy=xz=yx=yy=yz=zx=zy=zz=a;
+    }
+    
     public void PE(double a) {
         xx+=a; xy+=a; xz+=a;
         yx+=a; yy+=a; yz+=a;
         zx+=a; zy+=a; zz+=a;
     }
+    
     public void PE(Tensor u) {
         Tensor3D t = (Tensor3D)u;
         xx+=t.xx; xy+=t.xy; xz+=t.xz;
         yx+=t.yx; yy+=t.yy; yz+=t.yz;
         zx+=t.zx; zy+=t.zy; zz+=t.zz;
     }
+    
     public void PE(int i, int j, double d) {
         if (i==0) {if (j==0) {xx += d;} else if (j==1) {xy += d;} else xz += d;}
         else if (i==1) {if (j==0) {yx += d;} else if (j==1) {yy += d;} else yz += d;}
         else {if (j==0) {zx += d;} else if (j==1) {zy += d;} else zz += d;}
     }
+    
     public void ME(Tensor u) {
         Tensor3D t = (Tensor3D)u;
         xx-=t.xx; xy-=t.xy; xz-=t.xz;
         yx-=t.yx; yy-=t.yy; yz-=t.yz;
         zx-=t.zx; zy-=t.zy; zz-=t.zz;
     }
-    public double trace() {return xx+yy+zz;}
+    
+    public double trace() {
+        return xx+yy+zz;
+    }
+    
     public void transpose() { 
         	double temp = 0.0;
         	temp = xy; xy = yx; yx = temp;
         	temp = xz; xz = zx; zx = temp;
         	temp = zy; zy = yz; yz = temp;    	
     }
+    
     public void inverse() {
         double txx=xx;double txy=xy;double txz=xz;
         double tyx=yx;double tyy=yy;double tyz=yz;
@@ -113,10 +136,22 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         zx= (tyx*tzy-tyy*tzx)/det;
         zy= -(txx*tzy-txy*tzx)/det;
         zz= (txx*tyy-txy*tyx)/det;                              
-}
+    }
     
-    public void PE(etomica.space.Vector u1, etomica.space.Vector u2) {PE(u1,u2);}
-    public void TE(double a) {xx*=a; xy*=a; xz*=a; yx*=a; yy*=a; yz*=a; zx*=a; zy*=a; zz*=a;}
+    public void PEv1v2(Vector v1, Vector v2) {
+        Vector3D u1 = (Vector3D)v1;
+        Vector3D u2 = (Vector3D)v2;
+        xx+=u1.x*u2.x; xy=u1.x*u2.y; xz=u1.x*u2.z;
+        yx+=u1.y*u2.x; yy=u1.y*u2.y; yz=u1.y*u2.z;
+        zx+=u1.z*u2.x; zy=u1.z*u2.y; zz=u1.z*u2.z;
+    }
+    
+    public void TE(double a) {
+        xx*=a; xy*=a; xz*=a; 
+        yx*=a; yy*=a; yz*=a; 
+        zx*=a; zy*=a; zz*=a;
+    }
+    
     public void TE(Tensor t) { Tensor3D u = (Tensor3D)t;
         double txx=xx;double txy=xy;double txz=xz;
         double tyx=yx;double tyy=yy;double tyz=yz;
@@ -131,18 +166,21 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         zy= tzx*u.xy+tzy*u.yy+tzz*u.zy; 
         zz= tzx*u.xz+tzy*u.yz+tzz*u.zz;                                         
     }
+    
     public void DE(Tensor t) {
         Tensor3D u = (Tensor3D)t;
         xx /= u.xx; xy /= u.xy; xz /= u.xz;
         yx /= u.yx; yy /= u.yy; yz /= u.yz;
         zx /= u.zx; zy /= u.zy; zz /= u.zz;
     }
+    
     public void E(double[] d) {
         if(d.length != 9) throw new IllegalArgumentException("Array size incorrector for tensor");
         xx = d[0]; xy = d[1]; xz = d[2];
         yx = d[3]; yy = d[4]; yz = d[5];
         zx = d[6]; zy = d[7]; zz = d[8];
     }
+    
     public void assignTo(double[] d) {
         if(d.length != 9) throw new IllegalArgumentException("Array size incorrector for tensor");
         d[0] = xx; d[1] = xy; d[2] = xz; 

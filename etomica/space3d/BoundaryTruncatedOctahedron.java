@@ -46,6 +46,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
         intoContainingCube = space.makeVector();
         dimensionsCopy = space.makeVector();
         dimensionsHalf = space.makeVector();
+        dimensionsHalfCopy = space.makeVector();
         indexIterator = new IndexIteratorSequential(space.D());
         needShift = new boolean[space.D()];//used by getOverflowShifts
         updateDimensions();
@@ -206,6 +207,14 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
         }
         return intoTruncatedOctahedron;
     }
+    
+    public Vector getBoundingBox() {
+        return dimensionsCopy;
+    }
+    
+    public Vector getCenter() {
+        return dimensionsHalfCopy;
+    }
 
     protected final Vector intoTruncatedOctahedron;
     protected final Vector rrounded;
@@ -213,6 +222,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
     protected final Vector dimensions;
     protected final Vector dimensionsCopy;
     protected final Vector dimensionsHalf;
+    protected final Vector dimensionsHalfCopy;
     private final IndexIteratorSequential indexIterator;
     private final boolean[] needShift;
     protected final boolean[] isPeriodic;

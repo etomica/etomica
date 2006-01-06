@@ -1,6 +1,7 @@
 package etomica.space3d;
 
 import etomica.simulation.Simulation;
+import etomica.space.Vector;
 import etomica.util.Constants;
 
 
@@ -10,8 +11,8 @@ import etomica.util.Constants;
  * History
  * Created on Jan 24, 2005 by kofke
  */
-public class Orientation extends etomica.space.Orientation {
-    public Orientation() {
+public class Orientation3D extends etomica.space.Orientation {
+    public Orientation3D() {
         throw new RuntimeException("Space3D.Orientation should be checked for correctness before using");
     }
      //The rotation matrix A operates on the components of a vector in the space-fixed frame to yield the
@@ -23,10 +24,10 @@ public class Orientation extends etomica.space.Orientation {
     private boolean needToUpdateA = true;
     private transient double x1,y1,z1;//temp variable
     private transient Vector3D v1 = new Vector3D();
-    public void E(etomica.space.Orientation o) {E((Orientation)o);}
+    public void E(etomica.space.Orientation o) {E((Orientation3D)o);}
     public etomica.space.Vector getOrientation(){return orientVector;}
     public void setOrientation(Vector3D vect){orientVector.E(vect);}
-    public void E(Orientation o) {
+    public void E(Orientation3D o) {
       angle[0] = o.angle[0];
       angle[1] = o.angle[1];
       angle[2] = o.angle[2];
@@ -113,21 +114,26 @@ public class Orientation extends etomica.space.Orientation {
         needToUpdateA = false;
      }
   //   public double[][] rotationMatrix() {return A;}
-      public void convertToBodyFrame(Vector3D v) {
+      public void convertToBodyFrame(Vector[] u) {
         if(needToUpdateA) updateRotationMatrix();
-        v1.x = A[0][0]*v.x + A[0][1]*v.y + A[0][2]*v.z;
-        v1.y = A[1][0]*v.x + A[1][1]*v.y + A[1][2]*v.z;
-        v1.z = A[2][0]*v.x + A[2][1]*v.y + A[2][2]*v.z;
-        v.E(v1);
+        Vector3D[] v = (Vector3D[])u;
+        for(int i=0; i<v.length; i++) {
+            v1.x = A[0][0]*v[i].x + A[0][1]*v[i].y + A[0][2]*v[i].z;
+            v1.y = A[1][0]*v[i].x + A[1][1]*v[i].y + A[1][2]*v[i].z;
+            v1.z = A[2][0]*v[i].x + A[2][1]*v[i].y + A[2][2]*v[i].z;
+            v[i].E(v1);
+        }
      }
      //V_space = A_transpose*V_body
-     public void convertToSpaceFrame(Vector3D v) {
+     public void convertToSpaceFrame(Vector[] u) {
         if(needToUpdateA) updateRotationMatrix();
-        v1.x = A[0][0]*v.x + A[1][0]*v.y + A[2][0]*v.z;
-        v1.y = A[0][1]*v.x + A[1][1]*v.y + A[2][1]*v.z;
-        v1.z = A[0][2]*v.x + A[1][2]*v.y + A[2][2]*v.z;
-        
-        v.E(v1);
+        Vector3D[] v = (Vector3D[])u;
+        for(int i=0; i<v.length; i++) {
+            v1.x = A[0][0]*v[i].x + A[1][0]*v[i].y + A[2][0]*v[i].z;
+            v1.y = A[0][1]*v[i].x + A[1][1]*v[i].y + A[2][1]*v[i].z;
+            v1.z = A[0][2]*v[i].x + A[1][2]*v[i].y + A[2][2]*v[i].z;
+            v[i].E(v1);
+        }
      }
     public void convertToBodyFrame(etomica.space.Vector v) {convertToBodyFrame((Vector3D)v);}
     public void convertToSpaceFrame(etomica.space.Vector v) {convertToSpaceFrame((Vector3D)v);}

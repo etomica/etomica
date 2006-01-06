@@ -44,7 +44,7 @@ public class MeterSurfaceTensionHard extends DataSourceScalar implements Etomica
     public double getDataAsScalar() {
         pressureTensor.E(((DataTensor)velocityTensor.getData()).x);
         pressureTensor.PE(((DataTensor)virialTensor.getData()).x);
-        switch (pressureTensor.length()) {
+        switch (pressureTensor.D()) {
             case 1:
                 surfaceTension = pressureTensor.component(0, 0);
                 break;

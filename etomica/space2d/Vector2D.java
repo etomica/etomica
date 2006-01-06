@@ -186,6 +186,11 @@ public final class Vector2D extends etomica.space.Vector {
         x = v1.x - v2.x;
         y = v1.y - v2.y;
     }
+    
+    public void truncate(double eps) {
+        if(x < eps && -x < eps) x = 0.0;
+        if(y < eps && -y < eps) y = 0.0;
+    }
 
     public void mod(Vector u) {
         Vector2D u2 = (Vector2D) u;
@@ -287,6 +292,16 @@ public final class Vector2D extends etomica.space.Vector {
 
     public double max() {
         return (x > y) ? x : y;
+    }
+    
+    public void minE(Vector v) {
+        if(((Vector2D)v).x < x) x = ((Vector2D)v).x;
+        if(((Vector2D)v).y < y) y = ((Vector2D)v).y;
+    }
+
+    public void maxE(Vector v) {
+        if(((Vector2D)v).x > x) x = ((Vector2D)v).x;
+        if(((Vector2D)v).y > y) y = ((Vector2D)v).y;
     }
 
     public double squared() {

@@ -147,8 +147,8 @@ public class CastToTable extends DataProcessor implements Serializable {
             break;
         case 4: //DataTensor
             Tensor x = ((DataTensor) data).x;
-            for (int i = 0; i < x.length(); i++) {
-                for (int j = 0; j < x.length(); j++) {
+            for (int i = 0; i < x.D(); i++) {
+                for (int j = 0; j < x.D(); j++) {
                     outputData.myColumns[i].getData()[j] = x.component(i, j);
                 }
             }

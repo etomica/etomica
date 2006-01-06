@@ -133,10 +133,10 @@ public class DataTensor extends Data implements DataArithmetic {
     }
 
     /**
-     * Returns the number of elements in the wrapped vector.
+     * Returns the number of elements in the wrapped tensor.
      */
     public int getLength() {
-        return x.length();
+        return x.D() * x.D();
     }
 
     /**
@@ -145,7 +145,7 @@ public class DataTensor extends Data implements DataArithmetic {
      * 0=xx, 1=xy, 2=yx, 3=yy.
      */
     public double getValue(int i) {
-        int D = x.length();
+        int D = x.D();
         if (i < 0 || i >= D)
             throw new IllegalArgumentException("Index out of bounds: " + i);
         int j = i / D;
@@ -154,7 +154,7 @@ public class DataTensor extends Data implements DataArithmetic {
     }
 
     /**
-     * Returns a new array formed by the elements of the wrapped vector.
+     * Returns a new array formed by the elements of the wrapped tensor.
      */
    public void assignTo(double[] array) {
         x.assignTo(array);

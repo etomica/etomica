@@ -67,7 +67,7 @@ public final class Space3D extends Space {
     }
 
     public etomica.space.Orientation makeOrientation() {
-        return new Orientation();
+        return new Orientation3D();
     }
 
     public etomica.space.Tensor makeTensor() {

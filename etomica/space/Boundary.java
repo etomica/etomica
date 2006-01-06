@@ -118,6 +118,21 @@ public abstract class Boundary implements NearestImageTransformer, java.io.Seria
      */
     public abstract double[][] imageOrigins(int nShells);
 
+    /**
+     * Returns the length of the sides of a rectangular box oriented in the lab
+     * frame and in which the boundary is inscribed.  Each element of the returned
+     * vector gives in that coordinate direction the maximum distance from one point 
+     * on the boundary to another.  Returned vector should be used immediately or
+     * copied to another vector.
+     */
+    public abstract Vector getBoundingBox();
+    
+    /**
+     * Returns the geometric center of the boundary.  Returned vector should be used 
+     * immediately or copied to another vector.
+     */
+    public abstract Vector getCenter();
+    
     protected final Space space;
     protected final Polytope shape;
 

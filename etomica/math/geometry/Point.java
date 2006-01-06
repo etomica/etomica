@@ -48,6 +48,10 @@ public class Point extends Polytope {
     public boolean contains(Vector v) {
         return vertices[0].equals(v);
     }
+    
+    public String toString() {
+        return vertices[0].toString();
+    }
 
     private final static LineSegment[] edges = new LineSegment[0];
 }

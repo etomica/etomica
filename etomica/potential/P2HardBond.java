@@ -121,7 +121,7 @@ public class P2HardBond extends Potential2 implements PotentialHard {
     }
 
     public final Tensor lastCollisionVirialTensor() {
-        lastCollisionVirialTensor.E(dr, dr);
+        lastCollisionVirialTensor.Ev1v2(dr, dr);
         lastCollisionVirialTensor.TE(lastCollisionVirialr2);
         return lastCollisionVirialTensor;
     }

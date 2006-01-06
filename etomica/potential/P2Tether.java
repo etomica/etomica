@@ -80,7 +80,7 @@ public class P2Tether extends Potential2HardSpherical {
         return lastCollisionVirial;
     }
     public final Tensor lastCollisionVirialTensor() {
-        lastCollisionVirialTensor.E(dr, dr);
+        lastCollisionVirialTensor.Ev1v2(dr, dr);
         lastCollisionVirialTensor.TE(lastCollisionVirialr2);
         return lastCollisionVirialTensor;        
     }

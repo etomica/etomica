@@ -12,7 +12,7 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
     double xx, xy, yx, yy;
     private static final long serialVersionUID = 1;
     
-    public int length() {return 2;}
+    public int D() {return 2;}
 
     /**
      * Default constructor sets all tensor elements to zero.
@@ -47,46 +47,66 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
     }
 
     public double component(int i, int j) {
-        return (i==0) ? ( (j==0) ? xx : xy ) : ( (j==0) ? yx : yy );}
+        return (i==0) ? ( (j==0) ? xx : xy ) : ( (j==0) ? yx : yy );
+    }
+    
     public void setComponent(int i, int j, double d) {
         if(i==0) {if(j==0) xx=d; else xy=d;}
         else     {if(j==0) yx=d; else yy=d;}
     }
+    
     public void E(Tensor t) {
         xx=((Tensor2D)t).xx;
         xy=((Tensor2D)t).xy;
         yx=((Tensor2D)t).yx;
         yy=((Tensor2D)t).yy;
     }
-    public void E(Vector u1, Vector u2) {
+    
+    public void E(Vector[] v) {
+        if(v.length != 2) {
+            throw new IllegalArgumentException("Tensor requires 2 vectors to set its values");
+        }
+        xx = ((Vector2D)v[0]).x; xy = ((Vector2D)v[1]).x;
+        yx = ((Vector2D)v[0]).y; yy = ((Vector2D)v[1]).y;
+    }
+    
+    public void Ev1v2(Vector u1, Vector u2) {
         xx=((Vector2D)u1).x*((Vector2D)u2).x;
         xy=((Vector2D)u1).x*((Vector2D)u2).y;
         yx=((Vector2D)u1).y*((Vector2D)u2).x;
         yy=((Vector2D)u1).y*((Vector2D)u2).y;
     }
-    public void E(double a) {xx = xy = yx = yy = a;}
+    
+    public void E(double a) {
+        xx = xy = yx = yy = a;
+    }
+    
     public void PE(double a) {
         xx+=a;
         xy+=a;
         yx+=a;
         yy+=a;
     }
+    
     public void PE(Tensor t) {
         xx+=((Tensor2D)t).xx;
         xy+=((Tensor2D)t).xy;
         yx+=((Tensor2D)t).yx;
         yy+=((Tensor2D)t).yy;
     }
+    
     public void PE(int i, int j, double a) {
         if(i==0) {if(j==0) xx+=a; else xy+=a;}
         else     {if(j==0) yx+=a; else yy+=a;}
     }
-    public void PE(Vector u1, Vector u2) {
-        xx+=((Vector2D)u1).x*((Vector2D)u2).x;
-        xy+=((Vector2D)u1).x*((Vector2D)u2).y;
-        yx+=((Vector2D)u1).y*((Vector2D)u2).x;
-        yy+=((Vector2D)u1).y*((Vector2D)u2).y;
+    
+    public void PEv1v2(Vector v1, Vector v2) {
+        xx+=((Vector2D)v1).x*((Vector2D)v2).x;
+        xy+=((Vector2D)v1).x*((Vector2D)v2).y;
+        yx+=((Vector2D)v1).y*((Vector2D)v2).x;
+        yy+=((Vector2D)v1).y*((Vector2D)v2).y;
     }
+    
     public void ME(Tensor t) {
         xx-=((Tensor2D)t).xx;
         xy-=((Tensor2D)t).xy;
@@ -94,7 +114,9 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
         yy-=((Tensor2D)t).yy;
     }
     
-    public double trace() {return xx + yy;}
+    public double trace() {
+        return xx + yy;
+    }
     
     public void transpose(){
         double temp = xy; xy = yx; yx = temp;
@@ -102,12 +124,16 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
     
     public void inverse() {
         double det = xx*yy -xy*yx;
-        double temp =0.0;
-        temp = xx; xx = yy/det; yy = temp/det;
-        temp = xy; xy = -yx/det; yx = -temp/det;
+        double temp = xx; 
+        xx = yy/det; yy = temp/det;
+        xy = -xy/det; yx = -yx/det;
     }
     
-    public void TE(double a) {xx*=a; xy*=a; yx*=a; yy*=a;}
+    public void TE(double a) {
+        xx*=a;  xy*=a; 
+        yx*=a;  yy*=a;
+    }
+    
     public void TE(Tensor t){ Tensor2D u = (Tensor2D)t;
 	    double txx=xx;double txy=xy;
 	    double tyx=yx;double tyy=yy;
@@ -116,17 +142,20 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
 	    yx= tyx*u.xx+tyy*u.yx;   
 	    yy= tyx*u.xy+tyy*u.yy; 
     }
+    
     public void DE(Tensor t) {
         xx/=((Tensor2D)t).xx;
         xy/=((Tensor2D)t).xy;
         yx/=((Tensor2D)t).yx;
         yy/=((Tensor2D)t).yy;
     }
+    
     public void E(double[] d) {
         if(d.length != 4) throw new IllegalArgumentException("Array size incorrect for tensor; (required, given): ("+4+", "+d);
         xx = d[0]; xy = d[1];
         yx = d[2]; yy = d[3];
     }
+    
     public void assignTo(double[] d) {
         if(d.length != 4) throw new IllegalArgumentException("Array size incorrect for tensor; (required, given): ("+4+", "+d);
         d[0] = xx; d[1] = xy; 

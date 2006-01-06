@@ -31,6 +31,7 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
     private Vector e2;
     private double theta, ec2;
     private final CoordinatePair cPair;
+    private final Vector[] eArr = new Vector[1];
     
     public P2HardAssociationCone(Simulation sim) {
         this(sim.space, sim.getDefaults().atomSize, sim.getDefaults().potentialWell, 
@@ -85,13 +86,15 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
         if (r2 < wellCutoffSquared) {
             e1.E(0.);
             e1.setX(0,1);
-            ((ICoordinateAngular)((AtomPair)pair).atom0.coord).orientation().convertToSpaceFrame(e1);
+            eArr[0] = e1;
+            ((ICoordinateAngular)((AtomPair)pair).atom0.coord).orientation().convertToSpaceFrame(eArr);
             double er1 = e1.dot(cPair.dr());
                        
             if ( er1 > 0.0 && er1*er1 > ec2*r2) {
                 e2.E(0.);
                 e2.setX(0,1);
-                ((ICoordinateAngular)((AtomPair)pair).atom1.coord).orientation().convertToSpaceFrame(e2);
+                eArr[0] = e2;
+                ((ICoordinateAngular)((AtomPair)pair).atom1.coord).orientation().convertToSpaceFrame(eArr);
                 double er2 = e2.dot(cPair.dr());
                 if(er2 < 0.0 && er2*er2 > ec2*r2) eTot -= wellEpsilon;
             }

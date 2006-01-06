@@ -1,12 +1,16 @@
 package etomica.space;
 
+import etomica.lattice.IndexIteratorSequential;
 import etomica.math.geometry.Parallelepiped;
+import etomica.math.geometry.Parallelogram;
+import etomica.math.geometry.Parallelotope;
 import etomica.math.geometry.Polytope;
 import etomica.simulation.Simulation;
+import etomica.space2d.Vector2D;
 import etomica.space3d.Vector3D;
 
 /**
- * @author skkwak
+ * Boundary shaped as an arbitrary parallelepiped.  Applicable only for a 3D space.
  */
 
 //nan needs a cleanup of imageOrigins & getOverflowShifts.
@@ -17,79 +21,77 @@ import etomica.space3d.Vector3D;
  */
 public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeriodic {
 
-	protected final boolean[] isPeriodic;
-	private Tensor boundaryTensor;
-	private Tensor boundaryTensorCopy;
-	private final Vector temp;
-	private final Vector dimensions;
-	private final Vector dimensionsCopy;
-	private final Vector dimensionsHalf;
-	private final Vector workVector;
-	private final Vector nearestDr;
-	private final Tensor workTensor;
-	private final Tensor strainTensor;
-	private double oldRefDistance = 0.0;
-	private double refDistance = 0.0;
-	private final double[] workXEZ = new double[3];
-	public boolean constantStrain = true;
-	private boolean useBruteForceNearestImageMethod = true; 
-	// in the above, true uses brute force method!!
 
+    /**
+     * Make a cubic boundary with edges of length equal to the default boxSize and
+     * periodic in every direction.
+     */
 	public BoundaryDeformablePeriodic(Simulation sim) {
 		this(sim.space, makePeriodicity(sim.space.D()), sim.getDefaults().boxSize);
 	}
 
+    /**
+     * Make a cubic boundary of specified edge length and periodicity.
+     */
 	public BoundaryDeformablePeriodic(Space space, boolean[] periodicity, double boxSize) {
-	    //nan 2D
-	    this(space, periodicity, new Vector3D (boxSize,0,0), 
-	            new Vector3D (0,boxSize,0), new Vector3D (0,0,boxSize));	
+	    this(space, periodicity, makeVectors(space, boxSize));	
 	}
 	
-	public BoundaryDeformablePeriodic(Space space, boolean[] periodicity, Vector3D[] vex){
-	    this(space, periodicity, vex[0], vex[1], vex[2]);
-	    
-	}
-	
-//	nan 2D
-	public BoundaryDeformablePeriodic(Space space, boolean[] periodicity, 
-	        Vector3D a, Vector3D b, Vector3D c) {
-	    //super(space, new Parallelepiped(space, a, b, c));
-//	  nan 2D
-		super(space, makeShape(space, a, b, c));
-		isPeriodic = (boolean[]) periodicity.clone();
-		boundaryTensor = space.makeTensor();
-		boundaryTensorCopy = space.makeTensor();
-		temp = space.makeVector();
-		dimensions = space.makeVector();
-		dimensionsCopy = space.makeVector();
-		dimensionsHalf = space.makeVector();
-		workVector = space.makeVector();
-		nearestDr = space.makeVector();
-		workTensor = space.makeTensor();
-		strainTensor = space.makeTensor();
-		workVector.E(a.P(b.P(c)));
-		setDimensions(workVector);
-		makeStrainTensor();
-	}
-	
+    /**
+     * Make a parallelepiped boundary of specified shape and periodicity.
+     * 
+     * @param space the governing space (must be Space3D)
+     * @param periodicity array indicating for each direction whether it is periodic (true) or not (false)
+     * @param vex array of three vectors specifying directions for three of the parallelepiped edges 
+     */
+	public BoundaryDeformablePeriodic(Space space, boolean[] periodicity, Vector[] vex) {
+        super(space, makeShape(space, vex));
+        edgeVectors = (Vector[])vex.clone();
+        for(int i=0; i<edgeVectors.length; i++) {
+            edgeVectors[i] = (Vector)vex[i].clone();
+        }
+        isPeriodic = (boolean[]) periodicity.clone();
 
+        h = space.makeTensor();
+        hCopy = space.makeTensor();
+        hInv = space.makeTensor();
+
+        temp1 = space.makeVector();
+        temp2 = space.makeVector();
+        unit = space.makeVector();
+        unit.E(1.0);
+        dimensions = space.makeVector();
+        dimensionsCopy = space.makeVector();
+        dimensionsHalf = space.makeVector();
+        tempVector = space.makeVector();
+        nearestDr = space.makeVector();
+        tempTensor = space.makeTensor();
+        indexIterator = new IndexIteratorSequential(space.D());
+//        tempVector.E(vex[0].P(vex[1].P(vex[2])));
+//        setDimensions(tempVector);
+        update();
+    }
+    
+    //used by constructor
+    private static Vector[] makeVectors(Space space, double boxSize) {
+        Vector[] vectors = new Vector[space.D()];
+        for(int i=0; i<vectors.length; i++) {
+            vectors[i] = space.makeVector();
+            vectors[i].setX(i, boxSize);
+        }
+        return vectors;
+    }
 	
-	
-	
-//	nan 2D
-    private static Polytope makeShape(Space space, Vector a, Vector b, Vector c) {
+    //used only by constructor
+    private static Polytope makeShape(Space space, Vector[] vex) {
         switch(space.D()) {
-            case 1: throw new IllegalArgumentException("Wrong number of dimensions for BoundaryDeformablePeriodic");
-            case 2: throw new IllegalArgumentException("Wrong number of dimensions for BoundaryDeformablePeriodic");
-            case 3: return new Parallelepiped(space, (Vector3D)a, (Vector3D)b,
-                    (Vector3D)c);
-            default: throw new IllegalArgumentException("BoundaryRectangular not appropriate to given space");
+            case 2: return new Parallelogram(space, (Vector2D)vex[0], (Vector2D)vex[1]);
+            case 3: return new Parallelepiped(space, (Vector3D)vex[0], (Vector3D)vex[1], (Vector3D)vex[2]);
+            default: throw new IllegalArgumentException("BoundaryDeformablePeriodic not appropriate to given space");
         }
     }
-	public boolean[] getPeriodicity() {
-		return isPeriodic;
-	}
 
+    //used only by constructor
 	private static boolean[] makePeriodicity(int D) {
 		boolean[] isPeriodic = new boolean[D];
 		for (int i = 0; i < D; i++) {
@@ -98,54 +100,68 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
 		return isPeriodic;
 	}
 
-	public final etomica.space.Vector getDimensions() {
-		return dimensionsCopy;
-	}
+    
+    public boolean[] getPeriodicity() {
+        return isPeriodic;
+    }
 
-	public etomica.space.Tensor boundaryTensor() {
-		return boundaryTensorCopy;
-	}
+	public Vector getDimensions() {
+        dimensionsCopy.E(dimensions);
+        return dimensionsCopy;
+    }
 
-	public etomica.space.Vector randomPosition() {
-		temp.setRandom(1.0);
-		temp.transform(boundaryTensor);
-		return temp;
-	}
+    public etomica.space.Tensor boundaryTensor() {
+        hCopy.E(h);
+        return hCopy;
+    }
 
-	private void updateCopies() {
-		dimensionsHalf.Ea1Tv1(0.5, dimensions);
-		dimensionsCopy.E(dimensions);
-		boundaryTensorCopy.E(boundaryTensor);
-	}
+    public etomica.space.Vector randomPosition() {
+        temp1.setRandom(1.0);
+        temp1.transform(h);
+        return temp1;
+    }
 
-	public void nearestImage(Vector dr) {
-		checkNearestImage(dr);
-	}
+    private void update() {
+        h.E(edgeVectors);
+        hInv.E(h);
+        hInv.inverse(); // to get s, inverse of h times r, which is a position
+        for(int i=0; i<edgeVectors.length; i++) {
+            dimensions.setX(i, Math.sqrt(edgeVectors[i].squared()));
+        }
+        dimensionsHalf.Ea1Tv1(0.5, dimensions);
+        ((Parallelotope)shape).setEdgeVectors(edgeVectors);
+    }
 
 	public Vector centralImage(Vector r) {
-		temp.E(r);
-		checkCentralImage(temp);
-		temp.ME(r);
-		return temp;
-	}
-
-	public void setConstantStrain(boolean b) {
-		constantStrain = b;
-	}
-
-	/**
-	 * @return Returns the constantStrain.
-	 */
-	public boolean isConstantStrain() {
-		return constantStrain;
-	}
-	
-	public void makeStrainTensor() {
-		strainTensor.E(boundaryTensorCopy);
-		strainTensor.transpose(); //r=h*s -->h matrix is a transpose of boundaryTensor
-		strainTensor.inverse(); //to get s, inverse of h times r, which is a position
-						 // of atom
-	}
+        temp1.E(r);
+        temp1.transform(hInv);// position in terms of boundary-vector basis
+        temp1.truncate(1.e-10);// remove any components that are likely nonzero due to roundoff
+        temp1.mod(unit);// shift to central image
+        temp1.transform(h);//convert back to space-frame basis
+        temp1.ME(r);//subtract r to return difference vector
+        return temp1;
+    }
+    
+    public Vector getBoundingBox() {
+        Vector[] vertices = shape.getVertices();
+        temp1.E(vertices[0]);
+        temp2.E(vertices[0]);
+        for(int i=1; i<vertices.length; i++) {
+            temp1.minE(vertices[i]);
+            temp2.maxE(vertices[i]);
+        }
+        temp2.ME(temp1);
+        return temp2;
+    }
+    
+    public Vector getCenter() {
+        temp1.E(edgeVectors[0]);
+        for(int i=1; i<edgeVectors.length; i++) {
+            temp1.PE(edgeVectors[i]);
+        }
+        temp1.TE(0.5);
+        return temp1;
+    }
 
 	public void setUseBruteForceNearestImageMethod(boolean bb) {
 		useBruteForceNearestImageMethod = bb;
@@ -155,20 +171,20 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
 	/**
 	 * Checks for the nearest image.  The argument vector is changed by this method.
 	 */
-	public void checkNearestImage(Vector dr2) { // dr2 is not dr^2
+	public void nearestImage(Vector dr2) { // dr2 is not dr^2
 	    //the stuff after the first if is the "new technique"
 		if (!useBruteForceNearestImageMethod) {
 			if (!constantStrain) {
-				makeStrainTensor();
+				update();
 			} //in Main Class, makeStrainTensor() must be called then set up
 			  // boolean of contantStrain!!!
 
-			double xi = dr2.x(0) * strainTensor.component(0, 0) + dr2.x(1)
-					* strainTensor.component(0, 1) + dr2.x(2) * strainTensor.component(0, 2);
-			double eta = dr2.x(0) * strainTensor.component(1, 0) + dr2.x(1)
-					* strainTensor.component(1, 1) + dr2.x(2) * strainTensor.component(1, 2);
-			double zeta = dr2.x(0) * strainTensor.component(2, 0) + dr2.x(1)
-					* strainTensor.component(2, 1) + dr2.x(2) * strainTensor.component(2, 2);
+			double xi = dr2.x(0) * hInv.component(0, 0) + dr2.x(1)
+					* hInv.component(0, 1) + dr2.x(2) * hInv.component(0, 2);
+			double eta = dr2.x(0) * hInv.component(1, 0) + dr2.x(1)
+					* hInv.component(1, 1) + dr2.x(2) * hInv.component(1, 2);
+			double zeta = dr2.x(0) * hInv.component(2, 0) + dr2.x(1)
+					* hInv.component(2, 1) + dr2.x(2) * hInv.component(2, 2);
 
 			//This series of if statements sets xi, eta, and zeta equal to 0 if they are close enough to it (i.e. very very small).
 			if (xi > -1.0e-10 && xi < 1.0e-10) {
@@ -211,32 +227,32 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
 			eta -= 0.5;
 			zeta -= 0.5;
 
-			dr2.setX(0, xi * boundaryTensor.component(0, 0) + eta
-					* boundaryTensor.component(1, 0) + zeta
-					* boundaryTensor.component(2, 0));
-			dr2.setX(1, xi * boundaryTensor.component(0, 1) + eta
-					* boundaryTensor.component(1, 1) + zeta
-					* boundaryTensor.component(2, 1));
-			dr2.setX(2, xi * boundaryTensor.component(0, 2) + eta
-					* boundaryTensor.component(1, 2) + zeta
-					* boundaryTensor.component(2, 2));
+			dr2.setX(0, xi * h.component(0, 0) + eta
+					* h.component(1, 0) + zeta
+					* h.component(2, 0));
+			dr2.setX(1, xi * h.component(0, 1) + eta
+					* h.component(1, 1) + zeta
+					* h.component(2, 1));
+			dr2.setX(2, xi * h.component(0, 2) + eta
+					* h.component(1, 2) + zeta
+					* h.component(2, 2));
 
 			//                    } //inner if
 		} else {
 			if (!constantStrain) {
-				makeStrainTensor();
+				update();
 			} //in Main Class, makeStrainTensor() must be called then set up
 			  // boolean of contantStrain!!!
 
 			oldRefDistance = Math.sqrt(dr2.squared());
 			nearestDr.E(dr2);
 
-			double xi = dr2.x(0) * strainTensor.component(0, 0) + dr2.x(1)
-					* strainTensor.component(0, 1) + dr2.x(2) * strainTensor.component(0, 2);
-			double eta = dr2.x(0) * strainTensor.component(1, 0) + dr2.x(1)
-					* strainTensor.component(1, 1) + dr2.x(2) * strainTensor.component(1, 2);
-			double zeta = dr2.x(0) * strainTensor.component(2, 0) + dr2.x(1)
-					* strainTensor.component(2, 1) + dr2.x(2) * strainTensor.component(2, 2);
+			double xi = dr2.x(0) * hInv.component(0, 0) + dr2.x(1)
+					* hInv.component(0, 1) + dr2.x(2) * hInv.component(0, 2);
+			double eta = dr2.x(0) * hInv.component(1, 0) + dr2.x(1)
+					* hInv.component(1, 1) + dr2.x(2) * hInv.component(1, 2);
+			double zeta = dr2.x(0) * hInv.component(2, 0) + dr2.x(1)
+					* hInv.component(2, 1) + dr2.x(2) * hInv.component(2, 2);
 
 			workXEZ[0] = xi;
 			workXEZ[1] = eta;
@@ -296,90 +312,32 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
 				E = xez[1];
 				Z = xez[2];
 			}
-			workVector.setX(0, X * boundaryTensor.component(0, 0) + E
-					* boundaryTensor.component(1, 0) + Z
-					* boundaryTensor.component(2, 0));
-			workVector.setX(1, X * boundaryTensor.component(0, 1) + E
-					* boundaryTensor.component(1, 1) + Z
-					* boundaryTensor.component(2, 1));
-			workVector.setX(2, X * boundaryTensor.component(0, 2) + E
-					* boundaryTensor.component(1, 2) + Z
-					* boundaryTensor.component(2, 2));
+			tempVector.setX(0, X * h.component(0, 0) + E
+					* h.component(1, 0) + Z
+					* h.component(2, 0));
+			tempVector.setX(1, X * h.component(0, 1) + E
+					* h.component(1, 1) + Z
+					* h.component(2, 1));
+			tempVector.setX(2, X * h.component(0, 2) + E
+					* h.component(1, 2) + Z
+					* h.component(2, 2));
 
-			refDistance = Math.sqrt(workVector.squared());
+			refDistance = Math.sqrt(tempVector.squared());
 
 			if (refDistance < oldRefDistance) {
 				oldRefDistance = refDistance;
-				nearestDr.E(workVector);
+				nearestDr.E(tempVector);
 			}
 		} //end of for loop
 
 		return nearestDr;
 	}//end or compareDistance
 
-	public void checkCentralImage(Vector r2) {
-		if (!constantStrain) {
-			makeStrainTensor();
-		} //in Main Class, makeStrainTensor() must be called then set up
-		  // boolean of contantStrain!!!
-		double xi = r2.x(0) * strainTensor.component(0, 0) + r2.x(1)
-				* strainTensor.component(0, 1) + r2.x(2) * strainTensor.component(0, 2);
-		double eta = r2.x(0) * strainTensor.component(1, 0) + r2.x(1)
-				* strainTensor.component(1, 1) + r2.x(2) * strainTensor.component(1, 2);
-		double zeta = r2.x(0) * strainTensor.component(2, 0) + r2.x(1)
-				* strainTensor.component(2, 1) + r2.x(2) * strainTensor.component(2, 2);
-
-		if (Math.abs(xi) < 1e-10) {
-			xi = 0;
-		}
-		if (Math.abs(eta) < 1e-10) {
-			eta = 0;
-		}
-		if (Math.abs(zeta) < 1e-10) {
-			zeta = 0;
-		}
-
-		while (xi < 0) {
-			xi += 1;
-		}
-		while (xi > 1) {
-			xi -= 1;
-		}
-		while (eta < 0) {
-			eta += 1;
-		}
-		while (eta > 1) {
-			eta -= 1;
-		}
-		while (zeta < 0) {
-			zeta += 1;
-		}
-		while (zeta > 1) {
-			zeta -= 1;
-		}
-
-		r2.setX(0, xi * boundaryTensorCopy.component(0, 0) + eta
-				* boundaryTensorCopy.component(1, 0) + zeta
-				* boundaryTensorCopy.component(2, 0));
-		r2.setX(1, xi * boundaryTensorCopy.component(0, 1) + eta
-				* boundaryTensorCopy.component(1, 1) + zeta
-				* boundaryTensorCopy.component(2, 1));
-		r2.setX(2, xi * boundaryTensorCopy.component(0, 2) + eta
-				* boundaryTensorCopy.component(1, 2) + zeta
-				* boundaryTensorCopy.component(2, 2));
-
-	}//end checkCentralImage
-
-	private void updateDimensions() {
-		for (i = 0; i < space.D(); i++)
-			dimensions.setX(i, Math.abs(boundaryTensor.component(i, i)));
-	}
-
 	public void deform(etomica.space.Tensor deformationTensor) {
-		boundaryTensor.TE(deformationTensor);
-		updateDimensions();
-		updateCopies();
-		makeStrainTensor();
+        for(int i=0; i<edgeVectors.length; i++) {
+            edgeVectors[i].transform(deformationTensor);
+        }
+		update();
 	}
 
 	//        /**
@@ -388,26 +346,25 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
 	// change in size).
 	//         */
 	public void setDimensions(etomica.space.Vector v) {
-		workTensor.E(0);
-		workTensor.setComponent(0, 0, v.x(0));
-		workTensor.setComponent(1, 1, v.x(1));
-		workTensor.setComponent(2, 2, v.x(2));
-		setDimensions(workTensor);
+		tempTensor.E(0);
+		tempTensor.setComponent(0, 0, v.x(0));
+		tempTensor.setComponent(1, 1, v.x(1));
+		tempTensor.setComponent(2, 2, v.x(2));
+		setDimensions(tempTensor);
 	}
 
 	/**
 	 * Sets the boundary tensor to equal the given tensor.
 	 */
 	public void setDimensions(etomica.space.Tensor t) {
-		boundaryTensor.E(t);
-		updateDimensions();
-		updateCopies();
+		h.E(t);
+		update();
 	}
 
 	public double volume() {
-		return Math.abs(boundaryTensor.component(0, 0)
-				* boundaryTensor.component(1, 1)
-				* boundaryTensor.component(2, 2));
+		return Math.abs(h.component(0, 0)
+				* h.component(1, 1)
+				* h.component(2, 2));
 	}
 
 	/**
@@ -421,25 +378,29 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
 	double[][] origins;
 
 	public double[][] imageOrigins(int nShells) {
-		throw new RuntimeException(
-				"imageOrigins not implemented in Space3D.BoundaryDeformablePeriodic");
-		/*
-		 * shellFormula = (2 * nShells) + 1; nImages =
-		 * shellFormula*shellFormula*shellFormula-1; origins = new
-		 * double[nImages][D]; for (k=0,i=-nShells; i <=nShells; i++) { for
-		 * (j=-nShells; j <=nShells; j++) { for (m=-nShells; m <=nShells; m++) {
-		 * if ((i==0 && j==0) && m==0 ) {continue;} origins[k][0] =
-		 * i*dimensions.x; origins[k][1] = j*dimensions.y; origins[k][2] =
-		 * m*dimensions.z; k++; } } } return origins;
-		 */
+        int shellFormula = (2 * nShells) + 1;
+        int nImages = space.powerD(shellFormula) - 1;
+        double[][] origins = new double[nImages][space.D()];
+        indexIterator.setSize(shellFormula);
+        indexIterator.reset();
+        int k = 0;
+        while(indexIterator.hasNext()) {
+            int[] index = indexIterator.next();
+            temp1.E(index);
+            temp1.PE(-(double)nShells);
+            if(temp1.isZero()) continue;
+            temp2.E(0.0);
+            for(int i=0; i<space.D(); i++) {
+                temp2.PEa1Tv1(temp1.x(i),edgeVectors[i]);
+            }
+            temp2.assignTo(origins[k++]);
+        }
+        return origins;
 	}//end of imageOrigins
 
 	//getOverflowShifts ends up being called by the display routines quite
 	// often
 	//so, in the interest of speed, i moved these outside of the function;
-	int shiftX, shiftY, shiftZ;
-
-	Vector r;
 
 	public float[][] getOverflowShifts(etomica.space.Vector rr, double distance) {
 		throw new RuntimeException(
@@ -486,5 +447,28 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
 		 * return(shift);
 		 */
 	}//end of getOverflowShifts
+
+    int shiftX, shiftY, shiftZ;
+    protected final boolean[] isPeriodic;
+    private Tensor h;
+    private Tensor hCopy;
+    private final Vector[] edgeVectors; 
+    private final Tensor hInv;
+    private final Vector temp1, temp2;
+    private final Vector dimensions;
+    private final Vector dimensionsCopy;
+    private final Vector dimensionsHalf;
+    private final Vector tempVector;
+    private final Vector nearestDr;
+    private final Vector unit;
+    private final Tensor tempTensor;
+    private double oldRefDistance = 0.0;
+    private double refDistance = 0.0;
+    private final double[] workXEZ = new double[3];
+    public boolean constantStrain = true;
+    private boolean useBruteForceNearestImageMethod = true;
+    private final IndexIteratorSequential indexIterator;
+
+    // in the above, true uses brute force method!!
 
 }//end of BoundaryDeformablePeriodic

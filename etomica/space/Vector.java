@@ -233,9 +233,14 @@ public abstract class Vector implements java.io.Serializable, Cloneable {
     public abstract double Mv1Squared(Vector v1);
 
     /**
+     * Sets to zero all elements having magnitude (absolute value) less than the given value.
+     */
+    public abstract void truncate(double eps);
+    
+    /**
      * Replaces each component of this vector with its absolute value.
      */
-    public abstract void abs(); //replaces each component with its absolute
+    public abstract void abs();
 
     /**
      * Replaces each component of this vector with its value modulo a
@@ -249,7 +254,7 @@ public abstract class Vector implements java.io.Serializable, Cloneable {
     public abstract void mod(Vector u); //each component replaced with itself
 
     /**
-     * Sets this equal to (r mod u) - r
+     * Sets this equal to (r mod u) - r.  Fails if this == r.
      */
     public abstract void EModShift(Vector r, Vector u);
 
@@ -268,6 +273,22 @@ public abstract class Vector implements java.io.Serializable, Cloneable {
      */
     public abstract double max();
 
+    /**
+     * Replaces each element of this vector with the result of taking the minimum of it and the
+     * corresponding element of the given vector.  If the corresponding element is less
+     * (closer to negative infinity), it replace the element of this vector.  Operation
+     * may change all, some, or none of this vector's elements.  
+     */
+    public abstract void minE(Vector v);
+    
+    /**
+     * Replaces each element of this vector with the result of taking the maximum of it and the
+     * corresponding element of the given vector.  If the corresponding element is greater
+     * (closer to positive infinity), it replace the element of this vector.  Operation 
+     * may change all, some, or none of this vector's elements.  
+     */
+    public abstract void maxE(Vector v);
+    
     /**
      * Returns the square magnitude of this vector, e.g., x^2 + y^2 for D = 2.
      */

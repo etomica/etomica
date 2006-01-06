@@ -190,8 +190,8 @@ public class CastGroupToDoubleArray extends DataProcessor {
             k=0;
             for (int i=0; i<group.getNData(); i++) {
                 Tensor t = ((DataTensor)group.getData(i)).x;
-                for (int j=0; j<t.length(); j++) {
-                    for (int l=0; l<t.length(); l++) {
+                for (int j=0; j<t.D(); j++) {
+                    for (int l=0; l<t.D(); l++) {
                         x[k++] = t.component(j,l);
                     }
                 }

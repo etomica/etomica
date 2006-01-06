@@ -63,6 +63,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   private boolean glInitialized = false;
   private double drawExpansionFactor = 1.0;
   private final Vector3D vertex = new Vector3D();
+  private final Vector3D temp = new Vector3D();
 
   //The transparent grey color for the wells
   private final static byte wR=(byte)200, wG=(byte)200, wB=(byte)200, wA=(byte)160;
@@ -303,7 +304,10 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
 
     AtomIteratorLeafAtoms atomIter = new AtomIteratorLeafAtoms(displayPhase.getPhase());
     atomIter.reset();
-    
+
+    temp.E(displayPhase.getPhase().getBoundary().getCenter());
+    temp.PEa1Tv1(-0.5, displayPhase.getPhase().getBoundary().getBoundingBox());
+
     lastColor = null;
     while (atomIter.hasNext()) {
         Atom a = atomIter.nextAtom();
@@ -317,9 +321,9 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
             Color c = colorScheme.getAtomColor(a);
             Vector r = a.coord.position();
             //Update the positions of the atom
-            vert[0] = (float)r.x(0) - xCenter + drawExpansionShiftX;
-            vert[1] = (float)r.x(1) - yCenter + drawExpansionShiftY;
-            vert[2] = (float)r.x(2) - zCenter + drawExpansionShiftZ;
+            vert[0] = (float)r.x(0) - xCenter;// + drawExpansionShiftX - 0*(float)temp.x(0);
+            vert[1] = (float)r.x(1) - yCenter;// + drawExpansionShiftY - 0*(float)temp.x(1);
+            vert[2] = (float)r.x(2) - zCenter;// + drawExpansionShiftZ - 0*(float)temp.x(2);
             //Update the color for the atom
             if(!c.equals(lastColor)) {
               gl.glColor4ub((byte)c.getRed(), (byte)c.getGreen(), (byte)c.getBlue(), (byte)c.getAlpha());
@@ -378,12 +382,12 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
       drawBoundary(0);
       gl.glEnable(GL_LIGHT0);
       gl.glEnable(GL_LIGHTING);
-      gl.glEnable(GL_CLIP_PLANE0);
-      gl.glEnable(GL_CLIP_PLANE1);
-      gl.glEnable(GL_CLIP_PLANE2);
-      gl.glEnable(GL_CLIP_PLANE3);
-      gl.glEnable(GL_CLIP_PLANE4);
-      gl.glEnable(GL_CLIP_PLANE5);
+//      gl.glEnable(GL_CLIP_PLANE0);
+//      gl.glEnable(GL_CLIP_PLANE1);
+//      gl.glEnable(GL_CLIP_PLANE2);
+//      gl.glEnable(GL_CLIP_PLANE3);
+//      gl.glEnable(GL_CLIP_PLANE4);
+//      gl.glEnable(GL_CLIP_PLANE5);
     }
     //////////////******drawing of plane*******/////////////////////////
     //(DAK) added this section 09/21/02
@@ -444,9 +448,11 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     //Color all atoms according to colorScheme in DisplayPhase
 //    displayPhase.getColorScheme().colorAllAtoms();
 
-    xCenter = (float)(drawExpansionFactor*displayPhase.getPhase().getBoundary().getDimensions().x(0)*.5);
-    yCenter = (float)(drawExpansionFactor*displayPhase.getPhase().getBoundary().getDimensions().x(1)*.5);
-    zCenter = (float)(drawExpansionFactor*displayPhase.getPhase().getBoundary().getDimensions().x(2)*.5);
+    Vector3D boxCenter = (Vector3D)displayPhase.getPhase().getBoundary().getCenter();
+    //boxCenter.TE(0.5);
+    xCenter = (float)(drawExpansionFactor*boxCenter.x(0));
+    yCenter = (float)(drawExpansionFactor*boxCenter.x(1));
+    zCenter = (float)(drawExpansionFactor*boxCenter.x(2));
     center.E(xCenter, yCenter, zCenter);
     rightClipPlane[3] = leftClipPlane[3] = xCenter + ((2*xCenter)*displayPhase.getImageShells());
     topClipPlane[3] = bottomClipPlane[3] = yCenter + ((2*yCenter)*displayPhase.getImageShells());
@@ -459,12 +465,12 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     gl.glClipPlane(GL_CLIP_PLANE4, backClipPlane);
     gl.glClipPlane(GL_CLIP_PLANE5, frontClipPlane);
 
-    gl.glEnable(GL_CLIP_PLANE0);
-    gl.glEnable(GL_CLIP_PLANE1);
-    gl.glEnable(GL_CLIP_PLANE2);
-    gl.glEnable(GL_CLIP_PLANE3);
-    gl.glEnable(GL_CLIP_PLANE4);
-    gl.glEnable(GL_CLIP_PLANE5);
+//    gl.glEnable(GL_CLIP_PLANE0);
+//    gl.glEnable(GL_CLIP_PLANE1);
+//    gl.glEnable(GL_CLIP_PLANE2);
+//    gl.glEnable(GL_CLIP_PLANE3);
+//    gl.glEnable(GL_CLIP_PLANE4);
+//    gl.glEnable(GL_CLIP_PLANE5);
 
     //Draw periodic images if indicated
     // The following if() block sets up the display list.
@@ -555,7 +561,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
      * @return double
      */
     public double getDrawExpansionFactor() {
-    	return drawExpansionFactor;
+        return drawExpansionFactor;
     }
     
     /**
@@ -563,13 +569,13 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
      * @param drawExpansionFactor The drawExpansionFactor to set
      */
     public void setDrawExpansionFactor(double drawExpansionFactor) {
-    	this.drawExpansionFactor = drawExpansionFactor;
-    	if(displayPhase != null && displayPhase.getPhase() != null) {
-    		Vector box = displayPhase.getPhase().getBoundary().getDimensions();
-    		float mult = (float)(0.5*(drawExpansionFactor - 1.0));//*(2*I+1);
-    		drawExpansionShiftX = (float)(mult*box.x(0));
-    		drawExpansionShiftY = (float)(mult*box.x(1));
-    		drawExpansionShiftZ = (float)(mult*box.x(2));
-    	}
+        	this.drawExpansionFactor = drawExpansionFactor;
+        	if(displayPhase != null && displayPhase.getPhase() != null) {
+        		Vector box = displayPhase.getPhase().getBoundary().getDimensions();
+        		float mult = (float)(0.5*(drawExpansionFactor - 1.0));//*(2*I+1);
+        		drawExpansionShiftX = (float)(mult*box.x(0));
+        		drawExpansionShiftY = (float)(mult*box.x(1));
+        		drawExpansionShiftZ = (float)(mult*box.x(2));
+        	}
     }
 }  //end of DisplayPhase.Canvas

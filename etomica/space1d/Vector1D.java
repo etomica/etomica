@@ -125,6 +125,10 @@ public final class Vector1D extends etomica.space.Vector {
         double dx = x - ((Vector1D) u1).x;
         return dx * dx;
     }
+    
+    public void truncate(double eps) {
+        if(x < eps && -x < eps) x = 0.0;
+    }
 
     public void mod(etomica.space.Vector u) {
         mod((Vector1D) u);
@@ -202,7 +206,15 @@ public final class Vector1D extends etomica.space.Vector {
         x = (x > 0) ? x : -x;
     }
 
-    public double min() {
+    public void minE(Vector v) {
+        if(((Vector1D)v).x < x) x = ((Vector1D)v).x;
+    }
+
+    public void maxE(Vector v) {
+        if(((Vector1D)v).x > x) x = ((Vector1D)v).x;
+    }
+
+   public double min() {
         return x;
     }
 

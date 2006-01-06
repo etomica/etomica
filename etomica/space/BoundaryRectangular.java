@@ -35,6 +35,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
         modShift = space.makeVector();
         dimensionsCopy = space.makeVector();
         dimensionsHalf = space.makeVector();
+        center = space.makeVector();
         indexIterator = new IndexIteratorSequential(space.D());
         needShift = new boolean[space.D()];//used by getOverflowShifts
         updateDimensions();
@@ -42,17 +43,19 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
 
     /**
      * Constructs rectangular boundary of the given periodicity with edges given by the
-     * values in the array boxSize.
+     * values in the array boxSize.  Length of arrays must equal dimension of space.
      */
     public BoundaryRectangular(Space space, boolean[] periodicity, double[] boxSize) {
         super(space, makeShape(space));
         isPeriodic = (boolean[])periodicity.clone();
         dimensions = space.makeVector();
         dimensions.E(boxSize);
+        
         temp = space.makeVector();
         modShift = space.makeVector();
         dimensionsCopy = space.makeVector();
         dimensionsHalf = space.makeVector();
+        center = space.makeVector();
         indexIterator = new IndexIteratorSequential(space.D());
         needShift = new boolean[space.D()];//used by getOverflowShifts
         updateDimensions();
@@ -73,16 +76,25 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
      * the boundary.  The returned Vector does not represent the values internally,
      * so manipulation of the vector has no effect on this BoundaryRectangular instance.
      */
-    public final etomica.space.Vector getDimensions() {
+    public Vector getDimensions() {
+        return dimensionsCopy;
+    }
+    
+    public Vector getBoundingBox() {
         return dimensionsCopy;
     }
 
+    public Vector getCenter() {
+        center.E(dimensionsHalf);
+        return center;
+    }
+    
     /**
      * Returns a vector that describes a point selected uniformly within
      * the boundary.  The same Vector instance is returned with each call, with
      * a new random point each time.
      */
-    public etomica.space.Vector randomPosition() {
+    public Vector randomPosition() {
         temp.setRandom(dimensions);
         return temp;
     }
@@ -195,6 +207,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
     protected final Vector dimensions;
     protected final Vector dimensionsCopy;
     protected final Vector dimensionsHalf;
+    private final Vector center;
     private final IndexIteratorSequential indexIterator;
     private final boolean[] needShift;
     protected boolean[] isPeriodic;

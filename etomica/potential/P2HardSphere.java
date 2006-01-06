@@ -111,7 +111,7 @@ public class P2HardSphere extends Potential2HardSpherical {
     }
     
     public Tensor lastCollisionVirialTensor() {
-        lastCollisionVirialTensor.E(dr, dr);
+        lastCollisionVirialTensor.Ev1v2(dr, dr);
 //        lastCollisionVirialTensor.DE(lastCollisionVirialr2);
         return lastCollisionVirialTensor;        
     }

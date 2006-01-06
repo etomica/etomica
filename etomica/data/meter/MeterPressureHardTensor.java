@@ -44,7 +44,7 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
             iterator.reset();
             while (iterator.hasNext()) {
                 Atom a = iterator.nextAtom();
-                v.E(((ICoordinateKinetic)a.coord).velocity(), ((ICoordinateKinetic)a.coord).velocity());
+                v.Ev1v2(((ICoordinateKinetic)a.coord).velocity(), ((ICoordinateKinetic)a.coord).velocity());
                 v.TE((((AtomTypeLeaf)a.type).rm()));
                 velocityTensor.PE(v);
             }

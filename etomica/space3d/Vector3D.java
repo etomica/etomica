@@ -199,6 +199,12 @@ public final class Vector3D extends Vector {
         y = ((Vector3D) u1).y - ((Vector3D) u2).y;
         z = ((Vector3D) u1).z - ((Vector3D) u2).z;
     }
+    
+    public void truncate(double eps) {
+        if(x < eps && -x < eps) x = 0.0;
+        if(y < eps && -y < eps) y = 0.0;
+        if(z < eps && -z < eps) z = 0.0;
+    }
 
     public void mod(Vector u) {
         mod((Vector3D) u);
@@ -347,7 +353,19 @@ public final class Vector3D extends Vector {
         z = (z < 0) ? -z : z;
     }
 
-    public double min() {
+    public void minE(Vector v) {
+        if(((Vector3D)v).x < x) x = ((Vector3D)v).x;
+        if(((Vector3D)v).y < y) y = ((Vector3D)v).y;
+        if(((Vector3D)v).z < z) z = ((Vector3D)v).z;
+    }
+
+    public void maxE(Vector v) {
+        if(((Vector3D)v).x > x) x = ((Vector3D)v).x;
+        if(((Vector3D)v).y > y) y = ((Vector3D)v).y;
+        if(((Vector3D)v).z > z) z = ((Vector3D)v).z;
+    }
+
+   public double min() {
         return (x < y) ? (x < z) ? x : z : (y < z) ? y : z;
     }
 

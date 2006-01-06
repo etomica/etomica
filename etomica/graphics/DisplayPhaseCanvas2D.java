@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.TextField;
 import java.util.Iterator;
 
+import sun.security.provider.certpath.Vertex;
 import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomTypeOrientedSphere;
@@ -16,13 +17,6 @@ import etomica.math.geometry.Polygon;
 import etomica.space.Boundary;
 import etomica.space.ICoordinateAngular;
 import etomica.space.Vector;
-import etomica.species.Species;
-
-    /* History of changes
-     * 7/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.
-     * 8/18/02 (DAK) Modified drawing of Wall to shift image by drawShift value given in type
-     * 9/07/02 (DAK) Added atomFilter
-     */
 
 //Class used to define canvas onto which configuration is drawn
 public class DisplayPhaseCanvas2D extends DisplayCanvas {
@@ -35,6 +29,9 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
     private final static Color wellColor = Color.pink;//new Color(185,185,185, 110);
     private final AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms();
     private AtomFilter atomFilter;
+    private final int[] atomOrigin;
+    private final Vector boundingBox;
+    private final Vector temp;
         
     public DisplayPhaseCanvas2D(DisplayPhase _phase) {
         scaleText.setVisible(true);
@@ -42,6 +39,9 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         scaleText.setBounds(0,0,100,50);
         displayPhase = _phase;
         atomFilter = _phase.getAtomFilter();
+        atomOrigin = new int[_phase.getPhase().space().D()];
+        boundingBox = _phase.getPhase().space().makeVector();
+        temp = _phase.getPhase().space().makeVector();
     }
     
     public void setAtomFilter(AtomFilter filter) {atomFilter = filter;}
@@ -112,21 +112,11 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         }
     }
             
-      
-    /**
-    * doPaint is the method that handles the drawing of the phase to the screen.
-    * Several variables and conditions affect how the image is drawn.  First,
-    * the Unit.Length.Sim class variable <code>TO_PIXELS</code> performs the conversion between simulation
-    * length units (Angstroms) and pixels.  The default value is 10 pixels/Angstrom
-    * reflecting the default size of the phase (300 pixels by 300 pixels) and the
-    * default phase size (30 by 30 A).  
-    * The field <code>scale</code> is a multiplicative factor that directly
-    * scales up or down the size of the image; this value is adjusted automatically
-    * whenever shells of periodic images are drawn, to permit the central image and all 
-    * of the specified periodic images to fit in the drawing of the phase.  
+    Vector vec2;  
+   /**
+    * Method that handles the drawing of the phase to the screen.
     *
     * @param g The graphic object to which the image of the phase is drawn
-    * @see Species
     */
     public void doPaint(Graphics g) {
         if(!isVisible() || displayPhase.getPhase() == null) {return;}
@@ -136,57 +126,71 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         g.setColor(getBackground());
         g.fillRect(0,0,w,h);
         displayPhase.computeImageParameters2(w, h);
+        boundingBox.E(displayPhase.getPhase().getBoundary().getBoundingBox());
+        int[] origin = displayPhase.getOrigin();
+        double toPixels = displayPhase.getToPixels();
 
         //Draw other features if indicated
         if(drawBoundary>DRAW_BOUNDARY_NONE) {
             g.setColor(Color.gray);
-            double toPixels = displayPhase.getToPixels();
             Polygon shape = (Polygon)displayPhase.getPhase().getBoundary().getShape();
             LineSegment[] edges = shape.getEdges();
-            int ox = displayPhase.getOrigin()[0] + (int)(toPixels*displayPhase.getPhase().getBoundary().getDimensions().x(0)*0.5);
-            int oy = displayPhase.getOrigin()[1] + (int)(toPixels*displayPhase.getPhase().getBoundary().getDimensions().x(1)*0.5);
+            int ox = origin[0] + (int)(toPixels*boundingBox.x(0)*0.5);
+            int oy = origin[1] + (int)(toPixels*boundingBox.x(1)*0.5);
             for(int i=0; i<edges.length; i++) {
-                int x1 = ox + (int)(toPixels*edges[i].getVertices()[0].x(0));
-                int y1 = oy + (int)(toPixels*edges[i].getVertices()[0].x(1));
-                int x2 = ox + (int)(toPixels*edges[i].getVertices()[1].x(0));
-                int y2 = oy + (int)(toPixels*edges[i].getVertices()[1].x(1));
+                Vector[] vertices = edges[i].getVertices();
+                int x1 = ox + (int)(toPixels*vertices[0].x(0));
+                int y1 = oy + (int)(toPixels*vertices[0].x(1));
+                int x2 = ox + (int)(toPixels*vertices[1].x(0));
+                int y2 = oy + (int)(toPixels*vertices[1].x(1));
                 g.drawLine(x1,y1,x2,y2);
             }
         }
-
 
 //        if(displayPhase.getDrawBoundary()) {displayPhase.getPhase().boundary().draw(g, displayPhase.getOrigin(), displayPhase.getScale());}
 
         //do drawing of all drawing objects that have been added to the display
         for(Iterator iter=displayPhase.getDrawables().iterator(); iter.hasNext(); ) {
             Drawable obj = (Drawable)iter.next();
-            obj.draw(g, displayPhase.getOrigin(), displayPhase.getToPixels());
+            obj.draw(g, origin, displayPhase.getToPixels());
         }
             
         //Color all atoms according to colorScheme in DisplayPhase
 //        displayPhase.getColorScheme().colorAllAtoms();
-            
+
+//        Vector[] vert = ((Polygon)displayPhase.getPhase().getBoundary().getShape()).getVertices();
+//        vec2 = vert[2].M(vert[0]);
+//        vec2.ME(vec);
+//        vec2.TE(0.5);
+        
+        temp.E(displayPhase.getPhase().getBoundary().getCenter());
+        temp.PEa1Tv1(-0.5, boundingBox);
+        atomOrigin[0] = origin[0] - (int)(toPixels*temp.x(0));
+        atomOrigin[1] = origin[1] - (int)(toPixels*temp.x(1));
+//        vec.TE(0.0);
+//        Vector vec2 = displayPhase.getPhase().getBoundary().centralImage(vec);
+
         //Draw all atoms
-        Boundary boundary = displayPhase.getPhase().getBoundary();
         if(displayPhase.getColorScheme() instanceof ColorSchemeCollective) {
             ((ColorSchemeCollective)displayPhase.getColorScheme()).colorAllAtoms(displayPhase.getPhase());
         }
         atomIterator.setPhase(displayPhase.getPhase());
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            drawAtom(g, displayPhase.getOrigin(), atomIterator.nextAtom());
+            drawAtom(g, atomOrigin, atomIterator.nextAtom());
         }
             
         //Draw overflow images if so indicated
         if(displayPhase.getDrawOverflow()) {
+            Boundary boundary = displayPhase.getPhase().getBoundary();
             atomIterator.reset();
             while(atomIterator.hasNext()) {
                 Atom a = atomIterator.nextAtom();
                 if(!(a.type instanceof AtomTypeSphere)) continue;
                 float[][] shifts = boundary.getOverflowShifts(a.coord.position(),((AtomTypeSphere)a.type).radius(a));  //should instead of radius have a size for all AtomC types
                 for(int i=shifts.length-1; i>=0; i--) {
-                    shiftOrigin[0] = displayPhase.getOrigin()[0] + (int)(displayPhase.getToPixels()*shifts[i][0]);
-                    shiftOrigin[1] = displayPhase.getOrigin()[1] + (int)(displayPhase.getToPixels()*shifts[i][1]);
+                    shiftOrigin[0] = origin[0] + (int)(displayPhase.getToPixels()*shifts[i][0]);
+                    shiftOrigin[1] = origin[1] + (int)(displayPhase.getToPixels()*shifts[i][1]);
                     drawAtom(g, shiftOrigin, a);
                 }
             }

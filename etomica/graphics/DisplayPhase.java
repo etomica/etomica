@@ -208,12 +208,12 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
         if(p == null) return;
         phase = p;
         
-        int boxX = (int)(phase.getBoundary().getDimensions().x(0) * pixel.toPixels());
+        int boxX = (int)(phase.getBoundary().getBoundingBox().x(0) * pixel.toPixels());
         int boxY = 1;
 
         switch(phase.space().D()) {
             case 3:
-                boxY = (int)(phase.getBoundary().getDimensions().x(1) * pixel.toPixels());
+                boxY = (int)(phase.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
                 boxX *=1.4;
                 boxY *=1.4;
                     canvas = new DisplayPhaseCanvas3DOpenGL(this, boxX, boxY);
@@ -221,7 +221,7 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
                 else canvas = new DisplayPhaseCanvas3DSoftware(this);
  */               break;
             case 2:
-                boxY = (int)(phase.getBoundary().getDimensions().x(1) * pixel.toPixels());
+                boxY = (int)(phase.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
                 canvas = new DisplayPhaseCanvas2D(this);
                 break;
             case 1:
@@ -259,17 +259,17 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
         if (phaseCanvas == null) return;
         if(phase == null) throw new IllegalStateException("Cannot set canvas before setting phase");
         
-        int boxX = (int)(phase.getBoundary().getDimensions().x(0) * pixel.toPixels());
+        int boxX = (int)(phase.getBoundary().getBoundingBox().x(0) * pixel.toPixels());
         int boxY = 1;
 
         switch(phase.space().D()) {
             case 3:
-                boxY = (int)(phase.getBoundary().getDimensions().x(1) * pixel.toPixels());
+                boxY = (int)(phase.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
                 boxX *=1.4;
                 boxY *=1.4;
                 break;
             case 2:
-                boxY = (int)(phase.getBoundary().getDimensions().x(1) * pixel.toPixels());
+                boxY = (int)(phase.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
                 break;
             case 1:
             default:
@@ -375,8 +375,8 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
         //Compute factor converting simulation units to pixels for this display
         toPixels = scale*pixel.toPixels();
         //Determine length and width of drawn image, in pixels
-        drawSize[0] = (int)(toPixels*getPhase().getBoundary().getDimensions().x(0));
-        drawSize[1] = (phase.space().D()==1) ? drawingHeight: (int)(toPixels*getPhase().getBoundary().getDimensions().x(1));
+        drawSize[0] = (int)(toPixels*getPhase().getBoundary().getBoundingBox().x(0));
+        drawSize[1] = (phase.space().D()==1) ? drawingHeight: (int)(toPixels*getPhase().getBoundary().getBoundingBox().x(1));
         //Find origin for drawing action
         centralOrigin[0] = (int)(getScale()*originShift[0]) + computeOrigin(align[0],drawSize[0],w);
         centralOrigin[1] = (int)(getScale()*originShift[1]) + computeOrigin(align[1],drawSize[1],h);
@@ -418,17 +418,17 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
         if(canvas != null) {
             canvas.setPixelUnit(pixel);
 
-            int boxX = (int)(phase.getBoundary().getDimensions().x(0) * pixel.toPixels());
+            int boxX = (int)(phase.getBoundary().getBoundingBox().x(0) * pixel.toPixels());
             int boxY = 1;
 
             switch(phase.space().D()) {
                 case 3:
-                    boxY = (int)(phase.getBoundary().getDimensions().x(1) * pixel.toPixels());
+                    boxY = (int)(phase.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
                     boxX *=1.4;
                     boxY *=1.4;
                     break;
                 case 2:
-                    boxY = (int)(phase.getBoundary().getDimensions().x(1) * pixel.toPixels());
+                    boxY = (int)(phase.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
                     break;
                 case 1:
                 default:

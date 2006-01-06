@@ -1,5 +1,7 @@
 package etomica.space2d;
 
+import etomica.space.RotationTensor;
+
 
 
 
@@ -7,7 +9,7 @@ package etomica.space2d;
  * History
  * Created on Jan 24, 2005 by kofke
  */
-public class RotationTensor2D extends Tensor2D implements etomica.space.RotationTensor {
+public class RotationTensor2D extends Tensor2D implements RotationTensor {
     public RotationTensor2D() {super(); reset();}
     public void reset() {
         xx = 1.0; xy = 0.0;

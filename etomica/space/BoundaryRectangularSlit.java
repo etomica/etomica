@@ -2,23 +2,32 @@ package etomica.space;
 
 import etomica.simulation.Simulation;
 
-
 /**
  * Class for implementing slit periodic boundary conditions, in which
- * one dimension is not periodic.
- */
-
-/*
- * History
- * Created on Jan 24, 2005 by kofke
+ * one dimension is not periodic.  Selection of non-periodic dimension may be changed
+ * after construction.
  */
 public class BoundaryRectangularSlit extends BoundaryRectangular {
     
+    /**
+     * Makes cubic volume with the x-dimension (index 0)
+     * not periodic.  Length of each box edge is given by default boxSize in
+     * given Simulation.
+     */
     public BoundaryRectangularSlit(Simulation sim) {
         //consumer can set appropriate slit dim later
         this(sim,0);
     }
     
+    /**
+     * Makes cubic volume with the indicated dimension not periodic.
+     * Length of each box edge is given by the default boxSize in the
+     * given Simulation.
+     * 
+     * @param slitDim index indicating dimension that is not periodic (0 for x-dimension,
+     * 1 for y-dimension, etc.).
+     * @throws IllegalArgumentException if not (0 <= slitDim < space.D).
+     */
     public BoundaryRectangularSlit(Simulation sim, int slitDim) {
         this(sim.space, slitDim, sim.getDefaults().boxSize);
     }
@@ -27,18 +36,27 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
      * Constructor for periodic boundary conditions with a slit 
      * in the given dimension.
      * @param space
-     * @param slitDim slit dimension (in which PBC are not imposed).
+     * @param slitDim slit dimension (in which PBC is not imposed).
      */
     public BoundaryRectangularSlit(Space space, int slitDim, double boxSize) {
         super(space,makePeriodicity(space.D(),slitDim),boxSize);
         sDim = slitDim;
     }
-    
+
+    /**
+     * Sets the non-periodic dimension to that indicated by the given value 
+     * (0 is x-dimension, 1 is y-dimension, etc.).
+     * 
+     * @throws IllegalArgumentException if not (0 <= slitDim < space.D).
+     */
     public void setSlitDim(int slitDim) {
         isPeriodic = makePeriodicity(space.D(),slitDim);
         sDim = slitDim;
     }
     
+    /**
+     * Returns index of non-periodic dimension.
+     */
     public int getSlitDim() {
         return sDim;
     }
@@ -58,6 +76,9 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
     }
 
     private static boolean[] makePeriodicity(int D, int slitDim) {
+        if(slitDim >= D || slitDim < 0) { 
+            throw new IllegalArgumentException("Indicated dimension ("+slitDim+") is not valid for the space");
+        }
         boolean[] isPeriodic = new boolean[D];
         for (int i=0; i<D; i++) {
             isPeriodic[i] = slitDim != i;
@@ -66,4 +87,5 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
     }
     
     private int sDim;
+    private static final long serialVersionUID = 1L;
 }

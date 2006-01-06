@@ -178,6 +178,17 @@ public abstract class Polytope implements Shape, java.io.Serializable {
     }
     
     public abstract LineSegment[] getEdges();
+    
+    public String toString() {
+        StringBuffer str = new StringBuffer();
+        str.append("{");
+        for(int i=0; i<hyperPlanes.length; i++) {
+            str.append(hyperPlanes[i].toString());
+            if(i < hyperPlanes.length-1) str.append(",");
+        }
+        str.append("}");
+        return str.toString();
+    }
 
     protected final Space embeddedSpace;
     protected final int D;

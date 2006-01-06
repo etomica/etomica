@@ -81,7 +81,7 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
     public double energyChange() {return lastEnergyChange;}
     
     public Tensor lastCollisionVirialTensor() {
-        lastCollisionVirialTensor.E(dr, dr);
+        lastCollisionVirialTensor.Ev1v2(dr, dr);
         lastCollisionVirialTensor.TE(lastCollisionVirialr2);
         return lastCollisionVirialTensor;
     }

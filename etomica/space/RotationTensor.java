@@ -2,10 +2,13 @@ package etomica.space;
 
 /**
  * A tensor intended for use to define rotations in space.  Includes methods
- * to sets its components in terms of rotation angles.
+ * to set its components in terms of rotation angles.
  */
 public interface RotationTensor extends Tensor {
     
+    /**
+     * Sets tensor to a condition of no rotation.
+     */
     public void reset();
 
     public void invert();

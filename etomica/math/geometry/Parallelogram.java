@@ -6,8 +6,8 @@ package etomica.math.geometry;
 
 import etomica.exception.MethodNotImplementedException;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space2d.Vector2D;
-import etomica.space3d.Vector3D;
 
 /**
  * A quadrilateral with opposite sides parallel
@@ -15,7 +15,7 @@ import etomica.space3d.Vector3D;
  * @author kofke
  * 
  */
-public class Parallelogram extends Polygon {
+public class Parallelogram extends Polygon implements Parallelotope {
 
     /**
      * Default constructor makes a square of unit size
@@ -31,7 +31,7 @@ public class Parallelogram extends Polygon {
         super(embeddedSpace, 4);
         this.a = (Vector2D)embeddedSpace.makeVector();
         this.b = (Vector2D)embeddedSpace.makeVector();
-        setEdgeVectors(a, b);
+        setEdgeVectors(new Vector[] {a, b});
     }
 
     public double getArea() {
@@ -73,9 +73,9 @@ public class Parallelogram extends Polygon {
      * Sets the lengths and directions of all edges of the parellelepiped.
      * Given instances are copied to an internal representation.
      */
-    public void setEdgeVectors(Vector2D aNew, Vector2D bNew) {
-        a.Ea1Tv1(0.5, aNew);
-        b.Ea1Tv1(0.5, bNew);
+    public void setEdgeVectors(Vector[] edgeVectors) {
+        a.Ea1Tv1(0.5, edgeVectors[0]);
+        b.Ea1Tv1(0.5, edgeVectors[1]);
         updateVertices();
     }
 
