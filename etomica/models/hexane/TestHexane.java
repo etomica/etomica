@@ -9,7 +9,7 @@ import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIntragroup;
-import etomica.atom.iterator.AtomIteratorSequence;
+import etomica.atom.iterator.AtomIteratorArrayList;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.integrator.IntegratorHard;
 import etomica.nbr.CriterionBondedSimple;
@@ -176,8 +176,8 @@ public class TestHexane extends Simulation {
         //The inner iterator runs through 
         //The outer iterator runs through
         //Similar to ApiBuilder.makeNonAdjacentPairIterator
-        AtomIteratorSequence aiInnerUp = new AtomIteratorSequence(IteratorDirective.UP, 3);
-        AtomIteratorSequence aiInnerDn = new AtomIteratorSequence(IteratorDirective.DOWN, 3);
+        AtomIteratorArrayList aiInnerUp = new AtomIteratorArrayList(IteratorDirective.UP, 3);
+        AtomIteratorArrayList aiInnerDn = new AtomIteratorArrayList(IteratorDirective.DOWN, 3);
         ApiIntragroup intra = new ApiIntragroup(aiInnerUp, aiInnerDn);
         
         //Now we add this potential to the PotentialGroup.
