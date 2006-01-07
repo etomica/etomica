@@ -26,7 +26,6 @@ public class ModifierNMolecule implements Modifier, java.io.Serializable {
         previousValue = mostRecentValue;
         mostRecentValue = (int)d;
         speciesAgent.setNMolecules((int) d);
-        System.out.println("setting nmolecules = "+((int)d));
 //        if (this.selector.display != null)
 //            this.selector.display.repaint();
 //        this.selector.integrator.reset();
