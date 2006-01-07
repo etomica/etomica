@@ -34,14 +34,14 @@ import etomica.util.Default;
 /*
  * History Created on Apr 28, 2005 by kofke
  */
-public class UnitTest implements java.io.Serializable {
+public class UnitTestUtil implements java.io.Serializable {
 
     public static boolean VERBOSE = false;
 
     /**
      * Private to prevent instantiation
      */
-    private UnitTest() {
+    private UnitTestUtil() {
         super();
     }
 

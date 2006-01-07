@@ -14,7 +14,7 @@ import etomica.atom.iterator.ApiIntergroup;
 import etomica.atom.iterator.ApiIntragroup;
 import etomica.atom.iterator.AtomPairIterator;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.junit.UnitTest;
+import etomica.junit.UnitTestUtil;
 
 /**
  * Tests the iterators made by the various static methods in ApiBuilder.
@@ -26,11 +26,11 @@ import etomica.junit.UnitTest;
 /*
  * History Created on Jun 5, 2005 by kofke
  */
-public class ApiBuilderTest extends IteratorTest {
+public class ApiBuilderTest extends IteratorTestAbstract {
 
    public ApiBuilderTest() {
         super();
-        UnitTest.VERBOSE = false;
+        UnitTestUtil.VERBOSE = false;
     }
 
    /**
@@ -43,7 +43,7 @@ public class ApiBuilderTest extends IteratorTest {
         n1a = 10;
         n2a = 3;
         nTree = new int[] { 5, 4, 3 };
-        SpeciesRoot root = UnitTest.makeStandardSpeciesTree(new int[] { n0a, 1 },
+        SpeciesRoot root = UnitTestUtil.makeStandardSpeciesTree(new int[] { n0a, 1 },
                 nAtoms, new int[] { n1a, 2}, new int[] { n2a, 3 }, nTree);
         rootNode = (AtomTreeNodeGroup) root.node;
     }
@@ -98,7 +98,7 @@ public class ApiBuilderTest extends IteratorTest {
         //species 0 has 5 molecules, each with 5 atoms, 3 of one type, 2 of another
         //species 1 has 7 molecules, each with 11 atoms, 4 of one type, 1 of another, and 6 of another
         //iterator must loop over pairs formed from molecules of each species
-        SpeciesRoot root = UnitTest.makeMultitypeSpeciesTree(new int[] {5,7}, 
+        SpeciesRoot root = UnitTestUtil.makeMultitypeSpeciesTree(new int[] {5,7}, 
                 new int[][] {{3,2},{4,1,6}});
         rootNode = (AtomTreeNodeGroup)root.node;
         AtomTypeGroup rootType = (AtomTypeGroup)root.type;

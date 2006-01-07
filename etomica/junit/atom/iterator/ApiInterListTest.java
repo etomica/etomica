@@ -19,7 +19,7 @@ import etomica.space3d.Space3D;
  * History
  * Created on Jun 28, 2005 by kofke
  */
-public class ApiInterListTest extends IteratorTest {
+public class ApiInterListTest extends IteratorTestAbstract {
 
     public void testIterator() {
         

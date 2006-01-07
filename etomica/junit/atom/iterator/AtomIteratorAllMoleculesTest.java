@@ -7,7 +7,7 @@ import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
-import etomica.junit.UnitTest;
+import etomica.junit.UnitTestUtil;
 import etomica.phase.Phase;
 import etomica.species.Species;
 
@@ -21,7 +21,7 @@ import etomica.species.Species;
 /*
  * History Created on Jun 28, 2005 by kofke
  */
-public class AtomIteratorAllMoleculesTest extends IteratorTest {
+public class AtomIteratorAllMoleculesTest extends IteratorTestAbstract {
 
     public void testIterator() {
 
@@ -30,7 +30,7 @@ public class AtomIteratorAllMoleculesTest extends IteratorTest {
         int[] n1 = new int[] { 5, 1, 6, 0, 1};
         int[] n2 = new int[] { 1, 7, 2, 0, 0};
         int[] n2Tree = new int[] { 3, 4 };
-        SpeciesRoot root = UnitTest.makeStandardSpeciesTree(n0, nA0, n1, n2,
+        SpeciesRoot root = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1, n2,
                 n2Tree);
         AtomTreeNodeGroup rootNode = (AtomTreeNodeGroup) root.node;
 

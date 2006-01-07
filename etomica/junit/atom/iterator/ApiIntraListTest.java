@@ -15,7 +15,7 @@ import etomica.atom.iterator.ApiIntraList;
  * History
  * Created on May 19, 2005 by kofke
  */
-public class ApiIntraListTest extends ListIteratorTest {
+public class ApiIntraListTest extends ListIteratorTestAbstract {
 
     /**
      * 

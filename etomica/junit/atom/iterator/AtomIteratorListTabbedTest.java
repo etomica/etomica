@@ -23,7 +23,7 @@ import etomica.space3d.Space3D;
  * Created on Oct 1, 2004
  */
 
-public class AtomIteratorListTabbedTest extends IteratorTest {
+public class AtomIteratorListTabbedTest extends IteratorTestAbstract {
 
     protected final int nLists = 10;
     protected LinkedList[] lists = new LinkedList[nLists];

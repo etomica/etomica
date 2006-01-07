@@ -19,7 +19,7 @@ import etomica.space2d.Space2D;
  * History
  * Created on May 30, 2005 by kofke
  */
-public class AtomIteratorSingletTest extends IteratorTest {
+public class AtomIteratorSingletTest extends IteratorTestAbstract {
 
     /**
      * 

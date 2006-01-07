@@ -9,12 +9,12 @@ import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesMaster;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorTree;
-import etomica.junit.UnitTest;
+import etomica.junit.UnitTestUtil;
 
 /**
  * Unit test for AtomIteratorTree
  */
-public class AtomIteratorTreeTest extends IteratorTest {
+public class AtomIteratorTreeTest extends IteratorTestAbstract {
 
     protected void setUp() {
         n0a = 3;
@@ -22,7 +22,7 @@ public class AtomIteratorTreeTest extends IteratorTest {
         n1a = 10;
         n2a = 4;
         nTree = new int[] { 5, 4, 3 };
-        root = UnitTest.makeStandardSpeciesTree(new int[] { n0a },
+        root = UnitTestUtil.makeStandardSpeciesTree(new int[] { n0a },
                 nAtoms, new int[] { n1a }, new int[] { n2a }, nTree);
         rootNode = (AtomTreeNodeGroup) root.node;
         speciesMaster = (SpeciesMaster)rootNode.getDescendant(new int[] {0});

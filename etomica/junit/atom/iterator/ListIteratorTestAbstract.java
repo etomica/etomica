@@ -3,7 +3,7 @@ import etomica.atom.Atom;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.AtomListTabbed;
-import etomica.junit.UnitTest;
+import etomica.junit.UnitTestUtil;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 
@@ -21,9 +21,9 @@ import etomica.space3d.Space3D;
  * Created on Oct 1, 2004
  */
 
-public abstract class ListIteratorTest extends IteratorTest {
+public abstract class ListIteratorTestAbstract extends IteratorTestAbstract {
 	
-	public ListIteratorTest() {
+	public ListIteratorTestAbstract() {
         tabType1 = AtomLinker.Tab.requestTabType();
         tabType2 = AtomLinker.Tab.requestTabType();
 	}
@@ -96,7 +96,7 @@ public abstract class ListIteratorTest extends IteratorTest {
 		newTab = AtomLinker.newTab(atomList, tabType2);
 		atomList.addBefore(newTab, atomList.entry(5));
 		iteratorStateTests(atomList); 
-		if(UnitTest.VERBOSE) System.out.println("The size of the list: "+ atomList.size());
+		if(UnitTestUtil.VERBOSE) System.out.println("The size of the list: "+ atomList.size());
 
         //set up lists containing just tabs
 		atomList.clear();

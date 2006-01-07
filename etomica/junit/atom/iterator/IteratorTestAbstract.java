@@ -11,7 +11,7 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomPairIterator;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.junit.UnitTest;
+import etomica.junit.UnitTestUtil;
 
 /**
  * Provides library methods to test the basic functioning of an iterator.
@@ -20,7 +20,7 @@ import etomica.junit.UnitTest;
  * @author Ken Benjamin and David Kofke
  *  
  */
-public class IteratorTest extends TestCase {
+public abstract class IteratorTestAbstract extends TestCase {
 
 
     /**
@@ -36,7 +36,7 @@ public class IteratorTest extends TestCase {
      * Prints all of the lists.
      */
     public void printLists(Lister[] lister) {
-        if (UnitTest.VERBOSE) {
+        if (UnitTestUtil.VERBOSE) {
             for (int i = 0; i < lister.length; i++) {
                 System.out.println(lister[i]);
             }
@@ -57,7 +57,7 @@ public class IteratorTest extends TestCase {
     }
     
     protected void print(String string) {
-        if(UnitTest.VERBOSE) System.out.println(string);
+        if(UnitTestUtil.VERBOSE) System.out.println(string);
     }
 
     /**

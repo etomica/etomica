@@ -20,7 +20,7 @@ import etomica.space1d.Space1D;
 /*
  * History Created on Jul 2, 2005 by kofke
  */
-public class AtomIteratorFilteredTest extends IteratorTest {
+public class AtomIteratorFilteredTest extends IteratorTestAbstract {
 
     /**
      * Filter that rejects every n-th atom, knowing that ordinals are numbered 1

@@ -8,18 +8,18 @@ import java.util.LinkedList;
 import etomica.atom.Atom;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorListSimple;
-import etomica.junit.UnitTest;
+import etomica.junit.UnitTestUtil;
 import etomica.space.Space;
 import etomica.space1d.Space1D;
 
 /**
  * Unit test for AtomIteratorListSimple.
  */
-public class AtomIteratorListSimpleTest extends IteratorTest {
+public class AtomIteratorListSimpleTest extends IteratorTestAbstract {
 
     public AtomIteratorListSimpleTest() {
         super();
-        UnitTest.VERBOSE = false;
+        UnitTestUtil.VERBOSE = false;
     }
     
     public void testListVariations() {

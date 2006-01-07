@@ -11,7 +11,7 @@ import etomica.atom.AtomsetArray;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.ApiInterspecies1A;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.junit.UnitTest;
+import etomica.junit.UnitTestUtil;
 import etomica.phase.Phase;
 import etomica.species.Species;
 
@@ -25,7 +25,7 @@ import etomica.species.Species;
 /*
  * History Created on Jun 28, 2005 by kofke
  */
-public class ApiInterspecies1ATest extends IteratorTest {
+public class ApiInterspecies1ATest extends IteratorTestAbstract {
 
     public void testIterator() {
 
@@ -34,7 +34,7 @@ public class ApiInterspecies1ATest extends IteratorTest {
         int[] n1 = new int[] { 5, 1, 6 };
         int[] n2 = new int[] { 1, 7, 2 };
         int[] n2Tree = new int[] { 3, 4 };
-        SpeciesRoot root = UnitTest.makeStandardSpeciesTree(n0, nA0, n1, n2,
+        SpeciesRoot root = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1, n2,
                 n2Tree);
         AtomTreeNodeGroup rootNode = (AtomTreeNodeGroup) root.node;
 

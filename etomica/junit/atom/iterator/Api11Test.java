@@ -9,7 +9,7 @@ import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.AtomsetArray;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.Api11;
-import etomica.junit.UnitTest;
+import etomica.junit.UnitTestUtil;
 
 
 /**
@@ -23,7 +23,7 @@ import etomica.junit.UnitTest;
  * History
  * Created on May 30, 2005 by kofke
  */
-public class Api11Test extends IteratorTest {
+public class Api11Test extends IteratorTestAbstract {
 
     /**
      * 
@@ -39,7 +39,7 @@ public class Api11Test extends IteratorTest {
         n1a = 10;
         n2a = 3;
         nTree = new int[] {5, 4, 3};
-        SpeciesRoot root = UnitTest.makeStandardSpeciesTree(
+        SpeciesRoot root = UnitTestUtil.makeStandardSpeciesTree(
                 new int[] {n0a},
                 nAtoms,
                 new int[] {n1a},

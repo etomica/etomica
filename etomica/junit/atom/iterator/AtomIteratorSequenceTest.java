@@ -13,7 +13,7 @@ import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorSequence;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.junit.UnitTest;
+import etomica.junit.UnitTestUtil;
 
 /**
  * Unit test for AtomIteratorSequencer
@@ -22,11 +22,11 @@ import etomica.junit.UnitTest;
 /*
  * Created on June 6, 2005 by kofke
  */
-public class AtomIteratorSequenceTest extends ListIteratorTest {
+public class AtomIteratorSequenceTest extends ListIteratorTestAbstract {
 
     public AtomIteratorSequenceTest() {
         super();
-        UnitTest.VERBOSE = false;
+        UnitTestUtil.VERBOSE = false;
     }
 
     public void setUp() {
@@ -42,7 +42,7 @@ public class AtomIteratorSequenceTest extends ListIteratorTest {
      */
     public void testChildListIteration() {
         int nAtoms = 10;
-        SpeciesRoot root = UnitTest.makeStandardSpeciesTree(
+        SpeciesRoot root = UnitTestUtil.makeStandardSpeciesTree(
                 null,0,new int[] {nAtoms},null,null);
         SpeciesAgent agent = (SpeciesAgent)((AtomTreeNodeGroup)root.node).getDescendant(new int[] {0,0});
         AtomList list = new AtomList(((AtomTreeNodeGroup)agent.node).childList.toArray());

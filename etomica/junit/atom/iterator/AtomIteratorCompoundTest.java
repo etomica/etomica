@@ -10,18 +10,18 @@ import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorCompound;
 import etomica.atom.iterator.AtomIteratorListSimple;
-import etomica.junit.UnitTest;
+import etomica.junit.UnitTestUtil;
 import etomica.space.Space;
 import etomica.space1d.Space1D;
 
 /**
  * Unit test for AtomIteratorListCompound.
  */
-public class AtomIteratorCompoundTest extends IteratorTest {
+public class AtomIteratorCompoundTest extends IteratorTestAbstract {
 
     public AtomIteratorCompoundTest() {
         super();
-        UnitTest.VERBOSE = false;
+        UnitTestUtil.VERBOSE = false;
     }
     
     public void testListVariations() {
