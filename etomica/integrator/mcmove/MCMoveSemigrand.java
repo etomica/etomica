@@ -177,7 +177,8 @@ public class MCMoveSemigrand extends MCMove {
         uOld = energyMeter.getDataAsScalar();
         phase.removeMolecule(deleteMolecule);
         
-        if(!reservoirs[iInsert].isEmpty()) insertMolecule = reservoirs[iInsert].remove(reservoir.size()-1);
+        int size = reservoirs[iInsert].size();
+        if(size>0) insertMolecule = reservoirs[iInsert].remove(size-1);
         else insertMolecule = insertAgent.moleculeFactory().makeAtom();
         phase.addMolecule(insertMolecule, insertAgent);
         moleculeTranslator.setDestination(atomPositionDefinition.position(deleteMolecule));
