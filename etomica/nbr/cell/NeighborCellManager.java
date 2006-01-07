@@ -168,7 +168,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, java.
         }
     }
     
-    protected Cell getCell(Atom atom) {
+    public Cell getCell(Atom atom) {
         return cells[atom.getGlobalIndex()];
     }
     

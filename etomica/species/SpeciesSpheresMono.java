@@ -25,25 +25,15 @@ import etomica.units.Dimension;
 public class SpeciesSpheresMono extends Species implements EtomicaElement {
 
     /**
-     * Constructs instance with space and AtomSequencer.Factory taken from
-     * given simulation, and using default number of molecules given by
-     * Default.MOLECULE_COUNT.
-     */
-    public SpeciesSpheresMono(Simulation sim) {
-        this(sim, sim.potentialMaster.sequencerFactory());
-    }
-
-    /**
      * Constructs instance with default number of molecules given by
      * Default.MOLECULE_COUNT.
      */
-    public SpeciesSpheresMono(Simulation sim, AtomSequencerFactory seqFactory) {
-        this(sim, seqFactory, Species.makeAgentType(sim));
+    public SpeciesSpheresMono(Simulation sim) {
+        this(sim, Species.makeAgentType(sim));
     }
     
-    private SpeciesSpheresMono(Simulation sim, AtomSequencerFactory seqFactory,
-                                AtomTypeGroup agentType) {
-        super(sim, new AtomFactoryMono(new CoordinateFactorySphere(sim), new AtomTypeSphere(sim, agentType), seqFactory),
+    private SpeciesSpheresMono(Simulation sim, AtomTypeGroup agentType) {
+        super(sim, new AtomFactoryMono(new CoordinateFactorySphere(sim), new AtomTypeSphere(sim, agentType)),
                 agentType);
     }
     

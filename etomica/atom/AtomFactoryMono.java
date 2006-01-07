@@ -11,8 +11,8 @@ import etomica.species.Species;
 
 public class AtomFactoryMono extends AtomFactory {
     
-    public AtomFactoryMono(CoordinateFactory coordFactory, AtomTypeLeaf atomType, AtomSequencerFactory seqFactory) {
-        super(coordFactory, atomType, seqFactory, AtomTreeNodeLeaf.FACTORY);
+    public AtomFactoryMono(CoordinateFactory coordFactory, AtomTypeLeaf atomType) {
+        super(coordFactory, atomType, AtomTreeNodeLeaf.FACTORY);
     }
     
     public void setSpecies(Species species) {

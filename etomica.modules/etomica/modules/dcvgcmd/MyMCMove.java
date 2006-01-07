@@ -44,7 +44,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 		insert = Simulation.random.nextDouble() < 0.5;
 		if(insert) {
 			uOld = 0.0;
-			if(!reservoir.isEmpty()) testMolecule = reservoir.removeFirst();
+			if(!reservoir.isEmpty()) testMolecule = reservoir.remove(reservoir.size()-1);
 			else testMolecule = moleculeFactory.makeAtom();
             phase.addMolecule(testMolecule, speciesAgent);
 			position = (Vector3D)phase.randomPosition();

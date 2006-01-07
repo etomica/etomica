@@ -26,23 +26,18 @@ public class AtomFactoryWater4P extends AtomFactory {
 	/**
 	 * Constructor for AtomFactoryWater.
 	 * @param sim
-	 * @param sequencerFactory
 	 */
-	public AtomFactoryWater4P(Simulation sim, AtomTypeGroup agentType) {
-        this(sim, AtomLinker.FACTORY, agentType);
-    }
-    
-    public AtomFactoryWater4P(Simulation sim, AtomSequencerFactory sequencerFactory, AtomTypeGroup agentType) {
-		super(new CoordinateFactoryNull(), new AtomTypeGroup(agentType,new AtomPositionGeometricCenter(sim.space)), sequencerFactory, AtomTreeNodeWater4P.FACTORY);
+    public AtomFactoryWater4P(Simulation sim, AtomTypeGroup agentType) {
+		super(new CoordinateFactoryNull(), new AtomTypeGroup(agentType,new AtomPositionGeometricCenter(sim.space)), AtomTreeNodeWater4P.FACTORY);
 
         AtomTypeSphere hType = new AtomTypeSphere((AtomTypeGroup)atomType, 1.0, 2.0);
         AtomTypeSphere oType = new AtomTypeSphere((AtomTypeGroup)atomType, 16.0, 3.154);
         AtomTypeSphere mType = new AtomTypeSphere((AtomTypeGroup)atomType, 1.0, 2.0);
 
         CoordinateFactory leafCoordFactory = new CoordinateFactorySphere(sim);
-        hFactory = new AtomFactoryMono(leafCoordFactory, hType, AtomLinker.FACTORY);
-		oFactory = new AtomFactoryMono(leafCoordFactory, oType, AtomLinker.FACTORY);
-		mFactory = new AtomFactoryMono(leafCoordFactory, mType, AtomLinker.FACTORY);
+        hFactory = new AtomFactoryMono(leafCoordFactory, hType);
+		oFactory = new AtomFactoryMono(leafCoordFactory, oType);
+		mFactory = new AtomFactoryMono(leafCoordFactory, mType);
 		
 		conformation = new ConformationWaterTIP4P(sim.space); 
 	}

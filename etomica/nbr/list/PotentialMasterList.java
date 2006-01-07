@@ -6,19 +6,14 @@ package etomica.nbr.list;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLinker;
-import etomica.atom.AtomList;
 import etomica.atom.AtomPositionDefinition;
-import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.nbr.PotentialCalculationUpdateTypeList;
 import etomica.nbr.PotentialMasterNbr;
-import etomica.nbr.cell.IteratorFactoryCell;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.phase.Phase;
 import etomica.potential.Potential;
@@ -55,7 +50,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * @param positionDefinition if null, specifies use of atom type's position definition
      */
     public PotentialMasterList(Space space, double range, AtomPositionDefinition positionDefinition) {
-        super(space,new IteratorFactoryCell());
+        super(space);
         neighborManager = new NeighborListManager(this, range);
         atomIterator = new AtomIteratorArrayListSimple();
         singletIterator = new AtomIteratorSinglet();
@@ -204,8 +199,6 @@ public class PotentialMasterList extends PotentialMasterNbr {
     public int getCellRange() {
         return cellRange;
     }
-    
-    public AtomSequencerFactory sequencerFactory() {return AtomSequencerNbr.FACTORY;}
     
     public AtomPositionDefinition getAtomPositionDefinition() {
         return positionDefinition;

@@ -25,11 +25,6 @@ public class AtomSite {
     
     public void setAtom(Atom atom) {
         this.atom = atom;
-        if (atom == null) return;
-        AtomSequencerSite seq = (AtomSequencerSite)atom.seq;
-        if(this == seq.site) return;
-        if(seq.site != null) seq.site.setAtom(null);
-        seq.site= this;
     }
     
     public int getLatticeArrayIndex() {

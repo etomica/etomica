@@ -1,10 +1,7 @@
 package etomica.util;
 
 import etomica.atom.Atom;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
-import etomica.integrator.IntegratorHard;
-import etomica.nbr.list.AtomSequencerNbr;
 import etomica.phase.Phase;
 
 /**
@@ -134,55 +131,6 @@ public final class Debug {
 		if (ATOM2_NUM > -1) ATOM2 = phase.getSpeciesMaster().atomList.get(ATOM2_NUM);
         if (MOLECULE1_INDEX > -1) MOLECULE1 = phase.molecule(MOLECULE1_INDEX);
         if (MOLECULE2_INDEX > -1) MOLECULE2 = phase.molecule(MOLECULE2_INDEX);
-	}
-
-	/**
-	 * Gives atoms ATOM1 and/or ATOM2 a thorough checking for sanity and consistency. 
-	 * Computational cost and level of output depend on LEVEL. 
-	 * @param cPair coordinate to use for calculating distance between atoms.
-	 */
-	public static void checkAtoms() {
-		if (Debug.ATOM1.seq instanceof AtomSequencerNbr) {
-			int dnNbrCount = 0, upNbrCount = 0;
-			AtomArrayList[] list = ((AtomSequencerNbr)Debug.ATOM1.seq).getDownList();
-			for (int i=0; i<list.length; i++) {
-				if (list[i].contains(Debug.ATOM2)) {
-					if (Debug.LEVEL > 2) System.out.println(Debug.ATOM2+" is a down neighbor of "+Debug.ATOM1);
-					dnNbrCount++;
-				}
-			}
-			if (dnNbrCount > 1) throw new RuntimeException(Debug.ATOM2+" is a neighbor of "+Debug.ATOM1+" more than once");
-			list = ((AtomSequencerNbr)Debug.ATOM1.seq).getUpList();
-			for (int i=0; i<list.length; i++) {
-				if (list[i].contains(Debug.ATOM2)) {
-					if (Debug.LEVEL > 2) System.out.println(Debug.ATOM2+" is an up neighbor of "+Debug.ATOM1);
-       				if (dnNbrCount > 0) throw new RuntimeException(Debug.ATOM2+" is a down and up neighbor of "+Debug.ATOM1);
-					upNbrCount++;
-				}
-			}
-			list = ((AtomSequencerNbr)Debug.ATOM2.seq).getDownList();
-			for (int i=0; i<list.length; i++) {
-				if (list[i].contains(Debug.ATOM1)) {
-					if (Debug.LEVEL > 2) System.out.println(Debug.ATOM1+" is a down neighbor of "+Debug.ATOM2);
-       				if (dnNbrCount > 0) throw new RuntimeException("too much down neighborness between "+Debug.ATOM2+" and "+Debug.ATOM1);
-       				if (upNbrCount == 0) {
-       					throw new RuntimeException(Debug.ATOM1+" is a down neighbor of "+Debug.ATOM2+" but not the other way around");
-       				}
-					dnNbrCount++;
-				}
-			}
-			list = ((AtomSequencerNbr)Debug.ATOM2.seq).getUpList();
-			for (int i=0; i<list.length; i++) {
-				if (list[i].contains(Debug.ATOM1)) {
-					if (Debug.LEVEL > 2) System.out.println(Debug.ATOM2+" is an up neighbor of "+Debug.ATOM1);
-       				if (upNbrCount > 0) throw new RuntimeException("too much up neighborness between "+Debug.ATOM2+" and "+Debug.ATOM1);
-       				if (dnNbrCount == 0) {
-       					throw new RuntimeException(Debug.ATOM2+" is an up neighbor of "+Debug.ATOM1+" but not the other way around");
-       				}
-					upNbrCount++;
-				}
-			}
-		}
 	}
 
 }

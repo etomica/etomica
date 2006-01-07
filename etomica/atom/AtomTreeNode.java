@@ -64,7 +64,6 @@ public abstract class AtomTreeNode implements Comparable, java.io.Serializable {
     	
         //old parent is not null; remove from it
         if(parentNode != null) {
-            atom.seq.remove();
             int ordinal = atom.node.getOrdinal();
             parentNode.childList.removeAndReplace(ordinal-1);
             if (parentNode.childList.size() > ordinal-1) {

@@ -5,18 +5,13 @@
 package etomica.nbr;
 
 import etomica.atom.AtomPositionDefinition;
-import etomica.atom.AtomSequencerFactory;
-import etomica.atom.AtomType;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.nbr.cell.IteratorFactoryCell;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
-import etomica.nbr.list.AtomSequencerNbr;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
 import etomica.potential.Potential;
-import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
 import etomica.space.Space;
 import etomica.species.Species;
@@ -45,7 +40,7 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
      * @param positionDefinition if null, specifies use of atom type's position definition
      */
     public PotentialMasterHybrid(Space space, AtomPositionDefinition positionDefinition, double range) {
-        super(space,new IteratorFactoryCell());
+        super(space);
         potentialMasterNbr = new PotentialMasterList(space, range, positionDefinition);
         potentialMasterCell = new PotentialMasterCell(space, range, positionDefinition);
 	}
@@ -94,8 +89,6 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
     public NeighborCellManager getNbrCellManager(Phase phase) {
         return potentialMasterNbr.getNbrCellManager(phase);
     }
-
-    public AtomSequencerFactory sequencerFactory() {return AtomSequencerNbr.FACTORY;}
     
     public AtomPositionDefinition getAtomPositionDefinition() {
         return potentialMasterNbr.getAtomPositionDefinition();

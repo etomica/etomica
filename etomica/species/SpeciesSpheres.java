@@ -30,20 +30,19 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
         this(sim, 1);
     }
     public SpeciesSpheres(Simulation sim, int nA) {
-        this(sim, sim.potentialMaster.sequencerFactory(), nA, new ConformationLinear(sim));
+        this(sim, nA, new ConformationLinear(sim));
     }
-    public SpeciesSpheres(Simulation sim, AtomSequencerFactory seqFactory, 
-            int nA, Conformation conformation) {
-        this(sim, seqFactory, nA, conformation, Species.makeAgentType(sim));
+    public SpeciesSpheres(Simulation sim, int nA, Conformation conformation) {
+        this(sim, nA, conformation, Species.makeAgentType(sim));
     }
     
-    private SpeciesSpheres(Simulation sim, AtomSequencerFactory seqFactory, 
-            int nA, Conformation conformation, AtomTypeGroup agentType) {
-        super(sim, new AtomFactoryHomo(sim.space, seqFactory, agentType,
+    private SpeciesSpheres(Simulation sim, int nA, Conformation conformation, 
+            AtomTypeGroup agentType) {
+        super(sim, new AtomFactoryHomo(sim.space, agentType,
                                 nA, conformation), agentType);
         AtomTypeSphere atomType = new AtomTypeSphere((AtomTypeGroup)factory.getType(), sim.getDefaults().atomMass, sim.getDefaults().atomSize);
         ((AtomFactoryHomo)factory).setChildFactory(
-                new AtomFactoryMono(new CoordinateFactorySphere(sim), atomType, seqFactory));
+                new AtomFactoryMono(new CoordinateFactorySphere(sim), atomType));
     }
     
     public static EtomicaInfo getEtomicaInfo() {

@@ -24,7 +24,7 @@ public final class SpeciesRoot extends Atom {
     private final SimulationEventManager eventManager; 
 
     public SpeciesRoot(int[] bitLength) {
-        super(null, new AtomTypeRoot(AtomIndexManager.makeRootIndexManager(bitLength)), new NodeFactory(), AtomLinker.FACTORY);
+        super(null, new AtomTypeRoot(AtomIndexManager.makeRootIndexManager(bitLength)), new NodeFactory());
         childType = new AtomTypeGroup((AtomTypeGroup)type,null);
         node.setOrdinal(1);
         eventManager = new SimulationEventManager();

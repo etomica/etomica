@@ -44,27 +44,17 @@ public class SpeciesSpheresHetero extends Species implements EtomicaElement {
     }
     
     /**
-     * Constructs instance with the given number of child types (components) 
-     * and total number of children.  AtomSequencer.Factory and the default
-     * number of molecules is taken from given simulation.
-     */
-    public SpeciesSpheresHetero(Simulation sim, int nComponents, int nA) {
-        this(sim, sim.potentialMaster.sequencerFactory(), nComponents, nA);
-    }
-
-    /**
      * Constructs instance with the given number of child types (components), 
      * total number of children and AtomSequencer.Factory.  The number of 
      * molecules taken from the simulation.
      */
-    public SpeciesSpheresHetero(Simulation sim, AtomSequencerFactory seqFactory, 
-            int nComponents, int nA) {
-        this(sim, seqFactory, nComponents, nA, Species.makeAgentType(sim));
+    public SpeciesSpheresHetero(Simulation sim, int nComponents, int nA) {
+        this(sim, nComponents, nA, Species.makeAgentType(sim));
     }
     
-    private SpeciesSpheresHetero(Simulation sim, AtomSequencerFactory seqFactory, 
-            int nComponents, int nA, AtomTypeGroup agentType) {
-        super(sim, new AtomFactoryHetero(sim, seqFactory, agentType), agentType);
+    private SpeciesSpheresHetero(Simulation sim, int nComponents, int nA, 
+            AtomTypeGroup agentType) {
+        super(sim, new AtomFactoryHetero(sim, agentType), agentType);
         if (nA < 1) {
             throw new IllegalArgumentException("You must have at least one child atom");
         }
@@ -72,7 +62,7 @@ public class SpeciesSpheresHetero extends Species implements EtomicaElement {
             AtomFactoryMono[] childFactories = new AtomFactoryMono[nComponents];
             for (int i=0; i<nComponents; i++) {
                 AtomTypeSphere atomType = new AtomTypeSphere((AtomTypeGroup)factory.getType(), sim.getDefaults().atomMass, sim.getDefaults().atomSize);
-                childFactories[i] = new AtomFactoryMono(new CoordinateFactorySphere(sim), atomType, seqFactory);
+                childFactories[i] = new AtomFactoryMono(new CoordinateFactorySphere(sim), atomType);
             }
             ((AtomFactoryHetero)factory).setChildFactory(childFactories);
         }

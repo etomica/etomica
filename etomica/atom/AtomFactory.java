@@ -14,26 +14,19 @@ import etomica.species.Species;
 public abstract class AtomFactory implements java.io.Serializable {
     
     protected Conformation conformation;
-    protected AtomSequencerFactory sequencerFactory;
     protected AtomTreeNodeFactory nodeFactory;
     protected final AtomType atomType;
     protected final CoordinateFactory coordFactory;
     
     /**
-     * Makes an atom factory with atoms having AtomSequencerSimple and
-     * AtomTreeNodeGroup for sequencer and node, respectively.
+     * Makes an atom factory with atoms having AtomTreeNodeGroup for node.
      */
     public AtomFactory(CoordinateFactory coordFactory, AtomType atomType) {
-        this(coordFactory, atomType, AtomLinker.FACTORY);
+        this(coordFactory, atomType, AtomTreeNodeGroup.FACTORY);
     }
     
-    public AtomFactory(CoordinateFactory coordFactory, AtomType atomType, AtomSequencerFactory sequencerFactory) {
-        this(coordFactory, atomType, sequencerFactory, AtomTreeNodeGroup.FACTORY);
-    }
-    
-    public AtomFactory(CoordinateFactory coordFactory, AtomType atomType, AtomSequencerFactory sequencerFactory, AtomTreeNodeFactory nodeFactory) {
+    public AtomFactory(CoordinateFactory coordFactory, AtomType atomType, AtomTreeNodeFactory nodeFactory) {
         this.coordFactory = coordFactory;
-        this.sequencerFactory = sequencerFactory;
         this.nodeFactory = nodeFactory;
         this.atomType = atomType;
         atomType.creator = this;
@@ -57,7 +50,7 @@ public abstract class AtomFactory implements java.io.Serializable {
      * Method used by subclasses to make the root atom of the group it is building.
      */
     protected Atom newParentAtom() {
-        Atom atom = new Atom(coordFactory.makeCoordinate(), atomType, nodeFactory, sequencerFactory);
+        Atom atom = new Atom(coordFactory.makeCoordinate(), atomType, nodeFactory);
         return atom;
     }
 

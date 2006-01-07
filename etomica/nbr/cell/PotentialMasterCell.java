@@ -47,23 +47,36 @@ public class PotentialMasterCell extends PotentialMasterSite {
      */
     public PotentialMasterCell(Space space, double range,
             AtomPositionDefinition positionDefinition) {
-        super(space, positionDefinition, new Api1ACell(space.D(), range));
+        super(space, new Api1ACell(space.D(), range));
+        this.positionDefinition = positionDefinition;//use atom type's position definition as default
     }
 
+    public double getRange() {
+        return range;
+    }
+    
     public void setRange(double d) {
-        super.setRange(d);
         ((Api1ACell)neighborIterator).getNbrCellIterator().setNeighborDistance(d);
+        range = d;
     }
     
-    public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
-        currentNeighborCellManager = getNbrCellManager(phase);
-        super.calculate(phase,id,pc);
+    public NeighborCellManager getNbrCellManager(Phase phase) {
+        NeighborCellManager manager = (NeighborCellManager)phase.getCellManager();
+        if (manager == null) {
+            manager = new NeighborCellManager(phase,range,positionDefinition);
+            phase.setCellManager(manager);
+        }
+        else {
+            manager.setPotentialRange(range);
+        }
+        manager.setCellRange(getCellRange());
+        return manager;
     }
-    protected void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc, final Potential[] potentials) {
-        ((Api1ACell)neighborIterator).setCentralCell(currentNeighborCellManager.getCell(atom));
-        super.calculate(atom,id,pc,potentials);
-    }
-    public AtomSequencerFactory sequencerFactory() {return AtomSequencerCell.FACTORY;}
     
-    private NeighborCellManager currentNeighborCellManager;
+    protected void prepNbrIterator(Atom atom) {
+        ((Api1ACell)neighborIterator).setCentralCell(((NeighborCellManager)currentCellManager).getCell(atom));
+    }
+    
+    private final AtomPositionDefinition positionDefinition;
+    private double range;
 }

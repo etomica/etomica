@@ -37,21 +37,16 @@ public class SpeciesTree extends Species implements EtomicaElement {
      * can be organized as CH3 + CH3)
      */
     public SpeciesTree(Simulation sim, int[] nA) {
-        this(sim, sim.potentialMaster.sequencerFactory(), nA);
-    }
-    
-    public SpeciesTree(Simulation sim, AtomSequencerFactory seqFactory, int[] nA) {
-        this(sim, seqFactory, nA, Species.makeAgentType(sim));
+        this(sim, nA, Species.makeAgentType(sim));
     }
     
     //TODO extend to permit specification of Conformation[], perhaps AtomSequencerFactory[]
-    private SpeciesTree(Simulation sim, AtomSequencerFactory seqFactory, 
-            int[] nA, AtomTypeGroup agentType) {
-        super(sim, new AtomFactoryTree(sim.space, seqFactory, agentType, nA), agentType);
+    private SpeciesTree(Simulation sim, int[] nA, AtomTypeGroup agentType) {
+        super(sim, new AtomFactoryTree(sim.space, agentType, nA), agentType);
         //getLeafType will return the an AtomTypeGroup because leaf factory is not yet set
         AtomTypeSphere atomType = new AtomTypeSphere((AtomTypeGroup)((AtomFactoryTree)factory).getLeafType(), sim.getDefaults().atomMass, sim.getDefaults().atomSize);
         CoordinateFactory coordFactory = new CoordinateFactorySphere(sim);
-        ((AtomFactoryTree)factory).setLeafFactory(new AtomFactoryMono(coordFactory, atomType, seqFactory));
+        ((AtomFactoryTree)factory).setLeafFactory(new AtomFactoryMono(coordFactory, atomType));
         factory.setSpecies(this);
     }
     

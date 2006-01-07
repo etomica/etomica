@@ -9,7 +9,6 @@ import etomica.atom.iterator.AtomsetIteratorMolecule;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.IteratorFactory;
-import etomica.atom.iterator.IteratorFactorySimple;
 import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.species.Species;
@@ -27,7 +26,7 @@ import etomica.species.Species;
 public class PotentialMaster implements java.io.Serializable {
     
     public PotentialMaster(Space space) {
-        this(space,IteratorFactorySimple.INSTANCE);
+        this(space,IteratorFactory.INSTANCE);
     } 
     
     public PotentialMaster(Space space, IteratorFactory iteratorFactory) {
@@ -286,11 +285,6 @@ public class PotentialMaster implements java.io.Serializable {
         return false;
     }
         
-    public AtomSequencerFactory sequencerFactory() {
-        return iteratorFactory.moleculeSequencerFactory();
-    }
-
-    
     /**
      * @return Returns the space.
      */

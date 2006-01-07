@@ -24,9 +24,9 @@ public class AtomFactoryTree extends AtomFactoryHomo {
      *               nAtoms[0] gives the number of child atoms for the root, nAtoms[1] the number of
      *               child atoms under each of the root's child atoms, etc.
      */
-    public AtomFactoryTree(Space space, AtomSequencerFactory seqFactory, AtomTypeGroup parentType,
+    public AtomFactoryTree(Space space, AtomTypeGroup parentType,
                             int[] nAtoms) {
-        this(space, seqFactory, parentType, nAtoms, null);
+        this(space, parentType, nAtoms, null);
     }
     
     /**
@@ -37,27 +37,26 @@ public class AtomFactoryTree extends AtomFactoryHomo {
      * of all the atoms below it in the tree, and thus prescribes in part the positioning of 
      * all atoms below its level.
      */
-    public AtomFactoryTree(Space space, AtomSequencerFactory seqFactory, AtomTypeGroup parentType,
+    public AtomFactoryTree(Space space, AtomTypeGroup parentType,
                                 int[] nAtoms, Conformation[] config) {
-        super(space, seqFactory, parentType, nAtoms[0], (config != null) ? config[0] : Conformation.NULL);
-        setChildFactory(subFactory(space, seqFactory, nAtoms, config));
+        super(space, parentType, nAtoms[0], (config != null) ? config[0] : Conformation.NULL);
+        setChildFactory(subFactory(space, nAtoms, config));
         if(getChildFactory() != null) ((AtomFactoryTree)getChildFactory()).parentFactory = this;
         depth = nAtoms.length;
     }
     
     //method used by constructor to determine the child factory
-    private AtomFactory subFactory(Space space, AtomSequencerFactory seqFactory,
-                            int[] nAtoms, Conformation[] config) {
+    private AtomFactory subFactory(Space space, int[] nAtoms, Conformation[] config) {
         if(config != null && nAtoms.length != config.length) throw new IllegalArgumentException("Error: incompatible specification of nAtoms and config in AtomFactoryTree constructor");
         if(nAtoms.length == 1) return null; 
         int[] newDim = new int[nAtoms.length-1];//arraycopy
         for(int i=1; i<nAtoms.length; i++) newDim[i-1] = nAtoms[i];
         if(config == null) {
-            return new AtomFactoryTree(space, seqFactory, (AtomTypeGroup)atomType, newDim);
+            return new AtomFactoryTree(space, (AtomTypeGroup)atomType, newDim);
         }
         Conformation[] newConfig = new Conformation[config.length-1];//arraycopy
         for(int i=1; i<config.length; i++) newConfig[i-1] = config[i];
-        return new AtomFactoryTree(space, seqFactory, (AtomTypeGroup)atomType, newDim, newConfig);
+        return new AtomFactoryTree(space, (AtomTypeGroup)atomType, newDim, newConfig);
     }//end of subFactory
     
     public void setNAtoms(int[] n) {

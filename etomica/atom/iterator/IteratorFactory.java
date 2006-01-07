@@ -16,7 +16,9 @@ import etomica.species.Species;
 
 //used by PotentialMaster.setSpecies
 
-public abstract class IteratorFactory implements java.io.Serializable {
+public class IteratorFactory implements java.io.Serializable {
+
+    public static final IteratorFactory INSTANCE = new IteratorFactory();
 
     /**
      * Selects an appropriate iterator for the given species array.  If array contains
@@ -40,41 +42,28 @@ public abstract class IteratorFactory implements java.io.Serializable {
         }
         return makeInterspeciesPairIterator(species);
     }
-    
+
     /**
      * creates a pair iterator which loops over all pairs in a neighbor list
      * between two groups
      * @return the pair iterator
      */
-    public abstract AtomsetIteratorMolecule makeInterspeciesPairIterator(Species[] species);
-    
+    public AtomsetIteratorMolecule makeInterspeciesPairIterator(Species[] species) {
+        AtomsetIteratorMolecule api1A = new ApiInterspecies1A(species);
+        AtomsetIteratorPhaseDependent apiAA = new ApiInterspeciesAA(species);
+        ApiSpecies11 api11 = new ApiSpecies11(species);
+        return new ApiMolecule(api11, api1A, apiAA);
+    }
+
     /**
      * creates a pair iterator which loops over all pairs in a neighbor list
      * within one group
      * @return the pair iterator
      */
-    public abstract AtomsetIteratorMolecule makeIntraspeciesPairIterator(Species[] species);
-    
-    /**
-     * Sequencer used for molecule-level atoms (those with a SpeciesAgent
-     * as the parent). Special because if cell lists are used, they are
-     * kept for these atoms.
-      */
-    public abstract AtomSequencerFactory moleculeSequencerFactory();
-    
-    /**
-     * Sequencer used for atoms on which concrete potentials (non-group) act.
-     * Special because if neighbor lists are used, they are kept for these atoms.
-     * @return
-     */
-    public abstract AtomSequencerFactory interactionAtomSequencerFactory();
-
-    /**
-     * Sequencer used for molecule-level atoms on which concrete potentials 
-     * (non-group) act.  Special because they must be able to handle both neighbor
-     * and cell listing.
-     * @return
-     */
-    public abstract AtomSequencerFactory interactionMoleculeSequencerFactory();
-
+    public AtomsetIteratorMolecule makeIntraspeciesPairIterator(Species[] species) {
+        AtomsetIteratorMolecule api1A = new ApiIntraspecies1A(species);
+        AtomsetIteratorPhaseDependent apiAA = new ApiIntraspeciesAA(species);
+        ApiSpecies11 api11 = new ApiSpecies11(species);
+        return new ApiMolecule(api11, api1A, apiAA);
+    }
 }

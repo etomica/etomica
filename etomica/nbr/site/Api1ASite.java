@@ -17,8 +17,6 @@ import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLatticeNbrIterator;
 import etomica.lattice.RectangularLatticeNbrIteratorAdjacent;
-import etomica.nbr.cell.AtomSequencerCell;
-import etomica.nbr.cell.Cell;
 import etomica.phase.Phase;
 import etomica.space.BoundaryPeriodic;
 
@@ -55,14 +53,17 @@ public class Api1ASite implements AtomsetIteratorMolecule, AtomPairIterator {
             neighborIterator.setLattice(null);
         }
 	}
+    
+    public void setCentralSite(AtomSite site) {
+        centralSite = site;
+    }
 
     /**
      * Performs action on all iterates.
      */
     public void allAtoms(AtomsetAction action) {
         if(targetAtom == null) return;
-        AtomSite cell = ((AtomSequencerSite)targetAtom.seq).getSite();
-        lattice.latticeIndex(cell.getLatticeArrayIndex(),latticeIndex);
+        lattice.latticeIndex(centralSite.getLatticeArrayIndex(),latticeIndex);
         
         //loop over neighbor cells
         neighborIterator.setSite(latticeIndex);
@@ -172,8 +173,7 @@ public class Api1ASite implements AtomsetIteratorMolecule, AtomPairIterator {
             unset();
             return;
         }
-        AtomSite site = ((AtomSequencerSite)targetAtom.seq).getSite();
-        lattice.latticeIndex(site.latticeArrayIndex,latticeIndex);
+        lattice.latticeIndex(centralSite.latticeArrayIndex,latticeIndex);
         upListNow = (direction != IteratorDirective.DOWN);
         neighborIterator.setSite(latticeIndex);
         if (upListNow) {
@@ -224,6 +224,7 @@ public class Api1ASite implements AtomsetIteratorMolecule, AtomPairIterator {
 
     
     private final RectangularLatticeNbrIterator neighborIterator;
+    private AtomSite centralSite;
     private final AtomPair pair = new AtomPair();
     private final int[] latticeIndex;
     private boolean doGoDown;

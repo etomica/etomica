@@ -6,11 +6,7 @@ package etomica.nbr.site;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLinker;
-import etomica.atom.AtomList;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomPositionDefinition;
-import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorSinglet;
@@ -18,11 +14,9 @@ import etomica.atom.iterator.AtomsetIteratorMolecule;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.NeighborCriterion;
-import etomica.nbr.PotentialCalculationUpdateTypeList;
 import etomica.nbr.PotentialMasterNbr;
-import etomica.nbr.cell.IteratorFactoryCell;
-import etomica.nbr.cell.NeighborCellManager;
 import etomica.phase.Phase;
+import etomica.phase.PhaseCellManager;
 import etomica.potential.Potential;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialCalculation;
@@ -41,32 +35,15 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * to assign cells. 
 	 */
 	public PotentialMasterSite(Space space) {
-        this(space, null);
+        this(space,new Api1ASite(space.D()));
     }
     
-    /**
-     * Constructs class using given position definition for all atom cell assignments.
-     * @param positionDefinition if null, specifies use of atom type's position definition
-     */
-    public PotentialMasterSite(Space space, AtomPositionDefinition positionDefinition) {
-        this(space,positionDefinition,new Api1ASite(space.D()));
-    }
-    
-    public PotentialMasterSite(Space space, AtomPositionDefinition positionDefinition, AtomsetIteratorMolecule neighborIterator) {
-        super(space,new IteratorFactoryCell());
+    public PotentialMasterSite(Space space, AtomsetIteratorMolecule neighborIterator) {
+        super(space);
         singletAtomIterator = new AtomIteratorSinglet();
 		singletPairIterator = new AtomsetIteratorSinglet(2);
-        this.positionDefinition = positionDefinition;//use atom type's position definition as default
         this.neighborIterator = neighborIterator;
 	}
-    
-    public void setRange(double newRange) {
-        range = newRange;
-    }
-    
-    public double getRange() {
-        return range;
-    }
     
     /**
      * @return Returns the cellRange.
@@ -94,6 +71,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
     public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
         if (!enabled)
             return;
+        currentCellManager = phase.getCellManager();
         AtomSet targetAtoms = id.getTargetAtoms();
         if (targetAtoms.count() == 0) {
             //no target atoms specified -- do one-target algorithm to
@@ -128,6 +106,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      */
     //TODO make a "TerminalGroup" indicator in type that permits child atoms but indicates that no potentials apply directly to them
 	protected void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc, final Potential[] potentials) {
+        prepNbrIterator(atom);
         for(int i=0; i<potentials.length; i++) {
             switch (potentials[i].nBody()) {
             case 1:
@@ -176,27 +155,15 @@ public class PotentialMasterSite extends PotentialMasterNbr {
 		}
 	}
     
-    public NeighborCellManager getNbrCellManager(Phase phase) {
-        NeighborCellManager manager = (NeighborCellManager)phase.getCellManager();
-        if (manager == null) {
-            manager = new NeighborCellManager(phase,range,positionDefinition);
-            phase.setCellManager(manager);
-        }
-        else {
-            manager.setPotentialRange(range);
-        }
-        manager.setCellRange(cellRange);
-        return manager;
+    protected void prepNbrIterator(Atom atom) {
+        ((Api1ASite)neighborIterator).setCentralSite(((NeighborSiteManager)currentCellManager).getSite(atom));
     }
-    
-    public AtomSequencerFactory sequencerFactory() {return AtomSequencerSite.FACTORY;}
     
     private final AtomIteratorSinglet singletAtomIterator;
 	private final AtomsetIteratorSinglet singletPairIterator;
-    private double range;
     private int cellRange;
     private final IteratorDirective idUp = new IteratorDirective();
-    private final AtomPositionDefinition positionDefinition;
     protected final AtomsetIteratorMolecule neighborIterator;
+    protected PhaseCellManager currentCellManager;
     
 }

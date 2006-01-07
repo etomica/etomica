@@ -37,7 +37,7 @@ public class MCMoveSemigrand extends MCMove {
     
     private Species[] speciesSet;
     private SpeciesAgent[] agentSet;
-    private AtomList[] reservoirs;
+    private AtomArrayList[] reservoirs;
     private double[] fugacityFraction;
     private int nSpecies;
     private final AtomIteratorSinglet deleteAtomIterator;
@@ -89,12 +89,12 @@ public class MCMoveSemigrand extends MCMove {
         speciesSet = new Species[nSpecies];
         agentSet = new SpeciesAgent[nSpecies];
         fugacityFraction = new double[nSpecies];
-        reservoirs = new AtomList[nSpecies];
+        reservoirs = new AtomArrayList[nSpecies];
         for(int i=0; i<nSpecies; i++) {
             speciesSet[i] = species[i];
             if(phase != null) agentSet[i] = species[i].getAgent(phase);
             fugacityFraction[i] = 1.0/nSpecies;
-            reservoirs[i] = new AtomList();
+            reservoirs[i] = new AtomArrayList();
         }
     }
     
@@ -177,7 +177,7 @@ public class MCMoveSemigrand extends MCMove {
         uOld = energyMeter.getDataAsScalar();
         phase.removeMolecule(deleteMolecule);
         
-        if(!reservoirs[iInsert].isEmpty()) insertMolecule = reservoirs[iInsert].removeFirst();
+        if(!reservoirs[iInsert].isEmpty()) insertMolecule = reservoirs[iInsert].remove(reservoir.size()-1);
         else insertMolecule = insertAgent.moleculeFactory().makeAtom();
         phase.addMolecule(insertMolecule, insertAgent);
         moleculeTranslator.setDestination(atomPositionDefinition.position(deleteMolecule));
@@ -200,7 +200,7 @@ public class MCMoveSemigrand extends MCMove {
     
     public void acceptNotify() {
         //put deleted molecule in reservoir
-        reservoirs[iDelete].add(deleteMolecule.seq);
+        reservoirs[iDelete].add(deleteMolecule);
     }
 
     public void rejectNotify() {
@@ -208,7 +208,7 @@ public class MCMoveSemigrand extends MCMove {
         phase.addMolecule(deleteMolecule, deleteAgent);
         //remove inserted molecule and put in reservoir
         phase.removeMolecule(insertMolecule);
-        reservoirs[iInsert].add(insertMolecule.seq);
+        reservoirs[iInsert].add(insertMolecule);
     }
     
     

@@ -20,23 +20,20 @@ import etomica.species.Species;
 
 public class AtomFactoryHetero extends AtomFactory {
 
-    public AtomFactoryHetero(Simulation sim,
-            AtomSequencerFactory sequencerFactory, AtomTypeGroup parentType) {
-        this(sim.space, sequencerFactory, parentType, new ConformationLinear(sim));
+    public AtomFactoryHetero(Simulation sim, AtomTypeGroup parentType) {
+        this(sim.space, parentType, new ConformationLinear(sim));
     }
 
-    public AtomFactoryHetero(Space space,
-            AtomSequencerFactory sequencerFactory, AtomTypeGroup parentType,
+    public AtomFactoryHetero(Space space, AtomTypeGroup parentType,
             Conformation config) {
-        this(space, sequencerFactory, parentType, AtomTreeNodeGroup.FACTORY,
+        this(space, parentType, AtomTreeNodeGroup.FACTORY,
                 config);
     }
 
-    public AtomFactoryHetero(Space space,
-            AtomSequencerFactory sequencerFactory, AtomTypeGroup parentType,
+    public AtomFactoryHetero(Space space, AtomTypeGroup parentType,
             AtomTreeNodeFactory nodeFactory, Conformation config) {
         super(new CoordinateFactoryNull(), new AtomTypeGroup(parentType, new DataSourceCOM(space)),
-                sequencerFactory, nodeFactory);
+                nodeFactory);
         conformation = config;
         childFactory = new AtomFactory[0];
         numberFraction = new double[0];

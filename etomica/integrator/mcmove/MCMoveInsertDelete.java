@@ -41,7 +41,7 @@ public class MCMoveInsertDelete extends MCMove {
 	protected double uOld;
 	protected double uNew = Double.NaN;
 	protected boolean insert;
-	protected final AtomList reservoir;
+	protected final AtomArrayList reservoir;
     protected final AtomActionTranslateTo atomTranslator;
     protected AtomFactory moleculeFactory;
     protected AtomArrayList moleculeList;
@@ -56,7 +56,7 @@ public class MCMoveInsertDelete extends MCMove {
         setTunable(false);
         energyMeter.setIncludeLrc(true);
         atomTranslator = new AtomActionTranslateTo(potentialMaster.getSpace());
-        reservoir = new AtomList();
+        reservoir = new AtomArrayList();
     }
     
 //perhaps should have a way to ensure that two instances of this class aren't assigned the same species
@@ -88,7 +88,7 @@ public class MCMoveInsertDelete extends MCMove {
         if(insert) {
             uOld = 0.0;
             
-            if(!reservoir.isEmpty()) testMolecule = reservoir.removeFirst();
+            if(!reservoir.isEmpty()) testMolecule = reservoir.remove(reservoir.size()-1);
             else testMolecule = moleculeFactory.makeAtom();
             phase.addMolecule(testMolecule, speciesAgent);
 
@@ -127,7 +127,7 @@ public class MCMoveInsertDelete extends MCMove {
         //      accepted deletion - remove from phase and add to reservoir 
         if(!insert) {
             phase.removeMolecule(testMolecule);
-            reservoir.add(testMolecule.seq);
+            reservoir.add(testMolecule);
         }
     }
     
@@ -135,7 +135,7 @@ public class MCMoveInsertDelete extends MCMove {
         //      rejected insertion - remove from phase and return to reservoir
         if(insert) {
             phase.removeMolecule(testMolecule);
-            reservoir.add(testMolecule.seq);
+            reservoir.add(testMolecule);
         }
     }
     

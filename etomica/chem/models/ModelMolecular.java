@@ -60,8 +60,6 @@ public abstract class ModelMolecular extends Model {
 	}
 	
 	public AtomFactory makeAtomFactory(Simulation sim) {
-		AtomSequencerFactory seqFactory = doNeighborIteration() ? sim.potentialMaster.sequencerFactory()
-																 : AtomLinker.FACTORY;
 		AtomTreeNodeFactory nodeFactory = AtomTreeNodeGroupArray.FACTORY;
 //		switch(childCount) {
 //			case 3: nodeFactory = AtomTreeNode3Site.FACTORY; break;
@@ -69,7 +67,7 @@ public abstract class ModelMolecular extends Model {
 //		}
 
 		if(models.length == 1) {
-			AtomFactoryHomo factory = new AtomFactoryHomo(sim.space, seqFactory, 
+			AtomFactoryHomo factory = new AtomFactoryHomo(sim.space, 
                     new AtomTypeGroup(Species.makeAgentType(sim),new AtomPositionDefinitionSimple()), 
                     nodeFactory, count[0], conformation);
             factory.setChildFactory(models[0].makeAtomFactory(sim));
@@ -78,7 +76,7 @@ public abstract class ModelMolecular extends Model {
 		//makes array of child factories from models and counts
         int childCount = 0;
         for(int i=0; i<count.length; i++) childCount += count[i];//total number of child atoms in group
-		AtomFactoryHetero factory = new AtomFactoryHetero(sim.space, seqFactory, 
+		AtomFactoryHetero factory = new AtomFactoryHetero(sim.space, 
                 new AtomTypeGroup(Species.makeAgentType(sim),new AtomPositionDefinitionSimple()), 
                 nodeFactory, conformation);
         AtomFactory[] childFactories = new AtomFactory[childCount];

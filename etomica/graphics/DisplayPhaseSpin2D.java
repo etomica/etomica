@@ -5,8 +5,8 @@ import java.awt.Graphics;
 
 import etomica.atom.Atom;
 import etomica.lattice.RectangularLattice;
-import etomica.nbr.site.AtomSequencerSite;
 import etomica.nbr.site.AtomSite;
+import etomica.nbr.site.NeighborSiteManager;
 
 
 /**
@@ -31,10 +31,11 @@ public class DisplayPhaseSpin2D extends DisplayPhaseCanvas2D {
         latticeIndex = new int[displayPhase.getPhase().space().D()];
         lattice = displayPhase.getPhase().getLattice();
         spinWidth = 5;
+        neighborSiteManager = (NeighborSiteManager)_phase.getPhase().getCellManager();
     }
     
     protected void drawAtom(Graphics g, int origin[], Atom atom) {
-        AtomSite site = ((AtomSequencerSite)atom.seq).getSite();
+        AtomSite site = neighborSiteManager.getSite(atom);
         if (site == null) return;
         displayPhase.getPhase().getLattice().latticeIndex(site.getLatticeArrayIndex(),latticeIndex);
             
@@ -56,4 +57,5 @@ public class DisplayPhaseSpin2D extends DisplayPhaseCanvas2D {
     private int spinWidth;
     private final int[] latticeIndex;
     private final RectangularLattice lattice;
+    private final NeighborSiteManager neighborSiteManager;
 }

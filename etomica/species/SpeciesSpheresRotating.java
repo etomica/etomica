@@ -23,25 +23,15 @@ import etomica.units.Dimension;
 public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     
     /**
-     * Constructs instance with space and AtomSequencer.Factory taken from
-     * given simulation, and using default number of molecules given by
-     * Default.MOLECULE_COUNT.
-     */
-    public SpeciesSpheresRotating(Simulation sim) {
-        this(sim, sim.potentialMaster.sequencerFactory());
-    }
-        
-    /**
      * Constructs instance with default number of molecules given by
      * Default.MOLECULE_COUNT.
      */
-    public SpeciesSpheresRotating(Simulation sim, AtomSequencerFactory seqFactory) {
-        this(sim, seqFactory, Species.makeAgentType(sim));
+    public SpeciesSpheresRotating(Simulation sim) {
+        this(sim, Species.makeAgentType(sim));
     }
-    private SpeciesSpheresRotating(Simulation sim, AtomSequencerFactory seqFactory,
-                                   AtomTypeGroup agentType) {
+    private SpeciesSpheresRotating(Simulation sim, AtomTypeGroup agentType) {
         super(sim, new AtomFactoryMono(new CoordinateFactoryAngular(sim), 
-                new AtomTypeOrientedSphere(agentType,sim.getDefaults().atomMass,sim.getDefaults().atomSize), seqFactory), agentType);
+                new AtomTypeOrientedSphere(agentType,sim.getDefaults().atomMass,sim.getDefaults().atomSize)), agentType);
     }
             
     public static EtomicaInfo getEtomicaInfo() {

@@ -12,7 +12,7 @@ import etomica.graphics.DisplayPhaseSpin2D;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
-import etomica.nbr.site.NeighborCellManagerFixed;
+import etomica.nbr.site.NeighborSiteManager;
 import etomica.nbr.site.PotentialMasterSite;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
@@ -50,7 +50,7 @@ public class Heisenberg extends Simulation {
         phase = new Phase(this);
         int nCells = 60;
         int numAtoms = space.powerD(nCells);
-        phase.setCellManager(new NeighborCellManagerFixed(phase,nCells));
+        phase.setCellManager(new NeighborSiteManager(phase,nCells));
         spins = new SpeciesSpheresMono(this);
         spins.setNMolecules(numAtoms);
         phase.makeMolecules();
@@ -73,7 +73,6 @@ public class Heisenberg extends Simulation {
         
         integrator.setPhase(phase);
         ((PotentialMasterSite)potentialMaster).updateTypeList(phase);
-        phase.getCellManager().assignCellAll();
         
         meter = new MeterSpin(space);
         meter.setPhase(phase);

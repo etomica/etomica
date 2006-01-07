@@ -96,8 +96,7 @@ public class TestHexane extends Simulation {
         //The PotentialMaster generates a group potential and automatically
         // does a lot of the stuff which we have to do for the intramolecular
         // potential manually.
-        SpeciesHexane species = new SpeciesHexane(this, potentialMaster
-                .sequencerFactory());
+        SpeciesHexane species = new SpeciesHexane(this);
         species.setNMolecules(numMolecules);
         AtomTypeSphere sphereType = (AtomTypeSphere) ((AtomFactoryHomo) species
                 .moleculeFactory()).getChildFactory().getType();

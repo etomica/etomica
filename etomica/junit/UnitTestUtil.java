@@ -136,14 +136,12 @@ public class UnitTestUtil implements java.io.Serializable {
         //        new SpeciesSpheres(sim);
         for (int i = 0; i < nMolecules.length; i++) {
             AtomTypeGroup agentType = Species.makeAgentType(sim);
-            AtomFactoryHetero factory = new AtomFactoryHetero(sim,
-                    AtomLinker.FACTORY, agentType);
+            AtomFactoryHetero factory = new AtomFactoryHetero(sim, agentType);
             AtomFactory[] childFactories = new AtomFactory[nAtoms[i].length];
             for (int j = 0; j < childFactories.length; j++) {
                 AtomTypeLeaf atomType = new AtomTypeSphere(sim,
                         (AtomTypeGroup) factory.getType());
-                childFactories[j] = new AtomFactoryMono(new CoordinateFactorySphere(space, false), atomType,
-                        AtomLinker.FACTORY);
+                childFactories[j] = new AtomFactoryMono(new CoordinateFactorySphere(space, false), atomType);
             }
             factory.setChildFactory(childFactories);
             factory.setChildCount(nAtoms[i]);

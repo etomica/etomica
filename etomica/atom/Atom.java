@@ -37,11 +37,9 @@ import etomica.util.EtomicaObjectInputStream;
 public class Atom implements AtomSet, Comparable, java.io.Serializable {
 
     public Atom(ICoordinate coord, AtomType type, 
-                    AtomTreeNodeFactory nodeFactory,
-                    AtomSequencerFactory seqFactory) {
+                    AtomTreeNodeFactory nodeFactory) {
         this.type = type;
         this.coord = coord;
-        seq = seqFactory.makeSequencer(this);
         node = nodeFactory.makeNode(this);
         node.setOrdinal(0,0); //-(++INSTANCE_COUNT));//default index; changed when added to parent after construction
     }
@@ -53,7 +51,7 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      * depth is 0.
      */
     public Atom(Space space) {
-        this(new CoordinateFactorySphere(space, false).makeCoordinate(), new AtomTypeSphere(null,1,1), AtomTreeNodeLeaf.FACTORY, AtomLinker.FACTORY);                        
+        this(new CoordinateFactorySphere(space, false).makeCoordinate(), new AtomTypeSphere(null,1,1), AtomTreeNodeLeaf.FACTORY);                        
             node.setOrdinal(0,++INSTANCE_COUNT);//default index; changed when added to parent after construction
     }
     
@@ -177,11 +175,6 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      * factory.
      */
     public final AtomType type;
-    
-    /**
-     * Sequencer, used to access directly this atom's place in the childlist of its parent.
-     */
-    public final AtomLinker seq;
     
     /**
      * An array of agents, or objects made by an agent source and added to this
