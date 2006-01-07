@@ -11,6 +11,7 @@ import etomica.atom.Atom;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomToArrayListFixed;
 import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.ApiSequence1A;
 import etomica.atom.iterator.AtomIterator;
@@ -56,8 +57,9 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
         //this iterator is used to loop through list of occupants of atoms's cell;
         //construct with AtomToLinker that gives appropriate linker
 //        MyAtomToLinker atomToLinker = new MyAtomToLinker();
-        aiSeqDirectableUp = new AtomIteratorArrayList(IteratorDirective.UP, 1);
-        aiSeqDirectableDn = new AtomIteratorArrayList(IteratorDirective.DOWN, 1);
+        atomToArrayListFixed = new AtomToArrayListFixed();
+        aiSeqDirectableUp = new AtomIteratorArrayList(IteratorDirective.UP, 1, atomToArrayListFixed, atomToArrayListFixed);
+        aiSeqDirectableDn = new AtomIteratorArrayList(IteratorDirective.DOWN, 1, atomToArrayListFixed, atomToArrayListFixed);
         nbrCellListIteratorInner = new ApiSequence1A(aiSeqDirectableUp,aiSeqDirectableDn); //used only by allAtoms
         nbrCellListIteratorUp = new ApiInnerFixed(aiOuter, aiSeq);//used only by allAtoms
         nbrCellListIteratorDn = new ApiInnerFixed(aiOuter, aiSeq, true);//used only by allAtoms
@@ -86,8 +88,7 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
         lattice.latticeIndex(centralCell.latticeArrayIndex,latticeIndex);
         
         //get pairs in targetMolecule's cell
-        aiSeqDirectableUp.setList(centralCell.occupants());
-        aiSeqDirectableDn.setList(centralCell.occupants());
+        atomToArrayListFixed.setArrayList(centralCell.occupants());
         nbrCellListIteratorInner.setAtom(targetAtom);
         nbrCellListIteratorInner.allAtoms(action);
 
@@ -200,8 +201,8 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
         needUpdate = false;
         
         //start with targetMolecule's cell
+        atomToArrayListFixed.setArrayList(centralCell.occupants());
         if (upListNow) {
-            aiSeqDirectableUp.setList(centralCell.occupants());
             aiSeqDirectableUp.setAtom(targetAtom);
             aiSeqDirectableUp.reset();
             pair.atom0 = targetAtom;
@@ -211,7 +212,6 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
             }
         }
         if (doGoDown) {
-            aiSeqDirectableDn.setList(centralCell.occupants());
             aiSeqDirectableDn.setAtom(targetAtom);
             aiSeqDirectableDn.reset();
             pair.atom1 = targetAtom;
@@ -268,7 +268,6 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
     // This should be invoked only if aiInner.hasNext is false
     private void advanceLists() {
         if (inCentralCell && upListNow && doGoDown) {
-            aiSeqDirectableDn.setList(centralCell.occupants());
             aiSeqDirectableDn.setAtom(targetAtom);
             aiSeqDirectableDn.reset();
             if (aiSeqDirectableDn.hasNext()) {
@@ -306,16 +305,13 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
         return neighborIterator;
     }
    
-    private static final class MyAtomToLinker implements AtomIteratorSequence.AtomToLinker, java.io.Serializable {
-        public AtomLinker getLinker(Atom atom) {return ((AtomSequencerCell)atom.seq).nbrLink;}
-    }
-
     private final ApiSequence1A nbrCellListIteratorInner;//used only by allAtoms
     private final ApiInnerFixed nbrCellListIteratorUp;//used only by allAtoms
     private final ApiInnerFixed nbrCellListIteratorDn;//used only by allAtoms
     private final CellLattice.NeighborIterator neighborIterator;
     private final AtomIteratorArrayList aiSeqDirectableUp, aiSeqDirectableDn;
     private final AtomIteratorArrayListSimple aiSeq;
+    private final AtomToArrayListFixed atomToArrayListFixed;
     private final AtomIteratorSinglet aiOuter;
     private final AtomPair pair = new AtomPair();
     private final int[] latticeIndex;
