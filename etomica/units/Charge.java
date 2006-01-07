@@ -19,7 +19,7 @@ public class Charge extends Dimension {
     /**
      * Simulation unit of charge.
      */
-    public static final Unit SIM_UNIT = new SimpleUnit(DIMENSION, 1.0, "sim charge units", "(D-A^3/ps^2)^(1/2)/(4 pi \u03B50)^(1/2)", Prefix.NOT_ALLOWED);
+    public static final Unit SIM_UNIT = new SimpleUnit(DIMENSION, 1.0, "sim charge units", "(D-\u00c5^3/ps^2)^(1/2)(4\u03C0\u03B50)^(1/2)", Prefix.NOT_ALLOWED);//unicode is Anstroms, and 4 pi epsilon0
 
     private Charge() {
         super("Charge", 0, 0, 1, 1, 0, 0, 0);

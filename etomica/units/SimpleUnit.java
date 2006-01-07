@@ -34,9 +34,9 @@ public class SimpleUnit implements Unit, java.io.Serializable {
      *            (e.g., kilo, nano)
      * 
      */
-    public SimpleUnit(Dimension dimension, double to, String name, String symbol, boolean prefixAllowed) {
+    public SimpleUnit(Dimension dimension, double toSim, String name, String symbol, boolean prefixAllowed) {
         this.dimension = dimension;
-        from = 1.0 / to;
+        fromSim = 1.0 / toSim;
         this.name = name;
         this.symbol = symbol;
         this.prefixAllowed = prefixAllowed;
@@ -58,7 +58,7 @@ public class SimpleUnit implements Unit, java.io.Serializable {
      * @return the value converted to simulation units
      */
     public final double toSim(double x) {
-        return x / from;
+        return x / fromSim;
     }
 
     /**
@@ -69,7 +69,7 @@ public class SimpleUnit implements Unit, java.io.Serializable {
      * @return the value converted to units of this class
      */
     public final double fromSim(double x) {
-        return x * from;
+        return x * fromSim;
     }
 
     /**
@@ -101,7 +101,7 @@ public class SimpleUnit implements Unit, java.io.Serializable {
      * Conversion factor from simulation units to the class unit. Set in
      * constructor of subclass.
      */
-    private transient double from;
+    private transient double fromSim;
 
     /**
      * A common name for the unit (e.g., Kelvins). Written in plural. Set in
