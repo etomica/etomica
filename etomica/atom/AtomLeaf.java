@@ -54,6 +54,6 @@ public class AtomLeaf extends Atom {
     /**
      * This atom's coordinate
      */
-    public ICoordinate coord;
+    public final ICoordinate coord;
     
 }
