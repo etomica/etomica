@@ -34,7 +34,7 @@ public abstract class ColorSchemeCollective extends ColorScheme implements Agent
             ((SpeciesRoot)phase.getSpeciesMaster().node.parentGroup()).addListener(this);
             agentManager = new AtomAgentManager[0];
         }
-        int index = phase.getIndex();
+        int index = phase.getOrdinal();
         if (index+1 > agentManager.length) {
             agentManager = (AtomAgentManager[])Arrays.resizeArray(agentManager,index+1);
         }
@@ -49,10 +49,10 @@ public abstract class ColorSchemeCollective extends ColorScheme implements Agent
     public void actionPerformed(SimulationEvent evt) {
         if (evt.type() == SimulationEvent.PHASE_REMOVED) {
             Phase p = evt.getPhase();
-            if (agentManager[p.getIndex()] != null) {
+            if (agentManager[p.getOrdinal()] != null) {
                 // allow AtomAgentManager to register itself as a PhaseListener
-                agentManager[p.getIndex()].setPhase(null);
-                agentManager[p.getIndex()] = null;
+                agentManager[p.getOrdinal()].setPhase(null);
+                agentManager[p.getOrdinal()] = null;
             }
             // compact the array if there are null elements at the end.
             int i;

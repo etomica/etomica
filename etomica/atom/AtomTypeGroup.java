@@ -16,7 +16,7 @@ public class AtomTypeGroup extends AtomType {
     /**
      * Used only to create root type
      */
-    AtomTypeGroup(AtomIndexManager indexManager) {
+    AtomTypeGroup(AtomAddressManager indexManager) {
         super(indexManager);
     }
 

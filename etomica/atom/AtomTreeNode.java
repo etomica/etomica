@@ -32,7 +32,7 @@ import etomica.phase.Phase;
  * <li>(optional, 0 or more additional depths) atom groups and atoms forming molecules
  * </ol>
  * 
- * @see AtomIndexManager
+ * @see AtomAddressManager
  */
  
 public abstract class AtomTreeNode implements Comparable, java.io.Serializable {
@@ -117,17 +117,17 @@ public abstract class AtomTreeNode implements Comparable, java.io.Serializable {
     /**
      * Integer assigned to this atom by its parent molecule.
      */
-    public final int index() {return atomIndex;}
+    public final int index() {return atomTreeAddress;}
 
     public void setOrdinal(int ordinal) {
         setOrdinal((parentNode != null) ? parentNode.index() : 0, ordinal);
     }
     
     public void setOrdinal(int parentIndex, int ordinal) {
-        atomIndex = parentIndex + atom.type.getIndexManager().shiftOrdinal(ordinal);
-        if (atom.type.getIndexManager().getOrdinal(atomIndex) != ordinal) {
-            atom.type.getIndexManager().getOrdinal(atomIndex);
-            throw new RuntimeException(atomIndex+" "+ordinal+" "+atom.type.getIndexManager().getOrdinal(atomIndex));
+        atomTreeAddress = parentIndex + atom.type.getAddressManager().shiftOrdinal(ordinal);
+        if (atom.type.getAddressManager().getOrdinal(atomTreeAddress) != ordinal) {
+            atom.type.getAddressManager().getOrdinal(atomTreeAddress);
+            throw new RuntimeException(atomTreeAddress+" "+ordinal+" "+atom.type.getAddressManager().getOrdinal(atomTreeAddress));
         }
     }
     
@@ -135,23 +135,23 @@ public abstract class AtomTreeNode implements Comparable, java.io.Serializable {
 //        System.out.println(atom.type.getDepth()+" "+atom.type.getIndexManager().getOrdinal(atomIndex));
 //        if(atom.type.getDepth()==4 && atom.type.getIndexManager().getOrdinal(atomIndex)==6) {
 //        }
-        return atom.type.getIndexManager().getOrdinal(atomIndex);
+        return atom.type.getAddressManager().getOrdinal(atomTreeAddress);
     }
     
-    public int getMoleculeIndex() {
-        return atom.type.getIndexManager().getMoleculeIndex(atomIndex);
+    public int getMoleculeOrdinal() {
+        return atom.type.getAddressManager().getMoleculeOrdinal(atomTreeAddress);
     }
 
-    public int getPhaseIndex() {
-        return atom.type.getIndexManager().getPhaseIndex(atomIndex);
+    public int getPhaseOrdinal() {
+        return atom.type.getAddressManager().getPhaseOrdinal(atomTreeAddress);
     }
 
-    public int getSpeciesIndex() {
-        return atom.type.getIndexManager().getSpeciesIndex(atomIndex);
+    public int getSpeciesOrdinal() {
+        return atom.type.getAddressManager().getSpeciesOrdinal(atomTreeAddress);
     }
 
     public boolean inSimulation() {
-        return atomIndex < 0;
+        return atomTreeAddress < 0;
     }
     
     /**
@@ -161,7 +161,7 @@ public abstract class AtomTreeNode implements Comparable, java.io.Serializable {
      */ 
     public boolean isDescendedFrom(Atom group) {
     	if(group == null) return false;
-        return group.type.getIndexManager().sameAncestry(group.node.atomIndex,this.atomIndex);
+        return group.type.getAddressManager().sameAncestry(group.node.atomTreeAddress,this.atomTreeAddress);
     }
     
     /**
@@ -180,13 +180,13 @@ public abstract class AtomTreeNode implements Comparable, java.io.Serializable {
      * by comparison of (absolute value of) atomIndex values.
      */
     public int compareTo(Object atomTreeNode) {
-        int otherIndex = ((AtomTreeNode)atomTreeNode).atomIndex;
+        int otherIndex = ((AtomTreeNode)atomTreeNode).atomTreeAddress;
         //use "<" for ">" because atomIndex is negative
-        return otherIndex < atomIndex ? 1 : (otherIndex == atomIndex ? 0 : -1);
+        return otherIndex < atomTreeAddress ? 1 : (otherIndex == atomTreeAddress ? 0 : -1);
     }
                 
     protected final Atom atom;
-    protected int atomIndex;
+    protected int atomTreeAddress;
     private AtomTreeNodeGroup parentNode;
     
 }//end of AtomTreeNode

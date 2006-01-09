@@ -113,7 +113,7 @@ public final class Debug {
      * @return true if the phase is of interest
      */
     public static boolean thisPhase(Phase checkPhase) {
-         return checkPhase.getIndex() == PHASE_INDEX;
+         return checkPhase.getOrdinal() == PHASE_INDEX;
     }
     
 	/**

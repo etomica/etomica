@@ -34,7 +34,7 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
     private Species species;
     private final int index;
 
-    private final AtomIndexManager indexManager;
+    private final AtomAddressManager addressManager;
     private AtomPositionDefinition positionDefinition;
 
     private AtomTypeGroup parentType;
@@ -46,9 +46,9 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
     /**
      * Used only to create root type.
      */
-    AtomType(AtomIndexManager indexManager) {
+    AtomType(AtomAddressManager indexManager) {
         parentType = null;
-        this.indexManager = indexManager;
+        this.addressManager = indexManager;
         positionDefinition = null;
         index = 0;
     }
@@ -70,11 +70,11 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
             AtomPositionDefinition positionDefinition) {
         this.parentType = parentType;
         if (parentType == null) {
-            indexManager = AtomIndexManager
+            addressManager = AtomAddressManager
                     .makeSimpleIndexManager(Default.BIT_LENGTH);
             index = 0;
         } else {
-            indexManager = parentType.getIndexManager().makeChildManager();
+            addressManager = parentType.getAddressManager().makeChildManager();
             parentType.childTypes = (AtomType[]) Arrays.addObject(
                     parentType.childTypes, this);
             index = parentType.requestIndex();
@@ -104,8 +104,8 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
      * Returns the index manager used to set and interpret the 
      * index of an atom of this type.
      */
-    public AtomIndexManager getIndexManager() {
-        return indexManager;
+    public AtomAddressManager getAddressManager() {
+        return addressManager;
     }
 
     /**
@@ -115,8 +115,8 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
      * value for the given type.
      */
     public int compareTo(Object atomType) {
-        int otherIndex = ((AtomType) atomType).indexManager.getTypeIndex();
-        int myIndex = indexManager.getTypeIndex();
+        int otherIndex = ((AtomType) atomType).addressManager.getTypeAddress();
+        int myIndex = addressManager.getTypeAddress();
         return otherIndex > myIndex ? -1 : (otherIndex == myIndex ? 0 : 1);
     }
 
@@ -144,7 +144,7 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
      * having the given type.
      */
     public boolean isDescendedFrom(AtomType type) {
-        return indexManager.isDescendedFrom(type.indexManager);
+        return addressManager.isDescendedFrom(type.addressManager);
     }
 
     /**
@@ -159,7 +159,7 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
      * the number of parent relations between this atom and the species master.
      */
     public int getDepth() {
-        return indexManager.getDepth();
+        return addressManager.getDepth();
     }
 
     /**

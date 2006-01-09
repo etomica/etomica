@@ -76,7 +76,7 @@ public class CriterionSimple extends NeighborCriterion implements AgentSource  {
 //            ((SpeciesRoot)phase.getSpeciesMaster().node.parentGroup()).addListener(this);
             agentManager = new AtomAgentManager[0];
         }
-        int index = phase.getIndex();
+        int index = phase.getOrdinal();
         if (index+1 > agentManager.length) {
             agentManager = (AtomAgentManager[])Arrays.resizeArray(agentManager,index+1);
         }

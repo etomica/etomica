@@ -33,7 +33,7 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
      */
     public void assignChildOrdinals() {
         for (int i = 0; i < childList.size(); i++) {
-            childList.get(i).node.setOrdinal(atomIndex, i+1);
+            childList.get(i).node.setOrdinal(atomTreeAddress, i+1);
         }
     }
 

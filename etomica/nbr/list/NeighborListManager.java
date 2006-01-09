@@ -235,7 +235,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * @param phase phase in which neighbor setup is performed.
      */
     public void neighborSetup(Phase phase) {
-        int phaseIndex = phase.getIndex();
+        int phaseIndex = phase.getOrdinal();
         if (agentManagers.length < phaseIndex) {
             agentManagers = (AtomAgentManager[])Arrays.resizeArray(agentManagers,phaseIndex);
         }
@@ -305,7 +305,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     }
     
     public void setPhase(Phase phase) {
-        neighborLists = (AtomNeighborLists[])agentManagers[phase.getIndex()-1].getAgents();
+        neighborLists = (AtomNeighborLists[])agentManagers[phase.getOrdinal()-1].getAgents();
     }
     
     public AtomArrayList[] getUpList(Atom atom) {

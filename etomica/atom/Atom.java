@@ -73,7 +73,7 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      *             if the argument is null
      */
     public boolean inSameSpecies(Atom atom) {
-        return type.getIndexManager().sameSpecies(node.index(), atom.node.index());
+        return type.getAddressManager().sameSpecies(node.index(), atom.node.index());
     }
     /**
      * Returns true if this atom is in the same molecule as the given atom.
@@ -82,7 +82,7 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      *             if the argument is null
      */
     public boolean inSameMolecule(Atom atom) {
-        return type.getIndexManager().sameMolecule(node.index(), atom.node.index());
+        return type.getAddressManager().sameMolecule(node.index(), atom.node.index());
     }
     /**
      * Returns true if this atoms is in the same phase as the given atom.
@@ -91,7 +91,7 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      *             if the argument is null
      */
     public boolean inSamePhase(Atom atom) {
-        return type.getIndexManager().samePhase(node.index(), atom.node.index());
+        return type.getAddressManager().samePhase(node.index(), atom.node.index());
     }
     
     /**

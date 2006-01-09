@@ -101,7 +101,7 @@ public abstract class IntegratorPhase extends Integrator implements PhaseDepende
 	 */
 	public void setPhase(Phase p) {
 	    phase = p;
-        if (Debug.ON && p != null && p.getIndex() == Debug.PHASE_INDEX) {
+        if (Debug.ON && p != null && p.getOrdinal() == Debug.PHASE_INDEX) {
             Debug.setAtoms(p);
         }
 	}

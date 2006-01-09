@@ -79,21 +79,21 @@ public class AtomIndexManagerTest extends TestCase {
     public void testGetPhaseIndex() {
         for(int i=0; i<phaseIndex.length; i++) {
 //          System.out.println("PhaseIndex: "+atoms[i+i0].node.getPhaseIndex()+" "+(1+phaseIndex[i]));
-          assertEquals(atoms[i+i0].node.getPhaseIndex(), 1+phaseIndex[i]);
+          assertEquals(atoms[i+i0].node.getPhaseOrdinal(), 1+phaseIndex[i]);
       }
     }
 
     public void testGetSpeciesIndex() {
         for(int i=0; i<speciesIndex.length; i++) {
 //            System.out.println("SpeciesIndex: "+atoms[i+i0].node.getSpeciesIndex()+" "+(1+speciesIndex[i]));
-            assertEquals(atoms[i+i0].node.getSpeciesIndex(), 1+speciesIndex[i]);
+            assertEquals(atoms[i+i0].node.getSpeciesOrdinal(), 1+speciesIndex[i]);
         }
     }
 
     public void testGetMoleculeIndex() {
         for(int i=0; i<moleculeIndex.length; i++) {
 //            System.out.println("MoleculeIndex: "+atoms[i+i0].node.getMoleculeIndex()+" "+(1+moleculeIndex[i]));
-            assertEquals(atoms[i+i0].node.getMoleculeIndex(), 1+moleculeIndex[i]);
+            assertEquals(atoms[i+i0].node.getMoleculeOrdinal(), 1+moleculeIndex[i]);
         }
     }
 
@@ -172,7 +172,7 @@ public class AtomIndexManagerTest extends TestCase {
         }
     }
     private boolean isDescendedFrom(Atom a1, Atom a2) {
-        if(a1.type.getIndexManager().getDepth() < a2.type.getIndexManager().getDepth()) return false;
+        if(a1.type.getAddressManager().getDepth() < a2.type.getAddressManager().getDepth()) return false;
         else if(a1 == a2) return true;
         else return isDescendedFrom(a1.node.parentGroup(), a2);
     }
@@ -180,16 +180,16 @@ public class AtomIndexManagerTest extends TestCase {
     
     public void testIsDescendedFrom() {
         for(int i=0; i<atoms.length; i++) {
-            assertFalse(atoms[i].type.getIndexManager().isDescendedFrom(atom.type.getIndexManager()));
-            assertFalse(atom.type.getIndexManager().isDescendedFrom(atoms[i].type.getIndexManager()));
+            assertFalse(atoms[i].type.getAddressManager().isDescendedFrom(atom.type.getAddressManager()));
+            assertFalse(atom.type.getAddressManager().isDescendedFrom(atoms[i].type.getAddressManager()));
             for(int j=0; j<atoms.length; j++) {
 //                System.out.println(i+" "+j);
-                boolean is = atoms[i].type.getIndexManager().isDescendedFrom(atoms[j].type.getIndexManager());
+                boolean is = atoms[i].type.getAddressManager().isDescendedFrom(atoms[j].type.getAddressManager());
                 if(typeIsDescendedFrom(atoms[i],atoms[j])) {
                     assertTrue(is);
                 } else {
                     if(is) {
-                        System.out.println("isDescendedFrom "+i+" "+j+" "+atoms[i]+" "+atoms[j]+" "+Integer.toBinaryString(atoms[i].type.getIndexManager().getTypeIndex())+" "+Integer.toBinaryString(atoms[j].type.getIndexManager().getTypeIndex()));
+                        System.out.println("isDescendedFrom "+i+" "+j+" "+atoms[i]+" "+atoms[j]+" "+Integer.toBinaryString(atoms[i].type.getAddressManager().getTypeAddress())+" "+Integer.toBinaryString(atoms[j].type.getAddressManager().getTypeAddress()));
                         typeIsDescendedFrom(atoms[i],atoms[j]);
                     }
                     assertFalse(is);
@@ -198,7 +198,7 @@ public class AtomIndexManagerTest extends TestCase {
         }
     }
     private boolean typeIsDescendedFrom(Atom a1, Atom a2) {
-        if(a1.type.getIndexManager().getDepth() < a2.type.getIndexManager().getDepth()) return false;
+        if(a1.type.getAddressManager().getDepth() < a2.type.getAddressManager().getDepth()) return false;
         else if(a1.type == a2.type) return true;
         else return typeIsDescendedFrom(a1.node.parentGroup(), a2);
     }

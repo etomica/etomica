@@ -24,7 +24,7 @@ package etomica.atom;
 /*
  * History Created on Mar 3, 2005 by kofke
  */
-public class AtomIndexManager implements java.io.Serializable {
+public class AtomAddressManager implements java.io.Serializable {
 
     /**
      * @param bitLength
@@ -52,29 +52,29 @@ public class AtomIndexManager implements java.io.Serializable {
      *            atom's index that is managed by this class.
      *  
      */
-    private AtomIndexManager(int[] bitLength, int depth, int parentIndex, int ordinal) {
+    private AtomAddressManager(int[] bitLength, int depth, int parentTypeAddress, int typeOrdinal) {
         this.bitLength = (int[]) bitLength.clone();
         cumulativeBitLength = calculateCumulativeBitLength(bitLength);
         bitShift = calculateBitShift(cumulativeBitLength);
         this.depth = depth;
         int rootMask = 1 << 31;
-        phaseIndexMask = ((power2(bitLength[1]) - 1) << bitShift[1]);
-        speciesIndexMask = ((power2(bitLength[2]) - 1) << bitShift[2]);
-        moleculeIndexMask = ((power2(bitLength[3]) - 1) << bitShift[3]);
-        ordinalMask = (power2(bitLength[depth]) - 1) << bitShift[depth];
-        indexMask = (power2(cumulativeBitLength[depth])-1) << bitShift[depth];//indexMask has 1's in for all bits significant to the index
-        samePhaseMask = phaseIndexMask | rootMask;
-        sameSpeciesMask = speciesIndexMask | rootMask;
-        sameMoleculeMask = moleculeIndexMask | rootMask | samePhaseMask
+        phaseOrdinalMask = ((power2(bitLength[1]) - 1) << bitShift[1]);
+        speciesOrdinalMask = ((power2(bitLength[2]) - 1) << bitShift[2]);
+        moleculeOrdinalMask = ((power2(bitLength[3]) - 1) << bitShift[3]);
+        atomOrdinalMask = (power2(bitLength[depth]) - 1) << bitShift[depth];
+        addressMask = (power2(cumulativeBitLength[depth])-1) << bitShift[depth];//addressMask has 1's in for all bits significant to the index
+        samePhaseMask = phaseOrdinalMask | rootMask;
+        sameSpeciesMask = speciesOrdinalMask | rootMask;
+        sameMoleculeMask = moleculeOrdinalMask | rootMask | samePhaseMask
                 | sameSpeciesMask;
-        typeIndex = parentIndex + shiftOrdinal(ordinal);
+        typeAddress = parentTypeAddress + shiftOrdinal(typeOrdinal);
 //        System.out.println(Integer.toBinaryString(typeIndex));
 //        System.out.println("depth, bitLength,cumulativeBitLength,bitShift: "+depth+Arrays.toString(bitLength)+Arrays.toString(cumulativeBitLength)+Arrays.toString(bitShift));
 //        System.out.println("samePhaseMask: "+Integer.toBinaryString(samePhaseMask));
 //        System.out.println("sameSpeciesMask: "+Integer.toBinaryString(sameSpeciesMask));
 //        System.out.println("sameMoleculeMask: "+Integer.toBinaryString(sameMoleculeMask));
-//        System.out.println("ordinalMask: "+Integer.toBinaryString(ordinalMask|rootMask));
-//        System.out.println("  indexMask: "+Integer.toBinaryString(indexMask));
+//        System.out.println("ordinalMask: "+Integer.toBinaryString(atomOrdinalMask|rootMask));
+//        System.out.println("addressMask: "+Integer.toBinaryString(addressMask));
     }
 
     //convenience method; return 2^n
@@ -98,16 +98,16 @@ public class AtomIndexManager implements java.io.Serializable {
      * Method exists to permit construction of appropriate index manger having
      * same bitLength array as this, without exposing the bitLength array.
      */
-    AtomIndexManager makeChildManager() {
-        return new AtomIndexManager(bitLength, depth + 1, typeIndex, ++childCount);
+    AtomAddressManager makeChildManager() {
+        return new AtomAddressManager(bitLength, depth + 1, typeAddress, ++childCount);
     }
 
     /**
      * Constructs an index manager for the SpeciesRoot AtomType.  Called in
      * SpeciesRoot constructor.
      */
-    static AtomIndexManager makeRootIndexManager(int[] bitLength) {
-        return new AtomIndexManager(bitLength, 0, 0, 1);
+    static AtomAddressManager makeRootIndexManager(int[] bitLength) {
+        return new AtomAddressManager(bitLength, 0, 0, 1);
     }
     
     /**
@@ -115,8 +115,8 @@ public class AtomIndexManager implements java.io.Serializable {
      * at the molecule depth, with typeIndex = 0, and ordinal of 1.  Called by
      * AtomType constructor if parent type is null.
      */
-    public static AtomIndexManager makeSimpleIndexManager(int[] bitLength) {
-        return new AtomIndexManager(bitLength, 3, 0, 1);
+    public static AtomAddressManager makeSimpleIndexManager(int[] bitLength) {
+        return new AtomAddressManager(bitLength, 3, 0, 1);
     }
 
     /**
@@ -134,75 +134,75 @@ public class AtomIndexManager implements java.io.Serializable {
      * method.
      */
     public int shiftOrdinal(int ordinal) {
-        if (((ordinal << bitShift[depth]) & ordinalMask) >>> bitShift[depth] != ordinal) {
+        if (((ordinal << bitShift[depth]) & atomOrdinalMask) >>> bitShift[depth] != ordinal) {
             throw new RuntimeException(ordinal + " " + bitShift[depth] + " "
-                    + ordinalMask);
+                    + atomOrdinalMask);
         }
         return ordinal << bitShift[depth];
     }
 
     /**
-     * Returns the atom's ordinal index by decoding its atomIndex. Reverses the
+     * Returns the atom's ordinal by decoding its atomAddress. Reverses the
      * action of shiftOrdinal.
      */
-    public int getOrdinal(int atomIndex) {
-        return (atomIndex & ordinalMask) >>> bitShift[depth];
+    public int getOrdinal(int atomAddress) {
+        return (atomAddress & atomOrdinalMask) >>> bitShift[depth];
     }
 
     /**
-     * Decodes an atom's index to determine the index of the phase it is in.
+     * Decodes an atom's address to determine the ordinal of the phase it is in.
      */
-    public int getPhaseIndex(int unshiftedIndex) {
-        return (unshiftedIndex & phaseIndexMask) >>> bitShift[1];
+    public int getPhaseOrdinal(int atomAddress) {
+        return (atomAddress & phaseOrdinalMask) >>> bitShift[1];
     }
 
     /**
-     * Decodes an atom's index to determine the index of the species it is part
+     * Decodes an atom's address to determine the ordinal of the species it is part
      * of.
      */
-    public int getSpeciesIndex(int unshiftedIndex) {
-        return (unshiftedIndex & speciesIndexMask) >>> bitShift[2];
+    public int getSpeciesOrdinal(int atomAddress) {
+        return (atomAddress & speciesOrdinalMask) >>> bitShift[2];
     }
 
     /**
-     * Decodes an atom's index to determine the ordinal index of the molecule it
+     * Decodes an atom's address to determine the ordinal of the molecule it
      * is part of.
      */
-    public int getMoleculeIndex(int unshiftedIndex) {
-        return (unshiftedIndex & moleculeIndexMask) >>> bitShift[3];
+    public int getMoleculeOrdinal(int atomAddress) {
+        return (atomAddress & moleculeOrdinalMask) >>> bitShift[3];
     }
 
     /**
-     * Returns true if the given indices correspond to atoms that are in the 
+     * Returns true if the given addresses correspond to atoms that are in the 
      * same phase.
-     * @param index0 index of an atom, as given by the index() method of its node.
-     * @param index1 index of another atom, as given by the index() method of its node.
+     * @param address0 address of an atom, as given by the index() method of its node.
+     * @param address1 address of another atom, as given by the index() method of its node.
      * @return true if atoms are in the same phase (or are the same atom).
      */
-    public boolean samePhase(int index0, int index1) {
-        return ((index0 ^ index1) & samePhaseMask) == 0;
+    public boolean samePhase(int address0, int address1) {
+        return ((address0 ^ address1) & samePhaseMask) == 0;
     }
 
     /**
-     * Returns true if the given indices correspond to atoms that are part of the 
+     * Returns true if the given addresses correspond to atoms that are part of the 
      * same species.
      * @param index0 index of an atom, as given by the index() method of its node.
      * @param index1 index of another atom, as given by the index() method of its node.
      * @return true if atoms are in the same species (or are the same atom).
      */
-    public boolean sameSpecies(int index0, int index1) {
-        return ((index0 ^ index1) & sameSpeciesMask) == 0;
+    public boolean sameSpecies(int address0, int address1) {
+        return ((address0 ^ address1) & sameSpeciesMask) == 0;
     }
 
     /**
      * Returns true if the given indices correspond to atoms that are part of the 
      * same molecule.
-     * @param index0 index of an atom, as given by the index() method of its node.
-     * @param index1 index of another atom, as given by the index() method of its node.
+     * @param address0 index of an atom, as given by the index() method of its node.
+     * @param address1 index of another atom, as given by the index() method of its node.
      * @return true if atoms are in the same molecule (or are the same atom).
      */
-    public boolean sameMolecule(int index0, int index1) {
-        return ((index0 ^ index1) & sameMoleculeMask) == 0;
+    public boolean sameMolecule(int address0, int address1) {
+        return ((address0 ^ address1) & sameMoleculeMask) == 0;
     }
     
     /**
@@ -214,16 +214,16 @@ public class AtomIndexManager implements java.io.Serializable {
      * @param index1
      * @return
      */
-    public boolean sameAncestry(int index0, int index1) {
-        return ((index0 ^ index1) & indexMask) == 0;
+    public boolean sameAncestry(int address0, int address1) {
+        return ((address0 ^ address1) & addressMask) == 0;
     }
     
     /**
      * Returns true if an atom of this manager's type is descended from
      * an atom (any atom) having the type of given manager.
      */
-    public boolean isDescendedFrom(AtomIndexManager anotherManager) {
-        return anotherManager.sameAncestry(typeIndex, anotherManager.typeIndex);
+    public boolean isDescendedFrom(AtomAddressManager anotherManager) {
+        return anotherManager.sameAncestry(typeAddress, anotherManager.typeAddress);
     }
 
     /**
@@ -231,8 +231,8 @@ public class AtomIndexManager implements java.io.Serializable {
      * locate this manager's type relative to the other atom types.  This index
      * is set at construction.
      */
-    public int getTypeIndex() {
-        return typeIndex;
+    public int getTypeAddress() {
+        return typeAddress;
     }
 
     //convenience method used by constructor
@@ -263,12 +263,12 @@ public class AtomIndexManager implements java.io.Serializable {
     private final int samePhaseMask;
     private final int sameSpeciesMask;
     private final int sameMoleculeMask;
-    private final int phaseIndexMask;
-    private final int speciesIndexMask;
-    private final int moleculeIndexMask;
-    private final int ordinalMask;
-    private final int indexMask;
+    private final int phaseOrdinalMask;
+    private final int speciesOrdinalMask;
+    private final int moleculeOrdinalMask;
+    private final int atomOrdinalMask;
+    private final int addressMask;
 
-    private final int typeIndex;
+    private final int typeAddress;
     private int childCount = 0;
 }

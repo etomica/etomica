@@ -97,7 +97,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         }
     }
     
-    public int getIndex() {
+    public int getOrdinal() {
         return speciesMaster.node.getOrdinal();
     }
     
