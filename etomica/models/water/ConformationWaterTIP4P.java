@@ -1,6 +1,6 @@
 package etomica.models.water;
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.config.Conformation;
 import etomica.space.Space;
@@ -28,16 +28,16 @@ public class ConformationWaterTIP4P extends Conformation {
         
         iterator.reset();
         
-        Atom o = iterator.nextAtom();
+        AtomLeaf o = (AtomLeaf)iterator.nextAtom();
         o.coord.position().E(new double[] {x, y, 0.0});
                
-        Atom h1 = iterator.nextAtom();
+        AtomLeaf h1 = (AtomLeaf)iterator.nextAtom();
         h1.coord.position().E(new double[] {x+bondLengthOH, y, 0.0});
                 
-        Atom h2 = iterator.nextAtom();
+        AtomLeaf h2 = (AtomLeaf)iterator.nextAtom();
         h2.coord.position().E(new double[] {x+bondLengthOH*Math.cos(angleHOH), y+bondLengthOH*Math.sin(angleHOH), 0.0});
         
-        Atom m = iterator.nextAtom();
+        AtomLeaf m = (AtomLeaf)iterator.nextAtom();
         m.coord.position().E(new double[] {x+rOM*Math.cos(angleHOH/2.0), y+rOM*Math.sin(angleHOH/2.0), 0.0});
 
     }//end of initializePositions

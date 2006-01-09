@@ -1,6 +1,6 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
-import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.Data;
@@ -90,7 +90,7 @@ public class MeterProfile implements DataSource, Meter, java.io.Serializable {
         double[] y = yData.getData();
         ai1.reset();
         while(ai1.hasNext()) {
-            Atom a = ai1.nextAtom();
+            AtomLeaf a = (AtomLeaf)ai1.nextAtom();
             double value = ((DataDouble)meter.getData(a)).x;
             position.E(a.coord.position());
             position.PE(boundary.centralImage(position));

@@ -12,6 +12,7 @@ import java.util.Iterator;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
@@ -47,7 +48,7 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
     private double xfac, xcenter, ycenter, zcenter;
 
     private int nvert;          // The number of atoms
-    private Atom atoms[];       // The entire group of atoms
+    private AtomLeaf atoms[];       // The entire group of atoms
     private double vert[];      // The verticies of said atoms
     private int tvert[];        // The atom positions transformed to screen space
     private int ZsortMap[];
@@ -77,7 +78,7 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
         nvert = displayPhase.getPhase().getSpeciesMaster().moleculeCount();
         vert = new double[nvert*3];
         tvert = new int[nvert*3];
-        atoms = new Atom[nvert];
+        atoms = new AtomLeaf[nvert];
         ZsortMap = new int[nvert];
         for (int i = nvert; --i >= 0;)
             ZsortMap[i] = i * 3;
@@ -242,7 +243,7 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
         mat.transform(vert, tvert, nvert);
     }
         
-    private void drawAtom(Graphics g, int origin[], Atom a, int sorted) {
+    private void drawAtom(Graphics g, int origin[], AtomLeaf a, int sorted) {
         
         if(!atomFilter.accept(a)) return;
         
@@ -309,7 +310,7 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
         }
     }
             
-    protected boolean computeShiftOrigin(Atom a, Boundary b) {
+    protected boolean computeShiftOrigin(AtomLeaf a, Boundary b) {
         if(a.type instanceof AtomTypeSphere) {
             float[][] shifts = b.getOverflowShifts(a.coord.position(),((AtomTypeSphere)a.type).radius(a));  //should instead of radius have a size for all AtomC types
             for(int i=0; i<shifts.length; i++) {

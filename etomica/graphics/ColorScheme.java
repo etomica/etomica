@@ -2,6 +2,7 @@ package etomica.graphics;
 import java.awt.Color;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 
 /**
  * Class that defines the algorithm used to determine atoms colors when drawn to DisplayPhase.
@@ -21,7 +22,7 @@ public abstract class ColorScheme implements java.io.Serializable {
         defaultColor = color;
     }
     
-    public abstract Color getAtomColor(Atom a);
+    public abstract Color getAtomColor(AtomLeaf a);
     
     public final void setDefaultColor(Color c) {defaultColor = c;}
     public final Color getDefaultColor() {return defaultColor;}
@@ -34,6 +35,6 @@ public abstract class ColorScheme implements java.io.Serializable {
     public static class Simple extends ColorScheme {
         public Simple() {super();}
         public Simple(java.awt.Color color) {super(color);}
-        public Color getAtomColor(Atom a) {return defaultColor;}
+        public Color getAtomColor(AtomLeaf a) {return defaultColor;}
     }//end of Simple
 }//end of ColorScheme

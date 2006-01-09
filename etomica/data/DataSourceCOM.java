@@ -3,6 +3,7 @@ package etomica.data;
 import etomica.action.AtomActionAdapter;
 import etomica.action.AtomGroupAction;
 import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomTypeLeaf;
 import etomica.data.types.DataVector;
@@ -90,7 +91,7 @@ public class DataSourceCOM extends AtomActionAdapter implements DataSource, Atom
         }
         public void actionPerformed(Atom a) {
             double mass = ((AtomTypeLeaf)a.type).getMass();
-            vectorSum.PEa1Tv1(mass, a.coord.position());
+            vectorSum.PEa1Tv1(mass, ((AtomLeaf)a).coord.position());
             massSum += mass;
         }
         private Vector vectorSum;

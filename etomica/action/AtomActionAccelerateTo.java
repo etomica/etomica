@@ -1,5 +1,6 @@
 package etomica.action;
 import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.data.DataSourceVelocityAverage;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
@@ -34,7 +35,7 @@ public class AtomActionAccelerateTo extends AtomActionAdapter {
      */
     public void actionPerformed(Atom atom) {
         if(atom.type.isLeaf()) {
-            ((ICoordinateKinetic)atom.coord).velocity().E(targetVelocity);
+            ((ICoordinateKinetic)((AtomLeaf)atom).coord).velocity().E(targetVelocity);
         } else {
             velocityMeter.actionPerformed(atom);
             Vector currentVelocity = ((DataSourceVelocityAverage)velocityMeter.getAction()).getVelocityAverage();

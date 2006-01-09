@@ -1,6 +1,7 @@
 package etomica.integrator.mcmove;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomLeaf;
 import etomica.atom.iterator.AtomIterator;
@@ -74,7 +75,7 @@ public class MCMoveAtom extends MCMove {
         }
         translationVector.setRandomCube();
         translationVector.TE(stepSize);
-        atom.coord.position().PE(translationVector);
+        ((AtomLeaf)atom).coord.position().PE(translationVector);
         uNew = Double.NaN;
         return true;
     }//end of doTrial
@@ -115,7 +116,7 @@ public class MCMoveAtom extends MCMove {
      */
     public void rejectNotify() {
         translationVector.TE(-1);
-        atom.coord.position().PE(translationVector);
+        ((AtomLeaf)atom).coord.position().PE(translationVector);
     }
         
     

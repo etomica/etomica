@@ -3,6 +3,7 @@ package etomica.potential;
 
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
 import etomica.graphics.Drawable;
 import etomica.simulation.Simulation;
@@ -59,8 +60,8 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
         double e = 0.0;
         Vector dimensions = boundary.getDimensions();
         double collisionRadiusSquared = collisionRadius*collisionRadius;
-        double rx = ((Atom)a).coord.position().x(0);
-        double ry = ((Atom)a).coord.position().x(1);
+        double rx = ((AtomLeaf)a).coord.position().x(0);
+        double ry = ((AtomLeaf)a).coord.position().x(1);
         double dx0_2 = rx*rx;
         double dy0_2 = ry*ry;
         double dx1_2 = (rx - dimensions.x(0))*(rx - dimensions.x(0));
@@ -75,8 +76,8 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     public double energyChange() {return 0.0;}
     
     public double collisionTime(AtomSet a, double falseTime) {
-        work.E(((Atom)a).coord.position());
-        Vector v = ((ICoordinateKinetic)((Atom)a).coord).velocity();
+        work.E(((AtomLeaf)a).coord.position());
+        Vector v = ((ICoordinateKinetic)((AtomLeaf)a).coord).velocity();
         work.PEa1Tv1(falseTime,v);
         Vector dimensions = boundary.getDimensions();
         double tmin = Double.POSITIVE_INFINITY;
@@ -113,8 +114,8 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
 //    public void bump(IntegratorHard.Agent agent) {
 //        Atom a = agent.atom();
     public void bump(AtomSet a, double falseTime) {
-        work.E(((Atom)a).coord.position());
-        Vector v = ((ICoordinateKinetic)((Atom)a).coord).velocity();
+        work.E(((AtomLeaf)a).coord.position());
+        Vector v = ((ICoordinateKinetic)((AtomLeaf)a).coord).velocity();
         work.PEa1Tv1(falseTime,v);
         Vector dimensions = boundary.getDimensions();
         double delmin = Double.MAX_VALUE;
@@ -137,8 +138,8 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
         }
         v.setX(imin,-v.x(imin));
         // dv = 2*NewVelocity
-        double newP = ((Atom)a).coord.position().x(imin) - falseTime*v.x(imin)*2.0;
-        ((Atom)a).coord.position().setX(imin,newP);
+        double newP = ((AtomLeaf)a).coord.position().x(imin) - falseTime*v.x(imin)*2.0;
+        ((AtomLeaf)a).coord.position().setX(imin,newP);
     }//end of bump
     
     public void setIsothermal(boolean b) {isothermal = b;}

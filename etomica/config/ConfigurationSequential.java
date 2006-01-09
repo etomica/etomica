@@ -3,6 +3,7 @@ package etomica.config;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorArrayListCompound;
 import etomica.space.Space;
@@ -87,7 +88,7 @@ public class ConfigurationSequential extends Configuration {
                 atomActionTranslateTo.actionPerformed(a);
             }
             else {
-                a.coord.position().E(rLat[i]);
+                ((AtomLeaf)a).coord.position().E(rLat[i]);
             }
             i++;
         }

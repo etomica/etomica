@@ -10,8 +10,7 @@ import etomica.EtomicaElement;
 import etomica.action.PhaseInflate;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLinker;
-import etomica.atom.AtomList;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesMaster;
@@ -180,7 +179,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
 	    	double r2Min = Double.MAX_VALUE;
 	    	iterator.reset();
 	    	while(iterator.hasNext()) {
-	    		Atom atom = iterator.nextAtom();
+	    		AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
 	    		double r2 = Space.r2(atom.coord.position(), r[i], boundary);
 	    		if(r2 < r2Min) {
 	    			r2Min = r2;
@@ -308,7 +307,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         iterator.setPhase(this);
         iterator.reset();
         while (iterator.hasNext()) {
-            out.writeObject(iterator.nextAtom().coord);
+            out.writeObject(((AtomLeaf)iterator.nextAtom()).coord);
         }
     }
     
@@ -353,7 +352,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         iterator.setPhase(newPhase);
         iterator.reset();
         while (iterator.hasNext()) {
-            iterator.nextAtom().coord.E(iterator.nextAtom().coord);
+            ((AtomLeaf)iterator.nextAtom()).coord.E(((AtomLeaf)iterator.nextAtom()).coord);
         }
         return newPhase;
     }

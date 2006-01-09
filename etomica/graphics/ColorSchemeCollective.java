@@ -3,6 +3,7 @@ import java.awt.Color;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeaf;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.phase.Phase;
@@ -43,7 +44,7 @@ public abstract class ColorSchemeCollective extends ColorScheme implements Agent
         atomColors = (Color[])agentManager[index].getAgents();
     }
     
-    public Color getAtomColor(Atom a) {return atomColors[a.getGlobalIndex()];}
+    public Color getAtomColor(AtomLeaf a) {return atomColors[a.getGlobalIndex()];}
    
     public void actionPerformed(SimulationEvent evt) {
         if (evt.type() == SimulationEvent.PHASE_REMOVED) {

@@ -1,7 +1,7 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
-import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorSpeciesDependent;
 import etomica.data.DataSourceScalar;
@@ -53,7 +53,7 @@ public abstract class MeterLocalMoleFraction extends DataSourceScalar implements
         int totalSum = 0, speciesSum = 0;
         iterator.reset();
         while(iterator.hasNext()) {
-            Atom m = iterator.nextAtom();
+            AtomLeaf m = (AtomLeaf)iterator.nextAtom();
             if(shape.contains(m.coord.position())) {
                 totalSum++;
                 if(m.type.getSpecies() == species) speciesSum++;

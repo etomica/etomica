@@ -2,7 +2,7 @@
 package etomica.graphics;
 import java.awt.Color;
 
-import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
 import etomica.space.ICoordinateKinetic;
 import etomica.units.Dimension;
@@ -47,7 +47,7 @@ public class ColorSchemeTemperature extends ColorScheme {
         range = 1.0/(KEMax-KEMin);
     }
         
-    public Color getAtomColor(Atom a) {
+    public Color getAtomColor(AtomLeaf a) {
         float red, blue;
         double ke = ((AtomTypeLeaf)a.type).getMass()*((ICoordinateKinetic)a.coord).velocity().squared();
         if(ke > KEMax) {blue = 0.0f;}

@@ -3,6 +3,7 @@ package etomica.data;
 import etomica.action.AtomActionAdapter;
 import etomica.action.AtomGroupAction;
 import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
 import etomica.data.types.DataVector;
 import etomica.space.ICoordinateKinetic;
@@ -78,7 +79,7 @@ public class DataSourceVelocityAverage extends AtomActionAdapter implements Data
             vectorSum = sum;
         }
         public void actionPerformed(Atom a) {
-            vectorSum.PE(((ICoordinateKinetic)a.coord).velocity());
+            vectorSum.PE(((ICoordinateKinetic)((AtomLeaf)a).coord).velocity());
             massSum += ((AtomTypeLeaf)a.type).getMass();
         }
         private final Vector vectorSum;

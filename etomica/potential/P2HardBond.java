@@ -1,6 +1,7 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
@@ -110,10 +111,10 @@ public class P2HardBond extends Potential2 implements PotentialHard {
         lastCollisionVirial = 2.0 / (rm0+rm1) * bij;
         lastCollisionVirialr2 = lastCollisionVirial / r2;
         dv.Ea1Tv1(lastCollisionVirialr2,dr);
-        ((ICoordinateKinetic)pair.atom0.coord).velocity().PEa1Tv1(rm0,dv);
-        ((ICoordinateKinetic)pair.atom1.coord).velocity().PEa1Tv1(-rm1,dv);
-        pair.atom0.coord.position().PEa1Tv1(-falseTime*rm0,dv);
-        pair.atom1.coord.position().PEa1Tv1( falseTime*rm1,dv);
+        ((ICoordinateKinetic)((AtomLeaf)pair.atom0).coord).velocity().PEa1Tv1(rm0,dv);
+        ((ICoordinateKinetic)((AtomLeaf)pair.atom1).coord).velocity().PEa1Tv1(-rm1,dv);
+        ((AtomLeaf)pair.atom0).coord.position().PEa1Tv1(-falseTime*rm0,dv);
+        ((AtomLeaf)pair.atom1).coord.position().PEa1Tv1( falseTime*rm1,dv);
     }
 
     public final double lastCollisionVirial() {
@@ -148,8 +149,8 @@ public class P2HardBond extends Potential2 implements PotentialHard {
         if (Debug.ON && Debug.DEBUG_NOW && ((r2 > maxBondLengthSquared && bij > 0.0) ||
                 (r2 < minBondLengthSquared && bij < 0.0))) {
             System.out.println("in P2HardBond.collisionTime, "+pair+" "+r2+" "+bij+" "+maxBondLengthSquared);
-            System.out.println(((AtomPair)pair).atom0.coord.position());
-            System.out.println(((AtomPair)pair).atom1.coord.position());
+            System.out.println(((AtomLeaf)((AtomPair)pair).atom0).coord.position());
+            System.out.println(((AtomLeaf)((AtomPair)pair).atom1).coord.position());
             throw new RuntimeException("overlap");
         }
         double discr;

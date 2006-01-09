@@ -93,7 +93,7 @@ public class AtomPositionGeometricCenter extends AtomActionAdapter implements Da
         }
         
         public void actionPerformed(Atom a) {
-            vectorSum.PE(a.coord.position());
+            vectorSum.PE(((AtomLeaf)a).coord.position());
             nAtoms++;
         }
         

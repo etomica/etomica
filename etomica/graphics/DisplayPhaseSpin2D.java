@@ -3,7 +3,7 @@ package etomica.graphics;
 import java.awt.Color;
 import java.awt.Graphics;
 
-import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.lattice.RectangularLattice;
 import etomica.nbr.site.AtomSite;
 import etomica.nbr.site.NeighborSiteManager;
@@ -34,7 +34,7 @@ public class DisplayPhaseSpin2D extends DisplayPhaseCanvas2D {
         neighborSiteManager = (NeighborSiteManager)_phase.getPhase().getCellManager();
     }
     
-    protected void drawAtom(Graphics g, int origin[], Atom atom) {
+    protected void drawAtom(Graphics g, int origin[], AtomLeaf atom) {
         AtomSite site = neighborSiteManager.getSite(atom);
         if (site == null) return;
         displayPhase.getPhase().getLattice().latticeIndex(site.getLatticeArrayIndex(),latticeIndex);

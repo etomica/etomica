@@ -2,6 +2,7 @@ package etomica.config;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -52,10 +53,10 @@ public abstract class ConformationChain extends Conformation {
         	Vector currentPosition = space.makeVector();
         
         	//Zero the first atom.
-        	atomIterator.nextAtom().coord.position().E(0.0);
+        	((AtomLeaf)atomIterator.nextAtom()).coord.position().E(0.0);
         	
         	while(atomIterator.hasNext()){
-        		Atom a = atomIterator.nextAtom();
+        		AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
         		//TODO someday, we might want a to be a chunk-of-atoms
         		currentPosition.PE(nextVector());
         		a.coord.position().E(currentPosition);

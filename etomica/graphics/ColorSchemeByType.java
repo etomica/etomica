@@ -2,7 +2,7 @@ package etomica.graphics;
 import java.awt.Color;
 import java.util.HashMap;
 
-import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomType;
 
 /**
@@ -20,7 +20,7 @@ public final class ColorSchemeByType extends ColorScheme {
         colorMap.put(type,c);
     }
     
-    public Color getAtomColor(Atom a) {
+    public Color getAtomColor(AtomLeaf a) {
         return getColor(a.type);
     }
     

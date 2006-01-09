@@ -1,5 +1,6 @@
 package etomica.potential;
 
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
@@ -68,10 +69,10 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
         }
         lastCollisionVirialr2 = lastCollisionVirial/r2;
         dv.Ea1Tv1(lastCollisionVirialr2,dr);
-        ((ICoordinateKinetic)((AtomPair)pair).atom0.coord).velocity().PE(dv);
-        ((ICoordinateKinetic)((AtomPair)pair).atom1.coord).velocity().ME(dv);
-        ((AtomPair)pair).atom0.coord.position().Ea1Tv1(-falseTime,dv);
-        ((AtomPair)pair).atom1.coord.position().Ea1Tv1(falseTime,dv);
+        ((ICoordinateKinetic)((AtomLeaf)((AtomPair)pair).atom0).coord).velocity().PE(dv);
+        ((ICoordinateKinetic)((AtomLeaf)((AtomPair)pair).atom1).coord).velocity().ME(dv);
+        ((AtomLeaf)((AtomPair)pair).atom0).coord.position().Ea1Tv1(-falseTime,dv);
+        ((AtomLeaf)((AtomPair)pair).atom1).coord.position().Ea1Tv1(falseTime,dv);
         cPair.nudge(nudge);
     }
     

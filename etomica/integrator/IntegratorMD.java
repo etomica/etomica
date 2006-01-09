@@ -2,6 +2,7 @@ package etomica.integrator;
 
 import etomica.action.AtomActionRandomizeVelocity;
 import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomList;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -164,7 +165,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
             else if (thermostat == ANDERSEN_SINGLE) {
                 AtomList atomList = phase.getSpeciesMaster().atomList;
                 int index = Simulation.random.nextInt(atomList.size());
-                Atom a = atomList.get(index);
+                AtomLeaf a = (AtomLeaf)atomList.get(index);
                 double m = ((AtomTypeLeaf)a.type).getMass();
                 currentKineticEnergy -= 0.5*m*((ICoordinateKinetic)a.coord).velocity().squared();
                 randomizeMomentum(atomList.get(index));
@@ -228,7 +229,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
             s = Math.sqrt(temperature / t);
         }
         while(atomIterator.hasNext()) {
-            Atom a = atomIterator.nextAtom();
+            AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
             ((ICoordinateKinetic)a.coord).velocity().TE(s); //scale momentum
         }
         return scale;

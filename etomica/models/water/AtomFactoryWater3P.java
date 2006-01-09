@@ -3,14 +3,12 @@ package etomica.models.water;
 import etomica.atom.Atom;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryMono;
-import etomica.atom.AtomLinker;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.simulation.Simulation;
 import etomica.space.CoordinateFactory;
-import etomica.space.CoordinateFactoryNull;
 import etomica.space.CoordinateFactorySphere;
 import etomica.species.Species;
 
@@ -28,7 +26,7 @@ public class AtomFactoryWater3P extends AtomFactory {
 	 * @param sequencerFactory
 	 */
     public AtomFactoryWater3P(Simulation sim, AtomTypeGroup agentType) {
-		super(new CoordinateFactoryNull(), new AtomTypeGroup(agentType,new AtomPositionGeometricCenter(sim.space)), AtomTreeNodeWater3P.FACTORY);
+		super(new AtomTypeGroup(agentType,new AtomPositionGeometricCenter(sim.space)), AtomTreeNodeWater3P.FACTORY);
 
         AtomTypeSphere hType = new AtomTypeSphere((AtomTypeGroup)atomType, 1.0, 2.0);
         AtomTypeSphere oType = new AtomTypeSphere((AtomTypeGroup)atomType, 16.0, 3.167);
@@ -45,9 +43,9 @@ public class AtomFactoryWater3P extends AtomFactory {
 	public Atom makeAtom() {
         Atom group = newParentAtom();
 		AtomTreeNodeWater3P waterNode = (AtomTreeNodeWater3P)group.node;
-		waterNode.O = oFactory.makeAtom();
-        waterNode.H1 = hFactory.makeAtom();
-        waterNode.H2 = hFactory.makeAtom();
+		waterNode.O = (AtomLeaf)oFactory.makeAtom();
+        waterNode.H1 = (AtomLeaf)hFactory.makeAtom();
+        waterNode.H2 = (AtomLeaf)hFactory.makeAtom();
         waterNode.O.node.setParent(waterNode);
         waterNode.H1.node.setParent(waterNode);
         waterNode.H2.node.setParent(waterNode);

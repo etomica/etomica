@@ -5,6 +5,7 @@
 package etomica.action;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
@@ -64,7 +65,7 @@ public final class PhaseImposePbc extends PhaseActionAdapter implements
         }
         else {
             while (iterator.hasNext()) {
-                Atom atom = iterator.nextAtom();
+                AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
                 Vector shift = boundary.centralImage(atom.coord.position());
                 if (!shift.isZero()) {
                     atom.coord.position().PE(shift);

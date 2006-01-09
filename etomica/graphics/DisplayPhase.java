@@ -15,6 +15,7 @@ import etomica.action.Action;
 import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
+import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.phase.Phase;
@@ -586,7 +587,7 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
             double r2Min = Double.MAX_VALUE;
             atomIterator.reset();
             while(atomIterator.hasNext()) {
-                Atom atom = atomIterator.nextAtom();
+                AtomLeaf atom = (AtomLeaf)atomIterator.nextAtom();
                 double r2 = Space.r2(point,atom.coord.position(),getPhase().getBoundary());
                 if(r2 < r2Min) {
                     nearestAtom = atom;

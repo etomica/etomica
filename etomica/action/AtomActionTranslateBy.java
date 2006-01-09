@@ -1,5 +1,6 @@
 package etomica.action;
 import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -20,7 +21,7 @@ public class AtomActionTranslateBy extends AtomActionAdapter {
     }
     
     public void actionPerformed(Atom atom) {
-        atom.coord.position().PE(translationVector);
+        ((AtomLeaf)atom).coord.position().PE(translationVector);
     }
        
     /**

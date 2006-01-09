@@ -4,6 +4,7 @@ import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
@@ -80,7 +81,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         //take step
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            Atom a = atomIterator.nextAtom();
+            AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
             Agent agent = agents[a.getGlobalIndex()];
             Vector r = a.coord.position();
             work.E(r);
@@ -101,7 +102,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
 
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            Atom a = atomIterator.nextAtom();
+            AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
             Agent agent = agents[a.getGlobalIndex()];
             agent.rMrLast.Ea1Tv1(timeStep,((ICoordinateKinetic)a.coord).velocity());//06/13/03 removed minus sign before timeStep
         }

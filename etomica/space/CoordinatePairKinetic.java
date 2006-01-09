@@ -1,5 +1,6 @@
 package etomica.space;
 
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 
 /**
@@ -43,7 +44,7 @@ public class CoordinatePairKinetic extends CoordinatePair {
      *             if the atoms' coordinates do not implement ICoordinateKinetic
      */
     public Vector resetV(AtomPair pair) {
-        return resetV(pair.atom0.coord, pair.atom1.coord);
+        return resetV(((AtomLeaf)pair.atom0).coord, ((AtomLeaf)pair.atom1).coord);
     }
 
     /**

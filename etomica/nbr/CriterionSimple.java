@@ -2,6 +2,7 @@ package etomica.nbr;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.phase.Phase;
@@ -56,14 +57,14 @@ public class CriterionSimple extends NeighborCriterion implements AgentSource  {
 	}
 	
 	public boolean needUpdate(Atom atom) {
-		r2 = atom.coord.position().Mv1Squared(agents[atom.getGlobalIndex()]);
+		r2 = ((AtomLeaf)atom).coord.position().Mv1Squared(agents[atom.getGlobalIndex()]);
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.thisAtom(atom)) {
-            System.out.println("atom "+atom+" displacement "+r2+" "+atom.coord.position());
+            System.out.println("atom "+atom+" displacement "+r2+" "+((AtomLeaf)atom).coord.position());
         }
 		if (Debug.ON && Debug.DEBUG_NOW && r2 > displacementLimit2 / (4.0*safetyFactor*safetyFactor)) {
 			System.out.println("atom "+atom+" exceeded safe limit ("+r2+" > "+displacementLimit2 / (4.0*safetyFactor*safetyFactor)+")");
 			System.out.println("old position "+agents[atom.getGlobalIndex()]);
-			System.out.println("new position "+atom.coord.position());
+			System.out.println("new position "+((AtomLeaf)atom).coord.position());
             throw new RuntimeException("stop that");
 		}
 		return r2 > displacementLimit2;
@@ -103,14 +104,14 @@ public class CriterionSimple extends NeighborCriterion implements AgentSource  {
 	}
 	
 	public void reset(Atom atom) {
-		agents[atom.getGlobalIndex()].E(atom.coord.position());
+		agents[atom.getGlobalIndex()].E(((AtomLeaf)atom).coord.position());
 	}
 
     public Object makeAgent(Atom atom) {
         if (atom == null) {
             return cPair.dr().clone();
         }
-        return (atom.coord != null) ? atom.coord.position().clone() : null;
+        return atom.type.isLeaf() ? ((AtomLeaf)atom).coord.position().clone() : null;
     }
     
     public void releaseAgent(Object agent) {}

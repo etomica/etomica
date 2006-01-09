@@ -6,6 +6,7 @@ import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
@@ -111,7 +112,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
         
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            Atom a = atomIterator.nextAtom();
+            AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
             Agent agent = agents[a.getGlobalIndex()];
             Vector r = a.coord.position();
             Vector v = ((ICoordinateKinetic)a.coord).velocity();
@@ -140,7 +141,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
     protected void predictor() {
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            Atom a = atomIterator.nextAtom();
+            AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
             Agent agent = agents[a.getGlobalIndex()];
             Vector r = a.coord.position();
             Vector v = ((ICoordinateKinetic)a.coord).velocity();
@@ -179,7 +180,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
         calculateForces();
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            Atom a = atomIterator.nextAtom();
+            AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
             Agent agent = agents[a.getGlobalIndex()];
             agent.dr1.E(((ICoordinateKinetic)a.coord).velocity());
             agent.dr2.Ea1Tv1(((AtomTypeLeaf)a.type).rm(),agent.force);

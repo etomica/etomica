@@ -1,7 +1,7 @@
 package etomica.data;
 
 import etomica.EtomicaElement;
-import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIterator;
 import etomica.space.ICoordinateKinetic;
 import etomica.units.Undefined;
@@ -29,7 +29,7 @@ public class DataSourceRmsVelocity extends DataSourceScalar implements EtomicaEl
 		int count = 0;
 		double value = 0.0;
 		while (iterator.hasNext()) {
-			Atom atom = iterator.nextAtom();
+			AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
 			value += Math.sqrt(((ICoordinateKinetic)atom.coord).velocity().squared());
 			count++;
 		}

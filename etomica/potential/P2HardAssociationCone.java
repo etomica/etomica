@@ -1,6 +1,7 @@
 package etomica.potential;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
@@ -87,14 +88,14 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
             e1.E(0.);
             e1.setX(0,1);
             eArr[0] = e1;
-            ((ICoordinateAngular)((AtomPair)pair).atom0.coord).orientation().convertToSpaceFrame(eArr);
+            ((ICoordinateAngular)((AtomLeaf)((AtomPair)pair).atom0).coord).orientation().convertToSpaceFrame(eArr);
             double er1 = e1.dot(cPair.dr());
                        
             if ( er1 > 0.0 && er1*er1 > ec2*r2) {
                 e2.E(0.);
                 e2.setX(0,1);
                 eArr[0] = e2;
-                ((ICoordinateAngular)((AtomPair)pair).atom1.coord).orientation().convertToSpaceFrame(eArr);
+                ((ICoordinateAngular)((AtomLeaf)((AtomPair)pair).atom1).coord).orientation().convertToSpaceFrame(eArr);
                 double er2 = e2.dot(cPair.dr());
                 if(er2 < 0.0 && er2*er2 > ec2*r2) eTot -= wellEpsilon;
             }

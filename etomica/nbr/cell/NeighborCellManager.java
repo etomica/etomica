@@ -11,6 +11,7 @@ import etomica.action.AtomGroupAction;
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomAgentManager.AgentSource;
@@ -242,12 +243,12 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, java.
             AtomIterator iterator = move.affectedAtoms(phase);
             iterator.reset();
             while (iterator.hasNext()) {
-                Atom atom = iterator.nextAtom();
+                AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
                 if (!atom.node.isLeaf()) {
                     treeIterator.setRoot(atom);
                     treeIterator.reset();
                     while (treeIterator.hasNext()) {
-                        Atom childAtom = treeIterator.nextAtom();
+                        AtomLeaf childAtom = (AtomLeaf)treeIterator.nextAtom();
                         updateCell(childAtom);
                     }
                 }
@@ -257,7 +258,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, java.
             }
         }
 
-        private void updateCell(Atom atom) {
+        private void updateCell(AtomLeaf atom) {
             Boundary boundary = phase.getBoundary();
             if (neighborCellManager.getCell(atom) != null) {
                 neighborCellManager.removeFromCell(atom);

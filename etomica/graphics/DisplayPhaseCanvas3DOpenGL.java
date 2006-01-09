@@ -13,16 +13,14 @@ import java.awt.Color;
 import java.util.Iterator;
 
 import etomica.atom.Atom;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomFilter;
-import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polyhedron;
 import etomica.phase.Phase;
-import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
@@ -310,7 +308,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
 
     lastColor = null;
     while (atomIter.hasNext()) {
-        Atom a = atomIter.nextAtom();
+        AtomLeaf a = (AtomLeaf)atomIter.nextAtom();
         if (a.type instanceof AtomTypeSphere) {
             if(!atomFilter.accept(a)) {continue;}
             
@@ -417,7 +415,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     //////////////////////////////////////////
   }
               
-  protected boolean computeShiftOrigin(Atom a, Boundary b) {
+  protected boolean computeShiftOrigin(AtomLeaf a, Boundary b) {
     if(a.type instanceof AtomTypeSphere)
       originShifts = b.getOverflowShifts(a.coord.position(),((AtomTypeSphere)a.type).radius(a));
     else

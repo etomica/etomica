@@ -16,17 +16,15 @@ public abstract class AtomFactory implements java.io.Serializable {
     protected Conformation conformation;
     protected AtomTreeNodeFactory nodeFactory;
     protected final AtomType atomType;
-    protected final CoordinateFactory coordFactory;
     
     /**
      * Makes an atom factory with atoms having AtomTreeNodeGroup for node.
      */
-    public AtomFactory(CoordinateFactory coordFactory, AtomType atomType) {
-        this(coordFactory, atomType, AtomTreeNodeGroup.FACTORY);
+    public AtomFactory(AtomType atomType) {
+        this(atomType, AtomTreeNodeGroup.FACTORY);
     }
     
-    public AtomFactory(CoordinateFactory coordFactory, AtomType atomType, AtomTreeNodeFactory nodeFactory) {
-        this.coordFactory = coordFactory;
+    public AtomFactory(AtomType atomType, AtomTreeNodeFactory nodeFactory) {
         this.nodeFactory = nodeFactory;
         this.atomType = atomType;
         atomType.creator = this;
@@ -50,7 +48,7 @@ public abstract class AtomFactory implements java.io.Serializable {
      * Method used by subclasses to make the root atom of the group it is building.
      */
     protected Atom newParentAtom() {
-        Atom atom = new Atom(coordFactory.makeCoordinate(), atomType, nodeFactory);
+        Atom atom = new Atom(atomType, nodeFactory);
         return atom;
     }
 
@@ -61,15 +59,6 @@ public abstract class AtomFactory implements java.io.Serializable {
         return atomType;
     }
     
-    /**
-     * Returns the CoordinateFactory that gives coordinates to the
-     * atom (or the root atom, if this makes an atom group) made by this
-     * AtomFactory
-     */
-    public CoordinateFactory getCoordinateFactory() {
-        return coordFactory;
-    }
-
     /**
      * Sets the conformation used to set the standard arrangement of
      * the atoms/atom-groups produced by this factory.

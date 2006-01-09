@@ -2,6 +2,7 @@ package etomica.data.meter;
 
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.data.DataSourceScalar;
@@ -72,13 +73,13 @@ public class MeterRadiusGyration extends DataSourceScalar implements Meter {
                 continue;
             }
             // find center of mass
-            Atom prevAtom = leafIterator.nextAtom();
+            AtomLeaf prevAtom = (AtomLeaf)leafIterator.nextAtom();
             cm.E(prevAtom.coord.position());
             int nLeafAtoms = 1;
             realPos.E(prevAtom.coord.position());
             while (leafIterator.hasNext()) {
                 nLeafAtoms++;
-                Atom a = leafIterator.nextAtom();
+                AtomLeaf a = (AtomLeaf)leafIterator.nextAtom();
                 cPair.reset(prevAtom.coord, a.coord);
                 Vector dr = cPair.dr();
                 realPos.PE(dr);
@@ -89,10 +90,10 @@ public class MeterRadiusGyration extends DataSourceScalar implements Meter {
             // calculate Rg^2 for this chain
             double r2 = 0.0;
             leafIterator.reset();
-            prevAtom = leafIterator.nextAtom();
+            prevAtom = (AtomLeaf)leafIterator.nextAtom();
             realPos.E(prevAtom.coord.position());
             while (leafIterator.hasNext()) {
-                Atom a = leafIterator.nextAtom();
+                AtomLeaf a = (AtomLeaf)leafIterator.nextAtom();
                 cPair.reset(prevAtom.coord, a.coord);
                 Vector dr = cPair.dr();
                 realPos.PE(dr);

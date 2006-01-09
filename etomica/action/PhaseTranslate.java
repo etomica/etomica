@@ -4,6 +4,7 @@
  */
 package etomica.action;
 
+import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -56,7 +57,7 @@ public final class PhaseTranslate extends PhaseActionAdapter implements Undoable
         iterator.setPhase(phase);
         iterator.reset();
         while(iterator.hasNext()) {
-            iterator.nextAtom().coord.position().PE(translationVector);
+            ((AtomLeaf)iterator.nextAtom()).coord.position().PE(translationVector);
         }
 	}
 

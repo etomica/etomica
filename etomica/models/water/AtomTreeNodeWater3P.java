@@ -1,6 +1,7 @@
 package etomica.models.water;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTreeNodeFactory;
 import etomica.atom.AtomTreeNodeGroup;
 
@@ -18,10 +19,10 @@ public class AtomTreeNodeWater3P extends AtomTreeNodeGroup {
 		super(atom);
 	}
 	
-	public Atom firstLeafAtom() {return O;}
-	public Atom lastLeafAtom() {return H2;}
+	public AtomLeaf firstLeafAtom() {return O;}
+	public AtomLeaf lastLeafAtom() {return H2;}
 
-	public Atom H1, H2, O;
+	public AtomLeaf H1, H2, O;
 	
 	public static final AtomTreeNodeFactory3P FACTORY = new AtomTreeNodeFactory3P();
     

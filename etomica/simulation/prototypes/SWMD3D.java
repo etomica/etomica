@@ -5,7 +5,7 @@ package etomica.simulation.prototypes;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorScheme;
@@ -122,13 +122,13 @@ public class SWMD3D extends Simulation {
 
   
   public static class MyColorScheme extends ColorScheme {
-      public MyColorScheme(Atom redAtom) {
+      public MyColorScheme(AtomLeaf redAtom) {
           atom = redAtom;
       }
-	  public java.awt.Color getAtomColor(Atom a) {
+	  public java.awt.Color getAtomColor(AtomLeaf a) {
 		  return (a == atom) ? java.awt.Color.red : java.awt.Color.yellow;
 	  }
-      private Atom atom;
+      private AtomLeaf atom;
   }
 
 }//end of class

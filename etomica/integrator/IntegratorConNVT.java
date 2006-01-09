@@ -4,6 +4,7 @@ import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
@@ -102,7 +103,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 		double k=0.0;
         double chi;
 		while(atomIterator.hasNext()) {
-			Atom a = atomIterator.nextAtom();
+			AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
 			Vector v = ((ICoordinateKinetic)a.coord).velocity();
             
 			work1.E(v); //work1 = v
@@ -119,7 +120,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 		//calculate constrained velocities at T+Dt/2
 		atomIterator.reset();
 		while(atomIterator.hasNext()) {
-			Atom a = atomIterator.nextAtom();
+			AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
 			Agent agent = agents[a.getGlobalIndex()];
 			Vector v = ((ICoordinateKinetic)a.coord).velocity();
 		
@@ -134,7 +135,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 
 		atomIterator.reset();
 		while(atomIterator.hasNext()) {
-			Atom a = atomIterator.nextAtom();
+			AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
 			Vector r = a.coord.position();
 			Vector v = ((ICoordinateKinetic)a.coord).velocity();
             

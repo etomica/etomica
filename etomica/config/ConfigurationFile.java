@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorArrayListCompound;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.space.Space;
@@ -40,13 +41,13 @@ public class ConfigurationFile extends Configuration {
             while (atomIterator.hasNext()) {
                 Atom molecule = atomIterator.nextAtom();
                 if (molecule.node.isLeaf()) {
-                    setPosition(molecule,bufReader.readLine());
+                    setPosition((AtomLeaf)molecule,bufReader.readLine());
                 }
                 else {
                     leafIterator.setRoot(molecule);
                     leafIterator.reset();
                     while (leafIterator.hasNext()) {
-                        setPosition(leafIterator.nextAtom(),bufReader.readLine());
+                        setPosition((AtomLeaf)leafIterator.nextAtom(),bufReader.readLine());
                     }
                 }
             }
@@ -56,7 +57,7 @@ public class ConfigurationFile extends Configuration {
         }
     }
         
-    private void setPosition(Atom atom, String string) {
+    private void setPosition(AtomLeaf atom, String string) {
         String[] coordStr = string.split(" +");
         double[] coord = new double[coordStr.length];
         for (int i=0; i<coord.length; i++) {

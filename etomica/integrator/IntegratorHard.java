@@ -6,6 +6,7 @@ import etomica.EtomicaInfo;
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomAgentManager.AgentSource;
@@ -345,7 +346,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
 	protected void advanceAcrossTimeStep(double tStep) {
 		atomIterator.reset();
 		while(atomIterator.hasNext()) {
-			Atom a = atomIterator.nextAtom();
+			AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
             agents[a.getGlobalIndex()].decrementCollisionTime(tStep);
 			a.coord.position().PEa1Tv1(tStep,((ICoordinateKinetic)a.coord).velocity());
 		}

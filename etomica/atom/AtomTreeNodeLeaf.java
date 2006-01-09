@@ -26,12 +26,12 @@ public final class AtomTreeNodeLeaf extends AtomTreeNode {
     /**
      * Returns this node's atom.
      */
-    public Atom firstLeafAtom() {return atom;}
+    public AtomLeaf firstLeafAtom() {return (AtomLeaf)atom;}
     
     /**
      * Returns this node's atom.
      */
-    public Atom lastLeafAtom() {return atom;}
+    public AtomLeaf lastLeafAtom() {return (AtomLeaf)atom;}
     
     /**
      * Returns 1.

@@ -4,6 +4,7 @@ import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
@@ -72,7 +73,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         atomIterator.setPhase(phase);
         atomIterator.reset();              //reset iterator of atoms
         while(atomIterator.hasNext()) {    //loop over all atoms
-            Atom a = atomIterator.nextAtom();  //  advancing positions full step
+            AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();  //  advancing positions full step
             MyAgent agent = agents[a.getGlobalIndex()];     //  and momenta half step
             Vector r = a.coord.position();
             Vector v = ((ICoordinateKinetic)a.coord).velocity();
@@ -87,7 +88,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         //Finish integration step
         atomIterator.reset();
         while(atomIterator.hasNext()) {     //loop over atoms again
-            Atom a = atomIterator.nextAtom();   //  finishing the momentum step
+            AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();   //  finishing the momentum step
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
             ((ICoordinateKinetic)a.coord).velocity().PEa1Tv1(0.5*timeStep*((AtomTypeLeaf)a.type).rm(),agents[a.getGlobalIndex()].force);  //p += f(new)*dt/2
         }

@@ -1,6 +1,7 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
+import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.DataSourceScalar;
@@ -41,7 +42,7 @@ public abstract class MeterLocalDensity extends DataSourceScalar implements Mete
         int nSum = 0;
         iterator.reset();
         while(iterator.hasNext()) {
-            if(shape.contains(iterator.nextAtom().coord.position())) nSum++;
+            if(shape.contains(((AtomLeaf)iterator.nextAtom()).coord.position())) nSum++;
         }
         return nSum/shape.getVolume();
     }

@@ -3,6 +3,7 @@ package etomica.integrator;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.iterator.AtomsetIterator;
@@ -72,7 +73,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         double t2 = 0.5*tStep*tStep;
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            Atom a = atomIterator.nextAtom();
+            AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
             HardFieldAgent agent = (HardFieldAgent)agents[a.getGlobalIndex()];
             agent.decrementCollisionTime(tStep);
             a.coord.position().PEa1Tv1(tStep,((ICoordinateKinetic)a.coord).velocity());
@@ -112,7 +113,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         double rs = 1.0/s;
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            Atom a = atomIterator.nextAtom();
+            AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
             ((ICoordinateKinetic)a.coord).velocity().TE(s); //scale momentum
             agents[a.getGlobalIndex()].eventLinker.sortKey *= rs;
         }

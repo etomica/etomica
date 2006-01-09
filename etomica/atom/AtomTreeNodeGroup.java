@@ -64,9 +64,9 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
 	
     public boolean isLeaf() {return false;}
     
-    public Atom firstLeafAtom() {
+    public AtomLeaf firstLeafAtom() {
         for (int i = 0; i < childList.size(); i++) {
-            Atom a1 = childList.get(i).node.firstLeafAtom();
+            AtomLeaf a1 = childList.get(i).node.firstLeafAtom();
             if(a1 != null) return a1;
         }
         return null;
@@ -75,9 +75,9 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     /**
      * Returns the last leaf atom descended from this group.
      */
-    public Atom lastLeafAtom() {
+    public AtomLeaf lastLeafAtom() {
         for (int i = childList.size()-1; i > -1; i--) {
-            Atom a1 = childList.get(i).node.lastLeafAtom();
+            AtomLeaf a1 = childList.get(i).node.lastLeafAtom();
             if(a1 != null) return a1;
         }
         return null;

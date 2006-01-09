@@ -3,6 +3,7 @@ package etomica.graphics;
 import java.awt.Color;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.nbr.cell.Api1ACell;
 import etomica.phase.Phase;
@@ -32,7 +33,7 @@ public class ColorSchemeNeighbor extends ColorSchemeCollective {
         allIterator.reset();
 		//color all atoms according to their type
         while(allIterator.hasNext()) {
-            Atom atom = allIterator.nextAtom();
+            AtomLeaf atom = (AtomLeaf)allIterator.nextAtom();
             atomColors[atom.getGlobalIndex()] = typeColorScheme.getAtomColor(atom);//Color.green;
         }
         //color blue the neighbor atoms in same group

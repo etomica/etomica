@@ -3,6 +3,7 @@ package etomica.potential;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -19,7 +20,6 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft, Etomica
 
 	private final Vector gradient;
 	private double radius;
-	private Atom atom;
 	
     public P1SoftBoundary(Simulation sim) {
         this(sim.space, 0.5*sim.getDefaults().atomSize);
@@ -37,8 +37,8 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft, Etomica
     
 	public double energy(AtomSet a) {
 		Vector dimensions = ((Atom)a).node.parentPhase().getBoundary().getDimensions();
-		double rx = atom.coord.position().x(0);
-		double ry = atom.coord.position().x(1);
+		double rx = ((AtomLeaf)a).coord.position().x(0);
+		double ry = ((AtomLeaf)a).coord.position().x(1);
 		double dx1 = (dimensions.x(0) - rx);
 		double dy1 = (dimensions.x(1) - ry);
 		return energy(rx) + energy(ry) + energy(dx1) + energy(dy1);		
@@ -60,8 +60,8 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft, Etomica
 	
 	public Vector gradient(AtomSet a) {
 		Vector dimensions = boundary.getDimensions();
-		double rx = ((Atom)a).coord.position().x(0);
-		double ry = atom.coord.position().x(1);
+		double rx = ((AtomLeaf)a).coord.position().x(0);
+		double ry = ((AtomLeaf)a).coord.position().x(1);
 		double dx1 = (dimensions.x(0) - rx);
 		double dy1 = (dimensions.x(1) - ry);
 		double gradx = gradient(rx) - gradient(dx1);

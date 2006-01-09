@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
-import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -67,7 +67,7 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
     }
 
     public double energy(AtomSet a) {
-        return 0.5*w*((Atom)a).coord.position().Mv1Squared(x0);
+        return 0.5*w*((AtomLeaf)a).coord.position().Mv1Squared(x0);
 //        r.Mv1Squared(x0);
 //        Vector d = ((Atom)a).node.parentPhase().boundary().dimensions();
 //        double aSum = 0.0;
@@ -86,7 +86,7 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
     }
 
     public Vector gradient(AtomSet a){
-        Vector r = ((Atom)a).coord.position();
+        Vector r = ((AtomLeaf)a).coord.position();
 //        Vector d = ((Atom)a).node.parentPhase().boundary().dimensions();
         force.Ev1Mv2(r,x0);
         force.TE(w);

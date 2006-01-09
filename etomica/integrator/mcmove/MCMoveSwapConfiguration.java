@@ -6,7 +6,7 @@
  */
 package etomica.integrator.mcmove;
 
-import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.exception.ConfigurationOverlapException;
@@ -75,8 +75,8 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 		iterator2.reset();
 
 		while(iterator1.hasNext()) {
-			Atom a1 = iterator1.nextAtom();
-			Atom a2 = iterator2.nextAtom();
+			AtomLeaf a1 = (AtomLeaf)iterator1.nextAtom();
+			AtomLeaf a2 = (AtomLeaf)iterator2.nextAtom();
 
 			r.E(a1.coord.position());
 				

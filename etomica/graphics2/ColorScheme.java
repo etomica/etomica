@@ -1,7 +1,6 @@
 package etomica.graphics2;
 
-import etomica.atom.Atom;
-import etomica.graphics2.Color;
+import etomica.atom.AtomLeaf;
 
 /**
  * Defines an interface to retrieve the Atom color from an Atom object
@@ -10,6 +9,6 @@ import etomica.graphics2.Color;
  
 public interface ColorScheme {
 	public int getNumColors();
-    public int atomColor(Atom a);
+    public int atomColor(AtomLeaf a);
     public Color getColor( int index );
 }//end of ColorScheme

@@ -7,8 +7,8 @@ import java.awt.RenderingHints;
 import java.awt.TextField;
 import java.util.Iterator;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -67,7 +67,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
         createOffScreen(width,height);
     }
        
-    private void drawAtom(Graphics g, int origin[], Atom a) {
+    private void drawAtom(Graphics g, int origin[], AtomLeaf a) {
         if(!atomFilter.accept(a)) return;
         
         Vector r = a.coord.position();
@@ -101,7 +101,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
         }
     }
             
-    protected boolean computeShiftOrigin(Atom a, Boundary b) {
+    protected boolean computeShiftOrigin(AtomLeaf a, Boundary b) {
         if(a.type instanceof AtomTypeSphere) {
             float[][] shifts = b.getOverflowShifts(a.coord.position(),((AtomTypeSphere)a.type).radius(a));  //should instead of radius have a size for all AtomC types
             for(int i=0; i<shifts.length; i++) {
@@ -173,7 +173,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
         atomIterator.setPhase(displayPhase.getPhase());
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            drawAtom(g, displayPhase.getOrigin(), atomIterator.nextAtom());
+            drawAtom(g, displayPhase.getOrigin(), (AtomLeaf)atomIterator.nextAtom());
         }
             
         //Draw overflow images if so indicated

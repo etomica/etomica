@@ -7,6 +7,7 @@ import java.util.Iterator;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
@@ -68,7 +69,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         createOffScreen(width,height);
     }
        
-    protected void drawAtom(Graphics g, int origin[], Atom a) {
+    protected void drawAtom(Graphics g, int origin[], AtomLeaf a) {
         if(!atomFilter.accept(a)) return;
         Vector r = a.coord.position();
         int sigmaP, xP, yP, baseXP, baseYP;
@@ -176,7 +177,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         atomIterator.setPhase(displayPhase.getPhase());
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            drawAtom(g, atomOrigin, atomIterator.nextAtom());
+            drawAtom(g, atomOrigin, (AtomLeaf)atomIterator.nextAtom());
         }
             
         //Draw overflow images if so indicated
@@ -184,7 +185,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
             Boundary boundary = displayPhase.getPhase().getBoundary();
             atomIterator.reset();
             while(atomIterator.hasNext()) {
-                Atom a = atomIterator.nextAtom();
+                AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
                 if(!(a.type instanceof AtomTypeSphere)) continue;
                 float[][] shifts = boundary.getOverflowShifts(a.coord.position(),((AtomTypeSphere)a.type).radius(a));  //should instead of radius have a size for all AtomC types
                 for(int i=shifts.length-1; i>=0; i--) {

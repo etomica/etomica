@@ -14,7 +14,7 @@ import etomica.units.Quantity;
 public final class SpeciesAgent extends Atom {
 
     public SpeciesAgent(AtomType type, Species species) {
-        super(null, type, NODE_FACTORY);
+        super(type, NODE_FACTORY);
         type.setSpecies(species);
     }
         

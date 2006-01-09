@@ -1,34 +1,15 @@
 package etomica.atom;
 
-import java.io.IOException;
-
-import etomica.space.CoordinateFactorySphere;
-import etomica.space.ICoordinate;
 import etomica.space.Space;
-import etomica.util.Arrays;
-import etomica.util.EtomicaObjectInputStream;
 
  /**
   * Object corresponding to one physical atom or group of atoms. Each atom holds
   * the following publicly accessible fields:
   * <ul>
-  * <li>a Coordinate instance (fieldname: coord) that is constructed by the
-  * governing space class; the coordinate stores information about the state of
-  * the atom -- usually its position and momentum, but other definitions are possible
   * <li>an AtomType instance (fieldname: type) that holds information this atom
   * has in common with other atoms made by the same factory
   * <li>an instance of AtomTreeNode (fieldname: node) that is used to place it
   * in the species hierarchy
-  * <li>an instance of AtomLinker (fieldname: seq, for sequencer) that places
-  * it in the linked list of children held by its parenttom holds an object
-  * <li>an object (fieldname: ia, for integrator agent) that may be used to
-  * store information needed by the integrator
-  * <li>an array of objects (field name: allAtomAgents) that can be used to
-  * store in each atom any object needed by another class; such a class must
-  * implement Atom.AgentSource and request its object be stored in every atom by
-  * invoking Atom.requestAgentIndex before any atoms are constructed. The
-  * integer returned by this method will indicate the location in the
-  * allAtomAgents array where the agent-source's object will be held.
   * </ul>
   * <p>
   * @author David Kofke, Andrew Schultz, and C. Daniel Barnes
@@ -36,23 +17,20 @@ import etomica.util.EtomicaObjectInputStream;
   */
 public class Atom implements AtomSet, Comparable, java.io.Serializable {
 
-    public Atom(ICoordinate coord, AtomType type, 
-                    AtomTreeNodeFactory nodeFactory) {
+    public Atom(AtomType type, AtomTreeNodeFactory nodeFactory) {
         this.type = type;
-        this.coord = coord;
         node = nodeFactory.makeNode(this);
         node.setOrdinal(0,0); //-(++INSTANCE_COUNT));//default index; changed when added to parent after construction
     }
     
     /**
-     * Makes a simple atom for the given space.  Coordinate is non-kinetic sphere;
-     * node is for a leaf atom; sequencer is simple; type is a sphere with unit mass 
-     * and unit size, unique to the new atom; 
+     * Makes a simple atom for the given space.  Node is for a leaf atom; 
+     * type is a sphere with unit mass and unit size, unique to the new atom; 
      * depth is 0.
      */
     public Atom(Space space) {
-        this(new CoordinateFactorySphere(space, false).makeCoordinate(), new AtomTypeSphere(null,1,1), AtomTreeNodeLeaf.FACTORY);                        
-            node.setOrdinal(0,++INSTANCE_COUNT);//default index; changed when added to parent after construction
+        this(new AtomTypeSphere(null,1,1), AtomTreeNodeLeaf.FACTORY);                        
+        node.setOrdinal(0,++INSTANCE_COUNT);//default index; changed when added to parent after construction
     }
     
     /**
@@ -161,11 +139,6 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
     }
     
     /**
-     * Coordinates of this atom.
-     */
-    public final ICoordinate coord;
-    
-    /**
      * Tree node, used to place the atom in the species tree.
      */
     public final AtomTreeNode node;
@@ -177,16 +150,6 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
     public final AtomType type;
     
     /**
-     * An array of agents, or objects made by an agent source and added to this
-     * atom (and all other atoms) to perform some function or store data for the source.
-     * Placement of agents in this array is managed by the Atom class.  An agent
-     * source registers itself with Atom via the Atom.requestAgentIndex method, and
-     * the integer returned with that call indicates the place in this array where
-     * the source can find its agent in this atom.
-     */
-//    public Object[] allatomAgents;
-    
-    /**
      * Counter for number of times an atom is instantiated without a parent.  Used
      * to assign a unique index to such atoms.
      */
@@ -194,12 +157,4 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
     
     private int globalIndex = -1;
     
-    private void readObject(java.io.ObjectInputStream in)
-    throws IOException, ClassNotFoundException
-    {
-        EtomicaObjectInputStream etomicaIn = (EtomicaObjectInputStream)in; 
-        etomicaIn.defaultReadObject();
-        etomicaIn.addAtom(this);
-    }
-    
-}//end of Atom
+}

@@ -1,5 +1,6 @@
 package etomica.space;
 
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 
 /**
@@ -49,7 +50,7 @@ public class CoordinatePair implements java.io.Serializable {
      * transformation taken into account.  Separation is defined as pair.atom1 - pair.atom0.
      */
     public Vector reset(AtomPair pair) {
-        return reset(pair.atom0.coord, pair.atom1.coord);
+        return reset(((AtomLeaf)pair.atom0).coord, ((AtomLeaf)pair.atom1).coord);
     }
 
     /**

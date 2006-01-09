@@ -42,12 +42,12 @@ public abstract class AtomTreeNode implements Comparable, java.io.Serializable {
     }
     
     public abstract boolean isLeaf();
-    public abstract Atom firstLeafAtom();
+    public abstract AtomLeaf firstLeafAtom();
     
     /**
      * Returns the last leaf atom descended from this group.
      */
-    public abstract Atom lastLeafAtom();
+    public abstract AtomLeaf lastLeafAtom();
     
     public abstract int leafAtomCount();
     public abstract int childAtomCount();

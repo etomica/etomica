@@ -1,5 +1,6 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
@@ -98,7 +99,7 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
 	    iterator.reset();
 	    while(iterator.hasNext()) {                 //iterate over all pairs
 	    	AtomPair pair = (AtomPair)iterator.next();
-	    	cPair.reset(pair.atom0.coord, pair.atom1.coord);
+	    	cPair.reset(((AtomLeaf)pair.atom0).coord, ((AtomLeaf)pair.atom1).coord);
 	    	double r2 = cPair.r2();       //compute pair separation
 	        if(r2 < xMaxSquared) {
 	            int index = xDataSource.getIndex(Math.sqrt(r2));  //determine histogram index

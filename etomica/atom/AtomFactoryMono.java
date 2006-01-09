@@ -12,7 +12,8 @@ import etomica.species.Species;
 public class AtomFactoryMono extends AtomFactory {
     
     public AtomFactoryMono(CoordinateFactory coordFactory, AtomTypeLeaf atomType) {
-        super(coordFactory, atomType, AtomTreeNodeLeaf.FACTORY);
+        super(atomType, AtomTreeNodeLeaf.FACTORY);
+        this.coordFactory = coordFactory;
     }
     
     public void setSpecies(Species species) {
@@ -20,10 +21,21 @@ public class AtomFactoryMono extends AtomFactory {
     }
 
     /**
+     * Returns the CoordinateFactory that gives coordinates to the
+     * atom (or the root atom, if this makes an atom group) made by this
+     * AtomFactory
+     */
+    public CoordinateFactory getCoordinateFactory() {
+        return coordFactory;
+    }
+
+    /**
      * Returns a new leaf atom having no children.
      */
     public Atom makeAtom() {
-        return newParentAtom();
+        return new AtomLeaf(coordFactory.makeCoordinate(), atomType, nodeFactory);
     }
+    
+    protected final CoordinateFactory coordFactory;
     
 }//end of AtomFactoryMono

@@ -3,7 +3,6 @@ package etomica.atom;
 import etomica.config.Conformation;
 import etomica.config.ConformationLinear;
 import etomica.simulation.Simulation;
-import etomica.space.CoordinateFactoryNull;
 import etomica.space.Space;
 import etomica.species.Species;
 
@@ -57,7 +56,7 @@ public class AtomFactoryHomo extends AtomFactory {
      */
     public AtomFactoryHomo(Space space, AtomTypeGroup parentType,
                             AtomTreeNodeFactory nodeFactory, int atoms, Conformation config) {
-        super(new CoordinateFactoryNull(), new AtomTypeGroup(parentType, new AtomPositionGeometricCenter(space)), nodeFactory);
+        super(new AtomTypeGroup(parentType, new AtomPositionGeometricCenter(space)), nodeFactory);
         atomsPerGroup = atoms;
         conformation = config;
     }

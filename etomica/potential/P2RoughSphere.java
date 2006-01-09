@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
-import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
@@ -48,8 +48,8 @@ public class P2RoughSphere extends P2HardSphere {
      * Assumes atoms have same size and mass
      */
     public void bump(AtomSet pair, double falseTime) {
-        Atom a0 = ((AtomPair)pair).atom0;
-        Atom a1 = ((AtomPair)pair).atom1;
+        AtomLeaf a0 = (AtomLeaf)((AtomPair)pair).atom0;
+        AtomLeaf a1 = (AtomLeaf)((AtomPair)pair).atom1;
 		cPair.reset((AtomPair)pair);
         cPair.resetV();
         dr.E(cPair.dr());

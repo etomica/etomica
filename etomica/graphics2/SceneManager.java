@@ -4,6 +4,7 @@ package etomica.graphics2;
 import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
@@ -45,7 +46,7 @@ public final class SceneManager implements  java.io.Serializable
 		  	  initInternalTables();
     	for ( int i=0; i<sphereCores.length; i++ )
     	{
-   		      Atom a = sphereCores[i];
+   		      AtomLeaf a = sphereCores[i];
    		      int c = colorScheme.atomColor(a);
    		      Vector r = a.coord.position();
 
@@ -105,20 +106,20 @@ public final class SceneManager implements  java.io.Serializable
     		int countSphereCores = 0, countSphereWells = 0, countSphereRotators = 0;
     		int countWalls = 0, countAll = 0;
     		float vertAll[];
-    		Atom atoms[];
+    		AtomLeaf atoms[];
     		
     		countAll = phase.getSpeciesMaster().node.leafAtomCount();
     		
     		if(countAll==0) return;
     		
     		vertAll = new float[countAll*3];
-    		atoms = new Atom[countAll];
+    		atoms = new AtomLeaf[countAll];
     		
     		int i = 0;
     		AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(phase);
     		iter.reset();
     		while(iter.hasNext()) {
-    			Atom a = iter.nextAtom();
+    			AtomLeaf a = (AtomLeaf)iter.nextAtom();
     			atoms[i/3] = a;
     			vertAll[i] = (float)a.coord.position().x(0);// + drawExpansionShiftX;
     			vertAll[i+1] = (float)a.coord.position().x(1);// + drawExpansionShiftY;
@@ -129,9 +130,9 @@ public final class SceneManager implements  java.io.Serializable
     			i += 3;
     		}
     		
-    		sphereCores = new Atom[countSphereCores];
-    		sphereWells = new Atom[countSphereWells];
-    		sphereRotators = new Atom[countSphereRotators];
+    		sphereCores = new AtomLeaf[countSphereCores];
+    		sphereWells = new AtomLeaf[countSphereWells];
+    		sphereRotators = new AtomLeaf[countSphereRotators];
     		walls = new Atom[countWalls];
     		vertSphereCores = new float[countSphereCores*3];
     		vertSphereWellBase = new int[countSphereWells];
@@ -237,9 +238,9 @@ public final class SceneManager implements  java.io.Serializable
     private boolean tablesInitialized = false;
 
 //  The groups of atoms
-    private Atom sphereCores[];
-    private Atom sphereWells[];
-    private Atom sphereRotators[];
+    private AtomLeaf sphereCores[];
+    private AtomLeaf sphereWells[];
+    private AtomLeaf sphereRotators[];
     private Atom walls[];
 //    The verticies of said atoms
     private float vertSphereCores[];

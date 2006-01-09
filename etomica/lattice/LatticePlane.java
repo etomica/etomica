@@ -2,6 +2,7 @@ package etomica.lattice;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
+import etomica.atom.AtomLeaf;
 import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.math.geometry.Plane;
 import etomica.space.Space;
@@ -45,7 +46,7 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
     }
     
     public boolean accept(Atom a) {
-        return !plane.isPositiveSide((Vector3D)a.coord.position());
+        return !plane.isPositiveSide((Vector3D)((AtomLeaf)a).coord.position());
     }
     
     public void setPrimitive(Primitive primitive) {
