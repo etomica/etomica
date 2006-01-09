@@ -1,5 +1,6 @@
 package etomica.modules.reactionequilibrium;
 import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
@@ -114,8 +115,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 		double eps = 1.0e-10;
 		
 		// ke is kinetic energy due to components of velocity
-		Atom a0 = pair.atom0;
-		Atom a1 = pair.atom1;
+		AtomLeaf a0 = (AtomLeaf)pair.atom0;
+		AtomLeaf a1 = (AtomLeaf)pair.atom1;
         double rm0 = ((AtomTypeLeaf)a0.type).rm();
         double rm1 = ((AtomTypeLeaf)a1.type).rm();
 //		System.out.println("Bumping "+pair.toString());
@@ -187,8 +188,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 
 		lastCollisionVirialr2 = lastCollisionVirial / r2;
 		dv.Ea1Tv1(lastCollisionVirialr2, dr);
-		((ICoordinateKinetic) pair.atom0.coord).velocity().PEa1Tv1( rm0, dv);
-		((ICoordinateKinetic) pair.atom1.coord).velocity().PEa1Tv1(-rm1, dv);
+		((ICoordinateKinetic) a0.coord).velocity().PEa1Tv1( rm0, dv);
+		((ICoordinateKinetic) a1.coord).velocity().PEa1Tv1(-rm1, dv);
 		a0.coord.position().PEa1Tv1(-falseTime * rm0, dv);
 		a1.coord.position().PEa1Tv1(falseTime * rm1, dv);
 		

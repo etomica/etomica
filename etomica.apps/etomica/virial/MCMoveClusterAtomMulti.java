@@ -1,6 +1,7 @@
 package etomica.virial;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
@@ -17,7 +18,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
     public MCMoveClusterAtomMulti(Simulation sim, int nAtoms) {
         super(sim);
         this.nAtoms = nAtoms;
-        selectedAtoms = new Atom[nAtoms];
+        selectedAtoms = new AtomLeaf[nAtoms];
         translationVectors = new Vector[nAtoms];
         for (int i=0; i<nAtoms; i++) {
             translationVectors[i] = potential.getSpace().makeVector();
@@ -57,7 +58,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
     public void selectAtoms() {
     	int total=phase.getSpeciesMaster().atomList.size();
     	for(int i=total-1; i>total-nAtoms-1; i--) {
-    		selectedAtoms[total-1-i] = phase.getSpeciesMaster().atomList.get(i);
+    		selectedAtoms[total-1-i] = (AtomLeaf)phase.getSpeciesMaster().atomList.get(i);
     	}
     }
 
@@ -74,6 +75,6 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
 
     private MeterClusterWeight weightMeter;
     private final int nAtoms;
-    private final Atom[] selectedAtoms;
+    private final AtomLeaf[] selectedAtoms;
     private final Vector[] translationVectors;
 }

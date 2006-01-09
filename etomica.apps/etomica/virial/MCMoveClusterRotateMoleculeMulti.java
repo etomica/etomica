@@ -10,6 +10,7 @@ import etomica.action.AtomAction;
 import etomica.action.AtomTransform;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.phase.Phase;
@@ -64,14 +65,14 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
             molecule = selectedMolecules[i];
             leafAtomIterator.setRoot(molecule);
             leafAtomIterator.reset();
-            Atom O = leafAtomIterator.nextAtom();
+            AtomLeaf O = (AtomLeaf)leafAtomIterator.nextAtom();
         
             double dTheta = (2*Simulation.random.nextDouble() - 1.0)*stepSize;
             rotationTensor.setAxial(Simulation.random.nextInt(3),dTheta);
             
             int j=0;
             while (leafAtomIterator.hasNext()) {
-                oldPositions[i][j++].E(leafAtomIterator.nextAtom().coord.position());
+                oldPositions[i][j++].E(((AtomLeaf)leafAtomIterator.nextAtom()).coord.position());
             }
             leafAtomIterator.reset();
             r0.E(O.coord.position());
@@ -120,7 +121,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
             leafAtomIterator.nextAtom();
             int j=0;
             while (leafAtomIterator.hasNext()) {
-                leafAtomIterator.nextAtom().coord.position().E(oldPositions[i][j++]);
+                ((AtomLeaf)leafAtomIterator.nextAtom()).coord.position().E(oldPositions[i][j++]);
             }
         }
         ((PhaseCluster)phase).rejectNotify();

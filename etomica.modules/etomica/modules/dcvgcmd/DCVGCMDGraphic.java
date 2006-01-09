@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 import etomica.atom.Atom;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomFilter;
+import etomica.atom.AtomLeaf;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.DataTableAverages;
@@ -27,10 +28,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
-import etomica.modules.dcvgcmd.IntegratorDCVGCMD.Mu1Modulator;
-import etomica.modules.dcvgcmd.IntegratorDCVGCMD.Mu2Modulator;
 import etomica.units.Kelvin;
-import etomica.util.Default;
 
 /**
  * @author msellers and nsives
@@ -225,7 +223,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
             DCVGCMD simulation = (DCVGCMD)getSimulation();
             if(atom.type.getSpecies() != simulation.speciesTube) return true;
             double x0 = simulation.poreCenter.x(0);
-            return atom.coord.position().x(0) < x0;
+            return ((AtomLeaf)atom).coord.position().x(0) < x0;
 
         }
     }

@@ -1,5 +1,6 @@
 package etomica.spin;
 
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
@@ -43,7 +44,7 @@ public class P2Spin extends Potential2 {
     public double energy(AtomSet atoms) {
         AtomPair pair = (AtomPair) atoms;
         return -coupling
-                * pair.atom0.coord.position().dot(pair.atom1.coord.position());
+                * ((AtomLeaf)pair.atom0).coord.position().dot(((AtomLeaf)pair.atom1).coord.position());
     }
 
     /**

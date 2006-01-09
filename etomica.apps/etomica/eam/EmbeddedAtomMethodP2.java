@@ -2,9 +2,9 @@ package etomica.eam;
 import etomica.EtomicaElement;
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
-import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.phase.Phase;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Space;
@@ -208,7 +208,7 @@ public final class EmbeddedAtomMethodP2 extends Potential2SoftSpherical implemen
         if (atom == null) {
             return new Wrapper(null);
         }
-        return new Wrapper((atom.coord != null) ? (Vector)atom.coord.position().clone() : null);
+        return new Wrapper(atom.type.isLeaf() ? (Vector)((AtomLeaf)atom).coord.position().clone() : null);
     }
     
     public void releaseAgent(Object agent) {}

@@ -1,6 +1,7 @@
 package etomica.spin;
 
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.config.Configuration;
 import etomica.space.Space;
@@ -38,7 +39,7 @@ public class ConfigurationAligned extends Configuration {
             iterator.setList(atomList[i]);
             iterator.reset();
             while(iterator.hasNext()) {
-                Vector spin = iterator.nextAtom().coord.position();
+                Vector spin = ((AtomLeaf)iterator.nextAtom()).coord.position();
                 spin.E(0.0);
                 spin.setX(0,1.0);
             }

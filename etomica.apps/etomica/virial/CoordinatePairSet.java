@@ -2,6 +2,7 @@ package etomica.virial;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionFirstAtom;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.space.CoordinatePair;
@@ -55,9 +56,9 @@ public class CoordinatePairSet implements java.io.Serializable {
             cPairs[i] = new CoordinatePair[N-1-i];
             for(int j=0; j<N-1-i; j++) {
                 CoordinatePair cPair;
-                if (atoms[i].coord != null) {
+                if (atoms[i].type.isLeaf()) {
                     cPair = new CoordinatePair(space);
-                    cPair.reset(atoms[i].coord,atoms[i+j+1].coord);
+                    cPair.reset(((AtomLeaf)atoms[i]).coord,((AtomLeaf)atoms[i+j+1]).coord);
                 }
                 else {
                     cPair = new CoordinatePairMolecular(space,new AtomPositionFirstAtom());

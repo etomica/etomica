@@ -5,6 +5,7 @@ package etomica.virial;
 
 import etomica.action.AtomActionAdapter;
 import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.models.water.AtomTreeNodeWater3P;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -19,9 +20,9 @@ public class AtomActionRelaxWater3P extends AtomActionAdapter {
     
     public void actionPerformed(Atom molecule) {
         AtomTreeNodeWater3P waterNode = (AtomTreeNodeWater3P)molecule.node;
-        Atom O = waterNode.O;
-        Atom H1 = waterNode.H1;
-        Atom H2 = waterNode.H2;
+        AtomLeaf O = waterNode.O;
+        AtomLeaf H1 = waterNode.H1;
+        AtomLeaf H2 = waterNode.H2;
         // normalize OH1
         Vector p1 = H1.coord.position();
         p1.ME(O.coord.position());

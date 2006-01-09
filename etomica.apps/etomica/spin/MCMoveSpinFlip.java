@@ -1,6 +1,6 @@
 package etomica.spin;
 
-import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -45,7 +45,7 @@ public class MCMoveSpinFlip extends MCMove {
      * @see etomica.integrator.MCMove#doTrial()
      */
     public boolean doTrial() {
-        atom = phase.getSpeciesMaster().atomList.getRandom();
+        atom = (AtomLeaf)phase.getSpeciesMaster().atomList.getRandom();
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
         atom.coord.position().TE(-1);
@@ -100,7 +100,7 @@ public class MCMoveSpinFlip extends MCMove {
 
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     protected final MeterPotentialEnergy energyMeter;
-    protected Atom atom;
+    protected AtomLeaf atom;
     protected double uOld;
     protected double uNew = Double.NaN;
 

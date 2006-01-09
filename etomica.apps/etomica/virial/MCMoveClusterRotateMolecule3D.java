@@ -3,6 +3,7 @@ package etomica.virial;
 import etomica.action.AtomAction;
 import etomica.action.AtomTransform;
 import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.phase.Phase;
@@ -58,10 +59,10 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
 
         leafAtomIterator.setRoot(molecule);
         leafAtomIterator.reset();
-        Atom first = leafAtomIterator.nextAtom();
+        AtomLeaf first = (AtomLeaf)leafAtomIterator.nextAtom();
         int j=0;
         while (leafAtomIterator.hasNext()) {
-            oldPositions[j++].E(leafAtomIterator.nextAtom().coord.position());
+            oldPositions[j++].E(((AtomLeaf)leafAtomIterator.nextAtom()).coord.position());
         }
         leafAtomIterator.reset();
         r0.E(first.coord.position());

@@ -1,7 +1,7 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.action.AtomActionRandomizeVelocity;
-import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
@@ -97,7 +97,7 @@ public class MyMCMove extends MCMoveInsertDelete {
     	double zmin = nearOrigin ? 0.0 : (1.0-zFraction)*zBoundary;
     	double zmax = nearOrigin ? zFraction*zBoundary : zBoundary;
     	while(atomIterator.hasNext()) {
-    		Atom atom = atomIterator.nextAtom();
+    		AtomLeaf atom = (AtomLeaf)atomIterator.nextAtom();
     		double z = atom.coord.position().x(2);
     		if(z < zmin || z > zmax) continue;
     		activeAtoms.add(atom);

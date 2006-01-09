@@ -1,5 +1,6 @@
 package etomica.modules.chainequilibrium;
 import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
@@ -164,8 +165,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 		double eps = 1.0e-10;
 		
 		// ke is kinetic energy due to components of velocity
-		Atom a0 = pair.atom0;
-		Atom a1 = pair.atom1;
+		AtomLeaf a0 = (AtomLeaf)pair.atom0;
+		AtomLeaf a1 = (AtomLeaf)pair.atom1;
 		
 		double reduced_m = 2.0 / (((AtomTypeLeaf)a0.type).rm + ((AtomTypeLeaf)a1.type).rm);
 		double ke = bij * bij * reduced_m / (4.0 * r2);
@@ -203,8 +204,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 
 		lastCollisionVirialr2 = lastCollisionVirial / r2;
 		dv.Ea1Tv1(lastCollisionVirialr2, dr);
-		((ICoordinateKinetic) pair.atom0.coord).velocity().PEa1Tv1(((AtomTypeLeaf)a0.type).rm, dv);
-		((ICoordinateKinetic) pair.atom1.coord).velocity().PEa1Tv1(-((AtomTypeLeaf)a1.type).rm, dv);
+		((ICoordinateKinetic) a0.coord).velocity().PEa1Tv1(((AtomTypeLeaf)a0.type).rm, dv);
+		((ICoordinateKinetic) a1.coord).velocity().PEa1Tv1(-((AtomTypeLeaf)a1.type).rm, dv);
 		a0.coord.position().PEa1Tv1(-falseTime * ((AtomTypeLeaf)a0.type).rm, dv);
 		a1.coord.position().PEa1Tv1(falseTime * ((AtomTypeLeaf)a1.type).rm, dv);
 		
