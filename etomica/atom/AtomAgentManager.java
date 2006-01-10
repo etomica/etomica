@@ -80,6 +80,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
                 }
                 // add all atoms below this atom
                 treeIterator.setRoot(a);
+                treeIterator.reset();
                 while (treeIterator.hasNext()) {
                     addAgent(treeIterator.nextAtom());
                 }
