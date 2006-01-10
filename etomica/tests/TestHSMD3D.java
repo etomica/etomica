@@ -59,14 +59,14 @@ public class TestHSMD3D extends Simulation {
         species2.setNMolecules(numAtoms/100);
 
         potential = new P2HardSphere(this);
-        NeighborCriterion nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
+        NeighborCriterion nbrCriterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
         CriterionSpecies criterion = new CriterionSpecies(nbrCriterion, species, species);
         potential.setCriterion(criterion);
         potentialMaster.addPotential(potential,new Species[]{species,species});
         nbrManager.addCriterion(nbrCriterion,new AtomType[]{species.getFactory().getType(),species.getFactory().getType()});
 
         potential = new P2HardSphere(this);
-        nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
+        nbrCriterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
         criterion = new CriterionSpecies(nbrCriterion, species, species2);
         potential.setCriterion(criterion);
         potentialMaster.addPotential(potential,new Species[]{species,species2});
@@ -74,7 +74,7 @@ public class TestHSMD3D extends Simulation {
         nbrManager.addCriterion(nbrCriterion,new AtomType[]{species.getFactory().getType(),species2.getFactory().getType()});
 
         potential = new P2HardSphere(this);
-        nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
+        nbrCriterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
         criterion = new CriterionSpecies(nbrCriterion, species2, species2);
         potential.setCriterion(criterion);
         potentialMaster.addPotential(potential,new Species[]{species2,species2});

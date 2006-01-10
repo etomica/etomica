@@ -9,6 +9,7 @@ import etomica.lattice.FiniteLattice;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.phase.Phase;
+import etomica.simulation.Simulation;
 
 /*
  * History
@@ -19,9 +20,9 @@ public class ColorSchemeCell extends ColorSchemeCollective {
     private final HashMap hash = new HashMap();
     private final AtomIteratorListSimple allIterator = new AtomIteratorListSimple();
     
-    public ColorSchemeCell(PotentialMasterCell potentialMasterCell) {
-        super();
-        this.potentialMasterCell = potentialMasterCell;
+    public ColorSchemeCell(Simulation sim) {
+        super(sim);
+        potentialMasterCell = (PotentialMasterCell)sim.potentialMaster;
     }
     
     public void setLattice(FiniteLattice lattice) {

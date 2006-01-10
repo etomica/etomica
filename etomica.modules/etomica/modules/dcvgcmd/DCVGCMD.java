@@ -93,7 +93,7 @@ public class DCVGCMD extends Simulation {
 
         //0-0 intraspecies interaction
         potential = new P2WCA(this);
-        NeighborCriterion nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
+        NeighborCriterion nbrCriterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
         CriterionSpecies criterion = new CriterionSpecies(nbrCriterion, species, species);
         potential.setCriterion(criterion);
         nbrManager.addCriterion(nbrCriterion,new AtomType[]{species.getFactory().getType()});
@@ -101,7 +101,7 @@ public class DCVGCMD extends Simulation {
         
         //1-1 intraspecies interaction
         P2WCA potential11 = new P2WCA(this);
-        nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential11.getRange());
+        nbrCriterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential11.getRange());
         criterion = new CriterionSpecies(nbrCriterion, species1, species1);
         potential11.setCriterion(criterion);
         nbrManager.addCriterion(nbrCriterion,new AtomType[]{species1.getFactory().getType()});
@@ -109,7 +109,7 @@ public class DCVGCMD extends Simulation {
 
         //0-1 interspecies interaction
         potential1 = new P2WCA(this);
-        nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential1.getRange());
+        nbrCriterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential1.getRange());
         criterion = new CriterionSpecies(nbrCriterion, species1, species);
         potential1.setCriterion(criterion);
         nbrManager.addCriterion(nbrCriterion, new AtomType[]{species.getFactory().getType(),species1.getFactory().getType()});
@@ -117,14 +117,14 @@ public class DCVGCMD extends Simulation {
 
         P2WCA potentialTubeAtom = new P2WCA(this);
         potentialMaster.addPotential(potentialTubeAtom,new AtomType[] { tubetype, speciestype});
-        nbrCriterion = new CriterionSimple(space,potentialTubeAtom.getRange(),neighborRangeFac*potentialTubeAtom.getRange());
+        nbrCriterion = new CriterionSimple(this,potentialTubeAtom.getRange(),neighborRangeFac*potentialTubeAtom.getRange());
         criterion = new CriterionSpecies(nbrCriterion, speciesTube, species);
         potentialTubeAtom.setCriterion(criterion);
         nbrManager.addCriterion(nbrCriterion,new AtomType[]{species.getFactory().getType(),((AtomFactoryHomo)speciesTube.getFactory()).getChildFactory().getType()});
         
         P2WCA potentialTubeAtom1 = new P2WCA(this);
         potentialMaster.addPotential(potentialTubeAtom1,new AtomType[] { tubetype, speciestype1});
-        nbrCriterion = new CriterionSimple(space,potentialTubeAtom1.getRange(),neighborRangeFac*potentialTubeAtom.getRange());
+        nbrCriterion = new CriterionSimple(this,potentialTubeAtom1.getRange(),neighborRangeFac*potentialTubeAtom.getRange());
         criterion = new CriterionSpecies(nbrCriterion, speciesTube, species1);
         potentialTubeAtom1.setCriterion(criterion);
         nbrManager.addCriterion(nbrCriterion,new AtomType[]{species1.getFactory().getType()});

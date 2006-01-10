@@ -99,7 +99,7 @@ public class EAMMd3D extends Simulation {
         ((AtomTypeSphere)species.getFactory().getType()).setDiameter(3.44); 
         // This forces the EmbeddedAtomMethodP2 to 
         //request an agentIndex from Atom.
-        potentialA = new EmbeddedAtomMethodP2(space, ParameterSetEAM.Sn);
+        potentialA = new EmbeddedAtomMethodP2(this, ParameterSetEAM.Sn);
         phase = new Phase(this);
         PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.8318, 3.1819);
         LatticeCrystal crystal = new LatticeCrystal(new Crystal(

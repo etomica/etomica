@@ -65,7 +65,7 @@ public class ChainHSMD3D extends Simulation {
         
         //PotentialGroup p2Inter = new PotentialGroup(2, space);
         potential = new P2HardSphere(this);
-        NeighborCriterion criterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
+        NeighborCriterion criterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
 //FIXME        ApiFiltered interIterator = new ApiFiltered(new ApiIntergroup(),criterion);
 //FIXME        p2Inter.addPotential(potential,interIterator);
 //FIXME        NeighborCriterionWrapper moleculeCriterion = new NeighborCriterionWrapper(new NeighborCriterion[]{criterion});

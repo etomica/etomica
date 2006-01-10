@@ -67,7 +67,7 @@ public class TestSWChain extends Simulation {
         ((PotentialMasterList)potentialMaster).setRange(neighborRangeFac*sqwLambda*defaults.atomSize);
 
         P2SquareWell potential = new P2SquareWell(space,defaults.atomSize,sqwLambda,0.5*defaults.potentialWell, false);
-        NeighborCriterion nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
+        NeighborCriterion nbrCriterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
 
         SpeciesSpheres species = new SpeciesSpheres(this,chainLength);
         species.setNMolecules(numMolecules);
@@ -85,7 +85,7 @@ public class TestSWChain extends Simulation {
         ((ConformationLinear)species.getFactory().getConformation()).setBondLength(defaults.atomSize);
 
         potential = new P2SquareWell(space,defaults.atomSize,sqwLambda,0.5*defaults.potentialWell,false);
-        nbrCriterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
+        nbrCriterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
         CriterionMolecular criterionMolecular = new CriterionMolecular(nbrCriterion);
         criterionMolecular.setIntraMolecular(false);
         potential.setCriterion(criterionMolecular);

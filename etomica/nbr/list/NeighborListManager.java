@@ -12,6 +12,7 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
+import etomica.atom.SpeciesRoot;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.integrator.IntegratorIntervalEvent;
@@ -22,6 +23,8 @@ import etomica.integrator.IntegratorPhase;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.cell.ApiAACell;
 import etomica.phase.Phase;
+import etomica.phase.PhaseAgentManager;
+import etomica.phase.PhaseAgentSourceAtomManager;
 import etomica.potential.Potential;
 import etomica.potential.Potential2;
 import etomica.util.Arrays;
@@ -45,7 +48,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     /**
      * Configures instance for use by the given PotentialMaster.
      */
-    public NeighborListManager(PotentialMasterList potentialMaster, double range) {
+    public NeighborListManager(PotentialMasterList potentialMasterList, double range) {
         super();
         setUpdateInterval(1);
         iieCount = updateInterval;
@@ -56,9 +59,9 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         setPriority(200);
         pbcEnforcer = new PhaseImposePbc();
         pbcEnforcer.setApplyToMolecules(false);
-        this.potentialMaster = potentialMaster;
+        potentialMaster = potentialMasterList;
         cellNbrIterator = new ApiAACell(potentialMaster.getSpace().D(), range);
-        agentManagers = new AtomAgentManager[0];
+        phaseAgentManager = new PhaseAgentManager(new PhaseAgentSourceAtomManager(this),null);
     }
 
     /**
@@ -75,6 +78,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     public void nonintervalAction(IntegratorNonintervalEvent evt) {
         if (evt.type() == IntegratorNonintervalEvent.INITIALIZE) {
             Phase phase = ((IntegratorPhase)evt.getSource()).getPhase();
+            phaseAgentManager.setRoot((SpeciesRoot)phase.getSpeciesMaster().node.parentGroup());
             potentialMaster.updateTypeList(phase);
             reset(((IntegratorPhase)evt.getSource()).getPhase());
         }
@@ -235,14 +239,8 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * @param phase phase in which neighbor setup is performed.
      */
     public void neighborSetup(Phase phase) {
-        int phaseIndex = phase.getOrdinal();
-        if (agentManagers.length < phaseIndex) {
-            agentManagers = (AtomAgentManager[])Arrays.resizeArray(agentManagers,phaseIndex);
-        }
-        if (agentManagers[phaseIndex-1] == null) {
-            agentManagers[phaseIndex-1] = new AtomAgentManager(this,phase);
-        }
-        neighborLists = (AtomNeighborLists[])agentManagers[phaseIndex-1].getAgents();
+        agentManagers = (AtomAgentManager[])phaseAgentManager.getAgents();
+        neighborLists = (AtomNeighborLists[])agentManagers[phase.getOrdinal()-1].getAgents();
 
         iterator.setRoot(phase.getSpeciesMaster());
         neighborReset.setNeighborLists(neighborLists);
@@ -330,6 +328,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     private NeighborCriterion[][] criteria = new NeighborCriterion[0][0];
     private AtomNeighborLists[] neighborLists;
     private AtomAgentManager[] agentManagers;
+    private final PhaseAgentManager phaseAgentManager;
 
     /**
      * Atom action class that checks if any criteria indicate that the given

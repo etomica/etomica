@@ -106,7 +106,7 @@ public class TestHexane extends Simulation {
         //The NeighborCriterion defines the neighbors on the neighbor list.
         //It is a range in the potential, multiplied by some factor to extend
         // it (neighborRangeFac).
-        NeighborCriterion nbrCriterion = new CriterionSimple(space, potential
+        NeighborCriterion nbrCriterion = new CriterionSimple(this, potential
                 .getRange(), neighborRangeFac * potential.getRange());
 
         //here we create an on-the-molecule-checking sub-criterion/criterion

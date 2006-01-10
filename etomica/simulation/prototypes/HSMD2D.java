@@ -72,15 +72,15 @@ public class HSMD2D extends Simulation {
 	    //this.potentialMaster.setSpecies(potential,new Species[]{species2,species2});
 	    //this.potentialMaster.setSpecies(potential,new Species[]{species,species2});
         
-        NeighborCriterion criterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
+        NeighborCriterion criterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
         potential.setCriterion(criterion);
         potentialMaster.addPotential(potential,new Species[]{species,species});
 
-        criterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
+        criterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
         potential2.setCriterion(criterion);
         potentialMaster.addPotential(potential2,new Species[]{species2,species2});
 
-        criterion = new CriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
+        criterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
         potential22.setCriterion(criterion);
         potentialMaster.addPotential(potential22,new Species[]{species2,species});
         nbrManager.addCriterion(criterion,new AtomType[]{species.getFactory().getType(),species2.getFactory().getType()});

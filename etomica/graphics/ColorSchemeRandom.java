@@ -2,13 +2,14 @@ package etomica.graphics;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorListTabbed;
 import etomica.phase.Phase;
+import etomica.simulation.Simulation;
 
 public class ColorSchemeRandom extends ColorSchemeCollective {
     
     private final AtomIteratorListTabbed iterator = new AtomIteratorListTabbed();
     
-    public ColorSchemeRandom() {
-        super();
+    public ColorSchemeRandom(Simulation sim) {
+        super(sim);
     }
     
     public void colorAllAtoms(Phase phase) {
@@ -21,4 +22,4 @@ public class ColorSchemeRandom extends ColorSchemeCollective {
             }
         }
     }
-}//end of ColorSchemeRandom
+}

@@ -1,4 +1,6 @@
 package etomica.eam;
+import java.awt.Color;
+
 import etomica.EtomicaElement;
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
@@ -6,8 +8,10 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
+import etomica.phase.PhaseAgentManager;
+import etomica.phase.PhaseAgentSourceAtomManager;
 import etomica.potential.Potential2SoftSpherical;
-import etomica.space.Space;
+import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.units.Energy;
@@ -24,30 +28,21 @@ import etomica.util.Arrays;
 
 public final class EmbeddedAtomMethodP2 extends Potential2SoftSpherical implements EtomicaElement, AtomAgentManager.AgentSource {
 
-	public EmbeddedAtomMethodP2(Space space, ParameterSetEAM p) {
-		super(space);
+	public EmbeddedAtomMethodP2(Simulation sim, ParameterSetEAM p) {
+		super(sim.space);
         this.p = p;
         work1 = space.makeVector();
+        phaseAgentManager = new PhaseAgentManager(new PhaseAgentSourceAtomManager(this),sim.speciesRoot);
     }
 	
     public void setPhase(Phase phase){
         super.setPhase(phase);
+        agentManager = (AtomAgentManager[])phaseAgentManager.getAgents();
         agents = getAgents(phase);
     }
     
     public Wrapper[] getAgents(Phase phase) {
-        if (agentManager == null) {
-//          ((SpeciesRoot)phase.getSpeciesMaster().node.parentGroup()).addListener(this);
-          agentManager = new AtomAgentManager[0];
-        }
-        int index = phase.getOrdinal();
-        if (index+1 > agentManager.length) {
-            agentManager = (AtomAgentManager[])Arrays.resizeArray(agentManager,index+1);
-        }
-        if (agentManager[index] == null) {
-            agentManager[index] = new AtomAgentManager(this,phase);
-        }
-        agents = (Wrapper[])agentManager[index].getAgents();
+        agents = (Wrapper[])agentManager[phase.getOrdinal()-1].getAgents();
         return agents;
     }
 
@@ -203,6 +198,7 @@ public final class EmbeddedAtomMethodP2 extends Potential2SoftSpherical implemen
     private AtomPair pair;
     protected AtomAgentManager[] agentManager;
     protected Wrapper[] agents;
+    private final PhaseAgentManager phaseAgentManager;
     
     public Object makeAgent(Atom atom) {
         if (atom == null) {

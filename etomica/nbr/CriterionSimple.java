@@ -1,14 +1,18 @@
 package etomica.nbr;
 
+import java.awt.Color;
+
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.phase.Phase;
+import etomica.phase.PhaseAgentManager;
+import etomica.phase.PhaseAgentSourceAtomManager;
+import etomica.simulation.Simulation;
 import etomica.space.CoordinatePair;
 import etomica.space.NearestImageTransformerVector;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.Arrays;
 import etomica.util.Debug;
@@ -21,15 +25,16 @@ import etomica.util.Debug;
  */
 public class CriterionSimple extends NeighborCriterion implements AgentSource  {
 
-	public CriterionSimple(Space space, double interactionRange, double neighborRadius) {
+	public CriterionSimple(Simulation sim, double interactionRange, double neighborRadius) {
 		super();
 		this.interactionRange = interactionRange;
         neighborRadius2 = neighborRadius * neighborRadius;
         setSafetyFactor(0.4);
-        cPair = new CoordinatePair(space);
+        cPair = new CoordinatePair(sim.space);
         nearestImageTransformer = new NearestImageTransformerVector();
         nearestImageTransformer.setPlus(false);
         cPair.setNearestImageTransformer(nearestImageTransformer);
+        phaseAgentManager = new PhaseAgentManager(new PhaseAgentSourceAtomManager(this),sim.speciesRoot);
 	}
 	
 	public void setSafetyFactor(double f) {
@@ -72,18 +77,8 @@ public class CriterionSimple extends NeighborCriterion implements AgentSource  {
 
 	public void setPhase(Phase phase) {
         cPair.setNearestImageTransformer(phase.getBoundary());
-        if (agentManager == null) {
-//            ((SpeciesRoot)phase.getSpeciesMaster().node.parentGroup()).addListener(this);
-            agentManager = new AtomAgentManager[0];
-        }
-        int index = phase.getOrdinal();
-        if (index+1 > agentManager.length) {
-            agentManager = (AtomAgentManager[])Arrays.resizeArray(agentManager,index+1);
-        }
-        if (agentManager[index] == null) {
-            agentManager[index] = new AtomAgentManager(this,phase);
-        }
-        agents = (Vector[])agentManager[index].getAgents();
+        agentManager = (AtomAgentManager[])phaseAgentManager.getAgents();
+        agents = (Vector[])agentManager[phase.getOrdinal()-1].getAgents();
 	}
     
 	public boolean unsafe() {
@@ -123,4 +118,5 @@ public class CriterionSimple extends NeighborCriterion implements AgentSource  {
     private final NearestImageTransformerVector nearestImageTransformer;
     private AtomAgentManager[] agentManager;
     protected Vector[] agents;
+    private final PhaseAgentManager phaseAgentManager;
 }
