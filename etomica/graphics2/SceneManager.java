@@ -2,12 +2,11 @@ package etomica.graphics2;
 
 
 import etomica.atom.Atom;
+import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
 import etomica.atom.AtomLeaf;
-import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.AtomTypeWell;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
@@ -21,8 +20,7 @@ import etomica.space3d.Vector3D;
  *  using the Renderable interface. 
  * It does not handle mouse or keyboard - it's up to the implamentation to do it. 
  */
-public final class SceneManager implements  java.io.Serializable
-{
+public final class SceneManager {
     
     public SceneManager() 
     {
@@ -30,34 +28,82 @@ public final class SceneManager implements  java.io.Serializable
         setScale(1.0);
  
     	colorScheme = new ColorSchemeByType();
-    	
+        
+        agentManager = new AtomAgentManager(new SphereShapeSource(),null);
    }
 
-    public void setRenderer( Renderable r )
-    {
+    public void setRenderer( Renderable r ) {
     	renderer = r;
     }
 
    
-    public void updateAtomPositions()
-    {
+    public void updateAtomPositions() {
         if(!isVisible() || getPhase() == null) return;
-	    if(!tablesInitialized) 
-		  	  initInternalTables();
-    	for ( int i=0; i<sphereCores.length; i++ )
-    	{
-   		      AtomLeaf a = sphereCores[i];
-   		      int c = colorScheme.atomColor(a);
-   		      Vector r = a.coord.position();
+        // Create graphical object for the boundary
+        Boundary bnd = phase.getBoundary();
+        Polytope shape = bnd.getShape();
+        boolean needUpdate = false;
+        Vector[] newVertices = shape.getVertices();
+        if (boundaryVertices == null || boundaryVertices.length != newVertices.length) {
+            boundaryVertices = new Vector3D[newVertices.length];
+            for (int i=0; i<boundaryVertices.length; i++) {
+                boundaryVertices[i] = (Vector)newVertices[i].clone();
+            }
+            needUpdate = true;
+        }
+        else {
+            for (int i=0; i<boundaryVertices.length; i++) {
+                if (!boundaryVertices[i].equals(newVertices[i])) {
+                    boundaryVertices[i].E(newVertices[i]);
+                    needUpdate = true;
+                }
+            }
+        }
 
-   		      Renderable.Shape shp = core_shapes[i];
-   		      shp.setPosition( r );
-   		      shp.setColor( c );
-		}
+        if (needUpdate) {
+            if (boundaryPoly != null) {
+                boundaryPoly.dispose();
+            }
+            
+            LineSegment[] edges = shape.getEdges();
+            Vector shift = phase.space().makeVector();
+            shift.Ea1Tv1( +0.5, bnd.getDimensions() );
+            
+            boundaryPoly = renderer.createPoly();
+            for(int i=0; i<edges.length; i++) 
+            {           
+                from.Ev1Pv2( edges[i].getVertices()[0], shift );
+                to.Ev1Pv2( edges[i].getVertices()[1], shift );
+                boundaryPoly.appendLine( from, to );                
+            }
+            needUpdate = false;
+        }
+
+        sphereShapeWrappers = (SphereShapeWrapper[])agentManager.getAgents();
+        for (int i=0; i<sphereShapeWrappers.length; i++) {
+            if (sphereShapeWrappers[i] != null) {
+                AtomLeaf a = sphereShapeWrappers[i].atom;
+                int c = colorScheme.atomColor(a);
+                Vector r = a.coord.position();
+    
+                Renderable.Shape shp = sphereShapeWrappers[i].shape;
+                shp.setPosition( r );
+                shp.setColor( c );
+            }
+        }
     }
     
-    public void setPhase(Phase phase) {
-    	this.phase = phase;
+    public void setPhase(Phase newPhase) {
+        if (phase != null) {
+            agentManager.setPhase(null);
+        }
+        if (newPhase != null) {
+            agentManager.setPhase(newPhase);
+        }
+        sphereShapeWrappers = (SphereShapeWrapper[])agentManager.getAgents();
+    	phase = newPhase;
+        from = phase.space().makeVector();
+        to = phase.space().makeVector();
     }
     
     public Phase getPhase() {
@@ -98,104 +144,6 @@ public final class SceneManager implements  java.io.Serializable
     }
     public int getDrawBoundary() {return drawBoundary;}
 
-    
-    public synchronized void initInternalTables() 
-    {
-    	try
-		{
-    		int countSphereCores = 0, countSphereWells = 0, countSphereRotators = 0;
-    		int countWalls = 0, countAll = 0;
-    		float vertAll[];
-    		AtomLeaf atoms[];
-    		
-    		countAll = phase.getSpeciesMaster().node.leafAtomCount();
-    		
-    		if(countAll==0) return;
-    		
-    		vertAll = new float[countAll*3];
-    		atoms = new AtomLeaf[countAll];
-    		
-    		int i = 0;
-    		AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(phase);
-    		iter.reset();
-    		while(iter.hasNext()) {
-    			AtomLeaf a = (AtomLeaf)iter.nextAtom();
-    			atoms[i/3] = a;
-    			vertAll[i] = (float)a.coord.position().x(0);// + drawExpansionShiftX;
-    			vertAll[i+1] = (float)a.coord.position().x(1);// + drawExpansionShiftY;
-    			vertAll[i+2] = (float)a.coord.position().x(2);// + drawExpansionShiftZ;
-    			if(a.type instanceof AtomTypeOrientedSphere) countSphereRotators++;
-    			if(a.type instanceof AtomTypeWell) countSphereWells++;
-    			if(a.type instanceof AtomTypeSphere) countSphereCores++;
-    			i += 3;
-    		}
-    		
-    		sphereCores = new AtomLeaf[countSphereCores];
-    		sphereWells = new AtomLeaf[countSphereWells];
-    		sphereRotators = new AtomLeaf[countSphereRotators];
-    		walls = new Atom[countWalls];
-    		vertSphereCores = new float[countSphereCores*3];
-    		vertSphereWellBase = new int[countSphereWells];
-    		vertSphereRotatorBase = new int[countSphereRotators];
-    		vertWalls = new float[countWalls*3];
-    		for(int j=0,k=0,l=0,m=0; (j/3) < atoms.length; j+=3) {
-    			if(atoms[j/3].type instanceof AtomTypeSphere) {
-    				sphereCores[m/3] = atoms[j/3];
-    				vertSphereCores[m] = vertAll[j];
-    				vertSphereCores[m+1] = vertAll[j+1];
-    				vertSphereCores[m+2] = vertAll[j+2];
-    				m+=3;
-    			}
-    			if(atoms[j/3].type instanceof AtomTypeOrientedSphere) {
-    				sphereRotators[k] = atoms[j/3];
-    				vertSphereRotatorBase[k] = m-3;
-    				k++;
-    			}
-    			if(atoms[j/3].type instanceof AtomTypeWell) {
-    				sphereWells[l] = atoms[j/3];
-    				vertSphereWellBase[l] = m-3;
-    				l++;
-    			}
-    		}
-    		
-    		// Create graphical object for sphere cores
-    		core_shapes = new Renderable.Shape[ countSphereCores ];
-    		Vector3D scale = new Vector3D();
-    		for ( int j=0; j<countSphereCores; j++ )
-    		{
-    			// Create object (it's a unit sphere)
-    			Renderable.Sphere shp = renderer.createSphere();
-    			core_shapes[j] = shp;
-    			
-    			// Scale to atom's given size
-    			Atom a = sphereCores[j];
-    			double radius = ((AtomTypeSphere)a.type).diameter( a );
-    			scale.E( radius );
-    			shp.setScale( scale );
-    		}
-    		
-    		// Create graphical object for the boundary
-    		Boundary bnd = phase.getBoundary();
-    		Polytope shape = bnd.getShape();
-    	    LineSegment[] edges = shape.getEdges();
-    	    Vector shift = phase.space().makeVector();
-    	    shift.Ea1Tv1( +0.5, bnd.getDimensions() );
-    	    
-    	    Renderable.Polyline poly = renderer.createPoly();
-	    	Vector from = phase.space().makeVector();
-	    	Vector to = phase.space().makeVector();
-    	    for(i=0; i<edges.length; i++) 
-    	    {  	        
-    	    	from.Ev1Pv2( edges[i].getVertices()[0], shift );
-    	    	to.Ev1Pv2( edges[i].getVertices()[1], shift );
-    	    	poly.appendLine( from, to );    	        
-    	    }
-		}
-    	finally {
-    		tablesInitialized = true;
-    	}
-    }
-    
 	public double getScale() {
 		return scale;
 	}
@@ -225,28 +173,21 @@ public final class SceneManager implements  java.io.Serializable
     static final int DRAW_BOUNDARY_MAX = 4;
     
 
-    protected Renderable.Shape[] core_shapes;
-    
     protected final AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms();
     protected AtomFilter atomFilter;
     protected double scale;
     protected Phase phase;
+    protected Vector[] boundaryVertices;
+    protected Vector from, to;
     
     protected ColorScheme colorScheme;
     protected Atom[] selectedAtoms = new Atom[1];
     protected Renderable renderer;
-    private boolean tablesInitialized = false;
+    
+    private AtomAgentManager agentManager;
+    private SphereShapeWrapper[] sphereShapeWrappers;
 
 //  The groups of atoms
-    private AtomLeaf sphereCores[];
-    private AtomLeaf sphereWells[];
-    private AtomLeaf sphereRotators[];
-    private Atom walls[];
-//    The verticies of said atoms
-    private float vertSphereCores[];
-    private int vertSphereWellBase[];
-    private int vertSphereRotatorBase[];
-    private float vertWalls[];
 
 
    /**
@@ -254,6 +195,8 @@ public final class SceneManager implements  java.io.Serializable
     * Default value is <code>BOUNDARY_OUTLINE</code>
     */
     int drawBoundary = DRAW_BOUNDARY_OUTLINE;
+
+    Renderable.Polyline boundaryPoly;
 
     /**
      * Variable that sets the quality of the rendered image.
@@ -270,5 +213,36 @@ public final class SceneManager implements  java.io.Serializable
       */
     boolean highQuality = false;
 
+    public class SphereShapeSource implements AtomAgentManager.AgentSource {
+        
+        public Object makeAgent(Atom a) {
+            if (a != null && !(a.type instanceof AtomTypeSphere)) {
+                return null;
+            }
+            SphereShapeWrapper wrapper = new SphereShapeWrapper();
+            wrapper.atom = (AtomLeaf)a;
+            if (a != null && a.type instanceof AtomTypeSphere) {
+                wrapper.shape = renderer.createSphere();
+                
+                // Scale to atom's given size
+                double radius = ((AtomTypeSphere)a.type).diameter(a);
+                atomScale.E(radius);
+                wrapper.shape.setScale(atomScale);
+            }
+            return wrapper;
+        }
+        
+        public void releaseAgent(Object agent) {
+            ((SphereShapeWrapper)agent).shape.dispose();
+        }
+        
+        private Vector3D atomScale = new Vector3D();
+    }
+
+    public static class SphereShapeWrapper {
+        public AtomLeaf atom;
+        public Renderable.Sphere shape;
+    }
+    
 } //end of ConfigurationCanvas class
 
