@@ -191,7 +191,7 @@ public class TestHexane extends Simulation {
         
         phase = new Phase(this);
         //nan we need to do more with the boundary
-        bdry =  new BoundaryHexane(space, new boolean[] { true, true, true });
+        bdry =  new BoundaryHexane(space);
         phase.setBoundary(bdry);
 
         integrator.setPhase(phase);
