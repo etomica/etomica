@@ -1,5 +1,7 @@
 package etomica.space;
 
+import java.io.Serializable;
+
 import etomica.lattice.IndexIteratorSequential;
 import etomica.math.geometry.Parallelepiped;
 import etomica.math.geometry.Parallelogram;
@@ -10,48 +12,63 @@ import etomica.space2d.Vector2D;
 import etomica.space3d.Vector3D;
 
 /**
- * Boundary shaped as an arbitrary parallelepiped.  Applicable only for a 3D space.
+ * Boundary shaped as an arbitrary parallelepiped.  Applicable only for a 2D or 3D spaces.
  */
 
-//nan needs a cleanup of imageOrigins & getOverflowShifts.
-/**
- * Warning, this class assumes a rectangular system!!
- * @author nancycribbin
- *
- */
-public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeriodic {
-
+//nan needs a cleanup of getOverflowShifts.
+public class BoundaryDeformablePeriodic extends Boundary {
 
     /**
      * Make a cubic boundary with edges of length equal to the default boxSize and
      * periodic in every direction.
      */
 	public BoundaryDeformablePeriodic(Simulation sim) {
-		this(sim.space, makePeriodicity(sim.space.D()), sim.getDefaults().boxSize);
+		this(sim.space, sim.getDefaults().boxSize);
 	}
 
     /**
      * Make a cubic boundary of specified edge length and periodicity.
      */
-	public BoundaryDeformablePeriodic(Space space, boolean[] periodicity, double boxSize) {
-	    this(space, periodicity, makeVectors(space, boxSize));	
+	public BoundaryDeformablePeriodic(Space space, double boxSize) {
+	    this(space, makeVectors(space, boxSize));	
 	}
 	
     /**
      * Make a parallelepiped boundary of specified shape and periodicity.
      * 
-     * @param space the governing space (must be Space3D)
-     * @param periodicity array indicating for each direction whether it is periodic (true) or not (false)
-     * @param vex array of three vectors specifying directions for three of the parallelepiped edges 
+     * @param space the governing space
+     * @param vex array of vectors specifying directions for the parallelepiped edges
+     * 
+     *  @throws IllegalArgumentException if the dimension of space is not 2 or 3
+     *  @throws IllegalArgumentException if the vex.length is not equal to the dimension of the space
      */
-	public BoundaryDeformablePeriodic(Space space, boolean[] periodicity, Vector[] vex) {
+	public BoundaryDeformablePeriodic(Space space,  Vector[] vex) {
         super(space, makeShape(space, vex));
+        D = space.D();
+        if(D != 2 && D != 3) {
+            throw new IllegalArgumentException("BoundaryDeformablePeriodic is appropriate only for 2-D or 3-D spaces");
+        }
+        
         edgeVectors = (Vector[])vex.clone();
         for(int i=0; i<edgeVectors.length; i++) {
             edgeVectors[i] = (Vector)vex[i].clone();
         }
-        isPeriodic = (boolean[]) periodicity.clone();
 
+        if(D == 2) { 
+            edgePairTransforms = new PeriodicTransform2[1];
+            edgeTripletTransforms = new PeriodicTransform3[0];
+            edgePairTransforms[0] = new PeriodicTransform2(edgeVectors, 0, 1);
+        } else {//D == 3
+            edgePairTransforms = new PeriodicTransform2[3];
+            edgeTripletTransforms = new PeriodicTransform3[2];
+            edgePairTransforms[0] = new PeriodicTransform2(edgeVectors, 1, 2);
+            edgePairTransforms[1] = new PeriodicTransform2(edgeVectors, 0, 2);
+            edgePairTransforms[2] = new PeriodicTransform2(edgeVectors, 0, 1);
+            edgeTripletTransforms[0] = new PeriodicTransform3(edgeVectors, true);
+            edgeTripletTransforms[1] = new PeriodicTransform3(edgeVectors, false);
+            
+        }
+            
         h = space.makeTensor();
         hCopy = space.makeTensor();
         hInv = space.makeTensor();
@@ -60,15 +77,12 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
         temp2 = space.makeVector();
         unit = space.makeVector();
         unit.E(1.0);
+        half = space.makeVector();
+        half.E(0.5);
         dimensions = space.makeVector();
         dimensionsCopy = space.makeVector();
         dimensionsHalf = space.makeVector();
-        tempVector = space.makeVector();
-        nearestDr = space.makeVector();
-        tempTensor = space.makeTensor();
         indexIterator = new IndexIteratorSequential(space.D());
-//        tempVector.E(vex[0].P(vex[1].P(vex[2])));
-//        setDimensions(tempVector);
         update();
     }
     
@@ -91,57 +105,35 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
         }
     }
 
-    //used only by constructor
-	private static boolean[] makePeriodicity(int D) {
-		boolean[] isPeriodic = new boolean[D];
-		for (int i = 0; i < D; i++) {
-			isPeriodic[i] = true;
-		}
-		return isPeriodic;
-	}
-
-    
-    public boolean[] getPeriodicity() {
-        return isPeriodic;
-    }
-
+    /**
+     * Returns a vector with each element equal to the length of the corresponding
+     * edge of the boundary.
+     */
 	public Vector getDimensions() {
         dimensionsCopy.E(dimensions);
         return dimensionsCopy;
     }
 
+    /**
+     * Returns the boundary tensor that fully describes the shape of the boundary.  Each
+     * column of the tensor is an edge vector of the boundary.  Manipulation of the
+     * returned tensor does not affect the state of the boundary. Shape-changing methods
+     * (e.g., deform()) must be used to affect the boundary shape.
+     */
     public etomica.space.Tensor boundaryTensor() {
         hCopy.E(h);
         return hCopy;
     }
 
+    /**
+     * Returns a point selected randomly from within the boundary region.
+     */
     public etomica.space.Vector randomPosition() {
         temp1.setRandom(1.0);
         temp1.transform(h);
         return temp1;
     }
 
-    private void update() {
-        h.E(edgeVectors);
-        hInv.E(h);
-        hInv.inverse(); // to get s, inverse of h times r, which is a position
-        for(int i=0; i<edgeVectors.length; i++) {
-            dimensions.setX(i, Math.sqrt(edgeVectors[i].squared()));
-        }
-        dimensionsHalf.Ea1Tv1(0.5, dimensions);
-        ((Parallelotope)shape).setEdgeVectors(edgeVectors);
-    }
-
-	public Vector centralImage(Vector r) {
-        temp1.E(r);
-        temp1.transform(hInv);// position in terms of boundary-vector basis
-        temp1.truncate(1.e-10);// remove any components that are likely nonzero due to roundoff
-        temp1.mod(unit);// shift to central image
-        temp1.transform(h);//convert back to space-frame basis
-        temp1.ME(r);//subtract r to return difference vector
-        return temp1;
-    }
-    
     public Vector getBoundingBox() {
         Vector[] vertices = shape.getVertices();
         temp1.E(vertices[0]);
@@ -163,248 +155,282 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
         return temp1;
     }
 
-	public void setUseBruteForceNearestImageMethod(boolean bb) {
-		useBruteForceNearestImageMethod = bb;
+    public Vector centralImage(Vector r) {
+        temp1.E(r);
+        temp1.transform(hInv);// position in terms of boundary-vector basis
+        temp1.truncate(1.e-10);// remove any components that are likely nonzero due to roundoff
+        temp1.mod(unit);// shift to central image
+        temp1.transform(h);//convert back to space-frame basis
+        temp1.ME(r);//subtract r to return difference vector
+        return temp1;
+    }
+
+    //needs work to improve efficiency; may be incorrect for extremely deformed boundaries
+	public void nearestImage(Vector dr) { 
+	    
+        boolean transformed = false;
+       // temp1.E(dr);
+       // temp1.transform(hInv);//transform to edge-vector basis
+//        for(int i=0; i<edgePairTransforms.length; i++) {
+//            transformed = edgePairTransforms[i].transform(temp1);
+//            if(transformed) {
+//                temp1.transform(h);//convert back to space-frame basis
+//                dr.E(temp1);
+//                return;
+//            }
+//        }
+//
+        //transform into reciprocal lattice unit cell
+        double dot = 0.0;
+        //temp1.E(dr);
+        //temp1.transform(hInv);
+        //System.out.println(temp1.toString());
+        do {
+            transformed = false;
+            for(int i=0; i<edgeVectors.length; i++) {
+                dot = dr.dot(edgeVectors[i])/edgeVectors[i].squared();
+                //System.out.println("dot "+dot);
+                if(dot > 0.5) {
+                    //System.out.println("subtract "+edgeVectors[i]);
+                    do {
+                        dr.ME(edgeVectors[i]);
+                        dot -= 1.0;
+                        //System.out.println("minus "+edgeVectors[i]);
+                    } while(dot > 0.5);
+                    transformed = true;
+                } else if(dot < -0.5) {
+                    //System.out.println("add "+edgeVectors[i]);
+                    do {
+                        dr.PE(edgeVectors[i]);
+                        dot += 1.0;
+                        //System.out.println("plus"+edgeVectors[i]);
+                    } while(dot < -0.5);
+                    transformed = true;
+                }
+                //dot = dr.dot(edgeVectors[i])/edgeVectors[i].squared();
+    //            if(dot > 0.5 || dot < -0.5) {
+    //                System.out.println("busted");
+    //            }
+            }
+        } while(transformed);
+        //temp1.E(dr);
+        //temp1.transform(hPrimeInv);// position in terms of reciprocal-vector basis
+        //temp1.PE(half);
+        //temp1.mod(unit);
+        //temp1.ME(half);
+        
+        transformed = false;
+        for(int i=0; i<edgeTripletTransforms.length; i++) {
+            transformed = edgeTripletTransforms[i].transform(dr);
+        }
+//        if(transformed) {
+//            return;
+//        }
+        
+        //temp1.transform(hPrime);//transform back to lab frame
+        //temp1.transform(hInv);//transform to edge-vector basis
+        
+        //System.out.println(temp1.toString());
+        
+        do {
+            transformed = false;
+            for(int i=0; i<edgePairTransforms.length; i++) {
+                boolean trans = edgePairTransforms[i].transform(dr);
+                transformed |= trans;
+                if(trans) {
+                    dot = dr.dot(edgeVectors[i])/edgeVectors[i].squared();
+                    //System.out.println("dot "+dot);
+                    if(dot > 0.5) {
+                        //System.out.println("subtract "+edgeVectors[i]);
+                            dr.ME(edgeVectors[i]);
+                            //System.out.println("minus "+edgeVectors[i]);
+                    } else if(dot < -0.5) {
+                        //System.out.println("add "+edgeVectors[i]);
+                            dr.PE(edgeVectors[i]);
+                            //System.out.println("plus"+edgeVectors[i]);
+                    }
+                }
+            }
+        } while(transformed);
+        do {
+            transformed = false;
+            for(int i=0; i<edgeVectors.length; i++) {
+                dot = dr.dot(edgeVectors[i])/edgeVectors[i].squared();
+                //System.out.println("dot "+dot);
+                if(dot > 0.5) {
+                    //System.out.println("subtract "+edgeVectors[i]);
+                    do {
+                        dr.ME(edgeVectors[i]);
+                        dot -= 1.0;
+                        //System.out.println("minus "+edgeVectors[i]);
+                    } while(dot > 0.5);
+                    transformed = true;
+                } else if(dot < -0.5) {
+                    //System.out.println("add "+edgeVectors[i]);
+                    do {
+                        dr.PE(edgeVectors[i]);
+                        dot += 1.0;
+                        //System.out.println("plus"+edgeVectors[i]);
+                    } while(dot < -0.5);
+                    transformed = true;
+                }
+                //dot = dr.dot(edgeVectors[i])/edgeVectors[i].squared();
+    //            if(dot > 0.5 || dot < -0.5) {
+    //                System.out.println("busted");
+    //            }
+            }
+        } while(transformed);
+        
+        transformed = false;
+        for(int i=0; i<edgeTripletTransforms.length; i++) {
+            transformed = edgeTripletTransforms[i].transform(dr);
+        }
+        if(transformed) {
+            return;
+        }
+        
+        //System.out.println();
+
+       //System.out.println(temp1.toString());
+        //temp1.transform(h);//convert back to space-frame basis
+        //dr.E(temp1);
+
 	}
-//skkwak next!!!
-	
-	/**
-	 * Checks for the nearest image.  The argument vector is changed by this method.
-	 */
-	public void nearestImage(Vector dr2) { // dr2 is not dr^2
-	    //the stuff after the first if is the "new technique"
-		if (!useBruteForceNearestImageMethod) {
-			if (!constantStrain) {
-				update();
-			} //in Main Class, makeStrainTensor() must be called then set up
-			  // boolean of contantStrain!!!
 
-			double xi = dr2.x(0) * hInv.component(0, 0) + dr2.x(1)
-					* hInv.component(0, 1) + dr2.x(2) * hInv.component(0, 2);
-			double eta = dr2.x(0) * hInv.component(1, 0) + dr2.x(1)
-					* hInv.component(1, 1) + dr2.x(2) * hInv.component(1, 2);
-			double zeta = dr2.x(0) * hInv.component(2, 0) + dr2.x(1)
-					* hInv.component(2, 1) + dr2.x(2) * hInv.component(2, 2);
 
-			//This series of if statements sets xi, eta, and zeta equal to 0 if they are close enough to it (i.e. very very small).
-			if (xi > -1.0e-10 && xi < 1.0e-10) {
-				xi = 0;
-			}
-			if (eta > -1.0e-10 && eta < 1.0e-10) {
-				eta = 0;
-			}
-			if (zeta > -1.0e-10 && zeta < 1.0e-10) {
-				zeta = 0;
-			}
-
-			//Increment xi, eta, & zeta
-			xi += 0.5;
-			eta += 0.5;
-			zeta += 0.5;
-
-			//Move xi, eta, and zeta between 0 and 1, if they are not already 
-			while (xi < 0) {
-				xi += 1;
-			}
-			while (xi > 1) {
-				xi -= 1;
-			}
-			while (eta < 0) {
-				eta += 1;
-			}
-			while (eta > 1) {
-				eta -= 1;
-			}
-			while (zeta < 0) {
-				zeta += 1;
-			}
-			while (zeta > 1) {
-				zeta -= 1;
-			}
-
-			//Decrement xi, eta, & zeta
-			xi -= 0.5;
-			eta -= 0.5;
-			zeta -= 0.5;
-
-			dr2.setX(0, xi * h.component(0, 0) + eta
-					* h.component(1, 0) + zeta
-					* h.component(2, 0));
-			dr2.setX(1, xi * h.component(0, 1) + eta
-					* h.component(1, 1) + zeta
-					* h.component(2, 1));
-			dr2.setX(2, xi * h.component(0, 2) + eta
-					* h.component(1, 2) + zeta
-					* h.component(2, 2));
-
-			//                    } //inner if
-		} else {
-			if (!constantStrain) {
-				update();
-			} //in Main Class, makeStrainTensor() must be called then set up
-			  // boolean of contantStrain!!!
-
-			oldRefDistance = Math.sqrt(dr2.squared());
-			nearestDr.E(dr2);
-
-			double xi = dr2.x(0) * hInv.component(0, 0) + dr2.x(1)
-					* hInv.component(0, 1) + dr2.x(2) * hInv.component(0, 2);
-			double eta = dr2.x(0) * hInv.component(1, 0) + dr2.x(1)
-					* hInv.component(1, 1) + dr2.x(2) * hInv.component(1, 2);
-			double zeta = dr2.x(0) * hInv.component(2, 0) + dr2.x(1)
-					* hInv.component(2, 1) + dr2.x(2) * hInv.component(2, 2);
-
-			workXEZ[0] = xi;
-			workXEZ[1] = eta;
-			workXEZ[2] = zeta;
-
-			if (xi > 0) {
-				workXEZ[0] -= 1;
-			} else {
-				workXEZ[0] += 1;
-			}
-			if (eta > 0) {
-				workXEZ[1] -= 1;
-			} else {
-				workXEZ[1] += 1;
-			}
-			if (zeta > 0) {
-				workXEZ[2] -= 1;
-			} else {
-				workXEZ[2] += 1;
-			}
-
-			dr2.E(compareDistance(xi, eta, zeta, workXEZ));
-
-		}//end of if and else
-	}
-
-	public etomica.space.Vector compareDistance(double xi, double eta,
-			double zeta, double[] xez) {
-		double X = xi, E = eta, Z = zeta;
-		for (int i = 0; i < 7; i++) {
-			if (i == 0) {
-				X = xez[0];
-				E = eta;
-				Z = zeta;
-			} else if (i == 1) {
-				X = xi;
-				E = xez[1];
-				Z = zeta;
-			} else if (i == 2) {
-				X = xi;
-				E = eta;
-				Z = xez[2];
-			} else if (i == 3) {
-				X = xez[0];
-				E = xez[1];
-				Z = zeta;
-			} else if (i == 4) {
-				X = xi;
-				E = xez[1];
-				Z = xez[2];
-			} else if (i == 5) {
-				X = xez[0];
-				E = eta;
-				Z = xez[2];
-			} else if (i == 6) {
-				X = xez[0];
-				E = xez[1];
-				Z = xez[2];
-			}
-			tempVector.setX(0, X * h.component(0, 0) + E
-					* h.component(1, 0) + Z
-					* h.component(2, 0));
-			tempVector.setX(1, X * h.component(0, 1) + E
-					* h.component(1, 1) + Z
-					* h.component(2, 1));
-			tempVector.setX(2, X * h.component(0, 2) + E
-					* h.component(1, 2) + Z
-					* h.component(2, 2));
-
-			refDistance = Math.sqrt(tempVector.squared());
-
-			if (refDistance < oldRefDistance) {
-				oldRefDistance = refDistance;
-				nearestDr.E(tempVector);
-			}
-		} //end of for loop
-
-		return nearestDr;
-	}//end or compareDistance
-
+    /**
+     * Applies the given deformation tensor to the boundary in its current
+     * shape.
+     * 
+     * @throws IllegalArgumentException
+     *             if the spatial dimension of the tensor is inconsistent with
+     *             the dimension of the boundary
+     */
 	public void deform(etomica.space.Tensor deformationTensor) {
+        if(deformationTensor.D() != D) {
+            throw new IllegalArgumentException("Tensor dimension ("+deformationTensor.D()+") inconsistent with boundary dimension ("+D+")");           
+        }
         for(int i=0; i<edgeVectors.length; i++) {
             edgeVectors[i].transform(deformationTensor);
         }
 		update();
 	}
+    
+    /**
+     * Sets the shape of the boundary as a rectangular parallelepiped (or
+     * parallelogram) with edge lengths given by the elements of the given
+     * vector.  To keep the edge lengths unchanged while deforming into
+     * a rectangular shape, call this method with getDimensions() as its argument.
+     * 
+     * @throws IllegalArgumentException
+     *             if the spatial dimension of the vector is inconsistent with
+     *             the dimension of the boundary
+     */
+    public void setAsRectangular(Vector vector) {
+        if(vector.D() != D) {
+            throw new IllegalArgumentException("Vector dimension ("+vector.D()+") inconsistent with boundary dimension ("+D+")");
+        }
+        for(int i=0; i<edgeVectors.length; i++) {
+            edgeVectors[i].E(0.0);
+            edgeVectors[i].setX(i, vector.x(i));
+        }
+        update();
+    }
 
-	//        /**
-	//         * Sets the length of each boundary edge to the corresponding value in the
-	//         * given vector, keeping the shape of the box unchanged (other than the
-	// change in size).
-	//         */
+    /**
+     * Sets the shape of the boundary to a cube with edges equal to the given value.
+     */
+    public void setAsCube(double edgeLength) {
+        for(int i=0; i<edgeVectors.length; i++) {
+            edgeVectors[i].E(0.0);
+            edgeVectors[i].setX(i, edgeLength);
+        }
+        update();
+    }
+	/**
+     * Scales each boundary edge so that its length equals the corresponding value
+     * in the given vector.  Deformation of boundary is otherwise unchanged.
+     */
 	public void setDimensions(etomica.space.Vector v) {
-		tempTensor.E(0);
-		tempTensor.setComponent(0, 0, v.x(0));
-		tempTensor.setComponent(1, 1, v.x(1));
-		tempTensor.setComponent(2, 2, v.x(2));
-		setDimensions(tempTensor);
+        if(!isPositive(v)) {
+            throw new IllegalArgumentException("edge lengths must be greater than zero; attempt to set to "+v.toString());
+        }
+        temp1.E(v);
+        temp1.DE(dimensions);
+        for(int i=0; i<edgeVectors.length; i++) {
+            edgeVectors[i].TE(temp1.x(i));
+        }
+        update();
 	}
 
 	/**
 	 * Sets the boundary tensor to equal the given tensor.
 	 */
 	public void setDimensions(etomica.space.Tensor t) {
-		h.E(t);
+		t.assignTo(edgeVectors);
 		update();
 	}
 
 	public double volume() {
-		return Math.abs(h.component(0, 0)
-				* h.component(1, 1)
-				* h.component(2, 2));
+		return volume;
 	}
+    
+    private boolean isPositive(Vector v) {
+        for(int i=0; i<v.D(); i++) {
+            if(v.x(i) <= 0.0) return false;
+        }
+        return true;
+    }
 
-	/**
-	 * imageOrigins and getOverFlowShifts are both probably incorrect, if they
-	 * are even completed. They should definitely be checked before being
-	 * implemented.
-	 */
-
-	int shellFormula, nImages, i, j, k, m;
-
-	double[][] origins;
-
+    //method to update all auxiliary fields of tensor when edgeVectors are changed
+    private void update() {
+//      h times a vector s gives coordinate r in lab frame; s elements are between 0,1 to be in box
+        h.E(edgeVectors);//edge vectors in column format
+        hInv.E(h);
+        hInv.inverse(); // to get point s in edgeVector frame, do hInv times r
+        
+        for(int i=0; i<edgeVectors.length; i++) {
+            dimensions.setX(i, Math.sqrt(edgeVectors[i].squared()));
+        }
+        dimensionsHalf.Ea1Tv1(0.5, dimensions);
+        ((Parallelotope)shape).setEdgeVectors(edgeVectors);
+        volume = shape.getVolume();
+        
+        for(int i=0; i<edgePairTransforms.length; i++) {
+            edgePairTransforms[i].update();
+        }
+        for(int i=0; i<edgeTripletTransforms.length; i++) {
+            edgeTripletTransforms[i].update();
+        }
+    }
+    
 	public double[][] imageOrigins(int nShells) {
         int shellFormula = (2 * nShells) + 1;
         int nImages = space.powerD(shellFormula) - 1;
-        double[][] origins = new double[nImages][space.D()];
+        if(nImages != origins.length) {
+            origins = new double[nImages][space.D()];
+        }
         indexIterator.setSize(shellFormula);
         indexIterator.reset();
         int k = 0;
-        while(indexIterator.hasNext()) {
+        while (indexIterator.hasNext()) {
             int[] index = indexIterator.next();
             temp1.E(index);
-            temp1.PE(-(double)nShells);
-            if(temp1.isZero()) continue;
+            temp1.PE(-(double) nShells);
+            if (temp1.isZero())
+                continue;
             temp2.E(0.0);
-            for(int i=0; i<space.D(); i++) {
-                temp2.PEa1Tv1(temp1.x(i),edgeVectors[i]);
+            for (int i = 0; i < space.D(); i++) {
+                temp2.PEa1Tv1(temp1.x(i), edgeVectors[i]);
             }
             temp2.assignTo(origins[k++]);
         }
         return origins;
-	}//end of imageOrigins
-
-	//getOverflowShifts ends up being called by the display routines quite
-	// often
-	//so, in the interest of speed, i moved these outside of the function;
+    }//end of imageOrigins
 
 	public float[][] getOverflowShifts(etomica.space.Vector rr, double distance) {
 		throw new RuntimeException(
-				"Space3D.BoundaryDeformablePeriodic.getOverflowShifts not implmented");
+				"BoundaryDeformablePeriodic.getOverflowShifts not implmented");
 		/*
 		 * shiftX = 0; shiftY = 0; shiftZ = 0; r = (Vector)rr;
 		 * 
@@ -449,26 +475,149 @@ public class BoundaryDeformablePeriodic extends Boundary implements BoundaryPeri
 	}//end of getOverflowShifts
 
     int shiftX, shiftY, shiftZ;
-    protected final boolean[] isPeriodic;
+    private double volume;
     private Tensor h;
     private Tensor hCopy;
-    private final Vector[] edgeVectors; 
     private final Tensor hInv;
+    private final Vector[] edgeVectors;
     private final Vector temp1, temp2;
     private final Vector dimensions;
     private final Vector dimensionsCopy;
     private final Vector dimensionsHalf;
-    private final Vector tempVector;
-    private final Vector nearestDr;
     private final Vector unit;
-    private final Tensor tempTensor;
-    private double oldRefDistance = 0.0;
-    private double refDistance = 0.0;
-    private final double[] workXEZ = new double[3];
-    public boolean constantStrain = true;
-    private boolean useBruteForceNearestImageMethod = true;
+    private final Vector half;
+    private final int D;
+    private final PeriodicTransform2[] edgePairTransforms;
+    private final PeriodicTransform3[] edgeTripletTransforms;
     private final IndexIteratorSequential indexIterator;
+    private double[][] origins = new double[0][];
 
-    // in the above, true uses brute force method!!
+    private static final long serialVersionUID = 1L;
+    
+    private static abstract class PeriodicTransform implements Serializable {
+        
+        PeriodicTransform(int D) {
+            transformVector = Space.makeVector(D);
+        }
+        
+        boolean transform(Vector dr) {
+            double dot = dr.dot(transformVector)/t2;
+            if(dot > 0.5) {
+                do {
+                    //System.out.println(n+"minus"+dr+transformVector.toString());
+                    dr.ME(transformVector);
+                    dot -= 1;
+                } while(dot > 0.5); 
+                return true;
+            } else if(dot < -0.5) {
+                do {
+                    //System.out.println(n+"plus"+dr+transformVector.toString());
+                    dr.PE(transformVector);
+                    dot += 1;
+                } while(dot < -0.5);
+                return true;
+            }
+            return false;
+        }
+        
+        
+        abstract void update();
+        
+        protected final Vector transformVector;
+        protected double t2;
+        protected int n;
+   }
+    
+    private static class PeriodicTransform2 extends PeriodicTransform {
+        
+        PeriodicTransform2(Vector[] edgeVectors, int k0, int k1) {
+            super(edgeVectors.length);
+            edge0 = edgeVectors[k0];
+            edge1 = edgeVectors[k1];
+            n = 2;
+        }
+        
+        void update() {
+            if(edge0.dot(edge1) < 0) {
+                transformVector.Ev1Pv2(edge0,edge1);
+            } else {
+                transformVector.Ev1Mv2(edge0,edge1);
+            }
+            t2 = transformVector.squared();
+        }
+        
+        private final Vector edge0, edge1;
+        private static final long serialVersionUID = 1L;
+    }
+
+    private static class PeriodicTransform3 extends PeriodicTransform {
+        
+        PeriodicTransform3(Vector[] edgeVectors, boolean getFirst) {
+            super(edgeVectors.length);
+            edge0 = edgeVectors[0];
+            edge1 = edgeVectors[1];
+            edge2 = edgeVectors[2];
+            this.getFirst = getFirst;
+            n = 3;
+        }
+        
+        void update() {
+            boolean getNext = getFirst;
+            
+            double dot01 = edge0.dot(edge1);
+            double dot02 = edge0.dot(edge2);
+            double dot12 = edge1.dot(edge2);
+            
+            double sum = 0.0;
+            
+            sum = dot01 + dot02 + dot12;//+0 +1 +2
+            if(sum < 0) {
+                if(getNext) {
+                    transformVector.Ev1Pv2(edge0, edge1);
+                    transformVector.PE(edge2);
+                    t2 = transformVector.squared();
+                    return;
+                }
+                getNext = true;
+            }
+            
+            sum = dot01 - dot02 - dot12;//+0 +1 -2
+            if(sum < 0) {
+                if(getNext) {
+                    transformVector.Ev1Pv2(edge0, edge1);
+                    transformVector.ME(edge2);
+                    t2 = transformVector.squared();
+                    return;
+                }
+                getNext = true;
+            }
+            
+            sum = -dot01 + dot02 - dot12;//+0 -1 +2
+            if(sum < 0) {
+                if(getNext) {
+                    transformVector.Ev1Mv2(edge0, edge1);
+                    transformVector.PE(edge2);
+                    t2 = transformVector.squared();
+                    return;
+                }
+                getNext = true;
+            }
+            
+            sum = -dot01 - dot02 + dot12;//+0 -1 -2
+            if(sum < 0) {
+                if(getNext) {
+                    transformVector.Ev1Mv2(edge0, edge1);
+                    transformVector.ME(edge2);
+                    t2 = transformVector.squared();
+                    return;
+                }
+            }
+            if(sum != 0) throw new RuntimeException("i really should't be here");
+        }
+        
+        private final Vector edge0, edge1, edge2;
+        private final boolean getFirst;
+        private static final long serialVersionUID = 1L;
+    }
 
 }//end of BoundaryDeformablePeriodic
