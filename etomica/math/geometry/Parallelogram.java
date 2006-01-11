@@ -80,4 +80,5 @@ public class Parallelogram extends Polygon implements Parallelotope {
     }
 
     private final Vector2D a, b;
+    private static final long serialVersionUID = 1L;
 }
