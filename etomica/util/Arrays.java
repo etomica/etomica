@@ -5,6 +5,7 @@
 package etomica.util;
 
 import java.lang.reflect.Array;
+import java.util.LinkedList;
 
 /**
  * Non-instantiable class with static utility methods for working with arrays.
@@ -178,4 +179,14 @@ public final class Arrays {
         return string.toString();
     }
 
+    /**
+     * Creates a new LinkedList filled with the elements of the given array, in the same order.
+     */
+    public static LinkedList toList(Object[] obj) {
+        LinkedList list = new LinkedList();
+        for(int i=0; i<obj.length; i++) {
+            list.add(obj[i]);
+        }
+        return list;
+    }
 }
