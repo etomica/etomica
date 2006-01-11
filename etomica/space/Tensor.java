@@ -20,6 +20,13 @@ public interface Tensor extends Cloneable {
     public abstract void E(Vector[] v);
     
     /**
+     * Assigns the tensor elements column-wise to the given vectors. The number
+     * of vectors must equal the dimension of the tensor, and the vector
+     * dimensions must equal the tensor dimension.
+     */
+    public abstract void assignTo(Vector[] v);
+    
+    /**
      * Sets this equal to the dyadic or outer product of the given vectors.
      * Element ab is given by v1.a * v2.b 
      */

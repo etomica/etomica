@@ -62,6 +62,14 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
         }
         xx = ((Vector1D)v[0]).x;
     }
+    
+    public void assignTo(Vector[] v) {
+        if(v.length != 1) {
+            throw new IllegalArgumentException("Tensor requires 1 vector to set its values");
+        }
+        ((Vector1D)v[0]).x = xx;
+        
+    }
 
     public void PE(double a) {
         xx += a;

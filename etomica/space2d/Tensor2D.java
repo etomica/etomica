@@ -2,6 +2,7 @@ package etomica.space2d;
 
 import etomica.space.Tensor;
 import etomica.space.Vector;
+import etomica.space1d.Vector1D;
 import etomica.util.Function;
 
 /**
@@ -70,6 +71,14 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
         yx = ((Vector2D)v[0]).y; yy = ((Vector2D)v[1]).y;
     }
     
+    public void assignTo(Vector[] v) {
+        if(v.length != 2) {
+            throw new IllegalArgumentException("Tensor requires 2 vectors for assignment");
+        }
+        ((Vector2D)v[0]).x = xx; ((Vector2D)v[1]).x = xy;
+        ((Vector2D)v[0]).y = yx; ((Vector2D)v[1]).y = yy;
+    }
+   
     public void Ev1v2(Vector u1, Vector u2) {
         xx=((Vector2D)u1).x*((Vector2D)u2).x;
         xy=((Vector2D)u1).x*((Vector2D)u2).y;
@@ -176,5 +185,9 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
         xy = f.f(xy);
         yx = f.f(yx);
         yy = f.f(yy);
+    }
+    
+    public String toString() {
+        return "("+xx+", "+xy+")\n("+yx+", "+yy+")";
     }
 }

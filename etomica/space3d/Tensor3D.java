@@ -72,6 +72,15 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         yx = ((Vector3D)v[0]).y; yy = ((Vector3D)v[1]).y; yz = ((Vector3D)v[2]).y;
         zx = ((Vector3D)v[0]).z; zy = ((Vector3D)v[1]).z; zz = ((Vector3D)v[2]).z;
     }
+    
+    public void assignTo(Vector[] v) {
+        if(v.length != 3) {
+            throw new IllegalArgumentException("Tensor requires 3 vector for assignment");
+        }
+        ((Vector3D)v[0]).x = xx; ((Vector3D)v[1]).x = xy; ((Vector3D)v[2]).x = xz;
+        ((Vector3D)v[0]).y = yx; ((Vector3D)v[1]).y = yy; ((Vector3D)v[2]).y = yz;
+        ((Vector3D)v[0]).z = zx; ((Vector3D)v[1]).z = zy; ((Vector3D)v[2]).z = zz;
+    }
 
     public void Ev1v2(Vector v1, Vector v2) {
         Vector3D u1 = (Vector3D)v1;
@@ -204,6 +213,10 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         xx = f.f(xx); xy = f.f(xy); xz = f.f(xz);
         yx = f.f(yx); yy = f.f(yy); yz = f.f(yz);
         zx = f.f(zx); zy = f.f(zy); zz = f.f(zz);
+    }
+
+    public String toString() {
+        return "("+xx+", "+xy+", "+xz+")\n("+yx+", "+yy+", "+yz+")"+")\n("+zx+", "+zy+", "+zz+")";
     }
 
 }
