@@ -35,7 +35,7 @@ public final class Constants {
      * The standard acceleration of gravity on Earth.
      */
     //  acceleration of gravity (on Earth), in A/ps^2
-    public static final double G = 9.8*1e10/1e24;  
+    public static final double G_EARTH = 9.8*1e10/1e24;  
 
     /**
      * Boltzmann's constant, in (sim units)/kelvin.  Specifically,
@@ -60,16 +60,28 @@ public final class Constants {
     public static final double EPSILON_0 = 8.8541878176e-12 * (1.0/1.60217653e-19/1.60217653e-19)
             * 1e24 * 1e-3 / AVOGADRO * 1e-30;
     
-    public static final double LIGHT_SPEED = 299792458 * 1e10 * 1e-12;//convert m/s to A/ps
+    /**
+     * The speed of light, in simulation units.  Equal to 2997924.58 Angstroms/picosecond
+     */
+    public static final double LIGHT_SPEED = 299792458 * (1e10 * 1e-12);//convert m/s to A/ps
+    
+    /**
+     * The gravitational constant, in simulation units.  
+     * Equal to approximately 1.1e-31 A^3/ps^2/D. 
+     */
+    // 6.6742e-11 m^3 s^-2 kg^-1 (1e10 A/m)^3 (10-12 s/ps)^2 (1kg/1000g) (1g/Avo D)
+    public static final double G = 6.6742e-11 * (1e30 * 1e-24 * 1e-3) /AVOGADRO;
     
     public static void main(String arg[]) {
         System.out.println("Avogadro's number: "+AVOGADRO);
         System.out.println("Boltzmann's constant: "+BOLTZMANN_K);
+        System.out.println("C: "+LIGHT_SPEED);
         System.out.println("Planck's constant: "+PLANCK_H);
         System.out.println("Epsilon0: "+EPSILON_0);
+        System.out.println("G: "+G);
         System.out.println("1.0/sqrt(4 Pi Epsilon0): "+1.0/Math.sqrt(4.*Math.PI*EPSILON_0));
         System.out.println("unit toSim: "+etomica.units.systems.MKS.SYSTEM.viscosity().toSim(1.0));
-        System.out.println("unit toSim: "+etomica.units.Poise.UNIT.toSim(1.0));
+        System.out.println("unit toSim: "+etomica.units.Volt.UNIT.toSim(1.0));
         System.out.println("symbol: "+new LJ(1,1,1,false).viscosity().symbol());
     }
     /**
