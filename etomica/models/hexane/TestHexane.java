@@ -56,11 +56,6 @@ import etomica.util.Default;
  */
 
 public class TestHexane extends Simulation {
-    public IntegratorHard integrator;
-
-    public Phase phase;
-
-    public BoundaryDeformablePeriodic bdry;
 
     public TestHexane(Space space, int numMolecules) {
         //super(space, false, new PotentialMasterNbr(space, 12.0));
@@ -263,5 +258,11 @@ public class TestHexane extends Simulation {
         simGraphic.makeAndDisplayFrame();
 
     }
+    
+    public IntegratorHard integrator;
+
+    public Phase phase;
+
+    public BoundaryDeformablePeriodic bdry;
 
 }
