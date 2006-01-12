@@ -1,5 +1,6 @@
 package etomica.virial;
 
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.phase.Phase;
@@ -27,8 +28,8 @@ public class MCMoveClusterAtom extends MCMoveAtom {
     }
     
 	public boolean doTrial() {
-		atom = phase.getSpeciesMaster().atomList.getRandom();
-		while(atom.node.getOrdinal()==1) atom = phase.getSpeciesMaster().atomList.getRandom();
+        AtomArrayList leafList = phase.getSpeciesMaster().leafList;
+		atom = (AtomLeaf)leafList.get(Simulation.random.nextInt(1+leafList.size()-1));
 		uOld = weightMeter.getDataAsScalar();
         translationVector.setRandomCube();
         translationVector.TE(stepSize);

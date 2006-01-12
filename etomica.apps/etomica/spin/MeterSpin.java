@@ -1,7 +1,7 @@
 package etomica.spin;
 
 import etomica.atom.AtomLeaf;
-import etomica.atom.iterator.AtomIteratorListTabbed;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.Meter;
 import etomica.phase.Phase;
@@ -39,7 +39,7 @@ public class MeterSpin extends DataSourceScalar implements Meter {
     public double getDataAsScalar() {
         sum.E(0.0);
         int count = 0;
-        iterator.setList(phase.getSpeciesMaster().atomList);
+        iterator.setPhase(phase);
         iterator.reset();
         while(iterator.hasNext()) {
             AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
@@ -63,6 +63,6 @@ public class MeterSpin extends DataSourceScalar implements Meter {
     }
 
     private Phase phase;
-    private final AtomIteratorListTabbed iterator = new AtomIteratorListTabbed();
+    private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
     private final Vector sum;
 }
