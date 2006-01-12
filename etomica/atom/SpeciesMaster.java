@@ -261,7 +261,7 @@ public final class SpeciesMaster extends Atom {
             
             if (oldAtom.node.isLeaf()) {
                 leafAtomCount--;
-                int leafIndex = ((AtomTreeNodeLeaf)atom.node).getLeafIndex();
+                int leafIndex = ((AtomTreeNodeLeaf)oldAtom.node).getLeafIndex();
                 speciesMaster.leafList.removeAndReplace(leafIndex);
                 if (speciesMaster.leafList.size() > leafIndex) {
                     ((AtomTreeNodeLeaf)speciesMaster.leafList.get(leafIndex).node).setLeafIndex(leafIndex);
