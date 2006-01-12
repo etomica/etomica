@@ -2,7 +2,6 @@ package etomica.potential;
 
 import java.util.Arrays;
 
-import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.AtomsetIteratorMolecule;

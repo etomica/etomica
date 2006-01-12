@@ -7,8 +7,6 @@
 package etomica.chem.models;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryMono;
-import etomica.atom.AtomLinker;
-import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTypeSphere;
 import etomica.chem.Electrostatic;
 import etomica.chem.Element;

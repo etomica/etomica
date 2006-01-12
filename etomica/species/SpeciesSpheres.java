@@ -3,10 +3,8 @@ import java.lang.reflect.Constructor;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomFactoryMono;
-import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.config.Conformation;

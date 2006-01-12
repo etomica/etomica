@@ -4,12 +4,10 @@ import java.lang.reflect.Constructor;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomFactoryMono;
-import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.simulation.Simulation;
 import etomica.space.CoordinateFactorySphere;
-import etomica.units.Dimension;
 
 /**
  * Species in which molecules are each made of a single spherical atom.

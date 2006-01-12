@@ -2,12 +2,8 @@ package etomica.nbr.cell;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomPositionDefinition;
-import etomica.atom.AtomSequencerFactory;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.site.PotentialMasterSite;
 import etomica.phase.Phase;
-import etomica.potential.Potential;
-import etomica.potential.PotentialCalculation;
 import etomica.space.Space;
 
 /**

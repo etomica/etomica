@@ -157,14 +157,6 @@ public class AtomLinker implements java.io.Serializable {
             return (AtomLinker.Tab)e;
         }
             
-    }//end of Tab
+    }
 
-    public static final AtomSequencerFactory FACTORY = new AtomLinker.Factory();
-    
-    private static final class Factory implements AtomSequencerFactory, java.io.Serializable {
-        public AtomLinker makeSequencer(Atom atom) {
-            return new AtomLinker(atom);
-        }
-    };
-
-}//end of AtomLinker
+}

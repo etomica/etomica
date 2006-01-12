@@ -5,12 +5,10 @@ import java.lang.reflect.Constructor;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomFactoryMono;
-import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.simulation.Simulation;
 import etomica.space.CoordinateFactoryAngular;
-import etomica.units.Dimension;
 
 /**
  * Species in which molecules are made of a single atom of type OrientedSphere

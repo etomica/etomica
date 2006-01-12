@@ -1,6 +1,5 @@
 package etomica.atom.iterator;
 
-import etomica.atom.AtomSequencerFactory;
 import etomica.species.Species;
 
 /**

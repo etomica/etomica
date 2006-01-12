@@ -2,7 +2,6 @@ package etomica.junit;
 
 import junit.framework.TestCase;
 import etomica.atom.Atom;
-import etomica.atom.AtomSequencerFactory;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesMaster;
