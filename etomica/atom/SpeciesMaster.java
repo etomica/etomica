@@ -39,7 +39,7 @@ public final class SpeciesMaster extends Atom {
      * Tabbed list of leaf atoms in phase, suitable for iteration via an
      * AtomIteratorTabbedList.
      */
-    public final AtomList atomList = new AtomListTabbed();
+    public final AtomArrayList leafList = new AtomArrayList();
 
     public SpeciesMaster(Simulation sim, Phase p) {
         super(sim.speciesRoot.getChildType(), new NodeFactory(p));
@@ -92,7 +92,7 @@ public final class SpeciesMaster extends Atom {
         return indexReservoir[reservoirCount];
     }
     
-    public void returnGlobalIndex(int index) {
+    protected void returnGlobalIndex(int index) {
         // add the index to the reservoir first
         indexReservoir[reservoirCount] = index;
         reservoirCount++;
@@ -222,26 +222,21 @@ public final class SpeciesMaster extends Atom {
             } else if (newAtom instanceof SpeciesAgent) {
                 speciesMaster.moleculeCount += ((SpeciesAgent) newAtom)
                         .moleculeCount();
-                AtomLinker.Tab newTab = AtomLinker.newTab(
-                        speciesMaster.atomList, SPECIES_TAB);
-                speciesMaster.atomList.add(newTab);
-                ((SpeciesAgent) newAtom).firstLeafAtomTab = newTab;
             }
-            AtomLinker.Tab nextTab = newAtom.node.parentSpeciesAgent().firstLeafAtomTab.nextTab;
 
             leafAtomCount += newAtom.node.leafAtomCount();
             if (newAtom.node.isLeaf()) {
-                speciesMaster.atomList.addBefore(
-                        ((AtomTreeNodeLeaf) newAtom.node).leafLinker, nextTab);
                 newAtom.setGlobalIndex((SpeciesMaster)atom);
+                ((AtomTreeNodeLeaf)newAtom.node).setLeafIndex(speciesMaster.leafList.size());
+                speciesMaster.leafList.add(newAtom);
             } else {
                 treeIterator.setRoot(newAtom);
                 treeIterator.reset();
                 while (treeIterator.hasNext()) {
                     Atom childAtom = treeIterator.nextAtom();
                     if (childAtom.type.isLeaf()) {
-                        speciesMaster.atomList.addBefore(
-                                ((AtomTreeNodeLeaf) childAtom.node).leafLinker, nextTab);
+                        ((AtomTreeNodeLeaf)childAtom.node).setLeafIndex(speciesMaster.leafList.size());
+                        speciesMaster.leafList.add(childAtom);
                     }
                     childAtom.setGlobalIndex((SpeciesMaster)atom);
                 }
@@ -266,7 +261,11 @@ public final class SpeciesMaster extends Atom {
             
             if (oldAtom.node.isLeaf()) {
                 leafAtomCount--;
-                speciesMaster.atomList.remove(((AtomTreeNodeLeaf) oldAtom.node).leafLinker);
+                int leafIndex = ((AtomTreeNodeLeaf)atom.node).getLeafIndex();
+                speciesMaster.leafList.removeAndReplace(leafIndex);
+                if (speciesMaster.leafList.size() > leafIndex) {
+                    ((AtomTreeNodeLeaf)speciesMaster.leafList.get(leafIndex).node).setLeafIndex(leafIndex);
+                }
             } else {
                 leafAtomCount -= oldAtom.node.leafAtomCount();
                 treeIterator.setRoot(oldAtom);
@@ -274,8 +273,11 @@ public final class SpeciesMaster extends Atom {
                 while (treeIterator.hasNext()) {
                     Atom childAtom = treeIterator.nextAtom();
                     if (childAtom.type.isLeaf()) {
-                    	speciesMaster.atomList
-                            .remove(((AtomTreeNodeLeaf)childAtom.node).leafLinker);
+                        int leafIndex = ((AtomTreeNodeLeaf)childAtom.node).getLeafIndex();
+                        speciesMaster.leafList.removeAndReplace(leafIndex);
+                        if (speciesMaster.leafList.size() > leafIndex) {
+                            ((AtomTreeNodeLeaf)speciesMaster.leafList.get(leafIndex).node).setLeafIndex(leafIndex);
+                        }
                     }
                 }
             }

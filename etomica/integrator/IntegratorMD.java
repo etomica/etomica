@@ -2,8 +2,8 @@ package etomica.integrator;
 
 import etomica.action.AtomActionRandomizeVelocity;
 import etomica.atom.Atom;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
-import etomica.atom.AtomList;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;
@@ -163,7 +163,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
                 currentKineticEnergy = meterKE.getDataAsScalar();
             }
             else if (thermostat == ANDERSEN_SINGLE) {
-                AtomList atomList = phase.getSpeciesMaster().atomList;
+                AtomArrayList atomList = phase.getSpeciesMaster().leafList;
                 int index = Simulation.random.nextInt(atomList.size());
                 AtomLeaf a = (AtomLeaf)atomList.get(index);
                 double m = ((AtomTypeLeaf)a.type).getMass();

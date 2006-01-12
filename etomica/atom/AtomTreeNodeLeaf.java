@@ -15,6 +15,7 @@ public final class AtomTreeNodeLeaf extends AtomTreeNode {
      * List is maintained by the speciesMaster node.
      */
     public final AtomLinker leafLinker;
+    private int leafIndex;
     
     public AtomTreeNodeLeaf(Atom atom) {
         super(atom);
@@ -43,6 +44,14 @@ public final class AtomTreeNodeLeaf extends AtomTreeNode {
      */
     public int childAtomCount() {return 0;}
 
+    public final void setLeafIndex(int newLeafIndex) {
+        leafIndex = newLeafIndex;
+    }
+    
+    public final int getLeafIndex() {
+        return leafIndex;
+    }
+    
     public static final AtomTreeNodeFactory FACTORY = new AtomTreeNodeLeaf.Factory();
     
     private static final class Factory implements AtomTreeNodeFactory, java.io.Serializable {

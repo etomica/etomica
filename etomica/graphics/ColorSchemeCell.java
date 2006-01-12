@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.util.HashMap;
 
 import etomica.atom.Atom;
-import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.lattice.FiniteLattice;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
@@ -18,7 +18,7 @@ import etomica.simulation.Simulation;
 public class ColorSchemeCell extends ColorSchemeCollective {
     
     private final HashMap hash = new HashMap();
-    private final AtomIteratorListSimple allIterator = new AtomIteratorListSimple();
+    private final AtomIteratorLeafAtoms allIterator = new AtomIteratorLeafAtoms();
     
     public ColorSchemeCell(Simulation sim) {
         super(sim);
@@ -34,7 +34,7 @@ public class ColorSchemeCell extends ColorSchemeCollective {
     
     public void colorAllAtoms(Phase phase) {
         NeighborCellManager cellManager = potentialMasterCell.getNbrCellManager(phase);
-        allIterator.setList(phase.getSpeciesMaster().atomList);
+        allIterator.setPhase(phase);
         allIterator.reset();
         while(allIterator.hasNext()) {
             Atom atom = allIterator.nextAtom();

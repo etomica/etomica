@@ -1,7 +1,7 @@
 package etomica.tests;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.atom.AtomSourceRandomLeafSeq;
+import etomica.atom.AtomSourceRandomLeaf;
 import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
@@ -17,7 +17,6 @@ import etomica.phase.Phase;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
@@ -35,13 +34,17 @@ public class TestLJMC3D extends Simulation {
     public Phase phase;
     public P2LennardJones potential;
     public Controller controller;
+    
+    public TestLJMC3D() {
+        this(500);
+    }
 
-    public TestLJMC3D(Space space, int numAtoms) {
-        super(space, false, new PotentialMasterCell(space));
+    public TestLJMC3D(int numAtoms) {
+        super(Space3D.getInstance(), false, new PotentialMasterCell(Space3D.getInstance()));
         defaults.makeLJDefaults();
 	    integrator = new IntegratorMC(this);
 	    mcMoveAtom = new MCMoveAtom(this);
-        mcMoveAtom.setAtomSource(new AtomSourceRandomLeafSeq());
+        mcMoveAtom.setAtomSource(new AtomSourceRandomLeaf());
         mcMoveAtom.setStepSize(0.2*defaults.atomSize);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.setEquilibrating(false);
@@ -77,7 +80,7 @@ public class TestLJMC3D extends Simulation {
         if (args.length > 0) {
             numAtoms = Integer.valueOf(args[0]).intValue();
         }
-        TestLJMC3D sim = new TestLJMC3D(Space3D.getInstance(), numAtoms);
+        TestLJMC3D sim = new TestLJMC3D(numAtoms);
 
         sim.getDefaults().blockSize = 10;
         MeterPressure pMeter = new MeterPressure(sim.potentialMaster,sim.space);

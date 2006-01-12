@@ -1,6 +1,7 @@
 package etomica.atom;
 
 import etomica.phase.Phase;
+import etomica.simulation.Simulation;
 import etomica.util.Debug;
 
 /**
@@ -9,7 +10,7 @@ import etomica.util.Debug;
 public class AtomSourceRandomLeaf implements AtomSource, java.io.Serializable {
 
     public void setPhase(Phase p) {
-        list = p.getSpeciesMaster().atomList;
+        list = p.getSpeciesMaster().leafList;
     }
     
     /**
@@ -17,8 +18,8 @@ public class AtomSourceRandomLeaf implements AtomSource, java.io.Serializable {
      */
     public Atom getAtom() {
         if (Debug.ON && list== null) throw new IllegalStateException("must set the phase before calling getAtom");
-        return list.getRandom();
+        return list.get(Simulation.random.nextInt(list.size()));
     }
     
-    protected AtomList list = null;
+    protected AtomArrayList list = null;
 }

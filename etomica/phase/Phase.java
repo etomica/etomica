@@ -173,7 +173,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      * more than one of the positions.
      */
     public Atom[] nearestAtom(Vector[] r) {
-    	AtomIterator iterator = new AtomIteratorListTabbed(speciesMaster.atomList);
+    	AtomIterator iterator = new AtomIteratorLeafAtoms(this);
     	Atom[] nearest = new Atom[r.length];
     	for(int i=0; i<r.length; i++) {
 	    	double r2Min = Double.MAX_VALUE;

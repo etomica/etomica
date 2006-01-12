@@ -128,8 +128,8 @@ public final class Debug {
 	 * @param phase the phase containing atoms to be debugged
 	 */
 	public static void setAtoms(Phase phase) {
-		if (ATOM1_NUM > -1) ATOM1 = (AtomLeaf)phase.getSpeciesMaster().atomList.get(ATOM1_NUM);
-		if (ATOM2_NUM > -1) ATOM2 = (AtomLeaf)phase.getSpeciesMaster().atomList.get(ATOM2_NUM);
+		if (ATOM1_NUM > -1) ATOM1 = (AtomLeaf)phase.getSpeciesMaster().leafList.get(ATOM1_NUM);
+		if (ATOM2_NUM > -1) ATOM2 = (AtomLeaf)phase.getSpeciesMaster().leafList.get(ATOM2_NUM);
         if (MOLECULE1_INDEX > -1) MOLECULE1 = phase.molecule(MOLECULE1_INDEX);
         if (MOLECULE2_INDEX > -1) MOLECULE2 = phase.molecule(MOLECULE2_INDEX);
 	}

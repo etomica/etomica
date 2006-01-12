@@ -4,16 +4,14 @@
  */
 package etomica.atom.iterator;
 
-import etomica.atom.SpeciesMaster;
 import etomica.phase.Phase;
-import etomica.species.Species;
 
 /**
  * Iterator that will loop over all leaf atoms in a phase. Can be configured to
  * iterate all leaf atoms, or only those of a particular species.
  */
-public final class AtomIteratorLeafAtoms extends AtomIteratorAdapter implements
-        AtomIteratorSpeciesDependent {
+public final class AtomIteratorLeafAtoms extends AtomIteratorAdapter implements 
+        AtomIteratorPhaseDependent {
 
     /**
      * Creates iterator with no phase specified. Iteration will return no atoms
@@ -28,8 +26,7 @@ public final class AtomIteratorLeafAtoms extends AtomIteratorAdapter implements
      * phase. Call to reset() is required before beginning iteration.
      */
     public AtomIteratorLeafAtoms(Phase phase) {
-        super(new AtomIteratorListTabbed());
-        listIterator = (AtomIteratorListTabbed) iterator;
+        super(new AtomIteratorArrayListSimple());
         setPhase(phase);
     }
 
@@ -41,32 +38,11 @@ public final class AtomIteratorLeafAtoms extends AtomIteratorAdapter implements
      * another call to the method.
      */
     public void setPhase(Phase phase) {
-        this.phase = phase;
         if (phase == null) {
-            listIterator.setList(null);
+            ((AtomIteratorArrayListSimple)iterator).setList(null);
         } else {
-            listIterator.setList(phase.getSpeciesMaster().atomList);
-            if (species != null) {
-                listIterator.setFirst(phase.getAgent(species).firstLeafAtomTab);
-                listIterator.setTerminatorType(SpeciesMaster.SPECIES_TAB);
-            }
+            ((AtomIteratorArrayListSimple)iterator).setList(phase.getSpeciesMaster().leafList);
         }
         unset();
     }
-
-    /**
-     * Configures iterator to form its iterates from the leaf atoms under the
-     * specified species in the previously (or subsequently) set phase. If null
-     * argument is given, no species is set and subsequent iteration will be
-     * over all leaf atoms in phase.
-     */
-    public void setSpecies(Species species) {
-        this.species = species;
-        setPhase(phase);
-    }
-
-    private final AtomIteratorListTabbed listIterator;
-    private Phase phase;
-    private Species species;
-
 }

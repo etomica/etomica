@@ -4,7 +4,7 @@
  */
 package etomica.atom.iterator;
 
-import etomica.atom.AtomList;
+import etomica.atom.AtomArrayList;
 import etomica.phase.Phase;
 
 /**
@@ -19,8 +19,7 @@ public class ApiLeafAtoms extends AtomPairIteratorAdapter implements
      * iteration.
      */
     public ApiLeafAtoms() {
-        super(new ApiIntraList());
-        apiList = (ApiIntraList) iterator;
+        super(new ApiIntraArrayList());
     }
 
     /**
@@ -30,12 +29,11 @@ public class ApiLeafAtoms extends AtomPairIteratorAdapter implements
     public void setPhase(Phase phase) {
         if (phase == null) {
             emptyList.clear();
-            apiList.setList(emptyList);
+            ((ApiIntraArrayList)iterator).setList(emptyList);
         } else {
-            apiList.setList(phase.getSpeciesMaster().atomList);
+            ((ApiIntraArrayList)iterator).setList(phase.getSpeciesMaster().leafList);
         }
     }
 
-    private final ApiIntraList apiList;
-    private final AtomList emptyList = new AtomList();
+    private final AtomArrayList emptyList = new AtomArrayList();
 }

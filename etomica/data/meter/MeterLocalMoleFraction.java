@@ -3,7 +3,7 @@ package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.atom.iterator.AtomIteratorSpeciesDependent;
+import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.DataSourceScalar;
 import etomica.math.geometry.Polytope;
 import etomica.phase.Phase;
@@ -83,13 +83,13 @@ public abstract class MeterLocalMoleFraction extends DataSourceScalar implements
     /**
      * @return Returns the iterator.
      */
-    public AtomIteratorSpeciesDependent getIterator() {
+    public AtomIteratorPhaseDependent getIterator() {
         return iterator;
     }
     /**
      * @param iterator The iterator to set.
      */
-    public void setIterator(AtomIteratorSpeciesDependent iterator) {
+    public void setIterator(AtomIteratorPhaseDependent iterator) {
         this.iterator = iterator;
     }
 
@@ -98,6 +98,6 @@ public abstract class MeterLocalMoleFraction extends DataSourceScalar implements
      * Class variable used to specify that all species are included in number-density calculation
      */
     private Species species;
-    private AtomIteratorSpeciesDependent iterator = new AtomIteratorLeafAtoms();
+    private AtomIteratorPhaseDependent iterator = new AtomIteratorLeafAtoms();
     private Polytope shape;
 }
