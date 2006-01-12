@@ -6,9 +6,9 @@ import java.util.LinkedList;
 import etomica.action.AtomAction;
 import etomica.action.AtomsetActionAdapter;
 import etomica.atom.Atom;
-import etomica.atom.AtomList;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
-import etomica.atom.iterator.AtomIteratorListTabbed;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 
 /**
  * Class used to test iterators by collecting a list of strings
@@ -62,8 +62,8 @@ class Lister extends AtomsetActionAdapter implements AtomAction {
     /**
      * Performs action of each element of array.
      */
-    public void addEachToList(AtomList list) {
-        AtomIteratorListTabbed iterator = new AtomIteratorListTabbed(list);
+    public void addEachToList(AtomArrayList list) {
+        AtomIteratorArrayListSimple iterator = new AtomIteratorArrayListSimple(list);
         iterator.reset();
         while(iterator.hasNext()) {
             actionPerformed(iterator.nextAtom());

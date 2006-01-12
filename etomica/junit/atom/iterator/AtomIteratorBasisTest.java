@@ -3,6 +3,7 @@ package etomica.junit.atom.iterator;
 import java.util.LinkedList;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomList;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTreeNodeGroup;
@@ -67,7 +68,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         Atom basis = null;
         AtomSet target = null;
         Atom iterate = null;
-        AtomList iterates = null;
+        AtomArrayList iterates = null;
         
         assertEquals(basisIterator.basisSize(), 1);
         
@@ -78,7 +79,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         //test no-target iteration of children of a basis
         basis = rootNode.getDescendant(new int[] {0,0,0});
         target = AtomSet.NULL;
-        iterates = new AtomList(((AtomTreeNodeGroup)basis.node).childList.toArray());
+        iterates = (AtomArrayList)((AtomTreeNodeGroup)basis.node).childList.clone();
         list = testListIterates(basis, target, iterates);
         assertEquals(list.size(), nAtoms);
 
@@ -105,7 +106,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         //test target is the basis, both not a leaf; should be same as target==null
         basis = rootNode.getDescendant(new int[] {0,0,0});
         target = basis;
-        iterates = new AtomList(((AtomTreeNodeGroup)basis.node).childList.toArray());
+        iterates = (AtomArrayList)((AtomTreeNodeGroup)basis.node).childList.clone();
         list = testListIterates(basis, target, iterates);
         assertEquals(list.size(), nAtoms);
 
@@ -136,7 +137,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         //also test specifying deeper basis
         basis = rootNode.getDescendant(new int[] {0,2,1,2});
         target = new AtomsetArray(1);
-        iterates = new AtomList(((AtomTreeNodeGroup)basis.node).childList.toArray());
+        iterates = (AtomArrayList)((AtomTreeNodeGroup)basis.node).childList.clone();
         list = testListIterates(basis, target, iterates);
         
         //test null basis
@@ -182,7 +183,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         return list;
     }
     
-    private LinkedList testListIterates(Atom basis, AtomSet target, AtomList iterates) {
+    private LinkedList testListIterates(Atom basis, AtomSet target, AtomArrayList iterates) {
         basisIterator.setBasis(basis);
         assertTrue(basisIterator.haveTarget(target));
         basisIterator.setTarget(target);

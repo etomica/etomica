@@ -3,6 +3,7 @@ package etomica.junit.atom.iterator;
 import java.util.LinkedList;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesAgent;
@@ -83,8 +84,8 @@ public class AtomIteratorTreeTest extends IteratorTestAbstract {
         treeIterator.setDoAllNodes(true);
         list = testOneIterate(0, iterationRoot, iterationRoot);
         testNoIterates((Atom)null);
-        AtomList testList = new AtomList(((AtomTreeNodeGroup)speciesAgent2.node).childList.toArray());
-        testList.addFirst(iterationRoot);
+        AtomArrayList testList = (AtomArrayList)((AtomTreeNodeGroup)speciesAgent2.node).childList.clone();
+        testList.add(0,iterationRoot);
         list = testListIterates(1, iterationRoot, testList);
         list = testIterateCount(2, iterationRoot, 1+n2a*(1+nTree[0]));
         list = testIterateCount(3, iterationRoot, 1+n2a*(1+nTree[0]*(1+nTree[1])));
@@ -95,7 +96,7 @@ public class AtomIteratorTreeTest extends IteratorTestAbstract {
         treeIterator.setDoAllNodes(false);
         list = testOneIterate(0, iterationRoot, iterationRoot);
         testNoIterates((Atom)null);
-        testList = new AtomList(((AtomTreeNodeGroup)speciesAgent2.node).childList.toArray());
+        testList = (AtomArrayList)((AtomTreeNodeGroup)speciesAgent2.node).childList.clone();
         list = testListIterates(1, iterationRoot, testList);
         list = testIterateCount(2, iterationRoot, n2a*nTree[0]);
         list = testIterateCount(3, iterationRoot, n2a*nTree[0]*(nTree[1]));
@@ -120,7 +121,7 @@ public class AtomIteratorTreeTest extends IteratorTestAbstract {
         treeIterator.setAsLeafIterator();
         count = n0a*nAtoms + n1a + n2a*nTree[0]*nTree[1]*nTree[2];
         list = testIterateCount(root, count);
-        list = testListIterates(root, speciesMaster.atomList);
+        list = testListIterates(root, speciesMaster.leafList);
         
         //test re-specifying iteration in different orders
         iterationRoot = root;
@@ -193,14 +194,18 @@ public class AtomIteratorTreeTest extends IteratorTestAbstract {
     
     private LinkedList testArrayIterates(int depth, Atom root, Atom[] iterates) {
         treeIterator.setIterationDepth(depth);
-        return testListIterates(root, new AtomList(iterates));
+        AtomArrayList arrayList = new AtomArrayList();
+        for (int i=0; i<iterates.length; i++) {
+            arrayList.add(iterates[i]);
+        }
+        return testListIterates(root, arrayList);
     }
     
-    private LinkedList testListIterates(int depth, Atom root, AtomList iterates) {
+    private LinkedList testListIterates(int depth, Atom root, AtomArrayList iterates) {
         treeIterator.setIterationDepth(depth);
         return testListIterates(root, iterates);
     }
-    private LinkedList testListIterates(Atom root, AtomList iterates) {
+    private LinkedList testListIterates(Atom root, AtomArrayList iterates) {
         treeIterator.setRoot(root);
         LinkedList list = generalIteratorMethodTests(treeIterator);
         Lister testLister = new Lister();
