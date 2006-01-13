@@ -132,7 +132,7 @@ public class AtomNeighborLists implements DirtyObject {
         for (int i=0; i<upList.length; i++) {
             atomListInts[0][i] = new int[upList[i].size()];
             for (int j=0; j<atomListInts[0][i].length; j++) {
-                atomListInts[0][i][j] = upList[i].get(j).node.index();
+                atomListInts[0][i][j] = upList[i].get(j).node.getAddress();
                 
             }
         }
@@ -141,7 +141,7 @@ public class AtomNeighborLists implements DirtyObject {
         for (int i=0; i<upList.length; i++) {
             atomListInts[1][i] = new int[downList[i].size()];
             for (int j=0; j<atomListInts[1][i].length; j++) {
-                atomListInts[1][i][j] = downList[i].get(j).node.index();
+                atomListInts[1][i][j] = downList[i].get(j).node.getAddress();
             }
         }
         out.writeObject(atomListInts);

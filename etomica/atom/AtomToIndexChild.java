@@ -4,16 +4,16 @@ import java.io.Serializable;
 
 
 /**
- * Defines the index as the Atom's ordinal.
+ * Defines the index as the Atom's node's index.
  * @author andrew
  */
-public class AtomToIndexOrdinal implements AtomToIndex, Serializable {
+public class AtomToIndexChild implements AtomToIndex, Serializable {
 
     /**
      * @throws NullPointerException if the atom is null.
      */
     public int getIndex(Atom atom) {
-        return atom.node.getOrdinal()-1;
+        return atom.node.getIndex();
     }
     
     private static final long serialVersionUID = 1L;

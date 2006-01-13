@@ -66,7 +66,7 @@ public class PhaseAgentManager implements SimulationListener, java.io.Serializab
         }
         else if (evt.type() == SimulationEvent.PHASE_REMOVED) {
             Phase phase = evt.getPhase();
-            int index = phase.getOrdinal()-1;
+            int index = phase.getIndex()-1;
             agentSource.releaseAgent(agents[index]);
             for (int i=index; i<agents.length-1; i++) {
                 agents[index] = agents[index+1];
@@ -75,8 +75,8 @@ public class PhaseAgentManager implements SimulationListener, java.io.Serializab
     }
     
     protected void addAgent(Phase phase) {
-        agents = Arrays.resizeArray(agents,phase.getOrdinal());
-        agents[phase.getOrdinal()-1] = agentSource.makeAgent(phase);
+        agents = Arrays.resizeArray(agents,phase.getIndex());
+        agents[phase.getIndex()-1] = agentSource.makeAgent(phase);
     }
     
     /**

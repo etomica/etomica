@@ -32,7 +32,7 @@ public abstract class ColorSchemeCollective extends ColorScheme implements Agent
     //then assign it to atom like this: atomColors[atomIndex] = color
     public void colorAllAtoms(Phase phase){
         agentManager = (AtomAgentManager[])phaseAgentManager.getAgents();
-        atomColors = (Color[])agentManager[phase.getOrdinal()-1].getAgents();
+        atomColors = (Color[])agentManager[phase.getIndex()-1].getAgents();
     }
     
     public Color getAtomColor(AtomLeaf a) {return atomColors[a.getGlobalIndex()];}

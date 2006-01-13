@@ -63,7 +63,7 @@ protected CoordinatePair cPair;
     public double energy(AtomSet pair) {
  //       double deltaX = pair.dr(0);
         double deltaX = ((AtomLeaf)((AtomPair)pair).atom1).coord.position().x(0) - ((AtomLeaf)((AtomPair)pair).atom0).coord.position().x(0);
-        int dI = ((AtomPair)pair).atom1.node.index() - ((AtomPair)pair).atom0.node.index();
+        int dI = ((AtomPair)pair).atom1.node.getIndex() - ((AtomPair)pair).atom0.node.getIndex();
         return (deltaX * dI < 0.0) ? Double.POSITIVE_INFINITY : 0.0;
     }
     

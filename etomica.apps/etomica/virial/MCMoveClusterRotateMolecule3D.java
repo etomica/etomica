@@ -49,7 +49,7 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
         if(phase.moleculeCount()==1) {molecule = null; return false;}
             
         molecule = phase.randomMolecule();
-        while (molecule.node.getOrdinal() == 1) {
+        while (molecule.node.getIndex() == 0) {
             molecule = phase.randomMolecule();
         }
         uOld = weightMeter.getDataAsScalar();

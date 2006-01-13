@@ -112,7 +112,7 @@ public class ApiInterspeciesAATest extends IteratorTestAbstract {
         public SpeciesTestAction() {
         }
         public void actionPerformed(AtomSet atoms) {
-            assertTrue(atoms.getAtom(0).node.index() < atoms.getAtom(1).node.index());
+            assertTrue(atoms.getAtom(0).node.getAddress() < atoms.getAtom(1).node.getAddress());
         }
     }
     

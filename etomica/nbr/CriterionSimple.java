@@ -78,7 +78,7 @@ public class CriterionSimple extends NeighborCriterion implements AgentSource  {
 	public void setPhase(Phase phase) {
         cPair.setNearestImageTransformer(phase.getBoundary());
         agentManager = (AtomAgentManager[])phaseAgentManager.getAgents();
-        agents = (Vector[])agentManager[phase.getOrdinal()-1].getAgents();
+        agents = (Vector[])agentManager[phase.getIndex()-1].getAgents();
 	}
     
 	public boolean unsafe() {

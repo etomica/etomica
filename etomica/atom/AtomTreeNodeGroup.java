@@ -9,31 +9,27 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     
     public AtomTreeNodeGroup(Atom atom) {
         super(atom);
-    }
-    
-    /**
-     * Set this atom's index and update indexes of its descendants.
-     */
-    public void setOrdinal(int ordinal) {
-        super.setOrdinal(ordinal);
+        childList = new AtomArrayList();
         assignChildOrdinals();
     }
     
     /**
      * Set this atom's index and update indexes of its descendants.
      */
-    public void setOrdinal(int parentIndex, int ordinal) {
-        super.setOrdinal(parentIndex, ordinal);
-        assignChildOrdinals();
+    protected void setIndex(int parentIndex, int ordinal) {
+        super.setIndex(parentIndex, ordinal);
+        if (childList != null) {
+            assignChildOrdinals();
+        }
     }
 
     /**
      * Assigns ordinals to all child atoms, numbering them sequentially
      * according to their position in the childList.
      */
-    public void assignChildOrdinals() {
+    private void assignChildOrdinals() {
         for (int i = 0; i < childList.size(); i++) {
-            childList.get(i).node.setOrdinal(atomTreeAddress, i+1);
+            childList.get(i).node.setIndex(i);
         }
     }
 
@@ -132,7 +128,7 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     //consider a mechanism to ensure this; a inner mutator class made available only
     //to list's creator, for example (still wouldn't prevent modification via direct
     //access of entry classes).
-    public final AtomArrayList childList = new AtomArrayList();
+    public final AtomArrayList childList;
         
     public static final AtomTreeNodeFactory FACTORY = new AtomTreeNodeGroup.Factory();
     

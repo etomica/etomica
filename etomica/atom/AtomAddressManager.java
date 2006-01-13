@@ -67,7 +67,7 @@ public class AtomAddressManager implements java.io.Serializable {
         sameSpeciesMask = speciesOrdinalMask | rootMask;
         sameMoleculeMask = moleculeOrdinalMask | rootMask | samePhaseMask
                 | sameSpeciesMask;
-        typeAddress = parentTypeAddress + shiftOrdinal(typeOrdinal);
+        typeAddress = parentTypeAddress + shiftIndex(typeOrdinal);
 //        System.out.println(Integer.toBinaryString(typeIndex));
 //        System.out.println("depth, bitLength,cumulativeBitLength,bitShift: "+depth+Arrays.toString(bitLength)+Arrays.toString(cumulativeBitLength)+Arrays.toString(bitShift));
 //        System.out.println("samePhaseMask: "+Integer.toBinaryString(samePhaseMask));
@@ -133,43 +133,45 @@ public class AtomAddressManager implements java.io.Serializable {
      * parent. The ordinal can be recovered from the index via the getOrdinal
      * method.
      */
-    public int shiftOrdinal(int ordinal) {
-        if (((ordinal << bitShift[depth]) & atomOrdinalMask) >>> bitShift[depth] != ordinal) {
-            throw new RuntimeException(ordinal + " " + bitShift[depth] + " "
+    public int shiftIndex(int index) {
+        //we really want an ordinal, not an index
+        index++;
+        if (((index << bitShift[depth]) & atomOrdinalMask) >>> bitShift[depth] != index) {
+            throw new RuntimeException(index + " " + bitShift[depth] + " "
                     + atomOrdinalMask);
         }
-        return ordinal << bitShift[depth];
+        return index << bitShift[depth];
     }
 
     /**
-     * Returns the atom's ordinal by decoding its atomAddress. Reverses the
-     * action of shiftOrdinal.
+     * Returns the atom's index by decoding its atomAddress. Reverses the
+     * action of shiftIndex.
      */
-    public int getOrdinal(int atomAddress) {
-        return (atomAddress & atomOrdinalMask) >>> bitShift[depth];
+    public int getIndex(int atomAddress) {
+        return (atomAddress & atomOrdinalMask) >>> bitShift[depth] - 1;
     }
 
     /**
-     * Decodes an atom's address to determine the ordinal of the phase it is in.
+     * Decodes an atom's address to determine the index of the phase it is in.
      */
-    public int getPhaseOrdinal(int atomAddress) {
-        return (atomAddress & phaseOrdinalMask) >>> bitShift[1];
+    public int getPhaseIndex(int atomAddress) {
+        return (atomAddress & phaseOrdinalMask) >>> bitShift[1] - 1;
     }
 
     /**
      * Decodes an atom's address to determine the ordinal of the species it is part
      * of.
      */
-    public int getSpeciesOrdinal(int atomAddress) {
-        return (atomAddress & speciesOrdinalMask) >>> bitShift[2];
+    public int getSpeciesIndex(int atomAddress) {
+        return (atomAddress & speciesOrdinalMask) >>> bitShift[2] - 1;
     }
 
     /**
-     * Decodes an atom's address to determine the ordinal of the molecule it
+     * Decodes an atom's address to determine the index of the molecule it
      * is part of.
      */
-    public int getMoleculeOrdinal(int atomAddress) {
-        return (atomAddress & moleculeOrdinalMask) >>> bitShift[3];
+    public int getMoleculeIndex(int atomAddress) {
+        return (atomAddress & moleculeOrdinalMask) >>> bitShift[3] - 1;
     }
 
     /**

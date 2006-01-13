@@ -7,7 +7,7 @@ import etomica.atom.Atom;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomToArrayList;
 import etomica.atom.AtomToIndex;
-import etomica.atom.AtomToIndexOrdinal;
+import etomica.atom.AtomToIndexChild;
 import etomica.atom.AtomToParentChildList;
 
  /**
@@ -28,7 +28,7 @@ public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implement
      * Constructs new iterator set to iterate given list (upon reset).
      */
  	public AtomIteratorArrayList(IteratorDirective.Direction direction, int numToSkip) {
-        this(direction, numToSkip, new AtomToIndexOrdinal(), new AtomToParentChildList());
+        this(direction, numToSkip, new AtomToIndexChild(), new AtomToParentChildList());
     }
     
     public AtomIteratorArrayList(IteratorDirective.Direction direction, int numToSkip, 

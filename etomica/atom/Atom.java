@@ -20,7 +20,6 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
     public Atom(AtomType type, AtomTreeNodeFactory nodeFactory) {
         this.type = type;
         node = nodeFactory.makeNode(this);
-        node.setOrdinal(0,0); //-(++INSTANCE_COUNT));//default index; changed when added to parent after construction
     }
     
     /**
@@ -30,7 +29,7 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      */
     public Atom(Space space) {
         this(new AtomTypeSphere(null,1,1), AtomTreeNodeLeaf.FACTORY);                        
-        node.setOrdinal(0,++INSTANCE_COUNT);//default index; changed when added to parent after construction
+        node.setIndex(++INSTANCE_COUNT);//default index; changed when added to parent after construction
     }
     
     /**
@@ -73,7 +72,7 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      *             if the argument is null
      */
     public boolean inSameSpecies(Atom atom) {
-        return type.getAddressManager().sameSpecies(node.index(), atom.node.index());
+        return type.getAddressManager().sameSpecies(node.getAddress(), atom.node.getAddress());
     }
     /**
      * Returns true if this atom is in the same molecule as the given atom.
@@ -82,7 +81,7 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      *             if the argument is null
      */
     public boolean inSameMolecule(Atom atom) {
-        return type.getAddressManager().sameMolecule(node.index(), atom.node.index());
+        return type.getAddressManager().sameMolecule(node.getAddress(), atom.node.getAddress());
     }
     /**
      * Returns true if this atoms is in the same phase as the given atom.
@@ -91,7 +90,7 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      *             if the argument is null
      */
     public boolean inSamePhase(Atom atom) {
-        return type.getAddressManager().samePhase(node.index(), atom.node.index());
+        return type.getAddressManager().samePhase(node.getAddress(), atom.node.getAddress());
     }
     
     /**
@@ -102,9 +101,9 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      */
     public String signature() {
         if(node.parentGroup() != null) {
-            return node.parentGroup().signature() + " " + node.getOrdinal();
+            return node.parentGroup().signature() + " " + node.getIndex();
         }
-        return Integer.toString(node.getOrdinal());
+        return Integer.toString(node.getIndex());
     }
     /**
      * Returns a string formed by concatenating the signature of this atom

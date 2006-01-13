@@ -1,6 +1,7 @@
 package etomica.atom;
 
 import etomica.phase.Phase;
+import etomica.util.Debug;
 
 
 /**
@@ -39,6 +40,7 @@ public abstract class AtomTreeNode implements Comparable, java.io.Serializable {
     
     public AtomTreeNode(Atom atom) {
         this.atom = atom;
+        setIndex(0,0);
     }
     
     public abstract boolean isLeaf();
@@ -64,10 +66,10 @@ public abstract class AtomTreeNode implements Comparable, java.io.Serializable {
     	
         //old parent is not null; remove from it
         if(parentNode != null) {
-            int ordinal = atom.node.getOrdinal();
+            int ordinal = atom.node.getIndex();
             parentNode.childList.removeAndReplace(ordinal-1);
             if (parentNode.childList.size() > ordinal-1) {
-                parentNode.childList.get(ordinal-1).node.setOrdinal(ordinal);
+                parentNode.childList.get(ordinal-1).node.setIndex(ordinal);
             }
             parentNode.removeAtomNotify(atom);
         }
@@ -78,7 +80,7 @@ public abstract class AtomTreeNode implements Comparable, java.io.Serializable {
             return;
         }
 
-        setOrdinal(parentNode.childList.size()+1);
+        setIndex(parentNode.childList.size()+1);
         
         parentNode.childList.add(atom);
         parentNode.addAtomNotify(atom);
@@ -117,37 +119,34 @@ public abstract class AtomTreeNode implements Comparable, java.io.Serializable {
     /**
      * Integer assigned to this atom by its parent molecule.
      */
-    public final int index() {return atomTreeAddress;}
+    public final int getAddress() {return atomTreeAddress;}
 
-    public void setOrdinal(int ordinal) {
-        setOrdinal((parentNode != null) ? parentNode.index() : 0, ordinal);
+    public void setIndex(int index) {
+        setIndex((parentNode != null) ? parentNode.getAddress() : 0, index);
     }
     
-    public void setOrdinal(int parentIndex, int ordinal) {
-        atomTreeAddress = parentIndex + atom.type.getAddressManager().shiftOrdinal(ordinal);
-        if (atom.type.getAddressManager().getOrdinal(atomTreeAddress) != ordinal) {
-            atom.type.getAddressManager().getOrdinal(atomTreeAddress);
-            throw new RuntimeException(atomTreeAddress+" "+ordinal+" "+atom.type.getAddressManager().getOrdinal(atomTreeAddress));
+    protected void setIndex(int parentAddress, int index) {
+        atomTreeAddress = parentIndex + atom.type.getAddressManager().shiftIndex(index);
+        if (Debug.ON && atom.type.getAddressManager().getIndex(atomTreeAddress) != index) {
+            atom.type.getAddressManager().getIndex(atomTreeAddress);
+            throw new RuntimeException(atomTreeAddress+" "+index+" "+(atom.type.getAddressManager().getIndex(atomTreeAddress)));
         }
     }
     
-    public int getOrdinal() {
-//        System.out.println(atom.type.getDepth()+" "+atom.type.getIndexManager().getOrdinal(atomIndex));
-//        if(atom.type.getDepth()==4 && atom.type.getIndexManager().getOrdinal(atomIndex)==6) {
-//        }
-        return atom.type.getAddressManager().getOrdinal(atomTreeAddress);
+    public int getIndex() {
+        return atom.type.getAddressManager().getIndex(atomTreeAddress);
     }
     
-    public int getMoleculeOrdinal() {
-        return atom.type.getAddressManager().getMoleculeOrdinal(atomTreeAddress);
+    public int getMoleculeIndex() {
+        return atom.type.getAddressManager().getMoleculeIndex(atomTreeAddress);
     }
 
-    public int getPhaseOrdinal() {
-        return atom.type.getAddressManager().getPhaseOrdinal(atomTreeAddress);
+    public int getPhaseIndex() {
+        return atom.type.getAddressManager().getPhaseIndex(atomTreeAddress);
     }
 
-    public int getSpeciesOrdinal() {
-        return atom.type.getAddressManager().getSpeciesOrdinal(atomTreeAddress);
+    public int getSpeciesIndex() {
+        return atom.type.getAddressManager().getSpeciesIndex(atomTreeAddress);
     }
 
     public boolean inSimulation() {
@@ -180,9 +179,9 @@ public abstract class AtomTreeNode implements Comparable, java.io.Serializable {
      * by comparison of (absolute value of) atomIndex values.
      */
     public int compareTo(Object atomTreeNode) {
-        int otherIndex = ((AtomTreeNode)atomTreeNode).atomTreeAddress;
+        int otherAddress = ((AtomTreeNode)atomTreeNode).atomTreeAddress;
         //use "<" for ">" because atomIndex is negative
-        return otherIndex < atomTreeAddress ? 1 : (otherIndex == atomTreeAddress ? 0 : -1);
+        return otherAddress < atomTreeAddress ? 1 : (otherAddress == atomTreeAddress ? 0 : -1);
     }
                 
     protected final Atom atom;

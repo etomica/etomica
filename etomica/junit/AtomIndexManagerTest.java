@@ -71,28 +71,28 @@ public class AtomIndexManagerTest extends TestCase {
 //          System.out.println("AtomIndex: "+atoms[i+i0].node.getOrdinal()+" "+(1+atomIndex[i]));
 //          System.out.println("Bits: "+Integer.toBinaryString(atoms[i+i0].node.index()));
 //          System.out.println(atoms[i+i0].toString());
-          assertEquals(atoms[i+i0].node.getOrdinal(), 1+atomIndex[i]);
+          assertEquals(atoms[i+i0].node.getIndex(), 1+atomIndex[i]);
       }
     }
 
     public void testGetPhaseIndex() {
         for(int i=0; i<phaseIndex.length; i++) {
 //          System.out.println("PhaseIndex: "+atoms[i+i0].node.getPhaseIndex()+" "+(1+phaseIndex[i]));
-          assertEquals(atoms[i+i0].node.getPhaseOrdinal(), 1+phaseIndex[i]);
+          assertEquals(atoms[i+i0].node.getPhaseIndex(), 1+phaseIndex[i]);
       }
     }
 
     public void testGetSpeciesIndex() {
         for(int i=0; i<speciesIndex.length; i++) {
 //            System.out.println("SpeciesIndex: "+atoms[i+i0].node.getSpeciesIndex()+" "+(1+speciesIndex[i]));
-            assertEquals(atoms[i+i0].node.getSpeciesOrdinal(), 1+speciesIndex[i]);
+            assertEquals(atoms[i+i0].node.getSpeciesIndex(), 1+speciesIndex[i]);
         }
     }
 
     public void testGetMoleculeIndex() {
         for(int i=0; i<moleculeIndex.length; i++) {
 //            System.out.println("MoleculeIndex: "+atoms[i+i0].node.getMoleculeIndex()+" "+(1+moleculeIndex[i]));
-            assertEquals(atoms[i+i0].node.getMoleculeOrdinal(), 1+moleculeIndex[i]);
+            assertEquals(atoms[i+i0].node.getMoleculeIndex(), 1+moleculeIndex[i]);
         }
     }
 

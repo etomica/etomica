@@ -61,7 +61,7 @@ public class PhaseCluster extends Phase {
         }
 
         if (molecule != null) {
-            int dirtyAtom = molecule.node.getOrdinal()-1;
+            int dirtyAtom = molecule.node.getIndex();
             // copy old cPairSet to trial cPairSet
             cPairTrialSet.E(cPairSet);
             cPairTrialSet.dirtyAtom = dirtyAtom;

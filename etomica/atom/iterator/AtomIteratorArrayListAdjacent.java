@@ -7,7 +7,7 @@ import etomica.atom.AtomList;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomToArrayList;
 import etomica.atom.AtomToIndex;
-import etomica.atom.AtomToIndexOrdinal;
+import etomica.atom.AtomToIndexChild;
 import etomica.atom.AtomToParentChildList;
 import etomica.atom.iterator.IteratorDirective.Direction;
 
@@ -30,7 +30,7 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
      * will be given by iterator.
      */
     public AtomIteratorArrayListAdjacent(IteratorDirective.Direction direction) {
-        this(direction,new AtomToIndexOrdinal(), new AtomToParentChildList());
+        this(direction,new AtomToIndexChild(), new AtomToParentChildList());
     }
     
     public AtomIteratorArrayListAdjacent(IteratorDirective.Direction direction,

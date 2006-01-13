@@ -72,7 +72,7 @@ public class EtomicaObjectInputStream extends ObjectInputStream {
         int min = 0;
         while (true) {
             Atom a = (Atom)atomList.get(candidate);
-            int candidateIndex = a.node.index();
+            int candidateIndex = a.node.getAddress();
             if (candidateIndex == index) {
                 return a;
             }
