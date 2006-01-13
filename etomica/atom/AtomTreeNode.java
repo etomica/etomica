@@ -126,7 +126,7 @@ public abstract class AtomTreeNode implements Comparable, java.io.Serializable {
     }
     
     protected void setIndex(int parentAddress, int index) {
-        atomTreeAddress = parentIndex + atom.type.getAddressManager().shiftIndex(index);
+        atomTreeAddress = parentAddress + atom.type.getAddressManager().shiftIndex(index);
         if (Debug.ON && atom.type.getAddressManager().getIndex(atomTreeAddress) != index) {
             atom.type.getAddressManager().getIndex(atomTreeAddress);
             throw new RuntimeException(atomTreeAddress+" "+index+" "+(atom.type.getAddressManager().getIndex(atomTreeAddress)));
