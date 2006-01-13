@@ -1,6 +1,7 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.atom.AtomFactoryHomo;
+import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomTypeLeaf;
 import etomica.simulation.Simulation;
 import etomica.species.SpeciesSpheres;
@@ -22,7 +23,7 @@ public class SpeciesTube extends SpeciesSpheres {
 		
 		factory.setConformation(conformationTube);
 		
-		((AtomTypeLeaf)factory.getType()).setMass(Double.POSITIVE_INFINITY);
+		((AtomTypeLeaf)((AtomFactoryHomo)factory).getChildFactory().getType()).setMass(Double.POSITIVE_INFINITY);
 	
 		setNMolecules(1);
 		((AtomFactoryHomo)factory).setAtomsPerGroup(atomsPerRing * numberOfRings);
