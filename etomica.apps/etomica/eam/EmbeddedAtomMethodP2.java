@@ -42,7 +42,7 @@ public final class EmbeddedAtomMethodP2 extends Potential2SoftSpherical implemen
     }
     
     public Wrapper[] getAgents(Phase phase) {
-        agents = (Wrapper[])agentManager[phase.getOrdinal()-1].getAgents();
+        agents = (Wrapper[])agentManager[phase.getIndex()].getAgents();
         return agents;
     }
 

@@ -240,7 +240,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      */
     public void neighborSetup(Phase phase) {
         agentManagers = (AtomAgentManager[])phaseAgentManager.getAgents();
-        neighborLists = (AtomNeighborLists[])agentManagers[phase.getIndex()-1].getAgents();
+        neighborLists = (AtomNeighborLists[])agentManagers[phase.getIndex()].getAgents();
 
         iterator.setRoot(phase.getSpeciesMaster());
         neighborReset.setNeighborLists(neighborLists);

@@ -76,7 +76,7 @@ public class PhaseAgentManager implements SimulationListener, java.io.Serializab
     
     protected void addAgent(Phase phase) {
         agents = Arrays.resizeArray(agents,phase.getIndex());
-        agents[phase.getIndex()-1] = agentSource.makeAgent(phase);
+        agents[phase.getIndex()] = agentSource.makeAgent(phase);
     }
     
     /**
