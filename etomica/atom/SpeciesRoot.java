@@ -48,7 +48,7 @@ public final class SpeciesRoot extends Atom {
         while (iterator.hasNext()) {
             species.makeAgent((SpeciesMaster)iterator.nextAtom());
         }
-        return speciesList.length;
+        return speciesList.length-1;
     }
 
     public boolean removeSpecies(Species species) {

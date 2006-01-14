@@ -52,7 +52,7 @@ public class AtomAddressManager implements java.io.Serializable {
      *            atom's index that is managed by this class.
      *  
      */
-    private AtomAddressManager(int[] bitLength, int depth, int parentTypeAddress, int typeOrdinal) {
+    private AtomAddressManager(int[] bitLength, int depth, int parentTypeAddress, int typeIndex) {
         this.bitLength = (int[]) bitLength.clone();
         cumulativeBitLength = calculateCumulativeBitLength(bitLength);
         bitShift = calculateBitShift(cumulativeBitLength);
@@ -67,7 +67,7 @@ public class AtomAddressManager implements java.io.Serializable {
         sameSpeciesMask = speciesOrdinalMask | rootMask;
         sameMoleculeMask = moleculeOrdinalMask | rootMask | samePhaseMask
                 | sameSpeciesMask;
-        typeAddress = parentTypeAddress + shiftIndex(typeOrdinal);
+        typeAddress = parentTypeAddress + shiftIndex(typeIndex);
 //        System.out.println(Integer.toBinaryString(typeIndex));
 //        System.out.println("depth, bitLength,cumulativeBitLength,bitShift: "+depth+Arrays.toString(bitLength)+Arrays.toString(cumulativeBitLength)+Arrays.toString(bitShift));
 //        System.out.println("samePhaseMask: "+Integer.toBinaryString(samePhaseMask));
@@ -99,7 +99,7 @@ public class AtomAddressManager implements java.io.Serializable {
      * same bitLength array as this, without exposing the bitLength array.
      */
     AtomAddressManager makeChildManager() {
-        return new AtomAddressManager(bitLength, depth + 1, typeAddress, ++childCount);
+        return new AtomAddressManager(bitLength, depth + 1, typeAddress, childCount++);
     }
 
     /**
@@ -107,7 +107,7 @@ public class AtomAddressManager implements java.io.Serializable {
      * SpeciesRoot constructor.
      */
     static AtomAddressManager makeRootIndexManager(int[] bitLength) {
-        return new AtomAddressManager(bitLength, 0, 0, 1);
+        return new AtomAddressManager(bitLength, 0, 0, 0);
     }
     
     /**
@@ -116,7 +116,7 @@ public class AtomAddressManager implements java.io.Serializable {
      * AtomType constructor if parent type is null.
      */
     public static AtomAddressManager makeSimpleIndexManager(int[] bitLength) {
-        return new AtomAddressManager(bitLength, 3, 0, 1);
+        return new AtomAddressManager(bitLength, 3, 0, 0);
     }
 
     /**
@@ -148,14 +148,14 @@ public class AtomAddressManager implements java.io.Serializable {
      * action of shiftIndex.
      */
     public int getIndex(int atomAddress) {
-        return (atomAddress & atomOrdinalMask) >>> bitShift[depth] - 1;
+        return ((atomAddress & atomOrdinalMask) >>> bitShift[depth]) - 1;
     }
 
     /**
      * Decodes an atom's address to determine the index of the phase it is in.
      */
     public int getPhaseIndex(int atomAddress) {
-        return (atomAddress & phaseOrdinalMask) >>> bitShift[1] - 1;
+        return ((atomAddress & phaseOrdinalMask) >>> bitShift[1]) - 1;
     }
 
     /**
@@ -163,7 +163,7 @@ public class AtomAddressManager implements java.io.Serializable {
      * of.
      */
     public int getSpeciesIndex(int atomAddress) {
-        return (atomAddress & speciesOrdinalMask) >>> bitShift[2] - 1;
+        return ((atomAddress & speciesOrdinalMask) >>> bitShift[2]) - 1;
     }
 
     /**
@@ -171,7 +171,7 @@ public class AtomAddressManager implements java.io.Serializable {
      * is part of.
      */
     public int getMoleculeIndex(int atomAddress) {
-        return (atomAddress & moleculeOrdinalMask) >>> bitShift[3] - 1;
+        return ((atomAddress & moleculeOrdinalMask) >>> bitShift[3]) - 1;
     }
 
     /**
