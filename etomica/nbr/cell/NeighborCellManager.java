@@ -74,6 +74,8 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, java.
         lattice = new CellLattice(phase.getBoundary().getDimensions(), Cell.FACTORY);
         setPotentialRange(potentialRange);
 
+        //force lattice to be sized so the Cells will exist
+        checkDimensions();
         agentManager = new AtomAgentManager(this,phase);
     }
 
@@ -115,7 +117,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, java.
      * Checks the phase's dimensions to make sure the number of cells is 
      * appropriate.
      */
-    public void checkDimensions() {
+    protected void checkDimensions() {
     	int D = space.D();
         int[] nCells = new int[D];
         Vector dimensions = phase.getBoundary().getDimensions();
