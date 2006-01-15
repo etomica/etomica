@@ -8,7 +8,6 @@ import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
 import etomica.atom.Atom;
-import etomica.atom.AtomLinker;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomToArrayListFixed;
@@ -17,7 +16,6 @@ import etomica.atom.iterator.ApiSequence1A;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayList;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
-import etomica.atom.iterator.AtomIteratorSequence;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomPairIterator;
 import etomica.atom.iterator.AtomsetIteratorMolecule;
@@ -221,6 +219,7 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
                 return;
             }
         }
+        inCentralCell = false;
         advanceLists();
     }
     
