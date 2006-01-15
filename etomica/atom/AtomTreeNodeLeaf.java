@@ -10,16 +10,8 @@ package etomica.atom;
 
 public final class AtomTreeNodeLeaf extends AtomTreeNode {
     
-    /**
-     * Linker used to form a list of all leaf atoms in the phase.
-     * List is maintained by the speciesMaster node.
-     */
-    public final AtomLinker leafLinker;
-    private int leafIndex;
-    
     public AtomTreeNodeLeaf(Atom atom) {
         super(atom);
-        leafLinker = new AtomLinker(atom);
     }
     
     public boolean isLeaf() {return true;}
@@ -51,6 +43,12 @@ public final class AtomTreeNodeLeaf extends AtomTreeNode {
     public final int getLeafIndex() {
         return leafIndex;
     }
+    
+    /**
+     * leafIndex is an index to the AtomArrayList of all leaf atoms in the phase.
+     * List is maintained by the speciesMaster node.
+     */
+    private int leafIndex;
     
     public static final AtomTreeNodeFactory FACTORY = new AtomTreeNodeLeaf.Factory();
     
