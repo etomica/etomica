@@ -136,6 +136,9 @@ public class MCMoveInsertDelete extends MCMove {
         if(insert) {
             phase.removeMolecule(testMolecule);
             reservoir.add(testMolecule);
+            // test molecule is no longer in the simulation and should not be 
+            // returned by affectedAtoms
+            testMolecule = null;
         }
     }
     
@@ -146,7 +149,7 @@ public class MCMoveInsertDelete extends MCMove {
      * in the current or most recent trial.
      */
     public final AtomIterator affectedAtoms(Phase p) {
-        if(p != phase) return AtomIterator.NULL;
+        if(p != phase || testMolecule == null) return AtomIterator.NULL;
         affectedAtomIterator.setAtom(testMolecule);
         return affectedAtomIterator;
     }
