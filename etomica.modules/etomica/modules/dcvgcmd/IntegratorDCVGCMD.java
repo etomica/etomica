@@ -53,7 +53,9 @@ public class IntegratorDCVGCMD extends IntegratorPhase {
     }
     
     protected void setup() throws ConfigurationOverlapException {
+        potentialMasterHybrid.setUseNbrLists(false);
         integratormc.initialize();
+        potentialMasterHybrid.setUseNbrLists(true);
         integratormd.initialize();
         super.setup();
     }
@@ -83,12 +85,12 @@ public class IntegratorDCVGCMD extends IntegratorPhase {
                 integratormc.fireIntervalEvent(intervalEventMC);
             }
             potentialMasterHybrid.setUseNbrLists(true);
-            potentialMasterHybrid.getNeighborManager().setQuiet(true);
-            potentialMasterHybrid.getNeighborManager().updateNbrsIfNeeded(integratormd);
-            potentialMasterHybrid.getNeighborManager().setQuiet(false);
+            potentialMasterHybrid.getNeighborManager().reset(phase);
             try {
                 integratormd.reset();
-            } catch(ConfigurationOverlapException e) {}
+            } catch(ConfigurationOverlapException e) {
+                throw new IllegalStateException("overlap detected after inserting or deleting atoms ",e);
+            }
 	 	} else {
             MDStepCount--;
 	 		integratormd.doStep();
