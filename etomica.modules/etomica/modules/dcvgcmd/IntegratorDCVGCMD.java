@@ -89,7 +89,7 @@ public class IntegratorDCVGCMD extends IntegratorPhase {
             try {
                 integratormd.reset();
             } catch(ConfigurationOverlapException e) {
-                throw new IllegalStateException("overlap detected after inserting or deleting atoms ",e);
+                throw new RuntimeException("overlap detected after inserting or deleting atoms",e);
             }
 	 	} else {
             MDStepCount--;
