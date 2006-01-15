@@ -19,7 +19,9 @@ public class ControllerToggle extends ControllerActionAdapter {
                         controller.actionPerformed();
                     }
                     catch (RuntimeException e) {
-                        // do something useful
+                        // perhaps this should open a dialog or something
+                        System.err.println(e.getMessage());
+                        e.printStackTrace();
                     }
                 }
             });
