@@ -238,7 +238,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * Called by updateNbrsIfNeeded, and by reset.
      * @param phase phase in which neighbor setup is performed.
      */
-    public void neighborSetup(Phase phase) {
+    protected void neighborSetup(Phase phase) {
         agentManagers = (AtomAgentManager[])phaseAgentManager.getAgents();
         neighborLists = (AtomNeighborLists[])agentManagers[phase.getIndex()].getAgents();
 
@@ -407,7 +407,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         return new AtomNeighborLists();
     }
     
-    public void releaseAgent(Object agent) {
+    public void releaseAgent(Object agent, Atom atom) {
         ((AtomNeighborLists)agent).clearNbrs();
     }
 }
