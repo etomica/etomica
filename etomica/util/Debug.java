@@ -1,8 +1,9 @@
 package etomica.util;
 
 import etomica.atom.Atom;
-import etomica.atom.AtomLeaf;
+import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
+import etomica.atom.iterator.AtomIteratorTree;
 import etomica.phase.Phase;
 
 /**
@@ -45,20 +46,30 @@ public final class Debug {
     public static boolean DEBUG_NOW = false;
 
 	/**
-	 * leaf atom number of first atom of interest.  The atom is the nth leaf atom 
-	 * in a phase (set by calling setAtoms(phase)) More debugging information will be
+	 * Global index of first atom of interest.  More debugging information will be
 	 * printed out about this particular atom.  -1 indicates no particular atom.
 	 */
-	public static final int ATOM1_NUM = -1;
+	public static final int ATOM1_INDEX = -1;
 	
 	/**
-	 * leaf atom number of second atom of interest.  This is often used in conjunction with 
+	 * Global index of second atom of interest.  This is often used in conjunction with 
 	 * ATOM1_INDEX to collect information about a pair of atoms.  -1 indicates no
 	 * particular atom.  
 	 */
-	public static final int ATOM2_NUM = -1;
+	public static final int ATOM2_INDEX = -1;
 	
+    /**
+     * Global index of a molecule of interest.  More debugging information will be
+     * printed out about atoms within this molecule.  -1 indicates no
+     * particular atom.  
+     */
     public static final int MOLECULE1_INDEX = -1;
+
+    /**
+     * Global index of a molecule of interest.  This is often used in conjunction with 
+     * MOLECULE2_INDEX to collect information about a pair of molecules.  -1 indicates no
+     * particular atom.  
+     */
     public static final int MOLECULE2_INDEX = -1;
     
     /**
@@ -68,17 +79,6 @@ public final class Debug {
     
     public static final double ATOM_SIZE = 1.0;
     
-    /**
-     * determines whether this atom is set to be debugged
-     * (via ATOMx_NUM and setAtoms(phase)).
-     * @param atom Atom to be checked for debugging status
-     * @return true if the atom should be debugged
-     */
-    public static boolean thisAtom(Atom atom) {
-        if (atom == ATOM1 || atom == ATOM2) return true;
-        return false;
-    }
-
 	/**
 	 * determines whether any of the atoms in the given array are set to be debugged
 	 * (via ATOMx_NUM and setAtoms(phase)).
@@ -87,8 +87,12 @@ public final class Debug {
 	 */
 	public static boolean anyAtom(AtomSet atoms) {
 		for (int i=0; i<atoms.count(); i++) {
-			if ((ATOM1 != null && atoms.getAtom(i) == ATOM1) || (ATOM2 != null && atoms.getAtom(i) == ATOM2)) return true;
-            if ((MOLECULE1 != null && atoms.getAtom(i) == MOLECULE1) || (MOLECULE2 != null && atoms.getAtom(i) == MOLECULE2)) return true;
+            int globalIndex = atoms.getAtom(i).getGlobalIndex();
+			if ((ATOM1_INDEX > -1 && globalIndex == ATOM1_INDEX) || (ATOM2_INDEX > -1 && globalIndex == ATOM2_INDEX)) return true;
+            if (atoms.getAtom(i).type.getDepth() > 2) {
+                globalIndex = atoms.getAtom(i).node.parentMolecule().getGlobalIndex();
+                if ((MOLECULE1_INDEX > -1 && globalIndex == MOLECULE1_INDEX) || (MOLECULE2_INDEX > -1 && globalIndex == MOLECULE2_INDEX)) return true;
+            }
 		}
 		return false;
 	}
@@ -101,8 +105,12 @@ public final class Debug {
 	 */
 	public static boolean allAtoms(AtomSet atoms) {
 		for (int i=0; i<atoms.count(); i++) {
-			if (atoms.getAtom(i) != ATOM1 && atoms.getAtom(i) != ATOM2 
-               && atoms.getAtom(i) != MOLECULE1 && atoms.getAtom(i) != MOLECULE2) return false;
+            int globalIndex = atoms.getAtom(i).getGlobalIndex();
+			if (globalIndex != ATOM1_INDEX && globalIndex != ATOM2_INDEX) return false;  
+            if (atoms.getAtom(i).type.getDepth() > 2) {
+                globalIndex = atoms.getAtom(i).node.parentMolecule().getGlobalIndex();
+                if (globalIndex != MOLECULE1_INDEX && globalIndex != MOLECULE2_INDEX) return false;
+            }
 		}
 		return true;
 	}
@@ -116,22 +124,33 @@ public final class Debug {
          return checkPhase.getIndex() == PHASE_INDEX;
     }
     
-	/**
-	 * Atoms to be debugged.  These are set by setAtoms(phase)
-	 */
-	public static AtomLeaf ATOM1, ATOM2;
-    public static Atom MOLECULE1, MOLECULE2;
-
-	/**
-	 * Sets atoms to be debugged.  This sets ATOM1 and ATOM2 to be the
-	 * ATOM1_NUMth and ATOM2_NUMth atoms in the phase
-	 * @param phase the phase containing atoms to be debugged
-	 */
-	public static void setAtoms(Phase phase) {
-		if (ATOM1_NUM > -1) ATOM1 = (AtomLeaf)phase.getSpeciesMaster().leafList.get(ATOM1_NUM);
-		if (ATOM2_NUM > -1) ATOM2 = (AtomLeaf)phase.getSpeciesMaster().leafList.get(ATOM2_NUM);
-        if (MOLECULE1_INDEX > -1) MOLECULE1 = phase.molecule(MOLECULE1_INDEX);
-        if (MOLECULE2_INDEX > -1) MOLECULE2 = phase.molecule(MOLECULE2_INDEX);
-	}
-
+    /**
+     * Returns an AtomPair containing the two atoms with global indices
+     * ATOM1_INDEX and ATOM2_INDEX within the given phase.  The atom in
+     * the AtomPair will be null if the phase does not contain an Atom 
+     * with the proper global index.
+     */
+    public static AtomPair getAtoms(Phase phase) {
+        AtomPair pair = new AtomPair();
+        if (ATOM1_INDEX > -1 || ATOM2_INDEX > -1) {
+            AtomIteratorTree iterator = new AtomIteratorTree(phase.getSpeciesMaster(),Integer.MAX_VALUE,true);
+            iterator.reset();
+            while (iterator.hasNext()) {
+                Atom atom = iterator.nextAtom();
+                if (atom.getGlobalIndex() == ATOM1_INDEX) {
+                    pair.atom0 = atom;
+                    if (pair.atom1 != null || ATOM2_INDEX < 0) {
+                        break;
+                    }
+                }
+                if (atom.getGlobalIndex() == ATOM2_INDEX) {
+                    pair.atom1 = atom;
+                    if (pair.atom0 != null || ATOM1_INDEX < 0) {
+                        break;
+                    }
+                }
+            }
+        }
+        return pair;
+    }
 }

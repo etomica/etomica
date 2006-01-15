@@ -55,6 +55,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
     private double minDelta;
     Vector c3;
     CoordinatePair cPairDebug;
+    AtomPair debugPair;
 
     protected final IteratorDirective upList = new IteratorDirective(IteratorDirective.UP);
     protected final IteratorDirective downList = new IteratorDirective(IteratorDirective.DOWN);
@@ -159,36 +160,37 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
             if (Debug.ON && Debug.DEBUG_NOW && ((Debug.LEVEL > 1 && Debug.thisPhase(phase)) || Debug.anyAtom(atoms))) {
                 System.out.println("collision between atoms "+atoms+" at "+collisionTimeStep+" with "+colliderAgent.collisionPotential.getClass());
             }
-            if (Debug.ON && Debug.DEBUG_NOW && Debug.ATOM1 != null 
-                  && Debug.ATOM2 != null && Debug.thisPhase(phase)) {
-                cPairDebug = new CoordinatePairKinetic(potential.getSpace());
-                cPairDebug.setNearestImageTransformer(phase.getBoundary());
-                cPairDebug.reset(Debug.ATOM1.coord,Debug.ATOM2.coord);
-                ((CoordinatePairKinetic)cPairDebug).resetV();
-                Vector dr = cPairDebug.dr();
-                Vector dv = ((CoordinatePairKinetic)cPairDebug).dv();
-                dr.PEa1Tv1(collisionTimeStep,dv);
-                double r2 = dr.squared();
-                if (Debug.LEVEL > 1 || Math.sqrt(r2) < Debug.ATOM_SIZE-1.e-11) {
-                    System.out.println("distance between "+Debug.ATOM1+" and "+Debug.ATOM2+" is "+Math.sqrt(r2));
-                    if (Debug.LEVEL > 2 || Math.sqrt(r2) < Debug.ATOM_SIZE-1.e-11) {
-                        dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)Debug.ATOM1.coord).velocity());
-                        System.out.println(Debug.ATOM1+" coordinates "+Debug.ATOM1.coord.position().P(dr));
-                        dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)Debug.ATOM2.coord).velocity());
-                        System.out.println(Debug.ATOM2+" coordinates "+Debug.ATOM2.coord.position().P(dr));
+            AtomPair debugPair = null;
+            if (Debug.ON && Debug.DEBUG_NOW && Debug.thisPhase(phase)) {
+                if (debugPair.atom0 instanceof AtomLeaf && debugPair.atom1 instanceof AtomLeaf) {
+                    cPairDebug = new CoordinatePairKinetic(potential.getSpace());
+                    cPairDebug.setNearestImageTransformer(phase.getBoundary());
+                    cPairDebug.reset(debugPair);
+                    ((CoordinatePairKinetic)cPairDebug).resetV();
+                    Vector dr = cPairDebug.dr();
+                    Vector dv = ((CoordinatePairKinetic)cPairDebug).dv();
+                    dr.PEa1Tv1(collisionTimeStep,dv);
+                    double r2 = dr.squared();
+                    if (Debug.LEVEL > 1 || Math.sqrt(r2) < Debug.ATOM_SIZE-1.e-11) {
+                        System.out.println("distance between "+debugPair+" is "+Math.sqrt(r2));
+                        if (Debug.LEVEL > 2 || Math.sqrt(r2) < Debug.ATOM_SIZE-1.e-11) {
+                            dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)((AtomLeaf)debugPair.atom0).coord).velocity());
+                            System.out.println(debugPair.atom0+" coordinates "+((AtomLeaf)debugPair.atom0).coord.position().P(dr));
+                            dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)((AtomLeaf)debugPair.atom1).coord).velocity());
+                            System.out.println(debugPair.atom1+" coordinates "+((AtomLeaf)debugPair.atom1).coord.position().P(dr));
+                        }
+                    }
+                    if (Debug.LEVEL > 1) {
+                        PotentialHard p = agents[debugPair.atom0.getGlobalIndex()].collisionPotential;
+                        System.out.println(debugPair.atom0+" collision time "+agents[debugPair.atom0.getGlobalIndex()].collisionTime()+" with "+agents[debugPair.atom0.getGlobalIndex()].collisionPartner
+                                +" with potential "+(p!=null ? p.getClass() : null));
                     }
                 }
-                if (Debug.LEVEL > 1) {
-                    PotentialHard p = agents[Debug.ATOM1.getGlobalIndex()].collisionPotential;
-                    System.out.println(Debug.ATOM1+" collision time "+agents[Debug.ATOM1.getGlobalIndex()].collisionTime()+" with "+agents[Debug.ATOM1.getGlobalIndex()].collisionPartner
-                            +" with potential "+(p!=null ? p.getClass() : null));
+                else if (Debug.LEVEL > 2 && debugPair.atom0 instanceof AtomLeaf) {
+                    Vector dr = potential.getSpace().makeVector();
+                    dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)((AtomLeaf)debugPair.atom0).coord).velocity());
+                    System.out.println(debugPair.atom0+" coordinates "+((AtomLeaf)debugPair.atom0).coord.position().P(dr));
                 }
-            }
-            else if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 2 && Debug.ATOM1 != null 
-                    && Debug.thisPhase(phase)) {
-                Vector dr = potential.getSpace().makeVector();
-                dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)Debug.ATOM1.coord).velocity());
-                System.out.println(Debug.ATOM1+" coordinates "+Debug.ATOM1.coord.position().P(dr));
             }
 
             colliderAgent.collisionPotential.bump(atoms,collisionTimeStep);
@@ -370,6 +372,9 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
         neighborsUpdated();
         if (overlapException != null) {
             throw overlapException;
+        }
+        if (Debug.ON && Debug.DEBUG_NOW && Debug.thisPhase(phase)) {
+            debugPair = Debug.getAtoms(phase);
         }
     }
 
@@ -660,7 +665,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
     
     // don't need to remove the agent from the event list because reset will
     // get called and that will totally clear the event list
-    public void releaseAgent(Object agent) {}
+    public void releaseAgent(Object agent, Atom atom) {}
  
     /**
      * Agent defined by this integrator.

@@ -42,7 +42,6 @@ public class HsMc2d extends Simulation {
         species2.setNMolecules(20);
         phase = new Phase(this);
         phase.makeMolecules();
-        Debug.setAtoms(phase);
         new ConfigurationSequential(space).initializeCoordinates(phase);
 	    potential = new P2HardSphere(this);
         potentialMaster.addPotential(potential, new Species[] {species, species});

@@ -63,7 +63,7 @@ public class CriterionSimple extends NeighborCriterion implements AgentSource  {
 	
 	public boolean needUpdate(Atom atom) {
 		r2 = ((AtomLeaf)atom).coord.position().Mv1Squared(agents[atom.getGlobalIndex()]);
-        if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.thisAtom(atom)) {
+        if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(atom)) {
             System.out.println("atom "+atom+" displacement "+r2+" "+((AtomLeaf)atom).coord.position());
         }
 		if (Debug.ON && Debug.DEBUG_NOW && r2 > displacementLimit2 / (4.0*safetyFactor*safetyFactor)) {
@@ -109,7 +109,7 @@ public class CriterionSimple extends NeighborCriterion implements AgentSource  {
         return atom.type.isLeaf() ? ((AtomLeaf)atom).coord.position().clone() : null;
     }
     
-    public void releaseAgent(Object agent) {}
+    public void releaseAgent(Object agent, Atom atom) {}
 
     private double interactionRange, displacementLimit2, neighborRadius2;
 	private final CoordinatePair cPair;
