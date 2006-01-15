@@ -44,7 +44,7 @@ public class MeterChainLength implements Meter, AgentSource {
         return new AtomTag();
     }
     
-    public void releaseAgent(Object agent) {}
+    public void releaseAgent(Object agent, Atom atom) {}
 
     //returns the number of molecules with [1,2,3,4,5,6,7-10,10-13,13-25, >25]
     // atoms

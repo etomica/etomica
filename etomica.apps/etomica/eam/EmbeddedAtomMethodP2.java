@@ -207,7 +207,7 @@ public final class EmbeddedAtomMethodP2 extends Potential2SoftSpherical implemen
         return new Wrapper(atom.type.isLeaf() ? (Vector)((AtomLeaf)atom).coord.position().clone() : null);
     }
     
-    public void releaseAgent(Object agent) {}
+    public void releaseAgent(Object agent, Atom atom) {}
     
     public static class Wrapper implements java.io.Serializable {
     	public Wrapper(Vector v) {

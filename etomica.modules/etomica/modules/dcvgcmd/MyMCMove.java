@@ -58,7 +58,6 @@ public class MyMCMove extends MCMoveInsertDelete {
 			position.setX(2,z); //multiply z-coordinate by zFraction		
 			atomTranslator.setDestination(position);
 			atomTranslator.actionPerformed(testMolecule);
-            phase.getCellManager().assignCell(testMolecule);
 		} else {//delete
 			if(activeAtoms.size() == 0) {
 				testMolecule = null;//added this line 09/19/02

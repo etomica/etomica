@@ -128,7 +128,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         return null;
     }
     
-    public void releaseAgent(Object agent) {}
+    public void releaseAgent(Object agent, Atom atom) {}
 
 	public static void main(String[] args) {
 		javax.swing.JFrame f = new javax.swing.JFrame(); //create a window
@@ -138,7 +138,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
 		ReactionEquilibriumGraphic graphic = new ReactionEquilibriumGraphic(sim);
 		f.getContentPane().add(graphic.panel);
 		f.pack();
-		f.show();
+		f.setVisible(true);
 		f.addWindowListener(new java.awt.event.WindowAdapter() { //anonymous
 					// class to
 					// handle

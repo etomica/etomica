@@ -198,7 +198,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
         return new Agent(space,a);
     }
     
-    public void releaseAgent(Object agent) {}
+    public void releaseAgent(Object agent, Atom atom) {}
             
     public static class Agent implements IntegratorPhase.Forcible {  //need public so to use with instanceof
         public Atom atom;

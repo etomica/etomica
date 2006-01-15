@@ -124,7 +124,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         return new MyAgent(space,a);
     }
     
-    public void releaseAgent(Object agent) {}
+    public void releaseAgent(Object agent, Atom atom) {}
             
     public final static class MyAgent implements IntegratorPhase.Forcible {  //need public so to use with instanceof
         public Atom atom;

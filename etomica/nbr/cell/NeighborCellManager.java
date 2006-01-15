@@ -4,16 +4,12 @@
  */
 package etomica.nbr.cell;
 
-import java.io.Serializable;
-
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionDefinition;
-import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorTree;
@@ -24,11 +20,10 @@ import etomica.integrator.mcmove.MCMoveListener;
 import etomica.lattice.CellLattice;
 import etomica.phase.Phase;
 import etomica.phase.PhaseCellManager;
-import etomica.phase.PhaseEvent;
-import etomica.phase.PhaseListener;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.util.Debug;
 
 /**
  * Class that defines and manages construction and use of lattice of cells 
@@ -79,9 +74,6 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, java.
         lattice = new CellLattice(phase.getBoundary().getDimensions(), Cell.FACTORY);
         setPotentialRange(potentialRange);
 
-        //listener to phase to detect addition of new SpeciesAgent
-        //or new atom
-        phase.getSpeciesMaster().addListener(new MyPhaseListener(this));
         agentManager = new AtomAgentManager(this,phase);
     }
 
@@ -163,21 +155,23 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, java.
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom atom = atomIterator.nextAtom();
-            if (atom.type.isInteracting()  && (atom.type instanceof AtomTypeLeaf && ((AtomTypeLeaf)atom.type).getMass()!=Double.POSITIVE_INFINITY)) {
+            if (atom.type.isInteracting()) {
                 assignCell(atom);
             }
         }
     }
     
     public Cell getCell(Atom atom) {
+        cells = (Cell[])agentManager.getAgents();
         return cells[atom.getGlobalIndex()];
     }
     
     protected void removeFromCell(Atom atom) {
-        Cell cell = cells[atom.getGlobalIndex()];
-        AtomArrayList cellOccupants = cell.occupants();
-        cellOccupants.remove(cellOccupants.indexOf(atom));
-        cells[atom.getGlobalIndex()] = null;
+        cells = (Cell[])agentManager.getAgents();
+        if (cells[atom.getGlobalIndex()] != null) {
+            cells[atom.getGlobalIndex()].removeAtom(atom);
+            cells[atom.getGlobalIndex()] = null;
+        }
     }
     
     /**
@@ -190,6 +184,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, java.
                     atom.type.getPositionDefinition().position(atom);
         Cell atomCell = (Cell)lattice.site(position);
         atomCell.addAtom(atom);
+        cells = (Cell[])agentManager.getAgents();
         cells[atom.getGlobalIndex()] = atomCell;
     }
     
@@ -199,31 +194,25 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, java.
     
     public Object makeAgent(Atom atom) {
         // return a placeholder cell.  We'll decide which cell later
+        if (atom != null && atom.type.isInteracting()) {
+            Vector position = (positionDefinition != null) ?
+                    positionDefinition.position(atom) :
+                        atom.type.getPositionDefinition().position(atom);
+            Cell atomCell = (Cell)lattice.site(position);
+            atomCell.addAtom(atom);
+            if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(atom)) {
+                System.out.println("assigning new "+atom+" "+atom.getGlobalIndex()+" at "+position+" to "+atomCell);
+                System.out.println("hi");
+            }
+            return atomCell;
+        }
         return bogusCell;
     }
-    
-    public void releaseAgent(Object agent) {}
-    
-    private static final class MyPhaseListener implements PhaseListener, Serializable {
-        private final NeighborCellManager neighborCellManager;
 
-        private MyPhaseListener(NeighborCellManager manager) {
-            super();
-            neighborCellManager = manager;
-        }
-
-        public void actionPerformed(PhaseEvent evt) {
-            if(evt.type() == PhaseEvent.ATOM_ADDED) {
-                Atom atom = evt.atom();
-                //new species agent requires another list in each cell
-                if(atom.type.isInteracting()) {
-                    neighborCellManager.assignCell(atom);
-                }
-            }
-        }
+    public void releaseAgent(Object agent, Atom atom) {
+        removeFromCell(atom);
     }
-
-
+    
     private static class MyMCMoveListener implements MCMoveListener, java.io.Serializable {
         public MyMCMoveListener(Space space, Phase phase, NeighborCellManager manager) {
             treeIterator = new AtomIteratorTree();
@@ -243,12 +232,12 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, java.
             AtomIterator iterator = move.affectedAtoms(phase);
             iterator.reset();
             while (iterator.hasNext()) {
-                AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
+                Atom atom = iterator.nextAtom();
                 if (!atom.node.isLeaf()) {
                     treeIterator.setRoot(atom);
                     treeIterator.reset();
                     while (treeIterator.hasNext()) {
-                        AtomLeaf childAtom = (AtomLeaf)treeIterator.nextAtom();
+                        Atom childAtom = treeIterator.nextAtom();
                         updateCell(childAtom);
                     }
                 }
@@ -258,9 +247,9 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, java.
             }
         }
 
-        private void updateCell(AtomLeaf atom) {
-            Boundary boundary = phase.getBoundary();
-            if (neighborCellManager.getCell(atom) != null) {
+        private void updateCell(Atom atom) {
+            if (atom.type.isInteracting()) {
+                Boundary boundary = phase.getBoundary();
                 neighborCellManager.removeFromCell(atom);
                 if (!atom.node.isLeaf()) {
                     Vector shift = boundary.centralImage(moleculePosition.position(atom));
@@ -270,9 +259,9 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, java.
                     }
                 }
                 else {
-                    Vector shift = boundary.centralImage(atom.coord.position());
+                    Vector shift = boundary.centralImage(((AtomLeaf)atom).coord.position());
                     if (!shift.isZero()) {
-                        atom.coord.position().PE(shift);
+                        ((AtomLeaf)atom).coord.position().PE(shift);
                     }
                 }
                 neighborCellManager.assignCell(atom);

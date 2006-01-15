@@ -160,7 +160,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
         return new Agent(space,a);
     }
     
-    public void releaseAgent(Object agent) {}
+    public void releaseAgent(Object agent, Atom atom) {}
             
 	public final static class Agent implements IntegratorPhase.Forcible {  //need public so to use with instanceof
         public Atom atom;

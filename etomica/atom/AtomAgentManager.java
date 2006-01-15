@@ -42,10 +42,11 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
         if (phase != null) {
             // remove ourselves as a listener to the old phase
             phase.getSpeciesMaster().removeListener(this);
-            for (int i=0; i<agents.length; i++) {
-                if (agents[i] != null) {
-                    agentSource.releaseAgent(agents[i]);
-                }
+            AtomIteratorTree iterator = new AtomIteratorTree(phase.getSpeciesMaster(),Integer.MAX_VALUE,true);
+            iterator.reset();
+            while (iterator.hasNext()) {
+                Atom atom = iterator.nextAtom();
+                agentSource.releaseAgent(agents[atom.getGlobalIndex()],atom);
             }
         }
         phase = newPhase;
@@ -92,7 +93,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
                 int index = a.getGlobalIndex();
                 if (agents.length > index && agents[index] != null) {
                     // Atom used to have an agent.  nuke it.
-                    agentSource.releaseAgent(agents[index]);
+                    agentSource.releaseAgent(agents[index], a);
                     agents[index] = null;
                 }
                 else if (agents.length < index+1) {
@@ -157,7 +158,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
         public Object makeAgent(Atom a);
         
         //allow any agent to be disconnected from other elements 
-        public void releaseAgent(Object agent); 
+        public void releaseAgent(Object agent, Atom atom); 
     }
 
     private final AgentSource agentSource;

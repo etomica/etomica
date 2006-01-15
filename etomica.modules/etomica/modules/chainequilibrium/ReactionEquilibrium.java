@@ -112,5 +112,5 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
 		return new Atom[4];
 	}
     
-    public void releaseAgent(Object agent) {}
+    public void releaseAgent(Object agent, Atom atom) {}
 }

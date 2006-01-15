@@ -232,7 +232,7 @@ public final class SceneManager {
             return wrapper;
         }
         
-        public void releaseAgent(Object agent) {
+        public void releaseAgent(Object agent, Atom atom) {
             ((SphereShapeWrapper)agent).shape.dispose();
         }
         

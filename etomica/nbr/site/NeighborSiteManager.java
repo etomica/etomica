@@ -109,7 +109,7 @@ public class NeighborSiteManager implements PhaseCellManager, AgentSource {
         return site;
     }
     
-    public void releaseAgent(Object agent) {}
+    public void releaseAgent(Object agent, Atom atom) {}
 
     private final CellLattice lattice;
     private final Space space;

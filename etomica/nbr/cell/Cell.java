@@ -29,6 +29,10 @@ public class Cell implements java.io.Serializable {
         occupants.add(atom);
     }
     
+    public void removeAtom(Atom atom) {
+        occupants.removeAndReplace(occupants.indexOf(atom));
+    }
+    
     public int getLatticeArrayIndex() {
         return latticeArrayIndex;
     }

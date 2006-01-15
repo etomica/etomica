@@ -44,6 +44,6 @@ public abstract class ColorSchemeCollective extends ColorScheme implements Agent
         return null;
     }
     
-    public void releaseAgent(Object agent) {}
+    public void releaseAgent(Object agent, Atom atom) {}
 }
 
