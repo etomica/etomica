@@ -32,6 +32,7 @@ public class CoordinatePairSet implements java.io.Serializable {
     public CoordinatePairSet(AtomArrayList list, Space space) {
         cPairs = new CoordinatePair[list.size()][];
         setAtoms(list, space);
+        dirtyAtom = -1;
     }
     
     /**
