@@ -7,8 +7,8 @@ import etomica.lattice.crystal.PrimitiveTriclinic;
 import etomica.space.Space;
 
 /**
- * @author nancycribbin
  * Implements the triclinic crystal structure derived from Dr. Monson's data.
+ * @author nancycribbin
  */
 
 public class PrimitiveHexane extends PrimitiveTriclinic {
