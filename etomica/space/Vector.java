@@ -153,6 +153,13 @@ public abstract class Vector implements java.io.Serializable, Cloneable {
     public abstract void TE(Vector u);
 
     /**
+     * Times-equals(*=) operation.  Multiplies the Tensor argument with the vector,
+     * and places the results in the vector.
+     * @param t
+     */
+    
+    public abstract void TE(Tensor t);
+    /**
      * Divide-equals (/=) operation. Divides each component of this vector by
      * the corresponding value in the given vector.
      */

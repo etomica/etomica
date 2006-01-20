@@ -2,6 +2,7 @@ package etomica.space1d;
 
 import etomica.math.SpecialFunctions;
 import etomica.simulation.Simulation;
+import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.util.Function;
 
@@ -276,6 +277,13 @@ public final class Vector1D extends etomica.space.Vector {
 
     public void TE(Vector u) {
         x *= ((Vector1D) u).x;
+    }
+    public void TE(Tensor t){
+        if(t.D() != 1){throw new IllegalArgumentException("Vector and Tensor do not match in Vector3D.TE");}
+        double a;
+        a = t.component(0,0) *  x;
+        
+        x=a;
     }
 
     public void DE(Vector u) {

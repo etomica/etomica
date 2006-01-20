@@ -81,15 +81,15 @@ public final class Vector2D extends etomica.space.Vector {
     }
 
     public void E(double[] u) {
+        if(u.length != 2){throw new IllegalArgumentException("Vector2D must be given a 2 element array.");}
         x = u[0];
         y = u[1];
-    } //should check length of array for exception
-
+    }
     public void E(int[] u) {
+        if(u.length != 2){throw new IllegalArgumentException("Vector2D must be given a 2 element array.");}
         x = u[0];
         y = u[1];
-    } //should check length of array for exception
-
+    }
     public void E(double a) {
         x = a;
         y = a;
@@ -148,7 +148,15 @@ public final class Vector2D extends etomica.space.Vector {
         x *= ((Vector2D) u).x;
         y *= ((Vector2D) u).y;
     }
-
+    public void TE(Tensor t){
+        if(t.D() != 2){throw new IllegalArgumentException("Vector and Tensor do not match in Vector2D.TE");}
+        double a, b;
+        a = t.component(0,0) *  x + t.component(0,1) * y;
+        b = t.component(1,0) *  x + t.component(1,1) * y;
+       
+        x=a;
+        y=b;
+    }
     public void TE(int i, double a) {
         if (i == 0)
             x *= a;

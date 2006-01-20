@@ -32,10 +32,13 @@ public final class Vector3D extends Vector {
     }
 
     public Vector3D(double[] a) {
+        if(a.length != 3){ 
+            throw new IllegalArgumentException("Vector3D must be given a 3 element array.");}
+        
         x = a[0];
         y = a[1];
         z = a[2];
-    }//should check length of a for exception
+    }
 
     public Vector3D(Vector3D u) {
         this.E(u);
@@ -93,16 +96,19 @@ public final class Vector3D extends Vector {
     }
 
     public void E(double[] u) {
-        x = u[0];
+        if(u.length != 3){ 
+            throw new IllegalArgumentException("Vector3D must be given a 3 element array.");}
         y = u[1];
         z = u[2];
-    } //should check length of array for exception
-
+    }
+    
     public void E(int[] u) {
+        if(u.length != 3){ 
+            throw new IllegalArgumentException("Vector 3D must be given a 3 element array.");}
         x = u[0];
         y = u[1];
         z = u[2];
-    } //should check length of array for exception
+    }
 
     public void Ea1Tv1(double a1, Vector u) {
         x = a1 * ((Vector3D) u).x;
@@ -176,6 +182,18 @@ public final class Vector3D extends Vector {
         z *= ((Vector3D) u).z;
     }
 
+    public void TE(Tensor t){
+        if(t.D() != 3){throw new IllegalArgumentException("Vector and Tensor do not match in Vector3D.TE");}
+        double a, b, c;
+        a = t.component(0,0) *  x + t.component(0,1) * y + t.component(0,2) * z;
+        b = t.component(1,0) *  x + t.component(1,1) * y + t.component(1,2) * z;
+        c = t.component(2,0) *  x + t.component(2,1) * y + t.component(2,2) * z;
+        
+        x=a;
+        y=b;
+        z=c;
+    }
+    
     public void DE(double a) {
         x /= a;
         y /= a;
