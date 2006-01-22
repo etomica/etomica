@@ -33,8 +33,8 @@ public final class Vector3D extends Vector {
 
     public Vector3D(double[] a) {
         if(a.length != 3){ 
-            throw new IllegalArgumentException("Vector3D must be given a 3 element array.");}
-        
+            throw new IllegalArgumentException("Vector3D must be given a 3 element array.");
+        }
         x = a[0];
         y = a[1];
         z = a[2];
@@ -97,14 +97,17 @@ public final class Vector3D extends Vector {
 
     public void E(double[] u) {
         if(u.length != 3){ 
-            throw new IllegalArgumentException("Vector3D must be given a 3 element array.");}
+            throw new IllegalArgumentException("Vector3D must be given a 3 element array.");
+        }
+        x = u[0];
         y = u[1];
         z = u[2];
     }
     
     public void E(int[] u) {
         if(u.length != 3){ 
-            throw new IllegalArgumentException("Vector 3D must be given a 3 element array.");}
+            throw new IllegalArgumentException("Vector 3D must be given a 3 element array.");
+        }
         x = u[0];
         y = u[1];
         z = u[2];
