@@ -3,12 +3,10 @@ package etomica.modules.dcvgcmd;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLinker;
-import etomica.atom.AtomList;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorArrayListCompound;
-import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.config.Configuration;
 import etomica.config.Conformation;
 import etomica.graphics.ColorSchemeByType;
@@ -127,12 +125,12 @@ public class ConfigurationLatticeTube extends Configuration {
         int counterNAtoms = 0;
         int halfwaypoint = atomIterator.size()/2; 
         
-        AtomList list = new AtomList();
+        AtomArrayList list = new AtomArrayList();
                 
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
             if (a.type.getSpecies()==tubeSpecies){
-            	list.add(new AtomLinker(a));
+            	list.add(a);
             	continue;
             }
             if (!a.node.isLeaf()) {
@@ -156,7 +154,7 @@ public class ConfigurationLatticeTube extends Configuration {
             atomActionTranslateTo.actionPerformed(a);
         }
         //loop for multiple tubes.
-        AtomIteratorListSimple tubeiterator = new AtomIteratorListSimple(list);
+        AtomIteratorArrayListSimple tubeiterator = new AtomIteratorArrayListSimple(list);
         tubeiterator.reset();
         atomActionTranslateTo.setAtomPositionDefinition(new AtomPositionGeometricCenter(space));
         while (tubeiterator.hasNext()){
