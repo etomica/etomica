@@ -204,7 +204,6 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, java.
             atomCell.addAtom(atom);
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(atom)) {
                 System.out.println("assigning new "+atom+" "+atom.getGlobalIndex()+" at "+position+" to "+atomCell);
-                System.out.println("hi");
             }
             return atomCell;
         }
