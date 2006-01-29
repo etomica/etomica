@@ -31,7 +31,7 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
                                                          -0.1, 0.5, 1.0});
         deformation.TE(30);
         boundary.deform(deformation);
-        System.out.println("in constructor, boundary="+boundary.getDimensions().toString());
+        //System.out.println("in constructor, boundary="+boundary.getDimensions().toString());
         iMax = 50;
         dr = space.makeVector();
         dr1 = space.makeVector();
