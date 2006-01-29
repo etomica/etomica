@@ -1,6 +1,8 @@
 package etomica.potential;
 
 import etomica.atom.AtomSet;
+import etomica.nbr.NeighborCriterion;
+import etomica.phase.Phase;
 import etomica.space.Space;
 
 /**
@@ -19,10 +21,17 @@ public abstract class PotentialN extends Potential {
 	 * Constructor for PotentialN.
 	 * @param sim
 	 */
-	public PotentialN(Space space) {
-		super(Integer.MAX_VALUE, space);
+	public PotentialN(int nBody, Space space) {
+		super(nBody, space);
 	}
 
-	public abstract double energy(AtomSet atomSet);
+    public void setCriterion(NeighborCriterion criterion) {
+        this.criterion = criterion;
+    }
 
+    public NeighborCriterion getCriterion() {
+        return criterion;
+    }
+
+    protected NeighborCriterion criterion = NeighborCriterion.ALL;
 }

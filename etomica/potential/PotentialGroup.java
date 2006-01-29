@@ -14,6 +14,7 @@ import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.AtomsetIteratorSpeciesAgent;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.nbr.NeighborCriterion;
 import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.species.Species;
@@ -280,6 +281,10 @@ public class PotentialGroup extends Potential {
             potentials[i++] = link.potential;
         }
         return potentials;
+    }
+    
+    public NeighborCriterion getCriterion() {
+        return null;
     }
     
     protected PotentialLinker first;
