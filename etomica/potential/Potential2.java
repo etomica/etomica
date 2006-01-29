@@ -22,14 +22,6 @@ public abstract class Potential2 extends Potential {
         super(2, space);
     }
 
-    /**
-     * Informs the potential of the phase on which it acts. Typically this
-     * requires at least that it update the nearestImageTransformer of its
-     * coordinatePair (if it uses one), e.g.:
-     * cPair.setNearestImageTransformer(phase.boundary());
-     */
-    public abstract void setPhase(Phase phase);
-
     public void setCriterion(NeighborCriterion criterion) {
         this.criterion = criterion;
     }

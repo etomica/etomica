@@ -1,5 +1,6 @@
 package etomica.potential; 
 
+import etomica.nbr.NeighborCriterion;
 import etomica.space.Space;
 
 /**
@@ -22,6 +23,10 @@ public abstract class Potential0 extends Potential {
      */
     public double getRange() {
         return 0.0;
+    }
+    
+    public NeighborCriterion getCriterion() {
+        return null;
     }
                         
 }//end of Potential0

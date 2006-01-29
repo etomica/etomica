@@ -3,6 +3,7 @@ package etomica.potential;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomSet;
 import etomica.compatibility.FeatureSet;
+import etomica.nbr.NeighborCriterion;
 import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.units.Dimension;
@@ -54,7 +55,10 @@ public abstract class Potential extends EtomicaInfo {
     public abstract double energy(AtomSet atoms);
     
     /**
-     * Informs the potential of the phase on which it acts.
+     * Informs the potential of the phase on which it acts. Typically this
+     * requires at least that it update the nearestImageTransformer of its
+     * coordinatePair (if it uses one), e.g.:
+     * cPair.setNearestImageTransformer(phase.boundary());
      */
     public abstract void setPhase(Phase phase);
     
@@ -76,4 +80,6 @@ public abstract class Potential extends EtomicaInfo {
     public void setName(String name) {
         this.name = name;
     }
+    
+    public abstract NeighborCriterion getCriterion();
 }//end of Potential

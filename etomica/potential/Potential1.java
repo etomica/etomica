@@ -1,5 +1,6 @@
 package etomica.potential; 
 
+import etomica.nbr.NeighborCriterion;
 import etomica.phase.Phase;
 import etomica.space.Boundary;
 import etomica.space.Space;
@@ -28,6 +29,10 @@ public abstract class Potential1 extends Potential {
         return 0.0;
     }
     
+    public NeighborCriterion getCriterion() {
+        return null;
+    }
+
     /**
      * Marker interface indicating that a one-body potential is an intramolecular
      * potential, and not, e.g., a potential of interaction with an external field.
@@ -35,7 +40,7 @@ public abstract class Potential1 extends Potential {
      * rotations, for which intramolecular contributions can be ignored.
      */
     public interface Intramolecular {}
-     
+
 }//end of Potential1
 
 
