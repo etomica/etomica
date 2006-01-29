@@ -160,8 +160,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
             if (Debug.ON && Debug.DEBUG_NOW && ((Debug.LEVEL > 1 && Debug.thisPhase(phase)) || Debug.anyAtom(atoms))) {
                 System.out.println("collision between atoms "+atoms+" at "+collisionTimeStep+" with "+colliderAgent.collisionPotential.getClass());
             }
-            AtomPair debugPair = null;
             if (Debug.ON && Debug.DEBUG_NOW && Debug.thisPhase(phase)) {
+                debugPair = Debug.getAtoms(phase);
                 if (debugPair.atom0 instanceof AtomLeaf && debugPair.atom1 instanceof AtomLeaf) {
                     cPairDebug = new CoordinatePairKinetic(potential.getSpace());
                     cPairDebug.setNearestImageTransformer(phase.getBoundary());
