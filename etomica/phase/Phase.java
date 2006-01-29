@@ -77,7 +77,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         speciesMaster = new SpeciesMaster(sim, this);
         speciesMaster.node.setParent(sim.speciesRoot);
         makeMolecules();
-        setName(NameMaker.makeName(this.getClass()));
+        setName(null);
 
         setBoundary(new BoundaryRectangularPeriodic(sim));
     }//end of constructor
@@ -106,7 +106,12 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      * 
      * @return The given name of this phase
      */
-    public final String getName() {return name;}
+    public final String getName() {
+        if (name == null) {
+            return "Phase"+getIndex();
+        }
+        return name;
+    }
     
     /**
      * Method to set the name of this simulation element. The element's name
