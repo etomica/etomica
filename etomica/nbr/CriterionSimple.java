@@ -1,11 +1,10 @@
 package etomica.nbr;
 
-import java.awt.Color;
-
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.phase.Phase;
 import etomica.phase.PhaseAgentManager;
@@ -14,7 +13,6 @@ import etomica.simulation.Simulation;
 import etomica.space.CoordinatePair;
 import etomica.space.NearestImageTransformerVector;
 import etomica.space.Vector;
-import etomica.util.Arrays;
 import etomica.util.Debug;
 
 /**
@@ -57,8 +55,8 @@ public class CriterionSimple extends NeighborCriterion implements AgentSource  {
         r2MaxSafe = displacementLimit2 / (4.0*safetyFactor*safetyFactor);
 	}
 	
-	public double getNeighborRange() {
-		return Math.sqrt(neighborRadius2);
+	public boolean isRangeDependent() {
+		return true;
 	}
 	
 	public boolean needUpdate(Atom atom) {
@@ -88,11 +86,11 @@ public class CriterionSimple extends NeighborCriterion implements AgentSource  {
 		return r2 > r2MaxSafe;
 	}
 
-	public boolean accept(AtomPair pair) {
-		cPair.reset(pair);
+	public boolean accept(AtomSet pair) {
+		cPair.reset((AtomPair)pair);
 		if (Debug.ON && Debug.DEBUG_NOW && ((Debug.LEVEL > 1 && Debug.anyAtom(pair)) || (Debug.LEVEL == 1 && Debug.allAtoms(pair)))) {
 			if (cPair.r2() < neighborRadius2 || (Debug.LEVEL > 1 && Debug.allAtoms(pair))) {
-				System.out.println("Atom "+(pair).atom0+" and "+(pair).atom1+" are "+(cPair.r2() < neighborRadius2 ? "" : "not ")+"neighbors, r2="+cPair.r2());
+				System.out.println("Atom "+((AtomPair)pair).atom0+" and "+((AtomPair)pair).atom1+" are "+(cPair.r2() < neighborRadius2 ? "" : "not ")+"neighbors, r2="+cPair.r2());
             }
 		}
 		return cPair.r2() < neighborRadius2;

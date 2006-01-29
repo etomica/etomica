@@ -5,7 +5,7 @@
 package etomica.nbr;
 
 import etomica.atom.Atom;
-import etomica.atom.AtomPair;
+import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 
 /**
@@ -34,7 +34,7 @@ public abstract class CriterionAdapter extends NeighborCriterion {
      * true if pair meets this criterion and that of the wrapped
      * NeighborCriterion.
      */
-    public abstract boolean accept(AtomPair pair);
+    public abstract boolean accept(AtomSet pair);
 
     /**
      * Indicates whether the neighbor list for the given atom should be updated,
@@ -78,8 +78,8 @@ public abstract class CriterionAdapter extends NeighborCriterion {
      * Returns the nominal distance within which two atoms are considered
      * neighbors, according to the wrapped criterion.
      */
-    public double getNeighborRange() {
-        return subCriterion.getNeighborRange();
+    public boolean isRangeDependent() {
+        return subCriterion.isRangeDependent();
     }
 
     protected final NeighborCriterion subCriterion;

@@ -5,7 +5,7 @@
 package etomica.nbr;
 
 import etomica.atom.Atom;
-import etomica.atom.AtomPair;
+import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 
 /**
@@ -27,8 +27,8 @@ public class CriterionAll extends NeighborCriterion {
      * Returns infinity, indicating that atoms at any distance are considered
      * neighbors.
      */
-    public double getNeighborRange() {
-        return Double.POSITIVE_INFINITY;
+    public boolean isRangeDependent() {
+        return false;
     }
     
     /**
@@ -55,7 +55,7 @@ public class CriterionAll extends NeighborCriterion {
     /**
      * Always returns true, indicating that all atoms pairs are neighbors.
      */
-    public boolean accept(AtomPair pair) {
+    public boolean accept(AtomSet pair) {
         return true;
     }
     

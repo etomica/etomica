@@ -2,6 +2,7 @@
 package etomica.nbr;
 
 import etomica.atom.AtomPair;
+import etomica.atom.AtomSet;
 import etomica.species.Species;
 
 /**
@@ -29,9 +30,9 @@ public class CriterionSpecies extends CriterionAdapter {
      * order of the pair), and if the wrapped criterion accept
      * also returns true.
      */
-    public boolean accept(AtomPair pair) {
-        Species atom0Species = pair.atom0.type.getSpecies();
-        Species atom1Species = pair.atom1.type.getSpecies();
+    public boolean accept(AtomSet pair) {
+        Species atom0Species = ((AtomPair)pair).atom0.type.getSpecies();
+        Species atom1Species = ((AtomPair)pair).atom1.type.getSpecies();
         if( (atom0Species == species0 && atom1Species == species1) 
                || (atom0Species == species1 && atom1Species == species0) ) {
             return subCriterion.accept(pair);

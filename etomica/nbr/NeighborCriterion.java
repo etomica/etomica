@@ -4,8 +4,7 @@
  */
 package etomica.nbr;
 import etomica.atom.Atom;
-import etomica.atom.AtomPair;
-import etomica.atom.AtomPairFilter;
+import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 
 /**
@@ -15,9 +14,9 @@ import etomica.phase.Phase;
  * methods to set the phase where the criterion is being applied, and to
  * indicate if neighbor list for atom needs updating.
  */
-public abstract class NeighborCriterion implements AtomPairFilter, java.io.Serializable {
+public abstract class NeighborCriterion implements java.io.Serializable {
 
-    public abstract boolean accept(AtomPair pair);
+    public abstract boolean accept(AtomSet pair);
     
     /**
      * Indicates whether the neighbor list for the given atom should
@@ -49,65 +48,13 @@ public abstract class NeighborCriterion implements AtomPairFilter, java.io.Seria
 	public abstract void reset(Atom atom);
     
     /**
-     * Returns the nominal distance within which two atoms are considered
-     * neighbors.
+     * Returns true if the criterion (or subcriterion) depends on the distance
+     * between atoms.
      */
-    public abstract double getNeighborRange();
+    public abstract boolean isRangeDependent();
     
-	//TODO consider ways to ensure this is removed from nbrmanager if no longer used
+    public static final NeighborCriterion ALL = new CriterionAll();
     
-    public static final NeighborCriterion ALL = new NeighborCriterion() {
-        /**
-         * Always returns false, indicating that neighbor list never needs updating.
-         * This is appropriate if atoms are never added to or removed from phase,
-         * because all atoms are always on neighbor list.
-         */
-        public boolean needUpdate(Atom atom) {return false;}
-        public double getNeighborRange() {return Double.POSITIVE_INFINITY;}
-        /**
-         * Performs no action.
-         */
-        public void setPhase(Phase phase) {}
-        /**
-         * Always returns false, indicating that neighbor list never needs updating.
-         * This is appropriate if atoms are never added to or removed from phase,
-         * because all atoms are always on neighbor list.
-         */
-        public boolean unsafe() {return false;}
-        /**
-         * Performs no action.
-         */
-        public void reset(Atom atom) {}
-        /**
-         * Always returns true, indicating that all atoms pairs are neighbors.
-         */
-        public boolean accept(AtomPair pair) {return true;}
-    };
-    
-    public static final NeighborCriterion NONE = new NeighborCriterion() {
-        /**
-         * Always returns false, indicating that neighbor list never needs updating.
-         * This is appropriate if atoms are never added to or removed from phase,
-         * because all atoms are always on neighbor list.
-         */
-        public boolean needUpdate(Atom atom) {return false;}
-        public double getNeighborRange() {return 0.0;}
-        /**
-         * Performs no action.
-         */
-        public void setPhase(Phase phase) {}
-        /**
-         * Always returns false, indicating that neighbor list never needs updating.
-         */
-        public boolean unsafe() {return false;}
-        /**
-         * Performs no action.
-         */
-        public void reset(Atom atom) {}
-        /**
-         * Always returns false, indicating that no atoms pairs are neighbors.
-         */
-        public boolean accept(AtomPair pair) {return false;}
-    };
+    public static final NeighborCriterion NONE = new CriterionNone();
 
 }
