@@ -53,7 +53,7 @@ public class PotentialCalculationUpdateTypeList extends PotentialCalculation {
             iterator.reset();
             if(iterator.hasNext()) {
                 Atom atom = (Atom)iterator.next();
-                potentialAtomTypeList.add(new PotentialAtomTypeWrapper(potential,new AtomType[]{atom.type}));
+                potentialAtomTypeList.add(new PotentialAtomTypeWrapper(potential,new AtomType[]{atom.type},iterator));
             }
             break;
         case 2:
@@ -63,7 +63,7 @@ public class PotentialCalculationUpdateTypeList extends PotentialCalculation {
             iterator.reset();
             if (iterator.hasNext()) {
                 AtomPair atoms = (AtomPair)iterator.next();
-                potentialAtomTypeList.add(new PotentialAtomTypeWrapper(potential,new AtomType[]{atoms.atom0.type,atoms.atom1.type}));
+                potentialAtomTypeList.add(new PotentialAtomTypeWrapper(potential,new AtomType[]{atoms.atom0.type,atoms.atom1.type},iterator));
             }
             break;
         }
@@ -76,11 +76,13 @@ public class PotentialCalculationUpdateTypeList extends PotentialCalculation {
     protected LinkedList potentialAtomTypeList = new LinkedList();
 
     public static class PotentialAtomTypeWrapper {
-        public PotentialAtomTypeWrapper(Potential p, AtomType[] types) {
+        public PotentialAtomTypeWrapper(Potential p, AtomType[] types, AtomsetIterator iterator) {
             potential = p;
             atomTypes = types;
+            this.iterator = iterator;
         }
-        public Potential potential;
-        public AtomType[] atomTypes;
+        public final Potential potential;
+        public final AtomType[] atomTypes;
+        public final AtomsetIterator iterator;
     }
 }

@@ -74,18 +74,18 @@ public class TestSWChain extends Simulation {
         P1BondedHardSpheres potentialChainIntra = new P1BondedHardSpheres(this);
         ((P2HardBond)potentialChainIntra.bonded).setBondLength(defaults.atomSize);
         ((P2HardBond)potentialChainIntra.bonded).setBondDelta(bondFactor);
-        CriterionBondedSimple criterion = new CriterionBondedSimple(NeighborCriterion.ALL);
+        CriterionBondedSimple criterion = new CriterionBondedSimple(nbrCriterion);
         criterion.setBonded(false);
         potential.setCriterion(criterion);
         potentialChainIntra.setNonbonded(potential);
-        criterion = new CriterionBondedSimple(NeighborCriterion.ALL);
-        criterion.setBonded(true);
-        potentialChainIntra.bonded.setCriterion(criterion);
+//        criterion = new CriterionBondedSimple(NeighborCriterion.ALL);
+//        criterion.setBonded(true);
+        potentialChainIntra.bonded.setCriterion(NeighborCriterion.NONE);
         potentialMaster.addPotential(potentialChainIntra, new Species[] {species});
         ((ConformationLinear)species.getFactory().getConformation()).setBondLength(defaults.atomSize);
 
         potential = new P2SquareWell(space,defaults.atomSize,sqwLambda,0.5*defaults.potentialWell,false);
-        nbrCriterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
+//        nbrCriterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
         CriterionMolecular criterionMolecular = new CriterionMolecular(nbrCriterion);
         criterionMolecular.setIntraMolecular(false);
         potential.setCriterion(criterionMolecular);

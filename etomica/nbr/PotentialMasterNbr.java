@@ -34,19 +34,18 @@ public class PotentialMasterNbr extends PotentialMaster {
         LinkedList newPotentialTypeList = pc.getPotentialsTypeList();
         Iterator iterator = newPotentialTypeList.iterator();
         while (iterator.hasNext()) {
-            PotentialAtomTypeWrapper wrapper = (PotentialAtomTypeWrapper)iterator.next();
-            addToPotentialTypeList(wrapper.potential,wrapper.atomTypes);
+            addToPotentialTypeList((PotentialAtomTypeWrapper)iterator.next());
         }
     }
 
-    protected void addToPotentialTypeList(Potential potential, AtomType[] atomTypes) {
-        for (int i=0; i<atomTypes.length; i++) {
-            while (potentialAtomTypeList.length < atomTypes[i].getIndex()+1) {
+    protected void addToPotentialTypeList(PotentialAtomTypeWrapper wrapper) {
+        for (int i=0; i<wrapper.atomTypes.length; i++) {
+            while (potentialAtomTypeList.length < wrapper.atomTypes[i].getIndex()+1) {
                 potentialAtomTypeList = (PotentialArray[])etomica.util.Arrays.addObject(potentialAtomTypeList, new PotentialArray());
             }
-            PotentialArray potentialAtomType = potentialAtomTypeList[atomTypes[i].getIndex()];
-            potentialAtomType.addPotential(potential);
-            atomTypes[i].setInteracting(true);
+            PotentialArray potentialAtomType = potentialAtomTypeList[wrapper.atomTypes[i].getIndex()];
+            potentialAtomType.addPotential(wrapper.potential,wrapper.iterator);
+            wrapper.atomTypes[i].setInteracting(true);
         }
     }
 

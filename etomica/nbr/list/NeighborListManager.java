@@ -137,8 +137,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
             neighborSetup(phase);
             resetIntegrator = true;
         }
-        //TODO consider a reset(Phase) method for integrator to reset relative
-        // to just the affected phase
+
         if (resetIntegrator)
             integrator.neighborsUpdated();
     }
@@ -257,7 +256,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
             Atom atom0 = pair.atom0;
             Potential[] potentials = potentialMaster.getPotentials(atom0.type).getPotentials();
             for (int i = 0; i < potentials.length; i++) {
-                if (potentials[i].nBody() != 2) {
+                if (potentials[i].nBody() != 2 || !potentials[i].getCriterion().isRangeDependent()) {
                     continue;
                 }
                 if (((Potential2) potentials[i]).getCriterion().accept(pair)) {

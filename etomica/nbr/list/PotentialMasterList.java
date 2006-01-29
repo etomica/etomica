@@ -12,11 +12,15 @@ import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorSinglet;
+import etomica.atom.iterator.AtomsetIterator;
+import etomica.atom.iterator.AtomsetIteratorBasisDependent;
+import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.phase.Phase;
 import etomica.potential.Potential;
+import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
 import etomica.space.Space;
 
@@ -84,14 +88,16 @@ public class PotentialMasterList extends PotentialMasterNbr {
         neighborManager.setPhase(phase);
     	if (targetAtoms.count() == 0) {
     		//no target atoms specified -- do one-target algorithm to SpeciesMaster
-    		calculate(phase.getSpeciesMaster(), idUp, pc, getPotentials(phase.getSpeciesMaster().type).getPotentials());
+            PotentialArray potentialArray = getPotentials(phase.getSpeciesMaster().type);
+    		calculate(phase.getSpeciesMaster(), idUp, pc, potentialArray.getPotentials(), potentialArray.getIterators());
             if(lrcMaster != null) {
                 lrcMaster.calculate(phase, id, pc);
             }
     	}
     	else if (targetAtoms instanceof Atom) {
     		// one target atom
-			calculate((Atom)targetAtoms, id, pc, getPotentials(((Atom)targetAtoms).type).getPotentials());
+            PotentialArray potentialArray = getPotentials(((Atom)targetAtoms).type);
+			calculate((Atom)targetAtoms, id, pc, potentialArray.getPotentials(), potentialArray.getIterators());
             if(lrcMaster != null) {
                 lrcMaster.calculate(phase, id, pc);
             }
@@ -109,10 +115,18 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * the hierarchy until leaf atoms are reached.
      */
     //TODO make a "TerminalGroup" node that permits child atoms but indicates that no potentials apply directly to them
-	private void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc, Potential[] potentials) {
+	private void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc, Potential[] potentials, AtomsetIterator[] iterators) {
         singletIterator.setAtom(atom);
         IteratorDirective.Direction direction = id.direction();
         for(int i=0; i<potentials.length; i++) {
+            if (!potentials[i].getCriterion().isRangeDependent()) {
+                // not range-dependent, so assume intragroup!  let's hope we're right.
+                ((AtomsetIteratorBasisDependent)iterators[i]).setBasis(atom.node.parentGroup());
+                ((AtomsetIteratorBasisDependent)iterators[i]).setTarget(atom);
+                ((AtomsetIteratorDirectable)iterators[i]).setDirection(direction);
+                pc.doCalculation(iterators[i],id,potentials[i]);
+                continue;
+            }
             switch (potentials[i].nBody()) {
             case 1:
                 pc.doCalculation(singletIterator, id, potentials[i]);
@@ -140,29 +154,6 @@ public class PotentialMasterList extends PotentialMasterNbr {
             }//end of switch
         }//end of for
         
-//        if (length > 0) {
-//            AtomSequencerNbr seq = (AtomSequencerNbr)atom.seq;
-//			singletIterator.setAtom(atom);
-//			IteratorDirective.Direction direction = id.direction();
-//			AtomArrayList[] list;
-//			if (direction == IteratorDirective.UP || direction == null) {
-//				list = seq.getUpList();
-////              list.length may be less than potentials.length, if atom hasn't yet interacted with another using one of the potentials
-//				for (int i=0; i<list.length; i++) {
-//					atomIterator.setList(list[i]);
-//					//System.out.println("Up :"+atomIterator.size());
-//					pc.doCalculation(pairIterator, id, potentials[i]);
-//				}
-//			}
-//			if (direction == IteratorDirective.DOWN || direction == null) {
-//				list = seq.getDownList();
-//				for (int i=0; i<list.length; i++) {
-//					atomIterator.setList(list[i]);
-//					//System.out.println("Dn :"+atomIterator.size());
-//					pc.doCalculation(pairIterator, id, potentials[i]);
-//				}
-//			}
-//		}
 		//if atom has children, repeat process with them
 		if(!atom.node.isLeaf()) {
             //cannot use AtomIterator field because of recursive call
@@ -170,8 +161,10 @@ public class PotentialMasterList extends PotentialMasterNbr {
             int size = list.size();
             for (int i=0; i<size; i++) {
                 Atom a = list.get(i);
-                Potential[] childPotentials = getPotentials(a.type).getPotentials();
-                calculate(a, id, pc, childPotentials);//recursive call
+                PotentialArray potentialArray = getPotentials(a.type);
+                Potential[] childPotentials = potentialArray.getPotentials();
+                AtomsetIterator[] childIterators = potentialArray.getIterators();
+                calculate(a, id, pc, childPotentials, childIterators);//recursive call
             }
 		}
 	}
