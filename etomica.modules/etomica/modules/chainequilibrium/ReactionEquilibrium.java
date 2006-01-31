@@ -99,13 +99,13 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         return (Atom[][])agentManager.getAgents();
     }
 
+    public Class getAgentClass() {
+        return Atom[].class;
+    }
+    
 	/**
-	 * Implementation of Atom.AgentSource interface, returning null. Agent in
-	 * atom is used to hold bonding partner.
-	 * 
-	 * @param a
-	 *            ignored
-	 * @return Object always null
+	 * Implementation of AtomAgentManager.AgentSource interface. Agent
+     * is used to hold bonding partners.
 	 */
 	public Object makeAgent(Atom a) {
 		

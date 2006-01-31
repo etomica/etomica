@@ -39,6 +39,10 @@ public class MeterChainLength implements Meter, AgentSource {
         agentSource = sim;
     }
 
+    public Class getAgentClass() {
+        return AtomTag.class;
+    }
+    
     public Object makeAgent(Atom a) {
         //System.out.println("added atom Tag");
         return new AtomTag();
