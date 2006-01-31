@@ -648,16 +648,17 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
         }
     }//end of CollisionListenerLinker
 
-	/**
+    public Class getAgentClass() {
+        return Agent.class;
+    }
+    
+    /**
 	 * Produces the Agent for this integrator. This method gets
      * called by the agentManager, which allocates/deallocates 
      * agents as needed.
 	 */
     public Object makeAgent(Atom a) {
-        // need to return a non-null agent if a is null
-        // because the AtomAgentManager does that to get
-        // the class
-        if (a != null && !a.type.isLeaf()) {
+        if (!a.type.isLeaf()) {
             return null;
         }
         return new Agent(a,this);

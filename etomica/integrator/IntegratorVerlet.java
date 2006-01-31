@@ -110,6 +110,10 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
     }
               
 //--------------------------------------------------------------
+    
+    public Class getAgentClass() {
+        return Agent.class;
+    }
 
     public final Object makeAgent(Atom a) {
         return new Agent(space,a);

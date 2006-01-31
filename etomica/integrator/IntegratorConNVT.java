@@ -156,6 +156,10 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
         super.reset();
     }
 
+    public Class getAgentClass() {
+        return Agent.class;
+    }
+    
     public final Object makeAgent(Atom a) {
         return new Agent(space,a);
     }

@@ -37,10 +37,12 @@ public abstract class ColorSchemeCollective extends ColorScheme implements Agent
     
     public Color getAtomColor(AtomLeaf a) {return atomColors[a.getGlobalIndex()];}
    
+    public Class getAgentClass() {
+        return Color.class;
+    }
+    
     public Object makeAgent(Atom a) {
-        // return a color if a is null (AtomAgentManager uses this to determine
-        // the class)
-        if (a == null) {return Color.white;}
+        // just a placeholde
         return null;
     }
     

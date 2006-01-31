@@ -58,7 +58,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
         phase.getSpeciesMaster().addListener(this);
         // hope the class returns an actual class with a null Atom and use it to construct
         // the array
-        agents = (Object[])Array.newInstance(agentSource.makeAgent(null).getClass(),
+        agents = (Object[])Array.newInstance(agentSource.getAgentClass(),
                 phase.getSpeciesMaster().getMaxGlobalIndex()+1);
         // fill in the array with agents from all the atoms
         AtomIteratorTree iterator = new AtomIteratorTree(phase.getSpeciesMaster(),Integer.MAX_VALUE,true);
@@ -155,10 +155,12 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
      * the produces the atom.
      */
     public interface AgentSource {
+        public Class getAgentClass();
+        
         public Object makeAgent(Atom a);
         
         //allow any agent to be disconnected from other elements 
-        public void releaseAgent(Object agent, Atom atom); 
+        public void releaseAgent(Object agent, Atom atom);
     }
 
     private final AgentSource agentSource;

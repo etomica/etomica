@@ -140,7 +140,10 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
  //       System.out.println();
     }
     
-
+    public Class getAgentClass() {
+        return HardFieldAgent.class;
+    }
+    
     /**
     * Produces the Agent defined by this integrator.
     * One instance of an Agent is placed in each atom controlled by this integrator.

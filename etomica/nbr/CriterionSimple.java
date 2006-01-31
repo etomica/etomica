@@ -100,10 +100,11 @@ public class CriterionSimple extends NeighborCriterion implements AgentSource  {
 		agents[atom.getGlobalIndex()].E(((AtomLeaf)atom).coord.position());
 	}
 
+    public Class getAgentClass() {
+        return cPair.dr().getClass();
+    }
+    
     public Object makeAgent(Atom atom) {
-        if (atom == null) {
-            return cPair.dr().clone();
-        }
         return atom.type.isLeaf() ? ((AtomLeaf)atom).coord.position().clone() : null;
     }
     

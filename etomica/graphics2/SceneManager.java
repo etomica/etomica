@@ -214,14 +214,18 @@ public final class SceneManager {
     boolean highQuality = false;
 
     public class SphereShapeSource implements AtomAgentManager.AgentSource {
+
+        public Class getAgentClass() {
+            return SphereShapeWrapper.class;
+        }
         
         public Object makeAgent(Atom a) {
-            if (a != null && !(a.type instanceof AtomTypeSphere)) {
+            if (!(a.type instanceof AtomTypeSphere)) {
                 return null;
             }
             SphereShapeWrapper wrapper = new SphereShapeWrapper();
             wrapper.atom = (AtomLeaf)a;
-            if (a != null && a.type instanceof AtomTypeSphere) {
+            if (a.type instanceof AtomTypeSphere) {
                 wrapper.shape = renderer.createSphere();
                 
                 // Scale to atom's given size

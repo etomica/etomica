@@ -119,6 +119,10 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
     }
               
 //--------------------------------------------------------------
+    
+    public Class getAgentClass() {
+        return MyAgent.class;
+    }
 
     public final Object makeAgent(Atom a) {
         return new MyAgent(space,a);

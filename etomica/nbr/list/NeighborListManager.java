@@ -402,6 +402,10 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         private AtomNeighborLists[] neighborLists;
     }
     
+    public Class getAgentClass() {
+        return AtomNeighborLists.class;
+    }
+    
     public Object makeAgent(Atom atom) {
         return new AtomNeighborLists();
     }

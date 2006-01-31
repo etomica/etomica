@@ -194,9 +194,12 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, java.
         return new MyMCMoveListener(space,phase,this);
     }
     
+    public Class getAgentClass() {
+        return Cell.class;
+    }
+    
     public Object makeAgent(Atom atom) {
-        // return a placeholder cell.  We'll decide which cell later
-        if (atom != null && atom.type.isInteracting()) {
+        if (atom.type.isInteracting()) {
             Vector position = (positionDefinition != null) ?
                     positionDefinition.position(atom) :
                         atom.type.getPositionDefinition().position(atom);
@@ -207,7 +210,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, java.
             }
             return atomCell;
         }
-        return bogusCell;
+        return null;
     }
 
     public void releaseAgent(Object agent, Atom atom) {

@@ -193,7 +193,11 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
         }
         super.reset();
     }
-              
+
+    public Class getAgentClass() {
+        return Agent.class;
+    }
+    
     public Object makeAgent(Atom a) {
         return new Agent(space,a);
     }

@@ -99,10 +99,14 @@ public class NeighborSiteManager implements PhaseCellManager, AgentSource {
         sites = (AtomSite[])agentManager.getAgents();
         return sites[atom.getGlobalIndex()];
     }
+    
+    public Class getAgentClass() {
+        return AtomSite.class;
+    }
 
     public Object makeAgent(Atom atom) {
-        if (atom == null || !atom.node.isLeaf()) {
-            return new AtomSite(-1);
+        if (!atom.node.isLeaf()) {
+            return null;
         }
         AtomSite site = (AtomSite)siteIterator.next();
         site.setAtom(atom);
