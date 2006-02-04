@@ -62,11 +62,11 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
         return info;
     }
 
-	public void setPhase(Phase p) {
+    public void setPhase(Phase p) {
         if (phase != null) {
             agentManager.setPhase(null);
         }
-	    super.setPhase(p);
+        super.setPhase(p);
         agentManager = new AtomAgentManager(this,p);
     }
     
@@ -76,9 +76,9 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
   	}
   	
   	private double Temper;
-	public void setTemp(double temperature) {
-		   Temper=temperature;
-	   }
+  	public void setTemp(double temperature) {
+  	    Temper=temperature;
+	}
           
 //--------------------------------------------------------------
 // steps all particles across time interval tStep
