@@ -1,14 +1,4 @@
 package etomica.util;
-import java.io.Serializable;
-
-import etomica.action.activity.ControllerEvent;
-import etomica.action.activity.ControllerListener;
-import etomica.integrator.mcmove.MCMoveEvent;
-import etomica.integrator.mcmove.MCMoveListener;
-import etomica.lattice.LatticeEvent;
-import etomica.lattice.LatticeListener;
-import etomica.phase.PhaseEvent;
-import etomica.phase.PhaseListener;
 import etomica.simulation.SimulationEvent;
 import etomica.simulation.SimulationListener;
 

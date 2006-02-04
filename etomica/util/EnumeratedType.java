@@ -1,6 +1,5 @@
 package etomica.util;
 
-import java.io.Serializable;
 
 
 

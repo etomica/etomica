@@ -1,7 +1,6 @@
 package etomica.phase;
 
 import etomica.util.EventManager;
-import etomica.util.EventManager.Linker;
 
 public class PhaseEventManager extends EventManager {
 

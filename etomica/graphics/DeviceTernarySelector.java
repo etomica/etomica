@@ -5,8 +5,6 @@ import java.awt.GridLayout;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.lattice.LatticeEvent;
-import etomica.lattice.LatticeListener;
 import etomica.util.EventManager;
 
 /**

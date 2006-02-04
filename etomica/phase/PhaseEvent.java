@@ -2,7 +2,6 @@ package etomica.phase;
 
 import etomica.atom.Atom;
 import etomica.graphics.DisplayPhaseListener;
-import etomica.simulation.SimulationEvent;
 import etomica.util.EnumeratedType;
 
 /**

@@ -1,5 +1,4 @@
 package etomica.lattice;
-import etomica.simulation.SimulationEvent;
 import etomica.util.EnumeratedType;
 
 public class LatticeEvent extends java.util.EventObject {

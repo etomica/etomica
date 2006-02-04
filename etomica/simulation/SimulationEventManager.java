@@ -1,7 +1,6 @@
 package etomica.simulation;
 
 import etomica.util.EventManager;
-import etomica.util.EventManager.Linker;
 
 public class SimulationEventManager extends EventManager {
 
