@@ -4,7 +4,7 @@ import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.phase.PhaseAgentManager.PhaseAgentSource;
 
-public class PhaseAgentSourceAtomManager implements PhaseAgentSource {
+public class PhaseAgentSourceAtomManager implements PhaseAgentSource, java.io.Serializable {
 
     public PhaseAgentSourceAtomManager(AgentSource atomAgentSource) {
         super();
