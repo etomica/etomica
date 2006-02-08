@@ -25,8 +25,9 @@ import etomica.simulation.Simulation;
 import etomica.simulation.SimulationContainer;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
-/*
-public class zeoliteSimGraphic extends SimulationGraphic{
 
+public class zeoliteSimGraphic extends SimulationGraphic{
+	public zeoliteSimGraphic(Simulation sim){
+		super(sim);
+	}
 }
-*/

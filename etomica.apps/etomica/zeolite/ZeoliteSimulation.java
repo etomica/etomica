@@ -1,9 +1,5 @@
 package etomica.zeolite;
-/*  
- * Created on Feb 2, 2006
- */
 
-//package 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.config.ConfigurationLattice;
@@ -26,14 +22,19 @@ import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.Default;
 
-public class zeoliteSimulation extends Simulation {
-	/**
-	 * Class that acts as the simulation for ZSM zeolite
-	 * @author johncoleman
-	 * 
-	 */
-	
-	/**
+/**
+ * 
+ * Using the HSMD3D.java as a basis for zeolite display
+ *
+ * @author John Coleman
+ *
+ */
+public class ZeoliteSimulation extends Simulation {
+
+    //the following fields are made accessible for convenience to permit simple
+    //mutation of the default behavior
+
+    /**
      * The Phase holding the atoms. 
      */
     public final Phase phase;
@@ -50,22 +51,28 @@ public class zeoliteSimulation extends Simulation {
      */
     public final P2HardSphere potential;
     
-	
-	
-	public zeoliteSimulation(){
-		this(new Default());
-	}
-	
-	public zeoliteSimulation(Default defaults) {
+    /**
+     * Sole public constructor, makes a simulation using a 3D space.
+     */
+    public ZeoliteSimulation() {
+        this(new Default());
+    }
+    
+    public ZeoliteSimulation(Default defaults) {
         this(Space3D.getInstance(), defaults);
     }
-    private zeoliteSimulation(Space space, Default defaults) {
-//    	 invoke the superclass constructor
+    
+    //we use a second, private constructor to permit the space to
+    //appear twice in the call to the superclass constructor; alternatively
+    //we could have passed Space3D.getInstance() twice
+    private ZeoliteSimulation(Space space, Default defaults) {
+
+        // invoke the superclass constructor
         // "true" is indicating to the superclass that this is a dynamic simulation
         // the PotentialMaster is selected such as to implement neighbor listing
         super(space, true, new PotentialMasterList(space, 1.6), Default.BIT_LENGTH, defaults);
 
-        int numAtoms = 12;
+        int numAtoms = 256;
         double neighborRangeFac = 1.6;
         defaults.makeLJDefaults();
         defaults.atomSize = 1.0;
@@ -102,7 +109,7 @@ public class zeoliteSimulation extends Simulation {
         nbrManager.addCriterion(criterion,new AtomType[]{species.getFactory().getType()});
 
         phase = new Phase(this);
-        //new ConfigurationLattice(new MFIstructure()).initializeCoordinates(phase);
+        new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);
         integrator.setPhase(phase);
  //       integrator.addIntervalListener(new PhaseImposePbc(phase));
         
@@ -113,19 +120,16 @@ public class zeoliteSimulation extends Simulation {
         // 	DisplayBox box = new DisplayBox();
         // 	box.setDatumSource(meterPressure);
  //       phase.setDensity(0.7);
-
     } //end of constructor
 
-	
-	
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		System.out.println("Here's the start");
-		//Copied from HSMD3D.java
-		Default defaults = new Default();
+    /**
+     * Demonstrates how this class is implemented.
+     */
+    public static void main(String[] args) {
+        Default defaults = new Default();
         defaults.doSleep = false;
         defaults.ignoreOverlap = true;
-        zeoliteSimulation sim = new zeoliteSimulation(defaults);
+        ZeoliteSimulation sim = new ZeoliteSimulation(defaults);
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
         DeviceNSelector nSelector = new DeviceNSelector(sim,sim.phase.getAgent(sim.species));
         simGraphic.add(nSelector);
@@ -133,6 +137,6 @@ public class zeoliteSimulation extends Simulation {
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
         colorScheme.setColor(sim.species.getMoleculeType(), java.awt.Color.red);
         simGraphic.panel().setBackground(java.awt.Color.yellow);
-	}
+    }//end of main
 
-}
+}//end of class
