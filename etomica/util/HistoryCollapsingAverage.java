@@ -2,11 +2,11 @@ package etomica.util;
 
 
 /**
- * History that records a number of values.  When existing 
- * space is insufficient to hold new data, the existing data
- * is "collapsed" such that all existing data is stored in the first
- * half of existing storage by dropping every other data point.
- * After that point data will be taken half as much.
+ * History that records a number of values.  When existing  space is 
+ * insufficient to hold new data, the existing data is "collapsed" such that 
+ * all existing data is stored in the first half of existing storage by 
+ * averaging each consecutive pair of data points.  After that point, data 
+ * will be stored as average block data.
  * 
  * @author Andrew Schultz
  */
@@ -64,4 +64,13 @@ public class HistoryCollapsingAverage extends HistoryCollapsing {
     }
     
     protected double[] temp;
+
+    /**
+     * Factory that creates an instance of this class.
+     */
+    public static final History.Factory FACTORY = new History.Factory() {
+        public History makeHistory() {return new HistoryCollapsingAverage();}
+        public History makeHistory(int n) {return new HistoryCollapsingAverage(n);}
+    };
+    
 }
