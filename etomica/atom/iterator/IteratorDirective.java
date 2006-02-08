@@ -1,7 +1,5 @@
 package etomica.atom.iterator;
 
-import java.io.ObjectStreamException;
-
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
 import etomica.potential.Potential;
@@ -18,7 +16,7 @@ public final class IteratorDirective implements java.io.Serializable {
     
   
     public IteratorDirective() {
-        this(UP);
+        this(Direction.UP);
     }
     public IteratorDirective(Direction direction) {
         setDirection(direction);
@@ -33,7 +31,7 @@ public final class IteratorDirective implements java.io.Serializable {
      * potential criteria applied, no LRC included.
      */
     public void clear() {
-        setDirection(UP);
+        setDirection(Direction.UP);
         targetAtoms = null;
         potentialCriteriaHead = null;
         includeLrc = false;
@@ -84,24 +82,21 @@ public final class IteratorDirective implements java.io.Serializable {
         private Direction(String label) {
             super(label);
         }
-        public static final Direction[] CHOICES = new Direction[] {
-            new Direction("Up"),
-            new Direction("Down"),
-        };
-        
-        public final EnumeratedType[] choices() {return CHOICES;}
+
+        public static final Direction UP = new Direction("Up");
+        public static final Direction DOWN = new Direction("Down");
+
+        public static EnumeratedType[] choices() {return new Direction[] {UP,DOWN,null};}
 
         /**
          * Required to guarantee singleton when deserializing.
          * @return the singleton INSTANCE
          */
-        private Object readResolve() throws ObjectStreamException {
-        	return this.toString().equals("Up") ? IteratorDirective.UP : IteratorDirective.DOWN;
+        private Object readResolve() {
+        	return this.toString().equals("Up") ? Direction.UP : Direction.DOWN;
         }
         
     }//end of Direction
-    public static final Direction UP = Direction.CHOICES[0];
-    public static final Direction DOWN = Direction.CHOICES[1];
     
     /**
      * Class used to define a criterion that must be satisfied by a potential

@@ -138,8 +138,8 @@ public abstract class RectangularLatticeNbrIterator implements SiteIterator, jav
      */
     public void setDirection(IteratorDirective.Direction direction) {
         this.direction = direction;
-        doUp = (direction != IteratorDirective.DOWN);//also handles case where
-        doDown = (direction != IteratorDirective.UP);//direction is null
+        doUp = (direction != IteratorDirective.Direction.DOWN);//also handles case where
+        doDown = (direction != IteratorDirective.Direction.UP);//direction is null
         needNeighborUpdate = true;
         unset();
     }

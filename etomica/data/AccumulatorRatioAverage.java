@@ -86,19 +86,18 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
         return dataGroup.getDataInfo();
     }
     
-    public static class Type extends AccumulatorAverage.Type {
-        protected Type(String label, int index) {super(label,index);}       
-        public EnumeratedType[] choices() {return VIRIAL_CHOICES;}
+    public static class StatType extends AccumulatorAverage.StatType {
+        protected StatType(String label, int index) {super(label,index);}       
+        public static final StatType RATIO = new StatType("Ratio",6);
+        public static final StatType RATIO_ERROR = new StatType("Ratio error",7);
+        public static final StatType RATIO_STANDARD_DEVIATION = new StatType("Ratio standard deviation",8);
+        public static AccumulatorAverage.StatType[] choices() {
+            AccumulatorAverage.StatType[] choices = AccumulatorAverage.StatType.choices();
+            return new AccumulatorAverage.StatType[] {
+                choices[0], choices[1], choices[2], choices[3], choices[4], choices[5],
+                RATIO, RATIO_ERROR, RATIO_STANDARD_DEVIATION};
+        }
     }
-    //XXX such an ugly hack!!!!
-    protected static final AccumulatorAverage.Type[] VIRIAL_CHOICES = 
-        new AccumulatorAverage.Type[] {
-            CHOICES[0], CHOICES[1], CHOICES[2], CHOICES[3], CHOICES[4], CHOICES[5],
-            new Type("Ratio",6),
-            new Type("Ratio error",7), new Type("Ratio standard deviation",8)};
-    public static final AccumulatorAverage.Type RATIO = VIRIAL_CHOICES[6];
-    public static final AccumulatorAverage.Type RATIO_ERROR = VIRIAL_CHOICES[7];
-    public static final AccumulatorAverage.Type RATIO_STANDARD_DEVIATION = VIRIAL_CHOICES[8];
 
     //need separate fields because ratio values are calculated from the non-ratio values.
     protected DataArithmetic ratio, ratioStandardDeviation, ratioError;

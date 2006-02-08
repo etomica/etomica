@@ -77,8 +77,8 @@ public class IntegratorOverlap extends IntegratorManagerMC {
                 System.out.print("Bennet "+i+" ");
                 for (int j=0; j<accumulators[i].getNBennetPoints(); j++) {
                     DataGroup data = (DataGroup)accumulators[i].getData(j);
-                    System.out.print(((DataDoubleArray)data.getData(AccumulatorAverage.ERROR.index)).getData()[1]
-                                           /((DataDoubleArray)data.getData(AccumulatorAverage.AVERAGE.index)).getData()[1]+" ");
+                    System.out.print(((DataDoubleArray)data.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]
+                                           /((DataDoubleArray)data.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]+" ");
                 }
                 System.out.print("\n");
             }
@@ -105,9 +105,9 @@ public class IntegratorOverlap extends IntegratorManagerMC {
         for (int i=0; i<nIntegrators; i++) {
             DataGroup data;
             data = (DataGroup)accumulators[i].getData(minDiffLoc);
-            double error = ((DataDoubleArray)data.getData(AccumulatorRatioAverage.RATIO_ERROR.index)).getData()[1];
+            double error = ((DataDoubleArray)data.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1];
             data = (DataGroup)accumulators[1-i].getData(minDiffLoc);
-            double otherRatio = ((DataDoubleArray)data.getData(AccumulatorRatioAverage.RATIO.index)).getData()[1];
+            double otherRatio = ((DataDoubleArray)data.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1];
 //            System.out.println(i+" errors "+errors[i]);
 //            System.out.print("Bennet "+i+" ");
 //            for (int j=0; j<accumulators[i].getNBennetPoints(); j++) {

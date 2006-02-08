@@ -42,8 +42,8 @@ public class DataSourceVirialOverlap extends DataSourceScalar {
      * parameter.
      */
 	public double getAverage(int iParam) {
-        double targetAvg = ((DataDoubleArray)((DataGroup)targetAccumulator.getData(iParam)).getData(AccumulatorRatioAverage.RATIO.index)).getData()[1];
-        double refAvg = ((DataDoubleArray)((DataGroup)refAccumulator.getData(iParam)).getData(AccumulatorRatioAverage.RATIO.index)).getData()[1];
+        double targetAvg = ((DataDoubleArray)((DataGroup)targetAccumulator.getData(iParam)).getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1];
+        double refAvg = ((DataDoubleArray)((DataGroup)refAccumulator.getData(iParam)).getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1];
         return refAvg/targetAvg;
 	}
 	
@@ -84,11 +84,11 @@ public class DataSourceVirialOverlap extends DataSourceScalar {
 	public double getError(int iParam) {
 		double avg = getAverage(iParam);
         DataGroup dataGroup = (DataGroup)refAccumulator.getData(iParam);
-		double refErr = ((DataDoubleArray)dataGroup.getData(AccumulatorRatioAverage.RATIO_ERROR.index)).getData()[1];
-        double refAvg = ((DataDoubleArray)dataGroup.getData(AccumulatorRatioAverage.RATIO.index)).getData()[1];
+		double refErr = ((DataDoubleArray)dataGroup.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1];
+        double refAvg = ((DataDoubleArray)dataGroup.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1];
         dataGroup = (DataGroup)targetAccumulator.getData(iParam);
-		double targetErr = ((DataDoubleArray)dataGroup.getData(AccumulatorRatioAverage.RATIO_ERROR.index)).getData()[1];
-		double targetAvg = ((DataDoubleArray)dataGroup.getData(AccumulatorRatioAverage.RATIO.index)).getData()[1];
+		double targetErr = ((DataDoubleArray)dataGroup.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1];
+		double targetAvg = ((DataDoubleArray)dataGroup.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1];
 		return Math.abs(avg)*Math.sqrt(refErr*refErr/(refAvg*refAvg)+targetErr*targetErr/(targetAvg*targetAvg));
 	}
 

@@ -31,7 +31,7 @@ public final class AtomIteratorListSimple extends AtomIteratorAdapter implements
      * @param list
      */
     public AtomIteratorListSimple(AtomList list) {
-        super(new AtomIteratorSequence(IteratorDirective.UP));
+        super(new AtomIteratorSequence(IteratorDirective.Direction.UP));
         setList(list);
     }
 

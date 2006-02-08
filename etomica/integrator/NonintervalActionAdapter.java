@@ -1,6 +1,7 @@
 package etomica.integrator;
 
 import etomica.action.Action;
+import etomica.integrator.IntegratorNonintervalEvent.NonintervalEventType;
 
 /**
  * Adapter that causes an action to be performed as the result of an integrator
@@ -28,7 +29,7 @@ public class NonintervalActionAdapter implements IntegratorNonintervalListener, 
     public NonintervalActionAdapter(Action action) {
         this.action = action;
         setActive(true);
-        setEventTypes(IntegratorNonintervalEvent.Type.choices);
+        setEventTypes((NonintervalEventType[])NonintervalEventType.choices());
     }
 
     /**
@@ -39,8 +40,13 @@ public class NonintervalActionAdapter implements IntegratorNonintervalListener, 
      * the case if the active flag is false.
      */
     public void nonintervalAction(IntegratorNonintervalEvent evt) {
-        if (active && ((evt.type().mask & eventMask) != 0)) {
-            action.actionPerformed();
+        if (active) {
+            for (int i=0; i<eventTypes.length; i++) {
+                if (eventTypes[i] == evt.type()) {
+                    action.actionPerformed();
+                    return;
+                }
+            }
         }
     }
 
@@ -72,15 +78,12 @@ public class NonintervalActionAdapter implements IntegratorNonintervalListener, 
      * @param types
      *            array of types that will trigger the action
      */
-    public void setEventTypes(IntegratorIntervalEvent.Type[] types) {
-        eventMask = 0;
-        for (int i = 0; i < types.length; i++) {
-            eventMask |= types[i].mask;
-        }
+    public void setEventTypes(NonintervalEventType[] types) {
+        eventTypes = (NonintervalEventType[])types.clone();
     }
 
     private final Action action;
-    private int eventMask;
+    private NonintervalEventType[] eventTypes;
     private boolean active;//set true in constructor
 
 }

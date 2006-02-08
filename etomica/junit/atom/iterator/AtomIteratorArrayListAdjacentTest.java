@@ -31,8 +31,8 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
     }
 
     public void setUp() {
-        iteratorUp = new AtomIteratorArrayListAdjacent(IteratorDirective.UP);
-        iteratorDn = new AtomIteratorArrayListAdjacent(IteratorDirective.DOWN);
+        iteratorUp = new AtomIteratorArrayListAdjacent(IteratorDirective.Direction.UP);
+        iteratorDn = new AtomIteratorArrayListAdjacent(IteratorDirective.Direction.DOWN);
         iteratorBoth = new AtomIteratorArrayListAdjacent(null);
     }
     

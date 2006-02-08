@@ -43,7 +43,7 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, jav
 	public ApiAACell(int D, double range) {
         cellIterator = new RectangularLattice.Iterator(D);
         neighborIterator = new CellLattice.NeighborIterator(D, range);
-        neighborIterator.setDirection(IteratorDirective.UP);
+        neighborIterator.setDirection(IteratorDirective.Direction.UP);
         interListIterator = new ApiInterArrayList();
         intraListIterator = new ApiIntraArrayList();
         listIterator = intraListIterator;

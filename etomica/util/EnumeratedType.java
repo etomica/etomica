@@ -21,5 +21,4 @@ public abstract class EnumeratedType implements java.io.Serializable {
     private final String label;
     protected EnumeratedType(String s) {label = s;}
     public String toString() {return label;}
-    public abstract EnumeratedType[] choices();
 }

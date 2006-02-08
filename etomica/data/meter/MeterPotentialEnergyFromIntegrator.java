@@ -47,7 +47,7 @@ public class MeterPotentialEnergyFromIntegrator extends DataSourceScalar impleme
     }
     
     public void nonintervalAction(IntegratorNonintervalEvent evt) {
-        if (evt.type() == IntegratorEvent.DONE) {
+        if (evt.type() == IntegratorNonintervalEvent.DONE) {
             double currentPE = integrator.getPotentialEnergy();
             MeterPotentialEnergy meterPE = new MeterPotentialEnergy(integrator.getPotential());
             meterPE.setPhase(integrator.getPhase());

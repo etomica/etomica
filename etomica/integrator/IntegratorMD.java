@@ -29,7 +29,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
     public IntegratorMD(PotentialMaster potentialMaster, double timeStep, double temperature) {
         super(potentialMaster,temperature);
         setTimeStep(timeStep);
-        thermostat = ANDERSEN;
+        thermostat = ThermostatType.ANDERSEN;
         atomIterator = new AtomIteratorLeafAtoms();
         setThermostatInterval(100);
         meterKE = new MeterKineticEnergy();
@@ -95,29 +95,28 @@ public abstract class IntegratorMD extends IntegratorPhase {
     
     public static class ThermostatType extends EnumeratedType {
         protected ThermostatType(String label) {super(label);}       
-        public EnumeratedType[] choices() {return CHOICES;}
+        public static final ThermostatType VELOCITY_SCALING = new ThermostatType("Velocity Scaling");
+        public static final ThermostatType ANDERSEN = new ThermostatType("Anderson");
+        public static final ThermostatType ANDERSEN_SINGLE = new ThermostatType("Andersen Single");
+        //public static final ThermostatType NOSE_HOOVER;
+        public static ThermostatType[] choices() {
+            return new ThermostatType[] {VELOCITY_SCALING,ANDERSEN,ANDERSEN_SINGLE};
+        }
 
         /**
          * Required to guarantee singleton when deserializing.
          * @return the singleton INSTANCE
          */
         private Object readResolve() {
-            for (int i=0; i<CHOICES.length; i++) {
-                if (this.toString().equals(CHOICES[i].toString())) {
-                    return CHOICES[i];
+            ThermostatType[] choices = choices();
+            for (int i=0; i<choices.length; i++) {
+                if (this.toString().equals(choices[i].toString())) {
+                    return choices[i];
                 }
             }
             throw new RuntimeException("unknown thermostat type: "+this);
         }
     }
-    protected static final ThermostatType[] CHOICES = 
-        new ThermostatType[] {
-            new ThermostatType("Velocity Scaling"), new ThermostatType("Andersen"),
-            new ThermostatType("Andersen Single"), new ThermostatType("Nose Hoover (unimplemented)")};
-    public static final ThermostatType VELOCITY_SCALING = CHOICES[0];
-    public static final ThermostatType ANDERSEN = CHOICES[1];
-    public static final ThermostatType ANDERSEN_SINGLE = CHOICES[2];
-    public static final ThermostatType NOSE_HOOVER = CHOICES[3];
     
     /**
      * Sets the type of thermostat used by the integrator.
@@ -150,19 +149,18 @@ public abstract class IntegratorMD extends IntegratorPhase {
     public void doThermostat() {
         if (--thermostatCount == 0) {
             thermostatCount = thermostatInterval;
-            if (thermostat == ANDERSEN || !initialized) {
+            if (thermostat == ThermostatType.ANDERSEN || !initialized) {
                 // if initializing the system always randomize the velocity
                 randomizeMomenta(phase);
                 meterKE.setPhase(phase);
                 currentKineticEnergy = meterKE.getDataAsScalar();
             }
-            if (thermostat == VELOCITY_SCALING || (!initialized && thermostat == NOSE_HOOVER)) {
-                // rescale randomized velocities for Nose Hoover during initialization
+            if (thermostat == ThermostatType.VELOCITY_SCALING) {
                 scaleMomenta(phase);
                 meterKE.setPhase(phase);
                 currentKineticEnergy = meterKE.getDataAsScalar();
             }
-            else if (thermostat == ANDERSEN_SINGLE) {
+            else if (thermostat == ThermostatType.ANDERSEN_SINGLE) {
                 AtomArrayList atomList = phase.getSpeciesMaster().leafList;
                 int index = Simulation.random.nextInt(atomList.size());
                 AtomLeaf a = (AtomLeaf)atomList.get(index);
@@ -171,11 +169,8 @@ public abstract class IntegratorMD extends IntegratorPhase {
                 randomizeMomentum(atomList.get(index));
                 currentKineticEnergy += 0.5*m*((ICoordinateKinetic)a.coord).velocity().squared();
             }
-            else if (thermostat == NOSE_HOOVER) {
-                throw new MethodNotImplementedException("feel free to write the Nose Hoover thermostat");
-            }
             // ANDERSEN was handled at the start
-            else if (thermostat != ANDERSEN) {
+            else if (thermostat != ThermostatType.ANDERSEN) {
                 throw new RuntimeException("Unknown thermostat: "+thermostat);
             }
         }

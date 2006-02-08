@@ -5,6 +5,7 @@ import etomica.config.ConfigurationSequential;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
+import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceThermoSelector;
@@ -90,7 +91,7 @@ public class HSMD2D_noNbr extends Simulation {
 //          new AccumulatorAverage.Type[] {AccumulatorAverage.AVERAGE}).
 //                                      addDataSink(pressureHistory);
         temperatureHistory = new AccumulatorHistory();
-        temperatureAverage.addDataSink(temperatureHistory,new AccumulatorAverage.Type[] {AccumulatorAverage.AVERAGE});
+        temperatureAverage.addDataSink(temperatureHistory,new AccumulatorAverage.StatType[] {StatType.AVERAGE});
 }
     
     /**

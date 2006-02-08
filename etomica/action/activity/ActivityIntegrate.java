@@ -94,7 +94,7 @@ public class ActivityIntegrate extends Activity {
             }
             stepCount++;
         }//end of while loop
-        integrator.fireNonintervalEvent(new IntegratorNonintervalEvent(integrator, IntegratorIntervalEvent.DONE));
+        integrator.fireNonintervalEvent(new IntegratorNonintervalEvent(integrator, IntegratorNonintervalEvent.DONE));
 	}
 
 	/**

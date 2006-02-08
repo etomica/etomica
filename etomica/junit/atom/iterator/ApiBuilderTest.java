@@ -617,8 +617,8 @@ public class ApiBuilderTest extends IteratorTestAbstract {
     private AtomTreeNodeGroup rootNode;
     int n0a, nAtoms, n1a, n2a, n3a;
     int[] nTree;
-    private final IteratorDirective.Direction UP = IteratorDirective.UP;
-    private final IteratorDirective.Direction DOWN = IteratorDirective.DOWN;
+    private final IteratorDirective.Direction UP = IteratorDirective.Direction.UP;
+    private final IteratorDirective.Direction DOWN = IteratorDirective.Direction.DOWN;
     private Atom parent;
     private Atom target;
     private Atom targetFirst;

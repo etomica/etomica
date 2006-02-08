@@ -33,7 +33,7 @@ public final class AtomIteratorListTabbed implements AtomIterator,
      * Iterator must be reset before use.
      */
     public AtomIteratorListTabbed(AtomList list) {
-        sequenceIterator = new AtomIteratorSequence(IteratorDirective.UP);
+        sequenceIterator = new AtomIteratorSequence(IteratorDirective.Direction.UP);
         setList(list);
     }
 

@@ -41,7 +41,7 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
      * and x range, and INCLUSIVE limits.
      */
     public DataSourceUniform(String label, Dimension dimension, int nValues, double xMin, double xMax) {
-    	this(label, dimension, nValues, xMin, xMax, INCLUSIVE, INCLUSIVE);
+    	this(label, dimension, nValues, xMin, xMax, LimitType.INCLUSIVE, LimitType.INCLUSIVE);
     }
     
     /**
@@ -65,23 +65,20 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
         //determine number of intervals between left and right end points
         double intervalCount = (nValues - 1);
 
+        // See inner class LimitType (below) for more information.
+        if(typeMin == LimitType.HALF_STEP) intervalCount += 0.5;
+        else if(typeMin == LimitType.EXCLUSIVE) intervalCount += 1.0;
         
-        /*
-         * See inner class LimitType (below) for more information.
-         */
-        if(typeMin == HALF_STEP) intervalCount += 0.5;
-        else if(typeMin == EXCLUSIVE) intervalCount += 1.0;
-        
-        if(typeMax == HALF_STEP) intervalCount += 0.5;
-        else if(typeMax == EXCLUSIVE) intervalCount += 1.0;
+        if(typeMax == LimitType.HALF_STEP) intervalCount += 0.5;
+        else if(typeMax == LimitType.EXCLUSIVE) intervalCount += 1.0;
         
         //determine spacing between values
         dx = (xMax - xMin)/intervalCount;
         
         //determine first value
         double x0 = xMin;
-        if(typeMin == HALF_STEP) x0 += 0.5*dx;
-        else if(typeMin == EXCLUSIVE) x0 += dx;
+        if(typeMin == LimitType.HALF_STEP) x0 += 0.5*dx;
+        else if(typeMin == LimitType.EXCLUSIVE) x0 += dx;
         
         //calculate values
 
@@ -205,29 +202,27 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
 	 */
 	public static class LimitType extends EnumeratedType {
         public LimitType(String label) {super(label);}       
-        public EnumeratedType[] choices() {return CHOICES;}
-        public static final LimitType[] CHOICES = 
-            new LimitType[] {
-                new LimitType("Inclusive"),
-                new LimitType("Half step"),
-                new LimitType("Exclusive"),};
+
+        /**
+         * Limit type indicating that limit is included in range, and that it equals the extreme value.
+         */
+        public static final LimitType INCLUSIVE = new LimitType("Inclusive");
+        
+        /**
+         * Limit type indicating that extreme value should be one half step from the specified limit.
+         */
+        public static final LimitType HALF_STEP = new LimitType("Half Step");
+        
+        /**
+         * Limit type indicating that specified limit is not included in the range, and that the
+         * extreme value should be one full step from the specified limit.
+         */
+        public static final LimitType EXCLUSIVE = new LimitType("Exclusive");
+        
+        public static LimitType[] choices() {
+            return new LimitType[] {INCLUSIVE,HALF_STEP,EXCLUSIVE};
+        }
     }//end of LimitType
-    
-    /**
-     * Limit type indicating that limit is included in range, and that it equals the extreme value.
-     */
-    public static final LimitType INCLUSIVE = LimitType.CHOICES[0];
-    
-    /**
-     * Limit type indicating that extreme value should be one half step from the specified limit.
-     */
-    public static final LimitType HALF_STEP = LimitType.CHOICES[1];
-    
-    /**
-     * Limit type indicating that specified limit is not included in the range, and that the
-     * extreme value should be one full step from the specified limit.
-     */
-    public static final LimitType EXCLUSIVE = LimitType.CHOICES[2];
     
     private LimitType typeMin, typeMax;
     private double xMin, xMax;
@@ -247,14 +242,14 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
         source.setXMin(0.0);
         source.setXMax(1.0);
         source.setNValues(n);
-        source.setTypeMin(DataSourceUniform.INCLUSIVE);
-        source.setTypeMax(DataSourceUniform.INCLUSIVE);
+        source.setTypeMin(LimitType.INCLUSIVE);
+        source.setTypeMax(LimitType.INCLUSIVE);
         for(int i=0; i<n; i++) System.out.print(((DataDoubleArray)source.getData()).getData()[i] + "  ");
         System.out.println();
-        source.setTypeMax(DataSourceUniform.HALF_STEP);
+        source.setTypeMax(LimitType.HALF_STEP);
         for(int i=0; i<n; i++) System.out.print(((DataDoubleArray)source.getData()).getData()[i] + "  ");
         System.out.println();
-        source.setTypeMax(DataSourceUniform.EXCLUSIVE);
+        source.setTypeMax(LimitType.EXCLUSIVE);
         for(int i=0; i<n; i++) System.out.print(((DataDoubleArray)source.getData()).getData()[i] + "  ");
         System.out.println("");
         System.out.println("Done");

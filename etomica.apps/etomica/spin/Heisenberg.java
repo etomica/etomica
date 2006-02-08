@@ -122,7 +122,7 @@ public class Heisenberg extends Simulation {
         DisplayBoxesCAE boxes = new DisplayBoxesCAE();
         boxes.setAccumulator(sim.dAcc);
         boxes.setLabel("Magnetization");
-        boxes.setLabelType(DisplayBox.BORDER);
+        boxes.setLabelType(DisplayBox.LabelType.BORDER);
         simGraphic.add(boxes);
 
         simGraphic.makeAndDisplayFrame();

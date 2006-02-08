@@ -27,8 +27,8 @@ public final class ApiIntragroup implements AtomPairIterator,
 	 * reset() before iteration.
 	 */
 	public ApiIntragroup() {
-		this(new AtomIteratorArrayList(IteratorDirective.UP, 1),
-                new AtomIteratorArrayList(IteratorDirective.DOWN, 1));
+		this(new AtomIteratorArrayList(IteratorDirective.Direction.UP, 1),
+                new AtomIteratorArrayList(IteratorDirective.Direction.DOWN, 1));
     }
     
     public ApiIntragroup(AtomIteratorAtomDependent aiInnerUp, AtomIteratorAtomDependent aiInnerDn) {
@@ -65,9 +65,9 @@ public final class ApiIntragroup implements AtomPairIterator,
 	 */
 	public void reset() {
         //upList if no target given (then do all pairs) or if specified by direction
-        upListNow = (!oneTarget || direction != IteratorDirective.DOWN);
+        upListNow = (!oneTarget || direction != IteratorDirective.Direction.DOWN);
         //dnList only if one target and not explicitly directed up
-        doGoDown = (oneTarget && direction != IteratorDirective.UP);
+        doGoDown = (oneTarget && direction != IteratorDirective.Direction.UP);
         
         if (upListNow) {
             apiUp.reset();
@@ -169,10 +169,10 @@ public final class ApiIntragroup implements AtomPairIterator,
      * iteration state.
      */
     public void allAtoms(AtomsetAction action) {
-        if (!oneTarget || direction != IteratorDirective.DOWN) {
+        if (!oneTarget || direction != IteratorDirective.Direction.DOWN) {
             apiUp.allAtoms(action);
         }
-        if (oneTarget && direction != IteratorDirective.UP) {
+        if (oneTarget && direction != IteratorDirective.Direction.UP) {
             apiDown.allAtoms(action);
         }
     }

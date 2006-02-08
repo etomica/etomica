@@ -85,7 +85,7 @@ public abstract class Integrator implements java.io.Serializable {
         initialized = false;
         setup();
         initialized = true;
-        fireNonintervalEvent(new IntegratorNonintervalEvent(this, IntegratorEvent.INITIALIZE));
+        fireNonintervalEvent(new IntegratorNonintervalEvent(this, IntegratorNonintervalEvent.INITIALIZE));
         reset();
     }
     

@@ -1,6 +1,7 @@
 package etomica.integrator;
 
 import etomica.exception.ConfigurationOverlapException;
+import etomica.integrator.IntegratorNonintervalEvent.NonintervalEventType;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveEventManager;
 import etomica.integrator.mcmove.MCMoveListener;
@@ -125,7 +126,7 @@ public class IntegratorManagerMC extends Integrator {
         super.fireNonintervalEvent(ie);
         if (ie.type() == IntegratorNonintervalEvent.DONE) {
             for(int i=0; i<nIntegrators; i++) {
-                integrators[i].fireNonintervalEvent(new IntegratorNonintervalEvent(integrators[i], IntegratorEvent.DONE));
+                integrators[i].fireNonintervalEvent(new IntegratorNonintervalEvent(integrators[i], IntegratorNonintervalEvent.DONE));
             }
         }
     }

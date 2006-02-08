@@ -131,8 +131,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
     table.setShowingRowLabels(true);
     table.setPrecision(7);
 	
-	sim.accumulator1.addDataSink(profilePlot.getDataTable(),new AccumulatorAverage.Type[]{AccumulatorAverage.AVERAGE});
-    sim.accumulator2.addDataSink(profilePlot.getDataTable(),new AccumulatorAverage.Type[]{AccumulatorAverage.AVERAGE});
+	sim.accumulator1.addDataSink(profilePlot.getDataTable(),new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+    sim.accumulator2.addDataSink(profilePlot.getDataTable(),new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
 
 //set color of molecules
     ColorSchemeByType colorScheme = (ColorSchemeByType)display.getColorScheme();

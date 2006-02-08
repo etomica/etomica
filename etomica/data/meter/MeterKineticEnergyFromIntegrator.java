@@ -48,7 +48,7 @@ public class MeterKineticEnergyFromIntegrator extends DataSourceScalar implement
     public int getPriority() {return 200;}
     
     public void nonintervalAction(IntegratorNonintervalEvent evt) {
-        if (evt.type() == IntegratorEvent.DONE) {
+        if (evt.type() == IntegratorNonintervalEvent.DONE) {
             double currentKE = integrator.getKineticEnergy();
             MeterKineticEnergy meterKE = new MeterKineticEnergy();
             meterKE.setPhase(phase);

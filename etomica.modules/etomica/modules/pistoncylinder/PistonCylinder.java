@@ -10,8 +10,8 @@ import etomica.data.DataPump;
 import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
-import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntervalActionAdapter;
+import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.phase.Phase;
 import etomica.potential.P1HardBoundary;
@@ -106,7 +106,7 @@ public class PistonCylinder extends Simulation {
         integrator.setPhase(phase);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(1);
-        integrator.setThermostat(IntegratorMD.ANDERSEN_SINGLE);
+        integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setTimeStep(1.0);
         ai = new ActivityIntegrate(this,integrator);
         getController().addAction(ai);
@@ -140,10 +140,10 @@ public class PistonCylinder extends Simulation {
       
         sim.getController().actionPerformed();
         
-        System.out.println("density average "+((DataDouble)((DataGroup)dAcc.getData()).getData(AccumulatorAverage.AVERAGE.index)).x*10000/6.0221367+" +/- "
-                +((DataDouble)((DataGroup)dAcc.getData()).getData(AccumulatorAverage.ERROR.index)).x*10000/6.0221367);
-        System.out.println("Z="+((DataDouble)((DataGroup)pAcc.getData()).getData(AccumulatorAverage.AVERAGE.index)).x+" +/- "
-                +((DataDouble)((DataGroup)pAcc.getData()).getData(AccumulatorAverage.ERROR.index)).x);
+        System.out.println("density average "+((DataDouble)((DataGroup)dAcc.getData()).getData(AccumulatorAverage.StatType.AVERAGE.index)).x*10000/6.0221367+" +/- "
+                +((DataDouble)((DataGroup)dAcc.getData()).getData(AccumulatorAverage.StatType.ERROR.index)).x*10000/6.0221367);
+        System.out.println("Z="+((DataDouble)((DataGroup)pAcc.getData()).getData(AccumulatorAverage.StatType.AVERAGE.index)).x+" +/- "
+                +((DataDouble)((DataGroup)pAcc.getData()).getData(AccumulatorAverage.StatType.ERROR.index)).x);
 
    }
        

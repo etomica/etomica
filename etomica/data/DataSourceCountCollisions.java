@@ -65,7 +65,7 @@ public class DataSourceCountCollisions implements DataSource,
      * Resets the counter if the event is a start event. 
      */
     public void nonintervalAction(IntegratorNonintervalEvent evt) {
-        if (evt.type() == IntegratorIntervalEvent.INITIALIZE) {
+        if (evt.type() == IntegratorNonintervalEvent.INITIALIZE) {
             reset();
         }
     }

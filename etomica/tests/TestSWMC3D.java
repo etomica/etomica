@@ -5,6 +5,7 @@ import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.DataSource;
+import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
@@ -82,11 +83,11 @@ public class TestSWMC3D extends Simulation {
         
         sim.getController().actionPerformed();
         
-        double avgPE = ((DataDoubleArray)((DataGroup)energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).getData()[0];
+        double avgPE = ((DataDoubleArray)((DataGroup)energyAccumulator.getData()).getData(StatType.AVERAGE.index)).getData()[0];
         avgPE /= numAtoms;
         System.out.println("PE/epsilon="+avgPE);
         double temp = sim.integrator.getTemperature();
-        double Cv = ((DataDoubleArray)((DataGroup)energyAccumulator.getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index)).getData()[0];
+        double Cv = ((DataDoubleArray)((DataGroup)energyAccumulator.getData()).getData(StatType.STANDARD_DEVIATION.index)).getData()[0];
         Cv /= temp;
         Cv *= Cv/numAtoms;
         System.out.println("Cv/k="+Cv);

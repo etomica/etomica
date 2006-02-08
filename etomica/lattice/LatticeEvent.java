@@ -21,16 +21,15 @@ public class LatticeEvent extends java.util.EventObject {
     public final LatticeEvent setLattice(AbstractLattice c) {lattice = c; return this;}
     public final AbstractLattice lattice() {return lattice;}
     
+    public static final Type REBUILD = new Type("Rebuild");
+    public static final Type ALL_SITE = new Type("All-site change");
+    public static final Type RESET_NBRS = new Type("Reset neighbors");
+
     public static class Type extends EnumeratedType {
-        private Type(String label) {super(label);}
-        public static final Type[] CHOICES = new Type[] {
-            new Type("Rebuild"),
-            new Type("All-site change"),
-            new Type("Reset neighbors")};
-        public final EnumeratedType[] choices() {return CHOICES;}
+        protected Type(String label) {super(label);}
+        public static Type[] choices() {
+            return new Type[] {REBUILD,ALL_SITE,RESET_NBRS};
+        }
     }
-    public static final Type REBUILD = Type.CHOICES[0];
-    public static final Type ALL_SITE = Type.CHOICES[1];
-    public static final Type RESET_NBRS = Type.CHOICES[2];
     
 }//end of LatticeEvent

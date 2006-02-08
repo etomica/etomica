@@ -5,9 +5,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
+import etomica.integrator.IntegratorNonintervalEvent.NonintervalEventType;
 
 
 /* History
@@ -70,7 +70,7 @@ public class DataLogger implements DataPipe, IntegratorNonintervalListener, java
      * Close file when integrator is done.
      */
     public void nonintervalAction(IntegratorNonintervalEvent evt){
-        if(evt.type() == IntegratorIntervalEvent.DONE) {
+        if(evt.type() == IntegratorNonintervalEvent.DONE) {
             if (writeOnFinishSource != null) {
                 doWrite(writeOnFinishSource.getData());
             }

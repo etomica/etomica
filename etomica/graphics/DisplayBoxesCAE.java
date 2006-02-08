@@ -11,6 +11,7 @@ import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
 import etomica.data.DataPump;
 import etomica.data.DataSink;
+import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayBox.LabelType;
@@ -37,7 +38,7 @@ public class DisplayBoxesCAE extends Display implements DataSink {
 	public DisplayBox currentBox, averageBox, errorBox;
 	public JPanel panelParentGroup;
 	
-    protected Constants.CompassDirection labelPosition = Constants.NORTH;
+    protected Constants.CompassDirection labelPosition = Constants.CompassDirection.NORTH;
     protected LabelType labelType;
 
 	JLabel jLabelPanelParentGroup = new JLabel();
@@ -61,7 +62,7 @@ public class DisplayBoxesCAE extends Display implements DataSink {
         panelParentGroup.add(averageBox.graphic(), java.awt.BorderLayout.CENTER);
         panelParentGroup.add(errorBox.graphic(), java.awt.BorderLayout.EAST);
         setLabel(label);
-        setLabelType(DisplayBox.STRING);
+        setLabelType(LabelType.STRING);
 	}
     
     
@@ -93,10 +94,8 @@ public class DisplayBoxesCAE extends Display implements DataSink {
      */
     public void setAccumulator(AccumulatorAverage accumulatorAverage) {
         this.accumulatorAverage = accumulatorAverage;
-        accumulatorAverage.addDataSink(this,new AccumulatorAverage.Type[] {
-                AccumulatorAverage.MOST_RECENT,
-                AccumulatorAverage.AVERAGE,
-                AccumulatorAverage.ERROR});
+        accumulatorAverage.addDataSink(this,new AccumulatorAverage.StatType[] {
+                StatType.MOST_RECENT, StatType.AVERAGE, StatType.ERROR});
     }
     
     /**
@@ -112,10 +111,10 @@ public class DisplayBoxesCAE extends Display implements DataSink {
 	
     public void setLabel(String s) {
         jLabelPanelParentGroup.setText(s);
-        if(labelType == DisplayBox.BORDER) {
+        if(labelType == LabelType.BORDER) {
             panelParentGroup.setBorder(new javax.swing.border.TitledBorder(s));
         }
-        if(labelType == DisplayBox.STRING) setLabelPosition(labelPosition);
+        if(labelType == LabelType.STRING) setLabelPosition(labelPosition);
     }
     
     public String getLabel() {
@@ -124,7 +123,7 @@ public class DisplayBoxesCAE extends Display implements DataSink {
 
     public void setLabelPosition(Constants.CompassDirection position) {
         labelPosition = position;
-        if(labelType != DisplayBox.STRING) return;
+        if(labelType != LabelType.STRING) return;
         panelParentGroup.remove(jLabelPanelParentGroup);
         panelParentGroup.add(jLabelPanelParentGroup,position.toString());//toString() returns the corresponding BorderLayout constant
 //        support.firePropertyChange("label",oldLabel,label);
@@ -134,8 +133,8 @@ public class DisplayBoxesCAE extends Display implements DataSink {
     
     public void setLabelType(LabelType labelType) {
         this.labelType = labelType;
-        if(labelType != DisplayBox.BORDER) panelParentGroup.setBorder(new javax.swing.border.EmptyBorder(2,2,2,2));
-        if(labelType != DisplayBox.STRING) panelParentGroup.remove(jLabelPanelParentGroup);
+        if(labelType != LabelType.BORDER) panelParentGroup.setBorder(new javax.swing.border.EmptyBorder(2,2,2,2));
+        if(labelType != LabelType.STRING) panelParentGroup.remove(jLabelPanelParentGroup);
         setLabel(jLabelPanelParentGroup.getText());
     }
 

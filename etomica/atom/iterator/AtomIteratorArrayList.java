@@ -36,7 +36,7 @@ public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implement
         if (direction == null)
             throw new IllegalArgumentException(
                     "Must specify direction to constructor of AtomLinkerIterator");
-        upListNow = (direction == IteratorDirective.UP);
+        upListNow = (direction == IteratorDirective.Direction.UP);
 
         this.atomToIndex = atomToIndex;
         this.atomToArrayList = atomToArrayList;

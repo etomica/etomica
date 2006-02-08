@@ -91,22 +91,16 @@ public final class Constants {
      //maybe should rename this "Position", and use UP, DOWN, etc. for Direction
     public static class Direction extends EnumeratedType {
         private Direction(String label) {super(label);}
-        public static final Direction[] CHOICES = new Direction[] {
-            new Direction("Top"),
-            new Direction("Bottom"),
-            new Direction("Left"),
-            new Direction("Right"),
-            new Direction("Front"),
-            new Direction("Back")
-        };
-        public final EnumeratedType[] choices() {return CHOICES;}
+        public static final Direction TOP = new Direction("Top");
+        public static final Direction BOTTOM = new Direction("Bottom");
+        public static final Direction LEFT = new Direction("Left");
+        public static final Direction RIGHT = new Direction("Right");
+        public static final Direction FRONT = new Direction("Front");
+        public static final Direction BACK = new Direction("Back");
+        public static Direction[] choices () {
+            return new Direction[] {TOP,BOTTOM,LEFT,RIGHT,FRONT,BACK};
+        }
     }//end of Direction
-    public static final Direction TOP = Direction.CHOICES[0];
-    public static final Direction BOTTOM = Direction.CHOICES[1];
-    public static final Direction LEFT = Direction.CHOICES[2];
-    public static final Direction RIGHT = Direction.CHOICES[3];
-    public static final Direction FRONT = Direction.CHOICES[4];
-    public static final Direction BACK = Direction.CHOICES[5];
     
     /**
      * Enumerated type for the compass directions NORTH, SOUTH, EAST, WEST.
@@ -114,39 +108,28 @@ public final class Constants {
      */
     public static class CompassDirection extends EnumeratedType {
         private CompassDirection(String label) {super(label);}
-        public static final CompassDirection[] CHOICES = new CompassDirection[] {
-            new CompassDirection("North"),
-            new CompassDirection("South"),
-            new CompassDirection("West"),
-            new CompassDirection("East"),
-        };
-        public final EnumeratedType[] choices() {return CHOICES;}
+        public static final CompassDirection NORTH = new CompassDirection("North");
+        public static final CompassDirection SOUTH = new CompassDirection("South");
+        public static final CompassDirection WEST = new CompassDirection("West");
+        public static final CompassDirection EAST = new CompassDirection("East");
+        public static CompassDirection[] choicse() {
+            return new CompassDirection[] {NORTH,SOUTH,WEST,EAST};
+        }
     }//end of CompassDirection
-    public static final CompassDirection NORTH = CompassDirection.CHOICES[0];
-    public static final CompassDirection SOUTH = CompassDirection.CHOICES[1];
-    public static final CompassDirection WEST = CompassDirection.CHOICES[2];
-    public static final CompassDirection EAST = CompassDirection.CHOICES[3];
     /**
      * Enumerated type for specifying HORIZONTAL/VERTICAL alignment.
      */
     public static class Alignment extends EnumeratedType {
         private Alignment(String label) {super(label);}
-        public static final Alignment[] CHOICES = new Alignment[] {
-            new Alignment("Horizontal (X Plane)"),
-            new Alignment("Vertical (Y Plane)"),
-            new Alignment("Width (Z Plane)")
-        };
-        public final EnumeratedType[] choices() {return CHOICES;}
+
+        public static final Alignment HORIZONTAL = new Alignment("Horizontal (X Plane)");
+        public static final Alignment VERTICAL = new Alignment("Vertical (Y Plane)");
+        public static final Alignment WIDTH = new Alignment("Width (Z Plane)");
+
+        public static Alignment[] choices() {
+            return new Alignment[] {HORIZONTAL,VERTICAL,WIDTH};
+        }
     }
-    public static final Alignment HORIZONTAL = Alignment.CHOICES[0];
-    public static final Alignment VERTICAL = Alignment.CHOICES[1];
-    public static final Alignment WIDTH = Alignment.CHOICES[2];
-    
-    public static final AccumulatorAverage.Type AVERAGE = AccumulatorAverage.AVERAGE;
-    public static final AccumulatorAverage.Type ERROR = AccumulatorAverage.ERROR;
-    public static final AccumulatorAverage.Type MOST_RECENT = AccumulatorAverage.MOST_RECENT;
-    public static final AccumulatorAverage.Type MOST_RECENT_BLOCK = AccumulatorAverage.MOST_RECENT_BLOCK;
-    public static final AccumulatorAverage.Type STANDARD_DEVIATION = AccumulatorAverage.STANDARD_DEVIATION;
     
 }
     

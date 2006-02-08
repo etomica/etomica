@@ -28,8 +28,8 @@ public final class ApiBuilder {
      * set to null).
      */
     public static ApiIntragroup makeAdjacentPairIterator() {
-        AtomIteratorArrayListAdjacent aiInnerUp = new AtomIteratorArrayListAdjacent(IteratorDirective.UP);
-        AtomIteratorArrayListAdjacent aiInnerDn = new AtomIteratorArrayListAdjacent(IteratorDirective.DOWN);
+        AtomIteratorArrayListAdjacent aiInnerUp = new AtomIteratorArrayListAdjacent(IteratorDirective.Direction.UP);
+        AtomIteratorArrayListAdjacent aiInnerDn = new AtomIteratorArrayListAdjacent(IteratorDirective.Direction.DOWN);
         return new ApiIntragroup(aiInnerUp, aiInnerDn);
     }
 
@@ -42,8 +42,8 @@ public final class ApiBuilder {
      * or both (if direction is set to null).
      */
     public static ApiIntragroup makeNonAdjacentPairIterator() {
-        AtomIteratorArrayList aiInnerUp = new AtomIteratorArrayList(IteratorDirective.UP, 2);
-        AtomIteratorArrayList aiInnerDn = new AtomIteratorArrayList(IteratorDirective.DOWN, 2);
+        AtomIteratorArrayList aiInnerUp = new AtomIteratorArrayList(IteratorDirective.Direction.UP, 2);
+        AtomIteratorArrayList aiInnerDn = new AtomIteratorArrayList(IteratorDirective.Direction.DOWN, 2);
         return new ApiIntragroup(aiInnerUp, aiInnerDn);
     }
 
@@ -91,9 +91,9 @@ public final class ApiBuilder {
 
         if (types[0] == types[1]) {
             AtomIteratorFiltered innerUp = AtomIteratorFiltered.makeIterator(
-                    new AtomIteratorArrayList(IteratorDirective.UP, 1), typeFilter);
+                    new AtomIteratorArrayList(IteratorDirective.Direction.UP, 1), typeFilter);
             AtomIteratorFiltered innerDn = AtomIteratorFiltered.makeIterator(
-                    new AtomIteratorArrayList(IteratorDirective.DOWN, 1), typeFilter);
+                    new AtomIteratorArrayList(IteratorDirective.Direction.DOWN, 1), typeFilter);
             return new ApiIntragroup((AtomsetIteratorBasisDependent)outer, 
                     (AtomIteratorAtomDependent)innerUp, (AtomIteratorAtomDependent)innerDn);
         }

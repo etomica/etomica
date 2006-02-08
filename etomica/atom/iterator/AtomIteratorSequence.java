@@ -45,7 +45,7 @@ public class AtomIteratorSequence implements AtomIterator, java.io.Serializable 
         if (direction == null)
             throw new IllegalArgumentException(
                     "Must specify direction to constructor of AtomLinkerIterator");
-        upListNow = (direction == IteratorDirective.UP);
+        upListNow = (direction == IteratorDirective.Direction.UP);
         if (numToSkip < 0) {
             throw new IllegalArgumentException("num to skip must not be negative");
         }
@@ -197,7 +197,7 @@ public class AtomIteratorSequence implements AtomIterator, java.io.Serializable 
      * at construction.
      */
     public IteratorDirective.Direction getDirection() {
-        return upListNow ? IteratorDirective.UP : IteratorDirective.DOWN;
+        return upListNow ? IteratorDirective.Direction.UP : IteratorDirective.Direction.DOWN;
     }
 
     private final boolean upListNow;

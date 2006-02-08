@@ -2,6 +2,7 @@ package etomica.util;
 
 import etomica.data.DataSource;
 import etomica.data.DataSourceUniform;
+import etomica.data.DataSourceUniform.LimitType;
 
 /**
  * History that records a number of values.  When existing 
@@ -17,8 +18,8 @@ public class HistoryCollapsing implements History {
     public HistoryCollapsing() {this(100);}
     public HistoryCollapsing(int n) {
         xSource = new DataSourceUniform();
-        xSource.setTypeMin(DataSourceUniform.INCLUSIVE);
-        xSource.setTypeMax(DataSourceUniform.INCLUSIVE);
+        xSource.setTypeMin(LimitType.INCLUSIVE);
+        xSource.setTypeMax(LimitType.INCLUSIVE);
         xSource.setXMin(0.0);
         setHistoryLength(n);
         reset();

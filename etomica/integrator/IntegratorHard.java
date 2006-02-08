@@ -57,8 +57,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
     CoordinatePair cPairDebug;
     AtomPair debugPair;
 
-    protected final IteratorDirective upList = new IteratorDirective(IteratorDirective.UP);
-    protected final IteratorDirective downList = new IteratorDirective(IteratorDirective.DOWN);
+    protected final IteratorDirective upList = new IteratorDirective(IteratorDirective.Direction.UP);
+    protected final IteratorDirective downList = new IteratorDirective(IteratorDirective.Direction.DOWN);
     protected final AtomArrayList listToUpdate = new AtomArrayList();
     protected final TreeList eventList = new TreeList();
 

@@ -257,7 +257,7 @@ public class AccumulatorAverage extends DataAccumulator {
      *            array indicating the statistics to be included in the
      *            DataGroup sent to the sink.
      */
-    public void addDataSink(DataSink dataSink, Type[] types) {
+    public void addDataSink(DataSink dataSink, StatType[] types) {
         int[] indexes = new int[types.length];
         for (int i = 0; i < types.length; i++) {
             indexes[i] = types[i].index;
@@ -276,45 +276,31 @@ public class AccumulatorAverage extends DataAccumulator {
     }
 
     /**
-     * Returns an array with all the choices of enumerated types that specify
-     * the statistics made by this accumulator.
-     */
-    public EnumeratedType[] dataChoices() {
-        return CHOICES;
-    }
-
-    /**
      * Enumerated type that can be used to indicated the statistic to be taken
      * from the accumulator (e.g., average, error, current value, etc.). An
      * array of these types can be given to the addDataSink method to specify
      * the type of statistics to be given to the DataSink.
      */
-    public static class Type extends EnumeratedType {
+    public static class StatType extends EnumeratedType {
 
-        protected Type(String label, int index) {
+        protected StatType(String label, int index) {
             super(label);
             this.index = index;
         }
 
-        public EnumeratedType[] choices() {
-            return CHOICES;
+        public static final StatType MOST_RECENT = new StatType("Latest value", 0);
+        public static final StatType AVERAGE = new StatType("Average", 1);
+        public static final StatType ERROR = new StatType("67% Confidence limits", 2);
+        public static final StatType STANDARD_DEVIATION = new StatType("Standard deviation", 3);
+        public static final StatType MOST_RECENT_BLOCK = new StatType("Latest block average", 4);
+        public static final StatType BLOCK_CORRELATION = new StatType("Block correlation", 5);
+        public static StatType[] choices() {
+            return new StatType[] {MOST_RECENT,AVERAGE,ERROR,STANDARD_DEVIATION,MOST_RECENT_BLOCK,BLOCK_CORRELATION};
         }
-
+        
         public final int index;
     }//end of ValueType
 
-    protected static final Type[] CHOICES = new Type[] {
-            new Type("Latest value", 0), new Type("Average", 1),
-            new Type("67% Confidence limits", 2),
-            new Type("Standard deviation", 3),
-            new Type("Latest block average", 4),
-            new Type("Block correlation", 5) };
-    public static final Type MOST_RECENT = CHOICES[0];
-    public static final Type AVERAGE = CHOICES[1];
-    public static final Type ERROR = CHOICES[2];
-    public static final Type STANDARD_DEVIATION = CHOICES[3];
-    public static final Type MOST_RECENT_BLOCK = CHOICES[4];
-    public static final Type BLOCK_CORRELATION = CHOICES[5];
 
     protected DataArithmetic sum; //sum(blockSum/blkSize) = sum(blockAvg)
     protected DataArithmetic sumSquare;//sum(blockAvg^2)

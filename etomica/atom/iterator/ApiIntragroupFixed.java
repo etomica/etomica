@@ -30,7 +30,7 @@ public class ApiIntragroupFixed extends ApiIntergroup implements
         else {
             Atom target = targetAtoms.getAtom(0);
             if (aiInner.haveTarget(target)) {
-                if (direction == IteratorDirective.DOWN) {
+                if (direction == IteratorDirective.Direction.DOWN) {
                     aiOuter.setBasis(basisAtom);
                     aiInner.setBasis(basisAtom);
                     aiOuter.setTarget(emptyTarget);
@@ -42,7 +42,7 @@ public class ApiIntragroupFixed extends ApiIntergroup implements
                     aiOuter.setBasis(null);
                 }
             } else {
-                if (direction == IteratorDirective.UP) {
+                if (direction == IteratorDirective.Direction.UP) {
                     aiOuter.setBasis(basisAtom);
                     aiInner.setBasis(basisAtom);
                     aiOuter.setTarget(target);

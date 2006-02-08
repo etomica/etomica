@@ -41,32 +41,33 @@ public class PhaseEvent extends java.util.EventObject {
     protected Type type;
     protected int index;
     
+    public static final Type ATOM_ADDED =        new Type("Atom added");
+    public static final Type ATOM_REMOVED =      new Type("Atom removed");
+    public static final Type ATOM_CHANGE_INDEX = new Type("Atom changed index");
+    public static final Type GLOBAL_INDEX =      new Type("Max global index decreased");
+
     public static class Type extends EnumeratedType {
+
+        protected Type(String label) {super(label);}
+
+        public static Type[] choices() {
+            return new Type[] {ATOM_ADDED,ATOM_REMOVED,ATOM_CHANGE_INDEX,GLOBAL_INDEX};
+        }
 
         /**
          * Required to guarantee singleton when deserializing.
          * @return the singleton INSTANCE
          */
         private Object readResolve() {
-            for (int i=0; i<CHOICES.length; i++) {
-                if (this.toString().equals(CHOICES[i].toString())) {
-                    return CHOICES[i];
+            Type[] choices = choices();
+            for (int i=0; i<choices.length; i++) {
+                if (this.toString().equals(choices[i].toString())) {
+                    return choices[i];
                 }
             }
             throw new RuntimeException("unknown PhaseEvent type: "+this);
         }
 
-        private Type(String label) {super(label);}
-        public static final Type[] CHOICES = new Type[] {
-            new Type("Atom added"),
-            new Type("Atom removed"),
-            new Type("Atom changed index"),
-            new Type("Max global index decreased")};
-        public final EnumeratedType[] choices() {return CHOICES;}
     }
-    public static final Type ATOM_ADDED =        Type.CHOICES[0];
-    public static final Type ATOM_REMOVED =      Type.CHOICES[1];
-    public static final Type ATOM_CHANGE_INDEX = Type.CHOICES[2];
-    public static final Type GLOBAL_INDEX =      Type.CHOICES[3];
 }//end of PhaseEvent
     

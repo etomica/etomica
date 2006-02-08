@@ -58,7 +58,7 @@ public class PotentialCalculationUpdateTypeList extends PotentialCalculation {
             break;
         case 2:
             if (iterator instanceof AtomsetIteratorDirectable) {
-                ((AtomsetIteratorDirectable)iterator).setDirection(IteratorDirective.UP);
+                ((AtomsetIteratorDirectable)iterator).setDirection(IteratorDirective.Direction.UP);
             }
             iterator.reset();
             if (iterator.hasNext()) {

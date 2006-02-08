@@ -22,27 +22,30 @@ public class SimulationEvent extends java.util.EventObject {
     protected Type type;
     protected Phase phase;
 
+    public static final Type PHASE_ADDED =   new Type("Phase added");
+    public static final Type PHASE_REMOVED = new Type("Phase removed");
+
     public static class Type extends EnumeratedType {
+
+        protected Type(String label) {super(label);}
+
+        public static Type[] choices() {
+            return new Type[] {PHASE_ADDED,PHASE_REMOVED};
+        }
 
         /**
          * Required to guarantee singleton when deserializing.
          * @return the singleton INSTANCE
          */
         private Object readResolve() {
-            for (int i=0; i<CHOICES.length; i++) {
-                if (this.toString().equals(CHOICES[i].toString())) {
-                    return CHOICES[i];
+            Type[] choices = choices();
+            for (int i=0; i<choices.length; i++) {
+                if (this.toString().equals(choices[i].toString())) {
+                    return choices[i];
                 }
             }
             throw new RuntimeException("unknown PhaseEvent type: "+this);
         }
 
-        private Type(String label) {super(label);}
-        public static final Type[] CHOICES = new Type[] {
-            new Type("Phase added"),
-            new Type("Phase removed")};
-        public final EnumeratedType[] choices() {return CHOICES;}
     }
-    public static final Type PHASE_ADDED =        Type.CHOICES[0];
-    public static final Type PHASE_REMOVED =      Type.CHOICES[1];
 }

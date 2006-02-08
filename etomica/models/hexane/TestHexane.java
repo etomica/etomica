@@ -13,12 +13,11 @@ import etomica.atom.iterator.AtomIteratorArrayList;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
+import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DisplayPhase;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntervalActionAdapter;
@@ -198,8 +197,8 @@ public class TestHexane extends Simulation {
         //The inner iterator runs through
         //The outer iterator runs through
         //Similar to ApiBuilder.makeNonAdjacentPairIterator
-        AtomIteratorArrayList aiInnerUp = new AtomIteratorArrayList(IteratorDirective.UP, 3);
-        AtomIteratorArrayList aiInnerDn = new AtomIteratorArrayList(IteratorDirective.DOWN, 3);
+        AtomIteratorArrayList aiInnerUp = new AtomIteratorArrayList(IteratorDirective.Direction.UP, 3);
+        AtomIteratorArrayList aiInnerDn = new AtomIteratorArrayList(IteratorDirective.Direction.DOWN, 3);
         ApiIntragroup intra = new ApiIntragroup(aiInnerUp, aiInnerDn);
 
         //Now we add this potential to the PotentialGroup.
@@ -251,7 +250,7 @@ public class TestHexane extends Simulation {
         //sim.getController().actionPerformed();
 
         double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData())
-                .getData(AccumulatorAverage.AVERAGE.index)).x;
+                .getData(StatType.AVERAGE.index)).x;
         System.out.println("PE  " + avgPE);
         
         SimulationGraphic simGraphic = new SimulationGraphic(sim);

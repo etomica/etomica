@@ -133,7 +133,7 @@ public class RectangularLatticeNbrIteratorAdjacent extends
                 setSize(800,800);
 
                 //generate down neighbors and color them green
-                iterator.setDirection(IteratorDirective.DOWN);
+                iterator.setDirection(IteratorDirective.Direction.DOWN);
                 iterator.reset();
                 while(iterator.hasNext()) {
                     MySite site = (MySite)iterator.next();
@@ -141,7 +141,7 @@ public class RectangularLatticeNbrIteratorAdjacent extends
                     site.color = java.awt.Color.GREEN.darker();
                 }
                 //generate up neighbors and color them blue
-                iterator.setDirection(IteratorDirective.UP);
+                iterator.setDirection(IteratorDirective.Direction.UP);
 //                iterator.setDirection(null);
                 iterator.reset();
                 while(iterator.hasNext()) {

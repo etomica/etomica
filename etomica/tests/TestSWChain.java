@@ -8,6 +8,7 @@ import etomica.config.ConfigurationFile;
 import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
+import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataDouble;
@@ -119,12 +120,12 @@ public class TestSWChain extends Simulation {
         
         pMeter.setPhase(sim.phase);
         double Z = pMeter.getDataAsScalar()*sim.phase.volume()/(sim.phase.moleculeCount()*sim.integrator.getTemperature());
-        double avgPE = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
+        double avgPE = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(StatType.AVERAGE.index)).x;
         avgPE /= numMolecules;
         System.out.println("Z="+Z);
         System.out.println("PE/epsilon="+avgPE);
         double temp = sim.integrator.getTemperature();
-        double Cv = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index)).x;
+        double Cv = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(StatType.STANDARD_DEVIATION.index)).x;
         Cv /= temp;
         Cv *= Cv/numMolecules;
         System.out.println("Cv/k="+Cv);

@@ -8,6 +8,7 @@ import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.DataSourceUniform;
+import etomica.data.DataSourceUniform.LimitType;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.phase.Phase;
@@ -33,8 +34,8 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
 	    this.space = space;
 
         xDataSource = new DataSourceUniform("r", Length.DIMENSION);
-        xDataSource.setTypeMax(DataSourceUniform.HALF_STEP);
-        xDataSource.setTypeMin(DataSourceUniform.HALF_STEP);
+        xDataSource.setTypeMax(LimitType.HALF_STEP);
+        xDataSource.setTypeMin(LimitType.HALF_STEP);
         
         rData = (DataDoubleArray)xDataSource.getData();
         gData = new DataDoubleArray("g(r)", Null.DIMENSION,rData.getLength());

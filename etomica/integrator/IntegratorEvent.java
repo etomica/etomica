@@ -19,10 +19,6 @@ public class IntegratorEvent implements java.io.Serializable {
 
     // Typed constants used to indicate the type of event integrator is
     // announcing
-    public static final Type START =      new Type("Start",      1); //simulation is starting
-    public static final Type INITIALIZE = new Type("Initialize", 2); //integrator is initializing
-    public static final Type INTERVAL =   new Type("Interval",   4); //routine interval event
-    public static final Type DONE =       new Type("Done",       8); //simulation is finished
     
     private final Type type;
     private Integrator source;
@@ -44,18 +40,14 @@ public class IntegratorEvent implements java.io.Serializable {
     }
 
     //class used to mark the different types of interval events
-    public final static class Type extends EnumeratedType {
-        public final int mask;
-        private Type(String label, int mask) {
+    public static class Type extends EnumeratedType {
+        protected Type(String label) {
             super(label);
-            this.mask = mask;
         }
 
-        public static final Type[] choices = new Type[] {
-                START, INTERVAL, DONE, INITIALIZE };
-
-        public final EnumeratedType[] choices() {
-            return choices;
+        public static Type[] choices() {
+            return new Type[]{IntegratorIntervalEvent.INTERVAL, IntegratorNonintervalEvent.START, 
+                    IntegratorNonintervalEvent.INITIALIZE, IntegratorNonintervalEvent.DONE};
         }
     }
 

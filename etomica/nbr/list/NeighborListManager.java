@@ -20,6 +20,7 @@ import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
 import etomica.integrator.IntegratorPhase;
+import etomica.integrator.IntegratorNonintervalEvent.NonintervalEventType;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.cell.ApiAACell;
 import etomica.phase.Phase;

@@ -438,17 +438,17 @@ public class PistonCylinderGraphic {
         
         densityDisplayBox = new DisplayBoxesCAE();
         densityDisplayBox.setLabel("Density (mol/L)");
-        densityDisplayBox.setLabelType(DisplayBox.BORDER);
+        densityDisplayBox.setLabelType(DisplayBox.LabelType.BORDER);
         dataPanel.add(densityDisplayBox.graphic(),gbc2);
         
         temperatureDisplayBox = new DisplayBoxesCAE();
         temperatureDisplayBox.setLabel("Temperature (K)");
-        temperatureDisplayBox.setLabelType(DisplayBox.BORDER);
+        temperatureDisplayBox.setLabelType(DisplayBox.LabelType.BORDER);
         dataPanel.add(temperatureDisplayBox.graphic(),gbc2);
         
         pressureDisplayBox = new DisplayBoxesCAE();
         pressureDisplayBox.setLabel("Pressure (bar)");
-        pressureDisplayBox.setLabelType(DisplayBox.BORDER);
+        pressureDisplayBox.setLabelType(DisplayBox.LabelType.BORDER);
         dataPanel.add(pressureDisplayBox.graphic(),gbc2);
         
         JPanel leftPanel = new JPanel(new GridBagLayout());

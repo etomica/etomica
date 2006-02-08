@@ -18,7 +18,7 @@ import etomica.graphics.DisplayTable;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.units.Kelvin;
 import etomica.units.PrefixedUnit;
-import etomica.util.Constants;
+import etomica.util.Constants.CompassDirection;
 
 /**
  * @author William Scharmach
@@ -95,7 +95,7 @@ public class ReactionEquilibriumGraphic {
         new IntervalActionAdapter(pump,sim.integratorHard1);
 
         DataSinkTable dataTable = new DataSinkTable();
-        accumulator.addDataSink(dataTable,new AccumulatorAverage.Type[]{AccumulatorAverage.AVERAGE});
+        accumulator.addDataSink(dataTable,new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
         DisplayTable THING = new DisplayTable(dataTable);
         THING.setRowLabels(new String[] { "monomer", "dimer", "trimer", "4-mer", "5-mer", "6-mer", "7-10-mer", "11-13-mer", "14-25-mer",">25-mer"});
         THING.setTransposed(false);
@@ -146,7 +146,7 @@ public class ReactionEquilibriumGraphic {
 
         tBox.setUnit(Kelvin.UNIT);
         tBox.setLabel("Measured value");
-        tBox.setLabelPosition(Constants.NORTH);
+        tBox.setLabelPosition(CompassDirection.NORTH);
         //dimerfractionaccum.addDataSink(table.getDataTable().makeColumn(Dimension.FRACTION));
 
         //dimerfractionhistory.addDataSink (compositionplot.getDataTable().makeColumn(Dimension.FRACTION));

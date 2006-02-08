@@ -47,7 +47,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     
     public synchronized void addAction(Action newAction) {
         super.addAction(newAction);
-        actionStatusMap.put(newAction,PENDING);
+        actionStatusMap.put(newAction,ActionStatus.PENDING);
         // don't need to add to the exception map because HashMap will return
         // null if we don't add it.
     }
@@ -64,7 +64,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     public synchronized void reset() {
         for (int i=0; i<completedActions.length; i++) {
             actionStatusMap.remove(completedActions[i]);
-            actionStatusMap.put(completedActions[i],PENDING);
+            actionStatusMap.put(completedActions[i],ActionStatus.PENDING);
             actionExceptionMap.remove(completedActions[i]);
         }
         super.reset();
@@ -102,7 +102,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                 //removeAction will remove the action from the status map
                 removeAction(currentAction);
                 //put it back
-                actionStatusMap.put(currentAction,CURRENT);
+                actionStatusMap.put(currentAction,ActionStatus.CURRENT);
             }
             fireEvent(new ControllerEvent(this, ControllerEvent.START_ACTION, currentAction));
             if(currentAction instanceof Activity) {
@@ -154,14 +154,14 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                 //update the action's status
                 actionStatusMap.remove(currentAction);
                 if (waitObject.actionException != null) {
-                    actionStatusMap.put(currentAction,FAILED);
+                    actionStatusMap.put(currentAction,ActionStatus.FAILED);
                     actionExceptionMap.put(currentAction,waitObject.actionException);
                 }
                 else if (haltRequested) {
-                    actionStatusMap.put(currentAction,STOPPED);
+                    actionStatusMap.put(currentAction,ActionStatus.STOPPED);
                 }
                 else {
-                    actionStatusMap.put(currentAction,COMPLETED);
+                    actionStatusMap.put(currentAction,ActionStatus.COMPLETED);
                 }
                 completedActions = (Action[])Arrays.addObject(completedActions, currentAction);
                 fireEvent(new ControllerEvent(this, ControllerEvent.END_ACTION, currentAction));
@@ -357,31 +357,30 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
         protected ActionStatus(String label) {
             super(label);
         }       
-        public EnumeratedType[] choices() {return CHOICES;}
+
+        public static final ActionStatus PENDING = new ActionStatus("Pending");
+        public static final ActionStatus CURRENT = new ActionStatus("Current");
+        public static final ActionStatus COMPLETED = new ActionStatus("Completed");
+        public static final ActionStatus STOPPED = new ActionStatus("Stopped");
+        public static final ActionStatus FAILED = new ActionStatus("Failed");
+
+        public ActionStatus[] choices() { 
+            return new ActionStatus[] {PENDING,CURRENT,COMPLETED,STOPPED,FAILED};
+        }
+        
         /**
          * Required to guarantee singleton when deserializing.
          * @return the singleton INSTANCE
          */
         private Object readResolve() {
-            for (int i=0; i<CHOICES.length; i++) {
-                if (this.toString().equals(CHOICES[i].toString())) {
-                    return CHOICES[i];
+            ActionStatus[] choices = choices();
+            for (int i=0; i<choices.length; i++) {
+                if (this.toString().equals(choices[i].toString())) {
+                    return choices[i];
                 }
             }
             throw new RuntimeException("unknown action status: "+this);
         }
     }
-    protected static final ActionStatus[] CHOICES = 
-        new ActionStatus[] {
-            new ActionStatus("Pending"),
-            new ActionStatus("Current"), 
-            new ActionStatus("Completed"),
-            new ActionStatus("Stopped"),
-            new ActionStatus("Failed")};
-    public static final ActionStatus PENDING = CHOICES[0];
-    public static final ActionStatus CURRENT = CHOICES[1];
-    public static final ActionStatus COMPLETED = CHOICES[2];
-    public static final ActionStatus STOPPED = CHOICES[3];
-    public static final ActionStatus FAILED = CHOICES[4];
 
 }

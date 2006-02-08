@@ -133,7 +133,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                 break;
             case 2:
                 AtomArrayList[] list;
-                if (direction != IteratorDirective.DOWN) {
+                if (direction != IteratorDirective.Direction.DOWN) {
                     list = neighborManager.getUpList(atom);
 //                  list.length may be less than potentials.length, if atom hasn't yet interacted with another using one of the potentials
                     if(i < list.length) {
@@ -142,7 +142,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                         pc.doCalculation(pairIterator, id, potentials[i]);
                     }
                 }
-                if (direction != IteratorDirective.UP) {
+                if (direction != IteratorDirective.Direction.UP) {
                     list = neighborManager.getDownList(atom);
                     if(i < list.length) {
                         atomIterator.setList(list[i]);

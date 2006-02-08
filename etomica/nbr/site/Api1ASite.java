@@ -67,18 +67,18 @@ public class Api1ASite implements AtomsetIteratorMolecule, AtomPairIterator {
         
         //loop over neighbor cells
         neighborIterator.setSite(latticeIndex);
-        if (direction != IteratorDirective.DOWN) {
+        if (direction != IteratorDirective.Direction.DOWN) {
             pair.atom0 = targetAtom;
-            neighborIterator.setDirection(IteratorDirective.UP);
+            neighborIterator.setDirection(IteratorDirective.Direction.UP);
             neighborIterator.reset();
             while(neighborIterator.hasNext()) {
                 pair.atom1 = ((AtomSite)neighborIterator.next()).getAtom();
                 action.actionPerformed(pair);
             }
         }
-        if (direction != IteratorDirective.UP) {
+        if (direction != IteratorDirective.Direction.UP) {
             pair.atom1 = targetAtom;
-            neighborIterator.setDirection(IteratorDirective.DOWN);
+            neighborIterator.setDirection(IteratorDirective.Direction.DOWN);
             neighborIterator.reset();
             while(neighborIterator.hasNext()) {
                 pair.atom0 = ((AtomSite)neighborIterator.next()).getAtom();
@@ -127,7 +127,7 @@ public class Api1ASite implements AtomsetIteratorMolecule, AtomPairIterator {
             }
             else if (doGoDown) {
                 upListNow = false;
-                neighborIterator.setDirection(IteratorDirective.DOWN);
+                neighborIterator.setDirection(IteratorDirective.Direction.DOWN);
                 neighborIterator.reset();
                 next = ((AtomSite)neighborIterator.next()).getAtom();
             }
@@ -174,14 +174,14 @@ public class Api1ASite implements AtomsetIteratorMolecule, AtomPairIterator {
             return;
         }
         lattice.latticeIndex(centralSite.latticeArrayIndex,latticeIndex);
-        upListNow = (direction != IteratorDirective.DOWN);
+        upListNow = (direction != IteratorDirective.Direction.DOWN);
         neighborIterator.setSite(latticeIndex);
         if (upListNow) {
-            neighborIterator.setDirection(IteratorDirective.UP);
+            neighborIterator.setDirection(IteratorDirective.Direction.UP);
             pair.atom0 = targetAtom;
         }
         else {
-            neighborIterator.setDirection(IteratorDirective.DOWN);
+            neighborIterator.setDirection(IteratorDirective.Direction.DOWN);
             pair.atom1 = targetAtom;
         }
         neighborIterator.reset();
@@ -196,7 +196,7 @@ public class Api1ASite implements AtomsetIteratorMolecule, AtomPairIterator {
      */
     public void setDirection(Direction direction) {
         this.direction = direction;
-        doGoDown = (direction != IteratorDirective.UP);
+        doGoDown = (direction != IteratorDirective.Direction.UP);
     }
 
     /**

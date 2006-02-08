@@ -77,7 +77,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             //no target atoms specified -- do one-target algorithm to
             // SpeciesMaster
             neighborIterator.setPhase(phase);
-            neighborIterator.setDirection(IteratorDirective.UP);
+            neighborIterator.setDirection(IteratorDirective.Direction.UP);
             calculate(phase.getSpeciesMaster(), idUp, pc, getPotentials(
                     phase.getSpeciesMaster().type).getPotentials());
             if (lrcMaster != null) {

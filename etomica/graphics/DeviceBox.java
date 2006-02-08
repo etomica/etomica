@@ -34,7 +34,7 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
      * Descriptive text label to be displayed with the value
      */
     protected JLabel label;
-    private Constants.CompassDirection labelPosition = Constants.NORTH;
+    private Constants.CompassDirection labelPosition = Constants.CompassDirection.NORTH;
     /**
      * Object for displaying the value as a text field
      */
@@ -76,7 +76,7 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
         value = new JTextField("");
         value.setEditable(true);
         panel.add(value, java.awt.BorderLayout.CENTER);
-        setLabelType(STRING);
+        setLabelType(LabelType.STRING);
  //       panel.setMinimumSize(new java.awt.Dimension(80,60));
         unit = etomica.units.Null.UNIT;
         setPrecision(4);
@@ -185,10 +185,10 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
      */
     public void setLabel(String s) {
         label.setText(s);
-        if(labelType == BORDER) {
+        if(labelType == LabelType.BORDER) {
             panel.setBorder(new javax.swing.border.TitledBorder(s));
         }
-        if(labelType == STRING) setLabelPosition(labelPosition);
+        if(labelType == LabelType.STRING) setLabelPosition(labelPosition);
 /*        JLabel oldLabel = label;
         label = new JLabel(s);
         panel.remove(oldLabel);
@@ -203,8 +203,8 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
 
     public void setLabelType(LabelType labelType) {
         this.labelType = labelType;
-        if(labelType != BORDER) panel.setBorder(new javax.swing.border.EmptyBorder(2,2,2,2));
-        if(labelType != STRING) panel.remove(label);
+        if(labelType != LabelType.BORDER) panel.setBorder(new javax.swing.border.EmptyBorder(2,2,2,2));
+        if(labelType != LabelType.STRING) panel.remove(label);
         setLabel(label.getText());
     }
     public LabelType getLabelType() {
@@ -213,7 +213,7 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
 
     public void setLabelPosition(Constants.CompassDirection position) {
         labelPosition = position;
-        if(labelType != STRING) return;
+        if(labelType != LabelType.STRING) return;
         panel.remove(label);
         panel.add(label,position.toString());//toString() returns the corresponding BorderLayout constant
 //        support.firePropertyChange("label",oldLabel,label);
@@ -399,13 +399,12 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
      
 	public static class LabelType extends EnumeratedType {
         public LabelType(String label) {super(label);}       
-        public EnumeratedType[] choices() {return (EnumeratedType[])CHOICES;}
-        public static final LabelType[] CHOICES = 
-            new LabelType[] {
-                new LabelType("Border"),
-                new LabelType("String")};
-    }//end of LabelType
-    public static final LabelType BORDER = LabelType.CHOICES[0];
-    public static final LabelType STRING = LabelType.CHOICES[1];
+        public static final LabelType BORDER = new LabelType("Border");
+        public static final LabelType STRING = new LabelType("String");
+
+        public static final LabelType[] choices() { 
+            return new LabelType[] {BORDER,STRING};
+        }
+    }
     
 }

@@ -29,7 +29,7 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.units.Dimension;
 import etomica.units.Kelvin;
 import etomica.units.PrefixedUnit;
-import etomica.util.Constants;
+import etomica.util.Constants.CompassDirection;
 
 /**
  * @author William Scharmach
@@ -181,7 +181,7 @@ public class ReactionEquilibriumGraphic {
 		tAdapter.setActionInterval(100);
         tBox.setUnit(Kelvin.UNIT);
 		tBox.setLabel("Measured value");
-		tBox.setLabelPosition(Constants.NORTH);
+		tBox.setLabelPosition(CompassDirection.NORTH);
 
 		//display of averages
         DataFork dimerFork = new DataFork();

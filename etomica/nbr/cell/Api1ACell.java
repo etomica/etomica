@@ -56,8 +56,8 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
         //construct with AtomToLinker that gives appropriate linker
 //        MyAtomToLinker atomToLinker = new MyAtomToLinker();
         atomToArrayListFixed = new AtomToArrayListFixed();
-        aiSeqDirectableUp = new AtomIteratorArrayList(IteratorDirective.UP, 1, atomToArrayListFixed, atomToArrayListFixed);
-        aiSeqDirectableDn = new AtomIteratorArrayList(IteratorDirective.DOWN, 1, atomToArrayListFixed, atomToArrayListFixed);
+        aiSeqDirectableUp = new AtomIteratorArrayList(IteratorDirective.Direction.UP, 1, atomToArrayListFixed, atomToArrayListFixed);
+        aiSeqDirectableDn = new AtomIteratorArrayList(IteratorDirective.Direction.DOWN, 1, atomToArrayListFixed, atomToArrayListFixed);
         nbrCellListIteratorInner = new ApiSequence1A(aiSeqDirectableUp,aiSeqDirectableDn); //used only by allAtoms
         nbrCellListIteratorUp = new ApiInnerFixed(aiOuter, aiSeq);//used only by allAtoms
         nbrCellListIteratorDn = new ApiInnerFixed(aiOuter, aiSeq, true);//used only by allAtoms
@@ -92,8 +92,8 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
 
         //loop over neighbor cells up from central cell
         neighborIterator.setSite(latticeIndex);
-        if (direction != IteratorDirective.DOWN) {
-            neighborIterator.setDirection(IteratorDirective.UP);
+        if (direction != IteratorDirective.Direction.DOWN) {
+            neighborIterator.setDirection(IteratorDirective.Direction.UP);
             neighborIterator.reset();
             while(neighborIterator.hasNext()) {
                 Cell neighborCell = (Cell)neighborIterator.next();
@@ -103,8 +103,8 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
         }
 
         //loop over neighbor cells down from central cell
-        if (direction != IteratorDirective.UP) {
-            neighborIterator.setDirection(IteratorDirective.DOWN);
+        if (direction != IteratorDirective.Direction.UP) {
+            neighborIterator.setDirection(IteratorDirective.Direction.DOWN);
             neighborIterator.reset();
             while(neighborIterator.hasNext()) {
                 Cell neighborCell = (Cell)neighborIterator.next(); 
@@ -190,11 +190,11 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
             return;
         }
         inCentralCell = true;
-        upListNow = (direction != IteratorDirective.DOWN);
+        upListNow = (direction != IteratorDirective.Direction.DOWN);
         neighborIterator.checkDimensions();
         lattice.latticeIndex(centralCell.latticeArrayIndex,latticeIndex);
         neighborIterator.setSite(latticeIndex);
-        neighborIterator.setDirection(upListNow ? IteratorDirective.UP : IteratorDirective.DOWN);
+        neighborIterator.setDirection(upListNow ? IteratorDirective.Direction.UP : IteratorDirective.Direction.DOWN);
         neighborIterator.reset();
         needUpdate = false;
         
@@ -231,7 +231,7 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
      */
     public void setDirection(Direction direction) {
         this.direction = direction;
-        doGoDown = (direction != IteratorDirective.UP);
+        doGoDown = (direction != IteratorDirective.Direction.UP);
         neighborIterator.setDirection(direction);
         nbrCellListIteratorInner.setDirection(direction);
     }
@@ -287,7 +287,7 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
                 aiSeq.reset();
             } else if (upListNow && doGoDown) {
                 upListNow = false;
-                neighborIterator.setDirection(IteratorDirective.DOWN);
+                neighborIterator.setDirection(IteratorDirective.Direction.DOWN);
                 neighborIterator.reset();
                 aiSeq.setList(((Cell)neighborIterator.next()).occupants());
                 aiSeq.reset();

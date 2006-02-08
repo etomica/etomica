@@ -211,7 +211,7 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
         return atoms;
     }
     
-    private final IteratorDirective.Direction UP = IteratorDirective.UP;
-    private final IteratorDirective.Direction DOWN = IteratorDirective.DOWN;
+    private final IteratorDirective.Direction UP = IteratorDirective.Direction.UP;
+    private final IteratorDirective.Direction DOWN = IteratorDirective.Direction.DOWN;
 
 }

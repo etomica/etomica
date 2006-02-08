@@ -30,8 +30,8 @@ public class AtomIteratorSequenceTest extends ListIteratorTestAbstract {
     }
 
     public void setUp() {
-        upIterator = new AtomIteratorSequence(IteratorDirective.UP);
-        dnIterator = new AtomIteratorSequence(IteratorDirective.DOWN);
+        upIterator = new AtomIteratorSequence(IteratorDirective.Direction.UP);
+        dnIterator = new AtomIteratorSequence(IteratorDirective.Direction.DOWN);
 
     }
     

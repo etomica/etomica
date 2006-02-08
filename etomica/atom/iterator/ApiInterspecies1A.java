@@ -147,7 +147,7 @@ public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorMolec
             AtomTreeNode targetNode = targetAtom.node
                     .childWhereDescendedFrom(agentNode0);
             if (targetNode != null) { //target is species0
-                allowedDirection = IteratorDirective.UP;
+                allowedDirection = IteratorDirective.Direction.UP;
                 iterator = apiUp;
                 targetMolecule = targetNode.atom();
                 aiInner.setList(agentNode1.childList);
@@ -156,7 +156,7 @@ public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorMolec
                         .childWhereDescendedFrom(agentNode1);
 
                 if (targetNode != null) {//target is species1
-                    allowedDirection = IteratorDirective.DOWN;
+                    allowedDirection = IteratorDirective.Direction.DOWN;
                     iterator = apiDown;
                     targetMolecule = targetNode.atom();
                     aiInner.setList(agentNode0.childList);

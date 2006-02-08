@@ -215,7 +215,7 @@ public abstract class IteratorTestAbstract extends TestCase {
         LinkedList list = generalIteratorMethodTests(iterator);
         Lister test = new Lister();
         for(int i=0; i<partners.length; i++) {
-            if(direction == IteratorDirective.UP) {
+            if(direction == IteratorDirective.Direction.UP) {
                 test.actionPerformed(new AtomPair(iterate, partners[i]));
             } else {
                 test.actionPerformed(new AtomPair(partners[i], iterate));

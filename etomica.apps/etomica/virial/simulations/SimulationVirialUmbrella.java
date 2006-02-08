@@ -86,8 +86,8 @@ public class SimulationVirialUmbrella extends SimulationVirial {
 			sim.ai.run();
             AccumulatorRatioAverage acc = (AccumulatorRatioAverage)sim.accumulator;
             DataGroup allYourBase = (DataGroup)acc.getData();
-            System.out.println("average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.RATIO.index)).getData()[1]
-                              +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.RATIO_ERROR.index)).getData()[1]);
+            System.out.println("average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
+                              +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
 //		}
 	}
 }

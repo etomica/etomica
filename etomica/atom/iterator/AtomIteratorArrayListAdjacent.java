@@ -51,10 +51,10 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
         if(atom == null || atom.count() != 1) return false;
         Atom testAtom = atom.getAtom(0);
         if(testAtom == null) return false;
-        if(direction != IteratorDirective.DOWN && firstCursor < list.size()-1 && list.get(firstCursor+1) == testAtom) {
+        if(direction != IteratorDirective.Direction.DOWN && firstCursor < list.size()-1 && list.get(firstCursor+1) == testAtom) {
             return true;
         }
-        if(direction != IteratorDirective.UP && firstCursor > 0 && list.get(firstCursor-1) == testAtom) {
+        if(direction != IteratorDirective.Direction.UP && firstCursor > 0 && list.get(firstCursor-1) == testAtom) {
             return true;
         }
         return false;
@@ -67,10 +67,10 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
      */
     public int size() {
         int size = 0;
-        if(direction != IteratorDirective.DOWN && (firstCursor < list.size()-1)) {
+        if(direction != IteratorDirective.Direction.DOWN && (firstCursor < list.size()-1)) {
             size++;
         }
-        if(direction != IteratorDirective.UP && (firstCursor > 0)) {
+        if(direction != IteratorDirective.Direction.UP && (firstCursor > 0)) {
             size++;
         }
         return size;
@@ -80,12 +80,12 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
      * Performs action on all iterates for current condition of iterator.
      */
     public void allAtoms(AtomsetAction action) {
-        if(direction != IteratorDirective.DOWN) {
+        if(direction != IteratorDirective.Direction.DOWN) {
             if (firstCursor < list.size()-1) {
                 action.actionPerformed(list.get(firstCursor+1));
             }
         }
-        if (direction != IteratorDirective.UP) {
+        if (direction != IteratorDirective.Direction.UP) {
             if (firstCursor > 0) {
                 action.actionPerformed(list.get(firstCursor-1));
             }
@@ -122,7 +122,7 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
         }
         if(upListNow) {
             upListNow = false;
-            if (direction == IteratorDirective.UP || firstCursor == 0) {
+            if (direction == IteratorDirective.Direction.UP || firstCursor == 0) {
                 hasNext = false;
             }
             return list.get(firstCursor+1);
@@ -150,11 +150,11 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
     public void reset() {
         upListNow = false;
         hasNext = true;
-        if ((direction != IteratorDirective.DOWN) && (firstCursor < list.size()-1)) {
+        if ((direction != IteratorDirective.Direction.DOWN) && (firstCursor < list.size()-1)) {
             upListNow = true;
             return;
         }
-        if ((direction != IteratorDirective.UP) && (firstCursor > 0)) {
+        if ((direction != IteratorDirective.Direction.UP) && (firstCursor > 0)) {
             return;
         }
         hasNext = false;

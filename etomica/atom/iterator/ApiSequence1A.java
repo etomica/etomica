@@ -20,8 +20,8 @@ public class ApiSequence1A implements AtomPairIterator, AtomsetIteratorDirectabl
      * reset() before iteration.
      */
     public ApiSequence1A() {
-        this(new AtomIteratorArrayList(IteratorDirective.UP, 1),
-                new AtomIteratorArrayList(IteratorDirective.DOWN, 1));
+        this(new AtomIteratorArrayList(IteratorDirective.Direction.UP, 1),
+                new AtomIteratorArrayList(IteratorDirective.Direction.DOWN, 1));
     }
     
     public ApiSequence1A(AtomIteratorArrayList aiInnerUp, AtomIteratorArrayList aiInnerDn) {
@@ -47,9 +47,9 @@ public class ApiSequence1A implements AtomPairIterator, AtomsetIteratorDirectabl
      */
     public void reset() {
         //upList if specified by direction
-        upListNow = (direction != IteratorDirective.DOWN);
+        upListNow = (direction != IteratorDirective.Direction.DOWN);
         //dnList only if not explicitly directed up
-        doGoDown = (direction != IteratorDirective.UP);
+        doGoDown = (direction != IteratorDirective.Direction.UP);
         
         if (upListNow) {
             apiUp.reset();
@@ -88,10 +88,10 @@ public class ApiSequence1A implements AtomPairIterator, AtomsetIteratorDirectabl
             return 0;
         }
         int count = 0;
-        if (direction != IteratorDirective.DOWN) {
+        if (direction != IteratorDirective.Direction.DOWN) {
             count += apiUp.size();
         }
-        if (direction != IteratorDirective.UP) {
+        if (direction != IteratorDirective.Direction.UP) {
             count += apiDown.size();
         }
         return count;
@@ -99,11 +99,11 @@ public class ApiSequence1A implements AtomPairIterator, AtomsetIteratorDirectabl
     
     public boolean contains(AtomSet atoms) {
         if(atoms == null || atoms.count() != 2) return false;
-        if (direction != IteratorDirective.DOWN
+        if (direction != IteratorDirective.Direction.DOWN
                 && apiUp.contains(atoms)) {
             return true;
         }
-        if (direction != IteratorDirective.UP
+        if (direction != IteratorDirective.Direction.UP
                 && apiDown.contains(atoms)) {
             return true;
         }
@@ -142,10 +142,10 @@ public class ApiSequence1A implements AtomPairIterator, AtomsetIteratorDirectabl
      * iteration state.
      */
     public void allAtoms(AtomsetAction action) {
-        if (direction != IteratorDirective.DOWN) {
+        if (direction != IteratorDirective.Direction.DOWN) {
             apiUp.allAtoms(action);
         }
-        if (direction != IteratorDirective.UP) {
+        if (direction != IteratorDirective.Direction.UP) {
             apiDown.allAtoms(action);
         }
     }
