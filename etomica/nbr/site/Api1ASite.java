@@ -17,7 +17,9 @@ import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLatticeNbrIterator;
 import etomica.lattice.RectangularLatticeNbrIteratorAdjacent;
+import etomica.nbr.cell.NeighborCellManager;
 import etomica.phase.Phase;
+import etomica.phase.PhaseAgentManager;
 import etomica.space.BoundaryPeriodic;
 
 /**
@@ -34,18 +36,20 @@ public class Api1ASite implements AtomsetIteratorMolecule, AtomPairIterator {
      * @param D the dimension of the space of the simulation (used to construct cell iterators)
      * @param species length = 2 array with the (different) species whose molecules are interacting 
      */
-	public Api1ASite(int D) {
+	public Api1ASite(int D, PhaseAgentManager agentManager) {
         neighborIterator = new RectangularLatticeNbrIteratorAdjacent(D);
         
         latticeIndex = new int[D];
         
         neighborIterator.setDirection(null);
+        phaseAgentManager = agentManager;
         setPhase(null);
 	}
 
 	public void setPhase(Phase phase) {
         if(phase != null) {
-            lattice = (CellLattice)phase.getLattice();
+            NeighborCellManager[] cellManagers = (NeighborCellManager[])phaseAgentManager.getAgents();
+            lattice = cellManagers[phase.getIndex()].getLattice();
             neighborIterator.setLattice(lattice);
             neighborIterator.setPeriodicity(((BoundaryPeriodic)phase.getBoundary()).getPeriodicity());
         }
@@ -232,6 +236,7 @@ public class Api1ASite implements AtomsetIteratorMolecule, AtomPairIterator {
     private IteratorDirective.Direction direction;
     private Atom targetAtom;
     private Atom next;
+    private final PhaseAgentManager phaseAgentManager;
     
     private CellLattice lattice;
     

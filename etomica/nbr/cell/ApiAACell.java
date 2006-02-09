@@ -8,18 +8,16 @@ import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomList;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.ApiInterArrayList;
-import etomica.atom.iterator.ApiInterList;
 import etomica.atom.iterator.ApiIntraArrayList;
-import etomica.atom.iterator.ApiIntraList;
 import etomica.atom.iterator.AtomPairIterator;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
 import etomica.phase.Phase;
+import etomica.phase.PhaseAgentManager;
 import etomica.space.BoundaryPeriodic;
 
 /**
@@ -40,13 +38,14 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, jav
      *            neighbors. Used to define neighbor cells; some iterates may
      *            exceed this separation
      */
-	public ApiAACell(int D, double range) {
+	public ApiAACell(int D, double range, PhaseAgentManager agentManager) {
         cellIterator = new RectangularLattice.Iterator(D);
         neighborIterator = new CellLattice.NeighborIterator(D, range);
         neighborIterator.setDirection(IteratorDirective.Direction.UP);
         interListIterator = new ApiInterArrayList();
         intraListIterator = new ApiIntraArrayList();
         listIterator = intraListIterator;
+        phaseAgentManager = agentManager;
 	}
 
 	public void setPhase(Phase phase) {
@@ -55,8 +54,10 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, jav
             return;
         }
         this.phase = phase;
-        cellIterator.setLattice(phase.getLattice());
-		neighborIterator.setLattice(phase.getLattice());
+        NeighborCellManager[] cellManagers = (NeighborCellManager[])phaseAgentManager.getAgents();
+        CellLattice lattice = cellManagers[phase.getIndex()].getLattice();
+        cellIterator.setLattice(lattice);
+		neighborIterator.setLattice(lattice);
         neighborIterator.setPeriod(phase.getBoundary().getDimensions());
         neighborIterator.setPeriodicity(((BoundaryPeriodic)phase.getBoundary()).getPeriodicity());
         unset();
@@ -207,6 +208,7 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, jav
     private final ApiInterArrayList interListIterator;
     private final CellLattice.NeighborIterator neighborIterator;
     private final RectangularLattice.Iterator cellIterator;
+    private final PhaseAgentManager phaseAgentManager;
 
     private final AtomPair pair = new AtomPair();
 }

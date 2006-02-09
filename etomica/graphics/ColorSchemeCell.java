@@ -33,7 +33,7 @@ public class ColorSchemeCell extends ColorSchemeCollective {
     }
     
     public void colorAllAtoms(Phase phase) {
-        NeighborCellManager cellManager = potentialMasterCell.getNbrCellManager(phase);
+        NeighborCellManager cellManager = (NeighborCellManager)potentialMasterCell.getNbrCellManager(phase);
         allIterator.setPhase(phase);
         allIterator.reset();
         while(allIterator.hasNext()) {

@@ -9,12 +9,13 @@ import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomList;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
+import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
 import etomica.phase.Phase;
+import etomica.phase.PhaseAgentManager;
 
 /**
  * Returns occupants of all cells as iterates.
@@ -30,13 +31,16 @@ public class AtomIteratorCell implements AtomIterator, java.io.Serializable {
      *            the dimension of the space of the simulation (used to
      *            construct cell iterators)
      */
-	public AtomIteratorCell(int D) {
+	public AtomIteratorCell(int D, PhaseAgentManager agentManager) {
         cellIterator = new RectangularLattice.Iterator(D);
         atomIterator = new AtomIteratorArrayListSimple();
+        phaseAgentManager = agentManager;
 	}
 
 	public void setPhase(Phase phase) {
-        cellIterator.setLattice(phase.getLattice());
+        NeighborCellManager[] cellManagers = (NeighborCellManager[])phaseAgentManager.getAgents();
+        CellLattice lattice = cellManagers[phase.getIndex()].getLattice();
+        cellIterator.setLattice(lattice);
         unset();
 	}
     
@@ -134,5 +138,6 @@ public class AtomIteratorCell implements AtomIterator, java.io.Serializable {
    
     private final AtomIteratorArrayListSimple atomIterator;
     private final RectangularLattice.Iterator cellIterator;
+    private final PhaseAgentManager phaseAgentManager;
 
 }

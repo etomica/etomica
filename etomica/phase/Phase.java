@@ -82,14 +82,6 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         setBoundary(new BoundaryRectangularPeriodic(sim));
     }//end of constructor
 
-    public void setCellManager(PhaseCellManager manager) {
-        cellManager = manager;
-    }
-    
-    public PhaseCellManager getCellManager() {
-        return cellManager;
-    }
-    
     public void makeMolecules() {
         AtomArrayList agentList = ((AtomTreeNodeGroup)speciesMaster.node).childList;
         for (int i=0; i<agentList.size(); i++) {
@@ -218,9 +210,10 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     
     public final void setDimensions(Vector d) {
         boundary.setDimensions(d);
-        if (cellManager != null) {
-            cellManager.getLattice().setDimensions(d);
-        }
+        //XXX this needs to fire an event so that the lattice dimensions get updated 
+//        if (cellManager != null) {
+//            cellManager.getLattice().setDimensions(d);
+//        }
     }
     
     /**
@@ -280,16 +273,6 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     public void removeMolecule(Atom a) {
         if(a == null) return;
         a.node.dispose();
-    }
-    
-    /**
-     * @return Returns the lattice.
-     */
-    public RectangularLattice getLattice() {
-        if (cellManager == null) {
-            return null;
-        }
-        return cellManager.getLattice();
     }
     
     /**
@@ -367,7 +350,6 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     private boolean lrcEnabled = true;
     private String name;
     protected final Space space;
-    private PhaseCellManager cellManager;
     
 } //end of Phase
         

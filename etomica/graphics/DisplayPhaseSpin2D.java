@@ -26,17 +26,17 @@ public class DisplayPhaseSpin2D extends DisplayPhaseCanvas2D {
     /**
      * @param phase
      */
-    public DisplayPhaseSpin2D(DisplayPhase _phase) {
+    public DisplayPhaseSpin2D(DisplayPhase _phase, NeighborSiteManager neighborSiteManager) {
         super(_phase);
         latticeIndex = new int[displayPhase.getPhase().space().D()];
         spinWidth = 5;
-        neighborSiteManager = (NeighborSiteManager)_phase.getPhase().getCellManager();
+        this.neighborSiteManager = neighborSiteManager;
     }
     
     protected void drawAtom(Graphics g, int origin[], AtomLeaf atom) {
         AtomSite site = neighborSiteManager.getSite(atom);
         if (site == null) return;
-        RectangularLattice lattice = displayPhase.getPhase().getLattice();
+        RectangularLattice lattice = neighborSiteManager.getLattice();
         lattice.latticeIndex(site.getLatticeArrayIndex(),latticeIndex);
             
         //color central site red

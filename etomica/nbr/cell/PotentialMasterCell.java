@@ -2,8 +2,10 @@ package etomica.nbr.cell;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomPositionDefinition;
+import etomica.atom.SpeciesRoot;
 import etomica.nbr.site.PotentialMasterSite;
 import etomica.phase.Phase;
+import etomica.phase.PhaseAgentManager;
 import etomica.space.Space;
 
 /**
@@ -34,7 +36,7 @@ public class PotentialMasterCell extends PotentialMasterSite {
      * @param range the neighbor distance.  May be changed after construction.
      */
     public PotentialMasterCell(Space space, double range) {
-        this(space, range, null);
+        this(space, range, (AtomPositionDefinition)null);
     }
 
     /**
@@ -43,28 +45,33 @@ public class PotentialMasterCell extends PotentialMasterSite {
      */
     public PotentialMasterCell(Space space, double range,
             AtomPositionDefinition positionDefinition) {
-        super(space, new Api1ACell(space.D(), range));
-        this.positionDefinition = positionDefinition;//use atom type's position definition as default
+        this(space, range, new PhaseAgentSourceCellManager(positionDefinition));
     }
-
+    
+    public PotentialMasterCell(Space space, double range, PhaseAgentSourceCellManager phaseAgentSource) {
+        this(space, range, phaseAgentSource, new PhaseAgentManager(phaseAgentSource,null));
+    }
+    
+    public PotentialMasterCell(Space space, double range, PhaseAgentSourceCellManager phaseAgentSource,
+            PhaseAgentManager agentManager) {
+        super(space, phaseAgentSource, agentManager, new Api1ACell(space.D(),range,agentManager));
+    }
+    
     public double getRange() {
         return range;
     }
     
     public void setRange(double d) {
         ((Api1ACell)neighborIterator).getNbrCellIterator().setNeighborDistance(d);
+        ((PhaseAgentSourceCellManager)phaseAgentSource).setRange(d);
         range = d;
     }
     
     public NeighborCellManager getNbrCellManager(Phase phase) {
-        NeighborCellManager manager = (NeighborCellManager)phase.getCellManager();
-        if (manager == null) {
-            manager = new NeighborCellManager(phase,range,positionDefinition);
-            phase.setCellManager(manager);
-        }
-        else {
-            manager.setPotentialRange(range);
-        }
+        phaseAgentManager.setRoot((SpeciesRoot)phase.getSpeciesMaster().node.parentGroup());
+        NeighborCellManager[] cellManagers = (NeighborCellManager[])phaseAgentManager.getAgents();
+        NeighborCellManager manager = cellManagers[phase.getIndex()];
+        manager.setPotentialRange(range);
         manager.setCellRange(getCellRange());
         return manager;
     }
@@ -73,6 +80,5 @@ public class PotentialMasterCell extends PotentialMasterSite {
         ((Api1ACell)neighborIterator).setCentralCell(((NeighborCellManager)currentCellManager).getCell(atom));
     }
     
-    private final AtomPositionDefinition positionDefinition;
     private double range;
 }

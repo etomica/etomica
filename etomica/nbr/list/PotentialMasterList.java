@@ -9,6 +9,7 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorSinglet;
@@ -17,8 +18,11 @@ import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.PotentialMasterNbr;
+import etomica.nbr.cell.PhaseAgentSourceCellManager;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.phase.Phase;
+import etomica.phase.PhaseAgentManager;
+import etomica.phase.PhaseAgentManager.PhaseAgentSource;
 import etomica.potential.Potential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
@@ -46,7 +50,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * for generating molecule iterators.  Sets default nCells of 10. 
 	 */
 	public PotentialMasterList(Space space, double range) {
-        this(space, range, null);
+        this(space, range, (AtomPositionDefinition)null);
     }
     
     /**
@@ -54,18 +58,27 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * @param positionDefinition if null, specifies use of atom type's position definition
      */
     public PotentialMasterList(Space space, double range, AtomPositionDefinition positionDefinition) {
-        super(space);
-        neighborManager = new NeighborListManager(this, range);
+        this(space, range, new PhaseAgentSourceCellManager(positionDefinition));
+    }
+    
+    public PotentialMasterList(Space space, double range, PhaseAgentSource phaseAgentSource) {
+        this(space, range, phaseAgentSource, new PhaseAgentManager(phaseAgentSource,null));
+    }
+    
+    public PotentialMasterList(Space space, double range, PhaseAgentSource phaseAgentSource, PhaseAgentManager agentManager) {
+        super(space, phaseAgentSource, agentManager);
+        neighborManager = new NeighborListManager(this, range, agentManager);
         atomIterator = new AtomIteratorArrayListSimple();
         singletIterator = new AtomIteratorSinglet();
         pairIterator = new ApiInnerFixed(singletIterator, atomIterator);
         swappedPairIterator = new ApiInnerFixed(singletIterator, atomIterator, true);
-        this.positionDefinition = positionDefinition;
         cellRange = 2;
+        phaseAgentManager = agentManager;
 	}
     
     public void setRange(double range) {
         neighborManager.setRange(range);
+        ((PhaseAgentSourceCellManager)phaseAgentSource).setRange(range);
     }
     
     public double getRange() {
@@ -173,14 +186,10 @@ public class PotentialMasterList extends PotentialMasterNbr {
 
     
     public NeighborCellManager getNbrCellManager(Phase phase) {
-        NeighborCellManager manager = (NeighborCellManager)phase.getCellManager();
-        if (manager == null) {
-            manager = new NeighborCellManager(phase, neighborManager.getRange(), positionDefinition);
-            phase.setCellManager(manager);
-        }
-        else {
-            manager.setPotentialRange(neighborManager.getRange());
-        }
+        phaseAgentManager.setRoot((SpeciesRoot)phase.getSpeciesMaster().node.parentGroup());
+        NeighborCellManager[] cellManagers = (NeighborCellManager[])phaseAgentManager.getAgents();
+        NeighborCellManager manager = cellManagers[phase.getIndex()];
+        manager.setPotentialRange(neighborManager.getRange());
         manager.setCellRange(cellRange);
         return manager;
     }
@@ -193,10 +202,6 @@ public class PotentialMasterList extends PotentialMasterNbr {
         return cellRange;
     }
     
-    public AtomPositionDefinition getAtomPositionDefinition() {
-        return positionDefinition;
-    }
-
 	private final AtomIteratorArrayListSimple atomIterator;
 	private final AtomIteratorSinglet singletIterator;
 	private final ApiInnerFixed pairIterator;
@@ -204,6 +209,5 @@ public class PotentialMasterList extends PotentialMasterNbr {
 	private final NeighborListManager neighborManager;
     private int cellRange;
     private final IteratorDirective idUp = new IteratorDirective();
-    private final AtomPositionDefinition positionDefinition;
     
 }

@@ -23,6 +23,7 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.lattice.CellLattice;
 import etomica.phase.Phase;
+import etomica.phase.PhaseAgentManager;
 import etomica.space.BoundaryPeriodic;
 
 /**
@@ -48,7 +49,7 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
      *            exceed this separation
      *  
      */
-    public Api1ACell(int D, double range) {
+    public Api1ACell(int D, double range, PhaseAgentManager agentManager) {
         neighborIterator = new CellLattice.NeighborIterator(D, range);
         aiOuter = new AtomIteratorSinglet();
         aiSeq = new AtomIteratorArrayListSimple();
@@ -64,15 +65,20 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
         latticeIndex = new int[D];
 
         neighborIterator.setDirection(null);
+        phaseAgentManager = agentManager;
         setPhase(null);
 	}
 
 	public void setPhase(Phase phase) {
         if(phase != null) {
-            lattice = (CellLattice)phase.getLattice();
+            NeighborCellManager[] cellManagers = (NeighborCellManager[])phaseAgentManager.getAgents();
+            lattice = cellManagers[phase.getIndex()].getLattice();
             neighborIterator.setLattice(lattice);
             neighborIterator.setPeriod(phase.getBoundary().getDimensions());
             neighborIterator.setPeriodicity(((BoundaryPeriodic)phase.getBoundary()).getPeriodicity());
+        }
+        else {
+            lattice = null;
         }
 	}
 
@@ -320,6 +326,7 @@ public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellul
     private boolean needUpdate;
     private Atom targetAtom;
     private Cell centralCell;
+    private final PhaseAgentManager phaseAgentManager;
     
     private CellLattice lattice;
     

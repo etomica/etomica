@@ -15,17 +15,17 @@ import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.PotentialMasterNbr;
+import etomica.nbr.cell.NeighborCellManager;
 import etomica.phase.Phase;
+import etomica.phase.PhaseAgentManager;
 import etomica.phase.PhaseCellManager;
+import etomica.phase.PhaseAgentManager.PhaseAgentSource;
 import etomica.potential.Potential;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialCalculation;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 
-/**
- * 
- * <br>
- */
 public class PotentialMasterSite extends PotentialMasterNbr {
 
 	/**
@@ -34,16 +34,29 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * position definition to null, so that atom type's definition is used
      * to assign cells. 
 	 */
-	public PotentialMasterSite(Space space) {
-        this(space,new Api1ASite(space.D()));
+	public PotentialMasterSite(Space space, int nCells) {
+        this(space, new SiteManagerAgentManager(nCells));
     }
     
-    public PotentialMasterSite(Space space, AtomsetIteratorMolecule neighborIterator) {
-        super(space);
+    public PotentialMasterSite(Space space, PhaseAgentSource phaseAgentSource) {
+        this(space, phaseAgentSource, new PhaseAgentManager(phaseAgentSource,null));
+    }
+    
+    public PotentialMasterSite(Space space, PhaseAgentSource phaseAgentSource, PhaseAgentManager agentManager) {
+        this(space, phaseAgentSource, agentManager, new Api1ASite(space.D(),agentManager));
+    }
+    
+    protected PotentialMasterSite(Space space, PhaseAgentSource phaseAgentSource, 
+            PhaseAgentManager agentManager, AtomsetIteratorMolecule neighborIterator) {
+        super(space, phaseAgentSource, agentManager);
         singletAtomIterator = new AtomIteratorSinglet();
 		singletPairIterator = new AtomsetIteratorSinglet(2);
         this.neighborIterator = neighborIterator;
 	}
+    
+    public void setSimulation(Simulation sim) {
+        phaseAgentManager.setRoot(sim.speciesRoot);
+    }
     
     /**
      * @return Returns the cellRange.
@@ -71,7 +84,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
     public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
         if (!enabled)
             return;
-        currentCellManager = phase.getCellManager();
+        currentCellManager = (NeighborCellManager)phaseAgentManager.getAgents()[phase.getIndex()];
         AtomSet targetAtoms = id.getTargetAtoms();
         if (targetAtoms.count() == 0) {
             //no target atoms specified -- do one-target algorithm to
@@ -166,4 +179,22 @@ public class PotentialMasterSite extends PotentialMasterNbr {
     protected final AtomsetIteratorMolecule neighborIterator;
     protected PhaseCellManager currentCellManager;
     
+    public static class SiteManagerAgentManager implements PhaseAgentSource {
+        public SiteManagerAgentManager(int nCells) {
+            this.nCells = nCells;
+        }
+        
+        public Class getAgentClass() {
+            return NeighborCellManager.class;
+        }
+        
+        public Object makeAgent(Phase phase) {
+            return new NeighborSiteManager(phase,nCells);
+        }
+        
+        public void releaseAgent(Object agent) {
+        }
+        
+        private final int nCells;
+    }
 }

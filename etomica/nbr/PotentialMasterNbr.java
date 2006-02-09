@@ -5,22 +5,21 @@ import java.util.LinkedList;
 
 import etomica.atom.AtomType;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.atom.iterator.IteratorFactory;
 import etomica.nbr.PotentialCalculationUpdateTypeList.PotentialAtomTypeWrapper;
 import etomica.phase.Phase;
-import etomica.potential.Potential;
+import etomica.phase.PhaseAgentManager;
+import etomica.phase.PhaseAgentManager.PhaseAgentSource;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 
-public class PotentialMasterNbr extends PotentialMaster {
+public abstract class PotentialMasterNbr extends PotentialMaster {
 
-    protected PotentialMasterNbr(Space space) {
+    protected PotentialMasterNbr(Space space, PhaseAgentSource phaseAgentSource, 
+            PhaseAgentManager phaseAgentManager) {
         super(space);
-    }
-
-    protected PotentialMasterNbr(Space space, IteratorFactory iteratorFactory) {
-        super(space, iteratorFactory);
+        this.phaseAgentSource = phaseAgentSource;
+        this.phaseAgentManager = phaseAgentManager;
     }
 
     /**
@@ -53,5 +52,11 @@ public class PotentialMasterNbr extends PotentialMaster {
         return potentialAtomTypeList[atomType.getIndex()];
     }
 
+    public PhaseAgentManager getCellAgentManager() {
+        return phaseAgentManager;
+    }
+
     protected PotentialArray[] potentialAtomTypeList = new PotentialArray[0];
+    protected PhaseAgentSource phaseAgentSource;
+    protected PhaseAgentManager phaseAgentManager;
 }

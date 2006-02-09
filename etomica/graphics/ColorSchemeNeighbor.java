@@ -5,6 +5,7 @@ import java.awt.Color;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.cell.Api1ACell;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
@@ -24,7 +25,7 @@ public class ColorSchemeNeighbor extends ColorSchemeCollective {
     
     public ColorSchemeNeighbor(Simulation sim) {
         super(sim);
-        nbrIterator = new Api1ACell(sim.space().D(), sim.getDefaults().atomSize);
+        nbrIterator = new Api1ACell(sim.space().D(), sim.getDefaults().atomSize,((PotentialMasterNbr)sim.potentialMaster).getCellAgentManager());
         nbrIterator.setDirection(null);
     }
     

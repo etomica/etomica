@@ -6,11 +6,14 @@ package etomica.nbr;
 
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.nbr.cell.Api1ACell;
+import etomica.nbr.cell.PhaseAgentSourceCellManager;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
+import etomica.phase.PhaseAgentManager;
 import etomica.potential.Potential;
 import etomica.potential.PotentialCalculation;
 import etomica.space.Space;
@@ -40,9 +43,18 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
      * @param positionDefinition if null, specifies use of atom type's position definition
      */
     public PotentialMasterHybrid(Space space, AtomPositionDefinition positionDefinition, double range) {
-        super(space);
-        potentialMasterNbr = new PotentialMasterList(space, range, positionDefinition);
-        potentialMasterCell = new PotentialMasterCell(space, range, positionDefinition);
+        this(space, range, new PhaseAgentSourceCellManager(positionDefinition));
+    }
+    
+    private PotentialMasterHybrid(Space space, double range, PhaseAgentSourceCellManager phaseAgentSource) {
+        this(space, range, phaseAgentSource, new PhaseAgentManager(phaseAgentSource,null));
+    }
+    
+    private PotentialMasterHybrid(Space space, double range, PhaseAgentSourceCellManager phaseAgentSource,
+            PhaseAgentManager agentManager) {
+        super(space, phaseAgentSource, agentManager);
+        potentialMasterNbr = new PotentialMasterList(space, range, phaseAgentSource, agentManager);
+        potentialMasterCell = new PotentialMasterCell(space, range, phaseAgentSource, agentManager);
 	}
 
     /**
@@ -90,10 +102,6 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
         return potentialMasterNbr.getNbrCellManager(phase);
     }
     
-    public AtomPositionDefinition getAtomPositionDefinition() {
-        return potentialMasterNbr.getAtomPositionDefinition();
-    }
-
     public void setUseNbrLists(boolean flag) {
         useNbrLists = flag;
     }
