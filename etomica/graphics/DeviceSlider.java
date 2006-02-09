@@ -4,6 +4,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -244,13 +246,29 @@ public class DeviceSlider extends Device implements EtomicaElement {
     public void setShowValues(boolean b){
         showValues = b;
         if(showValues){ 
-             setSliderValueShape("VERTICAL");
-             textField.addActionListener(new ActionListener(){
-                  public void actionPerformed( ActionEvent e){
+            setSliderValueShape("VERTICAL");
+            textField.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent e){
                     //sets value of slider, which then fires event to modifier, taking care of units
-                       setValue((Double.parseDouble(e.getActionCommand())));
-//                       setValue(unit.toSim(Double.parseDouble(e.getActionCommand())));
-             }});}     
+                    setValue((Double.parseDouble(e.getActionCommand())));
+                }
+            });
+            textField.addFocusListener(new FocusListener(){
+                public void focusGained(FocusEvent evt) {
+                }
+                public void focusLost(FocusEvent evt) {
+                    double d = Double.parseDouble(textField.getText());
+                    if (d != getValue()) {
+                        // user tabbed or clicked out of the text field
+                        setValue(d);
+                    }
+                    else {
+                        //revert text field to its original value if it changed (300 => 300.0)
+                        textField.setText(String.valueOf(d));
+                    }
+                }
+            });
+        }
     }
 
     public void setSliderValueShape(String s){
