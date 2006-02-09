@@ -15,6 +15,7 @@ import etomica.integrator.IntervalActionAdapter;
 import etomica.nbr.site.NeighborSiteManager;
 import etomica.nbr.site.PotentialMasterSite;
 import etomica.phase.Phase;
+import etomica.phase.PhaseAgentManager;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
@@ -38,19 +39,18 @@ import etomica.units.systems.LJ;
 public class Heisenberg extends Simulation {
 
     public Heisenberg() {
-        this(Space2D.getInstance());
+        this(Space2D.getInstance(),60);
     }
     
     /**
      * 
      */
-    public Heisenberg(Space space) {
-        super(space, false, new PotentialMasterSite(space));
+    public Heisenberg(Space space, int nCells) {
+        super(space, false, new PotentialMasterSite(space, nCells));
+        ((PotentialMasterSite)potentialMaster).setSimulation(this);
         defaults.makeLJDefaults();
         phase = new Phase(this);
-        int nCells = 60;
         int numAtoms = space.powerD(nCells);
-        phase.setCellManager(new NeighborSiteManager(phase,nCells));
         spins = new SpeciesSpheresMono(this);
         spins.setNMolecules(numAtoms);
         phase.makeMolecules();
@@ -95,12 +95,14 @@ public class Heisenberg extends Simulation {
     public AccumulatorAverage dAcc;
     
     public static void main(String[] args) {
-        Heisenberg sim = new Heisenberg(Space2D.getInstance());
+        Heisenberg sim = new Heisenberg(Space2D.getInstance(), 60);
         sim.register(sim.integrator);
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
         DisplayPhase displayPhase = simGraphic.getDisplayPhase(sim.phase);
         simGraphic.remove(displayPhase);
-        displayPhase.setPhaseCanvas(new DisplayPhaseSpin2D(displayPhase));
+        PhaseAgentManager phaseAgentManager = ((PotentialMasterSite)sim.potentialMaster).getCellAgentManager();
+        NeighborSiteManager neighborSiteManager = ((NeighborSiteManager[])phaseAgentManager.getAgents())[sim.phase.getIndex()];
+        displayPhase.setPhaseCanvas(new DisplayPhaseSpin2D(displayPhase,neighborSiteManager));
         simGraphic.add(displayPhase);
         DeviceSlider temperatureSlider = new DeviceSlider(sim.getController(), sim.integrator,"temperature");
         temperatureSlider.setMinimum(0.5);
