@@ -16,8 +16,6 @@ import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesMaster;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.atom.iterator.AtomIteratorListTabbed;
-import etomica.lattice.RectangularLattice;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -26,7 +24,6 @@ import etomica.space.Vector;
 import etomica.species.Species;
 import etomica.species.SpeciesResolver;
 import etomica.species.SpeciesSignature;
-import etomica.util.NameMaker;
 
 /* History of changes
  * 09/01/02 (DAK) setConfiguration sets new configuration so that it zeros total momentum
@@ -74,13 +71,15 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      */
     public Phase(Simulation sim) {
         space = sim.space;
-        speciesMaster = new SpeciesMaster(sim, this);
+        eventManager = new PhaseEventManager();
+        speciesMaster = new SpeciesMaster(sim, this, eventManager);
         speciesMaster.node.setParent(sim.speciesRoot);
         makeMolecules();
         setName(null);
 
         setBoundary(new BoundaryRectangularPeriodic(sim));
-    }//end of constructor
+        inflateEvent = new PhaseEvent(this,PhaseEvent.PHASE_INFLATE);
+    }
 
     public void makeMolecules() {
         AtomArrayList agentList = ((AtomTreeNodeGroup)speciesMaster.node).childList;
@@ -210,10 +209,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     
     public final void setDimensions(Vector d) {
         boundary.setDimensions(d);
-        //XXX this needs to fire an event so that the lattice dimensions get updated 
-//        if (cellManager != null) {
-//            cellManager.getLattice().setDimensions(d);
-//        }
+        eventManager.fireEvent(inflateEvent);
     }
     
     /**
@@ -232,6 +228,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         inflater.setScale(scale);
         inflater.actionPerformed();
     }
+    
     public double getDensity() {return moleculeCount()/boundary.volume();}
 
     /**
@@ -345,11 +342,21 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         return newPhase;
     }
     
+    //event management
+    public synchronized void addListener(PhaseListener listener) {
+        eventManager.addListener(listener);
+    }
+
+    public synchronized void removeListener(PhaseListener listener) {
+        eventManager.removeListener(listener);
+    }
+
     private Boundary boundary;
     private SpeciesMaster speciesMaster;
     private boolean lrcEnabled = true;
     private String name;
     protected final Space space;
-    
+    private final PhaseEventManager eventManager;
+    private final PhaseEvent inflateEvent;
 } //end of Phase
         

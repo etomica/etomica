@@ -45,13 +45,14 @@ public class PhaseEvent extends java.util.EventObject {
     public static final Type ATOM_REMOVED =      new Type("Atom removed");
     public static final Type ATOM_CHANGE_INDEX = new Type("Atom changed index");
     public static final Type GLOBAL_INDEX =      new Type("Max global index decreased");
+    public static final Type PHASE_INFLATE =     new Type("Phase inflate");
 
     public static class Type extends EnumeratedType {
 
         protected Type(String label) {super(label);}
 
         public static Type[] choices() {
-            return new Type[] {ATOM_ADDED,ATOM_REMOVED,ATOM_CHANGE_INDEX,GLOBAL_INDEX};
+            return new Type[] {ATOM_ADDED,ATOM_REMOVED,ATOM_CHANGE_INDEX,GLOBAL_INDEX,PHASE_INFLATE};
         }
 
         /**

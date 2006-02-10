@@ -20,6 +20,8 @@ import etomica.integrator.mcmove.MCMoveListener;
 import etomica.lattice.CellLattice;
 import etomica.phase.Phase;
 import etomica.phase.PhaseCellManager;
+import etomica.phase.PhaseEvent;
+import etomica.phase.PhaseListener;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -34,7 +36,7 @@ import etomica.util.Debug;
 //no need for index when assigning cell
 //different iterator needed
 
-public class NeighborCellManager implements PhaseCellManager, AgentSource, java.io.Serializable {
+public class NeighborCellManager implements PhaseCellManager, AgentSource, PhaseListener, java.io.Serializable {
 
     private final CellLattice lattice;
     private final Space space;
@@ -44,7 +46,6 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, java.
     private int cellRange = 2;
     private double range;
     private final AtomAgentManager agentManager;
-    private final Cell bogusCell = new Cell(-1);
     private Cell[] cells;
     
     /**
@@ -215,6 +216,12 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, java.
 
     public void releaseAgent(Object agent, Atom atom) {
         removeFromCell(atom);
+    }
+    
+    public void actionPerformed(PhaseEvent event) {
+        if (event.type() == PhaseEvent.PHASE_INFLATE) {
+            lattice.setDimensions(phase.getBoundary().getDimensions());
+        }
     }
     
     private static class MyMCMoveListener implements MCMoveListener, java.io.Serializable {

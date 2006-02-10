@@ -21,7 +21,9 @@ public class PhaseAgentSourceCellManager implements PhaseAgentSource, java.io.Se
     }
     
     public Object makeAgent(Phase phase) {
-        return new NeighborCellManager(phase,range,positionDefinition);
+        NeighborCellManager cellManager = new NeighborCellManager(phase,range,positionDefinition);
+        phase.addListener(cellManager);
+        return cellManager;
     }
     
     public void releaseAgent(Object agent) {

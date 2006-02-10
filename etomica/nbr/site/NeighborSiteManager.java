@@ -54,15 +54,6 @@ public class NeighborSiteManager implements PhaseCellManager, AgentSource {
 
         //listener to phase to detect addition of new SpeciesAgent
         //or new atom
-        phase.getSpeciesMaster().addListener(new PhaseListener() {
-
-            public void actionPerformed(PhaseEvent evt) {
-                if (evt.type() == PhaseEvent.ATOM_ADDED) {
-//                    throw new RuntimeException(
-//                            "Neighbor cell manager cannot handle addition of atoms");
-                }
-            }
-        });
         agentManager = new AtomAgentManager(this,phase);
         sites = (AtomSite[])agentManager.getAgents();
     }

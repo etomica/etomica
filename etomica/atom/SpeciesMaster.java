@@ -6,7 +6,6 @@ import etomica.atom.iterator.AtomIteratorTree;
 import etomica.phase.Phase;
 import etomica.phase.PhaseEvent;
 import etomica.phase.PhaseEventManager;
-import etomica.phase.PhaseListener;
 import etomica.simulation.Simulation;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
@@ -24,7 +23,7 @@ public final class SpeciesMaster extends Atom {
 
     protected int moleculeCount;
     public final static int SPECIES_TAB = AtomLinker.Tab.requestTabType();
-    private final PhaseEventManager eventManager = new PhaseEventManager();
+    private final PhaseEventManager phaseEventManager;
 
     private final PhaseEvent changeIndexEvent;
     private final PhaseEvent maxGlobalIndexEvent;
@@ -41,8 +40,9 @@ public final class SpeciesMaster extends Atom {
      */
     public final AtomArrayList leafList = new AtomArrayList();
 
-    public SpeciesMaster(Simulation sim, Phase p) {
+    public SpeciesMaster(Simulation sim, Phase p, PhaseEventManager eventManager) {
         super(sim.speciesRoot.getChildType(), new NodeFactory(p));
+        phaseEventManager = eventManager;
         indexReservoir = new int[reservoirSize];
         maxIndex = -1;
         reservoirCount = 0;
@@ -73,15 +73,6 @@ public final class SpeciesMaster extends Atom {
                 speciesAgent.node.setParent((Atom)null);
             }
         }
-    }
-
-    //event management
-    public synchronized void addListener(PhaseListener listener) {
-        eventManager.addListener(listener);
-    }
-
-    public synchronized void removeListener(PhaseListener listener) {
-        eventManager.removeListener(listener);
     }
 
     public int requestGlobalIndex() {
@@ -138,12 +129,12 @@ public final class SpeciesMaster extends Atom {
                 // the index to the reservoir.  The old index gets dropped on the
                 // floor.
                 a.setGlobalIndex(this);
-                eventManager.fireEvent(changeIndexEvent);
+                phaseEventManager.fireEvent(changeIndexEvent);
             }
         }
         maxIndex -= reservoirSize;
         maxGlobalIndexEvent.setIndex(maxIndex);
-        eventManager.fireEvent(maxGlobalIndexEvent);
+        phaseEventManager.fireEvent(maxGlobalIndexEvent);
         if (reservoirCount != 0) {
             System.out.println("reservoir still has atoms:");
             for (int i=0; i<reservoirCount; i++) {
@@ -242,7 +233,7 @@ public final class SpeciesMaster extends Atom {
                 }
             }
             additionEvent.setAtom(newAtom);
-            ((SpeciesMaster)atom).eventManager.fireEvent(additionEvent);
+            ((SpeciesMaster)atom).phaseEventManager.fireEvent(additionEvent);
             if (parentNode() != null) {
                 parentNode().addAtomNotify(newAtom);
             }
@@ -282,7 +273,7 @@ public final class SpeciesMaster extends Atom {
                 }
             }
             removalEvent.setAtom(oldAtom);
-            ((SpeciesMaster)atom).eventManager.fireEvent(removalEvent);
+            ((SpeciesMaster)atom).phaseEventManager.fireEvent(removalEvent);
             ((SpeciesMaster)atom).returnGlobalIndex(oldAtom.getGlobalIndex());
             if (parentNode() != null) {
                 parentNode().removeAtomNotify(oldAtom);

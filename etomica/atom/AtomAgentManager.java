@@ -41,7 +41,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
     public void setPhase(Phase newPhase) {
         if (phase != null) {
             // remove ourselves as a listener to the old phase
-            phase.getSpeciesMaster().removeListener(this);
+            phase.removeListener(this);
             AtomIteratorTree iterator = new AtomIteratorTree(phase.getSpeciesMaster(),Integer.MAX_VALUE,true);
             iterator.reset();
             while (iterator.hasNext()) {
@@ -55,7 +55,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
             agents = (Object[])Array.newInstance(agentSource.makeAgent(null).getClass(),0);
             return;
         }
-        phase.getSpeciesMaster().addListener(this);
+        phase.addListener(this);
         // hope the class returns an actual class with a null Atom and use it to construct
         // the array
         agents = (Object[])Array.newInstance(agentSource.getAgentClass(),

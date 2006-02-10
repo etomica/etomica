@@ -6,7 +6,6 @@ public class PhaseEventManager extends EventManager {
 
     public PhaseEventManager() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
     public void fireEvent(PhaseEvent event) {
