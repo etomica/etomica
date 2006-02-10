@@ -64,6 +64,7 @@ import etomica.units.Prefix;
 import etomica.units.PrefixedUnit;
 import etomica.units.Pressure;
 import etomica.units.Quantity;
+import etomica.units.SimpleUnit;
 import etomica.units.Temperature;
 import etomica.units.Time;
 import etomica.units.Undefined;
@@ -245,6 +246,8 @@ public class PistonCylinderGraphic {
 	    pressureSlider.setValue(p0);
         
         DeviceSlider repaintSlider = new DeviceSlider(null);
+        //XXX ugh, see bug 49
+        repaintSlider.setUnit(Time.SIM_UNIT); 
         repaintSlider.setShowValues(false);
         repaintSlider.setEditValues(true);
         repaintSlider.setMinimum(0);
@@ -261,6 +264,8 @@ public class PistonCylinderGraphic {
         });
         
         doSleepSlider = new DeviceSlider(null);
+        //XXX ugh, see bug 49
+        doSleepSlider.setUnit(Time.SIM_UNIT);
         doSleepSlider.setShowValues(false);
         doSleepSlider.setEditValues(true);
         doSleepSlider.setMinimum(0);
