@@ -155,7 +155,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
                 meterKE.setPhase(phase);
                 currentKineticEnergy = meterKE.getDataAsScalar();
             }
-            if (thermostat == ThermostatType.VELOCITY_SCALING) {
+            if (thermostat == ThermostatType.VELOCITY_SCALING || !isothermal) {
                 scaleMomenta(phase);
                 meterKE.setPhase(phase);
                 currentKineticEnergy = meterKE.getDataAsScalar();
