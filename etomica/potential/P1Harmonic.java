@@ -5,7 +5,9 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
+import etomica.units.Energy;
 import etomica.units.Length;
 import etomica.units.Undefined;
 
@@ -63,7 +65,7 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
      * Should be energy/length^2.
      */
     public Dimension getSpringConstantDimension() {
-        return Undefined.DIMENSION;
+        return new CompoundDimension(new Dimension[]{Energy.DIMENSION,Length.DIMENSION},new double[]{1,-2});
     }
 
     public double energy(AtomSet a) {
