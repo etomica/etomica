@@ -51,8 +51,10 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
         }
         phase = newPhase;
         if (phase == null) {
-            // zero-out the array so the agents get GC'd
-            agents = (Object[])Array.newInstance(agentSource.makeAgent(null).getClass(),0);
+            if (agents != null) {
+                // free up the memory
+                agents = null;
+            }
             return;
         }
         phase.addListener(this);
