@@ -1,5 +1,7 @@
 //class includes a main method to demonstrate and test its use
 package etomica.graphics;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 
 import javax.swing.JLabel;
@@ -9,7 +11,6 @@ import javax.swing.JTextField;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.modifier.Modifier;
-import etomica.units.Null;
 import etomica.util.Constants;
 import etomica.util.EnumeratedType;
 
@@ -84,6 +85,7 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
         BoxListener listener = new BoxListener();
         value.addActionListener(listener);
         value.addKeyListener(listener);
+        value.addFocusListener(listener);
         
     }//end of constructor
     
@@ -224,7 +226,7 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
     public Constants.CompassDirection getLabelPosition() {return labelPosition;}
         
         
-    private class BoxListener extends java.awt.event.KeyAdapter implements java.awt.event.ActionListener {
+    private class BoxListener extends java.awt.event.KeyAdapter implements java.awt.event.ActionListener, FocusListener {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
             if(modifier == null) return;
             double x = unit.fromSim(modifier.getValue());
@@ -247,6 +249,20 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
             int i = Integer.parseInt(value.getText()) + step;
             value.setText(Integer.toString(i));
             if(modifier!=null) modifier.setValue(unit.toSim(i));
+       }
+       
+       public void focusGained(FocusEvent evt) {
+       }
+       public void focusLost(FocusEvent evt) {
+           double d = Double.parseDouble(value.getText());
+           if (d != modifier.getValue()) {
+               // user tabbed or clicked out of the text field
+               modifier.setValue(d);
+           }
+           else {
+               //revert text field to its original value if it changed (300 => 300.0)
+               value.setText(String.valueOf(d));
+           }
        }
     }
     
