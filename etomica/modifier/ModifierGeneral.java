@@ -120,11 +120,10 @@ public class ModifierGeneral implements Modifier, java.io.Serializable {
             catch(InvocationTargetException ex) {
                 System.out.println("InvocationTargetException in Modifier.setValue");
                 ex.printStackTrace();
-                System.exit(1);
             }
             catch(IllegalAccessException ex) {
                 System.out.println("IllegalAccessException in Modifier.setValue");
-                System.exit(1);
+                throw new RuntimeException(ex);
             }
         }//end of j-loop
     }
