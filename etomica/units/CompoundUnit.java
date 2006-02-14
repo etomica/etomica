@@ -28,7 +28,11 @@ public class CompoundUnit implements Unit {
         }
         String name = "";
         for(int i=0; i<units.length; i++) {
-            name += "("+units[i].toString()+"^"+exponents[i]+")";
+            name += "("+units[i].toString();
+            if (exponents[i] != 1.0) {
+                name += "^"+exponents[i];
+            }
+            name += ")";
         }
         return name;
     }
@@ -40,7 +44,10 @@ public class CompoundUnit implements Unit {
         }
         String symbol = "";
         for(int i=0; i<units.length; i++) {
-            symbol += units[i].symbol()+"^"+exponents[i];
+            symbol += units[i].symbol();
+            if (exponents[i] != 1.0) {
+                symbol += "^"+exponents[i];
+            }
             if(i != units.length-1) symbol += "-";
         }
         return symbol;
