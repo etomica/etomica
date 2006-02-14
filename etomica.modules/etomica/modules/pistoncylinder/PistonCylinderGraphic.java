@@ -64,7 +64,6 @@ import etomica.units.Prefix;
 import etomica.units.PrefixedUnit;
 import etomica.units.Pressure;
 import etomica.units.Quantity;
-import etomica.units.SimpleUnit;
 import etomica.units.Temperature;
 import etomica.units.Time;
 import etomica.units.Undefined;
@@ -247,7 +246,7 @@ public class PistonCylinderGraphic {
         
         DeviceSlider repaintSlider = new DeviceSlider(null);
         //XXX ugh, see bug 49
-        repaintSlider.setUnit(Time.SIM_UNIT); 
+        repaintSlider.setUnit(Time.SIM_UNIT);
         repaintSlider.setShowValues(false);
         repaintSlider.setEditValues(true);
         repaintSlider.setMinimum(0);
@@ -452,7 +451,6 @@ public class PistonCylinderGraphic {
         dataPanel.add(temperatureDisplayBox.graphic(),gbc2);
         
         pressureDisplayBox = new DisplayBoxesCAE();
-        pressureDisplayBox.setLabel("Pressure (bar)");
         pressureDisplayBox.setLabelType(DisplayBox.LabelType.BORDER);
         dataPanel.add(pressureDisplayBox.graphic(),gbc2);
         
@@ -507,6 +505,9 @@ public class PistonCylinderGraphic {
             dUnit = new UnitRatio(Mole.UNIT, Liter.UNIT);
             pUnit = Bar.UNIT;
         }
+
+        densityDisplayBox.setLabel("Density ("+dUnit.symbol()+")");
+        pressureDisplayBox.setLabel("Pressure ("+pUnit.symbol()+")");
 
         // set up GUI
         displayPhase.setPixelUnit(new Pixel(600/pc.phase.getBoundary().getDimensions().x(1)));
