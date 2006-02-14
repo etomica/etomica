@@ -18,6 +18,9 @@ public interface Renderable
 		public void setColorScheme( ColorScheme scheme );
         public void dispose();
 	};
+    
+    public void setColorScheme(ColorScheme scheme);
+    
 	public interface Sphere extends Shape
 	{
 	};

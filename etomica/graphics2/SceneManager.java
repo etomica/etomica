@@ -34,6 +34,7 @@ public final class SceneManager {
 
     public void setRenderer( Renderable r ) {
     	renderer = r;
+        renderer.setColorScheme(colorScheme);
     }
 
    
@@ -119,6 +120,7 @@ public final class SceneManager {
 	}
 	public void setColorScheme(ColorScheme colorScheme) {
 		this.colorScheme = colorScheme;
+        renderer.setColorScheme(colorScheme);
 	}
 	
     public void setAtomFilter(AtomFilter filter) {atomFilter = filter;} 
