@@ -441,7 +441,6 @@ public class PistonCylinderGraphic {
         JPanel dataPanel = new JPanel(new GridBagLayout());
         
         densityDisplayBox = new DisplayBoxesCAE();
-        densityDisplayBox.setLabel("Density (mol/L)");
         densityDisplayBox.setLabelType(DisplayBox.LabelType.BORDER);
         dataPanel.add(densityDisplayBox.graphic(),gbc2);
         
