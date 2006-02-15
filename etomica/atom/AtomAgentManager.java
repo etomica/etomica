@@ -110,10 +110,13 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
                 }
                 // nuke all atoms below this atom
                 treeIterator.setRoot(a);
+                treeIterator.reset();
                 while (treeIterator.hasNext()) {
-                    int index = treeIterator.nextAtom().getGlobalIndex();
+                    Atom childAtom = treeIterator.nextAtom();
+                    int index = childAtom.getGlobalIndex();
                     if (agents[index] != null) {
                         // Atom used to have an agent.  nuke it.
+                        agentSource.releaseAgent(agents[index], childAtom);
                         agents[index] = null;
                     }
                     else if (agents.length < index+1) {
