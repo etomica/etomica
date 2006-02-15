@@ -127,7 +127,11 @@ public abstract class Activity implements Action, java.io.Serializable {
             while(isActive()) {
                 haltRequested = true;
                 unPause();//in case currently paused
-                this.wait(); //make thread requesting halt wait until halt is in effect
+                // check to see if Activity actually halted while we were 
+                // for the unpause
+                if (haltRequested) {
+                    this.wait(); //make thread requesting halt wait until halt is in effect
+                }
             }
         } catch (InterruptedException e) { }
     }
