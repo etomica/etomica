@@ -95,16 +95,16 @@ public final class SceneManager {
     }
     
     public void setPhase(Phase newPhase) {
-        if (phase != null) {
-            agentManager.setPhase(null);
+        if (newPhase == phase) {
+            return;
         }
-        if (newPhase != null) {
-            agentManager.setPhase(newPhase);
-        }
+        agentManager.setPhase(newPhase);
         sphereShapeWrappers = (SphereShapeWrapper[])agentManager.getAgents();
     	phase = newPhase;
-        from = phase.space().makeVector();
-        to = phase.space().makeVector();
+        if (phase != null) {
+            from = phase.space().makeVector();
+            to = phase.space().makeVector();
+        }
     }
     
     public Phase getPhase() {
