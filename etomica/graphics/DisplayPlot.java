@@ -130,14 +130,12 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
         for(int k=0; k<nSource; k++) {
             final double[] data = dataTable.getColumn(k).getData();
             for(int i=0; i<data.length; i++) {
-                plot.addPoint(k, xUnit.fromSim(xValues.getValue(i)), units[k].fromSim(data[i]), true);
-//              if(!Double.isNaN(data[k].y[i])) { 
-//                plot.addPoint(k, x.unit.fromSim(x.y[i]), data[k].unit.fromSim(data[k].y[i]), true);
-//              } else if(i==x.y.length-1) {
-//				plot.addPoint(k, x.unit.fromSim(x.y[i]), 0.0, false);
-//              }
-            }//for i
-        }//for k
+                double y = units[k].fromSim(data[i]);
+                if (!Double.isNaN(y)) {
+                    plot.addPoint(k, xUnit.fromSim(xValues.getValue(i)), units[k].fromSim(data[i]), true);
+                }
+            }
+        }
         plot.repaint();
 
     }//end doUpdate method
