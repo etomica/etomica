@@ -46,9 +46,12 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
             iterator.reset();
             while (iterator.hasNext()) {
                 Atom atom = iterator.nextAtom();
-                Object agent = agents[atom.getGlobalIndex()];
-                if (agent != null) {
-                    agentSource.releaseAgent(agent,atom);
+                // check if atom's spot in the array even exists yet
+                if (atom.getGlobalIndex() < agents.length) {
+                    Object agent = agents[atom.getGlobalIndex()];
+                    if (agent != null) {
+                        agentSource.releaseAgent(agent,atom);
+                    }
                 }
             }
         }
