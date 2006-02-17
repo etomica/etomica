@@ -15,6 +15,7 @@ public class HistoryCollapsingAverage extends HistoryCollapsing {
     public HistoryCollapsingAverage() {this(100);}
     public HistoryCollapsingAverage(int n) {
         super(n);
+        tempBin = 0;
     }
     
    /**
@@ -25,15 +26,13 @@ public class HistoryCollapsingAverage extends HistoryCollapsing {
     public void addValue(double x) {
         if (cursor == history.length) {
             collapseData();
-            history[cursor] = 0.0;
         }
-        history[cursor] += x;
+        tempBin += x;
         if (++intervalCount == interval) {
-            history[cursor] /= interval;
+            intervalCount = 0;
+            history[cursor] = tempBin / interval;
             cursor++;
-            if (cursor < history.length) {
-                history[cursor] = 0.0;
-            }
+            tempBin = 0;
         }
     }
 
@@ -64,6 +63,7 @@ public class HistoryCollapsingAverage extends HistoryCollapsing {
     }
     
     protected double[] temp;
+    private double tempBin;
 
     /**
      * Factory that creates an instance of this class.
