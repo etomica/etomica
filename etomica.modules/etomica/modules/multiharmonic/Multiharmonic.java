@@ -18,7 +18,7 @@ import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.HistoryCollapsingAverage;
+import etomica.util.HistoryCollapsing;
 
 
 /**
@@ -93,10 +93,10 @@ public class Multiharmonic extends Simulation {
         register(meter,dataPump);
         register(meterEnergy,dataPumpEnergy);
         
-        history = new AccumulatorHistory(HistoryCollapsingAverage.FACTORY);
+        history = new AccumulatorHistory(HistoryCollapsing.FACTORY);
         accumulator.addDataSink(history, new AccumulatorAverage.StatType[] {AccumulatorAverage.StatType.AVERAGE});
 
-        historyEnergy = new AccumulatorHistory(HistoryCollapsingAverage.FACTORY);
+        historyEnergy = new AccumulatorHistory(HistoryCollapsing.FACTORY);
         accumulatorEnergy.addDataSink(historyEnergy, new AccumulatorAverage.StatType[] {AccumulatorAverage.StatType.AVERAGE});
 
     }
