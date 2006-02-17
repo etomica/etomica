@@ -23,9 +23,8 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
     }
 
     /**
-     * Performs cell-assignment potentialCalculation.  Assigns all molecules
-     * to their cells, and invokes superclass method causing setup to be
-     * performed iterating using species/potential hierarchy.
+     * Determines potentials that apply to each AtomType using a special PotentialCalculation
+     * which is performed by the superclass (non-neighbor PotentialMaster).
      */
     public void updateTypeList(Phase phase) {
         PotentialCalculationUpdateTypeList pc = new PotentialCalculationUpdateTypeList();
