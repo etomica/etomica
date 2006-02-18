@@ -21,8 +21,7 @@ public abstract class EventManager implements java.io.Serializable {
         }
         //add listener to beginning of list 
         //placement at end causes problem if a listener removes and then adds itself to the list as part of its response to the event
-        first = new EventManager.Linker(listener, first, null);
-        if(first.next != null) first.next.previous = first;
+        first = new EventManager.Linker(listener, first);
         listenerCount++;
     }
 
@@ -30,14 +29,15 @@ public abstract class EventManager implements java.io.Serializable {
      * Removes a listener.  Synchronized to avoid conflict with addListener.
      */
     public synchronized void removeListener(Object listener) {
-        for(EventManager.Linker link=first; link!=null; link=link.next) {
+        Linker previous = null;
+        for(Linker link=first; link!=null; link=link.next) {
             if(link.listener == listener) {
             	listenerCount--;
                 if(link == first) {first = link.next;}
-                if(link.previous != null) link.previous.next = link.next;
-                if(link.next != null) link.next.previous = link.previous;
+                if(previous != null) previous.next = link.next;
                 return;
             }
+            previous = link;
         }
     }
     
@@ -48,13 +48,6 @@ public abstract class EventManager implements java.io.Serializable {
     	return listenerCount;
     }
     
-    /**
-     * Returns the first of the linked-list of listeners.  Useful if 
-     * using this class just to maintain list of listeners, while firing
-     * events to them using methods outside this class.
-     */
-    public EventManager.Linker first() {return first;}
-
     protected abstract Class getListenerClass();
 
     protected EventManager.Linker first;
@@ -65,11 +58,10 @@ public abstract class EventManager implements java.io.Serializable {
      */
     public static class Linker implements java.io.Serializable {
         public Object listener;
-        public Linker next, previous;
-        public Linker(Object listener, Linker next, Linker previous) {
+        public Linker next;
+        public Linker(Object listener, Linker next) {
             this.listener = listener;
             this.next = next;
-            this.previous = previous;
         }
     }
 
