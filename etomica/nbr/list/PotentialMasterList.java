@@ -61,11 +61,11 @@ public class PotentialMasterList extends PotentialMasterNbr {
         this(space, range, new PhaseAgentSourceCellManager(positionDefinition));
     }
     
-    public PotentialMasterList(Space space, double range, PhaseAgentSource phaseAgentSource) {
+    public PotentialMasterList(Space space, double range, PhaseAgentSourceCellManager phaseAgentSource) {
         this(space, range, phaseAgentSource, new PhaseAgentManager(phaseAgentSource,null));
     }
     
-    public PotentialMasterList(Space space, double range, PhaseAgentSource phaseAgentSource, PhaseAgentManager agentManager) {
+    public PotentialMasterList(Space space, double range, PhaseAgentSourceCellManager phaseAgentSource, PhaseAgentManager agentManager) {
         super(space, phaseAgentSource, agentManager);
         neighborManager = new NeighborListManager(this, range, agentManager);
         atomIterator = new AtomIteratorArrayListSimple();
@@ -73,7 +73,6 @@ public class PotentialMasterList extends PotentialMasterNbr {
         pairIterator = new ApiInnerFixed(singletIterator, atomIterator);
         swappedPairIterator = new ApiInnerFixed(singletIterator, atomIterator, true);
         cellRange = 2;
-        phaseAgentManager = agentManager;
 	}
     
     public void setRange(double range) {
