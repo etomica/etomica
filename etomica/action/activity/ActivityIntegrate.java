@@ -33,6 +33,7 @@ public class ActivityIntegrate extends Activity {
         this.doSleep = doSleep;
         this.ignoreOverlap = ignoreOverlap;
         sleepPeriod = 10;
+        setMaxSteps(Integer.MAX_VALUE);
         setLabel("ActivityIntegrate");
 	}
     
@@ -70,7 +71,7 @@ public class ActivityIntegrate extends Activity {
         int iieCount = interval;//changed from "interval + 1"
         while(stepCount < maxSteps) {
             if (Debug.ON && stepCount == Debug.START) Debug.DEBUG_NOW = true;
-            if (Debug.ON && stepCount == Debug.STOP) halt();
+            if (Debug.ON && stepCount == Debug.STOP) break;
             if (Debug.ON && Debug.DEBUG_NOW) System.out.println("*** integrator step "+stepCount);
             if (!doContinue()) break;
             if (resetRequested) {
@@ -169,7 +170,7 @@ public class ActivityIntegrate extends Activity {
      * less than number of steps already executed, integration will end.
      */
 	public void setMaxSteps(long maxSteps) {
-		if(maxSteps < 0) maxSteps = 0;
+		if(maxSteps < 0) throw new IllegalArgumentException("steps must not be negative");
 		this.maxSteps = maxSteps;
 	}
 	
@@ -195,6 +196,10 @@ public class ActivityIntegrate extends Activity {
 	public Integrator getIntegrator() {
 		return integrator;
 	}
+    
+    public String toString() {
+        return getLabel();
+    }
 	
 	private final Integrator integrator;
 	protected int interval;
@@ -202,7 +207,7 @@ public class ActivityIntegrate extends Activity {
 	private boolean doSleep;
     private boolean ignoreOverlap;
 	private int sleepPeriod;
-	protected long maxSteps = Long.MAX_VALUE;
+	protected long maxSteps;
 	IntegratorIntervalEvent intervalEvent;
 
 }
