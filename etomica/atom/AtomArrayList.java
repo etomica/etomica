@@ -352,7 +352,7 @@ import etomica.util.Debug;
 	     * Shifts any subsequent elements to the left (subtracts one from their
 	     * indices).
 	     *
-	     * @param index the index of the element to removed.
+	     * @param index the index of the element to be removed.
 	     * @return the element that was removed from the list.
 	     * @throws    IndexOutOfBoundsException if index out of range (index
 	     * 		  < 0 || index >= size()).
@@ -371,6 +371,15 @@ import etomica.util.Debug;
 	    	return oldValue;
 	    }
         
+        /**
+         * Removes the element at the specified position in the list.
+         * If the element is not the last item in the list, the element is
+         * replaced with the last element. 
+         * @param index the index of the element to be removed.
+         * @return the element that was removed from the list.
+         * @throws IndexOutOfBoundsException if the index is out of range
+         *         (index < 0 || index >= size()).
+         */
         public Atom removeAndReplace(int index) {
             RangeCheck(index);
             
