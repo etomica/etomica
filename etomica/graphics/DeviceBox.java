@@ -236,8 +236,10 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
                 value.setText(Double.toString(x));
                 doUpdate();
                 return;
-                }
-            if(modifier!=null) modifier.setValue(unit.toSim(x));
+            }
+            if (modifier!=null) {
+                modifier.setValue(unit.toSim(x));
+            }
        }
        public void keyReleased(java.awt.event.KeyEvent evt) {
             if(!isInteger()) return;

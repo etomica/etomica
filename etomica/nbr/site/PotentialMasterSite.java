@@ -35,7 +35,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * to assign cells. 
 	 */
 	public PotentialMasterSite(Space space, int nCells) {
-        this(space, new SiteManagerAgentManager(nCells));
+        this(space, new PhaseAgentSiteManager(nCells));
     }
     
     public PotentialMasterSite(Space space, PhaseAgentSource phaseAgentSource) {
@@ -142,19 +142,6 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             }
         }
             
-//        if (length > 0) {
-//            neighborIterator.setTarget(atom);
-//            neighborIterator.reset();
-//            while (neighborIterator.hasNext()) {
-//                AtomPair pair = neighborIterator.nextPair();
-//                singletPairIterator.setAtom(pair);
-//                for (int i=0; i<potentials.length; i++) {
-//                    if (((Potential2)potentials[i]).getCriterion().accept(pair)) {
-//                        pc.doCalculation(singletPairIterator,id,potentials[i]);
-//                    }
-//                }
-//            }
-//		}
 		//if atom has children, repeat process with them
 		if(!atom.node.isLeaf()) {
             //cannot use AtomIterator field because of recursive call
@@ -179,8 +166,8 @@ public class PotentialMasterSite extends PotentialMasterNbr {
     protected final AtomsetIteratorMolecule neighborIterator;
     protected PhaseCellManager currentCellManager;
     
-    public static class SiteManagerAgentManager implements PhaseAgentSource {
-        public SiteManagerAgentManager(int nCells) {
+    public static class PhaseAgentSiteManager implements PhaseAgentSource {
+        public PhaseAgentSiteManager(int nCells) {
             this.nCells = nCells;
         }
         

@@ -52,8 +52,6 @@ public class NeighborSiteManager implements PhaseCellManager, AgentSource {
         siteIterator.setLattice(lattice);
         siteIterator.reset();
 
-        //listener to phase to detect addition of new SpeciesAgent
-        //or new atom
         agentManager = new AtomAgentManager(this,phase);
         sites = (AtomSite[])agentManager.getAgents();
     }
