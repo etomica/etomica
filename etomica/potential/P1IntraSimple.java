@@ -42,6 +42,10 @@ public class P1IntraSimple extends PotentialGroup implements Potential1.Intramol
         addPotential(potential, ApiBuilder.makeAdjacentPairIterator());
     }
     
+    public Potential2 getBonded() {
+        return bonded;
+    }
+    
     /**
      * After constructing nonbonded potential with this group as its parent, this method
      * must be called with it as an argument to identify it as the nonbonded potential.
@@ -51,6 +55,10 @@ public class P1IntraSimple extends PotentialGroup implements Potential1.Intramol
         if(nonBonded != null) removePotential(nonBonded);
         nonBonded = potential;
         addPotential(potential, ApiBuilder.makeNonAdjacentPairIterator());
+    }
+    
+    public Potential2 getNonbonded() {
+        return nonBonded;
     }
     
     public static EtomicaInfo getEtomicaInfo() {
