@@ -186,15 +186,14 @@ public class ActivityGroupSeries extends Activity implements ActivityGroup {
      * left off.
      */
     public synchronized void unPause() {
-        //        System.out.println("in unPause "+isPaused()+" "+isActive());
-        if (!isPaused() || !isActive()) {
-            return;// not currently paused or not active
-        }
-        pauseRequested = false;
         if (currentAction instanceof Activity) {
+            if (!isPaused() || !isActive()) {
+                return;// not currently paused or not active
+            }
+            pauseRequested = false;
             ((Activity) currentAction).unPause();
         } else {
-            notifyAll();
+            super.unPause();
         }
     }
          
