@@ -75,7 +75,7 @@ public final class Debug {
     /**
      * index of phase of interest.  -1 indicates no particular phase.
      */
-    public static final int PHASE_INDEX = 1;
+    public static final int PHASE_INDEX = 0;
     
     public static final double ATOM_SIZE = 1.0;
     
