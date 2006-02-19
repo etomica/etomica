@@ -38,6 +38,7 @@ public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
 		// isothermal to be consistent with way integrator
 		// is sampling
         moveManager = new MCMoveManager();
+        eventManager = new MCMoveEventManager();
 	}
 
 	public static EtomicaInfo getEtomicaInfo() {
@@ -89,13 +90,10 @@ public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
     	if (!move.doTrial())
     		return;
 
-    	//notify any listeners that move has been attempted
-    	if (eventManager != null) { //consider using a final boolean flag that
-    		// is set in constructor
-    		event.mcMove = move;
-    		event.isTrialNotify = true;
-    		eventManager.fireEvent(event);
-    	}
+        //notify any listeners that move has been attempted
+		event.mcMove = move;
+		event.isTrialNotify = true;
+		eventManager.fireEvent(event);
 
     	//decide acceptance
     	double chi = move.getA() * Math.exp(move.getB()/temperature);
@@ -108,11 +106,9 @@ public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
     		currentPotentialEnergy += move.energyChange(phase);
     	}
 
-    	//notify listeners of outcome
-    	if (eventManager != null) {
-    		event.isTrialNotify = false;
-    		eventManager.fireEvent(event);
-    	}
+        //notify listeners of outcome
+		event.isTrialNotify = false;
+		eventManager.fireEvent(event);
 
     	move.updateCounts(event.wasAccepted, chi, equilibrating);
     }
@@ -130,25 +126,11 @@ public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
      * Adds a listener that will be notified when a MCMove trial is attempted
      * and when it is completed.
      */
-    public void addMCMoveListener(MCMoveListener listener) {
-    	if (eventManager == null)
-    		eventManager = new MCMoveEventManager();
-    	eventManager.addListener(listener);
-    }
-
-    /**
-     * Removes the given listener.
-     */
-    public void removeMCMoveListener(MCMoveListener listener) {
-    	if (eventManager == null)
-    		return; //should define an exception
-    	eventManager.removeListener(listener);
-    	if (eventManager.listenerCount() == 0)
-    		eventManager = null;
+    public MCMoveEventManager getMoveEventManager() {
+        return eventManager;
     }
 
     protected MCMoveManager moveManager;
-    protected MCMoveEventManager eventManager;
+    protected final MCMoveEventManager eventManager;
 	protected final MCMoveEvent event = new MCMoveEvent(this);
-
 }

@@ -6,7 +6,6 @@ public class ControllerEventManager extends EventManager {
 
     public ControllerEventManager() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
     public void fireEvent(ControllerEvent event) {

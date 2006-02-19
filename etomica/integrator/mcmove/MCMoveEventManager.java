@@ -6,7 +6,6 @@ public class MCMoveEventManager extends EventManager {
 
     public MCMoveEventManager() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
     public void fireEvent(MCMoveEvent event) {

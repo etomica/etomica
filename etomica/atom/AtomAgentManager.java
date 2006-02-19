@@ -20,19 +20,25 @@ import etomica.util.Arrays;
 public class AtomAgentManager implements PhaseListener, java.io.Serializable {
 
     public AtomAgentManager(AgentSource source, Phase phase) {
+        this(source, phase, true);
+    }
+    
+    public AtomAgentManager(AgentSource source, Phase phase, boolean isBackend) {
         agentSource = source;
         setPhase(phase);
-        newAtomList = new AtomList();
-    }
+        newAtomList = new AtomArrayList();
+        this.isBackend = isBackend;
+    }        
     
     public Object[] getAgents() {
         if (!newAtomList.isEmpty()) {
             // if newAtomList has Atoms, agents must have been full, so extend it now
             agents = Arrays.resizeArray(agents,newMaxIndex+phase.getSpeciesMaster().getIndexReservoirSize());
-            for (AtomLinker link = newAtomList.header.next; link != newAtomList.header; link = link.next) {
-                addAgent(link.atom);
+            for (int i=0; i<newAtomList.size(); i++) {
+                addAgent(newAtomList.get(i));
             }
             newAtomList.clear();
+            newAtomList.trimToSize();
         }
         newMaxIndex = -1;
         return agents;
@@ -41,7 +47,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
     public void setPhase(Phase newPhase) {
         if (phase != null) {
             // remove ourselves as a listener to the old phase
-            phase.removeListener(this);
+            phase.getEventManager().removeListener(this);
             AtomIteratorTree iterator = new AtomIteratorTree(phase.getSpeciesMaster(),Integer.MAX_VALUE,true);
             iterator.reset();
             while (iterator.hasNext()) {
@@ -63,7 +69,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
             }
             return;
         }
-        phase.addListener(this);
+        phase.getEventManager().addListener(this, isBackend);
         // hope the class returns an actual class with a null Atom and use it to construct
         // the array
         agents = (Object[])Array.newInstance(agentSource.getAgentClass(),
@@ -106,7 +112,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
                 }
                 else if (agents.length < index+1) {
                     // must have been just added
-                    newAtomList.remove(a);
+                    newAtomList.removeAndReplace(newAtomList.indexOf(a));
                 }
             }
             else {
@@ -127,7 +133,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
                     }
                     else if (agents.length < index+1) {
                         // maybe it was just added
-                        newAtomList.remove(a);
+                        newAtomList.removeAndReplace(newAtomList.indexOf(a));
                     }
                 }
             }
@@ -176,8 +182,9 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
 
     private final AgentSource agentSource;
     protected Object[] agents;
-    private AtomList newAtomList;
+    private AtomArrayList newAtomList;
     private AtomIteratorTree treeIterator;
     private Phase phase;
     private int newMaxIndex;
+    private final boolean isBackend;
 }

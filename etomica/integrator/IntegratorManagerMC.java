@@ -30,6 +30,7 @@ public class IntegratorManagerMC extends Integrator {
         intervalEvents = new IntegratorIntervalEvent[0];
         setGlobalMoveInterval(2);
         moveManager = new MCMoveManager();
+        eventManager = new MCMoveEventManager();
     }
 
     protected void setup() throws ConfigurationOverlapException {
@@ -168,12 +169,9 @@ public class IntegratorManagerMC extends Integrator {
             return;
 
         //notify any listeners that move has been attempted
-        if (eventManager != null) { //consider using a final boolean flag that
-            // is set in constructor
-            event.mcMove = move;
-            event.isTrialNotify = true;
-            eventManager.fireEvent(event);
-        }
+        event.mcMove = move;
+        event.isTrialNotify = true;
+        eventManager.fireEvent(event);
 
         //decide acceptance
         double chi = move.getA();
@@ -186,35 +184,15 @@ public class IntegratorManagerMC extends Integrator {
         }
 
         //notify listeners of outcome
-        if (eventManager != null) {
-            event.isTrialNotify = false;
-            eventManager.fireEvent(event);
-        }
+        event.isTrialNotify = false;
+        eventManager.fireEvent(event);
 
         move.updateCounts(event.wasAccepted, chi, equilibrating);
     }
 
-    /**
-     * Adds a listener that will be notified when a MCMove trial is attempted
-     * and when it is completed.
-     */
-    public void addMCMoveListener(MCMoveListener listener) {
-        if (eventManager == null)
-            eventManager = new MCMoveEventManager();
-        eventManager.addListener(listener);
+    public MCMoveEventManager getMoveEventManager() {
+        return eventManager;
     }
-
-    /**
-     * Removes the given listener.
-     */
-    public void removeMCMoveListener(MCMoveListener listener) {
-        if (eventManager == null)
-            return; //should define an exception
-        eventManager.removeListener(listener);
-        if (eventManager.listenerCount() == 0)
-            eventManager = null;
-    }
-
     
     /**
      * Sets the average interval between phase-swap trials.  With each 
@@ -241,7 +219,7 @@ public class IntegratorManagerMC extends Integrator {
     private double globalMoveInterval;
     private double globalMoveProbability;
     protected MCMoveManager moveManager;
-    protected MCMoveEventManager eventManager;
+    protected final MCMoveEventManager eventManager;
     protected final MCMoveEvent event = new MCMoveEvent(this);
     protected Integrator[] integrators;
     protected IntegratorIntervalEvent[] intervalEvents;

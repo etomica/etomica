@@ -6,7 +6,6 @@ public class SimulationEventManager extends EventManager {
 
     public SimulationEventManager() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
     public void fireEvent(SimulationEvent event) {

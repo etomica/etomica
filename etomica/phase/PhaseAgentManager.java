@@ -22,8 +22,13 @@ import etomica.util.Arrays;
 public class PhaseAgentManager implements SimulationListener, java.io.Serializable {
 
     public PhaseAgentManager(PhaseAgentSource source, SpeciesRoot speciesRoot) {
+        this(source, speciesRoot, true);
+    }
+
+    public PhaseAgentManager(PhaseAgentSource source, SpeciesRoot speciesRoot, boolean isBackend) {
         agentSource = source;
         setRoot(speciesRoot);
+        this.isBackend = isBackend;
     }
     
     public Object[] getAgents() {
@@ -36,7 +41,7 @@ public class PhaseAgentManager implements SimulationListener, java.io.Serializab
         }
         if (speciesRoot != null) {
             // remove ourselves as a listener to the old phase
-            speciesRoot.removeListener(this);
+            speciesRoot.getEventManager().removeListener(this);
             for (int i=0; i<agents.length; i++) {
                 if (agents[i] != null) {
                     agentSource.releaseAgent(agents[i]);
@@ -49,7 +54,7 @@ public class PhaseAgentManager implements SimulationListener, java.io.Serializab
             agents = (Object[])Array.newInstance(agentSource.getAgentClass(),0);
             return;
         }
-        speciesRoot.addListener(this);
+        speciesRoot.getEventManager().addListener(this, isBackend);
         // hope the class returns an actual class with a null Atom and use it to construct
         // the array
         AtomIteratorArrayListSimple listIterator = new AtomIteratorArrayListSimple(((AtomTreeNodeGroup)speciesRoot.node).childList);
@@ -96,4 +101,5 @@ public class PhaseAgentManager implements SimulationListener, java.io.Serializab
     private final PhaseAgentSource agentSource;
     protected Object[] agents;
     private SpeciesRoot speciesRoot;
+    private final boolean isBackend;
 }

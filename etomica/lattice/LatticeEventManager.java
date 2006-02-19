@@ -6,7 +6,6 @@ public class LatticeEventManager extends EventManager {
 
     public LatticeEventManager() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
     public void fireEvent(LatticeEvent event) {

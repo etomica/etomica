@@ -18,7 +18,7 @@ import etomica.space3d.Vector3D;
 /**
  * Converts all drawable information in a Phase object into graphics primitives
  *  using the Renderable interface. 
- * It does not handle mouse or keyboard - it's up to the implamentation to do it. 
+ * It does not handle mouse or keyboard - it's up to the implementation to do it. 
  */
 public final class SceneManager {
     
@@ -29,7 +29,7 @@ public final class SceneManager {
  
     	colorScheme = new ColorSchemeByType();
         
-        agentManager = new AtomAgentManager(new SphereShapeSource(),null);
+        agentManager = new AtomAgentManager(new SphereShapeSource(), null, false);
    }
 
     public void setRenderer( Renderable r ) {

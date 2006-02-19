@@ -342,13 +342,8 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         return newPhase;
     }
     
-    //event management
-    public synchronized void addListener(PhaseListener listener) {
-        eventManager.addListener(listener);
-    }
-
-    public synchronized void removeListener(PhaseListener listener) {
-        eventManager.removeListener(listener);
+    public PhaseEventManager getEventManager() {
+        return eventManager;
     }
 
     private Boundary boundary;

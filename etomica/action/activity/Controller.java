@@ -68,7 +68,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
             actionExceptionMap.remove(completedActions[i]);
         }
         super.reset();
-        fireEvent(new ControllerEvent(this, ControllerEvent.RESET, currentAction));
+        eventManager.fireEvent(new ControllerEvent(this, ControllerEvent.RESET, currentAction));
     }
     
     /**
@@ -95,7 +95,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
      */
     public void run() {
         Thread.currentThread().setName("Controller thread");
-        fireEvent(new ControllerEvent(this, ControllerEvent.START));
+        eventManager.fireEvent(new ControllerEvent(this, ControllerEvent.START));
         while(numActions > 0) {
             synchronized(this) {
                 currentAction = pendingActions[0];
@@ -104,7 +104,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                 //put it back
                 actionStatusMap.put(currentAction,ActionStatus.CURRENT);
             }
-            fireEvent(new ControllerEvent(this, ControllerEvent.START_ACTION, currentAction));
+            eventManager.fireEvent(new ControllerEvent(this, ControllerEvent.START_ACTION, currentAction));
             if(currentAction instanceof Activity) {
                 waitObject.currentActionDone = false;
                 waitObject.actionException = null;
@@ -164,7 +164,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                     actionStatusMap.put(currentAction,ActionStatus.COMPLETED);
                 }
                 completedActions = (Action[])Arrays.addObject(completedActions, currentAction);
-                fireEvent(new ControllerEvent(this, ControllerEvent.END_ACTION, currentAction));
+                eventManager.fireEvent(new ControllerEvent(this, ControllerEvent.END_ACTION, currentAction));
 
                 if(waitObject.actionException == null && repeatCurrentAction) {
                     if(currentAction instanceof Activity) {
@@ -178,7 +178,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
             }
 
             if (waitObject.actionException != null) {
-                fireEvent(new ControllerEvent(this, ControllerEvent.NO_MORE_ACTIONS));
+                eventManager.fireEvent(new ControllerEvent(this, ControllerEvent.NO_MORE_ACTIONS));
                 isActive = false;
                 throw new RuntimeException("action failed", waitObject.actionException);
             }
@@ -190,7 +190,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
             }
             
             if(haltRequested) {
-                fireEvent(new ControllerEvent(this, ControllerEvent.HALTED));
+                eventManager.fireEvent(new ControllerEvent(this, ControllerEvent.HALTED));
                 haltRequested = false;
             }
             
@@ -204,7 +204,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
             notifyAll();//notify any threads requesting halt and waiting for execution to complete
         }
 
-        fireEvent(new ControllerEvent(this, ControllerEvent.NO_MORE_ACTIONS));
+        eventManager.fireEvent(new ControllerEvent(this, ControllerEvent.NO_MORE_ACTIONS));
     }
 
     /**
@@ -247,11 +247,11 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     private synchronized void doUrgentAction() {
 //        System.out.println("doing UrgentAction "+urgentAction);
         if(urgentAction == null) return;
-        fireEvent(new ControllerEvent(this, ControllerEvent.START_URGENT_ACTION, urgentAction));
+        eventManager.fireEvent(new ControllerEvent(this, ControllerEvent.START_URGENT_ACTION, urgentAction));
         urgentAction.actionPerformed();
         completedActions = (Action[])Arrays.addObject(completedActions, urgentAction);
 //        System.out.println("finished UrgentAction "+urgentAction);
-        fireEvent(new ControllerEvent(this, ControllerEvent.END_URGENT_ACTION, urgentAction));
+        eventManager.fireEvent(new ControllerEvent(this, ControllerEvent.END_URGENT_ACTION, urgentAction));
         urgentAction = null;
     }
     
@@ -307,32 +307,12 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
         }
     }
 
-    /**
-     * Adds the given object to the list of listeners to this Controller.
-     * Nothing is done if listener is null.
-     */
-    public synchronized void addListener(ControllerListener listener) {
-        if(listener == null) return;
-        eventManager.addListener(listener);
-    }
-
-    /**
-     * Removes the given object from the list of listeners to this Controller.
-     */
-    public synchronized void removeListener(ControllerListener listener) {
-        if(listener == null) return;
-        eventManager.removeListener(listener);
-    }
-
-    /**
-     * Notifies all registered listeners of the given event.
-     */
-    protected synchronized void fireEvent(ControllerEvent event) {
-        eventManager.fireEvent(event);
-    }
-    
     public String toString() {
         return "Controller";
+    }
+    
+    public ControllerEventManager getEventManager() {
+        return eventManager;
     }
     
     private final ControllerEventManager eventManager;

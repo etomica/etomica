@@ -85,16 +85,10 @@ public final class SpeciesRoot extends Atom {
         return (Species[])speciesList.clone();
     }
 
-    //event management
-    public synchronized void addListener(SimulationListener listener) {
-        eventManager.addListener(listener);
+    public SimulationEventManager getEventManager() {
+        return eventManager;
     }
-
-    public synchronized void removeListener(SimulationListener listener) {
-        eventManager.removeListener(listener);
-    }
-
-
+    
     /**
      * @return Returns the childType.
      */

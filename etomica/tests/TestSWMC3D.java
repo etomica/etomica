@@ -52,7 +52,7 @@ public class TestSWMC3D extends Simulation {
         species.setNMolecules(numAtoms);
 	    phase = new Phase(this);
         phase.setDensity(0.7);
-        integrator.addMCMoveListener(((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).makeMCMoveListener());
+        integrator.getMoveEventManager().addListener(((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).makeMCMoveListener());
         potential = new P2SquareWell(space,defaults.atomSize,sqwLambda,defaults.potentialWell,false);
         ((PotentialMasterCell)potentialMaster).setCellRange(2);
         ((PotentialMasterCell)potentialMaster).setRange(potential.getRange());

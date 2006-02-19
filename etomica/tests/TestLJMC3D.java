@@ -66,7 +66,7 @@ public class TestLJMC3D extends Simulation {
         ((PotentialMasterCell)potentialMaster).setRange(potentialTruncated.getRange());
         potentialTruncated.setCriterion(etomica.nbr.NeighborCriterion.ALL);
         potentialMaster.addPotential(potentialTruncated, new Species[] {species, species});
-        integrator.addMCMoveListener(((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).makeMCMoveListener());
+        integrator.getMoveEventManager().addListener(((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).makeMCMoveListener());
         
         new ConfigurationFile(space,"LJMC3D"+Integer.toString(numAtoms)).initializeCoordinates(phase);
         integrator.setPhase(phase);
