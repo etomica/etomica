@@ -131,14 +131,14 @@ public class PotentialMasterList extends PotentialMasterNbr {
         singletIterator.setAtom(atom);
         IteratorDirective.Direction direction = id.direction();
         for(int i=0; i<potentials.length; i++) {
-            if (!potentials[i].getCriterion().isRangeDependent()) {
-                // not range-dependent, so assume intragroup!  let's hope we're right.
-                ((AtomsetIteratorBasisDependent)iterators[i]).setBasis(atom.node.parentGroup());
-                ((AtomsetIteratorBasisDependent)iterators[i]).setTarget(atom);
-                ((AtomsetIteratorDirectable)iterators[i]).setDirection(direction);
-                pc.doCalculation(iterators[i],id,potentials[i]);
-                continue;
-            }
+//            if (!potentials[i].getCriterion().isRangeDependent()) {
+//                // not range-dependent, so assume intragroup!  let's hope we're right.
+//                ((AtomsetIteratorBasisDependent)iterators[i]).setBasis(atom.node.parentGroup());
+//                ((AtomsetIteratorBasisDependent)iterators[i]).setTarget(atom);
+//                ((AtomsetIteratorDirectable)iterators[i]).setDirection(direction);
+//                pc.doCalculation(iterators[i],id,potentials[i]);
+//                continue;
+//            }
             switch (potentials[i].nBody()) {
             case 1:
                 pc.doCalculation(singletIterator, id, potentials[i]);
