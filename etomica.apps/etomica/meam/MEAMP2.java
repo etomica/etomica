@@ -17,9 +17,35 @@ import etomica.units.Energy;
 
 /**
  * This class calculates the pair-wise terms required for the modified embedded-
- * atom method potential.  The values calculated that are relevant to each atom
- * are stored and summed in bins, which may be accessed later when calculating 
- * each atom's energy.
+ * atom method potential.  If a pair-wise term is eventually to be used in 
+ * the calculation of the potential energy of an atom, its value is calculated in
+ * the energy() method and stored in the appropriate element, or bin, of the "sums" 
+ * array for that atom.  If it is used to calculate the gradient of the potential 
+ * of an atom, it is calculated in the gradient() method and stored in appropriate
+ * element/bin of the "gradientSums" array for that atom.  Both of these arrays 
+ * are stored in a wrapper, called "agents", for each atom. 
+ * 
+ * Note that in this class, the bins of both atoms in the pair are
+ * receiving the same values for each pair-wise term.  This is appropriate only 
+ * for pairs in which both atoms are of the same element. 
+ *
+ * As the pairings between an atom and each of its neighbors are evaluated, the 
+ * pair-wise terms relevant to that atom are summed within that atom's "sums" 
+ * array or "gradientSums" array.  Thus the MEAM potential and its gradient may
+ * be calculated in the MEAMPMany class as a one-body potential.  Note that the 
+ * potential and gradient are not themselves calculated within the MEAMP2 class; 
+ * the energy() method returns zero, and the gradient() method returns the zero
+ * vector.
+ * 
+ * Also note that this class does not yet calculate the screening function, a 
+ * variation of a cutoff function.  The value of the screening function between
+ * two atoms depends upon the position of any atoms that are somewhat between them,
+ * and thus requires evaluations of values for triplets.  Etomica does not have 
+ * this capability yet.
+ * 
+ * This class was created by A. Schultz and K.R. Schadel July 2005 as part of
+ * a pseudo embedded-atom method potential.  In February 2006 it was adapted 
+ * to be a part of a modified embedded-atom method potential.
  */
 
 public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgentManager.AgentSource {
@@ -90,16 +116,6 @@ public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgen
      * terms required for calculation of the embedding energy of both atoms in 
      * the pair, and it also calculates the value of phi, the repulsive energy
      * between each pair of atoms, another pair-wise term.  
-     * 
-     * The values required for each atom are stored in separate bins for
-     * each atom in an array.  When another pair is examined that includes an
-     * atom already examined in a previous pairing, the new pair-wise terms 
-     * calculated for the new pairing will be added to the previous values.  In
-     * this way, the summations over all neighbor's j are performed.   
-     * 
-     * This field functions only for unmixed pairs of atoms.  The parameters, 
-     * which are dependent upon the type of elements involved in the pair, 
-     * are provided in the class ParameterSetEAM.
      */
     public double energy(AtomSet pair) {
         coordinatePair.reset((AtomPair)pair);
@@ -124,7 +140,7 @@ public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgen
     	//We need to store the information required by the many-body potential 
     	//so that it may be accessed when MEAMPMany is employed.  Information 
     	//relevant to each atom in the pair of atoms (i and j, 0 and 1), 
-    	//currently being examined is sent to an array.  The NEAMPMany class then
+    	//currently being examined is sent to an array.  The MEAMPMany class then
     	//only needs to access one atom's information in the array to determine
     	//the embedding energy of the atom.
     	//
@@ -271,7 +287,7 @@ public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgen
     }
     
     /**
-     * Gradient of the pair potential as given by the du(double) method.
+     * Calculations of terms required for gradient of potential energy
      */
     public Vector gradient(AtomSet pair) {
     	coordinatePair.reset((AtomPair)pair);
@@ -298,8 +314,7 @@ public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgen
         double x = unitVector.x(0);
         double y = unitVector.x(1);
         double z = unitVector.x(2);
-        
-//      Calculations of terms required for gradient of potential energy
+
     	
     	Vector3D[] gradientSumsAtom0 = agents[((AtomPair)pair).atom0.getGlobalIndex()].gradientSums;
     	Vector3D[] gradientSumsAtom1 = agents[((AtomPair)pair).atom1.getGlobalIndex()].gradientSums;

@@ -12,13 +12,17 @@ import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 
 /**
- * This class initializes the allatomAgents[EmbeddedAtomMethodP2.agentIndex] array.
- * All atoms' energy values and gradients are set to 0 and (0,0,0), respectively.
+ * This class initializes the values of every element in the arrays "sums" and
+ * "gradientSums" to be zero or the zero vector ("nada"), respectively.  
  * 
- * EmbeddedAtomMethodPInitial is a one-body potential, and is used along with 
- * EmbeddedAtomMethodP2 and EmbeddedAtomMethodPMany in the EAMMd3D simulation class.
+ * This class provides no direct contribution to the values of either the 
+ * potential or the gradient of the potential, although it does function as 
+ * a one-body potential.  Note that the energy() method and gradient() method 
+ * return zero and the zero vector, respectively. 
  * 
- * This class was created by A. Schultz and K.R. Schadel July 2005.
+ * This class was created by A. Schultz and K.R. Schadel July 2005 as part of
+ * a pseudo embedded-atom method potential.  In February 2006 it was adapted 
+ * to be a part of a modified embedded-atom method potential.
  */
 
 public final class MEAMPInitial extends Potential1 implements PotentialSoft {
@@ -39,6 +43,7 @@ public final class MEAMPInitial extends Potential1 implements PotentialSoft {
 		for(int i=0; i < 27; i++) {
 			agent.sums[i] = 0;
 		}
+		//MEAMPInitial should contribute nothing to the potential directly.
 		return 0;
 	}
 	
@@ -47,6 +52,7 @@ public final class MEAMPInitial extends Potential1 implements PotentialSoft {
 		for(int i=0; i < 27; i++) {
 			agent.gradientSums[i].E(0);
 		}
+		//MEAMPInitial should contribute nothing to the gradient directly.
 		return nada; 
 	}
 	

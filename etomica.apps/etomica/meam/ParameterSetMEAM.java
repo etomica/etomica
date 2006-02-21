@@ -5,13 +5,13 @@ import etomica.units.ElectronVolt;
 /**
  * This class provides the MEAM parameters for the SAC alloy constituents
  * (Ag, Cu, and Sn) and for the reference structures required for cross 
- * potentials (the mixed pair pair potentials between atoms of different types).
+ * potentials (the pair potentials between atoms of different types).
  * 
  * The parameters for Ag are those published by Dong et al. in 2005, in a paper
  * studing a Sn-Ag system.  The parameters are the same for Ag as those initially 
  * published by Baskes in 1992.  The parameters for the reference 
  * structure used for the Sn-Ag cross potential (L12 Ag3Sn) are also included 
- * in this paper.
+ * in the 2005 paper by Dong et al.
  * 
  * Note: the scaling parameter for Ag is that developed for a Sn-Ag system, not
  * for a Sn-Ag-Cu system.
@@ -20,12 +20,12 @@ import etomica.units.ElectronVolt;
  * 2000, in a paper studying a Sn-Cu system.  The parameters are essentially the
  * same for Cu as those initially determined by Baskes in 1992.  The parameters for
  * the reference structure used for the Sn-Cu cross potential (L12 Cu3Sn) are also
- * included in this paper.  
+ * included in 2000 paper by Aguilar et al.  
  * 
  * Note: the scaling parameter for Cu is that developed for a Sn-Cu system, not 
  * for a Sn-Ag-Cu system.
  * 
- * The parameters for Sn are also those published by Aguilar, Ravelo, and Baskes in 
+ * The parameters for Sn were also published by Aguilar, Ravelo, and Baskes in 
  * 2000.  The parameters are essentially the same for Sn as those initially 
  * determined by Ravelo and Baskes in 1997.
  * 

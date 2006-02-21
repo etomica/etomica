@@ -14,11 +14,15 @@ import etomica.units.Dimension;
 import etomica.units.Energy;
 
 /**
- * This class calculates the MEAM potential of each atom i, using the values that have
- * been summed over all nearest neighbors, j for each atom i in its bins.
+ * This class calculates the MEAM potential of each atom i, using the values that 
+ * have been summed over all relevant neighbors, j, for each atom i in its bins.
  * 
- * It was originally created for use with the EmbeddedAtomMethodPInitial and EmbeddedAtomMethodPMany
- * classes in the EAMMd3D simulation class by A. Schultz and K.R. Schadel July 2005.
+ * Note that this class does yet include the screening function.  For the time
+ * being, we will use a simple nearest-neighbor cutoff function only.
+ * 
+ * This class was created by A. Schultz and K.R. Schadel July 2005 as part of
+ * a pseudo embedded-atom method potential.  In February 2006 it was adapted 
+ * to be a part of a modified embedded-atom method potential.
  */
 
 public final class MEAMPMany extends Potential1 implements PotentialSoft {
