@@ -75,6 +75,7 @@ public class CoordinatePair implements java.io.Serializable {
      * transformation taken into account.  Separation is defined as coord2 - coord1, where
      * "2" and "1" are as given in the last call to reset with arguments.
      * @throws NullPointerException if no coordinates or atoms were previously specified
+     * or if the nearestImageTransformer was not specified.
      */
     public Vector reset() {
         dr.Ev1Mv2(c2.r, c1.r);
@@ -114,6 +115,6 @@ public class CoordinatePair implements java.io.Serializable {
     protected Coordinate c1;
     protected Coordinate c2;
     protected final Vector dr;
-    protected NearestImageTransformer nearestImageTransformer = new NearestImageTransformerVector();
+    protected NearestImageTransformer nearestImageTransformer;
     private static final long serialVersionUID = 1L;
 }

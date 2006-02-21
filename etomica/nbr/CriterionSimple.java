@@ -11,7 +11,6 @@ import etomica.phase.PhaseAgentManager;
 import etomica.phase.PhaseAgentSourceAtomManager;
 import etomica.simulation.Simulation;
 import etomica.space.CoordinatePair;
-import etomica.space.NearestImageTransformerVector;
 import etomica.space.Vector;
 import etomica.util.Debug;
 
@@ -29,9 +28,6 @@ public class CriterionSimple extends NeighborCriterion implements AgentSource  {
         neighborRadius2 = neighborRadius * neighborRadius;
         setSafetyFactor(0.4);
         cPair = new CoordinatePair(sim.space);
-        nearestImageTransformer = new NearestImageTransformerVector();
-        nearestImageTransformer.setPlus(false);
-        cPair.setNearestImageTransformer(nearestImageTransformer);
         phaseAgentManager = new PhaseAgentManager(new PhaseAgentSourceAtomManager(this),sim.speciesRoot);
 	}
 	
@@ -114,7 +110,6 @@ public class CriterionSimple extends NeighborCriterion implements AgentSource  {
 	private final CoordinatePair cPair;
 	protected double safetyFactor;
 	protected double r2, r2MaxSafe;
-    private final NearestImageTransformerVector nearestImageTransformer;
     private AtomAgentManager[] agentManager;
     protected Vector[] agents;
     private final PhaseAgentManager phaseAgentManager;
