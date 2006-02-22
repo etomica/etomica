@@ -109,8 +109,6 @@ public class HSMD3D extends Simulation {
         potential.setCriterion(criterion);
         potentialMaster.addPotential(potential,new Species[]{species,species});
 
-        nbrManager.addCriterion(criterion,new AtomType[]{species.getFactory().getType()});
-
         phase = new Phase(this);
         new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);
         integrator.setPhase(phase);

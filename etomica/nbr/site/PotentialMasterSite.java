@@ -15,6 +15,7 @@ import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.PotentialMasterNbr;
+import etomica.nbr.PotentialCalculationUpdateTypeList.PotentialAtomTypeWrapper;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.phase.Phase;
 import etomica.phase.PhaseAgentManager;
@@ -25,6 +26,7 @@ import etomica.potential.Potential2;
 import etomica.potential.PotentialCalculation;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.util.Arrays;
 
 public class PotentialMasterSite extends PotentialMasterNbr {
 
@@ -72,6 +74,21 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         this.cellRange = cellRange;
     }
 
+    protected void addToPotentialTypeList(PotentialAtomTypeWrapper wrapper) {
+        boolean found = false;
+        NeighborCriterion criterion = wrapper.potential.getCriterion();
+        for (int i=0; i<criteriaArray.length; i++) {
+            if (criteriaArray[i] == criterion) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            criteriaArray = (NeighborCriterion[]) Arrays.addObject(criteriaArray, criterion);
+        }
+        super.addToPotentialTypeList(wrapper);
+    }
+    
     /**
      * Overrides superclass method to enable direct neighbor-list iteration
      * instead of iteration via species/potential hierarchy. If no target atoms are
@@ -84,6 +101,9 @@ public class PotentialMasterSite extends PotentialMasterNbr {
     public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
         if (!enabled)
             return;
+        for (int i=0; i<criteriaArray.length; i++) {
+            criteriaArray[i].setPhase(phase);
+        }
         currentCellManager = (NeighborCellManager)phaseAgentManager.getAgents()[phase.getIndex()];
         AtomSet targetAtoms = id.getTargetAtoms();
         if (targetAtoms.count() == 0) {
@@ -165,6 +185,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
     private final IteratorDirective idUp = new IteratorDirective();
     protected final AtomsetIteratorMolecule neighborIterator;
     protected PhaseCellManager currentCellManager;
+    private NeighborCriterion[] criteriaArray = new NeighborCriterion[0];
     
     public static class PhaseAgentSiteManager implements PhaseAgentSource {
         public PhaseAgentSiteManager(int nCells) {

@@ -63,22 +63,18 @@ public class TestHSMD3D extends Simulation {
         CriterionSpecies criterion = new CriterionSpecies(nbrCriterion, species, species);
         potential.setCriterion(criterion);
         potentialMaster.addPotential(potential,new Species[]{species,species});
-        nbrManager.addCriterion(nbrCriterion,new AtomType[]{species.getFactory().getType(),species.getFactory().getType()});
 
         potential = new P2HardSphere(this);
         nbrCriterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
         criterion = new CriterionSpecies(nbrCriterion, species, species2);
         potential.setCriterion(criterion);
         potentialMaster.addPotential(potential,new Species[]{species,species2});
-        //only need to call since all the criteria are equivalent
-        nbrManager.addCriterion(nbrCriterion,new AtomType[]{species.getFactory().getType(),species2.getFactory().getType()});
 
         potential = new P2HardSphere(this);
         nbrCriterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
         criterion = new CriterionSpecies(nbrCriterion, species2, species2);
         potential.setCriterion(criterion);
         potentialMaster.addPotential(potential,new Species[]{species2,species2});
-        nbrManager.addCriterion(nbrCriterion,new AtomType[]{species2.getFactory().getType(),species2.getFactory().getType()});
         
         phase = new Phase(this);
         integrator.setPhase(phase);

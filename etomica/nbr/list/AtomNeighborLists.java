@@ -13,10 +13,10 @@ import etomica.util.DirtyObject;
 import etomica.util.EtomicaObjectInputStream;
 
 /**
- * Sequencer used to maintain neighbor lists.  Holds lists of atoms
- * that were elsewhere deemed to be neighbors of the sequencer's atom.
- * Atoms are stored with reference to the potential that governs their
- * interactions.
+ * Class used to maintain neighbor lists.  Holds lists of atoms that were 
+ * elsewhere deemed to be neighbors of the another atom.  A separate 
+ * AtomArrayList is kept for each potential (potential => AtomArrayList mapping
+ * is the responsibility of the consumer). 
  */
 public class AtomNeighborLists implements DirtyObject {
 
@@ -31,31 +31,25 @@ public class AtomNeighborLists implements DirtyObject {
     }
     
     /**
-     * Adds the given atom to the neighbor set that are uplist of
-     * this sequencer's atom and which interact via the given potential.  
-     * @param a the new uplist neighbor atom
-     * @param potential the potential between the atoms
+     * Adds the given atom as a "down" neighbor interacting via the potential 
+     * with the given index.  
+     * @param a the new downlist neighbor atom
+     * @param index the of the potential between the atoms
      */
     public void addUpNbr(Atom a, int index) {
         ensureCapacity(index);
         upList[index].add(a);
-//        if (atom.node.getOrdinal() == 1) {
-//            System.out.println("in aUN, "+index+" "+upList[index].size());
-//        }
     }
 
     /**
-     * Adds the given atom to the neighbor set that are downlist of
-     * this sequencer's atom and which interact via the given potential.  
+     * Adds the given atom as a "down" neighbor interacting via the potential 
+     * with the given index.  
      * @param a the new downlist neighbor atom
-     * @param potential the potential between the atoms
+     * @param index the of the potential between the atoms
      */
     public void addDownNbr(Atom a, int index) {
         ensureCapacity(index);
         downList[index].add(a);
-//        if (atom.node.getOrdinal() == 1) {
-//            System.out.println("in aDN, "+index+" "+downList[index].size());
-//        }
     }
 
     /**
@@ -94,7 +88,6 @@ public class AtomNeighborLists implements DirtyObject {
     /**
      * Should be called when removing a potential that applied to this atom
      */
-    //TODO consider whether this method might foul up the index assignments
 	public void decrementNbrListArrays() {
 		if (upList.length == 0) throw new RuntimeException("potential list empty in removePotential");
 		upList = new AtomArrayList[upList.length-1];

@@ -17,7 +17,9 @@ import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.nbr.NeighborCriterion;
 import etomica.nbr.PotentialMasterNbr;
+import etomica.nbr.PotentialCalculationUpdateTypeList.PotentialAtomTypeWrapper;
 import etomica.nbr.cell.PhaseAgentSourceCellManager;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.phase.Phase;
@@ -84,6 +86,10 @@ public class PotentialMasterList extends PotentialMasterNbr {
         return neighborManager.getRange();
     }
     
+    protected void addToPotentialTypeList(PotentialAtomTypeWrapper wrapper) {
+        neighborManager.addCriterion(wrapper.potential.getCriterion(),wrapper.atomTypes);
+        super.addToPotentialTypeList(wrapper);
+    }
 
     /**
      * Overrides superclass method to enable direct neighbor-list iteration
@@ -133,6 +139,9 @@ public class PotentialMasterList extends PotentialMasterNbr {
         for(int i=0; i<potentials.length; i++) {
             if (!potentials[i].getCriterion().isRangeDependent()) {
                 // not range-dependent, so assume intragroup!  let's hope we're right.
+                
+                // if you're hitting a ClassCastExcpetion here, it's because you didn't 
+                // give your potential an appropriate criterion
                 ((AtomsetIteratorBasisDependent)iterators[i]).setBasis(atom.node.parentGroup());
                 ((AtomsetIteratorBasisDependent)iterators[i]).setTarget(atom);
                 ((AtomsetIteratorDirectable)iterators[i]).setDirection(direction);
@@ -141,7 +150,10 @@ public class PotentialMasterList extends PotentialMasterNbr {
             }
             switch (potentials[i].nBody()) {
             case 1:
-                pc.doCalculation(singletIterator, id, potentials[i]);
+                boolean[] potential1BodyArray = neighborManager.getPotential1BodyList(atom).getInteractingList();
+                if (i < potential1BodyArray.length && potential1BodyArray[i]) {
+                    pc.doCalculation(singletIterator, id, potentials[i]);
+                }
                 break;
             case 2:
                 AtomArrayList[] list;

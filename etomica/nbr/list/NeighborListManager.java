@@ -4,6 +4,7 @@
  */
 package etomica.nbr.list;
 
+import etomica.action.AtomActionAdapter;
 import etomica.action.AtomsetActionAdapter;
 import etomica.action.PhaseImposePbc;
 import etomica.atom.Atom;
@@ -64,6 +65,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         potentialMaster = potentialMasterList;
         cellNbrIterator = new ApiAACell(potentialMaster.getSpace().D(), range, agentManager);
         phaseAgentManager = new PhaseAgentManager(new PhaseAgentSourceAtomManager(this),null);
+        phaseAgentManager1Body = new PhaseAgentManager(new PhaseAgentSourceAtomManager(new AtomPotential1ListSource()),null);
     }
 
     /**
@@ -81,6 +83,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         if (evt.type() == IntegratorNonintervalEvent.INITIALIZE) {
             Phase phase = ((IntegratorPhase)evt.getSource()).getPhase();
             phaseAgentManager.setRoot((SpeciesRoot)phase.getSpeciesMaster().node.parentGroup());
+            phaseAgentManager1Body.setRoot((SpeciesRoot)phase.getSpeciesMaster().node.parentGroup());
             potentialMaster.updateTypeList(phase);
             reset(((IntegratorPhase)evt.getSource()).getPhase());
         }
@@ -163,11 +166,20 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     /**
      * Adds the given criterion to the list of those held by this manager. This
      * is done so the manager can inform all criteria of the phase in which they
-     * are being applied. Does not check whether criterion already was added to
-     * list.
+     * are being applied. Does not add the criterion if it was already added to
+     * the list.
      */
     public void addCriterion(NeighborCriterion criterion, AtomType[] atomTypes) {
-        criteriaArray = (NeighborCriterion[]) Arrays.addObject(criteriaArray, criterion);
+        boolean found = false;
+        for (int i=0; i<criteriaArray.length; i++) {
+            if (criteriaArray[i] == criterion) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            criteriaArray = (NeighborCriterion[]) Arrays.addObject(criteriaArray, criterion);
+        }
         outer: for (int i=0; i<atomTypes.length; i++) {
             while (criteria.length < atomTypes[i].getIndex()+1) {
                 criteria = (NeighborCriterion[][])Arrays.addObject(criteria, new NeighborCriterion[0]);
@@ -242,9 +254,11 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     protected void neighborSetup(Phase phase) {
         agentManagers = (AtomAgentManager[])phaseAgentManager.getAgents();
         neighborLists = (AtomNeighborLists[])agentManagers[phase.getIndex()].getAgents();
+        agentManagers1Body = (AtomAgentManager[])phaseAgentManager1Body.getAgents();
+        potentialList = (AtomPotentialList[])agentManagers1Body[phase.getIndex()].getAgents();
 
         iterator.setRoot(phase.getSpeciesMaster());
-        neighborReset.setNeighborLists(neighborLists);
+        neighborReset.setNeighborLists(neighborLists,potentialList);
         iterator.allAtoms(neighborReset);
         
         potentialMaster.getNbrCellManager(phase).assignCellAll();
@@ -305,6 +319,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     
     public void setPhase(Phase phase) {
         neighborLists = (AtomNeighborLists[])agentManagers[phase.getIndex()].getAgents();
+        potentialList = (AtomPotentialList[])agentManagers1Body[phase.getIndex()].getAgents();
     }
     
     public AtomArrayList[] getUpList(Atom atom) {
@@ -315,6 +330,10 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         return neighborLists[atom.getGlobalIndex()].getDownList();
     }
 
+    public AtomPotentialList getPotential1BodyList(Atom atom) {
+        return potentialList[atom.getGlobalIndex()];
+    }
+
     private NeighborCriterion[] criteriaArray = new NeighborCriterion[0];
     private int updateInterval;
     private int iieCount;
@@ -322,14 +341,17 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     private final NeighborCheck neighborCheck;
     private final NeighborReset neighborReset;
     private final ApiAACell cellNbrIterator;
-    private final PotentialMasterList potentialMaster;
+    protected final PotentialMasterList potentialMaster;
     private int priority;
     private PhaseImposePbc pbcEnforcer;
     private boolean quiet;
     private NeighborCriterion[][] criteria = new NeighborCriterion[0][0];
     private AtomNeighborLists[] neighborLists;
+    private AtomPotentialList[] potentialList;
     private AtomAgentManager[] agentManagers;
+    private AtomAgentManager[] agentManagers1Body;
     private final PhaseAgentManager phaseAgentManager;
+    private final PhaseAgentManager phaseAgentManager1Body;
 
     /**
      * Atom action class that checks if any criteria indicate that the given
@@ -377,31 +399,40 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * and resets the criteria as it applies to the atom (e.g., sets its
      * previous-position vector to its current position).
      */
-    private static class NeighborReset extends AtomsetActionAdapter {
-
-        private NeighborListManager neighborListManager;
+    private static class NeighborReset extends AtomActionAdapter {
 
         public NeighborReset(NeighborListManager manager) {
             neighborListManager = manager;
         }
         
-        public void actionPerformed(AtomSet atom) {
+        public void actionPerformed(Atom atom) {
             //TODO consider removing this check, for perf improvement
-            if (((Atom) atom).type.getDepth() < 3) {
+            if (atom.type.getDepth() < 3) {
                 return;//don't want SpeciesMaster or SpeciesAgents
             }
-            final NeighborCriterion[] criterion = neighborListManager.getCriterion(((Atom) atom).type);
-            neighborLists[((Atom) atom).getGlobalIndex()].clearNbrs();
+            final NeighborCriterion[] criterion = neighborListManager.getCriterion(atom.type);
+            neighborLists[atom.getGlobalIndex()].clearNbrs();
             for (int i = 0; i < criterion.length; i++) {
-                criterion[i].reset((Atom) atom);
+                criterion[i].reset(atom);
+            }
+
+            Potential[] potentials = neighborListManager.potentialMaster.getPotentials(atom.type).getPotentials();
+            for (int i = 0; i < potentials.length; i++) {
+                if (potentials[i].nBody() != 1 || !potentials[i].getCriterion().isRangeDependent()) {
+                    continue;
+                }
+                potentialLists[atom.getGlobalIndex()].setIsInteracting(potentials[i].getCriterion().accept(atom),i);
             }
         }
         
-        public void setNeighborLists(AtomNeighborLists[] newNeighborLists) {
+        public void setNeighborLists(AtomNeighborLists[] newNeighborLists, AtomPotentialList[] newPotentialLists) {
             neighborLists = newNeighborLists;
+            potentialLists = newPotentialLists;
         }
         
+        private NeighborListManager neighborListManager;
         private AtomNeighborLists[] neighborLists;
+        private AtomPotentialList[] potentialLists;
     }
     
     public Class getAgentClass() {
@@ -414,5 +445,15 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     
     public void releaseAgent(Object agent, Atom atom) {
         ((AtomNeighborLists)agent).clearNbrs();
+    }
+    
+    public class AtomPotential1ListSource implements AtomAgentManager.AgentSource, java.io.Serializable {
+        public Class getAgentClass() {
+            return AtomPotentialList.class;
+        }
+        public void releaseAgent(Object obj, Atom atom) {}
+        public Object makeAgent(Atom atom) {
+            return new AtomPotentialList();
+        }
     }
 }

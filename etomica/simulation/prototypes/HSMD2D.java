@@ -83,7 +83,6 @@ public class HSMD2D extends Simulation {
         criterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
         potential22.setCriterion(criterion);
         potentialMaster.addPotential(potential22,new Species[]{species2,species});
-        nbrManager.addCriterion(criterion,new AtomType[]{species.getFactory().getType(),species2.getFactory().getType()});
 //        potentialMaster.setSpecies(potential,new Species[]{species,species});
 //        potentialMaster.setSpecies(potential,new Species[]{species2,species2});
 //        potentialMaster.setSpecies(potential,new Species[]{species2,species});

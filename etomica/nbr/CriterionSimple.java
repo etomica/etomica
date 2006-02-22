@@ -32,7 +32,7 @@ public class CriterionSimple extends NeighborCriterion implements AgentSource  {
 	}
 	
 	public void setSafetyFactor(double f) {
-		if (safetyFactor < 0.0 || safetyFactor > 0.5) throw new IllegalArgumentException("safety factor must be positive and less than 0.5");
+		if (f <= 0.0 || f >= 0.5) throw new IllegalArgumentException("safety factor must be positive and less than 0.5");
 		safetyFactor = f;
 		double displacementLimit = (Math.sqrt(neighborRadius2) - interactionRange) * f;
 		displacementLimit2 = displacementLimit * displacementLimit;

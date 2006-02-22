@@ -30,8 +30,14 @@ public abstract class Potential1 extends Potential {
     }
     
     public NeighborCriterion getCriterion() {
-        return null;
+        return criterion;
     }
+    
+    public void setCriterion(NeighborCriterion newCriterion) {
+        criterion = newCriterion;
+    }
+
+    protected NeighborCriterion criterion = NeighborCriterion.ALL;
 
     /**
      * Marker interface indicating that a one-body potential is an intramolecular
@@ -41,7 +47,7 @@ public abstract class Potential1 extends Potential {
      */
     public interface Intramolecular {}
 
-}//end of Potential1
+}
 
 
 

@@ -93,7 +93,6 @@ public class TestSWChain extends Simulation {
         
         AtomTypeSphere sphereType = (AtomTypeSphere)((AtomFactoryHomo)species.moleculeFactory()).getChildFactory().getType();
         potentialMaster.addPotential(potential,new AtomType[]{sphereType,sphereType});
-        ((PotentialMasterList)potentialMaster).getNeighborManager().addCriterion(nbrCriterion,new AtomType[]{sphereType});
 
         phase = new Phase(this);
 
