@@ -33,6 +33,7 @@ public class Potential2HardSphericalWrapper extends Potential2HardSpherical {
     
     public void setPhase(Phase phase) {
         ((Potential2)wrappedPotential).setPhase(phase);
+        super.setPhase(phase);
     }
     
     public double getRange() {
