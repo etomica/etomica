@@ -1,6 +1,9 @@
 package etomica.atom;
 
+import java.io.IOException;
+
 import etomica.space.Space;
+import etomica.util.EtomicaObjectInputStream;
 
  /**
   * Object corresponding to one physical atom or group of atoms. Each atom holds
@@ -156,4 +159,11 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
     
     private int globalIndex = -1;
     
+    private void readObject(java.io.ObjectInputStream in)
+    throws IOException, ClassNotFoundException
+    {
+        EtomicaObjectInputStream etomicaIn = (EtomicaObjectInputStream)in; 
+        etomicaIn.defaultReadObject();
+        etomicaIn.addAtom(this);
+    }
 }

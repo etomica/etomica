@@ -18,7 +18,7 @@ import etomica.util.EtomicaObjectInputStream;
  * AtomArrayList is kept for each potential (potential => AtomArrayList mapping
  * is the responsibility of the consumer). 
  */
-public class AtomNeighborLists implements DirtyObject {
+public class AtomNeighborLists implements DirtyObject, java.io.Serializable {
 
     protected transient AtomArrayList[] upList, downList;
 	

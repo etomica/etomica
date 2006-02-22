@@ -4,13 +4,15 @@
  */
 package etomica.nbr.list;
 
+import java.io.Serializable;
+
 import etomica.util.Arrays;
 
 /**
  * Class used to maintain list of whether each 1-body potential that
  * applies to an AtomType is currently in effect or not for an Atom.
  */
-public class AtomPotentialList {
+public class AtomPotentialList implements Serializable {
 
     protected boolean[] isInteractingList;
 	
