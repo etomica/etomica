@@ -143,7 +143,6 @@ public class DisplayPolytope extends Display implements Action, EtomicaElement {
     }
 
     public void setBounds(int x, int y, int width, int height) {
-        graphic().setBounds(x,y,width,height);
         canvas.setBounds(x,y,width,height);
     }
 

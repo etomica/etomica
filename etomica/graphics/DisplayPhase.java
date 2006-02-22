@@ -41,7 +41,7 @@ import etomica.units.Pixel;
   * 08/08/03 (DAK) added listener for '<' and '>' keypresses to affect
   * drawExpansionFactor in DisplayPhaseCanvas3DOpenGL
   */
-public class DisplayPhase extends Display implements Action, EtomicaElement {
+public class DisplayPhase extends Display implements EtomicaElement {
         
     public static final int LEFT = -1;   //Class variables to code for alignment of drawn image within display region
     public static final int CENTER = 0;
@@ -132,18 +132,13 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
         return info;
     }
     
-    public void setSize(int width, int height) {
+    protected void setSize(int width, int height) {
         java.awt.Dimension temp = new java.awt.Dimension(width, height);
         canvas.setMinimumSize(temp);
         canvas.setMaximumSize(temp);
         canvas.setPreferredSize(temp);
         canvas.reshape(width, height);
     }
-    
-    public void actionPerformed() {
-        repaint();
-    }
-    
     
     /**
      * Amount (in pixels) of a simple shift (translation) applied in determing origin.
@@ -160,11 +155,6 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
     public int[] getDrawSize() {
         computeImageParameters();
         return drawSize;
-    }
-
-    public void setBounds(int x, int y, int width, int height) {
-        graphic().setBounds(x,y,width,height);
-        canvas.setBounds(x,y,width,height);
     }
 
     public void setAlign(int i, int value) {
@@ -206,8 +196,11 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
      * Specifies the phase for this display.  Updates atomIterator appropriately.
      */
     public void setPhase(Phase p) {
-        if(p == null) return;
         phase = p;
+        if(p == null) {
+            canvas = null;
+            return;
+        }
         
         int boxX = (int)(phase.getBoundary().getBoundingBox().x(0) * pixel.toPixels());
         int boxY = 1;
@@ -251,6 +244,8 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
                 }
             }
         });
+        
+        canvas.setAtomFilter(atomFilter);
 
         atomIterator = new AtomIteratorLeafAtoms(p);
     }
@@ -258,7 +253,7 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
     public void setPhaseCanvas(DisplayCanvas phaseCanvas) {
         canvas = phaseCanvas;
         if (phaseCanvas == null) return;
-        if(phase == null) throw new IllegalStateException("Cannot set canvas before setting phase");
+        if (phase == null) throw new IllegalStateException("Cannot set canvas before setting phase");
         
         int boxX = (int)(phase.getBoundary().getBoundingBox().x(0) * pixel.toPixels());
         int boxY = 1;
@@ -295,6 +290,8 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
                 }
             }
         });
+
+        canvas.setAtomFilter(atomFilter);
     }
     
     /**
@@ -383,7 +380,7 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
         centralOrigin[1] = (int)(getScale()*originShift[1]) + computeOrigin(align[1],drawSize[1],h);
     }    
       
-    public int computeOrigin(int alignX, int drawSizeX, int size) {
+    private int computeOrigin(int alignX, int drawSizeX, int size) {
         switch(alignX) {
             case   LEFT: return 0;    //same as TOP
             case CENTER: return (size-drawSizeX)/2;
@@ -392,16 +389,12 @@ public class DisplayPhase extends Display implements Action, EtomicaElement {
         }
     }
 
-    public void doUpdate() {}
-    public void repaint() {canvas.repaint();}
+    public void repaint() {
+        if (canvas != null) {
+            canvas.repaint();
+        }
+    }
       
-    public void setMovable(boolean b) {canvas.setMovable(b);}
-    public boolean isMovable() {return canvas.isMovable();}
-    public void setResizable(boolean b) {canvas.setResizable(b);}
-    public boolean isResizable() {return canvas.isResizable();}
-    
-    
-    
     //Methods for handling DisplayPhaseEvents
     
     /**
