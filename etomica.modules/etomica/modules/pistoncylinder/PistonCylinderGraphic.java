@@ -733,16 +733,21 @@ public class PistonCylinderGraphic {
         pc.controller.doActionNow( new Action() {
             public void actionPerformed() {
                 if (HS) {
+                    potentialHS.setPhase(pc.phase);
                     pc.potentialWrapper.setPotential(potentialHS);
                 }
                 else if (SW) {
+                    potentialSW.setPhase(pc.phase);
                     pc.potentialWrapper.setPotential(potentialSW);
                 }
                 else {
+                    potentialIdeal.setPhase(pc.phase);
                     pc.potentialWrapper.setPotential(potentialIdeal);
                 }
                 try {
-                    pc.integrator.reset();
+                    if (pc.integrator.isInitialized()) {
+                        pc.integrator.reset();
+                    }
                 } catch(ConfigurationOverlapException e) {}
             }
             public String getLabel() {return "";}
