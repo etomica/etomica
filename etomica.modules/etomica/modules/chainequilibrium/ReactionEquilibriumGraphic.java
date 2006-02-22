@@ -1,12 +1,12 @@
 package etomica.modules.chainequilibrium;
 
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 import etomica.action.Action;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.DataSinkTable;
-import etomica.data.types.DataTable;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSelector;
@@ -29,10 +29,6 @@ import etomica.util.Constants.CompassDirection;
 public class ReactionEquilibriumGraphic {
     public JPanel panel = new JPanel();
     boolean initializing;
-    public JPanel epsilonSliders;
-    public JPanel lambdaSliders;
-    public JPanel sizeSliders;
-    public DataTable dataTable; 
     public DisplayPhase displayPhase1;
     public ReactionEquilibrium simulation;
 
@@ -126,6 +122,7 @@ public class ReactionEquilibriumGraphic {
         tSelect.setIntegrator(sim.integratorHard1);
         ColorSchemeByType colorScheme = (ColorSchemeByType)displayPhase1.getColorScheme();
         colorScheme.setColor(sim.speciesA.getMoleculeType(), java.awt.Color.red);
+        colorScheme.setColor(sim.speciesB.getMoleculeType(), java.awt.Color.black);
 
         int ms = 10;
         AEditor.nSlider.getSlider().setMajorTickSpacing(ms);
@@ -264,7 +261,7 @@ public class ReactionEquilibriumGraphic {
             }
         };
 
-        numberRenderer.setHorizontalAlignment(javax.swing.JLabel.RIGHT);
+        numberRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
         initializing = false;
     }
     
