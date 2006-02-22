@@ -84,8 +84,6 @@ public class DCVGCMDGraphic extends SimulationGraphic{
     nMoleculePanel.add(boxA.graphic());
     nMoleculePanel.add(boxB.graphic());
     nMoleculePanel.setBorder(new javax.swing.border.TitledBorder("Number of atoms"));
-    
-    
 	
 //Slider to adjust temperature
 	DeviceSlider temperatureSlider = new DeviceSlider(sim.getController(), sim.integratorDCV, "temperature");

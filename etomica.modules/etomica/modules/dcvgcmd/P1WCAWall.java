@@ -16,10 +16,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 
 /**
- * @author Owner
- * 
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ * 1-D potential that has a WCA form in the Z direction.
  */
 
 public class P1WCAWall extends Potential1 implements PotentialSoft {
@@ -44,6 +41,10 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
         EtomicaInfo info = new EtomicaInfo(
                 "WCA LJ Potential in the Z-Coordinate");
         return info;
+    }
+    
+    public double getRange() {
+        return cutoff;
     }
 
     public double energy(AtomSet atom) {

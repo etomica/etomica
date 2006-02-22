@@ -49,6 +49,10 @@ public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
                 "WCA LJ Potential in the Z-Coordinate");
         return info;
     }
+    
+    public double getRange() {
+        return cutoff;
+    }
 
     public double energy(AtomSet atom) {
         AtomLeaf a = (AtomLeaf) atom;

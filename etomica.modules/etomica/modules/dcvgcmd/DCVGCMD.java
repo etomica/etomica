@@ -12,10 +12,10 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.nbr.CriterionPositionWall;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.CriterionSpecies;
 import etomica.nbr.NeighborCriterion;
-import etomica.nbr.PotentialCalculationUpdateTypeList;
 import etomica.nbr.PotentialMasterHybrid;
 import etomica.nbr.list.NeighborListManager;
 import etomica.phase.Phase;
@@ -96,7 +96,7 @@ public class DCVGCMD extends Simulation {
         NeighborCriterion nbrCriterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
         CriterionSpecies criterion = new CriterionSpecies(nbrCriterion, species, species);
         potential.setCriterion(criterion);
-        nbrManager.addCriterion(nbrCriterion,new AtomType[]{species.getFactory().getType()});
+//        nbrManager.addCriterion(nbrCriterion,new AtomType[]{species.getFactory().getType()});
         potentialMaster.addPotential(potential, new Species[] {species, species});
         
         //1-1 intraspecies interaction
@@ -104,7 +104,7 @@ public class DCVGCMD extends Simulation {
         nbrCriterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential11.getRange());
         criterion = new CriterionSpecies(nbrCriterion, species1, species1);
         potential11.setCriterion(criterion);
-        nbrManager.addCriterion(nbrCriterion,new AtomType[]{species1.getFactory().getType()});
+//        nbrManager.addCriterion(nbrCriterion,new AtomType[]{species1.getFactory().getType()});
         potentialMaster.addPotential(potential11, new Species[] {species1, species1});
 
         //0-1 interspecies interaction
@@ -112,7 +112,7 @@ public class DCVGCMD extends Simulation {
         nbrCriterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential1.getRange());
         criterion = new CriterionSpecies(nbrCriterion, species1, species);
         potential1.setCriterion(criterion);
-        nbrManager.addCriterion(nbrCriterion, new AtomType[]{species.getFactory().getType(),species1.getFactory().getType()});
+//        nbrManager.addCriterion(nbrCriterion, new AtomType[]{species.getFactory().getType(),species1.getFactory().getType()});
         potentialMaster.addPotential(potential1, new Species[] { species1, species });
 
         P2WCA potentialTubeAtom = new P2WCA(this);
@@ -120,32 +120,70 @@ public class DCVGCMD extends Simulation {
         nbrCriterion = new CriterionSimple(this,potentialTubeAtom.getRange(),neighborRangeFac*potentialTubeAtom.getRange());
         criterion = new CriterionSpecies(nbrCriterion, speciesTube, species);
         potentialTubeAtom.setCriterion(criterion);
-        nbrManager.addCriterion(nbrCriterion,new AtomType[]{species.getFactory().getType(),((AtomFactoryHomo)speciesTube.getFactory()).getChildFactory().getType()});
+//        nbrManager.addCriterion(nbrCriterion,new AtomType[]{species.getFactory().getType(),((AtomFactoryHomo)speciesTube.getFactory()).getChildFactory().getType()});
         
         P2WCA potentialTubeAtom1 = new P2WCA(this);
         potentialMaster.addPotential(potentialTubeAtom1,new AtomType[] { tubetype, speciestype1});
         nbrCriterion = new CriterionSimple(this,potentialTubeAtom1.getRange(),neighborRangeFac*potentialTubeAtom.getRange());
         criterion = new CriterionSpecies(nbrCriterion, speciesTube, species1);
         potentialTubeAtom1.setCriterion(criterion);
-        nbrManager.addCriterion(nbrCriterion,new AtomType[]{species1.getFactory().getType()});
+//        nbrManager.addCriterion(nbrCriterion,new AtomType[]{species1.getFactory().getType()});
 
+        double neighborRangeFacHalf = (1.0+neighborRangeFac)*0.5;
+        
         potentialwall = new P1WCAWall(this);
+        CriterionPositionWall criterionWall = new CriterionPositionWall(this);
+        criterionWall.setInteractionRange(potentialwall.getRange());
+        criterionWall.setNeighborRange(neighborRangeFacHalf*potentialwall.getRange());
+        criterionWall.setWallDim(2);
+        potentialwall.setCriterion(criterionWall);
         potentialMaster.addPotential(potentialwall, new Species[] { species });
-
+//        nbrManager.addCriterion(criterionWall,new AtomType[]{species.getFactory().getType()});
+        
         potentialwall1 = new P1WCAWall(this);
+        CriterionPositionWall criterionWall1 = new CriterionPositionWall(this);
+        criterionWall1.setInteractionRange(potentialwall1.getRange());
+        criterionWall1.setNeighborRange(neighborRangeFacHalf*potentialwall1.getRange());
+        criterionWall1.setWallDim(2);
+        potentialwall1.setCriterion(criterionWall1);
         potentialMaster.addPotential(potentialwall1, new Species[] { species1 });
+//        nbrManager.addCriterion(criterionWall1,new AtomType[]{species1.getFactory().getType()});
 
         potentialwallPorousA = new P1WCAPorousWall(this);
+        CriterionPositionWall criterionWallA = new CriterionPositionWall(this);
+        criterionWallA.setInteractionRange(potentialwallPorousA.getRange());
+        criterionWallA.setNeighborRange(neighborRangeFacHalf*potentialwallPorousA.getRange());
+        criterionWallA.setWallDim(2);
+        potentialwallPorousA.setCriterion(criterionWallA);
         potentialMaster.addPotential(potentialwallPorousA, new Species[] { species });
+//        nbrManager.addCriterion(criterionWallA,new AtomType[]{species.getFactory().getType()});
         
         potentialwallPorousA1 = new P1WCAPorousWall(this);
+        CriterionPositionWall criterionWallA1 = new CriterionPositionWall(this);
+        criterionWallA1.setInteractionRange(potentialwallPorousA1.getRange());
+        criterionWallA1.setNeighborRange(neighborRangeFacHalf*potentialwallPorousA1.getRange());
+        criterionWallA1.setWallDim(2);
+        potentialwallPorousA1.setCriterion(criterionWallA1);
         potentialMaster.addPotential(potentialwallPorousA1, new Species[] { species1 });
+//        nbrManager.addCriterion(criterionWallA1,new AtomType[]{species1.getFactory().getType()});
         
         potentialwallPorousB = new P1WCAPorousWall(this);
+        CriterionPositionWall criterionWallB = new CriterionPositionWall(this);
+        criterionWallB.setInteractionRange(potentialwallPorousB.getRange());
+        criterionWallB.setNeighborRange(neighborRangeFacHalf*potentialwallPorousB.getRange());
+        criterionWallB.setWallDim(2);
+        potentialwallPorousB.setCriterion(criterionWallB);
         potentialMaster.addPotential(potentialwallPorousB, new Species[] { species });
+//        nbrManager.addCriterion(criterionWallB,new AtomType[]{species.getFactory().getType()});
         
         potentialwallPorousB1 = new P1WCAPorousWall(this);
+        CriterionPositionWall criterionWallB1 = new CriterionPositionWall(this);
+        criterionWallB1.setInteractionRange(potentialwallPorousB.getRange());
+        criterionWallB1.setNeighborRange(neighborRangeFacHalf*potentialwallPorousB.getRange());
+        criterionWallB1.setWallDim(2);
+        potentialwallPorousB1.setCriterion(criterionWallB1);
         potentialMaster.addPotential(potentialwallPorousB1, new Species[] { species1 });
+//        nbrManager.addCriterion(criterionWallB1,new AtomType[]{species1.getFactory().getType()});
 
 
         species.setNMolecules(20);
@@ -210,6 +248,14 @@ public class DCVGCMD extends Simulation {
         potentialwallPorousA1.setZ(zA);
         potentialwallPorousB.setZ(zB);
         potentialwallPorousB1.setZ(zB);
+        criterionWallA.setWallPosition(zA);
+        criterionWallA1.setWallPosition(zA);
+        criterionWallB.setWallPosition(zB);
+        criterionWallB1.setWallPosition(zB);
+        criterionWallA.setBoundaryWall(false);
+        criterionWallA1.setBoundaryWall(false);
+        criterionWallB.setBoundaryWall(false);
+        criterionWallB1.setBoundaryWall(false);
 
         MyMCMove[] moves = integratorDCV.mcMoves();
         meterFlux0 = new MeterFlux(moves[0], integratorDCV);
