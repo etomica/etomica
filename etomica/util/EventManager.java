@@ -1,9 +1,6 @@
 package etomica.util;
 import java.io.IOException;
 
-import etomica.simulation.SimulationEvent;
-import etomica.simulation.SimulationListener;
-
 /**
  * Class to take care of listener lists and event firing for simulation elements.
  * A class can make an instance of this manager as a field, and delegate any 
@@ -73,8 +70,7 @@ public abstract class EventManager implements java.io.Serializable {
     {
         // do nothing
         in.defaultReadObject();
-        // we read the listener count but leave listenerCount at zero so we 
-        // can invoke addListener
+        // read the listener count
         int count = in.readInt();
 
         for (int i=0; i<count; i++) {
