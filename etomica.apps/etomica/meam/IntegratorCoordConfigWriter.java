@@ -92,7 +92,6 @@ public class IntegratorCoordConfigWriter implements IntegratorIntervalListener,
 		}
 	}
 		
-
 	public int getPriority() {
 		return 50;
 	}
@@ -138,6 +137,7 @@ public class IntegratorCoordConfigWriter implements IntegratorIntervalListener,
 			phaseDim = phase.getBoundary().getDimensions();
 			updateAtomOldCoord();
 		}
+		
 		public void updateAtomOldCoord(){
 			iterator.reset();
 			int i=0;
@@ -146,12 +146,13 @@ public class IntegratorCoordConfigWriter implements IntegratorIntervalListener,
 				i++;
 			}
 		}
+		
 		public void intervalAction(IntegratorIntervalEvent evt) {
 			iterator.reset();
 			int i=0;
 			while (iterator.hasNext()){
-				workVector.E(((AtomLeaf)iterator.nextAtom()).coord.position());
-				workVector.ME(atomOldCoord[i]);
+				workVector.E(atomOldCoord[i]);
+				workVector.ME(((AtomLeaf)iterator.nextAtom()).coord.position()); 
 				workVector.DE(phaseDim);
 				for (int j=0;j < phaseDim.D();j++){
 					atomPBIarray[i][j] += workVector.x(j);
@@ -159,7 +160,7 @@ public class IntegratorCoordConfigWriter implements IntegratorIntervalListener,
 				i++;
 			}
 		}
-
+		
 		public int getPriority() {
 			return 200;
 		}
