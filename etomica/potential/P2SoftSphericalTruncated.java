@@ -26,6 +26,13 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
         this.potential = potential;
         setTruncationRadius(truncationRadius);
     }
+    
+    /**
+     * Returns the wrapped potential.
+     */
+    public Potential2SoftSpherical getWrappedPotential() {
+        return potential;
+    }
 
     /**
      * Returns the energy of the wrapped potential if the separation
