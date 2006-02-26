@@ -89,12 +89,12 @@ public class ReadParams implements java.io.Serializable {
             }
             // bail on EOF
             if (line == null) break;
-            // skip comments
-            if (line.matches("^ *#.*$")) continue;
-            if (!classRead) {
-                // first non-comment line should be the parameter class
+            if (!classRead && line.matches("^# Class [^ ].*$")) {
+                // check to see if the comment line indicates the wrapper class
                 classRead = true;
-                Class wrapperClass = getWrapperClass(line.trim());
+                int i = new String("# Class ").length();
+                String className = line.substring(i).trim();
+                Class wrapperClass = getWrapperClass(className);
                 if (wrapperClass != null) {
                     if (wrapper == null) {
                         wrapper = makeWrapperObject(wrapperClass);
@@ -105,7 +105,7 @@ public class ReadParams implements java.io.Serializable {
                         setParameterWrapper(wrapper);
                     }
 
-                    if (wrapperClass.isAssignableFrom(wrapper.getClass())) {
+                    if (!wrapperClass.isAssignableFrom(wrapper.getClass())) {
                         System.err.println("Input file requires an object of class "+wrapperClass.getName()+" but you gave me "+wrapper.getClass());
                         return false;
                     }
@@ -118,6 +118,10 @@ public class ReadParams implements java.io.Serializable {
                 // forget the exception we got because we couldn't find the wrapper class
                 // it's optional, so long as a wrapper object is provided
                 firstException = null;
+            }
+            else if (line.matches("^ *#.*")) {
+                // skip comments
+                continue;
             }
             int i = line.indexOf(' ');
             String token = line.substring(0,i).trim();
