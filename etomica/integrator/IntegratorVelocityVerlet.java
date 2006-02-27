@@ -28,7 +28,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
 
     public final PotentialCalculationForceSum forceSum;
     private final Space space;
-    private final IteratorDirective allAtoms = new IteratorDirective();
+    private final IteratorDirective allAtoms;
     
     protected MyAgent[] agents;
     protected AtomAgentManager agentManager;
@@ -42,6 +42,9 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         super(potentialMaster,timeStep,temperature);
         this.space = space;
         forceSum = new PotentialCalculationForceSum(space);
+        allAtoms = new IteratorDirective();
+        // allAtoms is used only for the force calculation, which has no LRC
+        allAtoms.setIncludeLrc(false);
         //XXX this is totally wrong!  This should be based on the actual temperature and
         //potentials (steepness and depth) used.
         setTimeStep(new LJ().time().toSim(2.0));

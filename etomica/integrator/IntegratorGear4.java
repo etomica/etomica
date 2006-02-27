@@ -29,7 +29,7 @@ import etomica.units.systems.LJ;
 public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, AgentSource {
 
     private final PotentialCalculationForceSum forceSum;
-    private final IteratorDirective allAtoms = new IteratorDirective();
+    private final IteratorDirective allAtoms;
     protected final Space space;
     final Vector work1, work2;
     double zeta = 0.0;
@@ -54,6 +54,9 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
         super(potentialMaster,timeStep,temperature);
         this.space = space;
         forceSum = new PotentialCalculationForceSum(space);
+        allAtoms = new IteratorDirective();
+        // allAtoms is used only for the force calculation, which has no LRC
+        allAtoms.setIncludeLrc(false);
         work1 = space.makeVector();
         work2 = space.makeVector();
         //XXX this is totally wrong!  This should be based on the actual temperature and

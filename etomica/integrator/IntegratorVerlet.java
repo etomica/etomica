@@ -25,7 +25,7 @@ import etomica.space.Vector;
 public final class IntegratorVerlet extends IntegratorMD implements EtomicaElement, AgentSource {
 
     public final PotentialCalculationForceSum forceSum;
-    private final IteratorDirective allAtoms = new IteratorDirective();
+    private final IteratorDirective allAtoms;
     private final Space space;
     private double t2;
 
@@ -44,6 +44,9 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         super(potentialMaster,timeStep,temperature);
         this.space = space;
         forceSum = new PotentialCalculationForceSum(space);
+        allAtoms = new IteratorDirective();
+        // allAtoms is used only for the force calculation, which has no LRC
+        allAtoms.setIncludeLrc(false);
         work = space.makeVector();
     }
 
