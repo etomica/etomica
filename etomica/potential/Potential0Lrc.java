@@ -1,8 +1,11 @@
 package etomica.potential;
 
+import etomica.action.AtomsetCount;
+import etomica.atom.Atom;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.SpeciesAgent;
+import etomica.atom.iterator.AtomIteratorTree;
 import etomica.phase.Phase;
 import etomica.space.Space;
 
@@ -85,6 +88,26 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
     public void setPhase(Phase p) {
         agents[0] = p.getAgent(types[0].getSpecies());
         agents[1] = p.getAgent(types[1].getSpecies());
+        if (lrcAtomsPerMolecule[0] == 0 || lrcAtomsPerMolecule[1] == 0) {
+            // count the number of Atoms of the relevant type in each molecule
+            AtomIteratorTree treeIterator = new AtomIteratorTree();
+            for (int i=0; i<2; i++) {
+                if (lrcAtomsPerMolecule[i] == 0) {
+                    final AtomType typei = types[i];
+                    AtomsetCount counter = new AtomsetCount() {
+                        public void actionPerformed(Atom atom) {
+                            if (atom.type == typei) {
+                                super.actionPerformed(atom);
+                            }
+                        }
+                    };
+                    treeIterator.setRoot(agents[i]);
+                    treeIterator.setIterationDepth(types[i].getDepth());
+                    treeIterator.allAtoms(counter);
+                    lrcAtomsPerMolecule[i] = counter.callCount()/agents[i].node.childAtomCount();
+                }
+            }
+        }
         phase = p;
     }
     
@@ -151,9 +174,6 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
         return (int)Math.round(nPairs/divisor);
     }
     
-
-    
- 
     /**
      * Long-range correction to the energy u.
      */
