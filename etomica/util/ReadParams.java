@@ -72,7 +72,7 @@ public class ReadParams implements java.io.Serializable {
             if (firstException == null) {
                 firstException = e;
             }
-            throw new RuntimeException("Cannot open "+fileName+", caught IOException: " + e.getMessage());
+            throw new RuntimeException("Cannot open "+fileName, e);
         }
         BufferedReader bufReader = new BufferedReader(fileReader);
         boolean classRead = false;
@@ -85,7 +85,13 @@ public class ReadParams implements java.io.Serializable {
                 if (firstException == null) {
                     firstException = e;
                 }
-                throw new RuntimeException("Cannot read "+fileName+", caught IOException: " + e.getMessage());
+                try {
+                    bufReader.close();
+                }
+                catch (IOException e2) {
+                    // hmm.  couldn't close either.  something's b0rked
+                }
+                throw new RuntimeException("Cannot read "+fileName, e);
             }
             // bail on EOF
             if (line == null) break;
@@ -152,6 +158,11 @@ public class ReadParams implements java.io.Serializable {
                 success = false;
             }
         }
+        try {
+            bufReader.close();
+        }
+        catch (IOException e) {
+        }
         return success;
     }
     
@@ -197,43 +208,16 @@ public class ReadParams implements java.io.Serializable {
                 field.set(wrapper,value);
             }
             else if (type == int.class) {
-                try {
-                    int intValue = Integer.parseInt(value);
-                    field.setInt(wrapper,intValue);
-                }
-                catch (NumberFormatException ex) {
-                    if (firstException == null) {
-                        firstException = new RuntimeException("error parsing "+value+" for "+field.getName(), ex);
-                    }
-                    System.out.println("error parsing "+value+" for "+field.getName());
-                    return false;
-                }
+                field.setInt(wrapper,Integer.parseInt(value));
             }
             else if (type == long.class) {
-                try {
-                    long longValue = Long.parseLong(value);
-                    field.setLong(wrapper,longValue);
-                }
-                catch (NumberFormatException ex) {
-                    if (firstException == null) {
-                        firstException = new RuntimeException("error parsing "+value+" for "+field.getName(), ex);
-                    }
-                    System.out.println("error parsing "+value+" for "+field.getName());
-                    return false;
-                }
+                field.setLong(wrapper,Long.parseLong(value));
+            }
+            else if (type == float.class) {
+                field.setFloat(wrapper,Float.parseFloat(value));
             }
             else if (type == double.class) {
-                try {
-                    double doubleValue = Double.parseDouble(value);
-                    field.setDouble(wrapper,doubleValue);
-                }
-                catch (NumberFormatException ex) {
-                    if (firstException == null) {
-                        firstException = new RuntimeException("error parsing "+value+" for "+field.getName(), ex);
-                    }
-                    System.out.println("error parsing "+value+" for "+field.getName());
-                    return false;
-                }
+                field.setDouble(wrapper,Double.parseDouble(value));
             }
             else if (type == boolean.class) {
                 field.setBoolean(wrapper,Boolean.valueOf(value).booleanValue());
@@ -244,48 +228,28 @@ public class ReadParams implements java.io.Serializable {
                 if (subType == int.class) {
                     int[] array = new int[strings.length-1];
                     for (int i=0; i<array.length; i++) {
-                        try {
-                            array[i] = Integer.parseInt(strings[i+1]);
-                        }
-                        catch (NumberFormatException ex) {
-                            if (firstException == null) {
-                                firstException = new RuntimeException("error parsing "+strings[i+1]+" for "+field.getName(), ex);
-                            }
-                            System.out.println("error parsing "+strings[i+1]+" for "+field.getName());
-                            return false;
-                        }
+                        array[i] = Integer.parseInt(strings[i+1]);
                     }
                     field.set(wrapper,array);
                 }
                 if (subType == long.class) {
                     long[] array = new long[strings.length-1];
                     for (int i=0; i<array.length; i++) {
-                        try {
-                            array[i] = Long.parseLong(strings[i+1]);
-                        }
-                        catch (NumberFormatException ex) {
-                            if (firstException == null) {
-                                firstException = new RuntimeException("error parsing "+strings[i+1]+" for "+field.getName(), ex);
-                            }
-                            System.out.println("error parsing "+strings[i+1]+" for "+field.getName());
-                            return false;
-                        }
+                        array[i] = Long.parseLong(strings[i+1]);
+                    }
+                    field.set(wrapper,array);
+                }
+                else if (subType == float.class) {
+                    float[] array = new float[strings.length-1];
+                    for (int i=0; i<array.length; i++) {
+                        array[i] = Float.parseFloat(strings[i+1]);
                     }
                     field.set(wrapper,array);
                 }
                 else if (subType == double.class) {
                     double[] array = new double[strings.length-1];
                     for (int i=0; i<array.length; i++) {
-                        try {
-                            array[i] = Double.parseDouble(strings[i+1]);
-                        }
-                        catch (NumberFormatException ex) {
-                            if (firstException == null) {
-                                firstException = new RuntimeException("error parsing "+strings[i+1]+" for "+field.getName(), ex);
-                            }
-                            System.out.println("error parsing "+strings[i+1]+" for "+field.getName());
-                            return false;
-                        }
+                        array[i] = Double.parseDouble(strings[i+1]);
                     }
                     field.set(wrapper,array);
                 }
@@ -297,12 +261,21 @@ public class ReadParams implements java.io.Serializable {
                     field.set(wrapper,array);
                 }
                 else {
-                    return parseUnknownType(field.getName(), value);
+                    return parseUnknownType(field, value);
                 }
             }
             else {
-                return parseUnknownType(field.getName(), value);
+                return parseUnknownType(field, value);
             }
+        }
+        catch (NumberFormatException ex) {
+            // catches exceptions thrown by Type.parseType for
+            // int, long, float and double
+            if (firstException == null) {
+                firstException = new RuntimeException("error parsing "+value+" for "+field.getName(), ex);
+            }
+            System.out.println("error parsing "+value+" for "+field.getName());
+            return false;
         }
         catch (IllegalAccessException e) {
             if (firstException == null) {
@@ -314,43 +287,27 @@ public class ReadParams implements java.io.Serializable {
         return true;
     }
     
-    protected boolean parseUnknownType(String fieldName, String value) {
-        // we don't recognize the type.  The wrapper class itself 
-        // should have methods to parse unknown types
-        Method parseMethod = null;
-        try {
-            // perhaps parseValue should be in an abstract superclass
-            // or perhaps the method should be parse[field] (where [field] is the actual field)
-            parseMethod = wrapper.getClass().getMethod("parseField",new Class[]{String.class,String.class});
-        }
-        catch (NoSuchMethodException ex) {
-            if (firstException == null) {
-                firstException = new RuntimeException("don't know how to parse field "+fieldName, ex);
+    protected boolean parseUnknownType(Field field, String value) {
+        if (wrapper instanceof ParamWrapper) {
+            try {
+                ((ParamWrapper)wrapper).parseField(field, value);
             }
-            System.err.println("don't know how to parse field "+fieldName);
+            catch (RuntimeException ex) {
+                if (firstException == null) {
+                    firstException = ex;
+                }
+                System.err.println("couldn't parse field "+field.getName()+" with value "+value);
+                return false;
+            }
+        }
+        else {
+            if (firstException == null) {
+                firstException = new RuntimeException("don't know how to parse field "+field.getName());
+            }
+            System.err.println("don't know how to parse field "+field.getName());
             return false;
         }
-        try {
-            // parseValue method is responsible for setting the objects own field
-            parseMethod.invoke(wrapper,new String[]{fieldName,value});
-            return true;
-        }
-        catch (InvocationTargetException ex) {
-            // method might throw an exception if it doesn't know how to parse 
-            // the given field, or if the given value is inappropriate
-            if (firstException == null) {
-                firstException = new RuntimeException("failed to parse "+fieldName,ex.getTargetException());
-            }
-            System.err.println("failed to parse "+fieldName);
-        }
-        catch (IllegalAccessException ex) {
-            if (firstException == null) {
-                firstException = new RuntimeException("Illegal access exception trying to parse "+fieldName, ex);
-            }
-            System.err.println("Illegal access exception trying to parse "+fieldName);
-            return false;
-        }
-        return false;
+        return true;
     }
     
     /**
