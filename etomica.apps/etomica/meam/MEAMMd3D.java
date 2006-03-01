@@ -26,6 +26,7 @@ import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
+import etomica.space3d.Vector3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.ElectronVolt;
@@ -91,9 +92,9 @@ public class MEAMMd3D extends Simulation {
     public IntegratorVelocityVerlet integrator;
     public SpeciesSpheresMono species;
     public Phase phase;
-    public MEAMPInitial potential0;
-    public MEAMP2 potentialA;
-    public MEAMPMany potentialB;
+    public MEAMPInitial pseudoPotential1;
+    public MEAMP2 pseudoPotential2;
+    public MEAMPMany potential;
     public Controller controller;
     public DisplayPhase display;
     public DisplayPlot plot;
@@ -114,13 +115,13 @@ public class MEAMMd3D extends Simulation {
     	simgraphic.makeAndDisplayFrame();
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simgraphic.displayList().getFirst()).getColorScheme());
     	colorScheme.setColor(sim.species.getMoleculeType(),java.awt.Color.red);
-    	sim.activityIntegrate.setMaxSteps(1000);
-    	sim.getController().run();
-    	DataGroup data = (DataGroup)energyAccumulator.getData(); // kmb change type to Data instead of double[]
-        double PE = ((DataDouble)data.getData(AccumulatorAverage.StatType.AVERAGE.index)).x
-                    /sim.species.getAgent(sim.phase).getNMolecules();  // kmb changed 8/3/05
+    	//sim.activityIntegrate.setMaxSteps(1000);
+    	//sim.getController().run();
+    	//DataGroup data = (DataGroup)energyAccumulator.getData(); // kmb change type to Data instead of double[]
+        //double PE = ((DataDouble)data.getData(AccumulatorAverage.StatType.AVERAGE.index)).x
+                    // /sim.species.getAgent(sim.phase).getNMolecules();  // kmb changed 8/3/05
         //double PE = data[AccumulatorAverage.AVERAGE.index]/sim.species.getAgent(sim.phase).getNMolecules();  // orig line
-        System.out.println("PE(eV)="+ElectronVolt.UNIT.fromSim(PE));
+        //System.out.println("PE(eV)="+ElectronVolt.UNIT.fromSim(PE));
     }
     
     public MEAMMd3D() {
@@ -131,25 +132,25 @@ public class MEAMMd3D extends Simulation {
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
-        species.setNMolecules(216);
+        species.setNMolecules(32);
         ((AtomTypeLeaf)species.getFactory().getType()).setMass(118.71);
         //The diameter given is really the equilibrium distance between the atoms.
         ((AtomTypeSphere)species.getFactory().getType()).setDiameter(3.44); 
-        // This forces the EmbeddedAtomMethodP2 to 
-        //request an agentIndex from Atom.
-        potentialA = new MEAMP2(this, ParameterSetMEAM.Sn);
+        // This forces the MEAMP2 to request an agentIndex from Atom.
+        pseudoPotential2 = new MEAMP2(this, ParameterSetMEAM.Sn);
         phase = new Phase(this);
+        phase.setDimensions(new Vector3D(5.8318*2, 5.8318*2, 3.1819*2));
         PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.8318, 3.1819);
         LatticeCrystal crystal = new LatticeCrystal(new Crystal(
         		primitive, new BasisBetaSnA5(primitive)));
         Configuration config = new ConfigurationLattice(crystal);
 //        phase.setConfiguration(config);  // kmb remove 8/3/05
         config.initializeCoordinates(phase);  // kmb added 8/3/05
-        potential0 = new MEAMPInitial(space, potentialA.getPhaseAgentManager());
-        potentialB = new MEAMPMany(space, ParameterSetMEAM.Sn, potentialA.getPhaseAgentManager());
-        this.potentialMaster.addPotential(potentialB, new Species[]{species});
-        this.potentialMaster.addPotential(potentialA, new Species[]{species,species});
-        this.potentialMaster.addPotential(potential0, new Species[]{species});    
+        pseudoPotential1 = new MEAMPInitial(space, pseudoPotential2.getPhaseAgentManager());
+        potential = new MEAMPMany(space, ParameterSetMEAM.Sn, pseudoPotential2.getPhaseAgentManager());
+        this.potentialMaster.addPotential(potential, new Species[]{species});
+        this.potentialMaster.addPotential(pseudoPotential2, new Species[]{species,species});
+        this.potentialMaster.addPotential(pseudoPotential1, new Species[]{species});    
 
         integrator.setPhase(phase);
         PhaseImposePbc imposepbc = new PhaseImposePbc();
