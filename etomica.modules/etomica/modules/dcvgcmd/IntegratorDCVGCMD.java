@@ -150,10 +150,8 @@ public class IntegratorDCVGCMD extends IntegratorPhase {
 	public void setMu(double mu1, double mu2) {
 		mcMove1.setMu(mu1);
 		mcMove2.setMu(mu2);
-//        mcMove3.setMu(mu2);
-//        mcMove4.setMu(mu1);
-        mcMove3.setMu(Double.NEGATIVE_INFINITY);
-        mcMove4.setMu(Double.NEGATIVE_INFINITY);
+        mcMove3.setMu(mu2);
+        mcMove4.setMu(mu1);
     }
 		
 	/**
