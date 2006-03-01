@@ -35,8 +35,9 @@ public final class MEAMPInitial extends Potential1 implements PotentialSoft {
     }
 	
 	public void setPhase(Phase phase) {
-        agentManager = (AtomAgentManager)phaseAgentManager.getAgents()[phase.getIndex()];
-    }
+		AtomAgentManager[] agentManager = (AtomAgentManager[])phaseAgentManager.getAgents();
+        agents = (Wrapper[])agentManager[phase.getIndex()].getAgents();
+	}
     
 	public double energy(AtomSet a) {
 		Wrapper agent = agents[((Atom)a).getGlobalIndex()];
@@ -50,6 +51,7 @@ public final class MEAMPInitial extends Potential1 implements PotentialSoft {
 	public Vector gradient(AtomSet a) {
 		Wrapper agent = agents[((Atom)a).getGlobalIndex()];
 		for(int i=0; i < 27; i++) {
+			agent.sums[i] = 0; //energy(a) may not be called
 			agent.gradientSums[i].E(0);
 		}
 		//MEAMPInitial should contribute nothing to the gradient directly.
@@ -63,6 +65,5 @@ public final class MEAMPInitial extends Potential1 implements PotentialSoft {
 	Vector gradient;
     private Wrapper[] agents;
     private PhaseAgentManager phaseAgentManager;
-	private AtomAgentManager agentManager;
 	private final Vector3D nada;
 }
