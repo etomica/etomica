@@ -107,7 +107,7 @@ public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgen
 	
     public void setPhase(Phase phase){
     	coordinatePair.setNearestImageTransformer(phase.getBoundary());
-        agentManager = (AtomAgentManager[])phaseAgentManager.getAgents();
+        AtomAgentManager[] agentManager = (AtomAgentManager[])phaseAgentManager.getAgents();
         agents = (Wrapper[])agentManager[phase.getIndex()].getAgents();
     }
 
@@ -132,10 +132,10 @@ public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgen
     	//for the elements in the expression for rhoj differ. This class functions
     	//for unmixed pairs of atoms only.
     	//
-    	double rhoj0 = p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1));
-    	double rhoj1 = p.rhoScale * Math.exp(-p.beta1 * ((r/p.r0) - 1));
-    	double rhoj2 = p.rhoScale * Math.exp(-p.beta2 * ((r/p.r0) - 1));
-    	double rhoj3 = p.rhoScale * Math.exp(-p.beta3 * ((r/p.r0) - 1));
+    	double rhoj0 = p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0));
+    	double rhoj1 = p.rhoScale * Math.exp(-p.beta1 * ((r/p.r0) - 1.0));
+    	double rhoj2 = p.rhoScale * Math.exp(-p.beta2 * ((r/p.r0) - 1.0));
+    	double rhoj3 = p.rhoScale * Math.exp(-p.beta3 * ((r/p.r0) - 1.0));
     	//
     	//We need to store the information required by the many-body potential 
     	//so that it may be accessed when MEAMPMany is employed.  Information 
@@ -247,17 +247,17 @@ public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgen
         //
         double rhoi0Ref = p.Z * rhoj0;
         double rhoi1Ref = p.Z * rhoj1;
-        double rhoi2Ref = Math.sqrt(2/3) * p.Z * rhoj2;
+        double rhoi2Ref = Math.sqrt(2.0/3.0) * p.Z * rhoj2;
         double rhoi3Ref = p.Z * rhoj3;
         double gammaRef = (p.t1 * (rhoi1Ref/rhoi0Ref) * (rhoi1Ref/rhoi0Ref)) 
 			+ (p.t2 * (rhoi2Ref/rhoi0Ref) * (rhoi2Ref/rhoi0Ref)) 
 			+ (p.t3 * (rhoi3Ref/rhoi0Ref) * (rhoi3Ref/rhoi0Ref));
-        double rhoiRef = (2 * rhoi0Ref) / (1 + Math.exp(-gammaRef));
-        double a = p.alpha * ((r/p.r0) - 1);
-    	double EuRef = - p.Ec * (1 + a) * Math.exp(- a);
+        double rhoiRef = (2.0 * rhoi0Ref) / (1.0 + Math.exp(-gammaRef));
+        double a = p.alpha * ((r/p.r0) - 1.0);
+    	double EuRef = - p.Ec * (1.0 + a) * Math.exp(-a);
     	double FRef = p.A * p.Ec * (rhoiRef / p.rhoScale) 
 			* (Math.log(rhoiRef / p.rhoScale));
-    	double phi = (2/p.Z) * (EuRef - FRef);
+    	double phi = (2.0/p.Z) * (EuRef - FRef);
     	
     	//We also need to store phi for each atom, so that it may be summed 
     	//as all of the pairs are evaluated.
@@ -290,23 +290,24 @@ public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgen
      * Calculations of terms required for gradient of potential energy
      */
     public Vector gradient(AtomSet pair) {
+    	energy(pair); //energy( ) not called otherwise, the sums in it won't be calculated otherwise.
     	coordinatePair.reset((AtomPair)pair);
         double r2 = coordinatePair.r2();
         double r = Math.sqrt(r2);
         this.pair = (AtomPair)pair;
         
-        double rhoj0 = p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1));
-    	double rhoj1 = p.rhoScale * Math.exp(-p.beta1 * ((r/p.r0) - 1));
-    	double rhoj2 = p.rhoScale * Math.exp(-p.beta2 * ((r/p.r0) - 1));
-    	double rhoj3 = p.rhoScale * Math.exp(-p.beta3 * ((r/p.r0) - 1));
+        double rhoj0 = p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0));
+    	double rhoj1 = p.rhoScale * Math.exp(-p.beta1 * ((r/p.r0) - 1.0));
+    	double rhoj2 = p.rhoScale * Math.exp(-p.beta2 * ((r/p.r0) - 1.0));
+    	double rhoj3 = p.rhoScale * Math.exp(-p.beta3 * ((r/p.r0) - 1.0));
     	double rhoi0Ref = p.Z * rhoj0;
         double rhoi1Ref = p.Z * rhoj1;
-        double rhoi2Ref = Math.sqrt(2/3) * p.Z * rhoj2;
+        double rhoi2Ref = Math.sqrt(2.0/3.0) * p.Z * rhoj2;
         double rhoi3Ref = p.Z * rhoj3;
         double gammaRef = (p.t1 * (rhoi1Ref/rhoi0Ref) * (rhoi1Ref/rhoi0Ref)) 
  			+ (p.t2 * (rhoi2Ref/rhoi0Ref) * (rhoi2Ref/rhoi0Ref)) 
  			+ (p.t3 * (rhoi3Ref/rhoi0Ref) * (rhoi3Ref/rhoi0Ref));
-         double rhoiRef = (2 * rhoi0Ref) / (1 + Math.exp(-gammaRef));
+         double rhoiRef = (2.0 * rhoi0Ref) / (1.0 + Math.exp(-gammaRef));
     	
     	unitVector.E(coordinatePair.dr());
         unitVector.normalize();
@@ -378,7 +379,7 @@ public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgen
     	gradientSumsAtom1[Wrapper.rhoj1zBin].PE(gradRhoj1z);
     	
     	//Gradient of rhoj2xx
-    	gradRhoj2xx.Ea1Tv1(2*rhoj2*x, gradx);
+    	gradRhoj2xx.Ea1Tv1(2.0*rhoj2*x, gradx);
     	gradRhoj2xx.PEa1Tv1(x*x, gradRhoj2);
     	
     	gradientSumsAtom0[Wrapper.rhoj2xxBin].PE(gradRhoj2xx);
@@ -401,7 +402,7 @@ public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgen
     	gradientSumsAtom1[Wrapper.rhoj2xzBin].PE(gradRhoj2xz);
     	
     	//Gradient of rhoj2yy
-    	gradRhoj2yy.Ea1Tv1(2*rhoj2*y, grady);
+    	gradRhoj2yy.Ea1Tv1(2.0*rhoj2*y, grady);
     	gradRhoj2yy.PEa1Tv1(y*y, gradRhoj2);
     	
     	gradientSumsAtom0[Wrapper.rhoj2yyBin].PE(gradRhoj2yy);
@@ -416,85 +417,85 @@ public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgen
     	gradientSumsAtom1[Wrapper.rhoj2yzBin].PE(gradRhoj2yz);
     	
     	//Gradient of rhoj2zz
-    	gradRhoj2zz.Ea1Tv1(2*rhoj2*z, gradz);
+    	gradRhoj2zz.Ea1Tv1(2.0*rhoj2*z, gradz);
     	gradRhoj2zz.PEa1Tv1(z*z, gradRhoj2);
     	
     	gradientSumsAtom0[Wrapper.rhoj2zzBin].PE(gradRhoj2zz);
     	gradientSumsAtom1[Wrapper.rhoj2zzBin].PE(gradRhoj2zz);
     	
     	//Gradient of rhoj3xxx
-    	gradRhoj3xxx.Ea1Tv1(6*rhoj3*x*x, gradx);
+    	gradRhoj3xxx.Ea1Tv1(6.0*rhoj3*x*x, gradx);
     	gradRhoj3xxx.PEa1Tv1(x*x*x, gradRhoj3);
     	
     	gradientSumsAtom0[Wrapper.rhoj3xxxBin].PE(gradRhoj3xxx);
     	gradientSumsAtom1[Wrapper.rhoj3xxxBin].PE(gradRhoj3xxx);
     	
     	//Gradient of rhoj3xxy
-    	gradRhoj3xxy.Ea1Tv1(2*rhoj3*x*x, grady);
-    	gradRhoj3xxy.PEa1Tv1(4*rhoj3*x*y, gradx);
+    	gradRhoj3xxy.Ea1Tv1(2.0*rhoj3*x*x, grady);
+    	gradRhoj3xxy.PEa1Tv1(4.0*rhoj3*x*y, gradx);
     	gradRhoj3xxy.PEa1Tv1(x*x*y, gradRhoj3);
     	
     	gradientSumsAtom0[Wrapper.rhoj3xxyBin].PE(gradRhoj3xxy);
     	gradientSumsAtom1[Wrapper.rhoj3xxyBin].PE(gradRhoj3xxy);
     	
     	//Gradient of rhoj3xxz
-    	gradRhoj3xxz.Ea1Tv1(2*rhoj3*x*x, gradz);
-    	gradRhoj3xxz.PEa1Tv1(4*rhoj3*x*z, gradx);
+    	gradRhoj3xxz.Ea1Tv1(2.0*rhoj3*x*x, gradz);
+    	gradRhoj3xxz.PEa1Tv1(4.0*rhoj3*x*z, gradx);
     	gradRhoj3xxz.PEa1Tv1(x*x*z, gradRhoj3);
     	
     	gradientSumsAtom0[Wrapper.rhoj3xxzBin].PE(gradRhoj3xxz);
     	gradientSumsAtom1[Wrapper.rhoj3xxzBin].PE(gradRhoj3xxz);
     	
     	//Gradient of rhoj3xyy
-    	gradRhoj3xyy.Ea1Tv1(4*rhoj3*x*y, grady);
-    	gradRhoj3xyy.PEa1Tv1(2*rhoj3*y*y, gradx);
+    	gradRhoj3xyy.Ea1Tv1(4.0*rhoj3*x*y, grady);
+    	gradRhoj3xyy.PEa1Tv1(2.0*rhoj3*y*y, gradx);
     	gradRhoj3xyy.PEa1Tv1(x*y*y, gradRhoj3);
     	
     	gradientSumsAtom0[Wrapper.rhoj3xyyBin].PE(gradRhoj3xyy);
     	gradientSumsAtom1[Wrapper.rhoj3xyyBin].PE(gradRhoj3xyy);
     	
     	//Gradient of rhoj3xyz
-    	gradRhoj3xyz.Ea1Tv1(2*rhoj3*x*y, gradz);
-    	gradRhoj3xyz.PEa1Tv1(2*rhoj3*x*z, grady);
-    	gradRhoj3xyz.PEa1Tv1(2*rhoj3*y*z, gradx);
+    	gradRhoj3xyz.Ea1Tv1(2.0*rhoj3*x*y, gradz);
+    	gradRhoj3xyz.PEa1Tv1(2.0*rhoj3*x*z, grady);
+    	gradRhoj3xyz.PEa1Tv1(2.0*rhoj3*y*z, gradx);
     	gradRhoj3xyz.PEa1Tv1(x*y*z, gradRhoj3);
     	
     	gradientSumsAtom0[Wrapper.rhoj3xyzBin].PE(gradRhoj3xyz);
     	gradientSumsAtom1[Wrapper.rhoj3xyzBin].PE(gradRhoj3xyz);
     	
     	//Gradient of rhoj3xzz
-    	gradRhoj3xzz.Ea1Tv1(4*rhoj3*x*z, gradz);
-    	gradRhoj3xzz.PEa1Tv1(2*rhoj3*z*z, gradx);
+    	gradRhoj3xzz.Ea1Tv1(4.0*rhoj3*x*z, gradz);
+    	gradRhoj3xzz.PEa1Tv1(2.0*rhoj3*z*z, gradx);
     	gradRhoj3xzz.PEa1Tv1(x*z*z, gradRhoj3);
     	
     	gradientSumsAtom0[Wrapper.rhoj3xzzBin].PE(gradRhoj3xzz);
     	gradientSumsAtom1[Wrapper.rhoj3xzzBin].PE(gradRhoj3xzz);
     	
     	//Gradient of rhoj3yyy
-    	gradRhoj3yyy.Ea1Tv1(6*rhoj3*y*y, grady);
+    	gradRhoj3yyy.Ea1Tv1(6.0*rhoj3*y*y, grady);
     	gradRhoj3yyy.PEa1Tv1(y*y*y, gradRhoj3);
     	
     	gradientSumsAtom0[Wrapper.rhoj3yyyBin].PE(gradRhoj3yyy);
     	gradientSumsAtom1[Wrapper.rhoj3yyyBin].PE(gradRhoj3yyy);
     	
     	//Gradient of rhoj3yyz
-    	gradRhoj3yyz.Ea1Tv1(2*rhoj3*y*y, gradz);
-    	gradRhoj3yyz.PEa1Tv1(4*rhoj3*y*z, grady);
+    	gradRhoj3yyz.Ea1Tv1(2.0*rhoj3*y*y, gradz);
+    	gradRhoj3yyz.PEa1Tv1(4.0*rhoj3*y*z, grady);
     	gradRhoj3xxz.PEa1Tv1(y*y*z, gradRhoj3);
     	
     	gradientSumsAtom0[Wrapper.rhoj3yyzBin].PE(gradRhoj3yyz);
     	gradientSumsAtom1[Wrapper.rhoj3yyzBin].PE(gradRhoj3yyz);
     	
     	//Gradient of rhoj3yzz
-    	gradRhoj3yzz.Ea1Tv1(4*rhoj3*y*z, gradz);
-    	gradRhoj3yzz.PEa1Tv1(2*rhoj3*z*z, grady);
+    	gradRhoj3yzz.Ea1Tv1(4.0*rhoj3*y*z, gradz);
+    	gradRhoj3yzz.PEa1Tv1(2.0*rhoj3*z*z, grady);
     	gradRhoj3yzz.PEa1Tv1(y*z*z, gradRhoj3);
     	
     	gradientSumsAtom0[Wrapper.rhoj3yzzBin].PE(gradRhoj3yzz);
     	gradientSumsAtom1[Wrapper.rhoj3yzzBin].PE(gradRhoj3yzz);
     	
     	//Gradient of rhoj3zzz
-    	gradRhoj3zzz.Ea1Tv1(6*rhoj3*z*z, gradz);
+    	gradRhoj3zzz.Ea1Tv1(6.0*rhoj3*z*z, gradz);
     	gradRhoj3zzz.PEa1Tv1(z*z*z, gradRhoj3);
     	
     	gradientSumsAtom0[Wrapper.rhoj3zzzBin].PE(gradRhoj3zzz);
@@ -530,48 +531,48 @@ public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgen
     	gradRhoi1Ref.TE(p.Z*p.Z*rhoj1/rhoi1Ref);
     	
     	gradRhoi2Ref.Ea1Tv1(x*x, gradRhoj2xx);
-    	gradRhoi2Ref.PEa1Tv1(2*x*y, gradRhoj2xy);
-    	gradRhoi2Ref.PEa1Tv1(2*x*z, gradRhoj2xz);
+    	gradRhoi2Ref.PEa1Tv1(2.0*x*y, gradRhoj2xy);
+    	gradRhoi2Ref.PEa1Tv1(2.0*x*z, gradRhoj2xz);
     	gradRhoi2Ref.PEa1Tv1(y*y, gradRhoj2yy);
-    	gradRhoi2Ref.PEa1Tv1(2*y*z, gradRhoj2yz);
+    	gradRhoi2Ref.PEa1Tv1(2.0*y*z, gradRhoj2yz);
     	gradRhoi2Ref.PEa1Tv1(z*z, gradRhoj2zz);
-    	gradRhoj213.Ea1Tv1(1/3, gradRhoj2);
+    	gradRhoj213.Ea1Tv1(1.0/3.0, gradRhoj2);
     	gradRhoi2Ref.ME(gradRhoj213);
     	gradRhoi2Ref.TE(p.Z*p.Z*rhoj2/rhoi2Ref);
     	
     	gradRhoi3Ref.Ea1Tv1(x*x*x, gradRhoj3xxx);
-    	gradRhoi3Ref.PEa1Tv1(3*x*x*y, gradRhoj3xxy);
-    	gradRhoi3Ref.PEa1Tv1(3*x*x*z, gradRhoj3xxz);
-    	gradRhoi3Ref.PEa1Tv1(3*x*y*y, gradRhoj3xyy);
-    	gradRhoi3Ref.PEa1Tv1(6*x*y*z, gradRhoj3xyz);
-    	gradRhoi3Ref.PEa1Tv1(3*x*z*z, gradRhoj3xzz);
+    	gradRhoi3Ref.PEa1Tv1(3.0*x*x*y, gradRhoj3xxy);
+    	gradRhoi3Ref.PEa1Tv1(3.0*x*x*z, gradRhoj3xxz);
+    	gradRhoi3Ref.PEa1Tv1(3.0*x*y*y, gradRhoj3xyy);
+    	gradRhoi3Ref.PEa1Tv1(6.0*x*y*z, gradRhoj3xyz);
+    	gradRhoi3Ref.PEa1Tv1(3.0*x*z*z, gradRhoj3xzz);
     	gradRhoi3Ref.PEa1Tv1(y*y*y, gradRhoj3yyy);
-    	gradRhoi3Ref.PEa1Tv1(3*y*y*z, gradRhoj3yyz);
-    	gradRhoi3Ref.PEa1Tv1(3*y*z*z, gradRhoj3yzz);
+    	gradRhoi3Ref.PEa1Tv1(3.0*y*y*z, gradRhoj3yyz);
+    	gradRhoi3Ref.PEa1Tv1(3.0*y*z*z, gradRhoj3yzz);
     	gradRhoi3Ref.PEa1Tv1(z*z*z, gradRhoj3zzz);
     	gradRhoi3Ref.TE(p.Z*p.Z*rhoj3/rhoi3Ref);
     	
-    	gradGammaRef.Ea1Tv1( (-1/rhoi0Ref) * (p.t1*rhoi1Ref*rhoi1Ref +
+    	gradGammaRef.Ea1Tv1( (-1.0/rhoi0Ref) * (p.t1*rhoi1Ref*rhoi1Ref +
     			p.t2*rhoi2Ref*rhoi2Ref + p.t3*rhoi3Ref*rhoi3Ref), gradRhoi0Ref);
     	gradGammaRef.PEa1Tv1(p.t1*rhoi1Ref, gradRhoi1Ref);
     	gradGammaRef.PEa1Tv1(p.t2*rhoi2Ref, gradRhoi2Ref);
     	gradGammaRef.PEa1Tv1(p.t3*rhoi3Ref, gradRhoi3Ref);
-    	gradGammaRef.TE(2/(rhoi0Ref*rhoi0Ref));
+    	gradGammaRef.TE(2.0/(rhoi0Ref*rhoi0Ref));
     	
     	gradRhoiRef.Ea1Tv1(rhoi0Ref*Math.exp(-gammaRef)
-    			/((1+Math.exp(-gammaRef))*(1+Math.exp(-gammaRef))), gradGammaRef);
-    	gradRhoiRef.Ea1Tv1(1/(1+Math.exp(-gammaRef)), gradRhoi0Ref);
-    	gradRhoiRef.TE(2);
+    			/((1.0+Math.exp(-gammaRef))*(1.0+Math.exp(-gammaRef))), gradGammaRef);
+    	gradRhoiRef.Ea1Tv1(1.0/(1.0+Math.exp(-gammaRef)), gradRhoi0Ref);
+    	gradRhoiRef.TE(2.0);
     	
     	gradFRef.Ea1Tv1( (p.A*p.Ec/p.rhoScale)*
-    			(1+Math.log(rhoiRef)-Math.log(p.rhoScale)), gradRhoiRef);
+    			(1.0+Math.log(rhoiRef)-Math.log(p.rhoScale)), gradRhoiRef);
     	
-    	gradERef.Ea1Tv1( (p.Ec*p.alpha*p.alpha/p.r0) * ((r/p.r0) - 1)
-    					*(Math.exp(-p.alpha*((r/p.r0)-1))), gradr);
+    	gradERef.Ea1Tv1( (p.Ec*p.alpha*p.alpha/p.r0) * ((r/p.r0) - 1.0)
+    					*(Math.exp(-p.alpha*((r/p.r0)-1.0))), gradr);
     	
     	gradPhi.E(gradERef);
     	gradPhi.ME(gradFRef);
-    	gradPhi.TE(2/p.Z);
+    	gradPhi.TE(2.0/p.Z);
     	
     	gradientSumsAtom0[Wrapper.phiBin].PE(gradPhi);
     	gradientSumsAtom1[Wrapper.phiBin].PE(gradPhi);
@@ -649,7 +650,6 @@ public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgen
     private ParameterSetMEAM p;
     private double r2Last = -1.0;
     private AtomPair pair;
-    protected AtomAgentManager[] agentManager;
     protected Wrapper[] agents;
     private final PhaseAgentManager phaseAgentManager;
     
