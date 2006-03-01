@@ -93,9 +93,9 @@ public class ParameterSetMEAM {
 	public final double Z; //coordination number for the reference 
 		//crystal stucture (the number of first nearest neighbors) (unitless)
 	
-	public static final ParameterSetMEAM Ag = new ParameterSetMEAM(ElectronVolt.UNIT.toSim(2.85), 1.06, 2.89, 5.89, 4.46, 2.2, 6.0, 2.2, 5.54, 2.45, 1.29, 1.0, 12);
-	public static final ParameterSetMEAM Cu = new ParameterSetMEAM(ElectronVolt.UNIT.toSim(3.62), 1.07, 2.50, 5.106, 3.62, 2.2, 6.0, 2.2, 3.14, 2.49, 2.95, 1.0, 12);
-	public static final ParameterSetMEAM Sn = new ParameterSetMEAM(ElectronVolt.UNIT.toSim(3.08), 1.0, 3.44, 6.20, 6.2, 6.0, 6.0, 6.0, 4.5, 6.5, -0.183, 1.0, 12);
+	public static final ParameterSetMEAM Ag = new ParameterSetMEAM(ElectronVolt.UNIT.toSim(2.85), 1.06, 2.89, 5.89, 4.46, 2.2, 6.0, 2.2, 5.54, 2.45, 1.29, 1.0, 12.0);
+	public static final ParameterSetMEAM Cu = new ParameterSetMEAM(ElectronVolt.UNIT.toSim(3.62), 1.07, 2.50, 5.106, 3.62, 2.2, 6.0, 2.2, 3.14, 2.49, 2.95, 1.0, 12.0);
+	public static final ParameterSetMEAM Sn = new ParameterSetMEAM(ElectronVolt.UNIT.toSim(3.08), 1.0, 3.44, 6.20, 6.2, 6.0, 6.0, 6.0, 4.5, 6.5, -0.183, 1.0, 12.0);
 	public static final ParameterSetMEAM Ag3Sn = new ParameterSetMEAM(ElectronVolt.UNIT.toSim(2.83), Double.NaN, 2.96, 6.07, Double.NaN, Double.NaN, Double.NaN, 
 			Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
 	public static final ParameterSetMEAM Cu3Sn = new ParameterSetMEAM(ElectronVolt.UNIT.toSim(3.5), Double.NaN, 
