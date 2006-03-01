@@ -90,7 +90,11 @@ public class IntegratorCoordConfigWriter implements IntegratorIntervalListener,
             System.err.println("Cannot close a file, caught IOException: " + e.getMessage());
         }
     }
-	// Equates intervalAction method variable to variable passed in from simulation class
+	
+	/**
+	 * Equates intervalAction method variable to variable passed in from simulation class
+	 * @param writeInterval
+	 */
 	public void setWriteInterval(int writeInterval){
 		this.writeInterval = writeInterval;
 		intervalCount = writeInterval;
@@ -117,8 +121,8 @@ public class IntegratorCoordConfigWriter implements IntegratorIntervalListener,
 						actualDistance = atomPBIarray[i][j] * phasedim.x(j) + atomPosition.x(j);
 						fileWriter.write("     "+actualDistance);
 					}
-				fileWriter.write("\n");
-				i++;
+					fileWriter.write("\n");
+					i++;
 				}
 			}
 			catch (IOException e) {
@@ -201,9 +205,13 @@ public class IntegratorCoordConfigWriter implements IntegratorIntervalListener,
 				workVector.E(atomOldCoord[i]);
 				workVector.ME(((AtomLeaf)iterator.nextAtom()).coord.position()); 
 				workVector.DE(phaseDim);
+				
 				for (int j=0;j < phaseDim.D();j++){
 					
-					atomPBIarray[i][j] += workVector.x(j);
+					// Before Math.round, workVector is -/+ 0.9999,1.000,1.0001,0.000
+					// Value will truncate when added to atomPBIarray, we must make workVector a whole number
+					atomPBIarray[i][j] += Math.round(workVector.x(j));
+					
 				}
 				i++;
 			}
