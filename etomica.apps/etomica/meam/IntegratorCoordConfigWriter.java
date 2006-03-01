@@ -14,12 +14,43 @@ import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.space.Vector;
 
+/* =====SUMMARY======
+ * At each 'writeInterval', which corresponds to a certain number of simulation steps,
+ * every atom's absolute distance traveled is written to a file of the name 'fileName'.
+ * Subsequent 'writeInverval' outputs append the file to create repeating blocks of the 
+ * simulation's atoms with columns of X, Y, and Z.
+ * ==================
+ * 
+ * The class is ordered as follows.  After the atoms have moved, but before periodic
+ * boundary conditions are imposed, the main class's 'intervalAction' method gets atom
+ * coordinates and stores them in 'atomOldCoord'.  The 'intervalCount', initially set to
+ * 'writeInterval', is predecremented each simulation step.  Each time it does NOT equal
+ * zero, the class continues and 'intervalAction' of the subclass 'AfterPBC' is called.  
+ * The method fills 'atomPBIarray' using the pre-periodic boundary* 'atomOldCoord' and 
+ * post-periodic boundary** 'workVector'. Each simulation step repeats this process.  When
+ * 'intervalCount' IS zero, 'atomPBIarray' and the atoms' current positions are used as
+ * stated below to create the file output.   
+ * 
+ *   
+ * -----'atomPBIarray'----
+ * Called in AfterPBC's 'intervalAction', this is an integer array containing a running
+ * total of the number of box lengths traversed by the atoms during the simulation.  At 
+ * a file write, 'atomPBIarray' is used as a multiplier of the primary box length.  
+ * This quantity is added to the atoms' current coordinates to generate an atom's 
+ * "absolute displacement" value.  
+ * -----------------------
+ * 
+ *    * and ** : notice the getPriority() methods and their returns
+ */
+
+
 public class IntegratorCoordConfigWriter implements IntegratorIntervalListener,
 		IntegratorNonintervalListener {
 	
 	
 	public IntegratorCoordConfigWriter(Space space, String fileName){
 		
+		// Creates an instance of subclass AfterPBC
 		afterPBCinstance = new AfterPBC(space);
 		
 		this.fileName = fileName;
@@ -40,6 +71,7 @@ public class IntegratorCoordConfigWriter implements IntegratorIntervalListener,
 		integrator.addListener(afterPBCinstance);
 	}
 	
+	// Methods involved with file creation/closing
 	public void openFile(){
 		try { 
 			fileWriter = new FileWriter(fileName, false);
@@ -58,7 +90,7 @@ public class IntegratorCoordConfigWriter implements IntegratorIntervalListener,
             System.err.println("Cannot close a file, caught IOException: " + e.getMessage());
         }
     }
-	
+	// Equates intervalAction method variable to variable passed in from simulation class
 	public void setWriteInterval(int writeInterval){
 		this.writeInterval = writeInterval;
 		intervalCount = writeInterval;
@@ -68,6 +100,8 @@ public class IntegratorCoordConfigWriter implements IntegratorIntervalListener,
 		afterPBCinstance.updateAtomOldCoord();
 		if (--intervalCount == 0){
 			Vector phasedim = phase.getBoundary().getDimensions();
+			
+			// Gets atomPBIarray from AfterPBC subclass, through the subclass instance
 			int [][] atomPBIarray = afterPBCinstance.getAtomPBIarray();
 					
 			try {
@@ -78,6 +112,8 @@ public class IntegratorCoordConfigWriter implements IntegratorIntervalListener,
 					Vector atomPosition = ((AtomLeaf)iterator.nextAtom()).coord.position();
 					for (int j=0;j < phasedim.D();j++){
 						double actualDistance;
+						
+						// Total distance traveled between file writes is computed
 						actualDistance = atomPBIarray[i][j] * phasedim.x(j) + atomPosition.x(j);
 						fileWriter.write("     "+actualDistance);
 					}
@@ -88,10 +124,12 @@ public class IntegratorCoordConfigWriter implements IntegratorIntervalListener,
 			catch (IOException e) {
 	            throw new RuntimeException(e);
 	        }
+			// Variable is reset after a file write
 			intervalCount = writeInterval;
 		}
 	}
-		
+	
+	// *
 	public int getPriority() {
 		return 50;
 	}
@@ -115,6 +153,10 @@ public class IntegratorCoordConfigWriter implements IntegratorIntervalListener,
 	private String fileName;
 	private FileWriter fileWriter;
 	
+	/*
+	 * -------------------------SUBCLASS AfterPBC----------------------------------
+	 */
+	
 	private static class AfterPBC implements IntegratorIntervalListener{
 		
 		public AfterPBC(Space space){
@@ -122,6 +164,7 @@ public class IntegratorCoordConfigWriter implements IntegratorIntervalListener,
 			iterator = new AtomIteratorLeafAtoms();
 		}
 		
+		// Method called in main class (see above)
 		public int [][] getAtomPBIarray(){
 			return atomPBIarray;
 		}
@@ -138,6 +181,7 @@ public class IntegratorCoordConfigWriter implements IntegratorIntervalListener,
 			updateAtomOldCoord();
 		}
 		
+		// Method called in main and sub class (see directly above and above)
 		public void updateAtomOldCoord(){
 			iterator.reset();
 			int i=0;
@@ -150,17 +194,22 @@ public class IntegratorCoordConfigWriter implements IntegratorIntervalListener,
 		public void intervalAction(IntegratorIntervalEvent evt) {
 			iterator.reset();
 			int i=0;
+			
+			// workVector is modified to hold a value of box lengths an atom has traveled
+			// atomPBIarray is filled here
 			while (iterator.hasNext()){
 				workVector.E(atomOldCoord[i]);
 				workVector.ME(((AtomLeaf)iterator.nextAtom()).coord.position()); 
 				workVector.DE(phaseDim);
 				for (int j=0;j < phaseDim.D();j++){
+					
 					atomPBIarray[i][j] += workVector.x(j);
 				}
 				i++;
 			}
 		}
 		
+		// **
 		public int getPriority() {
 			return 200;
 		}
