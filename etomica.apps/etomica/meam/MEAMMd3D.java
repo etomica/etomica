@@ -156,6 +156,15 @@ public class MEAMMd3D extends Simulation {
         imposepbc.setPhase(phase);
         integrator.addListener(imposepbc);
 		
+        // IntegratorCoordConfigWriter - Displacement output (3/1/06 - MS)
+        //IntegratorCoordConfigWriter coordWriter = new IntegratorCoordConfigWriter(space, "MEAMoutput");
+        //coordWriter.setPhase(phase);
+        //coordWriter.setIntegrator(integrator);
+        //coordWriter.setWriteInterval(100);
+        
+        // Control simulation lengths
+        //activityIntegrate.setMaxSteps(500);
+
 		energy = new MeterEnergy(potentialMaster);
     }
     
