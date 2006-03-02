@@ -58,19 +58,21 @@ public class CastGroupToDoubleArray extends DataProcessor {
         }
         String label = inputDataInfo.getLabel();
         Dimension dimension = inputDataInfo.getDimension();
-        DataFactory factory = inputDataInfo.getDataFactory();
         Data[] data = ((DataGroup.Factory)inputDataInfo.getDataFactory()).data;
         if (data.length == 0) {
             inputType = 0;
             outputData = new DataDoubleArray(label,dimension,0);
             return outputData.getDataInfo();
         }
-        Class innerDataClass = data[0].getClass();
+
+        Class innerDataClass = data[0].getDataInfo().getDataClass();
         for (int i = 1; i<data.length; i++) {
             if (data[i].getClass() != innerDataClass) {
                 throw new IllegalArgumentException("CastGroupToDoubleArray can only handle homogeneous groups");
             }
         }
+        DataFactory innerFactory = data[0].getDataInfo().getDataFactory();
+        
         
         if (innerDataClass == DataDoubleArray.class) {
             DataDoubleArray dataArray = (DataDoubleArray)data[0];
@@ -96,7 +98,7 @@ public class CastGroupToDoubleArray extends DataProcessor {
             inputType = 4;
             outputData = new DataDoubleArray(label, dimension, data.length);
         } else if (innerDataClass == DataVector.class) {
-            int D = ((DataVector.Factory)factory).getSpace().D();
+            int D = ((DataVector.Factory)innerFactory).getSpace().D();
             if (data.length == 1) {
                 inputType = 5;
                 outputData = new DataDoubleArray(label, dimension, D);
@@ -106,7 +108,7 @@ public class CastGroupToDoubleArray extends DataProcessor {
                 outputData = new DataDoubleArray(label, dimension, new int[]{data.length,D});
             }
         } else if (innerDataClass == DataTensor.class) {
-            int D = ((DataTensor.Factory)factory).getSpace().D();
+            int D = ((DataTensor.Factory)innerFactory).getSpace().D();
             if (data.length == 1) {
                 inputType = 7;
                 outputData = new DataDoubleArray(label, dimension, new int[] {D, D});
@@ -116,7 +118,7 @@ public class CastGroupToDoubleArray extends DataProcessor {
                 outputData = new DataDoubleArray(label, dimension, new int[] {data.length, D, D});
             }
         } else if(innerDataClass == DataFunction.class) {
-            int[] sizes =  ((DataFunction.Factory)factory).getIndependentDataSizes();
+            int[] sizes =  ((DataFunction.Factory)innerFactory).getIndependentDataSizes();
             inputType = 9;
             if (data.length != 1) {
                 inputType = 10;
