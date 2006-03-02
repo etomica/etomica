@@ -67,7 +67,7 @@ public class HistogramSimple implements Histogram, java.io.Serializable {
 	}
 	
     public void addValue(double x) {     //takes new value and updates histogram
-        if(firstValue) {
+        if(firstValue && autoScale) {
             xMin = x - Math.abs(0.1*x);
             xMax = x + Math.abs(0.1*x);
             reset();
