@@ -59,7 +59,7 @@ public class HistogramSimple implements Histogram, java.io.Serializable {
 	        counts[i] = 0;
 	        xvalues[i] = xMin + (i+0.5)*deltaX;
 	    }
-	    firstValue = autoScale;
+	    firstValue = true;
 	}
 	
 	public void addValues(double[] x) {  //updates histogram through addition of multiple new values
