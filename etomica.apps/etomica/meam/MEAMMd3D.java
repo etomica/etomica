@@ -11,8 +11,6 @@ import etomica.data.DataInfo;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.types.DataDouble;
-import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
@@ -29,7 +27,7 @@ import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.ElectronVolt;
+import etomica.units.Kelvin;
 
 /**
  * Molecular-Dynamics Simulation Using the Modified Embedded-Atom Method 
@@ -127,19 +125,20 @@ public class MEAMMd3D extends Simulation {
     public MEAMMd3D() {
         super(Space3D.getInstance()); //INSTANCE); kmb change 8/3/05
         integrator = new IntegratorVelocityVerlet(this);
-        integrator.setTimeStep(0.01);
+        integrator.setTimeStep(0.0005);
+        integrator.setTemperature(Kelvin.UNIT.toSim(298));
         activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
-        species.setNMolecules(32);
+        species.setNMolecules(216);
         ((AtomTypeLeaf)species.getFactory().getType()).setMass(118.71);
         //The diameter given is really the equilibrium distance between the atoms.
         ((AtomTypeSphere)species.getFactory().getType()).setDiameter(3.44); 
         // This forces the MEAMP2 to request an agentIndex from Atom.
         pseudoPotential2 = new MEAMP2(this, ParameterSetMEAM.Sn);
         phase = new Phase(this);
-        phase.setDimensions(new Vector3D(5.8318*2, 5.8318*2, 3.1819*2));
+        phase.setDimensions(new Vector3D(5.8318*3, 5.8318*3, 3.1819*6));
         PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.8318, 3.1819);
         LatticeCrystal crystal = new LatticeCrystal(new Crystal(
         		primitive, new BasisBetaSnA5(primitive)));
