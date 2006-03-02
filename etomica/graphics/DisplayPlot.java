@@ -1,4 +1,5 @@
 package etomica.graphics;
+import ptolemy.plot.Plot;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.data.DataSinkTable;
@@ -95,31 +96,6 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
     }
     
     /**
-     * Performs actions appropriate to addition or change of data source.
-     * Implementation of abstract method from parent class.
-     */
-    public void setupDisplay() {
-        panel.remove(plot);
-        plot = new Plot();
-        panel.add(plot);
-        panel.revalidate();
-        panel.repaint();
-        
-        for(int i=0; i<dataTable.getColumnCount(); i++) {
-            plot.addLegend(i,doLegend ? dataTable.getColumn(i).getHeading(): "");
-        }
-        
-        setLabel(x.getDataInfo().getLabel());
-        if(dataTable.getColumnCount() > 0) {
-            plot.setYLabel(dataTable.getColumn(0).getHeading());
-        }
-
-        plot.setXLabel(x.getDataInfo().getLabel()+ " ("+xUnit.symbol()+")");
-        
-        doUpdate();
-    }
-    
-    /**
      * Redraws the plot.
      */
     public void doUpdate() {
@@ -146,8 +122,12 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
      */
     public void setDoLegend(boolean b) {
         doLegend = b;
-        setupDisplay();
+        for(int i=0; i<dataTable.getColumnCount(); i++) {
+            plot.removeLegend(i);
+            plot.addLegend(i,b ? dataTable.getColumn(i).getHeading(): "");
+        }
     }
+    
     /**
      * Accessor for flag determining if a legend is to be shown.
      * Default is true.
@@ -224,40 +204,4 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
     private Unit xUnit = Null.UNIT;
     private Unit[] units = new Unit[0];
     private Unit defaultUnit;
-
- /**
-  * Define inner class as extension of ptolemy.plot.Plot
-  * Does not override anything, but may want to later
-  */
-    public static class Plot extends ptolemy.plot.Plot {
-        
-        public Plot() {
-        	super();
-//        	setOpaque(false);
-        }
-        public void setTopPadding(int i) {
-            _topPadding = i;
-        }
-    }
-    
-//    public static void main(String[] args) {
-//        HSMD2D sim = new HSMD2D();
-//        SimulationGraphic graphic = new SimulationGraphic(sim);
-//        sim.integrator.setIsothermal(true);
-//        AccumulatorHistory history = new AccumulatorHistory();
-//        history.setHistoryLength(1000);
-//        MeterPressureHard pressureMeter = new MeterPressureHard(sim.space,sim.integrator);
-//        pressureMeter.setPhase(sim.phase);
-//        AccumulatorAverageSegment segment = new AccumulatorAverageSegment(
-//                pressureMeter, sim.integrator, 
-//                new AccumulatorAverage.Type[] {AccumulatorAverage.AVERAGE},
-//                new DisplayBox());
-//        segment.getDataPump().addDataSink(history);
-//        DisplayPlot plot = new DisplayPlot();
-//        history.addDataSink(plot.getDataTable().makeColumn());
-//        plot.setXSource(history.getXSource());
-//        graphic.add(plot);
-//
-//        graphic.makeAndDisplayFrame();
-//    }
-}//end of class
+}
