@@ -91,7 +91,6 @@ public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgen
         gradRhoi0Ref = (Vector3D)space.makeVector();
         gradRhoi1Ref = (Vector3D)space.makeVector();
         gradRhoi2Ref = (Vector3D)space.makeVector();
-        gradRhoj213 = (Vector3D)space.makeVector();
         gradRhoi3Ref = (Vector3D)space.makeVector();
         gradGammaRef = (Vector3D)space.makeVector();
         gradRhoiRef = (Vector3D)space.makeVector();
@@ -387,7 +386,7 @@ public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgen
     	
     	//Gradient of rhoj2xy
     	gradRhoj2xy.Ea1Tv1(rhoj2*x, grady);
-    	gradRhoj2xy.Ea1Tv1(rhoj2*y, gradx);
+    	gradRhoj2xy.PEa1Tv1(rhoj2*y, gradx);
     	gradRhoj2xy.PEa1Tv1(x*y, gradRhoj2);
     	
     	gradientSumsAtom0[Wrapper.rhoj2xyBin].PE(gradRhoj2xy);
@@ -395,7 +394,7 @@ public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgen
     	
     	//Gradient of rhoj2xz
     	gradRhoj2xz.Ea1Tv1(rhoj2*x, gradz);
-    	gradRhoj2xz.Ea1Tv1(rhoj2*z, gradx);
+    	gradRhoj2xz.PEa1Tv1(rhoj2*z, gradx);
     	gradRhoj2xz.PEa1Tv1(x*z, gradRhoj2);
     	
     	gradientSumsAtom0[Wrapper.rhoj2xzBin].PE(gradRhoj2xz);
@@ -410,7 +409,7 @@ public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgen
     	
     	//Gradient of rhoj2yz
     	gradRhoj2yz.Ea1Tv1(rhoj2*y, gradz);
-    	gradRhoj2yz.Ea1Tv1(rhoj2*z, grady);
+    	gradRhoj2yz.PEa1Tv1(rhoj2*z, grady);
     	gradRhoj2yz.PEa1Tv1(y*z, gradRhoj2);
     	
     	gradientSumsAtom0[Wrapper.rhoj2yzBin].PE(gradRhoj2yz);
@@ -481,7 +480,7 @@ public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgen
     	//Gradient of rhoj3yyz
     	gradRhoj3yyz.Ea1Tv1(2.0*rhoj3*y*y, gradz);
     	gradRhoj3yyz.PEa1Tv1(4.0*rhoj3*y*z, grady);
-    	gradRhoj3xxz.PEa1Tv1(y*y*z, gradRhoj3);
+    	gradRhoj3yyz.PEa1Tv1(y*y*z, gradRhoj3);
     	
     	gradientSumsAtom0[Wrapper.rhoj3yyzBin].PE(gradRhoj3yyz);
     	gradientSumsAtom1[Wrapper.rhoj3yyzBin].PE(gradRhoj3yyz);
@@ -536,8 +535,7 @@ public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgen
     	gradRhoi2Ref.PEa1Tv1(y*y, gradRhoj2yy);
     	gradRhoi2Ref.PEa1Tv1(2.0*y*z, gradRhoj2yz);
     	gradRhoi2Ref.PEa1Tv1(z*z, gradRhoj2zz);
-    	gradRhoj213.Ea1Tv1(1.0/3.0, gradRhoj2);
-    	gradRhoi2Ref.ME(gradRhoj213);
+    	gradRhoi2Ref.PEa1Tv1(-(1.0/3.0), gradRhoj2);
     	gradRhoi2Ref.TE(p.Z*p.Z*rhoj2/rhoi2Ref);
     	
     	gradRhoi3Ref.Ea1Tv1(x*x*x, gradRhoj3xxx);
@@ -561,7 +559,7 @@ public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgen
     	
     	gradRhoiRef.Ea1Tv1(rhoi0Ref*Math.exp(-gammaRef)
     			/((1.0+Math.exp(-gammaRef))*(1.0+Math.exp(-gammaRef))), gradGammaRef);
-    	gradRhoiRef.Ea1Tv1(1.0/(1.0+Math.exp(-gammaRef)), gradRhoi0Ref);
+    	gradRhoiRef.PEa1Tv1(1.0/(1.0+Math.exp(-gammaRef)), gradRhoi0Ref);
     	gradRhoiRef.TE(2.0);
     	
     	gradFRef.Ea1Tv1( (p.A*p.Ec/p.rhoScale)*
@@ -636,7 +634,6 @@ public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgen
     private final Vector3D gradRhoi0Ref;
     private final Vector3D gradRhoi1Ref;
     private final Vector3D gradRhoi2Ref;
-    private final Vector3D gradRhoj213;
     private final Vector3D gradRhoi3Ref;
     private final Vector3D gradGammaRef;
     private final Vector3D gradRhoiRef;
