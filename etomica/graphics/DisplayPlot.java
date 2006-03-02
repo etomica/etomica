@@ -86,6 +86,7 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
             //may need to remember columns and reassign units to match
             units = (Unit[])Arrays.resizeArray(units, newColumnCount);
         }
+        setDoLegend(doLegend);
     }
 
     /**
