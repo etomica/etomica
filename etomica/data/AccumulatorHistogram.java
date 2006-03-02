@@ -160,6 +160,10 @@ public class AccumulatorHistogram extends DataAccumulator {
         for (int i = 0; i < nData; i++)
             histogram[i].reset();
     }
+    
+    public Histogram[] getHistograms() {
+        return histogram;
+    }
 
     /**
      * Returns the DataInfo for the output Data.
