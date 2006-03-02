@@ -70,7 +70,7 @@ public final class MEAMPMany extends Potential1 implements PotentialSoft {
 			+ (agent.sums[Wrapper.rhoj2yyBin] * agent.sums[Wrapper.rhoj2yyBin])
 			+ (2.0 * agent.sums[Wrapper.rhoj2yzBin] * agent.sums[Wrapper.rhoj2yzBin])
 			+ (agent.sums[Wrapper.rhoj2zzBin] * agent.sums[Wrapper.rhoj2zzBin])
-			- ((1.0/3.0) * agent.sums[Wrapper.rhoj2Bin]));
+			- ((1.0/3.0) * agent.sums[Wrapper.rhoj2Bin] * agent.sums[Wrapper.rhoj2Bin]));
     }
     
     protected double rhoi3(Wrapper agent) {
@@ -153,7 +153,7 @@ public final class MEAMPMany extends Potential1 implements PotentialSoft {
 		gradRhoi1.Ea1Tv1(agent.sums[Wrapper.rhoj1xBin], 
 				agent.gradientSums[Wrapper.rhoj1xBin]);
 		gradRhoi1.PEa1Tv1(agent.sums[Wrapper.rhoj1yBin], 
-				agent.gradientSums[Wrapper.rhoj1xBin]);
+				agent.gradientSums[Wrapper.rhoj1yBin]);
 		gradRhoi1.PEa1Tv1(agent.sums[Wrapper.rhoj1zBin], 
 				agent.gradientSums[Wrapper.rhoj1zBin]);
 		gradRhoi1.TE(1.0/rhoi1);
@@ -198,11 +198,12 @@ public final class MEAMPMany extends Potential1 implements PotentialSoft {
 		gradtav3.Ea1Tv1(-agent.sums[Wrapper.t3Rhoj0Bin]/(rhoi0*rhoi0), agent.gradientSums[Wrapper.rhoj0Bin]);
 		gradtav3.PEa1Tv1(1.0/rhoi0, agent.gradientSums[Wrapper.t3Rhoj0Bin]);
 		
-		gradGamma.Ea1Tv1( (-2.0/rhoi0)*( (tav1*rhoi1*rhoi1) + (tav2*rhoi2*rhoi2)
+		gradGamma.Ea1Tv1( (-1.0/rhoi0)*( (tav1*rhoi1*rhoi1) + (tav2*rhoi2*rhoi2)
 				+ (tav3*rhoi3*rhoi3) ), gradRhoi0);
-		gradGamma.PEa1Tv1(2.0*tav1*rhoi1, gradRhoi1);
-		gradGamma.PEa1Tv1(2.0*tav2*rhoi2, gradRhoi2);
-		gradGamma.PEa1Tv1(2.0*tav3*rhoi3, gradRhoi3);
+		gradGamma.PEa1Tv1(tav1*rhoi1, gradRhoi1);
+		gradGamma.PEa1Tv1(tav2*rhoi2, gradRhoi2);
+		gradGamma.PEa1Tv1(tav3*rhoi3, gradRhoi3);
+		gradGamma.TE(2.0);
 		gradGamma.PEa1Tv1(rhoi1*rhoi1, gradtav1);
 		gradGamma.PEa1Tv1(rhoi2*rhoi2, gradtav2);
 		gradGamma.PEa1Tv1(rhoi3*rhoi3, gradtav3);
@@ -219,7 +220,7 @@ public final class MEAMPMany extends Potential1 implements PotentialSoft {
 		//System.exit(0);
 		
 		gradEi.E(gradF);
-		gradEi.PEa1Tv1(1.0/2.0, agent.gradientSums[Wrapper.phiBin]);
+		gradEi.PEa1Tv1(0.5, agent.gradientSums[Wrapper.phiBin]);
 		
 		return gradEi;
 		
