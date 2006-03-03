@@ -85,6 +85,9 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
         if(a.type instanceof AtomTypeSphere) {
             /* Draw the core of the atom */
             sigmaP = (int)(displayPhase.getToPixels()*((AtomTypeSphere)a.type).diameter(a));
+            if (sigmaP == 0) {
+                sigmaP = 1;
+            }
             xP = baseXP - (sigmaP>>1);
             yP = baseYP - (drawingHeight >> 1);
             g.fillRect(xP, yP, sigmaP, drawingHeight);
