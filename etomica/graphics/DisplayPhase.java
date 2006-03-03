@@ -118,8 +118,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
     
     public DisplayPhase(Phase phase, Pixel pixel) {
         super();
-        this.pixel = pixel;
-        System.out.println("Serenity now");
+        setPixelUnit(pixel);
         setLabel("Configuration");
 
         align[0] = align[1] = CENTER;
@@ -269,6 +268,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
                 break;
             case 1:
             default:
+                boxY = 10;
                 break;
         }
         
@@ -426,6 +426,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
                     break;
                 case 1:
                 default:
+                    boxY = 10;
                     break;
             }
             
