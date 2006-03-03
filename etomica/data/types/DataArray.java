@@ -73,14 +73,14 @@ public class DataArray extends Data {
      *            the array
      */
     public DataArray(String label, Dimension dimension, int[] arrayShape, DataFactory arrayElementFactory) {
-        this(label + " Array", dimension, (Factory)getFactory(arrayShape, arrayElementFactory));
+        this(label, dimension, (Factory)getFactory(arrayShape, arrayElementFactory));
     }
     
     /*
      * Used by factory and constructor above
      */
     private DataArray(String label, Dimension dimension, Factory factory) {
-        super(new DataInfo(label, dimension, factory));
+        super(new DataInfo(label+" Array", dimension, factory));
         jumpCount = (int[])factory.arrayShape.clone();
         //row-wise definition, as done in RectangularLattice
         if(factory.arrayShape.length > 0) {
@@ -183,6 +183,13 @@ public class DataArray extends Data {
      */
     public Data getData(int i) {
         return dataArray[i];
+    }
+    
+    /**
+     * Returns the length of the wrapped array of Data.
+     */
+    public int getLength() {
+        return dataArray.length;
     }
 
     /**
