@@ -10,7 +10,6 @@ import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.exception.MethodNotImplementedException;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -160,7 +159,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
                 meterKE.setPhase(phase);
                 currentKineticEnergy = meterKE.getDataAsScalar();
             }
-            else if (thermostat == ThermostatType.ANDERSEN_SINGLE) {
+            else if (thermostat == ThermostatType.ANDERSEN_SINGLE && initialized) {
                 AtomArrayList atomList = phase.getSpeciesMaster().leafList;
                 int index = Simulation.random.nextInt(atomList.size());
                 AtomLeaf a = (AtomLeaf)atomList.get(index);
