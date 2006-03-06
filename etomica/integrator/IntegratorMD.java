@@ -14,6 +14,7 @@ import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
+import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.units.Time;
 import etomica.util.EnumeratedType;
@@ -34,6 +35,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
         meterKE = new MeterKineticEnergy();
         atomActionRandomizeVelocity = new AtomActionRandomizeVelocity(temperature);
         meterTemperature = new MeterTemperature();
+        momentum = potentialMaster.getSpace().makeVector();
     }
 
     /**
@@ -159,14 +161,16 @@ public abstract class IntegratorMD extends IntegratorPhase {
                 meterKE.setPhase(phase);
                 currentKineticEnergy = meterKE.getDataAsScalar();
             }
-            else if (thermostat == ThermostatType.ANDERSEN_SINGLE && initialized) {
-                AtomArrayList atomList = phase.getSpeciesMaster().leafList;
-                int index = Simulation.random.nextInt(atomList.size());
-                AtomLeaf a = (AtomLeaf)atomList.get(index);
-                double m = ((AtomTypeLeaf)a.type).getMass();
-                currentKineticEnergy -= 0.5*m*((ICoordinateKinetic)a.coord).velocity().squared();
-                randomizeMomentum(atomList.get(index));
-                currentKineticEnergy += 0.5*m*((ICoordinateKinetic)a.coord).velocity().squared();
+            else if (thermostat == ThermostatType.ANDERSEN_SINGLE) {
+                if (initialized) {
+                    AtomArrayList atomList = phase.getSpeciesMaster().leafList;
+                    int index = Simulation.random.nextInt(atomList.size());
+                    AtomLeaf a = (AtomLeaf)atomList.get(index);
+                    double m = ((AtomTypeLeaf)a.type).getMass();
+                    currentKineticEnergy -= 0.5*m*((ICoordinateKinetic)a.coord).velocity().squared();
+                    randomizeMomentum(atomList.get(index));
+                    currentKineticEnergy += 0.5*m*((ICoordinateKinetic)a.coord).velocity().squared();
+                }
             }
             // ANDERSEN was handled at the start
             else if (thermostat != ThermostatType.ANDERSEN) {
@@ -208,8 +212,20 @@ public abstract class IntegratorMD extends IntegratorPhase {
      * @return the factor velocities were scaled by 
      */
     protected double scaleMomenta(Phase aPhase) {
+        momentum.E(0);
         atomIterator.setPhase(aPhase);
         atomIterator.reset();
+        while(atomIterator.hasNext()) {
+            AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
+            momentum.PEa1Tv1(((AtomTypeLeaf)a.type).getMass(),((ICoordinateKinetic)a.coord).velocity());
+        }
+        momentum.TE(1.0/atomIterator.size());
+        atomIterator.reset();
+        while(atomIterator.hasNext()) {
+            AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
+            ((ICoordinateKinetic)a.coord).velocity().ME(momentum); //set net momentum to 0
+        }
+        
         // calculate current kinetic temperature
         meterTemperature.setPhase(aPhase);
         double t = meterTemperature.getDataAsScalar();
@@ -222,6 +238,8 @@ public abstract class IntegratorMD extends IntegratorPhase {
             t = meterTemperature.getDataAsScalar();
             s = Math.sqrt(temperature / t);
         }
+        atomIterator.setPhase(aPhase);
+        atomIterator.reset();
         while(atomIterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
             ((ICoordinateKinetic)a.coord).velocity().TE(s); //scale momentum
@@ -255,6 +273,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
     protected MeterKineticEnergy meterKE;
     private AtomActionRandomizeVelocity atomActionRandomizeVelocity;
     private MeterTemperature meterTemperature;
+    private final Vector momentum;
     
-}//end of IntegratorMD
-    
+}
+
