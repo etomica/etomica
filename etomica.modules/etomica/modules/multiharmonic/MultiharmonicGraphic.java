@@ -11,9 +11,6 @@ import etomica.action.ActionGroupSeries;
 import etomica.data.DataProcessorFunction;
 import etomica.data.DataPump;
 import etomica.data.DataSourceFunction;
-import etomica.data.DataSourceUniform;
-import etomica.data.types.CastArrayToDoubleArray;
-import etomica.data.types.CastToDoubleArray;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceTrioControllerButton;
 import etomica.graphics.DisplayPhase;
@@ -24,7 +21,10 @@ import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.space1d.Vector1D;
 import etomica.units.Dimension;
+import etomica.units.Energy;
 import etomica.units.Length;
+import etomica.units.Pixel;
+import etomica.units.Undefined;
 import etomica.util.Function;
 
 
@@ -48,7 +48,6 @@ public class MultiharmonicGraphic {
     public MultiharmonicGraphic() {
         super();
         final Multiharmonic sim = new Multiharmonic();
-//        Length.Sim.TO_PIXELS = 133.0;
 
         sim.register(sim.integrator);
         DeviceTrioControllerButton control = new DeviceTrioControllerButton(sim);
@@ -61,6 +60,8 @@ public class MultiharmonicGraphic {
                     }
                     public String getLabel() {return "";}
                 }));
+        displayPhase.setPixelUnit(new Pixel(400/sim.phase.getBoundary().getDimensions().x(0)));
+
         
  //       panel.add(displayPhase.graphic(), gbc2);
         
@@ -71,7 +72,7 @@ public class MultiharmonicGraphic {
 //        panel.add(displayBox.graphic());
         
         DisplayPlot plot = new DisplayPlot();
-        CastArrayToDoubleArray cast = new CastArrayToDoubleArray();
+        CastArrayUnwrap cast = new CastArrayUnwrap();
         DataProcessorFunction log = new DataProcessorFunction(new Function() {
           public double f(double x) {
               return -Math.log(x);
@@ -84,10 +85,10 @@ public class MultiharmonicGraphic {
           }});
         sim.history.setDataSink(cast);
         cast.setDataSink(log);
-        log.setDataSink(plot.getDataTable());
+        log.setDataSink(plot.getDataSet());
         
         DisplayPlot energyPlot = new DisplayPlot();
-        sim.historyEnergy.setDataSink(energyPlot.getDataTable());
+        sim.historyEnergy.setDataSink(energyPlot.getDataSet());
         
         DeviceSlider x0Slider = new DeviceSlider(sim.controller);
         final DeviceSlider omegaASlider = new DeviceSlider(sim.controller);
@@ -130,7 +131,6 @@ public class MultiharmonicGraphic {
         
         Function deltaF = new Function() {
             public double f(double x) {
-//                System.out.println(omegaSlider.getValue());
                 return 0.5*sim.phase.atomCount() * Math.log(omegaBSlider.getValue()/omegaASlider.getValue());
             }
             public double dfdx(double x) {
@@ -151,16 +151,12 @@ public class MultiharmonicGraphic {
                 return 0.0;
             }
         };
-        final DataSourceFunction exact = new DataSourceFunction(deltaF);
-        final DataSourceFunction uAvg = new DataSourceFunction(fUAvg);
-        exact.getXSource().setNValues(sim.history.getDataLength());
-        uAvg.getXSource().setNValues(sim.historyEnergy.getDataLength());
-        CastToDoubleArray cast2 = new CastToDoubleArray();
-        CastToDoubleArray cast2U = new CastToDoubleArray();
-        DataPump exactPump = new DataPump(exact, cast2);
-        DataPump uPump = new DataPump(uAvg, cast2U);
-        cast2.setDataSink(plot.getDataTable());
-        cast2U.setDataSink(energyPlot.getDataTable());
+        final DataSourceFunction exact = new DataSourceFunction("exact",Energy.DIMENSION,deltaF,sim.history.getDataLength(),"Time",Undefined.DIMENSION);
+        final DataSourceFunction uAvg = new DataSourceFunction("exact",Energy.DIMENSION,fUAvg,sim.historyEnergy.getDataLength(),"Time",Undefined.DIMENSION);
+        exact.getXSource().setXMax(100);
+        uAvg.getXSource().setXMax(100);
+        DataPump exactPump = new DataPump(exact, plot.getDataSet());
+        DataPump uPump = new DataPump(uAvg, energyPlot.getDataSet());
         //make action for slider that updates function values and pumps them to plot
         ActionGroupSeries exactGroup = new ActionGroupSeries(new Action[] {
             new Action() {
@@ -170,8 +166,8 @@ public class MultiharmonicGraphic {
                 public String getLabel() {return "";}
             }, exactPump, uPump}
         );
-        plot.getDataTable().setUpdatingOnAnyChange(true);
-        energyPlot.getDataTable().setUpdatingOnAnyChange(true);
+        plot.getDataSet().setUpdatingOnAnyChange(true);
+        energyPlot.getDataSet().setUpdatingOnAnyChange(true);
         plot.getPlot().setTitle("Free energy difference");
         energyPlot.getPlot().setTitle("Average energy");
 
@@ -208,13 +204,8 @@ public class MultiharmonicGraphic {
         final DataSourceFunction uB = new DataSourceFunction(fUB);
         uA.getXSource().setXMax(sim.phase.getBoundary().getDimensions().x(0));
         uB.getXSource().setXMax(sim.phase.getBoundary().getDimensions().x(0));
-        CastToDoubleArray cast3 = new CastToDoubleArray();
-        CastToDoubleArray cast4 = new CastToDoubleArray();
-        final DataPump uAPump = new DataPump(uA, cast3);
-        final DataPump uBPump = new DataPump(uB, cast4);
-        cast3.setDataSink(uPlot.getDataTable());
-        cast4.setDataSink(uPlot.getDataTable());
-        ((DataSourceUniform)uPlot.getXSource()).setXMax(sim.phase.getBoundary().getDimensions().x(0));
+        final DataPump uAPump = new DataPump(uA, uPlot.getDataSet());
+        final DataPump uBPump = new DataPump(uB, uPlot.getDataSet());
         ActionGroupSeries uGroup = new ActionGroupSeries(new Action[] {
                 new Action() {
                     public void actionPerformed() {
@@ -233,7 +224,7 @@ public class MultiharmonicGraphic {
         omegaBSlider.setPostAction(uGroup);
         x0Slider.setPostAction(uGroup);
         
-        uPlot.getDataTable().setUpdatingOnAnyChange(true);
+        uPlot.getDataSet().setUpdatingOnAnyChange(true);
         
         //Lay out components
         //main panel

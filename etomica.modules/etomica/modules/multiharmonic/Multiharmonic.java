@@ -53,7 +53,6 @@ public class Multiharmonic extends Simulation {
         integrator.setIsothermal(true);
         integrator.setTemperature(1.0);
         species.getAgent(phase).setNMolecules(20);
-        System.out.println(integrator.getTimeStep());
         potentialA = new P1Harmonic(space);
         potentialA.setX0(new Vector1D(x0));
         potentialA.setSpringConstant(1.0);
