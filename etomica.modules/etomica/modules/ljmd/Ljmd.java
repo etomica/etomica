@@ -4,6 +4,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.config.ConfigurationSequential;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntervalActionAdapter;
+import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.phase.Phase;
 import etomica.potential.P2LennardJones;
 import etomica.simulation.Simulation;
@@ -31,6 +32,8 @@ public class Ljmd extends Simulation {
         //controller and integrator
 	    integrator = new IntegratorVelocityVerlet(this);
 	    integrator.setIsothermal(false);
+        integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
+        integrator.setThermostatInterval(1);
         activityIntegrate = new ActivityIntegrate(this, integrator);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);

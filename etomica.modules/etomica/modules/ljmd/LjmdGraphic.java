@@ -2,12 +2,13 @@ package etomica.modules.ljmd;
 import java.awt.BorderLayout;
 
 import javax.swing.JPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import etomica.action.Action;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorHistogram;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
@@ -24,6 +25,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPressure;
 import etomica.data.meter.MeterRDF;
 import etomica.data.meter.MeterTemperature;
+import etomica.data.types.DataFunction;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.ConstantsGraphic;
 import etomica.graphics.DeviceNSelector;
@@ -33,22 +35,26 @@ import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxesCAE;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTable;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.statmech.MaxwellBoltzmann;
+import etomica.units.DimensionRatio;
 import etomica.units.Energy;
+import etomica.units.Length;
+import etomica.units.Null;
+import etomica.units.Time;
 import etomica.units.Unit;
 import etomica.units.systems.LJ;
 import etomica.util.DoubleRange;
+import etomica.util.HistogramSimple;
 import etomica.util.Constants.CompassDirection;
 
 public class LjmdGraphic {
     
-    public LjmdGraphic(Ljmd sim) {
+    public LjmdGraphic(final Ljmd sim) {
         LJ unitSystem = new LJ();
         Unit tUnit = Energy.DIMENSION.getUnit(unitSystem);
 
@@ -98,9 +104,9 @@ public class LjmdGraphic {
         sim.register(rdfMeter,rdfPump);
         
         DisplayPlot rdfPlot = new DisplayPlot();
-        rdfPlot.setXSource(rdfMeter.getXDataSource());
-        rdfAverage.addDataSink(rdfPlot.getDataTable(),new StatType[]{StatType.AVERAGE});
+        rdfAverage.addDataSink(rdfPlot.getDataSet(),new StatType[]{StatType.AVERAGE});
         rdfAverage.setPushInterval(1);
+        rdfPlot.setDoLegend(false);
         rdfPlot.getPlot().setTitle("Radial Distribution Function");
 		
 		//add meter and display for current kinetic temperature
@@ -110,34 +116,34 @@ public class LjmdGraphic {
 		//velocity distribution
         double vMin = 0;
         double vMax = 4;
-		DataSourceRmsVelocity meterVelocity = new DataSourceRmsVelocity();
+		DataSourceRmsVelocity meterVelocity = new DataSourceRmsVelocity(new HistogramSimple(100,new DoubleRange(0,4)));
         meterVelocity.setIterator(new AtomIteratorLeafAtoms(sim.phase));
-        AccumulatorHistogram velocityHistogram = new AccumulatorHistogram();
-        DataPump velocityPump = new DataPump(meterVelocity, velocityHistogram);
-        velocityHistogram.getHistograms()[0].setXRange(new DoubleRange(vMin,vMax));
-        velocityHistogram.getHistograms()[0].setAutoScale(false);
+        AccumulatorAverage rmsAverage = new AccumulatorAverage(10);
+        DataPump velocityPump = new DataPump(meterVelocity, rmsAverage);
         IntervalActionAdapter velocityAdapter = new IntervalActionAdapter(velocityPump);
-        velocityHistogram.setPushInterval(10);
+        rmsAverage.setPushInterval(10);
         sim.integrator.addListener(velocityAdapter);
         velocityAdapter.setActionInterval(10);
         sim.register(meterVelocity,velocityPump);
         
         final DisplayPlot vPlot = new DisplayPlot();
-        velocityHistogram.addDataSink(vPlot.getDataTable());
+        rmsAverage.addDataSink(vPlot.getDataSet(), new StatType[]{StatType.AVERAGE});
         vPlot.setDoLegend(false);
 //      vPlot.getPlot().setYRange(0.0,0.8);
         vPlot.getPlot().setTitle("Velocity distribution");
+        vPlot.setDoLegend(true);
 		
 		final MaxwellBoltzmann.Distribution mbDistribution = new MaxwellBoltzmann.Distribution(sim.space,sim.integrator.getTemperature(),((AtomTypeLeaf)sim.species.getMoleculeType()).mass);
-		final DataSourceFunction mbSource = new DataSourceFunction(mbDistribution);
+		final DataSourceFunction mbSource = new DataSourceFunction("Maxwell Boltzmann Distribution",
+                Null.DIMENSION, mbDistribution, 100, "Speed", new DimensionRatio(Length.DIMENSION,Time.DIMENSION));
 		DataSourceUniform mbX = mbSource.getXSource();
 		mbX.setTypeMax(LimitType.HALF_STEP);
 		mbX.setTypeMin(LimitType.HALF_STEP);
-		mbX.setNValues(velocityHistogram.getNBins());
+		mbX.setNValues(((DataFunction.Factory)meterVelocity.getDataInfo().getDataFactory()).getIndependentDataSizes()[0]);
 		mbX.setXMin(vMin);
 		mbX.setXMax(vMax);
 		mbSource.update();
-        DataPump mbPump = new DataPump(mbSource,vPlot.getDataTable());
+        DataPump mbPump = new DataPump(mbSource,vPlot.getDataSet());
         IntervalActionAdapter mbAdapter = new IntervalActionAdapter(mbPump);
         mbAdapter.setActionInterval(100);
         sim.integrator.addListener(mbAdapter);
@@ -221,9 +227,9 @@ public class LjmdGraphic {
         sim.integrator.addListener(keAdapter);
         
         DisplayPlot ePlot = new DisplayPlot();
-        energyHistory.setDataSink(ePlot.getDataTable());
-        peHistory.setDataSink(ePlot.getDataTable());
-        keHistory.setDataSink(ePlot.getDataTable());
+        energyHistory.setDataSink(ePlot.getDataSet());
+        peHistory.setDataSink(ePlot.getDataSet());
+        keHistory.setDataSink(ePlot.getDataSet());
 		
 		ePlot.setDoLegend(true);
 		
@@ -241,11 +247,20 @@ public class LjmdGraphic {
         DisplayBoxesCAE peDisplay = new DisplayBoxesCAE();
         peDisplay.setAccumulator(peAccumulator);
 
-        DeviceNSelector nSlider = new DeviceNSelector(sim,sim.species.getAgent(sim.phase));
+        final DeviceNSelector nSlider = new DeviceNSelector(sim,sim.species.getAgent(sim.phase));
         nSlider.setMinimum(1);
         nSlider.setMaximum(224);
         nSlider.setLabel("Number of atoms");
         nSlider.setShowBorder(true);
+        // add a listener to adjust the thermostat interval for different
+        // system sizes (since we're using ANDERSEN_SINGLE.  Smaller systems 
+        // don't need as much thermostating.
+        nSlider.getSlider().addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent evt) {
+                int n = (int)nSlider.getValue();
+                sim.integrator.setThermostatInterval(400/n);
+            }
+        });
 
         //************* Lay out components ****************//
         
@@ -338,13 +353,6 @@ public class LjmdGraphic {
 		//***************set all the colors******************
 		java.awt.Color background = ConstantsGraphic.KHAKI.brighter().brighter();
 		java.awt.Color contrast = ConstantsGraphic.DARK_RED;
-		java.awt.Color sliderColor = ConstantsGraphic.TAN;
-	//	java.awt.Color tabColor = java.awt.Color.black;
-	    java.awt.Color tabColor = ConstantsGraphic.DARK_RED;
-		java.awt.Color tabTextColor = background;
-		java.awt.Color buttonColor = tabColor;
-		java.awt.Color buttonTextColor = tabTextColor;
-		java.awt.Color panelColor = ConstantsGraphic.TAN;
 		panel.setBackground(background);
 		bigPanel.setBackground(background);
 
@@ -353,15 +361,12 @@ public class LjmdGraphic {
 		startPanel.setBackground(contrast); //border color
 		startPanel.setOpaque(false);
 
-//		timePanel.setBackground(contrast); //border color
-//		timePanel.setOpaque(false);
 		temperaturePanel.setBackground(contrast); //border color
 		temperaturePanel.setOpaque(false);
 		tBox.graphic(null).setBackground(background);
 		tSelect.graphic(null).setBackground(background);
 		densityBox.graphic().setBackground(background);
 		nSlider.graphic().setBackground(background);
-//		pressureBox.graphic().setBackground(background);
 		
     }//end of constructor    
     
