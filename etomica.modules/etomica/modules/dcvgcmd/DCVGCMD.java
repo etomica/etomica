@@ -210,7 +210,7 @@ public class DCVGCMD extends Simulation {
         integratorMD.setIsothermal(false);
         integratorMD.setMeterTemperature(new MeterTemperature(speciesTube));
         //integrator.setSleepPeriod(1);
-        integratorMD.setTimeStep(0.01);
+        integratorMD.setTimeStep(0.007);
         //integrator.setInterval(10);
         integratorMD.addListener(nbrManager);
         activityIntegrate.setDoSleep(true);
