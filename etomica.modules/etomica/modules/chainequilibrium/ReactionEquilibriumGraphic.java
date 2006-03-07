@@ -85,20 +85,24 @@ public class ReactionEquilibriumGraphic {
         java.awt.GridBagConstraints gbc1 = new java.awt.GridBagConstraints();
 
         DataPump tPump = new DataPump (sim.thermometer, tBox);
+        sim.register(sim.thermometer,tPump);
 
         AccumulatorAverage accumulator = new AccumulatorAverage(sim);
         DataPump pump = new DataPump(sim.molecularCount,accumulator);
+        sim.register(sim.molecularCount,pump);
         new IntervalActionAdapter(pump,sim.integratorHard1);
 
         DataSinkTable dataTable = new DataSinkTable();
         accumulator.addDataSink(dataTable,new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
         DisplayTable THING = new DisplayTable(dataTable);
-        THING.setRowLabels(new String[] { "monomer", "dimer", "trimer", "4-mer", "5-mer", "6-mer", "7-10-mer", "11-13-mer", "14-25-mer",">25-mer"});
+//        THING.setRowLabels(new String[] { "monomer", "dimer", "trimer", "4-mer", "5-mer", "6-mer", "7-10-mer", "11-13-mer", "14-25-mer",">25-mer"});
         THING.setTransposed(false);
-        THING.setShowingRowLabels(true);
+        THING.setShowingRowLabels(false);
         THING.setPrecision(7);
 
-        DisplayPlot compositionplot = new DisplayPlot(dataTable);
+        DisplayPlot compositionPlot = new DisplayPlot();
+        accumulator.addDataSink(compositionPlot.getDataSet(),new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+        compositionPlot.setDoLegend(false);
 		
         // Stuff that Happens AS SIMULATION RUNS !
         // Action Preform Method only will work on FINAL types of data which never change mid program
@@ -149,10 +153,10 @@ public class ReactionEquilibriumGraphic {
         //dimerfractionhistory.addDataSink (compositionplot.getDataTable().makeColumn(Dimension.FRACTION));
         //tAverageDimer.addDataSink(dimerfractionhistory);
 
-        compositionplot.setLabel("Composition");
+        compositionPlot.setLabel("Composition");
 
         displayPanel.add(displayPhase1.getLabel(), displayPhase1.graphic());
-        displayPanel.add(compositionplot.getLabel(), compositionplot.graphic(compositionplot.getPlot()));
+        displayPanel.add(compositionPlot.getLabel(), compositionPlot.graphic());
         displayPanel.add("Averages", THING.graphic());
 
         //workaround for JTabbedPane bug in JDK 1.2

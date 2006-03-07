@@ -12,6 +12,7 @@ import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.config.ConfigurationSequential;
 import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
+import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
@@ -50,6 +51,8 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
 
         integratorHard1 = new IntegratorHard(this);
         integratorHard1.setIsothermal(true);
+        integratorHard1.setThermostat(ThermostatType.ANDERSEN_SINGLE);
+        integratorHard1.setThermostatInterval(10);
 
         phase1 = new Phase(this);
         integratorHard1.setPhase(phase1);	
