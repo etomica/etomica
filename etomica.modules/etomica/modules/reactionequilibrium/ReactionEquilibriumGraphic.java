@@ -200,7 +200,7 @@ public class ReactionEquilibriumGraphic {
         
 		dimerFork.addDataSink(dimerfractionhistory);
 		DisplayPlot plot = new DisplayPlot();
-		dimerfractionhistory.addDataSink (plot.getDataTable());
+		dimerfractionhistory.addDataSink (plot.getDataSet());
 		plot.setLabel("Composition");
 
 		//************* Lay out components ****************//

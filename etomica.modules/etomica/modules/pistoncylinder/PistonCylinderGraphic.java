@@ -24,7 +24,6 @@ import etomica.data.DataSink;
 import etomica.data.DataSource;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourceScalar;
-import etomica.data.DataSourceUniform;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
@@ -63,7 +62,6 @@ import etomica.units.Pixel;
 import etomica.units.Prefix;
 import etomica.units.PrefixedUnit;
 import etomica.units.Pressure;
-import etomica.units.Quantity;
 import etomica.units.Temperature;
 import etomica.units.Time;
 import etomica.units.Undefined;
@@ -197,7 +195,7 @@ public class PistonCylinderGraphic {
 //        scaleSliderPanel.setBorder(new javax.swing.border.TitledBorder("Scale (%)"));
 	    scaleSlider.getSlider().addChangeListener(new javax.swing.event.ChangeListener() {
 	        public void stateChanged(javax.swing.event.ChangeEvent evt) {
-	            if(displayPhase.graphic() != null) displayPhase.graphic().repaint();
+	            displayPhase.repaint();
 	        }
 	    });
 	    scaleSlider.setMinimum(10);
@@ -631,9 +629,9 @@ public class PistonCylinderGraphic {
         
         //  data panel
         // the data channel sending the DataTable should be cut off (and hopefully garbage collected)
-        plotD.getDataTable().reset();
-        plotT.getDataTable().reset();
-        plotP.getDataTable().reset();
+        plotD.getDataSet().reset();
+        plotT.getDataSet().reset();
+        plotP.getDataSet().reset();
         
         thermometer.setPhase(pc.phase);
         AccumulatorHistory temperatureHistory = new AccumulatorHistory();
@@ -644,11 +642,11 @@ public class PistonCylinderGraphic {
         pc.register(thermometer,pump);
         IntervalActionAdapter adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
-        temperatureHistory.addDataSink(plotT.getDataTable());
+        temperatureHistory.addDataSink(plotT.getDataSet());
         temperatureDisplayBox.setAccumulator(temperatureAvg);
         temperatureDisplayBox.setUnit(tUnit);
         
-        DataSource targetTemperatureDataSource = new DataSourceScalar("Temperature",Temperature.DIMENSION) {
+        DataSource targetTemperatureDataSource = new DataSourceScalar("Target Temperature",Temperature.DIMENSION) {
             public double getDataAsScalar() {
                 return temperatureSlider.getModifier().getValue();
             }
@@ -658,7 +656,7 @@ public class PistonCylinderGraphic {
         DataPump targetTemperatureDataPump = new DataPump(targetTemperatureDataSource, targetTemperatureHistory);
         adapter = new IntervalActionAdapter(targetTemperatureDataPump,pc.integrator);
         adapter.setActionInterval(dataInterval);
-        targetTemperatureHistory.addDataSink(plotT.getDataTable());
+        targetTemperatureHistory.addDataSink(plotT.getDataSet());
 
         pressureMeter = new DataSourceWallPressure(pc.space,pc.pistonPotential,pc.integrator);
         pressureMeter.setPhase(pc.phase);
@@ -670,11 +668,11 @@ public class PistonCylinderGraphic {
         pc.register(pressureMeter,pump);
         adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
-        pressureHistory.addDataSink(plotP.getDataTable());
+        pressureHistory.addDataSink(plotP.getDataSet());
         pressureDisplayBox.setAccumulator(pressureAvg);
         pressureDisplayBox.setUnit(pUnit);
 
-        DataSource targetPressureDataSource = new DataSourceScalar("Pressure",Pressure.DIMENSION) {
+        DataSource targetPressureDataSource = new DataSourceScalar("Target Pressure",Pressure.DIMENSION) {
             public double getDataAsScalar() {
                 return pUnit.toSim(pressureSlider.getValue());
             }
@@ -684,7 +682,7 @@ public class PistonCylinderGraphic {
         pump = new DataPump(targetPressureDataSource, targetPressureHistory);
         adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
-        targetPressureHistory.addDataSink(plotP.getDataTable());
+        targetPressureHistory.addDataSink(plotP.getDataSet());
 
         densityMeter = new MeterPistonDensity(pc.pistonPotential,1,defaults.atomSize);
         densityMeter.setPhase(pc.phase);
@@ -696,7 +694,7 @@ public class PistonCylinderGraphic {
         pc.register(densityMeter,pump);
         adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
-        densityHistory.addDataSink(plotD.getDataTable());
+        densityHistory.addDataSink(plotD.getDataSet());
         densityDisplayBox.setAccumulator(densityAvg);
         densityDisplayBox.setUnit(dUnit);
         
@@ -713,10 +711,6 @@ public class PistonCylinderGraphic {
         plotD.getPlot().setXRange(0, historyLength);
         plotT.getPlot().setYRange(0, 1000.);
         plotP.getPlot().setYRange(0, 1000.);
-        DataSourceUniform xSource = new DataSourceUniform("History",Quantity.DIMENSION,historyLength, 1, historyLength);
-        plotT.setXSource(xSource);
-        plotP.setXSource(xSource);
-        plotD.setXSource(xSource);
 
         java.awt.Dimension d = plotT.getPlot().getPreferredSize();
         d.height = 230;
