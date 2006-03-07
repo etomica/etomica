@@ -71,7 +71,7 @@ public class AccumulatorHistory extends DataAccumulator {
             nData = ((DataTable.Factory)inputDataInfo.getDataFactory()).getNRows()
                   * ((DataTable.Factory)inputDataInfo.getDataFactory()).getNColumns();
         }
-        setupData(inputDataInfo.getDimension());
+        setupData(inputDataInfo);
         history = new History[nData];
         for (int i = 0; i < nData; i++) {
             history[i] = historyFactory.makeHistory(historyLength);
@@ -118,9 +118,9 @@ public class AccumulatorHistory extends DataAccumulator {
     /**
      * Constructs the Data objects used by this class.
      */
-    private void setupData(Dimension dimension) {
+    private void setupData(DataInfo inputDataInfo) {
         DataDoubleArray dataBin = new DataDoubleArray("Time", Undefined.DIMENSION, historyLength);
-        data = new DataArray("History", dimension, nData, DataFunction.getFactory(new DataDoubleArray[] {dataBin}));
+        data = new DataArray(inputDataInfo.getLabel(), inputDataInfo.getDimension(), nData, DataFunction.getFactory(new DataDoubleArray[] {dataBin}));
     }
     
     /**
