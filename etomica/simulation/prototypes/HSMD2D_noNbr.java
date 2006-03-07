@@ -108,7 +108,7 @@ public class HSMD2D_noNbr extends Simulation {
         DisplayBoxesCAE temperatureDisplay = new DisplayBoxesCAE();
         temperatureDisplay.setAccumulator(sim.temperatureAverage);
         DisplayPlot temperaturePlot = new DisplayPlot();
-        sim.temperatureHistory.setDataSink(temperaturePlot.getDataTable());
+        sim.temperatureHistory.setDataSink(temperaturePlot.getDataSet());
         DeviceNSelector nSelector = new DeviceNSelector(sim, sim.phase.getAgent(sim.species));
         DeviceThermoSelector thermo = new DeviceThermoSelector(sim, sim.integrator);
         graphic.add(nSelector);

@@ -14,6 +14,7 @@ import javax.swing.table.AbstractTableModel;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
+import etomica.data.DataSet;
 import etomica.data.DataSinkTable;
 import etomica.data.DataTableAverages;
 import etomica.data.DataTableListener;
@@ -50,7 +51,7 @@ public class DisplayTable extends Display implements DataTableListener,
             units[i] = dataTable.getColumn(i).getDimension().getUnit(UnitSystem.SIM);
         }
 
-        dataTable.addTableListener(this);
+        dataTable.addDataListener(this);
         tableSource = new MyTable(); //inner class, defined below
         table = new JTable(tableSource);
         panel = new javax.swing.JPanel(new java.awt.FlowLayout());
@@ -85,7 +86,7 @@ public class DisplayTable extends Display implements DataTableListener,
     /**
      * Causes the display of the plot to be updated.
      */
-    public void tableDataChanged(DataSinkTable table) {
+    public void dataChanged(DataSet table) {
         tableSource.fireTableDataChanged();
         repaint();
     }
@@ -94,7 +95,7 @@ public class DisplayTable extends Display implements DataTableListener,
      * Updates the units array for any new or deleted columns, 
      * using the default units for new columns.
      */
-    public void tableColumnCountChanged(DataSinkTable table) {
+    public void dataCountChanged(DataSet table) {
         recomputeUnits();
         tableSource.fireTableStructureChanged();
     }

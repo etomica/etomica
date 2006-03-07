@@ -1,13 +1,20 @@
 package etomica.graphics;
+import java.io.Serializable;
+
 import ptolemy.plot.Plot;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.data.DataSinkTable;
-import etomica.data.DataSource;
-import etomica.data.DataSourceUniform;
-import etomica.data.DataTableListener;
-import etomica.data.types.DataArithmetic;
-import etomica.data.types.DataTable;
+import etomica.data.Data;
+import etomica.data.DataInfo;
+import etomica.data.DataProcessor;
+import etomica.data.DataSet;
+import etomica.data.DataSetListener;
+import etomica.data.DataSet.DataCasterJudge;
+import etomica.data.types.CastArrayToGroup;
+import etomica.data.types.DataArray;
+import etomica.data.types.DataFunction;
+import etomica.data.types.DataGroup;
+import etomica.units.Dimension;
 import etomica.units.Null;
 import etomica.units.Unit;
 import etomica.units.systems.UnitSystem;
@@ -22,30 +29,30 @@ import etomica.util.Arrays;
  * @author David Kofke
  */
 
-public class DisplayPlot extends Display implements DataTableListener, EtomicaElement {
+public class DisplayPlot extends Display implements DataSetListener, EtomicaElement {
     
     /**
      * Creates a plot with a new, empty, DataSinkTable.
      */
     public DisplayPlot() {
-        this(new DataSinkTable());
+        this(new DataSet(new DataCasterJudgeFunction()));
     }
     
     /**
      * Creates a plot using data from the given table.
      */
-    public DisplayPlot(DataSinkTable table) {
+    public DisplayPlot(DataSet dataSet) {
         super();
-        this.dataTable = table;
-        table.addTableListener(this);
+        this.dataSet = dataSet;
+        if (!(dataSet.getDataCasterJudge() instanceof DataCasterJudgeFunction)) {
+            // consider just calling the default constructor if you're hitting this exception
+            throw new IllegalArgumentException("DisplayPlot a DataSet with a DataCasterJudgeFunction");
+        }
+        dataSet.addDataListener(this);
         plot = new Plot();
         panel.add(plot);
-        x = new DataSourceUniform();
         setName("Data Plot");
-        units = new Unit[table.getColumnCount()];
-        for(int i=0; i<units.length; i++) {
-            units[i] = table.getColumn(i).getDimension().getUnit(UnitSystem.SIM);
-        }
+        units = new Unit[0];
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -59,63 +66,67 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
      * given by the makeColumn method of the table.
      * @return
      */
-    public DataSinkTable getDataTable() {
-        return dataTable;
+    public DataSet getDataSet() {
+        return dataSet;
     }
     
     /**
      * Causes the display of the plot to be updated.
      */
-    public void tableDataChanged(DataSinkTable table) {
+    public void dataChanged(DataSet dataSet) {
         doUpdate();
     }
     
     /**
      * Updates the units array for the new column, using the default units.
      */
-    public void tableColumnCountChanged(DataSinkTable table) {
+    public void dataCountChanged(DataSet dataSet) {
         int oldColumnCount = units.length;
-        int newColumnCount = table.getColumnCount();
-        if(newColumnCount > oldColumnCount) {
-            units = (Unit[])Arrays.resizeArray(units, newColumnCount);
-            for(int i=oldColumnCount; i<newColumnCount; i++) {
-                units[i] = (defaultUnit != null) ? defaultUnit : table.getColumn(i).getDimension().getUnit(UnitSystem.SIM);
+        int newDataCount = dataSet.getDataCount();
+        if(newDataCount > oldColumnCount) {
+            units = (Unit[])Arrays.resizeArray(units, newDataCount);
+            Dimension xDimension = null;
+            if (units.length > 0) {
+                xDimension = ((DataFunction)dataSet.getData(0)).getXData(0).getDataInfo().getDimension();
+                if (xUnit == null) {
+                    xUnit = xDimension.getUnit(UnitSystem.SIM);
+                }
+            }
+            for(int i=oldColumnCount; i<units.length; i++) {
+                DataFunction iData = (DataFunction)dataSet.getData(i);
+                if (iData.getXDimension() != 1 || !iData.getXData(0).getDataInfo().getDimension().equals(xDimension)) {
+                    throw new IllegalArgumentException("All data functions must have the same X dimension");
+                }
+                units[i] = (defaultUnit != null) ? defaultUnit : iData.getYData().getDataInfo().getDimension().getUnit(UnitSystem.SIM);
             }
         } else {
             //TODO have DisplayTable adjust appropriately to removal of columns; this works only for newColumnCount = 0
             //may need to remember columns and reassign units to match
-            units = (Unit[])Arrays.resizeArray(units, newColumnCount);
+            units = (Unit[])Arrays.resizeArray(units, newDataCount);
         }
         setDoLegend(doLegend);
     }
 
     /**
-     * Has no effect. Part of the DataTableListener interface.
-     */
-    public void tableRowCountChanged(DataSinkTable table) {
-        //do nothing
-    }
-    
-    /**
      * Redraws the plot.
      */
     public void doUpdate() {
         if(!plot.isShowing()) return;
-        int nSource = dataTable.getColumnCount();
+        int nSource = dataSet.getDataCount();
         plot.clear(false);
-        DataArithmetic xValues = (DataArithmetic)x.getData();
         for(int k=0; k<nSource; k++) {
-            final double[] data = dataTable.getColumn(k).getData();
+            DataFunction dataFunction = (DataFunction)dataSet.getData(k);
+            final double[] xValues = dataFunction.getXData(0).getData();
+            final double[] data = dataFunction.getYData().getData();
             for(int i=0; i<data.length; i++) {
                 double y = units[k].fromSim(data[i]);
                 if (!Double.isNaN(y)) {
-                    plot.addPoint(k, xUnit.fromSim(xValues.getValue(i)), units[k].fromSim(data[i]), true);
+                    plot.addPoint(k, xUnit.fromSim(xValues[i]), y, true);
                 }
             }
         }
         plot.repaint();
-
-    }//end doUpdate method
+    }
 
     /**
      * Mutator for flag determining if a legend is to be shown.
@@ -123,9 +134,9 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
      */
     public void setDoLegend(boolean b) {
         doLegend = b;
-        for(int i=0; i<dataTable.getColumnCount(); i++) {
+        for(int i=0; i<dataSet.getDataCount(); i++) {
             plot.removeLegend(i);
-            plot.addLegend(i,b ? dataTable.getColumn(i).getHeading(): "");
+            plot.addLegend(i,b ? dataSet.getData(i).getDataInfo().getLabel() : "");
         }
     }
     
@@ -151,29 +162,18 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
      */
     public void setXUnit(Unit u) {
         xUnit = u;
-        if(plot != null && xUnit != null) plot.setXLabel(x.getDataInfo().getLabel() + " ("+xUnit.symbol()+")");
-    }
-    
-    /**
-     * Sets the source for the x-axis value.  Default is a DataSourceUniform instance.
-     */
-    public void setXSource(DataSource xSource) {
-        x = xSource;
-    }
-    
-    /**
-     * Returns the source for the x-axis value.
-     */
-    public DataSource getXSource() {
-        return x;
+        if (dataSet.getDataCount() > 0) {
+            DataFunction dataFunction = (DataFunction)dataSet.getData(0);
+            plot.setXLabel(dataFunction.getXData(0).getDataInfo().getLabel() + " ("+xUnit.symbol()+")");
+        }
     }
     
     /**
      * Sets the display units of the given column to the given unit.
      */
-    public void setUnit(DataTable.Column column, Unit newUnit) {
-        for(int i=0; i<dataTable.getColumnCount(); i++) {
-            if(dataTable.getColumn(i) == column) {
+    public void setUnit(Data data, Unit newUnit) {
+        for(int i=0; i<dataSet.getDataCount(); i++) {
+            if(dataSet.getData(i) == data) {
                 units[i] = newUnit;
                 break;
             }
@@ -182,7 +182,7 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
     
     public void setUnit(Unit newUnit) {
     	defaultUnit = newUnit;
-        for(int i=0; i<dataTable.getColumnCount(); i++) {
+        for(int i=0; i<dataSet.getDataCount(); i++) {
             units[i] = newUnit;
         }
     }
@@ -197,12 +197,40 @@ public class DisplayPlot extends Display implements DataTableListener, EtomicaEl
         panel.setSize(width, height);
     }
     
-    private final DataSinkTable dataTable;
+    private final DataSet dataSet;
     private Plot plot;
     private javax.swing.JPanel panel = new javax.swing.JPanel();
     private boolean doLegend = true;
-    protected DataSource x;
     private Unit xUnit = Null.UNIT;
-    private Unit[] units = new Unit[0];
+    private Unit[] units;
     private Unit defaultUnit;
+    
+    protected static class DataCasterJudgeFunction implements DataCasterJudge, Serializable {
+
+        public DataProcessor getDataCaster(DataInfo dataInfo) {
+            if (dataInfo.getDataClass() == DataFunction.class) {
+                return null;
+            } else if(dataInfo.getDataClass() == DataGroup.class) {
+                DataInfo[] info = ((DataGroup.Factory)dataInfo.getDataFactory()).getDataInfoArray(); 
+                Class innerDataClass = info[0].getDataClass();
+                for (int i = 1; i<info.length; i++) {
+                    if (info[i].getDataClass() != innerDataClass) {
+                        throw new IllegalArgumentException("DisplayPlot can only handle homogeneous groups");
+                    }
+                }
+                if(innerDataClass == DataFunction.class) {
+                    return null;
+                }
+                throw new RuntimeException("DisplayPlot can only handle DataGroups of DataFunctions");
+            } else if(dataInfo.getDataClass() == DataArray.class) {
+                if (((DataArray.Factory)dataInfo.getDataFactory()).getArrayElementFactory().getDataClass() != DataFunction.class) {
+                    throw new RuntimeException("DisplayPlot can only handle DataArrays of DataFunctions");
+                }
+                return new CastArrayToGroup();
+            }
+            throw new RuntimeException("DisplayPlot can only handle DataFunctions");
+        }
+
+    }
+
 }
