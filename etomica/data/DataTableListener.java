@@ -17,20 +17,8 @@ package etomica.data;
  * History
  * Created on Apr 9, 2005 by kofke
  */
-public interface DataTableListener {
+public interface DataTableListener extends DataSetListener {
 
-    /**
-     * Method called when one or more entries in the table have changed.
-     */
-    public void tableDataChanged(DataSinkTable table);
-    
-    /**
-     * Method called when a table column is added.  Firing is
-     * performed after the column is added to the table.
-     * @param newColumn the column that has been added
-     */
-    public void tableColumnCountChanged(DataSinkTable table);
-    
     /**
      * Method called to indicate that the number of rows in the
      * table has changed.  Method is called after the change takes place.

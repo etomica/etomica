@@ -78,6 +78,7 @@ public class MeterProfile implements DataSource, Meter, java.io.Serializable {
     public void setProfileVector(Vector v) {
         profileVector.E(v);
         profileVector.normalize();
+        xDataSource.setXMax(phase.getBoundary().getDimensions().dot(profileVector));
     }
     
     /**
@@ -85,7 +86,6 @@ public class MeterProfile implements DataSource, Meter, java.io.Serializable {
      */
     public Data getData() {
         Boundary boundary = phase.getBoundary();
-        profileNorm = 1.0/boundary.getDimensions().dot(profileVector);
         yData.E(0);
         double[] y = yData.getData();
         ai1.reset();
@@ -94,7 +94,7 @@ public class MeterProfile implements DataSource, Meter, java.io.Serializable {
             double value = ((DataDouble)meter.getData(a)).x;
             position.E(a.coord.position());
             position.PE(boundary.centralImage(position));
-            int i = xDataSource.getIndex(position.dot(profileVector)*profileNorm);
+            int i = xDataSource.getIndex(position.dot(profileVector));
             y[i] += value;
         }
         double dx = (xDataSource.getXMax() - xDataSource.getXMin())/y.length;
@@ -113,6 +113,7 @@ public class MeterProfile implements DataSource, Meter, java.io.Serializable {
      */
     public void setPhase(Phase phase) {
         this.phase = phase;
+        xDataSource.setXMax(phase.getBoundary().getDimensions().dot(profileVector));
         ai1.setPhase(phase);
     }
 
@@ -141,7 +142,6 @@ public class MeterProfile implements DataSource, Meter, java.io.Serializable {
      */
     DataSourceAtomic meter;
     
-    private double profileNorm = 1.0;
     private final AtomIteratorPhaseDependent ai1 = new AtomIteratorLeafAtoms();
     
 }//end of MeterProfile

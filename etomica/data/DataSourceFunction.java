@@ -30,7 +30,12 @@ public class DataSourceFunction implements DataSource, Serializable {
     }
     
     public DataSourceFunction(String label, Dimension dimension, Function function, int nValues) {
-        xSource = new DataSourceUniform("x",Null.DIMENSION,nValues,0,1);
+        this(label, dimension, function, nValues, "x", Null.DIMENSION);
+    }
+    
+    public DataSourceFunction(String label, Dimension dimension, Function function, int nValues,
+            String xLabel, Dimension xDimension) {
+        xSource = new DataSourceUniform(xLabel, xDimension,nValues,0,1);
         yData = new DataDoubleArray(label, dimension, nValues);
         this.function = function;
         update();

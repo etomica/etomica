@@ -1,7 +1,6 @@
 package etomica.data;
 
 import java.io.Serializable;
-import java.util.HashMap;
 
 import etomica.data.types.CastArrayToDoubleArray;
 import etomica.data.types.CastGroupOfTablesToDataTable;
@@ -25,104 +24,38 @@ import etomica.util.Arrays;
 /*
  * History Created on Apr 9, 2005 by kofke
  */
-public class DataSinkTable implements DataSink, Serializable {
+public class DataSinkTable extends DataSet {
 
     public DataSinkTable() {
+        super(new DataCasterJudgeTable());
     }
     
     /* (non-Javadoc)
      * @see etomica.DataSink#getDataCaster(etomica.DataInfo)
      */
-    public DataProcessor getDataCaster(DataInfo dataInfo) {
-        if (dataInfo.getDataClass() == DataTable.class) {
-            return null;
-        } else if(dataInfo.getDataClass() == DataGroup.class) {
-            DataInfo[] info = ((DataGroup.Factory)dataInfo.getDataFactory()).getDataInfoArray(); 
-            Class innerDataClass = info[0].getDataClass();
-            for (int i = 1; i<info.length; i++) {
-                if (info[i].getDataClass() != innerDataClass) {
-                    throw new IllegalArgumentException("DataSinkTable can only handle homogeneous groups");
-                }
-            }
-            if(innerDataClass == DataTable.class) {
-                return new CastGroupOfTablesToDataTable();
-            }
-            return new CastGroupToDoubleArray();
-        } else if(dataInfo.getDataClass() == DataArray.class) {
-            return new CastArrayToDoubleArray();
-        }
-        return new CastToTable();
-    }
-    /* (non-Javadoc)
-     * @see etomica.DataSink#putData(etomica.Data)
-     */
-    public void putData(Data data) {
-        Integer indexObj = (Integer)columnIndexHash.get(data);
-        if (indexObj == null) {
-            addNewData((DataTable)data);
-            indexObj = new Integer(casterIndex++);
-            if ((casterIndex+31)/32 > casterChangedBits.length) {
-                casterChangedBits = Arrays.resizeArray(casterChangedBits,casterChangedBits.length+1);
-            }
-            casterChangedBits[casterChangedBits.length-1] |= 1<<((casterIndex-1)%32);
-            columnIndexHash.put(data,indexObj);
-        }
-        int index = indexObj.intValue();
-        casterChangedBits[index >> 5] &= (0xFFFFFFFF ^ (1<<(index & 0xFFFFFFFF)));
-        if (updatingOnAnyChange) {
-            fireDataChangedEvent();
-        }
-        else {
-            int l = casterChangedBits.length;
-            for (int i=0; i<l; i++) {
-                if (casterChangedBits[i] != 0) {
-                    return;
-                }
-            }
-            fireDataChangedEvent();
-            for (int i=0; i<l-1; i++) {
-                casterChangedBits[i] = 0xFFFFFFFF;
-            }
-            if (casterIndex%32 == 0) {
-                casterChangedBits[l-1] = 0xFFFFFFFF;
-            }
-            else {
-                casterChangedBits[l-1] = (1<<(casterIndex%32)) - 1;
-            }
-        }
-    }
 
-    protected void addNewData(DataTable data) {
-        int nColumns = data.getNColumns();
+    protected void addNewData(Data data) {
+        DataTable dataTable = (DataTable)data;
+        int nColumns = dataTable.getNColumns();
         if (dataColumns.length == 0) {
-            rowHeaders = new String[data.getNRows()];
+            rowHeaders = new String[dataTable.getNRows()];
             for (int i=0; i<rowHeaders.length; i++) {
-                rowHeaders[i] = data.getRowHeaders(i);
+                rowHeaders[i] = dataTable.getRowHeaders(i);
             }
         }
         int oldSize = dataColumns.length;
         dataColumns = (DataTable.Column[])Arrays.resizeArray(dataColumns,oldSize+nColumns);
         for (int i=0; i<nColumns; i++) {
-            dataColumns[oldSize+i] = data.getColumn(i);
+            dataColumns[oldSize+i] = dataTable.getColumn(i);
         }
-        fireColumnCountChangedEvent();
-        updateRowCount();
-    }
-    
-    /* (non-Javadoc)
-     * @see etomica.DataSink#putDataInfo(etomica.DataInfo)
-     */
-    public void putDataInfo(DataInfo dataInfo) {
+        super.addNewData(data);
+        updateRowCount(dataTable);
     }
     
     public void reset() {
-        columnIndexHash.clear();
         dataColumns = new DataTable.Column[0];
-        updateRowCount();
-        casterIndex = 0;
-        casterChangedBits = new int[0];
-        fireColumnCountChangedEvent();
-        rowHeaders = null;
+        super.reset();
+        updateRowCount(null);
     }
     
     
@@ -165,52 +98,15 @@ public class DataSinkTable implements DataSink, Serializable {
 //        return columnHeadings;
 //    }
 
-    /**
-     * @return flag defining protocol for firing table events that
-     * notify of column data changes.
-     */
-    public boolean isUpdatingOnAnyChange() {
-        return updatingOnAnyChange;
-    }
-
-    /**
-     * Describes protocol for firing table events that notify of column data
-     * changes. If true, event is fired when any column notifies that it has
-     * changed; if false, event is fired only when all columns have
-     * notified that they have changed (since last time event was fired).
-     */
-    public void setUpdatingOnAnyChange(boolean updatingWithAnyChange) {
-        this.updatingOnAnyChange = updatingWithAnyChange;
-    }
-
-    protected void fireDataChangedEvent() {
-        for (int i = 0; i < listeners.length; i++) {
-            listeners[i].tableDataChanged(this);
-        }
-    }
-
-    protected void fireColumnCountChangedEvent() {
-        for (int i = 0; i < listeners.length; i++) {
-            listeners[i].tableColumnCountChanged(this);
-        }
-    }
     protected void fireRowCountChangedEvent() {
         for (int i = 0; i < listeners.length; i++) {
-            listeners[i].tableRowCountChanged(this);
+            if (listeners[i] instanceof DataTableListener) {
+                ((DataTableListener)listeners[i]).tableRowCountChanged(this);
+            }
         }
     }
     
-    public void addTableListener(DataTableListener newListener) {
-        listeners = (DataTableListener[]) Arrays.addObject(listeners,
-                newListener);
-    }
-
-    public void removeTableListener(DataTableListener oldListener) {
-        listeners = (DataTableListener[]) Arrays.removeObject(listeners,
-                oldListener);
-    }
-
-    private void updateRowCount() {
+    private void updateRowCount(DataTable dataTable) {
         int oldRowCount = rowCount;
         rowCount = 0;
         for (int i = 0; i < dataColumns.length; i++) {
@@ -220,16 +116,45 @@ public class DataSinkTable implements DataSink, Serializable {
             }
         }
         if (oldRowCount != rowCount) {
+            if (dataTable == null) {
+                rowHeaders = new String[0];
+            }
+            else {
+                rowHeaders = new String[dataTable.getNRows()];
+                for (int i=0; i<rowHeaders.length; i++) {
+                    rowHeaders[i] = dataTable.getRowHeaders(i);
+                }
+            }
             fireRowCountChangedEvent();
         }
     }
     
-    private DataTableListener[] listeners = new DataTableListener[0];
-    private boolean updatingOnAnyChange;
     private int rowCount;
     private DataTable.Column[] dataColumns = new DataTable.Column[0];
-    private int casterIndex;
-    private int[] casterChangedBits = new int[0];
-    private HashMap columnIndexHash = new HashMap();
     private String[] rowHeaders;
+    
+    protected static class DataCasterJudgeTable implements DataCasterJudge, Serializable {
+
+        public DataProcessor getDataCaster(DataInfo dataInfo) {
+            if (dataInfo.getDataClass() == DataTable.class) {
+                return null;
+            } else if(dataInfo.getDataClass() == DataGroup.class) {
+                DataInfo[] info = ((DataGroup.Factory)dataInfo.getDataFactory()).getDataInfoArray(); 
+                Class innerDataClass = info[0].getDataClass();
+                for (int i = 1; i<info.length; i++) {
+                    if (info[i].getDataClass() != innerDataClass) {
+                        throw new IllegalArgumentException("DataSinkTable can only handle homogeneous groups");
+                    }
+                }
+                if(innerDataClass == DataTable.class) {
+                    return new CastGroupOfTablesToDataTable();
+                }
+                return new CastGroupToDoubleArray();
+            } else if(dataInfo.getDataClass() == DataArray.class) {
+                return new CastArrayToDoubleArray();
+            }
+            return new CastToTable();
+        }
+
+    }
 }
