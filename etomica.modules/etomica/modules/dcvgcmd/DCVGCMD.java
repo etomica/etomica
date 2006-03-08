@@ -294,10 +294,12 @@ public class DCVGCMD extends Simulation {
         accumulator1 = new AccumulatorAverage(this);
         DataPump profile1pump = new DataPump(profile1, accumulator1);
         new IntervalActionAdapter(profile1pump, integratorDCV);
+        register(profile1,profile1pump);
 
         accumulator2 = new AccumulatorAverage(this);
         DataPump profile2pump = new DataPump(profile2, accumulator2);
         new IntervalActionAdapter(profile2pump, integratorDCV);
+        register(profile2,profile2pump);
 
         ((PotentialMasterHybrid)potentialMaster).getNbrCellManager(phase).assignCellAll();
 //remove for nbrlist        integrator.addIntervalListener(new PhaseImposePbc(phase));
