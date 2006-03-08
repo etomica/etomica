@@ -711,6 +711,8 @@ public class PistonCylinderGraphic {
         plotD.getPlot().setXRange(0, historyLength);
         plotT.getPlot().setYRange(0, 1000.);
         plotP.getPlot().setYRange(0, 1000.);
+        
+        plotD.setDoLegend(false);
 
         java.awt.Dimension d = plotT.getPlot().getPreferredSize();
         d.height = 230;
