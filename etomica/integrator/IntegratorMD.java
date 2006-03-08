@@ -217,13 +217,19 @@ public abstract class IntegratorMD extends IntegratorPhase {
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
-            momentum.PEa1Tv1(((AtomTypeLeaf)a.type).getMass(),((ICoordinateKinetic)a.coord).velocity());
+            double mass = ((AtomTypeLeaf)a.type).getMass();
+            if (mass != Double.POSITIVE_INFINITY) {
+                momentum.PEa1Tv1(((AtomTypeLeaf)a.type).getMass(),((ICoordinateKinetic)a.coord).velocity());
+            }
         }
         momentum.TE(1.0/atomIterator.size());
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
-            ((ICoordinateKinetic)a.coord).velocity().ME(momentum); //set net momentum to 0
+            double mass = ((AtomTypeLeaf)a.type).getMass();
+            if (mass != Double.POSITIVE_INFINITY) {
+                ((ICoordinateKinetic)a.coord).velocity().ME(momentum); //set net momentum to 0
+            }
         }
         
         // calculate current kinetic temperature
