@@ -7,7 +7,6 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.EtomicaInfo;
-import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
 import etomica.potential.Potential1;
@@ -17,12 +16,11 @@ import etomica.space.Space;
 import etomica.space.Vector;
 
 /**
- * @author Owner
- * 
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ * This acts as a 1-body WCA potential wall perpendicular to the z direction 
+ * with a hole.  The size and placement of the hole can be set.  The interior
+ * of the hole is discontinuous; an atom in the hole that attempts to move out 
+ * the hole and into the wall will experience a discontinuity. 
  */
-
 public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
 
     private final Vector gradient;

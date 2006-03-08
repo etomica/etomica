@@ -5,7 +5,6 @@ import etomica.data.meter.Meter;
 import etomica.phase.Phase;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.space.Vector;
-import etomica.units.Dimension;
 import etomica.units.DimensionRatio;
 import etomica.units.Quantity;
 import etomica.units.Volume;
