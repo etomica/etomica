@@ -32,19 +32,22 @@ public class P2SquareWellBonded extends P2SquareWell {
 
     private ReactionEquilibrium agentSource;
 	private Atom[][] agents;
+    private Phase phase;
 
 	public P2SquareWellBonded(Space space, ReactionEquilibrium sim, double coreDiameter,double lambda, double epsilon) {
 		super(space, coreDiameter, lambda, epsilon, true);
 		agentSource = sim;
 	}
 
-    public void setPhase(Phase phase){
+    public void setPhase(Phase newPhase){
+        phase = newPhase;
         super.setPhase(phase);
-        agents = agentSource.getAgents(phase);
     }
     
-	// This function will tell the user, if passed an atom weither or not that atom can bond
-	public boolean full(Atom a) {
+	/**
+     * This function will tell the user, if passed an atom weither or not that atom can bond
+	 */
+	protected boolean full(Atom a) {
 		int j = agents[a.getGlobalIndex()].length;	//check INDEXING
 		for(int i=0; i != j; ++i){
 			if (agents[a.getGlobalIndex()][i] == null) {
@@ -54,8 +57,10 @@ public class P2SquareWellBonded extends P2SquareWell {
 		return true; 
 	}
 	
-// This will tell you what the lowest open space is in atom a
-	public int lowest(Atom a){
+	/**
+     * This will tell you what the lowest open space is in atom a
+	 */
+	protected int lowest(Atom a){
 		int j = agents[a.getGlobalIndex()].length;	//check INDEXING
 		for(int i=0; i != j; ++i){
 			if (agents[a.getGlobalIndex()][i] == null) {
@@ -65,8 +70,12 @@ public class P2SquareWellBonded extends P2SquareWell {
 		return j; 
 	}
 	
-// This function tells you if two atoms are bonded
-	public boolean areBonded(Atom a, Atom b){
+	/**
+     * This function tells you if two atoms are bonded
+     * This could probably be public, although a public version would
+     * need to first re-retrieve agents
+	 */
+	protected boolean areBonded(Atom a, Atom b){
 		int j = agents[a.getGlobalIndex()].length;	//check INDEXING
 		for(int i=0; i != j; ++i){
 			if (agents[a.getGlobalIndex()][i] == b){		
@@ -76,8 +85,10 @@ public class P2SquareWellBonded extends P2SquareWell {
 		return false; 	
 	}
 
-// this function will bond atoms a & b together
-	public void bond(Atom a, Atom b){
+	/**
+     * this function will bond atoms a & b together
+	 */
+	protected void bond(Atom a, Atom b){
 		if (areBonded(a,b)){			// Error Checking, what about double bonds?
 			return;
 		}
@@ -87,8 +98,10 @@ public class P2SquareWellBonded extends P2SquareWell {
 		agents[b.getGlobalIndex()][j] = a;
 	}
 	
-// this function unbonds two atoms
-	public void unbond(Atom a, Atom b){
+	/**
+     * this function unbonds two atoms
+	 */
+	protected void unbond(Atom a, Atom b){
 		if (!areBonded(a,b)){		// Error Checking
 			return;
 		}
@@ -123,6 +136,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 	 * kinematics.
 	 */
 	public double collisionTime(AtomSet atoms, double falseTime) {
+        agents = agentSource.getAgents(phase);
 	
 // ************ This gets run all the time!! More than Bump Method
 		//System.out.println("P2SquaredWell: ran Collision Time");	
