@@ -95,11 +95,11 @@ public class LjmdGraphic {
         MeterRDF rdfMeter = new MeterRDF(sim.space);
         rdfMeter.getXDataSource().setXMax(4.0);
         rdfMeter.setPhase(sim.phase);
-        AccumulatorAverage rdfAverage = new AccumulatorAverage(20);
+        AccumulatorAverage rdfAverage = new AccumulatorAverage(10);
         DataPump rdfPump = new DataPump(rdfMeter,rdfAverage);
         IntervalActionAdapter rdfAdapter =  new IntervalActionAdapter(rdfPump);
-        rdfAdapter.setActionInterval(50);
-        rdfAverage.setPushInterval(20);
+        rdfAdapter.setActionInterval(20);
+        rdfAverage.setPushInterval(10);
         sim.integrator.addListener(rdfAdapter);
         sim.register(rdfMeter,rdfPump);
         
