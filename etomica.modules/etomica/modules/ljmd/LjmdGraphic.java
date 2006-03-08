@@ -99,7 +99,6 @@ public class LjmdGraphic {
         DataPump rdfPump = new DataPump(rdfMeter,rdfAverage);
         IntervalActionAdapter rdfAdapter =  new IntervalActionAdapter(rdfPump);
         rdfAdapter.setActionInterval(20);
-        rdfAverage.setPushInterval(10);
         sim.integrator.addListener(rdfAdapter);
         sim.register(rdfMeter,rdfPump);
         
