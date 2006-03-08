@@ -77,8 +77,8 @@ public class MyMCMove extends MCMoveInsertDelete {
 	}
 
 	public void acceptNotify() {
+        super.acceptNotify();
 		if(!insert) {
-			phase.removeMolecule(testMolecule);
 			activeAtoms.remove(testMolecule);
 			deltaN--;
 		} else {
