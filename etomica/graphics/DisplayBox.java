@@ -151,11 +151,13 @@ public class DisplayBox extends Display implements DataSink, EtomicaElement, jav
      * Accessor method of the precision, which specifies the number of significant figures to be displayed.
      */
     public int getPrecision() {return precision;}
+    
     /**
      * Accessor method of the precision, which specifies the number of significant figures to be displayed.
      */
     public void setPrecision(int n) {
-        value.setColumns(n);
+        // the actual size of the box is closer to n+3, which is what we actually want
+        value.setColumns(n+2);
         precision = n;
     }
     
@@ -317,34 +319,36 @@ public class DisplayBox extends Display implements DataSink, EtomicaElement, jav
             d *= 10;
         }
 
-        if (precision < 0)
-            precision = -precision;
+        // original = d * 10^exponent
+        // 1 < d <= 10
+        
         int p = precision;
         while (--p > 0)
             d *= 10;
+        
         long ld = Math.round(d);
         char[] digits = new char[precision];
         p = precision;
-	long ld_div_10 = 0;
-	long ld_save = ld;
+        long ld_div_10 = 0;
+        long ld_save = ld;
         while (--p >= 0) {
-	    ld_div_10 = ld / 10;
+            ld_div_10 = ld / 10;
             digits[p] = (char) ('0' + ( ld - (ld_div_10 * 10) ));
             ld = ld_div_10;
         }
-	if (ld_div_10 > 0) {
-	    ld = ld_save / 10;
-	    p = precision;
-	    while (--p >= 0) {
-		ld_div_10 = ld / 10;
-		digits[p] = (char) ('0' + ( ld - (ld_div_10 * 10) ));
-		ld = ld_div_10;
-	    }
-	    ++exponent;
-	}
+    	if (ld_div_10 > 0) {
+    	    ld = ld_save / 10;
+    	    p = precision;
+    	    while (--p >= 0) {
+        		ld_div_10 = ld / 10;
+        		digits[p] = (char) ('0' + ( ld - (ld_div_10 * 10) ));
+        		ld = ld_div_10;
+    	    }
+    	    ++exponent;
+    	}
 
         int decimalPoint = 0;
-        if (Math.abs(exponent) < 6 || Math.abs(exponent) < precision) {
+        if (Math.abs(exponent) < precision) {
             while (exponent > 0) {
                 ++decimalPoint;
                 --exponent;
@@ -353,13 +357,14 @@ public class DisplayBox extends Display implements DataSink, EtomicaElement, jav
                 --decimalPoint;
                 ++exponent;
             }
-        }
+            // exponent is now 0
 
-        if (decimalPoint < 0) {
-            buffer.append("0.");
-            while (decimalPoint < -1) {
-                buffer.append("0");
-                ++decimalPoint;
+            if (decimalPoint < 0) {
+                buffer.append("0.");
+                while (decimalPoint < -1) {
+                    buffer.append("0");
+                    ++decimalPoint;
+                }
             }
         }
 
