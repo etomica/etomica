@@ -124,16 +124,16 @@ public class MCMoveInsertDelete extends MCMove {
     }
     
     public void acceptNotify() {
-        //      accepted deletion - remove from phase and add to reservoir 
         if(!insert) {
+            // accepted deletion - remove from phase and add to reservoir 
             phase.removeMolecule(testMolecule);
             reservoir.add(testMolecule);
         }
     }
     
     public void rejectNotify() {
-        //      rejected insertion - remove from phase and return to reservoir
         if(insert) {
+            // rejected insertion - remove from phase and return to reservoir
             phase.removeMolecule(testMolecule);
             reservoir.add(testMolecule);
             // test molecule is no longer in the simulation and should not be 
@@ -158,10 +158,12 @@ public class MCMoveInsertDelete extends MCMove {
      * Mutator method for the chemical potential of the insertion/deletion species.
      */
     public final void setMu(double mu) {this.mu = mu;}
+    
     /**
      * Accessor method for the chemical potential of th insertion/deletion species.
      */
     public final double getMu() {return mu;}
+    
     /**
      * Indicates that chemical potential has dimensions of energy.
      */
