@@ -54,8 +54,10 @@ public class DataSet implements DataSink, Serializable {
      * @see etomica.DataSink#putData(etomica.Data)
      */
     public void putData(Data data) {
+        boolean newData = false;
         Integer indexObj = (Integer)dataIndexHash.get(data);
         if (indexObj == null) {
+            newData = true;
             addNewData(data);
             indexObj = new Integer(casterIndex++);
             if ((casterIndex+31)/32 > casterChangedBits.length) {
@@ -73,9 +75,12 @@ public class DataSet implements DataSink, Serializable {
         else {
             int l = casterChangedBits.length;
             // check to see if all data has been updated
-            for (int i=0; i<l; i++) {
-                if (casterChangedBits[i] != 0) {
-                    return;
+            // always redraw when new data comes in
+            if (!newData) {
+                for (int i=0; i<l; i++) {
+                    if (casterChangedBits[i] != 0) {
+                        return;
+                    }
                 }
             }
             fireDataChangedEvent();
