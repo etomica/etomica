@@ -198,8 +198,8 @@ public class LjmdGraphic {
         AccumulatorHistory energyHistory = new AccumulatorHistory();
         DataPump energyPump = new DataPump(eMeter, energyHistory);
         IntervalActionAdapter energyAdapter = new IntervalActionAdapter(energyPump);
-        energyAdapter.setActionInterval(10);
-        energyHistory.setPushInterval(10);
+        energyAdapter.setActionInterval(60);
+        energyHistory.setPushInterval(5);
         sim.integrator.addListener(energyAdapter);
         sim.register(eMeter,energyPump);
 		
@@ -207,11 +207,12 @@ public class LjmdGraphic {
         peMeter.setPhase(sim.phase);
         AccumulatorHistory peHistory = new AccumulatorHistory();
         AccumulatorAverage peAccumulator = new AccumulatorAverage(sim);
+        peAccumulator.setPushInterval(10);
         DataFork peFork = new DataFork(new DataSink[]{peHistory, peAccumulator});
         DataPump pePump = new DataPump(peMeter, peFork);
         IntervalActionAdapter peAdapter = new IntervalActionAdapter(pePump);
-        peAdapter.setActionInterval(10);
-        peHistory.setPushInterval(10);
+        peAdapter.setActionInterval(60);
+        peHistory.setPushInterval(5);
         sim.register(peMeter,pePump);
         sim.integrator.addListener(peAdapter);
 		
@@ -220,8 +221,8 @@ public class LjmdGraphic {
         AccumulatorHistory keHistory = new AccumulatorHistory();
         DataPump kePump = new DataPump(keMeter, keHistory);
         IntervalActionAdapter keAdapter = new IntervalActionAdapter(kePump);
-        keAdapter.setActionInterval(10);
-        keHistory.setPushInterval(10);
+        keAdapter.setActionInterval(60);
+        keHistory.setPushInterval(5);
         sim.register(keMeter,kePump);
         sim.integrator.addListener(keAdapter);
         
@@ -237,7 +238,8 @@ public class LjmdGraphic {
         AccumulatorAverage pAccumulator = new AccumulatorAverage(sim);
         DataPump pPump = new DataPump(pMeter,pAccumulator);
         IntervalActionAdapter pAdapter = new IntervalActionAdapter(pPump);
-        pAdapter.setActionInterval(10);
+        pAdapter.setActionInterval(60);
+        pAccumulator.setPushInterval(10);
         sim.register(pMeter,pPump);
         sim.integrator.addListener(pAdapter);
         
