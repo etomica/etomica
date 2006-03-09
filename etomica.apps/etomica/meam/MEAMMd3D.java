@@ -132,13 +132,23 @@ public class MEAMMd3D extends Simulation {
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         species.setNMolecules(216);
-        ((AtomTypeLeaf)species.getFactory().getType()).setMass(118.71);
-        //The diameter given is really the equilibrium distance between the atoms.
-        ((AtomTypeSphere)species.getFactory().getType()).setDiameter(3.44); 
+        //The value of the atomic weight of Sn used is from the ASM Handbook. 
+        ((AtomTypeLeaf)species.getFactory().getType()).setMass(118.69);
+        //The "distance of closest approach" for atoms in beta-tin, as given on 
+        //p. 639 of Cullity and Strock's "Elements of X-Ray Diffraction" (2001), 
+        //is used as the diameter for Sn atoms in the simulation.  This value was
+        //taken from Pearson [G.9, Vol.2].  This is essentially the same as the
+        //distance given in the ASM Handbook for a beta-tin atom and its four
+        //closest neighbors: 3.02 Angstroms.
+        ((AtomTypeSphere)species.getFactory().getType()).setDiameter(3.022); 
         // This forces the MEAMP2 to request an agentIndex from Atom.
         pseudoPotential2 = new MEAMP2(this, ParameterSetMEAM.Sn);
         phase = new Phase(this);
-        phase.setDimensions(new Vector3D(5.8318*3, 5.8318*3, 3.1819*6));
+        //The dimensions of the simulation box must be proportional to those of
+        //the unit cell to prevent distortion of the lattice.  The values for the 
+        //lattice parameters for tin's beta phase (a = 5.8314 angstroms, c = 3.1815 
+        //angstroms) are taken from the ASM Handbook. 
+        phase.setDimensions(new Vector3D(5.8314*3, 5.8314*3, 3.1815*6));
         PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.8318, 3.1819);
         LatticeCrystal crystal = new LatticeCrystal(new Crystal(
         		primitive, new BasisBetaSnA5(primitive)));
