@@ -7,6 +7,7 @@ import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.phase.Phase;
 import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
@@ -48,7 +49,8 @@ public class Ljmd extends Simulation {
         
         //instantiate several potentials for selection in combo-box
 	    P2LennardJones potential = new P2LennardJones(this);
-	    potentialMaster.addPotential(potential, new Species[]{species, species});
+        P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(potential,2.5);
+	    potentialMaster.addPotential(p2Truncated, new Species[]{species, species});
 	    
         //construct phase
 	    phase = new Phase(this);
