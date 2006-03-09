@@ -23,6 +23,7 @@ import etomica.space1d.Vector1D;
 import etomica.units.Dimension;
 import etomica.units.Energy;
 import etomica.units.Length;
+import etomica.units.Null;
 import etomica.units.Pixel;
 import etomica.units.Undefined;
 import etomica.util.Function;
@@ -200,8 +201,8 @@ public class MultiharmonicGraphic {
             }
         };
 
-        final DataSourceFunction uA = new DataSourceFunction(fUA);
-        final DataSourceFunction uB = new DataSourceFunction(fUB);
+        final DataSourceFunction uA = new DataSourceFunction("A",Null.DIMENSION,fUA,100,"x",Length.DIMENSION);
+        final DataSourceFunction uB = new DataSourceFunction("B",Null.DIMENSION,fUB,100,"x",Length.DIMENSION);
         uA.getXSource().setXMax(sim.phase.getBoundary().getDimensions().x(0));
         uB.getXSource().setXMax(sim.phase.getBoundary().getDimensions().x(0));
         final DataPump uAPump = new DataPump(uA, uPlot.getDataSet());
