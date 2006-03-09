@@ -210,8 +210,7 @@ public class MultiharmonicGraphic {
         ActionGroupSeries uGroup = new ActionGroupSeries(new Action[] {
                 new Action() {
                     public void actionPerformed() {
-                        uPlot.getPlot().clear(true);
-                        uPlot.getPlot().setYRange(0.0,yMax);
+                        uPlot.getPlot().clear(false);
                         uA.update();
                         uB.update();
                         uAPump.actionPerformed();
