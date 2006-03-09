@@ -290,9 +290,7 @@ public class DisplayBox extends Display implements DataSink, EtomicaElement, jav
 
     public static String format (double d, int precision) {
 
-        if (d == Double.NaN ||
-            d == Double.POSITIVE_INFINITY ||
-            d == Double.NEGATIVE_INFINITY)
+        if (Double.isNaN(d) || Double.isInfinite(d))
             return Double.toString(d);
         
         StringBuffer buffer = new StringBuffer(20);
