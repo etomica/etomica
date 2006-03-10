@@ -4,8 +4,8 @@
  */
 package etomica.action;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomSet;
+
 
 /**
  * Action that simply counts the number of times the actionPerformed
@@ -14,12 +14,12 @@ import etomica.atom.AtomSet;
 
  //used by some iterators to implement their size() method
 
-public class AtomsetCount extends AtomActionAdapter {
+public class AtomsetCount extends AtomsetActionAdapter {
 
     /**
      * Increments the call-counter by 1.
      */
-    public void actionPerformed(Atom atom) {callCount++;}
+    public void actionPerformed(AtomSet atom) {callCount++;}
 
     /**
 	 * Sets the callCount to zero.

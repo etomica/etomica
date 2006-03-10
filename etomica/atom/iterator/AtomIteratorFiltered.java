@@ -199,7 +199,7 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
      * criteria.
      */
     public void allAtoms(AtomsetAction action) {
-        actionWrapper.action = (AtomAction) action;
+        actionWrapper.action = action;
         iterator.allAtoms(actionWrapper);
     }
 
@@ -238,7 +238,7 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
      */
     private static class ActionWrapper extends AtomActionAdapter {
 
-        AtomAction action;
+        AtomsetAction action;
         private final AtomFilter myFilter;
 
         public ActionWrapper(AtomFilter filter) {
