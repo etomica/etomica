@@ -205,17 +205,15 @@ public class MultiharmonicGraphic {
         final DataSourceFunction uB = new DataSourceFunction("B",Null.DIMENSION,fUB,100,"x",Length.DIMENSION);
         uA.getXSource().setXMax(sim.phase.getBoundary().getDimensions().x(0));
         uB.getXSource().setXMax(sim.phase.getBoundary().getDimensions().x(0));
-        final DataPump uAPump = new DataPump(uA, uPlot.getDataSet());
-        final DataPump uBPump = new DataPump(uB, uPlot.getDataSet());
+        uAPump = new DataPump(uA, uPlot.getDataSet());
+        uBPump = new DataPump(uB, uPlot.getDataSet());
         ActionGroupSeries uGroup = new ActionGroupSeries(new Action[] {
                 new Action() {
                     public void actionPerformed() {
-                        uPlot.getPlot().clear(false);
                         uA.update();
                         uB.update();
                         uAPump.actionPerformed();
                         uBPump.actionPerformed();
-                        uPlot.getPlot().repaint();
                     }
                     public String getLabel() {return "";}
                 }, exactGroup}
@@ -225,7 +223,7 @@ public class MultiharmonicGraphic {
         x0Slider.setPostAction(uGroup);
         
         uPlot.getDataSet().setUpdatingOnAnyChange(true);
-        
+
         //Lay out components
         //main panel
         panel = new JPanel(new GridBagLayout());
@@ -270,18 +268,32 @@ public class MultiharmonicGraphic {
         
     }
     
+    /**
+     * This pulls the data from the DataSourceFunctions and pushes them to the
+     * plot.  Doing this before was ineffective because the plot was not visible
+     * and DispalyPlot refuses to update in that situation. 
+     */
+    void initUPlot() {
+        uAPump.actionPerformed();
+        uBPump.actionPerformed();
+    }
+    
     public static void main(String[] args) {
         MultiharmonicGraphic simGraphic = new MultiharmonicGraphic();
         SimulationGraphic.makeAndDisplayFrame(simGraphic.panel);
+        simGraphic.initUPlot();
     }
 
     public static class Applet extends javax.swing.JApplet {
 
         public void init() {
-            getContentPane().add(new MultiharmonicGraphic().panel);
+            MultiharmonicGraphic simGraphic = new MultiharmonicGraphic();
+            getContentPane().add(simGraphic.panel);
+            simGraphic.initUPlot();
         }
     }
 
     JPanel panel;
-
+    DataPump uAPump;
+    DataPump uBPump;
 }
