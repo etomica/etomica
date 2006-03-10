@@ -19,11 +19,6 @@ public class AtomsetCount extends AtomActionAdapter {
     /**
      * Increments the call-counter by 1.
      */
-    public void actionPerformed(AtomSet atom) {callCount++;}
-	
-    /**
-     * Increments the call-counter by 1.
-     */
     public void actionPerformed(Atom atom) {callCount++;}
 
     /**
