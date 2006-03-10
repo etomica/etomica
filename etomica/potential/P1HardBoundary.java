@@ -57,19 +57,20 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     }
     
     public double energy(AtomSet a) {
+        //XXX this doesn't account for inactive walls!
         double e = 0.0;
         Vector dimensions = boundary.getDimensions();
-        double collisionRadiusSquared = collisionRadius*collisionRadius;
         double rx = ((AtomLeaf)a).coord.position().x(0);
         double ry = ((AtomLeaf)a).coord.position().x(1);
-        double dx0_2 = rx*rx;
-        double dy0_2 = ry*ry;
-        double dx1_2 = (rx - dimensions.x(0))*(rx - dimensions.x(0));
-        double dy1_2 = (ry - dimensions.x(1))*(ry - dimensions.x(1));
-        if((dx0_2 < collisionRadiusSquared)||(rx < 0.0)||(rx > dimensions.x(0) )||(dx1_2 < collisionRadiusSquared)||
-            (dy0_2 < collisionRadiusSquared)||(ry < 0.0)||(ry > dimensions.x(1) )||(dy1_2 < collisionRadiusSquared)){
+        double dxHalf = 0.5*dimensions.x(0);
+        double dyHalf = 0.5*dimensions.x(1);
+        if((rx < -dxHalf+collisionRadius) || (rx > dxHalf-collisionRadius) ||
+           (ry < -dyHalf+collisionRadius) || (ry > dyHalf-collisionRadius)) {
             e = Double.POSITIVE_INFINITY;
-        }else{e = 0.0;}
+        }
+        else{ 
+            e = 0.0;
+        }
         return e;
     }
      
@@ -85,18 +86,18 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
             double vx = v.x(i);
             if(vx == 0.0) continue;
             double rx = work.x(i);
-            double dx = dimensions.x(i);
-            double t;
+            double dxHalf = 0.5*dimensions.x(i);
+            double t=0;
             if (vx > 0.0) {
                 if (isActiveDim[i][1]) {
-                    t = (dx - rx - collisionRadius)/vx;
+                    t = (dxHalf - rx - collisionRadius)/vx;
                 }
                 else {
                     continue;
                 }
             }
             else if (isActiveDim[i][0]) {
-                t = (-rx + collisionRadius)/vx;
+                t = (-dxHalf -rx + collisionRadius)/vx;
             }
             else {
                 continue;
@@ -124,8 +125,8 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
         for(int i=work.D()-1; i>=0; i--) {
             double rx = work.x(i);
             double vx = v.x(i);
-            double dx = dimensions.x(i);
-            double del = (vx > 0.0) ? Math.abs(dx - rx - collisionRadius) : Math.abs(-rx + collisionRadius);
+            double dxHalf = 0.5*dimensions.x(i);
+            double del = (vx > 0.0) ? Math.abs(dxHalf - rx - collisionRadius) : Math.abs(-dxHalf - rx + collisionRadius);
             if(del < delmin) {
                 delmin = del;
                 imin = i;

@@ -26,19 +26,15 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
      * Constructs cubic boundary of the given periodicity with each edge of length boxSize
      */
     public BoundaryRectangular(Space space, boolean[] periodicity, double boxSize) {
-        super(space, makeShape(space));
-        isPeriodic = (boolean[])periodicity.clone();
-        dimensions = space.makeVector();
-        dimensions.E(boxSize); 
-        
-        temp = space.makeVector();
-        modShift = space.makeVector();
-        dimensionsCopy = space.makeVector();
-        dimensionsHalf = space.makeVector();
-        center = space.makeVector();
-        indexIterator = new IndexIteratorSequential(space.D());
-        needShift = new boolean[space.D()];//used by getOverflowShifts
-        updateDimensions();
+        this(space, periodicity, makeArray(space.D(), boxSize));
+    }
+    
+    private static final double[] makeArray(int n, double d) {
+        double[] array = new double[n];
+        for (int i=0; i<n; i++) {
+            array[i] = d;
+        }
+        return array;
     }
 
     /**
@@ -52,10 +48,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
         dimensions.E(boxSize);
         
         temp = space.makeVector();
-        modShift = space.makeVector();
         dimensionsCopy = space.makeVector();
-        dimensionsHalf = space.makeVector();
-        center = space.makeVector();
         indexIterator = new IndexIteratorSequential(space.D());
         needShift = new boolean[space.D()];//used by getOverflowShifts
         updateDimensions();
@@ -84,23 +77,18 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
         return dimensionsCopy;
     }
 
-    public Vector getCenter() {
-        center.E(dimensionsHalf);
-        return center;
-    }
-    
     /**
      * Returns a vector that describes a point selected uniformly within
      * the boundary.  The same Vector instance is returned with each call, with
      * a new random point each time.
      */
     public Vector randomPosition() {
-        temp.setRandom(dimensions);
+        temp.setRandomCube();
+        temp.TE(dimensions);
         return temp;
     }
 
-    private final void updateDimensions() {
-        dimensionsHalf.Ea1Tv1(0.5, dimensions);
+    protected void updateDimensions() {
         dimensionsCopy.E(dimensions);
         ((Rectangular)shape).setEdgeLengths(dimensions);
     }
@@ -203,15 +191,11 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
     }
     
     private final Vector temp;
-    protected final Vector modShift;
     protected final Vector dimensions;
     protected final Vector dimensionsCopy;
-    protected final Vector dimensionsHalf;
-    private final Vector center;
     private final IndexIteratorSequential indexIterator;
     private final boolean[] needShift;
     protected boolean[] isPeriodic;
     protected final float[][] shift0 = new float[0][0];
-    protected float[][] shift;
 
 }

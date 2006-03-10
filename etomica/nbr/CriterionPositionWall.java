@@ -157,8 +157,13 @@ public class CriterionPositionWall extends NeighborCriterion implements AgentSou
         if (!isBoundaryWall) {
             dr = Math.abs(dr - wallPosition);
         }
-        else if (dr > boxSize*0.5) {
-            dr = boxSize - dr;
+        else {
+            if (dr > 0.0) {
+                dr = 0.5*boxSize - dr;
+            }
+            else {
+                dr = dr + 0.5*boxSize;
+            }
         }
 		if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 0 && Debug.allAtoms(atom))) {
 			if (dr < neighborRange || Debug.LEVEL > 1) {

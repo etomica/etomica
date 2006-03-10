@@ -303,9 +303,6 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     AtomIteratorLeafAtoms atomIter = new AtomIteratorLeafAtoms(displayPhase.getPhase());
     atomIter.reset();
 
-    temp.E(displayPhase.getPhase().getBoundary().getCenter());
-    temp.PEa1Tv1(-0.5, displayPhase.getPhase().getBoundary().getBoundingBox());
-
     lastColor = null;
     while (atomIter.hasNext()) {
         AtomLeaf a = (AtomLeaf)atomIter.nextAtom();
@@ -443,18 +440,10 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     gl.glRotatef(xRot, 1f, 0f, 0f);
     gl.glRotatef(yRot, 0f, 1f, 0f);
     
-    //Color all atoms according to colorScheme in DisplayPhase
-//    displayPhase.getColorScheme().colorAllAtoms();
-
-    Vector3D boxCenter = (Vector3D)displayPhase.getPhase().getBoundary().getCenter();
-    //boxCenter.TE(0.5);
-    xCenter = (float)(drawExpansionFactor*boxCenter.x(0));
-    yCenter = (float)(drawExpansionFactor*boxCenter.x(1));
-    zCenter = (float)(drawExpansionFactor*boxCenter.x(2));
-    center.E(xCenter, yCenter, zCenter);
-    rightClipPlane[3] = leftClipPlane[3] = xCenter + ((2*xCenter)*displayPhase.getImageShells());
-    topClipPlane[3] = bottomClipPlane[3] = yCenter + ((2*yCenter)*displayPhase.getImageShells());
-    backClipPlane[3] = frontClipPlane[3] = zCenter + ((2*zCenter)*displayPhase.getImageShells());
+    Vector dimensions = displayPhase.getPhase().getBoundary().getDimensions();
+    rightClipPlane[3] = leftClipPlane[3] = ((dimensions.x(0))*displayPhase.getImageShells());
+    topClipPlane[3] = bottomClipPlane[3] = ((dimensions.x(1))*displayPhase.getImageShells());
+    backClipPlane[3] = frontClipPlane[3] = ((dimensions.x(2))*displayPhase.getImageShells());
 
     gl.glClipPlane(GL_CLIP_PLANE0, rightClipPlane);
     gl.glClipPlane(GL_CLIP_PLANE1, leftClipPlane);

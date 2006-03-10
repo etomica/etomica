@@ -49,13 +49,13 @@ public class MyMCMove extends MCMoveInsertDelete {
             phase.addMolecule(testMolecule, speciesAgent);
 			position = (Vector3D)phase.randomPosition();
 			double z = position.x(2);
+            z *= zFraction;
 			if(nearOrigin) {
-				z *= zFraction;
+                z = (0.5*zFraction-0.5)*phase.getBoundary().getDimensions().x(2) + z;
 			} else {
-				z *= zFraction;
-				z = phase.getBoundary().getDimensions().x(2) - z;
+				z = (0.5-0.5*zFraction)*phase.getBoundary().getDimensions().x(2) - z;
 			}
-			position.setX(2,z); //multiply z-coordinate by zFraction		
+			position.setX(2,z); //multiply z-coordinate by zFraction
 			atomTranslator.setDestination(position);
 			atomTranslator.actionPerformed(testMolecule);
 		} else {//delete
@@ -93,8 +93,8 @@ public class MyMCMove extends MCMoveInsertDelete {
     	activeAtoms.clear();
     	atomIterator.reset();
     	double zBoundary = phase.getBoundary().getDimensions().x(2);
-    	double zmin = nearOrigin ? 0.0 : (1.0-zFraction)*zBoundary;
-    	double zmax = nearOrigin ? zFraction*zBoundary : zBoundary;
+    	double zmin = nearOrigin ? -0.5*zBoundary : 0.5*(1.0-zFraction)*zBoundary;
+    	double zmax = nearOrigin ? -0.5*(1.0-zFraction)*zBoundary : 0.5*zBoundary;
     	while(atomIterator.hasNext()) {
     		AtomLeaf atom = (AtomLeaf)atomIterator.nextAtom();
     		double z = atom.coord.position().x(2);

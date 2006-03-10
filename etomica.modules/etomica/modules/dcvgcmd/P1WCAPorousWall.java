@@ -98,7 +98,6 @@ public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
         if(dz2 < cutoff2 && !inPore(r)) {
             gradz = gradient(dz2);
             if(z > rz) gradz = -gradz;
-//            System.out.println("rz, grad: "+rz + "  "+gradz);
         }
         gradient.setX(2, gradz);
         return gradient;

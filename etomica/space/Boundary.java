@@ -127,12 +127,6 @@ public abstract class Boundary implements NearestImageTransformer, java.io.Seria
      */
     public abstract Vector getBoundingBox();
     
-    /**
-     * Returns the geometric center of the boundary.  Returned vector should be used 
-     * immediately or copied to another vector.
-     */
-    public abstract Vector getCenter();
-    
     protected final Space space;
     protected final Polytope shape;
 

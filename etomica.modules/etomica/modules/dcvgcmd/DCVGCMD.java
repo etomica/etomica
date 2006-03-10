@@ -96,7 +96,6 @@ public class DCVGCMD extends Simulation {
         NeighborCriterion nbrCriterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
         CriterionSpecies criterion = new CriterionSpecies(nbrCriterion, species, species);
         potential.setCriterion(criterion);
-//        nbrManager.addCriterion(nbrCriterion,new AtomType[]{species.getFactory().getType()});
         potentialMaster.addPotential(potential, new Species[] {species, species});
         
         //1-1 intraspecies interaction
@@ -104,7 +103,6 @@ public class DCVGCMD extends Simulation {
         nbrCriterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential11.getRange());
         criterion = new CriterionSpecies(nbrCriterion, species1, species1);
         potential11.setCriterion(criterion);
-//        nbrManager.addCriterion(nbrCriterion,new AtomType[]{species1.getFactory().getType()});
         potentialMaster.addPotential(potential11, new Species[] {species1, species1});
 
         //0-1 interspecies interaction
@@ -112,7 +110,6 @@ public class DCVGCMD extends Simulation {
         nbrCriterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential1.getRange());
         criterion = new CriterionSpecies(nbrCriterion, species1, species);
         potential1.setCriterion(criterion);
-//        nbrManager.addCriterion(nbrCriterion, new AtomType[]{species.getFactory().getType(),species1.getFactory().getType()});
         potentialMaster.addPotential(potential1, new Species[] { species1, species });
 
         P2WCA potentialTubeAtom = new P2WCA(this);
@@ -120,14 +117,12 @@ public class DCVGCMD extends Simulation {
         nbrCriterion = new CriterionSimple(this,potentialTubeAtom.getRange(),neighborRangeFac*potentialTubeAtom.getRange());
         criterion = new CriterionSpecies(nbrCriterion, speciesTube, species);
         potentialTubeAtom.setCriterion(criterion);
-//        nbrManager.addCriterion(nbrCriterion,new AtomType[]{species.getFactory().getType(),((AtomFactoryHomo)speciesTube.getFactory()).getChildFactory().getType()});
         
         P2WCA potentialTubeAtom1 = new P2WCA(this);
         potentialMaster.addPotential(potentialTubeAtom1,new AtomType[] { tubetype, speciestype1});
         nbrCriterion = new CriterionSimple(this,potentialTubeAtom1.getRange(),neighborRangeFac*potentialTubeAtom.getRange());
         criterion = new CriterionSpecies(nbrCriterion, speciesTube, species1);
         potentialTubeAtom1.setCriterion(criterion);
-//        nbrManager.addCriterion(nbrCriterion,new AtomType[]{species1.getFactory().getType()});
 
         double neighborRangeFacHalf = (1.0+neighborRangeFac)*0.5;
         
@@ -138,7 +133,6 @@ public class DCVGCMD extends Simulation {
         criterionWall.setWallDim(2);
         potentialwall.setCriterion(criterionWall);
         potentialMaster.addPotential(potentialwall, new Species[] { species });
-//        nbrManager.addCriterion(criterionWall,new AtomType[]{species.getFactory().getType()});
         
         potentialwall1 = new P1WCAWall(this);
         CriterionPositionWall criterionWall1 = new CriterionPositionWall(this);
@@ -147,7 +141,6 @@ public class DCVGCMD extends Simulation {
         criterionWall1.setWallDim(2);
         potentialwall1.setCriterion(criterionWall1);
         potentialMaster.addPotential(potentialwall1, new Species[] { species1 });
-//        nbrManager.addCriterion(criterionWall1,new AtomType[]{species1.getFactory().getType()});
 
         potentialwallPorousA = new P1WCAPorousWall(this);
         CriterionPositionWall criterionWallA = new CriterionPositionWall(this);
@@ -156,7 +149,6 @@ public class DCVGCMD extends Simulation {
         criterionWallA.setWallDim(2);
         potentialwallPorousA.setCriterion(criterionWallA);
         potentialMaster.addPotential(potentialwallPorousA, new Species[] { species });
-//        nbrManager.addCriterion(criterionWallA,new AtomType[]{species.getFactory().getType()});
         
         potentialwallPorousA1 = new P1WCAPorousWall(this);
         CriterionPositionWall criterionWallA1 = new CriterionPositionWall(this);
@@ -165,7 +157,6 @@ public class DCVGCMD extends Simulation {
         criterionWallA1.setWallDim(2);
         potentialwallPorousA1.setCriterion(criterionWallA1);
         potentialMaster.addPotential(potentialwallPorousA1, new Species[] { species1 });
-//        nbrManager.addCriterion(criterionWallA1,new AtomType[]{species1.getFactory().getType()});
         
         potentialwallPorousB = new P1WCAPorousWall(this);
         CriterionPositionWall criterionWallB = new CriterionPositionWall(this);
@@ -174,7 +165,6 @@ public class DCVGCMD extends Simulation {
         criterionWallB.setWallDim(2);
         potentialwallPorousB.setCriterion(criterionWallB);
         potentialMaster.addPotential(potentialwallPorousB, new Species[] { species });
-//        nbrManager.addCriterion(criterionWallB,new AtomType[]{species.getFactory().getType()});
         
         potentialwallPorousB1 = new P1WCAPorousWall(this);
         CriterionPositionWall criterionWallB1 = new CriterionPositionWall(this);
@@ -183,7 +173,6 @@ public class DCVGCMD extends Simulation {
         criterionWallB1.setWallDim(2);
         potentialwallPorousB1.setCriterion(criterionWallB1);
         potentialMaster.addPotential(potentialwallPorousB1, new Species[] { species1 });
-//        nbrManager.addCriterion(criterionWallB1,new AtomType[]{species1.getFactory().getType()});
 
 
         species.setNMolecules(20);
@@ -226,7 +215,7 @@ public class DCVGCMD extends Simulation {
 
         //position of hole in porous-wall potential
         poreCenter = space.makeVector();
-        poreCenter.Ea1Tv1(0.5, phase.getBoundary().getDimensions());
+//        poreCenter.Ea1Tv1(0.5, phase.getBoundary().getDimensions());
         Vector[] poreCentersVector = new Vector[] { poreCenter };
         potentialwallPorousA.setPoreCenters(poreCentersVector);
         potentialwallPorousA1.setPoreCenters(poreCentersVector);
@@ -242,8 +231,8 @@ public class DCVGCMD extends Simulation {
         potentialwallPorousB1.setPoreRadius(poreRadius);
 
         //place porous-wall potentials; put just past the edges of the tube
-        double zA = (length + 0.05) * phase.getBoundary().getDimensions().x(2);
-        double zB = (1.0 - length - 0.05) * phase.getBoundary().getDimensions().x(2);
+        double zA = (-0.5 + length + 0.05) * phase.getBoundary().getDimensions().x(2);
+        double zB = ( 0.5 - length - 0.05) * phase.getBoundary().getDimensions().x(2);
         potentialwallPorousA.setZ(zA);
         potentialwallPorousA1.setZ(zA);
         potentialwallPorousB.setZ(zB);

@@ -30,7 +30,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         super(space);
         D = space.D();
         wallD = wallDimension;
-        wallPosition = 0.0;
+        setWallPosition(0);
         setMass(mass);
         force = 0.0;
         pistonBoundary = boundary;
@@ -262,11 +262,13 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     
     public void draw(java.awt.Graphics g, int[] origin, double toPixel) {
         g.setColor(java.awt.Color.gray);
-        int xP = origin[0] + (wallD==0 ? (int)((wallPosition-thickness)*toPixel) : 0);
-        int yP = origin[1] + (wallD==1 ? (int)((wallPosition-thickness)*toPixel) : 0);
+        double dx = pistonBoundary.getDimensions().x(0);
+        double dy = pistonBoundary.getDimensions().x(1);
+        int xP = origin[0] + (wallD==0 ? (int)((wallPosition+0.5*dx-thickness)*toPixel) : 0);
+        int yP = origin[1] + (wallD==1 ? (int)((wallPosition+0.5*dy-thickness)*toPixel) : 0);
         int t = Math.max(1,(int)(thickness*toPixel));
-        int wP = wallD==0 ? t : (int)(toPixel*pistonBoundary.getDimensions().x(0));
-        int hP = wallD==1 ? t : (int)(toPixel*pistonBoundary.getDimensions().x(1));
+        int wP = wallD==0 ? t : (int)(toPixel*dx);
+        int hP = wallD==1 ? t : (int)(toPixel*dy);
         g.fillRect(xP,yP,wP,hP);
     }
     

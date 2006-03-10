@@ -41,6 +41,10 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
     public BoundaryRectangularSlit(Space space, int slitDim, double boxSize) {
         super(space,makePeriodicity(space.D(),slitDim),boxSize);
         sDim = slitDim;
+        dimensionsHalf = space.makeVector();
+        tempImage = space.makeVector();
+        // call updateDimensions again so dimensionsHalf is updated
+        updateDimensions();
     }
 
     /**
@@ -61,6 +65,14 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
         return sDim;
     }
     
+    protected void updateDimensions() {
+        super.updateDimensions();
+        // superclass constructor calls this before dimensionsHalf has been instantiated
+        if (dimensionsHalf != null) {
+            dimensionsHalf.Ea1Tv1(0.5,dimensions);
+        }
+    }
+
     public void nearestImage(Vector dr) {
         double x = dr.x(sDim);
         dr.PE(dimensionsHalf);
@@ -68,11 +80,12 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
         dr.ME(dimensionsHalf);
         dr.setX(sDim,x);
     }
+    
     public Vector centralImage(Vector r) {
-        //superclass sets modShift
-        modShift.EModShift(r, dimensions);
-        modShift.setX(sDim,0.0);
-        return modShift;
+        tempImage.E(r);
+        nearestImage(tempImage);
+        tempImage.ME(r);
+        return tempImage;
     }
 
     private static boolean[] makePeriodicity(int D, int slitDim) {
@@ -88,4 +101,6 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
     
     private int sDim;
     private static final long serialVersionUID = 1L;
+    protected final Vector dimensionsHalf;
+    protected final Vector tempImage;
 }

@@ -68,9 +68,6 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
             if(delta < 1.e-10 && delta > -1.e-10) delta = 0.0;
             //           System.out.println(dr+" "+dr1+" "+dr2);
             if(interactive) {
-                atom0.coord.position().Ev1Pv2(dr, boundary.getCenter());
-                atom1.coord.position().Ev1Pv2(dr1, boundary.getCenter());
-                atom2.coord.position().Ev1Pv2(dr2, boundary.getCenter());
                 display.repaint();
                 //System.out.println(dr+" "+dr1+" "+dr3);
                 if(delta != 0.0) {

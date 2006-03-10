@@ -50,7 +50,7 @@ public class CellLattice extends RectangularLattice {
     
     public void assignIndex(Vector r, int[] idx) {
         for(int i=0; i<idx.length; i++) {
-            idx[i] = (int)(size[i]*r.x(i)/dimensions.x(i));
+            idx[i] = (int)(size[i]*(r.x(i)/dimensions.x(i)+0.5));
         }        
     }
     

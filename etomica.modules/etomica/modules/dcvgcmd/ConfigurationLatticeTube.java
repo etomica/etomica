@@ -113,9 +113,9 @@ public class ConfigurationLatticeTube extends Configuration {
             }
         }
         for(int i=0; i<lattice.getSpace().D(); i++) {
-            offset[i] = 0.5*(dimensions[i] - (vectorOfMax[i]-vectorOfMin[i])) - vectorOfMin[i];
+            offset[i] = -0.5*(vectorOfMax[i]-vectorOfMin[i]) - vectorOfMin[i];
         }
-        offset[2] = 0.5*(dimensions[2]*length - (vectorOfMax[2]-vectorOfMin[2])) - vectorOfMin[2];
+        offset[2] -= 0.5*dimensions[2]*(1-length);
                 
         Vector offsetVector = Space.makeVector(offset);
         
@@ -141,8 +141,7 @@ public class ConfigurationLatticeTube extends Configuration {
             
             if (counterNAtoms == halfwaypoint){
             	double z = offsetVector.x(2);
-                z = dimensions[2]-dimensions[2]*length + z;
-                offsetVector.setX(2,z);
+                offsetVector.setX(2,z+dimensions[2]*(1-length));
                 indexIterator.reset();
             }
             
@@ -161,8 +160,7 @@ public class ConfigurationLatticeTube extends Configuration {
         	Atom a = tubeiterator.nextAtom();
         	Conformation config = a.type.creator().getConformation();
             config.initializePositions(((AtomTreeNodeGroup)a.node).childList);
-            Vector site = Space.makeVector(dimensions);
-            site.TE(.5);
+            Vector site = space.makeVector();
             atomActionTranslateTo.setDestination(site);
             atomActionTranslateTo.actionPerformed(a);
         }

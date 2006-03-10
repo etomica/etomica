@@ -31,7 +31,6 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
     private AtomFilter atomFilter;
     private final int[] atomOrigin;
     private final Vector boundingBox;
-    private final Vector temp;
         
     public DisplayPhaseCanvas2D(DisplayPhase _phase) {
         scaleText.setVisible(true);
@@ -41,7 +40,6 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         atomFilter = _phase.getAtomFilter();
         atomOrigin = new int[_phase.getPhase().space().D()];
         boundingBox = _phase.getPhase().space().makeVector();
-        temp = _phase.getPhase().space().makeVector();
     }
     
     public void setAtomFilter(AtomFilter filter) {atomFilter = filter;}
@@ -163,10 +161,8 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
 //        vec2.ME(vec);
 //        vec2.TE(0.5);
         
-        temp.E(displayPhase.getPhase().getBoundary().getCenter());
-        temp.PEa1Tv1(-0.5, boundingBox);
-        atomOrigin[0] = origin[0] - (int)(toPixels*temp.x(0));
-        atomOrigin[1] = origin[1] - (int)(toPixels*temp.x(1));
+        atomOrigin[0] = origin[0] + (int)(0.5*toPixels*boundingBox.x(0));
+        atomOrigin[1] = origin[1] + (int)(0.5*toPixels*boundingBox.x(1));
 //        vec.TE(0.0);
 //        Vector vec2 = displayPhase.getPhase().getBoundary().centralImage(vec);
 

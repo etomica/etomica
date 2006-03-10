@@ -19,8 +19,20 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
      */
     public BoundaryRectangularPeriodic(Space space, double boxSize) {
         super(space, makePeriodicity(space.D()), boxSize);
+        dimensionsHalf = space.makeVector();
+        tempImage = space.makeVector();
+        // call updateDimensions again so dimensionsHalf is updated
+        updateDimensions();
     }
 
+    public void updateDimensions() {
+        super.updateDimensions();
+        // superclass constructor calls this before dimensionsHalf has been instantiated
+        if (dimensionsHalf != null) {
+            dimensionsHalf.Ea1Tv1(0.5,dimensions);
+        }
+    }
+    
     public void nearestImage(Vector dr) {
         dr.PE(dimensionsHalf);
         dr.mod(dimensions);
@@ -28,8 +40,10 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
     }
 
     public Vector centralImage(Vector r) {
-        modShift.EModShift(r, dimensions);
-        return modShift;
+        tempImage.E(r);
+        nearestImage(tempImage);
+        tempImage.ME(r);
+        return tempImage;
     }
 
     private static boolean[] makePeriodicity(int D) {
@@ -41,5 +55,6 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
     }
     
     private static final long serialVersionUID = 1L;
-    
+    protected final Vector dimensionsHalf;
+    protected final Vector tempImage;
 }

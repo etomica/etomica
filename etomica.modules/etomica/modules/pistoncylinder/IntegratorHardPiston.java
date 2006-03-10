@@ -23,7 +23,7 @@ public class IntegratorHardPiston extends IntegratorHard {
     }
 
     public void setup() {
-        pistonPotential.setWallPosition(0.0);
+        pistonPotential.setWallPosition(-phase.getBoundary().getDimensions().x(1)*0.5);
         super.setup();
     }
     
