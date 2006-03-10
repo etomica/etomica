@@ -212,23 +212,26 @@ public abstract class IntegratorMD extends IntegratorPhase {
      * @return the factor velocities were scaled by 
      */
     protected double scaleMomenta(Phase aPhase) {
-        momentum.E(0);
         atomIterator.setPhase(aPhase);
-        atomIterator.reset();
-        while(atomIterator.hasNext()) {
-            AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
-            double mass = ((AtomTypeLeaf)a.type).getMass();
-            if (mass != Double.POSITIVE_INFINITY) {
-                momentum.PEa1Tv1(((AtomTypeLeaf)a.type).getMass(),((ICoordinateKinetic)a.coord).velocity());
+        if (atomIterator.size() > 1) {
+            momentum.E(0);
+            atomIterator.reset();
+            while(atomIterator.hasNext()) {
+                AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
+                double mass = ((AtomTypeLeaf)a.type).getMass();
+                if (mass != Double.POSITIVE_INFINITY) {
+                    momentum.PEa1Tv1(((AtomTypeLeaf)a.type).getMass(),((ICoordinateKinetic)a.coord).velocity());
+                }
             }
-        }
-        momentum.TE(1.0/atomIterator.size());
-        atomIterator.reset();
-        while(atomIterator.hasNext()) {
-            AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
-            double mass = ((AtomTypeLeaf)a.type).getMass();
-            if (mass != Double.POSITIVE_INFINITY) {
-                ((ICoordinateKinetic)a.coord).velocity().ME(momentum); //set net momentum to 0
+            momentum.TE(1.0/atomIterator.size());
+            atomIterator.reset();
+            //set net momentum to 0
+            while(atomIterator.hasNext()) {
+                AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
+                double mass = ((AtomTypeLeaf)a.type).getMass();
+                if (mass != Double.POSITIVE_INFINITY) {
+                    ((ICoordinateKinetic)a.coord).velocity().PEa1Tv1(-1.0/((AtomTypeLeaf)a.type).getMass(),momentum);
+                }
             }
         }
         
