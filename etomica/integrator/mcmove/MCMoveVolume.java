@@ -3,6 +3,7 @@ package etomica.integrator.mcmove;
 import etomica.action.PhaseInflate;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.atom.iterator.AtomIteratorNull;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.MCMove;
 import etomica.phase.Phase;
@@ -88,7 +89,7 @@ public class MCMoveVolume extends MCMove {
     public double energyChange(Phase p) {return (p == phase) ? uNew - uOld : 0.0;}
     
     public AtomIterator affectedAtoms(Phase p) {
-        if(p != phase) return AtomIterator.NULL;
+        if(p != phase) return AtomIteratorNull.INSTANCE;
         return new AtomIteratorAllMolecules(phase);
     }
 

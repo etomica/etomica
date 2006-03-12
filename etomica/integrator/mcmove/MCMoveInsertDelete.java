@@ -4,10 +4,10 @@ import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomFactory;
-import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIterator;
+import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.MCMove;
@@ -149,7 +149,7 @@ public class MCMoveInsertDelete extends MCMove {
      * in the current or most recent trial.
      */
     public final AtomIterator affectedAtoms(Phase p) {
-        if(p != phase || testMolecule == null) return AtomIterator.NULL;
+        if(p != phase || testMolecule == null) return AtomIteratorNull.INSTANCE;
         affectedAtomIterator.setAtom(testMolecule);
         return affectedAtomIterator;
     }

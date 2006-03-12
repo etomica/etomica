@@ -9,6 +9,7 @@ package etomica.integrator.mcmove;
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.atom.iterator.AtomIteratorNull;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorPhase;
 import etomica.integrator.MCMove;
@@ -125,7 +126,7 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 	        affectedAtomIterator.reset();
 	        return affectedAtomIterator;
 	    }
-	    return AtomIterator.NULL;
+	    return AtomIteratorNull.INSTANCE;
 	}
     
     public transient static SwapFactory FACTORY = new SwapFactory();

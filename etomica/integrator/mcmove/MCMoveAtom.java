@@ -5,6 +5,7 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomLeaf;
 import etomica.atom.iterator.AtomIterator;
+import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
@@ -121,7 +122,7 @@ public class MCMoveAtom extends MCMove {
         
     
     public AtomIterator affectedAtoms(Phase p) {
-        if(phase != p) return AtomIterator.NULL;
+        if(phase != p) return AtomIteratorNull.INSTANCE;
         affectedAtomIterator.setAtom(atom);
         return affectedAtomIterator;
     }

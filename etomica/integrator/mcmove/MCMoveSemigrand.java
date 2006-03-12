@@ -3,12 +3,12 @@ package etomica.integrator.mcmove;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomList;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorCompound;
+import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.DataSourceCOM;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -217,7 +217,7 @@ public class MCMoveSemigrand extends MCMove {
     public double energyChange(Phase p) {return (p == phase) ? uNew - uOld : 0.0;}
     
     public final AtomIterator affectedAtoms(Phase p) {
-        if(p != phase) return AtomIterator.NULL;
+        if(p != phase) return AtomIteratorNull.INSTANCE;
         insertAtomIterator.setAtom(insertMolecule);
         deleteAtomIterator.setAtom(deleteMolecule);
         affectedAtomIterator.reset();

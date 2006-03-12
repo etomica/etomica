@@ -3,6 +3,7 @@ package etomica.integrator.mcmove;
 import etomica.action.PhaseInflate;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.atom.iterator.AtomIteratorNull;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorPhase;
@@ -126,7 +127,7 @@ public final class MCMoveVolumeExchange extends MCMove {
         } else if(this.secondPhase == phase) {
             return phase2AtomIterator;
         } else {
-            return AtomIterator.NULL;
+            return AtomIteratorNull.INSTANCE;
         }
     }
 

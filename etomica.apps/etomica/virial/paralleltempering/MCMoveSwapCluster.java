@@ -1,10 +1,10 @@
 package etomica.virial.paralleltempering;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.atom.iterator.AtomIteratorNull;
 import etomica.integrator.IntegratorPT;
 import etomica.integrator.IntegratorPhase;
 import etomica.integrator.MCMove;
@@ -133,7 +133,7 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
             affectedAtomIterator.reset();
             return affectedAtomIterator;
         }
-		    return AtomIterator.NULL;
+		    return AtomIteratorNull.INSTANCE;
     }
 	
     public static SwapFactory FACTORY = new SwapFactory();

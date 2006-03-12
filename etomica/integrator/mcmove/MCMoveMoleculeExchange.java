@@ -6,6 +6,7 @@ import etomica.atom.Atom;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIterator;
+import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.DataSourceCOM;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -126,7 +127,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
     }
 
     public final AtomIterator affectedAtoms(Phase phase) {
-        if(this.firstPhase != phase && this.secondPhase != phase) return AtomIterator.NULL;
+        if(this.firstPhase != phase && this.secondPhase != phase) return AtomIteratorNull.INSTANCE;
         affectedAtomIterator.setAtom(molecule);
         affectedAtomIterator.reset();
         return affectedAtomIterator;
