@@ -183,7 +183,7 @@ public class LjmdGraphic {
 		tBox.setLabel("Measured value");
 		tBox.setLabelPosition(CompassDirection.NORTH);
 		
-	    MeterDensity densityMeter = new MeterDensity(sim.space.D());
+	    MeterDensity densityMeter = new MeterDensity(sim.space);
         densityMeter.setPhase(sim.phase);
 	    DisplayBox densityBox = new DisplayBox();
         DataPump densityPump = new DataPump(densityMeter, densityBox);
