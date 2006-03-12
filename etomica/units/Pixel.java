@@ -28,6 +28,13 @@ public class Pixel extends SimpleUnit {
         return toPixels;
     }
     
+    /**
+     * Required because Units are supposed to be singletons
+     */
+    private Object readResolve() {
+        return new Pixel(this.toPixels());
+    }
+
     private final double toPixels;
         
     private static final long serialVersionUID = 1;
