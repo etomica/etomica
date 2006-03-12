@@ -1,5 +1,7 @@
 package etomica.data.types;
 
+import java.io.Serializable;
+
 import etomica.data.Data;
 import etomica.data.DataFactory;
 import etomica.data.DataInfo;
@@ -77,7 +79,7 @@ public class DataInteger extends Data {
     
     private static final Factory FACTORY = new Factory();
 
-    private static class Factory implements DataFactory {
+    private static class Factory implements DataFactory, Serializable {
         
         public Data makeData(String label, Dimension dimension) {
             return new DataInteger(label, dimension);
