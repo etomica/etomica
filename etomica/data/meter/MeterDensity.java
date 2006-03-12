@@ -3,6 +3,7 @@ package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.data.DataSourceScalar;
 import etomica.phase.Phase;
+import etomica.space.Space;
 import etomica.species.Species;
 import etomica.units.DimensionRatio;
 import etomica.units.Quantity;
@@ -14,8 +15,8 @@ import etomica.units.Volume;
  */
 public class MeterDensity extends DataSourceScalar implements Meter {
     
-    public MeterDensity(int d) {
-        super("Number Density",new DimensionRatio(Quantity.DIMENSION, Volume.dimension(d)));
+    public MeterDensity(Space space) {
+        super("Number Density",new DimensionRatio(Quantity.DIMENSION, Volume.dimension(space.D())));
     }
 
     public static EtomicaInfo getEtomicaInfo() {
