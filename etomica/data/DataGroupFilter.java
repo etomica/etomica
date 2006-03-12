@@ -73,8 +73,8 @@ public class DataGroupFilter extends DataProcessor {
      * Returns null if the given DataInfo is for a DataGroup; otherwise
      * returns a CastToGroup instance.
      */
-    public DataProcessor getDataCaster(DataInfo dataInfo) {
-        if(dataInfo.getDataClass() == DataGroup.class) {
+    public DataProcessor getDataCaster(DataInfo incomingDataInfo) {
+        if(incomingDataInfo.getDataClass() == DataGroup.class) {
             return null;
         }
         return new CastToGroup();

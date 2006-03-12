@@ -109,12 +109,12 @@ public class DataGroup extends Data {
      *             elements than this DataGroup.
      *  
      */
-    public void E(Data data) {
-        if(((DataGroup)data).data.length != this.data.length) {
-            throw new IllegalArgumentException("Attempt to copy data groups of different length: (this.length, argument's length): ("+this.data.length+", "+((DataGroup)data).data.length+")");
+    public void E(Data newData) {
+        if(((DataGroup)newData).data.length != data.length) {
+            throw new IllegalArgumentException("Attempt to copy data groups of different length: (this.length, argument's length): ("+this.data.length+", "+((DataGroup)newData).data.length+")");
         }
         for (int i=0; i<this.data.length; i++) {
-            this.data[i].E(((DataGroup)data).getData(i));
+            data[i].E(((DataGroup)newData).getData(i));
         }
     }
 

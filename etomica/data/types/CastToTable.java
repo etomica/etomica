@@ -167,7 +167,7 @@ public class CastToTable extends DataProcessor implements Serializable {
      * Returns null, indicating the this DataProcessor can handle (almost) any
      * Data type.
      */
-    public DataProcessor getDataCaster(DataInfo dataInfo) {
+    public DataProcessor getDataCaster(DataInfo incomingDataInfo) {
         return null;
     }
 

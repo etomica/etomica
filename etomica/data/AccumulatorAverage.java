@@ -63,8 +63,8 @@ public class AccumulatorAverage extends DataAccumulator {
      * this is so. Otherwise throws a ClassCastException, as there is no data
      * caster to DataArithmetic.
      */
-    public DataProcessor getDataCaster(DataInfo dataInfo) {
-        if (DataArithmetic.class.isAssignableFrom(dataInfo.getDataClass())) {
+    public DataProcessor getDataCaster(DataInfo incomingDataInfo) {
+        if (DataArithmetic.class.isAssignableFrom(incomingDataInfo.getDataClass())) {
             return null;
         }
         throw new ClassCastException(
@@ -212,33 +212,33 @@ public class AccumulatorAverage extends DataAccumulator {
      * Prepares the accumulator for input data.  Discards any previous 
      * contributions to statistics.
      * 
-     * @param dataInfo
+     * @param incomingDataInfo
      *            the DataInfo instance for the data that will be given to
      *            addData
      */
-    public DataInfo processDataInfo(DataInfo dataInfo) {
-        DataFactory factory = dataInfo.getDataFactory();
+    public DataInfo processDataInfo(DataInfo incomingDataInfo) {
+        DataFactory factory = incomingDataInfo.getDataFactory();
 
         Dimension dimSquared = Undefined.DIMENSION;//can change this when units
                                                    // facility isbetter
                                                    // developed
-        sum = (DataArithmetic) factory.makeData("blkAvg sum", dataInfo.getDimension());
+        sum = (DataArithmetic) factory.makeData("blkAvg sum", incomingDataInfo.getDimension());
         sumSquare = (DataArithmetic) factory.makeData("blkAvgSqr sum", dimSquared);
-        sumSquareBlock = (DataArithmetic) factory.makeData("sum value^2", dataInfo.getDimension());
-        standardDeviation = (DataArithmetic) factory.makeData("stddev", dataInfo.getDimension());
-        average = (DataArithmetic) factory.makeData("avg", dataInfo.getDimension());
-        error = (DataArithmetic) factory.makeData("error", dataInfo.getDimension());
-        blockSum = (DataArithmetic) factory.makeData("blk value", dataInfo.getDimension());
+        sumSquareBlock = (DataArithmetic) factory.makeData("sum value^2", incomingDataInfo.getDimension());
+        standardDeviation = (DataArithmetic) factory.makeData("stddev", incomingDataInfo.getDimension());
+        average = (DataArithmetic) factory.makeData("avg", incomingDataInfo.getDimension());
+        error = (DataArithmetic) factory.makeData("error", incomingDataInfo.getDimension());
+        blockSum = (DataArithmetic) factory.makeData("blk value", incomingDataInfo.getDimension());
         blockSumSq = (DataArithmetic) factory.makeData("blk value^2", dimSquared);
-        mostRecent = (DataArithmetic) factory.makeData("most recent", dataInfo.getDimension());
-        mostRecentBlock = (DataArithmetic) factory.makeData("most recent blk", dataInfo.getDimension());
-        blockCorrelation = (DataArithmetic) factory.makeData("blk correlation", dataInfo.getDimension());
-        firstBlock = (DataArithmetic) factory.makeData("first blk", dataInfo.getDimension());
-        correlationSum = (DataArithmetic) factory.makeData("correlation sum", dataInfo.getDimension());
+        mostRecent = (DataArithmetic) factory.makeData("most recent", incomingDataInfo.getDimension());
+        mostRecentBlock = (DataArithmetic) factory.makeData("most recent blk", incomingDataInfo.getDimension());
+        blockCorrelation = (DataArithmetic) factory.makeData("blk correlation", incomingDataInfo.getDimension());
+        firstBlock = (DataArithmetic) factory.makeData("first blk", incomingDataInfo.getDimension());
+        correlationSum = (DataArithmetic) factory.makeData("correlation sum", incomingDataInfo.getDimension());
         work = (DataArithmetic) factory.makeData("scratch", Undefined.DIMENSION);
 
         reset();
-        dataGroup = new DataGroup(dataInfo.getLabel(),
+        dataGroup = new DataGroup(incomingDataInfo.getLabel(),
                 new Data[] { (Data) mostRecent, (Data) average, (Data) error,
                         (Data) standardDeviation, (Data) mostRecentBlock,(Data)blockCorrelation});
         return dataGroup.getDataInfo();
@@ -251,20 +251,20 @@ public class AccumulatorAverage extends DataAccumulator {
      * accumulator is passed through a DataGroupFilter that removes the unwanted
      * Data.
      * 
-     * @param dataSink
+     * @param newDataSink
      *            the new DataSink
      * @param types
      *            array indicating the statistics to be included in the
      *            DataGroup sent to the sink.
      */
-    public void addDataSink(DataSink dataSink, StatType[] types) {
+    public void addDataSink(DataSink newDataSink, StatType[] types) {
         int[] indexes = new int[types.length];
         for (int i = 0; i < types.length; i++) {
             indexes[i] = types[i].index;
         }
         DataGroupFilter filter = new DataGroupFilter(indexes);
         addDataSink(filter);
-        filter.setDataSink(dataSink);
+        filter.setDataSink(newDataSink);
     }
 
     /**

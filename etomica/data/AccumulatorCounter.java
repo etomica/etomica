@@ -32,7 +32,7 @@ public class AccumulatorCounter extends DataAccumulator {
     /**
      * Returns null, indicating that any Data type is acceptable for input.
      */
-    public DataProcessor getDataCaster(DataInfo dataInfo) {
+    public DataProcessor getDataCaster(DataInfo incomingDataInfo) {
         return null;
     }
 
@@ -41,7 +41,7 @@ public class AccumulatorCounter extends DataAccumulator {
      * 
      * @return the DataInfo for the output DataInteger
      */
-    public DataInfo processDataInfo(DataInfo dataInfo) {
+    public DataInfo processDataInfo(DataInfo incomingDataInfo) {
         return data.getDataInfo();
     }
 

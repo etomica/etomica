@@ -46,8 +46,8 @@ public class DataTableTranspose extends DataProcessor {
     /* (non-Javadoc)
      * @see etomica.DataSink#getDataCaster(etomica.DataInfo)
      */
-    public DataProcessor getDataCaster(DataInfo dataInfo) {
-        if(dataInfo.getDataClass() == DataTable.class) {
+    public DataProcessor getDataCaster(DataInfo newDataInfo) {
+        if(newDataInfo.getDataClass() == DataTable.class) {
             return null;
         }
         return new CastToTable();

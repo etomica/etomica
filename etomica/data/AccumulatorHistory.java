@@ -85,8 +85,8 @@ public class AccumulatorHistory extends DataAccumulator {
      * history data is discarded and new historys are constructed (this behavior
      * can be modified by overriding the setNData method).
      */
-    protected void addData(Data data) {
-        DataArithmetic values = (DataArithmetic)data;
+    protected void addData(Data newData) {
+        DataArithmetic values = (DataArithmetic)newData;
         for (int i = nData-1; i >= 0; i--) {
             history[i].addValue(values.getValue(i));
         }

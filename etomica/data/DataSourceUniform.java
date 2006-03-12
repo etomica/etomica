@@ -59,26 +59,26 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
     /**
      * Method that performs calculation of values.
      */
-    private void calculateX(int nValues, double xMin, double xMax, 
-                   LimitType typeMin, LimitType typeMax) {
+    private void calculateX(int nValues, double newXMin, double newXMax, 
+                   LimitType newTypeMin, LimitType newTypeMax) {
         
         //determine number of intervals between left and right end points
         double intervalCount = (nValues - 1);
 
         // See inner class LimitType (below) for more information.
-        if(typeMin == LimitType.HALF_STEP) intervalCount += 0.5;
-        else if(typeMin == LimitType.EXCLUSIVE) intervalCount += 1.0;
+        if(newTypeMin == LimitType.HALF_STEP) intervalCount += 0.5;
+        else if(newTypeMin == LimitType.EXCLUSIVE) intervalCount += 1.0;
         
-        if(typeMax == LimitType.HALF_STEP) intervalCount += 0.5;
-        else if(typeMax == LimitType.EXCLUSIVE) intervalCount += 1.0;
+        if(newTypeMax == LimitType.HALF_STEP) intervalCount += 0.5;
+        else if(newTypeMax == LimitType.EXCLUSIVE) intervalCount += 1.0;
         
         //determine spacing between values
-        dx = (xMax - xMin)/intervalCount;
+        dx = (newXMax - newXMin)/intervalCount;
         
         //determine first value
-        double x0 = xMin;
-        if(typeMin == LimitType.HALF_STEP) x0 += 0.5*dx;
-        else if(typeMin == LimitType.EXCLUSIVE) x0 += dx;
+        double x0 = newXMin;
+        if(newTypeMin == LimitType.HALF_STEP) x0 += 0.5*dx;
+        else if(newTypeMin == LimitType.EXCLUSIVE) x0 += dx;
         
         //calculate values
 
@@ -89,10 +89,10 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
         for(int i=0; i<nValues; i++) x[i] = x0 + i*dx;
         
         //save parameters for later use
-        this.xMin = xMin;
-        this.xMax = xMax;
-        this.typeMin = typeMin;
-        this.typeMax = typeMax;
+        xMin = newXMin;
+        xMax = newXMax;
+        typeMin = newTypeMin;
+        typeMax = newTypeMax;
     }//end of calculateX
     
     public DataInfo getDataInfo() {
