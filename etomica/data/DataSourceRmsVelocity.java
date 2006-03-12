@@ -1,8 +1,11 @@
 package etomica.data;
 
+import java.io.Serializable;
+
 import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIterator;
+import etomica.atom.iterator.AtomIteratorNull;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
@@ -11,8 +14,8 @@ import etomica.units.DimensionRatio;
 import etomica.units.Length;
 import etomica.units.Null;
 import etomica.units.Time;
-import etomica.util.DoubleRange;
 import etomica.util.Histogram;
+import etomica.util.HistogramSimple;
 
 /**
  * Meter for the root-mean-square velocity of a set of atoms. Useful to obtain
@@ -21,9 +24,14 @@ import etomica.util.Histogram;
  * @author David Kofke
  */
 
-public class DataSourceRmsVelocity implements DataSourceAtomic {
+public class DataSourceRmsVelocity implements DataSourceAtomic, Serializable {
 
+    public DataSourceRmsVelocity() {
+        this(new HistogramSimple());
+    }
+    
 	public DataSourceRmsVelocity(Histogram histogram) {
+        setIterator(null);
         atomData = new DataDouble("RMS Velocity", new DimensionRatio(Length.DIMENSION, Time.DIMENSION));
         this.histogramRMS = histogram;
         setupData();
@@ -65,7 +73,7 @@ public class DataSourceRmsVelocity implements DataSourceAtomic {
         int nBins = histogramRMS.getNBins();
         DataDoubleArray xData = new DataDoubleArray(atomData.getDataInfo().getLabel(),atomData.getDataInfo().getDimension(), 
                                                     new int[]{nBins},histogramRMS.xValues());
-        DataDoubleArray yData = new DataDoubleArray("Histogram",Null.DIMENSION,new int[]{nBins},histogramRMS.getHistogram());
+        DataDoubleArray yData = new DataDoubleArray("RMS Velocity Histogram",Null.DIMENSION,new int[]{nBins},histogramRMS.getHistogram());
         data = new DataFunction(new DataDoubleArray[]{xData}, yData);
     }
     
@@ -82,7 +90,7 @@ public class DataSourceRmsVelocity implements DataSourceAtomic {
 	 */
 	public void setIterator(AtomIterator iterator) {
 		if (iterator == null)
-			this.iterator = AtomIterator.NULL;
+			this.iterator = AtomIteratorNull.INSTANCE;
 		else
 			this.iterator = iterator;
 	}
@@ -95,7 +103,7 @@ public class DataSourceRmsVelocity implements DataSourceAtomic {
 		return iterator;
 	}
 
-	private AtomIterator iterator = AtomIterator.NULL;
+	private AtomIterator iterator;
     private final DataDouble atomData;
     private final Histogram histogramRMS;
     private DataFunction data;
