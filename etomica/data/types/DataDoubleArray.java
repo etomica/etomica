@@ -102,7 +102,7 @@ public class DataDoubleArray extends Data implements DataArithmetic {
     /**
      * Constructor used by Factory
      */
-    private DataDoubleArray(String label, Dimension dimension, Factory factory) {
+    protected DataDoubleArray(String label, Dimension dimension, Factory factory) {
         super(new DataInfo(label, dimension, factory));
         jumpCount = (int[])factory.arrayShape.clone();
         //row-wise definition, as done in RectangularLattice

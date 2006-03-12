@@ -239,8 +239,8 @@ public class DataArray extends Data {
      */
     public static class Factory implements DataFactory, Serializable {
         
-        private final int[] arrayShape;
-        private final DataFactory arrayElementFactory;
+        protected final int[] arrayShape;
+        protected final DataFactory arrayElementFactory;
         
         Factory(int[] arrayShape, DataFactory arrayElementFactory) {
             this.arrayShape= (int[])arrayShape.clone();

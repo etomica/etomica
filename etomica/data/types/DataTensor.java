@@ -190,7 +190,7 @@ public class DataTensor extends Data implements DataArithmetic {
      */
     public static class Factory implements DataFactory, Serializable {
         
-        private final Space space;
+        protected final Space space;
         
         Factory(Space space) {
             this.space = space;

@@ -100,7 +100,7 @@ public class DataFunction extends Data implements DataArithmetic {
     /**
      * Used by Factory.
      */
-    private DataFunction(String label, Dimension dimension, Factory factory) {
+    protected DataFunction(String label, Dimension dimension, Factory factory) {
         this(label, dimension, factory, makeDependentData(label, dimension, factory.independentData));
     }
     
