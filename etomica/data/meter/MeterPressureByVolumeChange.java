@@ -10,6 +10,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.phase.Phase;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Pressure;
@@ -20,6 +21,18 @@ import etomica.units.Volume;
  * small changes in volume.
  */
 public class MeterPressureByVolumeChange implements Meter, java.io.Serializable {
+    
+    public MeterPressureByVolumeChange(Simulation sim) {
+        this(sim.potentialMaster, makeDefaultDimensions(sim.space.D()));
+    }
+    
+    private static final boolean[] makeDefaultDimensions(int D) {
+        boolean[] dim = new boolean[D];
+        for (int i=0; i<D; i++) {
+            dim[i] = true;
+        }
+        return dim;
+    }
     
     public MeterPressureByVolumeChange(PotentialMaster potentialMaster, boolean[] dimensions) {
         data = new DataDoubleArray("Pressure by Volume Change",Pressure.dimension(potentialMaster.getSpace().D()),10);
@@ -53,8 +66,8 @@ public class MeterPressureByVolumeChange implements Meter, java.io.Serializable 
         for(int i=0; i<directions.length; i++) {
             inflateDimensions[i] = directions[i];
             if(inflateDimensions[i]) nDimension++;
-            
         }
+        updateScale();
     }
     /**
      * Accessor method for setInflateDimension.
@@ -63,8 +76,16 @@ public class MeterPressureByVolumeChange implements Meter, java.io.Serializable 
     
     public void setX(double min, double max, int n) {
         xDataSource = new DataSourceUniform("x",Volume.dimension(potential.getSpace().D()),n, min, max);
+        updateScale();
+    }
+    
+    protected void updateScale() {
+        if (inflateDimensions == null || xDataSource == null) {
+            return;
+        }
+        
         //x is scaling in volume if isotropic, but is linear scaling if not isotropic
-        double dx = (max-min)/n;
+        double dx = (xDataSource.getXMax()-xDataSource.getXMin())/xDataSource.getNValues();
         final double[] x = ((DataDoubleArray)xDataSource.getData()).getData();
         for(int i=0; i<x.length; i++) { //disallow x = 0
             if(x[i] == 0.0) x[i] = 0.1*dx;
