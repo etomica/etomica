@@ -1,10 +1,12 @@
 package etomica.integrator.mcmove;
 
+import java.io.Serializable;
+
 import etomica.integrator.MCMove;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 
-public class MCMoveManager {
+public class MCMoveManager implements Serializable {
 
     public MCMoveManager() {
         super();
