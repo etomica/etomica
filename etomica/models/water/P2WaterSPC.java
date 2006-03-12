@@ -6,8 +6,6 @@ import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
-import etomica.space.Boundary;
-import etomica.space.CoordinatePair;
 import etomica.space.Space;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
@@ -18,10 +16,6 @@ import etomica.units.Kelvin;
  */
 public class P2WaterSPC extends Potential2 implements Potential2Soft {
 
-	public P2WaterSPC(Space space, Boundary boundary) {
-		this(space);
-		this.boundary = boundary;
-	}
 	public P2WaterSPC(Space space) {
 		super(space);
 		setSigma(3.1670);
@@ -30,7 +24,12 @@ public class P2WaterSPC extends Potential2 implements Potential2Soft {
 		shift = (etomica.space3d.Vector3D)space.makeVector();
 		setCharges();
 	}   
-	public double energy(AtomSet pair){
+
+    public void setPhase(Phase phase) {
+        boundary = phase.getBoundary();
+    }
+
+    public double energy(AtomSet pair){
 		double sum = 0.0;
 		double r2 = 0.0;
 			
@@ -137,24 +136,4 @@ public class P2WaterSPC extends Potential2 implements Potential2Soft {
 	private double chargeO = Electron.UNIT.toSim(-0.82);
 	private double chargeOO, chargeOH, chargeHH;
 	private etomica.space3d.Vector3D work, shift;
-    protected CoordinatePair cPair;
-	/**
-	 * Returns the boundary.
-	 * @return Space3D.Boundary
-	 */
-	public Boundary getBoundary() {
-		return boundary;
-	}
-
-	/**
-	 * Sets the boundary.
-	 * @param boundary The boundary to set
-	 */
-	public void setBoundary(Boundary boundary) {
-		this.boundary = boundary;
-	}
-    public void setPhase(Phase phase) {
-        cPair.setNearestImageTransformer(phase.getBoundary());
-    }
-
 }
