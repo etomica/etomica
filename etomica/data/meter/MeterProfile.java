@@ -78,7 +78,9 @@ public class MeterProfile implements DataSource, Meter, java.io.Serializable {
     public void setProfileVector(Vector v) {
         profileVector.E(v);
         profileVector.normalize();
-        xDataSource.setXMax(phase.getBoundary().getDimensions().dot(profileVector));
+        double halfBox = 0.5*phase.getBoundary().getDimensions().dot(profileVector);
+        xDataSource.setXMin(-halfBox);
+        xDataSource.setXMax(halfBox);
     }
     
     /**
@@ -113,7 +115,9 @@ public class MeterProfile implements DataSource, Meter, java.io.Serializable {
      */
     public void setPhase(Phase phase) {
         this.phase = phase;
-        xDataSource.setXMax(phase.getBoundary().getDimensions().dot(profileVector));
+        double halfBox = 0.5*phase.getBoundary().getDimensions().dot(profileVector);
+        xDataSource.setXMin(-halfBox);
+        xDataSource.setXMax(halfBox);
         ai1.setPhase(phase);
     }
 

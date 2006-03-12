@@ -68,7 +68,6 @@ public final class SceneManager {
             
             LineSegment[] edges = shape.getEdges();
             Vector shift = phase.space().makeVector();
-            shift.Ea1Tv1( +0.5, bnd.getDimensions() );
             
             boundaryPoly = renderer.createPoly();
             for(int i=0; i<edges.length; i++) 
