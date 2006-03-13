@@ -78,7 +78,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
     /**
      * To show the values of slider
      */
-    private JTextField textField;
+    protected JTextField textField;
     
     /** 
      * column of textfield to show the value of slider correctly with horizontal view
@@ -249,22 +249,47 @@ public class DeviceSlider extends Device implements EtomicaElement {
             setSliderValueShape("VERTICAL");
             textField.addActionListener(new ActionListener(){
                 public void actionPerformed(ActionEvent e){
-                    //sets value of slider, which then fires event to modifier, taking care of units
-                    setValue((Double.parseDouble(e.getActionCommand())));
+                    double oldX = slider.getDecimalSliderValue();
+                    double newX = 0;
+                    try {
+                        newX = Double.parseDouble(textField.getText());
+                    }
+                    catch (NumberFormatException ex) {
+                        //user entered a bogus number (like "J")
+                        textField.setText(String.valueOf(oldX));
+                        return;
+                    }
+                    if (newX != oldX) {
+                        // user tabbed or clicked out of the text field
+                        setValue(newX);
+                    }
+                    else {
+                        //revert text field to its original value if it changed (300 => 300.0)
+                        textField.setText(String.valueOf(oldX));
+                    }
                 }
             });
             textField.addFocusListener(new FocusListener(){
                 public void focusGained(FocusEvent evt) {
                 }
                 public void focusLost(FocusEvent evt) {
-                    double d = Double.parseDouble(textField.getText());
-                    if (d != getValue()) {
+                    double oldX = slider.getDecimalSliderValue();
+                    double newX = 0;
+                    try {
+                        newX = Double.parseDouble(textField.getText());
+                    }
+                    catch (NumberFormatException ex) {
+                        //user entered a bogus number (like "J")
+                        textField.setText(String.valueOf(oldX));
+                        return;
+                    }
+                    if (newX != oldX) {
                         // user tabbed or clicked out of the text field
-                        setValue(d);
+                        setValue(newX);
                     }
                     else {
                         //revert text field to its original value if it changed (300 => 300.0)
-                        textField.setText(String.valueOf(d));
+                        textField.setText(String.valueOf(oldX));
                     }
                 }
             });
