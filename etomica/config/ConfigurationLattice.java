@@ -97,6 +97,8 @@ public class ConfigurationLattice extends Configuration {
         }
 
         //XXX this looks scary and asking for trouble
+        //it's probably not needed/wanted for periodic boundaries, but 
+        //gets the atoms off the boundaries for non-periodic boundaries
         indexIterator.reset();
         while(indexIterator.hasNext()) {
             Vector site = (Vector)lattice.site(indexIterator.next());
@@ -107,7 +109,7 @@ public class ConfigurationLattice extends Configuration {
             }
         }
         for(int i=0; i<lattice.getSpace().D(); i++) {
-            offset[i] = 0.5*(dimensions[i] - (vectorOfMax[i]-vectorOfMin[i])) - vectorOfMin[i];
+            offset[i] = -0.5*(vectorOfMax[i]-vectorOfMin[i]) - vectorOfMin[i];
         }
         Vector offsetVector = Space.makeVector(offset);
         
