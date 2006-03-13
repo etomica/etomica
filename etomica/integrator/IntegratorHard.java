@@ -406,8 +406,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
     /**
      * Updates collision times appropriately after scaling momenta.
      */
-    protected double scaleMomenta(Phase aPhase) {
-        double s = super.scaleMomenta(aPhase);
+    protected double scaleMomenta() {
+        double s = super.scaleMomenta();
         double rs = 1.0/s;
         atomIterator.reset();
         while(atomIterator.hasNext()) {
@@ -421,8 +421,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
      * Updates collision times appropriately after randomizing momenta
      * as part of the Andersen thermostat.
      */
-    protected void randomizeMomenta(Phase aPhase) {
-        super.randomizeMomenta(aPhase);
+    protected void randomizeMomenta() {
+        super.randomizeMomenta();
         // super.randomizeMomenta recalculates the kinetic energy and doesn't
         // change the potential energy, so just act like the neighbor lists were
         // updated

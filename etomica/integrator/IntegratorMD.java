@@ -47,6 +47,13 @@ public abstract class IntegratorMD extends IntegratorPhase {
     }
     public final double getTimeStep() {return timeStep;}
     public Dimension getTimeStepDimension() {return Time.DIMENSION;}
+    
+    public void setPhase(Phase p) {
+        super.setPhase(p);
+        meterTemperature.setPhase(p);
+        atomIterator.setPhase(p);
+        meterKE.setPhase(p);
+    }
 
     protected void setup() {
         try {
@@ -152,13 +159,11 @@ public abstract class IntegratorMD extends IntegratorPhase {
             thermostatCount = thermostatInterval;
             if (thermostat == ThermostatType.ANDERSEN || !initialized) {
                 // if initializing the system always randomize the velocity
-                randomizeMomenta(phase);
-                meterKE.setPhase(phase);
+                randomizeMomenta();
                 currentKineticEnergy = meterKE.getDataAsScalar();
             }
             if (thermostat == ThermostatType.VELOCITY_SCALING || !isothermal) {
-                scaleMomenta(phase);
-                meterKE.setPhase(phase);
+                scaleMomenta();
                 currentKineticEnergy = meterKE.getDataAsScalar();
             }
             else if (thermostat == ThermostatType.ANDERSEN_SINGLE) {
@@ -186,8 +191,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
      * after calling this method.
      * @param aPhase phase whose atomic momenta are to be randomized
      */
-    protected void randomizeMomenta(Phase aPhase) {
-        atomIterator.setPhase(aPhase);
+    protected void randomizeMomenta() {
         atomActionRandomizeVelocity.setTemperature(temperature);
         atomIterator.allAtoms(atomActionRandomizeVelocity);
     }
@@ -211,8 +215,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
      * integrator needs to be updated after calling this method.
      * @return the factor velocities were scaled by 
      */
-    protected double scaleMomenta(Phase aPhase) {
-        atomIterator.setPhase(aPhase);
+    protected double scaleMomenta() {
         if (atomIterator.size() > 1) {
             momentum.E(0);
             atomIterator.reset();
@@ -236,18 +239,15 @@ public abstract class IntegratorMD extends IntegratorPhase {
         }
         
         // calculate current kinetic temperature
-        meterTemperature.setPhase(aPhase);
         double t = meterTemperature.getDataAsScalar();
         if (t == temperature) return 1.0;
         double s = Math.sqrt(temperature / t);
         double scale = s;
         if (t == 0) {
-            randomizeMomenta(aPhase);
-            meterTemperature.setPhase(aPhase);
+            randomizeMomenta();
             t = meterTemperature.getDataAsScalar();
             s = Math.sqrt(temperature / t);
         }
-        atomIterator.setPhase(aPhase);
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
@@ -283,6 +283,5 @@ public abstract class IntegratorMD extends IntegratorPhase {
     private AtomActionRandomizeVelocity atomActionRandomizeVelocity;
     private MeterTemperature meterTemperature;
     private final Vector momentum;
-    
 }
 
