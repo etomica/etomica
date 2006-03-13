@@ -228,20 +228,9 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
         
     private class BoxListener extends java.awt.event.KeyAdapter implements java.awt.event.ActionListener, FocusListener {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
-            if(modifier == null) return;
-            double x = unit.fromSim(modifier.getValue());
-            try { 
-                x = Double.parseDouble(value.getText());
-            } catch(NumberFormatException ex) {//if bad format, just restore original value
-                value.setText(Double.toString(x));
-                doUpdate();
-                return;
-            }
-            if (modifier!=null) {
-                modifier.setValue(unit.toSim(x));
-            }
-       }
-       public void keyReleased(java.awt.event.KeyEvent evt) {
+            updateValue();
+        }
+        public void keyReleased(java.awt.event.KeyEvent evt) {
             if(!isInteger()) return;
             int key = evt.getKeyCode();
             int step = 0;
@@ -251,57 +240,33 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
             int i = Integer.parseInt(value.getText()) + step;
             value.setText(Integer.toString(i));
             if(modifier!=null) modifier.setValue(unit.toSim(i));
+        }
+       
+        public void focusGained(FocusEvent evt) {
+        }
+        public void focusLost(FocusEvent evt) {
+            // user tabbed or clicked out of the text field
+            updateValue();
        }
        
-       public void focusGained(FocusEvent evt) {
-       }
-       public void focusLost(FocusEvent evt) {
-           double d = Double.parseDouble(value.getText());
-           if (d != modifier.getValue()) {
-               // user tabbed or clicked out of the text field
-               modifier.setValue(d);
+       protected void updateValue() {
+           if(modifier == null) {
+               doUpdate();
            }
-           else {
-               //revert text field to its original value if it changed (300 => 300.0)
-               value.setText(String.valueOf(d));
+           double oldX = modifier.getValue();
+           double newX;
+           try { 
+               newX = unit.toSim(Double.parseDouble(value.getText()));
+           } catch(NumberFormatException ex) {//if bad format, just restore original value
+               doUpdate();
+               return;
            }
+           if (newX != oldX) {
+               modifier.setValue(newX);
+           }
+           doUpdate();
        }
     }
-    
-    
-    /**
-     * Demonstrates how this class is implemented.
-     */
-//    public static void main(String[] args) {
-//
-//        SimulationGraphic sim = new SimulationGraphic();
-//	    IntegratorHard integrator = new IntegratorHard(sim.potentialMaster);
-//	    Species species = new SpeciesSpheresMono();
-//	    species.setNMolecules(25);
-//	    Phase phase = new Phase(sim.space);
-//	    Controller controller = new Controller();
-//	    Display display = new DisplayPhase();
-//		
-//        Potential2 potential = new P2SquareWell();
-//        sim.potentialMaster.setSpecies(potential, new Species[] {species, species});
-// //       Potential2 potential = new P2HardSphere(sim);
-//		sim.elementCoordinator.go();
-//
-//        //part that is unique to this demonstration
-//        integrator.setIsothermal(true);
-//        Modifier mod1 = new Modifier(integrator, "temperature");
-//        //DisplayBox showing the current value (default is most recent, but this is zero because meter is inactive (not keeping averages), and thus doesn't hold a most-recent value)
-//        DeviceBox box0 = new DeviceBox(mod1);
-//        //here's a DisplayBox tied to a Modifier
-//		DisplayBox box1 = new DisplayBox();
-////broken		box1.setDatumSource(mod1);
-//        //end of unique part
-//                                            
-//		Simulation.instance.elementCoordinator.go(); 		                                    
-//        SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
-//    }//end of main  
-  //  */
-
     
     
     /********** Utility method for formatting a double to a string **************/
