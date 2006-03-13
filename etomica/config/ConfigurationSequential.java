@@ -8,6 +8,7 @@ import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorArrayListCompound;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.space2d.Vector2D;
 
 /**
  * Fills phase with molecules on a lattice, taking each molecule in successive order
@@ -76,11 +77,16 @@ public class ConfigurationSequential extends Configuration {
         }
         
    // Place molecules     
+        Vector dimensionsHalf = space.makeVector();
+        for (int j=0; j<space.D(); j++) {
+            dimensionsHalf.setX(j,dimensions[j]*0.5);
+        }
         int i = 0;
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
             //initialize coordinates of child atoms
+            rLat[i].ME(dimensionsHalf);
             if (!a.node.isLeaf()) {
                 Conformation config = a.type.creator().getConformation();
                 config.initializePositions(((AtomTreeNodeGroup)a.node).childList);
@@ -111,9 +117,9 @@ public class ConfigurationSequential extends Configuration {
      * The final argument should be passed one of the class variables VERTICAL or HORIZONTAL, indicating
      *   whether successive points fill the lattice across or down.
      */
-    public final static etomica.space2d.Vector2D[] squareLattice(int n, double Lx, double Ly, boolean fillVertical) {
-        etomica.space2d.Vector2D[] r = new etomica.space2d.Vector2D[n];
-        for(int i=0; i<n; i++) {r[i] = new etomica.space2d.Vector2D();}
+    public final static Vector2D[] squareLattice(int n, double Lx, double Ly, boolean fillVertical) {
+        Vector2D[] r = new Vector2D[n];
+        for(int i=0; i<n; i++) {r[i] = new Vector2D();}
 
         int moleculeColumns, moleculeRows;
         double moleculeInitialSpacingX, moleculeInitialSpacingY;
