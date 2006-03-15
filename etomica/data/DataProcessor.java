@@ -58,18 +58,19 @@ public abstract class DataProcessor implements DataPipe, java.io.Serializable {
      * @return Returns the data sink, which may be null.
      */
     public DataSink getDataSink() {
-        return dataSink;
+        return trueDataSink;
     }
 
     /**
      * Sets the sink receiving the data. Null value is permitted.
      * 
-     * @param dataSinks
-     *            The data sinks to set.
+     * @param newDataSink
+     *            The data sink to set.
      */
     public void setDataSink(DataSink newDataSink) {
-        dataSink = newDataSink;
-        insertedTransformer = false;
+        //trueDataSink is the sink that the caller acutally cares about
+        //dataSink is the immeadiate sink for this processor (might be a transformer)
+        trueDataSink = newDataSink;
         insertTransformerIfNeeded();
         if (dataSink != null && dataInfo != null) {
             dataSink.putDataInfo(dataInfo);
@@ -77,23 +78,18 @@ public abstract class DataProcessor implements DataPipe, java.io.Serializable {
     }
 
     private void insertTransformerIfNeeded() {
-        if (dataSink == null || dataInfo == null)
+        if (trueDataSink == null || dataInfo == null)
             return;
         //remove transformer if one was previously inserted
-        if (insertedTransformer) {
-            dataSink = ((DataProcessor) dataSink).dataSink;
-            insertedTransformer = false;
-        }
+        dataSink = trueDataSink;
         DataProcessor caster = dataSink.getDataCaster(dataInfo);
         if (caster != null) {
-            caster.setDataSink(dataSink);
+            caster.setDataSink(trueDataSink);
             dataSink = caster;
-            insertedTransformer = true;
         }
     }
 
     protected DataSink dataSink;
+    protected DataSink trueDataSink;
     protected DataInfo dataInfo;
-    private boolean insertedTransformer = false;
-
 }
