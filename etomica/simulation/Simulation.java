@@ -7,7 +7,6 @@ import etomica.action.activity.Controller;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
-import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.data.DataSource;
 import etomica.integrator.Integrator;
 import etomica.phase.Phase;
@@ -64,6 +63,9 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
                  
     public final Space space() {return space;}
 
+    /**
+     * Returns an array of Phases contained in the Simulation
+     */
     public final Phase[] getPhases() {
         int nPhases = ((AtomTreeNodeGroup)speciesRoot.node).childList.size();
         Phase[] phases = new Phase[nPhases];
@@ -75,28 +77,62 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
         }
         return phases;
     }
+    
+    /**
+     * Returns a list of Integrators that have been registered with the Simulation
+     */
     public final LinkedList getIntegratorList() {return integratorList;}
+    
+    /**
+     * Returns an array of Species contained in the Simulation
+     */
     public final Species[] getSpecies() {
         return speciesRoot.getSpecies();
     }
+    
+    /**
+     * Returns an array of DataStreamsHeaders for data streams that have been
+     * registered with the simulation.
+     */
     public DataStreamHeader[] getDataStreams() {
         return (DataStreamHeader[])dataStreams.clone();
     }
+    
+    /**
+     * Clears the list of data streams that have been registered with the 
+     * Simulation.
+     */
     public void clearDataStreams() {
         dataStreams = new DataStreamHeader[0];
     }
     
     /**
-     * Add the given DataAccumulator to a list kept by the simulation.
-     * No other effect results from registering the DataAccumulator.  
-     * The list of registered DataAccumulators may be retrieved via
-     * the getDataManagerList method.  A DataAccumulator may be
-     * removed from the list via the unregister method.
+     * Clears the list of Integrators that have been registered with the 
+     * Simulation.
+     */
+    public void clearIntegrators() {
+        integratorList.clear();
+    }
+    
+    /**
+     * Add the given Integrator to a list kept by the simulation.  No other 
+     * effect results from registering the Integrator. The list of registered 
+     * Integrators may be retrieved via the getIntegrators method.  An 
+     * individual Integrator may be removed from the list via the unregister 
+     * method.
      */
     public void register(Integrator integrator) {
         integratorList.add(integrator);
     }
-    
+
+    /**
+     * Add the given DataSource and client (the object which calls the 
+     * DataSource's getData method) to a list of data streams kept by the 
+     * simulation.  No other effect results from registering the data stream. 
+     * The list of registered data streams may be retrieved via the 
+     * getDataStreams method.  A single data stream may be removed from the 
+     * list via the unregister method.
+     */
     public void register(DataSource dataSource, Object client) {
         for (int i=0; i<dataStreams.length; i++) {
             if (dataStreams[i].getDataSource() == dataSource && dataStreams[i].getClient() == client) {
@@ -107,15 +143,22 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
     }
     
     /**
-     * Removes the given dataManager from the list of dataManagers
-     * kept by the simulation.  No other action results upon removing it from
-     * this list.  If the given dataManager is not in the list already,
-     * the method returns without taking any action.
+     * Removes the given Integrator from the list of Integrators kept by the 
+     * simulation.  No other action results upon removing it from this list.  
+     * If the given Integrator is not in the list already, the method returns 
+     * without taking any action.
      */
     public void unregister(Integrator integrator) {
         integratorList.remove(integrator);
     }
     
+    /**
+     * Removes the given data stream that represents the given DataSource and 
+     * client from the list of data streams kept by the simulation.  No other 
+     * action results upon removing it from this list.  If the given data 
+     * stream has not been registered, the method returns without taking any 
+     * action.
+     */
     public void unregister(DataSource dataSource, Object client) {
         for (int i=0; i<dataStreams.length; i++) {
             if (dataStreams[i].getDataSource() == dataSource && dataStreams[i].getClient() == client) {
@@ -125,11 +168,16 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
         }
     }
     
+    /**
+     * Returns the Controller used to run the simulation's Actions and 
+     * Activities.
+     */
 	public Controller getController() {
 		return controller;
 	}
 	
 	//TODO transfer control from old to new controller (copy over integrators, etc)
+    //AJS really?
 	public void setController(Controller controller) {
 		this.controller = controller;
 	}
@@ -140,6 +188,7 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
      * @return The given name of this phase
      */
     public final String getName() {return name;}
+
     /**
      * Method to set the name of this simulation. The simulation's name
      * provides a convenient way to label output data that is associated with
@@ -205,34 +254,6 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
     private DataStreamHeader[] dataStreams = new DataStreamHeader[0];
     private String name;
     protected Default defaults;
-     /**
-     * Demonstrates how this class is implemented.
-     */
-/*    public static void main(String[] args) {
-        Default.atomSize = 1.0;                   
-	    IntegratorHard integratorHard = new IntegratorHard();
-	    SpeciesSpheres speciesSpheres = new SpeciesSpheres();
-	    speciesSpheres.setNMolecules(300);
-	    Phase phase = new Phase();
-	    Potential2 potential = new P2HardSphere();
-	    DisplayPhase displayPhase = new DisplayPhase();
-	    IntegratorMD.Timer timer = integratorHard.new Timer(integratorHard.chronoMeter());
-	    timer.setUpdateInterval(10);
-        integratorHard.setTimeStep(0.01);
-        displayPhase.setColorScheme(new ColorSchemeNull());
-        for(Atom atom=phase.firstAtom(); atom!=null; atom=atom.nextAtom()) {
-            atom.setColor(Constants.randomColor());
-        }
-        
-        //this method call invokes the mediator to tie together all the assembled components.
-		Simulation.instance.elementCoordinator.go();
-		                                    
-		Simulation.instance.panel().setBackground(java.awt.Color.yellow);
-        Simulation.makeAndDisplayFrame(Simulation.instance);
-        
-     //   controller.start();
-    }//end of main
- */
 }
 
 
