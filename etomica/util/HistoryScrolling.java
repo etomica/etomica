@@ -3,6 +3,8 @@
  */
 package etomica.util;
 
+import java.io.Serializable;
+
 import etomica.data.DataSource;
 import etomica.data.DataSourceUniform;
 import etomica.data.DataSourceUniform.LimitType;
@@ -88,11 +90,13 @@ public class HistoryScrolling implements History, java.io.Serializable {
 	/**
 	 * Factory that creates an instance of this class.
 	 */
-    public static final History.Factory FACTORY = 
-    	new History.Factory() {
-    		public History makeHistory() {return new HistoryScrolling();}
-    		public History makeHistory(int n) {return new HistoryScrolling(n);}
-    	};
+    public static final History.Factory FACTORY = new ScrollingFactory(); 
+        
+        
+    public static class ScrollingFactory implements History.Factory, Serializable {
+		public History makeHistory() {return new HistoryScrolling();}
+		public History makeHistory(int n) {return new HistoryScrolling(n);}
+    }
 	
     private double[] history = new double[0];
     private int cursor;
