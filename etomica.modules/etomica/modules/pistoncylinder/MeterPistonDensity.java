@@ -32,6 +32,9 @@ public class MeterPistonDensity extends DataSourceScalar implements Meter {
             if (i==wallD) {
                 d -= pistonPotential.getWallPosition();
             }
+            else {
+            		d += dimensions.x(i)*0.5;
+            }
             volume *= d;
         }
         return phase.moleculeCount()/volume;
