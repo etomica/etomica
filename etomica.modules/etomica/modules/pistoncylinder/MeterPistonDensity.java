@@ -28,7 +28,7 @@ public class MeterPistonDensity extends DataSourceScalar implements Meter {
         double volume = 1;
         final Vector dimensions = phase.getBoundary().getDimensions();
         for (int i=0; i<dimensions.D(); i++) {
-            double d = dimensions.x(i) - collisionDiameter;
+            double d = dimensions.x(i)*0.5 - collisionDiameter;
             if (i==wallD) {
                 d -= pistonPotential.getWallPosition();
             }
