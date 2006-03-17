@@ -71,7 +71,7 @@ public abstract class Primitive implements java.io.Serializable {
     protected abstract void updateReciprocal();
 
     /**
-     * Returns a new vector of primitive-vector lengths.
+     * Returns a new array with values equal to the lengths of the primitive vectors.
      */
     public double[] getSize() {
         return (double[])size.clone();
