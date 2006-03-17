@@ -9,6 +9,9 @@ import etomica.atom.AtomLeaf;
 import etomica.space.Space;
 import etomica.space.Vector;
 
+/**
+ * Moves an atom by an amount specified.
+ */
 public class AtomTranslate extends AtomActionAdapter {
     protected Vector displacement;
         
