@@ -1,6 +1,8 @@
 package etomica.atom;
 
-public class AtomToArrayListFixed implements AtomToArrayList, AtomToIndex {
+import java.io.Serializable;
+
+public class AtomToArrayListFixed implements AtomToArrayList, AtomToIndex, Serializable {
 
     public AtomToArrayListFixed() {
         atomArrayList = new AtomArrayList();
