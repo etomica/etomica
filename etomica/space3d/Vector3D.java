@@ -185,17 +185,17 @@ public final class Vector3D extends Vector {
         z *= ((Vector3D) u).z;
     }
 
-    public void TE(Tensor t){
-        if(t.D() != 3){throw new IllegalArgumentException("Vector and Tensor do not match in Vector3D.TE");}
-        double a, b, c;
-        a = t.component(0,0) *  x + t.component(0,1) * y + t.component(0,2) * z;
-        b = t.component(1,0) *  x + t.component(1,1) * y + t.component(1,2) * z;
-        c = t.component(2,0) *  x + t.component(2,1) * y + t.component(2,2) * z;
-        
-        x=a;
-        y=b;
-        z=c;
-    }
+//    public void TE(Tensor t){
+//        if(t.D() != 3){throw new IllegalArgumentException("Vector and Tensor do not match in Vector3D.TE");}
+//        double a, b, c;
+//        a = t.component(0,0) *  x + t.component(0,1) * y + t.component(0,2) * z;
+//        b = t.component(1,0) *  x + t.component(1,1) * y + t.component(1,2) * z;
+//        c = t.component(2,0) *  x + t.component(2,1) * y + t.component(2,2) * z;
+//        
+//        x=a;
+//        y=b;
+//        z=c;
+//    }
     
     public void DE(double a) {
         x /= a;
