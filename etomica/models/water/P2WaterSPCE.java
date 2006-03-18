@@ -3,10 +3,8 @@ package etomica.models.water;
 
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
-import etomica.exception.MethodNotImplementedException;
 import etomica.phase.Phase;
 import etomica.potential.Potential2;
-import etomica.potential.Potential2Soft;
 import etomica.space.CoordinatePair;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -20,7 +18,7 @@ import etomica.units.Kelvin;
  * SPC/E potential for water.  Requires the molecule node be an
  * AtomTreeNodeWater. 
  */
-public class P2WaterSPCE extends Potential2 implements Potential2Soft {
+public class P2WaterSPCE extends Potential2 {
 
     public P2WaterSPCE(Space space) {
 	    super(space);
@@ -88,19 +86,6 @@ public class P2WaterSPCE extends Potential2 implements Potential2Soft {
 
         return sum;																					        
     }//end of energy
-
-    public Vector gradient(AtomSet pair){
-        throw new MethodNotImplementedException();
-    }
-    public double hyperVirial(AtomSet pair){
-        throw new MethodNotImplementedException();
-    }
-    public double integral(double rC){
-        throw new MethodNotImplementedException();
-    }
-    public double virial(AtomSet pair){
-        throw new MethodNotImplementedException();
-    }
 
     public double getSigma() {return sigma;}
 

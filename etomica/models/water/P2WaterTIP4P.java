@@ -3,10 +3,8 @@ package etomica.models.water;
 
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
-import etomica.exception.MethodNotImplementedException;
 import etomica.phase.Phase;
 import etomica.potential.Potential2;
-import etomica.potential.Potential2Soft;
 import etomica.space.CoordinatePair;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -20,7 +18,7 @@ import etomica.units.Kelvin;
  * TIP4P potential for water.  Requires the molecule node to be an
  * AtomTreeNodeWaterTIP4P.
  */
-public class P2WaterTIP4P extends Potential2 implements Potential2Soft {
+public class P2WaterTIP4P extends Potential2 {
 
     public P2WaterTIP4P(Space space) {
 	    super(space);
@@ -136,19 +134,6 @@ public class P2WaterTIP4P extends Potential2 implements Potential2Soft {
         //System.out.println("energy is " + sum);
         return sum;																					        
     }//end of energy
-
-    public Vector gradient(AtomSet pair){
-        throw new MethodNotImplementedException();
-    }
-    public double hyperVirial(AtomSet pair){
-        throw new MethodNotImplementedException();
-    }
-    public double integral(double rC){
-        throw new MethodNotImplementedException();
-    }
-    public double virial(AtomSet pair){
-        throw new MethodNotImplementedException();
-    }
 
     public double getSigma() {return sigma;}
 
