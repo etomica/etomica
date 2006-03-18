@@ -1,5 +1,7 @@
 package etomica.integrator;
 
+import java.io.Serializable;
+
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
@@ -133,7 +135,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
     
     public void releaseAgent(Object agent, Atom atom) {}
             
-    public final static class MyAgent implements IntegratorPhase.Forcible {  //need public so to use with instanceof
+    public final static class MyAgent implements IntegratorPhase.Forcible, Serializable {  //need public so to use with instanceof
         public Atom atom;
         public Vector force;
 
