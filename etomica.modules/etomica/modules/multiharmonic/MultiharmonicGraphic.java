@@ -8,9 +8,11 @@ import javax.swing.JPanel;
 
 import etomica.action.Action;
 import etomica.action.ActionGroupSeries;
+import etomica.data.AccumulatorHistory;
 import etomica.data.DataProcessorFunction;
 import etomica.data.DataPump;
 import etomica.data.DataSourceFunction;
+import etomica.data.DataSourceScalar;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceTrioControllerButton;
 import etomica.graphics.DisplayPhase;
@@ -27,6 +29,8 @@ import etomica.units.Null;
 import etomica.units.Pixel;
 import etomica.units.Undefined;
 import etomica.util.Function;
+import etomica.util.HistoryCollapsing;
+import etomica.util.HistoryCollapsingAverage;
 
 
 /**
@@ -130,43 +134,33 @@ public class MultiharmonicGraphic {
         omegaBSlider.getSlider().setBorder(new javax.swing.border.TitledBorder("omegaB"));
         x0Slider.getSlider().setBorder(new javax.swing.border.TitledBorder("x0"));
         
-        Function deltaF = new Function() {
-            public double f(double x) {
+        DataSourceScalar delta = new DataSourceScalar("exact",Energy.DIMENSION) {
+            public double getDataAsScalar() {
                 return 0.5*sim.phase.atomCount() * Math.log(omegaBSlider.getValue()/omegaASlider.getValue());
             }
-            public double dfdx(double x) {
-                return 0.0;
-            }
-            public double inverse(double f) {
-                return 0.0;
-            }
         };
-        Function fUAvg = new Function() {
-            public double f(double x) {
+        DataSourceScalar uAvg = new DataSourceScalar("exact",Energy.DIMENSION) {
+            public double getDataAsScalar() {
                 return sim.phase.atomCount();
             }
-            public double dfdx(double x) {
-                return 0.0;
-            }
-            public double inverse(double f) {
-                return 0.0;
-            }
         };
-        final DataSourceFunction exact = new DataSourceFunction("exact",Energy.DIMENSION,deltaF,sim.history.getDataLength(),"Time",Undefined.DIMENSION);
-        final DataSourceFunction uAvg = new DataSourceFunction("exact",Energy.DIMENSION,fUAvg,sim.historyEnergy.getDataLength(),"Time",Undefined.DIMENSION);
-        exact.getXSource().setXMax(100);
-        uAvg.getXSource().setXMax(100);
-        DataPump exactPump = new DataPump(exact, plot.getDataSet());
-        DataPump uPump = new DataPump(uAvg, energyPlot.getDataSet());
-        //make action for slider that updates function values and pumps them to plot
-        ActionGroupSeries exactGroup = new ActionGroupSeries(new Action[] {
-            new Action() {
-                public void actionPerformed() {
-                    exact.update();
-                }
-                public String getLabel() {return "";}
-            }, exactPump, uPump}
-        );
+        
+        AccumulatorHistory deltaHistory = new AccumulatorHistory(HistoryCollapsing.FACTORY,sim.history.getDataLength());
+        DataPump exactPump = new DataPump(delta, deltaHistory);
+        deltaHistory.setDataSink(plot.getDataSet());
+        IntervalActionAdapter adapter = new IntervalActionAdapter(exactPump);
+        adapter.setActionInterval(sim.accumulator.getBlockSize());
+        sim.integrator.addListener(adapter);
+        sim.register(delta, exactPump);
+        
+        AccumulatorHistory uAvgHistory = new AccumulatorHistory(HistoryCollapsing.FACTORY,sim.historyEnergy.getDataLength());
+        DataPump uPump = new DataPump(uAvg, uAvgHistory);
+        uAvgHistory.setDataSink(energyPlot.getDataSet());
+        adapter = new IntervalActionAdapter(uPump);
+        adapter.setActionInterval(sim.accumulatorEnergy.getBlockSize());
+        sim.integrator.addListener(adapter);
+        sim.register(uAvg, uPump);
+        
         plot.getDataSet().setUpdatingOnAnyChange(true);
         energyPlot.getDataSet().setUpdatingOnAnyChange(true);
         plot.getPlot().setTitle("Free energy difference");
@@ -207,20 +201,18 @@ public class MultiharmonicGraphic {
         uB.getXSource().setXMax(sim.phase.getBoundary().getDimensions().x(0));
         uAPump = new DataPump(uA, uPlot.getDataSet());
         uBPump = new DataPump(uB, uPlot.getDataSet());
-        ActionGroupSeries uGroup = new ActionGroupSeries(new Action[] {
-                new Action() {
-                    public void actionPerformed() {
-                        uA.update();
-                        uB.update();
-                        uAPump.actionPerformed();
-                        uBPump.actionPerformed();
-                    }
-                    public String getLabel() {return "";}
-                }, exactGroup}
-            );
-        omegaASlider.setPostAction(uGroup);
-        omegaBSlider.setPostAction(uGroup);
-        x0Slider.setPostAction(uGroup);
+        Action uUpdate = new Action() {
+            public void actionPerformed() {
+                uA.update();
+                uB.update();
+                uAPump.actionPerformed();
+                uBPump.actionPerformed();
+            }
+            public String getLabel() {return "";}
+        };
+        omegaASlider.setPostAction(uUpdate);
+        omegaBSlider.setPostAction(uUpdate);
+        x0Slider.setPostAction(uUpdate);
         
         uPlot.getDataSet().setUpdatingOnAnyChange(true);
 
@@ -264,7 +256,7 @@ public class MultiharmonicGraphic {
         gbc2.gridy = 1;
         panel.add(plot.graphic(), gbc2);
 
-        uGroup.actionPerformed();
+        uUpdate.actionPerformed();
         
     }
     
