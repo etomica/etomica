@@ -657,6 +657,7 @@ public class PistonCylinderGraphic {
         adapter = new IntervalActionAdapter(targetTemperatureDataPump,pc.integrator);
         adapter.setActionInterval(dataInterval);
         targetTemperatureHistory.addDataSink(plotT.getDataSet());
+        pc.register(targetTemperatureDataSource, targetTemperatureDataPump);
 
         pressureMeter = new DataSourceWallPressure(pc.space,pc.pistonPotential,pc.integrator);
         pressureMeter.setPhase(pc.phase);
@@ -683,6 +684,7 @@ public class PistonCylinderGraphic {
         adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
         targetPressureHistory.addDataSink(plotP.getDataSet());
+        pc.register(targetPressureDataSource, pump);
 
         densityMeter = new MeterPistonDensity(pc.pistonPotential,1,defaults.atomSize);
         densityMeter.setPhase(pc.phase);
@@ -706,9 +708,6 @@ public class PistonCylinderGraphic {
         plotT.getPlot().setTitle("Temperature ("+tUnit.symbol()+")");
         plotD.getPlot().setTitle("Density ("+dUnit.symbol()+")");
         
-        plotT.getPlot().setXRange(0, historyLength);
-        plotP.getPlot().setXRange(0, historyLength);
-        plotD.getPlot().setXRange(0, historyLength);
         plotT.getPlot().setYRange(0, 1000.);
         plotP.getPlot().setYRange(0, 1000.);
         
