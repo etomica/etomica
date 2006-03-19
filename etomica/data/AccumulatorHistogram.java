@@ -11,7 +11,7 @@ import etomica.data.types.DataFunction;
 import etomica.data.types.DataGroup;
 import etomica.units.Null;
 import etomica.util.Histogram;
-import etomica.util.HistogramSimple;
+import etomica.util.HistogramCollapsing;
 
 /**
  * Accumulator that keeps histogram of data.
@@ -25,7 +25,7 @@ public class AccumulatorHistogram extends DataAccumulator {
      * having 100 bins.
      */
     public AccumulatorHistogram() {
-        this(HistogramSimple.FACTORY);
+        this(HistogramCollapsing.FACTORY);
     }
 
     /**
@@ -104,7 +104,8 @@ public class AccumulatorHistogram extends DataAccumulator {
         nData = ((DataDoubleArray.Factory)inputDataInfo.getDataFactory()).getArrayLength();
         histogram = new Histogram[nData];
         for (int i = 0; i < nData; i++) {
-            histogram[i] = histogramFactory.makeHistogram(nBins);
+            histogram[i] = histogramFactory.makeHistogram();
+            histogram[i].setNBins(nBins);
         }
         setupData();
         return data.getDataInfo();

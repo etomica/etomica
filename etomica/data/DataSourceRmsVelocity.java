@@ -15,6 +15,7 @@ import etomica.units.Length;
 import etomica.units.Null;
 import etomica.units.Time;
 import etomica.util.Histogram;
+import etomica.util.HistogramCollapsing;
 import etomica.util.HistogramSimple;
 
 /**
@@ -27,7 +28,7 @@ import etomica.util.HistogramSimple;
 public class DataSourceRmsVelocity implements DataSourceAtomic, Serializable {
 
     public DataSourceRmsVelocity() {
-        this(new HistogramSimple());
+        this(new HistogramCollapsing());
     }
     
 	public DataSourceRmsVelocity(Histogram histogram) {
