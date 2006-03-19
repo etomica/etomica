@@ -1,15 +1,18 @@
 package etomica.util;
 
+import java.io.Serializable;
+
 
 /**
- * Histogram that expands the X range to accomodate any values outside
- * the current range maintaining the bin width at a fixed value.  The
- * number of bins and the X range can be set explicitly, but only if the
- * change would not cause old data to be dropped.  
+ * Histogram implementation with dynamic x range and number of bins.  If an x 
+ * value is given that falls outside the histogram's x range, the x range 
+ * expands to accomodate any values outside the current range maintaining the 
+ * bin width at a fixed value.  The number of bins and the X range can be set 
+ * explicitly, but only if the change would not cause old data to be dropped.  
  *
- *  @author Andrew Schultz
+ * @author Andrew Schultz
  */
-public class HistogramExpanding implements Histogram, java.io.Serializable {
+public class HistogramExpanding extends HistogramSimple {
 
     /**
      * Default constructor, making a histogram with deltaX = 1.0.
@@ -24,59 +27,42 @@ public class HistogramExpanding implements Histogram, java.io.Serializable {
     }
     
     /**
-     * Constructs a new instance with the give deltaX bin width and
+     * Constructs a new instance with the given deltaX bin width and
      * range of X values.
      */
     public HistogramExpanding(double deltaX, DoubleRange xRange) {
+        // super constructor here is useless, but we have to call it
+        super(10, xRange);
+        // we'd like deltaX to be final, but it's not.  We override both 
+        // methods that might change it
         this.deltaX = deltaX;
         setXRange(xRange);
     }
+
     /**
      * Makes a new histogram instance, with n bins covering the
      * given range of X values.
      */
     public HistogramExpanding(int n, DoubleRange xRange) {
-        deltaX = (xRange.maximum() - xRange.minimum()) / n;
-        setXRange(xRange);
+        this((xRange.maximum() - xRange.minimum()) / n, xRange);
     }
 	
-    public boolean isAutoScale() {return true;}
-    public void setAutoScale(boolean b) {
-        if (!b) throw new IllegalArgumentException("HistogramExpanding always auto scales");
-    }
-    
-    public void reset() {
-        sum = 0;
-        for(int i=0; i<nBins; i++) {
-            counts[i] = 0;
-        }
-    }
-
-    public void calcXValues() {
-        for(int i=0; i<nBins; i++) {
-            xvalues[i] = xMin + (i+0.5)*deltaX;
-        }
-    }    
-
     public void addValue(double x) {     //takes new value and updates histogram
-        int i;
-        if(x < xMin) {
+        if (x < xMin) {
             setXRange(new DoubleRange(x,xMax));
-            i = 0;
         }
         else if(x > xMax) {
             setXRange(new DoubleRange(xMin,x));
-            i = nBins-1;
         }
-        else {
-            i = (int)Math.floor(((x-xMin)/deltaX));
-            if(i == nBins){i--;}
-        }
-        counts[i]++;
-        sum++;
+
+        super.addValue(x);
     }
     
     public void setXRange(DoubleRange xRange) {
+        if (deltaX == 0) {
+            //called from super constructor
+            return;
+        }
         double newXMin = xRange.minimum();
         double newXMax = xRange.maximum();
         newXMin = Math.floor(newXMin/deltaX) * deltaX;
@@ -108,12 +94,11 @@ public class HistogramExpanding implements Histogram, java.io.Serializable {
         xMax = newXMax;
         nBins = newNBins;
         histogram = new double[nBins];
-        xvalues = new double[nBins];
-        calcXValues();
+        xValues = new double[nBins];
+        for(int i=0; i<nBins; i++) {
+            xValues[i] = xMin + (i+0.5)*deltaX;
+        }
     }
-    public DoubleRange getXRange() {return new DoubleRange(xMin, xMax);}
-      
-    public int getNBins() {return nBins;}
 
     /**
      * Sets the number of bins to n.  Adds or removes bins from the end of 
@@ -122,43 +107,22 @@ public class HistogramExpanding implements Histogram, java.io.Serializable {
     public void setNBins(int n) {
         if (n == nBins) return;
         // subtract a half to prevent roundup to n+1
+        // setXRange will the do the "Right Thing" (round up to n)
         setXRange(new DoubleRange(xMin,xMin+deltaX*(n-0.5)));
     }
 
-    public double[] getHistogram() {
-        if(sum != 0) {
-            for(int i=0; i<nBins; i++) {
-                histogram[i] = counts[i]/(sum*deltaX);
-            }
-        }
-        return histogram;
-    }
-    
-    public int getCount() {return sum;}
- 
-    public double[] xValues() {return xvalues;}
-    
     public static final Histogram.Factory FACTORY = new Factory(1.0);
     
-    public static class Factory implements Histogram.Factory {
+    public static class Factory implements Histogram.Factory, Serializable {
         public Factory(double deltaX) {
             this.deltaX = deltaX;
         }
-        public Histogram makeHistogram() {return new HistogramExpanding(deltaX);}
-        public Histogram makeHistogram(int n) {
-            return new HistogramExpanding(deltaX, new DoubleRange(0.0,deltaX*n));
+        
+        public Histogram makeHistogram() {
+            return new HistogramExpanding(deltaX);
         }
-        // drop n on the floor. 
-        public Histogram makeHistogram(int n, DoubleRange xRange) {return new HistogramExpanding(deltaX, xRange);}
+        
         private final double deltaX;
     }
 
-    private final double deltaX;
-    private int  sum;
-    private int[] counts;
-    private double[] histogram;
-    private double xvalues[];
-    private double xMin;
-    private double xMax;
-    private int nBins;
 }

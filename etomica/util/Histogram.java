@@ -5,39 +5,65 @@
 package etomica.util;
 
 /**
- * @author kofke
- *
  * Interface for a class that can tabulate a one-dimensional histogram 
  * of data values.
+ * 
+ * @author kofke
  */
 public interface Histogram {
 
+    /**
+     * Adds the given value to the Histogram
+     */
 	public void addValue(double x);
-	
+
+    /**
+     * Returns the histogram as an array of doubles
+     */
 	public double[] getHistogram();
 	
-	public double[] xValues();
+	/**
+     * Returns the x values from the histogram as an array of doubles
+	 */
+    public double[] xValues();
 	
-	public int getCount();
-	
+    /**
+     * Returns the number of times the Histogram's addValue method was called.
+     */
+    public int getCount();
+
+    /**
+     * Sets the number of bins used by the Histogram.  The existing histogram
+     * may be dropped or redistributed to the new bins.
+     */
 	public void setNBins(int n);
+    
+    /**
+     * Returns the number of bins in the histogram.
+     */
 	public int getNBins();
-	
-	public void setAutoScale(boolean b);
-	public boolean isAutoScale();
-	
+
+    /**
+     * Sets the range of x values used in the histogram (min and max).  The 
+     * existing histogram may be dropped or redistributed to the new bins.
+     */
 	public void setXRange(DoubleRange range);
+    
+    /**
+     * Returns the range of x values (min and max) used in the histogram.
+     */
 	public DoubleRange getXRange();
 	
     /**
      * resets all histogram values and counts to zero
      */
 	public void reset();
-	
+
+    /**
+     * Interface for a Factory that will return Histogram objects.
+     */
 	public interface Factory {
 		public Histogram makeHistogram();
-		public Histogram makeHistogram(int n);
-		public Histogram makeHistogram(int n, DoubleRange xRange);
 	}
 	
 }
