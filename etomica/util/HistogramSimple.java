@@ -1,5 +1,7 @@
 package etomica.util;
 
+import java.io.Serializable;
+
 
 /* History
  * 09/08/02 (DAK) added set/get methods for xMin, xMax, nBins
@@ -153,10 +155,11 @@ public class HistogramSimple implements Histogram, java.io.Serializable {
  
     public double[] xValues() {return xvalues;}
     
-    public static final Histogram.Factory FACTORY = 
-    	new Histogram.Factory() {
-    		public Histogram makeHistogram() {return new HistogramSimple();}
-    		public Histogram makeHistogram(int n) {return new HistogramSimple(n);}
-    		public Histogram makeHistogram(int n, DoubleRange xRange) {return new HistogramSimple(n, xRange);}
-    };
+    public static final Histogram.Factory FACTORY = new HistogramSimpleFactory();
+    
+    public static class HistogramSimpleFactory implements Histogram.Factory, Serializable {
+		public Histogram makeHistogram() {return new HistogramSimple();}
+		public Histogram makeHistogram(int n) {return new HistogramSimple(n);}
+		public Histogram makeHistogram(int n, DoubleRange xRange) {return new HistogramSimple(n, xRange);}
+    }
 }
