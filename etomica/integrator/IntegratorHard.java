@@ -430,13 +430,14 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
     }
     
     /**
-     * Updates collision timee appropriately after randomizing momentum
+     * Updates collision time appropriately after randomizing momentum
      * as part of the Andersen thermostat.
      */
     protected void randomizeMomentum(Atom atom) {
         super.randomizeMomentum(atom);
         updateAtom(atom);
     }
+    
     /**
      * Registers an object that implements the CollisionListener interface.
      * This causes the collisionAction method of the object to be called after each collision.
