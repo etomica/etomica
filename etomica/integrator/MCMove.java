@@ -89,12 +89,14 @@ public abstract class MCMove implements java.io.Serializable {
 
 	/**
 	 * Returns an iterator that yields the atoms that were affected by the trial
-	 * move the last time thisTrial was invoked (regardless of whether the move
+	 * move the last time doTrial was invoked (regardless of whether the move
 	 * was accepted). This information usually is not needed, but it is
 	 * available in cases where required by objects that perform some activity
 	 * while the move is in progress, or need to update after the move is
 	 * completed. Such objects can receive notification of the move's completion
-	 * by registering with the IntegratorMC as MCMoveEventListeners.
+	 * by registering with the IntegratorMC as MCMoveEventListeners.  If the 
+     * move caused an atom to be removed from the phase, it will not be returned
+     * because that Atom is not considered an affected Atom.
 	 */
 	public abstract AtomIterator affectedAtoms(Phase phase);
 
