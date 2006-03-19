@@ -23,47 +23,38 @@ public class HistoryCollapsingAverage extends HistoryCollapsing {
      * to store the data, existing data is collapsed by 1/2 and 
      * future data is taken half as much.
      */
-    public void addValue(double x) {
+    public void addValue(double x, double y) {
         if (cursor == history.length) {
             collapseData();
         }
-        tempBin += x;
+        tempXBin += x;
+        tempBin += y;
         if (++intervalCount == interval) {
             intervalCount = 0;
+            xValues[cursor] = tempXBin / interval;
             history[cursor] = tempBin / interval;
             cursor++;
+            tempXBin = 0;
             tempBin = 0;
         }
     }
 
     protected void collapseData() {
         for (int i=0; i<cursor/2; i++) {
-            history[i] = (history[i*2] + history[i*2+1]);
+            xValues[i] = (xValues[i*2] + xValues[i*2+1])*0.5;
+            history[i] = (history[i*2] + history[i*2+1])*0.5;
         }
         for (int i=cursor/2; i<history.length; i++) {
+            xValues[i] = Double.NaN;
             history[i] = Double.NaN;
         }
         cursor /= 2;
         interval *= 2;
     }
 
-    /**
-     * Returns the history
-     */
-    public double[] getHistory() {
-        if (intervalCount == 0) {
-            return history;
-        }
-        if (temp == null || temp.length != history.length) {
-            temp = new double[history.length];
-        }
-        System.arraycopy(history,0,temp,0,history.length);
-        history[cursor] /= intervalCount;
-        return temp;
-    }
-    
     protected double[] temp;
     private double tempBin;
+    private double tempXBin;
 
     /**
      * Factory that creates an instance of this class.

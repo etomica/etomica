@@ -4,25 +4,45 @@
  */
 package etomica.util;
 
-import etomica.data.DataSource;
 
 /**
- * @author kofke
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Interface for an object that keeps track of x and y values and return
+ * their history when asked.  Behavior when the history has more data than
+ * the set length length is determined by the subclasses.
  */
 public interface History {
+
+    /**
+     * Sets the number of data points to be tracked by the History.
+     */
 	public void setHistoryLength(int n);
 
+    /**
+     * Returns the number of data points tracked by the History.
+     * @return
+     */
 	public int getHistoryLength();
 
+    /**
+     * Resets the History.  Memory of all data given via addValue is dropped.
+     */
 	public void reset();
 
-	public void addValue(double x);
+    /**
+     * Adds the given x, y pair to the History.
+     */
+    public void addValue(double x, double y);
 
-	public DataSource getXSource();
+    /**
+     * Returns an array containing the x values that have been added to the
+     * History.
+     */
+	public double[] getXValues();
 
+    /**
+     * Returns an array containing the y values that have been added to the 
+     * History.
+     */
 	public double[] getHistory();
 	
 	/**

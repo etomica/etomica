@@ -15,12 +15,9 @@ public class HistoryComplete implements History {
     
     public HistoryComplete() {this(100);}
     public HistoryComplete(int n) {
-        xSource = new DataSourceUniform();
-        xSource.setTypeMin(LimitType.INCLUSIVE);
-        xSource.setTypeMax(LimitType.INCLUSIVE);
-        xSource.setXMin(0.0);
         setHistoryLength(n);
         reset();
+        doCollapseOnReset = true;
     }
     
     /**
@@ -32,9 +29,15 @@ public class HistoryComplete implements History {
             throw new IllegalArgumentException("decreasing history length would clobber data");
         }
     	if (n==originalLength) return;
-    	xSource.setNValues(n);
-        xSource.setXMax(n);
+
         double[] temp = new double[n];
+        System.arraycopy(xValues,0,temp,0,cursor);
+        xValues = temp;
+        for (int i = cursor; i<n; i++) {
+            xValues[i] = Double.NaN;
+        }
+
+        temp = new double[n];
         System.arraycopy(history,0,temp,0,cursor);
         history = temp;
         for (int i = cursor; i<n; i++) {
@@ -42,24 +45,32 @@ public class HistoryComplete implements History {
         }
     }
 
-    public int getHistoryLength() {return history.length;}
+    public int getHistoryLength() {
+        return history.length;
+    }
 	
     /**
      * Removes entire history, setting all values to NaN.
      */
     public void reset() {
         int nValues = getHistoryLength();
+        if (doCollapseOnReset && nValues > 100) {
+            xValues = new double[100];
+            history = new double[100];
+        }
+        
         for(int i=0; i<nValues; i++) {
+            xValues[i] = Double.NaN;
             history[i] = Double.NaN;
         }
         cursor = 0;
     }
     
-    public DataSource getXSource() {
-        return xSource;
+    public double[] getXValues() {
+        return xValues;
     }
     
-    public void addValue(double x) {
+    public void addValue(double x, double y) {
         if (cursor == history.length) {
             int newLength = history.length*2;
             if (newLength == 0) {
@@ -67,7 +78,8 @@ public class HistoryComplete implements History {
             }
             setHistoryLength(newLength);
         }
-        history[cursor] = x;
+        xValues[cursor] = x;
+        history[cursor] = y;
         cursor++;
     }
 
@@ -76,6 +88,24 @@ public class HistoryComplete implements History {
      */
     public double[] getHistory() {
         return history;
+    }
+    
+    /**
+     * Sets a flag that determines if the history is collapsed (to 100 data 
+     * points) when reset is called.  If the current history length is less 
+     * than 100, the history length is unchanged.
+     */
+    public void setCollapseOnReset(boolean flag) {
+        doCollapseOnReset = flag;
+    }
+    
+    /**
+     * Returns true if the history is collapsed (to 100 data points) when reset
+     * is called.  If the current history length is less than 100, the history 
+     * length is unchanged.
+     */
+    public boolean isCollapseOnReset() {
+        return doCollapseOnReset;
     }
     	
     /**
@@ -87,7 +117,8 @@ public class HistoryComplete implements History {
     };
     
     private double[] history = new double[0];
+    private double[] xValues = new double[0];
     private int cursor;
-    private final DataSourceUniform xSource;
+    private boolean doCollapseOnReset;
 
 }

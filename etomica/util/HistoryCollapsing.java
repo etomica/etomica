@@ -17,10 +17,6 @@ public class HistoryCollapsing implements History {
     
     public HistoryCollapsing() {this(100);}
     public HistoryCollapsing(int n) {
-        xSource = new DataSourceUniform();
-        xSource.setTypeMin(LimitType.INCLUSIVE);
-        xSource.setTypeMax(LimitType.INCLUSIVE);
-        xSource.setXMin(0.0);
         setHistoryLength(n);
         reset();
     }
@@ -34,22 +30,30 @@ public class HistoryCollapsing implements History {
     public void setHistoryLength(int n) {
         if (n==history.length) return;
         if (n < 2) {
-            throw new IllegalArgumentException("You have GOT to be kidding");
+            throw new IllegalArgumentException("You have GOT to be kidding.  History length must be greater than 1");
         }
         while (n < cursor) {
             collapseData();
         }
-    	xSource.setNValues(n);
-        xSource.setXMax(n);
+
         double[] temp = new double[n];
         System.arraycopy(history,0,temp,0,cursor);
         history = temp;
         for (int i = cursor; i<n; i++) {
             history[i] = Double.NaN;
         }
+
+        temp = new double[n];
+        System.arraycopy(xValues,0,temp,0,cursor);
+        xValues = temp;
+        for (int i = cursor; i<n; i++) {
+            xValues[i] = Double.NaN;
+        }
     }
 
-    public int getHistoryLength() {return history.length;}
+    public int getHistoryLength() {
+        return history.length;
+    }
 	
     /**
      * Removes entire history, setting all values to NaN.
@@ -58,6 +62,7 @@ public class HistoryCollapsing implements History {
     public void reset() {
         int nValues = getHistoryLength();
         for(int i=0; i<nValues; i++) {
+            xValues[i] = Double.NaN;
             history[i] = Double.NaN;
         }
         cursor = 0;
@@ -65,8 +70,8 @@ public class HistoryCollapsing implements History {
         intervalCount = 0;
     }
     
-    public DataSource getXSource() {
-        return xSource;
+    public double[] getXValues() {
+        return xValues;
     }
 	
     /**
@@ -74,7 +79,7 @@ public class HistoryCollapsing implements History {
      * to store the data, existing data is collapsed by 1/2 and 
      * future data is taken half as often.
      */
-    public void addValue(double x) {
+    public void addValue(double x, double y) {
         if (++intervalCount != interval) {
             return;
         }
@@ -82,16 +87,19 @@ public class HistoryCollapsing implements History {
         if (cursor == history.length) {
             collapseData();
         }
-        history[cursor] = x;
+        xValues[cursor] = x;
+        history[cursor] = y;
         cursor++;
     }
 
     protected void collapseData() {
         for (int i=1; i<cursor/2; i++) {
             history[i] = history[i*2];
+            xValues[i] = xValues[i*2];
         }
         for(int i=cursor/2+1; i<cursor; i++) {
             history[i] = Double.NaN;
+            xValues[i] = Double.NaN;
         }
         cursor /= 2;
         interval *= 2;
@@ -114,7 +122,7 @@ public class HistoryCollapsing implements History {
 	
     protected double[] history = new double[0];
     protected int cursor;
-    private final DataSourceUniform xSource;
+    protected double[] xValues = new double[0];
     protected int interval = 1;
     protected int intervalCount = 0;
 }

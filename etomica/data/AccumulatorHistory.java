@@ -4,6 +4,7 @@
  */
 package etomica.data;
 
+import etomica.units.Quantity;
 import etomica.units.Undefined;
 import etomica.data.types.CastToDoubleArray;
 import etomica.data.types.DataArithmetic;
@@ -21,7 +22,10 @@ import etomica.util.HistoryScrolling;
 public class AccumulatorHistory extends DataAccumulator {
 
     History[] history = new History[0];
-    DataSourceUniform xSource;
+    //FIXME We'll pretend that we actually have something that is time.
+    // For now, it's really the number of data points.  See 
+    // https://rheneas.eng.buffalo.edu/bugzilla/show_bug.cgi?id=22
+    protected double time; 
     private DataArray data;
     int nData;
     private History.Factory historyFactory;
@@ -41,9 +45,9 @@ public class AccumulatorHistory extends DataAccumulator {
 
     public AccumulatorHistory(History.Factory factory, int historyLength) {
         super();
-        xSource = new DataSourceUniform("Time", Undefined.DIMENSION, 1, historyLength, historyLength);
         this.historyLength = historyLength;
         historyFactory = factory;
+        time = 0;
     }
 
     /**
@@ -88,8 +92,9 @@ public class AccumulatorHistory extends DataAccumulator {
     protected void addData(Data newData) {
         DataArithmetic values = (DataArithmetic)newData;
         for (int i = nData-1; i >= 0; i--) {
-            history[i].addValue(values.getValue(i));
+            history[i].addValue(time, values.getValue(i));
         }
+        time += 1.0;
     }
 
     /**
@@ -99,7 +104,7 @@ public class AccumulatorHistory extends DataAccumulator {
         for (int i = 0; i < nData; i++) {
             DataFunction dataFunction = (DataFunction)data.getData(i);
             dataFunction.getYData().E(history[i].getHistory());
-            dataFunction.getXData(0).E(history[i].getXSource().getData());
+            dataFunction.getXData(0).E(history[i].getXValues());
         }
         return data;
     }
@@ -111,15 +116,12 @@ public class AccumulatorHistory extends DataAccumulator {
         return nData * historyLength;
     }
 
-    public DataSource getXSource() {
-        return history[0].getXSource();
-    }
-
     /**
      * Constructs the Data objects used by this class.
      */
     private void setupData(DataInfo inputDataInfo) {
-        DataDoubleArray dataBin = new DataDoubleArray("Time", Undefined.DIMENSION, historyLength);
+        // time is really the number of data points that have been added
+        DataDoubleArray dataBin = new DataDoubleArray("Time", Quantity.DIMENSION, historyLength);
         data = new DataArray(inputDataInfo.getLabel(), inputDataInfo.getDimension(), nData, DataFunction.getFactory(new DataDoubleArray[] {dataBin}));
     }
     
@@ -139,13 +141,12 @@ public class AccumulatorHistory extends DataAccumulator {
      */
     public void setHistoryLength(int historyLength) {
         this.historyLength = historyLength;
-        xSource.setNValues(historyLength);
-        xSource.setXMax(historyLength);
         for (int i = 0; i < nData; i++)
             history[i].setHistoryLength(historyLength);
     }
 
     public void reset() {
+        time = 0;
         for (int i = 0; i < nData; i++)
             history[i].reset();
     }
