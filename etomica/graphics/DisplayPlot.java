@@ -84,13 +84,17 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
         int oldColumnCount = units.length;
         int newDataCount = dataSet.getDataCount();
         if(newDataCount > oldColumnCount) {
+            String xLabel = "";
             units = (Unit[])Arrays.resizeArray(units, newDataCount);
             Dimension xDimension = null;
             if (units.length > 0) {
-                xDimension = ((DataFunction)dataSet.getData(0)).getXData(0).getDataInfo().getDimension();
+                DataInfo xDataInfo = ((DataFunction)dataSet.getData(0)).getXData(0).getDataInfo();
+                xDimension = xDataInfo.getDimension();
                 if (xUnit == null) {
                     xUnit = xDimension.getUnit(UnitSystem.SIM);
                 }
+                xLabel = xDataInfo.getLabel();
+                plot.setXLabel(xLabel);
             }
             for(int i=oldColumnCount; i<units.length; i++) {
                 DataFunction iData = (DataFunction)dataSet.getData(i);
