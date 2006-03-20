@@ -49,6 +49,7 @@ public class HistogramSimple implements Histogram, java.io.Serializable {
 	    sum = 0;
 	    for(int i=0; i<nBins; i++) {
 	        counts[i] = 0;
+            xValues[i] = xMin + deltaX * (i+0.5);
 	    }
 	}
 	
@@ -63,7 +64,6 @@ public class HistogramSimple implements Histogram, java.io.Serializable {
     }
     
     public void setXRange(DoubleRange xRange) {
-//        this.xRange = xRange;
         xMin = xRange.minimum();
         xMax = xRange.maximum();
         deltaX = (xMax-xMin)/nBins;
