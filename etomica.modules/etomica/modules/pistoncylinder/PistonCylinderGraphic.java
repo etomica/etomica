@@ -635,6 +635,7 @@ public class PistonCylinderGraphic {
         
         thermometer.setPhase(pc.phase);
         AccumulatorHistory temperatureHistory = new AccumulatorHistory();
+        temperatureHistory.setTimeDataSource(meterCycles);
         temperatureHistory.setHistoryLength(historyLength);
         AccumulatorAverage temperatureAvg = new AccumulatorAverage(sim);
         temperatureAvg.setPushInterval(10);
@@ -652,6 +653,7 @@ public class PistonCylinderGraphic {
             }
         };
         AccumulatorHistory targetTemperatureHistory = new AccumulatorHistory();
+        targetTemperatureHistory.setTimeDataSource(meterCycles);
         targetTemperatureHistory.setHistoryLength(historyLength);
         DataPump targetTemperatureDataPump = new DataPump(targetTemperatureDataSource, targetTemperatureHistory);
         adapter = new IntervalActionAdapter(targetTemperatureDataPump,pc.integrator);
@@ -662,6 +664,7 @@ public class PistonCylinderGraphic {
         pressureMeter = new DataSourceWallPressure(pc.space,pc.pistonPotential,pc.integrator);
         pressureMeter.setPhase(pc.phase);
         AccumulatorHistory pressureHistory = new AccumulatorHistory();
+        pressureHistory.setTimeDataSource(meterCycles);
         pressureHistory.setHistoryLength(historyLength);
         AccumulatorAverage pressureAvg = new AccumulatorAverage(sim);
         pressureAvg.setPushInterval(10);
@@ -679,6 +682,7 @@ public class PistonCylinderGraphic {
             }
         };
         AccumulatorHistory targetPressureHistory = new AccumulatorHistory();
+        targetPressureHistory.setTimeDataSource(meterCycles);
         targetPressureHistory.setHistoryLength(historyLength);
         pump = new DataPump(targetPressureDataSource, targetPressureHistory);
         adapter = new IntervalActionAdapter(pump,pc.integrator);
@@ -689,6 +693,7 @@ public class PistonCylinderGraphic {
         densityMeter = new MeterPistonDensity(pc.pistonPotential,1,defaults.atomSize);
         densityMeter.setPhase(pc.phase);
         AccumulatorHistory densityHistory = new AccumulatorHistory();
+        densityHistory.setTimeDataSource(meterCycles);
         densityHistory.setHistoryLength(historyLength);
         AccumulatorAverage densityAvg = new AccumulatorAverage(sim);
         densityAvg.setPushInterval(10);

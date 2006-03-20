@@ -152,6 +152,7 @@ public class MultiharmonicGraphic {
         adapter.setActionInterval(sim.accumulator.getBlockSize());
         sim.integrator.addListener(adapter);
         sim.register(delta, exactPump);
+        deltaHistory.setTimeDataSource(sim.timeCounter);
         
         AccumulatorHistory uAvgHistory = new AccumulatorHistory(HistoryCollapsing.FACTORY,sim.historyEnergy.getDataLength());
         DataPump uPump = new DataPump(uAvg, uAvgHistory);
@@ -160,6 +161,7 @@ public class MultiharmonicGraphic {
         adapter.setActionInterval(sim.accumulatorEnergy.getBlockSize());
         sim.integrator.addListener(adapter);
         sim.register(uAvg, uPump);
+        uAvgHistory.setTimeDataSource(sim.timeCounter);
         
         plot.getDataSet().setUpdatingOnAnyChange(true);
         energyPlot.getDataSet().setUpdatingOnAnyChange(true);

@@ -5,6 +5,7 @@ import etomica.config.ConfigurationSequential;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
+import etomica.data.DataSourceCountTime;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.DeviceNSelector;
@@ -65,8 +66,8 @@ public class HSMD2D_noNbr extends Simulation {
 //        potentialBoundary.setActive(1,false,true);
         
         integrator.addListener(new PhaseImposePbc(phase));
-        integrator.setNullPotential(new P1HardPeriodic(space));
         integrator.setPhase(phase);
+        integrator.setNullPotential(new P1HardPeriodic(space));
 //        integrator.setIsothermal(true);
         
 //        MeterPressureHard meterPressure = new MeterPressureHard(integrator);
@@ -92,6 +93,9 @@ public class HSMD2D_noNbr extends Simulation {
 //                                      addDataSink(pressureHistory);
         temperatureHistory = new AccumulatorHistory();
         temperatureAverage.addDataSink(temperatureHistory,new AccumulatorAverage.StatType[] {StatType.AVERAGE});
+        DataSourceCountTime timeCounter = new DataSourceCountTime();
+        integrator.addListener(timeCounter);
+        temperatureHistory.setTimeDataSource(timeCounter);
 }
     
     /**

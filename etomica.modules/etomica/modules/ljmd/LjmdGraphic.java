@@ -13,6 +13,7 @@ import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
 import etomica.data.DataSink;
+import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourceFunction;
 import etomica.data.DataSourceRmsVelocity;
 import etomica.data.DataSourceUniform;
@@ -167,6 +168,8 @@ public class LjmdGraphic {
 		    System.out.println(xHist[i]+"  "+xMB[i]);
 		}
 */		
+        DataSourceCountTime timeCounter = new DataSourceCountTime();
+        sim.integrator.addListener(timeCounter);
 		
 		MeterTemperature thermometer = new MeterTemperature();
         thermometer.setPhase(sim.phase);
@@ -177,6 +180,7 @@ public class LjmdGraphic {
         sim.integrator.addListener(temperatureAdapter);
         sim.register(meterVelocity,velocityPump);
         AccumulatorHistory temperatureHistory = new AccumulatorHistory();
+        temperatureHistory.setTimeDataSource(timeCounter);
 		DisplayBox tBox = new DisplayBox();
 		temperatureFork.setDataSinks(new DataSink[]{tBox,temperatureHistory});
 		tBox.setUnit(tUnit);
@@ -196,6 +200,7 @@ public class LjmdGraphic {
 		MeterEnergy eMeter = new MeterEnergy(sim.potentialMaster);
         eMeter.setPhase(sim.phase);
         AccumulatorHistory energyHistory = new AccumulatorHistory();
+        energyHistory.setTimeDataSource(timeCounter);
         DataPump energyPump = new DataPump(eMeter, energyHistory);
         IntervalActionAdapter energyAdapter = new IntervalActionAdapter(energyPump);
         energyAdapter.setActionInterval(60);
@@ -206,6 +211,7 @@ public class LjmdGraphic {
 		MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.potentialMaster);
         peMeter.setPhase(sim.phase);
         AccumulatorHistory peHistory = new AccumulatorHistory();
+        peHistory.setTimeDataSource(timeCounter);
         AccumulatorAverage peAccumulator = new AccumulatorAverage(sim);
         peAccumulator.setPushInterval(10);
         DataFork peFork = new DataFork(new DataSink[]{peHistory, peAccumulator});
@@ -219,6 +225,7 @@ public class LjmdGraphic {
 		MeterKineticEnergy keMeter = new MeterKineticEnergy();
         keMeter.setPhase(sim.phase);
         AccumulatorHistory keHistory = new AccumulatorHistory();
+        keHistory.setTimeDataSource(timeCounter);
         DataPump kePump = new DataPump(keMeter, keHistory);
         IntervalActionAdapter keAdapter = new IntervalActionAdapter(kePump);
         keAdapter.setActionInterval(60);

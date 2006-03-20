@@ -8,6 +8,7 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
+import etomica.data.DataSourceCountTime;
 import etomica.data.meter.MeterEnergy;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntervalActionAdapter;
@@ -98,6 +99,11 @@ public class Multiharmonic extends Simulation {
         historyEnergy = new AccumulatorHistory(HistoryCollapsing.FACTORY);
         accumulatorEnergy.addDataSink(historyEnergy, new AccumulatorAverage.StatType[] {AccumulatorAverage.StatType.AVERAGE});
 
+        timeCounter = new DataSourceCountTime();
+        integrator.addListener(timeCounter);
+        
+        history.setTimeDataSource(timeCounter);
+        historyEnergy.setTimeDataSource(timeCounter);
     }
 
     MeterEnergy meterEnergy;
@@ -114,4 +120,5 @@ public class Multiharmonic extends Simulation {
     DataPump dataPump;
     AccumulatorHistory history;
     SimulationDataAction resetAccumulators;
+    DataSourceCountTime timeCounter;
 }

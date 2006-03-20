@@ -12,6 +12,7 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
+import etomica.data.DataSourceCountTime;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceNSelector;
@@ -197,6 +198,9 @@ public class ReactionEquilibriumGraphic {
 
 		//display for history of mole fractions
 		AccumulatorHistory dimerfractionhistory = new AccumulatorHistory();
+        DataSourceCountTime timeCounter = new DataSourceCountTime();
+        sim.integratorHard1.addListener(timeCounter);
+        dimerfractionhistory.setTimeDataSource(timeCounter);
         
 		dimerFork.addDataSink(dimerfractionhistory);
 		DisplayPlot plot = new DisplayPlot();

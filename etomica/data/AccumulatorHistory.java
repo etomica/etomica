@@ -4,15 +4,13 @@
  */
 package etomica.data;
 
-import etomica.units.Quantity;
-import etomica.units.Undefined;
 import etomica.data.types.CastToDoubleArray;
 import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataArray;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataTable;
-import etomica.units.Dimension;
+import etomica.units.Quantity;
 import etomica.util.History;
 import etomica.util.HistoryScrolling;
 
@@ -20,16 +18,6 @@ import etomica.util.HistoryScrolling;
  * Accumulator that keeps history of data.
  */
 public class AccumulatorHistory extends DataAccumulator {
-
-    History[] history = new History[0];
-    //FIXME We'll pretend that we actually have something that is time.
-    // For now, it's really the number of data points.  See 
-    // https://rheneas.eng.buffalo.edu/bugzilla/show_bug.cgi?id=22
-    protected double time; 
-    private DataArray data;
-    int nData;
-    private History.Factory historyFactory;
-    private int historyLength;
 
     /**
      * Creates instance using HistorySimple factory and specifying historys
@@ -47,9 +35,27 @@ public class AccumulatorHistory extends DataAccumulator {
         super();
         this.historyLength = historyLength;
         historyFactory = factory;
-        time = 0;
+        setTimeDataSource(new DataSourceCount());
     }
 
+    /**
+     * Sets the DataSource used for the "time" component of the history.  Each
+     * time addData is called, the time DataSource's getData will be called and
+     * the returned scalar will be taken as the current time.  By default, the 
+     * time variable is taken to be the number of times data was added to the 
+     * history.
+     */
+    public void setTimeDataSource(DataSourceScalar newTimeDataSource) {
+        timeDataSource = newTimeDataSource;
+    }
+    
+    /**
+     * Returns the DataSource used for the "time" component of the history.
+     */
+    public DataSourceScalar getTimeDataSource() {
+        return timeDataSource;
+    }
+    
     /**
      * Returns caster that ensures accumulator will receive a DataDoubleArray.
      */
@@ -92,9 +98,8 @@ public class AccumulatorHistory extends DataAccumulator {
     protected void addData(Data newData) {
         DataArithmetic values = (DataArithmetic)newData;
         for (int i = nData-1; i >= 0; i--) {
-            history[i].addValue(time, values.getValue(i));
+            history[i].addValue(timeDataSource.getDataAsScalar(), values.getValue(i));
         }
-        time += 1.0;
     }
 
     /**
@@ -121,7 +126,7 @@ public class AccumulatorHistory extends DataAccumulator {
      */
     private void setupData(DataInfo inputDataInfo) {
         // time is really the number of data points that have been added
-        DataDoubleArray dataBin = new DataDoubleArray("Time", Quantity.DIMENSION, historyLength);
+        DataDoubleArray dataBin = new DataDoubleArray(timeDataSource.getDataInfo().getLabel(), timeDataSource.getDataInfo().getDimension(), historyLength);
         data = new DataArray(inputDataInfo.getLabel(), inputDataInfo.getDimension(), nData, DataFunction.getFactory(new DataDoubleArray[] {dataBin}));
     }
     
@@ -133,7 +138,7 @@ public class AccumulatorHistory extends DataAccumulator {
     }
 
     /**
-     * @param bins
+     * @param historyLength
      *            Sets the number of bins in each history. Calls
      *            setHistoryLength method of current histories, which will
      *            discard data or modify themselves depending on how they are
@@ -146,12 +151,34 @@ public class AccumulatorHistory extends DataAccumulator {
     }
 
     public void reset() {
-        time = 0;
         for (int i = 0; i < nData; i++)
             history[i].reset();
     }
     
     public DataInfo getDataInfo() {
         return data.getDataInfo();
+    }
+    
+    protected History[] history = new History[0];
+    private DataArray data;
+    int nData;
+    private History.Factory historyFactory;
+    private int historyLength;
+    private DataSourceScalar timeDataSource;
+
+    /**
+     * Simple DataSource to use as a default time DataSource.  It just returns
+     * the number of times it's been called.
+     */
+    protected static class DataSourceCount extends DataSourceScalar {
+        public DataSourceCount() {
+            super("Count",Quantity.DIMENSION);
+        }
+        
+        public double getDataAsScalar() {
+            return count++;
+        }
+        
+        private int count = 0;
     }
 }
