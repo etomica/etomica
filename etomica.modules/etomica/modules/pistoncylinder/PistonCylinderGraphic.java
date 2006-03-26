@@ -14,6 +14,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 
 import etomica.action.Action;
+import etomica.action.IntegratorReset;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.data.AccumulatorAverage;
@@ -566,6 +567,7 @@ public class PistonCylinderGraphic {
         temperatureSlider.setUnit(tUnit);
         temperatureSlider.setModifier(new ModifierGeneral(pc.integrator,"temperature"));
         temperatureSlider.setController(pc.getController());
+        temperatureSlider.setPostAction(new IntegratorReset(pc.integrator,true));
 
         potentialSW = new P2SquareWell(pc.space,defaults.atomSize,lambda,epsilon,defaults.ignoreOverlap);
         potentialHS = new P2HardSphere(pc.space,defaults.atomSize,defaults.ignoreOverlap);
