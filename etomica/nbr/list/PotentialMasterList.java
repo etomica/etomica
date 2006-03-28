@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Sep 20, 2004 by kofke
- */
 package etomica.nbr.list;
 
 import etomica.atom.Atom;
@@ -17,14 +13,12 @@ import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.nbr.NeighborCriterion;
 import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.PotentialCalculationUpdateTypeList.PotentialAtomTypeWrapper;
-import etomica.nbr.cell.PhaseAgentSourceCellManager;
 import etomica.nbr.cell.NeighborCellManager;
+import etomica.nbr.cell.PhaseAgentSourceCellManager;
 import etomica.phase.Phase;
 import etomica.phase.PhaseAgentManager;
-import etomica.phase.PhaseAgentManager.PhaseAgentSource;
 import etomica.potential.Potential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
@@ -40,24 +34,25 @@ import etomica.space.Space;
 public class PotentialMasterList extends PotentialMasterNbr {
 
 	/**
-     * Default constructor.  Range should be set manually via 
-     * neighborCellManager.
+     * Default constructor uses range of 1.0.
      */
     public PotentialMasterList(Space space) {
         this(space,1.0);
     }
     
     /**
-	 * Invokes superclass constructor, specifying IteratorFactoryCell
-     * for generating molecule iterators.  Sets default nCells of 10. 
-	 */
-	public PotentialMasterList(Space space, double range) {
+     * Constructor specifying space and range for neighbor listing; uses null AtomPositionDefinition.
+     */
+    public PotentialMasterList(Space space, double range) {
         this(space, range, (AtomPositionDefinition)null);
     }
     
     /**
-     * Constructs class using given position definition for all atom cell assignments.
-     * @param positionDefinition if null, specifies use of atom type's position definition
+     * Constructs class using given position definition for all atom cell
+     * assignments.
+     * 
+     * @param positionDefinition
+     *            if null, specifies use of atom type's position definition
      */
     public PotentialMasterList(Space space, double range, AtomPositionDefinition positionDefinition) {
         this(space, range, new PhaseAgentSourceCellManager(positionDefinition));
@@ -75,7 +70,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         pairIterator = new ApiInnerFixed(singletIterator, atomIterator);
         swappedPairIterator = new ApiInnerFixed(singletIterator, atomIterator, true);
         cellRange = 2;
-	}
+    }
     
     public void setRange(double range) {
         neighborManager.setRange(range);
@@ -101,30 +96,30 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * superclass method is invoked.
      */
     public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
-		if(!enabled) return;
-    	AtomSet targetAtoms = id.getTargetAtoms();
+        if(!enabled) return;
+        AtomSet targetAtoms = id.getTargetAtoms();
         neighborManager.setPhase(phase);
-    	if (targetAtoms.count() == 0) {
+        if (targetAtoms.count() == 0) {
     		//no target atoms specified -- do one-target algorithm to SpeciesMaster
             PotentialArray potentialArray = getPotentials(phase.getSpeciesMaster().type);
-    		calculate(phase.getSpeciesMaster(), idUp, pc, potentialArray.getPotentials(), potentialArray.getIterators());
-            if(lrcMaster != null) {
-                lrcMaster.calculate(phase, id, pc);
-            }
-    	}
-    	else if (targetAtoms instanceof Atom) {
+    		    calculate(phase.getSpeciesMaster(), idUp, pc, potentialArray.getPotentials(), potentialArray.getIterators());
+    		    if(lrcMaster != null) {
+    		        lrcMaster.calculate(phase, id, pc);
+    		    }
+    	    }
+        else if (targetAtoms instanceof Atom) {
     		// one target atom
             PotentialArray potentialArray = getPotentials(((Atom)targetAtoms).type);
-			calculate((Atom)targetAtoms, id, pc, potentialArray.getPotentials(), potentialArray.getIterators());
+            calculate((Atom)targetAtoms, id, pc, potentialArray.getPotentials(), potentialArray.getIterators());
             if(lrcMaster != null) {
                 lrcMaster.calculate(phase, id, pc);
             }
-    	}
-    	else {
-    		//more than one target atom
-    		super.calculate(phase, id, pc);
-    	}
-	}//end calculate
+        }
+    	    else {
+    	        //more than one target atom
+    	        super.calculate(phase, id, pc);
+    	    }
+    }//end calculate
 	
     /**
      * Performs given PotentialCalculation using potentials/neighbors associated
@@ -133,7 +128,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * the hierarchy until leaf atoms are reached.
      */
     //TODO make a "TerminalGroup" node that permits child atoms but indicates that no potentials apply directly to them
-	private void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc, Potential[] potentials, AtomsetIterator[] iterators) {
+    private void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc, Potential[] potentials, AtomsetIterator[] iterators) {
         singletIterator.setAtom(atom);
         IteratorDirective.Direction direction = id.direction();
         for(int i=0; i<potentials.length; i++) {
@@ -178,8 +173,8 @@ public class PotentialMasterList extends PotentialMasterNbr {
             }//end of switch
         }//end of for
         
-		//if atom has children, repeat process with them
-		if(!atom.node.isLeaf()) {
+        //if atom has children, repeat process with them
+        if(!atom.node.isLeaf()) {
             //cannot use AtomIterator field because of recursive call
             AtomArrayList list = ((AtomTreeNodeGroup) atom.node).childList;
             int size = list.size();
@@ -190,8 +185,8 @@ public class PotentialMasterList extends PotentialMasterNbr {
                 AtomsetIterator[] childIterators = potentialArray.getIterators();
                 calculate(a, id, pc, childPotentials, childIterators);//recursive call
             }
-		}
-	}
+        }
+    }
 
     public NeighborListManager getNeighborManager() {return neighborManager;}
 
@@ -213,11 +208,11 @@ public class PotentialMasterList extends PotentialMasterNbr {
         return cellRange;
     }
     
-	private final AtomIteratorArrayListSimple atomIterator;
-	private final AtomIteratorSinglet singletIterator;
-	private final ApiInnerFixed pairIterator;
+    private final AtomIteratorArrayListSimple atomIterator;
+    private final AtomIteratorSinglet singletIterator;
+    private final ApiInnerFixed pairIterator;
     private final ApiInnerFixed swappedPairIterator;
-	private final NeighborListManager neighborManager;
+    private final NeighborListManager neighborManager;
     private int cellRange;
     private final IteratorDirective idUp = new IteratorDirective();
     
