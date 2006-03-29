@@ -25,7 +25,6 @@ public final class FeatureSet implements Serializable
 	{
 		//Potential potential = new P1BondedHardSpheres( new Space2D() );
 		RequirementSet req = new RequirementSet()
-		.add( new FeatureRequirement( "SPACEDIM", Feature.GREATER_THAN, 1 ) )
 		.add( new FeatureRequirement( "NBODIES", Feature.IS_EQUAL, 1 ) );
 		
 		FeatureSet fss = EtomicaInfo.getInfo( P1BondedHardSpheres.class ).getFeatures();
