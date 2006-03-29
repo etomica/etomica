@@ -8,6 +8,8 @@ import etomica.atom.AtomSet;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.units.Dimension;
+import etomica.units.Length;
 
 /**
  * @author David Kofke
@@ -90,5 +92,9 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft, Etomica
 	public void setRadius(double radius) {
 		this.radius = radius;
 	}
+    
+    public Dimension getRadiusDimension() {
+        return Length.DIMENSION;
+    }
     
 }

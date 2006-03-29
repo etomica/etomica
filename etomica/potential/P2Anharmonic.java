@@ -2,6 +2,11 @@ package etomica.potential;
 
 import etomica.EtomicaElement;
 import etomica.space.Space;
+import etomica.units.CompoundDimension;
+import etomica.units.Dimension;
+import etomica.units.DimensionRatio;
+import etomica.units.Energy;
+import etomica.units.Length;
 
 
 /**
@@ -58,7 +63,18 @@ public class P2Anharmonic extends Potential2SoftSpherical implements EtomicaElem
     public void setSpringConstant(double factor) {
         w = factor;
     }
+    /**
+     * Not implemented correctly.  
+     * Should be energy/length^2.
+     */
+    public Dimension getSpringConstantDimension() {
+        return new CompoundDimension(new Dimension[]{Energy.DIMENSION,Length.DIMENSION},new double[]{1,-2});
+    }
+
     public double getAnharmonicConstant() {return a;}
     public void setAnharmonicConstant(double factor) {a=factor;}
+    public Dimension getAnharmonicConstantDimension() {
+        return new DimensionRatio(Energy.DIMENSION,Length.DIMENSION);
+    }
 }//end of P2Harmonic
   

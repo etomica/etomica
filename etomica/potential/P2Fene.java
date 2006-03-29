@@ -3,6 +3,10 @@ package etomica.potential;
 import etomica.EtomicaElement;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.units.CompoundDimension;
+import etomica.units.Dimension;
+import etomica.units.Energy;
+import etomica.units.Length;
 
 /**
  * Finite elastic nonlinear extensible (FENE) spring potential.
@@ -61,6 +65,14 @@ public class P2Fene extends Potential2SoftSpherical implements EtomicaElement {
         this.h = H;
         prefactor = -0.5*h*r02-Math.log(r02);
     }
+    
+    /**
+     * Not implemented correctly.  
+     * Should be energy/length^3.
+     */
+    public Dimension getAmplitudeDimension() {
+        return new CompoundDimension(new Dimension[]{Energy.DIMENSION,Length.DIMENSION},new double[]{1,-3});
+    }
 
     /**
      * Accessor method for harmonic energy parameter
@@ -75,5 +87,8 @@ public class P2Fene extends Potential2SoftSpherical implements EtomicaElement {
         prefactor = -0.5*h*r02;
     }
     
-}//end of P2Fene
-  
+    public Dimension getMaximumSeparationDimension() {
+        return Length.DIMENSION;
+    }
+    
+}

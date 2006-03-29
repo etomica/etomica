@@ -2,6 +2,10 @@ package etomica.potential;
 
 import etomica.EtomicaElement;
 import etomica.space.Space;
+import etomica.units.CompoundDimension;
+import etomica.units.Dimension;
+import etomica.units.Energy;
+import etomica.units.Length;
 
 /**
  * Harmonic Well interatomic potential.
@@ -78,6 +82,14 @@ public class P2Harmonic extends Potential2SoftSpherical implements EtomicaElemen
     public void setSpringConstant(double factor) {
         w = factor;
     }
+
+    /**
+     * Not implemented correctly.  
+     * Should be energy/length^2.
+     */
+    public Dimension getSpringConstantDimension() {
+        return new CompoundDimension(new Dimension[]{Energy.DIMENSION,Length.DIMENSION},new double[]{1,-2});
+    }
     
 	/**
 	 * Separation at which potential is at its minimum.
@@ -95,5 +107,9 @@ public class P2Harmonic extends Potential2SoftSpherical implements EtomicaElemen
 		this.r0 = r0;
 	}
 
+    public Dimension getR0Dimension() {
+        return Length.DIMENSION;
+    }
+    
 }//end of P2Harmonic
   

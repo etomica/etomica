@@ -11,6 +11,13 @@ import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
+import etomica.units.Dimension;
+import etomica.units.DimensionRatio;
+import etomica.units.Force;
+import etomica.units.Length;
+import etomica.units.Mass;
+import etomica.units.Pressure;
+import etomica.units.Time;
 import etomica.util.Debug;
 
 /**
@@ -49,12 +56,20 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     public double getWallPosition() {
         return wallPosition;
     }
+    public Dimension getWallPositionDimension() {
+        return Length.DIMENSION;
+    }
+    
     public double getWallVelocity() {
         return wallVelocity;
     }
     public void setWallVelocity(double v) {
         wallVelocity = v;
     }
+    public Dimension getWallVelocityDimension() {
+        return new DimensionRatio("Velocity", Length.DIMENSION, Time.DIMENSION);
+    }
+    
     public void setForce(double f) {
         force = f;
         pressure = -1.0;
@@ -62,11 +77,18 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     public double getForce() {
         return force;
     }
+    public Dimension getForceDimension() {
+        return Force.DIMENSION;
+    }
+    
     public void setPressure(double p) {
         pressure = p;
     }
     public double getPressure() {
         return pressure;
+    }
+    public Dimension getPressureDimension() {
+        return Pressure.DIMENSION;
     }
     
     public void setStationary(boolean b) {
@@ -94,6 +116,9 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     public void setMass(double mass) {
         wallMass = mass;
         setWallMass = mass;
+    }
+    public Dimension getMassDimension() {
+        return Mass.DIMENSION;
     }
     
     public double energy(AtomSet a) {

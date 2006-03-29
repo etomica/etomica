@@ -11,6 +11,9 @@ import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
+import etomica.units.Dimension;
+import etomica.units.Energy;
+import etomica.units.Length;
 
 /**
  * Purely attractive square-well potential with no repulsive core.  Similar
@@ -143,12 +146,17 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
         wellDiameterSquared = w*w;
     }
     
+    public Dimension getWellDiameterDimension() {
+        return Length.DIMENSION;
+    }
+    
     /**
      * Returns the well diameter.
      */
     public double getRange() {
         return wellDiameter;
     }
+    
    /**
     * Accessor method for depth of well.
     */
@@ -161,9 +169,13 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
         epsilon = s;
     }
     
+    public Dimension getEpsilonDimension() {
+        return Energy.DIMENSION;
+    }
+    
     public void setPhase(Phase phase) {
-    cPair.setNearestImageTransformer(phase.getBoundary());
-}
+        cPair.setNearestImageTransformer(phase.getBoundary());
+    }
 
     private double wellDiameter, wellDiameterSquared;
     private double epsilon;
@@ -173,4 +185,4 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
     private final Vector dr;
     private final CoordinatePairKinetic cPair;
     
-}//end of P2HardAssociation
+}
