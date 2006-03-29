@@ -3,6 +3,7 @@ package etomica.util;
 import etomica.units.Bar;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
+import etomica.units.systems.LJ;
 import etomica.units.systems.UnitSystem;
 
 /**
@@ -56,7 +57,7 @@ public class Default implements java.io.Serializable {
     public int blockSize = 1000;
  
     //default unit system for I/O (internal calculations are all done in simulation units)
-    public static UnitSystem UNIT_SYSTEM = new UnitSystem.Sim();
+    public UnitSystem unitSystem = new UnitSystem.Sim();
         
     /**
      * Integer array indicating the maximum number of atoms at each depth in the
@@ -93,6 +94,7 @@ public class Default implements java.io.Serializable {
      * <li>timeStep = 0.04
      * <li>boxSize = 10
      * <li>pixelUnit = new Pixel(30);
+     * <li>unitSystem = new etomica.unit.systems.LJ();
      * </ul>
      */
     public void makeLJDefaults() {
@@ -104,6 +106,7 @@ public class Default implements java.io.Serializable {
         timeStep = 0.04;
         boxSize = 10.0;
         pixelUnit = new Pixel(30);
+        unitSystem = new LJ();
     }
     
 }

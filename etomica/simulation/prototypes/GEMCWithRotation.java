@@ -33,8 +33,8 @@ public class GEMCWithRotation extends Simulation {
     public GEMCWithRotation(Space space) {
         super(space, false, new PotentialMaster(space));
         defaults.atomSize = 1.2;
-        defaults.UNIT_SYSTEM = new etomica.units.systems.LJ();
-        defaults.temperature = defaults.UNIT_SYSTEM.temperature().toSim(0.420);
+        defaults.makeLJDefaults();
+        defaults.temperature = defaults.unitSystem.temperature().toSim(0.420);
         integrator = new IntegratorGEMC(potentialMaster);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         getController().addAction(activityIntegrate);
