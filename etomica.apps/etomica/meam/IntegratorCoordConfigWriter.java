@@ -75,6 +75,8 @@ public class IntegratorCoordConfigWriter implements IntegratorIntervalListener,
 	public void openFile(){
 		try { 
 			fileWriter = new FileWriter(fileName, false);
+			fileWriter.write(iterator.size()+"\n");
+			
 		}
 	    catch(IOException e) {
             System.err.println("Cannot open a file, caught IOException: " + e.getMessage());
@@ -104,7 +106,6 @@ public class IntegratorCoordConfigWriter implements IntegratorIntervalListener,
 		afterPBCinstance.updateAtomOldCoord();
 		if (--intervalCount == 0){
 			Vector phasedim = phase.getBoundary().getDimensions();
-			
 			// Gets atomPBIarray from AfterPBC subclass, through the subclass instance
 			int [][] atomPBIarray = afterPBCinstance.getAtomPBIarray();
 					
@@ -175,9 +176,9 @@ public class IntegratorCoordConfigWriter implements IntegratorIntervalListener,
 				
 		public void setPhase(Phase phase){
 			atomOldCoord = new Vector[phase.atomCount()];
-				for (int j=0; j < atomOldCoord.length; j++){
-					atomOldCoord[j] = phase.space().makeVector();
-				}
+			for (int j=0; j < atomOldCoord.length; j++){
+				atomOldCoord[j] = phase.space().makeVector();
+			}
 						
 			atomPBIarray = new int[phase.atomCount()][phase.space().D()];
 			iterator.setPhase(phase);
