@@ -143,9 +143,9 @@ public class LJ extends UnitSystem implements java.io.Serializable {
         return viscosityUnit;
     }
     
-    private double sigma = 1.0;
-    private double epsilon = 1.0;
-    private double mass = 1.0;
+    protected double sigma = 1.0;
+    protected double epsilon = 1.0;
+    protected double mass = 1.0;
     private static final long serialVersionUID = 1;
     
     // \u03B5 is unicode for epsilon

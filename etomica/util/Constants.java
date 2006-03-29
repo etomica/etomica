@@ -80,7 +80,7 @@ public final class Constants {
         System.out.println("Epsilon0: "+EPSILON_0);
         System.out.println("G: "+G);
         System.out.println("1.0/sqrt(4 Pi Epsilon0): "+1.0/Math.sqrt(4.*Math.PI*EPSILON_0));
-        System.out.println("unit toSim: "+etomica.units.systems.MKS.SYSTEM.viscosity().toSim(1.0));
+        System.out.println("unit toSim: "+new etomica.units.systems.MKS().viscosity().toSim(1.0));
         System.out.println("unit toSim: "+etomica.units.Volt.UNIT.toSim(1.0));
         System.out.println("symbol: "+new LJ(1,1,1,false).viscosity().symbol());
     }

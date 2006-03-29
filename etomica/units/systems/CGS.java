@@ -1,7 +1,5 @@
 package etomica.units.systems;
 
-import java.io.ObjectStreamException;
-
 import etomica.units.Barye;
 import etomica.units.CompoundUnit;
 import etomica.units.Coulomb;
@@ -25,12 +23,7 @@ import etomica.units.Unit;
  */
 public class CGS extends UnitSystem {
 
-    /**
-     * Singleton instance of this unit system.
-     */
-    public static final CGS SYSTEM = new CGS();
-
-    private CGS() {
+    public CGS() {
     }
 
     public Unit quantity() {
@@ -97,15 +90,6 @@ public class CGS extends UnitSystem {
     private static final Unit SQUARE_CENTIMETER = new CompoundUnit(new Unit[] {CENTIMETER}, new double[] {2});
     private static final Unit COULOMB_CENTIMETER = 
         new CompoundUnit(new Unit[] {Coulomb.UNIT, CENTIMETER}, new double[] {1, 1});
-    
-    /**
-     * Required to guarantee singleton when deserializing.
-     * 
-     * @return the singleton SYSTEM
-     */
-    private Object readResolve() throws ObjectStreamException {
-        return SYSTEM;
-    }
     
     private static final long serialVersionUID = 1;
 

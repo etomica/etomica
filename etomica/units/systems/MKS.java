@@ -1,7 +1,5 @@
 package etomica.units.systems;
 
-import java.io.ObjectStreamException;
-
 import etomica.units.Bar;
 import etomica.units.CompoundUnit;
 import etomica.units.Coulomb;
@@ -25,12 +23,7 @@ import etomica.units.Unit;
  */
 public class MKS extends UnitSystem {
 
-    /**
-     * Singleton instance of this unit system.
-     */
-    public static final MKS SYSTEM = new MKS();
-
-    private MKS() {
+    public MKS() {
     }
 
     public Unit quantity() {
@@ -99,15 +92,6 @@ public class MKS extends UnitSystem {
         new CompoundUnit(new Unit[] {Coulomb.UNIT, Meter.UNIT}, new double[] {1, 1});
     private static final Unit PASCAL_SECOND = 
         new CompoundUnit(new Unit[] {Pascal.UNIT, Second.UNIT}, new double[] {1, 1});
-    
-    /**
-     * Required to guarantee singleton when deserializing.
-     * 
-     * @return the singleton SYSTEM
-     */
-    private Object readResolve() throws ObjectStreamException {
-        return SYSTEM;
-    }
     
     private static final long serialVersionUID = 1;
 
