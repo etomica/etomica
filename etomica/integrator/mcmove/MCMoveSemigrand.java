@@ -117,34 +117,12 @@ public class MCMoveSemigrand extends MCMove {
         double sum = 0.0;
         for(int i=0; i<nSpecies; i++) {
             fugacityFraction[i] = f[i]; 
-            sum += f[i];
             if(f[i] < 0.0) throw new IllegalArgumentException("Negative fugacity-fraction MCMoveSemigrand");
+            sum += f[i];
         }
         for(int i=0; i<nSpecies; i++) {fugacityFraction[i] /= sum;}//normalize to unity
     }
-    /**
-     * Sets fugacity fraction of the species corresponding to the given index.  Scales other
-     * species fugacity fractions to normalize sum to unity.  If all other values were previously
-     * zero (given species value was unity), they are all set to a uniform value that normalizes
-     * the given new value for the species.
-     */
-    public void setFugacityFraction(int i, double f) {
-        if(i < 0 || i >= nSpecies) 
-            throw new IllegalArgumentException("Illegal fugacity-fraction index in MCMoveSemigrand");
-            
-        if(f > 1.0) f = 1.0;  //interpret any value greater than 1.0 as setting f[i] = 1.0
-        else if(f < 0.0) f = 0.0; //interpret any value less than 0.0 as setting f[i] = 0.0
-        
-        if(fugacityFraction[i] == 1.0) { //old value is 1; set others uniformly
-            double fNew = (1.0-f)/(nSpecies-1);
-            for(int k=0; k<nSpecies; k++) fugacityFraction[k] = fNew;
-        }
-        else {
-            double mult = (1.0 - f)/(1.0 - fugacityFraction[i]);
-            for(int k=0; k<nSpecies; k++) fugacityFraction[k] *= mult;
-        }
-        fugacityFraction[i] = f;
-    }
+
     public double getFugacityFraction(int i) {
         if(i < 0 || i >= nSpecies) 
             throw new IllegalArgumentException("Illegal fugacity-fraction index in MCMoveSemigrand");
