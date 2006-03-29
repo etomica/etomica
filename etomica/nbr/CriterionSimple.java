@@ -12,6 +12,8 @@ import etomica.phase.PhaseAgentSourceAtomManager;
 import etomica.simulation.Simulation;
 import etomica.space.CoordinatePair;
 import etomica.space.Vector;
+import etomica.units.Dimension;
+import etomica.units.Length;
 import etomica.util.Debug;
 
 /**
@@ -50,6 +52,14 @@ public class CriterionSimple extends NeighborCriterion implements AgentSource  {
 		displacementLimit2 = displacementLimit * displacementLimit;
         r2MaxSafe = displacementLimit2 / (4.0*safetyFactor*safetyFactor);
 	}
+    
+    public double getNeighborRange() {
+        return Math.sqrt(neighborRadius2);
+    }
+    
+    public Dimension getNeighborRangeDimension() {
+        return Length.DIMENSION;
+    }
 	
 	public boolean isRangeDependent() {
 		return true;

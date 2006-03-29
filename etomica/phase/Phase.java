@@ -24,6 +24,10 @@ import etomica.space.Vector;
 import etomica.species.Species;
 import etomica.species.SpeciesResolver;
 import etomica.species.SpeciesSignature;
+import etomica.units.Dimension;
+import etomica.units.DimensionRatio;
+import etomica.units.Quantity;
+import etomica.units.Volume;
 
 /* History of changes
  * 09/01/02 (DAK) setConfiguration sets new configuration so that it zeros total momentum
@@ -230,6 +234,10 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     }
     
     public double getDensity() {return moleculeCount()/boundary.volume();}
+    
+    public Dimension getDensityDimension() {
+        return new DimensionRatio("Density",Quantity.DIMENSION,Volume.DIMENSION);
+    }
 
     /**
      * @return the first atom in the linked list of atoms in this Phase

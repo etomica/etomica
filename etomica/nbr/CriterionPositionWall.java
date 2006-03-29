@@ -9,6 +9,8 @@ import etomica.phase.Phase;
 import etomica.phase.PhaseAgentManager;
 import etomica.phase.PhaseAgentSourceAtomManager;
 import etomica.simulation.Simulation;
+import etomica.units.Dimension;
+import etomica.units.Length;
 import etomica.util.Debug;
 
 /**
@@ -73,6 +75,10 @@ public class CriterionPositionWall extends NeighborCriterion implements AgentSou
         displacementLimit = rMaxSafe * safetyFactor;
     }        
 
+    public Dimension getInteractionRangeDimension() {
+        return Length.DIMENSION;
+    }
+    
     /**
      * Sets the neighbor range of the criterion.  Atoms within the given 
      * distance of the wall are "accepted".
@@ -90,7 +96,11 @@ public class CriterionPositionWall extends NeighborCriterion implements AgentSou
     public double getNeighborRange() {
         return neighborRange;
     }
-        
+    
+    public Dimension getNeighborRangeDimension() {
+        return Length.DIMENSION;
+    }
+    
 	/**
      * Returns true if the walls are at the phase boundaries.
      */
@@ -119,6 +129,10 @@ public class CriterionPositionWall extends NeighborCriterion implements AgentSou
      */
     public double getWallPosition() {
         return wallPosition;
+    }
+    
+    public Dimension getWallPositionDimension() {
+        return Length.DIMENSION;
     }
 
     public boolean isRangeDependent() {
