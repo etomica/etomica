@@ -494,7 +494,7 @@ public class PistonCylinderGraphic {
 
         if (pc.space.D() == 2) {
             dUnit = new UnitRatio(Mole.UNIT, 
-                                    MKS.SYSTEM.area());
+                                    new MKS().area());
             Unit[] units = new Unit[] {Bar.UNIT, new PrefixedUnit(Prefix.NANO, Meter.UNIT)};
             double[] exponents = new double[] {1.0, 1.0};
             pUnit = new CompoundUnit(units, exponents);
