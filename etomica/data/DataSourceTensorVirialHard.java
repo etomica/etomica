@@ -48,6 +48,7 @@ public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, I
             lastData.E(Double.NaN);
             return lastData;
         }
+        Phase phase = integratorHard.getPhase();
         int D = phase.space().D();
 
         lastData.E(data);
@@ -71,7 +72,7 @@ public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, I
      */
     public Tensor collisionValue(IntegratorHard.Agent agent) {
         lastData.x.E(agent.collisionPotential.lastCollisionVirialTensor());
-        lastData.x.TE(1/(double)phase.atomCount());
+        lastData.x.TE(1/(double)integratorHard.getPhase().atomCount());
         return lastData.x;
     }
                 
@@ -89,23 +90,13 @@ public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, I
             timer.reset();
             integratorHard.addCollisionListener(this);
             newIntegrator.addListener(timer);
-            setPhase(integratorHard.getPhase());
         }
     }
     
-    /**
-     * @return Returns the phase.
-     */
-    public Phase getPhase() {
-        return phase;
+    public IntegratorHard getIntegrator() {
+        return integratorHard;
     }
-    /**
-     * @param phase The phase to set.
-     */
-    private void setPhase(Phase phase) {
-        this.phase = phase;
-    }
-
+    
     public String getName() {
         return name;
     }
@@ -115,8 +106,7 @@ public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, I
     }
     
     private String name;
-    private Phase phase;
     private DataSourceCountTime timer;
     private IntegratorHard integratorHard;
     private final DataTensor data, lastData;
-}//end of MeterTensorVirialHard
+}
