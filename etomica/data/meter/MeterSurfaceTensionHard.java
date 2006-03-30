@@ -65,9 +65,18 @@ public class MeterSurfaceTensionHard extends DataSourceScalar implements Etomica
         return velocityTensor.getPhase();
     }
 
-    public void setIntegrator(IntegratorHard integrator) {
-        velocityTensor.setPhase(integrator.getPhase());
-        virialTensor.setIntegrator(integrator);
+    public void setIntegrator(IntegratorHard newIntegrator) {
+        if (newIntegrator == null) {
+            velocityTensor.setPhase(null);
+            virialTensor.setIntegrator(null);
+            return;
+        }
+        velocityTensor.setPhase(newIntegrator.getPhase());
+        virialTensor.setIntegrator(newIntegrator);
+    }
+    
+    public IntegratorHard getIntegrator() {
+        return virialTensor.getIntegrator();
     }
     
     private final Tensor pressureTensor;
