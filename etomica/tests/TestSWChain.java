@@ -107,7 +107,8 @@ public class TestSWChain extends Simulation {
         }
         TestSWChain sim = new TestSWChain(Space3D.getInstance(), numMolecules);
 
-        MeterPressureHard pMeter = new MeterPressureHard(sim.space,sim.integrator); 
+        MeterPressureHard pMeter = new MeterPressureHard(sim.space);
+        pMeter.setIntegrator(sim.integrator);
         MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         energyMeter.setPhase(sim.phase);
         AccumulatorAverage energyAccumulator = new AccumulatorAverage(sim);
@@ -117,7 +118,6 @@ public class TestSWChain extends Simulation {
         
         sim.getController().actionPerformed();
         
-        pMeter.setPhase(sim.phase);
         double Z = pMeter.getDataAsScalar()*sim.phase.volume()/(sim.phase.moleculeCount()*sim.integrator.getTemperature());
         double avgPE = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(StatType.AVERAGE.index)).x;
         avgPE /= numMolecules;

@@ -231,16 +231,14 @@ public class TestHexane extends Simulation {
 
         System.out.println("Happy Goodness!!");
 
-        MeterPressureHard pMeter = new MeterPressureHard(sim.space,
-                sim.integrator);
-        pMeter.setPhase(sim.phase);
+        MeterPressureHard pMeter = new MeterPressureHard(sim.space);
+        pMeter.setIntegrator(sim.integrator);
         MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(
                 sim.integrator);
         energyMeter.setPhase(sim.phase);
         AccumulatorAverage energyAccumulator = new AccumulatorAverage(sim);
         DataPump energyManager = new DataPump(energyMeter, energyAccumulator);
         energyAccumulator.setBlockSize(50);
-        pMeter.setPhase(sim.phase);
         //This is the wire to plug the pump into the electric socket and make
         // it run.
         new IntervalActionAdapter(energyManager, sim.integrator);

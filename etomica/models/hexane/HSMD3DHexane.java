@@ -51,8 +51,8 @@ public class HSMD3DHexane extends Simulation {
         }
         HSMD3DHexane sim = new HSMD3DHexane(Space3D.getInstance(), numAtoms);
 
-        MeterPressureHard pMeter = new MeterPressureHard(sim.space,sim.integrator);
-        pMeter.setPhase(sim.phase);
+        MeterPressureHard pMeter = new MeterPressureHard(sim.space);
+        pMeter.setIntegrator(sim.integrator);
         
         sim.getController().actionPerformed();
         

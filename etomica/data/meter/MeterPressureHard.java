@@ -20,10 +20,9 @@ public class MeterPressureHard extends DataSourceScalar implements
                                                 MeterCollisional,
                                                 EtomicaElement {
     
-    public MeterPressureHard(Space space, IntegratorHard integrator) {
+    public MeterPressureHard(Space space) {
         super("Pressure", Pressure.dimension(space.D()));
         timer = new DataSourceCountTime();
-        setIntegrator(integrator);
     }
         
     public static EtomicaInfo getEtomicaInfo() {
@@ -37,16 +36,15 @@ public class MeterPressureHard extends DataSourceScalar implements
      */
     //TODO consider how to ensure timer is advanced before this method is invoked
     public double getDataAsScalar() {
-        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
-        if (integratorHard.getPhase() != phase) {
-            throw new IllegalArgumentException("Integrator must act on meter's phase");
-        }
-        else if (!integratorHard.isIsothermal()) {
+        if (integratorHard == null) throw new IllegalStateException("must call setIntegrator before using meter");
+        if (!integratorHard.isIsothermal()) {
             throw new IllegalStateException("Integrator must be isothermal");
         }
+        Phase phase = integratorHard.getPhase();
         double elapsedTime = timer.getDataAsScalar();
         if(elapsedTime == 0.0) return Double.NaN;
-        double value = (integratorHard.getTemperature()*phase.atomCount() - virialSum/(phase.space().D()*elapsedTime)) / phase.getBoundary().volume();
+        double value = (integratorHard.getTemperature()*phase.atomCount() - virialSum/(phase.space().D()*elapsedTime)) / 
+                        phase.getBoundary().volume();
 
         virialSum = 0.0;
         timer.reset();
@@ -72,7 +70,7 @@ public class MeterPressureHard extends DataSourceScalar implements
      * Registers meter as a collisionListener to the integrator, and sets up
      * a DataSourceTimer to keep track of elapsed time of integrator.
      */
-	protected void setIntegrator(IntegratorHard newIntegrator) {
+	public void setIntegrator(IntegratorHard newIntegrator) {
 		if(newIntegrator == integratorHard) return;
 		if(integratorHard != null) {
             integratorHard.removeCollisionListener(this);
@@ -85,70 +83,11 @@ public class MeterPressureHard extends DataSourceScalar implements
         }
 	}
     
-    /**
-     * @return Returns the phase.
-     */
-    public Phase getPhase() {
-        return phase;
+    public IntegratorHard getIntegrator() {
+        return integratorHard;
     }
-    /**
-     * @param phase The phase to set.
-     */
-    public void setPhase(Phase phase) {
-        this.phase = phase;
-    }
-
-    private Phase phase;
+    
     protected double virialSum = 0.0;
     private IntegratorHard integratorHard;
     protected final DataSourceCountTime timer;
-
-	
-    /**
-     * Method to demonstrate and test the use of this class.  
-     * Pressure is measured in a hard-sphere MD simulation.
-     */
- /*   public static void main(String[] args) {
-        etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
-        Simulation.instance = sim;
-        
-        //here's the part unique to this class
-        sim.integrator.setIsothermal(true);
-        sim.integrator.setTemperature(Kelvin.UNIT.toSim(300.));
-        //make the meter and register it with the integrator
-        MeterPressureHard pressureMeter = new MeterPressureHard();
-        //Meter must be registered as collision listener and as interval listener to integrator
-        //This is completed by the setPhase method
-        //It is not be good to register the same listener multiple times, since addIntervalListener list does not prohibit redundant entries (addCollisionListener however does not muliply register the same listener)
-           // done by setPhase:  ((IntegratorHard)integrator).addCollisionListener(pressureMeter);
-           // done by setPhase:  integrator.addIntervalListener(pressureMeter);
-           
-        //set the phase where the meter performs its measurement and register as listener to phase's integrator
-        //this call is commented out here since the setPhase call is performed by the default (but not by the Basic) elementCoordinator
-        //note that there is no harm in calling setPhase multiple times with the same phase
-           // pressureMeter.setPhase(phase);
-           
-        MeterProfileHard profile = new MeterProfileHard();
-        profile.setActive(true);
-        profile.setX(0,30,50);
-        profile.setMeter(pressureMeter);
-        profile.setMeter(((MeterScalar.MeterScalarAtomic)new MeterTemperature()));
-        etomica.graphics.DisplayPlot plot = new etomica.graphics.DisplayPlot();
-           
-        //display the meter
-        etomica.graphics.DisplayBox box = new etomica.graphics.DisplayBox();
-        box.setMeter(pressureMeter);
-        
-        etomica.action.MeterReset resetAction = new etomica.action.MeterReset();
-        resetAction.setMeters(new MeterAbstract[] {pressureMeter, profile});
-        etomica.graphics.DeviceButton resetButton = new etomica.graphics.DeviceButton(resetAction);
-        //end of unique part
- 
-        Simulation.instance.elementCoordinator.go();
-        plot.setDataSources(profile);
-        sim.phase.firstSpecies().setNMolecules(60);
-        
-        etomica.graphics.SimulationGraphic.makeAndDisplayFrame(sim);
-    }//end of main
-    */
 }

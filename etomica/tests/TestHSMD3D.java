@@ -94,8 +94,8 @@ public class TestHSMD3D extends Simulation {
         }
         TestHSMD3D sim = new TestHSMD3D(Space3D.getInstance(), numAtoms);
 
-        MeterPressureHard pMeter = new MeterPressureHard(sim.space,sim.integrator);
-        pMeter.setPhase(sim.phase);
+        MeterPressureHard pMeter = new MeterPressureHard(sim.space);
+        pMeter.setIntegrator(sim.integrator);
         
         sim.getController().actionPerformed();
         

@@ -449,28 +449,8 @@ public class DisplayTable extends Display implements DataTableListener,
         SimulationGraphic graphic = new SimulationGraphic(sim);
         sim.integrator.setIsothermal(true);
 
-        //part that is unique to this demonstration
-        //        DisplayTable table = new DisplayTable();
-        //        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
-        //        pMeter.setPhase(sim.phase);
-        //        AccumulatorAverageSegment pSegment = new AccumulatorAverageSegment(
-        //                pMeter, sim.integrator, new AccumulatorAverage.Type[] {
-        //                        AccumulatorAverage.MOST_RECENT,
-        //                        AccumulatorAverage.AVERAGE,
-        //                        AccumulatorAverage.ERROR },
-        //                table.getDataTable().makeColumn(pMeter.getDimension()));
-        //        MeterNMolecules nMeter = new MeterNMolecules();
-        //        nMeter.setPhase(sim.phase);
-        //        AccumulatorAverageSegment nSegment = new AccumulatorAverageSegment(
-        //                nMeter, sim.integrator, new AccumulatorAverage.Type[] {
-        //                        AccumulatorAverage.MOST_RECENT,
-        //                        AccumulatorAverage.AVERAGE,
-        //                        AccumulatorAverage.ERROR },
-        //                table.getDataTable().makeColumn(nMeter.getDimension()));
-        //end of unique part
-
-        MeterPressureHard pMeter = new MeterPressureHard(sim.space,sim.integrator);
-        pMeter.setPhase(sim.phase);
+        MeterPressureHard pMeter = new MeterPressureHard(sim.space);
+        pMeter.setIntegrator(sim.integrator);
         MeterNMolecules nMeter = new MeterNMolecules();
         nMeter.setPhase(sim.phase);
         DataTableAverages dataTable = new DataTableAverages(sim,sim.integrator);

@@ -158,8 +158,8 @@ public class DisplayBoxesCAE extends Display implements DataSink {
         HSMD2D sim = new HSMD2D();
         SimulationGraphic graphic = new SimulationGraphic(sim);
         sim.integrator.setIsothermal(true);
-        MeterPressureHard pressureMeter = new MeterPressureHard(sim.space,sim.integrator);
-        pressureMeter.setPhase(sim.phase);
+        MeterPressureHard pressureMeter = new MeterPressureHard(sim.space);
+        pressureMeter.setIntegrator(sim.integrator);
         AccumulatorAverage accumulator = new AccumulatorAverage(sim);
         DataPump dataPump = new DataPump(pressureMeter, accumulator);
         new IntervalActionAdapter(dataPump, sim.integrator);
