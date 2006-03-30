@@ -19,18 +19,35 @@ import etomica.units.Pressure;
  
 public class MeterPressure extends DataSourceScalar {
     
-    public MeterPressure(IntegratorPhase integrator, Space space) {
+    public MeterPressure(Space space) {
     	super("Pressure",Pressure.dimension(space.D()));
         rD = 1.0/space.D();
         iteratorDirective = new IteratorDirective();
         iteratorDirective.includeLrc = true;
-        this.integrator = integrator;
         virial = new PotentialCalculationVirialSum();
     }
       
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Total pressure in a phase (requires soft-potential model)");
         return info;
+    }
+    
+    /**
+     * Sets the integrator associated with this instance.  The pressure is 
+     * calculated for the phase the integrator acts on and integrator's 
+     * temperature is used for the ideal gas contribution.
+     */
+    public void setIntegrator(IntegratorPhase newIntegrator) {
+        integrator = newIntegrator;
+    }
+    
+    /**
+     * Returns the integrator associated with this instance.  The pressure is 
+     * calculated for the phase the integrator acts on and integrator's 
+     * temperature is used for the ideal gas contribution.
+     */
+    public IntegratorPhase getIntegrator() {
+        return integrator;
     }
 
     /**
@@ -54,6 +71,9 @@ public class MeterPressure extends DataSourceScalar {
 	  * ideal-gas contribution.
 	  */
     public double getDataAsScalar() {
+        if (integrator == null) {
+            throw new IllegalStateException("You must call setIntegrator before using this class");
+        }
     	virial.zeroSum();
         Phase phase = integrator.getPhase();
         integrator.getPotential().calculate(phase, iteratorDirective, virial);

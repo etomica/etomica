@@ -240,7 +240,8 @@ public class LjmdGraphic {
 		
 		ePlot.setDoLegend(true);
 		
-		MeterPressure pMeter = new MeterPressure(sim.integrator,sim.space);
+		MeterPressure pMeter = new MeterPressure(sim.space);
+        pMeter.setIntegrator(sim.integrator);
         pMeter.setIncludeLrc(true);
         AccumulatorAverage pAccumulator = new AccumulatorAverage(sim);
         DataPump pPump = new DataPump(pMeter,pAccumulator);
