@@ -84,9 +84,7 @@ public class TestLJMC3D extends Simulation {
         TestLJMC3D sim = new TestLJMC3D(numAtoms);
 
         sim.getDefaults().blockSize = 10;
-        MeterPressure pMeter = new MeterPressure(sim.potentialMaster,sim.space);
-        pMeter.setTemperature(sim.integrator.getTemperature());
-        pMeter.setPhase(sim.phase);
+        MeterPressure pMeter = new MeterPressure(sim.integrator,sim.space);
         AccumulatorAverage pAccumulator = new AccumulatorAverage(sim);
         DataPump pPump = new DataPump(pMeter,pAccumulator);
         IntervalActionAdapter iaa = new IntervalActionAdapter(pPump,sim.integrator);
