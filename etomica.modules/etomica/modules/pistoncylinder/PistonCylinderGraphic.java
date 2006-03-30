@@ -663,8 +663,8 @@ public class PistonCylinderGraphic {
         targetTemperatureHistory.addDataSink(plotT.getDataSet());
         pc.register(targetTemperatureDataSource, targetTemperatureDataPump);
 
-        pressureMeter = new DataSourceWallPressure(pc.space,pc.pistonPotential,pc.integrator);
-        pressureMeter.setPhase(pc.phase);
+        pressureMeter = new DataSourceWallPressure(pc.space,pc.pistonPotential);
+        pressureMeter.setIntegrator(pc.integrator);
         AccumulatorHistory pressureHistory = new AccumulatorHistory();
         pressureHistory.setTimeDataSource(meterCycles);
         pressureHistory.setHistoryLength(historyLength);

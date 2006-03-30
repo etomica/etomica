@@ -112,39 +112,4 @@ public class PistonCylinder extends Simulation {
         getController().addAction(ai);
         
     }
-    
-    /**
-     * Demonstrates how this class is implemented.
-     */
-    public static void main(String[] args) {
-        PistonCylinder sim = new PistonCylinder(3);
-        sim.ai.setMaxSteps(50000);
-        sim.integrator.setTimeStep(20.0);
-        sim.getDefaults().blockSize=1000;
-
-        MeterPressureHard pMeter = new MeterPressureHard(sim.space,sim.integrator);
-        pMeter.setPhase(sim.phase);
-        AccumulatorAverage pAcc = new AccumulatorAverage(sim);
-        DataPump pump = new DataPump(pMeter, pAcc);
-        IntervalActionAdapter adapter = new IntervalActionAdapter(pump,sim.integrator);
-        adapter.setActionInterval(10);
-        
-        MeterPistonDensity dMeter = new MeterPistonDensity(sim.pistonPotential,1,sim.getDefaults().atomSize);
-        dMeter.setPhase(sim.phase);
-        AccumulatorAverage dAcc = new AccumulatorAverage(sim);
-        pump = new DataPump(dMeter, dAcc);
-        adapter = new IntervalActionAdapter(pump,sim.integrator);
-        adapter.setActionInterval(10);
-        
-        System.out.println("density (mol/L) = "+dMeter.getDataAsScalar()*10000/6.0221367);
-      
-        sim.getController().actionPerformed();
-        
-        System.out.println("density average "+((DataDouble)((DataGroup)dAcc.getData()).getData(AccumulatorAverage.StatType.AVERAGE.index)).x*10000/6.0221367+" +/- "
-                +((DataDouble)((DataGroup)dAcc.getData()).getData(AccumulatorAverage.StatType.ERROR.index)).x*10000/6.0221367);
-        System.out.println("Z="+((DataDouble)((DataGroup)pAcc.getData()).getData(AccumulatorAverage.StatType.AVERAGE.index)).x+" +/- "
-                +((DataDouble)((DataGroup)pAcc.getData()).getData(AccumulatorAverage.StatType.ERROR.index)).x);
-
-   }
-       
 }

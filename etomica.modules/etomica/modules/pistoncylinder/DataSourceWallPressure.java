@@ -11,8 +11,8 @@ import etomica.space.Space;
  */
 public class DataSourceWallPressure extends MeterPressureHard {
 
-    public DataSourceWallPressure(Space space, P1HardMovingBoundary potential, IntegratorHard integrator) {
-        super(space,integrator);
+    public DataSourceWallPressure(Space space, P1HardMovingBoundary potential) {
+        super(space);
         wallPotential = potential;
     }
     
