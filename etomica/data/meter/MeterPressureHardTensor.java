@@ -1,6 +1,5 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
-import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -9,7 +8,6 @@ import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.DataSourceCountTime;
 import etomica.data.types.DataTensor;
-import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorHard;
 import etomica.phase.Phase;
 import etomica.space.ICoordinateKinetic;
@@ -65,7 +63,7 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
         data.x.PE(lcvt);
     }
     
-    protected void setIntegrator(Integrator newIntegrator) {
+    public void setIntegrator(IntegratorHard newIntegrator) {
         if (newIntegrator == integratorHard) {
             return;
         }
@@ -79,9 +77,13 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
             return;
         }
         phase = integratorHard.getPhase();
-        integratorHard = (IntegratorHard)newIntegrator;
+        integratorHard = newIntegrator;
         integratorHard.addCollisionListener(this);
         integratorHard.addListener(timer);
+    }
+    
+    public IntegratorHard getIntegrator() {
+        return integratorHard;
     }
     
     public String getName() {
