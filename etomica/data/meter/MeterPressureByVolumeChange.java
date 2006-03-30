@@ -7,10 +7,9 @@ import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.DataSourceUniform;
 import etomica.data.types.DataDoubleArray;
+import etomica.integrator.IntegratorPhase;
 import etomica.phase.Phase;
 import etomica.potential.PotentialCalculationEnergySum;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Pressure;
@@ -20,10 +19,10 @@ import etomica.units.Volume;
  * Evaluates the pressure by examining the change in energy accompanying
  * small changes in volume.
  */
-public class MeterPressureByVolumeChange implements Meter, java.io.Serializable {
+public class MeterPressureByVolumeChange implements java.io.Serializable {
     
-    public MeterPressureByVolumeChange(Simulation sim) {
-        this(sim.potentialMaster, makeDefaultDimensions(sim.space.D()));
+    public MeterPressureByVolumeChange(Space space) {
+        this(space, makeDefaultDimensions(space.D()));
     }
     
     private static final boolean[] makeDefaultDimensions(int D) {
@@ -34,16 +33,13 @@ public class MeterPressureByVolumeChange implements Meter, java.io.Serializable 
         return dim;
     }
     
-    public MeterPressureByVolumeChange(PotentialMaster potentialMaster, boolean[] dimensions) {
-        data = new DataDoubleArray("Pressure by Volume Change",Pressure.dimension(potentialMaster.getSpace().D()),10);
-        dataArray = data.getData();
-        spaceD = dimensions.length;
-        potential = potentialMaster;
-        setX(-0.001, 0.001, data.getLength());
-        inflateDimensions = new boolean[spaceD];
+    public MeterPressureByVolumeChange(Space space, boolean[] dimensions) {
+        this.space = space;
+        setX(-0.001, 0.001, 10);
+        inflateDimensions = new boolean[space.D()];
         setInflateDimensions(dimensions);
         iteratorDirective = new IteratorDirective();
-        inflater = new PhaseInflate(potentialMaster.getSpace());
+        inflater = new PhaseInflate(space);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -51,6 +47,24 @@ public class MeterPressureByVolumeChange implements Meter, java.io.Serializable 
         return info;
     }
     
+    /**
+     * Sets the integrator associated with this instance.  The pressure is 
+     * calculated for the phase the integrator acts on and the integrator's 
+     * temperature is used to calculate the pressure.
+     */
+    public void setIntegrator(IntegratorPhase newIntegrator) {
+        integrator = newIntegrator;
+    }
+    
+    /**
+     * Returns the integrator associated with this instance.  The pressure is 
+     * calculated for the phase the integrator acts on and the integrator's 
+     * temperature is used to calculate the pressure.
+     */
+    public IntegratorPhase getIntegrator() {
+        return integrator;
+    }
+
     public DataInfo getDataInfo() {
         return data.getDataInfo();
     }
@@ -59,7 +73,7 @@ public class MeterPressureByVolumeChange implements Meter, java.io.Serializable 
      * For anisotropic volume change, indicates dimension in which volume is perturbed.
      */
     public final void setInflateDimensions(boolean[] directions) {
-        if(directions.length != spaceD) {
+        if(directions.length != space.D()) {
             throw new IllegalArgumentException();
         }
         nDimension = 0;
@@ -75,7 +89,9 @@ public class MeterPressureByVolumeChange implements Meter, java.io.Serializable 
     public boolean[] getInflateDimensions() {return inflateDimensions;}
     
     public void setX(double min, double max, int n) {
-        xDataSource = new DataSourceUniform("x",Volume.dimension(potential.getSpace().D()),n, min, max);
+        xDataSource = new DataSourceUniform("x", Volume.dimension(space.D()), n, min, max);
+        data = new DataDoubleArray("Pressure by Volume Change", Pressure.dimension(space.D()), n);
+        dataArray = data.getData();
         updateScale();
     }
     
@@ -94,26 +110,12 @@ public class MeterPressureByVolumeChange implements Meter, java.io.Serializable 
         
         double mult = 1.0/nDimension;
         for(int i=0; i<x.length; i++) {
-            scale[i] = Space.makeVector(spaceD);
+            scale[i] = space.makeVector();
             scale[i].E(Math.exp(mult*x[i]));
-            for(int j=0; j<spaceD; j++) {
+            for(int j=0; j<space.D(); j++) {
                 if(!inflateDimensions[j]) scale[i].setX(j,1.0);
             }
         }
-    }
-    
-    /**
-     * @return Returns the temperature.
-     */
-    public double getTemperature() {
-        return temperature;
-    }
-    
-    /**
-     * @param temperature The temperature to set.
-     */
-    public void setTemperature(double temperature) {
-        this.temperature = temperature;
     }
     
     public DataSource getXDataSource() {
@@ -121,61 +123,37 @@ public class MeterPressureByVolumeChange implements Meter, java.io.Serializable 
     }
     
     public Data getData() {
-        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
+        if (integrator == null) throw new IllegalStateException("must call setIntegrator before using meter");
+        Phase phase = integrator.getPhase();
         inflater.setPhase(phase);
         energy.zeroSum();
-        potential.calculate(phase, iteratorDirective, energy);
+        integrator.getPotential().calculate(phase, iteratorDirective, energy);
         double uOld = energy.getSum();
         final double[] x = ((DataDoubleArray)xDataSource.getData()).getData();
+
         for(int i=0; i<dataArray.length; i++) {
             inflater.setVectorScale(scale[i]);
             inflater.actionPerformed();
             energy.zeroSum();
-            potential.calculate(phase, iteratorDirective, energy);
+            integrator.getPotential().calculate(phase, iteratorDirective, energy);
             double uNew = energy.getSum();
-            dataArray[i] = Math.exp(-(uNew-uOld)/temperature
+            dataArray[i] = Math.exp(-(uNew-uOld)/integrator.getTemperature()
                               + phase.moleculeCount()*x[i]);
-
-            //TODO shouldn't this be done outside the loop?
-            inflater.undo();
-            //System.out.println( "  uNew " + uNew +" uOld " +uOld +" x " + x[i] +" scale" + scale[i]+ " y " +y[i] );
         }
+        
+        inflater.undo();
         return data;
     }
 
-    /**
-     * @return Returns the phase.
-     */
-    public Phase getPhase() {
-        return phase;
-    }
-    /**
-     * @param phase The phase to set.
-     */
-    public void setPhase(Phase phase) {
-        this.phase = phase;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-    private String name;
-    private Phase phase;
-    private final DataDoubleArray data;
+    private DataDoubleArray data;
     private double[] dataArray;
     private final PhaseInflate inflater;
-    Vector[] scale;
-    boolean[] inflateDimensions;
-    private IteratorDirective iteratorDirective;
+    private Vector[] scale;
+    private final boolean[] inflateDimensions;
+    private final IteratorDirective iteratorDirective;
     private final PotentialCalculationEnergySum energy = new PotentialCalculationEnergySum();
-    private final PotentialMaster potential;
     private int nDimension;
-    private int spaceD;
+    private final Space space;
     private DataSourceUniform xDataSource;
-    private double temperature = Double.NaN;
-    
+    private IntegratorPhase integrator;
 }
