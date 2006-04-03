@@ -68,7 +68,9 @@ public class P2SquareWell extends Potential2HardSpherical {
      */
     public void bump(AtomSet atoms, double falseTime) {
         AtomPair pair = (AtomPair)atoms;
-        cPair.reset(pair);
+        AtomLeaf atom0 = (AtomLeaf)pair.atom0;
+        AtomLeaf atom1 = (AtomLeaf)pair.atom1;
+        cPair.reset(atom0.coord, atom1.coord);
         cPair.resetV();
         dr.E(cPair.dr());
         Vector dv = cPair.dv();
@@ -76,8 +78,8 @@ public class P2SquareWell extends Potential2HardSpherical {
         double r2 = dr.squared();
         double bij = dr.dot(dv);
         double eps = 1.0e-10;
-        double rm0 = ((AtomTypeLeaf)pair.atom0.type).rm();
-        double rm1 = ((AtomTypeLeaf)pair.atom1.type).rm();
+        double rm0 = ((AtomTypeLeaf)atom0.type).rm();
+        double rm1 = ((AtomTypeLeaf)atom1.type).rm();
         double reduced_m = 1.0/(rm0+rm1);
         double nudge = 0;
         if(2*r2 < (coreDiameterSquared+wellDiameterSquared)) {   // Hard-core collision
@@ -118,13 +120,13 @@ public class P2SquareWell extends Potential2HardSpherical {
         }
         lastCollisionVirialr2 = lastCollisionVirial/r2;
         dv.Ea1Tv1(lastCollisionVirialr2,dr);
-        ((ICoordinateKinetic)((AtomLeaf)pair.atom0).coord).velocity().PEa1Tv1( rm0,dv);
-        ((ICoordinateKinetic)((AtomLeaf)pair.atom1).coord).velocity().PEa1Tv1(-rm1,dv);
-        ((AtomLeaf)pair.atom0).coord.position().PEa1Tv1(-falseTime*rm0,dv);
-        ((AtomLeaf)pair.atom1).coord.position().PEa1Tv1( falseTime*rm1,dv);
+        ((ICoordinateKinetic)atom0.coord).velocity().PEa1Tv1( rm0,dv);
+        ((ICoordinateKinetic)atom1.coord).velocity().PEa1Tv1(-rm1,dv);
+        atom0.coord.position().PEa1Tv1(-falseTime*rm0,dv);
+        atom1.coord.position().PEa1Tv1( falseTime*rm1,dv);
         if(nudge != 0) {
-            ((AtomLeaf)pair.atom0).coord.position().PEa1Tv1(-nudge,dr);
-            ((AtomLeaf)pair.atom1).coord.position().PEa1Tv1(nudge,dr);
+            atom0.coord.position().PEa1Tv1(-nudge,dr);
+            atom1.coord.position().PEa1Tv1(nudge,dr);
         }
     }//end of bump method
 
