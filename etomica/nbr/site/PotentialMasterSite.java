@@ -104,7 +104,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         for (int i=0; i<criteriaArray.length; i++) {
             criteriaArray[i].setPhase(phase);
         }
-        currentCellManager = (NeighborCellManager)phaseAgentManager.getAgents()[phase.getIndex()];
+        currentCellManager = (PhaseCellManager)phaseAgentManager.getAgents()[phase.getIndex()];
         AtomSet targetAtoms = id.getTargetAtoms();
         if (targetAtoms.count() == 0) {
             //no target atoms specified -- do one-target algorithm to
@@ -193,7 +193,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         }
         
         public Class getAgentClass() {
-            return NeighborCellManager.class;
+            return NeighborSiteManager.class;
         }
         
         public Object makeAgent(Phase phase) {

@@ -48,7 +48,7 @@ public class Api1ASite implements AtomsetIteratorMolecule, AtomPairIterator {
 
 	public void setPhase(Phase phase) {
         if(phase != null) {
-            NeighborCellManager[] cellManagers = (NeighborCellManager[])phaseAgentManager.getAgents();
+            NeighborSiteManager[] cellManagers = (NeighborSiteManager[])phaseAgentManager.getAgents();
             lattice = cellManagers[phase.getIndex()].getLattice();
             neighborIterator.setLattice(lattice);
             neighborIterator.setPeriodicity(((BoundaryPeriodic)phase.getBoundary()).getPeriodicity());
