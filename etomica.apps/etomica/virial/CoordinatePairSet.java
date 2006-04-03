@@ -6,6 +6,7 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionFirstAtom;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.space.CoordinatePair;
+import etomica.space.NearestImageTransformerNone;
 import etomica.space.Space;
 
 /**
@@ -53,12 +54,14 @@ public class CoordinatePairSet implements java.io.Serializable {
             Atom atom = iterator.nextAtom();
             atoms[k++] = atom;
         }
+        NearestImageTransformerNone transformer = new NearestImageTransformerNone();
         for(int i=0; i<N; i++) {
             cPairs[i] = new CoordinatePair[N-1-i];
             for(int j=0; j<N-1-i; j++) {
                 CoordinatePair cPair;
                 if (atoms[i].type.isLeaf()) {
                     cPair = new CoordinatePair(space);
+                    cPair.setNearestImageTransformer(transformer);
                     cPair.reset(((AtomLeaf)atoms[i]).coord,((AtomLeaf)atoms[i+j+1]).coord);
                 }
                 else {
