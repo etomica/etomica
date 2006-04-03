@@ -4,6 +4,7 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
 import etomica.atom.AtomPositionDefinition;
+import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorNull;
@@ -91,7 +92,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
 
         moleculeTranslator.setDestination(iPhase.randomPosition());         //place at random in insertion phase
         moleculeTranslator.actionPerformed(molecule);
-        molecule.node.setParent(iSpecies);
+        molecule.node.setParent((AtomTreeNodeGroup)iSpecies.node);
         uNew = Double.NaN;
         return true;
     }//end of doTrial
@@ -123,7 +124,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
         translationVector.TE(-1);
         moleculeReplacer.setTranslationVector(translationVector);
         moleculeReplacer.actionPerformed(molecule);
-        molecule.node.setParent(dSpecies);
+        molecule.node.setParent((AtomTreeNodeGroup)dSpecies.node);
     }
 
     public final AtomIterator affectedAtoms(Phase phase) {

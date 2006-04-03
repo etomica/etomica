@@ -70,7 +70,7 @@ public final class SpeciesMaster extends Atom {
         while (iterator.hasNext()) {
             Atom speciesAgent = iterator.nextAtom();
             if (speciesAgent.type.getSpecies() == species) {
-                speciesAgent.node.setParent((Atom)null);
+                speciesAgent.node.dispose();
             }
         }
     }

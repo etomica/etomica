@@ -55,13 +55,9 @@ public abstract class AtomTreeNode implements Comparable, java.io.Serializable {
     public abstract int childAtomCount();
     
     public void dispose() {
-    	setParent((AtomTreeNodeGroup)null);
+    	setParent(null);
     }
 
-    public void setParent(Atom parent) {
-        setParent(parent==null ? (AtomTreeNodeGroup)null : (AtomTreeNodeGroup)parent.node);
-    }
-    
     public void setParent(AtomTreeNodeGroup parent) {
     	
         //old parent is not null; remove from it

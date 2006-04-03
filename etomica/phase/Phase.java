@@ -77,7 +77,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         space = sim.space;
         eventManager = new PhaseEventManager();
         speciesMaster = new SpeciesMaster(sim, this, eventManager);
-        speciesMaster.node.setParent(sim.speciesRoot);
+        speciesMaster.node.setParent((AtomTreeNodeGroup)sim.speciesRoot.node);
         makeMolecules();
         setName(null);
 
