@@ -27,9 +27,6 @@ import etomica.space.Space;
 /**
  * PotentialMaster used to implement neighbor listing.  Instance of this
  * class is given as an argument to the Simulation constructor.
- * Criteria specifying whether two atoms are neighbors for a particular potential
- * are specified in the setSpecies method of this class.
- * <br>
  */
 public class PotentialMasterList extends PotentialMasterNbr {
 
