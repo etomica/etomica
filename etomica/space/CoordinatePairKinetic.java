@@ -43,8 +43,8 @@ public class CoordinatePairKinetic extends CoordinatePair {
      * @throws ClassCastException
      *             if the atoms' coordinates do not implement ICoordinateKinetic
      */
-    public Vector resetV(AtomPair pair) {
-        return resetV(((AtomLeaf)pair.atom0).coord, ((AtomLeaf)pair.atom1).coord);
+    public void resetV(AtomPair pair) {
+        resetV(((AtomLeaf)pair.atom0).coord, ((AtomLeaf)pair.atom1).coord);
     }
 
     /**
@@ -59,10 +59,9 @@ public class CoordinatePairKinetic extends CoordinatePair {
      * @throws ClassCastException
      *             if the atoms' coordinates do not implement ICoordinateKinetic
      */
-    public Vector resetV(ICoordinate coord1, ICoordinate coord2) {
+    public void resetV(ICoordinate coord1, ICoordinate coord2) {
         c1 = (Coordinate) coord1;
         c2 = (Coordinate) coord2;
-        return resetV();
     }
 
     /**
@@ -77,9 +76,8 @@ public class CoordinatePairKinetic extends CoordinatePair {
      * @throws NullPointerException
      *             if no atoms/coordinates were previously specified
      */
-    public Vector resetV() {
+    public void resetV() {
         dv.Ev1Mv2(((ICoordinateKinetic) c2).velocity(), ((ICoordinateKinetic) c1).velocity());
-        return dv;
     }
 
     /**
@@ -87,40 +85,6 @@ public class CoordinatePairKinetic extends CoordinatePair {
      */
     public final Vector dv() {
         return dv;
-    }
-
-    /**
-     * Returns the square of the relative-velocity vector most recently
-     * calculated via resetV.
-     */
-    public final double v2() {
-        return dv.squared();
-    }
-
-    /**
-     * Returns the dot product between the relative velocity and separation
-     * vectors most recently calculated via calls to reset and resetV. Both
-     * methods must have been previously called for the current atoms, or else
-     * the method will return an incorrect value.
-     */
-    public final double vDotr() {
-        return dr.dot(dv);
-    }
-
-    /**
-     * Perturbs the velocities of the most recently specified atoms/coordinates
-     * by the given value, in a direction away from each other along the line
-     * joining them. Requires previous call to reset (but not necessarily
-     * resetV) for correct functioning.
-     * 
-     * @throws ClassCastException
-     *             if the atoms' coordinates do not implement ICoordinateKinetic
-     * @throws NullPointerException
-     *             if no atoms/coordinates were previously specified
-     */
-    public void push(double deltaV) {
-        ((ICoordinateKinetic) c1).velocity().PEa1Tv1(+deltaV, dr);
-        ((ICoordinateKinetic) c2).velocity().PEa1Tv1(-deltaV, dr);
     }
 
     private final Vector dv;

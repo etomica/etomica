@@ -49,8 +49,8 @@ public class CoordinatePair implements java.io.Serializable {
      * @return the separation vector between the pair of atoms, with nearest-image
      * transformation taken into account.  Separation is defined as pair.atom1 - pair.atom0.
      */
-    public Vector reset(AtomPair pair) {
-        return reset(((AtomLeaf)pair.atom0).coord, ((AtomLeaf)pair.atom1).coord);
+    public void reset(AtomPair pair) {
+        reset(((AtomLeaf)pair.atom0).coord, ((AtomLeaf)pair.atom1).coord);
     }
 
     /**
@@ -61,10 +61,10 @@ public class CoordinatePair implements java.io.Serializable {
      * @return the separation vector between the pair of coordinates, with nearest-image
      * transformation taken into account.  Separation is defined as coord2 - coord1.
      */
-    public Vector reset(ICoordinate coord1, ICoordinate coord2) {
+    public void reset(ICoordinate coord1, ICoordinate coord2) {
         c1 = (Coordinate)coord1;
         c2 = (Coordinate)coord2;
-        return reset();
+        reset();
     }
 
     /**
@@ -77,10 +77,9 @@ public class CoordinatePair implements java.io.Serializable {
      * @throws NullPointerException if no coordinates or atoms were previously specified
      * or if the nearestImageTransformer was not specified.
      */
-    public Vector reset() {
+    public void reset() {
         dr.Ev1Mv2(c2.r, c1.r);
         nearestImageTransformer.nearestImage(dr);
-        return dr;
     }
 
     /**
