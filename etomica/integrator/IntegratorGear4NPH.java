@@ -275,12 +275,13 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
             while(iterator.hasNext()) {
                 AtomPair pair = (AtomPair)iterator.next();
                 cPair.reset(pair);
+                cPair.resetV();
                 double r2 = cPair.r2();
                 u += potentialSoft.energy(pair);
                 w += potentialSoft.virial(pair);
                 double hv = potentialSoft.hyperVirial(pair);
                 x += hv;
-                rvx += hv * cPair.vDotr()/r2;
+                rvx += hv * cPair.dr().dot(cPair.dv())/r2;
                 f.E(potentialSoft.gradient(pair));
                 vf -= cPair.dv().dot(f); //maybe should be (-)?
                 agents[pair.atom0.getGlobalIndex()].force().PE(f);
