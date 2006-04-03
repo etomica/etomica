@@ -42,7 +42,9 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
     */
     public void bump(AtomSet pair, double falseTime) {
         double eps = 1e-6;
-        cPair.reset((AtomPair)pair);
+        AtomLeaf atom0 = (AtomLeaf)((AtomPair)pair).atom0;
+        AtomLeaf atom1 = (AtomLeaf)((AtomPair)pair).atom1;
+        cPair.reset(atom0.coord, atom1.coord);
         cPair.resetV();
         dr.E(cPair.dr());
         Vector dv = cPair.dv();
@@ -50,7 +52,7 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
         double r2 = dr.squared();
         double bij = dr.dot(dv);
 
-        double reduced_m = 1/(((AtomTypeLeaf)((AtomPair)pair).atom0.type).rm() + ((AtomTypeLeaf)((AtomPair)pair).atom1.type).rm());
+        double reduced_m = 1/(((AtomTypeLeaf)atom0.type).rm() + ((AtomTypeLeaf)atom1.type).rm());
         double nudge = 0;
         if (bij > 0.0) {    //Separating
             double ke = bij*bij*reduced_m/(2*r2);
@@ -72,11 +74,14 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
         }
         lastCollisionVirialr2 = lastCollisionVirial/r2;
         dv.Ea1Tv1(lastCollisionVirialr2,dr);
-        ((ICoordinateKinetic)((AtomLeaf)((AtomPair)pair).atom0).coord).velocity().PE(dv);
-        ((ICoordinateKinetic)((AtomLeaf)((AtomPair)pair).atom1).coord).velocity().ME(dv);
-        ((AtomLeaf)((AtomPair)pair).atom0).coord.position().Ea1Tv1(-falseTime,dv);
-        ((AtomLeaf)((AtomPair)pair).atom1).coord.position().Ea1Tv1(falseTime,dv);
-        cPair.nudge(nudge);
+        ((ICoordinateKinetic)atom0.coord).velocity().PE(dv);
+        ((ICoordinateKinetic)atom1.coord).velocity().ME(dv);
+        atom0.coord.position().Ea1Tv1(-falseTime,dv);
+        atom1.coord.position().Ea1Tv1(falseTime,dv);
+        if(nudge != 0) {
+            atom0.coord.position().PEa1Tv1(-nudge,dr);
+            atom1.coord.position().PEa1Tv1(nudge,dr);
+        }
     }
     
     
