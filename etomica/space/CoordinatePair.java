@@ -100,17 +100,6 @@ public class CoordinatePair implements java.io.Serializable {
         return dr;
     }
 
-   /**
-    * Translates the previously-specified position vectors by the amount rDelta in a
-    * direction away from each other along the line connecting them.  Typically used
-    * to separate or bring together by a small amount a pair of atoms having just 
-    * completed a hard collision (to ensure they're on the right side of the collision potential).
-    */
-    public void nudge(double rDelta) {
-        c1.position().PEa1Tv1(-rDelta, dr);
-        c2.position().PEa1Tv1(+rDelta, dr);
-    }
-    
     protected Coordinate c1;
     protected Coordinate c2;
     protected final Vector dr;
