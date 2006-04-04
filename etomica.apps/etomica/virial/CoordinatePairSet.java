@@ -66,6 +66,7 @@ public class CoordinatePairSet implements java.io.Serializable {
                 }
                 else {
                     cPair = new CoordinatePairMolecular(space,new AtomPositionFirstAtom());
+                    cPair.setNearestImageTransformer(transformer);
                     ((CoordinatePairMolecular)cPair).reset(atoms[i],atoms[i+j+1]);
                 }
                 cPairs[i][j] = cPair;
