@@ -13,6 +13,8 @@ import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.iterator.TripletInnerFixed;
+import etomica.atom.iterator.TripletInnerVariable;
 import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.PotentialCalculationUpdateTypeList.PotentialAtomTypeWrapper;
 import etomica.nbr.cell.NeighborCellManager;
@@ -66,6 +68,9 @@ public class PotentialMasterList extends PotentialMasterNbr {
         singletIterator = new AtomIteratorSinglet();
         pairIterator = new ApiInnerFixed(singletIterator, atomIterator);
         swappedPairIterator = new ApiInnerFixed(singletIterator, atomIterator, true);
+        tripletIterator = new TripletInnerVariable();
+        swappedTripletIterator = new TripletInnerVariable(true);
+        mixedTripletIterator = new TripletInnerFixed();
         cellRange = 2;
     }
     
@@ -127,6 +132,9 @@ public class PotentialMasterList extends PotentialMasterNbr {
     //TODO make a "TerminalGroup" node that permits child atoms but indicates that no potentials apply directly to them
     private void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc, Potential[] potentials, AtomsetIterator[] iterators) {
         singletIterator.setAtom(atom);
+        tripletIterator.setSingleAtom(atom);
+        swappedTripletIterator.setSingleAtom(atom);
+        mixedTripletIterator.setSingleAtom(atom);
         IteratorDirective.Direction direction = id.direction();
         for(int i=0; i<potentials.length; i++) {
             if (!potentials[i].getCriterion().isRangeDependent()) {
@@ -167,6 +175,30 @@ public class PotentialMasterList extends PotentialMasterNbr {
                     }
                 }
                 break;//switch
+            case 3:
+                if (direction != IteratorDirective.Direction.DOWN) {
+                    list = neighborManager.getUpList(atom);
+                    if (i < list.length) {
+                        tripletIterator.setList(list[i]);
+                        pc.doCalculation(tripletIterator, id, potentials[i]);
+                    }
+                    if (direction != IteratorDirective.Direction.UP) {
+                        // "both"
+                        if (i < list.length) {
+                            AtomArrayList[] downList = neighborManager.getDownList(atom);
+                            mixedTripletIterator.setLists(downList[i],list[i]);
+                            pc.doCalculation(mixedTripletIterator, id, potentials[i]);
+                        }
+                    }
+                }
+                if (direction != IteratorDirective.Direction.UP) {
+                    list = neighborManager.getDownList(atom);
+                    if (i < list.length) {
+                        tripletIterator.setList(list[i]);
+                        pc.doCalculation(tripletIterator, id, potentials[i]);
+                    }
+                }
+                break;
             }//end of switch
         }//end of for
         
@@ -209,7 +241,10 @@ public class PotentialMasterList extends PotentialMasterNbr {
     private final AtomIteratorSinglet singletIterator;
     private final ApiInnerFixed pairIterator;
     private final ApiInnerFixed swappedPairIterator;
-    private final NeighborListManager neighborManager;
+    private final TripletInnerVariable tripletIterator;
+    private final TripletInnerVariable swappedTripletIterator;
+    private final TripletInnerFixed mixedTripletIterator;
+	private final NeighborListManager neighborManager;
     private int cellRange;
     private final IteratorDirective idUp = new IteratorDirective();
     

@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
-import etomica.atom.iterator.AtomsetIteratorMolecule;
+import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.IteratorFactory;
@@ -86,7 +86,7 @@ public class PotentialMaster implements java.io.Serializable {
     		throw new IllegalArgumentException("Illegal species length");
     	}
         else {
-            AtomsetIteratorMolecule iterator = iteratorFactory.makeMoleculeIterator(species);
+            AtomsetIteratorPDT iterator = iteratorFactory.makeMoleculeIterator(species);
             addPotential(potential, iterator, moleculeTypes(species));
             if(potential instanceof PotentialTruncated) {
                 Potential0Lrc lrcPotential = ((PotentialTruncated)potential).makeLrcPotential(moleculeTypes(species)); 
@@ -205,7 +205,7 @@ public class PotentialMaster implements java.io.Serializable {
         return species;
     }
     
-    protected void addPotential(Potential potential, AtomsetIteratorMolecule iterator, AtomType[] types) {
+    protected void addPotential(Potential potential, AtomsetIteratorPDT iterator, AtomType[] types) {
         //the order of the given potential should be consistent with the order of the iterator
         if(potential.nBody() != iterator.nBody()) {
             throw new RuntimeException("Error: adding to PotentialGroup a potential and iterator that are incompatible");
@@ -312,7 +312,7 @@ public class PotentialMaster implements java.io.Serializable {
     protected boolean enabled = true;
     protected final Space space;
     
-    private static class AtomIterator0 extends AtomsetIteratorSinglet implements AtomsetIteratorMolecule {
+    private static class AtomIterator0 extends AtomsetIteratorSinglet implements AtomsetIteratorPDT {
         AtomIterator0() {
             super(AtomSet.NULL);
         }
@@ -323,12 +323,12 @@ public class PotentialMaster implements java.io.Serializable {
 
     public static class PotentialLinker implements java.io.Serializable {
         public final Potential potential;
-        public final AtomsetIteratorMolecule iterator;
+        public final AtomsetIteratorPDT iterator;
         public final AtomType[] types;
         public PotentialLinker next;
         public boolean enabled = true;
         //Constructors
-        public PotentialLinker(Potential a, AtomsetIteratorMolecule i, AtomType[] t, PotentialLinker l) {
+        public PotentialLinker(Potential a, AtomsetIteratorPDT i, AtomType[] t, PotentialLinker l) {
             potential = a;
             iterator = i;
             next = l;

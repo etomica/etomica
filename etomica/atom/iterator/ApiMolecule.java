@@ -23,7 +23,7 @@ import etomica.phase.Phase;
  * and cannot be changed after construction.
  * 
  */
-public class ApiMolecule implements AtomsetIteratorMolecule, AtomPairIterator, java.io.Serializable {
+public class ApiMolecule implements AtomsetIteratorPDT, AtomPairIterator, java.io.Serializable {
 
     /**
      * Constructs iterator by wrapping three others.
@@ -35,8 +35,8 @@ public class ApiMolecule implements AtomsetIteratorMolecule, AtomPairIterator, j
      * @param apiAA
      *            iterator for all pairs in the phase
      */
-    public ApiMolecule(AtomsetIteratorMolecule api11,
-            AtomsetIteratorMolecule api1A, AtomsetIteratorPhaseDependent apiAA) {
+    public ApiMolecule(AtomsetIteratorPDT api11,
+            AtomsetIteratorPDT api1A, AtomsetIteratorPhaseDependent apiAA) {
         this.api11 = api11;
         this.api1A = api1A;
         this.apiAA = apiAA;
@@ -177,14 +177,14 @@ public class ApiMolecule implements AtomsetIteratorMolecule, AtomPairIterator, j
     /**
      * Returns the 11 iterator set at construction.
      */
-    public AtomsetIteratorMolecule getApi11() {
+    public AtomsetIteratorPDT getApi11() {
         return api11;
     }
 
     /**
      * Returns the 1A iterator set at construction.
      */
-    public AtomsetIteratorMolecule getApi1A() {
+    public AtomsetIteratorPDT getApi1A() {
         return api1A;
     }
 
@@ -196,8 +196,8 @@ public class ApiMolecule implements AtomsetIteratorMolecule, AtomPairIterator, j
     }
     
     private AtomPairIterator iterator;
-    private final AtomsetIteratorMolecule api11;
-    private final AtomsetIteratorMolecule api1A;
+    private final AtomsetIteratorPDT api11;
+    private final AtomsetIteratorPDT api1A;
     private final AtomsetIteratorPhaseDependent apiAA;
     private Phase phase;
 

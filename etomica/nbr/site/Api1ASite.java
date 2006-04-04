@@ -11,7 +11,7 @@ import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.AtomPairIterator;
-import etomica.atom.iterator.AtomsetIteratorMolecule;
+import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.lattice.CellLattice;
@@ -27,7 +27,7 @@ import etomica.space.BoundaryPeriodic;
  * Direction is related to ordering of sites.
  */
 
-public class Api1ASite implements AtomsetIteratorMolecule, AtomPairIterator, java.io.Serializable {
+public class Api1ASite implements AtomsetIteratorPDT, AtomPairIterator, java.io.Serializable {
     
 	/**
 	 * Constructor makes iterator that must have phase specified and then be 

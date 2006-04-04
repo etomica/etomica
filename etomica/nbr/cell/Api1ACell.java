@@ -18,7 +18,7 @@ import etomica.atom.iterator.AtomIteratorArrayList;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomPairIterator;
-import etomica.atom.iterator.AtomsetIteratorMolecule;
+import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.lattice.CellLattice;
@@ -33,7 +33,7 @@ import etomica.space.BoundaryPeriodic;
  * molecules in cell's occupant list.
  */
 
-public class Api1ACell implements AtomsetIteratorMolecule, AtomsetIteratorCellular, 
+public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular, 
         AtomPairIterator, java.io.Serializable {
     
     /**

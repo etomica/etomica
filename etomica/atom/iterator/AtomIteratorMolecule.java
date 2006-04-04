@@ -21,7 +21,7 @@ import etomica.species.Species;
  * potentials.
  */
 public class AtomIteratorMolecule extends AtomIteratorAdapter implements
-        AtomsetIteratorMolecule, AtomIteratorPhaseDependent {
+        AtomsetIteratorPDT, AtomIteratorPhaseDependent {
 
     /**
      * @param species species for which molecules are returned as iterates. Only
@@ -71,7 +71,7 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
     }
 
     /** 
-     * Has no effect, but is included as part of the AtomsetIteratorMolecule interface.
+     * Has no effect, but is included as part of the AtomsetIteratorPDT interface.
      */
     public void setDirection(Direction direction) {
         //ignore

@@ -28,7 +28,7 @@ public class IteratorFactory implements java.io.Serializable {
      * @param species array used to determine type of iterator to return
      * @return an appropriate iterator for looping over molecules of the given species
      */
-    public AtomsetIteratorMolecule makeMoleculeIterator(Species[] species) {
+    public AtomsetIteratorPDT makeMoleculeIterator(Species[] species) {
         if (species == null || species.length == 0 || species.length > 2
                 || species[0] == null || species[species.length-1] == null) {
             throw new IllegalArgumentException("null or invalid number of species.  Must specify either 1 or 2 species instances.");
@@ -47,8 +47,8 @@ public class IteratorFactory implements java.io.Serializable {
      * between two groups
      * @return the pair iterator
      */
-    public AtomsetIteratorMolecule makeInterspeciesPairIterator(Species[] species) {
-        AtomsetIteratorMolecule api1A = new ApiInterspecies1A(species);
+    public AtomsetIteratorPDT makeInterspeciesPairIterator(Species[] species) {
+        AtomsetIteratorPDT api1A = new ApiInterspecies1A(species);
         AtomsetIteratorPhaseDependent apiAA = new ApiInterspeciesAA(species);
         ApiSpecies11 api11 = new ApiSpecies11(species);
         return new ApiMolecule(api11, api1A, apiAA);
@@ -59,8 +59,8 @@ public class IteratorFactory implements java.io.Serializable {
      * within one group
      * @return the pair iterator
      */
-    public AtomsetIteratorMolecule makeIntraspeciesPairIterator(Species[] species) {
-        AtomsetIteratorMolecule api1A = new ApiIntraspecies1A(species);
+    public AtomsetIteratorPDT makeIntraspeciesPairIterator(Species[] species) {
+        AtomsetIteratorPDT api1A = new ApiIntraspecies1A(species);
         AtomsetIteratorPhaseDependent apiAA = new ApiIntraspeciesAA(species);
         ApiSpecies11 api11 = new ApiSpecies11(species);
         return new ApiMolecule(api11, api1A, apiAA);

@@ -18,9 +18,8 @@ import etomica.species.Species;
  * set to the species agents in that phase.  This iterator is used for calculations
  * involving zero-body potentials.
  */
-//implements AtomsetIteratorMolecule so it can be used by PotentialMaster
 public final class AtomsetIteratorSpeciesAgent extends AtomsetIteratorAdapter
-		implements AtomsetIteratorMolecule {
+		implements AtomsetIteratorPDT {
 
 	/**
 	 * Species are specified at construction and cannot be changed afterward.

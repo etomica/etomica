@@ -20,7 +20,7 @@ import etomica.species.Species;
  */
 
 public class ApiIntraspecies1A extends ApiSequence1A implements
-        AtomsetIteratorMolecule, Serializable {
+        AtomsetIteratorPDT, Serializable {
 
     /**
      * @param species

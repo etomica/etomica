@@ -39,7 +39,7 @@ import etomica.species.Species;
  * History Created on Dec 30, 2004 by kofke
  */
 
-public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorMolecule,
+public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorPDT,
         Serializable {
 
     /**

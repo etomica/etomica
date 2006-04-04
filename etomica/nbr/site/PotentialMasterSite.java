@@ -10,7 +10,7 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorSinglet;
-import etomica.atom.iterator.AtomsetIteratorMolecule;
+import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.NeighborCriterion;
@@ -49,7 +49,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
     }
     
     protected PotentialMasterSite(Space space, PhaseAgentSource phaseAgentSource, 
-            PhaseAgentManager agentManager, AtomsetIteratorMolecule neighborIterator) {
+            PhaseAgentManager agentManager, AtomsetIteratorPDT neighborIterator) {
         super(space, phaseAgentSource, agentManager);
         singletAtomIterator = new AtomIteratorSinglet();
 		singletPairIterator = new AtomsetIteratorSinglet(2);
@@ -183,7 +183,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
 	private final AtomsetIteratorSinglet singletPairIterator;
     private int cellRange;
     private final IteratorDirective idUp = new IteratorDirective();
-    protected final AtomsetIteratorMolecule neighborIterator;
+    protected final AtomsetIteratorPDT neighborIterator;
     protected PhaseCellManager currentCellManager;
     private NeighborCriterion[] criteriaArray = new NeighborCriterion[0];
     

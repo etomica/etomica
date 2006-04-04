@@ -21,7 +21,7 @@ import etomica.species.Species;
  * History Created on May 10, 2005 by kofke
  */
 public class ApiSpecies11 extends AtomPairIteratorAdapter implements
-        AtomsetIteratorMolecule {
+        AtomsetIteratorPDT {
 
     /**
      * Constructs iterator to iterate molecules from two species. Species may be
@@ -62,7 +62,7 @@ public class ApiSpecies11 extends AtomPairIteratorAdapter implements
     }
 
     /**
-     * Performs no action. Implementation of AtomsetIteratorMolecule interface
+     * Performs no action. Implementation of AtomsetIteratorPDT interface
      */
     public void setDirection(Direction direction) {
         //performs no action
