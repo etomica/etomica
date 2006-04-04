@@ -43,10 +43,10 @@ public class DisplayPhaseSpin2D extends DisplayPhaseCanvas2D {
 //        ((MySite)lattice.site(iterator.centralSite)).color = Color.RED;
         int nx = 5; //number of planes to draw before moving down to another line of planes
         int k = latticeIndex.length < 3 ? 0 : latticeIndex[2];
-        int ox = origin[0] + k % nx;       //set origin for drawing each lattice plane
-        int oy = origin[1] + (k - ox)/nx;
-        ox = 3 + ox*spinWidth*(lattice.getSize()[0]+2);
-        oy = 3 + oy*spinWidth*(lattice.getSize()[1]+2);
+        int ox = k % nx;       //set origin for drawing each lattice plane
+        int oy = (k - ox)/nx;
+        ox = origin[0] + 3 + ox*spinWidth*(lattice.getSize()[0]+2);
+        oy = origin[1] + 3 + oy*spinWidth*(lattice.getSize()[1]+2);
         //draw lattice plane
         g.setColor(atom.coord.position().x(0) > 0 ? Color.green : Color.white);
         g.fillRect(ox+latticeIndex[0]*spinWidth,oy+latticeIndex[1]*spinWidth,spinWidth,spinWidth);
