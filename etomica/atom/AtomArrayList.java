@@ -346,6 +346,14 @@ import etomica.util.Debug;
 	    	elementData[index] = element;
 	    	size++;
 	    }
+        
+        public void addAll(AtomArrayList atoms) {
+            ensureCapacity(size+atoms.size());
+            int newSize = size + atoms.size();
+            for (int i=size; i<newSize; i++) {
+                elementData[i] = atoms.get(i+size);
+            }
+        }
 	
 	    /**
 	     * Removes the element at the specified position in this list.
