@@ -27,7 +27,7 @@ import etomica.space.BoundaryPeriodic;
  * Direction is related to ordering of sites.
  */
 
-public class Api1ASite implements AtomsetIteratorMolecule, AtomPairIterator {
+public class Api1ASite implements AtomsetIteratorMolecule, AtomPairIterator, java.io.Serializable {
     
 	/**
 	 * Constructor makes iterator that must have phase specified and then be 
