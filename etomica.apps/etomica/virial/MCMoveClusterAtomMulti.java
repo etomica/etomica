@@ -57,7 +57,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
     public void selectAtoms() {
         AtomArrayList leafList = phase.getSpeciesMaster().leafList;
         int total = leafList.size();
-    	for(int i=1; i<total; i--) {
+    	for(int i=1; i<total; i++) {
     		selectedAtoms[i-1] = (AtomLeaf)leafList.get(i);
     	}
     }
