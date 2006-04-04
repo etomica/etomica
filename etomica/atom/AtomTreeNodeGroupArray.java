@@ -30,18 +30,16 @@ public class AtomTreeNodeGroupArray extends AtomTreeNodeGroup {
 		}
 	};
 	
-	
-	
 	/**
 	 * Calls superclass method and assigns the atom to one of the atom
 	 * references.
 	 */
-	public void addAtomNotify(Atom atom) {
-		super.addAtomNotify(atom);
-		if(arrayIndex(atom) != -1) throw new RuntimeException("Adding child to node where it is already present as child");
+	public void addAtomNotify(Atom newAtom) {
+		super.addAtomNotify(newAtom);
+		if(arrayIndex(newAtom) != -1) throw new RuntimeException("Adding child to node where it is already present as child");
 		Atom[] newArray = new Atom[childAtomArray.length+1];
 		System.arraycopy(childAtomArray, 0, newArray, 0, childAtomArray.length);
-		newArray[childAtomArray.length] = atom;
+		newArray[childAtomArray.length] = newAtom;
 		childAtomArray = newArray;
 	}
 	
@@ -54,9 +52,9 @@ public class AtomTreeNodeGroupArray extends AtomTreeNodeGroup {
 	/**
 	 * @see etomica.atom.AtomTreeNodeGroup#removeAtomNotify(etomica.Atom)
 	 */
-	public void removeAtomNotify(Atom atom) {
-		super.removeAtomNotify(atom);
-		int idx = arrayIndex(atom);
+	public void removeAtomNotify(Atom oldAtom) {
+		super.removeAtomNotify(oldAtom);
+		int idx = arrayIndex(oldAtom);
 		if(idx == -1) throw new RuntimeException("Error in attempting to remove atom from node");
 		Atom[] newArray = new Atom[childAtomArray.length-1];
 		int k = 0;
