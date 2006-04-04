@@ -53,7 +53,6 @@ public class NeighborSiteManager implements PhaseCellManager, AgentSource {
         siteIterator.reset();
 
         agentManager = new AtomAgentManager(this,phase);
-        sites = (AtomSite[])agentManager.getAgents();
     }
 
     /**
@@ -85,8 +84,11 @@ public class NeighborSiteManager implements PhaseCellManager, AgentSource {
     }
     
     public AtomSite getSite(Atom atom) {
-        sites = (AtomSite[])agentManager.getAgents();
-        return sites[atom.getGlobalIndex()];
+        return ((AtomSite[])agentManager.getAgents())[atom.getGlobalIndex()];
+    }
+    
+    public AtomSite[] getSites() {
+        return (AtomSite[])agentManager.getAgents();
     }
     
     public Class getAgentClass() {
@@ -108,5 +110,4 @@ public class NeighborSiteManager implements PhaseCellManager, AgentSource {
     private final Space space;
     private final RectangularLattice.Iterator siteIterator;
     private final AtomAgentManager agentManager;
-    private AtomSite[] sites;
 }

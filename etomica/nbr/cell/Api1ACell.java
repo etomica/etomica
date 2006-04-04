@@ -73,6 +73,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
         if(phase != null) {
             NeighborCellManager[] cellManagers = (NeighborCellManager[])phaseAgentManager.getAgents();
             lattice = cellManagers[phase.getIndex()].getLattice();
+            cells = cellManagers[phase.getIndex()].getCells();
             neighborIterator.setLattice(lattice);
             neighborIterator.setPeriod(phase.getBoundary().getDimensions());
             neighborIterator.setPeriodicity(((BoundaryPeriodic)phase.getBoundary()).getPeriodicity());
@@ -89,6 +90,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
         if(pair.atom0 == null) return;
         aiOuter.setAtom(targetAtom);
         neighborIterator.checkDimensions();
+        Cell centralCell = cells[targetAtom.getGlobalIndex()];
         lattice.latticeIndex(centralCell.latticeArrayIndex,latticeIndex);
         
         //get pairs in targetMolecule's cell
@@ -198,6 +200,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
         inCentralCell = true;
         upListNow = (direction != IteratorDirective.Direction.DOWN);
         neighborIterator.checkDimensions();
+        Cell centralCell = cells[targetAtom.getGlobalIndex()];
         lattice.latticeIndex(centralCell.latticeArrayIndex,latticeIndex);
         neighborIterator.setSite(latticeIndex);
         neighborIterator.setDirection(upListNow ? IteratorDirective.Direction.UP : IteratorDirective.Direction.DOWN);
@@ -264,10 +267,6 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
             throw new IllegalArgumentException("Can specify at most one target atom to iterator");
         }
     }
-    
-    public void setCentralCell(Cell cell) {
-        centralCell = cell;
-    }
 
     // Moves to next neighbor-cell list that can provide an iterate
     // This should be invoked only if aiInner.hasNext is false
@@ -325,8 +324,8 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
     private boolean inCentralCell;
     private boolean needUpdate;
     private Atom targetAtom;
-    private Cell centralCell;
     private final PhaseAgentManager phaseAgentManager;
+    private Cell[] cells;
     
     private CellLattice lattice;
     

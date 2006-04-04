@@ -46,7 +46,6 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
     private int cellRange = 2;
     private double range;
     private final AtomAgentManager agentManager;
-    private Cell[] cells;
     
     /**
      * Constructs manager for neighbor cells in the given phase.  The number of
@@ -150,7 +149,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
             ((Cell)allCells[i]).occupants().clear();
         }
         
-        cells = (Cell[])agentManager.getAgents();
+        Cell[] cells = (Cell[])agentManager.getAgents();
         for (int i=0; i<cells.length; i++) {
             cells[i] = null;
         }
@@ -165,12 +164,16 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
     }
     
     public Cell getCell(Atom atom) {
-        cells = (Cell[])agentManager.getAgents();
+        Cell[] cells = (Cell[])agentManager.getAgents();
         return cells[atom.getGlobalIndex()];
     }
     
+    public Cell[] getCells() {
+        return (Cell[])agentManager.getAgents();
+    }
+    
     protected void removeFromCell(Atom atom) {
-        cells = (Cell[])agentManager.getAgents();
+        Cell[] cells = (Cell[])agentManager.getAgents();
         if (cells[atom.getGlobalIndex()] != null) {
             cells[atom.getGlobalIndex()].removeAtom(atom);
             cells[atom.getGlobalIndex()] = null;
@@ -187,7 +190,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
                     atom.type.getPositionDefinition().position(atom);
         Cell atomCell = (Cell)lattice.site(position);
         atomCell.addAtom(atom);
-        cells = (Cell[])agentManager.getAgents();
+        Cell[] cells = (Cell[])agentManager.getAgents();
         cells[atom.getGlobalIndex()] = atomCell;
     }
     
@@ -270,10 +273,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
                     }
                 }
                 else {
-                    Vector shift = boundary.centralImage(((AtomLeaf)atom).coord.position());
-                    if (!shift.isZero()) {
-                        ((AtomLeaf)atom).coord.position().PE(shift);
-                    }
+                    boundary.nearestImage(((AtomLeaf)atom).coord.position());
                 }
                 neighborCellManager.assignCell(atom);
             }

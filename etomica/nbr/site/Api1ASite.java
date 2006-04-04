@@ -17,9 +17,9 @@ import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLatticeNbrIterator;
 import etomica.lattice.RectangularLatticeNbrIteratorAdjacent;
-import etomica.nbr.cell.NeighborCellManager;
 import etomica.phase.Phase;
 import etomica.phase.PhaseAgentManager;
+import etomica.phase.PhaseCellManager;
 import etomica.space.BoundaryPeriodic;
 
 /**
@@ -50,6 +50,7 @@ public class Api1ASite implements AtomsetIteratorPDT, AtomPairIterator, java.io.
         if(phase != null) {
             NeighborSiteManager[] cellManagers = (NeighborSiteManager[])phaseAgentManager.getAgents();
             lattice = cellManagers[phase.getIndex()].getLattice();
+            sites = cellManagers[phase.getIndex()].getSites();
             neighborIterator.setLattice(lattice);
             neighborIterator.setPeriodicity(((BoundaryPeriodic)phase.getBoundary()).getPeriodicity());
         }
@@ -58,16 +59,12 @@ public class Api1ASite implements AtomsetIteratorPDT, AtomPairIterator, java.io.
         }
 	}
     
-    public void setCentralSite(AtomSite site) {
-        centralSite = site;
-    }
-
     /**
      * Performs action on all iterates.
      */
     public void allAtoms(AtomsetAction action) {
         if(targetAtom == null) return;
-        lattice.latticeIndex(centralSite.getLatticeArrayIndex(),latticeIndex);
+        lattice.latticeIndex(sites[targetAtom.getGlobalIndex()].getLatticeArrayIndex(),latticeIndex);
         
         //loop over neighbor cells
         neighborIterator.setSite(latticeIndex);
@@ -177,7 +174,8 @@ public class Api1ASite implements AtomsetIteratorPDT, AtomPairIterator, java.io.
             unset();
             return;
         }
-        lattice.latticeIndex(centralSite.latticeArrayIndex,latticeIndex);
+
+        lattice.latticeIndex(sites[targetAtom.getGlobalIndex()].latticeArrayIndex,latticeIndex);
         upListNow = (direction != IteratorDirective.Direction.DOWN);
         neighborIterator.setSite(latticeIndex);
         if (upListNow) {
@@ -228,7 +226,6 @@ public class Api1ASite implements AtomsetIteratorPDT, AtomPairIterator, java.io.
 
     
     private final RectangularLatticeNbrIterator neighborIterator;
-    private AtomSite centralSite;
     private final AtomPair pair = new AtomPair();
     private final int[] latticeIndex;
     private boolean doGoDown;
@@ -237,6 +234,7 @@ public class Api1ASite implements AtomsetIteratorPDT, AtomPairIterator, java.io.
     private Atom targetAtom;
     private Atom next;
     private final PhaseAgentManager phaseAgentManager;
+    private AtomSite[] sites;
     
     private CellLattice lattice;
     

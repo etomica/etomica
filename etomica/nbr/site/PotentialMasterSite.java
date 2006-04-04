@@ -16,7 +16,6 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.PotentialCalculationUpdateTypeList.PotentialAtomTypeWrapper;
-import etomica.nbr.cell.NeighborCellManager;
 import etomica.phase.Phase;
 import etomica.phase.PhaseAgentManager;
 import etomica.phase.PhaseCellManager;
@@ -104,15 +103,13 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         for (int i=0; i<criteriaArray.length; i++) {
             criteriaArray[i].setPhase(phase);
         }
-        currentCellManager = (PhaseCellManager)phaseAgentManager.getAgents()[phase.getIndex()];
         AtomSet targetAtoms = id.getTargetAtoms();
         if (targetAtoms.count() == 0) {
-            //no target atoms specified -- do one-target algorithm to
-            // SpeciesMaster
+            //no target atoms specified -- do one-target algorithm to SpeciesMaster
             neighborIterator.setPhase(phase);
             neighborIterator.setDirection(IteratorDirective.Direction.UP);
             calculate(phase.getSpeciesMaster(), idUp, pc, getPotentials(
-                    phase.getSpeciesMaster().type).getPotentials());
+                       phase.getSpeciesMaster().type).getPotentials());
             if (lrcMaster != null) {
                 lrcMaster.calculate(phase, id, pc);
             }
@@ -120,8 +117,8 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             // one target atom
             neighborIterator.setPhase(phase);
             neighborIterator.setDirection(id.direction());
-            calculate((Atom) targetAtoms, id, pc, getPotentials(
-                    ((Atom) targetAtoms).type).getPotentials());
+            calculate((Atom)targetAtoms, id, pc, getPotentials(
+                      ((Atom)targetAtoms).type).getPotentials());
             if (lrcMaster != null) {
                 lrcMaster.calculate(phase, id, pc);
             }
@@ -139,7 +136,6 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      */
     //TODO make a "TerminalGroup" indicator in type that permits child atoms but indicates that no potentials apply directly to them
 	protected void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc, final Potential[] potentials) {
-        prepNbrIterator(atom);
         for(int i=0; i<potentials.length; i++) {
             switch (potentials[i].nBody()) {
             case 1:
@@ -175,16 +171,11 @@ public class PotentialMasterSite extends PotentialMasterNbr {
 		}
 	}
     
-    protected void prepNbrIterator(Atom atom) {
-        ((Api1ASite)neighborIterator).setCentralSite(((NeighborSiteManager)currentCellManager).getSite(atom));
-    }
-    
     private final AtomIteratorSinglet singletAtomIterator;
 	private final AtomsetIteratorSinglet singletPairIterator;
     private int cellRange;
     private final IteratorDirective idUp = new IteratorDirective();
     protected final AtomsetIteratorPDT neighborIterator;
-    protected PhaseCellManager currentCellManager;
     private NeighborCriterion[] criteriaArray = new NeighborCriterion[0];
     
     public static class PhaseAgentSiteManager implements PhaseAgentSource {

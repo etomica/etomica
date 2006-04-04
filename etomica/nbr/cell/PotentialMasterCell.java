@@ -76,9 +76,5 @@ public class PotentialMasterCell extends PotentialMasterSite {
         return manager;
     }
     
-    protected void prepNbrIterator(Atom atom) {
-        ((Api1ACell)neighborIterator).setCentralCell(((NeighborCellManager)currentCellManager).getCell(atom));
-    }
-    
     private double range;
 }
