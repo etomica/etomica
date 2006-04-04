@@ -62,6 +62,7 @@ public class CoordinatePairKinetic extends CoordinatePair {
     public void resetV(ICoordinate coord1, ICoordinate coord2) {
         c1 = (Coordinate) coord1;
         c2 = (Coordinate) coord2;
+        resetV();
     }
 
     /**
