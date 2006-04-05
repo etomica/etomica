@@ -6,7 +6,6 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.simulation.Simulation;
-import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -35,19 +34,17 @@ public class P2HardSphere extends Potential2HardSpherical {
    protected double lastCollisionVirial = 0.0;
    protected double lastCollisionVirialr2 = 0.0;
    protected final boolean ignoreOverlap;
-   protected final Vector dr;
+   protected final Vector dv;
    protected final Tensor lastCollisionVirialTensor;
-   protected final CoordinatePairKinetic cPair;
     
     public P2HardSphere(Simulation sim) {
         this(sim.space, sim.getDefaults().atomSize, sim.getDefaults().ignoreOverlap);
     }
     public P2HardSphere(Space space, double d, boolean ignoreOverlap) {
-        super(space, new CoordinatePairKinetic(space));
+        super(space);
         setCollisionDiameter(d);
         lastCollisionVirialTensor = space.makeTensor();
-        dr = space.makeVector();
-        cPair = (CoordinatePairKinetic)coordinatePair;
+        dv = space.makeVector();
         this.ignoreOverlap = ignoreOverlap;
     }
 
@@ -64,11 +61,14 @@ public class P2HardSphere extends Potential2HardSpherical {
      * Time to collision of pair, assuming free-flight kinematics
      */
     public double collisionTime(AtomSet pair, double falseTime) {
-        cPair.resetV((AtomPair)pair);
-        Vector dv = cPair.dv();
-        cPair.reset();
-        dr.E(cPair.dr());
+        ICoordinateKinetic coord0 = (ICoordinateKinetic)((AtomLeaf)((AtomPair)pair).atom0).coord;
+        ICoordinateKinetic coord1 = (ICoordinateKinetic)((AtomLeaf)((AtomPair)pair).atom1).coord;
+        dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
+        
+        dr.Ev1Mv2(coord1.position(), coord0.position());
         dr.PEa1Tv1(falseTime,dv);
+        nearestImageTransformer.nearestImage(dr);
+
         double bij = dr.dot(dv);
         double time = Double.POSITIVE_INFINITY;
 
@@ -90,15 +90,17 @@ public class P2HardSphere extends Potential2HardSpherical {
     /**
      * Implements collision dynamics and updates lastCollisionVirial
      */
-    public void bump(AtomSet atoms, double falseTime) {
-        AtomPair pair = (AtomPair)atoms;
-        AtomLeaf atom0 = (AtomLeaf)pair.atom0;
-        AtomLeaf atom1 = (AtomLeaf)pair.atom1;
-        cPair.reset(atom0.coord, atom1.coord);
-        dr.E(cPair.dr());
-        cPair.resetV();
-        Vector dv = cPair.dv();
+    public void bump(AtomSet pair, double falseTime) {
+        AtomLeaf atom0 = (AtomLeaf)((AtomPair)pair).atom0;
+        AtomLeaf atom1 = (AtomLeaf)((AtomPair)pair).atom1;
+        ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0.coord;
+        ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1.coord;
+        dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
+        
+        dr.Ev1Mv2(coord1.position(), coord0.position());
         dr.PEa1Tv1(falseTime,dv);
+        nearestImageTransformer.nearestImage(dr);
+
         double r2 = dr.squared();
         double bij = dr.dot(dv);
         double rm0 = ((AtomTypeLeaf)atom0.type).rm();
@@ -108,10 +110,10 @@ public class P2HardSphere extends Potential2HardSpherical {
         lastCollisionVirialr2 = lastCollisionVirial/r2;
         //dv is now change in velocity due to collision
         dv.Ea1Tv1(lastCollisionVirialr2,dr);
-        ((ICoordinateKinetic)atom0.coord).velocity().PEa1Tv1( rm0,dv);
-        ((ICoordinateKinetic)atom1.coord).velocity().PEa1Tv1(-rm1,dv);
-        atom0.coord.position().PEa1Tv1(-falseTime*rm0,dv);
-        atom1.coord.position().PEa1Tv1( falseTime*rm1,dv);
+        coord0.velocity().PEa1Tv1( rm0,dv);
+        coord1.velocity().PEa1Tv1(-rm1,dv);
+        coord0.position().PEa1Tv1(-falseTime*rm0,dv);
+        coord1.position().PEa1Tv1( falseTime*rm1,dv);
     }
     
     public double lastCollisionVirial() {

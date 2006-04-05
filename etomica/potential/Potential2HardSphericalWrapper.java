@@ -14,7 +14,7 @@ import etomica.space.Tensor;
 public class Potential2HardSphericalWrapper extends Potential2HardSpherical {
 
     public Potential2HardSphericalWrapper(Space space, Potential2HardSpherical potential) {
-        super(space, potential.coordinatePair);
+        super(space);
         setPotential(potential);
     }
 

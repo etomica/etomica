@@ -5,9 +5,7 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
-import etomica.phase.Phase;
 import etomica.simulation.Simulation;
-import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -24,7 +22,7 @@ import etomica.util.Debug;
  * when attempting to come together closer than the min distance. P2Tether is 
  * similar to this potential, but does not have the repulsive core.
  */
-public class P2HardBond extends Potential2 implements PotentialHard {
+public class P2HardBond extends Potential2HardSpherical {
 
     public P2HardBond(Simulation sim) {
         this(sim.space, sim.getDefaults().atomSize, 0.15, sim.getDefaults().ignoreOverlap);
@@ -35,8 +33,7 @@ public class P2HardBond extends Potential2 implements PotentialHard {
         setBondLength(bondLength);
         setBondDelta(bondDelta);
         lastCollisionVirialTensor = space.makeTensor();
-        dr = space.makeVector();
-        cPair = new CoordinatePairKinetic(space);
+        dv = space.makeVector();
         this.ignoreOverlap = ignoreOverlap;
     }
 
@@ -86,13 +83,17 @@ public class P2HardBond extends Potential2 implements PotentialHard {
      * Implements collision dynamics for pair attempting to separate beyond
      * tether distance
      */
-    public final void bump(AtomSet atoms, double falseTime) {
-        AtomPair pair = (AtomPair)atoms;
-        cPair.reset(pair);
-        cPair.resetV();
-        dr.E(cPair.dr());
-        Vector dv = cPair.dv();
+    public final void bump(AtomSet pair, double falseTime) {
+        AtomLeaf atom0 = (AtomLeaf)((AtomPair)pair).atom0;
+        AtomLeaf atom1 = (AtomLeaf)((AtomPair)pair).atom1;
+        ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0.coord;
+        ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1.coord;
+        dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
+        
+        dr.Ev1Mv2(coord1.position(), coord0.position());
         dr.PEa1Tv1(falseTime,dv);
+        nearestImageTransformer.nearestImage(dr);
+
         double r2 = dr.squared();
         double bij = dr.dot(dv);
 
@@ -105,16 +106,16 @@ public class P2HardBond extends Potential2 implements PotentialHard {
             }
         }
         
-        double rm0 = ((AtomTypeLeaf)pair.atom0.type).rm();
-        double rm1 = ((AtomTypeLeaf)pair.atom1.type).rm();
+        double rm0 = ((AtomTypeLeaf)atom0.type).rm();
+        double rm1 = ((AtomTypeLeaf)atom1.type).rm();
         
         lastCollisionVirial = 2.0 / (rm0+rm1) * bij;
         lastCollisionVirialr2 = lastCollisionVirial / r2;
         dv.Ea1Tv1(lastCollisionVirialr2,dr);
-        ((ICoordinateKinetic)((AtomLeaf)pair.atom0).coord).velocity().PEa1Tv1(rm0,dv);
-        ((ICoordinateKinetic)((AtomLeaf)pair.atom1).coord).velocity().PEa1Tv1(-rm1,dv);
-        ((AtomLeaf)pair.atom0).coord.position().PEa1Tv1(-falseTime*rm0,dv);
-        ((AtomLeaf)pair.atom1).coord.position().PEa1Tv1( falseTime*rm1,dv);
+        coord0.velocity().PEa1Tv1(rm0,dv);
+        coord1.velocity().PEa1Tv1(-rm1,dv);
+        coord0.position().PEa1Tv1(-falseTime*rm0,dv);
+        coord1.position().PEa1Tv1( falseTime*rm1,dv);
     }
 
     public final double lastCollisionVirial() {
@@ -132,11 +133,14 @@ public class P2HardBond extends Potential2 implements PotentialHard {
      * free-flight kinematics
      */
     public final double collisionTime(AtomSet pair, double falseTime) {
-        cPair.reset((AtomPair)pair);
-        cPair.resetV();
-        dr.E(cPair.dr());
-        Vector dv = cPair.dv();
+        ICoordinateKinetic coord0 = (ICoordinateKinetic)((AtomLeaf)((AtomPair)pair).atom0).coord;
+        ICoordinateKinetic coord1 = (ICoordinateKinetic)((AtomLeaf)((AtomPair)pair).atom1).coord;
+        dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
+        
+        dr.Ev1Mv2(coord1.position(), coord0.position());
         dr.PEa1Tv1(falseTime,dv);
+        nearestImageTransformer.nearestImage(dr);
+
         double r2 = dr.squared();
         double bij = dr.dot(dv);
         double v2 = dv.squared();
@@ -172,9 +176,7 @@ public class P2HardBond extends Potential2 implements PotentialHard {
     /**
      * Returns 0 if the bond is within the required distance, infinity if not.
      */
-    public double energy(AtomSet pair) {
-        cPair.reset((AtomPair)pair);
-        double r2 = cPair.r2();
+    public double u(double r2) {
         if (r2 > minBondLengthSquared && r2 < maxBondLengthSquared) return 0.0;
         return Double.POSITIVE_INFINITY;
     }
@@ -190,10 +192,6 @@ public class P2HardBond extends Potential2 implements PotentialHard {
     
     public double energyChange() {return 0.0;}
 
-    public void setPhase(Phase phase) {
-        cPair.setNearestImageTransformer(phase.getBoundary());
-    }
-
     private double minBondLengthSquared;
     private double maxBondLength, maxBondLengthSquared;
     private double bondLength;
@@ -201,8 +199,6 @@ public class P2HardBond extends Potential2 implements PotentialHard {
     private double lastCollisionVirial = 0.0;
     private double lastCollisionVirialr2 = 0.0;
     private boolean ignoreOverlap;
-    private final Vector dr;
+    private final Vector dv;
     private final Tensor lastCollisionVirialTensor;
-    private final CoordinatePairKinetic cPair;
-
 }

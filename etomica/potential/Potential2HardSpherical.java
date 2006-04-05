@@ -1,10 +1,14 @@
 package etomica.potential;
 
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
+import etomica.space.Coordinate;
 import etomica.space.CoordinatePair;
+import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Methods for a hard (impulsive), spherically-symmetric pair potential.
@@ -13,9 +17,9 @@ import etomica.space.Space;
 
 public abstract class Potential2HardSpherical extends Potential2 implements PotentialHard, Potential2Spherical {
    
-	public Potential2HardSpherical(Space space, CoordinatePair cPair) {
+	public Potential2HardSpherical(Space space) {
 	    super(space);
-        this.coordinatePair = cPair;
+        dr = space.makeVector();
 	}
 	
 	/**
@@ -26,17 +30,23 @@ public abstract class Potential2HardSpherical extends Potential2 implements Pote
 
     /**
      * Energy of the pair as given by the u(double) method, with application
-     * of any PotentialTruncation that may be defined for the potential.
+     * of any PotentialTruncation that may be defined for the potential.  This
+     * does not take into account any false positioning that the Integrator may
+     * be using.
      */
     public double energy(AtomSet pair) {
-        coordinatePair.reset((AtomPair)pair);
-        return u(coordinatePair.r2());
+        Coordinate coord0 = (Coordinate)((AtomLeaf)((AtomPair)pair).atom0).coord;
+        Coordinate coord1 = (Coordinate)((AtomLeaf)((AtomPair)pair).atom1).coord;
+
+        dr.Ev1Mv2(coord1.position(), coord0.position());
+        nearestImageTransformer.nearestImage(dr);
+        return u(dr.squared());
     }
     
     public void setPhase(Phase phase) {
-        coordinatePair.setNearestImageTransformer(phase.getBoundary());
+        nearestImageTransformer = phase.getBoundary();
     }
 
-    protected final CoordinatePair coordinatePair;
-    
+    protected final Vector dr;
+    protected NearestImageTransformer nearestImageTransformer;
 }

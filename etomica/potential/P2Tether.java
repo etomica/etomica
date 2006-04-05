@@ -5,7 +5,6 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.simulation.Simulation;
-import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -27,12 +26,11 @@ public class P2Tether extends Potential2HardSpherical {
     }
     
     public P2Tether(Space space, double tetherLength, boolean ignoreOverlap) {
-        super(space, new CoordinatePairKinetic(space));
+        super(space);
         setTetherLength(tetherLength);
         this.ignoreOverlap = ignoreOverlap;
         lastCollisionVirialTensor = space.makeTensor();
-        dr = space.makeVector();
-        cPair = (CoordinatePairKinetic)coordinatePair;
+        dv = space.makeVector();
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -56,24 +54,28 @@ public class P2Tether extends Potential2HardSpherical {
     /**
      * Implements collision dynamics for pair attempting to separate beyond tether distance
      */
-    public final void bump(AtomSet atoms, double falseTime) {
-        AtomPair pair = (AtomPair)atoms;
-        cPair.reset(pair);
-        cPair.resetV();
-        dr.E(cPair.dr());
-        Vector dv = cPair.dv();
+    public final void bump(AtomSet pair, double falseTime) {
+        AtomLeaf atom0 = (AtomLeaf)((AtomPair)pair).atom0;
+        AtomLeaf atom1 = (AtomLeaf)((AtomPair)pair).atom1;
+        ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0.coord;
+        ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1.coord;
+        dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
+        
+        dr.Ev1Mv2(coord1.position(), coord0.position());
         dr.PEa1Tv1(falseTime,dv);
+        nearestImageTransformer.nearestImage(dr);
+
         double r2 = dr.squared();
         double bij = dr.dot(dv);
-        double rm0 = ((AtomTypeLeaf)pair.atom0.type).rm();
-        double rm1 = ((AtomTypeLeaf)pair.atom1.type).rm();
+        double rm0 = ((AtomTypeLeaf)atom0.type).rm();
+        double rm1 = ((AtomTypeLeaf)atom1.type).rm();
         lastCollisionVirial = 2.0/(rm0 + rm1)*bij;
         lastCollisionVirialr2 = lastCollisionVirial/r2;
         dv.Ea1Tv1(lastCollisionVirialr2,dr);
-        ((ICoordinateKinetic)((AtomLeaf)pair.atom0).coord).velocity().PEa1Tv1( rm0,dv);
-        ((ICoordinateKinetic)((AtomLeaf)pair.atom1).coord).velocity().PEa1Tv1(-rm1,dv);
-        ((AtomLeaf)pair.atom0).coord.position().PEa1Tv1(-falseTime*rm0,dv);
-        ((AtomLeaf)pair.atom1).coord.position().PEa1Tv1( falseTime*rm1,dv);
+        coord0.velocity().PEa1Tv1( rm0,dv);
+        coord1.velocity().PEa1Tv1(-rm1,dv);
+        coord0.position().PEa1Tv1(-falseTime*rm0,dv);
+        coord1.position().PEa1Tv1( falseTime*rm1,dv);
     }
 
 
@@ -99,11 +101,14 @@ public class P2Tether extends Potential2HardSpherical {
      * Time at which two atoms will reach the end of their tether, assuming free-flight kinematics
      */
     public final double collisionTime(AtomSet pair, double falseTime) {
-        cPair.reset((AtomPair)pair);
-        cPair.resetV();
-        dr.E(cPair.dr());
-        Vector dv = cPair.dv();
-        dr.Ea1Tv1(falseTime,dv);
+        ICoordinateKinetic coord0 = (ICoordinateKinetic)((AtomLeaf)((AtomPair)pair).atom0).coord;
+        ICoordinateKinetic coord1 = (ICoordinateKinetic)((AtomLeaf)((AtomPair)pair).atom1).coord;
+        dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
+        
+        dr.Ev1Mv2(coord1.position(), coord0.position());
+        dr.PEa1Tv1(falseTime,dv);
+        nearestImageTransformer.nearestImage(dr);
+
         double r2 = dr.squared();
         double bij = dr.dot(dv);
         double v2 = dv.squared();
@@ -124,9 +129,8 @@ public class P2Tether extends Potential2HardSpherical {
     private double tetherLength, tetherLengthSquared;
     private double lastCollisionVirial = 0.0;
     private double lastCollisionVirialr2 = 0.0;
-    private final Vector dr;
+    private final Vector dv;
     private final Tensor lastCollisionVirialTensor;
-    private final CoordinatePairKinetic cPair;
     private final boolean ignoreOverlap;
    
 }//end of P2Tether

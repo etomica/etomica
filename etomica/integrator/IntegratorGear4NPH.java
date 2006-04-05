@@ -4,6 +4,7 @@ package etomica.integrator;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.action.PhaseInflate;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
@@ -20,7 +21,8 @@ import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.CoordinatePairKinetic;
+import etomica.space.ICoordinateKinetic;
+import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
@@ -261,12 +263,19 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         double x; //hypervirial sum
         double rvx; 
         double vf;
-        private CoordinatePairKinetic cPair;
+        private final Vector dr;
+        private final Vector dv;
+        private NearestImageTransformer nearestImageTransformer;
 
         private final Vector f;
         public ForceSumNPH(Space space) {
             f = space.makeVector();
-            cPair = new CoordinatePairKinetic(space);
+            dr = space.makeVector();
+            dv = space.makeVector();
+        }
+        
+        public void setPhase(Phase phase) {
+            nearestImageTransformer = phase.getBoundary();
         }
         
         //pair
@@ -274,57 +283,27 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
             Potential2Soft potentialSoft = (Potential2Soft)potential2;
             while(iterator.hasNext()) {
                 AtomPair pair = (AtomPair)iterator.next();
-                cPair.reset(pair);
-                cPair.resetV();
-                double r2 = cPair.r2();
+
+                AtomLeaf atom0 = (AtomLeaf)pair.atom0;
+                AtomLeaf atom1 = (AtomLeaf)pair.atom1;
+                ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0.coord;
+                ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1.coord;
+                dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
+                
+                dr.Ev1Mv2(coord1.position(), coord0.position());
+                nearestImageTransformer.nearestImage(dr);
+
+                double r2 = dr.squared();
                 u += potentialSoft.energy(pair);
                 w += potentialSoft.virial(pair);
                 double hv = potentialSoft.hyperVirial(pair);
                 x += hv;
-                rvx += hv * cPair.dr().dot(cPair.dv())/r2;
+                rvx += hv * dr.dot(dv)/r2;
                 f.E(potentialSoft.gradient(pair));
-                vf -= cPair.dv().dot(f); //maybe should be (-)?
+                vf -= dv.dot(f); //maybe should be (-)?
                 agents[pair.atom0.getGlobalIndex()].force().PE(f);
                 agents[pair.atom1.getGlobalIndex()].force().ME(f);
-            }//end while
-        }//end of calculate
-    }//end ForceSums
-
-/*    public static void main(String[] args) {
-	    IntegratorGear4 integratorGear4 = new IntegratorGear4();
-	    SpeciesSpheres speciesDisks1 = new SpeciesSpheres();
-//	    speciesDisks1.setMass(1.0);
-	    Phase phase1 = new Phase();
-	    P2LennardJones P2LennardJones1 = new P2LennardJones();
-	    Controller controller1 = new Controller();
-	    DisplayPhase displayPhase1 = new DisplayPhase();
-	    IntegratorMD.Timer timer = integratorGear4.new Timer(integratorGear4.chronoMeter());
-	    timer.setUpdateInterval(10);
-	    integratorGear4.setTimeStep(0.005);
-		Simulation.instance.panel().setBackground(java.awt.Color.yellow);
-
-        Meter ke = new MeterKineticEnergy();
-        Meter temp = new MeterTemperature();
-        Meter energy = new MeterEnergy();
-        Phase phase = Simulation.instance.phase(0);
-        ke.setPhase(phase);
-        temp.setPhase(phase);
-        energy.setPhase(phase);
-        DisplayBox box1 = new DisplayBox();
-        box1.setMeter(ke);
-        box1.setUpdateInterval(10);
-        DisplayBox box2 = new DisplayBox();
-        box2.setMeter(temp);
-        box2.setUnit(new Unit(Kelvin.UNIT));
-        DisplayBox box3 = new DisplayBox();
-        box3.setMeter(energy);
-        box3.setPrecision(7);
-                                            
-		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
-		                                    //calling it a second time has no effect
-		
-	    Simulation.makeAndDisplayFrame(Simulation.instance);
-    }//end of main
-    */
+            }
+        }
+    }
 }
-

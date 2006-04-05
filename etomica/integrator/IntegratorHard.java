@@ -21,7 +21,6 @@ import etomica.potential.PotentialHard;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.CoordinatePair;
-import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;
 import etomica.util.Debug;
@@ -144,12 +143,18 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
                 System.out.println("previous time: "+oldTime+" current time: "+collisionTimeStep);
                 System.out.println("collision for "+atoms+" potential "+colliderAgent.collisionPotential.getClass());
                 if (atoms instanceof AtomPair) {
-                    cPairDebug = new CoordinatePairKinetic(potential.getSpace());
-                    cPairDebug.setNearestImageTransformer(phase.getBoundary());
-                    cPairDebug.reset(pair);
-                    ((CoordinatePairKinetic)cPairDebug).resetV();
-                    Vector dr = cPairDebug.dr();
-                    Vector dv = ((CoordinatePairKinetic)cPairDebug).dv();
+                    Vector dr = phase.space().makeVector();
+                    Vector dv = phase.space().makeVector();
+
+                    AtomLeaf atom0 = (AtomLeaf)pair.atom0;
+                    AtomLeaf atom1 = (AtomLeaf)pair.atom1;
+                    ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0.coord;
+                    ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1.coord;
+                    dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
+                    
+                    dr.Ev1Mv2(coord1.position(), coord0.position());
+                    phase.getBoundary().nearestImage(dr);
+
                     dr.PEa1Tv1(oldTime,dv);
                     System.out.println("distance at last collision time was "+Math.sqrt(dr.squared()));
                     dr.PEa1Tv1(collisionTimeStep-oldTime,dv);
@@ -163,12 +168,18 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
             if (Debug.ON && Debug.DEBUG_NOW && Debug.thisPhase(phase)) {
                 debugPair = Debug.getAtoms(phase);
                 if (debugPair.atom0 instanceof AtomLeaf && debugPair.atom1 instanceof AtomLeaf) {
-                    cPairDebug = new CoordinatePairKinetic(potential.getSpace());
-                    cPairDebug.setNearestImageTransformer(phase.getBoundary());
-                    cPairDebug.reset(debugPair);
-                    ((CoordinatePairKinetic)cPairDebug).resetV();
-                    Vector dr = cPairDebug.dr();
-                    Vector dv = ((CoordinatePairKinetic)cPairDebug).dv();
+                    Vector dr = phase.space().makeVector();
+                    Vector dv = phase.space().makeVector();
+
+                    AtomLeaf atom0 = (AtomLeaf)pair.atom0;
+                    AtomLeaf atom1 = (AtomLeaf)pair.atom1;
+                    ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0.coord;
+                    ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1.coord;
+                    dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
+                    
+                    dr.Ev1Mv2(coord1.position(), coord0.position());
+                    phase.getBoundary().nearestImage(dr);
+
                     dr.PEa1Tv1(collisionTimeStep,dv);
                     double r2 = dr.squared();
                     if (Debug.LEVEL > 1 || Math.sqrt(r2) < Debug.ATOM_SIZE-1.e-11) {

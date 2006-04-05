@@ -4,9 +4,7 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
-import etomica.phase.Phase;
 import etomica.simulation.Simulation;
-import etomica.space.CoordinatePairKinetic;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -22,7 +20,7 @@ import etomica.units.Length;
  * @author Rob Riggleman
  * @author David Kofke
  */
-public class P2HardAssociation extends Potential2 implements PotentialHard {
+public class P2HardAssociation extends Potential2HardSpherical {
 
     public P2HardAssociation(Simulation sim) {
         this(sim.space, sim.getDefaults().potentialCutoffFactor, sim.getDefaults().potentialWell);
@@ -31,8 +29,7 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
         super(space);
         setEpsilon(epsilon);
         setWellDiameter(wellDiameter);
-        dr = space.makeVector();
-        cPair = new CoordinatePairKinetic(space);
+        dv = space.makeVector();
         lastCollisionVirialTensor = space.makeTensor();
     }
     
@@ -44,11 +41,14 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
         double eps = 1e-6;
         AtomLeaf atom0 = (AtomLeaf)((AtomPair)pair).atom0;
         AtomLeaf atom1 = (AtomLeaf)((AtomPair)pair).atom1;
-        cPair.reset(atom0.coord, atom1.coord);
-        cPair.resetV();
-        dr.E(cPair.dr());
-        Vector dv = cPair.dv();
+        ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0.coord;
+        ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1.coord;
+        dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
+        
+        dr.Ev1Mv2(coord1.position(), coord0.position());
         dr.PEa1Tv1(falseTime,dv);
+        nearestImageTransformer.nearestImage(dr);
+
         double r2 = dr.squared();
         double bij = dr.dot(dv);
 
@@ -74,13 +74,13 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
         }
         lastCollisionVirialr2 = lastCollisionVirial/r2;
         dv.Ea1Tv1(lastCollisionVirialr2,dr);
-        ((ICoordinateKinetic)atom0.coord).velocity().PE(dv);
-        ((ICoordinateKinetic)atom1.coord).velocity().ME(dv);
-        atom0.coord.position().Ea1Tv1(-falseTime,dv);
-        atom1.coord.position().Ea1Tv1(falseTime,dv);
+        coord0.velocity().PE(dv);
+        coord1.velocity().ME(dv);
+        coord0.position().Ea1Tv1(-falseTime,dv);
+        coord1.position().Ea1Tv1(falseTime,dv);
         if(nudge != 0) {
-            atom0.coord.position().PEa1Tv1(-nudge,dr);
-            atom1.coord.position().PEa1Tv1(nudge,dr);
+            coord0.position().PEa1Tv1(-nudge,dr);
+            coord1.position().PEa1Tv1(nudge,dr);
         }
     }
     
@@ -100,11 +100,14 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
     * collision of the wells.  Takes into account both separation and convergence.
     */
     public double collisionTime(AtomSet pair, double falseTime) {
-        cPair.reset((AtomPair)pair);
-        cPair.resetV();
-        dr.E(cPair.dr());
-        Vector dv = cPair.dv();
-        dr.Ea1Tv1(falseTime,dv);
+        ICoordinateKinetic coord0 = (ICoordinateKinetic)((AtomLeaf)((AtomPair)pair).atom0).coord;
+        ICoordinateKinetic coord1 = (ICoordinateKinetic)((AtomLeaf)((AtomPair)pair).atom1).coord;
+        dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
+        
+        dr.Ev1Mv2(coord1.position(), coord0.position());
+        dr.PEa1Tv1(falseTime,dv);
+        nearestImageTransformer.nearestImage(dr);
+
         double r2 = dr.squared();
         double bij = dr.dot(dv);
         double v2 = dv.squared();
@@ -128,9 +131,8 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
   /**
    * Returns -epsilon if less than well diameter, or zero otherwise.
    */
-    public double energy(AtomSet pair) {
-    	    cPair.reset((AtomPair)pair);
-        return (cPair.r2() < wellDiameterSquared) ?  -epsilon : 0.0;
+    public double u(double r2) {
+        return (r2 < wellDiameterSquared) ?  -epsilon : 0.0;
     }
     
    /**
@@ -178,16 +180,10 @@ public class P2HardAssociation extends Potential2 implements PotentialHard {
         return Energy.DIMENSION;
     }
     
-    public void setPhase(Phase phase) {
-        cPair.setNearestImageTransformer(phase.getBoundary());
-    }
-
     private double wellDiameter, wellDiameterSquared;
     private double epsilon;
     private double lastCollisionVirial, lastCollisionVirialr2;
     private final Tensor lastCollisionVirialTensor;
     private double lastEnergyChange;
-    private final Vector dr;
-    private final CoordinatePairKinetic cPair;
-    
+    private final Vector dv;
 }
