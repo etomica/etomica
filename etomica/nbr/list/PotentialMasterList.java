@@ -5,6 +5,7 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.AtomsetArrayList;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
@@ -12,6 +13,7 @@ import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
+import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.PotentialCalculationUpdateTypeList.PotentialAtomTypeWrapper;
@@ -99,11 +101,11 @@ public class PotentialMasterList extends PotentialMasterNbr {
         if (targetAtoms.count() == 0) {
     		//no target atoms specified -- do one-target algorithm to SpeciesMaster
             PotentialArray potentialArray = getPotentials(phase.getSpeciesMaster().type);
-    		    calculate(phase.getSpeciesMaster(), idUp, pc, potentialArray.getPotentials(), potentialArray.getIterators());
-    		    if(lrcMaster != null) {
-    		        lrcMaster.calculate(phase, id, pc);
-    		    }
-    	    }
+            calculate(phase.getSpeciesMaster(), idUp, pc, potentialArray.getPotentials(), potentialArray.getIterators());
+            if(lrcMaster != null) {
+                lrcMaster.calculate(phase, id, pc);
+            }
+        }
         else if (targetAtoms instanceof Atom) {
     		// one target atom
             PotentialArray potentialArray = getPotentials(((Atom)targetAtoms).type);
@@ -112,10 +114,10 @@ public class PotentialMasterList extends PotentialMasterNbr {
                 lrcMaster.calculate(phase, id, pc);
             }
         }
-    	    else {
-    	        //more than one target atom
-    	        super.calculate(phase, id, pc);
-    	    }
+        else {
+            //more than one target atom
+            super.calculate(phase, id, pc);
+        }
     }//end calculate
 	
     /**
@@ -167,6 +169,37 @@ public class PotentialMasterList extends PotentialMasterNbr {
                     }
                 }
                 break;//switch
+            case Integer.MAX_VALUE: //N-body
+                // instantiate lazily so other simulations don't have to carry this stuff around
+                if (atomsetArrayList == null) {
+                    atomsetArrayList = new AtomsetArrayList();
+                    singletSetIterator = new AtomsetIteratorSinglet(atomsetArrayList);
+                }
+                // do the calculation considering the current Atom as the 
+                // "central" Atom.
+                doNBodyStuff(atom, id, pc, i, potentials[i]);
+                if (direction != IteratorDirective.Direction.UP) {
+                    // must have a target and be doing "both"
+                    // we have to do the calculation considering each of the 
+                    // target's neighbors
+                    list = neighborManager.getUpList(atom);
+                    if (i < list.length) {
+                        AtomArrayList iList = list[i];
+                        for (int j=0; j<iList.size(); j++) {
+                            Atom otherAtom = iList.get(j);
+                            doNBodyStuff(otherAtom, id, pc, i, potentials[i]);
+                        }
+                    }
+                    list = neighborManager.getDownList(atom);
+                    if (i < list.length) {
+                        AtomArrayList iList = list[i];
+                        for (int j=0; j<iList.size(); j++) {
+                            Atom otherAtom = iList.get(j);
+                            doNBodyStuff(otherAtom, id, pc, i, potentials[i]);
+                        }
+                    }
+                }
+                
             }//end of switch
         }//end of for
         
@@ -183,6 +216,26 @@ public class PotentialMasterList extends PotentialMasterNbr {
                 calculate(a, id, pc, childPotentials, childIterators);//recursive call
             }
         }
+    }
+    
+    /**
+     * Invokes the PotentialCalculation for the given Atom with its up and down
+     * neighbors as a single AtomSet.
+     */
+    protected void doNBodyStuff(Atom atom, IteratorDirective id, PotentialCalculation pc, int potentialIndex, Potential potential) {
+        AtomArrayList arrayList = atomsetArrayList.getArrayList();
+        arrayList.clear();
+        arrayList.add(atom);
+        AtomArrayList[] list = neighborManager.getUpList(atom);
+        if (potentialIndex < list.length) {
+            arrayList.addAll(list[potentialIndex]);
+        }
+        list = neighborManager.getDownList(atom);
+        if (potentialIndex < list.length) {
+            arrayList.addAll(list[potentialIndex]);
+        }
+        pc.doCalculation(singletSetIterator, id, potential);
+        arrayList.clear();
     }
 
     public NeighborListManager getNeighborManager() {return neighborManager;}
@@ -204,7 +257,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
     public int getCellRange() {
         return cellRange;
     }
-    
+
     private final AtomIteratorArrayListSimple atomIterator;
     private final AtomIteratorSinglet singletIterator;
     private final ApiInnerFixed pairIterator;
@@ -213,4 +266,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
     private int cellRange;
     private final IteratorDirective idUp = new IteratorDirective();
     
+    // things needed for N-body potentials
+    private AtomsetArrayList atomsetArrayList;
+    private AtomsetIteratorSinglet singletSetIterator;
 }
