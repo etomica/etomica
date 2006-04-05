@@ -1,7 +1,6 @@
 package etomica.virial;
 
 import etomica.potential.Potential2Spherical;
-import etomica.space.CoordinatePair;
 import etomica.space.Space;
 /**
  * @author kofke
@@ -21,8 +20,8 @@ public class MayerESpherical extends MayerFunctionSpherical {
 	/**
 	 * @see etomica.virial.MayerFunctionSpherical#f(etomica.AtomPair, double)
 	 */
-	public double f(CoordinatePair cPair, double beta) {
-		return Math.exp(-beta*potential.u(cPair.r2()));
+	public double f(double r2, double beta) {
+		return Math.exp(-beta*potential.u(r2));
 	}
 
 	private final Potential2Spherical potential;

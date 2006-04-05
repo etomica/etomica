@@ -1,5 +1,7 @@
 package etomica.virial;
 
+import etomica.atom.AtomPair;
+
 
 
 public class ClusterSum implements ClusterAbstract, java.io.Serializable {
@@ -112,10 +114,12 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
                 for(int k=0; k<f.length; k++) {
                     fOld[j][k] = fValues[i][j][k];
                     if (f[k] instanceof MayerFunctionSpherical) {
-                        fValues[i][j][k] = ((MayerFunctionSpherical)f[k]).f(cPairs.getCPair(i,j),beta);
+                        double r2 = (i < j) ? cPairs.getr2(i,j) : cPairs.getr2(j,i);
+                        fValues[i][j][k] = ((MayerFunctionSpherical)f[k]).f(r2,beta);
                     }
                     else {
-                        fValues[i][j][k] = f[k].f(aPairs.getAPair(i,j),beta);
+                        AtomPair pair = (i < j) ? aPairs.getAPair(i,j) : aPairs.getAPair(j,i);
+                        fValues[i][j][k] = f[k].f(pair,beta);
                     }
                     fValues[j][i][k] = fValues[i][j][k];
                 }
@@ -127,12 +131,11 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
             for(int j=i+1; j<nPoints; j++) {
                 for(int k=0; k<f.length; k++) {
                     if (f[k] instanceof MayerFunctionSpherical) {
-                        fValues[i][j][k] = ((MayerFunctionSpherical)f[k]).f(cPairs.getCPair(i,j),beta);
+                        fValues[i][j][k] = ((MayerFunctionSpherical)f[k]).f(cPairs.getr2(i,j),beta);
                     }
                     else {
                         fValues[i][j][k] = f[k].f(aPairs.getAPair(i,j),beta);
                     }
-//                    System.out.println(i+" "+j+" "+k+" "+fValues[i][j][k]);
                     fValues[j][i][k] = fValues[i][j][k];
                 }
             }
@@ -145,8 +148,8 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
             for(int j=i+1; j<nPoints; j++) {
                 for(int k=0; k<f.length; k++) {
                     if (f[k] instanceof MayerFunctionSpherical) {
-                        if (fValues[i][j][k] != ((MayerFunctionSpherical)f[k]).f(cPairs.getCPair(i,j),beta)) {
-                            throw new RuntimeException("oops1 "+i+" "+j+" "+k+" "+((MayerFunctionSpherical)f[k]).f(cPairs.getCPair(i,j),beta));
+                        if (fValues[i][j][k] != ((MayerFunctionSpherical)f[k]).f(cPairs.getr2(i,j),beta)) {
+                            throw new RuntimeException("oops1 "+i+" "+j+" "+k+" "+((MayerFunctionSpherical)f[k]).f(cPairs.getr2(i,j),beta));
                         }
                     }
                     else {

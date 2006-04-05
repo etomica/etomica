@@ -11,6 +11,7 @@ import etomica.phase.PhaseAgentManager;
 import etomica.phase.PhaseAgentSourceAtomManager;
 import etomica.simulation.Simulation;
 import etomica.space.CoordinatePair;
+import etomica.space.NearestImageTransformer;
 import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -26,10 +27,10 @@ public class CriterionSimple extends NeighborCriterion implements AgentSource  {
 
 	public CriterionSimple(Simulation sim, double interactionRange, double neighborRadius) {
 		super();
+        dr = sim.space.makeVector();
 		this.interactionRange = interactionRange;
         neighborRadius2 = neighborRadius * neighborRadius;
         setSafetyFactor(0.4);
-        cPair = new CoordinatePair(sim.space);
         phaseAgentManager = new PhaseAgentManager(new PhaseAgentSourceAtomManager(this),sim.speciesRoot);
 	}
 	
@@ -80,7 +81,7 @@ public class CriterionSimple extends NeighborCriterion implements AgentSource  {
 	}
 
 	public void setPhase(Phase phase) {
-        cPair.setNearestImageTransformer(phase.getBoundary());
+        nearestImageTransformer = phase.getBoundary();
         agentManager = (AtomAgentManager[])phaseAgentManager.getAgents();
         agents = (Vector[])agentManager[phase.getIndex()].getAgents();
 	}
@@ -93,13 +94,15 @@ public class CriterionSimple extends NeighborCriterion implements AgentSource  {
 	}
 
 	public boolean accept(AtomSet pair) {
-		cPair.reset((AtomPair)pair);
+        dr.Ev1Mv2(((AtomLeaf)((AtomPair)pair).atom1).coord.position(),((AtomLeaf)((AtomPair)pair).atom0).coord.position());
+        nearestImageTransformer.nearestImage(dr);
 		if (Debug.ON && Debug.DEBUG_NOW && ((Debug.LEVEL > 1 && Debug.anyAtom(pair)) || (Debug.LEVEL == 1 && Debug.allAtoms(pair)))) {
-			if (cPair.r2() < neighborRadius2 || (Debug.LEVEL > 1 && Debug.allAtoms(pair))) {
-				System.out.println("Atom "+((AtomPair)pair).atom0+" and "+((AtomPair)pair).atom1+" are "+(cPair.r2() < neighborRadius2 ? "" : "not ")+"neighbors, r2="+cPair.r2());
+            double r2l = dr.squared(); 
+			if (r2l < neighborRadius2 || (Debug.LEVEL > 1 && Debug.allAtoms(pair))) {
+				System.out.println("Atom "+((AtomPair)pair).atom0+" and "+((AtomPair)pair).atom1+" are "+(r2l < neighborRadius2 ? "" : "not ")+"neighbors, r2="+r2l);
             }
 		}
-		return cPair.r2() < neighborRadius2;
+		return dr.squared() < neighborRadius2;
 	}
 	
 	public void reset(Atom atom) {
@@ -107,7 +110,7 @@ public class CriterionSimple extends NeighborCriterion implements AgentSource  {
 	}
 
     public Class getAgentClass() {
-        return cPair.dr().getClass();
+        return dr.getClass();
     }
     
     public Object makeAgent(Atom atom) {
@@ -117,7 +120,8 @@ public class CriterionSimple extends NeighborCriterion implements AgentSource  {
     public void releaseAgent(Object agent, Atom atom) {}
 
     private double interactionRange, displacementLimit2, neighborRadius2;
-	private final CoordinatePair cPair;
+	private final Vector dr;
+    private NearestImageTransformer nearestImageTransformer;
 	protected double safetyFactor;
 	protected double r2, r2MaxSafe;
     private AtomAgentManager[] agentManager;

@@ -1,6 +1,7 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
@@ -8,7 +9,7 @@ import etomica.data.DataSourceScalar;
 import etomica.math.SphericalHarmonics;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
-import etomica.space.CoordinatePair;
+import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Undefined;
@@ -30,7 +31,7 @@ public class MeterBondOrderParameterQ  extends DataSourceScalar implements Meter
         super("Bond Q Order Parameter", Undefined.DIMENSION);
         setL(6);
         setR2Cut(rCut*rCut);
-        cPair = new CoordinatePair(space);
+        dr = space.makeVector();
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -50,16 +51,17 @@ public class MeterBondOrderParameterQ  extends DataSourceScalar implements Meter
             Qreal[idx] = 0.0;
             Qimag[idx] = 0.0;
         }
-        cPair.setNearestImageTransformer(phase.getBoundary());
+        NearestImageTransformer nearestImageTransformer = phase.getBoundary();
         pairIterator.setPhase(phase);
         pairIterator.reset();
         while(pairIterator.hasNext()) {
             AtomPair pair = (AtomPair)pairIterator.next();
-        	cPair.reset(pair);
-        	double r2 = cPair.r2();
+            dr.Ev1Mv2(((AtomLeaf)pair.atom1).coord.position(),((AtomLeaf)pair.atom0).coord.position());
+            nearestImageTransformer.nearestImage(dr);
+        	double r2 = dr.squared();
             if(r2 < r2Cut) {
                 nbSum += 2;
-                Vector rVec = cPair.dr();
+                Vector rVec = dr;
                 rVec.sphericalCoordinates(rThetaPhi);
                 double theta = rThetaPhi[1];
                 double phi = rThetaPhi[2];
@@ -140,38 +142,5 @@ public class MeterBondOrderParameterQ  extends DataSourceScalar implements Meter
     private double r2Cut;
     private double[] rThetaPhi = new double[3];
     private double coeff;
-    private final CoordinatePair cPair;
-    
-
-/*    public static void main(String[] args) {
-        
-        Default.atomSize = 1.0;
-        Simulation sim = new Simulation(new Space3D());
-        Simulation.instance = sim;
-        
-        Species species = new SpeciesSpheres(32);
-        P2HardSphere potential = new P2HardSphere();
-        Integrator integrator = new IntegratorHard();
-        Controller controller = new Controller();
-        Meter meter = new MeterBondOrderParameterQ();
-        DisplayBox box = new DisplayBox();
-        Phase phase = new Phase();
-        Configuration configuration = new ConfigurationFcc(sim.space());
-        DisplayPhase display = new DisplayPhase();
-        
-        phase.setConfiguration(configuration);
-        
-        box.setMeter(meter);
-        box.setPrecision(8);
-        
-        sim.elementCoordinator.go();
-        phase.setDensity(1.1);
-        meter.updateSums();
-        box.doUpdate();
-        display.setScale(2.0);
-
-        Simulation.makeAndDisplayFrame(sim);
-    }//end of main
-    */
-}//end of MeterBondOrderParameterQ
-
+    private final Vector dr;
+}

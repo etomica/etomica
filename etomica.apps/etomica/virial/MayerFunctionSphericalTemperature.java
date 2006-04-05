@@ -16,8 +16,8 @@ public class MayerFunctionSphericalTemperature extends MayerFunctionSpherical {
         beta = 1/temperature;
     }
 
-    public double f(CoordinatePair cPair, double b) {
-        return mayerFunction.f(cPair,beta);
+    public double f(double r2, double b) {
+        return mayerFunction.f(r2,beta);
     }
 
     private final MayerFunctionSpherical mayerFunction;

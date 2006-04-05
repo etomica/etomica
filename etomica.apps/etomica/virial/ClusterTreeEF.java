@@ -47,7 +47,7 @@ public class ClusterTreeEF extends ClusterTree {
                 for(int k=0; k<numF; k++) {
                     fOld[l][k] = fValues[l][k+numF];
                     if (f[k] instanceof MayerFunctionSpherical) {
-                        fValues[l][k+numF] = ((MayerFunctionSpherical)f[k]).f(cPairs.getCPair(i,j),beta);
+                        fValues[l][k+numF] = ((MayerFunctionSpherical)f[k]).f(cPairs.getr2(i,j),beta);
                     }
                     else {
                         fValues[l][k+numF] = f[k].f(aPairs.getAPair(i,j),beta);
@@ -60,7 +60,7 @@ public class ClusterTreeEF extends ClusterTree {
                 for(int k=0; k<numF; k++) {
                     fOld[l][k] = fValues[l][k+numF];
                     if (f[k] instanceof MayerFunctionSpherical) {
-                        fValues[l][k+numF] = ((MayerFunctionSpherical)f[k]).f(cPairs.getCPair(i,j),beta);
+                        fValues[l][k+numF] = ((MayerFunctionSpherical)f[k]).f(cPairs.getr2(i,j),beta);
                     }
                     else {
                         fValues[l][k+numF] = f[k].f(aPairs.getAPair(i,j),beta);
@@ -76,7 +76,7 @@ public class ClusterTreeEF extends ClusterTree {
             for(int j=i+1; j<nPoints; j++) {
                 for(int k=0; k<numF; k++) {
                     if (f[k] instanceof MayerFunctionSpherical) {
-                        fValues[l][k+numF] = ((MayerFunctionSpherical)f[k]).f(cPairs.getCPair(i,j),beta);
+                        fValues[l][k+numF] = ((MayerFunctionSpherical)f[k]).f(cPairs.getr2(i,j),beta);
                     }
                     else {
                         fValues[l][k+numF] = f[k].f(aPairs.getAPair(i,j),beta);

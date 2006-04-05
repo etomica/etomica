@@ -6,6 +6,7 @@
  */
 package etomica.virial;
 
+import etomica.atom.AtomPair;
 import etomica.util.Arrays;
 
 /**
@@ -68,10 +69,12 @@ public class ClusterSumEF extends ClusterSum {
                     //store the eValue
                     fOld[j][k] = fValues[i][j][k+numF];
                     if (f[k] instanceof MayerFunctionSpherical) {
-                        eValue = ((MayerFunctionSpherical)f[k]).f(cPairs.getCPair(i,j),beta);
+                        double r2 = (i < j) ? cPairs.getr2(i,j) : cPairs.getr2(j,i);
+                        eValue = ((MayerFunctionSpherical)f[k]).f(r2,beta);
                     }
                     else {
-                        eValue = f[k].f(aPairs.getAPair(i,j),beta);
+                        AtomPair pair = (i < j) ? aPairs.getAPair(i,j) : aPairs.getAPair(j,i);
+                        eValue = f[k].f(pair,beta);
                     }
                     fValues[i][j][k+numF] = eValue;
                     fValues[j][i][k+numF] = eValue;
@@ -87,7 +90,7 @@ public class ClusterSumEF extends ClusterSum {
                 for(int k=0; k<numF; k++) {
                     double eValue;
                     if (f[k] instanceof MayerFunctionSpherical) {
-                        eValue = ((MayerFunctionSpherical)f[k]).f(cPairs.getCPair(i,j),beta);
+                        eValue = ((MayerFunctionSpherical)f[k]).f(cPairs.getr2(i,j),beta);
                     }
                     else {
                         eValue = f[k].f(aPairs.getAPair(i,j),beta);

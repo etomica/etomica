@@ -1,9 +1,10 @@
 package etomica.potential;
 
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
-import etomica.space.CoordinatePair;
+import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -17,21 +18,10 @@ import etomica.space.Vector;
  
 public abstract class Potential2SoftSpherical extends Potential2 implements Potential2Soft, Potential2Spherical {
    
-    /**
-     * Makes potential with a non-kinetic CoordinatePair.
-     */
     public Potential2SoftSpherical(Space space) {
-        this(space, new CoordinatePair(space));
-    }
-
-    /**
-     * Makes potential with given Space and CoordinatePair.  Subclasses can access
-     * the CoordinatePair instance via the coordinatePair field of this class.
-     */
-    public Potential2SoftSpherical(Space space, CoordinatePair cPair) {
         super(space);
         work1 = space.makeVector();
-        coordinatePair = cPair;
+        dr = space.makeVector();
     }
         
     /**
@@ -64,35 +54,43 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
     /**
      * Energy of the pair as given by the u(double) method
      */
-    public double energy(AtomSet pair) {
-        coordinatePair.reset((AtomPair)pair);
-        return u(coordinatePair.r2());
+    public double energy(AtomSet atoms) {
+        AtomPair pair = (AtomPair)atoms;
+        dr.Ev1Mv2(((AtomLeaf)pair.atom1).coord.position(),((AtomLeaf)pair.atom0).coord.position());
+        nearestImageTransformer.nearestImage(dr);
+        return u(dr.squared());
     }
     
     /**
      * Virial of the pair as given by the du(double) method
      */
-    public double virial(AtomSet pair) {
-        coordinatePair.reset((AtomPair)pair);
-        return du(coordinatePair.r2());
+    public double virial(AtomSet atoms) {
+        AtomPair pair = (AtomPair)atoms;
+        dr.Ev1Mv2(((AtomLeaf)pair.atom1).coord.position(),((AtomLeaf)pair.atom0).coord.position());
+        nearestImageTransformer.nearestImage(dr);
+        return du(dr.squared());
     }
     
     /**
      * Hypervirial of the pair as given by the du(double) and d2u(double) methods
      */
-    public double hyperVirial(AtomSet pair) {
-        coordinatePair.reset((AtomPair)pair);
-        double r2 = coordinatePair.r2();
+    public double hyperVirial(AtomSet atoms) {
+        AtomPair pair = (AtomPair)atoms;
+        dr.Ev1Mv2(((AtomLeaf)pair.atom1).coord.position(),((AtomLeaf)pair.atom0).coord.position());
+        nearestImageTransformer.nearestImage(dr);
+        double r2 = dr.squared();
         return d2u(r2) + du(r2);
     }
     
     /**
      * Gradient of the pair potential as given by the du(double) method.
      */
-    public Vector gradient(AtomSet pair) {
-        coordinatePair.reset((AtomPair)pair);
-        double r2 = coordinatePair.r2();
-        work1.Ea1Tv1(du(r2)/r2,coordinatePair.dr());
+    public Vector gradient(AtomSet atoms) {
+        AtomPair pair = (AtomPair)atoms;
+        dr.Ev1Mv2(((AtomLeaf)pair.atom1).coord.position(),((AtomLeaf)pair.atom0).coord.position());
+        nearestImageTransformer.nearestImage(dr);
+        double r2 = dr.squared();
+        work1.Ea1Tv1(du(r2)/r2,dr);
         return work1;
     }
     
@@ -111,10 +109,11 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
     }
 
     public void setPhase(Phase phase) {
-        coordinatePair.setNearestImageTransformer(phase.getBoundary());
+        nearestImageTransformer = phase.getBoundary();
     }
 
     private final Vector work1;
-    protected CoordinatePair coordinatePair;
+    protected NearestImageTransformer nearestImageTransformer;
+    protected final Vector dr;
     
 }//end of Potential2SoftSpherical

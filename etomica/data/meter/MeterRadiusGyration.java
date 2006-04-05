@@ -1,13 +1,12 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
-import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.data.DataSourceScalar;
 import etomica.phase.Phase;
-import etomica.space.CoordinatePair;
+import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Length;
@@ -22,9 +21,9 @@ public class MeterRadiusGyration extends DataSourceScalar implements Meter {
     public MeterRadiusGyration(Space space) {
         super("Radius of Gyration", Length.DIMENSION);
         iterator = new AtomIteratorAllMolecules();
-        cPair = new CoordinatePair(space);
         cm = space.makeVector();
         realPos = space.makeVector();
+        dr = space.makeVector();
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -59,7 +58,7 @@ public class MeterRadiusGyration extends DataSourceScalar implements Meter {
         if (phase == null)
             throw new IllegalStateException(
                     "must call setPhase before using meter");
-        cPair.setNearestImageTransformer(phase.getBoundary());
+        NearestImageTransformer nearestImageTransformer = phase.getBoundary();
         iterator.setPhase(phase);
         iterator.reset();
         AtomIteratorTree leafIterator = new AtomIteratorTree();
@@ -73,33 +72,40 @@ public class MeterRadiusGyration extends DataSourceScalar implements Meter {
                 continue;
             }
             // find center of mass
-            AtomLeaf prevAtom = (AtomLeaf)leafIterator.nextAtom();
-            cm.E(prevAtom.coord.position());
-            int nLeafAtoms = 1;
-            realPos.E(prevAtom.coord.position());
+            AtomLeaf firstAtom = (AtomLeaf)leafIterator.peek();
+            int nLeafAtoms = 0;
+            realPos.E(firstAtom.coord.position());
+            Vector prevPosition = firstAtom.coord.position();
             while (leafIterator.hasNext()) {
                 nLeafAtoms++;
                 AtomLeaf a = (AtomLeaf)leafIterator.nextAtom();
-                cPair.reset(prevAtom.coord, a.coord);
-                Vector dr = cPair.dr();
+                Vector position = a.coord.position();
+                dr.Ev1Mv2(position, prevPosition);
+                //molecule might be wrapped around the box.  calculate
+                //the real difference in position
+                nearestImageTransformer.nearestImage(dr);
+                //realPos is now the effective position of a
                 realPos.PE(dr);
                 cm.PE(realPos);
-                prevAtom = a;
+                prevPosition = position;
             }
             cm.TE(1.0 / nLeafAtoms);
             // calculate Rg^2 for this chain
             double r2 = 0.0;
             leafIterator.reset();
-            prevAtom = (AtomLeaf)leafIterator.nextAtom();
-            realPos.E(prevAtom.coord.position());
+            realPos.E(firstAtom.coord.position());
             while (leafIterator.hasNext()) {
                 AtomLeaf a = (AtomLeaf)leafIterator.nextAtom();
-                cPair.reset(prevAtom.coord, a.coord);
-                Vector dr = cPair.dr();
+                Vector position = a.coord.position();
+                dr.Ev1Mv2(position, prevPosition);
+                //molecule might be wrapped around the box.  calculate
+                //the real difference in position
+                nearestImageTransformer.nearestImage(dr);
+                //realPos is now the effective position of a
                 realPos.PE(dr);
                 dr.Ev1Mv2(realPos, cm);// = realPos.M(cm);
                 r2 += dr.squared();
-                prevAtom = a;
+                prevPosition = position;
             }
             r2Tot += r2;
             nLeafAtomsTot += nLeafAtoms;
@@ -124,7 +130,7 @@ public class MeterRadiusGyration extends DataSourceScalar implements Meter {
 
     private Phase phase;
     private AtomIteratorAllMolecules iterator;
-    private final CoordinatePair cPair;
     private final Vector cm, realPos;
+    private final Vector dr;
 
 }

@@ -2,7 +2,6 @@ package etomica.virial;
 
 import etomica.potential.Potential2Spherical;
 import etomica.simulation.Simulation;
-import etomica.space.CoordinatePair;
 import etomica.space.Space;
 
 /**
@@ -28,13 +27,9 @@ public class MayerModified extends MayerFunctionSpherical {
 	/**
 	 * @see etomica.virial.MayerFunctionSpherical#f(etomica.AtomPair, double)
 	 */
-	public double f(CoordinatePair cPair, double beta) {
-		// FIXME: this calculates distance twice
-		double r2 = cPair.r2();
+	public double f(double r2, double beta) {
 		double bu = beta*potential.u(r2);
 		if(r2 < sigma2 && bu > UF1) return 1.0;
-//		if(r2 < sigma2 ) return 1.0;
-//		double bu = beta*potential.energy(pair);
 		if(bu > -1e-6) return -bu*(1-0.5*bu); //repulsive region already eliminated, so bu close to zero if this is true
 		double f = Math.exp(-bu) - 1.0;		
 		return (f>0) ? f : -f;  

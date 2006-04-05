@@ -6,8 +6,8 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
-import etomica.space.CoordinatePair;
 import etomica.space.ICoordinateAngular;
+import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Angle;
@@ -24,15 +24,16 @@ import etomica.units.Null;
 
 public class P2HardAssociationCone extends Potential2 implements EtomicaElement {
     private double wellcutoffFactor;
-    private double /*wellCutoff, */wellCutoffSquared;
+    private double wellCutoffSquared;
     private double sigma, sigmaSquared;
     private double epsilon, epsilon4, wellEpsilon;
     private double cutoffLJSquared, cutoffFactor;
     private Vector e1;
     private Vector e2;
     private double theta, ec2;
-    private final CoordinatePair cPair;
     private final Vector[] eArr = new Vector[1];
+    private final Vector dr;
+    private NearestImageTransformer nearestImageTransformer;
     
     public P2HardAssociationCone(Simulation sim) {
         this(sim.space, sim.getDefaults().atomSize, sim.getDefaults().potentialWell, 
@@ -43,12 +44,11 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
         super(space);
         e1 = space.makeVector();
         e2 = space.makeVector();
-        cPair = new CoordinatePair(space);
+        dr = space.makeVector();
 
         setSigma(sigma);
         setEpsilon(epsilon);
         setCutoffFactorLJ(cutoffFactorLJ);
-//        setWellCutoff(getSigma());
         setWellCutoffFactor(1.0);
         setWellEpsilon(8.0*getEpsilon());
         setTheta(etomica.units.Degree.UNIT.toSim(27.0));
@@ -70,10 +70,14 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
     /**
      * Returns the pair potential energy.
      */
-    public double energy(AtomSet pair) {
-    	    cPair.reset((AtomPair)pair);
+    public double energy(AtomSet atoms) {
+        AtomPair pair = (AtomPair)atoms;
+        ICoordinateAngular coord0 = (ICoordinateAngular)((AtomLeaf)pair.atom0).coord;
+        ICoordinateAngular coord1 = (ICoordinateAngular)((AtomLeaf)pair.atom1).coord;
+        dr.Ev1Mv2(coord1.position(),coord0.position());
+        nearestImageTransformer.nearestImage(dr);
+        double r2 = dr.squared();
         double eTot = 0.0;
-        double r2 = cPair.r2();
                  
         if(r2 > cutoffLJSquared) {
             eTot = 0.0;
@@ -88,20 +92,20 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
             e1.E(0.);
             e1.setX(0,1);
             eArr[0] = e1;
-            ((ICoordinateAngular)((AtomLeaf)((AtomPair)pair).atom0).coord).orientation().convertToSpaceFrame(eArr);
-            double er1 = e1.dot(cPair.dr());
-                       
+            coord0.orientation().convertToSpaceFrame(eArr);
+            double er1 = e1.dot(dr);
+
             if ( er1 > 0.0 && er1*er1 > ec2*r2) {
                 e2.E(0.);
                 e2.setX(0,1);
                 eArr[0] = e2;
-                ((ICoordinateAngular)((AtomLeaf)((AtomPair)pair).atom1).coord).orientation().convertToSpaceFrame(eArr);
-                double er2 = e2.dot(cPair.dr());
+                coord1.orientation().convertToSpaceFrame(eArr);
+                double er2 = e2.dot(dr);
                 if(er2 < 0.0 && er2*er2 > ec2*r2) eTot -= wellEpsilon;
             }
         }
         return eTot;
-    }//end of energy
+    }
     
     /**
      * Accessor method for Lennard-Jones size parameter
@@ -130,7 +134,6 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
         cutoffFactor = rc;
         double cutoffLJ = sigma*cutoffFactor;
         cutoffLJSquared = cutoffLJ*cutoffLJ;
-       // calculateLRC();
     }
     public static final Dimension getCutoffFactorLJDimension() {return Null.DIMENSION;}
    
@@ -142,7 +145,7 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
     * Accessor method for attractive-well diameter divided by sigma;
     */
     public void setWellCutoffFactor(double wcut) {
-        wellcutoffFactor=wcut;
+        wellcutoffFactor = wcut;
         double wellCutoff = sigma*wcut;
         wellCutoffSquared = wellCutoff*wellCutoff;
     }
@@ -161,20 +164,6 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
         epsilon4 = 4.0 * eps;
     }
     public static final Dimension getEpsilonDimension() {return Energy.DIMENSION;}
-    
-    /**
-    * Accessor method for attractive-well diameter.
-    */
-//    public double getWellCutoff() {return wellCutoff;}
-    /**
-    * Accessor method for attractive-well diameter.
-    */
-/*    public void setWellCutoff(double wcut) {
-        wellCutoff = wcut;
-        wellCutoffSquared = wcut*wcut;
-    }
- */         
-    public static final Dimension getWellCutoffDimension() {return Length.DIMENSION;}
     
     /**
     * Accessor method for attractive-well depth parameter.
@@ -197,51 +186,13 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
      */
     public void setTheta(double t) {
         theta = t;
-        ec2    = Math.cos(theta);
+        ec2   = Math.cos(theta);
         ec2   = ec2*ec2;
     }
     public Dimension getThetaDimension() {return Angle.DIMENSION;}
 
     public void setPhase(Phase phase) {
-        cPair.setNearestImageTransformer(phase.getBoundary());
+        nearestImageTransformer = phase.getBoundary();
     }
 
-    /**
-     * Demonstrates how this class is implemented.
-     */
-/*    public static void main(String[] args) {
-        java.awt.Frame f = new java.awt.Frame();   //create a window
-        f.setSize(600,350);
-	    IntegratorMC integrator1 = new IntegratorMC();
-	    SpeciesSpheresRotating speciesSpheres1 = new SpeciesSpheresRotating(20);
-	    Phase phase1 = new Phase();
-	    PotentialAssociationCone potential = new PotentialAssociationCone();
-	//    potential.setEpsilon(0.0);
-	    potential.setWellCutoff(1.5*potential.getSigma());
-	    P2SimpleWrapper p2StrongFluids1 = new P2SimpleWrapper(potential);
-	    Controller controller1 = new Controller();
-	    DisplayPhase displayPhase1 = new DisplayPhase();
-	    MeterEnergy meterEnergy = new MeterEnergy();
-	    meterEnergy.setPhase(phase1);
-	    DisplayBox displayEnergy = new DisplayBox();
-	    displayEnergy.setMeter(meterEnergy);
-	    displayEnergy.setUnit(new etomica.units.Unit(etomica.units.LennardJones.Energy.UNIT));
-	    MCMove mcAtom = new MCMoveAtom();
-	    MCMove mcRotate = new MCMoveRotate();
-	    integrator1.add(mcAtom);
-	    integrator1.add(mcRotate);
-		Simulation.instance.setBackground(java.awt.Color.yellow);
-		Simulation.instance.elementCoordinator.go(); //invoke this method only after all elements are in place
-		                                    //calling it a second time has no effect
-		                                    
-        f.add(Simulation.instance);         //access the static instance of the simulation to
-                                            //display the graphical components
-        f.pack();
-        f.show();
-        f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
-        });
-    }//end of main
-    
-        */
 }

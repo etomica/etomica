@@ -26,8 +26,8 @@ public class MayerHardSphere extends MayerFunctionSpherical {
 	/**
 	 * @see etomica.virial.MayerFunctionSpherical#f(etomica.AtomPair)
 	 */
-	public double f(CoordinatePair cPair, double beta) {
-		return (cPair.r2()<sigma2) ? -1.0 : 0.0;
+	public double f(double r2, double beta) {
+		return (r2<sigma2) ? -1.0 : 0.0;
 	}
 
 	/**

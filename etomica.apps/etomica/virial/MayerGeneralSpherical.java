@@ -20,8 +20,8 @@ public class MayerGeneralSpherical extends MayerFunctionSpherical {
 		this.potential = potential;
 	}
 
-	public double f(CoordinatePair cPair, double beta) {
-		return Math.exp(-beta*potential.u(cPair.r2())) - 1.0;
+	public double f(double r2, double beta) {
+		return Math.exp(-beta*potential.u(r2)) - 1.0;
 	}
 
 	private final Potential2Spherical potential;

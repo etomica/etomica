@@ -3,11 +3,10 @@ package etomica.virial;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
-import etomica.atom.AtomPositionFirstAtom;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
-import etomica.space.CoordinatePair;
-import etomica.space.NearestImageTransformerNone;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.Debug;
 
 /**
  * @author David Kofke
@@ -31,79 +30,61 @@ public class CoordinatePairSet implements java.io.Serializable {
      * @param list The list of atoms for which the set of pairs is formed.
      */
     public CoordinatePairSet(AtomArrayList list, Space space) {
-        cPairs = new CoordinatePair[list.size()][];
-        setAtoms(list, space);
+        positions = new Vector[list.size()];
+        numAtoms = list.size();
+        r2 = new double[numAtoms*(numAtoms-1)/2];
+        setAtoms(list);
         dirtyAtom = -1;
+        dr = space.makeVector();
     }
     
     /**
      * Returns atom pair for ith and jth atoms in set.
      */
-    public CoordinatePair getCPair(int i, int j) {
-        if(i==j) throw new IllegalArgumentException("Error: asking for pair formed with both atoms the same");
-        return i<j ? cPairs[i][j-i-1] : cPairs[j][i-j-1];
+    public double getr2(int i, int j) {
+        if(Debug.ON && !(i<j)) throw new IllegalArgumentException("Error: i must be less than j");
+        return r2[i*numAtoms+j];
     }
 
-    private void setAtoms(AtomArrayList list, Space space) {
+    private void setAtoms(AtomArrayList list) {
         AtomIteratorArrayListSimple iterator = new AtomIteratorArrayListSimple(list);
-        int N = list.size();
-        Atom[] atoms = new Atom[N];
         iterator.reset();
         int k=0;
         while(iterator.hasNext()) {
             Atom atom = iterator.nextAtom();
-            atoms[k++] = atom;
-        }
-        NearestImageTransformerNone transformer = new NearestImageTransformerNone();
-        for(int i=0; i<N; i++) {
-            cPairs[i] = new CoordinatePair[N-1-i];
-            for(int j=0; j<N-1-i; j++) {
-                CoordinatePair cPair;
-                if (atoms[i].type.isLeaf()) {
-                    cPair = new CoordinatePair(space);
-                    cPair.setNearestImageTransformer(transformer);
-                    cPair.reset(((AtomLeaf)atoms[i]).coord,((AtomLeaf)atoms[i+j+1]).coord);
-                }
-                else {
-                    cPair = new CoordinatePairMolecular(space,new AtomPositionFirstAtom());
-                    cPair.setNearestImageTransformer(transformer);
-                    ((CoordinatePairMolecular)cPair).reset(atoms[i],atoms[i+j+1]);
-                }
-                cPairs[i][j] = cPair;
-            }
+            positions[k++] = ((AtomLeaf)atom).coord.position();
         }
     }
     
     public void reset() {
         if (dirtyAtom == -1) {
-            int N = cPairs.length;
-            for(int i=0; i<N; i++) {
-                CoordinatePair[] cPairs2 = cPairs[i];
-                for(int j=0; j<N-i-1; j++) {
-                    cPairs2[j].reset();
+            for(int i=0; i<numAtoms-1; i++) {
+                Vector pos1 = positions[i];
+                for(int j=i+1; j<numAtoms; j++) {
+                    dr.Ev1Mv2(pos1,positions[j]);
+                    r2[i*numAtoms+j] = dr.squared();
                 }
             }
         }
         else {
             // reset only pairs containing dirty atom
+            Vector posi = positions[dirtyAtom];
             for (int i=0; i<dirtyAtom; i++) {
-                cPairs[i][dirtyAtom-i-1].reset();
+                dr.Ev1Mv2(posi,positions[i]);
+                r2[i*numAtoms+dirtyAtom] = dr.squared();
             }
-            final CoordinatePair[] cPairs2 = cPairs[dirtyAtom];
-            for (int i=0; i<cPairs2.length; i++) {
-                cPairs2[i].reset();
+            for (int j=dirtyAtom+1; j<numAtoms; j++) {
+                dr.Ev1Mv2(posi,positions[j]);
+                r2[dirtyAtom*numAtoms+j] = dr.squared();
             }
         }
         ID = staticID++;
     }
     
     public void E(CoordinatePairSet c) {
-        int N = cPairs.length;
-        for(int i=0; i<N; i++) {
-            CoordinatePair[] cPairs2 = cPairs[i];
-            CoordinatePair[] c2 = c.cPairs[i];
-            for(int j=0; j<N-i-1; j++) {
-                cPairs2[j].dr().E(c2[j].dr());
+        for(int i=0; i<numAtoms-1; i++) {
+            for(int j=i+1; j<numAtoms; j++) {
+                r2[i*numAtoms+j] =  c.r2[i*numAtoms+j];
             }
         }
     }
@@ -112,7 +93,10 @@ public class CoordinatePairSet implements java.io.Serializable {
         return ID;
     }
     
-    protected final CoordinatePair[][] cPairs;
+    protected final double[] r2;
+    protected final Vector[] positions;
+    protected final int numAtoms;
+    protected final Vector dr;
     private int ID;
     private static int staticID;
     public int dirtyAtom;

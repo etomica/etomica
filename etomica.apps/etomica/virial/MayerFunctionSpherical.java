@@ -1,9 +1,11 @@
 package etomica.virial;
 
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.space.CoordinatePair;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * @author kofke
@@ -14,19 +16,19 @@ import etomica.space.Space;
 public abstract class MayerFunctionSpherical implements MayerFunction, java.io.Serializable {
 
     public MayerFunctionSpherical(Space space) {
-        coordPair = new CoordinatePair(space);
+        dr = space.makeVector();
     }
 
     /**
      * returns Mayer function between atoms in the pair at temperature
      * 1/beta
      */
-    public abstract double f(CoordinatePair cPair, double beta);
+    public abstract double f(double r2, double beta);
 
     public double f(AtomSet pair, double beta) {
-        coordPair.reset((AtomPair)pair);
-        return f(coordPair,beta);
+        dr.Ev1Mv2(((AtomLeaf)((AtomPair)pair).atom1).coord.position(),((AtomLeaf)((AtomPair)pair).atom0).coord.position());
+        return f(dr.squared(), beta);
     }
 
-    private final CoordinatePair coordPair;
+    protected final Vector dr;
 }

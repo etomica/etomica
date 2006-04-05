@@ -12,8 +12,11 @@ import etomica.data.DataSourceUniform.LimitType;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.phase.Phase;
-import etomica.space.CoordinatePair;
+import etomica.space.ICoordinate;
+import etomica.space.ICoordinateAngular;
+import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Length;
 import etomica.units.Null;
 import etomica.util.NameMaker;
@@ -42,8 +45,8 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
         data = new DataFunction(new DataDoubleArray[] {rData}, gData);
 
 	    iterator = new ApiLeafAtoms();
-	    cPair = new CoordinatePair(space);
         setName(NameMaker.makeName(this.getClass()));
+        dr = space.makeVector();
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -78,7 +81,6 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
 	 * Computes RDF for the current configuration of the given phase.
 	 */
 	public Data getData() {
-        cPair.setNearestImageTransformer(phase.getBoundary());
         boolean needUpdate = false;
         if (rData != xDataSource.getData()) {
             rData = (DataDoubleArray)xDataSource.getData();
@@ -100,8 +102,9 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
 	    iterator.reset();
 	    while(iterator.hasNext()) {                 //iterate over all pairs
 	    	AtomPair pair = (AtomPair)iterator.next();
-	    	cPair.reset(((AtomLeaf)pair.atom0).coord, ((AtomLeaf)pair.atom1).coord);
-	    	double r2 = cPair.r2();       //compute pair separation
+            dr.Ev1Mv2(((AtomLeaf)pair.atom1).coord.position(),((AtomLeaf)pair.atom0).coord.position());
+            nearestImageTransformer.nearestImage(dr);
+	    	double r2 = dr.squared();       //compute pair separation
 	        if(r2 < xMaxSquared) {
 	            int index = xDataSource.getIndex(Math.sqrt(r2));  //determine histogram index
 	            y[index]++;                        //add once for each atom
@@ -135,6 +138,7 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
      */
     public void setPhase(Phase phase) {
         this.phase = phase;
+        nearestImageTransformer = phase.getBoundary();
     }
 
     public String getName() {
@@ -160,29 +164,8 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
     private DataDoubleArray rData;
     private DataDoubleArray gData;
     private AtomsetIteratorPhaseDependent iterator;
-    private final CoordinatePair cPair;
+    private final Vector dr;
+    private NearestImageTransformer nearestImageTransformer;
     private final DataSourceUniform xDataSource;
     private String name;
-	
-	/**
-	 * main method to demonstrate and test use of class.
-	 */
-/*	 public static void main(String[] args) {
-	    
-	    etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
-	    Simulation.instance = sim;
-	    
-	    MeterRDF meter = new MeterRDF(sim);
-	    etomica.graphics.DisplayPlot plot = new etomica.graphics.DisplayPlot(sim);
-	    etomica.graphics.DisplayTableFunction table = new etomica.graphics.DisplayTableFunction(sim);
-	    ApiIntragroupAA iterator = new ApiIntragroupAA(sim);
-	    sim.elementCoordinator.go();
-	    SpeciesAgent agent = sim.phase.getAgent(sim.species);
-	    meter.setIterator(iterator);
-		iterator.setBasis(agent, agent);
-	    
-	    etomica.graphics.SimulationGraphic.makeAndDisplayFrame(sim);
-	 }//end of main
-	*/   
 }
-    
