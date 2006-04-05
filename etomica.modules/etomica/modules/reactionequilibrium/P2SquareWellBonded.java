@@ -79,11 +79,14 @@ public class P2SquareWellBonded extends P2SquareWell {
             AtomPair pair = (AtomPair) atoms;
             Atom a1Partner = agents[pair.atom0.getGlobalIndex()];
             
-            cPair.reset(pair);
-            cPair.resetV();
-            dr.E(cPair.dr());
-            Vector dv = cPair.dv();
-            dr.PEa1Tv1(falseTime, dv);
+            ICoordinateKinetic coord0 = (ICoordinateKinetic)((AtomLeaf)pair.atom0).coord;
+            ICoordinateKinetic coord1 = (ICoordinateKinetic)((AtomLeaf)pair.atom1).coord;
+            dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
+            
+            dr.Ev1Mv2(coord1.position(), coord0.position());
+            dr.PEa1Tv1(falseTime,dv);
+            nearestImageTransformer.nearestImage(dr);
+
             double r2 = dr.squared();
             double bij = dr.dot(dv);
 
@@ -99,38 +102,40 @@ public class P2SquareWellBonded extends P2SquareWell {
     }
 
 	
-	public void bump(AtomSet atoms, double falseTime) {
+	public void bump(AtomSet pair, double falseTime) {
 		
 		// *** Data Declaration Section
 
-		AtomPair pair = (AtomPair) atoms;
-		cPair.reset(pair);
-		cPair.resetV();
-		dr.E(cPair.dr());
-		Vector dv = cPair.dv();
-		dr.PEa1Tv1(falseTime, dv);
+        AtomLeaf atom0 = (AtomLeaf)((AtomPair)pair).atom0;
+        AtomLeaf atom1 = (AtomLeaf)((AtomPair)pair).atom1;
+        ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0.coord;
+        ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1.coord;
+        dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
+        
+        dr.Ev1Mv2(coord1.position(), coord0.position());
+        dr.PEa1Tv1(falseTime,dv);
+        nearestImageTransformer.nearestImage(dr);
+
 		double r2 = dr.squared();
 		double bij = dr.dot(dv);
 		double nudge = 0;
 		double eps = 1.0e-10;
 		
 		// ke is kinetic energy due to components of velocity
-		AtomLeaf a0 = (AtomLeaf)pair.atom0;
-		AtomLeaf a1 = (AtomLeaf)pair.atom1;
-        double rm0 = ((AtomTypeLeaf)a0.type).rm();
-        double rm1 = ((AtomTypeLeaf)a1.type).rm();
+        double rm0 = ((AtomTypeLeaf)atom0.type).rm();
+        double rm1 = ((AtomTypeLeaf)atom1.type).rm();
 //		System.out.println("Bumping "+pair.toString());
 		double reduced_m = 2.0 / (rm0 + rm1);
 		double ke = bij * bij * reduced_m / (4.0 * r2);
 		
-		Atom a0Partner = agents[a0.getGlobalIndex()];
-		Atom a1Partner = agents[a1.getGlobalIndex()];
+		Atom a0Partner = agents[atom0.getGlobalIndex()];
+		Atom a1Partner = agents[atom1.getGlobalIndex()];
 
 		boolean a0Saturated = (a0Partner != null);
 		boolean a1Saturated = (a1Partner != null);
 
-		if (a0Partner == a1) {	//atoms are bonded to each
-            if (a1Partner != a0) {
+		if (a0Partner == atom1) {	//atoms are bonded to each
+            if (a1Partner != atom0) {
                 throw new IllegalStateException("partner mismatch");      
             }
 
@@ -154,10 +159,10 @@ public class P2SquareWellBonded extends P2SquareWell {
 				// Atoms need to escape, so what needs to happen is, we need to find which cell in 
 				// All Atom Agents array is full, with atom a1, or a0, and set those spaces equal to null. 
 
-					if( a0Partner == a1)
+					if(a0Partner == atom1)
 					{	
-					    agents[a0.getGlobalIndex()] = null;
-                        agents[a1.getGlobalIndex()] = null;
+					    agents[atom0.getGlobalIndex()] = null;
+                        agents[atom1.getGlobalIndex()] = null;
 					}
 
 					nudge = eps;
@@ -178,8 +183,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 						* reduced_m
 						* (bij + Math.sqrt(bij * bij + 4.0 * r2 * epsilon
 								/ reduced_m));
-				agents[a0.getGlobalIndex()] = a1;
-				agents[a1.getGlobalIndex()] = a0;
+				agents[atom0.getGlobalIndex()] = atom1;
+				agents[atom1.getGlobalIndex()] = atom0;
 				nudge = -eps;
 				//System.out.println("bonded");
 			}
@@ -188,15 +193,15 @@ public class P2SquareWellBonded extends P2SquareWell {
 
 		lastCollisionVirialr2 = lastCollisionVirial / r2;
 		dv.Ea1Tv1(lastCollisionVirialr2, dr);
-		((ICoordinateKinetic) a0.coord).velocity().PEa1Tv1( rm0, dv);
-		((ICoordinateKinetic) a1.coord).velocity().PEa1Tv1(-rm1, dv);
-		a0.coord.position().PEa1Tv1(-falseTime * rm0, dv);
-		a1.coord.position().PEa1Tv1(falseTime * rm1, dv);
+		coord0.velocity().PEa1Tv1( rm0, dv);
+		coord1.velocity().PEa1Tv1(-rm1, dv);
+		coord0.position().PEa1Tv1(-falseTime * rm0, dv);
+		coord1.position().PEa1Tv1(falseTime * rm1, dv);
 		
 		if (nudge != 0) 
 		{
-			a0.coord.position().PEa1Tv1(-nudge, dr);
-			a1.coord.position().PEa1Tv1(nudge, dr);
+			coord0.position().PEa1Tv1(-nudge, dr);
+			coord1.position().PEa1Tv1(nudge, dr);
 		}
 
 	}//end of bump

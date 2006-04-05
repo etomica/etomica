@@ -8,7 +8,6 @@ import etomica.phase.Phase;
 import etomica.potential.P2SquareWell;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 
 /**
@@ -142,14 +141,17 @@ public class P2SquareWellBonded extends P2SquareWell {
 		//System.out.println("P2SquaredWell: ran Collision Time");	
 		if (ignoreOverlap) {
 			
-			// ** Makes 2 things, and atomPair pair, 
-			AtomPair pair = (AtomPair) atoms;
-			
-			cPair.reset(pair);
-			cPair.resetV();
-			dr.E(cPair.dr());
-			Vector dv = cPair.dv();
-			dr.PEa1Tv1(falseTime, dv);
+            // ** Makes 2 things, and atomPair pair, 
+            AtomPair pair = (AtomPair) atoms;
+            
+            ICoordinateKinetic coord0 = (ICoordinateKinetic)((AtomLeaf)pair.atom0).coord;
+            ICoordinateKinetic coord1 = (ICoordinateKinetic)((AtomLeaf)pair.atom1).coord;
+            dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
+            
+            dr.Ev1Mv2(coord1.position(), coord0.position());
+            dr.PEa1Tv1(falseTime,dv);
+            nearestImageTransformer.nearestImage(dr);
+
 			double r2 = dr.squared();
 			double bij = dr.dot(dv);
 			boolean areBonded = areBonded(pair.atom0,pair.atom1);
@@ -165,28 +167,30 @@ public class P2SquareWellBonded extends P2SquareWell {
 	}
 
 	
-	public void bump(AtomSet atoms, double falseTime) {
+	public void bump(AtomSet pair, double falseTime) {
 
-		AtomPair pair = (AtomPair) atoms;
-		cPair.reset(pair);
-		cPair.resetV();
-		dr.E(cPair.dr());
-		Vector dv = cPair.dv();
-		dr.PEa1Tv1(falseTime, dv);
+        AtomLeaf atom0 = (AtomLeaf)((AtomPair)pair).atom0;
+        AtomLeaf atom1 = (AtomLeaf)((AtomPair)pair).atom1;
+        ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0.coord;
+        ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1.coord;
+        dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
+        
+        dr.Ev1Mv2(coord1.position(), coord0.position());
+        dr.PEa1Tv1(falseTime,dv);
+        nearestImageTransformer.nearestImage(dr);
+
 		double r2 = dr.squared();
 		double bij = dr.dot(dv);
 		double nudge = 0;
 		double eps = 1.0e-10;
 		
 		// ke is kinetic energy due to components of velocity
-		AtomLeaf a0 = (AtomLeaf)pair.atom0;
-		AtomLeaf a1 = (AtomLeaf)pair.atom1;
 		
-		double reduced_m = 2.0 / (((AtomTypeLeaf)a0.type).rm + ((AtomTypeLeaf)a1.type).rm);
+		double reduced_m = 2.0 / (((AtomTypeLeaf)atom0.type).rm + ((AtomTypeLeaf)atom1.type).rm);
 		double ke = bij * bij * reduced_m / (4.0 * r2);
 		
 		
-		if (areBonded(a0,a1)) {		//atoms are bonded to each
+		if (areBonded(atom0,atom1)) {		//atoms are bonded to each
 			if (2 * r2 < (coreDiameterSquared + wellDiameterSquared)) { // Hard-core collision															
 				lastCollisionVirial = reduced_m * bij;
 	
@@ -198,7 +202,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 				} 
 				else{ 	
 				    lastCollisionVirial = 0.5 * reduced_m * bij- Math.sqrt(reduced_m * r2 * (ke - epsilon));
-					unbond(a1,a0);
+					unbond(atom1,atom0);
 					nudge = eps;
 				}
 
@@ -206,27 +210,27 @@ public class P2SquareWellBonded extends P2SquareWell {
         }
 		else { 	//not bonded to each other
 			//well collision; decide whether to bond or have hard repulsion
-			if (full(a0) || full(a1)) { 
+			if (full(atom0) || full(atom1)) { 
 				lastCollisionVirial = reduced_m * bij;
 				nudge = eps;
 			} else { //neither is taken; bond to each other
                 lastCollisionVirial = 0.5* reduced_m* (bij + Math.sqrt(bij * bij + 4.0 * r2 * epsilon/ reduced_m));
-				bond(a0,a1);
+				bond(atom0,atom1);
 				nudge = -eps;
 			}
 		} 
 
 		lastCollisionVirialr2 = lastCollisionVirial / r2;
 		dv.Ea1Tv1(lastCollisionVirialr2, dr);
-		((ICoordinateKinetic) a0.coord).velocity().PEa1Tv1(((AtomTypeLeaf)a0.type).rm, dv);
-		((ICoordinateKinetic) a1.coord).velocity().PEa1Tv1(-((AtomTypeLeaf)a1.type).rm, dv);
-		a0.coord.position().PEa1Tv1(-falseTime * ((AtomTypeLeaf)a0.type).rm, dv);
-		a1.coord.position().PEa1Tv1(falseTime * ((AtomTypeLeaf)a1.type).rm, dv);
+		coord0.velocity().PEa1Tv1(((AtomTypeLeaf)atom0.type).rm, dv);
+		coord1.velocity().PEa1Tv1(-((AtomTypeLeaf)atom1.type).rm, dv);
+		coord0.position().PEa1Tv1(-falseTime * ((AtomTypeLeaf)atom0.type).rm, dv);
+		coord1.position().PEa1Tv1(falseTime * ((AtomTypeLeaf)atom1.type).rm, dv);
 		
 		if (nudge != 0) 
 		{
-			a0.coord.position().PEa1Tv1(-nudge, dr);
-			a1.coord.position().PEa1Tv1(nudge, dr);
+			coord0.position().PEa1Tv1(-nudge, dr);
+			coord1.position().PEa1Tv1(nudge, dr);
 		}
 	}//end of bump
 }//end of class
