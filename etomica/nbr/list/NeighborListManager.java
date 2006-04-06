@@ -121,7 +121,6 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * by given integrator.
      */
     public void updateNbrsIfNeeded(IntegratorPhase integrator) {
-        boolean resetIntegrator = false;
         Phase phase = integrator.getPhase();
         neighborCheck.reset();
         for (int j = 0; j < criteriaArray.length; j++) {
@@ -140,11 +139,9 @@ public class NeighborListManager implements IntegratorNonintervalListener,
             pbcEnforcer.setPhase(phase);
             pbcEnforcer.actionPerformed();
             neighborSetup(phase);
-            resetIntegrator = true;
+            integrator.neighborsUpdated();
         }
 
-        if (resetIntegrator)
-            integrator.neighborsUpdated();
     }
 
     /**
@@ -272,7 +269,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
             Atom atom0 = pair.atom0;
             Potential[] potentials = potentialMaster.getPotentials(atom0.type).getPotentials();
             for (int i = 0; i < potentials.length; i++) {
-                if (potentials[i].nBody() != 2 || !potentials[i].getCriterion().isRangeDependent()) {
+                if (potentials[i].nBody() < 2 || !potentials[i].getCriterion().isRangeDependent()) {
                     continue;
                 }
                 if (((Potential2) potentials[i]).getCriterion().accept(pair)) {
