@@ -10,8 +10,6 @@ import etomica.potential.PotentialSoft;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
-import etomica.units.Dimension;
-import etomica.units.Energy;
 
 /**
  * This class calculates the MEAM potential of each atom i, using the values that 
@@ -129,7 +127,7 @@ public final class MEAMPMany extends Potential1 implements PotentialSoft {
 		double rhoi = rhoi(agent);
 		
 		//The embedding energy of atom i
-		double F = p.A * p.Ec * (rhoi / p.rhoScale) * Math.log( rhoi / p.rhoScale);
+		double F = p.A * p.Ec * (rhoi/p.rhoScale) * Math.log(rhoi/p.rhoScale);
 		
 		return F + ((1.0/2.0)*agent.sums[Wrapper.phiBin]);
 	}
@@ -214,7 +212,7 @@ public final class MEAMPMany extends Potential1 implements PotentialSoft {
 		gradRhoi.TE(2.0/(1.0+Math.exp(-gamma)));
 	
 		gradF.Ea1Tv1( (p.A*p.Ec/p.rhoScale)*
-				(Math.log(rhoi)-Math.log(p.rhoScale)+1.0), gradRhoi);
+				(1.0 + Math.log(rhoi)- Math.log(p.rhoScale)), gradRhoi);
 		
 		//System.out.println("gradF is " + gradF);
 		//System.exit(0);
@@ -231,10 +229,7 @@ public final class MEAMPMany extends Potential1 implements PotentialSoft {
     }
 	
     private Wrapper[] agents;
-    public Dimension getEpsilonDimension() {return Energy.DIMENSION;}
     private ParameterSetMEAM p;
-    private double r2Last = -1.0;
-    
     private final Vector3D gradRhoi0;
     private final Vector3D gradRhoi1;
     private final Vector3D gradRhoi2;

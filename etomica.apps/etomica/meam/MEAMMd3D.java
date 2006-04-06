@@ -6,10 +6,11 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorHistory;
 import etomica.data.DataInfo;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterEnergy;
+import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPhase;
@@ -28,6 +29,7 @@ import etomica.space3d.Vector3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
+import etomica.util.HistoryCollapsingAverage;
 
 /**
  * Molecular-Dynamics Simulation Using the Modified Embedded-Atom Method 
@@ -104,13 +106,23 @@ public class MEAMMd3D extends Simulation {
     	MEAMMd3D sim = new MEAMMd3D();
     	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
     	energyMeter.setPhase(sim.phase);
-    	AccumulatorAverage energyAccumulator = new AccumulatorAverage(sim);
-        DataPump energyManager = new DataPump(energyMeter,energyAccumulator);
-        energyAccumulator.setBlockSize(50);
+    	AccumulatorHistory energyAccumulator = new AccumulatorHistory(HistoryCollapsingAverage.FACTORY);
+        DisplayPlot plot = new DisplayPlot();
+        energyAccumulator.setDataSink(plot.getDataSet());
+    	DataPump energyManager = new DataPump(energyMeter,energyAccumulator);
+    	MeterKineticEnergy kineticMeter = new MeterKineticEnergy();
+    	kineticMeter.setPhase(sim.phase);
+    	AccumulatorHistory kineticAccumulator = new AccumulatorHistory(HistoryCollapsingAverage.FACTORY);
+    	kineticAccumulator.setDataSink(plot.getDataSet());
+    	DataPump kineticManager = new DataPump(kineticMeter, kineticAccumulator);
+        //energyAccumulator.setBlockSize(50);
         IntervalActionAdapter adapter = new IntervalActionAdapter(energyManager, sim.integrator);
         adapter.setActionInterval(5);
+        IntervalActionAdapter kineticAdapter = new IntervalActionAdapter(kineticManager, sim.integrator);
+        kineticAdapter.setActionInterval(5);
         SimulationGraphic simgraphic = new SimulationGraphic(sim);
     	simgraphic.makeAndDisplayFrame();
+    	simgraphic.panel().add(plot.graphic());
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simgraphic.displayList().getFirst()).getColorScheme());
     	colorScheme.setColor(sim.species.getMoleculeType(),java.awt.Color.red);
     	//sim.activityIntegrate.setMaxSteps(1000);
@@ -125,8 +137,9 @@ public class MEAMMd3D extends Simulation {
     public MEAMMd3D() {
         super(Space3D.getInstance()); //INSTANCE); kmb change 8/3/05
         integrator = new IntegratorVelocityVerlet(this);
-        integrator.setTimeStep(0.0005);
+        integrator.setTimeStep(0.001);
         integrator.setTemperature(Kelvin.UNIT.toSim(298));
+        integrator.setIsothermal(true);
         activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
