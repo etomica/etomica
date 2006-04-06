@@ -1,6 +1,5 @@
 package etomica.virial;
 
-import etomica.space.CoordinatePair;
 import etomica.space.Space;
 
 /**
@@ -25,8 +24,8 @@ public class MayerEHardSphere extends MayerESpherical {
 		setSigma(sigma);
 	}
 
-	public double f(CoordinatePair cPair, double beta) {
-		return (cPair.r2()<sigma2) ? 0.0 : 1.0;
+	public double f(double r2, double beta) {
+		return (r2<sigma2) ? 0.0 : 1.0;
 	}
 
 	/**

@@ -1,6 +1,5 @@
 package etomica.virial;
 
-import etomica.space.CoordinatePair;
 import etomica.space.Space;
 
 /**
