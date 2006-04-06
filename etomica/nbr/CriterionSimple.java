@@ -10,7 +10,6 @@ import etomica.phase.Phase;
 import etomica.phase.PhaseAgentManager;
 import etomica.phase.PhaseAgentSourceAtomManager;
 import etomica.simulation.Simulation;
-import etomica.space.CoordinatePair;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Vector;
 import etomica.units.Dimension;

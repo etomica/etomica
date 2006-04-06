@@ -20,7 +20,6 @@ import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialHard;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.CoordinatePair;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;
 import etomica.util.Debug;
@@ -52,9 +51,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
     protected CollisionListenerLinker collisionListenerHead = null;
     private final AtomPair pair;
     private double minDelta;
-    Vector c3;
-    CoordinatePair cPairDebug;
-    AtomPair debugPair;
+    private AtomPair debugPair;
 
     protected final IteratorDirective upList = new IteratorDirective(IteratorDirective.Direction.UP);
     protected final IteratorDirective downList = new IteratorDirective(IteratorDirective.Direction.DOWN);

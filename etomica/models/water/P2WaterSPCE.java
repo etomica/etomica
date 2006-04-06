@@ -5,7 +5,6 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.potential.Potential2;
-import etomica.space.CoordinatePair;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Electron;
@@ -16,7 +15,7 @@ import etomica.units.Kelvin;
  * @author kofke
  *
  * SPC/E potential for water.  Requires the molecule node be an
- * AtomTreeNodeWater. 
+ * AtomTreeNodeWater.  Does not apply periodic boundary conditions.
  */
 public class P2WaterSPCE extends Potential2 {
 
@@ -111,7 +110,6 @@ public class P2WaterSPCE extends Potential2 {
     }
 
     public void setPhase(Phase phase) {
-        cPair.setNearestImageTransformer(phase.getBoundary());
     }
 
     public double sigma , sigma2;
@@ -119,5 +117,4 @@ public class P2WaterSPCE extends Potential2 {
     private double chargeH = Electron.UNIT.toSim(0.4238);
     private double chargeO = Electron.UNIT.toSim(-0.8476);
     private double chargeOO, chargeOH, chargeHH;
-    protected CoordinatePair cPair;
 }

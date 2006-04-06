@@ -5,7 +5,6 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.space.Coordinate;
-import etomica.space.CoordinatePair;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.space.Vector;
