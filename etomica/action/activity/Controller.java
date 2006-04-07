@@ -42,6 +42,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
         actionStatusMap = new HashMap();
         actionExceptionMap = new HashMap();
         waitObject = new WaitObject();
+        urgentWaitObject = new UrgentWaitObject();
         eventManager = new ControllerEventManager();
     }
     
@@ -132,19 +133,14 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                     try {
                         synchronized(waitObject) {
                             //put group thread in wait state while current action runs
-                            //need to check again that current action isn't done, to ensure that current-action thread didn't finish between while and here
-                            while(urgentAction == null && !waitObject.currentActionDone) {
+                            //need to check again that current action isn't done, to ensure that 
+                            //current-action thread didn't finish between while and here
+                            while(!waitObject.currentActionDone) {
                                 waitObject.wait();
                             }
                         }
                     } catch(InterruptedException e) {}
 
-                    if (waitObject.actionException == null) {
-                        synchronized(this) {
-                            doUrgentAction();
-                            if(!wasPaused) unPause();
-                        }
-                    }
                 }
             } else {//currentAction is not an Activity; run on group's thread
                 currentAction.actionPerformed();
@@ -183,8 +179,6 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                 throw new RuntimeException("action failed", waitObject.actionException);
             }
             
-            doUrgentAction();
-            
             if(pauseAfterEachAction) {
                 pauseRequested = true;
             }
@@ -199,7 +193,6 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
             }
 
         }//end while(numActions > 0)
-        doUrgentAction();//could come straight here if doActionNow before adding other actions
         synchronized(this) {
             notifyAll();//notify any threads requesting halt and waiting for execution to complete
         }
@@ -217,42 +210,37 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
      */
     public synchronized void doActionNow(final Action action) {
         if(action instanceof Activity) throw new IllegalArgumentException("can't send Activity here; sorry");
-//        System.out.println("in doActionNow, urgentAction="+urgentAction);
-        if(urgentAction != null) return;
-        if(isActive()) {
-            wasPaused = isPaused();
-//            System.out.println("in doActionNow "+wasPaused);
-            pause();
-//            System.out.println("in doActionNow paused it");
-            synchronized(waitObject) {
-                urgentAction = action;
-                waitObject.notifyAll();//release group thread from wait
-            }
-        } else {
-            Thread localRunner = new Thread(new Runnable() {
-                public void run() {
-                    synchronized(Controller.this) {
-                        if(Controller.this.isActive()) {//check this just in case something calls start between time when gui thread exits method and when localRunner.run() is started
-                            doActionNow(action);
-                        } else {
-                            action.actionPerformed();
-                        }
-                    }
+
+        // use extra synchronization to block calls to doActionNow while we're 
+        // in pause and unPause
+        synchronized (urgentWaitObject) {
+            if(isActive()) {
+                //If the controller is active, pause it
+                boolean wasPaused = isPaused();
+                if (!wasPaused) {
+                    pause();
                 }
-            });
-            localRunner.start();
+
+                doUrgentAction(action);
+
+                //If we had to pause the controller, unpause it now
+                if (!wasPaused) {
+                    unPause();
+                }
+            }
+            else {
+                doUrgentAction(action);
+            }
         }
-    }//end of run
+    }
     
-    private synchronized void doUrgentAction() {
-//        System.out.println("doing UrgentAction "+urgentAction);
-        if(urgentAction == null) return;
+    private void doUrgentAction(Action urgentAction) {
         eventManager.fireEvent(new ControllerEvent(this, ControllerEvent.START_URGENT_ACTION, urgentAction));
+        
         urgentAction.actionPerformed();
+
         completedActions = (Action[])Arrays.addObject(completedActions, urgentAction);
-//        System.out.println("finished UrgentAction "+urgentAction);
         eventManager.fireEvent(new ControllerEvent(this, ControllerEvent.END_URGENT_ACTION, urgentAction));
-        urgentAction = null;
     }
     
     /**
@@ -317,11 +305,11 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     
     private final ControllerEventManager eventManager;
 
-    private boolean wasPaused = false;
-    private Action urgentAction;
-    
     private boolean repeatCurrentAction = false;
 
+    protected final UrgentWaitObject urgentWaitObject;
+    private static class UrgentWaitObject implements java.io.Serializable {}
+    
     protected final WaitObject waitObject;
     private static class WaitObject implements java.io.Serializable {
         boolean currentActionDone;
