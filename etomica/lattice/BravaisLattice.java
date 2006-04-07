@@ -57,6 +57,10 @@ public class BravaisLattice implements SpaceLattice, java.io.Serializable {
     public Primitive getPrimitive() {
         return primitive;
     }
+    
+    public double[] getLatticeConstants() {
+        return primitive.getSize();
+    }
 
 //    //not carefully implemented
 //    public Space.Vector nearestSite(Space.Vector r) {

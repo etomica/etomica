@@ -9,10 +9,6 @@ package etomica.lattice;
  *
  */
 
-/*
- * History
- * Created on Jan 5, 2005 by kofke
- */
 public class IndexIteratorExpanding implements IndexIterator, java.io.Serializable {
 
     /**
@@ -53,6 +49,10 @@ public class IndexIteratorExpanding implements IndexIterator, java.io.Serializab
         }
     }
 
+    public int getD() {
+        return D;
+    }
+    
     private int[] index;
     private double[] ratios;
     private int[] size;

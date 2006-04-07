@@ -19,4 +19,6 @@ public interface IndexIterator {
     public boolean hasNext();
     
     public int[] next();
+    
+    public int getD();
 }

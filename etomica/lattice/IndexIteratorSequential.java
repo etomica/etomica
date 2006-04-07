@@ -77,6 +77,10 @@ public class IndexIteratorSequential implements IndexIteratorSizable, java.io.Se
         }
     }
 
+    public int getD() {
+        return D;
+    }
+    
     private void increment(int[] idx, int d) {
         idx[d]++;
         while(idx[d] == size[d] && d > 0) {
@@ -92,4 +96,5 @@ public class IndexIteratorSequential implements IndexIteratorSizable, java.io.Se
     //when this equals maxCount, iteration is done
     private int count;
     private int maxCount;
+    private static final long serialVersionUID = 1L;
 }

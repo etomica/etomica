@@ -64,6 +64,10 @@ public class LatticeCrystal implements SpaceLattice, java.io.Serializable {
         return crystal;
     }
     
+    public double[] getLatticeConstants() {
+        return crystal.lattice.getLatticeConstants();
+    }
+    
     protected final Crystal crystal;
     private final int[] crystalIndex;
     private final int D;

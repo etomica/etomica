@@ -4,6 +4,7 @@
 package etomica.models.hexane;
 
 import etomica.config.ConfigurationLattice;
+import etomica.lattice.BravaisLattice;
 import etomica.space.Space;
 
 
@@ -16,6 +17,6 @@ import etomica.space.Space;
 public class ConfigurationHexane extends ConfigurationLattice {
 
 	ConfigurationHexane(Space space) {
-	    super(new PrimitiveHexane(space));
+	    super(new BravaisLattice(new PrimitiveHexane(space)));
 	}
 }

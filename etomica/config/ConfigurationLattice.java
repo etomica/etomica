@@ -6,15 +6,12 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorArrayListCompound;
 import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DisplayPhase;
-import etomica.lattice.Crystal;
+import etomica.integrator.IntegratorHard;
 import etomica.lattice.IndexIteratorSequential;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.LatticeCrystal;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.lattice.Primitive;
 import etomica.lattice.SpaceLattice;
-import etomica.lattice.crystal.BasisMonatomic;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -23,28 +20,46 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 
 /**
- * Creates a configuration. Has capability to assign lattice site to atoms when
- * specifying their coordinates. See setAssigningSitesToAtoms method.
+ * Constructs configuration that has the molecules placed on the sites of a
+ * lattice. Molecules are placed sequentially on the sites of the lattice in an
+ * order specified by an index iterator set at construction.
+ * <p>
+ * Iteration over the indexes yields integer arrays, and with each iteration the
+ * array is passed to the site method of the lattice which returns the position
+ * for placement of the next molecule. Each array index is iterated to a maximum
+ * value determined by the number of molecules to be placed, the dimensions of
+ * the phase in which they are placed, and the lattice constants of the lattice.
+ * <p>
+ * An instance of this class may be configured to place atoms such that they
+ * uniformly fill the volume of the phase. It will attempt this by scaling the
+ * lattice constants of the configuration in an appropriate way. Success in
+ * getting a good spatial distribution may vary.
+ * <p>
+ * An instance can also be configured to remember the indices used to get
+ * lattice position for each molecule that is placed. This can be useful if it
+ * is desired to associate each molecule with a lattice site.
  */
 public class ConfigurationLattice extends Configuration {
 
-    public ConfigurationLattice(Primitive primitive) {
-        this(new LatticeCrystal(new Crystal(primitive, new BasisMonatomic(
-                primitive.space))));
-    }
-
-    public ConfigurationLattice(LatticeCrystal lattice) {
-        this(lattice, new IndexIteratorSequential(lattice.D()));// need a
-        // default
-        // iterator
+    /**
+     * Constructs class using instance of IndexIteratorSequential as the default
+     * index iterator.
+     */
+    public ConfigurationLattice(SpaceLattice lattice) {
+        this(lattice, new IndexIteratorSequential(lattice.D()));
     }
 
     /**
-     * Constructor for ConfigurationLattice.
+     * Construct class that will place atoms on sites of the given lattice,
+     * proceeding in the order resulting from iteration through the given index
+     * iterator.
      */
-    public ConfigurationLattice(LatticeCrystal lattice,
+    public ConfigurationLattice(SpaceLattice lattice,
             IndexIteratorSizable indexIterator) {
         super(lattice.getSpace());
+        if(indexIterator.getD() != lattice.D()) {
+            throw new IllegalArgumentException("Dimension of index iterator and lattice are incompatible");
+        }
         this.lattice = lattice;
         this.indexIterator = indexIterator;
         atomActionTranslateTo = new AtomActionTranslateTo(lattice.getSpace());
@@ -52,17 +67,32 @@ public class ConfigurationLattice extends Configuration {
         work = space.makeVector();
     }
 
+    /**
+     * Specifies whether indices used to place each atom should be remembered.
+     * Default is false.
+     */
     public void setRememberingIndices(boolean b) {
-        rememberIndices = b;
-        if (!rememberIndices) {
-            indices = null;
-        }
+        indices = b ? new int[0][] : null;
     }
 
+    /**
+     * Indicates of instance is set to remember indices used to place each atom.
+     */
     public boolean isRememberingIndices() {
-        return rememberIndices;
+        return indices != null;
     }
 
+    /**
+     * Returns an array of integer arrays, each corresponding to the indexes
+     * used to place a molecule in the last call to initializePositions. The
+     * index for each atom is obtained from the returned array using the atom's
+     * global index; that is, <code>getIndices()[atom.getGlobalIndex()]</code>
+     * gives the index array for <code>atom</code>.  A new instance of this
+     * array is made with each call to initializeCoordinates.
+     * 
+     * @throws IllegalStateException
+     *             if isRememberingIndices if false.
+     */
     public int[][] getIndices() {
         if (indices == null) {
             throw new IllegalStateException(
@@ -71,8 +101,12 @@ public class ConfigurationLattice extends Configuration {
         return indices;
     }
 
+    /**
+     * Places the molecules in the given phase on the positions of the
+     * lattice.  
+     */
     public void initializeCoordinates(Phase p) {
-        if (rememberIndices) {
+        if (indices != null) {
             indices = new int[p.getSpeciesMaster().getMaxGlobalIndex()][];
         }
         super.initializeCoordinates(p);
@@ -93,14 +127,17 @@ public class ConfigurationLattice extends Configuration {
             atomActionTranslateTo.actionPerformed(atomIterator.nextAtom());
             return;
         }
-        int basisSize = lattice.getCrystal().getBasis().size();
+        int basisSize = 1;
+        if (lattice instanceof LatticeCrystal) {
+            basisSize = ((LatticeCrystal) lattice).getCrystal().getBasis()
+                    .size();
+        }
         int nCells = (int) Math.ceil((double) sumOfMolecules
                 / (double) basisSize);
 
         // determine scaled shape of simulation volume
         double[] shape = (double[]) dimensions.clone();
-        double[] latticeConstant = lattice.getCrystal().getLattice()
-                .getPrimitive().getSize();
+        double[] latticeConstant = lattice.getLatticeConstants();
         for (int i = 0; i < shape.length; i++) {
             shape[i] /= latticeConstant[i];
         }
@@ -163,13 +200,12 @@ public class ConfigurationLattice extends Configuration {
             if (!a.node.isLeaf()) {
                 // initialize coordinates of child atoms
                 Conformation config = a.type.creator().getConformation();
-                config
-                        .initializePositions(((AtomTreeNodeGroup) a.node).childList);
+                config.initializePositions(((AtomTreeNodeGroup) a.node).childList);
             }
 
             int[] ii = indexIterator.next();
             Vector site = (Vector) myLat.site(ii);
-            if (rememberIndices) {
+            if (indices != null) {
                 indices[a.getGlobalIndex()] = (int[]) ii.clone();
             }
             atomActionTranslateTo.setDestination(site);
@@ -209,27 +245,25 @@ public class ConfigurationLattice extends Configuration {
         return latticeDimensions;
     }
 
+    /**
+     * Returns a lattice with positions the same as those used in the 
+     * most recent use of initializeCoordinates.  Includes any scaling
+     * or translation applied to fill the space, and thus will not necessarily
+     * be the same positions as specified by the lattice given at construction.
+     */
     public SpaceLattice getLatticeMemento() {
         return myLat;
     }
 
-    private final LatticeCrystal lattice;
-
+    private final SpaceLattice lattice;
     private final IndexIteratorSizable indexIterator;
-
     private final Vector work;
-
     private boolean rescalingToFitVolume = true;
-
     private final AtomActionTranslateTo atomActionTranslateTo;
-
     private final AtomIteratorArrayListCompound atomIterator;
-
     private MyLattice myLat;
-
-    private boolean rememberIndices = false;
-
-    private int[][] indices;
+    private int[][] indices = null;
+    private static final long serialVersionUID = 1L;
 
     // /**
     // * Sets the size of the lattice (number of atoms in each direction) so
@@ -277,17 +311,6 @@ public class ConfigurationLattice extends Configuration {
     // setSize(primitive.space.makeArrayD(i));
     // }
 
-    // /**
-    // * Translates the lattice so that the first site is positioned at the
-    // * given point.
-    // */
-    // public void shiftFirstTo(Space.Vector r) {
-    // Space.Vector[] coords = (Space.Vector[])sites();
-    // for(int i=coords.length-1; i>=0; i--) {
-    // coords[i].ME(r);
-    // }
-    // }
-
     public static void main(String[] args) {
         Simulation sim = new Simulation(Space3D.getInstance());
         sim.getDefaults().atomSize = 5.0;
@@ -295,7 +318,10 @@ public class ConfigurationLattice extends Configuration {
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
         int k = 4;
         species.setNMolecules(4 * k * k * k);
-        ColorSchemeByType colorScheme = new ColorSchemeByType();
+        phase.makeMolecules();
+        IntegratorHard integrator = new IntegratorHard(sim);
+        integrator.setPhase(phase);
+//        ColorSchemeByType colorScheme = new ColorSchemeByType();
         // CubicLattice lattice = new LatticeCubicBcc();
         LatticeCrystal lattice = new LatticeCubicFcc();
         // CubicLattice lattice = new LatticeCubicSimple();
@@ -307,9 +333,9 @@ public class ConfigurationLattice extends Configuration {
 
         etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(
                 sim);
-        ((ColorSchemeByType) ((DisplayPhase) simGraphic.displayList()
-                .getFirst()).getColorScheme()).setColor(species
-                .getMoleculeType(), java.awt.Color.red);
+//        ((ColorSchemeByType) ((DisplayPhase) simGraphic.displayList()
+//                .getFirst()).getColorScheme()).setColor(species
+//                .getMoleculeType(), java.awt.Color.red);
         simGraphic.makeAndDisplayFrame();
     }
 
@@ -342,7 +368,7 @@ public class ConfigurationLattice extends Configuration {
      */
     private static class MyLattice implements SpaceLattice {
 
-        MyLattice(LatticeCrystal l, Vector latticeScaling, Vector offset) {
+        MyLattice(SpaceLattice l, Vector latticeScaling, Vector offset) {
             lattice = l;
             this.latticeScaling = (Vector) latticeScaling.clone();
             this.offset = (Vector) offset.clone();
@@ -365,10 +391,16 @@ public class ConfigurationLattice extends Configuration {
             return site;
         }
 
-        LatticeCrystal lattice;
+        public double[] getLatticeConstants() {
+            double[] lat = lattice.getLatticeConstants();
+            for (int i = 0; i < lat.length; i++) {
+                lat[i] *= latticeScaling.x(i);
+            }
+            return lat;
+        }
 
+        SpaceLattice lattice;
         Vector latticeScaling;
-
         Vector offset;
 
     }
