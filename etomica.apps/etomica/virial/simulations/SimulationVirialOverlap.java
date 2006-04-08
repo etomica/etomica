@@ -9,9 +9,10 @@ import etomica.data.DataPump;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayPlot;
+import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
-import etomica.integrator.MCMove;
 import etomica.integrator.mcmove.MCMoveManager;
+import etomica.integrator.mcmove.MCMoveStep;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -23,7 +24,6 @@ import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
 import etomica.virial.ConfigurationCluster;
-import etomica.virial.IntegratorClusterMC;
 import etomica.virial.MCMoveClusterAtomMulti;
 import etomica.virial.MCMoveClusterMoleculeMulti;
 import etomica.virial.MCMoveClusterRotateMoleculeMulti;
@@ -67,11 +67,11 @@ public class SimulationVirialOverlap extends Simulation {
         accumulatorPumps = new DataPump[sampleClusters.length];
         accumulatorAAs = new IntervalActionAdapter[sampleClusters.length];
         phase = new PhaseCluster[sampleClusters.length];
-        integrators = new IntegratorClusterMC[sampleClusters.length];
+        integrators = new IntegratorMC[sampleClusters.length];
         meters = new MeterVirial[sampleClusters.length];
-        mcMoveTranslate = new MCMove[sampleClusters.length];
+        mcMoveTranslate = new MCMoveStep[sampleClusters.length];
         if (species.getFactory().getType() instanceof AtomTypeGroup) {
-            mcMoveRotate = new MCMove[sampleClusters.length];
+            mcMoveRotate = new MCMoveStep[sampleClusters.length];
         }
         
         P0Cluster p0 = new P0Cluster(space);
@@ -81,7 +81,7 @@ public class SimulationVirialOverlap extends Simulation {
             // integrator for iPhase samples based on iPhase cluster
             phase[iPhase] = new PhaseCluster(this,sampleClusters[iPhase]);
             
-            integrators[iPhase] = new IntegratorClusterMC(this);
+            integrators[iPhase] = new IntegratorMC(this);
             integrators[iPhase].setTemperature(temperature);
             integrators[iPhase].setPhase(phase[iPhase]);
             integrators[iPhase].setEquilibrating(false);
@@ -168,9 +168,9 @@ public class SimulationVirialOverlap extends Simulation {
 	protected final ClusterWeight[] sampleClusters;
     public PhaseCluster[] phase;
     protected Species species;
-    public IntegratorClusterMC[] integrators;
-    public MCMove[] mcMoveRotate;
-    public MCMove[] mcMoveTranslate;
+    public IntegratorMC[] integrators;
+    public MCMoveStep[] mcMoveRotate;
+    public MCMoveStep[] mcMoveTranslate;
     public MeterVirial[] meters;
     public ActivityIntegrate ai;
     public IntegratorOverlap integratorOS;

@@ -6,8 +6,9 @@ import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataAccumulator;
 import etomica.data.DataPump;
 import etomica.data.meter.Meter;
+import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
-import etomica.integrator.MCMove;
+import etomica.integrator.mcmove.MCMoveStep;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -16,7 +17,6 @@ import etomica.util.Default;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ConfigurationCluster;
-import etomica.virial.IntegratorClusterMC;
 import etomica.virial.MCMoveClusterAtom;
 import etomica.virial.MCMoveClusterAtomMulti;
 import etomica.virial.MCMoveClusterMolecule;
@@ -45,7 +45,7 @@ public class SimulationVirial extends Simulation {
         species.setNMolecules(nMolecules);
         phase.makeMolecules();
         
-		integrator = new IntegratorClusterMC(this);
+		integrator = new IntegratorMC(this);
         // it's unclear what this accomplishes, but let's do it just for fun.
 		integrator.setTemperature(temperature);
         integrator.setPhase(phase);
@@ -103,12 +103,12 @@ public class SimulationVirial extends Simulation {
 	public DataPump accumulatorPump;
 	public Species species;
 	public ActivityIntegrate ai;
-	public IntegratorClusterMC integrator;
+	public IntegratorMC integrator;
 	public PhaseCluster phase;
     public ClusterAbstract[] allValueClusters;
     public ClusterWeight sampleCluster;
-    public MCMove mcMoveTranslate;
-    public MCMove mcMoveRotate;
+    public MCMoveStep mcMoveTranslate;
+    public MCMoveStep mcMoveRotate;
 
 	public void setMeter(Meter newMeter) {
 		meter = newMeter;

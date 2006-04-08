@@ -5,13 +5,13 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorNull;
+import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorPT;
 import etomica.integrator.IntegratorPhase;
-import etomica.integrator.MCMove;
+import etomica.integrator.mcmove.MCMove;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
-import etomica.virial.IntegratorClusterMC;
 import etomica.virial.PhaseCluster;
 
 /**
@@ -19,7 +19,7 @@ import etomica.virial.PhaseCluster;
  */
 public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap {
 
-    private IntegratorClusterMC integrator1, integrator2;	
+    private IntegratorMC integrator1, integrator2;	
     private AtomIteratorLeafAtoms iterator1 = new AtomIteratorLeafAtoms();
     private AtomIteratorLeafAtoms iterator2 = new AtomIteratorLeafAtoms();
     private AtomIteratorAllMolecules affectedAtomIterator = new AtomIteratorAllMolecules();
@@ -30,10 +30,9 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
     private final Phase[] swappedPhases = new Phase[2];
 
     public MCMoveSwapCluster(PotentialMaster potentialMaster, 
-                             IntegratorClusterMC integrator1, IntegratorClusterMC integrator2) {
+                             IntegratorMC integrator1, IntegratorMC integrator2) {
         super(potentialMaster,2);
         r = potentialMaster.getSpace().makeVector();
-        setTunable(false);
         this.integrator1 = integrator1;
         this.integrator2 = integrator2;		
     }
@@ -142,7 +141,7 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
         public MCMove makeMCMoveSwap(PotentialMaster potentialMaster, 
                                      IntegratorPhase integrator1, IntegratorPhase integrator2) {
             return new MCMoveSwapCluster(potentialMaster, 
-                                         (IntegratorClusterMC)integrator1, (IntegratorClusterMC)integrator2);
+                                         (IntegratorMC)integrator1, (IntegratorMC)integrator2);
         }
     } 
 	

@@ -7,7 +7,7 @@
 package etomica.virial;
 
 import etomica.atom.iterator.AtomIterator;
-import etomica.integrator.MCMove;
+import etomica.integrator.mcmove.MCMove;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 

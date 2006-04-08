@@ -5,6 +5,7 @@ import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.meter.Meter;
 import etomica.data.types.DataDoubleArray;
+import etomica.integrator.IntegratorMC;
 import etomica.phase.Phase;
 import etomica.units.Dimension;
 import etomica.units.Fraction;
@@ -19,12 +20,12 @@ import etomica.util.NameMaker;
 public class MeterVirial implements DataSource, Meter, java.io.Serializable {
 
 	protected final ClusterAbstract clusters[];
-	protected final IntegratorClusterMC integrator;
+	protected final IntegratorMC integrator;
 	
 	/**
 	 * Constructor for MeterVirial.
 	 */
-	public MeterVirial(ClusterAbstract[] aClusters, IntegratorClusterMC aIntegrator) {
+	public MeterVirial(ClusterAbstract[] aClusters, IntegratorMC aIntegrator) {
         setName(NameMaker.makeName(this.getClass()));
 		integrator = aIntegrator;
 		clusters = aClusters;

@@ -8,11 +8,13 @@ import etomica.data.DataSource;
 import etomica.data.DataSourceAcceptanceProbability;
 import etomica.data.DataSourceAcceptanceRatio;
 import etomica.data.meter.Meter;
+import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorPT;
 import etomica.integrator.IntervalActionAdapter;
-import etomica.integrator.MCMove;
+import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveManager;
+import etomica.integrator.mcmove.MCMoveStep;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -21,7 +23,6 @@ import etomica.util.Default;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ConfigurationCluster;
-import etomica.virial.IntegratorClusterMC;
 import etomica.virial.MCMoveClusterAtom;
 import etomica.virial.MCMoveClusterAtomMulti;
 import etomica.virial.MCMoveClusterMolecule;
@@ -51,14 +52,14 @@ public class SimulationVirialPT extends Simulation {
         species.setNMolecules(nMolecules);
 
         phase = new PhaseCluster[temperature.length];
-        integrator = new IntegratorClusterMC[temperature.length];
+        integrator = new IntegratorMC[temperature.length];
         meter = new Meter[temperature.length];
         accumulator = new DataAccumulator[temperature.length];
         accumulatorPump = new DataPump[temperature.length];
         dumb = new IntervalActionAdapter[temperature.length];
         mcMoveAtom1 = new MCMoveAtom[temperature.length];
-        mcMoveMulti = new MCMove[temperature.length];
-        mcMoveRotate = new MCMove[temperature.length];
+        mcMoveMulti = new MCMoveStep[temperature.length];
+        mcMoveRotate = new MCMoveStep[temperature.length];
         meterAccept = new DataSource[temperature.length-1];
         meterAcceptP = new DataSource[temperature.length-1];
         
@@ -87,7 +88,7 @@ public class SimulationVirialPT extends Simulation {
             phase[iTemp] = new PhaseCluster(this,sampleCluster[iTemp]);
             phase[iTemp].makeMolecules();
             
-            integrator[iTemp] = new IntegratorClusterMC(this);
+            integrator[iTemp] = new IntegratorMC(this);
             integrator[iTemp].setTemperature(temperature[iTemp]);
             integrator[iTemp].setPhase(phase[iTemp]);
             integrator[iTemp].setEquilibrating(false);
@@ -143,13 +144,13 @@ public class SimulationVirialPT extends Simulation {
     public IntervalActionAdapter[] dumb;
 	public Species species;
 	public ActivityIntegrate ai;
-	public IntegratorClusterMC[] integrator;
+	public IntegratorMC[] integrator;
 	public PhaseCluster[] phase;
     public ClusterAbstract[][] allValueClusters;
     public ClusterWeight[] sampleCluster;
     public MCMoveAtom[] mcMoveAtom1;
-    public MCMove[] mcMoveRotate;
-    public MCMove[] mcMoveMulti;
+    public MCMoveStep[] mcMoveRotate;
+    public MCMoveStep[] mcMoveMulti;
     public IntegratorPT integratorPT;
 
 	public void setMeter(int i, Meter newMeter) {

@@ -1,6 +1,6 @@
 package etomica.tmmc;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.MCMove;
+import etomica.integrator.mcmove.MCMove;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 
@@ -97,7 +97,7 @@ public class IntegratorTMMC extends IntegratorMC {
             eventManager.fireEvent(event);
         }
         
-        move.updateCounts(event.wasAccepted,r,isEquilibrating());
+        move.getTracker().updateCounts(event.wasAccepted,r);
         
         if(--doStepCount == 0) updateWeights();
     }//end of doStep
