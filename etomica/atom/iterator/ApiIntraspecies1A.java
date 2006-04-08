@@ -75,20 +75,17 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
      * Sets the target molecule with which all pairs are formed. Molecule is
      * determined from the atom specified by the atomSet (which must have
      * count() == 1), which may be the molecule itself or an atom that is part
-     * of it. If the atom is null or is not in the species given at
+     * of it. If the atom is not in the species given at
      * construction, no iterates will be returned.
      * 
      * @throws NullPointerException
-     *             if targetAtoms is null
-     * @throws IllegalArgumentException
-     *             if targetAtoms.count() is not 1
+     *             if targetAtom is null
      */
-    public void setTarget(AtomSet targetAtoms) {
-        if (targetAtoms.count() != 1)
-            throw new IllegalArgumentException(
-                    "1A iterator must have exactly one target atom (which may be null); count of given target is "
-                            + targetAtoms.count());
-        targetAtom = targetAtoms.getAtom(0);
+    public void setTarget(Atom newTargetAtom) {
+        if (newTargetAtom == null) {
+            throw new NullPointerException("target atom must not be null");
+        }
+        targetAtom = newTargetAtom;
         identifyTargetMolecule();
     }
 

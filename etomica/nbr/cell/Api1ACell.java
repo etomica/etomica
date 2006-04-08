@@ -250,22 +250,9 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
      * is determined from the first atom of the array, which may be the molecule
      * itself or an atom that is part of it.  If the atom is null or is not 
      * in one of the species given at construction, no iterates will be returned.
-     * @throws NullPointerException
-     *          if targetAtoms is null; use AtomSet.NULL instead
-     * @throws IllegalArgumentException
-     *          if targetAtoms.count() is not 0 or 1
      */
-    public void setTarget(AtomSet targetAtoms) {
-        switch(targetAtoms.count()) {
-        case 0: 
-            targetAtom = null;
-            break;
-        case 1:
-            targetAtom = targetAtoms.getAtom(0);
-            break;
-        default:
-            throw new IllegalArgumentException("Can specify at most one target atom to iterator");
-        }
+    public void setTarget(Atom newTargetAtom) {
+        targetAtom = newTargetAtom;
     }
 
     // Moves to next neighbor-cell list that can provide an iterate

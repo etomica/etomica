@@ -103,8 +103,8 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         for (int i=0; i<criteriaArray.length; i++) {
             criteriaArray[i].setPhase(phase);
         }
-        AtomSet targetAtoms = id.getTargetAtoms();
-        if (targetAtoms.count() == 0) {
+        Atom targetAtom = id.getTargetAtom();
+        if (targetAtom == null) {
             //no target atoms specified -- do one-target algorithm to SpeciesMaster
             neighborIterator.setPhase(phase);
             neighborIterator.setDirection(IteratorDirective.Direction.UP);
@@ -113,20 +113,18 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             if (lrcMaster != null) {
                 lrcMaster.calculate(phase, id, pc);
             }
-        } else if (targetAtoms instanceof Atom) {
+        }
+        else {
             // one target atom
             neighborIterator.setPhase(phase);
             neighborIterator.setDirection(id.direction());
-            calculate((Atom)targetAtoms, id, pc, getPotentials(
-                      ((Atom)targetAtoms).type).getPotentials());
+            calculate(targetAtom, id, pc, getPotentials(
+                      targetAtom.type).getPotentials());
             if (lrcMaster != null) {
                 lrcMaster.calculate(phase, id, pc);
             }
-        } else {
-            //more than one target atom
-            super.calculate(phase, id, pc);
         }
-    }//end calculate
+    }
 	
     /**
      * Performs given PotentialCalculation using potentials/neighbors associated

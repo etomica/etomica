@@ -42,11 +42,16 @@ public final class ApiBuilder {
      * or both (if direction is set to null).
      */
     public static ApiIntragroup makeNonAdjacentPairIterator() {
-        AtomIteratorArrayList aiInnerUp = new AtomIteratorArrayList(IteratorDirective.Direction.UP, 2);
-        AtomIteratorArrayList aiInnerDn = new AtomIteratorArrayList(IteratorDirective.Direction.DOWN, 2);
-        return new ApiIntragroup(aiInnerUp, aiInnerDn);
+        return makeNonAdjacentPairIterator(2);
     }
 
+    public static ApiIntragroup makeNonAdjacentPairIterator(int numToSkip) {
+        AtomIteratorArrayList aiInnerUp = new AtomIteratorArrayList(IteratorDirective.Direction.UP, numToSkip);
+        AtomIteratorArrayList aiInnerDn = new AtomIteratorArrayList(IteratorDirective.Direction.DOWN, numToSkip);
+        return new ApiIntragroup(aiInnerUp, aiInnerDn);
+    }
+        
+        
     /**
      * Returns an intergroup iterator that filters the iterates so that only
      * those having the given type instances are returned. The given types are

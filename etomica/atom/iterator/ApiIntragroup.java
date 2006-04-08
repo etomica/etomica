@@ -9,6 +9,7 @@ import java.io.Serializable;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.action.AtomsetDetect;
+import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 
@@ -46,18 +47,13 @@ public final class ApiIntragroup implements AtomPairIterator,
         return 2;
     }
     
-    public void setTarget(AtomSet targetAtoms) {
-        if(targetAtoms == null) throw new NullPointerException("Cannot set target to null; use AtomSet.NULL");
-        aiOuter.setTarget(targetAtoms);
-        oneTarget = targetAtoms.count() != 0 && targetAtoms.getAtom(0) != null 
-                        && (targetAtoms.count() == 1 || targetAtoms.getAtom(1) == null);
+    public void setTarget(Atom newTargetAtom) {
+        targetAtom = newTargetAtom;
+        aiOuter.setTarget(targetAtom);
 	}
     
-    public boolean haveTarget(AtomSet targetAtoms) {
-        for(int i=targetAtoms.count()-1; i>=0; i--) {
-            if(!aiOuter.haveTarget(targetAtoms.getAtom(i))) return false;
-        }
-        return true;
+    public boolean haveTarget(Atom target) {
+        return aiOuter.haveTarget(target);
     }
 	
 	/**
@@ -65,9 +61,9 @@ public final class ApiIntragroup implements AtomPairIterator,
 	 */
 	public void reset() {
         //upList if no target given (then do all pairs) or if specified by direction
-        upListNow = (!oneTarget || direction != IteratorDirective.Direction.DOWN);
+        upListNow = (targetAtom == null || direction != IteratorDirective.Direction.DOWN);
         //dnList only if one target and not explicitly directed up
-        doGoDown = (oneTarget && direction != IteratorDirective.Direction.UP);
+        doGoDown = (targetAtom != null && direction != IteratorDirective.Direction.UP);
         
         if (upListNow) {
             apiUp.reset();
@@ -169,10 +165,10 @@ public final class ApiIntragroup implements AtomPairIterator,
      * iteration state.
      */
     public void allAtoms(AtomsetAction action) {
-        if (!oneTarget || direction != IteratorDirective.Direction.DOWN) {
+        if (targetAtom == null || direction != IteratorDirective.Direction.DOWN) {
             apiUp.allAtoms(action);
         }
-        if (oneTarget && direction != IteratorDirective.Direction.UP) {
+        if (targetAtom != null && direction != IteratorDirective.Direction.UP) {
             apiDown.allAtoms(action);
         }
     }
@@ -186,7 +182,7 @@ public final class ApiIntragroup implements AtomPairIterator,
 	}
     
 	private final AtomsetIteratorBasisDependent aiOuter;//local, specifically typed copy
-	private boolean oneTarget;
+	private Atom targetAtom;
     private IteratorDirective.Direction direction;
     private AtomsetCount counter;
     private AtomsetDetect detector;

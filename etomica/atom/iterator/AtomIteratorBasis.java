@@ -57,24 +57,9 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
      * any target restrictions, and specifies that the iterator should give all
      * of the basis-set atoms. Call to this method leaves iterator unset; call to reset is
      * required before beginning iteration.
-     * 
-     * @throws NullPointerException
-     *             if targetAtoms is null (specify no-target using zero-length AtomSet, such as AtomSet.NULL)
-     * @throws IllegalArgumentException
-     *             if targetAtoms.count() is not 0 or 1
      */
-    public void setTarget(AtomSet targetAtoms) {
-        switch (targetAtoms.count()) {
-        case 0:
-            targetAtom = null;
-            break;
-        case 1:
-            targetAtom = targetAtoms.getAtom(0);
-            break;
-        default:
-            throw new IllegalArgumentException(
-                    "Can specify at most one target atom to AtomIteratorBasis");
-        }
+    public void setTarget(Atom newTargetAtom) {
+        targetAtom = newTargetAtom;
         if (targetAtom != null) {
             targetDepth = targetAtom.type.getDepth();
         }
@@ -117,23 +102,15 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
      * yield an iterate. Assumes that the basis -- if it is a group -- 
      * has child atoms. 
      */
-    public boolean haveTarget(AtomSet target) {
+    public boolean haveTarget(Atom target) {
         if(basis == null) return false;
-        switch (target.count()) {
-        case 0:
+        if (target == null) {
             return true;
-        case 1:
-            Atom targetAtom = target.getAtom(0);
-            if(targetAtom == null) {
-                return true;
-            }
-            if(targetAtom.type.getDepth() <= basis.type.getDepth()) { 
-                return basis.node.isDescendedFrom(targetAtom);
-            }
-            return targetAtom.node.isDescendedFrom(basis);
-        default:
-            return false;
         }
+        if(target.type.getDepth() <= basis.type.getDepth()) { 
+            return basis.node.isDescendedFrom(target);
+        }
+        return target.node.isDescendedFrom(basis);
     }
 
     /**

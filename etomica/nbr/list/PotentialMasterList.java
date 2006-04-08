@@ -96,9 +96,9 @@ public class PotentialMasterList extends PotentialMasterNbr {
      */
     public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
-        AtomSet targetAtoms = id.getTargetAtoms();
+        Atom targetAtom = id.getTargetAtom();
         neighborManager.setPhase(phase);
-        if (targetAtoms.count() == 0) {
+        if (targetAtom == null) {
     		//no target atoms specified -- do one-target algorithm to SpeciesMaster
             PotentialArray potentialArray = getPotentials(phase.getSpeciesMaster().type);
             calculate(phase.getSpeciesMaster(), idUp, pc, potentialArray.getPotentials(), potentialArray.getIterators());
@@ -106,19 +106,15 @@ public class PotentialMasterList extends PotentialMasterNbr {
                 lrcMaster.calculate(phase, id, pc);
             }
         }
-        else if (targetAtoms instanceof Atom) {
+        else {
     		// one target atom
-            PotentialArray potentialArray = getPotentials(((Atom)targetAtoms).type);
-            calculate((Atom)targetAtoms, id, pc, potentialArray.getPotentials(), potentialArray.getIterators());
+            PotentialArray potentialArray = getPotentials(targetAtom.type);
+            calculate(targetAtom, id, pc, potentialArray.getPotentials(), potentialArray.getIterators());
             if(lrcMaster != null) {
                 lrcMaster.calculate(phase, id, pc);
             }
         }
-        else {
-            //more than one target atom
-            super.calculate(phase, id, pc);
-        }
-    }//end calculate
+    }
 	
     /**
      * Performs given PotentialCalculation using potentials/neighbors associated

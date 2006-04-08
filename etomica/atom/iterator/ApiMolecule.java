@@ -5,6 +5,7 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
+import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.IteratorDirective.Direction;
@@ -27,50 +28,35 @@ public class ApiMolecule implements AtomsetIteratorPDT, AtomPairIterator, java.i
 
     /**
      * Constructs iterator by wrapping three others.
-     * @param api11
-     *            iterator for single molecule pair formed from target
-     *            specification
      * @param api1A
      *            iterator for all pairs formed with a target molecule
      * @param apiAA
      *            iterator for all pairs in the phase
      */
-    public ApiMolecule(AtomsetIteratorPDT api11,
-            AtomsetIteratorPDT api1A, AtomsetIteratorPhaseDependent apiAA) {
-        this.api11 = api11;
+    public ApiMolecule(AtomsetIteratorPDT api1A, AtomsetIteratorPhaseDependent apiAA) {
         this.api1A = api1A;
         this.apiAA = apiAA;
-        iterator = (AtomPairIterator) apiAA;
+        setTarget(null);
     }
 
     /**
      * Sets target atoms and determines the pair iterator according to the value
-     * of targetAtoms.count(). Thus, for count equal to
+     * of targetAtom. Thus, for targetAtom equal to
      * <ul>
-     * <li>0, AA iterator is indicated
-     * <li>1, 1A iterator is indicated
-     * <li>2 or larger, 11 iterator is indicated
+     * <li>null, AA iterator is indicated
+     * <li>not-null, 1A iterator is indicated
      * </ul>
      * Target is passed on to setTarget method of corresponding iterator, which
      * ultimately determines the behavior of this iterator.
-     * 
-     * @throws NullPointerException
-     *             if targetAtoms is null; use AtomSet.NULL instead
      */
-    public void setTarget(AtomSet targetAtoms) {
-        switch (targetAtoms.count()) {
-        case 0:
+    public void setTarget(Atom targetAtom) {
+        if (targetAtom == null) {
             iterator = (AtomPairIterator) apiAA;
-            break;
-        case 1:
-            iterator = (AtomPairIterator) api1A;
-            api1A.setTarget(targetAtoms);
-            break;
-        default:
-            iterator = (AtomPairIterator) api11;
-            api11.setTarget(targetAtoms);
         }
-        getCurrentIterator().setPhase(phase);
+        else {
+            iterator = (AtomPairIterator) api1A;
+            api1A.setTarget(targetAtom);
+        }
     }
 
     /**
@@ -78,7 +64,6 @@ public class ApiMolecule implements AtomsetIteratorPDT, AtomPairIterator, java.i
      */
     public void setPhase(Phase phase) {
         this.phase = phase;
-        getCurrentIterator().setPhase(phase);
     }
 
     /**
@@ -96,6 +81,7 @@ public class ApiMolecule implements AtomsetIteratorPDT, AtomPairIterator, java.i
      * state.
      */
     public boolean contains(AtomSet atom) {
+        ((AtomIteratorPhaseDependent)iterator).setPhase(phase);
         return iterator.contains(atom);
     }
 
@@ -110,6 +96,7 @@ public class ApiMolecule implements AtomsetIteratorPDT, AtomPairIterator, java.i
      * Readies iterator for iteration.
      */
     public void reset() {
+        ((AtomsetIteratorPhaseDependent)iterator).setPhase(phase);
         iterator.reset();
     }
 
@@ -117,7 +104,8 @@ public class ApiMolecule implements AtomsetIteratorPDT, AtomPairIterator, java.i
      * Sets iterator to state in which hasNext is false.
      */
     public void unset() {
-        iterator.unset();
+        apiAA.unset();
+        api1A.unset();
     }
 
     /**
@@ -155,6 +143,7 @@ public class ApiMolecule implements AtomsetIteratorPDT, AtomPairIterator, java.i
      * clobbers iteration state.
      */
     public int size() {
+        ((AtomIteratorPhaseDependent)iterator).setPhase(phase);
         return iterator.size();
     }
 
@@ -163,22 +152,6 @@ public class ApiMolecule implements AtomsetIteratorPDT, AtomPairIterator, java.i
      */
     public final int nBody() {
         return 2;
-    }
-
-    /**
-     * Returns the iterator currently being used for the pair iteration. If a
-     * target had been specified, this will be the Api1A iterator, otherwise it
-     * will be the ApiAA iterator.
-     */
-    public AtomsetIteratorPhaseDependent getCurrentIterator() {
-        return (AtomsetIteratorPhaseDependent) iterator;
-    }
-
-    /**
-     * Returns the 11 iterator set at construction.
-     */
-    public AtomsetIteratorPDT getApi11() {
-        return api11;
     }
 
     /**
@@ -196,7 +169,6 @@ public class ApiMolecule implements AtomsetIteratorPDT, AtomPairIterator, java.i
     }
     
     private AtomPairIterator iterator;
-    private final AtomsetIteratorPDT api11;
     private final AtomsetIteratorPDT api1A;
     private final AtomsetIteratorPhaseDependent apiAA;
     private Phase phase;

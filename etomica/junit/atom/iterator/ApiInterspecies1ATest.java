@@ -7,7 +7,6 @@ import etomica.action.AtomsetActionAdapter;
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTreeNodeGroup;
-import etomica.atom.AtomsetArray;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.ApiInterspecies1A;
 import etomica.atom.iterator.IteratorDirective;
@@ -72,19 +71,13 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
                         .parentPhase());
         api.setTarget(rootNode.getDescendant(new int[] { 1, 1, 0 }));
         testNoIterates(api);
-        //target atom is null
-        api = new ApiInterspecies1A(new Species[] { species[0], species[1] });
-        api.setPhase(rootNode.getDescendant(new int[] { 0 }).node
-                        .parentPhase());
-        api.setTarget(new AtomsetArray(1));
-        testNoIterates(api);
 
         //test documented exceptions
-        AtomSet target = AtomSet.NULL;
+        Atom target = null;
         boolean exceptionThrown = false;
         try {
             api.setTarget(target);
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             exceptionThrown = true;
         }
         assertTrue(exceptionThrown);
@@ -149,7 +142,7 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
                 .parentPhase();
         AtomsetAction speciesTest = new SpeciesTestAction(
                 species[species0Index], species[species1Index]);
-        AtomSet target = AtomSet.NULL;
+        Atom target = null;
         Atom targetMolecule = null;
         //test no iterates if no target
         api.setPhase(phase);
@@ -163,7 +156,7 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
         //species0 target; any direction
         target = rootNode.getDescendant(new int[] { phaseIndex, species0Index,
                 nMolecules[0] / 2 });
-        targetMolecule = (Atom) target;
+        targetMolecule = target;
         api.setTarget(target);
         LinkedList list0 = testApiIterates(api, UP, targetMolecule, molecules1);
         api.allAtoms(speciesTest);
@@ -171,7 +164,7 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
         //species0 target; up
         target = rootNode.getDescendant(new int[] { phaseIndex, species0Index,
                 nMolecules[0] / 2 });
-        targetMolecule = (Atom) target;
+        targetMolecule = target;
         api.setTarget(target);
         api.setDirection(UP);
         testApiIterates(api, UP, targetMolecule, molecules1);
@@ -185,7 +178,7 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
         //species0 target; down
         target = rootNode.getDescendant(new int[] { phaseIndex, species0Index,
                 nMolecules[0] / 2 });
-        targetMolecule = (Atom) target;
+        targetMolecule = target;
         api.setTarget(target);
         api.setDirection(DOWN);
         testNoIterates(api);
@@ -194,7 +187,7 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
         if (species0Index != 1) {
             target = rootNode.getDescendant(new int[] { phaseIndex,
                     species0Index, nMolecules[0] / 2, 1 });
-            targetMolecule = ((Atom) target).node.parentGroup();
+            targetMolecule = target.node.parentGroup();
             api.setTarget(target);
             api.setDirection(UP);
             testApiIterates(api, UP, targetMolecule, molecules1);
@@ -204,7 +197,7 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
         //species1 target; both
         target = rootNode.getDescendant(new int[] { phaseIndex, species1Index,
                 nMolecules[1] / 2 });
-        targetMolecule = (Atom) target;
+        targetMolecule = target;
         api.setTarget(target);
         api.setDirection(null);
         testApiIteratesSwap(api, targetMolecule, molecules0);
@@ -213,7 +206,7 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
         //species1 target; up
         target = rootNode.getDescendant(new int[] { phaseIndex, species1Index,
                 nMolecules[1] / 2 });
-        targetMolecule = (Atom) target;
+        targetMolecule = target;
         api.setTarget(target);
         api.setDirection(UP);
         testNoIterates(api);
@@ -221,7 +214,7 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
         //species1 target; down
         target = rootNode.getDescendant(new int[] { phaseIndex, species1Index,
                 nMolecules[1] / 2 });
-        targetMolecule = (Atom) target;
+        targetMolecule = target;
         api.setTarget(target);
         api.setDirection(DOWN);
         testApiIteratesSwap(api, targetMolecule, molecules0);

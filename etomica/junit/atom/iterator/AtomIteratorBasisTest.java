@@ -66,7 +66,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         Lister testLister = new Lister();
         LinkedList list = null;
         Atom basis = null;
-        AtomSet target = null;
+        Atom target = null;
         Atom iterate = null;
         AtomArrayList iterates = null;
         
@@ -78,14 +78,14 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         
         //test no-target iteration of children of a basis
         basis = rootNode.getDescendant(new int[] {0,0,0});
-        target = AtomSet.NULL;
+        target = null;
         iterates = (AtomArrayList)((AtomTreeNodeGroup)basis.node).childList.clone();
         list = testListIterates(basis, target, iterates);
         assertEquals(list.size(), nAtoms);
 
         //test no-target iteration of a leaf basis
         basis = rootNode.getDescendant(new int[] {0,0,0,1});
-        target = AtomSet.NULL;
+        target = null;
         iterate = basis;
         testOneIterate(basis, target, iterate);
         
@@ -96,7 +96,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         testOneIterate(basis, target, iterate);
 
         //test subsequent nulling of target
-        basisIterator.setTarget(new AtomsetArray(1));
+        basisIterator.setTarget(null);
         list = generalIteratorMethodTests(basisIterator);
         assertEquals(list.size(), nAtoms);
         testLister.clear();
@@ -133,10 +133,10 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         iterate = rootNode.getDescendant(new int[] {0,2,0,1});
         testOneIterate(basis, target, iterate);
         
-        //test specifying null target via null atom in length-1 atomSet
+        //test specifying null target
         //also test specifying deeper basis
         basis = rootNode.getDescendant(new int[] {0,2,1,2});
-        target = new AtomsetArray(1);
+        target = null;
         iterates = (AtomArrayList)((AtomTreeNodeGroup)basis.node).childList.clone();
         list = testListIterates(basis, target, iterates);
         
@@ -147,31 +147,13 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         
         //test null basis with null target
         basis = null;
-        target = AtomSet.NULL;
+        target = null;
         testNoIterates(basis, target);
 
-        //test null target -- should throw NullPointerException
-        boolean caught = false;
-        try {
-            basisIterator.setTarget(null);
-        } catch(NullPointerException ex) {
-            caught = true;
-        }
-        assertTrue(caught);
-        
-        //test target size -- should throw IllegalArgumentException
-        caught = false;
-        try {
-            basisIterator.setTarget(new AtomsetArray(2));
-        } catch(IllegalArgumentException ex) {
-            caught = true;
-        }
-        assertTrue(caught);
-        
         //int[] {phase (0), species (0,1,2), molecule etc}
     }
     
-    private LinkedList testOneIterate(Atom basis, AtomSet target, Atom iterate) {
+    private LinkedList testOneIterate(Atom basis, Atom target, Atom iterate) {
         basisIterator.setBasis(basis);
         assertTrue(basisIterator.haveTarget(target));
         basisIterator.setTarget(target);
@@ -183,7 +165,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         return list;
     }
     
-    private LinkedList testListIterates(Atom basis, AtomSet target, AtomArrayList iterates) {
+    private LinkedList testListIterates(Atom basis, Atom target, AtomArrayList iterates) {
         basisIterator.setBasis(basis);
         assertTrue(basisIterator.haveTarget(target));
         basisIterator.setTarget(target);
@@ -195,7 +177,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         return list;
     }
     
-    private void testNoIterates(Atom basis, AtomSet target) {
+    private void testNoIterates(Atom basis, Atom target) {
         basisIterator.setBasis(basis);
         assertFalse(basisIterator.haveTarget(target));
         basisIterator.setTarget(target);

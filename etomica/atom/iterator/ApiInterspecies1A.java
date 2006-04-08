@@ -117,21 +117,19 @@ public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorPDT,
 
     /**
      * Sets the target molecule with which all pairs are formed. Molecule is
-     * determined from the atom specified by the atomSet (which must have
-     * count() == 1), which may be the molecule itself or an atom that is part
-     * of it. If the atom is null or is not in one of the species given at
+     * determined from the atom specified by the newTargetAtom (which must not
+     * be null), which may be the molecule itself or an atom that is part
+     * of it. If the atom is not in one of the species given at
      * construction, no iterates will be returned.
      * 
      * @throws NullPointerException
-     *             if targetAtoms is null
-     * @throws IllegalArgumentException
-     *             if targetAtoms.count() is not 1
+     *             if targetAtom is null
      */
-    public void setTarget(AtomSet targetAtoms) {
-        if (targetAtoms.count() != 1)
-            throw new IllegalArgumentException(
-                    "1A pair iterator must have exactly 1 target atom");
-        targetAtom = targetAtoms.getAtom(0);
+    public void setTarget(Atom newTargetAtom) {
+        if (newTargetAtom == null) {
+            throw new NullPointerException("target atom must not be null");
+        }
+        targetAtom = newTargetAtom;
         identifyTargetMolecule();
     }
 

@@ -50,8 +50,7 @@ public class IteratorFactory implements java.io.Serializable {
     public AtomsetIteratorPDT makeInterspeciesPairIterator(Species[] species) {
         AtomsetIteratorPDT api1A = new ApiInterspecies1A(species);
         AtomsetIteratorPhaseDependent apiAA = new ApiInterspeciesAA(species);
-        ApiSpecies11 api11 = new ApiSpecies11(species);
-        return new ApiMolecule(api11, api1A, apiAA);
+        return new ApiMolecule(api1A, apiAA);
     }
 
     /**
@@ -62,7 +61,6 @@ public class IteratorFactory implements java.io.Serializable {
     public AtomsetIteratorPDT makeIntraspeciesPairIterator(Species[] species) {
         AtomsetIteratorPDT api1A = new ApiIntraspecies1A(species);
         AtomsetIteratorPhaseDependent apiAA = new ApiIntraspeciesAA(species);
-        ApiSpecies11 api11 = new ApiSpecies11(species);
-        return new ApiMolecule(api11, api1A, apiAA);
+        return new ApiMolecule(api1A, apiAA);
     }
 }

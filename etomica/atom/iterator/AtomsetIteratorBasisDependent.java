@@ -4,6 +4,7 @@
  */
 package etomica.atom.iterator;
 
+import etomica.atom.Atom;
 import etomica.atom.AtomSet;
 
 /**
@@ -32,6 +33,6 @@ public interface AtomsetIteratorBasisDependent extends AtomsetIteratorTargetable
      * Returns true if the iterator with its current basis 
      * would return an iterate for the given target.
      */
-    public boolean haveTarget(AtomSet target);
+    public boolean haveTarget(Atom target);
 
 }

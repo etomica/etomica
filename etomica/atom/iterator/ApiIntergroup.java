@@ -7,7 +7,6 @@ package etomica.atom.iterator;
 import etomica.action.AtomsetAction;
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
-import etomica.atom.AtomsetArray;
 
 /**
  * Iterator that returns pairs formed using two different basis atoms, so that
@@ -36,70 +35,35 @@ public class ApiIntergroup extends AtomPairIteratorAdapter implements
 
     /**
      * @throws NullPointerException
-     *          if targetAtoms is null; use AtomSet.NULL instead
+     *          if targetAtom is null; use AtomSet.NULL instead
      * @throws IllegalArgumentException
-     *          if targetAtoms.count() > 2
+     *          if targetAtom.count() > 2
      */
-    public void setTarget(AtomSet targetAtoms) {
-        if (targetAtoms == null)
-            throw new NullPointerException (
-                    "Cannot set target to null; use AtomSet.NULL");
-        if (targetAtoms.count() > 2) {
-            throw new IllegalArgumentException(
-                    "Too many target atoms for iterator");
-        }
-        this.targetAtoms = targetAtoms;
+    public void setTarget(Atom newTargetAtom) {
+        targetAtom = newTargetAtom;
         needSetupIterators = true;
     }
 
-    public boolean haveTarget(AtomSet targets) {
-        switch (targets.count()) {
-        case 0:
+    public boolean haveTarget(Atom target) {
+        if (target == null) {
             return true;
-        case 1:
-            Atom target = targets.getAtom(0);
-            return aiOuter.haveTarget(target) || aiInner.haveTarget(target);
-        case 2:
-            Atom target0 = targets.getAtom(0);
-            Atom target1 = targets.getAtom(1);
-            return (aiOuter.haveTarget(target0) && aiInner.haveTarget(target1))
-                    || (aiOuter.haveTarget(target1) && aiInner
-                            .haveTarget(target0));
-        default:
-            return false;
         }
+        return aiOuter.haveTarget(target) || aiInner.haveTarget(target);
     }
 
     protected void setupIterators() {
-        switch (targetAtoms.count()) {
-        case 0:
-            aiOuter.setTarget(targetAtoms);
-            aiInner.setTarget(targetAtoms);
-            break;
-        case 1:
-            Atom target = targetAtoms.getAtom(0);
-            if (aiInner.haveTarget(target)) {
-                aiOuter.setTarget(emptyTarget);
-                aiInner.setTarget(target);
+        if (targetAtom == null) {
+            aiOuter.setTarget(targetAtom);
+            aiInner.setTarget(targetAtom);
+        }
+        else {
+            if (aiInner.haveTarget(targetAtom)) {
+                aiOuter.setTarget(null);
+                aiInner.setTarget(targetAtom);
             } else {
-                aiOuter.setTarget(target);
-                aiInner.setTarget(emptyTarget);
+                aiOuter.setTarget(targetAtom);
+                aiInner.setTarget(null);
             }
-            break;
-        case 2:
-            Atom target0 = targetAtoms.getAtom(0);
-            Atom target1 = targetAtoms.getAtom(1);
-            if (aiInner.haveTarget(target0)) {
-                aiOuter.setTarget(target1);
-                aiInner.setTarget(target0);
-            } else {
-                aiOuter.setTarget(target0);
-                aiInner.setTarget(target1);
-            }
-            break;
-        default:
-            throw new IllegalArgumentException(
-                    "Too many target atoms for iterator");
         }
         needSetupIterators = false;
     }
@@ -168,8 +132,7 @@ public class ApiIntergroup extends AtomPairIteratorAdapter implements
 
     protected final AtomsetIteratorBasisDependent aiOuter;
     protected final AtomsetIteratorBasisDependent aiInner;
-    protected AtomSet targetAtoms = AtomSet.NULL;
-    protected final AtomsetArray emptyTarget = new AtomsetArray(0);
+    protected Atom targetAtom;
     protected boolean needSetupIterators = true;
 
 }

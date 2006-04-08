@@ -264,16 +264,16 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
 
         listToUpdate.clear();
 
-        downList.setTargetAtoms(colliders.atom0);
+        downList.setTargetAtom(colliders.atom0);
         potential.calculate(phase, downList, reverseCollisionHandler);
-        downList.setTargetAtoms(colliders.atom1);
+        downList.setTargetAtom(colliders.atom1);
         potential.calculate(phase, downList, reverseCollisionHandler);
 
         // this will also update colliders[0] since it thought it would collide 
         // with colliders[1] (and did)
         processReverseList();
 
-        downList.setTargetAtoms(colliders.atom0);
+        downList.setTargetAtom(colliders.atom0);
         collisionHandlerDown.collisionTimeStep = this.collisionTimeStep;
         potential.calculate(phase, downList, collisionHandlerDown);
 
@@ -282,14 +282,14 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
             agent.eventLinker.remove();
         }
         agent.resetCollision();
-        upList.setTargetAtoms(colliders.atom1);
+        upList.setTargetAtom(colliders.atom1);
         collisionHandlerUp.setAtom(colliders.atom1);
         collisionHandlerUp.collisionTimeStep = this.collisionTimeStep;
         potential.calculate(phase, upList, collisionHandlerUp);
         if (agent.collisionPotential != null) {
             eventList.add(agent.eventLinker);
         }
-        downList.setTargetAtoms(colliders.atom1);
+        downList.setTargetAtom(colliders.atom1);
         collisionHandlerDown.collisionTimeStep = this.collisionTimeStep;
         potential.calculate(phase, downList, collisionHandlerDown);
 
@@ -304,7 +304,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
 
         listToUpdate.clear();
 
-        downList.setTargetAtoms(a);
+        downList.setTargetAtom(a);
         potential.calculate(phase, downList, reverseCollisionHandler);
         processReverseList();
 
@@ -313,7 +313,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
             agent.eventLinker.remove();
         }
         agent.resetCollision();
-        upList.setTargetAtoms(a);
+        upList.setTargetAtom(a);
         collisionHandlerUp.setAtom(a);
         collisionHandlerUp.collisionTimeStep = this.collisionTimeStep;
         potential.calculate(phase, upList, collisionHandlerUp);
@@ -338,7 +338,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
                 agent.eventLinker.remove();
             }
             agent.resetCollision();
-            upList.setTargetAtoms(reverseAtom);
+            upList.setTargetAtom(reverseAtom);
             collisionHandlerUp.collisionTimeStep = this.collisionTimeStep;
             collisionHandlerUp.setAtom(reverseAtom);
             potential.calculate(phase, upList, collisionHandlerUp);
@@ -397,7 +397,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
             Atom atom = atomIterator.nextAtom();
             agents[atom.getGlobalIndex()].resetCollision();
         }
-        upList.setTargetAtoms(AtomSet.NULL);
+        upList.setTargetAtom(null);
         collisionHandlerUp.reset();
         collisionHandlerUp.collisionTimeStep = this.collisionTimeStep;
         potential.calculate(phase, upList, collisionHandlerUp); //assumes only one phase

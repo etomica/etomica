@@ -21,23 +21,25 @@ public class ApiIntragroupFixed extends ApiIntergroup implements
     }
     
     protected void setupIterators() {
-        if (direction == null || targetAtoms.count() != 1) {
+        if (direction == null || targetAtom == null) {
             // only need to worry about direction if there's 1 target
             aiOuter.setBasis(basisAtom);
             aiInner.setBasis(basisAtom);
             super.setupIterators();
         }
         else {
-            Atom target = targetAtoms.getAtom(0);
-            if (aiInner.haveTarget(target)) {
+            // we assume we wouldn't be here if aiInner and aiOuter both didn't 
+            // have the target.  In that case, haveTarget would have returned false
+            // and the caller should have not tried to set that target
+            if (aiInner.haveTarget(targetAtom)) {
                 if (direction == IteratorDirective.Direction.DOWN) {
                     aiOuter.setBasis(basisAtom);
                     aiInner.setBasis(basisAtom);
-                    aiOuter.setTarget(emptyTarget);
-                    aiInner.setTarget(target);
+                    aiOuter.setTarget(null);
+                    aiInner.setTarget(targetAtom);
                 }
                 else {
-                    // can't iterate "down" if the target type matches the
+                    // can't iterate "up" if the target type matches the
                     // first iterator.
                     aiOuter.setBasis(null);
                 }
@@ -45,11 +47,11 @@ public class ApiIntragroupFixed extends ApiIntergroup implements
                 if (direction == IteratorDirective.Direction.UP) {
                     aiOuter.setBasis(basisAtom);
                     aiInner.setBasis(basisAtom);
-                    aiOuter.setTarget(target);
-                    aiInner.setTarget(emptyTarget);
+                    aiOuter.setTarget(targetAtom);
+                    aiInner.setTarget(null);
                 }
                 else {
-                    // can't iterate "up" if the target type matches the
+                    // can't iterate "down" if the target type matches the
                     // second iterator
                     aiOuter.setBasis(null);
                 }

@@ -5,7 +5,6 @@
 package etomica.atom.iterator;
 
 import etomica.atom.Atom;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomsetArray;
 import etomica.atom.SpeciesAgent;
 import etomica.phase.Phase;
@@ -72,39 +71,28 @@ public final class AtomsetIteratorSpeciesAgent extends AtomsetIteratorAdapter
      * Allows iteration only if each atom in given AtomSet is
      * derived from one of the species, with each species being
      * applied to no more than one target atom.
-     * 
-     * @throws NullPointerException
-     *          if targetAtoms is null
      */
-    public void setTarget(AtomSet targetAtoms) {
-        if (targetAtoms.count() == 0) {
+    public void setTarget(Atom newTargetAtom) {
+        if (newTargetAtom == null) {
             canReset = true;
         }
-    	else if (targetAtoms.count() > basisSize) {
-    		canReset = false;
-    		return;
-    	}
         else {
+            canReset = true;
         	for(int j=0; j<basisSize; j++) {
                 agentUsed[j] = false;
             }
-        	for (int i=0; i<targetAtoms.count(); i++) {
-        		boolean match = false;
-                Atom atom = targetAtoms.getAtom(i);
-        		for (int j=0; j<basisSize; j++) {
-        			if (!agentUsed[j] && atom.node.isDescendedFrom(agents[j])) {
-        				agentUsed[j] = true;
-        				match = true;
-        				break;
-        			}
-        		}
-        		if (!match) {
-        			canReset = false;
-        			break;
-        		}
-        	}
+    		boolean match = false;
+    		for (int j=0; j<basisSize; j++) {
+    			if (!agentUsed[j] && newTargetAtom.node.isDescendedFrom(agents[j])) {
+    				agentUsed[j] = true;
+    				match = true;
+    				break;
+    			}
+    		}
+    		if (!match) {
+    			canReset = false;
+    		}
         }
-        unset();
     }
     
     /**

@@ -124,13 +124,6 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         api.setTarget(target1);
         list1 = generalIteratorMethodTests(api);
         assertEquals(list1.size(), 3);
-        //test 3 and 4, with targets in both
-        AtomPair pair = new AtomPair(target0, target1);
-        api.setTarget(pair);
-        testOneIterate(api, pair);
-        //order of target shouldn't matter
-        api.setTarget(new AtomPair(target1, target0));
-        testOneIterate(api, pair);
         //give target that isn't the specified type
         target0 = rootNode.getDescendant(new int[] {0,0,2,4});
         api.setTarget(target0);
@@ -140,7 +133,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         api.setTarget(target1);
         testNoIterates(api);
         //no targets again
-        api.setTarget(AtomSet.NULL);
+        api.setTarget(null);
         list1 = generalIteratorMethodTests(api);
         assertEquals(list0, list1);
         
@@ -160,10 +153,6 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //test 3 and 4, one of the 4 given as target
         target1 = rootNode.getDescendant(new int[] {0,1,1,0});
         api.setTarget(target1);
-        testNoIterates(api);
-        //test 3 and 4, with targets in both
-        pair = new AtomPair(target0, target1);
-        api.setTarget(pair);
         testNoIterates(api);
 
         //same tests, but switch order of basis and switch order of types
@@ -186,19 +175,6 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         api.setTarget(target1);
         list1 = generalIteratorMethodTests(api);
         assertEquals(list1.size(), 3);
-        //test 3 and 4, with targets in both
-        pair = new AtomPair(target1, target0);
-        api.setTarget(pair);
-        testOneIterate(api, pair);
-
-        //test null basis ok, exception for null target
-        api.setBasis(null);
-        testNoIterates(api);
-        boolean exceptionThrown = false;
-        try {
-            api.setTarget(null);
-        } catch(NullPointerException ex) {exceptionThrown = true;}
-        assertTrue(exceptionThrown);
 
         //test 3-atom type and 1-atom type, no target
         basisPair.atom0 = rootNode.getDescendant(new int[] {0,0,2});
@@ -219,13 +195,6 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         api.setTarget(target1);
         list1 = generalIteratorMethodTests(api);
         assertEquals(list1.size(), 3);
-        //test 3 and 1, with targets in both
-        pair = new AtomPair(target0, target1);
-        api.setTarget(pair);
-        testOneIterate(api, pair);
-        //order of target shouldn't matter
-        api.setTarget(new AtomPair(target1, target0));
-        testOneIterate(api, pair);
         //give target that isn't the specified type
         target0 = rootNode.getDescendant(new int[] {0,0,2,4});
         api.setTarget(target0);
@@ -235,7 +204,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         api.setTarget(target1);
         testNoIterates(api);
         //no targets again
-        api.setTarget(AtomSet.NULL);
+        api.setTarget(null);
         list1 = generalIteratorMethodTests(api);
         assertEquals(list0, list1);
 
@@ -493,7 +462,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         testApiOneIterate(api, new AtomPair(dn, iterate));
 
         //no target, n-1 iterates
-        api.setTarget(AtomSet.NULL);
+        api.setTarget(null);
         LinkedList list0 = generalIteratorMethodTests(api);
         assertEquals(list0.size(), ((AtomTreeNodeGroup)parent.node).childList.size()-1);
         
@@ -581,7 +550,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
 
         //no target, (2(n-2) + (n-2)*(n-3))/2 iterates
         //(first and last have n-2, the other n-2 have n-3)
-        api.setTarget(AtomSet.NULL);
+        api.setTarget(null);
         LinkedList list0 = generalIteratorMethodTests(api);
         int n = ((AtomTreeNodeGroup)parent.node).childList.size();
         assertEquals(list0.size(), (2*(n-2) + (n-2)*(n-3))/2);

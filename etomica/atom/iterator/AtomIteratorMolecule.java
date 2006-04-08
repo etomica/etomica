@@ -47,26 +47,17 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
     /**
      * Specifies molecule returned by this iterator, as the one containing
      * the given target atom.  Only the first element of the array is relevant.
-     * If argument is null, of zero length, or if targetAtoms[0] is null, then
+     * If argument is null, of zero length, or if targetAtom[0] is null, then
      * no target atom is specified and all molecules of the species in the
      * phase will be given on iteration.
      * 
      * @throws NullPointerException
-     *          if targetAtoms is null
+     *          if targetAtom is null
      * @throws IllegalArgumentException
-     *          if targetAtoms.count() is not 0 or 1
+     *          if targetAtom.count() is not 0 or 1
      */
-    public void setTarget(AtomSet targetAtoms) {
-        switch(targetAtoms.count()) {
-        case 0: 
-            targetAtom = null;
-            break;
-        case 1:
-            targetAtom = targetAtoms.getAtom(0);
-            break;
-        default:
-            throw new IllegalArgumentException("Can specify at most one target atom to iterator");
-        }
+    public void setTarget(Atom newTargetAtom) {
+        targetAtom = newTargetAtom;
         setList();
     }
 
