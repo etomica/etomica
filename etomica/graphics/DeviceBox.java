@@ -11,6 +11,8 @@ import javax.swing.JTextField;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.modifier.Modifier;
+import etomica.modifier.ModifyAction;
+import etomica.units.systems.UnitSystem;
 import etomica.util.Constants;
 import etomica.util.EnumeratedType;
 
@@ -35,60 +37,42 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
      * Descriptive text label to be displayed with the value
      */
     protected JLabel label;
+    protected String labelString;
     private Constants.CompassDirection labelPosition = Constants.CompassDirection.NORTH;
     /**
      * Object for displaying the value as a text field
      */
-    protected JTextField value;
+    protected JTextField textField;
     /**
      * Displayed panel that holds the label and value
      * (not yet used; meant to implement to make lightweight display)
      */
-    protected JPanel panel = new JPanel(new java.awt.BorderLayout());
+    protected JPanel panel;
     /**
-     * Modifier that relays the changes to the object controlled by the device
+     * Modifier connecting the slider to the property
      */
-    protected Modifier modifier;
+    protected ModifyAction modifyAction;
     /**
      * Integer specifying the number of significant figures to be displayed.
      * Default is 4.
      */
-    int precision;
+    protected int precision;
     private LabelType labelType;
     private boolean integer = false;
     
-    /**
-     * Physical units associated with the displayed value.
-     * Default is null (dimensionless).
-     */
-    protected etomica.units.Unit unit;
-    
     public DeviceBox() {
         super();
-        init();
-    }
-    public DeviceBox(Modifier m) {
-        this();
-        setModifier(m);
-    }
-
-    private void init() {
-        label = new JLabel("Label");
-        value = new JTextField("");
-        value.setEditable(true);
-        panel.add(value, java.awt.BorderLayout.CENTER);
+        panel = new JPanel(new java.awt.BorderLayout());
+        label = null;
+        labelString = null;
+        textField = new JTextField("");
+        textField.setEditable(true);
+        panel.add(textField, java.awt.BorderLayout.CENTER);
         setLabelType(LabelType.STRING);
- //       panel.setMinimumSize(new java.awt.Dimension(80,60));
         unit = etomica.units.Null.UNIT;
         setPrecision(4);
-        
-        BoxListener listener = new BoxListener();
-        value.addActionListener(listener);
-        value.addKeyListener(listener);
-        value.addFocusListener(listener);
-        
-    }//end of constructor
-    
+    }
+
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Simple textbox editor of a single value");
         return info;
@@ -104,15 +88,18 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
     /**
      * Updates the display of the box with the current value given by the modifier.
      */
-    public void doUpdate() {
-        if(modifier == null) return;
-//        value.setText(Double.toString(m.getValue()));
-        if(integer) value.setText(Integer.toString((int)unit.fromSim(modifier.getValue())));
-        else value.setText(format(unit.fromSim(modifier.getValue()),precision));
+    protected void doUpdate() {
+        if(modifyAction == null) return;
+        if(integer) {
+            textField.setText(Integer.toString((int)unit.fromSim(modifyAction.getWrappedModifier().getValue())));
+        }
+        else {
+            textField.setText(DisplayBox.format(unit.fromSim(modifyAction.getWrappedModifier().getValue()),precision));
+        }
     }
     
-    public void setEditable(boolean b) {value.setEditable(b);}
-    public boolean isEditable() {return value.isEditable();}
+    public void setEditable(boolean b) {textField.setEditable(b);}
+    public boolean isEditable() {return textField.isEditable();}
     
     /**
      * Accessor method to set the physical units of the displayed value.
@@ -120,20 +107,7 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
      */
     public void setUnit(etomica.units.Unit u) {
         unit = u;
-        setLabel();
-    }
-    /**
-     * Returns the physical units of the displayed value.
-     */
-    public etomica.units.Unit getUnit() {return unit;}
-    
-    /**
-     * Returns the dimensions of the quantity being measured.
-     * Obtained from the meter associated with this display.
-     */
-    public etomica.units.Dimension getDimension() {
-        if(modifier != null) return modifier.getDimension();
-        else return etomica.units.Null.DIMENSION;
+        setLabel(labelString);
     }
     
     public java.awt.Component graphic(Object obj) {return panel;}
@@ -142,11 +116,12 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
      * Accessor method of the precision, which specifies the number of significant figures to be displayed.
      */
     public int getPrecision() {return precision;}
+
     /**
      * Accessor method of the precision, which specifies the number of significant figures to be displayed.
      */
     public void setPrecision(int n) {
-        value.setColumns(n);
+        textField.setColumns(n+2);
         precision = n;
     }
     
@@ -160,55 +135,78 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
      * Specifies the modifier that receives the edit.
      */
     public void setModifier(Modifier m) {
-        modifier = m;
-        if(m == null) return;
-        setLabel();
+        if(m == null) throw new NullPointerException();
+        if(unit == null) {
+            setUnit(m.getDimension().getUnit(UnitSystem.SIM));
+        }
+        modifyAction = new ModifyAction(m);
+        setLabel(labelString);
         doUpdate();
+
+        BoxListener listener = new BoxListener();
+        textField.addActionListener(listener);
+        textField.addKeyListener(listener);
+        textField.addFocusListener(listener);
     }
     
     /**
      * Accessor method for the modifier that receives the edit.
      */
     public Modifier getModifier() {
-        return modifier;
-    }
-    
-    /**
-     * Sets the value of a descriptive label using the meter's label and the unit's symbol (abbreviation).
-     */
-    private void setLabel() {
-        if(modifier == null) return;
-        String suffix = (unit.symbol().length() > 0) ? " ("+unit.symbol()+")" : "";
-        setLabel(modifier.getLabel()+suffix);
+        return modifyAction == null ? null : modifyAction.getWrappedModifier();
     }
     
     /**
      * Sets the value of a descriptive label using the given string.
      */
     public void setLabel(String s) {
-        label.setText(s);
+        labelString = s;
         if(labelType == LabelType.BORDER) {
-            panel.setBorder(new javax.swing.border.TitledBorder(s));
+            panel.setBorder(new javax.swing.border.TitledBorder(getLabel()));
         }
-        if(labelType == LabelType.STRING) setLabelPosition(labelPosition);
-/*        JLabel oldLabel = label;
-        label = new JLabel(s);
-        panel.remove(oldLabel);
-        panel.add(label, 0);
-        support.firePropertyChange("label",oldLabel,label);*/
+        else if(labelType == LabelType.STRING) {
+            label.setText(getLabel());
+            setLabelPosition(labelPosition);
+        }
     }
+    
     /**
      * @return the current value of the descriptive label.
      */
-    public String getLabel() {return label.getText();}
-    
-
-    public void setLabelType(LabelType labelType) {
-        this.labelType = labelType;
-        if(labelType != LabelType.BORDER) panel.setBorder(new javax.swing.border.EmptyBorder(2,2,2,2));
-        if(labelType != LabelType.STRING) panel.remove(label);
-        setLabel(label.getText());
+    public String getLabel() {
+        if (labelString != null) {
+            return labelString;
+        }
+        if (modifyAction == null) {
+            return "";
+        }
+        String symbolText = unit.symbol();
+        return modifyAction.getWrappedModifier().getLabel()+
+                ((symbolText.length() > 0) ? " ("+symbolText+")" : "");
     }
+    
+    /**
+     * Sets the label type to "border" or "string".  With border, the label
+     * text is part of the border.  With "string", the label is inside the 
+     * border.
+     */
+    public void setLabelType(LabelType newLabelType) {
+        if (newLabelType == labelType) {
+            return;
+        }
+        labelType = newLabelType;
+        if(labelType == LabelType.BORDER) {
+            panel.remove(label);
+            label = null;
+            panel.setBorder(new javax.swing.border.TitledBorder(getLabel()));
+        }
+        else if(labelType == LabelType.STRING) {
+            label = new JLabel(getLabel());
+            panel.setBorder(new javax.swing.border.EmptyBorder(2,2,2,2));
+            setLabelPosition(labelPosition);
+        }
+    }
+
     public LabelType getLabelType() {
         return labelType;
     }
@@ -218,13 +216,13 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
         if(labelType != LabelType.STRING) return;
         panel.remove(label);
         panel.add(label,position.toString());//toString() returns the corresponding BorderLayout constant
-//        support.firePropertyChange("label",oldLabel,label);
         panel.revalidate();
         panel.repaint();
     }
     
-    public Constants.CompassDirection getLabelPosition() {return labelPosition;}
-        
+    public Constants.CompassDirection getLabelPosition() {
+        return labelPosition;
+    }
         
     private class BoxListener extends java.awt.event.KeyAdapter implements java.awt.event.ActionListener, FocusListener {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -237,9 +235,9 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
             if(key == KeyEvent.VK_UP || key == KeyEvent.VK_RIGHT) step = 1;
             else if(key == KeyEvent.VK_DOWN || key == KeyEvent.VK_LEFT) step = -1;
             if(step == 0) return;
-            int i = Integer.parseInt(value.getText()) + step;
-            value.setText(Integer.toString(i));
-            if(modifier!=null) modifier.setValue(unit.toSim(i));
+            int i = Integer.parseInt(textField.getText()) + step;
+            textField.setText(Integer.toString(i));
+            updateValue();
         }
        
         public void focusGained(FocusEvent evt) {
@@ -249,137 +247,30 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
             updateValue();
        }
        
+       /**
+        * Take the value form the textfield and apply it to the simulation via 
+        * the modifyAction.  Update the textbox accordingly. 
+        */
        protected void updateValue() {
-           if(modifier == null) {
-               doUpdate();
-           }
-           double oldX = modifier.getValue();
+           double oldX = modifyAction.getWrappedModifier().getValue();
            double newX;
            try { 
-               newX = unit.toSim(Double.parseDouble(value.getText()));
+               newX = unit.toSim(Double.parseDouble(textField.getText()));
            } catch(NumberFormatException ex) {//if bad format, just restore original value
                doUpdate();
                return;
            }
            if (newX != oldX) {
-               modifier.setValue(newX);
+               modifyAction.setValueForAction(newX);
+               doAction(modifyAction);
            }
            doUpdate();
        }
     }
     
-    
-    /********** Utility method for formatting a double to a string **************/
-    
-    /**
-     * Formats a double with a specified number of digits.
-     * When java converts a <tt>double</tt> to a <tt>String</tt>
-     * it retains the full precision of the number. This can
-     * generate 15 decimal places! This method truncates this output
-     * to some specified number of decimal places.
-     * @param d the double to format
-     * @param precision the number of digits desired
-     * @return returns the formatted string
-     *
-     * Taken from the comphys package of Richard Gonsalves of the
-     * SUNY Buffalo Department of Physics
-     */
-
-    public static String format (double d, int precision) {
-
-        if (d == Double.NaN ||
-            d == Double.POSITIVE_INFINITY ||
-            d == Double.NEGATIVE_INFINITY)
-            return Double.toString(d);
-        
-        StringBuffer buffer = new StringBuffer(20);
-        
-        if (d < 0) {
-            d = -d;
-            buffer.append('-');
-        }
-
-        if (d == 0) {
-            buffer.append("0.0");
-            for (int p = 0; p < precision - 1; p++)
-                buffer.append('0');
-            return buffer.toString();
-        }
-
-        int exponent = 0;
-        while (d >= 10) {
-            ++exponent;
-            d /= 10;
-        }
-        while (d < 1) {
-            --exponent;
-            d *= 10;
-        }
-
-        if (precision < 0)
-            precision = -precision;
-        int p = precision;
-        while (--p > 0)
-            d *= 10;
-        long ld = (long) Math.round(d);
-        char[] digits = new char[precision];
-        p = precision;
-	long ld_div_10 = 0;
-	long ld_save = ld;
-        while (--p >= 0) {
-	    ld_div_10 = ld / 10;
-            digits[p] = (char) ('0' + ( ld - (ld_div_10 * 10) ));
-            ld = ld_div_10;
-        }
-	if (ld_div_10 > 0) {
-	    ld = ld_save / 10;
-	    p = precision;
-	    while (--p >= 0) {
-		ld_div_10 = ld / 10;
-		digits[p] = (char) ('0' + ( ld - (ld_div_10 * 10) ));
-		ld = ld_div_10;
-	    }
-	    ++exponent;
-	}
-
-        int decimalPoint = 0;
-        if (Math.abs(exponent) < 6 || Math.abs(exponent) < precision) {
-            while (exponent > 0) {
-                ++decimalPoint;
-                --exponent;
-            }
-            while (exponent < 0) {
-                --decimalPoint;
-                ++exponent;
-            }
-        }
-
-        if (decimalPoint < 0) {
-            buffer.append("0.");
-            while (decimalPoint < -1) {
-                buffer.append("0");
-                ++decimalPoint;
-            }
-        }
-
-        for (p = 0; p < precision; p++) {
-            buffer.append(digits[p]);
-            if (p == decimalPoint)
-                if (p < precision - 1)
-                    buffer.append(".");
-        }
-
-        if (exponent != 0)
-            buffer.append("E" + exponent);
-
-        return buffer.toString();
-
-    }
-
     /**
      * Typed constant used to indicate the type of label to be used with the display.
      */
-     
 	public static class LabelType extends EnumeratedType {
         public LabelType(String label) {super(label);}       
         public static final LabelType BORDER = new LabelType("Border");
