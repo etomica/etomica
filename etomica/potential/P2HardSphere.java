@@ -134,6 +134,9 @@ public class P2HardSphere extends Potential2HardSpherical {
      * Accessor method for collision diameter
      */
     public void setCollisionDiameter(double c) {
+        if (c < 0) {
+            throw new IllegalArgumentException("diameter must not be negative");
+        }
         collisionDiameter = c;
         sig2 = c*c;
     }

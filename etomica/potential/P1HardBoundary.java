@@ -163,7 +163,12 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     /**
      * Distance from the center of the sphere to the boundary at collision.
      */
-    public void setCollisionRadius(double d) {collisionRadius = d;}
+    public void setCollisionRadius(double d) {
+        if (d < 0) {
+            throw new IllegalArgumentException("collision radius must not be negative");
+        }
+        collisionRadius = d;
+    }
     /**
      * Distance from the center of the sphere to the boundary at collision.
      */

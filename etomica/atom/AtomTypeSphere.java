@@ -32,5 +32,10 @@ public class AtomTypeSphere extends AtomTypeLeaf {
     *
     * @param d   new value for diameter
     */
-    public void setDiameter(double d) {diameter = d; radius = 0.5*d;}
+    public void setDiameter(double d) {
+        if (d < 0) {
+            throw new IllegalArgumentException("diameter must not be negative");
+        }
+        diameter = d; radius = 0.5*d;
+    }
 }

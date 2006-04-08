@@ -213,6 +213,9 @@ public class P2SquareWell extends Potential2HardSpherical {
      * Well diameter is defined as a multiple (lambda) of this, and is updated when core diameter is changed
      */
     public void setCoreDiameter(double c) {
+        if (c < 0) {
+            throw new IllegalArgumentException("diameter must not be negative");
+        }
         coreDiameter = c;
         coreDiameterSquared = c*c;
         wellDiameter = coreDiameter*lambda;
