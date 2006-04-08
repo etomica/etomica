@@ -5,17 +5,16 @@ import java.lang.reflect.Array;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
-import etomica.simulation.Simulation;
 import etomica.simulation.SimulationEvent;
 import etomica.simulation.SimulationListener;
 import etomica.util.Arrays;
 
 /**
  * PhaseAgentManager acts on behalf of client classes (a PhaseAgentSource) to manage 
- * agents for each Phase in a simulation.  When Phase instances are added or removed from the 
- * simulation, the agents array (indexed by the phase's index) is updated.  
- * The client should call getAgents() at any point where an atom might have 
- * have been added to the system because the old array would be stale at that
+ * agents for each Phase in a simulation.  When Phase instances are added or removed 
+ * from the simulation, the agents array (indexed by the phase's index) is updated.  
+ * The client should call getAgents() at any point where a Phase might have have been 
+ * added to (or removed from) the system because the old array would be stale at that
  * point. 
  * @author andrew
  */
@@ -79,7 +78,6 @@ public class PhaseAgentManager implements SimulationListener, java.io.Serializab
         }
     }
     
-    //TODO consider if this should point to existing agents, rather than making all new ones
     protected void addAgent(Phase phase) {
         agents = Arrays.resizeArray(agents,phase.getIndex()+1);
         agents[phase.getIndex()] = agentSource.makeAgent(phase);

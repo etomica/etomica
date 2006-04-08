@@ -57,10 +57,6 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         return info;
     }
     
-    public final void setTimeStep(double t) {
-        super.setTimeStep(t);
-    }
-  
     public void setPhase(Phase p) {
         if (phase != null) {
             // allow agentManager to de-register itself as a PhaseListener
