@@ -1,8 +1,15 @@
 package etomica.util;
 
 import etomica.units.Bar;
+import etomica.units.Dimension;
+import etomica.units.Energy;
 import etomica.units.Kelvin;
+import etomica.units.Length;
+import etomica.units.Mass;
 import etomica.units.Pixel;
+import etomica.units.Pressure;
+import etomica.units.Temperature;
+import etomica.units.Time;
 import etomica.units.systems.LJ;
 import etomica.units.systems.UnitSystem;
 
@@ -16,22 +23,43 @@ import etomica.units.systems.UnitSystem;
 public class Default implements java.io.Serializable {
     
     public double atomSize = 3.0;  //Angstroms
+    public Dimension getAtomSizeDimension() {
+        return Length.DIMENSION;
+    }
     
     public double atomMass = 40.0; //Daltons
+    public Dimension getAtomMassDimension() {
+        return Mass.DIMENSION;
+    }
     
     public int moleculeCount = 0;
     
     public double boxSize = 30.0;  //Angstroms
+    public Dimension getBoxSizeDimension() {
+        return Length.DIMENSION;
+    }
     
     public double temperature = Kelvin.UNIT.toSim(300.);
+    public Dimension getTemperatureDimension() {
+        return Temperature.DIMENSION;
+    }
     
     public double pressure = Bar.UNIT.toSim(1.0);
+    public Dimension getPressureDimension() {
+        return Pressure.DIMENSION;
+    }
     
     public double potentialWell = Kelvin.UNIT.toSim(300.);
+    public Dimension getPotentialWellDimension() {
+        return Energy.DIMENSION;
+    }
     
     public double potentialCutoffFactor = 2.5; //dimensionless multiplier for cutoff distance of potential
     
-    public double timeStep = 0.05;  //picoseconds 
+    public double timeStep = 0.05;  //picoseconds
+    public Dimension getTimeStepDimension() {
+        return Time.DIMENSION;
+    }
     
     public int historyPeriod = 100;
     
