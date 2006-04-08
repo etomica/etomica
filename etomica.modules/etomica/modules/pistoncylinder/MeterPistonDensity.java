@@ -21,6 +21,9 @@ public class MeterPistonDensity extends DataSourceScalar implements Meter {
     }
 
     public void setAtomDiameter(double d) {
+        if (d < 0) {
+            throw new IllegalArgumentException("diameter must not be negative");
+        }
         collisionDiameter = d;
     }
     
@@ -33,7 +36,7 @@ public class MeterPistonDensity extends DataSourceScalar implements Meter {
                 d -= pistonPotential.getWallPosition();
             }
             else {
-            		d += dimensions.x(i)*0.5;
+                d += dimensions.x(i)*0.5;
             }
             volume *= d;
         }
