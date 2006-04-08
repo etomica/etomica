@@ -1,6 +1,6 @@
 package etomica.data;
 
-import etomica.integrator.MCMove;
+import etomica.integrator.mcmove.MCMove;
 import etomica.units.Decimal;
 import etomica.units.Unit;
 
@@ -36,6 +36,6 @@ public class DataSourceAcceptanceProbability extends DataSourceAcceptanceRatio {
      */
     public double getDataAsScalar() {
         if (move == null) return Double.NaN;
-        return move.acceptanceProbability();
+        return move.getTracker().acceptanceProbability();
     }
 }

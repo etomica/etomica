@@ -3,6 +3,7 @@ package etomica.integrator;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.exception.ConfigurationOverlapException;
+import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveEventManager;
 import etomica.integrator.mcmove.MCMoveListener;
@@ -59,6 +60,13 @@ public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
     public void setMoveManager(MCMoveManager newMoveManager) {
         moveManager = newMoveManager;
     }
+    
+    public void setEquilibrating(boolean flag) {
+        super.setEquilibrating(flag);
+        // if equilibrating, sets adjustable moves to adjust themselves to meet 
+        // acceptance target.  If not equilibrating this sets them to not adjust. 
+        moveManager.setEquilibrating(flag);
+    }
 
     /**
      * Invokes superclass method and informs all MCMoves about the new phase.
@@ -110,7 +118,7 @@ public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
 		event.isTrialNotify = false;
 		eventManager.fireEvent(event);
 
-    	move.updateCounts(event.wasAccepted, chi, equilibrating);
+    	move.getTracker().updateCounts(event.wasAccepted, chi);
     }
 
     /**

@@ -5,7 +5,6 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorNull;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.integrator.MCMove;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -19,7 +18,7 @@ import etomica.units.Pressure;
  * @author David Kofke
  */
 
-public class MCMoveVolume extends MCMove {
+public class MCMoveVolume extends MCMoveStep {
     
     protected double pressure;
     private MeterPotentialEnergy energyMeter;
@@ -38,7 +37,7 @@ public class MCMoveVolume extends MCMove {
      * @param space the governing space for the simulation
      */
     public MCMoveVolume(PotentialMaster potentialMaster, Space space, double pressure) {
-        super(potentialMaster, 1);
+        super(potentialMaster, new MCMoveStepTracker(), 1);
         this.D = space.D();
         inflate = new PhaseInflate(potentialMaster.getSpace());
         energyMeter = new MeterPotentialEnergy(potentialMaster);

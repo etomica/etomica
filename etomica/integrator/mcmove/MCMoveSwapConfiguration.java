@@ -12,7 +12,6 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorNull;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorPhase;
-import etomica.integrator.MCMove;
 import etomica.integrator.IntegratorPT.MCMoveSwap;
 import etomica.integrator.IntegratorPT.MCMoveSwapFactory;
 import etomica.phase.Phase;
@@ -38,7 +37,6 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 	                                IntegratorPhase integrator1, IntegratorPhase integrator2) {
   		super(potentialMaster,2);
 		r = potentialMaster.getSpace().makeVector();
-		setTunable(false);
 		this.integrator1 = integrator1;
 		this.integrator2 = integrator2;
 	}

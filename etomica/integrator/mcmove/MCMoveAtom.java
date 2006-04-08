@@ -9,7 +9,6 @@ import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.MCMove;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -28,7 +27,7 @@ import etomica.units.Length;
   * 07/09/03 Changed fields from private to protected
   */
   
-public class MCMoveAtom extends MCMove {
+public class MCMoveAtom extends MCMoveStep {
     
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     protected final MeterPotentialEnergy energyMeter;
@@ -46,7 +45,7 @@ public class MCMoveAtom extends MCMove {
     
     public MCMoveAtom(PotentialMaster potentialMaster, double stepSize, double stepSizeMax,
             boolean fixOverlap) {
-        super(potentialMaster, 1);
+        super(potentialMaster, new MCMoveStepTracker(), 1);
         atomSource = new AtomSourceRandomLeaf();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         translationVector = potentialMaster.getSpace().makeVector();

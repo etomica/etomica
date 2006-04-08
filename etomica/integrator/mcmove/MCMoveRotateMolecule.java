@@ -6,7 +6,6 @@ import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.integrator.MCMove;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -26,7 +25,7 @@ import etomica.space.Vector;
   * 10/06/03 (DAK) added check in constructor to ensure simulation is 2D
   */
   
-public class MCMoveRotateMolecule extends MCMove {
+public class MCMoveRotateMolecule extends MCMoveStep {
     
     private final MeterPotentialEnergy energyMeter;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
@@ -42,10 +41,10 @@ public class MCMoveRotateMolecule extends MCMove {
     private transient RotationTensor rotationTensor;
 
     public MCMoveRotateMolecule(PotentialMaster potentialMaster, Space space) {
-        super(potentialMaster, 1);
+        super(potentialMaster, new MCMoveStepTracker(), 1);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         if(space.D() != 2) throw new RuntimeException("MCMoveRotateMolecule suitable only for 2-D simulation");
-        rotationTensor = (RotationTensor)space.makeRotationTensor();
+        rotationTensor = space.makeRotationTensor();
         r0 = space.makeVector();
         setStepSizeMax(Math.PI);
         setStepSizeMin(0.0);

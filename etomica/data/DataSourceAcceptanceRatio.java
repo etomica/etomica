@@ -1,6 +1,6 @@
 package etomica.data;
 import etomica.EtomicaInfo;
-import etomica.integrator.MCMove;
+import etomica.integrator.mcmove.MCMove;
 import etomica.units.Decimal;
 import etomica.units.Fraction;
 import etomica.units.Unit;
@@ -57,7 +57,7 @@ public class DataSourceAcceptanceRatio extends DataSourceScalar {
      */
     public double getDataAsScalar() {
         if (move == null) return Double.NaN;
-        return move.acceptanceRatio();
+        return move.getTracker().acceptanceRatio();
     }
     
 }

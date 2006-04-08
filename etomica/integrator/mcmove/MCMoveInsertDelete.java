@@ -10,7 +10,6 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.integrator.MCMove;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -49,11 +48,7 @@ public class MCMoveInsertDelete extends MCMove {
     public MCMoveInsertDelete(PotentialMaster potentialMaster) {
         super(potentialMaster, 1);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        setStepSizeMax(1.0);
-        setStepSizeMin(0.0);
-        setStepSize(0.10);
         setMu(0.0);
-        setTunable(false);
         energyMeter.setIncludeLrc(true);
         atomTranslator = new AtomActionTranslateTo(potentialMaster.getSpace());
         reservoir = new AtomArrayList();

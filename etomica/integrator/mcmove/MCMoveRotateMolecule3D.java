@@ -6,7 +6,6 @@ import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.integrator.MCMove;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -15,7 +14,7 @@ import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Vector3D;
 
 
-public class MCMoveRotateMolecule3D extends MCMove {
+public class MCMoveRotateMolecule3D extends MCMoveStep {
     
     private final MeterPotentialEnergy energyMeter;
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
@@ -34,7 +33,7 @@ public class MCMoveRotateMolecule3D extends MCMove {
     private double uOldSave;
     
     public MCMoveRotateMolecule3D(PotentialMaster potentialMaster, Space space) {
-        super(potentialMaster, 1);
+        super(potentialMaster, new MCMoveStepTracker(), 1);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         rotationTensor = (RotationTensor3D)space.makeRotationTensor();
         r0 = (Vector3D)space.makeVector();

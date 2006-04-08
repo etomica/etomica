@@ -2,6 +2,7 @@ package etomica.integrator;
 
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorNonintervalEvent.NonintervalEventType;
+import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveEventManager;
 import etomica.integrator.mcmove.MCMoveListener;
@@ -187,7 +188,7 @@ public class IntegratorManagerMC extends Integrator {
         event.isTrialNotify = false;
         eventManager.fireEvent(event);
 
-        move.updateCounts(event.wasAccepted, chi, equilibrating);
+        move.getTracker().updateCounts(event.wasAccepted, chi);
     }
 
     public MCMoveEventManager getMoveEventManager() {

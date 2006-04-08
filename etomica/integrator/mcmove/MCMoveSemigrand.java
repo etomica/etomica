@@ -12,7 +12,6 @@ import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.DataSourceCOM;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.integrator.MCMove;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -60,7 +59,6 @@ public class MCMoveSemigrand extends MCMove {
         deleteAtomIterator = new AtomIteratorSinglet();
         insertAtomIterator = new AtomIteratorSinglet();
         affectedAtomIterator = new AtomIteratorCompound(new AtomIterator[] {deleteAtomIterator, insertAtomIterator});
-        setTunable(false);
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(true);
         moleculeTranslator = new AtomActionTranslateTo(potentialMaster.getSpace());

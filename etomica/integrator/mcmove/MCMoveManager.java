@@ -2,7 +2,6 @@ package etomica.integrator.mcmove;
 
 import java.io.Serializable;
 
-import etomica.integrator.MCMove;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 
@@ -57,6 +56,9 @@ public class MCMoveManager implements Serializable {
             move.setPhase(phase);
         }
         moveCount++;
+        if (move.getTracker() instanceof MCMoveStepTracker) {
+            ((MCMoveStepTracker)move.getTracker()).setTunable(false);
+        }
         recomputeMoveFrequencies();
     }
 
@@ -129,11 +131,22 @@ public class MCMoveManager implements Serializable {
             frequencyTotal += link.fullFrequency;
         }
     }
+    
+    public void setEquilibrating(boolean equilibrating) {
+        isEquilibrating = equilibrating;
+        for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
+            MCMoveTracker tracker = link.move.getTracker();
+            if (tracker instanceof MCMoveStepTracker) {
+                ((MCMoveStepTracker)tracker).setTunable(!isEquilibrating);
+            }
+        }
+    }
 
     private Phase phase;
     private MCMoveLinker firstMoveLink, lastMoveLink;
     private int frequencyTotal;
     private int moveCount;
+    private boolean isEquilibrating;
 
     /**
      * Linker used to construct linked-list of MCMove instances

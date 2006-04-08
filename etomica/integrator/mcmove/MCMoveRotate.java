@@ -5,7 +5,6 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.integrator.MCMove;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.space.ICoordinateAngular;
@@ -20,7 +19,7 @@ import etomica.space.Space;
   * 7/9/02 Added energyChange() method
   */
   
-public class MCMoveRotate extends MCMove {
+public class MCMoveRotate extends MCMoveStep {
     
     private MeterPotentialEnergy energyMeter;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
@@ -32,7 +31,7 @@ public class MCMoveRotate extends MCMove {
     private transient Orientation orientation;
 
     public MCMoveRotate(PotentialMaster potentialMaster, Space space) {
-        super(potentialMaster, 1);
+        super(potentialMaster, new MCMoveStepTracker(), 1);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         oldOrientation = space.makeOrientation();
         setStepSizeMax(Math.PI);

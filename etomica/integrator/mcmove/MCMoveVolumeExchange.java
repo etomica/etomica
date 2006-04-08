@@ -7,7 +7,6 @@ import etomica.atom.iterator.AtomIteratorNull;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorPhase;
-import etomica.integrator.MCMove;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -25,7 +24,7 @@ import etomica.space.Space;
   * 7/9/02 added energyChange() method.
   */
 
-public final class MCMoveVolumeExchange extends MCMove {
+public final class MCMoveVolumeExchange extends MCMoveStep {
     
     private final MeterPotentialEnergy energyMeter;
     private final Phase firstPhase;
@@ -45,7 +44,7 @@ public final class MCMoveVolumeExchange extends MCMove {
 
     public MCMoveVolumeExchange(PotentialMaster potentialMaster, Space space,
             IntegratorPhase integrator1, IntegratorPhase integrator2) {
-        super(potentialMaster, 2);
+        super(potentialMaster, new MCMoveStepTracker(), 2);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         ROOT = 1.0/space.D();
         setStepSizeMax(Double.MAX_VALUE);
@@ -74,7 +73,8 @@ public final class MCMoveVolumeExchange extends MCMove {
         hOld = uOld1 + uOld2;
         double v1Old = firstPhase.volume();
         double v2Old = secondPhase.volume();
-        double vRatio = v1Old/v2Old * Math.exp(stepSize*(Simulation.random.nextDouble() - 0.5));
+        double step = stepSize * (Simulation.random.nextDouble() - 0.5); 
+        double vRatio = v1Old/v2Old * Math.exp(step);
         double v2New = (v1Old + v2Old)/(1 + vRatio);
         double v1New = (v1Old + v2Old - v2New);
         v1Scale = v1New/v1Old;

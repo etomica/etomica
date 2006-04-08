@@ -13,7 +13,6 @@ import etomica.data.DataSourceCOM;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorPhase;
-import etomica.integrator.MCMove;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -53,7 +52,6 @@ public final class MCMoveMoleculeExchange extends MCMove {
             IntegratorPhase integrator1, IntegratorPhase integrator2) {
         super(potentialMaster, 2);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        setTunable(false);
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(true);
         moleculeReplacer = new AtomActionTranslateBy(space);
