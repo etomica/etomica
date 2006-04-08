@@ -5,6 +5,7 @@ import java.util.Arrays;
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
+import etomica.atom.iterator.AtomIteratorAll;
 import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
@@ -83,6 +84,9 @@ public class PotentialMaster implements java.io.Serializable {
     	if (potential.nBody() == 0) {
     		addPotential(potential, new AtomIterator0(),null);
     	}
+        else if (potential.nBody() == Integer.MAX_VALUE) {
+            addPotential(potential, new AtomIteratorAll(species), null);
+        }
     	else if (potential.nBody() != species.length) {
     		throw new IllegalArgumentException("Illegal species length");
     	}
@@ -292,6 +296,9 @@ public class PotentialMaster implements java.io.Serializable {
         return space;
     }
     
+    /**
+     * Returns an array containing all molecular Potentials.
+     */
     public Potential[] getPotentials() {
         int nPotentials=0;
         for(PotentialLinker link=first; link!=null; link=link.next) {
