@@ -759,7 +759,6 @@ public class PistonCylinderGraphic {
     private class ModifierAtomDiameter implements Modifier {
 
         public void setValue(double d) {
-            defaults.atomSize = d;
             //assume one type of atom
             ((AtomTypeSphere)pc.phase.firstAtom().type).setDiameter(d);
             PistonCylinderGraphic.this.densityMeter.setAtomDiameter(d);
@@ -767,6 +766,7 @@ public class PistonCylinderGraphic {
             PistonCylinderGraphic.this.potentialSW.setCoreDiameter(d);
             pc.pistonPotential.setCollisionRadius(0.5*d);
             pc.wallPotential.setCollisionRadius(0.5*d);
+            defaults.atomSize = d;
             displayPhase.repaint();
         }
 
