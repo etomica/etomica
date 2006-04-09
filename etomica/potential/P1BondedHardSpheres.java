@@ -13,7 +13,7 @@ import etomica.simulation.Simulation;
 public class P1BondedHardSpheres extends P1IntraSimple {
 
     public P1BondedHardSpheres(Simulation sim) {
-        super(sim.space, new P2HardBond(sim), new P2HardSphere(sim));
+        super(sim.space, sim.potentialMaster, new P2HardBond(sim), new P2HardSphere(sim));
     }
     
     public static EtomicaInfo getEtomicaInfo() {

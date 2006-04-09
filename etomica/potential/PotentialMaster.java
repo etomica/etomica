@@ -144,10 +144,21 @@ public class PotentialMaster implements java.io.Serializable {
         // look for a PotentialGroup that applies to parentAtomTypes
         PotentialGroup pGroup = getPotential(parentAtomTypes);
         if (pGroup == null) { // didn't find an appropriate potentialgroup
-            pGroup = new PotentialGroup(atomTypes.length,space);
+            pGroup = new PotentialGroup(atomTypes. length,space, this);
             addPotential(pGroup,parentAtomTypes);
         }
-        pGroup.addPotential(potential,atomTypes,this);
+        pGroup.addPotential(potential,atomTypes);
+    }
+    
+    /**
+     * Notifies the PotentialMaster that the sub-potential has been added to 
+     * the given PotentialGroup, which is associated (but not necessarily held 
+     * by) this PotentialMaster.
+     * This method is called by PotentialGroup and should not be called in
+     * other circumstances.
+     */
+    public void potentialAddedNotify(Potential subPotential, PotentialGroup pGroup) {
+        // do nothing.  this is here for subclasses to override
     }
     
     /**

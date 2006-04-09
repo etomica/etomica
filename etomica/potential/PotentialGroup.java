@@ -32,8 +32,9 @@ public class PotentialGroup extends Potential {
     /**
      * Makes a potential group defined on the position of nBody atom or atom groups.
      */
-    public PotentialGroup(int nBody, Space space) {
+    public PotentialGroup(int nBody, Space space, PotentialMaster potentialMaster) {
         super(nBody, space);
+        this.potentialMaster = potentialMaster;
     }
 
 	/**
@@ -61,7 +62,7 @@ public class PotentialGroup extends Potential {
      * potential, pairs are formed from the first-type atoms taken from the first basis
      * atom, with the second-type atoms taken from the second basis.
      */
-    public void addPotential(Potential potential, AtomType[] types, PotentialMaster potentialMaster) {
+    public void addPotential(Potential potential, AtomType[] types) {
         if(this.nBody() > types.length) throw new IllegalArgumentException("Order of potential cannot exceed length of types array.");
         Arrays.sort(types);
         switch(types.length) {
@@ -109,7 +110,7 @@ public class PotentialGroup extends Potential {
         addPotential(potential,iterator,null);
     }
     
-    private void addPotential(Potential potential, AtomsetIteratorBasisDependent iterator, AtomType[] types) {
+    protected void addPotential(Potential potential, AtomsetIteratorBasisDependent iterator, AtomType[] types) {
         //the order of the given potential should be consistent with the order of the iterator
         if(potential.nBody() != iterator.nBody()) {
             throw new RuntimeException("Error: adding to PotentialGroup a potential and iterator that are incompatible");
@@ -120,6 +121,7 @@ public class PotentialGroup extends Potential {
         }
         //put new potentials at beginning of list
         first = new PotentialLinker(potential, iterator, types, first);
+        potentialMaster.potentialAddedNotify(potential, this);
     }
     
     /**
@@ -290,6 +292,7 @@ public class PotentialGroup extends Potential {
     
     protected PotentialLinker first;
     protected Phase phase;
+    protected final PotentialMaster potentialMaster;
 
     protected static class PotentialLinker implements java.io.Serializable {
         protected final Potential potential;
