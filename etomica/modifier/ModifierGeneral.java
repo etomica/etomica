@@ -118,11 +118,9 @@ public class ModifierGeneral implements Modifier, java.io.Serializable {
                 writeMethod[j].invoke(object[j], new Double[] {new Double(d)});
             }
             catch(InvocationTargetException ex) {
-                System.out.println("InvocationTargetException in Modifier.setValue");
-                ex.printStackTrace();
+                throw new RuntimeException(ex);
             }
             catch(IllegalAccessException ex) {
-                System.out.println("IllegalAccessException in Modifier.setValue");
                 throw new RuntimeException(ex);
             }
         }//end of j-loop
@@ -135,12 +133,11 @@ public class ModifierGeneral implements Modifier, java.io.Serializable {
             value = ((Double)readMethod[0].invoke(object[0], null)).doubleValue();
         }
         catch(InvocationTargetException ex) {
-            System.out.println("InvocationTargetException in getValue");
-            System.exit(1);
+            System.err.println("InvocationTargetException in getValue");
+            ex.printStackTrace();
         }
         catch(IllegalAccessException ex) {
-            System.out.println("IllegalAccessException in getValue");
-            System.exit(1);
+            throw new RuntimeException(ex);
         }
         return value;
     }

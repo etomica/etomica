@@ -262,7 +262,12 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
            }
            if (newX != oldX) {
                modifyAction.setValueForAction(newX);
-               doAction(modifyAction);
+               try {
+                   doAction(modifyAction);
+               }
+               catch (RuntimeException e) {
+                   // if the modifier throws, we'll revert to the old value in doUpdate
+               }
            }
            doUpdate();
        }
