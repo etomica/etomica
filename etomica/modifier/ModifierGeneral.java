@@ -118,7 +118,7 @@ public class ModifierGeneral implements Modifier, java.io.Serializable {
                 writeMethod[j].invoke(object[j], new Double[] {new Double(d)});
             }
             catch(InvocationTargetException ex) {
-                throw new RuntimeException(ex);
+                throw new RuntimeException(ex.getTargetException());
             }
             catch(IllegalAccessException ex) {
                 throw new RuntimeException(ex);
@@ -134,7 +134,7 @@ public class ModifierGeneral implements Modifier, java.io.Serializable {
         }
         catch(InvocationTargetException ex) {
             System.err.println("InvocationTargetException in getValue");
-            ex.printStackTrace();
+            ex.getTargetException().printStackTrace();
         }
         catch(IllegalAccessException ex) {
             throw new RuntimeException(ex);
