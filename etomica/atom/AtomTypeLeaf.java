@@ -49,6 +49,9 @@ public class AtomTypeLeaf extends AtomType {
      *            new value for mass
      */
     public void setMass(double m) {
+        if (m < 0) {
+            throw new IllegalArgumentException("mass must not be negative");
+        }
         mass = m;
         rm = (m == Double.MAX_VALUE) ? 0.0 : 1.0 / mass;
     }
