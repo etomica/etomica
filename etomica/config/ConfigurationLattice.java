@@ -107,7 +107,7 @@ public class ConfigurationLattice extends Configuration {
      */
     public void initializeCoordinates(Phase p) {
         if (indices != null) {
-            indices = new int[p.getSpeciesMaster().getMaxGlobalIndex()][];
+            indices = new int[p.getSpeciesMaster().getMaxGlobalIndex()+1][];
         }
         super.initializeCoordinates(p);
     }
@@ -144,10 +144,11 @@ public class ConfigurationLattice extends Configuration {
 
         // determine number of cells in each direction
         int[] latticeDimensions = calculateLatticeDimensions(nCells, shape);
-        int[] iteratorDimensions = new int[latticeDimensions.length + 1];
-        System.arraycopy(latticeDimensions, 0, iteratorDimensions, 0,
-                latticeDimensions.length);
-        iteratorDimensions[latticeDimensions.length] = basisSize;
+//        int[] iteratorDimensions = new int[latticeDimensions.length + 1];
+//        System.arraycopy(latticeDimensions, 0, iteratorDimensions, 0,
+//                latticeDimensions.length);
+//        iteratorDimensions[latticeDimensions.length] = basisSize;
+        int[] iteratorDimensions = latticeDimensions;
         indexIterator.setSize(iteratorDimensions);
 
         // determine lattice constant
