@@ -1,6 +1,6 @@
 package etomica.models.hexane;
 
-import nancyJunk.OutputFile;
+import etomica.models.hexane.OutputFile;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
@@ -63,7 +63,10 @@ public class PairIndexerTest extends Simulation {
 //        OutputFile printer3 = new OutputFile("Printer3");
 //        OutputFile printer4 = new OutputFile("Printer4");
 //        OutputFile printer5 = new OutputFile("Printer5");
-        
+//        OutputFile printer6 = new OutputFile("Printer6");
+//        OutputFile printer7 = new OutputFile("Printer7");
+//        OutputFile printer8 = new OutputFile("Printer8");
+//        OutputFile printer9 = new OutputFile("Printer9");
         
         phase.setBoundary(bdry);
         config.initializeCoordinates(phase); 
@@ -87,6 +90,10 @@ public class PairIndexerTest extends Simulation {
 //        printer3.print("Atom0:0 Atom0:1 Atom0:2 Atom0:# Atom1:0 Atom1:1 Atom1:2 Atom1:# Bin:");
 //        printer4.print("Atom0:0 Atom0:1 Atom0:2 Atom0:# Atom1:0 Atom1:1 Atom1:2 Atom1:# Bin:");
 //        printer5.print("Atom0:0 Atom0:1 Atom0:2 Atom0:# Atom1:0 Atom1:1 Atom1:2 Atom1:# Bin:");
+//        printer6.print("Atom0:0 Atom0:1 Atom0:2 Atom0:# Atom1:0 Atom1:1 Atom1:2 Atom1:# Bin:");
+//        printer7.print("Atom0:0 Atom0:1 Atom0:2 Atom0:# Atom1:0 Atom1:1 Atom1:2 Atom1:# Bin:");
+//        printer8.print("Atom0:0 Atom0:1 Atom0:2 Atom0:# Atom1:0 Atom1:1 Atom1:2 Atom1:# Bin:");
+//        printer9.print("Atom0:0 Atom0:1 Atom0:2 Atom0:# Atom1:0 Atom1:1 Atom1:2 Atom1:# Bin:");
         
         
         
@@ -97,11 +104,12 @@ public class PairIndexerTest extends Simulation {
             atom0 = ap.atom0;
             atom1 = ap.atom1;
             
+//            if(atom0.getGlobalIndex() < )
             printer.println(pi.getIndex(atom0)[0] +" "+ pi.getIndex(atom0)[1] + " " +
                     pi.getIndex(atom0)[2] + " " + atom0.node.getIndex() + " " +
                     pi.getIndex(atom1)[0] + " " + pi.getIndex(atom1)[1] + " " +
                     pi.getIndex(atom1)[2] + " " + atom1.node.getIndex() + " " +
-                    pi.getBin(ap));
+                    pi.getBin(ap) +" " + atom0.getGlobalIndex());
    
         }
         
@@ -113,6 +121,10 @@ public class PairIndexerTest extends Simulation {
 //        printer3.close();
 //        printer4.close();
 //        printer5.close();
+//        printer6.close();
+//        printer7.close();
+//        printer8.close();
+//        printer9.close();
         
     }
     
@@ -122,6 +134,7 @@ public class PairIndexerTest extends Simulation {
      */
     public static void main(String[] args) {
         int numMolecules = 216;
+//        int numMolecules = 144;
         
         PairIndexerTest pit = new PairIndexerTest(Space3D.getInstance(), numMolecules);
         
