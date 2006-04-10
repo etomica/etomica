@@ -148,7 +148,7 @@ public class TestHexane extends Simulation {
         // be calculated by a Potential2, but their summation is the molecule's
         //effect on itself, which is a Potential1, or a Potential with nBody =
         // 1.
-        PotentialGroup potentialChainIntra = new PotentialGroup(1, space);
+        PotentialGroup potentialChainIntra = new PotentialGroup(1, space, potentialMaster);
 
         //BONDED INTERACTIONS
 
