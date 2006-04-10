@@ -17,9 +17,14 @@ public class BoundaryHexane extends BoundaryDeformablePeriodic {
     
     public BoundaryHexane(Space space){
         super(space, 
-                new Vector3D[] {new Vector3D(5.79141400642806, 6.37543175848628, 12.16404681464840),
-                new Vector3D(0.23085087646072, 0.25413033978032, 0.48486964761179),
-                new Vector3D(0.13790821930218, 1.21905982551516, 2.20715141449381)});
+                //original numbers which do not work with primitives.
+//                new Vector3D[] {new Vector3D(5.79141400642806, 6.37543175848628, 12.16404681464840),
+//                new Vector3D(0.23085087646072, 0.25413033978032, 0.48486964761179),
+//                new Vector3D(0.13790821930218, 1.21905982551516, 2.20715141449381)});
+        
+                new Vector3D[] {new Vector3D(2.86842545, 0.0, 0.0),
+                new Vector3D(0.9617283314445012, 0.9306784411341874, 0.0),
+                new Vector3D(0.5749316269817673, 0.726172596924386, 0.8992077551321543)});
         makePeriodicity(space.D());
     }
     
