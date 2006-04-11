@@ -43,6 +43,10 @@ public class PotentialMaster implements java.io.Serializable {
 		if(lrcMaster == null) lrcMaster = new PotentialMasterLrc(space);
 		return lrcMaster;
 	 }
+     
+     public PotentialGroup makePotentialGroup(int nBody) {
+         return new PotentialGroup(nBody,space);
+     }
 
      /**
       * Performs the given PotentialCalculation on the atoms of the given Phase.
@@ -144,7 +148,7 @@ public class PotentialMaster implements java.io.Serializable {
         // look for a PotentialGroup that applies to parentAtomTypes
         PotentialGroup pGroup = getPotential(parentAtomTypes);
         if (pGroup == null) { // didn't find an appropriate potentialgroup
-            pGroup = new PotentialGroup(atomTypes. length,space, this);
+            pGroup = makePotentialGroup(atomTypes.length);
             addPotential(pGroup,parentAtomTypes);
         }
         pGroup.addPotential(potential,atomTypes);
@@ -239,6 +243,14 @@ public class PotentialMaster implements java.io.Serializable {
         } else {//put other potentials at beginning of list
             first = new PotentialLinker(potential, iterator, types, first);
             if(last == null) last = first;
+        }
+        if (potential instanceof PotentialGroup) {
+            ((PotentialGroup)potential).setPotentialMaster(this);
+            // notify ourselves of any potentials it already has
+            Potential[] subPotentials = ((PotentialGroup)potential).getPotentials();
+            for (int i=0; i<subPotentials.length; i++) {
+                potentialAddedNotify(subPotentials[i],(PotentialGroup)potential);
+            }
         }
     }
 

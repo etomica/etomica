@@ -56,14 +56,6 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
         potentialMasterNbr = new PotentialMasterList(space, range, phaseAgentSource, agentManager);
         potentialMasterCell = new PotentialMasterCell(space, range, phaseAgentSource, agentManager);
 	}
-
-    /**
-     * Forward updateTypeList to the PotentialMasterCell.  PotentialMasterNbr 
-     * needs this too, but gets it on its own from NeighborManager.
-     */
-    public void updateTypeList(Phase phase) {
-        potentialMasterCell.updateTypeList(phase);
-    }
     
     /**
      * Overrides superclass method to enable direct neighbor-list iteration

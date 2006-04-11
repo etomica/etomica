@@ -10,15 +10,10 @@ import etomica.simulation.Simulation;
  * @author David Kofke
  */
  
-public class P1TetheredHardSpheres extends P1IntraSimple {
+public class P1TetheredHardSpheres {
     
-    public P1TetheredHardSpheres(Simulation sim) {
-        super(sim.space, sim.potentialMaster, new P2HardSphere(sim), new P2Tether(sim));
-    }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Bonded atoms tethered, nonbonded interact as hard spheres");
-        return info;
+    public PotentialGroup makeP1TetheredHardSpheres(Simulation sim) {
+        return P1IntraSimple.makeP1IntraSimple(sim.potentialMaster, new P2HardSphere(sim), new P2Tether(sim));
     }
 }
    

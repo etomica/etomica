@@ -7,7 +7,7 @@ import etomica.atom.Atom;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 
-public final class CriterionNone extends NeighborCriterion {
+public final class CriterionNone implements NeighborCriterion, java.io.Serializable {
     /**
      * Always returns false, indicating that neighbor list never needs updating.
      * This is appropriate if atoms are never added to or removed from phase,

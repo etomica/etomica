@@ -2,6 +2,7 @@ package etomica.potential;
 
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.AtomsetIterator;
+import etomica.util.Debug;
 
 /**
  * Evaluates the energy summed over all iterated atoms. Each call to doCalculate
@@ -26,8 +27,20 @@ public final class PotentialCalculationEnergySum extends PotentialCalculation {
 	 */
 	protected void doCalculation(AtomsetIterator iterator, Potential potential) {
 		iterator.reset();
+        if (iterator.hasNext() && iterator.peek() == null) {
+            throw new RuntimeException("oops");
+        }
 		while(iterator.hasNext()) {
-			sum += potential.energy(iterator.next());
+            AtomSet atoms = iterator.next();
+            double e = potential.energy(atoms);
+            if ((Debug.DEBUG_NOW || true) && e == Double.POSITIVE_INFINITY) {
+                if (Debug.DEBUG_NOW) {
+                    System.out.println("overlap for "+atoms);
+                    potential.energy(atoms);
+                }
+                overlaps++;
+            }
+			sum += e;
 		}
 	}
 	
@@ -38,14 +51,21 @@ public final class PotentialCalculationEnergySum extends PotentialCalculation {
 	 */
 	public PotentialCalculationEnergySum zeroSum() {
 		sum = 0.0;
+        overlaps = 0;
 		return this;
 	}
 
 	/**
 	 * Returns the current value of the energy sum.
 	 */
-	public double getSum() {return sum;}
+	public double getSum() {
+        if (overlaps > 0) {
+            System.out.println(overlaps + " overlaps");
+        }
+        return sum;
+    }
 	
+    private int overlaps = 0;
 	private  double sum = 0.0;
         
-}//end EnergySum
+}

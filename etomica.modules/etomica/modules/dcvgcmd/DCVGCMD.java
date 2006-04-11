@@ -189,7 +189,6 @@ public class DCVGCMD extends Simulation {
         /***/
         nbrManager.setRange(potential.getRange() * neighborRangeFac);
         integratorMC.getMoveEventManager().addListener(potentialMasterHybrid.getNbrCellManager(phase).makeMCMoveListener());
-        potentialMasterHybrid.updateTypeList(phase);
 
 
         activityIntegrate = new ActivityIntegrate(this,integratorDCV);
@@ -291,7 +290,5 @@ public class DCVGCMD extends Simulation {
         register(profile2,profile2pump);
 
         ((PotentialMasterHybrid)potentialMaster).getNbrCellManager(phase).assignCellAll();
-//remove for nbrlist        integrator.addIntervalListener(new PhaseImposePbc(phase));
-    } //End of constructor
-
-} //End of DCVGCMD class
+    }
+}

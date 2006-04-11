@@ -72,7 +72,6 @@ public class Heisenberg extends Simulation {
         potentialMaster.addPotential(potential, new AtomType[] {type, type});
         
         integrator.setPhase(phase);
-        ((PotentialMasterSite)potentialMaster).updateTypeList(phase);
         
         meter = new MeterSpin(space);
         meter.setPhase(phase);

@@ -1,7 +1,7 @@
 package etomica.potential;
 
+import etomica.nbr.CriterionAll;
 import etomica.nbr.NeighborCriterion;
-import etomica.phase.Phase;
 import etomica.space.Space;
 
 /**
@@ -30,6 +30,5 @@ public abstract class Potential2 extends Potential {
         return criterion;
     }
 
-    protected NeighborCriterion criterion = NeighborCriterion.ALL;
-}//end of Potential2
-
+    protected NeighborCriterion criterion = new CriterionAll();
+}

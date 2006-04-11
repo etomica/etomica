@@ -4,7 +4,6 @@ package etomica.simulation.prototypes;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
-import etomica.atom.AtomType;
 import etomica.config.ConfigurationLattice;
 import etomica.config.ConformationLinear;
 import etomica.integrator.IntegratorHard;
@@ -15,6 +14,7 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
 import etomica.potential.P1BondedHardSpheres;
 import etomica.potential.P2HardSphere;
+import etomica.potential.PotentialGroup;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -60,7 +60,7 @@ public class ChainHSMD3D extends Simulation {
         phase = new Phase(this);
         new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);
         
-        P1BondedHardSpheres p1Intra = new P1BondedHardSpheres(this);
+        PotentialGroup p1Intra = P1BondedHardSpheres.makeP1BondedHardSpheres(this);
         potentialMaster.addPotential(p1Intra,new Species[]{species});
         
         //PotentialGroup p2Inter = new PotentialGroup(2, space);

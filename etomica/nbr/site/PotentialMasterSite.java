@@ -9,11 +9,13 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.AtomType;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.NeighborCriterion;
+import etomica.nbr.PotentialGroupNbr;
 import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.PotentialCalculationUpdateTypeList.PotentialAtomTypeWrapper;
 import etomica.phase.Phase;
@@ -22,6 +24,7 @@ import etomica.phase.PhaseCellManager;
 import etomica.phase.PhaseAgentManager.PhaseAgentSource;
 import etomica.potential.Potential;
 import etomica.potential.Potential2;
+import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -73,9 +76,9 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         this.cellRange = cellRange;
     }
 
-    protected void addToPotentialTypeList(PotentialAtomTypeWrapper wrapper) {
+    protected void addRangedPotentialToList(Potential potential, AtomType atomType) {
         boolean found = false;
-        NeighborCriterion criterion = wrapper.potential.getCriterion();
+        NeighborCriterion criterion = potential.getCriterion();
         for (int i=0; i<criteriaArray.length; i++) {
             if (criteriaArray[i] == criterion) {
                 found = true;
@@ -85,7 +88,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         if (!found) {
             criteriaArray = (NeighborCriterion[]) Arrays.addObject(criteriaArray, criterion);
         }
-        super.addToPotentialTypeList(wrapper);
+        super.addRangedPotentialToList(potential, atomType);
     }
     
     /**
@@ -104,25 +107,30 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             criteriaArray[i].setPhase(phase);
         }
         Atom targetAtom = id.getTargetAtom();
+        neighborIterator.setPhase(phase);
         if (targetAtom == null) {
             //no target atoms specified -- do one-target algorithm to SpeciesMaster
-            neighborIterator.setPhase(phase);
+            targetAtom = phase.getSpeciesMaster();
+            id = idUp;
             neighborIterator.setDirection(IteratorDirective.Direction.UP);
-            calculate(phase.getSpeciesMaster(), idUp, pc, getPotentials(
-                       phase.getSpeciesMaster().type).getPotentials());
-            if (lrcMaster != null) {
-                lrcMaster.calculate(phase, id, pc);
-            }
         }
         else {
             // one target atom
-            neighborIterator.setPhase(phase);
             neighborIterator.setDirection(id.direction());
-            calculate(targetAtom, id, pc, getPotentials(
-                      targetAtom.type).getPotentials());
-            if (lrcMaster != null) {
-                lrcMaster.calculate(phase, id, pc);
-            }
+            //first walk up the tree looking for 1-body range-independent potentials that apply to parents
+            Atom parentAtom = targetAtom.node.parentGroup();
+            while (parentAtom.type.getDepth() > 2) {
+                PotentialArray potentialArray = getIntraPotentials(parentAtom.type);
+                Potential[] potentials = potentialArray.getPotentials();
+                for(int i=0; i<potentials.length; i++) {
+                    ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(parentAtom,id,pc);
+                }
+                parentAtom = parentAtom.node.parentGroup();
+            }                
+        }
+        calculate(targetAtom, id, pc);
+        if (lrcMaster != null) {
+            lrcMaster.calculate(phase, id, pc);
         }
     }
 	
@@ -133,7 +141,10 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * the hierarchy until leaf atoms are reached.
      */
     //TODO make a "TerminalGroup" indicator in type that permits child atoms but indicates that no potentials apply directly to them
-	protected void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc, final Potential[] potentials) {
+	protected void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc) {
+        PotentialArray potentialArray = getRangedPotentials(atom.type);
+        Potential[] potentials = potentialArray.getPotentials();
+
         for(int i=0; i<potentials.length; i++) {
             switch (potentials[i].nBody()) {
             case 1:
@@ -158,13 +169,18 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             
 		//if atom has children, repeat process with them
 		if(!atom.node.isLeaf()) {
+            potentialArray = getIntraPotentials(atom.type);
+            potentials = potentialArray.getPotentials();
+            for(int i=0; i<potentials.length; i++) {
+                ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(atom,id,pc);
+            }
+
             //cannot use AtomIterator field because of recursive call
             AtomArrayList list = ((AtomTreeNodeGroup) atom.node).childList;
             int size = list.size();
             for (int i=0; i<size; i++) {
                 Atom a = list.get(i);
-                Potential[] childPotentials = getPotentials(a.type).getPotentials();
-                calculate(a, id, pc, childPotentials);//recursive call
+                calculate(a, id, pc);//recursive call
             }
 		}
 	}

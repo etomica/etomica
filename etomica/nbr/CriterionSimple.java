@@ -22,7 +22,7 @@ import etomica.util.Debug;
  * @author andrew
  *
  */
-public class CriterionSimple extends NeighborCriterion implements AgentSource  {
+public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.Serializable {
 
 	public CriterionSimple(Simulation sim, double interactionRange, double neighborRadius) {
 		super();

@@ -106,7 +106,7 @@ public class ZeoliteSimulation extends Simulation {
         potential.setCriterion(criterion);
         potentialMaster.addPotential(potential,new Species[]{species,species});
 
-        nbrManager.addCriterion(criterion,new AtomType[]{species.getFactory().getType()});
+        nbrManager.addCriterion(criterion,species.getFactory().getType());
 
         phase = new Phase(this);
         new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);

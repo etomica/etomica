@@ -15,6 +15,7 @@ import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.AtomsetIteratorSpeciesAgent;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.nbr.CriterionAll;
 import etomica.nbr.NeighborCriterion;
 import etomica.phase.Phase;
 import etomica.space.Space;
@@ -31,10 +32,21 @@ public class PotentialGroup extends Potential {
     
     /**
      * Makes a potential group defined on the position of nBody atom or atom groups.
+     * This constructor should only be called by the PotentialMaster.  Use 
+     * potentialMaster.makePotentialGroup method to create PotentialGroups.
      */
-    public PotentialGroup(int nBody, Space space, PotentialMaster potentialMaster) {
+    protected PotentialGroup(int nBody, Space space) {
         super(nBody, space);
-        this.potentialMaster = potentialMaster;
+    }
+    
+    public void setPotentialMaster(PotentialMaster newPotentialMaster) {
+        potentialMaster = newPotentialMaster;
+        for(PotentialLinker link=first; link!=null; link=link.next) {
+            if (link.potential instanceof PotentialGroup) {
+                ((PotentialGroup)link.potential).setPotentialMaster(newPotentialMaster);
+            }
+            potentialMaster.potentialAddedNotify(link.potential, this);
+        }
     }
 
 	/**
@@ -121,7 +133,9 @@ public class PotentialGroup extends Potential {
         }
         //put new potentials at beginning of list
         first = new PotentialLinker(potential, iterator, types, first);
-        potentialMaster.potentialAddedNotify(potential, this);
+        if (potentialMaster != null) {
+            potentialMaster.potentialAddedNotify(potential, this);
+        }
     }
     
     /**
@@ -287,19 +301,20 @@ public class PotentialGroup extends Potential {
     }
     
     public NeighborCriterion getCriterion() {
-        return null;
+        return criterion;
     }
     
     protected PotentialLinker first;
     protected Phase phase;
-    protected final PotentialMaster potentialMaster;
+    protected PotentialMaster potentialMaster;
+    protected NeighborCriterion criterion = new CriterionAll();
 
     protected static class PotentialLinker implements java.io.Serializable {
-        protected final Potential potential;
-        protected final AtomsetIteratorBasisDependent iterator;
-        protected final AtomType[] types;
-        protected PotentialLinker next;
-        protected boolean enabled = true;
+        public final Potential potential;
+        public final AtomsetIteratorBasisDependent iterator;
+        public final AtomType[] types;
+        public PotentialLinker next;
+        public boolean enabled = true;
         //Constructors
         public PotentialLinker(Potential a, AtomsetIteratorBasisDependent i, AtomType[] t, PotentialLinker l) {
             potential = a;

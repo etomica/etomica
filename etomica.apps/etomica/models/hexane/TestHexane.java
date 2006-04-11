@@ -135,7 +135,6 @@ public class TestHexane extends Simulation {
 
         //we add the new criterion to the potential.
         ((Potential2) potential).setCriterion(sameMoleculeCrit);
-        nbrManager.addCriterion(sameMoleculeCrit, new AtomType[] {sphereType,sphereType});
 
         //Add the Potential to the PotentialMaster
         potentialMaster.addPotential(potential, new AtomType[] { sphereType,
@@ -149,7 +148,7 @@ public class TestHexane extends Simulation {
         // be calculated by a Potential2, but their summation is the molecule's
         //effect on itself, which is a Potential1, or a Potential with nBody =
         // 1.
-        PotentialGroup potentialChainIntra = new PotentialGroup(1, space, potentialMaster);
+        PotentialGroup potentialChainIntra = potentialMaster.makePotentialGroup(1);
 
         //BONDED INTERACTIONS
 

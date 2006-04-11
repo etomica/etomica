@@ -18,7 +18,7 @@ import etomica.phase.Phase;
  * 
  * @author andrew
  */
-public abstract class CriterionAdapter extends NeighborCriterion {
+public abstract class CriterionAdapter implements NeighborCriterion, java.io.Serializable {
 
     /**
      * Constructs criterion that wraps the given criterion.

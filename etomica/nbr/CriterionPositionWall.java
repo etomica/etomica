@@ -19,7 +19,7 @@ import etomica.util.Debug;
  * at the phase boundaries or at some fixed position within the phase.
  * @author andrew
  */
-public class CriterionPositionWall extends NeighborCriterion implements AgentSource  {
+public class CriterionPositionWall implements NeighborCriterion, AgentSource, java.io.Serializable {
 
 	public CriterionPositionWall(Simulation sim) {
 		super();
