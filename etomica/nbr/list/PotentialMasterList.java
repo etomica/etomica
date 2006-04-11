@@ -77,9 +77,9 @@ public class PotentialMasterList extends PotentialMasterNbr {
         return neighborManager.getRange();
     }
     
-    protected void addRangedPotentialToList(Potential potential, AtomType atomType) {
+    protected void addRangedPotential(Potential potential, AtomType atomType) {
         neighborManager.addCriterion(potential.getCriterion(),atomType);
-        super.addRangedPotentialToList(potential, atomType);
+        super.addRangedPotential(potential, atomType);
     }
 
     /**

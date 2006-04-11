@@ -76,7 +76,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         this.cellRange = cellRange;
     }
 
-    protected void addRangedPotentialToList(Potential potential, AtomType atomType) {
+    protected void addRangedPotential(Potential potential, AtomType atomType) {
         boolean found = false;
         NeighborCriterion criterion = potential.getCriterion();
         for (int i=0; i<criteriaArray.length; i++) {
@@ -88,7 +88,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         if (!found) {
             criteriaArray = (NeighborCriterion[]) Arrays.addObject(criteriaArray, criterion);
         }
-        super.addRangedPotentialToList(potential, atomType);
+        super.addRangedPotential(potential, atomType);
     }
     
     /**

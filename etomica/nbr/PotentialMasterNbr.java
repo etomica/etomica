@@ -35,7 +35,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
         if (potential.getCriterion().isRangeDependent()) {
             //the potential might still be range-independent (intermolecular potential group) 
             for (int i=0; i<atomTypes.length; i++) {
-                addRangedPotentialToList(potential,atomTypes[i]);
+                addRangedPotential(potential,atomTypes[i]);
             }
         }
         else if (!(potential instanceof PotentialGroup)) {
@@ -67,11 +67,11 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
             return;
         }
         for (int i=0; i<atomTypes.length; i++) {
-            addRangedPotentialToList(subPotential,atomTypes[i]);
+            addRangedPotential(subPotential,atomTypes[i]);
         }
     }
     
-    protected void addRangedPotentialToList(Potential potential, AtomType atomType) {
+    protected void addRangedPotential(Potential potential, AtomType atomType) {
         while (rangedPotentialAtomTypeList.length < atomType.getIndex()+1) {
             rangedPotentialAtomTypeList = (PotentialArray[])etomica.util.Arrays.addObject(rangedPotentialAtomTypeList, new PotentialArray());
             intraPotentialAtomTypeList = (PotentialArray[])etomica.util.Arrays.addObject(intraPotentialAtomTypeList, new PotentialArray());
