@@ -24,7 +24,8 @@ public class P2Ideal extends Potential2 implements Potential2Soft,
 
     public P2Ideal(Space space) {
         super(space);
-        zeroVector = space.makeVector();
+        zeroVector = new Vector[1];
+        zeroVector[0] = space.makeVector();
         zeroTensor = space.makeTensor();
     }
     /**
@@ -113,11 +114,11 @@ public class P2Ideal extends Potential2 implements Potential2Soft,
     /**
      * Returns a zero vector.
      */
-    public Vector gradient(AtomSet atoms) {
-        zeroVector.E(0.0);
+    public Vector[] gradient(AtomSet atoms) {
+        zeroVector[0].E(0.0);
         return zeroVector;
     }
 
-    private final Vector zeroVector;
+    private final Vector[] zeroVector;
     private final Tensor zeroTensor;
 }

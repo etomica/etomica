@@ -28,7 +28,6 @@ public final class MEAMPMany extends Potential1 implements PotentialSoft {
 	public MEAMPMany(Space space, ParameterSetMEAM p, PhaseAgentManager phaseAgentManager) {
 		super(space);
         this.p = p;
-        gradient = space.makeVector(); //initializes the vector "gradient"
         this.phaseAgentManager = phaseAgentManager;
         gradRhoi0 = (Vector3D)space.makeVector();
         gradRhoi1 = (Vector3D)space.makeVector();
@@ -40,7 +39,8 @@ public final class MEAMPMany extends Potential1 implements PotentialSoft {
         gradGamma = (Vector3D)space.makeVector();
         gradRhoi = (Vector3D)space.makeVector();
         gradF = (Vector3D)space.makeVector();
-        gradEi = (Vector3D)space.makeVector();
+        gradEi = new Vector3D[1];
+        gradEi[0] = (Vector3D)space.makeVector();
     }
 	
     public void setPhase(Phase phase) {
@@ -132,7 +132,7 @@ public final class MEAMPMany extends Potential1 implements PotentialSoft {
 		return F + ((1.0/2.0)*agent.sums[Wrapper.phiBin]);
 	}
 
-	public Vector gradient(AtomSet a) {
+	public Vector[] gradient(AtomSet a) {
 		Wrapper agent = agents[((Atom)a).getGlobalIndex()];
 		
 		double rhoi0 = rhoi0(agent);
@@ -217,8 +217,8 @@ public final class MEAMPMany extends Potential1 implements PotentialSoft {
 		//System.out.println("gradF is " + gradF);
 		//System.exit(0);
 		
-		gradEi.E(gradF);
-		gradEi.PEa1Tv1(0.5, agent.gradientSums[Wrapper.phiBin]);
+		gradEi[0].E(gradF);
+		gradEi[0].PEa1Tv1(0.5, agent.gradientSums[Wrapper.phiBin]);
 		
 		return gradEi;
 		
@@ -240,7 +240,6 @@ public final class MEAMPMany extends Potential1 implements PotentialSoft {
     private final Vector3D gradGamma;
     private final Vector3D gradRhoi;
     private final Vector3D gradF;
-    private final Vector3D gradEi;
-    private final Vector gradient;
+    private final Vector3D[] gradEi;
 	private PhaseAgentManager phaseAgentManager;
 }

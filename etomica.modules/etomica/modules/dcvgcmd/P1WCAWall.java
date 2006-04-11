@@ -21,7 +21,7 @@ import etomica.space.Vector;
 
 public class P1WCAWall extends Potential1 implements PotentialSoft {
 
-    private final Vector gradient;
+    private final Vector[] gradient;
     private double sigma;
     private double epsilon;
     private double cutoff;
@@ -34,7 +34,8 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
         super(space);
         setSigma(sigma);
         setEpsilon(epsilon);
-        gradient = space.makeVector();
+        gradient = new Vector[1];
+        gradient[0] = space.makeVector();
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -75,13 +76,13 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
         return 0;
     }
 
-    public Vector gradient(AtomSet atom) {
+    public Vector[] gradient(AtomSet atom) {
         AtomLeaf a = (AtomLeaf) atom;
         Vector dimensions = boundary.getDimensions();
         double rz = a.coord.position().x(2);
         double dzHalf = 0.5 * dimensions.x(2);
         double gradz = gradient(rz + dzHalf) - gradient(dzHalf - rz);
-        gradient.setX(2, gradz);
+        gradient[0].setX(2, gradz);
         return gradient;
     }
     

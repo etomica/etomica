@@ -20,14 +20,13 @@ public interface PotentialSoft {
     public double virial(AtomSet atoms);
 
 	/**
-	 * Returns the gradient of the potential, indicating how
-	 * the energy would change as the position of the first atom
-	 * is varied.
+	 * Returns the gradient of the potential as it applies to each atom in the 
+     * given AtomSet, indicating how the energy would change as the position of 
+     * the first atom is varied.  The method is allowed to return an array of
+     * Vectors with fewer elements than the number of atoms in the AtomSet.
 	 * @param atoms
 	 * @return
 	 */
-	//TODO consider if implementation for pair describes energy change with movement of first or 2nd atom
-	//TODO consider returning array of vectors, one for each atom
-	public Vector gradient(AtomSet atoms);
+	public Vector[] gradient(AtomSet atoms);
 
 }

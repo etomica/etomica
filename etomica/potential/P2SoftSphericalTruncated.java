@@ -126,7 +126,7 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
             return duCorrection(nPairs()/phase.volume());
         }
         
-        public Vector gradient(AtomSet atoms) {
+        public Vector[] gradient(AtomSet atoms) {
             throw new RuntimeException("Should not be calling gradient on zero-body potential");
         }
         
@@ -166,45 +166,6 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
         }
     }//end of P0lrc
     
-    /*   public static void main(String[] args) {
-    
-    Simulation.instance = new etomica.graphics.SimulationGraphic();
-    IntegratorMC integrator = new IntegratorMC();
-    MCMoveAtom mcMove = new MCMoveAtom(integrator);//comment this line to examine LRC by itself
-    SpeciesSpheresMono species = new SpeciesSpheresMono();
-    species.setNMolecules(72);
-    final Phase phase = new Phase();
-    P2LennardJones potential = new P2LennardJones(3.0, 2000.);
-    Controller controller = new Controller();
-    etomica.graphics.DisplayPhase display = new etomica.graphics.DisplayPhase();
-
-    MeterEnergy energy = new MeterEnergy();
-    energy.setPhase(phase);
-    energy.setHistorying(true);
-    energy.setActive(true);     
-    energy.getHistory().setNValues(500);        
-    etomica.graphics.DisplayPlot plot = new etomica.graphics.DisplayPlot();
-    plot.setLabel("Energy");
-    plot.setDataSources(energy.getHistory());
-    
-    integrator.setSleepPeriod(2);
-    
-    etomica.graphics.DeviceToggleButton lrcToggle = new etomica.graphics.DeviceToggleButton(Simulation.instance,
-        new ModifierBoolean() {
-            public void setBoolean(boolean b) {phase.setLrcEnabled(b);}
-            public boolean getBoolean() {return phase.isLrcEnabled();}
-        },"LRC enabled", "LRC disabled" );
-    
-    Simulation.instance.elementCoordinator.go();
-    
-//    potential.setIterator(new AtomPairIteratorGeneral(phase));
-//    potential.set(species.getAgent(phase));
-    
-    etomica.graphics.SimulationGraphic.makeAndDisplayFrame(Simulation.instance);
-}//end of main
-// */   
-
-
     protected double rCutoff, r2Cutoff;
     protected final Potential2SoftSpherical potential;
 }

@@ -24,13 +24,13 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
     
     private final int D;
     private double w = 100.0;
-    private final Vector force;
+    private final Vector[] force;
     private final Vector x0;
     
     public P1Harmonic(Space space) {
         super(space);
         D = space.D();
-        force = space.makeVector();
+        force = new Vector[]{space.makeVector()};
         x0 = space.makeVector();
     }
     
@@ -75,10 +75,10 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
         return 0.0;
     }
 
-    public Vector gradient(AtomSet a){
+    public Vector[] gradient(AtomSet a){
         Vector r = ((AtomLeaf)a).coord.position();
-        force.Ev1Mv2(r,x0);
-        force.TE(w);
+        force[0].Ev1Mv2(r,x0);
+        force[0].TE(w);
             
         return force;
     }

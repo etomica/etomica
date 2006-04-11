@@ -20,7 +20,9 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
    
     public Potential2SoftSpherical(Space space) {
         super(space);
-        work1 = space.makeVector();
+        gradient = new Vector[2];
+        gradient[0] = space.makeVector();
+        gradient[1] = space.makeVector();
         dr = space.makeVector();
     }
         
@@ -85,13 +87,14 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
     /**
      * Gradient of the pair potential as given by the du(double) method.
      */
-    public Vector gradient(AtomSet atoms) {
+    public Vector[] gradient(AtomSet atoms) {
         AtomPair pair = (AtomPair)atoms;
         dr.Ev1Mv2(((AtomLeaf)pair.atom1).coord.position(),((AtomLeaf)pair.atom0).coord.position());
         nearestImageTransformer.nearestImage(dr);
         double r2 = dr.squared();
-        work1.Ea1Tv1(du(r2)/r2,dr);
-        return work1;
+        gradient[1].Ea1Tv1(du(r2)/r2,dr);
+        gradient[0].Ea1Tv1(-1,gradient[1]);
+        return gradient;
     }
     
     /**
@@ -112,7 +115,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
         nearestImageTransformer = phase.getBoundary();
     }
 
-    private final Vector work1;
+    private final Vector[] gradient;
     protected NearestImageTransformer nearestImageTransformer;
     protected final Vector dr;
     

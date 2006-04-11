@@ -267,9 +267,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         private final Vector dv;
         private NearestImageTransformer nearestImageTransformer;
 
-        private final Vector f;
         public ForceSumNPH(Space space) {
-            f = space.makeVector();
             dr = space.makeVector();
             dv = space.makeVector();
         }
@@ -299,10 +297,10 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
                 double hv = potentialSoft.hyperVirial(pair);
                 x += hv;
                 rvx += hv * dr.dot(dv)/r2;
-                f.E(potentialSoft.gradient(pair));
-                vf -= dv.dot(f); //maybe should be (-)?
-                agents[pair.atom0.getGlobalIndex()].force().PE(f);
-                agents[pair.atom1.getGlobalIndex()].force().ME(f);
+                Vector[] f = potentialSoft.gradient(pair);
+                vf += dv.dot(f[0]); //maybe should be (-)?
+                agents[pair.atom0.getGlobalIndex()].force().ME(f[0]);
+                agents[pair.atom1.getGlobalIndex()].force().ME(f[1]);
             }
         }
     }

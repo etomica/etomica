@@ -97,7 +97,6 @@ public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgen
         gradERef = (Vector3D)space.makeVector();
         gradFRef = (Vector3D)space.makeVector();
         gradPhi = (Vector3D)space.makeVector();
-        nada = (Vector3D)space.makeVector();
         
         
         
@@ -357,7 +356,7 @@ public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgen
     /**
      * Calculations of terms required for gradient of potential energy
      */
-    public Vector gradient(AtomSet atoms) {
+    public Vector[] gradient(AtomSet atoms) {
     	energy(atoms); //energy( ) not called otherwise, the sums in it won't be calculated otherwise.
         //from Potential2SoftSpherical
         AtomPair pair = (AtomPair)atoms;
@@ -875,7 +874,7 @@ public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgen
     private final Vector3D gradERef;
     private final Vector3D gradFRef;
     private final Vector3D gradPhi;
-    private final Vector3D nada;
+    private final Vector3D[] nada = new Vector3D[0];
     
     protected NearestImageTransformer nearestImageTransformer;
     protected final Vector dr;
