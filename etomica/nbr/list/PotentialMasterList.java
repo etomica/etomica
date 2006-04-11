@@ -99,6 +99,10 @@ public class PotentialMasterList extends PotentialMasterNbr {
             //no target atoms specified -- do one-target algorithm to SpeciesMaster
             targetAtom = phase.getSpeciesMaster();
             id = idUp;
+            // invoke setPhase on all potentials
+            for (int i=0; i<allPotentials.length; i++) {
+                allPotentials[i].setPhase(phase);
+            }
         }
         else {
             //first walk up the tree looking for 1-body range-independent potentials that apply to parents
@@ -107,10 +111,16 @@ public class PotentialMasterList extends PotentialMasterNbr {
                 PotentialArray potentialArray = getIntraPotentials(parentAtom.type);
                 Potential[] potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
+                    potentials[i].setPhase(phase);
                     ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(parentAtom,id,pc);
                 }
                 parentAtom = parentAtom.node.parentGroup();
             }                
+            PotentialArray potentialArray = getRangedPotentials(targetAtom.type);
+            Potential[] potentials = potentialArray.getPotentials();
+            for(int i=0; i<potentials.length; i++) {
+                potentials[i].setPhase(phase);
+            }
         }
         calculate(targetAtom, id, pc);
         if(lrcMaster != null) {

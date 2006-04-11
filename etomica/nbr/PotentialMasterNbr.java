@@ -32,8 +32,14 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
     public void addPotential(Potential potential, Species[] species) {
         super.addPotential(potential, species);
         AtomType[] atomTypes = moleculeTypes(species);
-        for (int i=0; i<atomTypes.length; i++) {
-            addRangedPotentialToList(potential,atomTypes[i]);
+        if (potential.getCriterion().isRangeDependent()) {
+            //the potential might still be range-independent (intermolecular potential group) 
+            for (int i=0; i<atomTypes.length; i++) {
+                addRangedPotentialToList(potential,atomTypes[i]);
+            }
+        }
+        else if (!(potential instanceof PotentialGroup)) {
+            System.err.println("You gave me a concrete molecular potential range-independent potential and I'm very confused now");
         }
     }
     
@@ -42,6 +48,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
         AtomType[] atomTypes = pGroup.getAtomTypes(subPotential);
         if (atomTypes == null) {
             if (pGroup.nBody() == 1 && !subPotential.getCriterion().isRangeDependent()) {
+                allPotentials = (Potential[])etomica.util.Arrays.addObject(allPotentials, pGroup);
                 //pGroup is PotentialGroupNbr
                 AtomType[] parentType = getAtomTypes(pGroup);
                 while (parentType[0].getIndex() > rangedPotentialAtomTypeList.length-1) {
@@ -72,6 +79,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
         PotentialArray potentialAtomType = rangedPotentialAtomTypeList[atomType.getIndex()];
         potentialAtomType.addPotential(potential,null);
         atomType.setInteracting(true);
+        allPotentials = (Potential[])etomica.util.Arrays.addObject(allPotentials, potential);
     }
     
     public PotentialArray getRangedPotentials(AtomType atomType) {
@@ -88,6 +96,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
 
     protected PotentialArray[] rangedPotentialAtomTypeList = new PotentialArray[0];
     protected PotentialArray[] intraPotentialAtomTypeList = new PotentialArray[0];
+    protected Potential[] allPotentials = new Potential[0];
     protected PhaseAgentSource phaseAgentSource;
     protected PhaseAgentManager phaseAgentManager;
 }
