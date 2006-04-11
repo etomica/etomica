@@ -13,6 +13,7 @@ import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.nbr.CriterionRangedAll;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.phase.Phase;
 import etomica.potential.P2LennardJones;
@@ -64,13 +65,12 @@ public class TestLJMC3D extends Simulation {
         P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(potential, truncationRadius);
         ((PotentialMasterCell)potentialMaster).setCellRange(3);
         ((PotentialMasterCell)potentialMaster).setRange(potentialTruncated.getRange());
-        potentialTruncated.setCriterion(etomica.nbr.NeighborCriterion.ALL);
+        potentialTruncated.setCriterion(new CriterionRangedAll());
         potentialMaster.addPotential(potentialTruncated, new Species[] {species, species});
         integrator.getMoveEventManager().addListener(((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).makeMCMoveListener());
         
         new ConfigurationFile(space,"LJMC3D"+Integer.toString(numAtoms)).initializeCoordinates(phase);
         integrator.setPhase(phase);
-        ((PotentialMasterCell)potentialMaster).updateTypeList(phase);
         ((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).assignCellAll();
 //        WriteConfiguration writeConfig = new WriteConfiguration("LJMC3D"+Integer.toString(numAtoms),phase,1);
 //        integrator.addListener(writeConfig);

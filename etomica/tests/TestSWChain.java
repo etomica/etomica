@@ -17,16 +17,17 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.nbr.CriterionBondedSimple;
 import etomica.nbr.CriterionMolecular;
+import etomica.nbr.CriterionNone;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
-import etomica.potential.P1BondedHardSpheres;
+import etomica.potential.P1IntraSimple;
 import etomica.potential.P2HardBond;
 import etomica.potential.P2SquareWell;
+import etomica.potential.PotentialGroup;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
@@ -41,8 +42,12 @@ public class TestSWChain extends Simulation {
     public IntegratorHard integrator;
     public Phase phase;
 
-    public TestSWChain(Space space, int numMolecules) {
-        super(space, true, new PotentialMasterList(space));
+    public TestSWChain() {
+        this(500);
+    }
+    
+    public TestSWChain(int numMolecules) {
+        super(Space3D.getInstance(), true, new PotentialMasterList(Space3D.getInstance()));
         int chainLength = 10;
         int numAtoms = numMolecules * chainLength;
         double sqwLambda = 1.5;
@@ -72,16 +77,16 @@ public class TestSWChain extends Simulation {
 
         SpeciesSpheres species = new SpeciesSpheres(this,chainLength);
         species.setNMolecules(numMolecules);
-        P1BondedHardSpheres potentialChainIntra = new P1BondedHardSpheres(this);
-        ((P2HardBond)potentialChainIntra.bonded).setBondLength(defaults.atomSize);
-        ((P2HardBond)potentialChainIntra.bonded).setBondDelta(bondFactor);
+        P2HardBond bonded = new P2HardBond(this);
+        PotentialGroup potentialChainIntra = P1IntraSimple.makeP1IntraSimple(potentialMaster, bonded, potential);
+        bonded.setBondLength(defaults.atomSize);
+        bonded.setBondDelta(bondFactor);
         CriterionBondedSimple criterion = new CriterionBondedSimple(nbrCriterion);
         criterion.setBonded(false);
         potential.setCriterion(criterion);
-        potentialChainIntra.setNonbonded(potential);
 //        criterion = new CriterionBondedSimple(NeighborCriterion.ALL);
 //        criterion.setBonded(true);
-        potentialChainIntra.bonded.setCriterion(NeighborCriterion.NONE);
+        bonded.setCriterion(new CriterionNone());
         potentialMaster.addPotential(potentialChainIntra, new Species[] {species});
         ((ConformationLinear)species.getFactory().getConformation()).setBondLength(defaults.atomSize);
 
@@ -105,7 +110,7 @@ public class TestSWChain extends Simulation {
         if (args.length > 0) {
             numMolecules = Integer.valueOf(args[0]).intValue();
         }
-        TestSWChain sim = new TestSWChain(Space3D.getInstance(), numMolecules);
+        TestSWChain sim = new TestSWChain(numMolecules);
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.space);
         pMeter.setIntegrator(sim.integrator);

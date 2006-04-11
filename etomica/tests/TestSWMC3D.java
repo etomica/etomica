@@ -12,6 +12,7 @@ import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.nbr.CriterionRangedAll;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.phase.Phase;
 import etomica.potential.P2SquareWell;
@@ -56,12 +57,11 @@ public class TestSWMC3D extends Simulation {
         potential = new P2SquareWell(space,defaults.atomSize,sqwLambda,defaults.potentialWell,false);
         ((PotentialMasterCell)potentialMaster).setCellRange(2);
         ((PotentialMasterCell)potentialMaster).setRange(potential.getRange());
-        potential.setCriterion(etomica.nbr.NeighborCriterion.ALL);
+        potential.setCriterion(new CriterionRangedAll());
         potentialMaster.addPotential(potential, new Species[] {species, species});
         
         new ConfigurationFile(space,"SWMC3D"+Integer.toString(numAtoms)).initializeCoordinates(phase);
         integrator.setPhase(phase);
-        ((PotentialMasterCell)potentialMaster).updateTypeList(phase);
         ((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).assignCellAll();
 //        WriteConfiguration writeConfig = new WriteConfiguration("SWMC3D"+Integer.toString(numAtoms),phase,1);
 //        integrator.addIntervalListener(writeConfig);
