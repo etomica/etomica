@@ -194,5 +194,4 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
     public void setPhase(Phase phase) {
         nearestImageTransformer = phase.getBoundary();
     }
-
 }

@@ -219,20 +219,4 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     private boolean[][] isActiveDim;
     private boolean[][] longWallDim;
         
- /*   
-    public static void main(String[] args) {
-        
-        etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
-        Simulation.instance = sim;
-        sim.species.setNMolecules(10);
-        P1HardBoundary potential = new P1HardBoundary();
-        potential.set(sim.phase.speciesMaster);
-        potential.setCollisionRadius(0.5*Default.atomSize);
-  //      sim.phase.setBoundary(sim.space().makeBoundary(Space2D.Boundary.NONE));
-        sim.elementCoordinator.go();
-        
-        Simulation.makeAndDisplayFrame(sim);
-    }//end of main
-*/
-}//end of P1HardBoundary
-   
+}
