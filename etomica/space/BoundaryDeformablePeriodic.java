@@ -148,11 +148,17 @@ public class BoundaryDeformablePeriodic extends Boundary {
     
     public Vector centralImage(Vector r) {
         temp1.E(r);
+        for(int i=0; i<edgeVectors.length; i++) {
+            temp1.PEa1Tv1(0.5,edgeVectors[i]);
+        }
         temp1.transform(hInv);// position in terms of boundary-vector basis
         temp1.truncate(1.e-10);// remove any components that are likely nonzero due to roundoff
         temp1.mod(unit);// shift to central image
         temp1.transform(h);//convert back to space-frame basis
         temp1.ME(r);//subtract r to return difference vector
+        for(int i=0; i<edgeVectors.length; i++) {
+            temp1.PEa1Tv1(-0.5,edgeVectors[i]);
+        }
         return temp1;
     }
 
