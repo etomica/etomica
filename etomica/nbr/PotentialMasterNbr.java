@@ -1,12 +1,6 @@
 package etomica.nbr;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-
 import etomica.atom.AtomType;
-import etomica.atom.iterator.IteratorDirective;
-import etomica.nbr.PotentialCalculationUpdateTypeList.PotentialAtomTypeWrapper;
-import etomica.phase.Phase;
 import etomica.phase.PhaseAgentManager;
 import etomica.phase.PhaseAgentManager.PhaseAgentSource;
 import etomica.potential.Potential;
@@ -48,7 +42,15 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
         AtomType[] atomTypes = pGroup.getAtomTypes(subPotential);
         if (atomTypes == null) {
             if (pGroup.nBody() == 1 && !subPotential.getCriterion().isRangeDependent()) {
-                allPotentials = (Potential[])etomica.util.Arrays.addObject(allPotentials, pGroup);
+                boolean found = false;
+                for (int i=0; i<allPotentials.length; i++) {
+                    if (allPotentials[i] == pGroup) {
+                        found = true;
+                    }
+                }
+                if (!found) {
+                    allPotentials = (Potential[])etomica.util.Arrays.addObject(allPotentials, pGroup);
+                }
                 //pGroup is PotentialGroupNbr
                 AtomType[] parentType = getAtomTypes(pGroup);
                 while (parentType[0].getIndex() > rangedPotentialAtomTypeList.length-1) {
@@ -79,7 +81,15 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
         PotentialArray potentialAtomType = rangedPotentialAtomTypeList[atomType.getIndex()];
         potentialAtomType.addPotential(potential,null);
         atomType.setInteracting(true);
-        allPotentials = (Potential[])etomica.util.Arrays.addObject(allPotentials, potential);
+        boolean found = false;
+        for (int i=0; i<allPotentials.length; i++) {
+            if (allPotentials[i] == potential) {
+                found = true;
+            }
+        }
+        if (!found) {
+            allPotentials = (Potential[])etomica.util.Arrays.addObject(allPotentials, potential);
+        }
     }
     
     public PotentialArray getRangedPotentials(AtomType atomType) {
