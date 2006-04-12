@@ -144,7 +144,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
             switch (potentials[i].nBody()) {
             case 1:
                 boolean[] potential1BodyArray = neighborManager.getPotential1BodyList(atom).getInteractingList();
-                if (i < potential1BodyArray.length && potential1BodyArray[i]) {
+                if (potential1BodyArray[i]) {
                     pc.doCalculation(singletIterator, id, potentials[i]);
                 }
                 break;
@@ -153,19 +153,15 @@ public class PotentialMasterList extends PotentialMasterNbr {
                 if (direction != IteratorDirective.Direction.DOWN) {
                     list = neighborManager.getUpList(atom);
 //                  list.length may be less than potentials.length, if atom hasn't yet interacted with another using one of the potentials
-                    if(i < list.length) {
-                        atomIterator.setList(list[i]);
-                        //System.out.println("Up :"+atomIterator.size());
-                        pc.doCalculation(pairIterator, id, potentials[i]);
-                    }
+                    atomIterator.setList(list[i]);
+                    //System.out.println("Up :"+atomIterator.size());
+                    pc.doCalculation(pairIterator, id, potentials[i]);
                 }
                 if (direction != IteratorDirective.Direction.UP) {
                     list = neighborManager.getDownList(atom);
-                    if(i < list.length) {
-                        atomIterator.setList(list[i]);
-                        //System.out.println("Dn :"+atomIterator.size());
-                        pc.doCalculation(swappedPairIterator, id, potentials[i]);
-                    }
+                    atomIterator.setList(list[i]);
+                    //System.out.println("Dn :"+atomIterator.size());
+                    pc.doCalculation(swappedPairIterator, id, potentials[i]);
                 }
                 break;//switch
             case Integer.MAX_VALUE: //N-body

@@ -28,6 +28,7 @@ import etomica.phase.PhaseAgentManager;
 import etomica.phase.PhaseAgentSourceAtomManager;
 import etomica.potential.Potential;
 import etomica.potential.Potential2;
+import etomica.potential.PotentialArray;
 import etomica.util.Arrays;
 import etomica.util.Debug;
 
@@ -65,6 +66,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         cellNbrIterator = new ApiAACell(potentialMaster.getSpace().D(), range, agentManager);
         phaseAgentManager = new PhaseAgentManager(new PhaseAgentSourceAtomManager(this),null);
         phaseAgentManager1Body = new PhaseAgentManager(new PhaseAgentSourceAtomManager(new AtomPotential1ListSource()),null);
+        phaseClean = new boolean[0];
     }
 
     /**
@@ -83,8 +85,37 @@ public class NeighborListManager implements IntegratorNonintervalListener,
             Phase phase = ((IntegratorPhase)evt.getSource()).getPhase();
             phaseAgentManager.setRoot((SpeciesRoot)phase.getSpeciesMaster().node.parentGroup());
             phaseAgentManager1Body.setRoot((SpeciesRoot)phase.getSpeciesMaster().node.parentGroup());
-            reset(((IntegratorPhase)evt.getSource()).getPhase());
+            updateLists(phase);
+            reset(phase);
         }
+    }
+    
+    protected void updateLists(Phase phase) {
+        if (phaseClean.length > phase.getIndex() && phaseClean[phase.getIndex()]) {
+            // phase is not dirty
+            return;
+        }
+        
+        agentManagers = (AtomAgentManager[])phaseAgentManager.getAgents();
+        neighborLists = (AtomNeighborLists[])agentManagers[phase.getIndex()].getAgents();
+        agentManagers1Body = (AtomAgentManager[])phaseAgentManager1Body.getAgents();
+        potentialList = (AtomPotentialList[])agentManagers1Body[phase.getIndex()].getAgents();
+
+        iterator.setRoot(phase.getSpeciesMaster());
+        iterator.reset();
+        while (iterator.hasNext()) {
+            Atom atom = iterator.nextAtom();
+            int numPotentials = potentialMaster.getRangedPotentials(atom.type).getPotentials().length;
+            // this really wants to be setCapacity
+            potentialList[atom.getGlobalIndex()].setCapacity(numPotentials);
+            neighborLists[atom.getGlobalIndex()].setCapacity(numPotentials);
+        }
+        
+        if (phaseClean.length < phase.getIndex()+1) {
+            phaseClean = Arrays.resizeArray(phaseClean,phase.getIndex()+1);
+        }
+        //mark phase as not dirty
+        phaseClean[phase.getIndex()] = true;
     }
 
     /**
@@ -164,7 +195,10 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * are being applied. Does not add the criterion if it was already added to
      * the list.
      */
-    public void addCriterion(NeighborCriterion criterion, AtomType atomType) {
+    public void addPotential(NeighborCriterion criterion, AtomType atomType) {
+        //mark all phases as unseen (dirty)
+        phaseClean = new boolean[0];
+        
         boolean found = false;
         for (int i=0; i<criteriaArray.length; i++) {
             if (criteriaArray[i] == criterion) {
@@ -348,6 +382,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     private AtomAgentManager[] agentManagers1Body;
     private final PhaseAgentManager phaseAgentManager;
     private final PhaseAgentManager phaseAgentManager1Body;
+    private boolean[] phaseClean;
 
     /**
      * Atom action class that checks if any criteria indicate that the given

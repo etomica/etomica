@@ -28,7 +28,6 @@ public class AtomPotentialList implements Serializable {
      * corresponding to the given index.
      */
     public void setIsInteracting(boolean flag, int index) {
-        ensureCapacity(index);
         if (!(index < isInteractingList.length)) {
             isInteractingList = Arrays.resizeArray(isInteractingList,index+1);
         }
@@ -43,19 +42,9 @@ public class AtomPotentialList implements Serializable {
         return isInteractingList;
     }
 	
-    protected void ensureCapacity(int index) {
-        if (index > isInteractingList.length-1) {
-            isInteractingList = Arrays.resizeArray(isInteractingList, index);
-        }
+    protected void setCapacity(int index) {
+        isInteractingList = Arrays.resizeArray(isInteractingList, index);
     }
-	
-    /**
-     * Should be called when removing a potential that applied to this atom
-     */
-	public void decrementInteractingList() {
-		if (isInteractingList.length == 0) throw new RuntimeException("potential list empty in removePotential");
-		isInteractingList = new boolean[isInteractingList.length-1];
-	}
 	
     /**
      * Clears neighbor lists, resetting all flags to false (not interacting).

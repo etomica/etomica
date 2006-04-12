@@ -37,7 +37,6 @@ public class AtomNeighborLists implements DirtyObject, java.io.Serializable {
      * @param index the of the potential between the atoms
      */
     public void addUpNbr(Atom a, int index) {
-        ensureCapacity(index);
         upList[index].add(a);
     }
 
@@ -48,7 +47,6 @@ public class AtomNeighborLists implements DirtyObject, java.io.Serializable {
      * @param index the of the potential between the atoms
      */
     public void addDownNbr(Atom a, int index) {
-        ensureCapacity(index);
         downList[index].add(a);
     }
 
@@ -71,32 +69,19 @@ public class AtomNeighborLists implements DirtyObject, java.io.Serializable {
     }
     
     /**
-     * Indicates that the given potential is involved in this sequencer's
-     * atom's interactions.  Enables lists to be stored of atoms interacting 
-     * with this one via the given potential.
-     * @param p
-     * @return index of the neighbor-list arrays giving the list of atoms
-     * associated with the potential
+     * Sets the number of up and down lists maintained by this instance.
      */
-    protected void ensureCapacity(int index) {
-        while (index > upList.length-1) {
-            upList = (AtomArrayList[])Arrays.addObject(upList, new AtomArrayList());
-            downList = (AtomArrayList[])Arrays.addObject(downList, new AtomArrayList());
+    protected void setCapacity(int newCapacity) {
+        if (newCapacity == upList.length) {
+            return;
+        }
+        upList = new AtomArrayList[newCapacity];
+        downList = new AtomArrayList[newCapacity];
+        for (int i=0; i<newCapacity; i++) {
+            upList[i] = new AtomArrayList();
+            downList[i] = new AtomArrayList();
         }
     }
-	
-    /**
-     * Should be called when removing a potential that applied to this atom
-     */
-	public void decrementNbrListArrays() {
-		if (upList.length == 0) throw new RuntimeException("potential list empty in removePotential");
-		upList = new AtomArrayList[upList.length-1];
-		downList = new AtomArrayList[downList.length-1];
-        for (int i=0; i<upList.length; i++) {
-			upList[i] = new AtomArrayList();
-			downList[i] = new AtomArrayList();
-		}
-	}
 	
     /**
      * Clears neighbor lists, removing all listed neighbor atoms.
