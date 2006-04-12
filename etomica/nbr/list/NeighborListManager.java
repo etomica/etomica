@@ -195,7 +195,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * are being applied. Does not add the criterion if it was already added to
      * the list.
      */
-    public void addPotential(NeighborCriterion criterion, AtomType atomType) {
+    public void addCriterion(NeighborCriterion criterion, AtomType atomType) {
         //mark all phases as unseen (dirty)
         phaseClean = new boolean[0];
         
