@@ -15,6 +15,10 @@ import etomica.atom.AtomSet;
 public class ApiIntergroup extends AtomPairIteratorAdapter implements
         AtomsetIteratorBasisDependent, ApiComposite {
 
+    /**
+     * Default iterator is an ApiInnerFixed formed from two AtomIteratorBasis
+     * instances.
+     */
     public ApiIntergroup() {
         this(new ApiInnerFixed(new AtomIteratorBasis(),
                   new AtomIteratorBasis()));
@@ -34,10 +38,8 @@ public class ApiIntergroup extends AtomPairIteratorAdapter implements
     }
 
     /**
-     * @throws NullPointerException
-     *          if targetAtom is null; use AtomSet.NULL instead
-     * @throws IllegalArgumentException
-     *          if targetAtom.count() > 2
+     * Specifies a target atom, which should appear in all iterates. A
+     * null value removes any restriction on the iterates.
      */
     public void setTarget(Atom newTargetAtom) {
         targetAtom = newTargetAtom;
@@ -105,7 +107,7 @@ public class ApiIntergroup extends AtomPairIteratorAdapter implements
 
     /**
      * Returns the (basis-dependent) iterator instance used for the inner-loop
-     * iteration
+     * iteration.
      */
     public AtomIterator getInnerIterator() {
         return (AtomIterator) aiInner;
@@ -113,7 +115,7 @@ public class ApiIntergroup extends AtomPairIteratorAdapter implements
 
     /**
      * Returns the (basis-dependent) iterator instance used for the outer-loop
-     * iteration
+     * iteration.
      */
     public AtomIterator getOuterIterator() {
         return (AtomIterator) aiOuter;

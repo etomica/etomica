@@ -57,13 +57,8 @@ AtomPair iterate); "nominally" is used here because the iterate may be a related
 Specific behaviors when interpreting these specifications are documented with each iterator.  The <tt>IteratorDirective</tt>
 class provides a portable specification of a target and direction (among other things that are infrequently used).
 <p>
-Most of the iterators have at their core the iteration over AtomLists, sometimes requiring iteration beginning
-from a specific Atom in the list, and proceeding in one direction or the other. AtomIteratorSequence performs this
-iteration, and several of the other iterators are built around it (the <tt>seq</tt> field in Atom provides direct 
-access to the Atom's linker that holds it in its parent's childlist, and is often used in this context.)
-<p>
-Several of the AtomPair iterators (with names beginning "Api") have designations "11", "1A" and "AA".  These indicate
-that the iterator provides (respectively) a single pair (each Atom 1 time); a specific Atom (1) paired with 
+Several of the AtomPair iterators (with names beginning "Api") have designations "1A" and "AA".  These indicate
+that the iterator provides (respectively) a specific Atom (1) paired with 
 all (A) atoms matching some specification; or all (A) atoms formed with all (A) other atoms matching specifications
 given to the iterator.
 <p>
