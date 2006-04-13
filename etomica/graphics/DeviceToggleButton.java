@@ -43,7 +43,7 @@ public class DeviceToggleButton extends DeviceButton {
     public void setModifier(ModifierBoolean modifier, String trueText, String falseText) {
         toggleAction = new ActionToggle(modifier, trueText, falseText);
         setAction(new ActionGroupSeries(new Action[] { toggleAction, relabelButton }));
-        getButton().setText(modifier.getBoolean() ? trueText : falseText);
+        button.setText(modifier.getBoolean() ? trueText : falseText);
     }
 
     /**
@@ -52,7 +52,7 @@ public class DeviceToggleButton extends DeviceButton {
      */
     public void setState(boolean b) {
         if (b != getState())
-            press();
+            button.doClick();
     }
 
     /**
@@ -68,7 +68,7 @@ public class DeviceToggleButton extends DeviceButton {
     public void setTrueLabel(String text) {
         toggleAction.setTrueLabel(text);
         if (getState())
-            getButton().setText(getTrueLabel());
+            button.setText(getTrueLabel());
     }
 
     /**
@@ -84,7 +84,7 @@ public class DeviceToggleButton extends DeviceButton {
     public void setFalseLabel(String text) {
         toggleAction.setFalseLabel(text);
         if (!getState())
-            getButton().setText(getFalseLabel());
+            button.setText(getFalseLabel());
     }
 
     /**
@@ -94,12 +94,11 @@ public class DeviceToggleButton extends DeviceButton {
         return toggleAction.getFalseLabel();
     }
 
-    private ActionToggle toggleAction;
+    protected ActionToggle toggleAction;
     private final Action relabelButton = new Action() {
 
         public void actionPerformed() {
-            DeviceToggleButton.this.getButton().setText(
-                    toggleAction.getLabel());
+            DeviceToggleButton.this.setLabel(toggleAction.getLabel());
         }
 
         public String getLabel() {

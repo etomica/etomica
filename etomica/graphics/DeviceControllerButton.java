@@ -29,7 +29,7 @@ public class DeviceControllerButton extends DeviceButton {
      */
     public void reset() {setLabel("  Start  ");}
     
-    private Toggle toggleAction;
+    private final Toggle toggleAction;
     
     private class Toggle extends etomica.action.ControllerToggle {
          public void actionPerformed() {

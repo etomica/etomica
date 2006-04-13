@@ -49,7 +49,7 @@ public class DeviceButton extends Device implements EtomicaElement {
      * in the user interface.
      */
     public void press() {
-        buttonAction.actionPerformed(null);
+        button.doClick();
     }
     
     /**
@@ -66,7 +66,12 @@ public class DeviceButton extends Device implements EtomicaElement {
         if(newAction == null) return;
         buttonAction = new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                doAction(targetAction);
+                try {
+                    doAction(targetAction);
+                }
+                catch (RuntimeException e) {
+                    //do nothing
+                }
             }
         };
         button.addActionListener(buttonAction);
@@ -88,14 +93,9 @@ public class DeviceButton extends Device implements EtomicaElement {
      */
     public String getLabel() {return button.getText();}
     
-    /**
-     * @return a handle to the JButton instance used by this device
-     */
-    public JButton getButton() {return button;}
-    
     private ActionListener buttonAction;
-    private JButton button;
-    private Action targetAction;
+    protected JButton button;
+    protected Action targetAction;
     
     /**
      * Method to demonstrate and test the use of this class.  
