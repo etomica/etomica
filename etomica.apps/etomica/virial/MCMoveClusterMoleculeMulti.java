@@ -57,7 +57,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
             groupTranslationVector.E(translationVectors[i]);
             moveMoleculeAction.actionPerformed(selectedAtoms[i]);
         }
-        ((PhaseCluster)phase).trialNotify(null);
+        ((PhaseCluster)phase).trialNotify();
         uNew = Double.NaN;
         return true;
     }

@@ -18,10 +18,8 @@ import etomica.util.Arrays;
 public class ClusterSumEF extends ClusterSum {
 
     /**
-     * @param subClusters
-     * @param subClusterWeights
-     * @param fArray
-     * @param temperature
+     * Constructs a Cluster sum of the given cluster and weights.  The MayerFunction 
+     * array should contain only e-bonds.
      */
     public ClusterSumEF(ClusterBonds[] subClusters, double[] subClusterWeights,
             MayerFunction[] eArray) {
@@ -54,7 +52,7 @@ public class ClusterSumEF extends ClusterSum {
         }
     }
     
-    protected void updateF(CoordinatePairSet cPairs, AtomPairSet aPairs) {
+    protected void updateF(CoordinatePairLeafSet cPairs, AtomPairSet aPairs) {
         int nPoints = pointCount();
 
         if (cPairs.dirtyAtom > -1) {

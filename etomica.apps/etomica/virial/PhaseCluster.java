@@ -2,6 +2,7 @@ package etomica.virial;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
@@ -47,7 +48,7 @@ public class PhaseCluster extends Phase {
      * the coordinate pairs.  If molecule is not null, only coordinate pairs 
      * containing that atom are updated.
      */
-    public void trialNotify(Atom molecule) {
+    public void trialNotify() {
         // atom(s) have been moved.  leave cPairSet as is and update
         // cPairTrialSet and set a flag to use it.
         isTrial = true;
@@ -55,20 +56,17 @@ public class PhaseCluster extends Phase {
         if(cPairSet == null) {
             // assume 1 species
             AtomArrayList molecules = ((AtomTreeNodeGroup)((AtomTreeNodeGroup)getSpeciesMaster().node).childList.get(0).node).childList;
-            cPairSet = new CoordinatePairSet(molecules,space);
-            cPairTrialSet = new CoordinatePairSet(molecules,space);
+            if (molecules.get(0) instanceof AtomLeaf) {
+                cPairSet = new CoordinatePairLeafSet(molecules,space);
+                cPairTrialSet = new CoordinatePairLeafSet(molecules,space);
+            }
+            else {
+                cPairSet = new CoordinatePairMoleculeSet(molecules,space);
+                cPairTrialSet = new CoordinatePairMoleculeSet(molecules,space);
+            }
             aPairSet = new AtomPairSet(molecules);
         }
 
-        if (molecule != null) {
-            int dirtyAtom = molecule.node.getIndex();
-            // copy old cPairSet to trial cPairSet
-            cPairTrialSet.E(cPairSet);
-            cPairTrialSet.dirtyAtom = dirtyAtom;
-        }
-        else {
-            cPairTrialSet.dirtyAtom = -1;
-        }
         cPairTrialSet.reset();
     }
 	
@@ -77,6 +75,9 @@ public class PhaseCluster extends Phase {
      * coordinate pairs.
      */
 	public void acceptNotify() {
+        if (!isTrial) {
+            throw new IllegalStateException("you weren't in a trial!");
+        }
 	    // move was accepted.  swap out trial cPairSet and cPairTrialSet since
 		// cPairTrialSet is already up-to-date
 		isTrial = false;
@@ -86,14 +87,16 @@ public class PhaseCluster extends Phase {
 	}
 	
     /**
-     * Informs the phase that the trial was accepted so it will go back to 
+     * Informs the phase that the trial was rejected so it will go back to 
      * the old coordinate pairs.
      */
 	public void rejectNotify() {
+        if (!isTrial) {
+            throw new IllegalStateException("you weren't in a trial!");
+        }
 		// move was rejected.  stop using cPairTrialSet.
 		isTrial = false;
 	}
-    
 	
 	private boolean isTrial;
 	private CoordinatePairSet cPairSet, cPairTrialSet, cPairSetTmp;

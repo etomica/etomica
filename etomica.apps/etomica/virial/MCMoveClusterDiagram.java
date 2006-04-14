@@ -28,7 +28,20 @@ public class MCMoveClusterDiagram extends MCMove {
     public void setPhase(Phase p) {
         super.setPhase(p);
         weightMeter.setPhase(p);
-        cluster = (ClusterSumSticky)((ClusterWeightAbs)((PhaseCluster)p).getSampleCluster()).getSubCluster();
+        ClusterAbstract sampleCluster = ((PhaseCluster)p).getSampleCluster();
+        ClusterAbstract cluster1;
+        if (sampleCluster instanceof ClusterWeightAbs) {
+            cluster1 = ((ClusterWeightAbs)sampleCluster).getSubCluster();
+        }
+        else { // must be umbrella
+            cluster1 = ((ClusterWeightUmbrella)sampleCluster).getClusters()[0];
+        }
+        if (cluster1 instanceof ClusterSumStickyEF) {
+            cluster = (ClusterSumStickyEF)cluster1;
+        }
+        else {
+            cluster = (ClusterSumStickyEF)((ClusterCoupled)cluster1).getSubCluster();
+        }
     }
     
     public boolean doTrial() {
@@ -40,8 +53,10 @@ public class MCMoveClusterDiagram extends MCMove {
     
     public double getA() {
         uNew = weightMeter.getDataAsScalar();
-//      System.out.println("uNew "+uNew+" uOld "+uOld);
-      return uNew/uOld;
+//        System.out.println("uNew "+uNew+" uOld "+uOld);
+        foo += uNew * uOld;
+        foo2 += uOld * uOld;
+        return uNew/uOld;
     }
     
     public double getB() {
@@ -49,7 +64,7 @@ public class MCMoveClusterDiagram extends MCMove {
     }
     
     public void acceptNotify() {
-//        System.out.println("accepted");
+  //      System.out.println("accepted"+(uNew == uOld ? " no change" : ""));
         // do nothing
     }
     
@@ -68,5 +83,6 @@ public class MCMoveClusterDiagram extends MCMove {
     }
     
     private double uOld, uNew;
-    private ClusterSumSticky cluster;
+    private ClusterSumStickyEF cluster;
+    public static double foo, foo2;
 }

@@ -88,7 +88,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
         }
             
         uNew = Double.NaN;
-        ((PhaseCluster)phase).trialNotify(null);
+        ((PhaseCluster)phase).trialNotify();
         return true;
     }
     

@@ -35,14 +35,17 @@ public class ConfigurationCluster extends Configuration {
 		Vector center = phase.space().makeVector();
 		iterator.setLists(lists);
 		iterator.reset();
-        if (!iterator.hasNext()) return;
         AtomActionTranslateTo translator = new AtomActionTranslateTo(space);
         translator.setDestination(center);
         translator.setAtomPositionDefinition(new AtomPositionFirstAtom());
+        translator.actionPerformed(iterator.nextAtom());
+        center.E(0.01);
+        translator.setDestination(center);
+        if (!iterator.hasNext()) return;
 		while(iterator.hasNext()) { 
             translator.actionPerformed(iterator.nextAtom()); //.coord.position().E(center);//put all at center of box
         }
-        phase.trialNotify(null);
+        phase.trialNotify();
 		double value = phase.getSampleCluster().value(phase.getCPairSet(), phase.getAPairSet());
         if (value == 0) {
             System.out.println("initial cluster value bad... trying to fix it.  don't hold your breath.");
@@ -58,7 +61,7 @@ public class ConfigurationCluster extends Configuration {
                 translator.setDestination(translationVector);
                 translator.actionPerformed(a);
 			}
-            phase.trialNotify(null);
+            phase.trialNotify();
 			value = phase.getSampleCluster().value(phase.getCPairSet(),phase.getAPairSet());
             System.out.println("value "+value);
             if (value != 0) {

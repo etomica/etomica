@@ -54,7 +54,11 @@ public class ClusterWeightUmbrella implements ClusterWeight, java.io.Serializabl
         for (int i=0; i<clusterArray.length; i++) {
             clusterArray[i].setTemperature(temp);
         }
-    }        
+    }
+    
+    public ClusterAbstract[] getClusters() {
+        return clusterArray;
+    }
     
     private final ClusterAbstract[] clusterArray;
     private final double[] weightRatio;

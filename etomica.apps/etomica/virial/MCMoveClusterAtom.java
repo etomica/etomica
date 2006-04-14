@@ -34,7 +34,7 @@ public class MCMoveClusterAtom extends MCMoveAtom {
         translationVector.setRandomCube();
         translationVector.TE(stepSize);
         ((AtomLeaf)atom).coord.position().PE(translationVector);
-		((PhaseCluster)phase).trialNotify(atom);
+		((PhaseCluster)phase).trialNotify();
 		uNew = Double.NaN;
 		return true;
 	}

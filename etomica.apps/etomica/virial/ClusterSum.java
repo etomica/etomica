@@ -38,7 +38,7 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
         int thisCPairID = cPairs.getID();
 //        System.out.println(thisCPairID+" "+cPairID+" "+lastCPairID+" "+value+" "+lastValue+" "+f[0].getClass());
         if (thisCPairID == cPairID) {
-//            System.out.println("clusterSum returning recent "+value);
+//            System.out.println("clusterSum "+cPairID+" returning recent "+value);
             return value;
         }
         if (thisCPairID == lastCPairID) {
@@ -49,32 +49,20 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
             }
             cPairID = lastCPairID;
             value = lastValue;
-//            System.out.println("clusterSum returning previous recent "+value);
+//            System.out.println("clusterSum "+cPairID+" returning previous recent "+lastValue);
             return value;
         }
+
         // a new cluster
         lastCPairID = cPairID;
         lastValue = value;
         cPairID = thisCPairID;
         
-//        System.out.println("before");
-        for (int i=0; i<pointCount()-1; i++) {
-            for (int j=i+1; j<pointCount(); j++) {
-//                System.out.println(i+" "+j+" "+fValues[i][j][0]);
-            }
-        }
         updateF(cPairs,aPairs);
-//        System.out.println("updated");
-        for (int i=0; i<pointCount()-1; i++) {
-            for (int j=i+1; j<pointCount(); j++) {
-//                System.out.println(i+" "+j+" "+fValues[i][j][0]);
-            }
-        }
 //        checkF(cPairs,aPairs);
         
         calcValue();
-        
-//        System.out.println("clusterSum returning new "+value);
+      
         return value;
     }
     
@@ -84,7 +72,7 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
             double v = clusters[i].value(fValues);
             value += clusterWeights[i] * v;
         }
-    }        
+    }
     
     protected void revertF() {
         int nPoints = pointCount();
@@ -104,28 +92,6 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
     protected void updateF(CoordinatePairSet cPairs, AtomPairSet aPairs) {
         int nPoints = pointCount();
 
-        if (cPairs.dirtyAtom > -1) {
-            int i = cPairs.dirtyAtom;
-            oldDirtyAtom = i;
-            for(int j=0; j<nPoints; j++) {
-                if (j == i) {
-                    continue;
-                }
-                for(int k=0; k<f.length; k++) {
-                    fOld[j][k] = fValues[i][j][k];
-                    if (f[k] instanceof MayerFunctionSpherical) {
-                        double r2 = (i < j) ? cPairs.getr2(i,j) : cPairs.getr2(j,i);
-                        fValues[i][j][k] = ((MayerFunctionSpherical)f[k]).f(r2,beta);
-                    }
-                    else {
-                        AtomPair pair = (i < j) ? aPairs.getAPair(i,j) : aPairs.getAPair(j,i);
-                        fValues[i][j][k] = f[k].f(pair,beta);
-                    }
-                    fValues[j][i][k] = fValues[i][j][k];
-                }
-            }
-            return;
-        }
         // recalculate all f values for all pairs
         for(int i=0; i<nPoints-1; i++) {
             for(int j=i+1; j<nPoints; j++) {

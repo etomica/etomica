@@ -35,7 +35,7 @@ public class ClusterTreeEF extends ClusterTree {
         return copy;
     }
 
-    protected void updateF(CoordinatePairSet cPairs, AtomPairSet aPairs) {
+    protected void updateF(CoordinatePairLeafSet cPairs, AtomPairSet aPairs) {
         int nPoints = pointCount();
         
         if (cPairs.dirtyAtom > -1) {
