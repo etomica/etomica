@@ -5,7 +5,6 @@ import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorArrayListCompound;
-import etomica.graphics.ColorSchemeByType;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.IndexIteratorSequential;
 import etomica.lattice.IndexIteratorSizable;
@@ -144,12 +143,16 @@ public class ConfigurationLattice extends Configuration {
 
         // determine number of cells in each direction
         int[] latticeDimensions = calculateLatticeDimensions(nCells, shape);
-//        int[] iteratorDimensions = new int[latticeDimensions.length + 1];
-//        System.arraycopy(latticeDimensions, 0, iteratorDimensions, 0,
-//                latticeDimensions.length);
-//        iteratorDimensions[latticeDimensions.length] = basisSize;
-        int[] iteratorDimensions = latticeDimensions;
-        indexIterator.setSize(iteratorDimensions);
+        if (indexIterator.getD() > latticeDimensions.length) {
+            int[] iteratorDimensions = new int[latticeDimensions.length+1];
+            System.arraycopy(latticeDimensions, 0, iteratorDimensions, 0,
+                    latticeDimensions.length);
+            iteratorDimensions[latticeDimensions.length] = basisSize;
+            indexIterator.setSize(iteratorDimensions);
+        }
+        else {
+            indexIterator.setSize(latticeDimensions);
+        }
 
         // determine lattice constant
         Vector latticeScaling = space.makeVector();
