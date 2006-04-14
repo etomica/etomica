@@ -1,6 +1,5 @@
 package etomica.virial;
 
-import etomica.atom.Atom;
 
 public interface CoordinatePairSet {
 
@@ -12,7 +11,5 @@ public interface CoordinatePairSet {
     public void reset();
 
     public int getID();
-    
-    public void setDirtyAtom(int newDirtyAtom);
 
 }

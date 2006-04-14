@@ -55,33 +55,6 @@ public class ClusterSumEF extends ClusterSum {
     protected void updateF(CoordinatePairLeafSet cPairs, AtomPairSet aPairs) {
         int nPoints = pointCount();
 
-        if (cPairs.dirtyAtom > -1) {
-            int i = cPairs.dirtyAtom;
-            oldDirtyAtom = i;
-            for(int j=0; j<nPoints; j++) {
-                if (j == i) {
-                    continue;
-                }
-                for(int k=0; k<numF; k++) {
-                    double eValue;
-                    //store the eValue
-                    fOld[j][k] = fValues[i][j][k+numF];
-                    if (f[k] instanceof MayerFunctionSpherical) {
-                        double r2 = (i < j) ? cPairs.getr2(i,j) : cPairs.getr2(j,i);
-                        eValue = ((MayerFunctionSpherical)f[k]).f(r2,beta);
-                    }
-                    else {
-                        AtomPair pair = (i < j) ? aPairs.getAPair(i,j) : aPairs.getAPair(j,i);
-                        eValue = f[k].f(pair,beta);
-                    }
-                    fValues[i][j][k+numF] = eValue;
-                    fValues[j][i][k+numF] = eValue;
-                    fValues[j][i][k] = eValue - 1;
-                    fValues[i][j][k] = eValue - 1;
-                }
-            }
-            return;
-        }
         // recalculate all f values for all pairs
         for(int i=0; i<nPoints-1; i++) {
             for(int j=i+1; j<nPoints; j++) {

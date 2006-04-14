@@ -38,38 +38,6 @@ public class ClusterTreeEF extends ClusterTree {
     protected void updateF(CoordinatePairLeafSet cPairs, AtomPairSet aPairs) {
         int nPoints = pointCount();
         
-        if (cPairs.dirtyAtom > -1) {
-            oldDirtyAtom = cPairs.dirtyAtom;
-            int i = cPairs.dirtyAtom;
-            int l = 0;
-            for (int j=0; j<i; j++) {
-                l += (i-j-1);
-                for(int k=0; k<numF; k++) {
-                    fOld[l][k] = fValues[l][k+numF];
-                    if (f[k] instanceof MayerFunctionSpherical) {
-                        fValues[l][k+numF] = ((MayerFunctionSpherical)f[k]).f(cPairs.getr2(i,j),beta);
-                    }
-                    else {
-                        fValues[l][k+numF] = f[k].f(aPairs.getAPair(i,j),beta);
-                    }
-                    fValues[l][k] = fValues[l][k] - 1;
-                }
-            }
-            for (int j=i+1; j<nPoints; j++) {
-                l++;
-                for(int k=0; k<numF; k++) {
-                    fOld[l][k] = fValues[l][k+numF];
-                    if (f[k] instanceof MayerFunctionSpherical) {
-                        fValues[l][k+numF] = ((MayerFunctionSpherical)f[k]).f(cPairs.getr2(i,j),beta);
-                    }
-                    else {
-                        fValues[l][k+numF] = f[k].f(aPairs.getAPair(i,j),beta);
-                    }
-                    fValues[l][k] = fValues[l][k+numF] - 1;
-                }
-            }
-            return;
-        }
         // recalculate all f values for all pairs
         int l=0;
         for(int i=0; i<nPoints-1; i++) {

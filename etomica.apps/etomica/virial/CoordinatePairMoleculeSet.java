@@ -31,9 +31,8 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
     public CoordinatePairMoleculeSet(AtomArrayList list, Space space) {
         atoms = new Atom[list.size()];
         numAtoms = list.size();
-        r2 = new double[numAtoms*(numAtoms-1)/2];
+        r2 = new double[numAtoms*numAtoms];
         setAtoms(list);
-        dirtyAtom = -1;
         dr = space.makeVector();
     }
     
@@ -55,40 +54,17 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
     }
     
     public void reset() {
-        if (dirtyAtom == -1) {
-            for(int i=0; i<numAtoms-1; i++) {
-                Atom iAtom = atoms[i];
-                Vector iPosition = iAtom.type.getPositionDefinition().position(iAtom);
-                for(int j=i+1; j<numAtoms; j++) {
-                    Atom jAtom = atoms[j];
-                    Vector jPosition = jAtom.type.getPositionDefinition().position(jAtom);
-                    dr.Ev1Mv2(iPosition, jPosition);
-                    r2[i*numAtoms+j] = dr.squared();
-                }
-            }
-        }
-        else {
-            // reset only pairs containing dirty atom
-            Atom dAtom = atoms[dirtyAtom];
-            Vector dirtyPosition = dAtom.type.getPositionDefinition().position(dAtom);
-            for (int i=0; i<dirtyAtom; i++) {
-                Atom iAtom = atoms[i];
-                Vector iPosition = iAtom.type.getPositionDefinition().position(iAtom);
-                dr.Ev1Mv2(iPosition, dirtyPosition);
-                r2[i*numAtoms+dirtyAtom] = dr.squared();
-            }
-            for (int j=dirtyAtom+1; j<numAtoms; j++) {
+        for(int i=0; i<numAtoms-1; i++) {
+            Atom iAtom = atoms[i];
+            Vector iPosition = iAtom.type.getPositionDefinition().position(iAtom);
+            for(int j=i+1; j<numAtoms; j++) {
                 Atom jAtom = atoms[j];
                 Vector jPosition = jAtom.type.getPositionDefinition().position(jAtom);
-                dr.Ev1Mv2(jPosition, dirtyPosition);
-                r2[dirtyAtom*numAtoms+j] = dr.squared();
+                dr.Ev1Mv2(iPosition, jPosition);
+                r2[i*numAtoms+j] = dr.squared();
             }
         }
         ID = staticID++;
-    }
-    
-    public void setDirtyAtom(int newDirtyAtom) {
-        dirtyAtom = newDirtyAtom;
     }
     
     public void E(CoordinatePairLeafSet c) {
@@ -109,5 +85,4 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
     protected final Vector dr;
     private int ID;
     private static int staticID;
-    protected int dirtyAtom;
 }

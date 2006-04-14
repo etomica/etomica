@@ -19,10 +19,6 @@ import etomica.util.Debug;
  * correspondence between this ID and the positions of atoms in the CoordinatePairLeafSet. 
  */
 
-/* History
- * 08/21/03 (DAK) rearranged loops in resetPairs method
- */
- 
 public class CoordinatePairLeafSet implements java.io.Serializable, CoordinatePairSet {
 
     /**
@@ -32,9 +28,8 @@ public class CoordinatePairLeafSet implements java.io.Serializable, CoordinatePa
     public CoordinatePairLeafSet(AtomArrayList list, Space space) {
         positions = new Vector[list.size()];
         numAtoms = list.size();
-        r2 = new double[numAtoms*(numAtoms-1)/2];
+        r2 = new double[numAtoms*numAtoms];
         setAtoms(list);
-        dirtyAtom = -1;
         dr = space.makeVector();
     }
     
@@ -57,32 +52,14 @@ public class CoordinatePairLeafSet implements java.io.Serializable, CoordinatePa
     }
     
     public void reset() {
-        if (dirtyAtom == -1) {
-            for(int i=0; i<numAtoms-1; i++) {
-                Vector pos1 = positions[i];
-                for(int j=i+1; j<numAtoms; j++) {
-                    dr.Ev1Mv2(pos1,positions[j]);
-                    r2[i*numAtoms+j] = dr.squared();
-                }
-            }
-        }
-        else {
-            // reset only pairs containing dirty atom
-            Vector posi = positions[dirtyAtom];
-            for (int i=0; i<dirtyAtom; i++) {
-                dr.Ev1Mv2(posi,positions[i]);
-                r2[i*numAtoms+dirtyAtom] = dr.squared();
-            }
-            for (int j=dirtyAtom+1; j<numAtoms; j++) {
-                dr.Ev1Mv2(posi,positions[j]);
-                r2[dirtyAtom*numAtoms+j] = dr.squared();
+        for(int i=0; i<numAtoms-1; i++) {
+            Vector pos1 = positions[i];
+            for(int j=i+1; j<numAtoms; j++) {
+                dr.Ev1Mv2(pos1,positions[j]);
+                r2[i*numAtoms+j] = dr.squared();
             }
         }
         ID = staticID++;
-    }
-    
-    public void setDirtyAtom(int newDirtyAtom) {
-        dirtyAtom = newDirtyAtom;
     }
     
     public void E(CoordinatePairLeafSet c) {
@@ -103,5 +80,4 @@ public class CoordinatePairLeafSet implements java.io.Serializable, CoordinatePa
     protected final Vector dr;
     private int ID;
     private static int staticID;
-    protected int dirtyAtom;
 }
