@@ -5,7 +5,7 @@ import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterSum;
 import etomica.virial.ClusterSumEF;
-import etomica.virial.ClusterSumSticky;
+import etomica.virial.ClusterSumStickyEF;
 import etomica.virial.ClusterTree;
 import etomica.virial.ClusterTreeEF;
 import etomica.virial.MayerFunction;
@@ -246,101 +246,38 @@ public final class Standard implements java.io.Serializable {
         double b0 = B2HS(sigma);
         return 0.013046*b0*b0*b0*b0*b0*b0;
     }
-
-//	public static Cluster[] B6Clusters(MayerFunction f) {
-//
-//		int[][] FRH1 = new int[][] {{0,1},{0,2},{0,4},{0,5},{1,2},{1,3},{1,5}
-//										,{2,3},{2,4},{2,5},{3,4},{3,5},{4,5}};
-//		int[][] FRH2 = new int[][] {{0,2},{0,3},{0,4},{0,5},{1,2},{1,3},{1,4},{1,5}
-//										,{2,4},{2,5},{3,4},{3,5}};
-//		int[][] FRH3 = new int[][] {{0,2},{0,3},{0,4},{1,2},{1,3},{1,4},{1,5}
-//										,{2,3},{2,5},{3,4},{3,5},{4,5}};
-//		int[][] FRH4 = new int[][] {{0,1},{0,2},{0,3},{0,4},{1,3},{1,4},{1,5}
-//										,{2,4},{2,5},{3,4},{3,5}};
-//		int[][] FRH5 = new int[][] {{0,2},{0,3},{0,4},{0,5},{1,2},{1,3},{1,4},{1,5}
-//										,{2,4},{2,5},{3,5}};										
-//		int[][] FRH6 = new int[][] {{0,1},{0,2},{0,3},{1,2},{1,4},{1,5}
-//										,{2,3},{2,4},{2,5},{3,4},{3,5}};
-//										
-//		int[][] FRH7 = new int[][] {{0,1},{0,3},{0,4},{0,5},{1,2},{1,3},{1,5}
-//										,{2,3},{2,4},{2,5},{3,5}};
-//		int[][] FRH8 = new int[][] {{0,2},{0,3},{0,4},{1,3},{1,4},{1,5}
-//										,{2,4},{2,5},{3,4},{3,5}};
-//		int[][] FRH9 = new int[][] {{0,2},{0,3},{0,4},{0,5},{1,2},{1,3},{1,4},{1,5}
-//										,{2,4},{3,5}};		
-//		int[][] FRH10 = new int[][] {{0,2},{0,3},{0,4},{1,3},{1,4},{1,5}
-//										,{2,3},{2,5},{3,4},{3,5}};	
-//		int[][] FRH11 = new int[][] {{0,1},{0,3},{0,4},{0,5},{1,2},{1,3},{1,5}
-//										,{2,3},{2,4},{2,5}};	
-//		int[][] FRH12 = new int[][] {{0,2},{0,3},{0,4},{1,3},{1,4},{1,5}
-//										,{2,4},{2,5},{3,5}};		
-//		int[][] FRH13 = new int[][] {{0,2},{0,3},{1,3},{1,4},{1,5}
-//										,{2,4},{2,5},{3,4},{3,5}};		
-//		int[][] FRH14 = new int[][] {{0,2},{0,3},{0,4},{1,3},{1,4},{1,5}
-//										,{2,5},{3,4},{3,5}};	
-//		int[][] FRH15 = new int[][] {{0,2},{0,3},{0,4},{1,4},{1,5}
-//										,{2,4},{2,5},{3,5}};	
-//		int[][] FRH16 = new int[][] {{0,2},{0,3},{1,4},{1,5}
-//										,{2,4},{2,5},{3,4},{3,5}};	
-////error		int[][] FRH17 = new int[][] {{0,2},{0,3},{0,4},{1,3},{1,4},{1,5}
-////error										,{2,5},{3,5}};		
-//		int[][] FRH17 = new int[][] {{0,2},{0,3},{0,4},{1,3},{1,4},{1,5}
-//										,{2,5},{3,4}};		
-//		int[][] FRH18 = new int[][] {{0,2},{0,3},{0,4},{1,3},{1,4},{1,5}
-//										,{2,5}};
-//		int[][] FRH19 = new int[][] {{0,2},{0,3},{1,4},{1,5}
-//										,{2,4},{3,5}};		
-//										
-//		// rest which are negligible in hard spheres
-//		int[][] FRH20 = new  int[][]{{0,1},{0,2},{0,3},{1,4},{1,5},{2,4},{2,5}
-//										,{3,4},{3,5}};
-//		
-//		int[][] FRH21  = new int[][]{{0,2},{0,3},{0,4},{0,5},{1,2},{1,3},{1,4},{1,5}
-//										,{2,4}};
-//										
-////error		int[][] FRH22  = new int[][]{{0,2},{0,3},{0,4},{0,5},{1,3},{1,4},{1,5}};						
-//		int[][] FRH22  = new int[][]{{0,2},{0,3},{0,4},{0,5},{1,2},{1,3},{1,4},{1,5}};						
-//		
-//										
-//																																																														
-//		Cluster f0 = new Cluster(6, new Cluster.BondGroup(f, Standard.full(6)));
-//		
-//		Cluster f1 = new ReeHoover(6, new Cluster.BondGroup(f, FRH1));
-//		Cluster f2 = new ReeHoover(6, new Cluster.BondGroup(f, FRH2));
-//		Cluster f3 = new ReeHoover(6, new Cluster.BondGroup(f, FRH3));
-//		Cluster f4 = new ReeHoover(6, new Cluster.BondGroup(f, FRH4));
-//		Cluster f5 = new ReeHoover(6, new Cluster.BondGroup(f, FRH5));
-//		Cluster f6 = new ReeHoover(6, new Cluster.BondGroup(f, FRH6));
-//		Cluster f7 = new ReeHoover(6, new Cluster.BondGroup(f, FRH7));
-//		Cluster f8 = new ReeHoover(6, new Cluster.BondGroup(f, FRH8));
-//		Cluster f9 = new ReeHoover(6, new Cluster.BondGroup(f, FRH9));	
-//		Cluster f10 = new ReeHoover(6, new Cluster.BondGroup(f, FRH10));	
-//		Cluster f11 = new ReeHoover(6, new Cluster.BondGroup(f, FRH11));		
-//		Cluster f12 = new ReeHoover(6, new Cluster.BondGroup(f, FRH12));	
-//		Cluster f13 = new ReeHoover(6, new Cluster.BondGroup(f, FRH13));	
-//		Cluster f14 = new ReeHoover(6, new Cluster.BondGroup(f, FRH14));
-//		Cluster f15 = new ReeHoover(6, new Cluster.BondGroup(f, FRH15));	
-//		Cluster f16 = new ReeHoover(6, new Cluster.BondGroup(f, FRH16));		
-//		Cluster f17 = new ReeHoover(6, new Cluster.BondGroup(f, FRH17));	
-//		Cluster f18 = new ReeHoover(6, new Cluster.BondGroup(f, FRH18));		
-//		Cluster f19 = new ReeHoover(6, new Cluster.BondGroup(f, FRH19));	
-//		Cluster f20 = new ReeHoover(6, new Cluster.BondGroup(f, FRH20));	
-//		Cluster f21 = new ReeHoover(6, new Cluster.BondGroup(f, FRH21));	
-//		Cluster f22 = new ReeHoover(6, new Cluster.BondGroup(f, FRH22));	
-//				
-//		Cluster[] clusters = new Cluster[] {f0,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,f19,f20,f21,f22};
-//		for(int i=0; i<clusters.length; i++) clusters[i].setUsePermutations(true);
-//		return clusters;
-//	}
     
-    public static double[] B6ClusterWeights() {
-        double[] weights = new double[]{-24, -240, -1440, -360, 900, 240, 360, 360, -180, 288, -540, -240, -360, -1080, 720, 90, 360, -180, -60, -40, -180, -15};
-        for (int i=0; i<weights.length; i++) {
-            weights[i] /= 144.0;
+    public static double B2SW(double sigma, double lambda, double ekT) {
+        if (lambda < 1) {
+            return B2HS(sigma);
         }
-        return weights;
+        double d = Math.exp(ekT)-1;
+        return B2HS(sigma)*(1-(lambda*lambda*lambda-1)*d);
     }
-	
+
+    public static double B3SW(double sigma, double lambda, double ekT) {
+        if (lambda < 1) {
+            return B3HS(sigma);
+        }
+        double d = Math.exp(ekT)-1;
+        double f1, f2, f3;
+        double lambda2 = lambda*lambda;
+        double lambda3 = lambda*lambda*lambda;
+        double lambda4 = lambda2*lambda2;
+        double lambda6 = lambda3*lambda3;
+        if (lambda < 2) {
+            f1 = 0.2*(lambda6 - 18*lambda4 + 32*lambda3 - 15);
+            f2 = 0.4*(lambda6 - 18*lambda4 + 16*lambda3 + 9*lambda2 - 8);
+            f3 = 1.2*Math.pow(lambda2-1,3);
+        }
+        else {
+            f1 = 3.4;
+            f2 = 0.2*(          - 32*lambda3 + 18*lambda2 + 48);
+            f3 = 0.2*(5*lambda6 - 32*lambda3 + 18*lambda2 + 26);
+        }
+        return B3HS(sigma)*(1-f1*d-f2*d*d-f3*d*d*d);
+    }
+    
 	public static void main(String[] args) {
 		int[] iSet = new int[] {5,0,0,0,0};
 		int[][] array = product(iSet);		
@@ -351,12 +288,4 @@ public final class Standard implements java.io.Serializable {
 			string += ")";
 		System.out.println(string);
 	}
-	
-//	24 (5, 0, 0, 0, 0)
-//	-60 (3, 1, 0, 0, 0)
-//	30 (1, 2, 0, 0, 0)
-//	20 (2, 0, 1, 0, 0)
-//	-10 (0, 1, 1, 0, 0)
-//	-5 (1, 0, 0, 1, 0)
-//	1 (0, 0, 0, 0, 1)
 }
