@@ -26,7 +26,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
     
     public void addPotential(Potential potential, Species[] species) {
         super.addPotential(potential, species);
-        if (!potential.getCriterion().isRangeDependent()) {
+        if (potential.getRange() == Double.POSITIVE_INFINITY) {
             System.err.println("You gave me a molecular range-independent potential and I'm very confused now");
             return;
         }
@@ -43,7 +43,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
         super.potentialAddedNotify(subPotential, pGroup);
         AtomType[] atomTypes = pGroup.getAtomTypes(subPotential);
         if (atomTypes == null) {
-            if (pGroup.nBody() == 1 && !subPotential.getCriterion().isRangeDependent()) {
+            if (pGroup.nBody() == 1 && subPotential.getRange() == Double.POSITIVE_INFINITY) {
                 boolean found = false;
                 for (int i=0; i<allPotentials.length; i++) {
                     if (allPotentials[i] == pGroup) {
@@ -67,7 +67,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
             }
             return;
         }
-        if (!subPotential.getCriterion().isRangeDependent()) {
+        if (subPotential.getRange() == Double.POSITIVE_INFINITY) {
             //FIXME what to do with this case?
             System.err.println("you have an infinite-ranged potential that's type based!  I don't like you.");
             return;

@@ -61,10 +61,6 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
         return Length.DIMENSION;
     }
 	
-	public boolean isRangeDependent() {
-		return true;
-	}
-	
 	public boolean needUpdate(Atom atom) {
 		r2 = ((AtomLeaf)atom).coord.position().Mv1Squared(agents[atom.getGlobalIndex()]);
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(atom)) {

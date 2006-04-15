@@ -15,8 +15,6 @@ public final class CriterionNone implements NeighborCriterion, java.io.Serializa
      */
     public boolean needUpdate(Atom atom) {return false;}
 
-    public boolean isRangeDependent() {return false;}
-
     /**
      * Performs no action.
      */

@@ -24,13 +24,6 @@ public class CriterionAll implements NeighborCriterion, java.io.Serializable {
     }
 
     /**
-     * Returns false, indicating all atoms are within range.
-     */
-    public boolean isRangeDependent() {
-        return false;
-    }
-    
-    /**
      * Performs no action.
      */
     public void setPhase(Phase phase) {

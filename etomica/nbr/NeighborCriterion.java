@@ -46,10 +46,4 @@ public interface NeighborCriterion {
      * used by needUpdate and unsafe() methods should be reset.  
      */
 	public void reset(Atom atom);
-    
-    /**
-     * Returns true if the criterion (or subcriterion) depends on the distance
-     * between atoms.
-     */
-    public boolean isRangeDependent();
 }

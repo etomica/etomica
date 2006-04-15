@@ -43,7 +43,7 @@ public class PotentialGroupNbr extends PotentialGroup {
     
     protected void addPotential(Potential potential, AtomsetIteratorBasisDependent iterator, AtomType[] types) {
         super.addPotential(potential, iterator, types);
-        if (!potential.getCriterion().isRangeDependent()) {
+        if (potential.getRange() == Double.POSITIVE_INFINITY) {
             firstRangeIndependent = new PotentialLinker(potential, iterator, types, firstRangeIndependent);
         }
     }

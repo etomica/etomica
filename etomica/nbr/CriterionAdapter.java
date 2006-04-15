@@ -74,13 +74,5 @@ public abstract class CriterionAdapter implements NeighborCriterion, java.io.Ser
         subCriterion.reset(atom);
     }
 
-    /**
-     * Returns the nominal distance within which two atoms are considered
-     * neighbors, according to the wrapped criterion.
-     */
-    public boolean isRangeDependent() {
-        return subCriterion.isRangeDependent();
-    }
-
     protected final NeighborCriterion subCriterion;
 }

@@ -135,10 +135,6 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
         return Length.DIMENSION;
     }
 
-    public boolean isRangeDependent() {
-		return true;
-	}
-	
 	public boolean needUpdate(Atom atom) {
         dr = Math.abs(((AtomLeaf)atom).coord.position().x(neighborDim) - agents[atom.getGlobalIndex()].x);
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(atom)) {
