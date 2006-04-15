@@ -246,11 +246,6 @@ public class PotentialMaster implements java.io.Serializable {
         }
         if (potential instanceof PotentialGroup) {
             ((PotentialGroup)potential).setPotentialMaster(this);
-            // notify ourselves of any potentials it already has
-            Potential[] subPotentials = ((PotentialGroup)potential).getPotentials();
-            for (int i=0; i<subPotentials.length; i++) {
-                potentialAddedNotify(subPotentials[i],(PotentialGroup)potential);
-            }
         }
     }
 
