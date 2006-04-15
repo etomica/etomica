@@ -182,12 +182,10 @@ public class P2HardBond extends Potential2HardSpherical {
     }
     
     /**
-     * Returns the maximum bond length. The potential range is in fact infinite, but if
-     * the integrator is generating configurations correctly, there will be no atoms
-     * interacting beyond the bondlength distance.  
+     * Returns infinity.  
      */
     public double getRange() {
-        return maxBondLength;
+        return Double.POSITIVE_INFINITY;
     }
     
     public double energyChange() {return 0.0;}
