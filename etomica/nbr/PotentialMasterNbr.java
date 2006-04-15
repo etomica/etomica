@@ -58,15 +58,17 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
                     rangedPotentialAtomTypeList = (PotentialArray[])etomica.util.Arrays.addObject(rangedPotentialAtomTypeList, new PotentialArray());
                     intraPotentialAtomTypeList = (PotentialArray[])etomica.util.Arrays.addObject(intraPotentialAtomTypeList, new PotentialArray());
                 }
-                PotentialArray potentialAtomType = intraPotentialAtomTypeList[parentType[0].getIndex()];
-                potentialAtomType.addPotential(pGroup,null);
+                intraPotentialAtomTypeList[parentType[0].getIndex()].addPotential(pGroup,null);
             }
-            // potential is not type-based
+            else {
+                //FIXME what to do with this case?  Fail!
+                System.err.println("You have a child-potential of a 2-body PotentialGroup or range-dependent potential, but it's not type-based.  Enjoy crashing or fix bug 85");
+            }
             return;
         }
         if (!subPotential.getCriterion().isRangeDependent()) {
             //FIXME what to do with this case?
-            System.err.println("you have a range-dependent potential that's not type based!  I don't like you");
+            System.err.println("you have an infinite-ranged potential that's type based!  I don't like you.");
             return;
         }
         for (int i=0; i<atomTypes.length; i++) {
