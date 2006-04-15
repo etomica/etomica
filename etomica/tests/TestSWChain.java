@@ -4,6 +4,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
+import etomica.atom.iterator.ApiBuilder;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorAverage;
@@ -78,7 +79,11 @@ public class TestSWChain extends Simulation {
         SpeciesSpheres species = new SpeciesSpheres(this,chainLength);
         species.setNMolecules(numMolecules);
         P2HardBond bonded = new P2HardBond(this);
-        PotentialGroup potentialChainIntra = P1IntraSimple.makeP1IntraSimple(potentialMaster, bonded, potential);
+        PotentialGroup potentialChainIntra = potentialMaster.makePotentialGroup(1);
+        potentialChainIntra.addPotential(bonded, ApiBuilder.makeAdjacentPairIterator());
+        AtomType leafType = ((AtomFactoryHomo)species.getFactory()).getChildFactory().getType();
+        potentialChainIntra.addPotential(potential, new AtomType[]{leafType,leafType});
+
         bonded.setBondLength(defaults.atomSize);
         bonded.setBondDelta(bondFactor);
         CriterionBondedSimple criterion = new CriterionBondedSimple(nbrCriterion);
