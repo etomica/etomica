@@ -238,7 +238,13 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         int oldLength = criteria.length;
         criteriaArray = (NeighborCriterion[]) Arrays.removeObject(criteriaArray,
                 criterion);
-        return (oldLength != criteria.length);
+        if (oldLength != criteria.length) {
+            //we actually cared about this criterion.  mark all phases as unseen (dirty)
+            phaseClean = new boolean[0];
+            return true;
+        }
+
+        return false;
     }
 
     /**

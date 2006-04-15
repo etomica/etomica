@@ -81,6 +81,11 @@ public class PotentialMasterList extends PotentialMasterNbr {
         neighborManager.addCriterion(potential.getCriterion(),atomType);
         super.addRangedPotential(potential, atomType);
     }
+    
+    public void removePotential(Potential potential) {
+        super.removePotential(potential);
+        neighborManager.removeCriterion(potential.getCriterion());
+    }
 
     /**
      * Overrides superclass method to enable direct neighbor-list iteration

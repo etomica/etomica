@@ -255,16 +255,23 @@ public class PotentialMaster implements java.io.Serializable {
      */
     public synchronized void removePotential(Potential potential) {
         PotentialLinker previous = null;
+        
         for(PotentialLinker link=first; link!=null; link=link.next) {
-            if(link.potential == potential) {//found it
+            if(link.potential == potential) {
+                //found it
                 if(previous == null) first = link.next;  //it's the first one
                 else previous.next = link.next;          //it's not the first one
-                if(link == last) last = previous; //removing last; this works also if last was also first (then removing only, and set last to null)
+                //removing last; this works also if last was also first (then removing only, and set last to null)
+                if(link == last) last = previous;
                 return;
-            }//end if
+            }
+            else if (link.potential instanceof PotentialGroup && 
+                     ((PotentialGroup)link.potential).removePotential(potential)) {
+                return;
+            }
             previous = link;
-        }//end for
-    }//end removePotential
+        }
+    }
 
  
     /**

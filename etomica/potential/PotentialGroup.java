@@ -211,18 +211,20 @@ public class PotentialGroup extends Potential {
 	
     /**
      * Removes given potential from the group.  No error is generated if
-     * potential is not in group.
+     * potential is not in group.  Returns true if the given Potential was
+     * found and removed.
      */
-    public synchronized void removePotential(Potential potential) {
+    public boolean removePotential(Potential potential) {
         PotentialLinker previous = null;
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if(link.potential == potential) {//found it
                 if(previous == null) first = link.next;  //it's the first one
                 else previous.next = link.next;          //it's not the first one
-                return;
+                return true;
             }//end if
             previous = link;
         }
+        return false;
     }
     
     /**

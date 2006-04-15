@@ -9,6 +9,7 @@ import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.species.Species;
+import etomica.util.Arrays;
 
 public abstract class PotentialMasterNbr extends PotentialMaster {
 
@@ -93,6 +94,17 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
         if (!found) {
             allPotentials = (Potential[])etomica.util.Arrays.addObject(allPotentials, potential);
         }
+    }
+    
+    public void removePotential(Potential potential) {
+        super.removePotential(potential);
+        if (potential.getRange() < Double.POSITIVE_INFINITY) {
+            rangedPotentialAtomTypeList = (PotentialArray[])Arrays.removeObject(rangedPotentialAtomTypeList,potential);
+        }
+        else if (potential instanceof PotentialGroup) {
+            intraPotentialAtomTypeList = (PotentialArray[])Arrays.removeObject(intraPotentialAtomTypeList,potential);
+        }
+        allPotentials = (Potential[])Arrays.removeObject(allPotentials,potential);
     }
     
     public PotentialArray getRangedPotentials(AtomType atomType) {

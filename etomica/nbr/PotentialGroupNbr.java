@@ -48,5 +48,21 @@ public class PotentialGroupNbr extends PotentialGroup {
         }
     }
     
+    public boolean removePotential(Potential potential) {
+        super.removePotential(potential);
+        
+        PotentialLinker previous = null;
+        for(PotentialLinker link=firstRangeIndependent; link!=null; link=link.next) {
+            if(link.potential == potential) {
+                //found it
+                if(previous == null) firstRangeIndependent = link.next;  //it's the first one
+                else previous.next = link.next;          //it's not the first one
+                return true;
+            }
+            previous = link;
+        }
+        return false;
+    }
+    
     protected PotentialLinker firstRangeIndependent;
 }
