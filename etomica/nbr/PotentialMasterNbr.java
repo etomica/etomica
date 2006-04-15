@@ -26,16 +26,16 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
     
     public void addPotential(Potential potential, Species[] species) {
         super.addPotential(potential, species);
-        if (potential.getRange() == Double.POSITIVE_INFINITY) {
-            System.err.println("You gave me a molecular range-independent potential and I'm very confused now");
-            return;
-        }
-        AtomType[] atomTypes = moleculeTypes(species);
         if (!(potential instanceof PotentialGroup)) {
-            //the potential might still be range-independent (intermolecular potential group) 
-            for (int i=0; i<atomTypes.length; i++) {
-                addRangedPotential(potential,atomTypes[i]);
-            }
+             AtomType[] atomTypes = moleculeTypes(species);
+             if (potential.getRange() == Double.POSITIVE_INFINITY) {
+                 System.err.println("You gave me a molecular range-independent potential and I'm very confused now");
+                 return;
+             }
+             //the potential is range-dependent 
+             for (int i=0; i<atomTypes.length; i++) {
+                 addRangedPotential(potential,atomTypes[i]);
+             }
         }
     }
     
