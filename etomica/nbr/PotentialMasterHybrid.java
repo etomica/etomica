@@ -6,9 +6,8 @@ package etomica.nbr;
 
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.nbr.cell.Api1ACell;
-import etomica.nbr.cell.PhaseAgentSourceCellManager;
 import etomica.nbr.cell.NeighborCellManager;
+import etomica.nbr.cell.PhaseAgentSourceCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
@@ -16,6 +15,7 @@ import etomica.phase.Phase;
 import etomica.phase.PhaseAgentManager;
 import etomica.potential.Potential;
 import etomica.potential.PotentialCalculation;
+import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.species.Species;
 
@@ -53,10 +53,14 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
     private PotentialMasterHybrid(Space space, double range, PhaseAgentSourceCellManager phaseAgentSource,
             PhaseAgentManager agentManager) {
         super(space, phaseAgentSource, agentManager);
-        potentialMasterNbr = new PotentialMasterList(space, range, phaseAgentSource, agentManager);
+        potentialMasterList = new PotentialMasterList(space, range, phaseAgentSource, agentManager);
         potentialMasterCell = new PotentialMasterCell(space, range, phaseAgentSource, agentManager);
 	}
     
+    public PotentialGroup makePotentialGroup(int nBody) {
+        return new PotentialGroupHybrid(nBody,space);
+    }
+
     /**
      * Overrides superclass method to enable direct neighbor-list iteration
      * instead of iteration via species/potential hierarchy. If no target atoms are
@@ -68,7 +72,7 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
      */
     public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
 		if(!enabled) return;
-        if (useNbrLists) potentialMasterNbr.calculate(phase,id,pc);
+        if (useNbrLists) potentialMasterList.calculate(phase,id,pc);
         else potentialMasterCell.calculate(phase,id,pc);
     }
     
@@ -77,7 +81,7 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
     }
     
     public void setCellRange(int newRange) {
-        potentialMasterNbr.setCellRange(newRange);
+        potentialMasterList.setCellRange(newRange);
         potentialMasterCell.setCellRange(newRange);
     }
     
@@ -86,31 +90,44 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
     }
 
     public void setRange(double newRange) {
-        potentialMasterNbr.setRange(newRange);
+        potentialMasterList.setRange(newRange);
         potentialMasterCell.setRange(newRange);
     }
 
     public NeighborCellManager getNbrCellManager(Phase phase) {
-        return potentialMasterNbr.getNbrCellManager(phase);
+        return potentialMasterList.getNbrCellManager(phase);
     }
     
     public void setUseNbrLists(boolean flag) {
         useNbrLists = flag;
     }
     
-    /* (non-Javadoc)
-     * @see etomica.PotentialMaster#setSpecies(etomica.Potential, etomica.Species[])
-     */
     public void addPotential(Potential potential, Species[] species) {
-        potentialMasterNbr.addPotential(potential, species);
+        potentialMasterList.addPotential(potential, species);
         potentialMasterCell.addPotential(potential, species);
+        if (potential instanceof PotentialGroup) {
+            // potential masters will attempt to set themselves as the group's 
+            // PotentialMaster, but it will resist because it only has eyes for 
+            // us.
+            ((PotentialGroup)potential).setPotentialMaster(this);
+        }
+    }
+    
+    public void potentialAddedNotify(Potential subPotential, PotentialGroup pGroup) {
+        potentialMasterList.potentialAddedNotify(subPotential, pGroup);
+        potentialMasterCell.potentialAddedNotify(subPotential, pGroup);
     }
     
     public NeighborListManager getNeighborManager() {
-        return potentialMasterNbr.getNeighborManager();
+        return potentialMasterList.getNeighborManager();
+    }
+
+    public void removePotential(Potential potential) {
+        potentialMasterList.removePotential(potential);
+        potentialMasterCell.removePotential(potential);
     }
 
     private boolean useNbrLists;
-    private final PotentialMasterList potentialMasterNbr;
+    private final PotentialMasterList potentialMasterList;
     private final PotentialMasterCell potentialMasterCell;
 }
