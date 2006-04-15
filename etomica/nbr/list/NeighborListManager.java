@@ -106,9 +106,10 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         while (iterator.hasNext()) {
             Atom atom = iterator.nextAtom();
             int numPotentials = potentialMaster.getRangedPotentials(atom.type).getPotentials().length;
-            // this really wants to be setCapacity
-            potentialList[atom.getGlobalIndex()].setCapacity(numPotentials);
             neighborLists[atom.getGlobalIndex()].setCapacity(numPotentials);
+
+            numPotentials = potentialMaster.getIntraPotentials(atom.type).getPotentials().length;
+            potentialList[atom.getGlobalIndex()].setCapacity(numPotentials);
         }
         
         if (phaseClean.length < phase.getIndex()+1) {
@@ -477,7 +478,10 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     }
     
     public Object makeAgent(Atom atom) {
-        return new AtomNeighborLists();
+        AtomNeighborLists lists = new AtomNeighborLists();
+        int numPotentials = potentialMaster.getRangedPotentials(atom.type).getPotentials().length;
+        lists.setCapacity(numPotentials);
+        return lists;
     }
     
     public void releaseAgent(Object agent, Atom atom) {
@@ -490,7 +494,10 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         }
         public void releaseAgent(Object obj, Atom atom) {}
         public Object makeAgent(Atom atom) {
-            return new AtomPotentialList();
+            AtomPotentialList lists = new AtomPotentialList();
+            int numPotentials = potentialMaster.getIntraPotentials(atom.type).getPotentials().length;
+            lists.setCapacity(numPotentials);
+            return lists;
         }
     }
 }
