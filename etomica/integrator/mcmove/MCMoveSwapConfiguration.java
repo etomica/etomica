@@ -35,7 +35,7 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 
 	public MCMoveSwapConfiguration(PotentialMaster potentialMaster, 
 	                                IntegratorPhase integrator1, IntegratorPhase integrator2) {
-  		super(potentialMaster,2);
+  		super(potentialMaster);
 		r = potentialMaster.getSpace().makeVector();
 		this.integrator1 = integrator1;
 		this.integrator2 = integrator2;

@@ -22,8 +22,8 @@ public abstract class MCMove implements java.io.Serializable {
      * @param nPhases the number of phases on which the move acts.  This is used at
      * construction to size the (final) phases array and cannot be changed.
      */
-	public MCMove(PotentialMaster potentialMaster, int nPhases) {
-        this(potentialMaster, new MCMoveTracker(), nPhases);
+	public MCMove(PotentialMaster potentialMaster) {
+        this(potentialMaster, new MCMoveTracker());
     }
 
     /**
@@ -31,11 +31,10 @@ public abstract class MCMove implements java.io.Serializable {
      * @param nPhases the number of phases on which the move acts.  This is used at
      * construction to size the (final) phases array and cannot be changed.
      */
-    public MCMove(PotentialMaster potentialMaster, MCMoveTracker acceptanceTracker, int nPhases) {
+    public MCMove(PotentialMaster potentialMaster, MCMoveTracker acceptanceTracker) {
         potential = potentialMaster;
         moveTracker = acceptanceTracker;
         nominalFrequency = 100;
-        perParticleFrequency = false;
     }
 
 	/**
@@ -96,25 +95,6 @@ public abstract class MCMove implements java.io.Serializable {
         return moveTracker;
     }
     
-    /**
-     * Sets the phase(s) on which this move acts.  The number of phases is set
-     * at construction, and the size of the given array must equal this value.
-     * The phase(s) itself can be changed via this method, if desired.  Most moves
-     * act on only one phase, but some (such as a volume exchange move) involve
-     * two or more phases.
-     * @param p
-     */
-	public void setPhase(Phase p) {
-        phase = p;
-	}
-
-    /**
-     * @return the phase(s) on which this move acts.
-     */
-	public Phase getPhase() {
-		return phase;
-	}
-
 	/**
 	 * Returns a nominal, unnormalized frequency for performing this move,
 	 * relative to the other moves that have been added to the integrator. Each
@@ -128,16 +108,6 @@ public abstract class MCMove implements java.io.Serializable {
 	 */
 	public final int getNominalFrequency() {
 		return nominalFrequency;
-	}
-
-	/**
-	 * Indicates whether this move should nominally be performed at a frequency
-	 * proportional to the number of molecules in the phase.
-	 * 
-	 * @see #nominalFrequency
-	 */
-	public final boolean isNominallyPerParticleFrequency() {
-		return perParticleFrequency;
 	}
 
 	/**
@@ -169,7 +139,6 @@ public abstract class MCMove implements java.io.Serializable {
 		return getName();
 	}
 
-    protected Phase phase;
     private String name;
     protected final PotentialMaster potential;
 
@@ -178,13 +147,6 @@ public abstract class MCMove implements java.io.Serializable {
 	 * but may be given a different value by subclasses.
 	 */
 	protected int nominalFrequency;
-
-    /**
-     * Flag indicating whether nominal frequency is interpreted as a
-     * perParticleFrequency, or as a full frequency. Default is false, but may
-     * be given a different value by subclasses.
-     */
-	protected boolean perParticleFrequency;
     
     protected final MCMoveTracker moveTracker;
 }

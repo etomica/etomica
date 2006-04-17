@@ -26,7 +26,7 @@ import etomica.species.Species;
   * 07/09/02 (DAK) Added energyChange() method
   * 09/19/02 (DAK) Minor change in doTrial for case were deleting with N = 0
   */
-public class MCMoveInsertDelete extends MCMove {
+public class MCMoveInsertDelete extends MCMovePhase {
     
     //chemical potential
     protected double mu;
@@ -46,7 +46,7 @@ public class MCMoveInsertDelete extends MCMove {
     protected AtomArrayList moleculeList;
 
     public MCMoveInsertDelete(PotentialMaster potentialMaster) {
-        super(potentialMaster, 1);
+        super(potentialMaster);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         setMu(0.0);
         energyMeter.setIncludeLrc(true);

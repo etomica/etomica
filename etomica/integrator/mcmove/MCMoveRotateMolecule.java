@@ -25,7 +25,7 @@ import etomica.space.Vector;
   * 10/06/03 (DAK) added check in constructor to ensure simulation is 2D
   */
   
-public class MCMoveRotateMolecule extends MCMoveStep {
+public class MCMoveRotateMolecule extends MCMovePhaseStep {
     
     private final MeterPotentialEnergy energyMeter;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
@@ -41,7 +41,7 @@ public class MCMoveRotateMolecule extends MCMoveStep {
     private transient RotationTensor rotationTensor;
 
     public MCMoveRotateMolecule(PotentialMaster potentialMaster, Space space) {
-        super(potentialMaster, new MCMoveStepTracker(), 1);
+        super(potentialMaster);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         if(space.D() != 2) throw new RuntimeException("MCMoveRotateMolecule suitable only for 2-D simulation");
         rotationTensor = space.makeRotationTensor();

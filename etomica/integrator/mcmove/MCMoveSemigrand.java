@@ -32,7 +32,7 @@ import etomica.species.Species;
   * 7/9/02 Added energyChange() method
   */
   
-public class MCMoveSemigrand extends MCMove {
+public class MCMoveSemigrand extends MCMovePhase {
     
     private Species[] speciesSet;
     private SpeciesAgent[] agentSet;
@@ -54,7 +54,7 @@ public class MCMoveSemigrand extends MCMove {
 
     
     public MCMoveSemigrand(PotentialMaster potentialMaster) {
-        super(potentialMaster, 1);
+        super(potentialMaster);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         deleteAtomIterator = new AtomIteratorSinglet();
         insertAtomIterator = new AtomIteratorSinglet();

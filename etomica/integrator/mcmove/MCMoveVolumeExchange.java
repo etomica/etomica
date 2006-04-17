@@ -44,7 +44,7 @@ public final class MCMoveVolumeExchange extends MCMoveStep {
 
     public MCMoveVolumeExchange(PotentialMaster potentialMaster, Space space,
             IntegratorPhase integrator1, IntegratorPhase integrator2) {
-        super(potentialMaster, new MCMoveStepTracker(), 2);
+        super(potentialMaster, new MCMoveStepTracker());
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         ROOT = 1.0/space.D();
         setStepSizeMax(Double.MAX_VALUE);

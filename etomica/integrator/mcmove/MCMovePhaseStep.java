@@ -2,17 +2,25 @@ package etomica.integrator.mcmove;
 
 import etomica.potential.PotentialMaster;
 
-public abstract class MCMoveStep extends MCMove implements MCMoveStepDependent {
+/**
+ * MCMove parent class for moves that have a step size and operate on a single
+ * Phase.
+ * 
+ * @author Andrew Schultz
+ */
+public abstract class MCMovePhaseStep extends MCMovePhase implements MCMoveStepDependent {
 
-    public MCMoveStep(PotentialMaster potentialMaster, int nPhases) {
+    public MCMovePhaseStep(PotentialMaster potentialMaster) {
         this(potentialMaster, new MCMoveStepTracker());
     }
 
-    public MCMoveStep(PotentialMaster potentialMaster,
-            MCMoveStepTracker stepTracker) {
-        super(potentialMaster, stepTracker);
+    public MCMovePhaseStep(PotentialMaster potentialMaster,
+            MCMoveTracker acceptanceTracker) {
+        super(potentialMaster, acceptanceTracker);
         ((MCMoveStepTracker)moveTracker).setMCMove(this);
     }
+
+    // The rest of this class is entirely the same as what's in MCMoveStep!
 
     public double getStepSize() {
         return stepSize;

@@ -52,13 +52,10 @@ public class MCMoveManager implements Serializable {
             lastMoveLink.nextLink = new MCMoveLinker(move);
             lastMoveLink = lastMoveLink.nextLink;
         }
-        if (phase != null) {
-            move.setPhase(phase);
+        if (phase != null && move instanceof MCMovePhase) {
+            ((MCMovePhase)move).setPhase(phase);
         }
         moveCount++;
-        if (move.getTracker() instanceof MCMoveStepTracker) {
-            ((MCMoveStepTracker)move.getTracker()).setTunable(false);
-        }
         recomputeMoveFrequencies();
     }
 
@@ -94,7 +91,9 @@ public class MCMoveManager implements Serializable {
     public void setPhase(Phase p) {
         phase = p;
         for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
-            link.move.setPhase(phase);
+            if (link.move instanceof MCMovePhase) {
+                ((MCMovePhase)link.move).setPhase(phase);
+            }
         }
     }
 
@@ -137,7 +136,7 @@ public class MCMoveManager implements Serializable {
         for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
             MCMoveTracker tracker = link.move.getTracker();
             if (tracker instanceof MCMoveStepTracker) {
-                ((MCMoveStepTracker)tracker).setTunable(!isEquilibrating);
+                ((MCMoveStepTracker)tracker).setTunable(isEquilibrating);
             }
         }
     }
@@ -161,7 +160,7 @@ public class MCMoveManager implements Serializable {
         MCMoveLinker(MCMove move) {
             this.move = move;
             frequency = move.getNominalFrequency();
-            perParticleFrequency = move.isNominallyPerParticleFrequency();
+            perParticleFrequency = (move instanceof MCMovePhase) && ((MCMovePhase)move).isNominallyPerParticleFrequency();
         }
 
         /**
@@ -171,9 +170,8 @@ public class MCMoveManager implements Serializable {
          */
         void resetFullFrequency() {
             fullFrequency = frequency;
-            Phase phase = move.getPhase();
-            if (perParticleFrequency && phase != null) {
-                fullFrequency *= phase.moleculeCount();
+            if (perParticleFrequency && ((MCMovePhase)move).getPhase() != null) {
+                fullFrequency *= ((MCMovePhase)move).getPhase().moleculeCount();
             }
         }
 

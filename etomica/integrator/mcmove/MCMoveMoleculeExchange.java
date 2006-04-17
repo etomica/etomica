@@ -50,9 +50,8 @@ public final class MCMoveMoleculeExchange extends MCMove {
 
     public MCMoveMoleculeExchange(PotentialMaster potentialMaster, Space space,
             IntegratorPhase integrator1, IntegratorPhase integrator2) {
-        super(potentialMaster, 2);
+        super(potentialMaster);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        perParticleFrequency = true;
         energyMeter.setIncludeLrc(true);
         moleculeReplacer = new AtomActionTranslateBy(space);
         moleculeTranslator = new AtomActionTranslateTo(space);

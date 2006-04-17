@@ -19,7 +19,7 @@ import etomica.space.Space;
   * 7/9/02 Added energyChange() method
   */
   
-public class MCMoveRotate extends MCMoveStep {
+public class MCMoveRotate extends MCMovePhaseStep {
     
     private MeterPotentialEnergy energyMeter;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
@@ -31,7 +31,7 @@ public class MCMoveRotate extends MCMoveStep {
     private transient Orientation orientation;
 
     public MCMoveRotate(PotentialMaster potentialMaster, Space space) {
-        super(potentialMaster, new MCMoveStepTracker(), 1);
+        super(potentialMaster);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         oldOrientation = space.makeOrientation();
         setStepSizeMax(Math.PI);

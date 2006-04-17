@@ -27,7 +27,7 @@ import etomica.units.Length;
   * 07/09/03 Changed fields from private to protected
   */
   
-public class MCMoveAtom extends MCMoveStep {
+public class MCMoveAtom extends MCMovePhaseStep {
     
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     protected final MeterPotentialEnergy energyMeter;
@@ -45,7 +45,7 @@ public class MCMoveAtom extends MCMoveStep {
     
     public MCMoveAtom(PotentialMaster potentialMaster, double stepSize, double stepSizeMax,
             boolean fixOverlap) {
-        super(potentialMaster, new MCMoveStepTracker(), 1);
+        super(potentialMaster);
         atomSource = new AtomSourceRandomLeaf();
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         translationVector = potentialMaster.getSpace().makeVector();

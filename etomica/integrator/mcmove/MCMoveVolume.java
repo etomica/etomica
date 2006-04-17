@@ -18,7 +18,7 @@ import etomica.units.Pressure;
  * @author David Kofke
  */
 
-public class MCMoveVolume extends MCMoveStep {
+public class MCMoveVolume extends MCMovePhaseStep {
     
     protected double pressure;
     private MeterPotentialEnergy energyMeter;
@@ -37,7 +37,7 @@ public class MCMoveVolume extends MCMoveStep {
      * @param space the governing space for the simulation
      */
     public MCMoveVolume(PotentialMaster potentialMaster, Space space, double pressure) {
-        super(potentialMaster, new MCMoveStepTracker(), 1);
+        super(potentialMaster);
         this.D = space.D();
         inflate = new PhaseInflate(potentialMaster.getSpace());
         energyMeter = new MeterPotentialEnergy(potentialMaster);
