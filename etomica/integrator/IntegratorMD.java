@@ -269,6 +269,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
      */
     public void setMeterTemperature(MeterTemperature meter) {
         meterTemperature = meter;
+        meter.setPhase(phase);
     }
     
     /**
