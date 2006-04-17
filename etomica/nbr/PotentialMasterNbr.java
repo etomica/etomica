@@ -59,7 +59,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
                     rangedPotentialAtomTypeList = (PotentialArray[])etomica.util.Arrays.addObject(rangedPotentialAtomTypeList, new PotentialArray());
                     intraPotentialAtomTypeList = (PotentialArray[])etomica.util.Arrays.addObject(intraPotentialAtomTypeList, new PotentialArray());
                 }
-                intraPotentialAtomTypeList[parentType[0].getIndex()].addPotential(pGroup,null);
+                intraPotentialAtomTypeList[parentType[0].getIndex()].addPotential(pGroup);
             }
             else {
                 //FIXME what to do with this case?  Fail!
@@ -83,7 +83,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
             intraPotentialAtomTypeList = (PotentialArray[])etomica.util.Arrays.addObject(intraPotentialAtomTypeList, new PotentialArray());
         }
         PotentialArray potentialAtomType = rangedPotentialAtomTypeList[atomType.getIndex()];
-        potentialAtomType.addPotential(potential,null);
+        potentialAtomType.addPotential(potential);
         atomType.setInteracting(true);
         boolean found = false;
         for (int i=0; i<allPotentials.length; i++) {

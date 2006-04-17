@@ -38,7 +38,7 @@ public class PotentialArray implements java.io.Serializable {
             }
         }
         System.out.println("uh-oh in PotentialArray.getPotentialIndex()");
-        mostRecentIndex = addPotential(potential, null); 
+        mostRecentIndex = addPotential(potential); 
         return mostRecentIndex;
     }
     
@@ -51,12 +51,11 @@ public class PotentialArray implements java.io.Serializable {
      * @param newPotential the potential being added
      * @return the new or previously assigned index for the potential
      */
-    public int addPotential(Potential newPotential, AtomsetIterator newIterator) {
+    public int addPotential(Potential newPotential) {
     	for(mostRecentIndex=0; mostRecentIndex<potentials.length; mostRecentIndex++) {
     		if(potentials[mostRecentIndex] == newPotential) return mostRecentIndex;
     	}
         potentials = (Potential[])Arrays.addObject(potentials, newPotential);
-        iterators = (AtomsetIterator[])Arrays.addObject(iterators, newIterator);
     	return potentials.length-1;
     }
 
@@ -78,16 +77,11 @@ public class PotentialArray implements java.io.Serializable {
     	return -1;
     }
     
-    public Potential[] getPotentials() {
+    public final Potential[] getPotentials() {
     	return potentials;
     }
     
-    public AtomsetIterator[] getIterators() {
-        return iterators;
-    }
-    
     private Potential[] potentials = new Potential[0];
-    private AtomsetIterator[] iterators = new AtomsetIterator[0];
     private int mostRecentIndex = -1;
 
 }
