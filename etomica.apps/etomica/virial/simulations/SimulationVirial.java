@@ -8,7 +8,7 @@ import etomica.data.DataPump;
 import etomica.data.meter.Meter;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
-import etomica.integrator.mcmove.MCMoveStep;
+import etomica.integrator.mcmove.MCMovePhaseStep;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -107,8 +107,8 @@ public class SimulationVirial extends Simulation {
 	public PhaseCluster phase;
     public ClusterAbstract[] allValueClusters;
     public ClusterWeight sampleCluster;
-    public MCMoveStep mcMoveTranslate;
-    public MCMoveStep mcMoveRotate;
+    public MCMovePhaseStep mcMoveTranslate;
+    public MCMovePhaseStep mcMoveRotate;
 
 	public void setMeter(Meter newMeter) {
 		meter = newMeter;

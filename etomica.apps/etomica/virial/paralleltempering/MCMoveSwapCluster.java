@@ -31,7 +31,7 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
 
     public MCMoveSwapCluster(PotentialMaster potentialMaster, 
                              IntegratorMC integrator1, IntegratorMC integrator2) {
-        super(potentialMaster,2);
+        super(potentialMaster);
         r = potentialMaster.getSpace().makeVector();
         this.integrator1 = integrator1;
         this.integrator2 = integrator2;		

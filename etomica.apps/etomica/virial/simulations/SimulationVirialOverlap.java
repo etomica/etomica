@@ -12,7 +12,7 @@ import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveManager;
-import etomica.integrator.mcmove.MCMoveStep;
+import etomica.integrator.mcmove.MCMovePhaseStep;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -69,9 +69,9 @@ public class SimulationVirialOverlap extends Simulation {
         phase = new PhaseCluster[sampleClusters.length];
         integrators = new IntegratorMC[sampleClusters.length];
         meters = new MeterVirial[sampleClusters.length];
-        mcMoveTranslate = new MCMoveStep[sampleClusters.length];
+        mcMoveTranslate = new MCMovePhaseStep[sampleClusters.length];
         if (species.getFactory().getType() instanceof AtomTypeGroup) {
-            mcMoveRotate = new MCMoveStep[sampleClusters.length];
+            mcMoveRotate = new MCMovePhaseStep[sampleClusters.length];
         }
         
         P0Cluster p0 = new P0Cluster(space);
@@ -169,8 +169,8 @@ public class SimulationVirialOverlap extends Simulation {
     public PhaseCluster[] phase;
     protected Species species;
     public IntegratorMC[] integrators;
-    public MCMoveStep[] mcMoveRotate;
-    public MCMoveStep[] mcMoveTranslate;
+    public MCMovePhaseStep[] mcMoveRotate;
+    public MCMovePhaseStep[] mcMoveTranslate;
     public MeterVirial[] meters;
     public ActivityIntegrate ai;
     public IntegratorOverlap integratorOS;

@@ -6,7 +6,7 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.integrator.mcmove.MCMove;
+import etomica.integrator.mcmove.MCMovePhase;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -24,14 +24,14 @@ import etomica.simulation.Simulation;
  * History
  * Created on May 22, 2005 by kofke
  */
-public class MCMoveSpinFlip extends MCMove {
+public class MCMoveSpinFlip extends MCMovePhase {
 
     /**
      * @param potentialMaster
      * @param nPhases
      */
     public MCMoveSpinFlip(PotentialMaster potentialMaster) {
-        super(potentialMaster, 1);
+        super(potentialMaster);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(false);

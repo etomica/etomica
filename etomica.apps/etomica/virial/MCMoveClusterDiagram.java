@@ -7,7 +7,7 @@
 package etomica.virial;
 
 import etomica.atom.iterator.AtomIterator;
-import etomica.integrator.mcmove.MCMove;
+import etomica.integrator.mcmove.MCMovePhase;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 
@@ -17,11 +17,11 @@ import etomica.potential.PotentialMaster;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class MCMoveClusterDiagram extends MCMove {
+public class MCMoveClusterDiagram extends MCMovePhase {
 
     private MeterClusterWeight weightMeter;
     public MCMoveClusterDiagram(PotentialMaster potentialMaster) {
-        super(potentialMaster,1);
+        super(potentialMaster);
         weightMeter = new MeterClusterWeight(potentialMaster);
     }
     

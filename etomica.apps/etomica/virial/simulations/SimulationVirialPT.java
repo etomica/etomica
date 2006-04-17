@@ -14,7 +14,7 @@ import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveManager;
-import etomica.integrator.mcmove.MCMoveStep;
+import etomica.integrator.mcmove.MCMovePhaseStep;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -58,8 +58,8 @@ public class SimulationVirialPT extends Simulation {
         accumulatorPump = new DataPump[temperature.length];
         dumb = new IntervalActionAdapter[temperature.length];
         mcMoveAtom1 = new MCMoveAtom[temperature.length];
-        mcMoveMulti = new MCMoveStep[temperature.length];
-        mcMoveRotate = new MCMoveStep[temperature.length];
+        mcMoveMulti = new MCMovePhaseStep[temperature.length];
+        mcMoveRotate = new MCMovePhaseStep[temperature.length];
         meterAccept = new DataSource[temperature.length-1];
         meterAcceptP = new DataSource[temperature.length-1];
         
@@ -149,8 +149,8 @@ public class SimulationVirialPT extends Simulation {
     public ClusterAbstract[][] allValueClusters;
     public ClusterWeight[] sampleCluster;
     public MCMoveAtom[] mcMoveAtom1;
-    public MCMoveStep[] mcMoveRotate;
-    public MCMoveStep[] mcMoveMulti;
+    public MCMovePhaseStep[] mcMoveRotate;
+    public MCMovePhaseStep[] mcMoveMulti;
     public IntegratorPT integratorPT;
 
 	public void setMeter(int i, Meter newMeter) {
