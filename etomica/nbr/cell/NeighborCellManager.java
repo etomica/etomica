@@ -14,9 +14,9 @@ import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.data.DataSourceCOM;
-import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveListener;
+import etomica.integrator.mcmove.MCMovePhase;
 import etomica.lattice.CellLattice;
 import etomica.phase.Phase;
 import etomica.phase.PhaseCellManager;
@@ -242,8 +242,8 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
             if (!evt.isTrialNotify && evt.wasAccepted) {
                 return;
             }
-            MCMove move = evt.mcMove;
-            AtomIterator iterator = move.affectedAtoms(phase);
+            MCMovePhase move = (MCMovePhase)evt.mcMove;
+            AtomIterator iterator = move.affectedAtoms();
             iterator.reset();
             while (iterator.hasNext()) {
                 Atom atom = iterator.nextAtom();

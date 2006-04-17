@@ -137,14 +137,14 @@ public class MCMoveInsertDelete extends MCMovePhase {
         }
     }
     
-    public double energyChange(Phase p) {return (p == phase) ? uNew - uOld : 0.0;}
+    public double energyChange() {return uNew - uOld;}
 
     /**
      * Returns an iterator giving molecule that is being added or deleted 
      * in the current or most recent trial.
      */
-    public final AtomIterator affectedAtoms(Phase p) {
-        if(p != phase || testMolecule == null) return AtomIteratorNull.INSTANCE;
+    public final AtomIterator affectedAtoms() {
+        if(testMolecule == null) return AtomIteratorNull.INSTANCE;
         affectedAtomIterator.setAtom(testMolecule);
         return affectedAtomIterator;
     }

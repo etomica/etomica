@@ -73,11 +73,11 @@ public class MCMoveClusterDiagram extends MCMovePhase {
         cluster.revertDiagram();
     }
     
-    public double energyChange(Phase phase) {
+    public double energyChange() {
         return uNew/uOld;
     }
     
-    public AtomIterator affectedAtoms(Phase phase) {
+    public AtomIterator affectedAtoms() {
         // you deserve it.
         return null;
     }

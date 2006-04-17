@@ -6,8 +6,8 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveEventManager;
-import etomica.integrator.mcmove.MCMoveListener;
 import etomica.integrator.mcmove.MCMoveManager;
+import etomica.integrator.mcmove.MCMovePhase;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -88,7 +88,7 @@ public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
      */
     public void doStep() {
     	//select the move
-    	MCMove move = moveManager.selectMove();
+    	MCMovePhase move = (MCMovePhase)moveManager.selectMove();
     	if (move == null)
     		return;
 
@@ -111,7 +111,7 @@ public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
     	} else {
     		move.acceptNotify();
     		event.wasAccepted = true;
-    		currentPotentialEnergy += move.energyChange(phase);
+    		currentPotentialEnergy += move.energyChange();
     	}
 
         //notify listeners of outcome

@@ -37,7 +37,11 @@ public class MCMoveManager implements Serializable {
 
     /**
      * Adds the given MCMove to the set of moves performed by the integrator and
-     * recalculates move frequencies.
+     * recalculates move frequencies.  If the MCMoveManager has been given a 
+     * Phase, the MCMove added here must be of type MCMovePhase.
+     * 
+     * @throws ClassCastException if this MCMoveManager has a Phase and the
+     * given MCMove is not an MCMovePhase
      */
     public void addMCMove(MCMove move) {
         //make sure move wasn't added already
@@ -52,7 +56,7 @@ public class MCMoveManager implements Serializable {
             lastMoveLink.nextLink = new MCMoveLinker(move);
             lastMoveLink = lastMoveLink.nextLink;
         }
-        if (phase != null && move instanceof MCMovePhase) {
+        if (phase != null) {
             ((MCMovePhase)move).setPhase(phase);
         }
         moveCount++;
@@ -85,15 +89,14 @@ public class MCMoveManager implements Serializable {
 
     /**
      * Invokes superclass method and informs all MCMoves about the new phase.
-     * Moves are not notified if they have a number of phases different from
-     * the number of phases handled by the integrator.
+     * The moves are assumed to all be of type MCMovePhase.
+     * 
+     * @throws ClassCastException if any move is not an MCMovePhase
      */
     public void setPhase(Phase p) {
         phase = p;
         for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
-            if (link.move instanceof MCMovePhase) {
-                ((MCMovePhase)link.move).setPhase(phase);
-            }
+            ((MCMovePhase)link.move).setPhase(phase);
         }
     }
 

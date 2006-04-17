@@ -1,5 +1,7 @@
 package etomica.integrator.mcmove;
 
+import etomica.atom.iterator.AtomIterator;
+import etomica.atom.iterator.AtomIteratorNull;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 
@@ -34,6 +36,24 @@ public abstract class MCMovePhase extends MCMove {
     public Phase getPhase() {
         return phase;
     }
+
+    public AtomIterator affectedAtoms(Phase aPhase) {
+        if (phase == aPhase) {
+            return affectedAtoms();
+        }
+        return AtomIteratorNull.INSTANCE;
+    }
+
+    public abstract AtomIterator affectedAtoms();
+    
+    public double energyChange(Phase aPhase) {
+        if (phase == aPhase) {
+            return energyChange();
+        }
+        return 0;
+    }
+    
+    public abstract double energyChange();
 
     /**
      * Indicates whether this move should nominally be performed at a frequency

@@ -68,10 +68,9 @@ public class MCMoveRotate extends MCMovePhaseStep {
         orientation.E(oldOrientation);
     }
 
-    public double energyChange(Phase p) {return (p == phase) ? uNew - uOld : 0.0;}
+    public double energyChange() {return uNew - uOld;}
     
-    public final AtomIterator affectedAtoms(Phase p) {
-        if(p != phase) return AtomIteratorNull.INSTANCE;
+    public final AtomIterator affectedAtoms() {
         affectedAtomIterator.setAtom(molecule);
         affectedAtomIterator.reset();
         return affectedAtomIterator;

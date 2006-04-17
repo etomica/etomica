@@ -190,10 +190,9 @@ public class MCMoveSemigrand extends MCMovePhase {
     
     
 
-    public double energyChange(Phase p) {return (p == phase) ? uNew - uOld : 0.0;}
+    public double energyChange() {return uNew - uOld;}
     
-    public final AtomIterator affectedAtoms(Phase p) {
-        if(p != phase) return AtomIteratorNull.INSTANCE;
+    public final AtomIterator affectedAtoms() {
         insertAtomIterator.setAtom(insertMolecule);
         deleteAtomIterator.setAtom(deleteMolecule);
         affectedAtomIterator.reset();

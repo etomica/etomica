@@ -85,10 +85,9 @@ public class MCMoveVolume extends MCMovePhaseStep {
         inflate.undo();
     }
 
-    public double energyChange(Phase p) {return (p == phase) ? uNew - uOld : 0.0;}
+    public double energyChange() {return uNew - uOld;}
     
-    public AtomIterator affectedAtoms(Phase p) {
-        if(p != phase) return AtomIteratorNull.INSTANCE;
+    public AtomIterator affectedAtoms() {
         return new AtomIteratorAllMolecules(phase);
     }
 

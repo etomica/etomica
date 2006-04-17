@@ -89,8 +89,7 @@ public class MCMoveSpinFlip extends MCMovePhase {
     /* (non-Javadoc)
      * @see etomica.integrator.MCMove#affectedAtoms(etomica.Phase)
      */
-    public AtomIterator affectedAtoms(Phase p) {
-        if(p != phase) return AtomIteratorNull.INSTANCE;
+    public AtomIterator affectedAtoms() {
         affectedAtomIterator.setAtom(atom);
         return affectedAtomIterator;
     }
@@ -98,8 +97,8 @@ public class MCMoveSpinFlip extends MCMovePhase {
     /* (non-Javadoc)
      * @see etomica.integrator.MCMove#energyChange(etomica.Phase)
      */
-    public double energyChange(Phase p) {
-        return (p == phase) ? uNew - uOld : 0.0;
+    public double energyChange() {
+        return uNew - uOld;
     }
 
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();

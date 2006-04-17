@@ -2,7 +2,6 @@ package etomica.integrator.mcmove;
 import etomica.action.AtomTransform;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -91,10 +90,9 @@ public class MCMoveRotateMolecule extends MCMovePhaseStep {
         AtomTransform.doTransform(leafAtomIterator, r0, rotationTensor);
     }
  
-    public double energyChange(Phase p) {return (p == phase) ? uNew - uOld : 0.0;}
+    public double energyChange() {return uNew - uOld;}
     
-    public final AtomIterator affectedAtoms(Phase p) {
-        if(p != phase) return AtomIteratorNull.INSTANCE;
+    public final AtomIterator affectedAtoms() {
         affectedAtomIterator.setAtom(molecule);
         affectedAtomIterator.reset();
         return affectedAtomIterator;

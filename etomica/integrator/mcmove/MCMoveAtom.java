@@ -101,7 +101,7 @@ public class MCMoveAtom extends MCMovePhaseStep {
         return -(uNew - uOld);
     }
     
-    public double energyChange(Phase p) {return uNew - uOld;}
+    public double energyChange() {return uNew - uOld;}
     
     /**
      * Method called by IntegratorMC in the event that the most recent trial is accepted.
@@ -120,8 +120,7 @@ public class MCMoveAtom extends MCMovePhaseStep {
     }
         
     
-    public AtomIterator affectedAtoms(Phase p) {
-        if(phase != p) return AtomIteratorNull.INSTANCE;
+    public AtomIterator affectedAtoms() {
         affectedAtomIterator.setAtom(atom);
         return affectedAtomIterator;
     }

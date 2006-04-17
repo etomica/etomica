@@ -84,21 +84,17 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
     }
     
     public void rejectNotify() {
-        
         rotationTensor.invert();
         leafAtomIterator.reset();
         AtomTransform.doTransform(leafAtomIterator, r0, rotationTensor);
-        
-    }//end of rejectNotify
+    }
     
-    public double energyChange(Phase p) {
-        if(p != phase) return 0.0;
+    public double energyChange() {
         return uNew - uOld;
     }
 
  
-    public final AtomIterator affectedAtoms(Phase p) {
-        if(p != phase) return AtomIteratorNull.INSTANCE;
+    public final AtomIterator affectedAtoms() {
         affectedAtomIterator.setAtom(molecule);
         affectedAtomIterator.reset();
         return affectedAtomIterator;
