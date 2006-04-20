@@ -1,6 +1,8 @@
 package etomica.integrator.mcmove;
 
 import etomica.potential.PotentialMaster;
+import etomica.units.Dimension;
+import etomica.units.Length;
 
 public abstract class MCMoveStep extends MCMove implements MCMoveStepDependent {
 
@@ -41,6 +43,10 @@ public abstract class MCMoveStep extends MCMove implements MCMoveStepDependent {
     public void setStepSizeMin(double newStepSizeMin) {
         stepSizeMin = newStepSizeMin;
     }
+
+    public final Dimension getStepSizeDimension() {return Length.DIMENSION;}
+    public final Dimension getStepSizeMaxDimension() {return Length.DIMENSION;}
+    public final Dimension getStepSizeMinDimension() {return Length.DIMENSION;}
 
     protected double stepSize = 1.0;
     protected double stepSizeMax = Double.MAX_VALUE;

@@ -1,6 +1,8 @@
 package etomica.integrator.mcmove;
 
 import etomica.potential.PotentialMaster;
+import etomica.units.Dimension;
+import etomica.units.Length;
 
 /**
  * MCMove parent class for moves that have a step size and operate on a single
@@ -49,6 +51,10 @@ public abstract class MCMovePhaseStep extends MCMovePhase implements MCMoveStepD
     public void setStepSizeMin(double newStepSizeMin) {
         stepSizeMin = newStepSizeMin;
     }
+
+    public final Dimension getStepSizeDimension() {return Length.DIMENSION;}
+    public final Dimension getStepSizeMaxDimension() {return Length.DIMENSION;}
+    public final Dimension getStepSizeMinDimension() {return Length.DIMENSION;}
 
     protected double stepSize = 1.0;
     protected double stepSizeMax = Double.MAX_VALUE;
