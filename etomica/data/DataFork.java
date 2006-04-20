@@ -71,7 +71,7 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
     public DataSink[] getDataSinks() {
         DataSink[] sinks = new DataSink[dataSinkList.length];
         for (int i=0; i<sinks.length; i++) {
-            sinks[i] = dataSinkList[i].dataSink;
+            sinks[i] = dataSinkList[i].trueDataSink;
         }
         return sinks;
     }
@@ -121,16 +121,7 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
      */
     public void removeDataSink(DataSink dataSink) {
         for(int i=0; i<dataSinkList.length; i++) {
-            DataSink testSink = null;
-            //if we inserted a transformer, we have to look past it for the sink
-            if(dataSinkList[i].insertedTransformer) {
-                DataProcessor dataCaster = (DataProcessor)dataSinkList[i].dataSink;
-                testSink = dataCaster.dataSink;
-            //otherwise, just check the dataSink
-            } else {
-                testSink = dataSinkList[i].dataSink;
-            }
-            if(testSink == dataSink) {
+            if(dataSink == dataSinkList[i].trueDataSink) {
                 dataSinkList = (DataSinkWrapper[])Arrays.removeObject(dataSinkList, dataSinkList[i]);
             }
         }
@@ -139,15 +130,12 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
     private void insertTransformerIfNeeded(int i) {
         if(dataSinkList[i] == null || dataInfo == null) return;
         //remove transformer if one was previously inserted
-        if(dataSinkList[i].insertedTransformer) {
-            DataProcessor dataCaster = (DataProcessor)dataSinkList[i].dataSink;
-            dataSinkList[i] = new DataSinkWrapper(dataCaster.dataSink);
-        }
-        DataProcessor caster = dataSinkList[i].dataSink.getDataCaster(dataInfo);
+        dataSinkList[i].dataSink = dataSinkList[i].trueDataSink;
+
+        DataProcessor caster = dataSinkList[i].trueDataSink.getDataCaster(dataInfo);
         if(caster != null) {
-            caster.setDataSink(dataSinkList[i].dataSink);
-            dataSinkList[i] = new DataSinkWrapper(caster);
-            dataSinkList[i].insertedTransformer = true;
+            caster.setDataSink(dataSinkList[i].trueDataSink);
+            dataSinkList[i].dataSink = caster;
         }
     }
 
@@ -155,10 +143,11 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
     protected DataInfo dataInfo;
     
     private static class DataSinkWrapper implements Serializable {
-        final DataSink dataSink;
-        boolean insertedTransformer = false;
+        DataSink dataSink;
+        final DataSink trueDataSink;
         DataSinkWrapper(DataSink dataSink) {
             this.dataSink = dataSink;
+            trueDataSink = dataSink;
         }
     }
 
