@@ -42,7 +42,7 @@ public class ChainHSMD3D extends Simulation {
         defaults.atomSize = 1.0;
         defaults.boxSize = 14.4573*Math.pow((chainLength*numAtoms/2020.0),1.0/3.0);
         ((PotentialMasterList)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
-//FIXME        ((PotentialMasterNbr)potentialMaster).setAtomPositionDefinition(new DataSourceCOM(space));
+//FIXME        ((PotentialMasterNbr)potentialMaster).setAtomPositionDefinition(new AtomPositionCOM(space));
 
         integrator = new IntegratorHard(this);
         integrator.setIsothermal(false);

@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import etomica.config.Conformation;
 import etomica.config.ConformationLinear;
-import etomica.data.DataSourceCOM;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.Species;
@@ -31,7 +30,7 @@ public class AtomFactoryHetero extends AtomFactory {
 
     public AtomFactoryHetero(Space space, AtomTypeGroup parentType,
             AtomTreeNodeFactory nodeFactory, Conformation config) {
-        super(new AtomTypeGroup(parentType, new DataSourceCOM(space)), nodeFactory);
+        super(new AtomTypeGroup(parentType, new AtomPositionCOM(space)), nodeFactory);
         conformation = config;
         childFactory = new AtomFactory[0];
         numberFraction = new double[0];

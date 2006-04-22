@@ -3,6 +3,7 @@ package etomica.integrator.mcmove;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesAgent;
@@ -10,7 +11,6 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorCompound;
 import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
-import etomica.data.DataSourceCOM;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
@@ -62,7 +62,7 @@ public class MCMoveSemigrand extends MCMovePhase {
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(true);
         moleculeTranslator = new AtomActionTranslateTo(potentialMaster.getSpace());
-        setAtomPositionDefinition(new DataSourceCOM(potentialMaster.getSpace()));
+        setAtomPositionDefinition(new AtomPositionCOM(potentialMaster.getSpace()));
     }
     
     /**

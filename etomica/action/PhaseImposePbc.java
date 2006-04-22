@@ -6,12 +6,12 @@ package etomica.action;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
+import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
-import etomica.data.DataSourceCOM;
 import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorIntervalListener;
 import etomica.phase.Phase;
@@ -86,7 +86,7 @@ public final class PhaseImposePbc extends PhaseActionAdapter implements
             translator = new AtomActionTranslateBy(phase.space());
             moleculeTranslator = new AtomGroupAction(translator);
             if (moleculePosition == null) {
-                moleculePosition = new DataSourceCOM(phase.space());
+                moleculePosition = new AtomPositionCOM(phase.space());
             }
         }
 	}

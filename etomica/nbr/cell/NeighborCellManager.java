@@ -9,11 +9,11 @@ import etomica.action.AtomGroupAction;
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeaf;
+import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorTree;
-import etomica.data.DataSourceCOM;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveListener;
 import etomica.integrator.mcmove.MCMovePhase;
@@ -231,7 +231,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
         public MyMCMoveListener(Space space, Phase phase, NeighborCellManager manager) {
             treeIterator = new AtomIteratorTree();
             treeIterator.setDoAllNodes(true);
-            moleculePosition = new DataSourceCOM(space);
+            moleculePosition = new AtomPositionCOM(space);
             translator = new AtomActionTranslateBy(space);
             moleculeTranslator = new AtomGroupAction(translator);
             this.phase = phase;

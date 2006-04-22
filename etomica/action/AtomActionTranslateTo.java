@@ -1,7 +1,7 @@
 package etomica.action;
 import etomica.atom.Atom;
+import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
-import etomica.data.DataSourceCOM;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -19,12 +19,12 @@ public class AtomActionTranslateTo extends AtomActionAdapter {
 
     /**
      * Creates new action with atom position defined by its
-     * center of mass (via DataSourceCOM).
+     * center of mass (via AtomPositionCOM).
      * @param space
      */
     public AtomActionTranslateTo(Space space) {
         destination = space.makeVector();
-        atomPositionDefinition = new DataSourceCOM(space);
+        atomPositionDefinition = new AtomPositionCOM(space);
         atomTranslator = new AtomGroupAction(new AtomActionTranslateBy(space));
         translationVector = ((AtomActionTranslateBy)atomTranslator.getAction()).getTranslationVector();
     }
