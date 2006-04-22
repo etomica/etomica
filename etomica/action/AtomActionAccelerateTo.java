@@ -1,7 +1,7 @@
 package etomica.action;
 import etomica.atom.Atom;
+import etomica.atom.AtomGroupVelocityAverage;
 import etomica.atom.AtomLeaf;
-import etomica.data.DataSourceVelocityAverage;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -17,7 +17,7 @@ public class AtomActionAccelerateTo extends AtomActionAdapter {
     private final Vector dr;
     private final Vector targetVelocity;
     private final AtomGroupAction atomAccelerator;
-    private final AtomGroupAction velocityMeter;
+    private final AtomGroupVelocityAverage velocityMeter;
 
     /**
      * Creates new action with target velocity equal to zero.
@@ -26,7 +26,7 @@ public class AtomActionAccelerateTo extends AtomActionAdapter {
         dr = space.makeVector();
         targetVelocity = space.makeVector();
         atomAccelerator = new AtomGroupAction(new AtomActionAccelerateBy(space));
-        velocityMeter = new AtomGroupAction(new DataSourceVelocityAverage(space));
+        velocityMeter = new AtomGroupVelocityAverage(space);
     }
     
     /**
@@ -37,8 +37,7 @@ public class AtomActionAccelerateTo extends AtomActionAdapter {
         if(atom.type.isLeaf()) {
             ((ICoordinateKinetic)((AtomLeaf)atom).coord).velocity().E(targetVelocity);
         } else {
-            velocityMeter.actionPerformed(atom);
-            Vector currentVelocity = ((DataSourceVelocityAverage)velocityMeter.getAction()).getVelocityAverage();
+            Vector currentVelocity = velocityMeter.getVelocityAverage(atom);
             dr.Ev1Mv2(targetVelocity, currentVelocity);
             ((AtomActionAccelerateBy)atomAccelerator.getAction()).setAccelerationVector(dr);
             atomAccelerator.actionPerformed(atom);
