@@ -1,4 +1,6 @@
 package etomica.species;
+import java.lang.reflect.Constructor;
+
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.AtomType;
@@ -43,7 +45,7 @@ import etomica.util.NameMaker;
   * @see PotentialMaster
   */
  
-public abstract class Species implements Comparable, java.io.Serializable {
+public class Species implements Comparable, java.io.Serializable {
 
     /**
      * Constructs species with molecules built by the given atom factory.
@@ -179,7 +181,20 @@ public abstract class Species implements Comparable, java.io.Serializable {
         return new AtomTypeGroup(sim.speciesRoot.getChildType(), null);
     }
     
-    public abstract SpeciesSignature getSpeciesSignature();
+    /**
+     * Returns a SpeciesSignature for this Species.  Subclasses must override
+     * this method.
+     */
+    public SpeciesSignature getSpeciesSignature() {
+        Constructor constructor = null;
+        try {
+            constructor = Species.class.getConstructor(new Class[]{Simulation.class,AtomFactory.class,AtomType.class});
+        }
+        catch(NoSuchMethodException e) {
+            System.err.println("you have no constructor.  be afraid");
+        }
+        return new SpeciesSignature(getName(),constructor,new Object[]{factory,agentType});
+    }
     
     final AtomType agentType;
     protected final AtomFactory factory;

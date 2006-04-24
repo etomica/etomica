@@ -1,21 +1,17 @@
-/*
- * Created on Jul 18, 2005
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
 package etomica.species;
 
 import java.lang.reflect.Constructor;
 
 /**
- * @author andrew
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Class containing minimal information on how to recreate a Species instance. 
  */
 public class SpeciesSignature implements Comparable {
 
+    /**
+     * Creates an instance for the given name, constructor and constructor parameters.
+     * The actual constructor should take a Simulation followed by the given constructor 
+     * parameters.
+     */
     public SpeciesSignature(String speciesName, Constructor speciesConstructor, Object[] constructorParameters) {
         name = speciesName;
         constructor = speciesConstructor;
