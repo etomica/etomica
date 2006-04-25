@@ -116,7 +116,7 @@ public class AtomFactoryHomo extends AtomFactory {
      public int getAtomsPerGroup() {return atomsPerGroup;}
 
      public int getNumTreeAtoms() {
-         return atomsPerGroup;
+         return 1+atomsPerGroup;
      }
      
      protected AtomFactory childFactory;
