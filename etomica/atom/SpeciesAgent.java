@@ -29,20 +29,18 @@ public final class SpeciesAgent extends Atom {
     }    
     
     /**
-    * Sets the number of molecules for this species.  Makes the given number
-    * of new molecules, linked-list orders and initializes them.
-    * Any previously existing molecules for this species in this phase are abandoned
-    * Any links to molecules of next or previous species are maintained.
-    * Takes no action at all if the new number of molecules equals the existing number
-    *
-    * @param n  the new number of molecules for this species
-    */
+     * Sets the number of molecules for this species.  Makes the given number
+     * of new molecules, linked-list orders and initializes them.
+     * Any previously existing molecules for this species in this phase are abandoned
+     * Any links to molecules of next or previous species are maintained.
+     * Takes no action at all if the new number of molecules equals the existing number
+     *
+     * @param n  the new number of molecules for this species
+     */
     public void setNMolecules(int n) {
+        ((SpeciesMaster)node.parentGroup()).notifyNewAtoms((n-getNMolecules())*moleculeFactory().getNumTreeAtoms());
         lastNMolecules = n;
         AtomTreeNodeGroup treeNode = (AtomTreeNodeGroup)node;
-//        for (int i=treeNode.childList.size()-1; i>0; i--) {
-//            treeNode.childList.get(i).node.dispose();
-//        }
         if(n > treeNode.childAtomCount()) {
             for(int i=treeNode.childAtomCount(); i<n; i++) addNewAtom();
         }

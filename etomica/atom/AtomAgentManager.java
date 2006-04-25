@@ -26,24 +26,33 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
     public AtomAgentManager(AgentSource source, Phase phase, boolean isBackend) {
         agentSource = source;
         setPhase(phase);
-        newAtomList = new AtomArrayList();
         this.isBackend = isBackend;
     }        
     
+    /**
+     * Returns the array of Atom agents for the Phase, indexed by the Atom's
+     * global index.  The array is of the type returned by the AgentSource's 
+     * getAgentClass method.
+     */
     public Object[] getAgents() {
-        if (!newAtomList.isEmpty()) {
-            // if newAtomList has Atoms, agents must have been full, so extend it now
-            agents = Arrays.resizeArray(agents,newMaxIndex+phase.getSpeciesMaster().getIndexReservoirSize());
-            for (int i=0; i<newAtomList.size(); i++) {
-                addAgent(newAtomList.get(i));
-            }
-            newAtomList.clear();
-            newAtomList.trimToSize();
-        }
-        newMaxIndex = -1;
         return agents;
     }
     
+    /**
+     * Convenience method to return the agent the given Atom.  The Atom must 
+     * be from the Phase associated with this instance.  For repeated access to
+     * the agents from multiple Atoms, it might be faster to use the above 
+     * getAgents method.
+     */
+    public Object getAgent(Atom a) {
+        return agents[a.getGlobalIndex()];
+    }
+    
+    /**
+     * Sets the Phase in which this AtomAgentManager will manage Atom agents.
+     * Setting the Phase to null will notify the AtomAgentManager it should 
+     * disconnect itself as a listener.
+     */
     public void setPhase(Phase newPhase) {
         if (phase != null) {
             // remove ourselves as a listener to the old phase
@@ -63,19 +72,16 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
         }
         phase = newPhase;
         if (phase == null) {
-            if (agents != null) {
-                // free up the memory
-                agents = null;
-            }
+            agents = null;
             return;
         }
         phase.getEventManager().addListener(this, isBackend);
-        // hope the class returns an actual class with a null Atom and use it to construct
-        // the array
+        SpeciesMaster speciesMaster = phase.getSpeciesMaster();
+        
         agents = (Object[])Array.newInstance(agentSource.getAgentClass(),
-                phase.getSpeciesMaster().getMaxGlobalIndex()+1);
+                speciesMaster.getMaxGlobalIndex()+1+speciesMaster.getIndexReservoirSize());
         // fill in the array with agents from all the atoms
-        AtomIteratorTree iterator = new AtomIteratorTree(phase.getSpeciesMaster(),Integer.MAX_VALUE,true);
+        AtomIteratorTree iterator = new AtomIteratorTree(speciesMaster,Integer.MAX_VALUE,true);
         iterator.reset();
         while (iterator.hasNext()) {
             addAgent(iterator.nextAtom());
@@ -105,14 +111,10 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
             Atom a = evt.atom();
             if (a.type.isLeaf()) {
                 int index = a.getGlobalIndex();
-                if (agents.length > index && agents[index] != null) {
+                if (agents[index] != null) {
                     // Atom used to have an agent.  nuke it.
                     agentSource.releaseAgent(agents[index], a);
                     agents[index] = null;
-                }
-                else if (agents.length < index+1) {
-                    // must have been just added
-                    newAtomList.removeAndReplace(newAtomList.indexOf(a));
                 }
             }
             else {
@@ -131,10 +133,6 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
                         agentSource.releaseAgent(agents[index], childAtom);
                         agents[index] = null;
                     }
-                    else if (agents.length < index+1) {
-                        // maybe it was just added
-                        newAtomList.removeAndReplace(newAtomList.indexOf(a));
-                    }
                 }
             }
         }
@@ -144,47 +142,52 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
             agents[evt.getIndex()] = null;
         }
         else if (evt.type() == PhaseEvent.GLOBAL_INDEX) {
-            // indices got compacted.  If our array is a lot bigger than it
-            // needs to be, shrink it.
             SpeciesMaster speciesMaster = (SpeciesMaster)evt.getSource();
             int reservoirSize = speciesMaster.getIndexReservoirSize();
-            if (agents.length > evt.getIndex()+reservoirSize) {
-                agents = Arrays.resizeArray(agents,evt.getIndex()+reservoirSize);
+            if (agents.length > evt.getIndex()+reservoirSize || agents.length < evt.getIndex()) {
+                // indices got compacted.  If our array is a lot bigger than it
+                // needs to be, shrink it.
+                // ... or we've been notified that atoms are about to get added to the 
+                // system.  Make room for them
+                agents = Arrays.resizeArray(agents,evt.getIndex()+1+reservoirSize);
             }
         }
     }
     
     protected void addAgent(Atom a) {
         if (agents.length < a.getGlobalIndex()+1) {
-            // no room in the array.  reallocate the array lazily later.
-            newAtomList.add(a);
-            if (newMaxIndex < a.getGlobalIndex()) {
-                newMaxIndex = a.getGlobalIndex();
-            }
-            return;
+            // no room in the array.  reallocate the array with an extra cushion.
+            agents = Arrays.resizeArray(agents,a.getGlobalIndex()+1+phase.getSpeciesMaster().getIndexReservoirSize());
         }
         agents[a.getGlobalIndex()] = agentSource.makeAgent(a);
     }
     
     /**
-     * Interface for an object that makes an agent to be placed in each atom
-     * upon construction.  AgentSource objects register with the AtomFactory
-     * the produces the atom.
+     * Interface for an object that wants an agent associated with each Atom in
+     * a Phase.
      */
     public interface AgentSource {
+        /**
+         * Returns the Class of the agent.  This is used to create an array of 
+         * the appropriate Class.
+         */
         public Class getAgentClass();
-        
+
+        /**
+         * Returns an agent for the given Atom.
+         */
         public Object makeAgent(Atom a);
         
-        //allow any agent to be disconnected from other elements 
+        /**
+         * This informs the agent source that the agent is going away and that 
+         * the agent source should disconnect the agent from other elements
+         */
         public void releaseAgent(Object agent, Atom atom);
     }
 
     private final AgentSource agentSource;
     protected Object[] agents;
-    private AtomArrayList newAtomList;
     private AtomIteratorTree treeIterator;
     private Phase phase;
-    private int newMaxIndex;
     private final boolean isBackend;
 }

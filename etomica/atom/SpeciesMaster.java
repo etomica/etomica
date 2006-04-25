@@ -23,7 +23,7 @@ public final class SpeciesMaster extends Atom {
 
     protected int moleculeCount;
     public final static int SPECIES_TAB = AtomLinker.Tab.requestTabType();
-    private final PhaseEventManager phaseEventManager;
+    protected final PhaseEventManager phaseEventManager;
 
     private final PhaseEvent changeIndexEvent;
     private final PhaseEvent maxGlobalIndexEvent;
@@ -142,6 +142,17 @@ public final class SpeciesMaster extends Atom {
             }
             throw new RuntimeException("I was fully expecting the reservoir to be empty!");
         }
+    }
+    
+    public void notifyNewAtoms(int numNewAtoms) {
+        // has no actual effect within this object.  We just notify things to 
+        // prepare for an increase in the max index.  If things assume that the
+        // max index has actually increased, there's no harm since there's 
+        // nothing that says the max index can't be too large.
+        if (numNewAtoms > reservoirCount) {
+            maxGlobalIndexEvent.setIndex(maxIndex + numNewAtoms - reservoirCount);
+            phaseEventManager.fireEvent(maxGlobalIndexEvent);
+        }            
     }
     
     /**
