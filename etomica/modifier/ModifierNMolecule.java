@@ -32,7 +32,7 @@ public class ModifierNMolecule implements Modifier, java.io.Serializable {
     }
 
     public double getValue() {
-        return (speciesAgent != null) ? (double)speciesAgent.moleculeCount() : 0;
+        return (speciesAgent != null) ? (double)speciesAgent.getNMolecules() : 0;
     }
 
     public Dimension getDimension() {

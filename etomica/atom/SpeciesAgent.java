@@ -20,7 +20,7 @@ public final class SpeciesAgent extends Atom {
         
     public final AtomFactory moleculeFactory() {return type.getSpecies().moleculeFactory();}
       
-    public int moleculeCount() {return ((AtomTreeNodeGroup)node).childAtomCount();}
+    public int getNMolecules() {return ((AtomTreeNodeGroup)node).childAtomCount();}
             
     public Atom addNewAtom() {
         Atom aNew = moleculeFactory().makeAtom();
@@ -59,7 +59,6 @@ public final class SpeciesAgent extends Atom {
         setNMolecules(nMolecules);
     }
     
-    public int getNMolecules() {return moleculeCount();}
     public Dimension getNMoleculesDimension() {return Quantity.DIMENSION;}
 
     /**

@@ -97,8 +97,8 @@ public final class MCMoveMoleculeExchange extends MCMove {
     public double getA() {
         //note that dSpecies.nMolecules has been decremented
         //and iSpecies.nMolecules has been incremented
-        return (dSpecies.moleculeCount()+1)/dPhase.volume()
-               * iPhase.volume()/iSpecies.moleculeCount(); 
+        return (dSpecies.getNMolecules()+1)/dPhase.volume()
+               * iPhase.volume()/iSpecies.getNMolecules(); 
     }
     
     public double getB() {

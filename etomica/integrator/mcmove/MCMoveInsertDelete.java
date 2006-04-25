@@ -90,7 +90,7 @@ public class MCMoveInsertDelete extends MCMovePhase {
             atomTranslator.setDestination(phase.randomPosition());
             atomTranslator.actionPerformed(testMolecule);
         } else {//delete
-            if(speciesAgent.moleculeCount() == 0) {
+            if(speciesAgent.getNMolecules() == 0) {
                 testMolecule = null;
                 return false;
             }
@@ -104,8 +104,8 @@ public class MCMoveInsertDelete extends MCMovePhase {
     }//end of doTrial
     
     public double getA() {//note that moleculeCount() gives the number of molecules after the trial is attempted
-        return insert ? phase.volume()/speciesAgent.moleculeCount() 
-                      : (speciesAgent.moleculeCount()+1)/phase.volume();        
+        return insert ? phase.volume()/speciesAgent.getNMolecules() 
+                      : (speciesAgent.getNMolecules()+1)/phase.volume();        
     }
     
     public double getB() {

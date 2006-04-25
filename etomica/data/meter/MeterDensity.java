@@ -35,7 +35,7 @@ public class MeterDensity extends DataSourceScalar implements Meter {
         if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
         return (species == null ? 
         			phase.moleculeCount() : 
-        			phase.getAgent(species).moleculeCount())
+        			phase.getAgent(species).getNMolecules())
 				/phase.volume();
     }
     

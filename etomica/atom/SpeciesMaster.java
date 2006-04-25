@@ -212,7 +212,7 @@ public final class SpeciesMaster extends Atom {
                 speciesMaster.moleculeCount++;
             } else if (newAtom instanceof SpeciesAgent) {
                 speciesMaster.moleculeCount += ((SpeciesAgent) newAtom)
-                        .moleculeCount();
+                        .getNMolecules();
             }
 
             leafAtomCount += newAtom.node.leafAtomCount();
@@ -246,7 +246,7 @@ public final class SpeciesMaster extends Atom {
                 speciesMaster.moleculeCount--;
             } else if (oldAtom instanceof SpeciesAgent) {
                 speciesMaster.moleculeCount -= ((SpeciesAgent) oldAtom)
-                        .moleculeCount();
+                        .getNMolecules();
 //                ordinalReservoir.returnOrdinal(oldAtom.node.getOrdinal());
             }
             

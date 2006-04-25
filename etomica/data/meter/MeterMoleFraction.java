@@ -32,7 +32,7 @@ public class MeterMoleFraction extends DataSourceScalar implements Meter {
     public double getDataAsScalar() {
         if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
     	return (species == null) ? Double.NaN :
-         	(double)phase.getAgent(species).moleculeCount()/(double)phase.moleculeCount();
+         	(double)phase.getAgent(species).getNMolecules()/(double)phase.moleculeCount();
      }
 
     /**

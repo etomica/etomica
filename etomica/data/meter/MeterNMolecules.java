@@ -35,7 +35,7 @@ public class MeterNMolecules extends DataSourceScalar implements DataSourceAtomi
 
     public double getDataAsScalar() {
         if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
-        return (species == null) ? phase.moleculeCount(): phase.getAgent(species).moleculeCount();
+        return (species == null) ? phase.moleculeCount(): phase.getAgent(species).getNMolecules();
     }
     
     public Data getData(Atom atom) {

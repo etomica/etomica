@@ -136,7 +136,7 @@ public class MCMoveSemigrand extends MCMovePhase {
         //select species for deletion
         iDelete = Simulation.random.nextInt(nSpecies);//System.out.println("Random no. :"+randomNo);
         deleteAgent = agentSet[iDelete];
-        if(deleteAgent.moleculeCount() == 0) {
+        if(deleteAgent.getNMolecules() == 0) {
             uNew = uOld = 0.0;
             return false;
         }
@@ -165,7 +165,7 @@ public class MCMoveSemigrand extends MCMovePhase {
     }//end of doTrial
     
     public double getA() {
-        return (double)(deleteAgent.moleculeCount()+1)/(double)insertAgent.moleculeCount()
+        return (double)(deleteAgent.getNMolecules()+1)/(double)insertAgent.getNMolecules()
                 *(fugacityFraction[iInsert]/fugacityFraction[iDelete]);
     }
     

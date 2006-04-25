@@ -154,7 +154,7 @@ public class MeterWidomInsertion extends DataSourceScalar implements Meter {
         phase.removeMolecule(testMolecule);
 
 		if (!residual)
-			sum *= phase.volume() / phase.getAgent(species).moleculeCount(); //multiply
+			sum *= phase.volume() / phase.getAgent(species).getNMolecules(); //multiply
 		// by
 		// V/N
 		return sum / nInsert; //return average
