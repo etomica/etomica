@@ -68,6 +68,14 @@ public abstract class AtomFactory implements java.io.Serializable {
     }
     
     /**
+     * Returns the number of tree Atoms (molecules, groups, leaf, etc) created 
+     * by makeAtom.
+     */
+    public int getNumTreeAtoms() {
+        return 1;
+    }
+    
+    /**
      * Returns the conformation used to set the standard arrangement of
      * the atoms/atom-groups produced by this factory.
      */

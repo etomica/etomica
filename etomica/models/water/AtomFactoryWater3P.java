@@ -59,5 +59,9 @@ public class AtomFactoryWater3P extends AtomFactory {
         oFactory.setSpecies(species);
     }
     
+    public int getNumTreeAtoms() {
+        return 4;
+    }
+    
 	public final AtomFactoryMono hFactory, oFactory;
 }

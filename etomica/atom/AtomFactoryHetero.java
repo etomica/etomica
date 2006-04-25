@@ -220,6 +220,14 @@ public class AtomFactoryHetero extends AtomFactory {
     public int getTotalChildren() {
         return totalChildCount;
     }
+    
+    public int getNumTreeAtoms() {
+        int total = 1;
+        for (int i=0; i<childCount.length; i++) {
+            total += childCount[i] * childFactory[i].getNumTreeAtoms();
+        }
+        return total;
+    }
 
     private AtomFactory[] childFactory;
     private int[] childCount;

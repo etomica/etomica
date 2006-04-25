@@ -122,6 +122,10 @@ public class AtomFactoryTree extends AtomFactoryHomo {
          return childFactory.getType();
      }
     
+     public int getNumTreeAtoms() {
+         return 1+childFactory.getNumTreeAtoms()*atomsPerGroup;
+     }
+     
     //number of layers of atoms below the root atom
     int depth;
     private AtomFactoryTree parentFactory;

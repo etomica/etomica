@@ -109,14 +109,18 @@ public class AtomFactoryHomo extends AtomFactory {
     public void setAtomsPerGroup(int na) {
         atomsPerGroup = na;
     }
-            
+
     /**
      * Accessor method for number of child atoms per group constructed.
      */
      public int getAtomsPerGroup() {return atomsPerGroup;}
 
+     public int getNumTreeAtoms() {
+         return atomsPerGroup;
+     }
+     
      protected AtomFactory childFactory;
-     private int atomsPerGroup;
+     protected int atomsPerGroup;
 
 }//end of AtomFactoryHomo
     
