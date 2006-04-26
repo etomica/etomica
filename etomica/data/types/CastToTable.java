@@ -98,7 +98,7 @@ public class CastToTable extends DataProcessor implements Serializable {
                     .getDimension(), D, D);
         } else if (inputClass == DataFunction.class) {
             int[] sizes = ((DataFunction.Factory) factory)
-                    .getIndependentDataSizes();
+                    .getArrayShape();
             DataDoubleArray[] data = ((DataFunction.Factory) factory)
                     .getIndependentData();
             if (sizes.length == 1) {
@@ -156,7 +156,7 @@ public class CastToTable extends DataProcessor implements Serializable {
         case 5: //DataFunction
             ((DataFunction) data).getXData(0).assignColumnTo(0,
                     outputData.myColumns[0].getData());
-            ((DataFunction) data).getYData().assignColumnTo(0,
+            ((DataFunction) data).assignColumnTo(0,
                     outputData.myColumns[1].getData());
             break;
         }

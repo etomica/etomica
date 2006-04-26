@@ -6,9 +6,9 @@ package etomica.data;
 
 import etomica.data.types.CastToDoubleArray;
 import etomica.data.types.DataArithmetic;
-import etomica.data.types.DataArray;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
+import etomica.data.types.DataGroup;
 import etomica.data.types.DataTable;
 import etomica.units.Quantity;
 import etomica.util.History;
@@ -47,8 +47,8 @@ public class AccumulatorHistory extends DataAccumulator {
      */
     public void setTimeDataSource(DataSourceScalar newTimeDataSource) {
         timeDataSource = newTimeDataSource;
-        if (data != null) {
-            setupData(data.dataInfo);
+        if (dataInfo != null) {
+            putDataInfo(dataInfo);
         }
     }
     
@@ -76,6 +76,7 @@ public class AccumulatorHistory extends DataAccumulator {
      * @param nData
      */
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
+        dataInfo = inputDataInfo;
         DataFactory factory = inputDataInfo.getDataFactory();
         if (factory instanceof DataDoubleArray.Factory) {
             nData = ((DataDoubleArray.Factory)inputDataInfo.getDataFactory()).getArrayLength();
@@ -84,11 +85,11 @@ public class AccumulatorHistory extends DataAccumulator {
             nData = ((DataTable.Factory)inputDataInfo.getDataFactory()).getNRows()
                   * ((DataTable.Factory)inputDataInfo.getDataFactory()).getNColumns();
         }
-        setupData(inputDataInfo);
         history = new History[nData];
         for (int i = 0; i < nData; i++) {
             history[i] = historyFactory.makeHistory(historyLength);
         }
+        setupData();
         return data.getDataInfo();
     }
     
@@ -109,11 +110,40 @@ public class AccumulatorHistory extends DataAccumulator {
      * Returns the set of histories.
      */
     public Data getData() {
-        for (int i = 0; i < nData; i++) {
+        // check to see if current data functions are the right length
+        // histogram might change the number of bins on its own.
+        boolean success = true;
+        for (int i=0; i<nData; i++) {
             DataFunction dataFunction = (DataFunction)data.getData(i);
-            dataFunction.getYData().E(history[i].getHistory());
-            dataFunction.getXData(0).E(history[i].getXValues());
+            // covertly call getHistogram() here.  We have to call it anyway
+            // so that the array data gets updated.
+            if (dataFunction.getData() != history[i].getHistory() ||
+                    dataFunction.getXData(0).getData() != history[i].getXValues()) {
+                success = false;
+            }
         }
+
+        if (!success) {
+            DataFunction[] dataFunctions = new DataFunction[nData];
+            // attempt to re-use old DataFunctions
+            for (int i=0; i<nData; i++) {
+                DataFunction dataFunction = (DataFunction)data.getData(i);
+                if (dataFunction.getData() == history[i].getHistory() &&
+                        dataFunction.getXData(0).getData() == history[i].getXValues()) {
+                    dataFunctions[i] = dataFunction;
+                }
+                else {
+                    int iHistoryLength = history[i].getHistoryLength();
+                    DataDoubleArray xData = new DataDoubleArray(timeDataSource.getDataInfo().getLabel(),timeDataSource.getDataInfo().getDimension(), 
+                            new int[]{iHistoryLength},history[i].getXValues());
+                    dataFunctions[i] = new DataFunction(dataInfo.getLabel()+" History", dataInfo.getDimension(), new DataDoubleArray[]{xData}, history[i].getHistory());
+                }
+            }
+            // creating a new data instance might confuse downstream data sinks, but
+            // we have little choice and they should deal.
+            data = new DataGroup("Histogram",dataFunctions);
+        }
+            
         return data;
     }
 
@@ -127,10 +157,14 @@ public class AccumulatorHistory extends DataAccumulator {
     /**
      * Constructs the Data objects used by this class.
      */
-    private void setupData(DataInfo inputDataInfo) {
+    private void setupData() {
         // time is really the number of data points that have been added
-        DataDoubleArray dataBin = new DataDoubleArray(timeDataSource.getDataInfo().getLabel(), timeDataSource.getDataInfo().getDimension(), historyLength);
-        data = new DataArray(inputDataInfo.getLabel(), inputDataInfo.getDimension(), nData, DataFunction.getFactory(new DataDoubleArray[] {dataBin}));
+        DataFunction[] dataFunctions = new DataFunction[nData];
+        for (int i=0; i<nData; i++) {
+            DataDoubleArray xData = new DataDoubleArray(timeDataSource.getDataInfo().getLabel(),timeDataSource.getDataInfo().getDimension(),new int[]{history[i].getHistoryLength()},history[i].getXValues());
+            dataFunctions[i]= new DataFunction(dataInfo.getLabel()+" History",dataInfo.getDimension(), new DataDoubleArray[]{xData}, history[i].getHistory());
+        }
+        data = new DataGroup("History",dataFunctions);
     }
     
     /**
@@ -163,11 +197,12 @@ public class AccumulatorHistory extends DataAccumulator {
     }
     
     protected History[] history = new History[0];
-    private DataArray data;
+    private DataGroup data;
     int nData;
     private History.Factory historyFactory;
     private int historyLength;
     private DataSourceScalar timeDataSource;
+    private DataInfo dataInfo;
 
     /**
      * Simple DataSource to use as a default time DataSource.  It just returns

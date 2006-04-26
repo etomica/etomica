@@ -65,7 +65,7 @@ public class AccumulatorHistogram extends DataAccumulator {
             DataFunction dataFunction = (DataFunction)data.getData(i);
             // covertly call getHistogram() here.  We have to call it anyway
             // so that the array data gets updated.
-            if (dataFunction.getYData().getData() != histogram[i].getHistogram() ||
+            if (dataFunction.getData() != histogram[i].getHistogram() ||
                     dataFunction.getXData(0).getData() != histogram[i].xValues()) {
                 success = false;
             }
@@ -76,16 +76,15 @@ public class AccumulatorHistogram extends DataAccumulator {
             // attempt to re-use old DataFunctions
             for (int i=0; i<nData; i++) {
                 DataFunction dataFunction = (DataFunction)data.getData(i);
-                if (dataFunction.getYData().getData() == histogram[i].getHistogram() ||
+                if (dataFunction.getData() == histogram[i].getHistogram() &&
                         dataFunction.getXData(0).getData() == histogram[i].xValues()) {
                     dataFunctions[i] = dataFunction;
-                    histogram[i].getHistogram();
                 }
                 else {
+                    int iBins = histogram[i].getNBins();
                     DataDoubleArray xData = new DataDoubleArray(binnedDataInfo.getLabel(),binnedDataInfo.getDimension(), 
-                            new int[]{nBins},histogram[i].xValues());
-                    DataDoubleArray yData = new DataDoubleArray("Histogram",Null.DIMENSION,new int[]{nBins},histogram[i].getHistogram());
-                    dataFunctions[i] = new DataFunction(new DataDoubleArray[]{xData}, yData);
+                            new int[]{iBins},histogram[i].xValues());
+                    dataFunctions[i] = new DataFunction("Histogram",Null.DIMENSION,new DataDoubleArray[]{xData}, histogram[i].getHistogram());
                 }
             }
             // creating a new data instance might confuse downstream data sinks, but
@@ -128,8 +127,7 @@ public class AccumulatorHistogram extends DataAccumulator {
         DataFunction[] dataFunctions = new DataFunction[nData];
         for (int i=0; i<nData; i++) {
             DataDoubleArray xData = new DataDoubleArray(binnedDataInfo.getLabel(),binnedDataInfo.getDimension(),new int[]{histogram[i].getNBins()},histogram[i].xValues());
-            DataDoubleArray yData = new DataDoubleArray(binnedDataInfo.getLabel()+" Histogram",Null.DIMENSION,new int[]{histogram[i].getNBins()},histogram[i].getHistogram()); 
-            dataFunctions[i]= new DataFunction(new DataDoubleArray[]{xData}, yData);
+            dataFunctions[i]= new DataFunction("Histogram",Null.DIMENSION,new DataDoubleArray[]{xData}, histogram[i].getHistogram());
         }
         data = new DataGroup("Histogram",dataFunctions);
     }

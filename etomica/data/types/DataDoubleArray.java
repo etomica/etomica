@@ -140,6 +140,20 @@ public class DataDoubleArray extends Data implements DataArithmetic {
         x = xData;
     }
     
+    protected DataDoubleArray(String label, Dimension dimension, int[] arrayShape, double[] xData, DataFactory factory) {
+        super(new DataInfo(label, dimension, factory));
+        jumpCount = (int[])arrayShape.clone();
+        //row-wise definition, as done in RectangularLattice
+        jumpCount[arrayShape.length-1] = 1;
+        for(int i=arrayShape.length-1; i>0; i--) {
+            jumpCount[i-1] = jumpCount[i]*arrayShape[i];
+        }
+        if (jumpCount[0]*arrayShape[0] != xData.length) {
+            throw new IllegalArgumentException("length of xData must be equal to product of arrayShapes");
+        }
+        x = xData;
+    }
+
     /**
      * Returns a copy of this instance. Returned object has its own instances of
      * the data, initialized to the values in this instance.

@@ -36,9 +36,8 @@ public class DataSourceFunction implements DataSource, Serializable {
     public DataSourceFunction(String label, Dimension dimension, Function function, int nValues,
             String xLabel, Dimension xDimension) {
         xSource = new DataSourceUniform(xLabel, xDimension,nValues,0,1);
-        yData = new DataDoubleArray(label, dimension, nValues);
         this.function = function;
-        update();
+        setupData(label, dimension);
     }
     
     public DataInfo getDataInfo() {
@@ -72,7 +71,7 @@ public class DataSourceFunction implements DataSource, Serializable {
      */
     public void setFunction(Function function) {
         this.function = function;
-        update();
+        updateF();
     }
     /**
      * Recalculates the y values from the current x values.  This must be
@@ -80,21 +79,29 @@ public class DataSourceFunction implements DataSource, Serializable {
      * are used to change the x values.
      *
      */
-    public void update() {
+    protected void setupData(String label, Dimension dimension) {
         boolean needUpdate = false;
         if (xData != (DataDoubleArray)xSource.getData()) {
             xData = (DataDoubleArray)xSource.getData();
             needUpdate = true;
         }
         double[] x = xData.getData();
-        if (yData.getLength() != x.length) {
-            yData = new DataDoubleArray(yData.getDataInfo(), new int[] {x.length});
+        if (data == null || data.getLength() != x.length) {
             needUpdate = true;
         }
         if (needUpdate) {
-            data = new DataFunction(new DataDoubleArray[] {xData}, yData);
+            data = new DataFunction(label, dimension, new DataDoubleArray[] {xData});
         }
-        double[] y = yData.getData();
+        updateF();
+    }
+    
+    public void update() {
+        setupData(data.getDataInfo().getLabel(), data.getDataInfo().getDimension());
+    }
+    
+    public void updateF() {
+        double[] x = xData.getData();
+        double[] y = data.getData();
         for(int i=0; i<x.length; i++) {
             y[i] = function.f(x[i]);
         }
@@ -102,6 +109,6 @@ public class DataSourceFunction implements DataSource, Serializable {
     
     private DataFunction data;
     private final DataSourceUniform xSource;
-    private DataDoubleArray xData, yData;
+    private DataDoubleArray xData;
     private Function function;
 }//end of DataSourceFunction

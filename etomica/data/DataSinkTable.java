@@ -2,11 +2,9 @@ package etomica.data;
 
 import java.io.Serializable;
 
-import etomica.data.types.CastArrayToDoubleArray;
 import etomica.data.types.CastGroupOfTablesToDataTable;
 import etomica.data.types.CastGroupToDoubleArray;
 import etomica.data.types.CastToTable;
-import etomica.data.types.DataArray;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataTable;
 import etomica.util.Arrays;
@@ -150,8 +148,6 @@ public class DataSinkTable extends DataSet {
                     return new CastGroupOfTablesToDataTable();
                 }
                 return new CastGroupToDoubleArray();
-            } else if(dataInfo.getDataClass() == DataArray.class) {
-                return new CastArrayToDoubleArray();
             }
             return new CastToTable();
         }

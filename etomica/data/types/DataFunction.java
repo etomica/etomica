@@ -1,12 +1,9 @@
 package etomica.data.types;
 
-import java.io.Serializable;
-
 import etomica.data.Data;
 import etomica.data.DataFactory;
-import etomica.data.DataInfo;
 import etomica.units.Dimension;
-import etomica.util.Function;
+import etomica.units.Null;
 
 
 /**
@@ -40,7 +37,7 @@ import etomica.util.Function;
  * History
  * Created on Jun 16, 2005 by kofke
  */
-public class DataFunction extends Data implements DataArithmetic {
+public class DataFunction extends DataDoubleArray {
 
     /**
      * Forms a DataFunction using the given independent and dependent data
@@ -61,26 +58,17 @@ public class DataFunction extends Data implements DataArithmetic {
      *             dependentData.getArrayDimension(), or if any of the
      *             independent data have array dimension not equal to 1
      */
-    public DataFunction(DataDoubleArray[] independentData, DataDoubleArray dependentData) {
-        this(dependentData.getDataInfo().getLabel(), dependentData.getDataInfo().getDimension(),
-                (Factory)getFactory(independentData), dependentData);
+    public DataFunction(String label, Dimension dimension, DataDoubleArray[] independentData, double[] yData) {
+        super(label, dimension, getArrayShape(independentData), yData, getFactory(independentData));
+        this.independentData = (DataDoubleArray[])independentData.clone();
     }
     
-    /*
-     * Used by public constructor above, and by private constructor used by factory, below.
-     */
-    private DataFunction(String label, Dimension dimension, Factory factory, DataDoubleArray dependentData) {
-        super(new DataInfo(label, dimension, factory));
-        if(dependentData.getArrayDimension() != factory.independentData.length) {
-            throw new IllegalArgumentException("Dimension of dependent data is not compatible with number of independent data elements");
+    protected static int[] getArrayShape(DataDoubleArray[] independentData) {
+        int[] arrayShape = new int[independentData.length];
+        for (int i=0; i<arrayShape.length; i++) {
+            arrayShape[i] = independentData[i].getLength();
         }
-        for(int i=0; i<factory.independentData.length; i++) {
-            if(factory.independentData[i].getArrayDimension() != 1) {
-                throw new IllegalArgumentException("All independent data must be of dimension 1");
-            }
-        }
-        this.dependentData = dependentData;
-        this.independentData = factory.independentData;
+        return arrayShape;
     }
     
     /**
@@ -94,26 +82,10 @@ public class DataFunction extends Data implements DataArithmetic {
      *             to 1
      */
     public DataFunction(String label, Dimension dimension, DataDoubleArray[] independentData) {
-        this(independentData, makeDependentData(label, dimension, independentData));
+        super(label, dimension, (DataFunction.Factory)getFactory(independentData));
+        this.independentData = (DataDoubleArray[])independentData.clone();
     }
     
-    /**
-     * Used by Factory.
-     */
-    protected DataFunction(String label, Dimension dimension, Factory factory) {
-        this(label, dimension, factory, makeDependentData(label, dimension, factory.independentData));
-    }
-    
-    //used by constructors above
-    private static DataDoubleArray makeDependentData(String label, Dimension dimension, 
-            DataDoubleArray[] independentData) {
-        int[] size = new int[independentData.length];
-        for (int i=0; i<size.length; i++) {
-            size[i] = independentData[i].getLength();
-        }
-        return new DataDoubleArray(label,dimension,size);
-    }
-
     /**
      * Copy constructor. New DataFunction instance and original share the same 
      * independent data instances (and DataInfo); new and original have different
@@ -122,7 +94,6 @@ public class DataFunction extends Data implements DataArithmetic {
     public DataFunction(DataFunction data) {
         super(data);
         this.independentData = data.independentData;
-        dependentData = new DataDoubleArray(data.dependentData);
     }
     
     /**
@@ -135,16 +106,6 @@ public class DataFunction extends Data implements DataArithmetic {
 
 
     /**
-     * Applies the E (equals) method to the dependent data. 
-     * 
-     * @throws ClassCastException if the given data is not an instance of DataFunction.
-     * 
-     */
-    public void E(Data data) {
-        dependentData.E(((DataFunction)data).dependentData);
-    }
-    
-    /**
      * Returns the i-th set of independent data.
      * 
      * @throws ArrayIndexOutOfBoundsException
@@ -155,13 +116,6 @@ public class DataFunction extends Data implements DataArithmetic {
     }
 
     /**
-     * Returns the dependent data.
-     */
-    public DataDoubleArray getYData() {
-        return dependentData;
-    }
-    
-    /**
      * Returns the dimension of the independent data, the number of
      * values the function depends upon.
      */
@@ -169,120 +123,6 @@ public class DataFunction extends Data implements DataArithmetic {
         return independentData.length;
     }
     
-    /**
-     * Plus-equals (+=) operation. Element-by-element addition of the values in
-     * the given array to those in this one.
-     * 
-     * @throws ArrayIndexOutOfBoundException
-     *             if the array in the given object is smaller than this
-     *             instance's array.
-     */
-    public void PE(DataArithmetic y) {
-        if (y instanceof DataFunction) {
-            y = ((DataFunction)y).dependentData;
-        }
-        dependentData.PE(y);
-    }
-
-    /**
-     * Minus-equals (-=) operation. Element-by-element subtraction of the values
-     * in the given array from those in this one.
-     * 
-     * @throws ArrayIndexOutOfBoundException
-     *             if the array in the given object is smaller than this
-     *             instance's array.
-     */
-    public void ME(DataArithmetic y) {
-        if (y instanceof DataFunction) {
-            y = ((DataFunction)y).dependentData;
-        }
-        dependentData.ME(y);
-    }
-
-    /**
-     * Times-equals (*=) operation. Applied element-by-element.
-     * 
-     * @throws ArrayIndexOutOfBoundException
-     *             if the array in the given object is smaller than this
-     *             instance's array.
-     */
-    public void TE(DataArithmetic y) {
-        if (y instanceof DataFunction) {
-            y = ((DataFunction)y).dependentData;
-        }
-        dependentData.TE(y);
-    }
-
-    /**
-     * Divide-equals (/=) operation. Applied element-by-element.
-     * 
-     * @throws ArrayIndexOutOfBoundException
-     *             if the array in the given object is smaller than this
-     *             instance's array.
-     */
-    public void DE(DataArithmetic y) {
-        if (y instanceof DataFunction) {
-            y = ((DataFunction)y).dependentData;
-        }
-        dependentData.DE(y);
-    }
-
-    /**
-     * Equals (=) operation. Sets all elements to given value.
-     */
-    public void E(double y) {
-        dependentData.E(y);
-    }
-
-    /**
-     * Plus-equals (+=) operation. Increments all elements by the given value.
-     */
-    public void PE(double y) {
-        dependentData.PE(y);
-    }
-
-    /**
-     * Times-equals (*=) operation. Multiplies all elements by the given value.
-     */
-    public void TE(double y) {
-        dependentData.TE(y);
-    }
-
-    /**
-     * Replaces all values by the value of the function applied to each.
-     */
-    public void map(Function function) {
-        dependentData.map(function);
-    }
-
-    /**
-     * Returns the length of the wrapped array.
-     */
-    public int getLength() {
-        return dependentData.getLength();
-    }
-    
-    /**
-     * Returns true if any of the dependent data are NaN.
-     */
-    public boolean isNaN() {
-        return dependentData.isNaN();
-    }
-    
-    /**
-     * Assigns dependent-data values to the given array.
-     */
-    public void assignTo(double[] array) {
-        dependentData.assignTo(array);
-    }
-    
-    /**
-     * Returns the i-th dependentData value.
-     */
-    public double getValue(int i) {
-        return dependentData.getValue(i);
-    }
-
     /**
      * Returns a string formed from the encapsulated data objects.
      */
@@ -292,12 +132,11 @@ public class DataFunction extends Data implements DataArithmetic {
             string.append("\n"); //newline?
             string.append(independentData.toString());
         }
-        string.append(dependentData.toString());
+        string.append(toString());
         return string.toString();
     }
     
     private final DataDoubleArray[] independentData;//shadows the field in Factory
-    private final DataDoubleArray dependentData;
     
     /**
      * Returns a factory for a DataFunction. Each new instance made by the factory
@@ -314,11 +153,12 @@ public class DataFunction extends Data implements DataArithmetic {
      * DataFactory that constructs DataFunction instances all having the same
      * set of independent data.  Instantiate using the static DataFunction getFactory method.
      */
-    public static class Factory implements DataFactory, Serializable {
+    public static class Factory extends DataDoubleArray.Factory {
         
         final DataDoubleArray[] independentData;
         
         Factory(DataDoubleArray[] independentData) {
+            super(DataFunction.getArrayShape(independentData));
             this.independentData = (DataDoubleArray[])independentData.clone();
         }
         
@@ -327,7 +167,7 @@ public class DataFunction extends Data implements DataArithmetic {
          * dependent data, and with the prototype instances of the independent data.
          */
         public Data makeData(String label, Dimension dimension) {
-            return new DataFunction(label, dimension, this);
+            return new DataFunction(label, dimension, (DataDoubleArray[])independentData.clone());
         }
         
         /**
@@ -342,18 +182,6 @@ public class DataFunction extends Data implements DataArithmetic {
          */
         public DataDoubleArray[] getIndependentData() {
             return (DataDoubleArray[])independentData.clone();
-        }
-        
-        /**
-         * Returns an array of the lengths of the independent-data arrays
-         * in the DataFunction made by this factory.
-         */
-        public int[] getIndependentDataSizes() {
-            int[] size = new int[independentData.length];
-            for(int i=0; i<size.length; i++) {
-                size[i] = independentData[i].getLength();
-            }
-            return size;
         }
         
     }//end of Factory

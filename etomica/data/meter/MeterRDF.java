@@ -41,8 +41,7 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
         xDataSource.setTypeMin(LimitType.HALF_STEP);
         
         rData = (DataDoubleArray)xDataSource.getData();
-        gData = new DataDoubleArray("g(r)", Null.DIMENSION,rData.getLength());
-        data = new DataFunction(new DataDoubleArray[] {rData}, gData);
+        data = new DataFunction("g(r)", Null.DIMENSION, new DataDoubleArray[] {rData});
 
 	    iterator = new ApiLeafAtoms();
         setName(NameMaker.makeName(this.getClass()));
@@ -86,14 +85,13 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
             rData = (DataDoubleArray)xDataSource.getData();
             needUpdate = true;
         }
-        if (gData.getLength() != rData.getLength()) {
-            gData = new DataDoubleArray(gData.getDataInfo(),new int[]{xDataSource.getNValues()});
+        if (data.getLength() != rData.getLength()) {
             needUpdate = true;
         }
         if (needUpdate) {
-            data = new DataFunction(new DataDoubleArray[] {rData}, gData);
+            data = new DataFunction(data.getDataInfo().getLabel(), data.getDataInfo().getDimension(), new DataDoubleArray[] {rData});
         }
-        final double[] y = gData.getData();
+        final double[] y = data.getData();
 	    for(int i=0; i<y.length; i++) {y[i] = 0.0;}  //zero histogram
 	    double xMax = xDataSource.getXMax();
 	    double xMaxSquared = xMax*xMax;
@@ -150,19 +148,17 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
     }
     
     public void setDataLabel(String label) {
-        gData = new DataDoubleArray(label, Null.DIMENSION, new int[]{xDataSource.getNValues()});
-        data = new DataFunction(new DataDoubleArray[] {rData}, gData);
+        data = new DataFunction(label, Null.DIMENSION, new DataDoubleArray[] {rData});
     }
     
     public String getDataLabel() {
-        return gData.getDataInfo().getLabel();
+        return data.getDataInfo().getLabel();
     }
 
     private Phase phase;
     private final Space space;
     private DataFunction data;
     private DataDoubleArray rData;
-    private DataDoubleArray gData;
     private AtomsetIteratorPhaseDependent iterator;
     private final Vector dr;
     private NearestImageTransformer nearestImageTransformer;

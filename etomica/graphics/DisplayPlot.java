@@ -10,8 +10,6 @@ import etomica.data.DataProcessor;
 import etomica.data.DataSet;
 import etomica.data.DataSetListener;
 import etomica.data.DataSet.DataCasterJudge;
-import etomica.data.types.CastArrayToGroup;
-import etomica.data.types.DataArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataGroup;
 import etomica.units.Dimension;
@@ -101,7 +99,7 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
                 if (iData.getXDimension() != 1 || !iData.getXData(0).getDataInfo().getDimension().equals(xDimension)) {
                     throw new IllegalArgumentException("All data functions must have the same X dimension");
                 }
-                units[i] = (defaultUnit != null) ? defaultUnit : iData.getYData().getDataInfo().getDimension().getUnit(UnitSystem.SIM);
+                units[i] = (defaultUnit != null) ? defaultUnit : iData.getDataInfo().getDimension().getUnit(UnitSystem.SIM);
             }
         } else {
             //TODO have DisplayTable adjust appropriately to removal of columns; this works only for newColumnCount = 0
@@ -121,7 +119,7 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
         for(int k=0; k<nSource; k++) {
             DataFunction dataFunction = (DataFunction)dataSet.getData(k);
             final double[] xValues = dataFunction.getXData(0).getData();
-            final double[] data = dataFunction.getYData().getData();
+            final double[] data = dataFunction.getData();
             for(int i=0; i<data.length; i++) {
                 double y = units[k].fromSim(data[i]);
                 if (!Double.isNaN(y)) {
@@ -226,11 +224,6 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
                     return null;
                 }
                 throw new RuntimeException("DisplayPlot can only handle DataGroups of DataFunctions");
-            } else if(dataInfo.getDataClass() == DataArray.class) {
-                if (((DataArray.Factory)dataInfo.getDataFactory()).getArrayElementFactory().getDataClass() != DataFunction.class) {
-                    throw new RuntimeException("DisplayPlot can only handle DataArrays of DataFunctions");
-                }
-                return new CastArrayToGroup();
             }
             throw new RuntimeException("DisplayPlot can only handle DataFunctions");
         }

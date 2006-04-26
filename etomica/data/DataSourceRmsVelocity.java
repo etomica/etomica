@@ -16,7 +16,6 @@ import etomica.units.Null;
 import etomica.units.Time;
 import etomica.util.Histogram;
 import etomica.util.HistogramCollapsing;
-import etomica.util.HistogramSimple;
 
 /**
  * Meter for the root-mean-square velocity of a set of atoms. Useful to obtain
@@ -56,7 +55,7 @@ public class DataSourceRmsVelocity implements DataSourceAtomic, Serializable {
 
         //covertly invoke getHistogram, which actually calculates the histogram
         // our DataFunction wraps the histogram array
-        if (data.getYData().getData() != histogramRMS.getHistogram() ||
+        if (data.getData() != histogramRMS.getHistogram() ||
                 data.getXData(0).getData() != histogramRMS.xValues()) {
             // we wrap the histogram inner array instances in the DataFunction.
             // if they change, we need a new instance of the DataFunction
@@ -74,8 +73,7 @@ public class DataSourceRmsVelocity implements DataSourceAtomic, Serializable {
         int nBins = histogramRMS.getNBins();
         DataDoubleArray xData = new DataDoubleArray(atomData.getDataInfo().getLabel(),atomData.getDataInfo().getDimension(), 
                                                     new int[]{nBins},histogramRMS.xValues());
-        DataDoubleArray yData = new DataDoubleArray("RMS Velocity Histogram",Null.DIMENSION,new int[]{nBins},histogramRMS.getHistogram());
-        data = new DataFunction(new DataDoubleArray[]{xData}, yData);
+        data = new DataFunction("RMS Velocity Histogram",Null.DIMENSION, new DataDoubleArray[]{xData}, histogramRMS.getHistogram());
     }
     
     public Data getData(Atom a) {

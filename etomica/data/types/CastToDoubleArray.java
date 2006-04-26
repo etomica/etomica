@@ -64,7 +64,7 @@ public class CastToDoubleArray extends DataProcessor {
         String label = inputDataInfo.getLabel();
         Dimension dimension = inputDataInfo.getDimension();
         DataFactory factory = inputDataInfo.getDataFactory();
-        if (inputClass == DataDoubleArray.class) {
+        if (inputClass == DataDoubleArray.class || inputClass == DataFunction.class) {
             inputType = 0;
             return inputDataInfo;
         } else if (inputClass == DataDouble.class) {
@@ -82,12 +82,8 @@ public class CastToDoubleArray extends DataProcessor {
             int D = ((DataTensor.Factory) factory).getSpace().D();
             outputData = new DataDoubleArray(label, dimension,
                     new int[] { D, D });
-        } else if (inputClass == DataFunction.class) {
-            inputType = 5;
-            outputData = new DataDoubleArray(label, dimension,
-                    ((DataFunction.Factory) factory).getIndependentDataSizes());
         } else if (inputClass == DataGroup.class) {
-            inputType = 6;
+            inputType = 5;
             DataGroupExtractor extractor = new DataGroupExtractor(
                     new DataJudge.ByClass(DataDoubleArray.class, true));
             extractor.putDataInfo(inputDataInfo);
@@ -125,9 +121,6 @@ public class CastToDoubleArray extends DataProcessor {
                                                                  // sequence data by rows
             return outputData;
         case 5:
-            outputData.E(((DataFunction) data).getYData());
-            return outputData;
-        case 6:
             return outputData;
         default:
             throw new Error("Assertion error.  Input type out of range: "

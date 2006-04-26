@@ -4,11 +4,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.data.DataLogger.DataWriter;
-import etomica.data.types.CastArrayToDoubleArray;
 import etomica.data.types.CastGroupOfTablesToDataTable;
 import etomica.data.types.CastGroupToDoubleArray;
 import etomica.data.types.CastToTable;
-import etomica.data.types.DataArray;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataTable;
 
@@ -42,9 +40,6 @@ public class DataTableWriter implements DataWriter, java.io.Serializable {
                 return new CastGroupOfTablesToDataTable();
             }
             return new CastGroupToDoubleArray();
-        }
-        else if(newDataInfo.getDataClass() == DataArray.class) {
-            return new CastArrayToDoubleArray();
         }
         return new CastToTable();
     }

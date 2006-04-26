@@ -74,7 +74,7 @@ public class CastGroupToDoubleArray extends DataProcessor {
         DataFactory innerFactory = data[0].getDataInfo().getDataFactory();
         
         
-        if (innerDataClass == DataDoubleArray.class) {
+        if (innerDataClass == DataDoubleArray.class || innerDataClass == DataFunction.class) {
             DataDoubleArray dataArray = (DataDoubleArray)data[0];
             int D = dataArray.getArrayDimension();
             int[] size;
@@ -117,25 +117,14 @@ public class CastGroupToDoubleArray extends DataProcessor {
                 inputType = 8;
                 outputData = new DataDoubleArray(label, dimension, new int[] {data.length, D, D});
             }
-        } else if(innerDataClass == DataFunction.class) {
-            int[] sizes =  ((DataFunction.Factory)innerFactory).getIndependentDataSizes();
-            inputType = 9;
-            if (data.length != 1) {
-                inputType = 10;
-                int[] newSizes = new int[sizes.length+1];
-                newSizes[0] = data.length;
-                System.arraycopy(sizes,0,newSizes,1,sizes.length);
-                sizes = newSizes;
-            }
-            outputData = new DataDoubleArray(label, dimension, sizes);
         } else if(innerDataClass == DataGroup.class) {
-            inputType = 11;
+            inputType = 9;
             DataGroupExtractor extractor = new DataGroupExtractor(new DataJudge.ByClass(DataDoubleArray.class, true));
             extractor.putDataInfo(inputDataInfo);
             outputData = (DataDoubleArray)extractor.processData(null);
         } else {
             throw new IllegalArgumentException("Cannot cast to DataDoubleArray from "
-                    + innerDataClass + "in DataGroup");
+                    + innerDataClass + " in DataGroup");
         }
         return outputData.getDataInfo();
     }
@@ -200,14 +189,6 @@ public class CastGroupToDoubleArray extends DataProcessor {
             }
             return outputData;
         case 9:
-            outputData.E(((DataFunction)group.getData(0)).getYData());
-            return outputData;
-        case 10:
-            for (int i=0; i<group.getNData(); i++) {
-                outputData.assignColumnFrom(i,((DataFunction)group.getData(0)).getYData().getData());
-            }
-            return outputData;
-        case 11:
             return outputData;
         default:
             throw new Error("Assertion error.  Input type out of range: "+inputType);
