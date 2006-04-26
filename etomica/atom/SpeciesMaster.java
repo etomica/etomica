@@ -261,9 +261,12 @@ public final class SpeciesMaster extends Atom {
 //                ordinalReservoir.returnOrdinal(oldAtom.node.getOrdinal());
             }
             
+            removalEvent.setAtom(oldAtom);
+            ((SpeciesMaster)atom).phaseEventManager.fireEvent(removalEvent);
             if (oldAtom.node.isLeaf()) {
                 leafAtomCount--;
                 int leafIndex = ((AtomTreeNodeLeaf)oldAtom.node).getLeafIndex();
+                ((SpeciesMaster)atom).returnGlobalIndex(oldAtom.getGlobalIndex());
                 speciesMaster.leafList.removeAndReplace(leafIndex);
                 if (speciesMaster.leafList.size() > leafIndex) {
                     ((AtomTreeNodeLeaf)speciesMaster.leafList.get(leafIndex).node).setLeafIndex(leafIndex);
@@ -274,6 +277,7 @@ public final class SpeciesMaster extends Atom {
                 treeIterator.reset();
                 while (treeIterator.hasNext()) {
                     Atom childAtom = treeIterator.nextAtom();
+                    ((SpeciesMaster)atom).returnGlobalIndex(childAtom.getGlobalIndex());
                     if (childAtom.type.isLeaf()) {
                         int leafIndex = ((AtomTreeNodeLeaf)childAtom.node).getLeafIndex();
                         speciesMaster.leafList.removeAndReplace(leafIndex);
@@ -283,9 +287,6 @@ public final class SpeciesMaster extends Atom {
                     }
                 }
             }
-            removalEvent.setAtom(oldAtom);
-            ((SpeciesMaster)atom).phaseEventManager.fireEvent(removalEvent);
-            ((SpeciesMaster)atom).returnGlobalIndex(oldAtom.getGlobalIndex());
             if (parentNode() != null) {
                 parentNode().removeAtomNotify(oldAtom);
             }
