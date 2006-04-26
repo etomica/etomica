@@ -7,7 +7,7 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.meter.Meter;
-import etomica.data.types.DataArray;
+import etomica.data.types.DataGroup;
 import etomica.data.types.DataTensor;
 import etomica.phase.Phase;
 import etomica.space.Vector;
@@ -20,8 +20,11 @@ public class MeterNormalMode implements Meter {
         dim = phase.space().D();
         this.pri = pi;
 
-        data = new DataArray("Normal Mode deltas", Area.DIMENSION, pri
-                .getMaxLength(), DataTensor.getFactory(phase.space()));
+        DataTensor[] dataTensors = new DataTensor[pri.getMaxLength()];
+        for (int i = 0; i < pri.getMaxLength(); i++) {
+            dataTensors[i] = new DataTensor(phase.space(), "Normal Mode deltas", Area.DIMENSION);
+        }
+        data = new DataGroup("Normal Mode deltas", dataTensors);
         
         //Set up the pair iterator.
         api1 = new ApiLeafAtoms();
@@ -127,7 +130,7 @@ public class MeterNormalMode implements Meter {
 
 
     private PairIndexer pri; // Calculates the index to store stuff under
-    private DataArray data;
+    private DataGroup data;
     private String name;
     private int[] count; // Stores the number of times a storage location is used.
     private Phase phase;
