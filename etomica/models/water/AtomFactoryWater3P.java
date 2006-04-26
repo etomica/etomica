@@ -59,6 +59,9 @@ public class AtomFactoryWater3P extends AtomFactory {
         oFactory.setSpecies(species);
     }
     
+    /**
+     * Returns 4, equal to 1 parent molecule + 3 atoms child atoms in the molecule.
+     */
     public int getNumTreeAtoms() {
         return 4;
     }
