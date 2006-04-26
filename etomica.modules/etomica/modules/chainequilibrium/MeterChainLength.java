@@ -47,8 +47,7 @@ public class MeterChainLength implements Meter, AgentSource {
         for (int i=0; i<maxChainLength; i++) {
             x[i] = i+1;
         }
-        DataDoubleArray yData = new DataDoubleArray("Histogram",Null.DIMENSION,new int[]{maxChainLength});
-        data = new DataFunction(new DataDoubleArray[]{xData}, yData);
+        data = new DataFunction("Histogram", Null.DIMENSION, new DataDoubleArray[]{xData});
     }
     
     public Class getAgentClass() {
@@ -68,7 +67,7 @@ public class MeterChainLength implements Meter, AgentSource {
         agents = agentSource.getAgents(phase);
         atomTags = (AtomTag[])tagManager.getAgents();
         
-        double[] histogram = data.getYData().getData();
+        double[] histogram = data.getData();
         for (int i=0; i<histogram.length; i++) {
             histogram[i] = 0;
         }

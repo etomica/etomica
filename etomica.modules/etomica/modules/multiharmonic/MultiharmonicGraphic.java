@@ -7,12 +7,13 @@ import java.awt.GridLayout;
 import javax.swing.JPanel;
 
 import etomica.action.Action;
-import etomica.action.ActionGroupSeries;
+import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataProcessorFunction;
 import etomica.data.DataPump;
 import etomica.data.DataSourceFunction;
 import etomica.data.DataSourceScalar;
+import etomica.data.types.CastGroupToDoubleArray;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceTrioControllerButton;
 import etomica.graphics.DisplayPhase;
@@ -27,10 +28,8 @@ import etomica.units.Energy;
 import etomica.units.Length;
 import etomica.units.Null;
 import etomica.units.Pixel;
-import etomica.units.Undefined;
 import etomica.util.Function;
 import etomica.util.HistoryCollapsing;
-import etomica.util.HistoryCollapsingAverage;
 
 
 /**
@@ -77,7 +76,6 @@ public class MultiharmonicGraphic {
 //        panel.add(displayBox.graphic());
         
         DisplayPlot plot = new DisplayPlot();
-        CastArrayUnwrap cast = new CastArrayUnwrap();
         DataProcessorFunction log = new DataProcessorFunction(new Function() {
           public double f(double x) {
               return -Math.log(x);
@@ -88,11 +86,14 @@ public class MultiharmonicGraphic {
           public double inverse(double f) {
               return 0.0;
           }});
-        sim.history.setDataSink(cast);
-        cast.setDataSink(log);
-        log.setDataSink(plot.getDataSet());
+        sim.accumulator.addDataSink(log, new AccumulatorAverage.StatType[] {AccumulatorAverage.StatType.AVERAGE});
+        AccumulatorHistory history = new AccumulatorHistory(HistoryCollapsing.FACTORY);
+        history.setTimeDataSource(sim.timeCounter);
+        log.setDataSink(history);
+        history.setDataSink(plot.getDataSet());
         
         DisplayPlot energyPlot = new DisplayPlot();
+        sim.historyEnergy.setTimeDataSource(sim.timeCounter);
         sim.historyEnergy.setDataSink(energyPlot.getDataSet());
         
         DeviceSlider x0Slider = new DeviceSlider(sim.controller);
@@ -145,7 +146,7 @@ public class MultiharmonicGraphic {
             }
         };
         
-        AccumulatorHistory deltaHistory = new AccumulatorHistory(HistoryCollapsing.FACTORY,sim.history.getDataLength());
+        AccumulatorHistory deltaHistory = new AccumulatorHistory(HistoryCollapsing.FACTORY,sim.historyEnergy.getDataLength());
         DataPump exactPump = new DataPump(delta, deltaHistory);
         deltaHistory.setDataSink(plot.getDataSet());
         IntervalActionAdapter adapter = new IntervalActionAdapter(exactPump);
