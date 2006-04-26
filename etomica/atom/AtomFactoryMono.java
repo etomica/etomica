@@ -36,6 +36,14 @@ public class AtomFactoryMono extends AtomFactory {
         return new AtomLeaf(coordFactory.makeCoordinate(), atomType, nodeFactory);
     }
     
+    /**
+     * Returns 1, indicating that each atom produced by this factory is a single
+     * atom with no children.
+     */
+    public int getNumTreeAtoms() {
+        return 1;
+    }
+    
     protected final CoordinateFactory coordFactory;
     
 }//end of AtomFactoryMono

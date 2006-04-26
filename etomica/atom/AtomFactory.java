@@ -45,6 +45,12 @@ public abstract class AtomFactory implements java.io.Serializable {
     public abstract void setSpecies(Species species);
     
     /**
+     * Returns the number of tree Atoms (molecules, groups, leaf, etc) created 
+     * by makeAtom.
+     */
+    public abstract int getNumTreeAtoms();
+    
+    /**
      * Method used by subclasses to make the root atom of the group it is building.
      */
     protected Atom newParentAtom() {
@@ -65,14 +71,6 @@ public abstract class AtomFactory implements java.io.Serializable {
      */
     public void setConformation(Conformation config) {
         conformation = config;
-    }
-    
-    /**
-     * Returns the number of tree Atoms (molecules, groups, leaf, etc) created 
-     * by makeAtom.
-     */
-    public int getNumTreeAtoms() {
-        return 1;
     }
     
     /**
