@@ -113,16 +113,16 @@ public class DCVGCMD extends Simulation {
         potentialMaster.addPotential(potential1, new Species[] { species1, species });
 
         P2WCA potentialTubeAtom = new P2WCA(this);
-        potentialMaster.addPotential(potentialTubeAtom,new AtomType[] { tubetype, speciestype});
         nbrCriterion = new CriterionSimple(this,potentialTubeAtom.getRange(),neighborRangeFac*potentialTubeAtom.getRange());
         criterion = new CriterionSpecies(nbrCriterion, speciesTube, species);
         potentialTubeAtom.setCriterion(criterion);
+        potentialMaster.addPotential(potentialTubeAtom,new AtomType[] { tubetype, speciestype});
         
         P2WCA potentialTubeAtom1 = new P2WCA(this);
-        potentialMaster.addPotential(potentialTubeAtom1,new AtomType[] { tubetype, speciestype1});
         nbrCriterion = new CriterionSimple(this,potentialTubeAtom1.getRange(),neighborRangeFac*potentialTubeAtom.getRange());
         criterion = new CriterionSpecies(nbrCriterion, speciesTube, species1);
         potentialTubeAtom1.setCriterion(criterion);
+        potentialMaster.addPotential(potentialTubeAtom1,new AtomType[] { tubetype, speciestype1});
 
         double neighborRangeFacHalf = (1.0+neighborRangeFac)*0.5;
         
