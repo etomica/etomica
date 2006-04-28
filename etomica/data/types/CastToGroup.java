@@ -3,6 +3,7 @@ package etomica.data.types;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
+import etomica.data.types.DataGroup.DataInfoGroup;
 
 /**
  * A DataProcessor that effectively wraps a Data instance into a DataGroup.  Has no effect
@@ -31,15 +32,12 @@ public class CastToGroup extends DataProcessor {
         dataGroup = null;
         if (inputClass == DataGroup.class) {
             inputType = 0;
+            dataGroup = null;
             return inputDataInfo;
-        } 
-        //wrapping; it is necessary to make the DataGroup now, becuase we need it to return the DataInfo.
-        //its DataInfo cannot be constructed without the wrapped Data, so we need to wrap a new instance
-        //of the Data and then copy the data to it during processData
+        }
         inputType = 1;
-        wrappedData = inputDataInfo.getDataFactory().makeData(inputDataInfo.getLabel(), inputDataInfo.getDimension());
-        dataGroup = new DataGroup(inputDataInfo.getLabel()+" wrapped", new Data[] {wrappedData});
-        return dataGroup.getDataInfo();
+        dataGroup = null;
+        return new DataInfoGroup(inputDataInfo.getLabel(), inputDataInfo.getDimension(), new DataInfo[]{inputDataInfo});
     }
     
     /**
@@ -57,7 +55,9 @@ public class CastToGroup extends DataProcessor {
         case 0:
             return data;
         case 1:
-            wrappedData.E(data);
+            if (dataGroup == null) {
+                dataGroup = new DataGroup(new Data[]{data});
+            }
             return dataGroup;
         default:
             throw new Error("Assertion error.  Input type out of range: "+inputType);
@@ -73,5 +73,4 @@ public class CastToGroup extends DataProcessor {
 
     private DataGroup dataGroup;
     private int inputType;
-    private Data wrappedData;
 }

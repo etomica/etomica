@@ -9,9 +9,11 @@ import etomica.data.DataInfo;
 import etomica.data.meter.Meter;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataTensor;
+import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.phase.Phase;
 import etomica.space.Vector;
 import etomica.units.Area;
+import etomica.units.Null;
 
 public class MeterNormalMode implements Meter {
 
@@ -21,10 +23,13 @@ public class MeterNormalMode implements Meter {
         this.pri = pi;
 
         DataTensor[] dataTensors = new DataTensor[pri.getMaxLength()];
+        DataInfo[] dataInfoTensors = new  DataInfo[pri.getMaxLength()];
         for (int i = 0; i < pri.getMaxLength(); i++) {
-            dataTensors[i] = new DataTensor(phase.space(), "Normal Mode deltas", Area.DIMENSION);
+            dataTensors[i] = new DataTensor(phase.space());
+            dataInfoTensors[i] = new DataInfo("Normal Mode deltas", Area.DIMENSION, DataTensor.getFactory(phase.space()));
         }
-        data = new DataGroup("Normal Mode deltas", dataTensors);
+        data = new DataGroup(dataTensors);
+        dataInfo = new DataInfoGroup("Normal Mode deltas", Null.DIMENSION, dataInfoTensors);
         
         //Set up the pair iterator.
         api1 = new ApiLeafAtoms();
@@ -109,7 +114,7 @@ public class MeterNormalMode implements Meter {
     }
 
     public DataInfo getDataInfo() {
-        return data.getDataInfo();
+        return dataInfo;
     }
 
     public void setName(String name) {
@@ -131,6 +136,7 @@ public class MeterNormalMode implements Meter {
 
     private PairIndexer pri; // Calculates the index to store stuff under
     private DataGroup data;
+    private DataInfoGroup dataInfo;
     private String name;
     private int[] count; // Stores the number of times a storage location is used.
     private Phase phase;

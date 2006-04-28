@@ -1,6 +1,8 @@
 package etomica.data;
 
 import etomica.data.types.DataGroup;
+import etomica.data.types.DataGroup.DataInfoGroup;
+import etomica.units.Null;
 import etomica.util.Arrays;
 
 
@@ -24,7 +26,8 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
      * an empty DataGroup for getData.  Must populate group with addDataSource method. 
      */
     public DataSourceGroup() {
-        data = new DataGroup("Data Group", new Data[0]);
+        data = new DataGroup(new Data[0]);
+        dataInfo = new DataInfoGroup("Data Group", Null.DIMENSION, new DataInfo[0]);
         dataSources = new DataSource[0];
     }
     
@@ -42,7 +45,7 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
     }
     
     public DataInfo getDataInfo() {
-        return data.getDataInfo();
+        return dataInfo;
     }
 
     /**
@@ -61,9 +64,10 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
             }
         }
         if(rebuildData) {
-            data = new DataGroup(data.getDataInfo().getLabel(), latestData);
+            dataInfo = new DataInfoGroup("Data Group", Null.DIMENSION, getSubDataInfo());
+            data = new DataGroup(latestData);
         }
-    	    return data;
+        return data;
     }
     
     /**
@@ -72,10 +76,20 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
     public void addDataSource(DataSource newSource) {
         dataSources = (DataSource[])Arrays.addObject(dataSources, newSource);
         latestData = (Data[])Arrays.addObject(latestData, newSource.getData());
-        data = new DataGroup("Data Group", latestData);
+        dataInfo = new DataInfoGroup("Data Group", Null.DIMENSION, getSubDataInfo());
+        data = new DataGroup(latestData);
     }
-
+    
+    protected DataInfo[] getSubDataInfo() {
+        DataInfo[] subDataInfo = new DataInfo[dataSources.length];
+        for (int i=0; i<subDataInfo.length; i++) {
+            subDataInfo[i] = dataSources[i].getDataInfo();
+        }
+        return subDataInfo;
+    }
+    
     private DataSource[] dataSources = new DataSource[0];
     private Data[] latestData = new Data[0];
     private DataGroup data;
+    private DataInfo dataInfo;
 }

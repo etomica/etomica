@@ -14,13 +14,14 @@ import javax.swing.table.AbstractTableModel;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
+import etomica.data.DataInfo;
 import etomica.data.DataSet;
 import etomica.data.DataSinkTable;
 import etomica.data.DataTableAverages;
 import etomica.data.DataTableListener;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPressureHard;
-import etomica.data.types.DataTable.Column;
+import etomica.data.types.DataDoubleArray;
 import etomica.units.Unit;
 import etomica.units.systems.UnitSystem;
 
@@ -46,9 +47,9 @@ public class DisplayTable extends Display implements DataTableListener,
     public DisplayTable(DataSinkTable dataTable) {
         this.dataTable = dataTable;
 
-        units = new Unit[dataTable.getColumnCount()];
+        units = new Unit[dataTable.getDataCount()];
         for (int i = 0; i < units.length; i++) {
-            units[i] = dataTable.getColumn(i).getDimension().getUnit(UnitSystem.SIM);
+            units[i] = dataTable.getDataInfo(i).getDimension().getUnit(UnitSystem.SIM);
         }
 
         dataTable.addDataListener(this);
@@ -225,12 +226,12 @@ public class DisplayTable extends Display implements DataTableListener,
      * previously-set unit.
      */
     protected void recomputeUnits() {
-        units = new Unit[dataTable.getColumnCount()];
+        units = new Unit[dataTable.getDataCount()];
         for (int i=0; i<units.length; i++) {
-            Column column = dataTable.getColumn(i);
-            units[i] = (Unit)unitHash.get(column);
+            DataInfo columnInfo = dataTable.getDataInfo(i);
+            units[i] = (Unit)unitHash.get(columnInfo);
             if (units[i] == null) {
-                units[i] = column.getDimension().getUnit(UnitSystem.SIM);
+                units[i] = columnInfo.getDimension().getUnit(UnitSystem.SIM);
             }
         }
     }
@@ -241,9 +242,9 @@ public class DisplayTable extends Display implements DataTableListener,
     public void setAllUnits(Unit newUnit) {
         unitHash.clear();
         for (int i=0; i<units.length; i++) {
-            Column column = dataTable.getColumn(i);
+            DataInfo columnInfo = dataTable.getDataInfo(i);
             units[i] = newUnit;
-            unitHash.put(column,newUnit);
+            unitHash.put(columnInfo,newUnit);
         }
     }
 
@@ -258,7 +259,7 @@ public class DisplayTable extends Display implements DataTableListener,
      */
     public void setUnit(int i, Unit newUnit) {
         units[i] = newUnit;
-        unitHash.put(dataTable.getColumn(i),newUnit);
+        unitHash.put(dataTable.getDataInfo(i),newUnit);
     }
 
     /**
@@ -366,16 +367,16 @@ public class DisplayTable extends Display implements DataTableListener,
             //of the table
             int r = transposed ? column - c0 : row;
             int c = transposed ? row : column - c0;
-            Column col = dataTable.getColumn(c);
+            DataDoubleArray columnData = (DataDoubleArray)dataTable.getData(c);
             double value = Double.NaN;
-            if (r < col.getData().length) {
+            if (r < columnData.getLength()) {
                 value = units[c].fromSim(dataTable.getValue(r, c));
             }
             return new Double(value);
         }
 
         public int getRowCount() {
-            int n = transposed ? dataTable.getColumnCount() : dataTable
+            int n = transposed ? dataTable.getDataCount() : dataTable
                     .getRowCount();
             return n;
         }
@@ -383,7 +384,7 @@ public class DisplayTable extends Display implements DataTableListener,
         public int getColumnCount() {
             int n = c0
                     + (transposed ? dataTable.getRowCount() : dataTable
-                            .getColumnCount());
+                            .getDataCount());
             return n;
         }
 
@@ -404,7 +405,7 @@ public class DisplayTable extends Display implements DataTableListener,
                 if (!suffix.equals(""))
                     suffix = "(" + suffix + ")";
             }
-            return dataTable.getColumn(i).getHeading()
+            return dataTable.getDataInfo(i).getLabel()
                     + (showingUnits ? suffix : "");
         }
 

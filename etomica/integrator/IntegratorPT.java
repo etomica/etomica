@@ -113,13 +113,15 @@ public class IntegratorPT extends IntegratorManagerMC implements EtomicaElement 
         private int[] track;
         private double[] dtrack;
         private DataDoubleArray data;
+        private DataInfo dataInfo;
         
         public PhaseTracker() {
-            data = new DataDoubleArray("Phase Tracker", Null.DIMENSION,0);
+            data = new DataDoubleArray(0);
+            dataInfo = new DataInfo("Phase Tracker", Null.DIMENSION, DataDoubleArray.getFactory(new int[]{0}));
         }
         
         public DataInfo getDataInfo() {
-            return data.getDataInfo();
+            return dataInfo;
         }
         
         /**
@@ -141,7 +143,8 @@ public class IntegratorPT extends IntegratorManagerMC implements EtomicaElement 
          */
         public void setNumPhases(int numPhases) {
             track = new int[numPhases];
-            data = new DataDoubleArray(data.getDataInfo(), new int[] {numPhases});
+            data = new DataDoubleArray(new int[] {numPhases});
+            dataInfo = new DataInfo("Phase Tracker", Null.DIMENSION, DataDoubleArray.getFactory(new int[]{numPhases}));
             dtrack = data.getData();
             for(int i=0; i<numPhases; i++) {
                 track[i] = i;

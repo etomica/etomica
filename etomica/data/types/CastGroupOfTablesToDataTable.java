@@ -2,8 +2,11 @@ package etomica.data.types;
 
 
 import etomica.data.Data;
+import etomica.data.DataFactory;
 import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
+import etomica.data.types.DataGroup.DataInfoGroup;
+import etomica.data.types.DataTable.DataInfoTable;
 
 /**
  * A DataProcessor that converts a homogeneous DataGroup into a multidimensional DataDoubleArray. 
@@ -50,38 +53,25 @@ public class CastGroupOfTablesToDataTable extends DataProcessor {
         if (inputDataInfo.getDataClass() != DataGroup.class) {
             throw new IllegalArgumentException("can only cast from DataGroup");
         }
-        String label = inputDataInfo.getLabel();
-        Data[] data = ((DataGroup.Factory)inputDataInfo.getDataFactory()).data;
+        DataFactory[] elementFactory = ((DataGroup.Factory)inputDataInfo.getDataFactory()).getDataFactory();
         int nColumns = 0;
-        for (int i = 0; i<data.length; i++) {
-            if (data[i].getClass() != DataTable.class) {
+        int nRows = -1;
+        for (int i = 0; i<((DataInfoGroup)inputDataInfo).getNDataInfo(); i++) {
+            DataInfo elementDataInfo = ((DataInfoGroup)inputDataInfo).getSubDataInfo(i);
+            if (elementDataInfo.getDataClass() != DataTable.class) {
                 throw new IllegalArgumentException("this class can only cast groups of DataTables");
             }
-            nColumns += ((DataTable)data[i]).getNColumns();
-        }
-        
-        DataTable.Column[] columns = new DataTable.Column[nColumns];
-        int iColumn = 0;
-        for (int i = 0; i<data.length; i++) {
-            for (int j=0; j<((DataTable)data[i]).getNColumns(); j++) {
-                columns[iColumn] = ((DataTable)data[i]).getColumn(j);
-                if (columns[iColumn].getHeading().equals("")) {
-                    columns[iColumn].setHeading(data[i].getDataInfo().getLabel());
-                }
-                iColumn++;
+            nColumns += ((DataInfoTable)elementDataInfo).getNDataInfo();
+            if (nRows > -1 && ((DataInfoTable)elementDataInfo).getNRows() != nRows) {
+                throw new IllegalArgumentException("all columns must have an equal number of rows");
             }
+            nRows = ((DataTable.Factory)elementFactory[i]).getNRows();
         }
         
-        DataTable firstTable = (DataTable)data[0];
-        String[] rowHeaders = new String[firstTable.getNRows()];
+        outputData = new DataTable(nColumns, nRows);
         
-        for (int i = 0; i<firstTable.getNRows(); i++) {
-            rowHeaders[i] = firstTable.getRowHeaders(i);
-        }
-        
-        outputData = new DataTable(label,columns);
-        outputData.setRowHeaders(rowHeaders);
-        return outputData.getDataInfo();
+        DataFactory outputFactory = DataTable.getFactory(nRows, nColumns);
+        return new DataInfo(inputDataInfo.getLabel(), inputDataInfo.getDimension(), outputFactory);
     }
     
     /**
@@ -103,12 +93,6 @@ public class CastGroupOfTablesToDataTable extends DataProcessor {
     public DataProcessor getDataCaster(DataInfo info) {
         if (info.getDataClass() != DataGroup.class) {
             throw new IllegalArgumentException("can only cast from DataGroup");
-        }
-        Data[] data = ((DataGroup.Factory)info.getDataFactory()).data;
-        for (int i = 0; i<data.length; i++) {
-            if (data[i].getClass() != DataTable.class) {
-                throw new IllegalArgumentException("this class can only cast groups of DataTables");
-            }
         }
         return null;
     }

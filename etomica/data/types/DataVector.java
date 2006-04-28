@@ -4,10 +4,8 @@ import java.io.Serializable;
 
 import etomica.data.Data;
 import etomica.data.DataFactory;
-import etomica.data.DataInfo;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Dimension;
 import etomica.util.Function;
 
 /**
@@ -37,8 +35,8 @@ public class DataVector extends Data implements DataArithmetic {
      * @param dimension
      *            the physical dimensions of the data
      */
-    public DataVector(Space space, String label, Dimension dimension) {
-        super(new DataInfo(label, dimension, getFactory(space)));
+    public DataVector(Space space) {
+        super();
         x = space.makeVector();
     }
 
@@ -46,7 +44,7 @@ public class DataVector extends Data implements DataArithmetic {
      * Copy constructor.
      */
     public DataVector(DataVector data) {
-        super(data);
+        super();
         x = (Vector) data.x.clone();
     }
 
@@ -157,13 +155,13 @@ public class DataVector extends Data implements DataArithmetic {
      * Returns a string formed from the dataInfo label and the vector values.
      */
     public String toString() {
-        return dataInfo.getLabel() + " " + x.toString();
+        return x.toString();
     }
     
     /**
      * Returns a DataFactory that makes a DataVector for the given Space.
      */
-    public static DataFactory getFactory(Space space) {
+    public static Factory getFactory(Space space) {
         if(FACTORY == null || FACTORY.space != space) { 
             FACTORY = new Factory(space);
         }
@@ -191,8 +189,8 @@ public class DataVector extends Data implements DataArithmetic {
         /**
          * Makes a new DataVector with DataInfo having the given label and dimension.
          */
-        public Data makeData(String label, Dimension dimension) {
-            return new DataVector(space, label, dimension);
+        public Data makeData() {
+            return new DataVector(space);
         }
         
         /**

@@ -3,6 +3,7 @@ package etomica.data;
 import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
+import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.simulation.Simulation;
 import etomica.units.Null;
 import etomica.util.Function;
@@ -20,10 +21,31 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
         super(blockSize);
     }
     
+    public void addData(Data data) {
+        boolean nullData = (sum == null);
+        super.addData(data);
+        if (nullData) {
+            ratio = (DataArithmetic)data.makeCopy();
+            ratioError = (DataArithmetic)data.makeCopy();
+            ratioStandardDeviation = (DataArithmetic)data.makeCopy();
+
+            Data[] dataGroups = new Data[dataGroup.getNData()+3];
+            int i;
+            for (i=0; i<dataGroup.getNData(); i++) {
+                dataGroups[i] = dataGroup.getData(i);
+            }
+            dataGroups[i++] = (Data)ratio;
+            dataGroups[i++] = (Data)ratioError;
+            dataGroups[i++] = (Data)ratioStandardDeviation;
+            dataGroup = new DataGroup(dataGroups);
+        }
+    }
+    
     public Data getData() {
-        if (mostRecent == null) return null;
+        if (sum == null) return null;
         if(count > 0) {
             super.getData();
+
             double average0 = ((DataDoubleArray)average).getData()[0];
             if (average0 == 0) {
                 ratio.E(Double.NaN);
@@ -65,24 +87,11 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
     }
     
     public DataInfo processDataInfo(DataInfo incomingDataInfo) {
-        DataFactory factory = incomingDataInfo.getDataFactory();
         
-        sum = (DataArithmetic)factory.makeData(incomingDataInfo.getLabel()+"(blkAvg sum)", incomingDataInfo.getDimension());
-
-        ratio = (DataArithmetic)factory.makeData("Ratio", Null.DIMENSION);
-        ratioError = (DataArithmetic)factory.makeData("Ratio error", Null.DIMENSION);
-        ratioStandardDeviation = (DataArithmetic)factory.makeData("Ratio stddev", Null.DIMENSION);
-        super.processDataInfo(incomingDataInfo);
-        Data[] dataGroups = new Data[dataGroup.getNData()+3];
-        int i;
-        for (i=0; i<dataGroup.getNData(); i++) {
-            dataGroups[i] = dataGroup.getData(i);
-        }
-        dataGroups[i++] = (Data)ratio;
-        dataGroups[i++] = (Data)ratioError;
-        dataGroups[i++] = (Data)ratioStandardDeviation;
-        dataGroup = new DataGroup("Group", dataGroups);
-        return dataGroup.getDataInfo();
+        dataInfo = new DataInfoGroup(incomingDataInfo.getLabel(), Null.DIMENSION, new DataInfo[]{
+            incomingDataInfo, incomingDataInfo, incomingDataInfo, incomingDataInfo, incomingDataInfo,
+            incomingDataInfo, incomingDataInfo, incomingDataInfo, incomingDataInfo});
+        return dataInfo;
     }
     
     public static class StatType extends AccumulatorAverage.StatType {

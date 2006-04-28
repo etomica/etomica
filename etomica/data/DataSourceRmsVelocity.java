@@ -9,6 +9,7 @@ import etomica.atom.iterator.AtomIteratorNull;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
+import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.space.ICoordinateKinetic;
 import etomica.units.DimensionRatio;
 import etomica.units.Length;
@@ -32,13 +33,18 @@ public class DataSourceRmsVelocity implements DataSourceAtomic, Serializable {
     
 	public DataSourceRmsVelocity(Histogram histogram) {
         setIterator(null);
-        atomData = new DataDouble("RMS Velocity", new DimensionRatio(Length.DIMENSION, Time.DIMENSION));
+        atomDataInfo = new DataInfo("RMS Velocity", new DimensionRatio(Length.DIMENSION, Time.DIMENSION), DataDouble.getFactory());
+        atomData = new DataDouble();
         this.histogramRMS = histogram;
         setupData();
     }
     
     public DataInfo getDataInfo() {
-        return data.getDataInfo();
+        return dataInfo;
+    }
+
+    public DataInfo getAtomDataInfo() {
+        return atomDataInfo;
     }
 
 	/**
@@ -71,9 +77,10 @@ public class DataSourceRmsVelocity implements DataSourceAtomic, Serializable {
      */
     protected void setupData() {
         int nBins = histogramRMS.getNBins();
-        DataDoubleArray xData = new DataDoubleArray(atomData.getDataInfo().getLabel(),atomData.getDataInfo().getDimension(), 
-                                                    new int[]{nBins},histogramRMS.xValues());
-        data = new DataFunction("RMS Velocity Histogram",Null.DIMENSION, new DataDoubleArray[]{xData}, histogramRMS.getHistogram());
+        DataDoubleArray xData = new DataDoubleArray(new int[]{nBins},histogramRMS.xValues());
+        DataInfo xDataInfo = new DataInfo(atomDataInfo.getLabel(),atomDataInfo.getDimension(), DataDoubleArray.getFactory(new int[]{nBins}));
+        data = new DataFunction(new DataDoubleArray[]{xData}, histogramRMS.getHistogram());
+        dataInfo = new DataInfoFunction("RMS Velocity Histogram",Null.DIMENSION, new int[]{nBins}, new DataInfo[]{xDataInfo});
     }
     
     public Data getData(Atom a) {
@@ -104,7 +111,9 @@ public class DataSourceRmsVelocity implements DataSourceAtomic, Serializable {
 
 	private AtomIterator iterator;
     private final DataDouble atomData;
+    private final DataInfo atomDataInfo;
     private final Histogram histogramRMS;
     private DataFunction data;
+    private DataInfo dataInfo;
 
 }//end of DataSourceVelocityRms

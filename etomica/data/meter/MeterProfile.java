@@ -5,12 +5,12 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.Data;
 import etomica.data.DataInfo;
-import etomica.data.DataSource;
 import etomica.data.DataSourceAtomic;
 import etomica.data.DataSourceUniform;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
+import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.phase.Phase;
 import etomica.space.Boundary;
 import etomica.space.Space;
@@ -25,7 +25,7 @@ import etomica.units.Length;
  * 
  * @author Rob Riggleman
  */
-public class MeterProfile implements DataSource, Meter, java.io.Serializable {
+public class MeterProfile implements Meter, java.io.Serializable {
     
     /**
      * Default constructor sets profile along the y-axis, with 100 histogram points.
@@ -44,7 +44,7 @@ public class MeterProfile implements DataSource, Meter, java.io.Serializable {
     }
 
     public DataInfo getDataInfo() {
-        return data.getDataInfo();
+        return dataInfo;
     }
 
     /**
@@ -59,7 +59,9 @@ public class MeterProfile implements DataSource, Meter, java.io.Serializable {
         if (!(m.getDataInfo().getDataClass().equals(DataDouble.class))) {
             throw new IllegalArgumentException("data source must return a DataDouble");
         }
-        data = new DataFunction(m.getDataInfo().getLabel()+" Profile", m.getDataInfo().getDimension(), new DataDoubleArray[] {xData});
+        data = new DataFunction(new DataDoubleArray[] {xData});
+        dataInfo = new DataInfoFunction(m.getDataInfo().getLabel()+" Profile", m.getDataInfo().getDimension(), new int[]{xData.getLength()},
+                new DataInfo[] {new DataInfo("x",Length.DIMENSION,DataDoubleArray.getFactory(new int[]{xData.getLength()}))});
         meter = m;
     }
     
@@ -132,6 +134,7 @@ public class MeterProfile implements DataSource, Meter, java.io.Serializable {
     private String name;
     private DataSourceUniform xDataSource;
     private DataFunction data;
+    private DataInfo dataInfo;
     private DataDoubleArray xData;
     private DataDoubleArray yData;
     /**

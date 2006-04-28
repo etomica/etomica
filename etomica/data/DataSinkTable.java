@@ -2,12 +2,13 @@ package etomica.data;
 
 import java.io.Serializable;
 
-import etomica.data.types.CastGroupOfTablesToDataTable;
 import etomica.data.types.CastGroupToDoubleArray;
 import etomica.data.types.CastToTable;
+import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataTable;
-import etomica.util.Arrays;
+import etomica.data.types.DataGroup.DataInfoGroup;
+import etomica.data.types.DataTable.DataInfoTable;
 
 /**
  * Receives data from multiple streams and organizes it in the form of a table,
@@ -26,46 +27,36 @@ public class DataSinkTable extends DataSet {
 
     public DataSinkTable() {
         super(new DataCasterJudgeTable());
+        backwardDataMap = new int[0];
+        forwardDataMap = new int[0];
     }
     
-    /* (non-Javadoc)
-     * @see etomica.DataSink#getDataCaster(etomica.DataInfo)
-     */
-
-    protected void addNewData(Data data) {
-        DataTable dataTable = (DataTable)data;
-        int nColumns = dataTable.getNColumns();
-        if (dataColumns.length == 0) {
-            rowHeaders = new String[dataTable.getNRows()];
-            for (int i=0; i<rowHeaders.length; i++) {
-                rowHeaders[i] = dataTable.getRowHeaders(i);
-            }
-        }
-        int oldSize = dataColumns.length;
-        dataColumns = (DataTable.Column[])Arrays.resizeArray(dataColumns,oldSize+nColumns);
-        for (int i=0; i<nColumns; i++) {
-            dataColumns[oldSize+i] = dataTable.getColumn(i);
-        }
-        super.addNewData(data);
-        updateRowCount(dataTable);
+    public String getRowHeader(int i) {
+        return ((DataInfoTable)psuedoSinks[0].getDataInfo()).getRowHeader(i);
     }
-    
-    public void reset() {
-        dataColumns = new DataTable.Column[0];
-        super.reset();
-        updateRowCount(null);
-    }
-    
     
     public double getValue(int row, int column) {
-        if(dataColumns[column].getData().length <= row) return Double.NaN;
-        return dataColumns[column].getData()[row];
+        int iTable = backwardDataMap[column];
+        DataDoubleArray dataColumn = (DataDoubleArray)((DataTable)psuedoSinks[iTable].getData()).getData(column-forwardDataMap[iTable]);
+        if(dataColumn.getLength() <= row) return Double.NaN;
+        return dataColumn.getValue(row);
     }
 
-    public int getColumnCount() {
-        return dataColumns.length;
+    protected void dataInfoChanged(DataSetSink dataSetSink) {
+        super.dataInfoChanged(dataSetSink);
+        if (dataSetSink.index != -1) {
+            updateRowCount();
+        }
     }
 
+    protected void dataChanged(DataSetSink dataSetSink) {
+        boolean newData = (dataSetSink.index == -1);
+        super.dataChanged(dataSetSink);
+        if (newData) {
+            updateRowCount();
+        }
+    }
+    
     /**
      * Returns the length of the longest column.
      */
@@ -73,29 +64,6 @@ public class DataSinkTable extends DataSet {
         return rowCount;
     }
     
-    public String getRowHeader(int i) {
-        return rowHeaders[i];
-    }
-
-    public DataTable.Column getColumn(int column) {
-        return dataColumns[column];
-    }
-    
-//    /**
-//     * Descriptive string for each column.  Returns an
-//     * array of length equal to the number of columns in
-//     * the table.  Each entry is obtained from the getLabel
-//     * method for the column. Never returns null.
-//     */
-//    public String[] getColumnHeadings() {
-//        //need to refresh with each call because columnHeadings isn't 
-//        //notified when setLabel of DataBin is called
-//        for (int i = 0; i < columns.length; i++) {
-//            columnHeadings[i] = columns[i].getDataInfo().getLabel();
-//        }
-//        return columnHeadings;
-//    }
-
     protected void fireRowCountChangedEvent() {
         for (int i = 0; i < listeners.length; i++) {
             if (listeners[i] instanceof DataTableListener) {
@@ -104,32 +72,21 @@ public class DataSinkTable extends DataSet {
         }
     }
     
-    private void updateRowCount(DataTable dataTable) {
+    private void updateRowCount() {
         int oldRowCount = rowCount;
         rowCount = 0;
-        for (int i = 0; i < dataColumns.length; i++) {
-            int n = dataColumns[i].getData().length;
+        for (int i = 0; i < psuedoSinks.length; i++) {
+            int n = ((DataTable)psuedoSinks[i].getData()).getNRows();
             if (n > rowCount) {
                 rowCount = n;
             }
         }
         if (oldRowCount != rowCount) {
-            if (dataTable == null) {
-                rowHeaders = new String[0];
-            }
-            else {
-                rowHeaders = new String[dataTable.getNRows()];
-                for (int i=0; i<rowHeaders.length; i++) {
-                    rowHeaders[i] = dataTable.getRowHeaders(i);
-                }
-            }
             fireRowCountChangedEvent();
         }
     }
     
     private int rowCount;
-    private DataTable.Column[] dataColumns = new DataTable.Column[0];
-    private String[] rowHeaders;
     
     protected static class DataCasterJudgeTable implements DataCasterJudge, Serializable {
 
@@ -137,15 +94,10 @@ public class DataSinkTable extends DataSet {
             if (dataInfo.getDataClass() == DataTable.class) {
                 return null;
             } else if(dataInfo.getDataClass() == DataGroup.class) {
-                DataInfo[] info = ((DataGroup.Factory)dataInfo.getDataFactory()).getDataInfoArray(); 
-                Class innerDataClass = info[0].getDataClass();
-                for (int i = 1; i<info.length; i++) {
-                    if (info[i].getDataClass() != innerDataClass) {
-                        throw new IllegalArgumentException("DataSinkTable can only handle homogeneous groups");
+                for (int i = 0; i<((DataInfoGroup)dataInfo).getNDataInfo(); i++) {
+                    if (((DataInfoGroup)dataInfo).getSubDataInfo(i).getDataClass() != DataTable.class) {
+                        throw new IllegalArgumentException("DataSinkTable can only handle groups of DataTables");
                     }
-                }
-                if(innerDataClass == DataTable.class) {
-                    return new CastGroupOfTablesToDataTable();
                 }
                 return new CastGroupToDoubleArray();
             }

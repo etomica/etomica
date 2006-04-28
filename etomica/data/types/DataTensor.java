@@ -37,8 +37,8 @@ public class DataTensor extends Data implements DataArithmetic {
      * @param dimension
      *            the physical dimensions of the data
      */
-    public DataTensor(Space space, String label, Dimension dimension) {
-        super(new DataInfo(label, dimension, getFactory(space)));
+    public DataTensor(Space space) {
+        super();
         x = space.makeTensor();
     }
 
@@ -46,7 +46,7 @@ public class DataTensor extends Data implements DataArithmetic {
      * Copy constructor.
      */
     public DataTensor(DataTensor data) {
-        super(data);
+        super();
         x = (Tensor) data.x.clone();
     }
 
@@ -164,13 +164,13 @@ public class DataTensor extends Data implements DataArithmetic {
      * Returns a string formed from the dataInfo label and the tensor values.
      */
     public String toString() {
-        return dataInfo.getLabel() + " " + x.toString();
+        return x.toString();
     }
     
     /**
      * Returns a DataFactory that makes a DataTensor for the given Space.
      */
-    public static DataFactory getFactory(Space space) {
+    public static Factory getFactory(Space space) {
         if(FACTORY == null || FACTORY.space != space) { 
             FACTORY = new Factory(space);
         }
@@ -200,8 +200,8 @@ public class DataTensor extends Data implements DataArithmetic {
          * Makes and returns a new DataTensor using the given label and dimension
          * for its DataInfo.
          */
-        public Data makeData(String label, Dimension dimension) {
-            return new DataTensor(space, label, dimension);
+        public Data makeData() {
+            return new DataTensor(space);
         }
         
         /**

@@ -93,7 +93,7 @@ public class ReactionEquilibriumGraphic {
         new IntervalActionAdapter(pump,sim.integratorHard1);
 
         DataSinkTable dataTable = new DataSinkTable();
-        accumulator.addDataSink(dataTable,new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+        accumulator.addDataSink(dataTable.makeDataSink(),new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
         DisplayTable THING = new DisplayTable(dataTable);
 //        THING.setRowLabels(new String[] { "monomer", "dimer", "trimer", "4-mer", "5-mer", "6-mer", "7-10-mer", "11-13-mer", "14-25-mer",">25-mer"});
         THING.setTransposed(false);
@@ -101,7 +101,7 @@ public class ReactionEquilibriumGraphic {
         THING.setPrecision(7);
 
         DisplayPlot compositionPlot = new DisplayPlot();
-        accumulator.addDataSink(compositionPlot.getDataSet(),new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
+        accumulator.addDataSink(compositionPlot.getDataSet().makeDataSink(),new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
         compositionPlot.setDoLegend(false);
 		
         // Stuff that Happens AS SIMULATION RUNS !
@@ -128,11 +128,11 @@ public class ReactionEquilibriumGraphic {
         colorScheme.setColor(sim.speciesA.getMoleculeType(), java.awt.Color.red);
         colorScheme.setColor(sim.speciesB.getMoleculeType(), java.awt.Color.black);
 
-        int ms = 10;
+        int ms = 20;
         AEditor.nSlider.getSlider().setMajorTickSpacing(ms);
         BEditor.nSlider.getSlider().setMajorTickSpacing(ms);
-        AEditor.nSlider.getSlider().setMinorTickSpacing(1);
-        BEditor.nSlider.getSlider().setMinorTickSpacing(1);
+        AEditor.nSlider.getSlider().setMinorTickSpacing(2);
+        BEditor.nSlider.getSlider().setMinorTickSpacing(2);
         AEditor.nSlider.getSlider().setLabelTable(AEditor.nSlider.getSlider().createStandardLabels(ms));
         BEditor.nSlider.getSlider().setLabelTable(AEditor.nSlider.getSlider().createStandardLabels(ms));
         sizeSlider.setLabel("Atom size");
@@ -285,7 +285,7 @@ public class ReactionEquilibriumGraphic {
         AASlider.setLabel(s);
         AASlider.setMinimum(eMin);
         AASlider.setMaximum(eMax);
-        AASlider.setNMajor(5);
+        AASlider.setNMajor(4);
         AASlider.getSlider().setSnapToTicks(true);
 
         return AASlider;

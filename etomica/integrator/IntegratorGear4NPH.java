@@ -231,12 +231,13 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     public static final class MeterTPH implements DataSource, java.io.Serializable {
         
         public MeterTPH(IntegratorGear4NPH integrator) {
-            data = new DataDoubleArray("TPH",Undefined.DIMENSION,3);
+            data = new DataDoubleArray(3);
+            dataInfo = new DataInfo("TPH", Undefined.DIMENSION, DataDoubleArray.getFactory(new int[]{3}));
             this.integrator = integrator;
         }
         
         public DataInfo getDataInfo() {
-            return data.getDataInfo();
+            return dataInfo;
         }
         
         public Data getData() {
@@ -254,6 +255,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         
         private DataDoubleArray data;
         private IntegratorGear4NPH integrator;
+        private DataInfo dataInfo;
     }
         
     public final class ForceSumNPH extends PotentialCalculation {

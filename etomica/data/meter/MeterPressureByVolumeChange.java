@@ -19,7 +19,7 @@ import etomica.units.Volume;
  * Evaluates the pressure by examining the change in energy accompanying
  * small changes in volume.
  */
-public class MeterPressureByVolumeChange implements java.io.Serializable {
+public class MeterPressureByVolumeChange implements DataSource, java.io.Serializable {
     
     public MeterPressureByVolumeChange(Space space) {
         this(space, makeDefaultDimensions(space.D()));
@@ -66,7 +66,7 @@ public class MeterPressureByVolumeChange implements java.io.Serializable {
     }
 
     public DataInfo getDataInfo() {
-        return data.getDataInfo();
+        return dataInfo;
     }
 
     /**
@@ -90,7 +90,8 @@ public class MeterPressureByVolumeChange implements java.io.Serializable {
     
     public void setX(double min, double max, int n) {
         xDataSource = new DataSourceUniform("x", Volume.dimension(space.D()), n, min, max);
-        data = new DataDoubleArray("Pressure by Volume Change", Pressure.dimension(space.D()), n);
+        data = new DataDoubleArray(n);
+        dataInfo = new DataInfo("Pressure by Volume Change", Pressure.dimension(space.D()), DataDoubleArray.getFactory(new int[]{n}));
         dataArray = data.getData();
         updateScale();
     }
@@ -146,6 +147,7 @@ public class MeterPressureByVolumeChange implements java.io.Serializable {
     }
 
     private DataDoubleArray data;
+    private DataInfo dataInfo;
     private double[] dataArray;
     private final PhaseInflate inflater;
     private Vector[] scale;

@@ -1,6 +1,5 @@
 package etomica.data;
 
-import etomica.units.Dimension;
 
 
 /**
@@ -24,11 +23,10 @@ public interface DataFactory {
     /**
      * Constructs a Data instance with a DataInfo having the given label and dimension fields.
      */
-    public Data makeData(String label, Dimension dimension);
+    public Data makeData();
     
     /**
      * Returns the Class of the Data made by this factory.
      */
     public Class getDataClass();
-    
 }

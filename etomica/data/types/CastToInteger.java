@@ -1,9 +1,7 @@
 package etomica.data.types;
 
 import etomica.data.Data;
-import etomica.data.DataGroupExtractor;
 import etomica.data.DataInfo;
-import etomica.data.DataJudge;
 import etomica.data.DataProcessor;
 
 /**
@@ -47,7 +45,7 @@ public class CastToInteger extends DataProcessor {
      *             general class comments
      */
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
-        dataInteger = new DataInteger(inputDataInfo.getLabel(), inputDataInfo.getDimension());
+        dataInteger = new DataInteger();
         Class inputClass = inputDataInfo.getDataClass();
         if (inputClass == DataDouble.class) {
             inputType = 0;
@@ -55,15 +53,12 @@ public class CastToInteger extends DataProcessor {
             inputType = 1;
         } else if (inputClass == DataInteger.class) {
             inputType = 2;
-        } else if (inputClass == DataGroup.class) {
-            inputType = 3;
-            DataGroupExtractor extractor = new DataGroupExtractor(new DataJudge.ByClass(DataInteger.class, true));
-            dataInteger= (DataInteger)extractor.processData(null);
+            dataInteger = null;
         } else {
             throw new IllegalArgumentException("Cannot cast to int from "
                     + inputClass);
         }
-        return dataInteger.getDataInfo();
+        return new DataInfo(inputDataInfo.getLabel(), inputDataInfo.getDimension(), DataInteger.getFactory());
     }
     
     /**
@@ -84,14 +79,12 @@ public class CastToInteger extends DataProcessor {
         switch (inputType) {
         case 0:
             dataInteger.x = (int)((DataDouble) data).x;
-            return data;
+            return dataInteger;
         case 1:
             dataInteger.x = (int)((DataDoubleArray) data).getData()[0];
             return dataInteger;
         case 2:
-            return dataInteger;
-        case 3:
-            return dataInteger;
+            return data;
         default:
             throw new Error("Assertion error.  Input type out of range: "+inputType);
         }

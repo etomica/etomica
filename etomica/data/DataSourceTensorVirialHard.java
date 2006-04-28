@@ -18,9 +18,10 @@ import etomica.units.Null;
 public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, IntegratorHard.CollisionListener, java.io.Serializable {
     
     public DataSourceTensorVirialHard(Space space) {
-        data = new DataTensor(space, "PV/NkT",Null.DIMENSION);
-        lastData = new DataTensor(space, "PV/NkT",Null.DIMENSION);
+        data = new DataTensor(space);
+        dataInfo = new DataInfo("PV/NkT", Null.DIMENSION, DataTensor.getFactory(space));
         timer = new DataSourceCountTime();
+        work = space.makeTensor();
     }
     
     public DataSourceTensorVirialHard(Space space, IntegratorHard integrator) {
@@ -34,7 +35,7 @@ public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, I
     }
     
     public DataInfo getDataInfo() {
-        return data.getDataInfo();
+        return dataInfo;
     }
     
     /**
@@ -45,35 +46,33 @@ public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, I
     public Data getData() {
         double elapsedTime = timer.getDataAsScalar();
         if(elapsedTime == 0.0) {
-            lastData.E(Double.NaN);
-            return lastData;
+            data.E(Double.NaN);
+            return data;
         }
         Phase phase = integratorHard.getPhase();
         int D = phase.space().D();
 
-        lastData.E(data);
-        lastData.TE(-1./(integratorHard.getTemperature()*elapsedTime*D*phase.atomCount()));
-        data.E(0);
+        work.TE(-1./(integratorHard.getTemperature()*elapsedTime*D*phase.atomCount()));
+        data.x.E(work);
         //don't add 1.0 to diagonal elements because meter returns only virial contribution to pressure
         timer.reset();
-        return lastData;
+        return data;
     }
     
     /**
      * Sums contribution to virial for each collision.
      */
     public void collisionAction(IntegratorHard.Agent agent) {
-       lastData.x.E(agent.collisionPotential.lastCollisionVirialTensor());
-       data.PE(lastData);
+        work.PE(agent.collisionPotential.lastCollisionVirialTensor());
     }
     
     /**
      * Contribution to the virial from the most recent collision of the given pair/potential.
      */
     public Tensor collisionValue(IntegratorHard.Agent agent) {
-        lastData.x.E(agent.collisionPotential.lastCollisionVirialTensor());
-        lastData.x.TE(1/(double)integratorHard.getPhase().atomCount());
-        return lastData.x;
+        data.x.E(agent.collisionPotential.lastCollisionVirialTensor());
+        data.x.TE(1/(double)integratorHard.getPhase().atomCount());
+        return data.x;
     }
                 
     /**
@@ -88,7 +87,7 @@ public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, I
         integratorHard = newIntegrator;
         if(newIntegrator != null) {
             timer.reset();
-            integratorHard.addCollisionListener(this);
+            newIntegrator.addCollisionListener(this);
             newIntegrator.addListener(timer);
         }
     }
@@ -108,5 +107,7 @@ public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, I
     private String name;
     private DataSourceCountTime timer;
     private IntegratorHard integratorHard;
-    private final DataTensor data, lastData;
+    private final DataTensor data;
+    private final Tensor work;
+    private final DataInfo dataInfo;
 }

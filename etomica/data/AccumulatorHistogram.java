@@ -9,6 +9,8 @@ import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataGroup;
+import etomica.data.types.DataFunction.DataInfoFunction;
+import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.units.Null;
 import etomica.util.Histogram;
 import etomica.util.HistogramCollapsing;
@@ -73,23 +75,32 @@ public class AccumulatorHistogram extends DataAccumulator {
         
         if (!success) {
             DataFunction[] dataFunctions = new DataFunction[nData];
+            DataInfoFunction[] dataInfoFunctions = new DataInfoFunction[nData];
             // attempt to re-use old DataFunctions
             for (int i=0; i<nData; i++) {
                 DataFunction dataFunction = (DataFunction)data.getData(i);
+                DataInfoFunction dataInfoFunction = (DataInfoFunction)dataInfo.getSubDataInfo(i);
                 if (dataFunction.getData() == histogram[i].getHistogram() &&
                         dataFunction.getXData(0).getData() == histogram[i].xValues()) {
                     dataFunctions[i] = dataFunction;
+                    dataInfoFunctions[i] = dataInfoFunction;
                 }
                 else {
-                    int iBins = histogram[i].getNBins();
-                    DataDoubleArray xData = new DataDoubleArray(binnedDataInfo.getLabel(),binnedDataInfo.getDimension(), 
-                            new int[]{iBins},histogram[i].xValues());
-                    dataFunctions[i] = new DataFunction("Histogram",Null.DIMENSION,new DataDoubleArray[]{xData}, histogram[i].getHistogram());
+                    DataDoubleArray xData = new DataDoubleArray(new int[]{nBins},histogram[i].xValues());
+                    DataInfo independentInfo = new DataInfo(binnedDataInfo.getLabel(),binnedDataInfo.getDimension(),DataDoubleArray.getFactory(new int[]{histogram[i].getNBins()}));
+                    dataFunctions[i] = new DataFunction(new DataDoubleArray[]{xData}, histogram[i].getHistogram());
+                    dataInfoFunctions[i] = new DataInfoFunction(binnedDataInfo.getLabel()+" Histogram", Null.DIMENSION, new int[]{histogram[i].getNBins()}, new DataInfo[]{independentInfo});
                 }
             }
             // creating a new data instance might confuse downstream data sinks, but
             // we have little choice and they should deal.
-            data = new DataGroup("Histogram",dataFunctions);
+            data = new DataGroup(dataFunctions);
+            dataInfo = new DataInfoGroup("Histogram", binnedDataInfo.getDimension(), dataInfoFunctions);
+
+            // if we have have our own DataSink, we need to notify it that something changed.
+            if(dataSink != null) {
+                dataSink.putDataInfo(dataInfo);
+            }
         }
             
         return data;
@@ -107,7 +118,7 @@ public class AccumulatorHistogram extends DataAccumulator {
             histogram[i].setNBins(nBins);
         }
         setupData();
-        return data.getDataInfo();
+        return dataInfo;
     }
     
     /**
@@ -125,11 +136,15 @@ public class AccumulatorHistogram extends DataAccumulator {
      */
     private void setupData() {
         DataFunction[] dataFunctions = new DataFunction[nData];
+        DataInfoFunction[] dataInfoFunctions = new DataInfoFunction[nData];
         for (int i=0; i<nData; i++) {
-            DataDoubleArray xData = new DataDoubleArray(binnedDataInfo.getLabel(),binnedDataInfo.getDimension(),new int[]{histogram[i].getNBins()},histogram[i].xValues());
-            dataFunctions[i]= new DataFunction("Histogram",Null.DIMENSION,new DataDoubleArray[]{xData}, histogram[i].getHistogram());
+            DataDoubleArray xData = new DataDoubleArray(new int[]{histogram[i].getNBins()},histogram[i].xValues());
+            DataInfo independentInfo = new DataInfo(binnedDataInfo.getLabel(),binnedDataInfo.getDimension(),DataDoubleArray.getFactory(new int[]{histogram[i].getNBins()}));
+            dataFunctions[i] = new DataFunction(new DataDoubleArray[]{xData}, histogram[i].getHistogram());
+            dataInfoFunctions[i] = new DataInfoFunction(binnedDataInfo.getLabel()+" Histogram", Null.DIMENSION, new int[]{histogram[i].getNBins()}, new DataInfo[]{independentInfo});
         }
-        data = new DataGroup("Histogram",dataFunctions);
+        data = new DataGroup(dataFunctions);
+        dataInfo = new DataInfoGroup("Histogram", binnedDataInfo.getDimension(), dataInfoFunctions);
     }
     
     /**
@@ -151,7 +166,7 @@ public class AccumulatorHistogram extends DataAccumulator {
         }
         setupData();
         if(dataSink != null) {
-            dataSink.putDataInfo(data.getDataInfo());
+            dataSink.putDataInfo(dataInfo);
         }
     }
 
@@ -171,11 +186,12 @@ public class AccumulatorHistogram extends DataAccumulator {
      * Returns the DataInfo for the output Data.
      */
     public DataInfo getDataInfo() {
-        return data.getDataInfo();
+        return dataInfo;
     }
     
     Histogram[] histogram = new Histogram[0];
     private DataGroup data;
+    private DataInfoGroup dataInfo;
     private DataInfo binnedDataInfo;
     int nData;
     private Histogram.Factory histogramFactory;

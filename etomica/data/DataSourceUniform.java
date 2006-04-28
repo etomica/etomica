@@ -51,7 +51,8 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
      */
     public DataSourceUniform(String label, Dimension dimension, int nValues, double xMin, double xMax, 
                    LimitType typeMin, LimitType typeMax) {
-        data = new DataDoubleArray(label, dimension, nValues);
+        dataInfo = new DataInfo(label, dimension, DataDoubleArray.getFactory(new int[]{nValues}));
+        data = new DataDoubleArray(nValues);
         if(nValues < 2) nValues = 2;
         calculateX(nValues, xMin, xMax, typeMin, typeMax);
     }
@@ -83,7 +84,8 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
         //calculate values
 
         if (nValues != data.getLength()) {
-            data = new DataDoubleArray(data.getDataInfo(), new int[]{nValues});
+            data = new DataDoubleArray(new int[]{nValues});
+            dataInfo = new DataInfo(dataInfo.getLabel(), dataInfo.getDimension(), DataDoubleArray.getFactory(new int[]{nValues}));
         }
         x = data.getData();
         for(int i=0; i<nValues; i++) x[i] = x0 + i*dx;
@@ -96,7 +98,7 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
     }//end of calculateX
     
     public DataInfo getDataInfo() {
-        return data.getDataInfo();
+        return dataInfo;
     }
     /**
      * Returns the index of the x value closest to the argument.
@@ -228,6 +230,7 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
     private double xMin, xMax;
     private double[] x;
     private DataDoubleArray data;
+    private DataInfo dataInfo;
     private double dx;
     
     /**

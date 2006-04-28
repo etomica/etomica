@@ -7,8 +7,11 @@ import etomica.data.DataLogger.DataWriter;
 import etomica.data.types.CastGroupOfTablesToDataTable;
 import etomica.data.types.CastGroupToDoubleArray;
 import etomica.data.types.CastToTable;
+import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataTable;
+import etomica.data.types.DataGroup.DataInfoGroup;
+import etomica.data.types.DataTable.DataInfoTable;
 
 /**
  * A DataWriter that writes out data as a table with column headings
@@ -21,7 +24,7 @@ public class DataTableWriter implements DataWriter, java.io.Serializable {
     }
     
     public void putDataInfo(DataInfo newDataInfo) {
-        // no DataSink
+        dataInfo = newDataInfo;
     }
 
     public DataProcessor getDataCaster(DataInfo newDataInfo) {
@@ -29,14 +32,13 @@ public class DataTableWriter implements DataWriter, java.io.Serializable {
             return null;
         }
         else if (newDataInfo.getDataClass() == DataGroup.class) {
-            DataInfo[] info = ((DataGroup.Factory)newDataInfo.getDataFactory()).getDataInfoArray(); 
-            Class innerDataClass = info[0].getDataClass();
-            for (int i = 1; i<info.length; i++) {
-                if (info[i].getDataClass() != innerDataClass) {
+            for (int i = 1; i<((DataInfoGroup)newDataInfo).getNDataInfo(); i++) {
+                DataInfo subDataInfo = ((DataInfoGroup)newDataInfo).getSubDataInfo(0);
+                if (subDataInfo.getDataClass() != DataTable.class) {
                     throw new IllegalArgumentException("DataSinkTable can only handle homogeneous groups");
                 }
             }
-            if(innerDataClass == DataTable.class) {
+            if(((DataInfoGroup)newDataInfo).getSubDataInfo(0).getDataClass() == DataTable.class) {
                 return new CastGroupOfTablesToDataTable();
             }
             return new CastGroupToDoubleArray();
@@ -47,24 +49,24 @@ public class DataTableWriter implements DataWriter, java.io.Serializable {
     public void putData(Data data) {
         DataTable table = (DataTable)data;
         try {
-            int nColumns = table.getNColumns();
+            int nColumns = table.getNData();
             if (nColumns < 1) {
                 return;
             }
             if (firstWrite) {
                 // if this is the first write to a file, start with the column headers
-                fileWriter.write(table.getDataInfo().getLabel()+" "+table.getDataInfo().getDimension()+"\n");
-                fileWriter.write(table.getColumn(0).getHeading());
+                fileWriter.write(dataInfo.getLabel()+" "+dataInfo.getDimension()+"\n");
+                fileWriter.write(((DataInfoTable)dataInfo).getSubDataInfo(0).getLabel());
                 for (int i=1; i<nColumns; i++) {
-                    fileWriter.write("  "+table.getColumn(i).getHeading());
+                    fileWriter.write("  "+((DataInfoTable)dataInfo).getSubDataInfo(0).getLabel());
                 }
                 fileWriter.write("\n");
                 firstWrite = false;
             }
             for (int i=0; i<table.getNRows(); i++) {
-                fileWriter.write(Double.toString(table.getColumn(0).getData()[i]));
+                fileWriter.write(Double.toString(((DataDoubleArray)table.getData(0)).getData()[i]));
                 for (int j=1; j<nColumns; j++) {
-                    fileWriter.write("  "+Double.toString(table.getColumn(j).getData()[i]));
+                    fileWriter.write("  "+Double.toString(((DataDoubleArray)table.getData(j)).getData()[i]));
                 }
                 fileWriter.write("\n");
             }
@@ -85,4 +87,5 @@ public class DataTableWriter implements DataWriter, java.io.Serializable {
 
     private FileWriter fileWriter;
     private boolean firstWrite;
+    private DataInfo dataInfo;
 }

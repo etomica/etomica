@@ -39,34 +39,8 @@ package etomica.data;
 public abstract class Data implements java.io.Serializable {
 
     /**
-     * Constructs the object with the given DataInfo instance, which is returned
-     * by the getDataInfo method. DataInfo is declared final and cannot be
-     * changed after construction.
-     */
-    protected Data(DataInfo dataInfo) {
-        this.dataInfo = dataInfo;
-    }
-
-    /**
-     * Copy constructor, used by subclasses.  Constructs instance using 
-     * the DataInfo in the given Data instance (i.e., uses DataInfo instance directly,
-     * not a copy).
-     */
-    protected Data(Data data) {
-        this(data.dataInfo);
-    }
-
-    /**
-     * Returns a DataInfo object, which contains descriptive information about
-     * the data held by this object.
-     */
-    public DataInfo getDataInfo() {
-        return dataInfo;
-    }
-
-    /**
      * Returns a new instance of a data object, formed as a deep copy of this
-     * instance, but with the same DataInfo instance.
+     * instance.
      */
     public abstract Data makeCopy();
 
@@ -78,7 +52,5 @@ public abstract class Data implements java.io.Serializable {
      *             to this one.
      */
     public abstract void E(Data data);
-
-    protected final DataInfo dataInfo;
     
- }
+}

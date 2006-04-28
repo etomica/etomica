@@ -15,4 +15,6 @@ public interface DataSourceAtomic extends DataSource {
     
     public Data getData(Atom a);
     
+    public DataInfo getAtomDataInfo();
+    
 }

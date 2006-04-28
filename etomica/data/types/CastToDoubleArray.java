@@ -2,11 +2,8 @@ package etomica.data.types;
 
 import etomica.data.Data;
 import etomica.data.DataFactory;
-import etomica.data.DataGroupExtractor;
 import etomica.data.DataInfo;
-import etomica.data.DataJudge;
 import etomica.data.DataProcessor;
-import etomica.units.Dimension;
 
 /**
  * A DataProcessor that converts a Data instance into a DataDoubleArray. Copies
@@ -61,38 +58,30 @@ public class CastToDoubleArray extends DataProcessor {
      */
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
         Class inputClass = inputDataInfo.getDataClass();
-        String label = inputDataInfo.getLabel();
-        Dimension dimension = inputDataInfo.getDimension();
         DataFactory factory = inputDataInfo.getDataFactory();
-        if (inputClass == DataDoubleArray.class || inputClass == DataFunction.class) {
+        int[] arrayShape;
+        if (inputClass == DataDoubleArray.class) {
             inputType = 0;
             return inputDataInfo;
         } else if (inputClass == DataDouble.class) {
             inputType = 1;
-            outputData = new DataDoubleArray(label, dimension, 1);
+            arrayShape = new int[]{1};
         } else if (inputClass == DataInteger.class) {
             inputType = 2;
-            outputData = new DataDoubleArray(label, dimension, 1);
+            arrayShape = new int[]{1};
         } else if (inputClass == DataVector.class) {
             inputType = 3;
-            outputData = new DataDoubleArray(label, dimension,
-                    ((DataVector.Factory) factory).getSpace().D());
+            arrayShape = new int[]{((DataVector.Factory)factory).getSpace().D()};
         } else if (inputClass == DataTensor.class) {
             inputType = 4;
             int D = ((DataTensor.Factory) factory).getSpace().D();
-            outputData = new DataDoubleArray(label, dimension,
-                    new int[] { D, D });
-        } else if (inputClass == DataGroup.class) {
-            inputType = 5;
-            DataGroupExtractor extractor = new DataGroupExtractor(
-                    new DataJudge.ByClass(DataDoubleArray.class, true));
-            extractor.putDataInfo(inputDataInfo);
-            outputData = (DataDoubleArray) extractor.processData(null);
+            arrayShape = new int[]{D,D};
         } else {
             throw new IllegalArgumentException(
                     "Cannot cast to DataDoubleArray from " + inputClass);
         }
-        return outputData.getDataInfo();
+        outputData = new DataDoubleArray(arrayShape);
+        return new DataInfo(inputDataInfo.getLabel(), inputDataInfo.getDimension(), DataDoubleArray.getFactory(arrayShape));
     }
 
     /**
@@ -119,8 +108,6 @@ public class CastToDoubleArray extends DataProcessor {
         case 4:
             ((DataTensor) data).x.assignTo(outputData.getData());//both Tensor and DataDoubleArray
                                                                  // sequence data by rows
-            return outputData;
-        case 5:
             return outputData;
         default:
             throw new Error("Assertion error.  Input type out of range: "

@@ -6,7 +6,6 @@ import etomica.data.Data;
 import etomica.data.DataFactory;
 import etomica.data.DataInfo;
 import etomica.units.Dimension;
-import etomica.units.Null;
 
 
 /**
@@ -51,26 +50,9 @@ public class DataGroup extends Data {
      * @throws NullPointerException
      *             if any of the elements of the Data array are null
      */
-    public DataGroup(String label, Data[] data) {
-        super(new DataInfo(label, evaluateDimension(data), getFactory(data)));
+    public DataGroup(Data[] data) {
+        super();
         this.data = (Data[])data.clone();
-    }
-    
-    //determines if a given set of Data are all of the same dimension;
-    //if not the same, returns Dimension.MIXED
-    //used by constructor above.
-    private static Dimension evaluateDimension(Data[] data) {
-        if(data.length == 0) {
-            return Null.DIMENSION;
-        }
-        Dimension dim = null;
-        for(int i=0; i<data.length; i++) {
-            if((data[i].getDataInfo().getDimension() != dim) && (dim != null)) {
-                return Dimension.MIXED;
-            }
-            dim = data[i].getDataInfo().getDimension();
-        }
-        return dim;
     }
     
     /**
@@ -79,7 +61,7 @@ public class DataGroup extends Data {
      * data objects.
      */
     public DataGroup(DataGroup group) {
-        super(group);
+        super();
         this.data = new Data[group.data.length];
         for(int i=0; i<data.length; i++) {
             if(group.data[i] != null) {
@@ -140,7 +122,7 @@ public class DataGroup extends Data {
      * Returns a string formed from the encapsulated data objects.
      */
     public String toString() {
-        StringBuffer string = new StringBuffer(dataInfo.getLabel());
+        StringBuffer string = new StringBuffer("");
         for(int i=0; i<data.length; i++) {
             string.append("\n"); //newline?
             string.append(data.toString());
@@ -148,17 +130,17 @@ public class DataGroup extends Data {
         return string.toString();
     }
     
-    private final Data[] data;
+    protected final Data[] data;
     
     /**
      * Returns a factory for a data group holding copies of the
-     * given data objects.  Each new instance made by the factory
-     * will be a DataGroup having its owns copy of the given data.
-     * When the factory is made, the given Data array is cloned, 
-     * but the data instances it holds are not.
+     * given DataFactory objects.  Each new instance made by the factory
+     * will be a DataGroup having data made by the given factories.
+     * When the factory is made, the given DataFactory array is cloned, 
+     * but the DataFactory instances it holds are not.
      */
-    public static DataFactory getFactory(Data[] data) {
-        return new Factory(data);
+    public static Factory getFactory(DataFactory[] dataFactory) {
+        return new Factory(dataFactory);
     }
 
     /**
@@ -167,41 +149,30 @@ public class DataGroup extends Data {
      */
     public static class Factory implements DataFactory, Serializable {
         
-        final Data[] data;
+        final DataFactory[] dataFactory;
         
-        Factory(Data[] data) {
-            this.data = (Data[])data.clone();
+        Factory(DataFactory[] dataFactory) {
+            this.dataFactory = (DataFactory[])dataFactory.clone();
         }
         
         /**
          * Makes a new DataGroup from the Data in the prototype DataGroup.
          * Dimension is given to adhere to DataFactory interface, but it is not used.
          */
-        public Data makeData(String label, Dimension dimension) {
-            Data[] newData = new Data[data.length];
-            for(int i=0; i<data.length; i++) {
-                newData[i] = data[i].makeCopy();
+        public Data makeData() {
+            Data[] newData = new Data[dataFactory.length];
+            for(int i=0; i<dataFactory.length; i++) {
+                newData[i] = dataFactory[i].makeData();
             }
             //drop dimension
-            return new DataGroup(label, newData);
-        }
-        
-        /**
-         * Returns an array containing the DataInfo of all grouped Data elements.
-         */
-        public DataInfo[] getDataInfoArray() {
-            DataInfo[] array = new DataInfo[data.length];
-            for (int i=0; i<data.length; i++) {
-                array[i] = data[i].getDataInfo();
-            }
-            return array;
+            return new DataGroup(newData);
         }
 
         /**
          * Returns a clone of the array of Data held by the prototype DataGroup.
          */
-        public Data[] getData() {
-            return (Data[])data.clone();
+        public DataFactory[] getDataFactory() {
+            return (DataFactory[])dataFactory.clone();
         }
 
         /**
@@ -210,7 +181,39 @@ public class DataGroup extends Data {
         public Class getDataClass() {
             return DataGroup.class;
         }
-        
     }
 
+    public static class DataInfoGroup extends DataInfo {
+        public DataInfoGroup(String label, Dimension dimension, DataInfo[] subDataInfo) {
+            super(label, dimension, DataGroup.getFactory(makeFactories(subDataInfo)));
+            this.subDataInfo = (DataInfo[])subDataInfo.clone();
+        }
+        
+        protected DataInfoGroup(String label, Dimension dimension, DataInfo[] subDataInfo, DataGroup.Factory factory) {
+            super(label, dimension, factory);
+            this.subDataInfo = (DataInfo[])subDataInfo.clone();
+        }
+        
+        private static DataFactory[] makeFactories(DataInfo[] subDataInfo) {
+            DataFactory[] factories = new DataFactory[subDataInfo.length];
+            for (int i=0; i<factories.length; i++) {
+                factories[i] = subDataInfo[i].getDataFactory();
+            }
+            return factories;
+        }
+        
+        public int getNDataInfo() {
+            return subDataInfo.length;
+        }
+        
+        /**
+         * Returns the DataInfo corresponding to the group's given wrapped 
+         * Data object.
+         */
+        public DataInfo getSubDataInfo(int i) {
+            return subDataInfo[i];
+        }
+        
+        private final DataInfo[] subDataInfo;
+    }
 }

@@ -194,7 +194,7 @@ public class ReactionEquilibriumGraphic {
         dimerfractionaccum.setPushInterval(10);
         dimerFork.addDataSink(dimerfractionaccum);
 		DisplayTable table = new DisplayTable();
-		dimerfractionaccum.setDataSink(table.getDataTable());
+		dimerfractionaccum.setDataSink(table.getDataTable().makeDataSink());
 
 		//display for history of mole fractions
 		AccumulatorHistory dimerfractionhistory = new AccumulatorHistory();
@@ -204,7 +204,7 @@ public class ReactionEquilibriumGraphic {
         
 		dimerFork.addDataSink(dimerfractionhistory);
 		DisplayPlot plot = new DisplayPlot();
-		dimerfractionhistory.addDataSink (plot.getDataSet());
+		dimerfractionhistory.addDataSink (plot.getDataSet().makeDataSink());
 		plot.setLabel("Composition");
 
 		//************* Lay out components ****************//

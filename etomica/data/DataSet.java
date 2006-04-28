@@ -1,133 +1,73 @@
 package etomica.data;
 
 import java.io.Serializable;
-import java.util.HashMap;
 
 import etomica.data.types.DataGroup;
+import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.util.Arrays;
 
 /**
- * Receives data from multiple streams and organizes it in the form of a table,
- * with each stream of data forming a column of the table. Fires event when data
- * in table is changed; can be configured to fire when any column of data
- * changes, or to perform action only when all columns are changed.
+ * Receives and organizes data from multiple streams. Fires event when new
+ * data arrives; can be configured to fire when any piece of data
+ * changes, or to perform action only when all data has changed.
  * 
  * @author David Kofke
- *  
  */
 
-/*
- * History Created on Apr 9, 2005 by kofke
- */
-public class DataSet implements DataSink, Serializable {
+public class DataSet implements Serializable {
 
     public DataSet() {
         this(null);
     }
     
     public DataSet(DataCasterJudge dataCasterJudge) {
-        allData = new Data[0];
+        psuedoSinks = new DataSetSink[0];
         this.dataCasterJudge = dataCasterJudge;
+        backwardDataMap = new int[0];
+        forwardDataMap = new int[0];
     }
     
     public DataCasterJudge getDataCasterJudge() {
         return dataCasterJudge;
     }
-    
-    /* (non-Javadoc)
-     * @see etomica.DataSink#getDataCaster(etomica.DataInfo)
-     */
-    public DataProcessor getDataCaster(DataInfo dataInfo) {
-        if (dataCasterJudge == null) {
-            return null;
-        }
-        return dataCasterJudge.getDataCaster(dataInfo);
-    }
 
-    /* (non-Javadoc)
-     * @see etomica.DataSink#putData(etomica.Data)
-     */
-    public void putData(Data data) {
-        boolean newData = false;
-        Integer indexObj = (Integer)dataIndexHash.get(data);
-        if (indexObj == null) {
-            newData = true;
-            addNewData(data);
-            indexObj = new Integer(casterIndex++);
-            if ((casterIndex+31)/32 > casterChangedBits.length) {
-                casterChangedBits = Arrays.resizeArray(casterChangedBits,casterChangedBits.length+1);
-            }
-            casterChangedBits[casterChangedBits.length-1] |= 1<<((casterIndex-1)%32);
-            dataIndexHash.put(data,indexObj);
-        }
-        int index = indexObj.intValue();
-        // unset the bit to indicate this data object has been updated
-        casterChangedBits[index >> 5] &= (0xFFFFFFFF ^ (1<<(index & 0xFFFFFFFF)));
-        if (updatingOnAnyChange) {
-            fireDataChangedEvent();
-        }
-        else {
-            int l = casterChangedBits.length;
-            // check to see if all data has been updated
-            // always redraw when new data comes in
-            if (!newData) {
-                for (int i=0; i<l; i++) {
-                    if (casterChangedBits[i] != 0) {
-                        return;
-                    }
-                }
-            }
-            fireDataChangedEvent();
-            // reset all bits but the last one
-            for (int i=0; i<l-1; i++) {
-                casterChangedBits[i] = 0xFFFFFFFF;
-            }
-            if (casterIndex%32 == 0) {
-                // reset the last one
-                casterChangedBits[l-1] = 0xFFFFFFFF;
-            }
-            else {
-                // partially reset the last one
-                casterChangedBits[l-1] = (1<<(casterIndex%32)) - 1;
-            }
-        }
-    }
-
-    protected void addNewData(Data newData) {
-        if (newData instanceof DataGroup) {
-            int oldSize = allData.length;
-            allData = (Data[])Arrays.resizeArray(allData, oldSize+((DataGroup)newData).getNData());
-            for (int i=oldSize; i<allData.length; i++) {
-                allData[i] = ((DataGroup)newData).getData(i-oldSize);
-            }
-        }
-        else {
-            allData = (Data[])Arrays.addObject(allData, newData);
-        }
-        fireDataCountChangedEvent();
-    }
-    
-    /* (non-Javadoc)
-     * @see etomica.DataSink#putDataInfo(etomica.DataInfo)
-     */
-    public void putDataInfo(DataInfo dataInfo) {
+    public DataSetSink makeDataSink() {
+        return new DataSetSink(dataCasterJudge, this);
     }
     
     public void reset() {
-        dataIndexHash.clear();
-        allData = new Data[0];
-        casterIndex = 0;
-        casterChangedBits = new int[0];
-        fireDataCountChangedEvent();
+        for (int i=0; i<psuedoSinks.length; i++) {
+            psuedoSinks[i].index = -1;
+        }
+        psuedoSinks = new DataSetSink[0];
     }
     
-    
+    /**
+     * Returns the ith Data from the set.
+     */
     public Data getData(int i) {
-        return allData[i];
+        int iData = backwardDataMap[i];
+        Data data = psuedoSinks[iData].getData();
+        if (data instanceof DataGroup) {
+            data = ((DataGroup)data).getData(i-forwardDataMap[iData]);
+        }
+        return data;
+    }        
+    
+    /**
+     * Returns the ith DataInfo from the set.
+     */
+    public DataInfo getDataInfo(int i) {
+        int iData = backwardDataMap[i];
+        DataInfo dataInfo = psuedoSinks[iData].getDataInfo();
+        if (dataInfo instanceof DataInfoGroup) {
+            dataInfo = ((DataInfoGroup)dataInfo).getSubDataInfo(i-forwardDataMap[iData]);
+        }
+        return dataInfo;
     }
 
     public int getDataCount() {
-        return allData.length;
+        return backwardDataMap.length;
     }
 
     /**
@@ -146,6 +86,104 @@ public class DataSet implements DataSink, Serializable {
      */
     public void setUpdatingOnAnyChange(boolean updatingWithAnyChange) {
         this.updatingOnAnyChange = updatingWithAnyChange;
+    }
+
+    /**
+     * Notifies the DataSet that new Data has arrived for the given psuedo 
+     * DataSink.
+     */
+    protected void dataChanged(DataSetSink dataSetSink) {
+        boolean newData = false;
+        int index = dataSetSink.index;
+        if (index == -1) {
+            newData = true;
+            index = psuedoSinks.length; 
+
+            dataSetSink.index = index;
+            psuedoSinks = (DataSetSink[])Arrays.addObject(psuedoSinks, dataSetSink);
+
+            if (index/32 > dataChangedBits.length-1) {
+                dataChangedBits = Arrays.resizeArray(dataChangedBits,dataChangedBits.length+1);
+            }
+            dataChangedBits[dataChangedBits.length-1] |= 1<<(index%32);
+
+            updateDataMap();
+            fireDataCountChangedEvent();
+        }
+
+        // unset the bit to indicate this data object has been updated
+        dataChangedBits[index >> 5] &= (0xFFFFFFFF ^ (1<<(index & 0xFFFFFFFF)));
+
+        if (updatingOnAnyChange) {
+            fireDataChangedEvent();
+        }
+        else {
+            int l = dataChangedBits.length;
+            // check to see if all data has been updated
+            // always redraw when new data comes in
+            if (!newData) {
+                for (int i=0; i<l; i++) {
+                    if (dataChangedBits[i] != 0) {
+                        return;
+                    }
+                }
+            }
+            fireDataChangedEvent();
+            // reset all bits but the last one
+            for (int i=0; i<l-1; i++) {
+                dataChangedBits[i] = 0xFFFFFFFF;
+            }
+            if (index%32 == 31) {
+                // reset the last one
+                dataChangedBits[l-1] = 0xFFFFFFFF;
+            }
+            else {
+                // partially reset the last one
+                dataChangedBits[l-1] = (1<<(index%32));
+            }
+        }
+    }
+
+    /**
+     * Notifies the DataSet that new DataInfo has arrived for the given 
+     * psuedo DataSink.
+     */
+    protected void dataInfoChanged(DataSetSink dataSetSink) {
+        if (dataSetSink.index != -1) {
+            // we've already seen this data, so it's in the map.
+            updateDataMap();
+        }
+    }
+
+    /**
+     * This updates the mapping between pseudo DataSinks and indices (used for
+     * getData(int), etc.).
+     */
+    protected void updateDataMap() {
+        //forward maps the ith pseudo DataSink to the appropriate Data element
+        forwardDataMap = new int[psuedoSinks.length];
+        int dataCount = 0;
+        for (int i=0; i<psuedoSinks.length; i++) {
+            forwardDataMap[i] = dataCount;
+            DataInfo dataInfo = psuedoSinks[i].getDataInfo();
+            if (dataInfo instanceof DataInfoGroup) {
+                dataCount += ((DataInfoGroup)dataInfo).getNDataInfo();
+            }
+            else {
+                dataCount++;
+            }
+        }
+        
+        //backward maps the ith Data element to the appropriate psuedoDataSink
+        backwardDataMap = new int[dataCount];
+        for (int i=0; i<psuedoSinks.length-1; i++) {
+            for (int j=forwardDataMap[i]; j<forwardDataMap[i+1]; j++) {
+                backwardDataMap[j] = i;
+            }
+        }
+        for (int j=forwardDataMap[psuedoSinks.length-1]; j<dataCount; j++) {
+            backwardDataMap[j] = forwardDataMap.length-1;
+        }
     }
 
     protected void fireDataChangedEvent() {
@@ -172,13 +210,62 @@ public class DataSet implements DataSink, Serializable {
 
     protected DataSetListener[] listeners = new DataSetListener[0];
     private boolean updatingOnAnyChange;
-    private int casterIndex;
-    private int[] casterChangedBits = new int[0];
-    private HashMap dataIndexHash = new HashMap();
-    private Data[] allData;
+    private int[] dataChangedBits = new int[0];
     private final DataCasterJudge dataCasterJudge;
+    protected DataSetSink[] psuedoSinks;
+    
+    protected int[] forwardDataMap;
+    protected int[] backwardDataMap;
     
     public interface DataCasterJudge {
         public DataProcessor getDataCaster(DataInfo inputDataInfo);
+    }
+    
+    /**
+     * A special DataSink used by the DataSet to receive Data and DataInfo 
+     * from a single stream.
+     * 
+     * @author Andrew Schultz
+     */
+    protected static class DataSetSink implements DataSink {
+        public DataSetSink(DataCasterJudge dataCasterJudge, DataSet dataSet) {
+            this.dataCasterJudge = dataCasterJudge;
+            this.dataSet = dataSet;
+            index = -1;
+        }
+        
+        public void putDataInfo(DataInfo newDataInfo) {
+            incomingDataInfo = newDataInfo;
+            dataSet.dataInfoChanged(this);
+        }
+        
+        public void putData(Data incomingData) {
+            data = incomingData;
+            dataSet.dataChanged(this);
+        }
+        
+        public DataProcessor getDataCaster(DataInfo newIncomingDataInfo) {
+            if (dataCasterJudge == null) {
+                return null;
+            }
+            return dataCasterJudge.getDataCaster(newIncomingDataInfo);
+        }
+        
+        public DataInfo getDataInfo() {
+            return incomingDataInfo;
+        }
+        
+        public Data getData() {
+            return data;
+        }
+
+        private final DataCasterJudge dataCasterJudge;
+        private DataInfo incomingDataInfo;
+        private final DataSet dataSet;
+        private Data data;
+        // index exists solely to indicate whether this DataSetSink is not in
+        // the array of DataSetSinks (index=-1) or its position in the array so
+        // the DataSet doesn't have to go looking to find it.
+        protected int index;
     }
 }

@@ -3,9 +3,9 @@ package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
 import etomica.data.Data;
+import etomica.data.DataInfo;
 import etomica.data.DataSourceAtomic;
 import etomica.data.DataSourceScalar;
-import etomica.data.types.DataDouble;
 import etomica.phase.Phase;
 import etomica.species.Species;
 import etomica.units.Quantity;
@@ -26,10 +26,6 @@ public class MeterNMolecules extends DataSourceScalar implements DataSourceAtomi
         return info;
     }
 
-    public Class getDataType() {
-        return DataDouble.class;
-    }
-    
     public void setSpecies(Species s) {species = s;}
     public Species getSpecies() {return species;}
 
@@ -41,6 +37,10 @@ public class MeterNMolecules extends DataSourceScalar implements DataSourceAtomi
     public Data getData(Atom atom) {
         data.x = (species == null || atom.type.getSpecies() == species) ? 1 : 0;
         return data;
+    }
+    
+    public DataInfo getAtomDataInfo() {
+        return dataInfo;
     }
     
     /**

@@ -42,50 +42,21 @@ public class DataDoubleArray extends Data implements DataArithmetic {
     /**
      * Constructs a new one-dimensional array of the given length.
      * 
-     * @param label
-     *            descriptive label for the data, to be held in DataInfo
-     * @param dimension
-     *            physical dimensions of the data, to be held in DataInfo
      * @param nValues
      *            length of the one-dimensional array
      */
-    public DataDoubleArray(String label, Dimension dimension, int nValues) {
-        this(label, dimension, new int[] {nValues});
+    public DataDoubleArray(int nValues) {
+        this(new int[] {nValues});
     }
     
     /**
      * Constructs a new multidimensional array of the given shape.
      * 
-     * @param label
-     *            descriptive label for the data, to be held in DataInfo
-     * @param dimension
-     *            physical dimensions of the data, to be held in DataInfo
      * @param arrayShape
      *            length of the array in each dimension
      */
-    public DataDoubleArray(String label, Dimension dimension, int[] arrayShape) {
-        this(label, dimension, (Factory)getFactory(arrayShape));
-    }
-
-    /**
-     * Constructs a new instance using the label and dimension from the given
-     * DataInfo. New instance will have a new DataInfo; the factory in the new
-     * DataInfo will construct DataDoubleArray instances using the given
-     * arrayShape (which likely differs from the arrayShape made by the factory
-     * in the given DataInfo).
-     * <p>
-     * This is a convenience constructor, and is equivalent to <br>
-     * <code>
-     * this(dataInfo.getLabel(), dataInfo.getDimension(), arrayShape);
-     * </code>
-     * 
-     * @param dataInfo
-     *            provides label and Dimension for new instance
-     * @param arrayShape
-     *            specifies dimensions of new data array.
-     */
-    public DataDoubleArray(DataInfo dataInfo, int[] arrayShape) {
-        this(dataInfo.getLabel(), dataInfo.getDimension(), arrayShape);
+    public DataDoubleArray(int[] arrayShape) {
+        this((Factory)getFactory(arrayShape));
     }
 
     /**
@@ -94,17 +65,19 @@ public class DataDoubleArray extends Data implements DataArithmetic {
      * is a clone of the one in the given instance. 
      */
     public DataDoubleArray(DataDoubleArray data) {
-        super(data);
+        super();
         x = (double[])data.x.clone();
         jumpCount = data.jumpCount;
+        arrayShape = data.jumpCount;
     }
 
     /**
      * Constructor used by Factory
      */
-    protected DataDoubleArray(String label, Dimension dimension, Factory factory) {
-        super(new DataInfo(label, dimension, factory));
-        jumpCount = (int[])factory.arrayShape.clone();
+    protected DataDoubleArray(Factory factory) {
+        super();
+        arrayShape = factory.getArrayShape();
+        jumpCount = new int[arrayShape.length];
         //row-wise definition, as done in RectangularLattice
         jumpCount[factory.arrayShape.length-1] = 1;
         for(int i=factory.arrayShape.length-1; i>0; i--) {
@@ -116,19 +89,16 @@ public class DataDoubleArray extends Data implements DataArithmetic {
    /**
     * Wraps the given array, xData in a DataDoubleArray of the given shape.
     * 
-    * @param label
-    *            descriptive label for the data, to be held in DataInfo
-    * @param dimension
-    *            physical dimensions of the data, to be held in DataInfo
     * @param arrayShape
     *            length of the array in each dimension
     * @param xData
     *            actual data to be held by this instance.  The array is not
     *            cloned.
     */
-    public DataDoubleArray(String label, Dimension dimension, int[] arrayShape, double[] xData) {
-        super(new DataInfo(label, dimension, getFactory(arrayShape)));
-        jumpCount = (int[])arrayShape.clone();
+    public DataDoubleArray(int[] arrayShape, double[] xData) {
+        super();
+        this.arrayShape = (int[])arrayShape.clone();
+        jumpCount = new int[arrayShape.length];
         //row-wise definition, as done in RectangularLattice
         jumpCount[arrayShape.length-1] = 1;
         for(int i=arrayShape.length-1; i>0; i--) {
@@ -140,20 +110,6 @@ public class DataDoubleArray extends Data implements DataArithmetic {
         x = xData;
     }
     
-    protected DataDoubleArray(String label, Dimension dimension, int[] arrayShape, double[] xData, DataFactory factory) {
-        super(new DataInfo(label, dimension, factory));
-        jumpCount = (int[])arrayShape.clone();
-        //row-wise definition, as done in RectangularLattice
-        jumpCount[arrayShape.length-1] = 1;
-        for(int i=arrayShape.length-1; i>0; i--) {
-            jumpCount[i-1] = jumpCount[i]*arrayShape[i];
-        }
-        if (jumpCount[0]*arrayShape[0] != xData.length) {
-            throw new IllegalArgumentException("length of xData must be equal to product of arrayShapes");
-        }
-        x = xData;
-    }
-
     /**
      * Returns a copy of this instance. Returned object has its own instances of
      * the data, initialized to the values in this instance.
@@ -300,7 +256,7 @@ public class DataDoubleArray extends Data implements DataArithmetic {
      * Returns the length of the array in the i-th dimension.
      */
     public int getArrayShape(int i) {
-        return ((Factory)dataInfo.getDataFactory()).arrayShape[i];
+        return arrayShape[i];
     }
 
     /**
@@ -397,14 +353,14 @@ public class DataDoubleArray extends Data implements DataArithmetic {
      * Returns a string formed from the dataInfo label and the array values.
      */
     public String toString() {
-        return dataInfo.getLabel() + " " + x.toString();
+        return x.toString();
     }
     
     private final double[] x;
     private final int[] jumpCount;
-    //note that arrayShape is available via dataInfo.getDataFactory
+    private final int[] arrayShape;
     
-    public static DataFactory getFactory(int[] arrayShape) {
+    public static Factory getFactory(int[] arrayShape) {
         return new Factory(arrayShape);
     }
 
@@ -424,8 +380,8 @@ public class DataDoubleArray extends Data implements DataArithmetic {
          * Returns a new DataDoubleArray using the given label and dimension and
          * with a shape given by the prototype for this factory.
          */
-        public Data makeData(String label, Dimension dimension) {
-            DataDoubleArray data = new DataDoubleArray(label, dimension, this);
+        public Data makeData() {
+            DataDoubleArray data = new DataDoubleArray(this);
             return data;
         }
         

@@ -2,6 +2,7 @@ package etomica.data;
 
 import etomica.data.types.CastToGroup;
 import etomica.data.types.DataGroup;
+import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.util.Arrays;
 
 
@@ -38,6 +39,25 @@ public class DataGroupFilter extends DataProcessor {
      * processDataInfo.
      */
     public Data processData(Data data) {
+        if (outputData == null) {
+            if(singleInstance) {
+                if(indexes[0] < ((DataGroup)data).getNData()) {
+                    outputData = ((DataGroup)data).getData(indexes[0]);
+                } else {
+                    throw new ArrayIndexOutOfBoundsException("DataFilter was constructed to extract a Data element with an index that is larger than the number of Data elements wrapped in the DataGroup. Number of elements: "+((DataGroup)data).getNData()+"; index array: "+Arrays.toString(indexes));
+                }
+            } else {
+                Data[] pushedData = new Data[indexes.length];
+                try {
+                    for (int i=0; i<indexes.length; i++) {
+                        pushedData[i] = ((DataGroup)data).getData(indexes[i]);
+                    }
+                } catch(ArrayIndexOutOfBoundsException ex) {
+                    throw new ArrayIndexOutOfBoundsException("DataFilter was constructed to extract a Data element with an index that is larger than the number of Data elements wrapped in the DataGroup. Number of elements: "+((DataGroup)data).getNData()+"; index array: "+Arrays.toString(indexes));
+                }
+                outputData = new DataGroup(pushedData);
+            }
+        }
         return outputData;
     }
     
@@ -48,25 +68,23 @@ public class DataGroupFilter extends DataProcessor {
      * of the data that will be output.
      */
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
-        Data[] inputData = ((DataGroup.Factory)inputDataInfo.getDataFactory()).getData();
+        outputData = null;
+        int nData = ((DataInfoGroup)inputDataInfo).getNDataInfo();
         if(singleInstance) {
-            if(indexes[0] < inputData.length) {
-                outputData = inputData[indexes[0]];
-            } else {
-                throw new ArrayIndexOutOfBoundsException("DataFilter was constructed to extract a Data element with an index that is larger than the number of Data elements wrapped in the DataGroup. Number of elements: "+inputData.length+"; index array: "+Arrays.toString(indexes));
+            if(indexes[0] < nData) {
+                return ((DataInfoGroup)inputDataInfo).getSubDataInfo(indexes[0]);
             }
-        } else {
-            Data[] pushedData = new Data[indexes.length];
-            try {
-                for (int i=0; i<indexes.length; i++) {
-                    pushedData[i] = inputData[indexes[i]];
-                }
-            } catch(ArrayIndexOutOfBoundsException ex) {
-                throw new ArrayIndexOutOfBoundsException("DataFilter was constructed to extract a Data element with an index that is larger than the number of Data elements wrapped in the DataGroup. Number of elements: "+inputData.length+"; index array: "+Arrays.toString(indexes));
-            }
-            outputData = new DataGroup(inputDataInfo.getLabel(), pushedData);
+            throw new ArrayIndexOutOfBoundsException("DataFilter was constructed to extract a Data element with an index that is larger than the number of Data elements wrapped in the DataGroup. Number of elements: "+nData+"; index array: "+Arrays.toString(indexes));
         }
-        return outputData.getDataInfo();
+        DataInfo[] pushedDataInfo = new DataInfo[indexes.length];
+        try {
+            for (int i=0; i<indexes.length; i++) {
+                pushedDataInfo[i] = ((DataInfoGroup)inputDataInfo).getSubDataInfo(indexes[i]);
+            }
+        } catch(ArrayIndexOutOfBoundsException ex) {
+            throw new ArrayIndexOutOfBoundsException("DataFilter was constructed to extract a Data element with an index that is larger than the number of Data elements wrapped in the DataGroup. Number of elements: "+nData+"; index array: "+Arrays.toString(indexes));
+        }
+        return new DataInfoGroup(inputDataInfo.getLabel(), inputDataInfo.getDimension(), pushedDataInfo);
     }
 
     /**

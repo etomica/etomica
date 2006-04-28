@@ -6,6 +6,8 @@ import etomica.data.Data;
 import etomica.data.DataFactory;
 import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
+import etomica.data.types.DataFunction.DataInfoFunction;
+import etomica.data.types.DataTable.DataInfoTable;
 import etomica.space.Tensor;
 
 /**
@@ -61,8 +63,10 @@ public class CastToTable extends DataProcessor implements Serializable {
     public DataInfo processDataInfo(DataInfo inputDataInfo) {
         Class inputClass = inputDataInfo.getDataClass();
         DataFactory factory = inputDataInfo.getDataFactory();
+        int nRows, nColumns;
+        String[] rowHeaders = null;
+        DataInfo[] columnInfo = new DataInfo[]{inputDataInfo};
         if (inputClass == DataDoubleArray.class) {
-            inputType = 0;
             int[] arrayShape = ((DataDoubleArray.Factory) factory)
                     .getArrayShape();
             if (arrayShape.length > 2) {
@@ -71,51 +75,61 @@ public class CastToTable extends DataProcessor implements Serializable {
                                 + arrayShape.length);
             }
             if (arrayShape.length == 1) {
-                outputData = new DataTable(inputDataInfo.getLabel(),
-                        new DataInfo[] { inputDataInfo }, arrayShape[0]);
+                inputType = 0;
+                nColumns = 1;
+                nRows = arrayShape[0];
             } else {
-                outputData = new DataTable(inputDataInfo.getLabel(),
-                        inputDataInfo.getDimension(), arrayShape[0],
-                        arrayShape[1]);
+                inputType = 1;
+                nColumns = arrayShape[0];
+                nRows = arrayShape[1];
+                columnInfo = new DataInfo[nColumns];
+                for (int i=0; i<nColumns; i++) {
+                    columnInfo[i] = inputDataInfo;
+                }
             }
         } else if (inputClass == DataDouble.class) {
-            inputType = 1;
-            outputData = new DataTable(inputDataInfo.getLabel(),
-                    new DataInfo[] { inputDataInfo }, 1);
-        } else if (inputClass == DataInteger.class) {
             inputType = 2;
-            outputData = new DataTable(inputDataInfo.getLabel(),
-                    new DataInfo[] { inputDataInfo }, 1);
-        } else if (inputClass == DataVector.class) {
+            nColumns = 1;
+            nRows = 1;
+        } else if (inputClass == DataInteger.class) {
             inputType = 3;
-            int D = ((DataVector.Factory) factory).getSpace().D();
-            outputData = new DataTable(inputDataInfo.getLabel(),
-                    new DataInfo[] { inputDataInfo }, D);
-        } else if (inputClass == DataTensor.class) {
+            nColumns = 1;
+            nRows = 1;
+        } else if (inputClass == DataVector.class) {
             inputType = 4;
+            nColumns = 1;
+            nRows = ((DataVector.Factory) factory).getSpace().D();
+        } else if (inputClass == DataTensor.class) {
+            inputType = 5;
             int D = ((DataTensor.Factory) factory).getSpace().D();
-            outputData = new DataTable(inputDataInfo.getLabel(), inputDataInfo
-                    .getDimension(), D, D);
-        } else if (inputClass == DataFunction.class) {
+            nColumns = D;
+            nRows = D;
+            columnInfo = new DataInfo[nColumns];
+            for (int i=0; i<nColumns; i++) {
+                columnInfo[i] = inputDataInfo;
+            }
+        }else if (inputClass == DataFunction.class) {
             int[] sizes = ((DataFunction.Factory) factory)
                     .getArrayShape();
-            DataDoubleArray[] data = ((DataFunction.Factory) factory)
-                    .getIndependentData();
-            if (sizes.length == 1) {
-                outputData = new DataTable(
-                        inputDataInfo.getLabel(),
-                        new DataInfo[] { data[0].getDataInfo(), inputDataInfo },
-                        sizes[0]);
-            } else {//if (sizes.length == 2) {
-                throw new IllegalArgumentException(
-                        "DataFunction must be 1-dimensional");
+            if (sizes.length != 1) {
+                throw new IllegalArgumentException("DataFunction must be 1-dimensional");
             }
-            inputType = 5;
+            nColumns = 2;
+            nRows = sizes[0];
+            columnInfo = new DataInfo[2];
+            columnInfo[0] = ((DataInfoFunction)inputDataInfo).getIndependentInfo(0);
+            columnInfo[1] = inputDataInfo;
+            inputType = 6;
         } else {
             throw new IllegalArgumentException("Cannot cast to DataTable from "
                     + inputClass);
         }
-        return outputData.getDataInfo();
+        outputData = new DataTable(nColumns, nRows);
+        if (inputType == 0 || inputType == 6) {
+            // we'll actually wrap the incoming DataDoubleArray(s) in a DataTable
+            outputData = null;
+        }
+        return new DataInfoTable("Table", columnInfo, nRows, rowHeaders);
 
     }//end of processDataInfo
 
@@ -130,34 +144,37 @@ public class CastToTable extends DataProcessor implements Serializable {
     protected Data processData(Data data) {
         switch (inputType) {
         case 0: //DataDoubleArray
-            int nColumns = outputData.myColumns.length;
+            if (outputData == null) {
+                outputData = new DataTable(new DataDoubleArray[]{(DataDoubleArray)data});
+            }
+        case 1: //2D DataDoubleArray
+            int nColumns = outputData.getNData();
             for (int i = 0; i < nColumns; i++) {
                 ((DataDoubleArray) data).assignColumnTo(i,
-                        outputData.myColumns[i].getData());
+                        ((DataDoubleArray)outputData.getData(i)).getData());
             }
             break;
-        case 1: //DataDouble
-            outputData.myColumns[0].getData()[0] = ((DataDouble) data).x;
+        case 2: //DataDouble
+            outputData.E(((DataDouble) data).x);
             break;
-        case 2: //DataInteger
-            outputData.myColumns[0].getData()[0] = ((DataInteger) data).x;
+        case 3: //DataInteger
+            ((DataDoubleArray)outputData.getData(0)).getData()[0] = ((DataInteger) data).x;
             break;
-        case 3: //DataVector
-            ((DataVector) data).x.assignTo(outputData.myColumns[0].getData());
+        case 4: //DataVector
+            ((DataVector) data).x.assignTo(((DataDoubleArray)outputData.getData(0)).getData());
             break;
-        case 4: //DataTensor
+        case 5: //DataTensor
             Tensor x = ((DataTensor) data).x;
             for (int i = 0; i < x.D(); i++) {
                 for (int j = 0; j < x.D(); j++) {
-                    outputData.myColumns[i].getData()[j] = x.component(i, j);
+                    ((DataDoubleArray)outputData.getData(i)).getData()[j] = x.component(i, j);
                 }
             }
             break;
-        case 5: //DataFunction
-            ((DataFunction) data).getXData(0).assignColumnTo(0,
-                    outputData.myColumns[0].getData());
-            ((DataFunction) data).assignColumnTo(0,
-                    outputData.myColumns[1].getData());
+        case 6: //DataFunction
+            if (outputData == null) {
+                outputData = new DataTable(new DataDoubleArray[]{((DataFunction)data).getXData(0),(DataDoubleArray)data});
+            }
             break;
         }
         return outputData;
@@ -168,6 +185,10 @@ public class CastToTable extends DataProcessor implements Serializable {
      * Data type.
      */
     public DataProcessor getDataCaster(DataInfo incomingDataInfo) {
+        if (incomingDataInfo.getDataClass() == DataGroup.class) {
+            throw new IllegalArgumentException("Cannot cast to DataTable from "
+                    + incomingDataInfo.getDataClass());
+        }
         return null;
     }
 

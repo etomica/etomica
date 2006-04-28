@@ -6,9 +6,9 @@ package etomica.data;
 
 import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataGroup;
+import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.simulation.Simulation;
-import etomica.units.Dimension;
-import etomica.units.Undefined;
+import etomica.units.Null;
 import etomica.util.EnumeratedType;
 import etomica.util.Function;
 
@@ -55,7 +55,7 @@ public class AccumulatorAverage extends DataAccumulator {
      * Returns the DataInfo of the DataGroup that wraps the Data statistics.
      */
     public DataInfo getDataInfo() {
-        return dataGroup.getDataInfo();
+        return dataInfo;
     }
 
     /**
@@ -79,6 +79,28 @@ public class AccumulatorAverage extends DataAccumulator {
         DataArithmetic value = (DataArithmetic) data;
         if (value.isNaN())
             return;
+
+        if (sum == null) {
+            sum = (DataArithmetic)data.makeCopy();
+            sumSquare = (DataArithmetic)data.makeCopy();
+            sumSquareBlock = (DataArithmetic)data.makeCopy();
+            standardDeviation = (DataArithmetic)data.makeCopy();
+            average = (DataArithmetic)data.makeCopy();
+            error = (DataArithmetic)data.makeCopy();
+            blockSum = (DataArithmetic)data.makeCopy();
+            blockSumSq = (DataArithmetic)data.makeCopy();
+            mostRecent = (DataArithmetic)data.makeCopy();
+            mostRecentBlock = (DataArithmetic)data.makeCopy();
+            blockCorrelation = (DataArithmetic)data.makeCopy();
+            firstBlock = (DataArithmetic)data.makeCopy();
+            correlationSum = (DataArithmetic)data.makeCopy();
+            work = (DataArithmetic)data.makeCopy();
+    
+            reset();
+            dataGroup = new DataGroup(new Data[] { (Data)mostRecent, (Data)average, (Data)error,
+                            (Data)standardDeviation, (Data)mostRecentBlock, (Data)blockCorrelation});
+        }
+
         mostRecent.E(data);
         blockSum.PE(value);
         work.E(data);
@@ -122,7 +144,7 @@ public class AccumulatorAverage extends DataAccumulator {
      * this accumulator (as described in general comments for this class).
      */
     public Data getData() {
-        if (mostRecent == null)
+        if (sum == null)
             return null;
         //        int currentBlockCount = blockSize - blockCountDown;
         //        double countFraction = (double)currentBlockCount/(double)blockSize;
@@ -217,31 +239,12 @@ public class AccumulatorAverage extends DataAccumulator {
      *            addData
      */
     public DataInfo processDataInfo(DataInfo incomingDataInfo) {
-        DataFactory factory = incomingDataInfo.getDataFactory();
-
-        Dimension dimSquared = Undefined.DIMENSION;//can change this when units
-                                                   // facility isbetter
-                                                   // developed
-        sum = (DataArithmetic) factory.makeData("blkAvg sum", incomingDataInfo.getDimension());
-        sumSquare = (DataArithmetic) factory.makeData("blkAvgSqr sum", dimSquared);
-        sumSquareBlock = (DataArithmetic) factory.makeData("sum value^2", incomingDataInfo.getDimension());
-        standardDeviation = (DataArithmetic) factory.makeData("stddev", incomingDataInfo.getDimension());
-        average = (DataArithmetic) factory.makeData("avg", incomingDataInfo.getDimension());
-        error = (DataArithmetic) factory.makeData("error", incomingDataInfo.getDimension());
-        blockSum = (DataArithmetic) factory.makeData("blk value", incomingDataInfo.getDimension());
-        blockSumSq = (DataArithmetic) factory.makeData("blk value^2", dimSquared);
-        mostRecent = (DataArithmetic) factory.makeData("most recent", incomingDataInfo.getDimension());
-        mostRecentBlock = (DataArithmetic) factory.makeData("most recent blk", incomingDataInfo.getDimension());
-        blockCorrelation = (DataArithmetic) factory.makeData("blk correlation", incomingDataInfo.getDimension());
-        firstBlock = (DataArithmetic) factory.makeData("first blk", incomingDataInfo.getDimension());
-        correlationSum = (DataArithmetic) factory.makeData("correlation sum", incomingDataInfo.getDimension());
-        work = (DataArithmetic) factory.makeData("scratch", Undefined.DIMENSION);
-
-        reset();
-        dataGroup = new DataGroup(incomingDataInfo.getLabel(),
-                new Data[] { (Data) mostRecent, (Data) average, (Data) error,
-                        (Data) standardDeviation, (Data) mostRecentBlock,(Data)blockCorrelation});
-        return dataGroup.getDataInfo();
+        sum = null;
+        
+        dataInfo = new DataInfoGroup(incomingDataInfo.getLabel(), Null.DIMENSION, new DataInfo[]{
+            incomingDataInfo, incomingDataInfo, incomingDataInfo, incomingDataInfo, incomingDataInfo,
+            incomingDataInfo});
+        return dataInfo;
     }
 
     /**

@@ -1,9 +1,7 @@
 package etomica.data.types;
 
 import etomica.data.Data;
-import etomica.data.DataGroupExtractor;
 import etomica.data.DataInfo;
-import etomica.data.DataJudge;
 import etomica.data.DataProcessor;
 
 /**
@@ -47,7 +45,7 @@ public class CastToDouble extends DataProcessor {
      *             general class comments
      */
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
-        dataDouble = new DataDouble(inputDataInfo.getLabel(), inputDataInfo.getDimension());
+        dataDouble = new DataDouble();
         Class inputClass = inputDataInfo.getDataClass();
         if (inputClass == DataDouble.class) {
             inputType = 0;
@@ -55,15 +53,11 @@ public class CastToDouble extends DataProcessor {
             inputType = 1;
         } else if (inputClass == DataInteger.class) {
             inputType = 2;
-        } else if (inputClass == DataGroup.class) {
-            inputType = 3;
-            DataGroupExtractor extractor = new DataGroupExtractor(new DataJudge.ByClass(DataDouble.class, true));
-            dataDouble = (DataDouble)extractor.processData(null);
         } else {
             throw new IllegalArgumentException("Cannot cast to double from "
                     + inputClass);
         }
-        return dataDouble.getDataInfo();
+        return new DataInfo(inputDataInfo.getLabel(), inputDataInfo.getDimension(), DataDouble.getFactory());
     }
     
     /**

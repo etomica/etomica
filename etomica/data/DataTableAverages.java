@@ -62,7 +62,7 @@ public class DataTableAverages extends DataSinkTable {
         DataPump dataPump = new DataPump(newSource, accumulator);
         actionGroup.addAction(dataPump);
         accumulator.setPushInterval(tableUpdateInterval);
-        accumulator.addDataSink(this,types);
+        accumulator.addDataSink(makeDataSink(),types);
     }
 
     /**

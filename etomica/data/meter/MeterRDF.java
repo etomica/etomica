@@ -11,9 +11,8 @@ import etomica.data.DataSourceUniform;
 import etomica.data.DataSourceUniform.LimitType;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
+import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.phase.Phase;
-import etomica.space.ICoordinate;
-import etomica.space.ICoordinateAngular;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -41,7 +40,9 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
         xDataSource.setTypeMin(LimitType.HALF_STEP);
         
         rData = (DataDoubleArray)xDataSource.getData();
-        data = new DataFunction("g(r)", Null.DIMENSION, new DataDoubleArray[] {rData});
+        data = new DataFunction(new DataDoubleArray[] {rData});
+        dataInfo = new DataInfoFunction("g(r)", Null.DIMENSION, new int[]{rData.getLength()}, new DataInfo[]{
+                new DataInfo("r", Length.DIMENSION, DataDoubleArray.getFactory(new int[]{rData.getLength()}))});
 
 	    iterator = new ApiLeafAtoms();
         setName(NameMaker.makeName(this.getClass()));
@@ -54,7 +55,7 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
     }
     
     public DataInfo getDataInfo() {
-        return data.getDataInfo();
+        return dataInfo;
     }
     
     /**
@@ -89,7 +90,9 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
             needUpdate = true;
         }
         if (needUpdate) {
-            data = new DataFunction(data.getDataInfo().getLabel(), data.getDataInfo().getDimension(), new DataDoubleArray[] {rData});
+            data = new DataFunction(new DataDoubleArray[] {rData});
+            dataInfo = new DataInfoFunction("g(r)", Null.DIMENSION, new int[]{rData.getLength()}, new DataInfo[]{
+                    new DataInfo("r", Length.DIMENSION, DataDoubleArray.getFactory(new int[]{rData.getLength()}))});
         }
         final double[] y = data.getData();
 	    for(int i=0; i<y.length; i++) {y[i] = 0.0;}  //zero histogram
@@ -147,17 +150,10 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
         this.name = name;
     }
     
-    public void setDataLabel(String label) {
-        data = new DataFunction(label, Null.DIMENSION, new DataDoubleArray[] {rData});
-    }
-    
-    public String getDataLabel() {
-        return data.getDataInfo().getLabel();
-    }
-
     private Phase phase;
     private final Space space;
     private DataFunction data;
+    private DataInfo dataInfo;
     private DataDoubleArray rData;
     private AtomsetIteratorPhaseDependent iterator;
     private final Vector dr;

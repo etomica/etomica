@@ -6,6 +6,8 @@
  */
 package etomica.modules.chainequilibrium;
 
+import java.io.Serializable;
+
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomAgentManager.AgentSource;
@@ -15,19 +17,17 @@ import etomica.data.DataInfo;
 import etomica.data.meter.Meter;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
+import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.phase.Phase;
 import etomica.units.Fraction;
 import etomica.units.Null;
-import etomica.util.DoubleRange;
-import etomica.util.Histogram;
-import etomica.util.HistogramSimple;
 import etomica.util.NameMaker;
 
 /**
  * @author Matt Moynihan MoleuclarCount returns an array with the number of
  *         atoms In molecules with [1,2,3,4,5,6,7-10,10-13,13-25, <25] atoms
  */
-public class MeterChainLength implements Meter, AgentSource {
+public class MeterChainLength implements Meter, Serializable, AgentSource {
 
     public MeterChainLength(ReactionEquilibrium sim) {
         setName(NameMaker.makeName(this.getClass()));
@@ -41,13 +41,13 @@ public class MeterChainLength implements Meter, AgentSource {
      */
     protected void setupData(int maxChainLength) {
 
-        DataDoubleArray xData = new DataDoubleArray("Chain Length Distribution",Fraction.DIMENSION, 
-                                                    new int[]{maxChainLength});
-        double[] x = xData.getData();
+        DataInfo xDataInfo = new DataInfo("Chain Length Distribution",Fraction.DIMENSION, DataDoubleArray.getFactory(new int[]{maxChainLength}));
+        data = new DataFunction(new int[]{maxChainLength});
+        dataInfo = new DataInfoFunction("Chain Length Distribution", Null.DIMENSION, new int[]{maxChainLength}, new DataInfo[]{xDataInfo});
+        double[] x = data.getXData(0).getData();
         for (int i=0; i<maxChainLength; i++) {
             x[i] = i+1;
         }
-        data = new DataFunction("Histogram", Null.DIMENSION, new DataDoubleArray[]{xData});
     }
     
     public Class getAgentClass() {
@@ -142,7 +142,7 @@ public class MeterChainLength implements Meter, AgentSource {
     }
 
     public DataInfo getDataInfo() {
-        return data.getDataInfo();
+        return dataInfo;
     }
     
     public String getName() {
@@ -161,6 +161,7 @@ public class MeterChainLength implements Meter, AgentSource {
     private final ReactionEquilibrium agentSource;
     private Atom[][] agents;
     private DataFunction data;
+    private DataInfoFunction dataInfo;
     
     public static class AtomTag {
         public boolean tagged;

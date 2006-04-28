@@ -90,11 +90,11 @@ public class MultiharmonicGraphic {
         AccumulatorHistory history = new AccumulatorHistory(HistoryCollapsing.FACTORY);
         history.setTimeDataSource(sim.timeCounter);
         log.setDataSink(history);
-        history.setDataSink(plot.getDataSet());
+        history.setDataSink(plot.getDataSet().makeDataSink());
         
         DisplayPlot energyPlot = new DisplayPlot();
         sim.historyEnergy.setTimeDataSource(sim.timeCounter);
-        sim.historyEnergy.setDataSink(energyPlot.getDataSet());
+        sim.historyEnergy.setDataSink(energyPlot.getDataSet().makeDataSink());
         
         DeviceSlider x0Slider = new DeviceSlider(sim.controller);
         final DeviceSlider omegaASlider = new DeviceSlider(sim.controller);
@@ -148,7 +148,7 @@ public class MultiharmonicGraphic {
         
         AccumulatorHistory deltaHistory = new AccumulatorHistory(HistoryCollapsing.FACTORY,sim.historyEnergy.getDataLength());
         DataPump exactPump = new DataPump(delta, deltaHistory);
-        deltaHistory.setDataSink(plot.getDataSet());
+        deltaHistory.setDataSink(plot.getDataSet().makeDataSink());
         IntervalActionAdapter adapter = new IntervalActionAdapter(exactPump);
         adapter.setActionInterval(sim.accumulator.getBlockSize());
         sim.integrator.addListener(adapter);
@@ -157,7 +157,7 @@ public class MultiharmonicGraphic {
         
         AccumulatorHistory uAvgHistory = new AccumulatorHistory(HistoryCollapsing.FACTORY,sim.historyEnergy.getDataLength());
         DataPump uPump = new DataPump(uAvg, uAvgHistory);
-        uAvgHistory.setDataSink(energyPlot.getDataSet());
+        uAvgHistory.setDataSink(energyPlot.getDataSet().makeDataSink());
         adapter = new IntervalActionAdapter(uPump);
         adapter.setActionInterval(sim.accumulatorEnergy.getBlockSize());
         sim.integrator.addListener(adapter);
@@ -202,8 +202,8 @@ public class MultiharmonicGraphic {
         final DataSourceFunction uB = new DataSourceFunction("B",Null.DIMENSION,fUB,100,"x",Length.DIMENSION);
         uA.getXSource().setXMax(sim.phase.getBoundary().getDimensions().x(0));
         uB.getXSource().setXMax(sim.phase.getBoundary().getDimensions().x(0));
-        uAPump = new DataPump(uA, uPlot.getDataSet());
-        uBPump = new DataPump(uB, uPlot.getDataSet());
+        uAPump = new DataPump(uA, uPlot.getDataSet().makeDataSink());
+        uBPump = new DataPump(uB, uPlot.getDataSet().makeDataSink());
         Action uUpdate = new Action() {
             public void actionPerformed() {
                 uA.update();

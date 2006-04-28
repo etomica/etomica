@@ -3,9 +3,7 @@ package etomica.data.types;
 
 import etomica.data.Data;
 import etomica.data.DataFactory;
-import etomica.data.DataGroupExtractor;
 import etomica.data.DataInfo;
-import etomica.data.DataJudge;
 import etomica.data.DataProcessor;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -58,75 +56,68 @@ public class CastGroupToDoubleArray extends DataProcessor {
         }
         String label = inputDataInfo.getLabel();
         Dimension dimension = inputDataInfo.getDimension();
-        Data[] data = ((DataGroup.Factory)inputDataInfo.getDataFactory()).data;
-        if (data.length == 0) {
+        DataFactory[] subFactory = ((DataGroup.Factory)inputDataInfo.getDataFactory()).getDataFactory();
+        if (subFactory.length == 0) {
             inputType = 0;
-            outputData = new DataDoubleArray(label,dimension,0);
-            return outputData.getDataInfo();
+            outputData = new DataDoubleArray(0);
+            return new DataInfo(label, dimension, DataDoubleArray.getFactory(new int[]{0}));
         }
 
-        Class innerDataClass = data[0].getDataInfo().getDataClass();
-        for (int i = 1; i<data.length; i++) {
-            if (data[i].getClass() != innerDataClass) {
+        Class innerDataClass = subFactory[0].getDataClass();
+        for (int i = 1; i<subFactory.length; i++) {
+            if (subFactory[i].getDataClass() != innerDataClass) {
                 throw new IllegalArgumentException("CastGroupToDoubleArray can only handle homogeneous groups");
             }
         }
-        DataFactory innerFactory = data[0].getDataInfo().getDataFactory();
         
-        
+        int[] outputArrayShape;
         if (innerDataClass == DataDoubleArray.class || innerDataClass == DataFunction.class) {
-            DataDoubleArray dataArray = (DataDoubleArray)data[0];
-            int D = dataArray.getArrayDimension();
-            int[] size;
-            if (data.length == 1) {
+            int[] arrayShape = ((DataDoubleArray.Factory)subFactory[0]).getArrayShape();
+            int D = arrayShape.length;
+            if (subFactory.length == 1) {
+                outputArrayShape = arrayShape;
                 inputType = 1;
-                outputData = dataArray;
+                // we don't need an outputData instance
+                return new DataInfo(label, dimension, DataDoubleArray.getFactory(outputArrayShape));
             }
-            else {
-                size = new int[++D];
-                size[0] = data.length;
-                for (int i=1; i<D; i++) {
-                    size[i] = dataArray.getArrayShape(i-1);
-                }
-                inputType = 2;
-                outputData = new DataDoubleArray(label, dimension, size);
+            outputArrayShape = new int[++D];
+            outputArrayShape[0] = subFactory.length;
+            for (int i=1; i<D; i++) {
+                outputArrayShape[i] = arrayShape[i-1];
             }
+            inputType = 2;
         } else if (innerDataClass == DataDouble.class) {
             inputType = 3;
-            outputData = new DataDoubleArray(label, dimension, data.length);
+            outputArrayShape = new int[subFactory.length];
         } else if (innerDataClass == DataInteger.class) {
             inputType = 4;
-            outputData = new DataDoubleArray(label, dimension, data.length);
+            outputArrayShape = new int[subFactory.length];
         } else if (innerDataClass == DataVector.class) {
-            int D = ((DataVector.Factory)innerFactory).getSpace().D();
-            if (data.length == 1) {
+            int D = ((DataVector.Factory)subFactory[0]).getSpace().D();
+            if (subFactory.length == 1) {
                 inputType = 5;
-                outputData = new DataDoubleArray(label, dimension, D);
+                outputArrayShape = new int[]{D};
             }
             else {
                 inputType = 6;
-                outputData = new DataDoubleArray(label, dimension, new int[]{data.length,D});
+                outputArrayShape = new int[]{subFactory.length, D};
             }
         } else if (innerDataClass == DataTensor.class) {
-            int D = ((DataTensor.Factory)innerFactory).getSpace().D();
-            if (data.length == 1) {
+            int D = ((DataTensor.Factory)subFactory[0]).getSpace().D();
+            if (subFactory.length == 1) {
                 inputType = 7;
-                outputData = new DataDoubleArray(label, dimension, new int[] {D, D});
+                outputArrayShape = new int[]{D,D};
             }
             else {
                 inputType = 8;
-                outputData = new DataDoubleArray(label, dimension, new int[] {data.length, D, D});
+                outputArrayShape = new int[]{subFactory.length,D,D};
             }
-        } else if(innerDataClass == DataGroup.class) {
-            inputType = 9;
-            DataGroupExtractor extractor = new DataGroupExtractor(new DataJudge.ByClass(DataDoubleArray.class, true));
-            extractor.putDataInfo(inputDataInfo);
-            outputData = (DataDoubleArray)extractor.processData(null);
         } else {
             throw new IllegalArgumentException("Cannot cast to DataDoubleArray from "
                     + innerDataClass + " in DataGroup");
         }
-        return outputData.getDataInfo();
+        outputData = new DataDoubleArray(outputArrayShape);
+        return new DataInfo(label, dimension, DataDoubleArray.getFactory(outputArrayShape));
     }
     
     /**
@@ -144,7 +135,7 @@ public class CastGroupToDoubleArray extends DataProcessor {
         case 0:  // empty group 
             return outputData;
         case 1:  // a single DataDoubleArray
-            return outputData;
+            return ((DataGroup)data).getData(0);
         case 2:  // multiple DataDoubleArrays
             for (int i=0; i<group.getNData(); i++) {
                 outputData.assignColumnFrom(i,((DataDoubleArray)group.getData(i)).getData());
@@ -187,8 +178,6 @@ public class CastGroupToDoubleArray extends DataProcessor {
                     }
                 }
             }
-            return outputData;
-        case 9:
             return outputData;
         default:
             throw new Error("Assertion error.  Input type out of range: "+inputType);

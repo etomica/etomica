@@ -10,6 +10,8 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataTable;
+import etomica.data.types.DataFunction.DataInfoFunction;
+import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.units.Quantity;
 import etomica.util.History;
 import etomica.util.HistoryScrolling;
@@ -62,9 +64,9 @@ public class AccumulatorHistory extends DataAccumulator {
     /**
      * Returns caster that ensures accumulator will receive a DataDoubleArray.
      */
-    public DataProcessor getDataCaster(DataInfo inputDataInfo) {
-        if(inputDataInfo.getDataClass() == DataDoubleArray.class || 
-                inputDataInfo.getDataClass() == DataTable.class) {
+    public DataProcessor getDataCaster(DataInfo newInputDataInfo) {
+        if(newInputDataInfo.getDataClass() == DataDoubleArray.class || 
+                newInputDataInfo.getDataClass() == DataTable.class) {
             return null;
         }
         return new CastToDoubleArray();
@@ -75,10 +77,9 @@ public class AccumulatorHistory extends DataAccumulator {
      * 
      * @param nData
      */
-    protected DataInfo processDataInfo(DataInfo inputDataInfo) {
-        dataInfo = inputDataInfo;
-        DataFactory factory = inputDataInfo.getDataFactory();
-        if (factory instanceof DataDoubleArray.Factory) {
+    protected DataInfo processDataInfo(DataInfo newInputDataInfo) {
+        inputDataInfo = newInputDataInfo;
+        if (inputDataInfo.getDataClass() == DataDoubleArray.class) {
             nData = ((DataDoubleArray.Factory)inputDataInfo.getDataFactory()).getArrayLength();
         }
         else {
@@ -90,7 +91,7 @@ public class AccumulatorHistory extends DataAccumulator {
             history[i] = historyFactory.makeHistory(historyLength);
         }
         setupData();
-        return data.getDataInfo();
+        return dataInfo;
     }
     
     /**
@@ -125,23 +126,29 @@ public class AccumulatorHistory extends DataAccumulator {
 
         if (!success) {
             DataFunction[] dataFunctions = new DataFunction[nData];
+            DataInfoFunction[] dataInfoFunctions = new DataInfoFunction[nData];
             // attempt to re-use old DataFunctions
             for (int i=0; i<nData; i++) {
                 DataFunction dataFunction = (DataFunction)data.getData(i);
+                DataInfoFunction dataInfoFunction = (DataInfoFunction)((DataInfoGroup)dataInfo).getSubDataInfo(i);
                 if (dataFunction.getData() == history[i].getHistory() &&
                         dataFunction.getXData(0).getData() == history[i].getXValues()) {
                     dataFunctions[i] = dataFunction;
+                    dataInfoFunctions[i] = dataInfoFunction;
                 }
                 else {
                     int iHistoryLength = history[i].getHistoryLength();
-                    DataDoubleArray xData = new DataDoubleArray(timeDataSource.getDataInfo().getLabel(),timeDataSource.getDataInfo().getDimension(), 
-                            new int[]{iHistoryLength},history[i].getXValues());
-                    dataFunctions[i] = new DataFunction(dataInfo.getLabel()+" History", dataInfo.getDimension(), new DataDoubleArray[]{xData}, history[i].getHistory());
+                    dataInfoFunctions[i] = new DataInfoFunction(inputDataInfo.getLabel(), inputDataInfo.getDimension(), 
+                            new int[]{iHistoryLength}, new DataInfo[]{new DataInfo(timeDataSource.getDataInfo().getLabel(),
+                                    timeDataSource.getDataInfo().getDimension(), DataDoubleArray.getFactory(new int[]{iHistoryLength}))});
+                    DataDoubleArray xData = new DataDoubleArray(new int[]{history[i].getHistoryLength()},history[i].getXValues());
+                    dataFunctions[i] = new DataFunction(new DataDoubleArray[]{xData}, history[i].getHistory());
                 }
             }
             // creating a new data instance might confuse downstream data sinks, but
             // we have little choice and they should deal.
-            data = new DataGroup("Histogram",dataFunctions);
+            data = new DataGroup(dataFunctions);
+            dataInfo = new DataInfoGroup(inputDataInfo.getLabel(), inputDataInfo.getDimension(), dataInfoFunctions);
         }
             
         return data;
@@ -158,13 +165,17 @@ public class AccumulatorHistory extends DataAccumulator {
      * Constructs the Data objects used by this class.
      */
     private void setupData() {
-        // time is really the number of data points that have been added
         DataFunction[] dataFunctions = new DataFunction[nData];
+        DataInfoFunction[] dataInfoFunctions = new DataInfoFunction[nData];
         for (int i=0; i<nData; i++) {
-            DataDoubleArray xData = new DataDoubleArray(timeDataSource.getDataInfo().getLabel(),timeDataSource.getDataInfo().getDimension(),new int[]{history[i].getHistoryLength()},history[i].getXValues());
-            dataFunctions[i]= new DataFunction(dataInfo.getLabel()+" History",dataInfo.getDimension(), new DataDoubleArray[]{xData}, history[i].getHistory());
+            dataInfoFunctions[i] = new DataInfoFunction(inputDataInfo.getLabel(), inputDataInfo.getDimension(), 
+                    new int[]{history[i].getHistoryLength()}, new DataInfo[]{new DataInfo(timeDataSource.getDataInfo().getLabel(),
+                            timeDataSource.getDataInfo().getDimension(), DataDoubleArray.getFactory(new int[]{history[i].getHistoryLength()}))});
+            DataDoubleArray xData = new DataDoubleArray(new int[]{history[i].getHistoryLength()},history[i].getXValues());
+            dataFunctions[i] = new DataFunction(new DataDoubleArray[]{xData}, history[i].getHistory());
         }
-        data = new DataGroup("History",dataFunctions);
+        data = new DataGroup(dataFunctions);
+        dataInfo = new DataInfoGroup(inputDataInfo.getLabel(), inputDataInfo.getDimension(), dataInfoFunctions);
     }
     
     /**
@@ -193,7 +204,7 @@ public class AccumulatorHistory extends DataAccumulator {
     }
     
     public DataInfo getDataInfo() {
-        return data.getDataInfo();
+        return dataInfo;
     }
     
     protected History[] history = new History[0];
@@ -202,7 +213,7 @@ public class AccumulatorHistory extends DataAccumulator {
     private History.Factory historyFactory;
     private int historyLength;
     private DataSourceScalar timeDataSource;
-    private DataInfo dataInfo;
+    private DataInfo inputDataInfo;
 
     /**
      * Simple DataSource to use as a default time DataSource.  It just returns

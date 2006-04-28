@@ -12,6 +12,8 @@ import etomica.data.DataSetListener;
 import etomica.data.DataSet.DataCasterJudge;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataGroup;
+import etomica.data.types.DataFunction.DataInfoFunction;
+import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.units.Dimension;
 import etomica.units.Null;
 import etomica.units.Unit;
@@ -86,7 +88,7 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
             units = (Unit[])Arrays.resizeArray(units, newDataCount);
             Dimension xDimension = null;
             if (units.length > 0) {
-                DataInfo xDataInfo = ((DataFunction)dataSet.getData(0)).getXData(0).getDataInfo();
+                DataInfo xDataInfo = ((DataInfoFunction)dataSet.getDataInfo(0)).getIndependentInfo(0);
                 xDimension = xDataInfo.getDimension();
                 if (xUnit == null) {
                     xUnit = xDimension.getUnit(UnitSystem.SIM);
@@ -96,10 +98,11 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
             }
             for(int i=oldColumnCount; i<units.length; i++) {
                 DataFunction iData = (DataFunction)dataSet.getData(i);
-                if (iData.getXDimension() != 1 || !iData.getXData(0).getDataInfo().getDimension().equals(xDimension)) {
+                DataInfoFunction dataInfo = (DataInfoFunction)dataSet.getDataInfo(i);
+                if (iData.getXDimension() != 1 || !dataInfo.getIndependentInfo(0).getDimension().equals(xDimension)) {
                     throw new IllegalArgumentException("All data functions must have the same X dimension");
                 }
-                units[i] = (defaultUnit != null) ? defaultUnit : iData.getDataInfo().getDimension().getUnit(UnitSystem.SIM);
+                units[i] = (defaultUnit != null) ? defaultUnit : dataInfo.getDimension().getUnit(UnitSystem.SIM);
             }
         } else {
             //TODO have DisplayTable adjust appropriately to removal of columns; this works only for newColumnCount = 0
@@ -138,7 +141,7 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
         doLegend = b;
         for(int i=0; i<dataSet.getDataCount(); i++) {
             plot.removeLegend(i);
-            plot.addLegend(i,b ? dataSet.getData(i).getDataInfo().getLabel() : "");
+            plot.addLegend(i,b ? dataSet.getDataInfo(i).getLabel() : "");
         }
     }
     
@@ -165,8 +168,8 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
     public void setXUnit(Unit u) {
         xUnit = u;
         if (dataSet.getDataCount() > 0) {
-            DataFunction dataFunction = (DataFunction)dataSet.getData(0);
-            plot.setXLabel(dataFunction.getXData(0).getDataInfo().getLabel() + " ("+xUnit.symbol()+")");
+            DataInfoFunction dataInfoFunction = (DataInfoFunction)dataSet.getDataInfo(0);
+            plot.setXLabel(dataInfoFunction.getIndependentInfo(0).getLabel() + " ("+xUnit.symbol()+")");
         }
     }
     
@@ -213,17 +216,12 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
             if (dataInfo.getDataClass() == DataFunction.class) {
                 return null;
             } else if(dataInfo.getDataClass() == DataGroup.class) {
-                DataInfo[] info = ((DataGroup.Factory)dataInfo.getDataFactory()).getDataInfoArray(); 
-                Class innerDataClass = info[0].getDataClass();
-                for (int i = 1; i<info.length; i++) {
-                    if (info[i].getDataClass() != innerDataClass) {
-                        throw new IllegalArgumentException("DisplayPlot can only handle homogeneous groups");
+                for (int i = 0; i<((DataInfoGroup)dataInfo).getNDataInfo(); i++) {
+                    if (((DataInfoGroup)dataInfo).getSubDataInfo(i).getDataClass() != DataFunction.class) {
+                        throw new IllegalArgumentException("DisplayPlot can only handle homogeneous groups of DataFunctions");
                     }
                 }
-                if(innerDataClass == DataFunction.class) {
-                    return null;
-                }
-                throw new RuntimeException("DisplayPlot can only handle DataGroups of DataFunctions");
+                return null;
             }
             throw new RuntimeException("DisplayPlot can only handle DataFunctions");
         }

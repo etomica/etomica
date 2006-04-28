@@ -1,9 +1,8 @@
 package etomica.data.types;
 
 import etomica.data.Data;
-import etomica.data.DataFactory;
+import etomica.data.DataInfo;
 import etomica.units.Dimension;
-import etomica.units.Null;
 
 
 /**
@@ -19,9 +18,6 @@ import etomica.units.Null;
  * single DataDoubleArray that is formed with a corresponding number of
  * dimensions.
  * <p>
- * The DataInfo instance for the DataFunction has a the same label and dimension
- * as the that for the dependent data (although their factories differ).
- * <p>
  * All arithmetic operations apply only to the dependent data. Independent data
  * values are unaffected by them.
  * <p>
@@ -33,10 +29,6 @@ import etomica.units.Null;
  *  
  */
 
-/*
- * History
- * Created on Jun 16, 2005 by kofke
- */
 public class DataFunction extends DataDoubleArray {
 
     /**
@@ -48,9 +40,9 @@ public class DataFunction extends DataDoubleArray {
      *            values in one dimension. Domain of data is determined by this
      *            array of independent data. Given array is cloned for internal
      *            use, while instances in array are used directly.
-     * @param dependentData
+     * @param yData
      *            the data defined on the space of independent data; a
-     *            DataDoubleArray with getDimension equal to
+     *            double[] with getDimension equal to
      *            independentData.length
      * 
      * @throws IllegalArgumentException
@@ -58,32 +50,51 @@ public class DataFunction extends DataDoubleArray {
      *             dependentData.getArrayDimension(), or if any of the
      *             independent data have array dimension not equal to 1
      */
-    public DataFunction(String label, Dimension dimension, DataDoubleArray[] independentData, double[] yData) {
-        super(label, dimension, getArrayShape(independentData), yData, getFactory(independentData));
+    public DataFunction(DataDoubleArray[] independentData, double[] yData) {
+        super(getArrayShape(independentData), yData);
         this.independentData = (DataDoubleArray[])independentData.clone();
     }
     
-    protected static int[] getArrayShape(DataDoubleArray[] independentData) {
-        int[] arrayShape = new int[independentData.length];
+    /**
+     * Forms a DataFunction using the given independent data instances.  The 
+     * dependent data is constructed using the array dimensions from the 
+     * indepdendent data.
+     * 
+     * @param independentData
+     *            array of DataDoubleArray, each representing independent-data
+     *            values in one dimension. Domain of data is determined by this
+     *            array of independent data. Given array is cloned for internal
+     *            use, while instances in array are used directly.
+     * 
+     * @throws IllegalArgumentException
+     *            if any of the independent data have array dimension not 
+     *            equal to 1
+     */
+    public DataFunction(DataDoubleArray[] independentData) {
+        super(getArrayShape(independentData));
+        this.independentData = (DataDoubleArray[])independentData.clone();
+    }
+    
+    protected static int[] getArrayShape(DataDoubleArray[] independentArray) {
+        int[] arrayShape = new int[independentArray.length];
         for (int i=0; i<arrayShape.length; i++) {
-            arrayShape[i] = independentData[i].getLength();
+            if (independentArray[i].getArrayDimension() != 1) {
+                throw new IllegalArgumentException("Array dimension must be 1");
+            }
+            arrayShape[i] = independentArray[i].getLength();
         }
         return arrayShape;
     }
     
     /**
-     * Forms a DataFunction with the given label and dimension, and with a
-     * domain of data defined by the array of independent data. The array of
-     * dependent data is constructed with shape given by the lengths of the
-     * independent data array.
-     * 
-     * @throws IllegalArgumentException
-     *             if any of the independent data have array dimension not equal
-     *             to 1
+     * Forms a DataFunction with the given array shape.
      */
-    public DataFunction(String label, Dimension dimension, DataDoubleArray[] independentData) {
-        super(label, dimension, (DataFunction.Factory)getFactory(independentData));
-        this.independentData = (DataDoubleArray[])independentData.clone();
+    public DataFunction(int[] arrayShape) {
+        super(arrayShape);
+        independentData = new DataDoubleArray[arrayShape.length];
+        for(int i=0; i<arrayShape.length; i++) {
+            this.independentData[i] = new DataDoubleArray(arrayShape[i]);
+        }
     }
     
     /**
@@ -103,7 +114,6 @@ public class DataFunction extends DataDoubleArray {
     public Data makeCopy() {
         return new DataFunction(this);
     }
-
 
     /**
      * Returns the i-th set of independent data.
@@ -127,7 +137,7 @@ public class DataFunction extends DataDoubleArray {
      * Returns a string formed from the encapsulated data objects.
      */
     public String toString() {
-        StringBuffer string = new StringBuffer(dataInfo.getLabel());
+        StringBuffer string = new StringBuffer();
         for(int i=0; i<independentData.length; i++) {
             string.append("\n"); //newline?
             string.append(independentData.toString());
@@ -145,8 +155,8 @@ public class DataFunction extends DataDoubleArray {
      * (not the array itself, but the elements it holds are common to all
      * DataFunction instances made by the factory).
      */
-    public static DataFactory getFactory(DataDoubleArray[] independentData) {
-        return new Factory(independentData);
+    public static DataDoubleArray.Factory getFactory(int[] arrayShape) {
+        return new Factory(arrayShape);
     }
 
     /**
@@ -155,19 +165,16 @@ public class DataFunction extends DataDoubleArray {
      */
     public static class Factory extends DataDoubleArray.Factory {
         
-        final DataDoubleArray[] independentData;
-        
-        Factory(DataDoubleArray[] independentData) {
-            super(DataFunction.getArrayShape(independentData));
-            this.independentData = (DataDoubleArray[])independentData.clone();
+        Factory(int[] arrayShape) {
+            super(arrayShape);
         }
         
         /**
          * Makes a new DataFunction with the given label and dimension for the
          * dependent data, and with the prototype instances of the independent data.
          */
-        public Data makeData(String label, Dimension dimension) {
-            return new DataFunction(label, dimension, (DataDoubleArray[])independentData.clone());
+        public Data makeData() {
+            return new DataFunction(arrayShape);
         }
         
         /**
@@ -177,13 +184,19 @@ public class DataFunction extends DataDoubleArray {
             return DataFunction.class;
         }
         
-        /**
-         * Returns a clone of the independent-data array.
-         */
-        public DataDoubleArray[] getIndependentData() {
-            return (DataDoubleArray[])independentData.clone();
+    }
+
+    public static class DataInfoFunction extends DataInfo {
+        public DataInfoFunction(String label, Dimension dimension, int[] independentArrayShape, 
+                DataInfo[] independentInfo) {
+            super(label, dimension, getFactory(independentArrayShape));
+            this.independentInfo = (DataInfo[])independentInfo.clone();
         }
         
-    }//end of Factory
-
+        public DataInfo getIndependentInfo(int i) {
+            return independentInfo[i];
+        }
+        
+        private final DataInfo[] independentInfo;
+    }
 }

@@ -38,10 +38,6 @@ public class MeterPotentialEnergyFromIntegrator extends DataSourceScalar impleme
         return integrator;
     }
     
-    public DataInfo getDataInfo() {
-        return data.getDataInfo();
-    }
-    
     public double getDataAsScalar() {
         return integrator.getPotentialEnergy();
     }

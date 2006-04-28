@@ -18,15 +18,15 @@ public class AccumulatorCounter extends DataAccumulator {
      * @param dataSource
      */
     public AccumulatorCounter() {
-        data = new DataInteger("Counter", Quantity.DIMENSION);
-        dataInfo = data.getDataInfo();
+        dataInfo = new DataInfo("Counter", Quantity.DIMENSION, DataInteger.getFactory());
+        data = new DataInteger();
     }
 
     /**
      * Returns the DataInfo of the output DataInteger.
      */
     public DataInfo getDataInfo() {
-        return data.getDataInfo();
+        return dataInfo;
     }
 
     /**
@@ -42,7 +42,7 @@ public class AccumulatorCounter extends DataAccumulator {
      * @return the DataInfo for the output DataInteger
      */
     public DataInfo processDataInfo(DataInfo incomingDataInfo) {
-        return data.getDataInfo();
+        return dataInfo;
     }
 
     /**
@@ -67,4 +67,5 @@ public class AccumulatorCounter extends DataAccumulator {
     }
 
     private final DataInteger data;
+    private final DataInfo dataInfo;
 }

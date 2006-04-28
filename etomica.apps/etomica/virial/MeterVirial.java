@@ -29,11 +29,12 @@ public class MeterVirial implements DataSource, Meter, java.io.Serializable {
         setName(NameMaker.makeName(this.getClass()));
 		integrator = aIntegrator;
 		clusters = aClusters;
-        data = new DataDoubleArray("Cluster Value",Null.DIMENSION,clusters.length);
+        data = new DataDoubleArray(clusters.length);
+        dataInfo = new DataInfo("Cluster Value",Null.DIMENSION, DataDoubleArray.getFactory(new int[]{clusters.length}));
 	}
 
 	public DataInfo getDataInfo() {
-        return data.getDataInfo();
+        return dataInfo;
     }
     
 	public Data getData() {
@@ -76,5 +77,6 @@ public class MeterVirial implements DataSource, Meter, java.io.Serializable {
     private String name;
     private PhaseCluster phase;
 	private final DataDoubleArray data;
+    private final DataInfo dataInfo;
     private ClusterWeight sampleCluster;
 }

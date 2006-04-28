@@ -27,16 +27,16 @@ public class DataDouble extends Data implements DataArithmetic {
      * @param label a phrase describing the data
      * @param dimension the physical dimensions (e.g., mass, time) of the data 
      */
-    public DataDouble(String label, Dimension dimension) {
-        super(new DataInfo(label, dimension, getFactory()));
+    public DataDouble() {
+        super();
     }
 
     /**
-     * Copy constructor.  Makes a new DataDouble having the same DataInfo instance
-     * and the same data value as the given DataDouble.
+     * Copy constructor.  Makes a new DataDouble having the same data value as 
+     * the given DataDouble.
      */
     public DataDouble(DataDouble data) {
-        super(data);
+        super();
         x = data.x;
     }
 
@@ -159,7 +159,7 @@ public class DataDouble extends Data implements DataArithmetic {
      * Returns a string formed from the dataInfo label and this value.
      */
     public String toString() {
-        return dataInfo.getLabel() + " " + Double.toString(x);
+        return Double.toString(x);
     }
 
     /**
@@ -170,7 +170,7 @@ public class DataDouble extends Data implements DataArithmetic {
     /**
      * Returns a (singleton) DataFactory that constructs DataDouble instances.
      */
-    public static DataFactory getFactory() {
+    public static Factory getFactory() {
         return FACTORY;
     }
     
@@ -178,8 +178,8 @@ public class DataDouble extends Data implements DataArithmetic {
 
     private static class Factory implements DataFactory, java.io.Serializable {
         
-        public Data makeData(String label, Dimension dimension) {
-            return new DataDouble(label, dimension);
+        public Data makeData() {
+            return new DataDouble();
         }
         
         public Class getDataClass() {

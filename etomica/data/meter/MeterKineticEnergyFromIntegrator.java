@@ -37,10 +37,6 @@ public class MeterKineticEnergyFromIntegrator extends DataSourceScalar implement
         return integrator;
     }
     
-    public DataInfo getDataInfo() {
-        return data.getDataInfo();
-    }
-    
     public double getDataAsScalar() {
         return integrator.getKineticEnergy();
     }

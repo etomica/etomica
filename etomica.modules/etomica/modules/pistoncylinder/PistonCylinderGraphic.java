@@ -645,7 +645,7 @@ public class PistonCylinderGraphic {
         pc.register(thermometer,pump);
         IntervalActionAdapter adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
-        temperatureHistory.addDataSink(plotT.getDataSet());
+        temperatureHistory.addDataSink(plotT.getDataSet().makeDataSink());
         temperatureDisplayBox.setAccumulator(temperatureAvg);
         temperatureDisplayBox.setUnit(tUnit);
         
@@ -660,7 +660,7 @@ public class PistonCylinderGraphic {
         DataPump targetTemperatureDataPump = new DataPump(targetTemperatureDataSource, targetTemperatureHistory);
         adapter = new IntervalActionAdapter(targetTemperatureDataPump,pc.integrator);
         adapter.setActionInterval(dataInterval);
-        targetTemperatureHistory.addDataSink(plotT.getDataSet());
+        targetTemperatureHistory.addDataSink(plotT.getDataSet().makeDataSink());
         pc.register(targetTemperatureDataSource, targetTemperatureDataPump);
 
         pressureMeter = new DataSourceWallPressure(pc.space,pc.pistonPotential);
@@ -674,7 +674,7 @@ public class PistonCylinderGraphic {
         pc.register(pressureMeter,pump);
         adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
-        pressureHistory.addDataSink(plotP.getDataSet());
+        pressureHistory.addDataSink(plotP.getDataSet().makeDataSink());
         pressureDisplayBox.setAccumulator(pressureAvg);
         pressureDisplayBox.setUnit(pUnit);
 
@@ -689,7 +689,7 @@ public class PistonCylinderGraphic {
         pump = new DataPump(targetPressureDataSource, targetPressureHistory);
         adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
-        targetPressureHistory.addDataSink(plotP.getDataSet());
+        targetPressureHistory.addDataSink(plotP.getDataSet().makeDataSink());
         pc.register(targetPressureDataSource, pump);
 
         densityMeter = new MeterPistonDensity(pc.pistonPotential,1,defaults.atomSize);
@@ -703,7 +703,7 @@ public class PistonCylinderGraphic {
         pc.register(densityMeter,pump);
         adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
-        densityHistory.addDataSink(plotD.getDataSet());
+        densityHistory.addDataSink(plotD.getDataSet().makeDataSink());
         densityDisplayBox.setAccumulator(densityAvg);
         densityDisplayBox.setUnit(dUnit);
         

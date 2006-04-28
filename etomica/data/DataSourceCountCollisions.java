@@ -25,13 +25,14 @@ public class DataSourceCountCollisions implements DataSource,
      * addIntegrator or setIntegrator before use.
      */
     public DataSourceCountCollisions() {
-        data = new DataInteger("Number of Collisions",
-                Quantity.DIMENSION);
+        dataInfo = new DataInfo("Number of Collisions",
+                Quantity.DIMENSION, DataInteger.getFactory());
+        data = new DataInteger();
         setName(NameMaker.makeName(this.getClass()));
     }
     
     public DataInfo getDataInfo() {
-        return data.getDataInfo();
+        return dataInfo;
     }
 
     /**
@@ -87,6 +88,5 @@ public class DataSourceCountCollisions implements DataSource,
 
     private final DataInteger data;
     private String name;
-
+    private final DataInfo dataInfo;
 }
-

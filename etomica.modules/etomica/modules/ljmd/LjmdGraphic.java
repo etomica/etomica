@@ -104,7 +104,7 @@ public class LjmdGraphic {
         sim.register(rdfMeter,rdfPump);
         
         DisplayPlot rdfPlot = new DisplayPlot();
-        rdfAverage.addDataSink(rdfPlot.getDataSet(),new StatType[]{StatType.AVERAGE});
+        rdfAverage.addDataSink(rdfPlot.getDataSet().makeDataSink(),new StatType[]{StatType.AVERAGE});
         rdfAverage.setPushInterval(1);
         rdfPlot.setDoLegend(false);
         rdfPlot.getPlot().setTitle("Radial Distribution Function");
@@ -127,7 +127,7 @@ public class LjmdGraphic {
         sim.register(meterVelocity,velocityPump);
         
         final DisplayPlot vPlot = new DisplayPlot();
-        rmsAverage.addDataSink(vPlot.getDataSet(), new StatType[]{StatType.AVERAGE});
+        rmsAverage.addDataSink(vPlot.getDataSet().makeDataSink(), new StatType[]{StatType.AVERAGE});
         vPlot.setDoLegend(false);
 //      vPlot.getPlot().setYRange(0.0,0.8);
         vPlot.getPlot().setTitle("Velocity distribution");
@@ -143,7 +143,7 @@ public class LjmdGraphic {
 		mbX.setXMin(vMin);
 		mbX.setXMax(vMax);
 		mbSource.update();
-        DataPump mbPump = new DataPump(mbSource,vPlot.getDataSet());
+        DataPump mbPump = new DataPump(mbSource,vPlot.getDataSet().makeDataSink());
         IntervalActionAdapter mbAdapter = new IntervalActionAdapter(mbPump);
         mbAdapter.setActionInterval(100);
         sim.integrator.addListener(mbAdapter);
@@ -234,9 +234,9 @@ public class LjmdGraphic {
         sim.integrator.addListener(keAdapter);
         
         DisplayPlot ePlot = new DisplayPlot();
-        energyHistory.setDataSink(ePlot.getDataSet());
-        peHistory.setDataSink(ePlot.getDataSet());
-        keHistory.setDataSink(ePlot.getDataSet());
+        energyHistory.setDataSink(ePlot.getDataSet().makeDataSink());
+        peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
+        keHistory.setDataSink(ePlot.getDataSet().makeDataSink());
 		
 		ePlot.setDoLegend(true);
 		

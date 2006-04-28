@@ -24,15 +24,15 @@ public class DataInteger extends Data {
     /**
      * Constructs a new instance with the given DataInfo.
      */
-    public DataInteger(String label, Dimension dimension) {
-        super(new DataInfo(label, dimension, getFactory()));
+    public DataInteger() {
+        super();
     }
 
     /**
      * Copy constructor.
      */
     public DataInteger(DataInteger data) {
-        super(data);
+        super();
         x = data.x;
     }
     
@@ -62,7 +62,7 @@ public class DataInteger extends Data {
      * Returns a string formed from the dataInfo label and the encapsulated integer.
      */
     public String toString() {
-        return dataInfo.getLabel() + " " + Integer.toString(x);
+        return Integer.toString(x);
     }
     
     /**
@@ -81,8 +81,8 @@ public class DataInteger extends Data {
 
     private static class Factory implements DataFactory, Serializable {
         
-        public Data makeData(String label, Dimension dimension) {
-            return new DataInteger(label, dimension);
+        public Data makeData() {
+            return new DataInteger();
         }
         
         public Class getDataClass() {

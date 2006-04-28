@@ -5,22 +5,24 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.meter.Meter;
+import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataTable;
+import etomica.data.types.DataTable.DataInfoTable;
 import etomica.phase.Phase;
 import etomica.units.Fraction;
 import etomica.util.NameMaker;
 
 public final class MeterDimerFraction implements Meter {
     public MeterDimerFraction(ReactionEquilibrium sim) {
-        data = new DataTable("Dimer Fraction", Fraction.DIMENSION, 1, 
-                new String[] {"R", "B", "R-R", "R-B", "B-B"});
-        data.getColumn(0).setHeading("");
+        data = new DataTable(1,5);
+        DataInfo columnInfo = new DataInfo("Dimer Fraction", Fraction.DIMENSION, DataDoubleArray.getFactory(new int[]{5}));
+        dataInfo = new DataInfoTable("Dimer Fraction", new DataInfo[]{columnInfo}, 5, new String[]{"R", "B", "R-R", "R-B", "B-B"});
         setName(NameMaker.makeName(this.getClass()));
         agentSource = sim;
     }
     
     public DataInfo getDataInfo() {
-        return data.getDataInfo();
+        return dataInfo;
     }
 
     public Data getData() {
@@ -57,7 +59,7 @@ public final class MeterDimerFraction implements Meter {
         }//end of for loop
         
         double nMole = count[0] + count[1] + 0.5*(count[2]+count[3]+count[4]);
-        double[] x = data.getColumn(0).getData();
+        double[] x = ((DataDoubleArray)data.getData(0)).getData();
         for(int i=0; i<count.length; i++) {
         	x[i] = count[i]/nMole;
         }
@@ -92,6 +94,7 @@ public final class MeterDimerFraction implements Meter {
     private String name;
     private Phase phase;
     private final DataTable data;
+    private DataInfoTable dataInfo;
     private int[] count = new int[5];
     private AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
     protected final ReactionEquilibrium agentSource;

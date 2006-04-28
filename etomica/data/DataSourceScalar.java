@@ -11,12 +11,13 @@ import etomica.util.NameMaker;
 public abstract class DataSourceScalar implements DataSource, java.io.Serializable {
     
     public DataSourceScalar(String label, Dimension dimension) {
-        data = new DataDouble(label, dimension);
+        data = new DataDouble();
+        dataInfo = new DataInfo(label, dimension, DataDouble.getFactory());
         setName(NameMaker.makeName(this.getClass()));
     }
     
     public DataInfo getDataInfo() {
-        return data.getDataInfo();
+        return dataInfo;
     }
     
     /**
@@ -49,6 +50,7 @@ public abstract class DataSourceScalar implements DataSource, java.io.Serializab
     public void setName(String name) {
         this.name = name;
     }
-	public final DataDouble data;
+	protected final DataDouble data;
+    protected final DataInfo dataInfo;
     private String name;
 }

@@ -19,7 +19,8 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
     
     public MeterPressureHardTensor(Space space) {
         //XXX temperature, really?
-        data = new DataTensor(space,"PV/Nk",Temperature.DIMENSION);
+        data = new DataTensor(space);
+        dataInfo = new DataInfo("PV/Nk",Temperature.DIMENSION, DataTensor.getFactory(space));
         velocityTensor = space.makeTensor();
         v = space.makeTensor();
         timer = new DataSourceCountTime();
@@ -31,7 +32,7 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
     }
     
     public DataInfo getDataInfo() {
-        return data.getDataInfo();
+        return dataInfo;
     }
     
     public Data getData() {
@@ -101,5 +102,6 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
     private DataSourceCountTime timer;
     private String name;
     private Phase phase;
-    private DataTensor data;
+    private final DataTensor data;
+    private final DataInfo dataInfo;
 }

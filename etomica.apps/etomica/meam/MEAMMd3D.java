@@ -108,12 +108,12 @@ public class MEAMMd3D extends Simulation {
     	energyMeter.setPhase(sim.phase);
     	AccumulatorHistory energyAccumulator = new AccumulatorHistory(HistoryCollapsingAverage.FACTORY);
         DisplayPlot plot = new DisplayPlot();
-        energyAccumulator.setDataSink(plot.getDataSet());
+        energyAccumulator.setDataSink(plot.getDataSet().makeDataSink());
     	DataPump energyManager = new DataPump(energyMeter,energyAccumulator);
     	MeterKineticEnergy kineticMeter = new MeterKineticEnergy();
     	kineticMeter.setPhase(sim.phase);
     	AccumulatorHistory kineticAccumulator = new AccumulatorHistory(HistoryCollapsingAverage.FACTORY);
-    	kineticAccumulator.setDataSink(plot.getDataSet());
+    	kineticAccumulator.setDataSink(plot.getDataSet().makeDataSink());
     	DataPump kineticManager = new DataPump(kineticMeter, kineticAccumulator);
         //energyAccumulator.setBlockSize(50);
         IntervalActionAdapter adapter = new IntervalActionAdapter(energyManager, sim.integrator);
