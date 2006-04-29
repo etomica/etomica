@@ -24,10 +24,10 @@ import etomica.util.Function;
 /*
  * History Created on Jun 15, 2005 by andrew
  */
-public class DataTensor extends Data implements DataArithmetic {
+public class DataTensor implements DataArithmetic, java.io.Serializable {
 
     /**
-     * Constructs a new instance with the given DataInfo, wrapping a new Vector
+     * Constructs a new instance with the given DataInfo, wrapping a new Tensor
      * instance from the given space.
      * 
      * @param space

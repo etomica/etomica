@@ -33,16 +33,13 @@ package etomica.data;
  * @see DataInfo
  */
 
-/*
- * History Created on Jun 15, 2005 by kofke
- */
-public abstract class Data implements java.io.Serializable {
+public interface Data {
 
     /**
      * Returns a new instance of a data object, formed as a deep copy of this
      * instance.
      */
-    public abstract Data makeCopy();
+    public Data makeCopy();
 
     /**
      * Deep-copies the data from the given object to this one.
@@ -51,6 +48,6 @@ public abstract class Data implements java.io.Serializable {
      *             if the given data object is not of a type that can be copied
      *             to this one.
      */
-    public abstract void E(Data data);
+    public void E(Data data);
     
 }

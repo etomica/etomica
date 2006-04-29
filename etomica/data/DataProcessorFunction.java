@@ -13,10 +13,6 @@ import etomica.util.Function;
  *
  */
 
-/*
- * History
- * Created on Oct 29, 2005 by kofke
- */
 public class DataProcessorFunction extends DataProcessor {
 
     public DataProcessorFunction(Function function) {
@@ -36,8 +32,14 @@ public class DataProcessorFunction extends DataProcessor {
 
     /**
      * Returns the given DataInfo unchanged.
+     * 
+     * @throws IllegalArgumentException if the input data class does not 
+     * implement DataArithmetic
      */
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
+        if (DataArithmetic.class.isAssignableFrom(inputDataInfo.getDataClass())) {
+            throw new IllegalArgumentException("DataProcessorFunction can only handle DataArithmetic");
+        }
         return inputDataInfo;
     }
 

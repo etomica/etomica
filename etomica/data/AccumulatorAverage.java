@@ -97,8 +97,8 @@ public class AccumulatorAverage extends DataAccumulator {
             work = (DataArithmetic)data.makeCopy();
     
             reset();
-            dataGroup = new DataGroup(new Data[] { (Data)mostRecent, (Data)average, (Data)error,
-                            (Data)standardDeviation, (Data)mostRecentBlock, (Data)blockCorrelation});
+            dataGroup = new DataGroup(new Data[] { mostRecent, average, error,
+                            standardDeviation, mostRecentBlock, blockCorrelation});
         }
 
         mostRecent.E(data);
@@ -121,20 +121,20 @@ public class AccumulatorAverage extends DataAccumulator {
         blockSum.TE(1 / (double) blockSize);//compute block average
         //XXX should we divide blockSumSq by blockSize too?
         sum.PE(blockSum);
-        work.E((Data) blockSum);
+        work.E(blockSum);
         work.TE(blockSum);
         sumSquare.PE(work);
         if (!mostRecentBlock.isNaN()) {
-            work.E((Data)blockSum);
+            work.E(blockSum);
             work.TE(mostRecentBlock);
             correlationSum.PE(work);
         }
         else {
-            firstBlock.E((Data)blockSum);
+            firstBlock.E(blockSum);
         }
         sumSquareBlock.PE(blockSumSq);
         //reset blocks
-        mostRecentBlock.E((Data) blockSum);
+        mostRecentBlock.E(blockSum);
         blockSum.E(0.0);
         blockSumSq.E(0.0);
     }
@@ -146,26 +146,18 @@ public class AccumulatorAverage extends DataAccumulator {
     public Data getData() {
         if (sum == null)
             return null;
-        //        int currentBlockCount = blockSize - blockCountDown;
-        //        double countFraction = (double)currentBlockCount/(double)blockSize;
-        //        double currentCount = count + countFraction;
         if (count > 0) {
-            //            double currentBlockAverage = blockSum[i]/currentBlockCount;
-            //            if (countFraction > 0) {
-            //                average = (sum[i] +
-            // countFraction*currentBlockAverage)/currentCount;
-            //            }
-            //            else {
-            average.E((Data) sum);
+
+            average.E(sum);
             average.TE(1 / (double) count);
-            work.E((Data) average);
+            work.E(average);
             work.TE(average);
-            error.E((Data) sumSquare);
+            error.E(sumSquare);
             error.TE(1 / (double) count);
             error.ME(work);
 
             // error's intermediate value is useful for calculating block correlation
-            blockCorrelation.E((Data)sum);
+            blockCorrelation.E(sum);
             blockCorrelation.TE(2.0);
             blockCorrelation.ME(firstBlock);
             blockCorrelation.ME(mostRecentBlock);
@@ -178,7 +170,7 @@ public class AccumulatorAverage extends DataAccumulator {
             // ok, now finish up with error
             error.TE(1 / (double) (count - 1));
             error.map(Function.Sqrt.INSTANCE);
-            standardDeviation.E((Data) sumSquareBlock);
+            standardDeviation.E(sumSquareBlock);
             standardDeviation.TE(1.0 / (count * blockSize));
             standardDeviation.ME(work);
             standardDeviation.map(Function.Sqrt.INSTANCE);

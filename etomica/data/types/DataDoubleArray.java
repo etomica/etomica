@@ -37,7 +37,7 @@ import etomica.util.Function;
 //for this example, size = {2, 2, 3}, jumpCount = {6, 3, 1}
 //note that number of sites = size[0]*jumpCount[0]
 
-public class DataDoubleArray extends Data implements DataArithmetic {
+public class DataDoubleArray implements DataArithmetic, java.io.Serializable {
 
     /**
      * Constructs a new one-dimensional array of the given length.

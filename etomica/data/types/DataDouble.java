@@ -20,7 +20,7 @@ import etomica.util.Function;
 /*
  * History Created on Jun 15, 2005 by kofke
  */
-public class DataDouble extends Data implements DataArithmetic {
+public class DataDouble implements DataArithmetic, java.io.Serializable {
 
     /**
      * Constructs a new instance with given descriptors.

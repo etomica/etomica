@@ -19,7 +19,7 @@ import etomica.units.Dimension;
  * History
  * Created on Jun 15, 2005 by kofke
  */
-public class DataInteger extends Data {
+public class DataInteger implements Data, java.io.Serializable {
 
     /**
      * Constructs a new instance with the given DataInfo.

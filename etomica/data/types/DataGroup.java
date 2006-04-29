@@ -32,7 +32,7 @@ import etomica.units.Dimension;
  * History
  * Created on Jun 16, 2005 by kofke
  */
-public class DataGroup extends Data {
+public class DataGroup implements Data, java.io.Serializable {
 
     /**
      * Forms a data group from the given array of data objects. Given data array

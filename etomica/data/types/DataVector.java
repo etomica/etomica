@@ -22,7 +22,7 @@ import etomica.util.Function;
 /*
  * History Created on Jun 15, 2005 by kofke
  */
-public class DataVector extends Data implements DataArithmetic {
+public class DataVector implements DataArithmetic, java.io.Serializable {
 
     /**
      * Constructs a new instance with the given DataInfo, wrapping a new Vector
@@ -206,6 +206,6 @@ public class DataVector extends Data implements DataArithmetic {
         public Space getSpace() {
             return space;
         }
-    }//end of Factory
+    }
     
 }

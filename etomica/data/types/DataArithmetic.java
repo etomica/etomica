@@ -16,13 +16,7 @@ import etomica.util.Function;
 /*
  * History Created on Jun 15, 2005 by kofke
  */
-public interface DataArithmetic {
-
-    /**
-     * Equals (=) operation. Sets the data in this instance equal to the values
-     * in the given object.
-     */
-    public void E(Data y);
+public interface DataArithmetic extends Data {
 
     /**
      * Plus-equals (+=) operation.

@@ -67,5 +67,4 @@ public class AccumulatorCounter extends DataAccumulator {
     }
 
     private final DataInteger data;
-    private final DataInfo dataInfo;
 }

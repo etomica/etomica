@@ -1,7 +1,6 @@
 package etomica.data;
 
 import etomica.data.types.DataArithmetic;
-import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.simulation.Simulation;
@@ -34,9 +33,9 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
             for (i=0; i<dataGroup.getNData(); i++) {
                 dataGroups[i] = dataGroup.getData(i);
             }
-            dataGroups[i++] = (Data)ratio;
-            dataGroups[i++] = (Data)ratioError;
-            dataGroups[i++] = (Data)ratioStandardDeviation;
+            dataGroups[i++] = ratio;
+            dataGroups[i++] = ratioError;
+            dataGroups[i++] = ratioStandardDeviation;
             dataGroup = new DataGroup(dataGroups);
         }
     }
@@ -46,7 +45,7 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
         if(count > 0) {
             super.getData();
 
-            double average0 = ((DataDoubleArray)average).getData()[0];
+            double average0 = average.getValue(0);
             if (average0 == 0) {
                 ratio.E(Double.NaN);
                 ratioError.E(Double.NaN);
@@ -54,12 +53,12 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
                 return dataGroup;
             }
 
-            ratio.E((Data)sum);
-            ratio.TE(1/((DataDoubleArray)sum).getData()[0]);
+            ratio.E(sum);
+            ratio.TE(1/sum.getValue(0));
 
-            double errorRatio0 = ((DataDoubleArray)error).getData()[0]/average0;
+            double errorRatio0 = error.getValue(0)/average0;
             errorRatio0 *= errorRatio0;
-            ratioError.E((Data)error);
+            ratioError.E(error);
             ratioError.DE(average);
             ratioError.TE(ratioError);
             ratioError.PE(errorRatio0);
@@ -67,8 +66,8 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
             ratioError.TE(ratio);
             ratioError.map(Function.Abs.INSTANCE);
 
-            double stdevRatio0 = ((DataDoubleArray)standardDeviation).getData()[0]/average0;
-            ratioStandardDeviation.E((Data)standardDeviation);
+            double stdevRatio0 = standardDeviation.getValue(0)/average0;
+            ratioStandardDeviation.E(standardDeviation);
             ratioStandardDeviation.DE(average);
             ratioStandardDeviation.TE(ratioStandardDeviation);
             ratioStandardDeviation.PE(stdevRatio0);
