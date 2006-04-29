@@ -66,10 +66,24 @@ public class AtomFactoryWater4P extends AtomFactory {
     }
 
     /**
-     * Returns 5, equal to 1 parent molecules + 4 child atoms in the molecule.
+     * Returns 5, equal to 1 parent molecule + 4 child atoms in the molecule.
      */
     public int getNumTreeAtoms() {
         return 5;
+    }
+    
+    /**
+     * Returns 4.
+     */
+    public int getNumChildAtoms() {
+        return 4;
+    }
+    
+    /**
+     * Returns 4.
+     */
+    public int getNumLeafAtoms() {
+        return 4;
     }
     
 	public final AtomFactoryMono hFactory, oFactory, mFactory;

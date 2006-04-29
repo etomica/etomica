@@ -85,7 +85,9 @@ public class AtomFactoryHomo extends AtomFactory {
      * Returns the subfactory that produces each of the identical atoms
      * in the group made by this factory.
      */
-    public AtomFactory getChildFactory() {return childFactory;}
+    public AtomFactory getChildFactory() {
+        return childFactory;
+    }
 
     /**
      * Sets the factory that makes the identical child atoms of an atom-group formed
@@ -106,18 +108,22 @@ public class AtomFactoryHomo extends AtomFactory {
      * 
      * @param na The new number of atoms per group
      */
-    public void setAtomsPerGroup(int na) {
+    public void setNumChildAtoms(int na) {
         atomsPerGroup = na;
     }
 
-    /**
-     * Accessor method for number of child atoms per group constructed.
-     */
-     public int getAtomsPerGroup() {return atomsPerGroup;}
+     public int getNumChildAtoms() {
+         return atomsPerGroup;
+     }
 
      public int getNumTreeAtoms() {
          return 1 + atomsPerGroup*childFactory.getNumTreeAtoms();
      }
+     
+     public int getNumLeafAtoms() {
+         return atomsPerGroup*childFactory.getNumLeafAtoms();
+     }
+    
      
      protected AtomFactory childFactory;
      protected int atomsPerGroup;

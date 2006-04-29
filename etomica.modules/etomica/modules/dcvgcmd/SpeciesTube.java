@@ -26,7 +26,7 @@ public class SpeciesTube extends SpeciesSpheres {
 		((AtomTypeLeaf)((AtomFactoryHomo)factory).getChildFactory().getType()).setMass(Double.POSITIVE_INFINITY);
 	
 		setNMolecules(1);
-		((AtomFactoryHomo)factory).setAtomsPerGroup(atomsPerRing * numberOfRings);
+		((AtomFactoryHomo)factory).setNumChildAtoms(atomsPerRing * numberOfRings);
 	}
 	
 	

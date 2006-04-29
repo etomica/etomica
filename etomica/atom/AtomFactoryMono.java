@@ -43,6 +43,20 @@ public class AtomFactoryMono extends AtomFactory {
     public int getNumTreeAtoms() {
         return 1;
     }
+
+    /**
+     * Returns 0, becuase this factory makes a leaf atoms, having no children.
+     */
+    public int getNumChildAtoms() {
+        return 0;
+    }
+
+    /**
+     * Returns 1.
+     */
+    public int getNumLeafAtoms() {
+        return 1;
+    }
     
     protected final CoordinateFactory coordFactory;
     

@@ -66,5 +66,19 @@ public class AtomFactoryWater3P extends AtomFactory {
         return 4;
     }
     
+    /**
+     * Returns 3.
+     */
+    public int getNumChildAtoms() {
+        return 3;
+    }
+    
+    /**
+     * Returns 3.
+     */
+    public int getNumLeafAtoms() {
+        return 3;
+    }
+    
 	public final AtomFactoryMono hFactory, oFactory;
 }

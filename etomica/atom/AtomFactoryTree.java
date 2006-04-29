@@ -63,7 +63,7 @@ public class AtomFactoryTree extends AtomFactoryHomo {
         if(n.length != depth) throw new IllegalArgumentException("AtomFactoryTree.setNAtoms(int[]) attempt to set value inconsistent with depth specified when factory was instantiated");
         AtomFactoryHomo factory = this;
         for(int i=0; i<n.length; i++) {
-            factory.setAtomsPerGroup(n[i]);
+            factory.setNumChildAtoms(n[i]);
             if(i < n.length -1) factory = (AtomFactoryHomo)factory.getChildFactory();
         }
     }

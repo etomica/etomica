@@ -214,10 +214,7 @@ public class AtomFactoryHetero extends AtomFactory {
         }
     }
 
-    /**
-     * Returns the total number of child atoms created by this factory.
-     */
-    public int getTotalChildren() {
+    public int getNumChildAtoms() {
         return totalChildCount;
     }
     
@@ -225,6 +222,14 @@ public class AtomFactoryHetero extends AtomFactory {
         int total = 1;
         for (int i=0; i<childCount.length; i++) {
             total += childCount[i] * childFactory[i].getNumTreeAtoms();
+        }
+        return total;
+    }
+
+    public int getNumLeafAtoms() {
+        int total = 0;
+        for (int i=0; i<childCount.length; i++) {
+            total += childCount[i] * childFactory[i].getNumLeafAtoms();
         }
         return total;
     }
