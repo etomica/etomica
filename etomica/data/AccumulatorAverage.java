@@ -81,24 +81,8 @@ public class AccumulatorAverage extends DataAccumulator {
             return;
 
         if (sum == null) {
-            sum = (DataArithmetic)data.makeCopy();
-            sumSquare = (DataArithmetic)data.makeCopy();
-            sumSquareBlock = (DataArithmetic)data.makeCopy();
-            standardDeviation = (DataArithmetic)data.makeCopy();
-            average = (DataArithmetic)data.makeCopy();
-            error = (DataArithmetic)data.makeCopy();
-            blockSum = (DataArithmetic)data.makeCopy();
-            blockSumSq = (DataArithmetic)data.makeCopy();
-            mostRecent = (DataArithmetic)data.makeCopy();
-            mostRecentBlock = (DataArithmetic)data.makeCopy();
-            blockCorrelation = (DataArithmetic)data.makeCopy();
-            firstBlock = (DataArithmetic)data.makeCopy();
-            correlationSum = (DataArithmetic)data.makeCopy();
-            work = (DataArithmetic)data.makeCopy();
-    
+            initData(data);
             reset();
-            dataGroup = new DataGroup(new Data[] { mostRecent, average, error,
-                            standardDeviation, mostRecentBlock, blockCorrelation});
         }
 
         mostRecent.E(data);
@@ -110,6 +94,26 @@ public class AccumulatorAverage extends DataAccumulator {
                                     // completion of block
             doBlockSum();
         }
+    }
+    
+    protected void initData(Data incomingData) {
+        sum = (DataArithmetic)incomingData.makeCopy();
+        sumSquare = (DataArithmetic)incomingData.makeCopy();
+        sumSquareBlock = (DataArithmetic)incomingData.makeCopy();
+        standardDeviation = (DataArithmetic)incomingData.makeCopy();
+        average = (DataArithmetic)incomingData.makeCopy();
+        error = (DataArithmetic)incomingData.makeCopy();
+        blockSum = (DataArithmetic)incomingData.makeCopy();
+        blockSumSq = (DataArithmetic)incomingData.makeCopy();
+        mostRecent = (DataArithmetic)incomingData.makeCopy();
+        mostRecentBlock = (DataArithmetic)incomingData.makeCopy();
+        blockCorrelation = (DataArithmetic)incomingData.makeCopy();
+        firstBlock = (DataArithmetic)incomingData.makeCopy();
+        correlationSum = (DataArithmetic)incomingData.makeCopy();
+        work = (DataArithmetic)incomingData.makeCopy();
+
+        dataGroup = new DataGroup(new Data[] { mostRecent, average, error,
+                        standardDeviation, mostRecentBlock, blockCorrelation});
     }
 
     /**

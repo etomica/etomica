@@ -20,29 +20,26 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
         super(blockSize);
     }
     
-    public void addData(Data data) {
-        boolean nullData = (sum == null);
-        super.addData(data);
-        if (nullData) {
-            ratio = (DataArithmetic)data.makeCopy();
-            ratioError = (DataArithmetic)data.makeCopy();
-            ratioStandardDeviation = (DataArithmetic)data.makeCopy();
+    protected void initData(Data incomingData) {
+        super.initData(incomingData);
+        ratio = (DataArithmetic)incomingData.makeCopy();
+        ratioError = (DataArithmetic)incomingData.makeCopy();
+        ratioStandardDeviation = (DataArithmetic)incomingData.makeCopy();
 
-            Data[] dataGroups = new Data[dataGroup.getNData()+3];
-            int i;
-            for (i=0; i<dataGroup.getNData(); i++) {
-                dataGroups[i] = dataGroup.getData(i);
-            }
-            dataGroups[i++] = ratio;
-            dataGroups[i++] = ratioError;
-            dataGroups[i++] = ratioStandardDeviation;
-            dataGroup = new DataGroup(dataGroups);
+        Data[] dataGroups = new Data[dataGroup.getNData()+3];
+        int i;
+        for (i=0; i<dataGroup.getNData(); i++) {
+            dataGroups[i] = dataGroup.getData(i);
         }
+        dataGroups[i++] = ratio;
+        dataGroups[i++] = ratioError;
+        dataGroups[i++] = ratioStandardDeviation;
+        dataGroup = new DataGroup(dataGroups);
     }
     
     public Data getData() {
         if (sum == null) return null;
-        if(count > 0) {
+        if (count > 0) {
             super.getData();
 
             double average0 = average.getValue(0);
@@ -79,6 +76,10 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
     }
 
     public void reset() {
+        if (sum == null) {
+            //no data has been added yet, so nothing to reset
+            return;
+        }
         super.reset();
         ratio.E(Double.NaN);
         ratioError.E(Double.NaN);
