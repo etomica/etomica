@@ -4,8 +4,10 @@ import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPositionFirstAtom;
+import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorArrayListCompound;
 import etomica.config.Configuration;
+import etomica.config.Conformation;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -35,6 +37,16 @@ public class ConfigurationCluster extends Configuration {
 		Vector center = phase.space().makeVector();
 		iterator.setLists(lists);
 		iterator.reset();
+        while (iterator.hasNext()) {
+            Atom a = iterator.nextAtom();
+            if (!a.node.isLeaf()) {
+                // initialize coordinates of child atoms
+                Conformation config = a.type.creator().getConformation();
+                config.initializePositions(((AtomTreeNodeGroup) a.node).childList);
+            }
+        }
+        iterator.reset();
+
         AtomActionTranslateTo translator = new AtomActionTranslateTo(space);
         translator.setDestination(center);
         translator.setAtomPositionDefinition(new AtomPositionFirstAtom());
@@ -51,13 +63,14 @@ public class ConfigurationCluster extends Configuration {
             System.out.println("initial cluster value bad... trying to fix it.  don't hold your breath.");
         }
 		while( value == 0 ) { //if center is not ok, keep trying random positions until ok
-		    // if we make it in here we probably won't make it out!
+		    // if we make it in here we might not make it out!
             iterator.reset();
 			iterator.nextAtom();
 			while(iterator.hasNext()) {
                 translationVector.setRandomCube();
                 translationVector.TE(dimVector);
                 Atom a = iterator.nextAtom();
+                
                 translator.setDestination(translationVector);
                 translator.actionPerformed(a);
 			}
