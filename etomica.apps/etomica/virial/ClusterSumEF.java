@@ -6,7 +6,6 @@
  */
 package etomica.virial;
 
-import etomica.atom.AtomPair;
 import etomica.util.Arrays;
 
 /**
@@ -52,7 +51,7 @@ public class ClusterSumEF extends ClusterSum {
         }
     }
     
-    protected void updateF(CoordinatePairLeafSet cPairs, AtomPairSet aPairs) {
+    protected void updateF(CoordinatePairSet cPairs, AtomPairSet aPairs) {
         int nPoints = pointCount();
 
         // recalculate all f values for all pairs
