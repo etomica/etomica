@@ -1,4 +1,4 @@
-package etomica.apps.zeolite;
+package etomica.zeolite;
 
 
 import etomica.action.PhaseImposePbc;

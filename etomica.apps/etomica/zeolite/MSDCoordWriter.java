@@ -1,4 +1,4 @@
-package etomica.apps.zeolite;
+package etomica.zeolite;
 
 import java.io.FileWriter;
 import java.io.IOException;

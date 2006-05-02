@@ -1,4 +1,4 @@
-package etomica.apps.zeolite;
+package etomica.zeolite;
 
 import java.util.Iterator;
 import java.util.LinkedList;
