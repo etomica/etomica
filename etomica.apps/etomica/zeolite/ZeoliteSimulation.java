@@ -183,8 +183,8 @@ public class ZeoliteSimulation extends Simulation {
         potentialMaster.addPotential(potentialMM,new Species[]{species[2],species[2]});
         potentialMaster.addPotential(potentialMO,new Species[]{species[0],species[2]});
         //potentialMaster.addPotential(potentialMS,new Species[]{species[1],species[2]});
-        nbrManager.addCriterion(criterionMM,new AtomType[]{species[2].getFactory().getType()});
-        nbrManager.addCriterion(criterionMO,new AtomType[]{species[0].getFactory().getType(),species[2].getFactory().getType()});
+        //nbrManager.addCriterion(criterionMM,species[2].getFactory().getType());
+        //nbrManager.addCriterion(criterionMO,new AtomType[]{species[0].getFactory().getType(),species[2].getFactory().getType()});
         //nbrManager.addCriterion(criterionMS,new AtomType[]{species[1].getFactory().getType(),species[2].getFactory().getType()});
         /*
         for(int i=0;i<numAtoms.length;i++){
