@@ -1,4 +1,4 @@
-package etomica.zeolite;
+package etomica.apps.zeolite;
 /*
  * Created on Feb 2, 2006
  */

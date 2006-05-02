@@ -1,4 +1,5 @@
-package etomica.zeolite;
+package etomica.apps.zeolite;
+
 
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
@@ -25,6 +26,7 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;
 import etomica.potential.P1HardBoundary;
+import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -138,8 +140,8 @@ public class ZeoliteSimulation extends Simulation {
         integrator.addListener(nbrManager);
 
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
-        activityIntegrate.setDoSleep(false);
-        activityIntegrate.setSleepPeriod(2);
+        activityIntegrate.setDoSleep(true);
+        activityIntegrate.setSleepPeriod(10);
         activityIntegrate.setMaxSteps(500);
         getController().addAction(activityIntegrate);
         
@@ -158,6 +160,27 @@ public class ZeoliteSimulation extends Simulation {
 //        phase.setConfiguration(configuration);
         
         
+         //Update
+         //Setting up potential for Methane-Methane interactions
+        potentialMM = new P2LennardJones(this);
+        //Setting sigma and epsilon (from J. Chem. Soc Faraday Trans 1991
+        potentialMM.setEpsilon(Kelvin.UNIT.toSim(147.95));
+        potentialMM.setSigma(3.0);
+        double truncRadiusMM = 3.0*potentialMM.getSigma();
+        //Setting up potential for Methane-Oxygen interactions
+        P2LennardJones potentialMO = new P2LennardJones(this);
+        //Setting sigma and epsilon 
+        potentialMO.setEpsilon(Kelvin.UNIT.toSim(133.3));
+        potentialMO.setSigma(3.214);
+        double truncRadiusMO = 3.0*potentialMO.getSigma();
+        //System.out.println(potentialMO.getRange()+" range");
+        P2SoftSphericalTruncated potentialTruncMO = new P2SoftSphericalTruncated(potentialMO,truncRadiusMO);
+        P2SoftSphericalTruncated potentialTruncMM = new P2SoftSphericalTruncated(potentialMM,truncRadiusMM);
+         potentialMaster.addPotential(potentialTruncMM,new Species[]{species[2],species[2]});
+        potentialMaster.addPotential(potentialTruncMO,new Species[]{species[0],species[2]});
+         
+        
+        /*
         //Setting up potential for Methane-Methane interactions
         potentialMM = new P2LennardJones(this);
         //Setting sigma and epsilon (from J. Chem. Soc Faraday Trans 1991
@@ -183,9 +206,10 @@ public class ZeoliteSimulation extends Simulation {
         potentialMaster.addPotential(potentialMM,new Species[]{species[2],species[2]});
         potentialMaster.addPotential(potentialMO,new Species[]{species[0],species[2]});
         //potentialMaster.addPotential(potentialMS,new Species[]{species[1],species[2]});
-        //nbrManager.addCriterion(criterionMM,species[2].getFactory().getType());
-        //nbrManager.addCriterion(criterionMO,new AtomType[]{species[0].getFactory().getType(),species[2].getFactory().getType()});
+        nbrManager.addCriterion(criterionMM,new AtomType[]{species[2].getFactory().getType()});
+        nbrManager.addCriterion(criterionMO,new AtomType[]{species[0].getFactory().getType(),species[2].getFactory().getType()});
         //nbrManager.addCriterion(criterionMS,new AtomType[]{species[1].getFactory().getType(),species[2].getFactory().getType()});
+        */
         /*
         for(int i=0;i<numAtoms.length;i++){
         	//potentialMaster.addPotential(potential,new Species[]{species[i],species[i]});
@@ -213,14 +237,15 @@ public class ZeoliteSimulation extends Simulation {
         //integrator.addIntervalListener(new PhaseImposePbc(phase));
       
         //PARAMETERS For Simulation Run
-        activityIntegrate.setMaxSteps(20000);
-        integrator.setTimeStep(0.00611);
-        int interval = 200;
+        activityIntegrate.setMaxSteps(300000);
+        double ts = 0.00611;
+        integrator.setTimeStep(ts);
+        int interval = 500;
         
         
         //      Adding coordinate writer by Mike Sellars
      
-        filename = (numAtoms[2]+"_"+activityIntegrate.getMaxSteps()+"_H_"+interval);
+        filename = (numAtoms[2]+"_"+activityIntegrate.getMaxSteps()+"_"+ts+"_"+interval);
         MSDCoordWriter coordWriter = new MSDCoordWriter(this.space, filename);
         coordWriter.setPhase(this.phase);
         coordWriter.setNatoms(numAtoms[2]);
@@ -280,7 +305,7 @@ public class ZeoliteSimulation extends Simulation {
      */
     public static void main(String[] args) {
         Default defaults = new Default();
-        defaults.doSleep = false;
+        defaults.doSleep = true;
         defaults.ignoreOverlap = true;
         ZeoliteSimulation sim = new ZeoliteSimulation(defaults);
         SimulationGraphic simGraphic = new SimulationGraphic(sim);

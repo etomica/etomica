@@ -1,4 +1,4 @@
-package etomica.zeolite;
+package etomica.apps.zeolite;
 
 import etomica.config.Configuration;
 import java.io.BufferedReader;
