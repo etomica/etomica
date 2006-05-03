@@ -9,6 +9,7 @@ import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataSourceAtomic;
 import etomica.data.types.DataTensor;
+import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.phase.Phase;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
@@ -32,7 +33,7 @@ public class MeterTensorVelocity implements Meter, DataSourceAtomic, java.io.Ser
     
     public MeterTensorVelocity(Space space) {
         data = new DataTensor(space);
-        dataInfo = new DataInfo("pp/m",Energy.DIMENSION, DataTensor.getFactory(space));
+        dataInfo = new DataInfoTensor("pp/m",Energy.DIMENSION, space);
         atomData = new DataTensor(space);
     }
     
@@ -112,5 +113,5 @@ public class MeterTensorVelocity implements Meter, DataSourceAtomic, java.io.Ser
     private String name;
     private Phase phase;
     private final DataTensor data, atomData;
-    private final DataInfo dataInfo;
+    private final DataInfoTensor dataInfo;
 }

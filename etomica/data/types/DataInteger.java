@@ -1,10 +1,8 @@
 package etomica.data.types;
 
-import java.io.Serializable;
-
 import etomica.data.Data;
-import etomica.data.DataFactory;
 import etomica.data.DataInfo;
+import etomica.data.DataInfo.DataInfoArithmetic;
 import etomica.units.Dimension;
 
 
@@ -66,29 +64,13 @@ public class DataInteger implements Data, java.io.Serializable {
     }
     
     /**
-     * Returns a (singleton) DataFactory that makes DataInteger instances.
-     */
-    public static DataFactory getFactory() {
-        return FACTORY;
-    }
-    
-    /**
      * The encapsulated <tt>int</tt> value.
      */
     public int x;
     
-    private static final Factory FACTORY = new Factory();
-
-    private static class Factory implements DataFactory, Serializable {
-        
-        public Data makeData() {
-            return new DataInteger();
+    public static class DataInfoInteger extends DataInfo implements DataInfoArithmetic {
+        public DataInfoInteger(String label, Dimension dimension) {
+            super(label, dimension);
         }
-        
-        public Class getDataClass() {
-            return DataInteger.class;
-        }
-        
     }
-
 }

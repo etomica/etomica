@@ -5,6 +5,7 @@
 package etomica.data;
 
 import etomica.data.types.DataInteger;
+import etomica.data.types.DataInteger.DataInfoInteger;
 import etomica.units.Quantity;
 
 /**
@@ -18,7 +19,7 @@ public class AccumulatorCounter extends DataAccumulator {
      * @param dataSource
      */
     public AccumulatorCounter() {
-        dataInfo = new DataInfo("Counter", Quantity.DIMENSION, DataInteger.getFactory());
+        dataInfo = new DataInfoInteger("Counter", Quantity.DIMENSION);
         data = new DataInteger();
     }
 

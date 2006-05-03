@@ -34,25 +34,9 @@ public class DataInfo implements java.io.Serializable {
      *            this DataInfo. New Data instances will be independent of the
      *            one holding this, but will be structured the same way
      */
-    public DataInfo(String label, Dimension dimension, DataFactory factory) {
+    public DataInfo(String label, Dimension dimension) {
         this.label = label;
         this.dimension = dimension;
-        this.dataFactory = factory;
-    }
-
-    /**
-     * Returns a DataFactory that will produce new Data instances of the same type
-     * and structure as that holding this DataInfo.
-     */
-    public DataFactory getDataFactory() {
-        return dataFactory;
-    }
-
-    /**
-     * Returns the class of the Data holding this DataInfo instance.
-     */
-    public Class getDataClass() {
-        return dataFactory.getDataClass();
     }
 
     /**
@@ -80,5 +64,10 @@ public class DataInfo implements java.io.Serializable {
 
     private final String label;
     private final Dimension dimension;
-    private final DataFactory dataFactory;
+    
+    /**
+     * Marker interface for DataInfo classes that correspond to DataArithmetic classes
+     * @author Andrew Schultz
+     */
+    public interface DataInfoArithmetic {}
 }

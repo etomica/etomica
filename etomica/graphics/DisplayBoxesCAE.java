@@ -14,6 +14,7 @@ import etomica.data.DataSink;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataGroup;
+import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.graphics.DisplayBox.LabelType;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.simulation.prototypes.HSMD2D;
@@ -71,7 +72,7 @@ public class DisplayBoxesCAE extends Display implements DataSink {
      * @see etomica.DataSink#getDataCaster(etomica.DataInfo)
      */
     public DataProcessor getDataCaster(DataInfo dataInfo) {
-        if(dataInfo.getDataClass() != DataGroup.class) {
+        if(dataInfo instanceof DataInfoGroup) {
             throw new IllegalArgumentException("DisplayBoxesCAE strangely is being given something other than a DataGroup");
         }
         return null;

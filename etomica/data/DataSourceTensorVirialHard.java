@@ -2,6 +2,7 @@ package etomica.data;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.data.types.DataTensor;
+import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.integrator.IntegratorHard;
 import etomica.phase.Phase;
 import etomica.space.Space;
@@ -19,7 +20,7 @@ public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, I
     
     public DataSourceTensorVirialHard(Space space) {
         data = new DataTensor(space);
-        dataInfo = new DataInfo("PV/NkT", Null.DIMENSION, DataTensor.getFactory(space));
+        dataInfo = new DataInfoTensor("PV/NkT", Null.DIMENSION, space);
         timer = new DataSourceCountTime();
         work = space.makeTensor();
     }
@@ -109,5 +110,5 @@ public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, I
     private IntegratorHard integratorHard;
     private final DataTensor data;
     private final Tensor work;
-    private final DataInfo dataInfo;
+    private final DataInfoTensor dataInfo;
 }

@@ -9,6 +9,7 @@ import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataGroup;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.units.Null;
@@ -87,9 +88,9 @@ public class AccumulatorHistogram extends DataAccumulator {
                 }
                 else {
                     DataDoubleArray xData = new DataDoubleArray(new int[]{nBins},histogram[i].xValues());
-                    DataInfo independentInfo = new DataInfo(binnedDataInfo.getLabel(),binnedDataInfo.getDimension(),DataDoubleArray.getFactory(new int[]{histogram[i].getNBins()}));
+                    DataInfoDoubleArray independentInfo = new DataInfoDoubleArray(binnedDataInfo.getLabel(),binnedDataInfo.getDimension(),new int[]{histogram[i].getNBins()});
                     dataFunctions[i] = new DataFunction(new DataDoubleArray[]{xData}, histogram[i].getHistogram());
-                    dataInfoFunctions[i] = new DataInfoFunction(binnedDataInfo.getLabel()+" Histogram", Null.DIMENSION, new int[]{histogram[i].getNBins()}, new DataInfo[]{independentInfo});
+                    dataInfoFunctions[i] = new DataInfoFunction(binnedDataInfo.getLabel()+" Histogram", Null.DIMENSION, new DataInfoDoubleArray[]{independentInfo});
                 }
             }
             // creating a new data instance might confuse downstream data sinks, but
@@ -111,7 +112,7 @@ public class AccumulatorHistogram extends DataAccumulator {
      */
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
         binnedDataInfo = inputDataInfo;
-        nData = ((DataDoubleArray.Factory)inputDataInfo.getDataFactory()).getArrayLength();
+        nData = ((DataInfoDoubleArray)inputDataInfo).getArrayLength();
         histogram = new Histogram[nData];
         for (int i = 0; i < nData; i++) {
             histogram[i] = histogramFactory.makeHistogram();
@@ -125,7 +126,7 @@ public class AccumulatorHistogram extends DataAccumulator {
      * Returns caster that ensures accumulator will receive a DataDoubleArray.
      */
     public DataProcessor getDataCaster(DataInfo inputDataInfo) {
-        if(inputDataInfo.getDataClass() == DataDoubleArray.class) {
+        if(inputDataInfo instanceof DataInfoDoubleArray) {
             return null;
         }
         return new CastToDoubleArray();
@@ -139,9 +140,9 @@ public class AccumulatorHistogram extends DataAccumulator {
         DataInfoFunction[] dataInfoFunctions = new DataInfoFunction[nData];
         for (int i=0; i<nData; i++) {
             DataDoubleArray xData = new DataDoubleArray(new int[]{histogram[i].getNBins()},histogram[i].xValues());
-            DataInfo independentInfo = new DataInfo(binnedDataInfo.getLabel(),binnedDataInfo.getDimension(),DataDoubleArray.getFactory(new int[]{histogram[i].getNBins()}));
+            DataInfoDoubleArray independentInfo = new DataInfoDoubleArray(binnedDataInfo.getLabel(),binnedDataInfo.getDimension(),new int[]{histogram[i].getNBins()});
             dataFunctions[i] = new DataFunction(new DataDoubleArray[]{xData}, histogram[i].getHistogram());
-            dataInfoFunctions[i] = new DataInfoFunction(binnedDataInfo.getLabel()+" Histogram", Null.DIMENSION, new int[]{histogram[i].getNBins()}, new DataInfo[]{independentInfo});
+            dataInfoFunctions[i] = new DataInfoFunction(binnedDataInfo.getLabel()+" Histogram", Null.DIMENSION, new DataInfoDoubleArray[]{independentInfo});
         }
         data = new DataGroup(dataFunctions);
         dataInfo = new DataInfoGroup("Histogram", binnedDataInfo.getDimension(), dataInfoFunctions);

@@ -9,6 +9,8 @@ import etomica.atom.iterator.AtomIteratorNull;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
+import etomica.data.types.DataDouble.DataInfoDouble;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.space.ICoordinateKinetic;
 import etomica.units.DimensionRatio;
@@ -33,7 +35,7 @@ public class DataSourceRmsVelocity implements DataSourceAtomic, Serializable {
     
 	public DataSourceRmsVelocity(Histogram histogram) {
         setIterator(null);
-        atomDataInfo = new DataInfo("RMS Velocity", new DimensionRatio(Length.DIMENSION, Time.DIMENSION), DataDouble.getFactory());
+        atomDataInfo = new DataInfoDouble("RMS Velocity", new DimensionRatio(Length.DIMENSION, Time.DIMENSION));
         atomData = new DataDouble();
         this.histogramRMS = histogram;
         setupData();
@@ -78,9 +80,9 @@ public class DataSourceRmsVelocity implements DataSourceAtomic, Serializable {
     protected void setupData() {
         int nBins = histogramRMS.getNBins();
         DataDoubleArray xData = new DataDoubleArray(new int[]{nBins},histogramRMS.xValues());
-        DataInfo xDataInfo = new DataInfo(atomDataInfo.getLabel(),atomDataInfo.getDimension(), DataDoubleArray.getFactory(new int[]{nBins}));
+        DataInfo xDataInfo = new DataInfoDoubleArray(atomDataInfo.getLabel(),atomDataInfo.getDimension(), new int[]{nBins});
         data = new DataFunction(new DataDoubleArray[]{xData}, histogramRMS.getHistogram());
-        dataInfo = new DataInfoFunction("RMS Velocity Histogram",Null.DIMENSION, new int[]{nBins}, new DataInfo[]{xDataInfo});
+        dataInfo = new DataInfoFunction("RMS Velocity Histogram",Null.DIMENSION, new DataInfoDoubleArray[]{(DataInfoDoubleArray)xDataInfo});
     }
     
     public Data getData(Atom a) {

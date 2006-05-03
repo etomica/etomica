@@ -2,9 +2,14 @@ package etomica.data.types;
 
 
 import etomica.data.Data;
-import etomica.data.DataFactory;
 import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
+import etomica.data.types.DataDouble.DataInfoDouble;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.data.types.DataGroup.DataInfoGroup;
+import etomica.data.types.DataInteger.DataInfoInteger;
+import etomica.data.types.DataTensor.DataInfoTensor;
+import etomica.data.types.DataVector.DataInfoVector;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.Dimension;
@@ -51,73 +56,74 @@ public class CastGroupToDoubleArray extends DataProcessor {
      *             indicates that expected DataGroup will not be homogeneous
      */
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
-        if (inputDataInfo.getDataClass() != DataGroup.class) {
+        if (!(inputDataInfo instanceof DataInfoGroup)) {
             throw new IllegalArgumentException("can only cast from DataGroup");
         }
         String label = inputDataInfo.getLabel();
         Dimension dimension = inputDataInfo.getDimension();
-        DataFactory[] subFactory = ((DataGroup.Factory)inputDataInfo.getDataFactory()).getDataFactory();
-        if (subFactory.length == 0) {
+        int numSubData = ((DataInfoGroup)inputDataInfo).getNDataInfo();
+        if (numSubData == 0) {
             inputType = 0;
             outputData = new DataDoubleArray(0);
-            return new DataInfo(label, dimension, DataDoubleArray.getFactory(new int[]{0}));
+            return new DataInfoDoubleArray(label, dimension, new int[]{0});
         }
+        DataInfo subDataInfo = ((DataInfoGroup)inputDataInfo).getSubDataInfo(0);
 
-        Class innerDataClass = subFactory[0].getDataClass();
-        for (int i = 1; i<subFactory.length; i++) {
-            if (subFactory[i].getDataClass() != innerDataClass) {
+        Class subDataInfoClass = subDataInfo.getClass();
+        for (int i = 1; i<numSubData; i++) {
+            if (((DataInfoGroup)inputDataInfo).getSubDataInfo(i).getClass() != subDataInfoClass) {
                 throw new IllegalArgumentException("CastGroupToDoubleArray can only handle homogeneous groups");
             }
         }
         
         int[] outputArrayShape;
-        if (innerDataClass == DataDoubleArray.class || innerDataClass == DataFunction.class) {
-            int[] arrayShape = ((DataDoubleArray.Factory)subFactory[0]).getArrayShape();
+        if (subDataInfo instanceof DataInfoDoubleArray) {
+            int[] arrayShape = ((DataInfoDoubleArray)subDataInfo).getArrayShape();
             int D = arrayShape.length;
-            if (subFactory.length == 1) {
+            if (numSubData == 1) {
                 outputArrayShape = arrayShape;
                 inputType = 1;
                 // we don't need an outputData instance
-                return new DataInfo(label, dimension, DataDoubleArray.getFactory(outputArrayShape));
+                return new DataInfoDoubleArray(label, dimension, outputArrayShape);
             }
             outputArrayShape = new int[++D];
-            outputArrayShape[0] = subFactory.length;
+            outputArrayShape[0] = numSubData;
             for (int i=1; i<D; i++) {
                 outputArrayShape[i] = arrayShape[i-1];
             }
             inputType = 2;
-        } else if (innerDataClass == DataDouble.class) {
+        } else if (subDataInfo instanceof DataInfoDouble) {
             inputType = 3;
-            outputArrayShape = new int[subFactory.length];
-        } else if (innerDataClass == DataInteger.class) {
+            outputArrayShape = new int[numSubData];
+        } else if (subDataInfo instanceof DataInfoInteger) {
             inputType = 4;
-            outputArrayShape = new int[subFactory.length];
-        } else if (innerDataClass == DataVector.class) {
-            int D = ((DataVector.Factory)subFactory[0]).getSpace().D();
-            if (subFactory.length == 1) {
+            outputArrayShape = new int[numSubData];
+        } else if (subDataInfo instanceof DataInfoVector) {
+            int D = ((DataInfoVector)subDataInfo).getSpace().D();
+            if (numSubData == 1) {
                 inputType = 5;
                 outputArrayShape = new int[]{D};
             }
             else {
                 inputType = 6;
-                outputArrayShape = new int[]{subFactory.length, D};
+                outputArrayShape = new int[]{numSubData, D};
             }
-        } else if (innerDataClass == DataTensor.class) {
-            int D = ((DataTensor.Factory)subFactory[0]).getSpace().D();
-            if (subFactory.length == 1) {
+        } else if (subDataInfo instanceof DataInfoTensor) {
+            int D = ((DataInfoTensor)subDataInfo).getSpace().D();
+            if (numSubData == 1) {
                 inputType = 7;
                 outputArrayShape = new int[]{D,D};
             }
             else {
                 inputType = 8;
-                outputArrayShape = new int[]{subFactory.length,D,D};
+                outputArrayShape = new int[]{numSubData,D,D};
             }
         } else {
             throw new IllegalArgumentException("Cannot cast to DataDoubleArray from "
-                    + innerDataClass + " in DataGroup");
+                    + subDataInfo.getClass() + " in DataGroup");
         }
         outputData = new DataDoubleArray(outputArrayShape);
-        return new DataInfo(label, dimension, DataDoubleArray.getFactory(outputArrayShape));
+        return new DataInfoDoubleArray(label, dimension, outputArrayShape);
     }
     
     /**

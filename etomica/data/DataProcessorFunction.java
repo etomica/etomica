@@ -1,5 +1,6 @@
 package etomica.data;
 
+import etomica.data.DataInfo.DataInfoArithmetic;
 import etomica.data.types.DataArithmetic;
 import etomica.util.Function;
 
@@ -37,7 +38,7 @@ public class DataProcessorFunction extends DataProcessor {
      * implement DataArithmetic
      */
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
-        if (DataArithmetic.class.isAssignableFrom(inputDataInfo.getDataClass())) {
+        if (inputDataInfo instanceof DataInfoArithmetic) {
             throw new IllegalArgumentException("DataProcessorFunction can only handle DataArithmetic");
         }
         return inputDataInfo;

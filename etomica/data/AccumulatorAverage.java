@@ -4,6 +4,7 @@
  */
 package etomica.data;
 
+import etomica.data.DataInfo.DataInfoArithmetic;
 import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
@@ -64,7 +65,7 @@ public class AccumulatorAverage extends DataAccumulator {
      * caster to DataArithmetic.
      */
     public DataProcessor getDataCaster(DataInfo incomingDataInfo) {
-        if (DataArithmetic.class.isAssignableFrom(incomingDataInfo.getDataClass())) {
+        if (!(incomingDataInfo instanceof DataInfoArithmetic)) {
             return null;
         }
         throw new ClassCastException(

@@ -8,7 +8,6 @@ import etomica.data.types.CastGroupOfTablesToDataTable;
 import etomica.data.types.CastGroupToDoubleArray;
 import etomica.data.types.CastToTable;
 import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataGroup;
 import etomica.data.types.DataTable;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.data.types.DataTable.DataInfoTable;
@@ -28,17 +27,17 @@ public class DataTableWriter implements DataWriter, java.io.Serializable {
     }
 
     public DataProcessor getDataCaster(DataInfo newDataInfo) {
-        if (newDataInfo.getDataClass() == DataTable.class) {
+        if (newDataInfo instanceof DataInfoTable) {
             return null;
         }
-        else if (newDataInfo.getDataClass() == DataGroup.class) {
+        else if (newDataInfo instanceof DataInfoGroup) {
             for (int i = 1; i<((DataInfoGroup)newDataInfo).getNDataInfo(); i++) {
                 DataInfo subDataInfo = ((DataInfoGroup)newDataInfo).getSubDataInfo(0);
-                if (subDataInfo.getDataClass() != DataTable.class) {
+                if (!(subDataInfo instanceof DataInfoTable)) {
                     throw new IllegalArgumentException("DataSinkTable can only handle homogeneous groups");
                 }
             }
-            if(((DataInfoGroup)newDataInfo).getSubDataInfo(0).getDataClass() == DataTable.class) {
+            if(((DataInfoGroup)newDataInfo).getSubDataInfo(0) instanceof DataInfoTable) {
                 return new CastGroupOfTablesToDataTable();
             }
             return new CastGroupToDoubleArray();

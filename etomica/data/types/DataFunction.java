@@ -148,49 +148,18 @@ public class DataFunction extends DataDoubleArray {
     
     private final DataDoubleArray[] independentData;//shadows the field in Factory
     
-    /**
-     * Returns a factory for a DataFunction. Each new instance made by the factory
-     * will be a DataFunction having its own copy of the given dependent
-     * data, while sharing the same instances of the given independent data
-     * (not the array itself, but the elements it holds are common to all
-     * DataFunction instances made by the factory).
-     */
-    public static DataDoubleArray.Factory getFactory(int[] arrayShape) {
-        return new Factory(arrayShape);
-    }
-
-    /**
-     * DataFactory that constructs DataFunction instances all having the same
-     * set of independent data.  Instantiate using the static DataFunction getFactory method.
-     */
-    public static class Factory extends DataDoubleArray.Factory {
-        
-        Factory(int[] arrayShape) {
-            super(arrayShape);
-        }
-        
-        /**
-         * Makes a new DataFunction with the given label and dimension for the
-         * dependent data, and with the prototype instances of the independent data.
-         */
-        public Data makeData() {
-            return new DataFunction(arrayShape);
-        }
-        
-        /**
-         * Returns DataFunction.class, indicating that this factory makes DataFunction instances.
-         */
-        public Class getDataClass() {
-            return DataFunction.class;
-        }
-        
-    }
-
-    public static class DataInfoFunction extends DataInfo {
-        public DataInfoFunction(String label, Dimension dimension, int[] independentArrayShape, 
-                DataInfo[] independentInfo) {
-            super(label, dimension, getFactory(independentArrayShape));
+    public static class DataInfoFunction extends DataInfoDoubleArray {
+        public DataInfoFunction(String label, Dimension dimension, DataInfoDoubleArray[] independentInfo) {
+            super(label, dimension, getArrayShape(independentInfo));
             this.independentInfo = (DataInfo[])independentInfo.clone();
+        }
+        
+        private static int[] getArrayShape(DataInfoDoubleArray[] independentInfo) {
+            int[] arrayShape = new int[independentInfo.length];
+            for (int i=0; i<arrayShape.length; i++) {
+                arrayShape[i] = independentInfo[i].getArrayShape()[0];
+            }
+            return arrayShape;
         }
         
         public DataInfo getIndependentInfo(int i) {

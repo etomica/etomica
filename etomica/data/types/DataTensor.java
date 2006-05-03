@@ -1,10 +1,8 @@
 package etomica.data.types;
 
-import java.io.Serializable;
-
 import etomica.data.Data;
-import etomica.data.DataFactory;
 import etomica.data.DataInfo;
+import etomica.data.DataInfo.DataInfoArithmetic;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
@@ -166,58 +164,23 @@ public class DataTensor implements DataArithmetic, java.io.Serializable {
     public String toString() {
         return x.toString();
     }
-    
-    /**
-     * Returns a DataFactory that makes a DataTensor for the given Space.
-     */
-    public static Factory getFactory(Space space) {
-        if(FACTORY == null || FACTORY.space != space) { 
-            FACTORY = new Factory(space);
-        }
-        return FACTORY;
-    }
 
     /**
      * The wrapped tensor data.
      */
     public final Tensor x;
     
-    private transient static Factory FACTORY = null;
-    
-    /**
-     * DataFactory that constructs DataTensor instances of a given shape.
-     * Instantiate using the static DataTensor.getFactory method. 
-     */
-    public static class Factory implements DataFactory, Serializable {
+    public static class DataInfoTensor extends DataInfo implements DataInfoArithmetic {
         
-        protected final Space space;
-        
-        Factory(Space space) {
+        public DataInfoTensor(String label, Dimension dimension, Space space) {
+            super(label, dimension);
             this.space = space;
         }
         
-        /**
-         * Makes and returns a new DataTensor using the given label and dimension
-         * for its DataInfo.
-         */
-        public Data makeData() {
-            return new DataTensor(space);
-        }
-        
-        /**
-         * Returns the class of the data made by this factory.
-         * @return DataTensor.class
-         */
-        public Class getDataClass() {
-            return DataTensor.class;
-        }
-        
-        /**
-         * @return the space making the wrapped tensor
-         */
         public Space getSpace() {
             return space;
         }
-    }//end of Factory
-
+        
+        protected final Space space;
+    }
 }

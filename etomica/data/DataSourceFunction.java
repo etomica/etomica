@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.units.Dimension;
 import etomica.units.Null;
@@ -92,7 +93,7 @@ public class DataSourceFunction implements DataSource, Serializable {
         }
         if (needUpdate) {
             data = new DataFunction(new DataDoubleArray[] {xData});
-            dataInfo = new DataInfoFunction(label, dimension, new int[]{x.length}, new DataInfo[]{xSource.getDataInfo()});;
+            dataInfo = new DataInfoFunction(label, dimension, new DataInfoDoubleArray[]{(DataInfoDoubleArray)xSource.getDataInfo()});;
         }
         updateF();
     }

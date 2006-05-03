@@ -3,6 +3,7 @@ package etomica.data;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.data.types.DataInteger;
+import etomica.data.types.DataInteger.DataInfoInteger;
 import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorNonintervalEvent;
@@ -27,8 +28,7 @@ public final class DataSourceCountSteps implements DataSource,
 	 * Sets up data source to count integrator steps.
 	 */
 	public DataSourceCountSteps() {
-        dataInfo = new DataInfo("Integrator steps",
-                Quantity.DIMENSION, DataInteger.getFactory());
+        dataInfo = new DataInfoInteger("Integrator steps", Quantity.DIMENSION);
         data = new DataInteger();
         setName(NameMaker.makeName(this.getClass()));
 	}

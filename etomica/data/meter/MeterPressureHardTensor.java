@@ -8,6 +8,7 @@ import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.DataSourceCountTime;
 import etomica.data.types.DataTensor;
+import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.integrator.IntegratorHard;
 import etomica.phase.Phase;
 import etomica.space.ICoordinateKinetic;
@@ -20,7 +21,7 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
     public MeterPressureHardTensor(Space space) {
         //XXX temperature, really?
         data = new DataTensor(space);
-        dataInfo = new DataInfo("PV/Nk",Temperature.DIMENSION, DataTensor.getFactory(space));
+        dataInfo = new DataInfoTensor("PV/Nk",Temperature.DIMENSION, space);
         velocityTensor = space.makeTensor();
         v = space.makeTensor();
         timer = new DataSourceCountTime();

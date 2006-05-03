@@ -1,8 +1,8 @@
 package etomica.data.types;
 
 import etomica.data.Data;
-import etomica.data.DataFactory;
 import etomica.data.DataInfo;
+import etomica.data.DataInfo.DataInfoArithmetic;
 import etomica.units.Dimension;
 import etomica.util.Function;
 
@@ -167,23 +167,9 @@ public class DataDouble implements DataArithmetic, java.io.Serializable {
      */
     public double x;
     
-    /**
-     * Returns a (singleton) DataFactory that constructs DataDouble instances.
-     */
-    public static Factory getFactory() {
-        return FACTORY;
-    }
-    
-    private static final Factory FACTORY = new Factory();
-
-    private static class Factory implements DataFactory, java.io.Serializable {
-        
-        public Data makeData() {
-            return new DataDouble();
-        }
-        
-        public Class getDataClass() {
-            return DataDouble.class;
+    public static class DataInfoDouble extends DataInfo implements DataInfoArithmetic {
+        public DataInfoDouble(String label, Dimension dimension) {
+            super(label, dimension);
         }
     }
 }

@@ -1,6 +1,7 @@
 package etomica.data;
 
 import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.Dimension;
 import etomica.units.Null;
 import etomica.util.EnumeratedType;
@@ -51,7 +52,7 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
      */
     public DataSourceUniform(String label, Dimension dimension, int nValues, double xMin, double xMax, 
                    LimitType typeMin, LimitType typeMax) {
-        dataInfo = new DataInfo(label, dimension, DataDoubleArray.getFactory(new int[]{nValues}));
+        dataInfo = new DataInfoDoubleArray(label, dimension, new int[]{nValues});
         data = new DataDoubleArray(nValues);
         if(nValues < 2) nValues = 2;
         calculateX(nValues, xMin, xMax, typeMin, typeMax);
@@ -85,7 +86,7 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
 
         if (nValues != data.getLength()) {
             data = new DataDoubleArray(new int[]{nValues});
-            dataInfo = new DataInfo(dataInfo.getLabel(), dataInfo.getDimension(), DataDoubleArray.getFactory(new int[]{nValues}));
+            dataInfo = new DataInfoDoubleArray(dataInfo.getLabel(), dataInfo.getDimension(), new int[]{nValues});
         }
         x = data.getData();
         for(int i=0; i<nValues; i++) x[i] = x0 + i*dx;
@@ -230,7 +231,7 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
     private double xMin, xMax;
     private double[] x;
     private DataDoubleArray data;
-    private DataInfo dataInfo;
+    private DataInfoDoubleArray dataInfo;
     private double dx;
     
     /**

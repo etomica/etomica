@@ -10,8 +10,10 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataTable;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.data.types.DataGroup.DataInfoGroup;
+import etomica.data.types.DataTable.DataInfoTable;
 import etomica.units.Quantity;
 import etomica.util.History;
 import etomica.util.HistoryScrolling;
@@ -65,8 +67,8 @@ public class AccumulatorHistory extends DataAccumulator {
      * Returns caster that ensures accumulator will receive a DataDoubleArray.
      */
     public DataProcessor getDataCaster(DataInfo newInputDataInfo) {
-        if(newInputDataInfo.getDataClass() == DataDoubleArray.class || 
-                newInputDataInfo.getDataClass() == DataTable.class) {
+        if(newInputDataInfo instanceof DataInfoDoubleArray || 
+                newInputDataInfo instanceof DataInfoTable) {
             return null;
         }
         return new CastToDoubleArray();
@@ -79,12 +81,13 @@ public class AccumulatorHistory extends DataAccumulator {
      */
     protected DataInfo processDataInfo(DataInfo newInputDataInfo) {
         inputDataInfo = newInputDataInfo;
-        if (inputDataInfo.getDataClass() == DataDoubleArray.class) {
-            nData = ((DataDoubleArray.Factory)inputDataInfo.getDataFactory()).getArrayLength();
+        if (inputDataInfo instanceof DataInfoDoubleArray) {
+            nData = ((DataInfoDoubleArray)inputDataInfo).getArrayLength();
         }
         else {
-            nData = ((DataTable.Factory)inputDataInfo.getDataFactory()).getNRows()
-                  * ((DataTable.Factory)inputDataInfo.getDataFactory()).getNColumns();
+            //if it's not a DataDoubleArray, it must be a DataTable
+            nData = ((DataInfoTable)inputDataInfo).getNRows()
+                  * ((DataInfoTable)inputDataInfo).getNDataInfo();
         }
         history = new History[nData];
         for (int i = 0; i < nData; i++) {
@@ -139,8 +142,8 @@ public class AccumulatorHistory extends DataAccumulator {
                 else {
                     int iHistoryLength = history[i].getHistoryLength();
                     dataInfoFunctions[i] = new DataInfoFunction(inputDataInfo.getLabel(), inputDataInfo.getDimension(), 
-                            new int[]{iHistoryLength}, new DataInfo[]{new DataInfo(timeDataSource.getDataInfo().getLabel(),
-                                    timeDataSource.getDataInfo().getDimension(), DataDoubleArray.getFactory(new int[]{iHistoryLength}))});
+                            new DataInfoDoubleArray[]{new DataInfoDoubleArray(timeDataSource.getDataInfo().getLabel(),
+                                    timeDataSource.getDataInfo().getDimension(), new int[]{iHistoryLength})});
                     DataDoubleArray xData = new DataDoubleArray(new int[]{history[i].getHistoryLength()},history[i].getXValues());
                     dataFunctions[i] = new DataFunction(new DataDoubleArray[]{xData}, history[i].getHistory());
                 }
@@ -169,8 +172,8 @@ public class AccumulatorHistory extends DataAccumulator {
         DataInfoFunction[] dataInfoFunctions = new DataInfoFunction[nData];
         for (int i=0; i<nData; i++) {
             dataInfoFunctions[i] = new DataInfoFunction(inputDataInfo.getLabel(), inputDataInfo.getDimension(), 
-                    new int[]{history[i].getHistoryLength()}, new DataInfo[]{new DataInfo(timeDataSource.getDataInfo().getLabel(),
-                            timeDataSource.getDataInfo().getDimension(), DataDoubleArray.getFactory(new int[]{history[i].getHistoryLength()}))});
+                    new DataInfoDoubleArray[]{new DataInfoDoubleArray(timeDataSource.getDataInfo().getLabel(),
+                            timeDataSource.getDataInfo().getDimension(), new int[]{history[i].getHistoryLength()})});
             DataDoubleArray xData = new DataDoubleArray(new int[]{history[i].getHistoryLength()},history[i].getXValues());
             dataFunctions[i] = new DataFunction(new DataDoubleArray[]{xData}, history[i].getHistory());
         }

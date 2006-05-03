@@ -6,6 +6,7 @@ import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveListener;
@@ -113,11 +114,11 @@ public class IntegratorPT extends IntegratorManagerMC implements EtomicaElement 
         private int[] track;
         private double[] dtrack;
         private DataDoubleArray data;
-        private DataInfo dataInfo;
+        private DataInfoDoubleArray dataInfo;
         
         public PhaseTracker() {
             data = new DataDoubleArray(0);
-            dataInfo = new DataInfo("Phase Tracker", Null.DIMENSION, DataDoubleArray.getFactory(new int[]{0}));
+            dataInfo = new DataInfoDoubleArray("Phase Tracker", Null.DIMENSION, new int[]{0});
         }
         
         public DataInfo getDataInfo() {
@@ -144,7 +145,7 @@ public class IntegratorPT extends IntegratorManagerMC implements EtomicaElement 
         public void setNumPhases(int numPhases) {
             track = new int[numPhases];
             data = new DataDoubleArray(new int[] {numPhases});
-            dataInfo = new DataInfo("Phase Tracker", Null.DIMENSION, DataDoubleArray.getFactory(new int[]{numPhases}));
+            dataInfo = new DataInfoDoubleArray("Phase Tracker", Null.DIMENSION, new int[]{numPhases});
             dtrack = data.getData();
             for(int i=0; i<numPhases; i++) {
                 track[i] = i;

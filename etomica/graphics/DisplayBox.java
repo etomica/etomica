@@ -12,7 +12,7 @@ import etomica.data.DataProcessor;
 import etomica.data.DataSink;
 import etomica.data.types.CastToDouble;
 import etomica.data.types.DataDouble;
-import etomica.graphics.DeviceBox.LabelType;
+import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.units.Null;
 import etomica.units.Unit;
 import etomica.units.systems.UnitSystem;
@@ -104,7 +104,7 @@ public class DisplayBox extends Display implements DataSink, EtomicaElement, jav
      * Returns caster needed to convert type indicated by DataInfo to a DataDouble.
      */
     public DataProcessor getDataCaster(DataInfo dataInfo) {
-        if(dataInfo.getDataClass() == DataDouble.class) return null;
+        if(dataInfo instanceof DataInfoDouble) return null;
         return new CastToDouble();
     }
     

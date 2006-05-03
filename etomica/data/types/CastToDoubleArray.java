@@ -1,9 +1,13 @@
 package etomica.data.types;
 
 import etomica.data.Data;
-import etomica.data.DataFactory;
 import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
+import etomica.data.types.DataDouble.DataInfoDouble;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.data.types.DataInteger.DataInfoInteger;
+import etomica.data.types.DataTensor.DataInfoTensor;
+import etomica.data.types.DataVector.DataInfoVector;
 
 /**
  * A DataProcessor that converts a Data instance into a DataDoubleArray. Copies
@@ -57,31 +61,29 @@ public class CastToDoubleArray extends DataProcessor {
      *             in general comments for this class
      */
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
-        Class inputClass = inputDataInfo.getDataClass();
-        DataFactory factory = inputDataInfo.getDataFactory();
         int[] arrayShape;
-        if (inputClass == DataDoubleArray.class) {
+        if (inputDataInfo instanceof DataInfoDoubleArray) {
             inputType = 0;
             return inputDataInfo;
-        } else if (inputClass == DataDouble.class) {
+        } else if (inputDataInfo instanceof DataInfoDouble) {
             inputType = 1;
             arrayShape = new int[]{1};
-        } else if (inputClass == DataInteger.class) {
+        } else if (inputDataInfo instanceof DataInfoInteger) {
             inputType = 2;
             arrayShape = new int[]{1};
-        } else if (inputClass == DataVector.class) {
+        } else if (inputDataInfo instanceof DataInfoVector) {
             inputType = 3;
-            arrayShape = new int[]{((DataVector.Factory)factory).getSpace().D()};
-        } else if (inputClass == DataTensor.class) {
+            arrayShape = new int[]{((DataInfoVector)inputDataInfo).getSpace().D()};
+        } else if (inputDataInfo instanceof DataInfoTensor) {
             inputType = 4;
-            int D = ((DataTensor.Factory) factory).getSpace().D();
+            int D = ((DataInfoTensor)inputDataInfo).getSpace().D();
             arrayShape = new int[]{D,D};
         } else {
             throw new IllegalArgumentException(
-                    "Cannot cast to DataDoubleArray from " + inputClass);
+                    "Cannot cast to DataDoubleArray from " + inputDataInfo.getClass());
         }
         outputData = new DataDoubleArray(arrayShape);
-        return new DataInfo(inputDataInfo.getLabel(), inputDataInfo.getDimension(), DataDoubleArray.getFactory(arrayShape));
+        return new DataInfoDoubleArray(inputDataInfo.getLabel(), inputDataInfo.getDimension(), arrayShape);
     }
 
     /**

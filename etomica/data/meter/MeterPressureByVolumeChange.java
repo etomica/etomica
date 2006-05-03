@@ -7,6 +7,7 @@ import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.DataSourceUniform;
 import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorPhase;
 import etomica.phase.Phase;
 import etomica.potential.PotentialCalculationEnergySum;
@@ -91,7 +92,7 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
     public void setX(double min, double max, int n) {
         xDataSource = new DataSourceUniform("x", Volume.dimension(space.D()), n, min, max);
         data = new DataDoubleArray(n);
-        dataInfo = new DataInfo("Pressure by Volume Change", Pressure.dimension(space.D()), DataDoubleArray.getFactory(new int[]{n}));
+        dataInfo = new DataInfoDoubleArray("Pressure by Volume Change", Pressure.dimension(space.D()), new int[]{n});
         dataArray = data.getData();
         updateScale();
     }

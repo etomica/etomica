@@ -250,79 +250,9 @@ public class DataTable extends DataGroup implements DataArithmetic, Serializable
         return false;
     }
 
-    /**
-     * Returns a new DataFactory that makes DataTable instances with the shape
-     * indicates by the given set of columns, and using the header/dimension
-     * info for the given columns.  Data arrays in the new instances are independent
-     * of the given columns' data (except for being initialized to those values).
-     */
-    public static Factory getFactory(int nRows, int nColumns) {
-        return new Factory(nRows, nColumns);
-    }
-
-    /**
-     * DataFactory that makes DataTable instances of a specific shape.  Each DataTable
-     * constructed by the factory has its own DataColumn instances, with data that
-     * are initialized to a prototype set of data.  All constructed instances reference
-     * the same rowHeader array (if not null).
-     */
-    public static class Factory extends DataGroup.Factory {
-
-        private final int nRows, nColumns;
-        
-        Factory(int nRows, int nColumns) {
-            super(makeSubFactories(nColumns, nRows));
-            this.nRows = nRows;
-            this.nColumns = nColumns;
-        }
-        
-        private static DataDoubleArray.Factory[] makeSubFactories(int nColumns, int nRows) {
-            DataDoubleArray.Factory[] factories = new DataDoubleArray.Factory[nColumns];
-            for (int i=0; i<factories.length; i++) {
-                factories[i] = DataDoubleArray.getFactory(new int[]{nRows});
-            }
-            return factories;
-        }
-        
-        /**
-         * Makes a new DataTable, assigning the descriptive label to it.  If dimension
-         * is null, columns in new table will have dimensions given by the corresponding
-         * columns in the factory's prototype table; if dimension is not null, all columns
-         * in the new table will have the given dimension.
-         */
-        public Data makeData() {
-            return new DataTable(nColumns, nRows);
-        }
-
-        /**
-         * Returns DataTable.class.
-         */
-        public Class getDataClass() {
-            return DataTable.class;
-        }
-
-        /**
-         * Returns the number of columns in the DataTable made by this
-         * DataFactory.
-         * 
-         * @return
-         */
-        public int getNColumns() {
-            return nColumns;
-        }
-
-        /**
-         * Returns the length of each and every row in the DataTable made by
-         * this DataFactory.
-         */
-        public int getNRows() {
-            return nRows;
-        }
-    }
-
     public static class DataInfoTable extends DataInfoGroup {
         public DataInfoTable(String label, DataInfo[] columnInfo, int nRows, String[] rowHeaders) {
-            super(label, Null.DIMENSION, columnInfo, getFactory(columnInfo));
+            super(label, Null.DIMENSION, columnInfo);
             this.nRows = nRows;
             if (rowHeaders != null) {
                 this.rowHeaders = (String[])rowHeaders.clone();
@@ -330,14 +260,6 @@ public class DataTable extends DataGroup implements DataArithmetic, Serializable
             else {
                 this.rowHeaders = null;
             }
-        }
-        
-        private static DataTable.Factory getFactory(DataInfo[] columnInfo) {
-            int nColumns = columnInfo.length;
-            if (nColumns == 0) {
-                return DataTable.getFactory(0,0);
-            }
-            return DataTable.getFactory(((DataDoubleArray.Factory)columnInfo[0].getDataFactory()).getArrayLength(),nColumns);
         }
         
         public int getNRows() {

@@ -213,11 +213,11 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
     protected static class DataCasterJudgeFunction implements DataCasterJudge, Serializable {
 
         public DataProcessor getDataCaster(DataInfo dataInfo) {
-            if (dataInfo.getDataClass() == DataFunction.class) {
+            if (dataInfo instanceof DataInfoFunction) {
                 return null;
-            } else if(dataInfo.getDataClass() == DataGroup.class) {
+            } else if(dataInfo instanceof DataInfoGroup) {
                 for (int i = 0; i<((DataInfoGroup)dataInfo).getNDataInfo(); i++) {
-                    if (((DataInfoGroup)dataInfo).getSubDataInfo(i).getDataClass() != DataFunction.class) {
+                    if (((DataInfoGroup)dataInfo).getSubDataInfo(i) instanceof DataInfoFunction) {
                         throw new IllegalArgumentException("DisplayPlot can only handle homogeneous groups of DataFunctions");
                     }
                 }

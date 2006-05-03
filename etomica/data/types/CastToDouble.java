@@ -3,6 +3,9 @@ package etomica.data.types;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
+import etomica.data.types.DataDouble.DataInfoDouble;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.data.types.DataInteger.DataInfoInteger;
 
 /**
  * A DataProcessor that converts a Data instance into a DataDouble. Copies an
@@ -46,18 +49,17 @@ public class CastToDouble extends DataProcessor {
      */
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
         dataDouble = new DataDouble();
-        Class inputClass = inputDataInfo.getDataClass();
-        if (inputClass == DataDouble.class) {
+        if (inputDataInfo instanceof DataInfoDouble) {
             inputType = 0;
-        } else if (inputClass == DataDoubleArray.class) {
+        } else if (inputDataInfo instanceof DataInfoDoubleArray) {
             inputType = 1;
-        } else if (inputClass == DataInteger.class) {
+        } else if (inputDataInfo instanceof DataInfoInteger) {
             inputType = 2;
         } else {
             throw new IllegalArgumentException("Cannot cast to double from "
-                    + inputClass);
+                    + inputDataInfo.getClass());
         }
-        return new DataInfo(inputDataInfo.getLabel(), inputDataInfo.getDimension(), DataDouble.getFactory());
+        return new DataInfoDouble(inputDataInfo.getLabel(), inputDataInfo.getDimension());
     }
     
     /**

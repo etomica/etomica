@@ -10,6 +10,8 @@ import etomica.data.DataSourceUniform;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
+import etomica.data.types.DataDouble.DataInfoDouble;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.phase.Phase;
 import etomica.space.Boundary;
@@ -56,12 +58,12 @@ public class MeterProfile implements Meter, java.io.Serializable {
      * Accessor method for the meter that defines the profiled quantity.
      */
     public void setDataSource(DataSourceAtomic m) {
-        if (!(m.getDataInfo().getDataClass().equals(DataDouble.class))) {
+        if (!(m.getDataInfo() instanceof DataInfoDouble)) {
             throw new IllegalArgumentException("data source must return a DataDouble");
         }
         data = new DataFunction(new DataDoubleArray[] {xData});
-        dataInfo = new DataInfoFunction(m.getDataInfo().getLabel()+" Profile", m.getDataInfo().getDimension(), new int[]{xData.getLength()},
-                new DataInfo[] {new DataInfo("x",Length.DIMENSION,DataDoubleArray.getFactory(new int[]{xData.getLength()}))});
+        dataInfo = new DataInfoFunction(m.getDataInfo().getLabel()+" Profile", m.getDataInfo().getDimension(), 
+                new DataInfoDoubleArray[] {new DataInfoDoubleArray("x",Length.DIMENSION,new int[]{xData.getLength()})});
         meter = m;
     }
     

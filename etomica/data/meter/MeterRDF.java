@@ -11,6 +11,7 @@ import etomica.data.DataSourceUniform;
 import etomica.data.DataSourceUniform.LimitType;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.phase.Phase;
 import etomica.space.NearestImageTransformer;
@@ -41,8 +42,8 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
         
         rData = (DataDoubleArray)xDataSource.getData();
         data = new DataFunction(new DataDoubleArray[] {rData});
-        dataInfo = new DataInfoFunction("g(r)", Null.DIMENSION, new int[]{rData.getLength()}, new DataInfo[]{
-                new DataInfo("r", Length.DIMENSION, DataDoubleArray.getFactory(new int[]{rData.getLength()}))});
+        dataInfo = new DataInfoFunction("g(r)", Null.DIMENSION, new DataInfoDoubleArray[]{
+                (DataInfoDoubleArray)xDataSource.getDataInfo()});
 
 	    iterator = new ApiLeafAtoms();
         setName(NameMaker.makeName(this.getClass()));
@@ -91,8 +92,8 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
         }
         if (needUpdate) {
             data = new DataFunction(new DataDoubleArray[] {rData});
-            dataInfo = new DataInfoFunction("g(r)", Null.DIMENSION, new int[]{rData.getLength()}, new DataInfo[]{
-                    new DataInfo("r", Length.DIMENSION, DataDoubleArray.getFactory(new int[]{rData.getLength()}))});
+            dataInfo = new DataInfoFunction("g(r)", Null.DIMENSION, new DataInfoDoubleArray[]{
+                    (DataInfoDoubleArray)xDataSource.getDataInfo()});
         }
         final double[] y = data.getData();
 	    for(int i=0; i<y.length; i++) {y[i] = 0.0;}  //zero histogram

@@ -1,11 +1,11 @@
 package etomica.data.types;
 
-import java.io.Serializable;
-
 import etomica.data.Data;
-import etomica.data.DataFactory;
+import etomica.data.DataInfo;
+import etomica.data.DataInfo.DataInfoArithmetic;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.units.Dimension;
 import etomica.util.Function;
 
 /**
@@ -159,53 +159,21 @@ public class DataVector implements DataArithmetic, java.io.Serializable {
     }
     
     /**
-     * Returns a DataFactory that makes a DataVector for the given Space.
-     */
-    public static Factory getFactory(Space space) {
-        if(FACTORY == null || FACTORY.space != space) { 
-            FACTORY = new Factory(space);
-        }
-        return FACTORY;
-    }
-
-    /**
      * The wrapped vector data.
      */
     public final Vector x;
     
-    private transient static Factory FACTORY = null;
-    
-    /**
-     * DataFactory that makes DataVector instances of a specific length.
-     */
-    public static class Factory implements DataFactory, Serializable {
+    public static class DataInfoVector extends DataInfo implements DataInfoArithmetic {
         
-        protected final Space space;
-        
-        Factory(Space space) {
+        public DataInfoVector(String label, Dimension dimension, Space space) {
+            super(label, dimension);
             this.space = space;
         }
         
-        /**
-         * Makes a new DataVector with DataInfo having the given label and dimension.
-         */
-        public Data makeData() {
-            return new DataVector(space);
-        }
-        
-        /**
-         * Returns DataVector.class.
-         */
-        public Class getDataClass() {
-            return DataVector.class;
-        }
-        
-        /**
-         * Returns the Space used to make the Vectors.
-         */
         public Space getSpace() {
             return space;
         }
+        
+        protected final Space space;
     }
-    
 }

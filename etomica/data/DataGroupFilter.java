@@ -92,7 +92,7 @@ public class DataGroupFilter extends DataProcessor {
      * returns a CastToGroup instance.
      */
     public DataProcessor getDataCaster(DataInfo incomingDataInfo) {
-        if(incomingDataInfo.getDataClass() == DataGroup.class) {
+        if(incomingDataInfo instanceof DataInfoGroup) {
             return null;
         }
         return new CastToGroup();

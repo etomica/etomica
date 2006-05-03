@@ -91,11 +91,11 @@ public class DataSinkTable extends DataSet {
     protected static class DataCasterJudgeTable implements DataCasterJudge, Serializable {
 
         public DataProcessor getDataCaster(DataInfo dataInfo) {
-            if (dataInfo.getDataClass() == DataTable.class) {
+            if (dataInfo instanceof DataInfoTable) {
                 return null;
-            } else if(dataInfo.getDataClass() == DataGroup.class) {
+            } else if(dataInfo instanceof DataInfoGroup) {
                 for (int i = 0; i<((DataInfoGroup)dataInfo).getNDataInfo(); i++) {
-                    if (((DataInfoGroup)dataInfo).getSubDataInfo(i).getDataClass() != DataTable.class) {
+                    if (!(((DataInfoGroup)dataInfo).getSubDataInfo(i) instanceof DataInfoTable)) {
                         throw new IllegalArgumentException("DataSinkTable can only handle groups of DataTables");
                     }
                 }

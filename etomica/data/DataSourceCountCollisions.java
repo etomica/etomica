@@ -2,8 +2,8 @@ package etomica.data;
 
 import etomica.EtomicaElement;
 import etomica.data.types.DataInteger;
+import etomica.data.types.DataInteger.DataInfoInteger;
 import etomica.integrator.IntegratorHard;
-import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
 import etomica.units.Count;
@@ -25,8 +25,8 @@ public class DataSourceCountCollisions implements DataSource,
      * addIntegrator or setIntegrator before use.
      */
     public DataSourceCountCollisions() {
-        dataInfo = new DataInfo("Number of Collisions",
-                Quantity.DIMENSION, DataInteger.getFactory());
+        dataInfo = new DataInfoInteger("Number of Collisions",
+                Quantity.DIMENSION);
         data = new DataInteger();
         setName(NameMaker.makeName(this.getClass()));
     }

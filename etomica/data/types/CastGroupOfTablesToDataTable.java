@@ -2,11 +2,12 @@ package etomica.data.types;
 
 
 import etomica.data.Data;
-import etomica.data.DataFactory;
 import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.data.types.DataTable.DataInfoTable;
+import etomica.util.Arrays;
 
 /**
  * A DataProcessor that converts a homogeneous DataGroup into a multidimensional DataDoubleArray. 
@@ -45,33 +46,37 @@ public class CastGroupOfTablesToDataTable extends DataProcessor {
      * Prepares processor to handle Data. Uses given DataInfo to determine the
      * type of Data to expect in subsequent calls to processData.
      * 
+     * @throws ClassCastException
+     *             if DataInfo does not indicate a DataGroup or its sub-groups 
+     *             are not DataTables
+     *             
      * @throws IllegalArgumentException
-     *             if DataInfo does not indicate a DataGroup, or if DataInfo
-     *             indicates that expected DataGroup will not be homogeneous
+     *             if DataInfo indicates that the DataTables have different
+     *             numbers of rows
      */
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
-        if (inputDataInfo.getDataClass() != DataGroup.class) {
+        if (inputDataInfo instanceof DataInfoGroup) {
             throw new IllegalArgumentException("can only cast from DataGroup");
         }
-        DataFactory[] elementFactory = ((DataGroup.Factory)inputDataInfo.getDataFactory()).getDataFactory();
+        DataInfoDoubleArray[] columnDataInfo = new DataInfoDoubleArray[0];
         int nColumns = 0;
         int nRows = -1;
         for (int i = 0; i<((DataInfoGroup)inputDataInfo).getNDataInfo(); i++) {
-            DataInfo elementDataInfo = ((DataInfoGroup)inputDataInfo).getSubDataInfo(i);
-            if (elementDataInfo.getDataClass() != DataTable.class) {
-                throw new IllegalArgumentException("this class can only cast groups of DataTables");
+            DataInfoTable elementDataInfo = (DataInfoTable)((DataInfoGroup)inputDataInfo).getSubDataInfo(i);
+            columnDataInfo = (DataInfoDoubleArray[])Arrays.resizeArray(columnDataInfo, nColumns+elementDataInfo.getNDataInfo());
+            for (int j=nColumns; i<columnDataInfo.length; i++) {
+                columnDataInfo[j] = (DataInfoDoubleArray)elementDataInfo.getSubDataInfo(j-nColumns);
             }
-            nColumns += ((DataInfoTable)elementDataInfo).getNDataInfo();
-            if (nRows > -1 && ((DataInfoTable)elementDataInfo).getNRows() != nRows) {
+            nColumns = columnDataInfo.length;
+            if (nRows > -1 && elementDataInfo.getNRows() != nRows) {
                 throw new IllegalArgumentException("all columns must have an equal number of rows");
             }
-            nRows = ((DataTable.Factory)elementFactory[i]).getNRows();
+            nRows = elementDataInfo.getNRows();
         }
         
-        outputData = new DataTable(nColumns, nRows);
+        outputData = null;
         
-        DataFactory outputFactory = DataTable.getFactory(nRows, nColumns);
-        return new DataInfo(inputDataInfo.getLabel(), inputDataInfo.getDimension(), outputFactory);
+        return new DataInfoTable(inputDataInfo.getLabel(), columnDataInfo, nRows, null);
     }
     
     /**
@@ -84,6 +89,16 @@ public class CastGroupOfTablesToDataTable extends DataProcessor {
      *             processDataInfo.
      */
     protected Data processData(Data data) {
+        if (outputData == null) {
+            DataDoubleArray[] columns = new DataDoubleArray[outputDataInfo.getNDataInfo()];
+            int i=0;
+            for (int j=0; j<((DataGroup)data).getNData(); j++) {
+                for (int k=0; k<((DataTable)((DataGroup)data).getData(j)).getNData(); k++) {
+                    columns[i] = (DataDoubleArray)((DataTable)((DataGroup)data).getData(j)).getData(i);
+                }
+            }
+            outputData = new DataTable(columns);
+        }
         return outputData;
     }
     
@@ -91,11 +106,12 @@ public class CastGroupOfTablesToDataTable extends DataProcessor {
      * Returns null.
      */
     public DataProcessor getDataCaster(DataInfo info) {
-        if (info.getDataClass() != DataGroup.class) {
+        if (!(info instanceof DataInfoGroup)) {
             throw new IllegalArgumentException("can only cast from DataGroup");
         }
         return null;
     }
 
     private DataTable outputData;
+    private DataInfoTable outputDataInfo;
 }

@@ -1,9 +1,6 @@
 package etomica.data.types;
 
-import java.io.Serializable;
-
 import etomica.data.Data;
-import etomica.data.DataFactory;
 import etomica.data.DataInfo;
 import etomica.units.Dimension;
 
@@ -132,74 +129,10 @@ public class DataGroup implements Data, java.io.Serializable {
     
     protected final Data[] data;
     
-    /**
-     * Returns a factory for a data group holding copies of the
-     * given DataFactory objects.  Each new instance made by the factory
-     * will be a DataGroup having data made by the given factories.
-     * When the factory is made, the given DataFactory array is cloned, 
-     * but the DataFactory instances it holds are not.
-     */
-    public static Factory getFactory(DataFactory[] dataFactory) {
-        return new Factory(dataFactory);
-    }
-
-    /**
-     * DataFactory that makes DataGroups with copies of a specific set of Data.
-     * Instantiate using the static DataGroup.getFactory method.
-     */
-    public static class Factory implements DataFactory, Serializable {
-        
-        final DataFactory[] dataFactory;
-        
-        Factory(DataFactory[] dataFactory) {
-            this.dataFactory = (DataFactory[])dataFactory.clone();
-        }
-        
-        /**
-         * Makes a new DataGroup from the Data in the prototype DataGroup.
-         * Dimension is given to adhere to DataFactory interface, but it is not used.
-         */
-        public Data makeData() {
-            Data[] newData = new Data[dataFactory.length];
-            for(int i=0; i<dataFactory.length; i++) {
-                newData[i] = dataFactory[i].makeData();
-            }
-            //drop dimension
-            return new DataGroup(newData);
-        }
-
-        /**
-         * Returns a clone of the array of Data held by the prototype DataGroup.
-         */
-        public DataFactory[] getDataFactory() {
-            return (DataFactory[])dataFactory.clone();
-        }
-
-        /**
-         * Returns DataGroup.class, indicating that this DataFactory produces a DataGroup.
-         */
-        public Class getDataClass() {
-            return DataGroup.class;
-        }
-    }
-
     public static class DataInfoGroup extends DataInfo {
         public DataInfoGroup(String label, Dimension dimension, DataInfo[] subDataInfo) {
-            super(label, dimension, DataGroup.getFactory(makeFactories(subDataInfo)));
+            super(label, dimension);
             this.subDataInfo = (DataInfo[])subDataInfo.clone();
-        }
-        
-        protected DataInfoGroup(String label, Dimension dimension, DataInfo[] subDataInfo, DataGroup.Factory factory) {
-            super(label, dimension, factory);
-            this.subDataInfo = (DataInfo[])subDataInfo.clone();
-        }
-        
-        private static DataFactory[] makeFactories(DataInfo[] subDataInfo) {
-            DataFactory[] factories = new DataFactory[subDataInfo.length];
-            for (int i=0; i<factories.length; i++) {
-                factories[i] = subDataInfo[i].getDataFactory();
-            }
-            return factories;
         }
         
         public int getNDataInfo() {

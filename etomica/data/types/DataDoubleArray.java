@@ -1,11 +1,10 @@
 package etomica.data.types;
 
-import java.io.Serializable;
 import java.util.Arrays;
 
 import etomica.data.Data;
-import etomica.data.DataFactory;
 import etomica.data.DataInfo;
+import etomica.data.DataInfo.DataInfoArithmetic;
 import etomica.units.Dimension;
 import etomica.util.Function;
 
@@ -56,7 +55,15 @@ public class DataDoubleArray implements DataArithmetic, java.io.Serializable {
      *            length of the array in each dimension
      */
     public DataDoubleArray(int[] arrayShape) {
-        this((Factory)getFactory(arrayShape));
+        super();
+        this.arrayShape = (int[])arrayShape.clone();
+        jumpCount = new int[arrayShape.length];
+        //row-wise definition, as done in RectangularLattice
+        jumpCount[arrayShape.length-1] = 1;
+        for(int i=arrayShape.length-1; i>0; i--) {
+            jumpCount[i-1] = jumpCount[i]*arrayShape[i];
+        }
+        x = new double[arrayShape[0]*jumpCount[0]];
     }
 
     /**
@@ -69,21 +76,6 @@ public class DataDoubleArray implements DataArithmetic, java.io.Serializable {
         x = (double[])data.x.clone();
         jumpCount = data.jumpCount;
         arrayShape = data.jumpCount;
-    }
-
-    /**
-     * Constructor used by Factory
-     */
-    protected DataDoubleArray(Factory factory) {
-        super();
-        arrayShape = factory.getArrayShape();
-        jumpCount = new int[arrayShape.length];
-        //row-wise definition, as done in RectangularLattice
-        jumpCount[factory.arrayShape.length-1] = 1;
-        for(int i=factory.arrayShape.length-1; i>0; i--) {
-            jumpCount[i-1] = jumpCount[i]*factory.arrayShape[i];
-        }
-        x = new double[factory.arrayShape[0]*jumpCount[0]];
     }
     
    /**
@@ -360,37 +352,12 @@ public class DataDoubleArray implements DataArithmetic, java.io.Serializable {
     private final int[] jumpCount;
     private final int[] arrayShape;
     
-    public static Factory getFactory(int[] arrayShape) {
-        return new Factory(arrayShape);
-    }
-
-    /**
-     * DataFactory that constructs DataDoubleArray instances of a specific shape.
-     * Instantiate using the static DataDoubleArray.getFactory method.  
-     */
-    public static class Factory implements DataFactory, Serializable {
-        
+    public static class DataInfoDoubleArray extends DataInfo implements DataInfoArithmetic {
         protected final int[] arrayShape;
         
-        Factory(int[] arrayShape) {
+        public DataInfoDoubleArray(String label, Dimension dimension, int[] arrayShape) {
+            super(label, dimension);
             this.arrayShape = arrayShape;
-        }
-        
-        /**
-         * Returns a new DataDoubleArray using the given label and dimension and
-         * with a shape given by the prototype for this factory.
-         */
-        public Data makeData() {
-            DataDoubleArray data = new DataDoubleArray(this);
-            return data;
-        }
-        
-        /**
-         * Returns DataDoubleArray.class, indicating that this factory makes
-         * a DataDoubleArray.
-         */
-        public Class getDataClass() {
-            return DataDoubleArray.class;
         }
         
         /**
@@ -412,6 +379,5 @@ public class DataDoubleArray implements DataArithmetic, java.io.Serializable {
             return n;
         }
         
-    }//end of Factory
-
+    }
 }

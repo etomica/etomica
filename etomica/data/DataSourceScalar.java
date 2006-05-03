@@ -1,6 +1,7 @@
 package etomica.data;
 
 import etomica.data.types.DataDouble;
+import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.units.Dimension;
 import etomica.util.NameMaker;
 
@@ -12,7 +13,7 @@ public abstract class DataSourceScalar implements DataSource, java.io.Serializab
     
     public DataSourceScalar(String label, Dimension dimension) {
         data = new DataDouble();
-        dataInfo = new DataInfo(label, dimension, DataDouble.getFactory());
+        dataInfo = new DataInfoDouble(label, dimension);
         setName(NameMaker.makeName(this.getClass()));
     }
     

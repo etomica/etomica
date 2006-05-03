@@ -13,6 +13,7 @@ import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.modifier.ModifierBoolean;
 import etomica.phase.Phase;
@@ -232,7 +233,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         
         public MeterTPH(IntegratorGear4NPH integrator) {
             data = new DataDoubleArray(3);
-            dataInfo = new DataInfo("TPH", Undefined.DIMENSION, DataDoubleArray.getFactory(new int[]{3}));
+            dataInfo = new DataInfoDoubleArray("TPH", Undefined.DIMENSION, new int[]{3});
             this.integrator = integrator;
         }
         
