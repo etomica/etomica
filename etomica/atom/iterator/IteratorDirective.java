@@ -21,8 +21,8 @@ public final class IteratorDirective implements java.io.Serializable {
         setDirection(direction);
     }
     public IteratorDirective(Direction direction, Atom atom) {
-        	this(direction);
-        	targetAtom = atom;
+        this(direction);
+        targetAtom = atom;
     }
     
     /**
@@ -91,7 +91,7 @@ public final class IteratorDirective implements java.io.Serializable {
          * @return the singleton INSTANCE
          */
         private Object readResolve() {
-        	    return this.toString().equals("Up") ? Direction.UP : Direction.DOWN;
+            return this.toString().equals("Up") ? Direction.UP : Direction.DOWN;
         }
         
     }//end of Direction
@@ -125,25 +125,23 @@ public final class IteratorDirective implements java.io.Serializable {
         }
     }//end of PotentialCriterion
     
-	/**
-	 * Sets flag indicating if lrc potentials (long-range correction) should be
-	 * included.
-	 * @return boolean
-	 */
-	public boolean isIncludeLrc() {
-		return includeLrc;
-	}
+    /**
+     * Sets flag indicating if lrc potentials (long-range correction) should be
+     * included.
+     * @return boolean
+     */
+    public boolean isIncludeLrc() {
+        return includeLrc;
+    }
 
-	/**
-	 * Sets flag indicating if lrc potentials (long-range correction) should be
-	 * included.
-	 * @param includeLrc The flag value to set
-	 * @return this IteratorDirective, for in-line use of the method.
-	 */
-	public IteratorDirective setIncludeLrc(boolean includeLrc) {
-		this.includeLrc = includeLrc;
-		return this;
-	}
-
-
-}//end of IteratorDirective    
+    /**
+     * Sets flag indicating if lrc potentials (long-range correction) should be
+     * included.
+     * @param includeLrc The flag value to set
+     * @return this IteratorDirective, for in-line use of the method.
+     */
+    public IteratorDirective setIncludeLrc(boolean includeLrc) {
+        this.includeLrc = includeLrc;
+        return this;
+    }
+}    
