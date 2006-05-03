@@ -21,8 +21,8 @@ public final class IteratorDirective implements java.io.Serializable {
         setDirection(direction);
     }
     public IteratorDirective(Direction direction, Atom atom) {
-    	this(direction);
-    	targetAtom = atom;
+        	this(direction);
+        	targetAtom = atom;
     }
     
     /**
@@ -91,7 +91,7 @@ public final class IteratorDirective implements java.io.Serializable {
          * @return the singleton INSTANCE
          */
         private Object readResolve() {
-        	return this.toString().equals("Up") ? Direction.UP : Direction.DOWN;
+        	    return this.toString().equals("Up") ? Direction.UP : Direction.DOWN;
         }
         
     }//end of Direction
