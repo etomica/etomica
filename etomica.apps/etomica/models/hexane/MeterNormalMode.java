@@ -10,6 +10,7 @@ import etomica.data.meter.Meter;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataGroup.DataInfoGroup;
+import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.phase.Phase;
 import etomica.space.Vector;
 import etomica.units.Area;
@@ -23,10 +24,10 @@ public class MeterNormalMode implements Meter {
         this.pri = pi;
 
         DataTensor[] dataTensors = new DataTensor[pri.getMaxLength()];
-        DataInfo[] dataInfoTensors = new  DataInfo[pri.getMaxLength()];
+        DataInfoTensor[] dataInfoTensors = new  DataInfoTensor[pri.getMaxLength()];
         for (int i = 0; i < pri.getMaxLength(); i++) {
             dataTensors[i] = new DataTensor(phase.space());
-            dataInfoTensors[i] = new DataInfo("Normal Mode deltas", Area.DIMENSION, DataTensor.getFactory(phase.space()));
+            dataInfoTensors[i] = new DataInfoTensor("Normal Mode deltas", Area.DIMENSION, phase.space());
         }
         data = new DataGroup(dataTensors);
         dataInfo = new DataInfoGroup("Normal Mode deltas", Null.DIMENSION, dataInfoTensors);

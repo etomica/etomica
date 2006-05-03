@@ -26,7 +26,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPressure;
 import etomica.data.meter.MeterRDF;
 import etomica.data.meter.MeterTemperature;
-import etomica.data.types.DataFunction;
+import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.ConstantsGraphic;
 import etomica.graphics.DeviceNSelector;
@@ -139,7 +139,7 @@ public class LjmdGraphic {
 		DataSourceUniform mbX = mbSource.getXSource();
 		mbX.setTypeMax(LimitType.HALF_STEP);
 		mbX.setTypeMin(LimitType.HALF_STEP);
-		mbX.setNValues(((DataFunction.Factory)meterVelocity.getDataInfo().getDataFactory()).getArrayShape()[0]);
+		mbX.setNValues(((DataInfoFunction)meterVelocity.getDataInfo()).getArrayLength());
 		mbX.setXMin(vMin);
 		mbX.setXMax(vMax);
 		mbSource.update();

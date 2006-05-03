@@ -5,6 +5,7 @@ import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.meter.Meter;
 import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorMC;
 import etomica.phase.Phase;
 import etomica.units.Dimension;
@@ -30,7 +31,7 @@ public class MeterVirial implements DataSource, Meter, java.io.Serializable {
 		integrator = aIntegrator;
 		clusters = aClusters;
         data = new DataDoubleArray(clusters.length);
-        dataInfo = new DataInfo("Cluster Value",Null.DIMENSION, DataDoubleArray.getFactory(new int[]{clusters.length}));
+        dataInfo = new DataInfoDoubleArray("Cluster Value",Null.DIMENSION, new int[]{clusters.length});
 	}
 
 	public DataInfo getDataInfo() {

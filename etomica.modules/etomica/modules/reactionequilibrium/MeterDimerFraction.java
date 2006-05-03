@@ -7,6 +7,7 @@ import etomica.data.DataInfo;
 import etomica.data.meter.Meter;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataTable;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataTable.DataInfoTable;
 import etomica.phase.Phase;
 import etomica.units.Fraction;
@@ -15,8 +16,8 @@ import etomica.util.NameMaker;
 public final class MeterDimerFraction implements Meter {
     public MeterDimerFraction(ReactionEquilibrium sim) {
         data = new DataTable(1,5);
-        DataInfo columnInfo = new DataInfo("Dimer Fraction", Fraction.DIMENSION, DataDoubleArray.getFactory(new int[]{5}));
-        dataInfo = new DataInfoTable("Dimer Fraction", new DataInfo[]{columnInfo}, 5, new String[]{"R", "B", "R-R", "R-B", "B-B"});
+        DataInfoDoubleArray columnInfo = new DataInfoDoubleArray("Dimer Fraction", Fraction.DIMENSION, new int[]{5});
+        dataInfo = new DataInfoTable("Dimer Fraction", new DataInfoDoubleArray[]{columnInfo}, 5, new String[]{"R", "B", "R-R", "R-B", "B-B"});
         setName(NameMaker.makeName(this.getClass()));
         agentSource = sim;
     }

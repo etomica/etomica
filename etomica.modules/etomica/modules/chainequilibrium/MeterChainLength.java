@@ -15,8 +15,8 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.meter.Meter;
-import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.phase.Phase;
 import etomica.units.Fraction;
@@ -41,9 +41,9 @@ public class MeterChainLength implements Meter, Serializable, AgentSource {
      */
     protected void setupData(int maxChainLength) {
 
-        DataInfo xDataInfo = new DataInfo("Chain Length Distribution",Fraction.DIMENSION, DataDoubleArray.getFactory(new int[]{maxChainLength}));
+        DataInfoDoubleArray xDataInfo = new DataInfoDoubleArray("Chain Length Distribution",Fraction.DIMENSION, new int[]{maxChainLength});
         data = new DataFunction(new int[]{maxChainLength});
-        dataInfo = new DataInfoFunction("Chain Length Distribution", Null.DIMENSION, new int[]{maxChainLength}, new DataInfo[]{xDataInfo});
+        dataInfo = new DataInfoFunction("Chain Length Distribution", Null.DIMENSION, new DataInfoDoubleArray[]{xDataInfo});
         double[] x = data.getXData(0).getData();
         for (int i=0; i<maxChainLength; i++) {
             x[i] = i+1;
