@@ -65,7 +65,7 @@ public class AccumulatorAverage extends DataAccumulator {
      * caster to DataArithmetic.
      */
     public DataProcessor getDataCaster(DataInfo incomingDataInfo) {
-        if (!(incomingDataInfo instanceof DataInfoArithmetic)) {
+        if (incomingDataInfo instanceof DataInfoArithmetic) {
             return null;
         }
         throw new ClassCastException(
