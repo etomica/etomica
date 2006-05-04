@@ -1,5 +1,11 @@
 package etomica.virial.simulations;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeLeaf;
@@ -8,6 +14,7 @@ import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
@@ -19,6 +26,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
+import etomica.species.SpeciesSpheres;
 import etomica.util.Default;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
@@ -27,6 +35,7 @@ import etomica.virial.ConfigurationCluster;
 import etomica.virial.MCMoveClusterAtomMulti;
 import etomica.virial.MCMoveClusterMoleculeMulti;
 import etomica.virial.MCMoveClusterRotateMoleculeMulti;
+import etomica.virial.MCMoveClusterWiggleMulti;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerESpherical;
 import etomica.virial.MayerGeneralSpherical;
@@ -73,6 +82,9 @@ public class SimulationVirialOverlap extends Simulation {
         if (species.getFactory().getType() instanceof AtomTypeGroup) {
             mcMoveRotate = new MCMovePhaseStep[sampleClusters.length];
         }
+        if (species instanceof SpeciesSpheres) {
+            mcMoveWiggle = new MCMoveClusterWiggleMulti[sampleClusters.length];
+        }
         
         P0Cluster p0 = new P0Cluster(space);
         potentialMaster.addPotential(p0,new Species[]{});
@@ -99,13 +111,18 @@ public class SimulationVirialOverlap extends Simulation {
                 moveManager.addMCMove(mcMoveRotate[iPhase]);
                 mcMoveTranslate[iPhase] = new MCMoveClusterMoleculeMulti(potentialMaster, 0.41, nMolecules-1);
                 moveManager.addMCMove(mcMoveTranslate[iPhase]);
+                if (species instanceof SpeciesSpheres) {
+                    if (((SpeciesSpheres)species).getFactory().getNumChildAtoms() > 2) {
+                        mcMoveWiggle[iPhase] = new MCMoveClusterWiggleMulti(this,nMolecules);
+                        moveManager.addMCMove(mcMoveWiggle[iPhase]);
+                    }
+                }
             }
             
             ConfigurationCluster configuration = new ConfigurationCluster(space);
             configuration.setPhase(phase[iPhase]);
             configuration.initializeCoordinates(phase[iPhase]);
-            MeterVirial meter = new MeterVirial(new ClusterAbstract[]{aValueClusters[iPhase],aSampleClusters[1-iPhase]},integrators[iPhase]);
-            meter.setName("Meter"+iPhase);
+            MeterVirial meter = new MeterVirial(new ClusterAbstract[]{aValueClusters[iPhase],aSampleClusters[1-iPhase]});
             setMeter(meter,iPhase);
             AccumulatorVirialOverlapSingleAverage acc = new AccumulatorVirialOverlapSingleAverage(this, 11, iPhase==0);
             setAccumulator(acc,iPhase);
@@ -124,6 +141,7 @@ public class SimulationVirialOverlap extends Simulation {
 	}
 
     public void setRefPref(double refPrefCenter, double span) {
+        refPref = refPrefCenter;
         accumulators[0].setBennetParam(refPrefCenter,span);
         accumulators[1].setBennetParam(refPrefCenter,span);
     }
@@ -138,9 +156,7 @@ public class SimulationVirialOverlap extends Simulation {
             accumulators[iPhase] = null;
         }
         meters[iPhase] = newMeter;
-        if (newMeter != null) {
-            newMeter.setPhase(phase[iPhase]);
-        }
+        newMeter.setIntegrator(integrators[iPhase]);
     }
 
     public void setAccumulator(AccumulatorVirialOverlapSingleAverage newAccumulator, int iPhase) {
@@ -159,7 +175,94 @@ public class SimulationVirialOverlap extends Simulation {
             integratorOS.setDSVO(dsvo);
         }
     }
-	
+    
+    public void initRefPref(String fileName, long initSteps) {
+        // refPref = -1 indicates we are searching for an appropriate value
+        refPref = -1.0;
+        if (fileName != null) {
+            try { 
+                FileReader fileReader = new FileReader(fileName);
+                BufferedReader bufReader = new BufferedReader(fileReader);
+                String refPrefString = bufReader.readLine();
+                refPref = Double.parseDouble(refPrefString);
+                bufReader.close();
+                fileReader.close();
+                System.out.println("setting ref pref (from file) to "+refPref);
+                setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,1,true),0);
+                setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,1,false),1);
+                setRefPref(refPref,1);
+            }
+            catch (IOException e) {
+                // file not there, which is ok.
+            }
+        }
+        
+        if (refPref == -1) {
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,21,true),0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,21,false),1);
+            setRefPref(10000,15);
+            ai.setMaxSteps(initSteps);
+            getController().run();
+
+            int newMinDiffLoc = dsvo.minDiffLocation();
+            refPref = accumulators[0].getBennetAverage(newMinDiffLoc)
+                /accumulators[1].getBennetAverage(newMinDiffLoc);
+            System.out.println("setting ref pref to "+refPref);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,11,true),0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,11,false),1);
+            setRefPref(refPref,0.2);
+            for (int i=0; i<2; i++) {
+                try {
+                    integrators[i].reset();
+                }
+                catch (ConfigurationOverlapException e) {}
+            }
+            // set refPref back to -1 so that later on we know that we've been looking for
+            // the appropriate value
+            refPref = -1;
+            getController().addAction(ai);
+        }
+
+    }
+    
+    public void equilibrate(String fileName, long initSteps) {
+        // run a short simulation to get reasonable MC Move step sizes and
+        // (if needed) narrow in on a reference preference
+        ai.setMaxSteps(initSteps);
+
+        for (int i=0; i<2; i++) {
+            integrators[i].setEquilibrating(true);
+        }
+        getController().run();
+
+
+        if (refPref == -1) {
+            int newMinDiffLoc = dsvo.minDiffLocation();
+            refPref = accumulators[0].getBennetAverage(newMinDiffLoc)
+                /accumulators[1].getBennetAverage(newMinDiffLoc);
+            System.out.println("setting ref pref to "+refPref+" ("+newMinDiffLoc+")");
+//            int n = sim.accumulators[0].getNBennetPoints();
+//            for (int i=0; i<n; i++) {
+//                System.out.println(i+" "+sim.accumulators[0].getBennetBias(i)+" "+sim.accumulators[0].getBennetAverage(i)/sim.accumulators[1].getBennetAverage(i));
+//            }
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,1,true),0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,1,false),1);
+            setRefPref(refPref,1);
+            if (fileName != null) {
+                try {
+                    FileWriter fileWriter = new FileWriter(fileName);
+                    BufferedWriter bufWriter = new BufferedWriter(fileWriter);
+                    bufWriter.write(String.valueOf(refPref)+"\n");
+                    bufWriter.close();
+                    fileWriter.close();
+                }
+                catch (IOException e) {
+                    throw new RuntimeException("couldn't write to refpref file");
+                }
+            }
+        }
+    }
+    
 	protected DisplayPlot plot;
 	public DataSourceVirialOverlap dsvo;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
@@ -167,13 +270,15 @@ public class SimulationVirialOverlap extends Simulation {
     protected DataPump[] accumulatorPumps;
 	protected final ClusterWeight[] sampleClusters;
     public PhaseCluster[] phase;
-    protected Species species;
+    public Species species;
     public IntegratorMC[] integrators;
     public MCMovePhaseStep[] mcMoveRotate;
     public MCMovePhaseStep[] mcMoveTranslate;
+    public MCMoveClusterWiggleMulti[] mcMoveWiggle;
     public MeterVirial[] meters;
     public ActivityIntegrate ai;
     public IntegratorOverlap integratorOS;
+    public double refPref;
 
 	public static void main(String[] args) {
 		Default defaults = new Default();
