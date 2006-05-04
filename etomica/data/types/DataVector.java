@@ -2,7 +2,7 @@ package etomica.data.types;
 
 import etomica.data.Data;
 import etomica.data.DataInfo;
-import etomica.data.DataInfo.DataInfoArithmetic;
+import etomica.data.DataInfoFactory;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
@@ -170,10 +170,41 @@ public class DataVector implements DataArithmetic, java.io.Serializable {
             this.space = space;
         }
         
+        public DataInfoFactory getFactory() {
+            return new DataInfoVectorFactory(this);
+        }
+        
         public Space getSpace() {
             return space;
         }
         
         protected final Space space;
+    }
+
+    public static class DataInfoVectorFactory extends DataInfoFactory {
+        protected DataInfoVectorFactory(DataInfoVector template) {
+            super(template);
+            space = template.space;
+        }
+        
+        public DataInfo makeDataInfo() {
+            return new DataInfoVector(label, dimension, space);
+        }
+        
+        /**
+         * Sets the Space
+         */
+        public void setSpace(Space newSpace) {
+            space = newSpace;
+        }
+        
+        /**
+         * Returns the Space
+         */
+        public Space getSpace() {
+            return space;
+        }
+        
+        protected Space space;
     }
 }

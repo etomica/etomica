@@ -88,4 +88,10 @@ public interface DataArithmetic extends Data {
      * Returns true if any data value is true for Double.isNaN
      */
     public boolean isNaN();
+    
+    /**
+     * Marker interface for DataInfo classes that correspond to DataArithmetic classes
+     * @author Andrew Schultz
+     */
+    public interface DataInfoArithmetic {}
 }

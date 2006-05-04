@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import etomica.data.Data;
 import etomica.data.DataInfo;
-import etomica.data.DataInfo.DataInfoArithmetic;
+import etomica.data.DataInfoFactory;
 import etomica.units.Dimension;
 import etomica.util.Function;
 
@@ -379,5 +379,36 @@ public class DataDoubleArray implements DataArithmetic, java.io.Serializable {
             return n;
         }
         
+        public DataInfoFactory getFactory() {
+            return new DataInfoDoubleArrayFactory(this);
+        }
+    }
+    
+    public static class DataInfoDoubleArrayFactory extends DataInfoFactory {
+        protected DataInfoDoubleArrayFactory(DataInfoDoubleArray template) {
+            super(template);
+            arrayShape = (int[])arrayShape.clone();
+        }
+        
+        public DataInfo makeDataInfo() {
+            return new DataInfoDoubleArray(label, dimension, arrayShape);
+        }
+        
+        /**
+         * Sets the array shape.  The array is copied so further
+         * changes made to the given array will not be affect this factory.
+         */
+        public void setArrayShape(int[] newArrayShape) {
+            arrayShape = (int[])newArrayShape.clone();
+        }
+        
+        /**
+         * Returns a copy of the array shape array.
+         */
+        public int[] getArrayShape() {
+            return (int[])arrayShape.clone();
+        }
+        
+        private int[] arrayShape;
     }
 }

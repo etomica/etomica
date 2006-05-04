@@ -4,9 +4,9 @@
  */
 package etomica.data;
 
-import etomica.data.DataInfo.DataInfoArithmetic;
 import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataGroup;
+import etomica.data.types.DataArithmetic.DataInfoArithmetic;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.simulation.Simulation;
 import etomica.units.Null;

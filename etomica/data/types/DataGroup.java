@@ -2,6 +2,7 @@ package etomica.data.types;
 
 import etomica.data.Data;
 import etomica.data.DataInfo;
+import etomica.data.DataInfoFactory;
 import etomica.units.Dimension;
 
 
@@ -134,6 +135,10 @@ public class DataGroup implements Data, java.io.Serializable {
             super(label, dimension);
             this.subDataInfo = (DataInfo[])subDataInfo.clone();
         }
+
+        public DataInfoFactory getFactory() {
+            return new DataInfoGroupFactory(this);
+        }
         
         public int getNDataInfo() {
             return subDataInfo.length;
@@ -147,6 +152,27 @@ public class DataGroup implements Data, java.io.Serializable {
             return subDataInfo[i];
         }
         
-        private final DataInfo[] subDataInfo;
+        protected final DataInfo[] subDataInfo;
+    }
+    
+    public static class DataInfoGroupFactory extends DataInfoFactory {
+        protected DataInfoGroupFactory(DataInfoGroup template) {
+            super(template);
+            subDataInfo = (DataInfo[])template.subDataInfo.clone();
+        }
+        
+        public DataInfo makeDataInfo() {
+            return new DataInfoGroup(label, dimension, subDataInfo);
+        }
+     
+        public void setSubDataInfo(DataInfo[] newSubDataInfo) {
+            subDataInfo = (DataInfo[])newSubDataInfo.clone();
+        }
+        
+        public DataInfo[] getSubDataInfo() {
+            return subDataInfo;
+        }
+        
+        protected DataInfo[] subDataInfo;
     }
 }

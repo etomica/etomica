@@ -2,7 +2,8 @@ package etomica.data.types;
 
 import etomica.data.Data;
 import etomica.data.DataInfo;
-import etomica.data.DataInfo.DataInfoArithmetic;
+import etomica.data.DataInfoFactory;
+import etomica.data.types.DataArithmetic.DataInfoArithmetic;
 import etomica.units.Dimension;
 
 
@@ -71,6 +72,20 @@ public class DataInteger implements Data, java.io.Serializable {
     public static class DataInfoInteger extends DataInfo implements DataInfoArithmetic {
         public DataInfoInteger(String label, Dimension dimension) {
             super(label, dimension);
+        }
+        
+        public DataInfoFactory getFactory() {
+            return new DataInfoIntegerFactory(this);
+        }
+    }
+    
+    public static class DataInfoIntegerFactory extends DataInfoFactory {
+        protected DataInfoIntegerFactory(DataInfoInteger template) {
+            super(template);
+        }
+        
+        public DataInfo makeDataInfo() {
+            return new DataInfoInteger(label, dimension);
         }
     }
 }

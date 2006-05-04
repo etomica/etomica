@@ -5,6 +5,7 @@ import java.io.Serializable;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.units.Null;
+import etomica.util.Arrays;
 import etomica.util.Function;
 
 /**
@@ -270,9 +271,59 @@ public class DataTable extends DataGroup implements DataArithmetic, Serializable
             return rowHeaders == null ? "" : rowHeaders[i];
         }
         
-        private final String[] rowHeaders;
-        private final int nRows;
+        protected final String[] rowHeaders;
+        protected final int nRows;
     }
     
+    public static class DataInfoTableFactory extends DataInfoGroupFactory {
+        protected DataInfoTableFactory(DataInfoTable template) {
+            super(template);
+            if (template.rowHeaders != null) {
+                rowHeaders = (String[])template.rowHeaders.clone();
+            }
+            nRows = template.nRows;
+        }
+        
+        /**
+         * Sets the number of rows.  If row headers exist, the array of row 
+         * will be resized to contain the given number of rows.
+         */
+        public void setNRows(int newNRows) {
+            if (nRows == newNRows) {
+                return;
+            }
+            nRows = newNRows;
+            if (rowHeaders != null) {
+                rowHeaders = (String[])Arrays.resizeArray(rowHeaders, nRows);
+            }
+        }
+        
+        /**
+         * Returns the number of rows.
+         */
+        public int getNRows() {
+            return nRows;
+        }
+        
+        /**
+         * Returns a copy of the row headers or null if no row headers exist.
+         */
+        public String[] getRowHeaders() {
+            return (rowHeaders == null) ? null : (String[])rowHeaders.clone();
+        }
+        
+        /**
+         * Sets the row headers.  null may be given to indicate no row headers.
+         * If not null, nRows will be updated to match the number of row headers.  
+         */
+        public void setRowHeaders(String[] newRowHeaders) {
+            rowHeaders = (newRowHeaders == null) ? null : (String[])newRowHeaders.clone();
+            if (rowHeaders != null) {
+                nRows = rowHeaders.length;
+            }
+        }
+        
+        protected String[] rowHeaders;
+        protected int nRows;
+    }
 }
-

@@ -166,6 +166,34 @@ public class DataFunction extends DataDoubleArray {
             return independentInfo[i];
         }
         
-        private final DataInfo[] independentInfo;
+        protected final DataInfo[] independentInfo;
+    }
+    
+    public static class DataInfoFunctionFactory extends DataInfoDoubleArrayFactory {
+        protected DataInfoFunctionFactory(DataInfoFunction template) {
+            super(template);
+            independentInfo = (DataInfoFunction[])template.independentInfo.clone();
+        }
+        
+        public DataInfo makeDataInfo() {
+            return new DataInfoFunction(label, dimension, independentInfo);
+        }
+        
+        /**
+         * Sets array of independent DataInfo.  The array is copied so further
+         * changes made to the given array will not be affect this factory.
+         */
+        public void setIndependentInfo(DataInfoDoubleArray[] newIndependentInfo) {
+            independentInfo = (DataInfoFunction[])newIndependentInfo.clone();
+        }
+        
+        /**
+         * Returns a copy of array of independent DataInfo.
+         */
+        public DataInfoDoubleArray[] getIndependentInfo() {
+            return (DataInfoDoubleArray[])independentInfo.clone();
+        }
+        
+        protected DataInfoDoubleArray[] independentInfo;
     }
 }

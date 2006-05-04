@@ -1,7 +1,7 @@
 package etomica.data;
 
-import etomica.data.DataInfo.DataInfoArithmetic;
 import etomica.data.types.DataArithmetic;
+import etomica.data.types.DataArithmetic.DataInfoArithmetic;
 import etomica.util.Function;
 
 

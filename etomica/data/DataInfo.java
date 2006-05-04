@@ -20,7 +20,7 @@ import etomica.units.Dimension;
 /*
  * History Created on Jun 15, 2005 by kofke
  */
-public class DataInfo implements java.io.Serializable {
+public abstract class DataInfo implements java.io.Serializable {
 
     /**
      * Constructs new instance with descriptive label and dimension.
@@ -34,7 +34,7 @@ public class DataInfo implements java.io.Serializable {
      *            this DataInfo. New Data instances will be independent of the
      *            one holding this, but will be structured the same way
      */
-    public DataInfo(String label, Dimension dimension) {
+    protected DataInfo(String label, Dimension dimension) {
         this.label = label;
         this.dimension = dimension;
     }
@@ -61,13 +61,9 @@ public class DataInfo implements java.io.Serializable {
     public String toString() {
         return label + " (" + dimension.toString() + ")";
     }
+    
+    public abstract DataInfoFactory getFactory();
 
     private final String label;
     private final Dimension dimension;
-    
-    /**
-     * Marker interface for DataInfo classes that correspond to DataArithmetic classes
-     * @author Andrew Schultz
-     */
-    public interface DataInfoArithmetic {}
 }
