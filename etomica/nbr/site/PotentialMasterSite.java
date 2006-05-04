@@ -198,7 +198,6 @@ public class PotentialMasterSite extends PotentialMasterNbr {
     private final AtomIteratorSinglet singletAtomIterator;
 	private final AtomsetIteratorSinglet singletPairIterator;
     private int cellRange;
-    private final IteratorDirective idUp = new IteratorDirective();
     protected final AtomsetIteratorPDT neighborIterator;
     private NeighborCriterion[] criteriaArray = new NeighborCriterion[0];
     

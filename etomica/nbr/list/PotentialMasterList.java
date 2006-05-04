@@ -270,7 +270,6 @@ public class PotentialMasterList extends PotentialMasterNbr {
     private final ApiInnerFixed swappedPairIterator;
     private final NeighborListManager neighborManager;
     private int cellRange;
-    private final IteratorDirective idUp = new IteratorDirective();
     
     // things needed for N-body potentials
     private AtomsetArrayList atomsetArrayList;

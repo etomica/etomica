@@ -22,7 +22,7 @@ public class MeterPotentialEnergy extends DataSourceScalar implements Meter {
         super("Potential Energy",Energy.DIMENSION);
         iteratorDirective.includeLrc = true;
         potential = potentialMaster;
-        iteratorDirective.setDirection(null); // so that "both" will work
+        iteratorDirective.setDirection(IteratorDirective.Direction.UP);
     }
       
     public static EtomicaInfo getEtomicaInfo() {
@@ -47,6 +47,7 @@ public class MeterPotentialEnergy extends DataSourceScalar implements Meter {
 
     public void setTarget(Atom atom) {
     	iteratorDirective.setTargetAtom(atom);
+        iteratorDirective.setDirection(atom == null ? IteratorDirective.Direction.UP : null);
     }
     
    /**
