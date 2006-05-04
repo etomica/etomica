@@ -39,7 +39,6 @@ public class MCMoveClusterMolecule extends MCMoveMolecule {
             atom = phase.randomMolecule();
         }
         
-        energyMeter.setTarget(atom);
         uOld = weightMeter.getDataAsScalar();
         groupTranslationVector.setRandomCube();
         groupTranslationVector.TE(stepSize);
@@ -63,11 +62,13 @@ public class MCMoveClusterMolecule extends MCMoveMolecule {
     public void acceptNotify() {
         super.acceptNotify();
         ((PhaseCluster)phase).acceptNotify();
+//        System.out.println(atom+" accepted => "+atom.type.getPositionDefinition().position(atom));
     }
     
     public void rejectNotify() {
         super.rejectNotify();
         ((PhaseCluster)phase).rejectNotify();
+//        System.out.println(atom+" rejected => "+atom.type.getPositionDefinition().position(atom));
     }
         
 }
