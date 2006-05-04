@@ -26,6 +26,7 @@ import etomica.potential.PotentialCalculation;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.util.Arrays;
+import etomica.util.Debug;
 
 public class PotentialMasterSite extends PotentialMasterNbr {
 
@@ -108,7 +109,9 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         if (targetAtom == null) {
             //no target atoms specified -- do one-target algorithm to SpeciesMaster
             targetAtom = phase.getSpeciesMaster();
-            id = idUp;
+            if (Debug.ON && id.direction() != IteratorDirective.Direction.UP) {
+                throw new IllegalArgumentException("When there is no target, iterator directive must be up");
+            }
             neighborIterator.setDirection(IteratorDirective.Direction.UP);
             // invoke setPhase on all potentials
             for (int i=0; i<allPotentials.length; i++) {

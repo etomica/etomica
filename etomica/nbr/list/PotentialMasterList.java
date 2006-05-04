@@ -22,6 +22,7 @@ import etomica.potential.Potential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
 import etomica.space.Space;
+import etomica.util.Debug;
 
 /**
  * PotentialMaster used to implement neighbor listing.  Instance of this
@@ -103,7 +104,9 @@ public class PotentialMasterList extends PotentialMasterNbr {
         if (targetAtom == null) {
             //no target atoms specified -- do one-target algorithm to SpeciesMaster
             targetAtom = phase.getSpeciesMaster();
-            id = idUp;
+            if (Debug.ON && id.direction() != IteratorDirective.Direction.UP) {
+                throw new IllegalArgumentException("When there is no target, iterator directive must be up");
+            }
             // invoke setPhase on all potentials
             for (int i=0; i<allPotentials.length; i++) {
                 allPotentials[i].setPhase(phase);
