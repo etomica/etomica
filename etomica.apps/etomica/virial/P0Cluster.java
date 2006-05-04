@@ -4,7 +4,6 @@ import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.potential.Potential0;
 import etomica.space.Space;
-import etomica.util.Debug;
 
 /**
  * @author David Kofke
@@ -32,14 +31,14 @@ public class P0Cluster extends Potential0 {
 	
     // let's all pretend that the cluster weight is the energy.
 	public double energy(AtomSet atoms) {
-        if (Debug.ON && atoms.count() > 0) {
-            throw new IllegalArgumentException("You actually passed atoms to me.  I'm touched.  Now please stop.");
-        }
-		return phaseCluster.getSampleCluster().value(phaseCluster.getCPairSet(), phaseCluster.getAPairSet());
+        return 0;
 	}
+
+    public double weight() {
+        return phaseCluster.getSampleCluster().value(phaseCluster.getCPairSet(), phaseCluster.getAPairSet());
+    }
 
     public void setPhase(Phase phase) {
     	phaseCluster = (PhaseCluster)phase;
     }
-    
 }

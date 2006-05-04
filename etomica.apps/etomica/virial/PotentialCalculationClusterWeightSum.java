@@ -18,9 +18,8 @@ public class PotentialCalculationClusterWeightSum extends PotentialCalculation {
     }
 
     protected void doCalculation(AtomsetIterator iterator, Potential potential) {
-        iterator.reset();
-        while (iterator.hasNext()) {
-            weight *= potential.energy(iterator.next());
+        if (potential instanceof P0Cluster) {
+            weight *= ((P0Cluster)potential).weight();
         }
 	}
 
