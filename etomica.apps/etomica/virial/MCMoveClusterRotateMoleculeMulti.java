@@ -55,7 +55,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     }
 
     public boolean doTrial() {
-        wOld = weightMeter.getDataAsScalar();
+        uOld = weightMeter.getDataAsScalar();
         boolean doRelax = false;
         if (trialCount-- == 0) {
             doRelax = true;
@@ -87,7 +87,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
             }
         }
             
-        wNew = weightMeter.getDataAsScalar();
+        uNew = weightMeter.getDataAsScalar();
         ((PhaseCluster)phase).trialNotify();
         return true;
     }
@@ -102,7 +102,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     }
     
     public double getA() {
-        return (wOld==0.0) ? Double.POSITIVE_INFINITY : wNew/wOld;
+        return (uOld==0.0) ? Double.POSITIVE_INFINITY : uNew/uOld;
     }
     
     public void acceptNotify() {
