@@ -122,15 +122,15 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             // one target atom
             neighborIterator.setDirection(id.direction());
             //first walk up the tree looking for 1-body range-independent potentials that apply to parents
-            Atom parentAtom = targetAtom.node.parentGroup();
-            while (parentAtom.type.getDepth() > 2) {
-                PotentialArray potentialArray = getIntraPotentials(parentAtom.type);
+            Atom pseudoTargetAtom = targetAtom;
+            while (pseudoTargetAtom.type.getDepth() > 3) {
+                pseudoTargetAtom = pseudoTargetAtom.node.parentGroup();
+                PotentialArray potentialArray = getIntraPotentials(pseudoTargetAtom.type);
                 Potential[] potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
                     potentials[i].setPhase(phase);
-                    ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(parentAtom,id,pc);
+                    ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(pseudoTargetAtom,id,pc);
                 }
-                parentAtom = parentAtom.node.parentGroup();
             }                
             PotentialArray potentialArray = getRangedPotentials(targetAtom.type);
             Potential[] potentials = potentialArray.getPotentials();
