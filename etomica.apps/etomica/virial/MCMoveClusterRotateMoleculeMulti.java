@@ -47,7 +47,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
         selectMolecules();
         for (int i=0; i<nMolecules; i++) {
             molecule = selectedMolecules[i];
-            oldPositions[i] = new Vector[((AtomTreeNodeGroup)molecule.node).childList.size()-1];
+            oldPositions[i] = new Vector[((AtomTreeNodeGroup)molecule.node).childList.size()];
             for (int j=0; j<oldPositions[i].length; j++) {
                 oldPositions[i][j] = p.space().makeVector();
             }
@@ -55,7 +55,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     }
 
     public boolean doTrial() {
-        uOld = weightMeter.getDataAsScalar();
+        wOld = weightMeter.getDataAsScalar();
         boolean doRelax = false;
         if (trialCount-- == 0) {
             doRelax = true;
@@ -65,7 +65,8 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
             molecule = selectedMolecules[i];
             leafAtomIterator.setRoot(molecule);
             leafAtomIterator.reset();
-            AtomLeaf O = (AtomLeaf)leafAtomIterator.nextAtom();
+            r0.E(molecule.type.getPositionDefinition().position(molecule));
+//            System.out.println(molecule+" before position "+r0);
         
             double dTheta = (2*Simulation.random.nextDouble() - 1.0)*stepSize;
             rotationTensor.setAxial(Simulation.random.nextInt(3),dTheta);
@@ -75,7 +76,6 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
                 oldPositions[i][j++].E(((AtomLeaf)leafAtomIterator.nextAtom()).coord.position());
             }
             leafAtomIterator.reset();
-            r0.E(O.coord.position());
 //            System.out.println(molecule+" starting at "+molecule.node.lastLeafAtom().coord.position());
             AtomTransform.doTransform(leafAtomIterator, r0, rotationTensor);
 //            System.out.println(molecule+" moved to "+molecule.node.lastLeafAtom().coord.position());
@@ -87,7 +87,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
             }
         }
             
-        uNew = Double.NaN;
+        wNew = weightMeter.getDataAsScalar();
         ((PhaseCluster)phase).trialNotify();
         return true;
     }
@@ -102,8 +102,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     }
     
     public double getA() {
-        uNew = weightMeter.getDataAsScalar();
-        return (uOld==0.0) ? Double.POSITIVE_INFINITY : uNew/uOld;
+        return (wOld==0.0) ? Double.POSITIVE_INFINITY : wNew/wOld;
     }
     
     public void acceptNotify() {
@@ -117,8 +116,6 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
             molecule = selectedMolecules[i];
             leafAtomIterator.setRoot(molecule);
             leafAtomIterator.reset();
-            // skip first Atom
-            leafAtomIterator.nextAtom();
             int j=0;
             while (leafAtomIterator.hasNext()) {
                 ((AtomLeaf)leafAtomIterator.nextAtom()).coord.position().E(oldPositions[i][j++]);
