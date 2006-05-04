@@ -59,7 +59,7 @@ public class CastToInteger extends DataProcessor {
         } else {
             throw new IllegalArgumentException("Cannot cast to int from "+ inputDataInfo.getClass());
         }
-        return new DataInfo(inputDataInfo.getLabel(), inputDataInfo.getDimension());
+        return new DataInfoInteger(inputDataInfo.getLabel(), inputDataInfo.getDimension());
     }
     
     /**
