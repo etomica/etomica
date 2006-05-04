@@ -5,24 +5,26 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataAccumulator;
 import etomica.data.DataPump;
-import etomica.data.meter.Meter;
+import etomica.data.DataSource;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
+import etomica.integrator.mcmove.MCMovePhase;
 import etomica.integrator.mcmove.MCMovePhaseStep;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.Species;
+import etomica.species.SpeciesSpheres;
 import etomica.util.Default;
 import etomica.virial.ClusterAbstract;
+import etomica.virial.ClusterCoupled;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ConfigurationCluster;
-import etomica.virial.MCMoveClusterAtom;
 import etomica.virial.MCMoveClusterAtomMulti;
-import etomica.virial.MCMoveClusterMolecule;
 import etomica.virial.MCMoveClusterMoleculeMulti;
-import etomica.virial.MCMoveClusterRotateMolecule3D;
+import etomica.virial.MCMoveClusterReptateMulti;
 import etomica.virial.MCMoveClusterRotateMoleculeMulti;
+import etomica.virial.MCMoveClusterWiggleMulti;
 import etomica.virial.MeterVirial;
 import etomica.virial.P0Cluster;
 import etomica.virial.PhaseCluster;
@@ -41,11 +43,19 @@ public class SimulationVirial extends Simulation {
         sampleCluster = aSampleCluster;
 		int nMolecules = sampleCluster.pointCount();
 		phase = new PhaseCluster(this,sampleCluster);
+        phase.getBoundary().setDimensions(Space.makeVector(new double[]{3.0,3.0,3.0}));
 		species = speciesFactory.makeSpecies(this);//SpheresMono(this,AtomLinker.FACTORY);
         species.setNMolecules(nMolecules);
         phase.makeMolecules();
         
-		integrator = new IntegratorMC(this);
+        if (refCluster instanceof ClusterCoupled) {
+            ((ClusterCoupled)refCluster).setPhase(phase);
+        }
+        if (targetClusters[0] instanceof ClusterCoupled) {
+            ((ClusterCoupled)targetClusters[0]).setPhase(phase);
+        }
+
+        integrator = new IntegratorMC(this);
         // it's unclear what this accomplishes, but let's do it just for fun.
 		integrator.setTemperature(temperature);
         integrator.setPhase(phase);
@@ -55,29 +65,19 @@ public class SimulationVirial extends Simulation {
 		getController().addAction(ai);
 		
         if (species.getFactory().getType() instanceof AtomTypeLeaf) {
-            if (false && (nMolecules == 2 || nMolecules > 5)) {
-                System.out.println("using single-atom moves");
-                mcMoveTranslate = new MCMoveClusterAtom(this);
-                mcMoveTranslate.setStepSize(1.15);
-            }
-            else {
-                System.out.println("using multi-atom moves");
-                mcMoveTranslate= new MCMoveClusterAtomMulti(this, nMolecules-1);
-                mcMoveTranslate.setStepSize(0.41);
-            }
+            mcMoveTranslate= new MCMoveClusterAtomMulti(this, nMolecules-1);
         }
         else {
-            if (false && (nMolecules == 2 || nMolecules > 5)) {
-                System.out.println("using single-atom moves");
-                mcMoveTranslate = new MCMoveClusterMolecule(potentialMaster,3.0);
-                mcMoveRotate = new MCMoveClusterRotateMolecule3D(potentialMaster,space);
-                mcMoveRotate.setStepSize(Math.PI);
-            }
-            else {
-                System.out.println("using multi-atom moves");
-                mcMoveTranslate = new MCMoveClusterMoleculeMulti(potentialMaster,0.41,nMolecules-1);
-                mcMoveRotate = new MCMoveClusterRotateMoleculeMulti(potentialMaster,space,nMolecules-1);
-                mcMoveRotate.setStepSize(Math.PI);
+            mcMoveTranslate = new MCMoveClusterMoleculeMulti(potentialMaster,0.41,nMolecules-1);
+            mcMoveRotate = new MCMoveClusterRotateMoleculeMulti(potentialMaster,space,nMolecules-1);
+            mcMoveRotate.setStepSize(Math.PI);
+            if (species instanceof SpeciesSpheres) {
+                if (((SpeciesSpheres)species).getFactory().getNumChildAtoms() > 2) {
+                    mcMoveWiggle = new MCMoveClusterWiggleMulti(this,nMolecules);
+                    integrator.getMoveManager().addMCMove(mcMoveWiggle);
+                    mcMoveReptate = new MCMoveClusterReptateMulti(this,nMolecules-1);
+                    integrator.getMoveManager().addMCMove(mcMoveReptate);
+                }
             }
             integrator.getMoveManager().addMCMove(mcMoveRotate);
         }
@@ -93,12 +93,13 @@ public class SimulationVirial extends Simulation {
         allValueClusters = new ClusterAbstract[targetClusters.length+1];
         allValueClusters[0] = refCluster;
         System.arraycopy(targetClusters,0,allValueClusters,1,targetClusters.length);
-        setMeter(new MeterVirial(allValueClusters,integrator));
+        setMeter(new MeterVirial(allValueClusters));
+        ((MeterVirial)meter).setIntegrator(integrator);
         setAccumulator(new AccumulatorRatioAverage(this));
 	}
 	
     public IntervalActionAdapter accumulatorAA;
-	public Meter meter;
+	public DataSource meter;
 	public DataAccumulator accumulator;
 	public DataPump accumulatorPump;
 	public Species species;
@@ -109,12 +110,11 @@ public class SimulationVirial extends Simulation {
     public ClusterWeight sampleCluster;
     public MCMovePhaseStep mcMoveTranslate;
     public MCMovePhaseStep mcMoveRotate;
+    public MCMovePhaseStep mcMoveWiggle;
+    public MCMovePhase mcMoveReptate;
 
-	public void setMeter(Meter newMeter) {
+	public void setMeter(DataSource newMeter) {
 		meter = newMeter;
-		if (meter != null) {
-			meter.setPhase(phase);
-		}
         if (accumulator != null) { 
             if (accumulatorPump != null) {
                 integrator.removeListener(accumulatorAA);
