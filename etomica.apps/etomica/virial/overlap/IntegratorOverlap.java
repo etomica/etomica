@@ -72,7 +72,8 @@ public class IntegratorOverlap extends IntegratorManagerMC {
         if (Debug.ON && Debug.DEBUG_NOW) {
             int newMinDiffLoc = dsvo.minDiffLocation();
             int nBennetPoints = accumulators[0].getNBennetPoints();
-            if (nBennetPoints>1) System.out.println("target minDiffLoc = "+newMinDiffLoc+" refPref "+accumulators[0].getBennetBias(newMinDiffLoc));
+            if (nBennetPoints>1) System.out.println("target minDiffLoc = "+newMinDiffLoc+" refPref "+accumulators[0].getBennetBias(newMinDiffLoc)
+                    +" ("+(accumulators[0].getBennetAverage(newMinDiffLoc)/accumulators[1].getBennetAverage(newMinDiffLoc))+")");
             for (int i=0; i<nIntegrators; i++) {
                 System.out.print("Bennet "+i+" ");
                 for (int j=0; j<accumulators[i].getNBennetPoints(); j++) {
@@ -99,7 +100,8 @@ public class IntegratorOverlap extends IntegratorManagerMC {
         int newMinDiffLoc = dsvo.minDiffLocation();
         int nBennetPoints = accumulators[0].getNBennetPoints();
         if (newMinDiffLoc != minDiffLoc && nBennetPoints>1) {
-            System.out.println("target minDiffLoc = "+newMinDiffLoc+" refPref "+accumulators[0].getBennetBias(newMinDiffLoc));
+            System.out.println("target minDiffLoc = "+newMinDiffLoc+" refPref "+accumulators[0].getBennetBias(newMinDiffLoc)
+                    +" ("+(accumulators[0].getBennetAverage(newMinDiffLoc)/accumulators[1].getBennetAverage(newMinDiffLoc))+")");
         }
         minDiffLoc = newMinDiffLoc;
         for (int i=0; i<nIntegrators; i++) {
@@ -108,13 +110,6 @@ public class IntegratorOverlap extends IntegratorManagerMC {
             double error = ((DataDoubleArray)data.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1];
             data = (DataGroup)accumulators[1-i].getData(minDiffLoc);
             double otherRatio = ((DataDoubleArray)data.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1];
-//            System.out.println(i+" errors "+errors[i]);
-//            System.out.print("Bennet "+i+" ");
-//            for (int j=0; j<accumulators[i].getNBennetPoints(); j++) {
-//                double[][] allData = (double[][])accumulators[i].getTranslator().fromArray(accumulators[i].getData(j));
-//                System.out.print(allData[AccumulatorAverage.ERROR.index][1]/allData[AccumulatorAverage.AVERAGE.index][1]+" ");
-//            }
-//            System.out.print("\n");
             if (Debug.ON && Debug.DEBUG_NOW) {
                 System.out.println(i+" "+Math.abs(error)+" "+Math.abs(otherRatio));
             }
