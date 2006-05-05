@@ -30,6 +30,7 @@ public final class MEAMPInitial extends Potential1 implements PotentialSoft {
 	public MEAMPInitial(Space space, PhaseAgentManager phaseAgentManager) {
 		super(space);
 		this.phaseAgentManager = phaseAgentManager;
+		nada[0] = (Vector3D)space.makeVector();
     }
 	
 	public void setPhase(Phase phase) {
@@ -63,5 +64,5 @@ public final class MEAMPInitial extends Potential1 implements PotentialSoft {
 	Vector gradient;
     private Wrapper[] agents;
     private PhaseAgentManager phaseAgentManager;
-	private final Vector3D[] nada = new Vector3D[0];
+	private final Vector3D[] nada = new Vector3D[1];
 }

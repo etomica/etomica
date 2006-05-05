@@ -97,6 +97,8 @@ public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgen
         gradERef = (Vector3D)space.makeVector();
         gradFRef = (Vector3D)space.makeVector();
         gradPhi = (Vector3D)space.makeVector();
+        nada[0] = (Vector3D)space.makeVector();
+        nada[1] = (Vector3D)space.makeVector();
         
         
         
@@ -874,7 +876,7 @@ public final class MEAMP2 extends Potential2 implements Potential2Soft, AtomAgen
     private final Vector3D gradERef;
     private final Vector3D gradFRef;
     private final Vector3D gradPhi;
-    private final Vector3D[] nada = new Vector3D[0];
+    private final Vector3D[] nada = new Vector3D[2];
     
     protected NearestImageTransformer nearestImageTransformer;
     protected final Vector dr;

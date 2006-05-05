@@ -39,7 +39,6 @@ public final class MEAMPMany extends Potential1 implements PotentialSoft {
         gradGamma = (Vector3D)space.makeVector();
         gradRhoi = (Vector3D)space.makeVector();
         gradF = (Vector3D)space.makeVector();
-        gradEi = new Vector3D[1];
         gradEi[0] = (Vector3D)space.makeVector();
     }
 	
@@ -240,6 +239,6 @@ public final class MEAMPMany extends Potential1 implements PotentialSoft {
     private final Vector3D gradGamma;
     private final Vector3D gradRhoi;
     private final Vector3D gradF;
-    private final Vector3D[] gradEi;
+    private final Vector3D[] gradEi = new Vector3D[1];;
 	private PhaseAgentManager phaseAgentManager;
 }
