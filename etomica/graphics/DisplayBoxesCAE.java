@@ -72,7 +72,7 @@ public class DisplayBoxesCAE extends Display implements DataSink {
      * @see etomica.DataSink#getDataCaster(etomica.DataInfo)
      */
     public DataProcessor getDataCaster(DataInfo dataInfo) {
-        if(dataInfo instanceof DataInfoGroup) {
+        if(!(dataInfo instanceof DataInfoGroup)) {
             throw new IllegalArgumentException("DisplayBoxesCAE strangely is being given something other than a DataGroup");
         }
         return null;
