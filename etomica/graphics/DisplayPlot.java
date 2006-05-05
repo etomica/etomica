@@ -217,7 +217,7 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
                 return null;
             } else if(dataInfo instanceof DataInfoGroup) {
                 for (int i = 0; i<((DataInfoGroup)dataInfo).getNDataInfo(); i++) {
-                    if (((DataInfoGroup)dataInfo).getSubDataInfo(i) instanceof DataInfoFunction) {
+                    if (!(((DataInfoGroup)dataInfo).getSubDataInfo(i) instanceof DataInfoFunction)) {
                         throw new IllegalArgumentException("DisplayPlot can only handle homogeneous groups of DataFunctions");
                     }
                 }
