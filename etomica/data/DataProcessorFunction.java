@@ -38,7 +38,7 @@ public class DataProcessorFunction extends DataProcessor {
      * implement DataArithmetic
      */
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
-        if (inputDataInfo instanceof DataInfoArithmetic) {
+        if (!(inputDataInfo instanceof DataInfoArithmetic)) {
             throw new IllegalArgumentException("DataProcessorFunction can only handle DataArithmetic");
         }
         return inputDataInfo;

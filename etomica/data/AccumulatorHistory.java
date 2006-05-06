@@ -52,7 +52,7 @@ public class AccumulatorHistory extends DataAccumulator {
     public void setTimeDataSource(DataSourceScalar newTimeDataSource) {
         timeDataSource = newTimeDataSource;
         if (dataInfo != null) {
-            putDataInfo(dataInfo);
+            putDataInfo(inputDataInfo);
         }
     }
     

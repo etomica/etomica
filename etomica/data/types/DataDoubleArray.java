@@ -387,7 +387,7 @@ public class DataDoubleArray implements DataArithmetic, java.io.Serializable {
     public static class DataInfoDoubleArrayFactory extends DataInfoFactory {
         protected DataInfoDoubleArrayFactory(DataInfoDoubleArray template) {
             super(template);
-            arrayShape = (int[])arrayShape.clone();
+            arrayShape = (int[])template.arrayShape.clone();
         }
         
         public DataInfo makeDataInfo() {
