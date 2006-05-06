@@ -46,8 +46,8 @@ public class AtomActionTranslateTo extends AtomActionAdapter {
      * @param destination The destination to set.  A local copy
      * is made of the given vector.
      */
-    public void setDestination(Vector destination) {
-        this.destination.E(destination);
+    public void setDestination(Vector newDestination) {
+        destination.E(newDestination);
     }
     /**
      * @return Returns the atomPositionDefinition.

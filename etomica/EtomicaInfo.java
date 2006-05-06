@@ -23,8 +23,8 @@ public class EtomicaInfo implements java.io.Serializable {
     {
     	features = new FeatureSet();
     	features.add( "CLASS", this.getClass().getName() )
-		.add( "DESCRIPTION", description )
-		.add( "SHORT_DESCRIPTION", short_description );
+		        .add( "DESCRIPTION", description )
+		        .add( "SHORT_DESCRIPTION", short_description );
     }
 
 	public EtomicaInfo(String desc) {
