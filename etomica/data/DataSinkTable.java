@@ -2,6 +2,7 @@ package etomica.data;
 
 import java.io.Serializable;
 
+import etomica.data.types.CastGroupOfTablesToDataTable;
 import etomica.data.types.CastGroupToDoubleArray;
 import etomica.data.types.CastToTable;
 import etomica.data.types.DataDoubleArray;
@@ -94,10 +95,13 @@ public class DataSinkTable extends DataSet {
             if (dataInfo instanceof DataInfoTable) {
                 return null;
             } else if(dataInfo instanceof DataInfoGroup) {
-                for (int i = 0; i<((DataInfoGroup)dataInfo).getNDataInfo(); i++) {
-                    if (!(((DataInfoGroup)dataInfo).getSubDataInfo(i) instanceof DataInfoTable)) {
-                        throw new IllegalArgumentException("DataSinkTable can only handle groups of DataTables");
+                for (int i = 1; i<((DataInfoGroup)dataInfo).getNDataInfo(); i++) {
+                    if (((DataInfoGroup)dataInfo).getSubDataInfo(i).getClass() != ((DataInfoGroup)dataInfo).getSubDataInfo(0).getClass()) {
+                        throw new IllegalArgumentException("DataSinkTable can only handle homoegeneous groups");
                     }
+                }
+                if(((DataInfoGroup)dataInfo).getSubDataInfo(0) instanceof DataInfoTable) {
+                    return new CastGroupOfTablesToDataTable();
                 }
                 return new CastGroupToDoubleArray();
             }
