@@ -91,8 +91,8 @@ public class MeterProfile implements Meter, java.io.Serializable {
      */
     public Data getData() {
         Boundary boundary = phase.getBoundary();
-        yData.E(0);
-        double[] y = yData.getData();
+        data.E(0);
+        double[] y = data.getData();
         ai1.reset();
         while(ai1.hasNext()) {
             AtomLeaf a = (AtomLeaf)ai1.nextAtom();
@@ -104,7 +104,7 @@ public class MeterProfile implements Meter, java.io.Serializable {
         }
         double dx = (xDataSource.getXMax() - xDataSource.getXMin())/y.length;
         double norm = 1.0/(phase.atomCount()*dx);
-        yData.TE(norm);
+        data.TE(norm);
         return data;
     }
     /**
@@ -138,7 +138,6 @@ public class MeterProfile implements Meter, java.io.Serializable {
     private DataFunction data;
     private DataInfo dataInfo;
     private DataDoubleArray xData;
-    private DataDoubleArray yData;
     /**
      * Vector describing the orientation of the profile.
      * For example, (1,0) is along the x-axis.

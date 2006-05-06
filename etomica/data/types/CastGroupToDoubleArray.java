@@ -94,10 +94,10 @@ public class CastGroupToDoubleArray extends DataProcessor {
             inputType = 2;
         } else if (subDataInfo instanceof DataInfoDouble) {
             inputType = 3;
-            outputArrayShape = new int[numSubData];
+            outputArrayShape = new int[]{numSubData};
         } else if (subDataInfo instanceof DataInfoInteger) {
             inputType = 4;
-            outputArrayShape = new int[numSubData];
+            outputArrayShape = new int[]{numSubData};
         } else if (subDataInfo instanceof DataInfoVector) {
             int D = ((DataInfoVector)subDataInfo).getSpace().D();
             if (numSubData == 1) {
