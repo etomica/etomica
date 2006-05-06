@@ -158,7 +158,7 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
      * Returns the depth of this atom in the atom hierarchy. That is, returns
      * the number of parent relations between this atom and the species master.
      */
-    public int getDepth() {
+    public final int getDepth() {
         return addressManager.getDepth();
     }
 
