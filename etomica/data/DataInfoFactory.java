@@ -1,5 +1,7 @@
 package etomica.data;
 
+import java.util.ArrayList;
+
 import etomica.units.Dimension;
 
 /**
@@ -7,7 +9,7 @@ import etomica.units.Dimension;
  * an existing DataInfo object, but can be modified before being used to create
  * new DataInfo objects.
  */
-public abstract class DataInfoFactory {
+public abstract class DataInfoFactory implements java.io.Serializable {
     /**
      * Creates a new instance using the info held by the template.  The 
      * template is not modified.
@@ -15,6 +17,11 @@ public abstract class DataInfoFactory {
     protected DataInfoFactory(DataInfo template) {
         label = template.getLabel();
         dimension = template.getDimension();
+        tags = new ArrayList();
+        Object[] templateTags = template.getTags();
+        for (int i=0; i<templateTags.length; i++) {
+            tags.add(templateTags[i]);
+        }
     }
     
     /**
@@ -50,6 +57,15 @@ public abstract class DataInfoFactory {
         return dimension;
     }
     
+    public ArrayList getTags() {
+        return tags;
+    }
+    
+    public void setTags(ArrayList newTags) {
+        tags = (ArrayList)newTags.clone();
+    }
+
     protected String label;
     protected Dimension dimension;
+    protected ArrayList tags;
 }
