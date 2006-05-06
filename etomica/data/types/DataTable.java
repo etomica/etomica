@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import etomica.data.Data;
 import etomica.data.DataInfo;
+import etomica.data.DataInfoFactory;
 import etomica.units.Null;
 import etomica.util.Arrays;
 import etomica.util.Function;
@@ -251,7 +252,7 @@ public class DataTable extends DataGroup implements DataArithmetic, Serializable
         return false;
     }
 
-    public static class DataInfoTable extends DataInfoGroup {
+    public static class DataInfoTable extends DataInfoGroup implements DataInfoArithmetic {
         public DataInfoTable(String label, DataInfo[] columnInfo, int nRows, String[] rowHeaders) {
             super(label, Null.DIMENSION, columnInfo);
             this.nRows = nRows;
@@ -261,6 +262,10 @@ public class DataTable extends DataGroup implements DataArithmetic, Serializable
             else {
                 this.rowHeaders = null;
             }
+        }
+        
+        public DataInfoFactory getFactory() {
+            return new DataInfoTableFactory(this);
         }
         
         public int getNRows() {
