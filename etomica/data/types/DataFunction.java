@@ -177,7 +177,7 @@ public class DataFunction extends DataDoubleArray {
     public static class DataInfoFunctionFactory extends DataInfoDoubleArrayFactory {
         protected DataInfoFunctionFactory(DataInfoFunction template) {
             super(template);
-            independentInfo = (DataInfoFunction[])template.independentInfo.clone();
+            independentInfo = (DataInfoDoubleArray[])template.independentInfo.clone();
         }
         
         public DataInfo makeDataInfo() {
