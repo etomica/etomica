@@ -22,7 +22,7 @@ public final class AtomTypeOrientedSphere extends AtomTypeSphere implements Sphe
     
     private void updateI() {
         if(I == null) return;
-        I[0] = 0.4*this.getMass()*radius*radius;  //moment of inertia of a sphere = 2/5 m R^2 (should modify to arbitrary dimension)
+        I[0] = 0.1*this.getMass()*diameter*diameter;  //moment of inertia of a sphere = 2/5 m R^2 (should modify to arbitrary dimension)
         I[1] = I[0];
         I[2] = I[1];
     }

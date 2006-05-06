@@ -97,7 +97,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
             /* Draw the orientation line, if any */
             if(drawOrientation) {
                 double theta = ((ICoordinateAngular)a.coord).orientation().angle()[0];
-                int dxy = (int)(displayPhase.getToPixels()*((AtomTypeOrientedSphere)a.type).radius(a));
+                int dxy = (int)(displayPhase.getToPixels()*0.5*((AtomTypeOrientedSphere)a.type).diameter(a));
                 int dx = (int)(dxy*Math.cos(theta));
                 int dy = (int)(dxy*Math.sin(theta));
                 g.setColor(Color.red);
@@ -183,7 +183,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
             while(atomIterator.hasNext()) {
                 AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
                 if(!(a.type instanceof AtomTypeSphere)) continue;
-                float[][] shifts = boundary.getOverflowShifts(a.coord.position(),((AtomTypeSphere)a.type).radius(a));  //should instead of radius have a size for all AtomC types
+                float[][] shifts = boundary.getOverflowShifts(a.coord.position(),0.5*((AtomTypeSphere)a.type).diameter(a));  //should instead of radius have a size for all AtomC types
                 for(int i=shifts.length-1; i>=0; i--) {
                     shiftOrigin[0] = origin[0] + (int)(displayPhase.getToPixels()*shifts[i][0]);
                     shiftOrigin[1] = origin[1] + (int)(displayPhase.getToPixels()*shifts[i][1]);

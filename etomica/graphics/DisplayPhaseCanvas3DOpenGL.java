@@ -324,8 +324,8 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
               gl.glColor4ub((byte)c.getRed(), (byte)c.getGreen(), (byte)c.getBlue(), (byte)c.getAlpha());
               lastColor = c;
             }
-            if(sphereListRadius != ((AtomTypeSphere)a.type).radius(a))
-              initSphereList(((AtomTypeSphere)a.type).radius(a));
+            if(sphereListRadius != 0.5*((AtomTypeSphere)a.type).diameter(a))
+               initSphereList(0.5*((AtomTypeSphere)a.type).diameter(a));
             gl.glPushMatrix();
             gl.glTranslatef(vert[0], vert[1], vert[2]);
             gl.glCallList(sphereList[getQuality()]);
@@ -414,7 +414,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
               
   protected boolean computeShiftOrigin(AtomLeaf a, Boundary b) {
     if(a.type instanceof AtomTypeSphere)
-      originShifts = b.getOverflowShifts(a.coord.position(),((AtomTypeSphere)a.type).radius(a));
+      originShifts = b.getOverflowShifts(a.coord.position(),0.5*((AtomTypeSphere)a.type).diameter(a));
     else
       originShifts = new float[0][0];
     if(originShifts.length == 0) return(false);

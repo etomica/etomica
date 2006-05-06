@@ -106,7 +106,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
             
     protected boolean computeShiftOrigin(AtomLeaf a, Boundary b) {
         if(a.type instanceof AtomTypeSphere) {
-            float[][] shifts = b.getOverflowShifts(a.coord.position(),((AtomTypeSphere)a.type).radius(a));  //should instead of radius have a size for all AtomC types
+            float[][] shifts = b.getOverflowShifts(a.coord.position(),0.5*((AtomTypeSphere)a.type).diameter(a));  //should instead of radius have a size for all AtomC types
             for(int i=0; i<shifts.length; i++) {
                 shiftOrigin[0] = displayPhase.getOrigin()[0] + (int)(displayPhase.getToPixels()*shifts[i][0]);
                 shiftOrigin[1] = displayPhase.getOrigin()[1] + (int)(displayPhase.getToPixels()*shifts[i][1]);

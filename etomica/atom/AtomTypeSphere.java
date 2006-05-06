@@ -14,7 +14,7 @@ import etomica.simulation.Simulation;
 
 public class AtomTypeSphere extends AtomTypeLeaf {
     
-    double diameter, radius;
+    double diameter;
     
     public AtomTypeSphere(Simulation sim, AtomTypeGroup parentType) {
         this(parentType, sim.getDefaults().atomMass, sim.getDefaults().atomSize);
@@ -25,7 +25,6 @@ public class AtomTypeSphere extends AtomTypeLeaf {
     }
                 
     public double diameter(Atom a) {return diameter;}
-    public double radius(Atom a) {return radius;}
     
     /**
     * Sets diameter of this atom and updates radius accordingly.
@@ -36,6 +35,6 @@ public class AtomTypeSphere extends AtomTypeLeaf {
         if (d < 0) {
             throw new IllegalArgumentException("diameter must not be negative");
         }
-        diameter = d; radius = 0.5*d;
+        diameter = d;
     }
 }
