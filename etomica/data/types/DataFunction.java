@@ -2,6 +2,7 @@ package etomica.data.types;
 
 import etomica.data.Data;
 import etomica.data.DataInfo;
+import etomica.data.DataInfoFactory;
 import etomica.units.Dimension;
 
 
@@ -166,6 +167,10 @@ public class DataFunction extends DataDoubleArray {
             return independentInfo[i];
         }
         
+        public DataInfoFactory getFactory() {
+            return new DataInfoFunctionFactory(this);
+        }
+
         protected final DataInfo[] independentInfo;
     }
     
