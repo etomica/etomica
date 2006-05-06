@@ -55,7 +55,7 @@ public class CastGroupOfTablesToDataTable extends DataProcessor {
      *             numbers of rows
      */
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
-        if (inputDataInfo instanceof DataInfoGroup) {
+        if (!(inputDataInfo instanceof DataInfoGroup)) {
             throw new IllegalArgumentException("can only cast from DataGroup");
         }
         DataInfoDoubleArray[] columnDataInfo = new DataInfoDoubleArray[0];
