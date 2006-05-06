@@ -39,6 +39,8 @@ public class AtomPositionCOM implements AtomPositionDefinition, Serializable {
     }
     
     public Vector position(Atom atom) {
+        vectorSum.E(0);
+        myAction.massSum = 0;
         groupWrapper.actionPerformed(atom);
         center.Ea1Tv1(1.0 / myAction.massSum, vectorSum);
         return center;
