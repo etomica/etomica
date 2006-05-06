@@ -64,7 +64,7 @@ public class CastGroupOfTablesToDataTable extends DataProcessor {
         for (int i = 0; i<((DataInfoGroup)inputDataInfo).getNDataInfo(); i++) {
             DataInfoTable elementDataInfo = (DataInfoTable)((DataInfoGroup)inputDataInfo).getSubDataInfo(i);
             columnDataInfo = (DataInfoDoubleArray[])Arrays.resizeArray(columnDataInfo, nColumns+elementDataInfo.getNDataInfo());
-            for (int j=nColumns; i<columnDataInfo.length; i++) {
+            for (int j=nColumns; j<columnDataInfo.length; j++) {
                 columnDataInfo[j] = (DataInfoDoubleArray)elementDataInfo.getSubDataInfo(j-nColumns);
             }
             nColumns = columnDataInfo.length;
@@ -94,7 +94,8 @@ public class CastGroupOfTablesToDataTable extends DataProcessor {
             int i=0;
             for (int j=0; j<((DataGroup)data).getNData(); j++) {
                 for (int k=0; k<((DataTable)((DataGroup)data).getData(j)).getNData(); k++) {
-                    columns[i] = (DataDoubleArray)((DataTable)((DataGroup)data).getData(j)).getData(i);
+                    columns[i] = (DataDoubleArray)((DataTable)((DataGroup)data).getData(j)).getData(k);
+                    i++;
                 }
             }
             outputData = new DataTable(columns);
