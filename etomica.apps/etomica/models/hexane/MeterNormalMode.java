@@ -31,6 +31,8 @@ public class MeterNormalMode implements Meter {
         }
         data = new DataGroup(dataTensors);
         dataInfo = new DataInfoGroup("Normal Mode deltas", Null.DIMENSION, dataInfoTensors);
+        tag = new Object();
+        dataInfo.addTag(tag);
         
         //Set up the pair iterator.
         api1 = new ApiLeafAtoms();
@@ -52,6 +54,10 @@ public class MeterNormalMode implements Meter {
 
         resetMeter();
 
+    }
+    
+    public Object getTag() {
+        return tag;
     }
 
     public Data getData() {
@@ -149,4 +155,5 @@ public class MeterNormalMode implements Meter {
     Vector[] op; // The original positions of the atoms.
     private AtomLeaf tempAtom;
     private Vector[] tempVex;
+    private final Object tag;
 }

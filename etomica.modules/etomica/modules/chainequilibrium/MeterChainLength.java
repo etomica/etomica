@@ -33,6 +33,11 @@ public class MeterChainLength implements Meter, Serializable, AgentSource {
         setName(NameMaker.makeName(this.getClass()));
         agentSource = sim;
         setupData(40);
+        tag = new Object();
+    }
+    
+    public Object getTag() {
+        return tag;
     }
 
     /**
@@ -44,6 +49,7 @@ public class MeterChainLength implements Meter, Serializable, AgentSource {
         DataInfoDoubleArray xDataInfo = new DataInfoDoubleArray("Chain Length Distribution",Fraction.DIMENSION, new int[]{maxChainLength});
         data = new DataFunction(new int[]{maxChainLength});
         dataInfo = new DataInfoFunction("Chain Length Distribution", Null.DIMENSION, new DataInfoDoubleArray[]{xDataInfo});
+        dataInfo.addTag(tag);
         double[] x = data.getXData(0).getData();
         for (int i=0; i<maxChainLength; i++) {
             x[i] = i+1;
@@ -162,6 +168,7 @@ public class MeterChainLength implements Meter, Serializable, AgentSource {
     private Atom[][] agents;
     private DataFunction data;
     private DataInfoFunction dataInfo;
+    private final Object tag;
     
     public static class AtomTag {
         public boolean tagged;

@@ -20,12 +20,18 @@ public final class MeterDimerFraction implements Meter {
         dataInfo = new DataInfoTable("Dimer Fraction", new DataInfoDoubleArray[]{columnInfo}, 5, new String[]{"R", "B", "R-R", "R-B", "B-B"});
         setName(NameMaker.makeName(this.getClass()));
         agentSource = sim;
+        tag = new Object();
+        dataInfo.addTag(tag);
     }
     
     public DataInfo getDataInfo() {
         return dataInfo;
     }
 
+    public Object getTag() {
+        return tag;
+    }
+    
     public Data getData() {
         agents = agentSource.getAgents(phase);
         for(int i=0; i<count.length; i++) {count[i] = 0;}
@@ -95,9 +101,10 @@ public final class MeterDimerFraction implements Meter {
     private String name;
     private Phase phase;
     private final DataTable data;
-    private DataInfoTable dataInfo;
+    private final DataInfoTable dataInfo;
     private int[] count = new int[5];
     private AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
     protected final ReactionEquilibrium agentSource;
     protected Atom[] agents;
+    private final Object tag;
 }

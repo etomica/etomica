@@ -27,10 +27,16 @@ public class MeterVirial implements DataSource, MCMoveListener, java.io.Serializ
         dataInfo = new DataInfoDoubleArray("Cluster Value",Null.DIMENSION, new int[]{clusters.length});
         oldValues = new double[clusters.length];
         trialValues = new double[clusters.length];
+        tag = new Object();
+        dataInfo.addTag(tag);
 	}
 
 	public DataInfo getDataInfo() {
         return dataInfo;
+    }
+    
+    public Object getTag() {
+        return tag;
     }
     
     public void setIntegrator(IntegratorMC newIntegrator) {
@@ -96,4 +102,5 @@ public class MeterVirial implements DataSource, MCMoveListener, java.io.Serializ
     private IntegratorMC integrator;
 	private final DataDoubleArray data;
 	private final DataInfo dataInfo;
+    private final Object tag;
 }
