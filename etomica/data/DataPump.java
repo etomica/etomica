@@ -20,8 +20,8 @@ public class DataPump extends DataProcessor implements Action {
         dataSourceInfo = dataSource.getDataInfo();
         setDataSink(dataSink);
         setLabel("Data Pump");
-        putDataInfo(dataSource.getDataInfo());
         tag = new Object();
+        putDataInfo(dataSource.getDataInfo());
 	}
     
     public Object getTag() {
