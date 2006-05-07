@@ -89,7 +89,7 @@ public class CastToDoubleArray extends DataProcessor {
         }
         outputData = new DataDoubleArray(arrayShape);
         DataInfoDoubleArray outputDataInfo = new DataInfoDoubleArray(inputDataInfo.getLabel(), inputDataInfo.getDimension(), arrayShape);
-        outputDataInfo.addTag(inputDataInfo.getTags());
+        outputDataInfo.addTags(inputDataInfo.getTags());
         return outputDataInfo;
     }
 
