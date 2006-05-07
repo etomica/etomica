@@ -235,8 +235,11 @@ public class LjmdGraphic {
         
         DisplayPlot ePlot = new DisplayPlot();
         energyHistory.setDataSink(ePlot.getDataSet().makeDataSink());
+        ePlot.setLegend(new Object[]{energyHistory.getTag()}, "Total");
         peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
+        ePlot.setLegend(new Object[]{peHistory.getTag()}, "Potential");
         keHistory.setDataSink(ePlot.getDataSet().makeDataSink());
+        ePlot.setLegend(new Object[]{keHistory.getTag()}, "Kinetic");
 		
 		ePlot.setDoLegend(true);
 		
