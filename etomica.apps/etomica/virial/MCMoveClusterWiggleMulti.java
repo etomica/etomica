@@ -47,7 +47,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
             double stepSize, int nAtoms) {
         super(potentialMaster,stepSize,Double.POSITIVE_INFINITY,false);
         this.nAtoms = nAtoms;
-        setStepSizeMax(2*Math.PI);
+        setStepSizeMax(Math.PI);
         selectedMolecules = new Atom[nAtoms];
         selectedAtoms = new AtomLeaf[nAtoms];
         translationVectors = new Vector3D[nAtoms];
