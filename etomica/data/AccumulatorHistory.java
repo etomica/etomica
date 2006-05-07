@@ -86,7 +86,6 @@ public class AccumulatorHistory extends DataAccumulator {
      */
     protected DataInfo processDataInfo(DataInfo newInputDataInfo) {
         inputDataInfo = newInputDataInfo;
-        incomingTags = inputDataInfo.getTags();
         if (inputDataInfo instanceof DataInfoDoubleArray) {
             nData = ((DataInfoDoubleArray)inputDataInfo).getArrayLength();
         }
@@ -150,6 +149,7 @@ public class AccumulatorHistory extends DataAccumulator {
                     dataInfoFunctions[i] = new DataInfoFunction(inputDataInfo.getLabel(), inputDataInfo.getDimension(), 
                             new DataInfoDoubleArray[]{new DataInfoDoubleArray(timeDataSource.getDataInfo().getLabel(),
                                     timeDataSource.getDataInfo().getDimension(), new int[]{iHistoryLength})});
+                    dataInfoFunctions[i].addTags(inputDataInfo.getTags());
                     DataDoubleArray xData = new DataDoubleArray(new int[]{history[i].getHistoryLength()},history[i].getXValues());
                     dataFunctions[i] = new DataFunction(new DataDoubleArray[]{xData}, history[i].getHistory());
                 }
@@ -180,12 +180,12 @@ public class AccumulatorHistory extends DataAccumulator {
             dataInfoFunctions[i] = new DataInfoFunction(inputDataInfo.getLabel(), inputDataInfo.getDimension(), 
                     new DataInfoDoubleArray[]{new DataInfoDoubleArray(timeDataSource.getDataInfo().getLabel(),
                             timeDataSource.getDataInfo().getDimension(), new int[]{history[i].getHistoryLength()})});
+            dataInfoFunctions[i].addTags(inputDataInfo.getTags());
             DataDoubleArray xData = new DataDoubleArray(new int[]{history[i].getHistoryLength()},history[i].getXValues());
             dataFunctions[i] = new DataFunction(new DataDoubleArray[]{xData}, history[i].getHistory());
         }
         data = new DataGroup(dataFunctions);
         dataInfo = new DataInfoGroup(inputDataInfo.getLabel(), inputDataInfo.getDimension(), dataInfoFunctions);
-        dataInfo.addTags(incomingTags);
         dataInfo.addTag(tag);
     }
     
@@ -226,7 +226,6 @@ public class AccumulatorHistory extends DataAccumulator {
     private DataSourceScalar timeDataSource;
     private DataInfo inputDataInfo;
     protected final Object tag;
-    protected Object[] incomingTags;
 
     /**
      * Simple DataSource to use as a default time DataSource.  It just returns
