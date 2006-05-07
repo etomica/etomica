@@ -48,6 +48,8 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
 	    iterator = new ApiLeafAtoms();
         setName(NameMaker.makeName(this.getClass()));
         dr = space.makeVector();
+        tag = new Object();
+        dataInfo.addTag(tag);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -57,6 +59,10 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
     
     public DataInfo getDataInfo() {
         return dataInfo;
+    }
+    
+    public Object getTag() {
+        return tag;
     }
     
     /**
@@ -94,7 +100,9 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
             data = new DataFunction(new DataDoubleArray[] {rData});
             dataInfo = new DataInfoFunction("g(r)", Null.DIMENSION, new DataInfoDoubleArray[]{
                     (DataInfoDoubleArray)xDataSource.getDataInfo()});
+            dataInfo.addTag(tag);
         }
+        
         final double[] y = data.getData();
 	    for(int i=0; i<y.length; i++) {y[i] = 0.0;}  //zero histogram
 	    double xMax = xDataSource.getXMax();
@@ -161,4 +169,5 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
     private NearestImageTransformer nearestImageTransformer;
     private final DataSourceUniform xDataSource;
     private String name;
+    protected final Object tag;
 }

@@ -181,7 +181,9 @@ public class DataFunction extends DataDoubleArray {
         }
         
         public DataInfo makeDataInfo() {
-            return new DataInfoFunction(label, dimension, independentInfo);
+            DataInfoFunction dataInfo = new DataInfoFunction(label, dimension, independentInfo);
+            dataInfo.addTags(tags.toArray());
+            return dataInfo;
         }
         
         /**

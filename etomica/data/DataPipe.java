@@ -21,5 +21,7 @@ public interface DataPipe extends DataSink {
      *            the new recipient of Data from this DataPipe.
      */
     public void setDataSink(DataSink dataSink);
+    
+    public Object getTag();
 
 }

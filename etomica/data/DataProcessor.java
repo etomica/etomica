@@ -53,6 +53,10 @@ public abstract class DataProcessor implements DataPipe, java.io.Serializable {
             dataSink.putDataInfo(dataInfo);
         }
     }
+    
+    public DataInfo getDataInfo() {
+        return dataInfo;
+    }
 
     /**
      * @return Returns the data sink, which may be null.

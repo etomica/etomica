@@ -47,6 +47,11 @@ public class CastGroupToDoubleArray extends DataProcessor {
     public CastGroupToDoubleArray() {
     }
 
+    public Object getTag() {
+        // we have no tag
+        return null;
+    }
+
     /**
      * Prepares processor to handle Data. Uses given DataInfo to determine the
      * type of Data to expect in subsequent calls to processData.
@@ -65,7 +70,9 @@ public class CastGroupToDoubleArray extends DataProcessor {
         if (numSubData == 0) {
             inputType = 0;
             outputData = new DataDoubleArray(0);
-            return new DataInfoDoubleArray(label, dimension, new int[]{0});
+            DataInfo outputDataInfo = new DataInfoDoubleArray(label, dimension, new int[]{0});
+            outputDataInfo.addTags(inputDataInfo.getTags());
+            return outputDataInfo;
         }
         DataInfo subDataInfo = ((DataInfoGroup)inputDataInfo).getSubDataInfo(0);
 
@@ -84,7 +91,7 @@ public class CastGroupToDoubleArray extends DataProcessor {
                 outputArrayShape = arrayShape;
                 inputType = 1;
                 // we don't need an outputData instance
-                return new DataInfoDoubleArray(label, dimension, outputArrayShape);
+                return subDataInfo;
             }
             outputArrayShape = new int[++D];
             outputArrayShape[0] = numSubData;
@@ -123,7 +130,9 @@ public class CastGroupToDoubleArray extends DataProcessor {
                     + subDataInfo.getClass() + " in DataGroup");
         }
         outputData = new DataDoubleArray(outputArrayShape);
-        return new DataInfoDoubleArray(label, dimension, outputArrayShape);
+        DataInfoDoubleArray outputDataInfo = new DataInfoDoubleArray(label, dimension, outputArrayShape);
+        outputDataInfo.addTags(inputDataInfo.getTags());
+        return outputDataInfo;
     }
     
     /**
@@ -137,6 +146,7 @@ public class CastGroupToDoubleArray extends DataProcessor {
      */
     protected Data processData(Data data) {
         DataGroup group = (DataGroup)data;
+        //we don't add ourselves
         switch (inputType) {
         case 0:  // empty group 
             return outputData;

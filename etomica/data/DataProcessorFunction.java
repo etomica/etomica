@@ -18,6 +18,11 @@ public class DataProcessorFunction extends DataProcessor {
 
     public DataProcessorFunction(Function function) {
         this.function = function;
+        tag = new Object();
+    }
+    
+    public Object getTag() {
+        return tag;
     }
     
     /**
@@ -41,7 +46,9 @@ public class DataProcessorFunction extends DataProcessor {
         if (!(inputDataInfo instanceof DataInfoArithmetic)) {
             throw new IllegalArgumentException("DataProcessorFunction can only handle DataArithmetic");
         }
-        return inputDataInfo;
+        dataInfo = inputDataInfo.getFactory().makeDataInfo();
+        dataInfo.addTag(tag);
+        return dataInfo;
     }
 
     /**
@@ -52,4 +59,5 @@ public class DataProcessorFunction extends DataProcessor {
     }
 
     private final Function function;
+    protected final Object tag;
 }

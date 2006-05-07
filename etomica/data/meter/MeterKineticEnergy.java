@@ -70,7 +70,7 @@ public class MeterKineticEnergy extends DataSourceScalar implements Meter
             ke += 0.5*mass*((ICoordinateKinetic)((AtomLeaf)atom).coord).velocity().squared();
         }
         return ke;
-    }//end of getDataAsScalar
+    }
     
     /**
      * @return Returns the phase.

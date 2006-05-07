@@ -5,7 +5,9 @@ import java.util.Arrays;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
+import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.units.Dimension;
+import etomica.units.Null;
 import etomica.util.Function;
 
 /**
@@ -391,7 +393,9 @@ public class DataDoubleArray implements DataArithmetic, java.io.Serializable {
         }
         
         public DataInfo makeDataInfo() {
-            return new DataInfoDoubleArray(label, dimension, arrayShape);
+            DataInfoDoubleArray dataInfo = new DataInfoDoubleArray(label, dimension, arrayShape);
+            dataInfo.addTags(tags.toArray());
+            return dataInfo;
         }
         
         /**

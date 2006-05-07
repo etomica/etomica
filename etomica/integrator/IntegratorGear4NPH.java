@@ -235,10 +235,16 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
             data = new DataDoubleArray(3);
             dataInfo = new DataInfoDoubleArray("TPH", Undefined.DIMENSION, new int[]{3});
             this.integrator = integrator;
+            tag = new Object();
+            dataInfo.addTag(tag);
         }
         
         public DataInfo getDataInfo() {
             return dataInfo;
+        }
+        
+        public Object getTag() {
+            return tag;
         }
         
         public Data getData() {
@@ -257,6 +263,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         private DataDoubleArray data;
         private IntegratorGear4NPH integrator;
         private DataInfo dataInfo;
+        private Object tag;
     }
         
     public final class ForceSumNPH extends PotentialCalculation {

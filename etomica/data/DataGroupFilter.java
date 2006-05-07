@@ -25,6 +25,11 @@ public class DataGroupFilter extends DataProcessor {
         this(new int[] {index});
     }
 
+    public Object getTag() {
+        // we have no tag
+        return null;
+    }
+
     /**
      * Creates a filter that will take the set of elements from the DataGroup
      * corresponding to the given index values (with indexes counting from 0).
@@ -89,13 +94,13 @@ public class DataGroupFilter extends DataProcessor {
 
     /**
      * Returns null if the given DataInfo is for a DataGroup; otherwise
-     * returns a CastToGroup instance.
+     * throws an exception.
      */
     public DataProcessor getDataCaster(DataInfo incomingDataInfo) {
-        if(incomingDataInfo instanceof DataInfoGroup) {
-            return null;
+        if(!(incomingDataInfo instanceof DataInfoGroup)) {
+            throw new IllegalArgumentException("DataGroupFilter must operate on a DataGroup");
         }
-        return new CastToGroup();
+        return null;
     }
     
     private Data outputData;

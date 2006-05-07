@@ -10,6 +10,7 @@ import java.util.HashMap;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.table.AbstractTableModel;
 
 import etomica.EtomicaElement;
@@ -58,7 +59,7 @@ public class DisplayTable extends Display implements DataTableListener,
         panel = new javax.swing.JPanel(new java.awt.FlowLayout());
 
         setLabel("Data");
-        numberRenderer.setHorizontalAlignment(javax.swing.JLabel.RIGHT);
+        numberRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
         setPrecision(4);
         setTransposed(false);
         setShowingRowLabels(true);
@@ -87,7 +88,7 @@ public class DisplayTable extends Display implements DataTableListener,
     /**
      * Causes the display of the plot to be updated.
      */
-    public void dataChanged(DataSet table) {
+    public void dataChanged(DataSet dummyTable) {
         tableSource.fireTableDataChanged();
         repaint();
     }
@@ -96,18 +97,18 @@ public class DisplayTable extends Display implements DataTableListener,
      * Updates the units array for any new or deleted columns, 
      * using the default units for new columns.
      */
-    public void dataCountChanged(DataSet table) {
+    public void dataCountChanged(DataSet dummyTable) {
         recomputeUnits();
         tableSource.fireTableStructureChanged();
     }
 
     /**
-     * Has no effect. Part of the DataTableListener interface.
+     * Part of the DataTableListener interface.  Updates the row headers.
      */
-    public void tableRowCountChanged(DataSinkTable table) {
-        rowLabels = new String[table.getRowCount()];
+    public void tableRowCountChanged(DataSinkTable dummyTable) {
+        rowLabels = new String[dataTable.getRowCount()];
         for (int i=0; i<rowLabels.length; i++) {
-            rowLabels[i] = table.getRowHeader(i);
+            rowLabels[i] = dataTable.getRowHeader(i);
         }
         tableSource.fireTableStructureChanged();
         
@@ -327,25 +328,25 @@ public class DisplayTable extends Display implements DataTableListener,
     }
 
     private final JTable table;
-    private final DataSinkTable dataTable;
+    protected final DataSinkTable dataTable;
     private final MyTable tableSource;
-    private final JPanel panel;
+    protected final JPanel panel;
 
-    private boolean showingRowLabels;
-    private boolean showingColumnHeaders;
-    private boolean showingUnits = true;
+    protected boolean showingRowLabels;
+    protected boolean showingColumnHeaders;
+    protected boolean showingUnits = true;
     private boolean fitToWindow = true;
-    private boolean transposed;
-    private int c0 = 0;
-    private String[] rowLabels = new String[0];
-    private String rowLabelColumnHeader = "";
-    private Unit[] units = new Unit[0];
+    protected boolean transposed;
+    protected int c0 = 0;
+    protected String[] rowLabels = new String[0];
+    protected  String rowLabelColumnHeader = "";
+    protected Unit[] units = new Unit[0];
     private final HashMap unitHash = new HashMap();
 
     //structures used to adjust precision of displayed values
     //  private final java.text.NumberFormat formatter =
     // java.text.NumberFormat.getInstance();
-    private final java.text.NumberFormat formatter = new etomica.util.ScientificFormat();
+    protected final java.text.NumberFormat formatter = new etomica.util.ScientificFormat();
     private final javax.swing.table.DefaultTableCellRenderer numberRenderer = new javax.swing.table.DefaultTableCellRenderer() {
 
         public void setValue(Object value) {

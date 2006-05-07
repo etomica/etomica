@@ -52,6 +52,11 @@ public class CastToDoubleArray extends DataProcessor {
     public CastToDoubleArray() {
     }
 
+    public Object getTag() {
+        // we have no tag
+        return null;
+    }
+
     /**
      * Prepares processor to perform cast. Given DataInfo is examined to see
      * what data type will be given to processor.
@@ -83,7 +88,9 @@ public class CastToDoubleArray extends DataProcessor {
                     "Cannot cast to DataDoubleArray from " + inputDataInfo.getClass());
         }
         outputData = new DataDoubleArray(arrayShape);
-        return new DataInfoDoubleArray(inputDataInfo.getLabel(), inputDataInfo.getDimension(), arrayShape);
+        DataInfoDoubleArray outputDataInfo = new DataInfoDoubleArray(inputDataInfo.getLabel(), inputDataInfo.getDimension(), arrayShape);
+        outputDataInfo.addTag(inputDataInfo.getTags());
+        return outputDataInfo;
     }
 
     /**
@@ -100,21 +107,23 @@ public class CastToDoubleArray extends DataProcessor {
             return data;
         case 1:
             outputData.E(((DataDouble) data).x);
-            return outputData;
+            break;
         case 2:
             outputData.E(((DataInteger) data).x);
-            return outputData;
+            break;
         case 3:
             ((DataVector) data).x.assignTo(outputData.getData());
-            return outputData;
+            break;
         case 4:
-            ((DataTensor) data).x.assignTo(outputData.getData());//both Tensor and DataDoubleArray
-                                                                 // sequence data by rows
-            return outputData;
+            // both Tensor and DataDoubleArray sequence data by rows
+            ((DataTensor) data).x.assignTo(outputData.getData());
+            break;
         default:
             throw new Error("Assertion error.  Input type out of range: "
                     + inputType);
         }
+        //we don't add ourselves
+        return outputData;
     }
 
     public DataProcessor getDataCaster(DataInfo info) {

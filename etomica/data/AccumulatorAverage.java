@@ -9,7 +9,6 @@ import etomica.data.types.DataGroup;
 import etomica.data.types.DataArithmetic.DataInfoArithmetic;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.simulation.Simulation;
-import etomica.units.Null;
 import etomica.util.EnumeratedType;
 import etomica.util.Function;
 
@@ -50,13 +49,39 @@ public class AccumulatorAverage extends DataAccumulator {
         super();
         setBlockSize(blockSize);
         setPushInterval(100);
+        tag = new Object();
+        mostRecentTag = new Object();
+        averageTag = new Object();
+        errorTag = new Object();
+        standardDeviationTag = new Object();
+        mostRecentBlockTag = new Object();
+        blockCorrelationTag = new Object();
     }
 
-    /**
-     * Returns the DataInfo of the DataGroup that wraps the Data statistics.
-     */
-    public DataInfo getDataInfo() {
-        return dataInfo;
+    public Object getTag() {
+        return tag;
+    }
+
+    public Object getTag(StatType statType) {
+        if (statType == StatType.MOST_RECENT) {
+            return mostRecentTag;
+        }
+        if (statType == StatType.AVERAGE) {
+            return averageTag;
+        }
+        if (statType == StatType.ERROR) {
+            return errorTag;
+        }
+        if (statType == StatType.STANDARD_DEVIATION) {
+            return standardDeviationTag;
+        }
+        if (statType == StatType.MOST_RECENT_BLOCK) {
+            return mostRecentBlockTag;
+        }
+        if (statType == StatType.BLOCK_CORRELATION) {
+            return blockCorrelationTag;
+        }
+        return null;
     }
 
     /**
@@ -152,7 +177,6 @@ public class AccumulatorAverage extends DataAccumulator {
         if (sum == null)
             return null;
         if (count > 0) {
-
             average.E(sum);
             average.TE(1 / (double) count);
             work.E(average);
@@ -238,9 +262,32 @@ public class AccumulatorAverage extends DataAccumulator {
     public DataInfo processDataInfo(DataInfo incomingDataInfo) {
         sum = null;
         
-        dataInfo = new DataInfoGroup(incomingDataInfo.getLabel(), Null.DIMENSION, new DataInfo[]{
-            incomingDataInfo, incomingDataInfo, incomingDataInfo, incomingDataInfo, incomingDataInfo,
-            incomingDataInfo});
+        DataInfoFactory factory = incomingDataInfo.getFactory();
+        factory.getTags().add(tag);
+        String incomingLabel = incomingDataInfo.getLabel();
+        factory.setLabel(incomingLabel+" most recent");
+        DataInfo mostRecentInfo = factory.makeDataInfo();
+        mostRecentInfo.addTag(mostRecentTag);
+        factory.setLabel(incomingLabel+" avg");
+        DataInfo averageInfo = factory.makeDataInfo();
+        averageInfo.addTag(averageTag);
+        factory.setLabel(incomingLabel+" error");
+        DataInfo errorInfo = factory.makeDataInfo();
+        errorInfo.addTag(errorTag);
+        factory.setLabel(incomingLabel+" stddev");
+        DataInfo standardDeviationInfo = factory.makeDataInfo();
+        standardDeviationInfo.addTag(standardDeviationTag);
+        factory.setLabel(incomingLabel+" most recent blk");
+        DataInfo mostRecentBlockInfo = factory.makeDataInfo();
+        mostRecentBlockInfo.addTag(mostRecentBlockTag);
+        factory.setLabel(incomingLabel+" blk correlation");
+        DataInfo correlationInfo = factory.makeDataInfo();
+        correlationInfo.addTag(blockCorrelationTag);
+        
+        dataInfo = new DataInfoGroup(incomingLabel, incomingDataInfo.getDimension(), new DataInfo[]{
+            mostRecentInfo, averageInfo, errorInfo, standardDeviationInfo, mostRecentBlockInfo,
+            correlationInfo});
+        dataInfo.addTag(tag);
         return dataInfo;
     }
 
@@ -315,5 +362,7 @@ public class AccumulatorAverage extends DataAccumulator {
     protected DataGroup dataGroup;
     protected int count, blockCountDown;
     protected int blockSize;
+    protected final Object tag;
+    private final Object mostRecentTag, averageTag, errorTag, standardDeviationTag, mostRecentBlockTag, blockCorrelationTag;
 
 }//end of AccumulatorAverage

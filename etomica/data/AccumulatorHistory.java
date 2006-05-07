@@ -40,6 +40,11 @@ public class AccumulatorHistory extends DataAccumulator {
         this.historyLength = historyLength;
         historyFactory = factory;
         setTimeDataSource(new DataSourceCount());
+        tag = new Object();
+    }
+    
+    public Object getTag() {
+        return tag;
     }
 
     /**
@@ -81,6 +86,7 @@ public class AccumulatorHistory extends DataAccumulator {
      */
     protected DataInfo processDataInfo(DataInfo newInputDataInfo) {
         inputDataInfo = newInputDataInfo;
+        incomingTags = inputDataInfo.getTags();
         if (inputDataInfo instanceof DataInfoDoubleArray) {
             nData = ((DataInfoDoubleArray)inputDataInfo).getArrayLength();
         }
@@ -153,7 +159,7 @@ public class AccumulatorHistory extends DataAccumulator {
             data = new DataGroup(dataFunctions);
             dataInfo = new DataInfoGroup(inputDataInfo.getLabel(), inputDataInfo.getDimension(), dataInfoFunctions);
         }
-            
+        
         return data;
     }
 
@@ -179,6 +185,8 @@ public class AccumulatorHistory extends DataAccumulator {
         }
         data = new DataGroup(dataFunctions);
         dataInfo = new DataInfoGroup(inputDataInfo.getLabel(), inputDataInfo.getDimension(), dataInfoFunctions);
+        dataInfo.addTags(incomingTags);
+        dataInfo.addTag(tag);
     }
     
     /**
@@ -212,11 +220,13 @@ public class AccumulatorHistory extends DataAccumulator {
     
     protected History[] history = new History[0];
     private DataGroup data;
-    int nData;
+    protected int nData;
     private History.Factory historyFactory;
     private int historyLength;
     private DataSourceScalar timeDataSource;
     private DataInfo inputDataInfo;
+    protected final Object tag;
+    protected Object[] incomingTags;
 
     /**
      * Simple DataSource to use as a default time DataSource.  It just returns

@@ -38,6 +38,7 @@ public class MeterProfile implements Meter, java.io.Serializable {
         profileVector = space.makeVector();
         profileVector.setX(0, 1.0);
         position = space.makeVector();
+        tag = new Object();
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -47,6 +48,10 @@ public class MeterProfile implements Meter, java.io.Serializable {
 
     public DataInfo getDataInfo() {
         return dataInfo;
+    }
+    
+    public Object getTag() {
+        return tag;
     }
 
     /**
@@ -65,6 +70,8 @@ public class MeterProfile implements Meter, java.io.Serializable {
         dataInfo = new DataInfoFunction(m.getDataInfo().getLabel()+" Profile", m.getDataInfo().getDimension(), 
                 new DataInfoDoubleArray[] {new DataInfoDoubleArray("x",Length.DIMENSION,new int[]{xData.getLength()})});
         meter = m;
+        dataInfo.addTag(meter.getTag());
+        dataInfo.addTag(tag);
     }
     
     /**
@@ -148,6 +155,8 @@ public class MeterProfile implements Meter, java.io.Serializable {
      * Meter that defines the property being profiled.
      */
     DataSourceAtomic meter;
+    protected final Object tag;
+    
     
     private final AtomIteratorPhaseDependent ai1 = new AtomIteratorLeafAtoms();
     

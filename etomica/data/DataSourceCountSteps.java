@@ -31,6 +31,8 @@ public final class DataSourceCountSteps implements DataSource,
         dataInfo = new DataInfoInteger("Integrator steps", Quantity.DIMENSION);
         data = new DataInteger();
         setName(NameMaker.makeName(this.getClass()));
+        tag = new Object();
+        dataInfo.addTag(tag);
 	}
 
 	public static EtomicaInfo getEtomicaInfo() {
@@ -42,13 +44,10 @@ public final class DataSourceCountSteps implements DataSource,
     public DataInfo getDataInfo() {
         return dataInfo;
     }
-
-	/**
-	 * @return Count.UNIT
-	 */
-	public Unit defaultIOUnit() {
-		return Count.UNIT;
-	}
+    
+    public Object getTag() {
+        return tag;
+    }
 
 	/**
 	 * Resets the counter to zero
@@ -102,4 +101,5 @@ public final class DataSourceCountSteps implements DataSource,
     private final DataInteger data;
     private final DataInfo dataInfo;
     private String name;
+    protected final Object tag;
 }

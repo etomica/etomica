@@ -25,6 +25,8 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
         velocityTensor = space.makeTensor();
         v = space.makeTensor();
         timer = new DataSourceCountTime();
+        tag = new Object();
+        dataInfo.addTag(tag);
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -34,6 +36,10 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
     
     public DataInfo getDataInfo() {
         return dataInfo;
+    }
+    
+    public Object getTag() {
+        return tag;
     }
     
     public Data getData() {
@@ -105,4 +111,5 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
     private Phase phase;
     private final DataTensor data;
     private final DataInfo dataInfo;
+    protected final Object tag;
 }

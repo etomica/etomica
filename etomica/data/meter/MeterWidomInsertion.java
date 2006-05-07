@@ -4,14 +4,11 @@ import etomica.EtomicaInfo;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
 import etomica.data.DataSourceScalar;
+import etomica.integrator.IntegratorPhase;
 import etomica.phase.Phase;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.Species;
-import etomica.units.Dimension;
 import etomica.units.Null;
-import etomica.units.Temperature;
 
 /**
  * Meter to measure the chemical potential (as its exponent: exp(-mu/kT)) of a
@@ -30,176 +27,128 @@ import etomica.units.Temperature;
  * 
  * @author David Kofke
  */
-public class MeterWidomInsertion extends DataSourceScalar implements Meter {
+public class MeterWidomInsertion extends DataSourceScalar {
 
-    public MeterWidomInsertion(Simulation sim) {
-        this(sim.space,sim.potentialMaster,sim.getDefaults().temperature);
-    }
-    
-    public MeterWidomInsertion(Space space, PotentialMaster potentialMaster, double temperature) {
+    public MeterWidomInsertion(Space space) {
         super("exp(-\u03BC/kT)", Null.DIMENSION);//"\u03BC" is Unicode for greek "mu"
-        energyMeter = new MeterPotentialEnergy(potentialMaster);
-        nInsert = 100;
+        setNInsert(100);
         setResidual(true);
-        setTemperature(temperature);
         atomTranslator = new AtomActionTranslateTo(space); 
-	}
+    }
 
-	public static EtomicaInfo getEtomicaInfo() {
-		EtomicaInfo info = new EtomicaInfo(
-				"Chemical potential via Widom's ghost-particle insertion method");
-		return info;
-	}
+    public static EtomicaInfo getEtomicaInfo() {
+        EtomicaInfo info = new EtomicaInfo(
+            "Chemical potential via Widom's ghost-particle insertion method");
+        return info;
+    }
 
-	/**
-	 * Constructor used if desired to display inserted positions in the given
-	 * DisplayConfiguration object
-	 */
-	/*
-	 * public MeterWidomInsertion(Species s, DisplayPhase d) { this(); display =
-	 * d; setSpecies(s); setActive(false); }
-	 */
+    /**
+     * Sets flag specifying if full or residual chemical potential is computed
+     * Default is <code>true</code> (only residual is computed)
+     */
+    public void setResidual(boolean b) {
+        residual = b;
+    }
 
-	/**
-	 * Sets flag specifying if full or residual chemical potential is computed
-	 * Default is <code>true</code> (only residual is computed)
-	 */
-	public void setResidual(boolean b) {
-		residual = b;
-	}
+    /**
+     * Accessor for flag specifying if full or residual chemical potential is
+     * computed
+     */
+    public boolean isResidual() {
+        return residual;
+    }
 
-	/**
-	 * Accessor for flag specifying if full or residual chemical potential is
-	 * computed
-	 */
-	public boolean isResidual() {
-		return residual;
-	}
+    /**
+     * Sets the species, takes a prototype molecule, and gets handle to
+     * appropriate species agent in phase
+     */
+    public void setSpecies(Species s) {
+        species = s;
+        testMolecule = s.moleculeFactory().makeAtom();
+    }
 
-	/**
-	 * Sets the species, takes a prototype molecule, and gets handle to
-	 * appropriate species agent in phase
-	 */
-	public void setSpecies(Species s) {
-		species = s;
-		testMolecule = s.moleculeFactory().makeAtom();
-	}
+    /**
+     * Accessor for the species for which chemical potential is evaluated
+     */
+    public Species getSpecies() {
+        return species;
+    }
 
-	/**
-	 * Accessor for the species for which chemical potential is evaluated
-	 */
-	public Species getSpecies() {
-		return species;
-	}
+    /**
+     * Number of Widom insertions attempted with each call to currentValue
+     */
+    public void setNInsert(int n) {
+        nInsert = n;
+    }
 
-	/**
-	 * Number of Widom insertions attempted with each call to currentValue
-	 */
-	public void setNInsert(int n) {
-		nInsert = n;
-	}
+    /**
+     * Accessor to number of Widom insertions attempted with each call to
+     * currentValue
+     */
+    public int getNInsert() {
+        return nInsert;
+    }
 
-	/**
-	 * Accessor to number of Widom insertions attempted with each call to
-	 * currentValue
-	 */
-	public int getNInsert() {
-		return nInsert;
-	}
-
-	/**
-	 * @return Returns the temperature.
-	 */
-	public double getTemperature() {
-		return temperature;
-	}
-
-	/**
-	 * @param temperature
-	 *            The temperature to set.
-	 */
-	public void setTemperature(double temperature) {
-		this.temperature = temperature;
-	}
-
-	/**
-	 * @return Dimension.TEMPERATURE
-	 */
-	public Dimension getTemperatureDimension() {
-		return Temperature.DIMENSION;
-	}
-
-	/**
-	 * Performs a Widom insertion average, doing nInsert insertion attempts
-	 * Temperature used to get exp(-uTest/kT) is that of the integrator for the
-	 * phase
-	 * 
-	 * @return the sum of exp(-uTest/kT)/nInsert, multiplied by n <sub>i
-	 *         </sub>/V if <code>residual</code> is false
-	 */
-	public double getDataAsScalar() {
-        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
-		double sum = 0.0; //sum for local insertion average
+    /**
+     * Performs a Widom insertion average, doing nInsert insertion attempts
+     * Temperature used to get exp(-uTest/kT) is that of the integrator for the
+     * phase
+     * 
+     * @return the sum of exp(-uTest/kT)/nInsert, multiplied by V/N if 
+     * <code>residual</code> is false
+     */
+    public double getDataAsScalar() {
+        if (integrator == null) throw new IllegalStateException("must call setPhase before using meter");
+        Phase phase = integrator.getPhase();
+        double sum = 0.0; //sum for local insertion average
         phase.addMolecule(testMolecule, phase.getAgent(species));
-		energyMeter.setTarget(testMolecule);
-		for (int i = nInsert; i > 0; i--) { //perform nInsert insertions
+        energyMeter.setTarget(testMolecule);
+        for (int i = nInsert; i > 0; i--) { //perform nInsert insertions
             atomTranslator.setDestination(phase.randomPosition());
             atomTranslator.actionPerformed(testMolecule);
-			//            if(display != null && i % 10 ==0) display.repaint();
-			double u = energyMeter.getDataAsScalar();
-			if (u < Double.POSITIVE_INFINITY) //add to test-particle average
-				sum += Math.exp(-u / temperature);
-		}
+            double u = energyMeter.getDataAsScalar();
+            sum += Math.exp(-u / integrator.getTemperature());
+        }
 
         phase.removeMolecule(testMolecule);
 
-		if (!residual)
-			sum *= phase.volume() / phase.getAgent(species).getNMolecules(); //multiply
-		// by
-		// V/N
-		return sum / nInsert; //return average
-	}
-    /**
-     * @return Returns the phase.
-     */
-    public Phase getPhase() {
-        return phase;
-    }
-    /**
-     * @param phase The phase to set.
-     */
-    public void setPhase(Phase phase) {
-        this.phase = phase;
-        energyMeter.setPhase(phase);
+        if (!residual) {
+            // multiply by V/N
+            sum *= phase.volume() / phase.getAgent(species).getNMolecules();
+        }
+        return sum / nInsert; //return average
     }
 
-    private Phase phase;
+    /**
+     * Returns the integrator associated with this class.  The phase, potentialMaster
+     * and temperature are taken from the integrator.
+     */
+    public IntegratorPhase getIntegrator() {
+        return integrator;
+    }
 
-	/**
-	 * Number of insertions attempted in each call to currentValue Default is
-	 * 100
-	 */
-	private int nInsert;
-	private Species species;
-	private Atom testMolecule; //prototype insertion molecule
-	private double temperature;
-	private boolean residual; //flag to specify if total or residual chemical
-								// potential evaluated. Default true
-	private AtomActionTranslateTo atomTranslator;
-    
-	MeterPotentialEnergy energyMeter;
-	//  private DisplayPhase display; //used to show location of inserted atoms
-	// in the display
+    /**
+     * Sets the integrator associated with this class.  The phase, potentialMaster
+     * and temperature are taken from the integrator.
+     */
+    public void setIntegrator(IntegratorPhase newIntegrator) {
+        integrator = newIntegrator;
+        energyMeter = new MeterPotentialEnergy(integrator.getPotential());
+        energyMeter.setPhase(integrator.getPhase());
+    }
 
-	// /*
-	//    public static void main(String[] args) {
-	//        etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
-	//        MeterWidomInsertion meter = new MeterWidomInsertion();
-	//        etomica.graphics.DisplayBox box = new
-	// etomica.graphics.DisplayBox((DatumSource)meter);
-	//        box.setWhichValue(MeterAbstract.AVERAGE);
-	//        sim.elementCoordinator.go();
-	//        etomica.graphics.SimulationGraphic.makeAndDisplayFrame(sim);
-	//    }
-	//    */
-}//end of MeterWidomInsertion
+    private IntegratorPhase integrator;
+
+    /**
+     * Number of insertions attempted in each call to currentValue Default is
+     * 100
+     */
+    private int nInsert;
+    private Species species;
+    private Atom testMolecule;// prototype insertion molecule
+    private boolean residual; // flag to specify if total or residual chemical
+                              // potential evaluated. Default true
+    private AtomActionTranslateTo atomTranslator;
+
+    private MeterPotentialEnergy energyMeter;
+}

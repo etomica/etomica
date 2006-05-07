@@ -35,6 +35,8 @@ public class MeterTensorVelocity implements Meter, DataSourceAtomic, java.io.Ser
         data = new DataTensor(space);
         dataInfo = new DataInfoTensor("pp/m",Energy.DIMENSION, space);
         atomData = new DataTensor(space);
+        tag = new Object();
+        dataInfo.addTag(tag);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -45,23 +47,15 @@ public class MeterTensorVelocity implements Meter, DataSourceAtomic, java.io.Ser
     public DataInfo getDataInfo() {
         return dataInfo;
     }
+    
+    public Object getTag() {
+        return tag;
+    }
        
     public DataInfo getAtomDataInfo() {
         return dataInfo;
     }
        
-    /**
-     * Returns the dimension of the measured value, here given as energy
-     */
-    public Dimension getDimension() {return Energy.DIMENSION;}
-    
-    /**
-     * Descriptive label
-     *
-     * @return "pp/m"
-     */
-    public String getLabel() {return "pp/m";}
-    
     /**
      * Returns the velocity dyad (mass*vv) summed over all atoms, and divided by N
      */
@@ -114,4 +108,5 @@ public class MeterTensorVelocity implements Meter, DataSourceAtomic, java.io.Ser
     private Phase phase;
     private final DataTensor data, atomData;
     private final DataInfoTensor dataInfo;
+    protected Object tag;
 }

@@ -35,8 +35,11 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
         this();
         setDataSinks(dataSinks);
     }
-        
 
+    public Object getTag() {
+        return null;
+    }
+    
     /**
      * Returns null, indicating that this DataSink can accept any type of Data.
      */

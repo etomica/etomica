@@ -39,6 +39,11 @@ public class CastToInteger extends DataProcessor {
     public CastToInteger() {
     }
 
+    public Object getTag() {
+        // we have no tag
+        return null;
+    }
+
     /**
      * Prepares processor to handle Data. Uses given DataInfo to determine the
      * type of Data to expect in subsequent calls to processData.
@@ -59,7 +64,9 @@ public class CastToInteger extends DataProcessor {
         } else {
             throw new IllegalArgumentException("Cannot cast to int from "+ inputDataInfo.getClass());
         }
-        return new DataInfoInteger(inputDataInfo.getLabel(), inputDataInfo.getDimension());
+        DataInfo outputDataInfo = new DataInfoInteger(inputDataInfo.getLabel(), inputDataInfo.getDimension());
+        outputDataInfo.addTags(inputDataInfo.getTags());
+        return outputDataInfo;
     }
     
     /**
@@ -79,9 +86,11 @@ public class CastToInteger extends DataProcessor {
     protected Data processData(Data data) {
         switch (inputType) {
         case 0:
+            //we don't add ourselves
             dataInteger.x = (int)((DataDouble) data).x;
             return dataInteger;
         case 1:
+            //we don't add ourselves
             dataInteger.x = (int)((DataDoubleArray) data).getData()[0];
             return dataInteger;
         case 2:

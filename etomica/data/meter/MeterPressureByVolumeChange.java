@@ -41,6 +41,7 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
         setInflateDimensions(dimensions);
         iteratorDirective = new IteratorDirective();
         inflater = new PhaseInflate(space);
+        tag = new Object();
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -69,6 +70,10 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
     public DataInfo getDataInfo() {
         return dataInfo;
     }
+    
+    public Object getTag() {
+        return tag;
+    }
 
     /**
      * For anisotropic volume change, indicates dimension in which volume is perturbed.
@@ -93,6 +98,7 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
         xDataSource = new DataSourceUniform("x", Volume.dimension(space.D()), n, min, max);
         data = new DataDoubleArray(n);
         dataInfo = new DataInfoDoubleArray("Pressure by Volume Change", Pressure.dimension(space.D()), new int[]{n});
+        dataInfo.addTag(tag);
         dataArray = data.getData();
         updateScale();
     }
@@ -149,6 +155,7 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
 
     private DataDoubleArray data;
     private DataInfo dataInfo;
+    private final Object tag;
     private double[] dataArray;
     private final PhaseInflate inflater;
     private Vector[] scale;

@@ -56,6 +56,8 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
         data = new DataDoubleArray(nValues);
         if(nValues < 2) nValues = 2;
         calculateX(nValues, xMin, xMax, typeMin, typeMax);
+        tag = new Object();
+        dataInfo.addTag(tag);
     }
     
     /**
@@ -87,6 +89,7 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
         if (nValues != data.getLength()) {
             data = new DataDoubleArray(new int[]{nValues});
             dataInfo = new DataInfoDoubleArray(dataInfo.getLabel(), dataInfo.getDimension(), new int[]{nValues});
+            dataInfo.addTag(tag);
         }
         x = data.getData();
         for(int i=0; i<nValues; i++) x[i] = x0 + i*dx;
@@ -101,6 +104,11 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
     public DataInfo getDataInfo() {
         return dataInfo;
     }
+    
+    public Object getTag() {
+        return tag;
+    }
+    
     /**
      * Returns the index of the x value closest to the argument.
      * @throws an IllegalArgumentException if the argument is outside the defined range.
@@ -128,61 +136,66 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
     /**
      * Accessor method for number of values.
      */
-     public int getNValues() {
-         return x.length;
-     }
+    public int getNValues() {
+        return x.length;
+    }
     
     /**
      * Mutator method for the left limit of the range.
      */
-     public void setXMin(double xMin) {
+    public void setXMin(double xMin) {
         calculateX(x.length, xMin, xMax, typeMin, typeMax);
-     }
-     /**
-      * Accessor method for the right limit of the range.
-      */
-      public double getXMax() {return xMax;}
+    }
+     
+    /**
+     * Accessor method for the right limit of the range.
+     */
+    public double getXMax() {return xMax;}
       
     /**
      * Mutator method for the right limit of the range.
      */
-     public void setXMax(double xMax) {
+    public void setXMax(double xMax) {
         calculateX(x.length, xMin, xMax, typeMin, typeMax);
-     }
-     /**
-      * Accessor method for the left limit of the range.
-      */
-      public double getXMin() {return xMin;}
+    }
      
-     /**
-      * Mutator method for the type of the left limit.
-      */
-      public void setTypeMin(LimitType typeMin) {
+    /**
+     * Accessor method for the left limit of the range.
+     */
+    public double getXMin() {return xMin;}
+     
+    /**
+     * Mutator method for the type of the left limit.
+     */
+    public void setTypeMin(LimitType typeMin) {
         calculateX(x.length, xMin, xMax, typeMin, typeMax);
-      }
-      /**
-       * Accessor method for the type of the left limit.
-       */
-      public LimitType getTypeMin() {return typeMin;}
-        
-     /**
-      * Mutator method for the type of the right limit.
-      */
-      public void setTypeMax(LimitType typeMax) {
-        calculateX(x.length, xMin, xMax, typeMin, typeMax);
-      }
+    }
       
-      /**
-       * Accessor method for the type of the right limit.
-       */
-      public LimitType getTypeMax() {return typeMax;}
+    /**
+     * Accessor method for the type of the left limit.
+     */
+    public LimitType getTypeMin() {return typeMin;}
+        
+    /**
+     * Mutator method for the type of the right limit.
+     */
+    public void setTypeMax(LimitType typeMax) {
+        calculateX(x.length, xMin, xMax, typeMin, typeMax);
+    }
+      
+    /**
+     * Accessor method for the type of the right limit.
+     */
+    public LimitType getTypeMax() {return typeMax;}
        
-      /**
-       * Returns the uniformly spaced values.
-        */
-      public Data getData() {return data;}
+    /**
+     * Returns the uniformly spaced values.
+     */
+    public Data getData() {
+        return data;
+    }
             
-	/**
+    /**
 	 * Typed constant that indicates the way limits of the range are interpreted.
 	 * Choices for the left and right limits may be made independently.<br>
 	 * <ul>
@@ -233,6 +246,7 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
     private DataDoubleArray data;
     private DataInfoDoubleArray dataInfo;
     private double dx;
+    protected final Object tag;
     
     /**
      * Main method to demonstrate and check class.

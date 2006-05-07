@@ -3,6 +3,7 @@ package etomica.data.types;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
+import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.units.Dimension;
 import etomica.util.Function;
 
@@ -183,7 +184,9 @@ public class DataDouble implements DataArithmetic, java.io.Serializable {
         }
         
         public DataInfo makeDataInfo() {
-            return new DataInfoDouble(label, dimension);
+            DataInfoDouble dataInfo = new DataInfoDouble(label, dimension);
+            dataInfo.addTags(tags.toArray());
+            return dataInfo;
         }
     }
 }

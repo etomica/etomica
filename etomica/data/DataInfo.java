@@ -1,5 +1,7 @@
 package etomica.data;
 
+import java.util.ArrayList;
+
 import etomica.units.Dimension;
 
 /**
@@ -37,6 +39,8 @@ public abstract class DataInfo implements java.io.Serializable {
     protected DataInfo(String label, Dimension dimension) {
         this.label = label;
         this.dimension = dimension;
+        tags = new ArrayList();
+        tagArray = new Object[0];
     }
 
     /**
@@ -62,8 +66,29 @@ public abstract class DataInfo implements java.io.Serializable {
         return label + " (" + dimension.toString() + ")";
     }
     
+    public void addTag(Object newTag) {
+        tags.add(newTag);
+    }
+    
+    public void addTags(Object[] newTags) {
+        for (int i=0; i<newTags.length; i++) {
+            tags.add(newTags[i]);
+        }
+    }
+    
+    public void clearTags() {
+        tags.clear();
+    }
+    
+    public Object[] getTags() {
+        tagArray = tags.toArray(tagArray);
+        return tagArray;
+    }
+    
     public abstract DataInfoFactory getFactory();
 
     private final String label;
     private final Dimension dimension;
+    private ArrayList tags;
+    private Object[] tagArray;
 }

@@ -39,6 +39,11 @@ public class CastToDouble extends DataProcessor {
     public CastToDouble() {
     }
 
+    public Object getTag() {
+        // we have no tag
+        return null;
+    }
+
     /**
      * Prepares processor to handle Data. Uses given DataInfo to determine the
      * type of Data to expect in subsequent calls to processData.
@@ -59,7 +64,10 @@ public class CastToDouble extends DataProcessor {
             throw new IllegalArgumentException("Cannot cast to double from "
                     + inputDataInfo.getClass());
         }
-        return new DataInfoDouble(inputDataInfo.getLabel(), inputDataInfo.getDimension());
+        
+        DataInfoDouble outputDataInfo = new DataInfoDouble(inputDataInfo.getLabel(), inputDataInfo.getDimension());
+        outputDataInfo.addTags(inputDataInfo.getTags());
+        return outputDataInfo;
     }
     
     /**
@@ -81,9 +89,11 @@ public class CastToDouble extends DataProcessor {
         case 0:
             return data;
         case 1:
+            //we don't add ourselves
             dataDouble.x = ((DataDoubleArray) data).getData()[0];
             return dataDouble;
         case 2:
+            //we don't add ourselves
             dataDouble.x = ((DataInteger) data).x;
             return dataDouble;
         case 3:

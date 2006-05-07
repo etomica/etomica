@@ -29,6 +29,8 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
         data = new DataGroup(new Data[0]);
         dataInfo = new DataInfoGroup("Data Group", Null.DIMENSION, new DataInfo[0]);
         dataSources = new DataSource[0];
+        tag = new Object();
+        dataInfo.addTag(tag);
     }
     
     /**
@@ -47,6 +49,10 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
     public DataInfo getDataInfo() {
         return dataInfo;
     }
+    
+    public Object getTag() {
+        return tag;
+    }
 
     /**
      * Returns a DataGroup that is formed from the Data objects returned by
@@ -58,13 +64,13 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
         //generate data from sources, check that all returned instances are the same as before
         //if a new data instance is given, make a new DataGroup that uses it instead of the previous data
         for(int i=0; i<dataSources.length; i++) {
-            latestData[i] = dataSources[i].getData();
             if(latestData[i] != data.getData(i)) {
                 rebuildData = true;
             }
         }
         if(rebuildData) {
             dataInfo = new DataInfoGroup("Data Group", Null.DIMENSION, getSubDataInfo());
+            dataInfo.addTag(tag);
             data = new DataGroup(latestData);
         }
         return data;
@@ -92,4 +98,5 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
     private Data[] latestData = new Data[0];
     private DataGroup data;
     private DataInfo dataInfo;
+    protected final Object tag;
 }

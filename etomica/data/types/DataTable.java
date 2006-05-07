@@ -5,6 +5,8 @@ import java.io.Serializable;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArrayFactory;
 import etomica.units.Null;
 import etomica.util.Arrays;
 import etomica.util.Function;
@@ -99,7 +101,7 @@ public class DataTable extends DataGroup implements DataArithmetic, Serializable
     public void E(Data otherData) {
         DataTable table = (DataTable) otherData;
         for (int i = 0; i < data.length; i++) {
-            ((DataDoubleArray)data[i]).E((DataDoubleArray)table.getData(i));
+            ((DataDoubleArray)data[i]).E(table.getData(i));
         }
     }
 
@@ -287,6 +289,20 @@ public class DataTable extends DataGroup implements DataArithmetic, Serializable
                 rowHeaders = (String[])template.rowHeaders.clone();
             }
             nRows = template.nRows;
+            columnInfoFactories = new DataInfoDoubleArrayFactory[template.subDataInfo.length];
+            for (int i=0; i<columnInfoFactories.length; i++) {
+                columnInfoFactories[i] = (DataInfoDoubleArrayFactory)template.subDataInfo[i].getFactory();
+            }
+        }
+        
+        public DataInfo makeDataInfo() {
+            DataInfoDoubleArray[] columnInfo = new DataInfoDoubleArray[columnInfoFactories.length];
+            for (int i=0; i<columnInfo.length; i++) {
+                columnInfo[i] = (DataInfoDoubleArray)columnInfoFactories[i].makeDataInfo();
+            }
+            DataInfoTable dataInfo = new DataInfoTable(label, columnInfo, nRows, rowHeaders);
+            dataInfo.addTags(tags.toArray());
+            return dataInfo;
         }
         
         /**
@@ -328,6 +344,21 @@ public class DataTable extends DataGroup implements DataArithmetic, Serializable
             }
         }
         
+        /**
+         * Returns a copy of the array of DataInfoFactories for the columns
+         */
+        public DataInfoDoubleArrayFactory[] getColumnInfoFactories() {
+            return (DataInfoDoubleArrayFactory[])columnInfoFactories.clone();
+        }
+        
+        /**
+         * Sets the DataInfoFactories for the columns
+         */
+        public void setColumnInfoFactories(DataInfoDoubleArrayFactory[] newColumnInfoFactories) {
+            columnInfoFactories = (DataInfoDoubleArrayFactory[])newColumnInfoFactories.clone();
+        }
+        
+        protected DataInfoDoubleArrayFactory[] columnInfoFactories;
         protected String[] rowHeaders;
         protected int nRows;
     }

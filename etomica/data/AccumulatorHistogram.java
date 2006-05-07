@@ -45,8 +45,13 @@ public class AccumulatorHistogram extends DataAccumulator {
     public AccumulatorHistogram(Histogram.Factory factory, int nBins) {
         this.nBins = nBins;
         histogramFactory = factory;
+        tag = new Object();
     }
 
+    public Object getTag() {
+        return tag;
+    }
+    
     /**
      * Adds each value in the given Data to its own histogram.
      */
@@ -80,7 +85,7 @@ public class AccumulatorHistogram extends DataAccumulator {
             // attempt to re-use old DataFunctions
             for (int i=0; i<nData; i++) {
                 DataFunction dataFunction = (DataFunction)data.getData(i);
-                DataInfoFunction dataInfoFunction = (DataInfoFunction)dataInfo.getSubDataInfo(i);
+                DataInfoFunction dataInfoFunction = (DataInfoFunction)((DataInfoGroup)dataInfo).getSubDataInfo(i);
                 if (dataFunction.getData() == histogram[i].getHistogram() &&
                         dataFunction.getXData(0).getData() == histogram[i].xValues()) {
                     dataFunctions[i] = dataFunction;
@@ -103,7 +108,7 @@ public class AccumulatorHistogram extends DataAccumulator {
                 dataSink.putDataInfo(dataInfo);
             }
         }
-            
+        
         return data;
     }
     
@@ -146,6 +151,7 @@ public class AccumulatorHistogram extends DataAccumulator {
         }
         data = new DataGroup(dataFunctions);
         dataInfo = new DataInfoGroup("Histogram", binnedDataInfo.getDimension(), dataInfoFunctions);
+        dataInfo.addTag(tag);
     }
     
     /**
@@ -190,12 +196,12 @@ public class AccumulatorHistogram extends DataAccumulator {
         return dataInfo;
     }
     
-    Histogram[] histogram = new Histogram[0];
+    protected Histogram[] histogram = new Histogram[0];
     private DataGroup data;
-    private DataInfoGroup dataInfo;
     private DataInfo binnedDataInfo;
-    int nData;
+    protected int nData;
     private Histogram.Factory histogramFactory;
     private int nBins;
+    protected final Object tag;
 
 }

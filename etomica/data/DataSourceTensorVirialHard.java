@@ -23,6 +23,8 @@ public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, I
         dataInfo = new DataInfoTensor("PV/NkT", Null.DIMENSION, space);
         timer = new DataSourceCountTime();
         work = space.makeTensor();
+        tag = new Object();
+        dataInfo.addTag(tag);
     }
     
     public DataSourceTensorVirialHard(Space space, IntegratorHard integrator) {
@@ -37,6 +39,10 @@ public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, I
     
     public DataInfo getDataInfo() {
         return dataInfo;
+    }
+    
+    public Object getTag() {
+        return tag;
     }
     
     /**
@@ -111,4 +117,5 @@ public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, I
     private final DataTensor data;
     private final Tensor work;
     private final DataInfoTensor dataInfo;
+    protected final Object tag;
 }

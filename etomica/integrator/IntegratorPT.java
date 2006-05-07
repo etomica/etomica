@@ -111,18 +111,19 @@ public class IntegratorPT extends IntegratorManagerMC implements EtomicaElement 
      */
     public static class PhaseTracker implements DataSource, MCMoveListener, java.io.Serializable {
         
-        private int[] track;
-        private double[] dtrack;
-        private DataDoubleArray data;
-        private DataInfoDoubleArray dataInfo;
-        
         public PhaseTracker() {
             data = new DataDoubleArray(0);
             dataInfo = new DataInfoDoubleArray("Phase Tracker", Null.DIMENSION, new int[]{0});
+            tag = new Object();
+            dataInfo.addTag(tag);
         }
         
         public DataInfo getDataInfo() {
             return dataInfo;
+        }
+        
+        public Object getTag() {
+            return tag;
         }
         
         /**
@@ -167,6 +168,11 @@ public class IntegratorPT extends IntegratorManagerMC implements EtomicaElement 
             return track.length;
         }
         
+        private int[] track;
+        private double[] dtrack;
+        private DataDoubleArray data;
+        private DataInfoDoubleArray dataInfo;
+        private final Object tag;
     }
     
 }

@@ -4,6 +4,7 @@ import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
 import etomica.data.types.DataArithmetic.DataInfoArithmetic;
+import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.units.Dimension;
 
 
@@ -85,7 +86,9 @@ public class DataInteger implements Data, java.io.Serializable {
         }
         
         public DataInfo makeDataInfo() {
-            return new DataInfoInteger(label, dimension);
+            DataInfoInteger dataInfo = new DataInfoInteger(label, dimension);
+            dataInfo.addTags(tags.toArray());
+            return dataInfo;
         }
     }
 }

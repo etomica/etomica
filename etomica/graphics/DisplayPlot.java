@@ -1,5 +1,7 @@
 package etomica.graphics;
 import java.io.Serializable;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 import ptolemy.plot.Plot;
 import etomica.EtomicaElement;
@@ -53,6 +55,7 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
         panel.add(plot);
         setName("Data Plot");
         units = new Unit[0];
+        labelList = new LinkedList();
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -141,8 +144,57 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
         doLegend = b;
         for(int i=0; i<dataSet.getDataCount(); i++) {
             plot.removeLegend(i);
-            plot.addLegend(i,b ? dataSet.getDataInfo(i).getLabel() : "");
+            if (b) {
+                Iterator iterator = labelList.iterator();
+                String dataLabel = dataSet.getDataInfo(i).getLabel();
+                Object[] thisDataTags = dataSet.getDataInfo(i).getTags();
+                while (iterator.hasNext()) {
+                    DataTagLabel tagLabel = (DataTagLabel)iterator.next();
+                    Object[] tags = tagLabel.tags;
+                    boolean found = true;
+                    for (int j=0; j<tags.length; j++) {
+                        found = false;
+                        for (int k=0; k<thisDataTags.length; k++) {
+                            if (thisDataTags[k] == tags[j]) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            break;
+                        }
+                    }
+                    if (found) {
+                        dataLabel = tagLabel.label;
+                    }
+                }
+                plot.addLegend(i, dataLabel);
+            }
         }
+    }
+    
+    protected Data getDataFromSet(Object[] tags) {
+        for(int i=0; i<dataSet.getDataCount(); i++) {
+            Data thisData = dataSet.getData(i);
+            Object[] thisDataTags = dataSet.getDataInfo(i).getTags();
+            boolean found = true;
+            for (int j=0; j<tags.length; j++) {
+                found = false;
+                for (int k=0; k<thisDataTags.length; k++) {
+                    if (thisDataTags[k] == tags[j]) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    break;
+                }
+            }
+            if (found) {
+                return thisData;
+            }
+        }
+        return null;
     }
     
     /**
@@ -150,6 +202,11 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
      * Default is true.
      */
     public boolean isDoLegend() {return doLegend;}
+    
+    public void setLegend(Object[] dataTags, String label) {
+        labelList.add(new DataTagLabel(dataTags, label));
+        
+    }
     
     /**
      * Accessor method to plot class so that its properties can be edited.
@@ -209,6 +266,16 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
     private Unit xUnit = Null.UNIT;
     private Unit[] units;
     private Unit defaultUnit;
+    private LinkedList labelList;
+    
+    protected static class DataTagLabel {
+        public DataTagLabel(Object[] tags, String label) {
+            this.tags = (Object[])tags.clone();
+            this.label = label;
+        }
+        public final Object[] tags;
+        public final String label;
+    }
     
     protected static class DataCasterJudgeFunction implements DataCasterJudge, Serializable {
 
