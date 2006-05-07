@@ -153,6 +153,20 @@ public class DataGroup implements Data, java.io.Serializable {
             return subDataInfo[i];
         }
         
+        public void addTags(Object[] newTags) {
+            super.addTags(newTags);
+            for (int i=0; i<subDataInfo.length; i++) {
+                subDataInfo[i].addTags(newTags);
+            }
+        }
+        
+        public void addTag(Object newTag) {
+            super.addTag(newTag);
+            for (int i=0; i<subDataInfo.length; i++) {
+                subDataInfo[i].addTag(newTag);
+            }
+        }
+        
         protected final DataInfo[] subDataInfo;
     }
     
