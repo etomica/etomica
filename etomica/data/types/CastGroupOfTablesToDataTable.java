@@ -66,6 +66,7 @@ public class CastGroupOfTablesToDataTable extends DataProcessor {
         DataInfoDoubleArray[] columnDataInfo = new DataInfoDoubleArray[0];
         int nColumns = 0;
         int nRows = -1;
+        String[] rowHeaders = null;
         for (int i = 0; i<((DataInfoGroup)inputDataInfo).getNDataInfo(); i++) {
             DataInfoTable elementDataInfo = (DataInfoTable)((DataInfoGroup)inputDataInfo).getSubDataInfo(i);
             columnDataInfo = (DataInfoDoubleArray[])Arrays.resizeArray(columnDataInfo, nColumns+elementDataInfo.getNDataInfo());
@@ -77,11 +78,17 @@ public class CastGroupOfTablesToDataTable extends DataProcessor {
                 throw new IllegalArgumentException("all columns must have an equal number of rows");
             }
             nRows = elementDataInfo.getNRows();
+            if (rowHeaders == null && elementDataInfo.hasRowHeaders()) {
+                rowHeaders = new String[nRows];
+                for (int j=0; j<nRows; j++) {
+                    rowHeaders[j] = elementDataInfo.getRowHeader(j);
+                }
+            }
         }
         
         outputData = null;
         
-        outputDataInfo = new DataInfoTable(inputDataInfo.getLabel(), columnDataInfo, nRows, null);
+        outputDataInfo = new DataInfoTable(inputDataInfo.getLabel(), columnDataInfo, nRows, rowHeaders);
         return outputDataInfo;
     }
     

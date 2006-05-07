@@ -270,12 +270,26 @@ public class DataTable extends DataGroup implements DataArithmetic, Serializable
             return new DataInfoTableFactory(this);
         }
         
+        /**
+         * Returns the number of rows in the table
+         */
         public int getNRows() {
             return nRows;
         }
-        
+
+        /**
+         * Returns the row header for row i or an empty string if there are no
+         * row headers.
+         */
         public String getRowHeader(int i) {
             return rowHeaders == null ? "" : rowHeaders[i];
+        }
+
+        /**
+         * Returns true if row headers exist.
+         */
+        public boolean hasRowHeaders() {
+            return rowHeaders != null;
         }
         
         protected final String[] rowHeaders;
