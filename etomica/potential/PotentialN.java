@@ -20,7 +20,11 @@ public abstract class PotentialN extends Potential {
 	 * Constructor for PotentialN.
 	 * @param sim
 	 */
-	public PotentialN(int nBody, Space space) {
+	public PotentialN(Space space){
+		this(space, Integer.MAX_VALUE);
+	}
+	
+	public PotentialN(Space space, int nBody) {
 		super(nBody, space);
 	}
 

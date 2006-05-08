@@ -89,7 +89,7 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
     }
     
     public int nBody() {
-        return next.count();
+        return Integer.MAX_VALUE;
     }
     
     public void allAtoms(AtomsetAction action) {
