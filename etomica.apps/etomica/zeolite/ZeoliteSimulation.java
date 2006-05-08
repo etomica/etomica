@@ -1,4 +1,4 @@
-package testing;
+package etomica.zeolite;
 
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;

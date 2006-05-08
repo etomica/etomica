@@ -1,4 +1,4 @@
-package testing;
+package etomica.zeolite;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

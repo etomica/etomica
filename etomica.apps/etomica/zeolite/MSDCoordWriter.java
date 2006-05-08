@@ -1,4 +1,4 @@
-package testing;
+package etomica.zeolite;
 
 import java.io.FileWriter;
 import java.io.IOException;
