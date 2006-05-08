@@ -1,19 +1,23 @@
-package etomica.zeolite;
+package testing;
 
 import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.atom.iterator.AtomIteratorMolecule;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
+import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.space.Vector;
-
+import etomica.species.Species;
+import etomica.units.*;
+import etomica.data.meter.MeterTemperature;
 /* =====SUMMARY======
  * At each 'writeInterval', which corresponds to a certain number of simulation steps,
  * every atom's absolute distance traveled is written to a file of the name 'fileName'.
@@ -49,12 +53,15 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 	
 	private int nAtomsMeth;
 	private int totalAtoms;
-	public MSDCoordWriter(Space space, String fileName){
+	private Integrator integrate;
+	private MeterTemperature meter;
+	private double offset;
+	
+	public MSDCoordWriter(Space space, String fileName,Species[] species){
 		// Creates an instance of subclass AfterPBC
-		afterPBCinstance = new AfterPBC(space);
-		
+		afterPBCinstance = new AfterPBC(space,species);
+		iterator = new AtomIteratorMolecule(species);
 		this.fileName = fileName;
-		iterator = new AtomIteratorLeafAtoms();
 		setWriteInterval(1);
 		nAtomsMeth = 0;
 		counter = 0;
@@ -66,13 +73,16 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 		iterator.setPhase(phase);
 		afterPBCinstance.setPhase(phase);
 		totalAtoms = phase.atomCount();
+		meter = new MeterTemperature();
+		meter.setPhase(phase);
 	}
 	
 	public void setNatoms(int natoms){
 		nAtomsMeth = natoms;
+		offset = totalAtoms/nAtomsMeth;
 	}
 	public void setIntegrator(Integrator integrator){
-		
+		integrate = integrator;
 		integrator.addListener(this);
 		integrator.addListener(afterPBCinstance);
 	}
@@ -108,16 +118,18 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 	}
 	
 	public void intervalAction(IntegratorIntervalEvent evt) {
-		System.out.println(counter);
-		counter++;
+		//System.out.println(counter);
+		//counter++;
 		afterPBCinstance.updateAtomOldCoord();
 		if (--intervalCount == 0){
-			//counter++;
-			//System.out.println((counter*100*writeInterval/2000.0)+"%");
+			counter++;
+			System.out.println((counter*100*writeInterval/2000000.0)+"%");
 			Vector phasedim = phase.getBoundary().getDimensions();
 			// Gets atomPBIarray from AfterPBC subclass, through the subclass instance
 			int [][] atomPBIarray = afterPBCinstance.getAtomPBIarray();
+			double temp = Kelvin.UNIT.fromSim(meter.getDataAsScalar()*offset);
 			try {
+				fileWriter.write(temp+"\n");
 				iterator.reset();
 				int i=0;
 				while (iterator.hasNext()){
@@ -163,7 +175,8 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 
 	private AfterPBC afterPBCinstance;
 	private Phase phase;
-	private AtomIteratorLeafAtoms iterator;
+	//private AtomIteratorLeafAtoms iterator;
+	private AtomIteratorMolecule iterator;
 	private int writeInterval;
 	private int intervalCount;
 	private String fileName;
@@ -176,9 +189,9 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 	
 	private static class AfterPBC implements IntegratorIntervalListener{
 		
-		public AfterPBC(Space space){
+		public AfterPBC(Space space,Species[] species){
 			workVector = space.makeVector();
-			iterator = new AtomIteratorLeafAtoms();
+			iterator = new AtomIteratorMolecule(species);
 		}
 		
 		// Method called in main class (see above)
@@ -239,8 +252,8 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 		private int [][] atomPBIarray;
 		private Vector workVector;
 		private Vector [] atomOldCoord;
-		private AtomIteratorLeafAtoms iterator;
-		
+		//private AtomIteratorLeafAtoms iterator;
+		private AtomIteratorMolecule iterator;
 	}
 	
 }

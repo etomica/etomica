@@ -1,4 +1,4 @@
-package etomica.zeolite;
+package testing;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -18,6 +18,7 @@ public class MSDProcessor {
         msdInput = inputFile;
         try {
             fileReader = new FileReader(inputFile);
+            System.out.println("Successivly opened inputFile");
         }
         catch(IOException e) {
             throw new RuntimeException("Cannot open "+inputFile+", caught IOException: " + e.getMessage());
@@ -25,7 +26,7 @@ public class MSDProcessor {
 		
         try {
             buffReader = new BufferedReader(fileReader);
-            numAtoms = Integer.parseInt(buffReader.readLine());
+            numAtoms = Integer.parseInt(buffReader.readLine())+1;
         } catch(IOException e) {
             throw new RuntimeException("Problem reading "+inputFile+", caught IOException: " + e.getMessage());
         }
@@ -42,7 +43,7 @@ public class MSDProcessor {
             
             numBlocks = numLines/numAtoms;
             deltaTmax = numBlocks/3;
-                        
+            System.out.println("NumBlocks = "+numBlocks);            
         } catch(IOException e) {
             throw new RuntimeException("Problem reading "+inputFile+", caught IOException: " + e.getMessage());
         }
@@ -78,17 +79,22 @@ public class MSDProcessor {
         double[] totalRsquared = new double[deltaTmax];  
         double[] RsquaredComp = new double[3];
         double[][] RsquaredTotal = new double[numBlocks-1][3];
+        double[] Temperature = new double[numBlocks-1];
         //Fills Block1 and 2, subtracts, and fills totalRsquared.  Repeat.
         for (int i=1; i<numBlocks; i++){
-            try{
+            System.out.println("Solving for iteration "+i);
+        	try{
             	fileReader = new FileReader(msdInput);
             	buffReader = new BufferedReader(fileReader);
             //Gets buffReader to start of block 1 in question
             for (int j=0; j<(i-1)*numAtoms+1; j++){
                 buffReader.readLine();
             }
+            double temp = Double.valueOf(buffReader.readLine()).doubleValue();
+            Temperature[i-1]=temp;
+            //Get temperature
             //Block 1 Loop - Adds XYZ lines from block 1
-            for (int k=0; k<numAtoms; k++){
+            for (int k=0; k<numAtoms-1; k++){
                 String positionLine = buffReader.readLine();
                 String[] coordString = positionLine.split("\t");
                 for (int l=0; l<coordString.length; l++) {
@@ -98,9 +104,10 @@ public class MSDProcessor {
             }
             //Block 2 Loop - Restricts number of block pairs subtracted
             for (int deltaT=1; deltaT<deltaTmax+1; deltaT++){
-                
+                //Get rid of temperature in this block
+            	buffReader.readLine();
                 //Block 2 Loop - Adds XYZ lines from block 2
-                for (int iatom=0; iatom<numAtoms; iatom++){
+                for (int iatom=0; iatom<numAtoms-1; iatom++){
                     String positionLine = buffReader.readLine();
                     String [] coordString = positionLine.split("\t");
                
@@ -133,7 +140,7 @@ public class MSDProcessor {
          * deltaT
          */
         for (int ideltaT=0; ideltaT<deltaTmax; ideltaT++){
-            totalRsquared[ideltaT] /= (numAtoms*(numBlocks-ideltaT+1));
+            totalRsquared[ideltaT] /= ((numAtoms-1)*(numBlocks-ideltaT+1));
             for(int j=0;j<3;j++){
             	RsquaredTotal[ideltaT][j] /= methane;
             }
@@ -141,9 +148,14 @@ public class MSDProcessor {
         
         //Writes totalRsquared to file
         try{
+        	System.out.println("Created new output file");
             fileWriter = new FileWriter(msdOutput, false);
-            fileWriter.write(numAtoms+"\n");
+            fileWriter.write((numAtoms-1)+"\n");
             fileWriter.write(numBlocks+"\n");
+            fileWriter.write("Temperatures\n");
+            for(int i = 0;i<numBlocks-1;i++){
+            	fileWriter.write(Temperature[i]+"\n");
+            }
         
             for (int irow=0; irow<deltaTmax; irow++){
                 fileWriter.write(irow+"\t"+totalRsquared[irow]+"\n");

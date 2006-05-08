@@ -1,4 +1,4 @@
-package etomica.zeolite;
+package testing;
 
 import etomica.config.Configuration;
 import java.io.BufferedReader;
@@ -69,7 +69,7 @@ public class ConfigurationFileXYZ extends Configuration{
 	        while(atomIterator.hasNext()){
 	        	Atom molecule = atomIterator.nextAtom();
 	        	if(molecule.node.isLeaf()){
-	        		translatePosition((AtomLeaf)molecule);
+	        		//translatePosition((AtomLeaf)molecule);
 	        	}	
 	        }
 	        
@@ -124,12 +124,9 @@ public class ConfigurationFileXYZ extends Configuration{
 			updatedDimensions = space.makeVector();
 			updatedDimensions.E(dim);
 			
-			updatedDimensions.TE(0,1.02);
-			updatedDimensions.TE(1,1.02);
-			updatedDimensions.TE(2,1.02);
-			
-			//for(int i=0;i<dim.length;i++){
-				//System.out.println("dim # " +i+" is "+dim[i]);}
+			updatedDimensions.TE(0,1.01);
+			updatedDimensions.TE(1,1.01);
+			updatedDimensions.TE(2,1.01);
 			return updatedDimensions;
 		}
 		

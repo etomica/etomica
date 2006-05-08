@@ -1,5 +1,4 @@
-package etomica.zeolite;
-
+package testing;
 
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
@@ -14,12 +13,16 @@ import etomica.config.ConfigurationLattice;
 import etomica.config.ConfigurationSequential;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceNSelector;
+import etomica.graphics.DisplayBox;
+import etomica.graphics.DisplayBoxesCAE;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.CriterionSimple;
+import etomica.nbr.CriterionSpecies;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
@@ -34,10 +37,20 @@ import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.Default;
 import etomica.config.ConfigurationFile;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorHistory;
+import etomica.data.DataFork;
+import etomica.data.DataPump;
+import etomica.data.DataSink;
+import etomica.data.meter.MeterEnergy;
+import etomica.data.meter.MeterKineticEnergy;
+import etomica.data.meter.MeterTemperature;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2WCA;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
+import etomica.units.Energy;
+import etomica.units.Bar;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space.BoundaryRectangularPeriodic;
 
@@ -80,7 +93,8 @@ public class ZeoliteSimulation extends Simulation {
     //public final P2HardSphere potential;
     public final P2LennardJones potentialMM;
     private int nAtomsMeth;
-    
+    private AccumulatorAverage temperatureAvg;
+    private AccumulatorAverage keAvg;
     /**
      * Sole public constructor, makes a simulation using a 3D space.
      */
@@ -110,14 +124,13 @@ public class ZeoliteSimulation extends Simulation {
         int[] numAtoms = config.getNumAtoms();
       
         nAtomsMeth = numAtoms[numAtoms.length - 1];
-        System.out.println(nAtomsMeth);
-        //int numAtoms = 144;
-        double neighborRangeFac = 1.6;
+        double neighborRangeFac = 1.2;
         defaults.makeLJDefaults();
         defaults.timeStep = 0.01;
         defaults.atomMass = 16;
         defaults.pixelUnit = new Pixel(10);
-        defaults.temperature = Kelvin.UNIT.toSim(298.);
+        defaults.temperature = Kelvin.UNIT.toSim(298.0);
+        defaults.pressure = Bar.UNIT.toSim(10);
         //Setting sizes of molecules
         double[] atomicSize = new double[3];
         atomicSize[0] = 0.73;
@@ -125,23 +138,27 @@ public class ZeoliteSimulation extends Simulation {
         atomicSize[2] = 2.088;
         
         
-        //defaults.atomMass = Double.POSITIVE_INFINITY;
-        //defaults.boxSize = 14.4573*Math.pow((numAtoms/2020.0),1.0/3.0);
-        ((PotentialMasterList)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
-
+        double range = 8.035;
+        ((PotentialMasterList)potentialMaster).setRange(3.214*neighborRangeFac*2.5);
+        
+        
         integrator = new IntegratorVelocityVerlet(this);
         integrator.setIsothermal(true);
+        integrator.setThermostatInterval(10);
         integrator.setTimeStep(0.00611);
         this.register(integrator);
-
+        
+        
+        
+        
         NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager();
-        nbrManager.setRange(defaults.atomSize*1.6);
+        //nbrManager.setRange(range*1.6);
         nbrManager.getPbcEnforcer().setApplyToMolecules(false);
         integrator.addListener(nbrManager);
 
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setDoSleep(true);
-        activityIntegrate.setSleepPeriod(10);
+        activityIntegrate.setSleepPeriod(2);
         activityIntegrate.setMaxSteps(500);
         getController().addAction(activityIntegrate);
         
@@ -154,99 +171,64 @@ public class ZeoliteSimulation extends Simulation {
         	((etomica.atom.AtomTypeLeaf)species[i].getFactory().getType()).setMass(Double.POSITIVE_INFINITY);
         	}
         }
-        
-//        Crystal crystal = new LatticeCubicFcc(space);
-//        ConfigurationLattice configuration = new ConfigurationLattice(space, crystal);
-//        phase.setConfiguration(configuration);
-        
-        
-         //Update
-         //Setting up potential for Methane-Methane interactions
-        potentialMM = new P2LennardJones(this);
-        //Setting sigma and epsilon (from J. Chem. Soc Faraday Trans 1991
-        potentialMM.setEpsilon(Kelvin.UNIT.toSim(147.95));
-        potentialMM.setSigma(3.0);
-        double truncRadiusMM = 3.0*potentialMM.getSigma();
-        //Setting up potential for Methane-Oxygen interactions
-        P2LennardJones potentialMO = new P2LennardJones(this);
-        //Setting sigma and epsilon 
-        potentialMO.setEpsilon(Kelvin.UNIT.toSim(133.3));
-        potentialMO.setSigma(3.214);
-        double truncRadiusMO = 3.0*potentialMO.getSigma();
-        //System.out.println(potentialMO.getRange()+" range");
-        P2SoftSphericalTruncated potentialTruncMO = new P2SoftSphericalTruncated(potentialMO,truncRadiusMO);
-        P2SoftSphericalTruncated potentialTruncMM = new P2SoftSphericalTruncated(potentialMM,truncRadiusMM);
-         potentialMaster.addPotential(potentialTruncMM,new Species[]{species[2],species[2]});
-        potentialMaster.addPotential(potentialTruncMO,new Species[]{species[0],species[2]});
-         
-        
-        /*
+
         //Setting up potential for Methane-Methane interactions
         potentialMM = new P2LennardJones(this);
         //Setting sigma and epsilon (from J. Chem. Soc Faraday Trans 1991
         potentialMM.setEpsilon(Kelvin.UNIT.toSim(147.95));
+        //potentialMM.setEpsilon(1);
         potentialMM.setSigma(3.0);
         //Setting up potential for Methane-Oxygen interactions
         P2LennardJones potentialMO = new P2LennardJones(this);
         //Setting sigma and epsilon 
         potentialMO.setEpsilon(Kelvin.UNIT.toSim(133.3));
+        //potentialMO.setEpsilon(100);
         potentialMO.setSigma(3.214);
-        //System.out.println(potentialMO.getRange()+" range");
-        
         
         //Setting up Methane - Silicon interactions
-        //P2WCA potentialMS = new P2WCA(this);
+        P2LennardJones potentialMS = potentialMO;
         
-        NeighborCriterion criterionMM = new CriterionSimple(this,potentialMM.getRange(),neighborRangeFac*potentialMM.getRange());
-        NeighborCriterion criterionMO = new CriterionSimple(this,potentialMO.getRange(),neighborRangeFac*potentialMO.getRange());
-        //NeighborCriterion criterionMS = new CriterionSimple(this,potentialMS.getRange(),neighborRangeFac*potentialMS.getRange());
-        potentialMM.setCriterion(criterionMM);
-        potentialMO.setCriterion(criterionMO);
-        //potentialMS.setCriterion(criterionMS);
-        potentialMaster.addPotential(potentialMM,new Species[]{species[2],species[2]});
-        potentialMaster.addPotential(potentialMO,new Species[]{species[0],species[2]});
-        //potentialMaster.addPotential(potentialMS,new Species[]{species[1],species[2]});
-        nbrManager.addCriterion(criterionMM,new AtomType[]{species[2].getFactory().getType()});
-        nbrManager.addCriterion(criterionMO,new AtomType[]{species[0].getFactory().getType(),species[2].getFactory().getType()});
-        //nbrManager.addCriterion(criterionMS,new AtomType[]{species[1].getFactory().getType(),species[2].getFactory().getType()});
-        */
-        /*
-        for(int i=0;i<numAtoms.length;i++){
-        	//potentialMaster.addPotential(potential,new Species[]{species[i],species[i]});
-        	potentialMaster.addPotential(potential,new Species[]{species[i],species[numAtoms.length-1]});
-        	nbrManager.addCriterion(criterion,new AtomType[]{species[i].getFactory().getType()});
-        }
-        */
         
+        //Wrap LJ potentials to truncate
+        P2SoftSphericalTruncated MM = new P2SoftSphericalTruncated(potentialMM,2.5*potentialMM.getSigma());
+        P2SoftSphericalTruncated MO = new P2SoftSphericalTruncated(potentialMO,2.5*potentialMO.getSigma());
+        P2SoftSphericalTruncated MS = new P2SoftSphericalTruncated(potentialMS,2.5*potentialMS.getSigma());
+        
+        
+        NeighborCriterion criterionMM = new CriterionSpecies(new CriterionSimple(this,MM.getRange(), MM.getRange()*neighborRangeFac*4), species[2], species[2]);
+        NeighborCriterion criterionMO = new CriterionSpecies(new CriterionSimple(this,MO.getRange(), MO.getRange()*neighborRangeFac*4), species[0], species[2]);
+        NeighborCriterion criterionMS = new CriterionSpecies(new CriterionSimple(this,MS.getRange(), MS.getRange()*neighborRangeFac*4), species[1], species[2]);
+        
+        MM.setCriterion(criterionMM);
+        MO.setCriterion(criterionMO);
+        MS.setCriterion(criterionMS);
+        
+        
+        potentialMaster.addPotential(MM,new Species[]{species[2],species[2]});
+        potentialMaster.addPotential(MO,new Species[]{species[0],species[2]});
+        potentialMaster.addPotential(MS,new Species[]{species[1],species[2]});
         
         phase = new Phase(this);
-        //new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);
-        //String testing = "pbu";
-        //new ConfigurationFile(this.space, testing).initializeCoordinates(phase);
         //Initializes the coordinates and positions
         config.initializeCoordinates(phase);
-        //updates the phase boundary dimensions
-        //BoundaryRectangularSlit boundary = new BoundaryRectangularSlit(this);
-        //boundary.setSlitDim(1);
-        //BoundaryRectangularPeriodic boundary = new BoundaryRectangularPeriodic(this);
-        
-        //phase.setBoundary(boundary);
         phase.getBoundary().setDimensions(config.getUpdatedDimensions());
         integrator.setPhase(phase);
-        integrator.addListener(new PhaseImposePbc(phase));
-        //integrator.addIntervalListener(new PhaseImposePbc(phase));
-      
+        //integrator.addListener(new PhaseImposePbc(phase));
+          
         //PARAMETERS For Simulation Run
-        activityIntegrate.setMaxSteps(300000);
-        double ts = 0.00611;
+        //activityIntegrate.setMaxSteps(5000000);
+        activityIntegrate.setMaxSteps(2000000);
+        double ts = 0.001;
         integrator.setTimeStep(ts);
-        int interval = 500;
-        
+        int interval = 2000;
+        integrator.setThermostatInterval(10*interval);
         
         //      Adding coordinate writer by Mike Sellars
      
         filename = (numAtoms[2]+"_"+activityIntegrate.getMaxSteps()+"_"+ts+"_"+interval);
-        MSDCoordWriter coordWriter = new MSDCoordWriter(this.space, filename);
+        Species[] sp = new Species[1];
+        sp[0] = (Species)species[2];
+        MSDCoordWriter coordWriter = new MSDCoordWriter(this.space, filename,sp);
         coordWriter.setPhase(this.phase);
         coordWriter.setNatoms(numAtoms[2]);
         coordWriter.setIntegrator(integrator);
@@ -307,11 +289,27 @@ public class ZeoliteSimulation extends Simulation {
         Default defaults = new Default();
         defaults.doSleep = true;
         defaults.ignoreOverlap = true;
+        //defaults.temperature = Kelvin.UNIT.toSim(298.0);
         ZeoliteSimulation sim = new ZeoliteSimulation(defaults);
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
         int num = sim.species.length;
         DeviceNSelector nSelector = new DeviceNSelector(sim,sim.phase.getAgent(sim.species[num-1]));
         simGraphic.add(nSelector);
+        /*
+        DisplayBoxesCAE tBox = new DisplayBoxesCAE();
+        tBox.setLabel("Temperature (K)");
+        tBox.setLabelType(DisplayBox.LabelType.BORDER);
+        tBox.setAccumulator(sim.temperatureAvg);
+        tBox.setUnit(Kelvin.UNIT);
+        simGraphic.add(tBox);
+        DisplayBoxesCAE keBox = new DisplayBoxesCAE();
+        keBox.setLabel("Kinetic Energy");
+        keBox.setLabelType(DisplayBox.LabelType.BORDER);
+        keBox.setAccumulator(sim.keAvg);
+        keBox.setUnit(Energy.SIM_UNIT);
+        simGraphic.add(keBox);
+        */
+        
         simGraphic.makeAndDisplayFrame();
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
         for(int i=0;i<sim.species.length;i++){
@@ -328,6 +326,7 @@ public class ZeoliteSimulation extends Simulation {
         	
         }
         simGraphic.panel().setBackground(java.awt.Color.yellow);
+        System.out.println("Temperatuer "+Kelvin.UNIT.fromSim(sim.integrator.getTemperature()));
     }//end of main
 
 }//end of class
