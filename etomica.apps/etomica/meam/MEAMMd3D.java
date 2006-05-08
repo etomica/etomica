@@ -95,6 +95,7 @@ public class MEAMMd3D extends Simulation {
     public MEAMPInitial pseudoPotential1;
     public MEAMP2 pseudoPotential2;
     public MEAMPMany potential;
+    public PotentialMEAM potentialN;
     public Controller controller;
     public DisplayPhase display;
     public DisplayPlot plot;
@@ -155,7 +156,7 @@ public class MEAMMd3D extends Simulation {
         //closest neighbors: 3.02 Angstroms.
         ((AtomTypeSphere)species.getFactory().getType()).setDiameter(3.022); 
         // This forces the MEAMP2 to request an agentIndex from Atom.
-        pseudoPotential2 = new MEAMP2(this, ParameterSetMEAM.Sn);
+        //pseudoPotential2 = new MEAMP2(this, ParameterSetMEAM.Sn);
         phase = new Phase(this);
         //The dimensions of the simulation box must be proportional to those of
         //the unit cell to prevent distortion of the lattice.  The values for the 
@@ -168,12 +169,16 @@ public class MEAMMd3D extends Simulation {
         Configuration config = new ConfigurationLattice(crystal);
 //        phase.setConfiguration(config);  // kmb remove 8/3/05
         config.initializeCoordinates(phase);  // kmb added 8/3/05
-        pseudoPotential1 = new MEAMPInitial(space, pseudoPotential2.getPhaseAgentManager());
-        potential = new MEAMPMany(space, ParameterSetMEAM.Sn, pseudoPotential2.getPhaseAgentManager());
-        this.potentialMaster.addPotential(potential, new Species[]{species});
-        this.potentialMaster.addPotential(pseudoPotential2, new Species[]{species,species});
-        this.potentialMaster.addPotential(pseudoPotential1, new Species[]{species});    
+        //pseudoPotential1 = new MEAMPInitial(space, pseudoPotential2.getPhaseAgentManager());
+        //potential = new MEAMPMany(space, ParameterSetMEAM.Sn, pseudoPotential2.getPhaseAgentManager());
+        //this.potentialMaster.addPotential(potential, new Species[]{species});
+        //this.potentialMaster.addPotential(pseudoPotential2, new Species[]{species,species});
+        //this.potentialMaster.addPotential(pseudoPotential1, new Species[]{species});    
 
+        //N-body potential
+        potentialN = new PotentialMEAM (space, ParameterSetMEAM.Sn);
+        this.potentialMaster.addPotential(potentialN, new Species[]{species});    
+        
         integrator.setPhase(phase);
         PhaseImposePbc imposepbc = new PhaseImposePbc();
         imposepbc.setPhase(phase);
