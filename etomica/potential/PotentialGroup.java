@@ -35,7 +35,7 @@ public class PotentialGroup extends Potential {
      * This constructor should only be called by the PotentialMaster.  Use 
      * potentialMaster.makePotentialGroup method to create PotentialGroups.
      */
-    protected PotentialGroup(int nBody, Space space) {
+    public PotentialGroup(int nBody, Space space) {
         super(nBody, space);
     }
     
