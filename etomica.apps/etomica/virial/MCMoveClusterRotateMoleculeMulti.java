@@ -86,9 +86,9 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
                 relaxAction.actionPerformed();
             }
         }
-            
-        uNew = weightMeter.getDataAsScalar();
+
         ((PhaseCluster)phase).trialNotify();
+        uNew = weightMeter.getDataAsScalar();
         return true;
     }
     
