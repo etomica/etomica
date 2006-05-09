@@ -42,7 +42,7 @@ public class MCMoveStepTracker extends MCMoveTracker {
                 }
                 stepSize *= 1.0+adjustStep;
                 if (noisyAdjustment) {
-                    System.out.println(this.getClass()+" increasing step size to "+stepSize+" (acceptance="+(double)nAccept/nTrials+")");
+                    System.out.println(mcMove.getClass()+" increasing step size to "+stepSize+" (acceptance="+(double)nAccept/nTrials+")");
                 }
                 lastAdjust = 1;
             }
@@ -55,7 +55,7 @@ public class MCMoveStepTracker extends MCMoveTracker {
                 }
                 stepSize *= 1.0-adjustStep;
                 if (noisyAdjustment) {
-                    System.out.println(this.getClass()+" decreasing step size to "+stepSize+" (acceptance="+(double)nAccept/nTrials+")");
+                    System.out.println(mcMove.getClass()+" decreasing step size to "+stepSize+" (acceptance="+(double)nAccept/nTrials+")");
                 }
                 lastAdjust = -1;
             }
