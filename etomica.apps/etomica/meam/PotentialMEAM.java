@@ -28,6 +28,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	public PotentialMEAM(Space space, ParameterSetMEAM p) {
 		super(space);
         this.p = p;
+        gradEi[0] = (Vector3D)space.makeVector();
     }
 
 	/* (non-Javadoc)
@@ -97,8 +98,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         double z = unitVector.x(2);
        
         sumRhoj1x += rhoj1 * x;
-        sumRhoj1y = rhoj1 * y;
-        sumRhoj1z = rhoj1 * z;  	
+        sumRhoj1y += rhoj1 * y;
+        sumRhoj1z += rhoj1 * z;  	
         
         sumRhoj2xx += rhoj2 * x * x;
         sumRhoj2xy += rhoj2 * x * y;
@@ -209,6 +210,34 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		sumRhoj3yyy = 0, sumRhoj3yyz = 0, sumRhoj3yzz = 0, sumRhoj3zzz = 0,
 		sumPhi = 0;
         
+        sumGradRhoj0.E(0);
+        sumGradRhoj1.E(0);
+        sumGradRhoj2.E(0);
+        sumGradRhoj3.E(0);
+        sumGradRhoj1x.E(0);
+        sumGradRhoj1y.E(0);
+        sumGradRhoj1z.E(0);
+        sumGradRhoj2xx.E(0);
+        sumGradRhoj2xy.E(0);
+        sumGradRhoj2xz.E(0);
+        sumGradRhoj2yy.E(0);
+        sumGradRhoj2yz.E(0);
+        sumGradRhoj2zz.E(0);
+        sumGradRhoj3xxx.E(0);
+        sumGradRhoj3xxy.E(0);
+        sumGradRhoj3xxz.E(0);
+        sumGradRhoj3xyy.E(0);
+        sumGradRhoj3xyz.E(0);
+        sumGradRhoj3xzz.E(0);
+        sumGradRhoj3yyy.E(0);
+        sumGradRhoj3yyz.E(0);
+        sumGradRhoj3yzz.E(0);
+        sumGradRhoj3zzz.E(0);
+        sumt1GradRhoj0.E(0);
+        sumt2GradRhoj0.E(0);
+        sumt3GradRhoj0.E(0);
+        sumGradPhi.E(0);
+        
         for(int i = 1; i < atoms.count(); i++) {
         	
         	AtomLeaf atomi = (AtomLeaf) atoms.getAtom(i);
@@ -237,8 +266,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             double z = unitVector.x(2);
            
             sumRhoj1x += rhoj1 * x;
-            sumRhoj1y = rhoj1 * y;
-            sumRhoj1z = rhoj1 * z;  	
+            sumRhoj1y += rhoj1 * y;
+            sumRhoj1z += rhoj1 * z;  	
             
             sumRhoj2xx += rhoj2 * x * x;
             sumRhoj2xy += rhoj2 * x * y;
@@ -268,20 +297,20 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
          double rhoiRef = (2.0 * rhoi0Ref) / (1.0 + Math.exp(-gammaRef));
          
     	
-    	vector100.setX(0,1);
-    	vector010.setX(1,1);
-    	vector001.setX(2,1);
+    	vector100.setX(0,1.0);
+    	vector010.setX(1,1.0);
+    	vector001.setX(2,1.0);
     	
     	gradx.Ea1Tv1(-x/(r*r),dr);
-    	gradx.PEa1Tv1(1/r, vector100);
+    	gradx.PEa1Tv1(1.0/r, vector100);
     	
     	grady.Ea1Tv1(-y/(r*r),dr);
-    	grady.PEa1Tv1(1/r, vector010);
+    	grady.PEa1Tv1(1.0/r, vector010);
     	
     	gradz.Ea1Tv1(-z/(r*r),dr);
-    	gradz.PEa1Tv1(1/r, vector001);
+    	gradz.PEa1Tv1(1.0/r, vector001);
     	
-    	gradr.Ea1Tv1(1/r,dr);
+    	gradr.Ea1Tv1(1.0/r,dr);
     	
     	//Gradient of rhoj0
     	gradRhoj0.Ea1Tv1(-rhoj0*p.beta0/(p.r0), gradr);
