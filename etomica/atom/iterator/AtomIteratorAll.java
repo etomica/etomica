@@ -61,6 +61,7 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
             AtomTreeNodeGroup speciesAgentNode = (AtomTreeNodeGroup)phase.getAgent(species[i]).node;
             arrayList.addAll(speciesAgentNode.childList);
         }
+        nextCursor = 0;
     }
     
     public boolean hasNext() {
