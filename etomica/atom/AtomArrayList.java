@@ -351,8 +351,9 @@ import etomica.util.Debug;
             ensureCapacity(size+atoms.size());
             int newSize = size + atoms.size();
             for (int i=size; i<newSize; i++) {
-                elementData[i] = atoms.get(i+size);
+                elementData[i] = atoms.get(i-size);
             }
+            size = newSize;
         }
 	
 	    /**
