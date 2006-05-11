@@ -37,7 +37,7 @@ public class Cell implements java.io.Serializable {
         return latticeArrayIndex;
     }
     
-    private final AtomArrayList occupants = new AtomArrayList();
+    private final AtomArrayList occupants = new AtomArrayList(1);
     final int latticeArrayIndex;//identifies site in lattice
 
     public static final SiteFactory FACTORY = new CellFactory();
