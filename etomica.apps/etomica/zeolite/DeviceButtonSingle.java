@@ -107,7 +107,7 @@ public class DeviceButtonSingle extends Device implements EtomicaElement {
     public static void main(String[] args) {
         
         etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
-        SimulationGraphic graphic = new SimulationGraphic(sim);
+        etomica.graphics.SimulationGraphic graphic = new etomica.graphics.SimulationGraphic(sim);
         
         //here's the part unique to this class
         etomica.action.SimulationRestart action = new etomica.action.SimulationRestart(sim);
