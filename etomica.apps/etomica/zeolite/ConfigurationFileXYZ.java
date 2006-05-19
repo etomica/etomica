@@ -69,7 +69,7 @@ public class ConfigurationFileXYZ extends Configuration{
 	        while(atomIterator.hasNext()){
 	        	Atom molecule = atomIterator.nextAtom();
 	        	if(molecule.node.isLeaf()){
-	        		//translatePosition((AtomLeaf)molecule);
+	        		translatePosition((AtomLeaf)molecule);
 	        	}	
 	        }
 	        
@@ -92,8 +92,8 @@ public class ConfigurationFileXYZ extends Configuration{
 		private void translatePosition(AtomLeaf atom){
 			for(int i=0;i<min.length;i++){
 				atom.coord.position().PE(i,-1*min[i]);	
+				atom.coord.position().PE(i,-0.5*dim[i]);
 			}
-			//atom.coord.position().PE(1,5);
 		}
 		public int[] getNumAtoms(){
 			String fileName = confName+".xyz";

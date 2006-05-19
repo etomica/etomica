@@ -43,7 +43,7 @@ public class MSDProcessor {
             
             numBlocks = numLines/numAtoms;
             deltaTmax = numBlocks/3;
-            System.out.println("NumBlocks = "+numBlocks);            
+            System.out.println("deltaTmax= "+deltaTmax);            
         } catch(IOException e) {
             throw new RuntimeException("Problem reading "+inputFile+", caught IOException: " + e.getMessage());
         }
@@ -76,22 +76,43 @@ public class MSDProcessor {
     	methane=m;
     }
     public void fillArrays(){
+    	//Total RMS displacement
         double[] totalRsquared = new double[deltaTmax];  
+        //XYZ Components
+        double[][] RsquaredXYZ = new double[deltaTmax][3];
         double[] RsquaredComp = new double[3];
-        double[][] RsquaredTotal = new double[numBlocks-1][3];
-        double[] Temperature = new double[numBlocks-1];
+        double[] Temperature = new double[numBlocks];
+        //Pull out the temperatures first
+        try{
+        	fileReader = new FileReader(msdInput);
+        	buffReader = new BufferedReader(fileReader);
+        	//Get's rid of numAtoms
+        	buffReader.readLine();
+        	//Get temperatures
+        	int counter = 0;
+        	for(int i=0;i<numBlocks*numAtoms;i++){
+        		String positionLine = buffReader.readLine();
+                String[] coordString = positionLine.split("\t");
+                if(coordString.length==1){
+                	Temperature[counter]=Double.valueOf(coordString[0]).doubleValue();
+                	counter++;
+                }
+        	}
+        }catch(IOException e) {
+        	
+        }
+        
         //Fills Block1 and 2, subtracts, and fills totalRsquared.  Repeat.
-        for (int i=1; i<numBlocks; i++){
+        for (int i=1; i<deltaTmax+1; i++){
             System.out.println("Solving for iteration "+i);
         	try{
             	fileReader = new FileReader(msdInput);
             	buffReader = new BufferedReader(fileReader);
             //Gets buffReader to start of block 1 in question
-            for (int j=0; j<(i-1)*numAtoms+1; j++){
+            for (int j=0; j<(i-1)*(numAtoms)+1; j++){
                 buffReader.readLine();
             }
-            double temp = Double.valueOf(buffReader.readLine()).doubleValue();
-            Temperature[i-1]=temp;
+            
             //Get temperature
             //Block 1 Loop - Adds XYZ lines from block 1
             for (int k=0; k<numAtoms-1; k++){
@@ -120,7 +141,7 @@ public class MSDProcessor {
                     totalRsquared[deltaT-1] += coordVector2.squared();
                     for(int j=0;j<RsquaredComp.length;j++){
                     	RsquaredComp[j] +=Math.pow(coordVector2.x(j),2.0);
-                    	RsquaredTotal[i-1][j]=RsquaredComp[j];
+                    	RsquaredXYZ[deltaT-1][j] += Math.pow(coordVector2.x(j),2.0);
                     }
                 }
             }
@@ -142,7 +163,7 @@ public class MSDProcessor {
         for (int ideltaT=0; ideltaT<deltaTmax; ideltaT++){
             totalRsquared[ideltaT] /= ((numAtoms-1)*(numBlocks-ideltaT+1));
             for(int j=0;j<3;j++){
-            	RsquaredTotal[ideltaT][j] /= methane;
+            	RsquaredXYZ[ideltaT][j] /= ((numAtoms-1)*(numBlocks-ideltaT+1));
             }
         }
         
@@ -152,26 +173,35 @@ public class MSDProcessor {
             fileWriter = new FileWriter(msdOutput, false);
             fileWriter.write((numAtoms-1)+"\n");
             fileWriter.write(numBlocks+"\n");
-            fileWriter.write("Temperatures\n");
-            for(int i = 0;i<numBlocks-1;i++){
-            	fileWriter.write(Temperature[i]+"\n");
+            
+            int temp = 0;
+            for(int i=0;i<Temperature.length;i++){
+            	temp+=Temperature[i];
             }
-        
+            temp /=Temperature.length;
+            
+            fileWriter.write(temp+"\n");
+            
+            /*
+            for(int i=0;i<Temperature.length;i++){
+            	fileWriter.write(Temperature[i]+"\n");
+            }*/
+            
             for (int irow=0; irow<deltaTmax; irow++){
                 fileWriter.write(irow+"\t"+totalRsquared[irow]+"\n");
-                fileWriter.write(irow+"\t"+"Total X = "+RsquaredComp[0]+"\n");
-                fileWriter.write(irow+"\t"+"Total Y = "+RsquaredComp[1]+"\n");
-                fileWriter.write(irow+"\t"+"Total Z = "+RsquaredComp[2]+"\n");
-                fileWriter.write("\n");
-                fileWriter.write("Time dependent data for X,Y,Z\n");
-                for(int j=0;j<3;j++){
-                	for(int i=0;i<numBlocks-1;i++){
-                		fileWriter.write(RsquaredTotal[i][j]+"\n");
-                	}
-                	fileWriter.write("\n");
-                }
+                //fileWriter.write(irow+"\t"+RsquaredTotal[irow][0]+"\n");
+                //fileWriter.write(irow+"\t"+RsquaredTotal[irow][1]+"\n");
+                //fileWriter.write(irow+"\t"+RsquaredTotal[irow][2]+"\n");
+                //fileWriter.write("\n"); 
             }
             
+            fileWriter.write("Time dependent data for X,Y,Z\n");
+            for(int j=0;j<3;j++){
+            	for(int i=0;i<deltaTmax;i++){
+            		fileWriter.write(RsquaredXYZ[i][j]+"\n");
+            	}
+            	fileWriter.write("\n");
+            }
             fileWriter.close();
         }
         catch (IOException e) {

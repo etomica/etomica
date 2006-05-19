@@ -18,6 +18,10 @@ import etomica.space.Vector;
 import etomica.species.Species;
 import etomica.units.*;
 import etomica.data.meter.MeterTemperature;
+/*
+ * Modified by John Coleman for component MSD
+ */
+
 /* =====SUMMARY======
  * At each 'writeInterval', which corresponds to a certain number of simulation steps,
  * every atom's absolute distance traveled is written to a file of the name 'fileName'.
@@ -80,6 +84,7 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 	public void setNatoms(int natoms){
 		nAtomsMeth = natoms;
 		offset = totalAtoms/nAtomsMeth;
+		//offset = 1;
 	}
 	public void setIntegrator(Integrator integrator){
 		integrate = integrator;
@@ -123,11 +128,12 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 		afterPBCinstance.updateAtomOldCoord();
 		if (--intervalCount == 0){
 			counter++;
-			System.out.println((counter*100*writeInterval/2000000.0)+"%");
+			System.out.println((counter*200*writeInterval/3270000.0)+"%");
 			Vector phasedim = phase.getBoundary().getDimensions();
 			// Gets atomPBIarray from AfterPBC subclass, through the subclass instance
 			int [][] atomPBIarray = afterPBCinstance.getAtomPBIarray();
 			double temp = Kelvin.UNIT.fromSim(meter.getDataAsScalar()*offset);
+			//System.out.println(temp);
 			try {
 				fileWriter.write(temp+"\n");
 				iterator.reset();

@@ -44,30 +44,27 @@ public class Zeolite {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-		Default defaults = new Default();
-        defaults.doSleep = false;
-        defaults.ignoreOverlap = true;
-        ZeoliteSimulation[] sim = new ZeoliteSimulation[1];
-        for(int i=0;i<sim.length;i++){
-        	sim[i]=new ZeoliteSimulation(defaults);
-        	sim[i].getController().actionPerformed();
-        	System.out.println("Simulations Complete");
-        	String file = sim[i].getFileName();
-        	Converter(file,sim[i].getMethane(),i+11);
-        }
-        
-        
-        
-        System.out.println("end");
+		// Converts the simulation data into something I can use
+		String inputFile = "32_1000000_0.00611_2000_WCA";
+		//Cut data file down to multiple parts
+		int cut = 5;
+		DataCutter data = new DataCutter(inputFile,cut);
+		
+		for(int i=0;i<cut;i++){
+			String file = inputFile+"_"+i;
+			Converter(file,32);
+			System.out.println("File "+i+" converted");
+		}
+		
+		//Converter(inputFile,32,2);     
+        System.out.println("Finished");
 	}
-	public static void Converter(String inputFile,int meth,int index) {
+	public static void Converter(String inputFile,int meth) {
 		// TODO Auto-generated method stub
-		String outputFile = inputFile+"_"+index+"_Result.txt";
+		String outputFile = inputFile+"_Result.txt";
 		MSDProcessor proc = new MSDProcessor(Space3D.getInstance(),inputFile,outputFile);
 		
-		proc.setDeltaTmax(1);
+		//proc.setDeltaTmax(1);
 		proc.setMethane(meth);
 		proc.fillArrays();
 		System.out.println("Converter done");
