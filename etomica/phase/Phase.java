@@ -77,11 +77,11 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         space = sim.space;
         eventManager = new PhaseEventManager();
         speciesMaster = new SpeciesMaster(sim, this, eventManager);
+        setBoundary(new BoundaryRectangularPeriodic(sim));
         speciesMaster.node.setParent((AtomTreeNodeGroup)sim.speciesRoot.node);
         makeMolecules();
         setName(null);
 
-        setBoundary(new BoundaryRectangularPeriodic(sim));
         inflateEvent = new PhaseEvent(this,PhaseEvent.PHASE_INFLATE);
     }
 
