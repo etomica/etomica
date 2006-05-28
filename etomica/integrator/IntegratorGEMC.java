@@ -36,7 +36,7 @@ public class IntegratorGEMC extends IntegratorManagerMC implements EtomicaElemen
         if (nIntegrators == 2) {
             volumeExchange = new MCMoveVolumeExchange(potential,
                     (IntegratorPhase)integrators[0],(IntegratorPhase)integrators[1]);
-            moleculeExchange = new MCMoveMoleculeExchange(potential, potential.getSpace(),
+            moleculeExchange = new MCMoveMoleculeExchange(potential,
                     (IntegratorPhase)integrators[0],(IntegratorPhase)integrators[1]);
             moveManager.addMCMove(volumeExchange);
             moveManager.addMCMove(moleculeExchange);

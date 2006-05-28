@@ -42,10 +42,11 @@ public final class MCMoveVolumeExchange extends MCMoveStep {
     
     private transient double hOld, v1Scale, v2Scale;
 
-    public MCMoveVolumeExchange(PotentialMaster potentialMaster, Space space,
+    public MCMoveVolumeExchange(PotentialMaster potentialMaster,
             IntegratorPhase integrator1, IntegratorPhase integrator2) {
         super(potentialMaster, new MCMoveStepTracker());
         energyMeter = new MeterPotentialEnergy(potentialMaster);
+        Space space = potentialMaster.getSpace();
         ROOT = 1.0/space.D();
         setStepSizeMax(Double.MAX_VALUE);
         setStepSizeMin(Double.MIN_VALUE);
@@ -88,17 +89,21 @@ public final class MCMoveVolumeExchange extends MCMoveStep {
     }//end of doTrial
     
     public double getA() {
-        return Math.pow(v1Scale,(firstPhase.moleculeCount()+1))
-                * Math.pow(v2Scale,(secondPhase.moleculeCount()+1));
-    }
-        
-    public double getB() {
         energyMeter.setPhase(firstPhase);
         uNew1 = energyMeter.getDataAsScalar();
         energyMeter.setPhase(secondPhase);
         uNew2 = energyMeter.getDataAsScalar();
         double hNew = uNew1 + uNew2;
-        return -(hNew - hOld);
+        double B = -(hNew - hOld);
+        // assume both integrators have the same temperature
+        double T = integrator1.getTemperature();
+        return Math.exp(B/T) * Math.pow(v1Scale,(firstPhase.moleculeCount()+1))
+                * Math.pow(v2Scale,(secondPhase.moleculeCount()+1));
+    }
+        
+    public double getB() {
+        //IntegratorManagerMC only calls getA since it doesn't have a temperature
+        throw new IllegalStateException("You shouldn't be calling this method");
     }
     
     public void acceptNotify() {

@@ -48,11 +48,12 @@ public final class MCMoveMoleculeExchange extends MCMove {
     private transient double uNew = Double.NaN;
     
 
-    public MCMoveMoleculeExchange(PotentialMaster potentialMaster, Space space,
+    public MCMoveMoleculeExchange(PotentialMaster potentialMaster,
             IntegratorPhase integrator1, IntegratorPhase integrator2) {
         super(potentialMaster);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         energyMeter.setIncludeLrc(true);
+        Space space = potentialMaster.getSpace();
         moleculeReplacer = new AtomActionTranslateBy(space);
         moleculeTranslator = new AtomActionTranslateTo(space);
         translationVector = moleculeTranslator.getTranslationVector();
@@ -95,17 +96,21 @@ public final class MCMoveMoleculeExchange extends MCMove {
     }//end of doTrial
     
     public double getA() {
+        energyMeter.setPhase(iPhase);
+        energyMeter.setTarget(molecule);
+        uNew = energyMeter.getDataAsScalar();
+        double B = -(uNew - uOld);
+        // assume both integrators have the same temperature
+        double T = integrator1.getTemperature();
         //note that dSpecies.nMolecules has been decremented
         //and iSpecies.nMolecules has been incremented
-        return (dSpecies.getNMolecules()+1)/dPhase.volume()
+        return B/T * (dSpecies.getNMolecules()+1)/dPhase.volume()
                * iPhase.volume()/iSpecies.getNMolecules(); 
     }
     
     public double getB() {
-        energyMeter.setPhase(iPhase);
-        energyMeter.setTarget(molecule);
-        uNew = energyMeter.getDataAsScalar();
-        return -(uNew - uOld);
+        //IntegratorManagerMC only calls getA since it doesn't have a temperature
+        throw new IllegalStateException("You shouldn't be calling this method");
     }
     
     public void acceptNotify() {
