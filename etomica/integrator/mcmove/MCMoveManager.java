@@ -112,7 +112,7 @@ public class MCMoveManager implements Serializable {
      * probability in proportion to the frequency value assigned to the move.
      */
     public MCMove selectMove() {
-        if (firstMoveLink == null)
+        if (firstMoveLink == null || frequencyTotal == 0)
             return null;
         int i = Simulation.random.nextInt(frequencyTotal);
         MCMoveLinker link = firstMoveLink;
