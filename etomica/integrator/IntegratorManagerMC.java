@@ -1,11 +1,9 @@
 package etomica.integrator;
 
 import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.IntegratorNonintervalEvent.NonintervalEventType;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveEventManager;
-import etomica.integrator.mcmove.MCMoveListener;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -202,7 +200,9 @@ public class IntegratorManagerMC extends Integrator {
      * for only one pair of phases.  Default is 2.
      */
     public void setGlobalMoveInterval(double newGlobalMoveInterval) {
-        if(newGlobalMoveInterval < 1) newGlobalMoveInterval = 1;
+        if(newGlobalMoveInterval <= 0) {
+            throw new IllegalArgumentException("global move interval must be positive");
+        }
         globalMoveInterval = newGlobalMoveInterval;
         if (Double.isInfinite(globalMoveInterval)) {
             globalMoveProbability = 0;
