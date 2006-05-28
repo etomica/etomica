@@ -47,9 +47,6 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         allAtoms = new IteratorDirective();
         // allAtoms is used only for the force calculation, which has no LRC
         allAtoms.setIncludeLrc(false);
-        //XXX this is totally wrong!  This should be based on the actual temperature and
-        //potentials (steepness and depth) used.
-        setTimeStep(new LJ().time().toSim(2.0));
     }
     
     public static EtomicaInfo getEtomicaInfo() {
