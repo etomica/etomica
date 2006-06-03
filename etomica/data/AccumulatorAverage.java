@@ -49,16 +49,16 @@ public class AccumulatorAverage extends DataAccumulator {
         super();
         setBlockSize(blockSize);
         setPushInterval(100);
-        tag = new Object();
-        mostRecentTag = new Object();
-        averageTag = new Object();
-        errorTag = new Object();
-        standardDeviationTag = new Object();
-        mostRecentBlockTag = new Object();
-        blockCorrelationTag = new Object();
+        tag = new DataTag();
+        mostRecentTag = new DataTag();
+        averageTag = new DataTag();
+        errorTag = new DataTag();
+        standardDeviationTag = new DataTag();
+        mostRecentBlockTag = new DataTag();
+        blockCorrelationTag = new DataTag();
     }
 
-    public Object getTag() {
+    public DataTag getTag() {
         return tag;
     }
 
@@ -362,7 +362,7 @@ public class AccumulatorAverage extends DataAccumulator {
     protected DataGroup dataGroup;
     protected int count, blockCountDown;
     protected int blockSize;
-    protected final Object tag;
-    private final Object mostRecentTag, averageTag, errorTag, standardDeviationTag, mostRecentBlockTag, blockCorrelationTag;
+    protected final DataTag tag;
+    private final DataTag mostRecentTag, averageTag, errorTag, standardDeviationTag, mostRecentBlockTag, blockCorrelationTag;
 
 }//end of AccumulatorAverage

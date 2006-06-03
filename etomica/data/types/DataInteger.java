@@ -3,8 +3,8 @@ package etomica.data.types;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
+import etomica.data.DataTag;
 import etomica.data.types.DataArithmetic.DataInfoArithmetic;
-import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.units.Dimension;
 
 
@@ -87,7 +87,8 @@ public class DataInteger implements Data, java.io.Serializable {
         
         public DataInfo makeDataInfo() {
             DataInfoInteger dataInfo = new DataInfoInteger(label, dimension);
-            dataInfo.addTags(tags.toArray());
+            DataTag[] tagArray = new DataTag[tags.size()];
+            dataInfo.addTags((DataTag[])tags.toArray(tagArray));
             return dataInfo;
         }
     }

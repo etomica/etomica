@@ -6,6 +6,7 @@ import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.DataSourceUniform;
+import etomica.data.DataTag;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorPhase;
@@ -41,7 +42,7 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
         setInflateDimensions(dimensions);
         iteratorDirective = new IteratorDirective();
         inflater = new PhaseInflate(space);
-        tag = new Object();
+        tag = new DataTag();
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -71,7 +72,7 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
         return dataInfo;
     }
     
-    public Object getTag() {
+    public DataTag getTag() {
         return tag;
     }
 
@@ -155,7 +156,7 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
 
     private DataDoubleArray data;
     private DataInfo dataInfo;
-    private final Object tag;
+    private final DataTag tag;
     private double[] dataArray;
     private final PhaseInflate inflater;
     private Vector[] scale;

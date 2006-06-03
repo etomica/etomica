@@ -3,6 +3,7 @@ package etomica.data.types;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
+import etomica.data.DataTag;
 import etomica.units.Dimension;
 
 
@@ -182,7 +183,8 @@ public class DataFunction extends DataDoubleArray {
         
         public DataInfo makeDataInfo() {
             DataInfoFunction dataInfo = new DataInfoFunction(label, dimension, independentInfo);
-            dataInfo.addTags(tags.toArray());
+            DataTag[] tagArray = new DataTag[tags.size()];
+            dataInfo.addTags((DataTag[])tags.toArray(tagArray));
             return dataInfo;
         }
         

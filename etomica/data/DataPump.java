@@ -20,11 +20,11 @@ public class DataPump extends DataProcessor implements Action {
         dataSourceInfo = dataSource.getDataInfo();
         setDataSink(dataSink);
         setLabel("Data Pump");
-        tag = new Object();
+        tag = new DataTag();
         putDataInfo(dataSource.getDataInfo());
 	}
     
-    public Object getTag() {
+    public DataTag getTag() {
         return tag;
     }
     
@@ -93,5 +93,5 @@ public class DataPump extends DataProcessor implements Action {
     private DataInfo dataSourceInfo;
     private final DataSource dataSource;
     private String label;
-    protected final Object tag;
+    protected final DataTag tag;
 }

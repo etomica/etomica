@@ -45,10 +45,10 @@ public class AccumulatorHistogram extends DataAccumulator {
     public AccumulatorHistogram(Histogram.Factory factory, int nBins) {
         this.nBins = nBins;
         histogramFactory = factory;
-        tag = new Object();
+        tag = new DataTag();
     }
 
-    public Object getTag() {
+    public DataTag getTag() {
         return tag;
     }
     
@@ -202,6 +202,6 @@ public class AccumulatorHistogram extends DataAccumulator {
     protected int nData;
     private Histogram.Factory histogramFactory;
     private int nBins;
-    protected final Object tag;
+    protected final DataTag tag;
 
 }

@@ -23,5 +23,5 @@ public interface DataSource {
      */
     public DataInfo getDataInfo();
     
-    public Object getTag();
+    public DataTag getTag();
 }

@@ -21,10 +21,10 @@ public class AccumulatorCounter extends DataAccumulator {
     public AccumulatorCounter() {
         dataInfo = new DataInfoInteger("Counter", Quantity.DIMENSION);
         data = new DataInteger();
-        tag = new Object();
+        tag = new DataTag();
     }
 
-    public Object getTag() {
+    public DataTag getTag() {
         return tag;
     }
     
@@ -69,5 +69,5 @@ public class AccumulatorCounter extends DataAccumulator {
     }
 
     protected final DataInteger data;
-    protected final Object tag;
+    protected final DataTag tag;
 }

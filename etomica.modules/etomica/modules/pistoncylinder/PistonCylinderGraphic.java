@@ -25,6 +25,7 @@ import etomica.data.DataSink;
 import etomica.data.DataSource;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourceScalar;
+import etomica.data.DataTag;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
@@ -646,6 +647,7 @@ public class PistonCylinderGraphic {
         IntervalActionAdapter adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
         temperatureHistory.addDataSink(plotT.getDataSet().makeDataSink());
+        plotT.setLegend(new DataTag[]{thermometer.getTag()}, "measured");
         temperatureDisplayBox.setAccumulator(temperatureAvg);
         temperatureDisplayBox.setUnit(tUnit);
         
@@ -661,6 +663,7 @@ public class PistonCylinderGraphic {
         adapter = new IntervalActionAdapter(targetTemperatureDataPump,pc.integrator);
         adapter.setActionInterval(dataInterval);
         targetTemperatureHistory.addDataSink(plotT.getDataSet().makeDataSink());
+        plotT.setLegend(new DataTag[]{targetTemperatureDataSource.getTag()}, "target");
         pc.register(targetTemperatureDataSource, targetTemperatureDataPump);
 
         pressureMeter = new DataSourceWallPressure(pc.space,pc.pistonPotential);
@@ -675,6 +678,7 @@ public class PistonCylinderGraphic {
         adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
         pressureHistory.addDataSink(plotP.getDataSet().makeDataSink());
+        plotP.setLegend(new DataTag[]{pressureMeter.getTag()}, "measured");
         pressureDisplayBox.setAccumulator(pressureAvg);
         pressureDisplayBox.setUnit(pUnit);
 
@@ -690,6 +694,7 @@ public class PistonCylinderGraphic {
         adapter = new IntervalActionAdapter(pump,pc.integrator);
         adapter.setActionInterval(dataInterval);
         targetPressureHistory.addDataSink(plotP.getDataSet().makeDataSink());
+        plotP.setLegend(new DataTag[]{targetPressureDataSource.getTag()}, "target");
         pc.register(targetPressureDataSource, pump);
 
         densityMeter = new MeterPistonDensity(pc.pistonPotential,1,defaults.atomSize);

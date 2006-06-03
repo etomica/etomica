@@ -18,10 +18,10 @@ public class DataProcessorFunction extends DataProcessor {
 
     public DataProcessorFunction(Function function) {
         this.function = function;
-        tag = new Object();
+        tag = new DataTag();
     }
     
-    public Object getTag() {
+    public DataTag getTag() {
         return tag;
     }
     
@@ -59,5 +59,5 @@ public class DataProcessorFunction extends DataProcessor {
     }
 
     private final Function function;
-    protected final Object tag;
+    protected final DataTag tag;
 }

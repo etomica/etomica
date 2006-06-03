@@ -4,6 +4,7 @@ import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
 import etomica.data.DataInfo;
+import etomica.data.DataTag;
 import etomica.data.meter.Meter;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataTable;
@@ -20,7 +21,7 @@ public final class MeterDimerFraction implements Meter {
         dataInfo = new DataInfoTable("Dimer Fraction", new DataInfoDoubleArray[]{columnInfo}, 5, new String[]{"R", "B", "R-R", "R-B", "B-B"});
         setName(NameMaker.makeName(this.getClass()));
         agentSource = sim;
-        tag = new Object();
+        tag = new DataTag();
         dataInfo.addTag(tag);
     }
     
@@ -28,7 +29,7 @@ public final class MeterDimerFraction implements Meter {
         return dataInfo;
     }
 
-    public Object getTag() {
+    public DataTag getTag() {
         return tag;
     }
     
@@ -106,5 +107,5 @@ public final class MeterDimerFraction implements Meter {
     private AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
     protected final ReactionEquilibrium agentSource;
     protected Atom[] agents;
-    private final Object tag;
+    private final DataTag tag;
 }

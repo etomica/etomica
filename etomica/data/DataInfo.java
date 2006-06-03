@@ -3,6 +3,7 @@ package etomica.data;
 import java.util.ArrayList;
 
 import etomica.units.Dimension;
+import etomica.util.Debug;
 
 /**
  * Object held by a Data instance and which provides descriptive information
@@ -40,7 +41,7 @@ public abstract class DataInfo implements java.io.Serializable {
         this.label = label;
         this.dimension = dimension;
         tags = new ArrayList();
-        tagArray = new Object[0];
+        tagArray = new DataTag[0];
     }
 
     /**
@@ -66,11 +67,14 @@ public abstract class DataInfo implements java.io.Serializable {
         return label + " (" + dimension.toString() + ")";
     }
     
-    public void addTag(Object newTag) {
+    public void addTag(DataTag newTag) {
+        if (Debug.ON && newTag.getClass().isArray()) {
+            System.err.println("You probably wanted addTags");
+        }
         tags.add(newTag);
     }
     
-    public void addTags(Object[] newTags) {
+    public void addTags(DataTag[] newTags) {
         for (int i=0; i<newTags.length; i++) {
             tags.add(newTags[i]);
         }
@@ -80,8 +84,11 @@ public abstract class DataInfo implements java.io.Serializable {
         tags.clear();
     }
     
-    public Object[] getTags() {
-        tagArray = tags.toArray(tagArray);
+    public DataTag[] getTags() {
+        if (tagArray.length != tags.size()) {
+            tagArray = new DataTag[tags.size()];
+        }
+        tagArray = (DataTag[])tags.toArray(tagArray);
         return tagArray;
     }
     
@@ -90,5 +97,5 @@ public abstract class DataInfo implements java.io.Serializable {
     private final String label;
     private final Dimension dimension;
     private ArrayList tags;
-    private Object[] tagArray;
+    private DataTag[] tagArray;
 }

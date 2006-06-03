@@ -14,6 +14,7 @@ import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
 import etomica.data.DataInfo;
+import etomica.data.DataTag;
 import etomica.data.meter.Meter;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -33,10 +34,10 @@ public class MeterChainLength implements Meter, Serializable, AgentSource {
         setName(NameMaker.makeName(this.getClass()));
         agentSource = sim;
         setupData(40);
-        tag = new Object();
+        tag = new DataTag();
     }
     
-    public Object getTag() {
+    public DataTag getTag() {
         return tag;
     }
 
@@ -168,7 +169,7 @@ public class MeterChainLength implements Meter, Serializable, AgentSource {
     private Atom[][] agents;
     private DataFunction data;
     private DataInfoFunction dataInfo;
-    private final Object tag;
+    private final DataTag tag;
     
     public static class AtomTag {
         public boolean tagged;

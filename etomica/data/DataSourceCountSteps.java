@@ -31,7 +31,7 @@ public final class DataSourceCountSteps implements DataSource,
         dataInfo = new DataInfoInteger("Integrator steps", Quantity.DIMENSION);
         data = new DataInteger();
         setName(NameMaker.makeName(this.getClass()));
-        tag = new Object();
+        tag = new DataTag();
         dataInfo.addTag(tag);
 	}
 
@@ -45,7 +45,7 @@ public final class DataSourceCountSteps implements DataSource,
         return dataInfo;
     }
     
-    public Object getTag() {
+    public DataTag getTag() {
         return tag;
     }
 
@@ -101,5 +101,5 @@ public final class DataSourceCountSteps implements DataSource,
     private final DataInteger data;
     private final DataInfo dataInfo;
     private String name;
-    protected final Object tag;
+    protected final DataTag tag;
 }

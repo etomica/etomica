@@ -20,9 +20,9 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
     
     public AccumulatorRatioAverage(int blockSize) {
         super(blockSize);
-        ratioTag = new Object();
-        ratioStandardDeviationTag = new Object();
-        ratioErrorTag = new Object();
+        ratioTag = new DataTag();
+        ratioStandardDeviationTag = new DataTag();
+        ratioErrorTag = new DataTag();
     }
     
     public Object getTag(StatType statType) {
@@ -146,5 +146,5 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
 
     //need separate fields because ratio values are calculated from the non-ratio values.
     protected DataArithmetic ratio, ratioStandardDeviation, ratioError;
-    private final Object ratioTag, ratioStandardDeviationTag, ratioErrorTag;
+    private final DataTag ratioTag, ratioStandardDeviationTag, ratioErrorTag;
 }

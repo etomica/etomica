@@ -11,6 +11,7 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataSource;
+import etomica.data.DataTag;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -235,7 +236,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
             data = new DataDoubleArray(3);
             dataInfo = new DataInfoDoubleArray("TPH", Undefined.DIMENSION, new int[]{3});
             this.integrator = integrator;
-            tag = new Object();
+            tag = new DataTag();
             dataInfo.addTag(tag);
         }
         
@@ -243,7 +244,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
             return dataInfo;
         }
         
-        public Object getTag() {
+        public DataTag getTag() {
             return tag;
         }
         
@@ -263,7 +264,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         private DataDoubleArray data;
         private IntegratorGear4NPH integrator;
         private DataInfo dataInfo;
-        private Object tag;
+        private DataTag tag;
     }
         
     public final class ForceSumNPH extends PotentialCalculation {

@@ -6,6 +6,7 @@ import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
 import etomica.data.DataInfo;
+import etomica.data.DataTag;
 import etomica.data.meter.Meter;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataTensor;
@@ -31,7 +32,7 @@ public class MeterNormalMode implements Meter {
         }
         data = new DataGroup(dataTensors);
         dataInfo = new DataInfoGroup("Normal Mode deltas", Null.DIMENSION, dataInfoTensors);
-        tag = new Object();
+        tag = new DataTag();
         dataInfo.addTag(tag);
         
         //Set up the pair iterator.
@@ -56,7 +57,7 @@ public class MeterNormalMode implements Meter {
 
     }
     
-    public Object getTag() {
+    public DataTag getTag() {
         return tag;
     }
 
@@ -155,5 +156,5 @@ public class MeterNormalMode implements Meter {
     Vector[] op; // The original positions of the atoms.
     private AtomLeaf tempAtom;
     private Vector[] tempVex;
-    private final Object tag;
+    private final DataTag tag;
 }

@@ -56,7 +56,7 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
         data = new DataDoubleArray(nValues);
         if(nValues < 2) nValues = 2;
         calculateX(nValues, xMin, xMax, typeMin, typeMax);
-        tag = new Object();
+        tag = new DataTag();
         dataInfo.addTag(tag);
     }
     
@@ -105,7 +105,7 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
         return dataInfo;
     }
     
-    public Object getTag() {
+    public DataTag getTag() {
         return tag;
     }
     
@@ -246,7 +246,7 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
     private DataDoubleArray data;
     private DataInfoDoubleArray dataInfo;
     private double dx;
-    protected final Object tag;
+    protected final DataTag tag;
     
     /**
      * Main method to demonstrate and check class.

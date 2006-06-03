@@ -38,7 +38,7 @@ public class DataSourceRmsVelocity implements DataSourceAtomic, Serializable {
         atomDataInfo = new DataInfoDouble("RMS Velocity", new DimensionRatio(Length.DIMENSION, Time.DIMENSION));
         atomData = new DataDouble();
         this.histogramRMS = histogram;
-        tag = new Object();
+        tag = new DataTag();
         atomDataInfo.addTag(tag);
         setupData();
     }
@@ -47,7 +47,7 @@ public class DataSourceRmsVelocity implements DataSourceAtomic, Serializable {
         return dataInfo;
     }
     
-    public Object getTag() {
+    public DataTag getTag() {
         return tag;
     }
 
@@ -124,6 +124,6 @@ public class DataSourceRmsVelocity implements DataSourceAtomic, Serializable {
     private DataInfo dataInfo;
     private final Histogram histogramRMS;
     private DataFunction data;
-    protected final Object tag;
+    protected final DataTag tag;
 
 }//end of DataSourceVelocityRms

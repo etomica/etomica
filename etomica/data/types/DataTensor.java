@@ -3,7 +3,7 @@ package etomica.data.types;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
-import etomica.data.types.DataDouble.DataInfoDouble;
+import etomica.data.DataTag;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
@@ -197,7 +197,8 @@ public class DataTensor implements DataArithmetic, java.io.Serializable {
         
         public DataInfo makeDataInfo() {
             DataInfoTensor dataInfo = new DataInfoTensor(label, dimension, space);
-            dataInfo.addTags(tags.toArray());
+            DataTag[] tagArray = new DataTag[tags.size()];
+            dataInfo.addTags((DataTag[])tags.toArray(tagArray));
             return dataInfo;
         }
         

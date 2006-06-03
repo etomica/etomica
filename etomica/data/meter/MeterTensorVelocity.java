@@ -8,12 +8,12 @@ import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataSourceAtomic;
+import etomica.data.DataTag;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.phase.Phase;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
-import etomica.units.Dimension;
 import etomica.units.Energy;
 
 /**
@@ -35,7 +35,7 @@ public class MeterTensorVelocity implements Meter, DataSourceAtomic, java.io.Ser
         data = new DataTensor(space);
         dataInfo = new DataInfoTensor("pp/m",Energy.DIMENSION, space);
         atomData = new DataTensor(space);
-        tag = new Object();
+        tag = new DataTag();
         dataInfo.addTag(tag);
     }
     
@@ -48,7 +48,7 @@ public class MeterTensorVelocity implements Meter, DataSourceAtomic, java.io.Ser
         return dataInfo;
     }
     
-    public Object getTag() {
+    public DataTag getTag() {
         return tag;
     }
        
@@ -108,5 +108,5 @@ public class MeterTensorVelocity implements Meter, DataSourceAtomic, java.io.Ser
     private Phase phase;
     private final DataTensor data, atomData;
     private final DataInfoTensor dataInfo;
-    protected Object tag;
+    protected DataTag tag;
 }

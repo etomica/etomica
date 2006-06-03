@@ -29,7 +29,7 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
         data = new DataGroup(new Data[0]);
         dataInfo = new DataInfoGroup("Data Group", Null.DIMENSION, new DataInfo[0]);
         dataSources = new DataSource[0];
-        tag = new Object();
+        tag = new DataTag();
         dataInfo.addTag(tag);
     }
     
@@ -50,7 +50,7 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
         return dataInfo;
     }
     
-    public Object getTag() {
+    public DataTag getTag() {
         return tag;
     }
 
@@ -98,5 +98,5 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
     private Data[] latestData = new Data[0];
     private DataGroup data;
     private DataInfo dataInfo;
-    protected final Object tag;
+    protected final DataTag tag;
 }

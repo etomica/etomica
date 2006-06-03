@@ -40,10 +40,10 @@ public class AccumulatorHistory extends DataAccumulator {
         this.historyLength = historyLength;
         historyFactory = factory;
         setTimeDataSource(new DataSourceCount());
-        tag = new Object();
+        tag = new DataTag();
     }
     
-    public Object getTag() {
+    public DataTag getTag() {
         return tag;
     }
 
@@ -225,7 +225,7 @@ public class AccumulatorHistory extends DataAccumulator {
     private int historyLength;
     private DataSourceScalar timeDataSource;
     private DataInfo inputDataInfo;
-    protected final Object tag;
+    protected final DataTag tag;
 
     /**
      * Simple DataSource to use as a default time DataSource.  It just returns

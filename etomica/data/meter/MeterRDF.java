@@ -8,6 +8,7 @@ import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.DataSourceUniform;
+import etomica.data.DataTag;
 import etomica.data.DataSourceUniform.LimitType;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
@@ -48,7 +49,7 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
 	    iterator = new ApiLeafAtoms();
         setName(NameMaker.makeName(this.getClass()));
         dr = space.makeVector();
-        tag = new Object();
+        tag = new DataTag();
         dataInfo.addTag(tag);
     }
     
@@ -61,7 +62,7 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
         return dataInfo;
     }
     
-    public Object getTag() {
+    public DataTag getTag() {
         return tag;
     }
     
@@ -169,5 +170,5 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
     private NearestImageTransformer nearestImageTransformer;
     private final DataSourceUniform xDataSource;
     private String name;
-    protected final Object tag;
+    protected final DataTag tag;
 }

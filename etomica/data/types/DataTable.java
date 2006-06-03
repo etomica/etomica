@@ -5,6 +5,7 @@ import java.io.Serializable;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
+import etomica.data.DataTag;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArrayFactory;
 import etomica.units.Null;
@@ -315,7 +316,8 @@ public class DataTable extends DataGroup implements DataArithmetic, Serializable
                 columnInfo[i] = (DataInfoDoubleArray)columnInfoFactories[i].makeDataInfo();
             }
             DataInfoTable dataInfo = new DataInfoTable(label, columnInfo, nRows, rowHeaders);
-            dataInfo.addTags(tags.toArray());
+            DataTag[] tagArray = new DataTag[tags.size()];
+            dataInfo.addTags((DataTag[])tags.toArray(tagArray));
             return dataInfo;
         }
         

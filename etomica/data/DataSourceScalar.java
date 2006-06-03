@@ -15,7 +15,7 @@ public abstract class DataSourceScalar implements DataSource, java.io.Serializab
         data = new DataDouble();
         dataInfo = new DataInfoDouble(label, dimension);
         setName(NameMaker.makeName(this.getClass()));
-        tag = new Object();
+        tag = new DataTag();
         dataInfo.addTag(tag);
     }
     
@@ -23,7 +23,7 @@ public abstract class DataSourceScalar implements DataSource, java.io.Serializab
         return dataInfo;
     }
     
-    public Object getTag() {
+    public DataTag getTag() {
         return tag;
     }
     
@@ -60,5 +60,5 @@ public abstract class DataSourceScalar implements DataSource, java.io.Serializab
 	protected final DataDouble data;
     protected final DataInfo dataInfo;
     private String name;
-    protected final Object tag;
+    protected final DataTag tag;
 }

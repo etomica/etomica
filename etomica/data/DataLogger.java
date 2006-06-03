@@ -7,7 +7,6 @@ import java.util.Locale;
 
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
-import etomica.integrator.IntegratorNonintervalEvent.NonintervalEventType;
 
 
 /* History
@@ -24,7 +23,7 @@ public class DataLogger implements DataPipe, IntegratorNonintervalListener, java
     public DataLogger(){
         setWriteInterval(100);
         setPriority(300);
-        tag = new Object();
+        tag = new DataTag();
     }
     
     /**
@@ -44,7 +43,7 @@ public class DataLogger implements DataPipe, IntegratorNonintervalListener, java
         dataSink.putDataInfo(dataInfo);
     }
     
-    public Object getTag() {
+    public DataTag getTag() {
         return tag;
     }
     
@@ -254,7 +253,7 @@ public class DataLogger implements DataPipe, IntegratorNonintervalListener, java
     private DataWriter dataWriter;
     private DataSink dataSink;
     private DataInfo dataInfo;
-    protected final Object tag;
+    protected final DataTag tag;
     
     /**
      * Interface for a DataSink that actually writes data to a file

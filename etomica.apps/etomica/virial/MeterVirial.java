@@ -3,6 +3,7 @@ package etomica.virial;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataSource;
+import etomica.data.DataTag;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorMC;
@@ -27,7 +28,7 @@ public class MeterVirial implements DataSource, MCMoveListener, java.io.Serializ
         dataInfo = new DataInfoDoubleArray("Cluster Value",Null.DIMENSION, new int[]{clusters.length});
         oldValues = new double[clusters.length];
         trialValues = new double[clusters.length];
-        tag = new Object();
+        tag = new DataTag();
         dataInfo.addTag(tag);
 	}
 
@@ -35,7 +36,7 @@ public class MeterVirial implements DataSource, MCMoveListener, java.io.Serializ
         return dataInfo;
     }
     
-    public Object getTag() {
+    public DataTag getTag() {
         return tag;
     }
     
@@ -102,5 +103,5 @@ public class MeterVirial implements DataSource, MCMoveListener, java.io.Serializ
     private IntegratorMC integrator;
 	private final DataDoubleArray data;
 	private final DataInfo dataInfo;
-    private final Object tag;
+    private final DataTag tag;
 }

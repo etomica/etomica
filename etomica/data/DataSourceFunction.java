@@ -40,7 +40,7 @@ public class DataSourceFunction implements DataSource, Serializable {
         xSource = new DataSourceUniform(xLabel, xDimension,nValues,0,1);
         this.function = function;
         setupData(label, dimension);
-        tag = new Object();
+        tag = new DataTag();
         dataInfo.addTag(tag);
     }
     
@@ -48,7 +48,7 @@ public class DataSourceFunction implements DataSource, Serializable {
         return dataInfo;
     }
     
-    public Object getTag() {
+    public DataTag getTag() {
         return tag;
     }
     
@@ -124,5 +124,5 @@ public class DataSourceFunction implements DataSource, Serializable {
     private final DataSourceUniform xSource;
     private DataDoubleArray xData;
     private Function function;
-    protected final Object tag;
+    protected final DataTag tag;
 }//end of DataSourceFunction

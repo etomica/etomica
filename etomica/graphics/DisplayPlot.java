@@ -11,9 +11,9 @@ import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
 import etomica.data.DataSet;
 import etomica.data.DataSetListener;
+import etomica.data.DataTag;
 import etomica.data.DataSet.DataCasterJudge;
 import etomica.data.types.DataFunction;
-import etomica.data.types.DataGroup;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.units.Dimension;
@@ -147,10 +147,10 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
             if (b) {
                 Iterator iterator = labelList.iterator();
                 String dataLabel = dataSet.getDataInfo(i).getLabel();
-                Object[] thisDataTags = dataSet.getDataInfo(i).getTags();
+                DataTag[] thisDataTags = dataSet.getDataInfo(i).getTags();
                 while (iterator.hasNext()) {
                     DataTagLabel tagLabel = (DataTagLabel)iterator.next();
-                    Object[] tags = tagLabel.tags;
+                    DataTag[] tags = tagLabel.tags;
                     boolean found = true;
                     for (int j=0; j<tags.length; j++) {
                         found = false;
@@ -173,10 +173,10 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
         }
     }
     
-    protected Data getDataFromSet(Object[] tags) {
+    protected Data getDataFromSet(DataTag[] tags) {
         for(int i=0; i<dataSet.getDataCount(); i++) {
             Data thisData = dataSet.getData(i);
-            Object[] thisDataTags = dataSet.getDataInfo(i).getTags();
+            DataTag[] thisDataTags = dataSet.getDataInfo(i).getTags();
             boolean found = true;
             for (int j=0; j<tags.length; j++) {
                 found = false;
@@ -203,7 +203,7 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
      */
     public boolean isDoLegend() {return doLegend;}
     
-    public void setLegend(Object[] dataTags, String label) {
+    public void setLegend(DataTag[] dataTags, String label) {
         labelList.add(new DataTagLabel(dataTags, label));
         
     }
@@ -269,11 +269,11 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
     private LinkedList labelList;
     
     protected static class DataTagLabel {
-        public DataTagLabel(Object[] tags, String label) {
-            this.tags = (Object[])tags.clone();
+        public DataTagLabel(DataTag[] tags, String label) {
+            this.tags = (DataTag[])tags.clone();
             this.label = label;
         }
-        public final Object[] tags;
+        public final DataTag[] tags;
         public final String label;
     }
     

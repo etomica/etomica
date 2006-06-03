@@ -5,6 +5,7 @@ import java.io.Serializable;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
+import etomica.data.DataTag;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
@@ -56,7 +57,7 @@ public class CastToTable extends DataProcessor implements Serializable {
     public CastToTable() {
     }
 
-    public Object getTag() {
+    public DataTag getTag() {
         // we have no tag
         return null;
     }

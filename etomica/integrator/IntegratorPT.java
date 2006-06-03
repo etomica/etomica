@@ -5,6 +5,7 @@ import etomica.EtomicaInfo;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataSource;
+import etomica.data.DataTag;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.mcmove.MCMove;
@@ -114,7 +115,7 @@ public class IntegratorPT extends IntegratorManagerMC implements EtomicaElement 
         public PhaseTracker() {
             data = new DataDoubleArray(0);
             dataInfo = new DataInfoDoubleArray("Phase Tracker", Null.DIMENSION, new int[]{0});
-            tag = new Object();
+            tag = new DataTag();
             dataInfo.addTag(tag);
         }
         
@@ -122,7 +123,7 @@ public class IntegratorPT extends IntegratorManagerMC implements EtomicaElement 
             return dataInfo;
         }
         
-        public Object getTag() {
+        public DataTag getTag() {
             return tag;
         }
         
@@ -172,7 +173,7 @@ public class IntegratorPT extends IntegratorManagerMC implements EtomicaElement 
         private double[] dtrack;
         private DataDoubleArray data;
         private DataInfoDoubleArray dataInfo;
-        private final Object tag;
+        private final DataTag tag;
     }
     
 }

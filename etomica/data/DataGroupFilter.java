@@ -25,7 +25,7 @@ public class DataGroupFilter extends DataProcessor {
         this(new int[] {index});
     }
 
-    public Object getTag() {
+    public DataTag getTag() {
         // we have no tag
         return null;
     }

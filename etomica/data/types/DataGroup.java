@@ -3,7 +3,7 @@ package etomica.data.types;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
-import etomica.data.types.DataInteger.DataInfoInteger;
+import etomica.data.DataTag;
 import etomica.units.Dimension;
 
 
@@ -153,14 +153,14 @@ public class DataGroup implements Data, java.io.Serializable {
             return subDataInfo[i];
         }
         
-        public void addTags(Object[] newTags) {
+        public void addTags(DataTag[] newTags) {
             super.addTags(newTags);
             for (int i=0; i<subDataInfo.length; i++) {
                 subDataInfo[i].addTags(newTags);
             }
         }
         
-        public void addTag(Object newTag) {
+        public void addTag(DataTag newTag) {
             super.addTag(newTag);
             for (int i=0; i<subDataInfo.length; i++) {
                 subDataInfo[i].addTag(newTag);
@@ -178,7 +178,8 @@ public class DataGroup implements Data, java.io.Serializable {
         
         public DataInfo makeDataInfo() {
             DataInfoGroup dataInfo = new DataInfoGroup(label, dimension, subDataInfo);
-            dataInfo.addTags(tags.toArray());
+            DataTag[] tagArray = new DataTag[tags.size()];
+            dataInfo.addTags((DataTag[])tags.toArray(tagArray));
             return dataInfo;
         }
      

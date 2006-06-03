@@ -29,7 +29,7 @@ public class DataSourceCountCollisions implements DataSource,
                 Quantity.DIMENSION);
         data = new DataInteger();
         setName(NameMaker.makeName(this.getClass()));
-        tag = new Object();
+        tag = new DataTag();
         dataInfo.addTag(tag);
     }
     
@@ -37,7 +37,7 @@ public class DataSourceCountCollisions implements DataSource,
         return dataInfo;
     }
     
-    public Object getTag() {
+    public DataTag getTag() {
         return tag;
     }
 
@@ -95,5 +95,5 @@ public class DataSourceCountCollisions implements DataSource,
     private final DataInteger data;
     private String name;
     private final DataInfo dataInfo;
-    protected final Object tag;
+    protected final DataTag tag;
 }

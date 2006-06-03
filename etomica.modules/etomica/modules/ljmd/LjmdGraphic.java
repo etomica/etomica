@@ -17,6 +17,7 @@ import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourceFunction;
 import etomica.data.DataSourceRmsVelocity;
 import etomica.data.DataSourceUniform;
+import etomica.data.DataTag;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.DataSourceUniform.LimitType;
 import etomica.data.meter.MeterDensity;
@@ -235,11 +236,11 @@ public class LjmdGraphic {
         
         DisplayPlot ePlot = new DisplayPlot();
         energyHistory.setDataSink(ePlot.getDataSet().makeDataSink());
-        ePlot.setLegend(new Object[]{energyHistory.getTag()}, "Total");
+        ePlot.setLegend(new DataTag[]{energyHistory.getTag()}, "Total");
         peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
-        ePlot.setLegend(new Object[]{peHistory.getTag()}, "Potential");
+        ePlot.setLegend(new DataTag[]{peHistory.getTag()}, "Potential");
         keHistory.setDataSink(ePlot.getDataSet().makeDataSink());
-        ePlot.setLegend(new Object[]{keHistory.getTag()}, "Kinetic");
+        ePlot.setLegend(new DataTag[]{keHistory.getTag()}, "Kinetic");
 		
 		ePlot.setDoLegend(true);
 		

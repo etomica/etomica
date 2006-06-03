@@ -7,6 +7,7 @@ import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataSourceAtomic;
 import etomica.data.DataSourceUniform;
+import etomica.data.DataTag;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
@@ -38,7 +39,7 @@ public class MeterProfile implements Meter, java.io.Serializable {
         profileVector = space.makeVector();
         profileVector.setX(0, 1.0);
         position = space.makeVector();
-        tag = new Object();
+        tag = new DataTag();
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -50,7 +51,7 @@ public class MeterProfile implements Meter, java.io.Serializable {
         return dataInfo;
     }
     
-    public Object getTag() {
+    public DataTag getTag() {
         return tag;
     }
 
@@ -155,7 +156,7 @@ public class MeterProfile implements Meter, java.io.Serializable {
      * Meter that defines the property being profiled.
      */
     DataSourceAtomic meter;
-    protected final Object tag;
+    protected final DataTag tag;
     
     
     private final AtomIteratorPhaseDependent ai1 = new AtomIteratorLeafAtoms();

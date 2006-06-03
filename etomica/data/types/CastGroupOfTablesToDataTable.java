@@ -4,6 +4,7 @@ package etomica.data.types;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
+import etomica.data.DataTag;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.data.types.DataTable.DataInfoTable;
@@ -42,7 +43,7 @@ public class CastGroupOfTablesToDataTable extends DataProcessor {
     public CastGroupOfTablesToDataTable() {
     }
 
-    public Object getTag() {
+    public DataTag getTag() {
         // we have no tag
         return null;
     }

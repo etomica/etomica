@@ -3,6 +3,7 @@ package etomica.data.types;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
+import etomica.data.DataTag;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataInteger.DataInfoInteger;
@@ -52,7 +53,7 @@ public class CastToDoubleArray extends DataProcessor {
     public CastToDoubleArray() {
     }
 
-    public Object getTag() {
+    public DataTag getTag() {
         // we have no tag
         return null;
     }

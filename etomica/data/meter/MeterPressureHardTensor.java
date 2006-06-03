@@ -7,6 +7,7 @@ import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.DataSourceCountTime;
+import etomica.data.DataTag;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.integrator.IntegratorHard;
@@ -25,7 +26,7 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
         velocityTensor = space.makeTensor();
         v = space.makeTensor();
         timer = new DataSourceCountTime();
-        tag = new Object();
+        tag = new DataTag();
         dataInfo.addTag(tag);
     }
 
@@ -38,7 +39,7 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
         return dataInfo;
     }
     
-    public Object getTag() {
+    public DataTag getTag() {
         return tag;
     }
     
@@ -111,5 +112,5 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
     private Phase phase;
     private final DataTensor data;
     private final DataInfo dataInfo;
-    protected final Object tag;
+    protected final DataTag tag;
 }
