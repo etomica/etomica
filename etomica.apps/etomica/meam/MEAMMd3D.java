@@ -20,8 +20,8 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.Crystal;
 import etomica.lattice.LatticeCrystal;
-import etomica.lattice.crystal.BasisBetaSnA5;
-import etomica.lattice.crystal.PrimitiveTetragonal;
+import etomica.lattice.crystal.BasisCubicFcc;
+import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
@@ -44,42 +44,6 @@ import etomica.util.HistoryCollapsingAverage;
  * wise term is summed over all the neighbors, and then used in expressions 
  * describing the embedding energy and the repulsive energy of the atom.   
  * Effectively, the MEAM potential is a many-body potential.  
- * 
- * Currently, there is no framework in Etomica for looping through each atom 
- * and all of its neigbors at once, so that the potential for an atom might be 
- * calculated in a single potential class.  Happily, the basis of the MEAM 
- * potential upon pair-wise terms makes the creation of such a scheme unnecessary. 
- * Instead, the potential was implemented using a method affectionately referred
- * to as Andrew's Grand Master Plan, although there is some debate about whether or
- * not using both "Andrew" and "Grand Master" in the title is redundant.  
- * 
- * Andrew's Grand Master Plan: 
- * 
- * There is an array with an element for each atom in the system.  Each of these 
- * elements is an "agent"; i.e., it holds descriptions or values for the atom to
- * which it corresponds.  In this case, the agent is a wrapper, creatively called 
- * "agents".  Within each atom's wrapper are two arrays, one called "sums", the 
- * other "gradient Sums".  The array "sums" has an element for each sum required to 
- * calculate the potential of the atom.  The array "gradientSums" has an element 
- * for each sum required to calculate the gradient of the atom's potential.  
- * 
- * Within each time increment, the value of every element in these two arrays is 
- * set to zero, or the zero vector, by the MEAMPInitial class.  This class functions 
- * as a one-body potential.  The MEAMP2 class then cycles through each atom pair 
- * just like a two-body potential, calculating the values of the pair-wise terms 
- * and storing them in the appropriate elements of the arrays. As the pairings 
- * between an atom and each of its neighbors are evaluated, the pair-wise terms 
- * relevant to that atom are summed within that atom's "sums" array or 
- * "gradientSums" array.  I like to think of the elements as bins, in which the 
- * values gradually accumulate into the required sums.  Both the MEAMPInitial class 
- * and the MEAMP2 class have energy and gradient methods, but they must contribute
- * nothing to the value of the potential and its gradient, at least not directly. 
- * In both classes, these methods return either zero or the zero vector.  
- * 
- * The gradient and its vector are finally calculated by the MEAMPMany class, which
- * functions as a one-body potential class.  All of the sums required for the
- * computation of an atom's potential and gradient may be accessed within the
- * relevant atom's bins in its wrapper.  
  * 
  * This class was adapted from LjMd3D.java by K.R. Schadel and A. Schultz in July 
  * 2005.  Intitially, it employed a version of the embedded-atom method potential, 
@@ -114,16 +78,18 @@ public class MEAMMd3D extends Simulation {
     	MeterKineticEnergy kineticMeter = new MeterKineticEnergy();
     	kineticMeter.setPhase(sim.phase);
     	AccumulatorHistory kineticAccumulator = new AccumulatorHistory(HistoryCollapsingAverage.FACTORY);
-    	kineticAccumulator.setDataSink(plot.getDataSet().makeDataSink());
+     	DisplayPlot plotKE = new DisplayPlot();
+    	kineticAccumulator.setDataSink(plotKE.getDataSet().makeDataSink());
     	DataPump kineticManager = new DataPump(kineticMeter, kineticAccumulator);
-        //energyAccumulator.setBlockSize(50);
+    	//energyAccumulator.setBlockSize(50);
         IntervalActionAdapter adapter = new IntervalActionAdapter(energyManager, sim.integrator);
-        adapter.setActionInterval(5);
+        adapter.setActionInterval(1);
         IntervalActionAdapter kineticAdapter = new IntervalActionAdapter(kineticManager, sim.integrator);
-        kineticAdapter.setActionInterval(5);
+        kineticAdapter.setActionInterval(1);
         SimulationGraphic simgraphic = new SimulationGraphic(sim);
     	simgraphic.makeAndDisplayFrame();
     	simgraphic.panel().add(plot.graphic());
+    	simgraphic.panel().add(plotKE.graphic());
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simgraphic.displayList().getFirst()).getColorScheme());
     	colorScheme.setColor(sim.species.getMoleculeType(),java.awt.Color.red);
     	//sim.activityIntegrate.setMaxSteps(1000);
@@ -140,12 +106,16 @@ public class MEAMMd3D extends Simulation {
         integrator = new IntegratorVelocityVerlet(this);
         integrator.setTimeStep(0.001);
         integrator.setTemperature(Kelvin.UNIT.toSim(298));
+        integrator.setThermostatInterval(10);
         integrator.setIsothermal(true);
         activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         species.setNMolecules(216);
+        
+        //Sn
+        /**
         //The value of the atomic weight of Sn used is from the ASM Handbook. 
         ((AtomTypeLeaf)species.getFactory().getType()).setMass(118.69);
         //The "distance of closest approach" for atoms in beta-tin, as given on 
@@ -164,19 +134,41 @@ public class MEAMMd3D extends Simulation {
         //angstroms) are taken from the ASM Handbook. 
         phase.setDimensions(new Vector3D(5.8314*3, 5.8314*3, 3.1815*6));
         PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.8318, 3.1819);
+        //Alternatively, using the parameters calculated in Ravelo & Baskes (1997)
+        //phase.setDimensions(new Vector3D(5.92*3, 5.92*3, 3.23*6));
+        //PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.92, 3.23);
         LatticeCrystal crystal = new LatticeCrystal(new Crystal(
         		primitive, new BasisBetaSnA5(primitive)));
-        Configuration config = new ConfigurationLattice(crystal);
-//        phase.setConfiguration(config);  // kmb remove 8/3/05
-        config.initializeCoordinates(phase);  // kmb added 8/3/05
+        **/
+
         //pseudoPotential1 = new MEAMPInitial(space, pseudoPotential2.getPhaseAgentManager());
         //potential = new MEAMPMany(space, ParameterSetMEAM.Sn, pseudoPotential2.getPhaseAgentManager());
         //this.potentialMaster.addPotential(potential, new Species[]{species});
         //this.potentialMaster.addPotential(pseudoPotential2, new Species[]{species,species});
         //this.potentialMaster.addPotential(pseudoPotential1, new Species[]{species});    
 
+        //Cu
+        
+	    ((AtomTypeLeaf)species.getFactory().getType()).setMass(63.546);//Cullity & Stock
+	    ((AtomTypeSphere)species.getFactory().getType()).setDiameter(2.56);
+	    phase = new Phase(this);
+	    phase.setDimensions(new Vector3D(3.6148*3, 3.6148*3, 3.6148*6));
+	    PrimitiveCubic primitive = new PrimitiveCubic(space, 3.6148);
+	    LatticeCrystal crystal = new LatticeCrystal(new Crystal(
+		        primitive, new BasisCubicFcc(primitive)));
+	    
+        
+		//General   
+		Configuration config = new ConfigurationLattice(crystal);
+        //phase.setConfiguration(config);  // kmb remove 8/3/05
+		config.initializeCoordinates(phase);  // kmb added 8/3/05
+        
+        
         //N-body potential
-        potentialN = new PotentialMEAM (space, ParameterSetMEAM.Sn);
+		//potentialN = new PotentialMEAM (space, ParameterSetMEAM.Sn);//Sn
+		potentialN = new PotentialMEAM (space, ParameterSetMEAM.Cu);//Cu
+		
+		//System.out.println(ParameterSetMEAM.Sn.Ec);
         this.potentialMaster.addPotential(potentialN, new Species[]{species});    
         
         integrator.setPhase(phase);
