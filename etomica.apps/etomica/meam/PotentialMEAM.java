@@ -66,19 +66,18 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             nearestImageTransformer.nearestImage(rij);
             double r = Math.sqrt(rij.squared());
             
-            //if (r > 3.15) continue; //Sn
-            if (r > 3.0) continue; //Cu
+            if (r > 5.0) continue; //Sn
+            //if (r > 3.0) continue; //Cu
             
             //To determine amount of screening between atoms i and j 
             //by any atom k which may be between them
             double Sij = 1;
             for(int k = 1; k < atoms.count(); k++) {
             	AtomLeaf atomk = (AtomLeaf) atoms.getAtom(k);
+            	if (k == j) continue;
             	rik.Ev1Mv2(atom0.coord.position(), atomk.coord.position());
             	nearestImageTransformer.nearestImage(rik);
             	double ik = Math.sqrt(rik.squared());
-            	
-            	if (ik > r) continue;
             	
             	double anglekij = Math.toDegrees(Math.acos(
             			((rij.x(0)*rik.x(0)) + 
@@ -86,7 +85,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 						 (rij.x(2)*rik.x(2)))
 						 /(r*ik)));
             	
-            	if (anglekij > 90) continue;
+            	if (anglekij >= 90) continue;
             	
             	rjk.Ev1Mv2(atomj.coord.position(), atomk.coord.position());
             	nearestImageTransformer.nearestImage(rjk);
@@ -178,8 +177,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         double gammaRef = (p.t1 * (rhoi1Ref/rhoi0Ref) * (rhoi1Ref/rhoi0Ref)) 
 			+ (p.t2 * (rhoi2Ref/rhoi0Ref) * (rhoi2Ref/rhoi0Ref)) 
 			+ (p.t3 * (rhoi3Ref/rhoi0Ref) * (rhoi3Ref/rhoi0Ref));
-        //double rhoiRef = (2.0 * rhoi0Ref) / (1.0 + Math.exp(-gammaRef)); //Sn
-        double rhoiRef = rhoi0Ref * Math.sqrt(1.0 + gammaRef); //Cu
+        double rhoiRef = (2.0 * rhoi0Ref) / (1.0 + Math.exp(-gammaRef)); //Sn
+        //double rhoiRef = rhoi0Ref * Math.sqrt(1.0 + gammaRef); //Cu
         double a = p.alpha * ((r/p.r0) - 1.0);
     	double EuRef = - p.Ec * (1.0 + a) * Math.exp(-a);
     	double FRef = p.A * p.Ec * (rhoiRef/p.Z) * Math.log(rhoiRef/p.Z);
@@ -225,8 +224,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 
         //The following expression for the background electron density of atom i
 		//is appropriate for Sn only.
-        //double rhoi = (2.0 * rhoi0) / (1.0 + Math.exp(-gamma)); //Sn
-        double rhoi = rhoi0 * Math.sqrt(1.0 + gamma); //Cu
+        double rhoi = (2.0 * rhoi0) / (1.0 + Math.exp(-gamma)); //Sn
+        //double rhoi = rhoi0 * Math.sqrt(1.0 + gamma); //Cu
         
 		double F = p.A * p.Ec * (rhoi/p.Z) * Math.log(rhoi/p.Z);
 		
@@ -299,8 +298,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             nearestImageTransformer.nearestImage(rij);
             double r = Math.sqrt(rij.squared());
             
-            //if (r > 3.5) continue; //Sn
-            if (r > 3.0) continue; //Cu
+            if (r > 3.5) continue; //Sn
+            //if (r > 3.0) continue; //Cu
         	
         	double rhoj0 = p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0));
         	sumRhoj0 += (p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0)));
@@ -351,8 +350,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         double gammaRef = (p.t1 * (rhoi1Ref/rhoi0Ref) * (rhoi1Ref/rhoi0Ref)) 
  			+ (p.t2 * (rhoi2Ref/rhoi0Ref) * (rhoi2Ref/rhoi0Ref)) 
  			+ (p.t3 * (rhoi3Ref/rhoi0Ref) * (rhoi3Ref/rhoi0Ref));
-        //double rhoiRef = (2.0 * rhoi0Ref) / (1.0 + Math.exp(-gammaRef));//Sn
-        double rhoiRef = rhoi0Ref * Math.sqrt( 1.0 + gammaRef); //Cu
+        double rhoiRef = (2.0 * rhoi0Ref) / (1.0 + Math.exp(-gammaRef));//Sn
+        //double rhoiRef = rhoi0Ref * Math.sqrt( 1.0 + gammaRef); //Cu
     	
     	vector100.setX(0,1.0);
     	vector010.setX(1,1.0);
@@ -521,18 +520,18 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     	gradGammaRef.TE(2.0/(rhoi0Ref*rhoi0Ref));
     	
     	//Sn
-    	/**
+    	
     	gradRhoiRef.Ea1Tv1(rhoi0Ref*Math.exp(-gammaRef)
     			/((1.0+Math.exp(-gammaRef))*(1.0+Math.exp(-gammaRef))), gradGammaRef);
     	gradRhoiRef.PEa1Tv1(1.0/(1.0+Math.exp(-gammaRef)), gradRhoi0Ref);
     	gradRhoiRef.TE(2.0);
-    	**/
+    	
     	
     	//Cu
-    	
+    	/**
     	gradRhoiRef.Ea1Tv1(rhoiRef*0.5*Math.sqrt(1.0/(1.0+gammaRef)), gradGammaRef);
     	gradRhoiRef.PEa1Tv1(Math.sqrt(1.0+gammaRef), gradRhoi0Ref);
-    	
+    	**/
     	
     	gradFRef.Ea1Tv1( (p.A*p.Ec/p.Z)*
     			(1.0 + Math.log(rhoiRef/p.Z)), gradRhoiRef);
@@ -581,9 +580,9 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 
         //The following expression for the background electron density of atom i
 		//is appropriate for Sn only.
-        //double rhoi = (2.0 * rhoi0) / (1.0 + Math.exp(-gamma)); //Sn
+        double rhoi = (2.0 * rhoi0) / (1.0 + Math.exp(-gamma)); //Sn
         
-        double rhoi = rhoi0 * Math.sqrt(1.0 + gamma); //Cu
+        //double rhoi = rhoi0 * Math.sqrt(1.0 + gamma); //Cu
         
         gradRhoi0.E(sumGradRhoj0);
 		
@@ -634,17 +633,17 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		gradGamma.TE(1.0/(rhoi0*rhoi0));
 		
 		//Sn
-		/**
+		
 		gradRhoi.Ea1Tv1(rhoi0*Math.exp(-gamma)/(1.0 + Math.exp(-gamma)), gradGamma);
 		gradRhoi.PE(gradRhoi0);
 		gradRhoi.TE(2.0/(1.0+Math.exp(-gamma)));
-		**/
+		
 		
 		//Cu
-		
+		/**
 		gradRhoi.Ea1Tv1(rhoi0*0.5*Math.sqrt(1.0/(1.0 + gamma)), gradGamma);
 		gradRhoi.PEa1Tv1(Math.sqrt(1.0+gamma), gradRhoi0);
-	    
+	    **/
 		
 		gradF.Ea1Tv1( (p.A*p.Ec/p.Z)*
 				(1.0 + Math.log(rhoi/p.Z)), gradRhoi);
