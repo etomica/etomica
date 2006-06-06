@@ -42,7 +42,8 @@ public class ParameterSetMEAM {
 	
 	public ParameterSetMEAM(double Ec, double A, double r0, double alpha, 
 			double beta0, double beta1, double beta2, double beta3, 
-			double t1, double t2, double t3, double rhoScale, double Z) {
+			double t1, double t2, double t3, double rhoScale, double Z,
+			double Cmin, double Cmax) {
 		this.Ec = Ec;
 		this.A = A;
 		this.r0 = r0;
@@ -56,6 +57,8 @@ public class ParameterSetMEAM {
 		this.t3 = t3;
 		this.rhoScale = rhoScale;
 		this.Z = Z;
+		this.Cmin = Cmin;
+		this.Cmax = Cmax;
 	}
 	
 	public final double Ec;  	
@@ -92,13 +95,17 @@ public class ParameterSetMEAM {
 		//scaling parameter 
 	public final double Z; //coordination number for the reference 
 		//crystal stucture (the number of first nearest neighbors) (unitless)
+	public final double Cmin;
+	public final double Cmax;
 	
-	public static final ParameterSetMEAM Ag = new ParameterSetMEAM(ElectronVolt.UNIT.toSim(2.85), 1.06, 2.89, 5.89, 4.46, 2.2, 6.0, 2.2, 5.54, 2.45, 1.29, 1.0, 12.0);
-	public static final ParameterSetMEAM Cu = new ParameterSetMEAM(ElectronVolt.UNIT.toSim(3.62), 1.07, 2.50, 5.106, 3.62, 2.2, 6.0, 2.2, 3.14, 2.49, 2.95, 1.0, 12.0);
-	public static final ParameterSetMEAM Sn = new ParameterSetMEAM(ElectronVolt.UNIT.toSim(3.08), 1.0, 3.44, 6.20, 6.2, 6.0, 6.0, 6.0, 4.5, 6.5, -0.183, 1.0, 12.0);
+	public static final ParameterSetMEAM Ag = new ParameterSetMEAM(ElectronVolt.UNIT.toSim(2.85), 1.06, 2.89, 5.89, 4.46, 2.2, 6.0, 2.2, 5.54, 2.45, 1.29, 1.0, 12.0, Double.NaN, Double.NaN);
+	
+	//used parameters from Baskes 1992 (on Ec, r0, and alpha different)
+	public static final ParameterSetMEAM Cu = new ParameterSetMEAM(ElectronVolt.UNIT.toSim(3.540), 1.07, 2.56, 5.11, 3.63, 2.2, 6.0, 2.2, 3.14, 2.49, 2.95, 1.0, 12.0, Double.NaN, Double.NaN);
+	public static final ParameterSetMEAM Sn = new ParameterSetMEAM(ElectronVolt.UNIT.toSim(3.08), 1.0, 3.44, 6.20, 6.2, 6.0, 6.0, 6.0, 4.5, 6.5, -0.183, 1.0, 12.0, 0.8, 2.8);
 	public static final ParameterSetMEAM Ag3Sn = new ParameterSetMEAM(ElectronVolt.UNIT.toSim(2.83), Double.NaN, 2.96, 6.07, Double.NaN, Double.NaN, Double.NaN, 
-			Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
+			Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
 	public static final ParameterSetMEAM Cu3Sn = new ParameterSetMEAM(ElectronVolt.UNIT.toSim(3.5), Double.NaN, 
 			2.68, 5.38, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-			Double.NaN, Double.NaN, Double.NaN, Double.NaN);
+			Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
 }
