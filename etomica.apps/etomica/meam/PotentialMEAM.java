@@ -44,26 +44,74 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	 */
 	public double energy(AtomSet atoms) {
 		AtomLeaf atom0 = (AtomLeaf)atoms.getAtom(0);
-    	
-    	//if (r > 20) return 0;
-    	//else {
+		
+		//System.out.println(atom0);
         
         double sumRhoj0 = 0, sumRhoj1 = 0, sumRhoj2 = 0, sumRhoj3 = 0, 
 			sumt1Rhoj0 = 0, sumt2Rhoj0 = 0, sumt3Rhoj0 = 0, 
-			sumRhoj1x = 0, sumRhoj1y = 0, sumRhoj1z = 0,  
-			sumRhoj2xx = 0, sumRhoj2xy = 0,  sumRhoj2xz = 0,
-			sumRhoj2yy = 0, sumRhoj2yz = 0, sumRhoj2zz = 0,
-			sumRhoj3xxx = 0, sumRhoj3xxy = 0, sumRhoj3xxz = 0, 
-			sumRhoj3xyy = 0, sumRhoj3xyz = 0, sumRhoj3xzz = 0,
-			sumRhoj3yyy = 0, sumRhoj3yyz = 0, sumRhoj3yzz = 0, sumRhoj3zzz = 0,
+			sumRhoj0Sij = 0, sumRhoj2Sij = 0,
+			sumRhoj1xSij = 0, sumRhoj1ySij = 0, sumRhoj1zSij = 0,  
+			sumRhoj2xxSij = 0, sumRhoj2xySij = 0,  sumRhoj2xzSij = 0,
+			sumRhoj2yySij = 0, sumRhoj2yzSij = 0, sumRhoj2zzSij = 0,
+			sumRhoj3xxxSij = 0, sumRhoj3xxySij = 0, sumRhoj3xxzSij = 0, 
+			sumRhoj3xyySij = 0, sumRhoj3xyzSij = 0, sumRhoj3xzzSij = 0,
+			sumRhoj3yyySij = 0, sumRhoj3yyzSij = 0, sumRhoj3yzzSij = 0, 
+			sumRhoj3zzzSij = 0,
 			sumPhi = 0;
 		
         
-        for(int i = 1; i < atoms.count(); i++) {
-        	AtomLeaf atomi = (AtomLeaf) atoms.getAtom(i);
-            dr.Ev1Mv2(atomi.coord.position(), atom0.coord.position());
-            nearestImageTransformer.nearestImage(dr);
-            double r = Math.sqrt(dr.squared());
+        for(int j = 1; j < atoms.count(); j++) {
+        	AtomLeaf atomj = (AtomLeaf) atoms.getAtom(j);
+            rij.Ev1Mv2(atom0.coord.position(), atomj.coord.position());
+            nearestImageTransformer.nearestImage(rij);
+            double r = Math.sqrt(rij.squared());
+            
+            //if (r > 3.15) continue; //Sn
+            if (r > 3.0) continue; //Cu
+            
+            //To determine amount of screening between atoms i and j 
+            //by any atom k which may be between them
+            double Sij = 1;
+            for(int k = 1; k < atoms.count(); k++) {
+            	AtomLeaf atomk = (AtomLeaf) atoms.getAtom(k);
+            	rik.Ev1Mv2(atom0.coord.position(), atomk.coord.position());
+            	nearestImageTransformer.nearestImage(rik);
+            	double ik = Math.sqrt(rik.squared());
+            	
+            	if (ik > r) continue;
+            	
+            	double anglekij = Math.toDegrees(Math.acos(
+            			((rij.x(0)*rik.x(0)) + 
+            			 (rij.x(1)*rik.x(1)) + 
+						 (rij.x(2)*rik.x(2)))
+						 /(r*ik)));
+            	
+            	if (anglekij > 90) continue;
+            	
+            	rjk.Ev1Mv2(atomj.coord.position(), atomk.coord.position());
+            	nearestImageTransformer.nearestImage(rjk);
+            	double jk = Math.sqrt(rjk.squared());
+            	
+            	//from Baskes, Angelo, & Bisson (1994)
+            	double xik = (ik/jk)*(ik/jk);
+            	double xjk = (jk/r)*(jk/r);
+            	double C = ((2*(xik + xjk)) - ((xik - xjk)*(xik - xjk))- 1)/
+						   (1 - ((xik - xjk)*(xik - xjk)));
+            	
+            	double Sikj;
+            	if (C <= p.Cmin) {
+            		Sikj = 0;
+            	}
+            	else if (C >= p.Cmax) {
+            			Sikj = 1;
+            		}
+            	else {
+            			Sikj = Math.exp(-(((p.Cmax - C)/(C - p.Cmin))
+            					*((p.Cmax - C)/(C - p.Cmin))));
+            	}
+            	
+				Sij *= Sikj;
+            }
     		
     	//
     	//These rhoj terms are required for both the many-body and the 
@@ -78,46 +126,49 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     	//for unmixed pairs of atoms only.
     	//
     	double rhoj0 = p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0));
-    	sumRhoj0 += p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0));
+    	sumRhoj0 += (p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0)));
     	double rhoj1 = p.rhoScale * Math.exp(-p.beta1 * ((r/p.r0) - 1.0));
-        sumRhoj1 += p.rhoScale * Math.exp(-p.beta1 * ((r/p.r0) - 1.0));
+        sumRhoj1 += (p.rhoScale * Math.exp(-p.beta1 * ((r/p.r0) - 1.0)));
         double rhoj2 = p.rhoScale * Math.exp(-p.beta2 * ((r/p.r0) - 1.0));
-        sumRhoj2 += p.rhoScale * Math.exp(-p.beta2 * ((r/p.r0) - 1.0));
+        sumRhoj2 += (p.rhoScale * Math.exp(-p.beta2 * ((r/p.r0) - 1.0)));
     	double rhoj3 = p.rhoScale * Math.exp(-p.beta3 * ((r/p.r0) - 1.0));
-    	sumRhoj3 += p.rhoScale * Math.exp(-p.beta3 * ((r/p.r0) - 1.0));
+    	sumRhoj3 += (p.rhoScale * Math.exp(-p.beta3 * ((r/p.r0) - 1.0)));
     	
-    	sumt1Rhoj0 += rhoj0 * p.t1;
-    	sumt2Rhoj0 += rhoj0 * p.t2;
-    	sumt3Rhoj0 += rhoj0 * p.t3;
+    	sumRhoj0Sij += rhoj0 * Sij;
+    	sumRhoj2Sij += rhoj2 * Sij;
     	
-    	unitVector.E(dr);
+    	sumt1Rhoj0 += (rhoj0 * p.t1);
+    	sumt2Rhoj0 += (rhoj0 * p.t2);
+    	sumt3Rhoj0 += (rhoj0 * p.t3);
+    	
+    	unitVector.E(rij);
         unitVector.normalize();
         
         double x = unitVector.x(0);
         double y = unitVector.x(1);
         double z = unitVector.x(2);
        
-        sumRhoj1x += rhoj1 * x;
-        sumRhoj1y += rhoj1 * y;
-        sumRhoj1z += rhoj1 * z;  	
+        sumRhoj1xSij += rhoj1 * x * Sij;
+        sumRhoj1ySij += rhoj1 * y * Sij;
+        sumRhoj1zSij += rhoj1 * z * Sij;  	
         
-        sumRhoj2xx += rhoj2 * x * x;
-        sumRhoj2xy += rhoj2 * x * y;
-        sumRhoj2xz += rhoj2 * x * z;
-        sumRhoj2yy += rhoj2 * y * y;
-        sumRhoj2yz += rhoj2 * y * z;
-        sumRhoj2zz += rhoj2 * z * z;
+        sumRhoj2xxSij += rhoj2 * x * x * Sij;
+        sumRhoj2xySij += rhoj2 * x * y * Sij;
+        sumRhoj2xzSij += rhoj2 * x * z * Sij;
+        sumRhoj2yySij += rhoj2 * y * y * Sij;
+        sumRhoj2yzSij += rhoj2 * y * z * Sij;
+        sumRhoj2zzSij += rhoj2 * z * z * Sij;
         
-        sumRhoj3xxx += rhoj3 * x * x * x;
-        sumRhoj3xxy += rhoj3 * x * x * y;
-        sumRhoj3xxz += rhoj3 * x * x * z;
-        sumRhoj3xyy += rhoj3 * x * y * y;
-        sumRhoj3xyz += rhoj3 * x * y * z;
-        sumRhoj3xzz += rhoj3 * x * z * z;
-        sumRhoj3yyy += rhoj3 * y * y * y;
-        sumRhoj3yyz += rhoj3 * y * y * z;
-        sumRhoj3yzz += rhoj3 * y * z * z;
-        sumRhoj3zzz += rhoj3 * z * z * z;
+        sumRhoj3xxxSij += rhoj3 * x * x * x * Sij;
+        sumRhoj3xxySij += rhoj3 * x * x * y * Sij;
+        sumRhoj3xxzSij += rhoj3 * x * x * z * Sij;
+        sumRhoj3xyySij += rhoj3 * x * y * y * Sij;
+        sumRhoj3xyzSij += rhoj3 * x * y * z * Sij;
+        sumRhoj3xzzSij += rhoj3 * x * z * z * Sij;
+        sumRhoj3yyySij += rhoj3 * y * y * y * Sij;
+        sumRhoj3yyzSij += rhoj3 * y * y * z * Sij;
+        sumRhoj3yzzSij += rhoj3 * y * z * z * Sij;
+        sumRhoj3zzzSij += rhoj3 * z * z * z * Sij;
         
         //to calculate the repulsive pair potential, phi
         double rhoi0Ref = p.Z * rhoj0;
@@ -127,34 +178,40 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         double gammaRef = (p.t1 * (rhoi1Ref/rhoi0Ref) * (rhoi1Ref/rhoi0Ref)) 
 			+ (p.t2 * (rhoi2Ref/rhoi0Ref) * (rhoi2Ref/rhoi0Ref)) 
 			+ (p.t3 * (rhoi3Ref/rhoi0Ref) * (rhoi3Ref/rhoi0Ref));
-        double rhoiRef = (2.0 * rhoi0Ref) / (1.0 + Math.exp(-gammaRef));
+        //double rhoiRef = (2.0 * rhoi0Ref) / (1.0 + Math.exp(-gammaRef)); //Sn
+        double rhoiRef = rhoi0Ref * Math.sqrt(1.0 + gammaRef); //Cu
         double a = p.alpha * ((r/p.r0) - 1.0);
     	double EuRef = - p.Ec * (1.0 + a) * Math.exp(-a);
-    	double FRef = p.A * p.Ec * (rhoiRef / p.rhoScale) * Math.log(rhoiRef/p.rhoScale);
-    	sumPhi += (2.0/p.Z) * (EuRef - FRef);
+    	double FRef = p.A * p.Ec * (rhoiRef/p.Z) * Math.log(rhoiRef/p.Z);
+    	
+    	sumPhi += ((2.0/p.Z) * (EuRef - FRef));
         }
         
         double rhoi0 = sumRhoj0;
         
-        double rhoi1 = Math.sqrt( (sumRhoj1x * sumRhoj1x)
-    				+ (sumRhoj1y * sumRhoj1y)+ (sumRhoj1z * sumRhoj1z));
+        double rhoi1 = Math.sqrt( (sumRhoj1xSij * sumRhoj1xSij)
+    				+ (sumRhoj1ySij * sumRhoj1ySij)
+					+ (sumRhoj1zSij * sumRhoj1zSij));
        
-        double rhoi2 = Math.sqrt((sumRhoj2xx * sumRhoj2xx)
-    			+ (2.0 * sumRhoj2xy * sumRhoj2xy)+ (2.0 * sumRhoj2xz * sumRhoj2xz)
-    			+ (sumRhoj2yy * sumRhoj2yy) + (2.0 * sumRhoj2yz * sumRhoj2yz)
-    			+ (sumRhoj2zz * sumRhoj2zz) - ((1.0/3.0) * sumRhoj2 * sumRhoj2));
+        double rhoi2 = Math.sqrt((sumRhoj2xxSij * sumRhoj2xxSij)
+    			+ (2.0 * sumRhoj2xySij * sumRhoj2xySij)
+				+ (2.0 * sumRhoj2xzSij * sumRhoj2xzSij)
+    			+ (sumRhoj2yySij * sumRhoj2yySij) 
+				+ (2.0 * sumRhoj2yzSij * sumRhoj2yzSij)
+    			+ (sumRhoj2zzSij * sumRhoj2zzSij) 
+				- ((1.0/3.0) * sumRhoj2Sij * sumRhoj2Sij));
         
         double rhoi3 = Math.sqrt( 
-        		   (sumRhoj3xxx * sumRhoj3xxx)
-    		+(3.0 * sumRhoj3xxy * sumRhoj3xxy)
-    		+(3.0 * sumRhoj3xxz * sumRhoj3xxz)
-    		+(3.0 * sumRhoj3xyy * sumRhoj3xyy)
-    		+(6.0 * sumRhoj3xyz * sumRhoj3xyz)
-    		+(3.0 * sumRhoj3xzz * sumRhoj3xzz)
-    		+      (sumRhoj3yyy * sumRhoj3yyy)
-    		+(3.0 * sumRhoj3yyz * sumRhoj3yyz)
-    		+(3.0 * sumRhoj3yzz * sumRhoj3yzz)
-    		+      (sumRhoj3zzz * sumRhoj3zzz));
+        		   (sumRhoj3xxxSij * sumRhoj3xxxSij)
+    		+(3.0 * sumRhoj3xxySij * sumRhoj3xxySij)
+    		+(3.0 * sumRhoj3xxzSij * sumRhoj3xxzSij)
+    		+(3.0 * sumRhoj3xyySij * sumRhoj3xyySij)
+    		+(6.0 * sumRhoj3xyzSij * sumRhoj3xyzSij)
+    		+(3.0 * sumRhoj3xzzSij * sumRhoj3xzzSij)
+    		+      (sumRhoj3yyySij * sumRhoj3yyySij)
+    		+(3.0 * sumRhoj3yyzSij * sumRhoj3yyzSij)
+    		+(3.0 * sumRhoj3yzzSij * sumRhoj3yzzSij)
+    		+      (sumRhoj3zzzSij * sumRhoj3zzzSij));
         
         double tav1 = sumt1Rhoj0 / sumRhoj0;
 
@@ -168,12 +225,12 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 
         //The following expression for the background electron density of atom i
 		//is appropriate for Sn only.
-        double rhoi = (2.0 * rhoi0) / (1.0 + Math.exp(-gamma));
-   
-        //The embedding energy of atom i
-		double F = p.A * p.Ec * (rhoi/p.rhoScale) * Math.log(rhoi/p.rhoScale);
+        //double rhoi = (2.0 * rhoi0) / (1.0 + Math.exp(-gamma)); //Sn
+        double rhoi = rhoi0 * Math.sqrt(1.0 + gamma); //Cu
+        
+		double F = p.A * p.Ec * (rhoi/p.Z) * Math.log(rhoi/p.Z);
 		
-		return F + ((1.0/2.0)*sumPhi);
+		return F + (0.5*sumPhi);
 	}
 
 	/* (non-Javadoc)
@@ -197,9 +254,6 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	public Vector[] gradient(AtomSet atoms) {
         AtomLeaf atom0 = (AtomLeaf)atoms.getAtom(0);
         
-        //if (r > 20) return nada;
-        //else {
-        
         double sumRhoj0 = 0, sumRhoj1 = 0, sumRhoj2 = 0, sumRhoj3 = 0, 
 		sumt1Rhoj0 = 0, sumt2Rhoj0 = 0, sumt3Rhoj0 = 0, 
 		sumRhoj1x = 0, sumRhoj1y = 0, sumRhoj1z = 0,  
@@ -208,7 +262,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		sumRhoj3xxx = 0, sumRhoj3xxy = 0, sumRhoj3xxz = 0, 
 		sumRhoj3xyy = 0, sumRhoj3xyz = 0, sumRhoj3xzz = 0,
 		sumRhoj3yyy = 0, sumRhoj3yyz = 0, sumRhoj3yzz = 0, sumRhoj3zzz = 0,
-		sumPhi = 0;
+		sumPhi = 0; //sumPhi may not be needed in gradient() method
         
         sumGradRhoj0.E(0);
         sumGradRhoj1.E(0);
@@ -241,52 +295,55 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         for(int i = 1; i < atoms.count(); i++) {
         	
         	AtomLeaf atomi = (AtomLeaf) atoms.getAtom(i);
-            dr.Ev1Mv2(atomi.coord.position(), atom0.coord.position());
-            nearestImageTransformer.nearestImage(dr);
-            double r = Math.sqrt(dr.squared());
+            rij.Ev1Mv2(atom0.coord.position(), atomi.coord.position());
+            nearestImageTransformer.nearestImage(rij);
+            double r = Math.sqrt(rij.squared());
+            
+            //if (r > 3.5) continue; //Sn
+            if (r > 3.0) continue; //Cu
         	
         	double rhoj0 = p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0));
-        	sumRhoj0 += p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0));
+        	sumRhoj0 += (p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0)));
         	double rhoj1 = p.rhoScale * Math.exp(-p.beta1 * ((r/p.r0) - 1.0));
-            sumRhoj1 += p.rhoScale * Math.exp(-p.beta1 * ((r/p.r0) - 1.0));
+            sumRhoj1 += (p.rhoScale * Math.exp(-p.beta1 * ((r/p.r0) - 1.0)));
             double rhoj2 = p.rhoScale * Math.exp(-p.beta2 * ((r/p.r0) - 1.0));
-            sumRhoj2 += p.rhoScale * Math.exp(-p.beta2 * ((r/p.r0) - 1.0));
+            sumRhoj2 += (p.rhoScale * Math.exp(-p.beta2 * ((r/p.r0) - 1.0)));
         	double rhoj3 = p.rhoScale * Math.exp(-p.beta3 * ((r/p.r0) - 1.0));
-        	sumRhoj3 += p.rhoScale * Math.exp(-p.beta3 * ((r/p.r0) - 1.0));
+        	sumRhoj3 += (p.rhoScale * Math.exp(-p.beta3 * ((r/p.r0) - 1.0)));
         	
-        	sumt1Rhoj0 += rhoj0 * p.t1;
-        	sumt2Rhoj0 += rhoj0 * p.t2;
-        	sumt3Rhoj0 += rhoj0 * p.t3;
+        	sumt1Rhoj0 += (rhoj0 * p.t1);
+        	sumt2Rhoj0 += (rhoj0 * p.t2);
+        	sumt3Rhoj0 += (rhoj0 * p.t3);
         	
-        	unitVector.E(dr);
+        	unitVector.E(rij);
             unitVector.normalize();
             
             double x = unitVector.x(0);
             double y = unitVector.x(1);
             double z = unitVector.x(2);
            
-            sumRhoj1x += rhoj1 * x;
-            sumRhoj1y += rhoj1 * y;
-            sumRhoj1z += rhoj1 * z;  	
+            sumRhoj1x += (rhoj1 * x);
+            sumRhoj1y += (rhoj1 * y);
+            sumRhoj1z += (rhoj1 * z);  	
             
-            sumRhoj2xx += rhoj2 * x * x;
-            sumRhoj2xy += rhoj2 * x * y;
-            sumRhoj2xz += rhoj2 * x * z;
-            sumRhoj2yy += rhoj2 * y * y;
-            sumRhoj2yz += rhoj2 * y * z;
-            sumRhoj2zz += rhoj2 * z * z;
+            sumRhoj2xx += (rhoj2 * x * x);
+            sumRhoj2xy += (rhoj2 * x * y);
+            sumRhoj2xz += (rhoj2 * x * z);
+            sumRhoj2yy += (rhoj2 * y * y);
+            sumRhoj2yz += (rhoj2 * y * z);
+            sumRhoj2zz += (rhoj2 * z * z);
             
-            sumRhoj3xxx += rhoj3 * x * x * x;
-            sumRhoj3xxy += rhoj3 * x * x * y;
-            sumRhoj3xxz += rhoj3 * x * x * z;
-            sumRhoj3xyy += rhoj3 * x * y * y;
-            sumRhoj3xyz += rhoj3 * x * y * z;
-            sumRhoj3xzz += rhoj3 * x * z * z;
-            sumRhoj3yyy += rhoj3 * y * y * y;
-            sumRhoj3yyz += rhoj3 * y * y * z;
-            sumRhoj3yzz += rhoj3 * y * z * z;
-            sumRhoj3zzz += rhoj3 * z * z * z;
-        
+            sumRhoj3xxx += (rhoj3 * x * x * x);
+            sumRhoj3xxy += (rhoj3 * x * x * y);
+            sumRhoj3xxz += (rhoj3 * x * x * z);
+            sumRhoj3xyy += (rhoj3 * x * y * y);
+            sumRhoj3xyz += (rhoj3 * x * y * z);
+            sumRhoj3xzz += (rhoj3 * x * z * z);
+            sumRhoj3yyy += (rhoj3 * y * y * y);
+            sumRhoj3yyz += (rhoj3 * y * y * z);
+            sumRhoj3yzz += (rhoj3 * y * z * z);
+            sumRhoj3zzz += (rhoj3 * z * z * z);
+         
     	double rhoi0Ref = p.Z * rhoj0;
         double rhoi1Ref = p.Z * rhoj1;
         double rhoi2Ref = Math.sqrt(2.0/3.0) * p.Z * rhoj2;
@@ -294,24 +351,24 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         double gammaRef = (p.t1 * (rhoi1Ref/rhoi0Ref) * (rhoi1Ref/rhoi0Ref)) 
  			+ (p.t2 * (rhoi2Ref/rhoi0Ref) * (rhoi2Ref/rhoi0Ref)) 
  			+ (p.t3 * (rhoi3Ref/rhoi0Ref) * (rhoi3Ref/rhoi0Ref));
-         double rhoiRef = (2.0 * rhoi0Ref) / (1.0 + Math.exp(-gammaRef));
-         
+        //double rhoiRef = (2.0 * rhoi0Ref) / (1.0 + Math.exp(-gammaRef));//Sn
+        double rhoiRef = rhoi0Ref * Math.sqrt( 1.0 + gammaRef); //Cu
     	
     	vector100.setX(0,1.0);
     	vector010.setX(1,1.0);
     	vector001.setX(2,1.0);
     	
-    	gradx.Ea1Tv1(-x/(r*r),dr);
+    	gradx.Ea1Tv1(-x/(r*r),rij);
     	gradx.PEa1Tv1(1.0/r, vector100);
     	
-    	grady.Ea1Tv1(-y/(r*r),dr);
+    	grady.Ea1Tv1(-y/(r*r),rij);
     	grady.PEa1Tv1(1.0/r, vector010);
     	
-    	gradz.Ea1Tv1(-z/(r*r),dr);
+    	gradz.Ea1Tv1(-z/(r*r),rij);
     	gradz.PEa1Tv1(1.0/r, vector001);
     	
-    	gradr.Ea1Tv1(1.0/r,dr);
-    	
+    	gradr.Ea1Tv1(1.0/r,rij);
+    
     	//Gradient of rhoj0
     	gradRhoj0.Ea1Tv1(-rhoj0*p.beta0/(p.r0), gradr);
     	sumGradRhoj0.PE(gradRhoj0);
@@ -377,60 +434,60 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     	sumGradRhoj2zz.PE(gradRhoj2zz);
     	
     	//Gradient of rhoj3xxx
-    	gradRhoj3xxx.Ea1Tv1(6.0*rhoj3*x*x, gradx);
+    	gradRhoj3xxx.Ea1Tv1(3.0*rhoj3*x*x, gradx);
     	gradRhoj3xxx.PEa1Tv1(x*x*x, gradRhoj3);
     	sumGradRhoj3xxx.PE(gradRhoj3xxx);
     	
     	//Gradient of rhoj3xxy
-    	gradRhoj3xxy.Ea1Tv1(2.0*rhoj3*x*x, grady);
-    	gradRhoj3xxy.PEa1Tv1(4.0*rhoj3*x*y, gradx);
+    	gradRhoj3xxy.Ea1Tv1(rhoj3*x*x, grady);
+    	gradRhoj3xxy.PEa1Tv1(2.0*rhoj3*x*y, gradx);
     	gradRhoj3xxy.PEa1Tv1(x*x*y, gradRhoj3);
     	sumGradRhoj3xxy.PE(gradRhoj3xxy);
     	
     	//Gradient of rhoj3xxz
-    	gradRhoj3xxz.Ea1Tv1(2.0*rhoj3*x*x, gradz);
-    	gradRhoj3xxz.PEa1Tv1(4.0*rhoj3*x*z, gradx);
+    	gradRhoj3xxz.Ea1Tv1(rhoj3*x*x, gradz);
+    	gradRhoj3xxz.PEa1Tv1(2.0*rhoj3*x*z, gradx);
     	gradRhoj3xxz.PEa1Tv1(x*x*z, gradRhoj3);
     	sumGradRhoj3xxz.PE(gradRhoj3xxz);
     	
     	//Gradient of rhoj3xyy
-    	gradRhoj3xyy.Ea1Tv1(4.0*rhoj3*x*y, grady);
-    	gradRhoj3xyy.PEa1Tv1(2.0*rhoj3*y*y, gradx);
+    	gradRhoj3xyy.Ea1Tv1(2.0*rhoj3*x*y, grady);
+    	gradRhoj3xyy.PEa1Tv1(rhoj3*y*y, gradx);
     	gradRhoj3xyy.PEa1Tv1(x*y*y, gradRhoj3);
     	sumGradRhoj3xyy.PE(gradRhoj3xyy);
     	
     	//Gradient of rhoj3xyz
-    	gradRhoj3xyz.Ea1Tv1(2.0*rhoj3*x*y, gradz);
-    	gradRhoj3xyz.PEa1Tv1(2.0*rhoj3*x*z, grady);
-    	gradRhoj3xyz.PEa1Tv1(2.0*rhoj3*y*z, gradx);
+    	gradRhoj3xyz.Ea1Tv1(rhoj3*x*y, gradz);
+    	gradRhoj3xyz.PEa1Tv1(rhoj3*x*z, grady);
+    	gradRhoj3xyz.PEa1Tv1(rhoj3*y*z, gradx);
     	gradRhoj3xyz.PEa1Tv1(x*y*z, gradRhoj3);
     	sumGradRhoj3xyz.PE(gradRhoj3xyz);
     	
     	//Gradient of rhoj3xzz
-    	gradRhoj3xzz.Ea1Tv1(4.0*rhoj3*x*z, gradz);
-    	gradRhoj3xzz.PEa1Tv1(2.0*rhoj3*z*z, gradx);
+    	gradRhoj3xzz.Ea1Tv1(2.0*rhoj3*x*z, gradz);
+    	gradRhoj3xzz.PEa1Tv1(rhoj3*z*z, gradx);
     	gradRhoj3xzz.PEa1Tv1(x*z*z, gradRhoj3);
     	sumGradRhoj3xzz.PE(gradRhoj3xzz);
     	
     	//Gradient of rhoj3yyy
-    	gradRhoj3yyy.Ea1Tv1(6.0*rhoj3*y*y, grady);
+    	gradRhoj3yyy.Ea1Tv1(3.0*rhoj3*y*y, grady);
     	gradRhoj3yyy.PEa1Tv1(y*y*y, gradRhoj3);
     	sumGradRhoj3yyy.PE(gradRhoj3yyy);
     	
     	//Gradient of rhoj3yyz
-    	gradRhoj3yyz.Ea1Tv1(2.0*rhoj3*y*y, gradz);
-    	gradRhoj3yyz.PEa1Tv1(4.0*rhoj3*y*z, grady);
+    	gradRhoj3yyz.Ea1Tv1(rhoj3*y*y, gradz);
+    	gradRhoj3yyz.PEa1Tv1(2.0*rhoj3*y*z, grady);
     	gradRhoj3yyz.PEa1Tv1(y*y*z, gradRhoj3);
     	sumGradRhoj3yyz.PE(gradRhoj3yyz);
     	
     	//Gradient of rhoj3yzz
-    	gradRhoj3yzz.Ea1Tv1(4.0*rhoj3*y*z, gradz);
-    	gradRhoj3yzz.PEa1Tv1(2.0*rhoj3*z*z, grady);
+    	gradRhoj3yzz.Ea1Tv1(2.0*rhoj3*y*z, gradz);
+    	gradRhoj3yzz.PEa1Tv1(rhoj3*z*z, grady);
     	gradRhoj3yzz.PEa1Tv1(y*z*z, gradRhoj3);
     	sumGradRhoj3yzz.PE(gradRhoj3yzz);
     	
     	//Gradient of rhoj3zzz
-    	gradRhoj3zzz.Ea1Tv1(6.0*rhoj3*z*z, gradz);
+    	gradRhoj3zzz.Ea1Tv1(3.0*rhoj3*z*z, gradz);
     	gradRhoj3zzz.PEa1Tv1(z*z*z, gradRhoj3);
     	sumGradRhoj3zzz.PE(gradRhoj3zzz);
     	
@@ -450,31 +507,11 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     	
     	gradRhoi0Ref.Ea1Tv1(p.Z, gradRhoj0);
     	
-    	gradRhoi1Ref.Ea1Tv1(x, gradRhoj1x);
-    	gradRhoi1Ref.PEa1Tv1(y, gradRhoj1y);
-    	gradRhoi1Ref.PEa1Tv1(z, gradRhoj1z);
-    	gradRhoi1Ref.TE(p.Z*p.Z*rhoj1/rhoi1Ref);
+    	gradRhoi1Ref.Ea1Tv1(p.Z, gradRhoj1);
     	
-    	gradRhoi2Ref.Ea1Tv1(x*x, gradRhoj2xx);
-    	gradRhoi2Ref.PEa1Tv1(2.0*x*y, gradRhoj2xy);
-    	gradRhoi2Ref.PEa1Tv1(2.0*x*z, gradRhoj2xz);
-    	gradRhoi2Ref.PEa1Tv1(y*y, gradRhoj2yy);
-    	gradRhoi2Ref.PEa1Tv1(2.0*y*z, gradRhoj2yz);
-    	gradRhoi2Ref.PEa1Tv1(z*z, gradRhoj2zz);
-    	gradRhoi2Ref.PEa1Tv1(-(1.0/3.0), gradRhoj2);
-    	gradRhoi2Ref.TE(p.Z*p.Z*rhoj2/rhoi2Ref);
+    	gradRhoi2Ref.Ea1Tv1(p.Z * Math.sqrt(2.0/3.0), gradRhoj2);
     	
-    	gradRhoi3Ref.Ea1Tv1(x*x*x, gradRhoj3xxx);
-    	gradRhoi3Ref.PEa1Tv1(3.0*x*x*y, gradRhoj3xxy);
-    	gradRhoi3Ref.PEa1Tv1(3.0*x*x*z, gradRhoj3xxz);
-    	gradRhoi3Ref.PEa1Tv1(3.0*x*y*y, gradRhoj3xyy);
-    	gradRhoi3Ref.PEa1Tv1(6.0*x*y*z, gradRhoj3xyz);
-    	gradRhoi3Ref.PEa1Tv1(3.0*x*z*z, gradRhoj3xzz);
-    	gradRhoi3Ref.PEa1Tv1(y*y*y, gradRhoj3yyy);
-    	gradRhoi3Ref.PEa1Tv1(3.0*y*y*z, gradRhoj3yyz);
-    	gradRhoi3Ref.PEa1Tv1(3.0*y*z*z, gradRhoj3yzz);
-    	gradRhoi3Ref.PEa1Tv1(z*z*z, gradRhoj3zzz);
-    	gradRhoi3Ref.TE(p.Z*p.Z*rhoj3/rhoi3Ref);
+    	gradRhoi3Ref.Ea1Tv1(p.Z, gradRhoj3);
     	
     	gradGammaRef.Ea1Tv1( (-1.0/rhoi0Ref) * (p.t1*rhoi1Ref*rhoi1Ref +
     			p.t2*rhoi2Ref*rhoi2Ref + p.t3*rhoi3Ref*rhoi3Ref), gradRhoi0Ref);
@@ -483,13 +520,22 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     	gradGammaRef.PEa1Tv1(p.t3*rhoi3Ref, gradRhoi3Ref);
     	gradGammaRef.TE(2.0/(rhoi0Ref*rhoi0Ref));
     	
+    	//Sn
+    	/**
     	gradRhoiRef.Ea1Tv1(rhoi0Ref*Math.exp(-gammaRef)
     			/((1.0+Math.exp(-gammaRef))*(1.0+Math.exp(-gammaRef))), gradGammaRef);
     	gradRhoiRef.PEa1Tv1(1.0/(1.0+Math.exp(-gammaRef)), gradRhoi0Ref);
     	gradRhoiRef.TE(2.0);
+    	**/
     	
-    	gradFRef.Ea1Tv1( (p.A*p.Ec / p.rhoScale)*
-    			(1.0 + Math.log(rhoiRef) - Math.log(p.rhoScale)), gradRhoiRef);
+    	//Cu
+    	
+    	gradRhoiRef.Ea1Tv1(rhoiRef*0.5*Math.sqrt(1.0/(1.0+gammaRef)), gradGammaRef);
+    	gradRhoiRef.PEa1Tv1(Math.sqrt(1.0+gammaRef), gradRhoi0Ref);
+    	
+    	
+    	gradFRef.Ea1Tv1( (p.A*p.Ec/p.Z)*
+    			(1.0 + Math.log(rhoiRef/p.Z)), gradRhoiRef);
     	
     	gradERef.Ea1Tv1( (p.Ec*p.alpha*p.alpha/p.r0) * ((r/p.r0) - 1.0)
     					*(Math.exp(-p.alpha*((r/p.r0)-1.0))), gradr);
@@ -535,7 +581,9 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 
         //The following expression for the background electron density of atom i
 		//is appropriate for Sn only.
-        double rhoi = (2.0 * rhoi0) / (1.0 + Math.exp(-gamma));
+        //double rhoi = (2.0 * rhoi0) / (1.0 + Math.exp(-gamma)); //Sn
+        
+        double rhoi = rhoi0 * Math.sqrt(1.0 + gamma); //Cu
         
         gradRhoi0.E(sumGradRhoj0);
 		
@@ -585,12 +633,21 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		gradGamma.PEa1Tv1(rhoi3*rhoi3, gradtav3);
 		gradGamma.TE(1.0/(rhoi0*rhoi0));
 		
+		//Sn
+		/**
 		gradRhoi.Ea1Tv1(rhoi0*Math.exp(-gamma)/(1.0 + Math.exp(-gamma)), gradGamma);
 		gradRhoi.PE(gradRhoi0);
 		gradRhoi.TE(2.0/(1.0+Math.exp(-gamma)));
-	
-		gradF.Ea1Tv1( (p.A*p.Ec/p.rhoScale)*
-				(1.0 + Math.log(rhoi)- Math.log(p.rhoScale)), gradRhoi);
+		**/
+		
+		//Cu
+		
+		gradRhoi.Ea1Tv1(rhoi0*0.5*Math.sqrt(1.0/(1.0 + gamma)), gradGamma);
+		gradRhoi.PEa1Tv1(Math.sqrt(1.0+gamma), gradRhoi0);
+	    
+		
+		gradF.Ea1Tv1( (p.A*p.Ec/p.Z)*
+				(1.0 + Math.log(rhoi/p.Z)), gradRhoi);
 		
 		//System.out.println("gradF is " + gradF);
 		//System.exit(0);
@@ -684,8 +741,15 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     private final Vector3D gradF = (Vector3D)space.makeVector();
     private final Vector3D[] gradEi = new Vector3D[1];
     
+    private final Vector3D gradRhoj0Ref = (Vector3D)space.makeVector();
+    private final Vector3D gradRhoj1Ref = (Vector3D)space.makeVector();
+    private final Vector3D gradRhoj2Ref = (Vector3D)space.makeVector();
+    private final Vector3D gradRhoj3Ref = (Vector3D)space.makeVector();
+    
     protected NearestImageTransformer nearestImageTransformer;
-    protected final Vector dr = (Vector3D)space.makeVector();
+    protected final Vector rij = (Vector3D)space.makeVector();
+    protected final Vector rik = (Vector3D)space.makeVector();
+    protected final Vector rjk = (Vector3D)space.makeVector();
     private ParameterSetMEAM p;
     private AtomPair pair;
 
