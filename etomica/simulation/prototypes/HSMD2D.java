@@ -4,6 +4,7 @@ import etomica.atom.AtomType;
 import etomica.config.ConfigurationSequential;
 import etomica.integrator.IntegratorHard;
 import etomica.nbr.CriterionSimple;
+import etomica.nbr.CriterionSpecies;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
@@ -73,15 +74,15 @@ public class HSMD2D extends Simulation {
 	    //this.potentialMaster.setSpecies(potential,new Species[]{species,species2});
         
         NeighborCriterion criterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
-        potential.setCriterion(criterion);
+        potential.setCriterion(new CriterionSpecies(criterion, species, species));
         potentialMaster.addPotential(potential,new Species[]{species,species});
 
         criterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
-        potential2.setCriterion(criterion);
+        potential2.setCriterion(new CriterionSpecies(criterion, species2, species2));
         potentialMaster.addPotential(potential2,new Species[]{species2,species2});
 
         criterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
-        potential22.setCriterion(criterion);
+        potential22.setCriterion(new CriterionSpecies(criterion, species, species2));
         potentialMaster.addPotential(potential22,new Species[]{species2,species});
 //        potentialMaster.setSpecies(potential,new Species[]{species,species});
 //        potentialMaster.setSpecies(potential,new Species[]{species2,species2});
