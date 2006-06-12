@@ -20,8 +20,8 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.Crystal;
 import etomica.lattice.LatticeCrystal;
-import etomica.lattice.crystal.BasisCubicFcc;
-import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.lattice.crystal.BasisBetaSnA5;
+import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
@@ -115,7 +115,7 @@ public class MEAMMd3D extends Simulation {
         species.setNMolecules(216);
         
         //Sn
-        /**
+        
         //The value of the atomic weight of Sn used is from the ASM Handbook. 
         ((AtomTypeLeaf)species.getFactory().getType()).setMass(118.69);
         //The "distance of closest approach" for atoms in beta-tin, as given on 
@@ -139,7 +139,7 @@ public class MEAMMd3D extends Simulation {
         //PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.92, 3.23);
         LatticeCrystal crystal = new LatticeCrystal(new Crystal(
         		primitive, new BasisBetaSnA5(primitive)));
-        **/
+        
 
         //pseudoPotential1 = new MEAMPInitial(space, pseudoPotential2.getPhaseAgentManager());
         //potential = new MEAMPMany(space, ParameterSetMEAM.Sn, pseudoPotential2.getPhaseAgentManager());
@@ -148,7 +148,7 @@ public class MEAMMd3D extends Simulation {
         //this.potentialMaster.addPotential(pseudoPotential1, new Species[]{species});    
 
         //Cu
-        
+        /**
 	    ((AtomTypeLeaf)species.getFactory().getType()).setMass(63.546);//Cullity & Stock
 	    ((AtomTypeSphere)species.getFactory().getType()).setDiameter(2.56);
 	    phase = new Phase(this);
@@ -156,7 +156,7 @@ public class MEAMMd3D extends Simulation {
 	    PrimitiveCubic primitive = new PrimitiveCubic(space, 3.6148);
 	    LatticeCrystal crystal = new LatticeCrystal(new Crystal(
 		        primitive, new BasisCubicFcc(primitive)));
-	    
+	    **/
         
 		//General   
 		Configuration config = new ConfigurationLattice(crystal);
@@ -165,8 +165,8 @@ public class MEAMMd3D extends Simulation {
         
         
         //N-body potential
-		//potentialN = new PotentialMEAM (space, ParameterSetMEAM.Sn);//Sn
-		potentialN = new PotentialMEAM (space, ParameterSetMEAM.Cu);//Cu
+		potentialN = new PotentialMEAM (space, ParameterSetMEAM.Sn);//Sn
+		//potentialN = new PotentialMEAM (space, ParameterSetMEAM.Cu);//Cu
 		
 		//System.out.println(ParameterSetMEAM.Sn.Ec);
         this.potentialMaster.addPotential(potentialN, new Species[]{species});    
