@@ -77,7 +77,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             	rik.Ev1Mv2(atomk.coord.position(), atom0.coord.position());
             	nearestImageTransformer.nearestImage(rik);
             	double ik = Math.sqrt(rik.squared());
-            	if (ik > 4.0) continue;
+            	if (ik > 4.0*1.14) continue;
             	
             	double anglekij = Math.toDegrees(Math.acos(
             			((rij.x(0)*rik.x(0)) + 
@@ -87,30 +87,31 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             	
             	if (anglekij >= 90) continue;
             	
-            	rjk.Ev1Mv2(atomk.coord.position(), atomj.coord.position());
-            	nearestImageTransformer.nearestImage(rjk);
-            	double jk = Math.sqrt(rjk.squared());
+            	rkj.Ev1Mv2(atomk.coord.position(), atomj.coord.position());
+            	nearestImageTransformer.nearestImage(rkj);
+            	double kj = Math.sqrt(rkj.squared());
             	
             	//from Baskes, Angelo, & Bisson (1994)
-            	double xik = (ik/jk)*(ik/jk);
-            	double xjk = (jk/r)*(jk/r);
+            	double xik = (ik/kj)*(ik/kj);
+            	double xjk = (kj/r)*(kj/r);
             	double C = ((2*(xik + xjk)) - ((xik - xjk)*(xik - xjk))- 1)/
 						   (1 - ((xik - xjk)*(xik - xjk)));
             	
-            	double Sikj;
+            	double Sijk;
             	if (C <= p.Cmin) { 
-            		Sikj = 0;
+            		Sij = 0;
+            		break;
             	}
             	else if (C >= p.Cmax) { //Sikj = 1, value of Sij won't change
             			continue;
             		}
             	else {
-            			Sikj = Math.exp(-(((p.Cmax - C)/(C - p.Cmin))
+            			Sijk = Math.exp(-(((p.Cmax - C)/(C - p.Cmin))
             					*((p.Cmax - C)/(C - p.Cmin))));
             	}
             	
-				Sij *= Sikj;
-				if (Sij == 0) break;
+				Sij *= Sijk;
+			
             }
     	
         if (Sij == 0) continue;    
@@ -304,13 +305,14 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             //To determine amount of screening between atoms i and j 
             //by any atom k which may be between them
             double Sij = 1;
+            gradSij.E(0);
             for(int k = 1; k < atoms.count(); k++) {
             	AtomLeaf atomk = (AtomLeaf) atoms.getAtom(k);
             	if (k == j) continue;
             	rik.Ev1Mv2(atomk.coord.position(), atom0.coord.position());
             	nearestImageTransformer.nearestImage(rik);
             	double ik = Math.sqrt(rik.squared());
-            	if (ik > 4.0) continue;
+            	if (ik > 4.0*1.14) continue;
             	
             	double anglekij = Math.toDegrees(Math.acos(
             			((rij.x(0)*rik.x(0)) + 
@@ -320,30 +322,58 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             	
             	if (anglekij >= 90) continue;
             	
-            	rjk.Ev1Mv2(atomk.coord.position(), atomj.coord.position());
-            	nearestImageTransformer.nearestImage(rjk);
-            	double jk = Math.sqrt(rjk.squared());
+            	rkj.Ev1Mv2(atomk.coord.position(), atomj.coord.position());
+            	nearestImageTransformer.nearestImage(rkj);
+            	double kj = Math.sqrt(rkj.squared());
             	
             	//from Baskes, Angelo, & Bisson (1994)
-            	double xik = (ik/jk)*(ik/jk);
-            	double xjk = (jk/r)*(jk/r);
-            	double C = ((2*(xik + xjk)) - ((xik - xjk)*(xik - xjk))- 1)/
-						   (1 - ((xik - xjk)*(xik - xjk)));
+            	double xik = (ik/kj)*(ik/kj);
+            	double xkj = (kj/r)*(kj/r);
+            	double C = ( (2*(xik + xkj)) - ((xik - xkj)*(xik - xkj))- 1 )
+							/ (1 - ((xik - xkj)*(xik - xkj)));
             	
-            	double Sikj;
+            	double Sijk;
             	if (C <= p.Cmin) { 
-            		Sikj = 0;
+            		Sij = 0;
+            		break;
             	}
             	else if (C >= p.Cmax) { //Sikj = 1, value of Sij won't change
             			continue;
             		}
             	else {
-            			Sikj = Math.exp(-(((p.Cmax - C)/(C - p.Cmin))
+            			Sijk = Math.exp(-(((p.Cmax - C)/(C - p.Cmin))
             					*((p.Cmax - C)/(C - p.Cmin))));
             	}
             	
-				Sij *= Sikj;
-				if (Sij == 0) break;
+            	
+				
+				gradr.Ea1Tv1(-1/r, rij);
+				
+				gradik.Ea1Tv1(-1/ik, rik);
+				
+				//gradXik.Ea1Tv1(-ik/(kj*kj), gradkj); gradkj is zero vector
+				gradXik.Ea1Tv1(1/kj, gradik);
+				gradXik.TE(2*ik/kj);
+				
+				gradXkj.Ea1Tv1(-kj/(r*r), gradr);
+				//gradXkj.PEa1Tv1(1/r, gradkj); grad kj is zero vector
+				gradXkj.TE(2*kj/r);
+				
+				gradC.Ea1Tv1( 1 - (xik - xkj)*(C + 1), gradXik);
+		    	gradC.PEa1Tv1(1 + (xik - xkj)*(C + 1), gradXkj);
+		    	gradC.TE( 2 / ( 1 - ((xik - xkj)*(xik - xkj)) ));
+		    	
+		    	gradSijk.Ea1Tv1( 2*Sijk*(p.Cmax - C)/((C - p.Cmin)*(C-p.Cmin) )
+		    			* ( ((p.Cmax - C)/(C - p.Cmin)) + 1 ), gradC);
+		    	
+		    	//The Sij value used to calculate gradSij is that for previous k's, 
+		    	//or, for the first k considered, 1.  Same goes for the gradSij value
+		    	//itself, except it's initialized as the zero vector...
+		    	gradSij.TE(Sijk);
+		    	gradSij.PEa1Tv1(Sij, gradSijk);
+		    
+		    	Sij *= Sijk;
+		    	
             }
     	
             if (Sij == 0) continue;
@@ -719,6 +749,12 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     private final Vector3D vector100 = (Vector3D)space.makeVector();
     private final Vector3D vector010 = (Vector3D)space.makeVector();
     private final Vector3D vector001 = (Vector3D)space.makeVector();
+    private final Vector3D gradSijPreviousK = (Vector3D)space.makeVector();
+    private final Vector3D gradik = (Vector3D)space.makeVector();
+    private final Vector3D gradXik = (Vector3D)space.makeVector();
+    private final Vector3D gradXkj = (Vector3D)space.makeVector();
+    private final Vector3D gradC = (Vector3D)space.makeVector();
+    private final Vector3D gradSijk = (Vector3D)space.makeVector();
     private final Vector3D gradx = (Vector3D)space.makeVector();
     private final Vector3D grady = (Vector3D)space.makeVector();
     private final Vector3D gradz = (Vector3D)space.makeVector();
@@ -806,7 +842,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     protected NearestImageTransformer nearestImageTransformer;
     protected final Vector rij = (Vector3D)space.makeVector();
     protected final Vector rik = (Vector3D)space.makeVector();
-    protected final Vector rjk = (Vector3D)space.makeVector();
+    protected final Vector rkj = (Vector3D)space.makeVector();
     private ParameterSetMEAM p;
     private AtomPair pair;
 
