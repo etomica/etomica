@@ -359,8 +359,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 				//gradXkj.PEa1Tv1(1/r, gradkj); grad kj is zero vector
 				gradXkj.TE(2*kj/r);
 				
-				gradC.Ea1Tv1( 1 - (xik - xkj)*(C + 1), gradXik);
-		    	gradC.PEa1Tv1(1 + (xik - xkj)*(C + 1), gradXkj);
+				gradC.Ea1Tv1( 1 + (xik - xkj)*(C - 1), gradXik);
+		    	gradC.PEa1Tv1(1 - (xik - xkj)*(C + 1), gradXkj);
 		    	gradC.TE( 2 / ( 1 - ((xik - xkj)*(xik - xkj)) ));
 		    	
 		    	gradSijk.Ea1Tv1( 2*Sijk*(p.Cmax - C)/((C - p.Cmin)*(C-p.Cmin) )
@@ -451,22 +451,22 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     	gradr.Ea1Tv1(-1.0/r,rij);
     
     	//Gradient of rhoj0
-    	gradRhoj0.Ea1Tv1(rhoj0, gradSij);
+    	gradRhoj0.Ea1Tv1(rhoj0/Sij, gradSij);
     	gradRhoj0.PEa1Tv1(-rhoj0*p.beta0/(p.r0), gradr);
     	sumGradRhoj0.PE(gradRhoj0);
     	
     	//Gradient of rhoj1
-    	gradRhoj1.Ea1Tv1(rhoj1, gradSij);
+    	gradRhoj1.Ea1Tv1(rhoj1/Sij, gradSij);
     	gradRhoj1.PEa1Tv1(-rhoj1*p.beta1/(p.r0), gradr);
     	sumGradRhoj1.PE(gradRhoj1);
     	
     	//Gradient of rhoj2
-    	gradRhoj2.Ea1Tv1(rhoj2, gradSij);
+    	gradRhoj2.Ea1Tv1(rhoj2/Sij, gradSij);
     	gradRhoj2.PEa1Tv1(-rhoj2*p.beta2/(p.r0), gradr);
     	sumGradRhoj2.PE(gradRhoj2);
     	
     	//Gradient of rhoj3
-    	gradRhoj3.Ea1Tv1(rhoj3, gradSij);
+    	gradRhoj3.Ea1Tv1(rhoj3/Sij, gradSij);
     	gradRhoj3.PEa1Tv1(-rhoj3*p.beta3/(p.r0), gradr);
     	sumGradRhoj3.PE(gradRhoj3);
     	
