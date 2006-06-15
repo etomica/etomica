@@ -171,19 +171,12 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         sumRhoj3zzz += rhoj3 * z * z * z;
         
         //to calculate the repulsive pair potential, phi
-        double rhoi0Ref = p.Z * rhoj0;
-        double rhoi1Ref = p.Z * rhoj1;
-        double rhoi2Ref = Math.sqrt(2.0/3.0) * p.Z * rhoj2;
-        double rhoi3Ref = p.Z * rhoj3;
-        double gammaRef = (p.t1 * (rhoi1Ref/rhoi0Ref) * (rhoi1Ref/rhoi0Ref)) 
-			+ (p.t2 * (rhoi2Ref/rhoi0Ref) * (rhoi2Ref/rhoi0Ref)) 
-			+ (p.t3 * (rhoi3Ref/rhoi0Ref) * (rhoi3Ref/rhoi0Ref));
-        double rhoiRef = (2.0 * rhoi0Ref) / (1.0 + Math.exp(-gammaRef)); //Sn
-        //double rhoiRef = rhoi0Ref * Math.sqrt(1.0 + gammaRef); //Cu
+        //Should rhoj0 within phi contain Sij? Phi itself is multiplied by Sij...
+        double rhoj0Ref = p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0));
+        double rhoiRef = p.Z * rhoj0Ref;   //FCC reference structure, Z = 12
         double a = p.alpha * ((r/p.r0) - 1.0);
     	double EuRef = - p.Ec * (1.0 + a) * Math.exp(-a);
     	double FRef = p.A * p.Ec * (rhoiRef/p.Z) * Math.log(rhoiRef/p.Z);
-    	
     	sumPhi += ((2.0/p.Z) * (EuRef - FRef)) * Sij;
         }
         
@@ -305,7 +298,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             //To determine amount of screening between atoms i and j 
             //by any atom k which may be between them
             double Sij = 1;
-            gradSij.E(0);
+            giSij.E(0);
             for(int k = 1; k < atoms.count(); k++) {
             	AtomLeaf atomk = (AtomLeaf) atoms.getAtom(k);
             	if (k == j) continue;
@@ -329,6 +322,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             	//from Baskes, Angelo, & Bisson (1994)
             	double xik = (ik/kj)*(ik/kj);
             	double xkj = (kj/r)*(kj/r);
+            	
             	double C = ( (2*(xik + xkj)) - ((xik - xkj)*(xik - xkj))- 1 )
 							/ (1 - ((xik - xkj)*(xik - xkj)));
             	
@@ -345,32 +339,62 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             					*((p.Cmax - C)/(C - p.Cmin))));
             	}
             	
+            	giRij.Ea1Tv1(-1/r, rij);
+            	gjRij.Ea1Tv1(-1, giRij);
+            	gkRij.E(0);
             	
-				
-				gradr.Ea1Tv1(-1/r, rij);
-				
-				gradik.Ea1Tv1(-1/ik, rik);
-				
-				//gradXik.Ea1Tv1(-ik/(kj*kj), gradkj); gradkj is zero vector
-				gradXik.Ea1Tv1(1/kj, gradik);
-				gradXik.TE(2*ik/kj);
-				
-				gradXkj.Ea1Tv1(-kj/(r*r), gradr);
-				//gradXkj.PEa1Tv1(1/r, gradkj); grad kj is zero vector
-				gradXkj.TE(2*kj/r);
-				
-				gradC.Ea1Tv1( 1 + (xik - xkj)*(C - 1), gradXik);
-		    	gradC.PEa1Tv1(1 - (xik - xkj)*(C + 1), gradXkj);
-		    	gradC.TE( 2 / ( 1 - ((xik - xkj)*(xik - xkj)) ));
+            	giRik.Ea1Tv1(-1/ik, rik);
+            	gjRik.E(0);
+            	gkRik.Ea1Tv1(-1, giRik);
+            	
+            	giRkj.E(0);
+            	gjRkj.Ea1Tv1(-1/kj, rkj);
+            	gkRkj.Ea1Tv1(-1, gjRkj);
+            	
+            	giXik.Ea1Tv1(-ik/(kj*kj), giRkj);
+            	giXik.PEa1Tv1(1/kj, giRik);
+            	giXik.TE(2*ik/kj);
+            	
+            	giXkj.Ea1Tv1(-kj/(r*r), giRij);
+            	giXkj.PEa1Tv1(1/r, giRkj);
+            	giXkj.TE(2*kj/r);
+            	
+            	gjXik.Ea1Tv1(-ik/(kj*kj), gjRkj);
+            	gjXik.PEa1Tv1(1/kj, gjRik);
+            	gjXik.TE(2*ik/kj);
+            	
+            	gjXkj.Ea1Tv1(-kj/(r*r), gjRij);
+            	gjXkj.PEa1Tv1(1/r, gjRkj);
+            	gjXkj.TE(2*kj/r);
+            	
+            	gkXik.Ea1Tv1(-ik/(kj*kj), gkRkj);
+            	gkXik.PEa1Tv1(1/kj, gkRik);
+            	gkXik.TE(2*ik/kj);
+            	
+            	gkXkj.Ea1Tv1(-kj/(r*r), gkRij);
+            	gkXkj.PEa1Tv1(1/r, gkRkj);
+            	gkXkj.TE(2*kj/r);
+            	
+				giC.Ea1Tv1( 1 + (xik - xkj)*(C - 1), giXik);
+		    	giC.PEa1Tv1(1 - (xik - xkj)*(C + 1), giXkj);
+		    	giC.TE( 2 / ( 1 - ((xik - xkj)*(xik - xkj)) ));
 		    	
-		    	gradSijk.Ea1Tv1( 2*Sijk*(p.Cmax - C)/((C - p.Cmin)*(C-p.Cmin) )
-		    			* ( ((p.Cmax - C)/(C - p.Cmin)) + 1 ), gradC);
+		    	gjC.Ea1Tv1( 1 + (xik - xkj)*(C - 1), gjXik);
+		    	gjC.PEa1Tv1(1 - (xik - xkj)*(C + 1), gjXkj);
+		    	gjC.TE( 2 / ( 1 - ((xik - xkj)*(xik - xkj)) ));
+		    	
+		    	gkC.Ea1Tv1( 1 + (xik - xkj)*(C - 1), gkXik);
+		    	gkC.PEa1Tv1(1 - (xik - xkj)*(C + 1), gkXkj);
+		    	gkC.TE( 2 / ( 1 - ((xik - xkj)*(xik - xkj)) ));
+		    	
+		    	giSijk.Ea1Tv1( 2*Sijk*(p.Cmax - C)/((C - p.Cmin)*(C-p.Cmin) )
+		    			* ( ((p.Cmax - C)/(C - p.Cmin)) + 1 ), giC);
 		    	
 		    	//The Sij value used to calculate gradSij is that for previous k's, 
 		    	//or, for the first k considered, 1.  Same goes for the gradSij value
 		    	//itself, except it's initialized as the zero vector...
-		    	gradSij.TE(Sijk);
-		    	gradSij.PEa1Tv1(Sij, gradSijk);
+		    	giSij.TE(Sijk);
+		    	giSij.PEa1Tv1(Sij, giSijk);
 		    
 		    	Sij *= Sijk;
 		    	
@@ -419,21 +443,18 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             sumRhoj3yyz += rhoj3 * y * y * z;
             sumRhoj3yzz += rhoj3 * y * z * z;
             sumRhoj3zzz += rhoj3 * z * z * z;
-         
-    	double rhoi0Ref = p.Z * rhoj0;
-        double rhoi1Ref = p.Z * rhoj1;
-        double rhoi2Ref = Math.sqrt(2.0/3.0) * p.Z * rhoj2;
-        double rhoi3Ref = p.Z * rhoj3;
-        double gammaRef = (p.t1 * (rhoi1Ref/rhoi0Ref) * (rhoi1Ref/rhoi0Ref)) 
- 			+ (p.t2 * (rhoi2Ref/rhoi0Ref) * (rhoi2Ref/rhoi0Ref)) 
- 			+ (p.t3 * (rhoi3Ref/rhoi0Ref) * (rhoi3Ref/rhoi0Ref));
-        double rhoiRef = (2.0 * rhoi0Ref) / (1.0 + Math.exp(-gammaRef));//Sn
-        //double rhoiRef = rhoi0Ref * Math.sqrt( 1.0 + gammaRef); //Cu
-        double a = p.alpha * ((r/p.r0) - 1.0);
-    	double EuRef = - p.Ec * (1.0 + a) * Math.exp(-a);
-    	double FRef = p.A * p.Ec * (rhoiRef/p.Z) * Math.log(rhoiRef/p.Z);
-    	
-    	double phi = ((2.0/p.Z) * (EuRef - FRef)) * Sij;
+        
+            //to calculate the repulsive pair potential, phi
+            //Should rhoj0 within phi contain Sij? Phi itself is multiplied by Sij...
+            //FCC reference structure, Z = 12
+            double rhoj0Ref = p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0));
+            double rhoiRef = p.Z * rhoj0Ref;   
+            double a = p.alpha * ((r/p.r0) - 1.0);
+        	double EuRef = - p.Ec * (1.0 + a) * Math.exp(-a);
+        	double FRef = p.A * p.Ec * (rhoiRef/p.Z) * Math.log(rhoiRef/p.Z);
+        	double phi = ((2.0/p.Z) * (EuRef - FRef)) * Sij;
+        	sumPhi += ((2.0/p.Z) * (EuRef - FRef)) * Sij;
+        	
     	
     	vector100.setX(0,1.0);
     	vector010.setX(1,1.0);
@@ -449,24 +470,39 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     	gradz.PEa1Tv1(-1.0/r, vector001);
     	
     	gradr.Ea1Tv1(-1.0/r,rij);
+    	
+    	//Calculations to determine gradient of phi
+    	//FCC reference structure, Z = 12
+    	gradRhoj0Ref.Ea1Tv1(-rhoj0Ref*p.beta0/p.r0, gradr);
+    	gradRhoiRef.Ea1Tv1(p.Z, gradRhoj0Ref);
+    	gradFRef.Ea1Tv1( (p.A*p.Ec/p.Z)*
+			(1.0 + Math.log(rhoiRef/p.Z)), gradRhoiRef);
+    	gradERef.Ea1Tv1( (p.Ec*p.alpha*p.alpha/p.r0) * ((r/p.r0) - 1.0)
+					*(Math.exp(-p.alpha*((r/p.r0)-1.0))), gradr);
+	
+    	gradPhi.E(gradERef);
+    	gradPhi.ME(gradFRef);
+    	gradPhi.TE(2.0 * Sij /p.Z);
+    	gradPhi.PEa1Tv1(phi/Sij, giSij);
+    	sumGradPhi.PE(gradPhi);
     
     	//Gradient of rhoj0
-    	gradRhoj0.Ea1Tv1(rhoj0/Sij, gradSij);
+    	gradRhoj0.Ea1Tv1(rhoj0/Sij, giSij);
     	gradRhoj0.PEa1Tv1(-rhoj0*p.beta0/(p.r0), gradr);
     	sumGradRhoj0.PE(gradRhoj0);
     	
     	//Gradient of rhoj1
-    	gradRhoj1.Ea1Tv1(rhoj1/Sij, gradSij);
+    	gradRhoj1.Ea1Tv1(rhoj1/Sij, giSij);
     	gradRhoj1.PEa1Tv1(-rhoj1*p.beta1/(p.r0), gradr);
     	sumGradRhoj1.PE(gradRhoj1);
     	
     	//Gradient of rhoj2
-    	gradRhoj2.Ea1Tv1(rhoj2/Sij, gradSij);
+    	gradRhoj2.Ea1Tv1(rhoj2/Sij, giSij);
     	gradRhoj2.PEa1Tv1(-rhoj2*p.beta2/(p.r0), gradr);
     	sumGradRhoj2.PE(gradRhoj2);
     	
     	//Gradient of rhoj3
-    	gradRhoj3.Ea1Tv1(rhoj3/Sij, gradSij);
+    	gradRhoj3.Ea1Tv1(rhoj3/Sij, giSij);
     	gradRhoj3.PEa1Tv1(-rhoj3*p.beta3/(p.r0), gradr);
     	sumGradRhoj3.PE(gradRhoj3);
     	
@@ -587,50 +623,6 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     	//t3GradRhoj0
     	t3GradRhoj0.Ea1Tv1(p.t3, gradRhoj0);
     	sumt3GradRhoj0.PE(t3GradRhoj0);
-    	
-    	//Calculations to determine gradient of phi
-    	
-    	gradRhoi0Ref.Ea1Tv1(p.Z, gradRhoj0);
-    	
-    	gradRhoi1Ref.Ea1Tv1(p.Z, gradRhoj1);
-    	
-    	gradRhoi2Ref.Ea1Tv1(p.Z * Math.sqrt(2.0/3.0), gradRhoj2);
-    	
-    	gradRhoi3Ref.Ea1Tv1(p.Z, gradRhoj3);
-    	
-    	gradGammaRef.Ea1Tv1( (-1.0/rhoi0Ref) * (p.t1*rhoi1Ref*rhoi1Ref +
-    			p.t2*rhoi2Ref*rhoi2Ref + p.t3*rhoi3Ref*rhoi3Ref), gradRhoi0Ref);
-    	gradGammaRef.PEa1Tv1(p.t1*rhoi1Ref, gradRhoi1Ref);
-    	gradGammaRef.PEa1Tv1(p.t2*rhoi2Ref, gradRhoi2Ref);
-    	gradGammaRef.PEa1Tv1(p.t3*rhoi3Ref, gradRhoi3Ref);
-    	gradGammaRef.TE(2.0/(rhoi0Ref*rhoi0Ref));
-    	
-    	//Sn
-    	
-    	gradRhoiRef.Ea1Tv1(rhoi0Ref*Math.exp(-gammaRef)
-    			/((1.0+Math.exp(-gammaRef))*(1.0+Math.exp(-gammaRef))), gradGammaRef);
-    	gradRhoiRef.PEa1Tv1(1.0/(1.0+Math.exp(-gammaRef)), gradRhoi0Ref);
-    	gradRhoiRef.TE(2.0);
-    	
-    	
-    	//Cu
-    	/**
-    	gradRhoiRef.Ea1Tv1(rhoiRef*0.5*Math.sqrt(1.0/(1.0+gammaRef)), gradGammaRef);
-    	gradRhoiRef.PEa1Tv1(Math.sqrt(1.0+gammaRef), gradRhoi0Ref);
-    	**/
-    	
-    	gradFRef.Ea1Tv1( (p.A*p.Ec/p.Z)*
-    			(1.0 + Math.log(rhoiRef/p.Z)), gradRhoiRef);
-    	
-    	gradERef.Ea1Tv1( (p.Ec*p.alpha*p.alpha/p.r0) * ((r/p.r0) - 1.0)
-    					*(Math.exp(-p.alpha*((r/p.r0)-1.0))), gradr);
-    	
-    	gradPhi.E(gradERef);
-    	gradPhi.ME(gradFRef);
-    	gradPhi.TE(2.0 * Sij /p.Z);
-    	gradPhi.PEa1Tv1(phi/Sij, gradSij);
-    	sumGradPhi.PE(gradPhi);
-    	
         }
         
         double rhoi0 = sumRhoj0;
@@ -749,17 +741,31 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     private final Vector3D vector100 = (Vector3D)space.makeVector();
     private final Vector3D vector010 = (Vector3D)space.makeVector();
     private final Vector3D vector001 = (Vector3D)space.makeVector();
-    private final Vector3D gradSijPreviousK = (Vector3D)space.makeVector();
-    private final Vector3D gradik = (Vector3D)space.makeVector();
-    private final Vector3D gradXik = (Vector3D)space.makeVector();
-    private final Vector3D gradXkj = (Vector3D)space.makeVector();
-    private final Vector3D gradC = (Vector3D)space.makeVector();
-    private final Vector3D gradSijk = (Vector3D)space.makeVector();
+    private final Vector3D giRij = (Vector3D)space.makeVector();
+    private final Vector3D gjRij = (Vector3D)space.makeVector();
+    private final Vector3D gkRij = (Vector3D)space.makeVector();
+    private final Vector3D giRik = (Vector3D)space.makeVector();
+    private final Vector3D gjRik = (Vector3D)space.makeVector();
+    private final Vector3D gkRik = (Vector3D)space.makeVector();
+    private final Vector3D giRkj = (Vector3D)space.makeVector();
+    private final Vector3D gjRkj = (Vector3D)space.makeVector();
+    private final Vector3D gkRkj = (Vector3D)space.makeVector();
+    private final Vector3D giXik = (Vector3D)space.makeVector();
+    private final Vector3D gjXik = (Vector3D)space.makeVector();
+    private final Vector3D gkXik = (Vector3D)space.makeVector();
+    private final Vector3D giXkj = (Vector3D)space.makeVector();
+    private final Vector3D gjXkj = (Vector3D)space.makeVector();
+    private final Vector3D gkXkj = (Vector3D)space.makeVector();
+    private final Vector3D giC = (Vector3D)space.makeVector();
+    private final Vector3D gjC = (Vector3D)space.makeVector();
+    private final Vector3D gkC = (Vector3D)space.makeVector();
+    private final Vector3D giSijk = (Vector3D)space.makeVector();
+    private final Vector3D giSij = (Vector3D)space.makeVector();
+    
     private final Vector3D gradx = (Vector3D)space.makeVector();
     private final Vector3D grady = (Vector3D)space.makeVector();
     private final Vector3D gradz = (Vector3D)space.makeVector();
     private final Vector3D gradr = (Vector3D)space.makeVector();
-    private final Vector3D gradSij = (Vector3D)space.makeVector();
     private final Vector3D gradRhoj0 = (Vector3D)space.makeVector();
     private final Vector3D sumGradRhoj0 = (Vector3D)space.makeVector();
     private final Vector3D gradRhoj1 = (Vector3D)space.makeVector();
@@ -812,11 +818,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     private final Vector3D sumt2GradRhoj0 = (Vector3D)space.makeVector();
     private final Vector3D t3GradRhoj0 = (Vector3D)space.makeVector();
     private final Vector3D sumt3GradRhoj0 = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoi0Ref = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoi1Ref = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoi2Ref = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoi3Ref = (Vector3D)space.makeVector();
-    private final Vector3D gradGammaRef = (Vector3D)space.makeVector();
+    private final Vector3D gradRhoj0Ref = (Vector3D)space.makeVector();
     private final Vector3D gradRhoiRef = (Vector3D)space.makeVector();
     private final Vector3D gradERef = (Vector3D)space.makeVector();
     private final Vector3D gradFRef = (Vector3D)space.makeVector();
@@ -833,11 +835,6 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     private final Vector3D gradRhoi = (Vector3D)space.makeVector();
     private final Vector3D gradF = (Vector3D)space.makeVector();
     private final Vector3D[] gradEi = new Vector3D[1];
-    
-    private final Vector3D gradRhoj0Ref = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj1Ref = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj2Ref = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj3Ref = (Vector3D)space.makeVector();
     
     protected NearestImageTransformer nearestImageTransformer;
     protected final Vector rij = (Vector3D)space.makeVector();
