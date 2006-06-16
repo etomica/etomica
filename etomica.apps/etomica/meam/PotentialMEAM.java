@@ -333,7 +333,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             double r = Math.sqrt(rin.squared());
             
             if (r > 6.0) continue;
-            if (r <= 4.0) { //Sn
+            if (r <= 4.0) { //Sn     
             //if (r > 3.0) { //Cu
             
             //n is a j atom, and possibly a k atom
@@ -716,8 +716,11 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     	
     	t3GjRhoj0.Ea1Tv1(p.t3, gjRhoj0);
     	
-    	//to consider n as a k atom, we must loop through neighbors j of i again
+        }
     	
+    	//to consider n as a k atom, we must loop through neighbors j of i again
+        double Sij = 1;
+        gkSij.E(0);
     	for(int j = 1; j < atoms.count(); j++) {
         	AtomLeaf atomj = (AtomLeaf) atoms.getAtom(j);
         	if (j == n) continue; //the k atom, n, must not be treated as one of the other j's
@@ -763,6 +766,28 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         			Sijk = Math.exp(-(((p.Cmax - C)/(C - p.Cmin))
         					*((p.Cmax - C)/(C - p.Cmin))));
         	}
+        	
+        	double rhoj0 = p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0)) * Sij;
+        	double rhoj1 = p.rhoScale * Math.exp(-p.beta1 * ((r/p.r0) - 1.0)) * Sij;
+            double rhoj2 = p.rhoScale * Math.exp(-p.beta2 * ((r/p.r0) - 1.0)) * Sij;
+        	double rhoj3 = p.rhoScale * Math.exp(-p.beta3 * ((r/p.r0) - 1.0)) * Sij;
+        	
+        	unitVector.E(rij);
+            unitVector.normalize();
+            
+            double x = unitVector.x(0);
+            double y = unitVector.x(1);
+            double z = unitVector.x(2);
+           
+            //to calculate the repulsive pair potential, phi
+            //Should rhoj0 within phi contain Sij? Phi itself is multiplied by Sij...
+            //FCC reference structure, Z = 12
+            double rhoj0Ref = p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0));
+            double rhoiRef = p.Z * rhoj0Ref;   
+            double a = p.alpha * ((r/p.r0) - 1.0);
+        	double EuRef = - p.Ec * (1.0 + a) * Math.exp(-a);
+        	double FRef = p.A * p.Ec * (rhoiRef/p.Z) * Math.log(rhoiRef/p.Z);
+        	double phi = ((2.0/p.Z) * (EuRef - FRef)) * Sij;
         	
         	gkRij.E(0);
         	gkRik.Ea1Tv1(-1, giRik);
@@ -1038,8 +1063,6 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		giEi[0].PEa1Tv1(0.5, sumGiPhi);
 		
 		return giEi;
-        }
-        return giEi;
 	}
 	
 	protected NearestImageTransformer nearestImageTransformer;
