@@ -265,7 +265,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	public double energy(AtomSet atoms) {
 		double rhoi = rhoi();
 		double F = p.A * p.Ec * (rhoi/p.Z) * Math.log(rhoi/p.Z);
-		return F + (0.5*Sum.phi);
+		return F + (0.5*sum[PHI]);
 	}
 
 	/* (non-Javadoc)
