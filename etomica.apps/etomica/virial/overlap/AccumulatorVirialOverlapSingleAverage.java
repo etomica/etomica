@@ -1,8 +1,10 @@
 package etomica.virial.overlap;
 
+import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.Data;
 import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataGroup;
 import etomica.simulation.Simulation;
 import etomica.util.Debug;
 
@@ -28,6 +30,7 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
 		blockOverlapSum = new double[nBennetPoints];
         overlapSumSquare = new double[nBennetPoints];
         blockOverlapSumSq = new double[nBennetPoints];
+        overlapSumSquareBlock = new double[nBennetPoints];
 		expX = new double[nBennetPoints];
         setBennetParam(1.0,5);
 	}
@@ -89,6 +92,8 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
             blockOverlapSum[j] /= blockSize;
 	    	overlapSum[j] += blockOverlapSum[j];
             overlapSumSquare[j] += blockOverlapSum[j]*blockOverlapSum[j];
+            overlapSumSquareBlock[j] += blockOverlapSumSq[j];
+            blockOverlapSumSq[j] = 0.0;
             blockOverlapSum[j] = 0.0;
 		}
 
@@ -132,7 +137,7 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
             ((DataDoubleArray)sum).getData()[1] = overlapSum[iParam];
             ((DataDoubleArray)blockSum).getData()[1] = blockOverlapSum[iParam];
             ((DataDoubleArray)sumSquare).getData()[1] = overlapSumSquare[iParam];
-            ((DataDoubleArray)blockSumSq).getData()[1] = blockOverlapSumSq[iParam];
+            ((DataDoubleArray)sumSquareBlock).getData()[1] = overlapSumSquareBlock[iParam];
             // let AccumulatorRatioAverage do the work for us
             super.getData();
         }
@@ -146,13 +151,17 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
          for (int i=0; i<nBennetPoints; i++) {
          	bennetSum[i] = 0.0;
          	overlapSum[i] = 0.0;
+            overlapSumSquare[i] = 0.0;
          	blockOverlapSum[i] = 0.0;
+            blockOverlapSumSq[i] = 0.0;
+            overlapSumSquareBlock[i] = 0.0;
          }
      	 super.reset();
      }
      
     private final double[] overlapSum, blockOverlapSum;
     private final double[] overlapSumSquare, blockOverlapSumSq;
+    private final double[] overlapSumSquareBlock;
     private final double[] bennetSum;
     private final int nBennetPoints;
     private final double[] expX;
