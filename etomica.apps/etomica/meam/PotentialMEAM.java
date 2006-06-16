@@ -28,7 +28,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	public PotentialMEAM(Space space, ParameterSetMEAM p) {
 		super(space);
         this.p = p;
-        gradEi[0] = (Vector3D)space.makeVector();
+        giEi[0] = (Vector3D)space.makeVector();
     }
 
 	/* (non-Javadoc)
@@ -38,192 +38,236 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		//from MEAMP2
 		return Double.POSITIVE_INFINITY;
 	}
+	
+	public static class Sum implements java.io.Serializable {
+		public Sum() {
+			double[] sums = new double [25];
+			for (int i = 0; i < 24; i++) {
+				sums[i] = 0;
+			}
+		}
+	public static int rhoj0 = 0;
+	public static int rhoj1x = 1;
+	public static int rhoj1y = 2;
+	public static int rhoj1z = 3;
+	public static int rhoj2xx = 4;
+	public static int rhoj2xy = 5;
+	public static int rhoj2xz = 6;
+	public static int rhoj2yy = 7;
+	public static int rhoj2yz = 8;
+	public static int rhoj2zz = 9;
+	public static int rhoj2 = 10;
+	public static int rhoj3xxx = 11;
+	public static int rhoj3xxy = 12;
+	public static int rhoj3xxz = 13;
+	public static int rhoj3xyy = 14;
+	public static int rhoj3xyz = 15;
+	public static int rhoj3xzz = 16;
+	public static int rhoj3yyy = 17;
+	public static int rhoj3yyz = 18;
+	public static int rhoj3yzz = 19;
+	public static int rhoj3zzz = 20;
+	public static int t1Rhoj0 = 21;
+	public static int t2Rhoj0 = 22;
+	public static int t3Rhoj0 = 23;
+	public static int phi = 24;
+	}
+	
+	public void sums(AtomSet atoms) {
+		
+	AtomLeaf atom0 = (AtomLeaf)atoms.getAtom(0);
+    
+    for(int j = 1; j < atoms.count(); j++) {
+    	AtomLeaf atomj = (AtomLeaf) atoms.getAtom(j);
+        rij.Ev1Mv2(atomj.coord.position(), atom0.coord.position());
+        nearestImageTransformer.nearestImage(rij);
+        double r = Math.sqrt(rij.squared());
+        
+        if (r > 4.0) continue; //Sn
+        //if (r > 3.0) continue; //Cu
+        
+        //To determine amount of screening between atoms i and j 
+        //by any atom k which may be between them
+        double Sij = 1;
+        for(int k = 1; k < atoms.count(); k++) {
+        	AtomLeaf atomk = (AtomLeaf) atoms.getAtom(k);
+        	if (k == j) continue;
+        	rik.Ev1Mv2(atomk.coord.position(), atom0.coord.position());
+        	nearestImageTransformer.nearestImage(rik);
+        	double ik = Math.sqrt(rik.squared());
+        	if (ik > r*1.14) continue;
+        	
+        	double anglekij = Math.toDegrees(Math.acos(
+        			((rij.x(0)*rik.x(0)) + 
+        			 (rij.x(1)*rik.x(1)) + 
+					 (rij.x(2)*rik.x(2)))
+					 /(r*ik)));
+        	
+        	if (anglekij >= 90) continue;
+        	
+        	rkj.Ev1Mv2(atomk.coord.position(), atomj.coord.position());
+        	nearestImageTransformer.nearestImage(rkj);
+        	double kj = Math.sqrt(rkj.squared());
+        	
+        	//from Baskes, Angelo, & Bisson (1994)
+        	double xik = (ik/kj)*(ik/kj);
+        	double xjk = (kj/r)*(kj/r);
+        	double C = ((2*(xik + xjk)) - ((xik - xjk)*(xik - xjk))- 1)/
+					   (1 - ((xik - xjk)*(xik - xjk)));
+        	
+        	double Sijk;
+        	if (C <= p.Cmin) { 
+        		Sij = 0;
+        		break;
+        	}
+        	else if (C >= p.Cmax) { //Sikj = 1, value of Sij won't change
+        			continue;
+        		}
+        	else {
+        			Sijk = Math.exp(-(((p.Cmax - C)/(C - p.Cmin))
+        					*((p.Cmax - C)/(C - p.Cmin))));
+        	}
+        	
+			Sij *= Sijk;
+		
+        }
+	
+    if (Sij == 0) continue;    
+   
+	//
+	//These rhoj terms are required for both the many-body and the 
+	//pair potential.  They are the contributions from each neighbor j
+	//to the partial electron densities of atom i.  rhoj0 is the contribution
+	//to the electron density in the s orbitals; rhoj1 is that in the p orbitals;
+	// rhoj2 is that in the d orbitals; rhoj3 is that in the f orbitals. 
+	//
+	//When the atoms in the pair being examined are different elements,
+	//the rhoj terms are not equivalent for both, because the constants
+	//for the elements in the expression for rhoj differ. This class functions
+	//for unmixed pairs of atoms only.
+	//
+	double rhoj0 = p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0)) * Sij;
+	double rhoj1 = p.rhoScale * Math.exp(-p.beta1 * ((r/p.r0) - 1.0)) * Sij;
+    double rhoj2 = p.rhoScale * Math.exp(-p.beta2 * ((r/p.r0) - 1.0)) * Sij;
+	double rhoj3 = p.rhoScale * Math.exp(-p.beta3 * ((r/p.r0) - 1.0)) * Sij;
+	
+	unitVector.E(rij);
+    unitVector.normalize();
+    
+    double x = unitVector.x(0);
+    double y = unitVector.x(1);
+    double z = unitVector.x(2);
+    
+    Sum.rhoj0 += (p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0))) * Sij;
+   
+    Sum.rhoj1x += rhoj1 * x;
+    Sum.rhoj1y += rhoj1 * y;
+    Sum.rhoj1z += rhoj1 * z;  	
+    
+    Sum.rhoj2xx += rhoj2 * x * x;
+    Sum.rhoj2xy += rhoj2 * x * y;
+    Sum.rhoj2xz += rhoj2 * x * z;
+    Sum.rhoj2yy += rhoj2 * y * y;
+    Sum.rhoj2yz += rhoj2 * y * z;
+    Sum.rhoj2zz += rhoj2 * z * z;
+    Sum.rhoj2 += (p.rhoScale * Math.exp(-p.beta2 * ((r/p.r0) - 1.0))) * Sij;
+    
+    Sum.rhoj3xxx += rhoj3 * x * x * x;
+    Sum.rhoj3xxy += rhoj3 * x * x * y;
+    Sum.rhoj3xxz += rhoj3 * x * x * z;
+    Sum.rhoj3xyy += rhoj3 * x * y * y;
+    Sum.rhoj3xyz += rhoj3 * x * y * z;
+    Sum.rhoj3xzz += rhoj3 * x * z * z;
+    Sum.rhoj3yyy += rhoj3 * y * y * y;
+    Sum.rhoj3yyz += rhoj3 * y * y * z;
+    Sum.rhoj3yzz += rhoj3 * y * z * z;
+    Sum.rhoj3zzz += rhoj3 * z * z * z;
+    
+    Sum.t1Rhoj0 += (rhoj0 * p.t1);
+	Sum.t2Rhoj0 += (rhoj0 * p.t2);
+	Sum.t3Rhoj0 += (rhoj0 * p.t3);
+    
+    //to calculate the repulsive pair potential, phi
+    //Should rhoj0 within phi contain Sij? Phi itself is multiplied by Sij...
+    double rhoj0Ref = p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0));
+    double rhoiRef = p.Z * rhoj0Ref;   //FCC reference structure, Z = 12
+    double a = p.alpha * ((r/p.r0) - 1.0);
+	double EuRef = - p.Ec * (1.0 + a) * Math.exp(-a);
+	double FRef = p.A * p.Ec * (rhoiRef/p.Z) * Math.log(rhoiRef/p.Z);
+	Sum.phi += ((2.0/p.Z) * (EuRef - FRef)) * Sij;
+    }
+	}
+    
+	double rhoi0 () {
+		return Sum.rhoj0; //
+	}
+    
+    protected double rhoi1() {
+    	return Math.sqrt( (Sum.rhoj1x * Sum.rhoj1x)
+				+ (Sum.rhoj1y * Sum.rhoj1y)
+				+ (Sum.rhoj1z * Sum.rhoj1z));
+    }
+   
+    protected double rhoi2() {
+    	return Math.sqrt((Sum.rhoj2xx * Sum.rhoj2xx)
+			+ (2.0 * Sum.rhoj2xy * Sum.rhoj2xy)
+			+ (2.0 * Sum.rhoj2xz * Sum.rhoj2xz)
+			+ (Sum.rhoj2yy * Sum.rhoj2yy) 
+			+ (2.0 * Sum.rhoj2yz * Sum.rhoj2yz)
+			+ (Sum.rhoj2zz * Sum.rhoj2zz) 
+			- ((1.0/3.0) * Sum.rhoj2 * Sum.rhoj2));
+    }
+    
+    protected double rhoi3() {
+    	return Math.sqrt( 
+    		   (Sum.rhoj3xxx * Sum.rhoj3xxx)
+		+(3.0 * Sum.rhoj3xxy * Sum.rhoj3xxy)
+		+(3.0 * Sum.rhoj3xxz * Sum.rhoj3xxz)
+		+(3.0 * Sum.rhoj3xyy * Sum.rhoj3xyy)
+		+(6.0 * Sum.rhoj3xyz * Sum.rhoj3xyz)
+		+(3.0 * Sum.rhoj3xzz * Sum.rhoj3xzz)
+		+      (Sum.rhoj3yyy * Sum.rhoj3yyy)
+		+(3.0 * Sum.rhoj3yyz * Sum.rhoj3yyz)
+		+(3.0 * Sum.rhoj3yzz * Sum.rhoj3yzz)
+		+      (Sum.rhoj3zzz * Sum.rhoj3zzz));
+    }
+    
+    protected double tav1() {
+    	return Sum.t1Rhoj0 / Sum.rhoj0;
+    }
+
+    protected double tav2() {
+    	return Sum.t2Rhoj0 / Sum.rhoj0;
+    }
+    
+    protected double tav3() {
+    	return Sum.t3Rhoj0 / Sum.rhoj0;
+    }
+    
+    protected double gamma() {
+    	double rhoi0 = rhoi0(), rhoi1 = rhoi1(), rhoi2 = rhoi2(), rhoi3 = rhoi3(),
+			tav1 = tav1(), tav2 = tav2(), tav3 = tav3();
+    	return (tav1 * (rhoi1/rhoi0) * (rhoi1/rhoi0))
+		+ (tav2 * (rhoi2/rhoi0) * (rhoi2/rhoi0))
+		+ (tav3 * (rhoi3/rhoi0) * (rhoi3/rhoi0));
+    }
+
+    //The following expression for the background electron density of atom i
+	//is appropriate for Sn only.
+    protected double rhoi() {
+    	double rhoi0 = rhoi0(), gamma = gamma();
+    	return (2.0 * rhoi0) / (1.0 + Math.exp(-gamma)); //Sn
+    	//return rhoi0 * Math.sqrt(1.0 + gamma); //Cu
+    }
+	
 
 	/* (non-Javadoc)
 	 * @see etomica.potential.Potential#energy(etomica.atom.AtomSet)
 	 */
 	public double energy(AtomSet atoms) {
-		AtomLeaf atom0 = (AtomLeaf)atoms.getAtom(0);
-		
-		//System.out.println(atom0);
-        
-        double sumRhoj0 = 0, sumRhoj1 = 0, sumRhoj2 = 0, sumRhoj3 = 0, 
-			sumt1Rhoj0 = 0, sumt2Rhoj0 = 0, sumt3Rhoj0 = 0, 
-			sumRhoj1x = 0, sumRhoj1y = 0, sumRhoj1z = 0,  
-			sumRhoj2xx = 0, sumRhoj2xy = 0, sumRhoj2xz = 0,
-			sumRhoj2yy = 0, sumRhoj2yz = 0, sumRhoj2zz = 0,
-			sumRhoj3xxx = 0, sumRhoj3xxy = 0, sumRhoj3xxz = 0, 
-			sumRhoj3xyy = 0, sumRhoj3xyz = 0, sumRhoj3xzz = 0,
-			sumRhoj3yyy = 0, sumRhoj3yyz = 0, sumRhoj3yzz = 0, 
-			sumRhoj3zzz = 0,
-			sumPhi = 0;
-		
-        
-        for(int j = 1; j < atoms.count(); j++) {
-        	AtomLeaf atomj = (AtomLeaf) atoms.getAtom(j);
-            rij.Ev1Mv2(atomj.coord.position(), atom0.coord.position());
-            nearestImageTransformer.nearestImage(rij);
-            double r = Math.sqrt(rij.squared());
-            
-            if (r > 4.0) continue; //Sn
-            //if (r > 3.0) continue; //Cu
-            
-            //To determine amount of screening between atoms i and j 
-            //by any atom k which may be between them
-            double Sij = 1;
-            for(int k = 1; k < atoms.count(); k++) {
-            	AtomLeaf atomk = (AtomLeaf) atoms.getAtom(k);
-            	if (k == j) continue;
-            	rik.Ev1Mv2(atomk.coord.position(), atom0.coord.position());
-            	nearestImageTransformer.nearestImage(rik);
-            	double ik = Math.sqrt(rik.squared());
-            	if (ik > 4.0*1.14) continue;
-            	
-            	double anglekij = Math.toDegrees(Math.acos(
-            			((rij.x(0)*rik.x(0)) + 
-            			 (rij.x(1)*rik.x(1)) + 
-						 (rij.x(2)*rik.x(2)))
-						 /(r*ik)));
-            	
-            	if (anglekij >= 90) continue;
-            	
-            	rkj.Ev1Mv2(atomk.coord.position(), atomj.coord.position());
-            	nearestImageTransformer.nearestImage(rkj);
-            	double kj = Math.sqrt(rkj.squared());
-            	
-            	//from Baskes, Angelo, & Bisson (1994)
-            	double xik = (ik/kj)*(ik/kj);
-            	double xjk = (kj/r)*(kj/r);
-            	double C = ((2*(xik + xjk)) - ((xik - xjk)*(xik - xjk))- 1)/
-						   (1 - ((xik - xjk)*(xik - xjk)));
-            	
-            	double Sijk;
-            	if (C <= p.Cmin) { 
-            		Sij = 0;
-            		break;
-            	}
-            	else if (C >= p.Cmax) { //Sikj = 1, value of Sij won't change
-            			continue;
-            		}
-            	else {
-            			Sijk = Math.exp(-(((p.Cmax - C)/(C - p.Cmin))
-            					*((p.Cmax - C)/(C - p.Cmin))));
-            	}
-            	
-				Sij *= Sijk;
-			
-            }
-    	
-        if (Sij == 0) continue;    
-       
-    	//
-    	//These rhoj terms are required for both the many-body and the 
-    	//pair potential.  They are the contributions from each neighbor j
-    	//to the partial electron densities of atom i.  rhoj0 is the contribution
-    	//to the electron density in the s orbitals; rhoj1 is that in the p orbitals;
-    	// rhoj2 is that in the d orbitals; rhoj3 is that in the f orbitals. 
-    	//
-    	//When the atoms in the pair being examined are different elements,
-    	//the rhoj terms are not equivalent for both, because the constants
-    	//for the elements in the expression for rhoj differ. This class functions
-    	//for unmixed pairs of atoms only.
-    	//
-    	double rhoj0 = p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0)) * Sij;
-    	sumRhoj0 += (p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0))) * Sij;
-    	double rhoj1 = p.rhoScale * Math.exp(-p.beta1 * ((r/p.r0) - 1.0)) * Sij;
-        sumRhoj1 += (p.rhoScale * Math.exp(-p.beta1 * ((r/p.r0) - 1.0))) * Sij;
-        double rhoj2 = p.rhoScale * Math.exp(-p.beta2 * ((r/p.r0) - 1.0)) * Sij;
-        sumRhoj2 += (p.rhoScale * Math.exp(-p.beta2 * ((r/p.r0) - 1.0))) * Sij;
-    	double rhoj3 = p.rhoScale * Math.exp(-p.beta3 * ((r/p.r0) - 1.0)) * Sij;
-    	sumRhoj3 += (p.rhoScale * Math.exp(-p.beta3 * ((r/p.r0) - 1.0))) * Sij;
-    	
-    	sumt1Rhoj0 += (rhoj0 * p.t1);
-    	sumt2Rhoj0 += (rhoj0 * p.t2);
-    	sumt3Rhoj0 += (rhoj0 * p.t3);
-    	
-    	unitVector.E(rij);
-        unitVector.normalize();
-        
-        double x = unitVector.x(0);
-        double y = unitVector.x(1);
-        double z = unitVector.x(2);
-       
-        sumRhoj1x += rhoj1 * x;
-        sumRhoj1y += rhoj1 * y;
-        sumRhoj1z += rhoj1 * z;  	
-        
-        sumRhoj2xx += rhoj2 * x * x;
-        sumRhoj2xy += rhoj2 * x * y;
-        sumRhoj2xz += rhoj2 * x * z;
-        sumRhoj2yy += rhoj2 * y * y;
-        sumRhoj2yz += rhoj2 * y * z;
-        sumRhoj2zz += rhoj2 * z * z;
-        
-        sumRhoj3xxx += rhoj3 * x * x * x;
-        sumRhoj3xxy += rhoj3 * x * x * y;
-        sumRhoj3xxz += rhoj3 * x * x * z;
-        sumRhoj3xyy += rhoj3 * x * y * y;
-        sumRhoj3xyz += rhoj3 * x * y * z;
-        sumRhoj3xzz += rhoj3 * x * z * z;
-        sumRhoj3yyy += rhoj3 * y * y * y;
-        sumRhoj3yyz += rhoj3 * y * y * z;
-        sumRhoj3yzz += rhoj3 * y * z * z;
-        sumRhoj3zzz += rhoj3 * z * z * z;
-        
-        //to calculate the repulsive pair potential, phi
-        //Should rhoj0 within phi contain Sij? Phi itself is multiplied by Sij...
-        double rhoj0Ref = p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0));
-        double rhoiRef = p.Z * rhoj0Ref;   //FCC reference structure, Z = 12
-        double a = p.alpha * ((r/p.r0) - 1.0);
-    	double EuRef = - p.Ec * (1.0 + a) * Math.exp(-a);
-    	double FRef = p.A * p.Ec * (rhoiRef/p.Z) * Math.log(rhoiRef/p.Z);
-    	sumPhi += ((2.0/p.Z) * (EuRef - FRef)) * Sij;
-        }
-        
-        double rhoi0 = sumRhoj0;
-        
-        double rhoi1 = Math.sqrt( (sumRhoj1x * sumRhoj1x)
-    				+ (sumRhoj1y * sumRhoj1y)
-					+ (sumRhoj1z * sumRhoj1z));
-       
-        double rhoi2 = Math.sqrt((sumRhoj2xx * sumRhoj2xx)
-    			+ (2.0 * sumRhoj2xy * sumRhoj2xy)
-				+ (2.0 * sumRhoj2xz * sumRhoj2xz)
-    			+ (sumRhoj2yy * sumRhoj2yy) 
-				+ (2.0 * sumRhoj2yz * sumRhoj2yz)
-    			+ (sumRhoj2zz * sumRhoj2zz) 
-				- ((1.0/3.0) * sumRhoj2 * sumRhoj2));
-        
-        double rhoi3 = Math.sqrt( 
-        		   (sumRhoj3xxx * sumRhoj3xxx)
-    		+(3.0 * sumRhoj3xxy * sumRhoj3xxy)
-    		+(3.0 * sumRhoj3xxz * sumRhoj3xxz)
-    		+(3.0 * sumRhoj3xyy * sumRhoj3xyy)
-    		+(6.0 * sumRhoj3xyz * sumRhoj3xyz)
-    		+(3.0 * sumRhoj3xzz * sumRhoj3xzz)
-    		+      (sumRhoj3yyy * sumRhoj3yyy)
-    		+(3.0 * sumRhoj3yyz * sumRhoj3yyz)
-    		+(3.0 * sumRhoj3yzz * sumRhoj3yzz)
-    		+      (sumRhoj3zzz * sumRhoj3zzz));
-        
-        double tav1 = sumt1Rhoj0 / sumRhoj0;
-
-        double tav2 = sumt2Rhoj0 / sumRhoj0;
-        
-        double tav3 = sumt3Rhoj0 / sumRhoj0;
-        
-        double gamma = (tav1 * (rhoi1/rhoi0) * (rhoi1/rhoi0))
-    		+ (tav2 * (rhoi2/rhoi0) * (rhoi2/rhoi0))
-    		+ (tav3 * (rhoi3/rhoi0) * (rhoi3/rhoi0));
-
-        //The following expression for the background electron density of atom i
-		//is appropriate for Sn only.
-        double rhoi = (2.0 * rhoi0) / (1.0 + Math.exp(-gamma)); //Sn
-        //double rhoi = rhoi0 * Math.sqrt(1.0 + gamma); //Cu
-        
+		double rhoi = rhoi();
 		double F = p.A * p.Ec * (rhoi/p.Z) * Math.log(rhoi/p.Z);
-		
-		return F + (0.5*sumPhi);
+		return F + (0.5*Sum.phi);
 	}
 
 	/* (non-Javadoc)
@@ -245,67 +289,70 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	 * @see etomica.potential.PotentialSoft#gradient(etomica.atom.AtomSet)
 	 */
 	public Vector[] gradient(AtomSet atoms) {
+		
         AtomLeaf atom0 = (AtomLeaf)atoms.getAtom(0);
         
-        double sumRhoj0 = 0, sumRhoj1 = 0, sumRhoj2 = 0, sumRhoj3 = 0, 
-		sumt1Rhoj0 = 0, sumt2Rhoj0 = 0, sumt3Rhoj0 = 0, 
-		sumRhoj1x = 0, sumRhoj1y = 0, sumRhoj1z = 0,  
-		sumRhoj2xx = 0, sumRhoj2xy = 0,  sumRhoj2xz = 0,
-		sumRhoj2yy = 0, sumRhoj2yz = 0, sumRhoj2zz = 0,
-		sumRhoj3xxx = 0, sumRhoj3xxy = 0, sumRhoj3xxz = 0, 
-		sumRhoj3xyy = 0, sumRhoj3xyz = 0, sumRhoj3xzz = 0,
-		sumRhoj3yyy = 0, sumRhoj3yyz = 0, sumRhoj3yzz = 0, sumRhoj3zzz = 0,
-		sumPhi = 0; //sumPhi may not be needed in gradient() method
+        double rhoi0 = rhoi0(), rhoi1 = rhoi1(), rhoi2 = rhoi2(), rhoi3 = rhoi3(),
+			tav1 = tav1(), tav2 = tav2(), tav3 = tav3(),
+			gamma = gamma(), rhoi = rhoi();
         
-        sumGradRhoj0.E(0);
-        sumGradRhoj1.E(0);
-        sumGradRhoj2.E(0);
-        sumGradRhoj3.E(0);
-        sumGradRhoj1x.E(0);
-        sumGradRhoj1y.E(0);
-        sumGradRhoj1z.E(0);
-        sumGradRhoj2xx.E(0);
-        sumGradRhoj2xy.E(0);
-        sumGradRhoj2xz.E(0);
-        sumGradRhoj2yy.E(0);
-        sumGradRhoj2yz.E(0);
-        sumGradRhoj2zz.E(0);
-        sumGradRhoj3xxx.E(0);
-        sumGradRhoj3xxy.E(0);
-        sumGradRhoj3xxz.E(0);
-        sumGradRhoj3xyy.E(0);
-        sumGradRhoj3xyz.E(0);
-        sumGradRhoj3xzz.E(0);
-        sumGradRhoj3yyy.E(0);
-        sumGradRhoj3yyz.E(0);
-        sumGradRhoj3yzz.E(0);
-        sumGradRhoj3zzz.E(0);
-        sumt1GradRhoj0.E(0);
-        sumt2GradRhoj0.E(0);
-        sumt3GradRhoj0.E(0);
-        sumGradPhi.E(0);
+        sumGiRhoj0.E(0); sumGkRhoj0.E(0);
         
-        for(int j = 1; j < atoms.count(); j++) {
+        sumGiRhoj1x.E(0); sumGkRhoj1x.E(0);
+        sumGiRhoj1y.E(0); sumGkRhoj1y.E(0);
+        sumGiRhoj1z.E(0); sumGkRhoj1z.E(0);
+        
+        sumGiRhoj2xx.E(0); sumGkRhoj2xx.E(0);
+        sumGiRhoj2xy.E(0); sumGkRhoj2xy.E(0);
+        sumGiRhoj2xz.E(0); sumGkRhoj2xz.E(0);
+        sumGiRhoj2yy.E(0); sumGkRhoj2yy.E(0);
+        sumGiRhoj2yz.E(0); sumGkRhoj2yz.E(0);
+        sumGiRhoj2zz.E(0); sumGkRhoj2zz.E(0);
+        sumGiRhoj2.E(0); sumGkRhoj2.E(0);
+        
+        sumGiRhoj3xxx.E(0); sumGkRhoj3xxx.E(0);
+        sumGiRhoj3xxy.E(0); sumGkRhoj3xxy.E(0);
+        sumGiRhoj3xxz.E(0); sumGkRhoj3xxz.E(0);
+        sumGiRhoj3xyy.E(0); sumGkRhoj3xyy.E(0);
+        sumGiRhoj3xyz.E(0); sumGkRhoj3xyz.E(0);
+        sumGiRhoj3xzz.E(0); sumGkRhoj3xzz.E(0);
+        sumGiRhoj3yyy.E(0); sumGkRhoj3yyy.E(0);
+        sumGiRhoj3yyz.E(0); sumGkRhoj3yyz.E(0);
+        sumGiRhoj3yzz.E(0); sumGkRhoj3yzz.E(0);
+        sumGiRhoj3zzz.E(0); sumGkRhoj3zzz.E(0);
+        
+        sumt1GiRhoj0.E(0); sumt1GkRhoj0.E(0);
+        sumt2GiRhoj0.E(0); sumt2GkRhoj0.E(0);
+        sumt3GiRhoj0.E(0); sumt3GkRhoj0.E(0);
+        
+        sumGiPhi.E(0);
+        
+        for(int n = 1; n < atoms.count(); n++) {
         	
-        	AtomLeaf atomj = (AtomLeaf) atoms.getAtom(j);
-            rij.Ev1Mv2(atomj.coord.position(), atom0.coord.position());
-            nearestImageTransformer.nearestImage(rij);
-            double r = Math.sqrt(rij.squared());
+        	AtomLeaf atomn = (AtomLeaf) atoms.getAtom(n);
+            rin.Ev1Mv2(atomn.coord.position(), atom0.coord.position());
+            nearestImageTransformer.nearestImage(rin);
+            double r = Math.sqrt(rin.squared());
             
-            if (r > 4.0) continue; //Sn
-            //if (r > 3.0) continue; //Cu
+            if (r > 6.0) continue;
+            if (r <= 4.0) { //Sn
+            //if (r > 3.0) { //Cu
+            
+            //n is a j atom, and possibly a k atom
+            //1) Treat atom n like a j atom
             
             //To determine amount of screening between atoms i and j 
             //by any atom k which may be between them
             double Sij = 1;
             giSij.E(0);
+            gjSij.E(0);
             for(int k = 1; k < atoms.count(); k++) {
             	AtomLeaf atomk = (AtomLeaf) atoms.getAtom(k);
-            	if (k == j) continue;
+            	if (k == n) continue;
             	rik.Ev1Mv2(atomk.coord.position(), atom0.coord.position());
             	nearestImageTransformer.nearestImage(rik);
             	double ik = Math.sqrt(rik.squared());
-            	if (ik > 4.0*1.14) continue;
+            	if (ik > r*1.14) continue;
             	
             	double anglekij = Math.toDegrees(Math.acos(
             			((rij.x(0)*rik.x(0)) + 
@@ -315,7 +362,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             	
             	if (anglekij >= 90) continue;
             	
-            	rkj.Ev1Mv2(atomk.coord.position(), atomj.coord.position());
+            	rkj.Ev1Mv2(atomk.coord.position(), atomn.coord.position());
             	nearestImageTransformer.nearestImage(rkj);
             	double kj = Math.sqrt(rkj.squared());
             	
@@ -390,30 +437,30 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		    	giSijk.Ea1Tv1( 2*Sijk*(p.Cmax - C)/((C - p.Cmin)*(C-p.Cmin) )
 		    			* ( ((p.Cmax - C)/(C - p.Cmin)) + 1 ), giC);
 		    	
+		    	gjSijk.Ea1Tv1( 2*Sijk*(p.Cmax - C)/((C - p.Cmin)*(C-p.Cmin) )
+		    			* ( ((p.Cmax - C)/(C - p.Cmin)) + 1 ), gjC);
+		    	
 		    	//The Sij value used to calculate gradSij is that for previous k's, 
 		    	//or, for the first k considered, 1.  Same goes for the gradSij value
 		    	//itself, except it's initialized as the zero vector...
 		    	giSij.TE(Sijk);
 		    	giSij.PEa1Tv1(Sij, giSijk);
-		    
-		    	Sij *= Sijk;
 		    	
+		    	gjSij.TE(Sijk);
+		    	gjSij.PEa1Tv1(Sij, gjSijk);
+		    	
+		    	gkSij.TE(Sijk);
+		    	gkSij.PEa1Tv1(Sij, gkSijk);
+		    	
+		    	Sij *= Sijk;
             }
     	
-            if (Sij == 0) continue;
+            if (Sij == 0) continue; //no interaction between i and n with n as j
         	
         	double rhoj0 = p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0)) * Sij;
-        	sumRhoj0 += p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0)) * Sij;
         	double rhoj1 = p.rhoScale * Math.exp(-p.beta1 * ((r/p.r0) - 1.0)) * Sij;
-            sumRhoj1 += p.rhoScale * Math.exp(-p.beta1 * ((r/p.r0) - 1.0)) * Sij;
             double rhoj2 = p.rhoScale * Math.exp(-p.beta2 * ((r/p.r0) - 1.0)) * Sij;
-            sumRhoj2 += p.rhoScale * Math.exp(-p.beta2 * ((r/p.r0) - 1.0)) * Sij;
         	double rhoj3 = p.rhoScale * Math.exp(-p.beta3 * ((r/p.r0) - 1.0)) * Sij;
-        	sumRhoj3 += p.rhoScale * Math.exp(-p.beta3 * ((r/p.r0) - 1.0)) * Sij;
-        	
-        	sumt1Rhoj0 += rhoj0 * p.t1;
-        	sumt2Rhoj0 += rhoj0 * p.t2;
-        	sumt3Rhoj0 += rhoj0 * p.t3;
         	
         	unitVector.E(rij);
             unitVector.normalize();
@@ -422,28 +469,6 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             double y = unitVector.x(1);
             double z = unitVector.x(2);
            
-            sumRhoj1x += rhoj1 * x;
-            sumRhoj1y += rhoj1 * y;
-            sumRhoj1z += rhoj1 * z;  	
-            
-            sumRhoj2xx += rhoj2 * x * x;
-            sumRhoj2xy += rhoj2 * x * y;
-            sumRhoj2xz += rhoj2 * x * z;
-            sumRhoj2yy += rhoj2 * y * y;
-            sumRhoj2yz += rhoj2 * y * z;
-            sumRhoj2zz += rhoj2 * z * z;
-            
-            sumRhoj3xxx += rhoj3 * x * x * x;
-            sumRhoj3xxy += rhoj3 * x * x * y;
-            sumRhoj3xxz += rhoj3 * x * x * z;
-            sumRhoj3xyy += rhoj3 * x * y * y;
-            sumRhoj3xyz += rhoj3 * x * y * z;
-            sumRhoj3xzz += rhoj3 * x * z * z;
-            sumRhoj3yyy += rhoj3 * y * y * y;
-            sumRhoj3yyz += rhoj3 * y * y * z;
-            sumRhoj3yzz += rhoj3 * y * z * z;
-            sumRhoj3zzz += rhoj3 * z * z * z;
-        
             //to calculate the repulsive pair potential, phi
             //Should rhoj0 within phi contain Sij? Phi itself is multiplied by Sij...
             //FCC reference structure, Z = 12
@@ -453,394 +478,857 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         	double EuRef = - p.Ec * (1.0 + a) * Math.exp(-a);
         	double FRef = p.A * p.Ec * (rhoiRef/p.Z) * Math.log(rhoiRef/p.Z);
         	double phi = ((2.0/p.Z) * (EuRef - FRef)) * Sij;
-        	sumPhi += ((2.0/p.Z) * (EuRef - FRef)) * Sij;
-        	
     	
     	vector100.setX(0,1.0);
     	vector010.setX(1,1.0);
     	vector001.setX(2,1.0);
     	
-    	gradx.Ea1Tv1(x/(r*r),rij);
-    	gradx.PEa1Tv1(-1.0/r, vector100);
+    	//Pair-wise terms to calculate giEi
+    	gix.Ea1Tv1(x/(r*r),rin);
+    	gix.PEa1Tv1(-1.0/r, vector100);
     	
-    	grady.Ea1Tv1(y/(r*r),rij);
-    	grady.PEa1Tv1(-1.0/r, vector010);
+    	giy.Ea1Tv1(y/(r*r),rin);
+    	giy.PEa1Tv1(-1.0/r, vector010);
     	
-    	gradz.Ea1Tv1(z/(r*r),rij);
-    	gradz.PEa1Tv1(-1.0/r, vector001);
+    	giz.Ea1Tv1(z/(r*r),rin);
+    	giz.PEa1Tv1(-1.0/r, vector001);
     	
-    	gradr.Ea1Tv1(-1.0/r,rij);
+    	giRij.Ea1Tv1(-1.0/r,rin);
     	
-    	//Calculations to determine gradient of phi
-    	//FCC reference structure, Z = 12
-    	gradRhoj0Ref.Ea1Tv1(-rhoj0Ref*p.beta0/p.r0, gradr);
-    	gradRhoiRef.Ea1Tv1(p.Z, gradRhoj0Ref);
-    	gradFRef.Ea1Tv1( (p.A*p.Ec/p.Z)*
-			(1.0 + Math.log(rhoiRef/p.Z)), gradRhoiRef);
-    	gradERef.Ea1Tv1( (p.Ec*p.alpha*p.alpha/p.r0) * ((r/p.r0) - 1.0)
-					*(Math.exp(-p.alpha*((r/p.r0)-1.0))), gradr);
-	
-    	gradPhi.E(gradERef);
-    	gradPhi.ME(gradFRef);
-    	gradPhi.TE(2.0 * Sij /p.Z);
-    	gradPhi.PEa1Tv1(phi/Sij, giSij);
-    	sumGradPhi.PE(gradPhi);
+    		//giPhi
+    	giRhoj0Ref.Ea1Tv1(-rhoj0Ref*p.beta0/p.r0, giRij);
+    	
+    	giRhoiRef.Ea1Tv1(p.Z, giRhoj0Ref);
+    	
+    	giFRef.Ea1Tv1( (p.A*p.Ec/p.Z)*
+			(1.0 + Math.log(rhoiRef/p.Z)), giRhoiRef);
+    	
+    	giERef.Ea1Tv1( (p.Ec*p.alpha*p.alpha/p.r0) * ((r/p.r0) - 1.0)
+				*(Math.exp(-p.alpha*((r/p.r0)-1.0))), giRij);
+    	
+    	giPhi.E(giERef);
+    	giPhi.ME(giFRef);
+    	giPhi.TE(2.0 * Sij /p.Z);
+    	giPhi.PEa1Tv1(phi/Sij, giSij);
+    	sumGiPhi.PE(giPhi);
+
+    	giRhoj0.Ea1Tv1(rhoj0/Sij, giSij);
+    	giRhoj0.PEa1Tv1(-rhoj0*p.beta0/(p.r0), giRij);
+    	sumGiRhoj0.PE(giRhoj0);
+    	
+    	giRhoj1.Ea1Tv1(rhoj1/Sij, giSij);
+    	giRhoj1.PEa1Tv1(-rhoj1*p.beta1/(p.r0), giRij);
+    	sumGiRhoj1.PE(giRhoj1);
+
+    	giRhoj2.Ea1Tv1(rhoj2/Sij, giSij);
+    	giRhoj2.PEa1Tv1(-rhoj2*p.beta2/(p.r0), giRij);
+    	sumGiRhoj2.PE(giRhoj2);
+
+    	giRhoj3.Ea1Tv1(rhoj3/Sij, giSij);
+    	giRhoj3.PEa1Tv1(-rhoj3*p.beta3/(p.r0), giRij);
+    	sumGiRhoj3.PE(giRhoj3);
+
+    	giRhoj1x.Ea1Tv1(rhoj1, gix);
+    	giRhoj1x.PEa1Tv1(x, giRhoj1);
+    	sumGiRhoj1x.PE(giRhoj1x);
+
+    	giRhoj1y.Ea1Tv1(rhoj1, giy);
+    	giRhoj1y.PEa1Tv1(y, giRhoj1);
+    	sumGiRhoj1y.PE(giRhoj1y);
+
+    	giRhoj1z.Ea1Tv1(rhoj1, giz);
+    	giRhoj1z.PEa1Tv1(z, giRhoj1);
+    	sumGiRhoj1z.PE(giRhoj1z);
+
+    	giRhoj2xx.Ea1Tv1(2.0*rhoj2*x, gix);
+    	giRhoj2xx.PEa1Tv1(x*x, giRhoj2);
+    	sumGiRhoj2xx.PE(giRhoj2xx);
+
+    	giRhoj2xy.Ea1Tv1(rhoj2*x, giy);
+    	giRhoj2xy.PEa1Tv1(rhoj2*y, gix);
+    	giRhoj2xy.PEa1Tv1(x*y, giRhoj2);
+    	sumGiRhoj2xy.PE(giRhoj2xy);
+
+    	giRhoj2xz.Ea1Tv1(rhoj2*x, giz);
+    	giRhoj2xz.PEa1Tv1(rhoj2*z, gix);
+    	giRhoj2xz.PEa1Tv1(x*z, giRhoj2);
+    	sumGiRhoj2xz.PE(giRhoj2xz);
+
+    	giRhoj2yy.Ea1Tv1(2.0*rhoj2*y, giy);
+    	giRhoj2yy.PEa1Tv1(y*y, giRhoj2);
+    	sumGiRhoj2yy.PE(giRhoj2yy);
+
+    	giRhoj2yz.Ea1Tv1(rhoj2*y, giz);
+    	giRhoj2yz.PEa1Tv1(rhoj2*z, giy);
+    	giRhoj2yz.PEa1Tv1(y*z, giRhoj2);
+    	sumGiRhoj2yz.PE(giRhoj2yz);
+
+    	giRhoj2zz.Ea1Tv1(2.0*rhoj2*z, giz);
+    	giRhoj2zz.PEa1Tv1(z*z, giRhoj2);
+    	sumGiRhoj2zz.PE(giRhoj2zz);
+
+    	giRhoj3xxx.Ea1Tv1(3.0*rhoj3*x*x, gix);
+    	giRhoj3xxx.PEa1Tv1(x*x*x, giRhoj3);
+    	sumGiRhoj3xxx.PE(giRhoj3xxx);
     
-    	//Gradient of rhoj0
-    	gradRhoj0.Ea1Tv1(rhoj0/Sij, giSij);
-    	gradRhoj0.PEa1Tv1(-rhoj0*p.beta0/(p.r0), gradr);
-    	sumGradRhoj0.PE(gradRhoj0);
+    	giRhoj3xxy.Ea1Tv1(rhoj3*x*x, giy);
+    	giRhoj3xxy.PEa1Tv1(2.0*rhoj3*x*y, gix);
+    	giRhoj3xxy.PEa1Tv1(x*x*y, giRhoj3);
+    	sumGiRhoj3xxy.PE(giRhoj3xxy);
+
+    	giRhoj3xxz.Ea1Tv1(rhoj3*x*x, giz);
+    	giRhoj3xxz.PEa1Tv1(2.0*rhoj3*x*z, gix);
+    	giRhoj3xxz.PEa1Tv1(x*x*z, giRhoj3);
+    	sumGiRhoj3xxz.PE(giRhoj3xxz);
+
+    	giRhoj3xyy.Ea1Tv1(2.0*rhoj3*x*y, giy);
+    	giRhoj3xyy.PEa1Tv1(rhoj3*y*y, gix);
+    	giRhoj3xyy.PEa1Tv1(x*y*y, giRhoj3);
+    	sumGiRhoj3xyy.PE(giRhoj3xyy);
+
+    	giRhoj3xyz.Ea1Tv1(rhoj3*x*y, giz);
+    	giRhoj3xyz.PEa1Tv1(rhoj3*x*z, giy);
+    	giRhoj3xyz.PEa1Tv1(rhoj3*y*z, gix);
+    	giRhoj3xyz.PEa1Tv1(x*y*z, giRhoj3);
+    	sumGiRhoj3xyz.PE(giRhoj3xyz);
+
+    	giRhoj3xzz.Ea1Tv1(2.0*rhoj3*x*z, giz);
+    	giRhoj3xzz.PEa1Tv1(rhoj3*z*z, gix);
+    	giRhoj3xzz.PEa1Tv1(x*z*z, giRhoj3);
+    	sumGiRhoj3xzz.PE(giRhoj3xzz);
+
+    	giRhoj3yyy.Ea1Tv1(3.0*rhoj3*y*y, giy);
+    	giRhoj3yyy.PEa1Tv1(y*y*y, giRhoj3);
+    	sumGiRhoj3yyy.PE(giRhoj3yyy);
+   
+    	giRhoj3yyz.Ea1Tv1(rhoj3*y*y, giz);
+    	giRhoj3yyz.PEa1Tv1(2.0*rhoj3*y*z, giy);
+    	giRhoj3yyz.PEa1Tv1(y*y*z, giRhoj3);
+    	sumGiRhoj3yyz.PE(giRhoj3yyz);
     	
-    	//Gradient of rhoj1
-    	gradRhoj1.Ea1Tv1(rhoj1/Sij, giSij);
-    	gradRhoj1.PEa1Tv1(-rhoj1*p.beta1/(p.r0), gradr);
-    	sumGradRhoj1.PE(gradRhoj1);
+    	giRhoj3yzz.Ea1Tv1(2.0*rhoj3*y*z, giz);
+    	giRhoj3yzz.PEa1Tv1(rhoj3*z*z, giy);
+    	giRhoj3yzz.PEa1Tv1(y*z*z, giRhoj3);
+    	sumGiRhoj3yzz.PE(giRhoj3yzz);
     	
-    	//Gradient of rhoj2
-    	gradRhoj2.Ea1Tv1(rhoj2/Sij, giSij);
-    	gradRhoj2.PEa1Tv1(-rhoj2*p.beta2/(p.r0), gradr);
-    	sumGradRhoj2.PE(gradRhoj2);
+    	giRhoj3zzz.Ea1Tv1(3.0*rhoj3*z*z, giz);
+    	giRhoj3zzz.PEa1Tv1(z*z*z, giRhoj3);
+    	sumGiRhoj3zzz.PE(giRhoj3zzz);
     	
-    	//Gradient of rhoj3
-    	gradRhoj3.Ea1Tv1(rhoj3/Sij, giSij);
-    	gradRhoj3.PEa1Tv1(-rhoj3*p.beta3/(p.r0), gradr);
-    	sumGradRhoj3.PE(gradRhoj3);
+    	t1GiRhoj0.Ea1Tv1(p.t1, giRhoj0);
+    	sumt1GiRhoj0.PE(t1GiRhoj0);
     	
-    	//Gradient of rhoj1x
-    	gradRhoj1x.Ea1Tv1(rhoj1, gradx);
-    	gradRhoj1x.PEa1Tv1(x, gradRhoj1);
-    	sumGradRhoj1x.PE(gradRhoj1x);
+    	t2GiRhoj0.Ea1Tv1(p.t2, giRhoj0);
+    	sumt2GiRhoj0.PE(t2GiRhoj0);
     	
-    	//Gradient of rhoj1y
-    	gradRhoj1y.Ea1Tv1(rhoj1, grady);
-    	gradRhoj1y.PEa1Tv1(y, gradRhoj1);
-    	sumGradRhoj1y.PE(gradRhoj1y);
+    	t3GiRhoj0.Ea1Tv1(p.t3, giRhoj0);
+    	sumt3GiRhoj0.PE(t3GiRhoj0);
+    
+    	//Pair-wise terms required to calculate gnEi
+    	gjx.Ea1Tv1(-1, gix);
+    	gjy.Ea1Tv1(-1, giy);
+    	gjz.Ea1Tv1(-1, giz);
     	
-    	//Gradient of rhoj1z
-    	gradRhoj1z.Ea1Tv1(rhoj1, gradz);
-    	gradRhoj1z.PEa1Tv1(z, gradRhoj1);
-    	sumGradRhoj1z.PE(gradRhoj1z);
+    	gjRij.Ea1Tv1(-1, giRij);
     	
-    	//Gradient of rhoj2xx
-    	gradRhoj2xx.Ea1Tv1(2.0*rhoj2*x, gradx);
-    	gradRhoj2xx.PEa1Tv1(x*x, gradRhoj2);
-    	sumGradRhoj2xx.PE(gradRhoj2xx);
+    	gjFRef.Ea1Tv1(-1, giFRef);
+    	gjERef.Ea1Tv1(-1, giERef);
+    	gjPhi.E(gjERef);
+    	gjPhi.ME(gjFRef);
+    	gjPhi.TE(2.0 * Sij /p.Z);
+    	gjPhi.PEa1Tv1(phi/Sij, gjSij);
     	
-    	//Gradient of rhoj2xy
-    	gradRhoj2xy.Ea1Tv1(rhoj2*x, grady);
-    	gradRhoj2xy.PEa1Tv1(rhoj2*y, gradx);
-    	gradRhoj2xy.PEa1Tv1(x*y, gradRhoj2);
-    	sumGradRhoj2xy.PE(gradRhoj2xy);
+    	gjRhoj0.Ea1Tv1(rhoj0/Sij, gjSij);
+    	gjRhoj0.PEa1Tv1(-rhoj0*p.beta0/(p.r0), gjRij);
     	
-    	//Gradient of rhoj2xz
-    	gradRhoj2xz.Ea1Tv1(rhoj2*x, gradz);
-    	gradRhoj2xz.PEa1Tv1(rhoj2*z, gradx);
-    	gradRhoj2xz.PEa1Tv1(x*z, gradRhoj2);
-    	sumGradRhoj2xz.PE(gradRhoj2xz);
+    	gjRhoj1x.Ea1Tv1(rhoj1, gjx);
+    	gjRhoj1x.PEa1Tv1(x, gjRhoj1);
     	
-    	//Gradient of rhoj2yy
-    	gradRhoj2yy.Ea1Tv1(2.0*rhoj2*y, grady);
-    	gradRhoj2yy.PEa1Tv1(y*y, gradRhoj2);
-    	sumGradRhoj2yy.PE(gradRhoj2yy);
+    	gjRhoj1y.Ea1Tv1(rhoj1, gjy);
+    	gjRhoj1y.PEa1Tv1(y, gjRhoj1);
     	
-    	//Gradient of rhoj2yz
-    	gradRhoj2yz.Ea1Tv1(rhoj2*y, gradz);
-    	gradRhoj2yz.PEa1Tv1(rhoj2*z, grady);
-    	gradRhoj2yz.PEa1Tv1(y*z, gradRhoj2);
-    	sumGradRhoj2yz.PE(gradRhoj2yz);
+    	gjRhoj1z.Ea1Tv1(rhoj1, gjz);
+    	gjRhoj1z.PEa1Tv1(z, gjRhoj1);
     	
-    	//Gradient of rhoj2zz
-    	gradRhoj2zz.Ea1Tv1(2.0*rhoj2*z, gradz);
-    	gradRhoj2zz.PEa1Tv1(z*z, gradRhoj2);
-    	sumGradRhoj2zz.PE(gradRhoj2zz);
+    	gjRhoj2xx.Ea1Tv1(2.0*rhoj2*x, gjx);
+    	gjRhoj2xx.PEa1Tv1(x*x, gjRhoj2);
     	
-    	//Gradient of rhoj3xxx
-    	gradRhoj3xxx.Ea1Tv1(3.0*rhoj3*x*x, gradx);
-    	gradRhoj3xxx.PEa1Tv1(x*x*x, gradRhoj3);
-    	sumGradRhoj3xxx.PE(gradRhoj3xxx);
+    	gjRhoj2xy.Ea1Tv1(rhoj2*x, gjy);
+    	gjRhoj2xy.PEa1Tv1(rhoj2*y, gjx);
+    	gjRhoj2xy.PEa1Tv1(x*y, gjRhoj2);
     	
-    	//Gradient of rhoj3xxy
-    	gradRhoj3xxy.Ea1Tv1(rhoj3*x*x, grady);
-    	gradRhoj3xxy.PEa1Tv1(2.0*rhoj3*x*y, gradx);
-    	gradRhoj3xxy.PEa1Tv1(x*x*y, gradRhoj3);
-    	sumGradRhoj3xxy.PE(gradRhoj3xxy);
+    	gjRhoj2xz.Ea1Tv1(rhoj2*x, gjz);
+    	gjRhoj2xz.PEa1Tv1(rhoj2*z, gjx);
+    	gjRhoj2xz.PEa1Tv1(x*z, gjRhoj2);
     	
-    	//Gradient of rhoj3xxz
-    	gradRhoj3xxz.Ea1Tv1(rhoj3*x*x, gradz);
-    	gradRhoj3xxz.PEa1Tv1(2.0*rhoj3*x*z, gradx);
-    	gradRhoj3xxz.PEa1Tv1(x*x*z, gradRhoj3);
-    	sumGradRhoj3xxz.PE(gradRhoj3xxz);
+    	gjRhoj2yy.Ea1Tv1(2.0*rhoj2*y, gjy);
+    	gjRhoj2yy.PEa1Tv1(y*y, gjRhoj2);
     	
-    	//Gradient of rhoj3xyy
-    	gradRhoj3xyy.Ea1Tv1(2.0*rhoj3*x*y, grady);
-    	gradRhoj3xyy.PEa1Tv1(rhoj3*y*y, gradx);
-    	gradRhoj3xyy.PEa1Tv1(x*y*y, gradRhoj3);
-    	sumGradRhoj3xyy.PE(gradRhoj3xyy);
+    	gjRhoj2yz.Ea1Tv1(rhoj2*y, gjz);
+    	gjRhoj2yz.PEa1Tv1(rhoj2*z, gjy);
+    	gjRhoj2yz.PEa1Tv1(y*z, gjRhoj2);
     	
-    	//Gradient of rhoj3xyz
-    	gradRhoj3xyz.Ea1Tv1(rhoj3*x*y, gradz);
-    	gradRhoj3xyz.PEa1Tv1(rhoj3*x*z, grady);
-    	gradRhoj3xyz.PEa1Tv1(rhoj3*y*z, gradx);
-    	gradRhoj3xyz.PEa1Tv1(x*y*z, gradRhoj3);
-    	sumGradRhoj3xyz.PE(gradRhoj3xyz);
+    	gjRhoj2zz.Ea1Tv1(2.0*rhoj2*z, giz);
+    	gjRhoj2zz.PEa1Tv1(z*z, giRhoj2);
     	
-    	//Gradient of rhoj3xzz
-    	gradRhoj3xzz.Ea1Tv1(2.0*rhoj3*x*z, gradz);
-    	gradRhoj3xzz.PEa1Tv1(rhoj3*z*z, gradx);
-    	gradRhoj3xzz.PEa1Tv1(x*z*z, gradRhoj3);
-    	sumGradRhoj3xzz.PE(gradRhoj3xzz);
+    	gjRhoj2.Ea1Tv1(rhoj2/Sij, gjSij);
+    	gjRhoj2.PEa1Tv1(-rhoj2*p.beta2/(p.r0), gjRij);
+
+    	gjRhoj3xxx.Ea1Tv1(3.0*rhoj3*x*x, gjx);
+    	gjRhoj3xxx.PEa1Tv1(x*x*x, gjRhoj3);
+
+    	gjRhoj3xxy.Ea1Tv1(rhoj3*x*x, gjy);
+    	gjRhoj3xxy.PEa1Tv1(2.0*rhoj3*x*y, gjx);
+    	gjRhoj3xxy.PEa1Tv1(x*x*y, gjRhoj3);
+
+    	gjRhoj3xxz.Ea1Tv1(rhoj3*x*x, gjz);
+    	gjRhoj3xxz.PEa1Tv1(2.0*rhoj3*x*z, gjx);
+    	gjRhoj3xxz.PEa1Tv1(x*x*z, gjRhoj3);
+
+    	gjRhoj3xyy.Ea1Tv1(2.0*rhoj3*x*y, gjy);
+    	gjRhoj3xyy.PEa1Tv1(rhoj3*y*y, gjx);
+    	gjRhoj3xyy.PEa1Tv1(x*y*y, gjRhoj3);
     	
-    	//Gradient of rhoj3yyy
-    	gradRhoj3yyy.Ea1Tv1(3.0*rhoj3*y*y, grady);
-    	gradRhoj3yyy.PEa1Tv1(y*y*y, gradRhoj3);
-    	sumGradRhoj3yyy.PE(gradRhoj3yyy);
+    	gjRhoj3xyz.Ea1Tv1(rhoj3*x*y, gjz);
+    	gjRhoj3xyz.PEa1Tv1(rhoj3*x*z, gjy);
+    	gjRhoj3xyz.PEa1Tv1(rhoj3*y*z, gjx);
+    	gjRhoj3xyz.PEa1Tv1(x*y*z, gjRhoj3);
+
+    	gjRhoj3xzz.Ea1Tv1(2.0*rhoj3*x*z, gjz);
+    	gjRhoj3xzz.PEa1Tv1(rhoj3*z*z, gjx);
+    	gjRhoj3xzz.PEa1Tv1(x*z*z, gjRhoj3);
+
+    	gjRhoj3yyy.Ea1Tv1(3.0*rhoj3*y*y, gjy);
+    	gjRhoj3yyy.PEa1Tv1(y*y*y, gjRhoj3);
+
+    	gjRhoj3yyz.Ea1Tv1(rhoj3*y*y, gjz);
+    	gjRhoj3yyz.PEa1Tv1(2.0*rhoj3*y*z, gjy);
+    	gjRhoj3yyz.PEa1Tv1(y*y*z, gjRhoj3);
     	
-    	//Gradient of rhoj3yyz
-    	gradRhoj3yyz.Ea1Tv1(rhoj3*y*y, gradz);
-    	gradRhoj3yyz.PEa1Tv1(2.0*rhoj3*y*z, grady);
-    	gradRhoj3yyz.PEa1Tv1(y*y*z, gradRhoj3);
-    	sumGradRhoj3yyz.PE(gradRhoj3yyz);
+    	gjRhoj3yzz.Ea1Tv1(2.0*rhoj3*y*z, gjz);
+    	gjRhoj3yzz.PEa1Tv1(rhoj3*z*z, gjy);
+    	gjRhoj3yzz.PEa1Tv1(y*z*z, gjRhoj3);
     	
-    	//Gradient of rhoj3yzz
-    	gradRhoj3yzz.Ea1Tv1(2.0*rhoj3*y*z, gradz);
-    	gradRhoj3yzz.PEa1Tv1(rhoj3*z*z, grady);
-    	gradRhoj3yzz.PEa1Tv1(y*z*z, gradRhoj3);
-    	sumGradRhoj3yzz.PE(gradRhoj3yzz);
+    	gjRhoj3zzz.Ea1Tv1(3.0*rhoj3*z*z, gjz);
+    	gjRhoj3zzz.PEa1Tv1(z*z*z, gjRhoj3);
+
+    	t1GjRhoj0.Ea1Tv1(p.t1, gjRhoj0);
+   
+    	t2GjRhoj0.Ea1Tv1(p.t2, gjRhoj0);
     	
-    	//Gradient of rhoj3zzz
-    	gradRhoj3zzz.Ea1Tv1(3.0*rhoj3*z*z, gradz);
-    	gradRhoj3zzz.PEa1Tv1(z*z*z, gradRhoj3);
-    	sumGradRhoj3zzz.PE(gradRhoj3zzz);
+    	t3GjRhoj0.Ea1Tv1(p.t3, gjRhoj0);
     	
-    	//t1GradRhoj0
-    	t1GradRhoj0.Ea1Tv1(p.t1, gradRhoj0);
-    	sumt1GradRhoj0.PE(t1GradRhoj0);
+    	//to consider n as a k atom, we must loop through neighbors j of i again
     	
-    	//t2GradRhoj0
-    	t2GradRhoj0.Ea1Tv1(p.t2, gradRhoj0);
-    	sumt2GradRhoj0.PE(t2GradRhoj0);
-    	
-    	//t3GradRhoj0
-    	t3GradRhoj0.Ea1Tv1(p.t3, gradRhoj0);
-    	sumt3GradRhoj0.PE(t3GradRhoj0);
-        }
-        
-        double rhoi0 = sumRhoj0;
-        
-        double rhoi1 = Math.sqrt( (sumRhoj1x * sumRhoj1x)
-    				+ (sumRhoj1y * sumRhoj1y)+ (sumRhoj1z * sumRhoj1z));
+    	for(int j = 1; j < atoms.count(); j++) {
+        	AtomLeaf atomj = (AtomLeaf) atoms.getAtom(j);
+        	if (j == n) continue; //the k atom, n, must not be treated as one of the other j's
+        	rij.Ev1Mv2(atomj.coord.position(), atom0.coord.position());
+        	nearestImageTransformer.nearestImage(rij);
+        	double ij = Math.sqrt(rij.squared());
+        	if (ij > 4.0) continue;
+        	
+        	//Remember, n is now treated as the k atom
+        	rik.Ev1Mv2(atomn.coord.position(), atom0.coord.position());
+        	nearestImageTransformer.nearestImage(rik);
+        	double ik = Math.sqrt(rik.squared());
+        	if (ik > ij*1.14) continue;
+        	
+        	double anglekij = Math.toDegrees(Math.acos(
+        			((rij.x(0)*rik.x(0)) + 
+        			 (rij.x(1)*rik.x(1)) + 
+					 (rij.x(2)*rik.x(2)))
+					 /(r*ik)));
+        	
+        	if (anglekij >= 90) continue;
+        	
+        	rkj.Ev1Mv2(atomn.coord.position(), atomj.coord.position());
+        	nearestImageTransformer.nearestImage(rkj);
+        	double kj = Math.sqrt(rkj.squared());
+        	
+        	//from Baskes, Angelo, & Bisson (1994)
+        	double xik = (ik/kj)*(ik/kj);
+        	double xkj = (kj/r)*(kj/r);
+        	
+        	double C = ( (2*(xik + xkj)) - ((xik - xkj)*(xik - xkj))- 1 )
+						/ (1 - ((xik - xkj)*(xik - xkj)));
+        	
+        	double Sijk;
+        	if (C <= p.Cmin) { 
+        		Sij = 0;
+        		break;
+        	}
+        	else if (C >= p.Cmax) { //Sikj = 1, value of Sij won't change
+        			continue;
+        		}
+        	else {
+        			Sijk = Math.exp(-(((p.Cmax - C)/(C - p.Cmin))
+        					*((p.Cmax - C)/(C - p.Cmin))));
+        	}
+        	
+        	gkRij.E(0);
+        	gkRik.Ea1Tv1(-1, giRik);
+        	gkRkj.Ea1Tv1(-1, gjRkj);
+        	
+        	gkXik.Ea1Tv1(-ik/(kj*kj), gkRkj);
+        	gkXik.PEa1Tv1(1/kj, gkRik);
+        	gkXik.TE(2*ik/kj);
+        	
+        	gkXkj.Ea1Tv1(-kj/(r*r), gkRij);
+        	gkXkj.PEa1Tv1(1/r, gkRkj);
+        	gkXkj.TE(2*kj/r);
        
-        double rhoi2 = Math.sqrt((sumRhoj2xx * sumRhoj2xx)
-    			+ (2.0 * sumRhoj2xy * sumRhoj2xy)+ (2.0 * sumRhoj2xz * sumRhoj2xz)
-    			+ (sumRhoj2yy * sumRhoj2yy) + (2.0 * sumRhoj2yz * sumRhoj2yz)
-    			+ (sumRhoj2zz * sumRhoj2zz) - ((1.0/3.0) * sumRhoj2 * sumRhoj2));
-        
-        double rhoi3 = Math.sqrt( 
-        		   (sumRhoj3xxx * sumRhoj3xxx)
-    		+(3.0 * sumRhoj3xxy * sumRhoj3xxy)
-    		+(3.0 * sumRhoj3xxz * sumRhoj3xxz)
-    		+(3.0 * sumRhoj3xyy * sumRhoj3xyy)
-    		+(6.0 * sumRhoj3xyz * sumRhoj3xyz)
-    		+(3.0 * sumRhoj3xzz * sumRhoj3xzz)
-    		+      (sumRhoj3yyy * sumRhoj3yyy)
-    		+(3.0 * sumRhoj3yyz * sumRhoj3yyz)
-    		+(3.0 * sumRhoj3yzz * sumRhoj3yzz)
-    		+      (sumRhoj3zzz * sumRhoj3zzz));
-        
-        double tav1 = sumt1Rhoj0 / sumRhoj0;
+	    	gkC.Ea1Tv1( 1 + (xik - xkj)*(C - 1), gkXik);
+	    	gkC.PEa1Tv1(1 - (xik - xkj)*(C + 1), gkXkj);
+	    	gkC.TE( 2 / ( 1 - ((xik - xkj)*(xik - xkj)) ));
+	    
+	    	gkSijk.Ea1Tv1( 2*Sijk*(p.Cmax - C)/((C - p.Cmin)*(C-p.Cmin) )
+	    			* ( ((p.Cmax - C)/(C - p.Cmin)) + 1 ), gkC);
+	    	
+	    	//We only consider one k atom - the k atom that is n
+	    	gkSij.TE(Sijk);
+	    	gkSij.PEa1Tv1(Sij, gkSijk);
+	    	
+	    	Sij *= Sijk;
+	    	
+	    	gkPhi.PEa1Tv1(phi/Sij, gkSij);
+	    	sumGkPhi.PE(gkPhi);
+	    	
+	    	gkRhoj0.Ea1Tv1(rhoj0/Sij, gkSij);
+	    	sumGkRhoj0.PE(gkRhoj0);
+	    	
+	    	gkRhoj1.Ea1Tv1(rhoj1/Sij, gkSij);
 
-        double tav2 = sumt2Rhoj0 / sumRhoj0;
-        
-        double tav3 = sumt3Rhoj0 / sumRhoj0;
-        
-        double gamma = (tav1 * (rhoi1/rhoi0) * (rhoi1/rhoi0))
-    		+ (tav2 * (rhoi2/rhoi0) * (rhoi2/rhoi0))
-    		+ (tav3 * (rhoi3/rhoi0) * (rhoi3/rhoi0));
+	    	gkRhoj2.Ea1Tv1(rhoj2/Sij, gkSij);
+	    	sumGkRhoj2.PE(gkRhoj2);
 
-        //The following expression for the background electron density of atom i
-		//is appropriate for Sn only.
-        double rhoi = (2.0 * rhoi0) / (1.0 + Math.exp(-gamma)); //Sn
-        
-        //double rhoi = rhoi0 * Math.sqrt(1.0 + gamma); //Cu
-        
-        gradRhoi0.E(sumGradRhoj0);
+	    	gkRhoj3.Ea1Tv1(rhoj3/Sij, gkSij);
+	    	
+	    	gkRhoj1x.Ea1Tv1(x, gkRhoj1);
+	    	sumGkRhoj1x.PE(gkRhoj1x);
+	    	
+	    	gkRhoj1y.Ea1Tv1(y, gkRhoj1);
+	    	sumGkRhoj1y.PE(gkRhoj1y);
+
+	    	gkRhoj1z.Ea1Tv1(z, gkRhoj1);
+	    	sumGkRhoj1z.PE(gkRhoj1z);
+
+	    	gkRhoj2xx.Ea1Tv1(x*x, gkRhoj2);
+	    	sumGkRhoj2xx.PE(gkRhoj2xx);
+
+	    	gkRhoj2xy.Ea1Tv1(x*y, gkRhoj2);
+	    	sumGkRhoj2xy.PE(gkRhoj2xy);
+
+	    	gkRhoj2xz.Ea1Tv1(x*z, gkRhoj2);
+	    	sumGkRhoj2xz.PE(gkRhoj2xz);
+
+	    	gkRhoj2yy.Ea1Tv1(y*y, gkRhoj2);
+	    	sumGkRhoj2yy.PE(gkRhoj2yy);
+
+	    	gkRhoj2yz.Ea1Tv1(y*z, gkRhoj2);
+	    	sumGkRhoj2yz.PE(gkRhoj2yz);
+
+	    	gkRhoj2zz.Ea1Tv1(z*z, gkRhoj2);
+	    	sumGkRhoj2zz.PE(gkRhoj2zz);
+
+	    	gkRhoj3xxx.Ea1Tv1(x*x*x, gkRhoj3);
+	    	sumGkRhoj3xxx.PE(gkRhoj3xxx);
+	    
+	    	gkRhoj3xxy.Ea1Tv1(x*x*y, gkRhoj3);
+	    	sumGkRhoj3xxy.PE(gkRhoj3xxy);
+
+	    	gkRhoj3xxz.Ea1Tv1(x*x*z, gkRhoj3);
+	    	sumGkRhoj3xxz.PE(gkRhoj3xxz);
+
+	    	gkRhoj3xyy.Ea1Tv1(x*y*y, gkRhoj3);
+	    	sumGkRhoj3xyy.PE(gkRhoj3xyy);
+
+	    	gkRhoj3xyz.Ea1Tv1(x*y*z, gkRhoj3);
+	    	sumGkRhoj3xyz.PE(gkRhoj3xyz);
+	    	
+	    	gkRhoj3xzz.Ea1Tv1(x*z*z, gkRhoj3);
+	    	sumGkRhoj3xzz.PE(gkRhoj3xzz);
+
+	    	gkRhoj3yyy.Ea1Tv1(y*y*y, gkRhoj3);
+	    	sumGkRhoj3yyy.PE(gkRhoj3yyy);
+	   
+	    	gkRhoj3yyz.Ea1Tv1(y*y*z, gkRhoj3);
+	    	sumGkRhoj3yyz.PE(gkRhoj3yyz);
+	    	
+	    	gkRhoj3yzz.Ea1Tv1(y*z*z, gkRhoj3);
+	    	sumGkRhoj3yzz.PE(gkRhoj3yzz);
+	    	
+	    	gkRhoj3zzz.Ea1Tv1(z*z*z, gkRhoj3);
+	    	sumGkRhoj3zzz.PE(gkRhoj3zzz);
+	    	
+	    	t1GkRhoj0.Ea1Tv1(p.t1, gkRhoj0);
+	    	sumt1GkRhoj0.PE(t1GkRhoj0);
+	    	
+	    	t2GkRhoj0.Ea1Tv1(p.t2, gkRhoj0);
+	    	sumt2GkRhoj0.PE(t2GkRhoj0);
+	    	
+	    	t3GkRhoj0.Ea1Tv1(p.t3, gkRhoj0);
+	    	sumt3GkRhoj0.PE(t3GkRhoj0);
+        }
+    	
+    	//multi-body terms, n as k is included
+    	
+    	sumGnPhi.E(sumGkPhi);
+    	sumGnPhi.PE(gjPhi);
+    	
+		gnRhoi0.E(sumGkRhoj0);
+    	gnRhoi0.E(gjRhoj0);
+    	
+    	gnRhoi1.Ea1Tv1(Sum.rhoj1x, sumGkRhoj1x);
+    	gnRhoi1.PEa1Tv1(Sum.rhoj1x, gjRhoj1x);
+		gnRhoi1.PEa1Tv1(Sum.rhoj1y, sumGkRhoj1y);
+		gnRhoi1.PEa1Tv1(Sum.rhoj1y, gjRhoj1y);
+		gnRhoi1.PEa1Tv1(Sum.rhoj1z, sumGkRhoj1z);
+		gnRhoi1.PEa1Tv1(Sum.rhoj1z, gjRhoj1z);
+		gnRhoi1.TE(1.0/rhoi1);
 		
-		gradRhoi1.Ea1Tv1(sumRhoj1x, sumGradRhoj1x);
-		gradRhoi1.PEa1Tv1(sumRhoj1y, sumGradRhoj1y);
-		gradRhoi1.PEa1Tv1(sumRhoj1z, sumGradRhoj1z);
-		gradRhoi1.TE(1.0/rhoi1);
+		gnRhoi2.Ea1Tv1(Sum.rhoj2xx, sumGkRhoj2xx);
+		gnRhoi2.PEa1Tv1(Sum.rhoj2xx, gjRhoj2xx);
+		gnRhoi2.PEa1Tv1(2.0 * Sum.rhoj2xy, sumGkRhoj2xy);
+		gnRhoi2.PEa1Tv1(2.0 * Sum.rhoj2xz, gjRhoj2xz);
+		gnRhoi2.PEa1Tv1(Sum.rhoj2yy, sumGkRhoj2yy);
+		gnRhoi2.PEa1Tv1(Sum.rhoj2yy, gjRhoj2yy);
+		gnRhoi2.PEa1Tv1(2.0 * Sum.rhoj2yz, sumGkRhoj2yz);
+		gnRhoi2.PEa1Tv1(2.0 * Sum.rhoj2yz, gjRhoj2yz);
+		gnRhoi2.PEa1Tv1(Sum.rhoj2zz, sumGkRhoj2zz);
+		gnRhoi2.PEa1Tv1(Sum.rhoj2zz, gjRhoj2zz);
+		gnRhoi2.PEa1Tv1(-(1.0/3.0) * Sum.rhoj2, sumGkRhoj2);
+		gnRhoi2.PEa1Tv1(-(1.0/3.0) * Sum.rhoj2, gjRhoj2);
+		gnRhoi2.TE(1.0/rhoi2);
 		
-		gradRhoi2.Ea1Tv1(sumRhoj2xx, sumGradRhoj2xx);
-		gradRhoi2.PEa1Tv1(2.0 * sumRhoj2xy, sumGradRhoj2xy);
-		gradRhoi2.PEa1Tv1(2.0 * sumRhoj2xz, sumGradRhoj2xz);
-		gradRhoi2.PEa1Tv1(sumRhoj2yy, sumGradRhoj2yy);
-		gradRhoi2.PEa1Tv1(2.0 * sumRhoj2yz, sumGradRhoj2yz);
-		gradRhoi2.PEa1Tv1(sumRhoj2zz, sumGradRhoj2zz);
-		gradRhoi2.PEa1Tv1(-(1.0/3.0) * sumRhoj2, sumGradRhoj2);
-		gradRhoi2.TE(1.0/rhoi2);
+		gnRhoi3.Ea1Tv1( Sum.rhoj3xxx, sumGkRhoj3xxx);
+		gnRhoi3.PEa1Tv1(Sum.rhoj3xxx, gjRhoj3xxx);
+		gnRhoi3.PEa1Tv1(3.0 * Sum.rhoj3xxy, sumGkRhoj3xxy);
+		gnRhoi3.PEa1Tv1(3.0 * Sum.rhoj3xxy, gjRhoj3xxy);
+		gnRhoi3.PEa1Tv1(3.0 * Sum.rhoj3xxz, sumGkRhoj3xxz);
+		gnRhoi3.PEa1Tv1(3.0 * Sum.rhoj3xxz, gjRhoj3xxz);
+		gnRhoi3.PEa1Tv1(3.0 * Sum.rhoj3xyy, sumGkRhoj3xyy);
+		gnRhoi3.PEa1Tv1(3.0 * Sum.rhoj3xyy, gjRhoj3xyy);
+		gnRhoi3.PEa1Tv1(6.0 * Sum.rhoj3xyz, sumGkRhoj3xyz);
+		gnRhoi3.PEa1Tv1(6.0 * Sum.rhoj3xyz, gjRhoj3xyz);
+		gnRhoi3.PEa1Tv1(3.0 * Sum.rhoj3xzz, sumGkRhoj3xzz);
+		gnRhoi3.PEa1Tv1(3.0 * Sum.rhoj3xzz, gjRhoj3xzz);
+		gnRhoi3.PEa1Tv1(Sum.rhoj3yyy, sumGkRhoj3yyy);
+		gnRhoi3.PEa1Tv1(Sum.rhoj3yyy, gjRhoj3yyy);
+		gnRhoi3.PEa1Tv1(3.0 * Sum.rhoj3yyz, sumGkRhoj3yyz);
+		gnRhoi3.PEa1Tv1(3.0 * Sum.rhoj3yyz, gjRhoj3yyz);
+		gnRhoi3.PEa1Tv1(3.0 * Sum.rhoj3yzz, sumGkRhoj3yzz);
+		gnRhoi3.PEa1Tv1(3.0 * Sum.rhoj3yzz, gjRhoj3yzz);
+		gnRhoi3.PEa1Tv1(Sum.rhoj3zzz, sumGkRhoj3zzz);
+		gnRhoi3.PEa1Tv1(Sum.rhoj3zzz, gjRhoj3zzz);
+		gnRhoi3.TE(1.0/rhoi3);
 		
-		gradRhoi3.Ea1Tv1(sumRhoj3xxx, sumGradRhoj3xxx);
-		gradRhoi3.PEa1Tv1(3.0 * sumRhoj3xxy, sumGradRhoj3xxy);
-		gradRhoi3.PEa1Tv1(3.0 * sumRhoj3xxz, sumGradRhoj3xxz);
-		gradRhoi3.PEa1Tv1(3.0 * sumRhoj3xyy, sumGradRhoj3xyy);
-		gradRhoi3.PEa1Tv1(6.0 * sumRhoj3xyz, sumGradRhoj3xyz);
-		gradRhoi3.PEa1Tv1(3.0 * sumRhoj3xzz, sumGradRhoj3xzz);
-		gradRhoi3.PEa1Tv1(sumRhoj3yyy, sumGradRhoj3yyy);
-		gradRhoi3.PEa1Tv1(3.0 * sumRhoj3yyz, sumGradRhoj3yyz);
-		gradRhoi3.PEa1Tv1(3.0 * sumRhoj3yzz, sumGradRhoj3yzz);
-		gradRhoi3.PEa1Tv1(sumRhoj3zzz, sumGradRhoj3zzz);
-		gradRhoi3.TE(1.0/rhoi3);
+		gntav1.Ea1Tv1(-Sum.t1Rhoj0/(rhoi0*rhoi0), gnRhoi0);
+		gntav1.PEa1Tv1(1.0/rhoi0, sumt1GkRhoj0);
+		gntav1.PEa1Tv1(1.0/rhoi0, t1GjRhoj0);
 		
-		gradtav1.Ea1Tv1(-sumt1Rhoj0/(rhoi0*rhoi0), sumGradRhoj0);
-		gradtav1.PEa1Tv1(1.0/rhoi0, sumt1GradRhoj0);
+		gntav2.Ea1Tv1(-Sum.t2Rhoj0/(rhoi0*rhoi0), gnRhoi0);
+		gntav2.PEa1Tv1(1.0/rhoi0, sumt2GkRhoj0);
+		gntav2.PEa1Tv1(1.0/rhoi0, t2GjRhoj0);
 		
-		gradtav2.Ea1Tv1(-sumt2Rhoj0/(rhoi0*rhoi0), sumGradRhoj0);
-		gradtav2.PEa1Tv1(1.0/rhoi0, sumt2GradRhoj0);
+		gntav3.Ea1Tv1(-Sum.t3Rhoj0/(rhoi0*rhoi0), gnRhoi0);
+		gntav3.PEa1Tv1(1.0/rhoi0, sumt3GkRhoj0);
+		gntav3.PEa1Tv1(1.0/rhoi0, t3GjRhoj0);
 		
-		gradtav3.Ea1Tv1(-sumt3Rhoj0/(rhoi0*rhoi0), sumGradRhoj0);
-		gradtav3.PEa1Tv1(1.0/rhoi0, sumt3GradRhoj0);
-		
-		gradGamma.Ea1Tv1( (-1.0/rhoi0)*( (tav1*rhoi1*rhoi1) + (tav2*rhoi2*rhoi2)
-				+ (tav3*rhoi3*rhoi3) ), gradRhoi0);
-		gradGamma.PEa1Tv1(tav1*rhoi1, gradRhoi1);
-		gradGamma.PEa1Tv1(tav2*rhoi2, gradRhoi2);
-		gradGamma.PEa1Tv1(tav3*rhoi3, gradRhoi3);
-		gradGamma.TE(2.0);
-		gradGamma.PEa1Tv1(rhoi1*rhoi1, gradtav1);
-		gradGamma.PEa1Tv1(rhoi2*rhoi2, gradtav2);
-		gradGamma.PEa1Tv1(rhoi3*rhoi3, gradtav3);
-		gradGamma.TE(1.0/(rhoi0*rhoi0));
+		gnGamma.Ea1Tv1( (-1.0/rhoi0)*( (tav1*rhoi1*rhoi1) + (tav2*rhoi2*rhoi2)
+				+ (tav3*rhoi3*rhoi3) ), gnRhoi0);
+		gnGamma.PEa1Tv1(tav1*rhoi1, gnRhoi1);
+		gnGamma.PEa1Tv1(tav2*rhoi2, gnRhoi2);
+		gnGamma.PEa1Tv1(tav3*rhoi3, gnRhoi3);
+		gnGamma.TE(2.0);
+		gnGamma.PEa1Tv1(rhoi1*rhoi1, gntav1);
+		gnGamma.PEa1Tv1(rhoi2*rhoi2, gntav2);
+		gnGamma.PEa1Tv1(rhoi3*rhoi3, gntav3);
+		gnGamma.TE(1.0/(rhoi0*rhoi0));
 		
 		//Sn
 		
-		gradRhoi.Ea1Tv1(rhoi0*Math.exp(-gamma)/(1.0 + Math.exp(-gamma)), gradGamma);
-		gradRhoi.PE(gradRhoi0);
-		gradRhoi.TE(2.0/(1.0+Math.exp(-gamma)));
+		gnRhoi.Ea1Tv1(rhoi0*Math.exp(-gamma)/(1.0 + Math.exp(-gamma)), gnGamma);
+		gnRhoi.PE(gnRhoi0);
+		gnRhoi.TE(2.0/(1.0+Math.exp(-gamma)));
 		
 		
 		//Cu
 		/**
-		gradRhoi.Ea1Tv1(rhoi0*0.5*Math.sqrt(1.0/(1.0 + gamma)), gradGamma);
-		gradRhoi.PEa1Tv1(Math.sqrt(1.0+gamma), gradRhoi0);
+		gnRhoi.Ea1Tv1(rhoi0*0.5*Math.sqrt(1.0/(1.0 + gamma)), gnGamma);
+		gnRhoi.PEa1Tv1(Math.sqrt(1.0+gamma), gnRhoi0);
 	    **/
 		
-		gradF.Ea1Tv1( (p.A*p.Ec/p.Z)*
-				(1.0 + Math.log(rhoi/p.Z)), gradRhoi);
+		gnF.Ea1Tv1( (p.A*p.Ec/p.Z)*
+				(1.0 + Math.log(rhoi/p.Z)), gnRhoi);
 		
 		//System.out.println("gradF is " + gradF);
 		//System.exit(0);
 		
-		gradEi[0].E(gradF);
-		gradEi[0].PEa1Tv1(0.5, sumGradPhi);
+		gnEi[0].E(gnF);
+		gnEi[0].PEa1Tv1(0.5, sumGnPhi);
+        }
+        
+        giRhoi0.E(sumGiRhoj0);
+        
+		giRhoi1.Ea1Tv1(Sum.rhoj1x, sumGiRhoj1x);
+		giRhoi1.PEa1Tv1(Sum.rhoj1y, sumGiRhoj1y);
+		giRhoi1.PEa1Tv1(Sum.rhoj1z, sumGiRhoj1z);
+		giRhoi1.TE(1.0/rhoi1);
 		
-		return gradEi;
+		giRhoi2.Ea1Tv1(Sum.rhoj2xx, sumGiRhoj2xx);
+		giRhoi2.PEa1Tv1(2.0 * Sum.rhoj2xy, sumGiRhoj2xy);
+		giRhoi2.PEa1Tv1(2.0 * Sum.rhoj2xz, sumGiRhoj2xz);
+		giRhoi2.PEa1Tv1(Sum.rhoj2yy, sumGiRhoj2yy);
+		giRhoi2.PEa1Tv1(2.0 * Sum.rhoj2yz, sumGiRhoj2yz);
+		giRhoi2.PEa1Tv1(Sum.rhoj2zz, sumGiRhoj2zz);
+		giRhoi2.PEa1Tv1(-(1.0/3.0) * Sum.rhoj2, sumGiRhoj2);
+		giRhoi2.TE(1.0/rhoi2);
+		
+		giRhoi3.Ea1Tv1(Sum.rhoj3xxx, sumGiRhoj3xxx);
+		giRhoi3.PEa1Tv1(3.0 * Sum.rhoj3xxy, sumGiRhoj3xxy);
+		giRhoi3.PEa1Tv1(3.0 * Sum.rhoj3xxz, sumGiRhoj3xxz);
+		giRhoi3.PEa1Tv1(3.0 * Sum.rhoj3xyy, sumGiRhoj3xyy);
+		giRhoi3.PEa1Tv1(6.0 * Sum.rhoj3xyz, sumGiRhoj3xyz);
+		giRhoi3.PEa1Tv1(3.0 * Sum.rhoj3xzz, sumGiRhoj3xzz);
+		giRhoi3.PEa1Tv1(Sum.rhoj3yyy, sumGiRhoj3yyy);
+		giRhoi3.PEa1Tv1(3.0 * Sum.rhoj3yyz, sumGiRhoj3yyz);
+		giRhoi3.PEa1Tv1(3.0 * Sum.rhoj3yzz, sumGiRhoj3yzz);
+		giRhoi3.PEa1Tv1(Sum.rhoj3zzz, sumGiRhoj3zzz);
+		giRhoi3.TE(1.0/rhoi3);
+		
+		gitav1.Ea1Tv1(-Sum.t1Rhoj0/(rhoi0*rhoi0), sumGiRhoj0);
+		gitav1.PEa1Tv1(1.0/rhoi0, sumt1GiRhoj0);
+		
+		gitav2.Ea1Tv1(-Sum.t2Rhoj0/(rhoi0*rhoi0), sumGiRhoj0);
+		gitav2.PEa1Tv1(1.0/rhoi0, sumt2GiRhoj0);
+		
+		gitav3.Ea1Tv1(-Sum.t3Rhoj0/(rhoi0*rhoi0), sumGiRhoj0);
+		gitav3.PEa1Tv1(1.0/rhoi0, sumt3GiRhoj0);
+		
+		giGamma.Ea1Tv1( (-1.0/rhoi0)*( (tav1*rhoi1*rhoi1) + (tav2*rhoi2*rhoi2)
+				+ (tav3*rhoi3*rhoi3) ), giRhoi0);
+		giGamma.PEa1Tv1(tav1*rhoi1, giRhoi1);
+		giGamma.PEa1Tv1(tav2*rhoi2, giRhoi2);
+		giGamma.PEa1Tv1(tav3*rhoi3, giRhoi3);
+		giGamma.TE(2.0);
+		giGamma.PEa1Tv1(rhoi1*rhoi1, gitav1);
+		giGamma.PEa1Tv1(rhoi2*rhoi2, gitav2);
+		giGamma.PEa1Tv1(rhoi3*rhoi3, gitav3);
+		giGamma.TE(1.0/(rhoi0*rhoi0));
+		
+		//Sn
+		
+		giRhoi.Ea1Tv1(rhoi0*Math.exp(-gamma)/(1.0 + Math.exp(-gamma)), giGamma);
+		giRhoi.PE(giRhoi0);
+		giRhoi.TE(2.0/(1.0+Math.exp(-gamma)));
+		
+		
+		//Cu
+		/**
+		giRhoi.Ea1Tv1(rhoi0*0.5*Math.sqrt(1.0/(1.0 + gamma)), giGamma);
+		giRhoi.PEa1Tv1(Math.sqrt(1.0+gamma), giRhoi0);
+	    **/
+		
+		giF.Ea1Tv1( (p.A*p.Ec/p.Z)*
+				(1.0 + Math.log(rhoi/p.Z)), giRhoi);
+		
+		//System.out.println("gradF is " + gradF);
+		//System.exit(0);
+		
+		giEi[0].E(giF);
+		giEi[0].PEa1Tv1(0.5, sumGiPhi);
+		
+		return giEi;
+        }
+        return giEi;
 	}
 	
+	protected NearestImageTransformer nearestImageTransformer;
+    private ParameterSetMEAM p;
+    private AtomPair pair;
 	private final Vector3D unitVector = (Vector3D)space.makeVector();
     private final Vector3D oppositeDirection = (Vector3D)space.makeVector();
     private final Vector3D vector100 = (Vector3D)space.makeVector();
     private final Vector3D vector010 = (Vector3D)space.makeVector();
     private final Vector3D vector001 = (Vector3D)space.makeVector();
+    private final Vector3D rin = (Vector3D)space.makeVector();
+    private final Vector3D rij = (Vector3D)space.makeVector();
+    private final Vector3D rik = (Vector3D)space.makeVector();
+    private final Vector3D rkj = (Vector3D)space.makeVector();
+    
     private final Vector3D giRij = (Vector3D)space.makeVector();
     private final Vector3D gjRij = (Vector3D)space.makeVector();
     private final Vector3D gkRij = (Vector3D)space.makeVector();
+    
     private final Vector3D giRik = (Vector3D)space.makeVector();
     private final Vector3D gjRik = (Vector3D)space.makeVector();
     private final Vector3D gkRik = (Vector3D)space.makeVector();
+    
     private final Vector3D giRkj = (Vector3D)space.makeVector();
     private final Vector3D gjRkj = (Vector3D)space.makeVector();
     private final Vector3D gkRkj = (Vector3D)space.makeVector();
+    
     private final Vector3D giXik = (Vector3D)space.makeVector();
     private final Vector3D gjXik = (Vector3D)space.makeVector();
     private final Vector3D gkXik = (Vector3D)space.makeVector();
+    
     private final Vector3D giXkj = (Vector3D)space.makeVector();
     private final Vector3D gjXkj = (Vector3D)space.makeVector();
     private final Vector3D gkXkj = (Vector3D)space.makeVector();
+    
     private final Vector3D giC = (Vector3D)space.makeVector();
     private final Vector3D gjC = (Vector3D)space.makeVector();
     private final Vector3D gkC = (Vector3D)space.makeVector();
+    
     private final Vector3D giSijk = (Vector3D)space.makeVector();
+    private final Vector3D gjSijk = (Vector3D)space.makeVector();
+    private final Vector3D gkSijk = (Vector3D)space.makeVector();
+    
     private final Vector3D giSij = (Vector3D)space.makeVector();
+    private final Vector3D gkSij = (Vector3D)space.makeVector();
+    private final Vector3D gjSij = (Vector3D)space.makeVector();
     
-    private final Vector3D gradx = (Vector3D)space.makeVector();
-    private final Vector3D grady = (Vector3D)space.makeVector();
-    private final Vector3D gradz = (Vector3D)space.makeVector();
-    private final Vector3D gradr = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj0 = (Vector3D)space.makeVector();
-    private final Vector3D sumGradRhoj0 = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj1 = (Vector3D)space.makeVector();
-    private final Vector3D sumGradRhoj1 = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj2 = (Vector3D)space.makeVector();
-    private final Vector3D sumGradRhoj2 = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj3 = (Vector3D)space.makeVector();
-    private final Vector3D sumGradRhoj3 = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj1x = (Vector3D)space.makeVector();
-    private final Vector3D sumGradRhoj1x = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj1y = (Vector3D)space.makeVector();
-    private final Vector3D sumGradRhoj1y = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj1z = (Vector3D)space.makeVector();
-    private final Vector3D sumGradRhoj1z = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj2xx = (Vector3D)space.makeVector();
-    private final Vector3D sumGradRhoj2xx = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj2xy = (Vector3D)space.makeVector();
-    private final Vector3D sumGradRhoj2xy = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj2xz = (Vector3D)space.makeVector();
-    private final Vector3D sumGradRhoj2xz = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj2yy = (Vector3D)space.makeVector();
-    private final Vector3D sumGradRhoj2yy = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj2yz = (Vector3D)space.makeVector();
-    private final Vector3D sumGradRhoj2yz = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj2zz = (Vector3D)space.makeVector();
-    private final Vector3D sumGradRhoj2zz = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj3xxx = (Vector3D)space.makeVector();
-    private final Vector3D sumGradRhoj3xxx = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj3xxy = (Vector3D)space.makeVector();
-    private final Vector3D sumGradRhoj3xxy = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj3xxz = (Vector3D)space.makeVector();
-    private final Vector3D sumGradRhoj3xxz = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj3xyy = (Vector3D)space.makeVector();
-    private final Vector3D sumGradRhoj3xyy = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj3xyz = (Vector3D)space.makeVector();
-    private final Vector3D sumGradRhoj3xyz = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj3xzz = (Vector3D)space.makeVector();
-    private final Vector3D sumGradRhoj3xzz = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj3yyy = (Vector3D)space.makeVector();
-    private final Vector3D sumGradRhoj3yyy = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj3yyz = (Vector3D)space.makeVector();
-    private final Vector3D sumGradRhoj3yyz = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj3yzz = (Vector3D)space.makeVector();
-    private final Vector3D sumGradRhoj3yzz = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj3zzz = (Vector3D)space.makeVector();
-    private final Vector3D sumGradRhoj3zzz = (Vector3D)space.makeVector();
-    private final Vector3D t1GradRhoj0 = (Vector3D)space.makeVector();
-    private final Vector3D sumt1GradRhoj0 = (Vector3D)space.makeVector();
-    private final Vector3D t2GradRhoj0 = (Vector3D)space.makeVector();
-    private final Vector3D sumt2GradRhoj0 = (Vector3D)space.makeVector();
-    private final Vector3D t3GradRhoj0 = (Vector3D)space.makeVector();
-    private final Vector3D sumt3GradRhoj0 = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoj0Ref = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoiRef = (Vector3D)space.makeVector();
-    private final Vector3D gradERef = (Vector3D)space.makeVector();
-    private final Vector3D gradFRef = (Vector3D)space.makeVector();
-    private final Vector3D gradPhi = (Vector3D)space.makeVector();
-    private final Vector3D sumGradPhi = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoi0 = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoi1 = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoi2 = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoi3 = (Vector3D)space.makeVector();
-    private final Vector3D gradtav1 = (Vector3D)space.makeVector();
-    private final Vector3D gradtav2 = (Vector3D)space.makeVector();
-    private final Vector3D gradtav3 = (Vector3D)space.makeVector();
-    private final Vector3D gradGamma = (Vector3D)space.makeVector();
-    private final Vector3D gradRhoi = (Vector3D)space.makeVector();
-    private final Vector3D gradF = (Vector3D)space.makeVector();
-    private final Vector3D[] gradEi = new Vector3D[1];
+    private final Vector3D gix = (Vector3D)space.makeVector();
+    private final Vector3D gjx = (Vector3D)space.makeVector();
     
-    protected NearestImageTransformer nearestImageTransformer;
-    protected final Vector rij = (Vector3D)space.makeVector();
-    protected final Vector rik = (Vector3D)space.makeVector();
-    protected final Vector rkj = (Vector3D)space.makeVector();
-    private ParameterSetMEAM p;
-    private AtomPair pair;
+    private final Vector3D giy = (Vector3D)space.makeVector();
+    private final Vector3D gjy = (Vector3D)space.makeVector();
+    
+    private final Vector3D giz = (Vector3D)space.makeVector();
+    private final Vector3D gjz = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj0 = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumGiRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj0 = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoj1 = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj1 = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj1 = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumGiRhoj1 = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj1 = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoj2 = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj2 = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj2 = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumGiRhoj2 = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj2 = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoj3 = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj3 = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj3 = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumGiRhoj3 = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj3 = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoj1x = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj1x = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj1x = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumGiRhoj1x = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj1x = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoj1y = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj1y = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj1y = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumGiRhoj1y = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj1y = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoj1z = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj1z = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj1z = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumGiRhoj1z = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj1z = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoj2xx = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj2xx = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj2xx = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumGiRhoj2xx = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj2xx = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoj2xy = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj2xy = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj2xy = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumGiRhoj2xy = (Vector3D)space.makeVector();
+    private final Vector3D sumGjRhoj2xy = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj2xy = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoj2xz = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj2xz = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj2xz = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumGiRhoj2xz = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj2xz = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoj2yy = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj2yy = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj2yy = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumGiRhoj2yy = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj2yy = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoj2yz = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj2yz = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj2yz = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumGiRhoj2yz = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj2yz = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoj2zz = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj2zz = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj2zz = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumGiRhoj2zz = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj2zz = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoj3xxx = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj3xxx = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj3xxx = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumGiRhoj3xxx = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj3xxx = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoj3xxy = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj3xxy = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj3xxy = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumGiRhoj3xxy = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj3xxy = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoj3xxz = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj3xxz = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj3xxz = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumGiRhoj3xxz = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj3xxz = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoj3xyy = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj3xyy = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj3xyy = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumGiRhoj3xyy = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj3xyy = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoj3xyz = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj3xyz = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj3xyz = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumGiRhoj3xyz = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj3xyz = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoj3xzz = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj3xzz = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj3xzz = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumGiRhoj3xzz = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj3xzz = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoj3yyy = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj3yyy = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj3yyy = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumGiRhoj3yyy = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj3yyy = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoj3yyz = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj3yyz = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj3yyz = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumGiRhoj3yyz = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj3yyz = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoj3yzz = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj3yzz = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj3yzz = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumGiRhoj3yzz = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj3yzz = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoj3zzz = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj3zzz = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj3zzz = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumGiRhoj3zzz = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj3zzz = (Vector3D)space.makeVector();
+    
+    private final Vector3D t1GiRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D t1GjRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D t1GkRhoj0 = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumt1GiRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D sumt1GkRhoj0 = (Vector3D)space.makeVector();
+    
+    private final Vector3D t2GiRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D t2GjRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D t2GkRhoj0 = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumt2GiRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D sumt2GkRhoj0 = (Vector3D)space.makeVector();
+    
+    private final Vector3D t3GiRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D t3GjRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D t3GkRhoj0 = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumt3GiRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D sumt3GkRhoj0 = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoj0Ref = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoiRef = (Vector3D)space.makeVector();
+    
+    private final Vector3D giERef = (Vector3D)space.makeVector();
+    private final Vector3D gjERef = (Vector3D)space.makeVector();
+    
+    private final Vector3D giFRef = (Vector3D)space.makeVector();
+    private final Vector3D gjFRef = (Vector3D)space.makeVector();
+    
+    private final Vector3D giPhi = (Vector3D)space.makeVector();
+    private final Vector3D gjPhi = (Vector3D)space.makeVector();
+    private final Vector3D gkPhi = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumGiPhi = (Vector3D)space.makeVector();
+    private final Vector3D sumGkPhi = (Vector3D)space.makeVector();
+    private final Vector3D sumGnPhi = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoi0 = (Vector3D)space.makeVector();
+    private final Vector3D gnRhoi0 = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoi1 = (Vector3D)space.makeVector();
+    private final Vector3D gnRhoi1 = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoi2 = (Vector3D)space.makeVector();
+    private final Vector3D gnRhoi2 = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoi3 = (Vector3D)space.makeVector();
+    private final Vector3D gnRhoi3 = (Vector3D)space.makeVector();
 
+    private final Vector3D gitav1 = (Vector3D)space.makeVector();
+    private final Vector3D gntav1 = (Vector3D)space.makeVector();
+    
+    private final Vector3D gitav2 = (Vector3D)space.makeVector();
+    private final Vector3D gntav2 = (Vector3D)space.makeVector();
+    
+    private final Vector3D gitav3 = (Vector3D)space.makeVector();
+    private final Vector3D gntav3 = (Vector3D)space.makeVector();
+    
+    private final Vector3D giGamma = (Vector3D)space.makeVector();
+    private final Vector3D gnGamma = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoi = (Vector3D)space.makeVector();
+    private final Vector3D gnRhoi = (Vector3D)space.makeVector();
+    
+    private final Vector3D giF = (Vector3D)space.makeVector();
+    private final Vector3D gnF = (Vector3D)space.makeVector();
+    
+    private final Vector3D[] giEi = new Vector3D[216];
+    private final Vector3D[] gnEi = new Vector3D[216];
 }
