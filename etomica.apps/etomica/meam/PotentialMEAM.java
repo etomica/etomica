@@ -39,43 +39,41 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		return Double.POSITIVE_INFINITY;
 	}
 	
-	public static class Sum implements java.io.Serializable {
-		public Sum() {
-			double[] sums = new double [25];
-			for (int i = 0; i < 24; i++) {
-				sums[i] = 0;
-			}
-		}
-	public static int rhoj0 = 0;
-	public static int rhoj1x = 1;
-	public static int rhoj1y = 2;
-	public static int rhoj1z = 3;
-	public static int rhoj2xx = 4;
-	public static int rhoj2xy = 5;
-	public static int rhoj2xz = 6;
-	public static int rhoj2yy = 7;
-	public static int rhoj2yz = 8;
-	public static int rhoj2zz = 9;
-	public static int rhoj2 = 10;
-	public static int rhoj3xxx = 11;
-	public static int rhoj3xxy = 12;
-	public static int rhoj3xxz = 13;
-	public static int rhoj3xyy = 14;
-	public static int rhoj3xyz = 15;
-	public static int rhoj3xzz = 16;
-	public static int rhoj3yyy = 17;
-	public static int rhoj3yyz = 18;
-	public static int rhoj3yzz = 19;
-	public static int rhoj3zzz = 20;
-	public static int t1Rhoj0 = 21;
-	public static int t2Rhoj0 = 22;
-	public static int t3Rhoj0 = 23;
-	public static int phi = 24;
-	}
+	
+    double[] sum = new double[25];
+	public static final int RHOj0 = 0;
+	public static final int RHOj1x = 1;
+	public static final int RHOj1y = 2;
+	public static final int RHOj1z = 3;
+	public static final int RHOj2xx = 4;
+	public static final int RHOj2xy = 5;
+	public static final int RHOj2xz = 6;
+	public static final int RHOj2yy = 7;
+	public static final int RHOj2yz = 8;
+	public static final int RHOj2zz = 9;
+	public static final int RHOj2 = 10;
+	public static final int RHOj3xxx = 11;
+	public static final int RHOj3xxy = 12;
+	public static final int RHOj3xxz = 13;
+	public static final int RHOj3xyy = 14;
+	public static final int RHOj3xyz = 15;
+	public static final int RHOj3xzz = 16;
+	public static final int RHOj3yyy = 17;
+	public static final int RHOj3yyz = 18;
+	public static final int RHOj3yzz = 19;
+	public static final int RHOj3zzz = 20;
+	public static final int T1RHOj0 = 21;
+	public static final int T2RHOj0 = 22;
+	public static final int T3RHOj0 = 23;
+	public static final int PHI = 24;
 	
 	public void sums(AtomSet atoms) {
 		
 	AtomLeaf atom0 = (AtomLeaf)atoms.getAtom(0);
+	
+	for (int i = 0; i < 24; i++) {
+		sum[i] = 0;
+	}
     
     for(int j = 1; j < atoms.count(); j++) {
     	AtomLeaf atomj = (AtomLeaf) atoms.getAtom(j);
@@ -158,34 +156,34 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     double y = unitVector.x(1);
     double z = unitVector.x(2);
     
-    Sum.rhoj0 += (p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0))) * Sij;
+    sum[RHOj0] += (p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0))) * Sij;
    
-    Sum.rhoj1x += rhoj1 * x;
-    Sum.rhoj1y += rhoj1 * y;
-    Sum.rhoj1z += rhoj1 * z;  	
+    sum[RHOj1x] += rhoj1 * x;
+    sum[RHOj1y] += rhoj1 * y;
+    sum[RHOj1z] += rhoj1 * z;  	
     
-    Sum.rhoj2xx += rhoj2 * x * x;
-    Sum.rhoj2xy += rhoj2 * x * y;
-    Sum.rhoj2xz += rhoj2 * x * z;
-    Sum.rhoj2yy += rhoj2 * y * y;
-    Sum.rhoj2yz += rhoj2 * y * z;
-    Sum.rhoj2zz += rhoj2 * z * z;
-    Sum.rhoj2 += (p.rhoScale * Math.exp(-p.beta2 * ((r/p.r0) - 1.0))) * Sij;
+    sum[RHOj2xx] += rhoj2 * x * x;
+    sum[RHOj2xy] += rhoj2 * x * y;
+    sum[RHOj2xz] += rhoj2 * x * z;
+    sum[RHOj2yy] += rhoj2 * y * y;
+    sum[RHOj2yz] += rhoj2 * y * z;
+    sum[RHOj2zz] += rhoj2 * z * z;
+    sum[RHOj2] += (p.rhoScale * Math.exp(-p.beta2 * ((r/p.r0) - 1.0))) * Sij;
     
-    Sum.rhoj3xxx += rhoj3 * x * x * x;
-    Sum.rhoj3xxy += rhoj3 * x * x * y;
-    Sum.rhoj3xxz += rhoj3 * x * x * z;
-    Sum.rhoj3xyy += rhoj3 * x * y * y;
-    Sum.rhoj3xyz += rhoj3 * x * y * z;
-    Sum.rhoj3xzz += rhoj3 * x * z * z;
-    Sum.rhoj3yyy += rhoj3 * y * y * y;
-    Sum.rhoj3yyz += rhoj3 * y * y * z;
-    Sum.rhoj3yzz += rhoj3 * y * z * z;
-    Sum.rhoj3zzz += rhoj3 * z * z * z;
+    sum[RHOj3xxx] += rhoj3 * x * x * x;
+    sum[RHOj3xxy] += rhoj3 * x * x * y;
+    sum[RHOj3xxz] += rhoj3 * x * x * z;
+    sum[RHOj3xyy] += rhoj3 * x * y * y;
+    sum[RHOj3xyz] += rhoj3 * x * y * z;
+    sum[RHOj3xzz] += rhoj3 * x * z * z;
+    sum[RHOj3yyy] += rhoj3 * y * y * y;
+    sum[RHOj3yyz] += rhoj3 * y * y * z;
+    sum[RHOj3yzz] += rhoj3 * y * z * z;
+    sum[RHOj3zzz] += rhoj3 * z * z * z;
     
-    Sum.t1Rhoj0 += (rhoj0 * p.t1);
-	Sum.t2Rhoj0 += (rhoj0 * p.t2);
-	Sum.t3Rhoj0 += (rhoj0 * p.t3);
+    sum[T1RHOj0] += rhoj0 * p.t1;
+	sum[T2RHOj0] += rhoj0 * p.t2;
+	sum[T3RHOj0] += rhoj0 * p.t3;
     
     //to calculate the repulsive pair potential, phi
     //Should rhoj0 within phi contain Sij? Phi itself is multiplied by Sij...
@@ -194,54 +192,54 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     double a = p.alpha * ((r/p.r0) - 1.0);
 	double EuRef = - p.Ec * (1.0 + a) * Math.exp(-a);
 	double FRef = p.A * p.Ec * (rhoiRef/p.Z) * Math.log(rhoiRef/p.Z);
-	Sum.phi += ((2.0/p.Z) * (EuRef - FRef)) * Sij;
+	sum[PHI] += ((2.0/p.Z) * (EuRef - FRef)) * Sij;
     }
 	}
     
 	double rhoi0 () {
-		return Sum.rhoj0; //
+		return sum[RHOj0]; //
 	}
     
     protected double rhoi1() {
-    	return Math.sqrt( (Sum.rhoj1x * Sum.rhoj1x)
-				+ (Sum.rhoj1y * Sum.rhoj1y)
-				+ (Sum.rhoj1z * Sum.rhoj1z));
+    	return Math.sqrt( (sum[RHOj1x] * sum[RHOj1x])
+				+ (sum[RHOj1y] * sum[RHOj1y])
+				+ (sum[RHOj1z] * sum[RHOj1z]));
     }
    
     protected double rhoi2() {
-    	return Math.sqrt((Sum.rhoj2xx * Sum.rhoj2xx)
-			+ (2.0 * Sum.rhoj2xy * Sum.rhoj2xy)
-			+ (2.0 * Sum.rhoj2xz * Sum.rhoj2xz)
-			+ (Sum.rhoj2yy * Sum.rhoj2yy) 
-			+ (2.0 * Sum.rhoj2yz * Sum.rhoj2yz)
-			+ (Sum.rhoj2zz * Sum.rhoj2zz) 
-			- ((1.0/3.0) * Sum.rhoj2 * Sum.rhoj2));
+    	return Math.sqrt((sum[RHOj2xx] * sum[RHOj2xx])
+			+ (2.0 * sum[RHOj2xy] * sum[RHOj2xy])
+			+ (2.0 * sum[RHOj2xz] * sum[RHOj2xz])
+			+ (sum[RHOj2yy] * sum[RHOj2yy]) 
+			+ (2.0 * sum[RHOj2yz] * sum[RHOj2yz])
+			+ (sum[RHOj2zz] * sum[RHOj2zz]) 
+			- ((1.0/3.0) * sum[RHOj2] * sum[RHOj2]));
     }
     
     protected double rhoi3() {
     	return Math.sqrt( 
-    		   (Sum.rhoj3xxx * Sum.rhoj3xxx)
-		+(3.0 * Sum.rhoj3xxy * Sum.rhoj3xxy)
-		+(3.0 * Sum.rhoj3xxz * Sum.rhoj3xxz)
-		+(3.0 * Sum.rhoj3xyy * Sum.rhoj3xyy)
-		+(6.0 * Sum.rhoj3xyz * Sum.rhoj3xyz)
-		+(3.0 * Sum.rhoj3xzz * Sum.rhoj3xzz)
-		+      (Sum.rhoj3yyy * Sum.rhoj3yyy)
-		+(3.0 * Sum.rhoj3yyz * Sum.rhoj3yyz)
-		+(3.0 * Sum.rhoj3yzz * Sum.rhoj3yzz)
-		+      (Sum.rhoj3zzz * Sum.rhoj3zzz));
+    		   (sum[RHOj3xxx] * sum[RHOj3xxx])
+		+(3.0 * sum[RHOj3xxy] * sum[RHOj3xxy])
+		+(3.0 * sum[RHOj3xxz] * sum[RHOj3xxz])
+		+(3.0 * sum[RHOj3xyy] * sum[RHOj3xyy])
+		+(6.0 * sum[RHOj3xyz] * sum[RHOj3xyz])
+		+(3.0 * sum[RHOj3xzz] * sum[RHOj3xzz])
+		+      (sum[RHOj3yyy] * sum[RHOj3yyy])
+		+(3.0 * sum[RHOj3yyz] * sum[RHOj3yyz])
+		+(3.0 * sum[RHOj3yzz] * sum[RHOj3yzz])
+		+      (sum[RHOj3zzz] * sum[RHOj3zzz]));
     }
     
     protected double tav1() {
-    	return Sum.t1Rhoj0 / Sum.rhoj0;
+    	return sum[T1RHOj0] / sum[RHOj0];
     }
 
     protected double tav2() {
-    	return Sum.t2Rhoj0 / Sum.rhoj0;
+    	return sum[T2RHOj0] / sum[RHOj0];
     }
     
     protected double tav3() {
-    	return Sum.t3Rhoj0 / Sum.rhoj0;
+    	return sum[T3RHOj0] / sum[RHOj0];
     }
     
     protected double gamma() {
@@ -879,59 +877,59 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		gnRhoi0.E(sumGkRhoj0);
     	gnRhoi0.E(gjRhoj0);
     	
-    	gnRhoi1.Ea1Tv1(Sum.rhoj1x, sumGkRhoj1x);
-    	gnRhoi1.PEa1Tv1(Sum.rhoj1x, gjRhoj1x);
-		gnRhoi1.PEa1Tv1(Sum.rhoj1y, sumGkRhoj1y);
-		gnRhoi1.PEa1Tv1(Sum.rhoj1y, gjRhoj1y);
-		gnRhoi1.PEa1Tv1(Sum.rhoj1z, sumGkRhoj1z);
-		gnRhoi1.PEa1Tv1(Sum.rhoj1z, gjRhoj1z);
+    	gnRhoi1.Ea1Tv1(sum[RHOj1x], sumGkRhoj1x);
+    	gnRhoi1.PEa1Tv1(sum[RHOj1x], gjRhoj1x);
+		gnRhoi1.PEa1Tv1(sum[RHOj1y], sumGkRhoj1y);
+		gnRhoi1.PEa1Tv1(sum[RHOj1y], gjRhoj1y);
+		gnRhoi1.PEa1Tv1(sum[RHOj1z], sumGkRhoj1z);
+		gnRhoi1.PEa1Tv1(sum[RHOj1z], gjRhoj1z);
 		gnRhoi1.TE(1.0/rhoi1);
 		
-		gnRhoi2.Ea1Tv1(Sum.rhoj2xx, sumGkRhoj2xx);
-		gnRhoi2.PEa1Tv1(Sum.rhoj2xx, gjRhoj2xx);
-		gnRhoi2.PEa1Tv1(2.0 * Sum.rhoj2xy, sumGkRhoj2xy);
-		gnRhoi2.PEa1Tv1(2.0 * Sum.rhoj2xz, gjRhoj2xz);
-		gnRhoi2.PEa1Tv1(Sum.rhoj2yy, sumGkRhoj2yy);
-		gnRhoi2.PEa1Tv1(Sum.rhoj2yy, gjRhoj2yy);
-		gnRhoi2.PEa1Tv1(2.0 * Sum.rhoj2yz, sumGkRhoj2yz);
-		gnRhoi2.PEa1Tv1(2.0 * Sum.rhoj2yz, gjRhoj2yz);
-		gnRhoi2.PEa1Tv1(Sum.rhoj2zz, sumGkRhoj2zz);
-		gnRhoi2.PEa1Tv1(Sum.rhoj2zz, gjRhoj2zz);
-		gnRhoi2.PEa1Tv1(-(1.0/3.0) * Sum.rhoj2, sumGkRhoj2);
-		gnRhoi2.PEa1Tv1(-(1.0/3.0) * Sum.rhoj2, gjRhoj2);
+		gnRhoi2.Ea1Tv1(sum[RHOj2xx], sumGkRhoj2xx);
+		gnRhoi2.PEa1Tv1(sum[RHOj2xx], gjRhoj2xx);
+		gnRhoi2.PEa1Tv1(2.0 * sum[RHOj2xy], sumGkRhoj2xy);
+		gnRhoi2.PEa1Tv1(2.0 * sum[RHOj2xz], gjRhoj2xz);
+		gnRhoi2.PEa1Tv1(sum[RHOj2yy], sumGkRhoj2yy);
+		gnRhoi2.PEa1Tv1(sum[RHOj2yy], gjRhoj2yy);
+		gnRhoi2.PEa1Tv1(2.0 * sum[RHOj2yz], sumGkRhoj2yz);
+		gnRhoi2.PEa1Tv1(2.0 * sum[RHOj2yz], gjRhoj2yz);
+		gnRhoi2.PEa1Tv1(sum[RHOj2zz], sumGkRhoj2zz);
+		gnRhoi2.PEa1Tv1(sum[RHOj2zz], gjRhoj2zz);
+		gnRhoi2.PEa1Tv1(-(1.0/3.0) * sum[RHOj2], sumGkRhoj2);
+		gnRhoi2.PEa1Tv1(-(1.0/3.0) * sum[RHOj2], gjRhoj2);
 		gnRhoi2.TE(1.0/rhoi2);
 		
-		gnRhoi3.Ea1Tv1( Sum.rhoj3xxx, sumGkRhoj3xxx);
-		gnRhoi3.PEa1Tv1(Sum.rhoj3xxx, gjRhoj3xxx);
-		gnRhoi3.PEa1Tv1(3.0 * Sum.rhoj3xxy, sumGkRhoj3xxy);
-		gnRhoi3.PEa1Tv1(3.0 * Sum.rhoj3xxy, gjRhoj3xxy);
-		gnRhoi3.PEa1Tv1(3.0 * Sum.rhoj3xxz, sumGkRhoj3xxz);
-		gnRhoi3.PEa1Tv1(3.0 * Sum.rhoj3xxz, gjRhoj3xxz);
-		gnRhoi3.PEa1Tv1(3.0 * Sum.rhoj3xyy, sumGkRhoj3xyy);
-		gnRhoi3.PEa1Tv1(3.0 * Sum.rhoj3xyy, gjRhoj3xyy);
-		gnRhoi3.PEa1Tv1(6.0 * Sum.rhoj3xyz, sumGkRhoj3xyz);
-		gnRhoi3.PEa1Tv1(6.0 * Sum.rhoj3xyz, gjRhoj3xyz);
-		gnRhoi3.PEa1Tv1(3.0 * Sum.rhoj3xzz, sumGkRhoj3xzz);
-		gnRhoi3.PEa1Tv1(3.0 * Sum.rhoj3xzz, gjRhoj3xzz);
-		gnRhoi3.PEa1Tv1(Sum.rhoj3yyy, sumGkRhoj3yyy);
-		gnRhoi3.PEa1Tv1(Sum.rhoj3yyy, gjRhoj3yyy);
-		gnRhoi3.PEa1Tv1(3.0 * Sum.rhoj3yyz, sumGkRhoj3yyz);
-		gnRhoi3.PEa1Tv1(3.0 * Sum.rhoj3yyz, gjRhoj3yyz);
-		gnRhoi3.PEa1Tv1(3.0 * Sum.rhoj3yzz, sumGkRhoj3yzz);
-		gnRhoi3.PEa1Tv1(3.0 * Sum.rhoj3yzz, gjRhoj3yzz);
-		gnRhoi3.PEa1Tv1(Sum.rhoj3zzz, sumGkRhoj3zzz);
-		gnRhoi3.PEa1Tv1(Sum.rhoj3zzz, gjRhoj3zzz);
+		gnRhoi3.Ea1Tv1( sum[RHOj3xxx], sumGkRhoj3xxx);
+		gnRhoi3.PEa1Tv1(sum[RHOj3xxx], gjRhoj3xxx);
+		gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3xxy], sumGkRhoj3xxy);
+		gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3xxy], gjRhoj3xxy);
+		gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3xxz], sumGkRhoj3xxz);
+		gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3xxz], gjRhoj3xxz);
+		gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3xyy], sumGkRhoj3xyy);
+		gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3xyy], gjRhoj3xyy);
+		gnRhoi3.PEa1Tv1(6.0 * sum[RHOj3xyz], sumGkRhoj3xyz);
+		gnRhoi3.PEa1Tv1(6.0 * sum[RHOj3xyz], gjRhoj3xyz);
+		gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3xzz], sumGkRhoj3xzz);
+		gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3xzz], gjRhoj3xzz);
+		gnRhoi3.PEa1Tv1(sum[RHOj3yyy], sumGkRhoj3yyy);
+		gnRhoi3.PEa1Tv1(sum[RHOj3yyy], gjRhoj3yyy);
+		gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3yyz], sumGkRhoj3yyz);
+		gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3yyz], gjRhoj3yyz);
+		gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3yzz], sumGkRhoj3yzz);
+		gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3yzz], gjRhoj3yzz);
+		gnRhoi3.PEa1Tv1(sum[RHOj3zzz], sumGkRhoj3zzz);
+		gnRhoi3.PEa1Tv1(sum[RHOj3zzz], gjRhoj3zzz);
 		gnRhoi3.TE(1.0/rhoi3);
 		
-		gntav1.Ea1Tv1(-Sum.t1Rhoj0/(rhoi0*rhoi0), gnRhoi0);
+		gntav1.Ea1Tv1(-sum[T1RHOj0]/(rhoi0*rhoi0), gnRhoi0);
 		gntav1.PEa1Tv1(1.0/rhoi0, sumt1GkRhoj0);
 		gntav1.PEa1Tv1(1.0/rhoi0, t1GjRhoj0);
 		
-		gntav2.Ea1Tv1(-Sum.t2Rhoj0/(rhoi0*rhoi0), gnRhoi0);
+		gntav2.Ea1Tv1(-sum[T2RHOj0]/(rhoi0*rhoi0), gnRhoi0);
 		gntav2.PEa1Tv1(1.0/rhoi0, sumt2GkRhoj0);
 		gntav2.PEa1Tv1(1.0/rhoi0, t2GjRhoj0);
 		
-		gntav3.Ea1Tv1(-Sum.t3Rhoj0/(rhoi0*rhoi0), gnRhoi0);
+		gntav3.Ea1Tv1(-sum[T3RHOj0]/(rhoi0*rhoi0), gnRhoi0);
 		gntav3.PEa1Tv1(1.0/rhoi0, sumt3GkRhoj0);
 		gntav3.PEa1Tv1(1.0/rhoi0, t3GjRhoj0);
 		
@@ -971,39 +969,39 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         
         giRhoi0.E(sumGiRhoj0);
         
-		giRhoi1.Ea1Tv1(Sum.rhoj1x, sumGiRhoj1x);
-		giRhoi1.PEa1Tv1(Sum.rhoj1y, sumGiRhoj1y);
-		giRhoi1.PEa1Tv1(Sum.rhoj1z, sumGiRhoj1z);
+		giRhoi1.Ea1Tv1(sum[RHOj1x], sumGiRhoj1x);
+		giRhoi1.PEa1Tv1(sum[RHOj1y], sumGiRhoj1y);
+		giRhoi1.PEa1Tv1(sum[RHOj1z], sumGiRhoj1z);
 		giRhoi1.TE(1.0/rhoi1);
 		
-		giRhoi2.Ea1Tv1(Sum.rhoj2xx, sumGiRhoj2xx);
-		giRhoi2.PEa1Tv1(2.0 * Sum.rhoj2xy, sumGiRhoj2xy);
-		giRhoi2.PEa1Tv1(2.0 * Sum.rhoj2xz, sumGiRhoj2xz);
-		giRhoi2.PEa1Tv1(Sum.rhoj2yy, sumGiRhoj2yy);
-		giRhoi2.PEa1Tv1(2.0 * Sum.rhoj2yz, sumGiRhoj2yz);
-		giRhoi2.PEa1Tv1(Sum.rhoj2zz, sumGiRhoj2zz);
-		giRhoi2.PEa1Tv1(-(1.0/3.0) * Sum.rhoj2, sumGiRhoj2);
+		giRhoi2.Ea1Tv1(sum[RHOj2xx], sumGiRhoj2xx);
+		giRhoi2.PEa1Tv1(2.0 * sum[RHOj2xy], sumGiRhoj2xy);
+		giRhoi2.PEa1Tv1(2.0 * sum[RHOj2xz], sumGiRhoj2xz);
+		giRhoi2.PEa1Tv1(sum[RHOj2yy], sumGiRhoj2yy);
+		giRhoi2.PEa1Tv1(2.0 * sum[RHOj2yz], sumGiRhoj2yz);
+		giRhoi2.PEa1Tv1(sum[RHOj2zz], sumGiRhoj2zz);
+		giRhoi2.PEa1Tv1(-(1.0/3.0) * sum[RHOj2], sumGiRhoj2);
 		giRhoi2.TE(1.0/rhoi2);
 		
-		giRhoi3.Ea1Tv1(Sum.rhoj3xxx, sumGiRhoj3xxx);
-		giRhoi3.PEa1Tv1(3.0 * Sum.rhoj3xxy, sumGiRhoj3xxy);
-		giRhoi3.PEa1Tv1(3.0 * Sum.rhoj3xxz, sumGiRhoj3xxz);
-		giRhoi3.PEa1Tv1(3.0 * Sum.rhoj3xyy, sumGiRhoj3xyy);
-		giRhoi3.PEa1Tv1(6.0 * Sum.rhoj3xyz, sumGiRhoj3xyz);
-		giRhoi3.PEa1Tv1(3.0 * Sum.rhoj3xzz, sumGiRhoj3xzz);
-		giRhoi3.PEa1Tv1(Sum.rhoj3yyy, sumGiRhoj3yyy);
-		giRhoi3.PEa1Tv1(3.0 * Sum.rhoj3yyz, sumGiRhoj3yyz);
-		giRhoi3.PEa1Tv1(3.0 * Sum.rhoj3yzz, sumGiRhoj3yzz);
-		giRhoi3.PEa1Tv1(Sum.rhoj3zzz, sumGiRhoj3zzz);
+		giRhoi3.Ea1Tv1(sum[RHOj3xxx], sumGiRhoj3xxx);
+		giRhoi3.PEa1Tv1(3.0 * sum[RHOj3xxy], sumGiRhoj3xxy);
+		giRhoi3.PEa1Tv1(3.0 * sum[RHOj3xxz], sumGiRhoj3xxz);
+		giRhoi3.PEa1Tv1(3.0 * sum[RHOj3xyy], sumGiRhoj3xyy);
+		giRhoi3.PEa1Tv1(6.0 * sum[RHOj3xyz], sumGiRhoj3xyz);
+		giRhoi3.PEa1Tv1(3.0 * sum[RHOj3xzz], sumGiRhoj3xzz);
+		giRhoi3.PEa1Tv1(sum[RHOj3yyy], sumGiRhoj3yyy);
+		giRhoi3.PEa1Tv1(3.0 * sum[RHOj3yyz], sumGiRhoj3yyz);
+		giRhoi3.PEa1Tv1(3.0 * sum[RHOj3yzz], sumGiRhoj3yzz);
+		giRhoi3.PEa1Tv1(sum[RHOj3zzz], sumGiRhoj3zzz);
 		giRhoi3.TE(1.0/rhoi3);
 		
-		gitav1.Ea1Tv1(-Sum.t1Rhoj0/(rhoi0*rhoi0), sumGiRhoj0);
+		gitav1.Ea1Tv1(-sum[T1RHOj0]/(rhoi0*rhoi0), sumGiRhoj0);
 		gitav1.PEa1Tv1(1.0/rhoi0, sumt1GiRhoj0);
 		
-		gitav2.Ea1Tv1(-Sum.t2Rhoj0/(rhoi0*rhoi0), sumGiRhoj0);
+		gitav2.Ea1Tv1(-sum[T2RHOj0]/(rhoi0*rhoi0), sumGiRhoj0);
 		gitav2.PEa1Tv1(1.0/rhoi0, sumt2GiRhoj0);
 		
-		gitav3.Ea1Tv1(-Sum.t3Rhoj0/(rhoi0*rhoi0), sumGiRhoj0);
+		gitav3.Ea1Tv1(-sum[T3RHOj0]/(rhoi0*rhoi0), sumGiRhoj0);
 		gitav3.PEa1Tv1(1.0/rhoi0, sumt3GiRhoj0);
 		
 		giGamma.Ea1Tv1( (-1.0/rhoi0)*( (tav1*rhoi1*rhoi1) + (tav2*rhoi2*rhoi2)
