@@ -36,10 +36,8 @@ public class PotentialCalculationForceSum extends PotentialCalculation {
 		while(iterator.hasNext()) {
 			AtomSet atoms = iterator.next();
 			f = potentialSoft.gradient(atoms);
-	//TODO update gradient method to return array of gradient vectors, one for each atom
-	//TODO make a consistent definition so that atoms[0] is always ME(f)
 			switch(nBody) {
-				case 1: 
+				case 1:
 					integratorAgents[((Atom)atoms).getGlobalIndex()].force().ME(f[0]);
 					break;
 				case 2:
@@ -47,10 +45,10 @@ public class PotentialCalculationForceSum extends PotentialCalculation {
                     integratorAgents[((AtomPair)atoms).atom1.getGlobalIndex()].force().ME(f[1]);
 			 		break;
                 default:
-                    //XXX atoms.count might not equal f.length.  The potential is responsible for
-                    // returning an array that includes force vectors for atoms it determined to be
-                    // non-zero.  It's allowed to omit the vectors for Atoms that are 0.
-                    for (int i=0; i<f.length; i++) {
+                    //XXX atoms.count might not equal f.length.  The potential might size its 
+                    //array of vectors to be large enough for one AtomSet and then not resize it
+                    //back down for another AtomSet with fewer atoms.
+                    for (int i=0; i<atoms.count(); i++) {
                         integratorAgents[atoms.getAtom(i).getGlobalIndex()].force().ME(f[i]);
                     }
 			}
