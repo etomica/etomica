@@ -186,6 +186,10 @@ public class DataTensor implements DataArithmetic, java.io.Serializable {
             return space;
         }
         
+        public Data makeData() {
+            return new DataTensor(space);
+        }
+        
         protected final Space space;
     }
     

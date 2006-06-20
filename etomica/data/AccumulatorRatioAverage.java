@@ -38,23 +38,6 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
         return super.getTag(statType);
     }
     
-    protected void initData(Data incomingData) {
-        super.initData(incomingData);
-        ratio = (DataArithmetic)incomingData.makeCopy();
-        ratioError = (DataArithmetic)incomingData.makeCopy();
-        ratioStandardDeviation = (DataArithmetic)incomingData.makeCopy();
-
-        Data[] dataGroups = new Data[dataGroup.getNData()+3];
-        int i;
-        for (i=0; i<dataGroup.getNData(); i++) {
-            dataGroups[i] = dataGroup.getData(i);
-        }
-        dataGroups[i++] = ratio;
-        dataGroups[i++] = ratioError;
-        dataGroups[i++] = ratioStandardDeviation;
-        dataGroup = new DataGroup(dataGroups);
-    }
-    
     public Data getData() {
         if (sum == null) return null;
         if (count > 0) {
@@ -94,7 +77,7 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
     }
 
     public void reset() {
-        if (sum == null) {
+        if (sum == null || ratio == null) {
             //no data has been added yet, so nothing to reset
             return;
         }
@@ -106,7 +89,22 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
     
     public DataInfo processDataInfo(DataInfo incomingDataInfo) {
         super.processDataInfo(incomingDataInfo);
-        
+
+        ratio = (DataArithmetic)incomingDataInfo.makeData();
+        ratioError = (DataArithmetic)incomingDataInfo.makeData();
+        ratioStandardDeviation = (DataArithmetic)incomingDataInfo.makeData();
+
+        Data[] dataGroups = new Data[dataGroup.getNData()+3];
+        int i;
+        for (i=0; i<dataGroup.getNData(); i++) {
+            dataGroups[i] = dataGroup.getData(i);
+        }
+        dataGroups[i++] = ratio;
+        dataGroups[i++] = ratioError;
+        dataGroups[i++] = ratioStandardDeviation;
+        dataGroup = new DataGroup(dataGroups);
+        reset();
+
         DataInfoGroupFactory groupFactory = (DataInfoGroupFactory)dataInfo.getFactory();
         DataInfo[] subDataInfo = groupFactory.getSubDataInfo();
 

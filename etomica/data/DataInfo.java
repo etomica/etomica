@@ -6,22 +6,16 @@ import etomica.units.Dimension;
 import etomica.util.Debug;
 
 /**
- * Object held by a Data instance and which provides descriptive information
- * about the data encapsulated in it. Information is typically used when
- * displaying or writing the data to file, or making new Data instances that can
- * work with the one holding this DataInfo.
+ * Object associated with a Data instance and which provides descriptive 
+ * information about the data encapsulated in it. Information is typically used
+ * when displaying or writing the data to file, or making new Data instances 
+ * that can work with the one holding this DataInfo.
  * <p>
- * A DataInfo instance is completely immutable, and it is declared final in the
- * Data instance holding it.
+ * A DataInfo instance is completely immutable.
  * 
  * @author Andrew Schultz and David Kofke
  * 
  * @see Data
- *  
- */
-
-/*
- * History Created on Jun 15, 2005 by kofke
  */
 public abstract class DataInfo implements java.io.Serializable {
 
@@ -32,10 +26,6 @@ public abstract class DataInfo implements java.io.Serializable {
      *            descriptive label for the data
      * @param dimension
      *            physical dimensions (e.g., length, force) of the data
-     * @param factory
-     *            a DataFactory that makes Data instances of the type holding
-     *            this DataInfo. New Data instances will be independent of the
-     *            one holding this, but will be structured the same way
      */
     protected DataInfo(String label, Dimension dimension) {
         this.label = label;
@@ -66,7 +56,10 @@ public abstract class DataInfo implements java.io.Serializable {
     public String toString() {
         return label + " (" + dimension.toString() + ")";
     }
-    
+
+    /**
+     * Adds the tag
+     */
     public void addTag(DataTag newTag) {
         if (Debug.ON && newTag.getClass().isArray()) {
             System.err.println("You probably wanted addTags");
@@ -74,16 +67,27 @@ public abstract class DataInfo implements java.io.Serializable {
         tags.add(newTag);
     }
     
+    /**
+     * Convenience method to add all of the given tags.
+     */
     public void addTags(DataTag[] newTags) {
         for (int i=0; i<newTags.length; i++) {
             tags.add(newTags[i]);
         }
     }
     
+    /**
+     * Removes all tags.
+     */
     public void clearTags() {
         tags.clear();
     }
     
+    /**
+     * Returns the array of tags held by this DataInfo instance.  The same
+     * instance of the array can be returned each time the method is called,
+     * so the array elements should not be modified.
+     */
     public DataTag[] getTags() {
         if (tagArray.length != tags.size()) {
             tagArray = new DataTag[tags.size()];
@@ -92,7 +96,16 @@ public abstract class DataInfo implements java.io.Serializable {
         return tagArray;
     }
     
+    /**
+     * Returns a mutable factory that can make copies of this instance of
+     * DataInfo.
+     */
     public abstract DataInfoFactory getFactory();
+
+    /**
+     * Returns a Data object appropriate for this DataInfo instance.
+     */
+    public abstract Data makeData();
 
     private final String label;
     private final Dimension dimension;

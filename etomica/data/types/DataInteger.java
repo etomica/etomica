@@ -78,6 +78,10 @@ public class DataInteger implements Data, java.io.Serializable {
         public DataInfoFactory getFactory() {
             return new DataInfoIntegerFactory(this);
         }
+
+        public Data makeData() {
+            return new DataInteger();
+        }
     }
     
     public static class DataInfoIntegerFactory extends DataInfoFactory {

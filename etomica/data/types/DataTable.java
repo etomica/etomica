@@ -293,6 +293,10 @@ public class DataTable extends DataGroup implements DataArithmetic, Serializable
             return rowHeaders != null;
         }
         
+        public Data makeData() {
+            return new DataTable(subDataInfo.length, nRows);
+        }
+
         protected final String[] rowHeaders;
         protected final int nRows;
     }

@@ -176,6 +176,10 @@ public class DataDouble implements DataArithmetic, java.io.Serializable {
         public DataInfoFactory getFactory() {
             return new DataInfoDoubleFactory(this);
         }
+        
+        public Data makeData() {
+            return new DataDouble();
+        }
     }
     
     public static class DataInfoDoubleFactory extends DataInfoFactory {

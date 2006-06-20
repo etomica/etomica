@@ -5,6 +5,7 @@ import java.io.Serializable;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
+import etomica.data.DataSourceIndependent;
 import etomica.data.DataTag;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -82,7 +83,8 @@ public class CastToTable extends DataProcessor implements Serializable {
             nColumns = 2;
             nRows = arrayShape[0];
             columnInfo = new DataInfo[2];
-            columnInfo[0] = ((DataInfoFunction)inputDataInfo).getIndependentInfo(0);
+            xDataSource = ((DataInfoFunction)inputDataInfo).getXDataSource();
+            columnInfo[0] = xDataSource.getIndependentDataInfo(0);
             columnInfo[1] = inputDataInfo;
             inputType = 6;
         }
@@ -181,7 +183,7 @@ public class CastToTable extends DataProcessor implements Serializable {
             break;
         case 6: //DataFunction
             if (outputData == null) {
-                outputData = new DataTable(new DataDoubleArray[]{((DataFunction)data).getXData(0),(DataDoubleArray)data});
+                outputData = new DataTable(new DataDoubleArray[]{xDataSource.getIndependentData(0),(DataDoubleArray)data});
             }
             break;
         }
@@ -202,4 +204,5 @@ public class CastToTable extends DataProcessor implements Serializable {
 
     private DataTable outputData;
     private int inputType;
+    private DataSourceIndependent xDataSource;
 }

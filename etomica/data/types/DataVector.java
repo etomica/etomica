@@ -178,6 +178,10 @@ public class DataVector implements DataArithmetic, java.io.Serializable {
             return space;
         }
         
+        public Data makeData() {
+            return new DataVector(space);
+        }
+        
         protected final Space space;
     }
 

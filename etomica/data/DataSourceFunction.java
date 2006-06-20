@@ -22,7 +22,7 @@ import etomica.util.Function;
   * 09/08/02 (DAK) new
   */
   
-public class DataSourceFunction implements DataSource, Serializable {
+public class DataSourceFunction implements DataSource, DataSourceIndependent, Serializable {
     
     public DataSourceFunction() {
         this(new Function.Constant(0.0));
@@ -98,10 +98,22 @@ public class DataSourceFunction implements DataSource, Serializable {
             needUpdate = true;
         }
         if (needUpdate) {
-            data = new DataFunction(new DataDoubleArray[] {xData});
-            dataInfo = new DataInfoFunction(label, dimension, new DataInfoDoubleArray[]{(DataInfoDoubleArray)xSource.getDataInfo()});;
+            data = new DataFunction(new int[]{xData.getArrayShape(0)});
+            dataInfo = new DataInfoFunction(label, dimension, this);
         }
         updateF();
+    }
+    
+    public DataDoubleArray getIndependentData(int i) {
+        return xData;
+    }
+    
+    public DataInfoDoubleArray getIndependentDataInfo(int i) {
+        return (DataInfoDoubleArray)xSource.getDataInfo();
+    }
+    
+    public int getIndependentArrayDimension() {
+        return 1;
     }
     
     /**

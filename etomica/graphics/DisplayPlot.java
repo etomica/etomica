@@ -91,7 +91,7 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
             units = (Unit[])Arrays.resizeArray(units, newDataCount);
             Dimension xDimension = null;
             if (units.length > 0) {
-                DataInfo xDataInfo = ((DataInfoFunction)dataSet.getDataInfo(0)).getIndependentInfo(0);
+                DataInfo xDataInfo = ((DataInfoFunction)dataSet.getDataInfo(0)).getXDataSource().getIndependentDataInfo(0);
                 xDimension = xDataInfo.getDimension();
                 if (xUnit == null) {
                     xUnit = xDimension.getUnit(UnitSystem.SIM);
@@ -102,7 +102,7 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
             for(int i=oldColumnCount; i<units.length; i++) {
                 DataFunction iData = (DataFunction)dataSet.getData(i);
                 DataInfoFunction dataInfo = (DataInfoFunction)dataSet.getDataInfo(i);
-                if (iData.getXDimension() != 1 || !dataInfo.getIndependentInfo(0).getDimension().equals(xDimension)) {
+                if (dataInfo.getXDataSource().getIndependentArrayDimension() != 1 || !dataInfo.getXDataSource().getIndependentDataInfo(0).getDimension().equals(xDimension)) {
                     throw new IllegalArgumentException("All data functions must have the same X dimension");
                 }
                 units[i] = (defaultUnit != null) ? defaultUnit : dataInfo.getDimension().getUnit(UnitSystem.SIM);
@@ -123,9 +123,8 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
         int nSource = dataSet.getDataCount();
         plot.clear(false);
         for(int k=0; k<nSource; k++) {
-            DataFunction dataFunction = (DataFunction)dataSet.getData(k);
-            final double[] xValues = dataFunction.getXData(0).getData();
-            final double[] data = dataFunction.getData();
+            final double[] xValues = ((DataInfoFunction)dataSet.getDataInfo(k)).getXDataSource().getIndependentData(0).getData();
+            final double[] data = ((DataFunction)dataSet.getData(k)).getData();
             for(int i=0; i<data.length; i++) {
                 double y = units[k].fromSim(data[i]);
                 if (!Double.isNaN(y)) {
@@ -226,7 +225,7 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
         xUnit = u;
         if (dataSet.getDataCount() > 0) {
             DataInfoFunction dataInfoFunction = (DataInfoFunction)dataSet.getDataInfo(0);
-            plot.setXLabel(dataInfoFunction.getIndependentInfo(0).getLabel() + " ("+xUnit.symbol()+")");
+            plot.setXLabel(dataInfoFunction.getXDataSource().getIndependentDataInfo(0).getLabel() + " ("+xUnit.symbol()+")");
         }
     }
     

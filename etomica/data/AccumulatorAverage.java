@@ -106,11 +106,6 @@ public class AccumulatorAverage extends DataAccumulator {
         if (value.isNaN())
             return;
 
-        if (sum == null) {
-            initData(data);
-            reset();
-        }
-
         mostRecent.E(data);
         blockSum.PE(value);
         work.E(data);
@@ -122,26 +117,6 @@ public class AccumulatorAverage extends DataAccumulator {
         }
     }
     
-    protected void initData(Data incomingData) {
-        sum = (DataArithmetic)incomingData.makeCopy();
-        sumSquare = (DataArithmetic)incomingData.makeCopy();
-        sumSquareBlock = (DataArithmetic)incomingData.makeCopy();
-        standardDeviation = (DataArithmetic)incomingData.makeCopy();
-        average = (DataArithmetic)incomingData.makeCopy();
-        error = (DataArithmetic)incomingData.makeCopy();
-        blockSum = (DataArithmetic)incomingData.makeCopy();
-        blockSumSq = (DataArithmetic)incomingData.makeCopy();
-        mostRecent = (DataArithmetic)incomingData.makeCopy();
-        mostRecentBlock = (DataArithmetic)incomingData.makeCopy();
-        blockCorrelation = (DataArithmetic)incomingData.makeCopy();
-        firstBlock = (DataArithmetic)incomingData.makeCopy();
-        correlationSum = (DataArithmetic)incomingData.makeCopy();
-        work = (DataArithmetic)incomingData.makeCopy();
-
-        dataGroup = new DataGroup(new Data[] { mostRecent, average, error,
-                        standardDeviation, mostRecentBlock, blockCorrelation});
-    }
-
     /**
      * Performs the block sum after <tt>blockSize</tt> calls to addData.
      */
@@ -260,7 +235,25 @@ public class AccumulatorAverage extends DataAccumulator {
      *            addData
      */
     public DataInfo processDataInfo(DataInfo incomingDataInfo) {
-        sum = null;
+        sum = (DataArithmetic)incomingDataInfo.makeData();
+        sumSquare = (DataArithmetic)incomingDataInfo.makeData();
+        sumSquareBlock = (DataArithmetic)incomingDataInfo.makeData();
+        standardDeviation = (DataArithmetic)incomingDataInfo.makeData();
+        average = (DataArithmetic)incomingDataInfo.makeData();
+        error = (DataArithmetic)incomingDataInfo.makeData();
+        blockSum = (DataArithmetic)incomingDataInfo.makeData();
+        blockSumSq = (DataArithmetic)incomingDataInfo.makeData();
+        mostRecent = (DataArithmetic)incomingDataInfo.makeData();
+        mostRecentBlock = (DataArithmetic)incomingDataInfo.makeData();
+        blockCorrelation = (DataArithmetic)incomingDataInfo.makeData();
+        firstBlock = (DataArithmetic)incomingDataInfo.makeData();
+        correlationSum = (DataArithmetic)incomingDataInfo.makeData();
+        work = (DataArithmetic)incomingDataInfo.makeData();
+
+        dataGroup = new DataGroup(new Data[] { mostRecent, average, error,
+                        standardDeviation, mostRecentBlock, blockCorrelation});
+        
+        reset();
         
         DataInfoFactory factory = incomingDataInfo.getFactory();
         factory.getTags().add(tag);

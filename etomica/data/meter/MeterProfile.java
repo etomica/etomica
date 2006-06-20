@@ -6,6 +6,7 @@ import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataSourceAtomic;
+import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourceUniform;
 import etomica.data.DataTag;
 import etomica.data.types.DataDouble;
@@ -28,14 +29,13 @@ import etomica.units.Length;
  * 
  * @author Rob Riggleman
  */
-public class MeterProfile implements Meter, java.io.Serializable {
+public class MeterProfile implements Meter, DataSourceIndependent, java.io.Serializable {
     
     /**
      * Default constructor sets profile along the y-axis, with 100 histogram points.
      */
     public MeterProfile(Space space) {
         xDataSource = new DataSourceUniform("x", Length.DIMENSION);
-        xData = (DataDoubleArray)xDataSource.getData();
         profileVector = space.makeVector();
         profileVector.setX(0, 1.0);
         position = space.makeVector();
@@ -67,9 +67,8 @@ public class MeterProfile implements Meter, java.io.Serializable {
         if (!(m.getDataInfo() instanceof DataInfoDouble)) {
             throw new IllegalArgumentException("data source must return a DataDouble");
         }
-        data = new DataFunction(new DataDoubleArray[] {xData});
-        dataInfo = new DataInfoFunction(m.getDataInfo().getLabel()+" Profile", m.getDataInfo().getDimension(), 
-                new DataInfoDoubleArray[] {new DataInfoDoubleArray("x",Length.DIMENSION,new int[]{xData.getLength()})});
+        data = new DataFunction(new int[] {xDataSource.getNValues()});
+        dataInfo = new DataInfoFunction(m.getDataInfo().getLabel()+" Profile", m.getDataInfo().getDimension(), this);
         meter = m;
         dataInfo.addTag(meter.getTag());
         dataInfo.addTag(tag);
@@ -115,6 +114,19 @@ public class MeterProfile implements Meter, java.io.Serializable {
         data.TE(norm);
         return data;
     }
+
+    public DataDoubleArray getIndependentData(int i) {
+        return (DataDoubleArray)xDataSource.getData();
+    }
+    
+    public DataInfoDoubleArray getIndependentDataInfo(int i) {
+        return (DataInfoDoubleArray)xDataSource.getDataInfo();
+    }
+    
+    public int getIndependentArrayDimension() {
+        return 1;
+    }
+    
     /**
      * @return Returns the phase.
      */
@@ -145,7 +157,6 @@ public class MeterProfile implements Meter, java.io.Serializable {
     private DataSourceUniform xDataSource;
     private DataFunction data;
     private DataInfo dataInfo;
-    private DataDoubleArray xData;
     /**
      * Vector describing the orientation of the profile.
      * For example, (1,0) is along the x-axis.

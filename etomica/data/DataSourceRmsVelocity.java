@@ -27,7 +27,7 @@ import etomica.util.HistogramCollapsing;
  * @author David Kofke
  */
 
-public class DataSourceRmsVelocity implements DataSourceAtomic, Serializable {
+public class DataSourceRmsVelocity implements DataSourceAtomic, DataSourceIndependent, Serializable {
 
     public DataSourceRmsVelocity() {
         this(new HistogramCollapsing());
@@ -70,7 +70,7 @@ public class DataSourceRmsVelocity implements DataSourceAtomic, Serializable {
         //covertly invoke getHistogram, which actually calculates the histogram
         // our DataFunction wraps the histogram array
         if (data.getData() != histogramRMS.getHistogram() ||
-                data.getXData(0).getData() != histogramRMS.xValues()) {
+                xData.getData() != histogramRMS.xValues()) {
             // we wrap the histogram inner array instances in the DataFunction.
             // if they change, we need a new instance of the DataFunction
             setupData();
@@ -85,17 +85,29 @@ public class DataSourceRmsVelocity implements DataSourceAtomic, Serializable {
      */
     protected void setupData() {
         int nBins = histogramRMS.getNBins();
-        DataDoubleArray xData = new DataDoubleArray(new int[]{nBins},histogramRMS.xValues());
-        DataInfo xDataInfo = new DataInfoDoubleArray(atomDataInfo.getLabel(),atomDataInfo.getDimension(), new int[]{nBins});
-        data = new DataFunction(new DataDoubleArray[]{xData}, histogramRMS.getHistogram());
-        dataInfo = new DataInfoFunction("RMS Velocity Histogram",Null.DIMENSION, new DataInfoDoubleArray[]{(DataInfoDoubleArray)xDataInfo});
+        xData = new DataDoubleArray(new int[]{nBins},histogramRMS.xValues());
+        xDataInfo = new DataInfoDoubleArray(atomDataInfo.getLabel(),atomDataInfo.getDimension(), new int[]{nBins});
+        data = new DataFunction(new int[]{nBins}, histogramRMS.getHistogram());
+        dataInfo = new DataInfoFunction("RMS Velocity Histogram",Null.DIMENSION, this);
         dataInfo.addTag(tag);
     }
     
     public Data getData(Atom a) {
         atomData.x = Math.sqrt(((ICoordinateKinetic)((AtomLeaf)a).coord).velocity().squared());
         return atomData;
-    }        
+    }
+    
+    public DataDoubleArray getIndependentData(int i) {
+        return xData;
+    }
+    
+    public DataInfoDoubleArray getIndependentDataInfo(int i) {
+        return xDataInfo;
+    }
+    
+    public int getIndependentArrayDimension() {
+        return 1;
+    }
     
 	/**
 	 * Sets the iterator defining the atoms for which the RMS velocity is
@@ -122,6 +134,8 @@ public class DataSourceRmsVelocity implements DataSourceAtomic, Serializable {
     private final DataDouble atomData;
     private final DataInfo atomDataInfo;
     private DataInfo dataInfo;
+    protected DataDoubleArray xData;
+    protected DataInfoDoubleArray xDataInfo;
     private final Histogram histogramRMS;
     private DataFunction data;
     protected final DataTag tag;

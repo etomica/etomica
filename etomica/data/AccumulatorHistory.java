@@ -6,10 +6,8 @@ package etomica.data;
 
 import etomica.data.types.CastToDoubleArray;
 import etomica.data.types.DataArithmetic;
-import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataGroup;
-import etomica.data.types.DataTable;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.data.types.DataGroup.DataInfoGroup;
@@ -127,7 +125,7 @@ public class AccumulatorHistory extends DataAccumulator {
             // covertly call getHistogram() here.  We have to call it anyway
             // so that the array data gets updated.
             if (dataFunction.getData() != history[i].getHistory() ||
-                    dataFunction.getXData(0).getData() != history[i].getXValues()) {
+                    xDataSources[i].getIndependentData(0).getData() != history[i].getXValues()) {
                 success = false;
             }
         }
@@ -140,18 +138,19 @@ public class AccumulatorHistory extends DataAccumulator {
                 DataFunction dataFunction = (DataFunction)data.getData(i);
                 DataInfoFunction dataInfoFunction = (DataInfoFunction)((DataInfoGroup)dataInfo).getSubDataInfo(i);
                 if (dataFunction.getData() == history[i].getHistory() &&
-                        dataFunction.getXData(0).getData() == history[i].getXValues()) {
+                        xDataSources[i].getIndependentData(0).getData() == history[i].getXValues()) {
                     dataFunctions[i] = dataFunction;
                     dataInfoFunctions[i] = dataInfoFunction;
                 }
                 else {
                     int iHistoryLength = history[i].getHistoryLength();
-                    dataInfoFunctions[i] = new DataInfoFunction(inputDataInfo.getLabel(), inputDataInfo.getDimension(), 
-                            new DataInfoDoubleArray[]{new DataInfoDoubleArray(timeDataSource.getDataInfo().getLabel(),
-                                    timeDataSource.getDataInfo().getDimension(), new int[]{iHistoryLength})});
+                    dataFunctions[i] = new DataFunction(new int[]{iHistoryLength}, history[i].getHistory());
+                    xDataSources[i] = new DataSourceIndependentSimple(history[i].getXValues(), 
+                            new DataInfoDoubleArray(timeDataSource.getDataInfo().getLabel(),
+                            timeDataSource.getDataInfo().getDimension(), new int[]{iHistoryLength}));
+                    dataInfoFunctions[i] = new DataInfoFunction(inputDataInfo.getLabel(), 
+                            inputDataInfo.getDimension(), xDataSources[i]);
                     dataInfoFunctions[i].addTags(inputDataInfo.getTags());
-                    DataDoubleArray xData = new DataDoubleArray(new int[]{history[i].getHistoryLength()},history[i].getXValues());
-                    dataFunctions[i] = new DataFunction(new DataDoubleArray[]{xData}, history[i].getHistory());
                 }
             }
             // creating a new data instance might confuse downstream data sinks, but
@@ -176,13 +175,16 @@ public class AccumulatorHistory extends DataAccumulator {
     private void setupData() {
         DataFunction[] dataFunctions = new DataFunction[nData];
         DataInfoFunction[] dataInfoFunctions = new DataInfoFunction[nData];
+        xDataSources = new DataSourceIndependentSimple[nData];
         for (int i=0; i<nData; i++) {
-            dataInfoFunctions[i] = new DataInfoFunction(inputDataInfo.getLabel(), inputDataInfo.getDimension(), 
-                    new DataInfoDoubleArray[]{new DataInfoDoubleArray(timeDataSource.getDataInfo().getLabel(),
-                            timeDataSource.getDataInfo().getDimension(), new int[]{history[i].getHistoryLength()})});
+            int iHistoryLength = history[i].getHistoryLength();
+            dataFunctions[i] = new DataFunction(new int[]{iHistoryLength}, history[i].getHistory());
+            xDataSources[i] = new DataSourceIndependentSimple(history[i].getXValues(), 
+                    new DataInfoDoubleArray(timeDataSource.getDataInfo().getLabel(),
+                    timeDataSource.getDataInfo().getDimension(), new int[]{iHistoryLength}));
+            dataInfoFunctions[i] = new DataInfoFunction(inputDataInfo.getLabel(), 
+                    inputDataInfo.getDimension(), xDataSources[i]);
             dataInfoFunctions[i].addTags(inputDataInfo.getTags());
-            DataDoubleArray xData = new DataDoubleArray(new int[]{history[i].getHistoryLength()},history[i].getXValues());
-            dataFunctions[i] = new DataFunction(new DataDoubleArray[]{xData}, history[i].getHistory());
         }
         data = new DataGroup(dataFunctions);
         dataInfo = new DataInfoGroup(inputDataInfo.getLabel(), inputDataInfo.getDimension(), dataInfoFunctions);
@@ -219,6 +221,7 @@ public class AccumulatorHistory extends DataAccumulator {
     }
     
     protected History[] history = new History[0];
+    protected DataSourceIndependentSimple[] xDataSources = new DataSourceIndependentSimple[0];
     private DataGroup data;
     protected int nData;
     private History.Factory historyFactory;

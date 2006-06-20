@@ -7,6 +7,7 @@ import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataSource;
+import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourceUniform;
 import etomica.data.DataTag;
 import etomica.data.DataSourceUniform.LimitType;
@@ -27,7 +28,7 @@ import etomica.util.NameMaker;
  *
  * @author David Kofke
  */
-public class MeterRDF implements DataSource, Meter, java.io.Serializable {
+public class MeterRDF implements DataSource, Meter, DataSourceIndependent, java.io.Serializable {
 	
 	/**
 	 * Creates meter with default to compute pair correlation for all
@@ -42,9 +43,8 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
         xDataSource.setTypeMin(LimitType.HALF_STEP);
         
         rData = (DataDoubleArray)xDataSource.getData();
-        data = new DataFunction(new DataDoubleArray[] {rData});
-        dataInfo = new DataInfoFunction("g(r)", Null.DIMENSION, new DataInfoDoubleArray[]{
-                (DataInfoDoubleArray)xDataSource.getDataInfo()});
+        data = new DataFunction(new int[] {rData.getLength()});
+        dataInfo = new DataInfoFunction("g(r)", Null.DIMENSION, this);
 
 	    iterator = new ApiLeafAtoms();
         setName(NameMaker.makeName(this.getClass()));
@@ -98,9 +98,8 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
             needUpdate = true;
         }
         if (needUpdate) {
-            data = new DataFunction(new DataDoubleArray[] {rData});
-            dataInfo = new DataInfoFunction("g(r)", Null.DIMENSION, new DataInfoDoubleArray[]{
-                    (DataInfoDoubleArray)xDataSource.getDataInfo()});
+            data = new DataFunction(new int[] {rData.getLength()});
+            dataInfo = new DataInfoFunction("g(r)", Null.DIMENSION, this);
             dataInfo.addTag(tag);
         }
         
@@ -138,6 +137,18 @@ public class MeterRDF implements DataSource, Meter, java.io.Serializable {
         return xDataSource;
     }
 	
+    public DataDoubleArray getIndependentData(int i) {
+        return (DataDoubleArray)xDataSource.getData();
+    }
+    
+    public DataInfoDoubleArray getIndependentDataInfo(int i) {
+        return (DataInfoDoubleArray)xDataSource.getDataInfo();
+    }
+    
+    public int getIndependentArrayDimension() {
+        return 1;
+    }
+    
     /**
      * @return Returns the phase.
      */

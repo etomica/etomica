@@ -167,6 +167,14 @@ public class DataGroup implements Data, java.io.Serializable {
             }
         }
         
+        public Data makeData() {
+            Data[] subData = new Data[subDataInfo.length];
+            for (int i=0; i<subData.length; i++) {
+                subData[i] = subDataInfo[i].makeData();
+            }
+            return new DataGroup(subData);
+        }
+
         protected final DataInfo[] subDataInfo;
     }
     

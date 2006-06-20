@@ -383,6 +383,10 @@ public class DataDoubleArray implements DataArithmetic, java.io.Serializable {
         public DataInfoFactory getFactory() {
             return new DataInfoDoubleArrayFactory(this);
         }
+
+        public Data makeData() {
+            return new DataDoubleArray(arrayShape);
+        }
     }
     
     public static class DataInfoDoubleArrayFactory extends DataInfoFactory {
