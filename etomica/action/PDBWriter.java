@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Formatter;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -52,13 +54,30 @@ public class PDBWriter implements Action, Serializable {
         if (file == null) {
             throw new IllegalStateException("must call setFile or setFileName before actionPerformed");
         }
-        Formatter formatter;
-        
-        try { 
-            formatter = new Formatter(file);
-        }catch(IOException e) {
-            System.err.println("Cannot open "+file.getPath()+", caught IOException: " + e.getMessage());
-            return;
+        Class formatterClass;
+        try {
+            formatterClass = Class.forName("java.util.Formatter");
+        }
+        catch (ClassNotFoundException e) {
+            throw new RuntimeException("JRE 1.5 is required for PDBWriter.  Try XYZWriter instead");
+        }
+        Object formatter;
+        Method formatMethod;
+        try {
+            formatMethod = formatterClass.getDeclaredMethod("format",new Class[]{String.class,Object.class});
+            formatter = formatterClass.getDeclaredConstructor(new Class[]{File.class}).newInstance(new Object[]{file});
+        }
+        catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+        catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+        catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        }
+        catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
         }
         iterator.reset();
         elementAtomType.clear();
@@ -79,11 +98,30 @@ public class PDBWriter implements Action, Serializable {
                 elementCount++;
                 elementAtomType.add(thisElement);
             }
-            formatter.format("ATOM%7d%3s                %8.3f%8.3f%8.3f\n", new Object[]{new Integer(atomCount), new Character(elements[elementIndex]), 
-                    new Double(atom.coord.position().x(0)), new Double(atom.coord.position().x(1)), new Double(atom.coord.position().x(2))});
+            try {
+                formatMethod.invoke(formatter,new Object[]{"ATOM%7d%3s                %8.3f%8.3f%8.3f\n", new Object[]{new Integer(atomCount), new Character(elements[elementIndex]), 
+                        new Double(atom.coord.position().x(0)), new Double(atom.coord.position().x(1)), new Double(atom.coord.position().x(2))}});
+            }
+            catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+            catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
             atomCount++;
         }
-        formatter.close();
+        try {
+            formatterClass.getDeclaredMethod("close",new Class[]{}).invoke(formatter,null);
+        }
+        catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+        catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+        catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
