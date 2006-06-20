@@ -11,7 +11,6 @@ import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.IteratorFactory;
 import etomica.phase.Phase;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.Species;
 
@@ -34,14 +33,6 @@ public class PotentialMaster implements java.io.Serializable {
     public PotentialMaster(Space space, IteratorFactory iteratorFactory) {
         this.space = space;
         this.iteratorFactory = iteratorFactory;
-    }
-    
-    public final void setSimulation(Simulation sim) {
-        simulation = sim;
-    }
-    
-    protected Simulation getSimulation() {
-        return simulation;
     }
     
 	/**
@@ -353,7 +344,6 @@ public class PotentialMaster implements java.io.Serializable {
     protected PotentialLinker first, last;
     protected boolean enabled = true;
     protected final Space space;
-    private Simulation simulation;
     
     private static class AtomIterator0 extends AtomsetIteratorSinglet implements AtomsetIteratorPDT {
         AtomIterator0() {

@@ -4,7 +4,7 @@
  */
 package etomica.potential;
 
-import etomica.nbr.NeighborCriterion;
+import etomica.atom.iterator.AtomsetIterator;
 import etomica.util.Arrays;
 
 /**
@@ -37,7 +37,9 @@ public class PotentialArray implements java.io.Serializable {
                 return mostRecentIndex; 
             }
         }
-        throw new IllegalArgumentException("Potential "+potential+" is unknown");
+        System.out.println("uh-oh in PotentialArray.getPotentialIndex()");
+        mostRecentIndex = addPotential(potential); 
+        return mostRecentIndex;
     }
     
     /**
@@ -54,12 +56,7 @@ public class PotentialArray implements java.io.Serializable {
     		if(potentials[mostRecentIndex] == newPotential) return mostRecentIndex;
     	}
         potentials = (Potential[])Arrays.addObject(potentials, newPotential);
-        criteria = (NeighborCriterion[])Arrays.resizeArray(criteria, potentials.length);
     	return potentials.length-1;
-    }
-    
-    public void setCriterion(Potential potential, NeighborCriterion criterion) {
-        criteria[getPotentialIndex(potential)] = criterion;
     }
 
     /**
@@ -84,12 +81,7 @@ public class PotentialArray implements java.io.Serializable {
     	return potentials;
     }
     
-    public final NeighborCriterion[] getCriteria() {
-        return criteria;
-    }
-    
     private Potential[] potentials = new Potential[0];
-    private NeighborCriterion[] criteria = new NeighborCriterion[0];
     private int mostRecentIndex = -1;
 
 }

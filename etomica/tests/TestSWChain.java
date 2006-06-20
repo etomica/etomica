@@ -16,12 +16,15 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntervalActionAdapter;
-import etomica.nbr.CriterionAll;
 import etomica.nbr.CriterionBondedSimple;
-import etomica.nbr.CriterionInterMolecular;
+import etomica.nbr.CriterionMolecular;
+import etomica.nbr.CriterionNone;
+import etomica.nbr.CriterionSimple;
+import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
+import etomica.potential.P1IntraSimple;
 import etomica.potential.P2HardBond;
 import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialGroup;
@@ -70,26 +73,36 @@ public class TestSWChain extends Simulation {
         ((PotentialMasterList)potentialMaster).setCellRange(2);
         ((PotentialMasterList)potentialMaster).setRange(neighborRangeFac*sqwLambda*defaults.atomSize);
 
+        P2SquareWell potential = new P2SquareWell(space,defaults.atomSize,sqwLambda,0.5*defaults.potentialWell, false);
+        NeighborCriterion nbrCriterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
+
         SpeciesSpheres species = new SpeciesSpheres(this,chainLength);
         species.setNMolecules(numMolecules);
         P2HardBond bonded = new P2HardBond(this);
         PotentialGroup potentialChainIntra = potentialMaster.makePotentialGroup(1);
         potentialChainIntra.addPotential(bonded, ApiBuilder.makeAdjacentPairIterator());
+        AtomType leafType = ((AtomFactoryHomo)species.getFactory()).getChildFactory().getType();
+        potentialChainIntra.addPotential(potential, new AtomType[]{leafType,leafType});
 
         bonded.setBondLength(defaults.atomSize);
         bonded.setBondDelta(bondFactor);
-
+        CriterionBondedSimple criterion = new CriterionBondedSimple(nbrCriterion);
+        criterion.setBonded(false);
+        potential.setCriterion(criterion);
+//        criterion = new CriterionBondedSimple(NeighborCriterion.ALL);
+//        criterion.setBonded(true);
+        bonded.setCriterion(new CriterionNone());
         potentialMaster.addPotential(potentialChainIntra, new Species[] {species});
         ((ConformationLinear)species.getFactory().getConformation()).setBondLength(defaults.atomSize);
 
-        P2SquareWell potential = new P2SquareWell(space,defaults.atomSize,sqwLambda,0.5*defaults.potentialWell,false);
-
+        potential = new P2SquareWell(space,defaults.atomSize,sqwLambda,0.5*defaults.potentialWell,false);
+//        nbrCriterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
+        CriterionMolecular criterionMolecular = new CriterionMolecular(nbrCriterion);
+        criterionMolecular.setIntraMolecular(false);
+        potential.setCriterion(criterionMolecular);
+        
         AtomTypeSphere sphereType = (AtomTypeSphere)((AtomFactoryHomo)species.moleculeFactory()).getChildFactory().getType();
         potentialMaster.addPotential(potential,new AtomType[]{sphereType,sphereType});
-        CriterionInterMolecular sqwCriterion = (CriterionInterMolecular)((PotentialMasterList)potentialMaster).getCriterion(potential);
-        CriterionBondedSimple nonBondedCriterion = new CriterionBondedSimple(new CriterionAll());
-        nonBondedCriterion.setBonded(false);
-        sqwCriterion.setIntraMolecularCriterion(nonBondedCriterion);
 
         phase = new Phase(this);
 

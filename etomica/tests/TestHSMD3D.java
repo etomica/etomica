@@ -31,6 +31,7 @@ public class TestHSMD3D extends Simulation {
     public IntegratorHard integrator;
     public SpeciesSpheresMono species, species2;
     public Phase phase;
+    public Potential2 potential;
 
     public TestHSMD3D(Space space, int numAtoms) {
         // use custom bit lengths to allow for more "molecules"
@@ -44,7 +45,7 @@ public class TestHSMD3D extends Simulation {
         ((PotentialMasterList)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
         integrator = new IntegratorHard(this);
         NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager();
-        nbrManager.setRange(defaults.atomSize*neighborRangeFac);
+        nbrManager.setRange(defaults.atomSize*1.6);
         nbrManager.getPbcEnforcer().setApplyToMolecules(false);
         integrator.addListener(nbrManager);
         integrator.setTimeStep(0.01);
@@ -57,11 +58,23 @@ public class TestHSMD3D extends Simulation {
         species.setNMolecules(numAtoms);
         species2.setNMolecules(numAtoms/100);
 
-        potentialMaster.addPotential(new P2HardSphere(this),new Species[]{species,species});
+        potential = new P2HardSphere(this);
+        NeighborCriterion nbrCriterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
+        CriterionSpecies criterion = new CriterionSpecies(nbrCriterion, species, species);
+        potential.setCriterion(criterion);
+        potentialMaster.addPotential(potential,new Species[]{species,species});
 
-        potentialMaster.addPotential(new P2HardSphere(this),new Species[]{species,species2});
+        potential = new P2HardSphere(this);
+        nbrCriterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
+        criterion = new CriterionSpecies(nbrCriterion, species, species2);
+        potential.setCriterion(criterion);
+        potentialMaster.addPotential(potential,new Species[]{species,species2});
 
-        potentialMaster.addPotential(new P2HardSphere(this),new Species[]{species2,species2});
+        potential = new P2HardSphere(this);
+        nbrCriterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
+        criterion = new CriterionSpecies(nbrCriterion, species2, species2);
+        potential.setCriterion(criterion);
+        potentialMaster.addPotential(potential,new Species[]{species2,species2});
         
         phase = new Phase(this);
         integrator.setPhase(phase);

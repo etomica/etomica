@@ -5,7 +5,6 @@
 package etomica.nbr;
 
 import etomica.atom.AtomPositionDefinition;
-import etomica.atom.AtomType;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PhaseAgentSourceCellManager;
@@ -112,9 +111,6 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
             // us.
             ((PotentialGroup)potential).setPotentialMaster(this);
         }
-    }
-    
-    protected void addRangedPotentialForTypes(Potential potential, AtomType[] atomTypes) {
     }
     
     public void potentialAddedNotify(Potential subPotential, PotentialGroup pGroup) {

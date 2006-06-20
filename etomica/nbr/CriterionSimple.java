@@ -91,9 +91,6 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
 	public boolean accept(AtomSet pair) {
         dr.Ev1Mv2(((AtomLeaf)((AtomPair)pair).atom1).coord.position(),((AtomLeaf)((AtomPair)pair).atom0).coord.position());
         nearestImageTransformer.nearestImage(dr);
-        if (Debug.ON && neighborRadius2 < interactionRange*interactionRange) {
-            throw new IllegalStateException("neighbor radius "+Math.sqrt(neighborRadius2)+" is less than interaction range "+interactionRange);
-        }
 		if (Debug.ON && Debug.DEBUG_NOW && ((Debug.LEVEL > 1 && Debug.anyAtom(pair)) || (Debug.LEVEL == 1 && Debug.allAtoms(pair)))) {
             double r2l = dr.squared(); 
 			if (r2l < neighborRadius2 || (Debug.LEVEL > 1 && Debug.allAtoms(pair))) {
