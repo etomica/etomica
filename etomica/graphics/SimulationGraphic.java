@@ -14,6 +14,7 @@ import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
 import etomica.integrator.Integrator;
+import etomica.integrator.IntegratorManagerMC;
 import etomica.integrator.IntegratorPhase;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.math.geometry.Plane;
@@ -77,27 +78,41 @@ public class SimulationGraphic implements SimulationContainer, java.io.Serializa
          Controller controller = simulation.getController();
          Action[] activities = controller.getPendingActions();
          LinkedList phaseList = new LinkedList();
-         LinkedList integratorList = new LinkedList(); 
          for (int i=0; i<activities.length; i++) {
              if (activities[i] instanceof ActivityIntegrate) {
                  Integrator integrator = ((ActivityIntegrate)activities[i]).getIntegrator();
-                 if (integrator instanceof IntegratorPhase) {
-                     //FIXME need to handle IntegratorManagerMC as well
-                     if (integratorList.contains(integrator)) continue;
-                     integratorList.add(integrator);
-                     Phase phase = ((IntegratorPhase)integrator).getPhase();
-                     if (phaseList.contains(phase)) continue;
-                     phaseList.add(phase);
-                     final DisplayPhase display = new DisplayPhase(phase,simulation.getDefaults().pixelUnit);
-                     add(display);
-                     if (phase.space().D() != 3) {
-                         integrator.addListener(new IntervalActionAdapter(new Action() {
-                             public void actionPerformed() {display.repaint();}
-                             public String getLabel() {return "Phase";}
-                         }));
-                     }
-                 }
-             }             
+                 setupDisplayPhase(integrator, phaseList);
+             }
+         }
+     }
+     
+     /**
+      * Creates a DisplayPhase for each Phase handled by the given Integrator 
+      * and/or its sub-integrators.  Phases found are added to phaseList.  If 
+      * a phase handled by an Integrator is in PhaseList, a new DisplayPhase is
+      * not created.
+      */
+     private void setupDisplayPhase(Integrator integrator, LinkedList phaseList) {
+         if (integrator instanceof IntegratorPhase) {
+             Phase phase = ((IntegratorPhase)integrator).getPhase();
+             if (phaseList.contains(phase)) return;
+             phaseList.add(phase);
+             final DisplayPhase display = new DisplayPhase(phase,simulation.getDefaults().pixelUnit);
+             add(display);
+             if (phase.space().D() != 3) {
+                 IntervalActionAdapter iaa = new IntervalActionAdapter(new Action() {
+                     public void actionPerformed() {display.repaint();}
+                     public String getLabel() {return "Phase";}
+                 });
+                 integrator.addListener(iaa);
+                 iaa.setActionInterval(100);
+             }
+         }
+         else if (integrator instanceof IntegratorManagerMC) {
+             Integrator[] subIntegrators = ((IntegratorManagerMC)integrator).getIntegrators();
+             for (int i=0; i<subIntegrators.length; i++) {
+                 setupDisplayPhase(subIntegrators[i], phaseList);
+             }
          }
      }
 
