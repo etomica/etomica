@@ -14,21 +14,23 @@ import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
 import etomica.data.DataInfo;
+import etomica.data.DataSourceIndependent;
 import etomica.data.DataTag;
 import etomica.data.meter.Meter;
+import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.phase.Phase;
-import etomica.units.Fraction;
 import etomica.units.Null;
+import etomica.units.Quantity;
 import etomica.util.NameMaker;
 
 /**
  * @author Matt Moynihan MoleuclarCount returns an array with the number of
  *         atoms In molecules with [1,2,3,4,5,6,7-10,10-13,13-25, <25] atoms
  */
-public class MeterChainLength implements Meter, Serializable, AgentSource {
+public class MeterChainLength implements Meter, Serializable, AgentSource, DataSourceIndependent {
 
     public MeterChainLength(ReactionEquilibrium sim) {
         setName(NameMaker.makeName(this.getClass()));
@@ -47,14 +49,17 @@ public class MeterChainLength implements Meter, Serializable, AgentSource {
      */
     protected void setupData(int maxChainLength) {
 
-        DataInfoDoubleArray xDataInfo = new DataInfoDoubleArray("Chain Length Distribution",Fraction.DIMENSION, new int[]{maxChainLength});
-        data = new DataFunction(new int[]{maxChainLength});
-        dataInfo = new DataInfoFunction("Chain Length Distribution", Null.DIMENSION, new DataInfoDoubleArray[]{xDataInfo});
-        dataInfo.addTag(tag);
-        double[] x = data.getXData(0).getData();
+        xData = new DataDoubleArray(maxChainLength);
+        xDataInfo = new DataInfoDoubleArray("Chain Length", Quantity.DIMENSION, new int[]{maxChainLength});
+        xDataInfo.addTag(tag);
+        double[] x = xData.getData();
         for (int i=0; i<maxChainLength; i++) {
             x[i] = i+1;
         }
+
+        data = new DataFunction(new int[]{maxChainLength});
+        dataInfo = new DataInfoFunction("Chain Length Distribution", Null.DIMENSION, this);
+        dataInfo.addTag(tag);
     }
     
     public Class getAgentClass() {
@@ -109,6 +114,18 @@ public class MeterChainLength implements Meter, Serializable, AgentSource {
         }
         
         return data;
+    }
+    
+    public DataInfoDoubleArray getIndependentDataInfo(int i) {
+        return xDataInfo;
+    }
+    
+    public DataDoubleArray getIndependentData(int i) {
+        return xData;
+    }
+    
+    public int getIndependentArrayDimension() {
+        return 1;
     }
 
     protected int recursiveTag(Atom a) {
@@ -168,6 +185,8 @@ public class MeterChainLength implements Meter, Serializable, AgentSource {
     private final ReactionEquilibrium agentSource;
     private Atom[][] agents;
     private DataFunction data;
+    private DataDoubleArray xData;
+    private DataInfoDoubleArray xDataInfo;
     private DataInfoFunction dataInfo;
     private final DataTag tag;
     
