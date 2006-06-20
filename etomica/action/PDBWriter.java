@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Formatter;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -26,6 +25,12 @@ public class PDBWriter implements Action, Serializable {
 
     public PDBWriter(Phase aPhase) {
         iterator = new AtomIteratorLeafAtoms(aPhase);
+        try {
+            Class.forName("java.util.Formatter");
+        }
+        catch (ClassNotFoundException e) {
+            throw new RuntimeException("JRE 1.5 is required for PDBWriter.  Try XYZWriter instead");
+        }
     }
 
     public String getLabel() {
