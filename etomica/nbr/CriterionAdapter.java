@@ -30,6 +30,13 @@ public abstract class CriterionAdapter implements NeighborCriterion, java.io.Ser
     }
 
     /**
+     * Returns the criterion wrapped by this adapter
+     */
+    public final NeighborCriterion getWrappedCriterion() {
+        return subCriterion;
+    }
+    
+    /**
      * Implementation of this method should introduce new criterion and return
      * true if pair meets this criterion and that of the wrapped
      * NeighborCriterion.

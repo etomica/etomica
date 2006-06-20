@@ -210,22 +210,10 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         if (!found) {
             criteriaArray = (NeighborCriterion[]) Arrays.addObject(criteriaArray, criterion);
         }
-        while (criteria.length < atomType.getIndex()+1) {
-            criteria = (NeighborCriterion[][])Arrays.addObject(criteria, new NeighborCriterion[0]);
-        }
-        NeighborCriterion[] criteriaType = criteria[atomType.getIndex()];
-        for(int j=0; j<criteriaType.length; j++) {
-            if(criteriaType[j] == criterion) {
-                // we already know that this AtomType is associated with the criterion
-                return;
-            }
-        }
-        criteriaType = (NeighborCriterion[])Arrays.addObject(criteriaType, criterion);
-        criteria[atomType.getIndex()] = criteriaType;
     }
     
     public NeighborCriterion[] getCriterion(AtomType atomType) {
-        return criteria[atomType.getIndex()];
+        return potentialMaster.getRangedPotentials(atomType).getCriteria();
     }
 
     /**
@@ -236,10 +224,10 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * @return false if the criterion was not previously added to this manager.
      */
     public boolean removeCriterion(NeighborCriterion criterion) {
-        int oldLength = criteria.length;
+        int oldLength = criteriaArray.length;
         criteriaArray = (NeighborCriterion[]) Arrays.removeObject(criteriaArray,
                 criterion);
-        if (oldLength != criteria.length) {
+        if (oldLength != criteriaArray.length) {
             //we actually cared about this criterion.  mark all phases as unseen (dirty)
             phaseClean = new boolean[0];
             return true;
@@ -307,12 +295,14 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         while (cellNbrIterator.hasNext()) {
             AtomPair pair = cellNbrIterator.nextPair();
             Atom atom0 = pair.atom0;
-            Potential[] potentials = potentialMaster.getRangedPotentials(atom0.type).getPotentials();
+            PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom0.type);
+            Potential[] potentials = potentialArray.getPotentials();
+            NeighborCriterion[] criteria = potentialArray.getCriteria();
             for (int i = 0; i < potentials.length; i++) {
                 if (potentials[i].nBody() < 2) {
                     continue;
                 }
-                if (((Potential2) potentials[i]).getCriterion().accept(pair)) {
+                if (criteria[i].accept(pair)) {
                     neighborLists[pair.atom0.getGlobalIndex()].addUpNbr(pair.atom1,i);
                     neighborLists[pair.atom1.getGlobalIndex()].addDownNbr(pair.atom0,
                             potentialMaster.getRangedPotentials(pair.atom1.type).getPotentialIndex(potentials[i]));
@@ -382,7 +372,6 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     private int priority;
     private PhaseImposePbc pbcEnforcer;
     private boolean quiet;
-    private NeighborCriterion[][] criteria = new NeighborCriterion[0][0];
     private AtomNeighborLists[] neighborLists;
     private AtomPotentialList[] potentialList;
     private AtomAgentManager[] agentManagers;
@@ -454,12 +443,15 @@ public class NeighborListManager implements IntegratorNonintervalListener,
                 criterion[i].reset(atom);
             }
 
-            Potential[] potentials = neighborListManager.potentialMaster.getRangedPotentials(atom.type).getPotentials();
+            PotentialArray potentialArray = neighborListManager.potentialMaster.getRangedPotentials(atom.type);
+            Potential[] potentials = potentialArray.getPotentials();
+            NeighborCriterion[] criteria = potentialArray.getCriteria();
+
             for (int i = 0; i < potentials.length; i++) {
                 if (potentials[i].nBody() != 1) {
                     continue;
                 }
-                potentialLists[atom.getGlobalIndex()].setIsInteracting(potentials[i].getCriterion().accept(atom),i);
+                potentialLists[atom.getGlobalIndex()].setIsInteracting(criteria[i].accept(atom),i);
             }
         }
         

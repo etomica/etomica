@@ -13,6 +13,11 @@ import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.nbr.CriterionAll;
+import etomica.nbr.CriterionSimple;
+import etomica.nbr.CriterionType;
+import etomica.nbr.CriterionTypePair;
+import etomica.nbr.CriterionTypesMulti;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.PotentialGroupNbr;
 import etomica.nbr.PotentialMasterNbr;
@@ -23,7 +28,6 @@ import etomica.potential.Potential;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.util.Arrays;
 import etomica.util.Debug;
@@ -56,10 +60,6 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         this.neighborIterator = neighborIterator;
 	}
     
-    public void setSimulation(Simulation sim) {
-        phaseAgentManager.setRoot(sim.speciesRoot);
-    }
-    
     /**
      * @return Returns the cellRange.
      */
@@ -73,20 +73,22 @@ public class PotentialMasterSite extends PotentialMasterNbr {
     public void setCellRange(int cellRange) {
         this.cellRange = cellRange;
     }
-
-    protected void addRangedPotential(Potential potential, AtomType atomType) {
-        boolean found = false;
-        NeighborCriterion criterion = potential.getCriterion();
-        for (int i=0; i<criteriaArray.length; i++) {
-            if (criteriaArray[i] == criterion) {
-                found = true;
-                break;
-            }
+    
+    protected void addRangedPotentialForTypes(Potential potential, AtomType[] atomType) {
+        NeighborCriterion criterion;
+        if (atomType.length == 2) {
+            criterion = new CriterionTypePair(new CriterionAll(), atomType[0], atomType[1]);
         }
-        if (!found) {
-            criteriaArray = (NeighborCriterion[]) Arrays.addObject(criteriaArray, criterion);
+        else if (atomType.length == 1) {
+            criterion = new CriterionType(new CriterionAll(), atomType[0]);
         }
-        super.addRangedPotential(potential, atomType);
+        else {
+            criterion = new CriterionTypesMulti(new CriterionAll(), atomType);
+        }
+        for (int i=0; i<atomType.length; i++) {
+            rangedPotentialAtomTypeList[atomType[i].getIndex()].setCriterion(potential, criterion);
+        }
+        criteriaArray = (NeighborCriterion[]) Arrays.addObject(criteriaArray, criterion);
     }
     
     /**
@@ -154,6 +156,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
 	protected void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc) {
         PotentialArray potentialArray = getRangedPotentials(atom.type);
         Potential[] potentials = potentialArray.getPotentials();
+        NeighborCriterion[] criteria = potentialArray.getCriteria();
 
         for(int i=0; i<potentials.length; i++) {
             switch (potentials[i].nBody()) {
@@ -163,7 +166,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
                 break;
             case 2:
                 Potential2 p2 = (Potential2) potentials[i];
-                NeighborCriterion nbrCriterion = p2.getCriterion();
+                NeighborCriterion nbrCriterion = criteria[i];
                 neighborIterator.setTarget(atom);
                 neighborIterator.reset();
                 while (neighborIterator.hasNext()) {
