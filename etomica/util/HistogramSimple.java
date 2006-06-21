@@ -16,7 +16,7 @@ import java.io.Serializable;
  */
 public class HistogramSimple implements Histogram, java.io.Serializable {
 	protected double deltaX;
-	private int sum;
+	private long sum;
 	protected int[] counts;
 	protected double[] histogram;
     protected double xValues[];
@@ -97,7 +97,7 @@ public class HistogramSimple implements Histogram, java.io.Serializable {
 	    return histogram;
     }
     
-    public int getCount() {
+    public long getCount() {
         return sum;
     }
  

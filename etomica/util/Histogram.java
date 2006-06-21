@@ -30,7 +30,7 @@ public interface Histogram {
     /**
      * Returns the number of times the Histogram's addValue method was called.
      */
-    public int getCount();
+    public long getCount();
 
     /**
      * Sets the number of bins used by the Histogram.  The existing histogram
