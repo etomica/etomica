@@ -38,7 +38,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		return Double.POSITIVE_INFINITY;
 	}
 	
-	double jcut = 3.3; //Sn
+	double jcut = 4.0; //Sn
 	//double jcut = 3.0; //Cu
 	double kcut = jcut * 1.14;
 	
@@ -274,10 +274,11 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			tav1 = tav1(), tav2 = tav2(), tav3 = tav3(),
 			gamma = gamma(), rhoi = rhoi();
         
-        sumGiRhoj0.E(0); sumGiRhoj2.E(0); 
+        sumGiRhoj0.E(0); 
         sumGiRhoj1x.E(0); sumGiRhoj1y.E(0); sumGiRhoj1z.E(0); 
         sumGiRhoj2xx.E(0); sumGiRhoj2xy.E(0); sumGiRhoj2xz.E(0); 
         sumGiRhoj2yy.E(0); sumGiRhoj2yz.E(0); sumGiRhoj2zz.E(0);
+        sumGiRhoj2.E(0); 
         sumGiRhoj3xxx.E(0); sumGiRhoj3xxy.E(0); sumGiRhoj3xxz.E(0); 
         sumGiRhoj3xyy.E(0); sumGiRhoj3xyz.E(0); sumGiRhoj3xzz.E(0); 
         sumGiRhoj3yyy.E(0); sumGiRhoj3yyz.E(0); sumGiRhoj3yzz.E(0); 
@@ -304,11 +305,25 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             gjRhoj0.E(0);
             gjRhoj1x.E(0); gjRhoj1y.E(0); gjRhoj1z.E(0);
             gjRhoj2xx.E(0); gjRhoj2xy.E(0); gjRhoj2xz.E(0);
-            gjRhoj2yy.E(0); gjRhoj2yz.E(0); gjRhoj2zz.E(0);
+            gjRhoj2yy.E(0); gjRhoj2yz.E(0); gjRhoj2zz.E(0); 
+            gjRhoj2.E(0);
             gjRhoj3xxx.E(0); gjRhoj3xxy.E(0); gjRhoj3xxz.E(0);
             gjRhoj3xyy.E(0); gjRhoj3xyz.E(0); gjRhoj3xzz.E(0);
             gjRhoj3yyy.E(0); gjRhoj3yyz.E(0); gjRhoj3yzz.E(0); gjRhoj3zzz.E(0);
             t1GjRhoj0.E(0); t2GjRhoj0.E(0); t3GjRhoj0.E(0);
+            
+            sumGkPhi.E(0);
+            sumGkRhoj0.E(0); 
+            sumGkRhoj1x.E(0); sumGkRhoj1y.E(0); sumGkRhoj1z.E(0);
+            sumGkRhoj2xx.E(0); sumGkRhoj2xy.E(0); sumGkRhoj2xz.E(0);
+            sumGkRhoj2yy.E(0); sumGkRhoj2yz.E(0); sumGkRhoj2zz.E(0); 
+            sumGkRhoj2.E(0);
+            sumGkRhoj3xxx.E(0); sumGkRhoj3xxy.E(0); sumGkRhoj3xxz.E(0);
+            sumGkRhoj3xyy.E(0); sumGkRhoj3xyz.E(0); sumGkRhoj3xzz.E(0);
+            sumGkRhoj3yyy.E(0); sumGkRhoj3yyz.E(0); sumGkRhoj3yzz.E(0); 
+            sumGkRhoj3zzz.E(0);
+            sumt1GkRhoj0.E(0); sumt2GkRhoj0.E(0); sumt3GkRhoj0.E(0);
+            
             
             //Here we test to see if n qualifies as a j atom for atom i
             if (in <= jcut) {
@@ -386,10 +401,10 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             		gjC.PEa1Tv1(1 - (xik - xkj)*(C + 1), gjXkj);
             		gjC.TE( 2 / ( 1 - ((xik - xkj)*(xik - xkj)) ));
 		    	
-            		giSijk.Ea1Tv1( 2*Sijk*(p.Cmax - C)/((C - p.Cmin)*(C-p.Cmin) )
+            		giSijk.Ea1Tv1( 2*Sijk*(p.Cmax - C)/((C - p.Cmin)*(C - p.Cmin))
 		    			* ( ((p.Cmax - C)/(C - p.Cmin)) + 1 ), giC);
 		    	
-            		gjSijk.Ea1Tv1( 2*Sijk*(p.Cmax - C)/((C - p.Cmin)*(C-p.Cmin) )
+            		gjSijk.Ea1Tv1( 2*Sijk*(p.Cmax - C)/((C - p.Cmin)*(C - p.Cmin))
 		    			* ( ((p.Cmax - C)/(C - p.Cmin)) + 1 ), gjC);
 		    	
             		//The Sij value used to calculate gradSij is that for previous k's, 
@@ -579,7 +594,9 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         		gjRij.Ea1Tv1(-1, giRij);
     	
         		gjFRef.Ea1Tv1(-1, giFRef);
+        		
         		gjERef.Ea1Tv1(-1, giERef);
+        		
         		gjPhi.E(gjERef);
         		gjPhi.ME(gjFRef);
         		gjPhi.TE(2.0 * Sij /p.Z);
@@ -672,331 +689,320 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         		t3GjRhoj0.Ea1Tv1(p.t3, gjRhoj0);
     	
             } //exit if statement with condition that n is a j atom of i
-            
-        sumGkRhoj0.E(0); sumGkRhoj2.E(0);
-        sumGkRhoj1x.E(0); sumGkRhoj1y.E(0); sumGkRhoj1z.E(0);
-        sumGkRhoj2xx.E(0); sumGkRhoj2xy.E(0); sumGkRhoj2xz.E(0);
-        sumGkRhoj2yy.E(0); sumGkRhoj2yz.E(0); sumGkRhoj2zz.E(0);
-        sumGkRhoj3xxx.E(0); sumGkRhoj3xxy.E(0); sumGkRhoj3xxz.E(0);
-        sumGkRhoj3xyy.E(0); sumGkRhoj3xyz.E(0); sumGkRhoj3xzz.E(0);
-        sumGkRhoj3yyy.E(0); sumGkRhoj3yyz.E(0); sumGkRhoj3yzz.E(0); 
-        sumGkRhoj3zzz.E(0);
-        sumt1GkRhoj0.E(0); sumt2GkRhoj0.E(0); sumt3GkRhoj0.E(0);
-        sumGkPhi.E(0);
     	
-    	//to consider n as a k atom, we must loop through neighbors j of i again
-        double Sij = 1.0; 
-    	for(int j = 1; j < atoms.count(); j++) {
-        	AtomLeaf atomj = (AtomLeaf) atoms.getAtom(j);
-        	if (j == n) continue; //the k atom, n, must not be treated as one of the other j's
-        	rij.Ev1Mv2(atomj.coord.position(), atom0.coord.position());
-        	nearestImageTransformer.nearestImage(rij);
-        	double ij = Math.sqrt(rij.squared());
-        	if (ij > jcut) continue;
+            //to consider n as a k atom, we must loop through neighbors j of i again
+            double Sij = 1.0; 
+            for(int j = 1; j < atoms.count(); j++) {
+        		AtomLeaf atomj = (AtomLeaf) atoms.getAtom(j);
+        		if (j == n) continue; //the k atom, n, must not be treated as one of the other j's
+        		rij.Ev1Mv2(atomj.coord.position(), atom0.coord.position());
+        		nearestImageTransformer.nearestImage(rij);
+        		double ij = Math.sqrt(rij.squared());
+        		if (ij > jcut) continue;
         	
-        	//Remember, n is now treated as the k atom
-        	rik.Ev1Mv2(atomn.coord.position(), atom0.coord.position());
-        	nearestImageTransformer.nearestImage(rik);
-        	double ik = Math.sqrt(rik.squared());
-        	if (ik > ij*1.14) continue;
+        		//Remember, n is now treated as the k atom
+        		rik.Ev1Mv2(atomn.coord.position(), atom0.coord.position());
+	        	nearestImageTransformer.nearestImage(rik);
+	        	double ik = Math.sqrt(rik.squared());
+	        	if (ik > ij*1.14) continue;
         	
-        	double anglekij = Math.toDegrees(Math.acos(
+	        	double anglekij = Math.toDegrees(Math.acos(
         			((rij.x(0)*rik.x(0)) + 
         			 (rij.x(1)*rik.x(1)) + 
 					 (rij.x(2)*rik.x(2)))
 					 /(ij*ik)));
-        	if (anglekij >= 90) continue;
+	        	if (anglekij >= 90) continue;
         	
-        	rkj.Ev1Mv2(atomn.coord.position(), atomj.coord.position());
-        	nearestImageTransformer.nearestImage(rkj);
-        	double kj = Math.sqrt(rkj.squared());
+	        	rkj.Ev1Mv2(atomn.coord.position(), atomj.coord.position());
+	        	nearestImageTransformer.nearestImage(rkj);
+	        	double kj = Math.sqrt(rkj.squared());
         	
-        	//from Baskes, Angelo, & Bisson (1994)
-        	double xik = (ik/kj)*(ik/kj);
-        	double xkj = (kj/ij)*(kj/ij);
+	        	//from Baskes, Angelo, & Bisson (1994)
+	        	double xik = (ik/kj)*(ik/kj);
+	        	double xkj = (kj/ij)*(kj/ij);
         	
-        	double C = ( (2*(xik + xkj)) - ((xik - xkj)*(xik - xkj))- 1 )
-						/ (1 - ((xik - xkj)*(xik - xkj)));
+	        	double C = ( (2*(xik + xkj)) - ((xik - xkj)*(xik - xkj))- 1 )
+							/ (1 - ((xik - xkj)*(xik - xkj)));
+	        	
+	        	double Sijk;
+	        	if (C <= p.Cmin) { 
+	        		Sijk = 0;
+	        		Sij = 0; //continue to next j, this one doesn't matter?
+	        	}
+	        	else if (C >= p.Cmax) { //Sikj = 1, value of Sij won't change
+	        	    Sijk = 1.0;
+	        	}
+	        	else {
+	        		Sijk = Math.exp(-(((p.Cmax - C)/(C - p.Cmin))
+	        					*((p.Cmax - C)/(C - p.Cmin))));
+	        	}
+	        	
+	        	if (Sijk != 0) { //We need to calculated Sij. l is all k, including n.
+	        		for(int l = 1; l < atoms.count(); l++) {
+	    				AtomLeaf atoml = (AtomLeaf) atoms.getAtom(l);
+	    				if (l == j) continue;
+	    				ril.Ev1Mv2(atoml.coord.position(), atom0.coord.position());
+	    				nearestImageTransformer.nearestImage(ril);
+	    				double il = Math.sqrt(ril.squared());
+	    				if (il > ij*1.14) continue;
+	            	
+	    				double anglelij = Math.toDegrees(Math.acos(
+	            			((rij.x(0)*ril.x(0)) + 
+	            			 (rij.x(1)*ril.x(1)) + 
+	    					 (rij.x(2)*ril.x(2)))
+	    					 /(ij*il)));
+	            	
+	    				if (anglelij >= 90) continue;
+	            	
+	    				rlj.Ev1Mv2(atoml.coord.position(), atomj.coord.position());
+	    				nearestImageTransformer.nearestImage(rlj);
+	    				double lj = Math.sqrt(rlj.squared());
+	            	
+	    				//from Baskes, Angelo, & Bisson (1994)
+	    				double xil = (il/lj)*(il/lj);
+	    				double xjl = (lj/ij)*(lj/ij);
+	    				double c = ((2*(xil + xjl)) - ((xil - xjl)*(xil - xjl))- 1)/
+	    					   (1 - ((xil - xjl)*(xil - xjl)));
+	            	
+	    				double Sijl;
+	    				if (c <= p.Cmin) { 
+	    					Sij = 0;
+	    					break;
+	    				}
+	    				else if (c >= p.Cmax) { //Silj = 1, value of Sij won't change
+	            			continue;
+	            		}
+	    				else {
+	            			Sijl = Math.exp(-(((p.Cmax - c)/(c - p.Cmin))
+	            					*((p.Cmax - c)/(c - p.Cmin))));
+	    				}
+	            	
+	    				Sij *= Sijl;
+	        		} // exit loop over all k for j!n (l is k...)
+	        	} // exit if statement for Sijk (where is n is k) ! 0
         	
-        	double Sijk;
-        	if (C <= p.Cmin) { 
-        		Sijk = 0;
-        		Sij = 0; //continue to next j, this one doesn't matter?
-        	}
-        	else if (C >= p.Cmax) { //Sikj = 1, value of Sij won't change
-        	    Sijk = 1.0;
-        	}
-        	else {
-        		Sijk = Math.exp(-(((p.Cmax - C)/(C - p.Cmin))
-        					*((p.Cmax - C)/(C - p.Cmin))));
-        	}
-        	
-        	if (Sijk != 0) { //We need to calculated Sij. l is all k, including n.
-        		for(int l = 1; l < atoms.count(); l++) {
-    				AtomLeaf atoml = (AtomLeaf) atoms.getAtom(l);
-    				if (l == j) continue;
-    				ril.Ev1Mv2(atoml.coord.position(), atom0.coord.position());
-    				nearestImageTransformer.nearestImage(ril);
-    				double il = Math.sqrt(ril.squared());
-    				if (il > ij*1.14) continue;
-            	
-    				double anglelij = Math.toDegrees(Math.acos(
-            			((rij.x(0)*ril.x(0)) + 
-            			 (rij.x(1)*ril.x(1)) + 
-    					 (rij.x(2)*ril.x(2)))
-    					 /(ij*il)));
-            	
-    				if (anglelij >= 90) continue;
-            	
-    				rlj.Ev1Mv2(atoml.coord.position(), atomj.coord.position());
-    					nearestImageTransformer.nearestImage(rlj);
-    				double lj = Math.sqrt(rlj.squared());
-            	
-    				//from Baskes, Angelo, & Bisson (1994)
-    				double xil = (il/lj)*(il/lj);
-    				double xjl = (lj/ij)*(lj/ij);
-    				double c = ((2*(xil + xjl)) - ((xil - xjl)*(xil - xjl))- 1)/
-    					   (1 - ((xil - xjl)*(xil - xjl)));
-            	
-    				double Sijl;
-    				if (c <= p.Cmin) { 
-    					Sij = 0;
-    					break;
-    				}
-    				else if (c >= p.Cmax) { //Silj = 1, value of Sij won't change
-            			continue;
-            		}
-    				else {
-            			Sijl = Math.exp(-(((p.Cmax - c)/(c - p.Cmin))
-            					*((p.Cmax - c)/(c - p.Cmin))));
-    				}
-            	
-    				Sij *= Sijl;
-        		} // exit loop over all k for j!n (l is k...)
-        	} // exit if statement for Sijk (where is n is k) = 0
-        	
-        	double rhoj0 = p.rhoScale * Math.exp(-p.beta0 * ((ij/p.r0) - 1.0)) * Sij;
-        	double rhoj1 = p.rhoScale * Math.exp(-p.beta1 * ((ij/p.r0) - 1.0)) * Sij;
-            double rhoj2 = p.rhoScale * Math.exp(-p.beta2 * ((ij/p.r0) - 1.0)) * Sij;
-        	double rhoj3 = p.rhoScale * Math.exp(-p.beta3 * ((ij/p.r0) - 1.0)) * Sij;
-        	
-        	unitVector.E(rij);
-            unitVector.normalize();
-            
-            double x = unitVector.x(0);
-            double y = unitVector.x(1);
-            double z = unitVector.x(2);
+	        	double rhoj0 = p.rhoScale * Math.exp(-p.beta0 * ((ij/p.r0) - 1.0)) * Sij;
+	        	double rhoj1 = p.rhoScale * Math.exp(-p.beta1 * ((ij/p.r0) - 1.0)) * Sij;
+	            double rhoj2 = p.rhoScale * Math.exp(-p.beta2 * ((ij/p.r0) - 1.0)) * Sij;
+	        	double rhoj3 = p.rhoScale * Math.exp(-p.beta3 * ((ij/p.r0) - 1.0)) * Sij;
+	        	
+	        	unitVector.E(rij);
+	            unitVector.normalize();
+	            
+	            double x = unitVector.x(0);
+	            double y = unitVector.x(1);
+	            double z = unitVector.x(2);
            
-            //to calculate the repulsive pair potential, phi
-            //Should rhoj0 within phi contain Sij? Phi itself is multiplied by Sij...
-            //FCC reference structure, Z = 12
-            double rhoj0Ref = p.rhoScale * Math.exp(-p.beta0 * ((ij/p.r0) - 1.0));
-            double rhoiRef = p.Z * rhoj0Ref;   
-            double a = p.alpha * ((ij/p.r0) - 1.0);
-        	double EuRef = - p.Ec * (1.0 + a) * Math.exp(-a);
-        	double FRef = p.A * p.Ec * (rhoiRef/p.Z) * Math.log(rhoiRef/p.Z);
-        	double phi = ((2.0/p.Z) * (EuRef - FRef)) * Sij;
-        	
-        	gkRij.E(0);
-        	gkRik.Ea1Tv1(-1, giRik);
-        	gkRkj.Ea1Tv1(-1, gjRkj);
-        	
-        	gkXik.Ea1Tv1(-ik/(kj*kj), gkRkj);
-        	gkXik.PEa1Tv1(1/kj, gkRik);
-        	gkXik.TE(2*ik/kj);
-        	
-        	gkXkj.Ea1Tv1(-kj/(ij*ij), gkRij);
-        	gkXkj.PEa1Tv1(1/ij, gkRkj);
-        	gkXkj.TE(2*kj/ij);
-       
-	    	gkC.Ea1Tv1( 1 + (xik - xkj)*(C - 1), gkXik);
-	    	gkC.PEa1Tv1(1 - (xik - xkj)*(C + 1), gkXkj);
-	    	gkC.TE( 2 / ( 1 - ((xik - xkj)*(xik - xkj)) ));
-	    
-	    	gkSijk.Ea1Tv1( 2*Sijk*(p.Cmax - C)/((C - p.Cmin)*(C - p.Cmin) )
-	    			* ( ((p.Cmax - C)/(C - p.Cmin)) + 1 ), gkC);
+	            //to calculate the repulsive pair potential, phi
+	            //Should rhoj0 within phi contain Sij? Phi itself is multiplied by Sij...
+	            //FCC reference structure, Z = 12
+	            double rhoj0Ref = p.rhoScale * Math.exp(-p.beta0 * ((ij/p.r0) - 1.0));
+	            double rhoiRef = p.Z * rhoj0Ref;   
+	            double a = p.alpha * ((ij/p.r0) - 1.0);
+	        	double EuRef = - p.Ec * (1.0 + a) * Math.exp(-a);
+	        	double FRef = p.A * p.Ec * (rhoiRef/p.Z) * Math.log(rhoiRef/p.Z);
+	        	double phi = ((2.0/p.Z) * (EuRef - FRef)) * Sij;
+	        	
+	        	gkRij.E(0);
+	        	gkRik.Ea1Tv1(1/ik, rik); 
+	        	gkRkj.Ea1Tv1(1/kj, rkj); 
+	        	
+	        	gkXik.Ea1Tv1(-ik/(kj*kj), gkRkj);
+	        	gkXik.PEa1Tv1(1/kj, gkRik);
+	        	gkXik.TE(2*ik/kj);
+	        	
+	        	gkXkj.Ea1Tv1(-kj/(ij*ij), gkRij);
+	        	gkXkj.PEa1Tv1(1/ij, gkRkj);
+	        	gkXkj.TE(2*kj/ij);
+	       
+		    	gkC.Ea1Tv1( 1 + (xik - xkj)*(C - 1), gkXik);
+		    	gkC.PEa1Tv1(1 - (xik - xkj)*(C + 1), gkXkj);
+		    	gkC.TE( 2 / ( 1 - ((xik - xkj)*(xik - xkj)) ));
+		    
+		    	gkSijk.Ea1Tv1( 2*Sijk*(p.Cmax - C)/((C - p.Cmin)*(C - p.Cmin) )
+		    			* ( ((p.Cmax - C)/(C - p.Cmin)) + 1 ), gkC);
+		    	
+		    	//We only consider one k atom - the k atom that is n
+		    	gkSij.Ea1Tv1(Sij/Sijk, gkSijk);
+		    	
+		    	gkPhi.Ea1Tv1(phi/Sij, gkSij);
+		    	sumGkPhi.PE(gkPhi);
+		    	
+		    	gkRhoj0.Ea1Tv1(rhoj0/Sij, gkSij);
+		    	sumGkRhoj0.PE(gkRhoj0);
+		    	
+		    	gkRhoj1.Ea1Tv1(rhoj1/Sij, gkSij);
+	
+		    	gkRhoj2.Ea1Tv1(rhoj2/Sij, gkSij);
+		    	sumGkRhoj2.PE(gkRhoj2);
+	
+		    	gkRhoj3.Ea1Tv1(rhoj3/Sij, gkSij);
+		    	
+		    	gkRhoj1x.Ea1Tv1(x, gkRhoj1);
+		    	sumGkRhoj1x.PE(gkRhoj1x);
 	    	
-	    	//We only consider one k atom - the k atom that is n
-	    	gkSij.Ea1Tv1(Sij/Sijk, gkSijk);
+		    	gkRhoj1y.Ea1Tv1(y, gkRhoj1);
+		    	sumGkRhoj1y.PE(gkRhoj1y);
+	
+		    	gkRhoj1z.Ea1Tv1(z, gkRhoj1);
+		    	sumGkRhoj1z.PE(gkRhoj1z);
+	
+		    	gkRhoj2xx.Ea1Tv1(x*x, gkRhoj2);
+		    	sumGkRhoj2xx.PE(gkRhoj2xx);
+	
+		    	gkRhoj2xy.Ea1Tv1(x*y, gkRhoj2);
+		    	sumGkRhoj2xy.PE(gkRhoj2xy);
+	
+		    	gkRhoj2xz.Ea1Tv1(x*z, gkRhoj2);
+		    	sumGkRhoj2xz.PE(gkRhoj2xz);
+	
+		    	gkRhoj2yy.Ea1Tv1(y*y, gkRhoj2);
+		    	sumGkRhoj2yy.PE(gkRhoj2yy);
+	
+		    	gkRhoj2yz.Ea1Tv1(y*z, gkRhoj2);
+		    	sumGkRhoj2yz.PE(gkRhoj2yz);
+
+		    	gkRhoj2zz.Ea1Tv1(z*z, gkRhoj2);
+		    	sumGkRhoj2zz.PE(gkRhoj2zz);
+	
+		    	gkRhoj3xxx.Ea1Tv1(x*x*x, gkRhoj3);
+		    	sumGkRhoj3xxx.PE(gkRhoj3xxx);
+		    
+		    	gkRhoj3xxy.Ea1Tv1(x*x*y, gkRhoj3);
+		    	sumGkRhoj3xxy.PE(gkRhoj3xxy);
+	
+		    	gkRhoj3xxz.Ea1Tv1(x*x*z, gkRhoj3);
+		    	sumGkRhoj3xxz.PE(gkRhoj3xxz);
+	
+		    	gkRhoj3xyy.Ea1Tv1(x*y*y, gkRhoj3);
+		    	sumGkRhoj3xyy.PE(gkRhoj3xyy);
+	
+		    	gkRhoj3xyz.Ea1Tv1(x*y*z, gkRhoj3);
+		    	sumGkRhoj3xyz.PE(gkRhoj3xyz);
 	    	
-	    	gkPhi.PEa1Tv1(phi/Sij, gkSij);
-	    	sumGkPhi.PE(gkPhi);
+		    	gkRhoj3xzz.Ea1Tv1(x*z*z, gkRhoj3);
+		    	sumGkRhoj3xzz.PE(gkRhoj3xzz);
+	
+		    	gkRhoj3yyy.Ea1Tv1(y*y*y, gkRhoj3);
+		    	sumGkRhoj3yyy.PE(gkRhoj3yyy);
+		   
+		    	gkRhoj3yyz.Ea1Tv1(y*y*z, gkRhoj3);
+		    	sumGkRhoj3yyz.PE(gkRhoj3yyz);
 	    	
-	    	gkRhoj0.Ea1Tv1(rhoj0/Sij, gkSij);
-	    	sumGkRhoj0.PE(gkRhoj0);
+		    	gkRhoj3yzz.Ea1Tv1(y*z*z, gkRhoj3);
+		    	sumGkRhoj3yzz.PE(gkRhoj3yzz);
+		    	
+		    	gkRhoj3zzz.Ea1Tv1(z*z*z, gkRhoj3);
+		    	sumGkRhoj3zzz.PE(gkRhoj3zzz);
+		    	
+		    	t1GkRhoj0.Ea1Tv1(p.t1, gkRhoj0);
+		    	sumt1GkRhoj0.PE(t1GkRhoj0);
+		    	
+		    	t2GkRhoj0.Ea1Tv1(p.t2, gkRhoj0);
+		    	sumt2GkRhoj0.PE(t2GkRhoj0);
+		    	
+		    	t3GkRhoj0.Ea1Tv1(p.t3, gkRhoj0);
+		    	sumt3GkRhoj0.PE(t3GkRhoj0);
+	        } //exit loop over j!n atoms, with n as a k atom
 	    	
-	    	gkRhoj1.Ea1Tv1(rhoj1/Sij, gkSij);
-
-	    	gkRhoj2.Ea1Tv1(rhoj2/Sij, gkSij);
-	    	sumGkRhoj2.PE(gkRhoj2);
-
-	    	gkRhoj3.Ea1Tv1(rhoj3/Sij, gkSij);
+	    	//multi-body terms, n as k is included
 	    	
-	    	gkRhoj1x.Ea1Tv1(x, gkRhoj1);
-	    	sumGkRhoj1x.PE(gkRhoj1x);
+	    	sumGnPhi.E(sumGkPhi);
+	    	sumGnPhi.PE(gjPhi);
 	    	
-	    	gkRhoj1y.Ea1Tv1(y, gkRhoj1);
-	    	sumGkRhoj1y.PE(gkRhoj1y);
-
-	    	gkRhoj1z.Ea1Tv1(z, gkRhoj1);
-	    	sumGkRhoj1z.PE(gkRhoj1z);
-
-	    	gkRhoj2xx.Ea1Tv1(x*x, gkRhoj2);
-	    	sumGkRhoj2xx.PE(gkRhoj2xx);
-
-	    	gkRhoj2xy.Ea1Tv1(x*y, gkRhoj2);
-	    	sumGkRhoj2xy.PE(gkRhoj2xy);
-
-	    	gkRhoj2xz.Ea1Tv1(x*z, gkRhoj2);
-	    	sumGkRhoj2xz.PE(gkRhoj2xz);
-
-	    	gkRhoj2yy.Ea1Tv1(y*y, gkRhoj2);
-	    	sumGkRhoj2yy.PE(gkRhoj2yy);
-
-	    	gkRhoj2yz.Ea1Tv1(y*z, gkRhoj2);
-	    	sumGkRhoj2yz.PE(gkRhoj2yz);
-
-	    	gkRhoj2zz.Ea1Tv1(z*z, gkRhoj2);
-	    	sumGkRhoj2zz.PE(gkRhoj2zz);
-
-	    	gkRhoj3xxx.Ea1Tv1(x*x*x, gkRhoj3);
-	    	sumGkRhoj3xxx.PE(gkRhoj3xxx);
-	    
-	    	gkRhoj3xxy.Ea1Tv1(x*x*y, gkRhoj3);
-	    	sumGkRhoj3xxy.PE(gkRhoj3xxy);
-
-	    	gkRhoj3xxz.Ea1Tv1(x*x*z, gkRhoj3);
-	    	sumGkRhoj3xxz.PE(gkRhoj3xxz);
-
-	    	gkRhoj3xyy.Ea1Tv1(x*y*y, gkRhoj3);
-	    	sumGkRhoj3xyy.PE(gkRhoj3xyy);
-
-	    	gkRhoj3xyz.Ea1Tv1(x*y*z, gkRhoj3);
-	    	sumGkRhoj3xyz.PE(gkRhoj3xyz);
+			gnRhoi0.E(sumGkRhoj0);
+	    	gnRhoi0.PE(gjRhoj0);
 	    	
-	    	gkRhoj3xzz.Ea1Tv1(x*z*z, gkRhoj3);
-	    	sumGkRhoj3xzz.PE(gkRhoj3xzz);
-
-	    	gkRhoj3yyy.Ea1Tv1(y*y*y, gkRhoj3);
-	    	sumGkRhoj3yyy.PE(gkRhoj3yyy);
-	   
-	    	gkRhoj3yyz.Ea1Tv1(y*y*z, gkRhoj3);
-	    	sumGkRhoj3yyz.PE(gkRhoj3yyz);
-	    	
-	    	gkRhoj3yzz.Ea1Tv1(y*z*z, gkRhoj3);
-	    	sumGkRhoj3yzz.PE(gkRhoj3yzz);
-	    	
-	    	gkRhoj3zzz.Ea1Tv1(z*z*z, gkRhoj3);
-	    	sumGkRhoj3zzz.PE(gkRhoj3zzz);
-	    	
-	    	t1GkRhoj0.Ea1Tv1(p.t1, gkRhoj0);
-	    	sumt1GkRhoj0.PE(t1GkRhoj0);
-	    	
-	    	t2GkRhoj0.Ea1Tv1(p.t2, gkRhoj0);
-	    	sumt2GkRhoj0.PE(t2GkRhoj0);
-	    	
-	    	t3GkRhoj0.Ea1Tv1(p.t3, gkRhoj0);
-	    	sumt3GkRhoj0.PE(t3GkRhoj0);
-        } //exit loop over j!n atoms, with n as a k atom
-    	
-    	//multi-body terms, n as k is included
-    	
-    	sumGnPhi.E(sumGkPhi);
-    	sumGnPhi.PE(gjPhi);
-    	
-		gnRhoi0.E(sumGkRhoj0);
-    	gnRhoi0.E(gjRhoj0);
-    	
-    	gnRhoi1.Ea1Tv1(sum[RHOj1x], sumGkRhoj1x);
-    	gnRhoi1.PEa1Tv1(sum[RHOj1x], gjRhoj1x);
-		gnRhoi1.PEa1Tv1(sum[RHOj1y], sumGkRhoj1y);
-		gnRhoi1.PEa1Tv1(sum[RHOj1y], gjRhoj1y);
-		gnRhoi1.PEa1Tv1(sum[RHOj1z], sumGkRhoj1z);
-		gnRhoi1.PEa1Tv1(sum[RHOj1z], gjRhoj1z);
-		gnRhoi1.TE(1.0/rhoi1);
+	    	gnRhoi1.Ea1Tv1(sum[RHOj1x], sumGkRhoj1x);
+	    	gnRhoi1.PEa1Tv1(sum[RHOj1x], gjRhoj1x);
+			gnRhoi1.PEa1Tv1(sum[RHOj1y], sumGkRhoj1y);
+			gnRhoi1.PEa1Tv1(sum[RHOj1y], gjRhoj1y);
+			gnRhoi1.PEa1Tv1(sum[RHOj1z], sumGkRhoj1z);
+			gnRhoi1.PEa1Tv1(sum[RHOj1z], gjRhoj1z);
+			gnRhoi1.TE(1.0/rhoi1);
+			
+			gnRhoi2.Ea1Tv1(sum[RHOj2xx], sumGkRhoj2xx);
+			gnRhoi2.PEa1Tv1(sum[RHOj2xx], gjRhoj2xx);
+			gnRhoi2.PEa1Tv1(2.0 * sum[RHOj2xy], sumGkRhoj2xy);
+			gnRhoi2.PEa1Tv1(2.0 * sum[RHOj2xy], gjRhoj2xy);
+			gnRhoi2.PEa1Tv1(2.0 * sum[RHOj2xz], sumGkRhoj2xz);
+			gnRhoi2.PEa1Tv1(2.0 * sum[RHOj2xz], gjRhoj2xz);
+			gnRhoi2.PEa1Tv1(sum[RHOj2yy], sumGkRhoj2yy);
+			gnRhoi2.PEa1Tv1(sum[RHOj2yy], gjRhoj2yy);
+			gnRhoi2.PEa1Tv1(2.0 * sum[RHOj2yz], sumGkRhoj2yz);
+			gnRhoi2.PEa1Tv1(2.0 * sum[RHOj2yz], gjRhoj2yz);
+			gnRhoi2.PEa1Tv1(sum[RHOj2zz], sumGkRhoj2zz);
+			gnRhoi2.PEa1Tv1(sum[RHOj2zz], gjRhoj2zz);
+			gnRhoi2.PEa1Tv1(-(1.0/3.0) * sum[RHOj2], sumGkRhoj2);
+			gnRhoi2.PEa1Tv1(-(1.0/3.0) * sum[RHOj2], gjRhoj2);
+			gnRhoi2.TE(1.0/rhoi2);
+			
+			gnRhoi3.Ea1Tv1( sum[RHOj3xxx], sumGkRhoj3xxx);
+			gnRhoi3.PEa1Tv1(sum[RHOj3xxx], gjRhoj3xxx);
+			gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3xxy], sumGkRhoj3xxy);
+			gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3xxy], gjRhoj3xxy);
+			gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3xxz], sumGkRhoj3xxz);
+			gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3xxz], gjRhoj3xxz);
+			gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3xyy], sumGkRhoj3xyy);
+			gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3xyy], gjRhoj3xyy);
+			gnRhoi3.PEa1Tv1(6.0 * sum[RHOj3xyz], sumGkRhoj3xyz);
+			gnRhoi3.PEa1Tv1(6.0 * sum[RHOj3xyz], gjRhoj3xyz);
+			gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3xzz], sumGkRhoj3xzz);
+			gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3xzz], gjRhoj3xzz);
+			gnRhoi3.PEa1Tv1(sum[RHOj3yyy], sumGkRhoj3yyy);
+			gnRhoi3.PEa1Tv1(sum[RHOj3yyy], gjRhoj3yyy);
+			gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3yyz], sumGkRhoj3yyz);
+			gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3yyz], gjRhoj3yyz);
+			gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3yzz], sumGkRhoj3yzz);
+			gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3yzz], gjRhoj3yzz);
+			gnRhoi3.PEa1Tv1(sum[RHOj3zzz], sumGkRhoj3zzz);
+			gnRhoi3.PEa1Tv1(sum[RHOj3zzz], gjRhoj3zzz);
+			gnRhoi3.TE(1.0/rhoi3);
 		
-		gnRhoi2.Ea1Tv1(sum[RHOj2xx], sumGkRhoj2xx);
-		gnRhoi2.PEa1Tv1(sum[RHOj2xx], gjRhoj2xx);
-		gnRhoi2.PEa1Tv1(2.0 * sum[RHOj2xy], sumGkRhoj2xy);
-		gnRhoi2.PEa1Tv1(2.0 * sum[RHOj2xy], gjRhoj2xy);
-		gnRhoi2.PEa1Tv1(2.0 * sum[RHOj2xz], sumGkRhoj2xz);
-		gnRhoi2.PEa1Tv1(2.0 * sum[RHOj2xz], gjRhoj2xz);
-		gnRhoi2.PEa1Tv1(sum[RHOj2yy], sumGkRhoj2yy);
-		gnRhoi2.PEa1Tv1(sum[RHOj2yy], gjRhoj2yy);
-		gnRhoi2.PEa1Tv1(2.0 * sum[RHOj2yz], sumGkRhoj2yz);
-		gnRhoi2.PEa1Tv1(2.0 * sum[RHOj2yz], gjRhoj2yz);
-		gnRhoi2.PEa1Tv1(sum[RHOj2zz], sumGkRhoj2zz);
-		gnRhoi2.PEa1Tv1(sum[RHOj2zz], gjRhoj2zz);
-		gnRhoi2.PEa1Tv1(-(1.0/3.0) * sum[RHOj2], sumGkRhoj2);
-		gnRhoi2.PEa1Tv1(-(1.0/3.0) * sum[RHOj2], gjRhoj2);
-		gnRhoi2.TE(1.0/rhoi2);
+			gntav1.Ea1Tv1(-sum[T1RHOj0]/(rhoi0*rhoi0), gnRhoi0);
+			gntav1.PEa1Tv1(1.0/rhoi0, sumt1GkRhoj0);
+			gntav1.PEa1Tv1(1.0/rhoi0, t1GjRhoj0);
+			
+			gntav2.Ea1Tv1(-sum[T2RHOj0]/(rhoi0*rhoi0), gnRhoi0);
+			gntav2.PEa1Tv1(1.0/rhoi0, sumt2GkRhoj0);
+			gntav2.PEa1Tv1(1.0/rhoi0, t2GjRhoj0);
 		
-		gnRhoi3.Ea1Tv1( sum[RHOj3xxx], sumGkRhoj3xxx);
-		gnRhoi3.PEa1Tv1(sum[RHOj3xxx], gjRhoj3xxx);
-		gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3xxy], sumGkRhoj3xxy);
-		gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3xxy], gjRhoj3xxy);
-		gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3xxz], sumGkRhoj3xxz);
-		gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3xxz], gjRhoj3xxz);
-		gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3xyy], sumGkRhoj3xyy);
-		gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3xyy], gjRhoj3xyy);
-		gnRhoi3.PEa1Tv1(6.0 * sum[RHOj3xyz], sumGkRhoj3xyz);
-		gnRhoi3.PEa1Tv1(6.0 * sum[RHOj3xyz], gjRhoj3xyz);
-		gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3xzz], sumGkRhoj3xzz);
-		gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3xzz], gjRhoj3xzz);
-		gnRhoi3.PEa1Tv1(sum[RHOj3yyy], sumGkRhoj3yyy);
-		gnRhoi3.PEa1Tv1(sum[RHOj3yyy], gjRhoj3yyy);
-		gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3yyz], sumGkRhoj3yyz);
-		gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3yyz], gjRhoj3yyz);
-		gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3yzz], sumGkRhoj3yzz);
-		gnRhoi3.PEa1Tv1(3.0 * sum[RHOj3yzz], gjRhoj3yzz);
-		gnRhoi3.PEa1Tv1(sum[RHOj3zzz], sumGkRhoj3zzz);
-		gnRhoi3.PEa1Tv1(sum[RHOj3zzz], gjRhoj3zzz);
-		gnRhoi3.TE(1.0/rhoi3);
+			gntav3.Ea1Tv1(-sum[T3RHOj0]/(rhoi0*rhoi0), gnRhoi0);
+			gntav3.PEa1Tv1(1.0/rhoi0, sumt3GkRhoj0);
+			gntav3.PEa1Tv1(1.0/rhoi0, t3GjRhoj0);
+			
+			gnGamma.Ea1Tv1( (-1.0/rhoi0)*( (tav1*rhoi1*rhoi1) + (tav2*rhoi2*rhoi2)
+					+ (tav3*rhoi3*rhoi3) ), gnRhoi0);
+			gnGamma.PEa1Tv1(tav1*rhoi1, gnRhoi1);
+			gnGamma.PEa1Tv1(tav2*rhoi2, gnRhoi2);
+			gnGamma.PEa1Tv1(tav3*rhoi3, gnRhoi3);
+			gnGamma.TE(2.0);
+			gnGamma.PEa1Tv1(rhoi1*rhoi1, gntav1);
+			gnGamma.PEa1Tv1(rhoi2*rhoi2, gntav2);
+			gnGamma.PEa1Tv1(rhoi3*rhoi3, gntav3);
+			gnGamma.TE(1.0/(rhoi0*rhoi0));
+			
+			//Sn
+			
+			gnRhoi.Ea1Tv1(rhoi0*Math.exp(-gamma)/(1.0 + Math.exp(-gamma)), gnGamma);
+			gnRhoi.PE(gnRhoi0);
+			gnRhoi.TE(2.0/(1.0+Math.exp(-gamma)));
+			
 		
-		gntav1.Ea1Tv1(-sum[T1RHOj0]/(rhoi0*rhoi0), gnRhoi0);
-		gntav1.PEa1Tv1(1.0/rhoi0, sumt1GkRhoj0);
-		gntav1.PEa1Tv1(1.0/rhoi0, t1GjRhoj0);
+			//Cu
+			/**
+			gnRhoi.Ea1Tv1(rhoi0*0.5*Math.sqrt(1.0/(1.0 + gamma)), gnGamma);
+			gnRhoi.PEa1Tv1(Math.sqrt(1.0+gamma), gnRhoi0);
+		    **/
+			
+			gnF.Ea1Tv1( (p.A*p.Ec/p.Z)*
+					(1.0 + Math.log(rhoi/p.Z)), gnRhoi);
+			
+			//System.out.println("gradF is " + gradF);
+			//System.exit(0);
 		
-		gntav2.Ea1Tv1(-sum[T2RHOj0]/(rhoi0*rhoi0), gnRhoi0);
-		gntav2.PEa1Tv1(1.0/rhoi0, sumt2GkRhoj0);
-		gntav2.PEa1Tv1(1.0/rhoi0, t2GjRhoj0);
-		
-		gntav3.Ea1Tv1(-sum[T3RHOj0]/(rhoi0*rhoi0), gnRhoi0);
-		gntav3.PEa1Tv1(1.0/rhoi0, sumt3GkRhoj0);
-		gntav3.PEa1Tv1(1.0/rhoi0, t3GjRhoj0);
-		
-		gnGamma.Ea1Tv1( (-1.0/rhoi0)*( (tav1*rhoi1*rhoi1) + (tav2*rhoi2*rhoi2)
-				+ (tav3*rhoi3*rhoi3) ), gnRhoi0);
-		gnGamma.PEa1Tv1(tav1*rhoi1, gnRhoi1);
-		gnGamma.PEa1Tv1(tav2*rhoi2, gnRhoi2);
-		gnGamma.PEa1Tv1(tav3*rhoi3, gnRhoi3);
-		gnGamma.TE(2.0);
-		gnGamma.PEa1Tv1(rhoi1*rhoi1, gntav1);
-		gnGamma.PEa1Tv1(rhoi2*rhoi2, gntav2);
-		gnGamma.PEa1Tv1(rhoi3*rhoi3, gntav3);
-		gnGamma.TE(1.0/(rhoi0*rhoi0));
-		
-		//Sn
-		
-		gnRhoi.Ea1Tv1(rhoi0*Math.exp(-gamma)/(1.0 + Math.exp(-gamma)), gnGamma);
-		gnRhoi.PE(gnRhoi0);
-		gnRhoi.TE(2.0/(1.0+Math.exp(-gamma)));
-		
-		
-		//Cu
-		/**
-		gnRhoi.Ea1Tv1(rhoi0*0.5*Math.sqrt(1.0/(1.0 + gamma)), gnGamma);
-		gnRhoi.PEa1Tv1(Math.sqrt(1.0+gamma), gnRhoi0);
-	    **/
-		
-		gnF.Ea1Tv1( (p.A*p.Ec/p.Z)*
-				(1.0 + Math.log(rhoi/p.Z)), gnRhoi);
-		
-		//System.out.println("gradF is " + gradF);
-		//System.exit(0);
-		
-		gnEi[n].E(gnF);
-		gnEi[n].PEa1Tv1(0.5, sumGnPhi);
+			gnEi[n].E(gnF);
+			gnEi[n].PEa1Tv1(0.5, sumGnPhi);
         } //exit loop over atom n
         
         giRhoi0.E(sumGiRhoj0);
