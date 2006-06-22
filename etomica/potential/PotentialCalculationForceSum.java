@@ -5,7 +5,6 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.integrator.IntegratorPhase;
-import etomica.space.Space;
 import etomica.space.Vector;
 
 /**
@@ -17,10 +16,6 @@ public class PotentialCalculationForceSum extends PotentialCalculation {
     private Vector[] f;
     protected IntegratorPhase.Forcible[] integratorAgents;
     
-    public PotentialCalculationForceSum(Space space) {
-//        f = space.makeVector();
-    }
-
     public void setAgents(IntegratorPhase.Forcible[] agents) {
         integratorAgents = agents;
     }

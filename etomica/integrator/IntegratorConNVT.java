@@ -47,7 +47,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
     public IntegratorConNVT(PotentialMaster potentialMaster, Space space, 
             double timeStep, double temperature) {
         super(potentialMaster,timeStep,temperature);
-        forceSum = new PotentialCalculationForceSum(space);
+        forceSum = new PotentialCalculationForceSum();
         allAtoms = new IteratorDirective();
         // allAtoms is used only for the force calculation, which has no LRC
         allAtoms.setIncludeLrc(false);

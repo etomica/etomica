@@ -53,7 +53,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
             double timeStep, double temperature) {
         super(potentialMaster,timeStep,temperature);
         this.space = space;
-        forceSum = new PotentialCalculationForceSum(space);
+        forceSum = new PotentialCalculationForceSum();
         allAtoms = new IteratorDirective();
         // allAtoms is used only for the force calculation, which has no LRC
         allAtoms.setIncludeLrc(false);

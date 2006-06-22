@@ -46,7 +46,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
             double temperature) {
         super(potentialMaster,timeStep,temperature);
         space = potentialMaster.getSpace();
-        forceSum = new PotentialCalculationForceSum(space);//new IntegratorHardField.ForceSum(sim.space());
+        forceSum = new PotentialCalculationForceSum();
         //XXX not serializable
         fieldsOnly.addCriterion(new IteratorDirective.PotentialCriterion() {
             public boolean excludes(Potential candidatePotential) {
@@ -173,10 +173,6 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
      * are considered, and also sets forceFree flag of Agent appropriately.
      */
     public static final class PotentialCalculationForceSum extends etomica.potential.PotentialCalculationForceSum {
-
-        public PotentialCalculationForceSum(Space space) {
-             super(space);
-        }
 
 		public void doCalculation(AtomsetIterator iterator, Potential potential) {
 			super.doCalculation(iterator,potential);

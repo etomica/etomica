@@ -18,7 +18,6 @@ import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.systems.LJ;
 
 /* History of changes
  * 08/29/02 (DAK) changed Andersen thermostat to velocity-scaling thermostat
@@ -43,7 +42,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
             double timeStep, double temperature) {
         super(potentialMaster,timeStep,temperature);
         this.space = space;
-        forceSum = new PotentialCalculationForceSum(space);
+        forceSum = new PotentialCalculationForceSum();
         allAtoms = new IteratorDirective();
         // allAtoms is used only for the force calculation, which has no LRC
         allAtoms.setIncludeLrc(false);
