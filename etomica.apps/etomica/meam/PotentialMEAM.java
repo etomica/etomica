@@ -79,7 +79,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 				if (anglekij >= 90) continue;
         	
 				rkj.Ev1Mv2(atomk.coord.position(), atomj.coord.position());
-					nearestImageTransformer.nearestImage(rkj);
+				nearestImageTransformer.nearestImage(rkj);
 				double kj = Math.sqrt(rkj.squared());
         	
 				//from Baskes, Angelo, & Bisson (1994)
@@ -93,7 +93,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 					Sij = 0;
 					break;
 				}
-				else if (C >= p.Cmax) { //Sikj = 1, value of Sij won't change
+				else if (C >= p.Cmax) { //Sijk = 1, value of Sij won't change
         			continue;
         		}
 				else {
@@ -288,7 +288,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         
         for(int n = 1; n < atoms.count(); n++) {
         	AtomLeaf atom0 = (AtomLeaf)atoms.getAtom(0);
-        	AtomLeaf atomn = (AtomLeaf) atoms.getAtom(n);
+        	AtomLeaf atomn = (AtomLeaf)atoms.getAtom(n);
             rin.Ev1Mv2(atomn.coord.position(), atom0.coord.position());
             nearestImageTransformer.nearestImage(rin);
             double in = Math.sqrt(rin.squared());
@@ -309,7 +309,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             gjRhoj2.E(0);
             gjRhoj3xxx.E(0); gjRhoj3xxy.E(0); gjRhoj3xxz.E(0);
             gjRhoj3xyy.E(0); gjRhoj3xyz.E(0); gjRhoj3xzz.E(0);
-            gjRhoj3yyy.E(0); gjRhoj3yyz.E(0); gjRhoj3yzz.E(0); gjRhoj3zzz.E(0);
+            gjRhoj3yyy.E(0); gjRhoj3yyz.E(0); gjRhoj3yzz.E(0); 
+            gjRhoj3zzz.E(0);
             t1GjRhoj0.E(0); t2GjRhoj0.E(0); t3GjRhoj0.E(0);
             
             sumGkPhi.E(0);
@@ -358,7 +359,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             		double Sijk;
             		if (C <= p.Cmin) { 
             			Sij = 0;
-            			break; //break out of if statement for n being a j atom to i
+            			break; //break out of for loop over k atoms
             		}
             		else if (C >= p.Cmax) { //Sikj = 1, value of Sij won't change
             			continue;
@@ -419,276 +420,277 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             		Sij *= Sijk;
             	} // exit loop over k for n = j
     	
-            	if (Sij == 0) continue; //no interaction between i and n with n as j
+            	if (Sij != 0) {
         	
-            	double rhoj0 = p.rhoScale * Math.exp(-p.beta0 * ((ij/p.r0) - 1.0)) * Sij;
-            	double rhoj1 = p.rhoScale * Math.exp(-p.beta1 * ((ij/p.r0) - 1.0)) * Sij;
-            	double rhoj2 = p.rhoScale * Math.exp(-p.beta2 * ((ij/p.r0) - 1.0)) * Sij;
-            	double rhoj3 = p.rhoScale * Math.exp(-p.beta3 * ((ij/p.r0) - 1.0)) * Sij;
-        	
-            	unitVector.E(rij);
-            	unitVector.normalize();
-            
-            	double x = unitVector.x(0);
-            	double y = unitVector.x(1);
-            	double z = unitVector.x(2);
+	            	double rhoj0 = p.rhoScale * Math.exp(-p.beta0 * ((ij/p.r0) - 1.0)) * Sij;
+	            	double rhoj1 = p.rhoScale * Math.exp(-p.beta1 * ((ij/p.r0) - 1.0)) * Sij;
+	            	double rhoj2 = p.rhoScale * Math.exp(-p.beta2 * ((ij/p.r0) - 1.0)) * Sij;
+	            	double rhoj3 = p.rhoScale * Math.exp(-p.beta3 * ((ij/p.r0) - 1.0)) * Sij;
+	        	
+	            	unitVector.E(rij);
+	            	unitVector.normalize();
+	            
+	            	double x = unitVector.x(0);
+	            	double y = unitVector.x(1);
+	            	double z = unitVector.x(2);
            
-            	//to calculate the repulsive pair potential, phi
-            	//Should rhoj0 within phi contain Sij? Phi itself is multiplied by Sij...
-            	//FCC reference structure, Z = 12
-            	double rhoj0Ref = p.rhoScale * Math.exp(-p.beta0 * ((ij/p.r0) - 1.0));
-            	double rhoiRef = p.Z * rhoj0Ref;   
-            	double a = p.alpha * ((ij/p.r0) - 1.0);
-            	double EuRef = - p.Ec * (1.0 + a) * Math.exp(-a);
-        		double FRef = p.A * p.Ec * (rhoiRef/p.Z) * Math.log(rhoiRef/p.Z);
-        		double phi = ((2.0/p.Z) * (EuRef - FRef)) * Sij;
+	            	//to calculate the repulsive pair potential, phi
+	            	//Should rhoj0 within phi contain Sij? Phi itself is multiplied by Sij...
+	            	//FCC reference structure, Z = 12
+	            	double rhoj0Ref = p.rhoScale * Math.exp(-p.beta0 * ((ij/p.r0) - 1.0));
+	            	double rhoiRef = p.Z * rhoj0Ref;   
+	            	double a = p.alpha * ((ij/p.r0) - 1.0);
+	            	double EuRef = - p.Ec * (1.0 + a) * Math.exp(-a);
+	        		double FRef = p.A * p.Ec * (rhoiRef/p.Z) * Math.log(rhoiRef/p.Z);
+	        		double phi = ((2.0/p.Z) * (EuRef - FRef)) * Sij;
+	    	
+	        		vector100.setX(0,1.0);
+	        		vector010.setX(1,1.0);
+	        		vector001.setX(2,1.0);
     	
-        		vector100.setX(0,1.0);
-        		vector010.setX(1,1.0);
-        		vector001.setX(2,1.0);
+	        		//Pair-wise terms to calculate giEi
+	        		gix.Ea1Tv1(x/(ij*ij),rij);
+	        		gix.PEa1Tv1(-1.0/ij, vector100);
+	    	
+	        		giy.Ea1Tv1(y/(ij*ij),rij);
+	        		giy.PEa1Tv1(-1.0/ij, vector010);
+	    	
+	        		giz.Ea1Tv1(z/(ij*ij),rij);
+	        		giz.PEa1Tv1(-1.0/ij, vector001);
+	    	
+	        		giRij.Ea1Tv1(-1.0/ij,rij);
+	    	
+	    				//giPhi
+	        		giRhoj0Ref.Ea1Tv1(-rhoj0Ref*p.beta0/p.r0, giRij);
     	
-        		//Pair-wise terms to calculate giEi
-        		gix.Ea1Tv1(x/(ij*ij),rij);
-        		gix.PEa1Tv1(-1.0/ij, vector100);
-    	
-        		giy.Ea1Tv1(y/(ij*ij),rij);
-        		giy.PEa1Tv1(-1.0/ij, vector010);
-    	
-        		giz.Ea1Tv1(z/(ij*ij),rij);
-        		giz.PEa1Tv1(-1.0/ij, vector001);
-    	
-        		giRij.Ea1Tv1(-1.0/ij,rij);
-    	
-    				//giPhi
-        		giRhoj0Ref.Ea1Tv1(-rhoj0Ref*p.beta0/p.r0, giRij);
-    	
-        		giRhoiRef.Ea1Tv1(p.Z, giRhoj0Ref);
-    	
-        		giFRef.Ea1Tv1( (p.A*p.Ec/p.Z)*
-        			(1.0 + Math.log(rhoiRef/p.Z)), giRhoiRef);
-    	
-        		giERef.Ea1Tv1( (p.Ec*p.alpha*p.alpha/p.r0) * ((ij/p.r0) - 1.0)
-        			*(Math.exp(-p.alpha*((ij/p.r0)-1.0))), giRij);
-    	
-        		giPhi.E(giERef);
-        		giPhi.ME(giFRef);
-        		giPhi.TE(2.0 * Sij /p.Z);
-        		giPhi.PEa1Tv1(phi/Sij, giSij);
-        		sumGiPhi.PE(giPhi);
+	        		giRhoiRef.Ea1Tv1(p.Z, giRhoj0Ref);
+	    	
+	        		giFRef.Ea1Tv1( (p.A*p.Ec/p.Z)*
+	        			(1.0 + Math.log(rhoiRef/p.Z)), giRhoiRef);
+	    	
+	        		giERef.Ea1Tv1( (p.Ec*p.alpha*p.alpha/p.r0) * ((ij/p.r0) - 1.0)
+	        			*(Math.exp(-p.alpha*((ij/p.r0)-1.0))), giRij);
+	    	
+	        		giPhi.E(giERef);
+	        		giPhi.ME(giFRef);
+	        		giPhi.TE(2.0 * Sij /p.Z);
+	        		giPhi.PEa1Tv1(phi/Sij, giSij);
+	        		sumGiPhi.PE(giPhi);
 
-        		giRhoj0.Ea1Tv1(rhoj0/Sij, giSij);
-        		giRhoj0.PEa1Tv1(-rhoj0*p.beta0/(p.r0), giRij);
-        		sumGiRhoj0.PE(giRhoj0);
+	        		giRhoj0.Ea1Tv1(rhoj0/Sij, giSij);
+	        		giRhoj0.PEa1Tv1(-rhoj0*p.beta0/(p.r0), giRij);
+	        		sumGiRhoj0.PE(giRhoj0);
+	    	
+	        		giRhoj1.Ea1Tv1(rhoj1/Sij, giSij);
+	        		giRhoj1.PEa1Tv1(-rhoj1*p.beta1/(p.r0), giRij);
+	    	
+	        		giRhoj1x.Ea1Tv1(rhoj1, gix);
+	        		giRhoj1x.PEa1Tv1(x, giRhoj1);
+	        		sumGiRhoj1x.PE(giRhoj1x);
+	
+	        		giRhoj1y.Ea1Tv1(rhoj1, giy);
+	        		giRhoj1y.PEa1Tv1(y, giRhoj1);
+	        		sumGiRhoj1y.PE(giRhoj1y);
+	
+	        		giRhoj1z.Ea1Tv1(rhoj1, giz);
+	        		giRhoj1z.PEa1Tv1(z, giRhoj1);
+	        		sumGiRhoj1z.PE(giRhoj1z);
     	
-        		giRhoj1.Ea1Tv1(rhoj1/Sij, giSij);
-        		giRhoj1.PEa1Tv1(-rhoj1*p.beta1/(p.r0), giRij);
-    	
-        		giRhoj1x.Ea1Tv1(rhoj1, gix);
-        		giRhoj1x.PEa1Tv1(x, giRhoj1);
-        		sumGiRhoj1x.PE(giRhoj1x);
+	        		giRhoj2.Ea1Tv1(rhoj2/Sij, giSij);
+	        		giRhoj2.PEa1Tv1(-rhoj2*p.beta2/(p.r0), giRij);
+	        		sumGiRhoj2.PE(giRhoj2);
+	
+	        		giRhoj2xx.Ea1Tv1(2.0*rhoj2*x, gix);
+	        		giRhoj2xx.PEa1Tv1(x*x, giRhoj2);
+	        		sumGiRhoj2xx.PE(giRhoj2xx);
+	
+	        		giRhoj2xy.Ea1Tv1(rhoj2*x, giy);
+	        		giRhoj2xy.PEa1Tv1(rhoj2*y, gix);
+	        		giRhoj2xy.PEa1Tv1(x*y, giRhoj2);
+	        		sumGiRhoj2xy.PE(giRhoj2xy);
+	
+	        		giRhoj2xz.Ea1Tv1(rhoj2*x, giz);
+	        		giRhoj2xz.PEa1Tv1(rhoj2*z, gix);
+	        		giRhoj2xz.PEa1Tv1(x*z, giRhoj2);
+	        		sumGiRhoj2xz.PE(giRhoj2xz);
 
-        		giRhoj1y.Ea1Tv1(rhoj1, giy);
-        		giRhoj1y.PEa1Tv1(y, giRhoj1);
-        		sumGiRhoj1y.PE(giRhoj1y);
+	        		giRhoj2yy.Ea1Tv1(2.0*rhoj2*y, giy);
+	        		giRhoj2yy.PEa1Tv1(y*y, giRhoj2);
+	        		sumGiRhoj2yy.PE(giRhoj2yy);
+	
+	        		giRhoj2yz.Ea1Tv1(rhoj2*y, giz);
+	        		giRhoj2yz.PEa1Tv1(rhoj2*z, giy);
+	        		giRhoj2yz.PEa1Tv1(y*z, giRhoj2);
+	        		sumGiRhoj2yz.PE(giRhoj2yz);
+	
+	        		giRhoj2zz.Ea1Tv1(2.0*rhoj2*z, giz);
+	        		giRhoj2zz.PEa1Tv1(z*z, giRhoj2);
+	        		sumGiRhoj2zz.PE(giRhoj2zz);
+	    	
+	        		giRhoj3.Ea1Tv1(rhoj3/Sij, giSij);
+	        		giRhoj3.PEa1Tv1(-rhoj3*p.beta3/(p.r0), giRij);
+	
+	        		giRhoj3xxx.Ea1Tv1(3.0*rhoj3*x*x, gix);
+	        		giRhoj3xxx.PEa1Tv1(x*x*x, giRhoj3);
+	        		sumGiRhoj3xxx.PE(giRhoj3xxx);
+	    
+	        		giRhoj3xxy.Ea1Tv1(rhoj3*x*x, giy);
+	        		giRhoj3xxy.PEa1Tv1(2.0*rhoj3*x*y, gix);
+	        		giRhoj3xxy.PEa1Tv1(x*x*y, giRhoj3);
+	        		sumGiRhoj3xxy.PE(giRhoj3xxy);
 
-        		giRhoj1z.Ea1Tv1(rhoj1, giz);
-        		giRhoj1z.PEa1Tv1(z, giRhoj1);
-        		sumGiRhoj1z.PE(giRhoj1z);
-    	
-        		giRhoj2.Ea1Tv1(rhoj2/Sij, giSij);
-        		giRhoj2.PEa1Tv1(-rhoj2*p.beta2/(p.r0), giRij);
-        		sumGiRhoj2.PE(giRhoj2);
+	        		giRhoj3xxz.Ea1Tv1(rhoj3*x*x, giz);
+	        		giRhoj3xxz.PEa1Tv1(2.0*rhoj3*x*z, gix);
+	        		giRhoj3xxz.PEa1Tv1(x*x*z, giRhoj3);
+	        		sumGiRhoj3xxz.PE(giRhoj3xxz);
+	
+	        		giRhoj3xyy.Ea1Tv1(2.0*rhoj3*x*y, giy);
+	        		giRhoj3xyy.PEa1Tv1(rhoj3*y*y, gix);
+	        		giRhoj3xyy.PEa1Tv1(x*y*y, giRhoj3);
+	        		sumGiRhoj3xyy.PE(giRhoj3xyy);
+	
+	        		giRhoj3xyz.Ea1Tv1(rhoj3*x*y, giz);
+	        		giRhoj3xyz.PEa1Tv1(rhoj3*x*z, giy);
+	        		giRhoj3xyz.PEa1Tv1(rhoj3*y*z, gix);
+	        		giRhoj3xyz.PEa1Tv1(x*y*z, giRhoj3);
+	        		sumGiRhoj3xyz.PE(giRhoj3xyz);
+	
+	        		giRhoj3xzz.Ea1Tv1(2.0*rhoj3*x*z, giz);
+	        		giRhoj3xzz.PEa1Tv1(rhoj3*z*z, gix);
+	        		giRhoj3xzz.PEa1Tv1(x*z*z, giRhoj3);
+	        		sumGiRhoj3xzz.PE(giRhoj3xzz);
 
-        		giRhoj2xx.Ea1Tv1(2.0*rhoj2*x, gix);
-        		giRhoj2xx.PEa1Tv1(x*x, giRhoj2);
-        		sumGiRhoj2xx.PE(giRhoj2xx);
-
-        		giRhoj2xy.Ea1Tv1(rhoj2*x, giy);
-        		giRhoj2xy.PEa1Tv1(rhoj2*y, gix);
-        		giRhoj2xy.PEa1Tv1(x*y, giRhoj2);
-        		sumGiRhoj2xy.PE(giRhoj2xy);
-
-        		giRhoj2xz.Ea1Tv1(rhoj2*x, giz);
-        		giRhoj2xz.PEa1Tv1(rhoj2*z, gix);
-        		giRhoj2xz.PEa1Tv1(x*z, giRhoj2);
-        		sumGiRhoj2xz.PE(giRhoj2xz);
-
-        		giRhoj2yy.Ea1Tv1(2.0*rhoj2*y, giy);
-        		giRhoj2yy.PEa1Tv1(y*y, giRhoj2);
-        		sumGiRhoj2yy.PE(giRhoj2yy);
-
-        		giRhoj2yz.Ea1Tv1(rhoj2*y, giz);
-        		giRhoj2yz.PEa1Tv1(rhoj2*z, giy);
-        		giRhoj2yz.PEa1Tv1(y*z, giRhoj2);
-        		sumGiRhoj2yz.PE(giRhoj2yz);
-
-        		giRhoj2zz.Ea1Tv1(2.0*rhoj2*z, giz);
-        		giRhoj2zz.PEa1Tv1(z*z, giRhoj2);
-        		sumGiRhoj2zz.PE(giRhoj2zz);
-    	
-        		giRhoj3.Ea1Tv1(rhoj3/Sij, giSij);
-        		giRhoj3.PEa1Tv1(-rhoj3*p.beta3/(p.r0), giRij);
-
-        		giRhoj3xxx.Ea1Tv1(3.0*rhoj3*x*x, gix);
-        		giRhoj3xxx.PEa1Tv1(x*x*x, giRhoj3);
-        		sumGiRhoj3xxx.PE(giRhoj3xxx);
+	        		giRhoj3yyy.Ea1Tv1(3.0*rhoj3*y*y, giy);
+	        		giRhoj3yyy.PEa1Tv1(y*y*y, giRhoj3);
+	        		sumGiRhoj3yyy.PE(giRhoj3yyy);
+	   
+	        		giRhoj3yyz.Ea1Tv1(rhoj3*y*y, giz);
+	        		giRhoj3yyz.PEa1Tv1(2.0*rhoj3*y*z, giy);
+	        		giRhoj3yyz.PEa1Tv1(y*y*z, giRhoj3);
+	        		sumGiRhoj3yyz.PE(giRhoj3yyz);
+	    	
+	        		giRhoj3yzz.Ea1Tv1(2.0*rhoj3*y*z, giz);
+	        		giRhoj3yzz.PEa1Tv1(rhoj3*z*z, giy);
+	        		giRhoj3yzz.PEa1Tv1(y*z*z, giRhoj3);
+	        		sumGiRhoj3yzz.PE(giRhoj3yzz);
+	    	
+	        		giRhoj3zzz.Ea1Tv1(3.0*rhoj3*z*z, giz);
+	        		giRhoj3zzz.PEa1Tv1(z*z*z, giRhoj3);
+	        		sumGiRhoj3zzz.PE(giRhoj3zzz);
+	    	
+	        		t1GiRhoj0.Ea1Tv1(p.t1, giRhoj0);
+	        		sumt1GiRhoj0.PE(t1GiRhoj0);
+	    	
+	        		t2GiRhoj0.Ea1Tv1(p.t2, giRhoj0);
+	        		sumt2GiRhoj0.PE(t2GiRhoj0);
+	    	
+	        		t3GiRhoj0.Ea1Tv1(p.t3, giRhoj0);
+	        		sumt3GiRhoj0.PE(t3GiRhoj0);
     
-        		giRhoj3xxy.Ea1Tv1(rhoj3*x*x, giy);
-        		giRhoj3xxy.PEa1Tv1(2.0*rhoj3*x*y, gix);
-        		giRhoj3xxy.PEa1Tv1(x*x*y, giRhoj3);
-        		sumGiRhoj3xxy.PE(giRhoj3xxy);
-
-        		giRhoj3xxz.Ea1Tv1(rhoj3*x*x, giz);
-        		giRhoj3xxz.PEa1Tv1(2.0*rhoj3*x*z, gix);
-        		giRhoj3xxz.PEa1Tv1(x*x*z, giRhoj3);
-        		sumGiRhoj3xxz.PE(giRhoj3xxz);
-
-        		giRhoj3xyy.Ea1Tv1(2.0*rhoj3*x*y, giy);
-        		giRhoj3xyy.PEa1Tv1(rhoj3*y*y, gix);
-        		giRhoj3xyy.PEa1Tv1(x*y*y, giRhoj3);
-        		sumGiRhoj3xyy.PE(giRhoj3xyy);
-
-        		giRhoj3xyz.Ea1Tv1(rhoj3*x*y, giz);
-        		giRhoj3xyz.PEa1Tv1(rhoj3*x*z, giy);
-        		giRhoj3xyz.PEa1Tv1(rhoj3*y*z, gix);
-        		giRhoj3xyz.PEa1Tv1(x*y*z, giRhoj3);
-        		sumGiRhoj3xyz.PE(giRhoj3xyz);
-
-        		giRhoj3xzz.Ea1Tv1(2.0*rhoj3*x*z, giz);
-        		giRhoj3xzz.PEa1Tv1(rhoj3*z*z, gix);
-        		giRhoj3xzz.PEa1Tv1(x*z*z, giRhoj3);
-        		sumGiRhoj3xzz.PE(giRhoj3xzz);
-
-        		giRhoj3yyy.Ea1Tv1(3.0*rhoj3*y*y, giy);
-        		giRhoj3yyy.PEa1Tv1(y*y*y, giRhoj3);
-        		sumGiRhoj3yyy.PE(giRhoj3yyy);
-   
-        		giRhoj3yyz.Ea1Tv1(rhoj3*y*y, giz);
-        		giRhoj3yyz.PEa1Tv1(2.0*rhoj3*y*z, giy);
-        		giRhoj3yyz.PEa1Tv1(y*y*z, giRhoj3);
-        		sumGiRhoj3yyz.PE(giRhoj3yyz);
+	        		//Pair-wise terms required to calculate gnEi
+	        		gjx.Ea1Tv1(-1, gix);
+	        		gjy.Ea1Tv1(-1, giy);
+	        		gjz.Ea1Tv1(-1, giz);
+	    	
+	        		gjRij.Ea1Tv1(-1, giRij);
+	    	
+	        		gjFRef.Ea1Tv1(-1, giFRef);
+	        		
+	        		gjERef.Ea1Tv1(-1, giERef);
+	        		
+	        		gjPhi.E(gjERef);
+	        		gjPhi.ME(gjFRef);
+	        		gjPhi.TE(2.0 * Sij /p.Z);
+	        		gjPhi.PEa1Tv1(phi/Sij, gjSij);
+	    	
+	        		gjRhoj0.Ea1Tv1(rhoj0/Sij, gjSij);
+	        		gjRhoj0.PEa1Tv1(-rhoj0*p.beta0/(p.r0), gjRij);
+	    	
+	        		gjRhoj1.Ea1Tv1(rhoj1/Sij, gjSij);
+	        		gjRhoj1.PEa1Tv1(-rhoj1*p.beta1/(p.r0), gjRij);
+	    	
+	        		gjRhoj1x.Ea1Tv1(rhoj1, gjx);
+	        		gjRhoj1x.PEa1Tv1(x, gjRhoj1);
+	    	
+	        		gjRhoj1y.Ea1Tv1(rhoj1, gjy);
+	        		gjRhoj1y.PEa1Tv1(y, gjRhoj1);
+	    	
+	        		gjRhoj1z.Ea1Tv1(rhoj1, gjz);
+	        		gjRhoj1z.PEa1Tv1(z, gjRhoj1);
+	    	
+	        		gjRhoj2.Ea1Tv1(rhoj2/Sij, gjSij);
+	        		gjRhoj2.PEa1Tv1(-rhoj2*p.beta2/(p.r0), gjRij);
+	    	
+	        		gjRhoj2xx.Ea1Tv1(2.0*rhoj2*x, gjx);
+	        		gjRhoj2xx.PEa1Tv1(x*x, gjRhoj2);
+	    	
+	        		gjRhoj2xy.Ea1Tv1(rhoj2*x, gjy);
+	        		gjRhoj2xy.PEa1Tv1(rhoj2*y, gjx);
+	        		gjRhoj2xy.PEa1Tv1(x*y, gjRhoj2);
+	    	
+	        		gjRhoj2xz.Ea1Tv1(rhoj2*x, gjz);
+	        		gjRhoj2xz.PEa1Tv1(rhoj2*z, gjx);
+	        		gjRhoj2xz.PEa1Tv1(x*z, gjRhoj2);
+	    	
+	        		gjRhoj2yy.Ea1Tv1(2.0*rhoj2*y, gjy);
+	        		gjRhoj2yy.PEa1Tv1(y*y, gjRhoj2);
+	    	
+	        		gjRhoj2yz.Ea1Tv1(rhoj2*y, gjz);
+	        		gjRhoj2yz.PEa1Tv1(rhoj2*z, gjy);
+	        		gjRhoj2yz.PEa1Tv1(y*z, gjRhoj2);
+	    	
+	        		gjRhoj2zz.Ea1Tv1(2.0*rhoj2*z, gjz);
+	        		gjRhoj2zz.PEa1Tv1(z*z, gjRhoj2);
+	    	
+	        		gjRhoj3.Ea1Tv1(rhoj3/Sij, gjSij);
+	        		gjRhoj3.PEa1Tv1(-rhoj3*p.beta3/(p.r0), gjRij);
+	
+	        		gjRhoj3xxx.Ea1Tv1(3.0*rhoj3*x*x, gjx);
+	        		gjRhoj3xxx.PEa1Tv1(x*x*x, gjRhoj3);
+	
+	        		gjRhoj3xxy.Ea1Tv1(rhoj3*x*x, gjy);
+	        		gjRhoj3xxy.PEa1Tv1(2.0*rhoj3*x*y, gjx);
+	        		gjRhoj3xxy.PEa1Tv1(x*x*y, gjRhoj3);
+	
+	        		gjRhoj3xxz.Ea1Tv1(rhoj3*x*x, gjz);
+	        		gjRhoj3xxz.PEa1Tv1(2.0*rhoj3*x*z, gjx);
+	        		gjRhoj3xxz.PEa1Tv1(x*x*z, gjRhoj3);
+	
+	        		gjRhoj3xyy.Ea1Tv1(2.0*rhoj3*x*y, gjy);
+	        		gjRhoj3xyy.PEa1Tv1(rhoj3*y*y, gjx);
+	        		gjRhoj3xyy.PEa1Tv1(x*y*y, gjRhoj3);
+	    	
+	        		gjRhoj3xyz.Ea1Tv1(rhoj3*x*y, gjz);
+	        		gjRhoj3xyz.PEa1Tv1(rhoj3*x*z, gjy);
+	        		gjRhoj3xyz.PEa1Tv1(rhoj3*y*z, gjx);
+	        		gjRhoj3xyz.PEa1Tv1(x*y*z, gjRhoj3);
+	
+	        		gjRhoj3xzz.Ea1Tv1(2.0*rhoj3*x*z, gjz);
+	        		gjRhoj3xzz.PEa1Tv1(rhoj3*z*z, gjx);
+	        		gjRhoj3xzz.PEa1Tv1(x*z*z, gjRhoj3);
+	
+	        		gjRhoj3yyy.Ea1Tv1(3.0*rhoj3*y*y, gjy);
+	        		gjRhoj3yyy.PEa1Tv1(y*y*y, gjRhoj3);
+	
+	        		gjRhoj3yyz.Ea1Tv1(rhoj3*y*y, gjz);
+	        		gjRhoj3yyz.PEa1Tv1(2.0*rhoj3*y*z, gjy);
+	        		gjRhoj3yyz.PEa1Tv1(y*y*z, gjRhoj3);
+	    	
+	        		gjRhoj3yzz.Ea1Tv1(2.0*rhoj3*y*z, gjz);
+	        		gjRhoj3yzz.PEa1Tv1(rhoj3*z*z, gjy);
+	        		gjRhoj3yzz.PEa1Tv1(y*z*z, gjRhoj3);
+	    	
+	        		gjRhoj3zzz.Ea1Tv1(3.0*rhoj3*z*z, gjz);
+	        		gjRhoj3zzz.PEa1Tv1(z*z*z, gjRhoj3);
+	
+	        		t1GjRhoj0.Ea1Tv1(p.t1, gjRhoj0);
+	   
+	        		t2GjRhoj0.Ea1Tv1(p.t2, gjRhoj0);
+	    	
+	        		t3GjRhoj0.Ea1Tv1(p.t3, gjRhoj0);
+            	} // exit if statement with condition that Sij != 0
     	
-        		giRhoj3yzz.Ea1Tv1(2.0*rhoj3*y*z, giz);
-        		giRhoj3yzz.PEa1Tv1(rhoj3*z*z, giy);
-        		giRhoj3yzz.PEa1Tv1(y*z*z, giRhoj3);
-        		sumGiRhoj3yzz.PE(giRhoj3yzz);
-    	
-        		giRhoj3zzz.Ea1Tv1(3.0*rhoj3*z*z, giz);
-        		giRhoj3zzz.PEa1Tv1(z*z*z, giRhoj3);
-        		sumGiRhoj3zzz.PE(giRhoj3zzz);
-    	
-        		t1GiRhoj0.Ea1Tv1(p.t1, giRhoj0);
-        		sumt1GiRhoj0.PE(t1GiRhoj0);
-    	
-        		t2GiRhoj0.Ea1Tv1(p.t2, giRhoj0);
-        		sumt2GiRhoj0.PE(t2GiRhoj0);
-    	
-        		t3GiRhoj0.Ea1Tv1(p.t3, giRhoj0);
-        		sumt3GiRhoj0.PE(t3GiRhoj0);
-    
-        		//Pair-wise terms required to calculate gnEi
-        		gjx.Ea1Tv1(-1, gix);
-        		gjy.Ea1Tv1(-1, giy);
-        		gjz.Ea1Tv1(-1, giz);
-    	
-        		gjRij.Ea1Tv1(-1, giRij);
-    	
-        		gjFRef.Ea1Tv1(-1, giFRef);
-        		
-        		gjERef.Ea1Tv1(-1, giERef);
-        		
-        		gjPhi.E(gjERef);
-        		gjPhi.ME(gjFRef);
-        		gjPhi.TE(2.0 * Sij /p.Z);
-        		gjPhi.PEa1Tv1(phi/Sij, gjSij);
-    	
-        		gjRhoj0.Ea1Tv1(rhoj0/Sij, gjSij);
-        		gjRhoj0.PEa1Tv1(-rhoj0*p.beta0/(p.r0), gjRij);
-    	
-        		gjRhoj1.Ea1Tv1(rhoj1/Sij, gjSij);
-        		gjRhoj1.PEa1Tv1(-rhoj1*p.beta1/(p.r0), gjRij);
-    	
-        		gjRhoj1x.Ea1Tv1(rhoj1, gjx);
-        		gjRhoj1x.PEa1Tv1(x, gjRhoj1);
-    	
-        		gjRhoj1y.Ea1Tv1(rhoj1, gjy);
-        		gjRhoj1y.PEa1Tv1(y, gjRhoj1);
-    	
-        		gjRhoj1z.Ea1Tv1(rhoj1, gjz);
-        		gjRhoj1z.PEa1Tv1(z, gjRhoj1);
-    	
-        		gjRhoj2.Ea1Tv1(rhoj2/Sij, gjSij);
-        		gjRhoj2.PEa1Tv1(-rhoj2*p.beta2/(p.r0), gjRij);
-    	
-        		gjRhoj2xx.Ea1Tv1(2.0*rhoj2*x, gjx);
-        		gjRhoj2xx.PEa1Tv1(x*x, gjRhoj2);
-    	
-        		gjRhoj2xy.Ea1Tv1(rhoj2*x, gjy);
-        		gjRhoj2xy.PEa1Tv1(rhoj2*y, gjx);
-        		gjRhoj2xy.PEa1Tv1(x*y, gjRhoj2);
-    	
-        		gjRhoj2xz.Ea1Tv1(rhoj2*x, gjz);
-        		gjRhoj2xz.PEa1Tv1(rhoj2*z, gjx);
-        		gjRhoj2xz.PEa1Tv1(x*z, gjRhoj2);
-    	
-        		gjRhoj2yy.Ea1Tv1(2.0*rhoj2*y, gjy);
-        		gjRhoj2yy.PEa1Tv1(y*y, gjRhoj2);
-    	
-        		gjRhoj2yz.Ea1Tv1(rhoj2*y, gjz);
-        		gjRhoj2yz.PEa1Tv1(rhoj2*z, gjy);
-        		gjRhoj2yz.PEa1Tv1(y*z, gjRhoj2);
-    	
-        		gjRhoj2zz.Ea1Tv1(2.0*rhoj2*z, gjz);
-        		gjRhoj2zz.PEa1Tv1(z*z, gjRhoj2);
-    	
-        		gjRhoj3.Ea1Tv1(rhoj3/Sij, gjSij);
-        		gjRhoj3.PEa1Tv1(-rhoj3*p.beta3/(p.r0), gjRij);
-
-        		gjRhoj3xxx.Ea1Tv1(3.0*rhoj3*x*x, gjx);
-        		gjRhoj3xxx.PEa1Tv1(x*x*x, gjRhoj3);
-
-        		gjRhoj3xxy.Ea1Tv1(rhoj3*x*x, gjy);
-        		gjRhoj3xxy.PEa1Tv1(2.0*rhoj3*x*y, gjx);
-        		gjRhoj3xxy.PEa1Tv1(x*x*y, gjRhoj3);
-
-        		gjRhoj3xxz.Ea1Tv1(rhoj3*x*x, gjz);
-        		gjRhoj3xxz.PEa1Tv1(2.0*rhoj3*x*z, gjx);
-        		gjRhoj3xxz.PEa1Tv1(x*x*z, gjRhoj3);
-
-        		gjRhoj3xyy.Ea1Tv1(2.0*rhoj3*x*y, gjy);
-        		gjRhoj3xyy.PEa1Tv1(rhoj3*y*y, gjx);
-        		gjRhoj3xyy.PEa1Tv1(x*y*y, gjRhoj3);
-    	
-        		gjRhoj3xyz.Ea1Tv1(rhoj3*x*y, gjz);
-        		gjRhoj3xyz.PEa1Tv1(rhoj3*x*z, gjy);
-        		gjRhoj3xyz.PEa1Tv1(rhoj3*y*z, gjx);
-        		gjRhoj3xyz.PEa1Tv1(x*y*z, gjRhoj3);
-
-        		gjRhoj3xzz.Ea1Tv1(2.0*rhoj3*x*z, gjz);
-        		gjRhoj3xzz.PEa1Tv1(rhoj3*z*z, gjx);
-        		gjRhoj3xzz.PEa1Tv1(x*z*z, gjRhoj3);
-
-        		gjRhoj3yyy.Ea1Tv1(3.0*rhoj3*y*y, gjy);
-        		gjRhoj3yyy.PEa1Tv1(y*y*y, gjRhoj3);
-
-        		gjRhoj3yyz.Ea1Tv1(rhoj3*y*y, gjz);
-        		gjRhoj3yyz.PEa1Tv1(2.0*rhoj3*y*z, gjy);
-        		gjRhoj3yyz.PEa1Tv1(y*y*z, gjRhoj3);
-    	
-        		gjRhoj3yzz.Ea1Tv1(2.0*rhoj3*y*z, gjz);
-        		gjRhoj3yzz.PEa1Tv1(rhoj3*z*z, gjy);
-        		gjRhoj3yzz.PEa1Tv1(y*z*z, gjRhoj3);
-    	
-        		gjRhoj3zzz.Ea1Tv1(3.0*rhoj3*z*z, gjz);
-        		gjRhoj3zzz.PEa1Tv1(z*z*z, gjRhoj3);
-
-        		t1GjRhoj0.Ea1Tv1(p.t1, gjRhoj0);
-   
-        		t2GjRhoj0.Ea1Tv1(p.t2, gjRhoj0);
-    	
-        		t3GjRhoj0.Ea1Tv1(p.t3, gjRhoj0);
-    	
-            } //exit if statement with condition that n is a j atom of i
+            } // exit if statement with condition that n is a j atom of i
     	
             //to consider n as a k atom, we must loop through neighbors j of i again
             double Sij = 1.0; 
@@ -727,7 +729,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        	double Sijk;
 	        	if (C <= p.Cmin) { 
 	        		Sijk = 0;
-	        		Sij = 0; //continue to next j, this one doesn't matter?
+	        		Sij = 0; // should we continue to next j, this one doesn't matter?
+	        		continue;
 	        	}
 	        	else if (C >= p.Cmax) { //Sikj = 1, value of Sij won't change
 	        	    Sijk = 1.0;
@@ -767,7 +770,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	    				double Sijl;
 	    				if (c <= p.Cmin) { 
 	    					Sij = 0;
-	    					break;
+	    					break; //break out of loop over k atoms for j!n atom
 	    				}
 	    				else if (c >= p.Cmax) { //Silj = 1, value of Sij won't change
 	            			continue;
@@ -781,6 +784,9 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        		} // exit loop over all k for j!n (l is k...)
 	        	} // exit if statement for Sijk (where is n is k) ! 0
         	
+	        	//Note: This may not be good...
+	        	if (Sij == 0) continue; //continue to next j!n
+	        	
 	        	double rhoj0 = p.rhoScale * Math.exp(-p.beta0 * ((ij/p.r0) - 1.0)) * Sij;
 	        	double rhoj1 = p.rhoScale * Math.exp(-p.beta1 * ((ij/p.r0) - 1.0)) * Sij;
 	            double rhoj2 = p.rhoScale * Math.exp(-p.beta2 * ((ij/p.r0) - 1.0)) * Sij;
