@@ -175,6 +175,13 @@ public class SimulationVirialOverlap extends Simulation {
             integratorOS.setDSVO(dsvo);
         }
     }
+
+    public void setRefPref(double newRefPref) {
+        System.out.println("setting ref pref (explicitly) to "+newRefPref);
+        setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,1,true),0);
+        setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,1,false),1);
+        setRefPref(newRefPref,1);
+    }
     
     public void initRefPref(String fileName, long initSteps) {
         // refPref = -1 indicates we are searching for an appropriate value
@@ -234,7 +241,7 @@ public class SimulationVirialOverlap extends Simulation {
             integrators[i].setEquilibrating(true);
         }
         getController().run();
-
+        getController().addAction(ai);
 
         if (refPref == -1) {
             int newMinDiffLoc = dsvo.minDiffLocation();
@@ -260,6 +267,9 @@ public class SimulationVirialOverlap extends Simulation {
                     throw new RuntimeException("couldn't write to refpref file");
                 }
             }
+        }
+        else {
+            dsvo.reset();
         }
     }
     

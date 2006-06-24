@@ -92,4 +92,11 @@ public class DataSourceVirialOverlap extends DataSourceScalar {
 		return Math.abs(avg)*Math.sqrt(refErr*refErr/(refAvg*refAvg)+targetErr*targetErr/(targetAvg*targetAvg));
 	}
 
+    /**
+     * Convenience method that resets reference and target accumulators
+     */
+    public void reset() {
+        targetAccumulator.reset();
+        refAccumulator.reset();
+    }
 }
