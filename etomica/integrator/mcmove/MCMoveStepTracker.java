@@ -62,7 +62,10 @@ public class MCMoveStepTracker extends MCMoveTracker {
         }
         stepSize = Math.min(stepSize, mcMove.getStepSizeMax());
         stepSize = Math.max(stepSize, mcMove.getStepSizeMin());
+        // setStepSize will call resetAdjustStep, which is bad, so prevent it
+        noReset = true;
         mcMove.setStepSize(stepSize);
+        noReset = false;
         nTrials = 0;
         nAccept = 0;
     }
@@ -89,6 +92,9 @@ public class MCMoveStepTracker extends MCMoveTracker {
      * reset to defaultAdjustStep.
      */
     public void resetAdjustStep() {
+        if (noReset) {
+            return;
+        }
         adjustInterval = defaultAdjustInterval;
         adjustStep = defaultAdjustStep;
         lastAdjust = 0;
@@ -149,6 +155,14 @@ public class MCMoveStepTracker extends MCMoveTracker {
     public final boolean getTunable() {
         return tunable;
     }
+    
+    public void setNoisyAdjustment(boolean isNoisy) {
+        noisyAdjustment = isNoisy;
+    }
+    
+    public boolean getNoisyAdjustment() {
+        return noisyAdjustment;
+    }
 
     protected MCMoveStepDependent mcMove;
     protected double acceptanceTarget;
@@ -159,4 +173,5 @@ public class MCMoveStepTracker extends MCMoveTracker {
     protected double defaultAdjustStep = 0.05;
     protected int defaultAdjustInterval = 100;
     protected boolean noisyAdjustment = false;
+    protected boolean noReset = false;
 }
