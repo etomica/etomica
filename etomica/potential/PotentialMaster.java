@@ -11,6 +11,7 @@ import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.IteratorFactory;
 import etomica.phase.Phase;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.Species;
 
@@ -35,6 +36,25 @@ public class PotentialMaster implements java.io.Serializable {
         this.iteratorFactory = iteratorFactory;
     }
     
+    /**
+     * Sets the simulation that holds this PotentialMaster.  This method is 
+     * called by the Simulation constrcutor and should not be called at any
+     * other time.
+     */
+    public final void setSimulation(Simulation sim) {
+        if (simulation != null) {
+            throw new IllegalStateException("The simulation should only be set once, by the Simulation constructor");
+        }
+        simulation = sim;
+    }
+
+    /**
+     * Returns the simulation associated with this PotentialMaster
+     */
+    protected Simulation getSimulation() {
+        return simulation;
+    }
+    
 	/**
 	 * Returns the object that oversees the long-range
 	 * correction zero-body potentials.
@@ -43,7 +63,11 @@ public class PotentialMaster implements java.io.Serializable {
 		if(lrcMaster == null) lrcMaster = new PotentialMasterLrc(space);
 		return lrcMaster;
 	 }
-     
+
+     /**
+      * Returns an nBody PotentialGroup appropriate for this type of 
+      * PotentialMaster.
+      */
      public PotentialGroup makePotentialGroup(int nBody) {
          return new PotentialGroup(nBody,space);
      }
@@ -344,6 +368,7 @@ public class PotentialMaster implements java.io.Serializable {
     protected PotentialLinker first, last;
     protected boolean enabled = true;
     protected final Space space;
+    private Simulation simulation;
     
     private static class AtomIterator0 extends AtomsetIteratorSinglet implements AtomsetIteratorPDT {
         AtomIterator0() {

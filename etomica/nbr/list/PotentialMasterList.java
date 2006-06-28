@@ -6,12 +6,18 @@ import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.AtomType;
 import etomica.atom.AtomsetArrayList;
-import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.nbr.CriterionAdapter;
+import etomica.nbr.CriterionInterMolecular;
+import etomica.nbr.CriterionSimple;
+import etomica.nbr.CriterionType;
+import etomica.nbr.CriterionTypePair;
+import etomica.nbr.CriterionTypesMulti;
+import etomica.nbr.NeighborCriterion;
 import etomica.nbr.PotentialGroupNbr;
 import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.cell.NeighborCellManager;
@@ -69,23 +75,210 @@ public class PotentialMasterList extends PotentialMasterNbr {
         cellRange = 2;
     }
     
+    /**
+     * Sets the range that determines how far to look for neighbors.  This 
+     * range must be greater than the range of the longest-range potential.
+     */
     public void setRange(double range) {
+        if (range <= 0) {
+            throw new IllegalArgumentException("Range must be greater than 0");
+        }
         neighborManager.setRange(range);
         ((PhaseAgentSourceCellManager)phaseAgentSource).setRange(range);
+        recomputeCriteriaRanges();
     }
     
+    /**
+     * Returns the range that determines how far to look for neighbors.
+     */
     public double getRange() {
         return neighborManager.getRange();
     }
     
-    protected void addRangedPotential(Potential potential, AtomType atomType) {
-        neighborManager.addCriterion(potential.getCriterion(),atomType);
-        super.addRangedPotential(potential, atomType);
+    /**
+     * Sets the safety factor.  The default value, 0.4, is appropriate for most
+     * simulations.  Valid values range from 0 to 0.5 (non-inclusive).  The 
+     * safety factor determines how far an atom can travel from its original
+     * position before the neighbor lists are reconstructed.  0.5 means the 
+     * atom can travel half of its neighbor range.  If another atom also 
+     * travels half-way then the Atoms could interact without the 
+     * PotentialMaster recognizing they are neighbors.
+     * 
+     * High values of the safetyFactor make it more probable that an Atom will
+     * move too far between checks and interact without the PotentialMaster 
+     * knowing.  Smaller values make it less probable, but slow down the 
+     * simulation due to more frequent neighbor list constructing.
+     */
+    public void setSafetyFactor(double newSafetyFactor) {
+        if (newSafetyFactor <= 0 || newSafetyFactor >= 0.5) {
+            throw new IllegalArgumentException("Safety factor must be between 0 and 0.5");
+        }
+        safetyFactor = newSafetyFactor;
+        recomputeCriteriaRanges();
+    }
+    
+    
+    /**
+     * Returns the safety factor.
+     */
+    public double getSafetyFactor() {
+        return safetyFactor;
+    }
+
+    /**
+     * Adds the potential as a ranged potential that applies to the given 
+     * AtomTypes.  This method creates a criterion for the potential and 
+     * notifies the NeighborListManager of its existence.
+     */
+    protected void addRangedPotentialForTypes(Potential potential, AtomType[] atomType) {
+        // we'll fix the neighbor range later in recomputeCriteriaRanges
+        // 0 guarantees the simulation to be hosed if our range is less than the potential range
+        // (since recomputeCriteriaRange will bail in that case)
+        CriterionSimple rangedCriterion = new CriterionSimple(getSimulation(), potential.getRange(), 0.0);
+        NeighborCriterion criterion;
+        if (atomType.length == 2) {
+            criterion = new CriterionTypePair(rangedCriterion, atomType[0], atomType[1]);
+            if (atomType[0].getDepth() > 3 && atomType[1].getDepth() > 3) {
+                AtomType moleculeType0 = atomType[0].getParentType();
+                while (moleculeType0.getDepth() > 3) {
+                    moleculeType0 = moleculeType0.getParentType();
+                }
+                AtomType moleculeType1 = atomType[1].getParentType();
+                while (moleculeType1.getDepth() > 3) {
+                    moleculeType1 = moleculeType1.getParentType();
+                }
+                if (moleculeType0 == moleculeType1) {
+                    criterion = new CriterionInterMolecular(criterion);
+                }
+            }
+        }
+        else if (atomType.length == 1) {
+            criterion = new CriterionType(rangedCriterion, atomType[0]);
+        }
+        else {
+            criterion = new CriterionTypesMulti(rangedCriterion, atomType);
+        }
+        neighborManager.addCriterion(criterion);
+        for (int i=0; i<atomType.length; i++) {
+            rangedPotentialAtomTypeList[atomType[i].getIndex()].setCriterion(potential, criterion);
+        }
+        if (potential.getRange() > maxPotentialRange) {
+            maxPotentialRange = potential.getRange();
+        }
+        recomputeCriteriaRanges();
+    }
+    
+    /**
+     * Recomputes the range for all criterion based on our own range.  The 
+     * range for each criterion is set so that they all have an equal max
+     * displacement.  Our nominal neighbor range is used for the criterion
+     * with the longest potential range.
+     */
+    protected void recomputeCriteriaRanges() {
+        double maxDisplacement = (getRange() - maxPotentialRange) * safetyFactor;
+        if (maxDisplacement < 0) {
+            // someone probably added a long ranged potential and hasn't updated the PotentialMaster's range
+            // when they do, we'll get called again.
+            // if they don't, the simulation will probably crash
+            return;
+        }
+        for (int i=0; i<rangedPotentialAtomTypeList.length; i++) {
+            NeighborCriterion[] criteria = rangedPotentialAtomTypeList[i].getCriteria();
+            Potential[] potentials = rangedPotentialAtomTypeList[i].getPotentials();
+            // this will double (or more) count criteria that apply to multiple atom types, but it won't hurt us
+            for (int j=0; j<criteria.length; j++) {
+                CriterionSimple rangedCriterion = getRangedCriterion(criteria[j]);
+                if (rangedCriterion != null) {
+                    double newRange = maxDisplacement/safetyFactor + potentials[j].getRange();
+                    rangedCriterion.setNeighborRange(newRange);
+                    rangedCriterion.setSafetyFactor(safetyFactor);
+                }                    
+            }
+        }
+    }
+    
+    /**
+     * Returns the criterion used by to determine what atoms interact with the
+     * given potential.
+     */
+    public NeighborCriterion getCriterion(Potential potential) {
+        for (int i=0; i<rangedPotentialAtomTypeList.length; i++) {
+            Potential[] potentials = rangedPotentialAtomTypeList[i].getPotentials();
+            for (int j=0; j<potentials.length; j++) {
+                if (potentials[j] == potential) {
+                    return rangedPotentialAtomTypeList[i].getCriteria()[j];
+                }
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Convenience method to return the wrapped range-dependent criterion, if 
+     * one exists
+     */
+    private static CriterionSimple getRangedCriterion(NeighborCriterion criterion) {
+        if (criterion instanceof CriterionSimple) {
+            return (CriterionSimple)criterion;
+        }
+        if (criterion instanceof CriterionAdapter) {
+            return getRangedCriterion(((CriterionAdapter)criterion).getWrappedCriterion());
+        }
+        return null;
+    }
+    
+    /**
+     * Sets the criterion associated with the given potential, overriding the 
+     * default provided by the PotentialMasterList.  The criterion can be 
+     * configured by calling getCriterion(Potential) and changing the 
+     * criterion.  The potential passed to this method must be a potential 
+     * handled by this instance.
+     */
+    public void setCriterion(Potential potential, NeighborCriterion criterion) {
+        NeighborCriterion oldCriterion = getCriterion(potential);
+        if (oldCriterion != null) {
+            neighborManager.removeCriterion(oldCriterion);
+        }
+        for (int i=0; i<rangedPotentialAtomTypeList.length; i++) {
+            Potential[] potentials = rangedPotentialAtomTypeList[i].getPotentials();
+            for (int j=0; j<potentials.length; j++) {
+                if (potentials[j] == potential) {
+                    neighborManager.addCriterion(criterion);
+                    rangedPotentialAtomTypeList[i].setCriterion(potential, criterion);
+                    return;
+                }
+            }
+        }
+        throw new IllegalArgumentException("Potential "+potential+" is not associated with this PotentialMasterList");
     }
     
     public void removePotential(Potential potential) {
+        for (int i=0; i<rangedPotentialAtomTypeList.length; i++) {
+            Potential[] potentials = rangedPotentialAtomTypeList[i].getPotentials();
+            for (int j=0; j<potentials.length; j++) {
+                if (potentials[j] == potential) {
+                    // found it!
+                    neighborManager.removeCriterion(rangedPotentialAtomTypeList[i].getCriteria()[j]);
+                    break;
+                }
+            }
+        }
+
         super.removePotential(potential);
-        neighborManager.removeCriterion(potential.getCriterion());
+        
+        if (potential.getRange() == maxPotentialRange) {
+            maxPotentialRange = 0;
+            for (int i=0; i<allPotentials.length; i++) {
+                double pRange = allPotentials[i].getRange();
+                if (pRange == Double.POSITIVE_INFINITY) {
+                    continue;
+                }
+                if (pRange > maxPotentialRange) {
+                    maxPotentialRange = pRange;
+                }
+            }
+            recomputeCriteriaRanges();
+        }
     }
 
     /**
@@ -248,7 +441,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
 
     
     public NeighborCellManager getNbrCellManager(Phase phase) {
-        phaseAgentManager.setRoot((SpeciesRoot)phase.getSpeciesMaster().node.parentGroup());
+        PhaseAgentManager phaseAgentManager = getCellAgentManager();
         NeighborCellManager[] cellManagers = (NeighborCellManager[])phaseAgentManager.getAgents();
         NeighborCellManager manager = cellManagers[phase.getIndex()];
         manager.setPotentialRange(neighborManager.getRange());
@@ -270,6 +463,8 @@ public class PotentialMasterList extends PotentialMasterNbr {
     private final ApiInnerFixed swappedPairIterator;
     private final NeighborListManager neighborManager;
     private int cellRange;
+    private double maxPotentialRange = 0;
+    private double safetyFactor = 0.4;
     
     // things needed for N-body potentials
     private AtomsetArrayList atomsetArrayList;

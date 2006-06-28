@@ -36,6 +36,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
              for (int i=0; i<atomTypes.length; i++) {
                  addRangedPotential(potential,atomTypes[i]);
              }
+             addRangedPotentialForTypes(potential, atomTypes);
         }
     }
     
@@ -75,7 +76,10 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
         for (int i=0; i<atomTypes.length; i++) {
             addRangedPotential(subPotential,atomTypes[i]);
         }
+        addRangedPotentialForTypes(subPotential, atomTypes);
     }
+
+    protected abstract void addRangedPotentialForTypes(Potential subPotential, AtomType[] atomTypes);
     
     protected void addRangedPotential(Potential potential, AtomType atomType) {
         while (rangedPotentialAtomTypeList.length < atomType.getIndex()+1) {
@@ -115,7 +119,12 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
         return intraPotentialAtomTypeList[atomType.getIndex()];
     }
     
-    public PhaseAgentManager getCellAgentManager() {
+    public final PhaseAgentManager getCellAgentManager() {
+        // phaseAgentManager returns performing no action if the given
+        // speciesRoot is the same as was set previously.  We can't set
+        // this in setSimulation because the Simulation might be not
+        // have its speciesRoot yet
+        phaseAgentManager.setRoot(getSimulation().speciesRoot);
         return phaseAgentManager;
     }
 
@@ -123,5 +132,5 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
     protected PotentialArray[] intraPotentialAtomTypeList = new PotentialArray[0];
     protected Potential[] allPotentials = new Potential[0];
     protected PhaseAgentSource phaseAgentSource;
-    protected PhaseAgentManager phaseAgentManager;
+    private PhaseAgentManager phaseAgentManager;
 }

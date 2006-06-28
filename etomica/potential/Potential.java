@@ -80,6 +80,4 @@ public abstract class Potential extends EtomicaInfo {
     public void setName(String name) {
         this.name = name;
     }
-    
-    public abstract NeighborCriterion getCriterion();
 }//end of Potential
