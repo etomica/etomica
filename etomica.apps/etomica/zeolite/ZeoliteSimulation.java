@@ -201,15 +201,6 @@ public class ZeoliteSimulation extends Simulation {
         //P2SoftSphericalTruncated MS = new P2SoftSphericalTruncated(potentialMS,2.5*potentialMS.getSigma());
         
         
-        NeighborCriterion criterionMM = new CriterionSpecies(new CriterionSimple(this,MM.getRange(), MM.getRange()*neighborRangeFac), species[2], species[2]);
-        NeighborCriterion criterionMO = new CriterionSpecies(new CriterionSimple(this,MO.getRange(), MO.getRange()*neighborRangeFac), species[0], species[2]);
-        NeighborCriterion criterionMS = new CriterionSpecies(new CriterionSimple(this,potentialMS.getRange(), potentialMS.getRange()*neighborRangeFac*2), species[1], species[2]);
-        
-        MM.setCriterion(criterionMM);
-        MO.setCriterion(criterionMO);
-        potentialMS.setCriterion(criterionMS);
-        
-        
         potentialMaster.addPotential(MM,new Species[]{species[2],species[2]});
         potentialMaster.addPotential(MO,new Species[]{species[0],species[2]});
         potentialMaster.addPotential(potentialMS,new Species[]{species[1],species[2]});
