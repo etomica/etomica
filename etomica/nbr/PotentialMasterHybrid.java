@@ -17,6 +17,7 @@ import etomica.phase.PhaseAgentManager;
 import etomica.potential.Potential;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialGroup;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.Species;
 
@@ -60,6 +61,20 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
     
     public PotentialGroup makePotentialGroup(int nBody) {
         return new PotentialGroupHybrid(nBody,space);
+    }
+    
+    public void setSimulation(Simulation simulation) {
+        super.setSimulation(simulation);
+        potentialMasterList.setSimulation(simulation);
+        potentialMasterCell.setSimulation(simulation);
+    }
+    
+    public PotentialMasterList getPotentialMasterList() {
+        return potentialMasterList;
+    }
+    
+    public PotentialMasterCell getPotentialMasterCell() {
+        return potentialMasterCell;
     }
 
     /**

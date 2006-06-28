@@ -41,7 +41,7 @@ public class PotentialMaster implements java.io.Serializable {
      * called by the Simulation constrcutor and should not be called at any
      * other time.
      */
-    public final void setSimulation(Simulation sim) {
+    public void setSimulation(Simulation sim) {
         if (simulation != null) {
             throw new IllegalStateException("The simulation should only be set once, by the Simulation constructor");
         }
