@@ -14,7 +14,6 @@ import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.CriterionAll;
-import etomica.nbr.CriterionSimple;
 import etomica.nbr.CriterionType;
 import etomica.nbr.CriterionTypePair;
 import etomica.nbr.CriterionTypesMulti;
@@ -89,6 +88,42 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             rangedPotentialAtomTypeList[atomType[i].getIndex()].setCriterion(potential, criterion);
         }
         criteriaArray = (NeighborCriterion[]) Arrays.addObject(criteriaArray, criterion);
+    }
+    
+    /**
+     * Returns the criterion used by to determine what atoms interact with the
+     * given potential.
+     */
+    public NeighborCriterion getCriterion(Potential potential) {
+        for (int i=0; i<rangedPotentialAtomTypeList.length; i++) {
+            Potential[] potentials = rangedPotentialAtomTypeList[i].getPotentials();
+            for (int j=0; j<potentials.length; j++) {
+                if (potentials[j] == potential) {
+                    return rangedPotentialAtomTypeList[i].getCriteria()[j];
+                }
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Sets the criterion associated with the given potential, overriding the 
+     * default provided by the PotentialMasterCell.  The criterion can be 
+     * configured by calling getCriterion(Potential) and changing the 
+     * criterion.  The potential passed to this method must be a potential 
+     * handled by this instance.
+     */
+    public void setCriterion(Potential potential, NeighborCriterion criterion) {
+        for (int i=0; i<rangedPotentialAtomTypeList.length; i++) {
+            Potential[] potentials = rangedPotentialAtomTypeList[i].getPotentials();
+            for (int j=0; j<potentials.length; j++) {
+                if (potentials[j] == potential) {
+                    rangedPotentialAtomTypeList[i].setCriterion(potential, criterion);
+                    return;
+                }
+            }
+        }
+        throw new IllegalArgumentException("Potential "+potential+" is not associated with this PotentialMasterList");
     }
     
     /**
