@@ -9,8 +9,6 @@ import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIntragroup;
-import etomica.atom.iterator.AtomIteratorArrayList;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.AccumulatorAverage.StatType;
@@ -21,10 +19,9 @@ import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntervalActionAdapter;
-import etomica.nbr.CriterionBondedSimple;
-import etomica.nbr.CriterionMolecular;
+import etomica.nbr.CriterionAll;
+import etomica.nbr.CriterionInterMolecular;
 import etomica.nbr.CriterionMolecularNonAdjacent;
-import etomica.nbr.CriterionSimple;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
@@ -32,7 +29,6 @@ import etomica.phase.Phase;
 import etomica.potential.P2HardBond;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
-import etomica.potential.Potential2;
 import etomica.potential.PotentialGroup;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformablePeriodic;
@@ -119,23 +115,6 @@ public class TestHexane extends Simulation {
         AtomTypeSphere sphereType = (AtomTypeSphere) ((AtomFactoryHomo) species
                 .moleculeFactory()).getChildFactory().getType();
 
-        //Using a NeighborCriterion allows us to re-use the handle nbrCriterion
-        // for other types
-        //The NeighborCriterion defines the neighbors on the neighbor list.
-        //It is a range in the potential, multiplied by some factor to extend
-        // it (neighborRangeFac).
-        NeighborCriterion nbrCriterion = new CriterionSimple(this, potential
-                .getRange(), neighborRangeFac * potential.getRange());
-
-        //here we create an on-the-molecule-checking sub-criterion/criterion
-        // wrapper.
-        CriterionMolecular sameMoleculeCrit = new CriterionMolecular(
-                nbrCriterion);
-        sameMoleculeCrit.setIntraMolecular(false);
-
-        //we add the new criterion to the potential.
-        ((Potential2) potential).setCriterion(sameMoleculeCrit);
-
         //Add the Potential to the PotentialMaster
         potentialMaster.addPotential(potential, new AtomType[] { sphereType,
                 sphereType });
@@ -161,14 +140,6 @@ public class TestHexane extends Simulation {
         potential = new P2HardBond(space, def.atomSize, neighborRangeFac,
                 def.ignoreOverlap);
 
-        //Only the atoms next to each other interact, so we have two criteria:
-        //		The atoms must be on the same molecule- CriterionMolecular
-        //		The atoms must be neighbors
-        //Both are included in the CriterionBondedSimple class, so we use it.
-        NeighborCriterion criterion = new CriterionBondedSimple(nbrCriterion);
-        ((Potential2) potential).setCriterion(criterion);
-        
-
         //We will need an atom pair iterator (Api) that runs through the atoms
         // on a single molecule.
         //The atom pair iterator (Api) runs through the atoms on a single
@@ -180,34 +151,18 @@ public class TestHexane extends Simulation {
         // fell swoop. Yay us!
         potentialChainIntra.addPotential(potential, bonded);
 
-        //NONBONDED INTERACTIONS
-        //This potential describes the basic hard sphere interactions between
-        // 2 atoms of a molecule.
-        potential = new P2HardSphere(space, def.atomSize, false);
+        //Now we add this PotentialGroup to the PotentialMaster.
+        potentialMaster.addPotential(potentialChainIntra,
+                new AtomType[] { species.getMoleculeType() });
 
         //Only the atoms next to each other interact, so we have two criteria:
         //		The atoms must be on the same molecule- CriterionMolecular
         //		The atoms must be separated by 3 bonds.
         //We end up needing to do stuff with the
-        criterion = new CriterionMolecularNonAdjacent(3, nbrCriterion);
-        ((Potential2) potential).setCriterion(criterion);
-
-        //This iterator runs through the atoms on a single molecule. It skips
-        // the specified number of atoms.
-        //The inner iterator runs through
-        //The outer iterator runs through
-        //Similar to ApiBuilder.makeNonAdjacentPairIterator
-        AtomIteratorArrayList aiInnerUp = new AtomIteratorArrayList(IteratorDirective.Direction.UP, 3);
-        AtomIteratorArrayList aiInnerDn = new AtomIteratorArrayList(IteratorDirective.Direction.DOWN, 3);
-        ApiIntragroup intra = new ApiIntragroup(aiInnerUp, aiInnerDn);
-
-        //Now we add this potential to the PotentialGroup.
-        potentialChainIntra.addPotential(potential, intra);
-
-        //Now we add this PotentialGroup to the PotentialMaster.
-        potentialMaster.addPotential(potentialChainIntra,
-                new AtomType[] { species.getMoleculeType() });
-
+        NeighborCriterion criterion = new CriterionMolecularNonAdjacent(3, new CriterionAll());
+        CriterionInterMolecular interCriterion = (CriterionInterMolecular)((PotentialMasterList)potentialMaster).getCriterion(potential);
+        interCriterion.setIntraMolecularCriterion(criterion);
+        
         phase = new Phase(this);
         bdry =  new BoundaryHexane(space);
         phase.setBoundary(bdry);
