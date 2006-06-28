@@ -34,8 +34,8 @@ public class CriterionInterMolecular extends CriterionAdapter {
     
     public boolean accept(AtomSet pair) {
         // Only ask the intracriterion if it exists and the pair is intramolecular. 
-        if (intraCriterion != null && ((((AtomPair)pair).atom0.inSameMolecule(((AtomPair)pair).atom1)) ||
-                !intraCriterion.accept(pair))) {
+        if (intraCriterion != null && (((AtomPair)pair).atom0.inSameMolecule(((AtomPair)pair).atom1)) &&
+                !intraCriterion.accept(pair)) {
             return false;
         }
         return subCriterion.accept(pair);
