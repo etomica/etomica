@@ -86,8 +86,8 @@ public class TestHexane extends Simulation {
 //        moveVolume.setPhase(phase);
 //        crank = new MCMoveCrankshaft();
         
-         snake = new MCMoveReptate(this);
-         snake.setPhase(phase);
+//         snake = new MCMoveReptate(this);
+//         snake.setPhase(phase);
          
          rot = new MCMoveRotateMolecule3D(potentialMaster, space);
          rot.setPhase(phase);
@@ -95,7 +95,7 @@ public class TestHexane extends Simulation {
         //nan we're going to need some stuff in there to set the step sizes and other stuff like that.
         
         integrator.getMoveManager().addMCMove(moveMolecule);
-        integrator.getMoveManager().addMCMove(snake);
+//        integrator.getMoveManager().addMCMove(snake);
         integrator.getMoveManager().addMCMove(rot);
         
 //        integrator.getMoveManager().addMCMove(moveVolume);
@@ -260,7 +260,7 @@ public class TestHexane extends Simulation {
     
 //    public MCMoveVolume moveVolume;
 //    public MCMoveCrankshaft crank; 
-    public MCMoveReptate snake;
+//    public MCMoveReptate snake;
     
     public MCMoveRotateMolecule3D rot;
     
