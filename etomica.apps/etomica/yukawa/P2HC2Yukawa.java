@@ -5,7 +5,7 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
-import etomica.potential.Potential2;
+import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.Potential2Spherical;
 import etomica.simulation.Simulation;
 import etomica.space.NearestImageTransformer;
@@ -13,11 +13,11 @@ import etomica.space.Space;
 import etomica.space.Vector;
 
 /**
- * Hard-core plus two Yukawa fluid (HC2Yukawa): A Lennard Jones like potential.
+ * Hard-core plus two Yukawa fluid (HC2Yukawa): A Lennard-Jones like potential.
  * 
- * ============================================================================================================================
+ * ==================================================================================================================================
  * 2001. Pini, Stell, and Wilding. "Liquid-gas phase behaviour of an argon-like fluid modelled by the hard-core two-Yukawa potential"
- * ============================================================================================================================
+ * ==================================================================================================================================
  * 	
  * 			| infinity																		r <= sigma
  * U(r) =	| 
@@ -31,7 +31,19 @@ import etomica.space.Vector;
  * @author msellers
  */
 
-public final class P2HC2Yukawa extends Potential2 implements Potential2Spherical, EtomicaElement {
+public final class P2HC2Yukawa extends Potential2SoftSpherical implements EtomicaElement {
+
+
+	
+	public double d2u(double r2) {
+		// TODO Auto-generated method stub
+		throw new RuntimeException();
+	}
+
+	public double du(double r2) {
+		// TODO Auto-generated method stub
+		throw new RuntimeException();
+	}
 
 	public P2HC2Yukawa(Simulation sim){
 		this(sim.space, sim.getDefaults().atomSize, sim.getDefaults().potentialWell);
