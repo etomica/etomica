@@ -69,7 +69,7 @@ public class PDBWriter implements Action, Serializable {
         Object formatter;
         Method formatMethod;
         try {
-            formatMethod = formatterClass.getDeclaredMethod("format",new Class[]{String.class,Object.class});
+            formatMethod = formatterClass.getDeclaredMethod("format",new Class[]{String.class,new Object[0].getClass()});
             formatter = formatterClass.getDeclaredConstructor(new Class[]{File.class}).newInstance(new Object[]{file});
         }
         catch (NoSuchMethodException e) {
