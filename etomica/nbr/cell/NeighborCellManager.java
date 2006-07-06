@@ -118,6 +118,10 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
      * appropriate.
      */
     protected void checkDimensions() {
+        if (range == 0) {
+            // simulation is still being constructed, don't try to do anything useful
+            return;
+        }
     	int D = space.D();
         int[] nCells = new int[D];
         Vector dimensions = phase.getBoundary().getDimensions();
