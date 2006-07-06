@@ -25,8 +25,8 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
     
     public AtomAgentManager(AgentSource source, Phase phase, boolean isBackend) {
         agentSource = source;
-        setPhase(phase);
         this.isBackend = isBackend;
+        setPhase(phase);
     }        
     
     /**
@@ -185,6 +185,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
         public void releaseAgent(Object agent, Atom atom);
     }
 
+    private static final long serialVersionUID = 1L;
     private final AgentSource agentSource;
     protected Object[] agents;
     private AtomIteratorTree treeIterator;
