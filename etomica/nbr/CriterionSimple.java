@@ -46,7 +46,6 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
 	}
 	
 	public void setNeighborRange(double r) {
-		if (r < interactionRange) throw new IllegalArgumentException("Neighbor radius must be larger than interaction range");
 		neighborRadius2 = r*r;
 		double displacementLimit = (r - interactionRange) * safetyFactor;
 		displacementLimit2 = displacementLimit * displacementLimit;
@@ -60,8 +59,26 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
     public Dimension getNeighborRangeDimension() {
         return Length.DIMENSION;
     }
+    
+    public void setInteractionRange(double newInteractionRange) {
+        interactionRange = newInteractionRange;
+        double displacementLimit = (Math.sqrt(neighborRadius2) - interactionRange) * safetyFactor;
+        displacementLimit2 = displacementLimit * displacementLimit;
+        r2MaxSafe = displacementLimit2 / (4.0*safetyFactor*safetyFactor);
+    }
+    
+    public double getInteractionRange() {
+        return interactionRange;
+    }
+    
+    public Dimension getInteractionRangeDimension() {
+        return Length.DIMENSION;
+    }
 	
 	public boolean needUpdate(Atom atom) {
+        if (Debug.ON && interactionRange > Math.sqrt(neighborRadius2)) {
+            throw new IllegalStateException("Interaction range ("+interactionRange+") must be less than neighborRange ("+Math.sqrt(neighborRadius2)+")");
+        }
 		r2 = ((AtomLeaf)atom).coord.position().Mv1Squared(agents[atom.getGlobalIndex()]);
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(atom)) {
             System.out.println("atom "+atom+" displacement "+r2+" "+((AtomLeaf)atom).coord.position());
