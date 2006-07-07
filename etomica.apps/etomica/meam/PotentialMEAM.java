@@ -7,7 +7,6 @@
 package etomica.meam;
 
 import etomica.atom.AtomLeaf;
-import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.potential.PotentialN;
@@ -87,14 +86,14 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 				double xjk = (kj/r)*(kj/r);
 				double C = ((2*(xik + xjk)) - ((xik - xjk)*(xik - xjk))- 1)/
 					   (1 - ((xik - xjk)*(xik - xjk)));
-        	
+				
 				double Sijk;
 				if (C <= p.Cmin) { 
 					Sij = 0;
-					break;
+					break; // break out of for loop over k atoms
 				}
 				else if (C >= p.Cmax) { //Sijk = 1, value of Sij won't change
-        			continue;
+        			continue; //continue to next k atom in for loop
         		}
 				else {
         			Sijk = Math.exp(-(((p.Cmax - C)/(C - p.Cmin))
@@ -103,9 +102,9 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         	
 				Sij *= Sijk;
 		
-			}
+			} // exit for loop over k atoms
 	
-			if (Sij == 0) continue;    
+			if (Sij == 0) continue; // continue to next j atom in for loop  
    
 			//
 			//These rhoj terms are required for both the many-body and the 
@@ -361,7 +360,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             			Sij = 0;
             			break; //break out of for loop over k atoms
             		}
-            		else if (C >= p.Cmax) { //Sikj = 1, value of Sij won't change
+            		else if (C >= p.Cmax) { //Sijk = 1, value of Sij won't change
             			continue;
             		}
             		else {
@@ -693,7 +692,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             } // exit if statement with condition that n is a j atom of i
     	
             //to consider n as a k atom, we must loop through neighbors j of i again
-            double Sij = 1.0; 
+            
             for(int j = 1; j < atoms.count(); j++) {
         		AtomLeaf atomj = (AtomLeaf) atoms.getAtom(j);
         		if (j == n) continue; //the k atom, n, must not be treated as one of the other j's
@@ -703,10 +702,9 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         		if (ij > jcut) continue;
         	
         		//Remember, n is now treated as the k atom
-        		rik.Ev1Mv2(atomn.coord.position(), atom0.coord.position());
-	        	nearestImageTransformer.nearestImage(rik);
-	        	double ik = Math.sqrt(rik.squared());
-	        	if (ik > ij*1.14) continue;
+        		rik.E(rin);
+	        	double ik = in;
+	        	if (ik > ij*1.14) continue; //n won't impact this i-j interaction
         	
 	        	double anglekij = Math.toDegrees(Math.acos(
         			((rij.x(0)*rik.x(0)) + 
@@ -728,63 +726,64 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        	
 	        	double Sijk;
 	        	if (C <= p.Cmin) { 
-	        		Sijk = 0;
-	        		Sij = 0; // should we continue to next j, this one doesn't matter?
-	        		continue;
+	        		continue; // continue to next j atom whose interation with 
+	        				 // i k might affect
 	        	}
 	        	else if (C >= p.Cmax) { //Sikj = 1, value of Sij won't change
-	        	    Sijk = 1.0;
+	        	    continue; //gkSij is zero for Sijk = 1 or 0
 	        	}
 	        	else {
 	        		Sijk = Math.exp(-(((p.Cmax - C)/(C - p.Cmin))
 	        					*((p.Cmax - C)/(C - p.Cmin))));
 	        	}
 	        	
-	        	if (Sijk != 0) { //We need to calculated Sij. l is all k, including n.
-	        		for(int l = 1; l < atoms.count(); l++) {
-	    				AtomLeaf atoml = (AtomLeaf) atoms.getAtom(l);
-	    				if (l == j) continue;
-	    				ril.Ev1Mv2(atoml.coord.position(), atom0.coord.position());
-	    				nearestImageTransformer.nearestImage(ril);
-	    				double il = Math.sqrt(ril.squared());
-	    				if (il > ij*1.14) continue;
+	        	// To calculate Sij. l is k != n.
+	        	// We can start Sij out with the value for Sijk (k = n).
+	        	double Sij = Sijk;
+	        	for(int l = 1; l < atoms.count(); l++) {
+	    			AtomLeaf atoml = (AtomLeaf) atoms.getAtom(l);
+	    			if (l == j) continue;
+	    			if (l == n) continue; //already including Sijk for n = k
+	    			ril.Ev1Mv2(atoml.coord.position(), atom0.coord.position());
+	    			nearestImageTransformer.nearestImage(ril);
+	    			double il = Math.sqrt(ril.squared());
+	    			if (il > ij*1.14) continue;
 	            	
-	    				double anglelij = Math.toDegrees(Math.acos(
-	            			((rij.x(0)*ril.x(0)) + 
-	            			 (rij.x(1)*ril.x(1)) + 
-	    					 (rij.x(2)*ril.x(2)))
-	    					 /(ij*il)));
+	    			double anglelij = Math.toDegrees(Math.acos(
+	            		((rij.x(0)*ril.x(0)) + 
+	            		 (rij.x(1)*ril.x(1)) + 
+	    				 (rij.x(2)*ril.x(2)))
+	    				 /(ij*il)));
 	            	
-	    				if (anglelij >= 90) continue;
+	    			if (anglelij >= 90) continue;
 	            	
-	    				rlj.Ev1Mv2(atoml.coord.position(), atomj.coord.position());
-	    				nearestImageTransformer.nearestImage(rlj);
-	    				double lj = Math.sqrt(rlj.squared());
+	    			rlj.Ev1Mv2(atoml.coord.position(), atomj.coord.position());
+	    			nearestImageTransformer.nearestImage(rlj);
+	    			double lj = Math.sqrt(rlj.squared());
 	            	
-	    				//from Baskes, Angelo, & Bisson (1994)
-	    				double xil = (il/lj)*(il/lj);
-	    				double xjl = (lj/ij)*(lj/ij);
-	    				double c = ((2*(xil + xjl)) - ((xil - xjl)*(xil - xjl))- 1)/
+	    			//from Baskes, Angelo, & Bisson (1994)
+	    			double xil = (il/lj)*(il/lj);
+	    			double xjl = (lj/ij)*(lj/ij);
+	    			double c = ((2*(xil + xjl)) - ((xil - xjl)*(xil - xjl))- 1)/
 	    					   (1 - ((xil - xjl)*(xil - xjl)));
 	            	
-	    				double Sijl;
-	    				if (c <= p.Cmin) { 
-	    					Sij = 0;
-	    					break; //break out of loop over k atoms for j!n atom
-	    				}
-	    				else if (c >= p.Cmax) { //Silj = 1, value of Sij won't change
-	            			continue;
-	            		}
-	    				else {
-	            			Sijl = Math.exp(-(((p.Cmax - c)/(c - p.Cmin))
-	            					*((p.Cmax - c)/(c - p.Cmin))));
-	    				}
+	    			double Sijl;
+	    			if (c <= p.Cmin) { 
+	    				Sij = 0;
+	    				break; //break out of loop over k atoms for j!n atom
+	    			}
+	    			else if (c >= p.Cmax) { //Silj = 1, value of Sij won't change
+	            		continue;
+	            	}
+	    			else {
+	            		Sijl = Math.exp(-(((p.Cmax - c)/(c - p.Cmin))
+	            			   *((p.Cmax - c)/(c - p.Cmin))));
+	    			}
 	            	
-	    				Sij *= Sijl;
+	    			Sij *= Sijl;
 	        		} // exit loop over all k for j!n (l is k...)
-	        	} // exit if statement for Sijk (where is n is k) ! 0
         	
-	        	//Note: This may not be good...
+	        	// The l atoms may make Sij = 0.  
 	        	if (Sij == 0) continue; //continue to next j!n
 	        	
 	        	double rhoj0 = p.rhoScale * Math.exp(-p.beta0 * ((ij/p.r0) - 1.0)) * Sij;
@@ -1086,7 +1085,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	
 	protected NearestImageTransformer nearestImageTransformer;
     private ParameterSetMEAM p;
-    private AtomPair pair;
+    private AtomSet atoms;
     
     double[] sum = new double[25];
 	public static final int RHOj0 = 0;
