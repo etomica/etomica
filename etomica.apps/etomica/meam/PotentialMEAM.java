@@ -37,7 +37,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		return Double.POSITIVE_INFINITY;
 	}
 	
-	double jcut = 4.0; //Sn
+	double jcut = 4.5; //Sn
 	//double jcut = 3.0; //Cu
 	double kcut = jcut * 1.14;
 	
@@ -84,8 +84,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 				//from Baskes, Angelo, & Bisson (1994)
 				double xik = (ik/kj)*(ik/kj);
 				double xjk = (kj/r)*(kj/r);
-				double C = ((2*(xik + xjk)) - ((xik - xjk)*(xik - xjk))- 1)/
-					   (1 - ((xik - xjk)*(xik - xjk)));
+				double C = ((2.0*(xik + xjk)) - ((xik - xjk)*(xik - xjk))- 1.0)/
+					   (1.0 - ((xik - xjk)*(xik - xjk)));
 				
 				double Sijk;
 				if (C <= p.Cmin) { 
@@ -267,6 +267,10 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 				gnEi[i] = (Vector3D)space.makeVector();
 			}
 		}
+		
+		for (int i = 0; i < atoms.count(); i++) {
+			gnEi[i].E(0);
+		}
 
         calcSums(atoms);
         double rhoi0 = rhoi0(), rhoi1 = rhoi1(), rhoi2 = rhoi2(), rhoi3 = rhoi3(),
@@ -353,8 +357,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             		//from Baskes, Angelo, & Bisson (1994)
             		double xik = (ik/kj)*(ik/kj);
             		double xkj = (kj/ij)*(kj/ij);
-            		double C = ( (2*(xik + xkj)) - ((xik - xkj)*(xik - xkj))- 1 )
-							/ (1 - ((xik - xkj)*(xik - xkj)));
+            		double C = ( (2.0*(xik + xkj)) - ((xik - xkj)*(xik - xkj))- 1.0 )
+							/ (1.0 - ((xik - xkj)*(xik - xkj)));
             		double Sijk;
             		if (C <= p.Cmin) { 
             			Sij = 0;
@@ -368,44 +372,44 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             					*((p.Cmax - C)/(C - p.Cmin))));
             		}
             	
-            		giRij.Ea1Tv1(-1/ij, rij);
-            		gjRij.Ea1Tv1(-1, giRij);
+            		giRij.Ea1Tv1(-1.0/ij, rij);
+            		gjRij.Ea1Tv1(-1.0, giRij);
             	
-            		giRik.Ea1Tv1(-1/ik, rik);
+            		giRik.Ea1Tv1(-1.0/ik, rik);
             		gjRik.E(0);
             	
             		giRkj.E(0);
-            		gjRkj.Ea1Tv1(-1/kj, rkj);
+            		gjRkj.Ea1Tv1(-1.0/kj, rkj);
             	
             		giXik.Ea1Tv1(-ik/(kj*kj), giRkj);
-            		giXik.PEa1Tv1(1/kj, giRik);
-            		giXik.TE(2*ik/kj);
+            		giXik.PEa1Tv1(1.0/kj, giRik);
+            		giXik.TE(2.0*ik/kj);
             	
             		giXkj.Ea1Tv1(-kj/(ij*ij), giRij);
-            		giXkj.PEa1Tv1(1/ij, giRkj);
-            		giXkj.TE(2*kj/ij);
+            		giXkj.PEa1Tv1(1.0/ij, giRkj);
+            		giXkj.TE(2.0*kj/ij);
             	
             		gjXik.Ea1Tv1(-ik/(kj*kj), gjRkj);
-            		gjXik.PEa1Tv1(1/kj, gjRik);
-            		gjXik.TE(2*ik/kj);
+            		gjXik.PEa1Tv1(1.0/kj, gjRik);
+            		gjXik.TE(2.0*ik/kj);
             	
             		gjXkj.Ea1Tv1(-kj/(ij*ij), gjRij);
-            		gjXkj.PEa1Tv1(1/ij, gjRkj);
-            		gjXkj.TE(2*kj/ij);
+            		gjXkj.PEa1Tv1(1.0/ij, gjRkj);
+            		gjXkj.TE(2.0*kj/ij);
             	
-            		giC.Ea1Tv1( 1 + (xik - xkj)*(C - 1), giXik);
-            		giC.PEa1Tv1(1 - (xik - xkj)*(C + 1), giXkj);
-            		giC.TE( 2 / ( 1 - ((xik - xkj)*(xik - xkj)) ));
+            		giC.Ea1Tv1( 1.0 + (xik - xkj)*(C - 1.0), giXik);
+            		giC.PEa1Tv1(1.0 - (xik - xkj)*(C + 1.0), giXkj);
+            		giC.TE( 2.0 / ( 1.0 - ((xik - xkj)*(xik - xkj)) ));
 		    	
-            		gjC.Ea1Tv1( 1 + (xik - xkj)*(C - 1), gjXik);
-            		gjC.PEa1Tv1(1 - (xik - xkj)*(C + 1), gjXkj);
-            		gjC.TE( 2 / ( 1 - ((xik - xkj)*(xik - xkj)) ));
+            		gjC.Ea1Tv1( 1.0 + (xik - xkj)*(C - 1.0), gjXik);
+            		gjC.PEa1Tv1(1.0 - (xik - xkj)*(C + 1.0), gjXkj);
+            		gjC.TE( 2.0 / ( 1.0 - ((xik - xkj)*(xik - xkj)) ));
 		    	
-            		giSijk.Ea1Tv1( 2*Sijk*(p.Cmax - C)/((C - p.Cmin)*(C - p.Cmin))
-		    			* ( ((p.Cmax - C)/(C - p.Cmin)) + 1 ), giC);
+            		giSijk.Ea1Tv1( 2.0*Sijk*(p.Cmax - C)/((C - p.Cmin)*(C - p.Cmin))
+		    			* ( ((p.Cmax - C)/(C - p.Cmin)) + 1.0 ), giC);
 		    	
-            		gjSijk.Ea1Tv1( 2*Sijk*(p.Cmax - C)/((C - p.Cmin)*(C - p.Cmin))
-		    			* ( ((p.Cmax - C)/(C - p.Cmin)) + 1 ), gjC);
+            		gjSijk.Ea1Tv1( 2.0*Sijk*(p.Cmax - C)/((C - p.Cmin)*(C - p.Cmin))
+		    			* ( ((p.Cmax - C)/(C - p.Cmin)) + 1.0 ), gjC);
 		    	
             		//The Sij value used to calculate gradSij is that for previous k's, 
             		//or, for the first k considered, 1.  Same goes for the gradSij value
@@ -587,15 +591,15 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        		sumt3GiRhoj0.PE(t3GiRhoj0);
     
 	        		//Pair-wise terms required to calculate gnEi
-	        		gjx.Ea1Tv1(-1, gix);
-	        		gjy.Ea1Tv1(-1, giy);
-	        		gjz.Ea1Tv1(-1, giz);
+	        		gjx.Ea1Tv1(-1.0, gix);
+	        		gjy.Ea1Tv1(-1.0, giy);
+	        		gjz.Ea1Tv1(-1.0, giz);
 	    	
-	        		gjRij.Ea1Tv1(-1, giRij);
+	        		gjRij.Ea1Tv1(-1.0, giRij);
 	    	
-	        		gjFRef.Ea1Tv1(-1, giFRef);
+	        		gjFRef.Ea1Tv1(-1.0, giFRef);
 	        		
-	        		gjERef.Ea1Tv1(-1, giERef);
+	        		gjERef.Ea1Tv1(-1.0, giERef);
 	        		
 	        		gjPhi.E(gjERef);
 	        		gjPhi.ME(gjFRef);
@@ -721,8 +725,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        	double xik = (ik/kj)*(ik/kj);
 	        	double xkj = (kj/ij)*(kj/ij);
         	
-	        	double C = ( (2*(xik + xkj)) - ((xik - xkj)*(xik - xkj))- 1 )
-							/ (1 - ((xik - xkj)*(xik - xkj)));
+	        	double C = ( (2.0*(xik + xkj)) - ((xik - xkj)*(xik - xkj))- 1.0 )
+							/ (1.0 - ((xik - xkj)*(xik - xkj)));
 	        	
 	        	double Sijk;
 	        	if (C <= p.Cmin) { 
@@ -764,8 +768,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	    			//from Baskes, Angelo, & Bisson (1994)
 	    			double xil = (il/lj)*(il/lj);
 	    			double xjl = (lj/ij)*(lj/ij);
-	    			double c = ((2*(xil + xjl)) - ((xil - xjl)*(xil - xjl))- 1)/
-	    					   (1 - ((xil - xjl)*(xil - xjl)));
+	    			double c = ((2.0*(xil + xjl)) - ((xil - xjl)*(xil - xjl))- 1.0)/
+	    					   (1.0 - ((xil - xjl)*(xil - xjl)));
 	            	
 	    			double Sijl;
 	    			if (c <= p.Cmin) { 
@@ -809,23 +813,23 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        	double phi = ((2.0/p.Z) * (EuRef - FRef)) * Sij;
 	        	
 	        	gkRij.E(0);
-	        	gkRik.Ea1Tv1(1/ik, rik); 
-	        	gkRkj.Ea1Tv1(1/kj, rkj); 
+	        	gkRik.Ea1Tv1(1.0/ik, rik); 
+	        	gkRkj.Ea1Tv1(1.0/kj, rkj); 
 	        	
 	        	gkXik.Ea1Tv1(-ik/(kj*kj), gkRkj);
-	        	gkXik.PEa1Tv1(1/kj, gkRik);
-	        	gkXik.TE(2*ik/kj);
+	        	gkXik.PEa1Tv1(1.0/kj, gkRik);
+	        	gkXik.TE(2.0*ik/kj);
 	        	
 	        	gkXkj.Ea1Tv1(-kj/(ij*ij), gkRij);
-	        	gkXkj.PEa1Tv1(1/ij, gkRkj);
-	        	gkXkj.TE(2*kj/ij);
+	        	gkXkj.PEa1Tv1(1.0/ij, gkRkj);
+	        	gkXkj.TE(2.0*kj/ij);
 	       
-		    	gkC.Ea1Tv1( 1 + (xik - xkj)*(C - 1), gkXik);
-		    	gkC.PEa1Tv1(1 - (xik - xkj)*(C + 1), gkXkj);
-		    	gkC.TE( 2 / ( 1 - ((xik - xkj)*(xik - xkj)) ));
+		    	gkC.Ea1Tv1( 1.0 + (xik - xkj)*(C - 1.0), gkXik);
+		    	gkC.PEa1Tv1(1.0 - (xik - xkj)*(C + 1.0), gkXkj);
+		    	gkC.TE( 2.0 / ( 1.0 - ((xik - xkj)*(xik - xkj)) ));
 		    
-		    	gkSijk.Ea1Tv1( 2*Sijk*(p.Cmax - C)/((C - p.Cmin)*(C - p.Cmin) )
-		    			* ( ((p.Cmax - C)/(C - p.Cmin)) + 1 ), gkC);
+		    	gkSijk.Ea1Tv1( 2.0*Sijk*(p.Cmax - C)/((C - p.Cmin)*(C - p.Cmin) )
+		    			* ( ((p.Cmax - C)/(C - p.Cmin)) + 1.0 ), gkC);
 		    	
 		    	//We only consider one k atom - the k atom that is n
 		    	gkSij.Ea1Tv1(Sij/Sijk, gkSijk);
