@@ -58,8 +58,10 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         
 			if (r > jcut) continue; 
         
-			//To determine amount of screening between atoms i and j 
-			//by any atom k which may be between them
+			/**To determine amount of screening between atoms i and j 
+			* by any atom k which may be between them.
+			*/
+			
 			double Sij = 1.0;
 			for(int k = 1; k < atoms.count(); k++) {
 				AtomLeaf atomk = (AtomLeaf) atoms.getAtom(k);
@@ -74,7 +76,6 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         			 (rij.x(1)*rik.x(1)) + 
 					 (rij.x(2)*rik.x(2)))
 					 /(r*ik)));
-        	
 				if (anglekij >= 90) continue;
         	
 				rkj.Ev1Mv2(atomk.coord.position(), atomj.coord.position());
@@ -106,22 +107,20 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	
 			if (Sij == 0) continue; // continue to next j atom in for loop  
    
-			//
-			//These rhoj terms are required for both the many-body and the 
-			//pair potential.  They are the contributions from each neighbor j
-			//to the partial electron densities of atom i.  rhoj0 is the contribution
-			//to the electron density in the s orbitals; rhoj1 is that in the p orbitals;
-			// rhoj2 is that in the d orbitals; rhoj3 is that in the f orbitals. 
-			//
-			//When the atoms in the pair being examined are different elements,
-			//the rhoj terms are not equivalent for both, because the constants
-			//for the elements in the expression for rhoj differ. This class functions
-			//for unmixed pairs of atoms only.
-			//
-			double rhoj0 = p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0)) * Sij;
-			double rhoj1 = p.rhoScale * Math.exp(-p.beta1 * ((r/p.r0) - 1.0)) * Sij;
-			double rhoj2 = p.rhoScale * Math.exp(-p.beta2 * ((r/p.r0) - 1.0)) * Sij;
-			double rhoj3 = p.rhoScale * Math.exp(-p.beta3 * ((r/p.r0) - 1.0)) * Sij;
+			/** When the atoms in the pair being examined are different elements,
+			* the rhoj terms are not equivalent for both, because the constants
+			* for the elements in the expression for rhoj differ. This class 
+			* functions for unmixed pairs of atoms only.
+			*/
+			
+			double rhoj0 = p.rhoScale * 
+						Math.exp(-p.beta0 * ((r/p.r0) - 1.0)) * Sij;
+			double rhoj1 = p.rhoScale * 
+						Math.exp(-p.beta1 * ((r/p.r0) - 1.0)) * Sij;
+			double rhoj2 = p.rhoScale * 
+						Math.exp(-p.beta2 * ((r/p.r0) - 1.0)) * Sij;
+			double rhoj3 = p.rhoScale * 
+						Math.exp(-p.beta3 * ((r/p.r0) - 1.0)) * Sij;
 	
 			unitVector.E(rij);
 			unitVector.normalize();
@@ -130,8 +129,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			double y = unitVector.x(1);
 			double z = unitVector.x(2);
     
-			sum[RHOj0] += (p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0))) * Sij;
-   
+			sum[RHOj0] += rhoj0;
+
 			sum[RHOj1x] += rhoj1 * x;
 			sum[RHOj1y] += rhoj1 * y;
 			sum[RHOj1z] += rhoj1 * z;  	
@@ -142,7 +141,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			sum[RHOj2yy] += rhoj2 * y * y;
 			sum[RHOj2yz] += rhoj2 * y * z;
 			sum[RHOj2zz] += rhoj2 * z * z;
-			sum[RHOj2] += (p.rhoScale * Math.exp(-p.beta2 * ((r/p.r0) - 1.0))) * Sij;
+			sum[RHOj2] += rhoj2;
     
 			sum[RHOj3xxx] += rhoj3 * x * x * x;
 			sum[RHOj3xxy] += rhoj3 * x * x * y;
@@ -160,16 +159,22 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			sum[T3RHOj0] += rhoj0 * p.t3;
     
 			//to calculate the repulsive pair potential, phi
-			//Should rhoj0 within phi contain Sij? Phi itself is multiplied by Sij...
+			//Should rhoj0 within phi contain Sij? Phi itself is multiplied 
+			//by Sij...
 			double rhoj0Ref = p.rhoScale * Math.exp(-p.beta0 * ((r/p.r0) - 1.0));
 			double rhoiRef = p.Z * rhoj0Ref;   //FCC reference structure, Z = 12
 			double a = p.alpha * ((r/p.r0) - 1.0);
 			double EuRef = - p.Ec * (1.0 + a) * Math.exp(-a);
 			double FRef = p.A * p.Ec * (rhoiRef/p.Z) * Math.log(rhoiRef/p.Z);
 			sum[PHI] += ((2.0/p.Z) * (EuRef - FRef)) * Sij;
-		}
-	}
+		} // exit for loop over j atoms
+	} // exit calcSums()
 
+	/** The following methods are not called until after calcSums() is called in
+	 * energy() and gradient(), so we do not need to call calcSums() in these 
+	 * methods.
+	 */
+	
 	double rhoi0() {
 		return sum[RHOj0]; //
 	}
@@ -224,14 +229,11 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			+ (tav3 * (rhoi3/rhoi0) * (rhoi3/rhoi0));
     }
 
-    //The following expression for the background electron density of atom i
-	//is appropriate for Sn only.
     protected double rhoi() {
     	double rhoi0 = rhoi0(), gamma = gamma();
     	return (2.0 * rhoi0) / (1.0 + Math.exp(-gamma)); //Sn
     	//return rhoi0 * Math.sqrt(1.0 + gamma); //Cu
     }
-	
 
 	/* (non-Javadoc)
 	 * @see etomica.potential.Potential#energy(etomica.atom.AtomSet)
@@ -268,11 +270,14 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			}
 		}
 		
-		for (int i = 0; i < atoms.count(); i++) {
+		else {
+			for (int i = 0; i < atoms.count(); i++) {
 			gnEi[i].E(0);
+			}
 		}
 
         calcSums(atoms);
+        
         double rhoi0 = rhoi0(), rhoi1 = rhoi1(), rhoi2 = rhoi2(), rhoi3 = rhoi3(),
 			tav1 = tav1(), tav2 = tav2(), tav3 = tav3(),
 			gamma = gamma(), rhoi = rhoi();
@@ -298,11 +303,13 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             
             if (in > kcut) continue; //only consider n that could be j or k to i
             
-            //We must initialize all of the gradients with respect to j, used in
-            //gradient with respect to n term, to be the zero vector.  If an atom n
-            //is only a k atom to atom i, the gj terms will not be calculated for this
-            //n, and, if we don't reset the gj terms to the zero vector as we do 
-            //below, the gj values for the previous n will be used.
+            /** We must reset all of the gradients with respect to j, used in
+            * calculation of gradient-with-respect-to-n terms, to be the zero 
+            * vector.  If an atom n is only a k atom to atom i, the gj terms will 
+            * not be calculated for this n, and, if we don't reset the gj terms 
+            * to the zero vector as we do below, the gj values for the previous 
+            * n will be used.
+            */
             
             gjPhi.E(0);
             gjRhoj0.E(0);
@@ -329,7 +336,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             sumt1GkRhoj0.E(0); sumt2GkRhoj0.E(0); sumt3GkRhoj0.E(0);
             
             
-            //Here we test to see if n qualifies as a j atom for atom i
+            //Here we test to see if n qualifies as a j atom for atom i.
             if (in <= jcut) {
             
             	rij.E(rin); double ij = in;
@@ -337,18 +344,18 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             	double Sij = 1.0; giSij.E(0); gjSij.E(0);
             	for(int k = 1; k < atoms.count(); k++) {
             		AtomLeaf atomk = (AtomLeaf) atoms.getAtom(k);
-            		if (k == n) continue;
+            		if (k == n) continue; // continue to next k atom
             		rik.Ev1Mv2(atomk.coord.position(), atom0.coord.position());
             		nearestImageTransformer.nearestImage(rik);
             		double ik = Math.sqrt(rik.squared());
-            		if (ik > ij*1.14) continue;
+            		if (ik > ij*1.14) continue; // continue to next k atom
             	
             		double anglekij = Math.toDegrees(Math.acos(
             			((rij.x(0)*rik.x(0)) + 
             			 (rij.x(1)*rik.x(1)) + 
 						 (rij.x(2)*rik.x(2)))
 						 /(ij*ik)));
-            		if (anglekij >= 90) continue;
+            		if (anglekij >= 90) continue; // continue to next k atom
             	
             		rkj.Ev1Mv2(atomk.coord.position(), atomn.coord.position());
             		nearestImageTransformer.nearestImage(rkj);
@@ -357,15 +364,16 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             		//from Baskes, Angelo, & Bisson (1994)
             		double xik = (ik/kj)*(ik/kj);
             		double xkj = (kj/ij)*(kj/ij);
-            		double C = ( (2.0*(xik + xkj)) - ((xik - xkj)*(xik - xkj))- 1.0 )
-							/ (1.0 - ((xik - xkj)*(xik - xkj)));
+            		double C = ( (2.0*(xik + xkj)) - 
+            					 ( (xik - xkj)*(xik - xkj) )- 1.0 ) / 
+							   (1.0 - ((xik - xkj)*(xik - xkj)));
             		double Sijk;
             		if (C <= p.Cmin) { 
             			Sij = 0;
             			break; //break out of for loop over k atoms
             		}
             		else if (C >= p.Cmax) { //Sijk = 1, value of Sij won't change
-            			continue;
+            			continue; // continue to next k atom
             		}
             		else {
             			Sijk = Math.exp(-(((p.Cmax - C)/(C - p.Cmin))
@@ -405,15 +413,20 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             		gjC.PEa1Tv1(1.0 - (xik - xkj)*(C + 1.0), gjXkj);
             		gjC.TE( 2.0 / ( 1.0 - ((xik - xkj)*(xik - xkj)) ));
 		    	
-            		giSijk.Ea1Tv1( 2.0*Sijk*(p.Cmax - C)/((C - p.Cmin)*(C - p.Cmin))
-		    			* ( ((p.Cmax - C)/(C - p.Cmin)) + 1.0 ), giC);
+            		giSijk.Ea1Tv1( 2.0*Sijk*(p.Cmax - C)/
+            				       ( (C - p.Cmin)*(C - p.Cmin) )
+		    			* ( ( (p.Cmax - C)/(C - p.Cmin) ) + 1.0 ), giC);
 		    	
-            		gjSijk.Ea1Tv1( 2.0*Sijk*(p.Cmax - C)/((C - p.Cmin)*(C - p.Cmin))
+            		gjSijk.Ea1Tv1( 2.0*Sijk*(p.Cmax - C)/
+            				       ( (C - p.Cmin)*(C - p.Cmin) )
 		    			* ( ((p.Cmax - C)/(C - p.Cmin)) + 1.0 ), gjC);
 		    	
-            		//The Sij value used to calculate gradSij is that for previous k's, 
-            		//or, for the first k considered, 1.  Same goes for the gradSij value
-            		//itself, except it's initialized as the zero vector...
+            		/** The Sij value used to calculate gradSij is that for 
+            		 * previous k's, or, for the first k considered, 1.0.  The 
+            		 * same goes for the giSij/gjSij values, except these are 
+            		 * initialized as the zero vector...
+            		 */
+            		
             		giSij.TE(Sijk);
             		giSij.PEa1Tv1(Sij, giSijk);
 		    	
@@ -425,10 +438,14 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     	
             	if (Sij != 0) {
         	
-	            	double rhoj0 = p.rhoScale * Math.exp(-p.beta0 * ((ij/p.r0) - 1.0)) * Sij;
-	            	double rhoj1 = p.rhoScale * Math.exp(-p.beta1 * ((ij/p.r0) - 1.0)) * Sij;
-	            	double rhoj2 = p.rhoScale * Math.exp(-p.beta2 * ((ij/p.r0) - 1.0)) * Sij;
-	            	double rhoj3 = p.rhoScale * Math.exp(-p.beta3 * ((ij/p.r0) - 1.0)) * Sij;
+	            	double rhoj0 = p.rhoScale * 
+								Math.exp(-p.beta0 * ((ij/p.r0) - 1.0)) * Sij;
+	            	double rhoj1 = p.rhoScale * 
+								Math.exp(-p.beta1 * ((ij/p.r0) - 1.0)) * Sij;
+	            	double rhoj2 = p.rhoScale * 
+								Math.exp(-p.beta2 * ((ij/p.r0) - 1.0)) * Sij;
+	            	double rhoj3 = p.rhoScale * 
+								Math.exp(-p.beta3 * ((ij/p.r0) - 1.0)) * Sij;
 	        	
 	            	unitVector.E(rij);
 	            	unitVector.normalize();
@@ -437,33 +454,36 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	            	double y = unitVector.x(1);
 	            	double z = unitVector.x(2);
            
-	            	//to calculate the repulsive pair potential, phi
-	            	//Should rhoj0 within phi contain Sij? Phi itself is multiplied by Sij...
-	            	//FCC reference structure, Z = 12
-	            	double rhoj0Ref = p.rhoScale * Math.exp(-p.beta0 * ((ij/p.r0) - 1.0));
+	            	// to calculate the repulsive pair potential, phi
+	            	// Should rhoj0 within phi contain Sij? Phi itself is 
+	            	// multiplied by Sij...
+	            	// FCC reference structure, Z = 12
+	            	double rhoj0Ref = p.rhoScale * 
+								Math.exp(-p.beta0 * ( (ij/p.r0) - 1.0) );
 	            	double rhoiRef = p.Z * rhoj0Ref;   
-	            	double a = p.alpha * ((ij/p.r0) - 1.0);
+	            	double a = p.alpha * ( (ij/p.r0) - 1.0 );
 	            	double EuRef = - p.Ec * (1.0 + a) * Math.exp(-a);
-	        		double FRef = p.A * p.Ec * (rhoiRef/p.Z) * Math.log(rhoiRef/p.Z);
-	        		double phi = ((2.0/p.Z) * (EuRef - FRef)) * Sij;
+	        		double FRef = p.A * p.Ec * (rhoiRef/p.Z) * 
+								Math.log(rhoiRef/p.Z);
+	        		double phi = ( (2.0/p.Z) * (EuRef - FRef) ) * Sij;
 	    	
 	        		vector100.setX(0,1.0);
 	        		vector010.setX(1,1.0);
 	        		vector001.setX(2,1.0);
     	
 	        		//Pair-wise terms to calculate giEi
-	        		gix.Ea1Tv1(x/(ij*ij),rij);
+	        		gix.Ea1Tv1(x/(ij*ij), rij);
 	        		gix.PEa1Tv1(-1.0/ij, vector100);
 	    	
-	        		giy.Ea1Tv1(y/(ij*ij),rij);
+	        		giy.Ea1Tv1(y/(ij*ij), rij);
 	        		giy.PEa1Tv1(-1.0/ij, vector010);
 	    	
-	        		giz.Ea1Tv1(z/(ij*ij),rij);
+	        		giz.Ea1Tv1(z/(ij*ij), rij);
 	        		giz.PEa1Tv1(-1.0/ij, vector001);
 	    	
-	        		giRij.Ea1Tv1(-1.0/ij,rij);
+	        		giRij.Ea1Tv1(-1.0/ij, rij);
 	    	
-	    				//giPhi
+	    			//giPhi
 	        		giRhoj0Ref.Ea1Tv1(-rhoj0Ref*p.beta0/p.r0, giRij);
     	
 	        		giRhoiRef.Ea1Tv1(p.Z, giRhoj0Ref);
@@ -594,11 +614,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        		gjx.Ea1Tv1(-1.0, gix);
 	        		gjy.Ea1Tv1(-1.0, giy);
 	        		gjz.Ea1Tv1(-1.0, giz);
-	    	
 	        		gjRij.Ea1Tv1(-1.0, giRij);
-	    	
 	        		gjFRef.Ea1Tv1(-1.0, giFRef);
-	        		
 	        		gjERef.Ea1Tv1(-1.0, giERef);
 	        		
 	        		gjPhi.E(gjERef);
@@ -692,23 +709,24 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	    	
 	        		t3GjRhoj0.Ea1Tv1(p.t3, gjRhoj0);
             	} // exit if statement with condition that Sij != 0
-    	
             } // exit if statement with condition that n is a j atom of i
     	
-            //to consider n as a k atom, we must loop through neighbors j of i again
+            /** To consider n as a k atom, we must loop through neighbors j of i 
+             * again.
+             */
             
             for(int j = 1; j < atoms.count(); j++) {
         		AtomLeaf atomj = (AtomLeaf) atoms.getAtom(j);
-        		if (j == n) continue; //the k atom, n, must not be treated as one of the other j's
+        		//The k atom, n, must not be treated as one of the other j atoms.
+        		if (j == n) continue; // continue to next j atom
         		rij.Ev1Mv2(atomj.coord.position(), atom0.coord.position());
         		nearestImageTransformer.nearestImage(rij);
         		double ij = Math.sqrt(rij.squared());
-        		if (ij > jcut) continue;
+        		if (ij > jcut) continue; // continue to next j atom
         	
-        		//Remember, n is now treated as the k atom
         		rik.E(rin);
 	        	double ik = in;
-	        	if (ik > ij*1.14) continue; //n won't impact this i-j interaction
+	        	if (ik > ij*1.14) continue; // n won't impact this i-j interaction
         	
 	        	double anglekij = Math.toDegrees(Math.acos(
         			((rij.x(0)*rik.x(0)) + 
@@ -730,11 +748,20 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        	
 	        	double Sijk;
 	        	if (C <= p.Cmin) { 
-	        		continue; // continue to next j atom whose interation with 
-	        				 // i k might affect
+	        		continue; 
+	        		/** If Sijk equals 0, any gradient of Sijk, 
+	        		 * including that with respect to k, will also be 0.  We
+	        		 * should continue on to the next j atom, whose gkSijk may be 
+	        		 * nonzero.  
+	        		 */
 	        	}
-	        	else if (C >= p.Cmax) { //Sikj = 1, value of Sij won't change
-	        	    continue; //gkSij is zero for Sijk = 1 or 0
+	        	else if (C >= p.Cmax) { 
+	        	    continue; 
+	        	    /** If Sijk equals 1, any gradient of Sijk, 
+	        		 * including that with respect to k, will also be 0.  We
+	        		 * should continue on to the next j atom, whose gkSijk may be 
+	        		 * nonzero.  
+	        		 */
 	        	}
 	        	else {
 	        		Sijk = Math.exp(-(((p.Cmax - C)/(C - p.Cmin))
@@ -754,11 +781,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	    			if (il > ij*1.14) continue;
 	            	
 	    			double anglelij = Math.toDegrees(Math.acos(
-	            		((rij.x(0)*ril.x(0)) + 
-	            		 (rij.x(1)*ril.x(1)) + 
-	    				 (rij.x(2)*ril.x(2)))
-	    				 /(ij*il)));
-	            	
+	            		( (rij.x(0)*ril.x(0)) + (rij.x(1)*ril.x(1)) + 
+	    				  (rij.x(2)*ril.x(2)) ) / (ij*il) ));
 	    			if (anglelij >= 90) continue;
 	            	
 	    			rlj.Ev1Mv2(atoml.coord.position(), atomj.coord.position());
@@ -768,32 +792,37 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	    			//from Baskes, Angelo, & Bisson (1994)
 	    			double xil = (il/lj)*(il/lj);
 	    			double xjl = (lj/ij)*(lj/ij);
-	    			double c = ((2.0*(xil + xjl)) - ((xil - xjl)*(xil - xjl))- 1.0)/
-	    					   (1.0 - ((xil - xjl)*(xil - xjl)));
+	    			double c = ( ( 2.0*(xil + xjl) ) - 
+	    					     ( (xil - xjl)*(xil - xjl) ) - 1.0 ) /
+	    					   ( 1.0 - ( (xil - xjl)*(xil - xjl) ) );
 	            	
 	    			double Sijl;
 	    			if (c <= p.Cmin) { 
 	    				Sij = 0;
-	    				break; //break out of loop over k atoms for j!n atom
+	    				break; // break out of loop over k atoms for j!=n atom
 	    			}
-	    			else if (c >= p.Cmax) { //Silj = 1, value of Sij won't change
-	            		continue;
+	    			else if (c >= p.Cmax) { //Sijl = 1, value of Sij won't change
+	            		continue; // continue to next k!=n atom
 	            	}
 	    			else {
-	            		Sijl = Math.exp(-(((p.Cmax - c)/(c - p.Cmin))
-	            			   *((p.Cmax - c)/(c - p.Cmin))));
+	            		Sijl = Math.exp( -( ( (p.Cmax - c)/(c - p.Cmin) )
+	            			               *( (p.Cmax - c)/(c - p.Cmin) ) ) );
 	    			}
 	            	
 	    			Sij *= Sijl;
-	        		} // exit loop over all k for j!n (l is k...)
+	        		} // exit loop over k!=n for j!=n 
         	
-	        	// The l atoms may make Sij = 0.  
-	        	if (Sij == 0) continue; //continue to next j!n
+	        	// An l (k!=n) atom may have made Sij = 0.
+	        	if (Sij == 0) continue; //continue to next j!=n
 	        	
-	        	double rhoj0 = p.rhoScale * Math.exp(-p.beta0 * ((ij/p.r0) - 1.0)) * Sij;
-	        	double rhoj1 = p.rhoScale * Math.exp(-p.beta1 * ((ij/p.r0) - 1.0)) * Sij;
-	            double rhoj2 = p.rhoScale * Math.exp(-p.beta2 * ((ij/p.r0) - 1.0)) * Sij;
-	        	double rhoj3 = p.rhoScale * Math.exp(-p.beta3 * ((ij/p.r0) - 1.0)) * Sij;
+	        	double rhoj0 = p.rhoScale * 
+							Math.exp(-p.beta0 * ((ij/p.r0) - 1.0)) * Sij;
+	        	double rhoj1 = p.rhoScale * 
+							Math.exp(-p.beta1 * ((ij/p.r0) - 1.0)) * Sij;
+	            double rhoj2 = p.rhoScale * 
+							Math.exp(-p.beta2 * ((ij/p.r0) - 1.0)) * Sij;
+	        	double rhoj3 = p.rhoScale * 
+							Math.exp(-p.beta3 * ((ij/p.r0) - 1.0)) * Sij;
 	        	
 	        	unitVector.E(rij);
 	            unitVector.normalize();
@@ -803,9 +832,11 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	            double z = unitVector.x(2);
            
 	            //to calculate the repulsive pair potential, phi
-	            //Should rhoj0 within phi contain Sij? Phi itself is multiplied by Sij...
+	            //Should rhoj0 within phi contain Sij? Phi itself is multiplied 
+	            //by Sij...
 	            //FCC reference structure, Z = 12
-	            double rhoj0Ref = p.rhoScale * Math.exp(-p.beta0 * ((ij/p.r0) - 1.0));
+	            double rhoj0Ref = p.rhoScale * 
+							Math.exp(-p.beta0 * ((ij/p.r0) - 1.0));
 	            double rhoiRef = p.Z * rhoj0Ref;   
 	            double a = p.alpha * ((ij/p.r0) - 1.0);
 	        	double EuRef = - p.Ec * (1.0 + a) * Math.exp(-a);
@@ -912,7 +943,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		    	
 		    	t3GkRhoj0.Ea1Tv1(p.t3, gkRhoj0);
 		    	sumt3GkRhoj0.PE(t3GkRhoj0);
-	        } //exit loop over j!n atoms, with n as a k atom
+	        } //exit loop over j!=n atoms, with n as a k atom
 	    	
 	    	//multi-body terms, n as k is included
 	    	
@@ -993,10 +1024,10 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			
 			//Sn
 			
-			gnRhoi.Ea1Tv1(rhoi0*Math.exp(-gamma)/(1.0 + Math.exp(-gamma)), gnGamma);
+			gnRhoi.Ea1Tv1(rhoi0*
+						Math.exp(-gamma)/(1.0 + Math.exp(-gamma)), gnGamma);
 			gnRhoi.PE(gnRhoi0);
 			gnRhoi.TE(2.0/(1.0+Math.exp(-gamma)));
-			
 		
 			//Cu
 			/**
@@ -1068,7 +1099,6 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		giRhoi.PE(giRhoi0);
 		giRhoi.TE(2.0/(1.0+Math.exp(-gamma)));
 		
-		
 		//Cu
 		/**
 		giRhoi.Ea1Tv1(rhoi0*0.5*Math.sqrt(1.0/(1.0 + gamma)), giGamma);
@@ -1089,7 +1119,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	
 	protected NearestImageTransformer nearestImageTransformer;
     private ParameterSetMEAM p;
-    private AtomSet atoms;
+    //private AtomPair pair;
+    //private AtomSet atoms;
     
     double[] sum = new double[25];
 	public static final int RHOj0 = 0;
