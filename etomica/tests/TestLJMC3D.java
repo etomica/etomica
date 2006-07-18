@@ -13,6 +13,7 @@ import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.phase.Phase;
 import etomica.potential.P2LennardJones;
@@ -47,6 +48,7 @@ public class TestLJMC3D extends Simulation {
 	    mcMoveAtom = new MCMoveAtom(this);
         mcMoveAtom.setAtomSource(new AtomSourceRandomLeaf());
         mcMoveAtom.setStepSize(0.2*defaults.atomSize);
+        ((MCMoveStepTracker)mcMoveAtom.getTracker()).setTunable(false);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.setEquilibrating(false);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
