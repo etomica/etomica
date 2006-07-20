@@ -106,7 +106,7 @@ public class MEAMMd3D extends Simulation {
         integrator = new IntegratorVelocityVerlet(this);
         integrator.setTimeStep(0.001);
         integrator.setTemperature(Kelvin.UNIT.toSim(298));
-        integrator.setThermostatInterval(10);
+        integrator.setThermostatInterval(100);
         integrator.setIsothermal(true);
         activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setSleepPeriod(2);
