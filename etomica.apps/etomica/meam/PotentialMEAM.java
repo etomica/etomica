@@ -37,7 +37,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		return Double.POSITIVE_INFINITY;
 	}
 	
-	double jcut = 4.5; //Sn
+	double jcut = 4.0; //Sn
 	//double jcut = 3.0; //Cu
 	double kcut = jcut * 1.14;
 	
@@ -82,11 +82,12 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 				nearestImageTransformer.nearestImage(rkj);
 				double kj = Math.sqrt(rkj.squared());
         	
-				//from Baskes, Angelo, & Bisson (1994)
-				double xik = (ik/kj)*(ik/kj);
+				//from Baskes (1997)
+				double xik = (ik/r)*(ik/r);
 				double xjk = (kj/r)*(kj/r);
 				double C = ((2.0*(xik + xjk)) - ((xik - xjk)*(xik - xjk))- 1.0)/
 					   (1.0 - ((xik - xjk)*(xik - xjk)));
+				if (C < 0) continue; //- C forms hyperbola, not ellipse
 				
 				double Sijk;
 				if (C <= p.Cmin) { 
@@ -97,8 +98,9 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         			continue; //continue to next k atom in for loop
         		}
 				else {
-        			Sijk = Math.exp(-(((p.Cmax - C)/(C - p.Cmin))
-        					*((p.Cmax - C)/(C - p.Cmin))));
+					double q = ((C - p.Cmin)/(p.Cmax - p.Cmin));
+        			Sijk = (1 - ((1 - q)*(1 - q)*(1 - q)*(1 - q)))
+						  *(1 - ((1 - q)*(1 - q)*(1 - q)*(1 - q)));
 				}
         	
 				Sij *= Sijk;
@@ -361,12 +363,14 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             		nearestImageTransformer.nearestImage(rkj);
             		double kj = Math.sqrt(rkj.squared());
             	
-            		//from Baskes, Angelo, & Bisson (1994)
-            		double xik = (ik/kj)*(ik/kj);
+            		//from Baskes (1997)
+            		double xik = (ik/ij)*(ik/ij);
             		double xkj = (kj/ij)*(kj/ij);
             		double C = ( (2.0*(xik + xkj)) - 
             					 ( (xik - xkj)*(xik - xkj) )- 1.0 ) / 
 							   (1.0 - ((xik - xkj)*(xik - xkj)));
+            		if (C < 0) continue; // - C does not form ellipse
+            		double q = ((C - p.Cmin)/(p.Cmax - p.Cmin));
             		double Sijk;
             		if (C <= p.Cmin) { 
             			Sij = 0;
@@ -376,8 +380,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             			continue; // continue to next k atom
             		}
             		else {
-            			Sijk = Math.exp(-(((p.Cmax - C)/(C - p.Cmin))
-            					*((p.Cmax - C)/(C - p.Cmin))));
+            			Sijk = (1 - ((1 - q)*(1 - q)*(1 - q)*(1 - q)))
+    						  *(1 - ((1 - q)*(1 - q)*(1 - q)*(1 - q)));
             		}
             	
             		giRij.Ea1Tv1(-1.0/ij, rij);
@@ -389,17 +393,17 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             		giRkj.E(0);
             		gjRkj.Ea1Tv1(-1.0/kj, rkj);
             	
-            		giXik.Ea1Tv1(-ik/(kj*kj), giRkj);
-            		giXik.PEa1Tv1(1.0/kj, giRik);
-            		giXik.TE(2.0*ik/kj);
+            		giXik.Ea1Tv1(-ik/(ij*ij), giRij);
+            		giXik.PEa1Tv1(1.0/ij, giRik);
+            		giXik.TE(2.0*ik/ij);
             	
             		giXkj.Ea1Tv1(-kj/(ij*ij), giRij);
             		giXkj.PEa1Tv1(1.0/ij, giRkj);
             		giXkj.TE(2.0*kj/ij);
             	
-            		gjXik.Ea1Tv1(-ik/(kj*kj), gjRkj);
-            		gjXik.PEa1Tv1(1.0/kj, gjRik);
-            		gjXik.TE(2.0*ik/kj);
+            		gjXik.Ea1Tv1(-ik/(ij*ij), gjRij);
+            		gjXik.PEa1Tv1(1.0/ij, gjRik);
+            		gjXik.TE(2.0*ik/ij);
             	
             		gjXkj.Ea1Tv1(-kj/(ij*ij), gjRij);
             		gjXkj.PEa1Tv1(1.0/ij, gjRkj);
@@ -413,13 +417,13 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             		gjC.PEa1Tv1(1.0 - (xik - xkj)*(C + 1.0), gjXkj);
             		gjC.TE( 2.0 / ( 1.0 - ((xik - xkj)*(xik - xkj)) ));
 		    	
-            		giSijk.Ea1Tv1( 2.0*Sijk*(p.Cmax - C)/
-            				       ( (C - p.Cmin)*(C - p.Cmin) )
-		    			* ( ( (p.Cmax - C)/(C - p.Cmin) ) + 1.0 ), giC);
+            		giSijk.Ea1Tv1(8 * (1 - ((1 - q)*(1 - q)*(1 - q)*(1 - q)))
+				                    * ((1 - q)*(1 - q)*(1 - q))
+									* (1 / (p.Cmax - p.Cmin)), giC);
 		    	
-            		gjSijk.Ea1Tv1( 2.0*Sijk*(p.Cmax - C)/
-            				       ( (C - p.Cmin)*(C - p.Cmin) )
-		    			* ( ((p.Cmax - C)/(C - p.Cmin)) + 1.0 ), gjC);
+            		gjSijk.Ea1Tv1(8 * (1 - ((1 - q)*(1 - q)*(1 - q)*(1 - q)))
+		                            * ((1 - q)*(1 - q)*(1 - q))
+							        * (1 / (p.Cmax - p.Cmin)), gjC);
 		    	
             		/** The Sij value used to calculate gradSij is that for 
             		 * previous k's, or, for the first k considered, 1.0.  The 
@@ -739,12 +743,15 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        	nearestImageTransformer.nearestImage(rkj);
 	        	double kj = Math.sqrt(rkj.squared());
         	
-	        	//from Baskes, Angelo, & Bisson (1994)
-	        	double xik = (ik/kj)*(ik/kj);
+	        	//from Baskes (1997)
+	        	double xik = (ik/ij)*(ik/ij);
 	        	double xkj = (kj/ij)*(kj/ij);
         	
 	        	double C = ( (2.0*(xik + xkj)) - ((xik - xkj)*(xik - xkj))- 1.0 )
 							/ (1.0 - ((xik - xkj)*(xik - xkj)));
+	        	if (C < 0) continue;
+	        	
+	        	double q = ((C - p.Cmin)/(p.Cmax - p.Cmin));
 	        	
 	        	double Sijk;
 	        	if (C <= p.Cmin) { 
@@ -764,8 +771,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        		 */
 	        	}
 	        	else {
-	        		Sijk = Math.exp(-(((p.Cmax - C)/(C - p.Cmin))
-	        					*((p.Cmax - C)/(C - p.Cmin))));
+        			Sijk = (1 - ((1 - q)*(1 - q)*(1 - q)*(1 - q)))
+						  *(1 - ((1 - q)*(1 - q)*(1 - q)*(1 - q)));
 	        	}
 	        	
 	        	// To calculate Sij. l is k != n.
@@ -789,12 +796,13 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	    			nearestImageTransformer.nearestImage(rlj);
 	    			double lj = Math.sqrt(rlj.squared());
 	            	
-	    			//from Baskes, Angelo, & Bisson (1994)
-	    			double xil = (il/lj)*(il/lj);
+	    			//from Baskes (1997)
+	    			double xil = (il/ij)*(il/ij);
 	    			double xjl = (lj/ij)*(lj/ij);
 	    			double c = ( ( 2.0*(xil + xjl) ) - 
 	    					     ( (xil - xjl)*(xil - xjl) ) - 1.0 ) /
 	    					   ( 1.0 - ( (xil - xjl)*(xil - xjl) ) );
+	    			if (c < 0) continue;
 	            	
 	    			double Sijl;
 	    			if (c <= p.Cmin) { 
@@ -805,8 +813,9 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	            		continue; // continue to next k!=n atom
 	            	}
 	    			else {
-	            		Sijl = Math.exp( -( ( (p.Cmax - c)/(c - p.Cmin) )
-	            			               *( (p.Cmax - c)/(c - p.Cmin) ) ) );
+	    				double qq = ((C - p.Cmin)/(p.Cmax - p.Cmin));
+	        			Sijl = (1 - ((1 - qq)*(1 - qq)*(1 - qq)*(1 - qq)))
+							  *(1 - ((1 - qq)*(1 - qq)*(1 - qq)*(1 - qq)));
 	    			}
 	            	
 	    			Sij *= Sijl;
@@ -847,9 +856,9 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        	gkRik.Ea1Tv1(1.0/ik, rik); 
 	        	gkRkj.Ea1Tv1(1.0/kj, rkj); 
 	        	
-	        	gkXik.Ea1Tv1(-ik/(kj*kj), gkRkj);
-	        	gkXik.PEa1Tv1(1.0/kj, gkRik);
-	        	gkXik.TE(2.0*ik/kj);
+	        	gkXik.Ea1Tv1(-ik/(ij*ij), gkRij);
+	        	gkXik.PEa1Tv1(1.0/ij, gkRik);
+	        	gkXik.TE(2.0*ik/ij);
 	        	
 	        	gkXkj.Ea1Tv1(-kj/(ij*ij), gkRij);
 	        	gkXkj.PEa1Tv1(1.0/ij, gkRkj);
@@ -859,8 +868,9 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		    	gkC.PEa1Tv1(1.0 - (xik - xkj)*(C + 1.0), gkXkj);
 		    	gkC.TE( 2.0 / ( 1.0 - ((xik - xkj)*(xik - xkj)) ));
 		    
-		    	gkSijk.Ea1Tv1( 2.0*Sijk*(p.Cmax - C)/((C - p.Cmin)*(C - p.Cmin) )
-		    			* ( ((p.Cmax - C)/(C - p.Cmin)) + 1.0 ), gkC);
+		    	gkSijk.Ea1Tv1( 8 * (1 - ((1 - q)*(1 - q)*(1 - q)*(1 - q)))
+	                             * ((1 - q)*(1 - q)*(1 - q))
+						         * (1 / (p.Cmax - p.Cmin)), gkC);
 		    	
 		    	//We only consider one k atom - the k atom that is n
 		    	gkSij.Ea1Tv1(Sij/Sijk, gkSijk);
