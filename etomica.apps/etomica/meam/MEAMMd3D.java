@@ -54,7 +54,8 @@ import etomica.util.HistoryCollapsingAverage;
 public class MEAMMd3D extends Simulation {
     
     public IntegratorVelocityVerlet integrator;
-    public SpeciesSpheresMono species;
+    public SpeciesSpheresMono sn;
+    public SpeciesSpheresMono cu;
     public Phase phase;
     public MEAMPInitial pseudoPotential1;
     public MEAMP2 pseudoPotential2;
@@ -91,7 +92,8 @@ public class MEAMMd3D extends Simulation {
     	simgraphic.panel().add(plot.graphic());
     	simgraphic.panel().add(plotKE.graphic());
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simgraphic.displayList().getFirst()).getColorScheme());
-    	colorScheme.setColor(sim.species.getMoleculeType(),java.awt.Color.red);
+    	colorScheme.setColor(sim.sn.getMoleculeType(),java.awt.Color.red);
+    	colorScheme.setColor(sim.cu.getMoleculeType(),java.awt.Color.blue);
     	//sim.activityIntegrate.setMaxSteps(1000);
     	//sim.getController().run();
     	//DataGroup data = (DataGroup)energyAccumulator.getData(); // kmb change type to Data instead of double[]
@@ -104,27 +106,29 @@ public class MEAMMd3D extends Simulation {
     public MEAMMd3D() {
         super(Space3D.getInstance()); //INSTANCE); kmb change 8/3/05
         integrator = new IntegratorVelocityVerlet(this);
-        integrator.setTimeStep(0.001);
+        integrator.setTimeStep(0.005);
         integrator.setTemperature(Kelvin.UNIT.toSim(298));
         integrator.setThermostatInterval(100);
         integrator.setIsothermal(true);
         activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
-        species = new SpeciesSpheresMono(this);
-        species.setNMolecules(216);
+        sn = new SpeciesSpheresMono(this);
+        cu = new SpeciesSpheresMono(this);
+        sn.setNMolecules(216);
+        cu.setNMolecules(0);
         
         //Sn
         
         //The value of the atomic weight of Sn used is from the ASM Handbook. 
-        ((AtomTypeLeaf)species.getFactory().getType()).setMass(118.69);
+        ((AtomTypeLeaf)sn.getFactory().getType()).setMass(118.69);
         //The "distance of closest approach" for atoms in beta-tin, as given on 
         //p. 639 of Cullity and Strock's "Elements of X-Ray Diffraction" (2001), 
         //is used as the diameter for Sn atoms in the simulation.  This value was
         //taken from Pearson [G.9, Vol.2].  This is essentially the same as the
         //distance given in the ASM Handbook for a beta-tin atom and its four
         //closest neighbors: 3.02 Angstroms.
-        ((AtomTypeSphere)species.getFactory().getType()).setDiameter(3.022); 
+        ((AtomTypeSphere)sn.getFactory().getType()).setDiameter(3.022); 
         // This forces the MEAMP2 to request an agentIndex from Atom.
         //pseudoPotential2 = new MEAMP2(this, ParameterSetMEAM.Sn);
         phase = new Phase(this);
@@ -165,11 +169,14 @@ public class MEAMMd3D extends Simulation {
         
         
         //N-body potential
-		potentialN = new PotentialMEAM (space, ParameterSetMEAM.Sn);//Sn
+		//potentialN = new PotentialMEAM (space, ParameterSetMEAM.Sn);//Sn
 		//potentialN = new PotentialMEAM (space, ParameterSetMEAM.Cu);//Cu
+		potentialN = new PotentialMEAM(space);
+		potentialN.setParameters(sn, ParameterSetMEAM.Sn);
+		potentialN.setParameters(cu, ParameterSetMEAM.Cu);
 		
 		//System.out.println(ParameterSetMEAM.Sn.Ec);
-        this.potentialMaster.addPotential(potentialN, new Species[]{species});    
+        this.potentialMaster.addPotential(potentialN, new Species[]{sn, cu});    
         
         integrator.setPhase(phase);
         PhaseImposePbc imposepbc = new PhaseImposePbc();
