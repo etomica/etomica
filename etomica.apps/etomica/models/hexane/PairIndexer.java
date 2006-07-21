@@ -48,8 +48,6 @@ public class PairIndexer {
         mSize0 = a;
         mSize1 = b;
         dim = phase.space().D();
-        atom0 = new AtomLeaf(phase.space());
-        atom1 = new AtomLeaf(phase.space());
         temp = phase.space().makeVector();
         temp2 = phase.space().makeVector();
         angleTol = 0.0005;
@@ -198,9 +196,7 @@ public class PairIndexer {
      * @return
      */
     public int[] getIndex(Atom a){
-        int[] inds = new int[dim];
-        inds = indices[a.getGlobalIndex()];
-        return inds;
+        return indices[a.getGlobalIndex()];
     }
     
     /**
@@ -252,14 +248,6 @@ public class PairIndexer {
         //NB that maxes is always positive, so this length is always positive.
     }
  
-    /**
-     * Returns the appropriate bin number for storing information for a given pair
-     * of atoms
-     */
-    public int getBin(Atom a, Atom b){
-        AtomPair ab = new AtomPair(a,b);
-        return getBin(ab);
-    }
     
     /**
      * Returns the appropriate bin number for storing information for a given pair
@@ -283,7 +271,6 @@ public class PairIndexer {
         //All these calculations are done in "primitive units"
 
         //create the vector between the atoms.
-        atom0 = atompair.getAtom(0).node.parentMolecule();
         int[] set1 = new int[dim];
         set1 = getIndex(atompair.getAtom(1).node.parentMolecule());
 
@@ -412,8 +399,6 @@ public class PairIndexer {
      
     Phase phase;            // Contains the atom information.
     int dim;                // The dimensions of the system
-    private Atom atom0;     // Temporary storage
-    private Atom atom1;     // Temporary storage
     private int[] maxes;    // The maximum values in each physical direction
     private int maxLength;  // The maximum number of index values possible.  May be needed outside of this class.
     Primitive prim;         // The primitives used to define the space 
