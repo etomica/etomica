@@ -154,7 +154,7 @@ public class MEAM_MC extends Simulation {
 		
 		
 	    //N-body potential
-	    potentialN = new PotentialMEAM (space, ParameterSetMEAM.Sn);
+	    potentialN = new PotentialMEAM (space);
 		//potentialN = new PotentialMEAM(space, ParameterSetMEAM.Cu);
 		
 	    //System.out.println(ParameterSetMEAM.Sn.Ec);
