@@ -55,11 +55,9 @@ public class MEAMMd3D extends Simulation {
     
     public IntegratorVelocityVerlet integrator;
     public SpeciesSpheresMono sn;
+    public SpeciesSpheresMono ag;
     public SpeciesSpheresMono cu;
     public Phase phase;
-    public MEAMPInitial pseudoPotential1;
-    public MEAMP2 pseudoPotential2;
-    public MEAMPMany potential;
     public PotentialMEAM potentialN;
     public Controller controller;
     public DisplayPhase display;
@@ -92,8 +90,9 @@ public class MEAMMd3D extends Simulation {
     	simgraphic.panel().add(plot.graphic());
     	simgraphic.panel().add(plotKE.graphic());
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simgraphic.displayList().getFirst()).getColorScheme());
-    	colorScheme.setColor(sim.sn.getMoleculeType(),java.awt.Color.red);
-    	colorScheme.setColor(sim.cu.getMoleculeType(),java.awt.Color.blue);
+    	colorScheme.setColor(sim.sn.getMoleculeType(),java.awt.Color.blue);
+    	colorScheme.setColor(sim.ag.getMoleculeType(),java.awt.Color.gray);
+    	colorScheme.setColor(sim.cu.getMoleculeType(),java.awt.Color.orange);
     	//sim.activityIntegrate.setMaxSteps(1000);
     	//sim.getController().run();
     	//DataGroup data = (DataGroup)energyAccumulator.getData(); // kmb change type to Data instead of double[]
@@ -114,24 +113,29 @@ public class MEAMMd3D extends Simulation {
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
         sn = new SpeciesSpheresMono(this);
+        ag = new SpeciesSpheresMono(this);
         cu = new SpeciesSpheresMono(this);
         sn.setNMolecules(216);
+        ag.setNMolecules(0);
         cu.setNMolecules(0);
         
-        //Sn
-        
-        //The value of the atomic weight of Sn used is from the ASM Handbook. 
+        /** The following values come from either the ASM Handbook or Cullity & Stock's 
+         * "Elements of X-Ray Diffraction" (2001)
+         */
         ((AtomTypeLeaf)sn.getFactory().getType()).setMass(118.69);
-        //The "distance of closest approach" for atoms in beta-tin, as given on 
-        //p. 639 of Cullity and Strock's "Elements of X-Ray Diffraction" (2001), 
-        //is used as the diameter for Sn atoms in the simulation.  This value was
-        //taken from Pearson [G.9, Vol.2].  This is essentially the same as the
-        //distance given in the ASM Handbook for a beta-tin atom and its four
-        //closest neighbors: 3.02 Angstroms.
         ((AtomTypeSphere)sn.getFactory().getType()).setDiameter(3.022); 
-        // This forces the MEAMP2 to request an agentIndex from Atom.
-        //pseudoPotential2 = new MEAMP2(this, ParameterSetMEAM.Sn);
+        
+        ((AtomTypeLeaf)ag.getFactory().getType()).setMass(107.868);
+        ((AtomTypeSphere)ag.getFactory().getType()).setDiameter(2.8895); 
+        
+        ((AtomTypeLeaf)cu.getFactory().getType()).setMass(63.546);
+        ((AtomTypeSphere)cu.getFactory().getType()).setDiameter(2.5561); 
+        
+        
         phase = new Phase(this);
+        
+        // beta-Sn phase
+        
         //The dimensions of the simulation box must be proportional to those of
         //the unit cell to prevent distortion of the lattice.  The values for the 
         //lattice parameters for tin's beta phase (a = 5.8314 angstroms, c = 3.1815 
@@ -143,40 +147,25 @@ public class MEAMMd3D extends Simulation {
         //PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.92, 3.23);
         LatticeCrystal crystal = new LatticeCrystal(new Crystal(
         		primitive, new BasisBetaSnA5(primitive)));
-        
 
-        //pseudoPotential1 = new MEAMPInitial(space, pseudoPotential2.getPhaseAgentManager());
-        //potential = new MEAMPMany(space, ParameterSetMEAM.Sn, pseudoPotential2.getPhaseAgentManager());
-        //this.potentialMaster.addPotential(potential, new Species[]{species});
-        //this.potentialMaster.addPotential(pseudoPotential2, new Species[]{species,species});
-        //this.potentialMaster.addPotential(pseudoPotential1, new Species[]{species});    
-
-        //Cu
+        //FCC Cu
         /**
-	    ((AtomTypeLeaf)species.getFactory().getType()).setMass(63.546);//Cullity & Stock
-	    ((AtomTypeSphere)species.getFactory().getType()).setDiameter(2.56);
-	    phase = new Phase(this);
 	    phase.setDimensions(new Vector3D(3.6148*3, 3.6148*3, 3.6148*6));
 	    PrimitiveCubic primitive = new PrimitiveCubic(space, 3.6148);
 	    LatticeCrystal crystal = new LatticeCrystal(new Crystal(
 		        primitive, new BasisCubicFcc(primitive)));
 	    **/
-        
-		//General   
+           
 		Configuration config = new ConfigurationLattice(crystal);
-        //phase.setConfiguration(config);  // kmb remove 8/3/05
-		config.initializeCoordinates(phase);  // kmb added 8/3/05
+		config.initializeCoordinates(phase);
         
-        
-        //N-body potential
-		//potentialN = new PotentialMEAM (space, ParameterSetMEAM.Sn);//Sn
-		//potentialN = new PotentialMEAM (space, ParameterSetMEAM.Cu);//Cu
 		potentialN = new PotentialMEAM(space);
 		potentialN.setParameters(sn, ParameterSetMEAM.Sn);
+		potentialN.setParameters(ag, ParameterSetMEAM.Ag);
 		potentialN.setParameters(cu, ParameterSetMEAM.Cu);
-		
-		//System.out.println(ParameterSetMEAM.Sn.Ec);
-        this.potentialMaster.addPotential(potentialN, new Species[]{sn, cu});    
+		potentialN.setParameters2(sn, cu, ParameterSetMEAM.Cu3Sn);
+		potentialN.setParameters2(sn, ag, ParameterSetMEAM.Ag3Sn);
+        this.potentialMaster.addPotential(potentialN, new Species[]{sn, ag, cu});    
         
         integrator.setPhase(phase);
         PhaseImposePbc imposepbc = new PhaseImposePbc();
