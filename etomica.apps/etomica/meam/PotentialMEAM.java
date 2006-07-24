@@ -39,6 +39,17 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		 parameters[index] = p;
 	 }
 
+	 public void setParameters2(Species s1, Species s2, ParameterSetMEAM p2) {
+	 	 //both s1, s2, and the cross potential reference structure have the 
+	     //same number of parameters
+		 int index = s1.getFactory().getType().getIndex();
+		 if(index > parameters2.length) {
+			 parameters2 = (ParameterSetMEAM[])Arrays.resizeArray(parameters2, index+1);
+		 }
+		 parameters2[index] = p2; 
+		 //this is where the values held in the array are set to those of Cu3Sn or Ag3Sn
+	 }
+	 
 	/* (non-Javadoc)
 	 * @see etomica.potential.Potential#getRange()
 	 */
@@ -62,8 +73,10 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     	
 			AtomLeaf atom0 = (AtomLeaf)atoms.getAtom(0);
 			AtomLeaf atomj = (AtomLeaf)atoms.getAtom(j);
-			ParameterSetMEAM pi = parameters[atom0.type.getIndex()];
-			ParameterSetMEAM pj = parameters[atomj.type.getIndex()];
+			int indexi = atom0.type.getIndex();
+			int indexj = atomj.type.getIndex();
+			ParameterSetMEAM pi = parameters[indexi];
+			ParameterSetMEAM pj = parameters[indexj];
 			rij.Ev1Mv2(atomj.coord.position(), atom0.coord.position());
 			nearestImageTransformer.nearestImage(rij);
 			double r = Math.sqrt(rij.squared());
@@ -121,12 +134,6 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	
 			if (Sij == 0) continue; // continue to next j atom in for loop  
    
-			/** When the atoms in the pair being examined are different elements,
-			* the rhoj terms are not equivalent for both, because the constants
-			* for the elements in the expression for rhoj differ. This class 
-			* functions for unmixed pairs of atoms only.
-			*/
-			
 			double rhoj0 = pj.rhoScale * 
 						Math.exp(-pj.beta0 * ((r/pj.r0) - 1.0)) * Sij;
 			double rhoj1 = pj.rhoScale * 
@@ -175,12 +182,51 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			//to calculate the repulsive pair potential, phi
 			//Should rhoj0 within phi contain Sij? Phi itself is multiplied 
 			//by Sij...
-			double rhoj0Ref = pj.rhoScale * Math.exp(-pj.beta0 * ((r/pj.r0) - 1.0));
-			double rhoiRef = pi.Z * rhoj0Ref;   //FCC reference structure, Z = 12
-			double a = pi.alpha * ((r/pi.r0) - 1.0);
-			double EuRef = - pi.Ec * (1.0 + a) * Math.exp(-a);
-			double FRef = pi.A * pi.Ec * (rhoiRef/pi.Z) * Math.log(rhoiRef/pi.Z);
-			sum[PHI] += ((2.0/pi.Z) * (EuRef - FRef)) * Sij;
+			
+			if (indexi == indexj) {
+				double a = pi.alpha * ((r/pi.r0) - 1.0);
+				double EuRef = - pi.Ec * (1.0 + a) * Math.exp(-a);
+				double rhoj0Ref = pj.rhoScale * Math.exp(-pj.beta0 * ((r/pj.r0) - 1.0));
+				double rhoiRef = pi.Z * rhoj0Ref;   //FCC reference structure, Z = 12
+				double FRef = pi.A * pi.Ec * (rhoiRef/pi.Z) * Math.log(rhoiRef/pi.Z);
+				sum[PHI] += ((2.0/pi.Z) * (EuRef - FRef)) * Sij;
+			}
+			
+			else {
+				ParameterSetMEAM b3sn = parameters2[indexi];
+				ParameterSetMEAM sn, b;
+				
+				if (pi.r0 == 3.44){ // atom i is the Sn atom
+					sn = parameters[indexi]; b  = parameters[indexj];	
+				}
+				else {
+					sn = parameters[indexj]; b  = parameters[indexi];	
+				}
+				
+				double a = b3sn.alpha * ((r/b3sn.r0) - 1.0);
+				double EuRef = - b3sn.Ec * (1.0 + a) * Math.exp(-a);
+				
+				double rhoB0 = b.rhoScale * Math.exp(-b.beta0 * ((r/b.r0) - 1.0));
+				double rhoB2 = b.rhoScale * Math.exp(-b.beta2 * ((r/b.r0) - 1.0));
+				double rhoSn0 = sn.rhoScale * Math.exp(-sn.beta0 * ((r/sn.r0) - 1.0));
+				double rhoSn2 = sn.rhoScale * Math.exp(-sn.beta2 * ((r/sn.r0) - 1.0));
+				double rhoB = ( Math.sqrt( ((8.0*rhoB0 + 4.0*rhoSn0)*(8.0*rhoB0 + 4.0*rhoSn0))
+										  +((8.0/3.0)*b.t2*(rhoB2 - rhoSn2)*(rhoB2 - rhoSn2))))
+							   /(12.0*b.rhoScale);
+				double rhoSn = 3.0*rhoB0/sn.rhoScale;
+				double FB  = b.A  * b.Ec  * (rhoB/12.0) * Math.log(rhoB/12.0);
+				double FSn = sn.A * sn.Ec * (rhoSn/4.0) * Math.log(rhoSn/4.0);
+			
+				//phiBB
+				double aB = b.alpha * ((r/b.r0) - 1.0);
+				double EuBRef = - b.Ec * (1.0 + a) * Math.exp(-a);
+				double rhoB0Ref = b.rhoScale * Math.exp(-b.beta0 * ((r/b.r0) - 1.0));
+				double rhoiBRef = b.Z * rhoB0Ref;   //FCC reference structure, Z = 12
+				double FBRef = b.A * b.Ec * (rhoiBRef/b.Z) * Math.log(rhoiBRef/b.Z);
+				double phiBB = ((2.0/b.Z) * (EuBRef - FBRef));
+				
+				sum[PHI] += (1.0/3.0)*EuRef - (1.0/4.0)*FB - (1.0/12.0)*FSn - phiBB;
+			}
 		} // exit for loop over j atoms
 	} // exit calcSums()
 
@@ -253,10 +299,10 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	 * @see etomica.potential.Potential#energy(etomica.atom.AtomSet)
 	 */
 	public double energy(AtomSet atoms) {
-		AtomLeaf atom0 = (AtomLeaf)atoms.getAtom(0);
-		ParameterSetMEAM pi = parameters[atom0.type.getIndex()];
 		calcSums(atoms);
 		double rhoi = rhoi();
+		AtomLeaf atom0 = (AtomLeaf)atoms.getAtom(0);
+		ParameterSetMEAM pi = parameters[atom0.type.getIndex()];
 		double F = pi.A * pi.Ec * (rhoi/pi.Z) * Math.log(rhoi/pi.Z);
 		return F + (0.5*sum[PHI]);
 	}
@@ -299,7 +345,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			gamma = gamma(), rhoi = rhoi();
         
         AtomLeaf atom0 = (AtomLeaf)atoms.getAtom(0);
-		ParameterSetMEAM pi = parameters[atom0.type.getIndex()];
+		int indexi = atom0.type.getIndex();
+		ParameterSetMEAM pi = parameters[indexi];
         
         sumGiRhoj0.E(0); 
         sumGiRhoj1x.E(0); sumGiRhoj1y.E(0); sumGiRhoj1z.E(0); 
@@ -358,7 +405,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             if (in <= jcut) {
             
             	rij.E(rin); double ij = in;
-            	ParameterSetMEAM pj = parameters[atomn.type.getIndex()];
+    			int indexj = atomn.type.getIndex();
+    			ParameterSetMEAM pj = parameters[indexj];
             
             	double Sij = 1.0; giSij.E(0); gjSij.E(0);
             	for(int k = 1; k < atoms.count(); k++) {
@@ -387,13 +435,13 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             					 ( (xik - xkj)*(xik - xkj) )- 1.0 ) / 
 							   (1.0 - ((xik - xkj)*(xik - xkj)));
             		if (C < 0) continue; // - C does not form ellipse
-            		double q = ((C - p.Cmin)/(p.Cmax - p.Cmin));
+            		double q = ((C - pi.Cmin)/(pi.Cmax - pi.Cmin));
             		double Sijk;
-            		if (C <= p.Cmin) { 
+            		if (C <= pi.Cmin) { 
             			Sij = 0;
             			break; //break out of for loop over k atoms
             		}
-            		else if (C >= p.Cmax) { //Sijk = 1, value of Sij won't change
+            		else if (C >= pi.Cmax) { //Sijk = 1, value of Sij won't change
             			continue; // continue to next k atom
             		}
             		else {
@@ -436,11 +484,11 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		    	
             		giSijk.Ea1Tv1(8 * (1 - ((1 - q)*(1 - q)*(1 - q)*(1 - q)))
 				                    * ((1 - q)*(1 - q)*(1 - q))
-									* (1 / (p.Cmax - p.Cmin)), giC);
+									* (1 / (pi.Cmax - pi.Cmin)), giC);
 		    	
             		gjSijk.Ea1Tv1(8 * (1 - ((1 - q)*(1 - q)*(1 - q)*(1 - q)))
 		                            * ((1 - q)*(1 - q)*(1 - q))
-							        * (1 / (p.Cmax - p.Cmin)), gjC);
+							        * (1 / (pi.Cmax - pi.Cmin)), gjC);
 		    	
             		/** The Sij value used to calculate gradSij is that for 
             		 * previous k's, or, for the first k considered, 1.0.  The 
@@ -465,7 +513,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 								Math.exp(-pj.beta1 * ((ij/pj.r0) - 1.0)) * Sij;
 	            	double rhoj2 = pj.rhoScale * 
 								Math.exp(-pj.beta2 * ((ij/pj.r0) - 1.0)) * Sij;
-	            	double rhoj3 = p.rhoScale * 
+	            	double rhoj3 = pj.rhoScale * 
 								Math.exp(-pj.beta3 * ((ij/pj.r0) - 1.0)) * Sij;
 	        	
 	            	unitVector.E(rij);
@@ -474,21 +522,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	            	double x = unitVector.x(0);
 	            	double y = unitVector.x(1);
 	            	double z = unitVector.x(2);
-           
-	            	// to calculate the repulsive pair potential, phi
-	            	// Should rhoj0 within phi contain Sij? Phi itself is 
-	            	// multiplied by Sij...
-	            	// FCC reference structure, Z = 12
-	            	double rhoj0Ref = pj.rhoScale * 
-								Math.exp(-pj.beta0 * ( (ij/pj.r0) - 1.0) );
-	            	double rhoiRef = pi.Z * rhoj0Ref;   
-	            	double a = pi.alpha * ( (ij/pi.r0) - 1.0 );
-	            	double EuRef = - pi.Ec * (1.0 + a) * Math.exp(-a);
-	        		double FRef = pi.A * pi.Ec * (rhoiRef/pi.Z) * 
-								Math.log(rhoiRef/pi.Z);
-	        		double phi = ( (2.0/pi.Z) * (EuRef - FRef) ) * Sij;
-	    	
-	        		vector100.setX(0,1.0);
+	            	
+	            	vector100.setX(0,1.0);
 	        		vector010.setX(1,1.0);
 	        		vector001.setX(2,1.0);
     	
@@ -504,22 +539,125 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	    	
 	        		giRij.Ea1Tv1(-1.0/ij, rij);
 	    	
-	    			//giPhi
-	        		giRhoj0Ref.Ea1Tv1(-rhoj0Ref*pj.beta0/pj.r0, giRij);
-    	
-	        		giRhoiRef.Ea1Tv1(pi.Z, giRhoj0Ref);
-	    	
-	        		giFRef.Ea1Tv1( (pi.A*pi.Ec/pi.Z)*
-	        			(1.0 + Math.log(rhoiRef/pi.Z)), giRhoiRef);
-	    	
-	        		giERef.Ea1Tv1( (pi.Ec*pi.alpha*pi.alpha/pi.r0) * ((ij/pi.r0) - 1.0)
-	        			*(Math.exp(-pi.alpha*((ij/pi.r0)-1.0))), giRij);
-	    	
-	        		giPhi.E(giERef);
-	        		giPhi.ME(giFRef);
-	        		giPhi.TE(2.0 * Sij /pi.Z);
-	        		giPhi.PEa1Tv1(phi/Sij, giSij);
-	        		sumGiPhi.PE(giPhi);
+           
+	            	// to calculate the repulsive pair potential, phi
+	            	// Should rhoj0 within phi contain Sij? Phi itself is 
+	            	// multiplied by Sij...
+	            	// FCC reference structure, Z = 12
+	        		double phi;
+	        		if (indexi == indexj) {
+	    				double a = pi.alpha * ((ij/pi.r0) - 1.0);
+	    				double EuRef = - pi.Ec * (1.0 + a) * Math.exp(-a);
+	    				double rhoj0Ref = pj.rhoScale * Math.exp(-pj.beta0 * ((ij/pj.r0) - 1.0));
+	    				double rhoiRef = pi.Z * rhoj0Ref;   //FCC reference structure, Z = 12
+	    				double FRef = pi.A * pi.Ec * (rhoiRef/pi.Z) * Math.log(rhoiRef/pi.Z);
+	    				phi = ((2.0/pi.Z) * (EuRef - FRef)) * Sij;
+	    				
+	    				giRhoj0Ref.Ea1Tv1(-rhoj0Ref*pj.beta0/pj.r0, giRij);
+	    		    	
+	    			    giRhoiRef.Ea1Tv1(pi.Z, giRhoj0Ref);
+	    			    	
+	    			    giFRef.Ea1Tv1( (pi.A*pi.Ec/pi.Z)
+	    			        	      *(1.0 + Math.log(rhoiRef/pi.Z)), giRhoiRef);
+	    			    	
+	    			    giERef.Ea1Tv1( (pi.Ec*pi.alpha*pi.alpha/pi.r0) * ((ij/pi.r0) - 1.0)
+	    			        		  *(Math.exp(-pi.alpha*((ij/pi.r0)-1.0))), giRij);
+	    			    	
+	    			    giPhi.E(giERef);
+	    			    giPhi.ME(giFRef);
+	    			    giPhi.TE(2.0 * Sij /pi.Z);
+	    			    giPhi.PEa1Tv1(phi/Sij, giSij);
+	    			    sumGiPhi.PE(giPhi);
+	    			    
+		        		gjPhi.Ea1Tv1(-1.0, giERef);
+		        		gjPhi.PE(giFRef);
+		        		gjPhi.TE(2.0 * Sij /pi.Z);
+		        		gjPhi.PEa1Tv1(phi/Sij, gjSij);
+	    			}
+	    			
+	    			else {
+	    				ParameterSetMEAM b3sn = parameters2[indexi];
+	    				ParameterSetMEAM sn, b;
+	    				
+	    				if (pi.r0 == 3.44){ // atom i is the Sn atom
+	    					sn = parameters[indexi]; b  = parameters[indexj];	
+	    				}
+	    				else {
+	    					sn = parameters[indexj]; b  = parameters[indexi];	
+	    				}
+	    				
+	    				double a = b3sn.alpha * ((ij/b3sn.r0) - 1.0);
+	    				double EuRef = - b3sn.Ec * (1.0 + a) * Math.exp(-a);
+	    				
+	    				double rhoB0 = b.rhoScale * Math.exp(-b.beta0 * ((ij/b.r0) - 1.0));
+	    				double rhoB2 = b.rhoScale * Math.exp(-b.beta2 * ((ij/b.r0) - 1.0));
+	    				double rhoSn0 = sn.rhoScale * Math.exp(-sn.beta0 * ((ij/sn.r0) - 1.0));
+	    				double rhoSn2 = sn.rhoScale * Math.exp(-sn.beta2 * ((ij/sn.r0) - 1.0));
+	    				double rhoB = ( Math.sqrt( ((8.0*rhoB0 + 4.0*rhoSn0)*(8.0*rhoB0 + 4.0*rhoSn0))
+	    										  +((8.0/3.0)*b.t2*(rhoB2 - rhoSn2)*(rhoB2 - rhoSn2))))
+	    							   /(12.0*b.rhoScale);
+	    				double rhoSn = 3.0*rhoB0/sn.rhoScale;
+	    				double FB  = b.A  * b.Ec  * (rhoB/12.0) * Math.log(rhoB/12.0);
+	    				double FSn = sn.A * sn.Ec * (rhoSn/4.0) * Math.log(rhoSn/4.0);
+	    			
+	    				//phiBB
+	    				double aB = b.alpha * ((ij/b.r0) - 1.0);
+	    				double EuBRef = - b.Ec * (1.0 + a) * Math.exp(-a);
+	    				double rhoB0Ref = b.rhoScale * Math.exp(-b.beta0 * ((ij/b.r0) - 1.0));
+	    				double rhoiBRef = b.Z * rhoB0Ref;   //FCC reference structure, Z = 12
+	    				double FBRef = b.A * b.Ec * (rhoiBRef/b.Z) * Math.log(rhoiBRef/b.Z);
+	    				double phiBB = ((2.0/b.Z) * (EuBRef - FBRef));
+	    				
+	    				phi = ((1.0/3.0)*EuRef - (1.0/4.0)*FB - (1.0/12.0)*FSn - phiBB) * Sij;
+	    				
+	    				//giPhi
+	    				giRhoB0.Ea1Tv1(-rhoB0*b.beta0/b.r0, giRij);
+	    				giRhoB0.Ea1Tv1(-rhoB2*b.beta2/b.r0, giRij);
+	    				giRhoSn0.Ea1Tv1(-rhoSn0*sn.beta0/sn.r0, giRij);
+	    				giRhoSn0.Ea1Tv1(-rhoSn2*sn.beta2/sn.r0, giRij);
+	    				
+	    				giRhoB.Ea1Tv1(16.0*(8.0*rhoB0 + 4.0*rhoSn0), giRhoB0);
+	    				giRhoB.PEa1Tv1(16.0*(8.0*rhoB0 + 4.0*rhoSn0), giRhoSn0);
+	    				giRhoB.PEa1Tv1( (16.0/3.0)*b.t2*(rhoB2 - rhoSn2), giRhoB2);
+	    				giRhoB.PEa1Tv1(-(16.0/3.0)*b.t2*(rhoB2 - rhoSn2), giRhoSn2);
+	    				giRhoB.TE(1/(2.0*144.0*b.rhoScale*b.rhoScale*rhoB));
+	    				
+	    				giRhoSn.Ea1Tv1(3.0/sn.rhoScale, giRhoB0);
+	    			
+	        			giFB.Ea1Tv1((b.A*b.Ec/b.Z)*
+	        					(1.0 + Math.log(rhoB/12.0)), giRhoB);
+	        			giFSn.Ea1Tv1((sn.A*sn.Ec/sn.Z)*
+	        					(1.0 + Math.log(rhoSn/4.0)), giRhoSn);
+	        			
+	        			giEuRef.Ea1Tv1( (b3sn.Ec*b3sn.alpha*b3sn.alpha/b3sn.r0) * ((ij/b3sn.r0) - 1.0)
+  			        		  *(Math.exp(-b3sn.alpha*((ij/b3sn.r0)-1.0))), giRij);
+	        			
+	        			//giPhiBB
+	        			giRhoB0Ref.Ea1Tv1(-rhoB0Ref*b.beta0/b.r0, giRij);
+	    			    giRhoBRef.Ea1Tv1(b.Z, giRhoB0Ref);
+	    			    giFBRef.Ea1Tv1( (b.A*b.Ec/b.Z)
+	    			        	       *(1.0 + Math.log(rhoiBRef/pi.Z)), giRhoiRef);
+	    			    giEBRef.Ea1Tv1( (b.Ec*b.alpha*b.alpha/b.r0) * ((ij/b.r0) - 1.0)
+	    			        	   	   *(Math.exp(-b.alpha*((ij/b.r0)-1.0))), giRij);
+	    			    giPhiBB.E(giEBRef);
+	    			    giPhiBB.ME(giFBRef);
+	    			    giPhiBB.TE(2.0/b.Z);
+	        			
+	        			giPhi.Ea1Tv1(1.0/3.0, giEuRef);
+	        			giPhi.PEa1Tv1(-0.25, giFB);
+	        			giPhi.PEa1Tv1(-1.0/12.0, giFSn);
+	        			giPhi.PEa1Tv1(-1.0, giPhiBB);
+	        			giPhi.TE(Sij);
+	    			    giPhi.PEa1Tv1(phi/Sij, giSij);
+	    			    sumGiPhi.PE(giPhi);
+	    			    
+		        		giPhi.Ea1Tv1(-1.0/3.0, giEuRef);
+	        			giPhi.PEa1Tv1(0.25, giFB);
+	        			giPhi.PEa1Tv1(1.0/12.0, giFSn);
+	        			giPhi.PEa1Tv1(1.0, giPhiBB);
+		        		gjPhi.TE(Sij);
+		        		gjPhi.PEa1Tv1(phi/Sij, gjSij);
+	        		}
 
 	        		giRhoj0.Ea1Tv1(rhoj0/Sij, giSij);
 	        		giRhoj0.PEa1Tv1(-rhoj0*pj.beta0/(pj.r0), giRij);
@@ -636,13 +774,6 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        		gjy.Ea1Tv1(-1.0, giy);
 	        		gjz.Ea1Tv1(-1.0, giz);
 	        		gjRij.Ea1Tv1(-1.0, giRij);
-	        		gjFRef.Ea1Tv1(-1.0, giFRef);
-	        		gjERef.Ea1Tv1(-1.0, giERef);
-	        		
-	        		gjPhi.E(gjERef);
-	        		gjPhi.ME(gjFRef);
-	        		gjPhi.TE(2.0 * Sij /pi.Z);
-	        		gjPhi.PEa1Tv1(phi/Sij, gjSij);
 	    	
 	        		gjRhoj0.Ea1Tv1(rhoj0/Sij, gjSij);
 	        		gjRhoj0.PEa1Tv1(-rhoj0*pj.beta0/(pj.r0), gjRij);
@@ -738,7 +869,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             
             for(int j = 1; j < atoms.count(); j++) {
         		AtomLeaf atomj = (AtomLeaf) atoms.getAtom(j);
-        		ParameterSetMEAM pj = parameters[atomj.type.getIndex()];
+    			int indexj = atomj.type.getIndex();
+        		ParameterSetMEAM pj = parameters[indexj];
         		//The k atom, n, must not be treated as one of the other j atoms.
         		if (j == n) continue; // continue to next j atom
         		rij.Ev1Mv2(atomj.coord.position(), atom0.coord.position());
@@ -769,10 +901,10 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 							/ (1.0 - ((xik - xkj)*(xik - xkj)));
 	        	if (C < 0) continue;
 	        	
-	        	double q = ((C - p.Cmin)/(p.Cmax - p.Cmin));
+	        	double q = ((C - pi.Cmin)/(pi.Cmax - pi.Cmin));
 	        	
 	        	double Sijk;
-	        	if (C <= p.Cmin) { 
+	        	if (C <= pi.Cmin) { 
 	        		continue; 
 	        		/** If Sijk equals 0, any gradient of Sijk, 
 	        		 * including that with respect to k, will also be 0.  We
@@ -780,7 +912,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        		 * nonzero.  
 	        		 */
 	        	}
-	        	else if (C >= p.Cmax) { 
+	        	else if (C >= pi.Cmax) { 
 	        	    continue; 
 	        	    /** If Sijk equals 1, any gradient of Sijk, 
 	        		 * including that with respect to k, will also be 0.  We
@@ -823,15 +955,15 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	    			if (c < 0) continue;
 	            	
 	    			double Sijl;
-	    			if (c <= p.Cmin) { 
+	    			if (c <= pi.Cmin) { 
 	    				Sij = 0;
 	    				break; // break out of loop over k atoms for j!=n atom
 	    			}
-	    			else if (c >= p.Cmax) { //Sijl = 1, value of Sij won't change
+	    			else if (c >= pi.Cmax) { //Sijl = 1, value of Sij won't change
 	            		continue; // continue to next k!=n atom
 	            	}
 	    			else {
-	    				double qq = ((C - p.Cmin)/(p.Cmax - p.Cmin));
+	    				double qq = ((C - pi.Cmin)/(pi.Cmax - pi.Cmin));
 	        			Sijl = (1 - ((1 - qq)*(1 - qq)*(1 - qq)*(1 - qq)))
 							  *(1 - ((1 - qq)*(1 - qq)*(1 - qq)*(1 - qq)));
 	    			}
@@ -862,13 +994,51 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	            //Should rhoj0 within phi contain Sij? Phi itself is multiplied 
 	            //by Sij...
 	            //FCC reference structure, Z = 12
-	            double rhoj0Ref = pj.rhoScale * 
-							Math.exp(-pj.beta0 * ((ij/pj.r0) - 1.0));
-	            double rhoiRef = pi.Z * rhoj0Ref;   
-	            double a = pi.alpha * ((ij/p.r0) - 1.0);
-	        	double EuRef = - pi.Ec * (1.0 + a) * Math.exp(-a);
-	        	double FRef = pi.A * pi.Ec * (rhoiRef/pi.Z) * Math.log(rhoiRef/pi.Z);
-	        	double phi = ((2.0/pi.Z) * (EuRef - FRef)) * Sij;
+	            double phi;
+        		if (indexi == indexj) {
+    				double a = pi.alpha * ((ij/pi.r0) - 1.0);
+    				double EuRef = - pi.Ec * (1.0 + a) * Math.exp(-a);
+    				double rhoj0Ref = pj.rhoScale * Math.exp(-pj.beta0 * ((ij/pj.r0) - 1.0));
+    				double rhoiRef = pi.Z * rhoj0Ref;   //FCC reference structure, Z = 12
+    				double FRef = pi.A * pi.Ec * (rhoiRef/pi.Z) * Math.log(rhoiRef/pi.Z);
+    				phi = ((2.0/pi.Z) * (EuRef - FRef)) * Sij;
+    			}
+    			
+    			else {
+    				ParameterSetMEAM b3sn = parameters2[indexi];
+    				ParameterSetMEAM sn, b;
+    				
+    				if (pi.r0 == 3.44){ // atom i is the Sn atom
+    					sn = parameters[indexi]; b  = parameters[indexj];	
+    				}
+    				else {
+    					sn = parameters[indexj]; b  = parameters[indexi];	
+    				}
+    				
+    				double a = b3sn.alpha * ((ij/b3sn.r0) - 1.0);
+    				double EuRef = - b3sn.Ec * (1.0 + a) * Math.exp(-a);
+    				
+    				double rhoB0 = b.rhoScale * Math.exp(-b.beta0 * ((ij/b.r0) - 1.0));
+    				double rhoB2 = b.rhoScale * Math.exp(-b.beta2 * ((ij/b.r0) - 1.0));
+    				double rhoSn0 = sn.rhoScale * Math.exp(-sn.beta0 * ((ij/sn.r0) - 1.0));
+    				double rhoSn2 = sn.rhoScale * Math.exp(-sn.beta2 * ((ij/sn.r0) - 1.0));
+    				double rhoB = ( Math.sqrt( ((8.0*rhoB0 + 4.0*rhoSn0)*(8.0*rhoB0 + 4.0*rhoSn0))
+    										  +((8.0/3.0)*b.t2*(rhoB2 - rhoSn2)*(rhoB2 - rhoSn2))))
+    							   /(12.0*b.rhoScale);
+    				double rhoSn = 3.0*rhoB0/sn.rhoScale;
+    				double FB  = b.A  * b.Ec  * (rhoB/12.0) * Math.log(rhoB/12.0);
+    				double FSn = sn.A * sn.Ec * (rhoSn/4.0) * Math.log(rhoSn/4.0);
+    			
+    				//phiBB
+    				double aB = b.alpha * ((ij/b.r0) - 1.0);
+    				double EuBRef = - b.Ec * (1.0 + a) * Math.exp(-a);
+    				double rhoB0Ref = b.rhoScale * Math.exp(-b.beta0 * ((ij/b.r0) - 1.0));
+    				double rhoiBRef = b.Z * rhoB0Ref;   //FCC reference structure, Z = 12
+    				double FBRef = b.A * b.Ec * (rhoiBRef/b.Z) * Math.log(rhoiBRef/b.Z);
+    				double phiBB = ((2.0/b.Z) * (EuBRef - FBRef));
+    				
+    				phi = ((1.0/3.0)*EuRef - (1.0/4.0)*FB - (1.0/12.0)*FSn - phiBB) * Sij;
+        		}
 	        	
 	        	gkRij.E(0);
 	        	gkRik.Ea1Tv1(1.0/ik, rik); 
@@ -888,7 +1058,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		    
 		    	gkSijk.Ea1Tv1( 8 * (1 - ((1 - q)*(1 - q)*(1 - q)*(1 - q)))
 	                             * ((1 - q)*(1 - q)*(1 - q))
-						         * (1 / (p.Cmax - p.Cmin)), gkC);
+						         * (1 / (pi.Cmax - pi.Cmin)), gkC);
 		    	
 		    	//We only consider one k atom - the k atom that is n
 		    	gkSij.Ea1Tv1(Sij/Sijk, gkSijk);
@@ -1145,8 +1315,10 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		return gnEi;
 	}
 	
+	//15 parameters for each species in ParameterSetMEAM
+    private ParameterSetMEAM[] parameters = new ParameterSetMEAM[0];
+    private ParameterSetMEAM[] parameters2 = new ParameterSetMEAM[0];
 	protected NearestImageTransformer nearestImageTransformer;
-    private ParameterSetMEAM p;
     //private AtomPair pair;
     //private AtomSet atoms;
     
@@ -1410,14 +1582,27 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     private final Vector3D giRhoiRef = (Vector3D)space.makeVector();
     
     private final Vector3D giERef = (Vector3D)space.makeVector();
-    private final Vector3D gjERef = (Vector3D)space.makeVector();
     
     private final Vector3D giFRef = (Vector3D)space.makeVector();
-    private final Vector3D gjFRef = (Vector3D)space.makeVector();
     
     private final Vector3D giPhi = (Vector3D)space.makeVector();
     private final Vector3D gjPhi = (Vector3D)space.makeVector();
     private final Vector3D gkPhi = (Vector3D)space.makeVector();
+    
+    private final Vector3D giRhoB0 = (Vector3D)space.makeVector();
+    private final Vector3D giRhoB2 = (Vector3D)space.makeVector();
+    private final Vector3D giRhoSn0 = (Vector3D)space.makeVector();
+    private final Vector3D giRhoSn2 = (Vector3D)space.makeVector();
+    private final Vector3D giRhoB = (Vector3D)space.makeVector();
+    private final Vector3D giRhoSn = (Vector3D)space.makeVector();
+    private final Vector3D giFB = (Vector3D)space.makeVector();
+    private final Vector3D giFSn = (Vector3D)space.makeVector();
+    private final Vector3D giEuRef = (Vector3D)space.makeVector();
+    private final Vector3D giRhoB0Ref = (Vector3D)space.makeVector();
+    private final Vector3D giRhoBRef = (Vector3D)space.makeVector();
+    private final Vector3D giFBRef = (Vector3D)space.makeVector();
+    private final Vector3D giEBRef = (Vector3D)space.makeVector();
+    private final Vector3D giPhiBB = (Vector3D)space.makeVector();
     
     private final Vector3D sumGiPhi = (Vector3D)space.makeVector();
     private final Vector3D sumGkPhi = (Vector3D)space.makeVector();
@@ -1454,5 +1639,4 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     private final Vector3D gnF = (Vector3D)space.makeVector();
     
     private Vector3D[] gnEi = new Vector3D[0];
-    private ParameterSetMEAM[] parameters = new ParameterSetMEAM[0];
 }
