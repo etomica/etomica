@@ -155,6 +155,14 @@ public class MEAMMd3D extends Simulation {
 	    LatticeCrystal crystal = new LatticeCrystal(new Crystal(
 		        primitive, new BasisCubicFcc(primitive)));
 	    **/
+        
+        //FCC Ag
+        /**
+	    phase.setDimensions(new Vector3D(4.0863*3, 4.0863*3, 4.0863*6));
+	    PrimitiveCubic primitive = new PrimitiveCubic(space, 4.0863);
+	    LatticeCrystal crystal = new LatticeCrystal(new Crystal(
+		        primitive, new BasisCubicFcc(primitive)));
+	    **/
            
 		Configuration config = new ConfigurationLattice(crystal);
 		config.initializeCoordinates(phase);
