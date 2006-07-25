@@ -163,8 +163,8 @@ public class MEAMMd3D extends Simulation {
 		potentialN.setParameters(sn, ParameterSetMEAM.Sn);
 		potentialN.setParameters(ag, ParameterSetMEAM.Ag);
 		potentialN.setParameters(cu, ParameterSetMEAM.Cu);
-		potentialN.setParameters2(sn, cu, ParameterSetMEAM.Cu3Sn);
-		potentialN.setParameters2(sn, ag, ParameterSetMEAM.Ag3Sn);
+		potentialN.setParametersIMC(cu, ParameterSetMEAM.Cu3Sn);
+		potentialN.setParametersIMC(ag, ParameterSetMEAM.Ag3Sn);
         this.potentialMaster.addPotential(potentialN, new Species[]{sn, ag, cu});    
         
         integrator.setPhase(phase);
