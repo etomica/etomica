@@ -40,22 +40,22 @@ import etomica.units.ElectronVolt;
  */
 public class ParameterSetMEAM {
 	
-	public ParameterSetMEAM(double Ec, double A, double r0, double alpha, 
-			double beta0, double beta1, double beta2, double beta3, 
-			double t1, double t2, double t3, double rhoScale, double Z,
+	public ParameterSetMEAM(double Ec, double A, double r0, double a, 
+			double b0, double b1, double b2, double b3, 
+			double t1, double t2, double t3, double rho0, double Z,
 			double Cmin, double Cmax) {
 		this.Ec = Ec;
 		this.A = A;
 		this.r0 = r0;
-		this.alpha = alpha;
-		this.beta0 = beta0;
-		this.beta1 = beta1;
-		this.beta2 = beta2;
-		this.beta3 = beta3;
+		this.a = a;
+		this.b0 = b0;
+		this.b1 = b1;
+		this.b2 = b2;
+		this.b3 = b3;
 		this.t1 = t1;
 		this.t2 = t2;
 		this.t3 = t3;
-		this.rhoScale = rhoScale;
+		this.rho0 = rho0;
 		this.Z = Z;
 		this.Cmin = Cmin;
 		this.Cmax = Cmax;
@@ -70,19 +70,19 @@ public class ParameterSetMEAM {
 	public final double r0; 
 		//equilibrium nearest-neighbor 
 		//distance (Angstroms)
-	public final double alpha; 
-		//exponential decay factor for the 
+	public final double a; 
+		//alpha, exponential decay factor for the 
 		//universal energy function (unitless)
-	public final double beta0; 
-		//exponential decay factor for 
+	public final double b0; 
+		//beta0, exponential decay factor for 
 		//s-orbital partial electron densities (unitless)
-	public final double beta1; 
+	public final double b1; 
 		//exponential decay factor for 
 		//p-orbital partial electron densities (unitless)
-	public final double beta2; 
+	public final double b2; 
 		//exponential decay factor for 
 		//d-orbital partial electron densities (unitless)
-	public final double beta3; 
+	public final double b3; 
 		//exponential decay factor for 
 		//f-orbital partial electron densities (unitless)
 	public final double t1;
@@ -91,7 +91,7 @@ public class ParameterSetMEAM {
 		//weighting factor for d-orbital partial electron densities
 	public final double t3;
 		//weighting factor for f-orbital partial electron densities
-	public final double rhoScale;
+	public final double rho0;
 		//scaling parameter 
 	public final double Z; //coordination number for the reference 
 		//crystal stucture (the number of first nearest neighbors) (unitless)
