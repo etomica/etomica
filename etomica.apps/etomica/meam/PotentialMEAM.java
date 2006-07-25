@@ -1,8 +1,5 @@
 /*
  * Created on May 8, 2006
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 package etomica.meam;
 
@@ -30,24 +27,23 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		super(space);
     }
 	
-	
 	 public void setParameters(Species s, ParameterSetMEAM p) {
 		 int index = s.getFactory().getType().getIndex();
-		 if(index > parameters.length) {
-			 parameters = (ParameterSetMEAM[])Arrays.resizeArray(parameters, index+1);
+		 if(index > parameters.length) { //15 parameters for each species
+			 parameters = 
+			 	(ParameterSetMEAM[])Arrays.resizeArray(parameters, index+1);
 		 }
 		 parameters[index] = p;
 	 }
 
 	 public void setParametersIMC(Species s, ParameterSetMEAM p) {
-	 	 //both s1, s2, and the cross potential reference structure have the 
-	     //same number of parameters
+	 	 //If Cu (Ag) is involved, the reference IMC structure is Cu3Sn (Ag3Sn).
 		 int index = s.getFactory().getType().getIndex();
 		 if(index > parametersIMC.length) {
-			 parametersIMC = (ParameterSetMEAM[])Arrays.resizeArray(parametersIMC, index+1);
+			 parametersIMC = 
+			 	(ParameterSetMEAM[])Arrays.resizeArray(parametersIMC, index+1);
 		 }
 		 parametersIMC[index] = p; 
-		 //this is where the values held in the array are set to those of Cu3Sn or Ag3Sn
 	 }
 	 
 	/* (non-Javadoc)
@@ -58,10 +54,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		return Double.POSITIVE_INFINITY;
 	}
 	
-	double jcut = 4.0; //Sn
-	//double jcut = 3.0; //Cu
+	double jcut = 4.0; //this may not be ideal cutoff for FCC Cu system
 	double kcut = jcut * 1.14;
-	
 	
 	public void calcSums(AtomSet atoms) {
 		
@@ -70,33 +64,28 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		}
 		
 		AtomLeaf atom0 = (AtomLeaf)atoms.getAtom(0);
-		int indexi = atom0.type.getIndex();
-		ParameterSetMEAM pi = parameters[indexi];
+		int indexi = atom0.type.getIndex(); pi = parameters[indexi];
 		
 		for(int j = 1; j < atoms.count(); j++) {
 			AtomLeaf atomj = (AtomLeaf)atoms.getAtom(j);
 			rij.Ev1Mv2(atomj.coord.position(), atom0.coord.position());
 			nearestImageTransformer.nearestImage(rij);
-			double r = Math.sqrt(rij.squared());
-        
+			double r = Math.sqrt(rij.squared()); 
 			if (r > jcut) continue; 
 			
-			int indexj = atomj.type.getIndex();
-			ParameterSetMEAM pj = parameters[indexj];
-        
+			int indexj = atomj.type.getIndex(); pj = parameters[indexj];
+			
 			/**To determine amount of screening between atoms i and j 
 			* by any atom k which may be between them.
 			*/
-			
 			double Sij = 1.0;
 			for(int k = 1; k < atoms.count(); k++) {
-				AtomLeaf atomk = (AtomLeaf) atoms.getAtom(k);
 				if (k == j) continue;
+				AtomLeaf atomk = (AtomLeaf) atoms.getAtom(k);
 				rik.Ev1Mv2(atomk.coord.position(), atom0.coord.position());
 				nearestImageTransformer.nearestImage(rik);
-				double ik = Math.sqrt(rik.squared());
+				double ik = Math.sqrt(rik.squared()); 
 				if (ik > r*1.14) continue;
-        	
 				//with continue condition C<0, this may be redundant
 				double anglekij = Math.toDegrees(Math.acos(
         			((rij.x(0)*rik.x(0)) + 
@@ -104,30 +93,29 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 					 (rij.x(2)*rik.x(2)))
 					 /(r*ik)));
 				if (anglekij >= 90) continue;
-        	
+				
 				rkj.Ev1Mv2(atomk.coord.position(), atomj.coord.position());
 				nearestImageTransformer.nearestImage(rkj);
 				double kj = Math.sqrt(rkj.squared());
-        	
+				
 				//from Baskes (1997)
 				double xik = (ik/r)*(ik/r);
 				double xjk = (kj/r)*(kj/r);
 				double C = ((2.0*(xik + xjk)) - ((xik - xjk)*(xik - xjk))- 1.0)/
-					   (1.0 - ((xik - xjk)*(xik - xjk)));
+					       (1.0 - ((xik - xjk)*(xik - xjk)));
 				if (C < 0) continue; //- C forms hyperbola, not ellipse
 				
-				int indexk = atomk.type.getIndex();
-				ParameterSetMEAM pk = parameters[indexk];
+				int indexk = atomk.type.getIndex(); pk = parameters[indexk];
 				
 				//Cu-Sn system only
 				double Cmin;
-				if (pi.r0 == pCu.r0 & pj.r0 == pCu.r0 & pk.r0 == pCu.r0) Cmin = pCu.Cmin;
+				if (pi == pCu & pj == pCu & pk == pCu) Cmin = pCu.Cmin;
 				else Cmin = pSn.Cmin;
 				
 				/**
 				//Ag-Sn system only:
 				double Cmin;
-				if (pi.r0 == pSn.r0 & pj.r0 == pSn.r0 & pk.r0 == pSn.r0) Cmin = pSn.Cmin;
+				if (pi== pSn & pj == pSn & pk == pSn) Cmin = pSn.Cmin;
 				else Cmin = pAg.Cmin;
 				 */
 				
@@ -141,8 +129,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         		}
 				else {
 					double q = ((C - Cmin)/(pi.Cmax - Cmin));
-        			Sijk = (1 - ((1 - q)*(1 - q)*(1 - q)*(1 - q)))
-						  *(1 - ((1 - q)*(1 - q)*(1 - q)*(1 - q)));
+        			Sijk = (1.0 - ((1.0 - q)*(1.0 - q)*(1.0 - q)*(1.0 - q)))
+						  *(1.0 - ((1.0 - q)*(1.0 - q)*(1.0 - q)*(1.0 - q)));
 				}
         	
 				Sij *= Sijk;
@@ -150,22 +138,19 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			} // exit for loop over k atoms
 	
 			if (Sij == 0) continue; // continue to next j atom in for loop  
+			
+			double rhoj0, rhoj1, rhoj2, rhoj3, x, y, z;
    
-			double rhoj0 = pj.rhoScale * 
-						Math.exp(-pj.beta0 * ((r/pj.r0) - 1.0)) * Sij;
-			double rhoj1 = pj.rhoScale * 
-						Math.exp(-pj.beta1 * ((r/pj.r0) - 1.0)) * Sij;
-			double rhoj2 = pj.rhoScale * 
-						Math.exp(-pj.beta2 * ((r/pj.r0) - 1.0)) * Sij;
-			double rhoj3 = pj.rhoScale * 
-						Math.exp(-pj.beta3 * ((r/pj.r0) - 1.0)) * Sij;
+			rhoj0 = pj.rho0 * Math.exp(-pj.b0 * ((r/pj.r0) - 1.0)) * Sij;
+			rhoj1 = pj.rho0 * Math.exp(-pj.b1 * ((r/pj.r0) - 1.0)) * Sij;
+			rhoj2 = pj.rho0 * Math.exp(-pj.b2 * ((r/pj.r0) - 1.0)) * Sij;
+			rhoj3 = pj.rho0 * Math.exp(-pj.b3 * ((r/pj.r0) - 1.0)) * Sij;
 	
 			unitVector.E(rij);
 			unitVector.normalize();
-    
-			double x = unitVector.x(0);
-			double y = unitVector.x(1);
-			double z = unitVector.x(2);
+			x = unitVector.x(0);
+			y = unitVector.x(1);
+			z = unitVector.x(2);
     
 			sum[RHOj0] += rhoj0;
 
@@ -196,53 +181,46 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			sum[T2RHOj0] += rhoj0 * pi.t2;
 			sum[T3RHOj0] += rhoj0 * pi.t3;
     
-			//to calculate the repulsive pair potential, phi
-			//Should rhoj0 within phi contain Sij? Phi itself is multiplied 
-			//by Sij...
-			
 			if (indexi == indexj) {
-				double a = pi.alpha * ((r/pi.r0) - 1.0);
-				double EuRef = - pi.Ec * (1.0 + a) * Math.exp(-a);
-				double rhoj0Ref = pj.rhoScale * Math.exp(-pj.beta0 * ((r/pj.r0) - 1.0));
-				double rhoiRef = pi.Z * rhoj0Ref;   //FCC reference structure, Z = 12
-				double FRef = pi.A * pi.Ec * (rhoiRef/pi.Z) * Math.log(rhoiRef/pi.Z);
-				sum[PHI] += ((2.0/pi.Z) * (EuRef - FRef)) * Sij;
+				double a, Eu, rhoj0Ref, rhoiRef, FRef;
+				a = pi.a * ((r/pi.r0) - 1.0);
+				Eu = - pi.Ec * (1.0 + a) * Math.exp(-a);
+				rhoj0Ref = pj.rho0 * Math.exp(-pj.b0 * ((r/pj.r0) - 1.0));
+				rhoiRef = pi.Z * rhoj0Ref;   
+				FRef = pi.A * pi.Ec * (rhoiRef/pi.Z) * Math.log(rhoiRef/pi.Z);
+				sum[PHI] += ((2.0/pi.Z) * (Eu - FRef)) * Sij;
 			}
 			
 			else {
-				ParameterSetMEAM b, b3sn;
 				if (pi == pSn) { // atom i is the Sn atom
-					b  = parameters[indexj];
-					b3sn = parametersIMC[indexj];
+					b  = parameters[indexj]; b3sn = parametersIMC[indexj];
 				}
 				else {
-					b  = parameters[indexi];	
-					b3sn = parametersIMC[indexi];
+					b  = parameters[indexi]; b3sn = parametersIMC[indexi];
 				}
-				
-				double a = b3sn.alpha * ((r/b3sn.r0) - 1.0);
-				double EuRef = - b3sn.Ec * (1.0 + a) * Math.exp(-a);
-				
-				double rhoB0 = b.rhoScale * Math.exp(-b.beta0 * ((r/b.r0) - 1.0));
-				double rhoB2 = b.rhoScale * Math.exp(-b.beta2 * ((r/b.r0) - 1.0));
-				double rhoSn0 = pSn.rhoScale * Math.exp(-pSn.beta0 * ((r/pSn.r0) - 1.0));
-				double rhoSn2 = pSn.rhoScale * Math.exp(-pSn.beta2 * ((r/pSn.r0) - 1.0));
-				double rhoB = ( Math.sqrt( ((8.0*rhoB0 + 4.0*rhoSn0)*(8.0*rhoB0 + 4.0*rhoSn0))
-										  +((8.0/3.0)*b.t2*(rhoB2 - rhoSn2)*(rhoB2 - rhoSn2))))
-							   /(12.0*b.rhoScale);
-				double rhoSn = 3.0*rhoB0/pSn.rhoScale;
-				double FB  = b.A  * b.Ec  * (rhoB/12.0) * Math.log(rhoB/12.0);
-				double FSn = pSn.A * pSn.Ec * (rhoSn/4.0) * Math.log(rhoSn/4.0);
-			
+				double a, Eu, rhoB0, rhoB2, rhoSn0, rhoSn2, rhoB, rhoSn, FB, FSn,
+					aB, EuB, rhoB0Ref, rhoiBRef, FBRef, phiBB;
+				a = b3sn.a * ((r/b3sn.r0) - 1.0);
+				Eu = - b3sn.Ec * (1.0 + a) * Math.exp(-a);
+				rhoB0 = b.rho0 * Math.exp(-b.b0 * ((r/b.r0) - 1.0));
+				rhoB2 = b.rho0 * Math.exp(-b.b2 * ((r/b.r0) - 1.0));
+				rhoSn0 = pSn.rho0 * Math.exp(-pSn.b0 * ((r/pSn.r0) - 1.0));
+				rhoSn2 = pSn.rho0 * Math.exp(-pSn.b2 * ((r/pSn.r0) - 1.0));
+				rhoB = Math.sqrt( 
+						   ((8.0*rhoB0 + 4.0*rhoSn0)*(8.0*rhoB0 + 4.0*rhoSn0))
+					      +((8.0/3.0)*b.t2*(rhoB2 - rhoSn2)*(rhoB2 - rhoSn2)))
+					   /(12.0*b.rho0);
+				rhoSn = 3.0*rhoB0/pSn.rho0;
+				FB  = b.A  * b.Ec  * (rhoB/12.0) * Math.log(rhoB/12.0);
+				FSn = pSn.A * pSn.Ec * (rhoSn/4.0) * Math.log(rhoSn/4.0);
 				//phiBB
-				double aB = b.alpha * ((r/b.r0) - 1.0);
-				double EuBRef = - b.Ec * (1.0 + aB) * Math.exp(-aB);
-				double rhoB0Ref = b.rhoScale * Math.exp(-b.beta0 * ((r/b.r0) - 1.0));
-				double rhoiBRef = b.Z * rhoB0Ref;   //FCC reference structure, Z = 12
-				double FBRef = b.A * b.Ec * (rhoiBRef/b.Z) * Math.log(rhoiBRef/b.Z);
-				double phiBB = ((2.0/b.Z) * (EuBRef - FBRef));
-				
-				sum[PHI] += (1.0/3.0)*EuRef - (1.0/4.0)*FB - (1.0/12.0)*FSn - phiBB;
+				aB = b.a * ((r/b.r0) - 1.0);
+				EuB = - b.Ec * (1.0 + aB) * Math.exp(-aB);
+				rhoB0Ref = b.rho0 * Math.exp(-b.b0 * ((r/b.r0) - 1.0));
+				rhoiBRef = b.Z * rhoB0Ref;   
+				FBRef = b.A * b.Ec * (rhoiBRef/b.Z) * Math.log(rhoiBRef/b.Z);
+				phiBB = ((2.0/b.Z) * (EuB - FBRef));
+				sum[PHI] += ((1.0/3.0)*Eu - 0.25*FB - (1.0/12.0)*FSn - phiBB)*Sij;
 			}
 		} // exit for loop over j atoms
 	} // exit calcSums()
@@ -309,7 +287,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     protected double rhoi(AtomSet atoms) {
     	double rhoi0 = rhoi0(), gamma = gamma();
     	AtomLeaf atom0 = (AtomLeaf)atoms.getAtom(0);
-		ParameterSetMEAM pi = parameters[atom0.type.getIndex()];
+		pi = parameters[atom0.type.getIndex()];
     	if (pi == pSn) return (2.0 * rhoi0) / (1.0 + Math.exp(-gamma)); //Sn
     	else return rhoi0 * Math.sqrt(1.0 + gamma); //Cu or Ag
     }
@@ -321,7 +299,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		calcSums(atoms);
 		double rhoi = rhoi(atoms);
 		AtomLeaf atom0 = (AtomLeaf)atoms.getAtom(0);
-		ParameterSetMEAM pi = parameters[atom0.type.getIndex()];
+		pi = parameters[atom0.type.getIndex()];
 		double F = pi.A * pi.Ec * (rhoi/pi.Z) * Math.log(rhoi/pi.Z);
 		return F + (0.5*sum[PHI]);
 	}
@@ -360,31 +338,28 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         calcSums(atoms);
         
         double rhoi0 = rhoi0(), rhoi1 = rhoi1(), rhoi2 = rhoi2(), rhoi3 = rhoi3(),
-			tav1 = tav1(), tav2 = tav2(), tav3 = tav3(),
-			gamma = gamma(), rhoi = rhoi(atoms);
+			tav1 = tav1(), tav2 = tav2(), tav3 = tav3(), gamma = gamma(), 
+			rhoi = rhoi(atoms);
         
         AtomLeaf atom0 = (AtomLeaf)atoms.getAtom(0);
-		int indexi = atom0.type.getIndex();
-		ParameterSetMEAM pi = parameters[indexi];
+		int indexi = atom0.type.getIndex(); pi = parameters[indexi];
         
-        sumGiRhoj0.E(0); 
+		sumGiPhi.E(0); sumGiRhoj0.E(0); sumGiRhoj2.E(0);
         sumGiRhoj1x.E(0); sumGiRhoj1y.E(0); sumGiRhoj1z.E(0); 
         sumGiRhoj2xx.E(0); sumGiRhoj2xy.E(0); sumGiRhoj2xz.E(0); 
         sumGiRhoj2yy.E(0); sumGiRhoj2yz.E(0); sumGiRhoj2zz.E(0);
-        sumGiRhoj2.E(0); 
         sumGiRhoj3xxx.E(0); sumGiRhoj3xxy.E(0); sumGiRhoj3xxz.E(0); 
         sumGiRhoj3xyy.E(0); sumGiRhoj3xyz.E(0); sumGiRhoj3xzz.E(0); 
         sumGiRhoj3yyy.E(0); sumGiRhoj3yyz.E(0); sumGiRhoj3yzz.E(0); 
         sumGiRhoj3zzz.E(0); 
         sumt1GiRhoj0.E(0); sumt2GiRhoj0.E(0);  sumt3GiRhoj0.E(0); 
-        sumGiPhi.E(0); 
+        
         
         for(int n = 1; n < atoms.count(); n++) {
         	AtomLeaf atomn = (AtomLeaf)atoms.getAtom(n);
             rin.Ev1Mv2(atomn.coord.position(), atom0.coord.position());
             nearestImageTransformer.nearestImage(rin);
             double in = Math.sqrt(rin.squared());
-            
             if (in > kcut) continue; //only consider n that could be j or k to i
             
             /** We must reset all of the gradients with respect to j, used in
@@ -395,37 +370,30 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             * n will be used.
             */
             
-            gjPhi.E(0);
-            gjRhoj0.E(0);
+            gjPhi.E(0); gjRhoj0.E(0); gjRhoj2.E(0);
             gjRhoj1x.E(0); gjRhoj1y.E(0); gjRhoj1z.E(0);
             gjRhoj2xx.E(0); gjRhoj2xy.E(0); gjRhoj2xz.E(0);
             gjRhoj2yy.E(0); gjRhoj2yz.E(0); gjRhoj2zz.E(0); 
-            gjRhoj2.E(0);
             gjRhoj3xxx.E(0); gjRhoj3xxy.E(0); gjRhoj3xxz.E(0);
             gjRhoj3xyy.E(0); gjRhoj3xyz.E(0); gjRhoj3xzz.E(0);
-            gjRhoj3yyy.E(0); gjRhoj3yyz.E(0); gjRhoj3yzz.E(0); 
-            gjRhoj3zzz.E(0);
+            gjRhoj3yyy.E(0); gjRhoj3yyz.E(0); gjRhoj3yzz.E(0); gjRhoj3zzz.E(0);
             t1GjRhoj0.E(0); t2GjRhoj0.E(0); t3GjRhoj0.E(0);
             
-            sumGkPhi.E(0);
-            sumGkRhoj0.E(0); 
+            sumGkPhi.E(0); sumGkRhoj0.E(0); sumGkRhoj2.E(0);
             sumGkRhoj1x.E(0); sumGkRhoj1y.E(0); sumGkRhoj1z.E(0);
             sumGkRhoj2xx.E(0); sumGkRhoj2xy.E(0); sumGkRhoj2xz.E(0);
             sumGkRhoj2yy.E(0); sumGkRhoj2yz.E(0); sumGkRhoj2zz.E(0); 
-            sumGkRhoj2.E(0);
             sumGkRhoj3xxx.E(0); sumGkRhoj3xxy.E(0); sumGkRhoj3xxz.E(0);
             sumGkRhoj3xyy.E(0); sumGkRhoj3xyz.E(0); sumGkRhoj3xzz.E(0);
             sumGkRhoj3yyy.E(0); sumGkRhoj3yyz.E(0); sumGkRhoj3yzz.E(0); 
             sumGkRhoj3zzz.E(0);
             sumt1GkRhoj0.E(0); sumt2GkRhoj0.E(0); sumt3GkRhoj0.E(0);
             
-            
             //Here we test to see if n qualifies as a j atom for atom i.
             if (in <= jcut) {
             
             	rij.E(rin); double ij = in;
-    			int indexj = atomn.type.getIndex();
-    			ParameterSetMEAM pj = parameters[indexj];
+    			int indexj = atomn.type.getIndex(); pj = parameters[indexj];
             
             	double Sij = 1.0; giSij.E(0); gjSij.E(0);
             	for(int k = 1; k < atoms.count(); k++) {
@@ -435,7 +403,6 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             		nearestImageTransformer.nearestImage(rik);
             		double ik = Math.sqrt(rik.squared());
             		if (ik > ij*1.14) continue; // continue to next k atom
-            	    
             		//redundant?
             		double anglekij = Math.toDegrees(Math.acos(
             			((rij.x(0)*rik.x(0)) + 
@@ -456,8 +423,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 							   (1.0 - ((xik - xkj)*(xik - xkj)));
             		if (C < 0) continue; // - C does not form ellipse
             		
-            		int indexk = atomk.type.getIndex();
-    				ParameterSetMEAM pk = parameters[indexk];
+            		int indexk = atomk.type.getIndex(); pk = parameters[indexk];
     				
     				//Cu-Sn system only
     				double Cmin;
@@ -472,6 +438,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     				 */
             		
             		double q = ((C - Cmin)/(pi.Cmax - Cmin));
+            		
             		double Sijk;
             		if (C <= Cmin) { 
             			Sij = 0;
@@ -481,8 +448,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             			continue; // continue to next k atom
             		}
             		else {
-            			Sijk = (1 - ((1 - q)*(1 - q)*(1 - q)*(1 - q)))
-    						  *(1 - ((1 - q)*(1 - q)*(1 - q)*(1 - q)));
+            			Sijk = (1.0 - ((1.0 - q)*(1.0 - q)*(1.0 - q)*(1.0 - q)))
+    						  *(1.0 - ((1.0 - q)*(1.0 - q)*(1.0 - q)*(1.0 - q)));
             		}
             	
             		giRij.Ea1Tv1(-1.0/ij, rij);
@@ -512,19 +479,21 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             	
             		giC.Ea1Tv1( 1.0 + (xik - xkj)*(C - 1.0), giXik);
             		giC.PEa1Tv1(1.0 - (xik - xkj)*(C + 1.0), giXkj);
-            		giC.TE( 2.0 / ( 1.0 - ((xik - xkj)*(xik - xkj)) ));
+            		giC.TE(2.0/(1.0 - ((xik - xkj)*(xik - xkj))));
 		    	
             		gjC.Ea1Tv1( 1.0 + (xik - xkj)*(C - 1.0), gjXik);
             		gjC.PEa1Tv1(1.0 - (xik - xkj)*(C + 1.0), gjXkj);
-            		gjC.TE( 2.0 / ( 1.0 - ((xik - xkj)*(xik - xkj)) ));
+            		gjC.TE(2.0/(1.0 - ((xik - xkj)*(xik - xkj))));
 		    	
-            		giSijk.Ea1Tv1(8 * (1 - ((1 - q)*(1 - q)*(1 - q)*(1 - q)))
-				                    * ((1 - q)*(1 - q)*(1 - q))
-									* (1 / (pi.Cmax - Cmin)), giC);
+            		giSijk.Ea1Tv1(8 
+            				* (1.0 - ((1.0 - q)*(1.0 - q)*(1.0 - q)*(1.0 - q)))
+				            * ((1.0 - q)*(1.0 - q)*(1.0 - q))
+							* (1.0 / (pi.Cmax - Cmin)), giC);
 		    	
-            		gjSijk.Ea1Tv1(8 * (1 - ((1 - q)*(1 - q)*(1 - q)*(1 - q)))
-		                            * ((1 - q)*(1 - q)*(1 - q))
-							        * (1 / (pi.Cmax - Cmin)), gjC);
+            		gjSijk.Ea1Tv1(8 
+            				* (1.0 - ((1.0 - q)*(1.0 - q)*(1.0 - q)*(1.0 - q)))
+		                    * ((1.0 - q)*(1.0 - q)*(1.0 - q))
+							* (1.0 / (pi.Cmax - Cmin)), gjC);
 		    	
             		/** The Sij value used to calculate gradSij is that for 
             		 * previous k's, or, for the first k considered, 1.0.  The 
@@ -542,28 +511,24 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             	} // exit loop over k for n = j
     	
             	if (Sij != 0) {
-        	
-	            	double rhoj0 = pj.rhoScale * 
-								Math.exp(-pj.beta0 * ((ij/pj.r0) - 1.0)) * Sij;
-	            	double rhoj1 = pj.rhoScale * 
-								Math.exp(-pj.beta1 * ((ij/pj.r0) - 1.0)) * Sij;
-	            	double rhoj2 = pj.rhoScale * 
-								Math.exp(-pj.beta2 * ((ij/pj.r0) - 1.0)) * Sij;
-	            	double rhoj3 = pj.rhoScale * 
-								Math.exp(-pj.beta3 * ((ij/pj.r0) - 1.0)) * Sij;
+            		
+            		double rhoj0, rhoj1, rhoj2, rhoj3, x, y, z, phi;
+            		
+	            	rhoj0 = pj.rho0 * Math.exp(-pj.b0 * ((ij/pj.r0) - 1.0)) * Sij;
+	            	rhoj1 = pj.rho0 * Math.exp(-pj.b1 * ((ij/pj.r0) - 1.0)) * Sij;
+	            	rhoj2 = pj.rho0 * Math.exp(-pj.b2 * ((ij/pj.r0) - 1.0)) * Sij;
+	            	rhoj3 = pj.rho0 * Math.exp(-pj.b3 * ((ij/pj.r0) - 1.0)) * Sij;
 	        	
 	            	unitVector.E(rij);
 	            	unitVector.normalize();
-	            
-	            	double x = unitVector.x(0);
-	            	double y = unitVector.x(1);
-	            	double z = unitVector.x(2);
+	            	x = unitVector.x(0);
+	            	y = unitVector.x(1);
+	            	z = unitVector.x(2);
 	            	
 	            	vector100.setX(0,1.0);
 	        		vector010.setX(1,1.0);
 	        		vector001.setX(2,1.0);
     	
-	        		//Pair-wise terms to calculate giEi
 	        		gix.Ea1Tv1(x/(ij*ij), rij);
 	        		gix.PEa1Tv1(-1.0/ij, vector100);
 	    	
@@ -575,108 +540,99 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	    	
 	        		giRij.Ea1Tv1(-1.0/ij, rij);
 	    	
-           
-	            	// to calculate the repulsive pair potential, phi
-	            	// Should rhoj0 within phi contain Sij? Phi itself is 
-	            	// multiplied by Sij...
-	            	// FCC reference structure, Z = 12
-	        		double phi;
 	        		if (indexi == indexj) {
-	    				double a = pi.alpha * ((ij/pi.r0) - 1.0);
-	    				double EuRef = - pi.Ec * (1.0 + a) * Math.exp(-a);
-	    				double rhoj0Ref = pj.rhoScale * Math.exp(-pj.beta0 * ((ij/pj.r0) - 1.0));
-	    				double rhoiRef = pi.Z * rhoj0Ref;   //FCC reference structure, Z = 12
-	    				double FRef = pi.A * pi.Ec * (rhoiRef/pi.Z) * Math.log(rhoiRef/pi.Z);
-	    				phi = ((2.0/pi.Z) * (EuRef - FRef)) * Sij;
+	        			double a, Eu, rhoj0Ref, rhoiRef, FRef;
+	    				a = pi.a * ((ij/pi.r0) - 1.0);
+	    				Eu = - pi.Ec * (1.0 + a) * Math.exp(-a);
+	    				rhoj0Ref = pj.rho0 * Math.exp(-pj.b0 * ((ij/pj.r0) - 1.0));
+	    				rhoiRef = pi.Z * rhoj0Ref;   
+	    				FRef = pi.A * pi.Ec * (rhoiRef/pi.Z) * Math.log(rhoiRef/pi.Z);
+	    				phi = ((2.0/pi.Z) * (Eu - FRef)) * Sij;
 	    				
-	    				giRhoj0Ref.Ea1Tv1(-rhoj0Ref*pj.beta0/pj.r0, giRij);
+	    				giRhoj0Ref.Ea1Tv1(-rhoj0Ref*pj.b0/pj.r0, giRij);
 	    			    giRhoiRef.Ea1Tv1(pi.Z, giRhoj0Ref);
 	    			    giFRef.Ea1Tv1( (pi.A*pi.Ec/pi.Z)
 	    			        	      *(1.0 + Math.log(rhoiRef/pi.Z)), giRhoiRef);
-	    			    giERef.Ea1Tv1( (pi.Ec*pi.alpha*pi.alpha/pi.r0) * ((ij/pi.r0) - 1.0)
-	    			        		  *(Math.exp(-pi.alpha*((ij/pi.r0)-1.0))), giRij);
-	    			    	
-	    			    giPhi.E(giERef);
+	    			    giEu.Ea1Tv1( (pi.Ec * pi.a * pi.a / pi.r0) 
+	    			    			  *((ij/pi.r0) - 1.0)
+	    			        		  *(Math.exp(-pi.a * ((ij/pi.r0)-1.0))), 
+									  giRij);	
+	    			    giPhi.E(giEu);
 	    			    giPhi.ME(giFRef);
 	    			    giPhi.TE(2.0 * Sij /pi.Z);
 	    			    giPhi.PEa1Tv1(phi/Sij, giSij);
 	    			    sumGiPhi.PE(giPhi);
 	    			    
-		        		gjPhi.Ea1Tv1(-1.0, giERef);
+		        		gjPhi.Ea1Tv1(-1.0, giEu);
 		        		gjPhi.PE(giFRef);
 		        		gjPhi.TE(2.0 * Sij /pi.Z);
 		        		gjPhi.PEa1Tv1(phi/Sij, gjSij);
 	    			}
 	    			
 	    			else {
-	    				ParameterSetMEAM b, b3sn;
 	    				if (pi == pSn) { // atom i is the Sn atom
-	    					b  = parameters[indexj]; 
-	    					b3sn = parametersIMC[indexj];
+	    					b  = parameters[indexj]; b3sn = parametersIMC[indexj];
 	    				}
 	    				else {
-	    					b  = parameters[indexi];	
-	    					b3sn = parametersIMC[indexi];
+	    					b  = parameters[indexi]; b3sn = parametersIMC[indexi];
 	    				}
-	    				
-	    				double a = b3sn.alpha * ((ij/b3sn.r0) - 1.0);
-	    				double EuRef = - b3sn.Ec * (1.0 + a) * Math.exp(-a);
-	    				
-	    				double rhoB0 = b.rhoScale * Math.exp(-b.beta0 * ((ij/b.r0) - 1.0));
-	    				double rhoB2 = b.rhoScale * Math.exp(-b.beta2 * ((ij/b.r0) - 1.0));
-	    				double rhoSn0 = pSn.rhoScale * Math.exp(-pSn.beta0 * ((ij/pSn.r0) - 1.0));
-	    				double rhoSn2 = pSn.rhoScale * Math.exp(-pSn.beta2 * ((ij/pSn.r0) - 1.0));
-	    				double rhoB = ( Math.sqrt( ((8.0*rhoB0 + 4.0*rhoSn0)*(8.0*rhoB0 + 4.0*rhoSn0))
-	    										  +((8.0/3.0)*b.t2*(rhoB2 - rhoSn2)*(rhoB2 - rhoSn2))))
-	    							   /(12.0*b.rhoScale);
-	    				double rhoSn = 3.0*rhoB0/pSn.rhoScale;
-	    				double FB  = b.A  * b.Ec  * (rhoB/12.0) * Math.log(rhoB/12.0);
-	    				double FSn = pSn.A * pSn.Ec * (rhoSn/4.0) * Math.log(rhoSn/4.0);
-	    			
+	    				double a, Eu, rhoB0, rhoB2, rhoSn0, rhoSn2, rhoB, rhoSn,
+							FB, FSn, aB, EuB, rhoB0Ref, rhoiBRef, FBRef, phiBB;
+	    				a = b3sn.a * ((ij/b3sn.r0) - 1.0);
+	    				Eu = - b3sn.Ec * (1.0 + a) * Math.exp(-a);
+	    				rhoB0 = b.rho0 * Math.exp(-b.b0 * ((ij/b.r0) - 1.0));
+	    				rhoB2 = b.rho0 * Math.exp(-b.b2 * ((ij/b.r0) - 1.0));
+	    				rhoSn0 = pSn.rho0 * Math.exp(-pSn.b0 * ((ij/pSn.r0) - 1.0));
+	    				rhoSn2 = pSn.rho0 * Math.exp(-pSn.b2 * ((ij/pSn.r0) - 1.0));
+	    				rhoB = Math.sqrt( 
+	    						 ((8.0*rhoB0 + 4.0*rhoSn0)*(8.0*rhoB0 + 4.0*rhoSn0))
+	    					    +((8.0/3.0)*b.t2*(rhoB2 - rhoSn2)*(rhoB2 - rhoSn2)))
+	    					   /(12.0*b.rho0);
+	    				rhoSn = 3.0*rhoB0/pSn.rho0;
+	    				FB  = b.A  * b.Ec  * (rhoB/12.0) * Math.log(rhoB/12.0);
+	    				FSn = pSn.A * pSn.Ec * (rhoSn/4.0) * Math.log(rhoSn/4.0);
 	    				//phiBB
-	    				double aB = b.alpha * ((ij/b.r0) - 1.0);
-	    				double EuBRef = - b.Ec * (1.0 + aB) * Math.exp(-aB);
-	    				double rhoB0Ref = b.rhoScale * Math.exp(-b.beta0 * ((ij/b.r0) - 1.0));
-	    				double rhoiBRef = b.Z * rhoB0Ref;   //FCC reference structure, Z = 12
-	    				double FBRef = b.A * b.Ec * (rhoiBRef/b.Z) * Math.log(rhoiBRef/b.Z);
-	    				double phiBB = ((2.0/b.Z) * (EuBRef - FBRef));
-	    				
-	    				phi = ((1.0/3.0)*EuRef - (1.0/4.0)*FB - (1.0/12.0)*FSn - phiBB) * Sij;
+	    				aB = b.a * ((ij/b.r0) - 1.0);
+	    				EuB = - b.Ec * (1.0 + aB) * Math.exp(-aB);
+	    				rhoB0Ref = b.rho0 * Math.exp(-b.b0 * ((ij/b.r0) - 1.0));
+	    				rhoiBRef = b.Z * rhoB0Ref; 
+	    				FBRef = b.A * b.Ec * (rhoiBRef/b.Z) * Math.log(rhoiBRef/b.Z);
+	    				phiBB = ((2.0/b.Z) * (EuB - FBRef));
+	    				phi = ((1.0/3.0)*Eu - 0.25*FB - (1.0/12.0)*FSn - phiBB)*Sij;
 	    				
 	    				//giPhi
-	    				giRhoB0.Ea1Tv1(-rhoB0*b.beta0/b.r0, giRij);
-	    				giRhoB0.Ea1Tv1(-rhoB2*b.beta2/b.r0, giRij);
-	    				giRhoSn0.Ea1Tv1(-rhoSn0*pSn.beta0/pSn.r0, giRij);
-	    				giRhoSn0.Ea1Tv1(-rhoSn2*pSn.beta2/pSn.r0, giRij);
+	    				giRhoB0.Ea1Tv1(-rhoB0*b.b0/b.r0, giRij);
+	    				giRhoB0.Ea1Tv1(-rhoB2*b.b2/b.r0, giRij);
+	    				giRhoSn0.Ea1Tv1(-rhoSn0*pSn.b0/pSn.r0, giRij);
+	    				giRhoSn0.Ea1Tv1(-rhoSn2*pSn.b2/pSn.r0, giRij);
 	    				
 	    				giRhoB.Ea1Tv1(16.0*(8.0*rhoB0 + 4.0*rhoSn0), giRhoB0);
 	    				giRhoB.PEa1Tv1(16.0*(8.0*rhoB0 + 4.0*rhoSn0), giRhoSn0);
 	    				giRhoB.PEa1Tv1( (16.0/3.0)*b.t2*(rhoB2 - rhoSn2), giRhoB2);
 	    				giRhoB.PEa1Tv1(-(16.0/3.0)*b.t2*(rhoB2 - rhoSn2), giRhoSn2);
-	    				giRhoB.TE(1/(2.0*144.0*b.rhoScale*b.rhoScale*rhoB));
+	    				giRhoB.TE(1.0/(2.0*144.0*b.rho0*b.rho0*rhoB));
 	    				
-	    				giRhoSn.Ea1Tv1(3.0/pSn.rhoScale, giRhoB0);
-	    			
-	        			giFB.Ea1Tv1((b.A*b.Ec/b.Z)*
-	        					(1.0 + Math.log(rhoB/12.0)), giRhoB);
-	        			giFSn.Ea1Tv1((pSn.A*pSn.Ec/pSn.Z)*
-	        					(1.0 + Math.log(rhoSn/4.0)), giRhoSn);
-	        			
-	        			giEuRef.Ea1Tv1( (b3sn.Ec*b3sn.alpha*b3sn.alpha/b3sn.r0) * ((ij/b3sn.r0) - 1.0)
-  			        		  *(Math.exp(-b3sn.alpha*((ij/b3sn.r0)-1.0))), giRij);
-	        			
+	    				giRhoSn.Ea1Tv1(3.0/pSn.rho0, giRhoB0);
+	        			giFB.Ea1Tv1(  (b.A * b.Ec / b.Z)
+	        					     *(1.0 + Math.log(rhoB/12.0)), giRhoB);
+	        			giFSn.Ea1Tv1( (pSn.A * pSn.Ec / pSn.Z)
+	        					     *(1.0 + Math.log(rhoSn/4.0)), giRhoSn);
+	        			giEu.Ea1Tv1( (b3sn.Ec * b3sn.a * b3sn.a / b3sn.r0) 
+	        					    *((ij/b3sn.r0) - 1.0)
+  			        		        *(Math.exp(-b3sn.a * ((ij/b3sn.r0) - 1.0))), 
+									giRij);
 	        			//giPhiBB
-	        			giRhoB0Ref.Ea1Tv1(-rhoB0Ref*b.beta0/b.r0, giRij);
+	        			giRhoB0Ref.Ea1Tv1(-rhoB0Ref*b.b0/b.r0, giRij);
 	    			    giRhoBRef.Ea1Tv1(b.Z, giRhoB0Ref);
 	    			    giFBRef.Ea1Tv1( (b.A*b.Ec/b.Z)
 	    			        	       *(1.0 + Math.log(rhoiBRef/pi.Z)), giRhoiRef);
-	    			    giEBRef.Ea1Tv1( (b.Ec*b.alpha*b.alpha/b.r0) * ((ij/b.r0) - 1.0)
-	    			        	   	   *(Math.exp(-b.alpha*((ij/b.r0)-1.0))), giRij);
-	    			    giPhiBB.E(giEBRef);
+	    			    giEuB.Ea1Tv1( (b.Ec*b.a*b.a/b.r0) * ((ij/b.r0) - 1.0)
+	    			        	   	   *(Math.exp(-b.a*((ij/b.r0)-1.0))), giRij);
+	    			    giPhiBB.E(giEuB);
 	    			    giPhiBB.ME(giFBRef);
 	    			    giPhiBB.TE(2.0/b.Z);
 	        			
-	        			giPhi.Ea1Tv1(1.0/3.0, giEuRef);
+	        			giPhi.Ea1Tv1(1.0/3.0, giEu);
 	        			giPhi.PEa1Tv1(-0.25, giFB);
 	        			giPhi.PEa1Tv1(-1.0/12.0, giFSn);
 	        			giPhi.PEa1Tv1(-1.0, giPhiBB);
@@ -684,20 +640,20 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	    			    giPhi.PEa1Tv1(phi/Sij, giSij);
 	    			    sumGiPhi.PE(giPhi);
 	    			    
-		        		giPhi.Ea1Tv1(-1.0/3.0, giEuRef);
-	        			giPhi.PEa1Tv1(0.25, giFB);
-	        			giPhi.PEa1Tv1(1.0/12.0, giFSn);
-	        			giPhi.PEa1Tv1(1.0, giPhiBB);
+		        		gjPhi.Ea1Tv1(-1.0/3.0, giEu);
+	        			gjPhi.PEa1Tv1(0.25, giFB);
+	        			gjPhi.PEa1Tv1(1.0/12.0, giFSn);
+	        			gjPhi.PEa1Tv1(1.0, giPhiBB);
 		        		gjPhi.TE(Sij);
 		        		gjPhi.PEa1Tv1(phi/Sij, gjSij);
 	        		}
 
 	        		giRhoj0.Ea1Tv1(rhoj0/Sij, giSij);
-	        		giRhoj0.PEa1Tv1(-rhoj0*pj.beta0/(pj.r0), giRij);
+	        		giRhoj0.PEa1Tv1(-rhoj0*pj.b0/(pj.r0), giRij);
 	        		sumGiRhoj0.PE(giRhoj0);
 	    	
 	        		giRhoj1.Ea1Tv1(rhoj1/Sij, giSij);
-	        		giRhoj1.PEa1Tv1(-rhoj1*pj.beta1/(pj.r0), giRij);
+	        		giRhoj1.PEa1Tv1(-rhoj1*pj.b1/(pj.r0), giRij);
 	    	
 	        		giRhoj1x.Ea1Tv1(rhoj1, gix);
 	        		giRhoj1x.PEa1Tv1(x, giRhoj1);
@@ -712,7 +668,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        		sumGiRhoj1z.PE(giRhoj1z);
     	
 	        		giRhoj2.Ea1Tv1(rhoj2/Sij, giSij);
-	        		giRhoj2.PEa1Tv1(-rhoj2*pj.beta2/(pj.r0), giRij);
+	        		giRhoj2.PEa1Tv1(-rhoj2*pj.b2/(pj.r0), giRij);
 	        		sumGiRhoj2.PE(giRhoj2);
 	
 	        		giRhoj2xx.Ea1Tv1(2.0*rhoj2*x, gix);
@@ -743,7 +699,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        		sumGiRhoj2zz.PE(giRhoj2zz);
 	    	
 	        		giRhoj3.Ea1Tv1(rhoj3/Sij, giSij);
-	        		giRhoj3.PEa1Tv1(-rhoj3*pj.beta3/(pj.r0), giRij);
+	        		giRhoj3.PEa1Tv1(-rhoj3*pj.b3/(pj.r0), giRij);
 	
 	        		giRhoj3xxx.Ea1Tv1(3.0*rhoj3*x*x, gix);
 	        		giRhoj3xxx.PEa1Tv1(x*x*x, giRhoj3);
@@ -809,10 +765,10 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        		gjRij.Ea1Tv1(-1.0, giRij);
 	    	
 	        		gjRhoj0.Ea1Tv1(rhoj0/Sij, gjSij);
-	        		gjRhoj0.PEa1Tv1(-rhoj0*pj.beta0/(pj.r0), gjRij);
+	        		gjRhoj0.PEa1Tv1(-rhoj0*pj.b0/(pj.r0), gjRij);
 	    	
 	        		gjRhoj1.Ea1Tv1(rhoj1/Sij, gjSij);
-	        		gjRhoj1.PEa1Tv1(-rhoj1*pj.beta1/(pj.r0), gjRij);
+	        		gjRhoj1.PEa1Tv1(-rhoj1*pj.b1/(pj.r0), gjRij);
 	    	
 	        		gjRhoj1x.Ea1Tv1(rhoj1, gjx);
 	        		gjRhoj1x.PEa1Tv1(x, gjRhoj1);
@@ -824,7 +780,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        		gjRhoj1z.PEa1Tv1(z, gjRhoj1);
 	    	
 	        		gjRhoj2.Ea1Tv1(rhoj2/Sij, gjSij);
-	        		gjRhoj2.PEa1Tv1(-rhoj2*pj.beta2/(pj.r0), gjRij);
+	        		gjRhoj2.PEa1Tv1(-rhoj2*pj.b2/(pj.r0), gjRij);
 	    	
 	        		gjRhoj2xx.Ea1Tv1(2.0*rhoj2*x, gjx);
 	        		gjRhoj2xx.PEa1Tv1(x*x, gjRhoj2);
@@ -848,7 +804,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        		gjRhoj2zz.PEa1Tv1(z*z, gjRhoj2);
 	    	
 	        		gjRhoj3.Ea1Tv1(rhoj3/Sij, gjSij);
-	        		gjRhoj3.PEa1Tv1(-rhoj3*pj.beta3/(pj.r0), gjRij);
+	        		gjRhoj3.PEa1Tv1(-rhoj3*pj.b3/(pj.r0), gjRij);
 	
 	        		gjRhoj3xxx.Ea1Tv1(3.0*rhoj3*x*x, gjx);
 	        		gjRhoj3xxx.PEa1Tv1(x*x*x, gjRhoj3);
@@ -901,20 +857,17 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
              */
             
             for(int j = 1; j < atoms.count(); j++) {
+            	//The k atom, n, must not be treated as one of the other j atoms.
+            	if (j == n) continue; // continue to next j atom
         		AtomLeaf atomj = (AtomLeaf) atoms.getAtom(j);
-    			int indexj = atomj.type.getIndex();
-        		ParameterSetMEAM pj = parameters[indexj];
-        		//The k atom, n, must not be treated as one of the other j atoms.
-        		if (j == n) continue; // continue to next j atom
         		rij.Ev1Mv2(atomj.coord.position(), atom0.coord.position());
         		nearestImageTransformer.nearestImage(rij);
         		double ij = Math.sqrt(rij.squared());
         		if (ij > jcut) continue; // continue to next j atom
-        	
-        		rik.E(rin);
-	        	double ik = in;
+        		
+        		rik.E(rin); double ik = in;
 	        	if (ik > ij*1.14) continue; // n won't impact this i-j interaction
-        	
+	        	
 	        	//redundant?
 	        	double anglekij = Math.toDegrees(Math.acos(
         			((rij.x(0)*rik.x(0)) + 
@@ -930,13 +883,12 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        	//from Baskes (1997)
 	        	double xik = (ik/ij)*(ik/ij);
 	        	double xkj = (kj/ij)*(kj/ij);
-        	
 	        	double C = ( (2.0*(xik + xkj)) - ((xik - xkj)*(xik - xkj))- 1.0 )
 							/ (1.0 - ((xik - xkj)*(xik - xkj)));
 	        	if (C < 0) continue;
 	        	
-	        	int indexk = atomn.type.getIndex();
-				ParameterSetMEAM pk = parameters[indexk];
+	        	int indexj = atomj.type.getIndex(); pj = parameters[indexj];
+	        	int indexk = atomn.type.getIndex(); pk = parameters[indexk];
 				
 				//Cu-Sn system only
 				double Cmin;
@@ -955,37 +907,31 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        	double Sijk;
 	        	if (C <= Cmin) { 
 	        		continue; 
-	        		/** If Sijk equals 0, any gradient of Sijk, 
+	        		/** If Sijk equals 0 or 1, any gradient of Sijk, 
 	        		 * including that with respect to k, will also be 0.  We
 	        		 * should continue on to the next j atom, whose gkSijk may be 
 	        		 * nonzero.  
 	        		 */
 	        	}
 	        	else if (C >= pi.Cmax) { 
-	        	    continue; 
-	        	    /** If Sijk equals 1, any gradient of Sijk, 
-	        		 * including that with respect to k, will also be 0.  We
-	        		 * should continue on to the next j atom, whose gkSijk may be 
-	        		 * nonzero.  
-	        		 */
+	        	    continue; //see above reasoning
 	        	}
 	        	else {
-        			Sijk = (1 - ((1 - q)*(1 - q)*(1 - q)*(1 - q)))
-						  *(1 - ((1 - q)*(1 - q)*(1 - q)*(1 - q)));
+        			Sijk = (1.0 - ((1.0 - q)*(1.0 - q)*(1.0 - q)*(1.0 - q)))
+						  *(1.0 - ((1.0 - q)*(1.0 - q)*(1.0 - q)*(1.0 - q)));
 	        	}
 	        	
 	        	// To calculate Sij. l is k != n.
 	        	// We can start Sij out with the value for Sijk (k = n).
 	        	double Sij = Sijk;
 	        	for(int l = 1; l < atoms.count(); l++) {
+	        		if (l == j || l == n) continue; //already have Sijk for n = k
 	    			AtomLeaf atoml = (AtomLeaf) atoms.getAtom(l);
-	    			if (l == j) continue;
-	    			if (l == n) continue; //already including Sijk for n = k
 	    			ril.Ev1Mv2(atoml.coord.position(), atom0.coord.position());
 	    			nearestImageTransformer.nearestImage(ril);
 	    			double il = Math.sqrt(ril.squared());
 	    			if (il > ij*1.14) continue;
-	            	
+	            	//redundant?
 	    			double anglelij = Math.toDegrees(Math.acos(
 	            		( (rij.x(0)*ril.x(0)) + (rij.x(1)*ril.x(1)) + 
 	    				  (rij.x(2)*ril.x(2)) ) / (ij*il) ));
@@ -1003,8 +949,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	    					   ( 1.0 - ( (xil - xjl)*(xil - xjl) ) );
 	    			if (c < 0) continue;
 	    			
-	    			int indexl = atoml.type.getIndex();
-    				ParameterSetMEAM pl = parameters[indexl];
+	    			int indexl = atoml.type.getIndex(); pl = parameters[indexl];
     				
     				//Cu-Sn system only
     				double cmin;
@@ -1027,9 +972,9 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	            		continue; // continue to next k!=n atom
 	            	}
 	    			else {
-	    				double qq = ((C - cmin)/(pi.Cmax - cmin));
-	        			Sijl = (1 - ((1 - qq)*(1 - qq)*(1 - qq)*(1 - qq)))
-							  *(1 - ((1 - qq)*(1 - qq)*(1 - qq)*(1 - qq)));
+	    				double m = ((C - cmin)/(pi.Cmax - cmin));
+	        			Sijl = (1.0 - ((1.0 - m)*(1.0 - m)*(1.0 - m)*(1.0 - m)))
+							  *(1.0 - ((1.0 - m)*(1.0 - m)*(1.0 - m)*(1.0 - m)));
 	    			}
 	            	
 	    			Sij *= Sijl;
@@ -1038,70 +983,59 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        	// An l (k!=n) atom may have made Sij = 0.
 	        	if (Sij == 0) continue; //continue to next j!=n
 	        	
-	        	double rhoj0 = pj.rhoScale * 
-							Math.exp(-pj.beta0 * ((ij/pj.r0) - 1.0)) * Sij;
-	        	double rhoj1 = pj.rhoScale * 
-							Math.exp(-pj.beta1 * ((ij/pj.r0) - 1.0)) * Sij;
-	            double rhoj2 = pj.rhoScale * 
-							Math.exp(-pj.beta2 * ((ij/pj.r0) - 1.0)) * Sij;
-	        	double rhoj3 = pj.rhoScale * 
-							Math.exp(-pj.beta3 * ((ij/pj.r0) - 1.0)) * Sij;
+	        	double rhoj0, rhoj1, rhoj2, rhoj3, x, y, z, phi;
+	        	
+	        	rhoj0 = pj.rho0 * Math.exp(-pj.b0 * ((ij/pj.r0) - 1.0)) * Sij;
+	        	rhoj1 = pj.rho0 * Math.exp(-pj.b1 * ((ij/pj.r0) - 1.0)) * Sij;
+	            rhoj2 = pj.rho0 * Math.exp(-pj.b2 * ((ij/pj.r0) - 1.0)) * Sij;
+	        	rhoj3 = pj.rho0 * Math.exp(-pj.b3 * ((ij/pj.r0) - 1.0)) * Sij;
 	        	
 	        	unitVector.E(rij);
 	            unitVector.normalize();
-	            
-	            double x = unitVector.x(0);
-	            double y = unitVector.x(1);
-	            double z = unitVector.x(2);
+	            x = unitVector.x(0);
+	            y = unitVector.x(1);
+	            z = unitVector.x(2);
            
-	            //to calculate the repulsive pair potential, phi
-	            //Should rhoj0 within phi contain Sij? Phi itself is multiplied 
-	            //by Sij...
-	            //FCC reference structure, Z = 12
-	            double phi;
         		if (indexi == indexj) {
-    				double a = pi.alpha * ((ij/pi.r0) - 1.0);
-    				double EuRef = - pi.Ec * (1.0 + a) * Math.exp(-a);
-    				double rhoj0Ref = pj.rhoScale * Math.exp(-pj.beta0 * ((ij/pj.r0) - 1.0));
-    				double rhoiRef = pi.Z * rhoj0Ref;   //FCC reference structure, Z = 12
-    				double FRef = pi.A * pi.Ec * (rhoiRef/pi.Z) * Math.log(rhoiRef/pi.Z);
+        			double a, EuRef, rhoj0Ref, rhoiRef, FRef;
+    				a = pi.a * ((ij/pi.r0) - 1.0);
+    				EuRef = - pi.Ec * (1.0 + a) * Math.exp(-a);
+    				rhoj0Ref = pj.rho0 * Math.exp(-pj.b0 * ((ij/pj.r0) - 1.0));
+    				rhoiRef = pi.Z * rhoj0Ref;   
+    				FRef = pi.A * pi.Ec * (rhoiRef/pi.Z) * Math.log(rhoiRef/pi.Z);
     				phi = ((2.0/pi.Z) * (EuRef - FRef)) * Sij;
     			}
     			
     			else {
-    				ParameterSetMEAM b, b3sn;
     				if (pi == pSn) { // atom i is the Sn atom
-    					b  = parameters[indexj];
-    					b3sn = parametersIMC[indexj];
+    					b  = parameters[indexj]; b3sn = parametersIMC[indexj];
     				}
     				else {
-    					b  = parameters[indexi];
-    					b3sn = parametersIMC[indexi];
+    					b  = parameters[indexi]; b3sn = parametersIMC[indexi];
     				}
-    				
-    				double a = b3sn.alpha * ((ij/b3sn.r0) - 1.0);
-    				double EuRef = - b3sn.Ec * (1.0 + a) * Math.exp(-a);
-    				
-    				double rhoB0 = b.rhoScale * Math.exp(-b.beta0 * ((ij/b.r0) - 1.0));
-    				double rhoB2 = b.rhoScale * Math.exp(-b.beta2 * ((ij/b.r0) - 1.0));
-    				double rhoSn0 = pSn.rhoScale * Math.exp(-pSn.beta0 * ((ij/pSn.r0) - 1.0));
-    				double rhoSn2 = pSn.rhoScale * Math.exp(-pSn.beta2 * ((ij/pSn.r0) - 1.0));
-    				double rhoB = ( Math.sqrt( ((8.0*rhoB0 + 4.0*rhoSn0)*(8.0*rhoB0 + 4.0*rhoSn0))
-    										  +((8.0/3.0)*b.t2*(rhoB2 - rhoSn2)*(rhoB2 - rhoSn2))))
-    							   /(12.0*b.rhoScale);
-    				double rhoSn = 3.0*rhoB0/pSn.rhoScale;
-    				double FB  = b.A  * b.Ec  * (rhoB/12.0) * Math.log(rhoB/12.0);
-    				double FSn = pSn.A * pSn.Ec * (rhoSn/4.0) * Math.log(rhoSn/4.0);
-    			
+    				double a, Eu, rhoB0, rhoB2, rhoSn0, rhoSn2, rhoB, rhoSn, FB,
+						FSn, aB, EuB, rhoB0Ref, rhoiBRef, FBRef, phiBB;
+    				a = b3sn.a * ((ij/b3sn.r0) - 1.0);
+    				Eu = - b3sn.Ec * (1.0 + a) * Math.exp(-a);
+    				rhoB0 = b.rho0 * Math.exp(-b.b0 * ((ij/b.r0) - 1.0));
+    				rhoB2 = b.rho0 * Math.exp(-b.b2 * ((ij/b.r0) - 1.0));
+    				rhoSn0 = pSn.rho0 * Math.exp(-pSn.b0 * ((ij/pSn.r0) - 1.0));
+    				rhoSn2 = pSn.rho0 * Math.exp(-pSn.b2 * ((ij/pSn.r0) - 1.0));
+    				rhoB = Math.sqrt( 
+    					      ((8.0*rhoB0 + 4.0*rhoSn0)*(8.0*rhoB0 + 4.0*rhoSn0))
+    					     +((8.0/3.0)*b.t2*(rhoB2 - rhoSn2)*(rhoB2 - rhoSn2)))
+    					   /(12.0*b.rho0);
+    				rhoSn = 3.0*rhoB0/pSn.rho0;
+    				FB  = b.A  * b.Ec  * (rhoB/12.0) * Math.log(rhoB/12.0);
+    				FSn = pSn.A * pSn.Ec * (rhoSn/4.0) * Math.log(rhoSn/4.0);
     				//phiBB
-    				double aB = b.alpha * ((ij/b.r0) - 1.0);
-    				double EuBRef = - b.Ec * (1.0 + aB) * Math.exp(-aB);
-    				double rhoB0Ref = b.rhoScale * Math.exp(-b.beta0 * ((ij/b.r0) - 1.0));
-    				double rhoiBRef = b.Z * rhoB0Ref;   //FCC reference structure, Z = 12
-    				double FBRef = b.A * b.Ec * (rhoiBRef/b.Z) * Math.log(rhoiBRef/b.Z);
-    				double phiBB = ((2.0/b.Z) * (EuBRef - FBRef));
-    				
-    				phi = ((1.0/3.0)*EuRef - (1.0/4.0)*FB - (1.0/12.0)*FSn - phiBB) * Sij;
+    				aB = b.a * ((ij/b.r0) - 1.0);
+    				EuB = - b.Ec * (1.0 + aB) * Math.exp(-aB);
+    				rhoB0Ref = b.rho0 * Math.exp(-b.b0 * ((ij/b.r0) - 1.0));
+    				rhoiBRef = b.Z * rhoB0Ref;   
+    				FBRef = b.A * b.Ec * (rhoiBRef/b.Z) * Math.log(rhoiBRef/b.Z);
+    				phiBB = ((2.0/b.Z) * (EuB - FBRef));
+    				phi = ((1.0/3.0)*Eu - 0.25*FB - (1.0/12.0)*FSn - phiBB) * Sij;
         		}
 	        	
 	        	gkRij.E(0);
@@ -1120,91 +1054,45 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		    	gkC.PEa1Tv1(1.0 - (xik - xkj)*(C + 1.0), gkXkj);
 		    	gkC.TE( 2.0 / ( 1.0 - ((xik - xkj)*(xik - xkj)) ));
 		    
-		    	gkSijk.Ea1Tv1( 8 * (1 - ((1 - q)*(1 - q)*(1 - q)*(1 - q)))
-	                             * ((1 - q)*(1 - q)*(1 - q))
-						         * (1 / (pi.Cmax - Cmin)), gkC);
+		    	gkSijk.Ea1Tv1(8 * (1.0 - ((1.0 - q)*(1.0 - q)*(1.0 - q)*(1.0 - q)))
+	                            * ((1.0 - q)*(1.0 - q)*(1.0 - q))
+						        * (1.0 / (pi.Cmax - Cmin)), gkC);
 		    	
 		    	//We only consider one k atom - the k atom that is n
 		    	gkSij.Ea1Tv1(Sij/Sijk, gkSijk);
 		    	
-		    	gkPhi.Ea1Tv1(phi/Sij, gkSij);
-		    	sumGkPhi.PE(gkPhi);
+		    	gkPhi.Ea1Tv1(phi/Sij, gkSij); sumGkPhi.PE(gkPhi);
 		    	
-		    	gkRhoj0.Ea1Tv1(rhoj0/Sij, gkSij);
-		    	sumGkRhoj0.PE(gkRhoj0);
-		    	
+		    	gkRhoj0.Ea1Tv1(rhoj0/Sij, gkSij); sumGkRhoj0.PE(gkRhoj0);
 		    	gkRhoj1.Ea1Tv1(rhoj1/Sij, gkSij);
-	
-		    	gkRhoj2.Ea1Tv1(rhoj2/Sij, gkSij);
-		    	sumGkRhoj2.PE(gkRhoj2);
-	
+		    	gkRhoj2.Ea1Tv1(rhoj2/Sij, gkSij); sumGkRhoj2.PE(gkRhoj2);
 		    	gkRhoj3.Ea1Tv1(rhoj3/Sij, gkSij);
 		    	
-		    	gkRhoj1x.Ea1Tv1(x, gkRhoj1);
-		    	sumGkRhoj1x.PE(gkRhoj1x);
-	    	
-		    	gkRhoj1y.Ea1Tv1(y, gkRhoj1);
-		    	sumGkRhoj1y.PE(gkRhoj1y);
+		    	gkRhoj1x.Ea1Tv1(x, gkRhoj1); sumGkRhoj1x.PE(gkRhoj1x);
+		    	gkRhoj1y.Ea1Tv1(y, gkRhoj1); sumGkRhoj1y.PE(gkRhoj1y);
+		    	gkRhoj1z.Ea1Tv1(z, gkRhoj1); sumGkRhoj1z.PE(gkRhoj1z);
 	
-		    	gkRhoj1z.Ea1Tv1(z, gkRhoj1);
-		    	sumGkRhoj1z.PE(gkRhoj1z);
+		    	gkRhoj2xx.Ea1Tv1(x*x, gkRhoj2); sumGkRhoj2xx.PE(gkRhoj2xx);
+		    	gkRhoj2xy.Ea1Tv1(x*y, gkRhoj2); sumGkRhoj2xy.PE(gkRhoj2xy);
+		    	gkRhoj2xz.Ea1Tv1(x*z, gkRhoj2); sumGkRhoj2xz.PE(gkRhoj2xz);
+		    	gkRhoj2yy.Ea1Tv1(y*y, gkRhoj2); sumGkRhoj2yy.PE(gkRhoj2yy);
+		    	gkRhoj2yz.Ea1Tv1(y*z, gkRhoj2); sumGkRhoj2yz.PE(gkRhoj2yz);
+		    	gkRhoj2zz.Ea1Tv1(z*z, gkRhoj2); sumGkRhoj2zz.PE(gkRhoj2zz);
 	
-		    	gkRhoj2xx.Ea1Tv1(x*x, gkRhoj2);
-		    	sumGkRhoj2xx.PE(gkRhoj2xx);
-	
-		    	gkRhoj2xy.Ea1Tv1(x*y, gkRhoj2);
-		    	sumGkRhoj2xy.PE(gkRhoj2xy);
-	
-		    	gkRhoj2xz.Ea1Tv1(x*z, gkRhoj2);
-		    	sumGkRhoj2xz.PE(gkRhoj2xz);
-	
-		    	gkRhoj2yy.Ea1Tv1(y*y, gkRhoj2);
-		    	sumGkRhoj2yy.PE(gkRhoj2yy);
-	
-		    	gkRhoj2yz.Ea1Tv1(y*z, gkRhoj2);
-		    	sumGkRhoj2yz.PE(gkRhoj2yz);
-
-		    	gkRhoj2zz.Ea1Tv1(z*z, gkRhoj2);
-		    	sumGkRhoj2zz.PE(gkRhoj2zz);
-	
-		    	gkRhoj3xxx.Ea1Tv1(x*x*x, gkRhoj3);
-		    	sumGkRhoj3xxx.PE(gkRhoj3xxx);
-		    
-		    	gkRhoj3xxy.Ea1Tv1(x*x*y, gkRhoj3);
-		    	sumGkRhoj3xxy.PE(gkRhoj3xxy);
-	
-		    	gkRhoj3xxz.Ea1Tv1(x*x*z, gkRhoj3);
-		    	sumGkRhoj3xxz.PE(gkRhoj3xxz);
-	
-		    	gkRhoj3xyy.Ea1Tv1(x*y*y, gkRhoj3);
-		    	sumGkRhoj3xyy.PE(gkRhoj3xyy);
-	
-		    	gkRhoj3xyz.Ea1Tv1(x*y*z, gkRhoj3);
-		    	sumGkRhoj3xyz.PE(gkRhoj3xyz);
-	    	
-		    	gkRhoj3xzz.Ea1Tv1(x*z*z, gkRhoj3);
-		    	sumGkRhoj3xzz.PE(gkRhoj3xzz);
-	
-		    	gkRhoj3yyy.Ea1Tv1(y*y*y, gkRhoj3);
-		    	sumGkRhoj3yyy.PE(gkRhoj3yyy);
-		   
-		    	gkRhoj3yyz.Ea1Tv1(y*y*z, gkRhoj3);
-		    	sumGkRhoj3yyz.PE(gkRhoj3yyz);
-	    	
-		    	gkRhoj3yzz.Ea1Tv1(y*z*z, gkRhoj3);
-		    	sumGkRhoj3yzz.PE(gkRhoj3yzz);
+		    	gkRhoj3xxx.Ea1Tv1(x*x*x, gkRhoj3); sumGkRhoj3xxx.PE(gkRhoj3xxx);
+		    	gkRhoj3xxy.Ea1Tv1(x*x*y, gkRhoj3); sumGkRhoj3xxy.PE(gkRhoj3xxy);
+		    	gkRhoj3xxz.Ea1Tv1(x*x*z, gkRhoj3); sumGkRhoj3xxz.PE(gkRhoj3xxz);
+		    	gkRhoj3xyy.Ea1Tv1(x*y*y, gkRhoj3); sumGkRhoj3xyy.PE(gkRhoj3xyy);
+		    	gkRhoj3xyz.Ea1Tv1(x*y*z, gkRhoj3); sumGkRhoj3xyz.PE(gkRhoj3xyz);
+		        gkRhoj3xzz.Ea1Tv1(x*z*z, gkRhoj3); sumGkRhoj3xzz.PE(gkRhoj3xzz);
+		    	gkRhoj3yyy.Ea1Tv1(y*y*y, gkRhoj3); sumGkRhoj3yyy.PE(gkRhoj3yyy);
+		    	gkRhoj3yyz.Ea1Tv1(y*y*z, gkRhoj3); sumGkRhoj3yyz.PE(gkRhoj3yyz);
+		    	gkRhoj3yzz.Ea1Tv1(y*z*z, gkRhoj3); sumGkRhoj3yzz.PE(gkRhoj3yzz);
+		    	gkRhoj3zzz.Ea1Tv1(z*z*z, gkRhoj3); sumGkRhoj3zzz.PE(gkRhoj3zzz);
 		    	
-		    	gkRhoj3zzz.Ea1Tv1(z*z*z, gkRhoj3);
-		    	sumGkRhoj3zzz.PE(gkRhoj3zzz);
-		    	
-		    	t1GkRhoj0.Ea1Tv1(pi.t1, gkRhoj0);
-		    	sumt1GkRhoj0.PE(t1GkRhoj0);
-		    	
-		    	t2GkRhoj0.Ea1Tv1(pi.t2, gkRhoj0);
-		    	sumt2GkRhoj0.PE(t2GkRhoj0);
-		    	
-		    	t3GkRhoj0.Ea1Tv1(pi.t3, gkRhoj0);
-		    	sumt3GkRhoj0.PE(t3GkRhoj0);
+		    	t1GkRhoj0.Ea1Tv1(pi.t1, gkRhoj0); sumt1GkRhoj0.PE(t1GkRhoj0);
+		    	t2GkRhoj0.Ea1Tv1(pi.t2, gkRhoj0); sumt2GkRhoj0.PE(t2GkRhoj0);
+		    	t3GkRhoj0.Ea1Tv1(pi.t3, gkRhoj0); sumt3GkRhoj0.PE(t3GkRhoj0);
 	        } //exit loop over j!=n atoms, with n as a k atom
 	    	
 	    	//multi-body terms, n as k is included
@@ -1376,15 +1264,13 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		return gnEi;
 	}
 	
-	//15 parameters for each species in ParameterSetMEAM
+	private ParameterSetMEAM[] parameters = new ParameterSetMEAM[0];
+    private ParameterSetMEAM[] parametersIMC = new ParameterSetMEAM[0];
+    private ParameterSetMEAM pi, pj, pk, pl, b, b3sn;
 	private ParameterSetMEAM pSn = ParameterSetMEAM.Sn;
 	private ParameterSetMEAM pAg = ParameterSetMEAM.Ag;
 	private ParameterSetMEAM pCu = ParameterSetMEAM.Cu;
-    private ParameterSetMEAM[] parameters = new ParameterSetMEAM[0];
-    private ParameterSetMEAM[] parametersIMC = new ParameterSetMEAM[0];
 	protected NearestImageTransformer nearestImageTransformer;
-    //private AtomPair pair;
-    //private AtomSet atoms;
     
     double[] sum = new double[25];
 	public static final int RHOj0 = 0;
@@ -1412,247 +1298,124 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	public static final int T2RHOj0 = 22;
 	public static final int T3RHOj0 = 23;
 	public static final int PHI = 24;
-    
+	
+    private Vector3D[] gnEi = new Vector3D[0];
+	
+	private final Vector3D rij = (Vector3D)space.makeVector();
+	private final Vector3D rik = (Vector3D)space.makeVector();
+	private final Vector3D rkj = (Vector3D)space.makeVector();
 	private final Vector3D unitVector = (Vector3D)space.makeVector();
+	
+	private final Vector3D sumGiPhi = (Vector3D)space.makeVector();
+    private final Vector3D sumGiRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D sumGiRhoj2 = (Vector3D)space.makeVector();
+    private final Vector3D sumGiRhoj1x = (Vector3D)space.makeVector();
+    private final Vector3D sumGiRhoj1y = (Vector3D)space.makeVector();
+    private final Vector3D sumGiRhoj1z = (Vector3D)space.makeVector();
+    private final Vector3D sumGiRhoj2xx = (Vector3D)space.makeVector();
+    private final Vector3D sumGiRhoj2xy = (Vector3D)space.makeVector();
+    private final Vector3D sumGiRhoj2xz = (Vector3D)space.makeVector();
+    private final Vector3D sumGiRhoj2yy = (Vector3D)space.makeVector();
+    private final Vector3D sumGiRhoj2yz = (Vector3D)space.makeVector();
+    private final Vector3D sumGiRhoj2zz = (Vector3D)space.makeVector();
+    private final Vector3D sumGiRhoj3xxx = (Vector3D)space.makeVector();
+    private final Vector3D sumGiRhoj3xxy = (Vector3D)space.makeVector();
+    private final Vector3D sumGiRhoj3xxz = (Vector3D)space.makeVector();
+    private final Vector3D sumGiRhoj3xyy = (Vector3D)space.makeVector();
+    private final Vector3D sumGiRhoj3xyz = (Vector3D)space.makeVector();
+    private final Vector3D sumGiRhoj3xzz = (Vector3D)space.makeVector();
+    private final Vector3D sumGiRhoj3yyy = (Vector3D)space.makeVector();
+    private final Vector3D sumGiRhoj3yyz = (Vector3D)space.makeVector();
+    private final Vector3D sumGiRhoj3yzz = (Vector3D)space.makeVector();
+    private final Vector3D sumGiRhoj3zzz = (Vector3D)space.makeVector();
+    private final Vector3D sumt1GiRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D sumt2GiRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D sumt3GiRhoj0 = (Vector3D)space.makeVector();
+    
+    private final Vector3D rin = (Vector3D)space.makeVector();
+    
+    private final Vector3D gjPhi = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj1 = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj2 = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj3 = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj1x = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj1y = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj1z = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj2xx = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj2xy = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj2xz = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj2yy = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj2yz = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj2zz = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj3xxx = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj3xxy = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj3xxz = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj3xyy = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj3xyz = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj3xzz = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj3yyy = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj3yyz = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj3yzz = (Vector3D)space.makeVector();
+    private final Vector3D gjRhoj3zzz = (Vector3D)space.makeVector();
+    private final Vector3D t1GjRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D t2GjRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D t3GjRhoj0 = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumGkPhi = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj2 = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj1x = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj1y = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj1z = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj2xx = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj2xy = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj2xz = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj2yy = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj2yz = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj2zz = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj3xxx = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj3xxy = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj3xxz = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj3xyy = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj3xyz = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj3xzz = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj3yyy = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj3yyz = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj3yzz = (Vector3D)space.makeVector();
+    private final Vector3D sumGkRhoj3zzz = (Vector3D)space.makeVector();
+    private final Vector3D sumt1GkRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D sumt2GkRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D sumt3GkRhoj0 = (Vector3D)space.makeVector();
+
+    private final Vector3D giRij = (Vector3D)space.makeVector();
+    private final Vector3D gjRij = (Vector3D)space.makeVector();
+    private final Vector3D giRik = (Vector3D)space.makeVector();
+    private final Vector3D gjRik = (Vector3D)space.makeVector();
+    private final Vector3D giRkj = (Vector3D)space.makeVector();
+    private final Vector3D gjRkj = (Vector3D)space.makeVector();
+    private final Vector3D giXik = (Vector3D)space.makeVector();
+    private final Vector3D gjXik = (Vector3D)space.makeVector();
+    private final Vector3D giXkj = (Vector3D)space.makeVector();
+    private final Vector3D gjXkj = (Vector3D)space.makeVector();
+    private final Vector3D giC = (Vector3D)space.makeVector();
+    private final Vector3D gjC = (Vector3D)space.makeVector();
+    private final Vector3D giSijk = (Vector3D)space.makeVector();
+    private final Vector3D gjSijk = (Vector3D)space.makeVector();
+    private final Vector3D giSij = (Vector3D)space.makeVector();
+    private final Vector3D gjSij = (Vector3D)space.makeVector();
+    
     private final Vector3D vector100 = (Vector3D)space.makeVector();
     private final Vector3D vector010 = (Vector3D)space.makeVector();
     private final Vector3D vector001 = (Vector3D)space.makeVector();
-    private final Vector3D rin = (Vector3D)space.makeVector();
-    private final Vector3D rij = (Vector3D)space.makeVector();
-    private final Vector3D rik = (Vector3D)space.makeVector();
-    private final Vector3D rkj = (Vector3D)space.makeVector();
-    private final Vector3D ril = (Vector3D)space.makeVector();
-    private final Vector3D rlj = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRij = (Vector3D)space.makeVector();
-    private final Vector3D gjRij = (Vector3D)space.makeVector();
-    private final Vector3D gkRij = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRik = (Vector3D)space.makeVector();
-    private final Vector3D gjRik = (Vector3D)space.makeVector();
-    private final Vector3D gkRik = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRkj = (Vector3D)space.makeVector();
-    private final Vector3D gjRkj = (Vector3D)space.makeVector();
-    private final Vector3D gkRkj = (Vector3D)space.makeVector();
-    
-    private final Vector3D giXik = (Vector3D)space.makeVector();
-    private final Vector3D gjXik = (Vector3D)space.makeVector();
-    private final Vector3D gkXik = (Vector3D)space.makeVector();
-    
-    private final Vector3D giXkj = (Vector3D)space.makeVector();
-    private final Vector3D gjXkj = (Vector3D)space.makeVector();
-    private final Vector3D gkXkj = (Vector3D)space.makeVector();
-    
-    private final Vector3D giC = (Vector3D)space.makeVector();
-    private final Vector3D gjC = (Vector3D)space.makeVector();
-    private final Vector3D gkC = (Vector3D)space.makeVector();
-    
-    private final Vector3D giSijk = (Vector3D)space.makeVector();
-    private final Vector3D gjSijk = (Vector3D)space.makeVector();
-    private final Vector3D gkSijk = (Vector3D)space.makeVector();
-    
-    private final Vector3D giSij = (Vector3D)space.makeVector();
-    private final Vector3D gkSij = (Vector3D)space.makeVector();
-    private final Vector3D gjSij = (Vector3D)space.makeVector();
-    
     private final Vector3D gix = (Vector3D)space.makeVector();
-    private final Vector3D gjx = (Vector3D)space.makeVector();
-    
     private final Vector3D giy = (Vector3D)space.makeVector();
-    private final Vector3D gjy = (Vector3D)space.makeVector();
-    
     private final Vector3D giz = (Vector3D)space.makeVector();
-    private final Vector3D gjz = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRhoj0 = (Vector3D)space.makeVector();
-    private final Vector3D gjRhoj0 = (Vector3D)space.makeVector();
-    private final Vector3D gkRhoj0 = (Vector3D)space.makeVector();
-    
-    private final Vector3D sumGiRhoj0 = (Vector3D)space.makeVector();
-    private final Vector3D sumGkRhoj0 = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRhoj1 = (Vector3D)space.makeVector();
-    private final Vector3D gjRhoj1 = (Vector3D)space.makeVector();
-    private final Vector3D gkRhoj1 = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRhoj2 = (Vector3D)space.makeVector();
-    private final Vector3D gjRhoj2 = (Vector3D)space.makeVector();
-    private final Vector3D gkRhoj2 = (Vector3D)space.makeVector();
-    
-    private final Vector3D sumGiRhoj2 = (Vector3D)space.makeVector();
-    private final Vector3D sumGkRhoj2 = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRhoj3 = (Vector3D)space.makeVector();
-    private final Vector3D gjRhoj3 = (Vector3D)space.makeVector();
-    private final Vector3D gkRhoj3 = (Vector3D)space.makeVector();
-   
-    private final Vector3D giRhoj1x = (Vector3D)space.makeVector();
-    private final Vector3D gjRhoj1x = (Vector3D)space.makeVector();
-    private final Vector3D gkRhoj1x = (Vector3D)space.makeVector();
-    
-    private final Vector3D sumGiRhoj1x = (Vector3D)space.makeVector();
-    private final Vector3D sumGkRhoj1x = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRhoj1y = (Vector3D)space.makeVector();
-    private final Vector3D gjRhoj1y = (Vector3D)space.makeVector();
-    private final Vector3D gkRhoj1y = (Vector3D)space.makeVector();
-    
-    private final Vector3D sumGiRhoj1y = (Vector3D)space.makeVector();
-    private final Vector3D sumGkRhoj1y = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRhoj1z = (Vector3D)space.makeVector();
-    private final Vector3D gjRhoj1z = (Vector3D)space.makeVector();
-    private final Vector3D gkRhoj1z = (Vector3D)space.makeVector();
-    
-    private final Vector3D sumGiRhoj1z = (Vector3D)space.makeVector();
-    private final Vector3D sumGkRhoj1z = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRhoj2xx = (Vector3D)space.makeVector();
-    private final Vector3D gjRhoj2xx = (Vector3D)space.makeVector();
-    private final Vector3D gkRhoj2xx = (Vector3D)space.makeVector();
-    
-    private final Vector3D sumGiRhoj2xx = (Vector3D)space.makeVector();
-    private final Vector3D sumGkRhoj2xx = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRhoj2xy = (Vector3D)space.makeVector();
-    private final Vector3D gjRhoj2xy = (Vector3D)space.makeVector();
-    private final Vector3D gkRhoj2xy = (Vector3D)space.makeVector();
-    
-    private final Vector3D sumGiRhoj2xy = (Vector3D)space.makeVector();
-    private final Vector3D sumGkRhoj2xy = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRhoj2xz = (Vector3D)space.makeVector();
-    private final Vector3D gjRhoj2xz = (Vector3D)space.makeVector();
-    private final Vector3D gkRhoj2xz = (Vector3D)space.makeVector();
-    
-    private final Vector3D sumGiRhoj2xz = (Vector3D)space.makeVector();
-    private final Vector3D sumGkRhoj2xz = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRhoj2yy = (Vector3D)space.makeVector();
-    private final Vector3D gjRhoj2yy = (Vector3D)space.makeVector();
-    private final Vector3D gkRhoj2yy = (Vector3D)space.makeVector();
-    
-    private final Vector3D sumGiRhoj2yy = (Vector3D)space.makeVector();
-    private final Vector3D sumGkRhoj2yy = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRhoj2yz = (Vector3D)space.makeVector();
-    private final Vector3D gjRhoj2yz = (Vector3D)space.makeVector();
-    private final Vector3D gkRhoj2yz = (Vector3D)space.makeVector();
-    
-    private final Vector3D sumGiRhoj2yz = (Vector3D)space.makeVector();
-    private final Vector3D sumGkRhoj2yz = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRhoj2zz = (Vector3D)space.makeVector();
-    private final Vector3D gjRhoj2zz = (Vector3D)space.makeVector();
-    private final Vector3D gkRhoj2zz = (Vector3D)space.makeVector();
-    
-    private final Vector3D sumGiRhoj2zz = (Vector3D)space.makeVector();
-    private final Vector3D sumGkRhoj2zz = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRhoj3xxx = (Vector3D)space.makeVector();
-    private final Vector3D gjRhoj3xxx = (Vector3D)space.makeVector();
-    private final Vector3D gkRhoj3xxx = (Vector3D)space.makeVector();
-    
-    private final Vector3D sumGiRhoj3xxx = (Vector3D)space.makeVector();
-    private final Vector3D sumGkRhoj3xxx = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRhoj3xxy = (Vector3D)space.makeVector();
-    private final Vector3D gjRhoj3xxy = (Vector3D)space.makeVector();
-    private final Vector3D gkRhoj3xxy = (Vector3D)space.makeVector();
-    
-    private final Vector3D sumGiRhoj3xxy = (Vector3D)space.makeVector();
-    private final Vector3D sumGkRhoj3xxy = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRhoj3xxz = (Vector3D)space.makeVector();
-    private final Vector3D gjRhoj3xxz = (Vector3D)space.makeVector();
-    private final Vector3D gkRhoj3xxz = (Vector3D)space.makeVector();
-    
-    private final Vector3D sumGiRhoj3xxz = (Vector3D)space.makeVector();
-    private final Vector3D sumGkRhoj3xxz = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRhoj3xyy = (Vector3D)space.makeVector();
-    private final Vector3D gjRhoj3xyy = (Vector3D)space.makeVector();
-    private final Vector3D gkRhoj3xyy = (Vector3D)space.makeVector();
-    
-    private final Vector3D sumGiRhoj3xyy = (Vector3D)space.makeVector();
-    private final Vector3D sumGkRhoj3xyy = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRhoj3xyz = (Vector3D)space.makeVector();
-    private final Vector3D gjRhoj3xyz = (Vector3D)space.makeVector();
-    private final Vector3D gkRhoj3xyz = (Vector3D)space.makeVector();
-    
-    private final Vector3D sumGiRhoj3xyz = (Vector3D)space.makeVector();
-    private final Vector3D sumGkRhoj3xyz = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRhoj3xzz = (Vector3D)space.makeVector();
-    private final Vector3D gjRhoj3xzz = (Vector3D)space.makeVector();
-    private final Vector3D gkRhoj3xzz = (Vector3D)space.makeVector();
-    
-    private final Vector3D sumGiRhoj3xzz = (Vector3D)space.makeVector();
-    private final Vector3D sumGkRhoj3xzz = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRhoj3yyy = (Vector3D)space.makeVector();
-    private final Vector3D gjRhoj3yyy = (Vector3D)space.makeVector();
-    private final Vector3D gkRhoj3yyy = (Vector3D)space.makeVector();
-    
-    private final Vector3D sumGiRhoj3yyy = (Vector3D)space.makeVector();
-    private final Vector3D sumGkRhoj3yyy = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRhoj3yyz = (Vector3D)space.makeVector();
-    private final Vector3D gjRhoj3yyz = (Vector3D)space.makeVector();
-    private final Vector3D gkRhoj3yyz = (Vector3D)space.makeVector();
-    
-    private final Vector3D sumGiRhoj3yyz = (Vector3D)space.makeVector();
-    private final Vector3D sumGkRhoj3yyz = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRhoj3yzz = (Vector3D)space.makeVector();
-    private final Vector3D gjRhoj3yzz = (Vector3D)space.makeVector();
-    private final Vector3D gkRhoj3yzz = (Vector3D)space.makeVector();
-    
-    private final Vector3D sumGiRhoj3yzz = (Vector3D)space.makeVector();
-    private final Vector3D sumGkRhoj3yzz = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRhoj3zzz = (Vector3D)space.makeVector();
-    private final Vector3D gjRhoj3zzz = (Vector3D)space.makeVector();
-    private final Vector3D gkRhoj3zzz = (Vector3D)space.makeVector();
-    
-    private final Vector3D sumGiRhoj3zzz = (Vector3D)space.makeVector();
-    private final Vector3D sumGkRhoj3zzz = (Vector3D)space.makeVector();
-    
-    private final Vector3D t1GiRhoj0 = (Vector3D)space.makeVector();
-    private final Vector3D t1GjRhoj0 = (Vector3D)space.makeVector();
-    private final Vector3D t1GkRhoj0 = (Vector3D)space.makeVector();
-    
-    private final Vector3D sumt1GiRhoj0 = (Vector3D)space.makeVector();
-    private final Vector3D sumt1GkRhoj0 = (Vector3D)space.makeVector();
-    
-    private final Vector3D t2GiRhoj0 = (Vector3D)space.makeVector();
-    private final Vector3D t2GjRhoj0 = (Vector3D)space.makeVector();
-    private final Vector3D t2GkRhoj0 = (Vector3D)space.makeVector();
-    
-    private final Vector3D sumt2GiRhoj0 = (Vector3D)space.makeVector();
-    private final Vector3D sumt2GkRhoj0 = (Vector3D)space.makeVector();
-    
-    private final Vector3D t3GiRhoj0 = (Vector3D)space.makeVector();
-    private final Vector3D t3GjRhoj0 = (Vector3D)space.makeVector();
-    private final Vector3D t3GkRhoj0 = (Vector3D)space.makeVector();
-    
-    private final Vector3D sumt3GiRhoj0 = (Vector3D)space.makeVector();
-    private final Vector3D sumt3GkRhoj0 = (Vector3D)space.makeVector();
     
     private final Vector3D giRhoj0Ref = (Vector3D)space.makeVector();
-    
     private final Vector3D giRhoiRef = (Vector3D)space.makeVector();
-    
-    private final Vector3D giERef = (Vector3D)space.makeVector();
-    
+    private final Vector3D giEu = (Vector3D)space.makeVector();
     private final Vector3D giFRef = (Vector3D)space.makeVector();
-    
-    private final Vector3D giPhi = (Vector3D)space.makeVector();
-    private final Vector3D gjPhi = (Vector3D)space.makeVector();
-    private final Vector3D gkPhi = (Vector3D)space.makeVector();
-    
     private final Vector3D giRhoB0 = (Vector3D)space.makeVector();
     private final Vector3D giRhoB2 = (Vector3D)space.makeVector();
     private final Vector3D giRhoSn0 = (Vector3D)space.makeVector();
@@ -1661,46 +1424,103 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     private final Vector3D giRhoSn = (Vector3D)space.makeVector();
     private final Vector3D giFB = (Vector3D)space.makeVector();
     private final Vector3D giFSn = (Vector3D)space.makeVector();
-    private final Vector3D giEuRef = (Vector3D)space.makeVector();
     private final Vector3D giRhoB0Ref = (Vector3D)space.makeVector();
     private final Vector3D giRhoBRef = (Vector3D)space.makeVector();
     private final Vector3D giFBRef = (Vector3D)space.makeVector();
-    private final Vector3D giEBRef = (Vector3D)space.makeVector();
+    private final Vector3D giEuB = (Vector3D)space.makeVector();
     private final Vector3D giPhiBB = (Vector3D)space.makeVector();
+    private final Vector3D giPhi = (Vector3D)space.makeVector();
     
-    private final Vector3D sumGiPhi = (Vector3D)space.makeVector();
-    private final Vector3D sumGkPhi = (Vector3D)space.makeVector();
-    private final Vector3D sumGnPhi = (Vector3D)space.makeVector();
+    private final Vector3D giRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D giRhoj1 = (Vector3D)space.makeVector();
+    private final Vector3D giRhoj2 = (Vector3D)space.makeVector();
+    private final Vector3D giRhoj3 = (Vector3D)space.makeVector();
+    private final Vector3D giRhoj1x = (Vector3D)space.makeVector();
+    private final Vector3D giRhoj1y = (Vector3D)space.makeVector();
+    private final Vector3D giRhoj1z = (Vector3D)space.makeVector();
+    private final Vector3D giRhoj2xx = (Vector3D)space.makeVector();
+    private final Vector3D giRhoj2xy = (Vector3D)space.makeVector();
+    private final Vector3D giRhoj2xz = (Vector3D)space.makeVector();
+    private final Vector3D giRhoj2yy = (Vector3D)space.makeVector();
+    private final Vector3D giRhoj2yz = (Vector3D)space.makeVector();
+    private final Vector3D giRhoj2zz = (Vector3D)space.makeVector();
+    private final Vector3D giRhoj3xxx = (Vector3D)space.makeVector();
+    private final Vector3D giRhoj3xxy = (Vector3D)space.makeVector();
+    private final Vector3D giRhoj3xxz = (Vector3D)space.makeVector();
+    private final Vector3D giRhoj3xyy = (Vector3D)space.makeVector();
+    private final Vector3D giRhoj3xyz = (Vector3D)space.makeVector();
+    private final Vector3D giRhoj3xzz = (Vector3D)space.makeVector();
+    private final Vector3D giRhoj3yyy = (Vector3D)space.makeVector();
+    private final Vector3D giRhoj3yyz = (Vector3D)space.makeVector();
+    private final Vector3D giRhoj3yzz = (Vector3D)space.makeVector();
+    private final Vector3D giRhoj3zzz = (Vector3D)space.makeVector();
+    private final Vector3D t1GiRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D t2GiRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D t3GiRhoj0 = (Vector3D)space.makeVector();
     
-    private final Vector3D giRhoi0 = (Vector3D)space.makeVector();
-    private final Vector3D gnRhoi0 = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRhoi1 = (Vector3D)space.makeVector();
-    private final Vector3D gnRhoi1 = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRhoi2 = (Vector3D)space.makeVector();
-    private final Vector3D gnRhoi2 = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRhoi3 = (Vector3D)space.makeVector();
-    private final Vector3D gnRhoi3 = (Vector3D)space.makeVector();
+    private final Vector3D gjx = (Vector3D)space.makeVector();
+    private final Vector3D gjy = (Vector3D)space.makeVector();
+    private final Vector3D gjz = (Vector3D)space.makeVector();
 
-    private final Vector3D gitav1 = (Vector3D)space.makeVector();
+    private final Vector3D ril = (Vector3D)space.makeVector();
+    private final Vector3D rlj = (Vector3D)space.makeVector();
+    
+    private final Vector3D gkRij = (Vector3D)space.makeVector();
+    private final Vector3D gkRik = (Vector3D)space.makeVector();
+    private final Vector3D gkRkj = (Vector3D)space.makeVector();
+    private final Vector3D gkXik = (Vector3D)space.makeVector();
+    private final Vector3D gkXkj = (Vector3D)space.makeVector(); 
+    private final Vector3D gkC = (Vector3D)space.makeVector();
+    private final Vector3D gkSijk = (Vector3D)space.makeVector();
+    private final Vector3D gkSij = (Vector3D)space.makeVector();
+    private final Vector3D gkPhi = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj1 = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj2 = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj3 = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj1x = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj1y = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj1z = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj2xx = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj2xy = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj2xz = (Vector3D)space.makeVector();   
+    private final Vector3D gkRhoj2yy = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj2yz = (Vector3D)space.makeVector(); 
+    private final Vector3D gkRhoj2zz = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj3xxx = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj3xxy = (Vector3D)space.makeVector();    
+    private final Vector3D gkRhoj3xxz = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj3xyy = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj3xyz = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj3xzz = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj3yyy = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj3yyz = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj3yzz = (Vector3D)space.makeVector();
+    private final Vector3D gkRhoj3zzz = (Vector3D)space.makeVector();
+    private final Vector3D t1GkRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D t2GkRhoj0 = (Vector3D)space.makeVector();
+    private final Vector3D t3GkRhoj0 = (Vector3D)space.makeVector();
+    
+    private final Vector3D sumGnPhi = (Vector3D)space.makeVector();
+    private final Vector3D gnRhoi0 = (Vector3D)space.makeVector();
+    private final Vector3D gnRhoi1 = (Vector3D)space.makeVector();
+    private final Vector3D gnRhoi2 = (Vector3D)space.makeVector();
+    private final Vector3D gnRhoi3 = (Vector3D)space.makeVector();
     private final Vector3D gntav1 = (Vector3D)space.makeVector();
-    
-    private final Vector3D gitav2 = (Vector3D)space.makeVector();
     private final Vector3D gntav2 = (Vector3D)space.makeVector();
-    
-    private final Vector3D gitav3 = (Vector3D)space.makeVector();
     private final Vector3D gntav3 = (Vector3D)space.makeVector();
-    
-    private final Vector3D giGamma = (Vector3D)space.makeVector();
     private final Vector3D gnGamma = (Vector3D)space.makeVector();
-    
-    private final Vector3D giRhoi = (Vector3D)space.makeVector();
     private final Vector3D gnRhoi = (Vector3D)space.makeVector();
-    
-    private final Vector3D giF = (Vector3D)space.makeVector();
     private final Vector3D gnF = (Vector3D)space.makeVector();
     
-    private Vector3D[] gnEi = new Vector3D[0];
+    private final Vector3D giRhoi0 = (Vector3D)space.makeVector();
+    private final Vector3D giRhoi1 = (Vector3D)space.makeVector();
+    private final Vector3D giRhoi2 = (Vector3D)space.makeVector();
+    private final Vector3D giRhoi3 = (Vector3D)space.makeVector();
+    private final Vector3D gitav1 = (Vector3D)space.makeVector();
+    private final Vector3D gitav2 = (Vector3D)space.makeVector();
+    private final Vector3D gitav3 = (Vector3D)space.makeVector();
+    private final Vector3D giGamma = (Vector3D)space.makeVector();
+    private final Vector3D giRhoi = (Vector3D)space.makeVector();
+    private final Vector3D giF = (Vector3D)space.makeVector();
 }
