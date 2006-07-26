@@ -58,23 +58,18 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	double kcut = jcut * 1.14;
 	
 	public void calcSums(AtomSet atoms) {
-		
 		for (int i = 0; i < sum.length; i++) {
     		sum[i] = 0;
 		}
-		
 		AtomLeaf atom0 = (AtomLeaf)atoms.getAtom(0);
 		int indexi = atom0.type.getIndex(); pi = parameters[indexi];
-		
 		for(int j = 1; j < atoms.count(); j++) {
 			AtomLeaf atomj = (AtomLeaf)atoms.getAtom(j);
 			rij.Ev1Mv2(atomj.coord.position(), atom0.coord.position());
 			nearestImageTransformer.nearestImage(rij);
 			double r = Math.sqrt(rij.squared()); 
 			if (r > jcut) continue; 
-			
 			int indexj = atomj.type.getIndex(); pj = parameters[indexj];
-			
 			/**To determine amount of screening between atoms i and j 
 			* by any atom k which may be between them.
 			*/
@@ -86,26 +81,17 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 				nearestImageTransformer.nearestImage(rik);
 				double ik = Math.sqrt(rik.squared()); 
 				if (ik > r*1.14) continue;
-				//with continue condition C<0, this may be redundant
-				double anglekij = Math.toDegrees(Math.acos(
-        			((rij.x(0)*rik.x(0)) + 
-        			 (rij.x(1)*rik.x(1)) + 
-					 (rij.x(2)*rik.x(2)))
-					 /(r*ik)));
-				if (anglekij >= 90) continue;
-				
 				rkj.Ev1Mv2(atomk.coord.position(), atomj.coord.position());
 				nearestImageTransformer.nearestImage(rkj);
 				double kj = Math.sqrt(rkj.squared());
-				
 				//from Baskes (1997)
 				double xik = (ik/r)*(ik/r);
 				double xjk = (kj/r)*(kj/r);
 				double C = ((2.0*(xik + xjk)) - ((xik - xjk)*(xik - xjk))- 1.0)/
 					       (1.0 - ((xik - xjk)*(xik - xjk)));
-				if (C < 0) continue; //- C forms hyperbola, not ellipse
-				
-				int indexk = atomk.type.getIndex(); pk = parameters[indexk];
+				if (C < 0) continue; // negative C forms hyperbola, not ellipse
+				int indexk = atomk.type.getIndex(); 
+				pk = parameters[indexk];
 				
 				//Cu-Sn system only
 				double Cmin;
@@ -118,7 +104,6 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 				if (pi== pSn & pj == pSn & pk == pSn) Cmin = pSn.Cmin;
 				else Cmin = pAg.Cmin;
 				 */
-				
 				double Sijk;
 				if (C <= Cmin) { 
 					Sij = 0;
@@ -132,9 +117,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         			Sijk = (1.0 - ((1.0 - q)*(1.0 - q)*(1.0 - q)*(1.0 - q)))
 						  *(1.0 - ((1.0 - q)*(1.0 - q)*(1.0 - q)*(1.0 - q)));
 				}
-        	
 				Sij *= Sijk;
-		
 			} // exit for loop over k atoms
 	
 			if (Sij == 0) continue; // continue to next j atom in for loop  
@@ -328,7 +311,6 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 				gnEi[i] = (Vector3D)space.makeVector();
 			}
 		}
-		
 		else {
 			for (int i = 0; i < atoms.count(); i++) {
 			gnEi[i].E(0);
@@ -391,10 +373,9 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             
             //Here we test to see if n qualifies as a j atom for atom i.
             if (in <= jcut) {
-            
             	rij.E(rin); double ij = in;
     			int indexj = atomn.type.getIndex(); pj = parameters[indexj];
-            
+    			// to calculate Sij, giSij, gjSij
             	double Sij = 1.0; giSij.E(0); gjSij.E(0);
             	for(int k = 1; k < atoms.count(); k++) {
             		AtomLeaf atomk = (AtomLeaf) atoms.getAtom(k);
@@ -403,18 +384,9 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             		nearestImageTransformer.nearestImage(rik);
             		double ik = Math.sqrt(rik.squared());
             		if (ik > ij*1.14) continue; // continue to next k atom
-            		//redundant?
-            		double anglekij = Math.toDegrees(Math.acos(
-            			((rij.x(0)*rik.x(0)) + 
-            			 (rij.x(1)*rik.x(1)) + 
-						 (rij.x(2)*rik.x(2)))
-						 /(ij*ik)));
-            		if (anglekij >= 90) continue; // continue to next k atom
-            	
             		rkj.Ev1Mv2(atomk.coord.position(), atomn.coord.position());
             		nearestImageTransformer.nearestImage(rkj);
             		double kj = Math.sqrt(rkj.squared());
-            	
             		//from Baskes (1997)
             		double xik = (ik/ij)*(ik/ij);
             		double xkj = (kj/ij)*(kj/ij);
@@ -422,7 +394,6 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             					 ( (xik - xkj)*(xik - xkj) )- 1.0 ) / 
 							   (1.0 - ((xik - xkj)*(xik - xkj)));
             		if (C < 0) continue; // - C does not form ellipse
-            		
             		int indexk = atomk.type.getIndex(); pk = parameters[indexk];
     				
     				//Cu-Sn system only
@@ -436,9 +407,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     				if (pi == pSn & pj == pSn & pk == pSn) Cmin = pSn.Cmin;
     				else Cmin = pAg.Cmin;
     				 */
-            		
             		double q = ((C - Cmin)/(pi.Cmax - Cmin));
-            		
             		double Sijk;
             		if (C <= Cmin) { 
             			Sij = 0;
@@ -864,29 +833,17 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         		nearestImageTransformer.nearestImage(rij);
         		double ij = Math.sqrt(rij.squared());
         		if (ij > jcut) continue; // continue to next j atom
-        		
         		rik.E(rin); double ik = in;
 	        	if (ik > ij*1.14) continue; // n won't impact this i-j interaction
-	        	
-	        	//redundant?
-	        	double anglekij = Math.toDegrees(Math.acos(
-        			((rij.x(0)*rik.x(0)) + 
-        			 (rij.x(1)*rik.x(1)) + 
-					 (rij.x(2)*rik.x(2)))
-					 /(ij*ik)));
-	        	if (anglekij >= 90) continue;
-        	
 	        	rkj.Ev1Mv2(atomn.coord.position(), atomj.coord.position());
 	        	nearestImageTransformer.nearestImage(rkj);
 	        	double kj = Math.sqrt(rkj.squared());
-        	
 	        	//from Baskes (1997)
 	        	double xik = (ik/ij)*(ik/ij);
 	        	double xkj = (kj/ij)*(kj/ij);
 	        	double C = ( (2.0*(xik + xkj)) - ((xik - xkj)*(xik - xkj))- 1.0 )
 							/ (1.0 - ((xik - xkj)*(xik - xkj)));
 	        	if (C < 0) continue;
-	        	
 	        	int indexj = atomj.type.getIndex(); pj = parameters[indexj];
 	        	int indexk = atomn.type.getIndex(); pk = parameters[indexk];
 				
@@ -901,9 +858,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 				if (pi == pSn & pj == pSn & pk == pSn) Cmin = pSn.Cmin;
 				else Cmin = pAg.Cmin;
 				 */
-	        	
 	        	double q = ((C - Cmin)/(pi.Cmax - Cmin));
-	        	
 	        	double Sijk;
 	        	if (C <= Cmin) { 
 	        		continue; 
@@ -931,16 +886,9 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	    			nearestImageTransformer.nearestImage(ril);
 	    			double il = Math.sqrt(ril.squared());
 	    			if (il > ij*1.14) continue;
-	            	//redundant?
-	    			double anglelij = Math.toDegrees(Math.acos(
-	            		( (rij.x(0)*ril.x(0)) + (rij.x(1)*ril.x(1)) + 
-	    				  (rij.x(2)*ril.x(2)) ) / (ij*il) ));
-	    			if (anglelij >= 90) continue;
-	            	
 	    			rlj.Ev1Mv2(atoml.coord.position(), atomj.coord.position());
 	    			nearestImageTransformer.nearestImage(rlj);
 	    			double lj = Math.sqrt(rlj.squared());
-	            	
 	    			//from Baskes (1997)
 	    			double xil = (il/ij)*(il/ij);
 	    			double xjl = (lj/ij)*(lj/ij);
@@ -948,7 +896,6 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	    					     ( (xil - xjl)*(xil - xjl) ) - 1.0 ) /
 	    					   ( 1.0 - ( (xil - xjl)*(xil - xjl) ) );
 	    			if (c < 0) continue;
-	    			
 	    			int indexl = atoml.type.getIndex(); pl = parameters[indexl];
     				
     				//Cu-Sn system only
@@ -962,7 +909,6 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     				if (pi == pSn & pj == pSn & pk == pSn) cmin = pSn.Cmin;
     				else cmin = pAg.Cmin;
     				 */
-	            	
 	    			double Sijl;
 	    			if (c <= cmin) { 
 	    				Sij = 0;
@@ -972,13 +918,12 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	            		continue; // continue to next k!=n atom
 	            	}
 	    			else {
-	    				double m = ((C - cmin)/(pi.Cmax - cmin));
+	    				double m = ((c - cmin)/(pi.Cmax - cmin));
 	        			Sijl = (1.0 - ((1.0 - m)*(1.0 - m)*(1.0 - m)*(1.0 - m)))
 							  *(1.0 - ((1.0 - m)*(1.0 - m)*(1.0 - m)*(1.0 - m)));
 	    			}
-	            	
 	    			Sij *= Sijl;
-	        		} // exit loop over k!=n for j!=n 
+	        	} // exit loop over k!=n for j!=n 
         	
 	        	// An l (k!=n) atom may have made Sij = 0.
 	        	if (Sij == 0) continue; //continue to next j!=n
