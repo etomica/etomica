@@ -22,8 +22,6 @@ import etomica.lattice.Crystal;
 import etomica.lattice.LatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.PrimitiveTetragonal;
-import etomica.meam.ParameterSetMEAM;
-import etomica.meam.PotentialMEAM;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
@@ -48,7 +46,9 @@ import etomica.util.HistoryCollapsingAverage;
 public class MEAM_MC extends Simulation {
 	
 	public IntegratorMC integrator;
-	public SpeciesSpheresMono species;
+	public SpeciesSpheresMono sn;
+    public SpeciesSpheresMono ag;
+    public SpeciesSpheresMono cu;
 	public Phase phase;
 	public PotentialMEAM potentialN;
 	public Controller controller;
@@ -82,7 +82,9 @@ public class MEAM_MC extends Simulation {
 	    simgraphic.panel().add(plot.graphic());
 	    //simgraphic.panel().add(plotKE.graphic());
 	    ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simgraphic.displayList().getFirst()).getColorScheme());
-	    colorScheme.setColor(sim.species.getMoleculeType(),java.awt.Color.red);
+	    colorScheme.setColor(sim.sn.getMoleculeType(),java.awt.Color.blue);
+    	colorScheme.setColor(sim.ag.getMoleculeType(),java.awt.Color.gray);
+    	colorScheme.setColor(sim.cu.getMoleculeType(),java.awt.Color.orange);
 	    //sim.activityIntegrate.setMaxSteps(1000);
 	    //sim.getController().run();
 	    //DataGroup data = (DataGroup)energyAccumulator.getData(); // kmb change type to Data instead of double[]
@@ -102,63 +104,67 @@ public class MEAM_MC extends Simulation {
 	    activityIntegrate = new ActivityIntegrate(this,integrator);
 	    activityIntegrate.setSleepPeriod(2);
 	    getController().addAction(activityIntegrate);
-	    species = new SpeciesSpheresMono(this);
-	    species.setNMolecules(216);
+	    sn = new SpeciesSpheresMono(this);
+        ag = new SpeciesSpheresMono(this);
+        cu = new SpeciesSpheresMono(this);
+        sn.setNMolecules(216);
+        ag.setNMolecules(0);
+        cu.setNMolecules(0);
 	    
-	    //Sn
-	    
-	    //The value of the atomic weight of Sn used is from the ASM Handbook. 
-	    ((AtomTypeLeaf)species.getFactory().getType()).setMass(118.69);
-	    //The "distance of closest approach" for atoms in beta-tin, as given on 
-	    //p. 639 of Cullity and Strock's "Elements of X-Ray Diffraction" (2001), 
-	    //is used as the diameter for Sn atoms in the simulation.  This value was
-	    //taken from Pearson [G.9, Vol.2].  This is essentially the same as the
-	    //distance given in the ASM Handbook for a beta-tin atom and its four
-	    //closest neighbors: 3.02 Angstroms.
-	    ((AtomTypeSphere)species.getFactory().getType()).setDiameter(3.022); 
-	    // This forces the MEAMP2 to request an agentIndex from Atom.
-	    //pseudoPotential2 = new MEAMP2(this, ParameterSetMEAM.Sn);
+        /** The following values come from either the ASM Handbook or Cullity & Stock's 
+         * "Elements of X-Ray Diffraction" (2001)
+         */
+        ((AtomTypeLeaf)sn.getFactory().getType()).setMass(118.69);
+        ((AtomTypeSphere)sn.getFactory().getType()).setDiameter(3.022); 
+        
+        ((AtomTypeLeaf)ag.getFactory().getType()).setMass(107.868);
+        ((AtomTypeSphere)ag.getFactory().getType()).setDiameter(2.8895); 
+        
+        ((AtomTypeLeaf)cu.getFactory().getType()).setMass(63.546);
+        ((AtomTypeSphere)cu.getFactory().getType()).setDiameter(2.5561); 
+        
 	    phase = new Phase(this);
+	    
+	    //beta-Sn phase
+	    
 	    //The dimensions of the simulation box must be proportional to those of
 	    //the unit cell to prevent distortion of the lattice.  The values for the 
 	    //lattice parameters for tin's beta phase (a = 5.8314 angstroms, c = 3.1815 
 	    //angstroms) are taken from the ASM Handbook. 
-	    
 	    phase.setDimensions(new Vector3D(5.8314*3, 5.8314*3, 3.1815*6));
 	    PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.8318, 3.1819);
-	    
-	    
 	    //Alternatively, using the parameters calculated in Ravelo & Baskes (1997)
 	    //phase.setDimensions(new Vector3D(5.92*3, 5.92*3, 3.23*6));
 	    //PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.92, 3.23);
-	    
 	    LatticeCrystal crystal = new LatticeCrystal(new Crystal(
 	        primitive, new BasisBetaSnA5(primitive)));
 	    
-	    
-	    //Cu
-	    /**
-	    ((AtomTypeLeaf)species.getFactory().getType()).setMass(63.546);//Cullity & Stock
-	    ((AtomTypeSphere)species.getFactory().getType()).setDiameter(2.56);
-	    phase = new Phase(this);
+	    //FCC Cu
+        /**
 	    phase.setDimensions(new Vector3D(3.6148*3, 3.6148*3, 3.6148*6));
 	    PrimitiveCubic primitive = new PrimitiveCubic(space, 3.6148);
 	    LatticeCrystal crystal = new LatticeCrystal(new Crystal(
 		        primitive, new BasisCubicFcc(primitive)));
 	    **/
+        
+        //FCC Ag
+        /**
+	    phase.setDimensions(new Vector3D(4.0863*3, 4.0863*3, 4.0863*6));
+	    PrimitiveCubic primitive = new PrimitiveCubic(space, 4.0863);
+	    LatticeCrystal crystal = new LatticeCrystal(new Crystal(
+		        primitive, new BasisCubicFcc(primitive)));
+	    **/
 	    
-		//General   
 		Configuration config = new ConfigurationLattice(crystal);
-        //phase.setConfiguration(config);  // kmb remove 8/3/05
-		config.initializeCoordinates(phase);  // kmb added 8/3/05
+		config.initializeCoordinates(phase);  
 		
-		
-	    //N-body potential
-	    potentialN = new PotentialMEAM (space);
-		//potentialN = new PotentialMEAM(space, ParameterSetMEAM.Cu);
-		
-	    //System.out.println(ParameterSetMEAM.Sn.Ec);
-	    this.potentialMaster.addPotential(potentialN, new Species[]{species});    
+		potentialN = new PotentialMEAM(space);
+		potentialN.setParameters(sn, ParameterSetMEAM.Sn);
+		potentialN.setParameters(ag, ParameterSetMEAM.Ag);
+		potentialN.setParameters(cu, ParameterSetMEAM.Cu);
+		potentialN.setParametersIMC(cu, ParameterSetMEAM.Cu3Sn);
+		potentialN.setParametersIMC(ag, ParameterSetMEAM.Ag3Sn);
+        this.potentialMaster.addPotential(potentialN, new Species[]{sn, ag, cu}); 
 	        
 	    integrator.setPhase(phase);
 	    PhaseImposePbc imposepbc = new PhaseImposePbc();
