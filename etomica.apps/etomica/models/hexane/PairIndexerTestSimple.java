@@ -42,9 +42,9 @@ public class PairIndexerTestSimple extends Simulation {
         OutputFile printer = new OutputFile("Simple.txt");      
         
         phase.setBoundary(bdry);
-        config.initializeCoordinates(phase); 
-        //nan this will need to be changed
-        PairIndexerMolecule pi = new PairIndexerMolecule(phase, prim);
+        config.initializeCoordinates(phase);/* 
+//        nan it will need to be changed*/
+//        PairIndexerMolecule pi = new PairIndexerMolecule(phase, prim);
         
         Atom atom0 = new AtomLeaf(phase.space());
         Atom atom1 = new AtomLeaf(phase.space());
@@ -63,11 +63,11 @@ public class PairIndexerTestSimple extends Simulation {
             atom0 = ap.atom0;
             atom1 = ap.atom1;
         
-            printer.println(pi.getIndex(atom0)[0] +" "+ pi.getIndex(atom0)[1] + " " +
-                    pi.getIndex(atom0)[2] + " " + atom0.node.getIndex() + " " +
-                    pi.getIndex(atom1)[0] + " " + pi.getIndex(atom1)[1] + " " +
-                    pi.getIndex(atom1)[2] + " " + atom1.node.getIndex() + " " +
-                    pi.getBin(ap) +" " + atom0.getGlobalIndex());
+//            printer.println(pi.getIndex(atom0)[0] +" "+ pi.getIndex(atom0)[1] + " " +
+//                    pi.getIndex(atom0)[2] + " " + atom0.node.getIndex() + " " +
+//                    pi.getIndex(atom1)[0] + " " + pi.getIndex(atom1)[1] + " " +
+//                    pi.getIndex(atom1)[2] + " " + atom1.node.getIndex() + " " +
+//                    pi.getBin(ap) +" " + atom0.getGlobalIndex());
    
         }
         

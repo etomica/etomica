@@ -35,7 +35,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-
+import etomica.models.hexane.*;
 /**
  * @author nancycribbin
  *  
@@ -210,7 +210,7 @@ public class TestHexane extends Simulation {
         integrator.setPhase(phase);
         
         //nan this will need to be changed
-        pri = new PairIndexerMolecule(phase, new PrimitiveHexane(space));
+//        pri = new PairIndexerMolecule(phase, new PrimitiveHexane(space));
     }
 
     public static void main(String[] args) {
@@ -265,6 +265,6 @@ public class TestHexane extends Simulation {
     
     public MCMoveRotateMolecule3D rot;
     
-    public PairIndexerMolecule pri;
+//    public PairIndexerMolecule pri;
 
 }
