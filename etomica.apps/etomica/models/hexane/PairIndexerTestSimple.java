@@ -43,7 +43,8 @@ public class PairIndexerTestSimple extends Simulation {
         
         phase.setBoundary(bdry);
         config.initializeCoordinates(phase); 
-        PairIndexer pi = new PairIndexer(phase, prim, chainLength);
+        //nan this will need to be changed
+        PairIndexerMolecule pi = new PairIndexerMolecule(phase, prim);
         
         Atom atom0 = new AtomLeaf(phase.space());
         Atom atom1 = new AtomLeaf(phase.space());
