@@ -209,7 +209,8 @@ public class TestHexane extends Simulation {
 
         integrator.setPhase(phase);
         
-        pri = new PairIndexer(phase, new PrimitiveHexane(space), chainLength);
+        //nan this will need to be changed
+        pri = new PairIndexerMolecule(phase, new PrimitiveHexane(space));
     }
 
     public static void main(String[] args) {
@@ -264,6 +265,6 @@ public class TestHexane extends Simulation {
     
     public MCMoveRotateMolecule3D rot;
     
-    public PairIndexer pri;
+    public PairIndexerMolecule pri;
 
 }
