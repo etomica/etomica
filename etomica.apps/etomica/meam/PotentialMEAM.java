@@ -69,7 +69,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			nearestImageTransformer.nearestImage(rij);
 			double r = Math.sqrt(rij.squared()); 
 			if (r > jcut) continue; 
-			//System.out.println("atom j  "+j+" rij "+r);
+			System.out.println("atom j  "+j+" rij "+r);
 			int indexj = atomj.type.getIndex(); pj = parameters[indexj];
 			/**To determine amount of screening between atoms i and j 
 			* by any atom k which may be between them.
@@ -91,16 +91,16 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 				rkj.Ev1Mv2(atomk.coord.position(), atomj.coord.position());
 				nearestImageTransformer.nearestImage(rkj);
 				double kj = Math.sqrt(rkj.squared());
-				//System.out.println("		atom k "+k+" rik "+ik);
-				//System.out.println("		rkj "+kj+" angle "+anglekij);
+				System.out.println("		atom k "+k+" rik "+ik);
+				System.out.println("		rkj "+kj+" angle "+anglekij);
 				//from Baskes (1997)
 				double xik = (ik/r)*(ik/r);
 				double xjk = (kj/r)*(kj/r);
 				double C = ((2.0*(xik + xjk)) - ((xik - xjk)*(xik - xjk))- 1.0)/
 					       (1.0 - ((xik - xjk)*(xik - xjk)));
-				//System.out.println("		C "+ C);
+				System.out.print("		C "+ C);
 				if (C < 0) {
-					//System.out.print(" Sijk 1.0");
+					System.out.print(" Sijk 1.0 ");
 					continue; // negative C forms hyperbola, not ellipse
 				}
 				int indexk = atomk.type.getIndex(); 
@@ -120,24 +120,24 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 				double Sijk;
 				if (C <= Cmin) { 
 					Sij = 0;
-					//System.out.println(" Sijk 0");
+					System.out.print(" Sijk 0 ");
 					break; // break out of for loop over k atoms
 				}
 				else if (C >= pi.Cmax) { //Sijk = 1, value of Sij won't change
-					//System.out.println("  1.0");
+					System.out.print(" Sijk 1.0 ");
         			continue; //continue to next k atom in for loop
         		}
 				else {
 					double q = ((C - Cmin)/(pi.Cmax - Cmin));
         			Sijk = (1.0 - ((1.0 - q)*(1.0 - q)*(1.0 - q)*(1.0 - q)))
 						  *(1.0 - ((1.0 - q)*(1.0 - q)*(1.0 - q)*(1.0 - q)));
-        			//System.out.println(" Sijk " + Sijk);
+        			System.out.print(" Sijk " + Sijk);
 				}
 				Sij *= Sijk;
 			} // exit for loop over k atoms
 	
 			if (Sij == 0) continue; // continue to next j atom in for loop 
-			//System.out.println("		Sij "+ Sij);
+			System.out.println("		Sij "+ Sij);
 			
 			double rhoj0, rhoj1, rhoj2, rhoj3, x, y, z;
    
@@ -223,7 +223,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 				sum[PHI] += ((1.0/3.0)*Eu - 0.25*FB - (1.0/12.0)*FSn - phiBB)*Sij;
 			}
 		} // exit for loop over j atoms
-		//System.out.println("Done");
+		System.out.println("Done");
 	} // exit calcSums()
 
 	/** The following methods are not called until after calcSums() is called in
