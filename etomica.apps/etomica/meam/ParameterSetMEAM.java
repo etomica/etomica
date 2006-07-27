@@ -101,10 +101,10 @@ public class ParameterSetMEAM {
 	public static final ParameterSetMEAM Sn = new ParameterSetMEAM(ElectronVolt.UNIT.toSim(3.08), 1.0, 3.44, 
 			6.20, 6.2, 6.0, 6.0, 6.0, 4.5, 6.5, -0.183, 1.0, 12.0, 0.8, 2.8);
 	public static final ParameterSetMEAM Ag = new ParameterSetMEAM(ElectronVolt.UNIT.toSim(2.85), 1.06, 2.89, 
-			5.89, 4.46, 2.2, 6.0, 2.2, 5.54, 2.45, 1.29, 1.0, 12.0, Double.NaN, Double.NaN);
-	//used parameters from Baskes 1992 (on Ec, r0, and alpha different)
-	public static final ParameterSetMEAM Cu = new ParameterSetMEAM(ElectronVolt.UNIT.toSim(3.540), 1.07, 2.56, 
-			5.11, 3.63, 2.2, 6.0, 2.2, 3.14, 2.49, 2.95, 1.0, 12.0, 2.0, 2.8);
+			5.89, 4.46, 2.2, 6.0, 2.2, 5.54, 2.45, 1.29, 1.0, 12.0, 2.0, 2.8);
+	//used parameters from Cu-Sn paper (Aguilar, Ravelo, & Baskes 2000)
+	public static final ParameterSetMEAM Cu = new ParameterSetMEAM(ElectronVolt.UNIT.toSim(3.62), 1.07, 2.50, 
+			5.106, 3.62, 2.2, 6.0, 2.2, 3.14, 2.49, 2.95, 1.0, 12.0, 2.0, 2.8);
 	public static final ParameterSetMEAM Ag3Sn = new ParameterSetMEAM(ElectronVolt.UNIT.toSim(2.83), Double.NaN, 2.96,
 			6.07, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, 
 			Double.NaN, Double.NaN, Double.NaN);
