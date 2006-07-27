@@ -82,12 +82,12 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 				nearestImageTransformer.nearestImage(rik);
 				double ik = Math.sqrt(rik.squared()); 
 				if (ik > r*1.14) continue;
-				double anglekij = Math.toDegrees(Math.acos(
-						( (rij.x(0) * rik.x(0))
-					     +(rij.x(1) * rik.x(1))
-					     +(rij.x(2) * rik.x(2)))
-				        /(r*ik)));
-				if (anglekij > 90) continue;
+				double v = ( (rij.x(0) * rik.x(0)) 
+						    +(rij.x(1) * rik.x(1))
+					        +(rij.x(2) * rik.x(2)) ) /(r*ik);
+				if (v < -1.0) continue;
+				double anglekij = Math.toDegrees(Math.acos(v));
+				if (anglekij >= 90) continue;
 				rkj.Ev1Mv2(atomk.coord.position(), atomj.coord.position());
 				nearestImageTransformer.nearestImage(rkj);
 				double kj = Math.sqrt(rkj.squared());
@@ -406,12 +406,12 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             		nearestImageTransformer.nearestImage(rik);
             		double ik = Math.sqrt(rik.squared());
             		if (ik > ij*1.14) continue; // continue to next k atom
-            		double anglekij = Math.toDegrees(Math.acos(
-            							( (rij.x(0) * rik.x(0))
-										 +(rij.x(1) * rik.x(1))
-										 +(rij.x(2) * rik.x(2)))
-								        /(ij*ik)));
-            		if (anglekij > 90) continue;
+            		double v = ( (rij.x(0) * rik.x(0)) 
+						        +(rij.x(1) * rik.x(1))
+					            +(rij.x(2) * rik.x(2)) ) /(ij*ik);
+            		if (v < -1.0) continue;
+            		double anglekij = Math.toDegrees(Math.acos(v));
+            		if (anglekij >= 90) continue;
             		rkj.Ev1Mv2(atomk.coord.position(), atomn.coord.position());
             		nearestImageTransformer.nearestImage(rkj);
             		double kj = Math.sqrt(rkj.squared());
@@ -867,12 +867,12 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         		if (ij > jcut) continue; // continue to next j atom
         		rik.E(rin); double ik = in;
 	        	if (ik > ij*1.14) continue; // n won't impact this i-j interaction
-	        	double anglekij = Math.toDegrees(Math.acos(
-	        						( (rij.x(0) * rik.x(0))
-									 +(rij.x(1) * rik.x(1))
-									 +(rij.x(2) * rik.x(2)))
-									/(ij*ik)));
-	        	if (anglekij > 90) continue;
+	        	double v = ( (rij.x(0) * rik.x(0)) 
+					        +(rij.x(1) * rik.x(1))
+				            +(rij.x(2) * rik.x(2)) ) /(ij*ik);
+	        	if (v < -1.0) continue;
+	        	double anglekij = Math.toDegrees(Math.acos(v));
+	        	if (anglekij >= 90) continue;
 	        	rkj.Ev1Mv2(atomn.coord.position(), atomj.coord.position());
 	        	nearestImageTransformer.nearestImage(rkj);
 	        	double kj = Math.sqrt(rkj.squared());
@@ -924,12 +924,12 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	    			nearestImageTransformer.nearestImage(ril);
 	    			double il = Math.sqrt(ril.squared());
 	    			if (il > ij*1.14) continue;
-	    			double anglelij = Math.toDegrees(Math.acos(
-	    								( (rij.x(0) * ril.x(0))
-							             +(rij.x(1) * ril.x(1))
-							             +(rij.x(2) * ril.x(2)))
-					                    /(ij*il)));
-	    			if (anglelij > 90) continue;
+	    			double w = ( (rij.x(0) * ril.x(0)) 
+						        +(rij.x(1) * ril.x(1))
+					            +(rij.x(2) * ril.x(2)) ) /(ij*il);
+	    			if (w < -1.0) continue;
+	    			double anglelij = Math.toDegrees(Math.acos(w));
+	    			if (anglelij >= 90) continue;
 	    			rlj.Ev1Mv2(atoml.coord.position(), atomj.coord.position());
 	    			nearestImageTransformer.nearestImage(rlj);
 	    			double lj = Math.sqrt(rlj.squared());
