@@ -69,7 +69,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			nearestImageTransformer.nearestImage(rij);
 			double r = Math.sqrt(rij.squared()); 
 			if (r > jcut) continue; 
-			System.out.println("atom j  "+j+" rij "+r);
+			System.out.println("atom j  "+j+" | rij "+r);
 			int indexj = atomj.type.getIndex(); pj = parameters[indexj];
 			/**To determine amount of screening between atoms i and j 
 			* by any atom k which may be between them.
@@ -91,8 +91,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 				rkj.Ev1Mv2(atomk.coord.position(), atomj.coord.position());
 				nearestImageTransformer.nearestImage(rkj);
 				double kj = Math.sqrt(rkj.squared());
-				System.out.println("		atom k "+k+" rik "+ik);
-				System.out.println("		rkj "+kj+" angle "+anglekij);
+				System.out.println("	atom k "+k);
+				System.out.println("		rik "+ik+" | rkj "+kj+" | angle "+anglekij);
 				//from Baskes (1997)
 				double xik = (ik/r)*(ik/r);
 				double xjk = (kj/r)*(kj/r);
@@ -100,7 +100,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 					       (1.0 - ((xik - xjk)*(xik - xjk)));
 				System.out.print("		C "+ C);
 				if (C < 0) {
-					System.out.print(" Sijk 1.0 ");
+					System.out.println(" | Sijk 1.0 b/c C is negative");
 					continue; // negative C forms hyperbola, not ellipse
 				}
 				int indexk = atomk.type.getIndex(); 
@@ -120,18 +120,18 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 				double Sijk;
 				if (C <= Cmin) { 
 					Sij = 0;
-					System.out.print(" Sijk 0 ");
+					System.out.println(" | Sijk 0 ");
 					break; // break out of for loop over k atoms
 				}
 				else if (C >= pi.Cmax) { //Sijk = 1, value of Sij won't change
-					System.out.print(" Sijk 1.0 ");
+					System.out.println(" | Sijk 1.0 ");
         			continue; //continue to next k atom in for loop
         		}
 				else {
 					double q = ((C - Cmin)/(pi.Cmax - Cmin));
         			Sijk = (1.0 - ((1.0 - q)*(1.0 - q)*(1.0 - q)*(1.0 - q)))
 						  *(1.0 - ((1.0 - q)*(1.0 - q)*(1.0 - q)*(1.0 - q)));
-        			System.out.print(" Sijk " + Sijk);
+        			System.out.println(" | Sijk " + Sijk);
 				}
 				Sij *= Sijk;
 			} // exit for loop over k atoms
