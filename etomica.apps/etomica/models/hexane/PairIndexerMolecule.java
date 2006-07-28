@@ -1,10 +1,8 @@
 package etomica.models.hexane;
 
 import etomica.atom.Atom;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.atom.iterator.AtomIteratorTree;
 import etomica.lattice.Primitive;
 import etomica.phase.Phase;
 import etomica.space.Boundary;
@@ -12,8 +10,8 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 
 /**
- * Given molecules in the form of an AtomPair, this class returns an integer index 
- * for it, based on the positions of the molecules.
+ * Given molecules in the form of an AtomPair, this class returns an integer
+ * index for it, based on the positions of the molecules.
  * 
  * 
  * MOLECULE LEVEL- DOES NOT DEAL WITH ATOMS
@@ -38,15 +36,18 @@ public class PairIndexerMolecule {
         // clone because we don't know how the boundary will change, and we want
         // an undisturbed
         // original.
-        this.bdry = (Boundary) phase.getBoundary().clone();
+//        this.bdry = (Boundary) phase.getBoundary().clone();
 
-        maxes = new int[dim];
         dim = phase.space().D();
+        maxes = new int[dim];
         temp = phase.space().makeVector();
 
         inverter = phase.space().makeTensor();
         inverter.E(prim.vectors());
         inverter.inverse();
+        
+        indicesV = new Vector[phase.getSpeciesMaster().getMaxGlobalIndex() + 1];
+//        for(int i = 0; i < nmol; )
 
         calculateAllAtomIndices();
         // Make the maximum length of the storage array
@@ -69,10 +70,11 @@ public class PairIndexerMolecule {
         r0.E(firstatom.type.getPositionDefinition().position(firstatom));
 
         temp.E(0.0);
-        AtomIteratorTree ait = new AtomIteratorTree();
+        // AtomIteratorTree ait = new AtomIteratorTree();
         while (aim.hasNext()) {
             Atom molecule = aim.nextAtom();
             temp.E(molecule.type.getPositionDefinition().position(molecule));
+
             indicesV[molecule.getGlobalIndex()] = (Vector) temp.clone();
             temp.ME(r0);
 
@@ -116,13 +118,13 @@ public class PairIndexerMolecule {
      * Returns the appropriate bin number for storing information for a given
      * pair of atoms
      */
-    public int getBin(AtomPair atompair) {
+    public int getBin(Atom atom0, Atom atom1) {
 
         // All these calculations are done in "primitive units"
 
         // create the vector between the atoms.
-        temp.Ev1Mv2(indicesV[atompair.getAtom(1).getGlobalIndex()],
-                indicesV[atompair.getAtom(0).getGlobalIndex()]);
+        temp.Ev1Mv2(indicesV[atom1.getGlobalIndex()],
+                indicesV[atom0.getGlobalIndex()]);
 
         bdry.nearestImage(temp);
 
@@ -235,7 +237,8 @@ public class PairIndexerMolecule {
     private int[] maxes; // The maximum values in each physical direction
 
     private int maxLength; // The maximum number of index values possible. May
-                            // be needed outside of this class.
+
+    // be needed outside of this class.
 
     Primitive prim; // The primitives used to define the space
 
@@ -247,8 +250,9 @@ public class PairIndexerMolecule {
 
     int[][] indices; // The first index is the global index of the atom.
 
-    Vector[] indicesV;  // The position-in-space vector between the firstatom
-                        // and the atom.
+    Vector[] indicesV; // The position-in-space vector between the firstatom
+
+    // and the atom.
 
     Tensor inverter;
 
