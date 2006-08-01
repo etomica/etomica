@@ -20,13 +20,13 @@ public class MeterNormalMode implements Meter {
         //The data that is gotten is a series of flattened tensors that describes 
         //nan what does it describe?
         //he average of gamma
-        dataCorMat = updateMCM(mcm);
+//        dataCorMat = updateMCM(mcm);
         
         
         
         
         
-        resetMeter();
+//        resetMeter();
     }
     
     
@@ -38,8 +38,8 @@ public class MeterNormalMode implements Meter {
     
     //nan fill this space!!
     public Data getData(){
-        resetMeter();
-        
+//        resetMeter();
+        return null;
     }
     
     //nan fill this space!!
