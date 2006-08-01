@@ -45,19 +45,15 @@ public class MeterCorrelationMatrix implements Meter {
         api1.setPhase(phase);
         api1.reset();
         
+        atomIterator.setPhase(phase);
+        atomIterator.reset();
+        op = new Vector[phase.getSpeciesMaster().getMaxGlobalIndex()+1];
         //set up the vectors where the original position is stored
-        for (int i = 0; i < pri.getMaxLength(); i++) {
-            op[i] = phase.space().makeVector();
-        }
-        while (api1.hasNext()) {
-            op[tempAtom.getGlobalIndex()].E(tempAtom.coord.position());
+        while (atomIterator.hasNext()) {
+            AtomLeaf next = (AtomLeaf)atomIterator.nextAtom();
+            op[next.getGlobalIndex()] = (Vector)next.coord.position().clone();
         }
         
-        count = new int[pri.getMaxLength()];
-
-        tempAtom = new AtomLeaf(phase.space());
-        //tempAtom = (AtomLeaf) api1.peek();
-
         resetMeter();
 
     }
@@ -73,9 +69,9 @@ public class MeterCorrelationMatrix implements Meter {
         resetMeter();
 
         // make the change-in-position-from-the-original-lattice-point vector
-        leafIter.reset();
-        while (leafIter.hasNext()) {
-            AtomLeaf atom = (AtomLeaf) leafIter.nextAtom();
+        atomIterator.reset();
+        while (atomIterator.hasNext()) {
+            AtomLeaf atom = (AtomLeaf) atomIterator.nextAtom();
             tempVex[atom.getGlobalIndex()].E(atom.coord.position());
             tempVex[atom.getGlobalIndex()].ME(op[atom.getGlobalIndex()]);
         }
@@ -84,26 +80,13 @@ public class MeterCorrelationMatrix implements Meter {
         api1.reset();        
         while (api1.hasNext()) {
             AtomPair pair = api1.nextPair();
-            
-            // Now we do the funky multiplication-to-get-the-tensor thing.
-            for (int i = 0; i < pri.getMaxLength(); i++) {
-                for (int j = 0; j < pri.getMaxLength(); j++) {
-                    int bin = pri.getBin(pair);
-                    ((DataTensor)data.getData(bin)).x.PEv1v2(tempVex[i], tempVex[j]);
-                    count[bin] += 1;
-                }
-            }
+            int bin = pri.getBin(pair.getAtom(0), pair.getAtom(1));
+            Vector gam1 = tempVex[pair.getAtom(0).getGlobalIndex()];
+            Vector gam2 = tempVex[pair.getAtom(1).getGlobalIndex()];
+            ((DataTensor)data.getData(bin)).x.PEv1v2(gam1, gam2);
         }
         api1.reset();
 
-        // Divide each tensor by the number of times something is stored in it.
-
-        for (int i = 0; i < pri.getMaxLength(); i++) {
-            if (count[i] != 0) {
-                //Divide the tensor by count here.
-                ((DataTensor)data.getData(i)).x.TE(1.0/(double)count[i]);
-            }
-        }
         return data;
     }
 
@@ -112,21 +95,15 @@ public class MeterCorrelationMatrix implements Meter {
      * 
      */
     public void resetMeter() {
-        // Reset the bin counters to zero
-        for (int i = 0; i < pri.getMaxLength(); i++) {
-            count[i] = 0;
-        }
 
         // Reset the array of tensors to zero
         api1.reset();
-        tempAtom = (AtomLeaf) leafIter.peek();
-        while (leafIter.hasNext()) {
-            ((DataTensor)data.getData(tempAtom.getGlobalIndex())).x.E(0.0);
+        atomIterator.reset();
+        AtomLeaf firstAtom = (AtomLeaf) atomIterator.nextAtom();
+        while (atomIterator.hasNext()) {
+            int bin = pri.getBin(firstAtom, atomIterator.nextAtom());
+            ((DataTensor)data.getData(bin)).x.E(0.0);
         }
-        
-        // Reset the iterators
-        leafIter.reset();
-        api1.reset();
     }
 
     public DataInfo getDataInfo() {
@@ -154,15 +131,13 @@ public class MeterCorrelationMatrix implements Meter {
     private DataGroup data;
     private DataInfoGroup dataInfo;
     private String name;
-    private int[] count; // Stores the number of times a storage location is used.
     private Phase phase;
     int dim; // The dimension of the space.
     // This is the massive iterator which iterates over all the leaf atoms of
     // the phase. It returns pairs of leaf atoms.
     private final ApiLeafAtoms api1;
-    private final AtomIteratorLeafAtoms leafIter = new AtomIteratorLeafAtoms();
+    private final AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms();
     Vector[] op; // The original positions of the atoms.
-    private AtomLeaf tempAtom;
     private Vector[] tempVex;
     private final DataTag tag;
 }
