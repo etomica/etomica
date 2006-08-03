@@ -103,10 +103,14 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
     public void removePotential(Potential potential) {
         super.removePotential(potential);
         if (potential.getRange() < Double.POSITIVE_INFINITY) {
-            rangedPotentialAtomTypeList = (PotentialArray[])Arrays.removeObject(rangedPotentialAtomTypeList,potential);
+            for (int i=0; i<rangedPotentialAtomTypeList.length; i++) {
+                rangedPotentialAtomTypeList[i].removePotential(potential);
+            }
         }
         else if (potential instanceof PotentialGroup) {
-            intraPotentialAtomTypeList = (PotentialArray[])Arrays.removeObject(intraPotentialAtomTypeList,potential);
+            for (int i=0; i<intraPotentialAtomTypeList.length; i++) {
+                intraPotentialAtomTypeList[i].removePotential(potential);
+            }
         }
         allPotentials = (Potential[])Arrays.removeObject(allPotentials,potential);
     }
