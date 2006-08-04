@@ -1,5 +1,4 @@
 package etomica.meam;
-import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomTypeLeaf;
@@ -30,6 +29,8 @@ import etomica.lattice.Crystal;
 import etomica.lattice.LatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.PrimitiveTetragonal;
+import etomica.nbr.CriterionSimple;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
@@ -218,10 +219,10 @@ public class MEAMMd3D extends Simulation {
     }
     
     public MEAMMd3D() {
-        super(Space3D.getInstance()); //INSTANCE); kmb change 8/3/05
+        super(Space3D.getInstance(), true, new PotentialMasterList(Space3D.getInstance())); //INSTANCE); kmb change 8/3/05
         integrator = new IntegratorVelocityVerlet(this);
         integrator.setTimeStep(0.001);
-        integrator.setTemperature(Kelvin.UNIT.toSim(298));
+        integrator.setTemperature(Kelvin.UNIT.toSim(295));
         integrator.setThermostatInterval(100);
         integrator.setIsothermal(true);
         activityIntegrate = new ActivityIntegrate(this,integrator);
@@ -290,11 +291,11 @@ public class MEAMMd3D extends Simulation {
 		potentialN.setParametersIMC(cu, ParameterSetMEAM.Cu3Sn);
 		potentialN.setParametersIMC(ag, ParameterSetMEAM.Ag3Sn);
         this.potentialMaster.addPotential(potentialN, new Species[]{sn, ag, cu});    
+        ((PotentialMasterList)potentialMaster).setRange(potentialN.getRange()*1.1);
+        ((PotentialMasterList)potentialMaster).setCriterion(potentialN, new CriterionSimple(this, potentialN.getRange(), potentialN.getRange()*1.1));
+        integrator.addListener(((PotentialMasterList)potentialMaster).getNeighborManager());
         
         integrator.setPhase(phase);
-        PhaseImposePbc imposepbc = new PhaseImposePbc();
-        imposepbc.setPhase(phase);
-        integrator.addListener(imposepbc);
 		
         // IntegratorCoordConfigWriter - Displacement output (3/1/06 - MS)
         //IntegratorCoordConfigWriter coordWriter = new IntegratorCoordConfigWriter(space, "MEAMoutput");
