@@ -1,11 +1,9 @@
 package etomica.atom;
 
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
-import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.phase.Phase;
 import etomica.simulation.SimulationEvent;
 import etomica.simulation.SimulationEventManager;
-import etomica.simulation.SimulationListener;
 import etomica.species.Species;
 import etomica.util.Arrays;
 
@@ -48,6 +46,12 @@ public final class SpeciesRoot extends Atom {
         while (iterator.hasNext()) {
             species.makeAgent((SpeciesMaster)iterator.nextAtom());
         }
+
+        SimulationEvent event = new SimulationEvent(this);
+        event.setType(SimulationEvent.SPECIES_ADDED);
+        event.setSpecies(species);
+        eventManager.fireEvent(event);
+        
         return speciesList.length-1;
     }
 
@@ -62,6 +66,12 @@ public final class SpeciesRoot extends Atom {
         if (!success) {
             return false;
         }
+
+        SimulationEvent event = new SimulationEvent(this);
+        event.setType(SimulationEvent.SPECIES_REMOVED);
+        event.setSpecies(species);
+        eventManager.fireEvent(event);
+        
         speciesList = (Species[])Arrays.removeObject(speciesList,species);
         AtomArrayList speciesMasters = ((AtomTreeNodeGroup)node).childList;
         AtomIteratorArrayListSimple iterator = new AtomIteratorArrayListSimple(speciesMasters);
@@ -78,6 +88,7 @@ public final class SpeciesRoot extends Atom {
             }
         }
         childType.childTypes = (AtomType[])Arrays.removeObject(childType.childTypes,removedType);
+
         return true;
     }
     
