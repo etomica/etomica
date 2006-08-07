@@ -23,6 +23,7 @@ import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.graphics.SimulationPanel;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.Crystal;
@@ -105,11 +106,11 @@ public class MEAMMd3D extends Simulation {
     	accumulatorAveragePE.addDataSink(energyAccumulator, new StatType[]{StatType.MOST_RECENT});
     	accumulatorAverageKE.addDataSink(kineticAccumulator, new StatType[]{StatType.MOST_RECENT});
     	
-    	DisplayPlot plot = new DisplayPlot();
-        //DisplayPlot plotKE = new DisplayPlot();
+    	DisplayPlot plotPE = new DisplayPlot();
+        DisplayPlot plotKE = new DisplayPlot();
     	
-        energyAccumulator.setDataSink(plot.getDataSet().makeDataSink());
-        kineticAccumulator.setDataSink(plot.getDataSet().makeDataSink());
+        energyAccumulator.setDataSink(plotPE.getDataSet().makeDataSink());
+        kineticAccumulator.setDataSink(plotKE.getDataSet().makeDataSink());
         //energyAccumulator.setBlockSize(50);
         
     	accumulatorAveragePE.setPushInterval(1);
@@ -188,7 +189,8 @@ public class MEAMMd3D extends Simulation {
         IntervalActionAdapter kineticAdapter = new IntervalActionAdapter(kineticManager, sim.integrator);
         kineticAdapter.setActionInterval(1);    
 
-        SimulationGraphic simgraphic = new SimulationGraphic(sim);
+       
+        SimulationGraphic simGraphic = new SimulationGraphic(sim);
         
     	DisplayBox cvBoxPE = new DisplayBox();
     	dataProcessorPE.setDataSink(cvBoxPE);
@@ -199,13 +201,15 @@ public class MEAMMd3D extends Simulation {
     	cvBoxKE.setUnit(new CompoundUnit(new Unit[]{Joule.UNIT, Kelvin.UNIT, Mole.UNIT}, new double []{1,-1,-1}));
     	cvBoxKE.setLabel("KE Cv contrib.");
     	
-    	simgraphic.makeAndDisplayFrame();
-    	simgraphic.panel().add(plot.graphic());
-    	//simgraphic.panel().add(plotKE.graphic());
-    	simgraphic.panel().add(cvBoxPE.graphic());
-    	simgraphic.panel().add(cvBoxKE.graphic());
+    	simGraphic.makeAndDisplayFrame();
+    	simGraphic.panel().displayPanel.add("PE Plot",plotPE.graphic());
+    	simGraphic.panel().displayPanel.add("KE Plot",plotKE.graphic());
     	
-    	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simgraphic.displayList().getFirst()).getColorScheme());
+    	SimulationPanel simPanel = new SimulationPanel();
+    	simGraphic.add(cvBoxKE);
+    	simGraphic.add(cvBoxPE);
+    	
+    	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
     	colorScheme.setColor(sim.sn.getMoleculeType(),java.awt.Color.blue);
     	colorScheme.setColor(sim.ag.getMoleculeType(),java.awt.Color.gray);
     	colorScheme.setColor(sim.cu.getMoleculeType(),java.awt.Color.orange);
