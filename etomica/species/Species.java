@@ -57,6 +57,7 @@ public class Species implements Comparable, java.io.Serializable {
         this.agentType = agentType;
         nMolecules = sim.getDefaults().moleculeCount;
         setName(NameMaker.makeName(this.getClass()));
+        agentType.setSpecies(this);
         index = sim.speciesRoot.addSpecies(this);
         factory.setSpecies(this);
     }
