@@ -20,10 +20,10 @@ public class HistogramExpanding extends HistogramSimple {
     public HistogramExpanding() {this(1.0);}
 
     /**
-     * Constructs a new instance with the give deltaX bin width.
+     * Constructs a new instance with the give deltaX bin width and no range.
      */
     public HistogramExpanding(double deltaX) {
-        this(deltaX, new DoubleRange(0,10));
+        this(deltaX, new DoubleRange(Double.NaN, Double.NaN));
     }
     
     /**
@@ -48,7 +48,16 @@ public class HistogramExpanding extends HistogramSimple {
     }
 	
     public void addValue(double x) {     //takes new value and updates histogram
-        if (x < xMin) {
+    	if (Double.isNaN(xMin)) {
+    		// the first piece of data, so create the initial range to match 
+    		// this point
+    		double newXMin = (int)(x/deltaX)*deltaX;
+    		if (x < 0) { 
+    			newXMin -= deltaX;
+    		}
+    		setXRange(new DoubleRange(newXMin,newXMin+deltaX));
+    	}
+    	else if (x < xMin) {
             setXRange(new DoubleRange(x,xMax));
         }
         else if(x > xMax) {
@@ -65,6 +74,14 @@ public class HistogramExpanding extends HistogramSimple {
         }
         double newXMin = xRange.minimum();
         double newXMax = xRange.maximum();
+        if (Double.isNaN(newXMin)) {
+        	// we're setting the range to nothing and then we'll wait for
+        	// data to come in and use that to initialize the range
+        	xMin = Double.NaN;
+        	xMax = Double.NaN;
+        	counts = null;
+        	nBins = -1;
+        }
         newXMin = Math.floor(newXMin/deltaX) * deltaX;
         newXMax = Math.ceil(newXMax/deltaX) * deltaX;
         int newNBins = (int)Math.round((newXMax - newXMin) / deltaX);
