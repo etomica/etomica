@@ -1,6 +1,7 @@
 package etomica.lattice;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.lattice.crystal.PrimitiveFcc;
 import etomica.space3d.Space3D;
 
 /**
@@ -8,17 +9,11 @@ import etomica.space3d.Space3D;
  * 
  */
 
- /* History
-  * 09/23/02 (DAK) new
-  * 12/09/02 (skkwak) built another contructor to pass an instance of
-  * AtomFactory class into BasisCubicFcc to change atoms to sites (concrete
-  * sites under basis from BravisLattice)
-  * 01/20/04 (DAK) restructured constructors
-  */
+
 public class LatticeCubicFcc extends LatticeCrystal implements CubicLattice {
 
     /**
-     * Cubic bcc crystal with a lattice constant that gives a
+     * Cubic fcc crystal with a lattice constant that gives a
      * maximum-density structure for spheres of unit size. 
      * <p>
      * Use scaleBy method if desired to make lattice constant give
@@ -36,18 +31,28 @@ public class LatticeCubicFcc extends LatticeCrystal implements CubicLattice {
 
     /**
      * Auxiliary constructor needed to be able to pass new PrimitiveCubic and
-     * new BasisCubicBcc (which needs the new primitive) to super.
+     * new BasisCubicFcc (which needs the new primitive) to super.
      */ 
     private LatticeCubicFcc(PrimitiveCubic primitive) {
         super(new Crystal(primitive, new BasisCubicFcc(primitive)));
     }
     
     /**
-     * Returns the primitive the determines the lattice constant.
+     * Returns the cubic primitive on which the 4-site basis groups are placed.
      * Set the lattice constant via primitive().setSize(value).
      */
     public PrimitiveCubic primitive() {
         return primitive;
+    }
+    
+    /**
+     * Returns a new PrimitiveFcc instance corresponding to the fcc lattice. 
+     * Changes to the returned instance have no effect on the lattice.
+     */
+    public PrimitiveFcc getPrimitiveFcc() {
+        PrimitiveFcc p = new PrimitiveFcc(Space3D.getInstance());
+        p.setSize(getLatticeConstant()/Math.sqrt(2.0));
+        return p;
     }
     
     /**
@@ -61,6 +66,7 @@ public class LatticeCubicFcc extends LatticeCrystal implements CubicLattice {
     public double getLatticeConstant() {
         return primitive.getCubicSize();
     }
+    
 
     /**
      * Rescales the lattice by the given factor. Multiplies the lattice constant
