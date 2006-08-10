@@ -53,12 +53,6 @@ public class AtomFactoryWater3P extends AtomFactory {
 		return group;
 	}
     
-    public void setSpecies(Species species) {
-        atomType.setSpecies(species);
-        hFactory.setSpecies(species);
-        oFactory.setSpecies(species);
-    }
-    
     /**
      * Returns 4, equal to 1 parent molecule + 3 atoms child atoms in the molecule.
      */

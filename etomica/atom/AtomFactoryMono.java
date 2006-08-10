@@ -15,10 +15,6 @@ public class AtomFactoryMono extends AtomFactory {
         super(atomType, AtomTreeNodeLeaf.FACTORY);
         this.coordFactory = coordFactory;
     }
-    
-    public void setSpecies(Species species) {
-        atomType.setSpecies(species);
-    }
 
     /**
      * Returns the CoordinateFactory that gives coordinates to the

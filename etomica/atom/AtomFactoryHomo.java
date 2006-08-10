@@ -61,13 +61,6 @@ public class AtomFactoryHomo extends AtomFactory {
         conformation = config;
     }
     
-    public void setSpecies(Species species) {
-        atomType.setSpecies(species);
-        if (childFactory != null) {
-            childFactory.setSpecies(species);
-        }
-    }
-
     /**
      * Constructs a new group.
      */
@@ -100,7 +93,6 @@ public class AtomFactoryHomo extends AtomFactory {
         if (this.childFactory != null) throw new IllegalStateException("You can set the child factory only once!");
         if(childFactory == null) return;
         this.childFactory = childFactory;
-        if(atomType.getSpecies() != null) childFactory.setSpecies(atomType.getSpecies());
     }
     
     /**

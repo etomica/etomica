@@ -46,7 +46,6 @@ public class SpeciesTree extends Species implements EtomicaElement {
         AtomTypeSphere atomType = new AtomTypeSphere((AtomTypeGroup)((AtomFactoryTree)factory).getLeafType(), sim.getDefaults().atomMass, sim.getDefaults().atomSize);
         CoordinateFactory coordFactory = new CoordinateFactorySphere(sim);
         ((AtomFactoryTree)factory).setLeafFactory(new AtomFactoryMono(coordFactory, atomType));
-        factory.setSpecies(this);
     }
     
     public static EtomicaInfo getEtomicaInfo() {

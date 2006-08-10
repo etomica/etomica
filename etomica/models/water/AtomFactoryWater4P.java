@@ -58,13 +58,6 @@ public class AtomFactoryWater4P extends AtomFactory {
 		return group;
 	}
     
-    public void setSpecies(Species species) {
-        atomType.setSpecies(species);
-        hFactory.setSpecies(species);
-        oFactory.setSpecies(species);
-        mFactory.setSpecies(species);
-    }
-
     /**
      * Returns 5, equal to 1 parent molecule + 4 child atoms in the molecule.
      */

@@ -38,13 +38,6 @@ public abstract class AtomFactory implements java.io.Serializable {
     public abstract Atom makeAtom();
 
     /**
-     * Identifies the species for which this factory makes its atoms.
-     * Should be invoked only in the species constructor, and by any
-     * an atom factory on its child factories.
-     */
-    public abstract void setSpecies(Species species);
-    
-    /**
      * Returns the number of number of atoms used to form the Atom
      * returned by makeAtom.  This includes the Atom itself, its children,
      * their children, etc., down to the leaf atoms.

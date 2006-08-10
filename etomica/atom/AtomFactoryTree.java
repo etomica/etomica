@@ -102,7 +102,6 @@ public class AtomFactoryTree extends AtomFactoryHomo {
             ((AtomFactoryTree)childFactory).setLeafFactory(factory);
         } else {
             childFactory = factory;
-            childFactory.setSpecies(atomType.getSpecies());
         }     
      }
      

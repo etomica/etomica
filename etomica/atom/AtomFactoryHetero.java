@@ -37,13 +37,6 @@ public class AtomFactoryHetero extends AtomFactory {
         childCount = new int[0];
     }
 
-    public void setSpecies(Species species) {
-        atomType.setSpecies(species);
-        for (int i = 0; i < childFactory.length; i++) {
-            childFactory[i].setSpecies(species);
-        }
-    }
-
     /**
      * Constructs a new group containing a block of atoms for
      * each sub-type.
