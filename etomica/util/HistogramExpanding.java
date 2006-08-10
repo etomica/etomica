@@ -9,6 +9,8 @@ import java.io.Serializable;
  * expands to accomodate any values outside the current range maintaining the 
  * bin width at a fixed value.  The number of bins and the X range can be set 
  * explicitly, but only if the change would not cause old data to be dropped.  
+ * Unless one is given, there is no initial range.  The first incoming piece of
+ * data sets the intial range.
  *
  * @author Andrew Schultz
  */
@@ -47,6 +49,11 @@ public class HistogramExpanding extends HistogramSimple {
         this((xRange.maximum() - xRange.minimum()) / n, xRange);
     }
 	
+    public void reset() {
+        // undefine the range so that the next data point redefines the range.
+        setXRange(new DoubleRange(Double.NaN, Double.NaN));
+    }
+    
     public void addValue(double x) {     //takes new value and updates histogram
     	if (Double.isNaN(xMin)) {
     		// the first piece of data, so create the initial range to match 
@@ -79,8 +86,10 @@ public class HistogramExpanding extends HistogramSimple {
         	// data to come in and use that to initialize the range
         	xMin = Double.NaN;
         	xMax = Double.NaN;
-        	counts = null;
-        	nBins = -1;
+        	counts = new int[0];
+            histogram = new double[0];
+            xValues = new double[0];
+        	nBins = 0;
         }
         newXMin = Math.floor(newXMin/deltaX) * deltaX;
         newXMax = Math.ceil(newXMax/deltaX) * deltaX;
