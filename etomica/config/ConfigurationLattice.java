@@ -370,7 +370,7 @@ public class ConfigurationLattice extends Configuration {
      * @author nancycribbin, Andrew Schultz, Dr. Kofke
      * 
      */
-    private static class MyLattice implements SpaceLattice {
+    public static class MyLattice implements SpaceLattice {
 
         MyLattice(SpaceLattice l, Vector latticeScaling, Vector offset) {
             lattice = l;
@@ -404,7 +404,7 @@ public class ConfigurationLattice extends Configuration {
         }
 
         SpaceLattice lattice;
-        Vector latticeScaling;
+        public Vector latticeScaling;
         Vector offset;
 
     }
