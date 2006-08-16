@@ -5,6 +5,7 @@ import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
 import etomica.data.DataTag;
 import etomica.units.Dimension;
+import etomica.util.Function;
 
 
 /**
@@ -31,7 +32,7 @@ import etomica.units.Dimension;
  * History
  * Created on Jun 16, 2005 by kofke
  */
-public class DataGroup implements Data, java.io.Serializable {
+public class DataGroup implements DataArithmetic, java.io.Serializable {
 
     /**
      * Forms a data group from the given array of data objects. Given data array
@@ -200,5 +201,88 @@ public class DataGroup implements Data, java.io.Serializable {
         }
         
         protected DataInfo[] subDataInfo;
+    }
+
+    public void assignTo(double[] array) {
+        for (int i=0; i<data.length; i++) {
+            ((DataArithmetic)data[i]).assignTo(array);
+        }
+    }
+
+    public void DE(DataArithmetic y) {
+        for (int i=0; i<data.length; i++) {
+            ((DataArithmetic)data[i]).DE((DataArithmetic)((DataGroup)y).getData(i));
+        }
+    }
+
+    public void E(double y) {
+        for (int i=0; i<data.length; i++) {
+            ((DataArithmetic)data[i]).E(y);
+        }
+    }
+
+    public int getLength() {
+        int l = 0;
+        for (int i=0; i<data.length; i++) {
+            l += ((DataArithmetic)data[i]).getLength();
+        }
+        return l;
+    }
+
+    public double getValue(int i) {
+        int l = 0;
+        for (int j=0; j<data.length; j++) {
+            int jl = ((DataArithmetic)data[j]).getLength();
+            if (jl > i) {
+                return ((DataArithmetic)data[j]).getValue(jl-i);
+            }
+            l += ((DataArithmetic)data[j]).getLength();
+        }
+        throw new IllegalArgumentException("Length is only "+getLength());
+    }
+
+    public boolean isNaN() {
+        for (int i=0; i<data.length; i++) {
+            if (((DataArithmetic)data[i]).isNaN()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void map(Function function) {
+        for (int i=0; i<data.length; i++) {
+            ((DataArithmetic)data[i]).map(function);
+        }
+    }
+
+    public void ME(DataArithmetic y) {
+        for (int i=0; i<data.length; i++) {
+            ((DataArithmetic)data[i]).ME((DataArithmetic)((DataGroup)y).getData(i));
+        }
+    }
+
+    public void PE(DataArithmetic y) {
+        for (int i=0; i<data.length; i++) {
+            ((DataArithmetic)data[i]).PE((DataArithmetic)((DataGroup)y).getData(i));
+        }
+    }
+
+    public void PE(double y) {
+        for (int i=0; i<data.length; i++) {
+            ((DataArithmetic)data[i]).PE(y);
+        }
+    }
+
+    public void TE(DataArithmetic y) {
+        for (int i=0; i<data.length; i++) {
+            ((DataArithmetic)data[i]).TE((DataArithmetic)((DataGroup)y).getData(i));
+        }
+    }
+
+    public void TE(double y) {
+        for (int i=0; i<data.length; i++) {
+            ((DataArithmetic)data[i]).TE(y);
+        }
     }
 }
