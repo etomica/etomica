@@ -10,8 +10,10 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveEvent;
+import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveListener;
 import etomica.integrator.mcmove.MCMoveSwapConfiguration;
+import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -131,9 +133,9 @@ public class IntegratorPT extends IntegratorManagerMC implements EtomicaElement 
          * Method called when two phases are successfully exchanged.
          */
         public void actionPerformed(MCMoveEvent evt) {
-            if(evt.isTrialNotify || !evt.wasAccepted) return;
-            if(!(evt.mcMove instanceof MCMoveSwap)) return;
-            Phase[] phases = ((MCMoveSwap)evt.mcMove).swappedPhases();
+            if(evt instanceof MCMoveTrialInitiatedEvent || !((MCMoveTrialCompletedEvent)evt).wasAccepted()) return;
+            if(!(evt.getMCMove() instanceof MCMoveSwap)) return;
+            Phase[] phases = ((MCMoveSwap)evt.getMCMove()).swappedPhases();
             int i0 = phases[0].getIndex()-1;
             int i1 = phases[1].getIndex()-1;
             int temp = track[i0];

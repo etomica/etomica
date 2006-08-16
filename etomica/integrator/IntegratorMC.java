@@ -6,8 +6,10 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveEventManager;
+import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.integrator.mcmove.MCMovePhase;
+import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -40,6 +42,9 @@ public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
 		// is sampling
         moveManager = new MCMoveManager();
         eventManager = new MCMoveEventManager();
+        trialEvent = new MCMoveTrialInitiatedEvent(moveManager);
+        acceptedEvent = new MCMoveTrialCompletedEvent(moveManager, true);
+        rejectedEvent = new MCMoveTrialCompletedEvent(moveManager, false);
 	}
 
 	public static EtomicaInfo getEtomicaInfo() {
@@ -99,26 +104,24 @@ public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
     		return;
 
         //notify any listeners that move has been attempted
-		event.mcMove = move;
-		event.isTrialNotify = true;
-		eventManager.fireEvent(event);
+		eventManager.fireEvent(trialEvent);
 
     	//decide acceptance
     	double chi = move.getA() * Math.exp(move.getB()/temperature);
     	if (chi == 0.0 || (chi < 1.0 && chi < Simulation.random.nextDouble())) {//reject
+            move.getTracker().updateCounts(false, chi);
     		move.rejectNotify();
-    		event.wasAccepted = false;
+            //notify listeners of outcome
+            eventManager.fireEvent(rejectedEvent);
     	} else {
+            move.getTracker().updateCounts(true, chi);
     		move.acceptNotify();
-    		event.wasAccepted = true;
     		currentPotentialEnergy += move.energyChange();
+            //notify listeners of outcome
+            eventManager.fireEvent(acceptedEvent);
     	}
 
-        //notify listeners of outcome
-		event.isTrialNotify = false;
-		eventManager.fireEvent(event);
 
-    	move.getTracker().updateCounts(event.wasAccepted, chi);
     }
 
     /**
@@ -140,5 +143,6 @@ public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
 
     protected MCMoveManager moveManager;
     protected final MCMoveEventManager eventManager;
-	protected final MCMoveEvent event = new MCMoveEvent(this);
+    private final MCMoveTrialInitiatedEvent trialEvent;
+    private final MCMoveTrialCompletedEvent acceptedEvent, rejectedEvent;
 }

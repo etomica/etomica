@@ -4,6 +4,8 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveEventManager;
+import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
+import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -30,6 +32,9 @@ public class IntegratorManagerMC extends Integrator {
         setGlobalMoveInterval(2);
         moveManager = new MCMoveManager();
         eventManager = new MCMoveEventManager();
+        trialEvent = new MCMoveTrialInitiatedEvent(moveManager);
+        acceptedEvent = new MCMoveTrialCompletedEvent(moveManager, true);
+        rejectedEvent = new MCMoveTrialCompletedEvent(moveManager, false);
     }
 
     protected void setup() throws ConfigurationOverlapException {
@@ -168,25 +173,23 @@ public class IntegratorManagerMC extends Integrator {
             return;
 
         //notify any listeners that move has been attempted
-        event.mcMove = move;
-        event.isTrialNotify = true;
-        eventManager.fireEvent(event);
+        eventManager.fireEvent(trialEvent);
 
         //decide acceptance
         double chi = move.getA();
-        if (chi == 0.0 || (chi < 1.0 && chi < Simulation.random.nextDouble())) {//reject
+        if (chi == 0.0 || (chi < 1.0 && chi < Simulation.random.nextDouble())) {
+            //reject
             move.rejectNotify();
-            event.wasAccepted = false;
+            //notify listeners of outcome
+            eventManager.fireEvent(rejectedEvent);
+            move.getTracker().updateCounts(false, chi);
         } else {
+            //accept
             move.acceptNotify();
-            event.wasAccepted = true;
+            //notify listeners of outcome
+            eventManager.fireEvent(acceptedEvent);
+            move.getTracker().updateCounts(true, chi);
         }
-
-        //notify listeners of outcome
-        event.isTrialNotify = false;
-        eventManager.fireEvent(event);
-
-        move.getTracker().updateCounts(event.wasAccepted, chi);
     }
 
     public MCMoveEventManager getMoveEventManager() {
@@ -221,8 +224,9 @@ public class IntegratorManagerMC extends Integrator {
     private double globalMoveProbability;
     protected MCMoveManager moveManager;
     protected final MCMoveEventManager eventManager;
-    protected final MCMoveEvent event = new MCMoveEvent(this);
     protected Integrator[] integrators;
     protected IntegratorIntervalEvent[] intervalEvents;
     protected int nIntegrators;
+    private final MCMoveTrialInitiatedEvent trialEvent;
+    private final MCMoveTrialCompletedEvent acceptedEvent, rejectedEvent;
 }
