@@ -132,7 +132,7 @@ public class DataGroup implements DataArithmetic, java.io.Serializable {
     
     protected final Data[] data;
     
-    public static class DataInfoGroup extends DataInfo {
+    public static class DataInfoGroup extends DataInfo implements DataInfoArithmetic {
         public DataInfoGroup(String label, Dimension dimension, DataInfo[] subDataInfo) {
             super(label, dimension);
             this.subDataInfo = (DataInfo[])subDataInfo.clone();
