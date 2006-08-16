@@ -7,17 +7,12 @@ import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
-import etomica.data.Data;
 import etomica.data.DataInfo;
-import etomica.data.DataProcessor;
 import etomica.data.DataPump;
-import etomica.data.DataTag;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.types.DataDouble;
-import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPhase;
@@ -28,8 +23,8 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.Crystal;
 import etomica.lattice.LatticeCrystal;
-import etomica.lattice.crystal.BasisBetaSnA5;
-import etomica.lattice.crystal.PrimitiveTetragonal;
+import etomica.lattice.crystal.BasisCubicFcc;
+import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
@@ -38,15 +33,10 @@ import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.CompoundDimension;
 import etomica.units.CompoundUnit;
-import etomica.units.Dimension;
-import etomica.units.Energy;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.units.Mole;
-import etomica.units.Quantity;
-import etomica.units.Temperature;
 import etomica.units.Unit;
 import etomica.util.HistoryCollapsingAverage;
 
@@ -120,66 +110,12 @@ public class MEAMMd3D extends Simulation {
     	sim.register(kineticMeter, kineticManager);
     	
     	//Heat Capacity (PE)
-    	DataProcessor dataProcessorPE = new DataProcessor(){
-    		MEAMMd3D sim = new MEAMMd3D();
-    		DataDouble data;
-    		DataInfoDouble dataInfo;
-    		DataTag tag = new DataTag();
-    		
-    		public Data processData(Data inputData){
-    			data.x = ((DataDouble)inputData).x;
-    			double systemTemp = sim.integrator.getTemperature();
-    			data.x /= systemTemp;
-    			data.x *= data.x/sim.phase.moleculeCount();
-    			return data;
-    		}
-    		
-    		public DataProcessor getDataCaster(DataInfo inputDataInfo){
-    			return null;
-    		}
-    		
-    		public DataInfo processDataInfo(DataInfo inputDataInfo){
-    			Dimension cvDimension = new CompoundDimension(new Dimension[]{Energy.DIMENSION, Temperature.DIMENSION, Quantity.DIMENSION}, new double[]{1,-1,-1});
-    			data = new DataDouble();
-    			dataInfo = new DataInfoDouble("Heat Capacity", cvDimension);
-    			return dataInfo;
-    		}
-    		
-    		public DataTag getTag(){
-    			return tag;
-    		}
-    	};
+    	DataProcessorCvMD dataProcessorPE = new DataProcessorCvMD();
+    	dataProcessorPE.setIntegrator(sim.integrator);
     	
-//    	Heat Capacity (KE)
-    	DataProcessor dataProcessorKE = new DataProcessor(){
-    		MEAMMd3D sim = new MEAMMd3D();
-    		DataDouble data;
-    		DataInfoDouble dataInfo;
-    		DataTag tag = new DataTag();
-    		
-    		public Data processData(Data inputData){
-    			data.x = ((DataDouble)inputData).x;
-    			double systemTemp = sim.integrator.getTemperature();
-    			data.x /= systemTemp;
-    			data.x *= data.x/sim.phase.moleculeCount();
-    			return data;
-    		}
-    		
-    		public DataProcessor getDataCaster(DataInfo inputDataInfo){
-    			return null;
-    		}
-    		
-    		public DataInfo processDataInfo(DataInfo inputDataInfo){
-    			Dimension cvDimension = new CompoundDimension(new Dimension[]{Energy.DIMENSION, Temperature.DIMENSION, Quantity.DIMENSION}, new double[]{1,-1,-1});
-    			data = new DataDouble();
-    			dataInfo = new DataInfoDouble("Heat Capacity", cvDimension);
-    			return dataInfo;
-    		}
-    		
-    		public DataTag getTag(){
-    			return tag;
-    		}
-    	};
+    	//Heat Capacity (KE)
+    	DataProcessorCvMD dataProcessorKE = new DataProcessorCvMD();
+    	dataProcessorKE.setIntegrator(sim.integrator);
     	
     	accumulatorAveragePE.addDataSink(dataProcessorPE, new StatType[]{StatType.STANDARD_DEVIATION});
     	accumulatorAverageKE.addDataSink(dataProcessorKE, new StatType[]{StatType.STANDARD_DEVIATION});
@@ -235,8 +171,8 @@ public class MEAMMd3D extends Simulation {
         sn = new SpeciesSpheresMono(this);
         ag = new SpeciesSpheresMono(this);
         cu = new SpeciesSpheresMono(this);
-        sn.setNMolecules(216);
-        ag.setNMolecules(0);
+        sn.setNMolecules(0);
+        ag.setNMolecules(256);
         cu.setNMolecules(0);
         
         /** The following values come from either the ASM Handbook or Cullity & Stock's 
@@ -255,7 +191,7 @@ public class MEAMMd3D extends Simulation {
         phase = new Phase(this);
         
         // beta-Sn phase
-        
+        /**
         //The dimensions of the simulation box must be proportional to those of
         //the unit cell to prevent distortion of the lattice.  The values for the 
         //lattice parameters for tin's beta phase (a = 5.8314 angstroms, c = 3.1815 
@@ -267,23 +203,23 @@ public class MEAMMd3D extends Simulation {
         //PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.92, 3.23);
         LatticeCrystal crystal = new LatticeCrystal(new Crystal(
         		primitive, new BasisBetaSnA5(primitive)));
-		
+		*/
 		
         //FCC Cu
 		/**
-	    phase.setDimensions(new Vector3D(3.6148*3, 3.6148*3, 3.6148*6));
+	    phase.setDimensions(new Vector3D(3.6148*4, 3.6148*4, 3.6148*4));
 	    PrimitiveCubic primitive = new PrimitiveCubic(space, 3.6148);
 	    LatticeCrystal crystal = new LatticeCrystal(new Crystal(
 		        primitive, new BasisCubicFcc(primitive)));
 	    */
         
         //FCC Ag
-        /**
-	    phase.setDimensions(new Vector3D(4.0863*3, 4.0863*3, 4.0863*6));
+        
+	    phase.setDimensions(new Vector3D(4.0863*4, 4.0863*4, 4.0863*4));
 	    PrimitiveCubic primitive = new PrimitiveCubic(space, 4.0863);
 	    LatticeCrystal crystal = new LatticeCrystal(new Crystal(
 		        primitive, new BasisCubicFcc(primitive)));
-	    */
+	    
            
 		Configuration config = new ConfigurationLattice(crystal);
 		config.initializeCoordinates(phase);
