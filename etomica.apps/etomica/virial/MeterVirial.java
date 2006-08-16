@@ -10,6 +10,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveListener;
 import etomica.integrator.mcmove.MCMovePhase;
+import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.units.Null;
 
 /**
@@ -55,8 +56,8 @@ public class MeterVirial implements DataSource, MCMoveListener, java.io.Serializ
     }
     
     public void actionPerformed(MCMoveEvent event) {
-        if (!event.isTrialNotify) {
-            if (event.wasAccepted) {
+        if (event instanceof MCMoveTrialCompletedEvent) {
+            if (((MCMoveTrialCompletedEvent)event).isAccepted()) {
                 // if a move is accepted make the "trial" values into the "old" values
                 for (int i=0; i<clusters.length; i++) {
                     oldValues[i] = trialValues[i];
@@ -73,7 +74,7 @@ public class MeterVirial implements DataSource, MCMoveListener, java.io.Serializ
         }
         
         // this is a trial
-        PhaseCluster phase = (PhaseCluster)((MCMovePhase)event.mcMove).getPhase();
+        PhaseCluster phase = (PhaseCluster)((MCMovePhase)event.getMCMove()).getPhase();
         CoordinatePairSet cPairSet = phase.getCPairSet();
         AtomPairSet aPairSet = phase.getAPairSet();
         trialPi = phase.getSampleCluster().value(cPairSet,aPairSet);

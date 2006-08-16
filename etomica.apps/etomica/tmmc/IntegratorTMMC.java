@@ -1,6 +1,8 @@
 package etomica.tmmc;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMove;
+import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
+import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 
@@ -24,6 +26,9 @@ public class IntegratorTMMC extends IntegratorMC {
     public IntegratorTMMC(PotentialMaster potentialMaster, double temperature) {
         super(potentialMaster, temperature);
         setWeightUpdateInterval(1000000); //10^6
+        trialEvent = new MCMoveTrialInitiatedEvent(moveManager);
+        acceptedEvent = new MCMoveTrialCompletedEvent(moveManager, true);
+        rejectedEvent = new MCMoveTrialCompletedEvent(moveManager, false);
     }
     
     public void setMacrostateManager(MacrostateManager m) {
@@ -68,9 +73,7 @@ public class IntegratorTMMC extends IntegratorMC {
         
         //notify any listeners that move has been attempted
         if(eventManager != null) { //consider using a final boolean flag that is set in constructor
-            event.mcMove = move;
-            event.isTrialNotify = true;
-            eventManager.fireEvent(event);
+            eventManager.fireEvent(trialEvent);
         }
         
         //decide acceptance
@@ -85,20 +88,14 @@ public class IntegratorTMMC extends IntegratorMC {
         if(lnChi <= -Double.MAX_VALUE || 
                 (lnChi < 0.0 && Math.exp(lnChi) < Simulation.random.nextDouble())) {//reject
             move.rejectNotify();
-            event.wasAccepted = false;
+            eventManager.fireEvent(rejectedEvent);
+            move.getTracker().updateCounts(false,r);
         } else {
             move.acceptNotify();
-            event.wasAccepted = true;
+            eventManager.fireEvent(acceptedEvent);
+            move.getTracker().updateCounts(true,r);
         }
 
-        //notify listeners of outcome
-        if(eventManager != null) { //consider using a final boolean flag that is set in constructor
-            event.isTrialNotify = false;
-            eventManager.fireEvent(event);
-        }
-        
-        move.getTracker().updateCounts(event.wasAccepted,r);
-        
         if(--doStepCount == 0) updateWeights();
     }//end of doStep
     
@@ -134,4 +131,6 @@ public class IntegratorTMMC extends IntegratorMC {
     private int doStepCount;
     private MacrostateManager macrostateManager;
     protected int nStates;
+    private MCMoveTrialInitiatedEvent trialEvent;
+    private final MCMoveTrialCompletedEvent acceptedEvent, rejectedEvent;
 }
