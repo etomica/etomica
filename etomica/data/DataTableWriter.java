@@ -31,9 +31,11 @@ public class DataTableWriter implements DataWriter, java.io.Serializable {
             return null;
         }
         else if (newDataInfo instanceof DataInfoGroup) {
+            DataInfo dataInfo0 = ((DataInfoGroup)newDataInfo).getSubDataInfo(0);
             for (int i = 1; i<((DataInfoGroup)newDataInfo).getNDataInfo(); i++) {
                 DataInfo subDataInfo = ((DataInfoGroup)newDataInfo).getSubDataInfo(0);
-                if (!(subDataInfo instanceof DataInfoTable)) {
+                if (subDataInfo.getClass() != dataInfo0.getClass()){
+//                        ((DataInfoGroup)newDataInfo).getSubDataInfo(0))) {
                     throw new IllegalArgumentException("DataSinkTable can only handle homogeneous groups");
                 }
             }
