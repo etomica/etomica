@@ -57,7 +57,7 @@ public class DataTableWriter implements DataWriter, java.io.Serializable {
                 fileWriter.write(dataInfo.getLabel()+" "+dataInfo.getDimension()+"\n");
                 fileWriter.write(((DataInfoTable)dataInfo).getSubDataInfo(0).getLabel());
                 for (int i=1; i<nColumns; i++) {
-                    fileWriter.write("  "+((DataInfoTable)dataInfo).getSubDataInfo(0).getLabel());
+                    fileWriter.write("  "+((DataInfoTable)dataInfo).getSubDataInfo(i).getLabel());
                 }
                 fileWriter.write("\n");
                 firstWrite = false;

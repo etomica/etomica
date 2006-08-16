@@ -239,15 +239,20 @@ public class PotentialMasterList extends PotentialMasterNbr {
         if (oldCriterion != null) {
             neighborManager.removeCriterion(oldCriterion);
         }
+        boolean success = false;
         for (int i=0; i<rangedPotentialAtomTypeList.length; i++) {
             Potential[] potentials = rangedPotentialAtomTypeList[i].getPotentials();
             for (int j=0; j<potentials.length; j++) {
                 if (potentials[j] == potential) {
-                    neighborManager.addCriterion(criterion);
+                    success = true;
                     rangedPotentialAtomTypeList[i].setCriterion(potential, criterion);
-                    return;
+                    break;
                 }
             }
+        }
+        if (success) {
+        	neighborManager.addCriterion(criterion);
+        	return;
         }
         throw new IllegalArgumentException("Potential "+potential+" is not associated with this PotentialMasterList");
     }
