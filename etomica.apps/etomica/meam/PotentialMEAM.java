@@ -51,7 +51,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	 */
 	public double getRange() {
 		//from MEAMP2
-		return Double.POSITIVE_INFINITY;
+		return kcut;
 	}
 	
 	double jcut = 4.0; //this may not be ideal cutoff for FCC Cu system
@@ -107,16 +107,20 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 				pk = parameters[indexk];
 				
 				//Cu-Sn system only
+				/**
 				double Cmin;
 				if (pi == pCu & pj == pCu & pk == pCu) Cmin = pCu.Cmin;
 				else Cmin = pSn.Cmin;
+				*/
 				
-				/**
+				
 				//Ag-Sn system only:
+				
 				double Cmin;
 				if (pi== pSn & pj == pSn & pk == pSn) Cmin = pSn.Cmin;
 				else Cmin = pAg.Cmin;
-				 */
+				
+				
 				double Sijk;
 				if (C <= Cmin) { 
 					Sij = 0;
@@ -181,7 +185,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			sum[T2RHOj0] += rhoj0 * pi.t2;
 			sum[T3RHOj0] += rhoj0 * pi.t3;
     
-			if (indexi == indexj) {
+			if (pi.r0 == pj.r0) {
 				double a, Eu, rhoj0Ref, rhoiRef, FRef;
 				a = pi.a * ((r/pi.r0) - 1.0);
 				Eu = - pi.Ec * (1.0 + a) * Math.exp(-a);
@@ -422,6 +426,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             		int indexk = atomk.type.getIndex(); pk = parameters[indexk];
     				
     				//Cu-Sn system only
+            		/**
     				double Cmin;
     				if (pi == pCu & pj == pCu & pk == pCu) {
     					Cmin = pCu.Cmin;
@@ -429,13 +434,14 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     				else {
     					Cmin = pSn.Cmin;
     				}
+    				*/
     				
-    				/**
+    				
     				//Ag-Sn system only:
     				double Cmin;
     				if (pi == pSn & pj == pSn & pk == pSn) Cmin = pSn.Cmin;
     				else Cmin = pAg.Cmin;
-    				 */
+    				 
             		double q = ((C - Cmin)/(pi.Cmax - Cmin));
             		double Sijk;
             		if (C <= Cmin) { 
@@ -538,7 +544,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	    	
 	        		giRij.Ea1Tv1(-1.0/ij, rij);
 	    	
-	        		if (indexi == indexj) {
+	        		if (pi == pj) {
 	        			double a, Eu, rhoj0Ref, rhoiRef, FRef;
 	    				a = pi.a * ((ij/pi.r0) - 1.0);
 	    				Eu = - pi.Ec * (1.0 + a) * Math.exp(-a);
@@ -883,16 +889,18 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        	int indexk = atomn.type.getIndex(); pk = parameters[indexk];
 				
 				//Cu-Sn system only
+	        	/**
 				double Cmin;
 				if (pi == pCu & pj == pCu & pk == pCu) Cmin = pCu.Cmin;
 				else Cmin = pSn.Cmin;
+				*/
 				
-				/**
+				
 				//Ag-Sn system only:
 				double Cmin;
 				if (pi == pSn & pj == pSn & pk == pSn) Cmin = pSn.Cmin;
 				else Cmin = pAg.Cmin;
-				 */
+			
 	        	double q = ((C - Cmin)/(pi.Cmax - Cmin));
 	        	double Sijk;
 	        	if (C <= Cmin) { 
@@ -940,16 +948,17 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	    			int indexl = atoml.type.getIndex(); pl = parameters[indexl];
     				
     				//Cu-Sn system only
+	    			/**
     				double cmin;
     				if (pi == pCu & pj == pCu & pl == pCu) cmin = pCu.Cmin;
     				else cmin = pSn.Cmin;
+    				*/
     				
-    				/**
     				//Ag-Sn system only:
     				double cmin;
     				if (pi == pSn & pj == pSn & pk == pSn) cmin = pSn.Cmin;
     				else cmin = pAg.Cmin;
-    				 */
+    				
 	    			double Sijl;
 	    			if (c <= cmin) { 
 	    				Sij = 0;
@@ -982,7 +991,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	            y = unitVector.x(1);
 	            z = unitVector.x(2);
            
-        		if (indexi == indexj) {
+        		if (pi == pj) {
         			double a, EuRef, rhoj0Ref, rhoiRef, FRef;
     				a = pi.a * ((ij/pi.r0) - 1.0);
     				EuRef = - pi.Ec * (1.0 + a) * Math.exp(-a);
