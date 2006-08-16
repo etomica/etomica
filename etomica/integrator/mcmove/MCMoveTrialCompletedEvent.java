@@ -4,7 +4,7 @@ public class MCMoveTrialCompletedEvent extends MCMoveEvent {
 
     public MCMoveTrialCompletedEvent(MCMoveManager moveManager, boolean accepted) {
         super();
-        wasAccepted = accepted;
+        isAccepted = accepted;
         this.moveManager = moveManager;
     }
     
@@ -12,10 +12,10 @@ public class MCMoveTrialCompletedEvent extends MCMoveEvent {
         return moveManager.getSelectedMove();
     }
     
-    public boolean wasAccepted() {
-        return wasAccepted;
+    public boolean isAccepted() {
+        return isAccepted;
     }
     
-    private final boolean wasAccepted;
+    private final boolean isAccepted;
     private final MCMoveManager moveManager;
 }

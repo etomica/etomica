@@ -133,7 +133,7 @@ public class IntegratorPT extends IntegratorManagerMC implements EtomicaElement 
          * Method called when two phases are successfully exchanged.
          */
         public void actionPerformed(MCMoveEvent evt) {
-            if(evt instanceof MCMoveTrialInitiatedEvent || !((MCMoveTrialCompletedEvent)evt).wasAccepted()) return;
+            if(evt instanceof MCMoveTrialInitiatedEvent || !((MCMoveTrialCompletedEvent)evt).isAccepted()) return;
             if(!(evt.getMCMove() instanceof MCMoveSwap)) return;
             Phase[] phases = ((MCMoveSwap)evt.getMCMove()).swappedPhases();
             int i0 = phases[0].getIndex()-1;

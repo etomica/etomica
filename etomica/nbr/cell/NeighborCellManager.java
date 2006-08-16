@@ -244,7 +244,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
         }
         
         public void actionPerformed(MCMoveEvent evt) {
-            if (evt instanceof MCMoveTrialCompletedEvent && ((MCMoveTrialCompletedEvent)evt).wasAccepted()) {
+            if (evt instanceof MCMoveTrialCompletedEvent && ((MCMoveTrialCompletedEvent)evt).isAccepted()) {
                 return;
             }
             MCMovePhase move = (MCMovePhase)evt.getMCMove();
