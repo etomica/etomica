@@ -112,17 +112,22 @@ public class MCMoveManager implements Serializable {
      * probability in proportion to the frequency value assigned to the move.
      */
     public MCMove selectMove() {
-        if (firstMoveLink == null || frequencyTotal == 0)
+        if (firstMoveLink == null || frequencyTotal == 0) {
+            selectedLink = null;
             return null;
-        int i = Simulation.random.nextInt(frequencyTotal);
-        MCMoveLinker link = firstMoveLink;
-        while ((i -= link.fullFrequency) >= 0) {
-            link = link.nextLink;
         }
-        link.selectionCount++;
-        return link.move;
+        int i = Simulation.random.nextInt(frequencyTotal);
+        selectedLink = firstMoveLink;
+        while ((i -= selectedLink.fullFrequency) >= 0) {
+            selectedLink = selectedLink.nextLink;
+        }
+        selectedLink.selectionCount++;
+        return selectedLink.move;
     }
-
+    
+    public MCMove getSelectedMove() {
+        return selectedLink.move;
+    }
     /**
      * Recomputes all the move frequencies.
      */
@@ -146,6 +151,7 @@ public class MCMoveManager implements Serializable {
 
     private Phase phase;
     private MCMoveLinker firstMoveLink, lastMoveLink;
+    private MCMoveLinker selectedLink;
     private int frequencyTotal;
     private int moveCount;
     private boolean isEquilibrating;
