@@ -7,6 +7,8 @@ import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.simulation.SimulationEvent;
 import etomica.simulation.SimulationListener;
+import etomica.simulation.SimulationPhaseAddedEvent;
+import etomica.simulation.SimulationPhaseEvent;
 import etomica.util.Arrays;
 
 /**
@@ -65,11 +67,11 @@ public class PhaseAgentManager implements SimulationListener, java.io.Serializab
     }
     
     public void actionPerformed(SimulationEvent evt) {
-        if (evt.type() == SimulationEvent.PHASE_ADDED) {
-            addAgent(evt.getPhase());
+        if (evt instanceof SimulationPhaseAddedEvent) {
+            addAgent(((SimulationPhaseEvent)evt).getPhase());
         }
-        else if (evt.type() == SimulationEvent.PHASE_REMOVED) {
-            Phase phase = evt.getPhase();
+        else if (evt instanceof SimulationPhaseAddedEvent) {
+            Phase phase = ((SimulationPhaseEvent)evt).getPhase();
             int index = phase.getIndex()-1;
             agentSource.releaseAgent(agents[index]);
             for (int i=index; i<agents.length-1; i++) {

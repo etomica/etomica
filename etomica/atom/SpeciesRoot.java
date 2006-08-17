@@ -4,6 +4,10 @@ import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.phase.Phase;
 import etomica.simulation.SimulationEvent;
 import etomica.simulation.SimulationEventManager;
+import etomica.simulation.SimulationPhaseAddedEvent;
+import etomica.simulation.SimulationPhaseRemovedEvent;
+import etomica.simulation.SimulationSpeciesAddedEvent;
+import etomica.simulation.SimulationSpeciesRemovedEvent;
 import etomica.species.Species;
 import etomica.util.Arrays;
 
@@ -47,10 +51,7 @@ public final class SpeciesRoot extends Atom {
             species.makeAgent((SpeciesMaster)iterator.nextAtom());
         }
 
-        SimulationEvent event = new SimulationEvent(this);
-        event.setType(SimulationEvent.SPECIES_ADDED);
-        event.setSpecies(species);
-        eventManager.fireEvent(event);
+        eventManager.fireEvent(new SimulationSpeciesAddedEvent(species));
         
         return speciesList.length-1;
     }
@@ -67,10 +68,7 @@ public final class SpeciesRoot extends Atom {
             return false;
         }
 
-        SimulationEvent event = new SimulationEvent(this);
-        event.setType(SimulationEvent.SPECIES_REMOVED);
-        event.setSpecies(species);
-        eventManager.fireEvent(event);
+        eventManager.fireEvent(new SimulationSpeciesRemovedEvent(species));
         
         speciesList = (Species[])Arrays.removeObject(speciesList,species);
         AtomArrayList speciesMasters = ((AtomTreeNodeGroup)node).childList;
@@ -111,10 +109,6 @@ public final class SpeciesRoot extends Atom {
         
         RootAtomTreeNode(Atom atom) {
             super(atom);
-            additionEvent = new SimulationEvent(this);
-            additionEvent.setType(SimulationEvent.PHASE_ADDED);
-            removalEvent = new SimulationEvent(this);
-            removalEvent.setType(SimulationEvent.PHASE_REMOVED);
         }
         public Phase parentPhase() {
             throw new RuntimeException("Error:  Unexpected call to parentPhase in SpeciesRoot");
@@ -155,8 +149,7 @@ public final class SpeciesRoot extends Atom {
                 for(int i=0; i<speciesList.length; i++) {
                     speciesList[i].makeAgent((SpeciesMaster)newAtom);
                 }
-                additionEvent.setPhase(newAtom.node.parentPhase());
-                ((SpeciesRoot)atom).eventManager.fireEvent(additionEvent);
+                ((SpeciesRoot)atom).eventManager.fireEvent(new SimulationPhaseAddedEvent(newAtom.node.parentPhase()));
             }
  
         }
@@ -164,13 +157,9 @@ public final class SpeciesRoot extends Atom {
         public void removeAtomNotify(Atom oldAtom) {
             if(oldAtom instanceof SpeciesMaster) {
 //                ordinalReservoir.returnOrdinal(oldAtom.node.getOrdinal());
-                removalEvent.setPhase(oldAtom.node.parentPhase());
-                ((SpeciesRoot)atom).eventManager.fireEvent(removalEvent);
+                ((SpeciesRoot)atom).eventManager.fireEvent(new SimulationPhaseRemovedEvent(oldAtom.node.parentPhase()));
             }
         }
-        
-        private final SimulationEvent additionEvent;
-        private final SimulationEvent removalEvent;
     }
     
     private static final class NodeFactory implements AtomTreeNodeFactory, java.io.Serializable {

@@ -4,6 +4,9 @@ import java.lang.reflect.Array;
 
 import etomica.simulation.SimulationEvent;
 import etomica.simulation.SimulationListener;
+import etomica.simulation.SimulationSpeciesAddedEvent;
+import etomica.simulation.SimulationSpeciesEvent;
+import etomica.simulation.SimulationSpeciesRemovedEvent;
 import etomica.util.Arrays;
 
 /**
@@ -130,14 +133,14 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
     }
     
     public void actionPerformed(SimulationEvent evt) {
-        if (evt.type() == SimulationEvent.SPECIES_ADDED) {
-            AtomTypeGroup parentType = evt.getSpecies().getMoleculeType().getParentType();
+        if (evt instanceof SimulationSpeciesAddedEvent) {
+            AtomTypeGroup parentType = ((SimulationSpeciesEvent)evt).getSpecies().getMoleculeType().getParentType();
             int childMax = getMaxIndexOfChildren(parentType);
             agents = Arrays.resizeArray(agents, childMax);
             makeAgents(parentType);
         }
-        else if (evt.type() == SimulationEvent.SPECIES_REMOVED) {
-            AtomTypeGroup parentType = evt.getSpecies().getMoleculeType().getParentType();
+        else if (evt instanceof SimulationSpeciesRemovedEvent) {
+            AtomTypeGroup parentType = ((SimulationSpeciesRemovedEvent)evt).getSpecies().getMoleculeType().getParentType();
             releaseAgents(parentType);
         }
         // handle other events for AtomType index changing and compaction
