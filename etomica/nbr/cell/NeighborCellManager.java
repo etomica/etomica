@@ -15,13 +15,14 @@ import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.integrator.mcmove.MCMoveEvent;
-import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveListener;
 import etomica.integrator.mcmove.MCMovePhase;
+import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.lattice.CellLattice;
 import etomica.phase.Phase;
 import etomica.phase.PhaseCellManager;
 import etomica.phase.PhaseEvent;
+import etomica.phase.PhaseInflateEvent;
 import etomica.phase.PhaseListener;
 import etomica.space.Boundary;
 import etomica.space.Space;
@@ -227,7 +228,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
     }
     
     public void actionPerformed(PhaseEvent event) {
-        if (event.type() == PhaseEvent.PHASE_INFLATE) {
+        if (event instanceof PhaseInflateEvent) {
             lattice.setDimensions(phase.getBoundary().getDimensions());
         }
     }

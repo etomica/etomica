@@ -11,7 +11,6 @@ import java.util.LinkedList;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.action.Action;
 import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
@@ -95,11 +94,6 @@ public class DisplayPhase extends Display implements EtomicaElement {
   * to have on when imageShells is non-zero.  Default value is <code>false</code>.
   */
   private boolean drawOverflow = false;
-  
-  /**
-   * Vector used to maintain list of DisplayPhase Listeners
-   */
-  private java.util.Vector displayPhaseListeners = new java.util.Vector();
   
   /**
    * Iterator of atoms in the displayed phase
@@ -436,27 +430,6 @@ public class DisplayPhase extends Display implements EtomicaElement {
         }
     }
 
-    public synchronized void addDisplayPhaseListener(DisplayPhaseListener dpl) {
-        displayPhaseListeners.addElement(dpl);
-    }
-    public synchronized void removeDisplayPhaseListener(DisplayPhaseListener dpl) {
-        displayPhaseListeners.removeElement(dpl);
-    }
-    public void fireDisplayPhaseEvent(DisplayPhaseEvent dpe) {
-//        Vector currentListeners = null;
-//        synchronized(this){
-//            currentListeners = (Vector)displayPhaseEventListeners.clone();
-//        }
-//        for(int i = 0; i < currentListeners.size(); i++) {
-//            DisplayPhaseEventListener listener = (DisplayPhaseEventListener)currentListeners.elementAt(i);
-//            listener.displayPhaseEventAction(dpe);
-//        }
-        for(int i = 0; i < displayPhaseListeners.size(); i++) {
-            DisplayPhaseListener listener = (DisplayPhaseListener)displayPhaseListeners.elementAt(i);
-            listener.displayPhaseAction(dpe);
-        }
-    }
-    
     /**
      * Number of periodic-image shells to be drawn when drawing this phase to the
      * screen.  Default value is 0.
@@ -478,7 +451,6 @@ public class DisplayPhase extends Display implements EtomicaElement {
     private class InputEventHandler implements MouseListener, MouseMotionListener, KeyListener,  java.io.Serializable {
         
         Vector point;
-        DisplayPhaseEvent dpe;
         
         //not yet configured to do molecule selections
         private boolean atomSelectEnabled = false;
@@ -490,7 +462,6 @@ public class DisplayPhase extends Display implements EtomicaElement {
         InputEventHandler() {
             if(phase == null) return;
             point = phase.space().makeVector();
-            dpe = new DisplayPhaseEvent(DisplayPhase.this);
         }
         
         public void mouseClicked(MouseEvent evt) {
@@ -511,7 +482,6 @@ public class DisplayPhase extends Display implements EtomicaElement {
         public void mouseReleased(MouseEvent evt) {
 //			System.out.println("mouse release");
             mouseAction(evt);
-            dpe.setAtom(null);
             atomSelected = false;
             moleculeSelected = false;
         }
@@ -558,19 +528,10 @@ public class DisplayPhase extends Display implements EtomicaElement {
             double y = (evt.getY() - centralOrigin[1])/toPixels;
             point.setX(0, x);
             point.setX(1, y);
-   //         phase().boundary().centralImage(point);
-            dpe.setPhase(getPhase());
-            dpe.setKeyEvent(null);
-            dpe.setMouseEvent(evt);
             if(atomSelectEnabled && !atomSelected) {
-                dpe.setAtom(selectAtom());
                 atomSelected = true;
             }
-/*            if(moleculeSelectEnabled && !moleculeSelected) {
-                dpe.setMolecule(selectMolecule());
-                moleculeSelected = true;
-            }*/
-            fireDisplayPhaseEvent(dpe);
+            //fire an event if needed
         }
         
         /**
@@ -732,10 +693,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
         }
         
         private void keyAction(KeyEvent evt) {
-            dpe.setPhase(getPhase());
-            dpe.setKeyEvent(evt);
-            dpe.setMouseEvent(null);
-            fireDisplayPhaseEvent(dpe);
+            //fire an event if needed
         }
             
     }//end of InputEventHandler

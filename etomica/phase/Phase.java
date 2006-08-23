@@ -82,7 +82,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         makeMolecules();
         setName(null);
 
-        inflateEvent = new PhaseEvent(this,PhaseEvent.PHASE_INFLATE);
+        inflateEvent = new PhaseInflateEvent(this);
     }
 
     public void makeMolecules() {
