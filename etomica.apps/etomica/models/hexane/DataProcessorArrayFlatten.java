@@ -8,8 +8,8 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 
 /**
- * Takes a N dimensional array and flattens it out by removing the first dimension 
- * and creating an N-1 dimensional array.
+ * Takes a N dimensional array and flattens it out by flattening the last two
+ * dimensions and creating an N-1 dimensional array.
  * @author nancycribbin
  *
  */
@@ -35,10 +35,18 @@ public class DataProcessorArrayFlatten extends DataProcessor {
         // create a new DataDoubleArray of that shape.
         int[] shapeOld = ((DataInfoDoubleArray)inputDataInfo).getArrayShape();
         shapeNew = new int[shapeOld.length-1];
-        shapeNew[0] = shapeOld[0] * shapeOld[1];
-        for(int i = 1; i < shapeNew.length; i++){
-            shapeNew[i] = shapeOld[i+1];
+//        shapeNew[0] = shapeOld[0] * shapeOld[1];
+//        for(int i = 1; i < shapeNew.length; i++){
+//            shapeNew[i] = shapeOld[i+1];
+//        }
+        
+        //move over all the pieces of information
+        for(int i = 0; i < shapeNew.length; i++){
+            shapeNew[i] = shapeOld[i];
         }
+        
+        //Make the last entry of the new array equal to the last 2 entries of the old array.
+        shapeNew[shapeNew.length-1] = shapeOld[shapeOld.length-1] * shapeOld[shapeOld.length-2];
         
         outputDataInfo = new DataInfoDoubleArray("unlabeled", inputDataInfo.getDimension(), shapeNew);
         
