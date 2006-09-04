@@ -20,7 +20,7 @@ public class PhaseAgentSourceAtomManager implements PhaseAgentSource, java.io.Se
     }
 
     public void releaseAgent(Object agent) {
-        ((AtomAgentManager)agent).setPhase(null);
+        ((AtomAgentManager)agent).dispose();
     }
 
     private final AgentSource atomAgentSource;

@@ -90,7 +90,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
     public void setPhase(Phase newPhase) {
         if (phase != null) {
             // allow agentManager to de-register itself as a PhaseListener
-            agentManager.setPhase(null);
+            agentManager.dispose();
         }
         super.setPhase(newPhase);
         agentManager = new AtomAgentManager(this,newPhase);

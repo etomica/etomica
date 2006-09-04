@@ -56,7 +56,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
     public void setPhase(Phase p) {
         if (phase != null) {
             // allow agentManager to de-register itself as a PhaseListener
-            agentManager.setPhase(null);
+            agentManager.dispose();
         }
         super.setPhase(p);
         agentManager = new AtomAgentManager(this,p);

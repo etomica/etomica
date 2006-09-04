@@ -158,7 +158,7 @@ public class MeterChainLength implements Meter, Serializable, AgentSource, DataS
         this.phase = phase;
         if (tagManager != null) {
             // allow old agentManager to de-register itself as a PhaseListener
-            tagManager.setPhase(null);
+            tagManager.dispose();
         }
         tagManager = new AtomAgentManager(this,phase);
         

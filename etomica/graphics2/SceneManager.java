@@ -28,8 +28,6 @@ public final class SceneManager {
         setScale(1.0);
  
     	colorScheme = new ColorSchemeByType();
-        
-        agentManager = new AtomAgentManager(new SphereShapeSource(), null, false);
    }
 
     public void setRenderer( Renderable r ) {
@@ -97,8 +95,7 @@ public final class SceneManager {
         if (newPhase == phase) {
             return;
         }
-        agentManager.setPhase(newPhase);
-        sphereShapeWrappers = (SphereShapeWrapper[])agentManager.getAgents();
+        agentManager = new AtomAgentManager(new SphereShapeSource(), newPhase, false);
     	phase = newPhase;
         if (phase != null) {
             from = phase.space().makeVector();

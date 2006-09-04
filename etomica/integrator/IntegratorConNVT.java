@@ -67,7 +67,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 
     public void setPhase(Phase p) {
         if (phase != null) {
-            agentManager.setPhase(null);
+            agentManager.dispose();
         }
         super.setPhase(p);
         agentManager = new AtomAgentManager(this,p);

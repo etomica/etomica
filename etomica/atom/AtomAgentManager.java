@@ -31,7 +31,8 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
     public AtomAgentManager(AgentSource source, Phase phase, boolean isBackend) {
         agentSource = source;
         this.isBackend = isBackend;
-        setPhase(phase);
+        this.phase = phase;
+        setupPhase();
     }        
     
     /**
@@ -54,32 +55,30 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
     }
     
     /**
-     * Sets the Phase in which this AtomAgentManager will manage Atom agents.
-     * Setting the Phase to null will notify the AtomAgentManager it should 
-     * disconnect itself as a listener.
+     * Notifies the AtomAgentManager it should disconnect itself as a listener.
      */
-    public void setPhase(Phase newPhase) {
-        if (phase != null) {
-            // remove ourselves as a listener to the old phase
-            phase.getEventManager().removeListener(this);
-            AtomIteratorTree iterator = new AtomIteratorTree(phase.getSpeciesMaster(),Integer.MAX_VALUE,true);
-            iterator.reset();
-            while (iterator.hasNext()) {
-                Atom atom = iterator.nextAtom();
-                // check if atom's spot in the array even exists yet
-                if (atom.getGlobalIndex() < agents.length) {
-                    Object agent = agents[atom.getGlobalIndex()];
-                    if (agent != null) {
-                        agentSource.releaseAgent(agent,atom);
-                    }
+    public void dispose() {
+        // remove ourselves as a listener to the phase
+        phase.getEventManager().removeListener(this);
+        AtomIteratorTree iterator = new AtomIteratorTree(phase.getSpeciesMaster(),Integer.MAX_VALUE,true);
+        iterator.reset();
+        while (iterator.hasNext()) {
+            Atom atom = iterator.nextAtom();
+            // check if atom's spot in the array even exists yet
+            if (atom.getGlobalIndex() < agents.length) {
+                Object agent = agents[atom.getGlobalIndex()];
+                if (agent != null) {
+                    agentSource.releaseAgent(agent,atom);
                 }
             }
         }
-        phase = newPhase;
-        if (phase == null) {
-            agents = null;
-            return;
-        }
+        agents = null;
+    }
+    
+    /**
+     * Sets the Phase in which this AtomAgentManager will manage Atom agents.
+     */
+    protected void setupPhase() {
         phase.getEventManager().addListener(this, isBackend);
         SpeciesMaster speciesMaster = phase.getSpeciesMaster();
         
@@ -197,6 +196,6 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
     private final AgentSource agentSource;
     protected Object[] agents;
     private AtomIteratorTree treeIterator;
-    private Phase phase;
+    private final Phase phase;
     private final boolean isBackend;
 }

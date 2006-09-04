@@ -72,7 +72,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
     public void setPhase(Phase p) {
         if (phase != null) {
             // allow agentManager to de-register itself as a PhaseListener
-            agentManager.setPhase(null);
+            agentManager.dispose();
         }
         super.setPhase(p);
         agentManager = new AtomAgentManager(this,p);
