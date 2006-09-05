@@ -37,7 +37,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
     public P2SquareWellBonded ABbonded;
     public P2SquareWellBonded BBbonded;
     public MeterDimerFraction meterDimerFraction;
-    public AtomAgentManager agentManager;
+    public AtomAgentManagerBond agentManager;
     public Atom[] agents;
     
     public ReactionEquilibrium() {
@@ -106,9 +106,9 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
     public Atom[] getAgents(Phase phase) {
         // the other classes don't know it, but there's only one phase.  :)
         if (agentManager == null) {
-          agentManager = new AtomAgentManager(this,phase);
+          agentManager = new AtomAgentManagerBond(this,phase);
         }
-        return (Atom[])agentManager.getAgents();
+        return agentManager.getAgents();
     }
 
     public Class getAgentClass() {
@@ -149,5 +149,24 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
 		//     sim.controller1.start();
 	}//end of main
 
-}//end of KineticsModule class
+    /**
+     * Inner class to let us cheat and access and modify elements of the agents array.
+     */
+    protected static class AtomAgentManagerBond extends AtomAgentManager {
+
+        public AtomAgentManagerBond(ReactionEquilibrium sim, Phase phase) {
+            super(sim, phase, true);
+        }
+
+        /**
+         * Returns the array of Cells for the Phase, indexed by the Atom's
+         * global index.
+         */
+        protected Atom[] getAgents() {
+            return (Atom[])agents;
+        }
+
+        private static final long serialVersionUID = 1L;
+    }
+}
 

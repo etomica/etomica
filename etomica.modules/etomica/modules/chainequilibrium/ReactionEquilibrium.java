@@ -13,6 +13,8 @@ import etomica.config.ConfigurationSequential;
 import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
+import etomica.nbr.cell.Cell;
+import etomica.nbr.cell.NeighborCellManager;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
@@ -35,7 +37,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
 	public P2SquareWellBonded AAbonded;
 	public P2SquareWellBonded ABbonded;
 	public P2SquareWellBonded BBbonded;
-    public AtomAgentManager agentManager;
+    public AtomAgentManagerAtoms agentManager;
     public Atom[] agents;
 	
     public ReactionEquilibrium() {
@@ -97,9 +99,9 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
     public Atom[][] getAgents(Phase phase) {
         // the other classes don't know it, but there's only one phase.  :)
         if (agentManager == null) {
-          agentManager = new AtomAgentManager(this,phase);
+          agentManager = new AtomAgentManagerAtoms(this,phase);
         }
-        return (Atom[][])agentManager.getAgents();
+        return agentManager.getAgents();
     }
 
     public Class getAgentClass() {
@@ -116,4 +118,24 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
 	}
     
     public void releaseAgent(Object agent, Atom atom) {}
+
+    /**
+     * Inner class to let us cheat and access and modify elements of the agents array.
+     */
+    protected static class AtomAgentManagerAtoms extends AtomAgentManager {
+
+        public AtomAgentManagerAtoms(ReactionEquilibrium sim, Phase phase) {
+            super(sim, phase, true);
+        }
+
+        /**
+         * Returns the array of Cells for the Phase, indexed by the Atom's
+         * global index.
+         */
+        protected Atom[][] getAgents() {
+            return (Atom[][])agents;
+        }
+
+        private static final long serialVersionUID = 1L;
+    }
 }
