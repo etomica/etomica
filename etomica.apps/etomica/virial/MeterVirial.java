@@ -15,9 +15,8 @@ import etomica.units.Null;
 
 /**
  * Measures value of clusters in a phase and returns the values
- * divided by the sampling bias of the integrator.
+ * divided by the sampling bias from the sampling cluster.
  */
-
 public class MeterVirial implements DataSource, MCMoveListener, java.io.Serializable {
 
 	/**
@@ -48,6 +47,19 @@ public class MeterVirial implements DataSource, MCMoveListener, java.io.Serializ
         integrator = newIntegrator;
         if (integrator != null) {
             integrator.getMoveEventManager().addListener(this);
+        }
+        init((PhaseCluster)newIntegrator.getPhase());
+    }
+
+    /**
+     * Initializes the "old" values so they're not initially NaN
+     */
+    protected void init(PhaseCluster phase) {
+        CoordinatePairSet cPairSet = phase.getCPairSet();
+        AtomPairSet aPairSet = phase.getAPairSet();
+        oldPi = phase.getSampleCluster().value(cPairSet,aPairSet);
+        for (int i=0; i<clusters.length; i++) {
+            oldValues[i] = clusters[i].value(cPairSet,aPairSet);
         }
     }
     
@@ -82,7 +94,8 @@ public class MeterVirial implements DataSource, MCMoveListener, java.io.Serializ
         for (int i=0; i<clusters.length; i++) {
             trialValues[i] = clusters[i].value(cPairSet,aPairSet);
             // actually add to the sum on notification of the trial
-            x[i] += (oldValues[i]+trialValues[i]) / (oldPi+trialPi);
+//            x[i] += (oldValues[i]+trialValues[i]) / (oldPi+trialPi);
+            x[i] += oldValues[i] / oldPi;
         }
         nTrials++;
     }
