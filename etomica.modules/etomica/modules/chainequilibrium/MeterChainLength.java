@@ -77,7 +77,6 @@ public class MeterChainLength implements Meter, Serializable, AgentSource, DataS
     // atoms
     public Data getData() {
         agents = agentSource.getAgents(phase);
-        atomTags = (AtomTag[])tagManager.getAgents();
         
         double[] histogram = data.getData();
         for (int i=0; i<histogram.length; i++) {
@@ -88,7 +87,7 @@ public class MeterChainLength implements Meter, Serializable, AgentSource, DataS
         iterator.reset();
         while (iterator.hasNext()) {
             Atom a = iterator.nextAtom();
-            atomTags[a.getGlobalIndex()].tagged = false;
+            ((AtomTag)tagManager.getAgent(a)).tagged = false;
         }
 
         iterator.reset();
@@ -97,7 +96,7 @@ public class MeterChainLength implements Meter, Serializable, AgentSource, DataS
             Atom a = iterator.nextAtom();
             // if an Atom is tagged, it was already counted as part of 
             // another chain
-            if (atomTags[a.getGlobalIndex()].tagged) continue;
+            if (((AtomTag)tagManager.getAgent(a)).tagged) continue;
 
             int chainLength = recursiveTag(a);
             
@@ -129,7 +128,7 @@ public class MeterChainLength implements Meter, Serializable, AgentSource, DataS
     }
 
     protected int recursiveTag(Atom a) {
-        atomTags[a.getGlobalIndex()].tagged = true;
+        ((AtomTag)tagManager.getAgent(a)).tagged = true;
 
         Atom[] nbrs = agents[a.getGlobalIndex()];
 
@@ -138,7 +137,7 @@ public class MeterChainLength implements Meter, Serializable, AgentSource, DataS
         // count all the bonded partners
         for(int i=0; i<nbrs.length; i++) {
             if(nbrs[i] == null) continue;
-            if(atomTags[nbrs[i].getGlobalIndex()].tagged) {
+            if(((AtomTag)tagManager.getAgent(nbrs[i])).tagged) {
                 // this Atom was already counted as being within this chain
                 // so skip it
                 continue;
@@ -181,7 +180,6 @@ public class MeterChainLength implements Meter, Serializable, AgentSource, DataS
     private Phase phase;
     private String name;
     private AtomAgentManager tagManager;
-    private AtomTag[] atomTags;
     private final ReactionEquilibrium agentSource;
     private Atom[][] agents;
     private DataFunction data;
