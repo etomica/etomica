@@ -73,7 +73,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
         if(phase != null) {
             NeighborCellManager[] cellManagers = (NeighborCellManager[])phaseAgentManager.getAgents();
             lattice = cellManagers[phase.getIndex()].getLattice();
-            cells = cellManagers[phase.getIndex()].getCells();
+            cellManager = cellManagers[phase.getIndex()];
             neighborIterator.setLattice(lattice);
             neighborIterator.setPeriod(phase.getBoundary().getDimensions());
             neighborIterator.setPeriodicity(((BoundaryPeriodic)phase.getBoundary()).getPeriodicity());
@@ -90,7 +90,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
         if(pair.atom0 == null) return;
         aiOuter.setAtom(targetAtom);
         neighborIterator.checkDimensions();
-        Cell centralCell = cells[targetAtom.getGlobalIndex()];
+        Cell centralCell = cellManager.getCell(targetAtom);
         lattice.latticeIndex(centralCell.latticeArrayIndex,latticeIndex);
         
         //get pairs in targetMolecule's cell
@@ -200,7 +200,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
         inCentralCell = true;
         upListNow = (direction != IteratorDirective.Direction.DOWN);
         neighborIterator.checkDimensions();
-        Cell centralCell = cells[targetAtom.getGlobalIndex()];
+        Cell centralCell = cellManager.getCell(targetAtom);
         lattice.latticeIndex(centralCell.latticeArrayIndex,latticeIndex);
         neighborIterator.setSite(latticeIndex);
         neighborIterator.setDirection(upListNow ? IteratorDirective.Direction.UP : IteratorDirective.Direction.DOWN);
@@ -312,7 +312,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
     private boolean needUpdate;
     private Atom targetAtom;
     private final PhaseAgentManager phaseAgentManager;
-    private Cell[] cells;
+    private NeighborCellManager cellManager;
     
     private CellLattice lattice;
     

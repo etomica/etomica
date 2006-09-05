@@ -74,7 +74,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
-            HardFieldAgent agent = (HardFieldAgent)agents[a.getGlobalIndex()];
+            HardFieldAgent agent = (HardFieldAgent)agentManager.getAgent(a);
             agent.decrementCollisionTime(tStep);
             a.coord.position().PEa1Tv1(tStep,((ICoordinateKinetic)a.coord).velocity());
             if(!agent.forceFree) {
@@ -86,8 +86,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
     }
     
     public void reset() throws ConfigurationOverlapException {
-        agents = (HardFieldAgent[])agentManager.getAgents();
-        forceSum.setAgents((HardFieldAgent[])agents);
+        forceSum.setAgentManager(agentManager);
         calculateForces();
         super.reset();
     }
@@ -97,7 +96,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         //Compute all forces
         atomIterator.reset();
         while(atomIterator.hasNext()) {   //zero forces on all atoms
-            HardFieldAgent iagent = (HardFieldAgent)agents[atomIterator.nextAtom().getGlobalIndex()];
+            HardFieldAgent iagent = (HardFieldAgent)agentManager.getAgent(atomIterator.nextAtom());
             iagent.force.E(0.0);
             iagent.forceFree = true;
         }
@@ -115,18 +114,18 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         while(atomIterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
             ((ICoordinateKinetic)a.coord).velocity().TE(s); //scale momentum
-            agents[a.getGlobalIndex()].eventLinker.sortKey *= rs;
+            ((Agent)agentManager.getAgent(a)).eventLinker.sortKey *= rs;
         }
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
  //           System.out.println(a.coord.position().toString()+a.coord.momentum().toString()+"  "+
  //                               a.coord.momentum().squared());
-            HardFieldAgent iagent = (HardFieldAgent)agents[a.getGlobalIndex()];
+            HardFieldAgent iagent = (HardFieldAgent)agentManager.getAgent(a);
             if(!iagent.forceFree) updateAtom(a);//update because not force free
             Atom partner = iagent.collisionPartner();
             if(partner == null) continue;
-            HardFieldAgent jagent = (HardFieldAgent)agents[partner.getGlobalIndex()];
+            HardFieldAgent jagent = (HardFieldAgent)agentManager.getAgent(partner);
             if(!iagent.forceFree) {
                 updateAtom(partner);//update because partner not force free
                 continue;
@@ -179,7 +178,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
             iterator.reset();
             while(iterator.hasNext()) {
                 AtomSet atoms = iterator.next();
-                ((HardFieldAgent)integratorAgents[atoms.getAtom(0).getGlobalIndex()]).forceFree = false;
+                ((HardFieldAgent)integratorAgentManager.getAgent(atoms.getAtom(0))).forceFree = false;
             }
 		}
     }//end ForceSums

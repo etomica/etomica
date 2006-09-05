@@ -158,7 +158,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         //Compute all forces
         atomIterator.reset();
         while(atomIterator.hasNext()) {   //zero forces on all atoms
-            agents[atomIterator.nextAtom().getGlobalIndex()].force.E(0.0);
+            ((Agent)agentManager.getAgent(atomIterator.nextAtom())).force.E(0.0);
         }
         forceSumNPH.u = 0.0;
         forceSumNPH.w = 0.0;
@@ -310,8 +310,8 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
                 rvx += hv * dr.dot(dv)/r2;
                 Vector[] f = potentialSoft.gradient(pair);
                 vf += dv.dot(f[0]); //maybe should be (-)?
-                agents[pair.atom0.getGlobalIndex()].force().ME(f[0]);
-                agents[pair.atom1.getGlobalIndex()].force().ME(f[1]);
+                ((Agent)agentManager.getAgent(pair.atom0)).force().ME(f[0]);
+                ((Agent)agentManager.getAgent(pair.atom1)).force().ME(f[1]);
             }
         }
     }

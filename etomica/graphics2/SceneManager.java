@@ -7,6 +7,7 @@ import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeSphere;
+import etomica.atom.AtomAgentManager.AgentIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
@@ -77,17 +78,16 @@ public final class SceneManager {
             needUpdate = false;
         }
 
-        sphereShapeWrappers = (SphereShapeWrapper[])agentManager.getAgents();
-        for (int i=0; i<sphereShapeWrappers.length; i++) {
-            if (sphereShapeWrappers[i] != null) {
-                AtomLeaf a = sphereShapeWrappers[i].atom;
-                int c = colorScheme.atomColor(a);
-                Vector r = a.coord.position();
-    
-                Renderable.Shape shp = sphereShapeWrappers[i].shape;
-                shp.setPosition( r );
-                shp.setColor( c );
-            }
+        agentIterator.reset();
+        while (agentIterator.hasNext()) {
+            SphereShapeWrapper wrapper = (SphereShapeWrapper)agentIterator.next();
+            AtomLeaf a = wrapper.atom;
+            int c = colorScheme.atomColor(a);
+            Vector r = a.coord.position();
+
+            Renderable.Shape shp = wrapper.shape;
+            shp.setPosition( r );
+            shp.setColor( c );
         }
     }
     
@@ -96,6 +96,7 @@ public final class SceneManager {
             return;
         }
         agentManager = new AtomAgentManager(new SphereShapeSource(), newPhase, false);
+        agentIterator = agentManager.makeIterator();
     	phase = newPhase;
         if (phase != null) {
             from = phase.space().makeVector();
@@ -183,7 +184,7 @@ public final class SceneManager {
     protected Renderable renderer;
     
     private AtomAgentManager agentManager;
-    private SphereShapeWrapper[] sphereShapeWrappers;
+    private AgentIterator agentIterator;
 
 //  The groups of atoms
 

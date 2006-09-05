@@ -79,13 +79,13 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
         if (Debug.ON && interactionRange > Math.sqrt(neighborRadius2)) {
             throw new IllegalStateException("Interaction range ("+interactionRange+") must be less than neighborRange ("+Math.sqrt(neighborRadius2)+")");
         }
-		r2 = ((AtomLeaf)atom).coord.position().Mv1Squared(agents[atom.getGlobalIndex()]);
+		r2 = ((AtomLeaf)atom).coord.position().Mv1Squared((Vector)agentManager.getAgent(atom));
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(atom)) {
             System.out.println("atom "+atom+" displacement "+r2+" "+((AtomLeaf)atom).coord.position());
         }
 		if (Debug.ON && Debug.DEBUG_NOW && r2 > displacementLimit2 / (4.0*safetyFactor*safetyFactor)) {
 			System.out.println("atom "+atom+" exceeded safe limit ("+r2+" > "+displacementLimit2 / (4.0*safetyFactor*safetyFactor)+")");
-			System.out.println("old position "+agents[atom.getGlobalIndex()]);
+			System.out.println("old position "+agentManager.getAgent(atom));
 			System.out.println("new position "+((AtomLeaf)atom).coord.position());
             throw new RuntimeException("stop that");
 		}
@@ -94,8 +94,8 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
 
 	public void setPhase(Phase phase) {
         nearestImageTransformer = phase.getBoundary();
-        agentManager = (AtomAgentManager[])phaseAgentManager.getAgents();
-        agents = (Vector[])agentManager[phase.getIndex()].getAgents();
+        agentManagers = (AtomAgentManager[])phaseAgentManager.getAgents();
+        agentManager = agentManagers[phase.getIndex()];
 	}
     
 	public boolean unsafe() {
@@ -121,7 +121,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
 	}
 	
 	public void reset(Atom atom) {
-		agents[atom.getGlobalIndex()].E(((AtomLeaf)atom).coord.position());
+        ((Vector)agentManager.getAgent(atom)).E(((AtomLeaf)atom).coord.position());
 	}
 
     public Class getAgentClass() {
@@ -139,7 +139,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
     private NearestImageTransformer nearestImageTransformer;
 	protected double safetyFactor;
 	protected double r2, r2MaxSafe;
-    private AtomAgentManager[] agentManager;
-    protected Vector[] agents;
+    private AtomAgentManager[] agentManagers;
+    private AtomAgentManager agentManager;
     private final PhaseAgentManager phaseAgentManager;
 }

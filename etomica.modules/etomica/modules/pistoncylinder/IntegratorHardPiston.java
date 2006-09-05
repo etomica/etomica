@@ -54,7 +54,7 @@ public class IntegratorHardPiston extends IntegratorHard {
         while (atomIterator.hasNext()) {
             // look for atoms that wanted to collide with the wall and queue up an uplist recalculation for them.
             Atom atom1 = (Atom)atomIterator.next();
-            PotentialHard atom1Potential = agents[atom1.getGlobalIndex()].collisionPotential;
+            PotentialHard atom1Potential = ((Agent)agentManager.getAgent(atom1)).collisionPotential;
             if (Debug.ON && Debug.DEBUG_NOW && ((Debug.allAtoms(atom1) && Debug.LEVEL > 1) || (Debug.anyAtom(atom1) && Debug.LEVEL > 2))) {
                 System.out.println(atom1+" thought it would collide with the piston");
             }
@@ -72,7 +72,7 @@ public class IntegratorHardPiston extends IntegratorHard {
                 System.out.println("collision down time "+collisionTime+" for atom "+atom1+" with null "+pistonPotential.getClass());
             }
             if(collisionTime < Double.POSITIVE_INFINITY) {
-                Agent aia = agents[atom1.getGlobalIndex()];
+                Agent aia = (Agent)agentManager.getAgent(atom1);
                 if(collisionTime < aia.collisionTime()) {
                     if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atom1))) {
                         System.out.println("setting down time "+collisionTime+" for atom "+atom1+" with null");

@@ -19,7 +19,6 @@ import etomica.lattice.RectangularLatticeNbrIterator;
 import etomica.lattice.RectangularLatticeNbrIteratorAdjacent;
 import etomica.phase.Phase;
 import etomica.phase.PhaseAgentManager;
-import etomica.phase.PhaseCellManager;
 import etomica.space.BoundaryPeriodic;
 
 /**
@@ -50,7 +49,7 @@ public class Api1ASite implements AtomsetIteratorPDT, AtomPairIterator, java.io.
         if(phase != null) {
             NeighborSiteManager[] cellManagers = (NeighborSiteManager[])phaseAgentManager.getAgents();
             lattice = cellManagers[phase.getIndex()].getLattice();
-            sites = cellManagers[phase.getIndex()].getSites();
+            neighborSiteManager = cellManagers[phase.getIndex()];
             neighborIterator.setLattice(lattice);
             neighborIterator.setPeriodicity(((BoundaryPeriodic)phase.getBoundary()).getPeriodicity());
         }
@@ -64,7 +63,7 @@ public class Api1ASite implements AtomsetIteratorPDT, AtomPairIterator, java.io.
      */
     public void allAtoms(AtomsetAction action) {
         if(targetAtom == null) return;
-        lattice.latticeIndex(sites[targetAtom.getGlobalIndex()].getLatticeArrayIndex(),latticeIndex);
+        lattice.latticeIndex(neighborSiteManager.getSite(targetAtom).getLatticeArrayIndex(),latticeIndex);
         
         //loop over neighbor cells
         neighborIterator.setSite(latticeIndex);
@@ -175,7 +174,7 @@ public class Api1ASite implements AtomsetIteratorPDT, AtomPairIterator, java.io.
             return;
         }
 
-        lattice.latticeIndex(sites[targetAtom.getGlobalIndex()].latticeArrayIndex,latticeIndex);
+        lattice.latticeIndex(neighborSiteManager.getSite(targetAtom).latticeArrayIndex,latticeIndex);
         upListNow = (direction != IteratorDirective.Direction.DOWN);
         neighborIterator.setSite(latticeIndex);
         if (upListNow) {
@@ -221,7 +220,7 @@ public class Api1ASite implements AtomsetIteratorPDT, AtomPairIterator, java.io.
     private Atom targetAtom;
     private Atom next;
     private final PhaseAgentManager phaseAgentManager;
-    private AtomSite[] sites;
+    private NeighborSiteManager neighborSiteManager;
     
     private CellLattice lattice;
     

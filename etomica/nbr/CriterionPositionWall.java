@@ -136,13 +136,13 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
     }
 
 	public boolean needUpdate(Atom atom) {
-        dr = Math.abs(((AtomLeaf)atom).coord.position().x(neighborDim) - agents[atom.getGlobalIndex()].x);
+        dr = Math.abs(((AtomLeaf)atom).coord.position().x(neighborDim) - ((DoubleWrapper)agentManager.getAgent(atom)).x);
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(atom)) {
             System.out.println("atom "+atom+" displacement "+dr+" "+((AtomLeaf)atom).coord.position());
         }
 		if (Debug.ON && Debug.DEBUG_NOW && dr > rMaxSafe) {
 			System.out.println("atom "+atom+" exceeded safe limit ("+dr+" > "+rMaxSafe+")");
-			System.out.println("old position "+agents[atom.getGlobalIndex()].x);
+			System.out.println("old position "+((DoubleWrapper)agentManager.getAgent(atom)).x);
 			System.out.println("new position "+((AtomLeaf)atom).coord.position().x(neighborDim));
             throw new RuntimeException("stop that");
 		}
@@ -151,8 +151,8 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
 
 	public void setPhase(Phase phase) {
         boxSize = phase.getBoundary().getDimensions().x(neighborDim);
-        agentManager = (AtomAgentManager[])phaseAgentManager.getAgents();
-        agents = (DoubleWrapper[])agentManager[phase.getIndex()].getAgents();
+        agentManagers = (AtomAgentManager[])phaseAgentManager.getAgents();
+        agentManager = agentManagers[phase.getIndex()];
 	}
     
 	public boolean unsafe() {
@@ -184,7 +184,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
 	}
 	
 	public void reset(Atom atom) {
-		agents[atom.getGlobalIndex()].x = ((AtomLeaf)atom).coord.position().x(neighborDim);
+		((DoubleWrapper)agentManager.getAgent(atom)).x = ((AtomLeaf)atom).coord.position().x(neighborDim);
 	}
 
     public Class getAgentClass() {
@@ -208,7 +208,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
     private double boxSize;
 	protected double safetyFactor;
 	protected double dr, rMaxSafe;
-    private AtomAgentManager[] agentManager;
-    protected DoubleWrapper[] agents;
+    private AtomAgentManager[] agentManagers;
+    protected AtomAgentManager agentManager;
     private final PhaseAgentManager phaseAgentManager;
 }

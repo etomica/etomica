@@ -31,7 +31,6 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
 
     Vector work;
 
-    protected Agent[] agents;
     protected AtomAgentManager agentManager;
 
     public IntegratorVerlet(Simulation sim) {
@@ -77,7 +76,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         //Compute forces on each atom
         atomIterator.reset();
         while(atomIterator.hasNext()) {   //zero forces on all atoms
-            agents[atomIterator.nextAtom().getGlobalIndex()].force.E(0.0);
+            ((Agent)agentManager.getAgent(atomIterator.nextAtom())).force.E(0.0);
         }
         potential.calculate(phase, allAtoms, forceSum);
 
@@ -85,7 +84,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
-            Agent agent = agents[a.getGlobalIndex()];
+            Agent agent = (Agent)agentManager.getAgent(a);
             Vector r = a.coord.position();
             work.E(r);
             r.PE(agent.rMrLast);
@@ -100,13 +99,12 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
     public void reset() throws ConfigurationOverlapException {
         // reset might be called because atoms were added or removed
         // calling getAgents ensures we have an up-to-date array.
-        agents = (Agent[])agentManager.getAgents();
-        forceSum.setAgents(agents);
+        forceSum.setAgentManager(agentManager);
 
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
-            Agent agent = agents[a.getGlobalIndex()];
+            Agent agent = (Agent)agentManager.getAgent(a);
             agent.rMrLast.Ea1Tv1(timeStep,((ICoordinateKinetic)a.coord).velocity());//06/13/03 removed minus sign before timeStep
         }
         super.reset();

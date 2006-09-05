@@ -31,7 +31,6 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
     private final Space space;
     private final IteratorDirective allAtoms;
     
-    protected MyAgent[] agents;
     protected AtomAgentManager agentManager;
 
     public IntegratorVelocityVerlet(Simulation sim) {
@@ -71,7 +70,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         atomIterator.reset();              //reset iterator of atoms
         while(atomIterator.hasNext()) {    //loop over all atoms
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();  //  advancing positions full step
-            MyAgent agent = agents[a.getGlobalIndex()];     //  and momenta half step
+            MyAgent agent = (MyAgent)agentManager.getAgent(a);     //  and momenta half step
             Vector r = a.coord.position();
             Vector v = ((ICoordinateKinetic)a.coord).velocity();
             v.PEa1Tv1(0.5*timeStep*((AtomTypeLeaf)a.type).rm(),agent.force);  // p += f(old)*dt/2
@@ -87,7 +86,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         while(atomIterator.hasNext()) {     //loop over atoms again
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();   //  finishing the momentum step
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
-            ((ICoordinateKinetic)a.coord).velocity().PEa1Tv1(0.5*timeStep*((AtomTypeLeaf)a.type).rm(),agents[a.getGlobalIndex()].force);  //p += f(new)*dt/2
+            ((ICoordinateKinetic)a.coord).velocity().PEa1Tv1(0.5*timeStep*((AtomTypeLeaf)a.type).rm(),((MyAgent)agentManager.getAgent(a)).force);  //p += f(new)*dt/2
         }
         if(isothermal) {
             doThermostat();
@@ -102,14 +101,13 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         if(!initialized) return;
         // reset might be called because atoms were added or removed
         // calling getAgents ensures we have an up-to-date array.
-        agents = (MyAgent[])agentManager.getAgents();
-        forceSum.setAgents(agents);
+        forceSum.setAgentManager(agentManager);
         
         atomIterator.setPhase(phase);
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
-            agents[a.getGlobalIndex()].force.E(0.0);
+            ((MyAgent)agentManager.getAgent(a)).force.E(0.0);
         }
         potential.calculate(phase, allAtoms, forceSum);//assumes only one phase
         super.reset();

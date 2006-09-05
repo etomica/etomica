@@ -42,7 +42,6 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
     static final double GEAR3 = 1./3.;
     static final double GEAR4 = 1./24.;
 
-    protected Agent[] agents;
     protected AtomAgentManager agentManager;
 
     public IntegratorGear4(Simulation sim) {
@@ -104,7 +103,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
         //Compute all forces
         atomIterator.reset();
         while(atomIterator.hasNext()) {   //zero forces on all atoms
-            agents[atomIterator.nextAtom().getGlobalIndex()].force.E(0.0);
+            ((Agent)agentManager.getAgent(atomIterator.nextAtom())).force.E(0.0);
         }
         //Compute forces on each atom
         potential.calculate(phase, allAtoms, forceSum);
@@ -116,7 +115,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
-            Agent agent = agents[a.getGlobalIndex()];
+            Agent agent = (Agent)agentManager.getAgent(a);
             Vector r = a.coord.position();
             Vector v = ((ICoordinateKinetic)a.coord).velocity();
             work1.E(v);
@@ -145,7 +144,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
-            Agent agent = agents[a.getGlobalIndex()];
+            Agent agent = (Agent)agentManager.getAgent(a);
             Vector r = a.coord.position();
             Vector v = ((ICoordinateKinetic)a.coord).velocity();
             r.PEa1Tv1(p1, agent.dr1);
@@ -179,12 +178,11 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
     }
 
     public void reset() throws ConfigurationOverlapException {
-        agents = (Agent[])agentManager.getAgents();
         calculateForces();
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
-            Agent agent = agents[a.getGlobalIndex()];
+            Agent agent = (Agent)agentManager.getAgent(a);
             agent.dr1.E(((ICoordinateKinetic)a.coord).velocity());
             agent.dr2.Ea1Tv1(((AtomTypeLeaf)a.type).rm(),agent.force);
             agent.dr3.E(0.0);

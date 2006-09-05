@@ -1,6 +1,7 @@
 package etomica.potential;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.AtomsetIterator;
@@ -14,10 +15,10 @@ import etomica.space.Vector;
 public class PotentialCalculationForceSum extends PotentialCalculation {
         
     private Vector[] f;
-    protected IntegratorPhase.Forcible[] integratorAgents;
+    protected AtomAgentManager integratorAgentManager;
     
-    public void setAgents(IntegratorPhase.Forcible[] agents) {
-        integratorAgents = agents;
+    public void setAgentManager(AtomAgentManager agentManager) {
+        integratorAgentManager = agentManager;
     }
     
     /**
@@ -33,18 +34,18 @@ public class PotentialCalculationForceSum extends PotentialCalculation {
 			f = potentialSoft.gradient(atoms);
 			switch(nBody) {
 				case 1:
-					integratorAgents[((Atom)atoms).getGlobalIndex()].force().ME(f[0]);
+					((IntegratorPhase.Forcible)integratorAgentManager.getAgent((Atom)atoms)).force().ME(f[0]);
 					break;
 				case 2:
-			        integratorAgents[((AtomPair)atoms).atom0.getGlobalIndex()].force().ME(f[0]);
-                    integratorAgents[((AtomPair)atoms).atom1.getGlobalIndex()].force().ME(f[1]);
+                    ((IntegratorPhase.Forcible)integratorAgentManager.getAgent(((AtomPair)atoms).atom0)).force().ME(f[0]);
+                    ((IntegratorPhase.Forcible)integratorAgentManager.getAgent(((AtomPair)atoms).atom1)).force().ME(f[1]);
 			 		break;
                 default:
                     //XXX atoms.count might not equal f.length.  The potential might size its 
                     //array of vectors to be large enough for one AtomSet and then not resize it
                     //back down for another AtomSet with fewer atoms.
                     for (int i=0; i<atoms.count(); i++) {
-                        integratorAgents[atoms.getAtom(i).getGlobalIndex()].force().ME(f[i]);
+                        ((IntegratorPhase.Forcible)integratorAgentManager.getAgent(atoms.getAtom(i))).force().ME(f[i]);
                     }
 			}
 		}

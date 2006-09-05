@@ -8,7 +8,6 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.phase.Phase;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
@@ -37,7 +36,6 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
     Vector work, work1, work2, work3, work4;
     double halfTime, mass;
 
-    protected Agent[] agents;
     protected AtomAgentManager agentManager;
 
     public IntegratorConNVT(Simulation sim) {
@@ -71,6 +69,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
         }
         super.setPhase(p);
         agentManager = new AtomAgentManager(this,p);
+        forceSum.setAgentManager(agentManager);
     }
     
   	public final void setTimeStep(double t) {
@@ -92,7 +91,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
         //Compute forces on each atom
         atomIterator.reset();
         while(atomIterator.hasNext()) {   //zero forces on all atoms
-            agents[atomIterator.nextAtom().getGlobalIndex()].force.E(0.0);
+            ((Agent)agentManager.getAgent(atomIterator.nextAtom())).force.E(0.0);
         }
         potential.calculate(phase, allAtoms, forceSum);
 	
@@ -110,7 +109,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 			Vector v = ((ICoordinateKinetic)a.coord).velocity();
             
 			work1.E(v); //work1 = v
-			work2.E(agents[a.getGlobalIndex()].force);	//work2=F
+			work2.E(((Agent)agentManager.getAgent(a)).force);	//work2=F
 			work1.PEa1Tv1(halfTime*((AtomTypeLeaf)a.type).rm(),work2); //work1= p/m + F*Dt2/m = v + F*Dt2/m
             
         	k+=work1.squared();
@@ -124,7 +123,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 		atomIterator.reset();
 		while(atomIterator.hasNext()) {
 			AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
-			Agent agent = agents[a.getGlobalIndex()];
+			Agent agent = (Agent)agentManager.getAgent(a);
 			Vector v = ((ICoordinateKinetic)a.coord).velocity();
 		
 			double scale = (2.0*chi-1.0); 
@@ -150,14 +149,6 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
         
     }//end of doStep
     
-
-    public void reset() throws ConfigurationOverlapException {
-        // reset might be called because atoms were added or removed
-        // calling getAgents ensures we have an up-to-date array.
-        agents = (Agent[])agentManager.getAgents();
-        forceSum.setAgents(agents);
-        super.reset();
-    }
 
     public Class getAgentClass() {
         return Agent.class;

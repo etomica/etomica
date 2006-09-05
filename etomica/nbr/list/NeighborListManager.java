@@ -27,7 +27,6 @@ import etomica.phase.Phase;
 import etomica.phase.PhaseAgentManager;
 import etomica.phase.PhaseAgentSourceAtomManager;
 import etomica.potential.Potential;
-import etomica.potential.Potential2;
 import etomica.potential.PotentialArray;
 import etomica.util.Arrays;
 import etomica.util.Debug;
@@ -97,19 +96,19 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         }
         
         agentManagers = (AtomAgentManager[])phaseAgentManager.getAgents();
-        neighborLists = (AtomNeighborLists[])agentManagers[phase.getIndex()].getAgents();
+        agentManager = agentManagers[phase.getIndex()];
         agentManagers1Body = (AtomAgentManager[])phaseAgentManager1Body.getAgents();
-        potentialList = (AtomPotentialList[])agentManagers1Body[phase.getIndex()].getAgents();
+        potentialListManager = agentManagers1Body[phase.getIndex()];
 
         iterator.setRoot(phase.getSpeciesMaster());
         iterator.reset();
         while (iterator.hasNext()) {
             Atom atom = iterator.nextAtom();
             int numPotentials = potentialMaster.getRangedPotentials(atom.type).getPotentials().length;
-            neighborLists[atom.getGlobalIndex()].setCapacity(numPotentials);
+            ((AtomNeighborLists)agentManager.getAgent(atom)).setCapacity(numPotentials);
 
             numPotentials = potentialMaster.getIntraPotentials(atom.type).getPotentials().length;
-            potentialList[atom.getGlobalIndex()].setCapacity(numPotentials);
+            ((AtomPotentialList)potentialListManager.getAgent(atom)).setCapacity(numPotentials);
         }
         
         if (phaseClean.length < phase.getIndex()+1) {
@@ -278,12 +277,12 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      */
     protected void neighborSetup(Phase phase) {
         agentManagers = (AtomAgentManager[])phaseAgentManager.getAgents();
-        neighborLists = (AtomNeighborLists[])agentManagers[phase.getIndex()].getAgents();
+        agentManager = agentManagers[phase.getIndex()];
         agentManagers1Body = (AtomAgentManager[])phaseAgentManager1Body.getAgents();
-        potentialList = (AtomPotentialList[])agentManagers1Body[phase.getIndex()].getAgents();
+        agentManager1Body = agentManagers1Body[phase.getIndex()];
 
         iterator.setRoot(phase.getSpeciesMaster());
-        neighborReset.setNeighborLists(neighborLists,potentialList);
+        neighborReset.setNeighborLists(agentManager,agentManager1Body);
         iterator.allAtoms(neighborReset);
         
         potentialMaster.getNbrCellManager(phase).assignCellAll();
@@ -303,8 +302,8 @@ public class NeighborListManager implements IntegratorNonintervalListener,
                     continue;
                 }
                 if (criteria[i].accept(pair)) {
-                    neighborLists[pair.atom0.getGlobalIndex()].addUpNbr(pair.atom1,i);
-                    neighborLists[pair.atom1.getGlobalIndex()].addDownNbr(pair.atom0,
+                    ((AtomNeighborLists)agentManager.getAgent(pair.atom0)).addUpNbr(pair.atom1,i);
+                    ((AtomNeighborLists)agentManager.getAgent(pair.atom1)).addDownNbr(pair.atom0,
                             potentialMaster.getRangedPotentials(pair.atom1.type).getPotentialIndex(potentials[i]));
                 }
             }
@@ -345,20 +344,20 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     }
     
     public void setPhase(Phase phase) {
-        neighborLists = (AtomNeighborLists[])agentManagers[phase.getIndex()].getAgents();
-        potentialList = (AtomPotentialList[])agentManagers1Body[phase.getIndex()].getAgents();
+        agentManager = agentManagers[phase.getIndex()];
+        potentialListManager = agentManagers1Body[phase.getIndex()];
     }
     
     public AtomArrayList[] getUpList(Atom atom) {
-        return neighborLists[atom.getGlobalIndex()].getUpList();
+        return ((AtomNeighborLists)agentManager.getAgent(atom)).getUpList();
     }
 
     public AtomArrayList[] getDownList(Atom atom) {
-        return neighborLists[atom.getGlobalIndex()].getDownList();
+        return ((AtomNeighborLists)agentManager.getAgent(atom)).getDownList();
     }
 
     public AtomPotentialList getPotential1BodyList(Atom atom) {
-        return potentialList[atom.getGlobalIndex()];
+        return (AtomPotentialList)potentialListManager.getAgent(atom);
     }
 
     private NeighborCriterion[] criteriaArray = new NeighborCriterion[0];
@@ -372,10 +371,11 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     private int priority;
     private PhaseImposePbc pbcEnforcer;
     private boolean quiet;
-    private AtomNeighborLists[] neighborLists;
-    private AtomPotentialList[] potentialList;
+    private AtomAgentManager potentialListManager;
     private AtomAgentManager[] agentManagers;
+    private AtomAgentManager agentManager;
     private AtomAgentManager[] agentManagers1Body;
+    private AtomAgentManager agentManager1Body;
     private final PhaseAgentManager phaseAgentManager;
     private final PhaseAgentManager phaseAgentManager1Body;
     private boolean[] phaseClean;
@@ -438,7 +438,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
                 return;//don't want SpeciesMaster or SpeciesAgents
             }
             final NeighborCriterion[] criterion = neighborListManager.getCriterion(atom.type);
-            neighborLists[atom.getGlobalIndex()].clearNbrs();
+            ((AtomNeighborLists)agentManager.getAgent(atom)).clearNbrs();
             for (int i = 0; i < criterion.length; i++) {
                 criterion[i].reset(atom);
             }
@@ -451,18 +451,18 @@ public class NeighborListManager implements IntegratorNonintervalListener,
                 if (potentials[i].nBody() != 1) {
                     continue;
                 }
-                potentialLists[atom.getGlobalIndex()].setIsInteracting(criteria[i].accept(atom),i);
+                ((AtomPotentialList)agentManager1Body.getAgent(atom)).setIsInteracting(criteria[i].accept(atom),i);
             }
         }
         
-        public void setNeighborLists(AtomNeighborLists[] newNeighborLists, AtomPotentialList[] newPotentialLists) {
-            neighborLists = newNeighborLists;
-            potentialLists = newPotentialLists;
+        public void setNeighborLists(AtomAgentManager newAgentManager, AtomAgentManager newAgentManager1Body) {
+            agentManager = newAgentManager;
+            agentManager1Body = newAgentManager1Body;
         }
         
         private NeighborListManager neighborListManager;
-        private AtomNeighborLists[] neighborLists;
-        private AtomPotentialList[] potentialLists;
+        private AtomAgentManager agentManager;
+        private AtomAgentManager agentManager1Body;
     }
     
     public Class getAgentClass() {

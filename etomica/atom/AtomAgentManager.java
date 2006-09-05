@@ -44,6 +44,10 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
         return agents;
     }
     
+    public AgentIterator makeIterator() {
+        return new AgentIterator(this);
+    }
+    
     /**
      * Convenience method to return the agent the given Atom.  The Atom must 
      * be from the Phase associated with this instance.  For repeated access to
@@ -198,4 +202,35 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
     private AtomIteratorTree treeIterator;
     private final Phase phase;
     private final boolean isBackend;
+    
+    public static class AgentIterator {
+        protected AgentIterator(AtomAgentManager agentManager) {
+            this.agentManager = agentManager;
+        }
+        
+        public void reset() {
+            cursor = 0;
+            agents = agentManager.getAgents();
+        }
+        
+        public boolean hasNext() {
+            while (cursor < agents.length) {
+                if (agents[cursor] != null) {
+                    return true;
+                }
+                cursor++;
+            }
+            return false;
+        }
+        
+        public Object next() {
+            cursor++;
+            return agents[cursor-1];
+        }
+        
+        private final AtomAgentManager agentManager;
+        private int cursor;
+        private Object[] agents;
+    }
+    
 }

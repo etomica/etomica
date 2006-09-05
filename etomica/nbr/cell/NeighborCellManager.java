@@ -170,12 +170,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
     }
     
     public Cell getCell(Atom atom) {
-        Cell[] cells = (Cell[])agentManager.getAgents();
-        return cells[atom.getGlobalIndex()];
-    }
-    
-    public Cell[] getCells() {
-        return (Cell[])agentManager.getAgents();
+        return (Cell)agentManager.getAgent(atom);
     }
     
     protected void removeFromCell(Atom atom) {
