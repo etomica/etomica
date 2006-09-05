@@ -297,7 +297,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     colorScheme = displayPhase.getColorScheme();
 
     if(displayPhase.getColorScheme() instanceof ColorSchemeCollective) {
-        ((ColorSchemeCollective)displayPhase.getColorScheme()).colorAllAtoms(displayPhase.getPhase());
+        ((ColorSchemeCollective)displayPhase.getColorScheme()).colorAllAtoms();
     }
 
     AtomIteratorLeafAtoms atomIter = new AtomIteratorLeafAtoms(displayPhase.getPhase());

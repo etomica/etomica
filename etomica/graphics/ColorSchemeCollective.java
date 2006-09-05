@@ -6,9 +6,6 @@ import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.phase.Phase;
-import etomica.phase.PhaseAgentManager;
-import etomica.phase.PhaseAgentSourceAtomManager;
-import etomica.simulation.Simulation;
 
 /**
  * Parent class for color schemes that are best implemented by attaching colors
@@ -16,33 +13,27 @@ import etomica.simulation.Simulation;
  * The colorAllAtoms method is called by the display if it determines that the
  * ColorScheme is a subclass of this one.
  */
-    
 public abstract class ColorSchemeCollective extends ColorScheme implements AgentSource {
     
-    private AtomAgentManager[] agentManager;
-    protected Color[] atomColors;
-    private final PhaseAgentManager phaseAgentManager;
+    protected AtomAgentManager agentManager;
     
-    public ColorSchemeCollective(Simulation sim) {
-        super();
-        phaseAgentManager = new PhaseAgentManager(new PhaseAgentSourceAtomManager(this),sim.speciesRoot);
+    public ColorSchemeCollective(Phase phase) {
+        agentManager = new AtomAgentManager(this, phase);
     }
     
     //determine color
     //then assign it to atom like this: atomColors[atomIndex] = color
-    public void colorAllAtoms(Phase phase){
-        agentManager = (AtomAgentManager[])phaseAgentManager.getAgents();
-        atomColors = (Color[])agentManager[phase.getIndex()].getAgents();
-    }
+    public abstract void colorAllAtoms();
     
-    public Color getAtomColor(AtomLeaf a) {return atomColors[a.getGlobalIndex()];}
+    public Color getAtomColor(AtomLeaf a) {
+        return (Color)agentManager.getAgent(a);
+    }
    
     public Class getAgentClass() {
         return Color.class;
     }
     
     public Object makeAgent(Atom a) {
-        // just a placeholde
         return null;
     }
     

@@ -1,7 +1,6 @@
 package etomica.graphics;
 import java.awt.Color;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 
 /**

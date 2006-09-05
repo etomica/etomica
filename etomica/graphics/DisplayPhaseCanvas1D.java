@@ -171,7 +171,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
             
         //Draw all atoms
         if(displayPhase.getColorScheme() instanceof ColorSchemeCollective) {
-            ((ColorSchemeCollective)displayPhase.getColorScheme()).colorAllAtoms(displayPhase.getPhase());
+            ((ColorSchemeCollective)displayPhase.getColorScheme()).colorAllAtoms();
         }
         atomIterator.setPhase(displayPhase.getPhase());
         atomIterator.reset();
