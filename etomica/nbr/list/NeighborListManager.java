@@ -344,6 +344,8 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     }
     
     public void setPhase(Phase phase) {
+        // if agentManagers is null here, it's probably because you haven't added this instance
+        // as an IntegratorListener
         agentManager = agentManagers[phase.getIndex()];
         potentialListManager = agentManagers1Body[phase.getIndex()];
     }
@@ -384,7 +386,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * Atom action class that checks if any criteria indicate that the given
      * atom needs to update its neighbor list.
      */
-    private static class NeighborCheck extends AtomsetActionAdapter {
+    private static class NeighborCheck extends AtomActionAdapter {
 
         protected boolean needUpdate = false, unsafe = false;
         private NeighborListManager neighborListManager;
@@ -393,10 +395,10 @@ public class NeighborListManager implements IntegratorNonintervalListener,
             neighborListManager = manager;
         }
         
-        public void actionPerformed(AtomSet atom) {
-            final NeighborCriterion[] criterion = neighborListManager.getCriterion(((Atom) atom).type);
+        public void actionPerformed(Atom atom) {
+            final NeighborCriterion[] criterion = neighborListManager.getCriterion(atom.type);
             for (int i = 0; i < criterion.length; i++) {
-                if (criterion[i].needUpdate((Atom) atom)) {
+                if (criterion[i].needUpdate(atom)) {
                     needUpdate = true;
                     if (criterion[i].unsafe()) {
                         if (Debug.ON && Debug.DEBUG_NOW) {
