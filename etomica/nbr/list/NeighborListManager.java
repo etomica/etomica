@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Sep 22, 2004 by kofke
- */
 package etomica.nbr.list;
 
 import etomica.action.AtomActionAdapter;
@@ -51,7 +47,6 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      */
     public NeighborListManager(PotentialMasterList potentialMasterList, double range, 
             PhaseAgentManager agentManager) {
-        super();
         setUpdateInterval(1);
         iieCount = updateInterval;
         iterator = new AtomIteratorTree();
