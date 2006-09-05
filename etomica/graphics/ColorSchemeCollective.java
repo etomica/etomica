@@ -15,10 +15,10 @@ import etomica.phase.Phase;
  */
 public abstract class ColorSchemeCollective extends ColorScheme implements AgentSource {
     
-    protected AtomAgentManager agentManager;
+    protected AtomAgentManagerColor agentManager;
     
     public ColorSchemeCollective(Phase phase) {
-        agentManager = new AtomAgentManager(this, phase);
+        agentManager = new AtomAgentManagerColor(this, phase);
     }
     
     //determine color
@@ -38,5 +38,21 @@ public abstract class ColorSchemeCollective extends ColorScheme implements Agent
     }
     
     public void releaseAgent(Object agent, Atom atom) {}
-}
+    
+    /**
+     * Inner class to let us cheat and access and modify elements of the agents array.
+     */
+    protected static class AtomAgentManagerColor extends AtomAgentManager {
+        public AtomAgentManagerColor(ColorSchemeCollective colorScheme, Phase phase) {
+            super(colorScheme, phase, false);
+        }
 
+        /**
+         * Returns the array of Colors for Atoms in the Phase, indexed by the Atom's
+         * global index.
+         */
+        protected Color[] getAgents() {
+            return (Color[])agents;
+        }
+    }
+}

@@ -35,15 +35,6 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
         setupPhase();
     }        
     
-    /**
-     * Returns the array of Atom agents for the Phase, indexed by the Atom's
-     * global index.  The array is of the type returned by the AgentSource's 
-     * getAgentClass method.
-     */
-    public Object[] getAgents() {
-        return agents;
-    }
-    
     public AgentIterator makeIterator() {
         return new AgentIterator(this);
     }
@@ -210,7 +201,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
         
         public void reset() {
             cursor = 0;
-            agents = agentManager.getAgents();
+            agents = agentManager.agents;
         }
         
         public boolean hasNext() {

@@ -23,7 +23,7 @@ public class ColorSchemeNeighbor extends ColorSchemeCollective {
     }
     
     public void colorAllAtoms() {
-        Color[] atomColors = (Color[])agentManager.getAgents();
+        Color[] atomColors = agentManager.getAgents();
         allIterator.reset();
 		//color all atoms according to their type
         while(allIterator.hasNext()) {

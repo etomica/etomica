@@ -47,7 +47,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
     private final Phase phase;
     private int cellRange = 2;
     private double range;
-    private final AtomAgentManager agentManager;
+    private final AtomAgentManagerCell agentManager;
     
     /**
      * Constructs manager for neighbor cells in the given phase.  The number of
@@ -78,7 +78,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
 
         //force lattice to be sized so the Cells will exist
         checkDimensions();
-        agentManager = new AtomAgentManager(this,phase);
+        agentManager = new AtomAgentManagerCell(this,phase);
     }
 
     public CellLattice getLattice() {
@@ -287,4 +287,21 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
         private final Phase phase;
         private final NeighborCellManager neighborCellManager;
     }
-}//end of NeighborCellManager
+    
+    /**
+     * Inner class to let us cheat and access and modify elements of the agents array.
+     */
+    protected static class AtomAgentManagerCell extends AtomAgentManager {
+        public AtomAgentManagerCell(NeighborCellManager neighborCellManager, Phase phase) {
+            super(neighborCellManager, phase, true);
+        }
+
+        /**
+         * Returns the array of Cells for the Phase, indexed by the Atom's
+         * global index.
+         */
+        protected Cell[] getAgents() {
+            return (Cell[])agents;
+        }
+    }
+}
