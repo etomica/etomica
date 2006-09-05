@@ -3,26 +3,19 @@ package etomica.graphics;
 import java.awt.Color;
 import java.util.HashMap;
 
-import etomica.atom.Atom;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.atom.AtomLeaf;
 import etomica.lattice.FiniteLattice;
+import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.cell.NeighborCellManager;
-import etomica.nbr.cell.PotentialMasterCell;
 import etomica.phase.Phase;
+import etomica.phase.PhaseAgentManager;
 import etomica.simulation.Simulation;
 
-/*
- * History
- * Created on Aug 23, 2005 by kofke
- */
-public class ColorSchemeCell extends ColorSchemeCollective {
+public class ColorSchemeCell extends ColorScheme {
     
-    private final HashMap hash = new HashMap();
-    private final AtomIteratorLeafAtoms allIterator = new AtomIteratorLeafAtoms();
-    
-    public ColorSchemeCell(Simulation sim) {
-        super(sim);
-        potentialMasterCell = (PotentialMasterCell)sim.potentialMaster;
+    public ColorSchemeCell(Simulation sim, Phase phase) {
+        PhaseAgentManager cellAgentManager = ((PotentialMasterNbr)sim.potentialMaster).getCellAgentManager();
+        cellManager = (NeighborCellManager)cellAgentManager.getAgents()[phase.getIndex()];
     }
     
     public void setLattice(FiniteLattice lattice) {
@@ -32,16 +25,11 @@ public class ColorSchemeCell extends ColorSchemeCollective {
         }
     }
     
-    public void colorAllAtoms(Phase phase) {
-        NeighborCellManager cellManager = (NeighborCellManager)potentialMasterCell.getNbrCellManager(phase);
-        allIterator.setPhase(phase);
-        allIterator.reset();
-        while(allIterator.hasNext()) {
-            Atom atom = allIterator.nextAtom();
-            Object cell = cellManager.getCell(atom);
-            atomColors[atom.getGlobalIndex()] = (Color)hash.get(cell);
-        }
+    public Color getAtomColor(AtomLeaf a) {
+        return (Color)hash.get(cellManager.getCell(a));
     }
     
-    private final PotentialMasterCell potentialMasterCell;
+    private static final long serialVersionUID = 1L;
+    private final HashMap hash = new HashMap();
+    private final NeighborCellManager cellManager;
 }
