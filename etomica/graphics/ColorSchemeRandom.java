@@ -1,25 +1,32 @@
 package etomica.graphics;
-import etomica.atom.Atom;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.phase.Phase;
-import etomica.simulation.Simulation;
+import java.awt.Color;
 
-public class ColorSchemeRandom extends ColorSchemeCollective {
+import etomica.atom.Atom;
+import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeaf;
+import etomica.atom.AtomAgentManager.AgentSource;
+import etomica.phase.Phase;
+
+public class ColorSchemeRandom extends ColorScheme implements AgentSource {
     
-    private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
-    
-    public ColorSchemeRandom(Simulation sim) {
-        super(sim);
+    public ColorSchemeRandom(Phase phase) {
+        agentManager = new AtomAgentManager(this, phase);
     }
     
-    public void colorAllAtoms(Phase phase) {
-        iterator.setPhase(phase);
-        iterator.reset();
-        while(iterator.hasNext()) {
-            Atom a = iterator.nextAtom();
-            if(atomColors[a.getGlobalIndex()] == null) {
-                atomColors[a.getGlobalIndex()] = ConstantsGraphic.randomColor();
-            }
-        }
+    public Color getAtomColor(AtomLeaf a) {
+        return (Color)agentManager.getAgent(a);
     }
+   
+    public Class getAgentClass() {
+        return Color.class;
+    }
+    
+    public Object makeAgent(Atom a) {
+        return ConstantsGraphic.randomColor();
+    }
+    
+    public void releaseAgent(Object agent, Atom atom) {}
+
+    private static final long serialVersionUID = 1L;
+    private final AtomAgentManager agentManager;
 }
