@@ -2,6 +2,7 @@ package etomica.atom;
 
 import java.lang.reflect.Array;
 
+import etomica.atom.AtomAgentManager.AgentIterator;
 import etomica.simulation.SimulationEvent;
 import etomica.simulation.SimulationListener;
 import etomica.simulation.SimulationSpeciesAddedEvent;
@@ -27,8 +28,17 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
     public AtomTypeAgentManager(AgentSource source, SpeciesRoot root, boolean isBackend) {
         agentSource = source;
         this.isBackend = isBackend;
-        setRoot(root);
+        if (root != null) {
+            setRoot(root);
+        }
     }        
+    
+    /**
+     * Returns an iterator that returns each non-null agent
+     */
+    public AgentIterator makeIterator() {
+        return new AgentIterator(this);
+    }
     
     /**
      * Returns the array of AtomType agents, indexed by the AtomType's index.  
@@ -106,22 +116,21 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
     }
     
     /**
+     * Unregisters this class as a listener for AtomType-related events and 
+     * releases its agents.
+     */
+    public void dispose() {
+        // remove ourselves as a listener to the old phase
+        root.getEventManager().removeListener(this);
+        releaseAgents(root.type);
+    }
+    
+    /**
      * Sets the SpeciesRoot for which this AtomAgentManager will manage 
-     * AtomType agents.  Setting the root to null will notify the 
-     * AtomAgentManager it should disconnect itself as a listener and release
-     * all agents.
+     * AtomType agents.
      */
     public void setRoot(SpeciesRoot newRoot) {
-        if (root!= null) {
-            // remove ourselves as a listener to the old phase
-            root.getEventManager().removeListener(this);
-            releaseAgents(root.type);
-        }
         root = newRoot;
-        if (root == null) {
-            agents = null;
-            return;
-        }
         root.getEventManager().addListener(this, isBackend);
 
         int numTypes = getMaxIndexOfChildren((AtomTypeGroup)root.type);
@@ -182,4 +191,43 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
     protected Object[] agents;
     private SpeciesRoot root;
     private final boolean isBackend;
+
+    /**
+     * Iterator that loops over the agents, skipping null elements
+     */
+    public static class AgentIterator {
+        protected AgentIterator(AtomTypeAgentManager agentManager) {
+            this.agentManager = agentManager;
+        }
+        
+        public void reset() {
+            cursor = 0;
+            agents = agentManager.agents;
+        }
+        
+        public boolean hasNext() {
+            while (cursor < agents.length) {
+                if (agents[cursor] != null) {
+                    return true;
+                }
+                cursor++;
+            }
+            return false;
+        }
+        
+        public Object next() {
+            cursor++;
+            while (cursor-1 < agents.length) {
+                if (agents[cursor-1] != null) {
+                    return agents[cursor-1];
+                }
+                cursor++;
+            }
+            return null;
+        }
+        
+        private final AtomTypeAgentManager agentManager;
+        private int cursor;
+        private Object[] agents;
+    }
 }
