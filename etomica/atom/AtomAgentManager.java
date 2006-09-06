@@ -216,7 +216,13 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
         
         public Object next() {
             cursor++;
-            return agents[cursor-1];
+            while (cursor-1 < agents.length) {
+                if (agents[cursor-1] != null) {
+                    return agents[cursor-1];
+                }
+                cursor++;
+            }
+            return null;
         }
         
         private final AtomAgentManager agentManager;
