@@ -151,8 +151,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
 
 	public void setPhase(Phase phase) {
         boxSize = phase.getBoundary().getDimensions().x(neighborDim);
-        agentManagers = (AtomAgentManager[])phaseAgentManager.getAgents();
-        agentManager = agentManagers[phase.getIndex()];
+        agentManager = (AtomAgentManager)phaseAgentManager.getAgent(phase);
 	}
     
 	public boolean unsafe() {
@@ -208,7 +207,6 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
     private double boxSize;
 	protected double safetyFactor;
 	protected double dr, rMaxSafe;
-    private AtomAgentManager[] agentManagers;
     protected AtomAgentManager agentManager;
     private final PhaseAgentManager phaseAgentManager;
 }

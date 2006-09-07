@@ -447,8 +447,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
     
     public NeighborCellManager getNbrCellManager(Phase phase) {
         PhaseAgentManager phaseAgentManager = getCellAgentManager();
-        NeighborCellManager[] cellManagers = (NeighborCellManager[])phaseAgentManager.getAgents();
-        NeighborCellManager manager = cellManagers[phase.getIndex()];
+        NeighborCellManager manager = (NeighborCellManager)phaseAgentManager.getAgent(phase);
         manager.setPotentialRange(neighborManager.getRange());
         manager.setCellRange(cellRange);
         return manager;

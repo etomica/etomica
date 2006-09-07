@@ -38,8 +38,7 @@ public class AtomIteratorCell implements AtomIterator, java.io.Serializable {
 	}
 
 	public void setPhase(Phase phase) {
-        NeighborCellManager[] cellManagers = (NeighborCellManager[])phaseAgentManager.getAgents();
-        CellLattice lattice = cellManagers[phase.getIndex()].getLattice();
+        CellLattice lattice = ((NeighborCellManager)phaseAgentManager.getAgent(phase)).getLattice();
         cellIterator.setLattice(lattice);
         unset();
 	}

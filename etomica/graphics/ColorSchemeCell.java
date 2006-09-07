@@ -15,7 +15,7 @@ public class ColorSchemeCell extends ColorScheme {
     
     public ColorSchemeCell(Simulation sim, Phase phase) {
         PhaseAgentManager cellAgentManager = ((PotentialMasterNbr)sim.potentialMaster).getCellAgentManager();
-        cellManager = (NeighborCellManager)cellAgentManager.getAgents()[phase.getIndex()];
+        cellManager = (NeighborCellManager)cellAgentManager.getAgent(phase);
     }
     
     public void setLattice(FiniteLattice lattice) {

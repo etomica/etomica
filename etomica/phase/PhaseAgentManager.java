@@ -28,33 +28,27 @@ public class PhaseAgentManager implements SimulationListener, java.io.Serializab
 
     public PhaseAgentManager(PhaseAgentSource source, SpeciesRoot speciesRoot, boolean isBackend) {
         agentSource = source;
-        setRoot(speciesRoot);
+        if (speciesRoot != null) {
+            setRoot(speciesRoot);
+        }
         this.isBackend = isBackend;
     }
     
-    public Object[] getAgents() {
-        return agents;
+    /**
+     * Returns the agent associated with the given phase
+     */
+    public Object getAgent(Phase phase) {
+        return agents[phase.getIndex()];
     }
     
+    /**
+     * Sets the species root parent in the Simulation for Phases to be tracked.
+     */
     public void setRoot(SpeciesRoot newSpeciesRoot) {
         if (newSpeciesRoot == speciesRoot) {
             return;
         }
-        if (speciesRoot != null) {
-            // remove ourselves as a listener to the old phase
-            speciesRoot.getEventManager().removeListener(this);
-            for (int i=0; i<agents.length; i++) {
-                if (agents[i] != null) {
-                    agentSource.releaseAgent(agents[i]);
-                }
-            }
-        }
         speciesRoot = newSpeciesRoot;
-        if (speciesRoot == null) {
-            // zero-out the array so the agents get GC'd
-            agents = (Object[])Array.newInstance(agentSource.getAgentClass(),0);
-            return;
-        }
         speciesRoot.getEventManager().addListener(this, isBackend);
         // hope the class returns an actual class with a null Atom and use it to construct
         // the array
@@ -64,6 +58,21 @@ public class PhaseAgentManager implements SimulationListener, java.io.Serializab
         while(listIterator.hasNext()) {
             addAgent(listIterator.nextAtom().node.parentPhase());
         }
+    }
+    
+    /**
+     * Notifies the PhaseAgentManager that it should release all agents and 
+     * stop listening for events from the simulation.
+     */
+    public void dispose() {
+        // remove ourselves as a listener to the old phase
+        speciesRoot.getEventManager().removeListener(this);
+        for (int i=0; i<agents.length; i++) {
+            if (agents[i] != null) {
+                agentSource.releaseAgent(agents[i]);
+            }
+        }
+        agents = null;
     }
     
     public void actionPerformed(SimulationEvent evt) {

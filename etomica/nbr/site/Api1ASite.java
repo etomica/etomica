@@ -47,9 +47,8 @@ public class Api1ASite implements AtomsetIteratorPDT, AtomPairIterator, java.io.
 
 	public void setPhase(Phase phase) {
         if(phase != null) {
-            NeighborSiteManager[] cellManagers = (NeighborSiteManager[])phaseAgentManager.getAgents();
-            lattice = cellManagers[phase.getIndex()].getLattice();
-            neighborSiteManager = cellManagers[phase.getIndex()];
+            neighborSiteManager = (NeighborSiteManager)phaseAgentManager.getAgent(phase);
+            lattice = neighborSiteManager.getLattice();
             neighborIterator.setLattice(lattice);
             neighborIterator.setPeriodicity(((BoundaryPeriodic)phase.getBoundary()).getPeriodicity());
         }

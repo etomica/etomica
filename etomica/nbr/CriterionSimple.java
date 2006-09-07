@@ -94,8 +94,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
 
 	public void setPhase(Phase phase) {
         nearestImageTransformer = phase.getBoundary();
-        agentManagers = (AtomAgentManager[])phaseAgentManager.getAgents();
-        agentManager = agentManagers[phase.getIndex()];
+        agentManager = (AtomAgentManager)phaseAgentManager.getAgent(phase);
 	}
     
 	public boolean unsafe() {
@@ -139,7 +138,6 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
     private NearestImageTransformer nearestImageTransformer;
 	protected double safetyFactor;
 	protected double r2, r2MaxSafe;
-    private AtomAgentManager[] agentManagers;
     private AtomAgentManager agentManager;
     private final PhaseAgentManager phaseAgentManager;
 }

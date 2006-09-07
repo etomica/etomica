@@ -2,7 +2,6 @@ package etomica.atom;
 
 import java.lang.reflect.Array;
 
-import etomica.atom.AtomAgentManager.AgentIterator;
 import etomica.simulation.SimulationEvent;
 import etomica.simulation.SimulationListener;
 import etomica.simulation.SimulationSpeciesAddedEvent;

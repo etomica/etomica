@@ -1,13 +1,11 @@
 package etomica.nbr.list;
 
 import etomica.action.AtomActionAdapter;
-import etomica.action.AtomsetActionAdapter;
 import etomica.action.PhaseImposePbc;
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.AtomAgentManager.AgentSource;
@@ -90,10 +88,8 @@ public class NeighborListManager implements IntegratorNonintervalListener,
             return;
         }
         
-        agentManagers = (AtomAgentManager[])phaseAgentManager.getAgents();
-        agentManager = agentManagers[phase.getIndex()];
-        agentManagers1Body = (AtomAgentManager[])phaseAgentManager1Body.getAgents();
-        potentialListManager = agentManagers1Body[phase.getIndex()];
+        agentManager = (AtomAgentManager)phaseAgentManager.getAgent(phase);
+        potentialListManager = (AtomAgentManager)phaseAgentManager1Body.getAgent(phase);
 
         iterator.setRoot(phase.getSpeciesMaster());
         iterator.reset();
@@ -271,10 +267,8 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * @param phase phase in which neighbor setup is performed.
      */
     protected void neighborSetup(Phase phase) {
-        agentManagers = (AtomAgentManager[])phaseAgentManager.getAgents();
-        agentManager = agentManagers[phase.getIndex()];
-        agentManagers1Body = (AtomAgentManager[])phaseAgentManager1Body.getAgents();
-        agentManager1Body = agentManagers1Body[phase.getIndex()];
+        agentManager = (AtomAgentManager)phaseAgentManager.getAgent(phase);
+        agentManager1Body = (AtomAgentManager)phaseAgentManager1Body.getAgent(phase);
 
         iterator.setRoot(phase.getSpeciesMaster());
         neighborReset.setNeighborLists(agentManager,agentManager1Body);
@@ -341,8 +335,8 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     public void setPhase(Phase phase) {
         // if agentManagers is null here, it's probably because you haven't added this instance
         // as an IntegratorListener
-        agentManager = agentManagers[phase.getIndex()];
-        potentialListManager = agentManagers1Body[phase.getIndex()];
+        agentManager = (AtomAgentManager)phaseAgentManager.getAgent(phase);
+        potentialListManager = (AtomAgentManager)phaseAgentManager1Body.getAgent(phase);
     }
     
     public AtomArrayList[] getUpList(Atom atom) {
@@ -369,9 +363,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     private PhaseImposePbc pbcEnforcer;
     private boolean quiet;
     private AtomAgentManager potentialListManager;
-    private AtomAgentManager[] agentManagers;
     private AtomAgentManager agentManager;
-    private AtomAgentManager[] agentManagers1Body;
     private AtomAgentManager agentManager1Body;
     private final PhaseAgentManager phaseAgentManager;
     private final PhaseAgentManager phaseAgentManager1Body;

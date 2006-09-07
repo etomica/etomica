@@ -69,8 +69,7 @@ public class PotentialMasterCell extends PotentialMasterSite {
     
     public NeighborCellManager getNbrCellManager(Phase phase) {
         PhaseAgentManager phaseAgentManager = getCellAgentManager();
-        NeighborCellManager[] cellManagers = (NeighborCellManager[])phaseAgentManager.getAgents();
-        NeighborCellManager manager = cellManagers[phase.getIndex()];
+        NeighborCellManager manager = (NeighborCellManager)phaseAgentManager.getAgent(phase);
         manager.setPotentialRange(range);
         manager.setCellRange(getCellRange());
         return manager;

@@ -100,7 +100,7 @@ public class Heisenberg extends Simulation {
         DisplayPhase displayPhase = simGraphic.getDisplayPhase(sim.phase);
         simGraphic.remove(displayPhase);
         PhaseAgentManager phaseAgentManager = ((PotentialMasterSite)sim.potentialMaster).getCellAgentManager();
-        NeighborSiteManager neighborSiteManager = ((NeighborSiteManager[])phaseAgentManager.getAgents())[sim.phase.getIndex()];
+        NeighborSiteManager neighborSiteManager = (NeighborSiteManager)phaseAgentManager.getAgent(sim.phase);
         displayPhase.setPhaseCanvas(new DisplayPhaseSpin2D(displayPhase,neighborSiteManager));
         simGraphic.add(displayPhase);
         DeviceSlider temperatureSlider = new DeviceSlider(sim.getController(), sim.integrator,"temperature");

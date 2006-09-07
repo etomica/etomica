@@ -292,6 +292,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
      * Inner class to let us cheat and access and modify elements of the agents array.
      */
     protected static class AtomAgentManagerCell extends AtomAgentManager {
+
         public AtomAgentManagerCell(NeighborCellManager neighborCellManager, Phase phase) {
             super(neighborCellManager, phase, true);
         }
@@ -303,5 +304,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
         protected Cell[] getAgents() {
             return (Cell[])agents;
         }
+
+        private static final long serialVersionUID = 1L;
     }
 }
