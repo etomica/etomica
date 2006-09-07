@@ -94,7 +94,7 @@ public class SimulationVirial extends Simulation {
         allValueClusters[0] = refCluster;
         System.arraycopy(targetClusters,0,allValueClusters,1,targetClusters.length);
         setMeter(new MeterVirial(allValueClusters));
-        ((MeterVirial)meter).setIntegrator(integrator);
+        ((MeterVirial)meter).setPhase(phase);
         setAccumulator(new AccumulatorRatioAverage(this));
 	}
 	

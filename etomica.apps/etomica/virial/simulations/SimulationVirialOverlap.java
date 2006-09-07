@@ -156,7 +156,7 @@ public class SimulationVirialOverlap extends Simulation {
             accumulators[iPhase] = null;
         }
         meters[iPhase] = newMeter;
-        newMeter.setIntegrator(integrators[iPhase]);
+        newMeter.setPhase(phase[iPhase]);
     }
 
     public void setAccumulator(AccumulatorVirialOverlapSingleAverage newAccumulator, int iPhase) {
