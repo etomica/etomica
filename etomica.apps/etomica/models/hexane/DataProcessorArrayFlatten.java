@@ -8,8 +8,10 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 
 /**
- * Takes a N dimensional array and flattens it out by flattening the last two
+ * Takes an N dimensional array and flattens it out by flattening the last two
  * dimensions and creating an N-1 dimensional array.
+ * (N.B. It just changes the jumpcount values; it never actually touches the
+ * actual stored numbers.)
  * @author nancycribbin
  *
  */
