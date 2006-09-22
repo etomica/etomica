@@ -370,7 +370,7 @@ public class PotentialMaster implements java.io.Serializable {
     protected final Space space;
     private Simulation simulation;
     
-    private static class AtomIterator0 extends AtomsetIteratorSinglet implements AtomsetIteratorPDT {
+    static class AtomIterator0 extends AtomsetIteratorSinglet implements AtomsetIteratorPDT {
         AtomIterator0() {
             super(AtomSet.NULL);
         }
