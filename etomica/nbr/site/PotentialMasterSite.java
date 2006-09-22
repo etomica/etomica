@@ -14,6 +14,7 @@ import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.CriterionAll;
+import etomica.nbr.CriterionInterMolecular;
 import etomica.nbr.CriterionType;
 import etomica.nbr.CriterionTypePair;
 import etomica.nbr.CriterionTypesMulti;
@@ -77,6 +78,19 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         NeighborCriterion criterion;
         if (atomType.length == 2) {
             criterion = new CriterionTypePair(new CriterionAll(), atomType[0], atomType[1]);
+            if (atomType[0].getDepth() > 3 && atomType[1].getDepth() > 3) {
+                AtomType moleculeType0 = atomType[0].getParentType();
+                while (moleculeType0.getDepth() > 3) {
+                    moleculeType0 = moleculeType0.getParentType();
+                }
+                AtomType moleculeType1 = atomType[1].getParentType();
+                while (moleculeType1.getDepth() > 3) {
+                    moleculeType1 = moleculeType1.getParentType();
+                }
+                if (moleculeType0 == moleculeType1) {
+                    criterion = new CriterionInterMolecular(criterion);
+                }
+            }
         }
         else if (atomType.length == 1) {
             criterion = new CriterionType(new CriterionAll(), atomType[0]);
