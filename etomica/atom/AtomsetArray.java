@@ -125,6 +125,18 @@ public class AtomsetArray implements AtomSet, java.io.Serializable {
         }
         return true;
     }
+    
+    public String toString() {
+        String str = "[";
+        if (atoms.length > 0) {
+            str += atoms[0].toString();
+        }
+        for (int i=1; i<atoms.length; i++) {
+            str += ", "+atoms[i].toString();
+        }
+        str += "]";
+        return str;
+    }
 
     private final Atom[] atoms;
 }
