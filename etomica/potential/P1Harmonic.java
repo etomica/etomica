@@ -9,7 +9,6 @@ import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Energy;
 import etomica.units.Length;
-import etomica.units.Undefined;
 
 /**
  * Potential in which attaches a harmonic spring between each affected atom and
