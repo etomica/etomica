@@ -13,11 +13,11 @@ import etomica.atom.iterator.AtomIteratorFiltered;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
-import etomica.atom.iterator.AtomsetIteratorSpeciesAgent;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.CriterionAll;
 import etomica.nbr.NeighborCriterion;
 import etomica.phase.Phase;
+import etomica.potential.PotentialMaster.AtomIterator0;
 import etomica.space.Space;
 import etomica.species.Species;
 
@@ -97,23 +97,11 @@ public class PotentialGroup extends Potential {
         if(potential instanceof PotentialTruncated) {
             Potential0Lrc lrc = ((PotentialTruncated)potential).makeLrcPotential(types);
             if(lrc != null) {
-                AtomsetIteratorSpeciesAgent iterator = new AtomsetIteratorSpeciesAgent(makeSpeciesArray(types));
-                potentialMaster.lrcMaster().addPotential(lrc, iterator, null);
+                potentialMaster.lrcMaster().addPotential(lrc, new AtomIterator0(), null);
             }
         }
     }
  
-    /**
-     * Makes an array of species corresponding to the given array of types.
-     */
-    private Species[] makeSpeciesArray(AtomType[] types) {
-        Species[] species = new Species[types.length];
-        for(int i=0; i<types.length; i++) {
-            species[i] = types[i].getSpecies();
-        }
-        return species;
-    }
-    
     /**
      * Adds the given potential to this group, defining it to apply to the atoms
      * provided by the given basis-dependent iterator.  
