@@ -35,6 +35,9 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
         setupPhase();
     }        
     
+    /**
+     * Returns an iterator that returns each non-null agent
+     */
     public AgentIterator makeIterator() {
         return new AgentIterator(this);
     }
@@ -194,6 +197,9 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
     private final Phase phase;
     private final boolean isBackend;
     
+    /**
+     * Iterator that loops over the agents, skipping null elements
+     */
     public static class AgentIterator {
         protected AgentIterator(AtomAgentManager agentManager) {
             this.agentManager = agentManager;
