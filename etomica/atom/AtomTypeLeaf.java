@@ -20,16 +20,15 @@ public class AtomTypeLeaf extends AtomType {
     /**
      * Constructs type with position defined by AtomPositionDefinitionSimple.
      */
-    public AtomTypeLeaf(AtomTypeGroup parentType, double mass) {
-        this(parentType, new AtomPositionDefinitionSimple(), mass);
+    public AtomTypeLeaf(double mass) {
+        this(new AtomPositionDefinitionSimple(), mass);
     }
 
     /**
      * Invokes parent constructor with and sets the mass to the given value.
      */
-    public AtomTypeLeaf(AtomTypeGroup parentType,
-            AtomPositionDefinition positionDefinition, double mass) {
-        super(parentType, positionDefinition);
+    public AtomTypeLeaf(AtomPositionDefinition positionDefinition, double mass) {
+        super(positionDefinition);
         setMass(mass);
     }
 

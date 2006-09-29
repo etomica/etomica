@@ -60,7 +60,8 @@ public class SpeciesSpheresHetero extends Species implements EtomicaElement {
         if (nComponents > 0) {
             AtomFactoryMono[] childFactories = new AtomFactoryMono[nComponents];
             for (int i=0; i<nComponents; i++) {
-                AtomTypeSphere atomType = new AtomTypeSphere((AtomTypeGroup)factory.getType(), sim.getDefaults().atomMass, sim.getDefaults().atomSize);
+                AtomTypeSphere atomType = new AtomTypeSphere(sim.getDefaults().atomMass, sim.getDefaults().atomSize);
+                atomType.setParentType((AtomTypeGroup)factory.getType());
                 childFactories[i] = new AtomFactoryMono(new CoordinateFactorySphere(sim), atomType);
             }
             ((AtomFactoryHetero)factory).setChildFactory(childFactories);

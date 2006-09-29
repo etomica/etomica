@@ -2,6 +2,7 @@ package etomica.atom;
 
 import java.lang.reflect.Array;
 
+import etomica.simulation.SimulationAtomTypeAddedEvent;
 import etomica.simulation.SimulationEvent;
 import etomica.simulation.SimulationListener;
 import etomica.simulation.SimulationSpeciesAddedEvent;
@@ -151,6 +152,13 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
         else if (evt instanceof SimulationSpeciesRemovedEvent) {
             AtomTypeGroup parentType = ((SimulationSpeciesRemovedEvent)evt).getSpecies().getMoleculeType().getParentType();
             releaseAgents(parentType);
+        }
+        else if (evt instanceof SimulationAtomTypeAddedEvent) {
+            AtomType newType = ((SimulationAtomTypeAddedEvent)evt).getAtomType();
+            AtomTypeGroup parentType = newType.getParentType();
+            int childMax = getMaxIndexOfChildren(parentType);
+            agents = Arrays.resizeArray(agents, childMax);
+            makeAgents(newType);
         }
         else if (evt instanceof SimulationAtomTypeCompactedEvent) {
             int typeStart = ((SimulationAtomTypeCompactedEvent)evt).getStartIndex(); // first AtomType removed

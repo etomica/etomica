@@ -34,10 +34,10 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
     private Species species;
     private int index;
 
-    private final AtomAddressManager addressManager;
+    private AtomAddressManager addressManager;
     private AtomPositionDefinition positionDefinition;
 
-    private AtomTypeGroup parentType;
+    protected AtomTypeGroup parentType;
     
     private boolean isInteracting = false;
 
@@ -66,22 +66,35 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
      *            used by many classes as default choice for defining the
      *            spatial position of an instance of an atom(group) of this type
      */
-    public AtomType(AtomTypeGroup parentType,
-            AtomPositionDefinition positionDefinition) {
-        this.parentType = parentType;
+    public AtomType(AtomPositionDefinition positionDefinition) {
+        this.positionDefinition = positionDefinition;
+    }
+
+    /**
+     * @param parentType
+     *            the instance of the AtomType that is the parent of this in the
+     *            AtomType hierarchy. This constructor adds this instance to the
+     *            list of child types of the given parent (if not null, which is
+     *            permitted and may arise if working outside the species tree
+     *            hierarchy)
+     */
+    public void setParentType(AtomTypeGroup newParentType) {
+        if (parentType != null) {
+            throw new RuntimeException("You can't set the parent type twice");
+        }
+        
+        parentType = newParentType;
         if (parentType == null) {
             addressManager = AtomAddressManager
                     .makeSimpleIndexManager(Default.BIT_LENGTH);
             index = 0;
         } else {
             addressManager = parentType.getAddressManager().makeChildManager();
-            parentType.childTypes = (AtomType[]) Arrays.addObject(
-                    parentType.childTypes, this);
             index = parentType.requestIndex();
+            parentType.addChildType(this);
         }
-        this.positionDefinition = positionDefinition;
-    }
-    
+    }        
+
     public int getIndex() {
         return index;
     }

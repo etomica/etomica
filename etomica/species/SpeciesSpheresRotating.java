@@ -29,7 +29,10 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     }
     private SpeciesSpheresRotating(Simulation sim, AtomTypeGroup agentType) {
         super(sim, new AtomFactoryMono(new CoordinateFactoryAngular(sim), 
-                new AtomTypeOrientedSphere(agentType,sim.getDefaults().atomMass,sim.getDefaults().atomSize)), agentType);
+                new AtomTypeOrientedSphere(sim.getDefaults().atomMass,sim.getDefaults().atomSize)), agentType);
+        // factory.getType is the AtomTypeOrientedSphere instance we just passed to the AtomFactoryMono
+        // we need to finish setting it up by setting its parent
+        factory.getType().setParentType(agentType);
     }
             
     public static EtomicaInfo getEtomicaInfo() {

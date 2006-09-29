@@ -31,7 +31,7 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      * depth is 0.
      */
     public Atom(Space space) {
-        this(new AtomTypeSphere(null,1,1), AtomTreeNodeLeaf.FACTORY);                        
+        this(new AtomTypeSphere(1,1), AtomTreeNodeLeaf.FACTORY);                        
         node.setIndex(++INSTANCE_COUNT);//default index; changed when added to parent after construction
     }
     

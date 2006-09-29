@@ -31,8 +31,11 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
     }
     
     private SpeciesSpheresMono(Simulation sim, AtomTypeGroup agentType) {
-        super(sim, new AtomFactoryMono(new CoordinateFactorySphere(sim), new AtomTypeSphere(sim, agentType)),
+        super(sim, new AtomFactoryMono(new CoordinateFactorySphere(sim), new AtomTypeSphere(sim)),
                 agentType);
+        // factory.getType is the AtomTypeSphere instance we just passed to the AtomFactoryMono
+        // we need to finish setting it up by setting its parent
+        factory.getType().setParentType(agentType);
     }
     
     public static EtomicaInfo getEtomicaInfo() {

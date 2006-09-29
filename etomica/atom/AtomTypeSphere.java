@@ -16,11 +16,11 @@ public class AtomTypeSphere extends AtomTypeLeaf {
     
     double diameter;
     
-    public AtomTypeSphere(Simulation sim, AtomTypeGroup parentType) {
-        this(parentType, sim.getDefaults().atomMass, sim.getDefaults().atomSize);
+    public AtomTypeSphere(Simulation sim) {
+        this(sim.getDefaults().atomMass, sim.getDefaults().atomSize);
     }
-    public AtomTypeSphere(AtomTypeGroup parentType, double m, double d) {
-        super(parentType, m);
+    public AtomTypeSphere(double m, double d) {
+        super(m);
         setDiameter(d);
     }
                 

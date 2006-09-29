@@ -42,7 +42,9 @@ public abstract class ModelAtomic extends Model {
 	}
 	
 	public AtomFactory makeAtomFactory(Simulation sim) {
-		return new AtomFactoryMono(new CoordinateFactorySphere(sim),new AtomTypeSphere(sim,Species.makeAgentType(sim)));
+        AtomFactoryMono factory = new AtomFactoryMono(new CoordinateFactorySphere(sim),new AtomTypeSphere(sim));
+        factory.getType().setParentType(Species.makeAgentType(sim));
+        return factory;
 	}
 	/**
 	 * Returns the electrostatic.

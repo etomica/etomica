@@ -26,10 +26,14 @@ public class AtomFactoryWater3P extends AtomFactory {
 	 * @param sequencerFactory
 	 */
     public AtomFactoryWater3P(Simulation sim, AtomTypeGroup agentType) {
-		super(new AtomTypeGroup(agentType,new AtomPositionGeometricCenter(sim.space)), AtomTreeNodeWater3P.FACTORY);
+		super(new AtomTypeGroup(new AtomPositionGeometricCenter(sim.space)), AtomTreeNodeWater3P.FACTORY);
+        // atomType is the AtomTypeGroup we just made and passed to the super constructor
+        atomType.setParentType(agentType);
 
-        AtomTypeSphere hType = new AtomTypeSphere((AtomTypeGroup)atomType, 1.0, 2.0);
-        AtomTypeSphere oType = new AtomTypeSphere((AtomTypeGroup)atomType, 16.0, 3.167);
+        AtomTypeSphere hType = new AtomTypeSphere(1.0, 2.0);
+        AtomTypeSphere oType = new AtomTypeSphere(16.0, 3.167);
+        hType.setParentType((AtomTypeGroup)atomType);
+        oType.setParentType((AtomTypeGroup)atomType);
         CoordinateFactory leafCoordFactory = new CoordinateFactorySphere(sim);
         hFactory = new AtomFactoryMono(leafCoordFactory, hType);
 		oFactory = new AtomFactoryMono(leafCoordFactory, oType);

@@ -1,5 +1,6 @@
 package etomica.atom;
 
+import etomica.simulation.SimulationAtomTypeAddedEvent;
 import etomica.simulation.SimulationEventManager;
 import etomica.species.Species;
 import etomica.util.Arrays;
@@ -65,6 +66,13 @@ public class AtomTypeRoot extends AtomTypeGroup {
             throw new RuntimeException("EventManager should only be set once");
         }
         eventManager = newEventManager;
+    }
+    
+    protected void childTypeAddedNotify(AtomType newChildType) {
+        if (eventManager != null) {
+            // could be null if this is the SpeciesRoot type
+            eventManager.fireEvent(new SimulationAtomTypeAddedEvent(newChildType));
+        }
     }
     
     private SpeciesRoot root;

@@ -178,7 +178,9 @@ public class Species implements Comparable, java.io.Serializable {
      * PositionDefinition for the agent type is set to null.
      */
     public static AtomTypeGroup makeAgentType(Simulation sim) {
-        return new AtomTypeGroup(sim.speciesRoot.getSpeciesMasterType(), null);
+        AtomTypeGroup agentType = new AtomTypeGroup(null);
+        agentType.setParentType(sim.speciesRoot.getSpeciesMasterType());
+        return agentType;
     }
     
     /**

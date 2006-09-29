@@ -10,8 +10,8 @@ public final class AtomTypeWell extends AtomTypeSphere {
     private double lambda;                    //diameter of well, in units of core diameter
     private double wellDiameter, wellRadius;  //size of well, in simulation units
     
-    public AtomTypeWell(AtomTypeGroup parentType, double m, double d, double l) {
-        super(parentType, m, d);
+    public AtomTypeWell(double m, double d, double l) {
+        super(m, d);
         setDiameter(d);
         setLambda(l);
     }

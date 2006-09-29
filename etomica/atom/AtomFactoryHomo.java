@@ -56,7 +56,8 @@ public class AtomFactoryHomo extends AtomFactory {
      */
     public AtomFactoryHomo(Space space, AtomTypeGroup parentType,
                             AtomTreeNodeFactory nodeFactory, int atoms, Conformation config) {
-        super(new AtomTypeGroup(parentType, new AtomPositionGeometricCenter(space)), nodeFactory);
+        super(new AtomTypeGroup(new AtomPositionGeometricCenter(space)), nodeFactory);
+        atomType.setParentType(parentType);
         atomsPerGroup = atoms;
         conformation = config;
     }

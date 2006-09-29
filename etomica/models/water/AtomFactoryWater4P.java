@@ -26,11 +26,16 @@ public class AtomFactoryWater4P extends AtomFactory {
 	 * @param sim
 	 */
     public AtomFactoryWater4P(Simulation sim, AtomTypeGroup agentType) {
-		super(new AtomTypeGroup(agentType,new AtomPositionGeometricCenter(sim.space)), AtomTreeNodeWater4P.FACTORY);
-
-        AtomTypeSphere hType = new AtomTypeSphere((AtomTypeGroup)atomType, 1.0, 2.0);
-        AtomTypeSphere oType = new AtomTypeSphere((AtomTypeGroup)atomType, 16.0, 3.154);
-        AtomTypeSphere mType = new AtomTypeSphere((AtomTypeGroup)atomType, 1.0, 2.0);
+		super(new AtomTypeGroup(new AtomPositionGeometricCenter(sim.space)), AtomTreeNodeWater4P.FACTORY);
+		atomType.setParentType(agentType);
+        
+        AtomTypeSphere hType = new AtomTypeSphere(1.0, 2.0);
+        AtomTypeSphere oType = new AtomTypeSphere(16.0, 3.154);
+        AtomTypeSphere mType = new AtomTypeSphere(1.0, 2.0);
+        hType.setParentType((AtomTypeGroup)atomType);
+        oType.setParentType((AtomTypeGroup)atomType);
+        mType.setParentType((AtomTypeGroup)atomType);
+        
 
         CoordinateFactory leafCoordFactory = new CoordinateFactorySphere(sim);
         hFactory = new AtomFactoryMono(leafCoordFactory, hType);

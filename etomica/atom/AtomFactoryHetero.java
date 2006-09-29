@@ -30,7 +30,8 @@ public class AtomFactoryHetero extends AtomFactory {
 
     public AtomFactoryHetero(Space space, AtomTypeGroup parentType,
             AtomTreeNodeFactory nodeFactory, Conformation config) {
-        super(new AtomTypeGroup(parentType, new AtomPositionCOM(space)), nodeFactory);
+        super(new AtomTypeGroup(new AtomPositionCOM(space)), nodeFactory);
+        atomType.setParentType(parentType);
         conformation = config;
         childFactory = new AtomFactory[0];
         numberFraction = new double[0];

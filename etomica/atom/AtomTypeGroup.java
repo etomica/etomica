@@ -1,6 +1,7 @@
 package etomica.atom;
 
 import etomica.species.Species;
+import etomica.util.Arrays;
 
 /**
  * Type for atom that is a group of other atoms, and for which its node is an
@@ -23,9 +24,8 @@ public class AtomTypeGroup extends AtomType {
     /**
      * Simple invokes parent constructor with same arguments.
      */
-    public AtomTypeGroup(AtomTypeGroup parentType,
-            AtomPositionDefinition positionDefinition) {
-        super(parentType, positionDefinition);
+    public AtomTypeGroup(AtomPositionDefinition positionDefinition) {
+        super(positionDefinition);
     }
     
     int requestIndex() {
@@ -88,5 +88,14 @@ public class AtomTypeGroup extends AtomType {
         return child;
     }
 
-    AtomType[] childTypes = new AtomType[0];
+    void addChildType(AtomType newChildType) {
+        childTypes = (AtomType[]) Arrays.addObject(childTypes, newChildType);
+        childTypeAddedNotify(newChildType);
+    }
+    
+    protected void childTypeAddedNotify(AtomType newChildType) {
+        parentType.childTypeAddedNotify(newChildType);
+    }
+
+    protected AtomType[] childTypes = new AtomType[0];
 }
