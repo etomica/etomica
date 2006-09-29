@@ -145,6 +145,11 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
     public void actionPerformed(SimulationEvent evt) {
         if (evt instanceof SimulationSpeciesAddedEvent) {
             AtomTypeGroup parentType = ((SimulationSpeciesEvent)evt).getSpecies().getMoleculeType().getParentType();
+            if (parentType == null) {
+                // Species got added, but molecule type hasn't yet been hooked up to its parent (species agent)
+                // we'll get an AtomTypeAdded event later when that happens
+                return;
+            }
             int childMax = getMaxIndexOfChildren(parentType);
             agents = Arrays.resizeArray(agents, childMax);
             makeAgents(parentType);
