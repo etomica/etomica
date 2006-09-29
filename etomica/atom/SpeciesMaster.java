@@ -43,7 +43,7 @@ public final class SpeciesMaster extends Atom {
     public final AtomArrayList leafList = new AtomArrayList();
 
     public SpeciesMaster(Simulation sim, Phase p, PhaseEventManager eventManager) {
-        super(sim.speciesRoot.getChildType(), new NodeFactory(p));
+        super(sim.speciesRoot.getSpeciesMasterType(), new NodeFactory(p));
         phaseEventManager = eventManager;
         indexReservoir = new int[reservoirSize];
         maxIndex = -1;

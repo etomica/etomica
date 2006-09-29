@@ -32,7 +32,7 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
     AtomFactory creator;//set in constructor of AtomFactory
     protected int speciesIndex = -1;
     private Species species;
-    private final int index;
+    private int index;
 
     private final AtomAddressManager addressManager;
     private AtomPositionDefinition positionDefinition;
@@ -84,6 +84,10 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
     
     public int getIndex() {
         return index;
+    }
+    
+    void resetIndex() {
+        index = parentType.requestIndex();
     }
     
     /**
@@ -195,6 +199,10 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
      */
     public boolean isInteracting() {
         return isInteracting;
+    }
+    
+    public String toString() {
+        return "AtomType "+index;
     }
     
     //prototype of a real atom type

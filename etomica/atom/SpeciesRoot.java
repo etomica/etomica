@@ -2,7 +2,6 @@ package etomica.atom;
 
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.phase.Phase;
-import etomica.simulation.SimulationEvent;
 import etomica.simulation.SimulationEventManager;
 import etomica.simulation.SimulationPhaseAddedEvent;
 import etomica.simulation.SimulationPhaseRemovedEvent;
@@ -20,16 +19,13 @@ import etomica.util.Arrays;
  
 public final class SpeciesRoot extends Atom {
     
-    private final AtomTypeGroup childType;//accessed by SpeciesMaster
-    private Species[] speciesList = new Species[0];
-    //manager and events for addition/removal of Phases
-    private final SimulationEventManager eventManager; 
-
     public SpeciesRoot(int[] bitLength) {
         super(new AtomTypeRoot(AtomAddressManager.makeRootIndexManager(bitLength)), new NodeFactory());
-        childType = new AtomTypeGroup((AtomTypeGroup)type,null);
+        ((AtomTypeRoot)type).setSpeciesRoot(this);
+        speciesMasterType = new AtomTypeGroup((AtomTypeGroup)type,null);
         node.setIndex(0);
         eventManager = new SimulationEventManager();
+        ((AtomTypeRoot)type).setEventManager(eventManager);
     }
     
     public String signature() {return "root";}
@@ -43,6 +39,11 @@ public final class SpeciesRoot extends Atom {
      */
     //would prefer this weren't public, but must be accessed by Species
     public int addSpecies(Species species) {
+        for (int i=0; i<speciesList.length; i++) {
+            if (speciesList[i] == species) {
+                throw new IllegalArgumentException("Species already exists");
+            }
+        }
         speciesList = (Species[])Arrays.addObject(speciesList,species);
         AtomArrayList speciesMasters = ((AtomTreeNodeGroup)node).childList;
         AtomIteratorArrayListSimple iterator = new AtomIteratorArrayListSimple(speciesMasters);
@@ -78,15 +79,7 @@ public final class SpeciesRoot extends Atom {
             ((SpeciesMaster)iterator.nextAtom()).removeSpecies(species);
         }
         
-        AtomType[] agentTypes = childType.childTypes;
-        AtomType removedType = null;
-        for (int i=0; i<agentTypes.length; i++) {
-            if (agentTypes[i].getSpecies() == species) {
-                removedType = agentTypes[i];
-            }
-        }
-        childType.childTypes = (AtomType[])Arrays.removeObject(childType.childTypes,removedType);
-
+        ((AtomTypeRoot)type).removeSpecies(species);
         return true;
     }
     
@@ -99,12 +92,17 @@ public final class SpeciesRoot extends Atom {
     }
     
     /**
-     * @return Returns the childType.
+     * @return Returns the AtomType of the SpeciesMaster
      */
-    public AtomTypeGroup getChildType() {
-        return childType;
+    public AtomTypeGroup getSpeciesMasterType() {
+        return speciesMasterType;
     }
     
+    private final AtomTypeGroup speciesMasterType;//accessed by SpeciesMaster
+    private Species[] speciesList = new Species[0];
+    //manager and events for addition/removal of Phases
+    protected final SimulationEventManager eventManager;
+
     private static final class RootAtomTreeNode extends AtomTreeNodeGroup {
         
         RootAtomTreeNode(Atom atom) {
@@ -162,7 +160,7 @@ public final class SpeciesRoot extends Atom {
         }
     }
     
-    private static final class NodeFactory implements AtomTreeNodeFactory, java.io.Serializable {
+    protected static final class NodeFactory implements AtomTreeNodeFactory, java.io.Serializable {
         public AtomTreeNode makeNode(Atom atom) {
             return new RootAtomTreeNode(atom);
         }

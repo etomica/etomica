@@ -32,6 +32,13 @@ public class AtomTypeGroup extends AtomType {
         if(getParentType() == null) return -1;
         return getParentType().requestIndex();
     }
+    
+    void resetIndex() {
+        super.resetIndex();
+        for (int i=0; i<childTypes.length; i++) {
+            childTypes[i].resetIndex();
+        }
+    }
 
     /**
      * Returns false, indicating that this is a group type.

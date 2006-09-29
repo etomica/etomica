@@ -122,6 +122,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
         // remove ourselves as a listener to the old phase
         root.getEventManager().removeListener(this);
         releaseAgents(root.type);
+        agents = null;
     }
     
     /**
@@ -151,7 +152,19 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
             AtomTypeGroup parentType = ((SimulationSpeciesRemovedEvent)evt).getSpecies().getMoleculeType().getParentType();
             releaseAgents(parentType);
         }
-        // handle other events for AtomType index changing and compaction
+        else if (evt instanceof SimulationAtomTypeCompactedEvent) {
+            int typeStart = ((SimulationAtomTypeCompactedEvent)evt).getStartIndex(); // first AtomType removed
+            int typeStop = ((SimulationAtomTypeCompactedEvent)evt).getStopIndex();   // first AtomType not removed
+            // shift the agents back
+            if (typeStop > -1) {
+                // typeStop=-1 means the last AtomType removed was the last AtomType
+                for (int i=0; i<agents.length-typeStop && i < typeStop-typeStart; i++) {
+                    agents[typeStart+i] = agents[typeStop+i];
+                }
+            }
+            // resize the array to drop the extra agent elements
+            agents = Arrays.resizeArray(agents, agents.length-(typeStop-typeStart));
+        }
     }
     
     protected void addAgent(AtomType type) {
