@@ -99,7 +99,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             criterion = new CriterionTypesMulti(new CriterionAll(), atomType);
         }
         for (int i=0; i<atomType.length; i++) {
-            rangedPotentialAtomTypeList[atomType[i].getIndex()].setCriterion(potential, criterion);
+            ((PotentialArray)rangedAgentManager.getAgent(atomType[i])).setCriterion(potential, criterion);
         }
         criteriaArray = (NeighborCriterion[]) Arrays.addObject(criteriaArray, criterion);
     }
@@ -109,11 +109,13 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * given potential.
      */
     public NeighborCriterion getCriterion(Potential potential) {
-        for (int i=0; i<rangedPotentialAtomTypeList.length; i++) {
-            Potential[] potentials = rangedPotentialAtomTypeList[i].getPotentials();
+        rangedPotentialIterator.reset();
+        while (rangedPotentialIterator.hasNext()) {
+            PotentialArray potentialArray = (PotentialArray)rangedPotentialIterator.next();
+            Potential[] potentials = potentialArray.getPotentials();
             for (int j=0; j<potentials.length; j++) {
                 if (potentials[j] == potential) {
-                    return rangedPotentialAtomTypeList[i].getCriteria()[j];
+                    return potentialArray.getCriteria()[j];
                 }
             }
         }
@@ -128,11 +130,13 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * handled by this instance.
      */
     public void setCriterion(Potential potential, NeighborCriterion criterion) {
-        for (int i=0; i<rangedPotentialAtomTypeList.length; i++) {
-            Potential[] potentials = rangedPotentialAtomTypeList[i].getPotentials();
+        rangedPotentialIterator.reset();
+        while (rangedPotentialIterator.hasNext()) {
+            PotentialArray potentialArray = (PotentialArray)rangedPotentialIterator.next();
+            Potential[] potentials = potentialArray.getPotentials();
             for (int j=0; j<potentials.length; j++) {
                 if (potentials[j] == potential) {
-                    rangedPotentialAtomTypeList[i].setCriterion(potential, criterion);
+                    potentialArray.setCriterion(potential, criterion);
                     return;
                 }
             }
@@ -182,8 +186,8 @@ public class PotentialMasterSite extends PotentialMasterNbr {
                     potentials[i].setPhase(phase);
                     ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(pseudoTargetAtom,id,pc);
                 }
-            }                
-            PotentialArray potentialArray = getRangedPotentials(targetAtom.type);
+            }
+            PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(targetAtom.type);
             Potential[] potentials = potentialArray.getPotentials();
             for(int i=0; i<potentials.length; i++) {
                 potentials[i].setPhase(phase);
@@ -203,7 +207,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      */
     //TODO make a "TerminalGroup" indicator in type that permits child atoms but indicates that no potentials apply directly to them
 	protected void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc) {
-        PotentialArray potentialArray = getRangedPotentials(atom.type);
+        PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(atom.type);
         Potential[] potentials = potentialArray.getPotentials();
         NeighborCriterion[] criteria = potentialArray.getCriteria();
 

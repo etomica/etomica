@@ -1,6 +1,7 @@
 package etomica.nbr;
 
 import etomica.atom.AtomType;
+import etomica.atom.AtomTypeAgentManager;
 import etomica.phase.PhaseAgentManager;
 import etomica.phase.PhaseAgentManager.PhaseAgentSource;
 import etomica.potential.Potential;
@@ -11,20 +12,39 @@ import etomica.space.Space;
 import etomica.species.Species;
 import etomica.util.Arrays;
 
-public abstract class PotentialMasterNbr extends PotentialMaster {
+public abstract class PotentialMasterNbr extends PotentialMaster implements AtomTypeAgentManager.AgentSource {
 
     protected PotentialMasterNbr(Space space, PhaseAgentSource phaseAgentSource, 
             PhaseAgentManager phaseAgentManager) {
         super(space);
         this.phaseAgentSource = phaseAgentSource;
         this.phaseAgentManager = phaseAgentManager;
+        rangedAgentManager = new AtomTypeAgentManager(this, null);
+        intraAgentManager = new AtomTypeAgentManager(this, null);
+        initialized = false;
     }
     
     public PotentialGroup makePotentialGroup(int nBody) {
         return new PotentialGroupNbr(nBody, space);
     }
     
+    /**
+     * Initializes the AtomType-based potential arrays and adds us as a 
+     * SimulationListener so we'll know when AtomTypes are added or removed
+     * (which only happens when Species are added or removed).
+     */
+    protected void init() {
+        rangedAgentManager.setRoot(getSimulation().speciesRoot);
+        intraAgentManager.setRoot(getSimulation().speciesRoot);
+        rangedPotentialIterator = rangedAgentManager.makeIterator();
+        intraPotentialIterator = intraAgentManager.makeIterator();
+        initialized = true;
+    }
+    
     public void addPotential(Potential potential, Species[] species) {
+        if (!initialized) {
+            init();
+        }
         super.addPotential(potential, species);
         if (!(potential instanceof PotentialGroup)) {
              AtomType[] atomTypes = moleculeTypes(species);
@@ -39,8 +59,11 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
              addRangedPotentialForTypes(potential, atomTypes);
         }
     }
-    
+
     public void potentialAddedNotify(Potential subPotential, PotentialGroup pGroup) {
+        if (!initialized) {
+            init();
+        }
         super.potentialAddedNotify(subPotential, pGroup);
         AtomType[] atomTypes = pGroup.getAtomTypes(subPotential);
         if (atomTypes == null) {
@@ -56,11 +79,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
                 }
                 //pGroup is PotentialGroupNbr
                 AtomType[] parentType = getAtomTypes(pGroup);
-                while (parentType[0].getIndex() > rangedPotentialAtomTypeList.length-1) {
-                    rangedPotentialAtomTypeList = (PotentialArray[])etomica.util.Arrays.addObject(rangedPotentialAtomTypeList, new PotentialArray());
-                    intraPotentialAtomTypeList = (PotentialArray[])etomica.util.Arrays.addObject(intraPotentialAtomTypeList, new PotentialArray());
-                }
-                intraPotentialAtomTypeList[parentType[0].getIndex()].addPotential(pGroup);
+                ((PotentialArray)intraAgentManager.getAgent(parentType[0])).addPotential(pGroup);
             }
             else {
                 //FIXME what to do with this case?  Fail!
@@ -82,11 +101,11 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
     protected abstract void addRangedPotentialForTypes(Potential subPotential, AtomType[] atomTypes);
     
     protected void addRangedPotential(Potential potential, AtomType atomType) {
-        while (rangedPotentialAtomTypeList.length < atomType.getIndex()+1) {
-            rangedPotentialAtomTypeList = (PotentialArray[])etomica.util.Arrays.addObject(rangedPotentialAtomTypeList, new PotentialArray());
-            intraPotentialAtomTypeList = (PotentialArray[])etomica.util.Arrays.addObject(intraPotentialAtomTypeList, new PotentialArray());
+        if (!initialized) {
+            init();
         }
-        PotentialArray potentialAtomType = rangedPotentialAtomTypeList[atomType.getIndex()];
+        
+        PotentialArray potentialAtomType = (PotentialArray)rangedAgentManager.getAgent(atomType);
         potentialAtomType.addPotential(potential);
         atomType.setInteracting(true);
         boolean found = false;
@@ -103,24 +122,26 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
     public void removePotential(Potential potential) {
         super.removePotential(potential);
         if (potential.getRange() < Double.POSITIVE_INFINITY) {
-            for (int i=0; i<rangedPotentialAtomTypeList.length; i++) {
-                rangedPotentialAtomTypeList[i].removePotential(potential);
+            rangedPotentialIterator.reset();
+            while (rangedPotentialIterator.hasNext()) {
+                ((PotentialArray)rangedPotentialIterator.next()).removePotential(potential);
             }
         }
         else if (potential instanceof PotentialGroup) {
-            for (int i=0; i<intraPotentialAtomTypeList.length; i++) {
-                intraPotentialAtomTypeList[i].removePotential(potential);
+            intraPotentialIterator.reset();
+            while (intraPotentialIterator.hasNext()) {
+                ((PotentialArray)intraPotentialIterator.next()).removePotential(potential);
             }
         }
         allPotentials = (Potential[])Arrays.removeObject(allPotentials,potential);
     }
     
     public PotentialArray getRangedPotentials(AtomType atomType) {
-        return rangedPotentialAtomTypeList[atomType.getIndex()];
+        return (PotentialArray)rangedAgentManager.getAgent(atomType);
     }
 
     public PotentialArray getIntraPotentials(AtomType atomType) {
-        return intraPotentialAtomTypeList[atomType.getIndex()];
+        return (PotentialArray)intraAgentManager.getAgent(atomType);
     }
     
     public final PhaseAgentManager getCellAgentManager() {
@@ -131,10 +152,24 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
         phaseAgentManager.setRoot(getSimulation().speciesRoot);
         return phaseAgentManager;
     }
+    
+    public Class getAgentClass() {
+        return PotentialArray.class;
+    }
+    
+    public Object makeAgent(AtomType type) {
+        return new PotentialArray();
+    }
+    
+    public void releaseAgent(Object agent, AtomType type) {
+    }
 
-    protected PotentialArray[] rangedPotentialAtomTypeList = new PotentialArray[0];
-    protected PotentialArray[] intraPotentialAtomTypeList = new PotentialArray[0];
+    protected AtomTypeAgentManager.AgentIterator rangedPotentialIterator;
+    protected AtomTypeAgentManager.AgentIterator intraPotentialIterator;
+    protected final AtomTypeAgentManager rangedAgentManager;
+    protected final AtomTypeAgentManager intraAgentManager;
     protected Potential[] allPotentials = new Potential[0];
     protected PhaseAgentSource phaseAgentSource;
     private PhaseAgentManager phaseAgentManager;
+    protected boolean initialized;
 }
