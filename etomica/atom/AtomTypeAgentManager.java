@@ -79,18 +79,14 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
     }
     
     /**
-     * Creates the agents associated with the given AtomType and its children.
+     * Creates the agents associated with the children of the given AtomType.
      */
-    private void makeAgents(AtomType parentType) {
-        addAgent(parentType);
-        
-        if (parentType instanceof AtomTypeGroup) {
-            AtomType[] children = ((AtomTypeGroup)parentType).getChildTypes();
-            for (int i=0; i<children.length; i++) {
-                addAgent(children[i]);
-                if (children[i] instanceof AtomTypeGroup) {
-                    makeAgents(children[i]);
-                }
+    private void makeChildAgents(AtomTypeGroup parentType) {
+        AtomType[] children = parentType.getChildTypes();
+        for (int i=0; i<children.length; i++) {
+            addAgent(children[i]);
+            if (children[i] instanceof AtomTypeGroup) {
+                makeChildAgents((AtomTypeGroup)children[i]);
             }
         }
     }
@@ -134,27 +130,18 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
         root = newRoot;
         root.getEventManager().addListener(this, isBackend);
 
-        int numTypes = getMaxIndexOfChildren((AtomTypeGroup)root.type);
+        int numTypes = getMaxIndexOfChildren((AtomTypeGroup)root.type)+1;
         
         agents = (Object[])Array.newInstance(agentSource.getAgentClass(),
                 numTypes);
         // fill in the array with agents from all the atoms
-        makeAgents(root.type);
+        addAgent(root.type);
+        makeChildAgents((AtomTypeGroup)root.type);
     }
     
     public void actionPerformed(SimulationEvent evt) {
-        if (evt instanceof SimulationSpeciesAddedEvent) {
-            AtomTypeGroup parentType = ((SimulationSpeciesEvent)evt).getSpecies().getMoleculeType().getParentType();
-            if (parentType == null) {
-                // Species got added, but molecule type hasn't yet been hooked up to its parent (species agent)
-                // we'll get an AtomTypeAdded event later when that happens
-                return;
-            }
-            int childMax = getMaxIndexOfChildren(parentType);
-            agents = Arrays.resizeArray(agents, childMax);
-            makeAgents(parentType);
-        }
-        else if (evt instanceof SimulationSpeciesRemovedEvent) {
+        // we learn about new Species via AtomTypeAdded events
+        if (evt instanceof SimulationSpeciesRemovedEvent) {
             AtomTypeGroup parentType = ((SimulationSpeciesRemovedEvent)evt).getSpecies().getMoleculeType().getParentType();
             releaseAgents(parentType);
         }
@@ -162,8 +149,11 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
             AtomType newType = ((SimulationAtomTypeAddedEvent)evt).getAtomType();
             AtomTypeGroup parentType = newType.getParentType();
             int childMax = getMaxIndexOfChildren(parentType);
-            agents = Arrays.resizeArray(agents, childMax);
-            makeAgents(newType);
+            agents = Arrays.resizeArray(agents, childMax+1);
+            addAgent(newType);
+            if (newType instanceof AtomTypeGroup) {
+                makeChildAgents((AtomTypeGroup)newType);
+            }
         }
         else if (evt instanceof SimulationAtomTypeCompactedEvent) {
             int typeStart = ((SimulationAtomTypeCompactedEvent)evt).getStartIndex(); // first AtomType removed
@@ -181,10 +171,6 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
     }
     
     protected void addAgent(AtomType type) {
-        if (agents.length < type.getIndex()+1) {
-            // no room in the array.  reallocate the array with an extra cushion.
-            agents = Arrays.resizeArray(agents,type.getIndex()+1);
-        }
         agents[type.getIndex()] = agentSource.makeAgent(type);
     }
     
