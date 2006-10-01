@@ -186,7 +186,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 		
 		// ke is kinetic energy due to components of velocity
 		
-		double reduced_m = 2.0 / (((AtomTypeLeaf)atom0.type).rm + ((AtomTypeLeaf)atom1.type).rm);
+		double reduced_m = 2.0 / (((AtomTypeLeaf)atom0.type).rm() + ((AtomTypeLeaf)atom1.type).rm());
 		double ke = bij * bij * reduced_m / (4.0 * r2);
 		
 		
@@ -222,10 +222,10 @@ public class P2SquareWellBonded extends P2SquareWell {
 
 		lastCollisionVirialr2 = lastCollisionVirial / r2;
 		dv.Ea1Tv1(lastCollisionVirialr2, dr);
-		coord0.velocity().PEa1Tv1(((AtomTypeLeaf)atom0.type).rm, dv);
-		coord1.velocity().PEa1Tv1(-((AtomTypeLeaf)atom1.type).rm, dv);
-		coord0.position().PEa1Tv1(-falseTime * ((AtomTypeLeaf)atom0.type).rm, dv);
-		coord1.position().PEa1Tv1(falseTime * ((AtomTypeLeaf)atom1.type).rm, dv);
+		coord0.velocity().PEa1Tv1(((AtomTypeLeaf)atom0.type).rm(), dv);
+		coord1.velocity().PEa1Tv1(-((AtomTypeLeaf)atom1.type).rm(), dv);
+		coord0.position().PEa1Tv1(-falseTime * ((AtomTypeLeaf)atom0.type).rm(), dv);
+		coord1.position().PEa1Tv1(falseTime * ((AtomTypeLeaf)atom1.type).rm(), dv);
 		
 		if (nudge != 0) 
 		{

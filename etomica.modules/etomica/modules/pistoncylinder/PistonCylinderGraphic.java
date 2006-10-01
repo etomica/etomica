@@ -17,6 +17,7 @@ import etomica.action.Action;
 import etomica.action.IntegratorReset;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
+import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
@@ -486,7 +487,7 @@ public class PistonCylinderGraphic {
             pc.getController().halt();
         }
         pc = sim;
-        ((AtomTypeLeaf)pc.species.getMoleculeType()).setMass(mass);
+        ((ElementSimple)((AtomTypeLeaf)pc.species.getMoleculeType()).getElement()).setMass(mass);
         int D = pc.space.D();
         pc.register(pc.integrator);
 

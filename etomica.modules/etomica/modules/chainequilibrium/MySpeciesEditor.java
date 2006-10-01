@@ -12,6 +12,7 @@ import etomica.atom.Atom;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.chem.elements.ElementSimple;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.DeviceNSelector;
 
@@ -63,7 +64,7 @@ class MySpeciesEditor extends javax.swing.JPanel {
 					value = 1000000;
 				final double newMass = value;
 				mass.setText(Integer.toString(value));
-				((AtomTypeLeaf)species.type.getSpecies().getMoleculeType()).setMass(newMass);
+				((ElementSimple)((AtomTypeLeaf)species.type.getSpecies().getMoleculeType()).getElement()).setMass(newMass);
 				try {
                     sim.integratorHard1.reset();
                 } catch (ConfigurationOverlapException e) {
