@@ -3,6 +3,9 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
+import etomica.chem.elements.Copper;
+import etomica.chem.elements.Silver;
+import etomica.chem.elements.Tin;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataInfo;
@@ -175,16 +178,16 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
         activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
-        snFixedA = new SpeciesSpheresMono(this);
-        snA = new SpeciesSpheresMono(this);
-        agA = new SpeciesSpheresMono(this);
-        cuA = new SpeciesSpheresMono(this);
-        cuFixedB = new SpeciesSpheresMono(this);
-        snB = new SpeciesSpheresMono(this);
-        agB = new SpeciesSpheresMono(this);
-        cuB = new SpeciesSpheresMono(this);
-        
-        
+        Tin SnF = new Tin("SnF", Double.POSITIVE_INFINITY);
+        snFixedA = new SpeciesSpheresMono(this, SnF);
+        snA = new SpeciesSpheresMono(this, Tin.INSTANCE);
+        agA = new SpeciesSpheresMono(this, Silver.INSTANCE);
+        cuA = new SpeciesSpheresMono(this, Copper.INSTANCE);
+        Copper CuF = new Copper("CuF", Double.POSITIVE_INFINITY);
+        cuFixedB = new SpeciesSpheresMono(this, CuF);
+        snB = new SpeciesSpheresMono(this, Tin.INSTANCE);
+        agB = new SpeciesSpheresMono(this, Silver.INSTANCE);
+        cuB = new SpeciesSpheresMono(this, Copper.INSTANCE);
         
         
         phase = new Phase(this);
@@ -241,28 +244,20 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
 	     * "Elements of X-Ray Diffraction" (2001)
 	     */
 	    
-	    ((AtomTypeLeaf)snFixedA.getFactory().getType()).setMass(Double.POSITIVE_INFINITY);
 	    ((AtomTypeSphere)snFixedA.getFactory().getType()).setDiameter(3.022); 
 	    
-	    ((AtomTypeLeaf)snA.getFactory().getType()).setMass(118.69);
 	    ((AtomTypeSphere)snA.getFactory().getType()).setDiameter(3.022); 
 	        
-	    ((AtomTypeLeaf)agA.getFactory().getType()).setMass(107.868);
 	    ((AtomTypeSphere)agA.getFactory().getType()).setDiameter(2.8895); 
 	        
-	    ((AtomTypeLeaf)cuA.getFactory().getType()).setMass(63.546);
 	    ((AtomTypeSphere)cuA.getFactory().getType()).setDiameter(2.5561); 
 	    
-	    ((AtomTypeLeaf)cuFixedB.getFactory().getType()).setMass(63.546);
 	    ((AtomTypeSphere)cuFixedB.getFactory().getType()).setDiameter(2.5561); 
 	    
-	    ((AtomTypeLeaf)snB.getFactory().getType()).setMass(118.69);
 	    ((AtomTypeSphere)snB.getFactory().getType()).setDiameter(3.022); 
 	        
-	    ((AtomTypeLeaf)agB.getFactory().getType()).setMass(107.868);
 	    ((AtomTypeSphere)agB.getFactory().getType()).setDiameter(2.8895); 
 	        
-	    ((AtomTypeLeaf)cuB.getFactory().getType()).setMass(63.546);
 	    ((AtomTypeSphere)cuB.getFactory().getType()).setDiameter(2.5561); 
 	     
 	    GrainBoundaryConfiguration config = new GrainBoundaryConfiguration(latticeA, latticeB);

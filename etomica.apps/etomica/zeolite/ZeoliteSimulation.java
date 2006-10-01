@@ -1,67 +1,34 @@
 package etomica.zeolite;
 
-import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.Atom;
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
-import etomica.atom.AtomTreeNodeGroup;
-import etomica.atom.AtomType;
-import etomica.atom.AtomTypeLeaf;
-import etomica.atom.iterator.AtomIteratorTree;
-import etomica.config.ConfigurationLattice;
-import etomica.config.ConfigurationSequential;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DeviceNSelector;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayBoxesCAE;
-import etomica.graphics.DisplayPhase;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTable;
-import etomica.integrator.IntegratorHard;
-import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.integrator.IntervalActionAdapter;
-import etomica.lattice.LatticeCubicFcc;
-import etomica.nbr.CriterionSimple;
-import etomica.nbr.CriterionSpecies;
-import etomica.nbr.NeighborCriterion;
-import etomica.nbr.list.NeighborListManager;
-import etomica.nbr.list.PotentialMasterList;
-import etomica.phase.Phase;
-import etomica.potential.P2HardSphere;
-import etomica.potential.P1HardBoundary;
-import etomica.potential.P2SoftSphericalTruncated;
-import etomica.simulation.Simulation;
-import etomica.space.Space;
-import etomica.space3d.Space3D;
-import etomica.species.Species;
-import etomica.species.SpeciesSpheresMono;
-import etomica.util.Default;
-import etomica.util.HistoryCollapsing;
-import etomica.config.ConfigurationFile;
+import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
 import etomica.data.DataSink;
 import etomica.data.meter.MeterEnergy;
-import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.meter.MeterKineticEnergy;
-import etomica.data.meter.MeterTemperature;
+import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.DeviceNSelector;
+import etomica.graphics.DisplayPhase;
+import etomica.graphics.DisplayPlot;
+import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.integrator.IntervalActionAdapter;
+import etomica.nbr.list.NeighborListManager;
+import etomica.nbr.list.PotentialMasterList;
+import etomica.phase.Phase;
 import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.P2WCA;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.space3d.Space3D;
+import etomica.species.Species;
+import etomica.species.SpeciesSpheresMono;
+import etomica.units.Bar;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
-import etomica.units.Energy;
-import etomica.units.Bar;
-import etomica.space.BoundaryRectangularSlit;
-import etomica.space.BoundaryRectangularPeriodic;
-
-import java.awt.ActiveEvent;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import etomica.util.Default;
 
 
 /**
@@ -175,7 +142,7 @@ public class ZeoliteSimulation extends Simulation {
         	species[i].setNMolecules(numAtoms[i]);
         	((etomica.atom.AtomTypeSphere)species[i].getFactory().getType()).setDiameter(atomicSize[i]);
         	if (i!=(numAtoms.length-1)){
-        	((etomica.atom.AtomTypeLeaf)species[i].getFactory().getType()).setMass(Double.POSITIVE_INFINITY);
+        	    ((ElementSimple)((etomica.atom.AtomTypeLeaf)species[i].getFactory().getType()).getElement()).setMass(Double.POSITIVE_INFINITY);
         	}
         }
         //Setting up potential for Methane-Methane interactions

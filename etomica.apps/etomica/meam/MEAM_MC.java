@@ -4,6 +4,9 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
+import etomica.chem.elements.Copper;
+import etomica.chem.elements.Silver;
+import etomica.chem.elements.Tin;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorHistory;
@@ -30,12 +33,6 @@ import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 import etomica.util.HistoryCollapsingAverage;
-/*
- * Created on May 22, 2006
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
 
 /**
  * @author ub2092
@@ -104,9 +101,9 @@ public class MEAM_MC extends Simulation {
 	    activityIntegrate = new ActivityIntegrate(this,integrator);
 	    activityIntegrate.setSleepPeriod(2);
 	    getController().addAction(activityIntegrate);
-	    sn = new SpeciesSpheresMono(this);
-        ag = new SpeciesSpheresMono(this);
-        cu = new SpeciesSpheresMono(this);
+	    sn = new SpeciesSpheresMono(this, Tin.INSTANCE);
+        ag = new SpeciesSpheresMono(this, Silver.INSTANCE);
+        cu = new SpeciesSpheresMono(this, Copper.INSTANCE);
         sn.setNMolecules(216);
         ag.setNMolecules(0);
         cu.setNMolecules(0);
@@ -114,13 +111,10 @@ public class MEAM_MC extends Simulation {
         /** The following values come from either the ASM Handbook or Cullity & Stock's 
          * "Elements of X-Ray Diffraction" (2001)
          */
-        ((AtomTypeLeaf)sn.getFactory().getType()).setMass(118.69);
         ((AtomTypeSphere)sn.getFactory().getType()).setDiameter(3.022); 
         
-        ((AtomTypeLeaf)ag.getFactory().getType()).setMass(107.868);
         ((AtomTypeSphere)ag.getFactory().getType()).setDiameter(2.8895); 
         
-        ((AtomTypeLeaf)cu.getFactory().getType()).setMass(63.546);
         ((AtomTypeSphere)cu.getFactory().getType()).setDiameter(2.5561); 
         
 	    phase = new Phase(this);

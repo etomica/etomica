@@ -3,19 +3,17 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
+import etomica.chem.elements.Copper;
+import etomica.chem.elements.Silver;
+import etomica.chem.elements.Tin;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
-import etomica.data.Data;
 import etomica.data.DataInfo;
-import etomica.data.DataProcessor;
 import etomica.data.DataPump;
-import etomica.data.DataTag;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.types.DataDouble;
-import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPhase;
@@ -36,15 +34,10 @@ import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.CompoundDimension;
 import etomica.units.CompoundUnit;
-import etomica.units.Dimension;
-import etomica.units.Energy;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.units.Mole;
-import etomica.units.Quantity;
-import etomica.units.Temperature;
 import etomica.units.Unit;
 import etomica.util.HistoryCollapsingAverage;
 
@@ -183,14 +176,15 @@ public class MEAM_3DMDwithGB extends Simulation {
         activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
-        snFixedA = new SpeciesSpheresMono(this);
-        snA = new SpeciesSpheresMono(this);
-        agA = new SpeciesSpheresMono(this);
-        cuA = new SpeciesSpheresMono(this);
-        snFixedB = new SpeciesSpheresMono(this);
-        snB = new SpeciesSpheresMono(this);
-        agB = new SpeciesSpheresMono(this);
-        cuB = new SpeciesSpheresMono(this);
+        Tin SnF = new Tin("SnF", Double.POSITIVE_INFINITY);
+        snFixedA = new SpeciesSpheresMono(this, SnF);
+        snA = new SpeciesSpheresMono(this, Tin.INSTANCE);
+        agA = new SpeciesSpheresMono(this, Silver.INSTANCE);
+        cuA = new SpeciesSpheresMono(this, Copper.INSTANCE);
+        snFixedB = new SpeciesSpheresMono(this, SnF);
+        snB = new SpeciesSpheresMono(this, Tin.INSTANCE);
+        agB = new SpeciesSpheresMono(this, Silver.INSTANCE);
+        cuB = new SpeciesSpheresMono(this, Copper.INSTANCE);
         
         
         double aA, bA, cA, aB, bB, cB;
@@ -281,28 +275,20 @@ public class MEAM_3DMDwithGB extends Simulation {
 	     * "Elements of X-Ray Diffraction" (2001)
 	     */
 	    
-	    ((AtomTypeLeaf)snFixedA.getFactory().getType()).setMass(Double.POSITIVE_INFINITY);
 	    ((AtomTypeSphere)snFixedA.getFactory().getType()).setDiameter(3.022); 
 	    
-	    ((AtomTypeLeaf)snA.getFactory().getType()).setMass(118.69);
 	    ((AtomTypeSphere)snA.getFactory().getType()).setDiameter(3.022); 
 	        
-	    ((AtomTypeLeaf)agA.getFactory().getType()).setMass(107.868);
 	    ((AtomTypeSphere)agA.getFactory().getType()).setDiameter(2.8895); 
 	        
-	    ((AtomTypeLeaf)cuA.getFactory().getType()).setMass(63.546);
 	    ((AtomTypeSphere)cuA.getFactory().getType()).setDiameter(2.5561); 
 	    
-	    ((AtomTypeLeaf)snFixedB.getFactory().getType()).setMass(Double.POSITIVE_INFINITY);
 	    ((AtomTypeSphere)snFixedB.getFactory().getType()).setDiameter(3.022); 
 	    
-	    ((AtomTypeLeaf)snB.getFactory().getType()).setMass(118.69);
 	    ((AtomTypeSphere)snB.getFactory().getType()).setDiameter(3.022); 
 	        
-	    ((AtomTypeLeaf)agB.getFactory().getType()).setMass(107.868);
 	    ((AtomTypeSphere)agB.getFactory().getType()).setDiameter(2.8895); 
 	        
-	    ((AtomTypeLeaf)cuB.getFactory().getType()).setMass(63.546);
 	    ((AtomTypeSphere)cuB.getFactory().getType()).setDiameter(2.5561); 
 	     
 	    GrainBoundaryConfiguration config = new GrainBoundaryConfiguration(latticeA, latticeB);
