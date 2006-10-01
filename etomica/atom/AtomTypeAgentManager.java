@@ -71,9 +71,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
         if (parentType instanceof AtomTypeGroup) {
             AtomType[] children = ((AtomTypeGroup)parentType).getChildTypes();
             for (int i=0; i<children.length; i++) {
-                if (children[i] instanceof AtomTypeGroup) {
-                    releaseAgents(children[i]);
-                }
+                releaseAgents(children[i]);
             }
         }
     }
