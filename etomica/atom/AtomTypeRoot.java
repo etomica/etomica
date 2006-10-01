@@ -28,6 +28,11 @@ public class AtomTypeRoot extends AtomTypeGroup {
         root = newRoot;
     }
     
+    /**
+     * Removes the given AtomTypes associated with the given Species from the 
+     * Simulation and does cleanup, including renumbering indices and firing 
+     * AtomType-related event notifications.
+     */
     void removeSpecies(Species removedSpecies) {
         AtomType[] agentTypes = ((AtomTypeGroup)childTypes[0]).childTypes;
         AtomType removedType = null;
@@ -51,6 +56,7 @@ public class AtomTypeRoot extends AtomTypeGroup {
                 // reset numChildTypes to the number that come before the removed type.
                 // we'll renumber the ones after it.
                 numChildTypes = startIndex - 1;
+                i--;
             }
         }
         
