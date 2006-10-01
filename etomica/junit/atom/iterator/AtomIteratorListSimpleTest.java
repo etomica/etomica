@@ -39,7 +39,7 @@ public class AtomIteratorListSimpleTest extends IteratorTestAbstract {
         for(int i=0; i<=10; i++) {
             list = generalIteratorMethodTests(iterator);
             assertEquals(list.size(), i);
-            atomList.add(new Atom(space));
+            atomList.add(new Atom());
         }
         list = generalIteratorMethodTests(iterator);
         
@@ -61,7 +61,7 @@ public class AtomIteratorListSimpleTest extends IteratorTestAbstract {
         iterator.setList(new AtomList());
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 0);
-        iterator.getList().add(new Atom(space));
+        iterator.getList().add(new Atom());
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 1);
         

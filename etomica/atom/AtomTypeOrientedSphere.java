@@ -5,6 +5,7 @@
 package etomica.atom;
 
 import etomica.atom.AtomType.SphericalTop;
+import etomica.chem.elements.Element;
 
 
 /**
@@ -14,8 +15,8 @@ import etomica.atom.AtomType.SphericalTop;
 public final class AtomTypeOrientedSphere extends AtomTypeSphere implements SphericalTop {
     
     private final double[] I = new double[3];
-    public AtomTypeOrientedSphere(double m, double d) {
-        super(m, d);
+    public AtomTypeOrientedSphere(Element element, double d) {
+        super(element, d);
         updateI();
     }
     public double[] momentOfInertia() {return I;}
@@ -27,10 +28,6 @@ public final class AtomTypeOrientedSphere extends AtomTypeSphere implements Sphe
         I[2] = I[1];
     }
     
-    public void setMass(double m) {
-        super.setMass(m);
-        updateI();
-    }
     public void setDiameter(double d) {
         super.setDiameter(d);
         updateI();

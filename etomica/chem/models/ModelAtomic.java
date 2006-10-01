@@ -8,9 +8,8 @@ package etomica.chem.models;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomTypeSphere;
-import etomica.chem.Electrostatic;
-import etomica.chem.Element;
-import etomica.chem.Model;
+import etomica.chem.electrostatics.Electrostatic;
+import etomica.chem.elements.Element;
 import etomica.simulation.Simulation;
 import etomica.space.CoordinateFactorySphere;
 import etomica.species.Species;
@@ -27,10 +26,10 @@ public abstract class ModelAtomic extends Model {
 	private final Electrostatic electrostatic;
 	
 	public ModelAtomic() {
-		this(new etomica.chem.elements.Undefined()); 
-	}
-	
-	public ModelAtomic(Element element) {
+        this(null);
+    }
+    
+    public ModelAtomic(Element element) {
 		this(element, null);
 	}
 	

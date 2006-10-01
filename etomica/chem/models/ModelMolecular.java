@@ -9,7 +9,6 @@ import etomica.atom.AtomPositionDefinitionSimple;
 import etomica.atom.AtomTreeNodeFactory;
 import etomica.atom.AtomTreeNodeGroupArray;
 import etomica.atom.AtomTypeGroup;
-import etomica.chem.Model;
 import etomica.config.Conformation;
 import etomica.simulation.Simulation;
 import etomica.species.Species;
@@ -45,7 +44,7 @@ public abstract class ModelMolecular extends Model {
 	/**
 	 * Invokes superclass method then sets neighbor-iteration flag for all
 	 * submodels to false.
-	 * @see etomica.chem.Model#setDoNeighborIteration(boolean)
+	 * @see etomica.chem.models.Model#setDoNeighborIteration(boolean)
 	 */
 	public void setDoNeighborIteration(boolean doNeighborIteration) {
 		super.setDoNeighborIteration(doNeighborIteration);

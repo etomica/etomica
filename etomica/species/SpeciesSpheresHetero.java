@@ -7,6 +7,8 @@ import etomica.atom.AtomFactoryHetero;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
+import etomica.chem.elements.Element;
+import etomica.chem.elements.ElementSimple;
 import etomica.simulation.Simulation;
 import etomica.space.CoordinateFactorySphere;
 
@@ -17,9 +19,6 @@ import etomica.space.CoordinateFactorySphere;
  * @author David Kofke
  */
 
-/* History
- * 08/12/03 (DAK) use sim instead of space in AtomFactoryHomo constructor
- */
 public class SpeciesSpheresHetero extends Species implements EtomicaElement {
 
     /**
@@ -39,7 +38,25 @@ public class SpeciesSpheresHetero extends Species implements EtomicaElement {
      * construction.
      */
     public SpeciesSpheresHetero(Simulation sim, int nComponents) {
-        this(sim,nComponents,1);
+        this(sim,makeElements(sim,nComponents));
+    }
+    
+    private static Element[] makeElements(Simulation sim, int nComponents) {
+        ElementSimple[] elements = new ElementSimple[nComponents];
+        for (int i=0; i<elements.length; i++) {
+            elements[i] = new ElementSimple(sim);
+        }
+        return elements;
+    }
+    
+    /**
+     * Constructs instance with the given leaf elements and 
+     * total number of children equal to 1.  The actual number of desired 
+     * desired children can be set in the factory (AtomFactoryHetero) after
+     * construction.
+     */
+    public SpeciesSpheresHetero(Simulation sim, Element[] leafElements) {
+        this(sim, leafElements, 1);
     }
     
     /**
@@ -47,21 +64,20 @@ public class SpeciesSpheresHetero extends Species implements EtomicaElement {
      * total number of children and AtomSequencer.Factory.  The number of 
      * molecules taken from the simulation.
      */
-    public SpeciesSpheresHetero(Simulation sim, int nComponents, int nA) {
-        this(sim, nComponents, nA, Species.makeAgentType(sim));
+    public SpeciesSpheresHetero(Simulation sim, Element[] leafElements, int nA) {
+        this(sim, leafElements, nA, Species.makeAgentType(sim));
     }
     
-    private SpeciesSpheresHetero(Simulation sim, int nComponents, int nA, 
+    private SpeciesSpheresHetero(Simulation sim, Element[] leafElements, int nA, 
             AtomTypeGroup agentType) {
         super(sim, new AtomFactoryHetero(sim, agentType), agentType);
         if (nA < 1) {
             throw new IllegalArgumentException("You must have at least one child atom");
         }
-        if (nComponents > 0) {
-            AtomFactoryMono[] childFactories = new AtomFactoryMono[nComponents];
-            for (int i=0; i<nComponents; i++) {
-                AtomTypeSphere atomType = new AtomTypeSphere(sim.getDefaults().atomMass, sim.getDefaults().atomSize);
-                atomType.setParentType((AtomTypeGroup)factory.getType());
+        if (leafElements.length > 0) {
+            AtomFactoryMono[] childFactories = new AtomFactoryMono[leafElements.length];
+            for (int i=0; i<leafElements.length; i++) {
+                AtomTypeSphere atomType = new AtomTypeSphere(sim, leafElements[i]);
                 childFactories[i] = new AtomFactoryMono(new CoordinateFactorySphere(sim), atomType);
             }
             ((AtomFactoryHetero)factory).setChildFactory(childFactories);

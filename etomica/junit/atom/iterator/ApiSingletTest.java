@@ -31,9 +31,9 @@ public class ApiSingletTest extends IteratorTestAbstract {
     public void setUp() {
         Space space = Space2D.getInstance();
         iterator = new ApiSinglet();
-        testAtom1 = new Atom(space);
-        testAtom2 = new Atom(space);
-        testAtom3 = new Atom(space);
+        testAtom1 = new Atom();
+        testAtom2 = new Atom();
+        testAtom3 = new Atom();
         list1 = makeTestList(new AtomSet[] { new AtomPair(testAtom1, testAtom2) });
         list2 = makeTestList(new AtomSet[] { new AtomPair(testAtom2, testAtom1) });
         list3 = makeTestList(new AtomSet[] { new AtomPair(testAtom2, testAtom3) });

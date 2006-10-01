@@ -38,22 +38,22 @@ public class ApiInterListTest extends IteratorTestAbstract {
         countTest(api, 0);
         
         //test inner list empty
-        outerList.add(new Atom(space));
+        outerList.add(new Atom());
         countTest(api, 0);
         
         //test one atom in each list
-        innerList.add(new Atom(space));
+        innerList.add(new Atom());
         countTest(api, 1);
         
         //populate outer list
         for(int i=2; i<5; i++) {
-            outerList.add(new Atom(space));
+            outerList.add(new Atom());
             countTest(api, i);
         }
         
         //populate inner list
         for(int i=2; i<5; i++) {
-            innerList.add(new Atom(space));
+            innerList.add(new Atom());
             countTest(api, 4*i);
         }
 
@@ -62,7 +62,7 @@ public class ApiInterListTest extends IteratorTestAbstract {
         countTest(api, 0);
         //repopulate outer list
         for(int i=1; i<5; i++) {
-            outerList.add(new Atom(space));
+            outerList.add(new Atom());
             countTest(api, 4*i);
         }
         

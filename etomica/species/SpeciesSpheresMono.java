@@ -6,6 +6,8 @@ import etomica.EtomicaInfo;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
+import etomica.chem.elements.Element;
+import etomica.chem.elements.ElementSimple;
 import etomica.simulation.Simulation;
 import etomica.space.CoordinateFactorySphere;
 
@@ -27,11 +29,15 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
      * Default.MOLECULE_COUNT.
      */
     public SpeciesSpheresMono(Simulation sim) {
-        this(sim, Species.makeAgentType(sim));
+        this(sim, new ElementSimple(sim));
     }
     
-    private SpeciesSpheresMono(Simulation sim, AtomTypeGroup agentType) {
-        super(sim, new AtomFactoryMono(new CoordinateFactorySphere(sim), new AtomTypeSphere(sim)),
+    public SpeciesSpheresMono(Simulation sim, Element element) {
+        this(sim, element, Species.makeAgentType(sim));
+    }
+    
+    private SpeciesSpheresMono(Simulation sim, Element element, AtomTypeGroup agentType) {
+        super(sim, new AtomFactoryMono(new CoordinateFactorySphere(sim), new AtomTypeSphere(sim, element)),
                 agentType);
         // factory.getType is the AtomTypeSphere instance we just passed to the AtomFactoryMono
         // we need to finish setting it up by setting its parent

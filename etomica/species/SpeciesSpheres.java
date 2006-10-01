@@ -7,6 +7,8 @@ import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
+import etomica.chem.elements.Element;
+import etomica.chem.elements.ElementSimple;
 import etomica.config.Conformation;
 import etomica.config.ConformationLinear;
 import etomica.simulation.Simulation;
@@ -19,26 +21,28 @@ import etomica.space.CoordinateFactorySphere;
  * @author David Kofke
  */
 
-/* History
- * 08/12/03 (DAK) use sim instead of space in AtomFactoryHomo constructor
- */
 public class SpeciesSpheres extends Species implements EtomicaElement {
 
     public SpeciesSpheres(Simulation sim) {
         this(sim, 1);
     }
     public SpeciesSpheres(Simulation sim, int nA) {
-        this(sim, nA, new ConformationLinear(sim));
-    }
-    public SpeciesSpheres(Simulation sim, int nA, Conformation conformation) {
-        this(sim, nA, conformation, Species.makeAgentType(sim));
+        this(sim, nA, new ElementSimple(sim));
     }
     
-    private SpeciesSpheres(Simulation sim, int nA, Conformation conformation, 
+    public SpeciesSpheres(Simulation sim, int nA, Element leafElement) {
+        this(sim, nA, leafElement, new ConformationLinear(sim));
+    }
+    
+    public SpeciesSpheres(Simulation sim, int nA, Element leafElement, Conformation conformation) {
+        this(sim, nA, leafElement, conformation, Species.makeAgentType(sim));
+    }
+    
+    private SpeciesSpheres(Simulation sim, int nA, Element leafElement, Conformation conformation, 
             AtomTypeGroup agentType) {
         super(sim, new AtomFactoryHomo(sim.space, agentType,
                                 nA, conformation), agentType);
-        AtomTypeSphere atomType = new AtomTypeSphere(sim);
+        AtomTypeSphere atomType = new AtomTypeSphere(sim, leafElement);
         atomType.setParentType((AtomTypeGroup)factory.getType());
         ((AtomFactoryHomo)factory).setChildFactory(
                 new AtomFactoryMono(new CoordinateFactorySphere(sim), atomType));

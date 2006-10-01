@@ -4,14 +4,16 @@
  */
 package etomica.atom;
 
+import etomica.chem.elements.Element;
+
 
 public final class AtomTypeWell extends AtomTypeSphere {  
     
     private double lambda;                    //diameter of well, in units of core diameter
     private double wellDiameter, wellRadius;  //size of well, in simulation units
     
-    public AtomTypeWell(double m, double d, double l) {
-        super(m, d);
+    public AtomTypeWell(Element element, double d, double l) {
+        super(element, d);
         setDiameter(d);
         setLambda(l);
     }

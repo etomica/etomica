@@ -5,7 +5,6 @@
  * Window>Preferences>Java>Code Generation>Code and Comments
  */
 package etomica.chem.electrostatics;
-import etomica.chem.Electrostatic;
 
 /**
  * @author zhaofang

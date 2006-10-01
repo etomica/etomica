@@ -52,7 +52,7 @@ public abstract class ListIteratorTestAbstract extends IteratorTestAbstract {
         AtomLinker.Tab tab2 = AtomLinker.newTab(atomList, tabType2);
         AtomLinker.Tab tab3 = AtomLinker.newTab(atomList, tabType1);
 		for(int i=1; i<11; i++) {
-			atomList.add(new Atom(space));
+			atomList.add(new Atom());
             //test with no tabs
             iteratorStateTests(atomList); 
             for(int j=0; j<i; j++) {

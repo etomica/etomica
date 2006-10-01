@@ -1,12 +1,10 @@
 /*
- * Created on Jan 29, 2004
+ * Created on Jan 30, 2004
  *
  * To change the template for this generated file go to
  * Window>Preferences>Java>Code Generation>Code and Comments
  */
-package etomica.chem.elements;
-
-import etomica.chem.Element;
+package etomica.chem.electrostatics;
 
 /**
  * @author zhaofang
@@ -14,7 +12,6 @@ import etomica.chem.Element;
  * To change the template for this generated type comment go to
  * Window>Preferences>Java>Code Generation>Code and Comments
  */
-public class Undefined extends Element {
-	public Undefined() {
-	}
+public interface Electrostatic {
+
 }

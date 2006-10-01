@@ -4,6 +4,8 @@
  */
 package etomica.atom;
 
+import etomica.chem.elements.Element;
+import etomica.chem.elements.ElementSimple;
 import etomica.simulation.Simulation;
 
 /**
@@ -17,10 +19,15 @@ public class AtomTypeSphere extends AtomTypeLeaf {
     double diameter;
     
     public AtomTypeSphere(Simulation sim) {
-        this(sim.getDefaults().atomMass, sim.getDefaults().atomSize);
+        this(new ElementSimple(sim), sim.getDefaults().atomSize);
     }
-    public AtomTypeSphere(double m, double d) {
-        super(m);
+    
+    public AtomTypeSphere(Simulation sim, Element element) {
+        this(element, sim.getDefaults().atomSize);
+    }
+    
+    public AtomTypeSphere(Element element, double d) {
+        super(element, new AtomPositionDefinitionSimple());
         setDiameter(d);
     }
                 

@@ -60,7 +60,7 @@ public class AtomIteratorFilteredTest extends IteratorTestAbstract {
                 //add n atoms at a time, numbering ordinals 1 to n
                 int n = Math.max(filter.n,1);
                 for (int k = 0; k < n; k++) {
-                    Atom atom = new Atom(space);
+                    Atom atom = new Atom();
                     atom.node.setIndex(k);
                     list.add(atom);
                 }

@@ -2,6 +2,7 @@ package etomica.atom;
 
 import java.io.IOException;
 
+import etomica.chem.elements.ElementSimple;
 import etomica.space.Space;
 import etomica.util.EtomicaObjectInputStream;
 
@@ -26,11 +27,11 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
     }
     
     /**
-     * Makes a simple atom for the given space.  Node is for a leaf atom; 
+     * Makes a simple atom.  Node is for a leaf atom; 
      * type is a sphere with unit mass and unit size, unique to the new atom; 
      * depth is 0.
      */
-    public Atom(Space space) {
+    public Atom() {
         this(makeAtomTypeSphere(), AtomTreeNodeLeaf.FACTORY);                        
         node.setIndex(++INSTANCE_COUNT);//default index; changed when added to parent after construction
     }
@@ -39,7 +40,7 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      * Method to return a dummy AtomType that's valid (has parent explicitly set to null)
      */
     private static AtomTypeSphere makeAtomTypeSphere() {
-        AtomTypeSphere newType = new AtomTypeSphere(1,1);
+        AtomTypeSphere newType = new AtomTypeSphere(new ElementSimple("Simple",1),1);
         newType.setParentType(null);
         return newType;
     }

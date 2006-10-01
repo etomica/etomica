@@ -1,7 +1,7 @@
 /*
  * Created on Jan 16, 2004
  */
-package etomica.chem;
+package etomica.chem.models;
 import etomica.atom.AtomFactory;
 import etomica.potential.Potential;
 import etomica.simulation.Simulation;

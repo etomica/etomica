@@ -47,7 +47,7 @@ public class AtomLeaf extends Atom {
      * unique to the new atom; depth is 0.
      */
     public AtomLeaf(Space space) {
-        super(space);
+        super();
         coord = new CoordinateFactorySphere(space,false).makeCoordinate();
     }
     

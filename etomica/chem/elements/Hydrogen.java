@@ -1,23 +1,19 @@
-/*
- * Created on Jan 30, 2004
- *
- * To change the template for this generated file go to
- * Window>Preferences>Java>Code Generation>Code and Comments
- */
 package etomica.chem.elements;
-import etomica.chem.Element;
+
 /**
- * @author zhaofang
+ * Class for the Hydrogen element. 
  *
- * To change the template for this generated type comment go to
- * Window>Preferences>Java>Code Generation>Code and Comments
+ * @author zhaofang
  */
-public class Hydrogen extends Element {
+public class Hydrogen extends ElementChemical {
 	
-	private Hydrogen() {
-		super();
-	}
+    protected Hydrogen(String symbol) {
+        this(symbol, 1.00794);
+    }
 	
-	public final static Hydrogen INSTANCE = new Hydrogen();
-	
+    protected Hydrogen(String symbol, double mass) {
+        super(symbol, mass, 1);
+    }
+    
+    public static final Hydrogen INSTANCE = new Hydrogen("H");
 }

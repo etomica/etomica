@@ -31,8 +31,8 @@ public class AtomIteratorSingletTest extends IteratorTestAbstract {
     public void setUp() {
         Space space = Space2D.getInstance();
         singletIterator = new AtomIteratorSinglet();
-        testAtom1 = new Atom(space);
-        testAtom2 = new Atom(space);
+        testAtom1 = new Atom();
+        testAtom2 = new Atom();
         list1 = makeTestList(new Atom[] {testAtom1});
         list2 = makeTestList(new Atom[] {testAtom2});
     }

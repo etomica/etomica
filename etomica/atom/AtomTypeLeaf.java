@@ -1,5 +1,6 @@
 package etomica.atom;
 
+import etomica.chem.elements.Element;
 import etomica.units.Dimension;
 import etomica.units.Mass;
 
@@ -11,25 +12,19 @@ import etomica.units.Mass;
  * @author andrew
  */
 
-/*
- * Created on May 20, 2005
- */
-
 public class AtomTypeLeaf extends AtomType {
 
-    /**
-     * Constructs type with position defined by AtomPositionDefinitionSimple.
-     */
-    public AtomTypeLeaf(double mass) {
-        this(new AtomPositionDefinitionSimple(), mass);
+    public AtomTypeLeaf(Element element) {
+        this(element, new AtomPositionDefinitionSimple());
     }
-
+    
     /**
      * Invokes parent constructor with and sets the mass to the given value.
      */
-    public AtomTypeLeaf(AtomPositionDefinition positionDefinition, double mass) {
+    public AtomTypeLeaf(Element element,
+            AtomPositionDefinition positionDefinition) {
         super(positionDefinition);
-        setMass(mass);
+        this.element = element;
     }
 
     /**
@@ -40,33 +35,17 @@ public class AtomTypeLeaf extends AtomType {
     }
 
     /**
-     * Sets mass of this atom and updates reciprocal mass accordingly. Setting
-     * mass to largest machine double (Double.MAX_VALUE) causes reciprocal mass
-     * to be set to zero.
-     * 
-     * @param mass
-     *            new value for mass
-     */
-    public void setMass(double m) {
-        if (m < 0) {
-            throw new IllegalArgumentException("mass must not be negative");
-        }
-        mass = m;
-        rm = (m == Double.MAX_VALUE) ? 0.0 : 1.0 / mass;
-    }
-
-    /**
      * Returns the value of the mass.
      */
     public final double getMass() {
-        return mass;
+        return element.getMass();
     }
 
     /**
      * Returns the reciprocal of the mass, 1.0/mass
      */
     public final double rm() {
-        return rm;
+        return element.rm();
     }
 
     /**
@@ -75,7 +54,10 @@ public class AtomTypeLeaf extends AtomType {
     public final Dimension getMassDimension() {
         return Mass.DIMENSION;
     }
+    
+    public final Element getElement() {
+        return element;
+    }
 
-    public double mass, rm;
-
+    protected final Element element;
 }

@@ -7,10 +7,12 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
+import etomica.chem.elements.ElementSimple;
+import etomica.chem.elements.Hydrogen;
+import etomica.chem.elements.Oxygen;
 import etomica.simulation.Simulation;
 import etomica.space.CoordinateFactory;
 import etomica.space.CoordinateFactorySphere;
-import etomica.species.Species;
 
 /**
  * Factory that constructs a 4-point water molecule, with three child atoms of 
@@ -29,13 +31,12 @@ public class AtomFactoryWater4P extends AtomFactory {
 		super(new AtomTypeGroup(new AtomPositionGeometricCenter(sim.space)), AtomTreeNodeWater4P.FACTORY);
 		atomType.setParentType(agentType);
         
-        AtomTypeSphere hType = new AtomTypeSphere(1.0, 2.0);
-        AtomTypeSphere oType = new AtomTypeSphere(16.0, 3.154);
-        AtomTypeSphere mType = new AtomTypeSphere(1.0, 2.0);
+        AtomTypeSphere hType = new AtomTypeSphere(Hydrogen.INSTANCE, 2.0);
+        AtomTypeSphere oType = new AtomTypeSphere(Oxygen.INSTANCE, 3.154);
+        AtomTypeSphere mType = new AtomTypeSphere(new ElementSimple("M", 1.0), 2.0);
         hType.setParentType((AtomTypeGroup)atomType);
         oType.setParentType((AtomTypeGroup)atomType);
         mType.setParentType((AtomTypeGroup)atomType);
-        
 
         CoordinateFactory leafCoordFactory = new CoordinateFactorySphere(sim);
         hFactory = new AtomFactoryMono(leafCoordFactory, hType);

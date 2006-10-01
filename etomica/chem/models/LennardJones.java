@@ -3,8 +3,8 @@
  */
 package etomica.chem.models;
 
-import etomica.chem.Electrostatic;
-import etomica.chem.Element;
+import etomica.chem.electrostatics.Electrostatic;
+import etomica.chem.elements.Element;
 import etomica.potential.P2LennardJones;
 import etomica.potential.Potential;
 import etomica.simulation.Simulation;
@@ -25,8 +25,7 @@ public class LennardJones extends ModelAtomic {
 	}
 	
 	public LennardJones(double s, double e){
-		sigma = s;
-		epsilon = e;
+        this(null, s, e);
 	}
 	public LennardJones(Element element, double s, double e) {
 		this(element, s, e, null);

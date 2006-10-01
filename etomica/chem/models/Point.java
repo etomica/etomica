@@ -1,7 +1,7 @@
 package etomica.chem.models;
 
-import etomica.chem.Electrostatic;
-import etomica.chem.Element;
+import etomica.chem.electrostatics.Electrostatic;
+import etomica.chem.elements.Element;
 import etomica.potential.Potential;
 import etomica.space.Space;
 
@@ -35,7 +35,7 @@ public class Point extends ModelAtomic {
 
 	
 	/**
-	 * @see etomica.chem.Model#makePotential(etomica.SimulationElement)
+	 * @see etomica.chem.models.Model#makePotential(etomica.SimulationElement)
 	 */
 	public Potential makePotential(Space space) {
 		return null;

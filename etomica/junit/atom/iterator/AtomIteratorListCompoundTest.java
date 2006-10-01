@@ -109,7 +109,7 @@ public class AtomIteratorListCompoundTest extends IteratorTestAbstract {
 //                System.out.println();
                 testIterates(iterator, makeArray(lists));
             }
-            lists[varIndex].add(new Atom(space));
+            lists[varIndex].add(new Atom());
         }
         generalIteratorMethodTests(iterator);
     }
