@@ -3,6 +3,7 @@
  */
 package etomica.models.hexane;
 
+import etomica.chem.elements.ElementSimple;
 import etomica.simulation.Simulation;
 
 /**
@@ -14,7 +15,8 @@ import etomica.simulation.Simulation;
 
 public class SpeciesHexane extends etomica.species.SpeciesSpheres {
     public SpeciesHexane(Simulation sim){
-        super(sim, 6, new ConformationHexane(sim.space));
+        super(sim, 6, new ElementSimple("M", sim.getDefaults().atomMass), 
+              new ConformationHexane(sim.space));
     }
     
 }
