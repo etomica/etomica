@@ -103,10 +103,11 @@ public final class Standard implements java.io.Serializable {
 	}
 
     public static ClusterAbstract virialCluster(int nBody, MayerFunction f) {
-        return virialCluster(nBody,f,true,new FTilde(f),true);
+        return virialCluster(nBody,f,true,new FTilde(f),true, true);
     }
     public static ClusterAbstract virialCluster(int nBody, MayerFunction f, 
-            boolean usePermutations, MayerFunction e, boolean useTree) {
+            boolean usePermutations, MayerFunction e, boolean useTree, boolean uniqueOnly) {
+        uniqueOnly = uniqueOnly && nBody > 3 && !useTree;
         if (nBody < 4) {
             e = null;
         }
@@ -182,7 +183,8 @@ public final class Standard implements java.io.Serializable {
                 }
             }
             // only use permutations if the diagram has permutations
-            boolean thisUsePermutations = usePermutations && clusterD.mNumIdenticalPermutations < SpecialFunctions.factorial(nBody);
+            boolean thisUsePermutations = !uniqueOnly && usePermutations && 
+                                          clusterD.mNumIdenticalPermutations < SpecialFunctions.factorial(nBody);
             // only use e-bonds if one of the diagrms has some
             clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, thisUsePermutations));
             double [] newWeights = new double[weights.length+1];
