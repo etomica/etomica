@@ -314,9 +314,9 @@ public class SimulationVirialOverlap extends Simulation {
 		MayerGeneralSpherical fTarget = new MayerGeneralSpherical(space,p2LJ);
         MayerESpherical eTarget = new MayerESpherical(space,p2LJ);
 		
-        ClusterAbstract refCluster = Standard.virialCluster(nPoints,fRef,true,eRef,true);
+        ClusterAbstract refCluster = Standard.virialCluster(nPoints,fRef,true,eRef,true,true);
         refCluster.setTemperature(temperature);
-        ClusterAbstract targetCluster = Standard.virialCluster(nPoints,fTarget,true,eTarget,true);
+        ClusterAbstract targetCluster = Standard.virialCluster(nPoints,fTarget,true,eTarget,true,true);
         targetCluster.setTemperature(temperature);
 
 		int maxSteps = 100000;
