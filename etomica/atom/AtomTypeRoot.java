@@ -27,13 +27,6 @@ public class AtomTypeRoot extends AtomTypeGroup {
         elementAtomTypeHash = new HashMap();
     }
 
-    void setSpeciesRoot(SpeciesRoot newRoot) {
-        if (root != null) {
-            throw new IllegalStateException("SpeciesRoot can only be called from the SpeciesRoot constructor");
-        }
-        root = newRoot;
-    }
-    
     /**
      * Removes the given AtomTypes associated with the given Species from the 
      * Simulation and does cleanup, including renumbering indices and firing 
@@ -142,7 +135,6 @@ public class AtomTypeRoot extends AtomTypeGroup {
     
     private final HashMap elementSymbolHash;
     private final HashMap elementAtomTypeHash;
-    private SpeciesRoot root;
     private SimulationEventManager eventManager;
     private int numChildTypes;
     private static final long serialVersionUID = 2L;
