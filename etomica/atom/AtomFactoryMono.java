@@ -1,7 +1,6 @@
 package etomica.atom;
 
 import etomica.space.CoordinateFactory;
-import etomica.species.Species;
 
 /**
  * Builder of a monoatomic atom group, which comprises just an Atom.
@@ -29,6 +28,7 @@ public class AtomFactoryMono extends AtomFactory {
      * Returns a new leaf atom having no children.
      */
     public Atom makeAtom() {
+        isMutable = false;
         return new AtomLeaf(coordFactory.makeCoordinate(), atomType, nodeFactory);
     }
     

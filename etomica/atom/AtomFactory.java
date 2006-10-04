@@ -1,8 +1,7 @@
 package etomica.atom;
 
 import etomica.config.Conformation;
-import etomica.space.CoordinateFactory;
-import etomica.species.Species;
+import etomica.phase.Phase;
 
 /**
  * Class responsible for building new instances of the atoms (or atom groups)
@@ -14,8 +13,9 @@ import etomica.species.Species;
 public abstract class AtomFactory implements java.io.Serializable {
     
     protected Conformation conformation;
-    protected AtomTreeNodeFactory nodeFactory;
+    protected final AtomTreeNodeFactory nodeFactory;
     protected final AtomType atomType;
+    protected boolean isMutable;
     
     /**
      * Makes an atom factory with atoms having AtomTreeNodeGroup for node.
@@ -77,6 +77,31 @@ public abstract class AtomFactory implements java.io.Serializable {
      */
     public void setConformation(Conformation config) {
         conformation = config;
+    }
+    
+    /**
+     * Checks to see if any molecules of the Species containing the Atoms this
+     * factory makes exist in any phase.  If no molecules exist, the factory
+     * is made mutable.
+     */
+    public void checkMutable(SpeciesRoot speciesRoot) {
+        if (isMutable) {
+            return;
+        }
+        AtomArrayList speciesMasterList = ((AtomTreeNodeGroup)speciesRoot.node).childList;
+        for (int i=0; i<speciesMasterList.size(); i++) {
+            Phase iPhase = speciesMasterList.get(i).node.parentPhase();
+            SpeciesAgent iAgent = atomType.getSpecies().getAgent(iPhase);
+            if (iAgent.getNMolecules() > 0) {
+                isMutable = false;
+                return;
+            }
+        }
+        isMutable = true;
+    }
+    
+    public boolean isMutable() {
+        return isMutable;
     }
     
     /**

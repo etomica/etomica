@@ -1,12 +1,10 @@
 package etomica.atom;
 
-import java.util.Arrays;
-
 import etomica.config.Conformation;
 import etomica.config.ConformationLinear;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.species.Species;
+import etomica.util.Arrays;
 
 /**
  * Builds an atom group that comprises a set of differently-formed atoms or
@@ -43,6 +41,7 @@ public class AtomFactoryHetero extends AtomFactory {
      * each sub-type.
      */
     public Atom makeAtom() {
+        isMutable = false;
         Atom group = newParentAtom();
         AtomTreeNodeGroup node = (AtomTreeNodeGroup) group.node;
         // make block copolymers
@@ -54,6 +53,17 @@ public class AtomFactoryHetero extends AtomFactory {
         }
         return group;
     }
+
+    public void setNumComponents(int nComponents) {
+        if (!isMutable) {
+            throw new IllegalStateException("Factory is not mutable");
+        }
+        setChildFactory(new AtomFactory[nComponents]);
+    }    
+
+    public int getNumComponents() {
+        return childFactory.length;
+    }    
 
     /**
      * Sets the number fraction of each child atom type made by
@@ -69,6 +79,9 @@ public class AtomFactoryHetero extends AtomFactory {
      *             if all number fractions=0
      */
     public void setNumberFraction(double[] newNumberFraction) {
+        if (!isMutable) {
+            throw new IllegalStateException("Factory is not mutable");
+        }
         if (newNumberFraction.length != childFactory.length) {
             throw new IllegalArgumentException("the number of numberFracions must be equal to the number of child factories");
         }
@@ -96,9 +109,9 @@ public class AtomFactoryHetero extends AtomFactory {
         int atomsRemaining = totalChildCount;
         for (int i=0; i<childFactory.length; i++) {
             int k = -1;
-            double minFraction = 2.0;
+            double minFraction = Double.POSITIVE_INFINITY;
             for (int j=0; j<childFactory.length; j++) {
-                if (childCount[i] != -1) {
+                if (childCount[j] != -1) {
                     // already did this type
                     continue;
                 }
@@ -117,13 +130,14 @@ public class AtomFactoryHetero extends AtomFactory {
      * Returns the number fraction of each child type created by this factory.
      */
     public double[] getNumberFraction() {
+        return (double[])numberFraction.clone();
         // don't use numberFraction since it won't necessarily be equal to 
         // the actual fraction generated for each type
-        double[] fraction = new double[childCount.length];
-        for (int i=0; i<fraction.length; i++) {
-            fraction[i] = (double)childCount[i]/totalChildCount;
-        }
-        return fraction;
+//        double[] fraction = new double[childCount.length];
+//        for (int i=0; i<fraction.length; i++) {
+//            fraction[i] = (double)childCount[i]/totalChildCount;
+//        }
+//        return fraction;
     }
 
     /**
@@ -136,6 +150,9 @@ public class AtomFactoryHetero extends AtomFactory {
      *             if any childCount is < 0
      */
     public void setChildCount(int[] newChildCount) {
+        if (!isMutable) {
+            throw new IllegalStateException("Factory is not mutable");
+        }
         if (childFactory.length != newChildCount.length) {
             throw new IllegalArgumentException("Number of child factories must equal length of newChildCount.  " +
                     "Call setChildFactory first");
@@ -171,17 +188,60 @@ public class AtomFactoryHetero extends AtomFactory {
      *             if newChildFactory is an empty array
      */
     public void setChildFactory(AtomFactory[] newChildFactory) {
-        if (childFactory.length != 0) {
-            throw new IllegalStateException("You can set the child factory only once!");
+        if (!isMutable) {
+            throw new IllegalStateException("Factory is not mutable");
         }
         childFactory = (AtomFactory[])newChildFactory.clone();
         if (numberFraction.length != childFactory.length) {
             double[] fraction = new double[childFactory.length];
-            Arrays.fill(fraction, 1.0/childFactory.length);
+            java.util.Arrays.fill(fraction, 1.0/childFactory.length);
             setNumberFraction(fraction);
         }
     }
 
+    public void addChildFactory(AtomFactory newChildFactory) {
+        if (!isMutable) {
+            throw new IllegalStateException("Factory is not mutable");
+        }
+        childFactory = (AtomFactory[])Arrays.addObject(childFactory,newChildFactory);
+        if (childFactory.length > 1) {
+            // assume fraction = 0 for new childFactory
+            numberFraction = Arrays.resizeArray(numberFraction,numberFraction.length+1);
+            childCount = Arrays.resizeArray(childCount,childCount.length+1);
+        }
+        else {
+            setNumberFraction(new double[]{1.0});
+        }
+    }
+    
+    public boolean removeChildFactory(AtomFactory newChildFactory) {
+        if (!isMutable) {
+            throw new IllegalStateException("Factory is not mutable");
+        }
+        int index = -1;
+        for (int i=0; i<childFactory.length; i++) {
+            if (childFactory[i] == newChildFactory) {
+                index = i;
+                break;
+            }
+        }
+        if (index == -1) {
+            return false;
+        }
+        childFactory = (AtomFactory[])Arrays.removeObject(childFactory,newChildFactory);
+        if (childFactory.length > 0) {
+            double[] newNumberFraction = new double[numberFraction.length-1];
+            System.arraycopy(numberFraction,0,newNumberFraction,0,index);
+            System.arraycopy(numberFraction,index+1,newNumberFraction,index,numberFraction.length-index-1);
+            setNumberFraction(newNumberFraction);
+        }
+        else {
+            numberFraction = new double[0];
+            childCount = new int[0];
+        }
+        return true;
+    }
+    
     /**
      * Returns the array of subfactories that produces each of the 
      * atoms in the group made by this factory.
@@ -199,6 +259,9 @@ public class AtomFactoryHetero extends AtomFactory {
      *             if numChildren < 0
      */
     public void setTotalChildren(int numChildren) {
+        if (!isMutable) {
+            throw new IllegalStateException("Factory is not mutable");
+        }
         if (numChildren < 0) {
             throw new IllegalArgumentException("Number of children must not be negative");
         }

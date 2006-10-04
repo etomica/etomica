@@ -60,6 +60,9 @@ public class AtomFactoryTree extends AtomFactoryHomo {
     }//end of subFactory
     
     public void setNAtoms(int[] n) {
+        if (!isMutable) {
+            throw new IllegalStateException("Factory is not mutable");
+        }
         if(n.length != depth) throw new IllegalArgumentException("AtomFactoryTree.setNAtoms(int[]) attempt to set value inconsistent with depth specified when factory was instantiated");
         AtomFactoryHomo factory = this;
         for(int i=0; i<n.length; i++) {
@@ -97,6 +100,9 @@ public class AtomFactoryTree extends AtomFactoryHomo {
       * @throws IllegalStateException if invoked more than once for a single instance.
       */
      public void setLeafFactory(AtomFactory factory) {
+         if (!isMutable) {
+             throw new IllegalStateException("Factory is not mutable");
+         }
         if (getLeafFactory() != null) throw new IllegalStateException("You can set the leaf factory only once!");
         if(childFactory instanceof AtomFactoryTree) {
             ((AtomFactoryTree)childFactory).setLeafFactory(factory);

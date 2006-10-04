@@ -4,7 +4,6 @@ import etomica.config.Conformation;
 import etomica.config.ConformationLinear;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.species.Species;
 
 /**
  * Builds an atom group that comprises a set of identically formed atoms or atom groups.
@@ -14,10 +13,6 @@ import etomica.species.Species;
  *
  * @author David Kofke
  */
-
-//child factory cannot be given in constructor because the AtomType the child factory will use cannot be
-//constructed before this factory has made the AtomType used for its atom groups
-
 public class AtomFactoryHomo extends AtomFactory {
     
     /**
@@ -66,13 +61,14 @@ public class AtomFactoryHomo extends AtomFactory {
      * Constructs a new group.
      */
      public Atom makeAtom() {
-        Atom group = newParentAtom();
-        AtomTreeNodeGroup node = (AtomTreeNodeGroup)group.node;
-        for(int i=0; i<atomsPerGroup; i++) {
-            Atom childAtom = childFactory.makeAtom();
-            childAtom.node.setParent(node);
-        }
-        return group;
+         isMutable = false;
+         Atom group = newParentAtom();
+         AtomTreeNodeGroup node = (AtomTreeNodeGroup)group.node;
+         for(int i=0; i<atomsPerGroup; i++) {
+             Atom childAtom = childFactory.makeAtom();
+             childAtom.node.setParent(node);
+         }
+         return group;
      }
      
     /**
@@ -91,6 +87,9 @@ public class AtomFactoryHomo extends AtomFactory {
      * @throws IllegalStateException if invoked more than once for an instance
      */
     public void setChildFactory(AtomFactory childFactory) {
+        if (!isMutable) {
+            throw new IllegalStateException("Factory is not mutable");
+        }
         if (this.childFactory != null) throw new IllegalStateException("You can set the child factory only once!");
         if(childFactory == null) return;
         this.childFactory = childFactory;
@@ -102,6 +101,9 @@ public class AtomFactoryHomo extends AtomFactory {
      * @param na The new number of atoms per group
      */
     public void setNumChildAtoms(int na) {
+        if (!isMutable) {
+            throw new IllegalStateException("Factory is not mutable");
+        }
         atomsPerGroup = na;
     }
 
@@ -116,10 +118,8 @@ public class AtomFactoryHomo extends AtomFactory {
      public int getNumLeafAtoms() {
          return atomsPerGroup*childFactory.getNumLeafAtoms();
      }
-    
      
      protected AtomFactory childFactory;
      protected int atomsPerGroup;
-
-}//end of AtomFactoryHomo
+}
     

@@ -50,6 +50,12 @@ public final class SpeciesAgent extends Atom {
                 treeNode.childList.get(i-1).node.dispose();
             }
         }
+        if (n == 0) {
+            // if there are no molecules of this Species, the factory can be mutable
+            // yes, this is horrible.
+            AtomTreeNodeGroup speciesRootNode = node.parentNode().parentNode();
+            type.getSpecies().getFactory().checkMutable((SpeciesRoot)speciesRootNode.atom);
+        }
     }
     
     public void makeMolecules() {
