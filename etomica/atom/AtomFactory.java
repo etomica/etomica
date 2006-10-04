@@ -22,13 +22,13 @@ public abstract class AtomFactory implements java.io.Serializable {
      */
     public AtomFactory(AtomType atomType) {
         this(atomType, AtomTreeNodeGroup.FACTORY);
-        isMutable = true;
     }
     
     public AtomFactory(AtomType atomType, AtomTreeNodeFactory nodeFactory) {
         this.nodeFactory = nodeFactory;
         this.atomType = atomType;
         atomType.creator = this;
+        isMutable = true;
     }
     
     /**
