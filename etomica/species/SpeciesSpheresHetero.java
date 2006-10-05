@@ -71,9 +71,6 @@ public class SpeciesSpheresHetero extends Species implements EtomicaElement {
     private SpeciesSpheresHetero(Simulation sim, Element[] leafElements, int nA, 
             AtomTypeGroup agentType) {
         super(sim, new AtomFactoryHetero(sim, agentType), agentType);
-        if (nA < 1) {
-            throw new IllegalArgumentException("You must have at least one child atom");
-        }
         if (leafElements.length > 0) {
             AtomFactoryMono[] childFactories = new AtomFactoryMono[leafElements.length];
             for (int i=0; i<leafElements.length; i++) {
