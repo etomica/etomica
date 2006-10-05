@@ -54,13 +54,6 @@ public class AtomFactoryHetero extends AtomFactory {
         return group;
     }
 
-    public void setNumComponents(int nComponents) {
-        if (!isMutable) {
-            throw new IllegalStateException("Factory is not mutable");
-        }
-        setChildFactory(new AtomFactory[nComponents]);
-    }    
-
     public int getNumComponents() {
         return childFactory.length;
     }    
