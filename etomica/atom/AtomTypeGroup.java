@@ -29,17 +29,10 @@ public class AtomTypeGroup extends AtomType {
     }
     
     int requestIndex() {
-        if(getParentType() == null) return -1;
-        return getParentType().requestIndex();
+        if(parentType == null) return -1;
+        return parentType.requestIndex();
     }
     
-    void resetIndex() {
-        super.resetIndex();
-        for (int i=0; i<childTypes.length; i++) {
-            childTypes[i].resetIndex();
-        }
-    }
-
     /**
      * Returns false, indicating that this is a group type.
      */

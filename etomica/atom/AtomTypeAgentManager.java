@@ -153,18 +153,15 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
                 makeChildAgents((AtomTypeGroup)newType);
             }
         }
-        else if (evt instanceof SimulationAtomTypeCompactedEvent) {
-            int typeStart = ((SimulationAtomTypeCompactedEvent)evt).getStartIndex(); // first AtomType removed
-            int typeStop = ((SimulationAtomTypeCompactedEvent)evt).getStopIndex();   // first AtomType not removed
-            // shift the agents back
-            if (typeStop > -1) {
-                // typeStop=-1 means the last AtomType removed was the last AtomType
-                for (int i=0; i<agents.length-typeStop && i < typeStop-typeStart; i++) {
-                    agents[typeStart+i] = agents[typeStop+i];
-                }
-            }
-            // resize the array to drop the extra agent elements
-            agents = Arrays.resizeArray(agents, agents.length-(typeStop-typeStart));
+        else if (evt instanceof SimulationAtomTypeIndexChangedEvent) {
+            int oldIndex = ((SimulationAtomTypeIndexChangedEvent)evt).getOldIndex();
+            AtomType atomType = ((SimulationAtomTypeIndexChangedEvent)evt).getAtomType();
+            agents[atomType.getIndex()] = agents[oldIndex];
+            agents[oldIndex] = null;
+        }
+        else if (evt instanceof SimulationAtomTypeMaxIndexEvent) {
+            int maxIndex = ((SimulationAtomTypeMaxIndexEvent)evt).getMaxIndex();
+            agents = Arrays.resizeArray(agents, maxIndex+1);
         }
     }
     
