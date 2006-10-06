@@ -179,16 +179,16 @@ public class AtomIndexManagerTest extends TestCase {
     
     public void testIsDescendedFrom() {
         for(int i=0; i<atoms.length; i++) {
-            assertFalse(atoms[i].type.getAddressManager().isDescendedFrom(atom.type.getAddressManager()));
-            assertFalse(atom.type.getAddressManager().isDescendedFrom(atoms[i].type.getAddressManager()));
+            assertFalse(atoms[i].type.isDescendedFrom(atom.type));
+            assertFalse(atom.type.isDescendedFrom(atoms[i].type));
             for(int j=0; j<atoms.length; j++) {
 //                System.out.println(i+" "+j);
-                boolean is = atoms[i].type.getAddressManager().isDescendedFrom(atoms[j].type.getAddressManager());
+                boolean is = atoms[i].type.isDescendedFrom(atoms[j].type);
                 if(typeIsDescendedFrom(atoms[i],atoms[j])) {
                     assertTrue(is);
                 } else {
                     if(is) {
-                        System.out.println("isDescendedFrom "+i+" "+j+" "+atoms[i]+" "+atoms[j]+" "+Integer.toBinaryString(atoms[i].type.getAddressManager().getTypeAddress())+" "+Integer.toBinaryString(atoms[j].type.getAddressManager().getTypeAddress()));
+                        System.out.println("isDescendedFrom "+i+" "+j+" "+atoms[i]+" "+atoms[j]+" "+Integer.toBinaryString(atoms[i].type.getAddress())+" "+Integer.toBinaryString(atoms[j].type.getAddress()));
                         typeIsDescendedFrom(atoms[i],atoms[j]);
                     }
                     assertFalse(is);

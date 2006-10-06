@@ -19,6 +19,7 @@ public class AtomTypeGroup extends AtomType {
      */
     AtomTypeGroup(AtomAddressManager indexManager) {
         super(indexManager);
+        assignChildOrdinals();
     }
 
     /**
@@ -26,8 +27,29 @@ public class AtomTypeGroup extends AtomType {
      */
     public AtomTypeGroup(AtomPositionDefinition positionDefinition) {
         super(positionDefinition);
+        assignChildOrdinals();
     }
     
+    /**
+     * Set this AtomType's address and update addresses of its descendants.
+     */
+    protected void setChildIndex(int parentIndex, int childIndex) {
+        super.setChildIndex(parentIndex, childIndex);
+        if (childTypes != null) {
+            assignChildOrdinals();
+        }
+    }
+
+    /**
+     * Assigns ordinals to all child atoms, numbering them sequentially
+     * according to their position in the childList.
+     */
+    private void assignChildOrdinals() {
+        for (int i = 0; i < childTypes.length; i++) {
+            childTypes[i].setChildIndex(i);
+        }
+    }
+
     int requestIndex() {
         if(parentType == null) return -1;
         return parentType.requestIndex();

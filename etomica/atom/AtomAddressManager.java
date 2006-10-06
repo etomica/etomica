@@ -52,7 +52,7 @@ public class AtomAddressManager implements java.io.Serializable {
      *            atom's index that is managed by this class.
      *  
      */
-    private AtomAddressManager(int[] bitLength, int depth, int parentTypeAddress, int typeIndex) {
+    private AtomAddressManager(int[] bitLength, int depth) {
         this.bitLength = (int[]) bitLength.clone();
         cumulativeBitLength = calculateCumulativeBitLength(bitLength);
         bitShift = calculateBitShift(cumulativeBitLength);
@@ -67,8 +67,6 @@ public class AtomAddressManager implements java.io.Serializable {
         sameSpeciesMask = speciesOrdinalMask | rootMask;
         sameMoleculeMask = moleculeOrdinalMask | rootMask | samePhaseMask
                 | sameSpeciesMask;
-        typeAddress = parentTypeAddress + shiftIndex(typeIndex);
-//        System.out.println(Integer.toBinaryString(typeIndex));
 //        System.out.println("depth, bitLength,cumulativeBitLength,bitShift: "+depth+Arrays.toString(bitLength)+Arrays.toString(cumulativeBitLength)+Arrays.toString(bitShift));
 //        System.out.println("samePhaseMask: "+Integer.toBinaryString(samePhaseMask));
 //        System.out.println("sameSpeciesMask: "+Integer.toBinaryString(sameSpeciesMask));
@@ -99,24 +97,24 @@ public class AtomAddressManager implements java.io.Serializable {
      * same bitLength array as this, without exposing the bitLength array.
      */
     AtomAddressManager makeChildManager() {
-        return new AtomAddressManager(bitLength, depth + 1, typeAddress, childCount++);
+        return new AtomAddressManager(bitLength, depth + 1);
     }
-
+    
     /**
      * Constructs an index manager for the SpeciesRoot AtomType.  Called in
      * SpeciesRoot constructor.
      */
     static AtomAddressManager makeRootIndexManager(int[] bitLength) {
-        return new AtomAddressManager(bitLength, 0, 0, 0);
+        return new AtomAddressManager(bitLength, 0);
     }
     
     /**
      * Special-use method to make index manager. Constructs an index manager 
-     * at the molecule depth, with typeIndex = 0, and ordinal of 1.  Called by
-     * AtomType constructor if parent type is null.
+     * at the molecule depth.  Called by AtomType constructor if parent type is
+     * null.
      */
     public static AtomAddressManager makeSimpleIndexManager(int[] bitLength) {
-        return new AtomAddressManager(bitLength, 3, 0, 0);
+        return new AtomAddressManager(bitLength, 3);
     }
 
     /**
@@ -220,22 +218,6 @@ public class AtomAddressManager implements java.io.Serializable {
         return ((address0 ^ address1) & addressMask) == 0;
     }
     
-    /**
-     * Returns true if an atom of this manager's type is descended from
-     * an atom (any atom) having the type of given manager.
-     */
-    public boolean isDescendedFrom(AtomAddressManager anotherManager) {
-        return anotherManager.sameAncestry(typeAddress, anotherManager.typeAddress);
-    }
-
-    /**
-     * Returns the index associated with this manager, and which is used to
-     * locate this manager's type relative to the other atom types.  This index
-     * is set at construction.
-     */
-    public int getTypeAddress() {
-        return typeAddress;
-    }
 
     //convenience method used by constructor
     private static int[] calculateCumulativeBitLength(int[] array) {
@@ -270,7 +252,4 @@ public class AtomAddressManager implements java.io.Serializable {
     private final int moleculeOrdinalMask;
     private final int atomOrdinalMask;
     private final int addressMask;
-
-    private final int typeAddress;
-    private int childCount = 0;
 }

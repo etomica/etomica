@@ -1,7 +1,7 @@
 package etomica.atom;
 
 import etomica.species.Species;
-import etomica.util.Arrays;
+import etomica.util.Debug;
 import etomica.util.Default;
 
 //import etomica.electrostatics.*;
@@ -33,6 +33,7 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
     protected int speciesIndex = -1;
     private Species species;
     private int index;
+    private int typeTreeAddress;
 
     private AtomAddressManager addressManager;
     private AtomPositionDefinition positionDefinition;
@@ -41,14 +42,13 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
     
     private boolean isInteracting = false;
 
-    //    private Parameter.Electrostatic electroParameter;
-
     /**
      * Used only to create root type.
      */
     AtomType(AtomAddressManager indexManager) {
         parentType = null;
         this.addressManager = indexManager;
+        setChildIndex(0,0);
         positionDefinition = null;
         index = 0;
     }
@@ -68,6 +68,14 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
      */
     public AtomType(AtomPositionDefinition positionDefinition) {
         this.positionDefinition = positionDefinition;
+        setChildIndex(0,0);
+    }
+
+    /**
+     * Integer describing this AtomType's place in the tree
+     */
+    public final int getAddress() {
+        return typeTreeAddress;
     }
 
     /**
@@ -90,11 +98,28 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
             index = 0;
         } else {
             addressManager = parentType.getAddressManager().makeChildManager();
+            setChildIndex(parentType.childTypes.length);
             index = parentType.requestIndex();
             parentType.addChildType(this);
         }
     }        
 
+    public void setChildIndex(int newChildIndex) {
+        setChildIndex((parentType != null) ? parentType.getAddress() : 0, newChildIndex);
+    }
+    
+    protected void setChildIndex(int parentTypeAddress, int newChildIndex) {
+        typeTreeAddress = parentTypeAddress + addressManager.shiftIndex(newChildIndex);
+        if (Debug.ON && getAddressManager().getIndex(typeTreeAddress) != newChildIndex) {
+            addressManager.getIndex(typeTreeAddress);
+            throw new RuntimeException(typeTreeAddress+" "+newChildIndex+" "+(addressManager.getIndex(typeTreeAddress)));
+        }
+    }
+    
+    public int getChildIndex() {
+        return addressManager.getIndex(typeTreeAddress);
+    }
+    
     public int getIndex() {
         return index;
     }
@@ -132,9 +157,8 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
      * value for the given type.
      */
     public int compareTo(Object atomType) {
-        int otherIndex = ((AtomType) atomType).addressManager.getTypeAddress();
-        int myIndex = addressManager.getTypeAddress();
-        return otherIndex > myIndex ? -1 : (otherIndex == myIndex ? 0 : 1);
+        int otherAddress = ((AtomType) atomType).getAddress();
+        return otherAddress > typeTreeAddress ? -1 : (otherAddress == typeTreeAddress ? 0 : 1);
     }
 
     /**
@@ -161,7 +185,7 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
      * having the given type.
      */
     public boolean isDescendedFrom(AtomType type) {
-        return addressManager.isDescendedFrom(type.addressManager);
+        return type.getAddressManager().sameAncestry(type.getAddress(),typeTreeAddress);
     }
 
     /**
