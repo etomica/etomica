@@ -6,6 +6,9 @@ import etomica.phase.Phase;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.units.Angle;
+import etomica.units.Dimension;
+import etomica.units.Energy;
 
 /**
  * Simple 3-body soft bond-angle potential 
@@ -61,6 +64,10 @@ public class P3BondAngle extends Potential {
     public double getAngle() {
         return angle;
     }
+    
+    public Dimension getAngleDimension() {
+        return Angle.DIMENSION;
+    }
 
     /**
      * Sets the characteristic energy of the potential
@@ -74,6 +81,10 @@ public class P3BondAngle extends Potential {
      */
     public double getEpsilon() {
         return epsilon;
+    }
+    
+    public Dimension getEpsilonDimension() {
+        return Energy.DIMENSION;
     }
     
     public double getRange() {
