@@ -39,25 +39,37 @@ public class AtomTypeRoot extends AtomTypeGroup {
         for (int i=0; i<agentTypes.length; i++) {
             if (agentTypes[i].getSpecies() == removedSpecies) {
                 AtomTypeGroup removedType = (AtomTypeGroup)agentTypes[i];
-                removeElements(removedType);
-                ((AtomTypeGroup)childTypes[0]).childTypes = (AtomType[])Arrays.removeObject(((AtomTypeGroup)childTypes[0]).childTypes,removedType);
-                agentTypes = ((AtomTypeGroup)childTypes[0]).childTypes;
-//                int[] removedIndices = new int[]{removedType.getIndex()};
-                int[] childIndices = getChildIndices(removedType);
-                reservoirCount = 0;
-                indexReservoir = new int[childIndices.length+1];
-                numChildTypes -= indexReservoir.length;
-                indexReservoir[0] = removedType.getIndex();
-                System.arraycopy(childIndices, 0, indexReservoir, 1, childIndices.length);
-                java.util.Arrays.sort(indexReservoir);
-                recycleIndices(agentTypes);
-                indexReservoir = null;
-                reservoirCount = -1;
+                ((AtomTypeGroup)childTypes[0]).removeChildType(removedType);
                 break;
             }
         }
         
         eventManager.fireEvent(new SimulationAtomTypeMaxIndexEvent(numChildTypes));
+    }
+    
+    void childTypeRemovedNotify(AtomType removedType) {
+        reservoirCount = 0;
+        if (removedType instanceof AtomTypeLeaf) {
+            Element oldElement = ((AtomTypeLeaf)removedType).getElement();
+            elementSymbolHash.remove(oldElement.getSymbol());
+            indexReservoir = new int[]{removedType.getIndex()};
+        }
+        else if (removedType instanceof AtomTypeGroup) {
+            removeElements((AtomTypeGroup)removedType);
+            int[] childIndices = null;
+            childIndices = getChildIndices((AtomTypeGroup)removedType);
+            indexReservoir = new int[childIndices.length+1];
+            numChildTypes -= indexReservoir.length;
+            indexReservoir[0] = removedType.getIndex();
+            System.arraycopy(childIndices, 0, indexReservoir, 1, childIndices.length);
+            java.util.Arrays.sort(indexReservoir);
+        }
+        // we can start at the agent types (our child's childTypes) because 
+        // types for the SpeciesRoot and SpeciesMaster never go away
+        reservoirCount = 0;
+        recycleIndices(((AtomTypeGroup)childTypes[0]).childTypes);
+        indexReservoir = null;
+        reservoirCount = -1;
     }
 
     /**
@@ -90,7 +102,7 @@ public class AtomTypeRoot extends AtomTypeGroup {
 
     /**
      * Returns an array of indices for the give parent AtomType.  The array
-     * of indices includes the given parent's index.
+     * of indices does not include the given parent's index.
      */
     private static int[] getChildIndices(AtomTypeGroup atomType) {
         int[] childIndices = new int[0];

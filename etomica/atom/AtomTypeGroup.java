@@ -9,9 +9,6 @@ import etomica.util.Arrays;
  * 
  * @author andrew
  */
-/*
- * Created on May 20, 2005
- */
 public class AtomTypeGroup extends AtomType {
 
     /**
@@ -37,6 +34,30 @@ public class AtomTypeGroup extends AtomType {
         super.setChildIndex(parentIndex, childIndex);
         if (childTypes != null) {
             assignChildOrdinals();
+        }
+    }
+    
+    public void removeChildType(AtomType removedType) {
+        boolean success = false;
+        for (int i=0; i<childTypes.length; i++) {
+            if (childTypes[i] == removedType) {
+                success = true;
+                break;
+            }
+        }
+        if (!success) {
+            throw new IllegalArgumentException("AtomType "+removedType+" is not my child!");
+        }
+        childTypes = (AtomType[])Arrays.removeObject(((AtomTypeGroup)childTypes[0]).childTypes,removedType);
+        assignChildOrdinals();
+        if (parentType != null) {
+            parentType.childTypeRemovedNotify(removedType);
+        }
+    }
+    
+    void childTypeRemovedNotify(AtomType removedType) {
+        if (parentType != null) {
+            parentType.childTypeRemovedNotify(removedType);
         }
     }
 
