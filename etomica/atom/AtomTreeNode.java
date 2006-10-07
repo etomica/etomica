@@ -64,6 +64,7 @@ public abstract class AtomTreeNode implements Comparable, java.io.Serializable {
         if(parentNode != null) {
             int index = atom.node.getIndex();
             parentNode.childList.removeAndReplace(index);
+            parentNode.childList.maybeTrimToSize();
             if (parentNode.childList.size() > index) {
                 parentNode.childList.get(index).node.setIndex(index);
             }

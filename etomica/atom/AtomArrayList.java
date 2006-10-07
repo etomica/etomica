@@ -92,6 +92,8 @@ import etomica.util.Debug;
 	     * @serial
 	     */
 	    private int size;
+        
+        private float trimThreshold;
 	
 	    /**
 	     * Constructs an empty list with the specified initial capacity.
@@ -101,6 +103,7 @@ import etomica.util.Debug;
 	    public AtomArrayList(int initialCapacity) {
 	    	super();
 			this.elementData = new Atom[initialCapacity];
+            trimThreshold = 0.8F;
 	    }
 	
 	    /**
@@ -116,15 +119,43 @@ import etomica.util.Debug;
 	     * the storage of an ArrayList instance.
 	     */
 	    public void trimToSize() {
-			int oldCapacity = elementData.length;
-			if (size < oldCapacity) {
+			if (size < elementData.length) {
 		    	Atom oldData[] = elementData;
 		    	elementData = new Atom[size];
 		    	System.arraycopy(oldData, 0, elementData, 0, size);
 			}
 	    }
-	
-	    /**
+        
+        /**
+         * Trims the capacity of this AtomArrayList instance (calling 
+         * trimToSize) if the fraction of the actual usage is less than 
+         * trimThreshold.
+         */
+        public void maybeTrimToSize() {
+            if (size < elementData.length * trimThreshold) {
+                trimToSize();
+            }
+        }
+
+        /**
+         * Returns the trim threshhold, the minimum fraction of the array 
+         * element usage, below which the array is reallocated in 
+         * maybeTrimToSize.  trim threshold defaults to 0.8. 
+         */
+	    public float getTrimThreshold() {
+            return trimThreshold;
+        }
+
+        /**
+         * Sets the trim threshhold, the minimum fraction of the array element 
+         * usage, below which the array is reallocated in maybeTrimToSize.
+         * trim threshold defaults to 0.8. 
+         */
+        public void setTrimThreshold(float newTrimThreshold) {
+            trimThreshold = newTrimThreshold;
+        }
+
+        /**
 	     * Increases the capacity of this ArrayList instance, if
 	     * necessary, to ensure  that it can hold at least the number of elements
 	     * specified by the minimum capacity argument. 
