@@ -68,7 +68,7 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
      */
     public AtomType(AtomPositionDefinition positionDefinition) {
         this.positionDefinition = positionDefinition;
-        setChildIndex(0,0);
+        setParentType(null);
     }
 
     /**
@@ -96,6 +96,7 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
             addressManager = AtomAddressManager
                     .makeSimpleIndexManager(Default.BIT_LENGTH);
             index = 0;
+            setChildIndex(0,0);
         } else {
             addressManager = parentType.getAddressManager().makeChildManager();
             setChildIndex(parentType.childTypes.length);
