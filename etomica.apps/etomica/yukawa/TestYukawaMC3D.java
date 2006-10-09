@@ -55,7 +55,7 @@ public class TestYukawaMC3D extends Simulation{
 		ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
 		getController().addAction(activityIntegrate);
 		species = new SpeciesSpheresMono(this);
-		species.setNMolecules(numAtoms);
+		phase.getAgent(species).setNMolecules(numAtoms);
 		phase = new Phase(this);
 		phase.setDensity(0.65);
 		potential = new P2Yukawa(this);

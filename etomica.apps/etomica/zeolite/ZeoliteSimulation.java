@@ -136,10 +136,11 @@ public class ZeoliteSimulation extends Simulation {
         activityIntegrate.setMaxSteps(500);
         getController().addAction(activityIntegrate);
         
+        phase = new Phase(this);
         species = new SpeciesSpheresMono[numAtoms.length];
         for(int i=0;i<numAtoms.length;i++){
         	species[i] = new SpeciesSpheresMono(this);
-        	species[i].setNMolecules(numAtoms[i]);
+        	phase.getAgent(species[i]).setNMolecules(numAtoms[i]);
         	((etomica.atom.AtomTypeSphere)species[i].getFactory().getType()).setDiameter(atomicSize[i]);
         	if (i!=(numAtoms.length-1)){
         	    ((ElementSimple)((etomica.atom.AtomTypeLeaf)species[i].getFactory().getType()).getElement()).setMass(Double.POSITIVE_INFINITY);
@@ -172,7 +173,6 @@ public class ZeoliteSimulation extends Simulation {
         potentialMaster.addPotential(MO,new Species[]{species[0],species[2]});
         potentialMaster.addPotential(potentialMS,new Species[]{species[1],species[2]});
         
-        phase = new Phase(this);
         //Initializes the coordinates and positions
         config.initializeCoordinates(phase);
         phase.getBoundary().setDimensions(config.getUpdatedDimensions());

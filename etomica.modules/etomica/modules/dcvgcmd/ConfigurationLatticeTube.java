@@ -210,7 +210,7 @@ public class ConfigurationLatticeTube extends Configuration {
 		Phase phase = new Phase(sim);
 		SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
 		int k = 4;
-		species.setNMolecules(4*k*k*k);
+		phase.getAgent(species).setNMolecules(4*k*k*k);
 //        CubicLattice lattice = new LatticeCubicBcc();
         LatticeCrystal lattice = new LatticeCubicFcc();
 //        CubicLattice lattice = new LatticeCubicSimple();

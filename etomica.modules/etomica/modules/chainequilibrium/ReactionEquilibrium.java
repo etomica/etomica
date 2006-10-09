@@ -61,9 +61,8 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         speciesA = new SpeciesSpheresMono(this);
         speciesB = new SpeciesSpheresMono(this);
         ((AtomTypeSphere)speciesA.getMoleculeType()).setDiameter(diameter);
-        speciesA.setNMolecules(10);
-        speciesB.setNMolecules(40);
-        phase1.makeMolecules();
+        phase1.getAgent(speciesA).setNMolecules(10);
+        phase1.getAgent(speciesB).setNMolecules(40);
         new ConfigurationSequential(space).initializeCoordinates(phase1);
 
         molecularCount.setPhase(phase1);

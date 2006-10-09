@@ -49,9 +49,9 @@ public class TestFcc extends Simulation {
         defaults.ignoreOverlap = true;
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this);
-        species.setNMolecules(numAtoms);
 
         phase = new Phase(this);
+        phase.getAgent(species).setNMolecules(numAtoms);
 
         config.initializeCoordinates(phase);
 

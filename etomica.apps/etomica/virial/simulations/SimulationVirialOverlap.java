@@ -71,7 +71,6 @@ public class SimulationVirialOverlap extends Simulation {
         sampleClusters = aSampleClusters;
         int nMolecules = sampleClusters[0].pointCount();
         species = speciesFactory.makeSpecies(this);
-        species.setNMolecules(nMolecules);
         accumulators = new AccumulatorVirialOverlapSingleAverage[sampleClusters.length];
         accumulatorPumps = new DataPump[sampleClusters.length];
         accumulatorAAs = new IntervalActionAdapter[sampleClusters.length];
@@ -92,6 +91,7 @@ public class SimulationVirialOverlap extends Simulation {
         for (int iPhase=0; iPhase<sampleClusters.length; iPhase++) {
             // integrator for iPhase samples based on iPhase cluster
             phase[iPhase] = new PhaseCluster(this,sampleClusters[iPhase]);
+            phase[iPhase].getAgent(species).setNMolecules(nMolecules);
             
             integrators[iPhase] = new IntegratorMC(this);
             integrators[iPhase].setTemperature(temperature);

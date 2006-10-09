@@ -55,8 +55,8 @@ public class PistonCylinder extends Simulation {
         controller = getController();
         defaults.atomMass = 16;
         species = new SpeciesSpheresMono(this);
-        species.setNMolecules(112);
         phase = new Phase(this);
+        phase.getAgent(species).setNMolecules(112);
         phase.setBoundary(new BoundaryRectangularNonperiodic(space));
         Vector newDim;
         Configuration config;
@@ -69,7 +69,6 @@ public class PistonCylinder extends Simulation {
             newDim = new Vector3D(80,80,80);
         }
         phase.setDimensions(newDim);
-        phase.makeMolecules();
         config.initializeCoordinates(phase);
         
         P2SquareWell potentialSW = new P2SquareWell(space,defaults.atomSize,lambda,31.875,defaults.ignoreOverlap);

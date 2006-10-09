@@ -59,7 +59,7 @@ public class Multiharmonic extends Simulation {
         potentialA.setSpringConstant(1.0);
         potentialMaster.addPotential(potentialA, new Species[] {species});
         
-        phase.makeMolecules();
+        phase.getAgent(species).setNMolecules(20);
         
         AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
         iterator.setPhase(phase);

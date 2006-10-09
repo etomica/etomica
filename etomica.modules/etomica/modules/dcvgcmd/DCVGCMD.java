@@ -158,10 +158,11 @@ public class DCVGCMD extends Simulation {
         potentialMasterHybrid.getPotentialMasterList().setCriterion(potentialwallPorousB1, new CriterionType(criterionWallB1, speciestype1));
 
 
-        species.setNMolecules(20);
-        species1.setNMolecules(20);
         phase = new Phase(this);
-
+        phase.getAgent(species).setNMolecules(20);
+        phase.getAgent(species1).setNMolecules(20);
+        phase.getAgent(speciesTube).setNMolecules(1);
+        
         double temperature = Kelvin.UNIT.toSim(500.);
         integratorDCV = new IntegratorDCVGCMD(potentialMaster, temperature, species,
                 species1);

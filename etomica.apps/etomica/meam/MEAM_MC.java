@@ -104,9 +104,6 @@ public class MEAM_MC extends Simulation {
 	    sn = new SpeciesSpheresMono(this, Tin.INSTANCE);
         ag = new SpeciesSpheresMono(this, Silver.INSTANCE);
         cu = new SpeciesSpheresMono(this, Copper.INSTANCE);
-        sn.setNMolecules(216);
-        ag.setNMolecules(0);
-        cu.setNMolecules(0);
 	    
         /** The following values come from either the ASM Handbook or Cullity & Stock's 
          * "Elements of X-Ray Diffraction" (2001)
@@ -118,6 +115,9 @@ public class MEAM_MC extends Simulation {
         ((AtomTypeSphere)cu.getFactory().getType()).setDiameter(2.5561); 
         
 	    phase = new Phase(this);
+        phase.getAgent(sn).setNMolecules(216);
+        phase.getAgent(ag).setNMolecules(0);
+        phase.getAgent(cu).setNMolecules(0);
 	    
 	    //beta-Sn phase
 	    

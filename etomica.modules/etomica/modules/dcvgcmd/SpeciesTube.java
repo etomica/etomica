@@ -19,8 +19,6 @@ public class SpeciesTube extends SpeciesSpheres {
 	public SpeciesTube(Simulation sim, int atomsPerRing, int numberOfRings){
 		super(sim, atomsPerRing*numberOfRings, new ElementSimple("T", Double.POSITIVE_INFINITY), 
                 new ConformationTube(sim.space, atomsPerRing));
-	
-		setNMolecules(1);
 	}
 	
 	

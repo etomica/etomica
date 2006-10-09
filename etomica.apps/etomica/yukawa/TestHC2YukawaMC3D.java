@@ -55,8 +55,8 @@ public class TestHC2YukawaMC3D extends Simulation{
 		ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
 		getController().addAction(activityIntegrate);
 		species = new SpeciesSpheresMono(this);
-		species.setNMolecules(numAtoms);
 		phase = new Phase(this);
+        phase.getAgent(species).setNMolecules(numAtoms);
 		phase.setDensity(0.65);
 		potential = new P2HC2Yukawa(this);
 		double truncationRadius = 3.0*potential.getSigma();

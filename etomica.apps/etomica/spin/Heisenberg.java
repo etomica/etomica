@@ -52,8 +52,7 @@ public class Heisenberg extends Simulation {
         phase = new Phase(this);
         int numAtoms = space.powerD(nCells);
         spins = new SpeciesSpheresMono(this);
-        spins.setNMolecules(numAtoms);
-        phase.makeMolecules();
+        phase.getAgent(spins).setNMolecules(numAtoms);
         new ConfigurationAligned(space).initializeCoordinates(phase);
         
         potential = new P2Spin(space);

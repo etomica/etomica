@@ -35,9 +35,9 @@ public class PairIndexerTestSimple extends Simulation {
         ConfigurationLattice config = new ConfigurationLattice(new BravaisLattice(prim));
         config.setRememberingIndices(true);
         Species species = new SpeciesSpheresMono(this);
-        species.setNMolecules(numMolecules);
         def.boxSize = 6;
         phase = new Phase(this);
+        phase.getAgent(species).setNMolecules(numMolecules);
         bdry = new BoundaryRectangularPeriodic(space, def.boxSize);
         OutputFile printer = new OutputFile("Simple.txt");      
         

@@ -76,8 +76,8 @@ public class TestHexane extends Simulation {
         //nurk
         
         SpeciesHexane species = new SpeciesHexane(this);
-        species.setNMolecules(numMolecules);
         phase = new Phase(this);
+        phase.getAgent(species).setNMolecules(numMolecules);
 //        config.initializeCoordinates(phase);
 
         integrator = new IntegratorMC(potentialMaster, defaults.temperature);

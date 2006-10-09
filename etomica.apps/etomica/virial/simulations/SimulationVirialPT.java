@@ -49,7 +49,6 @@ public class SimulationVirialPT extends Simulation {
         
 		int nMolecules = refCluster.pointCount();
 		species = speciesFactory.makeSpecies(this);//SpheresMono(this,AtomLinker.FACTORY);
-        species.setNMolecules(nMolecules);
 
         phase = new PhaseCluster[temperature.length];
         integrator = new IntegratorMC[temperature.length];
@@ -86,7 +85,7 @@ public class SimulationVirialPT extends Simulation {
             sampleCluster[iTemp] = sampleClusterFactory.makeWeightCluster(allValueClusters[iTemp]);
             sampleCluster[iTemp].setTemperature(temperature[iTemp]);
             phase[iTemp] = new PhaseCluster(this,sampleCluster[iTemp]);
-            phase[iTemp].makeMolecules();
+            phase[iTemp].getAgent(species).setNMolecules(nMolecules);
             
             integrator[iTemp] = new IntegratorMC(this);
             integrator[iTemp].setTemperature(temperature[iTemp]);
