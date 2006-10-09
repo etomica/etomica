@@ -261,13 +261,13 @@ public class DataLogger implements DataPipe, IntegratorNonintervalListener, java
     public interface DataWriter extends DataSink {
         
         /**
-         * Sets the FileWriter to be used for writing.  
+         * Sets the FileWriter to be used for actual file I/O.
          */
         public void setFileWriter(FileWriter newFileWriter);
 
         /**
          * Informs the DataSink that it will be writing the beginning of the 
-         * so printing header information is appropriate.
+         * file so printing header information is appropriate.
          */
         public void reset();
     }
