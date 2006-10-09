@@ -7,6 +7,7 @@ import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesMaster;
+import etomica.exception.MethodNotImplementedException;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -188,14 +189,9 @@ public class Species implements Comparable, java.io.Serializable {
      * this method.
      */
     public SpeciesSignature getSpeciesSignature() {
-        Constructor constructor = null;
-        try {
-            constructor = Species.class.getConstructor(new Class[]{Simulation.class,AtomFactory.class,AtomType.class});
-        }
-        catch(NoSuchMethodException e) {
-            System.err.println("you have no constructor.  be afraid");
-        }
-        return new SpeciesSignature(getName(),constructor,new Object[]{factory,agentType});
+        // AtomFactories can't be serialized (or rather, they'll serialize too 
+        // many other things)
+        return null;
     }
     
     final AtomType agentType;
