@@ -3,9 +3,11 @@ import java.lang.reflect.Constructor;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
+import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryHetero;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomTypeGroup;
+import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
@@ -90,13 +92,18 @@ public class SpeciesSpheresHetero extends Species implements EtomicaElement {
     public SpeciesSignature getSpeciesSignature() {
         Constructor constructor = null;
         try {
-            constructor = this.getClass().getConstructor(new Class[]{Simulation.class,int.class,int.class});
+            constructor = this.getClass().getConstructor(new Class[]{Simulation.class,Element[].class,int.class});
         }
         catch(NoSuchMethodException e) {
             System.err.println("you have no constructor.  be afraid");
         }
-        return new SpeciesSignature(getName(),constructor,new Object[]{new Integer(((AtomFactoryHetero)factory).getNumChildAtoms()),
-            new Integer(((AtomFactoryHetero)factory).getChildFactory().length)});
+        AtomFactory[] childFactories = ((AtomFactoryHetero)factory).getChildFactory();
+        Element[] leafElements = new Element[childFactories.length];
+        for (int i=0; i<childFactories.length; i++) {
+            leafElements[i] = ((AtomTypeLeaf)childFactories[i].getType()).getElement();
+        }
+        return new SpeciesSignature(getName(),constructor,new Object[]{leafElements, 
+            new Integer(((AtomFactoryHetero)factory).getNumChildAtoms())});
     }
     
 }
