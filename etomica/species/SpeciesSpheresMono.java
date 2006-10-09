@@ -5,6 +5,7 @@ import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomTypeGroup;
+import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
@@ -52,12 +53,12 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
     public SpeciesSignature getSpeciesSignature() {
         Constructor constructor = null;
         try {
-            constructor = this.getClass().getConstructor(new Class[]{Simulation.class});
+            constructor = this.getClass().getConstructor(new Class[]{Simulation.class,Element.class});
         }
         catch(NoSuchMethodException e) {
             System.err.println("you have no constructor.  be afraid");
         }
-        return new SpeciesSignature(getName(),constructor,new Object[]{});
+        return new SpeciesSignature(getName(),constructor,new Object[]{((AtomTypeLeaf)factory.getType()).getElement()});
     }
     
 }
