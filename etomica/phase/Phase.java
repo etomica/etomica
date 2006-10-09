@@ -19,6 +19,7 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
+import etomica.space.ICoordinate;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.Species;
@@ -345,7 +346,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         iterator.setPhase(newPhase);
         iterator.reset();
         while (iterator.hasNext()) {
-            ((AtomLeaf)iterator.nextAtom()).coord.E(((AtomLeaf)iterator.nextAtom()).coord);
+            ((AtomLeaf)iterator.nextAtom()).coord.E((ICoordinate)in.readObject());
         }
         return newPhase;
     }
