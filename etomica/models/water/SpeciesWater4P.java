@@ -13,15 +13,11 @@ import etomica.species.SpeciesSignature;
 public class SpeciesWater4P extends Species implements EtomicaElement {
     
     public SpeciesWater4P(Simulation sim) {
-        this(sim, sim.getDefaults().moleculeCount);
+        this(sim, Species.makeAgentType(sim));
     }
-    public SpeciesWater4P(Simulation sim, int nM) {
-        this(sim, nM, Species.makeAgentType(sim));
-    }
-    private SpeciesWater4P(Simulation sim, int nM, AtomTypeGroup agentType) {
+    private SpeciesWater4P(Simulation sim, AtomTypeGroup agentType) {
        super(sim, new AtomFactoryWater4P(sim, agentType),
                agentType);
-       nMolecules = nM;
     }
     
     public SpeciesSignature getSpeciesSignature() {

@@ -32,8 +32,6 @@ public class Default implements java.io.Serializable {
         return Mass.DIMENSION;
     }
     
-    public int moleculeCount = 0;
-    
     public double boxSize = 30.0;  //Angstroms
     public Dimension getBoxSizeDimension() {
         return Length.DIMENSION;

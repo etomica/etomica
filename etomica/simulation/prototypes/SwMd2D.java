@@ -42,8 +42,8 @@ public class SwMd2D extends Simulation {
         integrator.setTemperature(300.);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
-        species.setNMolecules(50);
         phase = new Phase(this);
+        phase.getAgent(species).setNMolecules(50);
         new ConfigurationSequential(space).initializeCoordinates(phase);
         potential = new P2SquareWell(this);
         this.potentialMaster.addPotential(potential,new Species[]{species,species});

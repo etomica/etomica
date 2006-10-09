@@ -3,12 +3,14 @@ import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeSphere;
 import etomica.config.Configuration;
+import etomica.config.ConfigurationLattice;
 import etomica.config.ConfigurationSequential;
 import etomica.integrator.IntegratorGEMC;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.integrator.mcmove.MCMoveRotate;
+import etomica.lattice.LatticeCubicFcc;
 import etomica.phase.Phase;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
@@ -43,9 +45,9 @@ public class GEMCWithRotation extends Simulation {
 	    activityIntegrate.setInterval(400);
 	    
 	    species = new SpeciesSpheresRotating(this);
-        species.setNMolecules(200);
 
 	    phase1 = new Phase(this);
+        phase1.getAgent(species).setNMolecules(200);
         
 	    IntegratorMC integratorMC = new IntegratorMC(this);
         integratorMC.setPhase(phase1);
@@ -56,6 +58,7 @@ public class GEMCWithRotation extends Simulation {
         
 
 	    phase2 = new Phase(this);
+        phase2.getAgent(species).setNMolecules(200);
         integratorMC = new IntegratorMC(this);
         integratorMC.setPhase(phase1);
         moveManager = integratorMC.getMoveManager();
@@ -70,7 +73,7 @@ public class GEMCWithRotation extends Simulation {
             config = new ConfigurationSequential(space);
         }
         else {
-            config = new ConfigurationSequential(space);
+            config = new ConfigurationLattice(new LatticeCubicFcc());
         }
         config.initializeCoordinates(phase1);
         config.initializeCoordinates(phase2);

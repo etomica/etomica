@@ -53,8 +53,8 @@ public class HSMD2D_noNbr extends Simulation {
         activityIntegrate = new ActivityIntegrate(this,integrator);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
-        species.setNMolecules(64);
 	    phase = new Phase(this);
+        phase.getAgent(species).setNMolecules(64);
         new ConfigurationSequential(space).initializeCoordinates(phase);
 	    P2HardSphere potential = new P2HardSphere(this);
 	    potentialMaster.addPotential(potential,new Species[]{species,species});

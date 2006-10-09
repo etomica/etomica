@@ -21,6 +21,7 @@ import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
 
+// this class is probably somewhat broken.  See etomica.tests.TestSWChain for a known-working chain simulation
 public class ChainHSMD3D extends Simulation {
 
     public Phase phase;
@@ -53,12 +54,12 @@ public class ChainHSMD3D extends Simulation {
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheres(this,chainLength);
-        species.setNMolecules(numAtoms);
         ((ConformationLinear)((AtomFactoryHomo)species.getFactory()).getConformation()).setBondLength(defaults.atomSize);
         ((ConformationLinear)((AtomFactoryHomo)species.getFactory()).getConformation()).setAngle(1,0.5);
         
         phase = new Phase(this);
         new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);
+        species.getAgent(phase).setNMolecules(numAtoms);
         
         PotentialGroup p1Intra = P1BondedHardSpheres.makeP1BondedHardSpheres(this);
         potentialMaster.addPotential(p1Intra,new Species[]{species});

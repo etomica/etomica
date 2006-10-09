@@ -55,8 +55,8 @@ public class TestLJMC3D extends Simulation {
         activityIntegrate.setMaxSteps(200000);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
-        species.setNMolecules(numAtoms);
 	    phase = new Phase(this);
+        phase.getAgent(species).setNMolecules(numAtoms);
         phase.setDensity(0.65);
         potential = new P2LennardJones(this);
         double truncationRadius = 3.0*potential.getSigma();

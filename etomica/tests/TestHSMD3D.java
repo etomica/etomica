@@ -54,8 +54,6 @@ public class TestHSMD3D extends Simulation {
         activityIntegrate.setMaxSteps(20000000/numAtoms);
         species = new SpeciesSpheresMono(this);
         species2 = new SpeciesSpheresMono(this);
-        species.setNMolecules(numAtoms);
-        species2.setNMolecules(numAtoms/100);
 
         potentialMaster.addPotential(new P2HardSphere(this),new Species[]{species,species});
 
@@ -64,6 +62,8 @@ public class TestHSMD3D extends Simulation {
         potentialMaster.addPotential(new P2HardSphere(this),new Species[]{species2,species2});
         
         phase = new Phase(this);
+        phase.getAgent(species).setNMolecules(numAtoms);
+        phase.getAgent(species2).setNMolecules(numAtoms/100);
         integrator.setPhase(phase);
         new ConfigurationFile(space,"HSMD3D"+Integer.toString(numAtoms)).initializeCoordinates(phase);
         

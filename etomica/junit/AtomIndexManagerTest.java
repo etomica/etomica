@@ -32,11 +32,13 @@ public class AtomIndexManagerTest extends TestCase {
         super.setUp();
         Simulation sim = new Simulation(Space2D.getInstance());
         SpeciesSpheresMono species0 = new SpeciesSpheresMono(sim);
-        species0.setNMolecules(20);
         SpeciesSpheres species1 = new SpeciesSpheres(sim, 5);
-        species1.setNMolecules(10);
         Phase phase0 = new Phase(sim);
         Phase phase1 = new Phase(sim);
+        phase0.getAgent(species0).setNMolecules(20);
+        phase0.getAgent(species1).setNMolecules(10);
+        phase1.getAgent(species0).setNMolecules(20);
+        phase1.getAgent(species1).setNMolecules(10);
         atoms = new Atom[27];
         int i = 0;
         atoms[i++] = sim.speciesRoot;//0

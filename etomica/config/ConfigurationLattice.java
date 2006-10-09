@@ -321,8 +321,7 @@ public class ConfigurationLattice extends Configuration {
         Phase phase = new Phase(sim);
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
         int k = 4;
-        species.setNMolecules(4 * k * k * k);
-        phase.makeMolecules();
+        phase.getAgent(species).setNMolecules(4 * k * k * k);
         IntegratorHard integrator = new IntegratorHard(sim);
         integrator.setPhase(phase);
 //        ColorSchemeByType colorScheme = new ColorSchemeByType();

@@ -39,7 +39,6 @@ public final class SpeciesAgent extends Atom {
      */
     public void setNMolecules(int n) {
         ((SpeciesMaster)node.parentGroup()).notifyNewAtoms((n-getNMolecules())*moleculeFactory().getNumTreeAtoms());
-        lastNMolecules = n;
         AtomTreeNodeGroup treeNode = (AtomTreeNodeGroup)node;
         if(n > treeNode.childAtomCount()) {
             for(int i=treeNode.childAtomCount(); i<n; i++) addNewAtom();
@@ -58,11 +57,6 @@ public final class SpeciesAgent extends Atom {
         }
     }
     
-    public void makeMolecules() {
-        int nMolecules = (lastNMolecules>-1) ? lastNMolecules : type.getSpecies().getNMolecules(); 
-        setNMolecules(nMolecules);
-    }
-    
     public Dimension getNMoleculesDimension() {return Quantity.DIMENSION;}
 
     /**
@@ -70,7 +64,7 @@ public final class SpeciesAgent extends Atom {
      */
     public static final class AgentAtomTreeNode extends AtomTreeNodeGroup {
         
-        private AgentAtomTreeNode(Atom atom) {
+        protected AgentAtomTreeNode(Atom atom) {
             super(atom);
         }
         
@@ -101,6 +95,5 @@ public final class SpeciesAgent extends Atom {
         }
     };
     public AtomLinker.Tab firstLeafAtomTab;
-    private int lastNMolecules = -1;
     
 } //end of SpeciesAgent

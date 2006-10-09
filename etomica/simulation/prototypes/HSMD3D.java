@@ -98,7 +98,6 @@ public class HSMD3D extends Simulation {
         getController().addAction(activityIntegrate);
         
         species = new SpeciesSpheresMono(this);
-        species.setNMolecules(numAtoms);
 //        Crystal crystal = new LatticeCubicFcc(space);
 //        ConfigurationLattice configuration = new ConfigurationLattice(space, crystal);
 //        phase.setConfiguration(configuration);
@@ -108,6 +107,7 @@ public class HSMD3D extends Simulation {
         potentialMaster.addPotential(potential,new Species[]{species,species});
 
         phase = new Phase(this);
+        phase.getAgent(species).setNMolecules(numAtoms);
         new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);
         integrator.setPhase(phase);
  //       integrator.addIntervalListener(new PhaseImposePbc(phase));

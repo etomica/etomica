@@ -71,7 +71,7 @@ public class TestSWChain extends Simulation {
         ((PotentialMasterList)potentialMaster).setRange(neighborRangeFac*sqwLambda*defaults.atomSize);
 
         SpeciesSpheres species = new SpeciesSpheres(this,chainLength);
-        species.setNMolecules(numMolecules);
+        phase.getAgent(species).setNMolecules(numMolecules);
         P2HardBond bonded = new P2HardBond(this);
         PotentialGroup potentialChainIntra = potentialMaster.makePotentialGroup(1);
         potentialChainIntra.addPotential(bonded, ApiBuilder.makeAdjacentPairIterator());

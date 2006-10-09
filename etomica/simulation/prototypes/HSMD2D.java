@@ -64,29 +64,19 @@ public class HSMD2D extends Simulation {
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
 	    species2 = new SpeciesSpheresMono(this);
-        species.setNMolecules(512);
-        species2.setNMolecules(5);
         potential = new P2HardSphere(this);
         potential2 = new P2HardSphere(this);
         potential22 = new P2HardSphere(this);
-//	    this.potentialMaster.setSpecies(potential,new Species[]{species,species});
-	    //this.potentialMaster.setSpecies(potential,new Species[]{species2,species2});
-	    //this.potentialMaster.setSpecies(potential,new Species[]{species,species2});
         
         potentialMaster.addPotential(potential,new Species[]{species,species});
 
         potentialMaster.addPotential(potential2,new Species[]{species2,species2});
 
         potentialMaster.addPotential(potential22,new Species[]{species2,species});
-//        potentialMaster.setSpecies(potential,new Species[]{species,species});
-//        potentialMaster.setSpecies(potential,new Species[]{species2,species2});
-//        potentialMaster.setSpecies(potential,new Species[]{species2,species});
-//        integrator.addIntervalListener(new PhaseImposePbc(phase));
 
-        
-//		elementCoordinator.go();
-        //explicit implementation of elementCoordinator activities
         phase = new Phase(this);
+        phase.getAgent(species).setNMolecules(512);
+        phase.getAgent(species2).setNMolecules(5);
         new ConfigurationSequential(space).initializeCoordinates(phase);
         integrator.setPhase(phase);
     }

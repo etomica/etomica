@@ -132,8 +132,7 @@ import etomica.species.SpeciesSpheresMono;
         Simulation sim = new Simulation();
         Phase phase = new Phase(sim);
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
-        species.setNMolecules(10);
-//        sim.elementCoordinator.go();
+        phase.getAgent(species).setNMolecules(10);
         
         boolean pauseForInput = true;
         

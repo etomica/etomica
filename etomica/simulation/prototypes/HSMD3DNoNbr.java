@@ -54,11 +54,11 @@ public class HSMD3DNoNbr extends Simulation {
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
-        species.setNMolecules(numAtoms);
         potential = new P2HardSphere(this);
         this.potentialMaster.addPotential(potential,new Species[]{species,species});
 
         phase = new Phase(this);
+        phase.getAgent(species).setNMolecules(numAtoms);
 //        phase.setBoundary(new BoundaryTruncatedOctahedron(space));
         integrator.setPhase(phase);
         integrator.addListener(new PhaseImposePbc(phase));

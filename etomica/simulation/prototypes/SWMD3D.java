@@ -72,7 +72,7 @@ public class SWMD3D extends Simulation {
     potential.setLambda(1.6);
 
     species  = new etomica.species.SpeciesSpheresMono(this);
-	species.setNMolecules(108);
+    phase.getAgent(species).setNMolecules(108);
 
 	
 //	DeviceSlider tControl = new DeviceSlider(integrator, "temperature");
@@ -106,7 +106,6 @@ public class SWMD3D extends Simulation {
 
 //	DeviceNSelector nControl = new DeviceNSelector(speciesSpheres0.getAgent(phase0));
 //	nControl.setMaximum(108);
-	phase.makeMolecules();
 	phase.setDensity(0.0405);
     ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc());
     configuration.initializeCoordinates(phase);

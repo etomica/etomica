@@ -86,8 +86,8 @@ public class ConfigurationZincblende extends Configuration {
         Phase phase = new Phase(sim);
         etomica.species.SpeciesSpheresMono speciesSpheres0  = new etomica.species.SpeciesSpheresMono(sim);
         etomica.species.SpeciesSpheresMono speciesSpheres1  = new etomica.species.SpeciesSpheresMono(sim);
-        speciesSpheres0.setNMolecules(32);
-        speciesSpheres1.setNMolecules(32);
+        phase.getAgent(speciesSpheres0).setNMolecules(32);
+        phase.getAgent(speciesSpheres1).setNMolecules(32);
         new ConfigurationZincblende(space).initializeCoordinates(phase);
 
         etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(sim);

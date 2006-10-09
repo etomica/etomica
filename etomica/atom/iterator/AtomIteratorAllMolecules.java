@@ -51,11 +51,10 @@ public class AtomIteratorAllMolecules extends AtomIteratorAdapter
         Species species2 = new SpeciesSpheresMono(sim);
         Species species1 = new SpeciesSpheres(sim, 3);
         Species species0 = new SpeciesSpheres(sim, 2);
-        species0.setNMolecules(3);
-        species1.setNMolecules(2);
-        species2.setNMolecules(3);
         Phase phase = new Phase(sim);
-        //		sim.elementCoordinator.go();
+        phase.getAgent(species0).setNMolecules(3);
+        phase.getAgent(species1).setNMolecules(2);
+        phase.getAgent(species2).setNMolecules(3);
 
         AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules();
         System.out.println(iterator.hasNext());

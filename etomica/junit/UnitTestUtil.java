@@ -134,6 +134,7 @@ public class UnitTestUtil implements java.io.Serializable {
         Simulation sim = new Simulation(space, false, new PotentialMaster(space),
                 new int[] { 1, 4, 4, 11, 6, 3, 3 }, new Default());
         //        new SpeciesSpheres(sim);
+        Phase phase = new Phase(sim);
         for (int i = 0; i < nMolecules.length; i++) {
             AtomTypeGroup agentType = Species.makeAgentType(sim);
             AtomFactoryHetero factory = new AtomFactoryHetero(sim, agentType);
@@ -146,9 +147,8 @@ public class UnitTestUtil implements java.io.Serializable {
             factory.setChildFactory(childFactories);
             factory.setChildCount(nAtoms[i]);
             Species species = new MySpecies(sim, factory, agentType);
-            species.setNMolecules(nMolecules[i]);
+            phase.getAgent(species).setNMolecules(nMolecules[i]);
         }
-        new Phase(sim);
         return sim.speciesRoot;
     }
     

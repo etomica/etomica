@@ -49,7 +49,7 @@ public class TestSWMC3D extends Simulation {
         activityIntegrate.setMaxSteps(500000);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
-        species.setNMolecules(numAtoms);
+        phase.getAgent(species).setNMolecules(numAtoms);
 	    phase = new Phase(this);
         phase.setDensity(0.7);
         integrator.getMoveEventManager().addListener(((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).makeMCMoveListener());

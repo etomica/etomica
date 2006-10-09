@@ -56,7 +56,6 @@ public class Species implements Comparable, java.io.Serializable {
     public Species(Simulation sim, AtomFactory factory, AtomType agentType) {
         this.factory = factory;
         this.agentType = agentType;
-        nMolecules = sim.getDefaults().moleculeCount;
         setName(NameMaker.makeName(this.getClass()));
         agentType.setSpecies(this);
         index = sim.speciesRoot.addSpecies(this);
@@ -111,35 +110,6 @@ public class Species implements Comparable, java.io.Serializable {
     public String toString() {return getName();}
     
     public AtomFactory moleculeFactory() {return factory;}
-    
-    /**
-     * Nominal number of molecules of this species in each phase.
-     * Actual number may differ if molecules have been added or removed to/from the phase
-     */
-    protected int nMolecules;;
-    
-    /**
-     * Accessor method for nominal number of molecules in each phase.  Actual 
-     * number of molecules of this species in a given phase is obtained via
-     * the getNMolecules method of Species.Agent
-     * 
-     * @return Nominal number of molecules in each phase
-     * @see SpeciesAgent#getNMolecules
-     */
-    public int getNMolecules() {return nMolecules;}
-    public Dimension getNMoleculesDimension() {return Quantity.DIMENSION;}
-    
-    /**
-     * Sets the number of molecules of this species for each phase.
-     * Propagates the change to agents of this species in all phases, so
-     * it creates the given number of molecules in every phase.
-     * 
-     * @param n The new number of molecules of this species in each phase
-     * @see SpeciesAgent#setNMolecules
-     */
-    public void setNMolecules(int n) {
-        nMolecules = n;
-    }
     
     /**
      * Constructs an Agent of this species and sets its parent phase.
