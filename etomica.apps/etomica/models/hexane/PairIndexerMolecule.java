@@ -1,11 +1,11 @@
 package etomica.models.hexane;
 
 import etomica.atom.Atom;
-import etomica.atom.AtomPair;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.lattice.Primitive;
 import etomica.phase.Phase;
 import etomica.space.Boundary;
+import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 
@@ -37,9 +37,18 @@ public class PairIndexerMolecule {
         // an undisturbed
         // original.
 //        this.bdry = (Boundary) phase.getBoundary().clone();
+        
+        // assume we have a rectangular box.  make our own little boundary
+        // instance instead of the actual boundary so that boundary changes
+        // don't affect us (since we work off original coordinates)
+        bdry = new BoundaryRectangularPeriodic(phase.space(), 1);
+        bdry.setDimensions(phase.getBoundary().getDimensions());
 
         dim = phase.space().D();
         maxes = new int[dim];
+        mins = new int[dim];
+        jumpCount = new int[dim];
+        halfMax = new int[dim];
         temp = phase.space().makeVector();
 
         inverter = phase.space().makeTensor();
@@ -47,21 +56,18 @@ public class PairIndexerMolecule {
         inverter.inverse();
         
         indicesV = new Vector[phase.getSpeciesMaster().getMaxGlobalIndex() + 1];
-//        for(int i = 0; i < nmol; )
 
         calculateAllAtomIndices();
-        // Make the maximum length of the storage array
-        maxLength = 1;
-        for (int i = 0; i < dim; i++) {
-            maxLength *= getMaxes(i);
-        }
     }
 
     /**
      * Assign the molecule index to each individual atom.
      */
     private void calculateAllAtomIndices() {
-        indices = new int[phase.getSpeciesMaster().getMaxGlobalIndex() + 1][];
+        for (int i=0; i<dim; i++) {
+            maxes[i] = Integer.MIN_VALUE;
+            mins[i] = Integer.MAX_VALUE;
+        }
 
         AtomIteratorAllMolecules aim = new AtomIteratorAllMolecules(phase);
         aim.reset();
@@ -70,7 +76,6 @@ public class PairIndexerMolecule {
         r0.E(firstatom.type.getPositionDefinition().position(firstatom));
 
         temp.E(0.0);
-        // AtomIteratorTree ait = new AtomIteratorTree();
         while (aim.hasNext()) {
             Atom molecule = aim.nextAtom();
             temp.E(molecule.type.getPositionDefinition().position(molecule));
@@ -86,9 +91,36 @@ public class PairIndexerMolecule {
                 if (maxes[i] < tempI[i]) {
                     maxes[i] = tempI[i];
                 }
+                if (mins[i] > tempI[i]) {
+                    mins[i] = tempI[i];
+                }
             }
-
         }
+
+        int[] iJump = new int[dim];
+        for (int i=dim-1; i>-1; i--) {
+            // iJump is how many indices exist for dimension i
+            iJump[i] = maxes[i] - mins[i] + 1;
+            if (i==dim-1) {
+                // jumpCount is how many bins we increase each time index i 
+                // increases by 1 with all other indices held fixed
+                jumpCount[i] = 1;
+            }
+            else {
+                jumpCount[i] = jumpCount[i+1] * iJump[i+1];
+            }
+            if (iJump[i] % 2 == 0) {
+                // if jump is even, -half and +half are equivalent and we'll
+                // need to detect that below and fix it.
+                halfMax[i] = iJump[i] / 2;
+            }
+            else {
+                // we don't actually need halfMax for this case
+                // set it to something bogus
+                halfMax[i] = iJump[i]*2;
+            }
+        }
+        maxLength = jumpCount[0] * iJump[0];
     }
 
     /**
@@ -135,6 +167,14 @@ public class PairIndexerMolecule {
         // is a definite framework for how the vectors point.
         orderMillerIndices(tempI);
 
+        //XXX ick.  If -half and +half are identical, then make -half become
+        //+half
+        for (int i=0; i<dim; i++) {
+            if (tempI[i] == -halfMax[i]) {
+                tempI[i] = halfMax[i];
+            }
+        }
+
         // Calculate the bin number based on the Miller indices and the atom
         // numbers in the molecule.
         return calculateBinNumber(tempI);
@@ -148,51 +188,27 @@ public class PairIndexerMolecule {
      */
     // Note that this method operates on and may change its argument.
     private void orderMillerIndices(int[] m) {
-        // Instead of a lot of confusing loops, why not just use a switch
-        // statment?
-        switch (dim) {
-        case 1: {
-            if (m[0] < 0) {
-                m[0] *= -1;
-                flipflag = true;
+        // find the first non-zero index.
+        for (int i = 0; i < dim; i++) {
+            if (m[i] == halfMax[i] || m[i] == -halfMax[i]) {
+                // on the edge.  this can get flipped later if it's negative
+                // after we do our thing.
+                continue;
             }
-        }
-            break;
-        case 2: {
-            if (m[0] < 0) {
-                m[0] *= -1;
-                m[1] *= -1;
+            if (m[i] > 0) {
+                //all is well
+                break;
+            }
+            else if (m[i] < 0) {
+                //all is backwards.  fix it
                 flipflag = true;
-            } else if (m[0] == 0) {
-                if (m[1] < 0) {
-                    m[1] *= -1;
-                    flipflag = true;
+                for (int j = i; j < dim; j++) {
+                    m[j] = -m[j];
                 }
+                break;
             }
+            // else it's 0, so go on to the next one
         }
-            break;
-        case 3: {
-            if (m[0] < 0) {
-                m[0] *= -1;
-                m[1] *= -1;
-                m[2] *= -1;
-                flipflag = true;
-            } else if (m[0] == 0) {
-                if (m[1] < 0) {
-                    m[1] *= -1;
-                    m[2] *= -1;
-                    flipflag = true;
-                } else if (m[1] == 0) {
-                    if (m[2] < 0) {
-                        m[2] *= -1;
-                        flipflag = true;
-                    }
-                }
-            }
-        }
-            break;
-        }// end switch statement
-
     }// end method
 
     /**
@@ -202,22 +218,11 @@ public class PairIndexerMolecule {
      */
     private int calculateBinNumber(int[] tin) {
         int t = 0;
-
-        switch (dim) {
-        case 1: {
-            t = tin[0];
+        for (int i=0; i<dim; i++) {
+            t += tin[i] * jumpCount[i];
         }
-            break;
-        case 2: {
-            t = tin[0] * getMaxes(1) + tin[1];
-
-        }
-            break;
-        case 3: {
-            t = tin[0] * (getMaxes(1) + getMaxes(2)) + tin[1] * getMaxes(2)
-                    + tin[2];
-        }
-            break;
+        if (t < 0) {
+            throw new RuntimeException("bin can't be negative "+t+" "+tin[0]+" "+tin[1]+" "+tin[2]);
         }
         return t;
     }
@@ -235,6 +240,9 @@ public class PairIndexerMolecule {
     int dim; // The dimensions of the system
 
     private int[] maxes; // The maximum values in each physical direction
+    private int[] mins;
+    private int[] halfMax;
+    private int[] jumpCount;
 
     private int maxLength; // The maximum number of index values possible. May
 
@@ -247,8 +255,6 @@ public class PairIndexerMolecule {
     Vector[] tempV; // Temporary storage space.
 
     int[] tempI; // Temporary storage space.
-
-    int[][] indices; // The first index is the global index of the atom.
 
     Vector[] indicesV; // The position-in-space vector between the firstatom
 
