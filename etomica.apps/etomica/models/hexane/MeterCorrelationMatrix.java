@@ -54,6 +54,14 @@ public class MeterCorrelationMatrix implements Meter {
             op[next.getGlobalIndex()] = (Vector)next.coord.position().clone();
         }
         
+        //Set up the tempVex.
+        int tempInt = pri.getMaxLength();
+        tempVex = new Vector[tempInt];
+        for(int i = 0; i < tempInt; i++){
+            tempVex[i] = phase.space().makeVector();
+        }
+        
+        
         resetMeter();
 
     }
@@ -100,8 +108,10 @@ public class MeterCorrelationMatrix implements Meter {
         api1.reset();
         atomIterator.reset();
         AtomLeaf firstAtom = (AtomLeaf) atomIterator.nextAtom();
+        int ticker = 0;
         while (atomIterator.hasNext()) {
             int bin = pri.getBin(firstAtom, atomIterator.nextAtom());
+            ticker++;
             ((DataTensor)data.getData(bin)).x.E(0.0);
         }
     }
