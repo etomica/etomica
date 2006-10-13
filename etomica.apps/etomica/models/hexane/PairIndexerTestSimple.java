@@ -3,14 +3,20 @@ package etomica.models.hexane;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
+import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.config.ConfigurationLattice;
+import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.IntegratorPhase;
 import etomica.lattice.BravaisLattice;
+import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.phase.Phase;
@@ -21,28 +27,45 @@ import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.Default;
 
 public class PairIndexerTestSimple extends Simulation {
 
-    public PairIndexerTestSimple(Space space, int numMolecules){
+    public PairIndexerTestSimple(Space space, int latticeConfig){
         super(space);
       
-        Default def = new Default();
-        def.makeLJDefaults();
-        def.atomSize = 0.5;
+        int numMolecules = -1;
+        ConfigurationLattice config = null;
+        defaults.makeLJDefaults();
+        if (latticeConfig == SIMPLE_CUBIC) {
+            numMolecules = 216;
+            defaults.boxSize = 6;
+            prim = new PrimitiveCubic(space);
+            config = new ConfigurationLattice(new BravaisLattice(prim));
+        }
+        else if (latticeConfig == FCC) {
+            numMolecules = 256;
+            defaults.boxSize = 8;
+            LatticeCubicFcc latticeFcc = new LatticeCubicFcc();
+            config = new ConfigurationLattice(latticeFcc);
+            prim = latticeFcc.getPrimitiveFcc();
+        }
+        defaults.atomSize = 0.5;
         
-        prim = new PrimitiveCubic(space);
-        ConfigurationLattice config = new ConfigurationLattice(new BravaisLattice(prim));
         config.setRememberingIndices(true);
         Species species = new SpeciesSpheresMono(this);
-        def.boxSize = 6;
         phase = new Phase(this);
         phase.getAgent(species).setNMolecules(numMolecules);
-        BoundaryRectangularPeriodic bdry = new BoundaryRectangularPeriodic(space, def.boxSize);
+        BoundaryRectangularPeriodic bdry = new BoundaryRectangularPeriodic(this);
         
         phase.setBoundary(bdry);
-        config.initializeCoordinates(phase); 
+        config.initializeCoordinates(phase);
+        if (latticeConfig != SIMPLE_CUBIC) {
+            ConfigurationLattice.MyLattice myLattice = (ConfigurationLattice.MyLattice)config.getLatticeMemento();
+            Vector scaling = myLattice.latticeScaling;
+            // assume isotropic scaling.  If it's not we're screwed anyway
+            // because the FCC primitive has to be cubic
+            prim.scaleSize(scaling.x(0));
+        }
     }
     
     
@@ -50,17 +73,13 @@ public class PairIndexerTestSimple extends Simulation {
      * @param args
      */
     public static void main(String[] args) {
-        int numMolecules = 216;
         
-        PairIndexerTestSimple pit = new PairIndexerTestSimple(Space3D.getInstance(), numMolecules);
+        PairIndexerTestSimple pit = new PairIndexerTestSimple(Space3D.getInstance(), FCC);
         
 //      nan it will need to be changed*/
         PairIndexerMolecule pi = new PairIndexerMolecule(pit.phase, pit.prim);
       
         OutputFile printer = new OutputFile("Simple.txt");      
-        Atom atom0 = new AtomLeaf(pit.phase.space());
-        Atom atom1 = new AtomLeaf(pit.phase.space());
-        AtomPair ap = new AtomPair(atom0, atom1);
       
         AtomIterator inner = new AtomIteratorLeafAtoms(pit.phase);
         AtomIterator outer = new AtomIteratorLeafAtoms(pit.phase);
@@ -74,9 +93,9 @@ public class PairIndexerTestSimple extends Simulation {
         int maxBin = -1;
       
         while(api.hasNext()){
-            ap = api.nextPair();
-            atom0 = ap.atom0;
-            atom1 = ap.atom1;
+            AtomPair ap = api.nextPair();
+            Atom atom0 = ap.atom0;
+            Atom atom1 = ap.atom1;
             int bin = pi.getBin(atom0, atom1);
 
 //        printer.println(atom0+" "+atom1+" "+dr+" "+bin);
@@ -136,10 +155,21 @@ public class PairIndexerTestSimple extends Simulation {
         }
  
         printer.close();
+ 
+        /*
+        // uncomment to show the phase
+        IntegratorPhase dummy = new IntegratorMC(pit.potentialMaster,1.0);
+        dummy.setPhase(pit.phase);
+        pit.getController().addAction(new ActivityIntegrate(dummy, false, false));
+        ((AtomTypeSphere)pit.phase.firstAtom().type).setDiameter(1.0);
+        SimulationGraphic simGraphic = new SimulationGraphic(pit);
+        simGraphic.makeAndDisplayFrame();
+        */
         
     }
 
-    Phase phase;
+    public Phase phase;
     public Primitive prim;
-    
+    public static final int SIMPLE_CUBIC = 0;
+    public static final int FCC = 1;
 }
