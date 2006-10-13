@@ -48,7 +48,6 @@ public class PairIndexerMolecule {
         maxes = new int[dim];
         mins = new int[dim];
         jumpCount = new int[dim];
-        halfMax = new int[dim];
         temp = phase.space().makeVector();
 
         inverter = phase.space().makeTensor();
@@ -86,6 +85,7 @@ public class PairIndexerMolecule {
             bdry.nearestImage(temp);
 
             tempI = calculateTheseIndices(temp);
+            orderMillerIndices(tempI);
 
             for (int i = 0; i < dim; i++) {
                 if (maxes[i] < tempI[i]) {
@@ -100,7 +100,7 @@ public class PairIndexerMolecule {
         int[] iJump = new int[dim];
         for (int i=dim-1; i>-1; i--) {
             // iJump is how many indices exist for dimension i
-            iJump[i] = maxes[i] - mins[i] + 1;
+            iJump[i] = maxes[i] - mins[i] + 3;
             if (i==dim-1) {
                 // jumpCount is how many bins we increase each time index i 
                 // increases by 1 with all other indices held fixed
@@ -108,16 +108,6 @@ public class PairIndexerMolecule {
             }
             else {
                 jumpCount[i] = jumpCount[i+1] * iJump[i+1];
-            }
-            if (iJump[i] % 2 == 0) {
-                // if jump is even, -half and +half are equivalent and we'll
-                // need to detect that below and fix it.
-                halfMax[i] = iJump[i] / 2;
-            }
-            else {
-                // we don't actually need halfMax for this case
-                // set it to something bogus
-                halfMax[i] = iJump[i]*2;
             }
         }
         maxLength = jumpCount[0] * iJump[0];
@@ -128,6 +118,7 @@ public class PairIndexerMolecule {
      */
     // nan is this okay after the atom has moved?
     private int[] calculateTheseIndices(Vector v) {
+        // transformation is done in place
         v.transform(inverter);
 
         int[] w = new int[v.D()];
@@ -167,12 +158,14 @@ public class PairIndexerMolecule {
         // is a definite framework for how the vectors point.
         orderMillerIndices(tempI);
 
-        //XXX ick.  If -half and +half are identical, then make -half become
-        //+half
         for (int i=0; i<dim; i++) {
-            if (tempI[i] == -halfMax[i]) {
-                tempI[i] = halfMax[i];
+            if (tempI[i] < mins[i]-1 || tempI[i] > maxes[i]+1) {
+                System.out.println("indices="+tempI[0]+" "+tempI[1]+" "+tempI[2]);
+                throw new RuntimeException("index["+i+"]="+tempI[i]+" is out of bounds "+temp);
             }
+            // fudge factor.  Make sure we never hit the edge
+            // we added padding to jumpCount so we can do this
+            tempI[i]++;
         }
 
         // Calculate the bin number based on the Miller indices and the atom
@@ -190,11 +183,6 @@ public class PairIndexerMolecule {
     private void orderMillerIndices(int[] m) {
         // find the first non-zero index.
         for (int i = 0; i < dim; i++) {
-            if (m[i] == halfMax[i] || m[i] == -halfMax[i]) {
-                // on the edge.  this can get flipped later if it's negative
-                // after we do our thing.
-                continue;
-            }
             if (m[i] > 0) {
                 //all is well
                 break;
@@ -241,7 +229,6 @@ public class PairIndexerMolecule {
 
     private int[] maxes; // The maximum values in each physical direction
     private int[] mins;
-    private int[] halfMax;
     private int[] jumpCount;
 
     private int maxLength; // The maximum number of index values possible. May
@@ -251,8 +238,6 @@ public class PairIndexerMolecule {
     Primitive prim; // The primitives used to define the space
 
     Vector temp; // Temporary storage space.
-
-    Vector[] tempV; // Temporary storage space.
 
     int[] tempI; // Temporary storage space.
 
