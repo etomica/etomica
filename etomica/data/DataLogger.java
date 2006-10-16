@@ -91,10 +91,10 @@ public class DataLogger implements DataPipe, IntegratorNonintervalListener, java
     private void doWrite(Data data) {
         openFile();
         dataWriter.setFileWriter(fileWriter);
-        if(closeFileEachTime) {
+        dataSink.putData(data);
+        if(closeFileEachTime || !appending) {
             closeFile();
         }
-        dataSink.putData(data);
     }
     
     /**
