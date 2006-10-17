@@ -17,7 +17,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorPhase;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.lattice.Primitive;
+import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;

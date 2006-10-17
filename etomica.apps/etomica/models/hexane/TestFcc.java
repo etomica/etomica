@@ -15,7 +15,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.lattice.Primitive;
+import etomica.lattice.crystal.Primitive;
 import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;

@@ -2,7 +2,7 @@ package etomica.models.hexane;
 
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.lattice.Primitive;
+import etomica.lattice.crystal.Primitive;
 import etomica.phase.Phase;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
