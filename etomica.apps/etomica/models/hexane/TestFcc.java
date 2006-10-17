@@ -7,11 +7,10 @@ import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
+import etomica.data.DataArrayWriter;
 import etomica.data.DataLogger;
 import etomica.data.DataPump;
-import etomica.data.DataTableWriter;
 import etomica.data.types.CastGroupToDoubleArray;
-import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntervalActionAdapter;
@@ -41,7 +40,7 @@ public class TestFcc extends Simulation {
 
         LatticeCubicFcc lattice = new LatticeCubicFcc(1.0);
         ConfigurationLattice config = new ConfigurationLattice(lattice);
-//        config.setRescalingToFitVolume(false);
+        // config.setRescalingToFitVolume(false);
         config.setRememberingIndices(true);
 
         defaults.makeLJDefaults();
@@ -60,7 +59,7 @@ public class TestFcc extends Simulation {
         integrator.setIsothermal(false);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,
                 integrator);
-        activityIntegrate.setMaxSteps(2000000);
+        activityIntegrate.setMaxSteps(10000);
         getController().addAction(activityIntegrate);
 
         double timeStep = 0.005;
@@ -83,39 +82,53 @@ public class TestFcc extends Simulation {
         integrator.addListener(makeperiodic);
 
         config.initializeCoordinates(phase);
-        
-        //nan this section is a patch
-        //first we find out the scaling used in ConfigurationLattice/LatticeCubicFcc
-        //then, we create a primitive fcc lattice, and scale it so we can use it in pri.
-        ConfigurationLattice.MyLattice myLattice = (ConfigurationLattice.MyLattice)config.getLatticeMemento();
+
+        // nan this section is a patch
+        // first we find out the scaling used in
+        // ConfigurationLattice/LatticeCubicFcc
+        // then, we create a primitive fcc lattice, and scale it so we can use
+        // it in pri.
+        ConfigurationLattice.MyLattice myLattice = (ConfigurationLattice.MyLattice) config
+                .getLatticeMemento();
         Vector scaling = myLattice.latticeScaling;
-        scaling.TE(0.5*Math.sqrt(2.0)); //we need this because the fccPrimitive.setSize method uses the unit vectors, not the actual lattice vectors, and this eliminates the radical 2 in the unit vectors.
+        scaling.TE(0.5 * Math.sqrt(2.0)); // we need this because the
+                                            // fccPrimitive.setSize method uses
+                                            // the unit vectors, not the actual
+                                            // lattice vectors, and this
+                                            // eliminates the radical 2 in the
+                                            // unit vectors.
         Primitive fccPrimitive = lattice.getPrimitiveFcc();
         fccPrimitive.setSize(scaling.toArray());
-      //nan  phase.setDensity(1.04);
+        // nan phase.setDensity(1.04);
         integrator.setPhase(phase);
 
         pri = new PairIndexerMolecule(phase, fccPrimitive);
         DataProcessorArrayFlatten squisher = new DataProcessorArrayFlatten();
         meterCorrelation = new MeterCorrelationMatrix(phase, pri);
         AccumulatorAverage accumulator = new AccumulatorAverage(this);
-        
+
         DataPump pump = new DataPump(meterCorrelation, accumulator);
-        IntervalActionAdapter adapter = new IntervalActionAdapter(pump, integrator);
+        IntervalActionAdapter adapter = new IntervalActionAdapter(pump,
+                integrator);
         CastGroupToDoubleArray mormon = new CastGroupToDoubleArray();
         DataLogger logger = new DataLogger();
-        
-        logger.setDataSink(new DataTableWriter());
+
+        DataArrayWriter dataWriter = new DataArrayWriter();
+        dataWriter.setIncludeHeader(false);
+        logger.setDataSink(dataWriter);
         logger.setFileName("Happy.txt");
         logger.setAppending(false);
+        logger.setWriteInterval(5);
         
-        accumulator.addDataSink(mormon, 
-                new AccumulatorAverage.StatType[] {AccumulatorAverage.StatType.AVERAGE});
-      
+
+        accumulator
+                .addDataSink(
+                        mormon,
+                        new AccumulatorAverage.StatType[] { AccumulatorAverage.StatType.AVERAGE });
+
         mormon.setDataSink(squisher);
         squisher.setDataSink(logger);
-        
-        
+
         System.out.println(phase.getDensity());
         phase.setDensity(1.04);
     }
@@ -126,18 +139,19 @@ public class TestFcc extends Simulation {
     public static void main(String[] args) {
         int nA = 108;
         TestFcc sim = new TestFcc(Space3D.getInstance(), nA);
+//        SimulationGraphic simG = new SimulationGraphic(sim);
+//        simG.makeAndDisplayFrame();
+        sim.getController().actionPerformed();
+        // MeterNormalMode mnm = new MeterNormalMode();
+        
+        System.out.println("Peace be unto you.");
 
-        SimulationGraphic simG = new SimulationGraphic(sim);
-        simG.makeAndDisplayFrame();
-
-//        MeterNormalMode mnm = new MeterNormalMode();
-        
-        
-        
     }
 
     public IntegratorMD integrator;
+
     public MeterCorrelationMatrix meterCorrelation;
+
     public Phase phase;
 
     public BoundaryRectangularPeriodic bdry;
