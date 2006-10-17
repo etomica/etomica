@@ -1,5 +1,4 @@
 package etomica.lattice.crystal;
-import etomica.lattice.Primitive;
 import etomica.math.geometry.Polytope;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -7,9 +6,9 @@ import etomica.space.Vector;
 /**
  * Primitive group for a body-centered-cubic system.
  */
-public class PrimitiveBcc extends Primitive implements Primitive3D {
+public class PrimitiveBcc extends Primitive {
     
-    private double size;
+    private double cubicSize;
     private Vector[] unitVectors;
     private static final double BCC_ANGLE = Math.acos(1.0/3.0);
     
@@ -17,7 +16,11 @@ public class PrimitiveBcc extends Primitive implements Primitive3D {
         this(space, 1.0);
     }
     public PrimitiveBcc(Space space, double size) {
-        super(space); //also makes reciprocal
+        this(space, size, true);
+    }
+
+    protected PrimitiveBcc(Space space, double size, boolean makeReciprocal) {
+        super(space, makeReciprocal); //also makes reciprocal
         //set up orthogonal vectors of unit size
         unitVectors = new Vector[D];
         for(int i=0; i<D; i++) {
@@ -25,81 +28,82 @@ public class PrimitiveBcc extends Primitive implements Primitive3D {
             unitVectors[i].E(1.0/Math.sqrt(3.0));
             unitVectors[i].setX(i,-1.0/Math.sqrt(3.0));
         }
-        setSize(size); //also sets reciprocal via update
-    }
-    /**
-     * Constructor used by makeReciprocal method of PrimitiveFcc.
-     */
-    PrimitiveBcc(Space space, Primitive direct) {
-        super(space, direct);
-        unitVectors = new Vector[D];
-        for(int i=0; i<D; i++) {
-            unitVectors[i] = space.makeVector();
-            unitVectors[i].E(1.0/Math.sqrt(3.0));
-            unitVectors[i].setX(i,-1.0/Math.sqrt(3.0));
-        }
+        setCubicSize(size); //also sets reciprocal via update
+        setAngles(new double[]{BCC_ANGLE, BCC_ANGLE, BCC_ANGLE});
     }
     
     //called by superclass constructor
     protected Primitive makeReciprocal() {
-        return new PrimitiveFcc(space, this);
+        return new PrimitiveBcc(space, 1, false);
     }
     
     //called by update method of superclass
     protected void updateReciprocal() {
-        ((PrimitiveFcc)reciprocal()).setSize(4.0*Math.PI/size);
+        ((PrimitiveBcc)reciprocal).setCubicSize(4.0*Math.PI/size[0]);
     }
     
-    public void setA(double a) {setSize(a);}
-    public double getA() {return size;}
-    
-    public void setB(double b) {setSize(b);}
-    public double getB() {return size;}
-        
-    public void setC(double c) {setSize(c);}
-    public double getC() {return size;}
-    
-    public void setAlpha(double t) {}//no adjustment of angle permitted
-    public double getAlpha() {return BCC_ANGLE;}
-    
-    public void setBeta(double t) {}
-    public double getBeta() {return BCC_ANGLE;}
-    
-    public void setGamma(double t) {}
-    public double getGamma() {return BCC_ANGLE;}
-    
-    public boolean isEditableA() {return true;}
-    public boolean isEditableB() {return false;}
-    public boolean isEditableC() {return false;}
-    public boolean isEditableAlpha() {return false;}
-    public boolean isEditableBeta() {return false;}
-    public boolean isEditableGamma() {return false;}
-
     /**
      * Returns a new PrimitiveCubic with the same size as this one.
      */
     public Primitive copy() {
-        return new PrimitiveBcc(space, size);
+        return new PrimitiveBcc(space, cubicSize);
     }
     
     /**
      * Sets the length of all primitive vectors to the given value.
      */
-    public void setSize(double size) {
-        this.size = size;
-        for(int i=0; i<D; i++) latticeVectors[i].Ea1Tv1(size,unitVectors[i]);
-        update();
+    public void setCubicSize(double newCubicSize) {
+        if (newCubicSize == cubicSize) {
+            return;
+        }
+        if (newCubicSize <= 0) {
+            throw new IllegalArgumentException("BCC size must be positive");
+        }
+        double[] sizeArray = new double[D];
+        for(int i=0; i<D; i++) {
+            sizeArray[i] = newCubicSize;
+        }
+        setSize(sizeArray);
     }
+    
     /**
      * Returns the common length of all primitive vectors.
      */
-    public double getCubicSize() {return size;}
+    public double getCubicSize() {return cubicSize;}
     
+    public void setSize(double[] newSize) {
+        for (int i=1; i<D; i++) {
+            if (newSize[0] != newSize[i]) {
+                throw new RuntimeException("new size must be cubic");
+            }
+        }
+        if (cubicSize == newSize[0]) {
+            // no change
+            return;
+        }
+        super.setSize(newSize);
+        cubicSize = newSize[0];
+    }
+    
+    protected void update() {
+        super.update();
+        for(int i=0; i<D; i++) latticeVectors[i].Ea1Tv1(size[0],unitVectors[i]);
+    }
+
+    public void setAngles(double[] newAngle) {
+        for (int i=0; i<D; i++) {
+            if (newAngle[i] != BCC_ANGLE) {
+                throw new IllegalArgumentException("PrimitiveBcc angles must "+BCC_ANGLE);
+            }
+        }
+        super.setAngles(newAngle);
+    }
+
     /**
      * Multiplies the size of the current vectors by the given value.
      */
     public void scaleSize(double scale) {
-        setSize(scale*size);
+        setCubicSize(scale*cubicSize);
     }
 
     public int[] latticeIndex(Vector q) {

@@ -91,7 +91,7 @@ public class BasisBetaSnA5 implements Basis {
     };
     
     public Vector[] positions() {
-        double AB = primitive.getA();
+        double AB = primitive.getAB();
         double C = primitive.getC();
         if(AB != oldAB || C != oldC) {
         	Vector ABC = primitive.space.makeVector();

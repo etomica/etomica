@@ -23,7 +23,7 @@ public class LatticeHcp extends LatticeCrystal {
     public LatticeHcp(double latticeConstant) {
         this(new PrimitiveHexagonal(Space3D.getInstance()));
         primitive = (PrimitiveHexagonal)crystal.getLattice().getPrimitive();
-        primitive.setA(latticeConstant);
+        primitive.setAB(latticeConstant);
         primitive.setC(Math.sqrt(8.0/3.0)*latticeConstant);
     }
 

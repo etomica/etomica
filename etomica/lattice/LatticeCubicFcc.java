@@ -51,7 +51,7 @@ public class LatticeCubicFcc extends LatticeCrystal implements CubicLattice {
      */
     public PrimitiveFcc getPrimitiveFcc() {
         PrimitiveFcc p = new PrimitiveFcc(Space3D.getInstance());
-        p.setSize(getLatticeConstant()/Math.sqrt(2.0));
+        p.setCubicSize(getLatticeConstant()/Math.sqrt(2.0));
         return p;
     }
     

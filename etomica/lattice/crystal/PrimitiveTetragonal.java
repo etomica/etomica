@@ -1,5 +1,4 @@
 package etomica.lattice.crystal;
-import etomica.lattice.Primitive;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.Polytope;
 import etomica.space.Space;
@@ -9,87 +8,94 @@ import etomica.space.Vector;
  * Primitive group for a tetragonal system.  All primitive
  * vectors orthogonal and two are of equal length.
  */
-public class PrimitiveTetragonal extends Primitive implements Primitive3D {
+public class PrimitiveTetragonal extends Primitive {
     
-    private double ab = 1.0, c = 1.0;
+    private double ab = 1.0;
     
     public PrimitiveTetragonal(Space space) {
         this(space, 1.0, 1.0);
     }
     public PrimitiveTetragonal(Space space, double ab, double c) {
-        super(space);//also makes reciprocal
-        setAB(ab); //also sets reciprocal via update
-        setC(c);
+        this(space, ab, c, true);
     }
-    /**
-     * Constructor used by makeReciprocal method.
-     */
-    private PrimitiveTetragonal(Space space, Primitive direct) {
-        super(space, direct);
+    
+    protected PrimitiveTetragonal(Space space, double ab, double c, boolean makeReciprocal) {
+        super(space, makeReciprocal);//also makes reciprocal
+        setSize(new double[]{ab, ab, c});
+        setAngles(new double[]{rightAngle, rightAngle, rightAngle});
     }
     
     //called by superclass constructor
     protected Primitive makeReciprocal() {
-        return new PrimitiveTetragonal(space, this);
+        return new PrimitiveTetragonal(space, 1, 1, false);
     }
     
     //called by update method of superclass
     protected void updateReciprocal() {
-        ((PrimitiveTetragonal)reciprocal()).setAB(2.0*Math.PI/ab);
-        ((PrimitiveTetragonal)reciprocal()).setC(2.0*Math.PI/c);
+        double[] newReciprocalSize = new double[3];
+        newReciprocalSize[0] = 2.0 * Math.PI * size[0];
+        newReciprocalSize[1] = 2.0 * Math.PI * size[0];
+        newReciprocalSize[2] = 2.0 * Math.PI * size[2];
+        reciprocal.setSize(newReciprocalSize);
     }
     
-    public void setA(double a) {setAB(a);}
-    public double getA() {return ab;}
-    
-    public void setB(double b) {setAB(b);}
-    public double getB() {return ab;}
-    
-    public void setAB(double ab) {
-        if(immutable || ab <= 0.0) return;
-        this.ab = ab;
-        size[0] = size[1] = ab;
-        latticeVectors[0].setX(0,ab);
-        latticeVectors[1].setX(1,ab);
-        update();
+    public void setAB(double newAB) {
+        if (newAB == ab) {
+            return;
+        }
+        setSize(new double[]{newAB, newAB, size[2]});
+        ab = newAB;
     }
-    
-    public void setC(double c) {
-        if(immutable || c <= 0.0) return;
-        this.c = c;
-        size[2] = c;
-        latticeVectors[2].setX(2, c);
-        update();
-    }
-    public double getC() {return c;}
-    
-    public void setAlpha(double t) {}//no adjustment of angle permitted
-    public double getAlpha() {return rightAngle;}
-    
-    public void setBeta(double t) {}
-    public double getBeta() {return rightAngle;}
-    
-    public void setGamma(double t) {}
-    public double getGamma() {return rightAngle;}
-    
-    
-    public boolean isEditableA() {return true;}
-    public boolean isEditableB() {return false;}
-    public boolean isEditableC() {return true;}
-    public boolean isEditableAlpha() {return false;}
-    public boolean isEditableBeta() {return false;}
-    public boolean isEditableGamma() {return false;}
 
+    public double getAB() {
+        return ab;
+    }
+    
+    public void setC(double newC) {
+        if (newC == size[2]) {
+            return;
+        }
+        setSize(new double[]{ab, ab, newC});
+    }
+    public double getC() {return size[2];}
+    
+    public void setSize(double[] newSize) {
+        if (newSize[0] != newSize[1]) {
+            throw new RuntimeException("new size must be tetragonal (sizeX = sizeY)");
+        }
+        if (ab == newSize[0] && size[2] == newSize[2]) {
+            // no change
+            return;
+        }
+        super.setSize(newSize);
+        ab = newSize[0];
+    }
+
+    public void setAngles(double[] newAngle) {
+        for (int i=0; i<D; i++) {
+            if (newAngle[i] != rightAngle) {
+                throw new IllegalArgumentException("PrimitiveTetragonal angles must be right angles");
+            }
+        }
+        super.setAngles(newAngle);
+    }
+
+    protected void update() {
+        super.update();
+        latticeVectors[0].setX(0, size[0]);
+        latticeVectors[1].setX(1, size[1]);
+        latticeVectors[2].setX(2, size[2]);
+    }
+    
     /**
      * Returns a new PrimitiveTetragonal with the same size as this one.
      */
     public Primitive copy() {
-        return new PrimitiveTetragonal(space, ab, c);
+        return new PrimitiveTetragonal(space, ab, size[2]);
     }
     
     public void scaleSize(double scale) {
-        setAB(ab*scale);
-        setC(c*scale);
+        setSize(new double[]{ab*scale, ab*scale, size[2]*scale});
     }
 
     public int[] latticeIndex(Vector q) {
@@ -121,7 +127,7 @@ public class PrimitiveTetragonal extends Primitive implements Primitive3D {
      * primitive vectors.
      */
     public Polytope unitCell() {
-        return new Cuboid(space, ab, ab, c);
+        return new Cuboid(space, ab, ab, size[2]);
     }
     
     public String toString() {return "Tetragonal";}

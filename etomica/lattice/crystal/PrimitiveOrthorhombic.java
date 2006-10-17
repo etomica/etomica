@@ -1,5 +1,4 @@
 package etomica.lattice.crystal;
-import etomica.lattice.Primitive;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.Polytope;
 import etomica.space.Space;
@@ -10,84 +9,76 @@ import etomica.space.Vector;
  * vectors orthogonal but not necessarily of equal length.
  * a != b != c; alpha = beta = gamma = 90deg.
  */
-public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
-    
-    private double[] sizeCopy;
-//    private double a, b, c;
+public class PrimitiveOrthorhombic extends Primitive {
     
     public PrimitiveOrthorhombic(Space space) {
         this(space, 1.0, 1.0, 1.0);
     }
     public PrimitiveOrthorhombic(Space space, double a, double b, double c) {
-        super(space); //also makes reciprocal
-        //set up orthogonal vectors of unit size
-        setA(a);  
-        setB(b);
-        setC(c); //also sets reciprocal via update
-        sizeCopy = new double[space.D()];
+        this(space, a, b, c, true);
     }
-    /**
-     * Constructor used by makeReciprocal method.
-     */
-    private PrimitiveOrthorhombic(Space space, Primitive direct) {
-        super(space, direct);
-        for(int i=0; i<D; i++) if(size[i] == 0.0) size[i] = 1.0;
-//        sizeCopy = new double[space.D()];
+    
+    protected PrimitiveOrthorhombic(Space space, double a, double b, double c,
+            boolean makeReciprocal) {
+        super(space, makeReciprocal); //also makes reciprocal
+        //set up orthogonal vectors of unit size
+        setSize(new double[]{a, b, c});
+        setAngles(new double[]{rightAngle, rightAngle, rightAngle});
     }
     
     //called by superclass constructor
     protected Primitive makeReciprocal() {
-        for(int i=0; i<D; i++) if(size[i] == 0.0) size[i] = 1.0;
-        return new PrimitiveOrthorhombic(space, this);
+        return new PrimitiveOrthorhombic(space, 1, 1, 1, false);
     }
     
     //called by update method of superclass
     protected void updateReciprocal() {
-        ((PrimitiveOrthorhombic)reciprocal()).setA(2.0*Math.PI/size[0]);
-        ((PrimitiveOrthorhombic)reciprocal()).setB(2.0*Math.PI/size[1]);
-        ((PrimitiveOrthorhombic)reciprocal()).setC(2.0*Math.PI/size[2]);
+        double[] reciprocalSize = new double[D];
+        for (int i=0; i<D; i++) {
+            reciprocalSize[i] = 2.0*Math.PI/size[i];
+        }
+        reciprocal.setSize(reciprocalSize);
     }
     
-    public void setA(double a) {
-        if(immutable || a <= 0.0) return;
-        size[0] = a;
-        latticeVectors[0].setX(0,a);
-        update();
+    public void setA(double newA) {
+        if (size[0] == newA) {
+            return;
+        }
+        double[] newSize = new double[D];
+        for (int i=0; i<D; i++) {
+            newSize[i] = size[i];
+        }
+        newSize[0] = newA;
+        setSize(newSize);
     }
     public double getA() {return size[0];}
     
-    public void setB(double b) {
-        if(immutable || b <= 0.0) return;
-        size[1] = b;
-        latticeVectors[1].setX(1,b);
-        update();
+    public void setB(double newB) {
+        if (size[1] == newB) {
+            return;
+        }
+        double[] newSize = new double[D];
+        for (int i=0; i<D; i++) {
+            newSize[i] = size[i];
+        }
+        newSize[1] = newB;
+        setSize(newSize);
     }
     public double getB() {return size[1];}
         
-    public void setC(double c) {
-        if(immutable || c <= 0.0) return;
-        size[2] = c;
-        latticeVectors[2].setX(2,c);
-        update();
+    public void setC(double newC) {
+        if (size[2] == newC) {
+            return;
+        }
+        double[] newSize = new double[D];
+        for (int i=0; i<D; i++) {
+            newSize[i] = size[i];
+        }
+        newSize[2] = newC;
+        setSize(newSize);
     }
     public double getC() {return size[2];}
     
-    public void setAlpha(double t) {}//no adjustment of angle permitted
-    public double getAlpha() {return rightAngle;}
-    
-    public void setBeta(double t) {}
-    public double getBeta() {return rightAngle;}
-    
-    public void setGamma(double t) {}
-    public double getGamma() {return rightAngle;}
-    
-
-    public boolean isEditableA() {return true;}
-    public boolean isEditableB() {return true;}
-    public boolean isEditableC() {return true;}
-    public boolean isEditableAlpha() {return false;}
-    public boolean isEditableBeta() {return false;}
-    public boolean isEditableGamma() {return false;}
     /**
      * Returns a new, identical instance of this primitive.
      */
@@ -95,35 +86,19 @@ public class PrimitiveOrthorhombic extends Primitive implements Primitive3D {
         return new PrimitiveOrthorhombic(space, size[0], size[1], size[2]);
     }
     
-    
-    /**
-     * Sets the length of all primitive vectors to the given value.
-     */
-    public void setSize(double size) {
-        if(immutable) return;
-        for(int i=0; i<D; i++) {
-            this.size[i] = size;
-            latticeVectors[i].setX(i,size);
+    protected void update() {
+        super.update();
+        for (int i=0; i<D; i++) {
+            latticeVectors[i].setX(0,size[i]);
         }
-        update();
-    }
-    
-    /**
-     * Returns a copy of the array of primitive-vector sizes.
-     */
-     //used by IteratorFactoryCell
-    public double[] getSize() {
-        for(int i=0; i<D; i++) sizeCopy[i] = size[i];
-        return sizeCopy;
     }
     
     public void scaleSize(double scale) {
-        if(immutable) return;
-        for(int i=0; i<D; i++) {
-            size[i] *= scale;
-            latticeVectors[i].setX(i,size[i]);
+        double[] newSize = new double[D];
+        for (int i=0; i<D; i++) {
+            newSize[i] = scale*size[i];
         }
-        update();
+        setSize(newSize);
     }        
     
     public int[] latticeIndex(Vector q) {

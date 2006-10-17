@@ -1,5 +1,6 @@
 package etomica.lattice;
 
+import etomica.lattice.crystal.Primitive;
 import etomica.space.Space;
 import etomica.space.Vector;
 

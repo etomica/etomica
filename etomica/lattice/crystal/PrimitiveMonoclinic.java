@@ -1,5 +1,4 @@
 package etomica.lattice.crystal;
-import etomica.lattice.Primitive;
 import etomica.math.geometry.Polytope;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -9,121 +8,106 @@ import etomica.space.Vector;
  * angle not normal, and vectors not necessarily of equal length.
  * a != b != c; alpha = gamma = 90deg, beta >= 90deg
  */
-public class PrimitiveMonoclinic extends Primitive implements Primitive3D {
-    
-    private boolean isReciprocal = false;
-    private double a = 1.0, b = 1.0, c = 1.0;
-    private double beta = 0.5*Math.PI, sinBeta = Math.sin(beta), cosBeta = Math.cos(beta);
+public class PrimitiveMonoclinic extends Primitive {
     
     public PrimitiveMonoclinic(Space space) {
         this(space, 1.0, 1.0, 1.0, rightAngle);
     }
     public PrimitiveMonoclinic(Space space, double a, double b, double c, double beta) {
-        super(space);//also makes reciprocal
-        setA(a);//also sets reciprocal via update
-        setB(b);
-        setC(c);
-        setBeta(beta);
+        this(space, a, b, c, beta, true);
     }
-    /**
-     * Constructor used by makeReciprocal method.
-     */
-    private PrimitiveMonoclinic(Space space, Primitive direct) {
-        super(space, direct);
-        isReciprocal = true;
+    
+    protected PrimitiveMonoclinic(Space space, double a, double b, double c, 
+                               double beta, boolean makeReciprocal) {
+        super(space, makeReciprocal);//also makes reciprocal
+        setSize(new double[]{a, b, c});//also sets reciprocal via update
+        setBeta(beta);
     }
     
     //called by superclass constructor
     protected Primitive makeReciprocal() {
-        return new PrimitiveMonoclinic(space, this);
+        return new PrimitiveMonoclinic(space, 1, 1, 1, rightAngle, false);
     }
     
     //called by update method of superclass
     protected void updateReciprocal() {
-        ((PrimitiveMonoclinic)reciprocal()).setA(2.0*Math.PI/(a*sinBeta));
-        ((PrimitiveMonoclinic)reciprocal()).setB(2.0*Math.PI/b);
-        ((PrimitiveMonoclinic)reciprocal()).setC(2.0*Math.PI/(c*sinBeta));
-        ((PrimitiveMonoclinic)reciprocal()).setBeta(beta);
+        ((PrimitiveMonoclinic)reciprocal).setSize(new double[]{2.0*Math.PI/(size[0]*Math.sin(angle[1])),
+                    2.0*Math.PI/size[1], 2.0*Math.PI/(size[2]*Math.sin(angle[1]))});
+        ((PrimitiveMonoclinic)reciprocal).setBeta(angle[1]);
     }
     
-        //direct lattice (ix = 0, iz = 2)
-        // v[0] = (1,0,0); v[1] = (0,1,0); v[2] = (c,0,s)  (times a, b, c)
-         
-        //reciprocal lattice (ix = 2, iz = 0)
-        // v[0] = (s,0,-c); v[1] = (0,1,0); v[2] = (0,0,1);  (times a, b, c)
-    public void setA(double a) {
-        if(immutable || a <= 0.0) return;
-        this.a = a;
-        size[0] = a;
-        if(!isReciprocal) latticeVectors[0].setX(0,a);
-        else {
-            latticeVectors[0].setX(0,+a*sinBeta);
-            latticeVectors[0].setX(2,-a*cosBeta);
+    public void setA(double newA) {
+        if (size[0] == newA) {
+            return;
         }
-        update();
+        setSize(new double[]{newA, size[1], size[2]});
     }
-    public double getA() {return a;}
+    public double getA() {return size[0];}
     
-    public void setB(double b) {
-        if(immutable || b <= 0.0) return;
-        this.b = b;;
-        size[1] = b;
-        latticeVectors[1].setX(1,b);
-        update();
+    public void setB(double newB) {
+        if (size[1] == newB) {
+            return;
+        }
+        setSize(new double[]{size[0], newB, size[2]});
     }
-    public double getB() {return b;}
+    public double getB() {return size[1];}
         
-    public void setC(double c) {
-        if(immutable || c <= 0.0) return;
-        this.c = c;
-        size[2] = c;
-        if(isReciprocal) latticeVectors[2].setX(2,c);
-        else {
-            latticeVectors[2].setX(0,c*cosBeta);
-            latticeVectors[2].setX(2,c*sinBeta);
+    public void setC(double newC) {
+        if (size[2] == newC) {
+            return;
         }
-        update();
+        setSize(new double[]{size[0], size[1], newC});
     }
-    public double getC() {return c;}
+    public double getC() {return size[2];}
+
+    public void setSize(double[] newSize) {
+        if (size[0] == newSize[0] && size[1] == newSize[1] && size[2] == newSize[2]) {
+            // no change
+            return;
+        }
+        super.setSize(newSize);
+    }
     
-    public void setAlpha(double t) {}//no adjustment of angle permitted
-    public double getAlpha() {return rightAngle;}
+    //direct lattice (ix = 0, iz = 2)
+    // v[0] = (1,0,0); v[1] = (0,1,0); v[2] = (c,0,s)  (times a, b, c)
+     
+    //reciprocal lattice (ix = 2, iz = 0)
+    // v[0] = (s,0,-c); v[1] = (0,1,0); v[2] = (0,0,1);  (times a, b, c)
+    protected void update() {
+        super.update();
+        latticeVectors[0].setX(0,size[0]);
+        latticeVectors[1].setX(1,size[1]);
+        latticeVectors[2].setX(0,size[2]*Math.cos(angle[1]));
+        latticeVectors[2].setX(2,size[3]*Math.sin(angle[1]));
+    }
     
     public void setBeta(double t) {
-        if(immutable) return;
-        if(t < rightAngle) t = rightAngle;
-        if(t > Math.PI) t = Math.PI;
-        beta = t;
-        angle[1] = beta;
-        cosBeta = Math.cos(beta);
-        sinBeta = Math.sin(beta);
-        if(isReciprocal) setA(a); 
-        else setC(c);//setA or setC calls update
+        setAngles(new double[]{rightAngle, t, rightAngle});
     }
-    public double getBeta() {return beta;}
     
-    public void setGamma(double t) {}
-    public double getGamma() {return rightAngle;}
+    public double getBeta() {
+        return angle[1];
+    }
+
+    public void setAngles(double[] newAngles) {
+        if (newAngles[0] != rightAngle || newAngles[2] != rightAngle) {
+            throw new RuntimeException("alpha and gamma must be right angles");
+        }
+        if (newAngles[1] < rightAngle || newAngles[1] > Math.PI) {
+            throw new IllegalArgumentException("Beta must be between PI/2 and PI");
+        }
+        super.setAngles(newAngles);
+    }
     
-    public boolean isEditableA() {return true;}
-    public boolean isEditableB() {return true;}
-    public boolean isEditableC() {return true;}
-    public boolean isEditableAlpha() {return false;}
-    public boolean isEditableBeta() {return true;}
-    public boolean isEditableGamma() {return false;}
-
-
     /**
      * Returns a new, identical instance of this primitive.
      */
     public Primitive copy() {
-        return new PrimitiveMonoclinic(space, a, b, c, beta);
+        return new PrimitiveMonoclinic(space, size[0], size[1], size[2], angle[1]);
     }
         
     public void scaleSize(double scale) {
-        setA(a*scale);
-        setB(b*scale);
-        setC(c*scale);
+        setSize(new double[]{size[0]*scale, size[1]*scale, size[2]*scale});
     }        
     
     public int[] latticeIndex(Vector q) {
@@ -154,4 +138,17 @@ public class PrimitiveMonoclinic extends Primitive implements Primitive3D {
     
     public String toString() {return "Monoclinic";}
 
+    protected static class PrimitiveMonoclinicReciprocal extends PrimitiveMonoclinic {
+        public PrimitiveMonoclinicReciprocal(Space space, double a, double b, double c, double beta) {
+            super(space, a, b, c, beta, false);
+        }
+
+        protected void updateLatticeVectors() {
+            // this will screw up latticeVectors 0 and 1, but then we'll fix it
+            super.update();
+            latticeVectors[0].setX(0,size[0]*Math.sin(angle[1]));
+            latticeVectors[0].setX(2,-size[0]*Math.cos(angle[1]));
+            latticeVectors[1].setX(1,size[1]);
+        }
+    }
 }

@@ -1,5 +1,4 @@
 package etomica.lattice.crystal;
-import etomica.lattice.Primitive;
 import etomica.math.geometry.Polytope;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -8,101 +7,97 @@ import etomica.space.Vector;
  * Primitive group for a hexagonal system.  Primitive-vector angles
  * are (90,90,120) degrees and two vectors are of equal length.
  */
-public class PrimitiveHexagonal extends Primitive implements Primitive3D {
+public class PrimitiveHexagonal extends Primitive {
     
-    private double ab = 1.0, c = 1.0;
-    private int ix = 0, iy = 1;
-    private final double gamma = etomica.units.Degree.UNIT.toSim(120.);
-//    private final double gamma = etomica.units.Degree.UNIT.toSim(60.);
-    private final double cosGamma = Math.cos(gamma);
-    private final double sinGamma = Math.sin(gamma);
+    protected double ab;
+    protected static final double gamma = etomica.units.Degree.UNIT.toSim(120.);
+    protected static final double cosGamma = Math.cos(gamma);
+    protected static final double sinGamma = Math.sin(gamma);
     
     public PrimitiveHexagonal(Space space) {
         this(space, 1.0, 1.0);
     }
     public PrimitiveHexagonal(Space space, double ab, double c) {
-        super(space);
-        setAB(ab);
-        setC(c);
+        this(space, ab, c, true);
     }
-    
-    /**
-     * Constructor used by makeReciprocal method.
-     */
-    private PrimitiveHexagonal(Space space, Primitive direct) {
-        super(space, direct);
-        ix = 1;
-        iy = 0;
+
+    protected PrimitiveHexagonal(Space space, double ab, double c, boolean makeReciprocal) {
+        super(space, makeReciprocal);
+        setSize(new double[]{ab, ab, c});
+        setAngles(new double[]{rightAngle, rightAngle, gamma});
     }
     
     //called by superclass constructor
     protected Primitive makeReciprocal() {
-        return new PrimitiveHexagonal(space, this);
+        return new PrimitiveHexagonalReciprocal(space, 1, 1);
     }
     
     //called by update method of superclass
     protected void updateReciprocal() {
-        ((PrimitiveHexagonal)reciprocal()).setAB(2.0*Math.PI/(ab*sinGamma));
-        ((PrimitiveHexagonal)reciprocal()).setC(2.0*Math.PI/c);
+        double[] newReciprocalSize = new double[3];
+        newReciprocalSize[0] = 2.0 * Math.PI * size[0] * sinGamma;
+        newReciprocalSize[1] = 2.0 * Math.PI * size[0] * sinGamma;
+        newReciprocalSize[2] = 2.0 * Math.PI * size[2];
+        reciprocal.setSize(newReciprocalSize);
     }
     
-    public void setA(double a) {setAB(a);}
-    public double getA() {return ab;}
-    
-    public void setB(double b) {setAB(b);}
-    public double getB() {return ab;}
-    
-    public void setAB(double ab) {
-        if(immutable || ab <= 0.0) return;
-        this.ab = ab;
-        size[0] = size[1] = ab;
-        
-        //direct lattice (ix = 0, iy = 1)
-        // v[0] = (1,0,0); v[1] = (s,c,0); v[2] = (0,0,1)  (times ab, c)
-         
-        //reciprocal lattice (ix = 1, iy = 0)
-        // v[0] = (s,-c,0); v[1] = (0,1,0); v[2] = (0,0,1);  (times ab, c)
-        latticeVectors[ix].setX(ix,ab);
-        latticeVectors[iy].setX(ix,((ix==0)?+1:-1)*ab*cosGamma);
-        latticeVectors[iy].setX(iy,ab*sinGamma);
-        update();
+    public void setAB(double newAB) {
+        if (newAB == ab) {
+            return;
+        }
+        setSize(new double[]{newAB, newAB, size[2]});
+        ab = newAB;
     }
     
-    public void setC(double c) {
-        if(immutable || c <= 0.0) return;
-        this.c = c;
-        size[2] = c;
-        latticeVectors[2].setX(2, c);
-        update();
+    public void setC(double newC) {
+        if (newC == size[2]) {
+            return;
+        }
+        setSize(new double[]{ab, ab, newC});
     }
-    public double getC() {return c;}
+    public double getC() {return size[2];}
     
-    public void setAlpha(double t) {}//no adjustment of angle permitted
-    public double getAlpha() {return rightAngle;}
+    public void setSize(double[] newSize) {
+        if (newSize[0] != newSize[1]) {
+            throw new RuntimeException("new size must be hexagonal (sizeX = sizeY)");
+        }
+        if (ab == newSize[0] && size[2] == newSize[2]) {
+            // no change
+            return;
+        }
+        super.setSize(newSize);
+        ab = newSize[0];
+    }
     
-    public void setBeta(double t) {}
-    public double getBeta() {return rightAngle;}
+    protected void update() {
+        super.update();
+        latticeVectors[0].setX(0,size[0]);
+        latticeVectors[1].setX(0,size[0]*cosGamma);
+        latticeVectors[1].setX(1,size[0]*sinGamma);
+        latticeVectors[2].setX(2,size[2]);
+    }
     
-    public void setGamma(double t) {}
-    public double getGamma() {return gamma;}
-    
-    public boolean isEditableA() {return true;}
-    public boolean isEditableB() {return false;}
-    public boolean isEditableC() {return true;}
-    public boolean isEditableAlpha() {return false;}
-    public boolean isEditableBeta() {return false;}
-    public boolean isEditableGamma() {return false;}
+    public void setAngles(double[] newAngle) {
+        for (int i=0; i<2; i++) {
+            if (newAngle[i] != rightAngle) {
+                throw new IllegalArgumentException("PrimitiveHexagonal angles alpha and beta must be right angles");
+            }
+        }
+        if (newAngle[2] != gamma) {
+            throw new IllegalArgumentException("PrimitiveHexagonal angle gamma must be "+gamma);
+        }
+        super.setAngles(newAngle);
+    }
 
     /**
-     * Returns a new PrimitiveTetragonal with the same size as this one.
+     * Returns a new PrimitiveHexagonal with the same size as this one.
      */
     public Primitive copy() {
-        return new PrimitiveHexagonal(space, ab, c);
+        return new PrimitiveHexagonal(space, ab, size[2]);
     }
     
     public void scaleSize(double scale) {
-        setAB(ab*scale);
-        setC(c*scale);
+        setSize(new double[]{scale*ab, scale*ab, scale*size[2]});
     }
 
     public int[] latticeIndex(Vector q) {
@@ -136,5 +131,18 @@ public class PrimitiveHexagonal extends Primitive implements Primitive3D {
     
     public String toString() {return "Hexagonal";}
     
+    protected static class PrimitiveHexagonalReciprocal extends PrimitiveHexagonal {
+        public PrimitiveHexagonalReciprocal(Space space, double ab, double c) {
+            super(space, ab, c, false);
+        }
+
+        protected void update() {
+            // this will screw up latticeVectors 0 and 1, but then we'll fix it
+            super.update();
+            latticeVectors[1].setX(1,ab);
+            latticeVectors[0].setX(1,-ab*cosGamma);
+            latticeVectors[0].setX(0,ab*sinGamma);
+        }
+    }
 }
     

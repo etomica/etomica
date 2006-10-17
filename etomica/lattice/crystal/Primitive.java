@@ -1,7 +1,5 @@
-package etomica.lattice;
+package etomica.lattice.crystal;
 
-import etomica.lattice.crystal.Primitive2D;
-import etomica.lattice.crystal.Primitive3D;
 import etomica.math.geometry.Polytope;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -20,25 +18,17 @@ public abstract class Primitive implements java.io.Serializable {
     protected final double[] angle;
 //    private final double[] sizeCopy;
     public final Space space;
-    protected boolean immutable = false;//flag used when sync-ing with the reciprocal
     protected static final double rightAngle = 0.5*Math.PI;
-    private final Primitive reciprocal;
+    protected final Primitive reciprocal;
     
-    /**
-     * This constructor is used by when making the direct-lattice primitive.
-     */
-    protected Primitive(Space space) {
-        this(space, null);
-    }
     /**
      * This constructor is called directly when a Primitive is constructing
      * its reciprocal primitive.  For construction of the direct-lattice
      * primitive, this constructor is called via the Primitive(Simulation) constructor.
      */
-    protected Primitive(Space space, Primitive reciprocal) {
+    protected Primitive(Space space, boolean makeReciprocal) {
         this.space = space;
         D = space.D();
-        if(!( (this instanceof Primitive2D && D==2) || (this instanceof Primitive3D && D==3))) throw new RuntimeException("Error: inconsistency between spatial dimension and interface of Primitive");
         latticeVectors = new Vector[D];
         latticeVectorsCopy = new Vector[D];
         idx = new int[D];
@@ -50,10 +40,10 @@ public abstract class Primitive implements java.io.Serializable {
             latticeVectorsCopy[i] = space.makeVector();
             angle[i] = rightAngle;
         }
-        //if reciprocal is null, this is a direct primitive; if it is not null,
+        //if reciprocal is not null, this is a direct primitive; if it is null,
         //this is a reciprocal primitive of another primitive that is in the
         //process of being constructed.
-        this.reciprocal = (reciprocal == null) ? makeReciprocal() : reciprocal;
+        this.reciprocal = (makeReciprocal  ? makeReciprocal() : null);
     }
     
     /**
@@ -83,27 +73,13 @@ public abstract class Primitive implements java.io.Serializable {
      * for any lengths that are not equal to current values.
      */
     public void setSize(double[] newSize) {
-        if(immutable) return;
-        double size0, size1, size2;
-        switch(D) {
-            case 2:
-                Primitive2D p2 = (Primitive2D)this;
-                size0 = size[0];//save because might change with any of the set calls
-                size1 = size[1];
-                if(size0 != newSize[0]) p2.setA(newSize[0]);
-                if(size1 != newSize[1]) p2.setB(newSize[1]);
-                break;
-            case 3:
-                Primitive3D p3 = (Primitive3D)this;
-                size0 = size[0];//save because might change with any of the set calls
-                size1 = size[1];
-                size2 = size[2];
-                if(size0 != newSize[0]) p3.setA(newSize[0]);
-                if(size1 != newSize[1]) p3.setB(newSize[1]);
-                if(size2 != newSize[2]) p3.setC(newSize[2]);
-                break;
-            default:
-                throw new RuntimeException("Didn't expect to get here in Primitive.setSize");
+        for (int i=0; i<newSize.length; i++) {
+            if (newSize[i] <= 0.0) { 
+                throw new IllegalArgumentException("sizes must be positive");
+            }
+        }
+        for (int i=0; i<newSize.length; i++) {
+            size[i] = newSize[i];
         }
         update();
     }
@@ -114,43 +90,27 @@ public abstract class Primitive implements java.io.Serializable {
      * for any angles that are not equal to current values.
      */
     public void setAngles(double[] newAngle) {
-        if(immutable) return;
-        double t0, t1, t2;
-        switch(D) {
-            case 2:
-                Primitive2D p2 = (Primitive2D)this;
-                if(angle[0] != newAngle[0]) p2.setAlpha(newAngle[0]);
-                break;
-            case 3:
-                Primitive3D p3 = (Primitive3D)this;
-                t0 = angle[0];//save because might change with any of the set calls
-                t1 = angle[1];
-                t2 = angle[2];
-                if(t0 != newAngle[0]) p3.setAlpha(newAngle[0]);
-                if(t1 != newAngle[1]) p3.setBeta(newAngle[1]);
-                if(t2 != newAngle[2]) p3.setGamma(newAngle[2]);
-                break;
-            default:
-                throw new RuntimeException("Didn't expect to get here in Primitive.setSize");
+        for (int i=0; i<newAngle.length; i++) {
+            if (newAngle[i] < 0 || newAngle[i] > Math.PI) {
+                throw new IllegalArgumentException("Angles must be between 0 and pi");
+            }
+        }
+        for (int i=0; i<newAngle.length; i++) {
+            angle[i] = newAngle[i];
         }
         update();
     }
 
-    /**
-     * Returns a copy of the array of primitive-vector sizes.
-     */
-    //deleted because getSize is defined to return double in PrimitiveBcc, etc.
-//    public double[] getSize() {
-//        for(int i=0; i<D; i++) sizeCopy[i] = size[i];
-//        return sizeCopy;
-//    }
-    
-
     protected void update() {
-        if(immutable) return;
-        immutable = true; 
-        updateReciprocal();
-        immutable = false;
+        for (int i=0; i<D; i++) {
+            if (size[i] == 0 || angle[i] == 0) {
+                // we haven't been fully set up yet
+                return;
+            }
+        }
+        if (reciprocal != null) {
+            updateReciprocal();
+        }
     }
         
     /**
@@ -199,7 +159,9 @@ public abstract class Primitive implements java.io.Serializable {
     /**
      * Returns the primitive for the reciprocal lattice vectors.
      */
-    public Primitive reciprocal() {return reciprocal;}
+    public Primitive reciprocal() {
+        return reciprocal;
+     }
         
     /**
      * Returns the Wigner-Seitz cell specified by this primitive.
