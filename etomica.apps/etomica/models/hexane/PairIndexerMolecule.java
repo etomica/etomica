@@ -39,7 +39,7 @@ public class PairIndexerMolecule {
 //        this.bdry = (Boundary) phase.getBoundary().clone();
         
         // assume we have a rectangular box.  make our own little boundary
-        // instance instead of the actual boundary so that boundary changes
+        // instance instead of using actual boundary so that boundary changes
         // don't affect us (since we work off original coordinates)
         bdry = new BoundaryRectangularPeriodic(phase.space(), 1);
         bdry.setDimensions(phase.getBoundary().getDimensions());
@@ -49,12 +49,13 @@ public class PairIndexerMolecule {
         mins = new int[dim];
         jumpCount = new int[dim];
         temp = phase.space().makeVector();
+        indices = new int[dim];
 
         inverter = phase.space().makeTensor();
         inverter.E(prim.vectors());
         inverter.inverse();
         
-        indicesV = new Vector[phase.getSpeciesMaster().getMaxGlobalIndex() + 1];
+        latticeSites = new Vector[phase.getSpeciesMaster().getMaxGlobalIndex() + 1];
 
         calculateAllAtomIndices();
     }
@@ -79,20 +80,31 @@ public class PairIndexerMolecule {
             Atom molecule = aim.nextAtom();
             temp.E(molecule.type.getPositionDefinition().position(molecule));
 
-            indicesV[molecule.getGlobalIndex()] = (Vector) temp.clone();
+            latticeSites[molecule.getGlobalIndex()] = (Vector) temp.clone();
             temp.ME(r0);
 
+            // nudge everything a bit so nothing ends up sitting on the edge
+            // things on the edge confuse us since sitting on different edges 
+            // leads to different indices, different bins and (ultimately) a 
+            // non-symmetric matrix
+            // The amount of nudging must be less than half the minimum distance
+            // between lattice sites in each direction so nudging does not push
+            // something into a different lattice site.  In some cases "half"
+            // might even be too large.  It also has to be big enough to avoid
+            // any roundoff problems.  We'll use 1.e-5.
+            temp.PE(-1.e-5);
+            
             bdry.nearestImage(temp);
 
-            tempI = calculateTheseIndices(temp);
-            orderMillerIndices(tempI);
+            calculateTheseIndices(temp);
+            orderMillerIndices(indices);
 
             for (int i = 0; i < dim; i++) {
-                if (maxes[i] < tempI[i]) {
-                    maxes[i] = tempI[i];
+                if (maxes[i] < indices[i]) {
+                    maxes[i] = indices[i];
                 }
-                if (mins[i] > tempI[i]) {
-                    mins[i] = tempI[i];
+                if (mins[i] > indices[i]) {
+                    mins[i] = indices[i];
                 }
             }
         }
@@ -100,7 +112,7 @@ public class PairIndexerMolecule {
         int[] iJump = new int[dim];
         for (int i=dim-1; i>-1; i--) {
             // iJump is how many indices exist for dimension i
-            iJump[i] = maxes[i] - mins[i] + 3;
+            iJump[i] = maxes[i] - mins[i] + 1;
             if (i==dim-1) {
                 // jumpCount is how many bins we increase each time index i 
                 // increases by 1 with all other indices held fixed
@@ -114,19 +126,16 @@ public class PairIndexerMolecule {
     }
 
     /**
-     * Returns the Miller indices of the vector argument
+     * Calculates the Miller indices of the vector argument
      */
     // nan is this okay after the atom has moved?
-    private int[] calculateTheseIndices(Vector v) {
+    private void calculateTheseIndices(Vector v) {
         // transformation is done in place
         v.transform(inverter);
 
-        int[] w = new int[v.D()];
         for (int i = 0; i < v.D(); i++) {
-            w[i] = (int) Math.round(v.x(i));
+            indices[i] = (int) Math.round(v.x(i));
         }
-
-        return w;
     }
 
     protected int[] getMaxes() {
@@ -146,31 +155,29 @@ public class PairIndexerMolecule {
         // All these calculations are done in "primitive units"
 
         // create the vector between the atoms.
-        temp.Ev1Mv2(indicesV[atom1.getGlobalIndex()],
-                indicesV[atom0.getGlobalIndex()]);
+        temp.Ev1Mv2(latticeSites[atom1.getGlobalIndex()],
+                latticeSites[atom0.getGlobalIndex()]);
 
+        temp.PE(-1.e-5);
         bdry.nearestImage(temp);
 
-        tempI = calculateTheseIndices(temp);
+        calculateTheseIndices(temp);
 
         // Now we make sure the leading Miller index is either 0 or positive,
         // which
         // is a definite framework for how the vectors point.
-        orderMillerIndices(tempI);
+        orderMillerIndices(indices);
 
         for (int i=0; i<dim; i++) {
-            if (tempI[i] < mins[i]-1 || tempI[i] > maxes[i]+1) {
-                System.out.println("indices="+tempI[0]+" "+tempI[1]+" "+tempI[2]);
-                throw new RuntimeException("index["+i+"]="+tempI[i]+" is out of bounds "+temp);
+            if (indices[i] < mins[i] || indices[i] > maxes[i]) {
+                System.out.println("indices="+indices[0]+" "+indices[1]+" "+indices[2]);
+                throw new RuntimeException("index["+i+"]="+indices[i]+" is out of bounds "+temp);
             }
-            // fudge factor.  Make sure we never hit the edge
-            // we added padding to jumpCount so we can do this
-            tempI[i]++;
         }
 
         // Calculate the bin number based on the Miller indices and the atom
         // numbers in the molecule.
-        return calculateBinNumber(tempI);
+        return calculateBinNumber(indices);
     }
 
     /**
@@ -222,32 +229,62 @@ public class PairIndexerMolecule {
     public boolean isFlipFlag() {
         return flipflag;
     }
+    
+    /**
+     * Returns the array of Vectors corresponding to the original position of 
+     * each Atom relative to the first Atom.  These should correspond to the 
+     * actual lattice sites the Atoms were placed at.
+     */
+    public Vector[] getLatticeSites() {
+        return latticeSites;
+    }
 
-    Phase phase; // Contains the atom information.
+    /**
+     * Contains the atom information.
+     */
+    private Phase phase;
 
-    int dim; // The dimensions of the system
+    /**
+     * The dimensions of the system
+     */
+    private int dim;
 
-    private int[] maxes; // The maximum values in each physical direction
+    /**
+     * The maximum values in each physical direction
+     */
+    private int[] maxes;
     private int[] mins;
     private int[] jumpCount;
 
-    private int maxLength; // The maximum number of index values possible. May
+    /**
+     * The maximum number of index values possible.
+     */
+    // Kept as a field in case it's needed outside this class
+    private int maxLength;
+    
+    /**
+     * The primitives used to define the lattice
+     */
+    private final Primitive prim; 
 
-    // be needed outside of this class.
+    /**
+     * Temporary storage space for a vector
+     */
+    private final Vector temp;
 
-    Primitive prim; // The primitives used to define the space
+    /**
+     * Storage space to put the indices
+     */
+    private final int[] indices;
 
-    Vector temp; // Temporary storage space.
+    /**
+     * The original position-in-space vector of each atom
+     */
+    private final Vector[] latticeSites; 
 
-    int[] tempI; // Temporary storage space.
+    private final Tensor inverter;
 
-    Vector[] indicesV; // The position-in-space vector between the firstatom
+    private final Boundary bdry;
 
-    // and the atom.
-
-    Tensor inverter;
-
-    Boundary bdry;
-
-    boolean flipflag;
+    private boolean flipflag;
 }
