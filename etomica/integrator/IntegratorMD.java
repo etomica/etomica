@@ -17,6 +17,7 @@ import etomica.space.ICoordinateKinetic;
 import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.units.Time;
+import etomica.util.Debug;
 import etomica.util.EnumeratedType;
 /**
  * Superclass of all molecular-dynamics integrators.
@@ -216,14 +217,14 @@ public abstract class IntegratorMD extends IntegratorPhase {
      * @return the factor velocities were scaled by 
      */
     protected double scaleMomenta() {
+        momentum.E(0);
         if (atomIterator.size() > 1) {
-            momentum.E(0);
             atomIterator.reset();
             while(atomIterator.hasNext()) {
                 AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
                 double mass = ((AtomTypeLeaf)a.type).getMass();
                 if (mass != Double.POSITIVE_INFINITY) {
-                    momentum.PEa1Tv1(((AtomTypeLeaf)a.type).getMass(),((ICoordinateKinetic)a.coord).velocity());
+                    momentum.PEa1Tv1(mass,((ICoordinateKinetic)a.coord).velocity());
                 }
             }
             momentum.TE(1.0/atomIterator.size());
@@ -231,11 +232,27 @@ public abstract class IntegratorMD extends IntegratorPhase {
             //set net momentum to 0
             while(atomIterator.hasNext()) {
                 AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
-                double mass = ((AtomTypeLeaf)a.type).getMass();
-                if (mass != Double.POSITIVE_INFINITY) {
-                    ((ICoordinateKinetic)a.coord).velocity().PEa1Tv1(-1.0/((AtomTypeLeaf)a.type).getMass(),momentum);
+                double rm = ((AtomTypeLeaf)a.type).rm();
+                if (rm != 0) {
+                    ((ICoordinateKinetic)a.coord).velocity().PEa1Tv1(-rm,momentum);
                 }
             }
+            if (Debug.ON) {
+                momentum.E(0);
+                atomIterator.reset();
+                while(atomIterator.hasNext()) {
+                    AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
+                    double mass = ((AtomTypeLeaf)a.type).getMass();
+                    if (mass != Double.POSITIVE_INFINITY) {
+                        momentum.PEa1Tv1(mass,((ICoordinateKinetic)a.coord).velocity());
+                    }
+                }
+                momentum.TE(1.0/atomIterator.size());
+                if (Math.sqrt(momentum.squared()) > 1.e-10) {
+                    System.out.println("Net momentum per leaf atom is "+momentum+" but I expected it to be 0");
+                }
+            }
+            momentum.E(0);
         }
         
         // calculate current kinetic temperature
