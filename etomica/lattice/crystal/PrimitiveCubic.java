@@ -52,14 +52,6 @@ public class PrimitiveCubic extends Primitive {
         return new PrimitiveCubic(space, cubicSize);
     }
     
-    //override superclass method to scale copy-vectors to current size
-    protected Vector[] copyVectors() {
-        for(int i=0; i<D; i++) {
-            latticeVectorsCopy[i].E(latticeVectors[i]);
-            latticeVectorsCopy[i].TE(cubicSize);
-        }
-        return latticeVectorsCopy;
-    }
     /**
      * Sets the length of all primitive vectors to the given value.
      */
