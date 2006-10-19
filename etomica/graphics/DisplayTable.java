@@ -5,7 +5,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.HashMap;
+import java.util.LinkedList;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -20,6 +20,7 @@ import etomica.data.DataSet;
 import etomica.data.DataSinkTable;
 import etomica.data.DataTableAverages;
 import etomica.data.DataTableListener;
+import etomica.data.DataTag;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataDoubleArray;
@@ -217,6 +218,20 @@ public class DisplayTable extends Display implements DataTableListener,
         this.rowLabels = rowLabels;
     }
 
+    public void setUnit(DataTag[] dataTags, Unit newUnit) {
+        unitList.add(new DataTagBag(dataTags, newUnit));
+
+        // now go through and look for a current Data with these tags, but
+        // don't use these tags if a previous set of tags also matches.
+        for(int i=0; i<units.length; i++) {
+            // if the user specified a unit for this data specifically, use it.
+            DataTagBag tagUnit = DataTagBag.getDataTagBag(unitList, dataTable.getDataInfo(i).getTags());
+            if (tagUnit != null) {
+                units[i]= (Unit)tagUnit.object;
+            }
+        }
+    }
+    
     /**
      * Reconstruct the units array.  Manually-set units for columns are stored
      * in a HashMap (keyed to the column), so this method looks for units in 
@@ -230,10 +245,13 @@ public class DisplayTable extends Display implements DataTableListener,
         units = new Unit[dataTable.getDataCount()];
         for (int i=0; i<units.length; i++) {
             DataInfo columnInfo = dataTable.getDataInfo(i);
-            units[i] = (Unit)unitHash.get(columnInfo);
-            if (units[i] == null) {
-                units[i] = columnInfo.getDimension().getUnit(UnitSystem.SIM);
+            Unit dataUnit = defaultUnit == null ? columnInfo.getDimension().getUnit(UnitSystem.SIM) : defaultUnit;
+
+            DataTagBag tagUnit = DataTagBag.getDataTagBag(unitList, dataTable.getDataInfo(i).getTags());
+            if (tagUnit != null) {
+                dataUnit = (Unit)tagUnit.object;
             }
+            units[i] = dataUnit;
         }
     }
     
@@ -241,26 +259,7 @@ public class DisplayTable extends Display implements DataTableListener,
      * Sets the units of all columns to the given unit.
      */
     public void setAllUnits(Unit newUnit) {
-        unitHash.clear();
-        for (int i=0; i<units.length; i++) {
-            DataInfo columnInfo = dataTable.getDataInfo(i);
-            units[i] = newUnit;
-            unitHash.put(columnInfo,newUnit);
-        }
-    }
-
-    /**
-     * Sets the unit of the i-th column (as defined before any transpose).
-     * 
-     * @param i
-     *            column index, numbered from zero, not including the row-label
-     *            column
-     * @param newUnit
-     *            the unit to be assigned to the indicated column
-     */
-    public void setUnit(int i, Unit newUnit) {
-        units[i] = newUnit;
-        unitHash.put(dataTable.getDataInfo(i),newUnit);
+        defaultUnit = newUnit;
     }
 
     /**
@@ -341,7 +340,9 @@ public class DisplayTable extends Display implements DataTableListener,
     protected String[] rowLabels = new String[0];
     protected  String rowLabelColumnHeader = "";
     protected Unit[] units = new Unit[0];
-    private final HashMap unitHash = new HashMap();
+    private LinkedList unitList;
+    private Unit defaultUnit;
+    
 
     //structures used to adjust precision of displayed values
     //  private final java.text.NumberFormat formatter =

@@ -1,6 +1,5 @@
 package etomica.graphics;
 import java.io.Serializable;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import ptolemy.plot.Plot;
@@ -108,16 +107,14 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
 
                 Unit dataUnit = (defaultUnit != null) ? defaultUnit : dataInfo.getDimension().getUnit(UnitSystem.SIM);
                 
-                DataTagUnit tagUnit = (DataTagUnit)getDataTagBag(unitList, dataSet.getDataInfo(i).getTags());
+                DataTagBag tagUnit = DataTagBag.getDataTagBag(unitList, dataSet.getDataInfo(i).getTags());
                 if (tagUnit != null) {
-                    dataUnit = tagUnit.unit;
+                    dataUnit = (Unit)tagUnit.object;
                 }
 
                 units[i] = dataUnit;
             }
         } else {
-            //TODO have DisplayTable adjust appropriately to removal of columns; this works only for newColumnCount = 0
-            //may need to remember columns and reassign units to match
             units = (Unit[])Arrays.resizeArray(units, newDataCount);
 
             // whack them all!
@@ -127,9 +124,9 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
                 Unit dataUnit = (defaultUnit != null) ? defaultUnit : dataInfo.getDimension().getUnit(UnitSystem.SIM);
                 
                 // if the user specified a unit for this data specifically, use it.
-                DataTagUnit tagUnit = (DataTagUnit)getDataTagBag(unitList, dataSet.getDataInfo(i).getTags());
+                DataTagBag tagUnit = DataTagBag.getDataTagBag(unitList, dataSet.getDataInfo(i).getTags());
                 if (tagUnit != null) {
-                    dataUnit = tagUnit.unit;
+                    dataUnit = (Unit)tagUnit.object;
                 }
                 units[i] = dataUnit;
             }
@@ -171,9 +168,9 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
         }
         for(int i=0; i<dataSet.getDataCount(); i++) {
             String dataLabel = dataSet.getDataInfo(i).getLabel();
-            DataTagLabel tagLabel = (DataTagLabel)getDataTagBag(labelList, dataSet.getDataInfo(i).getTags());
+            DataTagBag tagLabel = DataTagBag.getDataTagBag(labelList, dataSet.getDataInfo(i).getTags());
             if (tagLabel != null) {
-                dataLabel = tagLabel.label;
+                dataLabel = (String)tagLabel.object;
             }
             plot.addLegend(i, dataLabel);
         }
@@ -210,7 +207,7 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
     public boolean isDoLegend() {return doLegend;}
     
     public void setLegend(DataTag[] dataTags, String label) {
-        labelList.add(new DataTagLabel(dataTags, label));
+        labelList.add(new DataTagBag(dataTags, label));
     }
     
     /**
@@ -236,48 +233,17 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
     }
     
     public void setUnit(DataTag[] dataTags, Unit newUnit) {
-        unitList.add(new DataTagUnit(dataTags, newUnit));
+        unitList.add(new DataTagBag(dataTags, newUnit));
 
         // now go through and look for a current Data with these tags, but
         // don't use these tags if a previous set of tags also matches.
         for(int i=0; i<units.length; i++) {
             // if the user specified a unit for this data specifically, use it.
-            DataTagUnit tagUnit = (DataTagUnit)getDataTagBag(unitList, dataSet.getDataInfo(i).getTags());
+            DataTagBag tagUnit = DataTagBag.getDataTagBag(unitList, dataSet.getDataInfo(i).getTags());
             if (tagUnit != null) {
-                units[i]= tagUnit.unit;
+                units[i]= (Unit)tagUnit.object;
             }
         }
-    }
-    
-    /**
-     * Returns the first DataTagBag from the given list that has no non-matching
-     * tags with the given desiredTags
-     */
-    protected static DataTagBag getDataTagBag(LinkedList dataTagBags, DataTag[] desiredTags) {
-        Iterator iterator = dataTagBags.iterator();
-        // match the first set of tags that has no non-matching tags
-        while (iterator.hasNext()) {
-            DataTagBag tagUnit = (DataTagBag)iterator.next();
-            DataTag[] tags = tagUnit.tags;
-            boolean found = true;
-            for (int j=0; j<tags.length; j++) {
-                found = false;
-                for (int k=0; k<desiredTags.length; k++) {
-                    if (desiredTags[k] == tags[j]) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    break;
-                }
-            }
-            if (found) {
-                return tagUnit;
-            }
-        }
-        
-        return null;
     }
     
     public void setUnit(Unit newUnit) {
@@ -306,29 +272,6 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
     private Unit defaultUnit;
     private LinkedList labelList;
     private LinkedList unitList;
-    
-    protected static class DataTagBag {
-        public DataTagBag(DataTag[] tags) {
-            this.tags = (DataTag[])tags.clone();
-        }
-        public final DataTag[] tags;
-    }
-    
-    protected static class DataTagLabel extends DataTagBag {
-        public DataTagLabel(DataTag[] tags, String label) {
-            super(tags);
-            this.label = label;
-        }
-        public final String label;
-    }
-    
-    protected static class DataTagUnit extends DataTagBag {
-        public DataTagUnit(DataTag[] tags, Unit unit) {
-            super(tags);
-            this.unit = unit;
-        }
-        public final Unit unit;
-    }
     
     protected static class DataCasterJudgeFunction implements DataCasterJudge, Serializable {
 
