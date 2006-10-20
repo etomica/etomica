@@ -32,23 +32,24 @@ import etomica.util.Debug;
 public class P1HardBoundary extends Potential1 implements PotentialHard, Drawable {
     
     private double collisionRadius = 0.0;
-    private boolean isothermal = false;
-    private double temperature;
     private final Vector work;
     private int[] pixPosition;
     private int[] thickness;
     private boolean ignoreOverlap;
     
     public P1HardBoundary(Simulation sim) {
-        this(sim.space, sim.getDefaults().temperature, sim.getDefaults().ignoreOverlap);
+        this(sim.space, sim.getDefaults().ignoreOverlap);
     }
     
-    public P1HardBoundary(Space space, double temperature, boolean ignoreOverlap) {
+    public P1HardBoundary(Space space, boolean ignoreOverlap) {
         super(space);
-        this.temperature = temperature;
         this.ignoreOverlap = ignoreOverlap;
         work = space.makeVector();
         isActiveDim = new boolean[space.D()][2];
+        for (int i=0; i<isActiveDim.length; i++) {
+            isActiveDim[i][0] = true;
+            isActiveDim[i][1] = true;
+        }
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -143,13 +144,6 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
         ((AtomLeaf)a).coord.position().setX(imin,newP);
     }//end of bump
     
-    public void setIsothermal(boolean b) {isothermal = b;}
-    public boolean isIsothremal() {return isothermal;}
-    
-    public void setTemperature(double t) {temperature = t;}
-    public double getTemperature() {return temperature;}
-    public etomica.units.Dimension getTemperatureDimension() {return Temperature.DIMENSION;}
-        
     /**
      * not yet implemented
      */
