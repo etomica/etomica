@@ -110,6 +110,22 @@ public class DisplayBoxesCAE extends Display implements DataSink {
         return panelParentGroup;
 	}
 	
+    /**
+     * Accessor method of the precision, which specifies the number of significant figures to be displayed.
+     */
+    public int getPrecision() {
+        return currentBox.getPrecision();
+    }
+    
+    /**
+     * Accessor method of the precision, which specifies the number of significant figures to be displayed.
+     */
+    public void setPrecision(int n) {
+        currentBox.setPrecision(n);
+        averageBox.setPrecision(n);
+        errorBox.setPrecision(n);
+    }
+
     public void setLabel(String s) {
         jLabelPanelParentGroup.setText(s);
         if(labelType == LabelType.BORDER) {
