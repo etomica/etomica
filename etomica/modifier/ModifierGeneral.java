@@ -84,31 +84,12 @@ public class ModifierGeneral implements Modifier, java.io.Serializable {
                 }
             }
             if(readMethod[j] == null || writeMethod[j] == null) {  //should define an exception for this
-                System.out.println("Error in modifier construction");
-                System.exit(1);
+                throw new RuntimeException("Error in modifier construction");
             }
             if(j == 0) {//discover dimension of modified property by looking at getDimension method of first object
                 dimension = Dimension.introspect(object[0],property,bi);
-/*                MethodDescriptor[] methods = bi.getMethodDescriptors();
-                for(int i=0; i<methods.length; i++) {
-                    String methodName = methods[i].getMethod().getName();
-                    if(methodName.equalsIgnoreCase("get"+property+"Dimension")) {
-                        try {
-                            dimension = (Dimension)methods[i].getMethod().invoke(object[0], null);
-                        }
-                        catch(InvocationTargetException ex) {
-                            System.out.println("InvocationTargetException in setValue");
-                            System.exit(1);
-                        }
-                        catch(IllegalAccessException ex) {
-                            System.out.println("IllegalAccessException in setValue");
-                            System.exit(1);
-                        }
-                    }//end of if(methodName...) block
-                }//end of for loop
-*/
-            }//end of if(j==0)
-        }//end of loop over objects
+            }
+        }
         
     }
     
