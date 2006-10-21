@@ -13,18 +13,15 @@ import etomica.simulation.prototypes.HSMD2D;
  *
  * @author David Kofke
  */
- 
- /* History of changes
-  * 08/29/02 (DAK) new
-  * 01/03/03 (DAK) changed snapToTicks to false
-  */
-  
-  //could improve by allowing to set phase/agent before elementcoordinator call
 public class DeviceNSelector extends DeviceSlider {
     
     public DeviceNSelector(Simulation simulation, SpeciesAgent agent) {
+        this(simulation, agent, new SimulationRestart(simulation));
+    }
+    
+    public DeviceNSelector(Simulation simulation, SpeciesAgent agent, Action resetAction) {
         super(simulation.getController());
-        SimulationRestart restartAction = new SimulationRestart(simulation);
+        this.resetAction = resetAction;
         
 //        setNMajor(6);
 	    setMinimum(0);
@@ -35,28 +32,36 @@ public class DeviceNSelector extends DeviceSlider {
 	    getSlider().setMajorTickSpacing(10);
 	    graphic(null).setSize(new java.awt.Dimension(40,30));
         setModifier(new ModifierNMolecule(agent));
-        targetAction = new ActionGroupSeries(new Action[]{modifyAction,restartAction});
+        targetAction = new ActionGroupSeries(new Action[]{modifyAction,resetAction});
 	    
 	    if(agent.type.getSpecies().getName() == "") {
 	        setLabel("Number of molecules");
 	    } else {
 	        setLabel(agent.type.getSpecies().getName() + " molecules");
 	    }
-//	    setShowBorder(true);
     }
-       
+
+    /**
+     * Returns the action used to "reset" the simulation after changing the 
+     * number of molecules, SimulationRestart by default.
+     */
+    public Action getResetAction() {
+        return resetAction;
+    }
+    
+    protected final Action resetAction;
+    
     //main method to demonstrate and test class
     public static void main(String[] args) {
         
         HSMD2D sim = new HSMD2D();
         SimulationGraphic graphic = new SimulationGraphic(sim);
         sim.species.setName("Disk");
-        
-//        sim.elementCoordinator.go();
+
         new DeviceNSelector(sim,sim.phase.getAgent(sim.species));
-//        nSelector.setDisplayPhase(graphic.display);
+
         graphic.makeAndDisplayFrame();
-    }//end of main
+    }
     
 
 } //end of DeviceNSelector
