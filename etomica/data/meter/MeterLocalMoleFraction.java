@@ -7,15 +7,15 @@ import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.DataSourceScalar;
 import etomica.math.geometry.Polytope;
 import etomica.phase.Phase;
+import etomica.space.Vector;
 import etomica.species.Species;
 import etomica.units.Fraction;
 
 /**
  * Meter for measurement of species mole fraction within a specified subvolume
  */
+public class MeterLocalMoleFraction extends DataSourceScalar implements Meter {
 
-public abstract class MeterLocalMoleFraction extends DataSourceScalar implements Meter
-{
     public MeterLocalMoleFraction() {
         super("Local Mole Fraction",Fraction.DIMENSION);
         setSpecies(null);
@@ -25,14 +25,36 @@ public abstract class MeterLocalMoleFraction extends DataSourceScalar implements
         EtomicaInfo info = new EtomicaInfo("Local number density in a subregion of a phase");
         return info;
     }
-    
+
+    /**
+     * Sets the subvolume shape for the mole fraction calculation.
+     */
     public void setShape(Polytope shape) {
         this.shape = shape;
     }
 
+    /**
+     * Returns the subvolume shape for the mole fraction calculation.
+     */
     public Polytope getShape() {
         return shape;
     }
+    
+    /**
+     * Sets the origin of the subvolume (Polytopes typically have their center
+     * at 0).  The shape origin is 0 by default.
+     */
+    public void setShapeOrigin(Vector newShapeOrigin) {
+        shapeOrigin = newShapeOrigin;
+    }
+    
+    /**
+     * Returns the origin of the subvolume.
+     */
+    public Vector getShapeOrigin() {
+        return shapeOrigin;
+    }
+    
     /**
      * Accessor method to set which species mole-fraction or molar-density is averaged
      * To set to total number density, invoke with static ALL_SPECIES field as argument
@@ -53,10 +75,11 @@ public abstract class MeterLocalMoleFraction extends DataSourceScalar implements
         int totalSum = 0, speciesSum = 0;
         iterator.reset();
         while(iterator.hasNext()) {
-            AtomLeaf m = (AtomLeaf)iterator.nextAtom();
-            if(shape.contains(m.coord.position())) {
+            AtomLeaf a = (AtomLeaf)iterator.nextAtom();
+            tempVec.Ev1Mv2(a.coord.position(), shapeOrigin);
+            if(shape.contains(tempVec)) {
                 totalSum++;
-                if(m.type.getSpecies() == species) speciesSum++;
+                if(a.type.getSpecies() == species) speciesSum++;
             }
         }
         if(totalSum == 0) return Double.NaN;
@@ -72,8 +95,10 @@ public abstract class MeterLocalMoleFraction extends DataSourceScalar implements
     /**
      * @param phase The phase to set.
      */
-    public void setPhase(Phase phase) {
-        this.phase = phase;
+    public void setPhase(Phase newPhase) {
+        phase = newPhase;
+        tempVec = phase.space().makeVector();
+        shapeOrigin = phase.space().makeVector();
         iterator.setPhase(phase);
         if (shape == null) {
             setShape(phase.getBoundary().getShape());
@@ -93,6 +118,7 @@ public abstract class MeterLocalMoleFraction extends DataSourceScalar implements
         this.iterator = iterator;
     }
 
+    private static final long serialVersionUID = 1L;
     private Phase phase;
     /**
      * Class variable used to specify that all species are included in number-density calculation
@@ -100,4 +126,6 @@ public abstract class MeterLocalMoleFraction extends DataSourceScalar implements
     private Species species;
     private AtomIteratorPhaseDependent iterator = new AtomIteratorLeafAtoms();
     private Polytope shape;
+    private Vector shapeOrigin;
+    private Vector tempVec;
 }
