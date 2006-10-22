@@ -221,7 +221,7 @@ public class IntegratorManagerMC extends Integrator {
     public double getGlobalMoveInterval() {return globalMoveInterval;}
     
     private double globalMoveInterval;
-    private double globalMoveProbability;
+    protected double globalMoveProbability;
     protected MCMoveManager moveManager;
     protected final MCMoveEventManager eventManager;
     protected Integrator[] integrators;
