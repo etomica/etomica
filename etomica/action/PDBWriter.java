@@ -150,7 +150,7 @@ public class PDBWriter implements Action, Serializable {
             while (elementIterator.hasNext()) {
                 ElementLinker thisElement = (ElementLinker)elementIterator.next();
                 fileWriter.write("select elemno="+elementNum[thisElement.elementIndex]+"\n");
-                fileWriter.write("spacefill "+((AtomTypeSphere)thisElement.type).diameter(null)*0.5);
+                fileWriter.write("spacefill "+((AtomTypeSphere)thisElement.type).getDiameter()*0.5);
             }
             fileWriter.close();
         } catch(IOException e) {

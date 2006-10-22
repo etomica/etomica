@@ -54,7 +54,7 @@ class DiameterModifier implements Modifier {
 	}
 
 	public double getValue() {
-		return ((AtomTypeSphere)speciesR.getMoleculeType()).diameter(null);
+		return ((AtomTypeSphere)speciesR.getMoleculeType()).getDiameter();
 	}
 
 	public void setDisplay(DisplayPhase display) {

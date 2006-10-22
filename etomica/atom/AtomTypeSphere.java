@@ -31,7 +31,7 @@ public class AtomTypeSphere extends AtomTypeLeaf {
         setDiameter(d);
     }
                 
-    public double diameter(Atom a) {return diameter;}
+    public double getDiameter() {return diameter;}
     
     /**
     * Sets diameter of this atom and updates radius accordingly.

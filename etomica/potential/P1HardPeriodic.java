@@ -38,7 +38,7 @@ public class P1HardPeriodic extends Potential1 implements PotentialHard {
         Vector v = ((ICoordinateKinetic)((AtomLeaf)a).coord).velocity();
         Vector dim = boundary.getDimensions();
         double tmin = Double.POSITIVE_INFINITY;
-        double d2 = 2.0*((AtomTypeSphere)((Atom)a).type).diameter((Atom)a);
+        double d2 = 2.0*((AtomTypeSphere)((Atom)a).type).getDiameter();
         int D = dim.D();
         for(int i=0; i<D; i++) {
             double t = (dim.x(i)-d2)/v.x(i);

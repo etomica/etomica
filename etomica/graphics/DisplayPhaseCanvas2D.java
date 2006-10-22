@@ -81,7 +81,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         baseYP = origin[1] + (int)(displayPhase.getToPixels()*r.x(1));
         if(a.type instanceof AtomTypeSphere) {
             /* Draw the core of the atom, specific to the dimension */
-            sigmaP = (int)(displayPhase.getToPixels()*((AtomTypeSphere)a.type).diameter(a));
+            sigmaP = (int)(displayPhase.getToPixels()*((AtomTypeSphere)a.type).getDiameter());
             sigmaP = (sigmaP == 0) ? 1 : sigmaP;
             xP = baseXP - (sigmaP>>1);
             yP = baseYP - (sigmaP>>1);
@@ -97,7 +97,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
             /* Draw the orientation line, if any */
             if(drawOrientation) {
                 double theta = ((ICoordinateAngular)a.coord).orientation().angle()[0];
-                int dxy = (int)(displayPhase.getToPixels()*0.5*((AtomTypeOrientedSphere)a.type).diameter(a));
+                int dxy = (int)(displayPhase.getToPixels()*0.5*((AtomTypeOrientedSphere)a.type).getDiameter());
                 int dx = (int)(dxy*Math.cos(theta));
                 int dy = (int)(dxy*Math.sin(theta));
                 g.setColor(Color.red);
@@ -183,7 +183,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
             while(atomIterator.hasNext()) {
                 AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
                 if(!(a.type instanceof AtomTypeSphere)) continue;
-                float[][] shifts = boundary.getOverflowShifts(a.coord.position(),0.5*((AtomTypeSphere)a.type).diameter(a));  //should instead of radius have a size for all AtomC types
+                float[][] shifts = boundary.getOverflowShifts(a.coord.position(),0.5*((AtomTypeSphere)a.type).getDiameter());  //should instead of radius have a size for all AtomC types
                 for(int i=shifts.length-1; i>=0; i--) {
                     shiftOrigin[0] = origin[0] + (int)(displayPhase.getToPixels()*shifts[i][0]);
                     shiftOrigin[1] = origin[1] + (int)(displayPhase.getToPixels()*shifts[i][1]);

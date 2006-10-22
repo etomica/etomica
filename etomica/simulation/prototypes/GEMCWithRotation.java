@@ -79,7 +79,7 @@ public class GEMCWithRotation extends Simulation {
         config.initializeCoordinates(phase2);
             
 	    potential = new P2LennardJones(this);
-	    potential.setSigma(((AtomTypeSphere)species.getMoleculeType()).diameter(null));
+	    potential.setSigma(((AtomTypeSphere)species.getMoleculeType()).getDiameter());
 
         this.potentialMaster.addPotential(potential,new Species[] {species, species});
 

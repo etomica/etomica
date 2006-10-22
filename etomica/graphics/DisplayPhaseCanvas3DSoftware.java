@@ -268,7 +268,7 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
             baseXP = origin[0] + (int)(displayPhase.getToPixels()*(tvert[sorted]+(displayPhase.getPhase().getBoundary().getDimensions().x(0)/2)));
             baseYP = origin[1] + (int)(displayPhase.getToPixels()*(tvert[sorted+1]+(displayPhase.getPhase().getBoundary().getDimensions().x(1)/2)));
             /* Draw the core of the atom */
-            sigmaP = (int)(2.0f*getCircleRadius(tvert[sorted+2], 0.5*((AtomTypeSphere)a.type).diameter(a)));
+            sigmaP = (int)(2.0f*getCircleRadius(tvert[sorted+2], 0.5*((AtomTypeSphere)a.type).getDiameter()));
             //sigmaP = (int)(displayPhase.getToPixels()*2.0f*((AtomType.Sphere)a.type).radius());
             xP = baseXP - (sigmaP>>1);
             yP = baseYP - (sigmaP>>1);
@@ -312,7 +312,7 @@ public class DisplayPhaseCanvas3DSoftware extends DisplayCanvas {
             
     protected boolean computeShiftOrigin(AtomLeaf a, Boundary b) {
         if(a.type instanceof AtomTypeSphere) {
-            float[][] shifts = b.getOverflowShifts(a.coord.position(),0.5*((AtomTypeSphere)a.type).diameter(a));  //should instead of radius have a size for all AtomC types
+            float[][] shifts = b.getOverflowShifts(a.coord.position(),0.5*((AtomTypeSphere)a.type).getDiameter());  //should instead of radius have a size for all AtomC types
             for(int i=0; i<shifts.length; i++) {
                 shiftOrigin[0] = displayPhase.getOrigin()[0] + (int)(displayPhase.getToPixels()*shifts[i][0]);
                 shiftOrigin[1] = displayPhase.getOrigin()[1] + (int)(displayPhase.getToPixels()*shifts[i][1]);

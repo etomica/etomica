@@ -228,7 +228,7 @@ public final class SceneManager {
                 wrapper.shape = renderer.createSphere();
                 
                 // Scale to atom's given size
-                double diameter = ((AtomTypeSphere)a.type).diameter(a);
+                double diameter = ((AtomTypeSphere)a.type).getDiameter();
                 atomScale.E(diameter);
                 wrapper.shape.setScale(atomScale);
             }
