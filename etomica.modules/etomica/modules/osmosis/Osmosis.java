@@ -3,7 +3,6 @@ package etomica.modules.osmosis;
 import java.awt.Color;
 import java.awt.Graphics;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -18,7 +17,6 @@ import etomica.data.meter.MeterLocalMoleFraction;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.ConstantsGraphic;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSelector;
@@ -85,7 +83,7 @@ public class Osmosis {
 	    //display of phase
 	    displayPhase = new DisplayPhase(sim.phase);
         ColorSchemeByType colorScheme = new ColorSchemeByType();
-        // solute=>red, solvent=>blue, other=>green
+
         colorScheme.setColor(sim.speciesA.getMoleculeType(), Color.blue);
         colorScheme.setColor(sim.speciesB.getMoleculeType(), Color.red);
         displayPhase.setColorScheme(colorScheme);
@@ -332,18 +330,11 @@ public class Osmosis {
 
         panel.add(displayPanel, java.awt.BorderLayout.EAST);
 
-        JFrame f = new JFrame();
-        f.setSize(700,500);
-        f.getContentPane().add(panel);
-        f.pack();
-        f.setVisible(true);
-        f.addWindowListener(SimulationGraphic.WINDOW_CLOSER);
-
         Thread repainter = new Thread() {
             public void run() {
                 while (true) {
                     panel.repaint();
-                    try{Thread.sleep(1);}
+                    try{Thread.sleep(10);}
                     catch(InterruptedException e){}
                 }
             }
@@ -368,8 +359,8 @@ public class Osmosis {
     
 
     public static void main(String[] args) {
-
-        new Osmosis();
+        Osmosis osmosis = new Osmosis();
+        SimulationGraphic.makeAndDisplayFrame(osmosis.panel);
     }
 
     
