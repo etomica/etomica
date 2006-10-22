@@ -7,6 +7,7 @@ import etomica.config.ConfigurationSequential;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
+import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.phase.Phase;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P2HardSphere;
@@ -32,13 +33,14 @@ public class OsmosisSim extends Simulation {
     public P2HardSphere potentialAA,potentialBB,potentialAB;
     public P1HardBoundary boundaryHardTopBottomA, boundaryHardLeftA, boundaryHardRightA;
     public P1HardBoundary boundaryHardB;
-    public P1HardWall boundarySemiA,boundarySemiB;
+    public P1HardWall boundarySemiB;
     public ActivityIntegrate activityIntegrate;
     
     public OsmosisSim() {
 
         super(Space2D.getInstance());
 
+        defaults.ignoreOverlap = true;
         final double sigma = defaults.atomSize;
 
 	    speciesA = new SpeciesSpheresMono(this);
@@ -91,6 +93,7 @@ public class OsmosisSim extends Simulation {
 
         integrator = new IntegratorHard(this);
         integrator.setPhase(phase);
+        integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         
         activityIntegrate = new ActivityIntegrate(integrator, false, false);
         getController().addAction(activityIntegrate);

@@ -16,6 +16,7 @@ import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
 import etomica.data.meter.MeterLocalMoleFraction;
 import etomica.data.meter.MeterTemperature;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.ConstantsGraphic;
 import etomica.graphics.DeviceNSelector;
@@ -29,6 +30,7 @@ import etomica.graphics.DisplayTimer;
 import etomica.graphics.Drawable;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.DisplayBox.LabelType;
+import etomica.integrator.Integrator;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.math.geometry.Rectangle;
 import etomica.modifier.Modifier;
@@ -161,7 +163,7 @@ public class Osmosis {
 	    //DevicePotentialSelector potentialmeter = new DevicePotentialSelector(this);
         
         DiameterModifier diameterModifier = new DiameterModifier(sim.potentialAA,sim.potentialBB,sim.potentialAB,
-                                                            sim.boundarySemiA,sim.boundarySemiB,
+                                                            sim.boundarySemiB,
                                                             sim.boundaryHardTopBottomA,sim.boundaryHardLeftA,sim.boundaryHardRightA,
                                                             sim.boundaryHardB,
                                                             sim.speciesA,sim.speciesB);
@@ -216,9 +218,6 @@ public class Osmosis {
                 }
 
         });
-
-        
-
 
         JPanel startPanel = new JPanel(new java.awt.GridBagLayout());
 
@@ -333,104 +332,6 @@ public class Osmosis {
 
         panel.add(displayPanel, java.awt.BorderLayout.EAST);
 
-		
-
-		//***************set all the colors******************
-
-		java.awt.Color background = ConstantsGraphic.KHAKI.brighter().brighter();
-
-		java.awt.Color contrast = ConstantsGraphic.DARK_RED;
-
-//		java.awt.Color sliderColor = ConstantsGraphic.TAN;
-
-	    java.awt.Color tabColor = ConstantsGraphic.DARK_RED;
-
-		java.awt.Color tabTextColor = background;
-
-		java.awt.Color buttonColor = tabColor;
-
-		java.awt.Color buttonTextColor = tabTextColor;
-
-		java.awt.Color panelColor = ConstantsGraphic.TAN;
-
-		panel.setBackground(background);
-
-//		panel.devicePanel.setBackground(background);
-//
-//		panel.displayPanel.setBackground(tabColor);
-//
-//		panel().displayPanel.setForeground(tabTextColor);
-//
-//		panel().displayBoxPanel.setBackground(background);
-
-
-
-		controlPanel.setBackground(background);
-
-
-
-		startPanel.setBackground(contrast); //border color
-
-		startPanel.setOpaque(false);
-
-
-
-		cyclesPanel.setBackground(contrast); //border color
-		cyclesPanel.setOpaque(false);
-		displayCycles.graphic(null).setBackground(background);
-
-		
-
-		osmoticPanel.setBackground(contrast); //border color
-		osmoticPanel.setOpaque(false);
-//		dBox.graphic(null).setBackground(background);
-
-		
-		moleFractionPanel.setBackground(contrast); //border color
-		moleFractionPanel.setOpaque(false);
-		mfBox.graphic(null).setBackground(background);
-		
-		tabPaneMeter.setBackground(background.darker());
-		tabPaneMeter.setOpaque(false);
-		tabPaneMeter.setForeground(contrast.brighter().brighter());
-       // tabPaneMeter.setBorder(new javax.swing.border.LineBorder(contrast,2));
-
-		temperaturePanel.setBackground(contrast); //border color
-		temperaturePanel.setOpaque(false);
-		tBox.graphic(null).setBackground(background);
-		tSelect.graphic(null).setBackground(background);
-
-
-
-		sliderPanelA.setBackground(contrast); //border color
-		sliderPanelA.setOpaque(false);
-		
-		sliderPanelB.setBackground(contrast); //border color
-		sliderPanelB.setOpaque(false);
-		
-		sliderDiaPanel.setBackground(contrast); //border color
-		sliderDiaPanel.setOpaque(false);
-        
-		tabPaneSliders.setBackground(background.darker());
-		tabPaneSliders.setOpaque(false);
-		tabPaneSliders.setForeground(contrast.brighter().brighter());
-       // tabPane.setBorder(new javax.swing.border.LineBorder(contrast,2));
-		tabPane.setBackground(background.darker());
-		tabPane.setOpaque(false);
-		tabPane.setForeground(contrast.brighter().brighter());
-        
-		displayPhase.graphic(null).setBackground(panelColor);
-
-		displayPhasePanel.setBackground(panelColor);
-
-//		SpeciesAgent wallsagent = walls.getAgent(phase);
-//		Atom wallAtom = ((AtomTreeNodeGroup)wallsagent.node).firstChildAtom();
-//		wallAtom.coord.position().setX(0,phase.boundary().dimensions().x(0)/2.);
-		button.graphic().setBackground(buttonColor);
-		button.graphic().setForeground(buttonTextColor);
-//      for debugging		
-//		controller1.start();
-
         JFrame f = new JFrame();
         f.setSize(700,500);
         f.getContentPane().add(panel);
@@ -460,7 +361,7 @@ public class Osmosis {
 			int h = (int)(scale*sim.phase.getBoundary().getDimensions().x(1));
 			int w = 4;
 			g.setColor(java.awt.Color.green);
-    		g.fillRect(x1, y1, w, h);
+    		g.fillRect(x1-w, y1, w, h);
     	}
     }
 
@@ -475,21 +376,21 @@ public class Osmosis {
     public class DiameterModifier implements Modifier {
         
         P2HardSphere potentialAA,potentialBB,potentialAB;
-        P1HardWall membraneA,membraneB;
+        P1HardWall membraneB;
         P1HardBoundary boundaryHard1A,boundaryHard2A,boundaryHard3A;
         P1HardBoundary boundaryHardB;
         SpeciesSpheresMono speciesA,speciesB;
         DisplayPhase display;
+        Integrator integrator;
         
         public DiameterModifier(P2HardSphere potentialAA ,P2HardSphere potentialBB ,P2HardSphere potentialAB ,
-                          P1HardWall membraneA ,P1HardWall membraneB,
+                          P1HardWall membraneB,
                           P1HardBoundary boundaryHard1A, P1HardBoundary boundaryHard2A, P1HardBoundary boundaryHard3A, 
                           P1HardBoundary boundaryHardB,
                           SpeciesSpheresMono speciesA ,SpeciesSpheresMono speciesB) {
             this.potentialAA = potentialAA;
             this.potentialBB = potentialBB;
             this.potentialAB = potentialAB;
-            this.membraneA = membraneA;
             this.membraneB = membraneB;
             this.boundaryHard1A = boundaryHard1A;
             this.boundaryHard2A = boundaryHard2A;
@@ -511,7 +412,6 @@ public class Osmosis {
             potentialAA.setCollisionDiameter(d);
             potentialBB.setCollisionDiameter(d);
             potentialAB.setCollisionDiameter(d);
-            membraneA.setCollisionRadius(0.5*d);
             boundaryHard1A.setCollisionRadius(0.5*d);
             boundaryHard2A.setCollisionRadius(0.5*d);
             boundaryHard3A.setCollisionRadius(0.5*d);
@@ -519,16 +419,30 @@ public class Osmosis {
             boundaryHardB.setCollisionRadius(0.5*d);
             ((AtomTypeSphere)speciesA.getMoleculeType()).setDiameter(d);
             ((AtomTypeSphere)speciesB.getMoleculeType()).setDiameter(d);
-            if(display != null)display.repaint();
+            if (display != null) {
+                display.repaint();
+            }
+            if (integrator != null) {
+                try {
+                    integrator.reset();
+                }
+                catch (ConfigurationOverlapException e) {
+                    //overlaps are likely after increasing the diameter
+                }
+            }
         }
         
         public double getValue() {
             return ((AtomTypeSphere)speciesA.getMoleculeType()).getDiameter();
         }
         
-        public void setDisplay(DisplayPhase display){
-            this.display = display;
-        }    
+        public void setDisplay(DisplayPhase newDisplay){
+            display = newDisplay;
+        }
+        
+        public void setIntegrator(Integrator newIntegrator) {
+            integrator = newIntegrator;
+        }
     }
 
     public static class Applet extends javax.swing.JApplet {
