@@ -81,13 +81,15 @@ public class MeterPressureHard extends DataSourceScalar implements
             newIntegrator.addListener(timer);
             integratorHard.addCollisionListener(this);
         }
+        virialSum = 0;
 	}
     
     public IntegratorHard getIntegrator() {
         return integratorHard;
     }
     
-    protected double virialSum = 0.0;
-    private IntegratorHard integratorHard;
+    private static final long serialVersionUID = 1L;
+    protected double virialSum;
+    protected IntegratorHard integratorHard;
     protected final DataSourceCountTime timer;
 }
