@@ -57,7 +57,7 @@ public class PistonCylinder extends Simulation {
         species = new SpeciesSpheresMono(this);
         phase = new Phase(this);
         phase.getAgent(species).setNMolecules(112);
-        phase.setBoundary(new BoundaryRectangularNonperiodic(space));
+        phase.setBoundary(new BoundaryPistonCylinder(space));
         Vector newDim;
         Configuration config;
         if (space.D() == 2) {
@@ -100,6 +100,7 @@ public class PistonCylinder extends Simulation {
         }
         pistonPotential.setThickness(1.0);
         potentialMaster.addPotential(pistonPotential,new Species[]{species});
+        ((BoundaryPistonCylinder)phase.getBoundary()).setPistonPotential(pistonPotential);
         
         integrator = new IntegratorHardPiston(this,pistonPotential);
         integrator.setPhase(phase);
