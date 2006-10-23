@@ -181,7 +181,7 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
             return "";
         }
         String symbolText = unit.symbol();
-        return modifyAction.getWrappedModifier().getLabel()+
+        return modifyAction.getLabel()+
                 ((symbolText.length() > 0) ? " ("+symbolText+")" : "");
     }
     
