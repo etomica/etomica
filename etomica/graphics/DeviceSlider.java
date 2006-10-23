@@ -8,8 +8,8 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
 import javax.swing.JPanel;
-import javax.swing.JSlider;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -315,7 +315,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
     }
     
     public void setSliderVerticalOrientation(boolean b){
-        if(b){getSlider().setOrientation(DecimalSlider.VERTICAL);}
+        if(b){getSlider().setOrientation(SwingConstants.VERTICAL);}
     }
     
     public boolean getEditValues(){ return editValues;}
@@ -389,12 +389,6 @@ public class DeviceSlider extends Device implements EtomicaElement {
      * @return a handle to the JPanel instance used by this slider device
      */    
     public JPanel getPanel() { return panel; }    
-    /**
-     * Performs no action (slider can not be accessed for setting).
-     * Method exists so that slider and its properties (which can be set) will
-     * show up on the property sheet.
-     */
-     public void setSlider(JSlider s) {}
      
      /**
       * Slider listener, which relays the slider change events to the modifier
