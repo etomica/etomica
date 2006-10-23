@@ -5,6 +5,7 @@ import etomica.EtomicaInfo;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomTypeLeaf;
 import etomica.graphics.Drawable;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
@@ -36,6 +37,9 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     private int[] pixPosition;
     private int[] thickness;
     private boolean ignoreOverlap;
+    private double lastVirial;
+    private int lastCollisionDim;
+    private final Tensor lastVirialTensor;
     
     public P1HardBoundary(Simulation sim) {
         this(sim.space, sim.getDefaults().ignoreOverlap);
@@ -45,6 +49,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
         super(space);
         this.ignoreOverlap = ignoreOverlap;
         work = space.makeVector();
+        lastVirialTensor = space.makeTensor();
         isActiveDim = new boolean[space.D()][2];
         for (int i=0; i<isActiveDim.length; i++) {
             isActiveDim[i][0] = true;
@@ -133,8 +138,8 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
                 imin = i;
             }
         }
-        if (Debug.ON && Math.abs(work.x(imin)-collisionRadius)/collisionRadius > 1.e-9 
-                && Math.abs(dimensions.x(imin)-work.x(imin)-collisionRadius)/collisionRadius > 1.e-9) {
+        if (Debug.ON && Math.abs(work.x(imin)-collisionRadius+dimensions.x(imin)*0.5)/collisionRadius > 1.e-9 
+                && Math.abs(0.5*dimensions.x(imin)-work.x(imin)-collisionRadius)/collisionRadius > 1.e-9) {
             System.out.println(a+" "+work+" "+dimensions);
             System.out.println("stop that");
         }
@@ -142,17 +147,22 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
         // dv = 2*NewVelocity
         double newP = ((AtomLeaf)a).coord.position().x(imin) - falseTime*v.x(imin)*2.0;
         ((AtomLeaf)a).coord.position().setX(imin,newP);
+        double dp = 2.0/(((AtomTypeLeaf)((Atom)a).type).rm())*(-v.x(imin));
+        lastVirial = dp;
+        lastCollisionDim = imin;
     }//end of bump
     
-    /**
-     * not yet implemented
-     */
-    public double lastCollisionVirial() {return 0;}
+    public double lastCollisionVirial() {
+        // return 0 because the wall is not a molecule!
+        return 0;
+    }
     
-    /**
-     * not yet implemented.
-     */
-    public Tensor lastCollisionVirialTensor() {return null;}
+    public Tensor lastCollisionVirialTensor() {
+        // let's hope people only call this on purpose.  It should really be 0.
+        lastVirialTensor.E(0);
+        lastVirialTensor.setComponent(lastCollisionDim, lastCollisionDim, lastVirial);
+        return lastVirialTensor;
+    }
     
     /**
      * Distance from the center of the sphere to the boundary at collision.
