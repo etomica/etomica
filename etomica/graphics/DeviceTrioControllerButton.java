@@ -19,16 +19,13 @@ import etomica.simulation.prototypes.HSMD2D;
  * @author Sang Kyu Kwak
  */
  
- /* History of changes.
-  * 07/03/02 Created
-  */
 public class DeviceTrioControllerButton extends Device {
     
     private JPanel jp;
-    private DeviceControllerButton button1;
+    private DeviceControllerButton startButton;
     private Simulation simulation;
-    private DeviceButton button2;
-    private DeviceButton button3;
+    private DeviceButton restartButton;
+    private DeviceButton resetButton;
 	private double width;
 	private boolean firstResized = true;
 	private String shape;
@@ -61,15 +58,15 @@ public class DeviceTrioControllerButton extends Device {
                              ,java.awt.Color.black));
                              */
 
-        button1 = new DeviceControllerButton(null);
-        button2 = new DeviceButton(null);
-        button3 = new DeviceButton(null);
-        button2.setLabel("Restart");
-        button3.setLabel("Reset averages");
+        startButton = new DeviceControllerButton(null);
+        restartButton = new DeviceButton(null);
+        resetButton = new DeviceButton(null);
+        restartButton.setLabel("Restart");
+        resetButton.setLabel("Reset averages");
         
-        jp.add(button1.graphic()); 
-        jp.add(button2.graphic());  
-        jp.add(button3.graphic());
+        jp.add(startButton.graphic()); 
+        jp.add(restartButton.graphic());  
+        jp.add(resetButton.graphic());
                        
         setShape("VERTICAL");
     }
@@ -81,11 +78,11 @@ public class DeviceTrioControllerButton extends Device {
         simulation = sim;
         Controller c = sim.getController();
         setController(c);
-        button1.setController(c);
-        button2.setController(c);
-        button3.setController(c);
-        button2.setAction(new SimulationRestart(sim));
-        button3.setAction(new SimulationDataAction(sim,new ResetAccumulators()));
+        startButton.setController(c);
+        restartButton.setController(c);
+        resetButton.setController(c);
+        restartButton.setAction(new SimulationRestart(sim));
+        resetButton.setAction(new SimulationDataAction(sim,new ResetAccumulators()));
     }
     
     /**
@@ -102,14 +99,14 @@ public class DeviceTrioControllerButton extends Device {
         return jp;
     }
     
-    public DeviceControllerButton getControllerButton() {return button1;}
-    public DeviceButton getRestartButton() {return button2;}
-    public DeviceButton getResetAveragesButton() {return button3;}
+    public DeviceControllerButton getControllerButton() {return startButton;}
+    public DeviceButton getRestartButton() {return restartButton;}
+    public DeviceButton getResetAveragesButton() {return resetButton;}
  
     /**
      * Sets controller toggle button to read "Start"
      */
-    public void reset() {button1.reset();}
+    public void reset() {startButton.reset();}
     
     /**
      * Sets display shape of the device.  The argument must be a string having
@@ -131,7 +128,7 @@ public class DeviceTrioControllerButton extends Device {
     /**
      * Inner class that catches action of simulation panel 
      */        
-    private class ComponentEventControllerButton implements ComponentListener, java.io.Serializable {
+    protected class ComponentEventControllerButton implements ComponentListener {
   
         public void componentHidden(ComponentEvent e){}
         public void componentMoved(ComponentEvent e){}
@@ -145,8 +142,8 @@ public class DeviceTrioControllerButton extends Device {
                 jp.setLayout(new java.awt.GridLayout(1,3)); 
                 jp.updateUI();
             }
-        }//end componentResized
-    }//end ComponentEventControllerButton
+        }
+    }
  
     /**
      * main method to show how to work with this class 
