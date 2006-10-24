@@ -115,6 +115,11 @@ public class PairIndexerTestSimple extends Simulation {
                 maxBin = bin;
             }
             pit.phase.getBoundary().nearestImage(dr);
+            if (bin != pi.getBin(atom1, atom0)) {
+                pi.getBin(atom1, atom0);
+                pi.getBin(atom0, atom1);
+                System.out.println("asymmetry "+atom0+" "+atom1);
+            }
           
             Integer iBin = new Integer(bin);
             // check if we've seen this bin before
