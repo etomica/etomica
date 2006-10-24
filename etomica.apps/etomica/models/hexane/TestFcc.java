@@ -11,6 +11,7 @@ import etomica.data.DataArrayWriter;
 import etomica.data.DataLogger;
 import etomica.data.DataPump;
 import etomica.data.types.CastGroupToDoubleArray;
+import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntervalActionAdapter;
@@ -105,6 +106,7 @@ public class TestFcc extends Simulation {
         pri = new PairIndexerMolecule(phase, fccPrimitive);
         DataProcessorArrayFlatten squisher = new DataProcessorArrayFlatten();
         meterCorrelation = new MeterCorrelationMatrix(phase, pri);
+        meterCorrelation.setSymmetric(true);
         AccumulatorAverage accumulator = new AccumulatorAverage(this);
 
         DataPump pump = new DataPump(meterCorrelation, accumulator);
@@ -138,10 +140,15 @@ public class TestFcc extends Simulation {
      */
     public static void main(String[] args) {
         int nA = 108;
+        boolean graphic = false;
         TestFcc sim = new TestFcc(Space3D.getInstance(), nA);
-//        SimulationGraphic simG = new SimulationGraphic(sim);
-//        simG.makeAndDisplayFrame();
+        
+        if(graphic){
+            SimulationGraphic simG = new SimulationGraphic(sim);
+            simG.makeAndDisplayFrame();
+        } else {
         sim.getController().actionPerformed();
+        }
         // MeterNormalMode mnm = new MeterNormalMode();
         
         System.out.println("Peace be unto you.");
