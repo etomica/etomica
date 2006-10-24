@@ -27,10 +27,13 @@ import etomica.data.DataSource;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataTag;
+import etomica.data.AccumulatorAverage.StatType;
+import etomica.data.meter.MeterRDF;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceBox;
+import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceToggleButton;
 import etomica.graphics.DeviceTrioControllerButton;
@@ -101,6 +104,7 @@ public class PistonCylinderGraphic {
     public MeterTemperature thermometer;
     public DisplayPhase displayPhase;
     public DeviceTrioControllerButton controlButtons;
+    public DeviceButton configButton;
     public ItemListener potentialChooserListener;
     public JComboBox potentialChooser;
     public DeviceSlider scaleSlider, pressureSlider, temperatureSlider;
@@ -108,12 +112,13 @@ public class PistonCylinderGraphic {
     public MeterPistonDensity densityMeter;
     public DeviceToggleButton fixPistonButton;
     public DisplayPlot plotT, plotD, plotP;
+    public DisplayPlot plotRDF;
     public Unit tUnit, dUnit, pUnit;
-    public final javax.swing.JTabbedPane displayPanel;
+    public javax.swing.JTabbedPane displayPanel;
     public DeviceBox sigBox, epsBox, lamBox, massBox;
 	private DisplayBoxesCAE densityDisplayBox, temperatureDisplayBox, pressureDisplayBox;
-    final JRadioButton buttonAdiabatic, buttonIsothermal;
-    final JPanel blankPanel = new JPanel();
+    public JRadioButton buttonAdiabatic, buttonIsothermal;
+    public JPanel blankPanel = new JPanel();
     public int historyLength;
     public DataSourceWallPressure pressureMeter;
     public int dataInterval;
@@ -123,13 +128,36 @@ public class PistonCylinderGraphic {
     public int repaintSleep = 100;
     public int integratorSleep = 10;
     Default defaults;
+    private boolean initialized;
+    private boolean doConfigButton;
+    private boolean doRDF;
     
-    public PistonCylinderGraphic() {
+    /**
+     * Enable/disable button to show coordinates.  Must be called before init.
+     */
+    public void setDoConfigButton(boolean newDoConfigButton) {
+        if (initialized) {
+            throw new RuntimeException("Already initialized");
+        }
+        doConfigButton = newDoConfigButton;
+    }
+    
+    /**
+     * Enable/disable RDF tab.  Must be called before init.
+     */
+    public void setDoRDF(boolean newDoRDF) {
+        if (initialized) {
+            throw new RuntimeException("Already initialized");
+        }
+        doRDF = newDoRDF;
+    }
+    
+    public void init() {
+        initialized = true;
         defaults = new Default();
         defaults.blockSize = 100;
         displayPhase = new DisplayPhase(null);
         displayPhase.setColorScheme(new ColorSchemeByType());
-
 
         defaults.ignoreOverlap = true;
         defaults.atomSize = 3.0;
@@ -393,9 +421,6 @@ public class PistonCylinderGraphic {
         gbc2.gridy = java.awt.GridBagConstraints.RELATIVE;
         controlPanel.add(dimensionPanel);
         controlPanel.add(startPanel,gbc2);
-        java.awt.GridBagConstraints gbc3 = new java.awt.GridBagConstraints();
-        gbc3.gridx = java.awt.GridBagConstraints.RELATIVE;
-        gbc3.gridy = 0;
         displayCycles = new DisplayBox();
         controlPanel.add(displayCycles.graphic(),gbc2);
 
@@ -473,7 +498,22 @@ public class PistonCylinderGraphic {
             }
         };
         repainter.start();
-        
+
+        if (doConfigButton) {
+            configButton = new DeviceButton(null);
+            configButton.setLabel("Show Config");
+            controlPanel.add(configButton.graphic(),gbc2);
+        }
+
+        if (doRDF) {
+            plotRDF = new DisplayPlot();
+            JPanel rdfPanel = new JPanel();
+            displayPanel.add("RDF", rdfPanel);
+            plotRDF.setDoLegend(false);
+            
+            rdfPanel.add(plotRDF.graphic());
+        }
+
         setSimulation(new PistonCylinder(2, defaults));
     }
     
@@ -528,7 +568,6 @@ public class PistonCylinderGraphic {
         }
         if (D == 2) {
             displayPanel.insertTab(displayPhase.getLabel(), null, displayPhasePanel, "", 0);
-//            displayPanel.add(displayPhase.getLabel(), displayPhasePanel);
             displayPhase.setPhase(pc.phase);
             displayPhase.setAlign(1,DisplayPhase.BOTTOM);
             displayPhase.canvas.setDrawBoundary(DisplayCanvasInterface.DRAW_BOUNDARY_NONE);
@@ -536,7 +575,6 @@ public class PistonCylinderGraphic {
             displayPhase.addDrawable(pc.pistonPotential);
             displayPhase.addDrawable(pc.wallPotential);
             displayPhasePanel.add(displayPhase.graphic(),java.awt.BorderLayout.WEST);
-//            pc.integrator.addIntervalListener(displayPhase);
         } else {
             displayPanel.add("Run Faster", blankPanel);
         }
@@ -589,7 +627,7 @@ public class PistonCylinderGraphic {
         ModifierAtomDiameter sigModifier = new ModifierAtomDiameter();
         ModifierGeneral epsModifier = new ModifierGeneral(potentialSW, "epsilon");
         ModifierGeneral lamModifier = new ModifierGeneral(potentialSW, "lambda");
-        ModifierGeneral massModifier = new ModifierGeneral(pc.species.getMoleculeType(),"mass");
+        ModifierGeneral massModifier = new ModifierGeneral(((AtomTypeLeaf)pc.species.getMoleculeType()).getElement(),"mass");
         sigBox.setModifier(sigModifier);
         sigBox.setLabel("Core Diameter ("+Angstrom.UNIT.symbol()+")");
         epsBox.setUnit(eUnit);
@@ -733,6 +771,24 @@ public class PistonCylinderGraphic {
         plotD.getPlot().setSize(d);
 
         controlButtons.setSimulation(pc);
+        
+        if (doRDF) {
+            plotRDF.getDataSet().reset();
+            MeterRDF meterRDF = new MeterRDF(pc.space);
+            meterRDF.setPhase(pc.phase);
+            meterRDF.getXDataSource().setXMax(10);
+            AccumulatorAverage avgRDF = new AccumulatorAverage(pc);
+            pump = new DataPump(meterRDF, avgRDF);
+            pc.register(meterRDF, pump);
+            adapter = new IntervalActionAdapter(pump);
+            pc.integrator.addListener(adapter);
+            avgRDF.addDataSink(plotRDF.getDataSet().makeDataSink(), new StatType[]{StatType.AVERAGE});
+        }
+        
+        if (doConfigButton) {
+            configButton.setController(pc.getController());
+            configButton.setAction(new ActionConfigWindow(pc.phase));
+        }
     }
     
     public void setPotential(String potentialDesc) {
@@ -762,7 +818,7 @@ public class PistonCylinderGraphic {
         });
     }
     
-    private class ModifierAtomDiameter implements Modifier {
+    protected class ModifierAtomDiameter implements Modifier {
 
         public void setValue(double d) {
             //assume one type of atom
@@ -794,18 +850,25 @@ public class PistonCylinderGraphic {
     }
     
     public static void main(String[] args) {
-        PistonCylinderGraphic sim = new PistonCylinderGraphic();
-		SimulationGraphic.makeAndDisplayFrame(sim.panel);
-//		sim.phase.reset();
- //       sim.controller1.start();
-    }//end of main
-    
+        PistonCylinderGraphic pcg = new PistonCylinderGraphic();
+        pcg.setDoConfigButton(true);
+        pcg.setDoRDF(true);
+        pcg.init();
+		SimulationGraphic.makeAndDisplayFrame(pcg.panel);
+    }
+
     public static class Applet extends javax.swing.JApplet {
 
-	    public void init() {
-		    getContentPane().add(new PistonCylinderGraphic().panel);
-	    }
-    }//end of Applet
-}//end of PistonCylinderGraphic class
+        public void init() {
+            PistonCylinderGraphic pcg = new PistonCylinderGraphic();
+            String doConfigButtonStr = getParameter("doConfigButton");
+            pcg.setDoConfigButton(Boolean.parseBoolean(doConfigButtonStr));
+            String doRDFStr = getParameter("doRDF");
+            pcg.setDoRDF(Boolean.parseBoolean(doRDFStr));
+            pcg.init();
+            getContentPane().add(pcg.panel);
+        }
 
-
+        private static final long serialVersionUID = 1L;
+    }
+}
