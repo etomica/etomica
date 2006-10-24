@@ -83,18 +83,11 @@ public class PairIndexerMolecule {
             latticeSites[molecule.getGlobalIndex()] = (Vector) temp.clone();
             temp.ME(r0);
 
-            // nudge everything a bit so nothing ends up sitting on the edge
-            // things on the edge confuse us since sitting on different edges 
-            // leads to different indices, different bins and (ultimately) a 
-            // non-symmetric matrix
-            // The amount of nudging must be less than half the minimum distance
-            // between lattice sites in each direction so nudging does not push
-            // something into a different lattice site.  In some cases "half"
-            // might even be too large.  It also has to be big enough to avoid
-            // any roundoff problems.  We'll use 1.e-5.
-            temp.PE(-1.e-5);
-            
             bdry.nearestImage(temp);
+            
+            // flip the vector to ensure symmetry
+            //XXX we can only do this with spheres!!!
+            flipVector(temp);
 
             calculateTheseIndices(temp);
             orderMillerIndices(indices);
@@ -123,6 +116,36 @@ public class PairIndexerMolecule {
             }
         }
         maxLength = jumpCount[0] * iJump[0];
+    }
+    
+    private void flipVector(Vector dr) {
+        int shouldBeFlipped = 0; // 1=yes, -1=no
+        for (int i=0; i<dr.D(); i++) {
+            if (Math.abs(dr.x(i) - 0.5*bdry.getDimensions().x(i)) < tol || 
+                Math.abs(dr.x(i) + 0.5*bdry.getDimensions().x(i)) < tol) {
+                // we're on the edge, put ourselves on the right edge
+                dr.setX(i, 0.5*bdry.getDimensions().x(i));
+            }
+            else if (shouldBeFlipped == -1) {
+                // we already hit a positive, so don't flip this
+            }
+            else if (shouldBeFlipped == 1) {
+                // we already hit a negative, so flip this
+                dr.setX(i, -dr.x(i));
+            }
+            else if (Math.abs(dr.x(i)) < tol) {
+                // this is a 0, do nothing
+            }
+            else if (dr.x(i) < 0) {
+                // this is a negative, flip it and all the rest
+                shouldBeFlipped = 1;
+                dr.setX(i, -dr.x(i));
+            }
+            else {
+                // this is a positive, don't flip it or the rest
+                shouldBeFlipped = -1;
+            }
+        }
     }
 
     /**
@@ -158,8 +181,8 @@ public class PairIndexerMolecule {
         temp.Ev1Mv2(latticeSites[atom1.getGlobalIndex()],
                 latticeSites[atom0.getGlobalIndex()]);
 
-        temp.PE(-1.e-5);
         bdry.nearestImage(temp);
+        flipVector(temp);
 
         calculateTheseIndices(temp);
 
@@ -196,7 +219,6 @@ public class PairIndexerMolecule {
             }
             else if (m[i] < 0) {
                 //all is backwards.  fix it
-                flipflag = true;
                 for (int j = i; j < dim; j++) {
                     m[j] = -m[j];
                 }
@@ -226,10 +248,6 @@ public class PairIndexerMolecule {
         return maxLength;
     }
 
-    public boolean isFlipFlag() {
-        return flipflag;
-    }
-    
     /**
      * Returns the array of Vectors corresponding to the original position of 
      * each Atom relative to the first Atom.  These should correspond to the 
@@ -285,6 +303,5 @@ public class PairIndexerMolecule {
     private final Tensor inverter;
 
     private final Boundary bdry;
-
-    private boolean flipflag;
+    private double tol = 1.e-5;
 }
