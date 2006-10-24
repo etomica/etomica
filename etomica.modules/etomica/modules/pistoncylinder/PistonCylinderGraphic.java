@@ -862,9 +862,9 @@ public class PistonCylinderGraphic {
         public void init() {
             PistonCylinderGraphic pcg = new PistonCylinderGraphic();
             String doConfigButtonStr = getParameter("doConfigButton");
-            pcg.setDoConfigButton(Boolean.parseBoolean(doConfigButtonStr));
+            pcg.setDoConfigButton(Boolean.getBoolean(doConfigButtonStr));
             String doRDFStr = getParameter("doRDF");
-            pcg.setDoRDF(Boolean.parseBoolean(doRDFStr));
+            pcg.setDoRDF(Boolean.getBoolean(doRDFStr));
             pcg.init();
             getContentPane().add(pcg.panel);
         }
