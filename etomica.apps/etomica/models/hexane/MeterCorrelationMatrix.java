@@ -13,6 +13,7 @@ import etomica.data.types.DataTensor;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.phase.Phase;
+import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.Area;
 import etomica.units.Null;
@@ -55,15 +56,19 @@ public class MeterCorrelationMatrix implements Meter {
         }
         
         //Set up the tempVex.
+        maxlength = pri.getMaxLength();
         int tempInt = pri.getMaxLength();
         tempVex = new Vector[tempInt];
         for(int i = 0; i < tempInt; i++){
             tempVex[i] = phase.space().makeVector();
         }
-        
+        te = maxlength/dim/dim;
+        counter = new int[maxlength];
+        tempTen = phase.space().makeTensor();
+        tempTenAgain = phase.space().makeTensor();
         
         resetMeter();
-
+        setSymmetric(true);
     }
     
     public DataTag getTag() {
@@ -75,7 +80,8 @@ public class MeterCorrelationMatrix implements Meter {
      */
     public Data getData() {
         resetMeter();
-
+        
+        if(!symmetric) System.out.println(symmetric);
         // make the change-in-position-from-the-original-lattice-point vector
         atomIterator.reset();
         while (atomIterator.hasNext()) {
@@ -91,10 +97,30 @@ public class MeterCorrelationMatrix implements Meter {
             int bin = pri.getBin(pair.getAtom(0), pair.getAtom(1));
             Vector gam1 = tempVex[pair.getAtom(0).getGlobalIndex()];
             Vector gam2 = tempVex[pair.getAtom(1).getGlobalIndex()];
-            ((DataTensor)data.getData(bin)).x.PEv1v2(gam1, gam2);
+            tempTen.Ev1v2(gam1, gam2);
+            if(symmetric){
+                tempTenAgain.E(tempTen);
+                tempTen.transpose();
+                tempTen.PE(tempTenAgain);
+                ((DataTensor)data.getData(bin)).x.PE(tempTen);
+                counter[bin] += 2;
+            } else {
+                ((DataTensor)data.getData(bin)).x.PE(tempTen);
+                counter[bin] += 1;
+            }
         }
         api1.reset();
 
+        //Divide each bin by the amount of times we put something in i
+        for(int i = 0; i < maxlength; i++){
+//            System.out.println(i +"  "+ counter[i] +"   "+ ((DataTensor)data.getData(i)).x);
+            if(counter[i] != 0){
+                (((DataTensor)data.getData(i)).x).TE(1/(double)counter[i]);
+            }
+//            System.out.println(i +"  "+ counter[i] +"   "+ ((DataTensor)data.getData(i)).x);
+            
+        }
+        
         return data;
     }
 
@@ -114,8 +140,13 @@ public class MeterCorrelationMatrix implements Meter {
             ticker++;
             ((DataTensor)data.getData(bin)).x.E(0.0);
         }
+        for(int i = 0; i < maxlength; i++){
+            counter[i] = 0;
+        }
+        tempTen.E(0.0);
+        tempTenAgain.E(0.0);
     }
-
+    
     public DataInfo getDataInfo() {
         return dataInfo;
     }
@@ -136,6 +167,13 @@ public class MeterCorrelationMatrix implements Meter {
         return phase;
     }
 
+    public boolean isSymmetric() {
+        return symmetric;
+    }
+
+    public void setSymmetric(boolean symmetric) {
+        this.symmetric = symmetric;
+    }
 
     private PairIndexerMolecule pri; // Calculates the index to store stuff under
     private DataGroup data;
@@ -150,4 +188,11 @@ public class MeterCorrelationMatrix implements Meter {
     Vector[] op; // The original positions of the atoms.
     private Vector[] tempVex;
     private final DataTag tag;
+    private int maxlength;  //The maximum length of various things
+    private int[] counter;
+    private int te;     //related to the maxlength
+    private boolean symmetric;
+    Tensor tempTen;
+    Tensor tempTenAgain;
+
 }
