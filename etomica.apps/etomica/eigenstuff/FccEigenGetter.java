@@ -80,21 +80,18 @@ public class FccEigenGetter extends Simulation {
         pri = new PairIndexerMolecule(phase, fccPrimitive);
         
         // ***** output stuff cut out
-        
+        phase.setDensity(1.3);
         System.out.println(phase.getDensity());
-        phase.setDensity(1.04);
         
         double[][][] fileData = ReaderIn.getFromFile(filename, dim);
         double[][] moreData = Reconstituter.reconstitute(pri, phase, fileData);
         evaler = new MyEigenvalueDecomposition(sysdim, moreData);
         double[] d = evaler.getRealEigenvalues();
-        System.out.println("d  " + d);
         double[] e = evaler.getImagEigenvalues();
-        System.out.println("e  " + e);
         double sum = 0;
         for (int i=0; i<d.length; i++) {
             sum += Math.log(2*Math.PI/d[i]);
-//            System.out.println(d[i] + "   " + e[i] + "   " + sum );
+            System.out.println(d[i] + "   " + e[i] + "   " + sum );
         }
         System.out.println("f = "+sum);
         
