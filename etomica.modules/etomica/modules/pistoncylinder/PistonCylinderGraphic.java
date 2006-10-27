@@ -12,9 +12,12 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import etomica.action.Action;
 import etomica.action.IntegratorReset;
+import etomica.action.SimulationRestart;
 import etomica.atom.AtomPairFilter;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
@@ -35,6 +38,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceButton;
+import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceToggleButton;
 import etomica.graphics.DeviceTrioControllerButton;
@@ -111,6 +115,7 @@ public class PistonCylinderGraphic {
     public ItemListener potentialChooserListener;
     public JComboBox potentialChooser;
     public DeviceSlider scaleSlider, pressureSlider, temperatureSlider;
+    public DeviceNSelector nSlider;
     public JPanel pressureSliderPanel;
     public MeterPistonDensity densityMeter;
     public DeviceToggleButton fixPistonButton;
@@ -134,6 +139,7 @@ public class PistonCylinderGraphic {
     private boolean initialized;
     private boolean doConfigButton;
     private boolean doRDF;
+    private boolean doNSelector;
     
     /**
      * Enable/disable button to show coordinates.  Must be called before init.
@@ -153,6 +159,16 @@ public class PistonCylinderGraphic {
             throw new RuntimeException("Already initialized");
         }
         doRDF = newDoRDF;
+    }
+    
+    /**
+     * Enable/disable # of molecule slider.  Must be called before init.
+     */
+    public void setDoNSelector(boolean newDoNSelector) {
+        if (initialized) {
+            throw new RuntimeException("Already initialized");
+        }
+        doNSelector = newDoNSelector;
     }
     
     public void init() {
@@ -276,6 +292,21 @@ public class PistonCylinderGraphic {
         pressureSlider.setNMajor(4);
 	    pressureSlider.setValue(p0);
         
+	    if (doNSelector) {
+            nSlider = new DeviceNSelector();
+            nSlider.setLabel("Number of atoms");
+            nSlider.setShowBorder(true);
+            // add a listener to adjust the thermostat interval for different
+            // system sizes (since we're using ANDERSEN_SINGLE.  Smaller systems 
+            // don't need as much thermostating.
+            nSlider.getSlider().addChangeListener(new ChangeListener() {
+                public void stateChanged(ChangeEvent evt) {
+                    int n = (int)nSlider.getValue();
+                    pc.integrator.setThermostatInterval(200/n);
+                }
+            });
+        }
+
         DeviceSlider repaintSlider = new DeviceSlider(null);
         //XXX ugh, see bug 49
         repaintSlider.setUnit(Time.SIM_UNIT);
@@ -398,6 +429,14 @@ public class PistonCylinderGraphic {
         pressureSlider.setShowBorder(false);
         pressureSliderPanel.add(pressureSlider.graphic());
         
+        JPanel nSliderPanel = null;
+        if (doNSelector) {
+            nSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
+            nSliderPanel.setBorder(new javax.swing.border.TitledBorder("Number of Molecules"));
+            nSlider.setShowBorder(false);
+            nSliderPanel.add(nSlider.graphic());
+        }
+        
         //panel for all the controls
         JPanel dimensionPanel = new JPanel(new GridLayout(1,0));
         ButtonGroup dimensionGroup = new ButtonGroup();
@@ -445,6 +484,9 @@ public class PistonCylinderGraphic {
         JPanel statePanel = new JPanel(new GridBagLayout());
         statePanel.add(temperaturePanel, gbc2);
         statePanel.add(pressureSliderPanel, gbc2);
+        if (doNSelector) {
+            statePanel.add(nSliderPanel, gbc2);
+        }
 
         JPanel potentialPanel = new JPanel(new GridBagLayout());
         potentialPanel.add(potentialChooser,gbc2);
@@ -651,6 +693,14 @@ public class PistonCylinderGraphic {
         pressureSlider.setPostAction(new ActionPistonUpdate(pc.integrator));
         pressureSlider.setController(pc.getController());
 
+        if (doNSelector) {
+            nSlider.setController(pc.getController());
+            nSlider.setResetAction(new SimulationRestart(pc));
+            nSlider.setSpeciesAgent(pc.phase.getAgent(pc.species));
+            nSlider.setMinimum(1);
+            nSlider.setMaximum(200);
+        }
+        
         doSleepSlider.setModifier(new Modifier() {
             public String getLabel() {return "";}
             public Dimension getDimension() {return Undefined.DIMENSION;}
@@ -859,6 +909,7 @@ public class PistonCylinderGraphic {
         PistonCylinderGraphic pcg = new PistonCylinderGraphic();
         pcg.setDoConfigButton(true);
         pcg.setDoRDF(true);
+        pcg.setDoNSelector(true);
         pcg.init();
 		SimulationGraphic.makeAndDisplayFrame(pcg.panel);
     }
@@ -868,9 +919,17 @@ public class PistonCylinderGraphic {
         public void init() {
             PistonCylinderGraphic pcg = new PistonCylinderGraphic();
             String doConfigButtonStr = getParameter("doConfigButton");
-            pcg.setDoConfigButton(Boolean.valueOf(doConfigButtonStr).booleanValue());
+            if (doConfigButtonStr != null) {
+                pcg.setDoConfigButton(Boolean.valueOf(doConfigButtonStr).booleanValue());
+            }
             String doRDFStr = getParameter("doRDF");
-            pcg.setDoRDF(Boolean.valueOf(doRDFStr).booleanValue());
+            if (doRDFStr != null) {
+                pcg.setDoRDF(Boolean.valueOf(doRDFStr).booleanValue());
+            }
+            String doNSelectorStr = getParameter("doRDF");
+            if (doNSelectorStr != null) {
+                pcg.setDoNSelector(Boolean.valueOf(doRDFStr).booleanValue());
+            }
             pcg.init();
             getContentPane().add(pcg.panel);
         }
