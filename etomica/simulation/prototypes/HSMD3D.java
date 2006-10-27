@@ -1,7 +1,11 @@
 package etomica.simulation.prototypes;
 
+import java.io.File;
+
+import javax.swing.JFileChooser;
+
+import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomType;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceNSelector;
@@ -9,8 +13,6 @@ import etomica.graphics.DisplayPhase;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.nbr.CriterionSimple;
-import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
@@ -130,12 +132,19 @@ public class HSMD3D extends Simulation {
         defaults.ignoreOverlap = true;
         etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D(defaults);
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
-        DeviceNSelector nSelector = new DeviceNSelector(sim,sim.phase.getAgent(sim.species));
+        DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
+        nSelector.setResetAction(new SimulationRestart(sim));
+        nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species));
         simGraphic.add(nSelector);
         simGraphic.makeAndDisplayFrame();
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
         colorScheme.setColor(sim.species.getMoleculeType(), java.awt.Color.red);
         simGraphic.panel().setBackground(java.awt.Color.yellow);
+        JFileChooser chooser = new JFileChooser();
+        chooser.setSelectedFile(new File("config.xyz"));
+        chooser.showSaveDialog(simGraphic.panel());
+        File file = chooser.getSelectedFile();
+        System.out.println(file.getAbsolutePath());
     }//end of main
 
 }//end of class

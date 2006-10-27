@@ -85,7 +85,7 @@ class MySpeciesEditor extends javax.swing.JPanel {
     
     class MyNSelector extends DeviceNSelector {
         MyNSelector(final ReactionEquilibriumGraphic simGraphic, SpeciesAgent species) {
-            super();
+            super(simGraphic.simulation.getController());
             setResetAction(new SimulationRestart(simGraphic.simulation));
             setSpeciesAgent(species);
             
