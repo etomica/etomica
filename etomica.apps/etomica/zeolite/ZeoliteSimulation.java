@@ -1,5 +1,6 @@
 package etomica.zeolite;
 
+import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
@@ -235,7 +236,9 @@ public class ZeoliteSimulation extends Simulation {
         ZeoliteSimulation sim = new ZeoliteSimulation(defaults);
         zeoliteSimGraphic simGraphic = new zeoliteSimGraphic(sim);
         int num = sim.species.length;
-        DeviceNSelector nSelector = new DeviceNSelector(sim,sim.phase.getAgent(sim.species[num-1]));
+        DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
+        nSelector.setResetAction(new SimulationRestart(sim));
+        nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species[num-1]));
         simGraphic.add(nSelector);
         
         //Energy

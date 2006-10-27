@@ -2,6 +2,7 @@ package etomica.yukawa;
 
 import java.awt.Color;
 
+import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorSchemeByType;
@@ -96,7 +97,9 @@ public class TestYukawaMD3D extends Simulation{
 		
 		TestYukawaMD3D sim = new TestYukawaMD3D(defaults);
 		SimulationGraphic simGraphic = new SimulationGraphic(sim);
-		DeviceNSelector nSelector = new DeviceNSelector(sim, sim.phase.getAgent(sim.species));
+        DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
+        nSelector.setResetAction(new SimulationRestart(sim));
+        nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species));
 		simGraphic.add(nSelector);
 		simGraphic.makeAndDisplayFrame();
 		ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());

@@ -6,6 +6,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import etomica.action.Action;
+import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.Atom;
@@ -217,7 +218,9 @@ public class SimulationGraphic implements SimulationContainer, java.io.Serializa
       sim.getDefaults().doSleep = false;
       sim.getDefaults().ignoreOverlap = true;
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
-        DeviceNSelector nSelector = new DeviceNSelector(sim,sim.phase.getAgent(sim.species));
+        DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
+        nSelector.setResetAction(new SimulationRestart(sim));
+        nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species));
         simGraphic.add(nSelector);
         
 //        AtomFilterInPolytope filter = new AtomFilterInPolytope(sim.phase.boundary().getShape());

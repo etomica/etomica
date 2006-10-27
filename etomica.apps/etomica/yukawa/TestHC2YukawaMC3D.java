@@ -1,13 +1,12 @@
 package etomica.yukawa;
+import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomSourceRandomLeaf;
-import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
-import etomica.data.meter.MeterPressure;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DisplayPhase;
@@ -101,7 +100,9 @@ public class TestHC2YukawaMC3D extends Simulation{
 		new IntervalActionAdapter(energyManager, sim.integrator);
 		
 		SimulationGraphic simGraphic = new SimulationGraphic(sim);
-        DeviceNSelector nSelector = new DeviceNSelector(sim,sim.phase.getAgent(sim.species));
+        DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
+        nSelector.setResetAction(new SimulationRestart(sim));
+        nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species));
         simGraphic.add(nSelector);
         simGraphic.makeAndDisplayFrame();
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());

@@ -1,4 +1,5 @@
 package etomica.yukawa;
+import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomSourceRandomLeaf;
@@ -100,7 +101,9 @@ public class TestYukawaMC3D extends Simulation{
 		new IntervalActionAdapter(energyManager, sim.integrator);
 
 		SimulationGraphic simGraphic = new SimulationGraphic(sim);
-        DeviceNSelector nSelector = new DeviceNSelector(sim,sim.phase.getAgent(sim.species));
+        DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
+        nSelector.setResetAction(new SimulationRestart(sim));
+        nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species));
         simGraphic.add(nSelector);
         simGraphic.makeAndDisplayFrame();
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
