@@ -1,7 +1,7 @@
 /**
  * 
  */
-package etomica.modules.pistoncylinder;
+package etomica.graphics;
 
 import java.awt.Color;
 import java.awt.TextArea;
