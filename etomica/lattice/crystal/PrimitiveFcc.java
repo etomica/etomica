@@ -41,12 +41,12 @@ public class PrimitiveFcc extends Primitive {
     
     //called by superclass constructor
     protected Primitive makeReciprocal() {
-        return new PrimitiveFcc(space, 1, false);
+        return new PrimitiveBcc(space, 1, false);
     }
     
     //called by update method of superclass
     protected void updateReciprocal() {
-        ((PrimitiveFcc)reciprocal).setCubicSize(4.0*Math.PI/size[0]);
+        ((PrimitiveBcc)reciprocal).setCubicSize(4.0*Math.PI/size[0]);
     }
     
     /**
