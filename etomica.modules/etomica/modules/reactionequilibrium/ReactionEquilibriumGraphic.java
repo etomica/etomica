@@ -3,6 +3,7 @@ package etomica.modules.reactionequilibrium;
 import javax.swing.JPanel;
 
 import etomica.action.Action;
+import etomica.action.SimulationRestart;
 import etomica.atom.Atom;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
@@ -426,7 +427,9 @@ public class ReactionEquilibriumGraphic {
         public MySpeciesEditor(final ReactionEquilibrium sim, SpeciesAgent s, String label) {
             super();
             species = s;
-            nSlider = new DeviceNSelector(sim, species);
+            nSlider = new DeviceNSelector(sim.getController());
+            nSlider.setResetAction(new SimulationRestart(sim));
+            nSlider.setSpeciesAgent(species);
             //nSlider.setDisplayPhase(DisplayPhase1);
             nSlider.setMinimum(0);
             nSlider.setMaximum(40);

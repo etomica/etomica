@@ -6,6 +6,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import etomica.action.Action;
+import etomica.action.SimulationRestart;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.AccumulatorAverage;
@@ -260,7 +261,9 @@ public class LjmdGraphic {
         DisplayBoxesCAE peDisplay = new DisplayBoxesCAE();
         peDisplay.setAccumulator(peAccumulator);
 
-        final DeviceNSelector nSlider = new DeviceNSelector(sim,sim.species.getAgent(sim.phase));
+        final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
+        nSlider.setResetAction(new SimulationRestart(sim));
+        nSlider.setSpeciesAgent(sim.species.getAgent(sim.phase));
         nSlider.setMinimum(1);
         nSlider.setMaximum(224);
         nSlider.setLabel("Number of atoms");

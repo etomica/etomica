@@ -8,6 +8,7 @@ package etomica.modules.chainequilibrium;
 
 import etomica.action.Action;
 import etomica.action.ActionGroupSeries;
+import etomica.action.SimulationRestart;
 import etomica.atom.Atom;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.SpeciesAgent;
@@ -84,7 +85,9 @@ class MySpeciesEditor extends javax.swing.JPanel {
     
     class MyNSelector extends DeviceNSelector {
         MyNSelector(final ReactionEquilibriumGraphic simGraphic, SpeciesAgent species) {
-            super(simGraphic.simulation, species);
+            super();
+            setResetAction(new SimulationRestart(simGraphic.simulation));
+            setSpeciesAgent(species);
             
             Action anotherAction = new Action() {
                 public void actionPerformed() {

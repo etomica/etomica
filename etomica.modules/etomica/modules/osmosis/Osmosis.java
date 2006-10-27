@@ -142,7 +142,9 @@ public class Osmosis {
 		tBox.setLabelPosition(CompassDirection.NORTH);
 	    tSelect.getLabel().setText("Set value");
 
-        DeviceNSelector nASelector = new DeviceNSelector(sim, sim.phase.getAgent(sim.speciesA), simRestart);
+        DeviceNSelector nASelector = new DeviceNSelector(sim.getController());
+        nASelector.setResetAction(simRestart);
+        nASelector.setSpeciesAgent(sim.phase.getAgent(sim.speciesA));
         nASelector.getSlider().addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent evt) {
                 displayPhase.repaint();
@@ -150,7 +152,9 @@ public class Osmosis {
         });
         nASelector.setMaximum(30);
         
-        DeviceNSelector nBSelector = new DeviceNSelector(sim,sim.phase.getAgent(sim.speciesB), simRestart);
+        DeviceNSelector nBSelector = new DeviceNSelector(sim.getController());
+        nBSelector.setResetAction(simRestart);
+        nBSelector.setSpeciesAgent(sim.phase.getAgent(sim.speciesB));
         nBSelector.getSlider().addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent evt) {
                 displayPhase.repaint();
