@@ -55,8 +55,7 @@ import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.modifier.ModifierFunctionWrapper;
 import etomica.modifier.ModifierGeneral;
-import etomica.modules.pistoncylinder.MeterRDFCylinder.ApiFilteredCylinder;
-import etomica.modules.pistoncylinder.MeterRDFCylinder.AtomFilterInCylinder;
+import etomica.modules.pistoncylinder.ApiFilteredCylinder.AtomFilterInCylinder;
 import etomica.potential.P2HardSphere;
 import etomica.potential.P2Ideal;
 import etomica.potential.P2SquareWell;
@@ -109,7 +108,7 @@ public class PistonCylinderGraphic {
     public P2Ideal potentialIdeal;
     public PotentialGroup potentialGroupHS, potentialGroupSW;
     public DataSourceCountTime meterCycles;
-    public DisplayBox displayCycles; 
+    public DisplayBox displayCycles;
     public MeterTemperature thermometer;
     public DisplayPhase displayPhase;
     public DeviceTrioControllerButton controlButtons;

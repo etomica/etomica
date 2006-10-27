@@ -6,8 +6,6 @@ import etomica.atom.AtomPairFilter;
 import etomica.atom.iterator.ApiFiltered;
 import etomica.atom.iterator.AtomPairIterator;
 import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
-import etomica.data.Data;
-import etomica.data.meter.MeterRDF;
 import etomica.phase.Phase;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.simulation.Simulation;
@@ -15,29 +13,17 @@ import etomica.space.Boundary;
 import etomica.space.Vector;
 
 /**
- * Our own MeterRDF to account for the excluded volume near the wall
- * @author andrew
+ * Our own ApiFiltered that's phase-dependent
  */
-public class MeterRDFCylinder extends MeterRDF {
-    public MeterRDFCylinder(Boundary boundary, P1HardMovingBoundary pistonPotential) {
-        super(boundary.getSpace());
-        this.boundary = boundary;
-        this.pistonPotential = pistonPotential;
-    }
-    
-    public Data getData() {
-        super.getData();
-        double boundaryVolume = boundary.volume();
-        Vector dimensions = boundary.getDimensions();
-        double radius = pistonPotential.getCollisionRadius();
-        double rdfVolume = (dimensions.x(0)-2*radius)*(0.5*dimensions.x(1)-pistonPotential.getWallPosition()-2*radius);
-        data.TE(rdfVolume/boundaryVolume);
-        return data;
+public class ApiFilteredCylinder extends ApiFiltered implements AtomsetIteratorPhaseDependent {
+    public ApiFilteredCylinder(AtomPairIterator iterator, AtomPairFilter filter) {
+        super(iterator, filter);
     }
 
+    public void setPhase(Phase newPhase) {
+        ((AtomsetIteratorPhaseDependent)iterator).setPhase(newPhase);
+    }
     private static final long serialVersionUID = 1L;
-    private final Boundary boundary;
-    private final P1HardMovingBoundary pistonPotential;
 
     /**
      * Filter to expclude any pair with an atom within some distance from a 
@@ -80,19 +66,5 @@ public class MeterRDFCylinder extends MeterRDF {
         private double padding;
         private final Vector dimensions;
         private final P1HardMovingBoundary pistonPotential;
-    }
-
-    /**
-     * Our own ApiFiltered that's phase-dependent
-     */
-    public static class ApiFilteredCylinder extends ApiFiltered implements AtomsetIteratorPhaseDependent {
-        public ApiFilteredCylinder(AtomPairIterator iterator, AtomPairFilter filter) {
-            super(iterator, filter);
-        }
-
-        public void setPhase(Phase newPhase) {
-            ((AtomsetIteratorPhaseDependent)iterator).setPhase(newPhase);
-        }
-        private static final long serialVersionUID = 1L;
     }
 }
