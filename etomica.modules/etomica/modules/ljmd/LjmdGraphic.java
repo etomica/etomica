@@ -29,8 +29,10 @@ import etomica.data.meter.MeterPressure;
 import etomica.data.meter.MeterRDF;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataFunction.DataInfoFunction;
+import etomica.graphics.ActionConfigWindow;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.ConstantsGraphic;
+import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceThermoSelector;
 import etomica.graphics.DeviceTrioControllerButton;
@@ -57,7 +59,13 @@ import etomica.util.Constants.CompassDirection;
 
 public class LjmdGraphic {
     
-    public LjmdGraphic(final Ljmd sim) {
+    private boolean doConfigButton;
+    
+    public void setDoConfigButton(boolean newDoConfigButton) {
+        doConfigButton = newDoConfigButton;
+    }
+
+    public void init(final Ljmd sim) {
         LJ unitSystem = new LJ();
         Unit tUnit = Energy.DIMENSION.getUnit(unitSystem);
 
@@ -339,28 +347,26 @@ public class LjmdGraphic {
         gbc1.gridx = 1;  gbc1.gridy = 1;
         temperaturePanel.add(tBox.graphic(null),gbc1);
         
-   //     JPanel timePanel = (JPanel)timer.graphic();
-   //     timePanel.setBorder(new javax.swing.border.TitledBorder("Time (LJ)"));
-  //      timePanel.add(timer.graphic());
-        
- //   	final javax.swing.JTabbedPane sliderPanel = new javax.swing.JTabbedPane();
- //       sliderPanel.add("Number of atoms",nSlider.graphic());
-        //panel for all the controls
-//        JPanel controlPanel = new JPanel(new java.awt.GridLayout(0,1));
         JPanel controlPanel = new JPanel(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gbc2 = new java.awt.GridBagConstraints();
-//        gbc2.gridx = 0;
-//        gbc2.gridy = java.awt.GridBagConstraints.RELATIVE;
         gbc2.gridy = 0;
         gbc2.gridx = java.awt.GridBagConstraints.RELATIVE;
         controlPanel.add(startPanel,gbc2);
-    //    controlPanel.add(timer.graphic(),gbc2);
-    //    controlPanel.add(timePanel,gbc2);
         controlPanel.add(temperaturePanel, gbc2);
         controlPanel.add(nSlider.graphic(), gbc2);
- //       controlPanel.add(sliderPanel, gbc2);
-        controlPanel.add(densityBox.graphic(), gbc2);
- //       controlPanel.add(pressureBox.graphic(), gbc2);
+        JPanel anotherPanel = new JPanel(new java.awt.GridBagLayout());
+        controlPanel.add(anotherPanel, gbc2);
+        gbc2.gridx = 0;
+        gbc2.gridy = java.awt.GridBagConstraints.RELATIVE;
+        anotherPanel.add(densityBox.graphic(), gbc2);
+        
+        if (doConfigButton) {
+            DeviceButton configButton = new DeviceButton(sim.getController());
+            configButton.setLabel("Show Config");
+            configButton.setAction(new ActionConfigWindow(sim.phase));
+            anotherPanel.add(configButton.graphic(), gbc2);
+        }
+
         
         panel.add(controlPanel, java.awt.BorderLayout.NORTH);
         panel.add(bigPanel, java.awt.BorderLayout.EAST);
@@ -383,6 +389,7 @@ public class LjmdGraphic {
 		tSelect.graphic(null).setBackground(background);
 		densityBox.graphic().setBackground(background);
 		nSlider.graphic().setBackground(background);
+        anotherPanel.setBackground(background);
 		
     }//end of constructor    
     
@@ -397,22 +404,30 @@ public class LjmdGraphic {
             } catch(NumberFormatException e) {}
         }
             
-        Ljmd sim = new Ljmd(space);
-
-        LjmdGraphic ljmdGraphic = new LjmdGraphic(sim);
+        LjmdGraphic ljmdGraphic = new LjmdGraphic();
+        ljmdGraphic.setDoConfigButton(true);
+        ljmdGraphic.init(new Ljmd(space));
 		SimulationGraphic.makeAndDisplayFrame(ljmdGraphic.panel);
-    }//end of main
+    }
     
     public static class Applet extends javax.swing.JApplet {
 
-	    public void init() {
+        public void init() {
 	        getRootPane().putClientProperty(
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
-		    getContentPane().add(new LjmdGraphic(new Ljmd(Space2D.getInstance())).panel);
+            LjmdGraphic ljmdGraphic = new LjmdGraphic();
+            String doConfigButtonStr = getParameter("doConfigButton");
+            if (doConfigButtonStr != null) {
+                ljmdGraphic.setDoConfigButton(Boolean.valueOf(doConfigButtonStr).booleanValue());
+            }
+            ljmdGraphic.init(new Ljmd(Space2D.getInstance()));
+		    getContentPane().add(ljmdGraphic.panel);
 	    }
-    }//end of Applet
+
+        private static final long serialVersionUID = 1L;
+    }
     
     protected JPanel panel;
-}//end of LJMD_Module class
+}
 
 
