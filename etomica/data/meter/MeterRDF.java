@@ -173,7 +173,7 @@ public class MeterRDF implements DataSource, Meter, DataSourceIndependent, java.
     
     private Phase phase;
     private final Space space;
-    private DataFunction data;
+    protected DataFunction data;
     private DataInfo dataInfo;
     private DataDoubleArray rData;
     private AtomsetIteratorPhaseDependent iterator;
