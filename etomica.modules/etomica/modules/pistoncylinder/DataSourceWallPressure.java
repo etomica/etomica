@@ -34,5 +34,6 @@ public class DataSourceWallPressure extends MeterPressureHard {
         return value;
     }
     
+    private static final long serialVersionUID = 1L;
     private P1HardMovingBoundary wallPotential;
 }

@@ -33,6 +33,8 @@ import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataTag;
 import etomica.data.AccumulatorAverage.StatType;
+import etomica.data.meter.MeterDensity;
+import etomica.data.meter.MeterRDF;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
@@ -117,7 +119,7 @@ public class PistonCylinderGraphic {
     public DeviceSlider scaleSlider, pressureSlider, temperatureSlider;
     public DeviceNSelector nSlider;
     public JPanel pressureSliderPanel;
-    public MeterPistonDensity densityMeter;
+    public MeterDensity densityMeter;
     public DeviceToggleButton fixPistonButton;
     public DisplayPlot plotT, plotD, plotP;
     public DisplayPlot plotRDF;
@@ -789,7 +791,7 @@ public class PistonCylinderGraphic {
         plotP.setLegend(new DataTag[]{targetPressureDataSource.getTag()}, "target");
         pc.register(targetPressureDataSource, pump);
 
-        densityMeter = new MeterPistonDensity(pc.pistonPotential,1,defaults.atomSize);
+        densityMeter = new MeterDensity(pc.space); //pc.pistonPotential,1);
         densityMeter.setPhase(pc.phase);
         AccumulatorHistory densityHistory = new AccumulatorHistory();
         densityHistory.setTimeDataSource(meterCycles);
@@ -828,7 +830,7 @@ public class PistonCylinderGraphic {
         if (doRDF) {
             plotRDF.getDataSet().reset();
             double rdfCutoff = 10;
-            MeterRDFCylinder meterRDF = new MeterRDFCylinder(pc.phase.getBoundary(), pc.pistonPotential);
+            MeterRDF meterRDF = new MeterRDF(pc.space); //pc.phase.getBoundary(), pc.pistonPotential);
             meterRDF.setPhase(pc.phase);
             AtomPairFilter filter = new AtomFilterInCylinder(pc.phase.getBoundary(), pc.pistonPotential, rdfCutoff);
             meterRDF.setIterator(new ApiFilteredCylinder(new ApiLeafAtoms(), filter));
@@ -879,7 +881,6 @@ public class PistonCylinderGraphic {
         public void setValue(double d) {
             //assume one type of atom
             ((AtomTypeSphere)pc.phase.firstAtom().type).setDiameter(d);
-            PistonCylinderGraphic.this.densityMeter.setAtomDiameter(d);
             PistonCylinderGraphic.this.potentialHS.setCollisionDiameter(d);
             PistonCylinderGraphic.this.potentialSW.setCoreDiameter(d);
             pc.pistonPotential.setCollisionRadius(0.5*d);

@@ -2,7 +2,6 @@ package etomica.modules.pistoncylinder;
 
 import etomica.atom.Atom;
 import etomica.integrator.IntegratorHard;
-import etomica.phase.Phase;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.PotentialHard;
 import etomica.simulation.Simulation;
@@ -36,11 +35,12 @@ public class IntegratorHardPiston extends IntegratorHard {
     }
     
     public void updateAtom(Atom a) {
-        PotentialHard collisionPotential = colliderAgent == null ? null : colliderAgent.collisionPotential;
+        boolean isPistonPotential = colliderAgent == null ? false : 
+                           (colliderAgent.collisionPotential == pistonPotential);
         // actually updates the atom
         super.updateAtom(a);
         // check if the atom hit the piston.  if so, then update every atom with the piston
-        if (collisionPotential == pistonPotential) {
+        if (isPistonPotential) {
             updatePiston();
         }
     }
@@ -105,6 +105,7 @@ public class IntegratorHardPiston extends IntegratorHard {
         return super.scaleMomenta();
     }
     
+    private static final long serialVersionUID = 1L;
     private final P1HardMovingBoundary pistonPotential;
     private boolean pistonUpdateRequested = false;
 }

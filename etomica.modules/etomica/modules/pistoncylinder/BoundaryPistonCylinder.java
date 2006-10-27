@@ -6,11 +6,12 @@ import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 
 /**
- * Boundary class for PistonCylinder that accounts for the piston when 
- * calculating the volume
+ * Boundary class for PistonCylinder that accounts for the piston and collision
+ * radius when calculating the (available) volume
  * @author andrew
  */
 public class BoundaryPistonCylinder extends BoundaryRectangularNonperiodic {
+
 
     public BoundaryPistonCylinder(Simulation sim) {
         this(sim.space);
@@ -25,9 +26,12 @@ public class BoundaryPistonCylinder extends BoundaryRectangularNonperiodic {
     }
 
     public double volume() {
+        double collisionDiameter = pistonPotential.getCollisionRadius()*2;
         // bottom of the phase is +dimensions/2, top is wall position
-        return dimensions.x(0) * (0.5 * dimensions.x(1)-pistonPotential.getWallPosition());
+        return (dimensions.x(0) - collisionDiameter) * 
+               (0.5*dimensions.x(1) - pistonPotential.getWallPosition() - collisionDiameter);
     }
 
     private P1HardMovingBoundary pistonPotential;
+    private static final long serialVersionUID = 1L;
 }

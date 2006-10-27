@@ -28,6 +28,7 @@ import etomica.util.Default;
  */
 public class PistonCylinder extends Simulation {
     
+    private static final long serialVersionUID = 1L;
     public IntegratorHardPiston integrator;
     public SpeciesSpheresMono species;
     public Phase phase;
