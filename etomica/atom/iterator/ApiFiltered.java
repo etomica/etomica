@@ -178,8 +178,8 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
         }
 	}
 
-	private final AtomPairIterator iterator;
-	private final AtomPairFilter filter;
+	protected final AtomPairIterator iterator;
+	protected final AtomPairFilter filter;
 	private AtomPair next;
 	private final AtomPair nextAtoms;
     private boolean hasNext;
