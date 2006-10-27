@@ -15,8 +15,10 @@ import javax.swing.UIManager;
 
 import etomica.action.Action;
 import etomica.action.IntegratorReset;
+import etomica.atom.AtomPairFilter;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
+import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
@@ -28,7 +30,6 @@ import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataTag;
 import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.meter.MeterRDF;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
@@ -48,6 +49,8 @@ import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.modifier.ModifierFunctionWrapper;
 import etomica.modifier.ModifierGeneral;
+import etomica.modules.pistoncylinder.MeterRDFCylinder.ApiFilteredCylinder;
+import etomica.modules.pistoncylinder.MeterRDFCylinder.AtomFilterInCylinder;
 import etomica.potential.P2HardSphere;
 import etomica.potential.P2Ideal;
 import etomica.potential.P2SquareWell;
@@ -774,9 +777,12 @@ public class PistonCylinderGraphic {
         
         if (doRDF) {
             plotRDF.getDataSet().reset();
-            MeterRDF meterRDF = new MeterRDF(pc.space);
+            double rdfCutoff = 10;
+            MeterRDFCylinder meterRDF = new MeterRDFCylinder(pc.phase.getBoundary(), pc.pistonPotential);
             meterRDF.setPhase(pc.phase);
-            meterRDF.getXDataSource().setXMax(10);
+            AtomPairFilter filter = new AtomFilterInCylinder(pc.phase.getBoundary(), pc.pistonPotential, rdfCutoff);
+            meterRDF.setIterator(new ApiFilteredCylinder(new ApiLeafAtoms(), filter));
+            meterRDF.getXDataSource().setXMax(rdfCutoff);
             AccumulatorAverage avgRDF = new AccumulatorAverage(pc);
             pump = new DataPump(meterRDF, avgRDF);
             pc.register(meterRDF, pump);
@@ -848,7 +854,7 @@ public class PistonCylinderGraphic {
             return getLabel();
         }
     }
-    
+
     public static void main(String[] args) {
         PistonCylinderGraphic pcg = new PistonCylinderGraphic();
         pcg.setDoConfigButton(true);
