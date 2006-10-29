@@ -78,7 +78,7 @@ public class PrimitiveMonoclinic extends Primitive {
         latticeVectors[0].setX(0,size[0]);
         latticeVectors[1].setX(1,size[1]);
         latticeVectors[2].setX(0,size[2]*Math.cos(angle[1]));
-        latticeVectors[2].setX(2,size[3]*Math.sin(angle[1]));
+        latticeVectors[2].setX(2,size[2]*Math.sin(angle[1]));
     }
     
     public void setBeta(double t) {
