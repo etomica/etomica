@@ -62,7 +62,17 @@ public abstract class DisplayCanvasOpenGL extends GLAnimCanvas implements java.i
         //offScreen = createImage(w,h);
         //if(offScreen != null) osg = offScreen.getGraphics();
     }
-        
+
+    public void setSize(int w, int h) {
+        super.setSize(w, h);
+        size = getSize();
+    }
+    
+    public void setSize(java.awt.Dimension d) {
+        super.setSize(d);
+        size = d;
+    }
+    
     public void doPaint(Graphics g) {}
     
     public void update(Graphics g) {paint(g);}
