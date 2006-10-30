@@ -13,7 +13,7 @@ import etomica.util.NameMaker;
  * fields of other objects.  They provide a (usually) graphical interface to permit
  * values of fields to be input and changed.
  */
-public abstract class Device implements GraphicalElement, Dimensioned, java.io.Serializable {
+public abstract class Device implements GraphicalElement, Dimensioned {
     
     protected Unit unit;
     protected Controller controller;
@@ -107,9 +107,9 @@ public abstract class Device implements GraphicalElement, Dimensioned, java.io.S
      */
     public String toString() {return getName();}
 
-    private String name;
+    protected String name;
     
-    private static class ActionSet implements Action, java.io.Serializable {
+    protected static class ActionSet implements Action {
         Action preAction, postAction, action;
         
         public void actionPerformed() {
