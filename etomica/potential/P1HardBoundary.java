@@ -13,7 +13,6 @@ import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.units.Length;
-import etomica.units.Temperature;
 import etomica.util.Debug;
 
 /**
