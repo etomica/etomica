@@ -50,7 +50,7 @@ public class G3DTest extends TestCase {
 		begin = System.currentTimeMillis();
 		for(java.util.Iterator i = c.iterator(); i.hasNext();) {
 			Long l = (Long)i.next();
-			gsys.removeFigNoRescale(l);
+			gsys.removeFigNoRescale(l.longValue());
 		}
 		gsys.removeFig(-1);
 		System.out.println("removed figures in "+(System.currentTimeMillis()-begin)+" milliseconds");
