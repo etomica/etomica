@@ -71,7 +71,7 @@ public class TestHexane extends Simulation {
         double bondFactor = 0.0;
         defaults.makeLJDefaults();
         defaults.atomSize = 1.0;
-        defaults.ignoreOverlap = true;
+        defaults.ignoreOverlap = false;
         
         //nurk
         
@@ -136,9 +136,8 @@ public class TestHexane extends Simulation {
         //This potential is the intermolecular potential between atoms on
         // different molecules. We use the class "Potential" because we are
         // reusing the instance as we define each potential.
-        Potential potential = new P2HardSphere(space, defaults.atomSize, false);
-//                defaults.ignoreOverlap);
-        ///NURK
+        Potential potential = new P2HardSphere(space, defaults.atomSize, 
+                defaults.ignoreOverlap);
         
         //here, we add the species to the PotentialMaster, using types.
         //The PotentialMaster generates a group potential and automatically
@@ -159,48 +158,48 @@ public class TestHexane extends Simulation {
         // be calculated by a Potential2, but their summation is the molecule's
         //effect on itself, which is a Potential1, or a Potential with nBody =
         // 1.
-//        defaults.ignoreOverlap = true;
         PotentialGroup potentialChainIntra = potentialMaster.makePotentialGroup(1);
 
-        //BONDED INTERACTIONS
+            //BONDED INTERACTIONS
 
-        //nan This potential simulates the bonds between atoms in a molecule.
-        // It will be superceded by a set of MC moves at some point in the
+        // This potential simulates the bonds between atoms in a molecule.
+        // XXX It will be superceded by a set of MC moves at some point in the
         // future.
         //This potential uses hard sphere interactions to model the bonded
         // interactions of the atoms of the molecule.
-        potential = new P2HardBond(space, defaults.atomSize, neighborRangeFac,
+//        potential = new P2HardBond(space, defaults.atomSize, neighborRangeFac,
+//                defaults.ignoreOverlap);
+        //We make the bonding length 0.4 * sigma per Malanoski 1999.
+        potential = new P2HardSphere(space, defaults.atomSize * 0.4, 
                 defaults.ignoreOverlap);
-
+        
         //We will need an atom pair iterator (Api) that runs through the atoms
         // on a single molecule.
         //The atom pair iterator (Api) runs through the atoms on a single
         // molecule.
         //  It has an inner loop and an outer loop.
         ApiIntragroup bonded = ApiBuilder.makeAdjacentPairIterator();
-
         //We add the Potential and its Iterator to the PotentialGroup, in one
         // fell swoop. Yay us!
-        //We make the bonding length 0.4 * sigma per Malanoski 1999.
-        potential = new P2HardSphere(space, defaults.atomSize * 0.4, true);
-//               defaults.ignoreOverlap);
         potentialChainIntra.addPotential(potential, bonded);
-
-        //NURK 
         
-        //NONBONDED INTERACTIONS
+            //NONBONDED INTERACTIONS
         //This potential describes the basic hard sphere interactions between
         // 2 atoms of a molecule.
-        potentialMaster.addPotential(potentialChainIntra, new AtomType[] { species.getMoleculeType() } );
-
+        
         //Only the atoms next to each other interact, so we have two criteria:
         //		The atoms must be on the same molecule- CriterionMolecular
         //		The atoms must be separated by 3 bonds.
         //We end up needing to do stuff with the
-        NeighborCriterion criterion = new CriterionMolecularNonAdjacent(3, new CriterionAll());
-        CriterionInterMolecular interCriterion = (CriterionInterMolecular)((PotentialMasterList)potentialMaster).getCriterion(potential);
-        interCriterion.setIntraMolecularCriterion(criterion);
+//        NeighborCriterion criterion = new CriterionMolecularNonAdjacent(3, new CriterionAll());
+////        CriterionInterMolecular interCriterion = (CriterionInterMolecular)((PotentialMasterList)potentialMaster).getCriterion(potential);
+//        CriterionInterMolecular interCriterion = 
+//        interCriterion.setIntraMolecularCriterion(criterion);
+        ApiIntragroup nonbonded = ApiBuilder.makeNonAdjacentPairIterator(2);
+        potentialChainIntra.addPotential(potential, nonbonded);
         
+        potentialMaster.addPotential(potentialChainIntra, new AtomType[] { species.getMoleculeType() } );
+
         bdry =  new BoundaryHexane(space);
         phase.setBoundary(bdry);
 
@@ -214,7 +213,7 @@ public class TestHexane extends Simulation {
     }
 
     public static void main(String[] args) {
-        int numMolecules = 50; //144
+        int numMolecules = 144; //144
 
         //spaces are now singletons; we can only have one instance, so we call
         // it with this method, not a "new" thing.
