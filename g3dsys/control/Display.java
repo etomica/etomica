@@ -15,7 +15,6 @@ import org.jmol.g3d.Graphics3D;
  *
  */
 
-@SuppressWarnings("serial") //don't care about serializing
 class Display extends Panel {
 	
 	private G3DSys gsys;

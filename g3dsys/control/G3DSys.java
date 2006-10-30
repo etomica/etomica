@@ -24,7 +24,13 @@ import org.jmol.g3d.Graphics3D;
 public class G3DSys {
 	
 	/** implemented shapes */
-	public static enum Figures { BALL, CYLINDER, RECTANGLE, LINE, BOX, AXES, TIMEDBALL };
+	public static final int BALL = 0;
+	public static final int CYLINDER = 1;
+	public static final int RECTANGLE = 2;
+	public static final int LINE = 3;
+	public static final int BOX = 4;
+	public static final int AXES = 5;
+	public static final int TIMEDBALL = 6;
 	
 	// classes needing communication amongst themselves
 	// coupled in function not in code
@@ -139,13 +145,13 @@ public class G3DSys {
 	 * @param d molspace diameter
 	 * @return the tracking ID of the Figure that was added; -1 if no addition
 	 */
-	public long addFigNoRescale(Figures TYPE, short c, Point3f p, float d) {
+	public long addFigNoRescale(int TYPE, short c, Point3f p, float d) {
 		return addFigNoRescale(TYPE, c, p.x, p.y, p.z, d);
 	}
-	public long addFig(Figures TYPE, short c, Point3f p, float d) {
+	public long addFig(int TYPE, short c, Point3f p, float d) {
 		return addFig(TYPE, c, p.x, p.y, p.z, d);
 	}
-	public long addFig(Figures TYPE, short c, float x, float y, float z, float d) {
+	public long addFig(int TYPE, short c, float x, float y, float z, float d) {
 		switch(TYPE) {
 		case BALL:
 			return fm.addFig(new Ball(this,c,x,y,z,d));

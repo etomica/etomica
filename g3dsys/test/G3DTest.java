@@ -29,7 +29,7 @@ public class G3DTest extends TestCase {
 	 * them correctly leaves the size unchanged.
 	 */
 	public void testfigureRemoveResize() {
-		gsys.addFig(G3DSys.Figures.BALL, Graphics3D.RED, 0,0,0, 100);
+		gsys.addFig(G3DSys.BALL, Graphics3D.RED, 0,0,0, 100);
 		float minx = gsys.getMinX(); float maxx = gsys.getMaxX();
 		float miny = gsys.getMinY(); float maxy = gsys.getMaxY();
 		float minz = gsys.getMinZ(); float maxz = gsys.getMaxZ();
@@ -37,19 +37,19 @@ public class G3DTest extends TestCase {
 		java.util.Random r = new java.util.Random();
 		
 		long begin = System.currentTimeMillis();
-		java.util.Collection<Long> c = new java.util.ArrayList<Long>();
+		java.util.Collection c = new java.util.ArrayList();
 		for(int i=0; i<100000; i++) {
 			float x = r.nextFloat()*r.nextInt();
 			float y = r.nextFloat()*r.nextInt();
 			float z = r.nextFloat()*r.nextInt();
-			c.add(new Long( gsys.addFigNoRescale(G3DSys.Figures.BALL,Graphics3D.RED,x,y,z,100)));
+			c.add(new Long( gsys.addFigNoRescale(G3DSys.BALL,Graphics3D.RED,x,y,z,100)));
 		}
 		gsys.recalcPPA();
 		System.out.println("added figures in "+(System.currentTimeMillis()-begin)+" milliseconds");
 		
 		begin = System.currentTimeMillis();
-		for(java.util.Iterator<Long> i = c.iterator(); i.hasNext();) {
-			Long l = i.next();
+		for(java.util.Iterator i = c.iterator(); i.hasNext();) {
+			Long l = (Long)i.next();
 			gsys.removeFigNoRescale(l);
 		}
 		gsys.removeFig(-1);

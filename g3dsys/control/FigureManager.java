@@ -10,7 +10,7 @@ import javax.vecmath.Point3f;
 
 class FigureManager {
 	
-	private java.util.Collection<Figure> figs; //holds Figures to be drawn.
+	private java.util.Collection figs; //holds Figures to be drawn.
 	
 	private long idCount; //for giving Figures IDs when they are added
 	
@@ -24,7 +24,7 @@ class FigureManager {
 	private G3DSys gsys;
 	
 	public FigureManager(G3DSys g) {
-		figs = new java.util.ArrayList<Figure>();
+		figs = new java.util.ArrayList();
 		idCount = 0;
 		gsys = g;
 	}
@@ -64,8 +64,8 @@ class FigureManager {
 				(min.x+max.x)/2, (min.y+max.y)/2, (min.z+max.z)/2));
 		
 		long start = System.currentTimeMillis();
-		for(java.util.Iterator<Figure> iter = figs.iterator(); iter.hasNext();) {
-			Figure f = iter.next();
+		for(java.util.Iterator iter = figs.iterator(); iter.hasNext();) {
+			Figure f = (Figure)iter.next();
 			if( f != null ) f.draw();
 		}
 		System.out.println("render time "+(System.currentTimeMillis()-start));
@@ -124,8 +124,8 @@ class FigureManager {
 	 * @return the removed figure (or null)
 	 */
 	public Figure removeFigNoRescale(long id) {
-		for(java.util.Iterator<Figure> iter = figs.iterator(); iter.hasNext();) {
-			Figure f = iter.next();
+		for(java.util.Iterator iter = figs.iterator(); iter.hasNext();) {
+			Figure f = (Figure)iter.next();
 			if(f.getID() == id) {
 				figs.remove(f);
 				return f;
@@ -142,17 +142,17 @@ class FigureManager {
 	public void shrinkModel() {
 		float xn,yn,zn; //miN
 		float xm,ym,zm; //Max
-		java.util.Iterator<Figure> i = figs.iterator();
+		java.util.Iterator i = figs.iterator();
 		if(!i.hasNext()) return;
 
-		Figure f = i.next();
+		Figure f = (Figure)i.next();
 		//System.out.println(""+f.getID()+": "+f.getX()+","+f.getY()+","+f.getZ());
 		float offset = f.getD()/2;
 		xn = f.getX() - offset; yn = f.getY() - offset; zn = f.getZ() - offset;
 		xm = f.getX() + offset; ym = f.getY() + offset; zm = f.getZ() + offset;
 		
 		while(i.hasNext()) {
-			f = i.next();
+			f = (Figure)i.next();
 			offset = f.getD()/2;
 			//System.out.println(""+f.getID()+": "+f.getX()+","+f.getY()+","+f.getZ());
 			if( f.getX()-offset < xn ) xn = f.getX()-offset;
