@@ -107,6 +107,7 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
      */
     public void setUnit(etomica.units.Unit u) {
         unit = u;
+        doUpdate();
         setLabel(labelString);
     }
     
