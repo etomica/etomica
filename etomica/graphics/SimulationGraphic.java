@@ -140,6 +140,18 @@ public class SimulationGraphic implements SimulationContainer, java.io.Serializa
          displayList.add(display);
      }
 
+     public void remove(Device device) {
+         final java.awt.Component component = device.graphic(null);
+         if(component == null) return; //display is not graphic
+         if(device instanceof DeviceTable) {
+             panel().displayPanel.remove(component);
+         }
+         else {
+             panel().devicePanel.remove(component);
+         }
+         deviceList.remove(device);
+     }
+     
      public void remove(Display display) {
          final java.awt.Component component = display.graphic(null);
          if(component == null) return; //display is not graphic
@@ -196,7 +208,7 @@ public class SimulationGraphic implements SimulationContainer, java.io.Serializa
         }
         return null;
     }
-    private final Simulation simulation;
+    protected final Simulation simulation;
     private final LinkedList displayList = new LinkedList();
     private final LinkedList deviceList = new LinkedList();
 
