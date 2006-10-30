@@ -166,7 +166,7 @@ public class G3DSys {
 			return -1;
 		}
 	}
-	public long addFigNoRescale(Figures TYPE, short c, float x, float y, float z, float d) {
+	public long addFigNoRescale(int TYPE, short c, float x, float y, float z, float d) {
 		switch(TYPE) {
 		case BALL:
 			return fm.addFigNoRescale(new Ball(this,c,x,y,z,d));
