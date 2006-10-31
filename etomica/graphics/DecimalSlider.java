@@ -17,12 +17,6 @@ import javax.swing.JLabel;
  * 
  * @author S.K. Kwak
  */
- 
- /* History
-  * 10/11/02 (SKK) new
-  */
-
-
 public class DecimalSlider extends javax.swing.JSlider {
     
     private Hashtable labelTable;
@@ -44,7 +38,10 @@ public class DecimalSlider extends javax.swing.JSlider {
      * of 0.001.  Precision = 0 means to work with integer values.  Maximum
      * allowable value is 16.
      */
-    public int getPrecision(){return precision;}
+    public int getPrecision(){
+        return (int)Math.log10(precision);
+    }
+    
     /**
      * Mutator method for precision of slider.  See getPrecision.
      */
