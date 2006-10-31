@@ -45,7 +45,7 @@ public class ConfigurationLattice extends Configuration {
      * index iterator.
      */
     public ConfigurationLattice(SpaceLattice lattice) {
-        this(lattice, new IndexIteratorSequential(lattice.getSpace().D()));
+        this(lattice, new IndexIteratorSequential(lattice.D()));
     }
 
     /**
@@ -56,7 +56,7 @@ public class ConfigurationLattice extends Configuration {
     public ConfigurationLattice(SpaceLattice lattice,
             IndexIteratorSizable indexIterator) {
         super(lattice.getSpace());
-        if(indexIterator.getD() != space.D()) {
+        if(indexIterator.getD() != lattice.D()) {
             throw new IllegalArgumentException("Dimension of index iterator and lattice are incompatible");
         }
         this.lattice = lattice;
