@@ -88,7 +88,7 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
     /**
      * Updates the display of the box with the current value given by the modifier.
      */
-    protected void doUpdate() {
+    public void doUpdate() {
         if(modifyAction == null) return;
         if(integer) {
             textField.setText(Integer.toString((int)unit.fromSim(modifyAction.getWrappedModifier().getValue())));
