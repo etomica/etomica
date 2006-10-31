@@ -116,6 +116,13 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
         yy+=((Vector2D)v1).y*((Vector2D)v2).y;
     }
     
+    public void MEv1v2(Vector v1, Vector v2) {
+        xx-=((Vector2D)v1).x*((Vector2D)v2).x;
+        xy-=((Vector2D)v1).x*((Vector2D)v2).y;
+        yx-=((Vector2D)v1).y*((Vector2D)v2).x;
+        yy-=((Vector2D)v1).y*((Vector2D)v2).y;
+    }
+    
     public void ME(Tensor t) {
         xx-=((Tensor2D)t).xx;
         xy-=((Tensor2D)t).xy;

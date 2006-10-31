@@ -41,6 +41,7 @@ public interface Tensor extends Cloneable {
      * Increments this by the dyadic or outer product of the given vectors.
      */
     public abstract void PEv1v2(Vector v1, Vector v2);
+    public abstract void MEv1v2(Vector v1, Vector v2);
     public abstract void ME(Tensor t);
     public abstract double trace();
     public abstract void transpose();

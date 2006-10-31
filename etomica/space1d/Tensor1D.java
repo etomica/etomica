@@ -106,6 +106,10 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
         xx += ((Vector1D) u1).x * ((Vector1D) u2).x;
     }
 
+    public void MEv1v2(Vector u1, Vector u2) {
+        xx -= ((Vector1D) u1).x * ((Vector1D) u2).x;
+    }
+
     public void ME(Tensor t) {
         xx -= ((Tensor1D) t).xx;
     }

@@ -155,6 +155,14 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         zx+=u1.z*u2.x; zy+=u1.z*u2.y; zz+=u1.z*u2.z;
     }
     
+    public void MEv1v2(Vector v1, Vector v2) {
+        Vector3D u1 = (Vector3D)v1;
+        Vector3D u2 = (Vector3D)v2;
+        xx-=u1.x*u2.x; xy-=u1.x*u2.y; xz-=u1.x*u2.z;
+        yx-=u1.y*u2.x; yy-=u1.y*u2.y; yz-=u1.y*u2.z;
+        zx-=u1.z*u2.x; zy-=u1.z*u2.y; zz-=u1.z*u2.z;
+    }
+    
     public void TE(double a) {
         xx*=a; xy*=a; xz*=a; 
         yx*=a; yy*=a; yz*=a; 
