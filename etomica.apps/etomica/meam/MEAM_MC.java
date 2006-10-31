@@ -2,7 +2,6 @@ package etomica.meam;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.chem.elements.Copper;
 import etomica.chem.elements.Silver;
@@ -21,8 +20,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.lattice.Crystal;
-import etomica.lattice.LatticeCrystal;
+import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.phase.Phase;
@@ -130,8 +128,7 @@ public class MEAM_MC extends Simulation {
 	    //Alternatively, using the parameters calculated in Ravelo & Baskes (1997)
 	    //phase.setDimensions(new Vector3D(5.92*3, 5.92*3, 3.23*6));
 	    //PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.92, 3.23);
-	    LatticeCrystal crystal = new LatticeCrystal(new Crystal(
-	        primitive, new BasisBetaSnA5(primitive)));
+	    BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisBetaSnA5());
 	    
 	    //FCC Cu
         /**

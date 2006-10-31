@@ -8,9 +8,7 @@ import etomica.space3d.Space3D;
  * Cubic primitive with a 4-site fcc basis.
  * 
  */
-
-
-public class LatticeCubicFcc extends LatticeCrystal implements CubicLattice {
+public class LatticeCubicFcc extends BravaisLatticeCrystal implements CubicLattice {
 
     /**
      * Cubic fcc crystal with a lattice constant that gives a
@@ -24,9 +22,7 @@ public class LatticeCubicFcc extends LatticeCrystal implements CubicLattice {
     }
     
     public LatticeCubicFcc(double latticeConstant) {
-        this(new PrimitiveCubic(Space3D.getInstance()));
-        primitive = (PrimitiveCubic)crystal.getLattice().getPrimitive();
-        primitive.setCubicSize(latticeConstant);
+        this(new PrimitiveCubic(Space3D.getInstance(), latticeConstant));
     }
 
     /**
@@ -34,15 +30,7 @@ public class LatticeCubicFcc extends LatticeCrystal implements CubicLattice {
      * new BasisCubicFcc (which needs the new primitive) to super.
      */ 
     private LatticeCubicFcc(PrimitiveCubic primitive) {
-        super(new Crystal(primitive, new BasisCubicFcc(primitive)));
-    }
-    
-    /**
-     * Returns the cubic primitive on which the 4-site basis groups are placed.
-     * Set the lattice constant via primitive().setSize(value).
-     */
-    public PrimitiveCubic primitive() {
-        return primitive;
+        super(primitive, new BasisCubicFcc());
     }
     
     /**
@@ -50,7 +38,8 @@ public class LatticeCubicFcc extends LatticeCrystal implements CubicLattice {
      * Changes to the returned instance have no effect on the lattice.
      */
     public PrimitiveFcc getPrimitiveFcc() {
-        PrimitiveFcc p = new PrimitiveFcc(Space3D.getInstance());
+        //XXX this looks... wrong
+        PrimitiveFcc p = new PrimitiveFcc(primitive.space);
         p.setCubicSize(getLatticeConstant()/Math.sqrt(2.0));
         return p;
     }
@@ -60,11 +49,11 @@ public class LatticeCubicFcc extends LatticeCrystal implements CubicLattice {
      * of the lattice underlying this crystal.
      */
     public void setLatticeConstant(double latticeConstant) {
-        primitive.setCubicSize(latticeConstant);
+        ((PrimitiveCubic)primitive).setCubicSize(latticeConstant);
     }
     
     public double getLatticeConstant() {
-        return primitive.getCubicSize();
+        return ((PrimitiveCubic)primitive).getCubicSize();
     }
     
 
@@ -81,5 +70,5 @@ public class LatticeCubicFcc extends LatticeCrystal implements CubicLattice {
      */
     public String toString() {return "Fcc";}
     
-    private PrimitiveCubic primitive;
-}//end of CrystalFcc
+    private static final long serialVersionUID = 1L;
+}

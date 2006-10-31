@@ -14,7 +14,7 @@ public class BravaisLattice implements SpaceLattice, java.io.Serializable {
 
     public BravaisLattice(Primitive primitive) {
         this.primitive = primitive;
-        latticeVector = getSpace().makeVector();
+        latticeVector = primitive.space.makeVector();
     }
 
     public int D() {
@@ -63,29 +63,8 @@ public class BravaisLattice implements SpaceLattice, java.io.Serializable {
         return primitive.getSize();
     }
 
-//    //not carefully implemented
-//    public Space.Vector nearestSite(Space.Vector r) {
-//        Space.Vector[] coords = (Space.Vector[])sites();
-//        double r2min = Double.MAX_VALUE;
-//        Space.Vector site = null;
-//        for(int i=coords.length-1; i>=0; i--) {
-//            double r2 = coords[i].Mv1Squared(r);
-//            if (r2 < r2min) {
-//                r2min = r2;
-//                site = coords[i];
-//            }
-//        }
-//        return site;
-//    }
-//    /**
-//     * Returns "BravaisLattice" plus the array size, e.g., BravaisLattice{20,20,10}.
-//     */
-//    public String toString() {
-//        return "BravaisLattice"+Arrays.toString(size);
-//    }
-//
-
-    private Primitive primitive;
+    private static final long serialVersionUID = 1L;
+    protected Primitive primitive;
     private final Vector latticeVector;
     
-}//end of BravaisLattice
+}

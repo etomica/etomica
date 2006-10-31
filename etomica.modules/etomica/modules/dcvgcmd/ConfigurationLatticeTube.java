@@ -11,9 +11,9 @@ import etomica.config.Configuration;
 import etomica.config.Conformation;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPhase;
+import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorSequential;
 import etomica.lattice.IndexIteratorSizable;
-import etomica.lattice.LatticeCrystal;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
@@ -29,14 +29,14 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class ConfigurationLatticeTube extends Configuration {
 
-    public ConfigurationLatticeTube(LatticeCrystal lattice, double length, SpeciesTube tubeSpecies) {
+    public ConfigurationLatticeTube(BravaisLatticeCrystal lattice, double length, SpeciesTube tubeSpecies) {
         this(lattice, length, tubeSpecies, new IndexIteratorSequential(lattice.D()));//need a default iterator
     }
 	/**
 	 * Constructor for ConfigurationLatticeTube.
 	 * @param space
 	 */
-	public ConfigurationLatticeTube(LatticeCrystal lattice, double length, SpeciesTube tubeSpecies, IndexIteratorSizable indexIterator) {
+	public ConfigurationLatticeTube(BravaisLatticeCrystal lattice, double length, SpeciesTube tubeSpecies, IndexIteratorSizable indexIterator) {
 	    super(lattice.getSpace());
         this.lattice = lattice;
         this.indexIterator = indexIterator;
@@ -67,11 +67,11 @@ public class ConfigurationLatticeTube extends Configuration {
             	sumOfMolecules--;
             }
         }
-        int basisSize = lattice.getCrystal().getBasis().size();
+        int basisSize = lattice.getBasis().getScaledCoordinates().length;
         int nCells = (int)Math.ceil((double)sumOfMolecules/(double)basisSize);
         
         //determine scaled shape of simulation volume
-        double[] latticeConstant = lattice.getCrystal().getLattice().getPrimitive().getSize();
+        double[] latticeConstant = lattice.getPrimitive().getSize();
         double[] shape = (double[])dimensions.clone();
         shape[2] = dimensions[2]*length;
         for(int i=0; i<shape.length; i++) {
@@ -196,7 +196,7 @@ public class ConfigurationLatticeTube extends Configuration {
         return latticeDimensions;
     }
 	
-	private final LatticeCrystal lattice;
+	private final BravaisLatticeCrystal lattice;
     private final IndexIteratorSizable indexIterator;
     private final Vector work;
     private final AtomActionTranslateTo atomActionTranslateTo;
@@ -212,7 +212,7 @@ public class ConfigurationLatticeTube extends Configuration {
 		int k = 4;
 		phase.getAgent(species).setNMolecules(4*k*k*k);
 //        CubicLattice lattice = new LatticeCubicBcc();
-        LatticeCrystal lattice = new LatticeCubicFcc();
+        BravaisLatticeCrystal lattice = new LatticeCubicFcc();
 //        CubicLattice lattice = new LatticeCubicSimple();
 		ConfigurationLatticeTube configuration = new ConfigurationLatticeTube(lattice, .25, new SpeciesTube(sim, 10,10));
 //        phase.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));

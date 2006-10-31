@@ -6,9 +6,9 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorArrayListCompound;
 import etomica.integrator.IntegratorHard;
+import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorSequential;
 import etomica.lattice.IndexIteratorSizable;
-import etomica.lattice.LatticeCrystal;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.SpaceLattice;
 import etomica.phase.Phase;
@@ -45,7 +45,7 @@ public class ConfigurationLattice extends Configuration {
      * index iterator.
      */
     public ConfigurationLattice(SpaceLattice lattice) {
-        this(lattice, new IndexIteratorSequential(lattice.D()));
+        this(lattice, new IndexIteratorSequential(lattice.getSpace().D()));
     }
 
     /**
@@ -56,7 +56,7 @@ public class ConfigurationLattice extends Configuration {
     public ConfigurationLattice(SpaceLattice lattice,
             IndexIteratorSizable indexIterator) {
         super(lattice.getSpace());
-        if(indexIterator.getD() != lattice.D()) {
+        if(indexIterator.getD() != space.D()) {
             throw new IllegalArgumentException("Dimension of index iterator and lattice are incompatible");
         }
         this.lattice = lattice;
@@ -127,9 +127,8 @@ public class ConfigurationLattice extends Configuration {
             return;
         }
         int basisSize = 1;
-        if (lattice instanceof LatticeCrystal) {
-            basisSize = ((LatticeCrystal) lattice).getCrystal().getBasis()
-                    .size();
+        if (lattice instanceof BravaisLatticeCrystal) {
+            basisSize = ((BravaisLatticeCrystal)lattice).getBasis().getScaledCoordinates().length;
         }
         int nCells = (int) Math.ceil((double) sumOfMolecules
                 / (double) basisSize);
@@ -326,7 +325,7 @@ public class ConfigurationLattice extends Configuration {
         integrator.setPhase(phase);
 //        ColorSchemeByType colorScheme = new ColorSchemeByType();
         // CubicLattice lattice = new LatticeCubicBcc();
-        LatticeCrystal lattice = new LatticeCubicFcc();
+        BravaisLatticeCrystal lattice = new LatticeCubicFcc();
         // CubicLattice lattice = new LatticeCubicSimple();
         ConfigurationLattice configuration = new ConfigurationLattice(lattice);
         // phase.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));

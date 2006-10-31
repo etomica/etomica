@@ -20,9 +20,9 @@ import etomica.atom.iterator.AtomIteratorArrayListCompound;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.config.Configuration;
 import etomica.config.Conformation;
+import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorSequential;
 import etomica.lattice.IndexIteratorSizable;
-import etomica.lattice.LatticeCrystal;
 import etomica.lattice.SpaceLattice;
 import etomica.phase.Phase;
 import etomica.space.Space;
@@ -38,7 +38,7 @@ public class GrainBoundaryConfiguration extends Configuration {
      * Constructs class using instances of IndexIteratorSequential as the default
      * index iterators.
      */
-    public GrainBoundaryConfiguration(SpaceLattice latticeA, SpaceLattice latticeB) {
+    public GrainBoundaryConfiguration(BravaisLatticeCrystal latticeA, BravaisLatticeCrystal latticeB) {
         this(latticeA, latticeB, new IndexIteratorSequential(latticeA.D()), 
         		new IndexIteratorSequential(latticeB.D()));
     }
@@ -48,7 +48,7 @@ public class GrainBoundaryConfiguration extends Configuration {
      * proceeding in the order resulting from iteration through the given index
      * iterator.
      */
-    public GrainBoundaryConfiguration(SpaceLattice latticeA, SpaceLattice latticeB,
+    public GrainBoundaryConfiguration(BravaisLatticeCrystal latticeA, BravaisLatticeCrystal latticeB,
             IndexIteratorSizable indexIteratorA, 
 			IndexIteratorSizable indexIteratorB) {
     	/** Lattices A + B share same space.  Only need to getSpace() for one 
@@ -138,11 +138,11 @@ public class GrainBoundaryConfiguration extends Configuration {
     	iteratorDimensionsA[0] = nCellsAx;
     	iteratorDimensionsA[1] = nCellsAy;
     	iteratorDimensionsA[2] = nCellsAz;
-    	iteratorDimensionsA[3] = ((LatticeCrystal)latticeA).getCrystal().getBasis().size();
+    	iteratorDimensionsA[3] = latticeA.getBasis().getScaledCoordinates().length;
     	iteratorDimensionsB[0] = nCellsBx;
     	iteratorDimensionsB[1] = nCellsBy;
     	iteratorDimensionsB[2] = nCellsBz;
-    	iteratorDimensionsB[3] = ((LatticeCrystal)latticeB).getCrystal().getBasis().size();
+    	iteratorDimensionsB[3] = latticeB.getBasis().getScaledCoordinates().length;
     }	
 
     /**
@@ -309,7 +309,7 @@ public class GrainBoundaryConfiguration extends Configuration {
         Vector offset;
     }
 
-    private final SpaceLattice latticeA, latticeB;
+    private final BravaisLatticeCrystal latticeA, latticeB;
     private final IndexIteratorSizable indexIteratorA, indexIteratorB;
     private final Vector work;
     private final AtomActionTranslateTo atomActionTranslateTo;

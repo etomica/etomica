@@ -1,7 +1,6 @@
 package etomica.meam;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.chem.elements.Copper;
 import etomica.chem.elements.Silver;
@@ -21,8 +20,7 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntervalActionAdapter;
-import etomica.lattice.Crystal;
-import etomica.lattice.LatticeCrystal;
+import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveCubic;
@@ -214,13 +212,11 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
         //Alternatively, using the parameters calculated in Ravelo & Baskes (1997)
         //phase.setDimensions(new Vector3D(5.92*3, 5.92*3, 3.23*6));
         //PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.92, 3.23);
-        LatticeCrystal latticeA = new LatticeCrystal(new Crystal(
-        		primitiveA, new BasisBetaSnA5(primitiveA)));
+        BravaisLatticeCrystal latticeA = new BravaisLatticeCrystal(primitiveA, new BasisBetaSnA5());
         
         aB = bB = cB = 4.14; basisB = 4;
 	    PrimitiveCubic primitiveB = new PrimitiveCubic(space, aB);
-	    LatticeCrystal latticeB = new LatticeCrystal(new Crystal(
-		        primitiveB, new BasisCubicFcc(primitiveB)));
+	    BravaisLatticeCrystal latticeB = new BravaisLatticeCrystal(primitiveB, new BasisCubicFcc());
         
         phase.setDimensions(new Vector3D(aA*nCellsAx, aA*nCellsAy, (cA*nCellsAz)+(cB*nCellsBz)));
 		

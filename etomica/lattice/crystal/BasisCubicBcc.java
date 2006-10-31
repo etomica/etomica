@@ -2,22 +2,17 @@ package etomica.lattice.crystal;
 import etomica.space3d.Vector3D;
 
 /**
- * A 2-atom basis that makes a bcc crystal on a BravaisLattice
- * having a Cubic primitive.
+ * A 2-atom basis for a bcc crystal
  *
  * @author David Kofke
  */
- 
-public class BasisCubicBcc extends BasisCubic {
+ public class BasisCubicBcc extends Basis {
     
     /**
      * Makes a bcc 2-atom basis.
-     * @param primitive Primitive of the cubic lattice housing this basis.
-     * Needed to ensure that separation of basis atoms is consistent with
-     * spacing of atoms on lattice.
      */
-    public BasisCubicBcc(PrimitiveCubic primitive) {
-        super(primitive, scaledPositions);
+    public BasisCubicBcc() {
+        super(scaledPositions);
     }
     
     private static final Vector3D[] scaledPositions = new Vector3D[] {
@@ -25,4 +20,5 @@ public class BasisCubicBcc extends BasisCubic {
             new Vector3D(0.5, 0.5, 0.5)
     };
     
-}//end of BasisCubicBcc
+    private static final long serialVersionUID = 1L;
+}

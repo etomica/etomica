@@ -7,20 +7,15 @@ import etomica.space3d.Vector3D;
  * is populated by a 2-atom basis arranged to yield the diamond structure.
  *
  * @author David Kofke
+ * XXX this is dead, right?
  */
- 
- /* History
-  * 09/26/02 (DAK) new
-  * 01/19/04 (DAK) revised to extend Basis instead of AtomFactory
-  */
- 
-public class BasisCubicFccDiamond extends BasisCubic {
+public class BasisCubicFccDiamond extends Basis {
     
     /**
      * Makes a diamond-on-fcc 2-atom basis using the given factory to make the atoms.
      */
-    public BasisCubicFccDiamond(PrimitiveCubic primitive) {
-        super(primitive, scaledPositions);
+    public BasisCubicFccDiamond() {
+        super(scaledPositions);
     }
     
     private static final Vector3D[] scaledPositions = new Vector3D[] {
@@ -28,4 +23,5 @@ public class BasisCubicFccDiamond extends BasisCubic {
             new Vector3D(0.25, 0.25, 0.25),
     };
     
-}//end of BasisCubicFcc
+    private static final long serialVersionUID = 1L;
+}

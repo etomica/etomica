@@ -7,7 +7,7 @@ import etomica.space3d.Space3D;
  * Hexagonal primitive with a 2-site hcp basis.
  */
 
-public class LatticeHcp extends LatticeCrystal {
+public class LatticeHcp extends BravaisLatticeCrystal {
     
     /**
      * Cubic hcp crystal with a lattice constant that gives a
@@ -21,10 +21,7 @@ public class LatticeHcp extends LatticeCrystal {
     }
     
     public LatticeHcp(double latticeConstant) {
-        this(new PrimitiveHexagonal(Space3D.getInstance()));
-        primitive = (PrimitiveHexagonal)crystal.getLattice().getPrimitive();
-        primitive.setAB(latticeConstant);
-        primitive.setC(Math.sqrt(8.0/3.0)*latticeConstant);
+        this(new PrimitiveHexagonal(Space3D.getInstance(), latticeConstant, Math.sqrt(8.0/3.0)*latticeConstant));
     }
 
     /**
@@ -32,17 +29,9 @@ public class LatticeHcp extends LatticeCrystal {
      * new BasisCubicBcc (which needs the new primitive) to super.
      */ 
     private LatticeHcp(PrimitiveHexagonal primitive) {
-        super(new Crystal(primitive, new BasisHcp(primitive)));
+        super(primitive, new BasisHcp());
     }
     
-    /**
-     * Returns the primitive the determines the lattice constant.
-     * Set the lattice constant via primitive().setSize(value).
-     */
-    public PrimitiveHexagonal primitive() {
-        return primitive;
-    }
-
     /**
      * Rescales the lattice by the given factor. Multiplies the lattice constants
      * by the given value.
@@ -52,6 +41,6 @@ public class LatticeHcp extends LatticeCrystal {
     }
 
     public String toString() {return "Hcp";}
-    
-    private PrimitiveHexagonal primitive;
-}//end of CrystalHcp
+
+    private static final long serialVersionUID = 1L;
+}

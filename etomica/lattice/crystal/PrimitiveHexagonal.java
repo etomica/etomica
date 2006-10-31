@@ -9,6 +9,7 @@ import etomica.space.Vector;
  */
 public class PrimitiveHexagonal extends Primitive {
     
+    private static final long serialVersionUID = 1L;
     protected double ab;
     protected static final double gamma = etomica.units.Degree.UNIT.toSim(120.);
     protected static final double cosGamma = Math.cos(gamma);
@@ -47,6 +48,10 @@ public class PrimitiveHexagonal extends Primitive {
         }
         setSize(new double[]{newAB, newAB, size[2]});
         ab = newAB;
+    }
+    
+    public double getAB() {
+        return ab;
     }
     
     public void setC(double newC) {
@@ -131,6 +136,7 @@ public class PrimitiveHexagonal extends Primitive {
     
     public String toString() {return "Hexagonal";}
     
+
     protected static class PrimitiveHexagonalReciprocal extends PrimitiveHexagonal {
         public PrimitiveHexagonalReciprocal(Space space, double ab, double c) {
             super(space, ab, c, false);
@@ -143,6 +149,8 @@ public class PrimitiveHexagonal extends Primitive {
             latticeVectors[0].setX(1,-ab*cosGamma);
             latticeVectors[0].setX(0,ab*sinGamma);
         }
+        
+        private static final long serialVersionUID = 1L;
     }
 }
     

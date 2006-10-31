@@ -1,6 +1,4 @@
 package etomica.lattice.crystal;
-import etomica.lattice.Basis;
-import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 
 /**
@@ -44,32 +42,12 @@ import etomica.space3d.Vector3D;
  * Schultz July 2005.
  */
  
-public class BasisBetaSnA5 implements Basis {
+public class BasisBetaSnA5 extends Basis {
     
-    /**
-     * @param primitive Primitive of the tetragonal lattice housing this basis.
-     * Needed to ensure that separation of basis atoms is consistent with
-     * spacing of atoms on lattice.
-     * @param scaledCoordinates basis coordinates for the case in which the
-     * primitive lattice constant (getSize) is unity.  Given instance is kept
-     * for interal representation of basis, so changes to scaledCoordinates
-     * will affect the basis.
-     */
-    public BasisBetaSnA5(PrimitiveTetragonal primitive) {
-        this.primitive = primitive;
-        size = unscaledCoordinates.length;
-        coordinates = new Vector[size];
-        for(int i=0; i<size; i++) {
-            this.coordinates[i] = (Vector)unscaledCoordinates[i].clone();
-        }
-        oldAB = 1.0;
-        oldC = 1.0;
+    public BasisBetaSnA5() {
+        super(unscaledCoordinates);
     }
-    
-    public int size() {
-        return size;
-    }
-    
+
     /**
      * The following vectors are the *unscaled* position vectors of the four atom sites 
      * chosen to constitute the basis.  The x and y coordinates of these vectors are to
@@ -82,35 +60,12 @@ public class BasisBetaSnA5 implements Basis {
      * cell; note the differing values of z.  The final vector is for the position of 
      * the atom at the center of the unit cell.  
      */
-    
     private static final Vector3D[] unscaledCoordinates = new Vector3D[] {
 			new Vector3D(0.00, 0.00, 0.00),
 			new Vector3D(0.5, 0.00, 0.25),
 			new Vector3D(0.00, 0.5, 0.75),
 			new Vector3D(0.5, 0.5, 0.5)
     };
-    
-    public Vector[] positions() {
-        double AB = primitive.getAB();
-        double C = primitive.getC();
-        if(AB != oldAB || C != oldC) {
-        	Vector ABC = primitive.space.makeVector();
-        	ABC.setX(0, AB);
-        	ABC.setX(1, AB);
-        	ABC.setX(2, C);
-            for(int i=0; i<size; i++) {
-                coordinates[i].E(unscaledCoordinates[i]);
-                coordinates[i].TE(ABC);
-            }
-            oldAB = AB;
-            oldC = C;
-        }
-        return coordinates;
-    }
-    
-    private int size;
-    private Vector[] coordinates;
-    private PrimitiveTetragonal primitive;
-    private double oldAB;
-    private double oldC;
+
+    private static final long serialVersionUID = 1L;
 }

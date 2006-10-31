@@ -23,8 +23,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntervalActionAdapter;
-import etomica.lattice.Crystal;
-import etomica.lattice.LatticeCrystal;
+import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.nbr.CriterionSimple;
@@ -216,8 +215,7 @@ public class MEAMMd3D extends Simulation {
         
 	    phase.setDimensions(new Vector3D(4.0863*4, 4.0863*4, 4.0863*4));
 	    PrimitiveCubic primitive = new PrimitiveCubic(space, 4.0863);
-	    LatticeCrystal crystal = new LatticeCrystal(new Crystal(
-		        primitive, new BasisCubicFcc(primitive)));
+	    BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisCubicFcc());
 	    
            
 		Configuration config = new ConfigurationLattice(crystal);

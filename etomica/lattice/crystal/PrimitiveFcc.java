@@ -8,6 +8,7 @@ import etomica.space.Vector;
  */
 public class PrimitiveFcc extends Primitive {
     
+    private static final long serialVersionUID = 1L;
     //primitive vectors are stored internally at unit length.  When requested
     //from the vectors() method, copies are scaled to size and returned.
     //default size is 1.0
@@ -46,7 +47,7 @@ public class PrimitiveFcc extends Primitive {
     
     //called by update method of superclass
     protected void updateReciprocal() {
-        ((PrimitiveBcc)reciprocal).setCubicSize(4.0*Math.PI/size[0]);
+        ((PrimitiveBcc)reciprocal).setCubicSize(2.0*Math.sqrt(6)*Math.PI/size[0]);
     }
     
     /**

@@ -89,7 +89,7 @@ public class PrimitiveOrthorhombic extends Primitive {
     protected void update() {
         super.update();
         for (int i=0; i<D; i++) {
-            latticeVectors[i].setX(0,size[i]);
+            latticeVectors[i].setX(i,size[i]);
         }
     }
     
@@ -133,5 +133,6 @@ public class PrimitiveOrthorhombic extends Primitive {
     
     public String toString() {return "Orthorhombic";}
 
-}//end of PrimitiveOrthorhombic
+    private static final long serialVersionUID = 1L;
+}
     

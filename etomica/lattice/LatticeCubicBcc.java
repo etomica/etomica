@@ -7,7 +7,7 @@ import etomica.space3d.Space3D;
  * Cubic primitive with a 2-site bcc basis.
  */
 
-public class LatticeCubicBcc extends LatticeCrystal implements CubicLattice {
+public class LatticeCubicBcc extends BravaisLatticeCrystal implements CubicLattice {
     
 	/**
 	 * Cubic bcc crystal with a lattice constant that gives a
@@ -21,9 +21,7 @@ public class LatticeCubicBcc extends LatticeCrystal implements CubicLattice {
     }
     
 	public LatticeCubicBcc(double latticeConstant) {
-		this(new PrimitiveCubic(Space3D.getInstance()));
-        primitive = (PrimitiveCubic)crystal.getLattice().getPrimitive();
-        primitive.setCubicSize(latticeConstant);
+		this(new PrimitiveCubic(Space3D.getInstance(), latticeConstant));
 	}
 
 	/**
@@ -31,27 +29,19 @@ public class LatticeCubicBcc extends LatticeCrystal implements CubicLattice {
 	 * new BasisCubicBcc (which needs the new primitive) to super.
 	 */	
 	private LatticeCubicBcc(PrimitiveCubic primitive) {
-		super(new Crystal(primitive, new BasisCubicBcc(primitive)));
+		super(primitive, new BasisCubicBcc());
 	}
-    
-    /**
-     * Returns the primitive the determines the lattice constant.
-     * Set the lattice constant via primitive().setSize(value).
-     */
-    public PrimitiveCubic primitive() {
-        return primitive;
-    }
     
     /**
      * The lattice constant is the size of the cubic primitive vectors
      * of the lattice underlying this crystal.
      */
     public void setLatticeConstant(double latticeConstant) {
-        primitive.setCubicSize(latticeConstant);
+        ((PrimitiveCubic)primitive).setCubicSize(latticeConstant);
     }
     
     public double getLatticeConstant() {
-        return primitive.getCubicSize();
+        return ((PrimitiveCubic)primitive).getCubicSize();
     }
     
     /**
@@ -66,7 +56,6 @@ public class LatticeCubicBcc extends LatticeCrystal implements CubicLattice {
      * Returns "Bcc".
      */
     public String toString() {return "Bcc";}
-    
-    private PrimitiveCubic primitive;
-    
-}//end of CrystalBcc
+
+    private static final long serialVersionUID = 1L;
+}

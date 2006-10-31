@@ -12,7 +12,7 @@ import etomica.space3d.Space3D;
   * 09/26/02 (DAK) new
   * 01/20/04 (DAK) revised constructors; added one taking atomFactory argument
   */
-public class LatticeCubicDiamond extends LatticeCrystal implements CubicLattice {
+public class LatticeCubicDiamond extends BravaisLatticeCrystal implements CubicLattice {
     
     /**
      * Cubic bcc crystal with a lattice constant that gives a maximum-density
@@ -27,8 +27,7 @@ public class LatticeCubicDiamond extends LatticeCrystal implements CubicLattice 
     
     public LatticeCubicDiamond(double latticeConstant) {
         this(new PrimitiveCubic(Space3D.getInstance()));
-        primitive = (PrimitiveCubic)crystal.getLattice().getPrimitive();
-        primitive.setCubicSize(latticeConstant);
+        ((PrimitiveCubic)primitive).setCubicSize(latticeConstant);
     }
 
     /**
@@ -36,15 +35,7 @@ public class LatticeCubicDiamond extends LatticeCrystal implements CubicLattice 
      * new BasisCubicBcc (which needs the new primitive) to super.
      */ 
     private LatticeCubicDiamond(PrimitiveCubic primitive) {
-        super(new Crystal(primitive, new BasisCubicDiamond(primitive)));
-    }
-    
-    /**
-     * Returns the primitive the determines the lattice constant.
-     * Set the lattice constant via primitive().setSize(value).
-     */
-    public PrimitiveCubic primitive() {
-        return primitive;
+        super(primitive, new BasisCubicDiamond());
     }
     
     /**
@@ -52,11 +43,11 @@ public class LatticeCubicDiamond extends LatticeCrystal implements CubicLattice 
      * of the lattice underlying this crystal.
      */
     public void setLatticeConstant(double latticeConstant) {
-        primitive.setCubicSize(latticeConstant);
+        ((PrimitiveCubic)primitive).setCubicSize(latticeConstant);
     }
     
     public double getLatticeConstant() {
-        return primitive.getCubicSize();
+        return ((PrimitiveCubic)primitive).getCubicSize();
     }
     
     /**
@@ -72,6 +63,5 @@ public class LatticeCubicDiamond extends LatticeCrystal implements CubicLattice 
      */
     public String toString() {return "Diamond";}
     
-    private PrimitiveCubic primitive;
-    
-}//end of CrystalDiamond
+    private static final long serialVersionUID = 1L;
+}
