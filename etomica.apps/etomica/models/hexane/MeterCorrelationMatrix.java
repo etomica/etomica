@@ -1,9 +1,11 @@
 package etomica.models.hexane;
 
+import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.atom.iterator.AtomIteratorMolecule;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataTag;
@@ -46,6 +48,7 @@ public class MeterCorrelationMatrix implements Meter {
         api1.setPhase(phase);
         api1.reset();
         
+        //Set up the single atom iterator.
         atomIterator.setPhase(phase);
         atomIterator.reset();
         op = new Vector[phase.getSpeciesMaster().getMaxGlobalIndex()+1];
@@ -81,11 +84,16 @@ public class MeterCorrelationMatrix implements Meter {
     public Data getData() {
         resetMeter();
         
+        //Used in a variety of loops; save some time by making them now
+        AtomLeaf atom;
+        int bin;
+        Vector vex = phase.space().makeVector();
+        
         if(!symmetric) System.out.println(symmetric);
         // make the change-in-position-from-the-original-lattice-point vector
         atomIterator.reset();
         while (atomIterator.hasNext()) {
-            AtomLeaf atom = (AtomLeaf) atomIterator.nextAtom();
+            atom = (AtomLeaf) atomIterator.nextAtom();
             tempVex[atom.getGlobalIndex()].E(atom.coord.position());
             tempVex[atom.getGlobalIndex()].ME(op[atom.getGlobalIndex()]);
         }
@@ -94,7 +102,7 @@ public class MeterCorrelationMatrix implements Meter {
         api1.reset();        
         while (api1.hasNext()) {
             AtomPair pair = api1.nextPair();
-            int bin = pri.getBin(pair.getAtom(0), pair.getAtom(1));
+            bin = pri.getBin(pair.getAtom(0), pair.getAtom(1));
             Vector gam1 = tempVex[pair.getAtom(0).getGlobalIndex()];
             Vector gam2 = tempVex[pair.getAtom(1).getGlobalIndex()];
             tempTen.Ev1v2(gam1, gam2);
@@ -110,15 +118,36 @@ public class MeterCorrelationMatrix implements Meter {
             }
         }
         api1.reset();
+        
+        //Calculate the deltas tensor for each atom with itself.
+        atomIterator.reset();
+        while(atomIterator.hasNext()) {
+            atom = (AtomLeaf)atomIterator.nextAtom();
+            bin = pri.getBin(atom, atom);
+            vex.E(atom.coord.position());
+            vex.ME(op[atom.getGlobalIndex()]);
+            tempTen.Ev1v2(vex, vex);
+//            System.out.println(atom.getGlobalIndex() +"  "+ bin +"  "+ vex.x(0)+"  "+ vex.x(1) +"  "+ vex.x(2));
+            if(symmetric){
+                tempTenAgain.E(tempTen);
+                tempTen.transpose();
+                tempTen.PE(tempTenAgain);
+                ((DataTensor)data.getData(bin)).x.PE(tempTen);
+                counter[bin] += 2;
+            } else {
+                ((DataTensor)data.getData(bin)).x.PE(tempTen);
+                counter[bin] += 1;
+            }
+        }
+            
+            
+            
 
         //Divide each bin by the amount of times we put something in i
         for(int i = 0; i < maxlength; i++){
-//            System.out.println(i +"  "+ counter[i] +"   "+ ((DataTensor)data.getData(i)).x);
             if(counter[i] != 0){
                 (((DataTensor)data.getData(i)).x).TE(1/(double)counter[i]);
             }
-//            System.out.println(i +"  "+ counter[i] +"   "+ ((DataTensor)data.getData(i)).x);
-            
         }
         
         return data;

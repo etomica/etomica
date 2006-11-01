@@ -69,7 +69,7 @@ public class TestHexane extends Simulation {
 
         double bondFactor = 0.4;
         defaults.makeLJDefaults();
-        defaults.atomSize = 0.25;
+        defaults.atomSize = 1.0;
         defaults.ignoreOverlap = false;
 
         SpeciesHexane species = new SpeciesHexane(this);
@@ -200,32 +200,15 @@ public class TestHexane extends Simulation {
         TestHexane sim = new TestHexane(Space3D.getInstance(), numMolecules);
 
         System.out.println("Happy Goodness!!");
-
-//        MeterPressure pMeter = new MeterPressure(sim.space);
-//        pMeter.setIntegrator(sim.integrator);
-        MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(
-                sim.integrator);
-        energyMeter.setPhase(sim.phase);
-        
-        AccumulatorAverage energyAccumulator = new AccumulatorAverage(sim);
-        DataPump energyManager = new DataPump(energyMeter, energyAccumulator);
-        energyAccumulator.setBlockSize(50);
-        //This is the wire to plug the pump into the electric socket and make
-        // it run.
-        new IntervalActionAdapter(energyManager, sim.integrator);
         
         //This starts the simulation, sets up its own thread to start the sim,
         // and then moves on down the list.
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
         simGraphic.makeAndDisplayFrame();
       
-//        System.out.println("before run: ");
-//        System.out.println("inter: " + );
         sim.getController().actionPerformed();
 
-        double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData())
-                .getData(StatType.AVERAGE.index)).x;
-        System.out.println("PE  " + avgPE);
+        System.out.println("PE = NaN, or, I'm done, have a nice day!");
         
         
     }

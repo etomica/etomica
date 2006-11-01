@@ -17,16 +17,17 @@ public class ConformationHexane extends ConformationChainZigZag {
 
 	public ConformationHexane(Space space){
 		super(space);
-		
-		//In sigma units
-		 v1.setX(0, 0.18854555245298);
-		 v1.setX(1, 0.29694243630547);
-		 v1.setX(2, 0.19046197565702);
-		 
-		 v2.setX(0, 0.03759621081978);
-		 v2.setX(1, -0.09268787302781);
-		 v2.setX(2, 0.38729250331703);
-		
+        
+        //In sigma units
+        v1.setX(0, -0.188545552452977);
+        v1.setX(1, -0.296942436305470);
+        v1.setX(2, -0.190461975657022);
+       
+        v2.setX(0, -0.037596210819776);
+        v2.setX(1, 0.092687873027807);
+        v2.setX(2, -0.387292503317033);
+        
+        
 		//In Angstroms
 //		 v1.setX(0, 1.88545552452977);
 //		 v1.setX(1, 2.96942436305470);
