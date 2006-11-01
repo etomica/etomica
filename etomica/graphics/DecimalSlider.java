@@ -39,7 +39,7 @@ public class DecimalSlider extends javax.swing.JSlider {
      * allowable value is 16.
      */
     public int getPrecision(){
-        return (int)Math.log10(precision);
+        return (int)Math.round(Math.log(precision)/Math.log(10));
     }
     
     /**
