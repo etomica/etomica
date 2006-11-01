@@ -1,22 +1,24 @@
 package etomica.models.hexane;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryMono;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverage;
-import etomica.data.DataArrayWriter;
-import etomica.data.DataLogger;
-import etomica.data.DataPump;
-import etomica.data.types.CastGroupToDoubleArray;
+import etomica.data.types.DataGroup;
+import etomica.data.types.DataTensor;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.lattice.crystal.Primitive;
+import etomica.lattice.crystal.PrimitiveFcc;
 import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
@@ -26,6 +28,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -39,11 +42,6 @@ public class TestFcc extends Simulation {
     public TestFcc(Space space, int numAtoms) {
         super(space, true, new PotentialMaster(space));
 
-        LatticeCubicFcc lattice = new LatticeCubicFcc(1.0);
-        ConfigurationLattice config = new ConfigurationLattice(lattice);
-        // config.setRescalingToFitVolume(false);
-        config.setRememberingIndices(true);
-
         defaults.makeLJDefaults();
         defaults.atomSize = 1.0;
         defaults.ignoreOverlap = true;
@@ -53,20 +51,13 @@ public class TestFcc extends Simulation {
         phase = new Phase(this);
         phase.getAgent(species).setNMolecules(numAtoms);
 
-        config.initializeCoordinates(phase);
-
         integrator = new IntegratorHard(this);
 
         integrator.setIsothermal(false);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,
+        activityIntegrate = new ActivityIntegrate(this,
                 integrator);
-        activityIntegrate.setMaxSteps(10000);
-        getController().addAction(activityIntegrate);
-
-        double timeStep = 0.005;
-        double simTime = 100.0 / numAtoms;
-        int nSteps = (int) (simTime / timeStep);
-
+        double timeStep = 0.04;
+        integrator.setTimeStep(timeStep);
         getController().addAction(activityIntegrate);
         // activityIntegrate.setMaxSteps(nSteps);
 
@@ -78,9 +69,14 @@ public class TestFcc extends Simulation {
 
         bdry = new BoundaryRectangularPeriodic(this);
         phase.setBoundary(bdry);
+        phase.setDensity(1.04);
 
         PhaseImposePbc makeperiodic = new PhaseImposePbc(phase);
         integrator.addListener(makeperiodic);
+
+        lattice = new LatticeCubicFcc();
+        ConfigurationLattice config = new ConfigurationLattice(lattice);
+        // config.setRescalingToFitVolume(false);
 
         config.initializeCoordinates(phase);
 
@@ -89,50 +85,17 @@ public class TestFcc extends Simulation {
         // ConfigurationLattice/LatticeCubicFcc
         // then, we create a primitive fcc lattice, and scale it so we can use
         // it in pri.
+        primitive = lattice.getPrimitiveFcc();
         ConfigurationLattice.MyLattice myLattice = (ConfigurationLattice.MyLattice) config
                 .getLatticeMemento();
         Vector scaling = myLattice.latticeScaling;
-        scaling.TE(0.5 * Math.sqrt(2.0)); // we need this because the
-                                            // fccPrimitive.setSize method uses
-                                            // the unit vectors, not the actual
-                                            // lattice vectors, and this
-                                            // eliminates the radical 2 in the
-                                            // unit vectors.
-        Primitive fccPrimitive = lattice.getPrimitiveFcc();
-        fccPrimitive.setSize(scaling.toArray());
+        primitive.setCubicSize(primitive.getCubicSize()*scaling.x(0));
+
         // nan phase.setDensity(1.04);
         integrator.setPhase(phase);
 
-        pri = new PairIndexerMolecule(phase, fccPrimitive);
-        DataProcessorArrayFlatten squisher = new DataProcessorArrayFlatten();
-        meterCorrelation = new MeterCorrelationMatrix(phase, pri);
-        meterCorrelation.setSymmetric(true);
-        AccumulatorAverage accumulator = new AccumulatorAverage(this);
-
-        DataPump pump = new DataPump(meterCorrelation, accumulator);
-        IntervalActionAdapter adapter = new IntervalActionAdapter(pump,
-                integrator);
-        CastGroupToDoubleArray mormon = new CastGroupToDoubleArray();
-        DataLogger logger = new DataLogger();
-
-        DataArrayWriter dataWriter = new DataArrayWriter();
-        dataWriter.setIncludeHeader(false);
-        logger.setDataSink(dataWriter);
-        logger.setFileName("Happy.txt");
-        logger.setAppending(false);
-        logger.setWriteInterval(5);
-        
-
-        accumulator
-                .addDataSink(
-                        mormon,
-                        new AccumulatorAverage.StatType[] { AccumulatorAverage.StatType.AVERAGE });
-
-        mormon.setDataSink(squisher);
-        squisher.setDataSink(logger);
 
         System.out.println(phase.getDensity());
-        phase.setDensity(1.04);
     }
 
     /**
@@ -147,22 +110,111 @@ public class TestFcc extends Simulation {
             SimulationGraphic simG = new SimulationGraphic(sim);
             simG.makeAndDisplayFrame();
         } else {
-        sim.getController().actionPerformed();
+            PrimitiveFcc primitive = sim.primitive;
+            MeterNormalMode foo = new MeterNormalMode();
+            foo.setPrimitive(primitive);
+            foo.setPhase(sim.phase);
+            if (false) {
+                // set up a contrived wave
+                sim.phase.setDimensions(new Vector3D(6,6,6));
+                LatticeCubicFcc lattice = new LatticeCubicFcc();
+                ConfigurationLattice config = new ConfigurationLattice(lattice);
+                // config.setRescalingToFitVolume(false);
+    
+                config.initializeCoordinates(sim.phase);
+    
+                // nan this section is a patch
+                // first we find out the scaling used in
+                // ConfigurationLattice/LatticeCubicFcc
+                // then, we create a primitive fcc lattice, and scale it so we can use
+                // it in pri.
+                primitive = lattice.getPrimitiveFcc();
+                ConfigurationLattice.MyLattice myLattice = (ConfigurationLattice.MyLattice) config
+                        .getLatticeMemento();
+                Vector scaling = myLattice.latticeScaling;
+                primitive.setCubicSize(primitive.getCubicSize()*scaling.x(0));
+                System.out.println(primitive.getCubicSize());
+                if (primitive.getCubicSize() > Math.sqrt(2)+0.0001 || primitive.getCubicSize() < Math.sqrt(2)-0.0001) {
+                    throw new RuntimeException("It should have been 2");
+                }
+                foo.setPrimitive(primitive);
+                AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
+                iterator.setPhase(sim.phase);
+                iterator.reset();
+                while (iterator.hasNext()) {
+                    AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
+                    Vector pos = atom.coord.position();
+                    pos.setX(0, pos.x(0)-0.5);
+                }
+
+                foo.setPhase(sim.phase);
+                
+                iterator.setPhase(sim.phase);
+                iterator.reset();
+                while (iterator.hasNext()) {
+                    AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
+                    Vector pos = atom.coord.position();
+                    if (Math.round(pos.x(0)+0.5) % 2 == 0) {
+                        pos.setX(1,pos.x(1)+0.001);
+                    }
+                    else {
+                        pos.setX(1,pos.x(1)-0.001);
+                    }
+                }
+                foo.actionPerformed();
+            }            
+            
+            double simTime = 400.0;
+            int nSteps = (int) (simTime / sim.integrator.getTimeStep());
+
+            sim.activityIntegrate.setMaxSteps(nSteps);
+
+            IntervalActionAdapter fooAdapter = new IntervalActionAdapter(foo);
+            fooAdapter.setActionInterval(2);
+            sim.integrator.addListener(fooAdapter);
+            sim.getController().actionPerformed();
+            
+            DataGroup fooData = (DataGroup)foo.getData();
+            fooData.TE(1.0/(sim.phase.getSpeciesMaster().moleculeCount()*foo.getCallCount()));
+            
+            Vector[] waveVectors = foo.getWaveVectors();
+            
+            try {
+                FileWriter fileWriter = new FileWriter("normal_modes");
+                for (int i=0; i<waveVectors.length; i++) {
+                    fileWriter.write(Double.toString(waveVectors[i].x(0)));
+                    for (int j=1; j<waveVectors[i].D(); j++) {
+                        fileWriter.write(" "+waveVectors[i].x(j));
+                    }
+                    fileWriter.write("\n");
+                    DataTensor dataS = (DataTensor)fooData.getData(i);
+                    for (int k=0; k<dataS.x.D(); k++) {
+                        fileWriter.write(Double.toString(dataS.x.component(k,0)));
+                        for (int l=1; l<dataS.x.D(); l++) {
+                            fileWriter.write(" "+dataS.x.component(k,l));
+                        }
+                        fileWriter.write("\n");
+                    }
+                }
+                fileWriter.close();
+            }
+            catch (IOException e) {
+                throw new RuntimeException("Oops, failed to write data "+e);
+            }
         }
-        // MeterNormalMode mnm = new MeterNormalMode();
         
         System.out.println("Peace be unto you.");
 
     }
 
     public IntegratorMD integrator;
+    public ActivityIntegrate activityIntegrate;
 
     public MeterCorrelationMatrix meterCorrelation;
 
     public Phase phase;
 
     public BoundaryRectangularPeriodic bdry;
-
-    public PairIndexerMolecule pri;
-
+    public LatticeCubicFcc lattice;
+    public PrimitiveFcc primitive;
 }
