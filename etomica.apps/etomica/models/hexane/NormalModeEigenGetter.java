@@ -11,19 +11,12 @@ public class NormalModeEigenGetter {
             filename = args[0];
         }
         reader.readFromFile(filename);
-        double[][] q = reader.q;
         double[][][] S = reader.S;
-        for (int i=0; i<q.length; i++) {
-            MyEigenvalueDecomposition evaler = new MyEigenvalueDecomposition(q[0].length, S[i]);
+        for (int i=0; i<S.length; i++) {
+            MyEigenvalueDecomposition evaler = new MyEigenvalueDecomposition(S[0].length, S[i]);
             double[] d = evaler.getRealEigenvalues();
-            double[] e = evaler.getImagEigenvalues();
+//            double[] e = evaler.getImagEigenvalues();
             double[][] eigenvectors = evaler.getV();
-
-            System.out.print("q ");
-            for (int k=0; k<q[i].length; k++) {
-                System.out.print(q[i][k]+" ");
-            }
-            System.out.println("");
 
             System.out.println("eigenvectors");
             for (int j=0; j<eigenvectors.length; j++) {
