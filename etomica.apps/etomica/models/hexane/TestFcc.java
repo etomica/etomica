@@ -164,7 +164,7 @@ public class TestFcc extends Simulation {
                 foo.actionPerformed();
             }            
             
-            double simTime = 400.0;
+            double simTime = 4000.0;
             int nSteps = (int) (simTime / sim.integrator.getTimeStep());
 
             sim.activityIntegrate.setMaxSteps(nSteps);
@@ -180,23 +180,25 @@ public class TestFcc extends Simulation {
             Vector[] waveVectors = foo.getWaveVectors();
             
             try {
-                FileWriter fileWriter = new FileWriter("normal_modes");
+                FileWriter fileWriterQ = new FileWriter("normal_modes.Q");
+                FileWriter fileWriterS = new FileWriter("normal_modes.S");
                 for (int i=0; i<waveVectors.length; i++) {
-                    fileWriter.write(Double.toString(waveVectors[i].x(0)));
+                    fileWriterQ.write(Double.toString(waveVectors[i].x(0)));
                     for (int j=1; j<waveVectors[i].D(); j++) {
-                        fileWriter.write(" "+waveVectors[i].x(j));
+                        fileWriterQ.write(" "+waveVectors[i].x(j));
                     }
-                    fileWriter.write("\n");
+                    fileWriterQ.write("\n");
                     DataTensor dataS = (DataTensor)fooData.getData(i);
                     for (int k=0; k<dataS.x.D(); k++) {
-                        fileWriter.write(Double.toString(dataS.x.component(k,0)));
+                        fileWriterS.write(Double.toString(dataS.x.component(k,0)));
                         for (int l=1; l<dataS.x.D(); l++) {
-                            fileWriter.write(" "+dataS.x.component(k,l));
+                            fileWriterS.write(" "+dataS.x.component(k,l));
                         }
-                        fileWriter.write("\n");
+                        fileWriterS.write("\n");
                     }
                 }
-                fileWriter.close();
+                fileWriterQ.close();
+                fileWriterS.close();
             }
             catch (IOException e) {
                 throw new RuntimeException("Oops, failed to write data "+e);
