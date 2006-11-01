@@ -36,7 +36,7 @@ public class NormalModeReader {
                 }
                 double[][] thisS = new double[dim][dim];
                 for (int i=0; i<dim; i++) {
-                    line = bufReaderS.readLine();
+                    if (i>0) line = bufReaderS.readLine();
                     valueStrings = line.split(" +");
                     for (int j=0; j<dim; j++) {
                         thisS[i][j] = Double.parseDouble(valueStrings[j]);
