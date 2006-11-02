@@ -13,11 +13,12 @@ import java.util.ArrayList;
 public class OmegaReader {
     
     public static double[][] getFromFile(String fn){
+        String filename = fn+".val";
         FileReader fileReaderVal;
         try {
-            fileReaderVal = new FileReader(fn+".val");
+            fileReaderVal = new FileReader(filename);
         }catch(IOException e) {
-            throw new RuntimeException("Cannot open "+fn+", caught IOException: " + e.getMessage());
+            throw new RuntimeException("Cannot open "+filename+", caught IOException: " + e.getMessage());
         }
         double[][] omega = null;
         try {
@@ -31,7 +32,7 @@ public class OmegaReader {
                     dim = valueStrings.length;
                 }
                 else if (valueStrings.length != dim) {
-                    throw new RuntimeException("Not enough data on line "+allV.size()+" of "+fn);
+                    throw new RuntimeException("Not enough data on line "+allV.size()+" of "+filename);
                 }
                 double[] thisV = new double[dim];
                 valueStrings = line.split(" +");
@@ -41,7 +42,7 @@ public class OmegaReader {
                 allV.add(thisV);
                 line = bufReaderS.readLine();
             }
-            omega = new double[allV.size()][];
+            omega = new double[allV.size()][dim];
             for (int i=0; i<omega.length; i++) {
                 for (int j=0; j<dim; j++) {
                    omega[i][j] = 1/((double[])allV.get(i))[j];
@@ -49,7 +50,7 @@ public class OmegaReader {
             }
         }
         catch (IOException e) {
-            throw new RuntimeException("Couldn't read data from file "+fn);
+            throw new RuntimeException("Couldn't read data from file "+filename);
         }
         return omega;
     }
