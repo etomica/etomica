@@ -131,7 +131,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
         eigenVectors = newEigenVectors;
     }
     
-    public void setOmegaSquared(double[][] newOmegas) {
+    public void setOmega(double[][] newOmegas) {
         // we only care about omega^2
         omegaSquared = new double[newOmegas.length][newOmegas[0].length];
         for (int i=0; i<newOmegas.length; i++) {
