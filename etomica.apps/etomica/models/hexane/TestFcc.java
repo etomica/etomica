@@ -11,8 +11,8 @@ import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.config.ConfigurationLattice;
+import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
-import etomica.data.types.DataTensor;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD;
@@ -111,9 +111,9 @@ public class TestFcc extends Simulation {
             simG.makeAndDisplayFrame();
         } else {
             PrimitiveFcc primitive = sim.primitive;
-            MeterNormalMode foo = new MeterNormalMode();
-            foo.setPrimitive(primitive);
-            foo.setPhase(sim.phase);
+            MeterNormalMode meterNormalMode = new MeterNormalMode();
+            meterNormalMode.setPrimitive(primitive);
+            meterNormalMode.setPhase(sim.phase);
             if (false) {
                 // set up a contrived wave
                 sim.phase.setDimensions(new Vector3D(6,6,6));
@@ -137,7 +137,7 @@ public class TestFcc extends Simulation {
                 if (primitive.getCubicSize() > Math.sqrt(2)+0.0001 || primitive.getCubicSize() < Math.sqrt(2)-0.0001) {
                     throw new RuntimeException("It should have been 2");
                 }
-                foo.setPrimitive(primitive);
+                meterNormalMode.setPrimitive(primitive);
                 AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
                 iterator.setPhase(sim.phase);
                 iterator.reset();
@@ -147,7 +147,7 @@ public class TestFcc extends Simulation {
                     pos.setX(0, pos.x(0)-0.5);
                 }
 
-                foo.setPhase(sim.phase);
+                meterNormalMode.setPhase(sim.phase);
                 
                 iterator.setPhase(sim.phase);
                 iterator.reset();
@@ -161,23 +161,24 @@ public class TestFcc extends Simulation {
                         pos.setX(1,pos.x(1)-0.001);
                     }
                 }
-                foo.actionPerformed();
+                meterNormalMode.actionPerformed();
             }            
             
-            double simTime = 4000.0;
+            double simTime = 40.0;
             int nSteps = (int) (simTime / sim.integrator.getTimeStep());
 
             sim.activityIntegrate.setMaxSteps(nSteps);
 
-            IntervalActionAdapter fooAdapter = new IntervalActionAdapter(foo);
+            IntervalActionAdapter fooAdapter = new IntervalActionAdapter(meterNormalMode);
             fooAdapter.setActionInterval(2);
             sim.integrator.addListener(fooAdapter);
             sim.getController().actionPerformed();
             
-            DataGroup fooData = (DataGroup)foo.getData();
-            fooData.TE(1.0/(sim.phase.getSpeciesMaster().moleculeCount()*foo.getCallCount()));
+            DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
+            normalModeData.TE(1.0/(sim.phase.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
+            int normalDim = meterNormalMode.getNormalDim();
             
-            Vector[] waveVectors = foo.getWaveVectors();
+            Vector[] waveVectors = meterNormalMode.getWaveVectors();
             
             try {
                 FileWriter fileWriterQ = new FileWriter("normal_modes.Q");
@@ -188,11 +189,11 @@ public class TestFcc extends Simulation {
                         fileWriterQ.write(" "+waveVectors[i].x(j));
                     }
                     fileWriterQ.write("\n");
-                    DataTensor dataS = (DataTensor)fooData.getData(i);
-                    for (int k=0; k<dataS.x.D(); k++) {
-                        fileWriterS.write(Double.toString(dataS.x.component(k,0)));
-                        for (int l=1; l<dataS.x.D(); l++) {
-                            fileWriterS.write(" "+dataS.x.component(k,l));
+                    DataDoubleArray dataS = (DataDoubleArray)normalModeData.getData(i);
+                    for (int k=0; k<normalDim; k++) {
+                        fileWriterS.write(Double.toString(dataS.getValue(k*normalDim)));
+                        for (int l=1; l<normalDim; l++) {
+                            fileWriterS.write(" "+dataS.getValue(k*normalDim+l));
                         }
                         fileWriterS.write("\n");
                     }
@@ -209,13 +210,11 @@ public class TestFcc extends Simulation {
 
     }
 
+    private static final long serialVersionUID = 1L;
     public IntegratorMD integrator;
     public ActivityIntegrate activityIntegrate;
-
     public MeterCorrelationMatrix meterCorrelation;
-
     public Phase phase;
-
     public BoundaryRectangularPeriodic bdry;
     public LatticeCubicFcc lattice;
     public PrimitiveFcc primitive;
