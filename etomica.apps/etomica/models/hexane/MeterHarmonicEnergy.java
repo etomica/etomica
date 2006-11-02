@@ -1,8 +1,7 @@
 package etomica.models.hexane;
 
 import etomica.atom.Atom;
-import etomica.atom.AtomLeaf;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.Meter;
 import etomica.phase.Phase;
@@ -18,7 +17,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
 
     public MeterHarmonicEnergy() {
         super("Harmonic Energy", Energy.DIMENSION);
-        iterator = new AtomIteratorLeafAtoms();
+        iterator = new AtomIteratorAllMolecules();
     }
 
     public double getDataAsScalar() {
@@ -32,7 +31,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
             int atomCount = 0;
             // sum T over atoms
             while (iterator.hasNext()) {
-                AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
+                Atom atom = iterator.nextAtom();
                 calcU(atom, atomCount);
                 double kR = waveVectors[iVector].dot(latticePositions[atomCount]);
                 double coskR = Math.cos(kR);
@@ -60,6 +59,10 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
         return 0.5*energySum;
     }
     
+    /**
+     * Calculates the array of u elements for the given atom
+     * subclasses should override this to fill in their own values
+     */
     protected void calcU(Atom atom, int atomCount) {
         Vector pos = atom.type.getPositionDefinition().position(atom);
         for (int i=0; i<pos.D(); i++) {
@@ -141,7 +144,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
     private static final long serialVersionUID = 1L;
     protected Vector[] latticePositions;
     protected double[][] nominalU;
-    protected final AtomIteratorLeafAtoms iterator;
+    protected final AtomIteratorAllMolecules iterator;
     protected Phase phase;
     protected int normalDim;
     protected double[] u;
