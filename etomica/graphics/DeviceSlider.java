@@ -177,6 +177,12 @@ public class DeviceSlider extends Device implements EtomicaElement {
     }
     public final Modifier getModifier() {return modifyAction.getWrappedModifier();}
     
+    public void doUpdate() {
+        double value = unit.fromSim(modifyAction.getValue());
+        slider.setDecimalSliderValue(value);
+        textField.setText(String.valueOf(value));
+    }
+    
     public String getProperty() {return property;}
     public void setProperty(String s) {
         property = s;
@@ -327,6 +333,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
     public int getPrecision(){return slider.getPrecision();}
     public void setPrecision(int n) {
         if(n>5){column = n;}
+        else {column = 5;}
         slider.setPrecision(n);
     }    
     
