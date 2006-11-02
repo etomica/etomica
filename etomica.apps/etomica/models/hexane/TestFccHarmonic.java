@@ -6,9 +6,15 @@ import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.config.ConfigurationLattice;
+import etomica.data.AccumulatorAverage;
+import etomica.data.DataPump;
+import etomica.data.types.DataDouble;
+import etomica.data.types.DataGroup;
+import etomica.graphics.DisplayBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD;
+import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.crystal.PrimitiveFcc;
 import etomica.phase.Phase;
@@ -99,29 +105,45 @@ public class TestFccHarmonic extends Simulation {
             filename = args[0];
         }
         
+        double[][] omega = ArrayReader1D.getFromFile(filename+".val");
+        for (int i=0; i<omega.length; i++) {
+            for (int j=0; j<omega[i].length; j++) {
+                // omega is sqrt(kT)/eigenvalue
+                omega[i][j] = 1/omega[i][j];
+            }
+        }
+        Vector[] q = ArrayReader1D.getVectorsFromFile(filename+".Q");
+        double[][][] eigenvectors = ArrayReader2D.getFromFile(filename+".vec");
+        MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy();
+        harmonicEnergy.setEigenvectors(eigenvectors);
+        harmonicEnergy.setOmega(omega);
+        harmonicEnergy.setWaveVectors(q);
+        harmonicEnergy.setPhase(sim.phase);
+        AccumulatorAverage harmonicAvg = new AccumulatorAverage(sim);
+        DataPump pump = new DataPump(harmonicEnergy, harmonicAvg);
+        IntervalActionAdapter adapter = new IntervalActionAdapter(pump);
+        adapter.setActionInterval(2);
+        sim.integrator.addListener(adapter);
+
         if(graphic){
             SimulationGraphic simG = new SimulationGraphic(sim);
+            
+            DisplayBoxesCAE harmonicBoxes = new DisplayBoxesCAE();
+            harmonicBoxes.setAccumulator(harmonicAvg);
+            simG.add(harmonicBoxes);
+            
             simG.makeAndDisplayFrame();
         } else {
-            sim.getController().actionPerformed();
-            double simTime = 40.0;
+            double simTime = 400.0;
             int nSteps = (int) (simTime / sim.integrator.getTimeStep());
 
             sim.activityIntegrate.setMaxSteps(nSteps);
+            
+            sim.getController().actionPerformed();
 
-            double[][] omega = ArrayReader1D.getFromFile(filename+".val");
-            for (int i=0; i<omega.length; i++) {
-                for (int j=0; j<omega[i].length; j++) {
-                    // omega is sqrt(kT)/eigenvalue
-                    omega[i][j] = 1/omega[i][j];
-                }
-            }
-            Vector[] q = ArrayReader1D.getVectorsFromFile(filename+".Q");
-            double[][][] eigenvectors = ArrayReader2D.getFromFile(filename+".vec");
-            MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy();
-            harmonicEnergy.setEigenvectors(eigenvectors);
-            harmonicEnergy.setOmega(omega);
-            harmonicEnergy.setWaveVectors(q);
+            double avgHarmonicEnergy = ((DataDouble)((DataGroup)harmonicAvg.getData()).getData(AccumulatorAverage.StatType.AVERAGE.index)).x;
+            double errorHarmonicEnergy = ((DataDouble)((DataGroup)harmonicAvg.getData()).getData(AccumulatorAverage.StatType.ERROR.index)).x;
+            System.out.println("avg harmonic energy: "+avgHarmonicEnergy+" +/- "+errorHarmonicEnergy);
         }
     }
 
