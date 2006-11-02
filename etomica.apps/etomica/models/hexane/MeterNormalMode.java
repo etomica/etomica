@@ -1,17 +1,17 @@
 package etomica.models.hexane;
 
 import etomica.action.Action;
-import etomica.atom.AtomLeaf;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.atom.Atom;
+import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.config.ConfigurationLattice;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataTag;
 import etomica.data.meter.Meter;
+import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
-import etomica.data.types.DataTensor;
+import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
-import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.phase.Phase;
@@ -31,7 +31,7 @@ public class MeterNormalMode implements Meter, Action {
 
     public MeterNormalMode() {
         tag = new DataTag();
-        iterator = new AtomIteratorLeafAtoms();
+        iterator = new AtomIteratorAllMolecules();
     }
     
     public void setPrimitive(Primitive newPrimitive) {
@@ -51,17 +51,17 @@ public class MeterNormalMode implements Meter, Action {
 
         phase = newPhase;
         latticePositions = new Vector[phase.getSpeciesMaster().moleculeCount()];
+        normalDim = getNormalDim();
 
         iterator.setPhase(phase);
         iterator.reset();
         int atomCount = 0;
         while (iterator.hasNext()) {
             latticePositions[atomCount] = phase.space().makeVector();
-            latticePositions[atomCount].E(((AtomLeaf)iterator.nextAtom()).coord.position());
+            Atom atom = iterator.nextAtom();
+            latticePositions[atomCount].E(atom.type.getPositionDefinition().position(atom));
             atomCount++;
         }
-
-        u = phase.space().makeVector();
 
         if (primitive == null) {
             throw new RuntimeException("Please set primitive before the phase!!!!  Start again.");
@@ -108,27 +108,55 @@ public class MeterNormalMode implements Meter, Action {
             }
         }
 
-        realT = phase.space().makeVector();
-        imaginaryT = phase.space().makeVector();
-        DataTensor[] S = new DataTensor[numWaveVectors];
+        DataDoubleArray[] S = new DataDoubleArray[numWaveVectors];
         for (int i=0; i<S.length; i++) {
             // real and imaginary parts
-            S[i] = new DataTensor(phase.space());
+            S[i] = new DataDoubleArray(new int[]{normalDim,normalDim});
         }
         data = new DataGroup(S);
-        DataInfoTensor[] Sinfo = new DataInfoTensor[numWaveVectors];
+        DataInfoDoubleArray[] Sinfo = new DataInfoDoubleArray[numWaveVectors];
         CompoundDimension area = new CompoundDimension(new Dimension[]{Length.DIMENSION}, new double[]{2});
         for (int i=0; i<Sinfo.length; i++) {
-            Sinfo[i] = new DataInfoTensor("S", area, phase.space());
+            Sinfo[i] = new DataInfoDoubleArray("S", area, new int[]{normalDim,normalDim});
         }
         dataInfo = new DataInfoGroup("all S", Null.DIMENSION, Sinfo);
 
+        nominalU = new double[iterator.size()][normalDim];
+        u = new double[normalDim];
+        realT = new double[normalDim];
+        imaginaryT = new double[normalDim];
+        
+        // initialize what we think of as the original coordinates
+        // allow sublcasses to initialize their own coordiantes
+        initNominalU();
     }
     
     public Phase getPhase() {
         return phase;
     }
     
+    protected void initNominalU() {
+        // fills in first D elements of nominalU with molecular x,y,z
+        // subclasses can fill in other elements with their own
+        // or not call this at all and not use x,y,z
+        iterator.reset();
+        int atomCount = 0;
+        while (iterator.hasNext()) {
+            Atom atom = iterator.nextAtom();
+            Vector atomPos = atom.type.getPositionDefinition().position(atom);
+            for (int i=0; i<atomPos.D(); i++) {
+                nominalU[atomCount][i] = atomPos.x(i);
+            }
+            atomCount++;
+        }
+    }
+
+    protected int getNormalDim() {
+        //x, y, z
+        // subclasses can override this to reserve space for other normal mode coordinates
+        return phase.space().D();
+    }
+
     public Vector[] getWaveVectors() {
         return waveVectors;
     }
@@ -146,25 +174,43 @@ public class MeterNormalMode implements Meter, Action {
         // |data.E(0)| here to calculate the current value rather than the sum
         // loop over wave vectors
         for (int iVector = 0; iVector < numWaveVectors; iVector++) {
-            realT.E(0);
-            imaginaryT.E(0);
+            for (int i=0; i<normalDim; i++) {
+                realT[i] = 0;
+                imaginaryT[i] = 0;
+            }
             iterator.reset();
             int atomCount = 0;
             // sum T over atoms
             while (iterator.hasNext()) {
-                AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
-                Vector atomPos = atom.coord.position();
-                u.E(atomPos);
-                u.ME(latticePositions[atomCount]);
+                Atom atom = iterator.nextAtom();
+                calcU(atom, atomCount);
                 double kR = waveVectors[iVector].dot(latticePositions[atomCount]);
-                realT.PEa1Tv1(Math.cos(kR),u);
-                imaginaryT.PEa1Tv1(Math.sin(kR),u);
+                double coskR = Math.cos(kR);
+                double sinkR = Math.sin(kR);
+                for (int i=0; i<normalDim; i++) {
+                    realT[i] += coskR * u[i];
+                    imaginaryT[i] += sinkR * u[i];
+                }
                 atomCount++;
             }
             // add to S(k).  imaginary part of S is 0
-            DataTensor realS = (DataTensor)data.getData(iVector);
-            realS.x.PEv1v2(realT, realT);
-            realS.x.PEv1v2(imaginaryT, imaginaryT);
+            double[] sValues = ((DataDoubleArray)data.getData(iVector)).getData();
+            for (int i=0; i<normalDim; i++) {
+                for (int j=0; j<normalDim; j++) {
+                    sValues[i*normalDim+j] += realT[i]*realT[j] + imaginaryT[i]*imaginaryT[j];
+                }
+            }
+        }
+    }
+
+    /**
+     * Calculates the array of u elements for the given atom
+     * subclasses should override this to fill in their own values
+     */
+    protected void calcU(Atom atom, int atomCount) {
+        Vector pos = atom.type.getPositionDefinition().position(atom);
+        for (int i=0; i<pos.D(); i++) {
+            u[i] = pos.x(i) - nominalU[atomCount][i];
         }
     }
 
@@ -213,13 +259,16 @@ public class MeterNormalMode implements Meter, Action {
     private final DataTag tag;
     private DataInfo dataInfo;
     private DataGroup data;
-    private Vector realT, imaginaryT;
-    private final AtomIteratorLeafAtoms iterator;
+    private final AtomIteratorAllMolecules iterator;
     private Vector[] latticePositions;
-    private Vector u;
     private int callCount;
     private Primitive primitive;
-    
+
+    protected double[][] nominalU;
+    protected int normalDim;
+    protected double[] u;
+    protected double[] realT, imaginaryT;
+
     public static void main(String[] args) {
         MeterNormalMode foo = new MeterNormalMode();
         Simulation sim = new Simulation(Space3D.getInstance());
