@@ -1,4 +1,4 @@
-package etomica.models.hexane;
+package etomica.normalmode;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

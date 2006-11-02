@@ -1,4 +1,4 @@
-package etomica.models.hexane;
+package etomica.normalmode;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -8,7 +8,7 @@ import etomica.eigenstuff.MyEigenvalueDecomposition;
 public class NormalModeEigenGetter {
     
     public static void main (String[] args){
-        String filename = "normal_modes";
+        String filename = "normal_modes4000";
         if (args.length > 0) {
             filename = args[0];
         }

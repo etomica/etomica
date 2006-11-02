@@ -1,4 +1,4 @@
-package etomica.models.hexane;
+package etomica.normalmode;
 
 import etomica.action.Action;
 import etomica.atom.Atom;
@@ -86,13 +86,17 @@ public class MeterNormalMode implements Meter, Action {
             // -halfSize to halfSize in the other directions, including 0
             numWaveVectors *= numCells;
         }
+//        numWaveVectors = (numWaveVectors-1)/2;
         
         //XXX the given constraints are for FCC
-        waveVectors = new Vector[numWaveVectors];
+        Vector[] waveVectorsTemp = new Vector[numWaveVectors];
         int count = -1;
-        for (int kx = -numCells + 1; kx <= numCells; kx++) {
+        for (int kx = 0; kx <= numCells; kx++) {
             for (int ky = -numCells + 1; ky <= numCells; ky++) {
                 for (int kz = -numCells + 1; kz <= numCells; kz++) {
+                    if (kx == 0 && ky == 0 && kz == 0) {
+                        continue;
+                    }
                     if (2 * (kx + ky + kz) <= 3 * numCells
                             && 2 * (kx + ky + kz) > -3 * numCells
                             && 2 * (kx + ky - kz) <= 3 * numCells
@@ -101,12 +105,15 @@ public class MeterNormalMode implements Meter, Action {
                             && 2 * (kx - ky + kz) > -3 * numCells
                             && 2 * (kx - ky - kz) <= 3 * numCells
                             && 2 * (kx - ky - kz) > -3 * numCells) {
-                        waveVectors[++count] = new Vector3D(kx, ky, kz);
-                        waveVectors[count].TE(Math.sqrt(2) * Math.PI / d / numCells);
+                        waveVectorsTemp[++count] = new Vector3D(kx, ky, kz);
+                        waveVectorsTemp[count].TE(Math.sqrt(2) * Math.PI / d / numCells);
                     }
                 }
             }
         }
+        numWaveVectors = count+1;
+        waveVectors = new Vector[numWaveVectors];
+        System.arraycopy(waveVectorsTemp,0,waveVectors,0,numWaveVectors);
 
         DataDoubleArray[] S = new DataDoubleArray[numWaveVectors];
         for (int i=0; i<S.length; i++) {

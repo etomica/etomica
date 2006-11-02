@@ -1,4 +1,4 @@
-package etomica.models.hexane;
+package etomica.normalmode;
 
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
@@ -97,7 +97,7 @@ public class TestFccHarmonic extends Simulation {
      */
     public static void main(String[] args) {
         int nA = 108;
-        boolean graphic = false;
+        boolean graphic = true;
         TestFccHarmonic sim = new TestFccHarmonic(Space3D.getInstance(), nA);
         
         String filename = "normal_modes";
@@ -105,18 +105,20 @@ public class TestFccHarmonic extends Simulation {
             filename = args[0];
         }
         
-        double[][] omega = ArrayReader1D.getFromFile(filename+".val");
-        for (int i=0; i<omega.length; i++) {
-            for (int j=0; j<omega[i].length; j++) {
+        double harmonicFudge = 100;
+        
+        double[][] omegaSquared = ArrayReader1D.getFromFile(filename+".val");
+        for (int i=0; i<omegaSquared.length; i++) {
+            for (int j=0; j<omegaSquared[i].length; j++) {
                 // omega is sqrt(kT)/eigenvalue
-                omega[i][j] = 1/omega[i][j];
+                omegaSquared[i][j] = 1/omegaSquared[i][j]/harmonicFudge;
             }
         }
         Vector[] q = ArrayReader1D.getVectorsFromFile(filename+".Q");
         double[][][] eigenvectors = ArrayReader2D.getFromFile(filename+".vec");
         MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy();
         harmonicEnergy.setEigenvectors(eigenvectors);
-        harmonicEnergy.setOmega(omega);
+        harmonicEnergy.setOmegaSquared(omegaSquared);
         harmonicEnergy.setWaveVectors(q);
         harmonicEnergy.setPhase(sim.phase);
         AccumulatorAverage harmonicAvg = new AccumulatorAverage(sim);
@@ -124,7 +126,7 @@ public class TestFccHarmonic extends Simulation {
         IntervalActionAdapter adapter = new IntervalActionAdapter(pump);
         adapter.setActionInterval(2);
         sim.integrator.addListener(adapter);
-
+        
         if(graphic){
             SimulationGraphic simG = new SimulationGraphic(sim);
             

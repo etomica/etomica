@@ -1,4 +1,4 @@
-package etomica.models.hexane;
+package etomica.normalmode;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -19,6 +19,7 @@ import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.crystal.PrimitiveFcc;
+import etomica.models.hexane.MeterCorrelationMatrix;
 import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
@@ -164,9 +165,14 @@ public class TestFcc extends Simulation {
                 meterNormalMode.actionPerformed();
             }            
             
-            double simTime = 40.0;
+            double simTime = 4000.0;
             int nSteps = (int) (simTime / sim.integrator.getTimeStep());
 
+            String filename = "normal_modes4000";
+            if (args.length > 0) {
+                filename = args[0];
+            }
+            
             sim.activityIntegrate.setMaxSteps(nSteps);
 
             IntervalActionAdapter fooAdapter = new IntervalActionAdapter(meterNormalMode);
@@ -181,8 +187,8 @@ public class TestFcc extends Simulation {
             Vector[] waveVectors = meterNormalMode.getWaveVectors();
             
             try {
-                FileWriter fileWriterQ = new FileWriter("normal_modes.Q");
-                FileWriter fileWriterS = new FileWriter("normal_modes.S");
+                FileWriter fileWriterQ = new FileWriter(filename+".Q");
+                FileWriter fileWriterS = new FileWriter(filename+".S");
                 for (int i=0; i<waveVectors.length; i++) {
                     fileWriterQ.write(Double.toString(waveVectors[i].x(0)));
                     for (int j=1; j<waveVectors[i].D(); j++) {
