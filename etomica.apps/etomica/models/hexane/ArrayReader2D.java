@@ -7,20 +7,33 @@ import java.util.ArrayList;
 
 
 /** 
- * Reads in a file.
- * @author cribbin
- *
+ * Reads in lots of 2D arrays from a file.  Returns a 3D array with each n rows of
+ * of the file corresponding to one (top-level) element (a 2D array).
+ * @author Andrew Schultz
  */
-public class NormalModeReader {
+public class ArrayReader2D {
     
-    public void readFromFile(String fn){
+    /**
+     * Returns 2D arrays from the given file.  The arrays are assumed to be
+     * square.
+     */
+    public static double[][][] getFromFile(String fn){
+        return getFromFile(fn, 0);
+    }
+
+    /**
+     * Returns 2D arrays from the given file.  The arrays are rows x columns,
+     * where the rows are given and columns is taken as the actual number of
+     * columns in the file.
+     */
+    public static double[][][] getFromFile(String fn, int rows){
         FileReader fileReaderS;
         try {
-            fileReaderS = new FileReader(fn+".S");
+            fileReaderS = new FileReader(fn);
         }catch(IOException e) {
             throw new RuntimeException("Cannot open "+fn+", caught IOException: " + e.getMessage());
         }
-        S = null;
+        double[][][] S = null;
         try {
             BufferedReader bufReaderS = new BufferedReader(fileReaderS);
             String line = bufReaderS.readLine();
@@ -30,12 +43,15 @@ public class NormalModeReader {
                 String[] valueStrings = line.split(" +");
                 if (dim == 0) {
                     dim = valueStrings.length;
+                    if (rows == 0) {
+                        rows = dim;
+                    }
                 }
                 else if (valueStrings.length != dim) {
-                    throw new RuntimeException("Not enough data on line "+allS.size()*dim+" of "+fn);
+                    throw new RuntimeException("Not enough data on line "+allS.size()*rows+" of "+fn);
                 }
-                double[][] thisS = new double[dim][dim];
-                for (int i=0; i<dim; i++) {
+                double[][] thisS = new double[rows][dim];
+                for (int i=0; i<rows; i++) {
                     if (i>0) line = bufReaderS.readLine();
                     valueStrings = line.split(" +");
                     for (int j=0; j<dim; j++) {
@@ -47,7 +63,7 @@ public class NormalModeReader {
             }
             S = new double[allS.size()][][];
             for (int i=0; i<S.length; i++) {
-                for (int j=0; j<dim; j++) {
+                for (int j=0; j<rows; j++) {
                     for (int k=0; k<dim; k++) {
                         S[i] = ((double[][])allS.get(i));
                     }
@@ -57,23 +73,6 @@ public class NormalModeReader {
         catch (IOException e) {
             throw new RuntimeException("Couldn't read data from file "+fn);
         }
-    }
-    
-    public double[][][] S;
-    
-    public static void main(String[] args) {
-        NormalModeReader reader = new NormalModeReader();
-        reader.readFromFile(args[0]);
-        double[][][] S = reader.S;
-        for (int i=0; i<S.length; i++) {
-            
-            for (int j=0; j<S[i].length; j++) {
-                for (int k=0; k<S[i][j].length; k++) {
-                    System.out.print(S[i][j][k]+" ");
-                }
-                System.out.println("");
-            }
-            System.out.println("");
-        }
+        return S;
     }
 }

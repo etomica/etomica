@@ -8,13 +8,11 @@ import etomica.eigenstuff.MyEigenvalueDecomposition;
 public class NormalModeEigenGetter {
     
     public static void main (String[] args){
-        NormalModeReader reader = new NormalModeReader();
         String filename = "normal_modes";
         if (args.length > 0) {
             filename = args[0];
         }
-        reader.readFromFile(filename);
-        double[][][] S = reader.S;
+        double[][][] S = ArrayReader2D.getFromFile(filename+".S");
         try {
             FileWriter fileWriterVal = new FileWriter(filename+".val");
             FileWriter fileWriterVec = new FileWriter(filename+".vec");
