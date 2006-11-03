@@ -92,11 +92,8 @@ public class MeterNormalMode implements Meter, Action {
         Vector[] waveVectorsTemp = new Vector[numWaveVectors];
         int count = -1;
         for (int kx = 0; kx <= numCells; kx++) {
-            for (int ky = -numCells + 1; ky <= numCells; ky++) {
-                for (int kz = -numCells + 1; kz <= numCells; kz++) {
-                    if (kx == 0 && ky == 0 && kz == 0) {
-                        continue;
-                    }
+            for (int ky = ((kx==0) ? 1 : -numCells + 1); ky <= numCells; ky++) {
+                for (int kz = ((kx==0 && ky==0) ? 1 : -numCells + 1); kz <= numCells; kz++) {
                     if (2 * (kx + ky + kz) <= 3 * numCells
                             && 2 * (kx + ky + kz) > -3 * numCells
                             && 2 * (kx + ky - kz) <= 3 * numCells
