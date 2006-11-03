@@ -6,7 +6,6 @@
  */
 package etomica.modules.dcvgcmd;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.graphics.DisplayPhaseCanvas3DOpenGL;
 import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
@@ -33,7 +32,6 @@ public class IntegratorDCVGCMD extends IntegratorPhase {
 	double zFraction = 0.1;
 	private MyMCMove mcMove1, mcMove2, mcMove3, mcMove4;
 	private Species speciesA, speciesB;
-	public DisplayPhaseCanvas3DOpenGL display;
 	private double elapsedTime = 0.0;
     private final PotentialMasterHybrid potentialMasterHybrid;
 	private int MDStepCount, MDStepRepetitions;

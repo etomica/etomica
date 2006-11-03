@@ -21,7 +21,6 @@ import etomica.graphics.DeviceToggleButton;
 import etomica.graphics.DeviceTrioControllerButton;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPhase;
-import etomica.graphics.DisplayPhaseCanvas3DOpenGL;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
 import etomica.graphics.SimulationGraphic;
@@ -45,7 +44,6 @@ public class DCVGCMDGraphic extends SimulationGraphic{
     
 	DisplayPhase display = getDisplayPhase(sim.phase);
     DeviceTrioControllerButton device = new DeviceTrioControllerButton(sim);
-    sim.integratorDCV.display = (DisplayPhaseCanvas3DOpenGL)display.graphic();
 
     //Button for cutaway view
     CutAway cutawayFilter = new CutAway();
