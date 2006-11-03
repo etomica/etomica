@@ -211,9 +211,27 @@ public class G3DSys {
 	public long[] getFigs() {
 		return fm.getFigs();
 	}
-	
-	
-	
+
+	/**
+	 * Modifies the Figure represented by id, and assigns the given
+	 * color and locations.
+	 * @param id the ID of the Figure to modify
+	 * @param color the color to apply
+	 * @param x the Angstrom x location to apply
+	 * @param y the Angstrom y location to apply
+	 * @param z the Angstrom z location to apply
+	 * @param d the Angstrom diameter to apply
+	 */
+	public void modFig(long id, short color, float x, float y, float z, float d) {
+		Figure f = fm.getFig(id);
+		if(f != null) {
+			f.setColor(color);
+			f.setX(x);
+			f.setY(y);
+			f.setZ(z);
+			f.setD(d);
+		}
+	}
 	
 	/* ****************************************************************
 	 * Rotation and translation delegation

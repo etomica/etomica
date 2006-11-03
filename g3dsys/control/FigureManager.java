@@ -10,6 +10,7 @@ import javax.vecmath.Point3f;
 
 class FigureManager {
 	
+	//TODO: iterator leads to quadratic running time; fix this
 	private java.util.Collection figs; //holds Figures to be drawn.
 	
 	private long idCount; //for giving Figures IDs when they are added
@@ -24,6 +25,7 @@ class FigureManager {
 	private G3DSys gsys;
 	
 	public FigureManager(G3DSys g) {
+		//figs = new java.util.HashSet();
 		figs = new java.util.ArrayList();
 		idCount = 0;
 		gsys = g;
@@ -63,17 +65,10 @@ class FigureManager {
 		gsys.setCenterOfRotation(new javax.vecmath.Point3f(
 				(min.x+max.x)/2, (min.y+max.y)/2, (min.z+max.z)/2));
 		
-		long start = System.currentTimeMillis();
 		for(java.util.Iterator iter = figs.iterator(); iter.hasNext();) {
 			Figure f = (Figure)iter.next();
 			if( f != null ) f.draw();
 		}
-		System.out.println("render time "+(System.currentTimeMillis()-start));
-		/*
-		 * The same on this level: rendering time increases as window size grows,
-		 * but after clipping it repaints faster despite no change in render
-		 * time
-		 */
 	}
 	
 	public long addFig(Figure f) {
@@ -173,11 +168,19 @@ class FigureManager {
 	 * @return the array of current Figure IDs.
 	 */
 	public long[] getFigs() {
-		Figure[] figarr = (Figure[])figs.toArray();
+		Object[] figarr = figs.toArray();
 		long[] idarr = new long[figarr.length];
 		for(int i=0; i<figarr.length; i++)
-			idarr[i] = figarr[i].getID();
+			idarr[i] = ((Figure)figarr[i]).getID();
 		return idarr;
 	}	
 	
+	public Figure getFig(long id) {
+		Figure f = null;
+		for(java.util.Iterator i = figs.iterator();i.hasNext();) {
+			Figure a = (Figure)i.next();
+			if(a.getID() == id) { f = a; }
+		}
+		return f;
+	}
 }

@@ -10,7 +10,6 @@ import javax.vecmath.Point3i;
 public class Ball extends Figure {
 	
 	private Point3f p; // xyz position in molecule space
-	private float diameter; // diameter in Angstroms
 	
 	public Ball(g3dsys.control.G3DSys g, short c,
 			float x, float y, float z, float diameter) {
@@ -18,7 +17,7 @@ public class Ball extends Figure {
 	}
 	public Ball(g3dsys.control.G3DSys g, short c, Point3f point, float diameter) {
 		super(g,c);
-		this.diameter = diameter;
+		_d = diameter;
 		p = point;
 		if(p != null) _p = p;
 	}
@@ -26,10 +25,10 @@ public class Ball extends Figure {
 	public void draw() {
 		//if overhead is too much, give figures actual references later
 		Point3i s = _gsys.screenSpace(p);
-		int diam = _gsys.perspective(s.z, diameter);
+		int diam = _gsys.perspective(s.z, _d);
 		_gsys.getG3D().fillSphereCentered(_c, diam, s);
 	}
 	
-	public float getD() { return diameter; }
+	public float getD() { return _d; }
 
 }

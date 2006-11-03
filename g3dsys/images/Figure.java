@@ -17,7 +17,8 @@ import javax.vecmath.Point3f;
 public abstract class Figure {
 	
 	protected short _c; //color
-	protected Point3f _p; // location in molecule space
+	protected Point3f _p; //location in molecule space
+	protected float _d; //diameter of the figure, when applicable
 	protected long _id; //serial id for figure tracking and removal
 	
 	protected g3dsys.control.G3DSys _gsys;
@@ -50,7 +51,8 @@ public abstract class Figure {
 	public void setZ(float z) { _p.z = z; }
 	/** @return the 'size' (largest dimension) of the figure in Angstroms */
 	public abstract float getD();
-	// setD omitted as this would have no meaning in e.g. a cylinder
+	/** set the molspace diameter of the figure, when applicable */
+	public void setD(float d) { _d = d; }
 	
 	/**Get the ID of the figure
 	 * @return the ID of the figure

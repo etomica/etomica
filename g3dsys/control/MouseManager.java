@@ -51,7 +51,6 @@ class MouseManager implements MouseListener, MouseMotionListener {
       gsys.rotateByY((float)deltaX);
       gsys.rotateByX((float)deltaY);
       gsys.fastRefresh();
-      System.out.println("singlepress drag time: "+(System.currentTimeMillis()-start));
       break;
     case RIGHT:
     	gsys.xlateX(deltaX);
@@ -68,12 +67,10 @@ class MouseManager implements MouseListener, MouseMotionListener {
   
   public void mouseDragged(MouseEvent e) {
   	long start = System.currentTimeMillis();
-  	System.out.println(start);
     int deltaX = e.getX() - previousDragX;
     int deltaY = e.getY() - previousDragY;
     previousDragX = e.getX(); previousDragY = e.getY();
     mouseSinglePressDrag(deltaX/2, deltaY/2, e.getModifiers());
-    //System.out.println("mouse drag time: "+(System.currentTimeMillis()-start));
   }
 
   public void mouseMoved(MouseEvent e) {}

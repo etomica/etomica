@@ -45,9 +45,6 @@ public class Box extends Figure {
 		resize(); //must resize in case the model has changed
 		Graphics3D g3d = _gsys.getG3D();
 		
-		g3d.fillSphereCentered(org.jmol.g3d.Graphics3D.GOLD,
-				10, _gsys.screenSpace(_p));
-		
 		//four top to bottom lines
 		g3d.drawLine(_c, _gsys.screenSpace(LUT), _gsys.screenSpace(LUB));
 		g3d.drawLine(_c, _gsys.screenSpace(LDT), _gsys.screenSpace(LDB));
