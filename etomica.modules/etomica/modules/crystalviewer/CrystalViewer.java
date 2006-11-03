@@ -83,6 +83,7 @@ public class CrystalViewer {
         latticePlane.setPrimitive(currentLattice.getPrimitive());
         displayPhase.setLabel(currentLattice.toString());
         clipPlaneEditor.update();
+        displayPhase.repaint();
     }    
     
     public static class Applet extends javax.swing.JApplet {
