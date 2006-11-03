@@ -204,7 +204,8 @@ public class DisplayPhase extends Display implements EtomicaElement {
                 boxY = (int)(phase.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
                 boxX *=1.4;
                 boxY *=1.4;
-                    canvas = new DisplayPhaseCanvas3DOpenGL(this, boxX, boxY);
+                //canvas = new DisplayPhaseCanvas3DOpenGL(this, boxX, boxY);
+                canvas = new DisplayPhaseCanvasG3DSys(this);
  /*               if(Default.DISPLAY_USE_OPENGL) canvas = new DisplayPhaseCanvas3DOpenGL(this, box, box);
                 else canvas = new DisplayPhaseCanvas3DSoftware(this);
  */               break;
