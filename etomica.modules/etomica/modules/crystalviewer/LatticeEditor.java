@@ -79,7 +79,7 @@ public class LatticeEditor {
         
         selector.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                currentLattice = (BravaisLatticeCrystal)selector.getSelectedItem();
+                currentLattice = (BravaisLattice)selector.getSelectedItem();
                 updateBoxes();
                 update();
             }
