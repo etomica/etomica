@@ -100,14 +100,12 @@ public class SimulationGraphic implements SimulationContainer, java.io.Serializa
              phaseList.add(phase);
              final DisplayPhase display = new DisplayPhase(phase,simulation.getDefaults().pixelUnit);
              add(display);
-             if (phase.space().D() != 3) {
-                 IntervalActionAdapter iaa = new IntervalActionAdapter(new Action() {
-                     public void actionPerformed() {display.repaint();}
-                     public String getLabel() {return "Phase";}
-                 });
-                 integrator.addListener(iaa);
-                 iaa.setActionInterval(100);
-             }
+             IntervalActionAdapter iaa = new IntervalActionAdapter(new Action() {
+            	 public void actionPerformed() {display.repaint();}
+            	 public String getLabel() {return "Phase";}
+             });
+             integrator.addListener(iaa);
+             iaa.setActionInterval(100);
          }
          else if (integrator instanceof IntegratorManagerMC) {
              Integrator[] subIntegrators = ((IntegratorManagerMC)integrator).getIntegrators();
