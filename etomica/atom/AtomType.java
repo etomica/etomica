@@ -31,7 +31,7 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
 
     AtomFactory creator;//set in constructor of AtomFactory
     protected int speciesIndex = -1;
-    private Species species;
+    protected Species species;
     private int index;
     private int typeTreeAddress;
 

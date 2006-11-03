@@ -125,6 +125,9 @@ public class AtomTypeGroup extends AtomType {
     }
 
     void addChildType(AtomType newChildType) {
+        if (species != null) {
+            newChildType.setSpecies(species);
+        }
         childTypes = (AtomType[]) Arrays.addObject(childTypes, newChildType);
         childTypeAddedNotify(newChildType);
     }
