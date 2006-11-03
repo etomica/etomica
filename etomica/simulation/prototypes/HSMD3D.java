@@ -1,9 +1,5 @@
 package etomica.simulation.prototypes;
 
-import java.io.File;
-
-import javax.swing.JFileChooser;
-
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.config.ConfigurationLattice;
@@ -140,11 +136,6 @@ public class HSMD3D extends Simulation {
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
         colorScheme.setColor(sim.species.getMoleculeType(), java.awt.Color.red);
         simGraphic.panel().setBackground(java.awt.Color.yellow);
-        JFileChooser chooser = new JFileChooser();
-        chooser.setSelectedFile(new File("config.xyz"));
-        chooser.showSaveDialog(simGraphic.panel());
-        File file = chooser.getSelectedFile();
-        System.out.println(file.getAbsolutePath());
     }//end of main
 
 }//end of class
