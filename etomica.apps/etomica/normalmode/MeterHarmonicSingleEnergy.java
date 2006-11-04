@@ -67,7 +67,7 @@ public class MeterHarmonicSingleEnergy implements Meter {
                     imaginaryCoord += imaginaryT[i] * eigenVectors[iVector][j][i];
                 }
                 double normalCoord = realCoord*realCoord + imaginaryCoord*imaginaryCoord;
-                x[iVector*normalDim+i] = 0.5* normalCoord * omegaSquared[iVector][i];
+                x[iVector*normalDim+i] = Math.exp(-0.5* normalCoord * omegaSquared[iVector][i] / temperature);
             }
         }
         return data;
@@ -151,6 +151,14 @@ public class MeterHarmonicSingleEnergy implements Meter {
         omegaSquared = newOmegaSquared;
     }
     
+    public void setTemperature(double newTemperature) {
+        temperature = newTemperature;
+    }
+    
+    public double getTemperature() {
+        return temperature;
+    }
+    
     public void setName(String newName) {
         name = newName;
     }
@@ -167,6 +175,7 @@ public class MeterHarmonicSingleEnergy implements Meter {
     protected double[][] nominalU;
     protected final AtomIteratorAllMolecules iterator;
     protected Phase phase;
+    protected double temperature;
     protected int normalDim;
     protected double[] u;
     protected double[] realT, imaginaryT;
