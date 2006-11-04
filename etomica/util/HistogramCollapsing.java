@@ -46,6 +46,7 @@ public class HistogramCollapsing extends HistogramSimple {
         if(firstValue) {
             xMin = x - Math.abs(0.1*x);
             xMax = x + Math.abs(0.1*x);
+            deltaX = (xMax-xMin)/nBins;
             reset();
             firstValue = false;
         }
