@@ -7,10 +7,19 @@ import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
+import etomica.data.Data;
+import etomica.data.DataHistogram;
+import etomica.data.DataInfo;
+import etomica.data.DataProcessor;
 import etomica.data.DataPump;
+import etomica.data.AccumulatorAverage.StatType;
+import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
+import etomica.data.types.DataDouble.DataInfoDouble;
+import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxesCAE;
+import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD;
@@ -27,6 +36,9 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
+import etomica.units.Null;
+import etomica.util.DoubleRange;
+import etomica.util.HistogramSimple;
 
 /**
  * Simulation to run sampling with the hard sphere potential, but measuring
@@ -99,13 +111,13 @@ public class TestFccHarmonic extends Simulation {
         int nA = 108;
         boolean graphic = true;
         TestFccHarmonic sim = new TestFccHarmonic(Space3D.getInstance(), nA);
-        
-        String filename = "normal_modes";
+        sim.getDefaults().blockSize = 50;
+        String filename = "normal_modes400";
         if (args.length > 0) {
             filename = args[0];
         }
         
-        double harmonicFudge = 100;
+        double harmonicFudge = 1;
         
         double[][] omegaSquared = ArrayReader1D.getFromFile(filename+".val");
         for (int i=0; i<omegaSquared.length; i++) {
@@ -127,12 +139,37 @@ public class TestFccHarmonic extends Simulation {
         adapter.setActionInterval(2);
         sim.integrator.addListener(adapter);
         
+        MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy();
+        harmonicSingleEnergy.setEigenvectors(eigenvectors);
+        harmonicSingleEnergy.setOmegaSquared(omegaSquared);
+        harmonicSingleEnergy.setWaveVectors(q);
+        harmonicSingleEnergy.setPhase(sim.phase);
+        harmonicSingleEnergy.setTemperature(1.0);
+        AccumulatorAverage harmonicSingleAvg = new AccumulatorAverage(sim);
+        pump = new DataPump(harmonicSingleEnergy, harmonicSingleAvg);
+        adapter = new IntervalActionAdapter(pump);
+        adapter.setActionInterval(2);
+        sim.integrator.addListener(adapter);
+        DataProcessorFoo fooer = new DataProcessorFoo();
+        harmonicSingleAvg.addDataSink(fooer, new StatType[]{StatType.AVERAGE});
+
         if(graphic){
             SimulationGraphic simG = new SimulationGraphic(sim);
             
             DisplayBoxesCAE harmonicBoxes = new DisplayBoxesCAE();
             harmonicBoxes.setAccumulator(harmonicAvg);
             simG.add(harmonicBoxes);
+
+            DataHistogram harmonicSingleHistogram = new DataHistogram(new HistogramSimple.Factory(20, new DoubleRange(0, 1)));
+            harmonicSingleAvg.addDataSink(harmonicSingleHistogram, new StatType[]{StatType.AVERAGE});
+            DisplayPlot harmonicPlot = new DisplayPlot();
+            harmonicPlot.setDoLegend(false);
+            harmonicSingleHistogram.setDataSink(harmonicPlot.getDataSet().makeDataSink());
+            simG.add(harmonicPlot);
+            
+            DisplayBox diffA = new DisplayBox();
+            fooer.setDataSink(diffA);
+            simG.add(diffA);
             
             simG.makeAndDisplayFrame();
         } else {
@@ -156,4 +193,31 @@ public class TestFccHarmonic extends Simulation {
     public BoundaryRectangularPeriodic bdry;
     public LatticeCubicFcc lattice;
     public PrimitiveFcc primitive;
+
+    /**
+     * DataProcessor that sums up the logs of all incoming values
+     */
+    public static class DataProcessorFoo extends DataProcessor {
+        public DataProcessor getDataCaster(DataInfo incomingDataInfo) {
+            return null;
+        }
+        
+        public DataInfo processDataInfo(DataInfo incomingDataInfo) {
+            dataInfo = new DataInfoDouble("free energy difference", Null.DIMENSION);
+            data = new DataDouble();
+            return dataInfo;
+        }
+            
+        
+        public Data processData(Data incomingData) {
+            data.x = 0;
+            int nData = ((DataArithmetic)incomingData).getLength();
+            for (int i=0; i<nData; i++) {
+                data.x += Math.log(((DataArithmetic)incomingData).getValue(i));
+            }
+            return data;
+        }
+        
+        private DataDouble data;
+    }
 }
