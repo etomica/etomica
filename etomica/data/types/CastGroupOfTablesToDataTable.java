@@ -43,11 +43,6 @@ public class CastGroupOfTablesToDataTable extends DataProcessor {
     public CastGroupOfTablesToDataTable() {
     }
 
-    public DataTag getTag() {
-        // we have no tag
-        return null;
-    }
-
     /**
      * Prepares processor to handle Data. Uses given DataInfo to determine the
      * type of Data to expect in subsequent calls to processData.

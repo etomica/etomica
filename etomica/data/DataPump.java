@@ -20,13 +20,8 @@ public class DataPump extends DataProcessor implements Action {
         dataSourceInfo = dataSource.getDataInfo();
         setDataSink(dataSink);
         setLabel("Data Pump");
-        tag = new DataTag();
         putDataInfo(dataSource.getDataInfo());
 	}
-    
-    public DataTag getTag() {
-        return tag;
-    }
     
 	/**
      * Transmits the data from the source to the sink. Before transmitting
@@ -57,7 +52,7 @@ public class DataPump extends DataProcessor implements Action {
      */
     public DataInfo processDataInfo(DataInfo inputDataInfo) {
         dataInfo = inputDataInfo.getFactory().makeDataInfo();
-        dataInfo.addTag(tag);
+        dataInfo.addTag(getTag());
         return dataInfo;
     }
     
@@ -93,5 +88,4 @@ public class DataPump extends DataProcessor implements Action {
     private DataInfo dataSourceInfo;
     private final DataSource dataSource;
     private String label;
-    protected final DataTag tag;
 }

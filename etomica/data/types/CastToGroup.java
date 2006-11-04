@@ -28,11 +28,6 @@ public class CastToGroup extends DataProcessor {
     public CastToGroup() {
     }
 
-    public DataTag getTag() {
-        // we have no tag
-        return null;
-    }
-
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
         Class inputClass = inputDataInfo.getClass();
         dataGroup = null;

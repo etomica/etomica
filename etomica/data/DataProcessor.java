@@ -7,6 +7,14 @@ package etomica.data;
 
 public abstract class DataProcessor implements DataPipe, java.io.Serializable {
 
+    public DataProcessor() {
+        tag = new DataTag();
+    }
+    
+    public DataTag getTag() {
+        return tag;
+    }
+    
     /**
      * Processes the input Data and returns Data for pushing to the next
      * DataSink. Returns null if output Data should not (yet) be pushed
@@ -96,4 +104,5 @@ public abstract class DataProcessor implements DataPipe, java.io.Serializable {
     protected DataSink dataSink;
     protected DataSink trueDataSink;
     protected DataInfo dataInfo;
+    private final DataTag tag;
 }

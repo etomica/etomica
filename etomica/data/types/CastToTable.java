@@ -58,11 +58,6 @@ public class CastToTable extends DataProcessor implements Serializable {
     public CastToTable() {
     }
 
-    public DataTag getTag() {
-        // we have no tag
-        return null;
-    }
-
     /**
      * Prepares processor to perform cast. Given DataInfo is examined to see
      * what data type will be given to processor.

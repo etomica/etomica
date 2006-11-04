@@ -44,13 +44,8 @@ public class AccumulatorHistogram extends DataAccumulator {
     public AccumulatorHistogram(Histogram.Factory factory, int nBins) {
         this.nBins = nBins;
         histogramFactory = factory;
-        tag = new DataTag();
     }
 
-    public DataTag getTag() {
-        return tag;
-    }
-    
     /**
      * Adds each value in the given Data to its own histogram.
      */
@@ -152,7 +147,7 @@ public class AccumulatorHistogram extends DataAccumulator {
         }
         data = new DataGroup(dataFunctions);
         dataInfo = new DataInfoGroup("Histogram", binnedDataInfo.getDimension(), dataInfoFunctions);
-        dataInfo.addTag(tag);
+        dataInfo.addTag(getTag());
     }
     
     /**
@@ -204,5 +199,4 @@ public class AccumulatorHistogram extends DataAccumulator {
     protected int nData;
     private Histogram.Factory histogramFactory;
     private int nBins;
-    protected final DataTag tag;
 }

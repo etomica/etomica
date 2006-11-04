@@ -38,11 +38,6 @@ public class AccumulatorHistory extends DataAccumulator {
         this.historyLength = historyLength;
         historyFactory = factory;
         setTimeDataSource(new DataSourceCount());
-        tag = new DataTag();
-    }
-    
-    public DataTag getTag() {
-        return tag;
     }
 
     /**
@@ -188,7 +183,7 @@ public class AccumulatorHistory extends DataAccumulator {
         }
         data = new DataGroup(dataFunctions);
         dataInfo = new DataInfoGroup(inputDataInfo.getLabel(), inputDataInfo.getDimension(), dataInfoFunctions);
-        dataInfo.addTag(tag);
+        dataInfo.addTag(getTag());
     }
     
     /**
@@ -228,7 +223,6 @@ public class AccumulatorHistory extends DataAccumulator {
     private int historyLength;
     private DataSourceScalar timeDataSource;
     private DataInfo inputDataInfo;
-    protected final DataTag tag;
 
     /**
      * Simple DataSource to use as a default time DataSource.  It just returns
