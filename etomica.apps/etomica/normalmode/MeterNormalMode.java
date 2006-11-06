@@ -197,6 +197,11 @@ public class MeterNormalMode implements Meter, Action {
                 }
                 atomCount++;
             }
+//            if (iVector == 0) {
+//                System.out.println("in mnm");
+//                System.out.println("realT "+realT[0]+" "+realT[1]+" "+realT[2]);
+//                System.out.println("imagT "+imaginaryT[0]+" "+imaginaryT[1]+" "+imaginaryT[2]);
+//            }
             // add to S(k).  imaginary part of S is 0
             double[] sValues = ((DataDoubleArray)data.getData(iVector)).getData();
             for (int i=0; i<normalDim; i++) {

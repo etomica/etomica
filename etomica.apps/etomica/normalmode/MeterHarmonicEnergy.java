@@ -6,7 +6,6 @@ import etomica.data.DataSourceScalar;
 import etomica.data.meter.Meter;
 import etomica.phase.Phase;
 import etomica.space.Vector;
-import etomica.space3d.Vector3D;
 import etomica.units.Energy;
 
 /**
@@ -23,11 +22,6 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
 
     public double getDataAsScalar() {
         double energySum = 0;
-//        double msd = 0;
-//        double prevEnergySum = 0;
-//        int maxIVector = -1;
-//        double maxVectorEnergy = -1; 
-//        Vector foo = new Vector3D();
         for (int iVector = 0; iVector < waveVectors.length; iVector++) {
             for (int i=0; i<normalDim; i++) {
                 realT[i] = 0;
@@ -39,9 +33,6 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
             while (iterator.hasNext()) {
                 Atom atom = iterator.nextAtom();
                 calcU(atom, atomCount);
-//                if (atomCount == 3 && iVector == 0) {
-//                    System.out.println("u "+u[0]+" "+u[1]+" "+u[2]);
-//                }
                 double kR = waveVectors[iVector].dot(latticePositions[atomCount]);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
@@ -50,12 +41,6 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
                     imaginaryT[i] += sinkR * u[i];
                 }
                 
-//                if (iVector == 0) {
-//                    foo.E(atom.type.getPositionDefinition().position(atom));
-//                    foo.ME(latticePositions[atomCount]);
-//                    msd += foo.squared();
-//                }
-
                 atomCount++;
             }
             
@@ -64,20 +49,15 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
             for (int i=0; i<normalDim; i++) {
                 double realCoord = 0, imaginaryCoord = 0;
                 for (int j=0; j<normalDim; j++) {
-                    realCoord += realT[i] * eigenVectors[iVector][j][i];
-                    imaginaryCoord += imaginaryT[i] * eigenVectors[iVector][j][i];
+                    realCoord += realT[j] * eigenVectors[iVector][j][i];
+                    imaginaryCoord += imaginaryT[j] * eigenVectors[iVector][j][i];
                 }
+                // to get actual normal mode coordinates here, we'd need to divide by atomCount
+                // but we really want the system energy, so we won't do that.
                 double normalCoord = realCoord*realCoord + imaginaryCoord*imaginaryCoord;
                 energySum += normalCoord * omegaSquared[iVector][i];
             }
-//            if (energySum-prevEnergySum > maxVectorEnergy) {
-//                maxVectorEnergy = energySum-prevEnergySum;
-//                maxIVector = iVector;
-//            }
-//            prevEnergySum = energySum;
         }
-//        System.out.println(energySum); //+" "+Math.sqrt(msd/iterator.size()));
-//        System.out.println("biggest contributor "+maxIVector+" "+waveVectors[maxIVector]+" "+maxVectorEnergy);
         return 0.5*energySum;
     }
     

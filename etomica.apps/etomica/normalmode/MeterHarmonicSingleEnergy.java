@@ -63,9 +63,11 @@ public class MeterHarmonicSingleEnergy implements Meter {
             for (int i=0; i<normalDim; i++) {
                 double realCoord = 0, imaginaryCoord = 0;
                 for (int j=0; j<normalDim; j++) {
-                    realCoord += realT[i] * eigenVectors[iVector][j][i];
-                    imaginaryCoord += imaginaryT[i] * eigenVectors[iVector][j][i];
+                    realCoord += realT[j] * eigenVectors[iVector][j][i];
+                    imaginaryCoord += imaginaryT[j] * eigenVectors[iVector][j][i];
                 }
+                // to get actual normal mode coordinates here, we'd need to divide by atomCount
+                // but we really want the system energy, so we won't do that.
                 double normalCoord = realCoord*realCoord + imaginaryCoord*imaginaryCoord;
                 x[iVector*normalDim+i] = Math.exp(-0.5* normalCoord * omegaSquared[iVector][i] / temperature);
             }
