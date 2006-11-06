@@ -19,7 +19,12 @@ public class MCMoveHarmonic extends MCMovePhase {
     }
     
     public void setEigenValues(double[][] newEigenValues) {
-        eigenValues = newEigenValues;
+        eigenValuesSqrt = new double[newEigenValues.length][newEigenValues[0].length];
+        for (int i=0; i<eigenValuesSqrt.length; i++) {
+            for (int j=0; j<eigenValuesSqrt[i].length; j++) {
+                eigenValuesSqrt[i][j] = Math.sqrt(newEigenValues[i][j]);
+            }
+        }
     }
     
     public void setWaveVectors(Vector[] newWaveVectors) {
@@ -54,7 +59,7 @@ public class MCMoveHarmonic extends MCMovePhase {
         rRand = new double[waveVectors.length][normalDim];
         iRand = new double[waveVectors.length][normalDim];
         
-        normalization = 1.0/Math.sqrt(phase.getSpeciesMaster().moleculeCount());
+        normalization = 2.0/Math.sqrt(phase.getSpeciesMaster().moleculeCount());
         
         // initialize what we think of as the original coordinates
         // allow sublcasses to initialize their own coordiantes
@@ -90,12 +95,13 @@ public class MCMoveHarmonic extends MCMovePhase {
     public boolean doTrial() {
         iterator.reset();
         int atomCount = 0;
-        msd = 0;
 
         for (int iVector=0; iVector<waveVectors.length; iVector++) {
             for (int j=0; j<normalDim; j++) {
-                rRand[iVector][j] = Simulation.random.nextGaussian() * Math.sqrt(eigenValues[iVector][j]);
-                iRand[iVector][j] = Simulation.random.nextGaussian() * Math.sqrt(eigenValues[iVector][j]);
+                double g = Simulation.random.nextGaussian() * eigenValuesSqrt[iVector][j];
+                double theta = Simulation.random.nextDouble()*2*Math.PI;
+                rRand[iVector][j] = g*Math.cos(theta);
+                iRand[iVector][j] = g*Math.sin(theta);
             }
         }
         while (iterator.hasNext()) {
@@ -111,21 +117,19 @@ public class MCMoveHarmonic extends MCMovePhase {
 
                 for (int i=0; i<normalDim; i++) {
                     for (int j=0; j<normalDim; j++) {
-                        u[j] += 2*eigenVectors[iVector][i][j]*(rRand[iVector][i]*coskR - iRand[iVector][i]*sinkR);
+                        u[j] += eigenVectors[iVector][j][i]*(rRand[iVector][i]*coskR - iRand[iVector][i]*sinkR);
                     }
                 }
             }
             setToU(atom, atomCount, normalization);
             atomCount++;
         }
-        System.out.println(Math.sqrt(msd/iterator.size()));
         return true;
     }
     
     protected void setToU(Atom atom, int atomCount, double normalization) {
         for (int i=0; i<atomPos.D(); i++) {
             atomPos.setX(i, nominalU[atomCount][i] + u[i]*normalization);
-            msd += u[i]*normalization*u[i]*normalization;
         }
         atomActionTranslateTo.setDestination(atomPos);
         atomActionTranslateTo.actionPerformed(atom);
@@ -156,7 +160,7 @@ public class MCMoveHarmonic extends MCMovePhase {
     private final AtomIteratorAllMolecules iterator;
     private AtomActionTranslateTo atomActionTranslateTo;
     private Vector[] latticePositions;
-    private double[][] eigenValues;
+    private double[][] eigenValuesSqrt;
     private double[][][] eigenVectors;
     private Vector[] waveVectors;
     private Vector atomPos;
