@@ -39,8 +39,8 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
         Vector[] waveVectorsTemp = new Vector[numWaveVectors];
         int count = 0;
         for (int kx = 0; kx <= numCells; kx++) {
-            for (int ky = ((kx==0) ? 1 : -numCells + 1); ky <= numCells; ky++) {
-                for (int kz = ((kx==0 && ky==0) ? 1 : -numCells + 1); kz <= numCells; kz++) {
+            for (int ky = ((kx==0) ? 1 : -numCells); ky <= numCells; ky++) {
+                for (int kz = ((kx==0 && ky==0) ? 1 : -numCells); kz <= numCells; kz++) {
                     if (2 * (kx + ky + kz) <= 3 * numCells
                             && 2 * (kx + ky + kz) > -3 * numCells
                             && 2 * (kx + ky - kz) <= 3 * numCells
