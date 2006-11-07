@@ -22,13 +22,17 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
     
         double[] d = primitive.getSize();
         int[] numCells = new int[phase.space().D()];
-        Vector dimensions = phase.getBoundary().getDimensions();
+        Vector inverseDim = phase.space().makeVector();
+        inverseDim.E(2*Math.PI);
+        inverseDim.DE(phase.getBoundary().getDimensions());
+        
         for (int i=0; i<phase.space().D(); i++) {
             numCells[i] = (int)Math.round(phase.getBoundary().getDimensions().x(i) / (d[i]));
         }
     
         // 0 to halfSize, round down for halfSize
-        int numWaveVectors = (numCells[0]+1)/2;
+        // double count here, and then we'll fix it later
+        int numWaveVectors = 2*(numCells[0]/2);
         for (int i=0; i<phase.space().D(); i++) {
             // -halfSize to halfSize in the other directions, including 0
             // round down for halfSize
@@ -36,6 +40,8 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
         }
         // exclude <0, 0, 0>
         numWaveVectors--;
+        // we exclude negatives of other wave vectors
+        numWaveVectors /= 2;
     
         Vector[] waveVectors = new Vector[numWaveVectors];
         int count = 0;
@@ -43,8 +49,7 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
             for (int ky = ((kx==0) ? 1 : -numCells[1]/2); ky < numCells[1]/2+1; ky++) {
                 for (int kz = ((kx==0 && ky==0) ? 1 : -numCells[2]/2); kz < numCells[2]/2+1; kz++) {
                     waveVectors[count] = Space.makeVector(new double[]{kx, ky, kz});
-                    waveVectors[count].TE(2 * Math.PI);
-                    waveVectors[count].DE(dimensions);
+                    waveVectors[count].TE(inverseDim);
                     count++;
                 }
             }
