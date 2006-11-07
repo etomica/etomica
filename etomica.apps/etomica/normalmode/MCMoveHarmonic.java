@@ -1,6 +1,5 @@
 package etomica.normalmode;
 
-import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
@@ -18,6 +17,15 @@ public class MCMoveHarmonic extends MCMovePhase {
         iterator = new AtomIteratorAllMolecules();
     }
     
+    public void setNormalCoordWrapper(NormalCoordMapper newNormalCoordWrapper) {
+        normalCoordMapper = newNormalCoordWrapper;
+        normalDim = normalCoordMapper.getNormalDim();
+    }
+    
+    public NormalCoordMapper getNormalCoordWrapper() {
+        return normalCoordMapper;
+    }
+
     public void setEigenValues(double[][] newEigenValues) {
         eigenValuesSqrt = new double[newEigenValues.length][newEigenValues[0].length];
         for (int i=0; i<eigenValuesSqrt.length; i++) {
@@ -37,8 +45,6 @@ public class MCMoveHarmonic extends MCMovePhase {
     
     public void setPhase(Phase newPhase) {
         super.setPhase(newPhase);
-        atomPos = phase.space().makeVector();
-        atomActionTranslateTo = new AtomActionTranslateTo(phase.space());
         iterator.setPhase(newPhase);
         normalDim = getNormalDim();
 
@@ -53,7 +59,6 @@ public class MCMoveHarmonic extends MCMovePhase {
             atomCount++;
         }
 
-        nominalU = new double[iterator.size()][normalDim];
         u = new double[normalDim];
 
         rRand = new double[waveVectors.length][normalDim];
@@ -61,23 +66,12 @@ public class MCMoveHarmonic extends MCMovePhase {
         
         normalization = 2.0/Math.sqrt(phase.getSpeciesMaster().moleculeCount());
         
-        // initialize what we think of as the original coordinates
-        // allow sublcasses to initialize their own coordiantes
-        initNominalU();
-    }
-    
-    protected void initNominalU() {
-        // fills in first D elements of nominalU with molecular x,y,z
-        // subclasses can fill in other elements with their own
-        // or not call this at all and not use x,y,z
+        // fills in elements of nominalU using NormalCoordWrapper
         iterator.reset();
-        int atomCount = 0;
+        atomCount = 0;
         while (iterator.hasNext()) {
             Atom atom = iterator.nextAtom();
-            Vector moleculePos = atom.type.getPositionDefinition().position(atom);
-            for (int i=0; i<moleculePos.D(); i++) {
-                nominalU[atomCount][i] = moleculePos.x(i);
-            }
+            normalCoordMapper.initNominalU(atom, atomCount);
             atomCount++;
         }
     }
@@ -117,24 +111,16 @@ public class MCMoveHarmonic extends MCMovePhase {
 
                 for (int i=0; i<normalDim; i++) {
                     for (int j=0; j<normalDim; j++) {
-                        u[j] += eigenVectors[iVector][j][i]*(rRand[iVector][i]*coskR - iRand[iVector][i]*sinkR);
+                        u[j] += normalization * eigenVectors[iVector][j][i]*(rRand[iVector][i]*coskR - iRand[iVector][i]*sinkR);
                     }
                 }
             }
-            setToU(atom, atomCount, normalization);
+            normalCoordMapper.setToU(atom, atomCount, u);
             atomCount++;
         }
         return true;
     }
     
-    protected void setToU(Atom atom, int atomCount, double normalization) {
-        for (int i=0; i<atomPos.D(); i++) {
-            atomPos.setX(i, nominalU[atomCount][i] + u[i]*normalization);
-        }
-        atomActionTranslateTo.setDestination(atomPos);
-        atomActionTranslateTo.actionPerformed(atom);
-    }
-
     public double getA() {
         // return 1 to guarantee success
         return 1;
@@ -157,15 +143,13 @@ public class MCMoveHarmonic extends MCMovePhase {
     }
 
     private static final long serialVersionUID = 1L;
+    protected NormalCoordMapper normalCoordMapper;
     private final AtomIteratorAllMolecules iterator;
-    private AtomActionTranslateTo atomActionTranslateTo;
     private Vector[] latticePositions;
     private double[][] eigenValuesSqrt;
     private double[][][] eigenVectors;
     private Vector[] waveVectors;
-    private Vector atomPos;
     protected int normalDim;
-    protected double[][] nominalU;
     protected double[] u;
     protected double[][] rRand;
     protected double[][] iRand;

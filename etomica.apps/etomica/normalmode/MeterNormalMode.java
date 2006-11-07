@@ -1,9 +1,10 @@
 package etomica.normalmode;
 
+import java.io.Serializable;
+
 import etomica.action.Action;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.config.ConfigurationLattice;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataTag;
@@ -12,28 +13,30 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
-import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.phase.Phase;
-import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.Species;
-import etomica.species.SpeciesSpheresMono;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Length;
 import etomica.units.Null;
 
-public class MeterNormalMode implements Meter, Action {
+public class MeterNormalMode implements Meter, Action, Serializable {
 
     public MeterNormalMode() {
         tag = new DataTag();
         iterator = new AtomIteratorAllMolecules();
     }
     
+    public void setNormalCoordWrapper(NormalCoordMapper newNormalCoordWrapper) {
+        normalCoordMapper = newNormalCoordWrapper;
+    }
+    
+    public NormalCoordMapper getNormalCoordWrapper() {
+        return normalCoordMapper;
+    }
+
     public void setPrimitive(Primitive newPrimitive) {
         primitive = newPrimitive;
     }
@@ -51,7 +54,7 @@ public class MeterNormalMode implements Meter, Action {
 
         phase = newPhase;
         latticePositions = new Vector[phase.getSpeciesMaster().moleculeCount()];
-        normalDim = getNormalDim();
+        normalDim = normalCoordMapper.getNormalDim();
 
         iterator.setPhase(phase);
         iterator.reset();
@@ -125,42 +128,24 @@ public class MeterNormalMode implements Meter, Action {
         }
         dataInfo = new DataInfoGroup("all S", Null.DIMENSION, Sinfo);
 
-        nominalU = new double[iterator.size()][normalDim];
         u = new double[normalDim];
         realT = new double[normalDim];
         imaginaryT = new double[normalDim];
         
-        // initialize what we think of as the original coordinates
-        // allow sublcasses to initialize their own coordiantes
-        initNominalU();
+        // notifies NormalCoordWrapper of the nominal position of each atom
+        iterator.reset();
+        atomCount = 0;
+        while (iterator.hasNext()) {
+            Atom atom = iterator.nextAtom();
+            normalCoordMapper.initNominalU(atom, atomCount);
+            atomCount++;
+        }
     }
     
     public Phase getPhase() {
         return phase;
     }
     
-    protected void initNominalU() {
-        // fills in first D elements of nominalU with molecular x,y,z
-        // subclasses can fill in other elements with their own
-        // or not call this at all and not use x,y,z
-        iterator.reset();
-        int atomCount = 0;
-        while (iterator.hasNext()) {
-            Atom atom = iterator.nextAtom();
-            Vector atomPos = atom.type.getPositionDefinition().position(atom);
-            for (int i=0; i<atomPos.D(); i++) {
-                nominalU[atomCount][i] = atomPos.x(i);
-            }
-            atomCount++;
-        }
-    }
-
-    protected int getNormalDim() {
-        //x, y, z
-        // subclasses can override this to reserve space for other normal mode coordinates
-        return phase.space().D();
-    }
-
     public Vector[] getWaveVectors() {
         return waveVectors;
     }
@@ -187,7 +172,7 @@ public class MeterNormalMode implements Meter, Action {
             // sum T over atoms
             while (iterator.hasNext()) {
                 Atom atom = iterator.nextAtom();
-                calcU(atom, atomCount);
+                normalCoordMapper.calcU(atom, atomCount, u);
                 double kR = waveVectors[iVector].dot(latticePositions[atomCount]);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
@@ -209,17 +194,6 @@ public class MeterNormalMode implements Meter, Action {
                     sValues[i*normalDim+j] += realT[i]*realT[j] + imaginaryT[i]*imaginaryT[j];
                 }
             }
-        }
-    }
-
-    /**
-     * Calculates the array of u elements for the given atom
-     * subclasses should override this to fill in their own values
-     */
-    protected void calcU(Atom atom, int atomCount) {
-        Vector pos = atom.type.getPositionDefinition().position(atom);
-        for (int i=0; i<pos.D(); i++) {
-            u[i] = pos.x(i) - nominalU[atomCount][i];
         }
     }
 
@@ -260,7 +234,9 @@ public class MeterNormalMode implements Meter, Action {
         return "a label";
     }
     
+    private static final long serialVersionUID = 1L;
     private Vector[] waveVectors;
+    protected NormalCoordMapper normalCoordMapper;
     private int numCells;
     private int numWaveVectors;
     private Phase phase;
@@ -273,23 +249,7 @@ public class MeterNormalMode implements Meter, Action {
     private int callCount;
     private Primitive primitive;
 
-    protected double[][] nominalU;
     protected int normalDim;
     protected double[] u;
     protected double[] realT, imaginaryT;
-
-    public static void main(String[] args) {
-        MeterNormalMode foo = new MeterNormalMode();
-        Simulation sim = new Simulation(Space3D.getInstance());
-        Phase phase = new Phase(sim);
-        Species species = new SpeciesSpheresMono(sim);
-        phase.getAgent(species).setNMolecules(32);
-        phase.setDimensions(Space.makeVector(new double[]{4, 4, 4}));
-        LatticeCubicFcc lattice = new LatticeCubicFcc();
-        ConfigurationLattice config = new ConfigurationLattice(lattice);
-        foo.setPrimitive(lattice.getPrimitiveFcc());
-        config.initializeCoordinates(phase);
-        foo.setPhase(phase);
-        foo.actionPerformed();
-    }
 }

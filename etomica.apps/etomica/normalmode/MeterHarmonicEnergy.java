@@ -19,6 +19,14 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
         super("Harmonic Energy", Energy.DIMENSION);
         iterator = new AtomIteratorAllMolecules();
     }
+    
+    public void setNormalCoordWrapper(NormalCoordMapper newNormalCoordWrapper) {
+        normalCoordMapper = newNormalCoordWrapper;
+    }
+    
+    public NormalCoordMapper getNormalCoordWrapper() {
+        return normalCoordMapper;
+    }
 
     public double getDataAsScalar() {
         double energySum = 0;
@@ -32,7 +40,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
             // sum T over atoms
             while (iterator.hasNext()) {
                 Atom atom = iterator.nextAtom();
-                calcU(atom, atomCount);
+                normalCoordMapper.calcU(atom, atomCount, u);
                 double kR = waveVectors[iVector].dot(latticePositions[atomCount]);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
@@ -59,17 +67,6 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
         }
         return 0.5*energySum;
     }
-    
-    /**
-     * Calculates the array of u elements for the given atom
-     * subclasses should override this to fill in their own values
-     */
-    protected void calcU(Atom atom, int atomCount) {
-        Vector pos = atom.type.getPositionDefinition().position(atom);
-        for (int i=0; i<pos.D(); i++) {
-            u[i] = pos.x(i) - nominalU[atomCount][i];
-        }
-    }
 
     public Phase getPhase() {
         return phase;
@@ -78,7 +75,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
     public void setPhase(Phase newPhase) {
         phase = newPhase;
         iterator.setPhase(phase);
-        normalDim = getNormalDim();
+        normalDim = normalCoordMapper.getNormalDim();
 
         latticePositions = new Vector[phase.getSpeciesMaster().moleculeCount()];
 
@@ -92,36 +89,19 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
             atomCount++;
         }
 
-        nominalU = new double[iterator.size()][normalDim];
+        normalCoordMapper.setNumAtoms(iterator.size());
         u = new double[normalDim];
         realT = new double[normalDim];
         imaginaryT = new double[normalDim];
         
-        // initialize what we think of as the original coordinates
-        // allow sublcasses to initialize their own coordiantes
-        initNominalU();
-    }
-    
-    protected void initNominalU() {
-        // fills in first D elements of nominalU with molecular x,y,z
-        // subclasses can fill in other elements with their own
-        // or not call this at all and not use x,y,z
+        // notifies NormalCoordWrapper of the nominal position of each atom
         iterator.reset();
-        int atomCount = 0;
+        atomCount = 0;
         while (iterator.hasNext()) {
             Atom atom = iterator.nextAtom();
-            Vector atomPos = atom.type.getPositionDefinition().position(atom);
-            for (int i=0; i<atomPos.D(); i++) {
-                nominalU[atomCount][i] = atomPos.x(i);
-            }
+            normalCoordMapper.initNominalU(atom, atomCount);
             atomCount++;
         }
-    }
-
-    protected int getNormalDim() {
-        //x, y, z
-        // subclasses can override this to reserve space for other normal mode coordinates
-        return phase.space().D();
     }
     
     public void setWaveVectors(Vector[] newWaveVectors) {
@@ -137,8 +117,8 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
     }
     
     private static final long serialVersionUID = 1L;
+    protected NormalCoordMapper normalCoordMapper;
     protected Vector[] latticePositions;
-    protected double[][] nominalU;
     protected final AtomIteratorAllMolecules iterator;
     protected Phase phase;
     protected int normalDim;

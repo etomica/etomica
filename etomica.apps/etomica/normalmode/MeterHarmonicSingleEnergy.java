@@ -29,6 +29,15 @@ public class MeterHarmonicSingleEnergy implements Meter {
         return tag;
     }
     
+    public void setNormalCoordWrapper(NormalCoordMapper newNormalCoordWrapper) {
+        normalCoordMapper = newNormalCoordWrapper;
+        normalDim = normalCoordMapper.getNormalDim();
+    }
+    
+    public NormalCoordMapper getNormalCoordWrapper() {
+        return normalCoordMapper;
+    }
+
     public DataInfo getDataInfo() {
         return dataInfo;
     }
@@ -46,7 +55,7 @@ public class MeterHarmonicSingleEnergy implements Meter {
             // sum T over atoms
             while (iterator.hasNext()) {
                 Atom atom = iterator.nextAtom();
-                calcU(atom, atomCount);
+                normalCoordMapper.calcU(atom, atomCount, u);
                 double kR = waveVectors[iVector].dot(latticePositions[atomCount]);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
@@ -74,17 +83,6 @@ public class MeterHarmonicSingleEnergy implements Meter {
         return data;
     }
     
-    /**
-     * Calculates the array of u elements for the given atom
-     * subclasses should override this to fill in their own values
-     */
-    protected void calcU(Atom atom, int atomCount) {
-        Vector pos = atom.type.getPositionDefinition().position(atom);
-        for (int i=0; i<pos.D(); i++) {
-            u[i] = pos.x(i) - nominalU[atomCount][i];
-        }
-    }
-
     public Phase getPhase() {
         return phase;
     }
@@ -92,7 +90,6 @@ public class MeterHarmonicSingleEnergy implements Meter {
     public void setPhase(Phase newPhase) {
         phase = newPhase;
         iterator.setPhase(phase);
-        normalDim = getNormalDim();
         dataInfo = new DataInfoDoubleArray("Harmonic single energy", Energy.DIMENSION, new int[]{waveVectors.length,normalDim});
         data = new DataDoubleArray(new int[]{waveVectors.length,normalDim});
 
@@ -108,36 +105,19 @@ public class MeterHarmonicSingleEnergy implements Meter {
             atomCount++;
         }
 
-        nominalU = new double[iterator.size()][normalDim];
+        normalCoordMapper.setNumAtoms(iterator.size());
         u = new double[normalDim];
         realT = new double[normalDim];
         imaginaryT = new double[normalDim];
         
-        // initialize what we think of as the original coordinates
-        // allow sublcasses to initialize their own coordiantes
-        initNominalU();
-    }
-    
-    protected void initNominalU() {
-        // fills in first D elements of nominalU with molecular x,y,z
-        // subclasses can fill in other elements with their own
-        // or not call this at all and not use x,y,z
+        // fills in elements of nominalU using NormalCoordWrapper
         iterator.reset();
-        int atomCount = 0;
+        atomCount = 0;
         while (iterator.hasNext()) {
             Atom atom = iterator.nextAtom();
-            Vector atomPos = atom.type.getPositionDefinition().position(atom);
-            for (int i=0; i<atomPos.D(); i++) {
-                nominalU[atomCount][i] = atomPos.x(i);
-            }
+            normalCoordMapper.initNominalU(atom, atomCount);
             atomCount++;
         }
-    }
-
-    protected int getNormalDim() {
-        //x, y, z
-        // subclasses can override this to reserve space for other normal mode coordinates
-        return phase.space().D();
     }
     
     public void setWaveVectors(Vector[] newWaveVectors) {
@@ -169,15 +149,15 @@ public class MeterHarmonicSingleEnergy implements Meter {
     }
     
     private static final long serialVersionUID = 1L;
+    protected NormalCoordMapper normalCoordMapper;
+    protected int normalDim;
     protected DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
     private final DataTag tag;
     protected Vector[] latticePositions;
-    protected double[][] nominalU;
     protected final AtomIteratorAllMolecules iterator;
     protected Phase phase;
     protected double temperature;
-    protected int normalDim;
     protected double[] u;
     protected double[] realT, imaginaryT;
     protected Vector[] waveVectors;
