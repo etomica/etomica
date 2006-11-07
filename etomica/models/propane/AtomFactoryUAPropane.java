@@ -7,6 +7,7 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
+import etomica.chem.elements.ElementSimple;
 import etomica.simulation.Simulation;
 import etomica.space.CoordinateFactory;
 import etomica.space.CoordinateFactorySphere;
@@ -26,9 +27,10 @@ public class AtomFactoryUAPropane extends AtomFactory {
 	 * @param sequencerFactory
 	 */
     public AtomFactoryUAPropane(Simulation sim, AtomTypeGroup agentType) {
-		super(new AtomTypeGroup(agentType,new AtomPositionGeometricCenter(sim.space)), AtomTreeNodeUAPropane.FACTORY);
-
-        AtomTypeSphere UAType = new AtomTypeSphere((AtomTypeGroup)atomType, 15.0, 3.75);
+		super(new AtomTypeGroup(new AtomPositionGeometricCenter(sim.space)), AtomTreeNodeUAPropane.FACTORY);
+        atomType.setParentType(agentType);
+        AtomTypeSphere UAType = new AtomTypeSphere(new ElementSimple("UA", 15), 3.75);
+        UAType.setParentType((AtomTypeGroup)atomType);
 //        AtomTypeSphere oType = new AtomTypeSphere((AtomTypeGroup)atomType, 16.0, 3.167);
         CoordinateFactory leafCoordFactory = new CoordinateFactorySphere(sim);
         UAFactory = new AtomFactoryMono(leafCoordFactory, UAType);
@@ -55,7 +57,6 @@ public class AtomFactoryUAPropane extends AtomFactory {
     
     public void setSpecies(Species species) {
         atomType.setSpecies(species);
-        UAFactory.setSpecies(species);
 //        oFactory.setSpecies(species);
     }
     

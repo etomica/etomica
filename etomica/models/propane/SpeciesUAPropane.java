@@ -13,15 +13,12 @@ import etomica.species.SpeciesSignature;
 public class SpeciesUAPropane extends Species implements EtomicaElement {
     
     public SpeciesUAPropane(Simulation sim) {
-        this(sim, sim.getDefaults().moleculeCount);
+        this(sim, Species.makeAgentType(sim));
     }
-    public SpeciesUAPropane(Simulation sim, int nM) {
-        this(sim, nM, Species.makeAgentType(sim));
-    }
-    private SpeciesUAPropane(Simulation sim, int nM, AtomTypeGroup agentType) {
+    private SpeciesUAPropane(Simulation sim, AtomTypeGroup agentType) {
        super(sim, new AtomFactoryUAPropane(sim, agentType),
                agentType);
-       nMolecules = nM;
+       
     }
     
     public SpeciesSignature getSpeciesSignature() {
