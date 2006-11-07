@@ -21,9 +21,12 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
     
         double[] d = primitive.getSize();
         int[] numCells = new int[phase.space().D()];
-        Vector[] waveVectorBasis = primitive.reciprocal().vectors();
+        Vector[] reciprocals =  primitive.reciprocal().vectors();;
+        Vector[] waveVectorBasis = new Vector[reciprocals.length];
         
         for (int i=0; i<phase.space().D(); i++) {
+            waveVectorBasis[i] = phase.space().makeVector();
+            waveVectorBasis[i].E(reciprocals[i]);
             numCells[i] = (int)Math.round(phase.getBoundary().getDimensions().x(i) / (d[i]));
             waveVectorBasis[i].TE(1.0/numCells[i]);
         }
