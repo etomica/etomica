@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import etomica.lattice.crystal.Primitive;
 import etomica.phase.Phase;
-import etomica.space.Space;
 import etomica.space.Vector;
 
 /**
@@ -22,12 +21,11 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
     
         double[] d = primitive.getSize();
         int[] numCells = new int[phase.space().D()];
-        Vector inverseDim = phase.space().makeVector();
-        inverseDim.E(2*Math.PI);
-        inverseDim.DE(phase.getBoundary().getDimensions());
+        Vector[] waveVectorBasis = primitive.reciprocal().vectors();
         
         for (int i=0; i<phase.space().D(); i++) {
             numCells[i] = (int)Math.round(phase.getBoundary().getDimensions().x(i) / (d[i]));
+            waveVectorBasis[i].TE(1.0/numCells[i]);
         }
     
         // 0 to halfSize, round down for halfSize
@@ -45,11 +43,15 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
     
         Vector[] waveVectors = new Vector[numWaveVectors];
         int count = 0;
+        Vector waveVectorX = phase.space().makeVector();
+        Vector waveVectorXY = phase.space().makeVector();
         for (int kx = 0; kx < numCells[0]/2+1; kx++) {
+            waveVectorX.Ea1Tv1(kx, waveVectorBasis[0]);
             for (int ky = ((kx==0) ? 1 : -numCells[1]/2); ky < numCells[1]/2+1; ky++) {
+                waveVectorXY.Ev1Pa1Tv2(waveVectorX, ky, waveVectorBasis[1]);
                 for (int kz = ((kx==0 && ky==0) ? 1 : -numCells[2]/2); kz < numCells[2]/2+1; kz++) {
-                    waveVectors[count] = Space.makeVector(new double[]{kx, ky, kz});
-                    waveVectors[count].TE(inverseDim);
+                    waveVectors[count] = phase.space().makeVector();
+                    waveVectors[count].Ev1Pa1Tv2(waveVectorXY, kz, waveVectorBasis[2]);
                     count++;
                 }
             }
