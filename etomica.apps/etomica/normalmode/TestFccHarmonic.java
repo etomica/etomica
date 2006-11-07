@@ -8,6 +8,7 @@ import etomica.atom.AtomTypeSphere;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.Data;
+import etomica.data.DataFork;
 import etomica.data.DataHistogram;
 import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
@@ -128,16 +129,27 @@ public class TestFccHarmonic extends Simulation {
         }
         Vector[] q = ArrayReader1D.getVectorsFromFile(filename+".Q");
         double[][][] eigenvectors = ArrayReader2D.getFromFile(filename+".vec");
+
         MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy();
         harmonicEnergy.setEigenvectors(eigenvectors);
         harmonicEnergy.setOmegaSquared(omegaSquared);
         harmonicEnergy.setWaveVectors(q);
+        harmonicEnergy.setNormalCoordWrapper(new NormalCoordLeaf(sim.space));
         harmonicEnergy.setPhase(sim.phase);
+        DataFork harmonicFork = new DataFork();
         AccumulatorAverage harmonicAvg = new AccumulatorAverage(sim);
-        DataPump pump = new DataPump(harmonicEnergy, harmonicAvg);
+        DataPump pump = new DataPump(harmonicEnergy, harmonicFork);
+        harmonicFork.addDataSink(harmonicAvg);
         IntervalActionAdapter adapter = new IntervalActionAdapter(pump);
         adapter.setActionInterval(2);
         sim.integrator.addListener(adapter);
+        BoltzmannProcessor boltz = new BoltzmannProcessor();
+        boltz.setTemperature(1.0);
+        harmonicFork.addDataSink(boltz);
+        AccumulatorAverage harmonicBoltzAvg = new AccumulatorAverage(50);
+        boltz.setDataSink(harmonicBoltzAvg);
+        DataProcessorFoo fooer = new DataProcessorFoo();
+        harmonicBoltzAvg.addDataSink(fooer, new StatType[]{StatType.AVERAGE});
         
         MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy();
         harmonicSingleEnergy.setEigenvectors(eigenvectors);
@@ -145,13 +157,18 @@ public class TestFccHarmonic extends Simulation {
         harmonicSingleEnergy.setWaveVectors(q);
         harmonicSingleEnergy.setPhase(sim.phase);
         harmonicSingleEnergy.setTemperature(1.0);
+//        DataProcessorFunction harmonicLog = new DataProcessorFunction(new Function.Log());
+        DataHistogram harmonicSingleHistogram = new DataHistogram(new HistogramSimple.Factory(50, new DoubleRange(.6, 0.75)));
         AccumulatorAverage harmonicSingleAvg = new AccumulatorAverage(sim);
         pump = new DataPump(harmonicSingleEnergy, harmonicSingleAvg);
+//        harmonicLog.setDataSink(harmonicSingleHistogram);
+//        harmonicSingleHistogram.setDataSink(harmonicSingleAvg);
+        harmonicSingleAvg.addDataSink(harmonicSingleHistogram, new StatType[]{StatType.AVERAGE});
         adapter = new IntervalActionAdapter(pump);
         adapter.setActionInterval(2);
         sim.integrator.addListener(adapter);
-        DataProcessorFoo fooer = new DataProcessorFoo();
-        harmonicSingleAvg.addDataSink(fooer, new StatType[]{StatType.AVERAGE});
+        DataProcessorFoo fooerSingle = new DataProcessorFoo();
+        harmonicSingleAvg.addDataSink(fooerSingle, new StatType[]{StatType.AVERAGE});
 
         if(graphic){
             SimulationGraphic simG = new SimulationGraphic(sim);
@@ -160,14 +177,20 @@ public class TestFccHarmonic extends Simulation {
             harmonicBoxes.setAccumulator(harmonicAvg);
             simG.add(harmonicBoxes);
 
-            DataHistogram harmonicSingleHistogram = new DataHistogram(new HistogramSimple.Factory(20, new DoubleRange(0, 1)));
-            harmonicSingleAvg.addDataSink(harmonicSingleHistogram, new StatType[]{StatType.AVERAGE});
+//            DataHistogram harmonicSingleHistogram = new DataHistogram(new HistogramSimple.Factory(20, new DoubleRange(0, 1000)));
+//            harmonicSingleAvg.addDataSink(harmonicSingleHistogram, new StatType[]{StatType.AVERAGE});
             DisplayPlot harmonicPlot = new DisplayPlot();
             harmonicPlot.setDoLegend(false);
             harmonicSingleHistogram.setDataSink(harmonicPlot.getDataSet().makeDataSink());
             simG.add(harmonicPlot);
             
+            DisplayBox diffSingleA = new DisplayBox();
+            diffSingleA.setLabel("deltaA, independent approx");
+            fooerSingle.setDataSink(diffSingleA);
+            simG.add(diffSingleA);
+
             DisplayBox diffA = new DisplayBox();
+            diffA.setLabel("deltaA");
             fooer.setDataSink(diffA);
             simG.add(diffA);
             

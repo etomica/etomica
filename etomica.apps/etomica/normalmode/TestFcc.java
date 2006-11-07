@@ -72,25 +72,11 @@ public class TestFcc extends Simulation {
         phase.setBoundary(bdry);
         phase.setDensity(1.04);
 
-        PhaseImposePbc makeperiodic = new PhaseImposePbc(phase);
-        integrator.addListener(makeperiodic);
-
         lattice = new LatticeCubicFcc();
-        ConfigurationLattice config = new ConfigurationLattice(lattice);
+        config = new ConfigurationLattice(lattice);
         // config.setRescalingToFitVolume(false);
 
         config.initializeCoordinates(phase);
-
-        // nan this section is a patch
-        // first we find out the scaling used in
-        // ConfigurationLattice/LatticeCubicFcc
-        // then, we create a primitive fcc lattice, and scale it so we can use
-        // it in pri.
-        primitive = lattice.getPrimitiveFcc();
-        ConfigurationLattice.MyLattice myLattice = (ConfigurationLattice.MyLattice) config
-                .getLatticeMemento();
-        Vector scaling = myLattice.latticeScaling;
-        primitive.setCubicSize(primitive.getCubicSize()*scaling.x(0));
 
         // nan phase.setDensity(1.04);
         integrator.setPhase(phase);
@@ -111,15 +97,26 @@ public class TestFcc extends Simulation {
             SimulationGraphic simG = new SimulationGraphic(sim);
             simG.makeAndDisplayFrame();
         } else {
-            PrimitiveFcc primitive = sim.primitive;
+            // nan this section is a patch
+            // first we find out the scaling used in
+            // ConfigurationLattice/LatticeCubicFcc
+            // then, we create a primitive fcc lattice, and scale it so we can use
+            // it in pri.
+            PrimitiveFcc primitive = sim.lattice.getPrimitiveFcc();
+            ConfigurationLattice.MyLattice myLattice = (ConfigurationLattice.MyLattice) sim.config
+                    .getLatticeMemento();
+            Vector scaling = myLattice.latticeScaling;
+            primitive.setCubicSize(primitive.getCubicSize()*scaling.x(0));
+
             MeterNormalMode meterNormalMode = new MeterNormalMode();
             meterNormalMode.setPrimitive(primitive);
             meterNormalMode.setPhase(sim.phase);
+            meterNormalMode.setNormalCoordWrapper(new NormalCoordLeaf(sim.space));
+
             if (false) {
                 // set up a contrived wave
                 sim.phase.setDimensions(new Vector3D(6,6,6));
-                LatticeCubicFcc lattice = new LatticeCubicFcc();
-                ConfigurationLattice config = new ConfigurationLattice(lattice);
+                ConfigurationLattice config = new ConfigurationLattice(sim.lattice);
                 // config.setRescalingToFitVolume(false);
     
                 config.initializeCoordinates(sim.phase);
@@ -129,10 +126,10 @@ public class TestFcc extends Simulation {
                 // ConfigurationLattice/LatticeCubicFcc
                 // then, we create a primitive fcc lattice, and scale it so we can use
                 // it in pri.
-                primitive = lattice.getPrimitiveFcc();
-                ConfigurationLattice.MyLattice myLattice = (ConfigurationLattice.MyLattice) config
+                primitive = sim.lattice.getPrimitiveFcc();
+                myLattice = (ConfigurationLattice.MyLattice) config
                         .getLatticeMemento();
-                Vector scaling = myLattice.latticeScaling;
+                scaling = myLattice.latticeScaling;
                 primitive.setCubicSize(primitive.getCubicSize()*scaling.x(0));
                 System.out.println(primitive.getCubicSize());
                 if (primitive.getCubicSize() > Math.sqrt(2)+0.0001 || primitive.getCubicSize() < Math.sqrt(2)-0.0001) {
@@ -182,7 +179,7 @@ public class TestFcc extends Simulation {
             
             DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
             normalModeData.TE(1.0/(sim.phase.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
-            int normalDim = meterNormalMode.getNormalDim();
+            int normalDim = meterNormalMode.getNormalCoordWrapper().getNormalDim();
             
             Vector[] waveVectors = meterNormalMode.getWaveVectors();
             
@@ -223,5 +220,5 @@ public class TestFcc extends Simulation {
     public Phase phase;
     public BoundaryRectangularPeriodic bdry;
     public LatticeCubicFcc lattice;
-    public PrimitiveFcc primitive;
+    public ConfigurationLattice config;
 }
