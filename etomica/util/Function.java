@@ -82,6 +82,26 @@ public interface Function {
     }
 
     /**
+     * The function f(x) = exp(x)
+     */
+    public static class Exp implements Function, java.io.Serializable {
+
+        public double f(double x) {
+            return Math.exp(x);
+        }
+
+        public double dfdx(double x) {
+            return Math.exp(x);
+        }
+
+        public double inverse(double x) {
+            return Math.log(x);
+        }
+
+        public final static Exp INSTANCE = new Exp();
+    }
+
+    /**
      * The function f(x) = ln(x)
      */
     public static class Log implements Function, java.io.Serializable {
