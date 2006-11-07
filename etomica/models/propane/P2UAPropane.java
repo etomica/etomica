@@ -1,5 +1,5 @@
 
-package etomica.models.hexane;
+package etomica.models.propane;
 
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;

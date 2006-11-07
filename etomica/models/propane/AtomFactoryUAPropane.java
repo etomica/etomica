@@ -1,4 +1,4 @@
-package etomica.models.hexane;
+package etomica.models.propane;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomFactory;

@@ -1,4 +1,4 @@
-package etomica.models.hexane;
+package etomica.models.propane;
 import java.lang.reflect.Constructor;
 
 import etomica.EtomicaElement;
