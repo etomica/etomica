@@ -155,6 +155,7 @@ public class TestFccHarmonic extends Simulation {
         harmonicSingleEnergy.setEigenvectors(eigenvectors);
         harmonicSingleEnergy.setOmegaSquared(omegaSquared);
         harmonicSingleEnergy.setWaveVectors(q);
+        harmonicSingleEnergy.setNormalCoordMapper(new NormalCoordLeaf(sim.space));
         harmonicSingleEnergy.setPhase(sim.phase);
         harmonicSingleEnergy.setTemperature(1.0);
 //        DataProcessorFunction harmonicLog = new DataProcessorFunction(new Function.Log());

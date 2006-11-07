@@ -29,7 +29,7 @@ public class MeterHarmonicSingleEnergy implements Meter {
         return tag;
     }
     
-    public void setNormalCoordWrapper(NormalCoordMapper newNormalCoordWrapper) {
+    public void setNormalCoordMapper(NormalCoordMapper newNormalCoordWrapper) {
         normalCoordMapper = newNormalCoordWrapper;
         normalDim = normalCoordMapper.getNormalDim();
     }

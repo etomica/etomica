@@ -150,7 +150,7 @@ public class TestHarmonic extends Simulation {
         harmonicSingleEnergy.setWaveVectors(q);
         harmonicSingleEnergy.setPhase(sim.phase);
         harmonicSingleEnergy.setTemperature(1.0);
-        harmonicSingleEnergy.setNormalCoordWrapper(normalCoordLeaf);
+        harmonicSingleEnergy.setNormalCoordMapper(normalCoordLeaf);
 //        DataProcessorFunction harmonicLog = new DataProcessorFunction(new Function.Log());
         AccumulatorAverage harmonicSingleAvg = new AccumulatorAverage(5);
         DataHistogram harmonicSingleHistogram = new DataHistogram(new HistogramSimple.Factory(50, new DoubleRange(0, 1)));
