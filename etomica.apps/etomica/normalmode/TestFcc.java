@@ -3,7 +3,6 @@ package etomica.normalmode;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomLeaf;
@@ -110,8 +109,9 @@ public class TestFcc extends Simulation {
 
             MeterNormalMode meterNormalMode = new MeterNormalMode();
             meterNormalMode.setPrimitive(primitive);
-            meterNormalMode.setPhase(sim.phase);
+            meterNormalMode.setWaveVectorFactory(new WaveVectorFactoryFcc());
             meterNormalMode.setNormalCoordWrapper(new NormalCoordLeaf(sim.space));
+            meterNormalMode.setPhase(sim.phase);
 
             if (false) {
                 // set up a contrived wave

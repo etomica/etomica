@@ -16,7 +16,6 @@ import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.lattice.crystal.Primitive;
 import etomica.phase.Phase;
 import etomica.space.Vector;
-import etomica.space3d.Vector3D;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -45,6 +44,14 @@ public class MeterNormalMode implements Meter, Action, Serializable {
         return primitive;
     }
     
+    public void setWaveVectorFactory(WaveVectorFactory newWaveVectorFactory) {
+        waveVectorFactory = newWaveVectorFactory;
+    }
+     
+    public WaveVectorFactory getWaveVectorFactory() {
+        return waveVectorFactory;
+    }
+    
     /**
      * Sets the phase.  This method should be called when the Atoms are in 
      * their lattice positions.
@@ -70,50 +77,8 @@ public class MeterNormalMode implements Meter, Action, Serializable {
             throw new RuntimeException("Please set primitive before the phase!!!!  Start again.");
         }
         
-        numCells = 0;
-        double d = -1;
-        for (int i=0; i<phase.space().D(); i++) {
-            //XXX divide by sqrt(2) for FCC
-            int n = (int)Math.round(phase.getBoundary().getDimensions().x(i) / (primitive.getSize()[i]*Math.sqrt(2)));
-            if (i>0 && n != numCells) {
-                System.out.println("Things would be so much happier if you would just use the same number of cells in each direction.");
-                throw new RuntimeException("... unless you're actually using a single-atom basis, in which case, you should fix the class.");
-            }
-            numCells = n;
-            d = primitive.getSize()[i];
-        }
-        
-        // FCC has 4-atom basis
-        numWaveVectors = 4;
-        for (int i=0; i<phase.space().D(); i++) {
-            // -halfSize to halfSize in the other directions, including 0
-            numWaveVectors *= numCells;
-        }
-//        numWaveVectors = (numWaveVectors-1)/2;
-        
-        //XXX the given constraints are for FCC
-        Vector[] waveVectorsTemp = new Vector[numWaveVectors];
-        int count = -1;
-        for (int kx = 0; kx <= numCells; kx++) {
-            for (int ky = ((kx==0) ? 1 : -numCells + 1); ky <= numCells; ky++) {
-                for (int kz = ((kx==0 && ky==0) ? 1 : -numCells + 1); kz <= numCells; kz++) {
-                    if (2 * (kx + ky + kz) <= 3 * numCells
-                            && 2 * (kx + ky + kz) > -3 * numCells
-                            && 2 * (kx + ky - kz) <= 3 * numCells
-                            && 2 * (kx + ky - kz) > -3 * numCells
-                            && 2 * (kx - ky + kz) <= 3 * numCells
-                            && 2 * (kx - ky + kz) > -3 * numCells
-                            && 2 * (kx - ky - kz) <= 3 * numCells
-                            && 2 * (kx - ky - kz) > -3 * numCells) {
-                        waveVectorsTemp[++count] = new Vector3D(kx, ky, kz);
-                        waveVectorsTemp[count].TE(Math.sqrt(2) * Math.PI / d / numCells);
-                    }
-                }
-            }
-        }
-        numWaveVectors = count+1;
-        waveVectors = new Vector[numWaveVectors];
-        System.arraycopy(waveVectorsTemp,0,waveVectors,0,numWaveVectors);
+        waveVectors = waveVectorFactory.makeWaveVectors(phase, primitive);
+        numWaveVectors = waveVectors.length;
 
         DataDoubleArray[] S = new DataDoubleArray[numWaveVectors];
         for (int i=0; i<S.length; i++) {
@@ -182,11 +147,7 @@ public class MeterNormalMode implements Meter, Action, Serializable {
                 }
                 atomCount++;
             }
-//            if (iVector == 0) {
-//                System.out.println("in mnm");
-//                System.out.println("realT "+realT[0]+" "+realT[1]+" "+realT[2]);
-//                System.out.println("imagT "+imaginaryT[0]+" "+imaginaryT[1]+" "+imaginaryT[2]);
-//            }
+
             // add to S(k).  imaginary part of S is 0
             double[] sValues = ((DataDoubleArray)data.getData(iVector)).getData();
             for (int i=0; i<normalDim; i++) {
@@ -236,8 +197,8 @@ public class MeterNormalMode implements Meter, Action, Serializable {
     
     private static final long serialVersionUID = 1L;
     private Vector[] waveVectors;
+    private WaveVectorFactory waveVectorFactory;
     protected NormalCoordMapper normalCoordMapper;
-    private int numCells;
     private int numWaveVectors;
     private Phase phase;
     private String name;
