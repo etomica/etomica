@@ -98,6 +98,7 @@ public class MeterNormalMode implements Meter, Action, Serializable {
         imaginaryT = new double[normalDim];
         
         // notifies NormalCoordWrapper of the nominal position of each atom
+        normalCoordMapper.setNumAtoms(iterator.size());
         iterator.reset();
         atomCount = 0;
         while (iterator.hasNext()) {
