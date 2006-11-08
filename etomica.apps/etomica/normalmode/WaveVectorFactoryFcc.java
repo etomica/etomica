@@ -3,9 +3,14 @@ package etomica.normalmode;
 import java.io.Serializable;
 
 import etomica.lattice.crystal.Primitive;
+import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.phase.Phase;
+import etomica.simulation.Simulation;
 import etomica.space.Vector;
+import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
+import etomica.species.Species;
+import etomica.species.SpeciesSpheresMono;
 
 /**
  * WaveVectorFactory implementation that returns wave vectors appropriate for 
@@ -39,7 +44,7 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
         Vector[] waveVectorsTemp = new Vector[numWaveVectors];
         int count = 0;
         for (int kx = 0; kx <= numCells; kx++) {
-            for (int ky = ((kx==0) ? 1 : -numCells); ky <= numCells; ky++) {
+            for (int ky = ((kx==0) ? 0 : -numCells); ky <= numCells; ky++) {
                 for (int kz = ((kx==0 && ky==0) ? 1 : -numCells); kz <= numCells; kz++) {
                     if (2 * (kx + ky + kz) <= 3 * numCells
                             && 2 * (kx + ky + kz) > -3 * numCells
@@ -62,6 +67,23 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
 
         return waveVectors;
     }
-
+    
+    public static void main(String[] args) {
+        int nCells = 2;
+        Simulation sim = new Simulation(Space3D.getInstance());
+        Phase phase = new Phase(sim);
+        phase.setDimensions(new Vector3D(nCells, nCells, nCells));
+        Species species = new SpeciesSpheresMono(sim);
+        phase.getAgent(species).setNMolecules(4*nCells*nCells*nCells);
+        Primitive primitive = new PrimitiveCubic(sim.space, 1/Math.sqrt(2));
+        
+        WaveVectorFactoryFcc foo = new WaveVectorFactoryFcc();
+        Vector[] waveVectors = foo.makeWaveVectors(phase, primitive);
+        System.out.println("number of wave vectors "+waveVectors.length);
+        for (int i=0; i<waveVectors.length; i++) {
+            System.out.println(waveVectors[i]);
+        }
+    }
+    
     private static final long serialVersionUID = 1L;
 }
