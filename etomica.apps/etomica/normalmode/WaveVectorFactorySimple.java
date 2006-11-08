@@ -33,8 +33,8 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
     
         // 0 to halfSize, round down for halfSize
         // double count here, and then we'll fix it later
-        int numWaveVectors = 2*(numCells[0]/2);
-        for (int i=0; i<phase.space().D(); i++) {
+        int numWaveVectors = 2*(numCells[0]/2)+1;
+        for (int i=1; i<phase.space().D(); i++) {
             // -halfSize to halfSize in the other directions, including 0
             // round down for halfSize
             numWaveVectors *= 2*(numCells[i]/2)+1;
@@ -50,7 +50,7 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
         Vector waveVectorXY = phase.space().makeVector();
         for (int kx = 0; kx < numCells[0]/2+1; kx++) {
             waveVectorX.Ea1Tv1(kx, waveVectorBasis[0]);
-            for (int ky = ((kx==0) ? 1 : -numCells[1]/2); ky < numCells[1]/2+1; ky++) {
+            for (int ky = ((kx==0) ? 0 : -numCells[1]/2); ky < numCells[1]/2+1; ky++) {
                 waveVectorXY.Ev1Pa1Tv2(waveVectorX, ky, waveVectorBasis[1]);
                 for (int kz = ((kx==0 && ky==0) ? 1 : -numCells[2]/2); kz < numCells[2]/2+1; kz++) {
                     waveVectors[count] = phase.space().makeVector();
