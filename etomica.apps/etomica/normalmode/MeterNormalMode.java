@@ -13,7 +13,6 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
-import etomica.lattice.crystal.Primitive;
 import etomica.phase.Phase;
 import etomica.space.Vector;
 import etomica.units.CompoundDimension;
@@ -34,14 +33,6 @@ public class MeterNormalMode implements Meter, Action, Serializable {
     
     public NormalCoordMapper getNormalCoordWrapper() {
         return normalCoordMapper;
-    }
-
-    public void setPrimitive(Primitive newPrimitive) {
-        primitive = newPrimitive;
-    }
-    
-    public Primitive getPrimitive() {
-        return primitive;
     }
     
     public void setWaveVectorFactory(WaveVectorFactory newWaveVectorFactory) {
@@ -73,11 +64,7 @@ public class MeterNormalMode implements Meter, Action, Serializable {
             atomCount++;
         }
 
-        if (primitive == null) {
-            throw new RuntimeException("Please set primitive before the phase!!!!  Start again.");
-        }
-        
-        waveVectorFactory.makeWaveVectors(phase, primitive);
+        waveVectorFactory.makeWaveVectors(phase);
         waveVectors = waveVectorFactory.getWaveVectors();
         // we don't actually care about the coefficients
         numWaveVectors = waveVectors.length;
@@ -211,7 +198,6 @@ public class MeterNormalMode implements Meter, Action, Serializable {
     private final AtomIteratorAllMolecules iterator;
     private Vector[] latticePositions;
     private int callCount;
-    private Primitive primitive;
 
     protected int normalDim;
     protected double[] u;

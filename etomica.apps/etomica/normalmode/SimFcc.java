@@ -81,8 +81,8 @@ public class SimFcc extends Simulation {
      */
     public static void main(String[] args) {
         int nA = 108;
-        String filename = "normal_modes";
-        double density = 1.04;
+        String filename = "normal_modes110";
+        double density = 1.10;
         double simTime = 400;
         if (args.length > 0) {
             filename = args[0];
@@ -111,9 +111,9 @@ public class SimFcc extends Simulation {
         primitive.setCubicSize(primitive.getCubicSize()*scaling.x(0));
 
         MeterNormalMode meterNormalMode = new MeterNormalMode();
-        meterNormalMode.setPrimitive(primitive);
         meterNormalMode.setNormalCoordWrapper(new NormalCoordLeaf(sim.space));
-        meterNormalMode.setWaveVectorFactory(new WaveVectorFactoryFcc());
+        WaveVectorFactoryFcc waveVectorFactory = new WaveVectorFactoryFcc(primitive);
+        meterNormalMode.setWaveVectorFactory(waveVectorFactory);
         meterNormalMode.setPhase(sim.phase);
 
         int nSteps = (int) (simTime / sim.integrator.getTimeStep());

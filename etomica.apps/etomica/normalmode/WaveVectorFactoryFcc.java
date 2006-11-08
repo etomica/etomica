@@ -2,8 +2,7 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
-import etomica.lattice.crystal.Primitive;
-import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.lattice.crystal.PrimitiveFcc;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
@@ -20,7 +19,11 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
 
-    public void makeWaveVectors(Phase phase, Primitive primitive) {
+    public WaveVectorFactoryFcc(PrimitiveFcc primitive) {
+        this.primitive = primitive;
+    }
+    
+    public void makeWaveVectors(Phase phase) {
         int numCells = 0;
         double d = -1;
         for (int i=0; i<phase.space().D(); i++) {
@@ -105,10 +108,10 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
         phase.setDimensions(new Vector3D(nCells, nCells, nCells));
         Species species = new SpeciesSpheresMono(sim);
         phase.getAgent(species).setNMolecules(4*nCells*nCells*nCells);
-        Primitive primitive = new PrimitiveCubic(sim.space, 1/Math.sqrt(2));
+        PrimitiveFcc primitive = new PrimitiveFcc(sim.space, 1/Math.sqrt(2));
         
-        WaveVectorFactoryFcc foo = new WaveVectorFactoryFcc();
-        foo.makeWaveVectors(phase, primitive);
+        WaveVectorFactoryFcc foo = new WaveVectorFactoryFcc(primitive);
+        foo.makeWaveVectors(phase);
         Vector[] waveVectors = foo.getWaveVectors();
         double[] coefficients = foo.getCoefficients();
         System.out.println("number of wave vectors "+waveVectors.length);
@@ -117,7 +120,8 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
         }
     }
 
+    private static final long serialVersionUID = 1L;
+    protected final PrimitiveFcc primitive;
     protected Vector3D[] waveVectors;
     protected double[] coefficients;
-    private static final long serialVersionUID = 1L;
 }

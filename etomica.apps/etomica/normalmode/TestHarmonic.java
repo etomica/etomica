@@ -186,9 +186,9 @@ public class TestHarmonic extends Simulation {
             primitive.setCubicSize(primitive.getCubicSize()*scaling.x(0));
 
             MeterNormalMode meterNormalMode = new MeterNormalMode();
-            meterNormalMode.setPrimitive(primitive);
             meterNormalMode.setPhase(sim.phase);
             meterNormalMode.setNormalCoordWrapper(normalCoordLeaf);
+            meterNormalMode.setWaveVectorFactory(new WaveVectorFactoryFcc(primitive));
 
             int nSteps = 100;
 

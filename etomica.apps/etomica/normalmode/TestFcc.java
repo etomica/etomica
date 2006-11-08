@@ -108,8 +108,7 @@ public class TestFcc extends Simulation {
             primitive.setCubicSize(primitive.getCubicSize()*scaling.x(0));
 
             MeterNormalMode meterNormalMode = new MeterNormalMode();
-            meterNormalMode.setPrimitive(primitive);
-            meterNormalMode.setWaveVectorFactory(new WaveVectorFactoryFcc());
+            meterNormalMode.setWaveVectorFactory(new WaveVectorFactoryFcc(primitive));
             meterNormalMode.setNormalCoordWrapper(new NormalCoordLeaf(sim.space));
             meterNormalMode.setPhase(sim.phase);
 
@@ -135,7 +134,7 @@ public class TestFcc extends Simulation {
                 if (primitive.getCubicSize() > Math.sqrt(2)+0.0001 || primitive.getCubicSize() < Math.sqrt(2)-0.0001) {
                     throw new RuntimeException("It should have been 2");
                 }
-                meterNormalMode.setPrimitive(primitive);
+                meterNormalMode.setWaveVectorFactory(new WaveVectorFactoryFcc(primitive));
                 AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
                 iterator.setPhase(sim.phase);
                 iterator.reset();
@@ -162,7 +161,7 @@ public class TestFcc extends Simulation {
                 meterNormalMode.actionPerformed();
             }            
             
-            double simTime = 4000.0;
+            double simTime = 400.0;
             int nSteps = (int) (simTime / sim.integrator.getTimeStep());
 
             String filename = "normal_modes4000";

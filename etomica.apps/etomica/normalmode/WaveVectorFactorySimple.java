@@ -21,7 +21,11 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable {
 
-    public void makeWaveVectors(Phase phase, Primitive primitive) {
+    public WaveVectorFactorySimple(Primitive primitive) {
+        this.primitive = primitive;
+    }
+    
+    public void makeWaveVectors(Phase phase) {
         // If we weren't given wave vectors, determine them from the phase boundary and primitve
         // assume 1-molecule basis and matchup betwen the box and the primitive
     
@@ -109,8 +113,8 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
         phase.getAgent(species).setNMolecules(nCells*nCells*nCells);
         Primitive primitive = new PrimitiveCubic(sim.space, 1);
         
-        WaveVectorFactorySimple foo = new WaveVectorFactorySimple();
-        foo.makeWaveVectors(phase, primitive);
+        WaveVectorFactorySimple foo = new WaveVectorFactorySimple(primitive);
+        foo.makeWaveVectors(phase);
         Vector[] waveVectors = foo.getWaveVectors();
         double[] coefficients = foo.getCoefficients();
         System.out.println("number of wave vectors "+waveVectors.length);
@@ -120,6 +124,7 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
     }
 
     private static final long serialVersionUID = 1L;
+    protected final Primitive primitive;
     protected Vector[] waveVectors;
     protected double[] coefficients;
 }
