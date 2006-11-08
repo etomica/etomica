@@ -204,8 +204,7 @@ public class TestHexane extends Simulation {
             // primitive doesn't need scaling.  The boundary was designed to be commensurate with the primitive
 
             MeterNormalMode meterNormalMode = new MeterNormalMode();
-            meterNormalMode.setPrimitive(primitive);
-            meterNormalMode.setWaveVectorFactory(new WaveVectorFactorySimple());
+            meterNormalMode.setWaveVectorFactory(new WaveVectorFactorySimple(primitive));
             meterNormalMode.setNormalCoordWrapper(new NormalCoordHexane());
             meterNormalMode.setPhase(sim.phase);
 
