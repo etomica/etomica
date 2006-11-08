@@ -1,10 +1,5 @@
-/*
- * Created on Dec 6, 2004
- *
- */
 package etomica.models.hexane;
 import etomica.lattice.crystal.Primitive;
-import etomica.lattice.crystal.PrimitiveTriclinic;
 import etomica.math.geometry.Polytope;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -18,15 +13,21 @@ import etomica.space3d.Vector3D;
 public class PrimitiveHexane extends Primitive {
     
     public PrimitiveHexane(Space space) {
-        super(space, false);
+        this(space, true);
+    }
+    
+    protected PrimitiveHexane(Space space, boolean makeReciprocal) {
+        super(space, makeReciprocal);
         latticeVectors[0] = new Vector3D(-0.0450226624118149, 0.533363447960696, 2.05308369446092);
         latticeVectors[1] = new Vector3D(0.355734889084923, 1.281874771828840, 0.146059929673340);
         latticeVectors[2] = new Vector3D(0.763064234689232, -0.640942796742683, -0.083271977067129);
+
+        double[] newSize = new double[3];
+        newSize[0] = Math.sqrt(latticeVectors[0].squared());
+        newSize[1] = Math.sqrt(latticeVectors[1].squared());
+        newSize[2] = Math.sqrt(latticeVectors[2].squared());
         
-        setSize(new double[] {Math.sqrt(latticeVectors[0].squared()), 
-                                Math.sqrt(latticeVectors[1].squared()),
-                                Math.sqrt(latticeVectors[2].squared())});
-        
+        setSize(newSize);
         
         //In units of sigma
 //        super(space, 2.86842545, 1.338313769, 1.290909603, 0.779541414, 1.109209538,
@@ -40,21 +41,60 @@ public class PrimitiveHexane extends Primitive {
     
     
     protected Primitive makeReciprocal() {
-        return new PrimitiveHexane(space);
+        // lattice vectors will be totally bogus.  we'll fix them later
+        return new PrimitiveHexane(space, false);
     }
     
     //called by update method of superclass
     protected void updateReciprocal() {
-        
+        //XXX this does not update the reciprocal's size
+        PrimitiveHexane recip = (PrimitiveHexane)reciprocal;
+        Vector3D aStar = (Vector3D)recip.latticeVectors[0];
+        Vector3D bStar = (Vector3D)recip.latticeVectors[1];
+        Vector3D cStar = (Vector3D)recip.latticeVectors[2];
+        Vector3D aVec = (Vector3D)latticeVectors[0];
+        Vector3D bVec = (Vector3D)latticeVectors[1];
+        Vector3D cVec = (Vector3D)latticeVectors[2];
+        aStar.E(bVec);
+        aStar.XE(cVec);
+        double factor = 2.0*Math.PI/aVec.dot(aStar); // a . (b X c)
+        aStar.TE(factor);
+        bStar.E(cVec);
+        bStar.XE(aVec);
+        bStar.TE(factor);
+        cStar.E(aVec);
+        cStar.XE(bVec);
+        cStar.TE(factor);
     }
     
-
+    /**
+     * Sets A and scales B and C to maintain relative size
+     */
+    public void setA(double newA) {
+        scaleSize(newA/size[0]);
+    }
+    
     public void setSize(double[] newSize) {
         if (size[0] == newSize[0] && size[1] == newSize[1] && size[2] == newSize[2]) {
             // no change
             return;
         }
-        super.setSize(newSize);
+        if (size[0] == 0) {
+            //initialization
+            super.setSize(newSize);
+        }
+
+        // size can be scaled, but not the relative values cannot change
+        double scale = newSize[0] / size[0];
+        if (newSize[1] - size[1]*scale > 0.0000001*(newSize[1]+size[1]*scale) ||
+            newSize[2] - size[2]*scale > 0.0000001*(newSize[1]+size[2]*scale)) {
+            throw new IllegalArgumentException("You can't change the relative size of the primitive vectors");
+        }
+        double[] newNewSize = new double[3];
+        newNewSize[0] = newSize[0];
+        newNewSize[1] = scale*size[1];
+        newNewSize[2] = scale*size[2];
+        super.setSize(newNewSize);
     }
     
     protected void update() {
@@ -101,5 +141,5 @@ public class PrimitiveHexane extends Primitive {
     
     public String toString() {return "Hexane";}
 
+    private static final long serialVersionUID = 1L;
 }
-
