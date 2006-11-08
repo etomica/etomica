@@ -77,7 +77,9 @@ public class MeterNormalMode implements Meter, Action, Serializable {
             throw new RuntimeException("Please set primitive before the phase!!!!  Start again.");
         }
         
-        waveVectors = waveVectorFactory.makeWaveVectors(phase, primitive);
+        waveVectorFactory.makeWaveVectors(phase, primitive);
+        waveVectors = waveVectorFactory.getWaveVectors();
+        // we don't actually care about the coefficients
         numWaveVectors = waveVectors.length;
 
         DataDoubleArray[] S = new DataDoubleArray[numWaveVectors];

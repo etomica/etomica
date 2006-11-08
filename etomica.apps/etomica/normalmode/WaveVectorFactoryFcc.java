@@ -20,7 +20,7 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
 
-    public Vector[] makeWaveVectors(Phase phase, Primitive primitive) {
+    public void makeWaveVectors(Phase phase, Primitive primitive) {
         int numCells = 0;
         double d = -1;
         for (int i=0; i<phase.space().D(); i++) {
@@ -33,20 +33,19 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
             d = primitive.getSize()[i];
         }
         
-        // FCC has 4-atom basis
-        int numWaveVectors = 4;
-        for (int i=0; i<phase.space().D(); i++) {
-            // -halfSize to halfSize in the other directions, including 0
-            numWaveVectors *= numCells;
-        }
-        
-        //XXX the given constraints are for FCC
-        Vector[] waveVectorsTemp = new Vector[numWaveVectors];
+        int[][][] waveVectorIndices = new int[2*numCells+1][2*numCells+1][2*numCells+1];
         int count = 0;
-        for (int kx = 0; kx <= numCells; kx++) {
-            for (int ky = ((kx==0) ? 0 : -numCells); ky <= numCells; ky++) {
-                for (int kz = ((kx==0 && ky==0) ? 1 : -numCells); kz <= numCells; kz++) {
-                    if (2 * (kx + ky + kz) <= 3 * numCells
+        // this will find 4(numCells)^3 vectors.  Some of them have negatives 
+        // within the set others do not.  If its negative is within the set, 
+        // exclude the negative, but remember it was there -- they will have 
+        // coefficients of '1' while the ones without a negative in the set 
+        // will have coefficients of '0.5'.  The ones without a negative have
+        // instead a vector which handles the same degree of freedom.
+        for (int kx = -numCells+1; kx <= numCells; kx++) {
+            for (int ky = -numCells+1; ky <= numCells; ky++) {
+                for (int kz = -numCells+1; kz <= numCells; kz++) {
+                    if (kx == 0 && ky == 0 && kz == 0) continue;
+                    if (2 * (Math.abs(kx) + Math.abs(ky) + Math.abs(kz)) <= 3 * numCells
                             && 2 * (kx + ky + kz) > -3 * numCells
                             && 2 * (kx + ky - kz) <= 3 * numCells
                             && 2 * (kx + ky - kz) > -3 * numCells
@@ -54,22 +53,53 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
                             && 2 * (kx - ky + kz) > -3 * numCells
                             && 2 * (kx - ky - kz) <= 3 * numCells
                             && 2 * (kx - ky - kz) > -3 * numCells) {
-                        waveVectorsTemp[count] = new Vector3D(kx, ky, kz);
-                        waveVectorsTemp[count].TE(Math.sqrt(2) * Math.PI / d / numCells);
+                        
+                        boolean flip = kx < 0 || (kx == 0 && ky < 0) || (kx == 0 && ky == 0 && kz < 0);
+                        if (flip) {
+                            if (waveVectorIndices[-kx+numCells][-ky+numCells][-kz+numCells] == 0) {
+                                // this one was unique
+                                count++;
+                            }
+                            waveVectorIndices[-kx+numCells][-ky+numCells][-kz+numCells]++;
+                        }
+                        else {
+                            if (waveVectorIndices[kx+numCells][ky+numCells][kz+numCells] == 0) {
+                                // this one was unique
+                                count++;
+                            }
+                            waveVectorIndices[kx+numCells][ky+numCells][kz+numCells]++;
+                        }
+                    }
+                }
+            }
+        }
+        waveVectors = new Vector3D[count];
+        coefficients = new double[count];
+        count = 0;
+        for (int kx = -numCells; kx <= numCells; kx++) {
+            for (int ky = -numCells; ky <= numCells; ky++) {
+                for (int kz = -numCells; kz <= numCells; kz++) {
+                    if (waveVectorIndices[kx+numCells][ky+numCells][kz+numCells] > 0) {
+                        waveVectors[count] = new Vector3D(kx, ky, kz);
+                        waveVectors[count].TE(Math.sqrt(2) * Math.PI / d / numCells);
+                        coefficients[count] = waveVectorIndices[kx+numCells][ky+numCells][kz+numCells]/2.0;
                         count++;
                     }
                 }
             }
         }
-        numWaveVectors = count;
-        Vector[] waveVectors = new Vector[numWaveVectors];
-        System.arraycopy(waveVectorsTemp,0,waveVectors,0,numWaveVectors);
-
+    }
+    
+    public Vector[] getWaveVectors() {
         return waveVectors;
     }
     
+    public double[] getCoefficients() {
+        return coefficients;
+    }
+    
     public static void main(String[] args) {
-        int nCells = 2;
+        int nCells = 3;
         Simulation sim = new Simulation(Space3D.getInstance());
         Phase phase = new Phase(sim);
         phase.setDimensions(new Vector3D(nCells, nCells, nCells));
@@ -78,12 +108,16 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
         Primitive primitive = new PrimitiveCubic(sim.space, 1/Math.sqrt(2));
         
         WaveVectorFactoryFcc foo = new WaveVectorFactoryFcc();
-        Vector[] waveVectors = foo.makeWaveVectors(phase, primitive);
+        foo.makeWaveVectors(phase, primitive);
+        Vector[] waveVectors = foo.getWaveVectors();
+        double[] coefficients = foo.getCoefficients();
         System.out.println("number of wave vectors "+waveVectors.length);
         for (int i=0; i<waveVectors.length; i++) {
-            System.out.println(waveVectors[i]);
+            System.out.println(coefficients[i]+" "+waveVectors[i]);
         }
     }
-    
+
+    protected Vector3D[] waveVectors;
+    protected double[] coefficients;
     private static final long serialVersionUID = 1L;
 }

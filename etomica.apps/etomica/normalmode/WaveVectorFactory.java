@@ -18,6 +18,10 @@ public interface WaveVectorFactory {
      * vectors which are opposites or any wave vector with a frequency that
      * exceeds half the nearest-neighbor frequency based on the primitve.
      */
-    public Vector[] makeWaveVectors(Phase phase, Primitive primitive);
+    public void makeWaveVectors(Phase phase, Primitive primitive);
+    
+    public Vector[] getWaveVectors();
+    
+    public double[] getCoefficients();
 
 }
