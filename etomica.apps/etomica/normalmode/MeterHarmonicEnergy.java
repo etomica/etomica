@@ -62,7 +62,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
                 }
                 // we were supposed to divide T by sqrt(atomCount), but it's easier to handle that here
                 double normalCoord = (realCoord*realCoord + imaginaryCoord*imaginaryCoord)/atomCount;
-                energySum += normalCoord * omegaSquared[iVector][i];
+                energySum += waveVectorCoefficients[iVector] * normalCoord * omegaSquared[iVector][i];
             }
         }
         return 0.5*energySum;
@@ -104,8 +104,9 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
         }
     }
     
-    public void setWaveVectors(Vector[] newWaveVectors) {
+    public void setWaveVectors(Vector[] newWaveVectors, double[] coefficients) {
         waveVectors = newWaveVectors;
+        waveVectorCoefficients = coefficients;
     }
     
     public void setEigenvectors(double[][][] newEigenVectors) {
@@ -125,6 +126,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
     protected double[] u;
     protected double[] realT, imaginaryT;
     protected Vector[] waveVectors;
+    protected double[] waveVectorCoefficients;
     protected double[][][] eigenVectors;
     protected double[][] omegaSquared;
 }

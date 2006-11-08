@@ -36,6 +36,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 import etomica.util.DoubleRange;
@@ -127,13 +128,21 @@ public class TestFccHarmonic extends Simulation {
                 omegaSquared[i][j] = 1/omegaSquared[i][j]/harmonicFudge;
             }
         }
-        Vector[] q = ArrayReader1D.getVectorsFromFile(filename+".Q");
+        double[][] waveVectorsAndCoefficients = ArrayReader1D.getFromFile(filename+".Q");
+        Vector[] waveVectors = new Vector[waveVectorsAndCoefficients.length];
+        double[] coefficients = new double[waveVectors.length];
+        for (int i=0; i<waveVectors.length; i++) {
+            coefficients[i] = waveVectorsAndCoefficients[i][0];
+            waveVectors[i] = new Vector3D(waveVectorsAndCoefficients[i][1],
+                    waveVectorsAndCoefficients[i][2],
+                    waveVectorsAndCoefficients[i][3]);
+        }
         double[][][] eigenvectors = ArrayReader2D.getFromFile(filename+".vec");
 
         MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy();
         harmonicEnergy.setEigenvectors(eigenvectors);
         harmonicEnergy.setOmegaSquared(omegaSquared);
-        harmonicEnergy.setWaveVectors(q);
+        harmonicEnergy.setWaveVectors(waveVectors, coefficients);
         harmonicEnergy.setNormalCoordWrapper(new NormalCoordLeaf(sim.space));
         harmonicEnergy.setPhase(sim.phase);
         DataFork harmonicFork = new DataFork();
@@ -154,7 +163,7 @@ public class TestFccHarmonic extends Simulation {
         MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy();
         harmonicSingleEnergy.setEigenvectors(eigenvectors);
         harmonicSingleEnergy.setOmegaSquared(omegaSquared);
-        harmonicSingleEnergy.setWaveVectors(q);
+        harmonicSingleEnergy.setWaveVectors(waveVectors, coefficients);
         harmonicSingleEnergy.setNormalCoordMapper(new NormalCoordLeaf(sim.space));
         harmonicSingleEnergy.setPhase(sim.phase);
         harmonicSingleEnergy.setTemperature(1.0);

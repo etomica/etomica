@@ -30,6 +30,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.space3d.Vector3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.DoubleRange;
@@ -121,7 +122,15 @@ public class TestHarmonic extends Simulation {
         
         NormalCoordLeaf normalCoordLeaf = new NormalCoordLeaf(sim.space);
         double harmonicFudge = 1;
-        Vector[] q = ArrayReader1D.getVectorsFromFile(filename+".Q");
+        double[][] waveVectorsAndCoefficients = ArrayReader1D.getFromFile(filename+".Q");
+        Vector[] waveVectors = new Vector[waveVectorsAndCoefficients.length];
+        double[] coefficients = new double[waveVectors.length];
+        for (int i=0; i<waveVectors.length; i++) {
+            coefficients[i] = waveVectorsAndCoefficients[i][0];
+            waveVectors[i] = new Vector3D(waveVectorsAndCoefficients[i][1],
+                    waveVectorsAndCoefficients[i][2],
+                    waveVectorsAndCoefficients[i][3]);
+        }
         double[][][] eigenvectors = ArrayReader2D.getFromFile(filename+".vec");
         double[][] omegaSquared = ArrayReader1D.getFromFile(filename+".val");
         for (int i=0; i<omegaSquared.length; i++) {
@@ -133,7 +142,7 @@ public class TestHarmonic extends Simulation {
         MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy();
         harmonicEnergy.setEigenvectors(eigenvectors);
         harmonicEnergy.setOmegaSquared(omegaSquared);
-        harmonicEnergy.setWaveVectors(q);
+        harmonicEnergy.setWaveVectors(waveVectors, coefficients);
         harmonicEnergy.setPhase(sim.phase);
         harmonicEnergy.setNormalCoordWrapper(normalCoordLeaf);
         DataFork harmonicFork = new DataFork();
@@ -147,7 +156,7 @@ public class TestHarmonic extends Simulation {
         MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy();
         harmonicSingleEnergy.setEigenvectors(eigenvectors);
         harmonicSingleEnergy.setOmegaSquared(omegaSquared);
-        harmonicSingleEnergy.setWaveVectors(q);
+        harmonicSingleEnergy.setWaveVectors(waveVectors, coefficients);
         harmonicSingleEnergy.setPhase(sim.phase);
         harmonicSingleEnergy.setTemperature(1.0);
         harmonicSingleEnergy.setNormalCoordMapper(normalCoordLeaf);
@@ -213,8 +222,6 @@ public class TestHarmonic extends Simulation {
                 DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
                 normalModeData.TE(1.0/(sim.phase.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
                 int normalDim = meterNormalMode.getNormalCoordWrapper().getNormalDim();
-                
-                Vector[] waveVectors = meterNormalMode.getWaveVectors();
                 
                 try {
                     FileWriter fileWriterQ = new FileWriter(outFilename+".Q");

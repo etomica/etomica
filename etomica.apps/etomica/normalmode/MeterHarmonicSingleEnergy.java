@@ -77,7 +77,8 @@ public class MeterHarmonicSingleEnergy implements Meter {
                 }
                 // we were supposed to divide T by sqrt(atomCount), but it's easier to handle that here
                 double normalCoord = (realCoord*realCoord + imaginaryCoord*imaginaryCoord)/atomCount;
-                x[iVector*normalDim+i] = Math.exp(-0.5* normalCoord * omegaSquared[iVector][i] / temperature);
+                x[iVector*normalDim+i] = Math.exp(-0.5 * waveVectorCoefficients[iVector] * 
+                        normalCoord * omegaSquared[iVector][i] / temperature);
             }
         }
         return data;
@@ -120,8 +121,9 @@ public class MeterHarmonicSingleEnergy implements Meter {
         }
     }
     
-    public void setWaveVectors(Vector[] newWaveVectors) {
+    public void setWaveVectors(Vector[] newWaveVectors, double[] coefficients) {
         waveVectors = newWaveVectors;
+        waveVectorCoefficients = coefficients;
     }
     
     public void setEigenvectors(double[][][] newEigenVectors) {
@@ -161,6 +163,7 @@ public class MeterHarmonicSingleEnergy implements Meter {
     protected double[] u;
     protected double[] realT, imaginaryT;
     protected Vector[] waveVectors;
+    protected double[] waveVectorCoefficients;
     protected double[][][] eigenVectors;
     protected double[][] omegaSquared;
     protected String name;
