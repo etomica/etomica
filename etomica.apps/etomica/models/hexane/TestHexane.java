@@ -3,39 +3,33 @@
  */
 package etomica.models.hexane;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.iterator.ApiBuilder;
-import etomica.atom.iterator.ApiIntragroup;
-import etomica.data.AccumulatorAverage;
-import etomica.data.DataPump;
-import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
-import etomica.data.types.DataDouble;
+import etomica.config.ConfigurationLattice;
+import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
-import etomica.nbr.CriterionAll;
-import etomica.nbr.CriterionInterMolecular;
-import etomica.nbr.CriterionMolecularNonAdjacent;
-import etomica.nbr.NeighborCriterion;
-import etomica.nbr.list.PotentialMasterList;
+import etomica.lattice.BravaisLattice;
+import etomica.normalmode.MeterNormalMode;
+import etomica.normalmode.WaveVectorFactorySimple;
 import etomica.phase.Phase;
-import etomica.potential.P2HardBond;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
-import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.models.hexane.*;
 /**
  * @author nancycribbin
  *  
@@ -58,8 +52,8 @@ public class TestHexane extends Simulation {
         super(space, false, new PotentialMaster(space));
         int chainLength = 6;
         int numAtoms = numMolecules * chainLength;
-        ConfigurationHexane config = new ConfigurationHexane(space);
-        config.setRememberingIndices(true);
+        lattice = new BravaisLattice(new PrimitiveHexane(space));
+        ConfigurationLattice config = new ConfigurationLattice(lattice);
 
         //This is the factor that multiples by the range of the potential in
         // order to define the area/volume in which neighbors are searched for.
@@ -97,8 +91,7 @@ public class TestHexane extends Simulation {
 //        integrator.getMoveManager().addMCMove(moveVolume);
         
         integrator.setIsothermal(true);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,
-                integrator);
+        activityIntegrate = new ActivityIntegrate(this, integrator);
         activityIntegrate.setMaxSteps(2000000);
         getController().addAction(activityIntegrate);
             
@@ -194,25 +187,77 @@ public class TestHexane extends Simulation {
 
     public static void main(String[] args) {
         int numMolecules = 144; //144
+        boolean graphic = false;
 
         //spaces are now singletons; we can only have one instance, so we call
         // it with this method, not a "new" thing.
         TestHexane sim = new TestHexane(Space3D.getInstance(), numMolecules);
 
         System.out.println("Happy Goodness!!");
-        
-        //This starts the simulation, sets up its own thread to start the sim,
-        // and then moves on down the list.
-        SimulationGraphic simGraphic = new SimulationGraphic(sim);
-        simGraphic.makeAndDisplayFrame();
-      
-        sim.getController().actionPerformed();
 
-        System.out.println("PE = NaN, or, I'm done, have a nice day!");
-        
-        
+        if (graphic) {
+            SimulationGraphic simGraphic = new SimulationGraphic(sim);
+            simGraphic.makeAndDisplayFrame();
+        }
+        else {
+            PrimitiveHexane primitive = (PrimitiveHexane)sim.lattice.getPrimitive();
+            // primitive doesn't need scaling.  The boundary was designed to be commensurate with the primitive
+
+            MeterNormalMode meterNormalMode = new MeterNormalMode();
+            meterNormalMode.setPrimitive(primitive);
+            meterNormalMode.setWaveVectorFactory(new WaveVectorFactorySimple());
+            meterNormalMode.setNormalCoordWrapper(new NormalCoordHexane());
+            meterNormalMode.setPhase(sim.phase);
+
+            long nSteps = 1000;
+
+            String filename = "normal_modes_hexane";
+            if (args.length > 0) {
+                filename = args[0];
+            }
+            
+            sim.activityIntegrate.setMaxSteps(nSteps);
+
+            IntervalActionAdapter adapter = new IntervalActionAdapter(meterNormalMode);
+            adapter.setActionInterval(2);
+            sim.integrator.addListener(adapter);
+            sim.getController().actionPerformed();
+            
+            DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
+            normalModeData.TE(1.0/(sim.phase.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
+            int normalDim = meterNormalMode.getNormalCoordWrapper().getNormalDim();
+            
+            Vector[] waveVectors = meterNormalMode.getWaveVectors();
+            
+            try {
+                FileWriter fileWriterQ = new FileWriter(filename+".Q");
+                FileWriter fileWriterS = new FileWriter(filename+".S");
+                for (int i=0; i<waveVectors.length; i++) {
+                    fileWriterQ.write(Double.toString(waveVectors[i].x(0)));
+                    for (int j=1; j<waveVectors[i].D(); j++) {
+                        fileWriterQ.write(" "+waveVectors[i].x(j));
+                    }
+                    fileWriterQ.write("\n");
+                    DataDoubleArray dataS = (DataDoubleArray)normalModeData.getData(i);
+                    for (int k=0; k<normalDim; k++) {
+                        fileWriterS.write(Double.toString(dataS.getValue(k*normalDim)));
+                        for (int l=1; l<normalDim; l++) {
+                            fileWriterS.write(" "+dataS.getValue(k*normalDim+l));
+                        }
+                        fileWriterS.write("\n");
+                    }
+                }
+                fileWriterQ.close();
+                fileWriterS.close();
+            }
+            catch (IOException e) {
+                throw new RuntimeException("Oops, failed to write data "+e);
+            }
+        }
+
     }
-    
+
+    public ActivityIntegrate activityIntegrate;
     public IntegratorMC integrator;
 
     public Phase phase;
@@ -220,6 +265,7 @@ public class TestHexane extends Simulation {
     public BoundaryDeformablePeriodic bdry;
  
     public MCMoveMolecule moveMolecule;
+    public BravaisLattice lattice;
     
 //    public MCMoveVolume moveVolume;
 //    public MCMoveCrankshaft crank; 
