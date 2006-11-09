@@ -18,6 +18,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
+import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.BravaisLattice;
 import etomica.normalmode.MeterNormalMode;
 import etomica.normalmode.WaveVectorFactorySimple;
@@ -74,7 +75,7 @@ public class TestHexane extends Simulation {
 //        config.initializeCoordinates(phase);
 
         integrator = new IntegratorMC(potentialMaster, defaults.temperature);
-        moveMolecule = new MCMoveMolecule(potentialMaster, defaults.atomSize, defaults.boxSize/2, false);
+        moveMolecule = new MCMoveMolecule(potentialMaster, 0.1, 1, false);
 //        moveVolume = new MCMoveVolume(potentialMaster, phase.space(), sim.getDefaults().pressure);
 //        moveVolume.setPhase(phase);
 //        crank = new MCMoveCrankshaft();
@@ -90,7 +91,7 @@ public class TestHexane extends Simulation {
         
         integrator.getMoveManager().addMCMove(moveMolecule);
 //        integrator.getMoveManager().addMCMove(snake);
-        integrator.getMoveManager().addMCMove(rot); 
+        integrator.getMoveManager().addMCMove(rot);
 //        integrator.getMoveManager().addMCMove(moveVolume);
         
         integrator.setIsothermal(true);
@@ -197,40 +198,46 @@ public class TestHexane extends Simulation {
             simGraphic.makeAndDisplayFrame();
         }
         else {
+
+            String filename = "normal_modes_hexane";
+            
             PrimitiveHexane primitive = (PrimitiveHexane)sim.lattice.getPrimitive();
             // primitive doesn't need scaling.  The boundary was designed to be commensurate with the primitive
-
+            WaveVectorFactorySimple waveVectorFactory = new WaveVectorFactorySimple(primitive);
+            // we need to set this up now even though we don't use it during equilibration so that
+            // the meter can grab the lattice points
             MeterNormalMode meterNormalMode = new MeterNormalMode();
-            meterNormalMode.setWaveVectorFactory(new WaveVectorFactorySimple(primitive));
+            meterNormalMode.setWaveVectorFactory(waveVectorFactory);
             meterNormalMode.setNormalCoordWrapper(new NormalCoordHexane());
             meterNormalMode.setPhase(sim.phase);
 
-            long nSteps = 1000;
-
-            String filename = "normal_modes_hexane";
-            if (args.length > 0) {
-                filename = args[0];
-            }
+            long nSteps = 10000;
+            sim.activityIntegrate.setMaxSteps(nSteps/10);
+            sim.getController().actionPerformed();
+            sim.getController().reset();
             
-            sim.activityIntegrate.setMaxSteps(nSteps);
-
             IntervalActionAdapter adapter = new IntervalActionAdapter(meterNormalMode);
             adapter.setActionInterval(2);
             sim.integrator.addListener(adapter);
+
             sim.getController().actionPerformed();
+
+            ((MCMoveStepTracker)sim.moveMolecule.getTracker()).setTunable(false);
+            ((MCMoveStepTracker)sim.rot.getTracker()).setTunable(false);
             
             DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
             normalModeData.TE(1.0/(sim.phase.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
             int normalDim = meterNormalMode.getNormalCoordWrapper().getNormalDim();
             
-            Vector[] waveVectors = meterNormalMode.getWaveVectors();
+            Vector[] waveVectors = waveVectorFactory.getWaveVectors();
+            double[] coefficients = waveVectorFactory.getCoefficients();
             
             try {
                 FileWriter fileWriterQ = new FileWriter(filename+".Q");
                 FileWriter fileWriterS = new FileWriter(filename+".S");
                 for (int i=0; i<waveVectors.length; i++) {
-                    fileWriterQ.write(Double.toString(waveVectors[i].x(0)));
-                    for (int j=1; j<waveVectors[i].D(); j++) {
+                    fileWriterQ.write(Double.toString(coefficients[i]));
+                    for (int j=0; j<waveVectors[i].D(); j++) {
                         fileWriterQ.write(" "+waveVectors[i].x(j));
                     }
                     fileWriterQ.write("\n");
