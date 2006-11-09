@@ -246,7 +246,7 @@ public class TestHexaneHarmonic extends Simulation {
         DataPump pump = new DataPump(harmonicEnergy, harmonicFork);
         harmonicFork.addDataSink(harmonicAvg);
         IntervalActionAdapter adapter = new IntervalActionAdapter(pump);
-        adapter.setActionInterval(2);
+        adapter.setActionInterval(100);
         sim.integrator.addListener(adapter);
         BoltzmannProcessor boltz = new BoltzmannProcessor();
         boltz.setTemperature(1.0);
@@ -271,7 +271,7 @@ public class TestHexaneHarmonic extends Simulation {
 //        harmonicSingleHistogram.setDataSink(harmonicSingleAvg);
         harmonicSingleAvg.addDataSink(harmonicSingleHistogram, new StatType[]{StatType.AVERAGE});
         adapter = new IntervalActionAdapter(pump);
-        adapter.setActionInterval(2);
+        adapter.setActionInterval(100);
         sim.integrator.addListener(adapter);
         DataProcessorFoo fooerSingle = new DataProcessorFoo();
         harmonicSingleAvg.addDataSink(fooerSingle, new StatType[]{StatType.AVERAGE});
@@ -279,7 +279,7 @@ public class TestHexaneHarmonic extends Simulation {
         if (graphic) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim);
             // don't spend all of our time repainting
-            ((DisplayPhaseCanvas3DOpenGL)simGraphic.getDisplayPhase(sim.phase).canvas).setAnimateFps(1);
+//            ((DisplayPhaseCanvas3DOpenGL)simGraphic.getDisplayPhase(sim.phase).canvas).setAnimateFps(1);
             DisplayBoxesCAE harmonicBoxes = new DisplayBoxesCAE();
             harmonicBoxes.setAccumulator(harmonicAvg);
             simGraphic.add(harmonicBoxes);

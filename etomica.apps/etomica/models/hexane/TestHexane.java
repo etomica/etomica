@@ -217,7 +217,7 @@ public class TestHexane extends Simulation {
             sim.getController().reset();
             
             IntervalActionAdapter adapter = new IntervalActionAdapter(meterNormalMode);
-            adapter.setActionInterval(2);
+            adapter.setActionInterval(100);
             sim.integrator.addListener(adapter);
 
             sim.getController().actionPerformed();
