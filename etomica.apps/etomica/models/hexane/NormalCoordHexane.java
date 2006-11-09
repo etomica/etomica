@@ -32,7 +32,6 @@ public class NormalCoordHexane extends NormalCoordMolecule {
         bPrime = new Vector3D();
         midpoint13 = new Vector3D();
         deltaVPrime = new Vector3D();
-        deltaVprimeC = new Vector3D();
         c = new Vector3D();
         deltaV = new Vector3D();
     }
@@ -77,29 +76,27 @@ public class NormalCoordHexane extends NormalCoordMolecule {
             // and in the plane that contains axis0prime and axes[0] (the original molecule orientation)
             bPrime.Ea1Tv1(1.0/cosAlpha, axes[0]);
             bPrime.ME(axis0prime);
+            bPrime.TE(1/Math.sqrt(bPrime.squared()));
 
             // b is a vector of length 1, normal to axis0 (the original molecule orientation) and
             // in the same plane as everything else.
-            b.Ea1Tv1(-cosAlpha, axis0prime);
+            b.Ea1Tv1(cosAlpha, bPrime);
             // sin^2(alpha) = 1 - cos^2(alpha)
-            b.PEa1Tv1(Math.sqrt(1-cosAlpha*cosAlpha), bPrime);
+            b.PEa1Tv1(-Math.sqrt(1-cosAlpha*cosAlpha), axis0prime);
 
             // calculate the component of deltaVprime in the c direction
             // by subtracting off the component in the bPrime direction
             double bComponent = deltaVPrime.dot(bPrime);
-            deltaVprimeC.Ev1Pa1Tv2(deltaVPrime, bComponent, bPrime);
-            double cComponent = Math.sqrt(deltaVprimeC.squared());
-            
-            // theta is the angle of rotation of deltaVprime around axis0prime
-            // theta=0 means parallel with b'
-            // theta=pi/2 means parallel with c
-            // double theta = Math.atan2(cComponent, bComponent);
-            // cos(theta) = bComponent/|deltaV|  (|deltaV|=1)
-            // sin(theta) = cComponent/|deltaV|
             
             // get the "c" axis, perpendicular to aprime and bprime (and also a and b)
             c.E(axis0prime);
             c.XE(bPrime);
+            double cComponent = deltaVPrime.dot(c);
+
+            // if theta is the angle of rotation of deltaVprime around axis0prime
+            // using b as theta=0.  We seek to maintain that angle of rotation for 
+            // deltaV around axis0, using b as theta=0
+            
             deltaV.Ea1Tv1(bComponent, b);
             deltaV.PEa1Tv1(cComponent, c);
         }
@@ -182,7 +179,7 @@ public class NormalCoordHexane extends NormalCoordMolecule {
     }
     
     private static final long serialVersionUID = 1L;
-    private final Vector3D axis0prime, bPrime, midpoint13, deltaVPrime, deltaVprimeC;
+    private final Vector3D axis0prime, bPrime, midpoint13, deltaVPrime;
     private final Vector3D c, deltaV, b;
     private Vector3D[] axes;
 }
