@@ -18,16 +18,13 @@ public class PrimitiveHexane extends Primitive {
     
     protected PrimitiveHexane(Space space, boolean makeReciprocal) {
         super(space, makeReciprocal);
-        latticeVectors[0] = new Vector3D(-0.0450226624118149, 0.533363447960696, 2.05308369446092);
-        latticeVectors[1] = new Vector3D(0.355734889084923, 1.281874771828840, 0.146059929673340);
-        latticeVectors[2] = new Vector3D(0.763064234689232, -0.640942796742683, -0.083271977067129);
 
-        double[] newSize = new double[3];
-        newSize[0] = Math.sqrt(latticeVectors[0].squared());
-        newSize[1] = Math.sqrt(latticeVectors[1].squared());
-        newSize[2] = Math.sqrt(latticeVectors[2].squared());
+        fixedSizes = new double[3];
+        for (int i=0; i<3; i++) {
+            fixedSizes[i] = Math.sqrt(fixedLatticeVector[i].squared());
+        }
         
-        setSize(newSize);
+        setSize(fixedSizes);
         
         //In units of sigma
 //        super(space, 2.86842545, 1.338313769, 1.290909603, 0.779541414, 1.109209538,
@@ -85,20 +82,24 @@ public class PrimitiveHexane extends Primitive {
         }
 
         // size can be scaled, but not the relative values cannot change
-        double scale = newSize[0] / size[0];
-        if (newSize[1] - size[1]*scale > 0.0000001*(newSize[1]+size[1]*scale) ||
-            newSize[2] - size[2]*scale > 0.0000001*(newSize[1]+size[2]*scale)) {
+        double scale = newSize[0] / fixedSizes[0];
+        if (newSize[1] - fixedSizes[1]*scale > 0.0000001*(newSize[1]+fixedSizes[1]*scale) ||
+            newSize[2] - fixedSizes[2]*scale > 0.0000001*(newSize[1]+fixedSizes[2]*scale)) {
             throw new IllegalArgumentException("You can't change the relative size of the primitive vectors");
         }
         double[] newNewSize = new double[3];
         newNewSize[0] = newSize[0];
-        newNewSize[1] = scale*size[1];
-        newNewSize[2] = scale*size[2];
+        newNewSize[1] = scale*fixedSizes[1];
+        newNewSize[2] = scale*fixedSizes[2];
         super.setSize(newNewSize);
     }
     
     protected void update() {
         super.update();
+        double scale = size[0]/fixedSizes[0];
+        for (int i=0; i<3; i++) {
+            latticeVectors[i].Ea1Tv1(scale, fixedLatticeVector[i]);
+        }
     }
     
     
@@ -142,4 +143,9 @@ public class PrimitiveHexane extends Primitive {
     public String toString() {return "Hexane";}
 
     private static final long serialVersionUID = 1L;
+    protected final Vector3D[] fixedLatticeVector = new Vector3D[]{new Vector3D(-0.0450226624118149, 0.533363447960696, 2.05308369446092),
+                                          new Vector3D(0.355734889084923, 1.281874771828840, 0.146059929673340),
+                                          new Vector3D(0.763064234689232, -0.640942796742683, -0.083271977067129)};
+    protected final double[] fixedSizes;
+
 }
