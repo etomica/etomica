@@ -81,8 +81,8 @@ public class SimFcc extends Simulation {
      */
     public static void main(String[] args) {
         int nA = 108;
-        String filename = "normal_modes110";
-        double density = 1.10;
+        String filename = "normal_modes400";
+        double density = 1.04;
         double simTime = 400;
         if (args.length > 0) {
             filename = args[0];
@@ -129,14 +129,15 @@ public class SimFcc extends Simulation {
         normalModeData.TE(1.0/(sim.phase.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
         int normalDim = meterNormalMode.getNormalCoordWrapper().getNormalDim();
         
-        Vector[] waveVectors = meterNormalMode.getWaveVectors();
+        Vector[] waveVectors = waveVectorFactory.getWaveVectors();
+        double[] coefficients = waveVectorFactory.getCoefficients();
         
         try {
             FileWriter fileWriterQ = new FileWriter(filename+".Q");
             FileWriter fileWriterS = new FileWriter(filename+".S");
             for (int i=0; i<waveVectors.length; i++) {
-                fileWriterQ.write(Double.toString(waveVectors[i].x(0)));
-                for (int j=1; j<waveVectors[i].D(); j++) {
+                fileWriterQ.write(Double.toString(coefficients[i]));
+                for (int j=0; j<waveVectors[i].D(); j++) {
                     fileWriterQ.write(" "+waveVectors[i].x(j));
                 }
                 fileWriterQ.write("\n");
