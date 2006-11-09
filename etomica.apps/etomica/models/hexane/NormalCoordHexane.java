@@ -17,14 +17,16 @@ import etomica.space3d.Vector3D;
  * that axis.
  *
  * @author Andrew Schultz
+ * @author Nancy Cribbin
  */
 public class NormalCoordHexane extends NormalCoordMolecule {
 
     public NormalCoordHexane() {
         super(Space3D.getInstance());
-        axes = new Vector3D[2];
+        axes = new Vector3D[3];
         axes[0] = new Vector3D();
         axes[1] = new Vector3D();
+        axes[2] = new Vector3D();
         axis0prime = new Vector3D();
         b = new Vector3D();
         bPrime = new Vector3D();
@@ -163,10 +165,14 @@ public class NormalCoordHexane extends NormalCoordMolecule {
             //Then we subtract the midpoint from the location of the 1st atom on the molecule to get our final vector.
             //AKA isosceleshappyvector
             axes[1].PE(leafPos2);
-            
+
             //Normalize our axes
             axes[0].TE(1.0/Math.sqrt(axes[0].squared()));
             axes[1].TE(1.0/Math.sqrt(axes[1].squared()));
+
+            //Last axis is simply normal to the other two
+            axes[2].E(axes[0]);
+            axes[2].XE(axes[1]);
         }
     }
     
