@@ -52,7 +52,9 @@ public class TestHexane extends Simulation {
         super(space, false, new PotentialMaster(space));
         int chainLength = 6;
         int numAtoms = numMolecules * chainLength;
-        lattice = new BravaisLattice(new PrimitiveHexane(space));
+        PrimitiveHexane primitive = new PrimitiveHexane(space);
+        primitive.scaleSize(1.1);
+        lattice = new BravaisLattice(primitive);
         ConfigurationLattice config = new ConfigurationLattice(lattice);
 
         //This is the factor that multiples by the range of the potential in
@@ -81,6 +83,7 @@ public class TestHexane extends Simulation {
 //         snake.setPhase(phase);
          
          rot = new MCMoveRotateMolecule3D(potentialMaster, space);
+         rot.setStepSize(Math.PI/10);
          rot.setPhase(phase);
          
         //nan we're going to need some stuff in there to set the step sizes and other stuff like that.
@@ -95,21 +98,15 @@ public class TestHexane extends Simulation {
         activityIntegrate.setMaxSteps(2000000);
         getController().addAction(activityIntegrate);
             
-        //nan I don't know if we need these, per se, but they are used to set the length of the simulation.
-        double timeStep = 0.005;
-        double simTime = 100.0 / numAtoms;
-        int nSteps = (int) (simTime / timeStep);
-
         //nan The box size we want is 5.72906360610622 by 11.21417818673970 by
         // 7.30591061708510
         //nan this is where the squared, unsquared box stuff comes in.
         //makes the density 0.41657 per Dr. Monson's comment in e-mail.
-        defaults.boxSize = 7.018;
+//        defaults.boxSize = 7.018;
 //        defaults.boxSize = 100;
 
 
         getController().addAction(activityIntegrate);
-        activityIntegrate.setMaxSteps(nSteps);
 
         //INTERMOLECULAR POTENTIAL STUFF
 
@@ -173,7 +170,7 @@ public class TestHexane extends Simulation {
 //        
 //        potentialMaster.addPotential(potentialChainIntra, new AtomType[] { species.getMoleculeType() } );
 
-        bdry =  new BoundaryHexane(space);
+        bdry =  new BoundaryDeformableLattice(primitive, new int[]{4,6,6});
         phase.setBoundary(bdry);
 
         //Initialize the positions of the atoms.
