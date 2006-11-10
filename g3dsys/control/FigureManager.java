@@ -10,8 +10,8 @@ import javax.vecmath.Point3f;
 
 class FigureManager {
 	
-	//TODO: iterator leads to quadratic running time; fix this
-	private java.util.Collection figs; //holds Figures to be drawn.
+	//HashMap improved add/remove performance by a factor of 10
+	private java.util.HashMap figs; //holds Figures to be drawn.
 	
 	private long idCount; //for giving Figures IDs when they are added
 	
@@ -26,7 +26,7 @@ class FigureManager {
 	
 	public FigureManager(G3DSys g) {
 		//figs = new java.util.HashSet();
-		figs = new java.util.ArrayList();
+		figs = new java.util.HashMap();
 		idCount = 0;
 		gsys = g;
 	}
@@ -65,7 +65,7 @@ class FigureManager {
 		gsys.setCenterOfRotation(new javax.vecmath.Point3f(
 				(min.x+max.x)/2, (min.y+max.y)/2, (min.z+max.z)/2));
 		
-		for(java.util.Iterator iter = figs.iterator(); iter.hasNext();) {
+		for(java.util.Iterator iter = figs.values().iterator(); iter.hasNext();) {
 			Figure f = (Figure)iter.next();
 			if( f != null ) f.draw();
 		}
@@ -73,6 +73,7 @@ class FigureManager {
 	
 	public long addFig(Figure f) {
 		long id = addFigNoRescale(f);
+		shrinkModel();
 		gsys.recalcPPA();
 		return id;
 	}
@@ -99,7 +100,7 @@ class FigureManager {
 		if(curMaxZ > max.z) { max.z = curMaxZ; }
 
 		f.setID(idCount);
-		figs.add(f);
+		figs.put(new Long(idCount), f);
 		
 		return idCount++;
 	}
@@ -119,14 +120,10 @@ class FigureManager {
 	 * @return the removed figure (or null)
 	 */
 	public Figure removeFigNoRescale(long id) {
-		for(java.util.Iterator iter = figs.iterator(); iter.hasNext();) {
-			Figure f = (Figure)iter.next();
-			if(f.getID() == id) {
-				figs.remove(f);
-				return f;
-			}
-		}
-		return null;
+		Long l = new Long(id);
+		Figure f = (Figure)figs.get(l);
+		figs.remove(l);
+		return f;
 	}
 
 	/**
@@ -137,7 +134,7 @@ class FigureManager {
 	public void shrinkModel() {
 		float xn,yn,zn; //miN
 		float xm,ym,zm; //Max
-		java.util.Iterator i = figs.iterator();
+		java.util.Iterator i = figs.values().iterator();
 		if(!i.hasNext()) return;
 
 		Figure f = (Figure)i.next();
@@ -168,7 +165,7 @@ class FigureManager {
 	 * @return the array of current Figure IDs.
 	 */
 	public long[] getFigs() {
-		Object[] figarr = figs.toArray();
+		Object[] figarr = figs.values().toArray();
 		long[] idarr = new long[figarr.length];
 		for(int i=0; i<figarr.length; i++)
 			idarr[i] = ((Figure)figarr[i]).getID();
@@ -176,11 +173,8 @@ class FigureManager {
 	}	
 	
 	public Figure getFig(long id) {
-		Figure f = null;
-		for(java.util.Iterator i = figs.iterator();i.hasNext();) {
-			Figure a = (Figure)i.next();
-			if(a.getID() == id) { f = a; }
-		}
+		Long l = new Long(id);
+		Figure f = (Figure)figs.get(l);
 		return f;
 	}
 }
