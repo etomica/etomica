@@ -10,6 +10,7 @@ import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomLeaf;
+import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomAgentManager.AgentIterator;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -107,11 +108,13 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 		atomIterator.reset();
 		while(atomIterator.hasNext()) {
 			AtomLeaf a = (AtomLeaf) atomIterator.nextAtom();
+            if (!(a.type instanceof AtomTypeSphere)) continue;
 			double[] coords = new double[3];
 			a.coord.position().assignTo(coords);
 			Long id = (Long)aam.getAgent(a);
+            double diameter = ((AtomTypeSphere)a.type).getDiameter();
 			gsys.modFig(id.longValue(), org.jmol.g3d.Graphics3D.RED,
-					(float)coords[0], (float)coords[1], (float)coords[2], 1);
+					(float)coords[0], (float)coords[1], (float)coords[2], (float)diameter);
 		}
 		gsys.fastRefresh();
 		
@@ -130,12 +133,13 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 	}
 	
 	public Object makeAgent(Atom a) {
-		if ( !(a instanceof AtomLeaf) ) return null;
+		if ( !(a instanceof AtomLeaf) || !(a.type instanceof AtomTypeSphere)) return null;
 		double[] coords = new double[3];
 		((AtomLeaf)a).coord.position().assignTo(coords);
 
+        double diameter = ((AtomTypeSphere)a.type).getDiameter();
 		long l = gsys.addFig(G3DSys.BALL, Graphics3D.RED,
-				(float)coords[0], (float)coords[1], (float)coords[2], 1f);
+				(float)coords[0], (float)coords[1], (float)coords[2], (float)diameter);
 		//System.out.println("added atom "+l+" at "+coords[0]+","+coords[1]+","+coords[2]);
 		//System.out.println("figs now: "+gsys.getFigs().length);
 //		repaint();
