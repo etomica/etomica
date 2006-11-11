@@ -55,6 +55,7 @@ public class DisplayTable extends Display implements DataTableListener,
         }
 
         dataTable.addDataListener(this);
+        unitList = new LinkedList();
         tableSource = new MyTable(); //inner class, defined below
         table = new JTable(tableSource);
         panel = new javax.swing.JPanel(new java.awt.FlowLayout());
