@@ -1,12 +1,11 @@
 package etomica.atom;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 
 import etomica.simulation.SimulationAtomTypeAddedEvent;
 import etomica.simulation.SimulationEvent;
 import etomica.simulation.SimulationListener;
-import etomica.simulation.SimulationSpeciesAddedEvent;
-import etomica.simulation.SimulationSpeciesEvent;
 import etomica.simulation.SimulationSpeciesRemovedEvent;
 import etomica.util.Arrays;
 
@@ -201,7 +200,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
     /**
      * Iterator that loops over the agents, skipping null elements
      */
-    public static class AgentIterator {
+    public static class AgentIterator implements Serializable {
         protected AgentIterator(AtomTypeAgentManager agentManager) {
             this.agentManager = agentManager;
         }
@@ -232,6 +231,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
             return null;
         }
         
+        private static final long serialVersionUID = 1L;
         private final AtomTypeAgentManager agentManager;
         private int cursor;
         private Object[] agents;
