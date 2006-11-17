@@ -1,11 +1,12 @@
 package etomica.nbr.cell;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomPositionDefinition;
-import etomica.atom.SpeciesRoot;
+import etomica.atom.AtomType;
 import etomica.nbr.site.PotentialMasterSite;
 import etomica.phase.Phase;
 import etomica.phase.PhaseAgentManager;
+import etomica.potential.Potential;
+import etomica.potential.PotentialArray;
 import etomica.space.Space;
 
 /**
@@ -61,6 +62,13 @@ public class PotentialMasterCell extends PotentialMasterSite {
         return range;
     }
     
+    /**
+     * Returns the maximum range of any potential held by this potential master
+     */
+    public double getMaxPotentialRange() {
+        return maxPotentialRange;
+    }
+    
     public void setRange(double d) {
         ((Api1ACell)neighborIterator).getNbrCellIterator().setNeighborDistance(d);
         ((PhaseAgentSourceCellManager)phaseAgentSource).setRange(d);
@@ -75,5 +83,54 @@ public class PotentialMasterCell extends PotentialMasterSite {
         return manager;
     }
     
+    
+    /**
+     * Recomputes the maximum potential range (which might change without this
+     * class receiving notification) and readjust cell lists if the maximum
+     * has changed.
+     */
+    public void reset() {
+        rangedPotentialIterator.reset();
+        maxPotentialRange = 0;
+        while (rangedPotentialIterator.hasNext()) {
+            PotentialArray potentialArray = (PotentialArray)rangedPotentialIterator.next();
+            Potential[] potentials = potentialArray.getPotentials();
+            for (int i=0; i<potentials.length; i++) {
+                if (potentials[i].getRange() > maxPotentialRange) {
+                    maxPotentialRange = potentials[i].getRange();
+                }
+            }
+        }
+    }
+
+    /**
+     * Adds the potential as a ranged potential that applies to the given 
+     * AtomTypes.  This method creates a criterion for the potential and 
+     * notifies the NeighborListManager of its existence.
+     */
+    protected void addRangedPotentialForTypes(Potential potential, AtomType[] atomType) {
+        super.addRangedPotentialForTypes(potential, atomType);
+        if (potential.getRange() > maxPotentialRange) {
+            maxPotentialRange = potential.getRange();
+        }
+    }
+
+    public void removePotential(Potential potential) {
+        super.removePotential(potential);
+        
+        maxPotentialRange = 0;
+        for (int i=0; i<allPotentials.length; i++) {
+            double pRange = allPotentials[i].getRange();
+            if (pRange == Double.POSITIVE_INFINITY) {
+                continue;
+            }
+            if (pRange > maxPotentialRange) {
+                maxPotentialRange = pRange;
+            }
+        }
+    }
+
+    private static final long serialVersionUID = 1L;
     private double range;
+    private double maxPotentialRange;
 }

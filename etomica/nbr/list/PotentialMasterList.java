@@ -36,7 +36,7 @@ import etomica.util.Debug;
  */
 public class PotentialMasterList extends PotentialMasterNbr {
 
-	/**
+    /**
      * Default constructor uses range of 1.0.
      */
     public PotentialMasterList(Space space) {
@@ -67,6 +67,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
     
     public PotentialMasterList(Space space, double range, PhaseAgentSourceCellManager phaseAgentSource, PhaseAgentManager agentManager) {
         super(space, phaseAgentSource, agentManager);
+        ((PhaseAgentSourceCellManager)phaseAgentSource).setRange(range);
         neighborManager = new NeighborListManager(this, range, agentManager);
         atomIterator = new AtomIteratorArrayListSimple();
         singletIterator = new AtomIteratorSinglet();
@@ -86,6 +87,13 @@ public class PotentialMasterList extends PotentialMasterNbr {
         neighborManager.setRange(range);
         ((PhaseAgentSourceCellManager)phaseAgentSource).setRange(range);
         recomputeCriteriaRanges();
+
+        PhaseAgentManager phaseAgentManager = getCellAgentManager();
+        PhaseAgentManager.AgentIterator iterator = phaseAgentManager.makeIterator();
+        while (iterator.hasNext()) {
+            NeighborCellManager cellManager = (NeighborCellManager)iterator.next();
+            cellManager.setPotentialRange(range);
+        }
     }
     
     /**
@@ -93,6 +101,13 @@ public class PotentialMasterList extends PotentialMasterNbr {
      */
     public double getRange() {
         return neighborManager.getRange();
+    }
+    
+    /**
+     * Returns the maximum range of any potential held by this potential master
+     */
+    public double getMaxPotentialRange() {
+        return maxPotentialRange;
     }
     
     /**
@@ -166,6 +181,29 @@ public class PotentialMasterList extends PotentialMasterNbr {
             maxPotentialRange = potential.getRange();
         }
         recomputeCriteriaRanges();
+    }
+    
+    /**
+     * Recomputes the maximum potential range (which might change without this
+     * class receiving notification) and readjust cell lists if the maximum
+     * has changed.
+     */
+    public void reset() {
+        rangedPotentialIterator.reset();
+        double newMaxPotentialRange = 0;
+        while (rangedPotentialIterator.hasNext()) {
+            PotentialArray potentialArray = (PotentialArray)rangedPotentialIterator.next();
+            Potential[] potentials = potentialArray.getPotentials();
+            for (int i=0; i<potentials.length; i++) {
+                if (potentials[i].getRange() > newMaxPotentialRange) {
+                    newMaxPotentialRange = potentials[i].getRange();
+                }
+            }
+        }
+        if (newMaxPotentialRange != maxPotentialRange) {
+            maxPotentialRange = newMaxPotentialRange;
+            recomputeCriteriaRanges();
+        }
     }
     
     /**
@@ -282,19 +320,17 @@ public class PotentialMasterList extends PotentialMasterNbr {
 
         super.removePotential(potential);
         
-        if (potential.getRange() == maxPotentialRange) {
-            maxPotentialRange = 0;
-            for (int i=0; i<allPotentials.length; i++) {
-                double pRange = allPotentials[i].getRange();
-                if (pRange == Double.POSITIVE_INFINITY) {
-                    continue;
-                }
-                if (pRange > maxPotentialRange) {
-                    maxPotentialRange = pRange;
-                }
+        maxPotentialRange = 0;
+        for (int i=0; i<allPotentials.length; i++) {
+            double pRange = allPotentials[i].getRange();
+            if (pRange == Double.POSITIVE_INFINITY) {
+                continue;
             }
-            recomputeCriteriaRanges();
+            if (pRange > maxPotentialRange) {
+                maxPotentialRange = pRange;
+            }
         }
+        recomputeCriteriaRanges();
     }
 
     /**
@@ -459,7 +495,6 @@ public class PotentialMasterList extends PotentialMasterNbr {
     public NeighborCellManager getNbrCellManager(Phase phase) {
         PhaseAgentManager phaseAgentManager = getCellAgentManager();
         NeighborCellManager manager = (NeighborCellManager)phaseAgentManager.getAgent(phase);
-        manager.setPotentialRange(neighborManager.getRange());
         manager.setCellRange(cellRange);
         return manager;
     }
@@ -472,6 +507,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         return cellRange;
     }
 
+    private static final long serialVersionUID = 1L;
     private final AtomIteratorArrayListSimple atomIterator;
     private final AtomIteratorSinglet singletIterator;
     private final ApiInnerFixed pairIterator;
