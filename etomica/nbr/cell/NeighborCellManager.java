@@ -40,6 +40,7 @@ import etomica.util.Debug;
 
 public class NeighborCellManager implements PhaseCellManager, AgentSource, PhaseListener, java.io.Serializable {
 
+    private static final long serialVersionUID = 1L;
     private final CellLattice lattice;
     private final Space space;
     private final AtomIteratorTree atomIterator;
@@ -91,6 +92,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
      */
     public void setPotentialRange(double newRange) {
         range = newRange;
+        checkDimensions();
     }
     
     /**
@@ -113,6 +115,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
      */
     public void setCellRange(int newCellRange) {
         cellRange = newCellRange;
+        checkDimensions();
     }
     
     /**
@@ -280,6 +283,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
             }
         }
         
+        private static final long serialVersionUID = 1L;
         private final AtomIteratorTree treeIterator;
         private final AtomPositionDefinition moleculePosition;
         private final AtomActionTranslateBy translator;
