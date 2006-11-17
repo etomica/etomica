@@ -3,7 +3,10 @@
  */
 package etomica.atom;
 
-public class AtomFilterStatic implements AtomFilter {
+import java.io.Serializable;
+
+public class AtomFilterStatic implements AtomFilter, Serializable {
+
     //private to prevent instantiation
     private AtomFilterStatic(boolean accept) {
         rv = accept;
@@ -33,5 +36,6 @@ public class AtomFilterStatic implements AtomFilter {
         return ACCEPT_NONE;
     }
     
+    private static final long serialVersionUID = 1L;
     private final boolean rv;
 }
