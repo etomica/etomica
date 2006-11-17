@@ -42,6 +42,13 @@ public class PhaseAgentManager implements SimulationListener, java.io.Serializab
     }
     
     /**
+     * Returns an iterator that returns each non-null agent
+     */
+    public AgentIterator makeIterator() {
+        return new AgentIterator(this);
+    }
+    
+    /**
      * Sets the species root parent in the Simulation for Phases to be tracked.
      */
     public void setRoot(SpeciesRoot newSpeciesRoot) {
@@ -108,8 +115,48 @@ public class PhaseAgentManager implements SimulationListener, java.io.Serializab
         public void releaseAgent(Object agent); 
     }
 
+    private static final long serialVersionUID = 1L;
     private final PhaseAgentSource agentSource;
     protected Object[] agents;
     private SpeciesRoot speciesRoot;
     private final boolean isBackend;
+    
+    /**
+     * Iterator that loops over the agents, skipping null elements
+     */
+    public static class AgentIterator {
+        protected AgentIterator(PhaseAgentManager agentManager) {
+            this.agentManager = agentManager;
+        }
+        
+        public void reset() {
+            cursor = 0;
+            agents = agentManager.agents;
+        }
+        
+        public boolean hasNext() {
+            while (cursor < agents.length) {
+                if (agents[cursor] != null) {
+                    return true;
+                }
+                cursor++;
+            }
+            return false;
+        }
+        
+        public Object next() {
+            cursor++;
+            while (cursor-1 < agents.length) {
+                if (agents[cursor-1] != null) {
+                    return agents[cursor-1];
+                }
+                cursor++;
+            }
+            return null;
+        }
+        
+        private final PhaseAgentManager agentManager;
+        private int cursor;
+        private Object[] agents;
+    }
 }
