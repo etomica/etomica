@@ -90,6 +90,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
 
         PhaseAgentManager phaseAgentManager = getCellAgentManager();
         PhaseAgentManager.AgentIterator iterator = phaseAgentManager.makeIterator();
+        iterator.reset();
         while (iterator.hasNext()) {
             NeighborCellManager cellManager = (NeighborCellManager)iterator.next();
             cellManager.setPotentialRange(range);
