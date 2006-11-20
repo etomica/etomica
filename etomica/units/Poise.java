@@ -19,7 +19,7 @@ public final class Poise extends SimpleUnit {
    * Conversion factor to/from simulation units
    */
     private Poise() {
-        super(Pressure.DIMENSION,
+        super(Viscosity.DIMENSION,
                 1e-8*1e-12*Constants.AVOGADRO, //6022.1; conversion from g/(cm-sec) to D/(A-ps)
                 "poise", "P", Prefix.ALLOWED
         	);   
