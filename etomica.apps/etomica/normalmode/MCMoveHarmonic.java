@@ -39,6 +39,10 @@ public class MCMoveHarmonic extends MCMovePhase {
         waveVectors = newWaveVectors;
     }
     
+    public void setWaveVectorCoefficients(double[] newWaveVectorCoefficients) {
+        waveVectorCoefficients = newWaveVectorCoefficients;
+    }
+    
     public void setEigenVectors(double[][][] newEigenVectors) {
         eigenVectors = newEigenVectors;
     }
@@ -67,6 +71,8 @@ public class MCMoveHarmonic extends MCMovePhase {
         normalization = 2.0/Math.sqrt(phase.getSpeciesMaster().moleculeCount());
         
         // fills in elements of nominalU using NormalCoordWrapper
+        iterator.reset();
+        normalCoordMapper.setNumAtoms(iterator.size());
         iterator.reset();
         atomCount = 0;
         while (iterator.hasNext()) {
@@ -111,9 +117,13 @@ public class MCMoveHarmonic extends MCMovePhase {
 
                 for (int i=0; i<normalDim; i++) {
                     for (int j=0; j<normalDim; j++) {
-                        u[j] += normalization * eigenVectors[iVector][j][i]*(rRand[iVector][i]*coskR - iRand[iVector][i]*sinkR);
+                        u[j] += waveVectorCoefficients[iVector]*eigenVectors[iVector][i][j]*
+                                  (rRand[iVector][i]*coskR - iRand[iVector][i]*sinkR);
                     }
                 }
+            }
+            for (int i=0; i<normalDim; i++) {
+                u[i] *= normalization;
             }
             normalCoordMapper.setToU(atom, atomCount, u);
             atomCount++;
@@ -149,6 +159,7 @@ public class MCMoveHarmonic extends MCMovePhase {
     private double[][] eigenValuesSqrt;
     private double[][][] eigenVectors;
     private Vector[] waveVectors;
+    private double[] waveVectorCoefficients;
     protected int normalDim;
     protected double[] u;
     protected double[][] rRand;
