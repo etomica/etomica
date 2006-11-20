@@ -18,9 +18,9 @@ public final class Lister {
 			try {
 				Class c = Class.forName("etomica.units." + e.next());
 				if (c.getSuperclass() != Dimension.class
-						|| c.toString().contains("Dimension")
-						|| c.toString().contains("Null")
-						|| c.toString().contains("Undefined")) {
+						|| c.toString().indexOf("Dimension") > -1
+						|| c.toString().indexOf("Null") > -1
+						|| c.toString().indexOf("Undefined") > -1) {
 					e.remove();
 				}
 			} catch (ClassNotFoundException ee) {
@@ -48,8 +48,8 @@ public final class Lister {
 			try {
 				Class c = Class.forName("etomica.units." + e.next());
 				if ((c.getSuperclass() != SimpleUnit.class && c.getSuperclass() != CompoundUnit.class)
-						|| c.toString().contains("Unit")
-						|| c.toString().contains("Pixel")) {
+						|| c.toString().indexOf("Unit") > -1
+						|| c.toString().indexOf("Pixel") > -1) {
 					e.remove();
 				}
 			} catch (ClassNotFoundException ee) {
