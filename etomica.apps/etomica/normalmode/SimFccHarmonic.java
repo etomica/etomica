@@ -10,6 +10,7 @@ import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
+import etomica.data.DataFork;
 import etomica.data.DataPump;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.types.DataDouble;
@@ -122,7 +123,7 @@ public class SimFccHarmonic extends Simulation {
 
         SimFccHarmonic sim = new SimFccHarmonic(Space3D.getInstance(), nA, density);
         
-        double harmonicFudge = 1;
+        double harmonicFudge = .25;
         
         double[][] omegaSquared = ArrayReader1D.getFromFile(filename+".val");
         for (int i=0; i<omegaSquared.length; i++) {
@@ -148,11 +149,18 @@ public class SimFccHarmonic extends Simulation {
         harmonicEnergy.setWaveVectors(waveVectors, coefficients);
         harmonicEnergy.setNormalCoordWrapper(new NormalCoordLeaf(sim.space));
         harmonicEnergy.setPhase(sim.phase);
+        DataFork harmonicFork = new DataFork();
         AccumulatorAverage harmonicAvg = new AccumulatorAverage(sim);
-        DataPump pump = new DataPump(harmonicEnergy, harmonicAvg);
+        DataPump pump = new DataPump(harmonicEnergy, harmonicFork);
+        harmonicFork.addDataSink(harmonicAvg);
         IntervalActionAdapter adapter = new IntervalActionAdapter(pump);
         adapter.setActionInterval(2);
         sim.integrator.addListener(adapter);
+        BoltzmannProcessor boltz = new BoltzmannProcessor();
+        boltz.setTemperature(1.0);
+        harmonicFork.addDataSink(boltz);
+        AccumulatorAverage harmonicBoltzAvg = new AccumulatorAverage(50);
+        boltz.setDataSink(harmonicBoltzAvg);
         
         MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy();
         harmonicSingleEnergy.setEigenvectors(eigenvectors);
@@ -188,8 +196,14 @@ public class SimFccHarmonic extends Simulation {
             deltaAerr += harmonicModesErr.getValue(i)/harmonicModesAvg.getValue(i);
         }
         
-        System.out.println("Harmonic free energy correction: "+deltaA+" +/- "+deltaAerr);
+        System.out.println("Harmonic free energy correction (independent approx): "+deltaA+" +/- "+deltaAerr);
+
+        deltaA = ((DataDouble)((DataGroup)harmonicBoltzAvg.getData()).getData(StatType.AVERAGE.index)).x;
+        deltaAerr = ((DataDouble)((DataGroup)harmonicBoltzAvg.getData()).getData(StatType.ERROR.index)).x/deltaA;
+        deltaA = Math.log(deltaA);
         
+        System.out.println("Harmonic free energy correction: "+deltaA+" +/- "+deltaAerr);
+
         try {
             // energy -- e? u?
             FileWriter fileWriterE = new FileWriter(filename+".e");
