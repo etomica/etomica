@@ -12,8 +12,8 @@ public final class Lister {
 	 * dimensions with "dimension" in the title.
 	 */
 
-	public static LinkedList<String> listdimensions() {
-		LinkedList<String> dimensionlist = unitsclasses();
+	public static LinkedList listdimensions() {
+		LinkedList dimensionlist = unitsclasses();
 		for (Iterator e = dimensionlist.iterator(); e.hasNext();) {
 			try {
 				Class c = Class.forName("etomica.units." + e.next());
@@ -42,8 +42,8 @@ public final class Lister {
 	 * the pixel class and any containing the word unit.
 	 */
 
-	public static LinkedList<String> listunits() {
-		LinkedList<String> unitslist = unitsclasses();
+	public static LinkedList listunits() {
+		LinkedList unitslist = unitsclasses();
 		for (Iterator e = unitslist.iterator(); e.hasNext();) {
 			try {
 				Class c = Class.forName("etomica.units." + e.next());
@@ -71,10 +71,10 @@ public final class Lister {
 	 * any with a .java extension, removes the .java, and adds them all to a
 	 * linked list of strings.
 	 */
-	public static LinkedList<String> unitsclasses() {
+	public static LinkedList unitsclasses() {
 		File dir = new File("src/etomica/units");
 		String[] listy = dir.list();
-		LinkedList<String> clist = new LinkedList<String>();
+		LinkedList clist = new LinkedList();
 		for (int i = 0; i < listy.length; i++) {
 			String currentitem = listy[i];
 			int dotspot = currentitem.indexOf(".");

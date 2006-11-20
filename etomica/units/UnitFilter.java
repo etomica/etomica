@@ -12,7 +12,7 @@ public final class UnitFilter {
 	 */
 
 	public static final void main(String[] args) {
-		LinkedList<String> dimensionlist = Lister.listdimensions();
+		LinkedList dimensionlist = Lister.listdimensions();
 		for (Iterator e = dimensionlist.iterator(); e.hasNext();) {
 			try {
 				String enext = e.next().toString();
@@ -32,9 +32,9 @@ public final class UnitFilter {
 	 * Lister.listunits, then removes any that are not of the given dimension.
 	 */
 
-	public static LinkedList<String> filter(Dimension dim) {
+	public static LinkedList filter(Dimension dim) {
 
-		LinkedList<String> unitlist = Lister.listunits();
+		LinkedList unitlist = Lister.listunits();
 
 		for (Iterator e = unitlist.iterator(); e.hasNext();) {
 			try {
