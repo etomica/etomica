@@ -38,6 +38,7 @@ import etomica.data.meter.MeterRDF;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ActionConfigWindow;
+import etomica.graphics.ActionVelocityWindow;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceButton;
@@ -113,7 +114,7 @@ public class PistonCylinderGraphic {
     public MeterTemperature thermometer;
     public DisplayPhase displayPhase;
     public DeviceTrioControllerButton controlButtons;
-    public DeviceButton configButton;
+    public DeviceButton configButton, velocityButton;
     public ItemListener potentialChooserListener;
     public JComboBox potentialChooser;
     public DeviceSlider scaleSlider, pressureSlider, temperatureSlider;
@@ -547,9 +548,18 @@ public class PistonCylinderGraphic {
         repainter.start();
 
         if (doConfigButton) {
+            JPanel configPanel = new JPanel(new java.awt.GridBagLayout());
+            controlPanel.add(configPanel,gbc2);
+            gbc2.gridx = java.awt.GridBagConstraints.RELATIVE;
+            gbc2.gridy = 0;
+            
             configButton = new DeviceButton(null);
             configButton.setLabel("Show Config");
-            controlPanel.add(configButton.graphic(),gbc2);
+            configPanel.add(configButton.graphic(),gbc2);
+
+            velocityButton = new DeviceButton(null);
+            velocityButton.setLabel("Show Velocities");
+            configPanel.add(velocityButton.graphic(),gbc2);
         }
 
         if (doRDF) {
@@ -846,6 +856,9 @@ public class PistonCylinderGraphic {
         if (doConfigButton) {
             configButton.setController(pc.getController());
             configButton.setAction(new ActionConfigWindow(pc.phase));
+
+            velocityButton.setController(pc.getController());
+            velocityButton.setAction(new ActionVelocityWindow(pc.phase));
         }
     }
     
