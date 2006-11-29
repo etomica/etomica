@@ -140,19 +140,20 @@ public class G3DSys {
 	/**Adds a shape to the associated FigureManager at the given molspace
 	 * coordinate. All positional values are in Angstroms.
 	 * @param TYPE the kind of shape to add
-	 * @param c the color of the shape
+	 * @param color the color of the shape
 	 * @param p molspace position
 	 * @param d molspace diameter
 	 * @return the tracking ID of the Figure that was added; -1 if no addition
 	 */
-	public long addFigNoRescale(int TYPE, short c, Point3f p, float d) {
-		return addFigNoRescale(TYPE, c, p.x, p.y, p.z, d);
+	public long addFigNoRescale(int TYPE, java.awt.Color color, Point3f p, float d) {
+		return addFigNoRescale(TYPE, color, p.x, p.y, p.z, d);
 	}
-	public long addFig(int TYPE, short c, Point3f p, float d) {
-		return addFig(TYPE, c, p.x, p.y, p.z, d);
+	public long addFig(int TYPE, java.awt.Color color, Point3f p, float d) {
+		return addFig(TYPE, color, p.x, p.y, p.z, d);
 	}
-	public long addFig(int TYPE, short c, float x, float y, float z, float d) {
-		switch(TYPE) {
+	public long addFig(int TYPE, java.awt.Color color, float x, float y, float z, float d) {
+	    short c = Graphics3D.getColix(color2argb(color));
+        switch(TYPE) {
 		case BALL:
 			return fm.addFig(new Ball(this,c,x,y,z,d));
 		case TIMEDBALL:
@@ -166,7 +167,8 @@ public class G3DSys {
 			return -1;
 		}
 	}
-	public long addFigNoRescale(int TYPE, short c, float x, float y, float z, float d) {
+	public long addFigNoRescale(int TYPE, java.awt.Color color, float x, float y, float z, float d) {
+        short c = Graphics3D.getColix(color2argb(color));
 		switch(TYPE) {
 		case BALL:
 			return fm.addFigNoRescale(new Ball(this,c,x,y,z,d));
@@ -222,10 +224,11 @@ public class G3DSys {
 	 * @param z the Angstrom z location to apply
 	 * @param d the Angstrom diameter to apply
 	 */
-	public void modFig(long id, short color, float x, float y, float z, float d) {
+	public void modFig(long id, java.awt.Color color, float x, float y, float z, float d) {
+        short c = Graphics3D.getColix(color2argb(color));
 		Figure f = fm.getFig(id);
 		if(f != null) {
-			f.setColor(color);
+			f.setColor(c);
 			f.setX(x);
 			f.setY(y);
 			f.setZ(z);
@@ -325,6 +328,19 @@ public class G3DSys {
 	public void draw() { fm.draw();}
 
 
-
+	/**
+     * Converts the given AWT color to an argb int
+	 * @param color the color to be converted
+     * @returns an argb int
+     **/
+	public static int color2argb(java.awt.Color color) {
+        float[] compArray = color.getComponents(null);
+        int a = (int)(compArray[3]*255+0.5);
+        int r = (int)(compArray[0]*255+0.5);
+        int g = (int)(compArray[1]*255+0.5);
+        int b = (int)(compArray[2]*255+0.5);
+        int argb = (a << 24) | (r << 16) | (g << 8) | b;
+        return argb;
+    }
 	
 }
