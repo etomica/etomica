@@ -113,7 +113,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 			Long id = (Long)aam.getAgent(a);
             double diameter = ((AtomTypeSphere)a.type).getDiameter();
 			gsys.modFig(id.longValue(), displayPhase.getColorScheme().getAtomColor(a),
-					(float)coords[0], (float)coords[1], (float)coords[2], (float)diameter);
+					(float)coords[0], (float)coords[1], (float)coords[2], (float)diameter,true);
 		}
 		gsys.fastRefresh();
 		
