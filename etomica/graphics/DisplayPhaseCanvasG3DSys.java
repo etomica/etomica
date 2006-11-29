@@ -15,7 +15,6 @@ import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorIntervalListener;
-import etomica.space.Vector;
 import g3dsys.control.G3DSys;
 
 //TODO: rewrite doPaint and drawAtom
@@ -96,8 +95,6 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 		createOffScreen(width,height);
 	}
 
-	Vector vec2;  
-
 	public void doPaint(Graphics g) {
         ColorScheme colorScheme = displayPhase.getColorScheme();
         AtomFilter atomFilter = displayPhase.getAtomFilter();
@@ -122,12 +119,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 	 * AgentSource methods
 	 * ******************************************************/
 	public Class getAgentClass() {
-		try {
-			return java.lang.ClassLoader.getSystemClassLoader().loadClass("java.lang.Long");
-		} catch(ClassNotFoundException cnfe) {
-			System.out.println("OH NO! No Long type available.");
-			return null;
-		}
+	    return Long.class;
 	}
 	
 	public Object makeAgent(Atom a) {
