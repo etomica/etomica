@@ -31,17 +31,13 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
     private int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
     private final static Color wellColor = new Color(185,185,185, 110);
     private final AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms();
-    private AtomFilter atomFilter;
     
     public DisplayPhaseCanvas1D(DisplayPhase _phase) {
         displayPhase = _phase;
         scaleText.setVisible(true);
         scaleText.setEditable(false);
         scaleText.setBounds(0,0,100,50);
-        atomFilter = _phase.getAtomFilter();
     }
-    
-    public void setAtomFilter(AtomFilter filter) {atomFilter = filter;}
         
     /**
     * Sets the size of the display to a new value and scales the image so that
@@ -68,7 +64,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
     }
        
     private void drawAtom(Graphics g, int origin[], AtomLeaf a) {
-        if(!atomFilter.accept(a)) return;
+        if(!displayPhase.getAtomFilter().accept(a)) return;
         
         Vector r = a.coord.position();
         boolean drawWell = false;

@@ -12,7 +12,7 @@ import etomica.units.Pixel;
  * 
  * @see DisplayPhase.Canvas
  */
-public abstract class DisplayCanvas extends javax.swing.JPanel implements java.io.Serializable, DisplayCanvasInterface {
+public abstract class DisplayCanvas extends javax.swing.JPanel implements DisplayCanvasInterface {
 
     protected Image offScreen;
     protected Graphics osg;

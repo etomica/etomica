@@ -12,7 +12,6 @@ package etomica.graphics;
 import java.awt.Color;
 import java.util.Iterator;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeSphere;
@@ -104,9 +103,6 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
   public float getYRot() {return(yRot);}
   public float getZoom() {return(shiftZ);}
   
-  private ColorScheme colorScheme;
-  private AtomFilter atomFilter;
-          
   public DisplayPhaseCanvas3DOpenGL(DisplayPhase newDisplayPhase, int w, int h) {
     super(w, h);
     //scaleText.setVisible(true);
@@ -115,10 +111,6 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     vert = new float[3];
     setAnimateFps(24.);
     displayPhase = newDisplayPhase;
-    if(displayPhase != null) {
-        colorScheme = displayPhase.getColorScheme();
-        atomFilter = displayPhase.getAtomFilter();
-    }
   }
       
   //public void preInit() {
@@ -284,8 +276,6 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     wellListRadius = wellRadius;
   }
 
-  public void setAtomFilter(AtomFilter filter) {atomFilter = filter;}
-
   private etomica.math.geometry.Plane plane; // (DAK) 09/21/02
   private etomica.space3d.Vector3D[] points;
   private etomica.space3d.Vector3D normal;
@@ -294,7 +284,8 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     
   private void drawDisplay() {
     
-    colorScheme = displayPhase.getColorScheme();
+    ColorScheme colorScheme = displayPhase.getColorScheme();
+    AtomFilter atomFilter = displayPhase.getAtomFilter();
 
     if(displayPhase.getColorScheme() instanceof ColorSchemeCollective) {
         ((ColorSchemeCollective)displayPhase.getColorScheme()).colorAllAtoms();

@@ -28,7 +28,6 @@ public interface DisplayCanvasInterface {
     static final int DRAW_BOUNDARY_ALL = 3;
     static final int DRAW_BOUNDARY_MAX = 4;
     
-    void setAtomFilter(AtomFilter filter);
     public void createOffScreen();
     public void createOffScreen(int p);
     public void createOffScreen(int w, int h);

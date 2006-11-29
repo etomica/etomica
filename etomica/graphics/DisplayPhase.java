@@ -206,9 +206,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
                 boxY *=1.4;
                 //canvas = new DisplayPhaseCanvas3DOpenGL(this, boxX, boxY);
                 canvas = new DisplayPhaseCanvasG3DSys(this);
- /*               if(Default.DISPLAY_USE_OPENGL) canvas = new DisplayPhaseCanvas3DOpenGL(this, box, box);
-                else canvas = new DisplayPhaseCanvas3DSoftware(this);
- */               break;
+                break;
             case 2:
                 boxY = (int)(phase.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
                 canvas = new DisplayPhaseCanvas2D(this);
@@ -239,8 +237,6 @@ public class DisplayPhase extends Display implements EtomicaElement {
                 }
             }
         });
-        
-        canvas.setAtomFilter(atomFilter);
 
         atomIterator = new AtomIteratorLeafAtoms(p);
     }
@@ -286,8 +282,6 @@ public class DisplayPhase extends Display implements EtomicaElement {
                 }
             }
         });
-
-        canvas.setAtomFilter(atomFilter);
     }
     
     /**
@@ -308,7 +302,6 @@ public class DisplayPhase extends Display implements EtomicaElement {
      */
     public void setAtomFilter(AtomFilter filter) {
         atomFilter = (filter == null) ? AtomFilterStatic.ACCEPT_ALL : filter;
-        if(canvas != null) canvas.setAtomFilter(atomFilter);
     }
     /**
      * Accessor method for the atom filter that determines which atoms 
@@ -450,7 +443,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
      * atom to the cursor and firing of a DisplayPhaseEvent with this atom.
      * Pressing of "s", "b", or "o" keys while display has focus invokes actions that affect the display.
      */
-    private class InputEventHandler implements MouseListener, MouseMotionListener, KeyListener,  java.io.Serializable {
+    private class InputEventHandler implements MouseListener, MouseMotionListener, KeyListener {
         
         Vector point;
         

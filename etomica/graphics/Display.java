@@ -15,7 +15,7 @@ import etomica.util.NameMaker;
  * 
  * @author David Kofke
  */
-public abstract class Display implements GraphicalElement, java.io.Serializable {
+public abstract class Display implements GraphicalElement {
 
     public Display() {
         setName(NameMaker.makeName(this.getClass()));

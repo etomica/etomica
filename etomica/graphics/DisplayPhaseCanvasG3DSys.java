@@ -25,7 +25,6 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 
 	private TextField scaleText = new TextField();
 	private final AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms();
-	private AtomFilter atomFilter;
 
 	//will handle all actual drawing
 	private G3DSys gsys;
@@ -38,7 +37,6 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 		scaleText.setEditable(false);
 		scaleText.setBounds(0,0,100,50);
 		displayPhase = _phase;
-		atomFilter = _phase.getAtomFilter();
 
 		//init G3DSys
 		Panel p = new Panel();
@@ -75,8 +73,6 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 		gsys.refresh();
 	}
 
-	public void setAtomFilter(AtomFilter filter) {atomFilter = filter;}
-    
 	/**
 	 * Sets the size of the display to a new value and scales the image so that
 	 * the phase fits in the canvas in the same proportion as before.
@@ -103,6 +99,8 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 	Vector vec2;  
 
 	public void doPaint(Graphics g) {
+        ColorScheme colorScheme = displayPhase.getColorScheme();
+        AtomFilter atomFilter = displayPhase.getAtomFilter();
 		atomIterator.setPhase(displayPhase.getPhase());
 		atomIterator.reset();
 		while(atomIterator.hasNext()) {
@@ -112,8 +110,9 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 			a.coord.position().assignTo(coords);
 			Long id = (Long)aam.getAgent(a);
             double diameter = ((AtomTypeSphere)a.type).getDiameter();
-			gsys.modFig(id.longValue(), displayPhase.getColorScheme().getAtomColor(a),
-					(float)coords[0], (float)coords[1], (float)coords[2], (float)diameter,true);
+			gsys.modFig(id.longValue(), colorScheme.getAtomColor(a),
+					(float)coords[0], (float)coords[1], (float)coords[2], (float)diameter,
+                    atomFilter.accept(a));
 		}
 		gsys.fastRefresh();
 		
