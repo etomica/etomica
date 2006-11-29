@@ -21,6 +21,8 @@ public abstract class Figure {
 	protected float _d; //diameter of the figure, when applicable
 	protected long _id; //serial id for figure tracking and removal
 	
+    boolean drawme = true;
+    
 	protected g3dsys.control.G3DSys _gsys;
 	
 	Figure(g3dsys.control.G3DSys g, short c) {
@@ -69,4 +71,6 @@ public abstract class Figure {
 	 */
 	abstract public void draw();
 	
+    public void setDrawable(boolean drawable) { drawme = drawable; }
+    
 }
