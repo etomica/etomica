@@ -1,10 +1,8 @@
 package g3dsys.control;
 
-import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Panel;
 
+import javax.swing.JPanel;
 import javax.vecmath.Matrix3f;
 
 import org.jmol.g3d.Graphics3D;
@@ -15,7 +13,7 @@ import org.jmol.g3d.Graphics3D;
  *
  */
 
-class Display extends Panel {
+class Display extends JPanel {
 	
 	private G3DSys gsys;
 	private Matrix3f m = new Matrix3f(1,0,0,0,1,0,0,0,1);
