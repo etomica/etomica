@@ -104,5 +104,5 @@ public abstract class DataProcessor implements DataPipe, java.io.Serializable {
     protected DataSink dataSink;
     protected DataSink trueDataSink;
     protected DataInfo dataInfo;
-    private final DataTag tag;
+    protected final DataTag tag;
 }
