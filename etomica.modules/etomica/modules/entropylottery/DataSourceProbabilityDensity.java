@@ -14,6 +14,7 @@ import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
 import etomica.integrator.IntegratorPhase;
 import etomica.phase.Phase;
+import etomica.space.BoundaryPeriodic;
 import etomica.space.Vector;
 import etomica.units.Quantity;
 
@@ -48,8 +49,15 @@ public class DataSourceProbabilityDensity implements DataSource, IntegratorInter
         data.assignTo(newData);
         double[] oldData = data.getData();
         int nBin = oldData.length;
-        newData[0] += (oldData[1]-oldData[0])/(2*totalAtomCount); 
-        newData[nBin-1] += (oldData[nBin-2]-oldData[nBin-1])/(2*totalAtomCount);
+        if (((BoundaryPeriodic)phase.getBoundary()).getPeriodicity()[0]) {
+            // with PBC, let balls drift around the boundary
+            newData[0] += ((oldData[nBin-1]+oldData[1])/2 - oldData[0])/totalAtomCount;
+            newData[nBin-1] += ((oldData[nBin-1]+oldData[0])/2 - oldData[nBin-1])/totalAtomCount;
+        }
+        else {
+            newData[0] += (oldData[1]-oldData[0])/(2*totalAtomCount); 
+            newData[nBin-1] += (oldData[nBin-2]-oldData[nBin-1])/(2*totalAtomCount);
+        }
         for (int i=1; i<nBin-1; i++) {
             newData[i] += ((oldData[i-1]+oldData[i+1])/2 - oldData[i])/totalAtomCount;
         }
@@ -58,7 +66,7 @@ public class DataSourceProbabilityDensity implements DataSource, IntegratorInter
 
     public void nonintervalAction(IntegratorNonintervalEvent evt) {
         if (evt.type() == IntegratorNonintervalEvent.INITIALIZE) {
-            Phase phase = ((IntegratorPhase)evt.getSource()).getPhase();
+            phase = ((IntegratorPhase)evt.getSource()).getPhase();
             totalAtomCount = phase.getSpeciesMaster().moleculeCount();
             Vector dimensions = phase.getBoundary().getDimensions();
             if (data.getLength() != (int)Math.round(dimensions.x(0))) {
@@ -82,6 +90,7 @@ public class DataSourceProbabilityDensity implements DataSource, IntegratorInter
 
     protected DataDoubleArray data;
     protected DataInfoDoubleArray dataInfo;
+    protected Phase phase;
     protected final AtomIteratorLeafAtoms atomIterator;
     protected double[] newData;
     protected int totalAtomCount;

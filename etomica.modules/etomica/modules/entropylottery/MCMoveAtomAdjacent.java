@@ -55,12 +55,20 @@ public class MCMoveAtomAdjacent extends MCMovePhase {
         Vector position = ((AtomLeaf)atom).coord.position();
         Vector dimensions = phase.getBoundary().getDimensions();
         for (int i=0; i<position.D(); i++) {
-            if (periodicity[i]) continue;
             // if we're non-periodic, ensure we didn't try to jump over the boundary
-            int x = (int)Math.round(position.x(i)+phase.getBoundary().getDimensions().x(i)*0.5);
-            if (x < 0 || x > (int)Math.round(dimensions.x(i)-1)) {
-                // failure
-                return Double.NEGATIVE_INFINITY;
+            int x = (int)Math.round(position.x(i)+dimensions.x(i)*0.5-0.5);
+            if (x < 0 || x >= (int)Math.round(dimensions.x(i))) {
+                if (!periodicity[i]) {
+                    // failure
+                    return Double.NEGATIVE_INFINITY;
+                }
+                //wrap around -- OK, it's a hack.  deal with it.
+                if (x < 0) {
+                    position.setX(i, position.x(i)+dimensions.x(i));
+                }
+                else {
+                    position.setX(i, 0);
+                }
             }
         }
         return 0;
