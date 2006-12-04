@@ -40,7 +40,7 @@ public class EntropyLottery extends Simulation {
         Vector dimensions = space.makeVector();
         dimensions.E(10);
         phase.getBoundary().setDimensions(dimensions);
-//        new ConfigurationSequential(space).initializeCoordinates(phase);
+        new ConfigurationZero(space).initializeCoordinates(phase);
         integrator.setPhase(phase);
 		
 //        PhaseImposePbc imposePBC = new PhaseImposePbc(phase);
