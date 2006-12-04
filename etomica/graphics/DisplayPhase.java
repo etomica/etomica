@@ -424,6 +424,20 @@ public class DisplayPhase extends Display implements EtomicaElement {
             computeImageParameters();
         }
     }
+    
+    /**
+     * Set the height of the drawing area (only relevant for 1D)
+     */
+    public void setDrawingHeight(int newDrawingHeight) {
+        drawingHeight = newDrawingHeight;
+    }
+
+    /**
+     * Returns the height of the drawing area (only relevant for 1D)
+     */
+    public int getDrawingHeight() {
+        return drawingHeight;
+    }
 
     /**
      * Number of periodic-image shells to be drawn when drawing this phase to the

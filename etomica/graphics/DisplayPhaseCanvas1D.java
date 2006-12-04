@@ -7,7 +7,6 @@ import java.awt.RenderingHints;
 import java.awt.TextField;
 import java.util.Iterator;
 
-import etomica.atom.AtomFilter;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
@@ -27,7 +26,6 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
     private Font font = new Font("sansserif", Font.PLAIN, 10);
     //  private int annotationHeight = font.getFontMetrics().getHeight();
     private int annotationHeight = 12;
-    private int drawingHeight = 10;
     private int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
     private final static Color wellColor = new Color(185,185,185, 110);
     private final AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms();
@@ -77,6 +75,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
         g.setColor(displayPhase.getColorScheme().getAtomColor(a));
             
         baseXP = origin[0] + (int)(displayPhase.getToPixels()*r.x(0));
+        int drawingHeight = displayPhase.getDrawingHeight();
         baseYP = origin[1] + drawingHeight/2;
         if(a.type instanceof AtomTypeSphere) {
             /* Draw the core of the atom */
