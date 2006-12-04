@@ -16,7 +16,7 @@ import etomica.integrator.IntervalActionAdapter;
 import etomica.space1d.Space1D;
 import etomica.util.HistoryCollapsing;
 
-public class EntropyLotterGraphic {
+public class EntropyLotteryGraphic {
     
     public void init(final EntropyLottery sim) {
 
@@ -105,17 +105,17 @@ public class EntropyLotterGraphic {
     
     public static void main(String[] args) {
             
-        EntropyLotterGraphic entropyLotterGraphic = new EntropyLotterGraphic();
-        entropyLotterGraphic.init(new EntropyLottery(Space1D.getInstance()));
-		SimulationGraphic.makeAndDisplayFrame(entropyLotterGraphic.panel);
+        EntropyLotteryGraphic entropyLotteryGraphic = new EntropyLotteryGraphic();
+        entropyLotteryGraphic.init(new EntropyLottery(Space1D.getInstance()));
+		SimulationGraphic.makeAndDisplayFrame(entropyLotteryGraphic.panel);
     }
     
     public static class Applet extends javax.swing.JApplet {
 
         public void init() {
-            EntropyLotterGraphic entropyLotterGraphic = new EntropyLotterGraphic();
-            entropyLotterGraphic.init(new EntropyLottery(Space1D.getInstance()));
-		    getContentPane().add(entropyLotterGraphic.panel);
+            EntropyLotteryGraphic entropyLotteryGraphic = new EntropyLotteryGraphic();
+            entropyLotteryGraphic.init(new EntropyLottery(Space1D.getInstance()));
+		    getContentPane().add(entropyLotteryGraphic.panel);
 	    }
 
         private static final long serialVersionUID = 1L;
