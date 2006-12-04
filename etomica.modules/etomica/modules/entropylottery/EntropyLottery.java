@@ -28,7 +28,6 @@ public class EntropyLottery extends Simulation {
         MCMoveAtomAdjacent move = new MCMoveAtomAdjacent();
         integrator.getMoveManager().addMCMove(move);
         activityIntegrate = new ActivityIntegrate(this, integrator);
-        activityIntegrate.setSleepPeriod(10);
         getController().addAction(activityIntegrate);
 
 	    species = new SpeciesSpheresMono(this);

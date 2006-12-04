@@ -5,6 +5,8 @@ import java.util.Iterator;
 
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.data.DataSource;
+import etomica.data.types.DataArithmetic;
 import etomica.graphics.ColorSchemeCollective;
 import etomica.graphics.DisplayCanvas;
 import etomica.graphics.DisplayPhase;
@@ -24,6 +26,7 @@ public class DisplayPhaseCanvas1DBins extends DisplayCanvas {
     private double yScale = 0.4;
     private final AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms();
     private int[] atomCount;
+    private DataSource extraDataSource;
     
     public DisplayPhaseCanvas1DBins(DisplayPhase _phase) {
         displayPhase = _phase;
@@ -61,7 +64,15 @@ public class DisplayPhaseCanvas1DBins extends DisplayCanvas {
         super.setBounds(x,y,width,height);
         createOffScreen(width,height);
     }
-       
+    
+    /**
+     * Sets a data source used to draw an extra set of "atoms".  The extra set
+     * is drawn as thin blue bars.
+     */
+    public void setExtraData(DataSource newExtraDataSource) {
+        extraDataSource = newExtraDataSource;
+    }
+    
     /**
     * doPaint is the method that handles the drawing of the phase to the screen.
     * Several variables and conditions affect how the image is drawn.  First,
@@ -85,10 +96,6 @@ public class DisplayPhaseCanvas1DBins extends DisplayCanvas {
         g.setColor(getBackground());
         g.fillRect(0,0,w,h);
         displayPhase.computeImageParameters2(w, h);
-
-        //Draw other features if indicated
-//        if(drawBoundary>DRAW_BOUNDARY_NONE) {displayPhase.getPhase().boundary().draw(g, displayPhase.getOrigin(), displayPhase.getScale());}
-//        if(displayPhase.getDrawBoundary()) {displayPhase.getPhase().boundary().draw(g, displayPhase.getOrigin(), displayPhase.getScale());}
 
         //do drawing of all drawing objects that have been added to the display
         for(Iterator iter=displayPhase.getDrawables().iterator(); iter.hasNext(); ) {
@@ -116,6 +123,8 @@ public class DisplayPhaseCanvas1DBins extends DisplayCanvas {
             int x = (int)Math.round(a.coord.position().x(0)+dimensions.x(0)*0.5-0.5);
             atomCount[x]++;
         }
+        
+        
         int[] origin = displayPhase.getOrigin();
         g.setColor(Color.RED);
         int drawingHeight = displayPhase.getDrawingHeight();
@@ -126,6 +135,36 @@ public class DisplayPhaseCanvas1DBins extends DisplayCanvas {
                 height = drawingHeight;
             }
             int baseYP = origin[1] + drawingHeight - height;
+            g.fillRect(baseXP, baseYP, (int)displayPhase.getToPixels(), height);
+        }
+
+        if (extraDataSource == null) {
+            return;
+        }
+        
+        DataArithmetic extraData = (DataArithmetic)extraDataSource.getData();
+        if (extraData.getLength() != atomCount.length) {
+            // we caught it at a bad time.  we'll call back later.
+            return;
+        }
+        g.setColor(Color.BLUE);
+        for (int i=0; i<atomCount.length; i++) {
+            if (extraData.getValue(i) == 0) {
+                continue;
+            }
+            int baseXP = origin[0] + (int)(displayPhase.getToPixels()*i);
+            int baseYP = origin[1] + drawingHeight - (int)(displayPhase.getToPixels()*extraData.getValue(i)*yScale);
+            int height = 5;
+            if (baseYP + height > drawingHeight) {
+                height = drawingHeight - baseYP;
+            }
+            else if (baseYP < origin[1]) {
+                continue;
+            }
+            else if (baseYP + height < origin[1]) {
+                height = 5-(baseYP-origin[1]);
+                baseYP = origin[1];
+            }
             g.fillRect(baseXP, baseYP, (int)displayPhase.getToPixels(), height);
         }
     }

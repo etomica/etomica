@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import javax.swing.JPanel;
 
 import etomica.action.Action;
-import etomica.action.ActionGroup;
 import etomica.action.ActionGroupSeries;
 import etomica.action.SimulationRestart;
 import etomica.data.AccumulatorHistory;
@@ -29,6 +28,7 @@ public class EntropyLotteryGraphic {
         sim.getDefaults().blockSize = 100;
         sim.getDefaults().doSleep = true;
         sim.activityIntegrate.setDoSleep(true);
+        sim.activityIntegrate.setSleepPeriod(10);
         
         sim.register(sim.integrator);
         
@@ -88,6 +88,7 @@ public class EntropyLotteryGraphic {
         probabilityEntropyHistory.setTimeDataSource(stepCounter);
         entropyProcessor.setDataSink(probabilityEntropyHistory);
         sim.register(probabilityDensity, pump);
+        canvas.setExtraData(probabilityDensity);
         
         DisplayPlot entropyPlot = new DisplayPlot();
         entropyHistory.setDataSink(entropyPlot.getDataSet().makeDataSink());
