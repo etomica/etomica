@@ -2,16 +2,11 @@ package etomica.data;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.data.types.DataInteger;
-import etomica.data.types.DataInteger.DataInfoInteger;
 import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
-import etomica.units.Count;
 import etomica.units.Quantity;
-import etomica.units.Unit;
-import etomica.util.NameMaker;
 
 /**
  * Data source that keeps track of the number of steps performed by an
@@ -21,18 +16,14 @@ import etomica.util.NameMaker;
  * integrator will reset the count.
  */
 
-public final class DataSourceCountSteps implements DataSource, 
+public class DataSourceCountSteps extends DataSourceScalar implements  
         IntegratorNonintervalListener, IntegratorIntervalListener, EtomicaElement, java.io.Serializable {
 
-	/**
+    /**
 	 * Sets up data source to count integrator steps.
 	 */
 	public DataSourceCountSteps() {
-        dataInfo = new DataInfoInteger("Integrator steps", Quantity.DIMENSION);
-        data = new DataInteger();
-        setName(NameMaker.makeName(this.getClass()));
-        tag = new DataTag();
-        dataInfo.addTag(tag);
+        super("Integrator steps", Quantity.DIMENSION);
 	}
 
 	public static EtomicaInfo getEtomicaInfo() {
@@ -53,14 +44,14 @@ public final class DataSourceCountSteps implements DataSource,
 	 * Resets the counter to zero
 	 */
 	public void reset() {
-        data.x = 0;
+        count = 0;
 	}
 
 	/**
 	 * Returns the number of steps performed by the integrator
 	 */
-	public Data getData() {
-		return data;
+	public double getDataAsScalar() {
+		return count;
 	}
     
     /**
@@ -76,12 +67,12 @@ public final class DataSourceCountSteps implements DataSource,
 	 * event is type START, counter is set to zero.
 	 */
 	public void intervalAction(IntegratorIntervalEvent evt) {
-		data.x += evt.getInterval();
+		count += evt.getInterval();
     }
     
     public void nonintervalAction(IntegratorNonintervalEvent evt) {
 		if (evt.type() == IntegratorNonintervalEvent.INITIALIZE) {
-			data.x = 0;
+			count = 0;
 		}
 	}
 
@@ -98,8 +89,7 @@ public final class DataSourceCountSteps implements DataSource,
         this.name = name;
     }
     
-    private final DataInteger data;
-    private final DataInfo dataInfo;
+    private static final long serialVersionUID = 1L;
     private String name;
-    protected final DataTag tag;
+    private long count;
 }
