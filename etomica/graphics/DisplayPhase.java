@@ -213,7 +213,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
                 break;
             case 1:
             default:
-                boxY = 10;
+                boxY = drawingHeight;
                 canvas = new DisplayPhaseCanvas1D(this);
                 break;
         }
@@ -260,7 +260,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
                 break;
             case 1:
             default:
-                boxY = 10;
+                boxY = drawingHeight;
                 break;
         }
         
@@ -415,7 +415,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
                     break;
                 case 1:
                 default:
-                    boxY = 10;
+                    boxY = drawingHeight;
                     break;
             }
             
