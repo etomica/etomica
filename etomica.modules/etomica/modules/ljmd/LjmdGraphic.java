@@ -283,6 +283,7 @@ public class LjmdGraphic {
             public void stateChanged(ChangeEvent evt) {
                 int n = (int)nSlider.getValue();
                 sim.integrator.setThermostatInterval(400/n);
+                displayPhase.repaint();
             }
         });
 
