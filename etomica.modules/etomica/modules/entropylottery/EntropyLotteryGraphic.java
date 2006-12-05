@@ -96,6 +96,7 @@ public class EntropyLotteryGraphic {
         probabilityEntropyHistory.setDataSink(entropyPlot.getDataSet().makeDataSink());
         entropyPlot.setLegend(new DataTag[]{probabilityDensity.getTag()}, "predicted");
         displayPanel.add(entropyPlot.getPlot());
+        entropyPlot.getPlot().setTitle("Entropy");
         
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species));
@@ -112,7 +113,11 @@ public class EntropyLotteryGraphic {
                 double nUrn = nUrnSelector.getValue();
                 double a2p = 300.0/nUrn;
                 displayPhase.setPixelUnit(new Pixel(a2p));
-                ((DisplayPhaseCanvas1DBins)displayPhase.canvas).setYScale(nUrn*nUrn/(6*sim.phase.getAgent(sim.species).getNMolecules()));
+                double yScale = nUrn*nUrn/(6*sim.phase.getAgent(sim.species).getNMolecules());
+                if (yScale > 6) {
+                    yScale = 6;
+                }
+                ((DisplayPhaseCanvas1DBins)displayPhase.canvas).setYScale(yScale);
                 displayPhase.repaint();
             }
             public String getLabel() {
