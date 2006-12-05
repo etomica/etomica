@@ -641,6 +641,8 @@ public class PistonCylinderGraphic {
         ModifierBoolean fixPistonModulator = new ModifierBoolean() {
             public void setBoolean(boolean b) {
                 pc.pistonPotential.setStationary(b);
+                pressureSlider.getSlider().setEnabled(!b);
+                pressureSlider.getTextField().setEnabled(!b);
             }
             public boolean getBoolean() {
                 return pc.pistonPotential.isStationary();
@@ -704,6 +706,8 @@ public class PistonCylinderGraphic {
         pressureSlider.setModifier(new ModifierPistonPressure(pc.pistonPotential,pDim));
         pressureSlider.setPostAction(new ActionPistonUpdate(pc.integrator));
         pressureSlider.setController(pc.getController());
+        pressureSlider.getSlider().setEnabled(!pc.pistonPotential.isStationary());
+        pressureSlider.getTextField().setEnabled(!pc.pistonPotential.isStationary());
 
         if (doNSelector) {
             nSlider.setController(pc.getController());
