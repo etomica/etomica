@@ -9,8 +9,11 @@ import java.util.LinkedList;
 
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomType;
+import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.chem.elements.Element;
+import etomica.chem.elements.ElementChemical;
 import etomica.phase.Phase;
 
 /**
@@ -23,6 +26,7 @@ public class XYZWriter implements Action, Serializable {
 
     public XYZWriter(Phase aPhase) {
         iterator = new AtomIteratorLeafAtoms(aPhase);
+        elementAtomType = new LinkedList();
     }
 
     public String getLabel() {
@@ -46,6 +50,14 @@ public class XYZWriter implements Action, Serializable {
     public void setFileName(String fileName) {
         file = new File(fileName);
     }
+    
+    public void setIsAppend(boolean newDoAppend) {
+        doAppend = newDoAppend;
+    }
+    
+    public boolean isAppend() {
+        return doAppend;
+    }
 
     public void actionPerformed() {
         if (file == null) {
@@ -53,33 +65,38 @@ public class XYZWriter implements Action, Serializable {
         }
         FileWriter fileWriter;
         try { 
-            fileWriter = new FileWriter(file);
+            fileWriter = new FileWriter(file,doAppend);
         }catch(IOException e) {
             System.err.println("Cannot open "+file.getPath()+", caught IOException: " + e.getMessage());
             return;
         }
         try {
             iterator.reset();
-            elementAtomType.clear();
             fileWriter.write(Integer.toString(iterator.size())+"\n");
             fileWriter.write("#\n");
             while (iterator.hasNext()) {
                 AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
-                Iterator elementIterator = elementAtomType.iterator();
-                int elementIndex = -1;
-                while (elementIterator.hasNext()) {
-                    ElementLinker thisElement = (ElementLinker)elementIterator.next();
-                    if (thisElement.type == atom.type) {
-                        elementIndex = thisElement.elementIndex;
+                Element element = ((AtomTypeLeaf)atom.type).getElement();
+                String symbol = element.getSymbol();
+                if (!(element instanceof ElementChemical)) {
+                    Iterator elementIterator = elementAtomType.iterator();
+                    int elementIndex = -1;
+                    while (elementIterator.hasNext()) {
+                        ElementLinker thisElement = (ElementLinker)elementIterator.next();
+                        if (thisElement.type == atom.type) {
+                            elementIndex = thisElement.elementIndex;
+                            break;
+                        }
                     }
+                    if (elementIndex == -1) {
+                        ElementLinker thisElement = new ElementLinker(elementCount,atom.type);
+                        elementIndex = thisElement.elementIndex;
+                        elementCount++;
+                        elementAtomType.add(thisElement);
+                    }
+                    symbol = elements[elementIndex];
                 }
-                if (elementIndex == -1) {
-                    ElementLinker thisElement = new ElementLinker(elementCount,atom.type);
-                    elementIndex = thisElement.elementIndex;
-                    elementCount++;
-                    elementAtomType.add(thisElement);
-                }
-                fileWriter.write(elements[elementIndex]+" "+atom.coord.position().x(0)+" "+atom.coord.position().x(1)+" "+atom.coord.position().x(2)+"\n");
+                fileWriter.write(symbol+" "+atom.coord.position().x(0)+" "+atom.coord.position().x(1)+" "+atom.coord.position().x(2)+"\n");
             }
             fileWriter.close();
         } catch(IOException e) {
@@ -117,16 +134,19 @@ public class XYZWriter implements Action, Serializable {
         }
     }
     
+    private static final long serialVersionUID = 1L;
     private File file;
-    private static final char[] elements = new char[] {'H', 'O', 'F', 'N', 'C', 'P', 'S'};
+    private static final String[] elements = new String[] {"H", "O", "F", "N", "C", "P", "S"};
     private static final int[] elementNum = new int[] {1, 8, 9, 7, 6, 15, 16};
     private int elementCount = 0;
-    private final LinkedList elementAtomType = new LinkedList();
+    private final LinkedList elementAtomType;
     private final AtomIteratorLeafAtoms iterator;
+    private boolean doAppend;
     
     private static final class ElementLinker implements Serializable {
         public final int elementIndex;
         public final AtomType type;
+        private static final long serialVersionUID = 1L;
         public ElementLinker(int aElementIndex, AtomType aType) {
             elementIndex = aElementIndex;
             type = aType;
