@@ -51,10 +51,10 @@ public class DeviceNSelector extends DeviceSlider {
             targetAction = new ActionGroupSeries(new Action[]{modifyAction,resetAction});
         }
 	    
-	    if(agent.type.getSpecies().getName() == "") {
+	    if(agent.getType().getSpecies().getName() == "") {
 	        setLabel("Number of molecules");
 	    } else {
-	        setLabel(agent.type.getSpecies().getName() + " molecules");
+	        setLabel(agent.getType().getSpecies().getName() + " molecules");
 	    }
     }
     

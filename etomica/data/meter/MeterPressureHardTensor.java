@@ -20,7 +20,6 @@ import etomica.units.Temperature;
 public class MeterPressureHardTensor implements DataSource, IntegratorHard.CollisionListener, java.io.Serializable {
     
     public MeterPressureHardTensor(Space space) {
-        //XXX temperature, really?
         data = new DataTensor(space);
         dataInfo = new DataInfoTensor("PV/Nk",Temperature.DIMENSION, space);
         velocityTensor = space.makeTensor();
@@ -53,7 +52,7 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
             while (iterator.hasNext()) {
                 AtomLeaf a = (AtomLeaf)iterator.nextAtom();
                 v.Ev1v2(((ICoordinateKinetic)a.coord).velocity(), ((ICoordinateKinetic)a.coord).velocity());
-                v.TE((((AtomTypeLeaf)a.type).rm()));
+                v.TE((((AtomTypeLeaf)a.getType()).rm()));
                 velocityTensor.PE(v);
             }
             
@@ -103,6 +102,7 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
         this.name = name;
     }
 
+    private static final long serialVersionUID = 1L;
     private double t0;
     private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
     private Tensor velocityTensor, v;

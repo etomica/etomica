@@ -30,6 +30,7 @@ import etomica.space.Vector;
  */
 public final class IntegratorConNVT extends IntegratorMD implements EtomicaElement, AgentSource {
 
+    private static final long serialVersionUID = 1L;
     public final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms;
     private final Space space;
@@ -110,7 +111,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
             
 			work1.E(v); //work1 = v
 			work2.E(((Agent)agentManager.getAgent(a)).force);	//work2=F
-			work1.PEa1Tv1(halfTime*((AtomTypeLeaf)a.type).rm(),work2); //work1= p/m + F*Dt2/m = v + F*Dt2/m
+			work1.PEa1Tv1(halfTime*((AtomTypeLeaf)a.getType()).rm(),work2); //work1= p/m + F*Dt2/m = v + F*Dt2/m
             
         	k+=work1.squared();
  
@@ -128,7 +129,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 		
 			double scale = (2.0*chi-1.0); 
 			work3.Ea1Tv1(scale,v); 
-			work4.Ea1Tv1(chi*((AtomTypeLeaf)a.type).rm(),agent.force);
+			work4.Ea1Tv1(chi*((AtomTypeLeaf)a.getType()).rm(),agent.force);
 			work4.TE(timeStep);
 			work3.PE(work4);
 			v.E(work3);

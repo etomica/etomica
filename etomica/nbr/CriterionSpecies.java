@@ -10,11 +10,6 @@ import etomica.species.Species;
  * 
  * @author andrew
  */
-
-/*
- * Created on Mar 2, 2005
- */
-
 public class CriterionSpecies extends CriterionAdapter {
 
     public CriterionSpecies(NeighborCriterion criterion, 
@@ -31,8 +26,8 @@ public class CriterionSpecies extends CriterionAdapter {
      * also returns true.
      */
     public boolean accept(AtomSet pair) {
-        Species atom0Species = ((AtomPair)pair).atom0.type.getSpecies();
-        Species atom1Species = ((AtomPair)pair).atom1.type.getSpecies();
+        Species atom0Species = ((AtomPair)pair).atom0.getType().getSpecies();
+        Species atom1Species = ((AtomPair)pair).atom1.getType().getSpecies();
         if( (atom0Species == species0 && atom1Species == species1) 
                || (atom0Species == species1 && atom1Species == species0) ) {
             return subCriterion.accept(pair);
@@ -44,7 +39,7 @@ public class CriterionSpecies extends CriterionAdapter {
         return new Species[]{species0,species1};
     }
     
+    private static final long serialVersionUID = 1L;
     private final Species species0;
     private final Species species1;
-
 }

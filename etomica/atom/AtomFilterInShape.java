@@ -12,10 +12,6 @@ import etomica.math.geometry.Shape;
  * @author David Kofke
  */
 
-/*
- * History
- * Created on Jun 14, 2005 by kofke
- */
 public class AtomFilterInShape implements AtomFilter, java.io.Serializable {
 
     /**
@@ -31,7 +27,7 @@ public class AtomFilterInShape implements AtomFilter, java.io.Serializable {
      */
     public boolean accept(Atom atom) {
         if(positionDefinition == null) {
-            return shape.contains(atom.type.getPositionDefinition().position(atom));
+            return shape.contains(atom.getType().getPositionDefinition().position(atom));
         }
         return shape.contains(positionDefinition.position(atom));
     }
@@ -63,6 +59,7 @@ public class AtomFilterInShape implements AtomFilter, java.io.Serializable {
         this.positionDefinition = positionDefinition;
     }
     
+    private static final long serialVersionUID = 1L;
     private Shape shape;
     private AtomPositionDefinition positionDefinition;
 }

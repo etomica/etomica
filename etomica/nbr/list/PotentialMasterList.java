@@ -67,7 +67,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
     
     public PotentialMasterList(Space space, double range, PhaseAgentSourceCellManager phaseAgentSource, PhaseAgentManager agentManager) {
         super(space, phaseAgentSource, agentManager);
-        ((PhaseAgentSourceCellManager)phaseAgentSource).setRange(range);
+        phaseAgentSource.setRange(range);
         neighborManager = new NeighborListManager(this, range, agentManager);
         atomIterator = new AtomIteratorArrayListSimple();
         singletIterator = new AtomIteratorSinglet();
@@ -361,8 +361,8 @@ public class PotentialMasterList extends PotentialMasterNbr {
         else {
             //first walk up the tree looking for 1-body range-independent potentials that apply to parents
             Atom parentAtom = targetAtom.node.parentGroup();
-            while (parentAtom.type.getDepth() > 2) {
-                PotentialArray potentialArray = getIntraPotentials(parentAtom.type);
+            while (parentAtom.getType().getDepth() > 2) {
+                PotentialArray potentialArray = getIntraPotentials(parentAtom.getType());
                 Potential[] potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
                     potentials[i].setPhase(phase);
@@ -370,7 +370,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                 }
                 parentAtom = parentAtom.node.parentGroup();
             }                
-            PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(targetAtom.type);
+            PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(targetAtom.getType());
             Potential[] potentials = potentialArray.getPotentials();
             for(int i=0; i<potentials.length; i++) {
                 potentials[i].setPhase(phase);
@@ -392,7 +392,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
     private void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc) {
         singletIterator.setAtom(atom);
         IteratorDirective.Direction direction = id.direction();
-        PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(atom.type);
+        PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(atom.getType());
         Potential[] potentials = potentialArray.getPotentials();
         for(int i=0; i<potentials.length; i++) {
             switch (potentials[i].nBody()) {
@@ -454,7 +454,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         
         //if atom has children, repeat process with them
         if(!atom.node.isLeaf()) {
-            potentialArray = getIntraPotentials(atom.type);
+            potentialArray = getIntraPotentials(atom.getType());
             potentials = potentialArray.getPotentials();
             for(int i=0; i<potentials.length; i++) {
                 ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(atom,id,pc);

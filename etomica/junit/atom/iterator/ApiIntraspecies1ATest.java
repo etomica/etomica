@@ -38,9 +38,9 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
         AtomTreeNodeGroup rootNode = (AtomTreeNodeGroup)root.node;
         
         Species[] species = new Species[3];
-        species[0] = rootNode.getDescendant(new int[] {0,0}).type.getSpecies();
-        species[1] = rootNode.getDescendant(new int[] {0,1}).type.getSpecies();
-        species[2] = rootNode.getDescendant(new int[] {0,2}).type.getSpecies();
+        species[0] = rootNode.getDescendant(new int[] {0,0}).getType().getSpecies();
+        species[1] = rootNode.getDescendant(new int[] {0,1}).getType().getSpecies();
+        species[2] = rootNode.getDescendant(new int[] {0,2}).getType().getSpecies();
 
         phaseTest(rootNode, species, 0);
         phaseTest(rootNode, species, 1);
@@ -177,8 +177,8 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
             this.species1 = species1;
         }
         public void actionPerformed(AtomSet atoms) {
-            assertTrue(atoms.getAtom(0).type.getSpecies() == species0);
-            assertTrue(atoms.getAtom(1).type.getSpecies() == species1);
+            assertTrue(atoms.getAtom(0).getType().getSpecies() == species0);
+            assertTrue(atoms.getAtom(1).getType().getSpecies() == species1);
         }
     }
     

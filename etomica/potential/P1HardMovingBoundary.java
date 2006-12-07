@@ -220,10 +220,10 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
                 throw new RuntimeException("bork!");
             }
         }
-        double dp = 2.0/(1/wallMass + ((AtomTypeLeaf)((Atom)a).type).rm())*(trueWallVelocity-v.x(wallD));
+        double dp = 2.0/(1/wallMass + ((AtomTypeLeaf)((Atom)a).getType()).rm())*(trueWallVelocity-v.x(wallD));
         virialSum += dp;
-        v.setX(wallD,v.x(wallD)+dp*((AtomTypeLeaf)((Atom)a).type).rm());
-        ((AtomLeaf)a).coord.position().setX(wallD,r-dp*((AtomTypeLeaf)((Atom)a).type).rm()*falseTime);
+        v.setX(wallD,v.x(wallD)+dp*((AtomTypeLeaf)((Atom)a).getType()).rm());
+        ((AtomLeaf)a).coord.position().setX(wallD,r-dp*((AtomTypeLeaf)((Atom)a).getType()).rm()*falseTime);
         wallVelocity -= dp/wallMass;
         wallPosition += dp/wallMass*falseTime;
         
@@ -302,6 +302,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         g.fillRect(xP,yP,wP,hP);
     }
     
+    private static final long serialVersionUID = 1L;
     private double collisionRadius = 0.0;
     private final int D;
     private final int wallD;
@@ -315,6 +316,5 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     private double thickness = 0.0;
     private double virialSum;
     private boolean ignoreOverlap;
-    
-}//end of P1HardBoundary
+}
    

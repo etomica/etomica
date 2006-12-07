@@ -69,7 +69,7 @@ public final class SpeciesMaster extends Atom {
         iterator.reset();
         while (iterator.hasNext()) {
             Atom speciesAgent = iterator.nextAtom();
-            if (speciesAgent.type.getSpecies() == species) {
+            if (speciesAgent.getType().getSpecies() == species) {
                 speciesAgent.node.dispose();
             }
         }
@@ -230,7 +230,7 @@ public final class SpeciesMaster extends Atom {
                 treeIterator.reset();
                 while (treeIterator.hasNext()) {
                     Atom childAtom = treeIterator.nextAtom();
-                    if (childAtom.type.isLeaf()) {
+                    if (childAtom.getType().isLeaf()) {
                         ((AtomTreeNodeLeaf)childAtom.node).setLeafIndex(speciesMaster.leafList.size());
                         speciesMaster.leafList.add(childAtom);
                     }
@@ -271,7 +271,7 @@ public final class SpeciesMaster extends Atom {
                 while (treeIterator.hasNext()) {
                     Atom childAtom = treeIterator.nextAtom();
                     ((SpeciesMaster)atom).returnGlobalIndex(childAtom.getGlobalIndex());
-                    if (childAtom.type.isLeaf()) {
+                    if (childAtom.getType().isLeaf()) {
                         int leafIndex = ((AtomTreeNodeLeaf)childAtom.node).getLeafIndex();
                         speciesMaster.leafList.removeAndReplace(leafIndex);
                         if (speciesMaster.leafList.size() > leafIndex) {
@@ -285,6 +285,7 @@ public final class SpeciesMaster extends Atom {
             }
         }
 
+        private static final long serialVersionUID = 1L;
         private final Phase parentPhase;
         private final SpeciesMaster speciesMaster;
         private final AtomIteratorTree treeIterator = new AtomIteratorTree();
@@ -292,6 +293,7 @@ public final class SpeciesMaster extends Atom {
 
     private static final class NodeFactory implements AtomTreeNodeFactory, java.io.Serializable {
 
+        private static final long serialVersionUID = 1L;
         Phase phase;
 
         NodeFactory(Phase p) {

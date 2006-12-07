@@ -14,6 +14,7 @@ import etomica.space.Vector;
  */
 public class AtomActionAccelerateTo extends AtomActionAdapter {
     
+    private static final long serialVersionUID = 1L;
     private final Vector dr;
     private final Vector targetVelocity;
     private final AtomGroupAction atomAccelerator;
@@ -34,7 +35,7 @@ public class AtomActionAccelerateTo extends AtomActionAdapter {
      * so that its mass-average velocity equals the target velocity.
      */
     public void actionPerformed(Atom atom) {
-        if(atom.type.isLeaf()) {
+        if(atom.getType().isLeaf()) {
             ((ICoordinateKinetic)((AtomLeaf)atom).coord).velocity().E(targetVelocity);
         } else {
             Vector currentVelocity = velocityMeter.getVelocityAverage(atom);

@@ -18,11 +18,8 @@ import etomica.units.Energy;
  * over a particular set of atoms in the phase.
  */
  
- /* History of changes
-  * 7/03/02  Added non-registering constructor (space argument)
-  */
-public class MeterKineticEnergy extends DataSourceScalar implements Meter
-{
+public class MeterKineticEnergy extends DataSourceScalar implements Meter {
+    private static final long serialVersionUID = 1L;
     private AtomIteratorPhaseDependent iterator;
     
     public MeterKineticEnergy() {
@@ -65,7 +62,7 @@ public class MeterKineticEnergy extends DataSourceScalar implements Meter
         iterator.reset();
         while(iterator.hasNext()) {    //consider doing this with an allAtoms call
             Atom atom = iterator.nextAtom();
-            double mass = ((AtomTypeLeaf)atom.type).getMass();
+            double mass = ((AtomTypeLeaf)atom.getType()).getMass();
             if(mass == Double.POSITIVE_INFINITY) continue;
             ke += 0.5*mass*((ICoordinateKinetic)((AtomLeaf)atom).coord).velocity().squared();
         }

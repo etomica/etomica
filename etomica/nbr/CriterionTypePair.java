@@ -25,8 +25,8 @@ public class CriterionTypePair extends CriterionAdapter {
      * the wrapped criterion also accepts the pair.
      */
     public boolean accept(AtomSet pair) {
-        AtomType atom0Type = ((AtomPair)pair).atom0.type;
-        AtomType atom1Type = ((AtomPair)pair).atom1.type;
+        AtomType atom0Type = ((AtomPair)pair).atom0.getType();
+        AtomType atom1Type = ((AtomPair)pair).atom1.getType();
         if ( (atom0Type == type0 && atom1Type == type1) ||
              (atom0Type == type1 && atom1Type == type0) ) {
             return subCriterion.accept(pair);
@@ -41,6 +41,7 @@ public class CriterionTypePair extends CriterionAdapter {
         return new AtomType[]{type0,type1};
     }
     
+    private static final long serialVersionUID = 1L;
     private final AtomType type0;
     private final AtomType type1;
 }

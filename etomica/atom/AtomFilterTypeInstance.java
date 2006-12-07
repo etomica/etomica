@@ -11,10 +11,6 @@ package etomica.atom;
  *
  */
 
-/*
- * History
- * Created on Mar 31, 2005 by kofke
- */
 public class AtomFilterTypeInstance implements AtomFilter, java.io.Serializable {
 
     /**
@@ -31,7 +27,7 @@ public class AtomFilterTypeInstance implements AtomFilter, java.io.Serializable 
      * also if atom is null.
      */
     public boolean accept(Atom atom) {
-        return (atom != null) && (atom.type == acceptedType);
+        return (atom != null) && (atom.getType() == acceptedType);
     }
 
     /**
@@ -41,5 +37,6 @@ public class AtomFilterTypeInstance implements AtomFilter, java.io.Serializable 
         return acceptedType;
     }
     
+    private static final long serialVersionUID = 1L;
     private final AtomType acceptedType;
 }

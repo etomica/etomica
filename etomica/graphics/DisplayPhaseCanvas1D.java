@@ -68,7 +68,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
         boolean drawWell = false;
         int sigmaP, xP, yP, baseXP, baseYP;
 
-        if(a.type instanceof AtomTypeWell) {
+        if(a.getType() instanceof AtomTypeWell) {
             drawWell = true;
         }
 
@@ -77,9 +77,9 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
         baseXP = origin[0] + (int)(displayPhase.getToPixels()*r.x(0));
         int drawingHeight = displayPhase.getDrawingHeight();
         baseYP = origin[1] + drawingHeight/2;
-        if(a.type instanceof AtomTypeSphere) {
+        if(a.getType() instanceof AtomTypeSphere) {
             /* Draw the core of the atom */
-            sigmaP = (int)(displayPhase.getToPixels()*((AtomTypeSphere)a.type).getDiameter());
+            sigmaP = (int)(displayPhase.getToPixels()*((AtomTypeSphere)a.getType()).getDiameter());
             if (sigmaP == 0) {
                 sigmaP = 1;
             }
@@ -88,7 +88,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
             g.fillRect(xP, yP, sigmaP, drawingHeight);
             /* Draw the surrounding well, if any */
             if(drawWell) {
-                sigmaP = (int)(displayPhase.getToPixels()*((AtomTypeWell)a.type).wellDiameter());
+                sigmaP = (int)(displayPhase.getToPixels()*((AtomTypeWell)a.getType()).wellDiameter());
                 xP = baseXP - (sigmaP>>1);
                 g.setColor(wellColor);
                 g.drawRect(xP, yP, sigmaP, drawingHeight);
@@ -100,8 +100,8 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
     }
             
     protected boolean computeShiftOrigin(AtomLeaf a, Boundary b) {
-        if(a.type instanceof AtomTypeSphere) {
-            float[][] shifts = b.getOverflowShifts(a.coord.position(),0.5*((AtomTypeSphere)a.type).getDiameter());  //should instead of radius have a size for all AtomC types
+        if(a.getType() instanceof AtomTypeSphere) {
+            float[][] shifts = b.getOverflowShifts(a.coord.position(),0.5*((AtomTypeSphere)a.getType()).getDiameter());  //should instead of radius have a size for all AtomC types
             for(int i=0; i<shifts.length; i++) {
                 shiftOrigin[0] = displayPhase.getOrigin()[0] + (int)(displayPhase.getToPixels()*shifts[i][0]);
                 shiftOrigin[1] = displayPhase.getOrigin()[1] + (int)(displayPhase.getToPixels()*shifts[i][1]);

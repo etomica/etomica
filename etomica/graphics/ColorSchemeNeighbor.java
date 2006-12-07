@@ -34,7 +34,7 @@ public class ColorSchemeNeighbor extends ColorSchemeCollective {
         nbrIterator.reset();
         while(nbrIterator.hasNext()) {
             Atom  atom = nbrIterator.nextPair().atom1;
-            if(atom.type == referenceAtom.type) {
+            if(atom.getType() == referenceAtom.getType()) {
                 atomColors[atom.getGlobalIndex()] = Color.blue;
             } else {
                 atomColors[atom.getGlobalIndex()] = Color.yellow;

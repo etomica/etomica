@@ -5,7 +5,6 @@ import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
-import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -82,7 +81,7 @@ public class ConformationChainLinear extends ConformationChain {
             Atom a = atomIterator.nextAtom();
             if (!a.node.isLeaf()) {
                 //initialize coordinates of child atoms
-                Conformation config = a.type.creator().getConformation();
+                Conformation config = a.getType().creator().getConformation();
                 config.initializePositions(((AtomTreeNodeGroup)a.node).childList);
             }
             moveToOrigin.actionPerformed(a);
@@ -92,6 +91,7 @@ public class ConformationChainLinear extends ConformationChain {
         }
     }
 
+    private static final long serialVersionUID = 1L;
     private double bondLength;
     private Vector orientation;
     private double[] angle;

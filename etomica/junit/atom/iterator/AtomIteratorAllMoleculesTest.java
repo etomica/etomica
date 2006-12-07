@@ -35,11 +35,11 @@ public class AtomIteratorAllMoleculesTest extends IteratorTestAbstract {
         AtomTreeNodeGroup rootNode = (AtomTreeNodeGroup) root.node;
 
         Species[] species = new Species[3];
-        species[0] = rootNode.getDescendant(new int[] { 0, 0 }).type
+        species[0] = rootNode.getDescendant(new int[] { 0, 0 }).getType()
                 .getSpecies();
-        species[1] = rootNode.getDescendant(new int[] { 0, 1 }).type
+        species[1] = rootNode.getDescendant(new int[] { 0, 1 }).getType()
                 .getSpecies();
-        species[2] = rootNode.getDescendant(new int[] { 0, 2 }).type
+        species[2] = rootNode.getDescendant(new int[] { 0, 2 }).getType()
                 .getSpecies();
 
         for(int i=0; i<n0.length; i++) {

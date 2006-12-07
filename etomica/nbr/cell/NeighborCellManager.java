@@ -166,7 +166,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom atom = atomIterator.nextAtom();
-            if (atom.type.isInteracting()) {
+            if (atom.getType().isInteracting()) {
                 assignCell(atom);
             }
         }
@@ -191,7 +191,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
     public void assignCell(Atom atom) {
         Vector position = (positionDefinition != null) ?
                 positionDefinition.position(atom) :
-                    atom.type.getPositionDefinition().position(atom);
+                    atom.getType().getPositionDefinition().position(atom);
         Cell atomCell = (Cell)lattice.site(position);
         atomCell.addAtom(atom);
         Cell[] cells = (Cell[])agentManager.getAgents();
@@ -207,10 +207,10 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
     }
     
     public Object makeAgent(Atom atom) {
-        if (atom.type.isInteracting()) {
+        if (atom.getType().isInteracting()) {
             Vector position = (positionDefinition != null) ?
                     positionDefinition.position(atom) :
-                        atom.type.getPositionDefinition().position(atom);
+                        atom.getType().getPositionDefinition().position(atom);
             Cell atomCell = (Cell)lattice.site(position);
             atomCell.addAtom(atom);
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(atom)) {
@@ -266,7 +266,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
         }
 
         private void updateCell(Atom atom) {
-            if (atom.type.isInteracting()) {
+            if (atom.getType().isInteracting()) {
                 Boundary boundary = phase.getBoundary();
                 neighborCellManager.removeFromCell(atom);
                 if (!atom.node.isLeaf()) {

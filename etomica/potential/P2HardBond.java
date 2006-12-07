@@ -106,8 +106,8 @@ public class P2HardBond extends Potential2HardSpherical {
             }
         }
         
-        double rm0 = ((AtomTypeLeaf)atom0.type).rm();
-        double rm1 = ((AtomTypeLeaf)atom1.type).rm();
+        double rm0 = ((AtomTypeLeaf)atom0.getType()).rm();
+        double rm1 = ((AtomTypeLeaf)atom1.getType()).rm();
         
         lastCollisionVirial = 2.0 / (rm0+rm1) * bij;
         lastCollisionVirialr2 = lastCollisionVirial / r2;
@@ -190,6 +190,7 @@ public class P2HardBond extends Potential2HardSpherical {
     
     public double energyChange() {return 0.0;}
 
+    private static final long serialVersionUID = 1L;
     private double minBondLengthSquared;
     private double maxBondLength, maxBondLengthSquared;
     private double bondLength;

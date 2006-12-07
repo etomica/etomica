@@ -132,13 +132,13 @@ public class AtomIndexManagerTest extends TestCase {
         int falseCount = 0;
         int undefinedCount = 0;
         for(int i=0; i<atoms.length; i++) {
-            Species speciesA = atoms[i].type.getSpecies();
+            Species speciesA = atoms[i].getType().getSpecies();
             if(atoms[i].inSameSpecies(atom)) System.out.println(i+" "+atoms[i]+" "+atom);
             assertFalse(atoms[i].inSameSpecies(atom));
             assertFalse(atom.inSameSpecies(atoms[i]));
             for(int j=0; j<atoms.length; j++) {
                 if(i < 3 && j < 3) continue;
-                Species speciesB = atoms[j].type.getSpecies();
+                Species speciesB = atoms[j].getType().getSpecies();
                 boolean inSameSpecies = atoms[i].inSameSpecies(atoms[j]);
                 if(speciesA == null || speciesB == null) {
                     if(inSameSpecies) System.out.println(inSameSpecies+" "+i+" "+j+" "+atoms[i]+" "+atoms[j]);
@@ -173,7 +173,7 @@ public class AtomIndexManagerTest extends TestCase {
         }
     }
     private boolean isDescendedFrom(Atom a1, Atom a2) {
-        if(a1.type.getAddressManager().getDepth() < a2.type.getAddressManager().getDepth()) return false;
+        if(a1.getType().getAddressManager().getDepth() < a2.getType().getAddressManager().getDepth()) return false;
         else if(a1 == a2) return true;
         else return isDescendedFrom(a1.node.parentGroup(), a2);
     }
@@ -181,16 +181,16 @@ public class AtomIndexManagerTest extends TestCase {
     
     public void testIsDescendedFrom() {
         for(int i=0; i<atoms.length; i++) {
-            assertFalse(atoms[i].type.isDescendedFrom(atom.type));
-            assertFalse(atom.type.isDescendedFrom(atoms[i].type));
+            assertFalse(atoms[i].getType().isDescendedFrom(atom.getType()));
+            assertFalse(atom.getType().isDescendedFrom(atoms[i].getType()));
             for(int j=0; j<atoms.length; j++) {
 //                System.out.println(i+" "+j);
-                boolean is = atoms[i].type.isDescendedFrom(atoms[j].type);
+                boolean is = atoms[i].getType().isDescendedFrom(atoms[j].getType());
                 if(typeIsDescendedFrom(atoms[i],atoms[j])) {
                     assertTrue(is);
                 } else {
                     if(is) {
-                        System.out.println("isDescendedFrom "+i+" "+j+" "+atoms[i]+" "+atoms[j]+" "+Integer.toBinaryString(atoms[i].type.getAddress())+" "+Integer.toBinaryString(atoms[j].type.getAddress()));
+                        System.out.println("isDescendedFrom "+i+" "+j+" "+atoms[i]+" "+atoms[j]+" "+Integer.toBinaryString(atoms[i].getType().getAddress())+" "+Integer.toBinaryString(atoms[j].getType().getAddress()));
                         typeIsDescendedFrom(atoms[i],atoms[j]);
                     }
                     assertFalse(is);
@@ -199,8 +199,8 @@ public class AtomIndexManagerTest extends TestCase {
         }
     }
     private boolean typeIsDescendedFrom(Atom a1, Atom a2) {
-        if(a1.type.getAddressManager().getDepth() < a2.type.getAddressManager().getDepth()) return false;
-        else if(a1.type == a2.type) return true;
+        if(a1.getType().getAddressManager().getDepth() < a2.getType().getAddressManager().getDepth()) return false;
+        else if(a1.getType() == a2.getType()) return true;
         else return typeIsDescendedFrom(a1.node.parentGroup(), a2);
     }
     

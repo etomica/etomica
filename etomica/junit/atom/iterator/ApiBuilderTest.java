@@ -4,7 +4,6 @@ import java.util.LinkedList;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
@@ -101,7 +100,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         SpeciesRoot root = UnitTestUtil.makeMultitypeSpeciesTree(new int[] {5,7}, 
                 new int[][] {{3,2},{4,1,6}});
         rootNode = (AtomTreeNodeGroup)root.node;
-        AtomTypeGroup rootType = (AtomTypeGroup)root.type;
+        AtomTypeGroup rootType = (AtomTypeGroup)root.getType();
         AtomType[] types = new AtomType[2];
         AtomPair basisPair = new AtomPair();
 

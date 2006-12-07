@@ -178,16 +178,16 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             neighborIterator.setDirection(id.direction());
             //first walk up the tree looking for 1-body range-independent potentials that apply to parents
             Atom pseudoTargetAtom = targetAtom;
-            while (pseudoTargetAtom.type.getDepth() > 3) {
+            while (pseudoTargetAtom.getType().getDepth() > 3) {
                 pseudoTargetAtom = pseudoTargetAtom.node.parentGroup();
-                PotentialArray potentialArray = getIntraPotentials(pseudoTargetAtom.type);
+                PotentialArray potentialArray = getIntraPotentials(pseudoTargetAtom.getType());
                 Potential[] potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
                     potentials[i].setPhase(phase);
                     ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(pseudoTargetAtom,id,pc);
                 }
             }
-            PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(targetAtom.type);
+            PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(targetAtom.getType());
             Potential[] potentials = potentialArray.getPotentials();
             for(int i=0; i<potentials.length; i++) {
                 potentials[i].setPhase(phase);
@@ -207,7 +207,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      */
     //TODO make a "TerminalGroup" indicator in type that permits child atoms but indicates that no potentials apply directly to them
 	protected void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc) {
-        PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(atom.type);
+        PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(atom.getType());
         Potential[] potentials = potentialArray.getPotentials();
         NeighborCriterion[] criteria = potentialArray.getCriteria();
 
@@ -235,7 +235,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             
 		//if atom has children, repeat process with them
 		if(!atom.node.isLeaf()) {
-            potentialArray = getIntraPotentials(atom.type);
+            potentialArray = getIntraPotentials(atom.getType());
             potentials = potentialArray.getPotentials();
             for(int i=0; i<potentials.length; i++) {
                 ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(atom,id,pc);
@@ -251,6 +251,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
 		}
 	}
     
+    private static final long serialVersionUID = 1L;
     private final AtomIteratorSinglet singletAtomIterator;
 	private final AtomsetIteratorSinglet singletPairIterator;
     private int cellRange;

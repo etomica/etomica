@@ -94,7 +94,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
         if (evt instanceof PhaseAtomEvent) {
             Atom a = ((PhaseAtomEvent)evt).getAtom();
             if (evt instanceof PhaseAtomAddedEvent) {
-                if (a.type.isLeaf()) {
+                if (a.getType().isLeaf()) {
                     addAgent(a);
                 }
                 else {
@@ -111,7 +111,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
                 }       
             }
             else if (evt instanceof PhaseAtomRemovedEvent) {
-                if (a.type.isLeaf()) {
+                if (a.getType().isLeaf()) {
                     int index = a.getGlobalIndex();
                     if (agents[index] != null) {
                         // Atom used to have an agent.  nuke it.

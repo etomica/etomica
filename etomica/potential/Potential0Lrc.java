@@ -96,7 +96,7 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
                     final AtomType typei = types[i];
                     AtomsetCount counter = new AtomsetCount() {
                         public void actionPerformed(Atom atom) {
-                            if (atom.type == typei) {
+                            if (atom.getType() == typei) {
                                 super.actionPerformed(atom);
                             }
                         }
@@ -122,10 +122,10 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
                 break;
             case 1:
                 int typeIndex = 1;
-                if (types[0].isDescendedFrom(targetAtoms.getAtom(0).type)) {
+                if (types[0].isDescendedFrom(targetAtoms.getAtom(0).getType())) {
                     typeIndex = 0;
                 }
-                else if (!types[1].isDescendedFrom(targetAtoms.getAtom(0).type)) {
+                else if (!types[1].isDescendedFrom(targetAtoms.getAtom(0).getType())) {
                     divisor = 0;
                     return;
                 }
@@ -135,10 +135,10 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
                 }
                 break;
             case 2:
-                if ((!types[0].isDescendedFrom(targetAtoms.getAtom(0).type) &&
-                        !types[0].isDescendedFrom(targetAtoms.getAtom(1).type)) ||
-                        (!types[1].isDescendedFrom(targetAtoms.getAtom(1).type) &&
-                        !types[1].isDescendedFrom(targetAtoms.getAtom(0).type))) {
+                if ((!types[0].isDescendedFrom(targetAtoms.getAtom(0).getType()) &&
+                        !types[0].isDescendedFrom(targetAtoms.getAtom(1).getType())) ||
+                        (!types[1].isDescendedFrom(targetAtoms.getAtom(1).getType()) &&
+                        !types[1].isDescendedFrom(targetAtoms.getAtom(0).getType()))) {
                     divisor = 0;
                     return;
                 }

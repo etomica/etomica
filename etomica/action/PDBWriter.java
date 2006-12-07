@@ -93,12 +93,12 @@ public class PDBWriter implements Action, Serializable {
             int elementIndex = -1;
             while (elementIterator.hasNext()) {
                 ElementLinker thisElement = (ElementLinker)elementIterator.next();
-                if (thisElement.type == atom.type) {
+                if (thisElement.type == atom.getType()) {
                     elementIndex = thisElement.elementIndex;
                 }
             }
             if (elementIndex == -1) {
-                ElementLinker thisElement = new ElementLinker(elementCount,atom.type);
+                ElementLinker thisElement = new ElementLinker(elementCount,atom.getType());
                 elementIndex = thisElement.elementIndex;
                 elementCount++;
                 elementAtomType.add(thisElement);
@@ -158,6 +158,7 @@ public class PDBWriter implements Action, Serializable {
         }
     }
     
+    private static final long serialVersionUID = 1L;
     private File file;
     private static final char[] elements = new char[] {'H', 'O', 'F', 'N', 'C', 'P', 'S'};
     private static final int[] elementNum = new int[] {1, 8, 9, 7, 6, 15, 16};
@@ -166,6 +167,7 @@ public class PDBWriter implements Action, Serializable {
     private final AtomIteratorLeafAtoms iterator;
     
     private static final class ElementLinker implements Serializable {
+        private static final long serialVersionUID = 1L;
         public final int elementIndex;
         public final AtomType type;
         public ElementLinker(int aElementIndex, AtomType aType) {

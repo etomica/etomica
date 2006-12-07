@@ -34,17 +34,13 @@ import etomica.util.TreeList;
  * dynamics is handled by the potential between the atoms, which therefore must
  * have an Agent that implements PotentialAgent.Hard.
  * <br>
- * This class is not thread safe.
  *
  * @author David Kofke
  *
  */
- 
- //thread safety of this class is compromised by the
- //Space.Vector methods used in the periodCollisionTime method of Agent
- 
 public class IntegratorHard extends IntegratorMD implements AgentSource {
 
+    private static final long serialVersionUID = 1L;
     //handle to the integrator agent holding information about the next collision
     protected IntegratorHard.Agent colliderAgent;
     //first of a linked list of objects (typically meters) that are called each time a collision is processed
@@ -499,6 +495,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
     //the up-handler has the logic of the Allen & Tildesley upList subroutine
     //sets collision time of given atom to minimum value for collisions with all atoms uplist of it
     protected static final class CollisionHandlerUp extends PotentialCalculation {
+        private static final long serialVersionUID = 1L;
         double minCollisionTime;
         IntegratorHard.Agent aia;
         Atom atom1;
@@ -555,6 +552,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
 	//sets collision times of atoms downlist of given atom to minimum of their current
 	//value and their value with given atom
 	private static final class CollisionHandlerDown extends PotentialCalculation {
+        private static final long serialVersionUID = 1L;
         double collisionTimeStep;
         final TreeList eventList;
         private AtomAgentManager integratorAgentManager;
@@ -600,6 +598,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
      * neighbors.  
      */
     private static final class ReverseCollisionHandler extends PotentialCalculation {
+        private static final long serialVersionUID = 1L;
         final AtomArrayList listToUpdate;
         private AtomAgentManager integratorAgentManager;
         
@@ -640,6 +639,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
      * Class used to construct a linked list of collision listeners
      */
     private static class CollisionListenerLinker implements java.io.Serializable {
+        private static final long serialVersionUID = 1L;
         CollisionListenerLinker next;
         final CollisionListener listener;
         CollisionListenerLinker(CollisionListener listener, CollisionListenerLinker next) {
@@ -658,7 +658,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
      * agents as needed.
 	 */
     public Object makeAgent(Atom a) {
-        if (!a.type.isLeaf()) {
+        if (!a.getType().isLeaf()) {
             return null;
         }
         return new Agent(a,this);
@@ -678,6 +678,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
      */
     //Do not use encapsulation since the fields are for referencing by the integrator
     public static class Agent implements Serializable {  //need public so to use with instanceof
+        private static final long serialVersionUID = 1L;
         public Atom atom, collisionPartner;
         public PotentialHard collisionPotential;  //potential governing interaction between collisionPartner and atom containing this Agent
         public TreeLinker eventLinker;

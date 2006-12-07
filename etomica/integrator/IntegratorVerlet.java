@@ -17,13 +17,9 @@ import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Vector;
 
-/* History
- * 
- * 06/18/03 (DAK) changed doReset so that rMrLast is given by dt*p/m instead of
- * -dt*p/m
- */
 public final class IntegratorVerlet extends IntegratorMD implements EtomicaElement, AgentSource {
 
+    private static final long serialVersionUID = 1L;
     public final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms;
     private final Space space;
@@ -88,7 +84,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
             Vector r = a.coord.position();
             work.E(r);
             r.PE(agent.rMrLast);
-            agent.force.TE(((AtomTypeLeaf)a.type).rm()*t2);
+            agent.force.TE(((AtomTypeLeaf)a.getType()).rm()*t2);
             r.PE(agent.force);
             agent.rMrLast.E(r);
             agent.rMrLast.ME(work);

@@ -104,6 +104,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
     
     public static class ThermostatType extends EnumeratedType {
         protected ThermostatType(String label) {super(label);}       
+        private static final long serialVersionUID = 1L;
         public static final ThermostatType VELOCITY_SCALING = new ThermostatType("Velocity Scaling");
         public static final ThermostatType ANDERSEN = new ThermostatType("Anderson");
         public static final ThermostatType ANDERSEN_SINGLE = new ThermostatType("Andersen Single");
@@ -172,7 +173,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
                     AtomArrayList atomList = phase.getSpeciesMaster().leafList;
                     int index = Simulation.random.nextInt(atomList.size());
                     AtomLeaf a = (AtomLeaf)atomList.get(index);
-                    double m = ((AtomTypeLeaf)a.type).getMass();
+                    double m = ((AtomTypeLeaf)a.getType()).getMass();
                     currentKineticEnergy -= 0.5*m*((ICoordinateKinetic)a.coord).velocity().squared();
                     randomizeMomentum(atomList.get(index));
                     currentKineticEnergy += 0.5*m*((ICoordinateKinetic)a.coord).velocity().squared();
@@ -222,7 +223,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
             atomIterator.reset();
             while(atomIterator.hasNext()) {
                 AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
-                double mass = ((AtomTypeLeaf)a.type).getMass();
+                double mass = ((AtomTypeLeaf)a.getType()).getMass();
                 if (mass != Double.POSITIVE_INFINITY) {
                     momentum.PEa1Tv1(mass,((ICoordinateKinetic)a.coord).velocity());
                 }
@@ -232,7 +233,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
             //set net momentum to 0
             while(atomIterator.hasNext()) {
                 AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
-                double rm = ((AtomTypeLeaf)a.type).rm();
+                double rm = ((AtomTypeLeaf)a.getType()).rm();
                 if (rm != 0) {
                     ((ICoordinateKinetic)a.coord).velocity().PEa1Tv1(-rm,momentum);
                 }
@@ -242,7 +243,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
                 atomIterator.reset();
                 while(atomIterator.hasNext()) {
                     AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
-                    double mass = ((AtomTypeLeaf)a.type).getMass();
+                    double mass = ((AtomTypeLeaf)a.getType()).getMass();
                     if (mass != Double.POSITIVE_INFINITY) {
                         momentum.PEa1Tv1(mass,((ICoordinateKinetic)a.coord).velocity());
                     }
@@ -289,6 +290,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
         meter.setPhase(phase);
     }
     
+    private static final long serialVersionUID = 1L;
     /**
      * Elementary time step for the MD simulation
      */

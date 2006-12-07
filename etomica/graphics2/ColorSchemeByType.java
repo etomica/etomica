@@ -24,14 +24,14 @@ implements ColorScheme, java.io.Serializable
   */
     public final int atomColor(AtomLeaf a) 
     {
-    	Integer index = (Integer) colormap.get( a.type );
+    	Integer index = (Integer) colormap.get( a.getType() );
     	if ( index==null )
     	{
     		// Assign the next position to this unknown
     		Color nextcolor = DEFAULTCOLORLIST[position_in_list++];
     		if ( position_in_list==DEFAULTCOLORLIST.length )
     			position_in_list = 0;
-    		colormap.put( a.type, new Integer( colorindex.size() ) );
+    		colormap.put( a.getType(), new Integer( colorindex.size() ) );
     		colorindex.add( nextcolor );
     		return atomColor( a );
     		

@@ -123,27 +123,27 @@ public abstract class AtomTreeNode implements Comparable, java.io.Serializable {
     }
     
     protected void setIndex(int parentAddress, int index) {
-        atomTreeAddress = parentAddress + atom.type.getAddressManager().shiftIndex(index);
-        if (Debug.ON && atom.type.getAddressManager().getIndex(atomTreeAddress) != index) {
-            atom.type.getAddressManager().getIndex(atomTreeAddress);
-            throw new RuntimeException(atomTreeAddress+" "+index+" "+(atom.type.getAddressManager().getIndex(atomTreeAddress)));
+        atomTreeAddress = parentAddress + atom.getType().getAddressManager().shiftIndex(index);
+        if (Debug.ON && atom.getType().getAddressManager().getIndex(atomTreeAddress) != index) {
+            atom.getType().getAddressManager().getIndex(atomTreeAddress);
+            throw new RuntimeException(atomTreeAddress+" "+index+" "+(atom.getType().getAddressManager().getIndex(atomTreeAddress)));
         }
     }
     
     public int getIndex() {
-        return atom.type.getAddressManager().getIndex(atomTreeAddress);
+        return atom.getType().getAddressManager().getIndex(atomTreeAddress);
     }
     
     public int getMoleculeIndex() {
-        return atom.type.getAddressManager().getMoleculeIndex(atomTreeAddress);
+        return atom.getType().getAddressManager().getMoleculeIndex(atomTreeAddress);
     }
 
     public int getPhaseIndex() {
-        return atom.type.getAddressManager().getPhaseIndex(atomTreeAddress);
+        return atom.getType().getAddressManager().getPhaseIndex(atomTreeAddress);
     }
 
     public int getSpeciesIndex() {
-        return atom.type.getAddressManager().getSpeciesIndex(atomTreeAddress);
+        return atom.getType().getAddressManager().getSpeciesIndex(atomTreeAddress);
     }
 
     public boolean inSimulation() {
@@ -157,7 +157,7 @@ public abstract class AtomTreeNode implements Comparable, java.io.Serializable {
      */ 
     public boolean isDescendedFrom(Atom group) {
     	if(group == null) return false;
-        return group.type.getAddressManager().sameAncestry(group.node.atomTreeAddress,this.atomTreeAddress);
+        return group.getType().getAddressManager().sameAncestry(group.node.atomTreeAddress,this.atomTreeAddress);
     }
     
     /**

@@ -95,10 +95,10 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         iterator.reset();
         while (iterator.hasNext()) {
             Atom atom = iterator.nextAtom();
-            int numPotentials = potentialMaster.getRangedPotentials(atom.type).getPotentials().length;
+            int numPotentials = potentialMaster.getRangedPotentials(atom.getType()).getPotentials().length;
             ((AtomNeighborLists)agentManager.getAgent(atom)).setCapacity(numPotentials);
 
-            numPotentials = potentialMaster.getIntraPotentials(atom.type).getPotentials().length;
+            numPotentials = potentialMaster.getIntraPotentials(atom.getType()).getPotentials().length;
             ((AtomPotentialList)potentialListManager.getAgent(atom)).setCapacity(numPotentials);
         }
         
@@ -283,7 +283,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         while (cellNbrIterator.hasNext()) {
             AtomPair pair = cellNbrIterator.nextPair();
             Atom atom0 = pair.atom0;
-            PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom0.type);
+            PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom0.getType());
             Potential[] potentials = potentialArray.getPotentials();
             NeighborCriterion[] criteria = potentialArray.getCriteria();
             for (int i = 0; i < potentials.length; i++) {
@@ -293,7 +293,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
                 if (criteria[i].accept(pair)) {
                     ((AtomNeighborLists)agentManager.getAgent(pair.atom0)).addUpNbr(pair.atom1,i);
                     ((AtomNeighborLists)agentManager.getAgent(pair.atom1)).addDownNbr(pair.atom0,
-                            potentialMaster.getRangedPotentials(pair.atom1.type).getPotentialIndex(potentials[i]));
+                            potentialMaster.getRangedPotentials(pair.atom1.getType()).getPotentialIndex(potentials[i]));
                 }
             }
         }
@@ -351,6 +351,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         return (AtomPotentialList)potentialListManager.getAgent(atom);
     }
 
+    private static final long serialVersionUID = 1L;
     private NeighborCriterion[] criteriaArray = new NeighborCriterion[0];
     private int updateInterval;
     private int iieCount;
@@ -375,6 +376,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      */
     private static class NeighborCheck extends AtomActionAdapter {
 
+        private static final long serialVersionUID = 1L;
         protected boolean needUpdate = false, unsafe = false;
         private NeighborListManager neighborListManager;
 
@@ -383,7 +385,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         }
         
         public void actionPerformed(Atom atom) {
-            final NeighborCriterion[] criterion = neighborListManager.getCriterion(atom.type);
+            final NeighborCriterion[] criterion = neighborListManager.getCriterion(atom.getType());
             for (int i = 0; i < criterion.length; i++) {
                 if (criterion[i].needUpdate(atom)) {
                     needUpdate = true;
@@ -416,6 +418,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * previous-position vector to its current position).
      */
     private static class NeighborReset extends AtomActionAdapter {
+        private static final long serialVersionUID = 1L;
 
         public NeighborReset(NeighborListManager manager) {
             neighborListManager = manager;
@@ -423,16 +426,16 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         
         public void actionPerformed(Atom atom) {
             //TODO consider removing this check, for perf improvement
-            if (atom.type.getDepth() < 3) {
+            if (atom.getType().getDepth() < 3) {
                 return;//don't want SpeciesMaster or SpeciesAgents
             }
-            final NeighborCriterion[] criterion = neighborListManager.getCriterion(atom.type);
+            final NeighborCriterion[] criterion = neighborListManager.getCriterion(atom.getType());
             ((AtomNeighborLists)agentManager.getAgent(atom)).clearNbrs();
             for (int i = 0; i < criterion.length; i++) {
                 criterion[i].reset(atom);
             }
 
-            PotentialArray potentialArray = neighborListManager.potentialMaster.getRangedPotentials(atom.type);
+            PotentialArray potentialArray = neighborListManager.potentialMaster.getRangedPotentials(atom.getType());
             Potential[] potentials = potentialArray.getPotentials();
             NeighborCriterion[] criteria = potentialArray.getCriteria();
 
@@ -460,7 +463,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     
     public Object makeAgent(Atom atom) {
         AtomNeighborLists lists = new AtomNeighborLists();
-        int numPotentials = potentialMaster.getRangedPotentials(atom.type).getPotentials().length;
+        int numPotentials = potentialMaster.getRangedPotentials(atom.getType()).getPotentials().length;
         lists.setCapacity(numPotentials);
         return lists;
     }
@@ -470,13 +473,14 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     }
     
     public class AtomPotential1ListSource implements AtomAgentManager.AgentSource, java.io.Serializable {
+        private static final long serialVersionUID = 1L;
         public Class getAgentClass() {
             return AtomPotentialList.class;
         }
         public void releaseAgent(Object obj, Atom atom) {}
         public Object makeAgent(Atom atom) {
             AtomPotentialList lists = new AtomPotentialList();
-            int numPotentials = potentialMaster.getIntraPotentials(atom.type).getPotentials().length;
+            int numPotentials = potentialMaster.getIntraPotentials(atom.getType()).getPotentials().length;
             lists.setCapacity(numPotentials);
             return lists;
         }

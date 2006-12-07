@@ -61,7 +61,7 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
     public void setTarget(Atom newTargetAtom) {
         targetAtom = newTargetAtom;
         if (targetAtom != null) {
-            targetDepth = targetAtom.type.getDepth();
+            targetDepth = targetAtom.getType().getDepth();
         }
         needSetupIterator = (basis != null);//flag to setup iterator only if
                                             // presently has a non-null basis
@@ -107,7 +107,7 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
         if (target == null) {
             return true;
         }
-        if(target.type.getDepth() <= basis.type.getDepth()) { 
+        if(target.getType().getDepth() <= basis.getType().getDepth()) { 
             return basis.node.isDescendedFrom(target);
         }
         return target.node.isDescendedFrom(basis);
@@ -159,7 +159,7 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
         try {
             if (targetAtom == null) {
                 setupBasisIteration();
-            } else if(targetDepth <= basis.type.getDepth()) {
+            } else if(targetDepth <= basis.getType().getDepth()) {
                 if(basis.node.isDescendedFrom(targetAtom)) {
                     setupBasisIteration();
                 } else {
@@ -200,6 +200,7 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
         }
     }
 
+    private static final long serialVersionUID = 1L;
     private final AtomIteratorArrayListSimple listIterator;//the wrapped iterator
     private final AtomArrayList littleList = new AtomArrayList();//used to form a list of
                                                        // one iterate if target

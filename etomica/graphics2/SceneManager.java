@@ -219,16 +219,16 @@ public final class SceneManager {
         }
         
         public Object makeAgent(Atom a) {
-            if (!(a.type instanceof AtomTypeSphere)) {
+            if (!(a.getType() instanceof AtomTypeSphere)) {
                 return null;
             }
             SphereShapeWrapper wrapper = new SphereShapeWrapper();
             wrapper.atom = (AtomLeaf)a;
-            if (a.type instanceof AtomTypeSphere) {
+            if (a.getType() instanceof AtomTypeSphere) {
                 wrapper.shape = renderer.createSphere();
                 
                 // Scale to atom's given size
-                double diameter = ((AtomTypeSphere)a.type).getDiameter();
+                double diameter = ((AtomTypeSphere)a.getType()).getDiameter();
                 atomScale.E(diameter);
                 wrapper.shape.setScale(atomScale);
             }

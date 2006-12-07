@@ -191,15 +191,17 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
     }
     
     public Object makeAgent(Atom atom) {
-        return atom.type.isLeaf() ? new DoubleWrapper() : null;
+        return atom.getType().isLeaf() ? new DoubleWrapper() : null;
     }
     
     public void releaseAgent(Object agent, Atom atom) {}
 
     protected static class DoubleWrapper implements java.io.Serializable {
+        private static final long serialVersionUID = 1L;
         public double x;
     }
     
+    private static final long serialVersionUID = 1L;
     private double interactionRange, displacementLimit, neighborRange;
     private int neighborDim;
     private boolean isBoundaryWall;

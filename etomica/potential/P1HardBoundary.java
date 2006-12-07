@@ -31,6 +31,7 @@ import etomica.util.Debug;
  
 public class P1HardBoundary extends Potential1 implements PotentialHard, Drawable {
     
+    private static final long serialVersionUID = 1L;
     private double collisionRadius = 0.0;
     private final Vector work;
     private int[] pixPosition;
@@ -146,7 +147,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
         // dv = 2*NewVelocity
         double newP = ((AtomLeaf)a).coord.position().x(imin) - falseTime*v.x(imin)*2.0;
         ((AtomLeaf)a).coord.position().setX(imin,newP);
-        double dp = 2.0/(((AtomTypeLeaf)((Atom)a).type).rm())*(-v.x(imin));
+        double dp = 2.0/(((AtomTypeLeaf)((Atom)a).getType()).rm())*(-v.x(imin));
         lastVirial = dp;
         lastCollisionDim = imin;
     }//end of bump

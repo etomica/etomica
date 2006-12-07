@@ -104,10 +104,10 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 		atomIterator.reset();
 		while(atomIterator.hasNext()) {
 			AtomLeaf a = (AtomLeaf) atomIterator.nextAtom();
-            if (!(a.type instanceof AtomTypeSphere)) continue;
+            if (!(a.getType() instanceof AtomTypeSphere)) continue;
 			a.coord.position().assignTo(coords);
 			Long id = (Long)aam.getAgent(a);
-            double diameter = ((AtomTypeSphere)a.type).getDiameter();
+            double diameter = ((AtomTypeSphere)a.getType()).getDiameter();
 			gsys.modFig(id.longValue(), colorScheme.getAtomColor(a),
 					(float)coords[0], (float)coords[1], (float)coords[2], (float)diameter,
                     atomFilter.accept(a));
@@ -124,11 +124,11 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 	}
 	
 	public Object makeAgent(Atom a) {
-		if ( !(a instanceof AtomLeaf) || !(a.type instanceof AtomTypeSphere)) return null;
+		if ( !(a instanceof AtomLeaf) || !(a.getType() instanceof AtomTypeSphere)) return null;
 		double[] coords = new double[3];
 		((AtomLeaf)a).coord.position().assignTo(coords);
 
-        double diameter = ((AtomTypeSphere)a.type).getDiameter();
+        double diameter = ((AtomTypeSphere)a.getType()).getDiameter();
 		long l = gsys.addFig(G3DSys.BALL, displayPhase.getColorScheme().getAtomColor((AtomLeaf)a),
 				(float)coords[0], (float)coords[1], (float)coords[2], (float)diameter);
 		//System.out.println("added atom "+l+" at "+coords[0]+","+coords[1]+","+coords[2]);

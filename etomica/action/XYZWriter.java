@@ -76,20 +76,20 @@ public class XYZWriter implements Action, Serializable {
             fileWriter.write("#\n");
             while (iterator.hasNext()) {
                 AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
-                Element element = ((AtomTypeLeaf)atom.type).getElement();
+                Element element = ((AtomTypeLeaf)atom.getType()).getElement();
                 String symbol = element.getSymbol();
                 if (!(element instanceof ElementChemical)) {
                     Iterator elementIterator = elementAtomType.iterator();
                     int elementIndex = -1;
                     while (elementIterator.hasNext()) {
                         ElementLinker thisElement = (ElementLinker)elementIterator.next();
-                        if (thisElement.type == atom.type) {
+                        if (thisElement.type == atom.getType()) {
                             elementIndex = thisElement.elementIndex;
                             break;
                         }
                     }
                     if (elementIndex == -1) {
-                        ElementLinker thisElement = new ElementLinker(elementCount,atom.type);
+                        ElementLinker thisElement = new ElementLinker(elementCount,atom.getType());
                         elementIndex = thisElement.elementIndex;
                         elementCount++;
                         elementAtomType.add(thisElement);

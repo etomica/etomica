@@ -39,7 +39,7 @@ public class AtomIteratorLeafAtomsTest extends IteratorTestAbstract {
         
         Species[] species = new Species[3];
         for(int i=0; i<species.length; i++) {
-            species[i] = rootNode.getDescendant(new int[] {0,i}).type.getSpecies();
+            species[i] = rootNode.getDescendant(new int[] {0,i}).getType().getSpecies();
         }
         
         Phase[] phase = new Phase[3];

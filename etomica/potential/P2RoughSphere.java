@@ -8,10 +8,10 @@ import etomica.atom.AtomType;
 import etomica.atom.AtomTypeLeaf;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateAngularKinetic;
-import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
+import etomica.space3d.Vector3D;
 
 /**
  * Basic hard-(rod/disk/sphere) potential, with surface roughness to couple rotation and translational motions.
@@ -21,7 +21,8 @@ import etomica.space.Vector;
  */
 public class P2RoughSphere extends P2HardSphere {
 
-    private final etomica.space3d.Vector3D omegaSum = new etomica.space3d.Vector3D();
+    private static final long serialVersionUID = 1L;
+    private final Vector3D omegaSum = new Vector3D();
     private final Vector v12Surface;
     private final Vector v12Par;
     private final Vector v12Perp;
@@ -62,9 +63,9 @@ public class P2RoughSphere extends P2HardSphere {
 
         double r2 = dr.squared();
         double bij = dr.dot(dv);
-        double rm0 = ((AtomTypeLeaf)atom0.type).rm();
-        double rm1 = ((AtomTypeLeaf)atom1.type).rm();
-        double kappa = 4*((AtomType.Rotator)atom0.type).momentOfInertia()[0]*rm0/(collisionDiameter*collisionDiameter);
+        double rm0 = ((AtomTypeLeaf)atom0.getType()).rm();
+        double rm1 = ((AtomTypeLeaf)atom1.getType()).rm();
+        double kappa = 4*((AtomType.Rotator)atom0.getType()).momentOfInertia()[0]*rm0/(collisionDiameter*collisionDiameter);
         omegaSum.E(coord0.angularVelocity());
         omegaSum.PE(coord1.angularVelocity());
         // v12Surface should come to equal v2 - v1 - 1/2*(omega2+omega1) X (r2-r1)
@@ -82,7 +83,7 @@ public class P2RoughSphere extends P2HardSphere {
         
         impulse.E(v12Par);
         impulse.PEa1Tv1(kappa/(1+kappa),v12Perp);
-        impulse.TE(((AtomTypeLeaf)atom0.type).getMass());
+        impulse.TE(((AtomTypeLeaf)atom0.getType()).getMass());
         
         coord0.velocity().PEa1Tv1( rm0,impulse);
         coord1.velocity().PEa1Tv1(-rm1,impulse);

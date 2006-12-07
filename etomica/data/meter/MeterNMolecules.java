@@ -15,6 +15,7 @@ import etomica.units.Quantity;
  */
 public class MeterNMolecules extends DataSourceScalar implements DataSourceAtomic, Meter {
     
+    private static final long serialVersionUID = 1L;
     private Species species;
     
     public MeterNMolecules() {
@@ -35,7 +36,7 @@ public class MeterNMolecules extends DataSourceScalar implements DataSourceAtomi
     }
     
     public Data getData(Atom atom) {
-        data.x = (species == null || atom.type.getSpecies() == species) ? 1 : 0;
+        data.x = (species == null || atom.getType().getSpecies() == species) ? 1 : 0;
         return data;
     }
     

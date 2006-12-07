@@ -27,6 +27,7 @@ import etomica.space.Vector;
 
 public final class IntegratorVelocityVerlet extends IntegratorMD implements EtomicaElement, AgentSource {
 
+    private static final long serialVersionUID = 1L;
     public final PotentialCalculationForceSum forceSum;
     private final Space space;
     private final IteratorDirective allAtoms;
@@ -73,7 +74,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
             MyAgent agent = (MyAgent)agentManager.getAgent(a);     //  and momenta half step
             Vector r = a.coord.position();
             Vector v = ((ICoordinateKinetic)a.coord).velocity();
-            v.PEa1Tv1(0.5*timeStep*((AtomTypeLeaf)a.type).rm(),agent.force);  // p += f(old)*dt/2
+            v.PEa1Tv1(0.5*timeStep*((AtomTypeLeaf)a.getType()).rm(),agent.force);  // p += f(old)*dt/2
             r.PEa1Tv1(timeStep,v);         // r += p*dt/m
             agent.force.E(0.0);
         }
@@ -86,7 +87,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         while(atomIterator.hasNext()) {     //loop over atoms again
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();   //  finishing the momentum step
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
-            ((ICoordinateKinetic)a.coord).velocity().PEa1Tv1(0.5*timeStep*((AtomTypeLeaf)a.type).rm(),((MyAgent)agentManager.getAgent(a)).force);  //p += f(new)*dt/2
+            ((ICoordinateKinetic)a.coord).velocity().PEa1Tv1(0.5*timeStep*((AtomTypeLeaf)a.getType()).rm(),((MyAgent)agentManager.getAgent(a)).force);  //p += f(new)*dt/2
         }
         if(isothermal) {
             doThermostat();
@@ -126,6 +127,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
     public void releaseAgent(Object agent, Atom atom) {}
             
     public final static class MyAgent implements IntegratorPhase.Forcible, Serializable {  //need public so to use with instanceof
+        private static final long serialVersionUID = 1L;
         public Atom atom;
         public Vector force;
 

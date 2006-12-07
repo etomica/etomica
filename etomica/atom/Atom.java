@@ -3,7 +3,6 @@ package etomica.atom;
 import java.io.IOException;
 
 import etomica.chem.elements.ElementSimple;
-import etomica.space.Space;
 import etomica.util.EtomicaObjectInputStream;
 
  /**
@@ -151,15 +150,19 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
     }
     
     /**
+     * @return the Atom type, holding properties held in common with other 
+     * atoms made by this atom's factory.
+     */
+    public AtomType getType() {
+        return type;
+    }
+
+    /**
      * Tree node, used to place the atom in the species tree.
      */
     public final AtomTreeNode node;
     
-    /**
-     * Atom type, holding properties held in common with other atoms made by this atom's
-     * factory.
-     */
-    public final AtomType type;
+    protected final AtomType type;
     
     /**
      * Counter for number of times an atom is instantiated without a parent.  Used

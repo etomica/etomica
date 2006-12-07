@@ -28,7 +28,7 @@ public class CriterionTypesMulti extends CriterionAdapter {
         for (int i=0; i<types.length; i++) {
             boolean accepted = false;
             for (int j=0; j<nAtoms; j++) {
-                if (atoms.getAtom(j).type == types[i]) {
+                if (atoms.getAtom(j).getType() == types[i]) {
                     accepted = true;
                 }
             }
@@ -46,5 +46,6 @@ public class CriterionTypesMulti extends CriterionAdapter {
         return (AtomType[])types.clone();
     }
     
+    private static final long serialVersionUID = 1L;
     private final AtomType[] types;
 }

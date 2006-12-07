@@ -42,12 +42,14 @@ public class AtomGroupVelocityAverage implements Serializable {
         }
         public void actionPerformed(Atom a) {
             vectorSum.PE(((ICoordinateKinetic)((AtomLeaf)a).coord).velocity());
-            massSum += ((AtomTypeLeaf)a.type).getMass();
+            massSum += ((AtomTypeLeaf)a.getType()).getMass();
         }
+        private static final long serialVersionUID = 1L;
         private final Vector vectorSum;
         public double massSum;
     }
 
+    private static final long serialVersionUID = 1L;
     private final Vector vectorSum;
     private MyAction myAction;
     private AtomGroupAction groupWrapper;

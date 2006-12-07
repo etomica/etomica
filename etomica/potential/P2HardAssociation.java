@@ -52,7 +52,7 @@ public class P2HardAssociation extends Potential2HardSpherical {
         double r2 = dr.squared();
         double bij = dr.dot(dv);
 
-        double reduced_m = 1/(((AtomTypeLeaf)atom0.type).rm() + ((AtomTypeLeaf)atom1.type).rm());
+        double reduced_m = 1/(((AtomTypeLeaf)atom0.getType()).rm() + ((AtomTypeLeaf)atom1.getType()).rm());
         double nudge = 0;
         if (bij > 0.0) {    //Separating
             double ke = bij*bij*reduced_m/(2*r2);
@@ -180,6 +180,7 @@ public class P2HardAssociation extends Potential2HardSpherical {
         return Energy.DIMENSION;
     }
     
+    private static final long serialVersionUID = 1L;
     private double wellDiameter, wellDiameterSquared;
     private double epsilon;
     private double lastCollisionVirial, lastCollisionVirialr2;

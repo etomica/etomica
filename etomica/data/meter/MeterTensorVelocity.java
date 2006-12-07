@@ -79,7 +79,7 @@ public class MeterTensorVelocity implements Meter, DataSourceAtomic, java.io.Ser
      */
     public Data getData(Atom atom) {
         atomData.x.Ev1v2(((ICoordinateKinetic)((AtomLeaf)atom).coord).velocity(), ((ICoordinateKinetic)((AtomLeaf)atom).coord).velocity());
-        atomData.TE(((AtomTypeLeaf)atom.type).rm());
+        atomData.TE(((AtomTypeLeaf)atom.getType()).rm());
         return atomData;
     }
 
@@ -104,6 +104,7 @@ public class MeterTensorVelocity implements Meter, DataSourceAtomic, java.io.Ser
         this.name = name;
     }
     
+    private static final long serialVersionUID = 1L;
     private String name;
     private Phase phase;
     private final DataTensor data, atomData;

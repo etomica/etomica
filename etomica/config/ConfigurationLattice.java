@@ -202,7 +202,7 @@ public class ConfigurationLattice extends Configuration {
             Atom a = atomIterator.nextAtom();
             if (!a.node.isLeaf()) {
                 // initialize coordinates of child atoms
-                Conformation config = a.type.creator().getConformation();
+                Conformation config = a.getType().creator().getConformation();
                 config.initializePositions(((AtomTreeNodeGroup) a.node).childList);
             }
 

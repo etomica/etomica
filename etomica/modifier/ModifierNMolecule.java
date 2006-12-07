@@ -8,9 +8,6 @@ import etomica.units.Quantity;
  * Modifier class that enables change of the number of molecules of a particular species
  * in a particular phase.
  */
-/*
- * History Created on Jan 31, 2005 by kofke
- */
 public class ModifierNMolecule implements Modifier, java.io.Serializable {
 
     /**
@@ -40,13 +37,14 @@ public class ModifierNMolecule implements Modifier, java.io.Serializable {
     }
     
     public String getLabel() {
-        return speciesAgent.type.getSpecies().getName() + " molecules";
+        return speciesAgent.getType().getSpecies().getName() + " molecules";
     }
     
     public String toString() {
-        return "Change number of "+speciesAgent.type.getSpecies().getName()+
+        return "Change number of "+speciesAgent.getType().getSpecies().getName()+
                 " molecules from " + previousValue + " to " + mostRecentValue;
     }
+    private static final long serialVersionUID = 1L;
     private final SpeciesAgent speciesAgent;
     private int mostRecentValue, previousValue;
 }

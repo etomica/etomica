@@ -79,7 +79,7 @@ public class MeterLocalMoleFraction extends DataSourceScalar implements Meter {
             tempVec.Ev1Mv2(a.coord.position(), shapeOrigin);
             if(shape.contains(tempVec)) {
                 totalSum++;
-                if(a.type.getSpecies() == species) speciesSum++;
+                if(a.getType().getSpecies() == species) speciesSum++;
             }
         }
         if(totalSum == 0) return Double.NaN;

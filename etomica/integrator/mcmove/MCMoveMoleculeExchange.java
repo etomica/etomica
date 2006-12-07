@@ -27,11 +27,9 @@ import etomica.species.Species;
  * @author David Kofke
  */
  
- /* History of changes
-  * 7/9/02 Added energyChange() method
-  */
 public final class MCMoveMoleculeExchange extends MCMove {
     
+    private static final long serialVersionUID = 1L;
     private Phase firstPhase;
     private Phase secondPhase;
     private final IntegratorPhase integrator1, integrator2;
@@ -79,7 +77,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
         }
         
         molecule = dPhase.randomMolecule();  //select random molecule to delete
-        Species species = molecule.type.getSpecies();
+        Species species = molecule.getType().getSpecies();
         
         iSpecies = species.getAgent(iPhase);  //insertion-phase speciesAgent
         dSpecies = species.getAgent(dPhase);  //deletion-phase species Agent

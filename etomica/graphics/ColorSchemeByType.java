@@ -21,7 +21,7 @@ public final class ColorSchemeByType extends ColorScheme {
     }
     
     public Color getAtomColor(AtomLeaf a) {
-        return getColor(a.type);
+        return getColor(a.getType());
     }
     
     public Color getColor(AtomType type) {

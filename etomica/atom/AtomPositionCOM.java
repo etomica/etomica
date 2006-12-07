@@ -4,12 +4,8 @@ import java.io.Serializable;
 
 import etomica.action.AtomActionAdapter;
 import etomica.action.AtomGroupAction;
-import etomica.data.Data;
-import etomica.data.DataInfo;
-import etomica.data.types.DataVector;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Length;
 
 /**
  * Calculates the center of mass (COM) over a set of atoms. The mass and
@@ -26,9 +22,6 @@ import etomica.units.Length;
  * @author David Kofke
  */
 
-/*
- * History Created on Jan 26, 2005 by kofke
- */
 public class AtomPositionCOM implements AtomPositionDefinition, Serializable {
 
     public AtomPositionCOM(Space space) {
@@ -51,14 +44,16 @@ public class AtomPositionCOM implements AtomPositionDefinition, Serializable {
             vectorSum = sum;
         }
         public void actionPerformed(Atom a) {
-            double mass = ((AtomTypeLeaf)a.type).getMass();
+            double mass = ((AtomTypeLeaf)a.getType()).getMass();
             vectorSum.PEa1Tv1(mass, ((AtomLeaf)a).coord.position());
             massSum += mass;
         }
+        private static final long serialVersionUID = 1L;
         private Vector vectorSum;
         public double massSum;
     }
     
+    private static final long serialVersionUID = 1L;
     private final Vector vectorSum;
     private final Vector center;
     private AtomGroupAction groupWrapper;

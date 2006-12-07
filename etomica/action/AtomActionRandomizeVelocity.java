@@ -16,10 +16,6 @@ import etomica.statmech.MaxwellBoltzmann;
  *
  */
 
-/*
- * History
- * Created on Jan 27, 2005 by kofke
- */
 public class AtomActionRandomizeVelocity extends AtomActionAdapter {
 
     /**
@@ -38,7 +34,7 @@ public class AtomActionRandomizeVelocity extends AtomActionAdapter {
      */
     public void actionPerformed(Atom a) {
         Vector velocity = ((ICoordinateKinetic)((AtomLeaf)a).coord).velocity();
-        double mass = ((AtomTypeLeaf)a.type).getMass();
+        double mass = ((AtomTypeLeaf)a.getType()).getMass();
         if(Double.isInfinite(mass)) {
             velocity.E(0.0);
             return;
@@ -66,6 +62,7 @@ public class AtomActionRandomizeVelocity extends AtomActionAdapter {
         this.temperature = temperature;
     }
     
+    private static final long serialVersionUID = 1L;
     private double temperature;
 
 }

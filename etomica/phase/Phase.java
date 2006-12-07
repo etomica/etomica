@@ -68,7 +68,6 @@ import etomica.units.Volume;
  * @author David Kofke
  * @see Boundary
  */
- 
 public class Phase implements EtomicaElement, java.io.Serializable {
         
     /**
@@ -285,7 +284,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         AtomArrayList agents = ((AtomTreeNodeGroup)speciesMaster.node).childList;
         out.writeInt(agents.size());
         for (int i=0; i<agents.size(); i++) {
-            Species species = agents.get(i).type.getSpecies();
+            Species species = agents.get(i).getType().getSpecies();
             out.writeObject(species.getSpeciesSignature());
             out.writeInt(((SpeciesAgent)agents.get(i)).getNMolecules());
         }
@@ -347,6 +346,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         return eventManager;
     }
 
+    private static final long serialVersionUID = 1L;
     private Boundary boundary;
     private SpeciesMaster speciesMaster;
     private boolean lrcEnabled = true;

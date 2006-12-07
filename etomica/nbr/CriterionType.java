@@ -23,7 +23,7 @@ public class CriterionType extends CriterionAdapter {
      * construction and if the wrapped criterion accept also returns true.
      */
     public boolean accept(AtomSet atom) {
-        if (((Atom)atom).type == type) {
+        if (((Atom)atom).getType() == type) {
             return subCriterion.accept(atom);
         }
         return false;
@@ -36,5 +36,6 @@ public class CriterionType extends CriterionAdapter {
         return type;
     }
     
+    private static final long serialVersionUID = 1L;
     private final AtomType type;
 }

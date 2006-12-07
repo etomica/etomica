@@ -115,7 +115,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
     public void dispose() {
         // remove ourselves as a listener to the old phase
         root.getEventManager().removeListener(this);
-        releaseAgents(root.type);
+        releaseAgents(root.getType());
         agents = null;
     }
     
@@ -127,13 +127,13 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
         root = newRoot;
         root.getEventManager().addListener(this, isBackend);
 
-        int numTypes = getMaxIndexOfChildren((AtomTypeGroup)root.type)+1;
+        int numTypes = getMaxIndexOfChildren((AtomTypeGroup)root.getType())+1;
         
         agents = (Object[])Array.newInstance(agentSource.getAgentClass(),
                 numTypes);
         // fill in the array with agents from all the atoms
-        addAgent(root.type);
-        makeChildAgents((AtomTypeGroup)root.type);
+        addAgent(root.getType());
+        makeChildAgents((AtomTypeGroup)root.getType());
     }
     
     public void actionPerformed(SimulationEvent evt) {

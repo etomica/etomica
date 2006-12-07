@@ -24,6 +24,7 @@ import etomica.util.Debug;
  */
 public class P2SquareWell extends Potential2HardSpherical {
 
+    private static final long serialVersionUID = 1L;
     protected double coreDiameter, coreDiameterSquared;
     protected double wellDiameter, wellDiameterSquared;
     protected double lambda; //wellDiameter = coreDiameter * lambda
@@ -77,8 +78,8 @@ public class P2SquareWell extends Potential2HardSpherical {
         double r2 = dr.squared();
         double bij = dr.dot(dv);
         double eps = 1.0e-10;
-        double rm0 = ((AtomTypeLeaf)atom0.type).rm();
-        double rm1 = ((AtomTypeLeaf)atom1.type).rm();
+        double rm0 = ((AtomTypeLeaf)atom0.getType()).rm();
+        double rm1 = ((AtomTypeLeaf)atom1.getType()).rm();
         double reduced_m = 1.0/(rm0+rm1);
         double nudge = 0;
         if(2*r2 < (coreDiameterSquared+wellDiameterSquared)) {   // Hard-core collision

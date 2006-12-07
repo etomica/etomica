@@ -128,11 +128,12 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
     }
     
     public Object makeAgent(Atom atom) {
-        return atom.type.isLeaf() ? ((AtomLeaf)atom).coord.position().clone() : null;
+        return atom.getType().isLeaf() ? ((AtomLeaf)atom).coord.position().clone() : null;
     }
     
     public void releaseAgent(Object agent, Atom atom) {}
 
+    private static final long serialVersionUID = 1L;
     private double interactionRange, displacementLimit2, neighborRadius2;
 	private final Vector dr;
     private NearestImageTransformer nearestImageTransformer;

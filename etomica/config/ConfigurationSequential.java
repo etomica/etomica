@@ -19,13 +19,9 @@ import etomica.space2d.Vector2D;
  * Need to improve this to handle different dimensions more elegantly
  */
 
-/* History
- * 01/04/03 (SKK/DAK) added hexagonal lattice for 2D configuration
- * 01/14/03 (DAK) fixed typo in name of getSquareConfig method
- */
- 
 public class ConfigurationSequential extends Configuration {
 
+    private static final long serialVersionUID = 1L;
 	private boolean fill;
 	private boolean squareConfig;
     private final AtomIteratorArrayListCompound atomIterator;
@@ -88,7 +84,7 @@ public class ConfigurationSequential extends Configuration {
             //initialize coordinates of child atoms
             rLat[i].ME(dimensionsHalf);
             if (!a.node.isLeaf()) {
-                Conformation config = a.type.creator().getConformation();
+                Conformation config = a.getType().creator().getConformation();
                 config.initializePositions(((AtomTreeNodeGroup)a.node).childList);
                 atomActionTranslateTo.setDestination(rLat[i]);
                 atomActionTranslateTo.actionPerformed(a);

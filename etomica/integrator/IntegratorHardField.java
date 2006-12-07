@@ -26,7 +26,7 @@ import etomica.space.Vector;
  */
 public final class IntegratorHardField extends IntegratorHard implements EtomicaElement {
 
-//    public final IntegratorHardField.ForceSum forceSum;
+    private static final long serialVersionUID = 1L;
 	public final PotentialCalculationForceSum forceSum;
     private final IteratorDirective fieldsOnly = new IteratorDirective();
     private final Space space;
@@ -79,8 +79,8 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
             a.coord.position().PEa1Tv1(tStep,((ICoordinateKinetic)a.coord).velocity());
             if(!agent.forceFree) {
 //                System.out.println("IntegratorHardField "+agent.force.toString()+" "+a.toString());
-                a.coord.position().PEa1Tv1(t2*((AtomTypeLeaf)a.type).rm(),agent.force);
-                ((ICoordinateKinetic)a.coord).velocity().PEa1Tv1(tStep*((AtomTypeLeaf)a.type).rm(),agent.force);
+                a.coord.position().PEa1Tv1(t2*((AtomTypeLeaf)a.getType()).rm(),agent.force);
+                ((ICoordinateKinetic)a.coord).velocity().PEa1Tv1(tStep*((AtomTypeLeaf)a.getType()).rm(),agent.force);
             }
         }
     }

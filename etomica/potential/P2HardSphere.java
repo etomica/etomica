@@ -22,20 +22,21 @@ import etomica.util.Debug;
  */
 public class P2HardSphere extends Potential2HardSpherical {
     
-   /**
-    * Separation at which spheres first overlap
-    */
-   protected double collisionDiameter;
+    private static final long serialVersionUID = 1L;
+    /**
+     * Separation at which spheres first overlap
+     */
+    protected double collisionDiameter;
    
-   /**
-    * Square of collisionDiameter
-    */
-   protected double sig2;
-   protected double lastCollisionVirial = 0.0;
-   protected double lastCollisionVirialr2 = 0.0;
-   protected final boolean ignoreOverlap;
-   protected final Vector dv;
-   protected final Tensor lastCollisionVirialTensor;
+    /**
+     * Square of collisionDiameter
+     */
+    protected double sig2;
+    protected double lastCollisionVirial = 0.0;
+    protected double lastCollisionVirialr2 = 0.0;
+    protected final boolean ignoreOverlap;
+    protected final Vector dv;
+    protected final Tensor lastCollisionVirialTensor;
     
     public P2HardSphere(Simulation sim) {
         this(sim.space, sim.getDefaults().atomSize, sim.getDefaults().ignoreOverlap);
@@ -103,8 +104,8 @@ public class P2HardSphere extends Potential2HardSpherical {
 
         double r2 = dr.squared();
         double bij = dr.dot(dv);
-        double rm0 = ((AtomTypeLeaf)atom0.type).rm();
-        double rm1 = ((AtomTypeLeaf)atom1.type).rm();
+        double rm0 = ((AtomTypeLeaf)atom0.getType()).rm();
+        double rm1 = ((AtomTypeLeaf)atom1.getType()).rm();
         double reducedMass = 2.0/(rm0 + rm1);
         lastCollisionVirial = reducedMass*bij;
         lastCollisionVirialr2 = lastCollisionVirial/r2;
