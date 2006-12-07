@@ -278,22 +278,6 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     public boolean isRepeatCurrentAction() {
         return repeatCurrentAction;
     }
-    
-    /**
-     * Request that the current activity terminate and wait till it does.
-     * Controller is left in a paused state after termination of activity.
-     * If current action is not an Activity, this has the same effect as pause.  
-     * Has no effect on Controller itself, or any pending activities, 
-     * which remain in the queue.
-     */
-    public synchronized void halt() {
-        if(!isActive()) return;
-        pauseRequested = true;
-        haltRequested = true;
-        if(currentAction instanceof Activity) {
-            ((Activity)currentAction).halt();
-        }
-    }
 
     public String toString() {
         return "Controller";
@@ -308,14 +292,18 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     private boolean repeatCurrentAction = false;
 
     protected final UrgentWaitObject urgentWaitObject;
-    private static class UrgentWaitObject implements java.io.Serializable {}
+    protected static class UrgentWaitObject implements java.io.Serializable {
+        private static final long serialVersionUID = 1L;
+    }
     
     protected final WaitObject waitObject;
-    private static class WaitObject implements java.io.Serializable {
+    protected static class WaitObject implements java.io.Serializable {
+        private static final long serialVersionUID = 1L;
         boolean currentActionDone;
         Exception actionException;
     };
 
+    private static final long serialVersionUID = 1L;
     private final HashMap actionStatusMap, actionExceptionMap;
     
     /**
@@ -349,6 +337,8 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
             }
             throw new RuntimeException("unknown action status: "+this);
         }
+
+        private static final long serialVersionUID = 1L;
     }
 
 }
