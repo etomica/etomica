@@ -141,7 +141,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 	public void setSpecies(Species s) {
 		super.setSpecies(s);
 		atomIterator = new AtomIteratorArrayListSimple();
-		atomIterator.setList(((AtomTreeNodeGroup)speciesAgent.getNode()).childList);
+		atomIterator.setList(((AtomTreeNodeGroup)speciesAgent.getNode()).getChildList());
 	}
 
 }

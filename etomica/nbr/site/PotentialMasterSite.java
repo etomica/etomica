@@ -242,7 +242,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             }
 
             //cannot use AtomIterator field because of recursive call
-            AtomArrayList list = ((AtomTreeNodeGroup) atom.getNode()).childList;
+            AtomArrayList list = ((AtomTreeNodeGroup) atom.getNode()).getChildList();
             int size = list.size();
             for (int i=0; i<size; i++) {
                 Atom a = list.get(i);

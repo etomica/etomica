@@ -121,7 +121,14 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
             parentNode().removeAtomNotify(childAtom);
         }
     }
-      
+
+    /**
+     * @return the childList
+     */
+    public AtomArrayList getChildList() {
+        return childList;
+    }
+
     private static final long serialVersionUID = 1L;
     protected int leafAtomCount;
     
@@ -129,11 +136,11 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     //consider a mechanism to ensure this; a inner mutator class made available only
     //to list's creator, for example (still wouldn't prevent modification via direct
     //access of entry classes).
-    public final AtomArrayList childList;
+    private final AtomArrayList childList;
         
     public static final AtomTreeNodeFactory FACTORY = new AtomTreeNodeGroup.Factory();
     
-    private static final class Factory implements AtomTreeNodeFactory, java.io.Serializable {
+    protected static final class Factory implements AtomTreeNodeFactory, java.io.Serializable {
         public AtomTreeNode makeNode(Atom atom) {
             return new AtomTreeNodeGroup(atom);
         }

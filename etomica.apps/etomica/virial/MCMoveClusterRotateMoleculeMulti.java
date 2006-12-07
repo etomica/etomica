@@ -47,7 +47,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
         selectMolecules();
         for (int i=0; i<nMolecules; i++) {
             molecule = selectedMolecules[i];
-            oldPositions[i] = new Vector[((AtomTreeNodeGroup)molecule.getNode()).childList.size()];
+            oldPositions[i] = new Vector[((AtomTreeNodeGroup)molecule.getNode()).getChildList().size()];
             for (int j=0; j<oldPositions[i].length; j++) {
                 oldPositions[i][j] = p.space().makeVector();
             }
@@ -93,7 +93,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     }
     
     public void selectMolecules() {
-        AtomArrayList atomList = ((AtomTreeNodeGroup)((AtomTreeNodeGroup)phase.getSpeciesMaster().getNode()).childList.get(0).getNode()).childList;
+        AtomArrayList atomList = ((AtomTreeNodeGroup)((AtomTreeNodeGroup)phase.getSpeciesMaster().getNode()).getChildList().get(0).getNode()).getChildList();
         System.arraycopy(atomList.toArray(),1,selectedMolecules,0,atomList.size()-1);
     }
 

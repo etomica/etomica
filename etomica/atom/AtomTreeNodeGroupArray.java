@@ -6,14 +6,9 @@ package etomica.atom;
  * atoms. Appropriate for groups in which it is not expected that atoms will
  * be repeatedly added and removed.
  */
-
-/*
- * History
- * 03/02/04 (DAK) new
- */
 public class AtomTreeNodeGroupArray extends AtomTreeNodeGroup {
 
-	/**
+    /**
 	 * Constructor simply invokes superclass constructor.
 	 * @param atom
 	 * @param parent
@@ -21,14 +16,6 @@ public class AtomTreeNodeGroupArray extends AtomTreeNodeGroup {
 	public AtomTreeNodeGroupArray(Atom atom) {
 		super(atom);
 	}
-	
-	public Atom[] childAtomArray = new Atom[0];
-	
-	public static final AtomTreeNodeFactory FACTORY = new AtomTreeNodeFactory() {
-		public etomica.atom.AtomTreeNode makeNode(Atom atom) {
-			return new AtomTreeNodeGroupArray(atom);
-		}
-	};
 	
 	/**
 	 * Calls superclass method and assigns the atom to one of the atom
@@ -72,4 +59,12 @@ public class AtomTreeNodeGroupArray extends AtomTreeNodeGroup {
 		return childAtomArray;
 	}
 
+    private static final long serialVersionUID = 1L;
+    public Atom[] childAtomArray = new Atom[0];
+
+    public static final AtomTreeNodeFactory FACTORY = new AtomTreeNodeFactory() {
+        public etomica.atom.AtomTreeNode makeNode(Atom atom) {
+            return new AtomTreeNodeGroupArray(atom);
+        }
+    };
 }

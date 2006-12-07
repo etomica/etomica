@@ -142,7 +142,7 @@ public class MCMoveSemigrand extends MCMovePhase {
         else while(iInsert == iDelete) {iInsert = Simulation.random.nextInt(nSpecies);}
         insertAgent = agentSet[iInsert];
   
-        AtomArrayList moleculeList = ((AtomTreeNodeGroup)deleteAgent.getNode()).childList;
+        AtomArrayList moleculeList = ((AtomTreeNodeGroup)deleteAgent.getNode()).getChildList();
         deleteMolecule = moleculeList.get(Simulation.random.nextInt(moleculeList.size()));
         energyMeter.setTarget(deleteMolecule);
         uOld = energyMeter.getDataAsScalar();

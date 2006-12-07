@@ -69,9 +69,9 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
      * Returns an array of Phases contained in the Simulation
      */
     public final Phase[] getPhases() {
-        int nPhases = ((AtomTreeNodeGroup)speciesRoot.getNode()).childList.size();
+        int nPhases = ((AtomTreeNodeGroup)speciesRoot.getNode()).getChildList().size();
         Phase[] phases = new Phase[nPhases];
-        AtomIteratorArrayListSimple listIterator = new AtomIteratorArrayListSimple(((AtomTreeNodeGroup)speciesRoot.getNode()).childList);
+        AtomIteratorArrayListSimple listIterator = new AtomIteratorArrayListSimple(((AtomTreeNodeGroup)speciesRoot.getNode()).getChildList());
         listIterator.reset();
         int i=0;
         while(listIterator.hasNext()) {

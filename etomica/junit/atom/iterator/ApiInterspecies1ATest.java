@@ -147,9 +147,9 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
         //test no iterates if no target
         api.setPhase(phase);
         Atom[] molecules0 = ((AtomTreeNodeGroup) phase
-                .getAgent(species[species0Index]).getNode()).childList.toArray();
+                .getAgent(species[species0Index]).getNode()).getChildList().toArray();
         Atom[] molecules1 = ((AtomTreeNodeGroup) phase
-                .getAgent(species[species1Index]).getNode()).childList.toArray();
+                .getAgent(species[species1Index]).getNode()).getChildList().toArray();
         int[] nMolecules = new int[] { molecules0.length, molecules1.length };
         testNoIterates(api);
 

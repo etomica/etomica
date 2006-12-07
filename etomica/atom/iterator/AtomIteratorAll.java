@@ -59,7 +59,7 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
         arrayList.clear();
         for (int i=0; i<species.length; i++) {
             AtomTreeNodeGroup speciesAgentNode = (AtomTreeNodeGroup)phase.getAgent(species[i]).getNode();
-            arrayList.addAll(speciesAgentNode.childList);
+            arrayList.addAll(speciesAgentNode.getChildList());
         }
         nextCursor = 0;
     }

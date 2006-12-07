@@ -82,7 +82,7 @@ public class ConformationChainLinear extends ConformationChain {
             if (!a.getNode().isLeaf()) {
                 //initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
-                config.initializePositions(((AtomTreeNodeGroup)a.getNode()).childList);
+                config.initializePositions(((AtomTreeNodeGroup)a.getNode()).getChildList());
             }
             moveToOrigin.actionPerformed(a);
             translationVector.Ea1Tv1(xNext, orientation);

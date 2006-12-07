@@ -58,9 +58,9 @@ public class ApiInterspeciesAA extends AtomPairIteratorAdapter implements
             apiInterList.setOuterList(emptyList);
         } else {
             apiInterList.setOuterList(((AtomTreeNodeGroup) phase
-                    .getAgent(species0).getNode()).childList);
+                    .getAgent(species0).getNode()).getChildList());
             apiInterList.setInnerList(((AtomTreeNodeGroup) phase
-                    .getAgent(species1).getNode()).childList);
+                    .getAgent(species1).getNode()).getChildList());
         }
     }
 

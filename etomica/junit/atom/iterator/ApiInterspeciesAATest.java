@@ -95,8 +95,8 @@ public class ApiInterspeciesAATest extends IteratorTestAbstract {
         AtomsetAction speciesTest = new SpeciesTestAction();
 
         api.setPhase(phase);
-        Atom[] molecules0 = ((AtomTreeNodeGroup)phase.getAgent(species[species0Index]).getNode()).childList.toArray();
-        Atom[] molecules1 = ((AtomTreeNodeGroup)phase.getAgent(species[species1Index]).getNode()).childList.toArray();
+        Atom[] molecules0 = ((AtomTreeNodeGroup)phase.getAgent(species[species0Index]).getNode()).getChildList().toArray();
+        Atom[] molecules1 = ((AtomTreeNodeGroup)phase.getAgent(species[species1Index]).getNode()).getChildList().toArray();
         
         int count = molecules0.length * molecules1.length;
         

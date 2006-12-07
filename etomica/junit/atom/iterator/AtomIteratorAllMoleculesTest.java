@@ -60,7 +60,7 @@ public class AtomIteratorAllMoleculesTest extends IteratorTestAbstract {
         
         AtomArrayList moleculeList = new AtomArrayList();
         for(int i=0; i<species.length; i++) {
-            AtomArrayList molecules = ((AtomTreeNodeGroup)phase.getAgent(species[i]).getNode()).childList;
+            AtomArrayList molecules = ((AtomTreeNodeGroup)phase.getAgent(species[i]).getNode()).getChildList();
             for (int j=0; j<molecules.size(); j++) {
                 moleculeList.add(molecules.get(j));
             }

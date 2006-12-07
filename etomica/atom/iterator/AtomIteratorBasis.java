@@ -196,7 +196,7 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
             littleList.add(basis);
             list = littleList;
         } else {
-            list = ((AtomTreeNodeGroup) basis.getNode()).childList;
+            list = ((AtomTreeNodeGroup) basis.getNode()).getChildList();
         }
     }
 

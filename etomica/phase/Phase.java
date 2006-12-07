@@ -143,9 +143,9 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         if(i >= moleculeCount() || i < 0) 
             throw new IndexOutOfBoundsException("Index: "+i+
                                                 ", Number of molecules: "+moleculeCount());
-        AtomArrayList agentList = ((AtomTreeNodeGroup)speciesMaster.getNode()).childList;
+        AtomArrayList agentList = ((AtomTreeNodeGroup)speciesMaster.getNode()).getChildList();
         for (int agentIndex=0; agentIndex<agentList.size(); agentIndex++) {
-            AtomArrayList moleculeList = ((AtomTreeNodeGroup)agentList.get(agentIndex).getNode()).childList;
+            AtomArrayList moleculeList = ((AtomTreeNodeGroup)agentList.get(agentIndex).getNode()).getChildList();
             int count = moleculeList.size();
             if (i < count) {
                 return moleculeList.get(i);
@@ -212,7 +212,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      * Returns the agent of the given species in this phase.
      */
     public final SpeciesAgent getAgent(Species s) {
-        return (SpeciesAgent)((AtomTreeNodeGroup)speciesMaster.getNode()).childList.get(s.getIndex());
+        return (SpeciesAgent)((AtomTreeNodeGroup)speciesMaster.getNode()).getChildList().get(s.getIndex());
     }
                        
     public final double volume() {return boundary.volume();}  //infinite volume unless using PBC
@@ -281,7 +281,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
 
     public void writePhase(ObjectOutputStream out) throws IOException {
         out.writeObject(boundary);
-        AtomArrayList agents = ((AtomTreeNodeGroup)speciesMaster.getNode()).childList;
+        AtomArrayList agents = ((AtomTreeNodeGroup)speciesMaster.getNode()).getChildList();
         out.writeInt(agents.size());
         for (int i=0; i<agents.size(); i++) {
             Species species = agents.get(i).getType().getSpecies();

@@ -42,7 +42,7 @@ public class ConfigurationCluster extends Configuration {
             if (!a.getNode().isLeaf()) {
                 // initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
-                config.initializePositions(((AtomTreeNodeGroup) a.getNode()).childList);
+                config.initializePositions(((AtomTreeNodeGroup) a.getNode()).getChildList());
             }
         }
         iterator.reset();

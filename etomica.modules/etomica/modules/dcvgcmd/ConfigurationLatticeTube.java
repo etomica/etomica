@@ -136,7 +136,7 @@ public class ConfigurationLatticeTube extends Configuration {
             if (!a.getNode().isLeaf()) {
                 //initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
-                config.initializePositions(((AtomTreeNodeGroup)a.getNode()).childList);
+                config.initializePositions(((AtomTreeNodeGroup)a.getNode()).getChildList());
             }
             
             if (counterNAtoms == halfwaypoint){
@@ -159,7 +159,7 @@ public class ConfigurationLatticeTube extends Configuration {
         while (tubeiterator.hasNext()){
         	Atom a = tubeiterator.nextAtom();
         	Conformation config = a.getType().creator().getConformation();
-            config.initializePositions(((AtomTreeNodeGroup)a.getNode()).childList);
+            config.initializePositions(((AtomTreeNodeGroup)a.getNode()).getChildList());
             Vector site = space.makeVector();
             atomActionTranslateTo.setDestination(site);
             atomActionTranslateTo.actionPerformed(a);

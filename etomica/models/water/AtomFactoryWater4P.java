@@ -61,7 +61,7 @@ public class AtomFactoryWater4P extends AtomFactory {
         waterNode.H1.getNode().setParent(waterNode);
         waterNode.H2.getNode().setParent(waterNode);
         waterNode.M.getNode().setParent(waterNode);
-		conformation.initializePositions(waterNode.childList);
+		conformation.initializePositions(waterNode.getChildList());
 		return group;
 	}
     

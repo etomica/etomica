@@ -45,7 +45,7 @@ public final class SpeciesRoot extends Atom {
             }
         }
         speciesList = (Species[])Arrays.addObject(speciesList,species);
-        AtomArrayList speciesMasters = ((AtomTreeNodeGroup)node).childList;
+        AtomArrayList speciesMasters = ((AtomTreeNodeGroup)node).getChildList();
         AtomIteratorArrayListSimple iterator = new AtomIteratorArrayListSimple(speciesMasters);
         iterator.reset();
         while (iterator.hasNext()) {
@@ -72,7 +72,7 @@ public final class SpeciesRoot extends Atom {
         eventManager.fireEvent(new SimulationSpeciesRemovedEvent(species));
         
         speciesList = (Species[])Arrays.removeObject(speciesList,species);
-        AtomArrayList speciesMasters = ((AtomTreeNodeGroup)node).childList;
+        AtomArrayList speciesMasters = ((AtomTreeNodeGroup)node).getChildList();
         AtomIteratorArrayListSimple iterator = new AtomIteratorArrayListSimple(speciesMasters);
         iterator.reset();
         while (iterator.hasNext()) {

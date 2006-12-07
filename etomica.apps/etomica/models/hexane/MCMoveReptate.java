@@ -83,7 +83,7 @@ public class MCMoveReptate extends MCMovePhaseStep {
        
        //Pick direction & set up list of atoms to iterate
        forward = Simulation.random.nextBoolean();
-       AtomArrayList childlist = ((AtomTreeNodeGroup)atom.getNode()).childList;
+       AtomArrayList childlist = ((AtomTreeNodeGroup)atom.getNode()).getChildList();
        int numChildren = childlist.size();
        
        if(forward){
@@ -130,7 +130,7 @@ public class MCMoveReptate extends MCMovePhaseStep {
     }
     
     public void rejectNotify(){
-        AtomArrayList childlist = ((AtomTreeNodeGroup)atom.getNode()).childList;
+        AtomArrayList childlist = ((AtomTreeNodeGroup)atom.getNode()).getChildList();
         int numChildren = childlist.size();
         if (!forward) {
             Vector position = ((AtomLeaf)childlist.get(numChildren-1)).coord.position();

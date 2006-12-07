@@ -76,7 +76,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         wOld = weightMeter.getDataAsScalar();
 
         for(int i=0; i<selectedMolecules.length; i++) {
-            AtomArrayList childList = ((AtomTreeNodeGroup)selectedMolecules[i].getNode()).childList;
+            AtomArrayList childList = ((AtomTreeNodeGroup)selectedMolecules[i].getNode()).getChildList();
             int numChildren = childList.size();
 
             int j = Simulation.random.nextInt(numChildren);

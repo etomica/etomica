@@ -45,8 +45,8 @@ public final class SpeciesAgent extends Atom {
         }
         else if(n < treeNode.childAtomCount()) {
             if(n < 0) n = 0;
-            for (int i=treeNode.childList.size(); i>n; i--) {
-                treeNode.childList.get(i-1).getNode().dispose();
+            for (int i=treeNode.getChildList().size(); i>n; i--) {
+                treeNode.getChildList().get(i-1).getNode().dispose();
             }
         }
         if (n == 0) {
@@ -82,13 +82,8 @@ public final class SpeciesAgent extends Atom {
         public final Atom parentMolecule() {
             throw new RuntimeException("Error:  Unexpected call to parentMolecule in SpeciesAgent");
         }
-        
-        public void removeAtomNotify(Atom oldAtom) {
-            super.removeAtomNotify(oldAtom);
-            if (oldAtom.getNode().parentGroup() == atom) {
-//                ordinalReservoir.returnOrdinal(oldAtom.node.getOrdinal());
-            }
-        }
+
+        private static final long serialVersionUID = 1L;
     }
     
     private final static AtomTreeNodeFactory NODE_FACTORY = new AtomTreeNodeFactory() {

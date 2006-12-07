@@ -51,7 +51,7 @@ public class AtomFactoryUAPropane extends AtomFactory {
 //        waterNode.O.node.setParent(waterNode);
         propaneNode.UA1.getNode().setParent(propaneNode);
         propaneNode.UA2.getNode().setParent(propaneNode);
-		conformation.initializePositions(propaneNode.childList);
+		conformation.initializePositions(propaneNode.getChildList());
 		return group;
 	}
     

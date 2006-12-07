@@ -49,14 +49,14 @@ public abstract class Configuration implements java.io.Serializable {
      */
     public void initializeCoordinates(Phase phase) {
         setDimensions(phase.getBoundary().getDimensions().toArray());
-        AtomArrayList speciesAgentList = ((AtomTreeNodeGroup)phase.getSpeciesMaster().getNode()).childList;
+        AtomArrayList speciesAgentList = ((AtomTreeNodeGroup)phase.getSpeciesMaster().getNode()).getChildList();
         AtomIteratorArrayListSimple speciesAgentIterator = new AtomIteratorArrayListSimple(speciesAgentList);
         AtomArrayList[] moleculeLists = new AtomArrayList[speciesAgentList.size()];
         int i=0;
         speciesAgentIterator.reset();
         while (speciesAgentIterator.hasNext()) {
             SpeciesAgent agent = (SpeciesAgent)speciesAgentIterator.nextAtom();
-            moleculeLists[i++] = ((AtomTreeNodeGroup)agent.getNode()).childList;
+            moleculeLists[i++] = ((AtomTreeNodeGroup)agent.getNode()).getChildList();
         }
         initializePositions(moleculeLists);
     }

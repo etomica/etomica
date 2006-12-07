@@ -127,7 +127,7 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
         Atom targetMolecule = null;
         //test no iterates if no target
         api.setPhase(phase);
-        Atom[] molecules0 = ((AtomTreeNodeGroup)phase.getAgent(species[species0Index]).getNode()).childList.toArray();
+        Atom[] molecules0 = ((AtomTreeNodeGroup)phase.getAgent(species[species0Index]).getNode()).getChildList().toArray();
         int[] nMolecules = new int[] {molecules0.length};
         testNoIterates(api);
         

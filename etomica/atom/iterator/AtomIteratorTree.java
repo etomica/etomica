@@ -202,7 +202,7 @@ public class AtomIteratorTree implements AtomIterator, java.io.Serializable {
             listIterator.setList(null);
         } else {
             rootNode = rootAtom.getNode();
-            listIterator.setList(((AtomTreeNodeGroup)rootNode).childList);
+            listIterator.setList(((AtomTreeNodeGroup)rootNode).getChildList());
         }
         unset();
     }

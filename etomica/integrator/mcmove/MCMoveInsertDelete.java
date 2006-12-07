@@ -55,7 +55,7 @@ public class MCMoveInsertDelete extends MCMovePhase {
         species = s;
         if(phase != null) {
             speciesAgent = species.getAgent(phase);
-            moleculeList = ((AtomTreeNodeGroup)speciesAgent.getNode()).childList;
+            moleculeList = ((AtomTreeNodeGroup)speciesAgent.getNode()).getChildList();
         }
         moleculeFactory = species.moleculeFactory();
     }
@@ -66,7 +66,7 @@ public class MCMoveInsertDelete extends MCMovePhase {
         energyMeter.setPhase(phase);
         if(species != null) {
             speciesAgent = species.getAgent(phase);
-            moleculeList = ((AtomTreeNodeGroup)speciesAgent.getNode()).childList;
+            moleculeList = ((AtomTreeNodeGroup)speciesAgent.getNode()).getChildList();
         }
     }
     

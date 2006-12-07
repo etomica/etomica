@@ -59,7 +59,7 @@ public class ApiIntraspeciesAA extends AtomPairIteratorAdapter implements
             pairIterator.setList(emptyList);
         } else {
             pairIterator
-                    .setList(((AtomTreeNodeGroup)phase.getAgent(species).getNode()).childList);
+                    .setList(((AtomTreeNodeGroup)phase.getAgent(species).getNode()).getChildList());
         }
     }
 

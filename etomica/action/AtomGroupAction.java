@@ -28,7 +28,7 @@ public class AtomGroupAction extends AtomActionAdapter {
         if(atom.getNode().isLeaf()) {
             action.actionPerformed(atom);
         } else {
-            AtomArrayList atomList = ((AtomTreeNodeGroup)atom.getNode()).childList;
+            AtomArrayList atomList = ((AtomTreeNodeGroup)atom.getNode()).getChildList();
             int size = atomList.size();
             for(int i=0; i<size; i++) {
                 this.actionPerformed(atomList.get(i));

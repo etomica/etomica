@@ -59,7 +59,7 @@ public class PhaseAgentManager implements SimulationListener, java.io.Serializab
         speciesRoot.getEventManager().addListener(this, isBackend);
         // hope the class returns an actual class with a null Atom and use it to construct
         // the array
-        AtomIteratorArrayListSimple listIterator = new AtomIteratorArrayListSimple(((AtomTreeNodeGroup)speciesRoot.getNode()).childList);
+        AtomIteratorArrayListSimple listIterator = new AtomIteratorArrayListSimple(((AtomTreeNodeGroup)speciesRoot.getNode()).getChildList());
         listIterator.reset();
         agents = (Object[])Array.newInstance(agentSource.getAgentClass(),listIterator.size());
         while(listIterator.hasNext()) {

@@ -74,7 +74,7 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
             
         //no target -- iterate all molecules of species
         } else if(targetAtom == null) {
-            listIterator.setList(speciesAgentNode.childList);
+            listIterator.setList(speciesAgentNode.getChildList());
         
         //target specified -- give it as only iterate if descended from species
         } else {

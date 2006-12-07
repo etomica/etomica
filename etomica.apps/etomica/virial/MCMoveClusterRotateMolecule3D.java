@@ -33,7 +33,7 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
     public void setPhase(Phase p) {
         super.setPhase(p);
         weightMeter.setPhase(p);
-        oldPositions = new Vector[((AtomTreeNodeGroup)molecule.getNode()).childList.size()-1];
+        oldPositions = new Vector[((AtomTreeNodeGroup)molecule.getNode()).getChildList().size()-1];
         for (int j=0; j<oldPositions.length; j++) {
             oldPositions[j] = p.space().makeVector();
         }

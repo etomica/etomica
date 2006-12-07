@@ -79,7 +79,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         //test no-target iteration of children of a basis
         basis = rootNode.getDescendant(new int[] {0,0,0});
         target = null;
-        iterates = (AtomArrayList)((AtomTreeNodeGroup)basis.getNode()).childList.clone();
+        iterates = (AtomArrayList)((AtomTreeNodeGroup)basis.getNode()).getChildList().clone();
         list = testListIterates(basis, target, iterates);
         assertEquals(list.size(), nAtoms);
 
@@ -100,13 +100,13 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         list = generalIteratorMethodTests(basisIterator);
         assertEquals(list.size(), nAtoms);
         testLister.clear();
-        testLister.addEachToList(((AtomTreeNodeGroup)basis.getNode()).childList.toArray());
+        testLister.addEachToList(((AtomTreeNodeGroup)basis.getNode()).getChildList().toArray());
         assertEquals(list, testLister.list);
 
         //test target is the basis, both not a leaf; should be same as target==null
         basis = rootNode.getDescendant(new int[] {0,0,0});
         target = basis;
-        iterates = (AtomArrayList)((AtomTreeNodeGroup)basis.getNode()).childList.clone();
+        iterates = (AtomArrayList)((AtomTreeNodeGroup)basis.getNode()).getChildList().clone();
         list = testListIterates(basis, target, iterates);
         assertEquals(list.size(), nAtoms);
 
@@ -137,7 +137,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         //also test specifying deeper basis
         basis = rootNode.getDescendant(new int[] {0,2,1,2});
         target = null;
-        iterates = (AtomArrayList)((AtomTreeNodeGroup)basis.getNode()).childList.clone();
+        iterates = (AtomArrayList)((AtomTreeNodeGroup)basis.getNode()).getChildList().clone();
         list = testListIterates(basis, target, iterates);
         
         //test null basis

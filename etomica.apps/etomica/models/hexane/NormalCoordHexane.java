@@ -43,9 +43,9 @@ public class NormalCoordHexane extends NormalCoordMolecule {
         //Now we play with the molecule we are measuring.
         
         //Long rotational axis of atom 1
-        Vector leafPos1 = ((AtomLeaf)((AtomTreeNodeGroup)molecule.getNode()).childList.get(0)).coord.position();
-        Vector leafPos2 = ((AtomLeaf)((AtomTreeNodeGroup)molecule.getNode()).childList.get(1)).coord.position();
-        Vector leafPos3 = ((AtomLeaf)((AtomTreeNodeGroup)molecule.getNode()).childList.get(2)).coord.position();
+        Vector leafPos1 = ((AtomLeaf)((AtomTreeNodeGroup)molecule.getNode()).getChildList().get(0)).coord.position();
+        Vector leafPos2 = ((AtomLeaf)((AtomTreeNodeGroup)molecule.getNode()).getChildList().get(1)).coord.position();
+        Vector leafPos3 = ((AtomLeaf)((AtomTreeNodeGroup)molecule.getNode()).getChildList().get(2)).coord.position();
         axis0prime.Ev1Mv2(leafPos3, leafPos1);
         //axis0Prime goes from the 1st atom on the molecule to the 3rd atom on the molecule
         axis0prime.TE(1/Math.sqrt(axis0prime.squared()));
@@ -151,9 +151,9 @@ public class NormalCoordHexane extends NormalCoordMolecule {
         if (atomCount == 0) {
             //Set up all the axes based on the molecule atom0, the reference molecule
             //Long rotational axis of atom 0
-            Vector leafPos1 = ((AtomLeaf)((AtomTreeNodeGroup)molecule.getNode()).childList.get(0)).coord.position();
-            Vector leafPos2 = ((AtomLeaf)((AtomTreeNodeGroup)molecule.getNode()).childList.get(1)).coord.position();
-            Vector leafPos3 = ((AtomLeaf)((AtomTreeNodeGroup)molecule.getNode()).childList.get(2)).coord.position();
+            Vector leafPos1 = ((AtomLeaf)((AtomTreeNodeGroup)molecule.getNode()).getChildList().get(0)).coord.position();
+            Vector leafPos2 = ((AtomLeaf)((AtomTreeNodeGroup)molecule.getNode()).getChildList().get(1)).coord.position();
+            Vector leafPos3 = ((AtomLeaf)((AtomTreeNodeGroup)molecule.getNode()).getChildList().get(2)).coord.position();
             //axes[0] should point from the 0th atom on the molecule to the 2nd atom on the molecule
             axes[0].Ev1Mv2(leafPos3, leafPos1);
             //Now we take the midpoint between the 0th atom and the 2nd atom.

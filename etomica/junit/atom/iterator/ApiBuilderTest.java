@@ -459,7 +459,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //no target, n-1 iterates
         api.setTarget(null);
         LinkedList list0 = generalIteratorMethodTests(api);
-        assertEquals(list0.size(), ((AtomTreeNodeGroup)parent.getNode()).childList.size()-1);
+        assertEquals(list0.size(), ((AtomTreeNodeGroup)parent.getNode()).getChildList().size()-1);
         
         //if no target, direction doesn't matter
         api.setDirection(null);
@@ -547,7 +547,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //(first and last have n-2, the other n-2 have n-3)
         api.setTarget(null);
         LinkedList list0 = generalIteratorMethodTests(api);
-        int n = ((AtomTreeNodeGroup)parent.getNode()).childList.size();
+        int n = ((AtomTreeNodeGroup)parent.getNode()).getChildList().size();
         assertEquals(list0.size(), (2*(n-2) + (n-2)*(n-3))/2);
         
         //if no target, direction doesn't matter

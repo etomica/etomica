@@ -64,7 +64,7 @@ public final class SpeciesMaster extends Atom {
     }
     
     public void removeSpecies(Species species) {
-        AtomArrayList speciesAgents = ((AtomTreeNodeGroup)node).childList;
+        AtomArrayList speciesAgents = ((AtomTreeNodeGroup)node).getChildList();
         AtomIteratorArrayListSimple iterator = new AtomIteratorArrayListSimple(speciesAgents);
         iterator.reset();
         while (iterator.hasNext()) {

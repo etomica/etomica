@@ -84,7 +84,7 @@ public class AtomIteratorTreeTest extends IteratorTestAbstract {
         treeIterator.setDoAllNodes(true);
         list = testOneIterate(0, iterationRoot, iterationRoot);
         testNoIterates((Atom)null);
-        AtomArrayList testList = (AtomArrayList)((AtomTreeNodeGroup)speciesAgent2.getNode()).childList.clone();
+        AtomArrayList testList = (AtomArrayList)((AtomTreeNodeGroup)speciesAgent2.getNode()).getChildList().clone();
         testList.add(0,iterationRoot);
         list = testListIterates(1, iterationRoot, testList);
         list = testIterateCount(2, iterationRoot, 1+n2a*(1+nTree[0]));
@@ -96,7 +96,7 @@ public class AtomIteratorTreeTest extends IteratorTestAbstract {
         treeIterator.setDoAllNodes(false);
         list = testOneIterate(0, iterationRoot, iterationRoot);
         testNoIterates((Atom)null);
-        testList = (AtomArrayList)((AtomTreeNodeGroup)speciesAgent2.getNode()).childList.clone();
+        testList = (AtomArrayList)((AtomTreeNodeGroup)speciesAgent2.getNode()).getChildList().clone();
         list = testListIterates(1, iterationRoot, testList);
         list = testIterateCount(2, iterationRoot, n2a*nTree[0]);
         list = testIterateCount(3, iterationRoot, n2a*nTree[0]*(nTree[1]));

@@ -63,10 +63,10 @@ public abstract class AtomTreeNode implements Comparable, java.io.Serializable {
         //old parent is not null; remove from it
         if(parentNode != null) {
             int index = atom.getNode().getIndex();
-            parentNode.childList.removeAndReplace(index);
-            parentNode.childList.maybeTrimToSize();
-            if (parentNode.childList.size() > index) {
-                parentNode.childList.get(index).getNode().setIndex(index);
+            parentNode.getChildList().removeAndReplace(index);
+            parentNode.getChildList().maybeTrimToSize();
+            if (parentNode.getChildList().size() > index) {
+                parentNode.getChildList().get(index).getNode().setIndex(index);
             }
             parentNode.removeAtomNotify(atom);
         }
@@ -77,9 +77,9 @@ public abstract class AtomTreeNode implements Comparable, java.io.Serializable {
             return;
         }
 
-        setIndex(parentNode.childList.size());
+        setIndex(parentNode.getChildList().size());
         
-        parentNode.childList.add(atom);
+        parentNode.getChildList().add(atom);
         parentNode.addAtomNotify(atom);
     }//end of addAtom
 
