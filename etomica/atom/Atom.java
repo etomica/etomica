@@ -153,7 +153,7 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      * @return the Atom type, holding properties held in common with other 
      * atoms made by this atom's factory.
      */
-    public AtomType getType() {
+    public final AtomType getType() {
         return type;
     }
 
