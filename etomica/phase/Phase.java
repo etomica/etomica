@@ -311,11 +311,10 @@ public class Phase implements EtomicaElement, java.io.Serializable {
                 Species candidate = mySpecies[j];
                 if (speciesSignature.equals(candidate.getSpeciesSignature())) {
                     candidates = (Species[])etomica.util.Arrays.addObject(candidates,candidate);
-                    break;
                 }
-                if (candidates.length > 0) {
-                    newSpecies = resolver.whichOneDoYouLike(candidates,speciesSignature.name);
-                }
+            }
+            if (candidates.length > 0) {
+                newSpecies = resolver.whichOneDoYouLike(candidates,speciesSignature.name);
             }
             if (newSpecies == null) {
                 Constructor constructor = speciesSignature.constructor;
