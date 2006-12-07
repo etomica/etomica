@@ -40,7 +40,7 @@ public class ConfigurationFile extends Configuration {
             atomIterator.reset();
             while (atomIterator.hasNext()) {
                 Atom molecule = atomIterator.nextAtom();
-                if (molecule.node.isLeaf()) {
+                if (molecule.getNode().isLeaf()) {
                     setPosition((AtomLeaf)molecule,bufReader.readLine());
                 }
                 else {
@@ -67,6 +67,7 @@ public class ConfigurationFile extends Configuration {
         atom.coord.position().E(newPos);
     }
     
+    private static final long serialVersionUID = 1L;
     private String confName;
     private Vector newPos;
     private final AtomIteratorArrayListCompound atomIterator;

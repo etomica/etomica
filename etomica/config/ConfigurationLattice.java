@@ -200,10 +200,10 @@ public class ConfigurationLattice extends Configuration {
         indexIterator.reset();
         while (atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
-            if (!a.node.isLeaf()) {
+            if (!a.getNode().isLeaf()) {
                 // initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
-                config.initializePositions(((AtomTreeNodeGroup) a.node).childList);
+                config.initializePositions(((AtomTreeNodeGroup) a.getNode()).childList);
             }
 
             int[] ii = indexIterator.next();

@@ -9,7 +9,6 @@ import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorCompound;
-import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.phase.Phase;
@@ -27,13 +26,9 @@ import etomica.species.Species;
  * @author Jhumpa Adhikari
  * @author David Kofke
  */
- 
- /* History of changes
-  * 7/9/02 Added energyChange() method
-  */
-  
 public class MCMoveSemigrand extends MCMovePhase {
     
+    private static final long serialVersionUID = 1L;
     private Species[] speciesSet;
     private SpeciesAgent[] agentSet;
     private AtomArrayList[] reservoirs;
@@ -147,7 +142,7 @@ public class MCMoveSemigrand extends MCMovePhase {
         else while(iInsert == iDelete) {iInsert = Simulation.random.nextInt(nSpecies);}
         insertAgent = agentSet[iInsert];
   
-        AtomArrayList moleculeList = ((AtomTreeNodeGroup)deleteAgent.node).childList;
+        AtomArrayList moleculeList = ((AtomTreeNodeGroup)deleteAgent.getNode()).childList;
         deleteMolecule = moleculeList.get(Simulation.random.nextInt(moleculeList.size()));
         energyMeter.setTarget(deleteMolecule);
         uOld = energyMeter.getDataAsScalar();

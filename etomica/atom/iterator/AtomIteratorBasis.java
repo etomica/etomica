@@ -108,9 +108,9 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
             return true;
         }
         if(target.getType().getDepth() <= basis.getType().getDepth()) { 
-            return basis.node.isDescendedFrom(target);
+            return basis.getNode().isDescendedFrom(target);
         }
-        return target.node.isDescendedFrom(basis);
+        return target.getNode().isDescendedFrom(basis);
     }
 
     /**
@@ -160,7 +160,7 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
             if (targetAtom == null) {
                 setupBasisIteration();
             } else if(targetDepth <= basis.getType().getDepth()) {
-                if(basis.node.isDescendedFrom(targetAtom)) {
+                if(basis.getNode().isDescendedFrom(targetAtom)) {
                     setupBasisIteration();
                 } else {
                     littleList.clear();
@@ -171,8 +171,8 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
                 //return child of basis that is or is above targetAtom (if in
                 // hierarchy of basis)
                 //do no looping if not in hierarchy of basis
-                Atom targetNode = targetAtom.node.childWhereDescendedFrom(
-                        basis.node).atom();
+                Atom targetNode = targetAtom.getNode().childWhereDescendedFrom(
+                        basis.getNode()).atom();
                 littleList.clear();
                 littleList.add(targetNode);
                 list = littleList;
@@ -189,14 +189,14 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
      * Convenience method used by setupIterator
      */
     private void setupBasisIteration() {
-        if (basis.node.isLeaf()) {//if the basis is a leaf atom, we
+        if (basis.getNode().isLeaf()) {//if the basis is a leaf atom, we
                                   // define the iterates to be just the
                                   // basis atom itself
             littleList.clear();
             littleList.add(basis);
             list = littleList;
         } else {
-            list = ((AtomTreeNodeGroup) basis.node).childList;
+            list = ((AtomTreeNodeGroup) basis.getNode()).childList;
         }
     }
 

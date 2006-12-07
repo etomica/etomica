@@ -63,10 +63,10 @@ public class AtomFactoryHomo extends AtomFactory {
      public Atom makeAtom() {
          isMutable = false;
          Atom group = newParentAtom();
-         AtomTreeNodeGroup node = (AtomTreeNodeGroup)group.node;
+         AtomTreeNodeGroup node = (AtomTreeNodeGroup)group.getNode();
          for(int i=0; i<atomsPerGroup; i++) {
              Atom childAtom = childFactory.makeAtom();
-             childAtom.node.setParent(node);
+             childAtom.getNode().setParent(node);
          }
          return group;
      }
@@ -119,6 +119,7 @@ public class AtomFactoryHomo extends AtomFactory {
          return atomsPerGroup*childFactory.getNumLeafAtoms();
      }
      
+     private static final long serialVersionUID = 1L;
      protected AtomFactory childFactory;
      protected int atomsPerGroup;
 }

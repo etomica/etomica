@@ -12,11 +12,6 @@ import etomica.species.Species;
  * Species are specified at construction and cannot be changed afterwards.
  */
 
-/*
- * History
- * Created on Dec 30, 2004 by kofke
- */
-
 public class ApiInterspeciesAA extends AtomPairIteratorAdapter implements
         AtomsetIteratorPhaseDependent {
 
@@ -63,12 +58,13 @@ public class ApiInterspeciesAA extends AtomPairIteratorAdapter implements
             apiInterList.setOuterList(emptyList);
         } else {
             apiInterList.setOuterList(((AtomTreeNodeGroup) phase
-                    .getAgent(species0).node).childList);
+                    .getAgent(species0).getNode()).childList);
             apiInterList.setInnerList(((AtomTreeNodeGroup) phase
-                    .getAgent(species1).node).childList);
+                    .getAgent(species1).getNode()).childList);
         }
     }
 
+    private static final long serialVersionUID = 1L;
     private final ApiInterArrayList apiInterList;
     private final Species species0, species1;
     private final AtomArrayList emptyList = new AtomArrayList();

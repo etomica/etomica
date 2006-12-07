@@ -78,14 +78,14 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         eventManager = new PhaseEventManager();
         speciesMaster = new SpeciesMaster(sim, this, eventManager);
         setBoundary(new BoundaryRectangularPeriodic(sim));
-        speciesMaster.node.setParent((AtomTreeNodeGroup)sim.speciesRoot.node);
+        speciesMaster.getNode().setParent((AtomTreeNodeGroup)sim.speciesRoot.getNode());
         setName(null);
 
         inflateEvent = new PhaseInflateEvent(this);
     }
 
     public int getIndex() {
-        return speciesMaster.node.getIndex();
+        return speciesMaster.getNode().getIndex();
     }
     
     /**
@@ -143,9 +143,9 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         if(i >= moleculeCount() || i < 0) 
             throw new IndexOutOfBoundsException("Index: "+i+
                                                 ", Number of molecules: "+moleculeCount());
-        AtomArrayList agentList = ((AtomTreeNodeGroup)speciesMaster.node).childList;
+        AtomArrayList agentList = ((AtomTreeNodeGroup)speciesMaster.getNode()).childList;
         for (int agentIndex=0; agentIndex<agentList.size(); agentIndex++) {
-            AtomArrayList moleculeList = ((AtomTreeNodeGroup)agentList.get(agentIndex).node).childList;
+            AtomArrayList moleculeList = ((AtomTreeNodeGroup)agentList.get(agentIndex).getNode()).childList;
             int count = moleculeList.size();
             if (i < count) {
                 return moleculeList.get(i);
@@ -212,7 +212,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      * Returns the agent of the given species in this phase.
      */
     public final SpeciesAgent getAgent(Species s) {
-        return (SpeciesAgent)((AtomTreeNodeGroup)speciesMaster.node).childList.get(s.getIndex());
+        return (SpeciesAgent)((AtomTreeNodeGroup)speciesMaster.getNode()).childList.get(s.getIndex());
     }
                        
     public final double volume() {return boundary.volume();}  //infinite volume unless using PBC
@@ -235,14 +235,14 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      * @return the first atom in the linked list of atoms in this Phase
      */
     public final Atom firstAtom() {
-        return speciesMaster.node.firstLeafAtom();
+        return speciesMaster.getNode().firstLeafAtom();
     }
     
     /**
      * @return the last atom in the linked list of atoms in this Phase
      */
     public final Atom lastAtom() {
-        return speciesMaster.node.lastLeafAtom();
+        return speciesMaster.getNode().lastLeafAtom();
     }
 
     /**
@@ -253,7 +253,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     /**
      * returns the number of leaf atoms in the phase
      */
-    public int atomCount() {return speciesMaster.node.leafAtomCount();}
+    public int atomCount() {return speciesMaster.getNode().leafAtomCount();}
         
     /**
      * Adds the given molecule to this phase.
@@ -261,7 +261,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      * @param s the species agent in this phase for the molecule's species.
      */
     public void addMolecule(Atom a, SpeciesAgent s) {
-        a.node.setParent((AtomTreeNodeGroup)s.node);
+        a.getNode().setParent((AtomTreeNodeGroup)s.getNode());
     }
     
     /**
@@ -269,7 +269,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      */
     public void removeMolecule(Atom a) {
         if(a == null) return;
-        a.node.dispose();
+        a.getNode().dispose();
     }
     
     /**
@@ -281,7 +281,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
 
     public void writePhase(ObjectOutputStream out) throws IOException {
         out.writeObject(boundary);
-        AtomArrayList agents = ((AtomTreeNodeGroup)speciesMaster.node).childList;
+        AtomArrayList agents = ((AtomTreeNodeGroup)speciesMaster.getNode()).childList;
         out.writeInt(agents.size());
         for (int i=0; i<agents.size(); i++) {
             Species species = agents.get(i).getType().getSpecies();

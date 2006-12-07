@@ -1,18 +1,13 @@
 package etomica.species;
-import java.lang.reflect.Constructor;
-
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesMaster;
-import etomica.exception.MethodNotImplementedException;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.units.Dimension;
-import etomica.units.Quantity;
 import etomica.util.NameMaker;
 
 
@@ -120,7 +115,7 @@ public class Species implements Comparable, java.io.Serializable {
      */
     public SpeciesAgent makeAgent(SpeciesMaster parent) {
         SpeciesAgent agent = new SpeciesAgent(agentType, this);
-        agent.node.setParent((AtomTreeNodeGroup)parent.node);
+        agent.getNode().setParent((AtomTreeNodeGroup)parent.getNode());
         return agent;
     }
 
@@ -164,6 +159,7 @@ public class Species implements Comparable, java.io.Serializable {
         return null;
     }
     
+    private static final long serialVersionUID = 1L;
     final AtomType agentType;
     protected final AtomFactory factory;
     private String name;

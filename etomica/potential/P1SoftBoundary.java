@@ -20,6 +20,7 @@ import etomica.units.Length;
  */
 public class P1SoftBoundary extends Potential1 implements PotentialSoft, EtomicaElement {
 
+    private static final long serialVersionUID = 1L;
 	private final Vector[] gradient;
 	private double radius;
 	
@@ -39,7 +40,7 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft, Etomica
 	}
     
 	public double energy(AtomSet a) {
-		Vector dimensions = ((Atom)a).node.parentPhase().getBoundary().getDimensions();
+		Vector dimensions = ((Atom)a).getNode().parentPhase().getBoundary().getDimensions();
 		double rx = ((AtomLeaf)a).coord.position().x(0);
 		double ry = ((AtomLeaf)a).coord.position().x(1);
 		double dx1 = (dimensions.x(0) - rx);

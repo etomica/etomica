@@ -7,8 +7,6 @@ import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
 import etomica.phase.Phase;
 import etomica.phase.PhaseCellManager;
-import etomica.phase.PhaseEvent;
-import etomica.phase.PhaseListener;
 import etomica.space.Space;
 
 /**
@@ -92,7 +90,7 @@ public class NeighborSiteManager implements PhaseCellManager, AgentSource {
     }
 
     public Object makeAgent(Atom atom) {
-        if (!atom.node.isLeaf()) {
+        if (!atom.getNode().isLeaf()) {
             return null;
         }
         AtomSite site = (AtomSite)siteIterator.next();

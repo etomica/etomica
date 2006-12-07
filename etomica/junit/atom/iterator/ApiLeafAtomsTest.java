@@ -28,7 +28,7 @@ public class ApiLeafAtomsTest extends IteratorTestAbstract {
         int[] n2 = new int[] {1, 7, 2};
         int[] n2Tree = new int[] {3,4};
         SpeciesRoot root = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1, n2, n2Tree);
-        AtomTreeNodeGroup rootNode = (AtomTreeNodeGroup)root.node;
+        AtomTreeNodeGroup rootNode = (AtomTreeNodeGroup)root.getNode();
         
         ApiLeafAtoms api = new ApiLeafAtoms();
         
@@ -36,9 +36,9 @@ public class ApiLeafAtomsTest extends IteratorTestAbstract {
         testNoIterates(api);
         
         Phase[] phase = new Phase[3];
-        phase[0] = rootNode.getDescendant(new int[] {0}).node.parentPhase();
-        phase[1] = rootNode.getDescendant(new int[] {1}).node.parentPhase();
-        phase[2] = rootNode.getDescendant(new int[] {2}).node.parentPhase();
+        phase[0] = rootNode.getDescendant(new int[] {0}).getNode().parentPhase();
+        phase[1] = rootNode.getDescendant(new int[] {1}).getNode().parentPhase();
+        phase[2] = rootNode.getDescendant(new int[] {2}).getNode().parentPhase();
         
         for(int i=0; i<phase.length; i++) {
             api.setPhase(phase[i]);

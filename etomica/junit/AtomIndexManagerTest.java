@@ -49,10 +49,10 @@ public class AtomIndexManagerTest extends TestCase {
         atoms[i++] = agent10 = phase1.getAgent(species0);//5
         atoms[i++] = agent11 = phase1.getAgent(species1);//6
         AtomTreeNodeGroup[][] node = new AtomTreeNodeGroup[2][2];
-        node[0][0] = (AtomTreeNodeGroup)agent00.node;
-        node[0][1] = (AtomTreeNodeGroup)agent01.node;
-        node[1][0] = (AtomTreeNodeGroup)agent10.node;
-        node[1][1] = (AtomTreeNodeGroup)agent11.node;
+        node[0][0] = (AtomTreeNodeGroup)agent00.getNode();
+        node[0][1] = (AtomTreeNodeGroup)agent01.getNode();
+        node[1][0] = (AtomTreeNodeGroup)agent10.getNode();
+        node[1][1] = (AtomTreeNodeGroup)agent11.getNode();
         phaseIndex =    new int[] {0,0,0,0,1,1,1,1, 0,0,0,0,0,0,1,1,1,1,1,1};
         speciesIndex =  new int[] {0,0,1,1,0,0,1,1, 1,1,1,1,1,1,1,1,1,1,1,1};
         moleculeIndex = new int[] {0,5,0,3,0,5,0,4, 0,0,3,3,4,4,0,0,3,3,4,4};
@@ -73,28 +73,28 @@ public class AtomIndexManagerTest extends TestCase {
 //          System.out.println("AtomIndex: "+atoms[i+i0].node.getOrdinal()+" "+(1+atomIndex[i]));
 //          System.out.println("Bits: "+Integer.toBinaryString(atoms[i+i0].node.index()));
 //          System.out.println(atoms[i+i0].toString());
-          assertEquals(atoms[i+i0].node.getIndex(), atomIndex[i]);
+          assertEquals(atoms[i+i0].getNode().getIndex(), atomIndex[i]);
       }
     }
 
     public void testGetPhaseIndex() {
         for(int i=0; i<phaseIndex.length; i++) {
 //          System.out.println("PhaseIndex: "+atoms[i+i0].node.getPhaseIndex()+" "+(1+phaseIndex[i]));
-          assertEquals(atoms[i+i0].node.getPhaseIndex(), phaseIndex[i]);
+          assertEquals(atoms[i+i0].getNode().getPhaseIndex(), phaseIndex[i]);
       }
     }
 
     public void testGetSpeciesIndex() {
         for(int i=0; i<speciesIndex.length; i++) {
 //            System.out.println("SpeciesIndex: "+atoms[i+i0].node.getSpeciesIndex()+" "+(1+speciesIndex[i]));
-            assertEquals(atoms[i+i0].node.getSpeciesIndex(), speciesIndex[i]);
+            assertEquals(atoms[i+i0].getNode().getSpeciesIndex(), speciesIndex[i]);
         }
     }
 
     public void testGetMoleculeIndex() {
         for(int i=0; i<moleculeIndex.length; i++) {
 //            System.out.println("MoleculeIndex: "+atoms[i+i0].node.getMoleculeIndex()+" "+(1+moleculeIndex[i]));
-            assertEquals(atoms[i+i0].node.getMoleculeIndex(), moleculeIndex[i]);
+            assertEquals(atoms[i+i0].getNode().getMoleculeIndex(), moleculeIndex[i]);
         }
     }
 
@@ -103,11 +103,11 @@ public class AtomIndexManagerTest extends TestCase {
         int falseCount = 0;
         int undefinedCount = 0;
         for(int i=1; i<atoms.length; i++) {//skip speciesRoot
-            Phase phaseA = atoms[i].node.parentPhase();
+            Phase phaseA = atoms[i].getNode().parentPhase();
             assertFalse(atoms[i].inSamePhase(atom));
             assertFalse(atom.inSamePhase(atoms[i]));
             for(int j=1; j<atoms.length; j++) {
-                Phase phaseB = atoms[j].node.parentPhase();
+                Phase phaseB = atoms[j].getNode().parentPhase();
                 boolean inSamePhase = atoms[i].inSamePhase(atoms[j]);
                 if(phaseA == null || phaseB == null) {
                     if(inSamePhase) System.out.println(inSamePhase+" "+i+" "+j+" "+atoms[i]+" "+atoms[j]);
@@ -160,14 +160,14 @@ public class AtomIndexManagerTest extends TestCase {
     
     public void testAncestry() {
         for(int i=0; i<atoms.length; i++) {
-            assertFalse(atoms[i].node.isDescendedFrom(atom));
-            assertFalse(atom.node.isDescendedFrom(atoms[i]));
+            assertFalse(atoms[i].getNode().isDescendedFrom(atom));
+            assertFalse(atom.getNode().isDescendedFrom(atoms[i]));
             for(int j=0; j<atoms.length; j++) {
 //                System.out.println(i+" "+j);
                 if(isDescendedFrom(atoms[i],atoms[j])) {
-                    assertTrue(atoms[i].node.isDescendedFrom(atoms[j]));
+                    assertTrue(atoms[i].getNode().isDescendedFrom(atoms[j]));
                 } else {
-                    assertFalse(atoms[i].node.isDescendedFrom(atoms[j]));
+                    assertFalse(atoms[i].getNode().isDescendedFrom(atoms[j]));
                 }
             }
         }
@@ -175,7 +175,7 @@ public class AtomIndexManagerTest extends TestCase {
     private boolean isDescendedFrom(Atom a1, Atom a2) {
         if(a1.getType().getAddressManager().getDepth() < a2.getType().getAddressManager().getDepth()) return false;
         else if(a1 == a2) return true;
-        else return isDescendedFrom(a1.node.parentGroup(), a2);
+        else return isDescendedFrom(a1.getNode().parentGroup(), a2);
     }
 
     
@@ -201,7 +201,7 @@ public class AtomIndexManagerTest extends TestCase {
     private boolean typeIsDescendedFrom(Atom a1, Atom a2) {
         if(a1.getType().getAddressManager().getDepth() < a2.getType().getAddressManager().getDepth()) return false;
         else if(a1.getType() == a2.getType()) return true;
-        else return typeIsDescendedFrom(a1.node.parentGroup(), a2);
+        else return typeIsDescendedFrom(a1.getNode().parentGroup(), a2);
     }
     
     public void testSameMolecule() {
@@ -212,9 +212,9 @@ public class AtomIndexManagerTest extends TestCase {
             if(atoms[i].inSameMolecule(atom)) System.out.println(i+" "+atoms[i]+" "+atom);
             assertFalse(atoms[i].inSameMolecule(atom));
             assertFalse(atom.inSameMolecule(atoms[i]));
-            Atom moleculeA = atoms[i].node.parentMolecule();
+            Atom moleculeA = atoms[i].getNode().parentMolecule();
             for(int j=i0; j<atoms.length; j++) {
-                Atom moleculeB = atoms[j].node.parentMolecule();
+                Atom moleculeB = atoms[j].getNode().parentMolecule();
                 boolean inSameMolecule = atoms[i].inSameMolecule(atoms[j]);
                 if(moleculeA == null || moleculeB == null) {
                     if(inSameMolecule) System.out.println(inSameMolecule+" "+i+" "+j+" "+atoms[i]+" "+atoms[j]);

@@ -360,7 +360,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         }
         else {
             //first walk up the tree looking for 1-body range-independent potentials that apply to parents
-            Atom parentAtom = targetAtom.node.parentGroup();
+            Atom parentAtom = targetAtom.getNode().parentGroup();
             while (parentAtom.getType().getDepth() > 2) {
                 PotentialArray potentialArray = getIntraPotentials(parentAtom.getType());
                 Potential[] potentials = potentialArray.getPotentials();
@@ -368,7 +368,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                     potentials[i].setPhase(phase);
                     ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(parentAtom,id,pc);
                 }
-                parentAtom = parentAtom.node.parentGroup();
+                parentAtom = parentAtom.getNode().parentGroup();
             }                
             PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(targetAtom.getType());
             Potential[] potentials = potentialArray.getPotentials();
@@ -453,7 +453,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         }//end of for
         
         //if atom has children, repeat process with them
-        if(!atom.node.isLeaf()) {
+        if(!atom.getNode().isLeaf()) {
             potentialArray = getIntraPotentials(atom.getType());
             potentials = potentialArray.getPotentials();
             for(int i=0; i<potentials.length; i++) {
@@ -461,7 +461,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
             }
             
             //cannot use AtomIterator field because of recursive call
-            AtomArrayList list = ((AtomTreeNodeGroup) atom.node).childList;
+            AtomArrayList list = ((AtomTreeNodeGroup) atom.getNode()).childList;
             int size = list.size();
             for (int i=0; i<size; i++) {
                 Atom a = list.get(i);

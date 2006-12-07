@@ -33,8 +33,8 @@ public class P2UAPropane extends Potential2 {
         double r2 = 0.0;
 
         AtomPair pair = (AtomPair)atoms;
-        AtomTreeNodeUAPropane node1 = (AtomTreeNodeUAPropane)pair.atom0.node;
-        AtomTreeNodeUAPropane node2 = (AtomTreeNodeUAPropane)pair.atom1.node;
+        AtomTreeNodeUAPropane node1 = (AtomTreeNodeUAPropane)pair.atom0.getNode();
+        AtomTreeNodeUAPropane node2 = (AtomTreeNodeUAPropane)pair.atom1.getNode();
 
         Vector propane1UA1r = node1.UA1.coord.position();
         Vector propane2UA1r = node2.UA1.coord.position();
@@ -156,6 +156,7 @@ public class P2UAPropane extends Potential2 {
         nearestImageTransformer = phase.getBoundary();
     }
 
+    private static final long serialVersionUID = 1L;
     public double sigmaCH3, sigmaCH3SQ, sigmaCH2, sigmaCH2SQ;
     public double epsilonCH3, epsilonCH2, epsilonCH3X4, epsilonCH2X4;
 	protected NearestImageTransformer nearestImageTransformer;

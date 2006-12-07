@@ -14,12 +14,8 @@ import etomica.atom.AtomPair;
 public final class CriterionMolecularNonAdjacent extends
         CriterionMolecular {
 
-    private int skipNumber;
-
-    public CriterionMolecularNonAdjacent(int q,
-            NeighborCriterion criterion) {
+    public CriterionMolecularNonAdjacent(NeighborCriterion criterion) {
         super(criterion);
-        skipNumber = q;
         this.setIntraMolecular(true);
     }
 
@@ -30,8 +26,8 @@ public final class CriterionMolecularNonAdjacent extends
      */
     public boolean accept(AtomPair pair) {
 
-        int a0 = pair.atom0.node.getIndex();
-        int a1 = pair.atom1.node.getIndex();
+        int a0 = pair.atom0.getNode().getIndex();
+        int a1 = pair.atom1.getNode().getIndex();
         int temp;
 
         //we do not need to consider a0 = a1, because then temp will be 0, and
@@ -51,4 +47,5 @@ public final class CriterionMolecularNonAdjacent extends
         return false;
     }
 
+    private static final long serialVersionUID = 1L;
 }

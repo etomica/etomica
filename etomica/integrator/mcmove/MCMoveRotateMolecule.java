@@ -18,14 +18,9 @@ import etomica.space.Vector;
  * Has a bug, probably associated with incorrect replacement of the molecule when
  * rejecting the trial.
  */
- 
- /* History of changes
-  * 7/9/02 Added energyChange() method
-  * 10/06/03 (DAK) added check in constructor to ensure simulation is 2D
-  */
-  
 public class MCMoveRotateMolecule extends MCMovePhaseStep {
     
+    private static final long serialVersionUID = 1L;
     private final MeterPotentialEnergy energyMeter;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     
@@ -67,7 +62,7 @@ public class MCMoveRotateMolecule extends MCMovePhaseStep {
         rotationTensor.setAxial(2,dTheta);
        // molecule.coord.transform(molecule.coord.position(), rotationTensor);
         leafAtomIterator.reset();
-        r0.E(molecule.node.firstLeafAtom().coord.position());
+        r0.E(molecule.getNode().firstLeafAtom().coord.position());
 //        AtomTransform.doAction(leafAtomIterator, molecule.coord.position(), rotationTensor);
         AtomTransform.doTransform(leafAtomIterator, r0, rotationTensor);
         uNew = Double.NaN;

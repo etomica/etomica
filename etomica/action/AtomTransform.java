@@ -10,7 +10,7 @@ public class AtomTransform {
         while(iterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)iterator.nextAtom();
             Vector r = a.coord.position();
-            r.transform(a.node.parentPhase().getBoundary(),r0, transformMatrix);
+            r.transform(a.getNode().parentPhase().getBoundary(),r0, transformMatrix);
         }
     }
     

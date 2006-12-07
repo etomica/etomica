@@ -79,10 +79,10 @@ public class ConformationLinear extends Conformation {
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
-            if (!a.node.isLeaf()) {
+            if (!a.getNode().isLeaf()) {
                 //initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
-                config.initializePositions(((AtomTreeNodeGroup)a.node).childList);
+                config.initializePositions(((AtomTreeNodeGroup)a.getNode()).childList);
             }
             moveToOrigin.actionPerformed(a);
             translationVector.Ea1Tv1(xNext, orientation);

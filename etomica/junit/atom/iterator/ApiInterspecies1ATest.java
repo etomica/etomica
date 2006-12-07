@@ -35,7 +35,7 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
         int[] n2Tree = new int[] { 3, 4 };
         SpeciesRoot root = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1, n2,
                 n2Tree);
-        AtomTreeNodeGroup rootNode = (AtomTreeNodeGroup) root.node;
+        AtomTreeNodeGroup rootNode = (AtomTreeNodeGroup) root.getNode();
 
         Species[] species = new Species[3];
         species[0] = rootNode.getDescendant(new int[] { 0, 0 }).getType()
@@ -55,19 +55,19 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
         testNoIterates(api);
 
         //one species has no molecules
-        api.setPhase(rootNode.getDescendant(new int[] { 2 }).node
+        api.setPhase(rootNode.getDescendant(new int[] { 2 }).getNode()
                         .parentPhase());
         api.setTarget(rootNode.getDescendant(new int[] { 2, 1, 3 }));
         testNoIterates(api);
         //target not one of species
         api = new ApiInterspecies1A(new Species[] { species[1], species[2] });
-        api.setPhase(rootNode.getDescendant(new int[] { 0 }).node
+        api.setPhase(rootNode.getDescendant(new int[] { 0 }).getNode()
                         .parentPhase());
         api.setTarget(rootNode.getDescendant(new int[] { 0, 0, 3 }));
         testNoIterates(api);
         //target one of species but in different phase
         api = new ApiInterspecies1A(new Species[] { species[1], species[2] });
-        api.setPhase(rootNode.getDescendant(new int[] { 0 }).node
+        api.setPhase(rootNode.getDescendant(new int[] { 0 }).getNode()
                         .parentPhase());
         api.setTarget(rootNode.getDescendant(new int[] { 1, 1, 0 }));
         testNoIterates(api);
@@ -138,7 +138,7 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
             int species1Index) {
         ApiInterspecies1A api = new ApiInterspecies1A(new Species[] {
                 species[species0Index], species[species1Index] });
-        Phase phase = rootNode.getDescendant(new int[] { phaseIndex }).node
+        Phase phase = rootNode.getDescendant(new int[] { phaseIndex }).getNode()
                 .parentPhase();
         AtomsetAction speciesTest = new SpeciesTestAction(
                 species[species0Index], species[species1Index]);
@@ -147,9 +147,9 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
         //test no iterates if no target
         api.setPhase(phase);
         Atom[] molecules0 = ((AtomTreeNodeGroup) phase
-                .getAgent(species[species0Index]).node).childList.toArray();
+                .getAgent(species[species0Index]).getNode()).childList.toArray();
         Atom[] molecules1 = ((AtomTreeNodeGroup) phase
-                .getAgent(species[species1Index]).node).childList.toArray();
+                .getAgent(species[species1Index]).getNode()).childList.toArray();
         int[] nMolecules = new int[] { molecules0.length, molecules1.length };
         testNoIterates(api);
 
@@ -187,7 +187,7 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
         if (species0Index != 1) {
             target = rootNode.getDescendant(new int[] { phaseIndex,
                     species0Index, nMolecules[0] / 2, 1 });
-            targetMolecule = target.node.parentGroup();
+            targetMolecule = target.getNode().parentGroup();
             api.setTarget(target);
             api.setDirection(UP);
             testApiIterates(api, UP, targetMolecule, molecules1);
@@ -236,7 +236,7 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
         public void actionPerformed(AtomSet atoms) {
 //            assertTrue(atoms.getAtom(0).type.getSpecies() == species0);
             //assertTrue(atoms.getAtom(1).type.getSpecies() == species1);
-            assertTrue(atoms.getAtom(0).node.getAddress() < atoms.getAtom(1).node.getAddress());
+            assertTrue(atoms.getAtom(0).getNode().getAddress() < atoms.getAtom(1).getNode().getAddress());
         }
     }
 

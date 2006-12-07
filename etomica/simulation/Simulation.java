@@ -26,6 +26,7 @@ import etomica.util.NameMaker;
 
 public class Simulation extends EtomicaInfo implements java.io.Serializable  {
     
+    private static final long serialVersionUID = 1L;
     public final PotentialMaster potentialMaster;
     public final Space space;
     public final SpeciesRoot speciesRoot;
@@ -68,13 +69,13 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
      * Returns an array of Phases contained in the Simulation
      */
     public final Phase[] getPhases() {
-        int nPhases = ((AtomTreeNodeGroup)speciesRoot.node).childList.size();
+        int nPhases = ((AtomTreeNodeGroup)speciesRoot.getNode()).childList.size();
         Phase[] phases = new Phase[nPhases];
-        AtomIteratorArrayListSimple listIterator = new AtomIteratorArrayListSimple(((AtomTreeNodeGroup)speciesRoot.node).childList);
+        AtomIteratorArrayListSimple listIterator = new AtomIteratorArrayListSimple(((AtomTreeNodeGroup)speciesRoot.getNode()).childList);
         listIterator.reset();
         int i=0;
         while(listIterator.hasNext()) {
-            phases[i++] = listIterator.nextAtom().node.parentPhase();
+            phases[i++] = listIterator.nextAtom().getNode().parentPhase();
         }
         return phases;
     }

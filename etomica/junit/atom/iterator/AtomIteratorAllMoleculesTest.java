@@ -32,7 +32,7 @@ public class AtomIteratorAllMoleculesTest extends IteratorTestAbstract {
         int[] n2Tree = new int[] { 3, 4 };
         SpeciesRoot root = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1, n2,
                 n2Tree);
-        AtomTreeNodeGroup rootNode = (AtomTreeNodeGroup) root.node;
+        AtomTreeNodeGroup rootNode = (AtomTreeNodeGroup) root.getNode();
 
         Species[] species = new Species[3];
         species[0] = rootNode.getDescendant(new int[] { 0, 0 }).getType()
@@ -53,14 +53,14 @@ public class AtomIteratorAllMoleculesTest extends IteratorTestAbstract {
      */
     private void phaseTest(AtomTreeNodeGroup rootNode, Species[] species, int phaseIndex) {
         AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules();
-        Phase phase = rootNode.getDescendant(new int[] { phaseIndex }).node
+        Phase phase = rootNode.getDescendant(new int[] { phaseIndex }).getNode()
                 .parentPhase();
 
         iterator.setPhase(phase);
         
         AtomArrayList moleculeList = new AtomArrayList();
         for(int i=0; i<species.length; i++) {
-            AtomArrayList molecules = ((AtomTreeNodeGroup)phase.getAgent(species[i]).node).childList;
+            AtomArrayList molecules = ((AtomTreeNodeGroup)phase.getAgent(species[i]).getNode()).childList;
             for (int j=0; j<molecules.size(); j++) {
                 moleculeList.add(molecules.get(j));
             }

@@ -85,7 +85,7 @@ public class AtomIteratorTree implements AtomIterator, java.io.Serializable {
 		listIterator.reset();
 		while(listIterator.hasNext()) {
             Atom atom = listIterator.nextAtom();
-            if (atom.node.isLeaf() || iterationDepth == 1) {
+            if (atom.getNode().isLeaf() || iterationDepth == 1) {
                 act.actionPerformed(atom);
             }
             else {
@@ -153,7 +153,7 @@ public class AtomIteratorTree implements AtomIterator, java.io.Serializable {
         }
         while(listIterator.hasNext()) {
             Atom atom = listIterator.nextAtom();
-            if (atom.node.isLeaf() || iterationDepth == 1) {
+            if (atom.getNode().isLeaf() || iterationDepth == 1) {
                 next = atom;
                 break;
             }
@@ -193,15 +193,15 @@ public class AtomIteratorTree implements AtomIterator, java.io.Serializable {
     public void setRoot(Atom rootAtom) {
         if(rootAtom == null) {
             rootNode = null;
-        } else if(iterationDepth == 0 || rootAtom.node.isLeaf()) {//singlet iteration of basis atom
+        } else if(iterationDepth == 0 || rootAtom.getNode().isLeaf()) {//singlet iteration of basis atom
             if (!wealreadyknowyourstupid) {
                 System.err.println("don't use AtomIteratorTree as a singlet iterator.");
                 wealreadyknowyourstupid = true;
             }
-            rootNode = rootAtom.node;
+            rootNode = rootAtom.getNode();
             listIterator.setList(null);
         } else {
-            rootNode = rootAtom.node;
+            rootNode = rootAtom.getNode();
             listIterator.setList(((AtomTreeNodeGroup)rootNode).childList);
         }
         unset();
@@ -276,7 +276,8 @@ public class AtomIteratorTree implements AtomIterator, java.io.Serializable {
 		if(treeIterator != null) treeIterator.setDoAllNodes(doAllNodes);
 		unset();
 	}
-            
+
+    private static final long serialVersionUID = 1L;
     private AtomTreeNode rootNode;
     private AtomIteratorTree treeIterator;//used for recursive iteration to lower levels in tree
     private final AtomIteratorArrayListSimple listIterator = new AtomIteratorArrayListSimple();

@@ -31,8 +31,8 @@ public class P2WaterSPCE extends Potential2 {
         double r2 = 0.0;
 
         AtomPair pair = (AtomPair)atoms;
-        AtomTreeNodeWater3P node1 = (AtomTreeNodeWater3P)pair.atom0.node;
-        AtomTreeNodeWater3P node2 = (AtomTreeNodeWater3P)pair.atom1.node;
+        AtomTreeNodeWater3P node1 = (AtomTreeNodeWater3P)pair.atom0.getNode();
+        AtomTreeNodeWater3P node2 = (AtomTreeNodeWater3P)pair.atom1.getNode();
 
         Vector O1r = node1.O.coord.position();
         Vector O2r = node2.O.coord.position();
@@ -112,6 +112,7 @@ public class P2WaterSPCE extends Potential2 {
     public void setPhase(Phase phase) {
     }
 
+    private static final long serialVersionUID = 1L;
     public double sigma , sigma2;
     public double epsilon, epsilon4;
     private double chargeH = Electron.UNIT.toSim(0.4238);

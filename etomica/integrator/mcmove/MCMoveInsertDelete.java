@@ -21,13 +21,9 @@ import etomica.species.Species;
  *
  * @author David Kofke
  */
- 
- /* History of changes
-  * 07/09/02 (DAK) Added energyChange() method
-  * 09/19/02 (DAK) Minor change in doTrial for case were deleting with N = 0
-  */
 public class MCMoveInsertDelete extends MCMovePhase {
     
+    private static final long serialVersionUID = 1L;
     //chemical potential
     protected double mu;
     
@@ -59,7 +55,7 @@ public class MCMoveInsertDelete extends MCMovePhase {
         species = s;
         if(phase != null) {
             speciesAgent = species.getAgent(phase);
-            moleculeList = ((AtomTreeNodeGroup)speciesAgent.node).childList;
+            moleculeList = ((AtomTreeNodeGroup)speciesAgent.getNode()).childList;
         }
         moleculeFactory = species.moleculeFactory();
     }
@@ -70,7 +66,7 @@ public class MCMoveInsertDelete extends MCMovePhase {
         energyMeter.setPhase(phase);
         if(species != null) {
             speciesAgent = species.getAgent(phase);
-            moleculeList = ((AtomTreeNodeGroup)speciesAgent.node).childList;
+            moleculeList = ((AtomTreeNodeGroup)speciesAgent.getNode()).childList;
         }
     }
     

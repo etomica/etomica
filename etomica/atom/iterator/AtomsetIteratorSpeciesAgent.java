@@ -83,7 +83,7 @@ public final class AtomsetIteratorSpeciesAgent extends AtomsetIteratorAdapter
             }
     		boolean match = false;
     		for (int j=0; j<basisSize; j++) {
-    			if (!agentUsed[j] && newTargetAtom.node.isDescendedFrom(agents[j])) {
+    			if (!agentUsed[j] && newTargetAtom.getNode().isDescendedFrom(agents[j])) {
     				agentUsed[j] = true;
     				match = true;
     				break;
@@ -100,6 +100,7 @@ public final class AtomsetIteratorSpeciesAgent extends AtomsetIteratorAdapter
      */
     public void setDirection(IteratorDirective.Direction direction) { }
 
+    private static final long serialVersionUID = 1L;
     private final Species[] species;
 	private final SpeciesAgent[] agents;
 	private final int basisSize;

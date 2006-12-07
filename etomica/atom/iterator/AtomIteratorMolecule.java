@@ -1,12 +1,7 @@
-/*
- * History
- * Created on Dec 30, 2004 by kofke
- */
 package etomica.atom.iterator;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomTreeNode;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.IteratorDirective.Direction;
@@ -40,7 +35,7 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
      */
     public void setPhase(Phase phase) {
         if(phase == null) speciesAgentNode = null;
-        else speciesAgentNode = (AtomTreeNodeGroup)phase.getAgent(species).node;
+        else speciesAgentNode = (AtomTreeNodeGroup)phase.getAgent(species).getNode();
         setList();
     }
 
@@ -83,13 +78,14 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
         
         //target specified -- give it as only iterate if descended from species
         } else {
-            AtomTreeNode moleculeNode = targetAtom.node.childWhereDescendedFrom(speciesAgentNode);
+            AtomTreeNode moleculeNode = targetAtom.getNode().childWhereDescendedFrom(speciesAgentNode);
             littleList.clear();
             if(moleculeNode != null) littleList.add(moleculeNode.atom());
             listIterator.setList(littleList);
         }
     }
 
+    private static final long serialVersionUID = 1L;
     private final AtomIteratorArrayListSimple listIterator;
     private final Species species;
     private final AtomArrayList littleList = new AtomArrayList();

@@ -51,15 +51,15 @@ public class AtomFactoryWater4P extends AtomFactory {
 	 */
 	public Atom makeAtom() {
         Atom group = newParentAtom();
-		AtomTreeNodeWater4P waterNode = (AtomTreeNodeWater4P)group.node;
+		AtomTreeNodeWater4P waterNode = (AtomTreeNodeWater4P)group.getNode();
 		waterNode.O = (AtomLeaf)oFactory.makeAtom();
         waterNode.H1 = (AtomLeaf)hFactory.makeAtom();
         waterNode.H2 = (AtomLeaf)hFactory.makeAtom();
         waterNode.M = (AtomLeaf)mFactory.makeAtom();
-        waterNode.O.node.setParent(waterNode);
-        waterNode.H1.node.setParent(waterNode);
-        waterNode.H2.node.setParent(waterNode);
-        waterNode.M.node.setParent(waterNode);
+        waterNode.O.getNode().setParent(waterNode);
+        waterNode.H1.getNode().setParent(waterNode);
+        waterNode.H2.getNode().setParent(waterNode);
+        waterNode.M.getNode().setParent(waterNode);
 		conformation.initializePositions(waterNode.childList);
 		return group;
 	}
@@ -85,5 +85,6 @@ public class AtomFactoryWater4P extends AtomFactory {
         return 4;
     }
     
+    private static final long serialVersionUID = 1L;
 	public final AtomFactoryMono hFactory, oFactory, mFactory;
 }

@@ -44,8 +44,8 @@ public class AtomIteratorSequenceTest extends ListIteratorTestAbstract {
         int nAtoms = 10;
         SpeciesRoot root = UnitTestUtil.makeStandardSpeciesTree(
                 null,0,new int[] {nAtoms},null,null);
-        SpeciesAgent agent = (SpeciesAgent)((AtomTreeNodeGroup)root.node).getDescendant(new int[] {0,0});
-        AtomList list = new AtomList(((AtomTreeNodeGroup)agent.node).childList.toArray());
+        SpeciesAgent agent = (SpeciesAgent)((AtomTreeNodeGroup)root.getNode()).getDescendant(new int[] {0,0});
+        AtomList list = new AtomList(((AtomTreeNodeGroup)agent.getNode()).childList.toArray());
         upIterator.setFirst(list.header.next);
         dnIterator.setFirst(list.header.next);
         LinkedList listUp0 = generalIteratorMethodTests(upIterator);

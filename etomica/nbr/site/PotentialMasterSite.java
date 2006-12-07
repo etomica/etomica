@@ -179,7 +179,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             //first walk up the tree looking for 1-body range-independent potentials that apply to parents
             Atom pseudoTargetAtom = targetAtom;
             while (pseudoTargetAtom.getType().getDepth() > 3) {
-                pseudoTargetAtom = pseudoTargetAtom.node.parentGroup();
+                pseudoTargetAtom = pseudoTargetAtom.getNode().parentGroup();
                 PotentialArray potentialArray = getIntraPotentials(pseudoTargetAtom.getType());
                 Potential[] potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
@@ -234,7 +234,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         }
             
 		//if atom has children, repeat process with them
-		if(!atom.node.isLeaf()) {
+		if(!atom.getNode().isLeaf()) {
             potentialArray = getIntraPotentials(atom.getType());
             potentials = potentialArray.getPotentials();
             for(int i=0; i<potentials.length; i++) {
@@ -242,7 +242,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             }
 
             //cannot use AtomIterator field because of recursive call
-            AtomArrayList list = ((AtomTreeNodeGroup) atom.node).childList;
+            AtomArrayList list = ((AtomTreeNodeGroup) atom.getNode()).childList;
             int size = list.size();
             for (int i=0; i<size; i++) {
                 Atom a = list.get(i);

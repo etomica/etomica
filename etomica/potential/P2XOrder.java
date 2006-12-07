@@ -20,7 +20,8 @@ import etomica.space.Vector;
  */
 public class P2XOrder extends Potential2 implements PotentialHard {
     
-   protected final Vector dr;
+    private static final long serialVersionUID = 1L;
+    protected final Vector dr;
     
     public P2XOrder(Space space) {
         super(space);
@@ -61,7 +62,7 @@ public class P2XOrder extends Potential2 implements PotentialHard {
     public double energy(AtomSet pair) {
  //       double deltaX = pair.dr(0);
         double deltaX = ((AtomLeaf)((AtomPair)pair).atom1).coord.position().x(0) - ((AtomLeaf)((AtomPair)pair).atom0).coord.position().x(0);
-        int dI = ((AtomPair)pair).atom1.node.getIndex() - ((AtomPair)pair).atom0.node.getIndex();
+        int dI = ((AtomPair)pair).atom1.getNode().getIndex() - ((AtomPair)pair).atom0.getNode().getIndex();
         return (deltaX * dI < 0.0) ? Double.POSITIVE_INFINITY : 0.0;
     }
     

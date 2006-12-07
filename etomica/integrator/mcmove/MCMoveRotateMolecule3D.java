@@ -2,7 +2,6 @@ package etomica.integrator.mcmove;
 import etomica.action.AtomTransform;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -16,6 +15,7 @@ import etomica.space3d.Vector3D;
 
 public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
     
+    private static final long serialVersionUID = 1L;
     private final MeterPotentialEnergy energyMeter;
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     
@@ -63,7 +63,7 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
 
         leafAtomIterator.setRoot(molecule);
         leafAtomIterator.reset();
-        r0.E(molecule.node.firstLeafAtom().coord.position());
+        r0.E(molecule.getNode().firstLeafAtom().coord.position());
         AtomTransform.doTransform(leafAtomIterator, r0, rotationTensor);
             
         uNew = Double.NaN;

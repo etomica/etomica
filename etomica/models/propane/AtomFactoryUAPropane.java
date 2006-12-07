@@ -44,13 +44,13 @@ public class AtomFactoryUAPropane extends AtomFactory {
 	 */
 	public Atom makeAtom() {
         Atom group = newParentAtom();
-		AtomTreeNodeUAPropane propaneNode = (AtomTreeNodeUAPropane)group.node;
+		AtomTreeNodeUAPropane propaneNode = (AtomTreeNodeUAPropane)group.getNode();
 //		waterNode.O = (AtomLeaf)oFactory.makeAtom();
         propaneNode.UA1 = (AtomLeaf)UAFactory.makeAtom();
         propaneNode.UA2 = (AtomLeaf)UAFactory.makeAtom();
 //        waterNode.O.node.setParent(waterNode);
-        propaneNode.UA1.node.setParent(propaneNode);
-        propaneNode.UA2.node.setParent(propaneNode);
+        propaneNode.UA1.getNode().setParent(propaneNode);
+        propaneNode.UA2.getNode().setParent(propaneNode);
 		conformation.initializePositions(propaneNode.childList);
 		return group;
 	}
@@ -85,4 +85,6 @@ public class AtomFactoryUAPropane extends AtomFactory {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+
+    private static final long serialVersionUID = 1L;
 }

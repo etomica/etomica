@@ -24,7 +24,7 @@ public final class SpeciesAgent extends Atom {
             
     public Atom addNewAtom() {
         Atom aNew = moleculeFactory().makeAtom();
-        aNew.node.setParent((AtomTreeNodeGroup)node);
+        aNew.getNode().setParent((AtomTreeNodeGroup)node);
         return aNew;
     }    
     
@@ -46,7 +46,7 @@ public final class SpeciesAgent extends Atom {
         else if(n < treeNode.childAtomCount()) {
             if(n < 0) n = 0;
             for (int i=treeNode.childList.size(); i>n; i--) {
-                treeNode.childList.get(i-1).node.dispose();
+                treeNode.childList.get(i-1).getNode().dispose();
             }
         }
         if (n == 0) {
@@ -58,6 +58,8 @@ public final class SpeciesAgent extends Atom {
     }
     
     public Dimension getNMoleculesDimension() {return Quantity.DIMENSION;}
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * Special AtomTreeNode class for SpeciesAgent.
@@ -83,7 +85,7 @@ public final class SpeciesAgent extends Atom {
         
         public void removeAtomNotify(Atom oldAtom) {
             super.removeAtomNotify(oldAtom);
-            if (oldAtom.node.parentGroup() == atom) {
+            if (oldAtom.getNode().parentGroup() == atom) {
 //                ordinalReservoir.returnOrdinal(oldAtom.node.getOrdinal());
             }
         }

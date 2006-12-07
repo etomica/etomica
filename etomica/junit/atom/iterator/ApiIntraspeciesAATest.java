@@ -33,7 +33,7 @@ public class ApiIntraspeciesAATest extends IteratorTestAbstract {
         int[] n2 = new int[] {1, 7, 2};
         int[] n2Tree = new int[] {3,4};
         SpeciesRoot root = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1, n2, n2Tree);
-        AtomTreeNodeGroup rootNode = (AtomTreeNodeGroup)root.node;
+        AtomTreeNodeGroup rootNode = (AtomTreeNodeGroup)root.getNode();
         
         Species[] species = new Species[3];
         species[0] = rootNode.getDescendant(new int[] {0,0}).getType().getSpecies();
@@ -92,11 +92,11 @@ public class ApiIntraspeciesAATest extends IteratorTestAbstract {
      */
     private void speciesTestForward(AtomTreeNodeGroup rootNode, Species[] species, int phaseIndex, int species0Index) {
         ApiIntraspeciesAA api = new ApiIntraspeciesAA(species[species0Index]);
-        Phase phase = rootNode.getDescendant(new int[] {phaseIndex}).node.parentPhase();
+        Phase phase = rootNode.getDescendant(new int[] {phaseIndex}).getNode().parentPhase();
         AtomsetAction speciesTest = new SpeciesTestAction(species[species0Index], species[species0Index]);
 
         api.setPhase(phase);
-        Atom[] molecules0 = ((AtomTreeNodeGroup)phase.getAgent(species[species0Index]).node).childList.toArray();
+        Atom[] molecules0 = ((AtomTreeNodeGroup)phase.getAgent(species[species0Index]).getNode()).childList.toArray();
         
         int count = molecules0.length * (molecules0.length - 1) / 2;
         

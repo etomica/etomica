@@ -29,7 +29,7 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
      */
     private void assignChildOrdinals() {
         for (int i = 0; i < childList.size(); i++) {
-            childList.get(i).node.setIndex(i);
+            childList.get(i).getNode().setIndex(i);
         }
     }
 
@@ -50,10 +50,10 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     private Atom getDescendant(int n, int[] path) {
         Atom child = childList.get(path[n]);
         if(path.length - 1 > n) {//go further down hierarchy
-            if(child.node.isLeaf()) {//no more there
+            if(child.getNode().isLeaf()) {//no more there
                 throw new IllegalArgumentException("Depth of requested descendant exceeds depth of atom hierarchy");
             }//get indicated descendant recursively
-            child = ((AtomTreeNodeGroup)child.node).getDescendant(n+1, path);
+            child = ((AtomTreeNodeGroup)child.getNode()).getDescendant(n+1, path);
         }
         return child;
     }
@@ -62,7 +62,7 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     
     public AtomLeaf firstLeafAtom() {
         for (int i = 0; i < childList.size(); i++) {
-            AtomLeaf a1 = childList.get(i).node.firstLeafAtom();
+            AtomLeaf a1 = childList.get(i).getNode().firstLeafAtom();
             if(a1 != null) return a1;
         }
         return null;
@@ -73,7 +73,7 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
      */
     public AtomLeaf lastLeafAtom() {
         for (int i = childList.size()-1; i > -1; i--) {
-            AtomLeaf a1 = childList.get(i).node.lastLeafAtom();
+            AtomLeaf a1 = childList.get(i).getNode().lastLeafAtom();
             if(a1 != null) return a1;
         }
         return null;
@@ -96,7 +96,7 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     public void removeAllChildren() {
         Atom[] array = childAtomArray();
         for(int i=0; i<array.length; i++) {
-            array[i].node.dispose();
+            array[i].getNode().dispose();
         }
     }
     
@@ -105,7 +105,7 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
      * or one of its descendants.
      */
     public void addAtomNotify(Atom childAtom) {
-        leafAtomCount += childAtom.node.leafAtomCount();
+        leafAtomCount += childAtom.getNode().leafAtomCount();
         if (parentNode() != null) {
             parentNode().addAtomNotify(childAtom);
         }
@@ -116,12 +116,13 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
      * one of its descendants.
      */
     public void removeAtomNotify(Atom childAtom) {
-        leafAtomCount -= childAtom.node.leafAtomCount();
+        leafAtomCount -= childAtom.getNode().leafAtomCount();
         if(parentNode() != null) {
             parentNode().removeAtomNotify(childAtom);
         }
     }
       
+    private static final long serialVersionUID = 1L;
     protected int leafAtomCount;
     
     //childlist is public, but should not add/remove atoms except via node's methods.
@@ -136,5 +137,6 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
         public AtomTreeNode makeNode(Atom atom) {
             return new AtomTreeNodeGroup(atom);
         }
+        private static final long serialVersionUID = 1L;
     }
 }

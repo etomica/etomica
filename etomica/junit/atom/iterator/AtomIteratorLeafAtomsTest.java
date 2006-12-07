@@ -30,7 +30,7 @@ public class AtomIteratorLeafAtomsTest extends IteratorTestAbstract {
         int[] n2Tree = new int[] { 3, 4 };
         SpeciesRoot root = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1, n2,
                 n2Tree);
-        AtomTreeNodeGroup rootNode = (AtomTreeNodeGroup) root.node;
+        AtomTreeNodeGroup rootNode = (AtomTreeNodeGroup) root.getNode();
 
         AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
 
@@ -46,7 +46,7 @@ public class AtomIteratorLeafAtomsTest extends IteratorTestAbstract {
         int[] atomsPerMolecule = new int[] {nA0, 1, 3*4};
         int[][] moleculeCount = new int[3][];
         for(int i=0; i<phase.length; i++) {
-            phase[i] = rootNode.getDescendant(new int[] { i }).node.parentPhase();
+            phase[i] = rootNode.getDescendant(new int[] { i }).getNode().parentPhase();
             moleculeCount[i] = new int[] {n0[i], n1[i], n2[i]};
         }
 

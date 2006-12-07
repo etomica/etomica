@@ -83,9 +83,9 @@ public class ConfigurationSequential extends Configuration {
             Atom a = atomIterator.nextAtom();
             //initialize coordinates of child atoms
             rLat[i].ME(dimensionsHalf);
-            if (!a.node.isLeaf()) {
+            if (!a.getNode().isLeaf()) {
                 Conformation config = a.getType().creator().getConformation();
-                config.initializePositions(((AtomTreeNodeGroup)a.node).childList);
+                config.initializePositions(((AtomTreeNodeGroup)a.getNode()).childList);
                 atomActionTranslateTo.setDestination(rLat[i]);
                 atomActionTranslateTo.actionPerformed(a);
             }

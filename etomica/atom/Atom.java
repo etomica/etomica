@@ -32,7 +32,7 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      */
     public Atom() {
         this(makeAtomTypeSphere(), AtomTreeNodeLeaf.FACTORY);                        
-        node.setIndex(++INSTANCE_COUNT);//default index; changed when added to parent after construction
+        getNode().setIndex(++INSTANCE_COUNT);//default index; changed when added to parent after construction
     }
     
     /**
@@ -84,7 +84,7 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      *             if the argument is null
      */
     public boolean inSameSpecies(Atom atom) {
-        return type.getAddressManager().sameSpecies(node.getAddress(), atom.node.getAddress());
+        return type.getAddressManager().sameSpecies(getNode().getAddress(), atom.getNode().getAddress());
     }
     /**
      * Returns true if this atom is in the same molecule as the given atom.
@@ -93,7 +93,7 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      *             if the argument is null
      */
     public boolean inSameMolecule(Atom atom) {
-        return type.getAddressManager().sameMolecule(node.getAddress(), atom.node.getAddress());
+        return type.getAddressManager().sameMolecule(getNode().getAddress(), atom.getNode().getAddress());
     }
     /**
      * Returns true if this atoms is in the same phase as the given atom.
@@ -102,7 +102,7 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      *             if the argument is null
      */
     public boolean inSamePhase(Atom atom) {
-        return type.getAddressManager().samePhase(node.getAddress(), atom.node.getAddress());
+        return type.getAddressManager().samePhase(getNode().getAddress(), atom.getNode().getAddress());
     }
     
     /**
@@ -112,10 +112,10 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      * from only the ordinal.
      */
     public String signature() {
-        if(node.parentGroup() != null) {
-            return node.parentGroup().signature() + " " + node.getIndex();
+        if(getNode().parentGroup() != null) {
+            return getNode().parentGroup().signature() + " " + getNode().getIndex();
         }
-        return Integer.toString(node.getIndex());
+        return Integer.toString(getNode().getIndex());
     }
     /**
      * Returns a string formed by concatenating the signature of this atom
@@ -126,8 +126,8 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
 //        return Integer.toBinaryString(node.index());
     	if(this instanceof SpeciesMaster) return "Master(" + signature() + ")";
     	else if(this instanceof SpeciesAgent) return "Agent(" + signature() + ")";
-    	if(node.parentGroup() instanceof SpeciesAgent) return "Molecule(" + signature() + ")";
-    	else if(node.isLeaf()) return "Atom(" + signature() + ")";
+    	if(getNode().parentGroup() instanceof SpeciesAgent) return "Molecule(" + signature() + ")";
+    	else if(getNode().isLeaf()) return "Atom(" + signature() + ")";
     	else return "Group(" + signature() + ")";
     }    
 
@@ -138,7 +138,7 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      * Order is determined by compareTo method of atoms' nodes.
      */
     public int compareTo(Object atom) {
-        return node.compareTo(((Atom)atom).node);
+        return getNode().compareTo(((Atom)atom).getNode());
     }
     
     public void setGlobalIndex(SpeciesMaster speciesMaster) {
@@ -158,9 +158,13 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
     }
 
     /**
-     * Tree node, used to place the atom in the species tree.
+     * @return the node, used to place the atom in the species tree.
      */
-    public final AtomTreeNode node;
+    public AtomTreeNode getNode() {
+        return node;
+    }
+
+    protected final AtomTreeNode node;
     
     protected final AtomType type;
     

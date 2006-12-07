@@ -35,10 +35,6 @@ import etomica.species.Species;
  * </ul>
  */
 
-/*
- * History Created on Dec 30, 2004 by kofke
- */
-
 public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorPDT,
         Serializable {
 
@@ -91,8 +87,8 @@ public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorPDT,
     public void setPhase(Phase phase) {
         this.phase = phase;
         if (phase != null) {
-            agentNode0 = (AtomTreeNodeGroup) phase.getAgent(species0).node;
-            agentNode1 = (AtomTreeNodeGroup) phase.getAgent(species1).node;
+            agentNode0 = (AtomTreeNodeGroup) phase.getAgent(species0).getNode();
+            agentNode1 = (AtomTreeNodeGroup) phase.getAgent(species1).getNode();
             identifyTargetMolecule();
         } else {
             targetMolecule = null;
@@ -142,7 +138,7 @@ public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorPDT,
         if (phase == null || targetAtom == null) {
             targetMolecule = null;
         } else {
-            AtomTreeNode targetNode = targetAtom.node
+            AtomTreeNode targetNode = targetAtom.getNode()
                     .childWhereDescendedFrom(agentNode0);
             if (targetNode != null) { //target is species0
                 allowedDirection = IteratorDirective.Direction.UP;
@@ -150,7 +146,7 @@ public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorPDT,
                 targetMolecule = targetNode.atom();
                 aiInner.setList(agentNode1.childList);
             } else { //target is not species0
-                targetNode = targetAtom.node
+                targetNode = targetAtom.getNode()
                         .childWhereDescendedFrom(agentNode1);
 
                 if (targetNode != null) {//target is species1
@@ -220,6 +216,7 @@ public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorPDT,
         iterator.unset();
     }
     
+    private static final long serialVersionUID = 1L;
     private final AtomIteratorArrayListSimple aiInner;
     private final AtomIteratorSinglet aiOuter;
     private final Species species0, species1;

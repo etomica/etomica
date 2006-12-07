@@ -58,7 +58,7 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
         AtomArrayList arrayList = next.getArrayList();
         arrayList.clear();
         for (int i=0; i<species.length; i++) {
-            AtomTreeNodeGroup speciesAgentNode = (AtomTreeNodeGroup)phase.getAgent(species[i]).node;
+            AtomTreeNodeGroup speciesAgentNode = (AtomTreeNodeGroup)phase.getAgent(species[i]).getNode();
             arrayList.addAll(speciesAgentNode.childList);
         }
         nextCursor = 0;
@@ -140,6 +140,7 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
         return detector.detectedAtom();
     }
 
+    private static final long serialVersionUID = 1L;
     private final AtomsetDetect detector = new AtomsetDetect(null);
     private final Species[] species;
     private Phase phase;

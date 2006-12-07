@@ -62,11 +62,11 @@ public abstract class AtomTreeNode implements Comparable, java.io.Serializable {
     	
         //old parent is not null; remove from it
         if(parentNode != null) {
-            int index = atom.node.getIndex();
+            int index = atom.getNode().getIndex();
             parentNode.childList.removeAndReplace(index);
             parentNode.childList.maybeTrimToSize();
             if (parentNode.childList.size() > index) {
-                parentNode.childList.get(index).node.setIndex(index);
+                parentNode.childList.get(index).getNode().setIndex(index);
             }
             parentNode.removeAtomNotify(atom);
         }
@@ -157,7 +157,7 @@ public abstract class AtomTreeNode implements Comparable, java.io.Serializable {
      */ 
     public boolean isDescendedFrom(Atom group) {
     	if(group == null) return false;
-        return group.getType().getAddressManager().sameAncestry(group.node.atomTreeAddress,this.atomTreeAddress);
+        return group.getType().getAddressManager().sameAncestry(group.getNode().atomTreeAddress,this.atomTreeAddress);
     }
     
     /**

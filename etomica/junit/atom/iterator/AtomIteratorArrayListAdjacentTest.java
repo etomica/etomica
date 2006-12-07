@@ -40,9 +40,9 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
         int nAtoms = 11;
         SpeciesRoot root = UnitTestUtil.makeStandardSpeciesTree(
                 new int[] {nAtoms},2,new int[] {nAtoms},null,null);
-        AtomTreeNodeGroup rootNode = (AtomTreeNodeGroup)root.node;
+        AtomTreeNodeGroup rootNode = (AtomTreeNodeGroup)root.getNode();
         SpeciesAgent agent = (SpeciesAgent)rootNode.getDescendant(new int[] {0,0});
-        AtomList atomList = new AtomList(((AtomTreeNodeGroup)agent.node).childList.toArray());
+        AtomList atomList = new AtomList(((AtomTreeNodeGroup)agent.getNode()).childList.toArray());
 
         //atom in middle of list
         Atom atom = atomList.get(5);
@@ -128,7 +128,7 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
 
         //short list
         agent.setNMolecules(1);
-        atomList = new AtomList(((AtomTreeNodeGroup)agent.node).childList.toArray());
+        atomList = new AtomList(((AtomTreeNodeGroup)agent.getNode()).childList.toArray());
         assertEquals(atomList.size(), 1);
         atom = atomList.get(0);
         iteratorUp.setAtom(atom);

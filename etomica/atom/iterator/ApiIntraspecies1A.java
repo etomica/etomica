@@ -3,7 +3,6 @@ package etomica.atom.iterator;
 import java.io.Serializable;
 
 import etomica.atom.Atom;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomTreeNode;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.phase.Phase;
@@ -13,10 +12,6 @@ import etomica.species.Species;
  * Gives pairs formed from the molecules of a species in a phase, taking one
  * molecule the species with all of its other molecules. Species is specified at
  * construction and cannot be changed afterwards.
- */
-
-/*
- * History Created on Dec 30, 2004 by kofke
  */
 
 public class ApiIntraspecies1A extends ApiSequence1A implements
@@ -63,7 +58,7 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
     public void setPhase(Phase phase) {
         this.phase = phase;
         if (phase != null) {
-            agentNode = (AtomTreeNodeGroup) phase.getAgent(species).node;
+            agentNode = (AtomTreeNodeGroup) phase.getAgent(species).getNode();
             identifyTargetMolecule();
         } else {
             targetMolecule = null;
@@ -98,7 +93,7 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
         if (phase == null || targetAtom == null) {
             targetMolecule = null;
         } else {
-            AtomTreeNode targetNode = targetAtom.node
+            AtomTreeNode targetNode = targetAtom.getNode()
                     .childWhereDescendedFrom(agentNode);
             targetMolecule = (targetNode != null) ? targetNode.atom() : null;
         }
@@ -106,6 +101,7 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
         setAtom(targetMolecule);
     }
 
+    private static final long serialVersionUID = 1L;
     private final Species species;
 
     private AtomTreeNodeGroup agentNode;

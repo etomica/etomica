@@ -158,7 +158,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
             ((Cell)allCells[i]).occupants().clear();
         }
         
-        Cell[] cells = (Cell[])agentManager.getAgents();
+        Cell[] cells = agentManager.getAgents();
         for (int i=0; i<cells.length; i++) {
             cells[i] = null;
         }
@@ -177,7 +177,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
     }
     
     protected void removeFromCell(Atom atom) {
-        Cell[] cells = (Cell[])agentManager.getAgents();
+        Cell[] cells = agentManager.getAgents();
         if (cells[atom.getGlobalIndex()] != null) {
             cells[atom.getGlobalIndex()].removeAtom(atom);
             cells[atom.getGlobalIndex()] = null;
@@ -194,7 +194,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
                     atom.getType().getPositionDefinition().position(atom);
         Cell atomCell = (Cell)lattice.site(position);
         atomCell.addAtom(atom);
-        Cell[] cells = (Cell[])agentManager.getAgents();
+        Cell[] cells = agentManager.getAgents();
         cells[atom.getGlobalIndex()] = atomCell;
     }
     
@@ -251,7 +251,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
             iterator.reset();
             while (iterator.hasNext()) {
                 Atom atom = iterator.nextAtom();
-                if (!atom.node.isLeaf()) {
+                if (!atom.getNode().isLeaf()) {
                     treeIterator.setRoot(atom);
                     treeIterator.reset();
                     while (treeIterator.hasNext()) {
@@ -269,7 +269,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
             if (atom.getType().isInteracting()) {
                 Boundary boundary = phase.getBoundary();
                 neighborCellManager.removeFromCell(atom);
-                if (!atom.node.isLeaf()) {
+                if (!atom.getNode().isLeaf()) {
                     Vector shift = boundary.centralImage(moleculePosition.position(atom));
                     if (!shift.isZero()) {
                         translator.setTranslationVector(shift);

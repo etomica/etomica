@@ -5,7 +5,6 @@
 package etomica.atom.iterator;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.phase.Phase;
 import etomica.species.Species;
@@ -60,10 +59,11 @@ public class ApiIntraspeciesAA extends AtomPairIteratorAdapter implements
             pairIterator.setList(emptyList);
         } else {
             pairIterator
-                    .setList(((AtomTreeNodeGroup)phase.getAgent(species).node).childList);
+                    .setList(((AtomTreeNodeGroup)phase.getAgent(species).getNode()).childList);
         }
     }
 
+    private static final long serialVersionUID = 1L;
     private final ApiIntraArrayList pairIterator;
     private final Species species;
     private final AtomArrayList emptyList = new AtomArrayList();

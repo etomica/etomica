@@ -2,7 +2,6 @@ package etomica.action;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLinker;
 import etomica.atom.AtomTreeNodeGroup;
 
 /**
@@ -13,11 +12,6 @@ import etomica.atom.AtomTreeNodeGroup;
  * encountered.
  *
  * @author David Kofke
- */
-
-/*
- * History
- * Created on Jan 26, 2005 by kofke
  */
 public class AtomGroupAction extends AtomActionAdapter {
 
@@ -31,10 +25,10 @@ public class AtomGroupAction extends AtomActionAdapter {
      * @see etomica.action.AtomAction#actionPerformed(etomica.Atom)
      */
     public void actionPerformed(Atom atom) {
-        if(atom.node.isLeaf()) {
+        if(atom.getNode().isLeaf()) {
             action.actionPerformed(atom);
         } else {
-            AtomArrayList atomList = ((AtomTreeNodeGroup)atom.node).childList;
+            AtomArrayList atomList = ((AtomTreeNodeGroup)atom.getNode()).childList;
             int size = atomList.size();
             for(int i=0; i<size; i++) {
                 this.actionPerformed(atomList.get(i));
@@ -56,5 +50,6 @@ public class AtomGroupAction extends AtomActionAdapter {
         return action;
     }
     
+    private static final long serialVersionUID = 1L;
     private final AtomAction action;
 }

@@ -32,7 +32,7 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
     }
 
     public void setBasis(AtomSet atoms) {
-        childList = ((AtomTreeNodeGroup)((Atom)atoms).node).childList;
+        childList = ((AtomTreeNodeGroup)((Atom)atoms).getNode()).childList;
     }
 
     public int basisSize() {

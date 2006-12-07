@@ -98,6 +98,7 @@ public final class SpeciesRoot extends Atom {
         return speciesMasterType;
     }
     
+    private static final long serialVersionUID = 1L;
     private final AtomTypeGroup speciesMasterType;//accessed by SpeciesMaster
     private Species[] speciesList = new Species[0];
     //manager and events for addition/removal of Phases
@@ -147,7 +148,7 @@ public final class SpeciesRoot extends Atom {
                 for(int i=0; i<speciesList.length; i++) {
                     speciesList[i].makeAgent((SpeciesMaster)newAtom);
                 }
-                ((SpeciesRoot)atom).eventManager.fireEvent(new SimulationPhaseAddedEvent(newAtom.node.parentPhase()));
+                ((SpeciesRoot)atom).eventManager.fireEvent(new SimulationPhaseAddedEvent(newAtom.getNode().parentPhase()));
             }
  
         }
@@ -155,14 +156,17 @@ public final class SpeciesRoot extends Atom {
         public void removeAtomNotify(Atom oldAtom) {
             if(oldAtom instanceof SpeciesMaster) {
 //                ordinalReservoir.returnOrdinal(oldAtom.node.getOrdinal());
-                ((SpeciesRoot)atom).eventManager.fireEvent(new SimulationPhaseRemovedEvent(oldAtom.node.parentPhase()));
+                ((SpeciesRoot)atom).eventManager.fireEvent(new SimulationPhaseRemovedEvent(oldAtom.getNode().parentPhase()));
             }
         }
+        
+        private static final long serialVersionUID = 1L;
     }
     
     protected static final class NodeFactory implements AtomTreeNodeFactory, java.io.Serializable {
         public AtomTreeNode makeNode(Atom atom) {
             return new RootAtomTreeNode(atom);
         }
+        private static final long serialVersionUID = 1L;
     }
 }

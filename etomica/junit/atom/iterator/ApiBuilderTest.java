@@ -21,10 +21,6 @@ import etomica.junit.UnitTestUtil;
  * @author David Kofke
  *  
  */
-
-/*
- * History Created on Jun 5, 2005 by kofke
- */
 public class ApiBuilderTest extends IteratorTestAbstract {
 
    public ApiBuilderTest() {
@@ -44,7 +40,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         nTree = new int[] { 5, 4, 3 };
         SpeciesRoot root = UnitTestUtil.makeStandardSpeciesTree(new int[] { n0a, 1 },
                 nAtoms, new int[] { n1a, 2}, new int[] { n2a, 3 }, nTree);
-        rootNode = (AtomTreeNodeGroup) root.node;
+        rootNode = (AtomTreeNodeGroup) root.getNode();
     }
     
     /**
@@ -99,7 +95,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //iterator must loop over pairs formed from molecules of each species
         SpeciesRoot root = UnitTestUtil.makeMultitypeSpeciesTree(new int[] {5,7}, 
                 new int[][] {{3,2},{4,1,6}});
-        rootNode = (AtomTreeNodeGroup)root.node;
+        rootNode = (AtomTreeNodeGroup)root.getNode();
         AtomTypeGroup rootType = (AtomTypeGroup)root.getType();
         AtomType[] types = new AtomType[2];
         AtomPair basisPair = new AtomPair();
@@ -463,7 +459,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //no target, n-1 iterates
         api.setTarget(null);
         LinkedList list0 = generalIteratorMethodTests(api);
-        assertEquals(list0.size(), ((AtomTreeNodeGroup)parent.node).childList.size()-1);
+        assertEquals(list0.size(), ((AtomTreeNodeGroup)parent.getNode()).childList.size()-1);
         
         //if no target, direction doesn't matter
         api.setDirection(null);
@@ -551,7 +547,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //(first and last have n-2, the other n-2 have n-3)
         api.setTarget(null);
         LinkedList list0 = generalIteratorMethodTests(api);
-        int n = ((AtomTreeNodeGroup)parent.node).childList.size();
+        int n = ((AtomTreeNodeGroup)parent.getNode()).childList.size();
         assertEquals(list0.size(), (2*(n-2) + (n-2)*(n-3))/2);
         
         //if no target, direction doesn't matter

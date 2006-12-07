@@ -43,12 +43,12 @@ public class AtomFactoryHetero extends AtomFactory {
     public Atom makeAtom() {
         isMutable = false;
         Atom group = newParentAtom();
-        AtomTreeNodeGroup node = (AtomTreeNodeGroup) group.node;
+        AtomTreeNodeGroup node = (AtomTreeNodeGroup) group.getNode();
         // make block copolymers
         for (int i = 0; i < childFactory.length; i++) {
             for(int j = 0; j < childCount[i]; j++) {
                 Atom childAtom = childFactory[i].makeAtom();
-                childAtom.node.setParent(node);
+                childAtom.getNode().setParent(node);
             }
         }
         return group;
@@ -284,6 +284,7 @@ public class AtomFactoryHetero extends AtomFactory {
         return total;
     }
 
+    private static final long serialVersionUID = 1L;
     private AtomFactory[] childFactory;
     private int[] childCount;
     private int totalChildCount;

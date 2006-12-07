@@ -5,7 +5,6 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomLeaf;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
@@ -19,14 +18,9 @@ import etomica.space.Vector;
  *
  * @author David Kofke
  */
- 
- /* History of changes
-  * 07/09/02 Added energyChange() method 
-  * 07/09/03 Changed fields from private to protected
-  */
-  
 public class MCMoveAtom extends MCMovePhaseStep {
     
+    private static final long serialVersionUID = 1L;
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     protected final MeterPotentialEnergy energyMeter;
     protected final Vector translationVector;
@@ -65,7 +59,7 @@ public class MCMoveAtom extends MCMovePhaseStep {
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
         if(uOld > 1e10 && !fixOverlap) {
-            throw new RuntimeException(new ConfigurationOverlapException(atom.node.parentPhase()));
+            throw new RuntimeException(new ConfigurationOverlapException(atom.getNode().parentPhase()));
         }
         translationVector.setRandomCube();
         translationVector.TE(stepSize);

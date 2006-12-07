@@ -32,7 +32,7 @@ public class AtomIteratorFilteredTest extends IteratorTestAbstract {
 
         public boolean accept(Atom a) {
             if(n == 0) return true;
-            return ((a.node.getIndex()+1) % n != 0);
+            return ((a.getNode().getIndex()+1) % n != 0);
         }
 
     }
@@ -61,7 +61,7 @@ public class AtomIteratorFilteredTest extends IteratorTestAbstract {
                 int n = Math.max(filter.n,1);
                 for (int k = 0; k < n; k++) {
                     Atom atom = new Atom();
-                    atom.node.setIndex(k);
+                    atom.getNode().setIndex(k);
                     list.add(atom);
                 }
             }

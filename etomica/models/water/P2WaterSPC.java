@@ -32,8 +32,8 @@ public class P2WaterSPC extends Potential2 {
 		double sum = 0.0;
 		double r2 = 0.0;
 			
-		AtomTreeNodeWater3P node1 = (AtomTreeNodeWater3P)((AtomPair)pair).atom0.node;
-		AtomTreeNodeWater3P node2 = (AtomTreeNodeWater3P)((AtomPair)pair).atom1.node;
+		AtomTreeNodeWater3P node1 = (AtomTreeNodeWater3P)((AtomPair)pair).atom0.getNode();
+		AtomTreeNodeWater3P node2 = (AtomTreeNodeWater3P)((AtomPair)pair).atom1.getNode();
 		
 		//compute O-O distance to consider truncation	
 		etomica.space3d.Vector3D O1r = (etomica.space3d.Vector3D)node1.O.coord.position();
@@ -115,6 +115,7 @@ public class P2WaterSPC extends Potential2 {
 		chargeHH = chargeH * chargeH;
 	}
     
+    private static final long serialVersionUID = 1L;
 	public double sigma , sigma2;
 	public double epsilon, epsilon4;
 	private etomica.space.Boundary boundary;
