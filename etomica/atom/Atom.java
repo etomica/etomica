@@ -160,12 +160,12 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
     /**
      * @return the node, used to place the atom in the species tree.
      */
-    public AtomTreeNode getNode() {
+    public final AtomTreeNode getNode() {
         return node;
     }
 
+    private static final long serialVersionUID = 1L;
     protected final AtomTreeNode node;
-    
     protected final AtomType type;
     
     /**
