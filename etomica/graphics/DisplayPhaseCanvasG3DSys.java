@@ -27,6 +27,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 
 	//will handle all actual drawing
 	private G3DSys gsys;
+    private final double[] coords;
 	
 	private AtomAgentManager aam;
 
@@ -43,6 +44,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 		p.setLayout(new java.awt.GridLayout());
 		p.setSize(800,800);
 		this.add(p);
+        coords = new double[3];
 		gsys = new G3DSys(p);
 		gsys.addFig(G3DSys.BOX, Color.GREEN, 0,0,0, 0);
 		
@@ -103,7 +105,6 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 		while(atomIterator.hasNext()) {
 			AtomLeaf a = (AtomLeaf) atomIterator.nextAtom();
             if (!(a.type instanceof AtomTypeSphere)) continue;
-			double[] coords = new double[3];
 			a.coord.position().assignTo(coords);
 			Long id = (Long)aam.getAgent(a);
             double diameter = ((AtomTypeSphere)a.type).getDiameter();
