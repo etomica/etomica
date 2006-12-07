@@ -44,6 +44,7 @@ public class AtomFactoryWater3P extends AtomFactory {
 	 * @see etomica.atom.AtomFactory#build(etomica.Atom)
 	 */
 	public Atom makeAtom() {
+        isMutable = false;
         Atom group = newParentAtom();
 		AtomTreeNodeWater3P waterNode = (AtomTreeNodeWater3P)group.getNode();
 		waterNode.O = (AtomLeaf)oFactory.makeAtom();
