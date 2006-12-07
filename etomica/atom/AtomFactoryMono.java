@@ -23,6 +23,13 @@ public class AtomFactoryMono extends AtomFactory {
     public CoordinateFactory getCoordinateFactory() {
         return coordFactory;
     }
+    
+    public void setCoordinateFactory(CoordinateFactory newCoordFactory) {
+        if (!isMutable) {
+            throw new IllegalStateException("Factory is not mutable");
+        }
+        coordFactory = newCoordFactory;
+    }
 
     /**
      * Returns a new leaf atom having no children.
@@ -54,6 +61,6 @@ public class AtomFactoryMono extends AtomFactory {
         return 1;
     }
     
-    protected final CoordinateFactory coordFactory;
-    
-}//end of AtomFactoryMono
+    private static final long serialVersionUID = 1L;
+    protected CoordinateFactory coordFactory;
+}
