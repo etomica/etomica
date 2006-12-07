@@ -4,6 +4,7 @@ import java.awt.event.ComponentListener;
 
 import javax.swing.JPanel;
 
+import etomica.action.Action;
 import etomica.action.ResetAccumulators;
 import etomica.action.SimulationDataAction;
 import etomica.action.SimulationRestart;
@@ -24,7 +25,7 @@ public class DeviceTrioControllerButton extends Device {
     private JPanel jp;
     private DeviceControllerButton startButton;
     private Simulation simulation;
-    private DeviceButton restartButton;
+    private DeviceButton reinitButton;
     private DeviceButton resetButton;
 	private double width;
 	private boolean firstResized = true;
@@ -59,13 +60,13 @@ public class DeviceTrioControllerButton extends Device {
                              */
 
         startButton = new DeviceControllerButton(null);
-        restartButton = new DeviceButton(null);
+        reinitButton = new DeviceButton(null);
         resetButton = new DeviceButton(null);
-        restartButton.setLabel("Restart");
+        reinitButton.setLabel("Reinitialize");
         resetButton.setLabel("Reset averages");
         
         jp.add(startButton.graphic()); 
-        jp.add(restartButton.graphic());  
+        jp.add(reinitButton.graphic());  
         jp.add(resetButton.graphic());
                        
         setShape("VERTICAL");
@@ -76,12 +77,23 @@ public class DeviceTrioControllerButton extends Device {
      */
     public void setSimulation(Simulation sim) {
         simulation = sim;
-        Controller c = sim.getController();
+        final Controller c = sim.getController();
         setController(c);
         startButton.setController(c);
-        restartButton.setController(c);
+        reinitButton.setPreAction(new Action() {
+            public void actionPerformed() {
+                if (c.isActive()) {
+                    c.halt();
+                    c.reset();
+                    DeviceTrioControllerButton.this.reset();
+                }
+            }
+            public String getLabel() {
+                return "";
+            }
+        });
         resetButton.setController(c);
-        restartButton.setAction(new SimulationRestart(sim));
+        reinitButton.setAction(new SimulationRestart(sim));
         resetButton.setAction(new SimulationDataAction(sim,new ResetAccumulators()));
     }
     
@@ -100,7 +112,7 @@ public class DeviceTrioControllerButton extends Device {
     }
     
     public DeviceControllerButton getControllerButton() {return startButton;}
-    public DeviceButton getRestartButton() {return restartButton;}
+    public DeviceButton getReinitButton() {return reinitButton;}
     public DeviceButton getResetAveragesButton() {return resetButton;}
  
     /**

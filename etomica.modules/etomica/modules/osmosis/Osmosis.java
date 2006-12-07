@@ -77,7 +77,7 @@ public class Osmosis {
         SimulationRestart simRestart = new SimulationRestart(sim);
         
         simRestart.setConfiguration(config);
-        button.getRestartButton().setAction(simRestart);
+        button.getReinitButton().setAction(simRestart);
         button.setShape("VERTICAL"); //three choices "HORIZONTAL","AUTOMATIC"           
 
 	    //display of phase

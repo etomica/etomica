@@ -36,7 +36,7 @@ public class EntropyLotteryGraphic {
         panel.setLayout(new BorderLayout());
         
         DeviceTrioControllerButton control = new DeviceTrioControllerButton(sim);
-        SimulationRestart restartAction = (SimulationRestart)control.getRestartButton().getAction();
+        SimulationRestart restartAction = (SimulationRestart)control.getReinitButton().getAction();
         restartAction.setConfiguration(new ConfigurationZero(sim.space));
         
 	    //display of phase, timer
