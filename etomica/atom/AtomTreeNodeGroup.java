@@ -125,7 +125,7 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     /**
      * @return the childList
      */
-    public AtomArrayList getChildList() {
+    public final AtomArrayList getChildList() {
         return childList;
     }
 
