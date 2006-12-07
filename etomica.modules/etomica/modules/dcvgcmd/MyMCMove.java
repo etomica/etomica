@@ -107,6 +107,7 @@ public class MyMCMove extends MCMoveInsertDelete {
     	return deltaN;
     }
 
+    private static final long serialVersionUID = 1L;
 	private double zFraction;
 	private int deltaN = 0;
 	private Vector3D position;
@@ -140,7 +141,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 	public void setSpecies(Species s) {
 		super.setSpecies(s);
 		atomIterator = new AtomIteratorArrayListSimple();
-		atomIterator.setList(((AtomTreeNodeGroup)speciesAgent.node).childList);
+		atomIterator.setList(((AtomTreeNodeGroup)speciesAgent.getNode()).childList);
 	}
 
 }

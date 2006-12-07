@@ -19,7 +19,7 @@ public class AtomActionRelaxWater3P extends AtomActionAdapter {
     }
     
     public void actionPerformed(Atom molecule) {
-        AtomTreeNodeWater3P waterNode = (AtomTreeNodeWater3P)molecule.node;
+        AtomTreeNodeWater3P waterNode = (AtomTreeNodeWater3P)molecule.getNode();
         AtomLeaf O = waterNode.O;
         AtomLeaf H1 = waterNode.H1;
         AtomLeaf H2 = waterNode.H2;
@@ -42,6 +42,7 @@ public class AtomActionRelaxWater3P extends AtomActionAdapter {
         p2.PE(O.coord.position());
     }
 
+    private static final long serialVersionUID = 1L;
     private final Vector work;
     private final double sinAngle, cosAngle, distance;
 }

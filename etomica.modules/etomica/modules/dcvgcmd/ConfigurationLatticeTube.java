@@ -133,10 +133,10 @@ public class ConfigurationLatticeTube extends Configuration {
             	list.add(a);
             	continue;
             }
-            if (!a.node.isLeaf()) {
+            if (!a.getNode().isLeaf()) {
                 //initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
-                config.initializePositions(((AtomTreeNodeGroup)a.node).childList);
+                config.initializePositions(((AtomTreeNodeGroup)a.getNode()).childList);
             }
             
             if (counterNAtoms == halfwaypoint){
@@ -159,7 +159,7 @@ public class ConfigurationLatticeTube extends Configuration {
         while (tubeiterator.hasNext()){
         	Atom a = tubeiterator.nextAtom();
         	Conformation config = a.getType().creator().getConformation();
-            config.initializePositions(((AtomTreeNodeGroup)a.node).childList);
+            config.initializePositions(((AtomTreeNodeGroup)a.getNode()).childList);
             Vector site = space.makeVector();
             atomActionTranslateTo.setDestination(site);
             atomActionTranslateTo.actionPerformed(a);
@@ -196,6 +196,7 @@ public class ConfigurationLatticeTube extends Configuration {
         return latticeDimensions;
     }
 	
+    private static final long serialVersionUID = 1L;
 	private final BravaisLatticeCrystal lattice;
     private final IndexIteratorSizable indexIterator;
     private final Vector work;

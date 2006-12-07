@@ -63,6 +63,7 @@ import etomica.util.HistoryCollapsingAverage;
  
 public class MEAM_3DMDwithSnCuGB extends Simulation {
     
+    private static final long serialVersionUID = 1L;
     public IntegratorVelocityVerlet integrator;
     public SpeciesSpheresMono snFixedA;
     public SpeciesSpheresMono snA;
@@ -261,7 +262,7 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
 	    		nCellsBz, aA, bA, cA, aB, bB, cB);
 	    config.initializeCoordinates(phase);
         
-	    System.out.println("In simulation class  " + snFixedA.getAgent(phase).node.firstLeafAtom().coord.position());
+	    System.out.println("In simulation class  " + snFixedA.getAgent(phase).getNode().firstLeafAtom().coord.position());
 		potentialN = new PotentialMEAM(space);
 		potentialN.setParameters(snFixedA, ParameterSetMEAM.Sn);
 		potentialN.setParameters(snA, ParameterSetMEAM.Sn);

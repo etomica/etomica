@@ -39,10 +39,10 @@ public class ConfigurationCluster extends Configuration {
 		iterator.reset();
         while (iterator.hasNext()) {
             Atom a = iterator.nextAtom();
-            if (!a.node.isLeaf()) {
+            if (!a.getNode().isLeaf()) {
                 // initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
-                config.initializePositions(((AtomTreeNodeGroup) a.node).childList);
+                config.initializePositions(((AtomTreeNodeGroup) a.getNode()).childList);
             }
         }
         iterator.reset();
@@ -100,6 +100,7 @@ public class ConfigurationCluster extends Configuration {
 		this.phase = phase;
 	}
 
+    private static final long serialVersionUID = 1L;
     private PhaseCluster phase;
     private final AtomIteratorArrayListCompound iterator;
 }

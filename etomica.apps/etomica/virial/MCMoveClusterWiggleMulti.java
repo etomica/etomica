@@ -28,6 +28,7 @@ import etomica.util.Debug;
  */
 public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
 
+    private static final long serialVersionUID = 1L;
     private final MeterClusterWeight weightMeter;
     private final MeterPotentialEnergy energyMeter;
 
@@ -75,7 +76,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         wOld = weightMeter.getDataAsScalar();
 
         for(int i=0; i<selectedMolecules.length; i++) {
-            AtomArrayList childList = ((AtomTreeNodeGroup)selectedMolecules[i].node).childList;
+            AtomArrayList childList = ((AtomTreeNodeGroup)selectedMolecules[i].getNode()).childList;
             int numChildren = childList.size();
 
             int j = Simulation.random.nextInt(numChildren);

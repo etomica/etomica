@@ -49,7 +49,7 @@ public class ConfigurationFileXYZ extends Configuration{
 	            bufReader.readLine();
 	            while (atomIterator.hasNext()) {
 	                Atom molecule = atomIterator.nextAtom();
-	                if (molecule.node.isLeaf()) {
+	                if (molecule.getNode().isLeaf()) {
 	                    setPosition((AtomLeaf)molecule,bufReader.readLine());
 	                }
 	                else {
@@ -68,7 +68,7 @@ public class ConfigurationFileXYZ extends Configuration{
 	        
 	        while(atomIterator.hasNext()){
 	        	Atom molecule = atomIterator.nextAtom();
-	        	if(molecule.node.isLeaf()){
+	        	if(molecule.getNode().isLeaf()){
 	        		translatePosition((AtomLeaf)molecule);
 	        	}	
 	        }
@@ -130,6 +130,7 @@ public class ConfigurationFileXYZ extends Configuration{
 			return updatedDimensions;
 		}
 		
+        private static final long serialVersionUID = 1L;
 		private Vector updatedDimensions;
 		private double[] min;
 		private double[] max;

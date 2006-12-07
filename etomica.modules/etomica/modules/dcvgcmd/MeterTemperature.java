@@ -33,13 +33,13 @@ public final class MeterTemperature extends etomica.data.meter.MeterTemperature 
 
 	public double getDataAsScalar() {
 		SpeciesAgent agent = phase.getAgent(species);
-		AtomArrayList list = ((AtomTreeNodeGroup)agent.node).childList;
+		AtomArrayList list = ((AtomTreeNodeGroup)agent.getNode()).childList;
 		int size = list.size();
 		int natoms = 0;
 		if(size > 0) {
-			natoms = size * ((AtomTreeNodeGroup)list.get(0).node).childList.size();
+			natoms = size * ((AtomTreeNodeGroup)list.get(0).getNode()).childList.size();
 		}
-		return (2. / (double) ((phase.atomCount()- natoms) * phase.getBoundary().getDimensions().D()))
+		return (2. / ((phase.atomCount()- natoms) * phase.getBoundary().getDimensions().D()))
 				* meterKE.getDataAsScalar();
 	}
 
@@ -47,5 +47,6 @@ public final class MeterTemperature extends etomica.data.meter.MeterTemperature 
 		return Temperature.DIMENSION;
 	}
 
+    private static final long serialVersionUID = 1L;
 	private final Species species;
 }

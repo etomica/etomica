@@ -14,6 +14,7 @@ import etomica.simulation.Simulation;
   */
 public class MCMoveClusterMolecule extends MCMoveMolecule {
     
+    private static final long serialVersionUID = 1L;
     private final MeterClusterWeight weightMeter;
 
     public MCMoveClusterMolecule(Simulation sim) {
@@ -35,7 +36,7 @@ public class MCMoveClusterMolecule extends MCMoveMolecule {
         if(phase.moleculeCount()==1) return false;
         
         atom = phase.randomMolecule();
-        while (atom.node.getIndex() == 0) {
+        while (atom.getNode().getIndex() == 0) {
             atom = phase.randomMolecule();
         }
         

@@ -215,10 +215,10 @@ public class GrainBoundaryConfiguration extends Configuration {
             	a = atomIteratorMobileA.nextAtom();	
             	//System.out.println(ii[2] + "  |  " + a);
             }
-            if (!a.node.isLeaf()) {
+            if (!a.getNode().isLeaf()) {
                 // initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
-                config.initializePositions(((AtomTreeNodeGroup) a.node).childList);
+                config.initializePositions(((AtomTreeNodeGroup) a.getNode()).childList);
             }
             Vector site = (Vector) myLatA.site(ii);
             if (((AtomLeaf)a).coord.position() == firstAtomPosition) {
@@ -243,10 +243,10 @@ public class GrainBoundaryConfiguration extends Configuration {
             	a = atomIteratorMobileB.nextAtom();
             	
             }
-            if (!a.node.isLeaf()) {
+            if (!a.getNode().isLeaf()) {
                 // initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
-                config.initializePositions(((AtomTreeNodeGroup) a.node).childList);
+                config.initializePositions(((AtomTreeNodeGroup) a.getNode()).childList);
             }
             Vector site = (Vector) myLatB.site(ii);
             atomActionTranslateTo.setDestination(site);

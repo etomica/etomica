@@ -95,7 +95,7 @@ public class SimulationVirialPT extends Simulation {
             
             MCMoveManager moveManager = integrator[iTemp].getMoveManager();
             
-            if (phase[iTemp].randomMolecule().node.isLeaf()) {
+            if (phase[iTemp].randomMolecule().getNode().isLeaf()) {
                 mcMoveAtom1[iTemp] = new MCMoveClusterAtom(this);
                 mcMoveAtom1[iTemp].setStepSize(1.15);
                 moveManager.addMCMove(mcMoveAtom1[iTemp]);
@@ -135,6 +135,7 @@ public class SimulationVirialPT extends Simulation {
         potentialMaster.addPotential(p0,new Species[]{});
 	}
 	
+    private static final long serialVersionUID = 1L;
 	public DataSource[] meter;
     public DataSource[] meterAccept;
     public DataSource[] meterAcceptP;

@@ -2,7 +2,6 @@ package etomica.virial;
 
 import etomica.action.AtomAction;
 import etomica.action.AtomTransform;
-import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
@@ -18,11 +17,6 @@ import etomica.space.Vector;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-
-/*
- * Created on May 16, 2005
- */
-
 public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
 
     /**
@@ -39,7 +33,7 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
     public void setPhase(Phase p) {
         super.setPhase(p);
         weightMeter.setPhase(p);
-        oldPositions = new Vector[((AtomTreeNodeGroup)molecule.node).childList.size()-1];
+        oldPositions = new Vector[((AtomTreeNodeGroup)molecule.getNode()).childList.size()-1];
         for (int j=0; j<oldPositions.length; j++) {
             oldPositions[j] = p.space().makeVector();
         }
@@ -49,7 +43,7 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
         if(phase.moleculeCount()==1) {molecule = null; return false;}
             
         molecule = phase.randomMolecule();
-        while (molecule.node.getIndex() == 0) {
+        while (molecule.getNode().getIndex() == 0) {
             molecule = phase.randomMolecule();
         }
         uOld = weightMeter.getDataAsScalar();
@@ -102,6 +96,7 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
         relaxAction = action;
     }
     
+    private static final long serialVersionUID = 1L;
     private final MeterClusterWeight weightMeter;
     protected int trialCount, relaxInterval = 100;
     protected AtomAction relaxAction;

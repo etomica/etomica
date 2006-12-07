@@ -7,11 +7,8 @@ import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.config.ConformationChain;
-import etomica.config.ConformationChainZigZag;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMovePhaseStep;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
@@ -86,7 +83,7 @@ public class MCMoveReptate extends MCMovePhaseStep {
        
        //Pick direction & set up list of atoms to iterate
        forward = Simulation.random.nextBoolean();
-       AtomArrayList childlist = ((AtomTreeNodeGroup)atom.node).childList;
+       AtomArrayList childlist = ((AtomTreeNodeGroup)atom.getNode()).childList;
        int numChildren = childlist.size();
        
        if(forward){
@@ -133,7 +130,7 @@ public class MCMoveReptate extends MCMovePhaseStep {
     }
     
     public void rejectNotify(){
-        AtomArrayList childlist = ((AtomTreeNodeGroup)atom.node).childList;
+        AtomArrayList childlist = ((AtomTreeNodeGroup)atom.getNode()).childList;
         int numChildren = childlist.size();
         if (!forward) {
             Vector position = ((AtomLeaf)childlist.get(numChildren-1)).coord.position();

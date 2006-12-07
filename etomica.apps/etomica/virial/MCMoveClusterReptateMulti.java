@@ -24,6 +24,7 @@ import etomica.space3d.Vector3D;
  */
 public class MCMoveClusterReptateMulti extends MCMovePhase {
 
+    private static final long serialVersionUID = 1L;
     private final MeterClusterWeight weightMeter;
     private final MeterPotentialEnergy energyMeter;
 
@@ -75,7 +76,7 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
         wOld = weightMeter.getDataAsScalar();
         for(int i=0; i<selectedMolecules.length; i++) {
             forward[i] = Simulation.random.nextBoolean();
-            AtomArrayList childList = ((AtomTreeNodeGroup)selectedMolecules[i].node).childList;
+            AtomArrayList childList = ((AtomTreeNodeGroup)selectedMolecules[i].getNode()).childList;
             int numChildren = childList.size();
             for (int k=0; k<numChildren; k++) {
 //                System.out.println(i+" before "+k+" "+((AtomLeaf)childList.get(k)).coord.position());
@@ -156,7 +157,7 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
 	
     public void rejectNotify() {
         for(int i=0; i<selectedMolecules.length; i++) {
-            AtomArrayList childList = ((AtomTreeNodeGroup)selectedMolecules[i].node).childList;
+            AtomArrayList childList = ((AtomTreeNodeGroup)selectedMolecules[i].getNode()).childList;
             int numChildren = childList.size();
             if (!forward[i]) {
                 Vector position = ((AtomLeaf)childList.get(numChildren-1)).coord.position();
