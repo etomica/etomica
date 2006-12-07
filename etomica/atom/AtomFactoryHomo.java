@@ -54,7 +54,7 @@ public class AtomFactoryHomo extends AtomFactory {
         super(new AtomTypeGroup(new AtomPositionGeometricCenter(space)), nodeFactory);
         atomType.setParentType(parentType);
         atomsPerGroup = atoms;
-        conformation = config;
+        setConformation(config);
     }
     
     /**
@@ -90,8 +90,6 @@ public class AtomFactoryHomo extends AtomFactory {
         if (!isMutable) {
             throw new IllegalStateException("Factory is not mutable");
         }
-        if (this.childFactory != null) throw new IllegalStateException("You can set the child factory only once!");
-        if(childFactory == null) return;
         this.childFactory = childFactory;
     }
     
