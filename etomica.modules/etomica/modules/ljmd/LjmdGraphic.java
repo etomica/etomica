@@ -171,6 +171,14 @@ public class LjmdGraphic {
 		    }
 		});//end of addItemListener
 		
+        control.getReinitButton().setPostAction(new Action() {
+            public void actionPerformed() {
+                displayPhase.repaint();
+            }
+            public String getLabel() {
+                return "";
+            }
+        });
 		
 /*		double[] xHist = vHistogram.xValues();
 		double[] xMB = mbSource.xValues();
