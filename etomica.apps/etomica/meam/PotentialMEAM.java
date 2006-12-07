@@ -62,7 +62,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     		sum[i] = 0;
 		}
 		AtomLeaf atom0 = (AtomLeaf)atoms.getAtom(0);
-		int indexi = atom0.type.getIndex(); pi = parameters[indexi];
+		int indexi = atom0.getType().getIndex(); pi = parameters[indexi];
 		for(int j = 1; j < atoms.count(); j++) {
 			AtomLeaf atomj = (AtomLeaf)atoms.getAtom(j);
 			rij.Ev1Mv2(atomj.coord.position(), atom0.coord.position());
@@ -70,7 +70,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			double r = Math.sqrt(rij.squared()); 
 			if (r > jcut) continue; 
 			//System.out.println("atom j  "+j+" | rij "+r);
-			int indexj = atomj.type.getIndex(); pj = parameters[indexj];
+			int indexj = atomj.getType().getIndex(); pj = parameters[indexj];
 			/**To determine amount of screening between atoms i and j 
 			* by any atom k which may be between them.
 			*/
@@ -103,7 +103,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 					//System.out.println(" | Sijk 1.0 b/c C is negative");
 					continue; // negative C forms hyperbola, not ellipse
 				}
-				int indexk = atomk.type.getIndex(); 
+				int indexk = atomk.getType().getIndex(); 
 				pk = parameters[indexk];
 				
 				//Cu-Sn system only
@@ -289,7 +289,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     protected double rhoi(AtomSet atoms) {
     	double rhoi0 = rhoi0(), gamma = gamma();
     	AtomLeaf atom0 = (AtomLeaf)atoms.getAtom(0);
-		pi = parameters[atom0.type.getIndex()];
+		pi = parameters[atom0.getType().getIndex()];
     	if (pi == pSn) {
     		return (2.0 * rhoi0) / (1.0 + Math.exp(-gamma)); //Sn
     	}
@@ -305,7 +305,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		calcSums(atoms);
 		double rhoi = rhoi(atoms);
 		AtomLeaf atom0 = (AtomLeaf)atoms.getAtom(0);
-		pi = parameters[atom0.type.getIndex()];
+		pi = parameters[atom0.getType().getIndex()];
 		double F = pi.A * pi.Ec * (rhoi/pi.Z) * Math.log(rhoi/pi.Z);
 		return F + (0.5*sum[PHI]);
 	}
@@ -347,7 +347,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			gamma = gamma(), rhoi = rhoi(atoms);
         
         AtomLeaf atom0 = (AtomLeaf)atoms.getAtom(0);
-		int indexi = atom0.type.getIndex(); pi = parameters[indexi];
+		int indexi = atom0.getType().getIndex(); pi = parameters[indexi];
 		
 		sumGiPhi.E(0); sumGiRhoj0.E(0); sumGiRhoj2.E(0);
         sumGiRhoj1x.E(0); sumGiRhoj1y.E(0); sumGiRhoj1z.E(0); 
@@ -397,7 +397,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             //Here we test to see if n qualifies as a j atom for atom i.
             if (in <= jcut) {
             	rij.E(rin); double ij = in;
-    			int indexj = atomn.type.getIndex(); pj = parameters[indexj];
+    			int indexj = atomn.getType().getIndex(); pj = parameters[indexj];
     			// to calculate Sij, giSij, gjSij
             	double Sij = 1.0; giSij.E(0); gjSij.E(0);
             	for(int k = 1; k < atoms.count(); k++) {
@@ -423,7 +423,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             					 ( (xik - xkj)*(xik - xkj) )- 1.0 ) / 
 							   (1.0 - ((xik - xkj)*(xik - xkj)));
             		if (C < 0) continue; // - C does not form ellipse
-            		int indexk = atomk.type.getIndex(); pk = parameters[indexk];
+            		int indexk = atomk.getType().getIndex(); pk = parameters[indexk];
     				
     				//Cu-Sn system only
             		/**
@@ -885,8 +885,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        	double C = ( (2.0*(xik + xkj)) - ((xik - xkj)*(xik - xkj))- 1.0 )
 							/ (1.0 - ((xik - xkj)*(xik - xkj)));
 	        	if (C < 0) continue;
-	        	int indexj = atomj.type.getIndex(); pj = parameters[indexj];
-	        	int indexk = atomn.type.getIndex(); pk = parameters[indexk];
+	        	int indexj = atomj.getType().getIndex(); pj = parameters[indexj];
+	        	int indexk = atomn.getType().getIndex(); pk = parameters[indexk];
 				
 				//Cu-Sn system only
 	        	/**
@@ -945,7 +945,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	    					     ( (xil - xjl)*(xil - xjl) ) - 1.0 ) /
 	    					   ( 1.0 - ( (xil - xjl)*(xil - xjl) ) );
 	    			if (c < 0) continue;
-	    			int indexl = atoml.type.getIndex(); pl = parameters[indexl];
+	    			int indexl = atoml.getType().getIndex(); pl = parameters[indexl];
     				
     				//Cu-Sn system only
 	    			/**

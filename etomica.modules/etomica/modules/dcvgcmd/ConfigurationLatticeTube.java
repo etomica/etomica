@@ -63,7 +63,7 @@ public class ConfigurationLatticeTube extends Configuration {
         atomIterator.reset();        
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
-            if (a.type.getSpecies()==tubeSpecies){
+            if (a.getType().getSpecies()==tubeSpecies){
             	sumOfMolecules--;
             }
         }
@@ -129,13 +129,13 @@ public class ConfigurationLatticeTube extends Configuration {
                 
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
-            if (a.type.getSpecies()==tubeSpecies){
+            if (a.getType().getSpecies()==tubeSpecies){
             	list.add(a);
             	continue;
             }
             if (!a.node.isLeaf()) {
                 //initialize coordinates of child atoms
-                Conformation config = a.type.creator().getConformation();
+                Conformation config = a.getType().creator().getConformation();
                 config.initializePositions(((AtomTreeNodeGroup)a.node).childList);
             }
             
@@ -158,7 +158,7 @@ public class ConfigurationLatticeTube extends Configuration {
         atomActionTranslateTo.setAtomPositionDefinition(new AtomPositionGeometricCenter(space));
         while (tubeiterator.hasNext()){
         	Atom a = tubeiterator.nextAtom();
-        	Conformation config = a.type.creator().getConformation();
+        	Conformation config = a.getType().creator().getConformation();
             config.initializePositions(((AtomTreeNodeGroup)a.node).childList);
             Vector site = space.makeVector();
             atomActionTranslateTo.setDestination(site);

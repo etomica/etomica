@@ -73,12 +73,12 @@ public class PairIndexerMolecule {
         aim.reset();
         Atom firstatom = (Atom) aim.peek();
         Vector r0 = phase.space().makeVector();
-        r0.E(firstatom.type.getPositionDefinition().position(firstatom));
+        r0.E(firstatom.getType().getPositionDefinition().position(firstatom));
 
         temp.E(0.0);
         while (aim.hasNext()) {
             Atom molecule = aim.nextAtom();
-            temp.E(molecule.type.getPositionDefinition().position(molecule));
+            temp.E(molecule.getType().getPositionDefinition().position(molecule));
 
             latticeSites[molecule.getGlobalIndex()] = (Vector) temp.clone();
             temp.ME(r0);

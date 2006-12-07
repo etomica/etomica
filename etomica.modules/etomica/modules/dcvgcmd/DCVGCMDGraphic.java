@@ -8,6 +8,7 @@ import java.awt.Color;
 import javax.swing.JPanel;
 
 import etomica.action.Action;
+import etomica.action.ActionGroupSeries;
 import etomica.action.SimulationRestart;
 import etomica.atom.Atom;
 import etomica.atom.AtomFactoryHomo;
@@ -44,15 +45,24 @@ public class DCVGCMDGraphic extends SimulationGraphic{
     Color colorA = Color.blue;
     Color colorB = Color.white;
     
-	DisplayPhase display = getDisplayPhase(sim.phase);
+    final DisplayPhase displayPhase = getDisplayPhase(sim.phase);
     DeviceTrioControllerButton device = new DeviceTrioControllerButton(sim);
-    ((SimulationRestart)device.getReinitButton().getAction()).setConfiguration(sim.config);
+    
+    Action repaintAction = new Action() {
+        public void actionPerformed() {
+            displayPhase.repaint();
+        }
+        public String getLabel() {
+            return null;
+        }
+    };
     
     //Button for cutaway view
     CutAway cutawayFilter = new CutAway();
-    display.setAtomFilter(cutawayFilter);
+    displayPhase.setAtomFilter(cutawayFilter);
     DeviceToggleButton cutawayButton = new DeviceToggleButton(sim.getController());
     cutawayButton.setModifier(cutawayFilter, "Restore", "Cut tube");
+    cutawayButton.setPostAction(repaintAction);
     
     
     //integratorDCV.setMu(500., 500.);
@@ -136,7 +146,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
             new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
 
 //set color of molecules
-    ColorSchemeByType colorScheme = (ColorSchemeByType)display.getColorScheme();
+    ColorSchemeByType colorScheme = (ColorSchemeByType)displayPhase.getColorScheme();
 	colorScheme.setColor(sim.species.getMoleculeType(),colorA);
 	colorScheme.setColor(sim.species1.getMoleculeType(),colorB);
 	colorScheme.setColor(((AtomFactoryHomo)sim.speciesTube.getFactory()).getChildFactory().getType(),java.awt.Color.cyan);
@@ -182,15 +192,21 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	 
 	panel().add(controlPanel);
     
-    final DisplayPhase displayPhase = getDisplayPhase(sim.phase);
-    device.getReinitButton().setPostAction(new Action() {
+    SimulationRestart simRestart = (SimulationRestart)device.getReinitButton().getAction();
+    simRestart.setConfiguration(sim.config);
+    ActionGroupSeries reinitActions = new ActionGroupSeries();
+    reinitActions.addAction(new Action() {
         public void actionPerformed() {
-            displayPhase.repaint();
+            sim.phase.getAgent(sim.species).setNMolecules(20);
+            sim.phase.getAgent(sim.species1).setNMolecules(20);
         }
         public String getLabel() {
             return null;
         }
     });
+    reinitActions.addAction(simRestart);
+    device.getReinitButton().setAction(reinitActions);
+    device.getReinitButton().setPostAction(repaintAction);
 
 	 
 //	panel for atomsPerRing choice
@@ -232,7 +248,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
         public boolean accept(Atom atom) {
             if(!active) return true;
             DCVGCMD simulation = (DCVGCMD)getSimulation();
-            if(atom.type.getSpecies() != simulation.speciesTube) return true;
+            if(atom.getType().getSpecies() != simulation.speciesTube) return true;
             double x0 = simulation.poreCenter.x(0);
             return ((AtomLeaf)atom).coord.position().x(0) < x0;
 

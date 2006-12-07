@@ -377,7 +377,7 @@ public class JouleThomson extends SimulationGraphic {
         double currentEps = epsilon[0];
         double currentSig = sigma[0];
         AtomAction updateMass = new AtomActionAdapter() {
-            public void actionPerformed(Atom a) {((ElementSimple)((AtomTypeLeaf)a.type).getElement()).setMass(currentMass);}
+            public void actionPerformed(Atom a) {((ElementSimple)((AtomTypeLeaf)a.getType()).getElement()).setMass(currentMass);}
         };
         SimulationRestart simRestart;
         

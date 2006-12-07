@@ -31,14 +31,14 @@ public class NormalCoordMolecule implements NormalCoordMapper, Serializable {
     }
 
     public void calcU(Atom atom, int atomCount, double[] u) {
-        Vector pos = atom.type.getPositionDefinition().position(atom);
+        Vector pos = atom.getType().getPositionDefinition().position(atom);
         for (int i=0; i<pos.D(); i++) {
             u[i] = pos.x(i) - nominalU[atomCount][i];
         }
     }
 
     public void initNominalU(Atom atom, int atomCount) {
-        Vector pos = atom.type.getPositionDefinition().position(atom);
+        Vector pos = atom.getType().getPositionDefinition().position(atom);
         for (int i=0; i<pos.D(); i++) {
             nominalU[atomCount][i] = pos.x(i);
         }

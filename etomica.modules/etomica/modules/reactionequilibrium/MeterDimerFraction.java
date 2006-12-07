@@ -41,11 +41,11 @@ public final class MeterDimerFraction implements Meter {
         	Atom a = iterator.nextAtom();
         	Atom partner = agents[a.getGlobalIndex()];
   //      	if(partner != null) System.out.println(a.node.index()+" "+partner.node.index());
-            if(a.type.getSpeciesIndex()== 1) {
+            if(a.getType().getSpeciesIndex()== 1) {
                if(partner == null) {
                  count[0]++;  //A radical
                }
-               else if(partner.type.getSpeciesIndex()== 1) {
+               else if(partner.getType().getSpeciesIndex()== 1) {
                  count[2]++;  //A-A
                }
                else {
@@ -56,7 +56,7 @@ public final class MeterDimerFraction implements Meter {
                if(partner == null) {
                  count[1]++;  //B radical
                }
-               else if(partner.type.getSpeciesIndex()== 1) {
+               else if(partner.getType().getSpeciesIndex()== 1) {
                  count[3]++;  //A-B
                }
                else {

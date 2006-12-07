@@ -65,7 +65,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
             molecule = selectedMolecules[i];
             leafAtomIterator.setRoot(molecule);
             leafAtomIterator.reset();
-            r0.E(molecule.type.getPositionDefinition().position(molecule));
+            r0.E(molecule.getType().getPositionDefinition().position(molecule));
 //            System.out.println(molecule+" before position "+r0);
         
             double dTheta = (2*Simulation.random.nextDouble() - 1.0)*stepSize;

@@ -59,7 +59,7 @@ public class MCMoveHarmonic extends MCMovePhase {
         while (iterator.hasNext()) {
             latticePositions[atomCount] = phase.space().makeVector();
             Atom atom = iterator.nextAtom();
-            latticePositions[atomCount].E(atom.type.getPositionDefinition().position(atom));
+            latticePositions[atomCount].E(atom.getType().getPositionDefinition().position(atom));
             atomCount++;
         }
 

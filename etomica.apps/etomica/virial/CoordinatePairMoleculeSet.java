@@ -57,10 +57,10 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
     public void reset() {
         for(int i=0; i<numAtoms-1; i++) {
             Atom iAtom = atoms[i];
-            iPosition.E(iAtom.type.getPositionDefinition().position(iAtom));
+            iPosition.E(iAtom.getType().getPositionDefinition().position(iAtom));
             for(int j=i+1; j<numAtoms; j++) {
                 Atom jAtom = atoms[j];
-                Vector jPosition = jAtom.type.getPositionDefinition().position(jAtom);
+                Vector jPosition = jAtom.getType().getPositionDefinition().position(jAtom);
                 dr.Ev1Mv2(iPosition, jPosition);
                 r2[i*numAtoms+j] = dr.squared();
             }

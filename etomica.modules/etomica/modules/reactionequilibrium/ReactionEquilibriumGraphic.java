@@ -491,7 +491,7 @@ public class ReactionEquilibriumGraphic {
 						value = 1000000;
 					final double newMass = value;
 					mass.setText(Integer.toString(value));
-					((ElementSimple)((AtomTypeLeaf)species.type.getSpecies().getMoleculeType()).getElement()).setMass(newMass);
+					((ElementSimple)((AtomTypeLeaf)species.getType().getSpecies().getMoleculeType()).getElement()).setMass(newMass);
                      try {
                          sim.integratorHard1.reset();
                      } catch(ConfigurationOverlapException e) {}

@@ -217,7 +217,7 @@ public class GrainBoundaryConfiguration extends Configuration {
             }
             if (!a.node.isLeaf()) {
                 // initialize coordinates of child atoms
-                Conformation config = a.type.creator().getConformation();
+                Conformation config = a.getType().creator().getConformation();
                 config.initializePositions(((AtomTreeNodeGroup) a.node).childList);
             }
             Vector site = (Vector) myLatA.site(ii);
@@ -245,7 +245,7 @@ public class GrainBoundaryConfiguration extends Configuration {
             }
             if (!a.node.isLeaf()) {
                 // initialize coordinates of child atoms
-                Conformation config = a.type.creator().getConformation();
+                Conformation config = a.getType().creator().getConformation();
                 config.initializePositions(((AtomTreeNodeGroup) a.node).childList);
             }
             Vector site = (Vector) myLatB.site(ii);
