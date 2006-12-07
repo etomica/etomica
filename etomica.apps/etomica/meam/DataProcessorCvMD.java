@@ -27,8 +27,6 @@ final class DataProcessorCvMD extends DataProcessor {
 
 	DataInfoDouble dataInfo;
 
-	DataTag tag = new DataTag();
-
 	public void setIntegrator(IntegratorVelocityVerlet integrator) {
 		this.integrator = integrator;
 	}
@@ -50,9 +48,5 @@ final class DataProcessorCvMD extends DataProcessor {
 		data = new DataDouble();
 		dataInfo = new DataInfoDouble("Heat Capacity", cvDimension);
 		return dataInfo;
-	}
-
-	public DataTag getTag(){
-		return tag;
 	}
 }
