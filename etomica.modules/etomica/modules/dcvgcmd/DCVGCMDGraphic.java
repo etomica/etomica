@@ -7,6 +7,8 @@ import java.awt.Color;
 
 import javax.swing.JPanel;
 
+import etomica.action.Action;
+import etomica.action.SimulationRestart;
 import etomica.atom.Atom;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomFilter;
@@ -35,8 +37,8 @@ import etomica.units.Kelvin;
  */
 public class DCVGCMDGraphic extends SimulationGraphic{
 
-	public DCVGCMDGraphic(DCVGCMD sim){
-			
+	public DCVGCMDGraphic(final DCVGCMD sim){
+
 	super(sim);	
 	
     Color colorA = Color.blue;
@@ -44,7 +46,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
     
 	DisplayPhase display = getDisplayPhase(sim.phase);
     DeviceTrioControllerButton device = new DeviceTrioControllerButton(sim);
-
+    ((SimulationRestart)device.getReinitButton().getAction()).setConfiguration(sim.config);
+    
     //Button for cutaway view
     CutAway cutawayFilter = new CutAway();
     display.setAtomFilter(cutawayFilter);
@@ -178,7 +181,17 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	 panel().remove(panel().devicePanel);
 	 
 	panel().add(controlPanel);
-	System.out.println(sim.phase.atomCount()+"  "+sim.phase.moleculeCount());
+    
+    final DisplayPhase displayPhase = getDisplayPhase(sim.phase);
+    device.getReinitButton().setPostAction(new Action() {
+        public void actionPerformed() {
+            displayPhase.repaint();
+        }
+        public String getLabel() {
+            return null;
+        }
+    });
+
 	 
 //	panel for atomsPerRing choice
 //	JPanel tubePanel = new JPanel(new java.awt.GridBagLayout());

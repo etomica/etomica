@@ -59,6 +59,7 @@ public class DCVGCMD extends Simulation {
     public AccumulatorAverage fluxAccumulator;
     public Vector poreCenter;
     public ActivityIntegrate activityIntegrate;
+    public ConfigurationLatticeTube config;
     
     //Constructor
     public DCVGCMD() {
@@ -192,7 +193,7 @@ public class DCVGCMD extends Simulation {
         // Crystal crystal = new Crystal(new PrimitiveTetragonal(space, 20,
         // 40),new BasisMonatomic(3));
         double length = 0.25;
-        ConfigurationLatticeTube config = new ConfigurationLatticeTube(
+        config = new ConfigurationLatticeTube(
                 new LatticeCubicFcc(), length, speciesTube);
         config.initializeCoordinates(phase);
 
