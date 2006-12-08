@@ -119,7 +119,7 @@ public class TestFccHarmonic extends Simulation {
             filename = args[0];
         }
         
-        double harmonicFudge = 1;
+        double harmonicFudge = .25;
         
         double[][] omegaSquared = ArrayReader1D.getFromFile(filename+".val");
         for (int i=0; i<omegaSquared.length; i++) {
@@ -143,7 +143,7 @@ public class TestFccHarmonic extends Simulation {
         harmonicEnergy.setEigenvectors(eigenvectors);
         harmonicEnergy.setOmegaSquared(omegaSquared);
         harmonicEnergy.setWaveVectors(waveVectors, coefficients);
-        harmonicEnergy.setNormalCoordWrapper(new NormalCoordLeaf(sim.space));
+        harmonicEnergy.setNormalCoordWrapper(new NormalCoordLeaf(sim.getSpace()));
         harmonicEnergy.setPhase(sim.phase);
         DataFork harmonicFork = new DataFork();
         AccumulatorAverage harmonicAvg = new AccumulatorAverage(sim);
@@ -164,11 +164,11 @@ public class TestFccHarmonic extends Simulation {
         harmonicSingleEnergy.setEigenvectors(eigenvectors);
         harmonicSingleEnergy.setOmegaSquared(omegaSquared);
         harmonicSingleEnergy.setWaveVectors(waveVectors, coefficients);
-        harmonicSingleEnergy.setNormalCoordMapper(new NormalCoordLeaf(sim.space));
+        harmonicSingleEnergy.setNormalCoordMapper(new NormalCoordLeaf(sim.getSpace()));
         harmonicSingleEnergy.setPhase(sim.phase);
         harmonicSingleEnergy.setTemperature(1.0);
 //        DataProcessorFunction harmonicLog = new DataProcessorFunction(new Function.Log());
-        DataHistogram harmonicSingleHistogram = new DataHistogram(new HistogramSimple.Factory(50, new DoubleRange(.6, 0.75)));
+        DataHistogram harmonicSingleHistogram = new DataHistogram(new HistogramSimple.Factory(50, new DoubleRange(0, 1)));
         AccumulatorAverage harmonicSingleAvg = new AccumulatorAverage(sim);
         pump = new DataPump(harmonicSingleEnergy, harmonicSingleAvg);
 //        harmonicLog.setDataSink(harmonicSingleHistogram);
