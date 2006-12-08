@@ -73,7 +73,9 @@ public class TestHexaneHarmonic extends Simulation {
         int chainLength = 6;
         int numAtoms = numMolecules * chainLength;
         PrimitiveHexane primitive = new PrimitiveHexane(space);
-        primitive.scaleSize(1.1);
+        // close packed density is 0.4165783882178116
+        // Monson reports data for 0.373773507616 and 0.389566754417
+        primitive.scaleSize(Math.pow(0.4165783882178116/0.373773507616,1.0/3.0));
         lattice = new BravaisLattice(primitive);
         ConfigurationLattice config = new ConfigurationLattice(lattice);
 
@@ -102,10 +104,13 @@ public class TestHexaneHarmonic extends Simulation {
 //         snake = new MCMoveReptate(this);
 //         snake.setPhase(phase);
          
-         rot = new MCMoveRotateMolecule3D(potentialMaster, space);
-         rot.setStepSize(Math.PI/10);
+         rot = new MCMoveRotateMolecule3D(getPotentialMaster(), space);
          rot.setPhase(phase);
          
+         // 0.025 for translate, 0.042 for rotate for rho=0.3737735
+         moveMolecule.setStepSize(0.024);
+         rot.setStepSize(0.042);
+
         //nan we're going to need some stuff in there to set the step sizes and other stuff like that.
         
         integrator.getMoveManager().addMCMove(moveMolecule);
@@ -255,6 +260,7 @@ public class TestHexaneHarmonic extends Simulation {
         boltz.setDataSink(harmonicBoltzAvg);
         DataProcessorFoo fooer = new DataProcessorFoo();
         harmonicBoltzAvg.addDataSink(fooer, new StatType[]{StatType.AVERAGE});
+        sim.register(harmonicEnergy, pump);
         
         MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy();
         harmonicSingleEnergy.setEigenvectors(eigenvectors);
@@ -264,7 +270,7 @@ public class TestHexaneHarmonic extends Simulation {
         harmonicSingleEnergy.setPhase(sim.phase);
         harmonicSingleEnergy.setTemperature(1.0);
 //        DataProcessorFunction harmonicLog = new DataProcessorFunction(new Function.Log());
-        DataHistogram harmonicSingleHistogram = new DataHistogram(new HistogramSimple.Factory(50, new DoubleRange(.6, 0.75)));
+        DataHistogram harmonicSingleHistogram = new DataHistogram(new HistogramSimple.Factory(50, new DoubleRange(0, 1)));
         AccumulatorAverage harmonicSingleAvg = new AccumulatorAverage(sim);
         pump = new DataPump(harmonicSingleEnergy, harmonicSingleAvg);
 //        harmonicLog.setDataSink(harmonicSingleHistogram);
@@ -275,6 +281,7 @@ public class TestHexaneHarmonic extends Simulation {
         sim.integrator.addListener(adapter);
         DataProcessorFoo fooerSingle = new DataProcessorFoo();
         harmonicSingleAvg.addDataSink(fooerSingle, new StatType[]{StatType.AVERAGE});
+        sim.register(harmonicSingleEnergy, pump);
 
         if (graphic) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim);
