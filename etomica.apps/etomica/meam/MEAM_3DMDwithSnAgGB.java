@@ -85,7 +85,7 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
     public static void main(String[] args) {
     	MEAM_3DMDwithSnAgGB sim = new MEAM_3DMDwithSnAgGB();
     	
-    	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
+    	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.getPotentialMaster());
     	MeterKineticEnergy kineticMeter = new MeterKineticEnergy();
     	
     	energyMeter.setPhase(sim.phase);

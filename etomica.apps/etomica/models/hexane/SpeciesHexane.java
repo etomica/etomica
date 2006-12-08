@@ -17,8 +17,8 @@ import etomica.simulation.Simulation;
 public class SpeciesHexane extends etomica.species.SpeciesSpheres {
     public SpeciesHexane(Simulation sim){
         super(sim, 6, new ElementSimple("M", sim.getDefaults().atomMass), 
-              new ConformationHexane(sim.space));
-        getMoleculeType().setPositionDefinition(new AtomPositionCOM(sim.space));
+              new ConformationHexane(sim.getSpace()));
+        getMoleculeType().setPositionDefinition(new AtomPositionCOM(sim.getSpace()));
     }
     
 }

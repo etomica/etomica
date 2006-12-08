@@ -85,7 +85,7 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
     public static void main(String[] args) {
     	MEAM_3DMDwithSnCuGB sim = new MEAM_3DMDwithSnCuGB();
     	
-    	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
+    	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.getPotentialMaster());
     	MeterKineticEnergy kineticMeter = new MeterKineticEnergy();
     	
     	energyMeter.setPhase(sim.phase);
@@ -277,10 +277,10 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
 		potentialN.setParametersIMC(cuB, ParameterSetMEAM.Cu3Sn);
 		potentialN.setParametersIMC(cuFixedB, ParameterSetMEAM.Cu3Sn);
 		potentialN.setParametersIMC(agB, ParameterSetMEAM.Ag3Sn);
-        this.potentialMaster.addPotential(potentialN, new Species[]{snFixedA, snA, agA, cuA, cuFixedB, snB, agB, cuB});    
-        ((PotentialMasterList)potentialMaster).setRange(potentialN.getRange()*1.1);
-        ((PotentialMasterList)potentialMaster).setCriterion(potentialN, new CriterionSimple(this, potentialN.getRange(), potentialN.getRange()*1.1));
-        integrator.addListener(((PotentialMasterList)potentialMaster).getNeighborManager());
+        this.getPotentialMaster().addPotential(potentialN, new Species[]{snFixedA, snA, agA, cuA, cuFixedB, snB, agB, cuB});    
+        ((PotentialMasterList)getPotentialMaster()).setRange(potentialN.getRange()*1.1);
+        ((PotentialMasterList)getPotentialMaster()).setCriterion(potentialN, new CriterionSimple(this, potentialN.getRange(), potentialN.getRange()*1.1));
+        integrator.addListener(((PotentialMasterList)getPotentialMaster()).getNeighborManager());
         
         integrator.setPhase(phase);
 		

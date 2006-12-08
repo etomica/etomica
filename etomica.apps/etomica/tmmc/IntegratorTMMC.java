@@ -11,16 +11,10 @@ import etomica.simulation.Simulation;
  *
  * @author David Kofke
  */
- 
- /* History of changes
-  * 07/10/02 (DAK) started development
-  * 09/20/02 (DAK/JS) correction for when doTrial returns false
-  */
-  
 public class IntegratorTMMC extends IntegratorMC {
     
     public IntegratorTMMC(Simulation sim) {
-        this(sim.potentialMaster, sim.getDefaults().temperature);
+        this(sim.getPotentialMaster(), sim.getDefaults().temperature);
     }
     
     public IntegratorTMMC(PotentialMaster potentialMaster, double temperature) {
@@ -124,6 +118,7 @@ public class IntegratorTMMC extends IntegratorMC {
      */
     public int getWeightUpdateInterval() {return weightUpdateInterval;}
     
+    private static final long serialVersionUID = 1L;
     private double[][] C;
     private double[] H;
     protected double[] weight;

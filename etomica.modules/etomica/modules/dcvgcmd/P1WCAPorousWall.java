@@ -23,6 +23,7 @@ import etomica.space.Vector;
  */
 public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
 
+    private static final long serialVersionUID = 1L;
     private final Vector[] gradient;
     private double sigma, sigma2;
     private double epsilon;
@@ -32,7 +33,7 @@ public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
     private double z;
 
     public P1WCAPorousWall(Simulation sim) {
-        this(sim.space, sim.getDefaults().atomSize, sim.getDefaults().potentialWell);
+        this(sim.getSpace(), sim.getDefaults().atomSize, sim.getDefaults().potentialWell);
     }
 
     public P1WCAPorousWall(Space space, double sigma, double epsilon) {

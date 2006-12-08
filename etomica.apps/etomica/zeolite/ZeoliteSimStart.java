@@ -41,7 +41,7 @@ public class ZeoliteSimStart extends IntegratorActionAdapter{
         	sim.activityIntegrate.setDoSleep(false);
         	((IntegratorMD)integrator).setThermostatInterval(327000);
         	//Keeping another graphic of the total energy drift
-        	MeterEnergy eMeter = new MeterEnergy(sim.potentialMaster);
+        	MeterEnergy eMeter = new MeterEnergy(sim.getPotentialMaster());
         	eMeter.setPhase(sim.phase);
         	AccumulatorHistory energyHistory = new AccumulatorHistory(HistoryCollapsing.FACTORY);
         	energyHistory.setHistoryLength(sim.getInterval()*500);
@@ -68,7 +68,7 @@ public class ZeoliteSimStart extends IntegratorActionAdapter{
         	sp = sim.getSpeciesRMS();
         	System.out.println(filename);
         	//sim.integrator.setTimeStep(0.00);
-        	MSDCoordWriter coordWriter = new MSDCoordWriter(sim.space, filename,sp);
+        	MSDCoordWriter coordWriter = new MSDCoordWriter(sim.getSpace(), filename,sp);
         	coordWriter.setPhase(sim.phase);
             coordWriter.setNatoms(sim.getMethane());
             coordWriter.setIntegrator(sim.integrator);

@@ -35,23 +35,22 @@ public class CrystalViewer {
     public CrystalViewer() {
         sim = new Simulation(Space3D.getInstance());
         sim.getDefaults().makeLJDefaults();
-        center = sim.space.makeVector();
+        center = sim.getSpace().makeVector();
         phase  = new Phase(sim);
 
         species = new SpeciesSpheresMono(sim);
         
         panel = new JPanel();
         
-        double a = 1.0;//default lattice constant
-        BasisMonatomic basisMonatomic = new BasisMonatomic(sim.space);
+        BasisMonatomic basisMonatomic = new BasisMonatomic(sim.getSpace());
         
         BravaisLattice[] lattices = new BravaisLattice[] {
                 new LatticeCubicSimple(),
-                new BravaisLatticeCrystal(new PrimitiveTetragonal(sim.space), basisMonatomic),
-                new BravaisLatticeCrystal(new PrimitiveHexagonal(sim.space), basisMonatomic),
-                new BravaisLatticeCrystal(new PrimitiveOrthorhombic(sim.space), basisMonatomic),
-                new BravaisLatticeCrystal(new PrimitiveMonoclinic(sim.space), basisMonatomic),
-                new BravaisLatticeCrystal(new PrimitiveTriclinic(sim.space), basisMonatomic),
+                new BravaisLatticeCrystal(new PrimitiveTetragonal(sim.getSpace()), basisMonatomic),
+                new BravaisLatticeCrystal(new PrimitiveHexagonal(sim.getSpace()), basisMonatomic),
+                new BravaisLatticeCrystal(new PrimitiveOrthorhombic(sim.getSpace()), basisMonatomic),
+                new BravaisLatticeCrystal(new PrimitiveMonoclinic(sim.getSpace()), basisMonatomic),
+                new BravaisLatticeCrystal(new PrimitiveTriclinic(sim.getSpace()), basisMonatomic),
                 new LatticeCubicFcc(),
                 new LatticeCubicBcc(),
                 new LatticeHcp(),

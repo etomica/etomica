@@ -18,7 +18,7 @@ public class MCMoveClusterMolecule extends MCMoveMolecule {
     private final MeterClusterWeight weightMeter;
 
     public MCMoveClusterMolecule(Simulation sim) {
-    	this(sim.potentialMaster,sim.getDefaults().atomSize);
+    	this(sim.getPotentialMaster(),sim.getDefaults().atomSize);
     }
     
     public MCMoveClusterMolecule(PotentialMaster potentialMaster, double stepSize) {

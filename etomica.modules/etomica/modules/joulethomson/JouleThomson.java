@@ -425,9 +425,9 @@ public class JouleThomson extends SimulationGraphic {
             }
     	    double targetDensity = 0.5;
     	    if(currentSig > 0.5) {
-    	        sim.phase.setDensity(targetDensity/Math.pow(currentSig,sim.space.D()));
-    	        double size = currentSig*Math.pow(sim.phase.atomCount()/targetDensity,1.0/sim.space.D());
-                Vector v = sim.space.makeVector();
+    	        sim.phase.setDensity(targetDensity/Math.pow(currentSig,sim.getSpace().D()));
+    	        double size = currentSig*Math.pow(sim.phase.atomCount()/targetDensity,1.0/sim.getSpace().D());
+                Vector v = sim.getSpace().makeVector();
                 v.E(size);
                 sim.phase.getBoundary().setDimensions(v);
                 Configuration config;

@@ -18,7 +18,7 @@ import etomica.space.Vector;
 public class MCMoveReptate extends MCMovePhaseStep {
     
     public MCMoveReptate(Simulation sim){
-        this(sim.potentialMaster, sim.getDefaults().atomSize, 
+        this(sim.getPotentialMaster(), sim.getDefaults().atomSize, 
                 sim.getDefaults().boxSize/2, sim.getDefaults().ignoreOverlap /*, con*/);
     }
     

@@ -20,7 +20,7 @@ import etomica.space.Space;
 public final class P2Yukawa extends Potential2SoftSpherical implements EtomicaElement {
 	
 	public P2Yukawa(Simulation sim) {
-		this(sim.space, sim.getDefaults().atomSize, sim.getDefaults().potentialWell);
+		this(sim.getSpace(), sim.getDefaults().atomSize, sim.getDefaults().potentialWell);
 	}
 	
 	public P2Yukawa(Space space, double kappa, double vzero){

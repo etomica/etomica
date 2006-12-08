@@ -21,13 +21,14 @@ import etomica.space.Vector;
 
 public class P1WCAWall extends Potential1 implements PotentialSoft {
 
+    private static final long serialVersionUID = 1L;
     private final Vector[] gradient;
     private double sigma;
     private double epsilon;
     private double cutoff;
 
     public P1WCAWall(Simulation sim) {
-        this(sim.space, sim.getDefaults().atomSize, sim.getDefaults().potentialWell);
+        this(sim.getSpace(), sim.getDefaults().atomSize, sim.getDefaults().potentialWell);
     }
 
     public P1WCAWall(Space space, double sigma, double epsilon) {

@@ -103,7 +103,7 @@ public class LjmdGraphic {
         timer.setUnit(new Unit(LennardJones.Time.UNIT));
 	*/    
 	    //meters and displays
-        MeterRDF rdfMeter = new MeterRDF(sim.space);
+        MeterRDF rdfMeter = new MeterRDF(sim.getSpace());
         rdfMeter.getXDataSource().setXMax(4.0);
         rdfMeter.setPhase(sim.phase);
         AccumulatorAverage rdfAverage = new AccumulatorAverage(10);
@@ -143,7 +143,7 @@ public class LjmdGraphic {
         vPlot.getPlot().setTitle("Velocity distribution");
         vPlot.setDoLegend(true);
 		
-		final MaxwellBoltzmann.Distribution mbDistribution = new MaxwellBoltzmann.Distribution(sim.space,sim.integrator.getTemperature(),((AtomTypeLeaf)sim.species.getMoleculeType()).getMass());
+		final MaxwellBoltzmann.Distribution mbDistribution = new MaxwellBoltzmann.Distribution(sim.getSpace(),sim.integrator.getTemperature(),((AtomTypeLeaf)sim.species.getMoleculeType()).getMass());
 		final DataSourceFunction mbSource = new DataSourceFunction("Maxwell Boltzmann Distribution",
                 Null.DIMENSION, mbDistribution, 100, "Speed", new DimensionRatio(Length.DIMENSION,Time.DIMENSION));
 		DataSourceUniform mbX = mbSource.getXSource();
@@ -205,7 +205,7 @@ public class LjmdGraphic {
 		tBox.setLabel("Measured value");
 		tBox.setLabelPosition(CompassDirection.NORTH);
 		
-	    MeterDensity densityMeter = new MeterDensity(sim.space);
+	    MeterDensity densityMeter = new MeterDensity(sim.getSpace());
         densityMeter.setPhase(sim.phase);
 	    DisplayBox densityBox = new DisplayBox();
         DataPump densityPump = new DataPump(densityMeter, densityBox);
@@ -215,7 +215,7 @@ public class LjmdGraphic {
         sim.register(densityMeter,densityPump);
 	    densityBox.setLabel("Number density");
 	    
-		MeterEnergy eMeter = new MeterEnergy(sim.potentialMaster);
+		MeterEnergy eMeter = new MeterEnergy(sim.getPotentialMaster());
         eMeter.setPhase(sim.phase);
         AccumulatorHistory energyHistory = new AccumulatorHistory();
         energyHistory.setTimeDataSource(timeCounter);
@@ -226,7 +226,7 @@ public class LjmdGraphic {
         sim.integrator.addListener(energyAdapter);
         sim.register(eMeter,energyPump);
 		
-		MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.potentialMaster);
+		MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.getPotentialMaster());
         peMeter.setPhase(sim.phase);
         AccumulatorHistory peHistory = new AccumulatorHistory();
         peHistory.setTimeDataSource(timeCounter);
@@ -261,7 +261,7 @@ public class LjmdGraphic {
 		
 		ePlot.setDoLegend(true);
 		
-		MeterPressure pMeter = new MeterPressure(sim.space);
+		MeterPressure pMeter = new MeterPressure(sim.getSpace());
         pMeter.setIntegrator(sim.integrator);
         pMeter.setIncludeLrc(true);
         AccumulatorAverage pAccumulator = new AccumulatorAverage(sim);

@@ -87,7 +87,7 @@ public class TestYukawaMC3D extends Simulation{
 		TestYukawaMC3D sim = new TestYukawaMC3D(numAtoms);
 		
 		sim.getDefaults().blockSize = 10;
-		MeterPressure pMeter = new MeterPressure(sim.space);
+		MeterPressure pMeter = new MeterPressure(sim.getSpace());
 		pMeter.setIntegrator(sim.integrator);
 		AccumulatorAverage pAccumulator = new AccumulatorAverage(sim);
 		DataPump pPump = new DataPump(pMeter,pAccumulator);

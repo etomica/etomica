@@ -16,7 +16,7 @@ public class MayerModified extends MayerFunctionSpherical {
 	 * Constructor for MayerModified.
 	 */
 	public MayerModified(Simulation sim, Potential2Spherical potential) {
-		this(sim.space, potential, sim.getDefaults().atomSize);
+		this(sim.getSpace(), potential, sim.getDefaults().atomSize);
 	}
 	public MayerModified(Space space, Potential2Spherical potential, double sigma) {
         super(space);
@@ -52,6 +52,7 @@ public class MayerModified extends MayerFunctionSpherical {
 		sigma2 = sigma*sigma;
 	}
 
+    private static final long serialVersionUID = 1L;
 	private final Potential2Spherical potential;
 	private static final double UF1 = -Math.log(2.0); //value of beta*u for which f = +1
 	private double sigma, sigma2;

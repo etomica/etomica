@@ -585,13 +585,13 @@ public class PistonCylinderGraphic {
         }
         pc = sim;
         ((ElementSimple)((AtomTypeLeaf)pc.species.getMoleculeType()).getElement()).setMass(mass);
-        int D = pc.space.D();
+        int D = pc.getSpace().D();
         pc.register(pc.integrator);
 
 
         tUnit = Kelvin.UNIT;
 
-        if (pc.space.D() == 2) {
+        if (pc.getSpace().D() == 2) {
             dUnit = new UnitRatio(Mole.UNIT, 
                                     new MKS().area());
             Unit[] units = new Unit[] {Bar.UNIT, new PrefixedUnit(Prefix.NANO, Meter.UNIT)};
@@ -668,9 +668,9 @@ public class PistonCylinderGraphic {
         temperatureSlider.setController(pc.getController());
         temperatureSlider.setPostAction(new IntegratorReset(pc.integrator,true));
 
-        potentialSW = new P2SquareWell(pc.space,defaults.atomSize,lambda,epsilon,defaults.ignoreOverlap);
-        potentialHS = new P2HardSphere(pc.space,defaults.atomSize,defaults.ignoreOverlap);
-        potentialIdeal = new P2Ideal(pc.space);
+        potentialSW = new P2SquareWell(pc.getSpace(),defaults.atomSize,lambda,epsilon,defaults.ignoreOverlap);
+        potentialHS = new P2HardSphere(pc.getSpace(),defaults.atomSize,defaults.ignoreOverlap);
+        potentialIdeal = new P2Ideal(pc.getSpace());
         
         if(potentialChooserListener != null) potentialChooser.removeItemListener(potentialChooserListener);
         
@@ -774,7 +774,7 @@ public class PistonCylinderGraphic {
         plotT.setLegend(new DataTag[]{targetTemperatureDataSource.getTag()}, "target");
         pc.register(targetTemperatureDataSource, targetTemperatureDataPump);
 
-        pressureMeter = new DataSourceWallPressure(pc.space,pc.pistonPotential);
+        pressureMeter = new DataSourceWallPressure(pc.getSpace(),pc.pistonPotential);
         pressureMeter.setIntegrator(pc.integrator);
         AccumulatorHistory pressureHistory = new AccumulatorHistory();
         pressureHistory.setTimeDataSource(meterCycles);
@@ -805,7 +805,7 @@ public class PistonCylinderGraphic {
         plotP.setLegend(new DataTag[]{targetPressureDataSource.getTag()}, "target");
         pc.register(targetPressureDataSource, pump);
 
-        densityMeter = new MeterDensity(pc.space); //pc.pistonPotential,1);
+        densityMeter = new MeterDensity(pc.getSpace()); //pc.pistonPotential,1);
         densityMeter.setPhase(pc.phase);
         AccumulatorHistory densityHistory = new AccumulatorHistory();
         densityHistory.setTimeDataSource(meterCycles);
@@ -844,7 +844,7 @@ public class PistonCylinderGraphic {
         if (doRDF) {
             plotRDF.getDataSet().reset();
             double rdfCutoff = 10;
-            MeterRDF meterRDF = new MeterRDF(pc.space); //pc.phase.getBoundary(), pc.pistonPotential);
+            MeterRDF meterRDF = new MeterRDF(pc.getSpace()); //pc.phase.getBoundary(), pc.pistonPotential);
             meterRDF.setPhase(pc.phase);
             AtomPairFilter filter = new AtomFilterInCylinder(pc.phase.getBoundary(), pc.pistonPotential, rdfCutoff);
             meterRDF.setIterator(new ApiFilteredCylinder(new ApiLeafAtoms(), filter));

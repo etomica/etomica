@@ -14,7 +14,7 @@ public class BoundaryPistonCylinder extends BoundaryRectangularNonperiodic {
 
 
     public BoundaryPistonCylinder(Simulation sim) {
-        this(sim.space);
+        this(sim.getSpace());
     }
 
     public BoundaryPistonCylinder(Space space) {

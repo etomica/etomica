@@ -85,7 +85,7 @@ public class PairIndexerTestSimple extends Simulation {
         AtomIterator outer = new AtomIteratorLeafAtoms(pit.phase);
         ApiInnerFixed api = new ApiInnerFixed(outer, inner);
         api.reset();
-        Vector work = pit.space.makeVector();
+        Vector work = pit.getSpace().makeVector();
 
 //      printer.println("Atom0:0 Atom0:1 Atom0:2 Atom0:# Atom1:0 Atom1:1 Atom1:2 Atom1:# Bin:");
       
@@ -106,7 +106,7 @@ public class PairIndexerTestSimple extends Simulation {
 //                pi.getBin(ap) +" " + atom0.getGlobalIndex());
 
           // determine the pair's dr
-            Vector dr = pit.space.makeVector();
+            Vector dr = pit.getSpace().makeVector();
             dr.Ev1Mv2(((AtomLeaf)atom0).coord.position(), ((AtomLeaf)atom1).coord.position());
             if (bin < 0) {
                 throw new RuntimeException("bin was negative, dr="+dr);

@@ -10,12 +10,13 @@ import etomica.space.Space;
  */
 public class MayerHardSphere extends MayerFunctionSpherical {
 
+    private static final long serialVersionUID = 1L;
 	private double sigma, sigma2;
 	/**
 	 * Constructor for MayerHardSphere.
 	 */
 	public MayerHardSphere(Simulation sim) {
-		this(sim.space, sim.getDefaults().atomSize);
+		this(sim.getSpace(), sim.getDefaults().atomSize);
 	}
 	public MayerHardSphere(Space space, double sigma) {
         super(space);

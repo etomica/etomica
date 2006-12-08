@@ -20,7 +20,6 @@ import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -63,6 +62,7 @@ import etomica.util.HistoryCollapsingAverage;
  
 public class MEAMMd3D extends Simulation {
     
+    private static final long serialVersionUID = 1L;
     public IntegratorVelocityVerlet integrator;
     public SpeciesSpheresMono sn;
     public SpeciesSpheresMono ag;
@@ -79,7 +79,7 @@ public class MEAMMd3D extends Simulation {
     public static void main(String[] args) {
     	MEAMMd3D sim = new MEAMMd3D();
     	
-    	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
+    	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.getPotentialMaster());
     	MeterKineticEnergy kineticMeter = new MeterKineticEnergy();
     	
     	energyMeter.setPhase(sim.phase);
@@ -142,7 +142,6 @@ public class MEAMMd3D extends Simulation {
     	simGraphic.panel().displayPanel.add("PE Plot",plotPE.graphic());
     	simGraphic.panel().displayPanel.add("KE Plot",plotKE.graphic());
     	
-    	SimulationPanel simPanel = new SimulationPanel();
     	simGraphic.add(cvBoxKE);
     	simGraphic.add(cvBoxPE);
     	

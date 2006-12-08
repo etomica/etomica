@@ -16,10 +16,11 @@ import etomica.space.Vector;
  */
 public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
 
+    private static final long serialVersionUID = 1L;
     private final MeterClusterWeight weightMeter;
 
     public MCMoveClusterMoleculeMulti(Simulation sim, int nAtoms) {
-    	this(sim.potentialMaster,sim.getDefaults().atomSize, nAtoms);
+    	this(sim.getPotentialMaster(),sim.getDefaults().atomSize, nAtoms);
     }
     
     /**

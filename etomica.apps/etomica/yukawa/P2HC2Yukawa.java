@@ -46,7 +46,7 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical implements Etomic
 	}
 
 	public P2HC2Yukawa(Simulation sim){
-		this(sim.space, sim.getDefaults().atomSize, sim.getDefaults().potentialWell);
+		this(sim.getSpace(), sim.getDefaults().atomSize, sim.getDefaults().potentialWell);
 	}
 	
 	public P2HC2Yukawa(Space space, double sigma, double epsilon){

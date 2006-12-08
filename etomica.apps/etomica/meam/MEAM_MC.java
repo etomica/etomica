@@ -40,6 +40,7 @@ import etomica.util.HistoryCollapsingAverage;
  */
 public class MEAM_MC extends Simulation {
 	
+    private static final long serialVersionUID = 1L;
 	public IntegratorMC integrator;
 	public SpeciesSpheresMono sn;
     public SpeciesSpheresMono ag;
@@ -55,7 +56,7 @@ public class MEAM_MC extends Simulation {
 
 	public static void main(String[] args) {
 	    MEAM_MC sim = new MEAM_MC();
-	    MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
+	    MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.getPotentialMaster());
 	    energyMeter.setPhase(sim.phase);
 	    AccumulatorHistory energyAccumulator = new AccumulatorHistory(HistoryCollapsingAverage.FACTORY);
 	    DisplayPlot plot = new DisplayPlot();

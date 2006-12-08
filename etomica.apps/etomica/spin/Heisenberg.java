@@ -81,6 +81,7 @@ public class Heisenberg extends Simulation {
 
     }
 
+    private static final long serialVersionUID = 1L;
     public Phase phase;
     public Species spins;
     public P2Spin potential;
@@ -98,7 +99,7 @@ public class Heisenberg extends Simulation {
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
         DisplayPhase displayPhase = simGraphic.getDisplayPhase(sim.phase);
         simGraphic.remove(displayPhase);
-        PhaseAgentManager phaseAgentManager = ((PotentialMasterSite)sim.potentialMaster).getCellAgentManager();
+        PhaseAgentManager phaseAgentManager = ((PotentialMasterSite)sim.getPotentialMaster()).getCellAgentManager();
         NeighborSiteManager neighborSiteManager = (NeighborSiteManager)phaseAgentManager.getAgent(sim.phase);
         displayPhase.setPhaseCanvas(new DisplayPhaseSpin2D(displayPhase,neighborSiteManager));
         simGraphic.add(displayPhase);

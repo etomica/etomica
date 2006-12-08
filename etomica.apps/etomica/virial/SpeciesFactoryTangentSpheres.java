@@ -19,10 +19,11 @@ public class SpeciesFactoryTangentSpheres implements SpeciesFactory, java.io.Ser
     
     public Species makeSpecies(Simulation sim) {
         return new SpeciesSpheres(sim, nA, new ElementSimple(
-                ((AtomTypeRoot)sim.speciesRoot.getType()).makeUniqueElementSymbol("TS"), 
+                ((AtomTypeRoot)sim.getSpeciesRoot().getType()).makeUniqueElementSymbol("TS"), 
                 sim.getDefaults().atomMass), conformation);
     }
     
+    private static final long serialVersionUID = 1L;
     private final int nA;
     private final Conformation conformation;
 }

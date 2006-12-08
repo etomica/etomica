@@ -19,7 +19,7 @@ public class MCMoveClusterAtom extends MCMoveAtom {
 
     public MCMoveClusterAtom(Simulation sim) {
         super(sim);
-        weightMeter = new MeterClusterWeight(sim.potentialMaster);
+        weightMeter = new MeterClusterWeight(sim.getPotentialMaster());
 	}
 	
     public void setPhase(Phase p) {
@@ -29,7 +29,7 @@ public class MCMoveClusterAtom extends MCMoveAtom {
     
 	public boolean doTrial() {
         AtomArrayList leafList = phase.getSpeciesMaster().leafList;
-		atom = (AtomLeaf)leafList.get(Simulation.random.nextInt(1+leafList.size()-1));
+		atom = leafList.get(Simulation.random.nextInt(1+leafList.size()-1));
 		uOld = weightMeter.getDataAsScalar();
         translationVector.setRandomCube();
         translationVector.TE(stepSize);
@@ -58,5 +58,6 @@ public class MCMoveClusterAtom extends MCMoveAtom {
     	((PhaseCluster)phase).acceptNotify();
     }
 
+    private static final long serialVersionUID = 1L;
     private MeterClusterWeight weightMeter;
 }

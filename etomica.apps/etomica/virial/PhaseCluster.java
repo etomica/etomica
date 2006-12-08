@@ -21,7 +21,7 @@ public class PhaseCluster extends Phase {
 	public PhaseCluster(Simulation sim, ClusterWeight cluster) {
 		super(sim);
         sampleCluster = cluster;
-        setBoundary(new BoundaryRectangularNonperiodic(sim.space));
+        setBoundary(new BoundaryRectangularNonperiodic(sim.getSpace()));
 	}
 	
     /**

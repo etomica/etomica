@@ -96,7 +96,7 @@ public class ZeoliteSimulation extends Simulation {
         //Start by reading the first line, which is number of Atoms
         String fileName = "2unitcell";
         //String fileName = "pbu2";
-        ConfigurationFileXYZ config = new ConfigurationFileXYZ(this.space,fileName);
+        ConfigurationFileXYZ config = new ConfigurationFileXYZ(space,fileName);
         int[] numAtoms = config.getNumAtoms();
         
         nAtomsMeth = numAtoms[numAtoms.length - 1];
@@ -245,7 +245,7 @@ public class ZeoliteSimulation extends Simulation {
         int history = sim.getInterval()*10;
         //Settings
         
-        MeterEnergy eMeter = new MeterEnergy(sim.potentialMaster);
+        MeterEnergy eMeter = new MeterEnergy(sim.getPotentialMaster());
         eMeter.setPhase(sim.phase);
         AccumulatorHistory energyHistory = new AccumulatorHistory();
         energyHistory.setHistoryLength(history);

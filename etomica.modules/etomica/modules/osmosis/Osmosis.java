@@ -70,7 +70,7 @@ public class Osmosis {
 
         Unit tUnit = Kelvin.UNIT;
 
-        ConfigurationSequential config = new ConfigurationSequential(sim.space);
+        ConfigurationSequential config = new ConfigurationSequential(sim.getSpace());
         config.setSquareConfig(true);
 
         DeviceTrioControllerButton button = new DeviceTrioControllerButton(sim);
@@ -99,7 +99,7 @@ public class Osmosis {
         displayCycles.setLabel("Time");
 	    displayCycles.setPrecision(6);	
 
-        osmosisPMeter = new MeterOsmoticPressure(sim.space, new P1HardBoundary[]{sim.boundaryHardLeftA}, 
+        osmosisPMeter = new MeterOsmoticPressure(sim.getSpace(), new P1HardBoundary[]{sim.boundaryHardLeftA}, 
                 new P1HardBoundary[]{sim.boundaryHardRightA, sim.boundaryHardB});
         osmosisPMeter.setIntegrator(sim.integrator);
         AccumulatorAverage osmosisPMeterAvg = new AccumulatorAverage(sim);
@@ -115,7 +115,7 @@ public class Osmosis {
 //        moleFraction = new MeterMoleFraction();
         moleFraction.setPhase(sim.phase);
         Vector dimensions = sim.phase.getBoundary().getDimensions();
-        moleFraction.setShape(new Rectangle(sim.space, dimensions.x(0)*0.5, dimensions.x(1)));
+        moleFraction.setShape(new Rectangle(sim.getSpace(), dimensions.x(0)*0.5, dimensions.x(1)));
         moleFraction.setShapeOrigin(new Vector2D(dimensions.x(0)*0.25, 0));
         moleFraction.setSpecies(sim.speciesB);
         AccumulatorAverage moleFractionAvg = new AccumulatorAverage(sim);

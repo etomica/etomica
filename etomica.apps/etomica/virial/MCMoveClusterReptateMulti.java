@@ -29,7 +29,7 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
     private final MeterPotentialEnergy energyMeter;
 
     public MCMoveClusterReptateMulti(Simulation sim, int nAtoms) {
-    	this(sim.potentialMaster, nAtoms);
+    	this(sim.getPotentialMaster(), nAtoms);
         setBondLength(1.0);
     }
     
