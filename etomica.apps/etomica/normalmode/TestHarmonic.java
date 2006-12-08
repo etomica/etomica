@@ -68,20 +68,30 @@ public class TestHarmonic extends Simulation {
         PhaseImposePbc makeperiodic = new PhaseImposePbc(phase);
         integrator.addListener(makeperiodic);
 
+        double harmonicFudge = .25;
         double[][] eigenValues = ArrayReader1D.getFromFile(filename+".val");
-        Vector[] q = ArrayReader1D.getVectorsFromFile(filename+".Q");
-        double[][][] eigenvectors = ArrayReader2D.getFromFile(filename+".vec");
-        
-        double harmonicFudge = 1;
         for (int i=0; i<eigenValues.length; i++) {
             for (int j=0; j<eigenValues[i].length; j++) {
-                eigenValues[i][j] = harmonicFudge*eigenValues[i][j];
+                // omega is sqrt(kT)/eigenvalue
+                eigenValues[i][j] = eigenValues[i][j]*harmonicFudge;
             }
         }
+        double[][] waveVectorsAndCoefficients = ArrayReader1D.getFromFile(filename+".Q");
+        Vector[] waveVectors = new Vector[waveVectorsAndCoefficients.length];
+        double[] coefficients = new double[waveVectors.length];
+        for (int i=0; i<waveVectors.length; i++) {
+            coefficients[i] = waveVectorsAndCoefficients[i][0];
+            waveVectors[i] = new Vector3D(waveVectorsAndCoefficients[i][1],
+                    waveVectorsAndCoefficients[i][2],
+                    waveVectorsAndCoefficients[i][3]);
+        }
+        double[][][] eigenvectors = ArrayReader2D.getFromFile(filename+".vec");
         
         move.setEigenValues(eigenValues);
         move.setEigenVectors(eigenvectors);
-        move.setWaveVectors(q);
+        move.setWaveVectors(waveVectors);
+        move.setWaveVectorCoefficients(coefficients);
+        move.setNormalCoordWrapper(new NormalCoordLeaf(space));
         
         lattice = new LatticeCubicFcc();
         config = new ConfigurationLattice(lattice);
@@ -106,10 +116,10 @@ public class TestHarmonic extends Simulation {
         }
         TestHarmonic sim = new TestHarmonic(Space3D.getInstance(), nA, filename);
         
-        P2HardSphere p2HardSphere = new P2HardSphere(sim.space, 1.0, true);
-        sim.potentialMaster.addPotential(p2HardSphere, new AtomType[]{sim.species.getMoleculeType(),sim.species.getMoleculeType()});
+        P2HardSphere p2HardSphere = new P2HardSphere(sim.getSpace(), 1.0, true);
+        sim.getPotentialMaster().addPotential(p2HardSphere, new AtomType[]{sim.species.getMoleculeType(),sim.species.getMoleculeType()});
         
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.getPotentialMaster());
         meterPE.setPhase(sim.phase);
         BoltzmannProcessor bp = new BoltzmannProcessor();
         bp.setTemperature(1);
@@ -120,8 +130,8 @@ public class TestHarmonic extends Simulation {
         IntervalActionAdapter iaa = new IntervalActionAdapter(pump);
         sim.integrator.addListener(iaa);
         
-        NormalCoordLeaf normalCoordLeaf = new NormalCoordLeaf(sim.space);
-        double harmonicFudge = 1;
+        NormalCoordLeaf normalCoordLeaf = new NormalCoordLeaf(sim.getSpace());
+        double harmonicFudge = .25;
         double[][] waveVectorsAndCoefficients = ArrayReader1D.getFromFile(filename+".Q");
         Vector[] waveVectors = new Vector[waveVectorsAndCoefficients.length];
         double[] coefficients = new double[waveVectors.length];
@@ -139,12 +149,13 @@ public class TestHarmonic extends Simulation {
                 omegaSquared[i][j] = 1/omegaSquared[i][j]/harmonicFudge;
             }
         }
+
         MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy();
         harmonicEnergy.setEigenvectors(eigenvectors);
         harmonicEnergy.setOmegaSquared(omegaSquared);
         harmonicEnergy.setWaveVectors(waveVectors, coefficients);
-        harmonicEnergy.setPhase(sim.phase);
         harmonicEnergy.setNormalCoordWrapper(normalCoordLeaf);
+        harmonicEnergy.setPhase(sim.phase);
         DataFork harmonicFork = new DataFork();
         AccumulatorAverage harmonicAvg = new AccumulatorAverage(5);
         pump = new DataPump(harmonicEnergy, harmonicFork);
@@ -157,9 +168,9 @@ public class TestHarmonic extends Simulation {
         harmonicSingleEnergy.setEigenvectors(eigenvectors);
         harmonicSingleEnergy.setOmegaSquared(omegaSquared);
         harmonicSingleEnergy.setWaveVectors(waveVectors, coefficients);
-        harmonicSingleEnergy.setPhase(sim.phase);
-        harmonicSingleEnergy.setTemperature(1.0);
         harmonicSingleEnergy.setNormalCoordMapper(normalCoordLeaf);
+        harmonicSingleEnergy.setTemperature(1.0);
+        harmonicSingleEnergy.setPhase(sim.phase);
 //        DataProcessorFunction harmonicLog = new DataProcessorFunction(new Function.Log());
         AccumulatorAverage harmonicSingleAvg = new AccumulatorAverage(5);
         DataHistogram harmonicSingleHistogram = new DataHistogram(new HistogramSimple.Factory(50, new DoubleRange(0, 1)));
