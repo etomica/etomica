@@ -54,7 +54,9 @@ public class TestHexane extends Simulation {
         int chainLength = 6;
         int numAtoms = numMolecules * chainLength;
         PrimitiveHexane primitive = new PrimitiveHexane(space);
-        primitive.scaleSize(1.1);
+        // close packed density is 0.4165783882178116
+        // Monson reports data for 0.373773507616 and 0.389566754417
+        primitive.scaleSize(Math.pow(0.4165783882178116/0.373773507616,1.0/3.0));
         lattice = new BravaisLattice(primitive);
         ConfigurationLattice config = new ConfigurationLattice(lattice);
 
@@ -74,8 +76,8 @@ public class TestHexane extends Simulation {
         phase.getAgent(species).setNMolecules(numMolecules);
 //        config.initializeCoordinates(phase);
 
-        integrator = new IntegratorMC(potentialMaster, defaults.temperature);
-        moveMolecule = new MCMoveMolecule(potentialMaster, 0.1, 1, false);
+        integrator = new IntegratorMC(getPotentialMaster(), defaults.temperature);
+        moveMolecule = new MCMoveMolecule(getPotentialMaster(), 0.1, 1, false);
 //        moveVolume = new MCMoveVolume(potentialMaster, phase.space(), sim.getDefaults().pressure);
 //        moveVolume.setPhase(phase);
 //        crank = new MCMoveCrankshaft();
@@ -83,16 +85,21 @@ public class TestHexane extends Simulation {
 //         snake = new MCMoveReptate(this);
 //         snake.setPhase(phase);
          
-         rot = new MCMoveRotateMolecule3D(potentialMaster, space);
-         rot.setStepSize(Math.PI/10);
+         rot = new MCMoveRotateMolecule3D(getPotentialMaster(), space);
          rot.setPhase(phase);
-         
+
+         // 0.025 for translate, 0.042 for rotate for rho=0.3737735
+         moveMolecule.setStepSize(0.024);
+         rot.setStepSize(0.042);
+
         //nan we're going to need some stuff in there to set the step sizes and other stuff like that.
         
         integrator.getMoveManager().addMCMove(moveMolecule);
 //        integrator.getMoveManager().addMCMove(snake);
         integrator.getMoveManager().addMCMove(rot);
 //        integrator.getMoveManager().addMCMove(moveVolume);
+        ((MCMoveStepTracker)moveMolecule.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker)rot.getTracker()).setNoisyAdjustment(true);
         
         integrator.setIsothermal(true);
         activityIntegrate = new ActivityIntegrate(this, integrator);
@@ -105,9 +112,6 @@ public class TestHexane extends Simulation {
         //makes the density 0.41657 per Dr. Monson's comment in e-mail.
 //        defaults.boxSize = 7.018;
 //        defaults.boxSize = 100;
-
-
-        getController().addAction(activityIntegrate);
 
         //INTERMOLECULAR POTENTIAL STUFF
 
@@ -125,7 +129,7 @@ public class TestHexane extends Simulation {
                 .moleculeFactory()).getChildFactory().getType();
 
         //Add the Potential to the PotentialMaster
-        potentialMaster.addPotential(potential, new AtomType[] { sphereType,
+        getPotentialMaster().addPotential(potential, new AtomType[] { sphereType,
                 sphereType });
         
 //         //INTRAMOLECULAR POTENTIAL STUFF
@@ -211,19 +215,21 @@ public class TestHexane extends Simulation {
             meterNormalMode.setNormalCoordWrapper(new NormalCoordHexane());
             meterNormalMode.setPhase(sim.phase);
 
-            long nSteps = 10000;
+            long nSteps = 1000000;
             sim.activityIntegrate.setMaxSteps(nSteps/10);
             sim.getController().actionPerformed();
+            System.out.println("equilibration finished");
+
+            ((MCMoveStepTracker)sim.moveMolecule.getTracker()).setTunable(false);
+            ((MCMoveStepTracker)sim.rot.getTracker()).setTunable(false);
             sim.getController().reset();
+            sim.activityIntegrate.setMaxSteps(nSteps);
             
             IntervalActionAdapter adapter = new IntervalActionAdapter(meterNormalMode);
             adapter.setActionInterval(100);
             sim.integrator.addListener(adapter);
 
             sim.getController().actionPerformed();
-
-            ((MCMoveStepTracker)sim.moveMolecule.getTracker()).setTunable(false);
-            ((MCMoveStepTracker)sim.rot.getTracker()).setTunable(false);
             
             DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
             normalModeData.TE(1.0/(sim.phase.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
