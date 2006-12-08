@@ -109,7 +109,7 @@ public class TestFcc extends Simulation {
 
             MeterNormalMode meterNormalMode = new MeterNormalMode();
             meterNormalMode.setWaveVectorFactory(new WaveVectorFactoryFcc(primitive));
-            meterNormalMode.setNormalCoordWrapper(new NormalCoordLeaf(sim.space));
+            meterNormalMode.setNormalCoordWrapper(new NormalCoordLeaf(sim.getSpace()));
             meterNormalMode.setPhase(sim.phase);
 
             if (false) {

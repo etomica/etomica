@@ -108,7 +108,7 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
         phase.setDimensions(new Vector3D(nCells, nCells, nCells));
         Species species = new SpeciesSpheresMono(sim);
         phase.getAgent(species).setNMolecules(4*nCells*nCells*nCells);
-        PrimitiveFcc primitive = new PrimitiveFcc(sim.space, 1/Math.sqrt(2));
+        PrimitiveFcc primitive = new PrimitiveFcc(sim.getSpace(), 1/Math.sqrt(2));
         
         WaveVectorFactoryFcc foo = new WaveVectorFactoryFcc(primitive);
         foo.makeWaveVectors(phase);

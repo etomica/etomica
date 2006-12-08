@@ -111,7 +111,7 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
         phase.setDimensions(new Vector3D(nCells, nCells, nCells));
         Species species = new SpeciesSpheresMono(sim);
         phase.getAgent(species).setNMolecules(nCells*nCells*nCells);
-        Primitive primitive = new PrimitiveCubic(sim.space, 1);
+        Primitive primitive = new PrimitiveCubic(sim.getSpace(), 1);
         
         WaveVectorFactorySimple foo = new WaveVectorFactorySimple(primitive);
         foo.makeWaveVectors(phase);

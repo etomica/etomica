@@ -111,7 +111,7 @@ public class SimFcc extends Simulation {
         primitive.setCubicSize(primitive.getCubicSize()*scaling.x(0));
 
         MeterNormalMode meterNormalMode = new MeterNormalMode();
-        meterNormalMode.setNormalCoordWrapper(new NormalCoordLeaf(sim.space));
+        meterNormalMode.setNormalCoordWrapper(new NormalCoordLeaf(sim.getSpace()));
         WaveVectorFactoryFcc waveVectorFactory = new WaveVectorFactoryFcc(primitive);
         meterNormalMode.setWaveVectorFactory(waveVectorFactory);
         meterNormalMode.setPhase(sim.phase);
