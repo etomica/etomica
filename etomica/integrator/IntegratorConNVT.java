@@ -40,7 +40,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
     protected AtomAgentManager agentManager;
 
     public IntegratorConNVT(Simulation sim) {
-        this(sim.potentialMaster,sim.space,sim.getDefaults().timeStep,sim.getDefaults().temperature);
+        this(sim.getPotentialMaster(),sim.getSpace(),sim.getDefaults().timeStep,sim.getDefaults().temperature);
     }
     
     public IntegratorConNVT(PotentialMaster potentialMaster, Space space, 

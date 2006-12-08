@@ -14,7 +14,7 @@ import etomica.simulation.Simulation;
 public class ColorSchemeCell extends ColorScheme {
     
     public ColorSchemeCell(Simulation sim, Phase phase) {
-        PhaseAgentManager cellAgentManager = ((PotentialMasterNbr)sim.potentialMaster).getCellAgentManager();
+        PhaseAgentManager cellAgentManager = ((PotentialMasterNbr)sim.getPotentialMaster()).getCellAgentManager();
         cellManager = (NeighborCellManager)cellAgentManager.getAgent(phase);
     }
     

@@ -19,7 +19,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
      * given by the Simulation. 
      */
     public BoundaryRectangular(Simulation sim, boolean[] periodicity) {
-        this(sim.space, periodicity, sim.getDefaults().boxSize);
+        this(sim.getSpace(), periodicity, sim.getDefaults().boxSize);
     }
 
     /**

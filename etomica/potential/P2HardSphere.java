@@ -39,7 +39,7 @@ public class P2HardSphere extends Potential2HardSpherical {
     protected final Tensor lastCollisionVirialTensor;
     
     public P2HardSphere(Simulation sim) {
-        this(sim.space, sim.getDefaults().atomSize, sim.getDefaults().ignoreOverlap);
+        this(sim.getSpace(), sim.getDefaults().atomSize, sim.getDefaults().ignoreOverlap);
     }
     public P2HardSphere(Space space, double d, boolean ignoreOverlap) {
         super(space);

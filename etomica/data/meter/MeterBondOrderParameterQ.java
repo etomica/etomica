@@ -24,7 +24,7 @@ import etomica.units.Undefined;
 public class MeterBondOrderParameterQ  extends DataSourceScalar implements Meter {
 	
     public MeterBondOrderParameterQ(Simulation sim) {
-        this(sim.space,5.0*sim.getDefaults().atomSize);
+        this(sim.getSpace(),5.0*sim.getDefaults().atomSize);
     }
     
     public MeterBondOrderParameterQ(Space space, double rCut) {
@@ -135,6 +135,7 @@ public class MeterBondOrderParameterQ  extends DataSourceScalar implements Meter
         this.phase = phase;
     }
 
+    private static final long serialVersionUID = 1L;
     private Phase phase;
     private double[] Qreal, Qimag;
     private int L;

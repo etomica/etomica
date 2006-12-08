@@ -31,7 +31,7 @@ public class MCMoveAtom extends MCMovePhaseStep {
     protected boolean fixOverlap;
 
     public MCMoveAtom(Simulation sim) {
-        this(sim.potentialMaster, sim.getDefaults().atomSize, sim.getDefaults().boxSize/2, 
+        this(sim.getPotentialMaster(), sim.getDefaults().atomSize, sim.getDefaults().boxSize/2, 
                 sim.getDefaults().ignoreOverlap);
     }
     

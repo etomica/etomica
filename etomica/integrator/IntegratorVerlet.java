@@ -30,7 +30,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
     protected AtomAgentManager agentManager;
 
     public IntegratorVerlet(Simulation sim) {
-        this(sim.potentialMaster,sim.space,sim.getDefaults().timeStep,
+        this(sim.getPotentialMaster(),sim.getSpace(),sim.getDefaults().timeStep,
                 sim.getDefaults().temperature);
     }
     

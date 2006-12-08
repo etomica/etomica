@@ -46,7 +46,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
     protected AtomAgentManager agentManager;
 
     public IntegratorGear4(Simulation sim) {
-        this(sim.potentialMaster,sim.space,sim.getDefaults().timeStep,sim.getDefaults().temperature);
+        this(sim.getPotentialMaster(),sim.getSpace(),sim.getDefaults().timeStep,sim.getDefaults().temperature);
     }
     
     public IntegratorGear4(PotentialMaster potentialMaster, Space space, 

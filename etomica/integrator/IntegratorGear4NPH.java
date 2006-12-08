@@ -43,6 +43,7 @@ import etomica.units.Undefined;
  */
 public final class IntegratorGear4NPH extends IntegratorGear4 implements EtomicaElement {
 
+    private static final long serialVersionUID = 1L;
     double vol1, vol2, vol3, vol4;
     protected /*final*/ ForceSumNPH forceSumNPH;//MeterTPH won't permit this to be final (?)
     private final IteratorDirective allAtoms = new IteratorDirective();
@@ -57,7 +58,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     protected final MeterTemperature meterTemperature = new MeterTemperature();
     
     public IntegratorGear4NPH(Simulation sim) {
-        this(sim.potentialMaster,sim.space,sim.getDefaults().timeStep,
+        this(sim.getPotentialMaster(),sim.getSpace(),sim.getDefaults().timeStep,
                 sim.getDefaults().temperature);
     }
     
@@ -224,6 +225,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
                 integrator.setTargetH(hCurrent);
             }
         }
+        private static final long serialVersionUID = 1L;
         public boolean getBoolean() {return integrator.isIsothermal();}
         private IntegratorGear4NPH integrator;
     }
@@ -261,6 +263,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
             return data;
         }
         
+        private static final long serialVersionUID = 1L;
         private DataDoubleArray data;
         private IntegratorGear4NPH integrator;
         private DataInfo dataInfo;
@@ -269,6 +272,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         
     public final class ForceSumNPH extends PotentialCalculation {
         
+        private static final long serialVersionUID = 1L;
         double u; //energy sum
         double w; //virial sum
         double x; //hypervirial sum

@@ -42,7 +42,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     private final Tensor lastVirialTensor;
     
     public P1HardBoundary(Simulation sim) {
-        this(sim.space, sim.getDefaults().ignoreOverlap);
+        this(sim.getSpace(), sim.getDefaults().ignoreOverlap);
     }
     
     public P1HardBoundary(Space space, boolean ignoreOverlap) {

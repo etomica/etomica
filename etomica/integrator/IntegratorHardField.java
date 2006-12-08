@@ -39,7 +39,7 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
     };
 
     public IntegratorHardField(Simulation sim) {
-        this(sim.potentialMaster,sim.getDefaults().timeStep,sim.getDefaults().temperature);
+        this(sim.getPotentialMaster(),sim.getDefaults().timeStep,sim.getDefaults().temperature);
     }
     
     public IntegratorHardField(PotentialMaster potentialMaster, double timeStep, 

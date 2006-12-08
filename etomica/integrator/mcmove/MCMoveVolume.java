@@ -3,7 +3,6 @@ package etomica.integrator.mcmove;
 import etomica.action.PhaseInflate;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.atom.iterator.AtomIteratorNull;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
@@ -17,9 +16,9 @@ import etomica.units.Pressure;
  *
  * @author David Kofke
  */
-
 public class MCMoveVolume extends MCMovePhaseStep {
     
+    private static final long serialVersionUID = 1L;
     protected double pressure;
     private MeterPotentialEnergy energyMeter;
     protected final PhaseInflate inflate;
@@ -29,7 +28,7 @@ public class MCMoveVolume extends MCMovePhaseStep {
     private transient double uNew = Double.NaN;
 
     public MCMoveVolume(Simulation sim) {
-        this(sim.potentialMaster, sim.space, sim.getDefaults().pressure);
+        this(sim.getPotentialMaster(), sim.getSpace(), sim.getDefaults().pressure);
     }
     
     /**

@@ -23,7 +23,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
      * periodic in every direction.
      */
 	public BoundaryDeformablePeriodic(Simulation sim) {
-		this(sim.space, sim.getDefaults().boxSize);
+		this(sim.getSpace(), sim.getDefaults().boxSize);
 	}
 
     /**

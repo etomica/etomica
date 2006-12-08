@@ -21,7 +21,7 @@ import etomica.space.Vector;
 public class P2TriangleWell extends Potential2 implements EtomicaElement {
 
     public P2TriangleWell(Simulation sim) {
-        this(sim.space, sim.getDefaults().atomSize, 
+        this(sim.getSpace(), sim.getDefaults().atomSize, 
              sim.getDefaults().potentialCutoffFactor, sim.getDefaults().potentialWell);
     }
   
@@ -124,6 +124,7 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
         nearestImageTransformer = phase.getBoundary();
     }
 
+    private static final long serialVersionUID = 1L;
     private double coreDiameter, coreDiameterSquared;
     private double wellDiameter, wellDiameterSquared;
     private double lambda; //wellDiameter = coreDiameter * lambda ;lambda is well width

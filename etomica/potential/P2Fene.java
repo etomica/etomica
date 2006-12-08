@@ -14,17 +14,13 @@ import etomica.units.Length;
  *
  * @author David Kofke
  */
- 
- /* History of changes
-  * 08/31/02 (DAK) new
-  */
-
 public class P2Fene extends Potential2SoftSpherical implements EtomicaElement {
 
+    private static final long serialVersionUID = 1L;
     private double r0, r02, h, prefactor;
     
     public P2Fene(Simulation sim) {
-        this(sim.space, 1.50*sim.getDefaults().atomSize, 
+        this(sim.getSpace(), 1.50*sim.getDefaults().atomSize, 
                 30.0*sim.getDefaults().potentialWell/Math.pow(sim.getDefaults().atomSize,2)/*1.50*Default.atomSize, 250.0*/);
     }
     public P2Fene(Space space, double r0, double amplitude) {

@@ -26,7 +26,7 @@ public class CoordinateFactoryAngular implements CoordinateFactory {
      * Simulation.
      */
     public CoordinateFactoryAngular(Simulation sim) {
-        this(sim.space, sim.isDynamic());
+        this(sim.getSpace(), sim.isDynamic());
     }
 
     /**

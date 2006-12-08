@@ -34,8 +34,8 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
      * (which only happens when Species are added or removed).
      */
     protected void init() {
-        rangedAgentManager.setRoot(getSimulation().speciesRoot);
-        intraAgentManager.setRoot(getSimulation().speciesRoot);
+        rangedAgentManager.setRoot(getSimulation().getSpeciesRoot());
+        intraAgentManager.setRoot(getSimulation().getSpeciesRoot());
         rangedPotentialIterator = rangedAgentManager.makeIterator();
         intraPotentialIterator = intraAgentManager.makeIterator();
         initialized = true;
@@ -149,7 +149,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         // speciesRoot is the same as was set previously.  We can't set
         // this in setSimulation because the Simulation might be not
         // have its speciesRoot yet
-        phaseAgentManager.setRoot(getSimulation().speciesRoot);
+        phaseAgentManager.setRoot(getSimulation().getSpeciesRoot());
         return phaseAgentManager;
     }
     

@@ -453,7 +453,7 @@ public class DisplayTable extends Display implements DataTableListener,
         SimulationGraphic graphic = new SimulationGraphic(sim);
         sim.integrator.setIsothermal(true);
 
-        MeterPressureHard pMeter = new MeterPressureHard(sim.space);
+        MeterPressureHard pMeter = new MeterPressureHard(sim.getSpace());
         pMeter.setIntegrator(sim.integrator);
         MeterNMolecules nMeter = new MeterNMolecules();
         nMeter.setPhase(sim.phase);

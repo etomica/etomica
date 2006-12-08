@@ -4,11 +4,10 @@ import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMove;
-import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveEventManager;
-import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.integrator.mcmove.MCMovePhase;
+import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
@@ -28,7 +27,7 @@ import etomica.simulation.Simulation;
 public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
 
     public IntegratorMC(Simulation sim) {
-        this(sim.potentialMaster,sim.getDefaults().temperature);
+        this(sim.getPotentialMaster(),sim.getDefaults().temperature);
     }
     
 	/**
@@ -141,6 +140,7 @@ public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
         return eventManager;
     }
 
+    private static final long serialVersionUID = 1L;
     protected MCMoveManager moveManager;
     protected final MCMoveEventManager eventManager;
     private final MCMoveTrialInitiatedEvent trialEvent;

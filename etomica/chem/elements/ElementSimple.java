@@ -6,7 +6,7 @@ import etomica.simulation.Simulation;
 public class ElementSimple extends Element {
 
     public ElementSimple(Simulation sim) {
-        this(((AtomTypeRoot)sim.speciesRoot.getType()).makeUniqueElementSymbol("E"), sim.getDefaults().atomMass);
+        this(((AtomTypeRoot)sim.getSpeciesRoot().getType()).makeUniqueElementSymbol("E"), sim.getDefaults().atomMass);
     }
     
     public ElementSimple(String symbol, double mass) {

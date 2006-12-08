@@ -29,7 +29,7 @@ public class AtomFactoryHomo extends AtomFactory {
      * @param atoms the number of identical children per group (default is 1).
      */
     public AtomFactoryHomo(Simulation sim, AtomTypeGroup parentType, int atoms) {
-        this(sim.space, parentType, atoms, new ConformationLinear(sim));
+        this(sim.getSpace(), parentType, atoms, new ConformationLinear(sim));
     }
     /**
      * @param space the coordinate factory

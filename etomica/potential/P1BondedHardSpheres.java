@@ -1,6 +1,5 @@
 package etomica.potential;
 
-import etomica.EtomicaInfo;
 import etomica.simulation.Simulation;
 
 /**
@@ -13,6 +12,6 @@ import etomica.simulation.Simulation;
 public class P1BondedHardSpheres {
 
     public static PotentialGroup makeP1BondedHardSpheres(Simulation sim) {
-        return P1IntraSimple.makeP1IntraSimple(sim.potentialMaster, new P2HardBond(sim), new P2HardSphere(sim));
+        return P1IntraSimple.makeP1IntraSimple(sim.getPotentialMaster(), new P2HardBond(sim), new P2HardSphere(sim));
     }
 }

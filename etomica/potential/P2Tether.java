@@ -22,7 +22,7 @@ import etomica.units.Length;
 public class P2Tether extends Potential2HardSpherical {
 
     public P2Tether(Simulation sim) {
-        this(sim.space, 0.75*sim.getDefaults().atomSize, sim.getDefaults().ignoreOverlap);
+        this(sim.getSpace(), 0.75*sim.getDefaults().atomSize, sim.getDefaults().ignoreOverlap);
     }
     
     public P2Tether(Space space, double tetherLength, boolean ignoreOverlap) {

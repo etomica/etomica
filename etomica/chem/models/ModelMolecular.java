@@ -64,7 +64,7 @@ public abstract class ModelMolecular extends Model {
 //		}
 
 		if(models.length == 1) {
-			AtomFactoryHomo factory = new AtomFactoryHomo(sim.space, 
+			AtomFactoryHomo factory = new AtomFactoryHomo(sim.getSpace(), 
                     new AtomTypeGroup(new AtomPositionDefinitionSimple()), 
                     nodeFactory, count[0], conformation);
             factory.getType().setParentType(Species.makeAgentType(sim));
@@ -74,7 +74,7 @@ public abstract class ModelMolecular extends Model {
 		//makes array of child factories from models and counts
         int childCount = 0;
         for(int i=0; i<count.length; i++) childCount += count[i];//total number of child atoms in group
-		AtomFactoryHetero factory = new AtomFactoryHetero(sim.space, 
+		AtomFactoryHetero factory = new AtomFactoryHetero(sim.getSpace(), 
                 new AtomTypeGroup(new AtomPositionDefinitionSimple()), 
                 nodeFactory, conformation);
         factory.getType().setParentType(Species.makeAgentType(sim));

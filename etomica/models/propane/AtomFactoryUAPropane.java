@@ -27,7 +27,7 @@ public class AtomFactoryUAPropane extends AtomFactory {
 	 * @param sequencerFactory
 	 */
     public AtomFactoryUAPropane(Simulation sim, AtomTypeGroup agentType) {
-		super(new AtomTypeGroup(new AtomPositionGeometricCenter(sim.space)), AtomTreeNodeUAPropane.FACTORY);
+		super(new AtomTypeGroup(new AtomPositionGeometricCenter(sim.getSpace())), AtomTreeNodeUAPropane.FACTORY);
         atomType.setParentType(agentType);
         AtomTypeSphere UAType = new AtomTypeSphere(new ElementSimple("UA", 15), 3.75);
         UAType.setParentType((AtomTypeGroup)atomType);
@@ -36,7 +36,7 @@ public class AtomFactoryUAPropane extends AtomFactory {
         UAFactory = new AtomFactoryMono(leafCoordFactory, UAType);
 //		oFactory = new AtomFactoryMono(leafCoordFactory, oType);
 
-		conformation = new ConformationUAPropane(sim.space); 
+		conformation = new ConformationUAPropane(sim.getSpace()); 
 	}
 
 	/**

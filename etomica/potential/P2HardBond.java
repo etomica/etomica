@@ -25,7 +25,7 @@ import etomica.util.Debug;
 public class P2HardBond extends Potential2HardSpherical {
 
     public P2HardBond(Simulation sim) {
-        this(sim.space, sim.getDefaults().atomSize, 0.15, sim.getDefaults().ignoreOverlap);
+        this(sim.getSpace(), sim.getDefaults().atomSize, 0.15, sim.getDefaults().ignoreOverlap);
     }
 
     public P2HardBond(Space space, double bondLength, double bondDelta, boolean ignoreOverlap) {

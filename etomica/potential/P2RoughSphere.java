@@ -29,7 +29,7 @@ public class P2RoughSphere extends P2HardSphere {
     private final Vector impulse;
     
     public P2RoughSphere(Simulation sim) {
-        this(sim.space, sim.getDefaults().atomSize, sim.getDefaults().ignoreOverlap);
+        this(sim.getSpace(), sim.getDefaults().atomSize, sim.getDefaults().ignoreOverlap);
     }
     public P2RoughSphere(Space space, double d, boolean ignoreOverlap) {
         super(space,d,ignoreOverlap);

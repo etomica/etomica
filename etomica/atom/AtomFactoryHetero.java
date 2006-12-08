@@ -17,7 +17,7 @@ import etomica.util.Arrays;
 public class AtomFactoryHetero extends AtomFactory {
 
     public AtomFactoryHetero(Simulation sim, AtomTypeGroup parentType) {
-        this(sim.space, parentType, new ConformationLinear(sim));
+        this(sim.getSpace(), parentType, new ConformationLinear(sim));
     }
 
     public AtomFactoryHetero(Space space, AtomTypeGroup parentType,

@@ -25,7 +25,7 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft, Etomica
 	private double radius;
 	
     public P1SoftBoundary(Simulation sim) {
-        this(sim.space, 0.5*sim.getDefaults().atomSize);
+        this(sim.getSpace(), 0.5*sim.getDefaults().atomSize);
     }
 	public P1SoftBoundary(Space space, double radius) {
 		super(space);

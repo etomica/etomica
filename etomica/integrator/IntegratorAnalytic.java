@@ -15,17 +15,13 @@ import etomica.simulation.Simulation;
  * @author David Kofke
  * @author Nancy Cribbin
  */
- 
- /* History of changes
-  * 7/31/02 (DAK) new
-  */
- 
 public class IntegratorAnalytic extends IntegratorMD {
     
+    private static final long serialVersionUID = 1L;
     private AtomAction action;
     
     public IntegratorAnalytic(Simulation sim) {
-        this(sim.potentialMaster,sim.getDefaults().timeStep);
+        this(sim.getPotentialMaster(),sim.getDefaults().timeStep);
     }
     
     public IntegratorAnalytic(PotentialMaster potentialMaster, double timeStep) {

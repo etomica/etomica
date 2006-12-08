@@ -29,7 +29,7 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
      * @throws IllegalArgumentException if not (0 <= slitDim < space.D).
      */
     public BoundaryRectangularSlit(Simulation sim, int slitDim) {
-        this(sim.space, slitDim, sim.getDefaults().boxSize);
+        this(sim.getSpace(), slitDim, sim.getDefaults().boxSize);
     }
     
     /**

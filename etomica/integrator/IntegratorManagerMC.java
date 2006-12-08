@@ -2,11 +2,10 @@ package etomica.integrator;
 
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMove;
-import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveEventManager;
+import etomica.integrator.mcmove.MCMoveManager;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
-import etomica.integrator.mcmove.MCMoveManager;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.util.Arrays;
@@ -22,7 +21,7 @@ import etomica.util.Arrays;
 public class IntegratorManagerMC extends Integrator {
 
     public IntegratorManagerMC(Simulation sim) {
-        this(sim.potentialMaster);
+        this(sim.getPotentialMaster());
     }
     
     public IntegratorManagerMC(PotentialMaster potentialMaster) {
@@ -220,6 +219,7 @@ public class IntegratorManagerMC extends Integrator {
      */
     public double getGlobalMoveInterval() {return globalMoveInterval;}
     
+    private static final long serialVersionUID = 1L;
     private double globalMoveInterval;
     protected double globalMoveProbability;
     protected MCMoveManager moveManager;

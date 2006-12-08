@@ -23,6 +23,7 @@ import etomica.units.Null;
  */
 
 public class P2HardAssociationCone extends Potential2 implements EtomicaElement {
+    private static final long serialVersionUID = 1L;
     private double wellcutoffFactor;
     private double wellCutoffSquared;
     private double sigma, sigmaSquared;
@@ -36,7 +37,7 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
     private NearestImageTransformer nearestImageTransformer;
     
     public P2HardAssociationCone(Simulation sim) {
-        this(sim.space, sim.getDefaults().atomSize, sim.getDefaults().potentialWell, 
+        this(sim.getSpace(), sim.getDefaults().atomSize, sim.getDefaults().potentialWell, 
                 sim.getDefaults().potentialCutoffFactor);
     }
     

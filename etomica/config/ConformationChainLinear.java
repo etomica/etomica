@@ -21,7 +21,7 @@ import etomica.units.Length;
 public class ConformationChainLinear extends ConformationChain {
     
     public ConformationChainLinear(Simulation sim) {
-        this(sim.space, 0.55*sim.getDefaults().atomSize);
+        this(sim.getSpace(), 0.55*sim.getDefaults().atomSize);
     }
     public ConformationChainLinear(Space space, double bondLength) {
     	this(space, bondLength, new double[] {etomica.units.Degree.UNIT.toSim(45.), 0.0});

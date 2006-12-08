@@ -35,7 +35,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
     protected AtomAgentManager agentManager;
 
     public IntegratorVelocityVerlet(Simulation sim) {
-        this(sim.potentialMaster,sim.space,sim.getDefaults().timeStep,sim.getDefaults().temperature);
+        this(sim.getPotentialMaster(),sim.getSpace(),sim.getDefaults().timeStep,sim.getDefaults().temperature);
     }
     
     public IntegratorVelocityVerlet(PotentialMaster potentialMaster, Space space,

@@ -20,6 +20,7 @@ import etomica.space3d.Vector3D;
  */
 public class ConfigurationZincblende extends Configuration {
     
+    private static final long serialVersionUID = 1L;
     private final ConfigurationLattice fcc;
     private final AtomGroupAction translator;
     private final AtomIteratorArrayListSimple iterator0, iterator1;
@@ -82,7 +83,7 @@ public class ConfigurationZincblende extends Configuration {
     public static void main(String[] args) {
         Simulation sim = new Simulation(Space3D.getInstance());
         sim.getDefaults().atomSize = 5.0;
-        Space space = sim.space;
+        Space space = sim.getSpace();
         Phase phase = new Phase(sim);
         etomica.species.SpeciesSpheresMono speciesSpheres0  = new etomica.species.SpeciesSpheresMono(sim);
         etomica.species.SpeciesSpheresMono speciesSpheres1  = new etomica.species.SpeciesSpheresMono(sim);

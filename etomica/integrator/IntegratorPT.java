@@ -45,7 +45,7 @@ import etomica.units.Null;
 public class IntegratorPT extends IntegratorManagerMC implements EtomicaElement {
     
     public IntegratorPT(Simulation sim) {
-        this(sim.potentialMaster);
+        this(sim.getPotentialMaster());
     }
     
     public IntegratorPT(PotentialMaster potentialMaster) {
@@ -80,6 +80,7 @@ public class IntegratorPT extends IntegratorManagerMC implements EtomicaElement 
 		}
 	}
     
+    private static final long serialVersionUID = 1L;
 	private final MCMoveSwapFactory mcMoveSwapFactory;
 
 	
@@ -171,6 +172,7 @@ public class IntegratorPT extends IntegratorManagerMC implements EtomicaElement 
             return track.length;
         }
         
+        private static final long serialVersionUID = 1L;
         private int[] track;
         private double[] dtrack;
         private DataDoubleArray data;

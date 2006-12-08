@@ -65,7 +65,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
     protected AtomAgentManager agentManager;
 
     public IntegratorHard(Simulation sim) {
-        this(sim.potentialMaster,sim.getDefaults().timeStep,sim.getDefaults().temperature);
+        this(sim.getPotentialMaster(),sim.getDefaults().timeStep,sim.getDefaults().temperature);
     }
     
     public IntegratorHard(PotentialMaster potentialMaster, double timeStep, 

@@ -40,7 +40,7 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
     
     private SpeciesSpheres(Simulation sim, int nA, Element leafElement, Conformation conformation, 
             AtomTypeGroup agentType) {
-        super(sim, new AtomFactoryHomo(sim.space, agentType,
+        super(sim, new AtomFactoryHomo(sim.getSpace(), agentType,
                                 nA, conformation), agentType);
         AtomTypeSphere atomType = new AtomTypeSphere(sim, leafElement);
         atomType.setParentType((AtomTypeGroup)factory.getType());
@@ -64,4 +64,5 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
         return new SpeciesSignature(getName(),constructor,new Object[]{new Integer(((AtomFactoryHomo)factory).getNumChildAtoms())});
     }
     
+    private static final long serialVersionUID = 1L;
 }

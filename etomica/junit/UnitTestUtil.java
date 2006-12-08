@@ -101,7 +101,7 @@ public class UnitTestUtil implements java.io.Serializable {
             if (species2 != null)
                 phase.getAgent(species2).setNMolecules(n2[i]);
         }
-        return sim.speciesRoot;
+        return sim.getSpeciesRoot();
     }
 
     /**
@@ -149,7 +149,7 @@ public class UnitTestUtil implements java.io.Serializable {
             Species species = new MySpecies(sim, factory, agentType);
             phase.getAgent(species).setNMolecules(nMolecules[i]);
         }
-        return sim.speciesRoot;
+        return sim.getSpeciesRoot();
     }
     
     private static class MySpecies extends Species {

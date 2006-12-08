@@ -14,7 +14,7 @@ public class BoundaryRectangularNonperiodic extends BoundaryRectangular {
      * Make a boundary with unit volume.
      */
     public BoundaryRectangularNonperiodic(Simulation sim) {
-        this(sim.space);
+        this(sim.getSpace());
     }
 
     /**

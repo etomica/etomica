@@ -36,7 +36,7 @@ public class P2SquareWell extends Potential2HardSpherical {
     protected final boolean ignoreOverlap;
 
     public P2SquareWell(Simulation sim) {
-        this(sim.space, sim.getDefaults().atomSize, sim.getDefaults().potentialCutoffFactor, 
+        this(sim.getSpace(), sim.getDefaults().atomSize, sim.getDefaults().potentialCutoffFactor, 
                 sim.getDefaults().potentialWell, sim.getDefaults().ignoreOverlap);
     }
 

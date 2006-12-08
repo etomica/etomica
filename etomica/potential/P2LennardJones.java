@@ -18,7 +18,7 @@ import etomica.units.Length;
 public final class P2LennardJones extends Potential2SoftSpherical implements EtomicaElement {
 
     public P2LennardJones(Simulation sim) {
-        this(sim.space, sim.getDefaults().atomSize, sim.getDefaults().potentialWell);
+        this(sim.getSpace(), sim.getDefaults().atomSize, sim.getDefaults().potentialWell);
     }
     public P2LennardJones(Space space, double sigma, double epsilon) {
         super(space);
@@ -107,6 +107,7 @@ public final class P2LennardJones extends Potential2SoftSpherical implements Eto
     }
     public Dimension getEpsilonDimension() {return Energy.DIMENSION;}
    
+    private static final long serialVersionUID = 1L;
     private double sigma, sigmaSquared;
     private double epsilon;
     private double epsilon4, epsilon48, epsilon624;

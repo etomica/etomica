@@ -27,7 +27,7 @@ public class CoordinateFactorySphere implements CoordinateFactory, Serializable 
      * Simulation.
      */
     public CoordinateFactorySphere(Simulation sim) {
-        this(sim.space, sim.isDynamic());
+        this(sim.getSpace(), sim.isDynamic());
     }
 
     /**

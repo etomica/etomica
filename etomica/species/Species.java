@@ -53,7 +53,7 @@ public class Species implements Comparable, java.io.Serializable {
         this.agentType = agentType;
         setName(NameMaker.makeName(this.getClass()));
         agentType.setSpecies(this);
-        index = sim.speciesRoot.addSpecies(this);
+        index = sim.getSpeciesRoot().addSpecies(this);
     }
     
     /**
@@ -145,7 +145,7 @@ public class Species implements Comparable, java.io.Serializable {
      */
     public static AtomTypeGroup makeAgentType(Simulation sim) {
         AtomTypeGroup agentType = new AtomTypeGroup(null);
-        agentType.setParentType(sim.speciesRoot.getSpeciesMasterType());
+        agentType.setParentType(sim.getSpeciesRoot().getSpeciesMasterType());
         return agentType;
     }
     

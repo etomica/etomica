@@ -12,17 +12,14 @@ import etomica.space.Vector;
  *
  * @author David Kofke
  */
- 
- /* History of changes
-  * 7/9/02 Added energyChange() method
-  */
 public class MCMoveMolecule extends MCMoveAtom {
     
+    private static final long serialVersionUID = 1L;
     protected final AtomGroupAction moveMoleculeAction;
     protected final Vector groupTranslationVector;
 
     public MCMoveMolecule(Simulation sim) {
-        this(sim.potentialMaster,sim.getDefaults().atomSize,sim.getDefaults().boxSize*0.5,
+        this(sim.getPotentialMaster(),sim.getDefaults().atomSize,sim.getDefaults().boxSize*0.5,
                 sim.getDefaults().ignoreOverlap);
     }
     

@@ -26,10 +26,6 @@ import etomica.util.NameMaker;
 
 public class Simulation extends EtomicaInfo implements java.io.Serializable  {
     
-    private static final long serialVersionUID = 1L;
-    public final PotentialMaster potentialMaster;
-    public final Space space;
-    public final SpeciesRoot speciesRoot;
     
     
     /**
@@ -56,12 +52,11 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
         this.dynamic = isDynamic;
         this.defaults = defaults;
         setName(NameMaker.makeName(this.getClass()));
-//        elementCoordinator = new Mediator(this);
         this.potentialMaster = potentialMaster;
         setController(new Controller());
         speciesRoot = new SpeciesRoot((int[])bitLength.clone());
         potentialMaster.setSimulation(this);
-    }//end of constructor
+    }
                  
     public final Space space() {return space;}
 
@@ -229,6 +224,27 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
         this.defaults = defaults;
     }
     
+    /**
+     * @return the potentialMaster
+     */
+    public final PotentialMaster getPotentialMaster() {
+        return potentialMaster;
+    }
+
+    /**
+     * @return the space
+     */
+    public final Space getSpace() {
+        return space;
+    }
+
+    /**
+     * @return the speciesRoot
+     */
+    public final SpeciesRoot getSpeciesRoot() {
+        return speciesRoot;
+    }
+
     public static final java.util.Random random = new java.util.Random();
 //    public static final java.util.Random random = new java.util.Random(1);
         
@@ -250,6 +266,10 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
     // {speciesRoot, phases, species, molecules, groups, atoms}
     public int[] DEFAULT_BIT_LENGTH = new int[] {1, 4, 4, 14, 6, 3};
 
+    private static final long serialVersionUID = 1L;
+    protected final PotentialMaster potentialMaster;
+    protected final Space space;
+    protected final SpeciesRoot speciesRoot;
     private final boolean dynamic;
     private Controller controller;     
     private final LinkedList integratorList = new LinkedList();
@@ -257,5 +277,3 @@ public class Simulation extends EtomicaInfo implements java.io.Serializable  {
     private String name;
     protected Default defaults;
 }
-
-
