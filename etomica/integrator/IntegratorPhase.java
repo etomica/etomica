@@ -7,7 +7,6 @@ import etomica.phase.PhaseDependent;
 import etomica.potential.PotentialMaster;
 import etomica.units.Dimension;
 import etomica.units.Temperature;
-import etomica.util.Debug;
 
 /**
  * Integrator implements the algorithm used to move the atoms around and
@@ -26,8 +25,6 @@ public abstract class IntegratorPhase extends Integrator implements PhaseDepende
     protected boolean isothermal = false;
     protected MeterPotentialEnergy meterPE;
     protected double currentPotentialEnergy;
-
-    public long maxSteps, interval, stepCount;
 
     public IntegratorPhase(PotentialMaster potentialMaster, double temperature) {
         super(potentialMaster);
