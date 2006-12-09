@@ -13,11 +13,10 @@ public abstract class Primitive implements java.io.Serializable {
     protected final Vector[] latticeVectors;
     protected final Vector[] latticeVectorsCopy;
     protected final int[] idx;//used to return coordinate index
-    public final int D;
+    protected final int D;
     protected final double[] size;
     protected final double[] angle;
-//    private final double[] sizeCopy;
-    public final Space space;
+    protected final Space space;
     protected static final double rightAngle = 0.5*Math.PI;
     protected final Primitive reciprocal;
     
@@ -59,6 +58,13 @@ public abstract class Primitive implements java.io.Serializable {
      * current parameters of this primitive.  Called by update method.
      */
     protected abstract void updateReciprocal();
+
+    /**
+     * @return the space
+     */
+    public final Space getSpace() {
+        return space;
+    }
 
     /**
      * Returns a new array with values equal to the lengths of the primitive vectors.

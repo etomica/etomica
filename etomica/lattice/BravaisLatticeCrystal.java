@@ -2,7 +2,6 @@ package etomica.lattice;
 
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
-import etomica.space.Space;
 import etomica.space.Vector;
 
 
@@ -22,13 +21,9 @@ public class BravaisLatticeCrystal extends BravaisLattice {
     public BravaisLatticeCrystal(Primitive primitive, Basis basis) {
         super(primitive);
         this.basis= basis;
-        crystalIndex = new int[primitive.D];
-        D = primitive.D + 1;
+        D = primitive.getSpace().D() + 1;
+        crystalIndex = new int[D-1];
         position = getSpace().makeVector();
-    }
-
-    public Space getSpace() {
-        return primitive.space;
     }
 
     /**

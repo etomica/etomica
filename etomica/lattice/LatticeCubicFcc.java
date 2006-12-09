@@ -38,8 +38,7 @@ public class LatticeCubicFcc extends BravaisLatticeCrystal implements CubicLatti
      * Changes to the returned instance have no effect on the lattice.
      */
     public PrimitiveFcc getPrimitiveFcc() {
-        //XXX this looks... wrong
-        PrimitiveFcc p = new PrimitiveFcc(primitive.space);
+        PrimitiveFcc p = new PrimitiveFcc(getSpace());
         p.setCubicSize(getLatticeConstant()/Math.sqrt(2.0));
         return p;
     }

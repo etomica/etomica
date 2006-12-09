@@ -14,7 +14,7 @@ public class BravaisLattice implements SpaceLattice, java.io.Serializable {
 
     public BravaisLattice(Primitive primitive) {
         this.primitive = primitive;
-        latticeVector = primitive.space.makeVector();
+        latticeVector = primitive.getSpace().makeVector();
     }
 
     public int D() {
@@ -22,7 +22,7 @@ public class BravaisLattice implements SpaceLattice, java.io.Serializable {
     }
     
     public Space getSpace() {
-        return primitive.space;
+        return primitive.getSpace();
     }
     
     /**

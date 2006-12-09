@@ -19,7 +19,7 @@ public class BoundaryDeformableLattice extends BoundaryDeformablePeriodic {
      * creating this instance will not affect the boundary.
      */
     public BoundaryDeformableLattice(Primitive primitive, int[] nCells){
-        super(primitive.space, makeDimensionVectors(primitive, nCells));
+        super(primitive.getSpace(), makeDimensionVectors(primitive, nCells));
     }
     
     /**
@@ -27,9 +27,9 @@ public class BoundaryDeformableLattice extends BoundaryDeformablePeriodic {
      * scaled by nCells
      */
     private static final Vector[] makeDimensionVectors(Primitive primitive, int[] numCells) {
-        Vector[] dimensionVectors = new Vector[primitive.space.D()];
+        Vector[] dimensionVectors = new Vector[primitive.getSpace().D()];
         for (int i=0; i<dimensionVectors.length; i++) {
-            dimensionVectors[i] = primitive.space.makeVector();
+            dimensionVectors[i] = primitive.getSpace().makeVector();
             dimensionVectors[i].Ea1Tv1(numCells[i],primitive.vectors()[i]);
         }
         return dimensionVectors;

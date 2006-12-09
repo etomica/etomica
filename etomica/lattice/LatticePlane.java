@@ -14,14 +14,9 @@ import etomica.space3d.Vector3D;
  * object and a Primitive.  The orientation of the plane is 
  * specified using Miller indices defined according to the primitive.
  */
- 
- /* History
-  * 09/07/02 (DAK) new
-  * 09/20/02 (DAK) added planeCopy method
-  */
-  
 public class LatticePlane implements AtomFilter, java.io.Serializable {
     
+    private static final long serialVersionUID = 1L;
     private final Plane plane;
     private Primitive primitive;
     private Primitive reciprocal;
@@ -33,7 +28,7 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
     public LatticePlane(Primitive primitive, int[] h) {
         this.primitive = primitive;
         reciprocal = primitive.reciprocal();
-        space = primitive.space;
+        space = primitive.getSpace();
         origin = (Vector3D)space.makeVector();
         millerIndices = new int[space.D()];
         if(space.D() != 3) {
