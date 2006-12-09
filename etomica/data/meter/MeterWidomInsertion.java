@@ -104,7 +104,7 @@ public class MeterWidomInsertion extends DataSourceScalar {
         phase.addMolecule(testMolecule, phase.getAgent(species));
         energyMeter.setTarget(testMolecule);
         for (int i = nInsert; i > 0; i--) { //perform nInsert insertions
-            atomTranslator.setDestination(phase.randomPosition());
+            atomTranslator.setDestination(phase.getBoundary().randomPosition());
             atomTranslator.actionPerformed(testMolecule);
             double u = energyMeter.getDataAsScalar();
             sum += Math.exp(-u / integrator.getTemperature());

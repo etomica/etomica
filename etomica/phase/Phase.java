@@ -131,8 +131,6 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     
     public final Space space() {return space;}
     
-    public Vector randomPosition() {return boundary.randomPosition();}
-        
     /**
      * Returns the ith molecule in the linked list of molecules.
      * 0 returns the first molecule, and moleculeCount-1 returns the last.

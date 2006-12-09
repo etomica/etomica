@@ -86,7 +86,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
         energyMeter.setPhase(dPhase);
         uOld = energyMeter.getDataAsScalar();
 
-        moleculeTranslator.setDestination(iPhase.randomPosition());         //place at random in insertion phase
+        moleculeTranslator.setDestination(iPhase.getBoundary().randomPosition());         //place at random in insertion phase
         moleculeTranslator.actionPerformed(molecule);
         molecule.getNode().setParent((AtomTreeNodeGroup)iSpecies.getNode());
         uNew = Double.NaN;

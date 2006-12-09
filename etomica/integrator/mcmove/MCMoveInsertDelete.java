@@ -83,7 +83,7 @@ public class MCMoveInsertDelete extends MCMovePhase {
             else testMolecule = moleculeFactory.makeAtom();
             phase.addMolecule(testMolecule, speciesAgent);
 
-            atomTranslator.setDestination(phase.randomPosition());
+            atomTranslator.setDestination(phase.getBoundary().randomPosition());
             atomTranslator.actionPerformed(testMolecule);
         } else {//delete
             if(speciesAgent.getNMolecules() == 0) {
