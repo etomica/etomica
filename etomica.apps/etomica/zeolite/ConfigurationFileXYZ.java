@@ -84,15 +84,15 @@ public class ConfigurationFileXYZ extends Configuration{
 	            if(coord[i]>max[i]) max[i] = coord[i];
 	        }
 	        newPos.E(coord);
-	        atom.coord.position().E(newPos);
+	        atom.getCoord().position().E(newPos);
 	        for(int i=0;i<3;i++){
 	        	dim[i] = max[i]-min[i];
 	        }
 	    }
 		private void translatePosition(AtomLeaf atom){
 			for(int i=0;i<min.length;i++){
-				atom.coord.position().PE(i,-1*min[i]);	
-				atom.coord.position().PE(i,-0.5*dim[i]);
+				atom.getCoord().position().PE(i,-1*min[i]);	
+				atom.getCoord().position().PE(i,-0.5*dim[i]);
 			}
 		}
 		public int[] getNumAtoms(){

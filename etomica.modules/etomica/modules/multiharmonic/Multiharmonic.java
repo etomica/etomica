@@ -29,16 +29,8 @@ import etomica.util.HistoryCollapsing;
  * @author David Kofke
  *
  */
-
-/*
- * History
- * Created on Oct 28, 2005 by kofke
- */
 public class Multiharmonic extends Simulation {
 
-    /**
-     * 
-     */
     public Multiharmonic() {
         super(Space1D.getInstance());
         defaults.makeLJDefaults();
@@ -66,7 +58,7 @@ public class Multiharmonic extends Simulation {
         iterator.reset();
         while(iterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)iterator.nextAtom();
-            a.coord.position().setX(0,x0);
+            a.getCoord().position().setX(0,x0);
         }
         activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setDoSleep(true);
@@ -102,6 +94,7 @@ public class Multiharmonic extends Simulation {
         historyEnergy.setTimeDataSource(timeCounter);
     }
 
+    private static final long serialVersionUID = 1L;
     MeterEnergy meterEnergy;
     AccumulatorAverage accumulatorEnergy;
     AccumulatorHistory historyEnergy;

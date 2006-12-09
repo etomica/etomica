@@ -114,7 +114,7 @@ public class IntegratorCoordConfigWriter implements IntegratorIntervalListener,
 				int i=0;
 				
 				while (iterator.hasNext()){
-					Vector atomPosition = ((AtomLeaf)iterator.nextAtom()).coord.position();
+					Vector atomPosition = ((AtomLeaf)iterator.nextAtom()).getCoord().position();
 					for (int j=0;j < phasedim.D();j++){
 						double actualDistance;
 						
@@ -191,7 +191,7 @@ public class IntegratorCoordConfigWriter implements IntegratorIntervalListener,
 			iterator.reset();
 			int i=0;
 			while (iterator.hasNext()){
-				atomOldCoord[i].E(((AtomLeaf)iterator.nextAtom()).coord.position());
+				atomOldCoord[i].E(((AtomLeaf)iterator.nextAtom()).getCoord().position());
 				i++;
 			}
 		}
@@ -204,7 +204,7 @@ public class IntegratorCoordConfigWriter implements IntegratorIntervalListener,
 			// atomPBIarray is filled here
 			while (iterator.hasNext()){
 				workVector.E(atomOldCoord[i]);
-				workVector.ME(((AtomLeaf)iterator.nextAtom()).coord.position()); 
+				workVector.ME(((AtomLeaf)iterator.nextAtom()).getCoord().position()); 
 				workVector.DE(phaseDim);
 				
 				for (int j=0;j < phaseDim.D();j++){

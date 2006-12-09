@@ -3,18 +3,13 @@ package etomica.models.hexane;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.config.ConfigurationLattice;
-import etomica.graphics.SimulationGraphic;
-import etomica.integrator.IntegratorMC;
-import etomica.integrator.IntegratorPhase;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.crystal.Primitive;
@@ -107,7 +102,7 @@ public class PairIndexerTestSimple extends Simulation {
 
           // determine the pair's dr
             Vector dr = pit.getSpace().makeVector();
-            dr.Ev1Mv2(((AtomLeaf)atom0).coord.position(), ((AtomLeaf)atom1).coord.position());
+            dr.Ev1Mv2(((AtomLeaf)atom0).getCoord().position(), ((AtomLeaf)atom1).getCoord().position());
             if (bin < 0) {
                 throw new RuntimeException("bin was negative, dr="+dr);
             }
@@ -173,6 +168,7 @@ public class PairIndexerTestSimple extends Simulation {
         
     }
 
+    private static final long serialVersionUID = 1L;
     public Phase phase;
     public Primitive prim;
     public static final int SIMPLE_CUBIC = 0;

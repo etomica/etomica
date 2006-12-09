@@ -18,11 +18,6 @@ import etomica.units.Undefined;
  * @author David Kofke
  *
  */
-
-/*
- * History
- * Created on May 25, 2005 by kofke
- */
 public class MeterSpin extends DataSourceScalar implements Meter {
 
     /**
@@ -43,7 +38,7 @@ public class MeterSpin extends DataSourceScalar implements Meter {
         iterator.reset();
         while(iterator.hasNext()) {
             AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
-            sum.PE(atom.coord.position());
+            sum.PE(atom.getCoord().position());
             count++;
         }
         return sum.x(0)/count;
@@ -62,6 +57,7 @@ public class MeterSpin extends DataSourceScalar implements Meter {
         this.phase = phase;
     }
 
+    private static final long serialVersionUID = 1L;
     private Phase phase;
     private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
     private final Vector sum;

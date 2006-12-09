@@ -82,7 +82,7 @@ public class DataSourceProbabilityDensity implements DataSource, IntegratorInter
             double[] atomCount = data.getData();
             while(atomIterator.hasNext()) {
                 AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
-                int x = (int)Math.round(a.coord.position().x(0)+dimensions.x(0)*0.5-0.5);
+                int x = (int)Math.round(a.getCoord().position().x(0)+dimensions.x(0)*0.5-0.5);
                 atomCount[x]++;
             }
         }

@@ -26,7 +26,7 @@ public class ColorSchemePlane extends ColorScheme {
         this.colorOut = colorOut;
     }
     public Color getAtomColor(AtomLeaf a) {
-        return plane.inPlane((Vector3D)a.coord.position()) ? colorIn : colorOut;
+        return plane.inPlane((Vector3D)a.getCoord().position()) ? colorIn : colorOut;
     }
     
     /**

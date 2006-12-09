@@ -6,7 +6,6 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.Potential2Spherical;
 import etomica.simulation.Simulation;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
@@ -92,7 +91,7 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical implements Etomic
      */
     public double energy(AtomSet atoms) {
         AtomPair pair = (AtomPair)atoms;
-        dr.Ev1Mv2(((AtomLeaf)pair.atom1).coord.position(),((AtomLeaf)pair.atom0).coord.position());
+        dr.Ev1Mv2(((AtomLeaf)pair.atom1).getCoord().position(),((AtomLeaf)pair.atom0).getCoord().position());
         nearestImageTransformer.nearestImage(dr);
         return u(dr.squared());
     }
@@ -131,6 +130,7 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical implements Etomic
 		expZ2 = Math.exp(-z2);
 	}
 	
+    private static final long serialVersionUID = 1L;
 	private double sigma;
 	private double epsilon;
 	private double A1;

@@ -4,23 +4,18 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.atom.AtomLeaf;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorMolecule;
+import etomica.data.meter.MeterTemperature;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
-import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.Species;
-import etomica.units.*;
-import etomica.data.meter.MeterTemperature;
-/*
- * Modified by John Coleman for component MSD
- */
+import etomica.units.Kelvin;
 
 /* =====SUMMARY======
  * At each 'writeInterval', which corresponds to a certain number of simulation steps,
@@ -139,7 +134,7 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 				iterator.reset();
 				int i=0;
 				while (iterator.hasNext()){
-					Vector atomPosition = ((AtomLeaf)iterator.nextAtom()).coord.position();
+					Vector atomPosition = ((AtomLeaf)iterator.nextAtom()).getCoord().position();
 					for (int j=0;j < phasedim.D();j++){
 						double actualDistance;
 							
@@ -222,7 +217,7 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 			iterator.reset();
 			int i=0;
 			while (iterator.hasNext()){
-				atomOldCoord[i].E(((AtomLeaf)iterator.nextAtom()).coord.position());
+				atomOldCoord[i].E(((AtomLeaf)iterator.nextAtom()).getCoord().position());
 				i++;
 			}
 		}
@@ -235,7 +230,7 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 			// atomPBIarray is filled here
 			while (iterator.hasNext()){
 				workVector.E(atomOldCoord[i]);
-				workVector.ME(((AtomLeaf)iterator.nextAtom()).coord.position()); 
+				workVector.ME(((AtomLeaf)iterator.nextAtom()).getCoord().position()); 
 				workVector.DE(phaseDim);
 				
 				for (int j=0;j < phaseDim.D();j++){

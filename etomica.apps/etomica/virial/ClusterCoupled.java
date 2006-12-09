@@ -69,7 +69,7 @@ public class ClusterCoupled implements ClusterAbstract {
         AtomLeaf minMaxAtom = null;
         for (int i=1; i<atomList.size(); i++) {
             AtomLeaf atom = (AtomLeaf)atomList.get(i);
-            double r = atom.coord.position().squared(); // sqrt
+            double r = atom.getCoord().position().squared(); // sqrt
             if (r == 1.0) {
                 return 1.0;
             }
@@ -91,10 +91,10 @@ public class ClusterCoupled implements ClusterAbstract {
 //            System.out.println("skipping");
             return -1.0;
         }
-        double r = minMaxAtom.coord.position().squared();  // sqrt
+        double r = minMaxAtom.getCoord().position().squared();  // sqrt
 //        System.out.println(minMaxAtom+" "+r);
 //        System.out.println("picked "+minMaxAtom+" at "+minMaxAtom.coord.position()+" (r="+r+")");
-        minMaxAtom.coord.position().TE(1/r); //(2/r-1);
+        minMaxAtom.getCoord().position().TE(1/r); //(2/r-1);
 //        double rN = Math.sqrt(minMaxAtom.coord.position().squared());
 //        System.out.println("now at "+minMaxAtom.coord.position()+" (r="+rN+")");
         cPairs.reset();

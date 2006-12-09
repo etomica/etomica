@@ -20,10 +20,6 @@ import etomica.space.Space;
  * @author David Kofke
  *  
  */
-
-/*
- * History Created on May 22, 2005 by kofke
- */
 public class P2Spin extends Potential2 {
 
     public P2Spin(Space space) {
@@ -44,7 +40,7 @@ public class P2Spin extends Potential2 {
     public double energy(AtomSet atoms) {
         AtomPair pair = (AtomPair) atoms;
         return -coupling
-                * ((AtomLeaf)pair.atom0).coord.position().dot(((AtomLeaf)pair.atom1).coord.position());
+                * ((AtomLeaf)pair.atom0).getCoord().position().dot(((AtomLeaf)pair.atom1).getCoord().position());
     }
 
     /**
@@ -78,5 +74,6 @@ public class P2Spin extends Potential2 {
         //does nothing
     }
 
+    private static final long serialVersionUID = 1L;
     private double coupling;
 }

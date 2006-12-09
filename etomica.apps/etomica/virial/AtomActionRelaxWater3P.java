@@ -24,11 +24,11 @@ public class AtomActionRelaxWater3P extends AtomActionAdapter {
         AtomLeaf H1 = waterNode.H1;
         AtomLeaf H2 = waterNode.H2;
         // normalize OH1
-        Vector p1 = H1.coord.position();
-        p1.ME(O.coord.position());
+        Vector p1 = H1.getCoord().position();
+        p1.ME(O.getCoord().position());
         p1.TE(1/Math.sqrt(p1.squared()));
-        Vector p2 = H2.coord.position();
-        p2.ME(O.coord.position());
+        Vector p2 = H2.getCoord().position();
+        p2.ME(O.getCoord().position());
         p2.TE(1/Math.sqrt(p2.squared()));
         // move H2 to fix bond angle
         double d = p1.dot(p2);
@@ -38,8 +38,8 @@ public class AtomActionRelaxWater3P extends AtomActionAdapter {
         p2.PEa1Tv1(cosAngle,p1);
         p2.TE(distance/Math.sqrt(p2.squared()));
         p1.TE(distance);
-        p1.PE(O.coord.position());
-        p2.PE(O.coord.position());
+        p1.PE(O.getCoord().position());
+        p2.PE(O.getCoord().position());
     }
 
     private static final long serialVersionUID = 1L;

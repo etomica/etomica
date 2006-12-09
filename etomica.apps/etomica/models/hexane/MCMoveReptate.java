@@ -7,7 +7,6 @@ import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIterator;
-import etomica.config.ConformationChain;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMovePhaseStep;
 import etomica.phase.Phase;
@@ -87,28 +86,28 @@ public class MCMoveReptate extends MCMovePhaseStep {
        int numChildren = childlist.size();
        
        if(forward){
-           Vector position = ((AtomLeaf)childlist.get(numChildren-1)).coord.position();
+           Vector position = ((AtomLeaf)childlist.get(numChildren-1)).getCoord().position();
            positionOld.E(position);
            for (int j = numChildren - 1; j > 0; j--) {
-               Vector position2 = ((AtomLeaf)childlist.get(j-1)).coord.position();
+               Vector position2 = ((AtomLeaf)childlist.get(j-1)).getCoord().position();
                position.E(position2);
                position = position2;
            }
            tempV.setRandomSphere();
            tempV.TE(bondLength);
-           ((AtomLeaf)childlist.get(0)).coord.position().PE(tempV);
+           ((AtomLeaf)childlist.get(0)).getCoord().position().PE(tempV);
        }
        else {
-           Vector position = ((AtomLeaf)childlist.get(0)).coord.position();
+           Vector position = ((AtomLeaf)childlist.get(0)).getCoord().position();
            positionOld.E(position);
            for(int j = 0; j < numChildren-1; j++){
-               Vector position2 = ((AtomLeaf)childlist.get(j+1)).coord.position();
+               Vector position2 = ((AtomLeaf)childlist.get(j+1)).getCoord().position();
                position.E(position2);
                position = position2;
            }
            tempV.setRandomSphere();
            tempV.TE(bondLength);
-           ((AtomLeaf)childlist.get(numChildren - 1)).coord.position().PE(tempV);
+           ((AtomLeaf)childlist.get(numChildren - 1)).getCoord().position().PE(tempV);
            
        }
        
@@ -133,22 +132,22 @@ public class MCMoveReptate extends MCMovePhaseStep {
         AtomArrayList childlist = ((AtomTreeNodeGroup)atom.getNode()).getChildList();
         int numChildren = childlist.size();
         if (!forward) {
-            Vector position = ((AtomLeaf)childlist.get(numChildren-1)).coord.position();
+            Vector position = ((AtomLeaf)childlist.get(numChildren-1)).getCoord().position();
             for (int j=numChildren-1; j>0; j--) {
-                Vector position2 = ((AtomLeaf)childlist.get(j-1)).coord.position();
+                Vector position2 = ((AtomLeaf)childlist.get(j-1)).getCoord().position();
                 position.E(position2);
                 position = position2;
             }
-            ((AtomLeaf)childlist.get(0)).coord.position().E(positionOld);
+            ((AtomLeaf)childlist.get(0)).getCoord().position().E(positionOld);
         }
         else {
-            Vector position = ((AtomLeaf)childlist.get(0)).coord.position();
+            Vector position = ((AtomLeaf)childlist.get(0)).getCoord().position();
             for (int j=0; j<numChildren-1; j++) {
-                Vector position2 = ((AtomLeaf)childlist.get(j+1)).coord.position();
+                Vector position2 = ((AtomLeaf)childlist.get(j+1)).getCoord().position();
                 position.E(position2);
                 position = position2;
             }
-            ((AtomLeaf)childlist.get(numChildren-1)).coord.position().E(positionOld);
+            ((AtomLeaf)childlist.get(numChildren-1)).getCoord().position().E(positionOld);
         }
         
         
@@ -185,6 +184,7 @@ public class MCMoveReptate extends MCMovePhaseStep {
     
     
     
+    private static final long serialVersionUID = 1L;
     protected final MeterPotentialEnergy energyMeter;
 //    protected final Vector translationVector;
     private Atom atom;
@@ -193,7 +193,6 @@ public class MCMoveReptate extends MCMovePhaseStep {
     protected AtomSource atomSource;
     protected boolean fixOverlap;
     private Vector tempV;
-    private ConformationChain conf;
     private Vector positionOld;
     private boolean forward;
     private double bondLength;

@@ -33,7 +33,7 @@ public class MCMoveClusterAtom extends MCMoveAtom {
 		uOld = weightMeter.getDataAsScalar();
         translationVector.setRandomCube();
         translationVector.TE(stepSize);
-        ((AtomLeaf)atom).coord.position().PE(translationVector);
+        ((AtomLeaf)atom).getCoord().position().PE(translationVector);
 		((PhaseCluster)phase).trialNotify();
 		uNew = Double.NaN;
 		return true;

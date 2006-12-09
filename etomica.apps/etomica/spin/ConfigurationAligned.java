@@ -16,11 +16,6 @@ import etomica.space.Vector;
  * @author David Kofke
  *
  */
-
-/*
- * History
- * Created on May 22, 2005 by kofke
- */
 public class ConfigurationAligned extends Configuration {
 
     /**
@@ -39,12 +34,13 @@ public class ConfigurationAligned extends Configuration {
             iterator.setList(atomList[i]);
             iterator.reset();
             while(iterator.hasNext()) {
-                Vector spin = ((AtomLeaf)iterator.nextAtom()).coord.position();
+                Vector spin = ((AtomLeaf)iterator.nextAtom()).getCoord().position();
                 spin.E(0.0);
                 spin.setX(0,1.0);
             }
         }
     }
 
+    private static final long serialVersionUID = 1L;
     private final AtomIteratorArrayListSimple iterator;
 }

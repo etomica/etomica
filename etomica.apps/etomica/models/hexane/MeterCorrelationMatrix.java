@@ -1,11 +1,9 @@
 package etomica.models.hexane;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.atom.iterator.AtomIteratorMolecule;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataTag;
@@ -55,7 +53,7 @@ public class MeterCorrelationMatrix implements Meter {
         //set up the vectors where the original position is stored
         while (atomIterator.hasNext()) {
             AtomLeaf next = (AtomLeaf)atomIterator.nextAtom();
-            op[next.getGlobalIndex()] = (Vector)next.coord.position().clone();
+            op[next.getGlobalIndex()] = (Vector)next.getCoord().position().clone();
         }
         
         //Set up the tempVex.
@@ -65,7 +63,6 @@ public class MeterCorrelationMatrix implements Meter {
         for(int i = 0; i < tempInt; i++){
             tempVex[i] = phase.space().makeVector();
         }
-        te = maxlength/dim/dim;
         counter = new int[maxlength];
         tempTen = phase.space().makeTensor();
         tempTenAgain = phase.space().makeTensor();
@@ -94,7 +91,7 @@ public class MeterCorrelationMatrix implements Meter {
         atomIterator.reset();
         while (atomIterator.hasNext()) {
             atom = (AtomLeaf) atomIterator.nextAtom();
-            tempVex[atom.getGlobalIndex()].E(atom.coord.position());
+            tempVex[atom.getGlobalIndex()].E(atom.getCoord().position());
             tempVex[atom.getGlobalIndex()].ME(op[atom.getGlobalIndex()]);
         }
 
@@ -124,7 +121,7 @@ public class MeterCorrelationMatrix implements Meter {
         while(atomIterator.hasNext()) {
             atom = (AtomLeaf)atomIterator.nextAtom();
             bin = pri.getBin(atom, atom);
-            vex.E(atom.coord.position());
+            vex.E(atom.getCoord().position());
             vex.ME(op[atom.getGlobalIndex()]);
             tempTen.Ev1v2(vex, vex);
 //            System.out.println(atom.getGlobalIndex() +"  "+ bin +"  "+ vex.x(0)+"  "+ vex.x(1) +"  "+ vex.x(2));
@@ -219,7 +216,6 @@ public class MeterCorrelationMatrix implements Meter {
     private final DataTag tag;
     private int maxlength;  //The maximum length of various things
     private int[] counter;
-    private int te;     //related to the maxlength
     private boolean symmetric;
     Tensor tempTen;
     Tensor tempTenAgain;

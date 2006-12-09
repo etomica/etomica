@@ -3,7 +3,6 @@ package etomica.spin;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMovePhase;
@@ -18,11 +17,6 @@ import etomica.simulation.Simulation;
  *
  * @author David Kofke
  *
- */
-
-/*
- * History
- * Created on May 22, 2005 by kofke
  */
 public class MCMoveSpinFlip extends MCMovePhase {
 
@@ -52,7 +46,7 @@ public class MCMoveSpinFlip extends MCMovePhase {
         atom = (AtomLeaf)leafList.get(Simulation.random.nextInt(leafList.size()));
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
-        atom.coord.position().TE(-1);
+        atom.getCoord().position().TE(-1);
         uNew = Double.NaN;
         return true;
     }
@@ -83,7 +77,7 @@ public class MCMoveSpinFlip extends MCMovePhase {
      * @see etomica.integrator.MCMove#rejectNotify()
      */
     public void rejectNotify() {
-        atom.coord.position().TE(-1);
+        atom.getCoord().position().TE(-1);
     }
 
     /* (non-Javadoc)
@@ -101,10 +95,10 @@ public class MCMoveSpinFlip extends MCMovePhase {
         return uNew - uOld;
     }
 
+    private static final long serialVersionUID = 1L;
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     protected final MeterPotentialEnergy energyMeter;
     protected AtomLeaf atom;
     protected double uOld;
     protected double uNew = Double.NaN;
-
 }

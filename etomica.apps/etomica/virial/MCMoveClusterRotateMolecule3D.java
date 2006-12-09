@@ -56,10 +56,10 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
         AtomLeaf first = (AtomLeaf)leafAtomIterator.nextAtom();
         int j=0;
         while (leafAtomIterator.hasNext()) {
-            oldPositions[j++].E(((AtomLeaf)leafAtomIterator.nextAtom()).coord.position());
+            oldPositions[j++].E(((AtomLeaf)leafAtomIterator.nextAtom()).getCoord().position());
         }
         leafAtomIterator.reset();
-        r0.E(first.coord.position());
+        r0.E(first.getCoord().position());
         AtomTransform.doTransform(leafAtomIterator, r0, rotationTensor);
             
         if (trialCount-- == 0) {

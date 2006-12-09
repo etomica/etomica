@@ -14,11 +14,6 @@ import etomica.space.Vector;
  * @author David Kofke
  *
  */
-
-/*
- * History
- * Created on May 24, 2005 by kofke
- */
 public class P1MagneticField extends Potential1 {
 
     /**
@@ -35,7 +30,7 @@ public class P1MagneticField extends Potential1 {
      * @see etomica.Potential#energy(etomica.AtomSet)
      */
     public double energy(AtomSet atoms) {
-        Vector r = ((AtomLeaf)atoms).coord.position();
+        Vector r = ((AtomLeaf)atoms).getCoord().position();
         return h * r.dot(direction);
     }
     
@@ -65,7 +60,8 @@ public class P1MagneticField extends Potential1 {
     public void setH(double h) {
         this.h = h;
     }
+
+    private static final long serialVersionUID = 1L;
     private double h;
     private final Vector direction;
-
 }

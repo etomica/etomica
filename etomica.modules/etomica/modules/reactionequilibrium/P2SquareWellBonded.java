@@ -31,6 +31,7 @@ import etomica.units.Energy;
  */
 public class P2SquareWellBonded extends P2SquareWell {
 
+    private static final long serialVersionUID = 1L;
 	private double barrier;
     protected ReactionEquilibrium agentSource;
     protected Atom[] agents;
@@ -78,8 +79,8 @@ public class P2SquareWellBonded extends P2SquareWell {
             AtomPair pair = (AtomPair) atoms;
             Atom a1Partner = agents[pair.atom0.getGlobalIndex()];
             
-            ICoordinateKinetic coord0 = (ICoordinateKinetic)((AtomLeaf)pair.atom0).coord;
-            ICoordinateKinetic coord1 = (ICoordinateKinetic)((AtomLeaf)pair.atom1).coord;
+            ICoordinateKinetic coord0 = (ICoordinateKinetic)((AtomLeaf)pair.atom0).getCoord();
+            ICoordinateKinetic coord1 = (ICoordinateKinetic)((AtomLeaf)pair.atom1).getCoord();
             dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
             
             dr.Ev1Mv2(coord1.position(), coord0.position());
@@ -107,8 +108,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 
         AtomLeaf atom0 = (AtomLeaf)((AtomPair)pair).atom0;
         AtomLeaf atom1 = (AtomLeaf)((AtomPair)pair).atom1;
-        ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0.coord;
-        ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1.coord;
+        ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0.getCoord();
+        ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1.getCoord();
         dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
         
         dr.Ev1Mv2(coord1.position(), coord0.position());

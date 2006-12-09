@@ -15,6 +15,7 @@ import etomica.space.Space;
 
 public class ConformationTube extends Conformation {
 
+    private static final long serialVersionUID = 1L;
 	int atomsPerRing;
 
 	double tubeRadius;
@@ -69,9 +70,9 @@ public class ConformationTube extends Conformation {
 		while (atomIterator.hasNext()) {
 			AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
 
-			a.coord.position().setX(0, x);
-			a.coord.position().setX(1, y);
-			a.coord.position().setX(2, z);
+			a.getCoord().position().setX(0, x);
+			a.getCoord().position().setX(1, y);
+			a.getCoord().position().setX(2, z);
 
 			N = N + 1;
 

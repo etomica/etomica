@@ -19,7 +19,8 @@ import etomica.virial.PhaseCluster;
  */
 public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap {
 
-    private IntegratorMC integrator1, integrator2;	
+    private static final long serialVersionUID = 1L;
+    private IntegratorMC integrator1, integrator2;
     private AtomIteratorLeafAtoms iterator1 = new AtomIteratorLeafAtoms();
     private AtomIteratorLeafAtoms iterator2 = new AtomIteratorLeafAtoms();
     private AtomIteratorAllMolecules affectedAtomIterator = new AtomIteratorAllMolecules();
@@ -58,10 +59,10 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
             AtomLeaf a2 = (AtomLeaf)iterator2.nextAtom();
 
             //swap coordinates
-            r.E(a1.coord.position());
+            r.E(a1.getCoord().position());
             
-            a1.coord.position().E(a2.coord.position());
-            a2.coord.position().E(r);
+            a1.getCoord().position().E(a2.getCoord().position());
+            a2.getCoord().position().E(r);
         }
 
         //assumes energy will be determined using only pairSets in phases
@@ -101,10 +102,10 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
             AtomLeaf a2 = (AtomLeaf)iterator2.nextAtom();
 
             //swap coordinates
-            r.E(a1.coord.position());
+            r.E(a1.getCoord().position());
             
-            a1.coord.position().E(a2.coord.position());
-            a2.coord.position().E(r);
+            a1.getCoord().position().E(a2.getCoord().position());
+            a2.getCoord().position().E(r);
         }
 
         phase1.rejectNotify();
@@ -135,14 +136,15 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
 		    return AtomIteratorNull.INSTANCE;
     }
 	
-    public static SwapFactory FACTORY = new SwapFactory();
+    public final static SwapFactory FACTORY = new SwapFactory();
     
-    private static class SwapFactory implements IntegratorPT.MCMoveSwapFactory, java.io.Serializable {
+    protected static class SwapFactory implements IntegratorPT.MCMoveSwapFactory, java.io.Serializable {
         public MCMove makeMCMoveSwap(PotentialMaster potentialMaster, 
                                      IntegratorPhase integrator1, IntegratorPhase integrator2) {
             return new MCMoveSwapCluster(potentialMaster, 
                                          (IntegratorMC)integrator1, (IntegratorMC)integrator2);
         }
+        private static final long serialVersionUID = 1L;
     } 
 	
 }

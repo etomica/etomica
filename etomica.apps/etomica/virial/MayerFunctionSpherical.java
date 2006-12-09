@@ -25,7 +25,7 @@ public abstract class MayerFunctionSpherical implements MayerFunction, java.io.S
     public abstract double f(double r2, double beta);
 
     public double f(AtomSet pair, double beta) {
-        dr.Ev1Mv2(((AtomLeaf)((AtomPair)pair).atom1).coord.position(),((AtomLeaf)((AtomPair)pair).atom0).coord.position());
+        dr.Ev1Mv2(((AtomLeaf)((AtomPair)pair).atom1).getCoord().position(),((AtomLeaf)((AtomPair)pair).atom0).getCoord().position());
         return f(dr.squared(), beta);
     }
 

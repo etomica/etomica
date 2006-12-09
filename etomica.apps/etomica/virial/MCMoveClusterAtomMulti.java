@@ -38,7 +38,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
         for(int i=0; i<selectedAtoms.length; i++) {
             translationVectors[i].setRandomCube();
             translationVectors[i].TE(stepSize);
-            selectedAtoms[i].coord.position().PE(translationVectors[i]);
+            selectedAtoms[i].getCoord().position().PE(translationVectors[i]);
         }
 		((PhaseCluster)phase).trialNotify();
 		uNew = Double.NaN;
@@ -64,7 +64,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
 
     public void rejectNotify() {
         for(int i=0; i<selectedAtoms.length; i++) {
-            selectedAtoms[i].coord.position().ME(translationVectors[i]);
+            selectedAtoms[i].getCoord().position().ME(translationVectors[i]);
         }
     	((PhaseCluster)phase).rejectNotify();
     }
@@ -73,6 +73,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
     	((PhaseCluster)phase).acceptNotify();
     }
 
+    private static final long serialVersionUID = 1L;
     private final MeterClusterWeight weightMeter;
     private final AtomLeaf[] selectedAtoms;
     private final Vector[] translationVectors;

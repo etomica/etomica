@@ -27,21 +27,21 @@ public class NormalCoordLeaf implements NormalCoordMapper, Serializable {
     }
 
     public void calcU(Atom atom, int atomCount, double[] u) {
-        Vector pos = ((AtomLeaf)atom).coord.position();
+        Vector pos = ((AtomLeaf)atom).getCoord().position();
         for (int i=0; i<pos.D(); i++) {
             u[i] = pos.x(i) - nominalU[atomCount][i];
         }
     }
 
     public void initNominalU(Atom atom, int atomCount) {
-        Vector pos = ((AtomLeaf)atom).coord.position();
+        Vector pos = ((AtomLeaf)atom).getCoord().position();
         for (int i=0; i<pos.D(); i++) {
             nominalU[atomCount][i] = pos.x(i);
         }
     }
     
     public void setToU(Atom atom, int atomCount, double[] u) {
-        Vector pos = ((AtomLeaf)atom).coord.position();
+        Vector pos = ((AtomLeaf)atom).getCoord().position();
         for (int i=0; i<pos.D(); i++) {
             pos.setX(i,nominalU[atomCount][i]+u[i]);
         }

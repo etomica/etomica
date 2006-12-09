@@ -47,7 +47,7 @@ public class CoordinatePairLeafSet implements java.io.Serializable, CoordinatePa
         int k=0;
         while(iterator.hasNext()) {
             Atom atom = iterator.nextAtom();
-            positions[k++] = ((AtomLeaf)atom).coord.position();
+            positions[k++] = ((AtomLeaf)atom).getCoord().position();
         }
     }
     
@@ -74,6 +74,7 @@ public class CoordinatePairLeafSet implements java.io.Serializable, CoordinatePa
         return ID;
     }
     
+    private static final long serialVersionUID = 1L;
     protected final double[] r2;
     protected final Vector[] positions;
     protected final int numAtoms;
