@@ -91,6 +91,5 @@ public final class SpeciesAgent extends Atom {
             return new AgentAtomTreeNode(atom);
         }
     };
-    public AtomLinker.Tab firstLeafAtomTab;
     
-} //end of SpeciesAgent
+}
