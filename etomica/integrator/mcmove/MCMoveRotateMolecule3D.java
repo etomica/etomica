@@ -63,7 +63,7 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
 
         leafAtomIterator.setRoot(molecule);
         leafAtomIterator.reset();
-        r0.E(molecule.getNode().firstLeafAtom().getCoord().position());
+        r0.E(molecule.getType().getPositionDefinition().position(molecule));
         AtomTransform.doTransform(leafAtomIterator, r0, rotationTensor);
             
         uNew = Double.NaN;
