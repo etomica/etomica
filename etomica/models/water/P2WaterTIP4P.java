@@ -33,15 +33,15 @@ public class P2WaterTIP4P extends Potential2 {
         AtomTreeNodeWater4P node1 = (AtomTreeNodeWater4P)pair.atom0.getNode();
         AtomTreeNodeWater4P node2 = (AtomTreeNodeWater4P)pair.atom1.getNode();
 
-        Vector O1r = node1.O.coord.position();
-        Vector O2r = node2.O.coord.position();
-        Vector H11r = node1.H1.coord.position();
-        Vector H12r = node1.H2.coord.position();
-        Vector H21r = node2.H1.coord.position();
-        Vector H22r = node2.H2.coord.position();
+        Vector O1r = node1.O.getCoord().position();
+        Vector O2r = node2.O.getCoord().position();
+        Vector H11r = node1.H1.getCoord().position();
+        Vector H12r = node1.H2.getCoord().position();
+        Vector H21r = node2.H1.getCoord().position();
+        Vector H22r = node2.H2.getCoord().position();
 
-        Vector M1r = node1.M.coord.position();
-        Vector M2r = node2.M.coord.position();
+        Vector M1r = node1.M.getCoord().position();
+        Vector M2r = node2.M.getCoord().position();
         
 		
         final double core = 0.1;

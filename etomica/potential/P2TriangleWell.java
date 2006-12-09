@@ -42,8 +42,8 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
     public double energy(AtomSet pair) {
         AtomLeaf atom0 = (AtomLeaf)((AtomPair)pair).atom0;
         AtomLeaf atom1 = (AtomLeaf)((AtomPair)pair).atom1;
-        ICoordinate coord0 = atom0.coord;
-        ICoordinate coord1 = atom1.coord;
+        ICoordinate coord0 = atom0.getCoord();
+        ICoordinate coord1 = atom1.getCoord();
         
         dr.Ev1Mv2(coord1.position(), coord0.position());
         nearestImageTransformer.nearestImage(dr);
@@ -67,8 +67,8 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
         
         AtomLeaf atom0 = (AtomLeaf)((AtomPair)pair).atom0;
         AtomLeaf atom1 = (AtomLeaf)((AtomPair)pair).atom1;
-        ICoordinate coord0 = atom0.coord;
-        ICoordinate coord1 = atom1.coord;
+        ICoordinate coord0 = atom0.getCoord();
+        ICoordinate coord1 = atom1.getCoord();
         
         dr.Ev1Mv2(coord1.position(), coord0.position());
         nearestImageTransformer.nearestImage(dr);

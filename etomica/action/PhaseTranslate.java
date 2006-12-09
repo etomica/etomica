@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Oct 27, 2004 by kofke
- */
 package etomica.action;
 
 import etomica.atom.AtomLeaf;
@@ -13,9 +9,9 @@ import etomica.space.Vector;
  * Action that moves (translates) all the atoms in a phase by a specified
  * (vector) amount.
  */
-
 public final class PhaseTranslate extends PhaseActionAdapter implements Undoable {
 
+    private static final long serialVersionUID = 1L;
 	private final Vector translationVector;
     private final AtomIteratorLeafAtoms iterator;
 
@@ -57,7 +53,7 @@ public final class PhaseTranslate extends PhaseActionAdapter implements Undoable
         iterator.setPhase(phase);
         iterator.reset();
         while(iterator.hasNext()) {
-            ((AtomLeaf)iterator.nextAtom()).coord.position().PE(translationVector);
+            ((AtomLeaf)iterator.nextAtom()).getCoord().position().PE(translationVector);
         }
 	}
 

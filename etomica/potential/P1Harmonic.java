@@ -21,14 +21,13 @@ import etomica.units.Length;
  
 public class P1Harmonic extends Potential1 implements PotentialSoft {
     
-    private final int D;
+    private static final long serialVersionUID = 1L;
     private double w = 100.0;
     private final Vector[] force;
     private final Vector x0;
     
     public P1Harmonic(Space space) {
         super(space);
-        D = space.D();
         force = new Vector[]{space.makeVector()};
         x0 = space.makeVector();
     }
@@ -66,7 +65,7 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
     }
 
     public double energy(AtomSet a) {
-        return 0.5*w*((AtomLeaf)a).coord.position().Mv1Squared(x0);
+        return 0.5*w*((AtomLeaf)a).getCoord().position().Mv1Squared(x0);
     }
     
     //XXX consider whether 1-body potentials should contribute to virial
@@ -75,7 +74,7 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
     }
 
     public Vector[] gradient(AtomSet a){
-        Vector r = ((AtomLeaf)a).coord.position();
+        Vector r = ((AtomLeaf)a).getCoord().position();
         force[0].Ev1Mv2(r,x0);
         force[0].TE(w);
             

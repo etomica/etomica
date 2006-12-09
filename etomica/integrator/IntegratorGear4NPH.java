@@ -299,8 +299,8 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
 
                 AtomLeaf atom0 = (AtomLeaf)pair.atom0;
                 AtomLeaf atom1 = (AtomLeaf)pair.atom1;
-                ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0.coord;
-                ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1.coord;
+                ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0.getCoord();
+                ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1.getCoord();
                 dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
                 
                 dr.Ev1Mv2(coord1.position(), coord0.position());

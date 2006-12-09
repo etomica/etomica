@@ -57,8 +57,8 @@ public class P2Tether extends Potential2HardSpherical {
     public final void bump(AtomSet pair, double falseTime) {
         AtomLeaf atom0 = (AtomLeaf)((AtomPair)pair).atom0;
         AtomLeaf atom1 = (AtomLeaf)((AtomPair)pair).atom1;
-        ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0.coord;
-        ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1.coord;
+        ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0.getCoord();
+        ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1.getCoord();
         dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
         
         dr.Ev1Mv2(coord1.position(), coord0.position());
@@ -101,8 +101,8 @@ public class P2Tether extends Potential2HardSpherical {
      * Time at which two atoms will reach the end of their tether, assuming free-flight kinematics
      */
     public final double collisionTime(AtomSet pair, double falseTime) {
-        ICoordinateKinetic coord0 = (ICoordinateKinetic)((AtomLeaf)((AtomPair)pair).atom0).coord;
-        ICoordinateKinetic coord1 = (ICoordinateKinetic)((AtomLeaf)((AtomPair)pair).atom1).coord;
+        ICoordinateKinetic coord0 = (ICoordinateKinetic)((AtomLeaf)((AtomPair)pair).atom0).getCoord();
+        ICoordinateKinetic coord1 = (ICoordinateKinetic)((AtomLeaf)((AtomPair)pair).atom1).getCoord();
         dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
         
         dr.Ev1Mv2(coord1.position(), coord0.position());

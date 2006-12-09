@@ -64,7 +64,7 @@ public class ConfigurationFile extends Configuration {
             coord[i] = Double.valueOf(coordStr[i]).doubleValue();
         }
         newPos.E(coord);
-        atom.coord.position().E(newPos);
+        atom.getCoord().position().E(newPos);
     }
     
     private static final long serialVersionUID = 1L;

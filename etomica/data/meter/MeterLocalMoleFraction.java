@@ -76,7 +76,7 @@ public class MeterLocalMoleFraction extends DataSourceScalar implements Meter {
         iterator.reset();
         while(iterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)iterator.nextAtom();
-            tempVec.Ev1Mv2(a.coord.position(), shapeOrigin);
+            tempVec.Ev1Mv2(a.getCoord().position(), shapeOrigin);
             if(shape.contains(tempVec)) {
                 totalSum++;
                 if(a.getType().getSpecies() == species) speciesSum++;

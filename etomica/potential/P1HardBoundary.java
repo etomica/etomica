@@ -66,8 +66,8 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
         //XXX this doesn't account for inactive walls!
         double e = 0.0;
         Vector dimensions = boundary.getDimensions();
-        double rx = ((AtomLeaf)a).coord.position().x(0);
-        double ry = ((AtomLeaf)a).coord.position().x(1);
+        double rx = ((AtomLeaf)a).getCoord().position().x(0);
+        double ry = ((AtomLeaf)a).getCoord().position().x(1);
         double dxHalf = 0.5*dimensions.x(0);
         double dyHalf = 0.5*dimensions.x(1);
         if((rx < -dxHalf+collisionRadius) || (rx > dxHalf-collisionRadius) ||
@@ -83,8 +83,8 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     public double energyChange() {return 0.0;}
     
     public double collisionTime(AtomSet a, double falseTime) {
-        work.E(((AtomLeaf)a).coord.position());
-        Vector v = ((ICoordinateKinetic)((AtomLeaf)a).coord).velocity();
+        work.E(((AtomLeaf)a).getCoord().position());
+        Vector v = ((ICoordinateKinetic)((AtomLeaf)a).getCoord()).velocity();
         work.PEa1Tv1(falseTime,v);
         Vector dimensions = boundary.getDimensions();
         double tmin = Double.POSITIVE_INFINITY;
@@ -121,8 +121,8 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
 //    public void bump(IntegratorHard.Agent agent) {
 //        Atom a = agent.atom();
     public void bump(AtomSet a, double falseTime) {
-        work.E(((AtomLeaf)a).coord.position());
-        Vector v = ((ICoordinateKinetic)((AtomLeaf)a).coord).velocity();
+        work.E(((AtomLeaf)a).getCoord().position());
+        Vector v = ((ICoordinateKinetic)((AtomLeaf)a).getCoord()).velocity();
         work.PEa1Tv1(falseTime,v);
         Vector dimensions = boundary.getDimensions();
         double delmin = Double.MAX_VALUE;
@@ -145,8 +145,8 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
         }
         v.setX(imin,-v.x(imin));
         // dv = 2*NewVelocity
-        double newP = ((AtomLeaf)a).coord.position().x(imin) - falseTime*v.x(imin)*2.0;
-        ((AtomLeaf)a).coord.position().setX(imin,newP);
+        double newP = ((AtomLeaf)a).getCoord().position().x(imin) - falseTime*v.x(imin)*2.0;
+        ((AtomLeaf)a).getCoord().position().setX(imin,newP);
         double dp = 2.0/(((AtomTypeLeaf)((Atom)a).getType()).rm())*(-v.x(imin));
         lastVirial = dp;
         lastCollisionDim = imin;

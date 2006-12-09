@@ -14,6 +14,7 @@ import etomica.space.Vector;
  */
 public class AtomActionTranslateBy extends AtomActionAdapter {
     
+    private static final long serialVersionUID = 1L;
     private final Vector translationVector;
     
     public AtomActionTranslateBy(Space space) {
@@ -21,7 +22,7 @@ public class AtomActionTranslateBy extends AtomActionAdapter {
     }
     
     public void actionPerformed(Atom atom) {
-        ((AtomLeaf)atom).coord.position().PE(translationVector);
+        ((AtomLeaf)atom).getCoord().position().PE(translationVector);
     }
        
     /**

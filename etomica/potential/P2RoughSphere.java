@@ -51,8 +51,8 @@ public class P2RoughSphere extends P2HardSphere {
     public void bump(AtomSet pair, double falseTime) {
         AtomLeaf atom0 = (AtomLeaf)((AtomPair)pair).atom0;
         AtomLeaf atom1 = (AtomLeaf)((AtomPair)pair).atom1;
-        ICoordinateAngularKinetic coord0 = (ICoordinateAngularKinetic)atom0.coord;
-        ICoordinateAngularKinetic coord1 = (ICoordinateAngularKinetic)atom1.coord;
+        ICoordinateAngularKinetic coord0 = (ICoordinateAngularKinetic)atom0.getCoord();
+        ICoordinateAngularKinetic coord1 = (ICoordinateAngularKinetic)atom1.getCoord();
         Vector v1 = coord0.velocity();
         Vector v2 = coord1.velocity();
         dv.Ev1Mv2(v2, v1);

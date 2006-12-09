@@ -42,10 +42,11 @@ public class AtomPositionGeometricCenter implements AtomPositionDefinition {
         }
         
         public void actionPerformed(Atom a) {
-            vectorSum.PE(((AtomLeaf)a).coord.position());
+            vectorSum.PE(((AtomLeaf)a).getCoord().position());
             nAtoms++;
         }
         
+        private static final long serialVersionUID = 1L;
         private Vector vectorSum;
         public int nAtoms;
     }

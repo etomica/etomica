@@ -1,9 +1,3 @@
-/*
- * Created on Jul 17, 2005
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
 package etomica.integrator.mcmove;
 
 import etomica.atom.AtomLeaf;
@@ -20,11 +14,12 @@ import etomica.space.Vector;
 
 
 /**
-	 * Basic MCMove for swapping coordinates of atoms in two phases.
-	 * Requires same number of atoms in each phase.
-	 */
+ * Basic MCMove for swapping coordinates of atoms in two phases.
+ * Requires same number of atoms in each phase.
+ */
 public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 
+    private static final long serialVersionUID = 1L;
 	private final IntegratorPhase integrator1, integrator2;	
 	private final AtomIteratorLeafAtoms iterator1 = new AtomIteratorLeafAtoms();
 	private final AtomIteratorLeafAtoms iterator2 = new AtomIteratorLeafAtoms();
@@ -77,10 +72,10 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 			AtomLeaf a1 = (AtomLeaf)iterator1.nextAtom();
 			AtomLeaf a2 = (AtomLeaf)iterator2.nextAtom();
 
-			r.E(a1.coord.position());
+			r.E(a1.getCoord().position());
 				
-			a1.coord.position().E(a2.coord.position());
-			a2.coord.position().E(r);
+			a1.getCoord().position().E(a2.getCoord().position());
+			a2.getCoord().position().E(r);
 		}
         ConfigurationOverlapException overlapException = null;
         try {
@@ -127,12 +122,13 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 	    return AtomIteratorNull.INSTANCE;
 	}
     
-    public transient static SwapFactory FACTORY = new SwapFactory();
+    public final static SwapFactory FACTORY = new SwapFactory();
     
-	private static class SwapFactory implements MCMoveSwapFactory, java.io.Serializable {
+	protected static class SwapFactory implements MCMoveSwapFactory, java.io.Serializable {
 	    public MCMove makeMCMoveSwap(PotentialMaster potentialMaster, 
                                      IntegratorPhase integrator1, IntegratorPhase integrator2) {
 	        return new MCMoveSwapConfiguration(potentialMaster, integrator1, integrator2);
 	    }
+        private static final long serialVersionUID = 1L;
 	} 
 }

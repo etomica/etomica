@@ -83,7 +83,7 @@ public final class SceneManager {
             SphereShapeWrapper wrapper = (SphereShapeWrapper)agentIterator.next();
             AtomLeaf a = wrapper.atom;
             int c = colorScheme.atomColor(a);
-            Vector r = a.coord.position();
+            Vector r = a.getCoord().position();
 
             Renderable.Shape shp = wrapper.shape;
             shp.setPosition( r );

@@ -73,8 +73,8 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
      */
     public double energy(AtomSet atoms) {
         AtomPair pair = (AtomPair)atoms;
-        ICoordinateAngular coord0 = (ICoordinateAngular)((AtomLeaf)pair.atom0).coord;
-        ICoordinateAngular coord1 = (ICoordinateAngular)((AtomLeaf)pair.atom1).coord;
+        ICoordinateAngular coord0 = (ICoordinateAngular)((AtomLeaf)pair.atom0).getCoord();
+        ICoordinateAngular coord1 = (ICoordinateAngular)((AtomLeaf)pair.atom1).getCoord();
         dr.Ev1Mv2(coord1.position(),coord0.position());
         nearestImageTransformer.nearestImage(dr);
         double r2 = dr.squared();

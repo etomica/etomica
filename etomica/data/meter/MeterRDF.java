@@ -112,7 +112,7 @@ public class MeterRDF implements DataSource, Meter, DataSourceIndependent, java.
 	    iterator.reset();
 	    while(iterator.hasNext()) {                 //iterate over all pairs
 	    	AtomPair pair = (AtomPair)iterator.next();
-            dr.Ev1Mv2(((AtomLeaf)pair.atom1).coord.position(),((AtomLeaf)pair.atom0).coord.position());
+            dr.Ev1Mv2(((AtomLeaf)pair.atom1).getCoord().position(),((AtomLeaf)pair.atom0).getCoord().position());
             nearestImageTransformer.nearestImage(dr);
 	    	double r2 = dr.squared();       //compute pair separation
 	        if(r2 < xMaxSquared) {
@@ -171,6 +171,7 @@ public class MeterRDF implements DataSource, Meter, DataSourceIndependent, java.
         this.name = name;
     }
     
+    private static final long serialVersionUID = 1L;
     private Phase phase;
     private final Space space;
     protected DataFunction data;

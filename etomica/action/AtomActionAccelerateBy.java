@@ -15,6 +15,7 @@ import etomica.space.Vector;
  */
 public class AtomActionAccelerateBy extends AtomActionAdapter {
     
+    private static final long serialVersionUID = 1L;
     private final Vector accelerationVector;
     
     public AtomActionAccelerateBy(Space space) {
@@ -22,7 +23,7 @@ public class AtomActionAccelerateBy extends AtomActionAdapter {
     }
     
     public void actionPerformed(Atom atom) {
-        ((ICoordinateKinetic)((AtomLeaf)atom).coord).velocity().PE(accelerationVector);
+        ((ICoordinateKinetic)((AtomLeaf)atom).getCoord()).velocity().PE(accelerationVector);
     }
        
     /**

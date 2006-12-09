@@ -64,7 +64,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
     private void drawAtom(Graphics g, int origin[], AtomLeaf a) {
         if(!displayPhase.getAtomFilter().accept(a)) return;
         
-        Vector r = a.coord.position();
+        Vector r = a.getCoord().position();
         boolean drawWell = false;
         int sigmaP, xP, yP, baseXP, baseYP;
 
@@ -101,7 +101,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
             
     protected boolean computeShiftOrigin(AtomLeaf a, Boundary b) {
         if(a.getType() instanceof AtomTypeSphere) {
-            float[][] shifts = b.getOverflowShifts(a.coord.position(),0.5*((AtomTypeSphere)a.getType()).getDiameter());  //should instead of radius have a size for all AtomC types
+            float[][] shifts = b.getOverflowShifts(a.getCoord().position(),0.5*((AtomTypeSphere)a.getType()).getDiameter());  //should instead of radius have a size for all AtomC types
             for(int i=0; i<shifts.length; i++) {
                 shiftOrigin[0] = displayPhase.getOrigin()[0] + (int)(displayPhase.getToPixels()*shifts[i][0]);
                 shiftOrigin[1] = displayPhase.getOrigin()[1] + (int)(displayPhase.getToPixels()*shifts[i][1]);

@@ -1,12 +1,8 @@
 package etomica.atom;
 
-import java.io.IOException;
-
 import etomica.space.CoordinateFactorySphere;
 import etomica.space.ICoordinate;
 import etomica.space.Space;
-import etomica.util.Arrays;
-import etomica.util.EtomicaObjectInputStream;
 
  /**
   * Object corresponding to one physical atom or group of atoms. Each atom holds
@@ -52,8 +48,13 @@ public class AtomLeaf extends Atom {
     }
     
     /**
-     * This atom's coordinate
+     * @return this atom's coordinate
      */
-    public final ICoordinate coord;
+    public ICoordinate getCoord() {
+        return coord;
+    }
+
+    private static final long serialVersionUID = 1L;
+    private final ICoordinate coord;
     
 }

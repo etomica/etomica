@@ -90,7 +90,7 @@ public class ConfigurationSequential extends Configuration {
                 atomActionTranslateTo.actionPerformed(a);
             }
             else {
-                ((AtomLeaf)a).coord.position().E(rLat[i]);
+                ((AtomLeaf)a).getCoord().position().E(rLat[i]);
             }
             i++;
         }

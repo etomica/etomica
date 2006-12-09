@@ -277,7 +277,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
                     }
                 }
                 else {
-                    boundary.nearestImage(((AtomLeaf)atom).coord.position());
+                    boundary.nearestImage(((AtomLeaf)atom).getCoord().position());
                 }
                 neighborCellManager.assignCell(atom);
             }

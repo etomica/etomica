@@ -305,7 +305,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
                 drawOverflow = computeShiftOrigin(a, displayPhase.getPhase().getBoundary());
             }
             Color c = colorScheme.getAtomColor(a);
-            Vector r = a.coord.position();
+            Vector r = a.getCoord().position();
             //Update the positions of the atom
             vert[0] = (float)r.x(0) - xCenter;// + drawExpansionShiftX - 0*(float)temp.x(0);
             vert[1] = (float)r.x(1) - yCenter;// + drawExpansionShiftY - 0*(float)temp.x(1);
@@ -405,7 +405,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
               
   protected boolean computeShiftOrigin(AtomLeaf a, Boundary b) {
     if(a.getType() instanceof AtomTypeSphere)
-      originShifts = b.getOverflowShifts(a.coord.position(),0.5*((AtomTypeSphere)a.getType()).getDiameter());
+      originShifts = b.getOverflowShifts(a.getCoord().position(),0.5*((AtomTypeSphere)a.getType()).getDiameter());
     else
       originShifts = new float[0][0];
     if(originShifts.length == 0) return(false);

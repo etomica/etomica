@@ -71,7 +71,7 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
         while(iterator.hasNext()) {
             rAccum[i] = space.makeVector();
             rLast[i] = space.makeVector();
-            rLast[i].E(((AtomLeaf)iterator.nextAtom()).coord.position());
+            rLast[i].E(((AtomLeaf)iterator.nextAtom()).getCoord().position());
             i++;
         }
     }
@@ -95,15 +95,16 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
             int i = 0;
             //accumulate difference from last coordinate before pbc applied
             while(meter.iterator.hasNext()) {
-                Vector r = ((AtomLeaf)meter.iterator.nextAtom()).coord.position();
+                Vector r = ((AtomLeaf)meter.iterator.nextAtom()).getCoord().position();
                 meter.rAccum[i].PE(r);
                 meter.rAccum[i].ME(meter.rLast[i]);
                 meter.rLast[i].E(r);
                 i++;
             }
-        }//end of intervalAction    
+        }
+        private static final long serialVersionUID = 1L;
         final MeterMeanSquareDisplacement meter;
-    }//end of BeforePbc
+    }
     
     private static class AfterPbc implements IntegratorIntervalListener, java.io.Serializable {
         AfterPbc(MeterMeanSquareDisplacement meter) {
@@ -115,11 +116,13 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
             int i = 0;
             //accumulate difference from last coordinate before pbc applied
             //store last coordinate after pbc applied
-           while(meter.iterator.hasNext()) {meter.rLast[i++].E(((AtomLeaf)meter.iterator.nextAtom()).coord.position());}
-        }//end of intervalAction
+           while(meter.iterator.hasNext()) {meter.rLast[i++].E(((AtomLeaf)meter.iterator.nextAtom()).getCoord().position());}
+        }
+        private static final long serialVersionUID = 1L;
         final MeterMeanSquareDisplacement meter;
-    }//end of AfterPbc
+    }
     
+    private static final long serialVersionUID = 1L;
     private int nAtoms = 0;
     AtomIteratorPhaseDependent iterator;
     IntegratorPhase integrator;

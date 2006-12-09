@@ -8,6 +8,7 @@ import etomica.space.Space;
 
 public class ConformationWater extends Conformation {
 
+    private static final long serialVersionUID = 1L;
     private double bondLengthOH = 4.0;
     private double angleHOH = 109.5*Math.PI/180.;
     private final AtomIteratorArrayListSimple moleculeIterator;
@@ -26,13 +27,13 @@ public class ConformationWater extends Conformation {
         moleculeIterator.reset();
         
         AtomLeaf o = (AtomLeaf)moleculeIterator.nextAtom();
-        o.coord.position().E(new double[] {x, y, 0.0});
+        o.getCoord().position().E(new double[] {x, y, 0.0});
                
         AtomLeaf h1 = (AtomLeaf)moleculeIterator.nextAtom();
-        h1.coord.position().E(new double[] {x+bondLengthOH, y, 0.0});
+        h1.getCoord().position().E(new double[] {x+bondLengthOH, y, 0.0});
                 
         AtomLeaf h2 = (AtomLeaf)moleculeIterator.nextAtom();
-        h2.coord.position().E(new double[] {x+bondLengthOH*Math.cos(angleHOH), y+bondLengthOH*Math.sin(angleHOH), 0.0});
+        h2.getCoord().position().E(new double[] {x+bondLengthOH*Math.cos(angleHOH), y+bondLengthOH*Math.sin(angleHOH), 0.0});
 
     }
         

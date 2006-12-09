@@ -2,7 +2,6 @@ package etomica.integrator.mcmove;
 
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.phase.Phase;
@@ -14,13 +13,9 @@ import etomica.space.Space;
 /**
  * Performs a rotation of an atom (not a molecule) that has an orientation coordinate.
  */
-
- /* History of changes
-  * 7/9/02 Added energyChange() method
-  */
-  
 public class MCMoveRotate extends MCMovePhaseStep {
     
+    private static final long serialVersionUID = 1L;
     private MeterPotentialEnergy energyMeter;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private final Orientation oldOrientation;
@@ -47,7 +42,7 @@ public class MCMoveRotate extends MCMovePhaseStep {
 
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar();
-        orientation = ((ICoordinateAngular)molecule.coord).orientation(); 
+        orientation = ((ICoordinateAngular)molecule.getCoord()).orientation(); 
         oldOrientation.E(orientation);  //save old orientation
         orientation.randomRotation(stepSize);
         uNew = Double.NaN;

@@ -9,7 +9,8 @@ import etomica.space.Vector;
 public class AtomPositionDefinitionSimple implements AtomPositionDefinition, java.io.Serializable {
 
     public Vector position(Atom atom) {
-        return ((AtomLeaf)atom).coord.position();
+        return ((AtomLeaf)atom).getCoord().position();
     }
 
+    private static final long serialVersionUID = 1L;
 }

@@ -56,7 +56,7 @@ public class MeterBondOrderParameterQ  extends DataSourceScalar implements Meter
         pairIterator.reset();
         while(pairIterator.hasNext()) {
             AtomPair pair = (AtomPair)pairIterator.next();
-            dr.Ev1Mv2(((AtomLeaf)pair.atom1).coord.position(),((AtomLeaf)pair.atom0).coord.position());
+            dr.Ev1Mv2(((AtomLeaf)pair.atom1).getCoord().position(),((AtomLeaf)pair.atom0).getCoord().position());
             nearestImageTransformer.nearestImage(dr);
         	double r2 = dr.squared();
             if(r2 < r2Cut) {

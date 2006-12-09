@@ -105,7 +105,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 		while(atomIterator.hasNext()) {
 			AtomLeaf a = (AtomLeaf) atomIterator.nextAtom();
             if (!(a.getType() instanceof AtomTypeSphere)) continue;
-			a.coord.position().assignTo(coords);
+			a.getCoord().position().assignTo(coords);
 			Long id = (Long)aam.getAgent(a);
             double diameter = ((AtomTypeSphere)a.getType()).getDiameter();
 			gsys.modFig(id.longValue(), colorScheme.getAtomColor(a),
@@ -126,7 +126,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 	public Object makeAgent(Atom a) {
 		if ( !(a instanceof AtomLeaf) || !(a.getType() instanceof AtomTypeSphere)) return null;
 		double[] coords = new double[3];
-		((AtomLeaf)a).coord.position().assignTo(coords);
+		((AtomLeaf)a).getCoord().position().assignTo(coords);
 
         double diameter = ((AtomTypeSphere)a.getType()).getDiameter();
 		long l = gsys.addFig(G3DSys.BALL, displayPhase.getColorScheme().getAtomColor((AtomLeaf)a),

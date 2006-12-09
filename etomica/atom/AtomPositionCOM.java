@@ -45,7 +45,7 @@ public class AtomPositionCOM implements AtomPositionDefinition, Serializable {
         }
         public void actionPerformed(Atom a) {
             double mass = ((AtomTypeLeaf)a.getType()).getMass();
-            vectorSum.PEa1Tv1(mass, ((AtomLeaf)a).coord.position());
+            vectorSum.PEa1Tv1(mass, ((AtomLeaf)a).getCoord().position());
             massSum += mass;
         }
         private static final long serialVersionUID = 1L;

@@ -172,7 +172,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
 	    	iterator.reset();
 	    	while(iterator.hasNext()) {
 	    		AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
-	    		double r2 = Space.r2(atom.coord.position(), r[i], boundary);
+	    		double r2 = Space.r2(atom.getCoord().position(), r[i], boundary);
 	    		if(r2 < r2Min) {
 	    			r2Min = r2;
 	    			nearest[i] = atom;
@@ -292,7 +292,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         iterator.setPhase(this);
         iterator.reset();
         while (iterator.hasNext()) {
-            out.writeObject(((AtomLeaf)iterator.nextAtom()).coord);
+            out.writeObject(((AtomLeaf)iterator.nextAtom()).getCoord());
         }
     }
     
@@ -336,7 +336,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         iterator.setPhase(newPhase);
         iterator.reset();
         while (iterator.hasNext()) {
-            ((AtomLeaf)iterator.nextAtom()).coord.E((ICoordinate)in.readObject());
+            ((AtomLeaf)iterator.nextAtom()).getCoord().E((ICoordinate)in.readObject());
         }
         return newPhase;
     }

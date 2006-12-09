@@ -14,9 +14,10 @@ import etomica.space.ICoordinateKinetic;
  * Uses the atom's current momentum to determine this displacement.
  */
 public class AtomFreeFlight extends AtomActionAdapter {
+    private static final long serialVersionUID = 1L;
     private double tStep = 0.0;
     public void actionPerformed(Atom a) {
-        ((AtomLeaf)a).coord.position().PEa1Tv1(tStep,((ICoordinateKinetic)((AtomLeaf)a).coord).velocity());
+        ((AtomLeaf)a).getCoord().position().PEa1Tv1(tStep,((ICoordinateKinetic)((AtomLeaf)a).getCoord()).velocity());
     }
     public void actionPerformed(Atom a, double t) {
         tStep = t;

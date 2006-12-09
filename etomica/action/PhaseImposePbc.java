@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Oct 27, 2004 by kofke
- */
 package etomica.action;
 
 import etomica.atom.Atom;
@@ -66,9 +62,9 @@ public final class PhaseImposePbc extends PhaseActionAdapter implements
         else {
             while (iterator.hasNext()) {
                 AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
-                Vector shift = boundary.centralImage(atom.coord.position());
+                Vector shift = boundary.centralImage(atom.getCoord().position());
                 if (!shift.isZero()) {
-                    atom.coord.position().PE(shift);
+                    atom.getCoord().position().PE(shift);
                 }
             }
         }
@@ -152,6 +148,7 @@ public final class PhaseImposePbc extends PhaseActionAdapter implements
         return moleculePosition;
     }
     
+    private static final long serialVersionUID = 1L;
 	private AtomIteratorPhaseDependent iterator;
     private AtomActionTranslateBy translator;
     private AtomGroupAction moleculeTranslator;
@@ -159,5 +156,4 @@ public final class PhaseImposePbc extends PhaseActionAdapter implements
     private Space space;
 
 	private boolean applyToMolecules;
-
 }

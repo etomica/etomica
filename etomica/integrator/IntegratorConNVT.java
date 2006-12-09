@@ -107,7 +107,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
         double chi;
 		while(atomIterator.hasNext()) {
 			AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
-			Vector v = ((ICoordinateKinetic)a.coord).velocity();
+			Vector v = ((ICoordinateKinetic)a.getCoord()).velocity();
             
 			work1.E(v); //work1 = v
 			work2.E(((Agent)agentManager.getAgent(a)).force);	//work2=F
@@ -125,7 +125,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 		while(atomIterator.hasNext()) {
 			AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
 			Agent agent = (Agent)agentManager.getAgent(a);
-			Vector v = ((ICoordinateKinetic)a.coord).velocity();
+			Vector v = ((ICoordinateKinetic)a.getCoord()).velocity();
 		
 			double scale = (2.0*chi-1.0); 
 			work3.Ea1Tv1(scale,v); 
@@ -139,8 +139,8 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 		atomIterator.reset();
 		while(atomIterator.hasNext()) {
 			AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
-			Vector r = a.coord.position();
-			Vector v = ((ICoordinateKinetic)a.coord).velocity();
+			Vector r = a.getCoord().position();
+			Vector v = ((ICoordinateKinetic)a.getCoord()).velocity();
             
 			work.Ea1Tv1(timeStep,v);
 			work.PE(r);

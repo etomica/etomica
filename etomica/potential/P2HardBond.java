@@ -86,8 +86,8 @@ public class P2HardBond extends Potential2HardSpherical {
     public final void bump(AtomSet pair, double falseTime) {
         AtomLeaf atom0 = (AtomLeaf)((AtomPair)pair).atom0;
         AtomLeaf atom1 = (AtomLeaf)((AtomPair)pair).atom1;
-        ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0.coord;
-        ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1.coord;
+        ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0.getCoord();
+        ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1.getCoord();
         dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
         
         dr.Ev1Mv2(coord1.position(), coord0.position());
@@ -133,8 +133,8 @@ public class P2HardBond extends Potential2HardSpherical {
      * free-flight kinematics
      */
     public final double collisionTime(AtomSet pair, double falseTime) {
-        ICoordinateKinetic coord0 = (ICoordinateKinetic)((AtomLeaf)((AtomPair)pair).atom0).coord;
-        ICoordinateKinetic coord1 = (ICoordinateKinetic)((AtomLeaf)((AtomPair)pair).atom1).coord;
+        ICoordinateKinetic coord0 = (ICoordinateKinetic)((AtomLeaf)((AtomPair)pair).atom0).getCoord();
+        ICoordinateKinetic coord1 = (ICoordinateKinetic)((AtomLeaf)((AtomPair)pair).atom1).getCoord();
         dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
         
         dr.Ev1Mv2(coord1.position(), coord0.position());
@@ -153,8 +153,8 @@ public class P2HardBond extends Potential2HardSpherical {
         if (Debug.ON && Debug.DEBUG_NOW && ((r2 > maxBondLengthSquared && bij > 0.0) ||
                 (r2 < minBondLengthSquared && bij < 0.0))) {
             System.out.println("in P2HardBond.collisionTime, "+pair+" "+r2+" "+bij+" "+maxBondLengthSquared);
-            System.out.println(((AtomLeaf)((AtomPair)pair).atom0).coord.position());
-            System.out.println(((AtomLeaf)((AtomPair)pair).atom1).coord.position());
+            System.out.println(((AtomLeaf)((AtomPair)pair).atom0).getCoord().position());
+            System.out.println(((AtomLeaf)((AtomPair)pair).atom1).getCoord().position());
             throw new RuntimeException("overlap");
         }
         double discr;

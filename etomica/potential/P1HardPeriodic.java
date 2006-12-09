@@ -35,7 +35,7 @@ public class P1HardPeriodic extends Potential1 implements PotentialHard {
     
     public double collisionTime(AtomSet a, double falseTime) {
         if(!(((Atom)a).getType() instanceof AtomTypeSphere)) {return Double.POSITIVE_INFINITY;}
-        Vector v = ((ICoordinateKinetic)((AtomLeaf)a).coord).velocity();
+        Vector v = ((ICoordinateKinetic)((AtomLeaf)a).getCoord()).velocity();
         Vector dim = boundary.getDimensions();
         double tmin = Double.POSITIVE_INFINITY;
         double d2 = 2.0*((AtomTypeSphere)((Atom)a).getType()).getDiameter();
