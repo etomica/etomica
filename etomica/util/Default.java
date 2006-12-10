@@ -61,8 +61,6 @@ public class Default implements java.io.Serializable {
     
     public int historyPeriod = 100;
     
-    public boolean isGraphic = false;
-    
     public boolean ignoreOverlap = false;
     
     public Pixel pixelUnit = new Pixel();
