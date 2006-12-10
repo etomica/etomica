@@ -47,7 +47,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 			if(!reservoir.isEmpty()) testMolecule = reservoir.remove(reservoir.size()-1);
 			else testMolecule = moleculeFactory.makeAtom();
             phase.addMolecule(testMolecule, speciesAgent);
-			position = (Vector3D)phase.randomPosition();
+			position = (Vector3D)phase.getBoundary().randomPosition();
 			double z = position.x(2);
             z *= zFraction;
 			if(nearOrigin) {
