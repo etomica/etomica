@@ -11,34 +11,36 @@ public final class UnitFilter {
 	 * printing out everything to the console.
 	 */
 
-	public static final void main(String[] args) {
+	public static void main(String[] args) {
 		LinkedList dimensionlist = Lister.listdimensions();
+		LinkedList unitlist = Lister.listunits();
 		for (Iterator e = dimensionlist.iterator(); e.hasNext();) {
 			try {
 				String enext = e.next().toString();
+				Class c = Class.forName(enext.toString());
+				enext = enext.substring(14, enext.length());
 				System.out.println("\n" + enext + ":");
-				Class c = Class.forName("etomica.units." + enext);
 				Field dfield = c.getField("DIMENSION");
 				Dimension d = (Dimension) dfield.get(null);
-				filter(d);
+				filter(d, unitlist);
 			} catch (Throwable er) {
 				System.err.println(er);
 			}
 		}
+
 	}
 
 	/*
-	 * This filter accepts a Dimension, goes through all units obtained from
-	 * Lister.listunits, then removes any that are not of the given dimension.
+	 * This filter accepts a Dimension and a list to filter, goes through all
+	 * units obtained from Lister.listunits, then removes any that are not of
+	 * the given dimension.
 	 */
 
-	public static LinkedList filter(Dimension dim) {
-
-		LinkedList unitlist = Lister.listunits();
-
-		for (Iterator e = unitlist.iterator(); e.hasNext();) {
+	public static LinkedList filter(Dimension dim, LinkedList unitlist) {
+		LinkedList currentunitlist = (LinkedList) unitlist.clone();
+		for (Iterator e = currentunitlist.iterator(); e.hasNext();) {
 			try {
-				Class c = Class.forName("etomica.units." + e.next());
+				Class c = Class.forName(e.next().toString());
 				Field ufield = c.getField("UNIT");
 				Unit currentunit = (Unit) ufield.get(null);
 				if (currentunit.dimension() != dim) {
@@ -50,10 +52,12 @@ public final class UnitFilter {
 			}
 		}
 
-		for (Iterator e = unitlist.iterator(); e.hasNext();) {
-			System.out.println(e.next());
+		for (Iterator e = currentunitlist.iterator(); e.hasNext();) {
+			String enext = e.next().toString();
+			enext = enext.substring(14, enext.length());
+			System.out.println(enext);
 		}
-		return unitlist;
+		return currentunitlist;
 
 	}
 }
