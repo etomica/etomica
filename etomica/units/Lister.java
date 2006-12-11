@@ -119,7 +119,7 @@ public static LinkedList classlist() {
             }
             else {
             	if(!processJar(file,file.getAbsolutePath()).isEmpty())
-              	  clist.add(clist.add(processJar(file,file.getAbsolutePath())));
+              	  clist.add(processJar(file,file.getAbsolutePath()));
               }
             
         }
