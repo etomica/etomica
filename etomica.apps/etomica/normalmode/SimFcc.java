@@ -13,7 +13,10 @@ import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntervalActionAdapter;
+import etomica.lattice.BravaisLattice;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.lattice.LatticeCubicSimple;
+import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveFcc;
 import etomica.models.hexane.MeterCorrelationMatrix;
 import etomica.phase.Phase;
@@ -24,7 +27,6 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -66,9 +68,13 @@ public class SimFcc extends Simulation {
         phase.setBoundary(bdry);
         phase.setDensity(density);
 
-        lattice = new LatticeCubicFcc();
+        if (space.D() == 1) {
+            lattice = new LatticeCubicSimple(1,phase.getBoundary().getDimensions().x(0)/numAtoms);
+        }
+        else {
+            lattice = new LatticeCubicFcc();
+        }
         config = new ConfigurationLattice(lattice);
-        // config.setRescalingToFitVolume(false);
 
         config.initializeCoordinates(phase);
 
@@ -80,9 +86,14 @@ public class SimFcc extends Simulation {
      * @param args
      */
     public static void main(String[] args) {
+        int D = 3;
         int nA = 108;
-        String filename = "normal_modes400";
         double density = 1.04;
+        if (D == 1) {
+            nA = 5;
+            density = 0.5;
+        }
+        String filename = "normal_modes3D";
         double simTime = 400;
         if (args.length > 0) {
             filename = args[0];
@@ -97,22 +108,34 @@ public class SimFcc extends Simulation {
             nA = Integer.parseInt(args[3]);
         }
         
-        System.out.println("Running FCC hard sphere simulation");
+        System.out.println("Running "+(D==1 ? "1D" : (D==3 ? "FCC" : "2D hexagonal")) +" hard sphere simulation");
         System.out.println(nA+" atoms at density "+density);
         System.out.println(simTime+" time units");
         System.out.println("output data to "+filename);
 
-        SimFcc sim = new SimFcc(Space3D.getInstance(), nA, density);
+        SimFcc sim = new SimFcc(Space.getInstance(D), nA, density);
         
-        PrimitiveFcc primitive = sim.lattice.getPrimitiveFcc();
+        Primitive primitive = sim.lattice.getPrimitive();
+        if (D == 3) {
+            primitive = ((LatticeCubicFcc)sim.lattice).getPrimitiveFcc();
+        }
         ConfigurationLattice.MyLattice myLattice = (ConfigurationLattice.MyLattice) sim.config
                 .getLatticeMemento();
         Vector scaling = myLattice.latticeScaling;
-        primitive.setCubicSize(primitive.getCubicSize()*scaling.x(0));
+        primitive.scaleSize(scaling.x(0));
 
         MeterNormalMode meterNormalMode = new MeterNormalMode();
         meterNormalMode.setNormalCoordWrapper(new NormalCoordLeaf(sim.getSpace()));
-        WaveVectorFactoryFcc waveVectorFactory = new WaveVectorFactoryFcc(primitive);
+        WaveVectorFactory waveVectorFactory;
+        if (D == 1) {
+            waveVectorFactory = new WaveVectorFactory1D(primitive);
+        }
+        else if (D == 2) {
+            waveVectorFactory = null;
+        }
+        else {
+            waveVectorFactory = new WaveVectorFactoryFcc((PrimitiveFcc)primitive);
+        }
         meterNormalMode.setWaveVectorFactory(waveVectorFactory);
         meterNormalMode.setPhase(sim.phase);
 
@@ -164,6 +187,6 @@ public class SimFcc extends Simulation {
     public MeterCorrelationMatrix meterCorrelation;
     public Phase phase;
     public BoundaryRectangularPeriodic bdry;
-    public LatticeCubicFcc lattice;
+    public BravaisLattice lattice;
     public ConfigurationLattice config;
 }

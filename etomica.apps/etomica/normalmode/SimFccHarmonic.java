@@ -19,8 +19,9 @@ import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntervalActionAdapter;
+import etomica.lattice.BravaisLattice;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.lattice.crystal.PrimitiveFcc;
+import etomica.lattice.LatticeCubicSimple;
 import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
@@ -29,8 +30,6 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.space3d.Space3D;
-import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -73,24 +72,16 @@ public class SimFccHarmonic extends Simulation {
         PhaseImposePbc makeperiodic = new PhaseImposePbc(phase);
         integrator.addListener(makeperiodic);
 
-        lattice = new LatticeCubicFcc();
+        if (space.D() == 1) {
+            lattice = new LatticeCubicSimple(1,phase.getBoundary().getDimensions().x(0)/numAtoms);
+        }
+        else {
+            lattice = new LatticeCubicFcc();
+        }
         ConfigurationLattice config = new ConfigurationLattice(lattice);
-        // config.setRescalingToFitVolume(false);
 
         config.initializeCoordinates(phase);
 
-        // nan this section is a patch
-        // first we find out the scaling used in
-        // ConfigurationLattice/LatticeCubicFcc
-        // then, we create a primitive fcc lattice, and scale it so we can use
-        // it in pri.
-        primitive = lattice.getPrimitiveFcc();
-        ConfigurationLattice.MyLattice myLattice = (ConfigurationLattice.MyLattice) config
-                .getLatticeMemento();
-        Vector scaling = myLattice.latticeScaling;
-        primitive.setCubicSize(primitive.getCubicSize()*scaling.x(0));
-
-        // nan phase.setDensity(1.04);
         integrator.setPhase(phase);
 
     }
@@ -99,9 +90,14 @@ public class SimFccHarmonic extends Simulation {
      * @param args
      */
     public static void main(String[] args) {
+        int D = 1;
         int nA = 108;
-        String filename = "normal_modes400";
         double density = 1.04;
+        if (D == 1) {
+            nA = 5;
+            density = 0.5;
+        }
+        String filename = "normal_modes1D";
         double simTime = 1000;
         if (args.length > 0) {
             filename = args[0];
@@ -116,12 +112,12 @@ public class SimFccHarmonic extends Simulation {
             nA = Integer.parseInt(args[3]);
         }
         
-        System.out.println("Running FCC hard sphere simulation, measuring harmonic energy");
+        System.out.println("Running "+(D==1 ? "1D" : (D==3 ? "FCC" : "2D hexagonal")) +" hard sphere simulation, measuring harmonic energy");
         System.out.println(nA+" atoms at density "+density);
         System.out.println(simTime+" time units");
         System.out.println("output data to "+filename);
 
-        SimFccHarmonic sim = new SimFccHarmonic(Space3D.getInstance(), nA, density);
+        SimFccHarmonic sim = new SimFccHarmonic(Space.getInstance(D), nA, density);
         
         double harmonicFudge = .25;
         
@@ -135,11 +131,13 @@ public class SimFccHarmonic extends Simulation {
         double[][] waveVectorsAndCoefficients = ArrayReader1D.getFromFile(filename+".Q");
         Vector[] waveVectors = new Vector[waveVectorsAndCoefficients.length];
         double[] coefficients = new double[waveVectors.length];
+        double[] justWaveVector = new double[D];
         for (int i=0; i<waveVectors.length; i++) {
             coefficients[i] = waveVectorsAndCoefficients[i][0];
-            waveVectors[i] = new Vector3D(waveVectorsAndCoefficients[i][1],
-                    waveVectorsAndCoefficients[i][2],
-                    waveVectorsAndCoefficients[i][3]);
+            for (int j=0; j<D; j++) {
+                justWaveVector[j] = waveVectorsAndCoefficients[i][j+1];
+            }
+            waveVectors[i] = Space.makeVector(justWaveVector); 
         }
         double[][][] eigenvectors = ArrayReader2D.getFromFile(filename+".vec");
 
@@ -230,6 +228,5 @@ public class SimFccHarmonic extends Simulation {
     public ActivityIntegrate activityIntegrate;
     public Phase phase;
     public BoundaryRectangularPeriodic bdry;
-    public LatticeCubicFcc lattice;
-    public PrimitiveFcc primitive;
+    public BravaisLattice lattice;
 }
